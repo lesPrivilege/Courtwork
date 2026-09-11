@@ -187,3 +187,9 @@ DEC-012 接收补注（Astra）：本次采用9.6不追加代码改动或自动�
 ### DEC-012 补充 · 首屏分层（2026-09-08）
 
 用户同意 Fable 对 Astra 候选的裁取：Pages H1 用 "Turn AI output into work you can build on." / "把 AI 的产出，变成接得下去的工作。"；Paper 句退为命题一图与 Paper 桥标题；品牌句作字标副句；Home hero 不改。原首屏项据此修订，见 [WK-77](mvp/execution/work-surface-kit/intake-round-3.md) 与 [public-copy §3](release/2026-09-08/public-copy.md)。
+
+## DEC-013 · Runtime / Work术语与架构发布准备（2026-09-11）
+
+状态：Astra文档语义裁决；用户保留本Astra裁决权，独立架构review后续提交。来源与逐项消费见[入账包](research/deepseek-runtime-2026-09-11/README.md)。接受[概念边界](architecture-runtime-canon.md)：Runtime为执行组合，Model/Runtime Adapter分工，Expert声明专业要求，Work Compiler是目标编译责任，正式状态/Review归现Core。拒绝Schema严格包含公式、compiler吞并所有控制接口与“已解耦”表述；不立即自研DeepSeek loop。
+
+本轮更新README/架构、主roadmap与后端DRT候选，准备[图表合同](release/architecture-reconciliation-2026-09-11.md)；用户下一轮交Claude串行绘制。[Chat阅读](design/chat-reading-2026-09-11.md)补入DR-04。现Pi0.85.1、RuntimeStore12/Core4/app5，产品代码/存储/权限不变。SE措辞建议留输入，不更新PAPER固定SHA或历史snapshot。独立review、新协议证据或具体实现反例可触发重开。

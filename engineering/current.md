@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-11 · Runtime架构与发布语义准备
+
+已登记[DeepSeek Runtime会话与两份附件](research/deepseek-runtime-2026-09-11/README.md)，Astra完成DEC-013[概念/实际实现裁决](architecture-runtime-canon.md)，修正架构页RuntimeStore当前版本为12（Core4/app5不变）。README、后端DRT-01–04候选、[下一轮图表合同](release/architecture-reconciliation-2026-09-11.md)及[Chat阅读四项合同](design/chat-reading-2026-09-11.md)已接入。当前仅文档准备，未实施解耦/DeepSeek probe/彩色代码或修改Pages；独立架构review由用户后续提交，Claude绘图下一轮串行。原会话架构回答尾部截断如实保留，不补造原文；Paper仍固定SE9.6。
+
+
 ## 2026-09-11 · Pages已发布；独立Design返回已裁决
 
 已取得独立Design的7页/19板及45行返回账。Astra完成[逐DG裁决、五分歧与六PR合同](design/se-control-one-shot-2026-09-11/return-intake.md)：A/A原生glyph进入adopted specimen；header入口分形、现行Attention选中样式、双原子后的五拍方向采纳并修订。返回板旧token级联、部分live/CSS-only主张与引用需修，未原样接受为产品baseline。原始66文件已按hash归档；本轮交付为裁决与施工合同，DR-02–06尚未实现，不改变产品/schema/权限或部署状态。

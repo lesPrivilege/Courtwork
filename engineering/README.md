@@ -1,5 +1,8 @@
 # CourtWork 工程入口
 
+[2026-09-11 Runtime与Work架构裁决](architecture-runtime-canon.md) · [原始输入消费账](research/deepseek-runtime-2026-09-11/README.md) · [发布面与图表准备](release/architecture-reconciliation-2026-09-11.md)。独立架构review后续提交；当前文档准备不等于实现接受。
+
+
 CourtWork当前实现、设计、契约与证据在本仓main维护，唯一持久开发目录为Courtwork。Schema Engineering独立编订论文；冻结旧实现仅通过 [legacy召回索引](ecosystem/legacy-recall-index.md)按需读取。
 
 ## 当前阅读顺序

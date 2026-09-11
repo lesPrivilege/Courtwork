@@ -1,0 +1,888 @@
+# CourtWork Visual Compilation · supplementary intake
+
+Status: **distilled precedent / external-practice index**, not a new architecture decision.
+
+This note recovers the useful parts of the earlier Visual Compiler / Kami discussion that were not previously entered into the repository, and reconciles them with the newly frozen CourtWork architecture vocabulary.
+
+The purpose is not to adopt another visual style or install a visual-generation framework. The purpose is to make diagrams, explanatory graphics, screenshots and generated illustrations **governed artifacts whose semantics, source, maturity and acceptance can survive different agents and renderers**.
+
+---
+
+## 1. Prior-chat decisions worth carrying forward
+
+### VC-01 · Use “CourtWork Visual Compilation” as the working concept
+
+Prefer:
+
+> **CourtWork Visual Compilation**
+
+over a narrow “illustration skill”.
+
+The surface is broader than image generation. It covers:
+
+* architecture diagrams;
+* process/state diagrams;
+* product explanatory figures;
+* product screenshots and annotated screenshots;
+* icons and stable semantic SVG;
+* generated editorial illustrations;
+* publication-page visual explanations.
+
+The useful abstraction is therefore a **visual compilation pipeline**, not an image generator.
+
+---
+
+### VC-02 · Consume Kami's governance skeleton, not its house style
+
+[Kami](https://github.com/tw93/Kami) is useful as precedent because it treats visual production as a constrained pipeline with source, schema, render and verification.
+
+Do **not** inherit its visual identity wholesale:
+
+* parchment;
+* ink blue;
+* serif-led hierarchy;
+* print/editorial composition;
+* its specific template family.
+
+CourtWork already owns a different product/publication visual language.
+
+What should be extracted is the process:
+
+```text
+intent
+  ↓
+execution / output contract
+  ↓
+content or semantic IR
+  ↓
+schema / invariant check
+  ↓
+layout / figure selection
+  ↓
+render
+  ↓
+deterministic checks
+  ↓
+perceptual visual review
+  ↓
+accepted artifact
+```
+
+This is the strongest reusable idea from Kami.
+
+Kami itself now makes the same distinction explicitly: content schemas are filled and validated before layout, and maintained repo diagrams are treated as source assets rather than one-shot images.
+
+Reference:
+[Kami diagrams](https://github.com/tw93/Kami/blob/main/references/diagrams.md)
+
+---
+
+## 2. Three visual asset classes
+
+Do not put every visual task through the same renderer.
+
+### A. Canonical semantic icon / SVG
+
+Use when the visual object has stable interaction or product semantics.
+
+Examples:
+
+* Review;
+* Matter;
+* Attention;
+* artifact/document states;
+* stable control/icon slots.
+
+Properties:
+
+```text
+small
+repeatable
+semantic
+token-governed
+implementation-owned
+```
+
+These belong closer to the design system / icon registry than to Visual Compilation.
+
+They should not be regenerated casually by an image model.
+
+---
+
+### B. Governed diagram
+
+Use when correctness depends on explicit objects and relations:
+
+* architecture;
+* ownership;
+* state transitions;
+* lifecycle;
+* compilation path;
+* permission / review flow;
+* data flow;
+* dependency topology.
+
+Properties:
+
+```text
+semantic source
+→ typed nodes / edges / groups
+→ validated visual view
+→ SVG / HTML / PNG projection
+```
+
+This is the preferred class for the newly frozen architecture.
+
+A governed diagram should be reconstructible from its semantic definition and visual contract.
+
+---
+
+### C. Generated illustration
+
+Use only where the claim is inherently illustrative rather than topological:
+
+* analogy;
+* editorial explanation;
+* conceptual scene;
+* visual metaphor;
+* expressive campaign material.
+
+Image generation is the renderer, not the source of truth.
+
+The brief is the governed artifact.
+
+A generated illustration should therefore begin from something like:
+
+```yaml
+claim:
+placement:
+smallest_display_size:
+accepted_reference:
+must_preserve:
+must_not_show:
+
+visual_grammar:
+  shape:
+  material:
+  identity:
+  motion:
+  annotation:
+
+composition:
+  focal_point:
+  reading_direction:
+  complexity:
+  density:
+
+semantic_constraints:
+  maturity:
+  authority:
+  state_distinctions:
+
+qc:
+  - ...
+```
+
+A generated image that violates the brief is regenerated or rejected; the semantic contract is not patched to explain the output.
+
+---
+
+## 3. Architecture diagrams should become a maintained asset class
+
+The earlier chat proposed keeping maintained diagrams roughly as:
+
+```text
+semantic / prompt contract
++ editable source
++ rendered projection
+```
+
+Kami now provides a particularly useful concrete precedent:
+
+```text
+prompt.md
+index.html + inline SVG
+rendered PNG
+```
+
+Its important rule is not the exact file format. It is:
+
+> Never redraw a maintained diagram from memory.
+
+Before a visual agent touches an existing diagram it should consume:
+
+```text
+1. semantic / figure contract
+2. current editable source
+3. current rendered output
+4. architecture / DEC facts that define its named objects and edges
+```
+
+Then update all projections together.
+
+For CourtWork, a stronger native form could eventually become:
+
+```text
+figure.contract.*
+figure source / model
+SVG
+optional PNG
+registry entry
+verification receipt
+```
+
+Exact representation should remain an implementation choice until Codex reviews current repo constraints.
+
+---
+
+## 4. Separate model from view for architecture figures
+
+This is the strongest addition from the new Exa sweep.
+
+[Structurizr](https://docs.structurizr.com/as-code) explicitly separates an architecture **model** from its **views**.
+[LikeC4](https://likec4.dev/) similarly keeps a textual architecture model as source and generates multiple views, with Git versioning, validation, diff and agent/MCP access.
+
+This maps extremely well to CourtWork.
+
+Do not let:
+
+```text
+F1 ownership diagram
+F2 compile flow
+F3 runtime anatomy
+README compact architecture
+Pages explanatory architecture
+```
+
+be five independently authored SVGs.
+
+Prefer conceptually:
+
+```text
+Architecture Model
+    │
+    ├── View: ownership
+    ├── View: compile path
+    ├── View: runtime anatomy
+    └── View: README compact
+```
+
+The model contains canonical:
+
+* elements;
+* containment;
+* ownership;
+* allowed relationships;
+* maturity/state where needed.
+
+A view decides:
+
+* which elements are visible;
+* reading direction;
+* grouping;
+* focal hierarchy;
+* labels appropriate to its audience.
+
+This is more durable than ordinary Mermaid-as-source because Mermaid normally mixes semantic structure and particular presentation into one artifact.
+
+### Candidate external implementations
+
+**Structurizr**
+Strongest precedent when strict C4 hierarchy and model/view discipline matter.
+
+**LikeC4**
+Especially interesting for CourtWork because it provides:
+
+* configurable semantic vocabulary;
+* textual model;
+* multiple generated views;
+* validation;
+* Git diff;
+* interactive/static embedding;
+* MCP/API surface;
+* PNG / Mermaid / D2 / DrawIO export.
+
+Neither should be adopted merely because it exists. Codex should first determine whether CourtWork's architecture vocabulary fits their model without distortion.
+
+---
+
+## 5. Architecture view != generic boxes-and-arrows file
+
+The previous architecture-figure discussion and current external practice converge on a useful rule:
+
+> **One view answers one question.**
+
+Hence the current proposed set remains sound:
+
+```text
+F1  Ownership / replaceability
+F2  Work Compiler → Run Plan → Runtime dynamic path
+F3  Runtime anatomy
+F4  Existing continuity / commitment figures
+F5  Schema / Work Contract / Expert inset, only if needed
+```
+
+Do not make a single “CourtWork total architecture” diagram carry all five.
+
+Kami's diagram guidance reaches essentially the same conclusion: normal architecture figures have a small node budget; full-system panoramas are a different artifact called an architecture board.
+
+[C4](https://c4model.com/) provides the more general principle: different audiences and questions require different abstraction levels.
+
+---
+
+## 6. Diagram compiler should eventually validate semantics, not only pixels
+
+A visual QA system that only catches:
+
+```text
+overlap
+clipping
+bad contrast
+broken arrow
+```
+
+is insufficient.
+
+CourtWork diagrams can also be checked against architectural invariants.
+
+Examples:
+
+```text
+Expert
+  MUST NOT connect directly to provider/runtime-specific object
+
+Work Core
+  MUST NOT depend on Model Adapter
+
+Provider protocol
+  MUST terminate below Runtime Adapter
+
+Environment
+  MUST NOT be rendered as canonical Matter State
+
+Trace
+  MUST NOT be rendered as Work State
+
+Candidate
+  MUST remain distinguishable from Committed
+
+Professional commitment
+  MUST expose authority / decision boundary
+```
+
+This is the visual equivalent of architecture lint.
+
+The mature direction is therefore:
+
+```text
+semantic validation
+        +
+geometry validation
+        +
+perceptual review
+```
+
+rather than “generate SVG and inspect whether it looks nice”.
+
+LikeC4/Structurizr provide useful precedent for structural validation; current CourtWork visual verification can continue to own its own semantic grammar.
+
+---
+
+## 7. A small Visual IR is worth considering
+
+Do not freeze an implementation yet, but retain this candidate.
+
+A diagram should be able to exist before coordinates:
+
+```yaml
+figure:
+  id: architecture-ownership
+  claim: "CourtWork owns durable work semantics; execution runtimes are replaceable."
+  audience: public-technical
+
+nodes:
+  - id: work-core
+    kind: owned-semantic-core
+  - id: expert
+    kind: professional-capability
+  - id: compiler
+    kind: compiler
+  - id: runtime-adapter
+    kind: adapter
+  - id: runtime
+    kind: replaceable-runtime
+
+relationships:
+  - from: expert
+    to: compiler
+    kind: declares
+  - from: compiler
+    to: runtime-adapter
+    kind: emits-run-plan
+  - from: runtime-adapter
+    to: runtime
+    kind: realizes
+
+view:
+  question: "What does CourtWork own and what is replaceable?"
+  direction: top-bottom
+  focal: [work-core, compiler]
+```
+
+Then:
+
+```text
+Visual IR
+  ↓
+layout
+  ↓
+SVG / HTML / other renderer
+```
+
+This is analogous to Schema Engineering itself:
+
+```text
+semantic state ≠ projection
+```
+
+Applied to diagrams:
+
+```text
+diagram semantics ≠ SVG coordinates
+```
+
+That is the most important conceptual bridge from Visual Compilation back into SE.
+
+---
+
+## 8. Visual Grammar should be governed separately from semantic IR
+
+Earlier exploration produced a useful candidate grammar:
+
+```text
+Shape
+Material
+Identity
+Motion
+```
+
+Retain it as **visual grammar**, not architecture ontology.
+
+Possible interpretation:
+
+### Shape
+
+Geometry and silhouette:
+
+* corner system;
+* line curvature;
+* container shape;
+* boundary treatment;
+* marker shape;
+* density.
+
+### Material
+
+Surface treatment:
+
+* solid / translucent;
+* line weight;
+* blur;
+* border;
+* fill;
+* paper/glass/metal-like abstraction where justified.
+
+### Identity
+
+What makes an otherwise structurally correct artifact feel like CourtWork:
+
+* characteristic annotations;
+* line/rule use;
+* sparse attention accent;
+* typography;
+* figure numbering;
+* distinctive object treatment;
+* recurring diagram motifs.
+
+### Motion
+
+How meaning changes over time:
+
+* reveal;
+* progression;
+* state transition;
+* trace;
+* focus;
+* compare.
+
+Motion should explain a process or relationship, never rescue an incomprehensible static figure.
+
+This layer can evolve substantially without changing the semantic model.
+
+---
+
+## 9. Shape / Corner / Generative Identity remain exploratory, not frozen
+
+The earlier discussion accepted these as worthwhile directions to explore, not as a finished design system.
+
+Useful principle:
+
+> Instead of letting an agent select arbitrary visual values, give it a bounded grammar and vary one axis at a time.
+
+Example:
+
+```text
+same semantic fixture
+×
+corner hypothesis A/B/C
+```
+
+or:
+
+```text
+same architecture figure
+×
+material grammar A/B
+```
+
+This turns “taste” into inspectable deltas rather than one giant visual rewrite.
+
+Specimen boards are therefore an appropriate method for Visual Compilation development.
+
+---
+
+## 10. External precedent: design contracts for agents
+
+Several 2026 projects independently converge on storing visual judgment as machine-readable project state rather than prompt folklore.
+
+### Oh My Design
+
+[Oh My Design](https://github.com/3x-haust/oh-my-design) is high-signal as **process precedent**, not as a dependency.
+
+Its durable loop is approximately:
+
+```text
+brief
+→ evidence
+→ copy
+→ typography proof
+→ composition contract
+→ isolated structural candidates
+→ production build
+→ rendered critique
+→ reframe
+```
+
+Particularly relevant ideas:
+
+* builder and visual reviewer can be separated;
+* references are evidence rather than aesthetic command;
+* final design inputs are hash/freshness bound;
+* screenshots/renders become review evidence;
+* generated cache can be deleted without deleting design intent.
+
+For CourtWork, this reinforces:
+
+```text
+visual intent / contract = durable
+render cache = disposable
+```
+
+---
+
+### `.design`
+
+[AgentsORG/DESIGN](https://github.com/AgentsORG/design) proposes a machine-readable “living visual contract” including:
+
+* identity;
+* intent;
+* tokens;
+* components;
+* patterns;
+* rationale;
+* policies;
+* constraints;
+* examples;
+* integrations.
+
+The implementation is very early and should not be taken as a mature standard.
+
+The useful pattern is narrower:
+
+> **Design decisions that agents must preserve should have one inspectable versioned contract rather than being reconstructed from screenshots every session.**
+
+CourtWork already has stronger design/governance machinery, so this is supporting evidence rather than an adoption candidate.
+
+---
+
+### Get Design Done
+
+`get-design-done` exposes an especially concise compiler loop:
+
+```text
+Brief → Tokens → Spec → Render → Critique
+```
+
+and treats the spec as an executable blueprint.
+
+This is conceptually aligned with Visual Compilation, although CourtWork should keep **semantic figure content** separate from global UI/design tokens.
+
+---
+
+## 11. External precedent: reference extraction should produce a grammar, not cloning instructions
+
+Projects such as `design-dna` turn screenshots and sites into a structured profile of:
+
+```text
+tokens
++ qualitative visual style
++ visual effects
+```
+
+The useful idea is **normalization**:
+
+```text
+reference
+  ↓ inspect
+structured observations
+  ↓ adjudicate
+CourtWork grammar
+```
+
+Not:
+
+```text
+reference
+  ↓
+clone reference
+```
+
+This is consistent with previous CourtWork research practice:
+
+```text
+REFERENCE / REVERSE / REUSE
+```
+
+Each borrowed visual property should say what was taken and what was intentionally not taken.
+
+---
+
+## 12. Neat Annotations: keep as a small presentation primitive
+
+[neat-annotations](https://github.com/syabro/neat-annotations) remains useful, but should sit very low in the hierarchy.
+
+It is:
+
+```text
+inline target
++ directional arrow
++ short annotation
+```
+
+implemented as pure CSS.
+
+Good Pages uses:
+
+* explaining one unusual detail in a screenshot;
+* pointing to a small architectural seam;
+* highlighting “this survives runtime replacement”;
+* annotating a product detail in an editorial section.
+
+It is **not**:
+
+* Review state;
+* validation;
+* Attention;
+* evidence;
+* error UI;
+* architecture semantics.
+
+Its own accessibility guidance says the annotation must not be the sole carrier of essential information.
+
+So classify it as:
+
+```text
+Presentation Annotation Primitive
+status: REFERENCE / possible local vendoring
+semantic authority: none
+```
+
+This prevents a handwritten visual cue from silently becoming a product-state vocabulary.
+
+---
+
+## 13. Proposed Visual Compilation ownership model
+
+The recovered material now fits the frozen architecture cleanly:
+
+```text
+Architecture / Work semantics
+        │
+        │ source facts
+        ▼
+Visual Semantic Contract
+        │
+        ├── claim
+        ├── entities / relations
+        ├── maturity
+        ├── exclusions
+        └── evidence references
+        │
+        ▼
+Visual Compiler
+        │
+        ├── figure selection
+        ├── view / projection
+        ├── visual grammar
+        ├── layout
+        └── renderer selection
+        │
+   ┌────┼──────────────┐
+   ▼    ▼              ▼
+ SVG   HTML        Image renderer
+   │    │              │
+   └────┴──────┬───────┘
+               ▼
+          Visual QA
+               │
+       ┌───────┼────────┐
+       ▼       ▼        ▼
+   semantic  geometry  perceptual
+               │
+               ▼
+       Published projection
+```
+
+The compiler **does not own architecture truth**.
+
+It projects already governed truth.
+
+---
+
+## 14. Source ownership rule
+
+For every maintained explanatory visual, distinguish at least:
+
+```text
+semantic owner
+visual-contract owner
+editable-source owner
+rendered projection
+verification receipt
+```
+
+For example:
+
+```text
+engineering/architecture.md + DEC
+        ↓
+architecture semantic truth
+
+visual figure contract
+        ↓
+which truth this figure communicates
+
+SVG / visual model
+        ↓
+editable rendering source
+
+README / Pages render
+        ↓
+projection
+
+verification / figure registry
+        ↓
+evidence that this projection matches its contract
+```
+
+This prevents the familiar failure mode:
+
+> SVG says one thing, README says another, architecture document changes, nobody knows which artifact is authoritative.
+
+---
+
+## 15. What Codex should investigate before implementation
+
+This note should produce an **external-practice index**, not an immediate framework selection.
+
+Recommended comparison set:
+
+| Reference                                                      | Mine                                                                      | Do not import blindly                          |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------- |
+| [Kami](https://github.com/tw93/Kami)                           | compiler stages, maintained-asset lifecycle, diagram selection, visual QA | house style                                    |
+| [Structurizr](https://structurizr.com/)                        | semantic model → multiple views, C4 validation, Git/agent friendliness    | forced C4 vocabulary where CW semantics differ |
+| [LikeC4](https://likec4.dev/)                                  | custom DSL, model/view split, validation, diff, embedding, MCP            | new dependency before local fit is proven      |
+| [Oh My Design](https://github.com/3x-haust/oh-my-design)       | durable design intent, evidence-first process, blind/render critique      | its large workflow wholesale                   |
+| [AgentsORG/DESIGN](https://github.com/AgentsORG/design)        | versioned machine-readable visual contract                                | treating an early spec as standard             |
+| `design-dna`                                                   | structured extraction from references                                     | cloning another product's identity             |
+| [neat-annotations](https://github.com/syabro/neat-annotations) | small Pages callout primitive                                             | semantic/status carrier                        |
+
+### Explicit questions
+
+1. Can current `figures.json` become the beginning of a Visual Semantic Contract rather than introducing another competing registry?
+2. Should architecture semantics live as a small model-as-code artifact, or are current architecture docs + explicit figure contracts sufficient?
+3. Can F1/F2/F3 be generated as different views of one semantic architecture model?
+4. Which invariants can be checked mechanically against repo architecture/import boundaries?
+5. What renderer should remain authoritative: hand-authored SVG, HTML+SVG, Mermaid normalization, LikeC4/Structurizr export, or a thin owned renderer?
+6. What is the minimum lifecycle needed to prevent architecture figures drifting from decisions and code?
+7. Which current figures are one-shot campaign graphics versus long-lived maintained assets?
+8. Can visual-review receipts bind to exact semantic-source + editable-source hashes?
+
+---
+
+## 16. Anti-goals
+
+Do not turn Visual Compilation into:
+
+```text
+a new design framework
+a universal graphics engine
+a Figma replacement
+a generative-UI runtime
+an illustration agent swarm
+a new product ontology
+a requirement that every visual use one renderer
+```
+
+And specifically:
+
+* do not install Kami into CourtWork merely to inherit its pipeline;
+* do not freeze Kami's aesthetic;
+* do not regenerate stable icons through image models;
+* do not treat generated illustrations as architecture evidence;
+* do not make visual annotations essential state;
+* do not independently hand-author multiple architecture SVGs whose semantics can drift;
+* do not let diagram-generation technology dictate CourtWork architecture vocabulary.
+
+---
+
+## 17. Working thesis
+
+The useful convergence from the prior Chat and the external sweep is:
+
+> **Visual Compilation should do for visual explanations what Work Compiler does for execution: compile governed semantics through an explicit contract into a replaceable projection.**
+
+The analogy has a boundary:
+
+```text
+Work Compiler
+  professional semantics → Executable Run Plan
+
+Visual Compiler
+  semantic explanation → Visual Projection
+```
+
+Neither compiler owns the underlying truth.
+
+For the present architecture-documentation round, this means the immediate task is narrow:
+
+```text
+freeze architecture semantics
+→ establish figure contracts
+→ reconcile existing figures
+→ draw only missing views
+→ verify semantics + geometry + perception
+→ publish
+```
+
+No general Visual Compiler implementation is required for this round.

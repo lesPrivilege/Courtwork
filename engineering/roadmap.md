@@ -1,5 +1,10 @@
 # Long-life Roadmap · 全场景与交互架构
 
+## 2026-09-11 · 架构消费与发布准备
+
+[DEC-013概念与DRT-01–04](architecture-runtime-canon.md)纳入本路线：本轮先完成架构、README和[图合同](release/architecture-reconciliation-2026-09-11.md)，随后用户独立架构review，Claude可视化串行；产品实现仍依基本GUI/通用Harness→自足节点→runtime替换证明。DeepSeek优先作协议与解耦probe，不自动改默认provider或自研loop。[Chat阅读CR-01–04](design/chat-reading-2026-09-11.md)补入DR-04；浮现、syntax color、MD与色阶/weight已登记可消费，未称已实现。后端候选和图表准备不关闭现有产品门。
+
+
 2026-09-11 · WO-VS-01本轮本地候选已完成，产品f99af46，767/767及smoke通过。[交付与范围](../evidence/semantic-polish-20260911/README.md)记录逐表面处置、非作者修补闭合与作者视觉证据；13个Pages截图位保持pending，原生与既有产品门不关闭，未合推/部署。以下准备条目保留历史时点，当前状态以current和本轮执行附件为准。
 
 

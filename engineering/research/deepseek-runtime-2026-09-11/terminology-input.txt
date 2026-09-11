@@ -1,0 +1,261 @@
+## SE terminology reconciliation · Expert prototype / manual loop
+
+### 1. Human expert 与 `Expert` 必须彻底分词
+
+以后：
+
+* **expert / domain expert / human expert**：专业人士；
+* **Expert**：Schema Engineering / CourtWork 中版本化、受治理、可验证的专业能力包。
+
+因此旧称：
+
+> Expert Prototype
+
+建议统一改成：
+
+> **expert-operated prototype**
+
+或在强调协作时：
+
+> **expert-guided prototype**
+
+这样不会让读者误以为“Expert package 的 prototype”。
+
+---
+
+### 2. `manual Agent loop` 改为 `expert-guided work trajectory`
+
+旧称：
+
+> 专家手动 Agent loop
+> repeated manual loop
+> expert manually drives the frontier Agent loop
+
+建议统一抽象为：
+
+> **expert-guided work trajectory**
+
+需要强调多次迭代时：
+
+> **repeated expert-guided work trajectories**
+
+需要强调仍处于原型阶段时：
+
+> **expert-operated frontier workflow**
+
+其含义是：
+
+```text
+human expert
+  identifies the assignment
+  selects / rejects context
+  changes search strategy
+  supplies unstated assumptions
+  reviews intermediate work
+  redirects / retries
+  judges materiality
+  escalates
+  decides whether work is complete
+```
+
+底层可以使用任意 Agent Runtime，但这些轨迹本身不是 Runtime。
+
+---
+
+### 3. `hidden human harness` 改为 `latent work semantics`
+
+旧命题：
+
+> **The expert prototype contains a hidden human harness.**
+
+建议修为：
+
+> **An expert-operated prototype contains latent work semantics that have not yet been externalized into the system.**
+
+更完整的版本：
+
+> **An expert-operated prototype often succeeds because the human expert manually supplies work-contract, compilation, and adjudication decisions that the system has not yet externalized.**
+
+这样保留原洞见，同时不再把所有专家判断都叫做 Harness。
+
+可以把旧的 “hidden human harness” 保留为历史解释性比喻，但不再作为 canonical term。
+
+---
+
+### 4. “author occupies the missing runtime” 应明确废止
+
+旧句：
+
+> The prototype works because the author occupies the missing runtime.
+
+建议改成：
+
+> **The prototype works because the author manually supplies missing work semantics around the runtime.**
+
+更精确：
+
+> **The runtime executes the work, but the expert still supplies the missing decisions about context, evidence, completion, escalation, review, and authority.**
+
+或者更符合这轮新架构：
+
+> **The prototype works because the expert is manually performing parts of the Work Compiler and Work Contract that have not yet been made explicit.**
+
+其中最后一句最有解释力，但不能把所有人工判断都塞进 Work Compiler：有些最终属于 Work Core / Review / Organization Policy。
+
+---
+
+### 5. Prototype → Product 应从“复制 loop”改成“提取并治理工作语义”
+
+推荐主命题：
+
+> **Productizing an expert-operated prototype means externalizing the reusable parts of its latent work semantics without pretending that expert judgment disappears.**
+
+展开为：
+
+```text
+Expert-guided work trajectories
+        ↓ observe / classify
+Domain invariants
+Institution conventions
+Matter-specific context
+Individual preferences
+        ↓ promote selectively
+Schema
+Work Contract
+Organization Policy
+Review / Authority Policy
+Capability Requirements
+Eval / Verifiers
+        ↓ package + qualify
+Candidate Expert
+        ↓ held-out evaluation / review / release authority
+Committed Expert Version
+```
+
+运行时则另走：
+
+```text
+Expert + Matter + Policy
+        ↓ Work Compiler
+Executable Run Plan
+        ↓ Runtime Adapter
+Replaceable Runtime
+```
+
+这两条链不能再混成一条 “manual loop → harness”。
+
+---
+
+### 6. Practice 文 Expert promotion 链建议修成
+
+旧：
+
+```text
+frontier composition / repeated manual loop
+→ Candidate Expert Profile
+→ applicability / exclusions
+→ provenance / source demonstrations
+→ Work Contract and primitive dependency graph
+→ held-out E2E + risk-stratified Review
+→ accepted-work-product / disagreement / reversal observation
+→ release Authority
+→ Committed Expert Version
+```
+
+建议：
+
+```text
+expert-guided demonstrations / work trajectories
+→ extracted work semantics
+→ Candidate Expert
+→ applicability / exclusions
+→ provenance / source demonstrations
+→ Schema + Work Contract + capability requirements
+→ verifier / eval + review / authority policy
+→ held-out E2E + risk-stratified Review
+→ accepted-work-product / disagreement / reversal observation
+→ release Authority
+→ Committed Expert Version
+```
+
+其中：
+
+* `primitive dependency graph` 可降为实现层术语；
+* `capability requirements` 更符合现在 Expert 声明需求、Harness Capability 负责实现的边界；
+* `Candidate Expert Profile` 改成 **Candidate Expert** 或 **Candidate Expert Version**，避免再造 `Profile` 本体。
+
+---
+
+### 7. 2.0 的 `Legal Work Harness` 也应重审
+
+旧图里的 `Legal Work Harness` 同时包含：
+
+* Matter；
+* persistent structured state；
+* evidence / provenance；
+* completion；
+* escalation；
+* artifact production；
+* tools。
+
+按现在的冻结架构，这已经明显跨越：
+
+```text
+Work Core
+Expert
+Work Compiler
+Harness Capability
+Harness Runtime
+```
+
+因此不建议仅改名字。
+
+应把它拆成：
+
+```text
+Expert-guided prototype
+        ↓
+extract / classify latent work semantics
+        ↓
+Schema + Work Contract + Policy
+        ↓
+Candidate / Committed Expert
+        │
+Matter ─┼─ Policy
+        ↓
+Work Compiler
+        ↓
+Run Plan
+        ↓
+Replaceable Runtime
+        ↓
+Candidate Work Product
+        ↓
+Review / Authority / Commitment
+        ↓
+Governed Matter State
+        ↓
+Revision / Eval / Learning
+```
+
+这会成为 SE 新架构图与 CourtWork F1/F2 的理论对应面。
+
+---
+
+### 8. Proposition A 建议正式更新
+
+旧：
+
+> **Expert prototypes contain a hidden human harness.**
+
+新：
+
+> **Expert-operated prototypes contain latent work semantics.**
+
+正文定义：
+
+> A prototype may appear to be `Prompt → Model → Result`, while a domain expert is actually supplying task recognition, context selection, search strategy, omission detection, retry decisions, materiality judgment, escalation, and completion judgment between model calls. Schema Engineering treats these interventions not as one hidden “human runtime,” but as evidence from which reusable work semantics can be classified, governed, compiled, evaluated, and selectively promoted into durable system behavior.
+
+产品化命题：
+
+> **Productizing an expert-operated prototype means externalizing enough reusable work semantics that another qualified user can delegate the work without reproducing the original author's invisible orchestration, while preserving consequential expert judgment at explicit review and authority boundaries.**

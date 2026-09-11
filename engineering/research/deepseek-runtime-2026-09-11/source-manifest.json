@@ -1,0 +1,27 @@
+{
+  "conversation": "6aa39736-a540-83ec-8fb0-81404809dde6",
+  "baseline": "16e9d37a47366de195e1217a6440dd88b660be90",
+  "completeness": "6 turns / 11 messages; architecture assistant suffix truncated; visual supplement completed by user attachment; no inferred suffix",
+  "files": [
+    {
+      "path": "connector-response.json",
+      "bytes": 96817,
+      "sha256": "44225dcba90f547e1e493d70bf4b0f362020a45100ca9908ab90c269f4c722be"
+    },
+    {
+      "path": "input-snapshot.txt",
+      "bytes": 81541,
+      "sha256": "9031a12466a004ef1b4f7af190caa13c0cbd37872508a9bf0e6af98ecda448be"
+    },
+    {
+      "path": "terminology-input.txt",
+      "bytes": 6900,
+      "sha256": "bc79f4aebcea3a1e146ce8159c0333233a98959c7fdcdb60a53e6ea3b7014151"
+    },
+    {
+      "path": "visual-compilation-input.txt",
+      "bytes": 22041,
+      "sha256": "bd57dcaf001ea2977a1a06d324c419629bbbfcfa8581359db6ea53242360c689"
+    }
+  ]
+}

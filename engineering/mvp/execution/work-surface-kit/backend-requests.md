@@ -111,3 +111,7 @@ BE-41后端作者实现（2026-09-10，待组合接收）：[交付与限制](..
 | BE-42 | 研究在 provider/runtime 遥测边界上，给每个请求记录一个 decode 终值：owner 计数的首 token 之后的输出 token 数，owner 单调钟上从首 token 到末 token 的时长，以及时钟来源。失败、取消、中断时记 null。provider 时钟与 `host-tokenizer` + 宿主收包时钟是两种测量，分开命名、分开记录，后者不称推理引擎 decode TPS。先不做逐 token 时间序列。不属于 BE-38（BE-38 是错误类别）。 | [TPS specimen](../../../design/tps-specimen-2026-09-10/README.md) §3 与 §11；[参考核验](../../../design/tps-specimen-2026-09-10/reference/README.md)；`app/docs/request-telemetry.md` 第 9 行；WK-141 (b) |
 
 2026-09-11 Astra接收裁决：分配BE-42，状态为已登记/待合同，不是已实现或SD-FIX前置；见[接收与收尾单](../../../execution/2026-09-11-claude-intake/README.md)。上段待分配表述保留原请求时点。
+
+## DRT-01–04 · DeepSeek与Runtime解耦候选（2026-09-11）
+
+Astra已将[接缝清账、DeepSeek协议probe、同Expert替换证明、Profile实验](../../../architecture-runtime-canon.md)登记主roadmap；使用DRT专属编号，不复用BE-40/41/42。本轮仅术语/发布准备，无runtime实现。先基本GUI与通用Harness，协议恢复沿现runtime owner，Core不吸收provider私有state。与BE-42共享遥测口径约束，真实provider按既有GUI授权路径另验；不因本文登记启动付费调用或关闭产品门。

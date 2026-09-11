@@ -1,5 +1,8 @@
 # RD：研究与开发验证
 
+[2026-09-11 DeepSeek Runtime / 架构与Visual Compilation](deepseek-runtime-2026-09-11/README.md)：原始会话、两附件、哈希与Astra逐项处置；架构尾部截断，外部主张分级，非runtime交付。
+
+
 RD 是围绕局部工程问题的研究与验证记录，不等同于完整产品 PRD，也不直接批准实现。索引状态以 [current](../current.md) 为准；实际执行证据记入各RD。
 
 | RD | 负责模块 | 判别问题 | SE 对应 |

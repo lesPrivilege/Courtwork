@@ -1,5 +1,8 @@
 # Engineering release and publication records
 
+[2026-09-11 Architecture / README / Claude figure准备](architecture-reconciliation-2026-09-11.md)：Astra语义与F1–F5逐图合同；用户下一轮串行绘制，当前未改Pages或部署。
+
+
 This directory contains release handoffs, publication preparation and delivery records. Current product status remains [`../current.md`](../current.md); the Pages source and generated-output rules are owned by [`../../site/README.md`](../../site/README.md).
 
 - [2026-09-08 release handoff](2026-09-08/README.md): merge, two-line execution and publication boundaries.

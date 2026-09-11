@@ -1,5 +1,8 @@
 # 前端 roadmap（Fable，2026-09-09 收敛节点）
 
+2026-09-11补充：[Chat阅读CR-01–04](../../../design/chat-reading-2026-09-11.md)纳入DR-04单writer：文字浮现、彩色代码、Markdown层级与色阶/字重。现reader无syntax着色路径；本次仅合同，不称UI交付。
+
+
 ## 2026-09-10 增量 · EX-IC2 与 Chat 全量控件
 
 [范围及来源](../../../design/chat-controls-2026-09-10/README.md) / [PR 施工稿](../../../design/chat-controls-2026-09-10/pr-plan.md)：全量 Chat space Button、hover/focus、tooltip/menu/popover、消息动作和文件卡进入 A 清点 → B 真实槽位 specimen → C 经裁决接线。缺真实后端/宿主能力不挡 A/B，仅登记原 owner 缺口，不能假成功。此项承接 FE-04/CC-I/Iconography，未启动产品 writer、未选择新 family；IC-8 不换族保持。下文队列保留历史时点，当前交付以 engineering/current 为准。

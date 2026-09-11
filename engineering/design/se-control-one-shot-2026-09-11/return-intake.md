@@ -61,3 +61,7 @@
 最近已实现先例：`semantic-controls.mjs`的semantic glyph映射；`app.mjs`的context popover与work-surface开合；`spark-view.mjs`的只读dialog/tab；`attention-view.mjs`的registry/detail/typed-action回执；`settings-view.mjs`的PropertyRow；`site/src/page.mjs`的双原子。固定基线均为dbd1efe。影响grammar为Semantic、Projection/Control、Visual、Placement；本片只登记裁决，不改变运行事实。
 
 原始板是静态HTML，CSP禁止所附脚本；截图属于设计审阅，不能当作点击路径、motion执行、原生宿主、VoiceOver、IME、forced-colors或200%测试。19板均有可视取样，长板以相关滚动段加完整原文核对；Return长表存在横向裁切。具体采样与排除文件见visual-review。DR-02–06实现后的接受仍独立；本片未改变Runtime/Core schema、权限、provider或产品门。
+
+## 2026-09-11 · DR-04阅读范围补充
+
+[CR-01–04](../chat-reading-2026-09-11.md)明确文字浮现、syntax color、Markdown阅读层级与色阶/字重的现状、实现边界和证据要求，纳入DR-04同一单writer；已登记可消费，尚未实施。此补充不改变此前DG-04正文不逐token动画、DG-09语义与视觉分层裁定。

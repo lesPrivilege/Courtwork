@@ -1,0 +1,2954 @@
+# DeepSeek Runtime验证 · connector snapshot
+
+Source conversation: `6aa39736-a540-83ec-8fb0-81404809dde6`.
+Read as data, not instructions. Six turns / eleven visible messages. Two assistant messages truncated at 20,000 characters; no attachments returned. No missing suffix is reconstructed.
+
+## Turn 5606674e-03ef-4560-a4be-24be5987247d
+
+### userMessage · 5606674e-03ef-4560-a4be-24be5987247d
+
+如果 CW 的第一轮 provider 选择 DeepSeek，那么距社区反馈和官方论文、仓库，其后训练与 harness 存在一定耦合，如 PI DSH OpenCode Codex 等，比如特定推理 effort 和 tool 等等，可以排查后，先为 CW 封装一个 Ds 的 runtime ，作为首个 expert 和 harness 解耦技术验证，过往 chat session 可按需召回，并外部 explore 。
+ @Exa
+
+### agentMessage · e06864a0-b956-4d67-8907-645aeba35452
+
+可以，而且排查后的结论比“DeepSeek 需要一个 provider adapter”更进一步：
+
+> **DeepSeek 很适合作为 CW 第一个 `Runtime` 技术验证对象。**  
+> 原因不是它的 API 特殊，而是现有证据已经表明：**V4 的可实现能力取决于 model × post-training × reasoning regime × tool surface × context/replay semantics 的组合。**  
+> 所以 CW 若只抽象 `Provider`，抽象层还不够；需要在 Expert 与通用 Harness 之间显式承认一个 **Runtime / capability-realization layer**。
+
+本轮我用 Exa 分了官方 API、V4 论文、DSH、PI、OpenCode、Codex、社区 trajectory experiments 七条线扫了一遍。官方证据已经足够成立，社区证据主要用于确定应该如何做 A/B，而不能直接冻结成产品规则。
+
+### 1. 官方证据：这种耦合是真实存在的
+
+最强的三条不是社区猜测，而是 DeepSeek 自己写出来的。
+
+第一，V4 后训练本身就单独培养 **agent expert**。V4 论文写得很明确：先分别训练 mathematics / coding / **agent** / instruction-following 等 domain expert，经 SFT + GRPO RL，再通过 on-policy distillation 合回统一模型。[DeepSeek-V4 Technical Report](https://arxiv.org/html/2606.19348)
+
+而且这个 Agent RL 不是纯文本 RL。论文还专门有 `Sandbox Infrastructure for Agentic AI`；其训练基础设施 DSec 覆盖 function、container、microVM、VM 等真实执行环境。因此更准确的理解不是：
+
+`Model intelligence → arbitrary harness`
+
+而是：
+
+`post-trained policy × interaction environment → realized capability`
+
+第二，DeepSeek 自己公开的 V4-Flash Code Agent 成绩就**绑定了 Harness 配置**。7 月 31 日 changelog 明确注明：
+
+> public Code Agent benchmarks 使用 **DeepSeek Harness Minimal mode + max reasoning effort**，并给出对应 sampling 设置。
+
+[DeepSeek Change Log](https://api-docs.deepseek.com/updates/)
+
+而官方 DSH 的 Minimal 不是一句 prompt，而是一个真实 runtime mode：**persistent bash + str_replace_editor 两个工具**；Standard 则暴露完整 coding-agent toolset。[DeepSeek Harness](https://www.deepseek.com/harness/en/)
+
+所以 Benchmark 的结果实际上是：
+
+`V4-Flash + Max + DSH Minimal`
+
+而不是抽象意义上的“V4-Flash”。
+
+第三，V4 的 continuation protocol 本身已经穿透普通 OpenAI-compatible abstraction。当前官方文档规定：
+
+- thinking 默认开启，默认 effort=`high`
+- 当前 effort 是 `low / high / max`
+- thinking mode 下 temperature/top_p 等事实上无效
+- **只要 request 带 `tools`，此前 assistant 的 `reasoning_content` 就必须完整回传到后续请求**
+- 少了会直接 `400`
+- 不带 tools 时则无需如此处理
+
+[Thinking Mode](https://api-docs.deepseek.com/guides/thinking_mode/)
+
+这正是 OpenCode 在 V4 刚上线时踩中的坑：普通 message persistence / normalization 把 `reasoning_content` 丢掉，第一轮正常，工具调用后续行直接 400。[OpenCode #24190](https://github.com/anomalyco/opencode/issues/24190)
+
+这件事非常适合作为 CW runtime seam 的第一块试金石。
+
+---
+
+### 2. PI / DSH / OpenCode / Codex 给出的共同答案
+
+四家路径不同，但实际上正在收敛到同一个架构事实。
+
+| 实践 | 暴露出的事实 | CW 应消费什么 |
+|---|---|---|
+| DSH | DeepSeek 有独立 `llm-deepseek` adapter，reasoning effort、replay、cache accounting 都由 adapter 负责 | Provider dialect 不进入 agent loop |
+| PI | generic provider 仍需 `thinkingFormat: deepseek`、reasoning level map 等 compat metadata | “OpenAI compatible”不足以描述 capability |
+| OpenCode | reasoning metadata 一旦在 persistence / resume / model switch 中丢失，agent loop 就坏 | Runtime protocol state 必须可持久化、可重放 |
+| Codex | DeepSeek 官方不仅配置 `base_url`，还给 Codex 写 `models.json`，描述 reasoning levels、tool format、context、apply_patch 等 | 模型需要 **runtime capability manifest** |
+
+最后一项尤其有意思。DeepSeek 官方现在原生支持 Codex Responses API，但明确只是**部分兼容**：`previous_response_id`、server conversation/store 不支持，MCP、computer use 等内建 tools 也并不因此自动成立；同时它为 Codex 提供完整 model catalog 来声明 capability。[Responses API](https://api-docs.deepseek.com/guides/responses_api) · [Codex integration](https://api-docs.deepseek.com/quick_start/agent_integrations/codex/)
+
+所以：
+
+> **wire compatibility、model capability、harness behavior 是三个不同维度。**
+
+这正好给 CW 一个很干净的抽象切口。
+
+---
+
+## 3. 我建议 CW 不做一个“大号 DeepSeek Provider”，而是拆成四层
+
+```text
+Contract Expert
+     │
+     │ domain intent / governed matter / expected artifact
+     ▼
+ExpertRuntime contract                  ← CW 稳定 seam
+     │
+     ├── DeepSeekRuntime                ← 第一份实现
+     │      ├─ reasoning policy
+     │      ├─ context projection
+     │      ├─ tool-surface policy
+     │      ├─ continuation/replay state
+     │      └─ recovery / budgets
+     │
+     ▼
+CW Harness
+     ├─ Run lifecycle
+     ├─ tool execution / approval
+     ├─ event log
+     ├─ artifact
+     └─ cancel / resume
+     │
+     ▼
+DeepSeekProviderAdapter
+     ├─ auth
+     ├─ model catalog
+     ├─ HTTP/SSE/Responses
+     └─ wire serialization
+```
+
+这和前面已经裁定的 Provider 边界完全一致：**identity/auth/catalog/capabilities/wire transport 仍归 Provider**。Runtime 不应该再拥有 API key、base URL、SSE parser 这些东西。
+
+`DeepSeekRuntime` 真正拥有的是：
+
+**“如何让这个模型在 CW 环境里把已训练能力实现出来。”**
+
+于是以后：
+
+```text
+ContractExpert
+    ├── DeepSeekRuntime
+    ├── CodexRuntime
+    ├── GeminiRuntime
+    └── SovereignRuntime
+```
+
+Expert 本身不需要知道这些名字。
+
+---
+
+## 4. 最重要的一刀：新增 Runtime State，而不是污染 Matter / Session
+
+DeepSeek 的 `reasoning_content` 是最好的反例。
+
+它：
+
+- 必须 durable，否则 resume 后可能无法继续；
+- 必须 fidelity-preserving，否则 provider 会拒绝；
+- 但它显然又**不是 Matter Truth**；
+- 也不应该成为换 Gemini/Codex 后默认塞回模型的工作上下文。
+
+所以 CW 原来的三层现在可以更清晰地补一条支线：
+
+```text
+Event Log
+   ├── Matter projection          durable + governed + provider-neutral
+   ├── Runtime protocol state    durable + runtime-scoped
+   └── Compiled Model Context    ephemeral + model/runtime-dependent
+```
+
+例如：
+
+```text
+runtimeState:
+  runtime: deepseek-v4
+  requestSeries: ...
+  reasoningReplayRefs: [...]
+  toolCallProtocol: ...
+  effectiveEffort: max
+  toolSurfaceHash: ...
+  contextProjectionHash: ...
+```
+
+**Matter 不知道 `reasoning_content`；DeepSeekRuntime 知道。**
+
+这样才能同时实现：
+
+1. DeepSeek session resume 不坏；
+2. Work Session 不绑定 DeepSeek；
+3. 将来中途换 runtime 时，不会错误地把 DS 私有 trajectory 当成通用 memory；
+4. trace 仍然完整可验。
+
+这块其实是此次验证里价值最高的架构成果。
+
+---
+
+## 5. 第一轮不要直接相信 Minimal；把它变成一个可证伪 Runtime Profile
+
+社区已经给了很值得验证的信号，但证据强度还不够让 CW 写死。
+
+例如实验性的 [pi-deepseek-v4-anchor](https://github.com/Sddft97/pi-deepseek-v4-anchor) 将 DSH Minimal 的两工具首轮移植进 PI，然后第一次 durable tool call 后恢复完整工具集。作者自己明确说明：其主要成绩来自**单个 private benchmark、n=2**，不能普遍化。
+
+对应 modeltest 的实验则提示：
+
+- V4 Pro 对首轮 tool schema surface 特别敏感；
+- Flash 更受 persona 影响；
+- Standard / Minimal 会产生明显不同 trajectory；
+- two-stage anchor → promote 在该测试中优于一开始暴露全部工具。
+
+这些非常有意思，但应该进入：
+
+```text
+DeepSeekRuntimeProfile
+├── native
+├── constrained-bootstrap
+└── experimental-anchor
+```
+
+而不是：
+
+```text
+if DeepSeek:
+    tools = [bash, str_replace_editor]
+```
+
+Courtwork 不是 coding agent，更不应该机械搬两个 coding tools。我们真正要验证的是更一般的命题：
+
+> **“较小、稳定、任务相关的初始 capability surface，是否更容易唤起 DeepSeek 后训练出的 agent policy；随后渐进披露能力是否优于一次性全量曝光？”**
+
+这与 CW/SE 自己一直采用的 progressive disclosure 恰好可以做实验性交叉验证，但两者先不要混成同一理论。
+
+---
+
+## 6. 建议第一轮直接切成一个 DS Runtime Probe
+
+我会把施工范围压得很小：
+
+**DS-R0 — Contract。** 定义 `ExpertRuntime`、`RuntimeCapabilities`、`RuntimeProfile`、`RuntimeProtocolState`；不出现 DeepSeek 字样。Expert 只提交受治理 ContextPack、allowed capabilities、artifact expectation。
+
+**DS-R1 — DeepSeek native。** 官方 `deepseek-v4-flash` 为首个默认模型，Provider 处理 Chat/Responses wire；Runtime 支持 `off / low / high / max` capability discovery，而不是把枚举永久写死。完成 reasoning/tool replay、stream、usage、cache hit、cancel/error。
+
+**DS-R2 — Resume torture test。** 强制执行：
+
+`user → reasoning → tool → result → reasoning → tool → result → final → persist → process restart → resume`
+
+然后证明 `reasoning_content` 正确恢复，而 Matter 中查不到这些 provider-private state。
+
+**DS-R3 — Harness A/B。** 同一 fixture，至少比较：
+
+```text
+full tool surface × high
+full tool surface × max
+constrained bootstrap × high
+constrained bootstrap × max
+```
+
+Flash/Pro 可以后续再展开，不必首轮组成 2×4 大矩阵。
+
+**DS-R4 — Expert decoupling proof。** 同一个 Expert 不改代码，用一个 deterministic/fake runtime 或第二 runtime 执行。若 Expert 中出现 `deepseek-v4-*`、`reasoning_content`、`reasoning_effort`、DSML 等字段，此 gate 直接失败。
+
+### 验收指标也应该同时固定
+
+不只看“任务做完没有”，而记录：
+
+`task outcome / tool-call validity / step count / reasoning tokens / visible tokens / TTFT / wall time / cache hit / schema bytes / context bytes / protocol retries / runtime error class / artifact validity`
+
+尤其把 **tool surface hash、runtime profile hash、provider/model revision** 写进 Run trace。否则未来 V4 再 re-post-train，一次能力变化会被错认成 CW regression。
+
+---
+
+## 最终裁决
+
+**我赞成现在做，而且时点恰好。**
+
+DeepSeek 是比 Gemini 更好的第一个 Runtime seam 验证对象，因为它有三个罕见条件同时成立：
+
+1. 官方明确披露了 **agent-specific post-training**；
+2. 官方自己的成绩明确受到 **Harness Minimal + reasoning effort** 条件影响；
+3. API 又存在足够棘手但可精确定义的 **provider-specific continuation semantics**。
+
+因此它可以一次验证三件事：
+
+> **Provider 能否隔离 wire；Runtime 能否封装 capability realization；Expert 能否完全不认识 Harness。**
+
+如果这条线跑通，后续 Codex、PI-like、Gemini、主权模型就不再是“重新设计 CW”，而只是继续给同一个 `ExpertRuntime` seam 提供新的实现与 profile。对于 CW 当前阶段，这比直接继续堆第二、第三个 provider 更有架构信息量。
+
+## Turn a4d5b553-84ae-489e-98e1-43df3a9b3e61
+
+### userMessage · a4d5b553-84ae-489e-98e1-43df3a9b3e61
+
+同意，但先进行架构解耦，和研发概念定义。先召回 Cw 的架构历史裁决，选择一些稳定语义作为文档中的概念出现，一方面对齐外部共识范式，另一方面符合最近论断的理念。
+我猜测，harness core 是为单独 API 封装的，adaptor 是针对特定 api 的低耦合层， work core 在更外层，包含 work 通用语义，即 se 和 cw 理念下的通用协议，数据和组织工程，再加上 work contract (暂定语义，或者叫 expert ? Schema ？Sigma ) 则会是封装好的 experts schema 。如果调伏 codex 作为 runtime ，只会引入 work core 和 contract ，后者在本质上与 harness 的热插拔局部相同，只是按照专业场景定义注入工具，插件，mcp，权重等等，以及 HITL 和 ui —— 与 dsh 的定义接近。同时 adaptor + core 会很接近 dsh 自己的极简模式？
+不过，中间可能一层，harness core 接近于 PI ，还有 harness extension ，带来 multi agent 和 computer use 等依然是 harness 层的功能。
+可以进行 deepresearch @Exa
+
+### agentMessage · 9dbcef9f-3ab9-44ed-bf49-671c16f46f33 · TRUNCATED
+
+这轮 deep research 后，架构可以比上一版再清楚一层。你的方向大体成立，但我会修正两个点：
+
+1. **Harness Core 不应是“为单一 API 封装”**；恰好相反，它应当是 **provider/API-neutral 的最小 agent execution spine**。特定 API 应停在更下方的 Model/Provider Adapter。
+2. “中间一层”确实存在，而且其实有两层：一层是 **Harness Capability / Extension**；另一层是更靠 CW 的 **Work Compiler / Expert Binder**。后者非常重要，它负责把专业工作语义编译到任一 Harness，而不是让 Expert 直接长出 Codex/DSH 私有对象。
+
+我按 CW/SE 历史裁决、Pi、DSH、Codex、OpenAI Agents、Anthropic Managed Agents、MCP、CMMN 八条线交叉复核。结论已经足够形成一版研发概念 Canon。
+
+---
+
+# 一、先恢复 CW 已经真正稳定的东西
+
+最早的 Sparse Work Harness 文档其实已经有雏形：
+
+```text
+Generic Agent Runtime
+    ↓
+Work Extension
+    ↓
+Matter sidecar
+    ↓
+Work Surface
+    ↓
+Candidate
+    ↓
+Review / Commitment
+```
+
+而且当时已经明确：`Store → Govern → Retrieve → Compile`，运行时只激活必要 capability 和当前 state slice；Work Contract 描述“看什么、查哪里、何时切 runtime、怎样比较候选、何时停止”。fileciteturn8file0L19-L38
+
+后来真正发生的演化，是把当初过载的 **Work Extension** 拆开了。
+
+9 月 8 日的 Expert 定本已经冻结：
+
+> **Expert is not an agent persona.**  
+> Expert 是 reusable professional work contract，而非第二套 agent runtime。
+
+并给出了：
+
+```text
+Generic Agent Runtime
+    +
+Expert Work Contract
+    +
+Domain Schema / State
+    +
+Verifier / Eval
+    +
+Optional Capability Requirements
+    +
+Review Surface
+```
+
+且明确 host 继续拥有 model call、tool execution、retry、budget、session lifecycle、persistence、approval、trace。fileciteturn13file0L56-L87
+
+紧接着 GUI/runtime 调研又进一步裁决：
+
+> `Expert = composition`  
+> Chrome owns runtime, state, review, trace, permission, artifact and lifecycle.  
+> Expert owns domain schema and bounded orchestration.
+
+同时规定 **protocols terminate at adapters**，MCP/ACP/AG-UI/A2A/OTel 不得反向定义 CW ontology；并要求 Expert contract 中不得泄漏 framework-specific runtime object。fileciteturn13file7L605-L635 fileciteturn13file4L394-L412
+
+所以现在不是重新发明架构，而是把此前的 `Generic Agent Runtime / Work Extension / Expert` **重新命名和分层到足够精确**。
+
+---
+
+# 二、外部已经出现相当清晰的共同范式
+
+最有价值的是 Pi、DSH、Codex、Anthropic 四家的交集，而不是任意一家具体实现。
+
+### Pi 几乎给出了最干净的下半部
+
+Pi 当前实际是：
+
+```text
+pi-ai
+    ↓
+pi-agent-core
+    ↓
+pi-coding-agent
+    ↓
+extensions / packages
+```
+
+其中 `pi-ai` 自己明确说：
+
+> **Provider is the runtime unit**，拥有 model catalog、auth 和 stream behavior；多个 provider 可以共享更底层的 API implementation / wire protocol。
+
+例如 Anthropic Messages、OpenAI Responses、OpenAI Completions 是 wire/API implementation，而 DeepSeek/OpenRouter/Groq 等是 provider。  
+[Pi `pi-ai`](https://github.com/earendil-works/pi/blob/main/packages/ai/README.md)
+
+而 `pi-agent-core` 是 provider 之上的 **stateful agent + tool execution + event stream**，还明确存在：
+
+```text
+AgentMessage
+    ↓ transformContext()
+    ↓ convertToLlm()
+LLM Message
+```
+
+[Pi Agent Core](https://github.com/earendil-works/pi/blob/main/packages/agent/README.md)
+
+这正说明：
+
+> **API Adapter < Provider < Harness Core**
+
+而不是 Harness Core 围绕某一个 API。
+
+---
+
+### DSH 则给出了 Capability Layer 的漂亮实现
+
+DSH 极端插件化，但其语义层次非常清楚：
+
+```text
+llm adapter seam
+
+session
+system-prompt
+tools
+agent
+agent-loop
+scope
+
++ shell / fs / sandbox / terminals
++ jobs / subagents / workflow
++ web / UI / ...
+```
+
+其 `agent-loop` 本身几乎只是：
+
+```text
+call model
+→ execute tools
+→ append events
+→ repeat
+```
+
+其他行为通过 capability seam / event 插入。更重要的是 DSH 给 `seam` 一个很适合 CW 借用的定义：
+
+```text
+Service Definition
++ Service Provider
++ Consumer
+```
+
+而且明确：
+
+- model provider 是一个 seam；
+- filesystem/shell/sandbox 是 seam；
+- subagent 是 seam；
+- UI 从 session events 渲染，不进入 loop。
+
+[DeepSeek Harness Architecture](https://github.com/deepseek-ai/deepseek-harness/blob/master/docs/architecture.md)
+
+这很好地验证了你的猜测：
+
+> **multi-agent、computer/browser、sandbox、jobs/workflow 等不必进 Harness Core，而是 Harness Capability。**
+
+不过我建议正式文档叫 **Capability**，不要把 `Extension` 当 ontology。
+
+因为：
+
+> Extension 是“怎么打包/挂进去”；  
+> Capability 是“系统实际上具有什么能力”。
+
+DSH 自己也是这么分的。
+
+---
+
+### Codex 则验证了“Work Application 在 Harness 外面”
+
+OpenAI 最近对此写得非常直白。
+
+Codex Core / Harness 负责：
+
+- agent loop
+- thread lifecycle
+- tool execution
+- context
+- sandbox / approvals
+- MCP / skills
+- persistence/events
+
+App Server 把它做成稳定的双向 JSON-RPC runtime surface。
+
+而在最近的 Codex-as-platform 文档里，OpenAI 特意把边界画成：
+
+```text
+Application owns
+    product context
+    business rules
+    tools
+    records
+    controls / UI
+
+Codex owns
+    agent loop
+    conversation
+    streamed activity
+    tool interaction
+    sandboxed execution
+```
+
+[Codex Harness / App Server](https://openai.com/index/unlocking-the-codex-harness/)  
+[Codex as a platform](https://developers.openai.com/blog/codex-as-a-platform)
+
+这其实已经非常接近：
+
+```text
+CourtWork Work Core
+        ↓
+Codex App Server / Harness
+```
+
+而不是 CourtWork 再 fork 一个 Codex。
+
+---
+
+### Anthropic 更进一步把 Harness 自己都“降格”为可替换实现
+
+我认为这篇对 CW 最有价值：
+
+[Scaling Managed Agents: Decoupling the brain from the hands](https://www.anthropic.com/engineering/managed-agents)
+
+他们当前把 agent 虚拟成三个彼此独立接口：
+
+```text
+Session = append-only event log
+Harness = model + tool loop
+Sandbox = execution environment / hands
+```
+
+Harness 可以死掉并重启，因为 durable Session 在外面；Sandbox 也可以死，因为它只是 hand。
+
+而且他们明确区分：
+
+```text
+session ≠ context window
+```
+
+Harness 可以从完整 durable event stream 中选择/变换一部分，再编译成模型 context。
+
+这几乎就是我们此前：
+
+```text
+Event Log ≠ Matter State ≠ Model Context
+```
+
+的外部强旁证，只是 CW 还比它多了一层专业的 Matter State。
+
+---
+
+# 三、因此我建议把 CW canonical architecture 定成这 8 个概念
+
+不是 8 个部署服务，而是 **8 个研发语义**。
+
+```text
+┌──────────────────────────────────────────────┐
+│                 Work Surface                 │
+│  Matter / Artifact / Review / Attention / UI │
+├──────────────────────────────────────────────┤
+│                  Work Core                   │
+│ Matter · Evidence · Authority · Commitment   │
+│ Provenance · Version · Organization Policy   │
+├───────────────────────┬──────────────────────┤
+│       Expert          │     Work Compiler    │
+│ Schema + Contract     │ bind/project/compile │
+│ Eval + Requirements   │ → Executable RunPlan│
+├───────────────────────┴──────────────────────┤
+│             Harness Runtime Port             │
+├──────────────────────────────────────────────┤
+│ Harness Capabilities / Extensions            │
+│ MCP · Skills · Subagents · Browser · Computer│
+│ Sandbox · Jobs · Workflow · Generic HITL     │
+├──────────────────────────────────────────────┤
+│                Harness Core                  │
+│ loop · tool dispatch · events · continuation │
+│ context seam · cancel/resume · run lifecycle │
+├──────────────────────────────────────────────┤
+│             Model / Provider Adapter         │
+│ auth · catalog · capabilities · wire dialect │
+├──────────────────────────────────────────────┤
+│       Model API / Provider / Environment     │
+└──────────────────────────────────────────────┘
+```
+
+其中还有一个与 Harness 正交的：
+
+```text
+Execution Environment / Hands
+```
+
+不要强塞进纵向层级。
+
+---
+
+# 四、逐个冻结定义
+
+## 1. Model / Provider Adapter
+
+这是最靠近供应商的一层。
+
+建议定义：
+
+> **Adapter translates one provider/model protocol into the Harness model seam.**
+
+它负责：
+
+```text
+identity / auth
+model catalog
+capability metadata
+request serialization
+stream normalization
+thinking/reasoning mapping
+tool-call wire format
+provider-specific replay state
+usage/cache/error normalization
+```
+
+DeepSeek 的 `reasoning_content`、Codex Responses 的 encrypted reasoning、Anthropic thinking blocks，全应该死在这里或紧邻它的 provider-specific runtime state。
+
+### 注意不要只叫 `Adapter`
+
+CW 后面还需要另一种 adapter。
+
+建议正式区分：
+
+- **Model Adapter**：Provider/API → Harness LLM seam
+- **Runtime Adapter**：Codex/Pi/DSH → CW Harness Runtime Port
+
+这样不会重演“adapter 到底在适配谁”的混乱。
+
+---
+
+# 五、Harness Core：这里最接近 Pi Agent Core
+
+建议定义：
+
+> **Harness Core is the minimal provider-neutral execution spine that repeatedly turns model decisions into governed actions and observations.**
+
+它可以稳定拥有：
+
+```text
+Run / Turn / Step lifecycle
+model-call loop
+normalized model messages
+tool registry + dispatch lifecycle
+stream/event emission
+continuation
+steer / interrupt
+retry hooks
+context-input seam
+basic execution receipts
+```
+
+这里甚至可以暂时不拥有：
+
+```text
+multi-agent
+browser
+computer use
+workflow engine
+specialized memory
+domain review
+Matter
+Expert
+UI
+```
+
+Pi 的 `pi-agent-core` 是目前最接近这一概念的外部实现。
+
+DSH 的 core 略宽，但其 agent-loop 本身也遵循这一原则。
+
+---
+
+# 六、Harness Capability 比 “Harness Extension” 更适合作为 Canon
+
+这里是你感觉到的“中间一层”。
+
+建议：
+
+> **Capability is a replaceable, discoverable facility available to a Harness Runtime. Extension is one packaging mechanism by which capabilities are contributed.**
+
+典型：
+
+```text
+filesystem
+shell / terminal
+sandbox
+browser
+computer use
+MCP
+skills
+subagent
+multi-agent coordination
+jobs
+workflow
+web/search
+generic user question
+generic approval
+compaction policy
+runtime telemetry
+```
+
+这也符合 MCP 2026 的思想。MCP 本质上是 capability protocol：Host 协调多个 Client，Server 只暴露 resources / tools / prompts，capability negotiation 决定本次请求可用什么，而不是让 MCP 定义上层工作 ontology。  
+[MCP Architecture](https://modelcontextprotocol.io/specification/2026-07-28/architecture)
+
+这正好支持 CW 之前的：
+
+> **Expert owns work semantics; MCP exposes capabilities.**
+
+---
+
+# 七、Runtime 不应该再被定义成“一层代码”
+
+这一点我建议现在就裁掉歧义。
+
+以后：
+
+> **Runtime = a resolved executable composition, not an ontology layer.**
+
+比如：
+
+```text
+DeepSeek Runtime
+=
+DeepSeek Model Adapter
++ Harness Core
++ selected Harness Capabilities
++ Runtime Profile
++ Environment bindings
+```
+
+或者：
+
+```text
+Codex Runtime
+=
+Codex Core
++ its tool/runtime capabilities
++ App Server
++ selected config
+```
+
+所以我们才可以说：
+
+```text
+Codex is a runtime
+Pi can host a runtime
+DSH profile resolves to a runtime
+```
+
+而不会再问“Runtime 和 Core 谁包谁”。
+
+---
+
+# 八、于是你问的 “Adapter + Core ≈ DSH Minimal?”——差一个 Capability Profile
+
+严格说：
+
+```text
+Model Adapter
++ Harness Core
+```
+
+比 DSH Minimal 还更薄。
+
+DSH Minimal 更接近：
+
+```text
+DeepSeek Model Adapter
++ Harness Core
++ Session/Event substrate
++ Prompt/context assembly
++ bash capability
++ str_replace_editor capability
++ filesystem/execution environment
++ technical permission policy
++ Minimal Runtime Profile
+```
+
+即：
+
+> **Minimal 是一个 Runtime Profile，而不是 Core。**
+
+这个区别非常重要。
+
+以后 DeepSeek 那些“Minimal trajectory”实验应写成：
+
+```text
+runtime_profile = deepseek.minimal
+```
+
+而不能让两把工具进入 `HarnessCore`.
+
+---
+
+# 九、再往外一层才是 CourtWork 真正应该自己拥有的 Work Core
+
+这里是 CW 与 PI/DSH/Codex 分家的地方。
+
+建议定义：
+
+> **Work Core is the provider- and harness-independent substrate for durable governed work.**
+
+它拥有的不是 agent execution，而是：
+
+```text
+Matter
+Matter State
+Work Event
+Source / Evidence / Provenance
+Artifact / Candidate / Revision
+Review
+Authority
+Commitment
+Open Obligation
+Attention
+Role
+Organization Policy
+Version / Freshness
+State Transition
+Context Projection policy
+```
+
+以及数据与组织工程：
+
+```text
+who may know
+who may act
+who may propose
+who may review
+who may commit
+which source/revision governs
+which evidence supports which proposition
+what remains unresolved
+```
+
+这里尤其应继续坚守：
+
+```text
+execution receipt ≠ work commitment
+runtime approval ≠ professional approval
+session ≠ matter
+trace ≠ work state
+```
+
+CW 既有 UI 研究也已经裁定：
+
+> elicitation、permission、proposal review、commitment 必须分开。fileciteturn13file7L607-L620
+
+---
+
+# 十、Schema / Work Contract / Expert 不应该三选一
+
+这是我这一轮最想固定的概念。
+
+它们其实是三个不同层级。
+
+### Schema
+
+继续保持 SE 原义，不要膨胀：
+
+> **Schema defines what professional state means.**
+
+它描述：
+
+```text
+entities
+fields
+relations
+states
+invariants
+evidence bindings
+version semantics
+```
+
+例如 NDA：
+
+```text
+Clause
+Position
+Deviation
+Evidence
+Finding
+ProposedEdit
+ReviewDecision
+```
+
+Schema 是 **semantic IR**。
+
+不是 agent、不是 plugin、不是完整 workflow。
+
+---
+
+### Work Contract
+
+建议保留，而且比 Sigma 好得多。
+
+定义为：
+
+> **A Work Contract defines what must become true for one bounded class of professional work to count as validly completed.**
+
+包含：
+
+```text
+required inputs
+required outputs
+applicability
+evidence obligations
+validation gates
+authority requirements
+review obligations
+completion conditions
+failure / escalation rules
+```
+
+这与近期 Anthropic 自己在 harness research 中开始使用的 `sprint contract / default-FAIL contract` 语义也天然对齐：先约定 done 是什么、需要什么证据，再执行。
+
+而 CW 的定义会更严格，因为它包含 professional authority/commitment。
+
+---
+
+### Expert
+
+Expert 是更大的发布/复用单位：
+
+> **Expert is a versioned, governed, host-independent professional capability package composed from schemas, work contracts, policies, verifiers and capability requirements.**
+
+即：
+
+```text
+Expert
+├── Domain Schema(s)
+├── Work Contract(s)
+├── Instructions / Methods
+├── Retrieval / Disclosure Policy
+├── Capability Requirements
+├── Verifiers / Eval
+├── Review / Commit Policy
+├── Surface Semantics
+├── Compatibility / Freshness
+└── Version / Provenance
+```
+
+这实际上已经与 9 月 8 日冻结结构一致。fileciteturn13file0L60-L82
+
+所以我建议正式关系冻结为：
+
+```text
+Schema < Work Contract < Expert
+```
+
+而不是选一个名字覆盖三个概念。
+
+---
+
+# 十一、`Sigma` 暂时不要进 Architecture Canon
+
+我不建议用 Sigma 作为工程层级名。
+
+它的问题不是不好听，而是：
+
+- 无外部共同含义；
+- 一眼无法知道承担什么 contract；
+- 很容易变成产品品牌、内部 codename 与 ontology 混用；
+- 会遮蔽目前终于变清楚的 `Schema / Contract / Expert` 三分法。
+
+如果以后想做产品化命名：
+
+```text
+Sigma
+```
+
+可以是 Expert ecosystem、compiler 或 package format 的品牌名。
+
+但不要让：
+
+```text
+Sigma = schema?
+Sigma = expert?
+Sigma = work contract?
+```
+
+进入技术文档。
+
+---
+
+# 十二、还缺一个非常关键的中间层：Work Compiler
+
+这里正对应你说“如果调伏 Codex 作为 runtime，只引入 Work Core 和 Contract”的感觉。
+
+实际上不能让 Expert 自己直接向 Codex：
+
+```text
+register_tool()
+mount_mcp()
+set_reasoning()
+add_ui()
+spawn_agent()
+```
+
+否则 Expert 很快重新耦合 Harness。
+
+中间应该有：
+
+# **Work Compiler**
+
+既有历史里已经出现过这个东西，只是名字曾在 `Activation Planner / Preset Binder / Expert Router / Primitive Composer` 之间漂移。
+
+8 月 29 日版本的架构已经写成：
+
+```text
+Request + Matter + Role + Stage
+              ↓
+Activation Planner
+├── Preset Binder
+├── Expert Router
+└── Primitive Composer
+              ↓
+Compiled Expert
++ Matter Projection
++ Permission Envelope Intersection
+              ↓
+Executable Run Plan
+              ↓
+Shared Core execution
+```
+
+并且明确 Shared Core “只知道运行、装载、退出、记录、恢复和 fail closed，不知道合同怎样审”。fileciteturn13file3L287-L316
+
+我建议现在把它统一为：
+
+```text
+Work Compiler
+```
+
+下面三个内部机制可以继续叫：
+
+```text
+Preset Binder
+Expert Router
+Primitive Composer
+```
+
+---
+
+# 十三、Work Compiler 的职责就是跨越 Work ↔ Harness 的唯一桥
+
+输入：
+
+```text
+Matter Projection
++ Role
++ Stage
++ Expert
++ Work Contract
++ Organization Policy
++ Available Runtime Capabilities
++ User / Authority envelope
+```
+
+输出：
+
+```text
+Executable Run Plan
+```
+
+例如：
+
+```yaml
+run:
+  matter: contract/acme-nda
+  expert:
+    id: legal.nda_review
+    version: 1.4.0
+  contract:
+    id: inbound_nda_review
+    version: 3
+
+  context:
+    projection: nda.review.v2
+
+  requirements:
+    capabilities:
+      - document.read
+      - document.patch
+      - authority.search
+    interaction:
+      - elicitation
+      - review
+    execution:
+      sandbox: optional
+
+  authority:
+    propose: agent
+    review: legal_reviewer
+    commit: legal_reviewer
+
+  outputs:
+    - finding_set
+    - proposed_redline
+
+  completion:
+    verifier: nda.coverage.v3
+```
+
+注意这里没有：
+
+```text
+Codex
+DeepSeek
+reasoning_content
+MCP stdio
+Claude hooks
+DSH ctx.tools
+```
+
+然后 Runtime Adapter 再把这个 Run Plan 编译为对应 Host 能理解的配置。
+
+---
+
+# 十四、因此 “Expert 注入工具、插件、MCP、权重、HITL、UI” 要稍作改写
+
+你的直觉对，但“Expert 直接注入”会破坏刚刚取得的解耦。
+
+更精确应该是：
+
+```text
+Expert declares requirements and work semantics.
+Work Compiler resolves them.
+Harness capabilities realize them.
+```
+
+比如：
+
+| Expert 声明 | Harness 最终实现 |
+|---|---|
+| `document.search` | MCP / native tool / remote API |
+| `browser.verify` | Playwright / Codex browser / Computer Use |
+| `parallel_research` | subagent / agent team / sequential fallback |
+| `human.review.redline` | CW Review Surface + runtime pause primitive |
+| `private_model` | provider routing |
+| `structured_output` | model native JSON / verifier / parser |
+| `legal_authority_search` | private MCP / SaaS MCP / local index |
+
+这样 Expert 热插拔的本质才真正与 DSH plugin composition 相似：
+
+> **相似的是 composability；不相同的是 ownership。**
+
+DSH Plugin 可以包含 executable implementation。
+
+CW Expert 首先是 **professional semantic package**。
+
+---
+
+# 十五、“权重”尤其不要作为 Expert 直接资产
+
+这里建议特别严格。
+
+Expert 可以声明：
+
+```text
+preferred capability profile
+minimum model capability
+approved model family
+eval-qualified runtime profiles
+```
+
+但不应该写：
+
+```text
+load DeepSeek-V4-Pro-Max
+reasoning_effort=max
+```
+
+作为专业语义本身。
+
+否则模型升级一次，Expert version 就无意义地跟着抖。
+
+更合理：
+
+```text
+Expert
+    ↓
+Capability Requirements
+    ↓
+Runtime Qualification Registry
+    ↓
+DeepSeekRuntime v4-pro/max
+CodexRuntime gpt-x/high
+SovereignRuntime ...
+```
+
+这与我们此前“model-specific scaffolding 会折旧，而 semantic work contracts 会积累”的 SE 判断完全一致。fileciteturn8file3L791-L797
+
+---
+
+# 十六、HITL 同样应该拆成两半
+
+这是个很容易混淆的地方。
+
+Harness 提供：
+
+```text
+pause
+ask
+confirm
+approve tool
+resume
+interrupt
+```
+
+这些是 generic HITL primitives。
+
+Expert / Work Core 定义：
+
+```text
+这个 finding 是否必须律师复核？
+这项偏离谁有权接受？
+这个 redline 是 proposal 还是 committed version？
+什么情况下必须升级 partner？
+```
+
+这些是 **professional authority semantics**。
+
+所以：
+
+```text
+Harness approval
+≠
+Work review
+≠
+Commit authority
+```
+
+这是必须进入概念文档的硬边界。
+
+---
+
+# 十七、UI 也应如此拆开
+
+Harness 可以暴露：
+
+```text
+message
+reasoning status
+tool call
+progress
+approval request
+diff
+subagent activity
+```
+
+这叫 Runtime Surface。
+
+CW Work Surface 则呈现：
+
+```text
+Matter
+Finding
+Evidence
+Deviation
+Candidate
+Review
+Authority
+Version
+Commitment
+Attention
+```
+
+因此 Codex 的 diff UI 可以复用，但不能让 `diff` 变成法律审查的 ontology。
+
+这正是之前已经冻结的：
+
+> protocol/UI primitive 可以借；CW 保留自己的 record/evidence/review/versioning semantics。fileciteturn13file7L622-L635
+
+---
+
+# 十八、最终我建议形成这一版概念树
+
+```text
+CourtWork
+│
+├── Work Surface
+│   └── 人类面对的 Matter / Artifact / Review / Attention
+│
+├── Work Core
+│   ├── Matter
+│   ├── governed state
+│   ├── evidence / provenance
+│   ├── authority
+│   ├── proposal / commitment
+│   ├── organization policy
+│   └── work lifecycle
+│
+├── Expert System
+│   ├── Schema
+│   ├── Work Contract
+│   ├── Expert
+│   └── Expert Registry
+│
+├── Work Compiler
+│   ├── Preset Binder
+│   ├── Expert Router
+│   ├── Primitive Composer
+│   ├── Context Compiler
+│   └── → Executable Run Plan
+│
+├── Harness Runtime Port
+│   └── CW 稳定控制协议
+│
+├── Runtime Adapter
+│   ├── Codex Adapter
+│   ├── Pi Adapter
+│   └── DSH Adapter
+│
+└── Harness Runtime
+    │
+    ├── Harness Core
+    │   ├── agent loop
+    │   ├── turn/step
+    │   ├── model context seam
+    │   ├── tool dispatch
+    │   ├── event stream
+    │   └── continuation/cancel/recovery
+    │
+    ├── Harness Capabilities
+    │   ├── filesystem
+    │   ├── shell
+    │   ├── MCP / Skills
+    │   ├── browser / computer
+    │   ├── subagent / multi-agent
+    │   ├── sandbox
+    │   ├── jobs / workflow
+    │   └── generic HITL
+    │
+    ├── Model Adapter
+    │   ├── DeepSeek
+    │   ├── OpenAI
+    │   ├── Anthropic
+    │   └── Gemini
+    │
+    └── Environment / Hands
+        ├── local
+        ├── sandbox
+        ├── remote
+        └── sovereign/private
+```
+
+这里 **Runtime 是下面几项 resolved 之后的实例**，不是一个额外的软件层。
+
+---
+
+# 十九、这也给 Codex / DeepSeek 两条路线一个非常清楚的位置
+
+### Codex
+
+CourtWork 不“集成 GPT API”。
+
+而是：
+
+```text
+Work Core
++ Expert
+        ↓
+Work Compiler
+        ↓
+Run Plan
+        ↓
+Codex Runtime Adapter
+        ↓
+Codex App Server / Core
+```
+
+Codex 自己管理其 harness 内部复杂性。
+
+CW 只消费稳定 runtime port。
+
+### DeepSeek 自研 Runtime
+
+则：
+
+```text
+DeepSeek Model Adapter
+        ↓
+CW/Pi-like Harness Core
+        +
+selected Harness Capabilities
+        ↓
+DeepSeek Runtime Profile
+```
+
+这是**首个自己控制的参考 Harness Runtime**。
+
+于是 DeepSeek Runtime 与 Codex Runtime 可以同时实现同一个上层协议。
+
+这才是真正完成“Expert 与 Harness 解耦”的技术验证。
+
+---
+
+# 二十、还有一个更深的结果：CW 实际上已经不是 “Agent Framework”
+
+外部成熟语义越来越支持这个判断。
+
+CMMN 很早就把知识工作描述为：
+
+```text
+Case
+CaseFile
+Role
+Stage
+Task
+Criterion
+Milestone
+Artifact
+```
+
+而且强调 Case 是由不断出现的新事实驱动，任务顺序不能全部预定义，知识工作者在运行时选择后续工作。  
+[OMG CMMN](https://www.omg.org/cmmn/)
+
+它与 CW 的：
+
+```text
+Matter
+Evidence
+Role
+Stage
+Review
+Open Obligation
+Attention
+```
+
+高度同构。
+
+但 CW 多出来的是：
+
+```text
+LLM agent runtime
+Schema Engineering
+progressive disclosure
+Expert compilation
+evidence-backed proposal
+human commitment
+```
+
+所以如果要给整个架构一句最稳定的定义，我现在会写：
+
+> **CourtWork is a governed work system that compiles durable professional state and Expert contracts into replaceable agent runtimes.**
+
+而不是：
+
+> CourtWork is an agent framework.
+
+这句话应当可以进入后续 Architecture / Concepts 文档的第一段。
+
+---
+
+## 我建议冻结的术语
+
+第一轮真正写进研发概念文档的核心词可以只留这些：
+
+**Matter · Schema · Work Contract · Expert · Work Core · Work Compiler · Run Plan · Harness Core · Harness Capability · Runtime · Runtime Adapter · Model Adapter · Environment · Work Surface**
+
+先不把 `Sigma`、`Primitive Pack`、`Agent OS`、`Meta-Harness` 等词提升为 Canon。
+
+其中最重要的三个公式可以直接成为文档骨架：
+
+```text
+Schema < Work Contract < Expert
+```
+
+```text
+Expert + Matter + Policy
+       
+
+## Turn 408f1ca8-1ce0-45d6-8cd4-c2b428658842
+
+### userMessage · 408f1ca8-1ce0-45d6-8cd4-c2b428658842
+
+同意冻结术语。同时这会进入发布面，readme 和架构图文档。我建议召回 Chat 中的绘制相关 session ，然后登记 codex 入账，核对裁决后提交 Claude 绘制所需图表。
+
+## Turn cc84cfe3-75f5-4ae0-bd97-9bf6287dad22
+
+### userMessage · cc84cfe3-75f5-4ae0-bd97-9bf6287dad22
+
+必要的流程或架构讲解可视化 @Exa
+
+### agentMessage · 8dbb2bee-7127-4d8b-9e8d-2c71ca5629a8
+
+是。Exa 复核后，我建议把“必要流程 / 架构讲解可视化”严格收敛成 **4 张主图 + 1 张可选小图**，不要做一张包罗万象的 mega diagram。
+
+C4 的成熟经验是：**一张图只回答一个抽象层级的问题**；OpenAI Codex 也把“系统结构”和“Thread/Turn/Item 的运行过程”拆开讲；Anthropic Managed Agents 最成功的图则只解释一个核心命题——brain / session / hands 为什么可以独立替换。[C4](https://c4model.com/) · [Structurizr notation](https://docs.structurizr.com/server/diagrams/notation) · [Codex App Server](https://openai.com/index/unlocking-the-codex-harness/) · [Anthropic Managed Agents](https://www.anthropic.com/engineering/managed-agents)
+
+### 1. F1 — CourtWork ownership / replaceability
+
+**必画，且是最重要的一张。**
+
+它只回答：
+
+> CourtWork 到底拥有哪部分？哪些东西可以被替换？
+
+```text
+┌──────────────────────────┐
+│       Work Surface       │
+│ Matter · Review · ...    │
+└────────────┬─────────────┘
+             │
+┌────────────▼─────────────┐
+│        Work Core         │
+│ state · evidence ·       │
+│ authority · commitment   │
+└───────┬───────────┬──────┘
+        │           │
+        │        Expert
+        │   Schema + Contract
+        │
+┌───────▼──────────────────┐
+│      Work Compiler       │
+└────────────┬─────────────┘
+             │
+        Executable
+          Run Plan
+             │
+═════════════╪══════════════   ← stable runtime boundary
+             │
+┌────────────▼─────────────┐
+│     Runtime Adapter      │
+└────────────┬─────────────┘
+             │
+      Replaceable Runtime
+```
+
+重点不是“层很多”，而是那道横向边界：
+
+**上面是 CourtWork durable work semantics；下面是可替换 execution。**
+
+这张图直接对应我们刚冻结的体系，也最适合进入：
+
+- root README：压缩版
+- `engineering/architecture.md`：完整版
+- Pages `Research & architecture`：视觉版
+
+不应占 Hero。
+
+---
+
+### 2. F2 — Work Compiler dynamic flow
+
+**必画。**
+
+F1 是静态 ownership；F2 则回答：
+
+> 一项真实工作怎样从 Matter / Expert 变成某次实际执行？
+
+建议按照 C4 Dynamic View / sequence diagram 的思想，不再画“层级塔”，而画一次过程：
+
+```text
+Matter
+Role / Stage
+Expert
+Work Contract
+Org Policy
+Available capabilities
+Authority envelope
+       │
+       └──────┐
+              ▼
+       ┌───────────────┐
+       │ Work Compiler │
+       └───────┬───────┘
+               │
+               ▼
+       Executable Run Plan
+               │
+               ▼
+        Runtime Adapter
+          ┌────┼────┬──────┐
+          ▼    ▼    ▼      ▼
+       Codex   Pi   DSH   Sovereign
+```
+
+最重要的视觉信息是：
+
+**Expert 不连接 Codex/Pi/DSH。**
+
+所有运行时差异必须经过：
+
+```text
+Expert
+  ↓
+Work Compiler
+  ↓
+Run Plan
+  ↓
+Runtime Adapter
+```
+
+这比用长篇文字解释“为什么 Expert 可热插拔”有效得多。
+
+而且应该把箭头写上语义，而非统一写 `uses`。Structurizr/C4 的一个好纪律就是 **relationship 有方向，而且有名字**。
+
+例如：
+
+```text
+Expert ──declares requirements──▶ Work Compiler
+Work Compiler ──emits──▶ Run Plan
+Runtime Adapter ──realizes on──▶ Codex
+```
+
+---
+
+### 3. F3 — Runtime anatomy
+
+**工程文档必画，发布面可选。**
+
+只回答：
+
+> 我们所谓 Runtime，究竟是什么？
+
+不是：
+
+```text
+Runtime
+↓
+一大坨 agent framework
+```
+
+而是：
+
+```text
+              Resolved Runtime
+┌────────────────────────────────────┐
+│                                    │
+│  Model Adapter                     │
+│                                    │
+│  Harness Core                      │
+│    loop · turn/step · events       │
+│    context seam · tool dispatch    │
+│                                    │
+│  Harness Capabilities              │
+│    MCP · browser · computer        │
+│    subagent · jobs · sandbox ...   │
+│                                    │
+│  Runtime Profile                   │
+│                                    │
+└────────────────────────────────────┘
+             │
+             │ execute / provision
+             ▼
+      Environment / Hands
+   local · sandbox · remote
+   sovereign / private
+```
+
+这里尤其应该消费 Anthropic 的做法：**Hands 不应该只是堆栈最底下一格。**
+
+Managed Agents 的核心图式之所以清楚，就因为它把：
+
+- brain / harness
+- durable session
+- hands / sandbox
+
+画成具有独立生命周期的东西，而不是一座技术栈。Anthropic 明确强调这些接口可以独立失败和替换。
+
+CourtWork 可以进一步表达：
+
+```text
+Harness Runtime ─────► Environment / Hands
+       │
+       └──── runtime protocol state
+
+Matter State  ← 不在这条执行依赖链中
+```
+
+从而视觉上避免再次让人误解：
+
+> Session / sandbox / context / Matter 都是 runtime 内部的“memory”。
+
+---
+
+### 4. F4 — Work continuity / state topology
+
+**必须有这个解释，但大概率不需要新画。**
+
+实际上现有：
+
+- `diagram.svg`
+- `pipeline.svg`
+
+已经覆盖了大部分。
+
+这一组要共同回答：
+
+> 为什么换模型、换 Session、换 Runtime 后，工作仍然能继续？
+
+建议保留两张不同问题的图，而不是融合。
+
+#### 4A. `Store → Govern → Retrieve → Compile`
+
+继续保持：
+
+```text
+Store
+  ↓
+Govern
+  ↓
+Retrieve
+  ↓
+Compile
+  ↓
+Working Context
+```
+
+重点突出：
+
+```text
+total governed stock    → grows
+single-run working set  → stays bounded
+```
+
+这是一张 **data/context architecture** 图。
+
+#### 4B. proposal → commitment loop
+
+现有 `diagram.svg`：
+
+```text
+Governed Work State
+        ↓
+Context Projection
+        ↓
+Model / Human Proposal
+        ↓
+Candidate
+        ↓
+validation
+evidence
+authority
+review
+        ↓
+Committed Change
+        ↓
+Updated State
+        └──────► next run
+```
+
+这是一张 **work-state transition** 图。
+
+两者不能合并。
+
+一个讲：
+
+> 信息如何被选择进入 attention。
+
+另一个讲：
+
+> 改变如何获得现实效力。
+
+这是 SE 最关键的两个正交维度。
+
+---
+
+### 5. F5 — `Schema < Work Contract < Expert`
+
+**可选，只做小型 inset，不值得单独占一整段。**
+
+如果 README / architecture 中 Expert 仍然难理解，可以做成非常小的嵌套图：
+
+```text
+┌──────────────────────────────┐
+│ Expert                       │
+│                              │
+│  ┌────────────────────────┐  │
+│  │ Work Contract          │  │
+│  │                        │  │
+│  │  ┌──────────────────┐  │  │
+│  │  │ Schema           │  │  │
+│  │  └──────────────────┘  │  │
+│  │                        │  │
+│  │ evidence · review      │  │
+│  │ completion · authority │  │
+│  └────────────────────────┘  │
+│                              │
+│ method · eval · capability   │
+│ requirements · surface       │
+└──────────────────────────────┘
+```
+
+但这里要小心：`<` 是我们表达层级关系的 shorthand，并不严格意味着物理“嵌套文件结构”。
+
+因此 Claude 最终图里最好表达成 **semantic composition**，而不是俄罗斯套娃。
+
+---
+
+## 最终图集
+
+我会给 Codex / Claude 固定成：
+
+| 图 | 回答的问题 | 去向 |
+|---|---|---|
+| **F1 Ownership** | CourtWork 拥有什么？什么可替换？ | README / Pages / Architecture |
+| **F2 Compile Flow** | Expert 怎样落成一次 Run？ | Pages / Architecture |
+| **F3 Runtime Anatomy** | Harness Runtime 到底由什么组成？ | Architecture |
+| **F4 Continuity** | 为什么跨 Session / Runtime 还能继续？ | 复用现有两图 |
+| **F5 Expert Anatomy** | Schema / Contract / Expert 什么关系？ | 可选小图 |
+
+也就是说，**真正新增大图只有 F1–F3 三张**。
+
+现有 `pipeline.svg` 与 `diagram.svg` 不应该被新架构术语冻结顺手重画掉；只需在 Codex reconciliation 后判断 `keep / relabel / revise`。
+
+另外值得吸收 OpenAI 最新 harness-engineering 的一点：其架构文档不是追求一张“漂亮总览图”，而是把**依赖方向作为可验证 invariant**，例如固定层次 `Types → Config → Repo → Service → Runtime → UI` 并用结构测试强制。对于 CW，这意味着 F1 最终不只是发布图，长期最好能反向对应 lint / contract test：例如 **Expert 不得 import runtime-specific object、Work Core 不得 import provider、protocol terminates at adapter**。这样图和代码不会逐渐分家。[OpenAI Harness Engineering](https://openai.com/index/harness-engineering/)
+
+Codex 入账这一步我尝试直接写 GitHub，但当前连接对 branch/issue 写入均返回 403；因此本轮没有绕过权限修改仓库。上面的 F1–F5 可以直接作为下一份本地 Codex intake 的“figure scope”追加进去。
+
+## Turn 8d131a73-0323-479a-9e92-c20b5975526c
+
+### userMessage · 8d131a73-0323-479a-9e92-c20b5975526c
+
+我会手动入账，并授意 codex 编制外部实践索引以供参考。上一次消费来自视觉编译器那次 chat，我没有登记入账，本 chat 可以从中 distill 有用的，而后我 merge 给 codex @Exa
+
+### agentMessage · add044e5-9049-447d-bfae-7ed3820dd5dc · TRUNCATED
+
+:::writing{variant="document" id="58314" title="CourtWork Visual Compilation — prior-chat distillation + external-practice index"}
+# CourtWork Visual Compilation · supplementary intake
+
+Status: **distilled precedent / external-practice index**, not a new architecture decision.
+
+This note recovers the useful parts of the earlier Visual Compiler / Kami discussion that were not previously entered into the repository, and reconciles them with the newly frozen CourtWork architecture vocabulary.
+
+The purpose is not to adopt another visual style or install a visual-generation framework. The purpose is to make diagrams, explanatory graphics, screenshots and generated illustrations **governed artifacts whose semantics, source, maturity and acceptance can survive different agents and renderers**.
+
+---
+
+## 1. Prior-chat decisions worth carrying forward
+
+### VC-01 · Use “CourtWork Visual Compilation” as the working concept
+
+Prefer:
+
+> **CourtWork Visual Compilation**
+
+over a narrow “illustration skill”.
+
+The surface is broader than image generation. It covers:
+
+- architecture diagrams;
+- process/state diagrams;
+- product explanatory figures;
+- product screenshots and annotated screenshots;
+- icons and stable semantic SVG;
+- generated editorial illustrations;
+- publication-page visual explanations.
+
+The useful abstraction is therefore a **visual compilation pipeline**, not an image generator.
+
+---
+
+### VC-02 · Consume Kami's governance skeleton, not its house style
+
+[Kami](https://github.com/tw93/Kami) is useful as precedent because it treats visual production as a constrained pipeline with source, schema, render and verification.
+
+Do **not** inherit its visual identity wholesale:
+
+- parchment;
+- ink blue;
+- serif-led hierarchy;
+- print/editorial composition;
+- its specific template family.
+
+CourtWork already owns a different product/publication visual language.
+
+What should be extracted is the process:
+
+```text
+intent
+  ↓
+execution / output contract
+  ↓
+content or semantic IR
+  ↓
+schema / invariant check
+  ↓
+layout / figure selection
+  ↓
+render
+  ↓
+deterministic checks
+  ↓
+perceptual visual review
+  ↓
+accepted artifact
+```
+
+This is the strongest reusable idea from Kami.
+
+Kami itself now makes the same distinction explicitly: content schemas are filled and validated before layout, and maintained repo diagrams are treated as source assets rather than one-shot images.
+
+Reference:
+[Kami diagrams](https://github.com/tw93/Kami/blob/main/references/diagrams.md)
+
+---
+
+## 2. Three visual asset classes
+
+Do not put every visual task through the same renderer.
+
+### A. Canonical semantic icon / SVG
+
+Use when the visual object has stable interaction or product semantics.
+
+Examples:
+
+- Review;
+- Matter;
+- Attention;
+- artifact/document states;
+- stable control/icon slots.
+
+Properties:
+
+```text
+small
+repeatable
+semantic
+token-governed
+implementation-owned
+```
+
+These belong closer to the design system / icon registry than to Visual Compilation.
+
+They should not be regenerated casually by an image model.
+
+---
+
+### B. Governed diagram
+
+Use when correctness depends on explicit objects and relations:
+
+- architecture;
+- ownership;
+- state transitions;
+- lifecycle;
+- compilation path;
+- permission / review flow;
+- data flow;
+- dependency topology.
+
+Properties:
+
+```text
+semantic source
+→ typed nodes / edges / groups
+→ validated visual view
+→ SVG / HTML / PNG projection
+```
+
+This is the preferred class for the newly frozen architecture.
+
+A governed diagram should be reconstructible from its semantic definition and visual contract.
+
+---
+
+### C. Generated illustration
+
+Use only where the claim is inherently illustrative rather than topological:
+
+- analogy;
+- editorial explanation;
+- conceptual scene;
+- visual metaphor;
+- expressive campaign material.
+
+Image generation is the renderer, not the source of truth.
+
+The brief is the governed artifact.
+
+A generated illustration should therefore begin from something like:
+
+```yaml
+claim:
+placement:
+smallest_display_size:
+accepted_reference:
+must_preserve:
+must_not_show:
+
+visual_grammar:
+  shape:
+  material:
+  identity:
+  motion:
+  annotation:
+
+composition:
+  focal_point:
+  reading_direction:
+  complexity:
+  density:
+
+semantic_constraints:
+  maturity:
+  authority:
+  state_distinctions:
+
+qc:
+  - ...
+```
+
+A generated image that violates the brief is regenerated or rejected; the semantic contract is not patched to explain the output.
+
+---
+
+## 3. Architecture diagrams should become a maintained asset class
+
+The earlier chat proposed keeping maintained diagrams roughly as:
+
+```text
+semantic / prompt contract
++ editable source
++ rendered projection
+```
+
+Kami now provides a particularly useful concrete precedent:
+
+```text
+prompt.md
+index.html + inline SVG
+rendered PNG
+```
+
+Its important rule is not the exact file format. It is:
+
+> Never redraw a maintained diagram from memory.
+
+Before a visual agent touches an existing diagram it should consume:
+
+```text
+1. semantic / figure contract
+2. current editable source
+3. current rendered output
+4. architecture / DEC facts that define its named objects and edges
+```
+
+Then update all projections together.
+
+For CourtWork, a stronger native form could eventually become:
+
+```text
+figure.contract.*
+figure source / model
+SVG
+optional PNG
+registry entry
+verification receipt
+```
+
+Exact representation should remain an implementation choice until Codex reviews current repo constraints.
+
+---
+
+## 4. Separate model from view for architecture figures
+
+This is the strongest addition from the new Exa sweep.
+
+[Structurizr](https://docs.structurizr.com/as-code) explicitly separates an architecture **model** from its **views**.  
+[LikeC4](https://likec4.dev/) similarly keeps a textual architecture model as source and generates multiple views, with Git versioning, validation, diff and agent/MCP access.
+
+This maps extremely well to CourtWork.
+
+Do not let:
+
+```text
+F1 ownership diagram
+F2 compile flow
+F3 runtime anatomy
+README compact architecture
+Pages explanatory architecture
+```
+
+be five independently authored SVGs.
+
+Prefer conceptually:
+
+```text
+Architecture Model
+    │
+    ├── View: ownership
+    ├── View: compile path
+    ├── View: runtime anatomy
+    └── View: README compact
+```
+
+The model contains canonical:
+
+- elements;
+- containment;
+- ownership;
+- allowed relationships;
+- maturity/state where needed.
+
+A view decides:
+
+- which elements are visible;
+- reading direction;
+- grouping;
+- focal hierarchy;
+- labels appropriate to its audience.
+
+This is more durable than ordinary Mermaid-as-source because Mermaid normally mixes semantic structure and particular presentation into one artifact.
+
+### Candidate external implementations
+
+**Structurizr**  
+Strongest precedent when strict C4 hierarchy and model/view discipline matter.
+
+**LikeC4**  
+Especially interesting for CourtWork because it provides:
+
+- configurable semantic vocabulary;
+- textual model;
+- multiple generated views;
+- validation;
+- Git diff;
+- interactive/static embedding;
+- MCP/API surface;
+- PNG / Mermaid / D2 / DrawIO export.
+
+Neither should be adopted merely because it exists. Codex should first determine whether CourtWork's architecture vocabulary fits their model without distortion.
+
+---
+
+## 5. Architecture view != generic boxes-and-arrows file
+
+The previous architecture-figure discussion and current external practice converge on a useful rule:
+
+> **One view answers one question.**
+
+Hence the current proposed set remains sound:
+
+```text
+F1  Ownership / replaceability
+F2  Work Compiler → Run Plan → Runtime dynamic path
+F3  Runtime anatomy
+F4  Existing continuity / commitment figures
+F5  Schema / Work Contract / Expert inset, only if needed
+```
+
+Do not make a single “CourtWork total architecture” diagram carry all five.
+
+Kami's diagram guidance reaches essentially the same conclusion: normal architecture figures have a small node budget; full-system panoramas are a different artifact called an architecture board.
+
+[C4](https://c4model.com/) provides the more general principle: different audiences and questions require different abstraction levels.
+
+---
+
+## 6. Diagram compiler should eventually validate semantics, not only pixels
+
+A visual QA system that only catches:
+
+```text
+overlap
+clipping
+bad contrast
+broken arrow
+```
+
+is insufficient.
+
+CourtWork diagrams can also be checked against architectural invariants.
+
+Examples:
+
+```text
+Expert
+  MUST NOT connect directly to provider/runtime-specific object
+
+Work Core
+  MUST NOT depend on Model Adapter
+
+Provider protocol
+  MUST terminate below Runtime Adapter
+
+Environment
+  MUST NOT be rendered as canonical Matter State
+
+Trace
+  MUST NOT be rendered as Work State
+
+Candidate
+  MUST remain distinguishable from Committed
+
+Professional commitment
+  MUST expose authority / decision boundary
+```
+
+This is the visual equivalent of architecture lint.
+
+The mature direction is therefore:
+
+```text
+semantic validation
+        +
+geometry validation
+        +
+perceptual review
+```
+
+rather than “generate SVG and inspect whether it looks nice”.
+
+LikeC4/Structurizr provide useful precedent for structural validation; current CourtWork visual verification can continue to own its own semantic grammar.
+
+---
+
+## 7. A small Visual IR is worth considering
+
+Do not freeze an implementation yet, but retain this candidate.
+
+A diagram should be able to exist before coordinates:
+
+```yaml
+figure:
+  id: architecture-ownership
+  claim: "CourtWork owns durable work semantics; execution runtimes are replaceable."
+  audience: public-technical
+
+nodes:
+  - id: work-core
+    kind: owned-semantic-core
+  - id: expert
+    kind: professional-capability
+  - id: compiler
+    kind: compiler
+  - id: runtime-adapter
+    kind: adapter
+  - id: runtime
+    kind: replaceable-runtime
+
+relationships:
+  - from: expert
+    to: compiler
+    kind: declares
+  - from: compiler
+    to: runtime-adapter
+    kind: emits-run-plan
+  - from: runtime-adapter
+    to: runtime
+    kind: realizes
+
+view:
+  question: "What does CourtWork own and what is replaceable?"
+  direction: top-bottom
+  focal: [work-core, compiler]
+```
+
+Then:
+
+```text
+Visual IR
+  ↓
+layout
+  ↓
+SVG / HTML / other renderer
+```
+
+This is analogous to Schema Engineering itself:
+
+```text
+semantic state ≠ projection
+```
+
+Applied to diagrams:
+
+```text
+diagram semantics ≠ SVG coordinates
+```
+
+That is the most important conceptual bridge from Visual Compilation back into SE.
+
+---
+
+## 8. Visual Grammar should be governed separately from semantic IR
+
+Earlier exploration produced a useful candidate grammar:
+
+```text
+Shape
+Material
+Identity
+Motion
+```
+
+Retain it as **visual grammar**, not architecture ontology.
+
+Possible interpretation:
+
+### Shape
+
+Geometry and silhouette:
+
+- corner system;
+- line curvature;
+- container shape;
+- boundary treatment;
+- marker shape;
+- density.
+
+### Material
+
+Surface treatment:
+
+- solid / translucent;
+- line weight;
+- blur;
+- border;
+- fill;
+- paper/glass/metal-like abstraction where justified.
+
+### Identity
+
+What makes an otherwise structurally correct artifact feel like CourtWork:
+
+- characteristic annotations;
+- line/rule use;
+- sparse attention accent;
+- typography;
+- figure numbering;
+- distinctive object treatment;
+- recurring diagram motifs.
+
+### Motion
+
+How meaning changes over time:
+
+- reveal;
+- progression;
+- state transition;
+- trace;
+- focus;
+- compare.
+
+Motion should explain a process or relationship, never rescue an incomprehensible static figure.
+
+This layer can evolve substantially without changing the semantic model.
+
+---
+
+## 9. Shape / Corner / Generative Identity remain exploratory, not frozen
+
+The earlier discussion accepted these as worthwhile directions to explore, not as a finished design system.
+
+Useful principle:
+
+> Instead of letting an agent select arbitrary visual values, give it a bounded grammar and vary one axis at a time.
+
+Example:
+
+```text
+same semantic fixture
+×
+corner hypothesis A/B/C
+```
+
+or:
+
+```text
+same architecture figure
+×
+material grammar A/B
+```
+
+This turns “taste” into inspectable deltas rather than one giant visual rewrite.
+
+Specimen boards are therefore an appropriate method for Visual Compilation development.
+
+---
+
+## 10. External precedent: design contracts for agents
+
+Several 2026 projects independently converge on storing visual judgment as machine-readable project state rather than prompt folklore.
+
+### Oh My Design
+
+[Oh My Design](https://github.com/3x-haust/oh-my-design) is high-signal as **process precedent**, not as a dependency.
+
+Its durable loop is approximately:
+
+```text
+brief
+→ evidence
+→ copy
+→ typography proof
+→ composition contract
+→ isolated structural candidates
+→ production build
+→ rendered critique
+→ reframe
+```
+
+Particularly relevant ideas:
+
+- builder and visual reviewer can be separated;
+- references are evidence rather than aesthetic command;
+- final design inputs are hash/freshness bound;
+- screenshots/renders become review evidence;
+- generated cache can be deleted without deleting design intent.
+
+For CourtWork, this reinforces:
+
+```text
+visual intent / contract = durable
+render cache = disposable
+```
+
+---
+
+### `.design`
+
+[AgentsORG/DESIGN](https://github.com/AgentsORG/design) proposes a machine-readable “living visual contract” including:
+
+- identity;
+- intent;
+- tokens;
+- components;
+- patterns;
+- rationale;
+- policies;
+- constraints;
+- examples;
+- integrations.
+
+The implementation is very early and should not be taken as a mature standard.
+
+The useful pattern is narrower:
+
+> **Design decisions that agents must preserve should have one inspectable versioned contract rather than being reconstructed from screenshots every session.**
+
+CourtWork already has stronger design/governance machinery, so this is supporting evidence rather than an adoption candidate.
+
+---
+
+### Get Design Done
+
+`get-design-done` exposes an especially concise compiler loop:
+
+```text
+Brief → Tokens → Spec → Render → Critique
+```
+
+and treats the spec as an executable blueprint.
+
+This is conceptually aligned with Visual Compilation, although CourtWork should keep **semantic figure content** separate from global UI/design tokens.
+
+---
+
+## 11. External precedent: reference extraction should produce a grammar, not cloning instructions
+
+Projects such as `design-dna` turn screenshots and sites into a structured profile of:
+
+```text
+tokens
++ qualitative visual style
++ visual effects
+```
+
+The useful idea is **normalization**:
+
+```text
+reference
+  ↓ inspect
+structured observations
+  ↓ adjudicate
+CourtWork grammar
+```
+
+Not:
+
+```text
+reference
+  ↓
+clone reference
+```
+
+This is consistent with previous CourtWork research practice:
+
+```text
+REFERENCE / REVERSE / REUSE
+```
+
+Each borrowed visual property should say what was taken and what was intentionally not taken.
+
+---
+
+## 12. Neat Annotations: keep as a small presentation primitive
+
+[neat-annotations](https://github.com/syabro/neat-annotations) remains useful, but should sit very low in the hierarchy.
+
+It is:
+
+```text
+inline target
++ directional arrow
++ short annotation
+```
+
+implemented as pure CSS.
+
+Good Pages uses:
+
+- explaining one unusual detail in a screenshot;
+- pointing to a small architectural seam;
+- highlighting “this survives runtime replacement”;
+- annotating a product detail in an editorial section.
+
+It is **not**:
+
+- Review state;
+- validation;
+- Attention;
+- evidence;
+- error UI;
+- architecture semantics.
+
+Its own accessibility guidance says the annotation must not be the sole carrier of essential information.
+
+So classify it as:
+
+```text
+Presentation Annotation Primitive
+status: REFERENCE / possible local vendoring
+semantic authority: none
+```
+
+This prevents a handwritten visual cue from silently becoming a product-state vocabulary.
+
+---
+
+## 13. Proposed Visual Compilation ownership model
+
+The recovered material now fits the frozen architecture cleanly:
+
+```text
+Architecture / Work semantics
+        │
+        │ source facts
+        ▼
+Visual Semantic Contract
+        │
+        ├── claim
+        ├── entities / relations
+        ├── maturity
+        ├── exclusions
+        └── evidence references
+        │
+        ▼
+Visual Compiler
+        │
+        ├── figure selection
+        ├── view / projection
+        ├── visual grammar
+        ├── layout
+        └── renderer selection
+        │
+   ┌────┼──────────────┐
+   ▼    ▼              ▼
+ SVG   HTML        Image renderer
+   │    │              │
+   └────┴──────┬───────┘
+               ▼
+          Visual QA
+               │
+       ┌───────┼────────┐
+       ▼       ▼        ▼
+   semantic  geometry  perceptual
+               │
+               ▼
+       Published projection
+```
+
+The compiler **does not own architecture truth**.
+
+It projects already governed truth.
+
+---
+
+## 14. Source ownership rule
+
+For every maintained explanatory visual, distinguish at least:
+
+```text
+semantic owner
+visual-contract owner
+editable-source owner
+rendered projection
+verification receipt
+```
+
+For example:
+
+```text
+engineering/architecture.md + DEC
+        ↓
+architecture semantic truth
+
+visual figure contract
+        ↓
+which truth this figure communicates
+
+SVG / visual model
+        ↓
+editable rendering source
+
+README / Pages render
+        ↓
+projection
+
+verification / figure registry
+        ↓
+evidence that this projection matches its contract
+```
+
+This prevents the familiar failure mode:
+
+> SVG says one thing, README says another, architecture document changes, nobody knows which artifact is authoritative.
+
+---
+
+## 15. What Codex should investigate before implementation
+
+This note should produce an **external-practice index**, not an immediate framework selection.
+
+Recommended comparison set:
+
+| Reference | Mine | Do not import blindly |
+|---|---|---|
+| [Kami](https://github.com/tw93/Kami) | compiler stages, maintained-asset lifecycle, diagram selection, visual QA | house style |
+| [Structurizr](https://structurizr.com/) | semantic model → multiple views, C4 validation, Git/agent friendliness | forced C4 vocabulary where CW semantics differ |
+| [LikeC4](https://likec4.dev/) | custom DSL, model/view split, validation, diff, embedding, MCP | new dependency before local fit is proven |
+| [Oh My Design](https://github.com/3x-haust/oh-my-design) | durable design intent, evidence-first process, blind/render critique | its large workflow wholesale |
+| [AgentsORG/DESIGN](https://github.com/AgentsORG/design) | versioned machine-readable visual contract | treating an early spec as standard |
+| `design-dna` | structured extraction from references | cloning another product's identity |
+| [neat-annotations](https://github.com/syabro/neat-annotations) | small Pages callout primitive | semantic/status carrier |
+
+### Explicit questions
+
+1. Can current `figures.json` become the beginning of a Visual Semantic Contract rather than introducing another competing registry?
+2. Should architecture semantics live as a small model-as-code artifact, or are current architecture docs + explicit figure contracts sufficient?
+3. Can F1/F2/F3 be generated as different views of one semantic architecture model?
+4. Which invariants can be checked mechanically against repo architecture/import boundaries?
+5. What renderer should remain authoritative: hand-authored SVG, HTML+SVG, Mermaid normalization, LikeC4/Structurizr export, or a thin owned renderer?
+6. What is the minimum lifecycle needed to prevent architecture figures drifting from decisions and code?
+7. Which current figures are one-shot campaign graphics versus long-lived maintained assets?
+8. Can visual-review receipts bind to exact semantic-source + editable-source hashes?
+
+---
+
+## 16. Anti-goals
+
+Do not turn Visual Compilation into:
+
+```text
+a new design framework
+a universal graphics engine
+a Figma replacement
+a generative-UI runtime
+an illustration agent swarm
+a new product ontology
+a requirement that every visual use one renderer
+```
+
+And specifically:
+
+- do not install Kami into CourtWork merely to inherit its pipeline;
+- do not freeze Kami's aesthetic;
+- do not regenerate stable icons through image models;
+- do not treat generated
+
+## Turn 3bcc6afa-5bf0-4c32-9dfa-9ab0d9859cd7
+
+### userMessage · 3bcc6afa-5bf0-4c32-9dfa-9ab0d9859cd7
+
+另外，SE 的措辞是专家手动 loop runtime demo，是否考虑一并 review 修订
+
+### agentMessage · 32a1fdc9-7312-442b-860e-b3ded3b7b269
+
+是，建议**并入同一轮 Codex terminology reconciliation**，而且这不是小修辞问题。旧 SE 2.0 的论点仍成立，但现在 `Expert / Harness / Runtime` 都已经被工程侧赋予更精确的正式含义，继续原样使用会产生术语反向污染。
+
+最明显的三处是：
+
+- **“expert prototype contains a hidden human harness”**：这里的 expert 是“人类专业人士”，而现在 `Expert` 已冻结为版本化专业能力包；`harness` 也已经收窄为执行地基。fileciteturn15file3L213-L215
+- **“the author occupies the missing runtime”**：旧文想表达的是专家在模型调用之间手工完成 context 选择、遗漏检测、retry、materiality、completion 等判断，但这些今天分别属于 Work Contract、Work Compiler、Work Core、Review/Authority 等，而不是 `Runtime`。fileciteturn15file3L217-L258
+- Practice 文里的 **`frontier composition / repeated manual loop → Candidate Expert Profile`** 方向是对的，但 `manual loop` 太接近 Harness loop，而 `Expert Profile` 也应与现在冻结的 `Expert`/version/package 统一。fileciteturn14file7L545-L559
+
+我建议这样修。
+
+:::writing{variant="document" id="73184" title="SE terminology reconciliation — expert-guided prototype loop"}
+## SE terminology reconciliation · Expert prototype / manual loop
+
+### 1. Human expert 与 `Expert` 必须彻底分词
+
+以后：
+
+- **expert / domain expert / human expert**：专业人士；
+- **Expert**：Schema Engineering / CourtWork 中版本化、受治理、可验证的专业能力包。
+
+因此旧称：
+
+> Expert Prototype
+
+建议统一改成：
+
+> **expert-operated prototype**
+
+或在强调协作时：
+
+> **expert-guided prototype**
+
+这样不会让读者误以为“Expert package 的 prototype”。
+
+---
+
+### 2. `manual Agent loop` 改为 `expert-guided work trajectory`
+
+旧称：
+
+> 专家手动 Agent loop  
+> repeated manual loop  
+> expert manually drives the frontier Agent loop
+
+建议统一抽象为：
+
+> **expert-guided work trajectory**
+
+需要强调多次迭代时：
+
+> **repeated expert-guided work trajectories**
+
+需要强调仍处于原型阶段时：
+
+> **expert-operated frontier workflow**
+
+其含义是：
+
+```text
+human expert
+  identifies the assignment
+  selects / rejects context
+  changes search strategy
+  supplies unstated assumptions
+  reviews intermediate work
+  redirects / retries
+  judges materiality
+  escalates
+  decides whether work is complete
+```
+
+底层可以使用任意 Agent Runtime，但这些轨迹本身不是 Runtime。
+
+---
+
+### 3. `hidden human harness` 改为 `latent work semantics`
+
+旧命题：
+
+> **The expert prototype contains a hidden human harness.**
+
+建议修为：
+
+> **An expert-operated prototype contains latent work semantics that have not yet been externalized into the system.**
+
+更完整的版本：
+
+> **An expert-operated prototype often succeeds because the human expert manually supplies work-contract, compilation, and adjudication decisions that the system has not yet externalized.**
+
+这样保留原洞见，同时不再把所有专家判断都叫做 Harness。
+
+可以把旧的 “hidden human harness” 保留为历史解释性比喻，但不再作为 canonical term。
+
+---
+
+### 4. “author occupies the missing runtime” 应明确废止
+
+旧句：
+
+> The prototype works because the author occupies the missing runtime.
+
+建议改成：
+
+> **The prototype works because the author manually supplies missing work semantics around the runtime.**
+
+更精确：
+
+> **The runtime executes the work, but the expert still supplies the missing decisions about context, evidence, completion, escalation, review, and authority.**
+
+或者更符合这轮新架构：
+
+> **The prototype works because the expert is manually performing parts of the Work Compiler and Work Contract that have not yet been made explicit.**
+
+其中最后一句最有解释力，但不能把所有人工判断都塞进 Work Compiler：有些最终属于 Work Core / Review / Organization Policy。
+
+---
+
+### 5. Prototype → Product 应从“复制 loop”改成“提取并治理工作语义”
+
+推荐主命题：
+
+> **Productizing an expert-operated prototype means externalizing the reusable parts of its latent work semantics without pretending that expert judgment disappears.**
+
+展开为：
+
+```text
+Expert-guided work trajectories
+        ↓ observe / classify
+Domain invariants
+Institution conventions
+Matter-specific context
+Individual preferences
+        ↓ promote selectively
+Schema
+Work Contract
+Organization Policy
+Review / Authority Policy
+Capability Requirements
+Eval / Verifiers
+        ↓ package + qualify
+Candidate Expert
+        ↓ held-out evaluation / review / release authority
+Committed Expert Version
+```
+
+运行时则另走：
+
+```text
+Expert + Matter + Policy
+        ↓ Work Compiler
+Executable Run Plan
+        ↓ Runtime Adapter
+Replaceable Runtime
+```
+
+这两条链不能再混成一条 “manual loop → harness”。
+
+---
+
+### 6. Practice 文 Expert promotion 链建议修成
+
+旧：
+
+```text
+frontier composition / repeated manual loop
+→ Candidate Expert Profile
+→ applicability / exclusions
+→ provenance / source demonstrations
+→ Work Contract and primitive dependency graph
+→ held-out E2E + risk-stratified Review
+→ accepted-work-product / disagreement / reversal observation
+→ release Authority
+→ Committed Expert Version
+```
+
+建议：
+
+```text
+expert-guided demonstrations / work trajectories
+→ extracted work semantics
+→ Candidate Expert
+→ applicability / exclusions
+→ provenance / source demonstrations
+→ Schema + Work Contract + capability requirements
+→ verifier / eval + review / authority policy
+→ held-out E2E + risk-stratified Review
+→ accepted-work-product / disagreement / reversal observation
+→ release Authority
+→ Committed Expert Version
+```
+
+其中：
+
+- `primitive dependency graph` 可降为实现层术语；
+- `capability requirements` 更符合现在 Expert 声明需求、Harness Capability 负责实现的边界；
+- `Candidate Expert Profile` 改成 **Candidate Expert** 或 **Candidate Expert Version**，避免再造 `Profile` 本体。
+
+---
+
+### 7. 2.0 的 `Legal Work Harness` 也应重审
+
+旧图里的 `Legal Work Harness` 同时包含：
+
+- Matter；
+- persistent structured state；
+- evidence / provenance；
+- completion；
+- escalation；
+- artifact production；
+- tools。
+
+按现在的冻结架构，这已经明显跨越：
+
+```text
+Work Core
+Expert
+Work Compiler
+Harness Capability
+Harness Runtime
+```
+
+因此不建议仅改名字。
+
+应把它拆成：
+
+```text
+Expert-guided prototype
+        ↓
+extract / classify latent work semantics
+        ↓
+Schema + Work Contract + Policy
+        ↓
+Candidate / Committed Expert
+        │
+Matter ─┼─ Policy
+        ↓
+Work Compiler
+        ↓
+Run Plan
+        ↓
+Replaceable Runtime
+        ↓
+Candidate Work Product
+        ↓
+Review / Authority / Commitment
+        ↓
+Governed Matter State
+        ↓
+Revision / Eval / Learning
+```
+
+这会成为 SE 新架构图与 CourtWork F1/F2 的理论对应面。
+
+---
+
+### 8. Proposition A 建议正式更新
+
+旧：
+
+> **Expert prototypes contain a hidden human harness.**
+
+新：
+
+> **Expert-operated prototypes contain latent work semantics.**
+
+正文定义：
+
+> A prototype may appear to be `Prompt → Model → Result`, while a domain expert is actually supplying task recognition, context selection, search strategy, omission detection, retry decisions, materiality judgment, escalation, and completion judgment between model calls. Schema Engineering treats these interventions not as one hidden “human runtime,” but as evidence from which reusable work semantics can be classified, governed, compiled, evaluated, and selectively promoted into durable system behavior.
+
+产品化命题：
+
+> **Productizing an expert-operated prototype means externalizing enough reusable work semantics that another qualified user can delegate the work without reproducing the original author's invisible orchestration, while preserving consequential expert judgment at explicit review and authority boundaries.**
+:::
+
+这也正好解释了为什么 **SE 2.0 不必推翻**。2.0 已经明确说，真正重要的不是 capture 而是 **promotion**：domain invariant、institution convention、matter context、individual habit 要进入不同位置。fileciteturn13file3L162-L171 现在只是把它进一步接到冻结后的正式架构上。
+
+而且你之前的 **2.1 Runtime & Product Canon handoff** 本来就把 “Expert prototype contains a hidden human harness” 列为待重新裁定的 2.0 理论，并要求“补上 Professional Work Runtime ontology、删除非必要新名词”。所以这轮一起修，实际上是在完成当时尚未彻底收口的一笔，而不是临时改口。fileciteturn15file0L11-L31
+
+给 Codex 的范围我会定成：**架构术语冻结 + SE/CW 跨仓 vocabulary reconciliation + architecture/figure reconciliation**。历史 8/29 snapshot 不回写；当前 Paper / README / Pages / active docs 用新术语，旧 snapshot 保留作为理论演化记录。
+
