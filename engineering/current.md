@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Presence最终设计验收合并
+
+按用户“验收 merge”接收167463b，静默折角嘴与原创斜下垂thinking嘟嘴、当前assistant消息下落位成为本轮Design/specimen选定方案。接收session独立审增量和宽浅/窄深原始截图，复跑17/17测试、4876条文档链接、两份清单72文件hash及旧SVG字节核对通过；未重复宣称实机动态检查。已合入本地main，未push/deploy，生产App与真实thinking事实接线仍沿[收敛交接](design/agent-presence-2026-09-11/return-v1/CONVERGENCE.md)。原返件及其hash证据保持；其他writer工作区修改保留。
+
 ## 2026-09-12 · Presence嘴型最终收敛，待另session合并
 
 [收敛交接](design/agent-presence-2026-09-11/return-v1/CONVERGENCE.md)按用户最终口径采用JP：静默`」`类下折角、明确thinking时原创斜下垂嘟嘴，双横眼、16px flat、当前assistant/Run工作块下方。保留旧A/B/C/AB原资产，新增两态×5尺寸SVG；Astra真实CUA复验，Luna有界核对来源/默认/拓扑。本轮在codex/agent-presence-convergence-20260912从ca91a78独立提交，由用户另session接收，不合main、不push。生产thinking事实和消息Run接线边界沿上一轮裁决。
