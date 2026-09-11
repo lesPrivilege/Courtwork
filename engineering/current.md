@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · 工作现场恢复与巡检范围登记
+
+[恢复面裁决](research/obligation-closure-2026-09-12/recovery-surface.md)采用获准工作集合、义务与版本证据核查、Spark异常投影及渐进Recovery Surface。输入Matter状态仅候选，冻结退出巡检不取消运行或关闭事项；跨owner观察不伪装原子快照，恢复理解不等于恢复进程，派工/关闭仍受原授权与回执约束。已接ME-06/LG与路线图，隔离5234文档链接通过；仅本地文档登记，无调度/API/UI实现、push或部署，原未提交文件保留。
+
 ## 2026-09-12 · Chat薄能力边界登记
 
 [Chat薄能力层](research/chat-memory-broker-2026-09-12/thin-capabilities.md)采用Provider会话、本地连续性与可选检索/connector，Chat讨论和Agent有界执行互补，不新增完整执行环境。实际effect、来源披露、连接授权、治理写入与handoff保持原owner；网页不当裸模型，模型/Harness效果留待实测，Settings分类仅候选。已接既有BE/LG/RG与整体闭环，隔离5224文档链接通过；按用户要求仅登记本地main，无实现、push或部署，原未提交文件保留。
