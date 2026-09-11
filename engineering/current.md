@@ -1,10 +1,5 @@
 # 当前工程状态
 
-## 2026-09-12 · 成熟实践与资源治理前后端准备
-
-[RD-007](research/RD-007-resource-governance.md)消费《调研成熟实践》完整2轮/4消息、1张题录Library截图与22条原外链，Luna fast explore、Astra裁决。[前后端PR稿](research/mature-practices-2026-09-12/pr-plan.md)及[roadmap](research/mature-practices-2026-09-12/roadmap.md)沿LG/DS/BG/Runtime原owner，先来源保留/list与exact reader，再消息引用/Run版本保留/明确关联，后检索与版本注释；retention、disclosure、Core acceptance分轴，GC先只读盘点。六份一手规范/文档有限核验，其余成熟系统留候选，不引入DMS/向量库/工作流平台。本轮在隔离分支准备并已纳入main@d62f6bb的最新文档（RD-006已由其他任务合流），未改产品/schema，本研究未合主线/创建远端PR或部署，不重排在途writer与产品门。
-
-
 ## 2026-09-12 · Shell返回、提醒与观察契约优先消费
 
 [Shell控制面](design/shell-control-plane-2026-09-12/README.md)消费原始建议与三张追加截图：FE-NAV先冻结位置历史/选择筛选滚动与焦点恢复；Notification保持事件认知，与Core Attention以幂等引用关联；Usage承接已有Overview/Models、日历与date/model→Run快照下钻，小时矩阵和新Metric × Dimension先补owner/覆盖口径。已接活动前端规范与后端缺口，修正Usage先例路径；四项原件hash及隔离5067条链接通过。此轮仅合同/语义参考，无App、schema、箭头/Bell或新增统计实现，无非作者产品接受；8804保持运行，未push/deploy。

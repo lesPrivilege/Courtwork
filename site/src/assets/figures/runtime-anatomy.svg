@@ -1,12 +1,12 @@
 <svg class="fig" viewBox="0 0 760 500" role="img" aria-labelledby="fig-runtime-title fig-runtime-desc" xmlns="http://www.w3.org/2000/svg">
   <title id="fig-runtime-title">What a Runtime is made of</title>
-  <desc id="fig-runtime-desc">A resolved Runtime is one execution composition: a Model / Provider Adapter (identity, catalog, protocol, usage), a provider-neutral Harness Core (turn and step loop, tool dispatch, events, cancel, resume), Harness Capabilities admitted by policy and by what the adapter supports, and a Runtime Profile that binds model, effort, capability set and environment. It executes in an Environment — files, process, network, permission boundary — which today is a local working directory, not a trusted sandbox. The Harness Core keeps runtime protocol state, runtime-scoped; the execution owner is obliged to keep it recoverable, and that fidelity is not yet proven (DRT-02). It is not memory and not the Matter. Matter state lives in the Work Core, outside this chain; candidates reach it through the extension work adapter, while run events and telemetry go to the host runtime store. Today the composition is Pi AgentSession plus configuration and the service still calls its session manager directly; the target is to replace the composition and keep the Matter.</desc>
+  <desc id="fig-runtime-desc">A Runtime combines a Model / Provider Adapter, the Harness Core execution loop, capabilities admitted by policy and adapter support, and a Runtime Profile frozen for a Run. Pi AgentSession and configuration provide the current composition. Runtime protocol state belongs to the execution owner and has a separate recovery contract; it is not memory or Matter state. Work Core retains the Matter sources, evidence and decisions. Candidates reach it through the work adapter, while events and telemetry go to the host store. The current environment is a local working directory, not an operating-system sandbox.</desc>
   <defs>
     <marker id="fig-runtime-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
     </marker>
   </defs>
-  <text class="fig-label" x="16" y="24" font-size="11">RESOLVED RUNTIME · ONE EXECUTION COMPOSITION · PI AGENTSESSION + CONFIGURATION TODAY</text>
+  <text class="fig-label" x="16" y="24" font-size="11">RUNTIME COMPOSITION · PI AGENTSESSION + CONFIGURATION</text>
   <rect class="fig-node fig-set" x="16" y="36" width="440" height="336" />
   <g data-node="model-adapter">
     <rect class="fig-node" x="32" y="52" width="408" height="60" />
@@ -17,13 +17,13 @@
     <rect class="fig-node fig-centre" x="32" y="124" width="408" height="84" />
     <text class="fig-th" x="48" y="148" font-size="15">Harness Core</text>
     <text class="fig-muted" x="48" y="170" font-size="11.5">turn / step loop · tool dispatch · events · cancel · resume</text>
-    <text class="fig-muted" x="48" y="190" font-size="11">provider-neutral · reused from Pi · app/harness ≠ this loop</text>
+    <text class="fig-muted" x="48" y="190" font-size="11">provider-neutral · execution loop reused from Pi</text>
   </g>
   <g data-node="capabilities">
     <rect class="fig-node" x="32" y="220" width="408" height="76" />
     <text class="fig-th" x="48" y="244" font-size="14">Harness Capabilities</text>
     <text class="fig-muted" x="48" y="266" font-size="11.5">tools · MCP · files · subtasks · only as policy and adapter admit</text>
-    <text class="fig-muted" x="48" y="284" font-size="11">naming grants nothing · browser / sandbox not available by name</text>
+    <text class="fig-muted" x="48" y="284" font-size="11">capabilities remain subject to policy and adapter support</text>
   </g>
   <g data-node="profile">
     <rect class="fig-node" x="32" y="308" width="408" height="48" />
@@ -44,8 +44,8 @@
     <rect class="fig-node" x="490" y="124" width="254" height="100" />
     <text class="fig-th" x="504" y="148" font-size="12">Runtime protocol state</text>
     <text class="fig-muted" x="504" y="168" font-size="11">runtime-scoped · the execution owner</text>
-    <text class="fig-muted" x="504" y="184" font-size="11">is obliged to keep it recoverable</text>
-    <text class="fig-muted" x="504" y="200" font-size="11">not memory · not the Matter</text><text class="fig-muted" x="504" y="216" font-size="10.5">recoverability unproven today (DRT-02)</text>
+    <text class="fig-muted" x="504" y="184" font-size="11">holds the turn and tool protocol</text>
+    <text class="fig-muted" x="504" y="200" font-size="11">not memory · not the Matter</text><text class="fig-muted" x="504" y="216" font-size="10.5">recovery has its own execution contract</text>
   </g>
 
   <line class="fig-rule" data-deco="outside" x1="472" y1="36" x2="472" y2="478" stroke-dasharray="3 6" />
@@ -58,7 +58,7 @@
   <path class="fig-trace" data-edge="observations-out" d="M 442 300 H 470 V 342 H 486" marker-end="url(#fig-runtime-arrow)" />
   <text class="fig-muted" x="490" y="392" font-size="10.5">candidates reach it via the work adapter;</text>
   <text class="fig-muted" x="490" y="408" font-size="10.5">events and telemetry go to the host store (F1)</text>
-  <text class="fig-muted" x="490" y="432" font-size="10.5">Today: Pi AgentSession, and the service</text>
-  <text class="fig-muted" x="490" y="448" font-size="10.5">still calls its session manager directly.</text>
-  <text class="fig-muted" x="490" y="464" font-size="10.5">Target: a new composition, the same Matter.</text>
+  <text class="fig-muted" x="490" y="432" font-size="10.5">Replacement changes execution;</text>
+  <text class="fig-muted" x="490" y="448" font-size="10.5">sources, evidence and decisions</text>
+  <text class="fig-muted" x="490" y="464" font-size="10.5">keep their existing owner.</text>
 </svg>

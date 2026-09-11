@@ -1,6 +1,6 @@
-# 发布面候选
+# CourtWork 发布面
 
-本目录为 WO-PS-01 与 WO-PS-02 的第一版完整发布版面。七段叙事、Anatomy 七节点导航、概念定价、项目介绍与离线标本已经接入。用户已授权本轮 GitHub Pages 部署，最终线上状态见交付回执。品牌探索后置。
+本目录包含 CourtWork Pages 的叙事、产品导览、Chat、Features、Experts、Eval、安装与运行入口，以及固定来源的离线标本。当前组合媒体与前端接受见[最终节点](../engineering/release/frontend-node-2026-09-12/README.md)；本地构建与线上部署分别记录。
 
 ```sh
 node site/build.mjs
@@ -23,7 +23,7 @@ node site/scripts/verify.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-por
 
 capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的隔离 checkout 运行，且仅用独立合成数据目录。合流后的新 main 会被 capture 守卫拒绝；这不影响离线构建。更新基础标本快照须一起重取对应媒体、标本、benchmark 与测试记录；更新独立产品截图须重取 main 媒体并核对该来源的声称。不要通过取消来源检查来沿用旧图。
 
-页面文案同步 public-copy-v3 与 `src/copy.mjs`；README 由 `src/readme.mjs` 独立维护对外介绍，然后 `node site/build.mjs --write-readme`。普通 push 只构建，只有显式手动运行 Pages workflow 才可能部署；本轮用户已授权手动部署，随后独立 review；产品门按工程合同继续。
+页面文案同步 public-copy-v3 与 `src/copy.mjs`；README 由 `src/readme.mjs` 独立维护对外介绍，然后 `node site/build.mjs --write-readme`。普通 push 只构建，只有显式手动运行 Pages workflow 才可能部署；发布面检查、部署回执和真实 Runtime 验证分别记录。
 
 ## 表现与边界
 
@@ -45,7 +45,7 @@ Hero中的纸层保留原有构图与动效；其概念属性保存在图登记�
 node site/scripts/verify-product-pages.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-port 19961
 ```
 
-Tour 编排13类状态；当前批次 `publication-integrated-20260912` 以最终产品提交在同一合成 fixture（含 Spark 与 Attention 会话修正）上重拍全部13对明暗截图（`evidence/publication-final-20260911/recapture-media.mjs`），作者自检，非作者复核待 Astra；发布前必须整批完成并独立复核。上一批 `f1373cd` 保留在 `media/merged-20260911/`。旧批次 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的15份原生JPEG保留在历史媒体中，与基础 specimen 的 `9e5384f` manifest 分开；不会代作当前截图。历史批次见[原回执](../evidence/pages-main-visual-20260910/README.md)，当前交付以本轮合流回执为准。
+Tour 编排13类状态；当前批次 `publication-integrated-20260912` 固定最终产品 `0768822` 的13对明暗原生截图。Astra采集/修正与Luna有界非作者复核已完成，来源、实际采集记录和复核范围以[组合回执](../evidence/publication-integrated-20260912/README.md)为准。上一批 `f1373cd` 保留在 `media/merged-20260911/`。旧批次 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的15份原生JPEG保留在历史媒体中，与基础 specimen 的 `9e5384f` manifest 分开；不会代作当前截图。历史批次见[原回执](../evidence/pages-main-visual-20260910/README.md)，当前交付以本轮合流回执为准。
 
 ## Product presentation and primary navigation
 
@@ -59,3 +59,5 @@ The first-principles integration keeps the mature Tour / Paper / Release header,
 
 
 2026-09-12 最终组合截图：26张原生1440×900 JPEG固定到 `07688226330121e5877a6ff1e09e6ebf82995ae3`，旧1397b99 manifest保持在 `media/archive/main-publication-final-1397b99.json`，图像未转码。采集、更正记录和独立复核范围见[组合回执](../evidence/publication-integrated-20260912/README.md)。这条覆盖此前待Astra采图的状态，不构成新的部署回执。
+
+媒体manifest中的`evidence_path`为CourtWork仓库相对来源路径，配合本仓历史阅读，不是部署站点的相对URL；对外页面使用已构建的媒体URL。完整采集与review回执在仓库[evidence](../evidence/publication-integrated-20260912/README.md)，与固定产品source_sha分开。

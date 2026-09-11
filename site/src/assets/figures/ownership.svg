@@ -1,6 +1,6 @@
 <svg class="fig" viewBox="0 0 1000 690" role="img" aria-labelledby="fig-ownership-title fig-ownership-desc" xmlns="http://www.w3.org/2000/svg">
   <title id="fig-ownership-title">What CourtWork owns, what can be replaced</title>
-  <desc id="fig-ownership-desc">Above the stable runtime boundary CourtWork owns durable work semantics: the Work Surface, the Work Core (state, evidence, authority, commitment), the Expert package (Schema, Work Contract, capability requirements) and the Work Compiler, which emits a frozen Run Plan. Below the boundary sits replaceable execution: a Runtime Adapter (run control, events, recovery, host protocol), the Runtime in use (Pi) with candidate runtimes not yet connected, the Model / Provider Adapter and the Environment. Two things come back across the boundary by two different routes: run events and telemetry go to the host runtime store (execution trace), and candidates go to the Work Core through the extension work adapter. Effect is produced only through the Work API and the Core. The Work Surface reaches the Core directly through the Work API; the compiler is not on the control path. Work Core does not depend on the Model Adapter; the Environment is not the Matter store. Today the service still calls the Pi SessionManager directly; the adapter boundary is a target, drawn as the stable line.</desc>
+  <desc id="fig-ownership-desc">CourtWork keeps work state, sources, evidence and decisions in the Work Core. The Work Surface reaches it through the Work API. Expert declares requirements without granting authority. The Work Compiler is a planned responsibility that prepares a frozen Run Plan. The runtime boundary separates these work responsibilities from execution, model connections and the environment. Pi is the runtime in use; Codex and DSH are unconnected candidates. Candidates return through the work adapter, while execution events go to the host runtime store. Formal work changes follow Review, authority and Core commitment.</desc>
   <defs>
     <marker id="fig-ownership-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
@@ -21,7 +21,7 @@
     <text class="fig-th" x="32" y="178" font-size="17">Work Core</text>
     <text class="fig-muted" x="32" y="200" font-size="12">state · evidence · authority · commitment</text>
     <text x="32" y="224" font-size="12">the only domain owner of effect</text>
-    <text class="fig-muted" x="32" y="242" font-size="11">app/core owner · one SQLite transaction</text>
+    <text class="fig-muted" x="32" y="242" font-size="11">authority checked at commitment</text>
   </g>
 
   <g data-node="expert">
@@ -40,7 +40,7 @@
   <g data-node="work-compiler">
     <rect class="fig-node" x="360" y="300" width="300" height="60" />
     <text class="fig-th" x="376" y="326" font-size="15">Work Compiler</text>
-    <text class="fig-muted" x="376" y="346" font-size="11.5">target responsibility · today in M08 / M09</text>
+    <text class="fig-muted" x="376" y="346" font-size="11.5">planned · binds work requirements</text>
   </g>
   <line class="fig-edge" data-edge="compiler-plan" x1="510" y1="362" x2="510" y2="398" marker-end="url(#fig-ownership-arrow)" />
   <text class="fig-muted" x="520" y="384" font-size="11.5">emits</text>
@@ -102,5 +102,5 @@
   <text class="fig-muted" x="700" y="126" font-size="12">configuration; the work stays where it is.</text>
   <text class="fig-muted" x="700" y="160" font-size="12">Execution success is an observation.</text>
   <text class="fig-muted" x="700" y="180" font-size="12">Effect comes only through Review,</text>
-  <text class="fig-muted" x="700" y="200" font-size="12">Authority and the Core's commit (F2).</text><text class="fig-label" x="700" y="250" font-size="10.5">MATURITY</text><text class="fig-muted" x="700" y="270" font-size="11.5">Core, Surface, adapter seam: implemented.</text><text class="fig-muted" x="700" y="288" font-size="11.5">Compiler and Run Plan: target responsibility.</text><text class="fig-muted" x="700" y="306" font-size="11.5">Boundary: target — the service still calls</text><text class="fig-muted" x="700" y="324" font-size="11.5">the Pi session manager directly today.</text><text class="fig-muted" x="700" y="342" font-size="11.5">Codex / DSH: named candidates, not connected.</text>
+  <text class="fig-muted" x="700" y="200" font-size="12">Authority and the Core's commit (F2).</text><text class="fig-label" x="700" y="250" font-size="10.5">COMPOSITION</text><text class="fig-muted" x="700" y="270" font-size="11.5">Work Core holds decisions and evidence.</text><text class="fig-muted" x="700" y="288" font-size="11.5">Work Compiler describes a planned role.</text><text class="fig-muted" x="700" y="306" font-size="11.5">Pi provides the running execution loop.</text><text class="fig-muted" x="700" y="324" font-size="11.5">Codex and DSH remain alternatives</text><text class="fig-muted" x="700" y="342" font-size="11.5">for future runtime adapters.</text>
 </svg>
