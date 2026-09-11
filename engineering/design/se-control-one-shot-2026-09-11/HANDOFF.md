@@ -67,3 +67,7 @@ Astra只在收到Design之后填 `adopt / adapt / reject / defer`，写明原因
 ## Design Scout渐进披露
 
 先读[Luna蒸馏摘要L0](scout-digest.md)，按目标问题展开L1，再用[L2固定来源与hash](scout-digest-index.json)召回原文。摘要附Astra当前适用边界，历史角色/待办不自动恢复；Design必须在返回消费账中说明实际采用和拒绝。
+
+## 独立Design回报接收
+
+已收完成摘要；[Astra待核裁决与PR边界](return-intake.md)区分可裁工程原则与未见资产。实际zip/RETURN及画布待取得，不先填视觉接受。
