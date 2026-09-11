@@ -63,3 +63,7 @@
 Astra只在收到Design之后填 `adopt / adapt / reject / defer`，写明原因、影响的既有裁决与验证要求；随后把获准项拆为有界PR，由非作者复核，最后报告合流节点。用户负责提交/唤醒独立Design；本轮没有替用户发外部消息、建立新Design任务或预报其已接受。
 
 新增 [Taste Memory裁定](taste-memory.md) 是本次one-shot的必读与返回要求。候选、作者判断、用户裁决、非作者复核分别署名，不把已上线代码自动升级为先例。
+
+## Design Scout渐进披露
+
+先读[Luna蒸馏摘要L0](scout-digest.md)，按目标问题展开L1，再用[L2固定来源与hash](scout-digest-index.json)召回原文。摘要附Astra当前适用边界，历史角色/待办不自动恢复；Design必须在返回消费账中说明实际采用和拒绝。

@@ -1,0 +1,102 @@
+{
+  "schema": "courtwork.design-scout-digest.v1",
+  "product_source_head": "a01dee89e752111e63012b705ef81350ce518446",
+  "disclosure_levels": ["L0", "L1", "L2"],
+  "status_vocabulary": ["canonical", "reference", "unverified", "deferred"],
+  "entries": [
+    {
+      "path": "engineering/design/scout/README.md",
+      "fixed_source_commit": "0c60f4ffe0e4d939712df3910d2404c226e8bfdf",
+      "sha256": "80bc2509949000df39027bb755d12e1507ad693cd15853a22af9d196e1c98e91",
+      "status": "canonical",
+      "role": "current Scout v2 index",
+      "anchors": ["# Design Scout Index · v2（按问题寻址）", "## 0. 消费链", "## 1. 来源（按层；核验 = Fable 2026-09-09）", "## 2. 问题索引（单页；某问题累积 ≥ 1 条已裁 capture 后才开子目录，WK-118 规则）", "## 3. 两种 sweep", "## 4. 节奏：pull，不 push"]
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/inputs/design-scout-layer-2026-09-09.md",
+      "fixed_source_commit": "3299730f3bebcc61124d505122ac2165e3933161",
+      "sha256": "3806e27408cb9c29c549cb4aed3abaacf8e99beabb33f78368370fb1029bf72f",
+      "status": "reference",
+      "role": "Scout v1 user-transferred feed and capture schema",
+      "anchors": ["# 用户转交 · Design Discovery Feed / Scout Layer（Exa 查站点与同类来源，2026-09-09）", "**五级证据层级（用户）**", "**Intake schema（用户）**"]
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/inputs/design-scout-index-v2-2026-09-09.md",
+      "fixed_source_commit": "6bd8fb0da23135e480cfe28e195ee0d17554f2ca",
+      "sha256": "37188e5fe7312631b6e9d6dd21fa25288ffe594e00ee8dba00e0237c1042dbc5",
+      "status": "reference",
+      "role": "Scout v2 user-transferred problem-index and section-sweep proposal",
+      "anchors": ["# 用户转交 · Design Scout Index v2（Exa 24 结果 / 3 workstream，2026-09-09）", "**组织方式**", "**Section gallery 的横向比较法**", "**两个最高优先级入口**"]
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/explore/ex-sc1-scout-pilot.md",
+      "fixed_source_commit": "318b1379caf48b0f35e9f293f92310553694ea7d",
+      "sha256": "7da25fde462ee6632a05a9cea3eb665b7f07f575f4c2b8d6aa110f81d2b59d80",
+      "status": "reference",
+      "role": "Pilot evidence; author dispositions are historical input",
+      "superseded_by": "WK-135 in intake-round-3.md",
+      "anchors": ["# EX-SC1 · Design Scout 试点回执", "## 1 · 抓取可行性", "## 2 · Capture（8 条，按 scout/README.md §3 schema）", "## 3 · Schema 试用反馈", "## 5 · 未做项与原因"]
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/intake-round-3.md",
+      "fixed_source_commit": "ab09b0dee05f73e8e615c0a5f9107a8ba15ff697",
+      "sha256": "18b5de02db0d02d1db7926e66a09258dce37f8b80e796f39509c2dd0353b833a",
+      "status": "canonical",
+      "role": "Accepted Scout layer, pilot disposition, and v2 sweep decision",
+      "anchors": ["## 4am. Design Scout 层 → WK-134（2026-09-09）", "## 4an. EX-SC1 回执 → WK-135（2026-09-09，Scout 试点消费）", "## 4ap. Design Scout Index v2 → WK-137（2026-09-09）"]
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/inputs/design-research-index-2026-09-09.md",
+      "fixed_source_commit": "85dc36393e90f296c03fba827d4fa1f8ba8b7441",
+      "sha256": "b12d15a36a7abd3b69d8efb9c3d689ee56f6c5da907cadfbb73a0a51121fbf2c",
+      "status": "reference",
+      "role": "Research workflow and recipe source; not a product style authority",
+      "anchors": ["## 0. Canonical Loop", "## VI. Claude Design Handoff Contract", "## VII. Variant Rule", "## VIII. Papercut / Misfit Ledger", "## IX. Anti-Slop Review Gate", "## X. Canonical Design Principle"]
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/inputs/ui-source-tiers-2026-09-09.md",
+      "fixed_source_commit": "a286ab770bbc919a0476904505d27bc2c2cb9956",
+      "sha256": "4b5522a7ce54f4d0542d39ea3bb922af541b30b92590aabe46147044680e0927",
+      "status": "canonical",
+      "role": "Accepted A/B/C/D source tiers and donor boundaries",
+      "anchors": ["# 用户转交 · 来源分层与 Spectrum UI 定位（Exa 38 结果 / 4 检索方向，2026-09-09）", "## 第二段：收敛后的四层来源"]
+    },
+    {
+      "path": "engineering/design/agent-interface-2026-09-10/precedent-map.md",
+      "fixed_source_commit": "9c8b64e85e1b4a906dcd23cd5be621da1ba90638",
+      "sha256": "77ec85ff1173b36ea38804907036bbaeaeebd804e1be51cb2890b13fb2f99a12",
+      "status": "canonical",
+      "role": "Nearest local precedent and problem-key recall",
+      "anchors": ["# Precedent map · 按问题寻址的薄导航表", "## 0. 使用规则", "### `composer`", "### `approval`", "### `projection.status`", "### `material.chrome` / `material.transient`"]
+    },
+    {
+      "path": "engineering/design/agent-interface-2026-09-10/README.md",
+      "fixed_source_commit": "c851ef718b87332d9daacdc715d12007cde66ccc",
+      "sha256": "d4c3d4ef57e0dba22fd15fc3c33b85836d089eb04c262cab4633d92252a229ea",
+      "status": "canonical",
+      "role": "Progressive disclosure and independent authority axes",
+      "anchors": ["## 0. 本页解决的唯一问题", "## 1. 三条独立的权威轴（不是一条文档层级）", "## 2. 四种治理状态（只有四种）"]
+    },
+    {
+      "path": "engineering/design/decisions.md",
+      "fixed_source_commit": "d20fbc3c9da983e1e7620fc28274fdebf51cbd4d",
+      "sha256": "bbdaa23be05a9c78b183104bff564d7f2d0366debcd9116eb6e3d3619ac6a714",
+      "status": "reference",
+      "role": "Existing accepted/proposed design boundary; not Scout authority",
+      "anchors": ["# Design 裁决记录", "## DS-004 · 历史参考不替代当前设计语境", "## DS-006 · 会话主区与独立 Tab 工作区", "## 后续单项格式"]
+    }
+  ],
+  "coverage_gaps": [
+    "No inspector/contextual-toolbar section sweep has been delivered.",
+    "Application navigation remains unresolved at ATT-FE-01.",
+    "Onboarding waits on BE-21; error/empty and dashboard follow-ups remain in their recorded queues.",
+    "Local motion/material specimens and the GI brand line remain bounded work.",
+    "No per-problem Scout subdirectory or new capture is claimed by this digest."
+  ],
+  "omitted": [
+    "Full repository reread",
+    "External re-fetch or visual inspection of images, recordings, or Figma",
+    "Implementation, dependency, or new Design direction",
+    "User-preference, holdout, eval, or research-author metric claims"
+  ]
+}

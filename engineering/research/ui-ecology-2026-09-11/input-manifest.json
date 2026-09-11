@@ -23,6 +23,11 @@
       "bytes": 10605,
       "source": "user-pasted supplement",
       "limits": "40 sources/4 workstreams are source-author claims; no raw Exa results supplied"
+    },
+    "header-controls-user.png": {
+      "sha256": "d5205588ea71029896693d51cb51666f92c0255f9de6f36abef8e78f7803e1ab",
+      "bytes": 2382,
+      "source": "user screenshot,2026-09-11"
     }
   }
 }

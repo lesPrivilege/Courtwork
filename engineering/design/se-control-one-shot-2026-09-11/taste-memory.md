@@ -29,7 +29,7 @@
 | rationale归属 | 用户说此类表面一般更浅；Astra适配现有L2 float，composer已满足、气泡修正 |
 | 证据 | [修正前后与测量](../../../evidence/dark-authored-20260911/README.md) |
 | 不推广到 | Light原裁定、所有卡片、review语义、overlay材质、全局亮度排序 |
-| 接受状态 | 用户方向已裁；具体实现需独立复核和合流回执 |
+| 接受状态 | 用户方向已裁；具体实现5e3a504已通过Luna独立复核，由Astra按该有界证据接收 |
 
 ## 后续实验（未派工）
 

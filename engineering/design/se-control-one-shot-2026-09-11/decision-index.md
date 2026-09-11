@@ -4,7 +4,7 @@ This is the pull index for the current Courtwork design and interaction decision
 
 ## Current boundary
 
-- **Implementation line:** `main` at `a01dee89e752111e63012b705ef81350ce518446`, also `origin/main` when this index was written. `Courtwork-fresh` and frozen legacy material are not implementation authorities.
+- **Frozen source snapshot:** `main` at `a01dee89e752111e63012b705ef81350ce518446`, also `origin/main` when this index was written. `Courtwork-fresh` and frozen legacy material are not implementation authorities.
 - **Pages capture source:** `f1373cde341b5a17299fad6ba5921ba3fcc43824`. The current capture plan is `ready`; the merged batch has 13 slots, one light/dark pair per slot, 26 native images, 1440×900, DPR 1, matching source and state IDs. This proves capture readiness and independent review, not product acceptance or deployment.
 - **Integration source:** `035134b919c195fe9454f279c297052bb8e32089` was fast-forwarded to `main`. The convergence record says PR #2 was closed because its content was already on the main line; that closure is not a new product acceptance event and there was no deployment.
 - **Preserved working state:** the pre-existing dirty files are `evidence/fe01-main-integration-20260909/wk98-regression.json`, `engineering/mvp/execution/work-surface-kit/explore/ex-ss1-secondary-surface.md`, and `site/verification/main-20260910/`. This index does not adjudicate or modify them.
@@ -45,3 +45,9 @@ The machine-readable paths, hashes, headings/symbols, status, and decision dispo
 ## New Taste Memory handoff
 
 Before the next one-shot decision, read the newly added [Taste Memory handoff](HANDOFF.md), its [Taste Memory decision record](taste-memory.md), and the [full research input](../../research/ui-ecology-2026-09-11/taste-input.txt). The four returned asset types are Grammar, Exemplars, Preference Log, and Open Taste. The record keeps shared craft separate from situated preference, preserves rejected candidates, and does not turn unrun holdout/eval work or research-author claims into Courtwork measurements or user preference votes.
+
+## Design Scout渐进披露
+
+先读[Luna蒸馏摘要L0](scout-digest.md)，按目标问题展开L1，再用[L2固定来源与hash](scout-digest-index.json)召回原文。摘要附Astra当前适用边界，历史角色/待办不自动恢复；Design必须在返回消费账中说明实际采用和拒绝。
+
+Astra amendment: the dark authored correction5e3a504 now has [independent pass](../../../evidence/dark-authored-20260911/independent-review.md). The a01 hash ledger remains immutable source provenance, not a claim that a01 is the newest product HEAD.
