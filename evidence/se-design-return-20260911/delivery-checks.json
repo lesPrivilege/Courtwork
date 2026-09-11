@@ -11,6 +11,88 @@
   "original_zip_members_verified": 28,
   "native_capture_files": 38,
   "product_tests": "not rerun; no app/site behavior changes",
-  "integration": "explicit-stage candidate ready; final main preservation receipt recorded after fast-forward",
+  "integration": {
+    "candidate_commit": "bc78e9054fbc57c0dfb2ebf1189cae535ffad1f3",
+    "main_fast_forward": true,
+    "other_writer_files_preserved": 15,
+    "other_writer_hashes": [
+      {
+        "path": "evidence/fe01-main-integration-20260909/wk98-regression.json",
+        "status": " M",
+        "sha256": "b1e3a8dbd40e02211679b85b72858a619433097532aec38009c1ce4a71a01769"
+      },
+      {
+        "path": "engineering/mvp/execution/work-surface-kit/explore/ex-ss1-secondary-surface.md",
+        "status": "??",
+        "sha256": "6cbc3b91124437e4f2acf70e50f913340c36a3474d16c080bf0e1ca4c80e9a84"
+      },
+      {
+        "path": "site/verification/main-20260910/architecture-focus.png",
+        "status": "??",
+        "sha256": "fdf5b561e1dd127e73c58400c8330553b5954f3427b8f759fe4ad65f82ffda9d"
+      },
+      {
+        "path": "site/verification/main-20260910/contrast.json",
+        "status": "??",
+        "sha256": "fb271d622497c2317ffcb2c10be44b30fa0489b07385d7bb25df62f827fd9ede"
+      },
+      {
+        "path": "site/verification/main-20260910/page-1440-dark.png",
+        "status": "??",
+        "sha256": "5e0d645a5b0ede422b8c58d89b318cf5203ffed33d7df0b97632817b821e1450"
+      },
+      {
+        "path": "site/verification/main-20260910/page-1440-light-zoom200.png",
+        "status": "??",
+        "sha256": "2bacc09b275985d7860934cc1f4c35f9b251aac7efc203ab5c8ad51ebaf95dab"
+      },
+      {
+        "path": "site/verification/main-20260910/page-1440-light.png",
+        "status": "??",
+        "sha256": "7d31f867ccef7e002ef6aa31fcbe2eda66642d65c8ec99915a3473a8d946f585"
+      },
+      {
+        "path": "site/verification/main-20260910/page-390-dark.png",
+        "status": "??",
+        "sha256": "7c418ba6992db4f5fe2761becc4d78986eb0f04ae889706b1454a77fb946065d"
+      },
+      {
+        "path": "site/verification/main-20260910/page-390-light.png",
+        "status": "??",
+        "sha256": "085d0620bfbdfe7eb762f531c551a9a9ce9b9b99c865d3806ea1367566feee51"
+      },
+      {
+        "path": "site/verification/main-20260910/pricing-1440-dark.png",
+        "status": "??",
+        "sha256": "d0d055b6902d26030dd50915d6fa08571285047a40b5e5285b4ffce475c7ed94"
+      },
+      {
+        "path": "site/verification/main-20260910/pricing-1440-light-zoom200.png",
+        "status": "??",
+        "sha256": "da3345f1e563bac98b881fee633df544e5e9b67b94528501df57070b8f5f072a"
+      },
+      {
+        "path": "site/verification/main-20260910/pricing-1440-light.png",
+        "status": "??",
+        "sha256": "75b797caf64a3390389e2f735de66c99d70d8275748de65766767644ccaa67c7"
+      },
+      {
+        "path": "site/verification/main-20260910/pricing-390-dark.png",
+        "status": "??",
+        "sha256": "e88372be02dd58856004922b055c4f000d61abd151ef6ee26deec1364d00ea82"
+      },
+      {
+        "path": "site/verification/main-20260910/pricing-390-light.png",
+        "status": "??",
+        "sha256": "6cd366ff3cce6798eb75819230f0965ff1a5ca806a4ba6bd050ddb8e75e5e1bf"
+      },
+      {
+        "path": "site/verification/main-20260910/verify.json",
+        "status": "??",
+        "sha256": "dcdbbcb013d5668b95891712d8dd6f3eec2082dd5df5710521cf1c53e8d88a48"
+      }
+    ],
+    "remote_publish": "performed after final receipt commit; remote HEAD checked separately"
+  },
   "bounded_independent_document_review": "pass; all3 findings resolved"
 }
