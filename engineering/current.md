@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-11 · Claude Paper v1已裁并本地集成
+
+[完整原件、八项裁定与验证](research/claude-paper-return-2026-09-11/v1/README.md)接收140文件原包，采用E1封面、黑色宗默认／上横红彩色宗可选；Astra修正元数据、alt、资源缺失和打印层叠。SE本地main已到0f23ad1，浏览器110/110、译文门8与资源负例3通过；源文／译文／历史发布20文件字节不变。CourtWork仅保存裁定与证据，未推送SE或触发Pages，原生a11y等未测项保持开放。此状态替代先前待作者返回记录。
+
 ## 2026-09-11 · Context Window产品化待消费
 
 [来源登记](research/context-window-2026-09-11/README.md)固定1轮/2消息、1张截图与引用链接；主题含composer meter、Context Inspector、compaction事件、projection及context/quota区分。按用户要求稍后消费，本轮未核验外部主张、未裁产品方案或启动实现，不改变Claude Paper串行任务。
