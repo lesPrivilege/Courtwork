@@ -1,0 +1,55 @@
+{
+  "origin": "http://127.0.0.1:8848",
+  "at": "2026-09-11T16:09:52.642Z",
+  "note": "Real navigation served from the built sprite after integration; no DOM swap.",
+  "shots": [
+    {
+      "file": "nav-integrated-light-1x.png",
+      "direction": "integrated",
+      "theme": "light",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-integrated-light-2x.png",
+      "direction": "integrated",
+      "theme": "light",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-integrated-dark-1x.png",
+      "direction": "integrated",
+      "theme": "dark",
+      "dpr": 1,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    },
+    {
+      "file": "nav-integrated-dark-2x.png",
+      "direction": "integrated",
+      "theme": "dark",
+      "dpr": 2,
+      "clip": {
+        "x": 0,
+        "y": 0,
+        "w": 256,
+        "h": 252
+      }
+    }
+  ]
+}
