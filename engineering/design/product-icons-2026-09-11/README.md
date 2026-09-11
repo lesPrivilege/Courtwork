@@ -1,15 +1,17 @@
 # Product glyph set · 2026-09-11
 
+2026-09-12：[Expert Quiet profile](../sidebar-product-model-2026-09-12/EXPERT.md)按用户授权新增第四枚domain glyph，仅接App静态planned身份行；后端能力不变。
+
 2026-09-11后续：[用户形象反馈与最新裁定](../../release/ui-publication-closure-2026-09-11/icon-atmosphere-20260911/README.md)将Spark/Attention现有造型记为临时实现；下文是已接入来源记录，不再要求新造型继承拓扑隐喻。
 
-Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closure-2026-09-11/ONE-SHOT.md). One sprite, one geometry contract, one registry: the Lucide 1.41.0 static subset (IC-5/IC-8, unchanged family) plus three CourtWork domain glyphs, consumed through `tools/product-semantics.mjs` and `app/web/semantic-controls.mjs`. This is an author candidate; non-author review and owner disposition (inventory level L2) remain Astra's.
+Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closure-2026-09-11/ONE-SHOT.md). One sprite, one geometry contract, one registry: the Lucide 1.41.0 static subset (IC-5/IC-8, unchanged family) plus four CourtWork domain glyphs, consumed through `tools/product-semantics.mjs` and `app/web/semantic-controls.mjs`. This is an author candidate; non-author review and owner disposition (inventory level L2) remain Astra's.
 
 ## Sources and regeneration
 
 | Set | Source of truth | Generated output |
 |---|---|---|
 | Lucide subset (44 files) | `tools/ui-vendor/lucide/*.svg`, pinned by `lucide/sources.json` (commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`, per-file sha256) | `app/web/vendor/icons.svg` symbols |
-| CourtWork domain (3 files) | `tools/ui-vendor/courtwork/{spark,attention,chat}.svg`, `courtwork/sources.json` (sha256, origin, MIT) | same sprite, same symbol grammar |
+| CourtWork domain (4 files) | `tools/ui-vendor/courtwork/{spark,attention,chat,expert}.svg`, `courtwork/sources.json` (sha256, origin, MIT) | same sprite, same symbol grammar |
 | Semantic mapping | `engineering/design/product-semantics/registry.json` (58 entries) | `app/web/product-semantics.generated.mjs` via `node tools/product-semantics.mjs --write` |
 | Contact sheet + glyph manifest | `node tools/ui-vendor/contact-sheet.mjs` | `contact-sheet.html`, `glyph-manifest.json` (this directory) |
 
@@ -47,7 +49,7 @@ Full hashes are in `tools/ui-vendor/lucide/sources.json`, `tools/ui-vendor/court
 - Glyphs are `aria-hidden` and unfocusable; labels, accessible names, tooltips, object names, state words and consequences stay in the host control. Spark / Attention / Chat keep their visible text in the sidebar (`setSemanticControl(…, { visible: true })`).
 - No state is drawn into iconography; no fill/line variants; no Settings facts are invented — each Settings glyph names an existing group of `SETTINGS_GROUPS`.
 - Hit regions stay 32px desktop / 44px narrow from `--control`, independent of the 16/18/20/24 glyph size.
-- Text-reserved keys (`attention.queue`, `matter.object`, `expert.role`, `review.open`, `approval.request`, …) stay text.
+- Text-reserved keys (`attention.queue`, `matter.object`, `review.open`, `approval.request`, …) stay text.
 - `plug` is shared by Tools & Integrations, Connection and MCP server as a multi-purpose glyph; the name beside it supplies the object.
 
 ## Consumption ledger (product buttons, header, sidebar, menus)

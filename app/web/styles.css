@@ -712,12 +712,28 @@ button {
   flex-direction: column;
   padding: 0 12px 12px;
 }
-/* WO-CS-01 · groups sit 16 apart; the primary nav rows are one group, 4 apart. */
+/* Groups stay 16 apart; the compact primary navigation keeps full hit regions. */
 .sidebar > * + * {
   margin-top: var(--space-4);
 }
-.sidebar > .nav-home + .nav-home {
-  margin-top: var(--space-1);
+.sidebar > .nav-home + .nav-home,
+.sidebar > .nav-home-row + .nav-home {
+  margin-top: calc(var(--space-1) / 2);
+}
+.nav-home-row {
+  display: flex;
+  align-items: stretch;
+}
+.nav-home-row > .nav-home {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+.nav-home-row > .icon-only {
+  width: max(44px, var(--control));
+  min-width: max(44px, var(--control));
+  min-height: max(32px, var(--control));
+  margin-right: var(--space-1);
 }
 /* WK-42 · the wordmark row is the sidebar's share of the band: full bleed, one
    rule at its foot, text on the same 20px left edge as every nav row below. */
@@ -763,6 +779,20 @@ button {
   /* 32 on the desktop even with a 16 glyph; the 44 touch step still wins. */
   min-height: max(32px, var(--control));
   padding-left: 8px;
+}
+/* A planned product identity has no navigation or disabled-control affordance. */
+.nav-planned-seat {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 5px 10px 5px 8px;
+  border: 1px solid transparent;
+  font-size: var(--text-label);
+}
+.nav-seat-plan {
+  margin-left: auto;
+  color: var(--muted-strong);
+  font-size: var(--text-caption);
 }
 .nav-home[aria-current="page"] {
   background: var(--selected);

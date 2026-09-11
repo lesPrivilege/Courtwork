@@ -230,6 +230,7 @@
   <path d="M4 3h9a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H8l-3 3v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
   <rect x="14" y="13" width="8" height="8" rx="1.5" />
 </symbol>
+<symbol id="expert" viewBox="0 0 24 24"><path d="M6 21v-2.5c0-2 1.4-3.6 3.5-4.2V12C7.9 11 7 9.4 7 7.5a4.5 4.5 0 0 1 9 0L19 10h-3v3h-3v3.2c2.8.6 4 2.3 4 4.8"/><path d="M11 7h1"/></symbol>
 <symbol id="spark" viewBox="0 0 24 24">
   <rect x="3" y="8" width="6" height="8" rx="1" />
   <path d="M9 12h3" />

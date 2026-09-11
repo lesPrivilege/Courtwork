@@ -1,0 +1,26 @@
+{
+  "base": "1b8bd3c",
+  "kind": "observed-check-summary",
+  "tests": [
+    {
+      "command": "node --test app/tests/product-icons.test.mjs app/tests/product-semantics.test.mjs app/tests/static-web-manifest.test.mjs",
+      "passed": 19,
+      "failed": 0
+    },
+    {
+      "command": "node --test app/tests/chat-entry.test.mjs",
+      "passed": 2,
+      "failed": 0
+    }
+  ],
+  "checks": [
+    "lint-colors (41 files)",
+    "lint-interaction (36 files)",
+    "lint-materials (5 files)",
+    "check-semantic-consumers",
+    "check-product-copy",
+    "contrast-report",
+    "git diff --check"
+  ],
+  "scope": "Before publication-final merge; subsequent UI changes require final candidate checks"
+}

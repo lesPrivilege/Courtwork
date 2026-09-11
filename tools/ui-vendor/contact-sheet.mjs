@@ -27,7 +27,7 @@ const source = (name) => (courtwork.files[`${name}.svg`] ? { kind: "courtwork-do
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const use = (name, size) => `<svg class="ui-icon" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#${name}"/></svg>`;
 const sizes = [16, 18, 20, 24];
-const NEIGHBOURS = { spark: ["house", "message-square", "plug"], attention: ["house", "message-square", "plug"], chat: ["house", "message-square", "square-pen"], "text-align-start": ["panel-right", "panel-left", "x"] };
+const NEIGHBOURS = { expert: ["chat", "attention", "cpu"], spark: ["house", "message-square", "plug"], attention: ["house", "message-square", "plug"], chat: ["house", "message-square", "square-pen"], "text-align-start": ["panel-right", "panel-left", "x"] };
 const row = (name) => {
   const src = source(name);
   const keys = consumers.get(name) ?? [];

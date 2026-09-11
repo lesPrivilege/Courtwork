@@ -374,18 +374,18 @@ export const productSemantics = freeze({
         "app",
         "pages"
       ],
-      "glyphPolicy": "none",
-      "glyphRef": null,
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "expert",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
       "interactionRole": "identity",
       "tooltipRule": "accessible-name-when-icon-only",
       "representations": {
-        "app": "text",
+        "app": "glyph",
         "pages": "text"
       },
-      "reviewStatus": "text-reserved",
+      "reviewStatus": "mapped-candidate",
       "ownerAnchor": "## Ownership and compatibility"
     },
     {

@@ -1,6 +1,6 @@
 {
   "sprite": "app/web/vendor/icons.svg",
-  "spriteSha256": "fd07820af7ec10e3ed53df58f129cecf73d60a05d30010c289090034c5236b30",
+  "spriteSha256": "7c81ec8bf77814fb70c4d6f86827306fef4e3275fec6b387c3e4e8a6c7de2989",
   "symbols": [
     {
       "symbol": "activity",
@@ -395,6 +395,14 @@
       "sha256": "1c14966a17880410d4fd41711f9ca8f1cf259db4cc1a2d569960918f7d546851",
       "consumers": [
         "chat.surface"
+      ]
+    },
+    {
+      "symbol": "expert",
+      "kind": "courtwork-domain",
+      "sha256": "d23af3a7c2e5bccf74bc0c3d8fec229461b466be1312534d8d42cab57f8dd8b5",
+      "consumers": [
+        "expert.role"
       ]
     },
     {

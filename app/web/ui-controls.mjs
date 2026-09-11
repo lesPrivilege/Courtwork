@@ -59,6 +59,7 @@ const icons = new Set([
   "play",
   "download",
   // CourtWork domain glyphs and the Settings group set (stage 1, 2026-09-11)
+  "expert",
   "spark",
   "attention",
   "chat",

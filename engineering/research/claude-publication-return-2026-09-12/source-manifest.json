@@ -1,0 +1,586 @@
+{
+  "base": "ec240e7",
+  "head": "f8b8914dfa466d6dbad452f3086703a380694748",
+  "branch": "claude/publication-final-v1",
+  "commits": [
+    "f8b8914dfa466d6dbad452f3086703a380694748 site: Pages media recaptured on the final product commit (batch publication-final-20260911)",
+    "1397b995afe138fd07cd8022391f36d16bc29c85 ui: example workspace re-recorded from the corrected capture fixture (Spark stale candidate, successful Attention conversation)",
+    "3a0d9e6c205fd843b22a8f309df0fa7be5586277 site: architecture figures F1–F5 on Features and Experts; README narrative \"orchestrate, then Court\"",
+    "885dfe524128ff7507c521f81c18becf6ed6aa71 ui: the example workspace — one synthetic story behind request(), entered on an empty workspace, closed by the first completed real run",
+    "180e8bb00fe7b1bedf518cb8df737094bc81a88b icons: Spark / Attention atmosphere directions A/B/C; direction A integrated",
+    "5018f3d3636889359d0978567fb9c35b5eaa5a8a ui+site: ordinary control accent and unavailable pair; Pages paper CTA leaves the Review token",
+    "53900a39423e2c42360acd2c48a9a29c363b0eb1 ui+site: Chat page, secondary host chrome reservation, Pages chat.html"
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "603ab6f1cf9ad723ebfe5a00982c4325b0621fa13e5a97d07a7dd7a6ed2092f2",
+      "bytes": 5223
+    },
+    {
+      "path": "app/docs/example-workspace.md",
+      "sha256": "64d5da10d41e9e9ad49809b5e0fb4557181e295a54ab23a6d7acfe4af64bfbc4",
+      "bytes": 3393
+    },
+    {
+      "path": "app/scripts/record-preview.mjs",
+      "sha256": "0d28b6fb7806c7b0cd4da6b29a25b97299b5b5394ed05a1cabbc04dbf73b8a8a",
+      "bytes": 10597
+    },
+    {
+      "path": "app/server/index.mjs",
+      "sha256": "1697c0a1ab12b223f374d74b5e2ca524472f9dabbad839325062a0be5eff7df7",
+      "bytes": 21806
+    },
+    {
+      "path": "app/tests/chat-entry.test.mjs",
+      "sha256": "be35c36466482a6677a76f9bba52b7dd1b7e2aa4ee409fe43f54e5e1f1d1f2f5",
+      "bytes": 2248
+    },
+    {
+      "path": "app/tests/chat-page.test.mjs",
+      "sha256": "36f4273c66e2b7d3d6244d51920bda86828700dfeb79d79f4a2007877582962a",
+      "bytes": 4437
+    },
+    {
+      "path": "app/tests/control-accent.test.mjs",
+      "sha256": "334d1f10cb430e53901d48862d7b321d50a009e1f410f6372632eaa6ed7f7723",
+      "bytes": 3156
+    },
+    {
+      "path": "app/tests/preview-layer.test.mjs",
+      "sha256": "500da220eb9d62dc46edc88072731e21f6b0f3510a30bb55529b3207b2bcdb3b",
+      "bytes": 6543
+    },
+    {
+      "path": "app/tests/semantic-guards.test.mjs",
+      "sha256": "1e06a582a389d54f1b2f0a949f4e5b89949b0d0b7117c9a9f51a17fcf38a1df9",
+      "bytes": 2129
+    },
+    {
+      "path": "app/tests/skin-policy.test.mjs",
+      "sha256": "fb45db52ae6b6117da8391202569125a55a8186673fe99622e559e26b26fa969",
+      "bytes": 7586
+    },
+    {
+      "path": "app/web/app.mjs",
+      "sha256": "42a75c66fdb65ed442072831af21b80fb169c761555e84d0fc8171ef59ad5898",
+      "bytes": 268695
+    },
+    {
+      "path": "app/web/chat-page.mjs",
+      "sha256": "2b4c3c6b912b92ad3d6935ecb96095d37448397bdcb1f8413eee080c1dbdeb1e",
+      "bytes": 7935
+    },
+    {
+      "path": "app/web/index.html",
+      "sha256": "300ebc63a74a3d2ccfcabb3989c835f16e2e2a8963e725a3b1a6f2680523e2d7",
+      "bytes": 36806
+    },
+    {
+      "path": "app/web/preview-layer.mjs",
+      "sha256": "ef619bf5c32ee1f4f4467cefccc4df645104a626ff7f663a0d1216f4504f3488",
+      "bytes": 6800
+    },
+    {
+      "path": "app/web/samples/preview/manifest.json",
+      "sha256": "beefa24fced3c41f04a707199531291aadde8d0f34b52f0898516dfb6eb90dd3",
+      "bytes": 1608
+    },
+    {
+      "path": "app/web/samples/preview/responses.json",
+      "sha256": "8bd514ed4a31cf8f10c34dcc7fa5349ea4f63b4c364d467b6815be2d78cb7b1b",
+      "bytes": 164161
+    },
+    {
+      "path": "app/web/settings-view.mjs",
+      "sha256": "4692aa216c2f6bf31fd93af703cf5db1ec0fbcbb97278041ad46441ea93361e3",
+      "bytes": 118823
+    },
+    {
+      "path": "app/web/styles.css",
+      "sha256": "69c2c6c0dc384d3aaed17d227feb7cd340ca64b7555fac3a6c9ed1e900fb68ba",
+      "bytes": 206839
+    },
+    {
+      "path": "app/web/vendor/icons.svg",
+      "sha256": "8580ab59436846896aacdc71aa98439bae8ff6d3baa97713d2202d278b709ca8",
+      "bytes": 9092
+    },
+    {
+      "path": "app/web/vendor/manifest.json",
+      "sha256": "bb6c0dba6c7d140a1b61b21f2877d79956f728434ac75f2458f2f95f355b56be",
+      "bytes": 15042
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/README.md",
+      "sha256": "38a33a18a64883fcd9e589bc7cb2ff42f9894a8eb089edbc98b6a26643d87bd5",
+      "bytes": 7358
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/README.md",
+      "sha256": "3f3b613ad423c487ef5dd66618a9e693231cbe256f7145745df19faf35c14b51",
+      "bytes": 3378
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/build-sheet.mjs",
+      "sha256": "3ec8e2c8c64d0316ec5d27daa5a1a37749e3e554e1374c5f7d2266d07e0c7308",
+      "bytes": 8857
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/capture-nav.mjs",
+      "sha256": "705a07109d29d3898022aa0f663b36a455657ac4106927fd71a8eb4e995cc5a0",
+      "bytes": 6769
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions-manifest.json",
+      "sha256": "1feeb1de0f50951c264ee6ebe5f83b138feca38ba5b3bc840b7fdcd90fa02174",
+      "bytes": 977
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions.json",
+      "sha256": "fd8e41caf68ebb58c05bba49b2263ef986a2fc9fbacffc305d78aa22017c7632",
+      "bytes": 3100
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/a/attention.svg",
+      "sha256": "bbd8af8302def841bcfe76b070594587fcbf3cd847a5225961283fcbe57c0423",
+      "bytes": 279
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/a/spark.svg",
+      "sha256": "d7232086fac7784fd5a759fbc381bf25d1fa91dd6de437adeb3e44de29bb860a",
+      "bytes": 320
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/b/attention.svg",
+      "sha256": "220aa999b7cc622bcf7da6447e5f8f1e21f3e398c7bb1026df378cb09256b41d",
+      "bytes": 284
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/b/spark.svg",
+      "sha256": "0d29d7579724de41a44569503ccc9712bf9681626b337021d6ffc904c8ef3e99",
+      "bytes": 326
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/c/attention.svg",
+      "sha256": "f9d5bc760236592ac9075837cd61a8a29179591e8554f61149b63fb62db53038",
+      "bytes": 305
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/c/spark.svg",
+      "sha256": "db1b7ec68444147e20d4c1cd8e8e1384d8ae507d4a218b944b4ae1727e561a0e",
+      "bytes": 322
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/current/attention.svg",
+      "sha256": "1bd6adfc595571dfc4b99610927991c246dbdc630b2ace2318212fb0112e2665",
+      "bytes": 334
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/directions/current/spark.svg",
+      "sha256": "9247e80bd768b2c7adc4f6118255c3c368822982be4c06d3f0ca603e75fade26",
+      "bytes": 377
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/integrated-manifest.json",
+      "sha256": "7933b05d5b06b2eb5f65f94a7fd0b15ccabea24df1bfc06bbabbff67ed77eb17",
+      "bytes": 1067
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/manifest.json",
+      "sha256": "8028fc16d5e6cfde6e274640b81d63aab8bcdea335f3a9e551bf597c12eae816",
+      "bytes": 3509
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-a-dark-1x.png",
+      "sha256": "3f60ce0effb493ef96414070b43a3d0a083da36771e82fe32117d0dd52bebbe8",
+      "bytes": 8071
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-a-dark-2x.png",
+      "sha256": "3f62d88763753ad99053e2147e4d84f79a42342a31f5a55de68a06ed34f7386d",
+      "bytes": 17692
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-a-light-1x.png",
+      "sha256": "e6fc1ec60f5e5043e4506bd6a2ebf4e031bd5cfe2300a60f55396b8e41921a8d",
+      "bytes": 7985
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-a-light-2x.png",
+      "sha256": "9ef0890013a4a852444ced183b19a084b30132e1ca7e2b33ca5d12ab50d94b87",
+      "bytes": 17490
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-b-dark-1x.png",
+      "sha256": "cb772504e3c7ba7d9e897f8b5afbc9c27b580ef3b8b5953a68729a41c42cf920",
+      "bytes": 8027
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-b-dark-2x.png",
+      "sha256": "07fd8810a3af33a0e25334c7800b6567777846ff8d819b5e24263846b7a7751d",
+      "bytes": 17714
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-b-light-1x.png",
+      "sha256": "8a380e75d5c0ac2c891a68211b6cd115c543d98b221e66a196a9115081274884",
+      "bytes": 7990
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-b-light-2x.png",
+      "sha256": "07d450ed01dfd243f235a816f50a63c3f4b4ea92ae3e5d723e0a52338c6a1355",
+      "bytes": 17522
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-c-dark-1x.png",
+      "sha256": "7033304de73700297d85def7abbce107c32da973128d08aa0a28aebbdf29cb96",
+      "bytes": 8064
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-c-dark-2x.png",
+      "sha256": "a863aab25262e9ac9bee74e4c0abaa7175c58f6795b209d0b1424fa0c49c32a5",
+      "bytes": 17866
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-c-light-1x.png",
+      "sha256": "1aacf2ce8ba9bd5fbd5c40e3f5efbbf9db403039cdfedececbcf39413ffa2dbc",
+      "bytes": 8059
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-c-light-2x.png",
+      "sha256": "611f48660afa1f80753ca300ed1b65afdda51260152ce9f9ece2eed9753e04e5",
+      "bytes": 17610
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-current-dark-1x.png",
+      "sha256": "0adb8da2dd425dfb552ac342c8ef345b3a089b724fead53874b8ed3032087865",
+      "bytes": 8083
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-current-dark-2x.png",
+      "sha256": "c5ac58c1e41f2d44e7bbf8ba8ea90b2057777973a384943d9b1a992eed19011f",
+      "bytes": 17551
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-current-light-1x.png",
+      "sha256": "7f5b13458f204fe9d603ab5037ddc5879ef0eb891c891e499d9337eac1635433",
+      "bytes": 7982
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-current-light-2x.png",
+      "sha256": "8bbc90437764e122806642e4f57f214554cbe21f80366c43acfd3093983facd7",
+      "bytes": 17347
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-integrated-dark-1x.png",
+      "sha256": "3f60ce0effb493ef96414070b43a3d0a083da36771e82fe32117d0dd52bebbe8",
+      "bytes": 8071
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-integrated-dark-2x.png",
+      "sha256": "3f62d88763753ad99053e2147e4d84f79a42342a31f5a55de68a06ed34f7386d",
+      "bytes": 17692
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-integrated-light-1x.png",
+      "sha256": "e6fc1ec60f5e5043e4506bd6a2ebf4e031bd5cfe2300a60f55396b8e41921a8d",
+      "bytes": 7985
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/nav/nav-integrated-light-2x.png",
+      "sha256": "9ef0890013a4a852444ced183b19a084b30132e1ca7e2b33ca5d12ab50d94b87",
+      "bytes": 17490
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/atmosphere-20260911/sheet.html",
+      "sha256": "8ecddb6aea98a80378f576edb3a1e96172be050fe613d34ac371c79a1fb65a9a",
+      "bytes": 69727
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/contact-sheet.html",
+      "sha256": "a341d81e7c9b3ffa9da6e7a5b5f05ade00965227e739c3d435ad5780df14c8d6",
+      "bytes": 250939
+    },
+    {
+      "path": "engineering/design/product-icons-2026-09-11/glyph-manifest.json",
+      "sha256": "4919d6e342d5cc84275cea2811fff764bde3f1cae13b2a333c1957625c267611",
+      "bytes": 15313
+    },
+    {
+      "path": "engineering/design/product-semantics/pages-map.json",
+      "sha256": "afa923f98070c7f6175ef5a25f6ced87c87899605896869d4a2d1b63aadfa696",
+      "bytes": 2777
+    },
+    {
+      "path": "engineering/mvp/execution/work-surface-kit/contracts/color-governance.md",
+      "sha256": "965fcaa275359f34da9d3640f440afe9d884ffafab3be0adb2d36c6529f95f41",
+      "bytes": 10525
+    },
+    {
+      "path": "evidence/publication-final-20260911/finalize-media.mjs",
+      "sha256": "15926c18db7eb36c60fab96448b15ddb11ac1bf9e1f72db3e1bff878b4b96fa1",
+      "bytes": 5264
+    },
+    {
+      "path": "evidence/publication-final-20260911/media-recapture.md",
+      "sha256": "9a73bced48565e2f33b75beb3e8eb7b27e8ba6765982a2a673a151c2bcffc699",
+      "bytes": 3257
+    },
+    {
+      "path": "evidence/publication-final-20260911/native-chrome-audit.mjs",
+      "sha256": "4605f1bdd8a926b0593c494b177408bc93a2112c12a60d034edc0f1999e5c50c",
+      "bytes": 10494
+    },
+    {
+      "path": "evidence/publication-final-20260911/preview-audit.mjs",
+      "sha256": "781e6f0915fa5b80e8d2db5698b20de5a6733cbda6b757616fce6e25d4dc7a69",
+      "bytes": 14146
+    },
+    {
+      "path": "evidence/publication-final-20260911/recapture-media.mjs",
+      "sha256": "9b83f3a5dbdbabafcaa848270bdc7f91064f7073c299f42a5856234ac4bfce68",
+      "bytes": 14704
+    },
+    {
+      "path": "site/README.md",
+      "sha256": "145a59ff2321a11762c72e1f02120b464326d20634c062d4b96e3e4abd83b76f",
+      "bytes": 6834
+    },
+    {
+      "path": "site/media/archive/main-f1373cd.json",
+      "sha256": "1aa1f6a7b7668c3f8bbd12fd76945b972cb0884ccfc5fbd9a200819c62371d2a",
+      "bytes": 38419
+    },
+    {
+      "path": "site/media/main/manifest.json",
+      "sha256": "20cd83378266d01e01d42175cfb4c6d3c06322518407e87b29a1612b453046eb",
+      "bytes": 41368
+    },
+    {
+      "path": "site/media/publication-final-20260911/approval-1440-dark.jpg",
+      "sha256": "c571762ff17b2e0d781292eb1cec3c6ac822b4886ae11edc8243495d7c4ba91d",
+      "bytes": 102721
+    },
+    {
+      "path": "site/media/publication-final-20260911/approval-1440-light.jpg",
+      "sha256": "b90a5435d2787c56bc88a421d83311839acbfee160dcd464195a94cc25048b2f",
+      "bytes": 100637
+    },
+    {
+      "path": "site/media/publication-final-20260911/artifact-1440-dark.jpg",
+      "sha256": "8b99353d17bfee854b93cd05064d10731606f99efe10a664dd183097613be628",
+      "bytes": 76515
+    },
+    {
+      "path": "site/media/publication-final-20260911/artifact-1440-light.jpg",
+      "sha256": "029a2f161ff0ec9d262c54f99ea0895bf9d49adb784da5d53245b3ae90a581d3",
+      "bytes": 72951
+    },
+    {
+      "path": "site/media/publication-final-20260911/attention-1440-dark.jpg",
+      "sha256": "2e97e71a1ad4667b3502e4dfb7ffc029ba036973549bca72f6fabbc61deb671f",
+      "bytes": 90611
+    },
+    {
+      "path": "site/media/publication-final-20260911/attention-1440-light.jpg",
+      "sha256": "3df349e4675d09b48f40b704485d77049e458f806bf157cb1b24011d780485eb",
+      "bytes": 87078
+    },
+    {
+      "path": "site/media/publication-final-20260911/continuity-1440-dark.jpg",
+      "sha256": "3f0c16bcbe27a1b992fa27282bf11c28ce4760edbdfceb644b9b28df0176ee63",
+      "bytes": 91907
+    },
+    {
+      "path": "site/media/publication-final-20260911/continuity-1440-light.jpg",
+      "sha256": "5ff10e7183dde4dfef6a568b44bb78731439c834a7de04a8679c5b712abe6b5d",
+      "bytes": 88100
+    },
+    {
+      "path": "site/media/publication-final-20260911/conversation-1440-dark.jpg",
+      "sha256": "a888fb26bbf4988638179f3f427850fc125e5ce3a8c0f3e36bb67496e25679df",
+      "bytes": 120717
+    },
+    {
+      "path": "site/media/publication-final-20260911/conversation-1440-light.jpg",
+      "sha256": "18ec0ba42e020b0c7bfa47a8068fe48820e8b43f9e5a06ad812c08cc6988e2b4",
+      "bytes": 118618
+    },
+    {
+      "path": "site/media/publication-final-20260911/home-1440-dark.jpg",
+      "sha256": "b23308ab55e99a9e7c730d43a6c975a109bc6cf92d5471e24e957cd5544908cf",
+      "bytes": 120081
+    },
+    {
+      "path": "site/media/publication-final-20260911/home-1440-light.jpg",
+      "sha256": "4ade722ac9ebf0527466571660b428b767c7158d21e0f0b6b33a37f658e91fb7",
+      "bytes": 115420
+    },
+    {
+      "path": "site/media/publication-final-20260911/integrations-1440-dark.jpg",
+      "sha256": "3db3a774c936a8d8c4dd77554395751eb3990b787872ffd53567969db1e5245a",
+      "bytes": 94018
+    },
+    {
+      "path": "site/media/publication-final-20260911/integrations-1440-light.jpg",
+      "sha256": "46ceb2b97a5049232dbfb678acbed1c6d33433bb3e1e016b251807d6500bc293",
+      "bytes": 91631
+    },
+    {
+      "path": "site/media/publication-final-20260911/matter-1440-dark.jpg",
+      "sha256": "254afb3c24c98e29287c68e8453efc6d64e35940a117f7b645888ae0a6e9ee13",
+      "bytes": 91743
+    },
+    {
+      "path": "site/media/publication-final-20260911/matter-1440-light.jpg",
+      "sha256": "1bcf75775a2be6343070d728108fd9837d5cda4c857f260ecb9fc63099f290ff",
+      "bytes": 88014
+    },
+    {
+      "path": "site/media/publication-final-20260911/models-1440-dark.jpg",
+      "sha256": "d6e670aabde9a5c388322ab808dcb25631414daabff3e550343ca430e52c71a6",
+      "bytes": 86402
+    },
+    {
+      "path": "site/media/publication-final-20260911/models-1440-light.jpg",
+      "sha256": "bfa7bc2681d186c819515cd48ac72401794095ccc438f0968fe5b0fa2cfbf6a0",
+      "bytes": 84097
+    },
+    {
+      "path": "site/media/publication-final-20260911/observations.json",
+      "sha256": "edf31570b0d2a4a90d7b5838638658fdda842824547027357d79c97e318de34f",
+      "bytes": 19589
+    },
+    {
+      "path": "site/media/publication-final-20260911/review-1440-dark.jpg",
+      "sha256": "c69500a73374b60bcb4d5a3d466f54366d7d72becba69f1adcabf71456a71347",
+      "bytes": 105493
+    },
+    {
+      "path": "site/media/publication-final-20260911/review-1440-light.jpg",
+      "sha256": "1b0a3c8df4810ce9bcadefd9d116c2f127ab6e575c21af82f3f18f4ccf23dea2",
+      "bytes": 101097
+    },
+    {
+      "path": "site/media/publication-final-20260911/running-1440-dark.jpg",
+      "sha256": "6694875b50e3d8f71ad7692e66523749461a536166f0c95f0b99a7b0328a3b44",
+      "bytes": 107062
+    },
+    {
+      "path": "site/media/publication-final-20260911/running-1440-light.jpg",
+      "sha256": "d35c1e5d6a0dab46b1be0f22d848f2c435ced19611b56126ff933e4a88ee42a2",
+      "bytes": 98562
+    },
+    {
+      "path": "site/media/publication-final-20260911/settings-1440-dark.jpg",
+      "sha256": "3e6a70a57f5b00600bf9241eba8ae39dabadbc1b3c105e40f3f664553a3795b2",
+      "bytes": 104731
+    },
+    {
+      "path": "site/media/publication-final-20260911/settings-1440-light.jpg",
+      "sha256": "05f54774356d7a7915cf496f7f9a4a84c4f2e349ca0b374bd03a9f382a60e9f5",
+      "bytes": 103052
+    },
+    {
+      "path": "site/media/publication-final-20260911/spark-1440-dark.jpg",
+      "sha256": "df8b55c73f6b6f8b80386141600de6866cb6b41f40c8006c203a155824ca8c11",
+      "bytes": 96901
+    },
+    {
+      "path": "site/media/publication-final-20260911/spark-1440-light.jpg",
+      "sha256": "0593f1cb4a2c95c6fd7ac1b3bbf6ee3a48ae9aef3337397b86b585592a0f6d96",
+      "bytes": 92906
+    },
+    {
+      "path": "site/scripts/check-figures.mjs",
+      "sha256": "12012ca6a46f6219f9f0910fa9f4116a76967049ee15c1f679a6005833c0d93e",
+      "bytes": 18088
+    },
+    {
+      "path": "site/src/assets/figures/chat-carry.svg",
+      "sha256": "5476c4d448cf511e0514f5a223924b0f93ac23be6bb58dbd044978c83c8bad44",
+      "bytes": 2355
+    },
+    {
+      "path": "site/src/assets/figures/compile-commit.svg",
+      "sha256": "60d64eb56c607c64cafb0ea8338c74ad0f81ec7cd79b9401fb75b841c2f4f02c",
+      "bytes": 7820
+    },
+    {
+      "path": "site/src/assets/figures/expert-composition-compact.svg",
+      "sha256": "dd984bfff689516c778db9021c8dad6774f8f927f78d7d522a976b509b8a70c5",
+      "bytes": 2833
+    },
+    {
+      "path": "site/src/assets/figures/expert-composition.svg",
+      "sha256": "4c53e2b1d0ffe4c3ffcccd202fce0df51d72d6cbf97438bcd9b63ce73ed5192b",
+      "bytes": 3066
+    },
+    {
+      "path": "site/src/assets/figures/figures.json",
+      "sha256": "adee50a7a30c0cf1c98174ab2d3d142c5bc387df89768b83b0429be19a89032a",
+      "bytes": 26939
+    },
+    {
+      "path": "site/src/assets/figures/ownership.svg",
+      "sha256": "cfa88986b3146cdec3d55390ef58df26ffdb1faaba64aa9f36e1d654a855428a",
+      "bytes": 9768
+    },
+    {
+      "path": "site/src/assets/figures/runtime-anatomy.svg",
+      "sha256": "5723dfc1f51e810b016fe7be0d1c99e0d9e2b690282b555df038ee3e213dda6d",
+      "bytes": 5861
+    },
+    {
+      "path": "site/src/capture-plan.mjs",
+      "sha256": "4e5dc96a4a14f258e385629f0d619f7d80c4e16f4279997484aefca3475c0b2a",
+      "bytes": 3540
+    },
+    {
+      "path": "site/src/product-pages.css",
+      "sha256": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "bytes": 10377
+    },
+    {
+      "path": "site/src/product-pages.mjs",
+      "sha256": "ca9680554d1143d0df9b8e904c0d6468b5f5ab092730288f9ac1d06e0d03e4d6",
+      "bytes": 26656
+    },
+    {
+      "path": "site/src/readme.mjs",
+      "sha256": "122078f1336aa13b39db63b4a95153e7cc99614efe6af78b23a559d07edfafed",
+      "bytes": 5257
+    },
+    {
+      "path": "site/src/site.css",
+      "sha256": "90e57224353117f8326669def4eafb2e7a5f7a58d120fc0a92b0c015c5c0ab4b",
+      "bytes": 47338
+    },
+    {
+      "path": "tools/contrast-report.mjs",
+      "sha256": "cee164b7f4c5a5068bf108e2704f3bd6d2e0edfe5d17008fdc6de9dcc821d891",
+      "bytes": 4178
+    },
+    {
+      "path": "tools/lint-colors.mjs",
+      "sha256": "da1d99f5ddff988e58dad35eb3eacfd4b21032f19232dfd47b5efd1373bf2cb4",
+      "bytes": 6707
+    },
+    {
+      "path": "tools/ui-vendor/courtwork/attention.svg",
+      "sha256": "bbd8af8302def841bcfe76b070594587fcbf3cd847a5225961283fcbe57c0423",
+      "bytes": 279
+    },
+    {
+      "path": "tools/ui-vendor/courtwork/sources.json",
+      "sha256": "31b42b597de7436b9d4c35696707d4f5403a04dd7ba934025251382e2fd0ef93",
+      "bytes": 1358
+    },
+    {
+      "path": "tools/ui-vendor/courtwork/spark.svg",
+      "sha256": "d7232086fac7784fd5a759fbc381bf25d1fa91dd6de437adeb3e44de29bb860a",
+      "bytes": 320
+    }
+  ]
+}

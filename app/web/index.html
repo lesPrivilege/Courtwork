@@ -99,16 +99,10 @@
             aria-label="Close navigation"
           ></button>
         </header>
-        <button
-          id="new-session-button"
-          class="nav-home quiet-button"
-          type="button"
-        >
-          New chat
-        </button>
-        <button id="home-button" class="nav-home quiet-button" type="button">
-          Home
-        </button>
+        <div class="nav-home-row">
+          <button id="home-button" class="nav-home quiet-button" type="button">Home</button>
+          <button id="new-session-button" class="quiet-button" type="button" aria-label="New chat"></button>
+        </div>
         <!-- CA-01 · Chat is the plain-conversation seat beside Attention and
              Spark: it returns to the chat you were in or the most recent one,
              and otherwise lands on Home's composer. It creates nothing. -->
@@ -120,6 +114,9 @@
              count — and while BE-41 is unimplemented it opens to a plain
              "no source yet" state, never a synthetic number. -->
         <button id="spark-button" class="nav-home quiet-button" type="button">Spark</button>
+        <div id="expert-seat" class="nav-home nav-planned-seat" data-semantic-key="expert.role">
+          <span>Expert</span><span class="nav-seat-plan">Planned</span>
+        </div>
         <div class="nav-filter">
           <label class="sr-only" for="nav-filter-input"
             >Find a project or chat</label
@@ -283,7 +280,7 @@
         </div>
         <footer id="composer-area" class="composer-area" hidden>
           <div id="home-composer-intro" class="home-composer-intro" hidden>
-            <h2>Work that exists beyond the model.</h2>
+            <h2>Orchestrate your agents. Govern your work.</h2>
           </div>
           <div id="draft-status" class="draft-status" aria-live="polite"></div>
           <form id="composer-form" class="composer-form">

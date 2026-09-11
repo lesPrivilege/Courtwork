@@ -1,0 +1,26 @@
+[
+  {
+    "file": "references/01-codex.png",
+    "sha256": "fdd5f3423820fcc6e1934daa700dc76a40900ff251fe0e61107e0d79fabdefed",
+    "source": "User-provided screenshot, 2026-09-12",
+    "scope": "Visible navigation crop only; no inferred behavior or capability"
+  },
+  {
+    "file": "references/02-claude-more.png",
+    "sha256": "193f1b3db1b05dd521c31aabf2e5efd789b3b25b1f248bd3d808c5d6a515befd",
+    "source": "User-provided screenshot, 2026-09-12",
+    "scope": "Visible navigation crop only; no inferred behavior or capability"
+  },
+  {
+    "file": "references/03-claude-projects.png",
+    "sha256": "2eb1267774eba74b5b90b823ae31ab2c64123744cb720e7753c2b67c1c9c99dc",
+    "source": "User-provided screenshot, 2026-09-12",
+    "scope": "Visible navigation crop only; no inferred behavior or capability"
+  },
+  {
+    "file": "references/04-chatgpt.png",
+    "sha256": "27ecaab3551918057a52ac6112da72082dbcd5c9a924c62004ffb6d0c0cfa402",
+    "source": "User-provided screenshot, 2026-09-12",
+    "scope": "Visible navigation crop only; no inferred behavior or capability"
+  }
+]

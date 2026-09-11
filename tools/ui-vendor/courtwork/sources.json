@@ -4,9 +4,10 @@
   "license": "MIT (repository LICENSE)",
   "grammar": "24 grid, 2px centred stroke, round cap/join, currentColor, 1px safe edge; Lucide neighbour density",
   "origin": {
-    "spark": "Design return v2 spark-a2 (optical candidate, Astra DR-02 direction A): source \u2192 fan-out",
-    "attention": "Design return v1/v2 attn-a (Astra selected A): streams \u2192 ring",
-    "chat": "Chat product page decision 2026-09-11: a conversation with a fragment carried out of it"
+    "spark": "Design return v2 spark-a2 (optical candidate, Astra DR-02 direction A): source → fan-out",
+    "attention": "Design return v1/v2 attn-a (Astra selected A): streams → ring",
+    "chat": "Chat product page decision 2026-09-11: a conversation with a fragment carried out of it",
+    "expert": "Courtwork original Quiet profile, 2026-09-12: open human role silhouette; user-authorized frontend identity, no certification or model identity"
   },
   "files": {
     "spark.svg": {
@@ -17,6 +18,9 @@
     },
     "chat.svg": {
       "sha256": "1c14966a17880410d4fd41711f9ca8f1cf259db4cc1a2d569960918f7d546851"
+    },
+    "expert.svg": {
+      "sha256": "d23af3a7c2e5bccf74bc0c3d8fec229461b466be1312534d8d42cab57f8dd8b5"
     }
   }
 }

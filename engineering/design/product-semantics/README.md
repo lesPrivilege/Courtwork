@@ -1,5 +1,7 @@
 # Product semantics · VS-01 candidate
 
+2026-09-12增量：[Expert前端identity](../sidebar-product-model-2026-09-12/EXPERT.md)已按用户授权准入App glyph，Pages保留text；下面text-reserved与无glyph描述保留历史切片背景，以registry当前条目为准。
+
 Astra · 2026-09-11 · product baseline `590739f`, integration baseline `57eaa6b`. This is the first implementation of the [P0.5 contract](../../execution/2026-09-11-semantic-polish/semantic-registry-plan.md). Candidate implementation is not independent acceptance.
 
 [registry.json](registry.json) owns presentation mappings only. Runtime/Core contracts linked by `ownerRef` own facts, capabilities and mutations. `capabilityRef: null` means that this entry supplies no capability decision: the existing caller must still enforce its own capability. The registry does not authorize actions. Words are English in this first projection; Pages translations remain in its existing copy source until the VS-05 cross-map is applied.

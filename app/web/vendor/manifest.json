@@ -226,7 +226,8 @@
     "origin": {
       "spark": "Design return v2 spark-a2 (optical candidate, Astra DR-02 direction A): source → fan-out",
       "attention": "Design return v1/v2 attn-a (Astra selected A): streams → ring",
-      "chat": "Chat product page decision 2026-09-11: a conversation with a fragment carried out of it"
+      "chat": "Chat product page decision 2026-09-11: a conversation with a fragment carried out of it",
+      "expert": "Courtwork original Quiet profile, 2026-09-12: open human role silhouette; user-authorized frontend identity, no certification or model identity"
     },
     "files": {
       "spark.svg": {
@@ -237,6 +238,9 @@
       },
       "chat.svg": {
         "sha256": "1c14966a17880410d4fd41711f9ca8f1cf259db4cc1a2d569960918f7d546851"
+      },
+      "expert.svg": {
+        "sha256": "d23af3a7c2e5bccf74bc0c3d8fec229461b466be1312534d8d42cab57f8dd8b5"
       }
     }
   },
@@ -249,7 +253,7 @@
     "floating.mjs": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
     "marked.mjs": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
     "purify.mjs": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
-    "icons.svg": "fd07820af7ec10e3ed53df58f129cecf73d60a05d30010c289090034c5236b30",
+    "icons.svg": "7c81ec8bf77814fb70c4d6f86827306fef4e3275fec6b387c3e4e8a6c7de2989",
     "LICENSES.txt": "2d46e15ce43cff012f432563e577e536b95c8ad8d48cbeb727c968b09c0f5493"
   }
 }

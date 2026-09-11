@@ -1,4 +1,4 @@
-import { semanticPresentation, setSemanticControl } from './semantic-controls.mjs';
+import { semanticIcon, semanticPresentation, setSemanticControl } from './semantic-controls.mjs';
 import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";
 import {
   el,
@@ -6203,10 +6203,9 @@ function wireEvents() {
   setSemanticControl($("chat-button"), "chat.surface", { visible: true });
   setSemanticControl($("attention-button"), "attention.agent", { visible: true });
   setSemanticControl($("spark-button"), "spark.surface", { visible: true });
+  $("expert-seat").prepend(semanticIcon("expert.role", { size: 20 }));
   setAction($("runtime-setup-button"), "settings-2", "Settings");
-  setAction($("new-session-button"), "square-pen", "New chat", {
-    visible: true,
-  });
+  setAction($("new-session-button"), "square-pen", "New chat");
   setAction($("home-create-project"), "plus", "New project", { visible: true });
   setAction($("send-button"), "arrow-up", "Send");
   setAction($("cancel-run-button"), "square", "Stop working");
