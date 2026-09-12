@@ -1,0 +1,20 @@
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (6.472667ms)
+✔ provider-default payload omits generated reasoning controls after the existing callback (0.421ms)
+✔ explicit effort uses the declared adapter mapping and provider identity, not endpoint hostname (0.138834ms)
+✔ production compatible registration pins generic reasoning on heuristic-looking loopback paths (108.515417ms)
+✔ capability projection admits only values the selected adapter can encode (0.172375ms)
+✔ request telemetry keeps SDK setting provenance and a safe capability snapshot (0.246958ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.255417ms)
+✔ result-only SDK calls still emit a terminal request measurement exactly once (0.125542ms)
+✔ provider response identifiers stay separate from runtime identity without forwarding extra metadata (0.314416ms)
+✔ effort is capability checked and recorded by real local SDK requests (488.433208ms)
+✔ malformed measurement records are omitted before rendering (0.308583ms)
+✔ schema6 migration preserves both global and project sessions (104.531125ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1785.032542

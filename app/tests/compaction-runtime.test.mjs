@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import path from "node:path";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
+import { FAKE_MODEL_ID, FAKE_PROVIDER_ID } from "../runtime/pi-session-runtime.mjs";
+import { requestMeasurements } from "../web/telemetry-view.mjs";
 import { boot } from "./helpers.mjs";
 
 const CONTEXT_WINDOW = 4;
@@ -65,7 +67,7 @@ async function setup({ maxCompactions = 4, reserveTokens = 1, responseFactory })
       const userTexts = (args.body?.messages ?? [])
         .filter((message) => message.role === "user")
         .map(messageText);
-      requests.push({ requestNumber: args.requestNumber, summary, userTexts });
+      requests.push({ requestNumber: args.requestNumber, summary, userTexts, body: args.body });
       return responseFactory({ ...args, summary, userTexts });
     },
   });
@@ -126,6 +128,48 @@ test("automatic threshold persists a summary and sends it in the next request", 
       willRetry: false,
       outcome: "completed",
     });
+  } finally {
+    await h.runtime.close();
+  }
+});
+
+test("provider-default omits SDK-generated reasoning controls on ordinary and compaction requests", async () => {
+  const h = await setup({
+    reserveTokens: 1,
+    responseFactory: ({ requestNumber, summary }) => textResponse(requestNumber, summary ? "SUMMARY_DEFAULT_OK" : "NORMAL_DEFAULT_OK"),
+  });
+  try {
+    // This fixture makes Pi 0.85.1's Completions adapter emit its implicit
+    // off mapping. The host must remove that generated control in both paths.
+    const model = h.runtime.modelRuntime.getModel(FAKE_PROVIDER_ID, FAKE_MODEL_ID);
+    Object.assign(model, {
+      reasoning: true,
+      thinkingLevelMap: { off: "none", minimal: null, low: null, medium: null, high: null, xhigh: null, max: null },
+      compat: { ...(model.compat ?? {}), thinkingFormat: "openai", supportsReasoningEffort: true },
+    });
+
+    const { run, events } = await startRun(h, "provider-default-compaction");
+    assert.equal(run.status, "completed");
+    const summaryRequests = h.requests.filter((request) => request.summary);
+    const ordinaryRequests = h.requests.filter((request) => request.userTexts.includes(CURRENT_INPUT));
+    assert.equal(summaryRequests.length, 1);
+    assert.equal(ordinaryRequests.length, 1);
+    for (const request of [...summaryRequests, ...ordinaryRequests]) {
+      assert.equal(request.body.model, FAKE_MODEL_ID);
+      assert.ok(Array.isArray(request.body.messages) && request.body.messages.length > 0);
+      for (const field of ["reasoning", "reasoning_effort", "thinking"]) {
+        assert.equal(Object.hasOwn(request.body, field), false, `${field} must be omitted from every request`);
+      }
+    }
+
+    const measurements = requestMeasurements(events, run.id);
+    assert.ok(measurements.some((row) => row.purpose === "compaction" && row.phase === "completed"), JSON.stringify(measurements.map(({ purpose, phase, requestId }) => ({ purpose, phase, requestId }))));
+    assert.ok(measurements.some((row) => row.purpose === "agent" && row.phase === "completed"));
+    for (const row of measurements) {
+      assert.equal(row.requestedEffort, null);
+      assert.equal(row.effectiveEffortSource, "sdk-setting");
+      assert.equal(row.providerEffectiveEffort, null, "request composition is not provider confirmation");
+    }
   } finally {
     await h.runtime.close();
   }

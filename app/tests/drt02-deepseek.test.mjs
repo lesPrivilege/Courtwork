@@ -5,6 +5,8 @@ import { boot, reopen } from './helpers.mjs';
 import { requestMeasurements } from '../web/telemetry-view.mjs';
 
 async function configure(h, f) {
+  // Explicit synthetic native-catalog transport binding, never a production gateway inference.
+  h.runtime.service.modelRuntime.getModel('deepseek', MODEL).baseUrl = f.baseUrl;
   assert.equal((await h.api('PUT', '/provider-credential', { connectionId: 'catalog-deepseek', apiKey: 'SYNTHETIC_DEEPSEEK_KEY' })).status, 200);
   const configured = await h.api('PUT', '/provider-config', { provider: 'deepseek', model: MODEL, api: 'openai-completions', baseUrl: f.baseUrl, reasoningEffort: 'high' });
   assert.equal(configured.status, 200, JSON.stringify(configured.json));
@@ -46,6 +48,7 @@ test('DRT02 DeepSeek: actual SDK stream, Deny/Approve, reasoning replay and reop
     assert.equal(JSON.stringify(events).includes('protocol-r'), false, 'private protocol metadata is not public conversation trace');
     assert.ok(events.some(event => event.type === 'assistant.delta' && event.data.text.startsWith('Reply')));
     await h.runtime.close(); next = await reopen(h.dataDir);
+    next.runtime.service.modelRuntime.getModel('deepseek', MODEL).baseUrl = f.baseUrl;
     const resumed = await start(next, session.id, 'reopened');
     const until = Date.now() + 10000;
     while (next.runtime.store.getRun(resumed.id).status === 'running' && Date.now() < until) await new Promise(resolve => setTimeout(resolve, 20));

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Model / effort生产接线
+
+按用户explore后修改生产授权，在Courtwork临时隔离分支完成[逐模型能力接线](research/chat-memory-broker-2026-09-12/model-adaptation/production.md)：精确runtime/人工声明集合经Host准入投影，统一picker含默认省略、失效值重选与CAS冲突保留草稿；schema13保留旧记录并失效旧检查绑定。Run冻结能力版本，最终payload控制普通与压缩请求，SDK设置不冒充Provider实效。Luna有界实现与非作者复核、合成测试和浏览器证据见回执；未跑付费Provider、迁移个人数据、合共享main、push或部署。
+
 ## 2026-09-12 · Model / effort自适应与adapter投影登记
 
 按用户要求，Astra与Luna完成[逐Provider/model能力研究和Harness前后端接线登记](research/chat-memory-broker-2026-09-12/model-adaptation/README.md)：adapter承接上游能力/参数/观察，Host校验注册既有目录，统一UI消费带来源与版本的数据。固定main核查指出布尔reasoning泛化档位、默认medium及陈旧配置保存差额；官方文档与Pi实践分别留证，SDK设置不称上游实效。三图归档，已接PV与Harness入口；仅研究合同，无生产代码、真实Provider请求、合main、push或部署。

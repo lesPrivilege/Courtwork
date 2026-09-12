@@ -27,17 +27,17 @@ export function initialMessages(scope) {
 }
 
 export function createSpecimenAdapter({ pause = wait, readDelay = 180, sendDelay = 450 } = {}) {
-  const variants = new Map(), configs = new Map(), operations = [];
+  const variants = new Map(), configs = new Map(), versions = new Map(), operations = [];
   const variantOf = s => {
     if (!s || !SCENES.includes(s.scene) || !CHANNELS.includes(s.channel) || !['account-a', 'account-b'].includes(s.account) || !['session-a', 'session-b'].includes(s.session)) fail('SCOPE_UNSUPPORTED', 'This scope is not part of the fixed synthetic dataset.');
     return variants.get(scopeKey(s)) || 'normal';
   };
   const configure = (scope, variant) => { if (!VARIANTS.includes(variant)) fail('INVALID_VARIANT', 'Unknown specimen state.'); variantOf(scope); variants.set(scopeKey(scope), variant); };
   const catalog = { models: [
-    { provider: 'synthetic', id: 'discussion', name: 'Discussion · synthetic', api: 'fixture', supportedEfforts: ['off'], contextWindow: 8192 },
-    { provider: 'synthetic', id: 'comparison', name: 'Comparison · synthetic', api: 'fixture', supportedEfforts: ['off'], contextWindow: 8192 },
+    { provider: 'synthetic', id: 'discussion', name: 'Discussion · synthetic', api: 'fixture', supportedEfforts: [], defaultEffort: null, reasoningCapability: { kind: 'unsupported', source: 'unknown', values: [], defaultMode: 'omit', notice: 'Synthetic route has no reasoning parameter.' }, contextWindow: 8192 },
+    { provider: 'synthetic', id: 'comparison', name: 'Comparison · synthetic', api: 'fixture', supportedEfforts: [], defaultEffort: null, reasoningCapability: { kind: 'unsupported', source: 'unknown', values: [], defaultMode: 'omit', notice: 'Synthetic route has no reasoning parameter.' }, contextWindow: 8192 },
   ] };
-  const configOf = s => configs.get(scopeKey(s)) || { provider: 'synthetic', model: 'discussion', api: 'fixture', reasoningEffort: 'off' };
+  const configOf = s => configs.get(scopeKey(s)) || { provider: 'synthetic', model: 'discussion', api: 'fixture' };
   function capabilities(scope) {
     const variant = variantOf(scope), hosted = scope.channel === 'hosted';
     const reason = !hosted ? scope.channel === 'native' ? 'Use the native channel to talk. CourtWork has no send or stop interface here.' : 'This is a retained record. Choose a discussion channel before continuing.'
@@ -63,7 +63,7 @@ export function createSpecimenAdapter({ pause = wait, readDelay = 180, sendDelay
   }
   return {
     configure, capabilities, initialMessages,
-    reset() { variants.clear(); configs.clear(); operations.length = 0; },
+    reset() { variants.clear(); configs.clear(); versions.clear(); operations.length = 0; },
     operations: () => copy(operations),
     async search(scope, query) {
       const captured = copy(scope); await pause(readDelay); assertRead(captured);
@@ -98,13 +98,15 @@ export function createSpecimenAdapter({ pause = wait, readDelay = 180, sendDelay
     },
     async modelRequest(scope, path, options = {}) {
       if (!capabilities(scope).canChooseModel) fail('CHANNEL_UNSUPPORTED', 'This channel cannot change a CourtWork model.');
-      if (path === '/provider-models' && !options.method) return copy(catalog);
+      if (path === '/provider-models' && !options.method) return { ...copy(catalog), version: versions.get(scopeKey(scope)) || 0 };
       if (path === '/provider-connections' && !options.method) return { connections: [] };
-      if (path === '/provider-config' && !options.method) return { config: copy(configOf(scope)) };
+      if (path === '/provider-config' && !options.method) return { config: copy(configOf(scope)), version: versions.get(scopeKey(scope)) || 0 };
       if (path === '/provider-config' && options.method === 'PUT') {
-        const input = options.body;
+        const { expectedVersion, ...input } = options.body || {};
+        const version = versions.get(scopeKey(scope)) || 0;
+        if (expectedVersion !== version) fail('config_conflict', 'Synthetic model configuration changed.');
         if (!catalog.models.some(m => m.provider === input?.provider && m.id === input.model) || input.api !== 'fixture' || input.baseUrl) fail('MODEL_UNSUPPORTED', 'Only the two synthetic catalog entries are available.');
-        configs.set(scopeKey(scope), copy(input)); return { config: copy(input) };
+        configs.set(scopeKey(scope), copy(input)); versions.set(scopeKey(scope), version + 1); return { config: copy(input), version: version + 1 };
       }
       fail('CHANNEL_UNSUPPORTED', 'This operation is not part of the isolated specimen.');
     },

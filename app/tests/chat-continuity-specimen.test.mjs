@@ -75,7 +75,7 @@ test('model picker mock rejects unknown operations and stale picker scope', asyn
   const c=createSpecimenController({adapter:fast()}); await c.modelRequest('/provider-models');
   await assert.rejects(c.modelRequest('/provider-connections/x/verify',{method:'POST'}),/not part/);
   c.choose({account:'account-b'}); await assert.rejects(c.modelRequest('/provider-config',{method:'PUT',body:{}}),/scope changed/);
-  await c.modelRequest('/provider-models'); await c.modelRequest('/provider-config',{method:'PUT',body:{provider:'synthetic',model:'comparison',api:'fixture',reasoningEffort:'off'}});
+  await c.modelRequest('/provider-models'); await c.modelRequest('/provider-config',{method:'PUT',body:{provider:'synthetic',model:'comparison',api:'fixture',expectedVersion:0}});
   assert.match(c.getState().modelLabel,/Comparison/);
 });
 

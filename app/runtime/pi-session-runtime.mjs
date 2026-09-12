@@ -23,6 +23,109 @@ export const DEEPSEEK_PROVIDER_ID = "deepseek";
 export const OPENAI_PROVIDER_ID = "openai";
 export const API_FORMATS = Object.freeze(["openai-completions", "openai-responses"]);
 
+const REASONING_CONTROL_FIELDS = Object.freeze(["reasoning", "reasoning_effort", "thinking"]);
+const REASONING_EFFORTS = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
+
+function requestPayloadObject(payload) {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new TypeError("provider request payload must be an object");
+  }
+  return { ...payload };
+}
+
+function removeReasoningControls(payload) {
+  const clean = requestPayloadObject(payload);
+  for (const key of REASONING_CONTROL_FIELDS) delete clean[key];
+  return clean;
+}
+
+/**
+ * Rewrite only the native reasoning control in a fully built Pi request.
+ * Provider-default means no reasoning parameter at all; Pi 0.85.1 otherwise
+ * fills some adapters' "off" value even when the host made no selection.
+ * Explicit values are mapped from the exact request model and fail closed if
+ * the frozen capability snapshot or Pi model no longer carries that mapping.
+ */
+export function createReasoningPayloadHook({ requestedEffort, reasoningCapability = null } = {}) {
+  const selected = requestedEffort ?? null;
+  if (selected !== null && !REASONING_EFFORTS.has(selected)) {
+    throw new TypeError("requested reasoning effort is invalid");
+  }
+
+  return (payload, model) => {
+    if (selected === null) return removeReasoningControls(payload);
+
+    if (!Array.isArray(reasoningCapability?.values) || !reasoningCapability.values.includes(selected)) {
+      throw new Error("requested reasoning effort is outside the frozen capability binding");
+    }
+    const mapped = model?.thinkingLevelMap?.[selected];
+    if (typeof mapped !== "string") {
+      throw new Error("requested reasoning effort has no native adapter mapping");
+    }
+
+    const encoded = requestPayloadObject(payload);
+    if (model.api === "openai-responses") {
+      const previous = selected === "off" ? {} : encoded.reasoning && typeof encoded.reasoning === "object"
+        && !Array.isArray(encoded.reasoning) ? encoded.reasoning : {};
+      encoded.reasoning = { ...previous, effort: mapped };
+      if (selected === "off") delete encoded.reasoning.summary;
+      delete encoded.reasoning_effort;
+      delete encoded.thinking;
+      return encoded;
+    }
+
+    if (model.api === "openai-completions") {
+      // The adapter may auto-detect compatibility from an endpoint, but the
+      // Host only uses an explicit model declaration or native provider
+      // identity here. A custom gateway hostname is not enough evidence to
+      // select a vendor-specific wire shape.
+      const thinkingFormat = model.compat?.thinkingFormat
+        ?? (model.provider === DEEPSEEK_PROVIDER_ID ? "deepseek" : "openai");
+      if (thinkingFormat === "deepseek") {
+        const previous = encoded.thinking && typeof encoded.thinking === "object" && !Array.isArray(encoded.thinking)
+          ? encoded.thinking : {};
+        encoded.thinking = { ...previous, type: selected === "off" ? "disabled" : "enabled" };
+        delete encoded.reasoning;
+        if (selected === "off") {
+          // DeepSeek's native switch is `thinking.type`, not OpenAI's generic
+          // reasoning_effort field. The frozen map's "none" is the host's
+          // off value, while this is the adapter's protocol-specific encoding.
+          delete encoded.reasoning_effort;
+        } else {
+          if (model.compat?.supportsReasoningEffort === false) {
+            throw new Error("DeepSeek adapter has no native field for the selected effort");
+          }
+          encoded.reasoning_effort = mapped;
+        }
+        return encoded;
+      }
+
+      if (thinkingFormat !== "openai") {
+        throw new Error("reasoning effort encoding is unavailable for this Completions compatibility format");
+      }
+      if (model.compat?.supportsReasoningEffort === false) {
+        throw new Error("Completions adapter has no native field for the selected effort");
+      }
+      encoded.reasoning_effort = mapped;
+      delete encoded.reasoning;
+      delete encoded.thinking;
+      return encoded;
+    }
+
+    throw new Error("reasoning effort encoding is unavailable for this API");
+  };
+}
+
+/** Preserve the existing extension callback, then enforce the Host's frozen
+ * request intent so it cannot reintroduce controls on the wire. */
+export function composeReasoningPayloadHook(existingOnPayload, reasoningOptions = {}) {
+  const hostOnPayload = createReasoningPayloadHook(reasoningOptions);
+  return async (payload, model) => {
+    const replacement = await existingOnPayload?.(payload, model);
+    return hostOnPayload(replacement === undefined ? payload : replacement, model);
+  };
+}
+
 const NO_API_KEY_PATTERN = /no api key found/i;
 const AUTH_FAILED_PATTERN = /\b(401|403|unauthorized|forbidden|invalid[_ -]?api[_ -]?key|authentication)\b/i;
 
@@ -326,6 +429,7 @@ export async function createSessionRun({
   beforeExtraInput,
   beforeInitialInput,
   reasoningEffort,
+  reasoningCapability = null,
   onTelemetry,
 }) {
   const compactionPolicy = resolveCompactionPolicy(model, compaction);
@@ -371,9 +475,15 @@ export async function createSessionRun({
       const error = new Error("Run cancelled"); error.name = "AbortError"; throw error;
     }
     return observeRequestStream({ model: requestModel, context, requestId: ++requestOrdinal, purpose: requestPurpose,
-      requestedEffort: reasoningEffort ?? null, effectiveEffort: session.thinkingLevel,
+      requestedEffort: reasoningEffort ?? null, sdkEffectiveEffort: session.thinkingLevel, reasoningCapability,
       record: data => forward(onTelemetry, data),
-      start: () => nativeStream(requestModel, context, { ...options, sessionId: sessionManager.getSessionId(), cacheRetention: options?.cacheRetention ?? "short" }),
+      start: () => nativeStream(requestModel, context, {
+        ...options,
+        ...(reasoningEffort !== undefined ? { reasoning: reasoningEffort } : {}),
+        onPayload: composeReasoningPayloadHook(options?.onPayload, { requestedEffort: reasoningEffort, reasoningCapability }),
+        sessionId: sessionManager.getSessionId(),
+        cacheRetention: options?.cacheRetention ?? "short",
+      }),
     });
   };
   const abort = async () => {

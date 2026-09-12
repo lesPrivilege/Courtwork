@@ -14,7 +14,7 @@ import { mkdir, writeFile, rename, stat, open as openFile } from "node:fs/promis
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { StringDecoder } from "node:string_decoder";
-import { getSupportedThinkingLevels, clampThinkingLevel } from "@earendil-works/pi-ai";
+import { describeReasoning, MODEL_ADAPTER_VERSION } from "../runtime/model-capabilities.mjs";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
 
 import {
@@ -24,6 +24,7 @@ import {
   assistantMessageText,
   registerFakeProvider,
   createSessionRun,
+  createReasoningPayloadHook,
   resolveCompactionPolicy,
   FAKE_API_ID,
   FAKE_MODEL_ID,
@@ -365,11 +366,12 @@ export class RuntimeService {
   getProviderModels() {
     return {
       source: "installed-runtime-catalog",
+      version: this.store.getProviderConfigVersion(),
       apiFormats: [...API_FORMATS],
       models: this.modelRuntime.getModels()
         .filter((model) => this.#knownIdentities().has(model.provider) && this.#configurationStatusOf(this.#connectionByIdentity(model.provider).id) === "ready")
         .map(model => {
-          const { id, name, provider, api, contextWindow, maxTokens, reasoning } = model;
+          const { id, name, provider, api, baseUrl, contextWindow, maxTokens, reasoning } = model;
           // A row is "connection" (PV-60/61) when it comes from a
           // connection's OWN saved model list — the whole list for a
           // compatible connection, only the extras for a catalog one; a
@@ -379,8 +381,10 @@ export class RuntimeService {
           // `false` (declared off) counts as declared, `null`/omitted does not.
           const entry = this.#connectionByIdentity(provider)?.models.find((candidate) => candidate.id === id) ?? null;
           const origin = entry ? "connection" : "catalog";
-          const reasoningSource = origin === "catalog" ? "catalog" : (entry.reasoning === null || entry.reasoning === undefined ? "unknown" : "user");
-          return { id, name, provider, api, contextWindow, maxTokens, reasoning: !!reasoning, supportedEfforts: getSupportedThinkingLevels(model), defaultEffort: clampThinkingLevel(model, "medium"), origin, reasoningSource };
+          const reasoningSource = origin === "catalog" ? "catalog" : (entry.reasoningEfforts == null && entry.reasoning == null ? "unknown" : "user");
+          const reasoningCapability = describeReasoning(model, { entry });
+          const reasoningByApi = Object.fromEntries(API_FORMATS.map(format => [format, describeReasoning(model, { entry, api: format })]));
+          return { id, name, provider, api, baseUrl, contextWindow, maxTokens, reasoning: !!reasoning, supportedEfforts: reasoningCapability.values, defaultEffort: null, reasoningCapability, reasoningByApi, origin, reasoningSource };
         }),
     };
   }
@@ -974,12 +978,14 @@ export class RuntimeService {
       catch { configurationStatus = 'unavailable'; }
     }
     return {
+      version: this.store.getProviderConfigVersion(),
       config: publicProviderConfig(this.providerConfig),
       configurationStatus,
       execution: { mode: realProvider ? "real" : "local-fake", realProvider, adapterId: this.adapterId },
       credentialStatus: connection ? this.#credentialStatusOf(connection) : "not_configured",
       connection: connection ? this.#publicConnection(connection) : null,
       capability: this.#capabilityOf(this.providerConfig),
+      reasoningCapability: this.#reasoningCapability(this.providerConfig),
     };
   }
 
@@ -1148,6 +1154,7 @@ export class RuntimeService {
           return response;
         },
         onResponse: ({ status }) => { httpStatus = status; },
+        onPayload: createReasoningPayloadHook({ requestedEffort: undefined }),
       });
     } finally {
       clearTimeout(timer);
@@ -1170,6 +1177,7 @@ export class RuntimeService {
       credentialSource,
       httpStatus,
       binding: { providerConfigVersion: this.store.getProviderConfigVersion(), credentialGeneration: this.credentialGeneration },
+      coverage: { api: model.api, adapterVersion: MODEL_ADAPTER_VERSION, reasoningMode: "omit", providerEffectiveEffort: null, tools: false, turns: 1 },
     };
     await this.store.setProviderVerification(receipt);
     return receipt;
@@ -1186,7 +1194,11 @@ export class RuntimeService {
 
   async #setProviderConfig(input) {
     if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "provider config is frozen during a run");
-    const config = validateProviderDescriptor(input, this.#knownIdentities());
+    const body = requireObject(input, "body");
+    if (!Number.isSafeInteger(body.expectedVersion) || body.expectedVersion < 0) throw new ServiceError(400, "invalid_config_version", "expectedVersion is required");
+    if (body.expectedVersion !== this.store.getProviderConfigVersion()) throw new ServiceError(409, "config_conflict", "Provider configuration changed. Reload before saving.");
+    const { expectedVersion, ...descriptor } = body;
+    const config = validateProviderDescriptor(descriptor, this.#knownIdentities());
     const connection = this.#connectionByIdentity(config.provider);
     if (!connection) throw new ServiceError(400, "invalid_provider", "provider is not one of the allowed providers");
     this.#requireReadyConnection(connection.id);
@@ -1211,7 +1223,7 @@ export class RuntimeService {
     if (config.provider === DEEPSEEK_PROVIDER_ID && config.api !== DEEPSEEK_API_ID && !config.baseUrl) {
       throw new ServiceError(400, "invalid_provider", "a non-catalog API format requires an explicit compatible endpoint");
     }
-    if (config.reasoningEffort !== undefined && !getSupportedThinkingLevels(catalogModel).includes(config.reasoningEffort)) throw new ServiceError(400, "invalid_effort", "reasoning effort is not supported by this model");
+    if (config.reasoningEffort !== undefined && !this.#reasoningCapability(config).values.includes(config.reasoningEffort)) throw new ServiceError(400, "invalid_effort", "reasoning effort is not supported by this model");
     await this.store.setProviderConfig(config);
     this.providerConfig = config;
     return this.getProviderConfig();
@@ -1524,6 +1536,12 @@ export class RuntimeService {
     };
   }
 
+  #reasoningCapability(provider) {
+    const model = this.modelRuntime.getModel(provider.provider, provider.model);
+    const entry = this.#connectionByIdentity(provider.provider)?.models.find(row => row.id === provider.model) ?? null;
+    return describeReasoning(model, { entry, api: provider.api, baseUrl: provider.baseUrl ?? model?.baseUrl });
+  }
+
   #resolveModel(provider) {
     const model = this.modelRuntime.getModel(provider.provider, provider.model);
     if (!model) return undefined;
@@ -1598,6 +1616,7 @@ export class RuntimeService {
       credentialSource: credentialSourceOf(this.modelRuntime, connection.providerIdentity),
       contextWindowSource: capability.contextWindowSource,
       capabilityNotice: capability.notice,
+      reasoningBinding: { ...this.#reasoningCapability(this.providerConfig), configVersion: this.store.getProviderConfigVersion() },
     };
     if (provider.provider === FAKE_PROVIDER_ID) {
       // The fixture identity keeps its fixed wire format and endpoint (this
@@ -1622,7 +1641,7 @@ export class RuntimeService {
       }
     }
 
-    if (provider.reasoningEffort !== undefined && !getSupportedThinkingLevels(this.#resolveModel(provider)).includes(provider.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
+    if (provider.reasoningEffort !== undefined && !this.#reasoningCapability(provider).values.includes(provider.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
 
     let extension = null;
     if (session.extensionBinding) {
@@ -1743,7 +1762,7 @@ export class RuntimeService {
           binding: session.extensionBinding.binding,
           // Connection provenance belongs to the run record, not to the
           // extension descriptor, whose accepted field set is fixed.
-          provider: (() => { const { realProvider: _realProvider, connectionId: _connectionId, credentialSource: _credentialSource, contextWindowSource: _contextWindowSource, capabilityNotice: _capabilityNotice, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
+          provider: (() => { const { realProvider: _realProvider, connectionId: _connectionId, credentialSource: _credentialSource, contextWindowSource: _contextWindowSource, capabilityNotice: _capabilityNotice, reasoningBinding: _reasoningBinding, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
           instruction,
           runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash,composition:entry.runtimeBinding.composition},
         });
@@ -1843,6 +1862,7 @@ export class RuntimeService {
         modelRuntime: this.modelRuntime,
         model,
         reasoningEffort: provider.reasoningEffort,
+        reasoningCapability: provider.reasoningBinding,
         onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data }),
         sessionManager: entry.sessionManager,
         customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {

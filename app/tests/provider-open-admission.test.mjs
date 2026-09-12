@@ -47,7 +47,7 @@ test("PV-59 · 目录连接 PUT 只接受 models；api/baseUrl/apiKey 出现即 
     const clean = await putCatalogModels(h, [{ id: "extra-a" }]);
     assert.equal(clean.status, 200, JSON.stringify(clean.json));
     assert.equal(clean.json.connection.kind, "catalog");
-    assert.deepEqual(clean.json.connection.models, [{ id: "extra-a", contextWindow: null, contextWindowSource: "catalog", reasoning: null }]);
+    assert.deepEqual(clean.json.connection.models, [{ id: "extra-a", contextWindow: null, contextWindowSource: "catalog", reasoning: null, reasoningEfforts: null }]);
   } finally {
     await h.runtime.close();
   }
@@ -113,30 +113,36 @@ test("PV-59 · 目录连接加一个不在已装目录的模型：可保存、�
   }
 });
 
-// PV-61: reasoning is a tri-state the connection declares, mapped honestly
-// into pi's boolean and reported back with its own source.
-test("PV-61 · reasoning 三态：true → supportedEfforts 非 off；null → off + reasoningSource unknown；false → off + reasoningSource user", async () => {
+// A legacy reasoning boolean is not a declaration of any exact parameter
+// ladder. Only reasoningEfforts supplies selectable concrete tiers.
+test("reasoning capability · legacy 三态保留但不生成伪档位，显式 effort list 才提供具体档位", async () => {
   const h = await boot();
   try {
     const saved = await putCatalogModels(h, [
       { id: "reasoning-true", reasoning: true },
       { id: "reasoning-null" },
       { id: "reasoning-false", reasoning: false },
+      { id: "reasoning-explicit", reasoning: true, reasoningEfforts: ["low", "high"] },
     ]);
     assert.equal(saved.status, 200, JSON.stringify(saved.json));
     assert.deepEqual(
-      saved.json.connection.models.map((model) => [model.id, model.reasoning]),
-      [["reasoning-true", true], ["reasoning-null", null], ["reasoning-false", false]],
+      saved.json.connection.models.map((model) => [model.id, model.reasoning, model.reasoningEfforts]),
+      [["reasoning-true", true, null], ["reasoning-null", null, null], ["reasoning-false", false, null], ["reasoning-explicit", true, ["low", "high"]]],
     );
 
     const models = (await h.api("GET", "/provider-models")).json.models;
     const byId = Object.fromEntries(models.filter((model) => model.provider === FAKE_PROVIDER_ID).map((model) => [model.id, model]));
-    assert.notEqual(byId["reasoning-true"].supportedEfforts.join(","), "off");
+    assert.deepEqual(byId["reasoning-true"].supportedEfforts, []);
+    assert.equal(byId["reasoning-true"].defaultEffort, null);
     assert.equal(byId["reasoning-true"].reasoningSource, "user");
-    assert.deepEqual(byId["reasoning-null"].supportedEfforts, ["off"]);
+    assert.deepEqual(byId["reasoning-null"].supportedEfforts, []);
+    assert.equal(byId["reasoning-null"].defaultEffort, null);
     assert.equal(byId["reasoning-null"].reasoningSource, "unknown");
-    assert.deepEqual(byId["reasoning-false"].supportedEfforts, ["off"]);
+    assert.deepEqual(byId["reasoning-false"].supportedEfforts, []);
+    assert.equal(byId["reasoning-false"].defaultEffort, null);
     assert.equal(byId["reasoning-false"].reasoningSource, "user", "declared off is still declared, not unknown");
+    assert.deepEqual(byId["reasoning-explicit"].supportedEfforts, ["low", "high"]);
+    assert.equal(byId["reasoning-explicit"].defaultEffort, null);
     assert.equal(byId[FAKE_MODEL_ID].origin, "catalog");
     assert.equal(byId[FAKE_MODEL_ID].reasoningSource, "catalog");
   } finally {

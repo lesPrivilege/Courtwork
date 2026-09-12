@@ -73,7 +73,7 @@ reopened by the next Run. No second transcript or orchestration loop is added.
 All require the existing work token. These are local configuration/capability
 queries; they do not call a provider or verify a key.
 
-- `GET /api/v5/provider-models` returns `{source:"installed-runtime-catalog", models:[{id,name,provider,api,contextWindow,maxTokens,reasoning,supportedEfforts,defaultEffort,origin,reasoningSource}], apiFormats}` filtered to the supported providers. Use its exact provider/model/api tuple for provider configuration. The catalog is the installed SDK snapshot, not a live network lookup. `origin` (WO-PV-BE03) is `"catalog"` for a row from the installed catalog itself and `"connection"` for a row from a connection's own saved model list (the WHOLE list for a compatible connection, only the extras for a catalog one); `reasoningSource` is `"catalog"` for a catalog row, `"user"` once a person has declared `reasoning` on a connection's model entry, `"unknown"` while it is still the PV-61 default.
+- `GET /api/v5/provider-models` returns `{source:"installed-runtime-catalog", version, models:[{id,name,provider,api,baseUrl,contextWindow,maxTokens,reasoning,supportedEfforts,defaultEffort,reasoningCapability,reasoningByApi,origin,reasoningSource}], apiFormats}` filtered to the supported providers. Use its exact provider/model/api tuple for provider configuration. The catalog is the installed SDK snapshot, not a live network lookup. `origin` (WO-PV-BE03) is `"catalog"` for a row from the installed catalog itself and `"connection"` for a row from a connection's own saved model list (the WHOLE list for a compatible connection, only the extras for a catalog one); `reasoningSource` is `"catalog"` for a catalog row, `"user"` once a person has declared `reasoning` on a connection's model entry, `"unknown"` while it is still the PV-61 default.
 - `GET /api/v5/runtime-info` returns `apiVersion`, `adapterId`, host `state`, existing provider/configuration status, `capabilities`, `limits`, effective `compaction`, restart `recovery`, and the ownership/acceptance boundary. `ready` describes the host, not real-provider reachability. The tool list is the base capability set; each session's permission mode determines which tools are actually admitted.
 - During graceful shutdown, new Run admission is `503 runtime_closing`. The HTTP listener closes; clients reconnect after startup and obtain a fresh work token.
 
@@ -126,16 +126,16 @@ Real providers are `openai` and `deepseek`; the deterministic fixture is separat
 Both, and any user-defined compatible connection, are reached through the
 connection registry described below.
 `GET /api/v5/provider-models` gives installed catalog model IDs and supported
-adapter formats. `PUT /api/v5/provider-config` accepts, for example:
+adapter formats. First read `GET /api/v5/provider-config` and use its top-level `version` as `expectedVersion` in the write (the number below is illustrative). `PUT /api/v5/provider-config` accepts, for example:
 
 ```json
-{"provider":"openai","model":"gpt-4.1-mini","api":"openai-responses"}
+{"provider":"openai","model":"gpt-4.1-mini","api":"openai-responses","expectedVersion":7}
 ```
 
 Choose `openai-completions` for Chat Completions. Optional `baseUrl` is actually
 applied to the selected model. Model IDs must exist in the installed catalog;
 the model and endpoint must support the chosen format. The descriptor exposes
-provider/model/API/baseUrl only: it does not accept custom headers, alternate
+provider/model/API/baseUrl and optional reasoningEffort only (`expectedVersion` is the command precondition): it does not accept custom headers, alternate
 auth-header policies or compat overrides. For a user connection the model must
 be one saved on that connection, and the connection owns its endpoint and
 format. Gateways requiring
@@ -253,7 +253,7 @@ is one shape and one key space rather than two.
 | `providerIdentity` | The runtime provider id. For a catalog connection it is the catalog id; for a user connection it is the connection id, so a compatible endpoint never registers onto a catalog identity whose credential slot is single. |
 | `api` | `openai-completions` or `openai-responses` |
 | `baseUrl` | The endpoint, `null` for a catalog connection |
-| `models` | `[{id, contextWindow, reasoning}]`; `contextWindow` is `null` when nobody reported one, `reasoning` is `true`/`false`/`null` (WO-PV-BE03, PV-61) — `null` means nobody has declared it either way |
+| `models` | `[{id, contextWindow, reasoning, reasoningEfforts}]`; `contextWindow` is `null` when nobody reported one, `reasoning` is `true`/`false`/`null` (WO-PV-BE03, PV-61) — `null` means nobody has declared it either way |
 | `credentialStatus` | Derived from the credential file, never stored on the record |
 
 `GET /api/v5/provider-connections` lists them. `POST /api/v5/provider-connections`
@@ -349,12 +349,27 @@ and Run admission share one check (`#admissibleModel`): a `getModel` lookup
 after registration, plus (compatible only) membership on the connection's own
 list. "Hits the installed catalog" is no longer a separate, narrower gate.
 
-`reasoning` (PV-61) joins a connection's model entry as `true | false | null`,
-default `null` (never declared); registering to pi maps both `false` and
-`null` to pi's `false` (the safe side — a `reasoning_effort` sent to a model
-that does not support one is a request failure). `/provider-models` rows gain
-`origin` (`"catalog"` vs `"connection"` — see above) and `reasoningSource`
-(`"catalog"` / `"user"` once declared / `"unknown"` while still the default).
+`reasoning` retains the historical `true | false | null` declaration when the new
+`reasoningEfforts` list is unknown (`null`). An exact current list supersedes
+that coarse boolean and normalizes it to whether the list is nonempty, matching
+SDK registration. No boolean produces a ladder. Schema13 adds this exact list,
+with `null` on migration; see [production adaptation](../../engineering/research/chat-memory-broker-2026-09-12/model-adaptation/production.md).
+Native values come only from string entries in the installed model's exact
+`thinkingLevelMap`, intersected with the Host's supported encoder. Compatible
+connections explicitly use generic OpenAI reasoning grammar; URL substrings do
+not select another vendor's reasoning mode. Native catalog routes retain their
+registered provider adapter. Unknown values stay unknown; `defaultEffort:null`
+means omit the parameter, and `off` is available only if explicitly supported.
+
+GET config/Models share `providerConfigVersion` as `version`. PUT requires a
+nonnegative integer `expectedVersion`; a missing/invalid version is
+`400 invalid_config_version`, a stale version `409 config_conflict`. Active Run
+writes remain `409 active_run`. New Runs freeze `reasoningBinding`; schema12
+migration preserves previous Run records and receipts, advances the version, and
+keeps an exact source-file backup. Verification coverage identifies one request,
+its API/adapter and omitted reasoning parameter, without claiming effort or tool
+coverage. Measurements separate requested effort, SDK setting and unreported
+Provider effective effort, including summary requests consumed via `.result()`.
 
 For the currently selected provider identity, verification applies the same
 configured API and optional endpoint override as Run, including when probing

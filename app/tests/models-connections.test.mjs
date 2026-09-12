@@ -345,7 +345,7 @@ test("PV-M-1 · 两处写入合一：任一处保存都不清掉另一处的字�
   // 字段集是闭集：投影不发明第六个字段。
   for (const key of Object.keys(fromPicker)) assert.ok(PROVIDER_CONFIG_FIELDS.includes(key), key);
   // 两个写入方都走这一处，没有第二份装配。
-  assert.match(settingsSource, /body: projectProviderConfig\(/);
+  assert.match(settingsSource, /body: \{ \.\.\.projectProviderConfig\(/);
   assert.match(pickerSource, /projectProviderConfig\(current\.config,/);
   assert.doesNotMatch(pickerSource, /const config=\{provider:/);
 });
@@ -367,20 +367,27 @@ test("PV-53 · 模型选择器的用户连接分组标签是它的端点主机�
   assert.match(pickerSource, /`\$\{m\.provider\} \$\{m\.name\} \$\{m\.id\}`/);
 });
 
-test("PV-27 · 目录未声明档位时只出 Off，不出一个只有一项的下拉", () => {
-  assert.deepEqual(supportedEffortsOf({ models: [{ provider: "openai", id: "m", supportedEfforts: ["off", "high"] }] }, "openai", "m"), ["off", "high"]);
-  // 目录里根本没有这条模型 = 不知道，不等于"只有 off"。
-  assert.equal(supportedEffortsOf({ models: [] }, "openai", "m"), null);
-  assert.equal(supportedEffortsOf(null, "openai", "m"), null);
-  // 声明了但为空，读成只有 off。
-  assert.deepEqual(supportedEffortsOf({ models: [{ provider: "openai", id: "m", supportedEfforts: [] }] }, "openai", "m"), ["off"]);
-  assert.equal(effortSelectable(["off"]), false);
+test("PV-27 · 未知与 unsupported 都用 provider default；enum 按 API 精确列值", () => {
+  assert.deepEqual(supportedEffortsOf({ models: [{ provider: "openai", id: "m", reasoningCapability: { kind: "enum", values: ["off", "high"] } }] }, "openai", "m"), ["off", "high"]);
+  assert.deepEqual(supportedEffortsOf({ models: [] }, "openai", "m"), []);
+  assert.deepEqual(supportedEffortsOf(null, "openai", "m"), []);
+  assert.deepEqual(supportedEffortsOf({ models: [{ provider: "openai", id: "m", reasoningCapability: { kind: "unsupported", values: [] } }] }, "openai", "m"), []);
+  assert.deepEqual(supportedEffortsOf({ models: [{ provider: "openai", id: "m", reasoningByApi: { chat: { kind: "enum", values: ["low"] }, responses: { kind: "unsupported", values: [] } } }] }, "openai", "m", "chat"), ["low"]);
+  assert.deepEqual(supportedEffortsOf({ models: [{ provider: "openai", id: "m", reasoningByApi: { chat: { kind: "enum", values: ["low"] }, responses: { kind: "unsupported", values: [] } } }] }, "openai", "m", "responses"), []);
+  assert.equal(effortSelectable(["off"]), true);
   assert.equal(effortSelectable(["off", "high"]), true);
   assert.equal(effortSelectable(null), false);
+  const endpointModel={provider:"openai",id:"endpoint-model",baseUrl:"https://api.example.test/v1",reasoningByApi:{"openai-completions":{kind:"enum",source:"runtime-catalog",values:["high"]}}};
+  const endpointCatalog={models:[endpointModel]};
+  assert.deepEqual(supportedEffortsOf(endpointCatalog,"openai","endpoint-model","openai-completions","https://api.example.test/v1/"),["high"]);
+  assert.deepEqual(supportedEffortsOf(endpointCatalog,"openai","endpoint-model","openai-completions","https://custom.example.test/v1"),[]);
+  assert.match(settingsSource,/function requireInheritedEffortOnRoute\([\s\S]{0,450}Choose Provider default in Model & effort before changing this endpoint\./);
+  assert.match(settingsSource,/requireInheritedEffortOnRoute\(provider\.value, model\.value, api\.value, baseUrl\.value\.trim\(\) \|\| undefined\)/);
+  assert.match(settingsSource,/requireInheritedEffortOnRoute\(connection\.providerIdentity, chosen, connection\.api, connection\.baseUrl\)/);
   /* WO-PV-FE02 · 改写理由：`else` 分支里插入了 PV-61 的三态判据注释与新分支，字符
    * 距离从 800 涨到本单实测约 1000，窗口相应放宽到 1400——锚点（起止两行代码）
    * 一字未改，中间要跳过的只是新增的注释与一个三元分支，不是放宽了检查什么。 */
-  assert.match(pickerSource, /if \(effortSelectable\(supported\)\)[\s\S]{0,1400}effortControl\.replaceChildren\(effortFixed\)/);
+  assert.match(pickerSource, /if \(effortSelectable\(supported\) \|\| savedEffortIsInvalid\)[\s\S]{0,1400}effortControl\.replaceChildren\(effortFixed\)/);
   // 未报窗口写 unknown，不写一个宿主编的数，也不再写 `unavailable`。
   assert.doesNotMatch(pickerSource, /:'unavailable'/);
   assert.match(pickerSource, /:'unknown'/);
@@ -389,10 +396,9 @@ test("PV-27 · 目录未声明档位时只出 Off，不出一个只有一项的�
 test("PV-61 · reasoningSource:\"unknown\" 换成真话，不再替目录说它没说过的话", () => {
   // 旧句子（"这条目录报的就是没有"）在 unknown 语境下替目录说了它没说过的话；
   // 换成"没人核过"，并指去唯一能改这件事的地方。
-  assert.match(pickerSource, /selected\.reasoningSource === 'unknown'/);
-  assert.match(pickerSource, /Not verified for this model\. Turn it on for this model in Connections if the provider offers reasoning effort\./);
-  // `catalog`/`user` 两种来源仍走旧句：目录原生声明没有档位，或用户已经声明过。
-  assert.match(pickerSource, /Off\. The catalogue for this connection reports no reasoning levels for this model\./);
+  assert.match(pickerSource, /reasoning\?\.kind === 'unsupported'/);
+  assert.match(pickerSource, /Reasoning effort is not verified for this model\. Provider default will be used\./);
+  assert.match(pickerSource, /Provider default will be used\./);
 });
 
 test("项 7 · origin:\"connection\" 的模型在选择器路由行追加一句，目录原生行不追加", () => {
@@ -561,17 +567,13 @@ test("PV-59/63 · 键入一个模型 ID 的三步序：PUT connection → PUT co
   assert.doesNotMatch(customFlowText, /dialog\.close\(\)/);
 });
 
-test("PV-61 · 键入模型 ID 面板与 Settings 兼容路径的 reasoning 复选框三态：默认未勾=null，勾=true，碰过再取消=false", () => {
-  // 键入面板：不勾 = 不带字段（null/未声明）；勾 = declared true。这条模型此刻才
-  // 第一次存在于这条连接上，没有"碰过又取消"的中间态可谈（见源码注释）。
-  assert.match(pickerSource, /\{ id, \.\.\.\(customReasoning\.checked \? \{ reasoning: true \} : \{\}\) \}/);
-  // Settings 兼容路径：`reasoningTouched` 只在选中的模型换了那几处复位，三态落到 PUT。
-  assert.match(settingsSource, /let reasoningTouched = false;/);
-  assert.match(settingsSource, /reasoningTouched \? reasoningCheckbox\.checked : undefined/);
-  assert.match(settingsSource, /entry\.id === chosen && reasoningOverride !== undefined \? reasoningOverride : entry\.reasoning/);
-  assert.match(settingsSource, /reasoning !== null && reasoning !== undefined \? \{ reasoning \} : \{\}/);
+test("PV-61 · custom model reasoning declaration records exact optional effort values", () => {
+  assert.match(pickerSource, /Supported reasoning efforts \(optional\)/);
+  assert.match(pickerSource, /reasoningEfforts: declaredEfforts/);
+  assert.match(pickerSource, /const allowed=new Set\(\['off','minimal','low','medium','high','xhigh','max'\]\)/);
+  assert.match(settingsSource, /reasoningLevelsTouched \? parseReasoningLevels\(reasoningLevels\.value\) : undefined/);
+  assert.match(settingsSource, /reasoningEfforts: reasoningEfforts \?\? null/);
   assert.match(settingsSource, /function syncReasoningCheckbox\(\)/);
-  assert.match(settingsSource, /reasoningCheckbox\.checked = entry\?\.reasoning === true;/);
 });
 
 test("回执块六态的文案落点：成功两行不着色，失败一行借 --danger，`is-asking`/`is-failed` 互斥", () => {

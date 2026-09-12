@@ -27,7 +27,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 12;
+const SCHEMA_VERSION = 13;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration", "asyncTasks", "coordination", "providerConnections", "providerConfigurationPending",
@@ -72,7 +72,7 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   // Only a RUN descriptor carries connection provenance: it is a record of what
   // one run actually used, not part of the editable configuration pointer.
   const provenance = allowRealProvider && schema >= 10 ? ["connectionId", "credentialSource", "contextWindowSource", "capabilityNotice"] : [];
-  const allowed = new Set(["provider", "model", "api", ...(allowRealProvider ? ["realProvider"] : []), "baseUrl", ...(schema >= 7 ? ["reasoningEffort"] : []), ...provenance]);
+  const allowed = new Set(["provider", "model", "api", ...(allowRealProvider ? ["realProvider"] : []), "baseUrl", ...(schema >= 7 ? ["reasoningEffort"] : []), ...provenance, ...(allowRealProvider && schema >= 13 ? ["reasoningBinding"] : [])]);
   assert(Object.keys(value).every((key) => allowed.has(key)), label + " has unsupported fields");
   id(value.provider, label + ".provider");
   if (schema >= SCHEMA_VERSION && !legacy) {
@@ -98,6 +98,19 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
       try { parsed = new URL(value.baseUrl); } catch { throw invalidState(label + ".baseUrl is invalid"); }
       assert(["http:", "https:"].includes(parsed.protocol) && !parsed.username && !parsed.password && !parsed.search && !parsed.hash, label + ".baseUrl is invalid");
     }
+  }
+  if (value.reasoningBinding !== undefined) {
+    const binding = value.reasoningBinding;
+    exactKeys(binding, new Set(["kind", "source", "values", "defaultMode", "adapterVersion", "notice", "configVersion"]), label + ".reasoningBinding");
+    assert(["enum", "unknown", "unsupported"].includes(binding.kind), "reasoningBinding.kind is invalid");
+    assert(["runtime-catalog", "user-declared", "unknown"].includes(binding.source), "reasoningBinding.source is invalid");
+    assert(Array.isArray(binding.values) && binding.values.length <= 7 && new Set(binding.values).size === binding.values.length && binding.values.every(v => ["off", "minimal", "low", "medium", "high", "xhigh", "max"].includes(v)), "reasoningBinding.values is invalid");
+    assert((binding.kind === "enum") === (binding.values.length > 0), "reasoningBinding.kind and values disagree");
+    assert(value.reasoningEffort === undefined || binding.values.includes(value.reasoningEffort), "reasoningBinding does not admit requested effort");
+    assert(binding.defaultMode === "omit", "reasoningBinding.defaultMode is invalid");
+    text(binding.adapterVersion, "reasoningBinding.adapterVersion", 100);
+    text(binding.notice, "reasoningBinding.notice", 300);
+    nonNegativeInt(binding.configVersion, "reasoningBinding.configVersion");
   }
   if (value.reasoningEffort !== undefined) assert(["off", "minimal", "low", "medium", "high", "xhigh", "max"].includes(value.reasoningEffort), label + ".reasoningEffort is invalid");
   if (allowRealProvider) assert(typeof value.realProvider === "boolean", label + ".realProvider is invalid");
@@ -125,14 +138,21 @@ const VERIFY_STATUSES = new Set([
  * bound to the configuration and credential epoch it was actually run
  * against. One per connection id; a newer probe replaces the old one
  * outright (`setProviderVerification`), it does not accumulate history. */
-function validateVerifications(value) {
+function validateVerifications(value, schema = SCHEMA_VERSION) {
   assert(Array.isArray(value), "providerVerifications must be an array");
   const seen = new Set();
   for (const record of value) {
     exactKeys(record, new Set([
       "connectionId", "model", "status", "message", "observedModel", "replyFirstLine",
       "latencyMs", "checkedAt", "credentialSource", "binding", "httpStatus",
+      ...(schema >= 13 && record.coverage !== undefined ? ["coverage"] : []),
     ]), "providerVerification");
+    if (record.coverage !== undefined) {
+      exactKeys(record.coverage, new Set(["api", "adapterVersion", "reasoningMode", "providerEffectiveEffort", "tools", "turns"]), "providerVerification.coverage");
+      assertProviderApi(record.coverage.api);
+      text(record.coverage.adapterVersion, "providerVerification.coverage.adapterVersion", 100);
+      assert(record.coverage.reasoningMode === "omit" && record.coverage.providerEffectiveEffort === null && record.coverage.tools === false && record.coverage.turns === 1, "providerVerification.coverage is invalid");
+    }
     id(record.connectionId, "providerVerification.connectionId");
     assert(!seen.has(record.connectionId), "providerVerification.connectionId is not unique"); seen.add(record.connectionId);
     try { assertProviderModelId(record.model); } catch { throw invalidState("providerVerification.model is invalid"); }
@@ -199,7 +219,7 @@ function validateArtifact(value, label) {
 
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9, 10 or 11 can be upgraded)`);
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9, 10, 11 or 12 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -320,7 +340,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
   if (schema >= 11) validatePending(parsed.providerConfigurationPending);
   if (schema >= 12) {
     nonNegativeInt(parsed.providerConfigVersion, "state.providerConfigVersion");
-    validateVerifications(parsed.providerVerifications);
+    validateVerifications(parsed.providerVerifications, schema);
   }
   return structuredClone(parsed);
 }
@@ -334,7 +354,7 @@ function validateConnections(value, { historical = false, schema = SCHEMA_VERSIO
   assert(Array.isArray(value), "providerConnections must be an array");
   const ids = new Set();
   const identities = new Set();
-  const modelKeys = schema >= 12 ? ["id", "contextWindow", "reasoning"] : ["id", "contextWindow"];
+  const modelKeys = schema >= 13 ? ["id", "contextWindow", "reasoning", "reasoningEfforts"] : schema >= 12 ? ["id", "contextWindow", "reasoning"] : ["id", "contextWindow"];
   for (const connection of value) {
     exactKeys(connection, new Set(["id", "kind", "providerIdentity", "api", "baseUrl", "models"]), "providerConnection");
     id(connection.id, "providerConnection.id");
@@ -368,7 +388,10 @@ function validateConnections(value, { historical = false, schema = SCHEMA_VERSIO
           assert(model.contextWindow === null || (Number.isSafeInteger(model.contextWindow) && model.contextWindow > 0), "providerConnection.model.contextWindow is invalid");
           if (schema >= 12) assert(model.reasoning === null || typeof model.reasoning === "boolean", "providerConnection.model.reasoning is invalid");
         }
-      } else validateProviderModels(connection.models, { allowEmpty: true });
+      } else {
+        const canonical = validateProviderModels(connection.models, { allowEmpty: true });
+        if (schema >= 13) assert(connection.models.every((model, index) => model.reasoning === canonical[index].reasoning), "providerConnection.model.reasoning contradicts reasoningEfforts");
+      }
     } catch (error) {
       // Keep the state boundary's stable diagnostic paths while sharing the
       // public model-ID/count/contextWindow domain with HTTP input.
@@ -479,7 +502,7 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
@@ -490,13 +513,13 @@ export class RuntimeStore {
             // (never declared, PV-61) is the only honest default, not a guess.
             providerConnections: (parsed.providerConnections ?? []).map(connection => ({
               ...connection,
-              models: connection.models.map(model => ({ ...model, reasoning: model.reasoning ?? null })),
+              models: connection.models.map(model => ({ ...model, reasoning: model.reasoning ?? null, reasoningEfforts: null })),
             })),
             // Schema11 already owns recovery fences; an upgrade must not
             // turn a partially published connection or credential ready.
             providerConfigurationPending: parsed.schemaVersion >= 11 ? parsed.providerConfigurationPending : [],
-            providerConfigVersion: 0,
-            providerVerifications: [],
+            providerConfigVersion: parsed.schemaVersion >= 12 ? parsed.providerConfigVersion + 1 : 0,
+            providerVerifications: parsed.schemaVersion >= 12 ? parsed.providerVerifications : [],
             sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })),
             runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');

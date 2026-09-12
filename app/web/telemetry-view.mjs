@@ -13,7 +13,11 @@ function validMeasurement(data) {
     && (data.observedModel===undefined || data.observedModel===null || (nonempty(data.observedModel.model) && ['provider','api'].every(key=>data.observedModel[key]===null || nonempty(data.observedModel[key]))))
     && (data.providerResponse===undefined || (data.providerResponse?.source==='sdk-response-metadata'
       && responseIdentifier(data.providerResponse.model) && responseIdentifier(data.providerResponse.id)))
-    && effort(data.requestedEffort) && effort(data.effectiveEffort) && wallClock(data.startedAt)
+    && effort(data.requestedEffort) && effort(data.effectiveEffort)
+    && (data.sdkEffectiveEffort === undefined || effort(data.sdkEffectiveEffort))
+    && (data.effectiveEffortSource === undefined || data.effectiveEffortSource === 'sdk-setting')
+    && (data.providerEffectiveEffort === undefined || data.providerEffectiveEffort === null)
+    && wallClock(data.startedAt)
     && (data.finishedAt===undefined || wallClock(data.finishedAt))
     && (data.contextWindow===null || (Number.isSafeInteger(data.contextWindow)&&data.contextWindow>=0))
     && nonnegative(data.elapsedMs) && [data.firstOutputMs,data.firstTextMs].every(value=>value===null || nonnegative(value))
@@ -67,7 +71,7 @@ export function renderRequestMeasurements(events, runId, {compact=false, opened=
     const detail=el('details',{className:'request-detail',attrs:{'data-section':`request-${row.requestId}`}},summary);
     detail.open=opened.has(`request-${row.requestId}`);
     const dl=el('dl',{className:'data-list'});
-    const fields=[['Purpose',row.purpose??'Not recorded'],['Host first output',requestDuration(row.firstOutputMs)],['Host first text',requestDuration(row.firstTextMs)],['Observed request time',requestDuration(row.elapsedMs)],['Reasoning effort',row.effectiveEffort??'Not recorded'],['Decode TPS','Unavailable · no token deltas']];
+    const fields=[['Purpose',row.purpose??'Not recorded'],['Host first output',requestDuration(row.firstOutputMs)],['Host first text',requestDuration(row.firstTextMs)],['Observed request time',requestDuration(row.elapsedMs)],['Requested effort',row.requestedEffort??'Provider default'],['SDK setting',row.sdkEffectiveEffort??row.effectiveEffort??'Not recorded'],['Provider effort','Not reported'],['Decode TPS','Unavailable · no token deltas']];
     if(row.context) fields.push(['Request context estimate',`~${row.context.estimatedTokens.toLocaleString()} tokens · serialized text ÷ 4`]);
     fields.push(['Requested model',`${row.requestedModel.provider} · ${row.requestedModel.model} · ${row.requestedModel.api}`],['Runtime model',row.observedModel?`${row.observedModel.provider??'unknown'} · ${row.observedModel.model}`:'Not reported']);
     if(row.providerResponse?.model) fields.push(['Provider-reported model',row.providerResponse.model]);
