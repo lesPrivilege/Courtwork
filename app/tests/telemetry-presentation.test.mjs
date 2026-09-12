@@ -30,3 +30,19 @@ test('malformed v1 metadata is rejected while out-of-interval timing remains ins
  }
  const row=measurement(1,{firstTextMs:2000});assert.equal(requestMeasurements([{type:'runtime.request.telemetry',runId:'r',data:row}],'r').length,1);assert.equal(requestTiming([row])[0].firstText,null);
 });
+
+test('request detail distinguishes runtime and provider aliases while retaining historical records',async()=>withTinyDom(()=>{
+  const create=document.createElement.bind(document);document.createElement=tag=>Object.assign(create(tag),{style:{}});
+  const base=measurement(1,{requestedModel:{provider:'deepseek',model:'deepseek-v4-flash',api:'openai-completions'},
+    observedModel:{provider:'deepseek',model:'deepseek-v4-flash',api:'openai-completions'}});
+  const render=data=>renderRequestMeasurements([{type:'runtime.request.telemetry',runId:'r',data}],'r');
+  const historical=render(base);
+  assert.match(historical.textContent,/Runtime model/);assert.doesNotMatch(historical.textContent,/Provider-reported model/);
+  const current=render({...base,providerResponse:{source:'sdk-response-metadata',model:'deepseek-flash',id:'response-123'}});
+  const fields=current.querySelectorAll('dt').map((dt,i)=>[dt.textContent,current.querySelectorAll('dd')[i].textContent]);
+  assert.deepEqual(fields.filter(([label])=>['Runtime model','Provider-reported model','Provider response ID'].includes(label)),
+    [['Runtime model','deepseek · deepseek-v4-flash'],['Provider-reported model','deepseek-flash'],['Provider response ID','response-123']]);
+  assert.match(current.textContent,/Unavailable · no token deltas/);
+  for(const providerResponse of [null,{source:'guess',model:'alias',id:null},{source:'sdk-response-metadata',model:'a\nb',id:null},{source:'sdk-response-metadata',model:null,id:'x'.repeat(257)}])
+    assert.equal(requestMeasurements([{type:'runtime.request.telemetry',runId:'r',data:{...base,providerResponse}}],'r').length,0);
+}));

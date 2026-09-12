@@ -8,6 +8,12 @@ export function estimateRequestContext(context) {
   } catch { return null; }
 }
 
+// These are opaque identifiers, not headers or arbitrary provider metadata.
+// Do not substitute message.model: Pi keeps the requested runtime identity
+// there and may supply a different responseModel for a provider alias.
+const responseIdentifier = value => typeof value === 'string' && value.length > 0
+  && value.length <= 256 && value.trim() === value && !/[\u0000-\u001f\u007f-\u009f]/u.test(value) ? value : null;
+
 export async function observeRequestStream({ start, model, context, requestId, purpose = 'agent', requestedEffort = null,
   effectiveEffort = null, record = () => {}, now = () => performance.now(), wallNow = () => new Date().toISOString() }) {
   const began = now();
@@ -39,6 +45,7 @@ export async function observeRequestStream({ start, model, context, requestId, p
             const usage = event.type === 'done' && message?.usage ? Object.fromEntries(['input','output','cacheRead','cacheWrite'].map(key => [key, Number.isSafeInteger(message.usage[key]) && message.usage[key] >= 0 ? message.usage[key] : null])) : null;
             emit(event.type === 'done' ? 'completed' : message?.stopReason === 'aborted' ? 'cancelled' : 'failed', {
               usage, observedModel: message?.model ? {provider:message.provider || null, model:message.model, api:message.api || null} : null,
+              providerResponse: { source: 'sdk-response-metadata', model: responseIdentifier(message?.responseModel), id: responseIdentifier(message?.responseId) },
               finishedAt: wallNow(),
             });
           }

@@ -29,6 +29,29 @@ test('interrupted stream and dispatch error do not report successful usage',asyn
   assert.equal(records.at(-1).phase,'failed');
 });
 
+test('provider response identifiers stay separate from runtime identity without forwarding extra metadata',async()=>{
+  for (const extra of [
+    {responseModel:'deepseek-flash',responseId:'response-123'},
+    {},
+    {responseModel:'bad\nmodel',responseId:'x'.repeat(257)},
+  ]) {
+    const records=[];
+    const message={model:'deepseek-v4-flash',provider:'deepseek',api:'openai-completions',...extra,
+      headers:{authorization:'private-sentinel'},content:[{type:'thinking',thinking:'private-sentinel'}]};
+    const stream=await observeRequestStream({model:{id:'deepseek-v4-flash',provider:'deepseek',api:'openai-completions'},context:{},requestId:1,record:r=>records.push(r),
+      start:()=>({result:()=>message,async *[Symbol.asyncIterator](){yield {type:'done',message};}})});
+    await Array.fromAsync(stream);
+    assert.equal(stream.result(),message);
+    const row=records.at(-1);
+    assert.equal(row.observedModel.model,'deepseek-v4-flash');
+    assert.deepEqual(row.providerResponse,{source:'sdk-response-metadata',
+      model:extra.responseModel==='deepseek-flash'?'deepseek-flash':null,
+      id:extra.responseId==='response-123'?'response-123':null});
+    assert.equal(JSON.stringify(records).includes('private-sentinel'),false);
+    assert.equal(requestMeasurements([{type:'runtime.request.telemetry',runId:'r',data:row}],'r').length,1);
+  }
+});
+
 test('effort is capability checked and recorded by real local SDK requests',async()=>{
   const h=await boot();
   try {
