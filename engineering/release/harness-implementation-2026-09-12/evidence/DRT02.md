@@ -22,3 +22,7 @@ Nearest implemented precedents: `app/web/model-picker.mjs` / settings provider p
 ## Serial gate still open
 
 P00 intake and the P01/P02/P02b implementation have evidence; DRT-02 synthetic/GUI coverage is available. Node 1 still requires a real DeepSeek+Pi GUI run with user-configured credentials and authorized provider use. Only after that bounded review may Node 2 (genuine runtime replacement) begin; Node 3 remains later. The live plan is ordinary reply, same-chat continuity, Deny/Approve exact workspace write, file reading and one reopen/stop observation as applicable. Existing frontend validation prompts remain reusable. No personal credential store is inspected or copied.
+
+## Non-author follow-up
+
+Luna independently inspected this three-file synthetic fixture and ran 4/4 tests successfully, without edits or live calls. It confirmed the installed catalog and SDK DeepSeek compatibility options. Limits retained: DRT reopening is graceful close/reopen, not crash recovery; cancellation checks cancelled/no-artifact but does not assert that the loopback observed socket closure. The separate MCP SIGKILL test does not extend these DeepSeek claims.
