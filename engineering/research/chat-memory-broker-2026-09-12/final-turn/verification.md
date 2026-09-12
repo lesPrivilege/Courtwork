@@ -1,5 +1,7 @@
 # 验证与交付边界
 
+后续审阅更正：本页保留923998d上片记录；其footer显隐检查遗漏了时间与指针命中，不能证明这两项安全。[修订验证](review-followup.md)已改为action row并补齐反例，以后者为当前接收依据。
+
 接单 `main@6bfb23444944d5841df2e7a30806a8a6ddabfcb2`；交付独立分支 `codex/chat-harness-intake-20260912`。受核CSS blob `0980c02e9bde60612e30e1464642f218e5bf5d68`；产品差异仅 `app/web/styles.css`，Luna作者，Astra逐条审阅选择器并执行下述有界非作者组件核查。其余均工程文档、来源与合成证据。
 
 ## UI连续性变更记录

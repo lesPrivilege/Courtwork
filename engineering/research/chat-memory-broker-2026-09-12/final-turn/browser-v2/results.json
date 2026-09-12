@@ -1,0 +1,43 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "checks": "action-only/time/source/edit-as-new/legacy-renderer/pointer-hit/Tab/immediate-focus/geometry/portaled-menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "checks": "action-only/time/source/edit-as-new/legacy-renderer/pointer-hit/Tab/immediate-focus/geometry/portaled-menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "checks": "action-only/time/source/edit-as-new/legacy-renderer/pointer-hit/Tab/immediate-focus/geometry/portaled-menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "checks": "action-only/time/source/edit-as-new/legacy-renderer/pointer-hit/Tab/immediate-focus/geometry/portaled-menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "checks": "action-only/time/source/edit-as-new/legacy-renderer/pointer-hit/Tab/immediate-focus/geometry/portaled-menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "checks": "action-only/time/source/edit-as-new/legacy-renderer/pointer-hit/Tab/immediate-focus/geometry/portaled-menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "case": "simultaneous fine+coarse fallback",
+    "status": "passed",
+    "evidence": "synthetic CSS branch activation; no physical hybrid-device claim"
+  }
+]

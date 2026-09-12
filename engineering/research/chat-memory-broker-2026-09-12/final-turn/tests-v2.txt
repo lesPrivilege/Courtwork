@@ -1,0 +1,23 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (615.341834ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (218.512042ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (137.587875ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.633417ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.17475ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.150292ms)
+✔ conversation rename persists metadata without changing history, scope or draft (66.725125ms)
+✔ production only admits explicit handlers and preserves exact captured bytes (1.075792ms)
+✔ synthetic feedback is mutually exclusive and reversible; failure preserves selection (24.205042ms)
+✔ feedback lock suppresses duplicate/inverse requests and detached results cannot update a new target (1.399875ms)
+✔ streaming allows only exact current-text copy, while unavailable actions report reasons (1.467083ms)
+✔ regeneration requires explicit confirmation and retains original scope (1.674ms)
+✔ synthetic playback can be paused, resumed and stopped without a speech service (4.890292ms)
+✔ production rejects undeclared lifecycle handlers even when supplied (0.189209ms)
+✔ same bytes and key from a replacement record cannot accept an async result (2.181417ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2116.384792
