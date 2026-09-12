@@ -1,3 +1,4 @@
+import { compareSourceText } from '../intake/compare.mjs';
 import { IntakeStore, IntakeError } from '../intake/store.mjs';
 import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl } from './provider-fields.mjs';
 import { createGovernanceAdapter } from '../extensions/governance-adapter.mjs';
@@ -705,6 +706,17 @@ export class RuntimeService {
     const digest=text(query.get('sha256'),'sha256',{max:64});
     if (!/^[1-9][0-9]*$/.test(rawRevision ?? '') || !Number.isSafeInteger(revision) || !/^[a-f0-9]{64}$/.test(digest)) throw new ServiceError(400,'invalid_input','Invalid retained source version.');
     return this.#intakeCall(()=>this.intake.read(sessionId,{sourceId,revision,sha256:digest}));
+  }
+
+  compareMaterials(sessionId, query) {
+    if (!this.store.getSession(sessionId)) throw new ServiceError(404,'not_found','session not found');
+    const fields=['sourceId','fromRevision','fromSha256','toRevision','toSha256'];
+    for (const key of query.keys()) if (!fields.includes(key) || query.getAll(key).length !== 1) throw new ServiceError(400,'invalid_input','Invalid source comparison locator.');
+    const sourceId=query.get('sourceId');
+    const read=prefix=>this.getMaterialFile(sessionId,new URLSearchParams({sourceId:sourceId??'',revision:query.get(prefix+'Revision')??'',sha256:query.get(prefix+'Sha256')??''}));
+    const from=read('from'),to=read('to');
+    const identity=version=>({kind:version.kind,sessionId,sourceId:version.sourceId,revision:version.revision,path:version.path,sha256:version.sha256,bytes:version.bytes,representation:version.representation});
+    return {sourceId,path:from.path,from:identity(from),to:identity(to),latestRetainedRevision:this.#intakeCall(()=>this.intake.versions(sessionId,sourceId)).latestRevision,...compareSourceText(from,to)};
   }
 
   async #addMaterial(sessionId, input) {

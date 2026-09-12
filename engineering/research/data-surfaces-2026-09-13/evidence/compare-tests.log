@@ -1,0 +1,16 @@
+✔ diffWords marks only the changed tokens and never leading indentation (1.514167ms)
+✔ diffModel: word segments only for exactly one removed + one added line (0.859458ms)
+✔ renderDiff keeps ± and line numbers as text and puts blocks only on new words (1.631291ms)
+✔ renderDiff treats markup as text, renders the no-newline marker, and handles empty input (0.41575ms)
+✔ Settings preview and the static allowlist use the shared renderer and fixture (2.75375ms)
+✔ Pinned jsdiff adapter preserves original lines, whitespace, Unicode and missing final newline (1.388167ms)
+✔ Comparison returns explicit limited state instead of partial diff or expensive word allocation (1.476209ms)
+✔ HTTP comparison requires two exact versions in one session and makes no adoption or revision change (122.84925ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1183.003875

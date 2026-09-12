@@ -17,7 +17,12 @@ const TOKEN = /\s+|[^\s]+/g;
 export function diffWords(oldText, newText) {
   const a = String(oldText).match(TOKEN) ?? [];
   const b = String(newText).match(TOKEN) ?? [];
-  // Longest common subsequence over tokens; lines are short, so O(n·m) is fine.
+  // Retained uploads may contain a very long replacement line. Keep the
+  // existing fine-grained presentation for small pairs, otherwise show whole
+  // changed lines; no quadratic allocation for unbounded user text.
+  if (a.length * b.length > 65536 || a.length > 2048 || b.length > 2048)
+    return {old:[{text:String(oldText),changed:true}],new:[{text:String(newText),changed:true}]};
+  // Longest common subsequence over the bounded token pair.
   const table = Array.from({ length: a.length + 1 }, () => new Uint16Array(b.length + 1));
   for (let i = a.length - 1; i >= 0; i--)
     for (let j = b.length - 1; j >= 0; j--)
