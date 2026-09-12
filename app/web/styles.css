@@ -1986,6 +1986,45 @@ details[open] > summary.flow-row::after {
 .workspace-files > .section-heading {
   margin-bottom: 12px;
 }
+.retained-source-list {
+  display: grid;
+}
+.retained-source-entry {
+  border-bottom: 1px solid var(--line);
+}
+.retained-source-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 12px 0;
+  cursor: pointer;
+}
+.retained-source-versions {
+  min-width: 0;
+  padding-left: 16px;
+  padding-bottom: 12px;
+}
+.retained-version-list {
+  display: grid;
+}
+.retained-version-entry {
+  min-width: 0;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+.retained-version-open {
+  border-bottom: 0;
+}
+.retained-version-entry .version-details {
+  margin-left: 32px;
+  overflow-wrap: anywhere;
+}
+.retained-review-prompt,
+.retained-review-status {
+  margin: 12px 0;
+}
 .markdown-body {
   white-space: normal;
   font-size: var(--text-reading);

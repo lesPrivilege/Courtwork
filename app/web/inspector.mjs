@@ -1,6 +1,6 @@
 import { projectThread, toolStateWord } from "./thread-projection.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
-import { projectMarkdown, readCoreFile, MAX_MARKDOWN_BYTES } from "./markdown-source.mjs";
+import { projectMarkdown, readCoreFile, sha256Text, validateRetainedSourceRef, MAX_MARKDOWN_BYTES } from "./markdown-source.mjs";
 import { createMarkdownReader } from "./markdown-reader.mjs";
 import { el, icon, action, copyAction, markdown } from "./ui-controls.mjs";
 import { renderRecordedContext } from "./runtime-view.mjs";
@@ -310,7 +310,7 @@ export function noticeText(data = {}) {
     return `Files found without a recorded write: ${(data.files || []).map((f) => f.path).join(", ") || "details unavailable"}. Inspect the current files before relying on them.`;
   return labels[data.kind] || data.kind || "Runtime notice";
 }
-export function validateFilePayload(ref, payload) {
+export async function validateFilePayload(ref, payload) {
   if (
     !payload ||
     payload.path !== ref.path ||
@@ -324,6 +324,21 @@ export function validateFilePayload(ref, payload) {
     (payload.runId !== ref.runId || payload.sha256 !== ref.sha256)
   )
     throw new Error("The recorded version does not match this target.");
+  if (ref.kind === "retained-source") {
+    try { validateRetainedSourceRef(ref); }
+    catch { throw new Error("The retained source reference is invalid."); }
+    if (
+      payload.sessionId !== ref.sessionId ||
+      payload.sourceId !== ref.sourceId ||
+      payload.revision !== ref.revision ||
+      payload.sha256 !== ref.sha256 ||
+      payload.bytes !== ref.bytes ||
+      payload.truncated === true ||
+      new TextEncoder().encode(payload.text).length !== ref.bytes ||
+      await sha256Text(payload.text) !== ref.sha256
+    )
+      throw new Error("The retained source does not match this exact version.");
+  }
   return payload;
 }
 export function createFileView(container, { request, onQuote }) {
@@ -349,20 +364,32 @@ export function createFileView(container, { request, onQuote }) {
       query.set("runId", next.runId);
       query.set("sha256", next.sha256);
     }
-    const endpoint =
-      next.kind === "content-version" ? "artifacts/file" : "workspace/file";
     try {
-      const payload = next.kind === "core-file" ? {
-        path: next.path, kind: next.kind, sha256: next.sha256, bytes: next.bytes,
-        text: await readCoreFile(next, {signal: controller.signal, query: (input, signal) => request(`/sessions/${encodeURIComponent(next.sessionId)}/work-query?${new URLSearchParams(input)}`, {signal})}),
-        truncated: false,
-      } : validateFilePayload(
-        next,
-        await request(
-          `/sessions/${encodeURIComponent(next.sessionId)}/${endpoint}?${query}`,
+      let payload;
+      if (next.kind === "core-file") {
+        payload = {
+          path: next.path, kind: next.kind, sha256: next.sha256, bytes: next.bytes,
+          text: await readCoreFile(next, {signal: controller.signal, query: (input, signal) => request(`/sessions/${encodeURIComponent(next.sessionId)}/work-query?${new URLSearchParams(input)}`, {signal})}),
+          truncated: false,
+        };
+      } else if (next.kind === "retained-source") {
+        try { validateRetainedSourceRef(next); }
+        catch { throw new Error("The retained source reference is invalid."); }
+        const locator = new URLSearchParams({ sourceId: next.sourceId, revision: String(next.revision), sha256: next.sha256 });
+        payload = await validateFilePayload(next, await request(
+          `/sessions/${encodeURIComponent(next.sessionId)}/materials/file?${locator}`,
           { signal: controller.signal },
-        ),
-      );
+        ));
+      } else {
+        const endpoint = next.kind === "content-version" ? "artifacts/file" : "workspace/file";
+        payload = await validateFilePayload(
+          next,
+          await request(
+            `/sessions/${encodeURIComponent(next.sessionId)}/${endpoint}?${query}`,
+            { signal: controller.signal },
+          ),
+        );
+      }
       if (own !== generation) return;
       const heading = el(
         "div",
@@ -370,7 +397,7 @@ export function createFileView(container, { request, onQuote }) {
         el("p", {
           className: "file-kind",
           text:
-            payload.kind === "current" ? "Current file" : payload.kind === "core-file" ? (next.artifactId ? "Accepted artifact file" : "Candidate file") : "Recorded version",
+            payload.kind === "current" ? "Current file" : payload.kind === "core-file" ? (next.artifactId ? "Accepted artifact file" : "Candidate file") : payload.kind === "retained-source" ? `Retained upload · revision ${next.revision}` : "Recorded version",
         }),
         el("h3", { text: payload.path }),
         el(
@@ -402,9 +429,14 @@ export function createFileView(container, { request, onQuote }) {
         ),
       );
       if (next.kind === "core-file") version.append(el("p", {text:next.artifactId ? `Artifact ${next.artifactId}` : `Candidate ${next.candidateId}`}), el("code", {text:`Bundle ${next.bundleDigest}`}));
+      if (next.kind === "retained-source") version.append(
+        el("p", {text:`Source ${next.sourceId} · revision ${next.revision}`}),
+      );
       const view = el("div", { className: "file-document" });
       let projection = null;
-      if (/\.md$/i.test(next.path) && next.kind !== "current" && !payload.truncated && new TextEncoder().encode(payload.text).length <= MAX_MARKDOWN_BYTES) {
+      const markdownBytes = new TextEncoder().encode(payload.text).length;
+      const markdownPath = /\.md$/i.test(next.path);
+      if (markdownPath && next.kind !== "current" && !payload.truncated && markdownBytes <= MAX_MARKDOWN_BYTES) {
         try { projection = await projectMarkdown(payload.text, next); }
         catch (error) { if (error.code !== "too_complex") throw error; }
         if (own !== generation) return;
@@ -412,6 +444,11 @@ export function createFileView(container, { request, onQuote }) {
       if (projection) {
         reader = createMarkdownReader(view);
         reader.render(projection);
+      } else if (next.kind === "retained-source" && markdownPath && markdownBytes > MAX_MARKDOWN_BYTES) {
+        view.append(
+          el("p", {className:"form-help", text:"The Markdown reader supports up to 64 KiB. The complete retained source is shown as text."}),
+          el("pre", { className: "file-text", text: payload.text }),
+        );
       } else if (/\.md$/i.test(next.path) && payload.text.length < 200000) {
         view.append(el("p", {className:"form-help", text:"Preview only. Block source positions are unavailable for this reading."}), markdown(payload.text, { key: "file" }));
       } else view.append(el("pre", { className: "file-text", text: payload.text }));
@@ -432,6 +469,8 @@ export function createFileView(container, { request, onQuote }) {
           text:
             next.kind === "core-file"
               ? (next.artifactId ? "Fixed file from the accepted artifact." : "Fixed file from this candidate. Review acceptance is not recorded here.")
+              : next.kind === "retained-source"
+                ? "Retained upload version. Workspace currency and Core adoption are not recorded here."
               : next.kind === "content-version"
                 ? "Saved by this run. Review acceptance is not recorded here."
                 : "Workspace file at the time of loading.",

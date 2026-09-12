@@ -100,7 +100,8 @@ export function createChatSources({session, request, isCurrent, onOpenFile, onOp
 }
 
 export function quoteRecordedFile({ref,text}) {
-  if (!ref || !['core-file','content-version'].includes(ref.kind) || typeof ref.path !== 'string' || !/^[a-f0-9]{64}$/.test(ref.sha256 || '') || typeof text !== 'string') throw new Error('A recorded file is required.');
-  const origin = ref.kind === 'core-file' ? `Candidate: ${ref.candidateId}${ref.artifactId ? ` · artifact ${ref.artifactId}` : ''}` : `Run: ${ref.runId}`;
+  if (!ref || !['core-file','content-version','retained-source'].includes(ref.kind) || typeof ref.path !== 'string' || !/^[a-f0-9]{64}$/.test(ref.sha256 || '') || typeof text !== 'string') throw new Error('A recorded file is required.');
+  if (ref.kind === 'retained-source' && (typeof ref.sessionId !== 'string' || !ref.sessionId || typeof ref.sourceId !== 'string' || !ref.sourceId || !Number.isSafeInteger(ref.revision) || ref.revision < 1)) throw new Error('A retained source identity is required.');
+  const origin = ref.kind === 'retained-source' ? `Source ID: ${ref.sourceId} · retained revision ${ref.revision}` : ref.kind === 'core-file' ? `Candidate: ${ref.candidateId}${ref.artifactId ? ` · artifact ${ref.artifactId}` : ''}` : `Run: ${ref.runId}`;
   return `Source: ${ref.path}\nSession: ${ref.sessionId}\n${origin}\nRecorded version: ${ref.sha256}\n\n${text.split('\n').map(line=>`> ${line}`).join('\n')}`;
 }

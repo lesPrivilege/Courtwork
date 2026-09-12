@@ -230,6 +230,7 @@ const state = {
 
 const $ = (id) => document.getElementById(id);
 let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView;
+let materialsFileReturnEpoch = null;
 const dialogReturns = new Map();
 const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";
 function storeUnconfirmedRuns() {
@@ -3537,6 +3538,7 @@ function setSurfaceExpanded(expanded, { focus = true } = {}) {
   renderSurfaceVisibility();
   /* 回到聊天：DOM 一直在，位置由 `state.messageReading` 还原。 */
   if (!next && was) renderMessageStream();
+  if (!next && was && focus && state.surface.kind === "file" && restoreMaterialsFileReturn()) return;
   /* Returning lands on the cards, because the cards are what the overlay came
    * from; there is no rail header to return to (WK-72). */
   if (focus)
@@ -3624,6 +3626,7 @@ function surfaceDocumentKey(ref) {
     ref.sha256 || "",
     ref.runId || "",
     ...(ref.kind === "core-file" ? [ref.matterId,ref.candidateId,ref.artifactId || "",ref.candidateDigest,ref.bundleDigest] : []),
+    ...(ref.kind === "retained-source" ? [ref.sourceId,ref.revision] : []),
   ].join("\u0000");
 }
 function documentTabTitle(ref) {
@@ -3661,6 +3664,17 @@ function surfaceReturnFocus(opener = state.surface.returnFocus) {
   const fallback = fallbackKey ? document.querySelector(`[data-focus-key="${fallbackKey}"]`) : null;
   return usable(fallback) ? fallback : null;
 }
+function discardMaterialsFileReturn() {
+  materialsFileReturnEpoch = null;
+  materialsView?.discardFileReturn?.();
+}
+function restoreMaterialsFileReturn() {
+  const eligible = materialsFileReturnEpoch === state.sessionEpoch;
+  materialsFileReturnEpoch = null;
+  if (eligible && materialsView?.returnFromFile?.()) return true;
+  materialsView?.discardFileReturn?.();
+  return false;
+}
 /* Closing a document returns through the same scoped focus resolver as Escape. */
 function closeDocumentTab() {
   if (!surfaceDocumentRef()) return;
@@ -3669,7 +3683,7 @@ function closeDocumentTab() {
   fileView?.dispose();
   setSurfaceExpanded(false, { focus: false });
   renderSurfaceVisibility();
-  restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
+  if (!restoreMaterialsFileReturn()) restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
 }
 /* WK-118 ⑤ · agent activity 以微型 indicator 入对应类型 tab，不造 banner。形状与
  * 文字各说一遍，不只靠颜色（FN-28）：running 实心、waiting_user 空心环、failed 方块，
@@ -3712,6 +3726,8 @@ function closeSurface({ restoreFocus = true } = {}) {
   renderSurfaceVisibility();
   /* 收起时通常把焦点还给开它的控件；被别的东西接管（进 Settings 页）时不还，
      由接管者决定焦点落在哪里，否则焦点会先跳到一个马上要被藏起来的按钮上。 */
+  if (restoreFocus && state.surface.kind === "file" && restoreMaterialsFileReturn()) return;
+  discardMaterialsFileReturn();
   if (restoreFocus)
     restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
 }
@@ -4154,6 +4170,7 @@ function loadRailFacts() {
 }
 function activateSurface(kind, opener = document.activeElement) {
   if (!currentSession() || !surfaceModule(kind)?.tabId) return;
+  if (kind !== "file") discardMaterialsFileReturn();
   if (!state.surface.expanded) rememberSurfaceFocus(opener);
   state.navigationOpen = false;
   state.surface.kind = kind;
@@ -4172,8 +4189,10 @@ function openRun(runId, opener = document.activeElement) {
   state.surface.runId = runId;
   activateSurface("run", opener);
 }
-function openFile(ref, opener = document.activeElement) {
+function openFile(ref, opener = document.activeElement, fromMaterials = false) {
   if (ref.sessionId !== state.activeSessionId) return;
+  if (!fromMaterials) discardMaterialsFileReturn();
+  materialsFileReturnEpoch = fromMaterials ? state.sessionEpoch : null;
   /* 关闭这份文档时焦点要回到**打开它的那个控件**，所以在这里记下来。沿用既有的
      `returnFocus` 字段，不新增状态。 */
   if (opener && opener !== document.body && opener.isConnected)
@@ -6746,7 +6765,12 @@ async function init() {
     const quote = quoteRecordedFile({ref,text});
     const input = $("composer-input");
     const previous = input.value;
-    input.value = previous ? `${previous}\n\n${quote}` : quote;
+    const nextDraft = previous ? `${previous}\n\n${quote}` : quote;
+    if (nextDraft.length > input.maxLength) {
+      showToast("This quote would exceed the message limit. Copy a shorter passage or shorten the draft first.");
+      return;
+    }
+    input.value = nextDraft;
     input.dispatchEvent(new Event("input", {bubbles:true}));
     closeSurface({restoreFocus:false});
     input.focus();
@@ -6754,7 +6778,7 @@ async function init() {
   materialsView = createMaterialsView({
     request,
     getSession: currentSession,
-    onOpenFile: openFile,
+    onOpenFile: (ref, opener) => openFile(ref, opener, true),
     notify: showToast,
   });
   /* WK-94 · 两处用同一句话：控件自己说全后果，没有第二套短词。 */

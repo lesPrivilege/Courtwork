@@ -34,8 +34,11 @@ export async function projectMarkdown(source, identity) {
   if (identity.kind === 'core-file') {
     validateRef(identity);
     if (identity.bytes !== new TextEncoder().encode(source).length) fail('integrity','The file length does not match its manifest.');
+  } else if (identity.kind === 'retained-source') {
+    validateRetainedSourceRef(identity);
+    if (identity.bytes !== new TextEncoder().encode(source).length) fail('integrity','The retained source length does not match its record.');
   } else if (identity.kind !== 'content-version' || !['sessionId','runId'].every(k=>typeof identity[k] === 'string' && identity[k])) fail('invalid_identity','A recorded file identity is required.');
-  if (!(identity.kind === 'core-file' ? validPath(identity.path) : typeof identity.path === 'string' && identity.path.length > 0 && !identity.path.includes('\0'))) fail('invalid_identity','A supported file path is required.');
+  if (!(identity.kind === 'core-file' ? validPath(identity.path) : identity.kind === 'retained-source' ? validRetainedPath(identity.path) : typeof identity.path === 'string' && identity.path.length > 0 && !identity.path.includes('\0'))) fail('invalid_identity','A supported file path is required.');
   const digest = await sha256Text(source);
   if (digest !== identity.sha256) fail('integrity','The file does not match its recorded version.');
   const bom = source.startsWith('\uFEFF') ? 1 : 0;
@@ -82,7 +85,7 @@ export async function projectMarkdown(source, identity) {
       default: warnings.add('Some syntax is shown as source text.'); return [textNode(source.slice((node.position?.start.offset ?? 0) + bom,(node.position?.end.offset ?? 0) + bom))];
     }
   }
-  const key = await sha256Text(JSON.stringify([MARKDOWN_PROFILE,identity.kind,identity.sessionId,identity.matterId ?? null,identity.candidateId ?? null,identity.artifactId ?? null,identity.candidateDigest ?? null,identity.bundleDigest ?? null,identity.runId ?? null,identity.path,identity.sha256]));
+  const key = await sha256Text(JSON.stringify([MARKDOWN_PROFILE,identity.kind,identity.sessionId,identity.matterId ?? null,identity.candidateId ?? null,identity.artifactId ?? null,identity.candidateDigest ?? null,identity.bundleDigest ?? null,identity.runId ?? null,...(identity.kind === 'retained-source' ? [identity.sourceId,identity.revision] : []),identity.path,identity.sha256]));
   const blocks = [];
   for (const node of tree.children) {
     const a = node.position.start.offset + bom, b = node.position.end.offset + bom;
@@ -98,6 +101,15 @@ export async function projectMarkdown(source, identity) {
 const abort = signal => signal?.throwIfAborted();
 function validateRef(ref) {
   if (!ref || ref.kind !== 'core-file' || !['sessionId','matterId','candidateId'].every(k=>typeof ref[k] === 'string' && ref[k].length > 0) || !['candidateDigest','bundleDigest'].every(k=>HASH.test(ref[k])) || (ref.artifactId != null && (typeof ref.artifactId !== 'string' || !ref.artifactId))) fail('invalid_identity','A Core file version is required.');
+}
+const validRetainedPath = path => typeof path === 'string' && /^materials\/[A-Za-z0-9._-]{1,200}$/.test(path);
+export function validateRetainedSourceRef(ref) {
+  if (!ref || ref.kind !== 'retained-source' ||
+      !['sessionId','sourceId'].every(k=>typeof ref[k] === 'string' && ref[k].length > 0) ||
+      !Number.isSafeInteger(ref.revision) || ref.revision < 1 ||
+      !HASH.test(ref.sha256 || '') || !Number.isSafeInteger(ref.bytes) || ref.bytes < 0 || ref.bytes > 1_048_576 ||
+      !validRetainedPath(ref.path)) fail('invalid_identity','A retained source version is required.');
+  return ref;
 }
 function checkPage(page, ref) {
   if (page?.status === 'unsupported') fail('unsupported','This file version uses an unsupported format.');
