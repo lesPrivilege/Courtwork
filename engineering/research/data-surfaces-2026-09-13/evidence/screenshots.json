@@ -1,0 +1,132 @@
+{
+  "kind": "candidate-browser-evidence",
+  "note": "Responsive captures include an iframe with fixed CSS dimensions, scaled by the harness when wider than its host. They are not native-device or accepted golden captures.",
+  "captures": [
+    {
+      "path": "screenshots/compare-1280-dark.png",
+      "sha256": "e26a37a17ad043d76200320755a1a19967e4b31f63d17a564ad3c724790c0d1e",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/compare-1280-light.png",
+      "sha256": "f144061be220c41d1785578f1049e15586877aacc76a8b7cbd968c462e6ca509",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/compare-1440-dark.png",
+      "sha256": "1ee2ac66c6d03983d6fd52355a0fd717831fe3a7d14f75766ca2f3c1cc2e075a",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/compare-1440-light.png",
+      "sha256": "b9e4dec7587e47d3440a180ecee0734a8d47397a1eac2b836fe7fcd650f55a65",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/compare-390-dark.png",
+      "sha256": "99fff4983c2d020966ef44c17427bd47e3c93bc347f788b9b6a4e02d0155bd65",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/compare-390-light.png",
+      "sha256": "8c9732d9c1e15974f89ff73e80c824fda32fe7f1fdbf724461212de7c2d105c4",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/compare-integrity-failure.png",
+      "sha256": "c1a6d82ad074b5906de8b6f9bffc91bfa6cbc699fe19cbafd4c6db2d0e4e1713",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/compare-limited.png",
+      "sha256": "0989e2eb381fa27e485d0117d214d5e14b8559aef99af6e8cce29312cba16290",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "extended-comparison"
+    },
+    {
+      "path": "screenshots/files-1280-dark.png",
+      "sha256": "fc4edc815c83835f7810dfed5ef3acf4287acd3af08608b2658c70e17fd1d98d",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/files-1280-light.png",
+      "sha256": "2c3b65b0ef3f34e2f4341ef3dd861a2a4baa15851cb72cd072cd10de1c3ec690",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/files-1440-dark.png",
+      "sha256": "4677cf3488348450b60b6357d5715708bbe152f788080e6a07268f35245b9349",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/files-1440-light.png",
+      "sha256": "7db0a199845be63f0d059342f361e9e8f25a9b5dc9f0ff9c3c9d9e0bb8b61722",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/files-390-dark.png",
+      "sha256": "07b32e4cb55233ea426219d710d700bf7059cca0b688b225caa089699a2ca6f0",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/files-390-light.png",
+      "sha256": "d4ce11b4f2fd9f0f9c4766bc43eec433110fb331cbbf9bce734b9cd59e8912c7",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/integrity-failure.png",
+      "sha256": "a57dbb8b4318af86747f65ca658d942e009e49bf7eba255e43252c57fc088b28",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/no-retained-history.png",
+      "sha256": "9e9c0cf47959bd565162b2bcd7aa23058e5122b7325bdd144fe1b95f32cc8b84",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/reader-390-light.png",
+      "sha256": "2b2b0a050ba1728f26dfa6cac72193c87060a59c99a6c727859cdcc54d318b1f",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    },
+    {
+      "path": "screenshots/separate-chat-source.png",
+      "sha256": "3c511c28af68eeec99984dbb43c6aabbf2acd3b1e6936870561dcafe081e0439",
+      "pixelWidth": 65536,
+      "pixelHeight": 4292542531,
+      "fixtureGeneration": "initial-retained-upload"
+    }
+  ]
+}

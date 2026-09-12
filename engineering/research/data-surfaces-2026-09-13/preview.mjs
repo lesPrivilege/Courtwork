@@ -1,0 +1,23 @@
+// Synthetic data only; uses production public commands/readers and fake loopback.
+import {boot} from '../../../app/tests/helpers.mjs';
+import {writeFile,mkdir} from 'node:fs/promises';
+import path from 'node:path';
+const h=await boot();
+const session=await h.createSession({title:'Sources · synthetic version review',permissionMode:'draft'});
+const first='# Review memo\n\nThe notice period is **30 days**.\n\nA source keeps its exact recorded bytes. 中文与 emoji 😀 remain readable.\n\n## Reading notes\n\nThis is a synthetic retained upload, not an accepted decision.\n';
+const second=first.replace('30 days','45 days').replace('Reading notes','Revised reading notes');
+await h.api('POST',`/sessions/${session.id}/materials`,{name:'review-memo.md',text:first,commandId:'synthetic-r1',expectedRevision:0});
+await h.api('POST',`/sessions/${session.id}/materials`,{name:'review-memo.md',text:second,commandId:'synthetic-r2',expectedRevision:1});
+await h.api('POST',`/sessions/${session.id}/materials`,{name:'a-long-source-name-with-many-segments-and-version-details-for-narrow-screen-reading.txt',text:'Long name, fixed source.',commandId:'synthetic-long',expectedRevision:0});
+const bad=(await h.api('POST',`/sessions/${session.id}/materials`,{name:'unavailable.txt',text:'A synthetic corruption negative case.',commandId:'synthetic-unavailable',expectedRevision:0})).json;
+await h.api('POST',`/sessions/${session.id}/materials`,{name:'unavailable.txt',text:'A newer readable version; revision 1 remains corrupt.',commandId:'synthetic-unavailable-r2',expectedRevision:1});
+h.runtime.service.intake.db.prepare('UPDATE revisions SET content=? WHERE source_id=? AND revision=1').run(Buffer.from('corrupted fixture'),bad.retained.sourceId);
+const large='Large retained source line.\n'.repeat(2700);
+await h.api('POST',`/sessions/${session.id}/materials`,{name:'large-source.txt',text:large,commandId:'synthetic-large-r1',expectedRevision:0});
+await h.api('POST',`/sessions/${session.id}/materials`,{name:'large-source.txt',text:large+'New ending.\n',commandId:'synthetic-large-r2',expectedRevision:1});
+const run=(await h.api('POST',`/sessions/${session.id}/runs`,{commandId:'synthetic-read',input:h.scriptInput([{name:'ws_read',arguments:{path:'materials/review-memo.md'}},{name:'ws_write',arguments:{path:'out/summary.md',text:'# Synthetic output\n\nUse the exact source revision when quoting.\n'}}])})).json.run;await h.pollRun(run.id);
+const empty=await h.createSession({title:'Sources · no retained uploads'});
+const other=await h.createSession({title:'Sources · separate chat'});
+await h.api('POST',`/sessions/${other.id}/materials`,{name:'review-memo.md',text:'Different chat and source identity.',commandId:'synthetic-other',expectedRevision:0});
+await mkdir(path.join(empty.workspaceDir,'materials'),{recursive:true});await writeFile(path.join(empty.workspaceDir,'materials/legacy.txt'),'A current-only workspace file. Never backfilled as a retained version.');
+console.log(JSON.stringify({url:h.runtime.url,dataDir:h.dataDir,sessionId:session.id,otherSessionId:other.id,emptySessionId:empty.id}));

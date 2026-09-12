@@ -1,0 +1,60 @@
+TAP version 13
+# Subtest: diffWords marks only the changed tokens and never leading indentation
+ok 1 - diffWords marks only the changed tokens and never leading indentation
+  ---
+  duration_ms: 1.312541
+  type: 'test'
+  ...
+# Subtest: diffModel: word segments only for exactly one removed + one added line
+ok 2 - diffModel: word segments only for exactly one removed + one added line
+  ---
+  duration_ms: 1.246916
+  type: 'test'
+  ...
+# Subtest: renderDiff keeps ± and line numbers as text and puts blocks only on new words
+ok 3 - renderDiff keeps ± and line numbers as text and puts blocks only on new words
+  ---
+  duration_ms: 1.706709
+  type: 'test'
+  ...
+# Subtest: renderDiff treats markup as text, renders the no-newline marker, and handles empty input
+ok 4 - renderDiff treats markup as text, renders the no-newline marker, and handles empty input
+  ---
+  duration_ms: 1.07875
+  type: 'test'
+  ...
+# Subtest: Settings preview and the static allowlist use the shared renderer and fixture
+ok 5 - Settings preview and the static allowlist use the shared renderer and fixture
+  ---
+  duration_ms: 2.468583
+  type: 'test'
+  ...
+# (node:54593) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Pinned jsdiff adapter preserves original lines, whitespace, Unicode and missing final newline
+ok 6 - Pinned jsdiff adapter preserves original lines, whitespace, Unicode and missing final newline
+  ---
+  duration_ms: 1.02025
+  type: 'test'
+  ...
+# Subtest: Comparison returns explicit limited state instead of partial diff or expensive word allocation
+ok 7 - Comparison returns explicit limited state instead of partial diff or expensive word allocation
+  ---
+  duration_ms: 1.483167
+  type: 'test'
+  ...
+# Subtest: HTTP comparison requires two exact versions in one session and makes no adoption or revision change
+ok 8 - HTTP comparison requires two exact versions in one session and makes no adoption or revision change
+  ---
+  duration_ms: 152.722041
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1213.021792

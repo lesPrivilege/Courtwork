@@ -1,0 +1,12 @@
+✔ NDA renderer is an exact declared path: missing is 404, present bytes are served, siblings stay private (1005.496291ms)
+✔ copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics (16.668791ms)
+✔ raw consumer guard rejects new, duplicated and stale literal consumers (1.027916ms)
+✔ actual raw consumers and Pages cross-map remain registered (16.911334ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1118.848833

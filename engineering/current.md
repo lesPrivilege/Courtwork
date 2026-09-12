@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · 数据工作面串行纵切
+
+补收交接资料后按Luna缺口登记、Astra架构裁决推进[数据工作面](research/data-surfaces-2026-09-13/README.md)：主动上传UTF-8文本独立Intake保留，Session范围精确版本reader、Files列表/引用，以及复用jsdiff的同源双版本比较。历史工作区不自动回填，保留版本不冒充当前工作区或Core采用；目录/OCR、跨scope授权、工作绑定与context优先级仍保留原owner缺口。全量912/912，最终UI非作者9/9；[UI交付](research/data-surfaces-2026-09-13/ui-delivery.md)分别记录作者、非作者和浏览器检查；不使用个人数据、付费Provider、push或部署。
+
 ## 2026-09-13 · Chat UI完整改版接线
 
 [生产回执](research/chat-memory-broker-2026-09-12/ui-completion/README.md)完成模型适配合流、成功执行折叠、测量按需披露、正文阅读连续性、精确来源/文件引用及附件左/模型右布局。模型适配Luna独立63/63，整合后全量890/890；来源r1/r2、重复Quote、Home附件零Run与六组响应式检查通过，Astra/Luna交叉有界复核。通用Broker/connector候选与原生a11y门保留各自边界；无付费调用、个人数据迁移、push或部署。

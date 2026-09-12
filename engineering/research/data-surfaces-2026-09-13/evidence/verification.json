@@ -1,0 +1,38 @@
+{
+  "baseline": "4698e0e5036268af40990dd1b5ac12a4c5d124aa",
+  "applicationCommit": "2843116687869aa32e0f2716284aa6f5feef5086",
+  "fullSuite": {
+    "tests": 912,
+    "pass": 912,
+    "fail": 0,
+    "log": "full-app-tests.log"
+  },
+  "initialSuite": {
+    "tests": 912,
+    "pass": 910,
+    "fail": 2,
+    "log": "full-app-tests-initial.log"
+  },
+  "independentUiTests": 9,
+  "independentIntegrationFixTests": 4,
+  "changedApplicationFileSha256": {
+    "app/intake/compare.mjs": "fcfbd47f822aafafb828af273561bc5ca99ec306668b0fb56f225e338112ce10",
+    "app/intake/store.mjs": "82302c5408eabae8372cb8d1366c8f69435a9fe2cc0fe68e2d587160de11f2f4",
+    "app/package-lock.json": "67b567397768de73fc85da1247903555d8a0e39c94ae57717f29b2f6bc405936",
+    "app/package.json": "739969b7649a9062205fe295ff7a018a061f5134eebd435f221afb5e236a207b",
+    "app/server/index.mjs": "c47ae30a61f2ca491c4b018dc049ffd6a34c05f888c69a8deeeea93c83ae9c57",
+    "app/server/service.mjs": "4282e3cdc2566332e9471dd72e408a18282ab45f812e2f8dc87289617a3aa509",
+    "app/tests/intake-compare.test.mjs": "31def107f6b1e809f1bab1457ba56d69da6d8d5e2e591d077a898c83628ae8c0",
+    "app/tests/intake-independent.test.mjs": "6870e9c52ab74c7f83be796c6d6ba7692a2aab574e1b726ea171b681e9c16b4b",
+    "app/tests/intake-ui.test.mjs": "56395ed143ba74361431edb719476e7e7b9376b7d623d6d8d5200802c806d53e",
+    "app/tests/intake.test.mjs": "2e235af899ef19094494475eec1c110dffd92c66de3f16ff7772ac42ca2a4b22",
+    "app/tests/renderer-admission.test.mjs": "a7aaed35dc5f97bb85f2e236148318d468db50fbf926402b1ede8fcee5ca235f",
+    "app/web/app.mjs": "c636618673ac2c78184da1ec7b07d18968e105bd2ef045553fcb716d31968dbb",
+    "app/web/chat-sources.mjs": "d90c6acb50bc9955fd6f0502ab98bf67b4c65a09c39ea0f3ae006f4873a153ac",
+    "app/web/diff-view.mjs": "d2f4add14fd5bb7d7a9d0fe7a0c2b296829cc9ea109ba0ce29f1e04c68921f22",
+    "app/web/inspector.mjs": "81a0a7e5842610632b06b4a9972842eaec3b8f132bc33d6b732820dd241055c5",
+    "app/web/markdown-source.mjs": "6fe945fa34d6b91aac726875396c60d0c717a00fb8d2275c75924269dfaa6239",
+    "app/web/materials-view.mjs": "dde3554b53589edac76c5071c5b8ef67a35a5f6f714e1558a3469e3593bde955",
+    "app/web/styles.css": "83b64a0d5fbe9ed550192618a25c6a4b22268299c772ec8c4519c289d8919155"
+  }
+}

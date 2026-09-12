@@ -1,6 +1,6 @@
 # 本地资料治理：可分批施工的 PR 草案
 
-状态：planned，尚无新 API/schema/数据迁移实现。输入为 [T01/T03/T05](source-index.md)，归属与失效原则见 [总览](README.md)。顺序 LG-00 → LG-01 → LG-02；LG-03 依赖 LG-01/02 与现有 Core 接缝，LG-04 在全量基线成立后实施。Explore 和 UI 另按 [运行路线](runtime-roadmap.md)推进，不与本轮 FE writer 争用。
+状态：分片推进。2026-09-13 已实现[主动上传UTF-8文本的Intake保留、精确版本读取与Files消费者](../data-surfaces-2026-09-13/README.md)，独立schema1；LG-01目录inventory、PDF/OCR/rendition、Matter binding及后续片仍planned，不能按此局部交付关闭整单。输入为 [T01/T03/T05](source-index.md)，归属与失效原则见 [总览](README.md)。顺序 LG-00 → LG-01 → LG-02；LG-03 依赖 LG-01/02 与现有 Core 接缝，LG-04 在全量基线成立后实施。Explore 和 UI 另按 [运行路线](runtime-roadmap.md)推进，不与本轮 FE writer 争用。
 
 每单开工必须记录实际主线 SHA、隔离树、owner 与独立 fixture；凭据、个人资料及运行数据不入 Git。以下字段是待冻结的语义要求，不能当成已可调用的协议。
 
@@ -18,7 +18,7 @@
 
 交付语义：一次观察记录作用域、相对路径、来源身份、内容 hash、字节数/MIME、观察时间与读取失败；身份与路径分离。读取中前后变化要检测并重试或标 unstable，不能声称普通目录遍历是原子快照。目录外符号链接默认不跟随；读取权限按输入 scope，不由文档指令扩大。
 
-用户目录的确切字节与不可变manifest由未来Intake sidecar owner保存；现有ArtifactHistory限于受信Run-recorded artifacts，不授予Intake写权。选定来源按binding/Core接缝进入治理状态。只有metadata、尚未读取字节时，明确contentHash和source bytes unavailable，不声称已知内容digest或可在删除原件后重放。rendition cache key 至少含 source hash、extractor/OCR 版本与配置摘要；记录失败/partial、语言与页映射。文本 offset 的单位与编码须冻结；PDF page/bbox/rotation 与 OCR 坐标规范必须能回到对应来源版本。保留原文与派生文本两者区别。
+用户目录的确切字节与不可变manifest归Intake sidecar owner；当前只实现主动上传文本，目录捕获仍待实施；现有ArtifactHistory限于受信Run-recorded artifacts，不授予Intake写权。选定来源按binding/Core接缝进入治理状态。只有metadata、尚未读取字节时，明确contentHash和source bytes unavailable，不声称已知内容digest或可在删除原件后重放。rendition cache key 至少含 source hash、extractor/OCR 版本与配置摘要；记录失败/partial、语言与页映射。文本 offset 的单位与编码须冻结；PDF page/bbox/rotation 与 OCR 坐标规范必须能回到对应来源版本。保留原文与派生文本两者区别。
 
 验证：同源同配置命中；变字节/变配置失效；更名不重复 OCR，副本观察仍保留；原文件只读 hash 不变；扫描误识别不被 roundtrip 测试伪装成正确；半途失败不发布 complete rendition。退出/回滚：关闭新 reader，历史来源保持可读；只删除本单派生缓存。保留/删除来源的权限与策略不随 cache eviction 改变。
 

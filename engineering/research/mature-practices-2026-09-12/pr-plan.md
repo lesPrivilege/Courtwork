@@ -1,5 +1,8 @@
 # 前后端PR文稿 · Resource Governance
 
+2026-09-13接续：[上传文本纵切回执](../data-surfaces-2026-09-13/README.md)落实Intake保留、Session精确reader、Files版本列表/引用及确定性比较。RG-BE-01/03和RG-FE-01/02/03仅该范围部分实现；跨scope grant、跨工作绑定、annotation与索引仍按下文原owner推进，不将同源比较算作RG-BE-04/05全部完成。
+
+
 本页可直接作为后续实现PR正文的起点。**所有RG产品切片当前为planned / not_started**；本轮只交付研究、合同裁决和roadmap，没有创建远端PR。RG编号是本轮消费者别名：实现必须回填LG/DS/BG/Runtime原路线，不能再平行派一份相同改动。
 
 Astra冻结owner、架构、迁移和集成，Luna可按冻结合同实现有界机械部分；实现作者不能独立接受自己代码。开工重读main/current、[Luna固定基线盘点](luna-explore.md)及[RD-007](../RD-007-resource-governance.md)，登记实际文件写权与并行writer。下面路径仅候选，不是预先授权覆盖其他writer。
