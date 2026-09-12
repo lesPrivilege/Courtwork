@@ -193,3 +193,10 @@ DEC-012 接收补注（Astra）：本次采用9.6不追加代码改动或自动�
 状态：Astra文档语义裁决；用户保留本Astra裁决权，独立架构review后续提交。来源与逐项消费见[入账包](research/deepseek-runtime-2026-09-11/README.md)。接受[概念边界](architecture-runtime-canon.md)：Runtime为执行组合，Model/Runtime Adapter分工，Expert声明专业要求，Work Compiler是目标编译责任，正式状态/Review归现Core。拒绝Schema严格包含公式、compiler吞并所有控制接口与“已解耦”表述；不立即自研DeepSeek loop。
 
 本轮更新README/架构、主roadmap与后端DRT候选，准备[图表合同](release/architecture-reconciliation-2026-09-11.md)；用户下一轮交Claude串行绘制。[Chat阅读](design/chat-reading-2026-09-11.md)补入DR-04。现Pi0.85.1、RuntimeStore12/Core4/app5，产品代码/存储/权限不变。SE措辞建议留输入，不更新PAPER固定SHA或历史snapshot。独立review、新协议证据或具体实现反例可触发重开。
+
+
+## DEC-014 · 五层架构与可接管工作区（2026-09-13）
+
+Astra采用[自足架构节点](research/architecture-node-2026-09-13/README.md)：Adapter、Harness Core/Extension、Work Core/Extension分责，本地Pi与DeepSeek首适配，第二Runtime按公开Codex能力逐项证明。Work治理覆盖文档、数据、组织与渐进披露，稳定语义与配套存储/服务分开；Chat、Spark、Experts和Attention围绕获准工作状态形成闭环，执行、核查与正式接受各有owner。
+
+[设计公式](research/architecture-node-2026-09-13/architecture.md)与[接管地图](research/architecture-node-2026-09-13/workspace-governance.md)是后续产研方向，用户允许延后完整实现。旧canon原字节归档，当前实现/缺口和非作者核查分别留证。此决定覆盖过时排序及窄化Work Core为当前表结构的理解，不变更SE9.6采用版本、不授予模型自接受权，也不宣称第二runtime或组织级治理已实现。用户授权本节点merge、push和既有Pages部署；最终事实以节点交付回执为准。

@@ -4,9 +4,9 @@
 
 全场景、交互与部署的长期设计见 [Long-life Roadmap](roadmap.md)。本页 M01–M14 保存逻辑责任与模块边界；下方“最小交付”限定首个 continuity 纵切。低后果探索可用普通工具，单次 consequential action 可仅实现 commitment boundary，不把完整 Matter 作为所有场景的前置。
 
-## 2026-09-11 · 术语与目标边界
+## 2026-09-13 · 当前五层架构
 
-[DEC-013 / Runtime与Work概念](architecture-runtime-canon.md)补充Model Adapter、Runtime Adapter、Runtime执行组合及Work Compiler目标责任；当前仍复用Pi，service仍有直接SessionManager依赖。完整编译服务、第二runtime与热替换证明未交付。下表继续描述实际模块，不能按目标词名推导同名服务已存在。
+[五层架构裁决](research/architecture-node-2026-09-13/architecture.md)提供Adapter、Harness Core/Extension、Work Core/Extension的当前责任、设计公式及Chat/Attention/Spark/Experts闭环。既往术语与DRT排序已经distill，归档从[canon入口](architecture-runtime-canon.md)回溯；实际代码/owner/缺口见[Luna固定基线核查](research/architecture-node-2026-09-13/explore/implementation.md)。下表仍导航实现，不按目标名推导同名服务已存在。
 
 ## 当前实现
 
@@ -29,7 +29,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 
 ### 数据归属
 
-Host 的 runtime JSON（schema 12）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 12 分别演进。
+Host 的 runtime JSON（schema 13）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 13 分别演进。
 
 UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 
@@ -78,7 +78,7 @@ Core 不导入宿主包、GUI 组件或 provider 名称。Adapter 可以依赖�
 
 ## 两个独立替换轴
 
-替换 Runtime 只改 M04 及必要运行配置；替换存储只改 M06，并证明版本、事件和恢复语义保持。更换 GUI 不改变 Decision 后果；更换模型不改变 Completion。用第二实现验证实际被替换的部分，不据一个 Adapter 测试声称全系统可移植。
+替换 Runtime 的目标接缝为 M04 及运行配置；当前service的Pi SessionManager耦合还需先移出，不能把该目标当成今天仅改一个adapter即可完成的事实。替换存储只改 M06，并证明版本、事件和恢复语义保持。更换 GUI 不改变 Decision 后果；更换模型不改变 Completion。用第二实现验证实际被替换的部分，不据一个 Adapter 测试声称全系统可移植。
 
 ## 开工粒度
 

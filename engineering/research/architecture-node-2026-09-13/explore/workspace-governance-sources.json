@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "research_date": "2026-09-13",
+  "code_base": "273ad12a9796aa0547d65e4811a6c56baa5c6a49",
+  "scope": "Bounded primary-source research on governed resource discovery, provenance, takeover context, delegation, independent review, and human attention for the CourtWork workspace-governance map.",
+  "search_accounting": {
+    "tool": "Exa",
+    "search_calls": 4,
+    "num_results_per_call": 5,
+    "sources_reviewed": 20,
+    "validated_distinct_primary_documents": 5,
+    "count_definition": "sources_reviewed is the sum of numResults requested across search calls, not the count of sources accepted after validation.",
+    "searches": [
+      {
+        "workstream": "organizational roles, separation of duties, least privilege, audit",
+        "query": "Official NIST SP 800-53 Rev. 5 security control text for separation of duties AC-5, least privilege AC-6, and audit record generation AU-12 in multi-actor systems",
+        "numResults": 5,
+        "validated_source_ids": ["nist-sp800-53-r5-2-0"]
+      },
+      {
+        "workstream": "provenance, versions, actors and derived resources",
+        "query": "Official W3C PROV-DM and PROV-O specifications defining provenance relations between entities, activities, agents, revisions, derivation, use, generation, and attribution",
+        "numResults": 5,
+        "validated_source_ids": ["w3c-prov-dm-2013"]
+      },
+      {
+        "workstream": "scoped workspace roots, resource discovery and exact reads",
+        "query": "Official Model Context Protocol specification for filesystem roots, resource discovery and read semantics, clarifying the difference between discoverability and authorization",
+        "numResults": 5,
+        "validated_source_ids": ["mcp-roots-2025-11-25", "mcp-resources-2025-11-25"]
+      },
+      {
+        "workstream": "parallel task decomposition, context isolation, review and coordination cost",
+        "query": "Primary research or first-party engineering report on multi-agent software work decomposition, isolated context budgets, independent review, and failure modes such as duplicate work or coordination overhead",
+        "numResults": 5,
+        "validated_source_ids": ["anthropic-multi-agent-research-2025"]
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "w3c-prov-dm-2013",
+      "title": "PROV-DM: The PROV Data Model",
+      "url": "https://www.w3.org/TR/2013/REC-prov-dm-20130430/",
+      "publisher": "World Wide Web Consortium",
+      "source_type": "W3C Recommendation",
+      "revision_or_date": "2013-04-30 Recommendation; versioned permalink",
+      "accessed": "2026-09-13",
+      "quality": "Primary normative specification from W3C; stable vocabulary source, although old enough that it is not evidence of current CourtWork implementation.",
+      "observed": [
+        "Defines provenance concepts for entities, activities, agents, time, derivation, responsibility, and collections.",
+        "Includes relations for usage, generation, derivation, attribution, association, and delegation."
+      ],
+      "application_inference": "Use its terms as a possible vocabulary for versioned source lineage; do not infer access control, factual correctness, formal acceptance, or a need to store RDF.",
+      "limits": [
+        "A data model does not define CourtWork authorization or domain acceptance.",
+        "This source verifies a registered vocabulary candidate; it does not select a provenance platform."
+      ]
+    },
+    {
+      "id": "nist-sp800-53-r5-2-0",
+      "title": "NIST SP 800-53 Rev. 5.2.0 OSCAL control catalog",
+      "url": "https://raw.githubusercontent.com/usnistgov/oscal-content/main/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_catalog.json",
+      "reference_url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+      "publisher": "National Institute of Standards and Technology",
+      "source_type": "Official security and privacy control catalog (OSCAL JSON)",
+      "revision_or_date": "OSCAL metadata version 5.2.0; last-modified 2026-05-11; retrieved 2026-09-13",
+      "accessed": "2026-09-13",
+      "quality": "Primary official control catalog maintained under NIST's US government repository; source is authoritative for its own controls, not a neutral agent-workflow study.",
+      "observed": [
+        "Catalog labels AC-5 as Separation of Duties and AC-6 as Least Privilege; the catalog includes audit and accountability controls.",
+        "The NIST publication describes controls as customizable within an organization-wide risk-management process."
+      ],
+      "application_inference": "Use the separation between duties, permissions, and audit as a checklist when defining role/assignment contracts; do not claim CourtWork compliance, copy the control catalog, or treat it as an agent-organization design.",
+      "limits": [
+        "A security control catalog is not evidence that dividing LLM agents improves software or reduces human effort.",
+        "The raw URL follows the official repository's main branch; the retrieved document's version and last-modified metadata are recorded above."
+      ]
+    },
+    {
+      "id": "mcp-roots-2025-11-25",
+      "title": "Model Context Protocol: Roots",
+      "url": "https://modelcontextprotocol.io/specification/2025-11-25/client/roots",
+      "publisher": "Model Context Protocol specification",
+      "source_type": "Versioned protocol specification",
+      "revision_or_date": "2025-11-25 specification version",
+      "accessed": "2026-09-13",
+      "quality": "Primary protocol specification; directly describes roots discovery and security considerations.",
+      "observed": [
+        "Roots describe filesystem boundaries and may change with notifications.",
+        "Clients are instructed to expose only appropriately permissioned roots, validate root URIs, and implement access controls; consent is recommended.",
+        "Servers should handle roots becoming unavailable and respect boundaries."
+      ],
+      "application_inference": "An explicit root can scope discovery, but it is not by itself a full file inventory or a persistent per-object read grant.",
+      "limits": [
+        "The protocol leaves the user-interface model open.",
+        "A root listing alone does not prove complete enumeration of every file or provide cross-owner revision coverage."
+      ]
+    },
+    {
+      "id": "mcp-resources-2025-11-25",
+      "title": "Model Context Protocol: Resources",
+      "url": "https://modelcontextprotocol.io/specification/2025-11-25/server/resources",
+      "publisher": "Model Context Protocol specification",
+      "source_type": "Versioned protocol specification",
+      "revision_or_date": "2025-11-25 specification version",
+      "accessed": "2026-09-13",
+      "quality": "Primary protocol specification; directly describes list/read, URI identity, pagination, and optional change notification capabilities.",
+      "observed": [
+        "Resources are identified by URIs.",
+        "Discovery through resources/list and retrieval through resources/read are distinct operations; listing supports pagination.",
+        "Resource incorporation is application-driven rather than mandated by the protocol."
+      ],
+      "application_inference": "The list-then-exact-read seam is a useful mechanism example for progressive disclosure, provided CourtWork performs owner-scoped authorization and version checks at read time.",
+      "limits": [
+        "The specification does not promise a complete cross-provider catalog, authorization policy, or consistent cross-owner snapshot.",
+        "It is not a recommendation to make MCP the internal storage or governance model."
+      ]
+    },
+    {
+      "id": "anthropic-multi-agent-research-2025",
+      "title": "How we built our multi-agent research system",
+      "url": "https://www.anthropic.com/engineering/multi-agent-research-system",
+      "publisher": "Anthropic",
+      "source_type": "First-party engineering report",
+      "revision_or_date": "Published 2025-06-13",
+      "accessed": "2026-09-13",
+      "quality": "First-party practitioner account of Anthropic's own system and internal evaluation; high relevance to its implementation but self-reported, model-specific, and not independently replicated in the article.",
+      "observed": [
+        "The report says separate context windows and parallel specialists helped breadth-first research in the company's internal evaluation.",
+        "It describes higher token use and failures including duplicate subtask work, gaps from vague instructions, excessive agent count, and weak fit for tasks with dependencies.",
+        "It recommends bounded objectives, output formats, source/tool guidance, task boundaries, and effort scaled to task complexity."
+      ],
+      "application_inference": "Parallelize independent discovery or review where the task value exceeds coordination cost; use bounded task/evidence packets and validate any claimed attention savings locally.",
+      "limits": [
+        "The report's performance percentages are internal results and not a prediction for CourtWork.",
+        "It does not establish statistical independence, professional qualifications, or authority to accept formal work."
+      ]
+    }
+  ],
+  "screened_not_used": [
+    {
+      "title": "CodeDelegator: Mitigating Context Pollution via Role Separation in Code-as-Action Agents",
+      "url": "https://arxiv.org/html/2601.14914",
+      "reason": "A primary research preprint appeared in the multi-agent query, but the retrieved excerpt did not include enough method, result, and limitation detail to support the governance or human-attention claims in this report."
+    }
+  ],
+  "research_limits": [
+    "Only primary specifications, official control material, and first-party engineering evidence were retained for conclusions.",
+    "No product/library recommendation, benchmark performance claim, organization ACL design, or new product schema was selected.",
+    "All capability statements about CourtWork are based on the fixed local contracts and code listed in the companion exploration, not on external sources."
+  ]
+}

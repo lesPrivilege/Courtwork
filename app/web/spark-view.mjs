@@ -1,7 +1,7 @@
-/* WO-SP1-FE · Spark's read-only maintenance surface. BE-41 (the backend that
- * serves `/work-derivations`) is not implemented on this baseline: until it
- * is, every project reads as `unimplemented` (a 404, per be41-dto.md §路由)
- * and this view shows that no source is connected — never a number.
+/* WO-SP1-FE · Spark's read-only maintenance surface. The Host now serves
+ * `/work-derivations` from the Core's versioned read projection. A 404 from
+ * a runtime without this endpoint still enters the explicit `unimplemented`
+ * fallback; it must not be interpreted as an empty live result.
  *
  * Construction follows `createUsageView` (`usage-view.mjs:4`): a single
  * `<dialog>` this module builds and owns, appended once, opened and closed

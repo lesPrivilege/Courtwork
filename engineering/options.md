@@ -1,54 +1,34 @@
-# 技术与语言选型
+# 技术选型 · 当前基线与待验证候选
 
-本表是候选集合，不是已冻结依赖。证据来自 [公开快照](ecosystem/2026-09-05.md) 与 [本地召回](ecosystem/local-sources.md)；固定版本、实际适配成本和失败测试均待 RD。采用结论只能在 [decisions](decisions.md) 登记。
+2026-09-13，Astra。当前方向由[DEC-014](decisions.md)、[五层架构](research/architecture-node-2026-09-13/architecture.md)和[可接管工作区地图](research/architecture-node-2026-09-13/workspace-governance.md)统一；具体实现由[current](current.md)及各交付回执负责。早期OpenCode优先、TypeScript/React/Core语言等候选未被自动采用，原文按273ad12保存到[历史选型快照](research/architecture-node-2026-09-13/archive/options-273ad12.txt)，不再作为当前施工默认值。
 
-## 取舍方法
+## 当前采用及其边界
 
-先比较契约适合度，再比较实现与长期维护成本：需要补什么、多久升级、失败能否定位、停更后如何替换。成熟度依据公开接口、版本纪律、可复现行为和维护记录；不把 stars、文档篇幅或测试数量换成可靠性分数。
+| 责任 | 当前事实 | 下一次改变需要的证据 |
+|---|---|---|
+| 本地执行 | Pi三包0.85.1，Node Host调用AgentSession；仍直接依赖SessionManager | 固定任务类的[Runtime Port/替换矩阵](research/architecture-node-2026-09-13/runtime-replacement.md)，不先重写loop |
+| 首个真实Provider | DeepSeek经现Pi适配；能力和参数由Host准入/Run绑定/payload hook区分 | 精确endpoint/model/revision、协议/恢复/权限证据；已证profile不代表通用能力 |
+| 执行扩展 | Host显式工具、MCP client2.0.0与受控资源；Pi自动发现关闭 | Pi生态能力逐个准入和退出，可信包不冒充沙箱；无需为命名建立新插件平台 |
+| Web UI | 现原生JavaScript模块、DOM builder、CSS token/既有组件 | [前端连续性规范](design/agent-interface-2026-09-10/frontend-contract.md)与实际需求；不因历史React候选迁移框架 |
+| Work治理与持久化 | Node CoreClient/WorkCoreOwner、Python bridge/Core与SQLite事务；Host JSON/原件/协议日志分owner | 迁移、CAS/幂等、故障/恢复与权限；语言或数据库替换不改正式效力 |
+| 资料读取/比较 | Session精确版本reader、独立Intake、同源双版本jsdiff8.0.4 | [数据交付](research/data-surfaces-2026-09-13/README.md)外的格式、范围和引用关系逐个验证 |
+| 测试与公开部署 | Node test runner、合成runtime fixtures；既有GitHub Pages静态构建 | 实际变更的行为/浏览器证据；静态发布不等于本地Host或产品资格验收 |
 
-每项正式选择补齐：具体版本/commit、许可证与目录范围、运行平台、实验记录、维护责任人、替换成本和重开条件。没有这些信息时允许保持未决。
+完整代码/owner/版本映射见[Luna实现登记](research/architecture-node-2026-09-13/explore/implementation.md)。本表不重复每个传递依赖版本；实际锁定以源码package/lockfile为准。
 
-## 候选矩阵
+## 待验证方向
 
-| 选择 | 首轮候选与理由（推论） | 对照 / 暂缓 | 判别实验与退出路径 |
-|---|---|---|---|
-| GUI runtime 基底 | OpenCode Server + SDK，验证成熟传输是否减少适配工作 | Pi SDK；DeepSeek 插件 Web | RD-001 比较取消、恢复、权限和事件；Core 不消费宿主对象 |
-| 嵌入式基底 | Pi coding-agent SDK，优先复用已有 Session 管理 | 仅 pi-agent-core 需要额外持久化；不默认更少工程 | 明确 SDK 层与 core 层成本；Courtwork 历史实现只作估算输入 |
-| 插件原生基底 | DeepSeek Harness，验证无 Core patch 的工作扩展 | developer preview 的升级成本待量化 | 固定版本，插件卸载后 State 保留；不依赖内部命名 |
-| GUI 语言与框架 | TypeScript；React 作为与现有材料接续的候选 | 使用选定宿主 UI 扩展亦可；组件库待选 | Design 原型先比较状态与信息组织；RD-003 实测 Review、焦点和重连；业务语义留在 Work API |
-| Work API / Adapter | TypeScript，减少 SDK 边界的序列化和类型重复 | 独立进程协议按隔离要求选择 | 异常、取消、版本不兼容能跨边界准确表达 |
-| Semantic Core | TypeScript 确定性模块 | 引入其他语言须说明独立收益 | RD-002 不依赖模型/GUI 测试状态转换；交换格式不绑定类实例 |
-| Matter Store | SQLite，单一提交服务 | 普通 JSON 文件作对照；多用户数据库后置 | RD-002 验证事务、CAS、幂等、恢复；导出带版本的语义对象 |
-| Contract 校验 | JSON Schema + Ajv 候选 | Zod/TypeBox 作为代码作者工具待比较 | 以一种发布 schema 为准；验证器不能替代证据与权限判断 |
-| Context / 检索 | 确定性选择 + SQL 查询；确有全文需求再比较 FTS5 | 向量库/图数据库后置 | 先测关键遗漏、失效状态污染；中文检索另验分词/召回 |
-| 文档与离线 Eval | TypeScript 起步；解析/评测依赖需要时局部 Python | 不建立独立 Python 服务只为统一“AI 栈” | 钉住输入/输出与错误协议；对比真实文档保真和运行环境成本 |
-| 桌面壳 | 首轮本地 Web；后续比较 Tauri 与 Electron | 当前不冻结 Rust 或桌面框架 | 只有本机权限、离线/窗口或分发需求成立才进入打包实验 |
-| Sandbox | 受限工具 + 明确执行身份；开放 shell 后比较平台沙箱/容器 | 不能用普通子进程替代隔离 | 证明正式存储/凭证不可达，取消后无残留进程与迟到提交 |
-| 评测与可观测性 | 版本化记录 + 确定性测试；Vitest 为 TS 候选 | 完整 tracing 平台与 OTel 集成后置 | 能定位失败所需最少事件；trace 不保存秘密或充当正式账本 |
+| 方向 | 已有索引 / 进入条件 | 当前处置 |
+|---|---|---|
+| Codex原生执行器 | 公开App Server能力、固定schema与受限任务矩阵 | 第二runtime候选；未实现，不阻塞Pi固定coding-profile dogfooding |
+| 工作区目录/接管/渐进披露 | BG、LG/DS/RG与[治理地图](research/architecture-node-2026-09-13/workspace-governance.md) | 先一个获准scope的可证明覆盖和exact reader；不是全盘自动摄取 |
+| 解析、检索、注释与来源链 | [RD-007](research/RD-007-resource-governance.md)、[成熟实践路线](research/mature-practices-2026-09-12/roadmap.md) | 精确/lexical基线先行；OCR、embedding、graph和DMS adapter按真实缺口比较 |
+| 组织治理、多agent Review与Attention | [治理探索](research/architecture-node-2026-09-13/explore/workspace-governance.md)、既有义务闭环 | 先责任与证据合同；多用户ACL、调度、授权委派未完整实现，不采购全能平台 |
+| SDK/进程维护、异步与能力贡献 | [局部维护索引](research/architecture-maintenance-2026-09-09/source-index.md) | 固定消费者与升级/退出成本后采用；不用热插拔作所有工作的前置 |
+| 桌面壳、Rust与沙箱 | [架构模块](architecture.md)、实际本地权限/分发或隔离需求 | 保留研究；普通子进程不等于隔离，不能从语言标签推断收益 |
 
-上述 Ajv、SQLite、FTS5、Vitest 为前轮官方文档核验的组件候选；React、Zod、TypeBox、桌面壳与隔离方案仍需各自局部 RD，不在本轮背书其最新版本能力。
+## 采用方法
 
-## 语言与进程预算
+先比较合同适合度，再比较胶水、维护、许可、平台与退出成本。成熟组件用于通用机制，精度投入语义所有权、提交、来源、恢复和验证；若上游已有等价能力，先评估复用或删除本地实现。stars、文档篇幅和测试数量不换算为可靠性。
 
-GUI 外观与组件库选型不互相替代。[Design 系列](design/README.md) 先确定状态路径与候选语言；视觉选择不自动冻结框架。成熟组件应能保留键盘、焦点、长内容和恢复行为，换皮不能破坏原语契约。
-
-首个闭环尽量只引入一种应用语言。增加第二语言必须记录收益、维护者、协议、依赖安装、错误传播、取消、打包与测试成本。Rust 不能凭“安全”标签自动入选；Python 不能凭“Agent 常用”自动入选。语言和进程边界分开判断：同语言也可能需要隔离，不同语言不天然带来隔离。
-
-SQLite、UI 库、传输和校验器承担通用工程；独创性工作的精度投入到语义所有权、提交、证据、恢复与验证，而不是重做这些基础组件。若上游新增等价能力，首先评估删除本地实现。
-
-## 选定一项时的最小记录
-
-```text
-问题 / M-ID / RD-ID
-已比较候选及确切版本
-必需契约、平台与许可证约束
-证据、反例、未覆盖范围
-采用方式：配置 / SDK / adapter / fork（说明必要性）
-预计胶水与每次升级工作；不确定项
-迁移/导出/回滚路径
-决策人、日期、重开触发器
-```
-
-## 2026-09-09 局部维护候选补充
-
-[局部选型index](research/architecture-maintenance-2026-09-09/source-index.md)基于当前Pi实现与既有Core评估async、生命周期、缓存和view contribution；保留本表作为历史候选集合，不据早期候选顺序推翻current的实际基线。本轮不新增正式采用决定或整体升级，AM实验后再按本页模板裁决。
+每项采用记录具体问题/消费者、候选与版本、必需合同、证据及反例、采用方式（配置/SDK/adapter/fork）、维护owner、迁移/导出/回退和重开条件。未满足时保持候选。新增语言/进程需要具体收益；当前已经是Node与Python组合，历史“单语言起步”不再被用于否认实际实现。

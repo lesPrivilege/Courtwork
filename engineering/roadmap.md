@@ -1,5 +1,10 @@
 # Long-life Roadmap · 全场景与交互架构
 
+## 2026-09-13 · 自足架构方向
+
+[五层裁决](research/architecture-node-2026-09-13/architecture.md)统一当前概念、公式和产研地图，覆盖下方历史排序与同义候选。先完成当前节点与固定profile dogfooding；Runtime Port/Codex受限替换和同Expert/Core证明分别有界推进，第二runtime不作前者前置。Work治理向文档、数据、组织与agent工作接管扩展，先登记原理、已有owner和缺口，不以全部实现作为本节点结束条件。实际状态仍以current及具体回执为准。
+
+
 ## 2026-09-12 · Harness本轮授权排序
 
 用户已授权[完整实施包](release/harness-implementation-2026-09-12/README.md)登记后串行推进。本段覆盖下方历史“待用户排单”。首节点MCP正确性/DeepSeek协议与GUI已获相应证据；后续按用户[保留Pi与局部Expert裁决](release/harness-implementation-2026-09-12/harness-dogfooding.md)优先coding dogfooding，第二Runtime替换不再是其前置。原P03/P04/DRT-03及完整Compiler、Core-free、同Expert验证保留按实际消费者落位。G1–G5保持原owner，当前状态见current。

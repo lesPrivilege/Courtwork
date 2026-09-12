@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-13 · 自足架构与工作区治理节点
+
+[当前架构节点](research/architecture-node-2026-09-13/README.md)由Astra裁决，Luna登记实现/缺口、清账既往主张并用Exa核查工作区治理机制。五层责任、设计公式、Pi本地优先/DeepSeek首适配、Codex公开能力替换条件，以及文档/数据/组织治理、渐进披露、多agent Review与Attention地图已登记；广义治理与第二runtime保持后续设计，不冒称全部实现。旧Runtime canon和options原字节归档，活动入口按实际基线distill，Spark陈旧路由注释更正。
+
+本节点UI审计与最终集成回执仍在收尾；用户授权merge、push及既有Pages部署，实际结果待节点交付记录。此前各段的“未push/部署”是对应历史时点，不取消本轮授权。
+
+
 ## 2026-09-13 · 数据工作面串行纵切
 
 补收交接资料后按Luna缺口登记、Astra架构裁决推进[数据工作面](research/data-surfaces-2026-09-13/README.md)：主动上传UTF-8文本独立Intake保留，Session范围精确版本reader、Files列表/引用，以及复用jsdiff的同源双版本比较。历史工作区不自动回填，保留版本不冒充当前工作区或Core采用；目录/OCR、跨scope授权、工作绑定与context优先级仍保留原owner缺口。全量912/912，最终UI非作者9/9；[UI交付](research/data-surfaces-2026-09-13/ui-delivery.md)分别记录作者、非作者和浏览器检查；不使用个人数据、付费Provider、push或部署。
