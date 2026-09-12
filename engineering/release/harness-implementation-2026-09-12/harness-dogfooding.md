@@ -39,3 +39,7 @@
 完成 DF-01/02/03 后决定 DF-04 的实现厚度；DF-06 是局部能力边界核查，不是热插拔里程碑；可用已有控制面先做低成本核查，不阻塞其他局部 Expert 形成固定组合。Coding 是检验检索、规划、文件修改、工具执行、连续性与核查的代表性任务，不代表所有工作能力的数学上限。未来收窄 capability 应在 Host 强制生效，prompt 只解释。
 
 相关：原 [逐卡表](disposition.md)、[DeepSeek 协议研究](research/deepseek-behavior.md)、[composer/TPS 旧裁决](research/composer-projection.md)。本次源码仅包含已独立复核的响应身份遥测修复；本文件没有附带新扩展实现、生产调用、push 或部署。
+
+## 首轮调试回执
+
+用户随后授权使用已配置 key 调试并派 Luna 核查 reload。[首轮结果](evidence/dogfood-first/README.md)：API 准备 session profile/instruction，GUI 两个目标 Run／五个模型 turn 完成诊断及修复；另有一个导航偏差 Run 单列。v1→v2 下一 Run 绑定无需 reload；生成代码 8/8 与独立 oracle 1,750 检查通过，Luna 非作者复核。DF-02 行号误报保留为部分通过，DF-03 已纠正；Home鼠标 Continue 与通用指令导入 UI 缺口独立登记。
