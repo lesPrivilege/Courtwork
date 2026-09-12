@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Chat最后一轮登记与跨Chat操作显隐
+
+独立分支接单main `6bfb234`，补读“撰写Harness架构方案”最后一轮：[来源与逐项采用](research/chat-memory-broker-2026-09-12/final-turn/README.md)保留完整turn文本，原文提及但未返回的附件不作已收件。Astra采用原生入口/来源接入/本地投影/披露桥接四接缝，[前端反推方案](research/chat-memory-broker-2026-09-12/frontend-plan.md)复用Chat与Attention共享呈现、保留各自身份和权限owner。Luna召回本地Scout并修复共享消息actions常显覆盖，统一hover/focus与触屏入口；证据见[本轮验证](research/chat-memory-broker-2026-09-12/final-turn/verification.md)。数据/容器/connector仍为计划，后端在途施工和Harness三节点不改序；本分支未合main、push或部署。
+
 ## 2026-09-12 · Harness完整实施包登记与串行开工
 
 两个完整包与20张原卡已在[执行入口](release/harness-implementation-2026-09-12/README.md)登记；双包校验通过，v2内嵌v1与用户附件字节一致。Astra采用GUI Harness→真实Runtime替换→Work闭环，Luna只读探索；基线d1b9921后P01/P02/P02b已实现，Luna固定提交46/46有界复核；DRT-02合成协议4/4与GUI拒绝/批准/文件阅读通过。[验证记录](release/harness-implementation-2026-09-12/evidence/verification.md)保留全量838/839及桥接单独复跑13/13。真实DeepSeek节点一门仍开放，后两节点未开工；无产品接受、真实provider调用、push或部署。
