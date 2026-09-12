@@ -154,6 +154,7 @@ function routeService(service, req, url) {
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "workspace" && method === "GET") return () => service.getWorkspaceTree(tail[1]);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "workspace" && tail[3] === "file" && method === "GET") return () => service.getWorkspaceFile(tail[1], url.searchParams.get("path") ?? "");
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "artifacts" && tail[3] === "file" && method === "GET") return () => service.getArtifactFile(tail[1], url.searchParams);
+  if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "mcp-results" && method === "GET") return () => service.getMcpResult(tail[1], tail[3], url.searchParams);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "runs" && method === "POST") return async () => service.createRun(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "extension" && method === "POST") return async () => service.createExtensionBinding(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "work-query" && method === "GET") return () => service.queryWork(tail[1], url.searchParams);

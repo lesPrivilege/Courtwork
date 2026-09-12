@@ -1,0 +1,19 @@
+✔ AM-B-T1 captures the final MCP payload and preserves the synchronous loop (53.719708ms)
+✔ AM-B-T1 records task-shaped responses as unsupported and shows the current continuation gap (9.887417ms)
+✔ AM-B-T1 does not treat partial args as a completed tool result, and exposes current wire gaps (6.213ms)
+✔ AM-B-T1 observes Pi 0.85.1 final HTTP encoding and waits for complete streamed tool arguments (33.321333ms)
+✔ P02 reported: effect is unknown, fenced and preserved across restart (1054.094ms)
+✔ P02 drop: effect is unknown, fenced and preserved across restart (1019.395209ms)
+✔ P02 receipt-failure: effect is unknown, fenced and preserved across restart (996.486708ms)
+✔ P02 cancel: effect is unknown, fenced and preserved across restart (649.176625ms)
+✔ P02 restart-inflight: effect is unknown, fenced and preserved across restart (514.164458ms)
+✔ P02 orphan-cancel: effect is unknown, fenced and preserved across restart (844.242667ms)
+✔ P02 pre-dispatch refusal has no effect and no unknown receipt (2.607417ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6010.299792

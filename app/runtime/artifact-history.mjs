@@ -4,7 +4,8 @@ import { lstat, mkdir } from "node:fs/promises";
 import path from "node:path";
 
 // Git owns immutable objects and reachable refs. The existing run.artifacts
-// record owns the permission to resolve them; this module is not a second
+// record (or a runtime.mcp.result receipt for semantic tool results) owns
+// permission to resolve them; this module is not a second
 // artifact database and is never given paths inside the user's workspace.
 const MAX_BYTES = 4 * 1024 * 1024;
 const GIT_TIMEOUT_MS = 10_000;

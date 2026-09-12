@@ -350,6 +350,15 @@ export async function createSessionRun({
     } }),
   });
 
+  // Keep Pi's extension/image normalization, then mark Host-generated MCP
+  // business-error results without throwing away their bounded body/evidence.
+  const nativeAfterToolCall = session.agent.afterToolCall;
+  session.agent.afterToolCall = async (context, signal) => {
+    const normalized = await nativeAfterToolCall?.(context, signal);
+    return context.result?.details?.mcpReportedError === true
+      ? { ...normalized, isError: true } : normalized;
+  };
+
   // Pi may resume prompt() after pre-prompt compaction was aborted, before
   // its Agent had an active abort controller. Keep cancellation sticky across
   // that transition and enforce it at the public transport seam.
@@ -571,6 +580,7 @@ export function mapSessionEvent(event) {
           name: event.toolName,
           text: textFromContent(event.result?.content),
           isError: event.isError,
+          ...(event.result?.details?.mcpResult ? { mcpResult: event.result.details.mcpResult } : {}),
         },
       };
     default:

@@ -150,3 +150,17 @@ export interface RuntimeControlClient {
   mcpLifecycle(id: string, input: { action: 'connect' | 'disconnect' | 'restart'; revision: number }, sessionId?: string): Promise<RuntimeSnapshot>;
   invokePrompt(id: string, sessionId?: string): Promise<{ resourceId: string; revision: number; source: ResourceSource; text: string; disposition: 'draft-only' }>;
 }
+
+/** Event-owned pointer to bounded semantic MCP bytes, never raw credentials. */
+export interface McpResultRef {
+  callId: string;
+  serverId: string;
+  tool: string;
+  configHash: string;
+  bindingHash: string | null;
+  bindingRevision: number | null;
+  sha256: string;
+  bytes: number;
+  isError: boolean;
+  projection: 'complete' | 'partial';
+}

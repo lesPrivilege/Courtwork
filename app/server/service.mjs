@@ -761,6 +761,24 @@ export class RuntimeService {
       sha256: artifact.sha256, text: displayed, truncated: content.length > MAX_READ_BYTES };
   }
 
+  async getMcpResult(sessionId, callId, query) {
+    if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
+    if ([...query.keys()].some(key => key !== 'runId') || query.getAll('runId').length !== 1) throw new ServiceError(400, "invalid_input", "invalid MCP result locator");
+    const runId = text(query.get('runId'), 'runId', { max: 200 });
+    const run = this.store.getRun(runId);
+    if (run?.sessionId !== sessionId) throw new ServiceError(404, "not_found", "MCP result not found");
+    const receipt = this.store.listEvents({ sessionId, runId }).find(event => event.type === 'runtime.mcp.result' && event.data.callId === callId)?.data;
+    if (!receipt) throw new ServiceError(404, "not_found", "MCP result not found");
+    let bytes;
+    try {
+      bytes = await this.artifactHistory.read(sessionId, receipt.sha256, receipt.bytes);
+    } catch (error) {
+      if (!(error instanceof ArtifactHistoryError)) throw error;
+      throw new ServiceError(error.code === 'history_unavailable' ? 410 : error.code === 'artifact_integrity_failed' ? 500 : 503, error.code, error.message);
+    }
+    return { runId, ...receipt, result: JSON.parse(bytes.toString('utf8')) };
+  }
+
   #connectionById(connectionId) {
     return this.connections.find((connection) => connection.id === connectionId) ?? null;
   }
@@ -1826,6 +1844,12 @@ export class RuntimeService {
           await this.store.updateRunWithEvent(run.id, { admissionOpen: false, error: { code: 'mcp_effect_unknown', message: 'Remote tool effects require reconciliation' } }, {
             type: 'run.notice', data: { code: 'mcp_effect_unknown', message: 'Remote tool effects are unknown. Reconcile with the provider before retrying.', ...detail },
           });
+        }, async ({ prepared, ...identity }) => {
+          await this.artifactHistory.save(run.sessionId, prepared.bytes, prepared.sha256);
+          const ref = { ...identity, sha256: prepared.sha256, bytes: prepared.bytes.length,
+            isError: prepared.isError, projection: prepared.partial ? 'partial' : 'complete' };
+          await this.store.appendEvent({ runId: run.id, type: 'runtime.mcp.result', data: ref });
+          return ref;
         }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {
           binding: entry.runtimeBinding, permissionMode: entry.permissionMode, workspaceDir: entry.workspaceDir,
           isOpen: () => Boolean(this.store.getRun(run.id)?.admissionOpen) && !entry.cancelRequested && !entry.externalUnknown,
@@ -1968,7 +1992,14 @@ export class RuntimeService {
     const mapped = mapSessionEvent(event);
     if (!mapped) return;
     if (mapped.data?.errorMessage) mapped.data.errorMessage = redact(mapped.data.errorMessage, this.knownSecrets);
-    if (!run.admissionOpen && !mapped.type.startsWith("run.")) return;
+    const settledMcpResult = mapped.type === 'tool.result' && !terminal(run.status)
+      && this.active.get(runId) === entry && mapped.data.mcpResult
+      && this.store.listEvents({ sessionId: run.sessionId, runId }).some(receipt =>
+        receipt.type === 'runtime.mcp.result' && receipt.data.callId === mapped.data.callId
+        && receipt.data.sha256 === mapped.data.mcpResult.sha256);
+    // Admission blocks new work, not the recorded result of a dispatched call.
+    // Only the current run's already-retained MCP receipt permits this event.
+    if (!run.admissionOpen && !mapped.type.startsWith("run.") && !settledMcpResult) return;
     if (mapped.type === 'tool.result' && ['async_get','async_wait'].includes(mapped.data.name)) await this.store.appendAsyncToolResult({ runId, ...mapped });
     else await this.store.appendEvent({ runId, ...mapped });
   }

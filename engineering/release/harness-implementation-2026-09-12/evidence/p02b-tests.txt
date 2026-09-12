@@ -1,0 +1,19 @@
+✔ P02b actual modern SDK preserves structured {"answer":42} (38.876666ms)
+✔ P02b actual modern SDK preserves structured [1,"two"] (14.121333ms)
+✔ P02b actual modern SDK preserves structured null (4.012167ms)
+✔ P02b actual modern SDK preserves structured false (3.830167ms)
+✔ P02b actual modern SDK preserves structured 0 (3.413917ms)
+✔ P02b actual modern SDK preserves structured "scalar" (3.167417ms)
+✔ P02b actual legacy SDK preserves body plus supported structure (9.780833ms)
+✔ P02b structured-only and non-rendered resource blocks stay explicit (5.788875ms)
+✔ P02b invalid/oversized result fences uncertainty without raw dumping (9.248458ms)
+✔ P02b success: native projection and scoped full result survive restart (1099.495083ms)
+✔ P02b error: native projection and scoped full result survive restart (992.1195ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3075.042625
