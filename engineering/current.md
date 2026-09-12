@@ -4,7 +4,7 @@
 
 [当前架构节点](research/architecture-node-2026-09-13/README.md)由Astra裁决，Luna登记实现/缺口、清账既往主张并用Exa核查工作区治理机制。五层责任、设计公式、Pi本地优先/DeepSeek首适配、Codex公开能力替换条件，以及文档/数据/组织治理、渐进披露、多agent Review与Attention地图已登记；广义治理与第二runtime保持后续设计，不冒称全部实现。旧Runtime canon和options原字节归档，活动入口按实际基线distill，Spark陈旧路由注释更正。
 
-本节点UI审计与最终集成回执仍在收尾；用户授权merge、push及既有Pages部署，实际结果待节点交付记录。此前各段的“未push/部署”是对应历史时点，不取消本轮授权。
+UI审计修复Files长内容退出入口及Settings页面ARIA；相关51/51回归通过，Files在175%缩放下由Luna复测。待Review摘要可发现性仍待既有Core投影接线，不以Run完成代替工作接受。用户授权merge、push及既有Pages部署，实际结果见节点交付记录。此前各段的“未push/部署”是对应历史时点，不取消本轮授权。
 
 
 ## 2026-09-13 · 数据工作面串行纵切

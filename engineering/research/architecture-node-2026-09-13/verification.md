@@ -8,7 +8,7 @@ Astra采用并修正：公式中的Candidate可选性；必需能力全包含才
 
 ## 产品回归（Astra执行）
 
-没有运行新的真实Provider、个人数据迁移或第二Runtime试验。唯一应用源改动先为Spark文件头陈旧注释更正，不含执行代码；UI审计若产生修复，其检查将另记。
+没有运行新的真实Provider、个人数据迁移或第二Runtime试验。架构提交的应用改动仅为Spark文件头陈旧注释；随后UI审计修复Files滚动容器和Settings入口ARIA，未修改运行/审批/工作状态owner。
 
 | 检查 | 结果与解释 |
 |---|---|
@@ -17,6 +17,10 @@ Astra采用并修正：公式中的Candidate可选性；必需能力全包含才
 | 在app目录执行`node --test --test-concurrency=4 tests/*.test.mjs ../tests/*.test.mjs` | [完整低并发回归](evidence/full-suite-concurrency4.log)：912/912通过，214.847秒。首次超时作为负载敏感的测试观察保留，本轮不改超时或生产行为 |
 | `node tools/check-doc-links.mjs` | [路径检查](evidence/doc-links.json)通过；不等于语义接受，最终合流前再次核对新增链接 |
 | `node tools/lint-interaction.mjs` | [41文件登记规则](evidence/interaction-lint.log)通过；不证明全部交互/视觉一致 |
+
+## UI修复检查
+
+Files复用Attention长内容弹层的固定header、独立body滚动先例；Settings保持页面返回语法并移除错误的`aria-haspopup="dialog"`。现有Settings导航/偏好、Intake UI和Chat Sources四文件[51/51通过](evidence/ui-regression.log)，interaction lint再次通过。全量912/912是UI修复前基线；此次针对低影响HTML/CSS/ARIA修复只重跑相关检查。Luna最终浏览器175%缩放滚动、可见X点击关闭、Escape关闭、入口焦点恢复及未提交草稿重开保留通过（[截图50](ui/50-files-175-scrolled.png)）；完整覆盖范围与未测状态由UI审计另记。
 
 ## 公开静态站
 

@@ -177,7 +177,6 @@
               id="runtime-setup-button"
               class="quiet-button"
               type="button"
-              aria-haspopup="dialog"
             >
               Settings
             </button>
@@ -829,42 +828,44 @@
             aria-label="Close files"
           ></button>
         </header>
-        <div id="workspace-files" class="workspace-files"></div>
-        <details class="material-add" id="material-add">
-          <summary>Add text material</summary>
-          <form id="material-form">
-            <label
-              >File name<input
-                id="material-name"
-                name="name"
-                required
-                pattern="[A-Za-z0-9._-]+"
-                placeholder="brief.md"
-                autocomplete="off"
-            /></label>
-            <label
-              >Text<textarea
-                id="material-text"
-                name="text"
-                rows="5"
-                required
-                placeholder="Paste the material for this chat"
-              ></textarea>
-            </label>
-            <label class="file-upload-label"
-              >Or choose a text file<input
-                id="material-upload"
-                type="file"
-                accept=".txt,.md,.csv,.json,.html,.xml,.yaml,.yml,text/*"
-            /></label>
-            <p id="material-error" class="inline-error" role="alert" hidden></p>
-            <div class="dialog-actions">
-              <button id="material-submit" class="primary-button" type="submit">
-                Add material
-              </button>
-            </div>
-          </form>
-        </details>
+        <div class="runtime-dialog-body">
+          <div id="workspace-files" class="workspace-files"></div>
+          <details class="material-add" id="material-add">
+            <summary>Add text material</summary>
+            <form id="material-form">
+              <label
+                >File name<input
+                  id="material-name"
+                  name="name"
+                  required
+                  pattern="[A-Za-z0-9._-]+"
+                  placeholder="brief.md"
+                  autocomplete="off"
+              /></label>
+              <label
+                >Text<textarea
+                  id="material-text"
+                  name="text"
+                  rows="5"
+                  required
+                  placeholder="Paste the material for this chat"
+                ></textarea>
+              </label>
+              <label class="file-upload-label"
+                >Or choose a text file<input
+                  id="material-upload"
+                  type="file"
+                  accept=".txt,.md,.csv,.json,.html,.xml,.yaml,.yml,text/*"
+              /></label>
+              <p id="material-error" class="inline-error" role="alert" hidden></p>
+              <div class="dialog-actions">
+                <button id="material-submit" class="primary-button" type="submit">
+                  Add material
+                </button>
+              </div>
+            </form>
+          </details>
+        </div>
       </div>
     </dialog>
     <dialog
