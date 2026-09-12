@@ -24,4 +24,4 @@ Files复用Attention长内容弹层的固定header、独立body滚动先例；Se
 
 ## 公开静态站
 
-既有capture-ready、material、figures、public-data/capture-plan测试与子路径检查通过：5/5公开数据测试，161文件/296个本地引用。两次构建的[161文件hash](evidence/site-reproducible.json)一致。媒体来源仍固定既有manifest与其生产SHA，不重标为本节点新截图；runtime UI审计图是本节点独立合成证据，不替换公开产品录制。部署实际run、SHA及线上核验待最终发布回执，构建成功不冒称已部署。
+既有capture-ready、material、figures、public-data/capture-plan测试与子路径检查通过：5/5公开数据测试，161文件/296个本地引用。两次构建的[161文件hash](evidence/site-reproducible.json)一致。媒体来源仍固定既有manifest与其生产SHA，不重标为本节点新截图；runtime UI审计图是本节点独立合成证据，不替换公开产品录制。实际Pages run `34716338041`已成功，发布SHA为`3bd43b6`，线上19文件hash与构建一致；精确范围与回执见[交付记录](delivery.md)。

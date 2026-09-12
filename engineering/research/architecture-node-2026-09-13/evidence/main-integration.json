@@ -1,0 +1,12 @@
+{
+  "baseMain": "273ad12a9796aa0547d65e4811a6c56baa5c6a49",
+  "integratedMain": "3bd43b69d40547b4a3dce0498649cbd4b7dca706",
+  "preservedOtherFileCount": 61,
+  "otherFileByteHashesUnchanged": true,
+  "currentUserAdditions": 12,
+  "currentUserDeletions": 0,
+  "indexTreeMatchedCandidate": true,
+  "mainRefUpdatedWithExpectedOldHead": true,
+  "stagedUserChanges": false,
+  "method": "Three-way merge for engineering/current.md; checked index patch for other candidate paths; compare-and-swap main update; before/after hashes of all other dirty files."
+}

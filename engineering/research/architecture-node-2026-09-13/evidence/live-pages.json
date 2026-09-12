@@ -1,0 +1,141 @@
+{
+  "url": "https://lesprivilege.github.io/Courtwork/",
+  "deploymentSha": "3bd43b69d40547b4a3dce0498649cbd4b7dca706",
+  "pass": true,
+  "files": 19,
+  "checks": [
+    {
+      "path": "build-manifest.json",
+      "status": 200,
+      "sha256": "94cfbf100fae92d3f2ae44b2f0688c56aea6589ffe680e7337e8822d62dc1cf4",
+      "expected": "94cfbf100fae92d3f2ae44b2f0688c56aea6589ffe680e7337e8822d62dc1cf4",
+      "pass": true
+    },
+    {
+      "path": "changelog.html",
+      "status": 200,
+      "sha256": "4197408caa7d13ef0b4197b4ffb59054ed2934f58a7ec1c02973351a01404733",
+      "expected": "4197408caa7d13ef0b4197b4ffb59054ed2934f58a7ec1c02973351a01404733",
+      "pass": true
+    },
+    {
+      "path": "chat.html",
+      "status": 200,
+      "sha256": "9de5c85a9d7ca9eb124a3391a534a5977dc56b6fc135a6abc1d52e7b725c1dcb",
+      "expected": "9de5c85a9d7ca9eb124a3391a534a5977dc56b6fc135a6abc1d52e7b725c1dcb",
+      "pass": true
+    },
+    {
+      "path": "cli.html",
+      "status": 200,
+      "sha256": "9dbafbf56f849da6a676ea4945976701083a75048804a33686c696410c798251",
+      "expected": "9dbafbf56f849da6a676ea4945976701083a75048804a33686c696410c798251",
+      "pass": true
+    },
+    {
+      "path": "data.html",
+      "status": 200,
+      "sha256": "78829ed11da01aa76cad30cef4b8bc44c502a3d571c6acc22235c17dc3e91441",
+      "expected": "78829ed11da01aa76cad30cef4b8bc44c502a3d571c6acc22235c17dc3e91441",
+      "pass": true
+    },
+    {
+      "path": "eval.html",
+      "status": 200,
+      "sha256": "9e7e2eda254f2ad0aca3143a98336275adb4917506e50286f6fa89278d701073",
+      "expected": "9e7e2eda254f2ad0aca3143a98336275adb4917506e50286f6fa89278d701073",
+      "pass": true
+    },
+    {
+      "path": "experts.html",
+      "status": 200,
+      "sha256": "92d5ea93f901ad1bc18e4a06948c2bf1df00f4668ff09135bc53de14c82dc67d",
+      "expected": "92d5ea93f901ad1bc18e4a06948c2bf1df00f4668ff09135bc53de14c82dc67d",
+      "pass": true
+    },
+    {
+      "path": "features.html",
+      "status": 200,
+      "sha256": "8af436077ea9a02887ccf5dade219d015884286ddc297b51d2fca1f5c8873fb2",
+      "expected": "8af436077ea9a02887ccf5dade219d015884286ddc297b51d2fca1f5c8873fb2",
+      "pass": true
+    },
+    {
+      "path": "get.html",
+      "status": 200,
+      "sha256": "b36882cfa18bdc445040a8bbebd0e532af3b4b217caac6e92bce6d0400259f61",
+      "expected": "b36882cfa18bdc445040a8bbebd0e532af3b4b217caac6e92bce6d0400259f61",
+      "pass": true
+    },
+    {
+      "path": "index.html",
+      "status": 200,
+      "sha256": "c4967cc9db6d63dba8a897f3e580131e93afc1999edb24f9230d73e68d38ce03",
+      "expected": "c4967cc9db6d63dba8a897f3e580131e93afc1999edb24f9230d73e68d38ce03",
+      "pass": true
+    },
+    {
+      "path": "models.html",
+      "status": 200,
+      "sha256": "c6e8f43e006248f498acb03c6fd66347363f1c296c1285fcde372569627c7eca",
+      "expected": "c6e8f43e006248f498acb03c6fd66347363f1c296c1285fcde372569627c7eca",
+      "pass": true
+    },
+    {
+      "path": "pricing.css",
+      "status": 200,
+      "sha256": "36f4eb5cf8378d4d60e85736524bad148e57be62b6e3eae3d7f5347f1a0bfd7e",
+      "expected": "36f4eb5cf8378d4d60e85736524bad148e57be62b6e3eae3d7f5347f1a0bfd7e",
+      "pass": true
+    },
+    {
+      "path": "product-pages.css",
+      "status": 200,
+      "sha256": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "expected": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "pass": true
+    },
+    {
+      "path": "product-pages.mjs",
+      "status": 200,
+      "sha256": "65a2edcbd1233742552217fdd76825cbf09a6ff5fd6c8fb696cb0a558e1e0c63",
+      "expected": "65a2edcbd1233742552217fdd76825cbf09a6ff5fd6c8fb696cb0a558e1e0c63",
+      "pass": true
+    },
+    {
+      "path": "site.css",
+      "status": 200,
+      "sha256": "ebbf44e317891e10772a1ee8c572d90663046053670d37b7dd5d5c5621755926",
+      "expected": "ebbf44e317891e10772a1ee8c572d90663046053670d37b7dd5d5c5621755926",
+      "pass": true
+    },
+    {
+      "path": "site.mjs",
+      "status": 200,
+      "sha256": "fff54cb98c86ba030acf2f0469b75bae43e1c7c2b4cb447f1a6183881805a4cd",
+      "expected": "fff54cb98c86ba030acf2f0469b75bae43e1c7c2b4cb447f1a6183881805a4cd",
+      "pass": true
+    },
+    {
+      "path": "tokens.css",
+      "status": 200,
+      "sha256": "e5364fe55e9f71e2dc482bd125175b157fadd23a9d8c84d8ebb6f8a80609272f",
+      "expected": "e5364fe55e9f71e2dc482bd125175b157fadd23a9d8c84d8ebb6f8a80609272f",
+      "pass": true
+    },
+    {
+      "path": "tour.html",
+      "status": 200,
+      "sha256": "5bf7eb25dfddf846d08b81d9bc118d0f7a65a6dc2d3ea12d10ed1e3035bcdefa",
+      "expected": "5bf7eb25dfddf846d08b81d9bc118d0f7a65a6dc2d3ea12d10ed1e3035bcdefa",
+      "pass": true
+    },
+    {
+      "path": "media/main/manifest.json",
+      "status": 200,
+      "sha256": "bae0f8d4e35aa686ffb7883f72542289a81244c07c20270c0bcffff84f21c753",
+      "expected": "bae0f8d4e35aa686ffb7883f72542289a81244c07c20270c0bcffff84f21c753",
+      "pass": true
+    }
+  ]
+}

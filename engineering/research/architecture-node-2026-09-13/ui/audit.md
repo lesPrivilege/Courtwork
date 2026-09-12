@@ -34,3 +34,7 @@ The companion [source inventory](./source-inventory.md) covers implementation en
 ## Coverage limits
 
 This is a bounded visual/interaction audit, not a full WCAG or product acceptance review. Evidence is from one desktop Chrome window at its default viewport plus a 175% browser-zoom Files check. I used screenshots and accessibility-tree output, but did not run a screen reader, complete a keyboard-only tab-order audit, test mobile device widths, or inspect every Settings nested disclosure/provider configuration. The menu-open native screenshot was unavailable, and no Attention item row existed to exercise the item-detail state. I did not inspect every chat action-menu command or Home Attention filter combination, or exercise alternative candidate decisions. The companion [source inventory](./source-inventory.md) describes implementation paths not captured here. No state-changing review decision, provider call, or Files submission was performed.
+
+## Cleanup
+
+After the final evidence capture, I stopped the isolated `audit-fixture.mjs` host on port 54006 and closed its one-tab Chrome Incognito audit window.
