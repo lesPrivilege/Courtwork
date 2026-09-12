@@ -1,0 +1,4 @@
+PASS: 13 file hashes; 17 source records; 7 channel entries; 6 acyclic proposed slices; local links.
+Repeated v1/v2 ZIP digests match prior intake.
+Standalone data-surfaces MD references an unattached U1 file; recorded as missing, preserved unchanged as text archive.
+Product tests are separate.

@@ -1,0 +1,18 @@
+✔ Session deletion serializes after a queued upload; delete-first rejects upload (148.286125ms)
+✔ shutdown waits for accepted intake writes and rejects new material uploads (70.353125ms)
+✔ Intake retains UTF-8 r1/r2 and independent session identity; same bytes do not merge scopes (8.876375ms)
+✔ Intake command payload conflicts, CAS and delayed pending delivery cannot rewrite later revisions (3.560292ms)
+✔ Intake exact reads reject mismatched hashes and corrupt bytes, including duplicate upload reuse (3.69025ms)
+✔ Intake restarts with pending receipt and rejects unknown schema without rewriting it (4.1345ms)
+✔ Intake will not follow a sidecar database symlink (1.261209ms)
+✔ HTTP uploads retain exact versions across workspace edits and restart; deleted session cannot disclose (210.938792ms)
+✔ HTTP simultaneous CAS uploads admit one source revision and leave the losing text out of workspace (63.982208ms)
+✔ Upload delivery failure leaves readable bytes; same command recovers and superseded pending never overwrites (65.027083ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1372.383125

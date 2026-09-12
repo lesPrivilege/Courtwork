@@ -1,0 +1,74 @@
+{
+  "kind": "research-packet-integrity",
+  "created_on": "2026-09-12",
+  "excludes": [
+    "MANIFEST.json"
+  ],
+  "files": [
+    {
+      "path": "01-CHAT-CHANNELS.md",
+      "bytes": 6540,
+      "sha256": "3b34baf7a5c23f9be49fef1a4ad4912bce08d1f1deb4a4e19da3b703aed0cc40"
+    },
+    {
+      "path": "02-DATA-ORGANIZATION.md",
+      "bytes": 7027,
+      "sha256": "ecd733c99d0ccc5c5b146899c6e918d4f9d058e2ca78113521599376758a1070"
+    },
+    {
+      "path": "03-GOVERNED-DISCLOSURE.md",
+      "bytes": 7261,
+      "sha256": "4e1bbe5af15c26e6ee4524688541f4ccb1a73a97fe261531a160d26d020fbdda"
+    },
+    {
+      "path": "04-IMPLEMENTATION.md",
+      "bytes": 7105,
+      "sha256": "46db18ea584c17a942f2f6c5e5ddfe874dc966d77343974a0f2f25ff4561ebf3"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 3232,
+      "sha256": "e39478083b143957c351fc1047ada33eba873fbaab38e216e6d837271f949b1a"
+    },
+    {
+      "path": "INPUT.md",
+      "bytes": 2041,
+      "sha256": "dc58e8223a543fdd897b3c69f20a57f78df11cc706cd5718aa2618af8325cba8"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3308,
+      "sha256": "22deabd1979de2098822ec6a63e4ff0b44227ece880ca50aaef64cf433f9772c"
+    },
+    {
+      "path": "SOURCES.md",
+      "bytes": 7078,
+      "sha256": "8e3952d9d58d64d31cc09eb91d335ec21695db2cd4e8359a45f2259d22d5d24a"
+    },
+    {
+      "path": "channel-register.json",
+      "bytes": 3706,
+      "sha256": "93eb0b543e0a19bf77cfda6c5c2f407d2ce6dfe732f41c772401da02887442c9"
+    },
+    {
+      "path": "prior-inputs.json",
+      "bytes": 932,
+      "sha256": "40bf1017c2c2d480524b46bda28400e0b786341c415b9cae6667384c84cc2fd3"
+    },
+    {
+      "path": "source-ledger.json",
+      "bytes": 6633,
+      "sha256": "57c84268b5744919b3be5e41572965ffa0d099920edb3a77e55bcce75ceff7f8"
+    },
+    {
+      "path": "verify-package.py",
+      "bytes": 2321,
+      "sha256": "bb6eb731308e35d2f353d35ce48f8c1d2c3905f18ab04114fb523efc0ce4d629"
+    },
+    {
+      "path": "work-order-map.json",
+      "bytes": 2012,
+      "sha256": "2bb5aa5f6694741350e0d0380f3178be64699041ed8986dafa02c65158445207"
+    }
+  ]
+}

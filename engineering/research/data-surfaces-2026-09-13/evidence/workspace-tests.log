@@ -1,0 +1,22 @@
+✔ T-WS-1: '..' path segments are rejected (5.954917ms)
+✔ T-WS-2: absolute paths are rejected (0.650834ms)
+✔ T-WS-3: symlink escape is rejected (1.007833ms)
+✔ T-WS-4: an over-limit file is rejected by ws_read (throws; pi-agent-core turns a thrown tool error into isError:true) (1.439ms)
+✔ T-WS-5: ws_read then ws_write round-trips through the workspace endpoints (617.34425ms)
+✔ materials endpoint rejects path separators in the name (71.419875ms)
+✔ addMaterial rejects content over the 1 MiB limit (service-level, below the HTTP body cap) (61.651958ms)
+✔ T-WS-6: repeated writes yield two content versions and one current file (1181.096ms)
+✔ addMaterial routes through the shared path guard, which rejects a '..' name (79.135041ms)
+✔ T-ART-1: a completed run with no write has no artifacts and no acceptance field (420.699791ms)
+✔ T-ART-2: two writes to one path keep both content versions and one current file (492.503459ms)
+✔ ws_grep rejects nested quantifiers and over-long patterns before compiling them (50.662708ms)
+✔ getWorkspaceFile truncates on a UTF-8 boundary and keeps the whole-file digest (72.221208ms)
+✔ a second run in a continued session revises the first run's file (515.6495ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6126.328625

@@ -1,0 +1,26 @@
+{
+  "recorded_on": "2026-09-12",
+  "files": [
+    {
+      "name": "CourtWork-runtime-composition-v2-2026-09-12.md",
+      "bytes": 47852,
+      "sha256": "a5dc49579a4cb17c20c224ece5082cd6d12a563dd979ee9525c8e456ca9aa7db",
+      "scope": "current-conversation-attachment",
+      "disposition": "reference-unchanged; not copied into addendum"
+    },
+    {
+      "name": "CourtWork-runtime-composition-v2-2026-09-12.zip",
+      "bytes": 130964,
+      "sha256": "d77496a39181c61016be3a467f73cfa2cdda9e03739789efb5f5671f99f1e9f2",
+      "scope": "current-conversation-attachment",
+      "disposition": "reference-unchanged; not copied into addendum"
+    },
+    {
+      "name": "06-IMPLEMENTATION.md",
+      "bytes": 9206,
+      "sha256": "62769d34f2c1219941779bbece1751e0ff0fe852caefee1da22d4cebc37ea651",
+      "scope": "current-conversation-attachment",
+      "disposition": "reference-unchanged; not copied into addendum"
+    }
+  ]
+}

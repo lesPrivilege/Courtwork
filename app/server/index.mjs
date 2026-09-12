@@ -150,6 +150,8 @@ function routeService(service, req, url) {
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "events" && method === "GET") return () => service.getEvents(tail[1], url.searchParams.get("afterSeq") ?? 0);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "draft" && method === "PUT") return async () => service.updateDraft(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "permission-mode" && method === "PUT") return async () => service.setPermissionMode(tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "materials" && method === "GET") return () => service.listMaterials(tail[1], url.searchParams);
+  if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "materials" && tail[3] === "file" && method === "GET") return () => service.getMaterialFile(tail[1], url.searchParams);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "materials" && method === "POST") return async () => service.addMaterial(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "workspace" && method === "GET") return () => service.getWorkspaceTree(tail[1]);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "workspace" && tail[3] === "file" && method === "GET") return () => service.getWorkspaceFile(tail[1], url.searchParams.get("path") ?? "");

@@ -1,0 +1,90 @@
+{
+  "status": "proposed-not-created",
+  "labels_are_repo_ticket_ids": false,
+  "base_sha": "1ac28980c4877f4a86adf586aeb1b66980e23504",
+  "mainline_unchanged": true,
+  "orders": [
+    {
+      "id": "A",
+      "title": "source/channel/authority contracts",
+      "depends_on": [],
+      "existing_routes": [
+        "Chat Broker",
+        "BE-19",
+        "BE-20",
+        "BE-23",
+        "RD-007",
+        "LG-01",
+        "LG-02",
+        "DS",
+        "BG"
+      ]
+    },
+    {
+      "id": "B",
+      "title": "offline capture and conversation projection",
+      "depends_on": [
+        "A"
+      ],
+      "existing_routes": [
+        "LG-01",
+        "RG-BE-01",
+        "RG-BE-02",
+        "RG-BE-03",
+        "BE-20",
+        "BE-23"
+      ]
+    },
+    {
+      "id": "C",
+      "title": "governed literal search and exact reader",
+      "depends_on": [
+        "B"
+      ],
+      "existing_routes": [
+        "LG-02",
+        "RG-BE-04",
+        "DS",
+        "BG"
+      ]
+    },
+    {
+      "id": "D",
+      "title": "one official read-only bridge",
+      "depends_on": [
+        "C"
+      ],
+      "existing_routes": [
+        "Chat Broker",
+        "GUI control plane"
+      ],
+      "external_gate": "Actual plan/channel/user authorization and live E2E not yet established"
+    },
+    {
+      "id": "E",
+      "title": "native surface isolated spike",
+      "depends_on": [
+        "A"
+      ],
+      "existing_routes": [
+        "Chat independent node"
+      ],
+      "external_gate": "Provider support, policy and embedding security not yet established"
+    },
+    {
+      "id": "F",
+      "title": "bounded Spark and Attention work scenario",
+      "depends_on": [
+        "C"
+      ],
+      "optional_dependency": "D only for native-chat E2E demonstration",
+      "existing_routes": [
+        "LG-03",
+        "ATT",
+        "ME-06",
+        "v2 Work small loop"
+      ],
+      "external_gate": "Necessary accepted runtime and existing Work contracts; not a new all-runtime requirement"
+    }
+  ]
+}

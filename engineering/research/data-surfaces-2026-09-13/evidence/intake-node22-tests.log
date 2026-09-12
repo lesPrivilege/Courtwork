@@ -1,0 +1,60 @@
+TAP version 13
+# (node:51787) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Intake retains UTF-8 r1/r2 and independent session identity; same bytes do not merge scopes
+ok 1 - Intake retains UTF-8 r1/r2 and independent session identity; same bytes do not merge scopes
+  ---
+  duration_ms: 11.558584
+  type: 'test'
+  ...
+# Subtest: Intake command payload conflicts, CAS and delayed pending delivery cannot rewrite later revisions
+ok 2 - Intake command payload conflicts, CAS and delayed pending delivery cannot rewrite later revisions
+  ---
+  duration_ms: 6.762542
+  type: 'test'
+  ...
+# Subtest: Intake exact reads reject mismatched hashes and corrupt bytes, including duplicate upload reuse
+ok 3 - Intake exact reads reject mismatched hashes and corrupt bytes, including duplicate upload reuse
+  ---
+  duration_ms: 3.355959
+  type: 'test'
+  ...
+# Subtest: Intake restarts with pending receipt and rejects unknown schema without rewriting it
+ok 4 - Intake restarts with pending receipt and rejects unknown schema without rewriting it
+  ---
+  duration_ms: 3.866375
+  type: 'test'
+  ...
+# Subtest: Intake will not follow a sidecar database symlink
+ok 5 - Intake will not follow a sidecar database symlink
+  ---
+  duration_ms: 1.395791
+  type: 'test'
+  ...
+# Subtest: HTTP uploads retain exact versions across workspace edits and restart; deleted session cannot disclose
+ok 6 - HTTP uploads retain exact versions across workspace edits and restart; deleted session cannot disclose
+  ---
+  duration_ms: 170.023167
+  type: 'test'
+  ...
+# Subtest: HTTP simultaneous CAS uploads admit one source revision and leave the losing text out of workspace
+ok 7 - HTTP simultaneous CAS uploads admit one source revision and leave the losing text out of workspace
+  ---
+  duration_ms: 61.925875
+  type: 'test'
+  ...
+# Subtest: Upload delivery failure leaves readable bytes; same command recovers and superseded pending never overwrites
+ok 8 - Upload delivery failure leaves readable bytes; same command recovers and superseded pending never overwrites
+  ---
+  duration_ms: 69.016917
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1226.903166

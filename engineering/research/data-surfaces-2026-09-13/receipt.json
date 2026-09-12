@@ -1,0 +1,43 @@
+{
+  "baseline": "4698e0e5036268af40990dd1b5ac12a4c5d124aa",
+  "received": [
+    {
+      "filename": "CourtWork-chat-governed-data-research-2026-09-12.zip",
+      "bytes": 53898,
+      "sha256": "7b7a354e766a16a9606656271be1b1cd5821e376c9d30338942f75cd36e0a465",
+      "storedPath": "inputs/CourtWork-chat-governed-data-research-2026-09-12.zip"
+    },
+    {
+      "filename": "CourtWork-data-surfaces-version-priority-2026-09-12.md",
+      "bytes": 35510,
+      "sha256": "502f3bcd0936335e30b9cce50420797b3874da208b29ef43aabd662a18d2e6ec",
+      "storedPath": "inputs/CourtWork-data-surfaces-version-priority-2026-09-12.md.txt"
+    },
+    {
+      "filename": "pasted-text.txt",
+      "bytes": 17664,
+      "sha256": "8466ca07ca86c4e70e5eb8ea3169cd7cc518439d6b3b5be17592063ac4551b5b",
+      "storedPath": "inputs/pasted-text.txt"
+    }
+  ],
+  "repeatedOriginals": [
+    {
+      "filename": "CourtWork-harness-release-plan-2026-09-12.zip",
+      "sha256": "e9bbaa631a1e4bcd4a3f4dd58c12ffa95fe75271d5a44a5601fa559e6e632c85",
+      "existingReceipt": "../../release/harness-implementation-2026-09-12/receipt.json"
+    },
+    {
+      "filename": "CourtWork-runtime-composition-v2-2026-09-12.zip",
+      "sha256": "d77496a39181c61016be3a467f73cfa2cdda9e03739789efb5f5671f99f1e9f2",
+      "existingReceipt": "../../release/harness-implementation-2026-09-12/receipt.json"
+    }
+  ],
+  "notAttached": [
+    "CourtWork-data-surfaces-2026-09-12.zip"
+  ],
+  "instructions": "Attachments are source proposals; current user authorization and local owner contracts govern implementation.",
+  "archiveNote": "The unchanged standalone Markdown is retained as .md.txt because its internal U1 link targets an unattached packet file; no replacement source is fabricated.",
+  "missingReferences": [
+    "courtwork-data-surfaces-2026-09-12/inputs/resource-governance-explore.original.md"
+  ]
+}

@@ -1,0 +1,15 @@
+✔ recorded references deduplicate exact identity but retain different Run versions (0.754917ms)
+✔ unbound discussion reads no made-up source endpoint; file opens exact captured version (3.449125ms)
+✔ scope change rejects late work projection, with no source bytes in the replacement view (0.484333ms)
+✔ read failure remains explicit and refresh is available (0.62825ms)
+✔ fixed candidate evidence never substitutes the current source revision (0.179209ms)
+✔ quoting a full recorded file keeps exact text lines and provenance; current files are rejected (0.211584ms)
+✔ missing or mismatched historical bytes stay explicit rather than falling back to latest (1.342167ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.603125

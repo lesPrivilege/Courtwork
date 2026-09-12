@@ -1,3 +1,4 @@
+import { IntakeStore, IntakeError } from '../intake/store.mjs';
 import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl } from './provider-fields.mjs';
 import { createGovernanceAdapter } from '../extensions/governance-adapter.mjs';
 import { COORDINATION_TOOLS, coordinationTools } from '../harness/tools.mjs';
@@ -10,7 +11,7 @@ import { utcDateRange } from "./work-metrics.mjs";
 import { previewProvider, PreviewInputError } from './provider-preview.mjs';
 import { workProjection } from '../core/owner.mjs';
 import { MCPManager } from "../runtime/mcp-manager.mjs";
-import { mkdir, writeFile, rename, stat, open as openFile } from "node:fs/promises";
+import { mkdir, writeFile, rename, stat, rm, open as openFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { StringDecoder } from "node:string_decoder";
@@ -166,6 +167,8 @@ export class RuntimeService {
     this.control = new RuntimeControlPlane({ dataDir });
     this.mcp = new MCPManager();
     this.artifactHistory = new ArtifactHistory(dataDir);
+    this.intake = new IntakeStore(dataDir);
+    this.materialQueues = new Map();
     this.modelRuntime = modelRuntime;
     this.adapterId = adapterId;
     this.compaction = structuredClone(compaction);
@@ -200,6 +203,7 @@ export class RuntimeService {
   }
 
   async initialize() {
+    await this.intake.open();
     await this.control.initialize();
     const stored = this.store.getProviderConfig();
     this.providerConfig = stored ?? { provider: FAKE_PROVIDER_ID, model: FAKE_MODEL_ID, api: FAKE_API_ID };
@@ -669,33 +673,73 @@ export class RuntimeService {
     }
   }
 
-  async addMaterial(sessionId, input) {
+  addMaterial(sessionId, input) {
+    if (this.closing) return Promise.reject(new ServiceError(503, "runtime_closing", "runtime is stopping"));
+    const prior = this.materialQueues.get(sessionId) ?? Promise.resolve();
+    const operation = prior.catch(()=>{}).then(()=>this.#withConfiguration(()=>this.#addMaterial(sessionId,input)));
+    this.materialQueues.set(sessionId,operation);
+    operation.finally(()=>{if(this.materialQueues.get(sessionId)===operation)this.materialQueues.delete(sessionId);}).catch(()=>{});
+    return operation;
+  }
+
+  #intakeCall(fn) {
+    try { return fn(); }
+    catch(error) {
+      if (error instanceof IntakeError) throw new ServiceError(error.status,error.code,error.message);
+      throw error;
+    }
+  }
+
+  listMaterials(sessionId, query = new URLSearchParams()) {
+    if (!this.store.getSession(sessionId)) throw new ServiceError(404,"not_found","session not found");
+    for (const key of query.keys()) if (key !== 'sourceId' || query.getAll(key).length !== 1) throw new ServiceError(400,'invalid_input','Invalid retained source query.');
+    return this.#intakeCall(()=>query.has('sourceId') ? this.intake.versions(sessionId,text(query.get('sourceId'),'sourceId',{max:200})) : this.intake.list(sessionId));
+  }
+
+  getMaterialFile(sessionId, query) {
+    if (!this.store.getSession(sessionId)) throw new ServiceError(404,"not_found","session not found");
+    for (const key of query.keys()) if (!['sourceId','revision','sha256'].includes(key) || query.getAll(key).length !== 1) throw new ServiceError(400,'invalid_input','Invalid retained source locator.');
+    const sourceId=text(query.get('sourceId'),'sourceId',{max:200});
+    const rawRevision=query.get('revision');
+    const revision=Number(rawRevision);
+    const digest=text(query.get('sha256'),'sha256',{max:64});
+    if (!/^[1-9][0-9]*$/.test(rawRevision ?? '') || !Number.isSafeInteger(revision) || !/^[a-f0-9]{64}$/.test(digest)) throw new ServiceError(400,'invalid_input','Invalid retained source version.');
+    return this.#intakeCall(()=>this.intake.read(sessionId,{sourceId,revision,sha256:digest}));
+  }
+
+  async #addMaterial(sessionId, input) {
     const session = this.store.getSession(sessionId);
     if (!session) throw new ServiceError(404, "not_found", "session not found");
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["name", "text"]));
+    assertKeys(value, new Set(["name", "text", "commandId", "expectedRevision"]));
     const name = text(value.name, "name", { max: 200 });
     if (!MATERIAL_NAME_PATTERN.test(name)) throw new ServiceError(400, "invalid_input", "name must match [A-Za-z0-9._-]+");
     const content = text(value.text, "text", { max: MAX_MATERIAL_BYTES, allowEmpty: true });
+    if (!content.isWellFormed() || content.includes('\0')) throw new ServiceError(400,'invalid_input','A supported UTF-8 text source is required.');
     const bytes = Buffer.byteLength(content, "utf8");
     if (bytes > MAX_MATERIAL_BYTES) throw new ServiceError(400, "invalid_input", "material exceeds the 1 MiB limit");
+    const commandId=value.commandId===undefined?randomUUID():text(value.commandId,'commandId',{max:200});
+    const expectedRevision=value.expectedRevision;
+    if (expectedRevision!==undefined && (!Number.isSafeInteger(expectedRevision)||expectedRevision<0)) throw new ServiceError(400,'invalid_input','expectedRevision must be a nonnegative integer.');
     await mkdir(path.join(session.workspaceDir, "materials"), { recursive: true });
-    // The name regex is the first filter; the shared workspace guard is the
-    // one that decides the target, so this endpoint cannot write anywhere the
-    // ws_* tools could not.
     const relative = `materials/${name}`;
     let resolved;
-    try {
-      resolved = await resolveWorkspacePath(session.workspaceDir, relative);
-    } catch (error) {
-      throw new ServiceError(400, "invalid_input", error.message);
-    }
+    try { resolved = await resolveWorkspacePath(session.workspaceDir, relative); }
+    catch (error) { throw new ServiceError(400, "invalid_input", error.message); }
     if (resolved.relativePath !== relative) throw new ServiceError(400, "invalid_input", "name is invalid");
+    const receipt=this.#intakeCall(()=>this.intake.retain({sessionId,name,text:content,commandId,expectedRevision}));
+    if (receipt.workspaceState !== 'pending') return receipt;
+    // Retention and mutable workspace delivery are different owners. A failed
+    // delivery leaves the exact source and command pending for explicit retry.
     const tempPath = resolved.absolutePath + "." + randomUUID() + ".tmp";
-    await writeFile(tempPath, content, "utf8");
-    await rename(tempPath, resolved.absolutePath);
-    const sha256 = createHash("sha256").update(content, "utf8").digest("hex");
-    return { path: resolved.relativePath, bytes, sha256 };
+    try {
+      await writeFile(tempPath, content, "utf8");
+      await rename(tempPath, resolved.absolutePath);
+    } catch {
+      await rm(tempPath,{force:true}).catch(()=>{});
+      throw new ServiceError(503,'material_link_failed','The source was retained but could not be placed in this chat. Retry the same upload command.',{retained:receipt.retained,commandId});
+    }
+    return this.#intakeCall(()=>this.intake.markWritten(sessionId,commandId));
   }
 
   async getWorkspaceTree(sessionId) {
@@ -1570,12 +1614,13 @@ export class RuntimeService {
 
   async close() {
     this.closing = true;
-    await Promise.allSettled([...this.admissions, this.configurationQueue]);
+    await Promise.allSettled([...this.admissions, this.configurationQueue, ...this.materialQueues.values()]);
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");
     await this.asyncTasks.close();
     await this.mcp.close();
+    this.intake.close();
     if (rejected.length) throw new AggregateError(rejected.map((result) => result.reason), "runtime shutdown did not settle every Run");
   }
 

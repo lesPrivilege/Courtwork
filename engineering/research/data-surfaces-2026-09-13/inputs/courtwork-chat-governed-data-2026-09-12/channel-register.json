@@ -1,0 +1,142 @@
+{
+  "schema": "cw.research.chat-channel-register.v0",
+  "status": "design-only-not-runtime-config",
+  "reviewed_on": "2026-09-12",
+  "policy_approval": false,
+  "note": "Official documented feature is not proof of a user/account entitlement or CW implementation. All operations need authentic source/target grants.",
+  "channels": [
+    {
+      "id": "manual-official-export",
+      "direction": "provider-to-cw",
+      "source_ids": [
+        "P03",
+        "P04"
+      ],
+      "disposition": "first-acquisition-candidate",
+      "implementation": "not-implemented",
+      "requires": [
+        "user-provided-export",
+        "account-and-retention-scope",
+        "redacted-format-fixture"
+      ],
+      "does_not_prove": [
+        "continuous-sync",
+        "all-attachments",
+        "native-history-migration"
+      ]
+    },
+    {
+      "id": "manual-user-excerpt",
+      "direction": "user-to-cw",
+      "source_ids": [
+        "R01",
+        "R03"
+      ],
+      "disposition": "partial-source-intake",
+      "implementation": "not-implemented",
+      "requires": [
+        "user-scope",
+        "source-label-confidence",
+        "coverage"
+      ],
+      "does_not_prove": [
+        "full-upstream-history",
+        "upstream-authenticity"
+      ]
+    },
+    {
+      "id": "claude-desktop-read-bridge",
+      "direction": "cw-to-provider",
+      "source_ids": [
+        "P07"
+      ],
+      "disposition": "candidate-local-first-probe",
+      "implementation": "not-implemented",
+      "requires": [
+        "user-installation-authorization",
+        "trusted-host-bound-identity",
+        "read-only-methods",
+        "restricted-grant"
+      ],
+      "does_not_prove": [
+        "no-cloud-disclosure",
+        "native-chat-export"
+      ]
+    },
+    {
+      "id": "chatgpt-read-bridge",
+      "direction": "cw-to-provider",
+      "source_ids": [
+        "P05"
+      ],
+      "disposition": "candidate-supported-account-probe",
+      "implementation": "not-implemented",
+      "requires": [
+        "plan-and-admin-availability",
+        "authenticated-remote-or-supported-tunnel",
+        "restricted-grant"
+      ],
+      "does_not_prove": [
+        "local-direct-mcp",
+        "all-plans-support",
+        "native-chat-export"
+      ]
+    },
+    {
+      "id": "claude-remote-read-bridge",
+      "direction": "cw-to-provider",
+      "source_ids": [
+        "P06"
+      ],
+      "disposition": "candidate-remote-probe",
+      "implementation": "not-implemented",
+      "requires": [
+        "supported-transport",
+        "authenticated-principal",
+        "restricted-grant"
+      ],
+      "does_not_prove": [
+        "same-transport-as-desktop",
+        "native-chat-export"
+      ]
+    },
+    {
+      "id": "native-surface-webcontentsview",
+      "direction": "user-interface",
+      "source_ids": [
+        "P01",
+        "P02",
+        "T01",
+        "T02"
+      ],
+      "disposition": "conditional-spike-not-release-blocker",
+      "implementation": "not-implemented",
+      "requires": [
+        "provider-specific-support-and-policy-review",
+        "isolated-account-partitions",
+        "sandboxed-no-node",
+        "external-browser-fallback"
+      ],
+      "does_not_prove": [
+        "automated-extraction-permission",
+        "private-api-access",
+        "control-of-all-native-tools"
+      ]
+    },
+    {
+      "id": "undocumented-background-native-sync",
+      "direction": "provider-to-cw",
+      "source_ids": [
+        "P01",
+        "P02"
+      ],
+      "disposition": "excluded",
+      "implementation": "not-implemented",
+      "requires": [],
+      "does_not_prove": [
+        "non-coding-exception",
+        "ownership-implies-access-permission"
+      ]
+    }
+  ]
+}

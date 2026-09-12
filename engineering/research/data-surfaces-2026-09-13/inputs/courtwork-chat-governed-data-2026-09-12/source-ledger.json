@@ -1,0 +1,124 @@
+{
+  "read_on": "2026-09-12",
+  "sources": [
+    {
+      "id": "R01",
+      "title": "CourtWork Chat Memory Broker",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/chat-memory-broker-2026-09-12/README.md",
+      "kind": "fixed-repository",
+      "bounded_observation": "已读固定版本。Provider Session、投影、Broker、Compiler 与各状态 owner 分离；BE/LG/RG 为后续消费入口。本文不是已实现证明。"
+    },
+    {
+      "id": "R02",
+      "title": "CourtWork Chat 薄能力层",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/chat-memory-broker-2026-09-12/thin-capabilities.md",
+      "kind": "fixed-repository",
+      "bounded_observation": "已读固定版本。人主导 Chat、可选来源、禁止用 wrapper 宣称接管 Provider 全部能力；未来独立 Chat 不追溯改掉当前项目 Session。"
+    },
+    {
+      "id": "R03",
+      "title": "CourtWork RD-007",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/RD-007-resource-governance.md",
+      "kind": "fixed-repository",
+      "bounded_observation": "已读固定版本。内容 Resource 与 Runtime Resource 分开；LG/DS/BG/Runtime/Core 原 owner；资源保留、关系、正式接受分轴。"
+    },
+    {
+      "id": "P01",
+      "title": "OpenAI Terms of Use",
+      "url": "https://openai.com/policies/terms-of-use/",
+      "kind": "official-policy",
+      "bounded_observation": "本轮页面标注 2026-01-01 生效。个人服务条款限制自动/程序化提取及绕过保护；API/商业服务另有条款。内容权利不等于任意接入许可。"
+    },
+    {
+      "id": "P02",
+      "title": "Anthropic Consumer Terms",
+      "url": "https://www.anthropic.com/legal/consumer-terms",
+      "kind": "official-policy",
+      "bounded_observation": "本轮页面标注 2025-10-08 生效。限制未经许可的抓取和自动访问；API 或明确允许的方式另论。商业发布还需核实际协议与产品适用性。"
+    },
+    {
+      "id": "P03",
+      "title": "ChatGPT 官方数据导出",
+      "url": "https://help.openai.com/en/articles/7260999-how-do-i-export-my-chatgpt-history-and-data",
+      "kind": "official-support",
+      "bounded_observation": "官方提供账号数据/聊天导出路径。实际计划与组织权限须核对；不提供可据此假设的实时同步、稳定导出 schema 或附件完整保证。"
+    },
+    {
+      "id": "P04",
+      "title": "Claude 官方数据导出",
+      "url": "https://support.claude.com/en/articles/9450526-export-your-claude-data",
+      "kind": "official-support",
+      "bounded_observation": "官方个人账号导出覆盖会话与账号数据，组织账号另按 owner 路径；文档也说明导出不等于个人账号间的原生导入迁移。"
+    },
+    {
+      "id": "P05",
+      "title": "ChatGPT Developer mode / MCP apps",
+      "url": "https://help.openai.com/en/articles/12584461",
+      "kind": "official-support",
+      "bounded_observation": "官方提供自定义 MCP/app 通道，读写能力依计划与管理员策略；Pro 页面列有 developer mode 的 read/fetch。远端接入或受支持 Secure MCP Tunnel 与本机直连不同。"
+    },
+    {
+      "id": "P06",
+      "title": "Claude remote MCP custom connectors",
+      "url": "https://claude.com/docs/connectors/custom/remote-mcp",
+      "kind": "official-support",
+      "bounded_observation": "官方支持自定义远端数据/工具连接，认证与 scope 需配置；不是原生聊天全量导出接口。"
+    },
+    {
+      "id": "P07",
+      "title": "Claude Desktop local MCP",
+      "url": "https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop",
+      "kind": "official-support",
+      "bounded_observation": "官方本地 MCP/desktop extension 接入可作本地只读 bridge 候选；工具返回给模型仍是披露，不等于数据从未离开本机。"
+    },
+    {
+      "id": "T01",
+      "title": "Electron Web Embeds",
+      "url": "https://www.electronjs.org/docs/latest/tutorial/web-embeds",
+      "kind": "official-technical",
+      "bounded_observation": "iframe 受来源 CSP 限制；文档不推荐依赖 webview tag，并列 WebContentsView 等替代。支持嵌入机制不意味着上游允许抓取或第三方包装。"
+    },
+    {
+      "id": "T02",
+      "title": "Electron Security",
+      "url": "https://www.electronjs.org/docs/latest/tutorial/security",
+      "kind": "official-technical",
+      "bounded_observation": "远端内容不开放 Node；context isolation、sandbox、权限/导航/IPC 检验；不能关闭 webSecurity 求兼容。浏览器安全维护不能无限冻结。"
+    },
+    {
+      "id": "D01",
+      "title": "Zotero Collections and Tags",
+      "url": "https://www.zotero.org/support/collections_and_tags",
+      "kind": "official-technical",
+      "bounded_observation": "对象可属于多个集合而不复制；删除集合与删除对象分开。消费身份/关系/视图分离，不照搬其权限与库实现。"
+    },
+    {
+      "id": "D02",
+      "title": "SQLite FTS5",
+      "url": "https://www.sqlite.org/fts5.html",
+      "kind": "official-technical",
+      "bounded_observation": "FTS 可作可重建索引；external-content 一致性需显式维护。trigram MATCH 对不足三个 Unicode 字符的子串不匹配，短中文查询必须另测。"
+    },
+    {
+      "id": "D03",
+      "title": "W3C PROV-DM",
+      "url": "https://www.w3.org/TR/prov-dm/",
+      "kind": "official-standard",
+      "bounded_observation": "Entity/Activity/Agent、使用、生成、派生、归属可借鉴为来源语义；不据此宣称完整 PROV 互操作或专业正确性。"
+    },
+    {
+      "id": "D04",
+      "title": "W3C Web Annotation Data Model",
+      "url": "https://www.w3.org/TR/annotation-model/",
+      "kind": "official-standard",
+      "bounded_observation": "TextQuote/TextPosition 可借鉴为引用锚点；位置在变化文档上脆弱，需固定 source state/representation 与坐标约定。"
+    },
+    {
+      "id": "D05",
+      "title": "OpenLineage Object Model",
+      "url": "https://openlineage.io/docs/spec/object-model/",
+      "kind": "official-technical",
+      "bounded_observation": "区分数据、处理定义、处理运行及输入/输出。借用处理来源和运行状态记录，不把 COMPLETE 当 Core 接受，也不引入整个平台。"
+    }
+  ]
+}

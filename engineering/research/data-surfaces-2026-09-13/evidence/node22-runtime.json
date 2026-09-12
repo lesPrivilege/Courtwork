@@ -1,0 +1,6 @@
+{
+  "source": "https://nodejs.org/dist/v22.19.0/node-v22.19.0-darwin-arm64.tar.gz",
+  "sha256": "c59006db713c770d6ec63ae16cb3edc11f49ee093b5c415d667bb4f436c6526d",
+  "verified": true,
+  "purpose": "Test the declared minimum Node runtime for the new node:sqlite public API consumer; temporary official runtime, no global installation."
+}
