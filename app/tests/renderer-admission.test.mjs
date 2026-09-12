@@ -13,7 +13,7 @@ test('NDA renderer is an exact declared path: missing is 404, present bytes are 
   const copyRoot=path.join(root,'app');let runtime;
   try {
     await mkdir(copyRoot);
-    for(const name of ['server','runtime','extensions','core','domains','harness']) await cp(path.join(appRoot,name),path.join(copyRoot,name),{recursive:true});
+    for(const name of ['server','runtime','extensions','core','domains','harness','intake']) await cp(path.join(appRoot,name),path.join(copyRoot,name),{recursive:true});
     await cp(path.join(appRoot,'package.json'),path.join(copyRoot,'package.json'));
     await symlink(path.join(appRoot,'node_modules'),path.join(copyRoot,'node_modules'),'dir');
     const renderer=path.join(copyRoot,'extensions/inbound-nda/renderer.mjs');

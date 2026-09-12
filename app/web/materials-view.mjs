@@ -1,5 +1,6 @@
 import { el, icon, action, copyAction } from "./ui-controls.mjs";
 import { formatBytes } from "./inspector.mjs";
+import { renderDiff } from "./diff-view.mjs";
 
 const MAX_UPLOAD_BYTES = 1_048_576;
 const fingerprint = (name, text) => JSON.stringify([name, text]);
@@ -52,16 +53,40 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
   let detailControllers = new Map();
   let detailGenerations = new Map();
   let versionCache = new Map();
+  let comparisonSelections = new Map();
+  let comparisonStates = new Map();
+  let comparisonControllers = new Map();
+  let comparisonGenerations = new Map();
+  let comparisonButtons = new Map();
   let busy = false;
   let commandState = null;
   let linkRetry = null;
   let conflict = null;
   let fileReturn = null;
+  let fileDraft = null;
 
   const activeScope = (id = sessionId, epoch = sessionEpoch) =>
     Boolean(id && id === sessionId && id === getSession()?.id && epoch === sessionEpoch);
-  const currentFingerprint = () => fingerprint(name.value.trim(), text.value);
+  const displayFingerprint = () => fingerprint(name.value.trim(), text.value);
+  const displayedFileDraft = () => fileDraft?.displayFingerprint === displayFingerprint() ? fileDraft : null;
+  const currentFingerprint = () => fingerprint(name.value.trim(), displayedFileDraft()?.originalText ?? text.value);
   const sourceNamed = value => sources.find(source => source.name === value) ?? null;
+
+  function focusSavedSourceSummary(savedName, id, epoch, focusAtSubmit) {
+    if (!activeScope(id, epoch) || (document.activeElement !== focusAtSubmit && document.activeElement !== document.body)) return;
+    const saved = sourceNamed(savedName);
+    const summary = saved
+      ? sourceDetails.get(saved.sourceId)?.row.querySelector("summary")
+      : null;
+    const target = summary || document.getElementById("material-add")?.querySelector("summary");
+    target?.focus({ preventScroll: true });
+  }
+
+  function restoreSourceRefreshFocus(previousButton, id, epoch, dialogWasOpen) {
+    if (!previousButton || !dialogWasOpen || !dialog.open || !activeScope(id, epoch) || list.contains(previousButton)) return;
+    if (document.activeElement !== previousButton && document.activeElement !== document.body) return;
+    list.querySelector('button[aria-label="Refresh retained uploads"]')?.focus({ preventScroll: true });
+  }
 
   function fail(message, { buttonLabel, buttonAction } = {}) {
     error.replaceChildren(el("span", { text: message }));
@@ -237,6 +262,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       versionList.append(row);
     }
     body.append(versionList);
+    renderComparisonControls(source, body, versionsResult, ownEpoch);
     if (conflict?.phase === "review" && conflict.name === source.name) {
       const ready = conflict.reviewedRevision === versionsResult.latestRevision;
       body.append(el("p", {
@@ -246,6 +272,225 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
           : `The upload changed during your save. Open revision ${versionsResult.latestRevision} in File Inspector to review it before saving.`,
       }));
     }
+  }
+
+  function renderComparisonOutput(target, state) {
+    target.replaceChildren();
+    if (!state || state.status === "idle") {
+      target.append(el("p", {
+        className: "form-help",
+        text: state?.message || "Choose two retained revisions and compare them.",
+      }));
+      return;
+    }
+    if (state.status === "loading") {
+      target.append(el("p", { className: "form-help", text: `Comparing revision ${state.fromRevision} with revision ${state.toRevision}…` }));
+      return;
+    }
+    if (state.status === "error") {
+      target.append(el("p", { className: "inline-error", text: state.error }));
+      return;
+    }
+    const result = state.result;
+    target.append(el("p", {
+      className: "form-help retained-comparison-label",
+      text: `Comparison · revision ${result.from.revision} → revision ${result.to.revision} · latest retained at comparison: revision ${result.latestRetainedRevision}`,
+    }));
+    target.append(el("p", {
+      className: "form-help",
+      text: "Latest retained is a history fact; formal adoption is handled separately in Work Review.",
+    }));
+    if (result.status === "limited") {
+      target.append(el("p", { className: "inline-notice", text: result.reason }));
+      return;
+    }
+    target.append(renderDiff(result.rows, {
+      label: `${sourceLabel(result.path)} revision ${result.from.revision} to revision ${result.to.revision}`,
+    }));
+  }
+
+  function sourceLabel(path) {
+    return path.slice("materials/".length);
+  }
+
+  function validComparisonResult(result, source, from, to, id) {
+    const matches = (identity, version) => identity &&
+      identity.kind === "retained-source" && identity.sessionId === id &&
+      identity.sourceId === source.sourceId && identity.revision === version.revision &&
+      identity.path === source.path && identity.sha256 === version.sha256 &&
+      identity.bytes === version.bytes && identity.representation === "original-utf8-v1";
+    if (!result || result.sourceId !== source.sourceId || result.path !== source.path ||
+        !matches(result.from, from) || !matches(result.to, to) ||
+        !Number.isSafeInteger(result.latestRetainedRevision) || result.latestRetainedRevision < 1 ||
+        typeof result.identical !== "boolean" || !result.limits || !Array.isArray(result.rows)) return false;
+    if (result.status === "limited") return typeof result.reason === "string" && result.reason.length > 0 && result.rows.length === 0;
+    return result.status === "complete" && result.rows.every(row => row &&
+      ["context", "add", "del"].includes(row.kind) && typeof row.text === "string" &&
+      (row.oldNo == null || Number.isSafeInteger(row.oldNo)) &&
+      (row.newNo == null || Number.isSafeInteger(row.newNo)) &&
+      (row.noNewline == null || typeof row.noNewline === "boolean"));
+  }
+
+  function currentComparisonPanel(sourceId) {
+    return sourceDetails.get(sourceId)?.body.querySelector(".retained-comparison-result") ?? null;
+  }
+
+  function cancelComparison(sourceId, message = "") {
+    comparisonControllers.get(sourceId)?.abort();
+    comparisonControllers.delete(sourceId);
+    comparisonGenerations.set(sourceId, (comparisonGenerations.get(sourceId) || 0) + 1);
+    const state = comparisonStates.get(sourceId);
+    if (state?.status === "loading") comparisonStates.set(sourceId, { status: "idle", message });
+    const button = comparisonButtons.get(sourceId);
+    const selection = comparisonSelections.get(sourceId);
+    if (button) {
+      button.disabled = !selection?.from || !selection?.to || selection.from === selection.to;
+      button.removeAttribute("aria-disabled");
+    }
+    const panel = currentComparisonPanel(sourceId);
+    if (panel && state?.status === "loading") renderComparisonOutput(panel, comparisonStates.get(sourceId));
+  }
+
+  function renderComparisonControls(source, body, versionsResult, ownEpoch) {
+    const versions = new Map(versionsResult.versions.map(version => [version.revision, version]));
+    const prior = comparisonSelections.get(source.sourceId) || { from: "", to: "" };
+    const controls = el("section", { className: "retained-comparison" });
+    controls.append(el("h4", { text: "Compare retained revisions" }));
+
+    function revisionSelect(labelText, className, selected, retainedSelection) {
+      const select = el("select", { className, attrs: { "aria-label": labelText } });
+      select.append(el("option", { text: "Choose a revision", attrs: { value: "" } }));
+      for (const version of versionsResult.versions) {
+        select.append(el("option", {
+          text: `Revision ${version.revision} · ${formatBytes(version.bytes)}`,
+          attrs: { value: String(version.revision) },
+        }));
+      }
+      const selectedRevision = Number(selected);
+      if (selected && !versions.has(selectedRevision) && retainedSelection?.revision === selectedRevision) {
+        select.append(el("option", {
+          text: `Revision ${selectedRevision} · previously listed`,
+          attrs: { value: String(selectedRevision) },
+        }));
+      }
+      select.value = !selected || versions.has(selectedRevision) || retainedSelection?.revision === selectedRevision
+        ? String(selected || "")
+        : "";
+      return select;
+    }
+
+    const from = revisionSelect("From revision", "retained-compare-from", prior.from, prior.fromVersion);
+    const to = revisionSelect("To revision", "retained-compare-to", prior.to, prior.toVersion);
+    const compare = el("button", {
+      className: "secondary-button retained-compare-button",
+      text: "Compare",
+      attrs: { type: "button" },
+    });
+    const output = el("div", { className: "retained-comparison-result", attrs: { "aria-live": "polite" } });
+    const selectedVersion = side => {
+      const value = side === "from" ? from.value : to.value;
+      const revision = Number(value);
+      const cached = versions.get(revision);
+      if (cached) return cached;
+      const retained = comparisonSelections.get(source.sourceId)?.[`${side}Version`];
+      return retained?.revision === revision ? retained : null;
+    };
+    const selectionState = { ...prior, from: from.value, to: to.value };
+    comparisonSelections.set(source.sourceId, selectionState);
+    const setEnabled = () => {
+      selectionState.from = from.value;
+      selectionState.to = to.value;
+      const state = comparisonStates.get(source.sourceId);
+      compare.disabled = !selectionState.from || !selectionState.to || selectionState.from === selectionState.to ||
+        !selectedVersion("from") || !selectedVersion("to") || !activeScope(sessionId, ownEpoch);
+      if (state?.status === "loading") compare.setAttribute("aria-disabled", "true");
+      else compare.removeAttribute("aria-disabled");
+      compare.textContent = state?.status === "loading" ? "Comparing…" : state?.status === "error" ? "Retry comparison" : "Compare";
+    };
+    const onSelection = () => {
+      const priorSelection = comparisonSelections.get(source.sourceId) || {};
+      comparisonSelections.set(source.sourceId, {
+        from: from.value,
+        to: to.value,
+        fromVersion: versions.get(Number(from.value)) || (priorSelection.from === from.value ? priorSelection.fromVersion : null),
+        toVersion: versions.get(Number(to.value)) || (priorSelection.to === to.value ? priorSelection.toVersion : null),
+      });
+      if (comparisonStates.get(source.sourceId)?.status === "loading") {
+        cancelComparison(source.sourceId, "The selection changed. Compare the selected revisions to continue.");
+        renderComparisonOutput(output, comparisonStates.get(source.sourceId));
+      }
+      setEnabled();
+    };
+    from.addEventListener("change", onSelection);
+    to.addEventListener("change", onSelection);
+
+    const refreshOutput = () => renderComparisonOutput(output, comparisonStates.get(source.sourceId));
+    comparisonButtons.set(source.sourceId, compare);
+    compare.addEventListener("click", () => {
+      if (comparisonStates.get(source.sourceId)?.status === "loading") return;
+      const fromVersion = selectedVersion("from");
+      const toVersion = selectedVersion("to");
+      if (!fromVersion || !toVersion || fromVersion.revision === toVersion.revision || !activeScope(sessionId, ownEpoch)) return;
+      cancelComparison(source.sourceId);
+      const generation = (comparisonGenerations.get(source.sourceId) || 0) + 1;
+      comparisonGenerations.set(source.sourceId, generation);
+      const id = sessionId;
+      const controller = new AbortController();
+      comparisonControllers.set(source.sourceId, controller);
+      const state = { status: "loading", fromRevision: fromVersion.revision, toRevision: toVersion.revision };
+      comparisonStates.set(source.sourceId, state);
+      compare.disabled = false;
+      compare.setAttribute("aria-disabled", "true");
+      compare.textContent = "Comparing…";
+      refreshOutput();
+      const params = new URLSearchParams({
+        sourceId: source.sourceId,
+        fromRevision: String(fromVersion.revision),
+        fromSha256: fromVersion.sha256,
+        toRevision: String(toVersion.revision),
+        toSha256: toVersion.sha256,
+      });
+      void request(`/sessions/${encodeURIComponent(id)}/materials/compare?${params}`, { signal: controller.signal })
+        .then(result => {
+          if (!activeScope(id, ownEpoch) || comparisonGenerations.get(source.sourceId) !== generation || comparisonControllers.get(source.sourceId) !== controller) return;
+          if (!validComparisonResult(result, source, fromVersion, toVersion, id)) throw new Error("The comparison could not be verified.");
+          comparisonStates.set(source.sourceId, { status: "ready", result });
+          const activeButton = comparisonButtons.get(source.sourceId);
+          if (activeButton) {
+            const selection = comparisonSelections.get(source.sourceId);
+            activeButton.disabled = !selection?.from || !selection?.to || selection.from === selection.to;
+            activeButton.removeAttribute("aria-disabled");
+            activeButton.textContent = "Compare";
+          }
+          const panel = currentComparisonPanel(source.sourceId);
+          if (panel) renderComparisonOutput(panel, comparisonStates.get(source.sourceId));
+        })
+        .catch(err => {
+          if (err.name === "AbortError" || !activeScope(id, ownEpoch) || comparisonGenerations.get(source.sourceId) !== generation || comparisonControllers.get(source.sourceId) !== controller) return;
+          comparisonStates.set(source.sourceId, { status: "error", fromRevision: fromVersion.revision, toRevision: toVersion.revision, error: err.message || "The comparison could not be loaded." });
+          const activeButton = comparisonButtons.get(source.sourceId);
+          if (activeButton) {
+            const selection = comparisonSelections.get(source.sourceId);
+            activeButton.disabled = !selection?.from || !selection?.to || selection.from === selection.to;
+            activeButton.removeAttribute("aria-disabled");
+            activeButton.textContent = "Retry comparison";
+          }
+          const panel = currentComparisonPanel(source.sourceId);
+          if (panel) renderComparisonOutput(panel, comparisonStates.get(source.sourceId));
+        })
+        .finally(() => {
+          if (comparisonGenerations.get(source.sourceId) === generation && comparisonControllers.get(source.sourceId) === controller)
+            comparisonControllers.delete(source.sourceId);
+        });
+    });
+    controls.append(el("div", { className: "retained-comparison-controls" },
+      el("label", { className: "retained-compare-field" }, el("span", { text: "From" }), from),
+      el("label", { className: "retained-compare-field" }, el("span", { text: "To" }), to),
+      compare,
+    ), output);
+    setEnabled();
+    renderComparisonOutput(output, comparisonStates.get(source.sourceId));
+    body.append(controls);
   }
 
   function renderSourceRows(container, ownEpoch) {
@@ -286,6 +531,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
           void loadVersions(source, body, row, ownEpoch);
         } else {
           expandedSources.delete(source.sourceId);
+          cancelComparison(source.sourceId, "This source was closed. Reopen it and compare the selected revisions again.");
         }
       });
       entries.append(row);
@@ -303,7 +549,10 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       "div",
       { className: "section-heading" },
       el("h3", { text: `Retained uploads · ${sources.length}${sourceCoverage === "partial" ? "+" : ""}` }),
-      action("refresh-cw", "Refresh retained uploads", () => void refreshSources(), { className: "quiet-button" }),
+      action("refresh-cw", "Refresh retained uploads", event => {
+        const trigger = event.currentTarget ?? event.target;
+        void refreshSources({ focusFrom: document.activeElement === trigger ? trigger : null });
+      }, { className: "quiet-button" }),
     ));
     setCoverageNote(retained);
     const rows = el("div", { className: "retained-source-rows" });
@@ -341,11 +590,12 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     }
   }
 
-  async function refreshSources({ afterConflict = false } = {}) {
+  async function refreshSources({ afterConflict = false, focusFrom = null } = {}) {
     if (!sessionId || !activeScope()) return;
     const own = ++sourceGeneration;
     const id = sessionId;
     const epoch = sessionEpoch;
+    const dialogWasOpen = dialog.open;
     sourceController?.abort();
     sourceController = new AbortController();
     for (const controller of detailControllers.values()) controller.abort();
@@ -394,6 +644,8 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
         buttonLabel: "Retry refresh",
         buttonAction: () => void refreshSources({ afterConflict: Boolean(conflict) }),
       });
+    } finally {
+      if (own === sourceGeneration) restoreSourceRefreshFocus(focusFrom, id, epoch, dialogWasOpen);
     }
   }
 
@@ -449,6 +701,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
   }
 
   function draftChanged() {
+    if (fileDraft && fileDraft.displayFingerprint !== displayFingerprint()) fileDraft = null;
     const next = currentFingerprint();
     if (commandState?.fingerprint !== next) commandState = null;
     if (linkRetry?.fingerprint !== next) linkRetry = null;
@@ -461,23 +714,26 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
   upload.addEventListener("change", async () => {
     const file = upload.files?.[0];
     if (!file) return;
+    const id = sessionId;
     const epoch = sessionEpoch;
     try {
       if (file.size > MAX_UPLOAD_BYTES)
         throw new Error("Choose a UTF-8 text file smaller than 1 MB.");
       const bytes = await file.arrayBuffer();
-      const value = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      const value = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
       if (value.includes("\0"))
         throw new Error("This file contains binary data. Choose a UTF-8 text file.");
-      if (epoch !== sessionEpoch || !activeScope()) return;
+      if (!activeScope(id, epoch)) return;
       name.value = file.name;
       text.value = value;
+      fileDraft = { originalText: value, displayFingerprint: displayFingerprint() };
       clearError();
       draftChanged();
     } catch (err) {
+      if (!activeScope(id, epoch)) return;
       fail(err.message || "The file could not be read as UTF-8 text.");
     } finally {
-      upload.value = "";
+      if (activeScope(id, epoch)) upload.value = "";
     }
   });
 
@@ -486,8 +742,11 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     if (busy || !activeScope() || sourceStatus !== "ready") return;
     const id = sessionId;
     const epoch = sessionEpoch;
+    const focusAtSubmit = document.activeElement;
     const nameValue = name.value.trim();
-    const textValue = text.value;
+    const submittedFileDraft = displayedFileDraft();
+    const submittedDisplayFingerprint = displayFingerprint();
+    const textValue = submittedFileDraft?.originalText ?? text.value;
     const draftKey = fingerprint(nameValue, textValue);
     const knownSource = sourceNamed(nameValue);
     if (sourceCoverage === "partial" && !knownSource) {
@@ -530,9 +789,12 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       linkRetry = null;
       conflict = null;
       if (result.workspaceState === "written") {
-        if (name.value.trim() === nameValue && text.value === textValue) {
+        const draftStillMatches = displayFingerprint() === submittedDisplayFingerprint &&
+          (submittedFileDraft ? fileDraft === submittedFileDraft : !fileDraft);
+        if (draftStillMatches) {
           name.value = "";
           text.value = "";
+          fileDraft = null;
           document.getElementById("material-add").open = false;
         }
         notify(`Saved ${result.path || `materials/${nameValue}`} as retained revision ${result.retained?.revision ?? ""}.`);
@@ -544,6 +806,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       }
       await refreshSources({ afterConflict: Boolean(conflict) });
       await refreshWorkspace();
+      if (result.workspaceState === "written") focusSavedSourceSummary(nameValue, id, epoch, focusAtSubmit);
     } catch (err) {
       if (!activeScope(id, epoch)) return;
       const code = err.body?.error?.code;
@@ -578,6 +841,9 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     for (const controller of detailControllers.values()) controller.abort();
     detailControllers.clear();
     detailGenerations.clear();
+    for (const sourceId of comparisonControllers.keys()) cancelComparison(sourceId, "The comparison was interrupted. Compare the selected revisions again.");
+    comparisonControllers.clear();
+    comparisonButtons.clear();
   }
 
   function returnFromFile() {
@@ -620,11 +886,17 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
         sourceLimit = 0;
         expandedSources = new Set();
         versionCache = new Map();
+        comparisonSelections = new Map();
+        comparisonStates = new Map();
+        comparisonGenerations = new Map();
+        comparisonButtons = new Map();
         commandState = null;
         linkRetry = null;
         conflict = null;
+        fileDraft = null;
         name.value = "";
         text.value = "";
+        upload.value = "";
         clearError();
       }
       document.getElementById("materials-session-title").textContent = session.title || "Session";
@@ -650,12 +922,18 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       expandedSources = new Set();
       sourceDetails = new Map();
       versionCache = new Map();
+      comparisonSelections = new Map();
+      comparisonStates = new Map();
+      comparisonGenerations = new Map();
+      comparisonButtons = new Map();
       commandState = null;
       linkRetry = null;
       conflict = null;
       busy = false;
+      fileDraft = null;
       name.value = "";
       text.value = "";
+      upload.value = "";
       clearError();
       list.replaceChildren();
       updateSubmit();

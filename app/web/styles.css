@@ -2021,6 +2021,39 @@ details[open] > summary.flow-row::after {
   margin-left: 32px;
   overflow-wrap: anywhere;
 }
+.retained-comparison {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 8px;
+  min-width: 0;
+}
+.retained-comparison h4 {
+  margin: 0;
+  font-size: var(--text-reading);
+}
+.retained-comparison-controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.retained-compare-field {
+  display: grid;
+  gap: 4px;
+  min-width: min(100%, 190px);
+  font-size: var(--text-caption);
+  color: var(--muted-strong);
+}
+.retained-compare-field select {
+  max-width: 100%;
+}
+.retained-comparison-result {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.retained-comparison-label {
+  margin-bottom: 8px;
+}
 .retained-review-prompt,
 .retained-review-status {
   margin: 12px 0;

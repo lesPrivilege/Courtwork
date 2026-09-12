@@ -135,13 +135,6 @@
     "semanticKeys": []
   },
   {
-    "file": "app/web/materials-view.mjs",
-    "source": "action(\"refresh-cw\", \"Refresh session files\", refresh),",
-    "disposition": "named-read",
-    "reason": "This is a named session-files refresh read; the complete accessible name states the target.",
-    "semanticKeys": []
-  },
-  {
     "file": "app/web/model-picker.mjs",
     "source": "const refresh=action('refresh-cw','Refresh current settings',async()=>{",
     "disposition": "named-read",
@@ -315,6 +308,57 @@
     "source": "content.replaceChildren(el('p',{className:'form-help',text:`Candidate ${ref.candidateId} · complete text, ${[...source.text].length} code points. Model use is not recorded by this read.`}),el('pre',{className:'file-text',text:source.text}));",
     "disposition": "data-identifier",
     "reason": "file-text is the existing preformatted-reading CSS class on exact historical source bytes, not a glyph call.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/inspector.mjs",
+    "source": "el(\"pre\", { className: \"file-text\", text: payload.text }),",
+    "disposition": "data-identifier",
+    "reason": "file-text is the CSS class of the complete retained UTF-8 fallback reading, not a glyph or an adoption state.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "icon(\"file-text\", { size: 16 }),",
+    "disposition": "mapped-raw",
+    "reason": "The retained revision row opens the exact recorded file; the file.object glyph does not denote current workspace currency or formal adoption.",
+    "semanticKeys": [
+      "file.object"
+    ]
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "action(\"refresh-cw\", \"Refresh workspace files\", () => void refreshWorkspace()),",
+    "disposition": "named-read",
+    "reason": "This named read refreshes the current workspace file list; its complete accessible name carries the target and it creates no source or acceptance fact.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "action(\"refresh-cw\", \"Retry loading workspace files\", () => void refreshWorkspace(), { className: \"secondary-button\" }),",
+    "disposition": "named-read",
+    "reason": "This named read refreshes the failed current workspace file list; its complete accessible name carries the target and it creates no source or acceptance fact.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "action(\"refresh-cw\", \"Retry loading retained uploads\", () => void refreshSources(), { className: \"secondary-button\" }),",
+    "disposition": "named-read",
+    "reason": "This named read refreshes the failed session retained-upload list; its complete accessible name carries the target and it creates no source or acceptance fact.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "action(\"refresh-cw\", \"Refresh retained uploads\", event => {",
+    "disposition": "named-read",
+    "reason": "This named read refreshes the session retained-upload list; its complete accessible name carries the target and it creates no source or acceptance fact.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/materials-view.mjs",
+    "source": "action(\"refresh-cw\", \"Retry loading retained versions\", () => void loadVersions(source, body, row, ownEpoch), { className: \"secondary-button\" }),",
+    "disposition": "named-read",
+    "reason": "This named read refreshes the failed exact source revision list; its complete accessible name carries the target and it creates no source or acceptance fact.",
     "semanticKeys": []
   }
 ]

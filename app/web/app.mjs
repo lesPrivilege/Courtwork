@@ -6764,6 +6764,10 @@ async function init() {
     if (ref.sessionId !== state.activeSessionId) return;
     const quote = quoteRecordedFile({ref,text});
     const input = $("composer-input");
+    if (input.disabled || input.readOnly) {
+      showToast("The message is still being sent. Quote this source when the draft is editable again.");
+      return;
+    }
     const previous = input.value;
     const nextDraft = previous ? `${previous}\n\n${quote}` : quote;
     if (nextDraft.length > input.maxLength) {
