@@ -4930,17 +4930,16 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
     padding: var(--space-2) var(--chat-inset)
       max(var(--space-2), env(safe-area-inset-bottom));
   }
-  /* WK-58 · below 768 the composer is docked on Home too: the list scrolls in
-     the region above it, and an empty Home is whitespace above one input. */
+  /* Home's modules, totals and rows share one scroll owner. Giving only
+     the rows leftover flex space collapses them when the overview is tall,
+     clipping their paint/hit targets beneath the totals and docked composer. */
   .home-active .conversation-body {
-    overflow: hidden;
+    overflow: auto;
     min-height: 0;
   }
   .home-active .message-stream-wrap {
-    flex: 1;
-    min-height: 0;
-    overflow: auto;
-    overscroll-behavior: contain;
+    flex: none;
+    overflow: visible;
   }
   .home-active .composer-area,
   .home-active.home-empty .composer-area {
