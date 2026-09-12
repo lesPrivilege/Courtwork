@@ -1,0 +1,58 @@
+✖ empty collection: any offset is out of range (1.595958ms)
+✖ offset equal to totalItems is out of range (the fixed boundary) (0.391ms)
+✔ last legal item maps to the last page (0.118625ms)
+✔ page boundaries: first item of each page and page transitions (0.075125ms)
+✔ pageSize larger than totalItems yields page 0 (0.070834ms)
+✔ invalid totalItems throws RangeError (0.235959ms)
+✔ invalid pageSize throws RangeError (0.076334ms)
+✔ invalid offset throws RangeError (0.068417ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 6
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 91.452125
+
+✖ failing tests:
+
+test at pagination.test.mjs:7:1
+✖ empty collection: any offset is out of range (1.595958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  0 !== null
+
+      at TestContext.<anonymous> (file:///private/tmp/cw-dogfood-20260912/original/pagination.test.mjs:8:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at pagination.test.mjs:12:1
+✖ offset equal to totalItems is out of range (the fixed boundary) (0.391ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  1 !== null
+
+      at TestContext.<anonymous> (file:///private/tmp/cw-dogfood-20260912/original/pagination.test.mjs:13:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

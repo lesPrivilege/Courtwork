@@ -1,0 +1,1 @@
+lint-interaction: ok (38 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)

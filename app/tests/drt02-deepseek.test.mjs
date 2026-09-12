@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { fixture, MODEL, output } from './fixtures/deepseek-loopback.mjs';
 import { test } from 'node:test';
 import { boot, reopen } from './helpers.mjs';
+import { requestMeasurements } from '../web/telemetry-view.mjs';
 
 async function configure(h, f) {
   assert.equal((await h.api('PUT', '/provider-credential', { connectionId: 'catalog-deepseek', apiKey: 'SYNTHETIC_DEEPSEEK_KEY' })).status, 200);
@@ -82,4 +83,17 @@ for (const mode of ['error', 'cancel', 'missing-metadata']) test(`DRT02 DeepSeek
       assert.equal(f.requests[1].body.messages.find(message => message.role === 'assistant').reasoning_content, '', 'SDK supplies an empty field for absent metadata; this fixture rejects it explicitly');
     }
   } finally { await h.runtime.close(); await f.close(); }
+});
+
+test('DRT02 DeepSeek: provider alias reaches public request telemetry through the actual SDK', async () => {
+  const f=await fixture({responseModel:'deepseek-flash'}),h=await boot();
+  try {
+    await configure(h,f);const session=await h.createSession();const run=await start(h,session.id,'response-alias');
+    assert.equal((await h.pollRun(run.id)).status,'completed');
+    const events=(await h.api('GET',`/sessions/${session.id}/events`)).json.events;
+    const [row]=requestMeasurements(events,run.id);
+    assert.equal(row.observedModel.model,MODEL);
+    assert.deepEqual(row.providerResponse,{source:'sdk-response-metadata',model:'deepseek-flash',id:'ds-1'});
+    assert.equal(f.requests[0].body.model,MODEL);assert.equal(f.requests.length,1);
+  } finally {await h.runtime.close();await f.close();}
 });

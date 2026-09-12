@@ -1,0 +1,16 @@
+✔ empty collection: any offset is out of range (0.702917ms)
+✔ offset equal to totalItems is out of range (the fixed boundary) (0.058958ms)
+✔ last legal item maps to the last page (0.061625ms)
+✔ page boundaries: first item of each page and page transitions (0.05525ms)
+✔ pageSize larger than totalItems yields page 0 (0.046166ms)
+✔ invalid totalItems throws RangeError (0.187083ms)
+✔ invalid pageSize throws RangeError (0.079084ms)
+✔ invalid offset throws RangeError (0.061375ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 84.725666

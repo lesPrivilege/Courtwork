@@ -20,11 +20,11 @@
 
 ## 基线与证据
 
-Pi 三包均锁定 0.85.1，MCP client 2.0.0。既有 MCP discovery/exposure/permission 与 SessionManager 泄漏须按当前源码验证；当前 RuntimeStore schema 12，沿现 store，不采用历史 schema4 为当前版本。真实 provider 调用、第二 runtime 与完整产品门未验证；不读取个人凭据。固定支持集合、原始测试与后续 SHA 写入本目录 evidence。
+Pi 三包均锁定 0.85.1，MCP client 2.0.0。既有 MCP discovery/exposure/permission 与 SessionManager 泄漏须按当前源码验证；当前 RuntimeStore schema 12，沿现 store，不采用历史 schema4 为当前版本。登记时真实 provider 调用、第二 runtime 与完整产品门未验证；本轮后续真实验证见下节，不读取个人凭据。固定支持集合、原始测试与后续 SHA 写入本目录 evidence。
 
 ## 当前实施状态
 
-P01目录完整性、P02效果未知与崩溃结算、P02b结果保真已实现并完成Luna固定提交46/46有界复核；[固定版本验证](evidence/verification.md)保留全量838/839及单测复跑13/13事实。[DRT-02](evidence/DRT02.md)4/4合成协议与实际GUI Deny/Approve/文件阅读完成。真实DeepSeek门仍开放，节点二、三未抢跑；未push或部署。
+P01目录完整性、P02效果未知与崩溃结算、P02b结果保真已实现并完成Luna固定提交46/46有界复核；[固定版本验证](evidence/verification.md)保留全量838/839及单测复跑13/13事实。[DRT-02](evidence/DRT02.md)4/4合成协议与实际GUI Deny/Approve/文件阅读完成。经用户配置key并授权，[真实联调](evidence/live-deepseek/README.md)5个Run／8个模型turn完成，文本、连续性、Deny/Approve、实际读回和Host重启贯通。修复provider返回身份未投影的缺口；节点二、三仍为独立后续实施，未push或部署。
 
 具体合同/证据：[P01](evidence/P01.md)、[P02](evidence/P02.md)、[P02b](evidence/P02b.md)、[结果保留合同](P02b-contract.md)。
 
@@ -32,3 +32,10 @@ P01目录完整性、P02效果未知与崩溃结算、P02b结果保真已实现�
 
 
 模型管理后续：[逐Provider/model的adapter与UI投影](../../research/chat-memory-broker-2026-09-12/model-adaptation/README.md)将官方能力、适配编码、连接检查和Run绑定分开，给出当前model管理前后端差额。复用Pi与Host已有provider owner，不创建第二registry或完整执行环境；作为后续精度修订登记，不覆盖本实施包在途状态或扩大真实Provider调用授权。
+[本地main合流与真实验证准备回执](evidence/local-integration.md)。
+
+本轮探索：[DeepSeek行为与Exa来源](research/deepseek-behavior.md)、[composer／数据投影及旧裁决](research/composer-projection.md)。单次成功不作能力上限或性能排名；TPS仍按既有合同保留不可测。
+
+## 用户后续顺序修订
+
+采用[保留 Pi 与 coding dogfooding](harness-dogfooding.md)：节点一后先 DF-01～06 小工单，第二 runtime 不再是 dogfooding 前置；P03/P04/DRT-03 保留按需。能力注册、cache 与挂起边界同时裁决，成熟实践由 Luna 探索；此处为排单，尚未执行 DF 工单。

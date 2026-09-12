@@ -3,12 +3,16 @@ const nonnegative = value => Number.isFinite(value) && value >= 0;
 const nonempty = value => typeof value === 'string' && Boolean(value.trim());
 const wallClock = value => typeof value === 'string' && Number.isFinite(Date.parse(value));
 const effort = value => value === null || ['off','minimal','low','medium','high','xhigh','max'].includes(value);
+const responseIdentifier = value => value === null || (typeof value === 'string' && value.length > 0
+  && value.length <= 256 && value.trim() === value && !/[\u0000-\u001f\u007f-\u009f]/u.test(value));
 function validMeasurement(data) {
   return data?.schemaVersion === 1 && Number.isSafeInteger(data.requestId) && data.requestId > 0
     && data.source==='host-semantic-stream' && ['agent','compaction'].includes(data.purpose)
     && ['started','streaming','completed','cancelled','failed','interrupted'].includes(data.phase)
     && data.requestedModel && ['provider','model','api'].every(key=>nonempty(data.requestedModel[key]))
     && (data.observedModel===undefined || data.observedModel===null || (nonempty(data.observedModel.model) && ['provider','api'].every(key=>data.observedModel[key]===null || nonempty(data.observedModel[key]))))
+    && (data.providerResponse===undefined || (data.providerResponse?.source==='sdk-response-metadata'
+      && responseIdentifier(data.providerResponse.model) && responseIdentifier(data.providerResponse.id)))
     && effort(data.requestedEffort) && effort(data.effectiveEffort) && wallClock(data.startedAt)
     && (data.finishedAt===undefined || wallClock(data.finishedAt))
     && (data.contextWindow===null || (Number.isSafeInteger(data.contextWindow)&&data.contextWindow>=0))
@@ -65,7 +69,9 @@ export function renderRequestMeasurements(events, runId, {compact=false, opened=
     const dl=el('dl',{className:'data-list'});
     const fields=[['Purpose',row.purpose??'Not recorded'],['Host first output',requestDuration(row.firstOutputMs)],['Host first text',requestDuration(row.firstTextMs)],['Observed request time',requestDuration(row.elapsedMs)],['Reasoning effort',row.effectiveEffort??'Not recorded'],['Decode TPS','Unavailable · no token deltas']];
     if(row.context) fields.push(['Request context estimate',`~${row.context.estimatedTokens.toLocaleString()} tokens · serialized text ÷ 4`]);
-    fields.push(['Requested model',`${row.requestedModel.provider} · ${row.requestedModel.model} · ${row.requestedModel.api}`],['Observed model',row.observedModel?`${row.observedModel.provider??'unknown'} · ${row.observedModel.model}`:'Not reported']);
+    fields.push(['Requested model',`${row.requestedModel.provider} · ${row.requestedModel.model} · ${row.requestedModel.api}`],['Runtime model',row.observedModel?`${row.observedModel.provider??'unknown'} · ${row.observedModel.model}`:'Not reported']);
+    if(row.providerResponse?.model) fields.push(['Provider-reported model',row.providerResponse.model]);
+    if(row.providerResponse?.id) fields.push(['Provider response ID',row.providerResponse.id]);
     if(row.usage) for(const [key,label] of [['input','Input tokens'],['output','Output tokens'],['cacheRead','Cache read'],['cacheWrite','Cache write']]) fields.push([label,row.usage[key]===null?'Not reported':String(row.usage[key])]);
     for(const [label,value]of fields)dl.append(el('dt',{text:label}),el('dd',{text:value}));
     detail.append(dl);box.append(detail);
