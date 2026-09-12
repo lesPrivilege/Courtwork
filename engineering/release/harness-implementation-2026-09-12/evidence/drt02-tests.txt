@@ -1,0 +1,12 @@
+✔ DRT02 DeepSeek: actual SDK stream, Deny/Approve, reasoning replay and reopened history (2234.172417ms)
+✔ DRT02 DeepSeek error: explicit terminal state and no fallback (100.678583ms)
+✔ DRT02 DeepSeek cancel: explicit terminal state and no fallback (72.575ms)
+✔ DRT02 DeepSeek missing-metadata: explicit terminal state and no fallback (193.586333ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3554.6445

@@ -2,7 +2,7 @@
 
 ## 2026-09-12 · Harness完整实施包登记与串行开工
 
-两个完整包与20张原卡已在[执行入口](release/harness-implementation-2026-09-12/README.md)登记；双包校验通过，v2内嵌v1与用户附件字节一致。Astra采用GUI Harness→真实Runtime替换→Work闭环，Luna只读探索；当前隔离基线d1b9921，P00核验与P01实际SDK fixture开工，尚无产品接受、真实provider调用或部署。
+两个完整包与20张原卡已在[执行入口](release/harness-implementation-2026-09-12/README.md)登记；双包校验通过，v2内嵌v1与用户附件字节一致。Astra采用GUI Harness→真实Runtime替换→Work闭环，Luna只读探索；基线d1b9921后P01/P02/P02b已实现，Luna固定提交46/46有界复核；DRT-02合成协议4/4与GUI拒绝/批准/文件阅读通过。[验证记录](release/harness-implementation-2026-09-12/evidence/verification.md)保留全量838/839及桥接单独复跑13/13。真实DeepSeek节点一门仍开放，后两节点未开工；无产品接受、真实provider调用、push或部署。
 
 ## 2026-09-12 · 首页文本六处缺口延后登记
 
