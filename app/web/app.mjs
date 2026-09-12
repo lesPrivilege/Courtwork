@@ -116,6 +116,7 @@ const state = {
   navigationOpen: false,
   sidebarCollapsed: false,
   attentionOpen: false,
+  attentionReturnFocusKey: null,
   chatOpen: false,
   homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },
   homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },
@@ -5511,7 +5512,7 @@ function renderHomeState() {
       activity: state.homeActivity,
       attention: state.homeAttention,
       projects: state.projects,
-      onOpenAttentionWorkspace: () => openAttentionWorkspace(state.homeAttention.projectId, state.homeAttention.selectedId),
+      onOpenAttentionWorkspace: (event) => openAttentionWorkspace(state.homeAttention.projectId, state.homeAttention.selectedId, event.currentTarget),
       onOpenUsage: () => usageView.open(),
       onActivityDays: (days) => { state.homeActivity.days = days; void loadHomeActivity(); },
       onActivityRetry: () => loadHomeActivity(),
@@ -5677,12 +5678,14 @@ async function loadHome(key = null, offset = 0) {
     }
   }
 }
-async function openAttentionWorkspace(projectId = state.homeAttention.projectId || homeProjectId(), attentionId = null) {
+async function openAttentionWorkspace(projectId = state.homeAttention.projectId || homeProjectId(), attentionId = null, trigger = null) {
+  const returnFocusKey = state.view === "home" ? trigger?.dataset?.focusKey : null;
   const own = ++state.navigationEpoch;
   await persistCurrentDraft();
   if (own !== state.navigationEpoch) return;
   closeSettings({ restoreFocus: false });
   state.attentionOpen = true;
+  state.attentionReturnFocusKey = returnFocusKey ?? null;
   state.chatOpen = false;
   closeNavigation({ restoreFocus: false });
   renderAll();
@@ -6811,7 +6814,12 @@ async function init() {
     state.chatOpen = false;
     attentionWorkspace.deactivate();
     renderAll();
-    $("attention-button").focus();
+    const key = state.attentionReturnFocusKey;
+    state.attentionReturnFocusKey = null;
+    const opener = state.view === "home" && key
+      ? $("home-module-band").querySelector(`[data-focus-key="${CSS.escape(key)}"]`)
+      : null;
+    restoreLayerFocus(opener, $("attention-button"));
   } });
   wireEvents();
   renderAll();

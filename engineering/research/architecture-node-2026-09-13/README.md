@@ -9,6 +9,9 @@ Astra裁决与集成；Luna登记实际实现、复核既往论断，并独立�
 - [实际实现与缺口](explore/implementation.md)：Luna固定基线代码核查。
 - [既往裁决清账](explore/decisions.md)：Luna核对来源、采用及过时范围；最终采用以正式架构为准。
 - [验证与裁决记录](verification.md)：作者检查、非作者复核、原始失败和通过范围。
+- [集成与发布回执](delivery.md)：main保留用户改动、实际push/deploy及线上核验。
+- [浏览器入口审计](ui/audit.md)：实际打开、披露、返回与覆盖限制。
+- [UI源入口清单](ui/source-inventory.md)：完整现有入口家族与返回/焦点代码映射，独立于浏览器覆盖。
 - [UI修复与后续裁决](ui/fixes.md)：滚动退出、页面语义和待Review可发现性。
 - [Runtime替换验收](runtime-replacement.md)：Codex公开接缝作为能力参照，逐项证明，不按品牌宣称可替换。
 

@@ -8,7 +8,7 @@ Astra采用并修正：公式中的Candidate可选性；必需能力全包含才
 
 ## 产品回归（Astra执行）
 
-没有运行新的真实Provider、个人数据迁移或第二Runtime试验。架构提交的应用改动仅为Spark文件头陈旧注释；随后UI审计修复Files滚动容器和Settings入口ARIA，未修改运行/审批/工作状态owner。
+没有运行新的真实Provider、个人数据迁移或第二Runtime试验。架构提交的应用改动仅为Spark文件头陈旧注释；随后UI审计修复Files滚动容器、Settings入口ARIA和Home Attention返回焦点，未修改运行/审批/工作状态owner。
 
 | 检查 | 结果与解释 |
 |---|---|
@@ -20,7 +20,7 @@ Astra采用并修正：公式中的Candidate可选性；必需能力全包含才
 
 ## UI修复检查
 
-Files复用Attention长内容弹层的固定header、独立body滚动先例；Settings保持页面返回语法并移除错误的`aria-haspopup="dialog"`。现有Settings导航/偏好、Intake UI和Chat Sources四文件[51/51通过](evidence/ui-regression.log)，interaction lint再次通过。全量912/912是UI修复前基线；此次针对低影响HTML/CSS/ARIA修复只重跑相关检查。Luna最终浏览器175%缩放滚动、可见X点击关闭、Escape关闭、入口焦点恢复及未提交草稿重开保留通过（[截图50](ui/50-files-175-scrolled.png)）；完整覆盖范围与未测状态由UI审计另记。
+Files复用Attention长内容弹层的固定header、独立body滚动先例；Settings保持页面返回语法并移除错误的`aria-haspopup="dialog"`。现有Settings导航/偏好、Intake UI和Chat Sources四文件[51/51通过](evidence/ui-regression.log)，interaction lint再次通过。全量912/912是UI修复前基线；此次针对低影响HTML/CSS/ARIA修复只重跑相关检查。Luna最终浏览器175%缩放滚动、可见X点击关闭、Escape关闭、入口焦点恢复及未提交草稿重开保留通过（[截图50](ui/50-files-175-scrolled.jpg)）；补充入口审计后的Home Attention焦点修复复用显式点击trigger与Home焦点键，相关Home/Settings/shell/Attention回归[33/33通过](evidence/focus-regression.log)。完整覆盖范围与未测状态见[UI审计](ui/audit.md)。
 
 ## 公开静态站
 

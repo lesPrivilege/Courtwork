@@ -1,0 +1,41 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (209.164ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (401.1015ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (136.467875ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.633417ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.150625ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.145875ms)
+✔ conversation rename persists metadata without changing history, scope or draft (63.66675ms)
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.455875ms)
+✔ WK-92 · Continue in Matter 只走既有的 extension 路由；不新增端点、不复制、不迁移 (0.867292ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.44975ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.607125ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.180458ms)
+✔ Home Activity rejects malformed dates, totals, and requested periods (2.737791ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.407667ms)
+✔ Home Attention detail accepts only the display contract (0.203792ms)
+✔ standalone Attention ignores an older project query after a newer open (16.604583ms)
+✔ standalone Attention ignores a stale detail after project selection changes (1.58575ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.261625ms)
+✔ Back to items clears a pending detail and rejects its late response (1.08675ms)
+✔ Review belongs only to needs_you across Home and Attention states (1.239125ms)
+✔ text-only pending and failed Home rows render and retain their exact navigation scope (0.678667ms)
+✔ Home retains native targets for unchanged projections and uses current callbacks (0.454083ms)
+✔ Home immediately renders changed facts, removed targets, filters, and errors (0.742042ms)
+✔ Home remounts after the shared stream was used by a chat (0.313542ms)
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (1.371292ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (1.07025ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.434209ms)
+✔ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (0.381459ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.310959ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.252666ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.067541ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (1.461459ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (0.265834ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1824.758292
