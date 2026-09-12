@@ -6,7 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { RuntimeStore } from "../server/store.mjs";
 
-test("schema12 upgrade preserves every schema11 pending operation, including missing-record recovery", async () => {
+test("schema13 upgrade preserves every schema11 pending operation, including missing-record recovery", async () => {
   const dataDir = await mkdtemp(path.join(tmpdir(), "cw-pv12-pending-"));
   let store;
   try {
@@ -23,7 +23,7 @@ test("schema12 upgrade preserves every schema11 pending operation, including mis
     const statePath = path.join(dataDir, "runtime-state.json");
     await writeFile(statePath, original);
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.snapshot().schemaVersion, 12);
+    assert.equal(store.snapshot().schemaVersion, 13);
     assert.deepEqual(store.getProviderConfigurationPending(), pending, "upgrade cannot waive recovery obligations");
     assert.equal(store.getProviderConfigVersion(), 0);
     assert.deepEqual(store.snapshot().providerVerifications, []);

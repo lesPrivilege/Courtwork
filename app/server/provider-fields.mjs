@@ -98,27 +98,34 @@ export function normalizeProviderContextWindow(value) {
   return value;
 }
 
-/** Reasoning is a three-state fact (PV-61): `true`/`false` is something a
- * person declared about this model on this connection, `null` (the default,
- * also what an omitted field normalizes to) means nobody has said either way.
- * Registration maps both `false` and `null` to pi's boolean `false` (the safe
- * side: a `reasoning_effort` sent to a model that does not support one is a
- * request failure), but the tri-state survives in the connection record so
- * `/provider-models` can tell "declared off" from "never asked" apart. */
+/** Preserve the historical tri-state declaration without inferring settings.
+ * Only reasoningEfforts supplies a precise user-declared parameter set. */
 export function normalizeProviderReasoning(value) {
   if (value === undefined || value === null) return null;
   if (typeof value !== "boolean") fail("reasoning", "reasoning must be true, false, or omitted");
   return value;
 }
 
+export const REASONING_EFFORTS = Object.freeze(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
+
+export function normalizeReasoningEfforts(value) {
+  if (value === undefined || value === null) return null;
+  if (!Array.isArray(value) || value.length > REASONING_EFFORTS.length || value.some(v => !REASONING_EFFORTS.includes(v)) || new Set(value).size !== value.length) fail("reasoningEfforts", "reasoningEfforts must be a unique list of supported effort values or null");
+  return REASONING_EFFORTS.filter(v => value.includes(v));
+}
+
 function validateModelEntry(entry) {
   if (!entry || typeof entry !== "object" || Array.isArray(entry)) fail("models", "model entry is invalid");
   const keys = Object.keys(entry);
-  if (keys.some((key) => !["id", "contextWindow", "reasoning"].includes(key))) fail("models", "model entry has unsupported fields");
+  if (keys.some((key) => !["id", "contextWindow", "reasoning", "reasoningEfforts"].includes(key))) fail("models", "model entry has unsupported fields");
   const id = assertProviderModelId(entry.id);
   const contextWindow = normalizeProviderContextWindow(entry.contextWindow);
-  const reasoning = normalizeProviderReasoning(entry.reasoning);
-  return { id, contextWindow, reasoning };
+  const legacyReasoning = normalizeProviderReasoning(entry.reasoning);
+  const reasoningEfforts = normalizeReasoningEfforts(entry.reasoningEfforts);
+  // An exact current declaration supersedes the old, less precise boolean.
+  // Unknown lists preserve the legacy value, including during migration.
+  const reasoning = reasoningEfforts === null ? legacyReasoning : reasoningEfforts.length > 0;
+  return { id, contextWindow, reasoning, reasoningEfforts };
 }
 
 /** Validate a whole model list and return canonical entries.  Catalog records

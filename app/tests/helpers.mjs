@@ -14,7 +14,11 @@ export async function boot({ budget, compaction, fakeResponder, configureFakeCre
   const runtime = await startServer({ dataDir, port: 0, budget, compaction, fakeResponder, logger: logger ?? ((line) => logs.push(line)) });
   const headers = { "content-type": "application/json", "x-work-token": runtime.token };
 
-  async function api(method, p, bodyObj) {
+  async function api(method, p, bodyObj, { rawConfig = false } = {}) {
+    if (method === "PUT" && p === "/provider-config" && bodyObj && !rawConfig && !Object.hasOwn(bodyObj, "expectedVersion")) {
+      const current = await api("GET", "/provider-config");
+      bodyObj = { ...bodyObj, expectedVersion: current.json.version };
+    }
     const res = await fetch(runtime.url + "/api/v5" + p, {
       method,
       headers,
@@ -76,7 +80,11 @@ export function spawnWorker({ dataDir, body, env = {} }) {
     const dataDir = ${JSON.stringify(dataDir)};
     const runtime = await startServer({ dataDir, port: 0, logger: (line) => console.log("LOG " + line) });
     const headers = { "content-type": "application/json", "x-work-token": runtime.token };
-    async function api(method, p, bodyObj) {
+    async function api(method, p, bodyObj, { rawConfig = false } = {}) {
+    if (method === "PUT" && p === "/provider-config" && bodyObj && !rawConfig && !Object.hasOwn(bodyObj, "expectedVersion")) {
+      const current = await api("GET", "/provider-config");
+      bodyObj = { ...bodyObj, expectedVersion: current.json.version };
+    }
       const res = await fetch(runtime.url + "/api/v5" + p, { method, headers, body: bodyObj !== undefined ? JSON.stringify(bodyObj) : undefined });
       const t = await res.text();
       return { status: res.status, json: t ? JSON.parse(t) : null };
@@ -142,7 +150,11 @@ export async function reopen(dataDir, options = {}) {
   const logs = [];
   const runtime = await startServer({ dataDir, port: 0, logger: (line) => logs.push(line), ...options });
   const headers = { "content-type": "application/json", "x-work-token": runtime.token };
-  async function api(method, p, bodyObj) {
+  async function api(method, p, bodyObj, { rawConfig = false } = {}) {
+    if (method === "PUT" && p === "/provider-config" && bodyObj && !rawConfig && !Object.hasOwn(bodyObj, "expectedVersion")) {
+      const current = await api("GET", "/provider-config");
+      bodyObj = { ...bodyObj, expectedVersion: current.json.version };
+    }
     const res = await fetch(runtime.url + "/api/v5" + p, { method, headers, body: bodyObj !== undefined ? JSON.stringify(bodyObj) : undefined });
     const text = await res.text();
     return { status: res.status, json: text ? JSON.parse(text) : null };

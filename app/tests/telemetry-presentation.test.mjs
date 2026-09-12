@@ -46,3 +46,14 @@ test('request detail distinguishes runtime and provider aliases while retaining 
   for(const providerResponse of [null,{source:'guess',model:'alias',id:null},{source:'sdk-response-metadata',model:'a\nb',id:null},{source:'sdk-response-metadata',model:null,id:'x'.repeat(257)}])
     assert.equal(requestMeasurements([{type:'runtime.request.telemetry',runId:'r',data:{...base,providerResponse}}],'r').length,0);
 }));
+
+
+test('effort detail separates requested intent, SDK settings and unobserved provider behavior', async()=>withTinyDom(()=>{
+  const create=document.createElement.bind(document);document.createElement=tag=>Object.assign(create(tag),{style:{}});
+  const data=measurement(1,{requestedEffort:null,effectiveEffort:'medium',sdkEffectiveEffort:'medium',effectiveEffortSource:'sdk-setting',providerEffectiveEffort:null});
+  const box=renderRequestMeasurements([{type:'runtime.request.telemetry',runId:'r',data}],'r');
+  const fields=box.querySelectorAll('dt').map((dt,i)=>[dt.textContent,box.querySelectorAll('dd')[i].textContent]);
+  assert.deepEqual(fields.filter(([label])=>['Requested effort','SDK setting','Provider effort'].includes(label)),
+    [['Requested effort','Provider default'],['SDK setting','medium'],['Provider effort','Not reported']]);
+  assert.equal(requestMeasurements([{type:'runtime.request.telemetry',runId:'r',data:{...data,providerEffectiveEffort:'medium'}}],'r').length,0,'a setting without a supported provider observation source cannot be displayed as effective');
+}));

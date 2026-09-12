@@ -160,7 +160,7 @@ test("T-DUR-4: a crash during a store write keeps the last complete state and di
   assert.equal(tmps.length, 1, "the interrupted write must have left exactly one tmp behind");
 
   const beforeRestart = JSON.parse(await readFile(path.join(dataDir, "runtime-state.json"), "utf8"));
-  assert.equal(beforeRestart.schemaVersion, 12, "runtime-state.json is a complete, valid state");
+  assert.equal(beforeRestart.schemaVersion, 13, "runtime-state.json is a complete, valid state");
   assert.equal(beforeRestart.sessions.length, 1, "it is the last state that was fully written");
   assert.equal(beforeRestart.runs.length, 0, "the run from the interrupted write never landed");
   const tmpContent = JSON.parse(await readFile(path.join(dataDir, tmps[0]), "utf8"));

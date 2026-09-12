@@ -18,21 +18,42 @@ export const PROVIDER_CONFIG_FIELDS = Object.freeze([
   "reasoningEffort",
 ]);
 
-/** 目录为这个 provider/model 声明的档位。目录没有这条模型时返回 `null` ——
- * 那是"不知道"，不是"只有 off"，两者在下面的携带规则里处置不同。 */
-export function supportedEffortsOf(catalog, provider, model) {
+/** API-specific, source-aware capability; missing metadata remains unknown. */
+export function reasoningCapabilityOf(catalog, provider, model, api, baseUrl) {
   const models = catalog?.models;
-  if (!Array.isArray(models)) return null;
+  const unknown = { kind: "unknown", source: "unknown", values: [], defaultMode: "omit", notice: "" };
+  if (!Array.isArray(models)) return unknown;
   const entry = models.find((m) => m.provider === provider && m.id === model);
-  if (!entry) return null;
-  return Array.isArray(entry.supportedEfforts) && entry.supportedEfforts.length
-    ? entry.supportedEfforts
-    : ["off"];
+  if (!entry) return unknown;
+  if (typeof baseUrl === "string" && baseUrl.trim()) {
+    const endpoint = value => String(value || "").replace(/\/+$/, "");
+    if (endpoint(baseUrl) !== endpoint(entry.baseUrl)) return {
+      ...unknown,
+      notice: "A custom endpoint has no verified reasoning ladder. Provider default will be used.",
+    };
+  }
+  const descriptor = (api && entry.reasoningByApi?.[api]) || entry.reasoningCapability;
+  if (descriptor && typeof descriptor === "object") return {
+    kind: ["enum", "unknown", "unsupported"].includes(descriptor.kind) ? descriptor.kind : "unknown",
+    source: typeof descriptor.source === "string" ? descriptor.source : "unknown",
+    values: Array.isArray(descriptor.values) ? descriptor.values.filter((value) => typeof value === "string") : [],
+    defaultMode: "omit",
+    notice: typeof descriptor.notice === "string" ? descriptor.notice : "",
+  };
+  if (Array.isArray(entry.supportedEfforts) && entry.supportedEfforts.length) return {
+    kind: "enum", source: "unknown", values: entry.supportedEfforts, defaultMode: "omit", notice: "",
+  };
+  return unknown;
 }
 
-/** 目录未声明多于一档时不出选择器（PV-27）：只出 `Off`。 */
+/** Exact legal enum values for this model/API; unknown is the empty set. */
+export function supportedEffortsOf(catalog, provider, model, api, baseUrl) {
+  return reasoningCapabilityOf(catalog, provider, model, api, baseUrl).values;
+}
+
+/** A provider default plus at least one explicit enum value needs a selector. */
 export function effortSelectable(supported) {
-  return Array.isArray(supported) && supported.length > 1;
+  return Array.isArray(supported) && supported.length > 0;
 }
 
 /**
@@ -41,10 +62,8 @@ export function effortSelectable(supported) {
  * - `change` 里出现的键即本次的显式意图，`undefined` 与 `null` 都算显式（清空）。
  * - 没出现的键从 `current` 带过去 —— 这就是两处写入不再互相清字段的原因。
  * - `baseUrl` 只在**身份未变**时自动带走：换了 provider，旧端点不再是关于它的陈述。
- * - `reasoningEffort` 只在目标模型的目录声明里**确实支持**时带走。目录没声明这条
- *   模型（`supportedEfforts` 为 `null`）时按"无从核对"原样带走，由后端裁决；目录
- *   声明了却不含该档位时省略 —— 带上去只会换来一个 `invalid_effort` 的保存失败，
- *   而丢一个这条模型本来就没有的档位不是丢字段。
+ * - `reasoningEffort` is carried only when the selected API declares that exact value;
+ *   unknown/unsupported capability means provider default (omit), never a guessed level.
  */
 export function projectProviderConfig(current, change = {}, catalog = null) {
   const has = (key) => Object.hasOwn(change, key);
@@ -54,9 +73,9 @@ export function projectProviderConfig(current, change = {}, catalog = null) {
   const sameIdentity = provider === current?.provider;
   const baseUrl = has("baseUrl") ? change.baseUrl : sameIdentity ? current?.baseUrl : undefined;
   const effort = has("reasoningEffort") ? change.reasoningEffort : current?.reasoningEffort;
-  const supported = supportedEffortsOf(catalog, provider, model);
+  const supported = supportedEffortsOf(catalog, provider, model, api);
   const keepEffort =
-    effort !== undefined && effort !== null && (supported === null || supported.includes(effort));
+    effort !== undefined && effort !== null && supported.includes(effort);
   return {
     provider,
     model,

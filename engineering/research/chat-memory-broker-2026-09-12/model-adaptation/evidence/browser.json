@@ -1,0 +1,84 @@
+{
+  "date": "2026-09-13",
+  "fixture": "app/scripts/model-adaptation-fixture.mjs",
+  "data": "independent synthetic data only",
+  "screenshots": [
+    {
+      "path": "browser/1280-current-dark.png",
+      "sha256": "0b0149d2c37b8828b321cd06bc4277517ee25cc7ec51809afedd6404ce877506"
+    },
+    {
+      "path": "browser/1280-current-light.png",
+      "sha256": "0f0aff53e083ef616df3044a6b55bd920754699f7f0a1bf350ebc213f45c3054"
+    },
+    {
+      "path": "browser/1440-current-dark.png",
+      "sha256": "52167131dea6c3eca7f9577f1a85c5bc73d26619f0ccac52c294f8dea170d81c"
+    },
+    {
+      "path": "browser/1440-current-light.png",
+      "sha256": "50a95f3ab06a64935a71318d3bf51b8126508997629dc3c4cf686ca812f83953"
+    },
+    {
+      "path": "browser/1440-settings-models.png",
+      "sha256": "483be705f186442e98f0bfd3b45ca1bd472d530cce102dbea49f8890350342d2"
+    },
+    {
+      "path": "browser/390-current-dark.png",
+      "sha256": "254460719691c9103a13f3092a285c3c503957db2fa8025d5257da75a02fd6c4"
+    },
+    {
+      "path": "browser/390-current-light.png",
+      "sha256": "d70ffe728d5e6a032ba87d585e50b592e44bfb898cffce555a64ba6f3b1fe5c6"
+    },
+    {
+      "path": "browser/390-settings-models.png",
+      "sha256": "507ef223b7f4283ccd08d01a26bed756b3bf3655fb4f01e0ea179d24e6c87d13"
+    },
+    {
+      "path": "browser/390-unknown-light.png",
+      "sha256": "04f47ce6a99195d2afd4d094cc93c4f7a0f4c42e14ed279a02e693a04e5f267f"
+    },
+    {
+      "path": "browser/conflict-refreshed.png",
+      "sha256": "90e4f2bdddc421dd14d85f16877c1397b0cabef91c35fc03dc6cda2f666c4a07"
+    },
+    {
+      "path": "browser/delivery-picker.png",
+      "sha256": "69d0ad2b606ea10ebe49749b73f3828e409697906bf4a715b52fc718a6048ace"
+    },
+    {
+      "path": "browser/invalid-saved-effort.png",
+      "sha256": "1d2fb84c909ad66fce5b8139996cd1e48c1f9be9b353aca1db44f907c9cbdb16"
+    }
+  ],
+  "checks": {
+    "responsive": {
+      "widths": [
+        1440,
+        1280,
+        390
+      ],
+      "themes": [
+        "light",
+        "dark"
+      ],
+      "dialogHorizontalOverflow": false
+    },
+    "settings390DocumentWidth": 390,
+    "unknownCapability": "No selectable invented tiers; provider default shown",
+    "cas": "Two real UI drafts: first saved low, second high conflicted; refresh showed saved low and retained draft high",
+    "invalidSavedEffort": "Removed low from synthetic model; search kept Save disabled; explicit Provider default enabled and saved",
+    "keyboard": [
+      "Enter opens picker",
+      "Close -> Change model -> effort -> Save by Tab",
+      "Escape returns to model-settings-button"
+    ],
+    "consoleWarningsAndErrors": 0
+  },
+  "limits": [
+    "Browser 200% zoom shortcut did not change IAB zoom; not counted as verified",
+    "No physical touch-device or forced-colors pass for this production delta",
+    "No paid provider requests or personal data migration"
+  ]
+}

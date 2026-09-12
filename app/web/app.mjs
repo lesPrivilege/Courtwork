@@ -2402,17 +2402,18 @@ function focusBindingEntry() {
 }
 
 
-/* WK-94 · the header capability badge is retired. The connection identity is a
- * standing fact of the composer's context row and is stated there once; the
- * header said the same thing a second time in a band that has nothing else to
- * say. `#model-settings-button` is now the single entry to the connection card
- * on this screen (FN-05). */
+/* The composer trigger names the model and its saved effort for future runs;
+ * connection credentials remain in the separate Models settings surface. */
 function renderProviderPanel() {
   settingsView?.update(state.providerConfig);
   const config = state.providerConfig?.config;
-  if (config)
-    $("model-settings-button").textContent =
-      config.provider === "fake-openai-loopback" ? "Local test" : config.model;
+  if (config) {
+    const model = config.provider === "fake-openai-loopback" ? "Local test" : config.model;
+    const effort = config.reasoningEffort || "Provider default";
+    const button = $("model-settings-button");
+    button.textContent = `${model} · ${effort}`;
+    button.setAttribute("aria-label", `Model and effort · ${model} · ${effort}`);
+  }
 }
 
 function appendRunBadge(container, status) {
@@ -3244,10 +3245,11 @@ function renderChatHeader() {
     config?.provider === "fake-openai-loopback"
       ? "Local test"
       : config?.model || "Model settings";
-  $("model-settings-button").textContent = model;
+  const effort = config?.reasoningEffort || "Provider default";
+  $("model-settings-button").textContent = `${model} · ${effort}`;
   $("model-settings-button").setAttribute(
     "aria-label",
-    `Connection · ${providerLabels[config?.provider] || config?.provider || "Not loaded"} · ${model}`,
+    `Model and effort · ${model} · ${effort}`,
   );
   /* WK-73 · the quiet line below the composer states the standing context of
    * this session: which project it writes into, and what it may do to files.
@@ -6294,10 +6296,8 @@ function wireEvents() {
     void goHome();
   });
   $("show-run-button").addEventListener("click", openContextSummary);
-  for (const id of ["model-settings-button", "permission-settings-button"])
-    $(id).addEventListener("click", (event) =>
-      openConnectionCard(event.currentTarget),
-    );
+  $("model-settings-button").addEventListener("click", () => void modelPicker.open());
+  $("permission-settings-button").addEventListener("click", (event) => openConnectionCard(event.currentTarget));
   {
     // Keep the card beside whichever control opened it; mark that control expanded.
     const popover = $("connection-popover");
@@ -6311,7 +6311,7 @@ function wireEvents() {
         stopFollowing = anchorPopover(anchor, popover, {
           placement: "top-start",
         });
-      for (const id of ["model-settings-button", "permission-settings-button"])
+      for (const id of ["permission-settings-button"])
         $(id).setAttribute(
           "aria-expanded",
           String(open && anchor === $(id)),

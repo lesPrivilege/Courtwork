@@ -61,3 +61,5 @@ Turn context inspector仅登记，未绘制或接线。按[前端合同](../../d
 整体模型接续见[governed work loop](../../release/governed-work-loop-2026-09-12/README.md)：Court是共同工作范围，不是把conversation、protocol state和正式Matter塞进同一owner；物理可用不授予披露，自动capture/治理写入仍待具体合同。
 
 2026-09-12补充：[Chat薄能力层裁决](thin-capabilities.md)将可选search/retrieval/user connectors限制在讨论与上下文取得；Chat与Agent互补，不把网页产品视为裸模型。设置分类仅候选，实际effect/权限与handoff仍沿原owner，未改实现或发布面。
+
+2026-09-12最后一轮补充：[来源登记与采用](final-turn/README.md)拆开原生容器和资料能力，逐项接入原owner；[前端先行方案](frontend-plan.md)提供结构图、状态到合同的映射与跨Chat消息操作规则。独立分支登记，不表示资料/容器实现或产品接受。

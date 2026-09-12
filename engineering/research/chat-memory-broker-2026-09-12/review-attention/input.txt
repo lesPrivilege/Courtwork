@@ -1,0 +1,162 @@
+值得单独开一轮，而且从这张图看，当前问题已经不只是“代码色阶不够”，而是 **Chat Space 的信息分层没有建立起来**。我用 Exa 扫了 **76 个搜索结果、5 个方向**：前沿产品官方界面、开源 Chat UI、agent/tool trace、TPS/TTFT telemetry、thinking effort 与 composer 动效；去掉重复与低信号结果后，结论相当一致。
+
+### 先看当前截图：真正拥挤的是“同一事实被暴露了四五次”
+
+这里同时出现了：
+
+`1 tool action → Completed` → `out/ds-live-check.md → Write approved` → 文件行 → `Recorded version` → 又一个 `1 tool action → Completed` → 最后 assistant 再自然语言复述“写入 / 读回 / 状态”。
+
+也就是说底层 trace、审批状态、artifact、运行结果、assistant summary 都被提升到了同一个视觉层级。**这不是再拉大几个灰阶就能解决的。**
+
+成熟产品正在反过来做 progressive disclosure。OpenAI 最近明确把 composer 往 “simplified composer” 收，把 model / reasoning 放进同一选择器；Claude 则把 model、effort、thinking 收进 send 附近的一棵菜单，而不是分别铺开；LobeChat 甚至把 upload、knowledge、tools、memory、search、params 大量能力都收进 `+` 菜单。参考：[OpenAI release notes](https://help.openai.com/en/articles/6825453-release-notes)、[Claude model / effort / thinking](https://support.claude.com/en/articles/8664678-change-the-model-effort-and-thinking-settings)、[LobeChat Plus control](https://github.com/lobehub/lobe-chat/blob/2eb9e34f/src/features/ChatInput/ActionBar/Plus/index.tsx)。
+
+我建议直接形成下面这套选型。
+
+| 面                  | 优先消费                           | 对当前 UI 的裁定                                        |
+| ------------------ | ------------------------------ | ------------------------------------------------- |
+| **Assistant 正文**   | ChatGPT / Claude               | 永远是视觉一级；工具 trace 不与正文争夺注意力                        |
+| **Tool execution** | AI Elements + LobeChat         | 运行时可展开；完成后自动收成一条 summary；相邻 actions 聚成一个 workflow |
+| **审批**             | agent UI 的 inline confirmation | 只有“等待人类”的状态必须主动浮现；批准后退化成一个静态状态                    |
+| **Composer**       | ChatGPT + Claude + Gemini      | 输入区 + 很少的一级 controls；其他能力通过菜单和 active chips 浮现    |
+| **Effort**         | Claude + ChatGPT               | 一个模型入口下嵌套 effort，不再横向堆 5–7 个控制                    |
+| **TPS / TTFT**     | assistant-ui + LM Studio       | telemetry，不是聊天内容；默认隐藏于 footer badge / popover     |
+| **动效**             | T3Code + assistant-ui          | 做空间连续性、运行反馈，不做装饰动画                                |
+| **Follow scroll**  | AI Elements / LobeChat         | 用户离开底部才出现 “Back to latest”，否则完全消失                 |
+
+其中 [AI Elements](https://www.ai-elements.dev/) 已经把 `Conversation / Message / Reasoning / Tool / Plan / Queue / PromptInput` 拆成了相当适合消费的 primitives；[LobeChat ChatInput](https://github.com/lobehub/lobe-chat/blob/2eb9e34f/src/features/Conversation/ChatInput/index.tsx) 更值得看它如何让 Queue、Todo、Intervention 浮在 composer 周围而不是永久占据 transcript。
+
+---
+
+## 1. 当前 tool trace 建议直接压成“一行”
+
+这张图在任务完成后，更接近应该变成：
+
+> `✓ Wrote out/ds-live-check.md · 58 B`　`Details ›`
+
+甚至如果最终 assistant 已经说“写入并读回完成”，默认只需要：
+
+> `▸ 1 file changed · 1 action`
+
+展开之后才看到 `Write approved`、recorded version、marker、read-back 等 provenance。
+
+有两个状态例外：**Awaiting approval** 与 **Error**。这两个不能自动收起，因为需要 human attention。`Running` 也只需要让当前正在运行的一步有动态反馈；过去的步骤马上静止。
+
+这正好可以把 Event Log 与 presentation 分开：底层一条都不丢，前端却不需要忠实地逐条打印 event log。
+
+---
+
+## 2. inline code / path 不应继续只靠“浅灰 vs 更浅灰”
+
+截图里的 `out/ds-live-check.md`、`Marker: CW-DS-FILE-03` 目前都属于“灰底灰字”，语义完全一样。建议给 Chat typography 建立真正的 **四级语义，而不是连续 opacity**：
+
+**Primary text → supporting text → metadata → machine trace**。
+
+而 `inline-code` 再从文本等级正交出去，形成：
+
+`code/text`、`code/surface`、`path`、`identifier`、`diff-added/removed`。
+
+特别是 `path` 和 `identifier` 不需要两种彩色；可以仍然是中性，但通过 **背景面、字重、字体、内边距** 多通道区别。不要再靠 `opacity: .5/.6/.7` 去制造所有层级——小字号依然应保持可读对比度。
+
+对这张图，最应该变淡的其实不是 code，而是 **Recorded version / Completed / tool chrome**；文件名反而应该比现在更容易扫到。
+
+---
+
+## 3. Composer 可以基本裁成“两层”
+
+推荐的默认态大致是：
+
+```text
+┌────────────────────────────────────────────┐
+│ Message…                                   │
+│  +     Chat        Sol · Medium ▾       ↑  │
+└────────────────────────────────────────────┘
+```
+
+只有真正启用某能力之后才长出 chip：
+
+```text
+[ Web × ] [ contract.pdf × ] [ 2 files × ]
+```
+
+而不是把 Web、MCP、memory、tools、permission、context、effort、provider 全都做成常驻按钮。
+
+Gemini 现在也是把 model 放在 textbox 附近，再在 model 里面继续进入 Thinking level；Claude 更明确——model + effort 显示在 send 附近，但完整梯子藏在菜单内部。Google 的 API 本身支持 `minimal / low / medium / high` 等多种 thinking level，但这进一步证明 **runtime capability 多，不等于 UI 要把它们全部平铺**。[Gemini thinking](https://ai.google.dev/gemini-api/docs/thinking)
+
+---
+
+## 4. Thinking effort：后端完整，前端收敛
+
+这一项现在的外部实践尤其值得消费。
+
+Claude 已经有 `Low / Medium / High / Extra high / Max`，OpenAI 也出现 `Instant / Medium / High / Extra High` 以及更深层配置；Gemini 又是另一套 level。直接把 Provider 原始枚举暴露出来，很快会变成配置面板。
+
+我更倾向 Courtwork 维护一层稳定语义：
+
+**Auto / Fast / Balanced / Deep**
+
+然后：
+
+`Advanced ›` 才展开 Provider-native 的 `low / medium / high / xhigh / max`。
+
+这样既不抹掉高级用户的控制权，又不会让每个普通 turn 都要求用户先理解 inference 参数。Claude 的处理尤其值得参考：**effort 和 thinking 是两个概念，但被收纳在同一个 model control tree 里**。[Anthropic](https://support.claude.com/en/articles/8664678-change-the-model-effort-and-thinking-settings)
+
+甚至可以保留一个非常好的 ChatGPT mobile 模式：**默认沿用会话设置，而 send 的 secondary action 允许本次 turn 临时 override**。这比永久切换整个 session 更适合“这一问请多想一点”。
+
+---
+
+## 5. TPS 不应该成为常驻仪表盘
+
+这里外部其实已经有非常成熟的答案。
+
+[assistant-ui 的 Message Timing](https://www.assistant-ui.com/docs/guides/message-timing) 已经采用 **badge + popover**，底层可以拥有：
+
+`totalStreamTime / TTFT / tokenCount / tokensPerSecond / chunks / toolCallCount`
+
+但主界面只展示很少的信息。
+
+[LM Studio](https://lmstudio.ai/docs/developer/rest/chat) 的 API 则已经直接提供 `tokens_per_second`、`time_to_first_token_seconds` 等指标。
+
+因此建议内部治理成：
+
+```text
+ttft_ms
+decode_tps
+e2e_ms
+input_tokens
+output_tokens
+metric_source: provider | measured | estimated
+```
+
+正常用户默认什么都不看。Hover assistant footer 或点 `··· / Info`：
+
+```text
+2.8 s · 41.6 tok/s · TTFT 420 ms
+```
+
+Developer / Eval mode 才允许 pin 到每条消息下方。
+
+而且 **provider 返回的 TPS 与前端根据 stream chunks 猜出来的 TPS 必须区分**；chunk 不等于 token。没有可靠 usage 时宁可显示 `2.8 s · TTFT 420 ms`，不要伪造一个精确的 tok/s。
+
+这与当前 Courtwork 的方向很合：telemetry 应存在，但存在不等于抢占 attention。
+
+---
+
+## 6. 动效这轮有几项确实值得直接抄 grammar
+
+[T3Code](https://github.com/pingdotgg/t3code/blob/main/apps/web/src/components/ChatView.tsx) 有一个很好的细节：composer 从新会话中心态移动到底部 conversation 态时，读取前后 bounding rect，再用 `translate3d` 做 FLIP 式位移动画，同时遵守 `prefers-reduced-motion`。这种动画不是“漂亮”，而是在告诉人 **这是同一个 composer，只是空间状态改变了**。
+
+其他可以固定成体例的是：tool 开始时 `fade + 4px` 微移，结束后不再 pulse；thinking 只让当前活跃状态有轻微 shimmer/dots；streaming 可以像 [assistant-ui](https://www.assistant-ui.com/elements/chat-panel) 那样仅让最新一两个词轻微变色再恢复，而不是整段闪；chip 增删做短促的 scale/fade；focus 只改变边框/halo，不让整个 composer 呼吸。
+
+也就是说，**Motion 只表达 continuity、activity、attention request 三类语义**。其余动画都可以删。
+
+---
+
+### 因而这一轮我会把目标从“美化 Chat”改成 **Chat Space 信息预算**
+
+截图里的目标不是把这些信息画得更漂亮，而是先规定：
+
+**一个 turn 在 settled 以后，默认最多还能留下几种非正文元素。**
+
+我的建议是 **最多两种**：一个 collapsed execution summary + 一个 message action/footer。其他 provenance 全部进 disclosure。这样一刀下去，当前画面里大约一半以上的 chrome 会自然消失，而真正重要的 artifact、审批、错误反而更容易被注意到。
+
+这一轮值得登记成独立的 **Chat Space / Composer Grammar Explore**，并把“tool disclosure、effort normalization、telemetry disclosure、motion semantics、inline-code hierarchy”五项作为可测的输出，而不是继续逐组件局部调 CSS。

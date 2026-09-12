@@ -6,18 +6,18 @@ import {
   verifyFailureLine,
   verifySuccessLine,
 } from './settings-view.mjs';
-import { effortSelectable, projectProviderConfig, supportedEffortsOf } from './provider-config.mjs';
+import { effortSelectable, projectProviderConfig, reasoningCapabilityOf } from './provider-config.mjs';
 
 // Shared native modal. It saves the existing host provider configuration;
 // choosing a model never performs generation or discovers credentials.
 export function createModelPicker({ request, onSaved }) {
-  const dialog = el('dialog', { className:'model-picker-dialog', attrs:{'aria-labelledby':'model-picker-title'} });
+  const dialog = el('dialog', { className:'model-picker-dialog', attrs:{id:'model-picker-dialog','aria-labelledby':'model-picker-title'} });
   document.body.append(dialog);
   let epoch = 0, opener;
   dialog.addEventListener('close', () => { epoch++; if (opener?.isConnected) opener.focus(); });
   return { async open() {
     if (dialog.open) return;
-    let busy = false, matchesCurrent = true;
+    let busy = false, matchesCurrent = true, conflict = false, versionAligned = true, selectionCanSave = false;
     const own = ++epoch; opener = document.activeElement;
     const close = action('x', 'Close model picker', () => dialog.close());
     const header = el('header', {className:'model-picker-header'}, el('h2',{text:'Model & effort',attrs:{id:'model-picker-title'}}), close);
@@ -38,52 +38,106 @@ export function createModelPicker({ request, onSaved }) {
       let models = catalog.models;
       const groupLabels = new Map(connections.filter(c=>c.kind==='compatible').map(c=>[c.providerIdentity,connectionLabel(c)]));
       let selected = models.find(m=>m.provider===current.config.provider && m.id===current.config.model);
-      let effort = current.config.reasoningEffort ?? selected?.defaultEffort ?? 'off';
+      let effort = selected ? current.config.reasoningEffort : undefined;
+      versionAligned = Number.isSafeInteger(current.version) && current.version===catalog.version;
       const search = el('input',{attrs:{type:'search','aria-label':'Find installed model',placeholder:'Find a model…'}});
       const select = el('select',{attrs:{'aria-label':'Installed model',size:'7'}});
       const effortSelect = el('select',{attrs:{'aria-label':'Reasoning effort'}});
-      /* PV-27 · 目录没声明档位时不出选择器：一个只有 `Off` 一项的下拉是在暗示
-       * 别处还有别的档位可选。那里只出一行字，说明这条目录报的就是没有。 */
       const effortFixed = el('span',{className:'form-help'});
       const effortControl = el('div',{className:'model-picker-effort'});
       const effortRow = el('label',{},el('span',{text:'Reasoning effort'}),effortControl);
+      const currentName=el('h3',{text:current.config.model||'Not selected'});
+      const currentMeta=el('p',{className:'form-help'});
+      const currentSummary = el('section',{className:'model-picker-current',attrs:{'aria-label':'Current model'}},
+        el('p',{className:'eyebrow',text:'Current model'}),currentName,currentMeta);
+      const renderCurrentSummary=()=>{
+        currentName.textContent=current.config.model||'Not selected';
+        currentMeta.textContent=`${current.config.provider} · ${current.config.api} · ${current.config.reasoningEffort??'Provider default'}`;
+      };
+      const proposedSummary=el('p',{className:'model-picker-proposed',attrs:{role:'status'}});
+      const changeModel=el('details',{className:'model-picker-change-model'});
+      changeModel.append(el('summary',{text:'Change model'}));
+      const modelList=el('div',{className:'model-picker-model-list'});
       const route = el('p',{className:'form-help'});
       const capability = el('p',{className:'form-help'});
+      const refresh=action('refresh-cw','Refresh current settings',async()=>{
+        if(busy)return;
+        status.textContent='Refreshing saved settings…';refresh.disabled=true;
+        try{
+          const [freshConfig,freshCatalog,freshConnections]=await Promise.all([request('/provider-config'),request('/provider-models'),request('/provider-connections').then(r=>r.connections||[]).catch(()=>[])]);
+          if(!Number.isSafeInteger(freshConfig.version)||freshConfig.version!==freshCatalog.version)throw new Error('Settings changed again while refreshing. Review after another refresh.');
+          const draftIdentity=selected&&{provider:selected.provider,id:selected.id};
+          current=freshConfig;catalog=freshCatalog;models=catalog.models;connections=freshConnections;groupLabels.clear();
+          for(const c of connections.filter(c=>c.kind==='compatible'))groupLabels.set(c.providerIdentity,connectionLabel(c));
+          selected=draftIdentity?models.find(model=>model.provider===draftIdentity.provider&&model.id===draftIdentity.id)||null:null;
+          versionAligned=true;conflict=false;onSaved(current);
+          renderCurrentSummary();renderOptions();renderSelection();
+          status.textContent='Saved settings refreshed. Your selection remains a draft; review before saving.';
+        }catch(error){status.textContent=error.message;}
+        finally{refresh.disabled=false;}
+      },{visible:true,className:'text-button',attrs:{'data-testid':'refresh-model-config'}});
+      refresh.hidden=true;
       const save = el('button',{text:'Use for next runs',className:'primary-button',attrs:{type:'button'}});
+      const defaultValue='__provider_default__';
+      const canSaveNow = () => !busy && Boolean(selected) && matchesCurrent && versionAligned && !conflict && selectionCanSave;
+      const apiForSelection = () => selected && selected.provider === current.config.provider
+        ? current.config.api : selected?.api;
       const renderSelection = () => {
-        const declared = selected ? supportedEffortsOf(catalog, selected.provider, selected.id) : null;
-        const supported = declared || selected?.supportedEfforts || ['off'];
-        if (!supported.includes(effort)) effort = selected?.defaultEffort ?? supported[0];
-        if (effortSelectable(supported)) {
-          effortSelect.replaceChildren(...supported.map(level=>el('option',{text:level==='off'?'Off':level,attrs:{value:level}})));
-          effortSelect.value=effort; effortSelect.disabled=busy;
+        const isInForce = selected && selected.provider===current.config.provider && selected.id===current.config.model;
+        const catalogCapability = selected ? reasoningCapabilityOf(catalog, selected.provider, selected.id, apiForSelection()) : null;
+        const selectedBaseUrl = selected?.baseUrl || '';
+        const currentBaseUrl = selected?.provider === current.config.provider ? current.config.baseUrl || '' : '';
+        const endpointOverride = Boolean(currentBaseUrl) && currentBaseUrl.replace(/\/+$/, '') !== selectedBaseUrl.replace(/\/+$/, '');
+        const reasoning = selected && selected.provider === current.config.provider && endpointOverride
+          ? { kind:'unknown', source:'unknown', values:[], notice:'A custom endpoint has no verified reasoning ladder. Provider default will be used.' }
+          : catalogCapability;
+        const supported = reasoning?.kind === 'enum' ? reasoning.values : [];
+        const savedEffortIsInvalid = isInForce && current.config.reasoningEffort != null && !supported.includes(current.config.reasoningEffort);
+        if (effortSelectable(supported) || savedEffortIsInvalid) {
+          const options = [el('option',{text:'Provider default',attrs:{value:defaultValue}}), ...supported.map(level=>el('option',{text:level==='off'?'Off':level,attrs:{value:level}}))];
+          if (savedEffortIsInvalid) options.push(el('option',{text:`Unavailable saved value: ${current.config.reasoningEffort}`,attrs:{value:`__invalid_${current.config.reasoningEffort}`} }));
+          effortSelect.replaceChildren(...options);
+          const selectedEffort = effort === undefined || effort === null ? defaultValue : effort;
+          effortSelect.value = savedEffortIsInvalid && effort === current.config.reasoningEffort ? `__invalid_${effort}` : selectedEffort;
+          if (effortSelect.value === '') effortSelect.value = defaultValue;
+          effortSelect.disabled=busy;
           effortControl.replaceChildren(effortSelect);
         } else {
-          /* PV-61 · `reasoningSource:"unknown"` 说的是"没人核过"，不是"这条目录
-           * 说没有"——旧句子替目录说了它没说过的话。这里改成真话，并指去唯一
-           * 能改这件事的地方（Connections 的 reasoning 复选框）。 */
-          effortFixed.textContent = !selected
-            ? 'Off.'
-            : selected.reasoningSource === 'unknown'
-              ? 'Not verified for this model. Turn it on for this model in Connections if the provider offers reasoning effort.'
-              : 'Off. The catalogue for this connection reports no reasoning levels for this model.';
+          if (!savedEffortIsInvalid) effort = undefined;
+          effortFixed.textContent = !selected ? 'Provider default.'
+            : reasoning?.kind === 'unsupported' ? 'This model does not support selectable reasoning effort. Provider default will be used.'
+              : 'Reasoning effort is not verified for this model. Provider default will be used.';
           effortControl.replaceChildren(effortFixed);
         }
         const sameProvider=selected?.provider===current.config.provider;
+        proposedSummary.textContent = selected
+          ? `Next runs: ${selected.name || selected.id} · ${selected.provider} · ${effort == null || effort === defaultValue ? 'Provider default' : effort}.`
+          : 'Choose a model to draft a change.';
         /* PV-27 · 未报窗口就写 `unknown`，不写 `unavailable` 也不套用同名模型的目录值。
          * PV-60/项 7 · `origin:"connection"` 的一行追加一句：它不是已装目录原生的，
          * 是有人在这条连接上加的。目录原生行（`origin:"catalog"`）不追加。 */
         route.textContent=selected
           ? `${selected.provider} · ${sameProvider?current.config.api:selected.api}${sameProvider && current.config.baseUrl?' · custom endpoint':''}. Context window: ${Number.isSafeInteger(selected.contextWindow)?`${selected.contextWindow.toLocaleString()} tokens`:'unknown'}.${selected.origin==='connection'?' Added on this connection.':''}`
           : 'Select an installed model.';
-        /* 后端为**已生效**的那条配置给出的能力原话，逐字呈现，不改写（PV-30）。 */
-        const isInForce = selected && selected.provider===current.config.provider && selected.id===current.config.model;
-        const notice = isInForce ? current.capability?.notice : null;
+        /* State the exact evidence source of this capability. A list without its
+         * provenance would make a user declaration look like a catalog fact. */
+        const sourceLabel = reasoning?.source === 'runtime-catalog' ? 'runtime catalog'
+          : reasoning?.source === 'user-declared' ? 'your connection declaration'
+            : 'not verified';
+        const effortEvidence = reasoning?.kind === 'enum'
+          ? `Supported values (${sourceLabel}): ${supported.join(', ')}.`
+          : reasoning?.kind === 'unsupported'
+            ? 'This model does not support selectable reasoning effort; provider default will be used.'
+            : selected ? 'Reasoning effort is not verified for this model; provider default will be used.' : '';
+        const notice = [...new Set([isInForce ? current.reasoningCapability?.notice : null, reasoning?.notice, effortEvidence].filter(Boolean))].join(' ');
         const source = isInForce && current.capability?.contextWindowSource === 'user'
           ? 'The context window above came from your entry on this connection.' : '';
-        capability.textContent = notice || source || '';
+        capability.textContent = [notice, source].filter(Boolean).join(' ');
         capability.hidden = !capability.textContent;
-        save.disabled=busy || !selected || !matchesCurrent;
+        const invalidDraft = effort != null && effort !== defaultValue && !supported.includes(effort);
+        selectionCanSave = !invalidDraft;
+        save.disabled=!canSaveNow();
+        refresh.hidden=versionAligned && !conflict;
       };
       const renderOptions = () => {
         const q=search.value.trim().toLowerCase();
@@ -96,14 +150,17 @@ export function createModelPicker({ request, onSaved }) {
         }
         select.value=selected ? String(models.indexOf(selected)) : '';
         matchesCurrent=filtered.includes(selected);
-        save.disabled=busy || !selected || !matchesCurrent;
-        status.textContent=filtered.length ? '' : 'No installed model matches.';
+        save.disabled=!canSaveNow();
+        refresh.hidden=versionAligned && !conflict;
+        status.textContent=!versionAligned || conflict
+          ? 'Saved settings changed. Refresh and review before saving.'
+          : filtered.length ? '' : 'No installed model matches.';
       };
       search.addEventListener('input',renderOptions);
-      select.addEventListener('change',()=>{selected=select.value===''?null:models[Number(select.value)];matchesCurrent=!!selected;renderSelection();});
-      effortSelect.addEventListener('change',()=>{effort=effortSelect.value;});
+      select.addEventListener('change',()=>{selected=select.value===''?null:models[Number(select.value)];effort=undefined;matchesCurrent=!!selected;renderSelection();});
+      effortSelect.addEventListener('change',()=>{effort=effortSelect.value===defaultValue?undefined:effortSelect.value;renderSelection();});
       save.addEventListener('click',async()=>{
-        if(busy || !selected || !matchesCurrent) return;
+        if(!canSaveNow()) return;
         busy=true; save.disabled=true; select.disabled=true; effortSelect.disabled=true; status.textContent='Saving…';
         const sameProvider=selected.provider===current.config.provider;
         /* PV-M-1 · 这里不再自己拼请求体。本处只说明改了什么（身份、模型、格式、档位），
@@ -113,10 +170,11 @@ export function createModelPicker({ request, onSaved }) {
           {provider:selected.provider,model:selected.id,api:sameProvider?current.config.api:selected.api,reasoningEffort:effort},
           catalog);
         try {
-          const result=await request('/provider-config',{method:'PUT',body:config});
+          if (!versionAligned) throw new Error('Saved settings changed. Refresh and review before saving.');
+          const result=await request('/provider-config',{method:'PUT',body:{...config,expectedVersion:current.version}});
           onSaved(result);
           if(own===epoch) dialog.close();
-        } catch(error) {if(own===epoch) status.textContent=error.message;}
+        } catch(error) {if(own===epoch){status.textContent=error.message;if(error.status===409||error.code==='config_conflict'){conflict=true;versionAligned=false;refresh.hidden=false;save.disabled=true;}}}
         finally {busy=false; if(own===epoch){select.disabled=false;renderSelection();}}
       });
       /* PV-59/63 · "键入一个未列出的模型 ID" 入口。列表底部固定一项，不随搜索
@@ -135,7 +193,7 @@ export function createModelPicker({ request, onSaved }) {
       /* PV-61 · 加进来的模型本身没有既往声明，只有此刻这一次勾选：不勾 = 未声明
        * （`null`，缺省），勾 = declared true。没有"碰过又取消"这个中间态可谈——
        * 这条模型此刻才第一次存在于这条连接上。 */
-      const customReasoning = el('input', { attrs: { type: 'checkbox' } });
+      const customReasoning = el('input', { attrs: { type: 'text', 'aria-label':'Supported reasoning efforts', placeholder:'off, low, medium, high' } });
       const customStatus = el('p', {
         className: 'connection-probe-result',
         attrs: { role: 'status', hidden: true },
@@ -160,7 +218,7 @@ export function createModelPicker({ request, onSaved }) {
         { className: 'model-picker-custom', attrs: { hidden: true } },
         el('label', {}, el('span', { text: 'Model ID' }), customInput),
         el('label', {}, el('span', { text: 'Connection' }), customConnectionSelect),
-        el('label', { className: 'model-picker-custom-reasoning' }, customReasoning, el('span', { text: 'Offers reasoning effort' })),
+        el('label', { className: 'model-picker-custom-reasoning' }, el('span', { text: 'Supported reasoning efforts (optional)' }), customReasoning),
         customStatus,
         customDetail,
         customUseAsk,
@@ -208,11 +266,21 @@ export function createModelPicker({ request, onSaved }) {
           id: entry.id,
           ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),
           ...(entry.reasoning !== null && entry.reasoning !== undefined ? { reasoning: entry.reasoning } : {}),
+          ...(Array.isArray(entry.reasoningEfforts) ? { reasoningEfforts: entry.reasoningEfforts } : {}),
         });
         const already = connection.models.some((m) => m.id === id);
+        let declaredEfforts;
+        try {
+          const values=customReasoning.value.split(',').map(value=>value.trim()).filter(Boolean);
+          const allowed=new Set(['off','minimal','low','medium','high','xhigh','max']);
+          if(values.some(value=>!allowed.has(value)) || new Set(values).size!==values.length) throw new Error('Use unique exact effort values separated by commas.');
+          declaredEfforts=values.length ? values : null;
+        } catch(error) { customFail(error.message); return; }
         const models_ = already
-          ? connection.models.map(carry)
-          : [...connection.models.map(carry), { id, ...(customReasoning.checked ? { reasoning: true } : {}) }];
+          ? connection.models.map((entry) => entry.id === id
+            ? { ...carry(entry), reasoningEfforts: declaredEfforts }
+            : carry(entry))
+          : [...connection.models.map(carry), { id, reasoningEfforts: declaredEfforts }];
         const body = connection.kind === 'catalog'
           ? { models: models_ }
           : { api: connection.api, baseUrl: connection.baseUrl, models: models_ };
@@ -227,13 +295,24 @@ export function createModelPicker({ request, onSaved }) {
         }
         customStatus.textContent = 'Selecting it for next runs…';
         try {
+          const [freshConfig, freshCatalog] = await Promise.all([request('/provider-config'), request('/provider-models')]);
+          if (!Number.isSafeInteger(freshConfig.version) || !Number.isSafeInteger(freshCatalog.version) || freshConfig.version !== freshCatalog.version)
+            throw new Error('Provider settings changed while saving the connection. Refresh and review before selecting the model.');
+          const sameSaved = ['provider','model','api','baseUrl','reasoningEffort'].every((key) => (current.config?.[key] ?? null) === (freshConfig.config?.[key] ?? null));
+          if (!sameSaved) {
+            current=freshConfig; catalog=freshCatalog; models=catalog.models; versionAligned=true; conflict=true;
+            renderOptions(); renderSelection();
+            throw new Error('The connection was saved, but model settings changed elsewhere. Review the current selection before saving again.');
+          }
+          current=freshConfig; catalog=freshCatalog; models=catalog.models; versionAligned=true;
           const configResult = await request('/provider-config', {
             method: 'PUT',
-            body: projectProviderConfig(current.config, { provider: savedConnection.providerIdentity, model: id, api: savedConnection.api }, catalog),
+            body: { ...projectProviderConfig(current.config, { provider: savedConnection.providerIdentity, model: id, api: savedConnection.api }, catalog), expectedVersion: current.version },
           });
           if (own !== epoch) return;
           onSaved(configResult);
-          current = { ...current, config: configResult.config, capability: configResult.capability };
+          current = configResult;
+          renderCurrentSummary();
         } catch (error) {
           if (own === epoch) customFail(`Saved on the connection, but could not select it for next runs. ${error.message || ''}`.trim());
           return;
@@ -281,9 +360,12 @@ export function createModelPicker({ request, onSaved }) {
       }
       customUseAsk.addEventListener('click', () => void submitCustomModel(true));
       customUseOnly.addEventListener('click', () => void submitCustomModel(false));
-      dialog.append(search,select,customToggle,customPanel,effortRow,route,capability,
+      dialog.append(currentSummary,proposedSummary,changeModel);
+      changeModel.append(search,modelList,customToggle,customPanel);
+      modelList.append(select);
+      dialog.append(effortRow,route,capability,refresh,
         el('p',{className:'form-help',text:'Applies to all chats for future runs. Current runs keep their recorded configuration. Credentials and connection settings stay in Models.'}),save);
-      renderOptions();renderSelection();search.focus();
+      renderCurrentSummary();renderOptions();renderSelection();search.focus();
     } catch(error) {if(own===epoch)status.textContent=error.message;}
   }};
 }

@@ -1,5 +1,25 @@
 # 当前工程状态
 
+## 2026-09-13 · Model / effort生产接线
+
+按用户explore后修改生产授权，在Courtwork临时隔离分支完成[逐模型能力接线](research/chat-memory-broker-2026-09-12/model-adaptation/production.md)：精确runtime/人工声明集合经Host准入投影，统一picker含默认省略、失效值重选与CAS冲突保留草稿；schema13保留旧记录并失效旧检查绑定。Run冻结能力版本，最终payload控制普通与压缩请求，SDK设置不冒充Provider实效。Luna有界实现与非作者复核、合成测试和浏览器证据见回执；未跑付费Provider、迁移个人数据、合共享main、push或部署。
+
+## 2026-09-12 · Model / effort自适应与adapter投影登记
+
+按用户要求，Astra与Luna完成[逐Provider/model能力研究和Harness前后端接线登记](research/chat-memory-broker-2026-09-12/model-adaptation/README.md)：adapter承接上游能力/参数/观察，Host校验注册既有目录，统一UI消费带来源与版本的数据。固定main核查指出布尔reasoning泛化档位、默认medium及陈旧配置保存差额；官方文档与Pi实践分别留证，SDK设置不称上游实效。三图归档，已接PV与Harness入口；仅研究合同，无生产代码、真实Provider请求、合main、push或部署。
+
+## 2026-09-12 · Chat Space / Composer核查注意力登记
+
+按用户要求在原隔离分支登记[Chat Space与composer投影调整](research/chat-memory-broker-2026-09-12/review-attention/README.md)：减少重复机器事实，待审批/错误/待判断证据优先，五项grammar输出接既有前端计划；完成态信息预算、effort归一与单turn override均保留能力/作用域约束。附件原文与hash已归档；仅文档登记，不改UI/标本、生产DTO或Harness施工顺序，未合main、push或部署。
+
+## 2026-09-12 · Chat连续性三场景独立specimen
+
+按用户施工授权，在原隔离分支完成[无来源讨论、部分来源、r1/r2判断标本](research/chat-memory-broker-2026-09-12/specimen/README.md)：Astra先定owner并完成合成adapter/controller及页面集成，Luna快速召回/初稿与另一位Luna有界非作者复核；[验证记录](research/chat-memory-broker-2026-09-12/specimen/verification.md)保留9/9行为、10组浏览器与字段接线差额。页面可操作但不创建生产API/DTO或正式判断权；未合入共享main、push或部署，原产品门继续独立。
+
+## 2026-09-12 · Chat最后一轮登记与跨Chat操作显隐
+
+独立分支接单main `6bfb234`，补读“撰写Harness架构方案”最后一轮：[来源与逐项采用](research/chat-memory-broker-2026-09-12/final-turn/README.md)保留完整turn文本，原文提及但未返回的附件不作已收件。Astra采用原生入口/来源接入/本地投影/披露桥接四接缝，[前端反推方案](research/chat-memory-broker-2026-09-12/frontend-plan.md)复用Chat与Attention共享呈现、保留各自身份和权限owner。Luna召回本地Scout并修复共享消息actions显隐。后续审阅补齐通道能力、Edit-as-new、动作范围、返回连续性和owner冻结时点；更正上片footer隐藏时间与透明指针命中缺口，仅action row收起、Tab即时显现、菜单/反馈及混合输入保守可达。Astra定向15/15与六配置组件浏览器检查通过，证据及混合输入模拟上限见[修订验证](research/chat-memory-broker-2026-09-12/final-turn/review-followup.md)。数据/容器/connector仍为计划，后端在途施工和Harness三节点不改序；本分支未合main、push或部署。
+
 ## 2026-09-12 · Harness完整实施包登记与串行开工
 
 两个完整包与20张原卡已在[执行入口](release/harness-implementation-2026-09-12/README.md)登记；双包校验通过，v2内嵌v1与用户附件字节一致。Astra采用GUI Harness→真实Runtime替换→Work闭环，Luna只读探索；基线d1b9921后P01/P02/P02b已实现，Luna固定提交46/46有界复核；DRT-02合成协议4/4与GUI拒绝/批准/文件阅读通过。[验证记录](release/harness-implementation-2026-09-12/evidence/verification.md)保留全量838/839及桥接单独复跑13/13。用户随后配置key并授权，[真实DeepSeek联调](release/harness-implementation-2026-09-12/evidence/live-deepseek/README.md)5个Run／8个模型turn完成，精确拒绝/批准、实际读回、Host重启连续性通过；provider返回名与runtime名已分开投影，Luna定向16/16独立复核。节点一取得真实正向证据，模型行为研究/其余产品门保持各自边界；后两节点未开工，未push或部署。

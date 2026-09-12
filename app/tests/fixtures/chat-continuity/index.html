@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chat continuity · synthetic specimen</title>
+    <link rel="stylesheet" href="/web/styles.css">
+    <link rel="stylesheet" href="./specimen.css">
+  </head>
+  <body data-chat-continuity-fixture>
+    <div class="continuity-app">
+      <header class="continuity-topbar">
+        <div>
+          <p class="eyebrow">Interactive synthetic specimen</p>
+          <h1>Chat continuity</h1>
+        </div>
+        <p class="continuity-disclosure">All people, messages, sources, accounts, and work facts are synthetic. No provider, account, or production API is contacted.</p>
+      </header>
+
+      <section class="continuity-controls" aria-label="Synthetic demo controls">
+        <label>Scenario state
+          <select id="variant-select" data-testid="variant-select">
+            <option value="normal">Normal</option>
+            <option value="missing">Missing source / connection</option>
+            <option value="denied">Access denied / revoked</option>
+          </select>
+        </label>
+        <label>Channel
+          <select id="channel-select" data-testid="channel-select">
+            <option value="hosted">Hosted conversation</option>
+            <option value="native">Native provider entry</option>
+            <option value="retained">Read-only retained view</option>
+          </select>
+        </label>
+        <label>Account
+          <select id="account-select" data-testid="account-select">
+            <option value="account-a">Synthetic account A</option>
+            <option value="account-b">Synthetic account B</option>
+          </select>
+        </label>
+        <label>Conversation
+          <select id="session-select" data-testid="session-select">
+            <option value="session-a">Synthetic conversation A</option>
+            <option value="session-b">Synthetic conversation B</option>
+          </select>
+        </label>
+        <label class="continuity-slow"><input id="slow-read" type="checkbox" data-testid="slow-read"> Slow source read</label>
+        <label>Appearance
+          <select id="theme-select" data-testid="theme-select" aria-label="Appearance"><option value="light">Light</option><option value="dark">Dark</option></select>
+        </label>
+        <button id="reset-specimen" type="button" class="quiet-button" data-testid="reset">Reset specimen</button>
+      </section>
+
+      <div class="continuity-layout">
+        <nav class="continuity-scenes" aria-label="Continuity scenarios">
+          <p class="eyebrow">Scenarios</p>
+          <button type="button" data-scene="discussion" data-testid="scene-discussion" aria-current="page">No-source discussion</button>
+          <button type="button" data-scene="sources" data-testid="scene-sources">Partial sources</button>
+          <button type="button" data-scene="changes" data-testid="scene-changes">r1 / r2 · awaiting judgment</button>
+          <p class="continuity-scene-note">A small, bounded path for each case. Controls above change the synthetic ownership and availability state.</p>
+        </nav>
+
+        <main class="continuity-main" id="continuity-main" tabindex="-1">
+          <div class="continuity-main-heading">
+            <div>
+              <p class="eyebrow" id="scene-kicker">Synthetic conversation</p>
+              <h2 id="scene-title">No-source discussion</h2>
+            </div>
+            <span class="continuity-channel" id="channel-label">Hosted conversation</span>
+          </div>
+          <div id="scene-summary" class="continuity-summary"></div>
+          <section id="search-section" class="continuity-search" aria-label="Search retained sources" hidden>
+            <label for="source-search">Find in permitted sources</label>
+            <input id="source-search" type="search" autocomplete="off" placeholder="Search this synthetic collection" data-testid="source-search">
+            <p id="search-status" role="status" aria-live="polite"></p>
+            <div id="search-results" class="continuity-search-results"></div>
+          </section>
+          <section id="judgment-preview" class="continuity-judgment" aria-label="Work judgment preview" hidden></section>
+          <section class="continuity-thread" id="thread" aria-label="Conversation messages" data-testid="message-stream"></section>
+          <div id="conversation-feedback" class="continuity-feedback" role="status" aria-live="polite" data-testid="feedback"></div>
+          <section class="continuity-composer-wrap" aria-label="Conversation input">
+            <div id="channel-unavailable" class="continuity-channel-unavailable" hidden></div>
+            <form id="composer-form" class="continuity-composer" data-testid="composer-form">
+              <label class="sr-only" for="composer-input">Message</label>
+              <textarea id="composer-input" rows="2" placeholder="What would you like to discuss?" data-testid="composer"></textarea>
+              <div class="continuity-composer-actions">
+                <span id="composer-hint" class="form-help"></span>
+                <button id="model-button" type="button" class="quiet-button" data-testid="model-picker-trigger">Model &amp; effort</button>
+                <button id="stop-button" type="button" class="quiet-button" data-testid="stop-button" hidden>Stop</button>
+                <button id="send-button" type="submit" class="primary-button" data-testid="send-button">Send</button>
+              </div>
+            </form>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <dialog id="source-dialog" class="continuity-source-dialog" aria-labelledby="source-dialog-title" aria-modal="false" data-testid="source-dialog">
+      <header class="continuity-source-header">
+        <div><p class="eyebrow" id="overlay-kicker">Source detail</p><h2 id="source-dialog-title">Source detail</h2></div>
+        <button id="close-source" type="button" class="icon-only" aria-label="Close source detail" data-testid="close-source">×</button>
+      </header>
+      <div id="source-content" class="continuity-source-content"></div>
+      <div id="judgment-content" class="continuity-source-content" hidden></div>
+    </dialog>
+
+    <script type="module" src="./view.mjs"></script>
+  </body>
+</html>

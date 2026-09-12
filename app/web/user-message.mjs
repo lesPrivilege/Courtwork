@@ -82,12 +82,14 @@ export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key =
   }
   if (actions) footer.append(actions);
   else footer.append(
-    action("copy", "Copy message", () => onCopy(row.text), {
-      attrs: { "data-focus-key": `user-copy:${row.id}` },
-    }),
-    action("square-pen", "Edit as new message", () => onEdit(row), {
-      attrs: { "data-focus-key": `user-edit:${row.id}`, disabled: editDisabled ? "" : null },
-    }),
+    el("div", { className: "chat-action-row", attrs: { role: "group", "aria-label": "Message actions" } },
+      action("copy", "Copy message", () => onCopy(row.text), {
+        attrs: { "data-focus-key": `user-copy:${row.id}` },
+      }),
+      action("square-pen", "Edit as new message", () => onEdit(row), {
+        attrs: { "data-focus-key": `user-edit:${row.id}`, disabled: editDisabled ? "" : null },
+      }),
+    ),
   );
   message.append(footer);
   return message;

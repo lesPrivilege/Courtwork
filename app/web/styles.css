@@ -3182,28 +3182,7 @@ dialog[open]::backdrop {
   }
 }
 
-/* ===== Polish layer · hover-revealed actions, secondary cards, settings rows ==
-   Frontier reference (Codex / Claude Code desktop, user screenshots 2026-09-08):
-   message utilities appear when the message is pointed at or focused, the
-   time stays; a chip opens a small card instead of the full settings dialog;
-   settings are rows: title and meaning on the left, the control on the right. */
-.user-message-actions,
-.message.assistant .message-header .icon-only {
-  opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-out);
-}
-.message:hover .user-message-actions,
-.message:focus-within .user-message-actions,
-.message:hover .message-header .icon-only,
-.message:focus-within .message-header .icon-only {
-  opacity: 1;
-}
-@media (hover: none) {
-  .user-message-actions,
-  .message.assistant .message-header .icon-only {
-    opacity: 1;
-  }
-}
+/* ===== Polish layer · secondary cards and settings rows ==================== */
 /* The connection chip in the header is a real button that opens the card */
 .status-badge {
   font-size: var(--text-meta);
@@ -5914,10 +5893,19 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .model-picker-dialog::backdrop { background: var(--scrim); }
 .model-picker-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .model-picker-header h2 { margin: 0; font-size: 20px; }
-.model-picker-dialog > input, .model-picker-dialog > select { width: 100%; margin: 8px 0; }
-.model-picker-dialog > select { height: 220px; padding: 8px; }
+.model-picker-current { margin: 16px 0 8px; padding: 14px; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--panel-muted); }
+.model-picker-current .eyebrow { margin: 0 0 6px; color: var(--muted-strong); font-size: var(--text-meta); }
+.model-picker-current h3 { margin: 0; overflow-wrap: anywhere; font-size: 18px; }
+.model-picker-current .form-help { margin: 6px 0 0; }
+.model-picker-proposed { margin: 8px 0; color: var(--muted-strong); font-size: var(--text-meta); }
+.model-picker-change-model { margin: 12px 0; border-block: 1px solid var(--line); }
+.model-picker-change-model > summary { padding: 12px 0; cursor: pointer; font-weight: 600; }
+.model-picker-change-model > input[type="search"] { width: 100%; margin: 8px 0; }
+.model-picker-model-list > select { width: 100%; height: 220px; margin: 8px 0; padding: 8px; }
 .model-picker-dialog label { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0; }
 .model-picker-dialog label select { width: 50%; }
+.model-picker-effort { min-width: 11rem; }
+.model-picker-effort select { width: 100%; min-width: 11rem; max-width: 100%; }
 /* PV-59/63 · "键入一个模型 ID" 的展开面板：最小布局，沿用既有 label 两栏规则；
    只有 reasoning 那一行（勾选框在左）需要覆盖对齐方向。 */
 .model-picker-custom {
@@ -6072,16 +6060,9 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .attention-rename-form { width: 100%; }
 .attention-rename-form input { flex: 1; min-width: 0; }
 
-/* One rule for message-level utilities in both presentations: the whole-response
-   copy reveals with its message, exactly like the authored message's copy/edit,
-   and stays put where there is no pointer. Card-internal copy inside a fenced
-   block belongs to that block and keeps its own persistent control. */
-.assistant-message-actions { display: flex; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); opacity: 0; transition: opacity var(--duration-fast) var(--ease-out); }
-.message:hover .assistant-message-actions,
-.message:focus-within .assistant-message-actions,
-.attention-agent-message:hover .assistant-message-actions,
-.attention-agent-message:focus-within .assistant-message-actions { opacity: 1; }
-@media (hover: none) { .assistant-message-actions { opacity: 1; } }
+/* Keep message metadata and action feedback in the layout; only the secondary
+   action row may tuck away on a precise, hover-capable primary pointer. */
+.assistant-message-actions { display: flex; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); }
 .message .code-block, .attention-agent-message .code-block { background: var(--panel); color: var(--ink); border-color: var(--line-strong); }
 .message .code-toolbar, .attention-agent-message .code-toolbar { background: var(--panel-muted); color: var(--muted-strong); }
 
@@ -6264,17 +6245,34 @@ html[data-theme="dark"] {
 .chat-action-confirm button + button { margin-left: var(--space-2); }
 .chat-actions-menu { position: fixed; inset: auto; margin: 0; width: min(260px, calc(100vw - 32px)); max-height: min(420px, 70dvh); overflow: auto; padding: var(--space-2); border: 1px solid var(--line-strong); border-radius: var(--radius-container); background: var(--float); color: var(--ink); box-shadow: var(--rim), var(--shadow-float); }
 .chat-actions-menu > button { display: flex; align-items: center; justify-content: flex-start; gap: var(--space-2); width: 100%; min-height: 36px; padding: var(--space-2); white-space: normal; text-align: left; }
-.assistant-message-actions:has(.chat-actions) { opacity: 1; }
+.assistant-message-actions .chat-action-row,
+.user-message-actions .chat-action-row { opacity: 1; }
 .user-message-actions .chat-action-row { justify-content: flex-end; }
-.user-message-actions:has(.chat-actions .chat-action-status:not([hidden])) { opacity: 1; }
 .file-action-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--space-2); border-bottom: 1px solid var(--line); }
 .file-action-row > .artifact-thread-row { border-bottom: 0; }
 .file-action-row > .chat-actions { display: contents; }
 .file-action-row .chat-action-status { grid-column: 1 / -1; margin-bottom: var(--space-2); }
+@media (hover: hover) and (pointer: fine) {
+  .assistant-message-actions .chat-action-row,
+  .user-message-actions .chat-action-row { opacity: 0; pointer-events: none; }
+  .message:hover .assistant-message-actions .chat-action-row,
+  .message:focus-within .assistant-message-actions .chat-action-row,
+  .attention-agent-message:hover .assistant-message-actions .chat-action-row,
+  .attention-agent-message:focus-within .assistant-message-actions .chat-action-row,
+  .message:hover .user-message-actions .chat-action-row,
+  .message:focus-within .user-message-actions .chat-action-row,
+  .assistant-message-actions .chat-actions:has([aria-expanded="true"], [aria-pressed="true"], [aria-checked="true"], [data-action-state="busy"], .chat-action-status:not([hidden]), .chat-action-confirm:not([hidden])) .chat-action-row,
+  .user-message-actions .chat-actions:has([aria-expanded="true"], [aria-pressed="true"], [aria-checked="true"], [data-action-state="busy"], .chat-action-status:not([hidden]), .chat-action-confirm:not([hidden])) .chat-action-row,
+  .assistant-message-actions .chat-action-row:focus-within,
+  .user-message-actions .chat-action-row:focus-within { opacity: 1; pointer-events: auto; }
+}
+@media (any-hover: none), (any-pointer: coarse) {
+  .assistant-message-actions .chat-action-row,
+  .user-message-actions .chat-action-row { opacity: 1; pointer-events: auto; }
+}
 @media (hover: none), (pointer: coarse), (max-width: 767px) {
   .chat-action-row > .icon-only { width: 44px; min-width: 44px; height: 44px; }
   .chat-actions-menu > button { min-height: 44px; }
-  .user-message-actions:has(.chat-actions) { opacity: 1; }
 }
 @media (forced-colors: active) {
   .chat-actions [aria-pressed="true"], .chat-actions [aria-checked="true"] { outline: 2px solid Highlight; outline-offset: -2px; }

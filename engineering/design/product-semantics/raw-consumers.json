@@ -149,6 +149,13 @@
     "semanticKeys": []
   },
   {
+    "file": "app/web/model-picker.mjs",
+    "source": "const refresh=action('refresh-cw','Refresh current settings',async()=>{",
+    "disposition": "named-read",
+    "reason": "This explicitly re-reads saved provider settings after a version conflict; the full action name states the target and it does not apply the pending model selection.",
+    "semanticKeys": []
+  },
+  {
     "file": "app/web/materials-view.mjs",
     "source": "icon(\"file-text\"),",
     "disposition": "mapped-raw",

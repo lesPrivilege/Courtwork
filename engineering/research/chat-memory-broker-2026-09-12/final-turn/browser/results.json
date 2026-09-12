@@ -1,0 +1,38 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "checks": "idle/hover/focus/Tab/menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "checks": "idle/hover/focus/Tab/menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 1280,
+    "theme": "light",
+    "checks": "idle/hover/focus/Tab/menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 1280,
+    "theme": "dark",
+    "checks": "idle/hover/focus/Tab/menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 390,
+    "theme": "light",
+    "checks": "idle/hover/focus/Tab/menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  },
+  {
+    "width": 390,
+    "theme": "dark",
+    "checks": "idle/hover/focus/Tab/menu/Escape/receipt/error/confirm/busy/file/stop/long text/overflow/200% zoom",
+    "status": "passed"
+  }
+]

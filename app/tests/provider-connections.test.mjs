@@ -155,7 +155,9 @@ test("PV-31 · 用户连接注册在独立 provider id 上，删除即注销", a
     const own = models.filter((model) => model.provider === connection.providerIdentity);
     assert.deepEqual(own.map((model) => model.id), [FIXTURE_MODEL]);
     assert.equal(own[0].contextWindow, undefined, "an unreported window is not filled in by the host");
-    assert.deepEqual(own[0].supportedEfforts, ["off"], "no reasoning tier is claimed for a model nobody described");
+    assert.deepEqual(own[0].supportedEfforts, [], "no reasoning tier is claimed for a model nobody described");
+    assert.equal(own[0].defaultEffort, null);
+    assert.equal(own[0].reasoningCapability.kind, "unknown");
     assert.ok(models.some((model) => model.provider === "openai"), "the catalog identities are untouched");
 
     const catalogModel = models.find((model) => model.provider === "fake-openai-loopback");
@@ -181,7 +183,7 @@ test("PV-30 · 未知 contextWindow 不猜值：关压缩并显式记录，用�
   const h = await boot();
   try {
     const connection = await saveConnection(h);
-    assert.deepEqual(connection.models, [{ id: FIXTURE_MODEL, contextWindow: null, contextWindowSource: "unknown", reasoning: null }]);
+    assert.deepEqual(connection.models, [{ id: FIXTURE_MODEL, contextWindow: null, contextWindowSource: "unknown", reasoning: null, reasoningEfforts: null }]);
 
     await selectConnection(h, connection);
     const config = (await h.api("GET", "/provider-config")).json;
@@ -207,7 +209,7 @@ test("PV-30 · 未知 contextWindow 不猜值：关压缩并显式记录，用�
       models: [{ id: FIXTURE_MODEL, contextWindow: 8192 }],
     });
     assert.equal(updated.status, 200, JSON.stringify(updated.json));
-    assert.deepEqual(updated.json.connection.models, [{ id: FIXTURE_MODEL, contextWindow: 8192, contextWindowSource: "user", reasoning: null }]);
+    assert.deepEqual(updated.json.connection.models, [{ id: FIXTURE_MODEL, contextWindow: 8192, contextWindowSource: "user", reasoning: null, reasoningEfforts: null }]);
     const second = (await h.api("GET", "/provider-config")).json;
     assert.deepEqual(second.capability, { contextWindow: 8192, contextWindowSource: "user", compactionEnabled: true, notice: null });
 
@@ -266,7 +268,7 @@ test("重启后连接与凭据仍可用；列表落空的连接不阻止启动",
   const statePath = path.join(dataDir, "runtime-state.json");
   const state = JSON.parse(await readFile(statePath, "utf8"));
   for (const record of state.providerConnections) {
-    if (record.kind === "compatible") record.models = [{ id: "model-the-gateway-forgot", contextWindow: null, reasoning: null }];
+    if (record.kind === "compatible") record.models = [{ id: "model-the-gateway-forgot", contextWindow: null, reasoning: null, reasoningEfforts: null }];
   }
   state.providerConfig = { provider: connection.providerIdentity, model: FIXTURE_MODEL, api: "openai-completions", baseUrl };
   await writeFile(statePath, JSON.stringify(state, null, 2));

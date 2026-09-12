@@ -3,8 +3,8 @@ import { el, action, flowRow } from "./ui-controls.mjs";
 import { renderDiff } from "./diff-view.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
 import { DIFF_PREVIEW } from "./diff-fixture.mjs";
-import { effortSelectable, projectProviderConfig, supportedEffortsOf } from "./provider-config.mjs";
-export { PROVIDER_CONFIG_FIELDS, effortSelectable, projectProviderConfig, supportedEffortsOf } from "./provider-config.mjs";
+import { effortSelectable, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
+export { PROVIDER_CONFIG_FIELDS, effortSelectable, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
 
 /* WK-27: capabilities the backend does not have are drawn nowhere except this
    list. Text rows only — no switch, no button, nothing focusable, so the page
@@ -523,10 +523,10 @@ export function createSettingsView(
    * 携带规则），不是一张可编辑的全表。`reasoningTouched` 只在"选中的模型换了"那几处
    * 复位（`syncReasoningCheckbox`），不在 `lock()`/`renderModelCapability` 这类
    * 每次按键都跑的地方复位，否则勾选会在下一次无关输入时被静默丢弃。 */
-  const reasoningCheckbox = el("input", { attrs: { type: "checkbox", name: "reasoning" } });
-  let reasoningTouched = false;
-  reasoningCheckbox.addEventListener("change", () => {
-    reasoningTouched = true;
+  const reasoningLevels = el("input", { attrs: { type: "text", name: "reasoningEfforts", placeholder: "unknown", autocomplete: "off" } });
+  let reasoningLevelsTouched = false;
+  reasoningLevels.addEventListener("input", () => {
+    reasoningLevelsTouched = true;
     dirty = true;
     clearVerifyReceipt();
   });
@@ -817,9 +817,9 @@ export function createSettingsView(
    * 同一处理办法（见 `contextWindow` 的注释）。目录原生行没有这一行：那是目录
    * 自己的事实，不是用户能声明的。 */
   const reasoningRow = row(
-    "Offers reasoning effort",
-    "Optional. Declares whether this model accepts a reasoning effort level on this connection. Leave it unchanged if you do not know either way.",
-    reasoningCheckbox,
+    "Supported effort values",
+    "Optional, comma-separated exact values: off, minimal, low, medium, high, xhigh, max. Leave empty if unknown; a boolean reasoning claim does not identify supported levels.",
+    reasoningLevels,
   );
   const advanced = el(
     "details",
@@ -874,7 +874,7 @@ export function createSettingsView(
   form.append(
     addProvider,
     row("Provider", "Where model requests are sent.", provider),
-    row("Model", "Used for every chat you start next. Chats already open keep the model they were bound to.", model),
+    row("Model", "Used for future runs in all chats. Active runs keep their recorded model.", model),
     modelCapability,
     advanced,
     status,
@@ -1083,20 +1083,21 @@ export function createSettingsView(
       contextWindow: entry.contextWindow ?? null,
       contextWindowSource: entry.contextWindowSource,
       reasoning: entry.reasoning ?? null,
+      reasoningEfforts: Array.isArray(entry.reasoningEfforts) ? entry.reasoningEfforts : null,
     }));
     const known = new Set(entries.map((entry) => entry.id));
     for (const id of discovered)
-      if (!known.has(id)) entries.push({ id, contextWindow: null, contextWindowSource: "unknown", reasoning: null });
+      if (!known.has(id)) entries.push({ id, contextWindow: null, contextWindowSource: "unknown", reasoning: null, reasoningEfforts: null });
     return entries;
   }
   /* PV-61 · 重新对准表单当前选中的模型：复位"碰过没碰过"，并把复选框设成这条
      模型此刻存下的值（`null`/`false` 都显示为未勾，区别只在 `reasoningTouched`
      之后是否会被当成一次显式声明）。只在"选中的模型换了"的那几处调用。 */
   function syncReasoningCheckbox() {
-    reasoningTouched = false;
+    reasoningLevelsTouched = false;
     const compatible = activePath() === "compatible";
     const entry = compatible ? compatibleModelEntries().find((candidate) => candidate.id === model.value) : null;
-    reasoningCheckbox.checked = entry?.reasoning === true;
+    reasoningLevels.value = Array.isArray(entry?.reasoningEfforts) ? entry.reasoningEfforts.join(", ") : "";
   }
   function availableModels() {
     return (catalog?.models || []).filter((m) => m.provider === provider.value);
@@ -1126,7 +1127,7 @@ export function createSettingsView(
     syncReasoningCheckbox();
   }
   /* 选中模型的窗口与档位读数。两者都只说目录/连接实际报了什么：窗口未报就是
-     unknown，目录没声明多于一档就只有 Off，且不出一个只有一项的下拉（PV-27）。 */
+     unknown；只有明确声明的值才是可选档位，Provider default表示省略参数。 */
   function renderModelCapability() {
     if (!model.value) {
       modelCapability.textContent = "";
@@ -1142,12 +1143,12 @@ export function createSettingsView(
             : null;
         })();
     const identity = compatible ? connectionById(provider.value)?.providerIdentity : provider.value;
-    const supported = identity ? supportedEffortsOf(catalog, identity, model.value) : null;
-    const effort = supported === null
-      ? "Reasoning effort: Off. The catalogue reports no levels for this model."
-      : effortSelectable(supported)
-        ? `Reasoning effort: ${supported.join(", ")}.`
-        : "Reasoning effort: Off. This catalogue declares no levels for this model.";
+    const reasoning = identity ? reasoningCapabilityOf(catalog, identity, model.value, api.value, baseUrl.value.trim() || undefined) : null;
+    const effort = reasoning?.kind === "enum"
+      ? `Saved reasoning values (${reasoning.source === "user-declared" ? "your connection declaration" : reasoning.source === "runtime-catalog" ? "runtime catalog" : "unverified source"}): Provider default, ${reasoning.values.join(", ")}.`
+      : reasoning?.kind === "unsupported"
+        ? "No selectable reasoning values reported. Provider default omits the parameter."
+        : "Reasoning settings unknown. Provider default omits the parameter.";
     const window_ = contextWindowReading(entry);
     modelCapability.textContent = entry?.contextWindow == null
       ? `${window_} Compaction stays off for it. ${effort}`
@@ -1187,7 +1188,7 @@ export function createSettingsView(
     contextWindowRow.hidden = pathId !== "compatible";
     contextWindow.disabled = busy || active || pathId !== "compatible";
     reasoningRow.hidden = pathId !== "compatible";
-    reasoningCheckbox.disabled = busy || active || pathId !== "compatible";
+    reasoningLevels.disabled = busy || active || pathId !== "compatible";
     /* 探测按钮与保存按钮受同一把锁：busy / active Run 时全部锁定（沿既有 `lock()`）。
      * 除此之外它只多一个条件 —— 没有 Base URL 就没有可探测的目录。 */
     const probable = Boolean(providerProbeRequest({ baseUrl: baseUrl.value }));
@@ -1300,6 +1301,24 @@ export function createSettingsView(
     const parsed = Number(raw);
     return Number.isSafeInteger(parsed) && parsed >= 4 ? parsed : null;
   }
+  const exactEffortValues = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
+  function parseReasoningLevels(raw) {
+    const values = String(raw || "").split(",").map((value) => value.trim()).filter(Boolean);
+    if (!values.length) return null;
+    if (values.some((value) => !exactEffortValues.has(value)))
+      throw new Error("Use only the listed exact effort values, separated by commas.");
+    if (new Set(values).size !== values.length) throw new Error("List each supported effort value once.");
+    return values;
+  }
+  const sameSavedConfig = (a, b) => ["provider", "model", "api", "baseUrl", "reasoningEffort"]
+    .every((key) => (a?.[key] ?? null) === (b?.[key] ?? null));
+  function requireInheritedEffortOnRoute(providerId, modelId, apiId, endpoint) {
+    const inherited = snapshot?.config?.reasoningEffort;
+    if (inherited == null) return;
+    const capability = reasoningCapabilityOf(catalog, providerId, modelId, apiId, endpoint);
+    if (!capability.values.includes(inherited))
+      throw new Error("Choose Provider default in Model & effort before changing this endpoint.");
+  }
   /* 兼容路径的保存是两步，因为后端有两件事：先把这条连接登记下来（端点、格式、
      模型列表、以及要用的那把 key —— 后端拿它去探一次目录，三类失败在那里分开），
      再把它选为生效配置。两步都成功才算保存成功；第一步失败时不会留下一条选中了
@@ -1308,14 +1327,15 @@ export function createSettingsView(
     const chosen = model.value;
     const window_ = contextWindowValue();
     // PV-61 · reasoning 一次只对表单当前选中的模型生效，同一处理办法照搬 window_。
-    const reasoningOverride = reasoningTouched ? reasoningCheckbox.checked : undefined;
+    const reasoningOverride = reasoningLevelsTouched ? parseReasoningLevels(reasoningLevels.value) : undefined;
     const models = compatibleModelEntries().map((entry) => {
       const value = entry.id === chosen ? window_ : entry.contextWindow;
-      const reasoning = entry.id === chosen && reasoningOverride !== undefined ? reasoningOverride : entry.reasoning;
+      const reasoningEfforts = entry.id === chosen && reasoningOverride !== undefined ? reasoningOverride : entry.reasoningEfforts;
       return {
         id: entry.id,
         ...(Number.isSafeInteger(value) ? { contextWindow: value } : {}),
-        ...(reasoning !== null && reasoning !== undefined ? { reasoning } : {}),
+        reasoningEfforts: reasoningEfforts ?? null,
+        ...(entry.reasoning !== null && entry.reasoning !== undefined && !(entry.id === chosen && reasoningOverride !== undefined) ? { reasoning: entry.reasoning } : {}),
       };
     });
     const body = {
@@ -1332,13 +1352,20 @@ export function createSettingsView(
     // 这条连接的模型此刻才进入已安装目录，所以先重取目录，投影才核得出档位。
     catalog = await request("/provider-models");
     await reloadConnections();
+    const latest = await request("/provider-config");
+    if (!sameSavedConfig(snapshot?.config, latest.config)) {
+      onConfig(latest);
+      snapshot = latest;
+      throw new Error("The connection was saved, but model settings changed elsewhere. Review the current selection before saving again.");
+    }
+    requireInheritedEffortOnRoute(connection.providerIdentity, chosen, connection.api, connection.baseUrl);
     return request("/provider-config", {
       method: "PUT",
-      body: projectProviderConfig(
-        snapshot?.config,
+      body: { ...projectProviderConfig(
+        latest.config,
         { provider: connection.providerIdentity, model: chosen, api: connection.api, baseUrl: undefined },
         catalog,
-      ),
+      ), expectedVersion: latest.version },
     });
   }
   form.addEventListener("submit", async (event) => {
@@ -1354,12 +1381,13 @@ export function createSettingsView(
       if (activePath() === "compatible") {
         snapshot = await saveCompatibleConnection();
       } else {
+        requireInheritedEffortOnRoute(provider.value, model.value, api.value, baseUrl.value.trim() || undefined);
         /* PV-M-1 · 请求体由同一处投影装配。本处只说明这张表单改了什么；它没有
            提到的 `reasoningEffort` 由快照带过去，于是保存连接不再静默清掉模型
            选择器里选好的档位。 */
         snapshot = await request("/provider-config", {
           method: "PUT",
-          body: projectProviderConfig(
+          body: { ...projectProviderConfig(
             snapshot?.config,
             {
               provider: provider.value,
@@ -1368,7 +1396,7 @@ export function createSettingsView(
               baseUrl: baseUrl.value.trim() || null,
             },
             catalog,
-          ),
+          ), expectedVersion: snapshot?.version },
         });
         await reloadConnections();
       }

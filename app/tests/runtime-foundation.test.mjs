@@ -21,7 +21,7 @@ test('current host context reaches the model without changing user input; capabi
     assert.equal(info.json.authority.generatedResultIsAccepted,false);
     const models=await ctx.api('GET','/provider-models');
     assert(models.json.models.some(m=>m.provider==='deepseek' && m.id==='deepseek-v4-flash'));
-    assert(models.json.models.every(m=>!('baseUrl' in m) && !('apiKey' in m)));
+    assert(models.json.models.every(m=>!('apiKey' in m) && (!m.baseUrl || (!new URL(m.baseUrl).username && !new URL(m.baseUrl).password))), 'catalog endpoint identity is public, credentials never are');
     const session=await ctx.createSession();
     await ctx.api('POST','/extensions/probe/lifecycle',{action:'load'});
     await ctx.api('POST',`/sessions/${session.id}/extension`,{extensionId:'probe',input:{}});

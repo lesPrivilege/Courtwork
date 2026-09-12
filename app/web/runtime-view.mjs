@@ -2270,7 +2270,7 @@ export function createRuntimeView(
       ),
       readOnlyRow(
         "Reasoning effort",
-        "Saved request for new runs; actual effort is recorded in each request's measurements.",
+        "Requested for future runs. Measurements separate SDK settings from provider-reported facts.",
         config?.reasoningEffort || (config ? "Model default" : "Not loaded"),
       ),
       readOnlyRow(

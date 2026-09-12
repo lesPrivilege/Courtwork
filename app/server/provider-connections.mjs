@@ -1,3 +1,4 @@
+import { declaredThinkingMap } from "../runtime/model-capabilities.mjs";
 // A CONNECTION is the unit of provider identity in this host: one endpoint,
 // one wire format, one credential, one model list. Every route runs through a
 // connection, including the three catalog ones, so there is exactly one shape
@@ -78,6 +79,7 @@ export function publicConnection(connection, { credentialStatus }) {
       contextWindow: entry.contextWindow,
       contextWindowSource: contextWindowSourceOf(connection, entry),
       reasoning: entry.reasoning ?? null,
+      reasoningEfforts: entry.reasoningEfforts ?? null,
     })),
     credentialStatus,
   };
@@ -127,10 +129,8 @@ export function validateConnectionInput(value) {
  * cost surface at all (no endpoint or view reports a price), so no reader can
  * mistake this zero for a reported charge. `contextWindow` and `maxTokens` stay
  * undefined when unknown — the honest reading, not a fabricated ceiling.
- * `reasoning` maps the connection's tri-state field (PV-61): `null` (never
- * declared) and `false` (declared off) both register as pi's `false` — the
- * safe side, since a `reasoning_effort` sent to a model that does not support
- * one is a request failure, not a no-op. */
+ * Only an exact reasoningEfforts declaration registers control values; a
+ * legacy boolean never creates Pi's generic default ladder. */
 export function registrationInput(connection) {
   return {
     name: `Compatible connection ${connection.id}`,
@@ -141,7 +141,11 @@ export function registrationInput(connection) {
       name: entry.id,
       api: connection.api,
       baseUrl: connection.baseUrl,
-      reasoning: entry.reasoning === true,
+      reasoning: (entry.reasoningEfforts?.length ?? 0) > 0,
+      thinkingLevelMap: declaredThinkingMap(entry),
+      // This connection selected the generic OpenAI protocol. URL substrings
+      // must not silently select a different vendor's reasoning grammar.
+      compat: { thinkingFormat: "openai", supportsReasoningEffort: true, requiresReasoningContentOnAssistantMessages: false, requiresThinkingAsText: false },
       input: ["text"],
       cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
       ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),
@@ -163,7 +167,8 @@ export function registrationExtras(connection) {
     name: entry.id,
     provider: connection.providerIdentity,
     api: connection.api,
-    reasoning: entry.reasoning === true,
+    reasoning: (entry.reasoningEfforts?.length ?? 0) > 0,
+      thinkingLevelMap: declaredThinkingMap(entry),
     input: ["text"],
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),

@@ -28,6 +28,10 @@ P01目录完整性、P02效果未知与崩溃结算、P02b结果保真已实现�
 
 具体合同/证据：[P01](evidence/P01.md)、[P02](evidence/P02.md)、[P02b](evidence/P02b.md)、[结果保留合同](P02b-contract.md)。
 
+最后一轮讨论另由[Chat来源与投影登记](../../research/chat-memory-broker-2026-09-12/final-turn/README.md)消费；原生入口、离线资料、受治理读取与容器试验不新增节点一前置，不更改本实施包writer或状态。
+
+
+模型管理后续：[逐Provider/model的adapter与UI投影](../../research/chat-memory-broker-2026-09-12/model-adaptation/README.md)将官方能力、适配编码、连接检查和Run绑定分开，给出当前model管理前后端差额。复用Pi与Host已有provider owner，不创建第二registry或完整执行环境；作为后续精度修订登记，不覆盖本实施包在途状态或扩大真实Provider调用授权。
 [本地main合流与真实验证准备回执](evidence/local-integration.md)。
 
 本轮探索：[DeepSeek行为与Exa来源](research/deepseek-behavior.md)、[composer／数据投影及旧裁决](research/composer-projection.md)。单次成功不作能力上限或性能排名；TPS仍按既有合同保留不可测。

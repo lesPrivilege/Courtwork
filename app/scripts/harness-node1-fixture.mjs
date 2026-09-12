@@ -12,7 +12,8 @@ const api = async (method, p, body) => {
   const result = await res.json(); if (!res.ok) throw new Error(JSON.stringify(result)); return result;
 };
 await api('PUT', '/provider-credential', { connectionId: 'catalog-deepseek', apiKey: 'SYNTHETIC_DEEPSEEK_KEY' });
-await api('PUT', '/provider-config', { provider: 'deepseek', model: MODEL, api: 'openai-completions', baseUrl: wire.baseUrl, reasoningEffort: 'high' });
+runtime.service.modelRuntime.getModel('deepseek', MODEL).baseUrl = wire.baseUrl; // Synthetic catalog transport only.
+await api('PUT', '/provider-config', { expectedVersion: (await api('GET', '/provider-config')).version, provider: 'deepseek', model: MODEL, api: 'openai-completions', baseUrl: wire.baseUrl, reasoningEffort: 'high' });
 const { project } = await api('POST', '/projects', { name: 'Harness synthetic verification' });
 const { session } = await api('POST', '/sessions', { projectId: project.id, title: 'DeepSeek loopback · GUI evidence', permissionMode: 'ask' });
 console.log(JSON.stringify({ url: runtime.url, sessionId: session.id, kind: 'synthetic-loopback', endpoint: wire.baseUrl, model: MODEL }));

@@ -1,0 +1,46 @@
+{
+  "results": [
+    {
+      "case": "discussion send, draft recovery, capability-gated surfaces, model-picker mock",
+      "pass": true
+    },
+    {
+      "case": "literal short query, exact source, partial attachment, revocation, return focus/scroll/expanded/draft",
+      "pass": true
+    },
+    {
+      "case": "slow old-account source response cannot replace the new detail",
+      "pass": true
+    },
+    {
+      "case": "r1/r2 exactness, missing/stale preview, refresh without a decision or resolve",
+      "pass": true
+    },
+    {
+      "case": "1440/light: three scenes, source surface, keyboard, 200% zoom",
+      "pass": true
+    },
+    {
+      "case": "1440/dark: three scenes, source surface, keyboard, 200% zoom",
+      "pass": true
+    },
+    {
+      "case": "1280/light: three scenes, source surface, keyboard, 200% zoom",
+      "pass": true
+    },
+    {
+      "case": "1280/dark: three scenes, source surface, keyboard, 200% zoom",
+      "pass": true
+    },
+    {
+      "case": "390/light: three scenes, source surface, keyboard, 200% zoom",
+      "pass": true
+    },
+    {
+      "case": "390/dark: three scenes, source surface, keyboard, 200% zoom",
+      "pass": true
+    }
+  ],
+  "pageErrors": [],
+  "unexpectedRequests": []
+}
