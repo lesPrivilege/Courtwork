@@ -27,3 +27,5 @@ Pi 三包均锁定 0.85.1，MCP client 2.0.0。既有 MCP discovery/exposure/per
 P01目录完整性、P02效果未知与崩溃结算、P02b结果保真已实现并完成Luna固定提交46/46有界复核；[固定版本验证](evidence/verification.md)保留全量838/839及单测复跑13/13事实。[DRT-02](evidence/DRT02.md)4/4合成协议与实际GUI Deny/Approve/文件阅读完成。真实DeepSeek门仍开放，节点二、三未抢跑；未push或部署。
 
 具体合同/证据：[P01](evidence/P01.md)、[P02](evidence/P02.md)、[P02b](evidence/P02b.md)、[结果保留合同](P02b-contract.md)。
+
+[本地main合流与真实验证准备回执](evidence/local-integration.md)。
