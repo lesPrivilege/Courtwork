@@ -1,0 +1,3 @@
+Browser tab: 3, Title: "CourtWork", URL: "http://127.0.0.1:60324/#".
+There has been no change in the accessibility tree.
+The focused UI element is 150 heading DeepSeek live gate · not started, Value: 1, ID: session-title

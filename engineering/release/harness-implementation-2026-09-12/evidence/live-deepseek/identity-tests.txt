@@ -1,0 +1,24 @@
+✔ DRT02 DeepSeek: actual SDK stream, Deny/Approve, reasoning replay and reopened history (2047.405667ms)
+✔ DRT02 DeepSeek error: explicit terminal state and no fallback (884.197708ms)
+✔ DRT02 DeepSeek cancel: explicit terminal state and no fallback (102.707792ms)
+✔ DRT02 DeepSeek missing-metadata: explicit terminal state and no fallback (92.599041ms)
+✔ DRT02 DeepSeek: provider alias reaches public request telemetry through the actual SDK (306.640167ms)
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (5.601708ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.374708ms)
+✔ provider response identifiers stay separate from runtime identity without forwarding extra metadata (0.426125ms)
+✔ effort is capability checked and recorded by real local SDK requests (624.739625ms)
+✔ malformed measurement records are omitted before rendering (0.357333ms)
+✔ schema6 migration preserves both global and project sessions (102.953ms)
+✔ host timing has independent request origins and preserves missing versus measured zero (1.701917ms)
+✔ out-of-interval observations stay in detail and do not become clamped chart marks (0.083042ms)
+✔ default request view folds exact records, preserves lower-level facts and restores open sections (1.356125ms)
+✔ malformed v1 metadata is rejected while out-of-interval timing remains inspectable (0.205042ms)
+✔ request detail distinguishes runtime and provider aliases while retaining historical records (1.436125ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4600.362417

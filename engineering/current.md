@@ -2,7 +2,9 @@
 
 ## 2026-09-12 · Harness完整实施包登记与串行开工
 
-两个完整包与20张原卡已在[执行入口](release/harness-implementation-2026-09-12/README.md)登记；双包校验通过，v2内嵌v1与用户附件字节一致。Astra采用GUI Harness→真实Runtime替换→Work闭环，Luna只读探索；基线d1b9921后P01/P02/P02b已实现，Luna固定提交46/46有界复核；DRT-02合成协议4/4与GUI拒绝/批准/文件阅读通过。[验证记录](release/harness-implementation-2026-09-12/evidence/verification.md)保留全量838/839及桥接单独复跑13/13。真实DeepSeek节点一门仍开放，后两节点未开工；无产品接受、真实provider调用、push或部署。
+两个完整包与20张原卡已在[执行入口](release/harness-implementation-2026-09-12/README.md)登记；双包校验通过，v2内嵌v1与用户附件字节一致。Astra采用GUI Harness→真实Runtime替换→Work闭环，Luna只读探索；基线d1b9921后P01/P02/P02b已实现，Luna固定提交46/46有界复核；DRT-02合成协议4/4与GUI拒绝/批准/文件阅读通过。[验证记录](release/harness-implementation-2026-09-12/evidence/verification.md)保留全量838/839及桥接单独复跑13/13。用户随后配置key并授权，[真实DeepSeek联调](release/harness-implementation-2026-09-12/evidence/live-deepseek/README.md)5个Run／8个模型turn完成，精确拒绝/批准、实际读回、Host重启连续性通过；provider返回名与runtime名已分开投影，Luna定向16/16独立复核。节点一取得真实正向证据，模型行为研究/其余产品门保持各自边界；后两节点未开工，未push或部署。
+
+用户进一步采用保留 Pi core 与[小型 coding dogfooding 排单](release/harness-implementation-2026-09-12/harness-dogfooding.md)：先验证指令来源、诊断/修复/测试、缓存观察与能力挂起；第二 runtime 不作其前置。最新目标为逐个局部 Expert 固定组合跑通，不追求热插拔。六卡尚未执行；Host治理与领域 owner 不变。
 
 ## 2026-09-12 · 首页文本六处缺口延后登记
 

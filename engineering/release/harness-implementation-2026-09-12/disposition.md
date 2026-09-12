@@ -30,3 +30,5 @@ DRT-01 与 P03 共用接缝清账；RD-006/DWB/BE-23、RD-007/LG/DS/BG、BE-6/7 
 唯一后端 writer 为本任务 Astra；Luna explore 不改 service/store/control-plane。实际源码变更逐片串行。P00 → P01 SDK red fixture → P01 修复/复核 → P02 → P02b → DRT-02 与最小 GUI 证据 → 节点一有界核查；随后节点二、节点三。MCP 当前已暴露为可选受控能力，采用修复路径，不为跳门移除能力。
 
 P05/P06 只将首节点所需绑定/权限证据前置；P11/P12 分节点消费，完整能力门仍开放。节点二需要真实第二 runtime；节点三才做同 Expert / 同 Core 与 Spark、Attention 闭环。原包的远端 PR 创建、安装、付费调用和发布语句不自动提供授权。
+
+2026-09-12 后续用户修订优先：保留 Pi core，先 [DF coding dogfooding](harness-dogfooding.md)；上述“随后节点二、节点三”的强制顺序不再作为 DF 前置。原20卡继续登记，第二执行器按实际需求触发。

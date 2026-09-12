@@ -1,0 +1,32 @@
+[
+  {
+    "bodyOverflow": false,
+    "clientWidth": 338,
+    "hasProviderModel": true,
+    "hasResponseId": true,
+    "left": 42,
+    "right": 382,
+    "scrollWidth": 338,
+    "viewport": 390
+  },
+  {
+    "bodyOverflow": false,
+    "clientWidth": 338,
+    "hasProviderModel": true,
+    "hasResponseId": true,
+    "left": 443,
+    "right": 783,
+    "scrollWidth": 338,
+    "viewport": 1280
+  },
+  {
+    "bodyOverflow": false,
+    "clientWidth": 338,
+    "hasProviderModel": true,
+    "hasResponseId": true,
+    "left": 523,
+    "right": 863,
+    "scrollWidth": 338,
+    "viewport": 1440
+  }
+]

@@ -1,5 +1,7 @@
 # Local main integration · 2026-09-12
 
+Historical preparation receipt below. The user subsequently configured the key and authorized real testing; that gate has been fulfilled. See [five-Run live evidence](live-deepseek/README.md) and the later [fixed Expert/dogfooding ruling](../harness-dogfooding.md), which removes second-runtime replacement as a prerequisite for the next small task. No repeated credential or paid-call approval is pending for the completed test.
+
 Fast-forwarded the sole Courtwork main from `d1b992110debdd2ad5d8a61124f52710535c9a23` to `6bfb23444944d5841df2e7a30806a8a6ddabfcb2`. No push/deployment. The isolated temporary checkout was a bounded execution worktree, not a second persistent product line.
 
 Before the fast-forward, the existing unstaged `engineering/current.md` delta was combined by three-way merge; its user bytes were verified by removing only this task's inserted header. The index contained only the candidate current.md blob, with no unrelated staged work; a synthetic Git repository had verified this procedure first. After integration, the current.md delta, 61 other dirty/untracked file hashes, the dirty path set and the untracked path set were unchanged. The index was empty. No checkout, stash or reset of the active shared checkout occurred.
