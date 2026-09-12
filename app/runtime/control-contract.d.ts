@@ -153,6 +153,7 @@ export interface RuntimeControlClient {
 
 /** Event-owned pointer to bounded semantic MCP bytes, never raw credentials. */
 export interface McpResultRef {
+  dispatchId: string;
   callId: string;
   serverId: string;
   tool: string;

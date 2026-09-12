@@ -1,5 +1,5 @@
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { prepareMcpResult } from './mcp-result.mjs';
 
 const digest = value => createHash('sha256').update(value).digest('hex');
@@ -110,16 +110,19 @@ export class MCPManager {
     }
     return this.inspect(resource.id, resource.content);
   }
-  toolsFor(binding, onUnknown, onResult) {
+  toolsFor(binding, onUnknown, onResult, onDispatch) {
     return binding.resources.filter(r => r.kind === 'tool' && r.mcp && r.exposed).map(r => ({
       name: r.executionName, label: r.title, description: r.description || r.title, parameters: r.inputSchema,
       execute: async (callId, args, signal) => {
         const entry = this.connections.get(r.mcp.serverId);
         if (!entry?.connected || entry.hash !== r.mcp.configHash) throw new Error('MCP provider is no longer connected to the bound configuration');
         if (signal?.aborted) throw new Error('MCP call canceled before dispatch');
-        const identity = { callId, serverId: r.mcp.serverId, tool: r.mcp.name,
+        const identity = { dispatchId: randomUUID(), callId, serverId: r.mcp.serverId, tool: r.mcp.name,
           configHash: r.mcp.configHash, bindingHash: binding.hash ?? null,
           bindingRevision: binding.revision ?? null };
+        // Durable intent must precede network dispatch. Failure here is a
+        // known local refusal; no external call has been made.
+        await onDispatch?.(identity);
         let result;
         try {
           result = await entry.client.callTool({ name: r.mcp.name, arguments: args }, { signal, timeout: 60000 });

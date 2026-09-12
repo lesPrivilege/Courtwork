@@ -274,9 +274,12 @@ export class RuntimeService {
     const interrupted = [];
     for (const run of this.store.listRuns()) {
       if (ACTIVE_STATUSES.has(run.status)) {
-        await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" ? run.error : { code: "restart_unknown", message: "run was in flight during restart" } }, {
+        const unsettled = this.#unsettledMcpDispatches(run);
+        await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || unsettled.length
+          ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" }
+          : { code: "restart_unknown", message: "run was in flight during restart" } }, {
           type: "run.status",
-          data: { status: "unknown" },
+          data: { status: "unknown", ...(unsettled.length ? { unsettledMcp: unsettled } : {}) },
         });
         interrupted.push(run.id);
       }
@@ -761,13 +764,19 @@ export class RuntimeService {
       sha256: artifact.sha256, text: displayed, truncated: content.length > MAX_READ_BYTES };
   }
 
-  async getMcpResult(sessionId, callId, query) {
+  #unsettledMcpDispatches(run) {
+    const events = this.store.listEvents({ sessionId: run.sessionId, runId: run.id });
+    const settled = new Set(events.filter(event => event.type === 'runtime.mcp.result' && !event.data.isError).map(event => event.data.dispatchId));
+    return events.filter(event => event.type === 'runtime.mcp.dispatch' && !settled.has(event.data.dispatchId)).map(event => event.data);
+  }
+
+  async getMcpResult(sessionId, dispatchId, query) {
     if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
     if ([...query.keys()].some(key => key !== 'runId') || query.getAll('runId').length !== 1) throw new ServiceError(400, "invalid_input", "invalid MCP result locator");
     const runId = text(query.get('runId'), 'runId', { max: 200 });
     const run = this.store.getRun(runId);
     if (run?.sessionId !== sessionId) throw new ServiceError(404, "not_found", "MCP result not found");
-    const receipt = this.store.listEvents({ sessionId, runId }).find(event => event.type === 'runtime.mcp.result' && event.data.callId === callId)?.data;
+    const receipt = this.store.listEvents({ sessionId, runId }).find(event => event.type === 'runtime.mcp.result' && event.data.dispatchId === dispatchId)?.data;
     if (!receipt) throw new ServiceError(404, "not_found", "MCP result not found");
     let bytes;
     try {
@@ -1849,7 +1858,12 @@ export class RuntimeService {
           const ref = { ...identity, sha256: prepared.sha256, bytes: prepared.bytes.length,
             isError: prepared.isError, projection: prepared.partial ? 'partial' : 'complete' };
           await this.store.appendEvent({ runId: run.id, type: 'runtime.mcp.result', data: ref });
+          entry.mcpPending?.delete(identity.dispatchId);
           return ref;
+        }, async identity => {
+          await this.store.appendEvent({ runId: run.id, type: 'runtime.mcp.dispatch', data: identity });
+          entry.mcpPending ??= new Map();
+          entry.mcpPending.set(identity.dispatchId, identity);
         }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {
           binding: entry.runtimeBinding, permissionMode: entry.permissionMode, workspaceDir: entry.workspaceDir,
           isOpen: () => Boolean(this.store.getRun(run.id)?.admissionOpen) && !entry.cancelRequested && !entry.externalUnknown,
@@ -1930,6 +1944,10 @@ export class RuntimeService {
         }
       }
       const current = this.store.getRun(run.id);
+      if (entry.mcpPending?.size) {
+        entry.externalUnknown = true;
+        entry.externalUnknownDetail ??= { ...entry.mcpPending.values().next().value, failureKind: 'dispatch-unsettled' };
+      }
       if (current && !terminal(current.status)) {
         const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
           ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
@@ -1996,6 +2014,7 @@ export class RuntimeService {
       && this.active.get(runId) === entry && mapped.data.mcpResult
       && this.store.listEvents({ sessionId: run.sessionId, runId }).some(receipt =>
         receipt.type === 'runtime.mcp.result' && receipt.data.callId === mapped.data.callId
+        && receipt.data.dispatchId === mapped.data.mcpResult.dispatchId
         && receipt.data.sha256 === mapped.data.mcpResult.sha256);
     // Admission blocks new work, not the recorded result of a dispatched call.
     // Only the current run's already-retained MCP receipt permits this event.
@@ -2099,7 +2118,7 @@ export class RuntimeService {
     if (!entry) {
       // This process cannot abort what it is not driving, so it must not
       // claim the run stopped. `unknown` is the honest terminal state.
-      const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" ? run.error : { code: "not_in_process", message: "run is not active in this process" } }, {
+      const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || this.#unsettledMcpDispatches(run).length ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : { code: "not_in_process", message: "run is not active in this process" } }, {
         type: "run.status",
         data: { status: "unknown" },
       });

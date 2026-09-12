@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { boot, reopen } from './helpers.mjs';
+import { boot, reopen, spawnWorker } from './helpers.mjs';
 import { MCPManager } from '../runtime/mcp-manager.mjs';
 
 async function effectFixture({ drop = false, gate } = {}) {
@@ -119,5 +119,65 @@ test('P02 pre-dispatch refusal has no effect and no unknown receipt', async () =
     await m.disconnect(f.resource.id);
     await assert.rejects(tools[0].execute('not-connected', {}, undefined), /no longer connected/);
     assert.equal(unknown, 0); assert.equal(f.effects(), 0);
+  } finally { await m.close(); await f.close(); }
+});
+
+
+test('P02 SIGKILL after remote effect before result leaves a durable unreconciled dispatch', async () => {
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  const f = await effectFixture({ gate }), h = await boot();
+  let child, next;
+  try {
+    const session = await h.createSession();
+    const tool = await bind(h, session, f);
+    await h.runtime.close();
+    child = spawnWorker({ dataDir: h.dataDir, body: `
+      await api('PUT', '/provider-credential', { connectionId: 'catalog-fake-openai-loopback', apiKey: FAKE_CREDENTIAL_KEY });
+      const sessionId = ${JSON.stringify(session.id)};
+      const control = (await api('GET', '/runtime-control?sessionId=' + sessionId)).json;
+      await api('POST', '/mcp/local%3Ap02/lifecycle?sessionId=' + sessionId, { revision: control.revision, action: 'connect' });
+      const made = await api('POST', '/sessions/' + sessionId + '/runs', {
+        commandId: 'crash-after-effect', input: ${JSON.stringify(h.scriptInput([{ name: tool.executionName, arguments: {} }]))}
+      });
+      emit({ runId: made.json.run.id });
+      const waiting = await waitRun(made.json.run.id, run => run.status === 'waiting_user' || ['failed','completed','unknown','cancelled'].includes(run.status));
+      if (waiting.status !== 'waiting_user') throw new Error('unexpected run state: ' + JSON.stringify(waiting));
+      const events = (await api('GET', '/sessions/' + sessionId + '/events')).json.events;
+      const question = events.find(e => e.type === 'permission.open');
+      const answer = await api('POST', '/runs/' + made.json.run.id + '/questions/' + question.data.id, { decision: 'allow' });
+      if (answer.status !== 200) throw new Error('permission failure: ' + JSON.stringify(answer));
+      await new Promise(() => {});
+    ` });
+    const ready = await child.waitForLine(value => Boolean(value.runId));
+    assert.ok(ready);
+    await Promise.race([f.called, new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('remote dispatch timed out: ' + child.stdout + ' ' + child.stderr)), 10000).unref();
+    })]);
+    assert.equal(await readFile(path.join(f.dir, 'effect.txt'), 'utf8'), '1');
+    await child.kill('SIGKILL'); release();
+    next = await reopen(h.dataDir);
+    const run = next.runtime.store.getRun(ready.runId);
+    assert.equal(run.status, 'unknown');
+    assert.equal(run.error.code, 'mcp_effect_unknown');
+    const log = next.runtime.store.listEvents({ sessionId: session.id, runId: run.id });
+    assert.equal(log.filter(e => e.type === 'runtime.mcp.dispatch').length, 1);
+    assert.equal(log.filter(e => e.type === 'runtime.mcp.result').length, 0);
+    assert.ok(log.find(e => e.type === 'run.status' && e.data.unsettledMcp?.length === 1));
+    const continued = await next.api('POST', '/sessions/' + session.id + '/runs', { commandId: 'unsafe-after-crash', input: 'repeat', supersedes: run.id });
+    assert.equal(continued.status, 409);
+    assert.equal(continued.json.error.code, 'effect_unreconciled');
+    assert.equal(f.effects(), 1);
+  } finally { release?.(); await child?.kill(); await (next?.runtime ?? h.runtime).close(); await f.close(); }
+});
+
+test('P02 failed durable dispatch intent prevents the remote call', async () => {
+  const f = await effectFixture(), m = new MCPManager();
+  let unknown = 0;
+  try {
+    await m.connect(f.resource);
+    const [tool] = m.toolsFor({ resources: [{ kind: 'tool', exposed: true, executionName: 'test', title: 'test', mcp: { serverId: f.resource.id, configHash: m.connections.get(f.resource.id).hash, name: 'write_then_fail' } }] }, async () => { unknown++; }, undefined, async () => { throw new Error('intent unavailable'); });
+    await assert.rejects(tool.execute('not-dispatched', {}, undefined), /intent unavailable/);
+    assert.equal(f.effects(), 0); assert.equal(unknown, 0);
   } finally { await m.close(); await f.close(); }
 });

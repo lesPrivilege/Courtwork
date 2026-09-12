@@ -48,9 +48,14 @@ test('P02b actual legacy SDK preserves body plus supported structure', async () 
 });
 
 test('P02b structured-only and non-rendered resource blocks stay explicit', async () => {
-  for (const payload of [{ content: [], structuredContent: false }, { content: [{ type: 'resource', resource: { uri: 'fixture://doc', text: 'resource body' } }] }]) {
+  for (const payload of [{ content: [], structuredContent: false }, { content: [{ type: 'resource', resource: { uri: 'fixture://doc', text: 'resource body', _meta: { private: 'NESTED_PRIVATE_SENTINEL' } } }] }]) {
     const f = await fixture(payload), { manager, tool } = await managerTool(f);
-    try { assert.match((await tool.execute('explicit', {}, undefined)).content[0].text, /MCP .*JSON/); }
+    try {
+      const projected = await tool.execute('explicit', {}, undefined);
+      assert.match(projected.content[0].text, /MCP .*JSON/);
+      assert.equal(JSON.stringify(projected).includes('NESTED_PRIVATE_SENTINEL'), false);
+      assert.equal(prepareMcpResult(payload).bytes.includes(Buffer.from('NESTED_PRIVATE_SENTINEL')), false);
+    }
     finally { await manager.close(); await f.close(); }
   }
 });
@@ -92,14 +97,14 @@ for (const isError of [false, true]) test(`P02b ${isError ? 'error' : 'success'}
     assert.equal(result.data.text.includes('\uFFFD'), false);
     assert.equal(result.data.mcpResult.projection, 'partial');
     assert.equal(JSON.stringify(events).includes('PRIVATE_TRANSPORT_SENTINEL'), false);
-    const callId = result.data.callId, url = `/sessions/${session.id}/mcp-results/${encodeURIComponent(callId)}?runId=${done.id}`;
+    const dispatchId = result.data.mcpResult.dispatchId, url = `/sessions/${session.id}/mcp-results/${encodeURIComponent(dispatchId)}?runId=${done.id}`;
     const full = await h.api('GET', url);
     assert.equal(full.status, 200);
     assert.deepEqual(full.json.result, { content: payload.content, structuredContent, isError });
     assert.equal(full.json.sha256, prepareMcpResult(payload).sha256);
     const other = await h.createSession();
     assert.equal((await h.api('GET', url.replace(session.id, other.id))).status, 404);
-    assert.equal((await h.api('GET', url.replace(encodeURIComponent(callId), 'unrecorded'))).status, 404);
+    assert.equal((await h.api('GET', url.replace(encodeURIComponent(dispatchId), 'unrecorded'))).status, 404);
     assert.equal((await h.api('GET', url + '&sha256=' + full.json.sha256)).status, 400);
     await h.runtime.close(); next = await reopen(h.dataDir);
     assert.deepEqual((await next.api('GET', url)).json.result, full.json.result);
@@ -130,5 +135,20 @@ test('P02b failed result retention cannot become a successful empty result', asy
     assert.equal(detail.callId, 'retention-failure');
     assert.equal(detail.failureKind, 'result-evidence-unavailable');
     assert.equal(f.calls(), 1);
+  } finally { await manager.close(); await f.close(); }
+});
+
+test('P02b repeated native call IDs receive distinct Host dispatch identities', async () => {
+  const f = await fixture({ content: [{ type: 'text', text: 'same result' }] }), manager = new MCPManager();
+  const intents = [], results = [];
+  try {
+    await manager.connect(f.resource);
+    const [tool] = manager.toolsFor({ resources: [{ kind: 'tool', exposed: true, executionName: 'test', title: 'test', mcp: { serverId: f.resource.id, configHash: manager.connections.get(f.resource.id).hash, name: 'result' } }] }, async () => assert.fail('success is known'), async ({ prepared, ...identity }) => { results.push(identity); }, async identity => { intents.push(identity); });
+    await tool.execute('native-reused-id', {}, undefined);
+    await tool.execute('native-reused-id', {}, undefined);
+    assert.equal(results.length, 2);
+    assert.equal(results[0].callId, results[1].callId);
+    assert.notEqual(results[0].dispatchId, results[1].dispatchId);
+    assert.deepEqual(results, intents);
   } finally { await manager.close(); await f.close(); }
 });

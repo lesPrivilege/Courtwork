@@ -8,7 +8,13 @@ export const MCP_PROJECTION_MAX_BYTES = 32 * 1024;
  * Limits are post-SDK-decode bounds, not a streaming transport memory limit. */
 export function prepareMcpResult(result) {
   const semantic = {
-    content: (result.content ?? []).map(({ _meta, ...block }) => block),
+    content: (result.content ?? []).map(({ _meta, ...block }) => {
+      if (block.type === 'resource' && block.resource) {
+        const { _meta: resourceMeta, ...resource } = block.resource;
+        return { ...block, resource };
+      }
+      return block;
+    }),
     ...(Object.hasOwn(result, 'structuredContent') ? { structuredContent: result.structuredContent } : {}),
     isError: result.isError === true,
   };

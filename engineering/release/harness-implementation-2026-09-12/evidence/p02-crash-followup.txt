@@ -1,0 +1,31 @@
+✔ P02 reported: effect is unknown, fenced and preserved across restart (1080.898292ms)
+✔ P02 drop: effect is unknown, fenced and preserved across restart (1006.057458ms)
+✔ P02 receipt-failure: effect is unknown, fenced and preserved across restart (993.673583ms)
+✔ P02 cancel: effect is unknown, fenced and preserved across restart (660.814333ms)
+✔ P02 restart-inflight: effect is unknown, fenced and preserved across restart (483.700458ms)
+✔ P02 orphan-cancel: effect is unknown, fenced and preserved across restart (856.0355ms)
+✔ P02 pre-dispatch refusal has no effect and no unknown receipt (2.908167ms)
+✔ P02 SIGKILL after remote effect before result leaves a durable unreconciled dispatch (993.761083ms)
+✔ P02 failed durable dispatch intent prevents the remote call (2.683708ms)
+✔ P02b actual modern SDK preserves structured {"answer":42} (58.379917ms)
+✔ P02b actual modern SDK preserves structured [1,"two"] (7.765ms)
+✔ P02b actual modern SDK preserves structured null (3.713708ms)
+✔ P02b actual modern SDK preserves structured false (3.696833ms)
+✔ P02b actual modern SDK preserves structured 0 (3.74575ms)
+✔ P02b actual modern SDK preserves structured "scalar" (3.179541ms)
+✔ P02b actual legacy SDK preserves body plus supported structure (10.032042ms)
+✔ P02b structured-only and non-rendered resource blocks stay explicit (6.332167ms)
+✔ P02b invalid/oversized result fences uncertainty without raw dumping (8.474ms)
+✔ P02b success: native projection and scoped full result survive restart (1092.2065ms)
+✔ P02b error: native projection and scoped full result survive restart (1003.856042ms)
+✔ P02b installed SDK output schema rejection is effect-unknown (9.741458ms)
+✔ P02b failed result retention cannot become a successful empty result (2.529ms)
+✔ P02b repeated native call IDs receive distinct Host dispatch identities (2.568333ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6744.8755
