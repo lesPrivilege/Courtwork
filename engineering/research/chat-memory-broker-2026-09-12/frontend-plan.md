@@ -88,3 +88,8 @@ Luna实现纯投影及接线成熟片，涉及身份、跨Provider披露、恢�
 ## 第二片施工回执 · 2026-09-12
 
 用户同意施工后，完成[三个独立交互specimen](specimen/README.md)，绘制前先固定owner与缺口，绘制后收敛[最小字段/查询/动作差额](specimen/field-map.md)。[验证](specimen/verification.md)包含9项行为测试、10组浏览器检查与Luna有界非作者静态复核；候选截图不冒称生产baseline。此交付留在原隔离分支，真实reader/Provider接线与正式工作效力仍按上述顺序推进。
+
+
+## Chat Space / Composer投影调整登记 · 2026-09-12
+
+按用户要求登记[Human review attention调整](review-attention/README.md)：减少同一事实在trace、审批、artifact和assistant摘要中的重复强调；待审批、错误及待判断证据优先，正文与按需披露共同服务核查。覆盖tool disclosure、composer/effort收纳、telemetry、inline-code层级与motion/阅读连续性五项。完成态“两类非正文元素”是待测预算；统一effort与单turn override需原owner能力/作用域支持，未形成生产DTO或可用控件。本次只登记，不修改已交付标本或排入在途Harness前置。
