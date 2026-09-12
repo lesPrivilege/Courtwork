@@ -250,3 +250,10 @@ PV-24 的验收句在本节点成立：兼容连接的 Base URL、wire 格式、
 
 **留待后续施工**（用户 2026-09-10 "一时难以实现的，留待后续"）：WO-PV-BE01（`google` 准入，已成文待排）、BE-39 冒烟端点（前端已留位）、BE-40 每连接 capability、PV-D1 Vertex ADC、PV-D2 完整网关、PV-D3 BE-38 / BE-28、PV-D4 成本未知表达位、PV-D5 `streamSimple` 路径。
 
+
+
+## 2026-09-12 · Model / effort能力精度后续登记
+
+用户要求[统一model入口与逐Provider/model适配](../../../research/chat-memory-broker-2026-09-12/model-adaptation/README.md)，并采用adapter作为上游握手中间层；能力描述由Host校验并登记到已有connection/model owner，再交既有UI projector。对PV-7“Off与目录档位”补充条件：Off必须是该model/API真实支持且可编码的关闭语义；省略值不是Off，reasoning=true或SDK通用梯子不是已握手档位。已有PV连接/verify交付保持，不重复派其已实现功能。
+
+[固定main核查及实施差额](../../../research/chat-memory-broker-2026-09-12/model-adaptation/implementation.md)列出布尔声明→假精确档位、默认medium、陈旧完整配置覆盖，以及SDK effective与Provider实际观察混同风险。后续沿原字段/store/service/Pi adapter/model-picker writer串行补齐；未新编号、未改API/schema，单turn override仍独立后置。

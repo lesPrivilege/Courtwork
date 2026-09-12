@@ -1,0 +1,27 @@
+{
+  "received": "2026-09-12",
+  "request": "统一model 和 effort 需要 UI 投影，同时为单个 model provider 自适应登记，而不是用没有握手的推理强度，可以派 luna explore 阅读各 provider 官方文档和成熟实践，保证 harness 能够实现 model 相关管理的前后端。",
+  "references": [
+    {
+      "file": "references/01-composer-trigger.png",
+      "sourceName": "Screenshot 2026-09-12 at 21.56.51.png",
+      "sha256": "88b021f56a1ff607d1fd4c546c9ef1a0dd86ca5aa9c2cb13f93dbdadf67d45c0",
+      "bytes": 11591,
+      "evidence": "user screenshot; UI reference only, not provider API capability evidence"
+    },
+    {
+      "file": "references/02-model-effort-popover.png",
+      "sourceName": "Screenshot 2026-09-12 at 21.56.59.png",
+      "sha256": "aca09196d0a0883075abe624e569300db8130c8c088f8b809ab08996e09d18bd",
+      "bytes": 25853,
+      "evidence": "user screenshot; UI reference only, not provider API capability evidence"
+    },
+    {
+      "file": "references/03-model-list.png",
+      "sourceName": "Screenshot 2026-09-12 at 21.57.05.png",
+      "sha256": "fa9044c91b71f3c40f69886b6e39d9a316850eeac2a72ad4848f6cce5f7b2106",
+      "bytes": 81165,
+      "evidence": "user screenshot; UI reference only, not provider API capability evidence"
+    }
+  ]
+}

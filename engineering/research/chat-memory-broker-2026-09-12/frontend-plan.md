@@ -93,3 +93,8 @@ Luna实现纯投影及接线成熟片，涉及身份、跨Provider披露、恢�
 ## Chat Space / Composer投影调整登记 · 2026-09-12
 
 按用户要求登记[Human review attention调整](review-attention/README.md)：减少同一事实在trace、审批、artifact和assistant摘要中的重复强调；待审批、错误及待判断证据优先，正文与按需披露共同服务核查。覆盖tool disclosure、composer/effort收纳、telemetry、inline-code层级与motion/阅读连续性五项。完成态“两类非正文元素”是待测预算；统一effort与单turn override需原owner能力/作用域支持，未形成生产DTO或可用控件。本次只登记，不修改已交付标本或排入在途Harness前置。
+
+
+## Model / effort逐Provider适配 · 2026-09-12
+
+用户以三张截图明确统一入口，并要求逐model/provider握手能力自适应；进一步采用adapter作为上游中间层。[登记与官方研究](model-adaptation/README.md)冻结adapter发现/描述/编码/观察→Host校验并注册既有目录→UI消费数据投影的关系。当前布尔reasoning派生通用档位、默认medium与陈旧配置保存是具体差额；[前后端切片](model-adaptation/implementation.md)沿PV/BE-39/Runtime落实精确能力、来源/版本、CAS和Run绑定。截图不赋予档位语义，未知不画假强度，SDK配置不冒称Provider实效。本轮研究/合同登记，不改生产UI或启动真实探测。

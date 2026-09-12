@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Model / effort自适应与adapter投影登记
+
+按用户要求，Astra与Luna完成[逐Provider/model能力研究和Harness前后端接线登记](research/chat-memory-broker-2026-09-12/model-adaptation/README.md)：adapter承接上游能力/参数/观察，Host校验注册既有目录，统一UI消费带来源与版本的数据。固定main核查指出布尔reasoning泛化档位、默认medium及陈旧配置保存差额；官方文档与Pi实践分别留证，SDK设置不称上游实效。三图归档，已接PV与Harness入口；仅研究合同，无生产代码、真实Provider请求、合main、push或部署。
+
 ## 2026-09-12 · Chat Space / Composer核查注意力登记
 
 按用户要求在原隔离分支登记[Chat Space与composer投影调整](research/chat-memory-broker-2026-09-12/review-attention/README.md)：减少重复机器事实，待审批/错误/待判断证据优先，五项grammar输出接既有前端计划；完成态信息预算、effort归一与单turn override均保留能力/作用域约束。附件原文与hash已归档；仅文档登记，不改UI/标本、生产DTO或Harness施工顺序，未合main、push或部署。
