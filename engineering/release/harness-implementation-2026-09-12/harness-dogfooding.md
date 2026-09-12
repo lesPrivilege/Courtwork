@@ -43,3 +43,5 @@
 ## 首轮调试回执
 
 用户随后授权使用已配置 key 调试并派 Luna 核查 reload。[首轮结果](evidence/dogfood-first/README.md)：API 准备 session profile/instruction，GUI 两个目标 Run／五个模型 turn 完成诊断及修复；另有一个导航偏差 Run 单列。v1→v2 下一 Run 绑定无需 reload；生成代码 8/8 与独立 oracle 1,750 检查通过，Luna 非作者复核。DF-02 行号误报保留为部分通过，DF-03 已纠正；Home鼠标 Continue 与通用指令导入 UI 缺口独立登记。
+
+后续按用户要求采用小工单异步 loop：Luna 负责有界探索、可复现实验和独立核查，Astra 保留架构裁决、关键修复及合流。每轮取得明确结论或证据缺口即收束，不做无限轮询；这不是自动定时任务。[DF-UI-01](research/home-pointer-loop.md)已复现组件重绘丢点击的可能机制，现场归因仍未证实，未改产品。

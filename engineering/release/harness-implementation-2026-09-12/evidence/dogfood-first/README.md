@@ -38,3 +38,5 @@ Luna also confirmed no general instruction/reference/skill import GUI: Workbench
 DF-01 has positive API configuration/binding evidence; full GUI import is not implemented. DF-02 is partial for citation accuracy, corrected in DF-03. DF-03 passes the bounded synthetic repair and independent external test check. The observed v1→v2 continuation contributes to DF-05 but does not complete cache comparisons. DF-04 executor and DF-06 suspension remain unimplemented/unrun in this batch. Next priority is DF-UI-01 without model calls, then one real local Expert task chosen for a concrete need. No push or deployment.
 
 Export note: trailing whitespace in the original-test log was trimmed; substantive output and exit status are preserved.
+
+Follow-up: Luna completed the bounded [DF-UI-01 browser experiment](../../research/home-pointer-loop.md). Settled mouse/Enter work; forced down/up DOM replacement loses click. Astra accepts this as a reproduced component mechanism, not field attribution; no product patch is bundled.
