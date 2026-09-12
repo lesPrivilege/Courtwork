@@ -281,3 +281,45 @@ test('text-only pending and failed Home rows render and retain their exact navig
   assert.equal(opened[1].item.runId,'r2');assert.deepEqual(opened[1].options,{question:false,inspect:true});
   for(const row of rows)assert.equal(row.querySelectorAll('svg').length,1,'Only the navigation chevron remains');
 }));
+
+test('Home retains native targets for unchanged projections and uses current callbacks',()=>withTinyDom(async container=>{
+  const summary={observedAt:OBSERVED,sessionCandidates:{items:[{projectId:'p',sessionId:'s',title:'Repair',createdAt:OBSERVED}],total:1}};
+  const opened=[];
+  const options={summary,projects:[{id:'p',name:'Synthetic'}],onSession:()=>opened.push('old')};
+  renderHome(container,options);
+  const row=container.querySelector('.home-row');
+  row.focus();row.dispatchEvent({type:'pointerdown'});
+  renderHome(container,{...options,summary:{...structuredClone(summary),observedAt:'2026-09-12T12:00:00Z'},loading:true,onSession:(item)=>opened.push(item.sessionId)});
+  assert.equal(container.querySelector('.home-row'),row,'An unrelated refresh must keep the pressed node');
+  assert.equal(document.activeElement,row);
+  row.click();
+  assert.deepEqual(opened,['s'],'Unchanged DOM must not retain an old navigation callback');
+}));
+
+test('Home immediately renders changed facts, removed targets, filters, and errors',()=>withTinyDom(async container=>{
+  const summary={sessionCandidates:{items:[{projectId:'p',sessionId:'s',title:'Before',createdAt:OBSERVED}],total:1}};
+  const options={summary,projects:[{id:'p',name:'Synthetic'}],onSession(){},onFilter(){},onRetry(){}};
+  renderHome(container,options);
+  const first=container.querySelector('.home-row');
+  summary.sessionCandidates.items[0].title='After';
+  renderHome(container,options);
+  assert.notEqual(container.querySelector('.home-row'),first);
+  assert.match(container.textContent,/After/);
+  renderHome(container,{...options,activeSet:'sessionCandidates'});
+  assert.ok(container.querySelector('.home-card'));
+  summary.sessionCandidates.items=[];summary.sessionCandidates.total=0;
+  renderHome(container,options);
+  assert.equal(container.querySelector('.home-row'),null);
+  renderHome(container,{...options,error:'Connection failed'});
+  assert.match(container.textContent,/Connection failed/);
+}));
+
+test('Home remounts after the shared stream was used by a chat',()=>withTinyDom(async container=>{
+  const options={summary:{sessionCandidates:{items:[{projectId:'p',sessionId:'s',title:'Return',createdAt:OBSERVED}],total:1}},projects:[{id:'p',name:'Synthetic'}],onSession(){}};
+  renderHome(container,options);
+  const original=container.querySelector('.home-row');
+  container.replaceChildren(document.createElement('article'));
+  renderHome(container,options);
+  assert.ok(container.querySelector('.home-row'));
+  assert.notEqual(container.querySelector('.home-row'),original);
+}));

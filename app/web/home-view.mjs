@@ -498,20 +498,33 @@ function pageNotes(key, page, items, onMore) {
   return notes;
 }
 
-export function renderHome(
-  container,
-  {
-    summary,
-    error,
-    loading,
-    projects,
-    activeSet,
-    onSession,
-    onRetry,
-    onMore,
-    onFilter,
-  },
-) {
+// Unrelated Home module responses must not detach a button between native
+// pointerdown and click. Cache only this band's projected facts, not callbacks
+// or the whole summary (whose observation timestamp changes independently).
+const homeRenders = new WeakMap();
+
+export function renderHome(container, options) {
+  const { summary, error, loading, projects, activeSet } = options;
+  let retained = homeRenders.get(container);
+  if (!retained) {
+    retained = {};
+    homeRenders.set(container, retained);
+  }
+  retained.options = options;
+  const sets = summary ? {
+    pendingItems: toPendingRows(summary, projects),
+    sessionCandidates: toWorkCards(summary, projects),
+    inspectionCandidates: toInspectionRows(summary, projects),
+  } : null;
+  const fingerprint = JSON.stringify({ sets, error: error || null,
+    loading: Boolean(loading && !summary), activeSet: activeSet || null });
+  if (retained.home?.parentNode === container && retained.fingerprint === fingerprint) return;
+  // Retained nodes always dispatch to the latest caller, even when their
+  // displayed facts have not changed. No synthetic click or deferred state.
+  const onSession = (...args) => retained.options.onSession(...args);
+  const onRetry = (...args) => retained.options.onRetry(...args);
+  const onMore = (...args) => retained.options.onMore(...args);
+  const onFilter = (...args) => retained.options.onFilter(...args);
   const previousFocus = container.contains(document.activeElement)
     ? document.activeElement?.dataset?.focusKey
     : null;
@@ -562,11 +575,6 @@ export function renderHome(
       all.addEventListener("click", () => onFilter(null));
       home.append(el("div", { className: "home-filter-line" }, all));
     }
-    const sets = {
-      pendingItems: toPendingRows(summary, projects),
-      sessionCandidates: toWorkCards(summary, projects),
-      inspectionCandidates: toInspectionRows(summary, projects),
-    };
     for (const key of homeSets) {
       if (activeSet && key !== activeSet) continue;
       const { items, page } = sets[key];
@@ -628,6 +636,8 @@ export function renderHome(
     }
   }
   container.replaceChildren(home);
+  retained.home = home;
+  retained.fingerprint = fingerprint;
   if (previousFocus)
     container
       .querySelector(`[data-focus-key="${CSS.escape(previousFocus)}"]`)
