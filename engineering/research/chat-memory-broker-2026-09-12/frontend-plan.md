@@ -83,3 +83,8 @@ Luna实现纯投影及接线成熟片，涉及身份、跨Provider披露、恢�
 5. 数据变化闭环进入Spark/Attention/Expert工作责任验证，不能由视觉完成代签。
 
 前端先行指先检验信息层级、动作与缺失状态，再反推最低数据合同；不从漂亮页面倒造后端事实。本文未把候选结构图标为已接受视觉baseline。
+
+
+## 第二片施工回执 · 2026-09-12
+
+用户同意施工后，完成[三个独立交互specimen](specimen/README.md)，绘制前先固定owner与缺口，绘制后收敛[最小字段/查询/动作差额](specimen/field-map.md)。[验证](specimen/verification.md)包含9项行为测试、10组浏览器检查与Luna有界非作者静态复核；候选截图不冒称生产baseline。此交付留在原隔离分支，真实reader/Provider接线与正式工作效力仍按上述顺序推进。

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Chat连续性三场景独立specimen
+
+按用户施工授权，在原隔离分支完成[无来源讨论、部分来源、r1/r2判断标本](research/chat-memory-broker-2026-09-12/specimen/README.md)：Astra先定owner并完成合成adapter/controller及页面集成，Luna快速召回/初稿与另一位Luna有界非作者复核；[验证记录](research/chat-memory-broker-2026-09-12/specimen/verification.md)保留9/9行为、10组浏览器与字段接线差额。页面可操作但不创建生产API/DTO或正式判断权；未合入共享main、push或部署，原产品门继续独立。
+
 ## 2026-09-12 · Chat最后一轮登记与跨Chat操作显隐
 
 独立分支接单main `6bfb234`，补读“撰写Harness架构方案”最后一轮：[来源与逐项采用](research/chat-memory-broker-2026-09-12/final-turn/README.md)保留完整turn文本，原文提及但未返回的附件不作已收件。Astra采用原生入口/来源接入/本地投影/披露桥接四接缝，[前端反推方案](research/chat-memory-broker-2026-09-12/frontend-plan.md)复用Chat与Attention共享呈现、保留各自身份和权限owner。Luna召回本地Scout并修复共享消息actions显隐。后续审阅补齐通道能力、Edit-as-new、动作范围、返回连续性和owner冻结时点；更正上片footer隐藏时间与透明指针命中缺口，仅action row收起、Tab即时显现、菜单/反馈及混合输入保守可达。Astra定向15/15与六配置组件浏览器检查通过，证据及混合输入模拟上限见[修订验证](research/chat-memory-broker-2026-09-12/final-turn/review-followup.md)。数据/容器/connector仍为计划，后端在途施工和Harness三节点不改序；本分支未合main、push或部署。
