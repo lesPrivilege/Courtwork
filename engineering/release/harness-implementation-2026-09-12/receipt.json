@@ -1,0 +1,18 @@
+{
+  "baseline": "d1b992110debdd2ad5d8a61124f52710535c9a23",
+  "proposalBaseline": "1ac28980c4877f4a86adf586aeb1b66980e23504",
+  "conversationId": "6aa52e8b-6208-83ec-8636-372c1f3e2786",
+  "authority": "User requests full intake then serial work; attached instructions are proposals subject to local Astra ruling.",
+  "archives": [
+    {
+      "path": "inputs/CourtWork-runtime-composition-v2-2026-09-12.zip",
+      "sha256": "d77496a39181c61016be3a467f73cfa2cdda9e03739789efb5f5671f99f1e9f2",
+      "bytes": 130964
+    },
+    {
+      "path": "inputs/courtwork-runtime-composition-v2-2026-09-12/inputs/previous-release-plan.zip",
+      "sha256": "e9bbaa631a1e4bcd4a3f4dd58c12ffa95fe75271d5a44a5601fa559e6e632c85",
+      "bytes": 75859
+    }
+  ]
+}

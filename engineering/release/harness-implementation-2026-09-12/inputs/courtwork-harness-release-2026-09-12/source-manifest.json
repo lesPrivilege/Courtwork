@@ -1,0 +1,183 @@
+{
+  "baselineCommit": "1ac28980c4877f4a86adf586aeb1b66980e23504",
+  "retrieval": "GitHub connector; external official documentation via web/Exa",
+  "downloadedRemoteSourceBytes": false,
+  "sources": [
+    {
+      "id": "R01",
+      "title": "固定 main 元数据",
+      "url": "https://api.github.com/repos/lesPrivilege/Courtwork/branches/main",
+      "kind": "pin",
+      "coverage": "分支读取返回本文固定 SHA；最终复查另见审计范围。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R02",
+      "title": "当前工程状态",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/current.md",
+      "kind": "repo",
+      "coverage": "读取最新状态段；历史测试、发布回执为仓库所记，不是本轮重跑。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R03",
+      "title": "下一 Harness 节点",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/release/harness-next-node-2026-09-12/README.md",
+      "kind": "repo",
+      "coverage": "已收包版本、现 Pi/MCP 接缝、开放门与归档边界。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R04",
+      "title": "DEC-013 Runtime canon",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/architecture-runtime-canon.md",
+      "kind": "repo",
+      "coverage": "责任边界与 DRT-01～04 原路线。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R05",
+      "title": "RuntimeService",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/app/server/service.mjs",
+      "kind": "code",
+      "coverage": "有界读取：构造/初始化、SessionManager 接缝、Run admission、MCP unknown 与终态结算；未逐方法全文件审计。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R06",
+      "title": "现 Runtime 组合根",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/app/server/runtime.mjs",
+      "kind": "code",
+      "coverage": "完整读取；无条件构造 WorkCoreOwner。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R07",
+      "title": "现 Pi 适配",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/app/runtime/pi-session-runtime.mjs",
+      "kind": "code",
+      "coverage": "有界读取：资源发现关闭、模型身份/凭据隔离、createSessionRun 接口和连续性说明；未全路径运行。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R08",
+      "title": "MCP Manager",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/app/runtime/mcp-manager.mjs",
+      "kind": "code",
+      "coverage": "完整读取；分页、结果保真、reported-error/unknown 分支。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R09",
+      "title": "应用依赖与命令",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/app/package.json",
+      "kind": "repo",
+      "coverage": "Pi 0.85.1、MCP client 2.0.0、Node >=22.19.0；未验证安装后的包字节。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R10",
+      "title": "旧 Pro P00–P12 工单",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/harness-pro-2026-09-10/received/f1700fb0/courtwork-hpr-review/HPR-02-work-orders.md",
+      "kind": "repo",
+      "coverage": "读取全部 13 张卡；本文处置的是工单层，不冒称已完成原 24 HPRO 的逐项源码重验。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R11",
+      "title": "旧 Pro 双向实施映射",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/harness-pro-2026-09-10/received/f1700fb0/courtwork-hpr-review/implementation-map.json",
+      "kind": "repo",
+      "coverage": "24 HPRO 到 13 卡的原映射；不混后版缺件。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R12",
+      "title": "唯一总 roadmap",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/roadmap.md",
+      "kind": "repo",
+      "coverage": "读取当前排序和相关增量；旧时点状态由 current 覆盖。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R13",
+      "title": "Governed work loop",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/release/governed-work-loop-2026-09-12/README.md",
+      "kind": "repo",
+      "coverage": "四职责、状态与权限边界、只读首片。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R14",
+      "title": "G1–G5 产品门",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/execution/2026-09-08-main-round/public-readiness.md",
+      "kind": "repo",
+      "coverage": "完整读取；既有发布验收标准不由本包降格。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R15",
+      "title": "8 项真实 Runtime 验证入口",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/release/frontend-node-2026-09-12/RUNTIME-VALIDATION.md",
+      "kind": "repo",
+      "coverage": "完整读取；本轮未执行其中的 provider 调用。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R16",
+      "title": "RD-006 延迟工作区绑定",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/RD-006-deferred-workspace-binding.md",
+      "kind": "repo",
+      "coverage": "完整读取；managed cwd、目录能力与 projectless 身份分开。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R17",
+      "title": "RD-007 内容资源治理",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/RD-007-resource-governance.md",
+      "kind": "repo",
+      "coverage": "完整读取；LG/DS/BG/Runtime 各自 owner，首片无需等目录绑定。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R18",
+      "title": "BE-6/7 声明式 Skill 提案",
+      "url": "https://github.com/lesPrivilege/Courtwork/blob/1ac28980c4877f4a86adf586aeb1b66980e23504/engineering/research/gui-agent-control-plane-2026-09-12/skill-proposal-slice.md",
+      "kind": "repo",
+      "coverage": "完整读取；proposal 不等于 effective registry；精确版本批准与 crash-safe apply。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R19",
+      "title": "当前 open PR 查询",
+      "url": "https://api.github.com/repos/lesPrivilege/Courtwork/pulls?state=open&per_page=100",
+      "kind": "live-api",
+      "coverage": "本次返回空数组，不代表没有本地分支或其他 writer 的未提交工作。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "R20",
+      "title": "GitHub releases 查询",
+      "url": "https://api.github.com/repos/lesPrivilege/Courtwork/releases?per_page=5",
+      "kind": "live-api",
+      "coverage": "本次返回空数组；GitHub Release 对象与已发布 Pages 分开。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "E01",
+      "title": "Pi 官方 SDK 文档",
+      "url": "https://pi.dev/docs/latest/sdk",
+      "kind": "external-primary",
+      "coverage": "只作可嵌入/ResourceLoader/工具/session 能力的外部校验；latest 页面不代替 0.85.1 锁定源码。",
+      "remoteContentSha256": null
+    },
+    {
+      "id": "E02",
+      "title": "OpenAI App Server 官方说明",
+      "url": "https://openai.com/index/unlocking-the-codex-harness/",
+      "kind": "external-primary",
+      "coverage": "支持将 Codex App Server 列为后续独立 runtime probe；不证明 CW 已适配。",
+      "remoteContentSha256": null
+    }
+  ]
+}

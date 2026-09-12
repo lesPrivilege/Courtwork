@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-12 · Harness完整实施包登记与串行开工
+
+两个完整包与20张原卡已在[执行入口](release/harness-implementation-2026-09-12/README.md)登记；双包校验通过，v2内嵌v1与用户附件字节一致。Astra采用GUI Harness→真实Runtime替换→Work闭环，Luna只读探索；当前隔离基线d1b9921，P00核验与P01实际SDK fixture开工，尚无产品接受、真实provider调用或部署。
+
 ## 2026-09-12 · 首页文本六处缺口延后登记
 
 [首页待校记录](release/governed-work-loop-2026-09-12/home-text-followups.md)保留用户六项文本反馈与三项自洽观察；仅首页范围，子页、Release和specimen未核。本轮只登记，后续顺手维护，不修页面、不新增发布或自动跟进；条件性判断保留待核。

@@ -1,0 +1,77 @@
+{
+  "packetVersion": 1,
+  "baselineCommit": "1ac28980c4877f4a86adf586aeb1b66980e23504",
+  "hashScope": "generated packet files only; not remote source bytes",
+  "files": [
+    {
+      "path": "01-ARCHITECTURE-RULING.md",
+      "bytes": 8819,
+      "sha256": "71f9af5efec3e580d76195fda3e389fc7658b615d1fc5c287b692698c0cd90d2"
+    },
+    {
+      "path": "02-BOUNDARIES.md",
+      "bytes": 10571,
+      "sha256": "660e4c872c5910268b7087c5a454651c53f58875cd4a5366acd11205fe2573aa"
+    },
+    {
+      "path": "03-PR-PLAN.md",
+      "bytes": 14036,
+      "sha256": "bed327e0667ddf15e7a136d284fed003546a73d09f464dc4b3c7f9b3646d473f"
+    },
+    {
+      "path": "04-RD-PLAN.md",
+      "bytes": 8740,
+      "sha256": "abe3d52395e386990d8bac1d0487e86a640e475425470a6be3d3fe9f6969eeec"
+    },
+    {
+      "path": "05-RELEASE-GATES.md",
+      "bytes": 7402,
+      "sha256": "12f80aa8b8c41285648abf92d2dd99cd46df54ef627f170f9e4484c22ff1593b"
+    },
+    {
+      "path": "06-DOCUMENTATION-MAP.md",
+      "bytes": 4470,
+      "sha256": "2e7d66d3fe342bdb4d5b4fe6dadfeae7378c7c90eb7469dd2860021426274302"
+    },
+    {
+      "path": "FULL-REVIEW.md",
+      "bytes": 65498,
+      "sha256": "a14faf16f64633e92a42b6aeee876d7a81b3f798fc71c169d012921cd1965ef1"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 3480,
+      "sha256": "181affb3507e85d7db9a25e2a4eacd821b79b3b5263c58e7004c6756c527c56f"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2279,
+      "sha256": "60235f15a660da19e9923968d095b72686795c0ff07bedee465a036e2a53c6c2"
+    },
+    {
+      "path": "SOURCES.md",
+      "bytes": 8185,
+      "sha256": "dfb07103bc71343530b989e40cdebde0eab6e477a5e0ef0036a07092f1aabd5b"
+    },
+    {
+      "path": "audit.json",
+      "bytes": 882,
+      "sha256": "294f98bfd84adb32743e84f2842b8abc09ef8f450a47e9cbbe1697696d0ce2fc"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 16505,
+      "sha256": "a0a5ac7d7df106b47bad47f676837f66524ba5f3d9de4dcf2314278b5af2e199"
+    },
+    {
+      "path": "source-manifest.json",
+      "bytes": 8303,
+      "sha256": "df8f74b9fee2fb0f86a6e85c283ec7e9fa68975e53a8048fe04fe0311430207b"
+    },
+    {
+      "path": "verify-package.py",
+      "bytes": 2981,
+      "sha256": "cab3a76498657336c301f2b59b6d47bfbfe71e1feec6b4945075496f47ebde07"
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "packet": "courtwork-runtime-composition-v2-2026-09-12",
+  "base": "1ac28980c4877f4a86adf586aeb1b66980e23504",
+  "status": "design-amendment-delivered-not-implemented",
+  "stage_labels": "packet-local-only-not-repository-IDs",
+  "nodes": [
+    {
+      "id": "baseline",
+      "depends_on": [],
+      "title": "P00 与文档拆分",
+      "status": "proposed-not-created",
+      "old_refs": [
+        "P00"
+      ],
+      "tests": "not-run"
+    },
+    {
+      "id": "gui-harness",
+      "depends_on": [
+        "baseline"
+      ],
+      "title": "DeepSeek + 当前 Pi GUI Agent",
+      "status": "proposed-not-created",
+      "old_refs": [
+        "DRT-02",
+        "P05-minimum",
+        "P06-minimum",
+        "P11-slice",
+        "P12-bounded"
+      ],
+      "conditional_refs": {
+        "MCP exposed": [
+          "P01",
+          "P02",
+          "P02b"
+        ]
+      },
+      "tests": "not-run"
+    },
+    {
+      "id": "runtime-replacement",
+      "depends_on": [
+        "gui-harness"
+      ],
+      "title": "真实第二 Runtime",
+      "status": "proposed-not-created",
+      "old_refs": [
+        "P03",
+        "P04a",
+        "P04b",
+        "DRT-01",
+        "DRT-03-generic-task",
+        "P05-needed",
+        "P06-needed",
+        "P11-slice",
+        "P12-bounded"
+      ],
+      "tests": "not-run"
+    },
+    {
+      "id": "work-loop",
+      "depends_on": [
+        "runtime-replacement"
+      ],
+      "title": "Spark / Attention / Expert 工作闭环",
+      "status": "proposed-not-created",
+      "old_refs": [
+        "DRT-03-same-expert-core",
+        "DRT-04",
+        "RD-007-consumer"
+      ],
+      "tests": "not-run"
+    }
+  ],
+  "changes": {
+    "spark_product_self_development": "adopted-prior-to-performance-comparison",
+    "spark_default_engine": "prefer-pi-core-with-needed-session-facilities",
+    "codex_interface": "public-interface-exists-compatibility-not-proven",
+    "complete_inflight_hot_swap": "not-required",
+    "all_dependencies_latest": "not-required"
+  },
+  "not_performed": [
+    "repository-write",
+    "pr-create",
+    "dependency-install",
+    "product-tests",
+    "real-provider-call",
+    "gui-test",
+    "runtime-replacement",
+    "deployment"
+  ],
+  "guards": [
+    "MCP unsupported means backend disabled and unadvertised, not hidden UI only",
+    "generic runtime replacement does not require full Expert first",
+    "Runtime means Harness Core, not Work Core",
+    "complete P12 and G1-G5 not auto-passed",
+    "actual status remains repository owner, not this plan"
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "packet_integrity": "pass",
+  "tracked_files": 15,
+  "internal_links_checked": 40,
+  "node_graph": "acyclic",
+  "archived_v1": "byte-identical",
+  "product_tests": "not-run",
+  "provider_tests": "not-run",
+  "gui_tests": "not-run"
+}

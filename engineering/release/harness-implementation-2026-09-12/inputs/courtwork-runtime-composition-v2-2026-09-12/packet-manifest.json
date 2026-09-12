@@ -1,0 +1,81 @@
+{
+  "schema": "document-packet-manifest-v1",
+  "coverage": "payload-excludes-manifest-checksums-and-verification-output",
+  "files": [
+    {
+      "path": "01-ARCHITECTURE.md",
+      "bytes": 5362,
+      "sha256": "b17492724752c4c3fbb3f53f6d02fe72a42998fc123226fc93139a3c53684994"
+    },
+    {
+      "path": "02-RUNTIME-CONTRACT.md",
+      "bytes": 5643,
+      "sha256": "e05fab087280bc7ded990a468798a5ae6bb64a95214e84a9b8937fd9f7d9b77b"
+    },
+    {
+      "path": "03-MODEL-ADAPTATION.md",
+      "bytes": 4757,
+      "sha256": "5ad4b139d06444252a27946a5aa1dc9fa407253a726c81f2a4ec34d8eeb9aef3"
+    },
+    {
+      "path": "04-ROLE-COMPOSITIONS.md",
+      "bytes": 4769,
+      "sha256": "e162bb9625aefb96797b4309d8e5b304e8ffbaa2cd6e1ebd1931b6fa37b6d9da"
+    },
+    {
+      "path": "05-MAINTENANCE.md",
+      "bytes": 4406,
+      "sha256": "b389f122c747d81e172ab36c924957d7b7fe9ccc75108a5562d506bde7c60344"
+    },
+    {
+      "path": "06-IMPLEMENTATION.md",
+      "bytes": 9206,
+      "sha256": "62769d34f2c1219941779bbece1751e0ff0fe852caefee1da22d4cebc37ea651"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 3189,
+      "sha256": "03b019c12f865876c9267b16a215a13cd8289bdc874280f66a0b1b338a79d1b8"
+    },
+    {
+      "path": "FULL-AMENDMENT.md",
+      "bytes": 46972,
+      "sha256": "0d9fb14ab6aec0f5f18d90b9db92ff6586276e16c082d89aa5248b6989451f65"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 2206,
+      "sha256": "ccb5b00c45692cbd2ee48e72dbae8aed93877898e9d23f8b4e729c53d4937811"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2640,
+      "sha256": "1e8054ed6ddd5c3c361acf04b7b8210fa60a1fc7b1eeb60b2cae920d379ef034"
+    },
+    {
+      "path": "SOURCES.md",
+      "bytes": 4740,
+      "sha256": "9a404703b0939635c7ec1d6f86e29001452ce2a3220f45c3c06e3e00163fbfbf"
+    },
+    {
+      "path": "input-receipt.json",
+      "bytes": 917,
+      "sha256": "f3f33cacb377a5072ab1f31ad3893b4712bc39461afc911b8c1c1fe3ed4d7c5a"
+    },
+    {
+      "path": "inputs/previous-release-plan.zip",
+      "bytes": 75859,
+      "sha256": "e9bbaa631a1e4bcd4a3f4dd58c12ffa95fe75271d5a44a5601fa559e6e632c85"
+    },
+    {
+      "path": "plan.json",
+      "bytes": 2542,
+      "sha256": "7f4851ee946e890a80b14b7ee8e5d4aeac28e92d6c3f03cd9d191c524b42e946"
+    },
+    {
+      "path": "verify-package.py",
+      "bytes": 2785,
+      "sha256": "90b3deaf3c9e88d9973aeac0f4a42bb1d614e0c457b8a62f3efb988b0a2ba491"
+    }
+  ]
+}

@@ -1,0 +1,586 @@
+{
+  "packetVersion": 1,
+  "date": "2026-09-12",
+  "baselineCommit": "1ac28980c4877f4a86adf586aeb1b66980e23504",
+  "authority": "review-proposal; repository current/roadmap remain canonical after local intake",
+  "decisions": {
+    "referenceRuntime": "Pi AgentSession 0.85.1",
+    "architecture": "Work-Core-first modular monolith with ports/adapters",
+    "fullLoopRewriteBeforeRelease": false,
+    "runtimeReplacementProofCompleted": false
+  },
+  "releaseDefinition": "Existing G1–G5 plus evidence for every advertised capability; P12-A is not full P12",
+  "nodes": [
+    {
+      "id": "P00",
+      "title": "基线、原包处置与唯一 owner 清账",
+      "dependsOn": [],
+      "phase": "foundation",
+      "ownerRole": "integration",
+      "sourceRefs": [
+        "R02",
+        "R03",
+        "R04",
+        "R10",
+        "R11",
+        "R12"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "engineering/current.md",
+        "engineering/roadmap.md",
+        "engineering/architecture-runtime-canon.md",
+        "engineering/release/harness-next-node-2026-09-12/README.md"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P01",
+      "title": "锁定 SDK 的 MCP 目录完整性",
+      "dependsOn": [
+        "P00"
+      ],
+      "phase": "foundation",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R08",
+        "R09",
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/mcp-manager.mjs",
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p01.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P02",
+      "title": "MCP 错误与效果未知结算",
+      "dependsOn": [
+        "P01"
+      ],
+      "phase": "foundation",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R05",
+        "R08",
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/mcp-manager.mjs",
+        "app/server/service.mjs",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p02.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P02b",
+      "title": "当前源码新增：结构化结果和错误正文保真",
+      "dependsOn": [
+        "P02"
+      ],
+      "phase": "foundation",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R08"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/mcp-manager.mjs",
+        "app/runtime/pi-session-runtime.mjs",
+        "app/runtime/control-contract.d.ts",
+        "app/tests/hpr_p02b.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P03",
+      "title": "Pi native seam / DRT-01",
+      "dependsOn": [
+        "P02b"
+      ],
+      "phase": "foundation",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R04",
+        "R05",
+        "R07",
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/pi-session-runtime.mjs",
+        "app/server/service.mjs",
+        "app/runtime/pi-runtime-adapter.mjs",
+        "app/runtime/runtime-port.d.ts",
+        "app/tests/hpr_p03.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P04a",
+      "title": "Work application façade",
+      "dependsOn": [
+        "P03"
+      ],
+      "phase": "foundation",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R04",
+        "R05",
+        "R06",
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/server/service.mjs",
+        "app/runtime/extension-registry.mjs",
+        "app/runtime/attention-tools.mjs",
+        "app/server/work-application.mjs",
+        "app/tests/hpr_p04a.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P04b",
+      "title": "Core-free Harness 组合根",
+      "dependsOn": [
+        "P04a"
+      ],
+      "phase": "foundation",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R06",
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/server/runtime.mjs",
+        "app/server/service.mjs",
+        "app/runtime/extension-registry.mjs",
+        "app/server/harness-runtime.mjs",
+        "app/tests/hpr_p04b.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P05",
+      "title": "实际输入证据与历史解释",
+      "dependsOn": [
+        "P04b"
+      ],
+      "phase": "foundation",
+      "ownerRole": "runtime-store",
+      "sourceRefs": [
+        "R04",
+        "R05",
+        "R07",
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/run-inputs.mjs",
+        "app/runtime/pi-runtime-adapter.mjs",
+        "app/runtime/pi-session-runtime.mjs",
+        "app/server/service.mjs",
+        "app/server/store.mjs",
+        "app/runtime/control-contract.d.ts",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p05.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P06",
+      "title": "指令层次、能力拒绝与 compaction",
+      "dependsOn": [
+        "P05"
+      ],
+      "phase": "foundation",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R04",
+        "R07",
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "app/runtime/pi-session-runtime.mjs",
+        "app/server/service.mjs",
+        "app/server/work-application.mjs",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p06.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P11-A",
+      "title": "基础能力最小前端消费",
+      "dependsOn": [
+        "P06"
+      ],
+      "phase": "foundation",
+      "ownerRole": "frontend",
+      "sourceRefs": [
+        "R10",
+        "R15"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/web/runtime-view.mjs",
+        "app/tests/hpr_p11a.test.mjs",
+        "app/scripts/hpr-browser-gates.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P12-A",
+      "title": "第一列有界非作者接受",
+      "dependsOn": [
+        "P11-A"
+      ],
+      "phase": "foundation",
+      "ownerRole": "independent-reviewer",
+      "sourceRefs": [
+        "R10",
+        "R14",
+        "R15"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/tests/hpr_p12a.test.mjs",
+        "app/scripts/hpr-browser-gates.mjs",
+        "evidence/<intake>/p12a/"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false,
+      "automaticallyClosesProductGates": false
+    },
+    {
+      "id": "P07",
+      "title": "人维护 scoped memory_text",
+      "dependsOn": [
+        "P06"
+      ],
+      "phase": "capability",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "docs/runtime-control/api.md",
+        "app/server/service.mjs",
+        "app/tests/hpr_p07.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P08",
+      "title": "显式 clean context / native generation",
+      "dependsOn": [
+        "P07"
+      ],
+      "phase": "capability",
+      "ownerRole": "runtime-store",
+      "sourceRefs": [
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/server/service.mjs",
+        "app/server/store.mjs",
+        "app/server/index.mjs",
+        "app/runtime/pi-runtime-adapter.mjs",
+        "app/runtime/control-contract.d.ts",
+        "app/tests/hpr_p08.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P09",
+      "title": "受限 web_fetch 与响应版本",
+      "dependsOn": [
+        "P05",
+        "P06"
+      ],
+      "phase": "capability",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/web-fetch.mjs",
+        "app/runtime/run-inputs.mjs",
+        "app/runtime/control-tools.mjs",
+        "app/runtime/control-plane.mjs",
+        "app/server/service.mjs",
+        "app/package.json",
+        "app/package-lock.json",
+        "app/tests/hpr_p09.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P10",
+      "title": "授权目录下 Skill inspect/import",
+      "dependsOn": [
+        "P06"
+      ],
+      "phase": "capability",
+      "ownerRole": "backend",
+      "sourceRefs": [
+        "R10",
+        "R18"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/runtime/skill-intake.mjs",
+        "app/runtime/control-plane.mjs",
+        "app/runtime/control-contract.d.ts",
+        "app/server/service.mjs",
+        "app/server/index.mjs",
+        "docs/runtime-control/api.md",
+        "app/tests/hpr_p10.test.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P11-B",
+      "title": "能力补齐前端消费",
+      "dependsOn": [
+        "P11-A",
+        "P08",
+        "P09",
+        "P10"
+      ],
+      "phase": "capability",
+      "ownerRole": "frontend",
+      "sourceRefs": [
+        "R10"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/web/runtime-view.mjs",
+        "app/tests/hpr_p11b.test.mjs",
+        "app/scripts/hpr-browser-gates.mjs"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false
+    },
+    {
+      "id": "P12-full",
+      "title": "完整通用节点独立接受",
+      "dependsOn": [
+        "P12-A",
+        "P11-B"
+      ],
+      "phase": "capability",
+      "ownerRole": "independent-reviewer",
+      "sourceRefs": [
+        "R10",
+        "R14"
+      ],
+      "status": "proposed-not-created",
+      "contractDocument": "03-PR-PLAN.md",
+      "candidateAllowedPaths": [
+        "app/tests/hpr_p12.test.mjs",
+        "app/scripts/hpr-browser-gates.mjs",
+        "evidence/<intake>/p12/"
+      ],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false,
+      "automaticallyClosesProductGates": false
+    },
+    {
+      "id": "DRT-02",
+      "title": "协议与持久化 synthetic probe",
+      "dependsOn": [
+        "P03",
+        "P05"
+      ],
+      "phase": "research",
+      "ownerRole": "protocol-owner",
+      "sourceRefs": [
+        "R04",
+        "R07"
+      ],
+      "status": "not-run",
+      "contractDocument": "04-RD-PLAN.md",
+      "candidateAllowedPaths": [],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false,
+      "paidProviderCallsAuthorizedByThisPacket": false
+    },
+    {
+      "id": "DRT-03",
+      "title": "真实第二 runtime / Codex App Server",
+      "dependsOn": [
+        "P12-full",
+        "DRT-02"
+      ],
+      "phase": "research",
+      "ownerRole": "adapter-owner",
+      "sourceRefs": [
+        "R04",
+        "E02"
+      ],
+      "status": "not-run",
+      "contractDocument": "04-RD-PLAN.md",
+      "candidateAllowedPaths": [],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false,
+      "paidProviderCallsAuthorizedByThisPacket": false
+    },
+    {
+      "id": "DRT-04",
+      "title": "profile 与薄 Spark 对照",
+      "dependsOn": [
+        "P12-full",
+        "DRT-02"
+      ],
+      "phase": "research",
+      "ownerRole": "experiment-owner",
+      "sourceRefs": [
+        "R04",
+        "R13"
+      ],
+      "status": "not-run",
+      "contractDocument": "04-RD-PLAN.md",
+      "candidateAllowedPaths": [],
+      "pathListState": "owner-to-freeze-before-implementation",
+      "remotePrNumber": null,
+      "implementationCommit": null,
+      "independentlyVerified": false,
+      "paidProviderCallsAuthorizedByThisPacket": false
+    }
+  ],
+  "schedulingConstraints": [
+    {
+      "paths": [
+        "app/server/service.mjs",
+        "app/server/store.mjs",
+        "app/runtime/control-plane.mjs"
+      ],
+      "rule": "one writer per mutable owner; serial integration; DAG independence does not authorize concurrent edits"
+    }
+  ],
+  "productGates": {
+    "G1": {
+      "reviewStatus": "not-verified-in-this-review",
+      "sourceRef": "R14"
+    },
+    "G2": {
+      "reviewStatus": "not-verified-in-this-review",
+      "sourceRef": "R14"
+    },
+    "G3": {
+      "reviewStatus": "not-verified-in-this-review",
+      "sourceRef": "R14"
+    },
+    "G4": {
+      "reviewStatus": "not-verified-in-this-review",
+      "sourceRef": "R14"
+    },
+    "G5": {
+      "reviewStatus": "not-verified-in-this-review",
+      "sourceRef": "R14"
+    }
+  },
+  "futureConsumers": [
+    {
+      "existingId": "RD-006 / DWB / BE-23",
+      "sourceRef": "R16",
+      "status": "not-implemented-by-this-review"
+    },
+    {
+      "existingId": "RD-007 / LG / DS / BG",
+      "sourceRef": "R17",
+      "status": "not-implemented-by-this-review"
+    },
+    {
+      "existingId": "BE-6/BE-7 skill proposal",
+      "sourceRef": "R18",
+      "status": "not-implemented-by-this-review"
+    }
+  ]
+}

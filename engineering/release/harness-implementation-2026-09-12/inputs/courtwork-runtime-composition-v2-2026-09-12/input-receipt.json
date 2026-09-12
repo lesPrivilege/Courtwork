@@ -1,0 +1,28 @@
+{
+  "date": "2026-09-12",
+  "inputs": [
+    {
+      "name": "CourtWork-harness-release-ruling-2026-09-12.md",
+      "bytes": 65498,
+      "sha256": "a14faf16f64633e92a42b6aeee876d7a81b3f798fc71c169d012921cd1965ef1",
+      "scope": "current-conversation",
+      "copied_in_packet": false
+    },
+    {
+      "name": "CourtWork-harness-release-plan-2026-09-12.zip",
+      "bytes": 75859,
+      "sha256": "e9bbaa631a1e4bcd4a3f4dd58c12ffa95fe75271d5a44a5601fa559e6e632c85",
+      "scope": "current-conversation",
+      "copied_in_packet": true
+    },
+    {
+      "name": "courtwork-harness-release-2026-09-12/03-PR-PLAN.md",
+      "bytes": 14036,
+      "sha256": "bed327e0667ddf15e7a136d284fed003546a73d09f464dc4b3c7f9b3646d473f",
+      "scope": "current-conversation",
+      "copied_in_packet": false
+    }
+  ],
+  "previous_zip_archive_path": "inputs/previous-release-plan.zip",
+  "previous_artifacts_rewritten": false
+}

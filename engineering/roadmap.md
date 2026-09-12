@@ -1,5 +1,9 @@
 # Long-life Roadmap · 全场景与交互架构
 
+## 2026-09-12 · Harness本轮授权排序
+
+用户已授权[完整实施包](release/harness-implementation-2026-09-12/README.md)登记后串行推进。本段覆盖下方历史“待用户排单”及旧刚性依赖：P00→首节点必要MCP正确性/DeepSeek协议与GUI→普通任务真实Runtime替换→Spark/Attention/Expert工作闭环；完整Compiler、Core-free及同Expert证明各按v2落位。G1–G5保持原owner，当前状态见current。
+
 2026-09-12：[Chat Memory Broker长期增量](research/chat-memory-broker-2026-09-12/README.md)接BE-19/20/23、LG/RG既有路线；Provider Session外的可选检索/编译与披露回执，不重写agent loop。只登记，用户仍独立审阅下一Harness节点后排单；不修改本次发布定义，不启动Provider接入或新memory API。
 
 ## 2026-09-12 · 资源、消息与持久成果治理准备

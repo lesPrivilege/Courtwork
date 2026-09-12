@@ -1,5 +1,9 @@
 # Runtime与Work语义 · Astra裁决
 
+## 2026-09-12 · Runtime组合修订采用
+
+采用[本地架构裁决](release/harness-implementation-2026-09-12/README.md)与[六专题原件](release/harness-implementation-2026-09-12/inputs/courtwork-runtime-composition-v2-2026-09-12/README.md)。Runtime明确由Harness Core与私有扩展组成；Host共享能力及Work Core不随之替换。Spark产品自研不以性能胜出为准入；两种Runtime接法并存，版本维护采用经验证自足组合。下方9月11日DRT排序属历史，当前依roadmap三节点；不是实现或独立接受声明。
+
 2026-09-11 / DEC-013。基线 `16e9d37a47366de195e1217a6440dd88b660be90`；[输入与逐项账](research/deepseek-runtime-2026-09-11/README.md)。这是当前文档术语与目标责任裁决，独立架构review尚未提交，未声称解耦实现或产品接受。
 
 CourtWork维护持久工作状态、证据与决定，并把专业工作要求交给可替换的执行系统。当前产品由本地Host、Pi运行集成和同一Work Core组合；以下目标结构不要求微服务或立即新建同名目录。
