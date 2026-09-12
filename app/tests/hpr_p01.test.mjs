@@ -73,3 +73,19 @@ test('P01 concurrent connects expose only the latest requested connection', asyn
     assert.equal(m.inspect(old.resource.id, old.resource.content).connected, false);
   } finally { await m.close(); await old.close(); await latest.close(); }
 });
+
+test('P01 disconnect while discovery waits cannot publish a late catalog', async () => {
+  let release;
+  const gate = new Promise(resolve => { release = resolve; });
+  const f = await fixture({ gate }), m = new MCPManager();
+  try {
+    const pending = m.connect(f.resource);
+    const rejected = assert.rejects(pending, /discovery failed/);
+    while (!f.calls.some(q => q.method === 'tools/list')) await new Promise(resolve => setTimeout(resolve, 1));
+    await m.disconnect(f.resource.id);
+    release();
+    await rejected;
+    assert.equal(m.connections.has(f.resource.id), false);
+    assert.equal(m.inspect(f.resource.id, f.resource.content).connected, false);
+  } finally { release(); await m.close(); await f.close(); }
+});

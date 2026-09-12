@@ -2,6 +2,33 @@ import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/cli
 import { createHash } from 'node:crypto';
 
 const digest = value => createHash('sha256').update(value).digest('hex');
+// Keep the SDK's aggregation, protocol validation and header-tool filtering.
+// Validate each page before it enters the aggregate: SDK 2.0.0 silently ends
+// a repeated cursor, which is not evidence of a complete Host catalog.
+class DiscoveryClient extends Client {
+  catalogPages = new Map();
+  async request(request, options) {
+    const result = await super.request(request, options);
+    const kind = ({ 'tools/list': 'tools', 'resources/list': 'resources', 'prompts/list': 'prompts' })[request.method];
+    if (!kind) return result;
+    const state = this.catalogPages.get(kind) ?? { cursors: new Set(), identities: new Set(), bytes: 0 };
+    this.catalogPages.set(kind, state);
+    for (const item of result[kind]) {
+      const identity = kind === 'resources' ? item.uri : item.name;
+      if (state.identities.has(identity)) throw new Error('duplicate catalog identity');
+      state.identities.add(identity);
+      if (state.identities.size > 100) throw new Error('catalog limit');
+    }
+    state.bytes += Buffer.byteLength(JSON.stringify(result), 'utf8');
+    if ([...this.catalogPages.values()].reduce((sum, page) => sum + page.bytes, 0) > 200000) throw new Error('catalog size limit');
+    if (result.nextCursor !== undefined) {
+      if (state.cursors.has(result.nextCursor)) throw new Error('catalog cursor cycle');
+      state.cursors.add(result.nextCursor);
+    }
+    return result;
+  }
+}
+
 export function parseMcpConfig(content) {
   let config;
   try { config = JSON.parse(content); } catch { throw new Error('MCP content must be JSON'); }
@@ -28,13 +55,14 @@ export class MCPManager {
     const entry = this.connections.get(id);
     if (!entry) return;
     entry.connected = false;
-    await entry.client.close();
     this.connections.delete(id);
+    await entry.client.close();
   }
   async connect(resource) {
     const config = parseMcpConfig(resource.content);
-    await this.disconnect(resource.id);
-    const client = new Client({ name: 'se-runtime', version: '0.1.0' }, {
+    const previous = this.connections.get(resource.id);
+    if (previous) previous.connected = false;
+    const client = new DiscoveryClient({ name: 'se-runtime', version: '0.1.0' }, {
       capabilities: {}, inputRequired: { autoFulfill: false },
       versionNegotiation: { mode: config.protocol === '2026-07-28' ? { pin: '2026-07-28' } : 'legacy' },
     });
@@ -49,6 +77,10 @@ export class MCPManager {
     client.onclose = () => { entry.connected = false; };
     client.onerror = () => { entry.health = 'degraded'; entry.diagnostic = 'MCP transport error; reconnect explicitly'; };
     try {
+      // Reserve identity before yielding; old disconnect/connect completions
+      // can neither delete this entry nor return the replacement as their own.
+      await previous?.client.close();
+      if (this.connections.get(resource.id) !== entry) throw new Error('connection superseded');
       await client.connect(transport, { timeout: 15000 });
       const capabilities = client.getServerCapabilities() ?? {};
       const [tools, resources, prompts] = await Promise.all([
@@ -59,10 +91,12 @@ export class MCPManager {
       if (tools.tools.length > 100 || resources.resources.length > 100 || prompts.prompts.length > 100) throw new Error('catalog limit');
       // Short host tool names avoid model-specific identifier limits. The
       // descriptor retains the original name and server identity separately.
-      entry.tools = tools.tools.map(t => ({ ...t, hostName: 'mcp_' + digest(resource.id + '\0' + t.name).slice(0, 24) }));
+      const mappedTools = tools.tools.map(t => ({ ...t, hostName: 'mcp_' + digest(resource.id + '\0' + t.name).slice(0, 24) }));
+      if (Buffer.byteLength(JSON.stringify([mappedTools, resources.resources, prompts.prompts]), 'utf8') > 200000) throw new Error('catalog size limit');
+      if (this.connections.get(resource.id) !== entry) throw new Error('connection superseded');
+      entry.tools = mappedTools;
       entry.resources = resources.resources;
       entry.prompts = prompts.prompts;
-      if (JSON.stringify([entry.tools, entry.resources, entry.prompts]).length > 200000) throw new Error('catalog size limit');
       entry.connected = true;
       entry.health = 'healthy';
       entry.protocol = client.getNegotiatedProtocolVersion();

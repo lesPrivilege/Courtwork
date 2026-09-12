@@ -1,0 +1,46 @@
+✔ AM-B-T1 captures the final MCP payload and preserves the synchronous loop (46.313583ms)
+✔ AM-B-T1 records task-shaped responses as unsupported and shows the current continuation gap (8.522208ms)
+✔ AM-B-T1 does not treat partial args as a completed tool result, and exposes current wire gaps (4.563375ms)
+✔ AM-B-T1 observes Pi 0.85.1 final HTTP encoding and waits for complete streamed tool arguments (29.472959ms)
+✔ control: scope provenance, reset, CAS, and cross-session isolation survive restart (171.569083ms)
+✔ control: active Run freezes config; retry preserves its original runtime binding (447.344834ms)
+✔ policy: last match within scope, outer ceilings and literal regex characters (0.643125ms)
+✔ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (495.233708ms)
+✔ policy: path denial reaches the executor; exposed write does not imply allowed write (480.178917ms)
+✔ policy: domain tools use the same execution gate, including exact arguments across approval (0.833375ms)
+✔ context: skill metadata is progressive, installed content grants no plugin/tool authority (122.905584ms)
+✔ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (395.349375ms)
+✔ control config: corrupt or future version fails closed without overwriting the file (112.8895ms)
+✔ compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (101.494125ms)
+✔ MCP modern: discovery is separate from exposure and execution consent (386.861625ms)
+✔ MCP legacy: discovery is separate from exposure and execution consent (887.229ms)
+✔ MCP: first unknown outcome closes subsequent tool admission in the same Run (656.559166ms)
+✔ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (455.824125ms)
+✔ admission serializes permission changes and extension binding before runtime snapshots can diverge (476.95125ms)
+✔ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (67.883167ms)
+✔ P01 installed SDK modern aggregates pages (47.998375ms)
+✔ P01 installed SDK modern aggregates empty (17.262958ms)
+✔ P01 modern rejects incomplete failure atomically (6.446167ms)
+✔ P01 modern rejects incomplete cycle atomically (5.286792ms)
+✔ P01 modern rejects incomplete duplicate atomically (2.6485ms)
+✔ P01 modern rejects incomplete count atomically (3.006958ms)
+✔ P01 modern rejects incomplete bytes atomically (5.384416ms)
+✔ P01 modern rejects incomplete page-limit atomically (77.202084ms)
+✔ P01 installed SDK legacy aggregates pages (13.368583ms)
+✔ P01 installed SDK legacy aggregates empty (5.228625ms)
+✔ P01 legacy rejects incomplete failure atomically (5.820084ms)
+✔ P01 legacy rejects incomplete cycle atomically (5.159375ms)
+✔ P01 legacy rejects incomplete duplicate atomically (3.07475ms)
+✔ P01 legacy rejects incomplete count atomically (6.005833ms)
+✔ P01 legacy rejects incomplete bytes atomically (3.346875ms)
+✔ P01 legacy rejects incomplete page-limit atomically (60.624584ms)
+✔ P01 concurrent connects expose only the latest requested connection (4.950542ms)
+✔ P01 disconnect while discovery waits cannot publish a late catalog (3.716625ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5914.024375

@@ -1,0 +1,25 @@
+✔ P01 installed SDK modern aggregates pages (44.017375ms)
+✔ P01 installed SDK modern aggregates empty (10.970666ms)
+✔ P01 modern rejects incomplete failure atomically (5.304917ms)
+✔ P01 modern rejects incomplete cycle atomically (5.536625ms)
+✔ P01 modern rejects incomplete duplicate atomically (2.609708ms)
+✔ P01 modern rejects incomplete count atomically (2.89875ms)
+✔ P01 modern rejects incomplete bytes atomically (4.78875ms)
+✔ P01 modern rejects incomplete page-limit atomically (65.703833ms)
+✔ P01 installed SDK legacy aggregates pages (10.033417ms)
+✔ P01 installed SDK legacy aggregates empty (4.8925ms)
+✔ P01 legacy rejects incomplete failure atomically (3.596416ms)
+✔ P01 legacy rejects incomplete cycle atomically (4.152917ms)
+✔ P01 legacy rejects incomplete duplicate atomically (2.479083ms)
+✔ P01 legacy rejects incomplete count atomically (4.783584ms)
+✔ P01 legacy rejects incomplete bytes atomically (3.316708ms)
+✔ P01 legacy rejects incomplete page-limit atomically (49.079208ms)
+✔ P01 concurrent connects expose only the latest requested connection (4.009333ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 376.8585
