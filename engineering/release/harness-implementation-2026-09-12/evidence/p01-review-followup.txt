@@ -1,0 +1,31 @@
+✔ P01 installed SDK modern aggregates pages (51.037709ms)
+✔ P01 installed SDK modern aggregates empty (10.921291ms)
+✔ P01 modern rejects incomplete failure atomically (5.639459ms)
+✔ P01 modern rejects incomplete cycle atomically (5.745917ms)
+✔ P01 modern rejects incomplete empty-cycle atomically (4.277375ms)
+✔ P01 modern rejects incomplete duplicate atomically (4.3895ms)
+✔ P01 modern rejects incomplete cross-page-duplicate atomically (4.123834ms)
+✔ P01 modern rejects incomplete count atomically (2.964958ms)
+✔ P01 modern rejects incomplete bytes atomically (3.174083ms)
+✔ P01 modern rejects incomplete page-limit atomically (77.528708ms)
+✔ P01 installed SDK legacy aggregates pages (11.5225ms)
+✔ P01 installed SDK legacy aggregates empty (4.997833ms)
+✔ P01 legacy rejects incomplete failure atomically (3.618917ms)
+✔ P01 legacy rejects incomplete cycle atomically (6.801292ms)
+✔ P01 legacy rejects incomplete empty-cycle atomically (3.573625ms)
+✔ P01 legacy rejects incomplete duplicate atomically (2.446542ms)
+✔ P01 legacy rejects incomplete cross-page-duplicate atomically (3.162583ms)
+✔ P01 legacy rejects incomplete count atomically (2.677625ms)
+✔ P01 legacy rejects incomplete bytes atomically (3.094708ms)
+✔ P01 legacy rejects incomplete page-limit atomically (52.480084ms)
+✔ P01 concurrent connects expose only the latest requested connection (8.281583ms)
+✔ P01 disconnect while discovery waits cannot publish a late catalog (5.158083ms)
+✔ P01 transport error invalidates callability until explicit reconnect (7.717542ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 459.613125

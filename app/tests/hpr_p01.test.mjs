@@ -27,6 +27,8 @@ async function fixture({ legacy = false, mode = 'pages', gate } = {}) {
       else if (mode === 'failure') result.nextCursor = '1';
       else if (mode === 'cycle') result.nextCursor = n === 0 ? '1' : n === 1 ? '2' : '1';
       else if (mode === 'duplicate') result[kind] = [item(kind, 0), item(kind, 0)];
+      else if (mode === 'cross-page-duplicate') { result[kind] = [item(kind, 0)]; if (n === 0) result.nextCursor = '1'; }
+      else if (mode === 'empty-cycle') { result[kind] = []; result.nextCursor = '1'; }
       else if (mode === 'count') result[kind] = Array.from({ length: 101 }, (_, i) => item(kind, i));
       else if (mode === 'bytes') result[kind][0].description = 'x'.repeat(200001);
       else if (mode === 'page-limit') result.nextCursor = String(n + 1);
@@ -51,7 +53,7 @@ for (const legacy of [false, true]) {
       }
     } finally { await m.close(); await f.close(); }
   });
-  for (const mode of ['failure', 'cycle', 'duplicate', 'count', 'bytes', 'page-limit']) test(`P01 ${legacy ? 'legacy' : 'modern'} rejects incomplete ${mode} atomically`, async () => {
+  for (const mode of ['failure', 'cycle', 'empty-cycle', 'duplicate', 'cross-page-duplicate', 'count', 'bytes', 'page-limit']) test(`P01 ${legacy ? 'legacy' : 'modern'} rejects incomplete ${mode} atomically`, async () => {
     const f = await fixture({ legacy, mode }), m = new MCPManager();
     try {
       await assert.rejects(m.connect(f.resource), /discovery failed/);
@@ -88,4 +90,19 @@ test('P01 disconnect while discovery waits cannot publish a late catalog', async
     assert.equal(m.connections.has(f.resource.id), false);
     assert.equal(m.inspect(f.resource.id, f.resource.content).connected, false);
   } finally { release(); await m.close(); await f.close(); }
+});
+
+// Exercise the SDK-to-Host error callback separately from protocol failures.
+test('P01 transport error invalidates callability until explicit reconnect', async () => {
+  const f = await fixture(), m = new MCPManager();
+  try {
+    await m.connect(f.resource);
+    const entry = m.connections.get(f.resource.id);
+    entry.client.onerror(new Error('synthetic transport error'));
+    const state = m.inspect(f.resource.id, f.resource.content);
+    assert.equal(state.connected, false); assert.equal(state.health, 'degraded');
+    const [tool] = m.toolsFor({ resources: [{ kind: 'tool', exposed: true, executionName: 'test', title: 'test', mcp: { serverId: f.resource.id, configHash: entry.hash, name: 'tool0' } }] }, async () => assert.fail('must reject before dispatch'));
+    await assert.rejects(tool.execute('no-dispatch', {}, undefined), /no longer connected/);
+    assert.equal((await m.connect(f.resource)).connected, true);
+  } finally { await m.close(); await f.close(); }
 });

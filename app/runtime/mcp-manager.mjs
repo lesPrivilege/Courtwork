@@ -75,7 +75,7 @@ export class MCPManager {
     const entry = { client, hash: digest(resource.content), connected: false, health: 'healthy', protocol: config.protocol, tools: [], resources: [], prompts: [], diagnostic: null };
     this.connections.set(resource.id, entry);
     client.onclose = () => { entry.connected = false; };
-    client.onerror = () => { entry.health = 'degraded'; entry.diagnostic = 'MCP transport error; reconnect explicitly'; };
+    client.onerror = () => { entry.connected = false; entry.health = 'degraded'; entry.diagnostic = 'MCP transport error; reconnect explicitly'; };
     try {
       // Reserve identity before yielding; old disconnect/connect completions
       // can neither delete this entry nor return the replacement as their own.
