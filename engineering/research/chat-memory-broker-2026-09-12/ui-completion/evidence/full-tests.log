@@ -1,0 +1,1240 @@
+✔ answer admission race: ask_user queued behind cancel returns 409 (374.254541ms)
+✔ answer admission race: permission queued behind cancel returns 409 (242.948167ms)
+✔ normal ask_user answer still resolves and completes the run (734.094ms)
+✔ double permission answer records one decision and rejects the other (759.407ms)
+✔ the limited scanner recognizes imports while ignoring comments and strings (2.369167ms)
+✔ legal and forbidden synthetic edges exercise all approved boundaries (0.689667ms)
+✔ the current Core, runtime, renderer, and composition-root graph obeys ownership (45.3785ms)
+✔ AM-C final wire golden and no-op are stable after temporary path canonicalization (605.522375ms)
+✔ AM-C separates request shape, old prefix, and semantic tool diffs (750.469542ms)
+✔ AM-C records description, schema, and permission changes as expected diffs (1245.62375ms)
+✔ history refs keep exact UTF-8 blobs reachable through Git GC; another session cannot read them (498.909083ms)
+✔ history cancellation waits for the Git process to exit and the next save repairs interrupted init (1345.774792ms)
+✔ existing non-blob history object is an integrity failure (188.759875ms)
+✔ R1-HIST-1: v1 and v2 remain readable after current-file deletion (709.061125ms)
+✔ R1-HIST-2: cross-session, wrong-record, and unrecorded lookups are 404 and reads are pure (455.951042ms)
+✔ R1-HIST-3: historical text truncates on a UTF-8 boundary with full bytes/hash (685.517792ms)
+✔ R1-HIST-4: a recorded legacy artifact without history returns 410 history_unavailable (541.206542ms)
+✔ R1-HIST-5: object/metadata byte mismatch returns 500 artifact_integrity_failed (632.982542ms)
+✔ R1-HIST-6: SIGKILL after history and before rename exposes neither file nor artifact (1343.160583ms)
+✔ R1-HIST-7: SIGKILL after rename and before record leaves current file unrecorded (1214.381042ms)
+✔ R1-HIST-8: SIGKILL after record preserves historical bytes across restart (1258.836083ms)
+✔ catalog staleness keeps durable result readable and refuses further adapter work (71.895958ms)
+✔ policy rejection records dependency before adapter I/O, leaving Run unresolved (53.40975ms)
+✔ late query cannot overwrite cancellation and lost cancel ACK remains unresolved (108.699375ms)
+✔ stopped Run forbids dispatch and wait stays inside local budget (128.299416ms)
+✔ host/Pi wrapper denial of an old async_get leaves the new Run unresolved (163.857917ms)
+✔ fixture independently releases two documents without timing assertions (173.968417ms)
+✔ fixture makes delivery identity idempotent and exposes launch/result acknowledgement loss (144.09325ms)
+✔ fixture keeps cancel-before-success and cancel-after-success distinct (123.614125ms)
+✔ SIGKILLs the state-owning provider and queries persisted synthetic settlement after restart (322.150166ms)
+✔ in-flight provider SIGKILL retains the accepted synthetic record without implicit resume or relaunch (229.62325ms)
+✔ concurrent launches publish complete synthetic state before their barriers open (221.652791ms)
+✔ reused job IDs reject a changed immutable request without incrementing the launch attempt (117.235958ms)
+✔ AM-B-T1 captures the final MCP payload and preserves the synchronous loop (45.302959ms)
+✔ AM-B-T1 records task-shaped responses as unsupported and shows the current continuation gap (9.650709ms)
+✔ AM-B-T1 does not treat partial args as a completed tool result, and exposes current wire gaps (4.822959ms)
+✔ AM-B-T1 observes Pi 0.85.1 final HTTP encoding and waits for complete streamed tool arguments (32.270166ms)
+✔ independent recovery: SIGKILL at async_intent keeps one original task/run and never relaunches (1197.247917ms)
+✔ independent recovery: SIGKILL at async_dispatch keeps one original task/run and never relaunches (1003.204875ms)
+✔ independent recovery: SIGKILL at async_result keeps one original task/run and never relaunches (1382.98125ms)
+✔ independent recovery: SIGKILL at async_delivery keeps one original task/run and never relaunches (1402.909875ms)
+✔ fixed old main schema4 RuntimeStore rejects a schema5 state without changing bytes (1331.359334ms)
+✔ schema3 and schema4 migrate with an exact independent backup and reopen (1134.954583ms)
+✔ invalid UTF-8 schema4 input is refused before migration and its bytes remain untouched (99.628791ms)
+✔ current: full schemaVersion:1 view is an independent literal copy with availability last (4.597ms)
+✔ availability classes follow the frozen priority with no inference (0.52725ms)
+✔ options omit result and/or deliveries but never rewrite the rest (0.550709ms)
+✔ nulls and prepared-but-unrecorded delivery facts are preserved, never filled in (0.106ms)
+✔ succeeded and cancelRequestedAt coexist; terminal evidence is immutable in the view (0.392833ms)
+✔ an older delivery snapshot is projected as-is and never repaired into newer facts (0.125083ms)
+✔ no invented fields and no auto-recovery in the projection (0.098334ms)
+✔ a stale source never projects as current even when a result exists (0.081333ms)
+✔ HTTP list/detail packets: real host + synthetic adapter, scoped and paged (753.217458ms)
+✔ two durable reads use actual host/Pi tools and wait only on the selected source (595.446458ms)
+✔ premature final and lost launch ACK preserve query-only recovery, then a later Run consumes the original task (501.872833ms)
+✔ source/implementation absence remains readable; corrupt bytes and cross-session consumption are refused (495.573625ms)
+✔ schema3/4 migrate through exclusive backup and refuse existing backup paths (381.803708ms)
+✔ invalid UTF-8 schema4 is refused before backup or replacement (88.339958ms)
+✔ the projection accepts exactly the actions this app was built against (2.512375ms)
+✔ a descriptor fails closed on a stale revision, an unknown action or a widened schema (0.408917ms)
+✔ the detail offers only advertised, understood actions and never an out-of-scope control (18.114292ms)
+✔ an item whose descriptors this app cannot read offers no controls at all (0.893417ms)
+✔ acknowledge is the action itself: an empty payload, no dialog, no toggle (4.379416ms)
+✔ resolve requires a reason and refuses to send without one (2.370833ms)
+✔ snooze records a next action and only sends a due time when the trigger is one (2.93925ms)
+✔ a recorded due time is required for the at trigger and is sent with its zone (3.272833ms)
+✔ resume and reopen name their target state and offer no third one (1.640542ms)
+✔ a resolved item offers reopen and nothing the contract withdrew (1.015875ms)
+✔ nothing is optimistic: only the submit control changes while a request is open (1.680334ms)
+✔ when the last row of a page leaves, the view backs up to a page that exists (2.040292ms)
+✔ global Attention has replayable identity, shared configuration and a real governed Run (297.521875ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (299.157292ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (149.120666ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.634ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.160334ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.155584ms)
+✔ conversation rename persists metadata without changing history, scope or draft (66.28425ms)
+✔ Attention CAS, full request identity, typed transitions and immutable receipt (99.316958ms)
+✔ scope applies before IDs, descriptors, counts, lookups, receipts and source queries (91.307958ms)
+✔ runtime registry-only grant hides detail, search predicates, event/receipt/source and signals (85.8555ms)
+✔ explicit signal policy records observations without status, seen or authorization changes (89.929791ms)
+✔ schema-aware exact/literal grep/relation filters are bounded and no regex executes (133.551417ms)
+✔ source references bind exact retained Core bytes and scope; external locators stay unknown (203.262667ms)
+✔ unknown schema/action, stale mutation, corrupt state and hidden unknown schema fail closed (264.279458ms)
+✔ simultaneous actions serialize CAS, and needs_you is an explicit typed transition (82.242167ms)
+✔ missing audit/receipt or rewritten receipt is refused before a new state change (367.221083ms)
+✔ GitHub fixture preserves raw conditional values, pagination, snapshots on 304, and changing poll cadence (1.567041ms)
+✔ GitHub fixture retains notification semantics that are unsafe to collapse (0.141625ms)
+✔ GitHub fixture surfaces unsupported credentials, revoked authorization and rate limits (0.35375ms)
+✔ GitHub fixture rejects contradictory scripts (0.078583ms)
+✔ Gmail fixture supplies duplicate and out-of-order push/history pages without advancing a caller cursor (1.593875ms)
+✔ Gmail fixture presents interruption, gap, expired watch, mismatch, and revoked authorization as explicit provider outcomes (0.484292ms)
+✔ Gmail fixture rejects malformed and contradictory scripted responses (0.17375ms)
+✔ ATT-BE-01 HTTP round trip keeps multi-Matter/source/execution refs through typed CAS and producer loss (1244.939417ms)
+✔ Attention scope, actor ownership, unknown fields and schema versions fail closed over every query kind (162.300833ms)
+✔ Runtime Attention adapter captures host execution context, records signals only, and closes with the Run (686.016959ms)
+✔ generated Attention consumer packet records the HTTP/Pi/Core invariants (2.4285ms)
+✔ Attention SIGKILL at before_commit leaves zero or one complete request effect (187.776541ms)
+✔ Attention SIGKILL at after_commit_before_ack leaves zero or one complete request effect (171.703542ms)
+✔ synthetic trace vectors preserve edits, stale approval, unknown effect, duplicate surfacing and non-score samples (1.566416ms)
+✔ trace fixture validator rejects contradictions rather than turning missing evidence into a score (0.250958ms)
+✔ trace fixture validation runner is executable within the fixture directory (62.200792ms)
+✔ ATT-ACT-1 · a submitted action carries the inspected revision and is read back canonically (592.188625ms)
+✔ ATT-ACT-2 · a stale revision is refused, announced and never silently replayed (993.253334ms)
+✔ ATT-ACT-3 · a lost response is recovered from the receipt, not guessed (224.073125ms)
+✔ ATT-ACT-4 · a request that never left is retried under its own identity, once (784.516167ms)
+✔ ATT-ACT-5 · a reused identity with different content is refused and surfaced (214.304ms)
+✔ Snooze records Later, which stays a visible view and starts no timer (790.886083ms)
+✔ the workspace holds no timer of its own (0.702041ms)
+✔ relative time reads the recorded instant without rewriting it (13.100959ms)
+✔ the state strip is six explicit views and each one is its own exact query (4.733875ms)
+✔ All renders the order the server returned and adds no client sort (0.38775ms)
+✔ a row states its status and when the record was updated, and nothing else (0.400958ms)
+✔ J K and the arrows walk the list, clamp at both ends and stay out of text controls (0.782208ms)
+✔ Enter opens the focused row and Escape returns focus to it (1.914ms)
+✔ Back to items returns to the row, never to the project selector (1.141834ms)
+✔ pagination is explicit and a view change starts again at the first page (0.663542ms)
+✔ a pending query keeps the workspace readable and never sorts a half page (0.370833ms)
+✔ a refused read speaks the adjudicated sentence, never the wire code (0.598333ms)
+✔ T-CANCEL-2: cancelling while waiting for the first token yields stopping then cancelled (587.891334ms)
+✔ T-CANCEL-3: cancelling during ask_user closes the question and refuses a late answer (140.951ms)
+✔ T-CANCEL-4: a late allow after cancelling a permission is refused and writes nothing (730.642208ms)
+✔ T-CANCEL-5: cancelling a run that is not in this process reports unknown, not cancelled (514.399875ms)
+✔ T-PERM-6: concurrent allow and deny on one permission — first wins, second is 409 (481.736334ms)
+✔ T-PERM-7: read_only makes ws_write absent, not present-and-refused (511.6745ms)
+✔ card middle layer retains same-target disclosure, resets target and scope, keeps warnings outside (1.454416ms)
+✔ Runtime summary rejects previous-session counts and preserves unknown rather than zero (0.736625ms)
+✔ presentation entry directory retains honest fallback rows without synthetic actions (1.009292ms)
+✔ injected reader checks live scope identity revision and resets disclosure after scope change (0.445792ms)
+✔ entry reader receives the exact opener and scope changes do not transfer focus (0.564583ms)
+✔ production only admits explicit handlers and preserves exact captured bytes (0.992375ms)
+✔ synthetic feedback is mutually exclusive and reversible; failure preserves selection (22.85025ms)
+✔ feedback lock suppresses duplicate/inverse requests and detached results cannot update a new target (1.098208ms)
+✔ streaming allows only exact current-text copy, while unavailable actions report reasons (1.184417ms)
+✔ regeneration requires explicit confirmation and retains original scope (1.522333ms)
+✔ synthetic playback can be paused, resumed and stopped without a speech service (5.16825ms)
+✔ production rejects undeclared lifecycle handlers even when supplied (0.167458ms)
+✔ same bytes and key from a replacement record cannot accept an async result (1.5155ms)
+✔ unavailable and native channels preserve draft and do not acquire a Run (1.408417ms)
+✔ draft and reading recovery are isolated by account, session and channel (0.839334ms)
+✔ closing a detail cannot stop a run or change a work/permission fact (0.387041ms)
+✔ revocation after search rejects exact read and drops cached contents (0.466458ms)
+✔ late account, session and source reads cannot overwrite the current detail (0.324ms)
+✔ old references remain exact; stale judgment refresh cannot accept or resolve (0.457125ms)
+✔ cancel and session changes cannot apply an old response to the current conversation (0.181041ms)
+✔ model picker mock rejects unknown operations and stale picker scope (0.425042ms)
+✔ preview server has no API or mutation route and cannot traverse mounts (22.190542ms)
+✔ Chat sits in the Home / Attention / Spark group as a plain button (1.768917ms)
+✔ openChatPage opens the page over the existing session and creates nothing (0.342ms)
+✔ recent chats across open projects, newest first, marking Work and the current one (10.454417ms)
+✔ empty state, New chat route, sibling entries and honest planning copy (1.182833ms)
+✔ app wiring: the Chat seat opens the page, the page closes like Attention, and it is served (0.898208ms)
+✔ stream append restores selection onto replacement nodes and preserves viewport anchor (0.947709ms)
+✔ a different session or missing immutable row cannot inherit selection or anchor (0.67125ms)
+✔ changed selected source bytes are not silently selected as if unchanged (0.081291ms)
+✔ following latest does not restore an older viewport anchor (0.068417ms)
+✔ band · 48 on the web, a native host only raises it (0.898875ms)
+✔ band · one title line; Chat is the default mode and is not restated (0.142417ms)
+✔ sidebar · 16 glyph on a 32 row, 2 between nav rows, 16 between groups, 44 on touch (0.256125ms)
+✔ content column · prose and composer share one inset resolved against one width (0.1855ms)
+✔ summary · cards fold to the strip before the reading column drops under 640 + two tight insets (0.117417ms)
+✔ composer · content-driven and bounded; growth never writes value (0.256083ms)
+✔ Home keeps its own 820 column and composer sizes (0.091292ms)
+✔ recorded references deduplicate exact identity but retain different Run versions (0.775166ms)
+✔ unbound discussion reads no made-up source endpoint; file opens exact captured version (3.429625ms)
+✔ scope change rejects late work projection, with no source bytes in the replacement view (0.470833ms)
+✔ read failure remains explicit and refresh is available (0.406334ms)
+✔ fixed candidate evidence never substitutes the current source revision (0.142083ms)
+✔ quoting a full recorded file keeps exact text lines and provenance; current files are rejected (0.192958ms)
+✔ missing or mismatched historical bytes stay explicit rather than falling back to latest (1.132417ms)
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.5485ms)
+✔ WK-92 · Continue in Matter 只走既有的 extension 路由；不新增端点、不复制、不迁移 (1.334583ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.454833ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.211291ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.171416ms)
+✔ native compaction cancel settles with no persisted partial summary (598.700792ms)
+✔ native compaction deadline settles with no persisted partial summary (330.4605ms)
+✔ native overflow recovery persists a summary and a restarted host uses it (339.924792ms)
+✔ automatic threshold persists a summary and sends it in the next request (585.919583ms)
+✔ provider-default omits SDK-generated reasoning controls on ordinary and compaction requests (491.720417ms)
+✔ failed summary leaves the journal unchanged and marks run usage missing (499.851375ms)
+✔ native summary retry succeeds but usage stays missing and counts only reported values (2500.229875ms)
+✔ maxCompactions disables later automatic summaries while the ordinary turn completes (194.311875ms)
+✔ CI-B · support is read from CSS.supports, never assumed (0.980292ms)
+✔ CI-B · fit follows scrollHeight and respects the box model (0.156584ms)
+✔ CI-B · with native support nothing is installed; without it, input refits and value is never written (0.129833ms)
+✔ CI-F · only an image-only paste gets a sentence; text is never swallowed (0.156208ms)
+✔ CI-B / CI-F · wiring: no paste is prevented, growth is @supports-gated, the module is served (0.398333ms)
+✔ CI-B · each variant keeps a plain ceiling, dvh hosts get the 28dvh override, Home anchors the resting box (0.2285ms)
+✔ roles exist in both schemes and stay separate from review / danger / diff (1.198917ms)
+✔ the switch is the specimen: on = accent, disabled = unavailable pair, off = neutral (0.298583ms)
+✔ the Pages paper link is an action, not the Review marker (0.173709ms)
+✔ control: scope provenance, reset, CAS, and cross-session isolation survive restart (171.808709ms)
+✔ control: active Run freezes config; retry preserves its original runtime binding (438.990375ms)
+✔ policy: last match within scope, outer ceilings and literal regex characters (1.299125ms)
+✔ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (138.767584ms)
+✔ policy: path denial reaches the executor; exposed write does not imply allowed write (329.08075ms)
+✔ policy: domain tools use the same execution gate, including exact arguments across approval (0.340833ms)
+✔ context: skill metadata is progressive, installed content grants no plugin/tool authority (569.9335ms)
+✔ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (498.886167ms)
+✔ control config: corrupt or future version fails closed without overwriting the file (113.915667ms)
+✔ compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (138.420833ms)
+✔ MCP modern: discovery is separate from exposure and execution consent (693.646416ms)
+✔ MCP legacy: discovery is separate from exposure and execution consent (726.511209ms)
+✔ MCP: first unknown outcome closes subsequent tool admission in the same Run (445.235166ms)
+✔ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (473.967083ms)
+✔ admission serializes permission changes and extension binding before runtime snapshots can diverge (374.753334ms)
+✔ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (69.69325ms)
+✔ MA2-02 · the Thread directory projects only the published contract (2.207834ms)
+✔ MA2-02 · a mailbox page must stay inside the bounds the server reported (0.888083ms)
+✔ MA2-02 · an undelivered message keeps an explicit null, not an empty time (0.07525ms)
+✔ MA2-02 · receipts are validated with the same gate as the directory rows (0.11825ms)
+✔ MA2-02 · Session options carry the scope the server itself derives (0.144375ms)
+✔ MA2-02 · option lists offer only bindings the server would accept (0.174917ms)
+✔ MA2-02 · both new modules are admitted by the static allowlist (0.157959ms)
+✔ MA2-02 · the consumer surface adds no second run-start path (0.247291ms)
+✔ Thread identity and membership are durable, explicit and not Session identity (111.419416ms)
+✔ outbox replay is idempotent; conflicting payload and invented source are refused (52.755333ms)
+✔ late delivery retains origin and distinguishes stale target from missing target (51.795958ms)
+✔ reply lineage requires a delivered reverse envelope, not an unrelated latest message (50.74875ms)
+✔ global Attention directory spans scopes; it never yields another mailbox body or membership (50.41075ms)
+✔ runtime cross-scope sending is Attention-only; a project Run is refused at that guard alone (55.932417ms)
+✔ a domain-bound Session cannot message from a Run even with a host-shaped origin (51.959542ms)
+✔ delete and scope change do not recreate a recipient or reroute queued messages (50.225584ms)
+✔ RuntimeStore6 migration preserves global scope and exact backup; corrupt ledger fails closed (135.401584ms)
+✔ child grant monotonically narrows; the reducer passes caller-supplied conflict strings through and refuses contradictory results for one execution ID (1.213375ms)
+✔ child tool boundary denies widening and completion remains undelivered/unaccepted (0.599542ms)
+✔ cancel, timeout, late completion and mutated caller input cannot change child settlement or origin (6.145084ms)
+✔ authenticated HTTP Thread/message entry reaches a real inbox without starting a model (98.9625ms)
+✔ a crash inside the enqueue write leaves no half message; the same key then sends exactly once (271.332584ms)
+✔ a crash inside the delivery write keeps the message queued; recovery then delivers it exactly once (207.756167ms)
+✔ clean restart after the outbox write completed recovers exactly one local delivery without a Run (858.898625ms)
+✔ model messages require a real permission decision and cannot auto-run the recipient (415.952833ms)
+✔ global Attention crosses scope through the model tool, still spending exactly one exact-argument decision (559.694292ms)
+✔ domain-bound Sessions receive no coordination tool at either composition site (500.773959ms)
+✔ read-only tool metadata agrees with dispatch denial; project model directory excludes other scopes (172.228708ms)
+✔ schema7 effort survives upgrade; fixed old host refuses schema9 and restores only the separate original backup (302.288708ms)
+✔ mailbox pagination preserves ordered identities and refuses duplicate or oversized queries (92.534959ms)
+✔ T-CRED-1: missing credential fails the run without touching HOME/.pi (589.555625ms)
+✔ T-CRED-2: a credential written via the API flows through and never leaks (499.7635ms)
+✔ T-CRED-3: inherited DEEPSEEK_API_KEY is stripped at startup and logged (61.544584ms)
+✔ T-CRED-4: PUT/DELETE credential during an active run is 409 and the run finishes on its own key (489.567333ms)
+✔ T-CRED-5: a sentinel HOME auth.json and env var are never used as credentials (948.38875ms)
+✔ diffWords marks only the changed tokens and never leading indentation (0.983167ms)
+✔ diffModel: word segments only for exactly one removed + one added line (0.830833ms)
+✔ renderDiff keeps ± and line numbers as text and puts blocks only on new words (1.6755ms)
+✔ renderDiff treats markup as text, renders the no-newline marker, and handles empty input (0.423417ms)
+✔ Settings preview and the static allowlist use the shared renderer and fixture (1.082167ms)
+✔ DRT02 DeepSeek: actual SDK stream, Deny/Approve, reasoning replay and reopened history (2226.381708ms)
+✔ DRT02 DeepSeek error: explicit terminal state and no fallback (114.601083ms)
+✔ DRT02 DeepSeek cancel: explicit terminal state and no fallback (109.686833ms)
+✔ DRT02 DeepSeek missing-metadata: explicit terminal state and no fallback (133.929583ms)
+✔ DRT02 DeepSeek: provider alias reaches public request telemetry through the actual SDK (210.275917ms)
+✔ T-DUR-1: a crash before the tool runs leaves no file, no artifact and no replay (1164.387167ms)
+✔ T-DUR-2: a crash between the write and the record surfaces the file as unrecorded (1394.93875ms)
+✔ T-DUR-3: a crash after the record is persisted keeps artifact and file in agreement (1220.035042ms)
+✔ T-DUR-4: a crash during a store write keeps the last complete state and discards the tmp (1030.16425ms)
+✔ a corrupt leftover tmp never affects the state that is loaded (96.8395ms)
+✔ T-IDEM-5: replaying a commandId after a restart returns the original unknown run (1461.705417ms)
+✔ completed Run disclosure groups successful tools and exact allowed history in timeline order (1.557083ms)
+✔ incomplete, failed, pending, denied, malformed, and cross-call rows stay outside the summary (0.184875ms)
+✔ a completed Run with only errors or unfinished calls gets no empty summary (0.067292ms)
+✔ member IDs and disclosure state keys remain stable and surface-scoped (0.116875ms)
+✔ file candidate identity, exact replay, immutable pages, closed admission and atomic acceptance (104.938666ms)
+✔ coverage is monotone; frozen candidate precedes later unknown input; semantic failures stay diagnostic (104.918042ms)
+✔ failed deterministic checks cannot accept, and source membership changes invalidate file basis (85.861125ms)
+✔ illegal provenance, encoding, count, path and byte limits reject without candidate side effects (95.52875ms)
+✔ SIGKILL file save and accept commit boundaries leave zero or one complete durable effect (1511.141542ms)
+✔ metadata byte boundary, escaped wire envelope, file/path/count boundaries and empty files are exact (135.292833ms)
+✔ file diff binds only frozen base, uses linear replacement, preserves newlines and refuses oversized output (88.445542ms)
+✔ corrupt bytes, manifest, column bindings and a verification record copied from another identity refuse reads and acceptance (997.900375ms)
+✔ a changed trusted policy cannot accept an old PASS; empty evidence is diagnostic failed (205.02325ms)
+✔ unknown file schema exposes scoped bounded metadata but cannot decode or accept (198.550292ms)
+✔ verification outcome corruption is refused and acceptance rechecks required evidence (172.638708ms)
+✔ file runs require a concrete Session identity at the private bridge boundary (81.457541ms)
+✔ real service/Pi recorded write, permission CAS, save, human accept, deletion and producer-absent exact reads (1100.090667ms)
+✔ extra workspace reads and continued history yield unknown; an unrecorded selector never imports (994.883333ms)
+✔ actual list/grep/ask/load inputs, continued history and compaction-enabled admission remain unknown (4012.0615ms)
+✔ steering, failed coverage persistence, and Stop racing immutable capture cannot publish a complete candidate (1498.297667ms)
+✔ missing or corrupt history rejects recorded import even though current workspace bytes still exist (1142.389125ms)
+✔ a real loopback MCP tool executes only after its extra-input marker is durable (859.72475ms)
+✔ SIGKILL after history or rename leaves an orphan version that no later Run may import (3464.928292ms)
+✔ extension restart: loaded binding continues; invalidation and unload keep their generations (1273.451625ms)
+✔ extension restart: changed version requires reload; empty composition preserves dormant records (215.485791ms)
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (539.173042ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (565.6465ms)
+✔ governance: policy is separate from Matter, exact replay cannot resurrect revoked disclosure (87.882583ms)
+✔ governance: scope and registry-only grant hide bodies, hashes, counts and unknown schemas (172.685875ms)
+✔ governance: pagination binds visible collection; source updates require rediscovery while policy remains valid (85.17025ms)
+✔ governance: registry and Attention source links do not grant target Matter access (80.693834ms)
+✔ governance: accepted Artifact is exact, bounded and distinct from pending candidates (82.375ms)
+✔ governance: unsupported schema, malformed envelopes and hidden queries fail closed (80.76425ms)
+✔ governance: corrupt bytes and missing policy provenance are refused without repair (325.781792ms)
+✔ governance: file Artifact delegates to exact immutable manifest/content reader (80.229833ms)
+✔ governance: unknown Matter contract is discoverable metadata but cannot be decoded (74.784ms)
+✔ governance: non-object or corrupted policy provenance has uniform runtime absence and structured human refusal (341.661667ms)
+✔ governance: oversized content cannot prevent human policy-only revocation (83.671208ms)
+✔ governance authenticated HTTP rejects identity injection and cross-project refs, grants are human-only (209.508ms)
+✔ global Pi tools discover, inspect and read exact governed evidence; project catalogs cannot install them (1997.664083ms)
+✔ runtime adapter rejects mismatched/closed host Runs and a change while Core read is pending (475.858291ms)
+✔ governance policy SIGKILL before_commit preserves zero/one complete effect (275.267042ms)
+✔ governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect (270.548333ms)
+✔ Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup (487.062292ms)
+✔ migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes (721.07425ms)
+✔ governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together (338.7455ms)
+✔ governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together (324.185417ms)
+✔ disclosure expiry is checked at query time with a deterministic future clock (181.498458ms)
+✔ worker preserves regex matches, line numbers and Unicode (26.079375ms)
+✔ pathological regex times out while the service event loop stays responsive (2003.975334ms)
+✔ abort terminates pathological matching before its worker timeout (153.184708ms)
+✔ already aborted search cannot start matching (1.315583ms)
+✔ Home Activity rejects malformed dates, totals, and requested periods (2.397041ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.378083ms)
+✔ Home Attention detail accepts only the display contract (0.191334ms)
+✔ standalone Attention ignores an older project query after a newer open (15.559083ms)
+✔ standalone Attention ignores a stale detail after project selection changes (1.519583ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.249166ms)
+✔ Back to items clears a pending detail and rejects its late response (0.881125ms)
+✔ Review belongs only to needs_you across Home and Attention states (1.158417ms)
+✔ text-only pending and failed Home rows render and retain their exact navigation scope (0.63425ms)
+✔ Home retains native targets for unchanged projections and uses current callbacks (0.384875ms)
+✔ Home immediately renders changed facts, removed targets, filters, and errors (0.710625ms)
+✔ Home remounts after the shared stream was used by a chat (0.283042ms)
+✔ P01 installed SDK modern aggregates pages (54.453167ms)
+✔ P01 installed SDK modern aggregates empty (13.462833ms)
+✔ P01 modern rejects incomplete failure atomically (4.859875ms)
+✔ P01 modern rejects incomplete cycle atomically (6.682834ms)
+✔ P01 modern rejects incomplete empty-cycle atomically (4.275041ms)
+✔ P01 modern rejects incomplete duplicate atomically (3.675166ms)
+✔ P01 modern rejects incomplete cross-page-duplicate atomically (4.600792ms)
+✔ P01 modern rejects incomplete count atomically (4.042041ms)
+✔ P01 modern rejects incomplete bytes atomically (3.297916ms)
+✔ P01 modern rejects incomplete page-limit atomically (73.803916ms)
+✔ P01 installed SDK legacy aggregates pages (12.175625ms)
+✔ P01 installed SDK legacy aggregates empty (4.561208ms)
+✔ P01 legacy rejects incomplete failure atomically (4.173333ms)
+✔ P01 legacy rejects incomplete cycle atomically (6.343125ms)
+✔ P01 legacy rejects incomplete empty-cycle atomically (3.533459ms)
+✔ P01 legacy rejects incomplete duplicate atomically (2.454958ms)
+✔ P01 legacy rejects incomplete cross-page-duplicate atomically (4.045167ms)
+✔ P01 legacy rejects incomplete count atomically (2.908708ms)
+✔ P01 legacy rejects incomplete bytes atomically (3.3535ms)
+✔ P01 legacy rejects incomplete page-limit atomically (51.552ms)
+✔ P01 concurrent connects expose only the latest requested connection (7.966458ms)
+✔ P01 disconnect while discovery waits cannot publish a late catalog (3.018334ms)
+✔ P01 transport error invalidates callability until explicit reconnect (9.940209ms)
+✔ P02 reported: effect is unknown, fenced and preserved across restart (521.908292ms)
+✔ P02 drop: effect is unknown, fenced and preserved across restart (873.692041ms)
+✔ P02 receipt-failure: effect is unknown, fenced and preserved across restart (768.512ms)
+✔ P02 cancel: effect is unknown, fenced and preserved across restart (219.176041ms)
+✔ P02 restart-inflight: effect is unknown, fenced and preserved across restart (778.390292ms)
+✔ P02 orphan-cancel: effect is unknown, fenced and preserved across restart (498.946667ms)
+✔ P02 pre-dispatch refusal has no effect and no unknown receipt (2.838292ms)
+✔ P02 SIGKILL after remote effect before result leaves a durable unreconciled dispatch (1324.332ms)
+✔ P02 failed durable dispatch intent prevents the remote call (3.507667ms)
+✔ P02b actual modern SDK preserves structured {"answer":42} (44.418542ms)
+✔ P02b actual modern SDK preserves structured [1,"two"] (7.188125ms)
+✔ P02b actual modern SDK preserves structured null (4.412459ms)
+✔ P02b actual modern SDK preserves structured false (3.390708ms)
+✔ P02b actual modern SDK preserves structured 0 (2.760208ms)
+✔ P02b actual modern SDK preserves structured "scalar" (2.698708ms)
+✔ P02b actual legacy SDK preserves body plus supported structure (9.938667ms)
+✔ P02b structured-only and non-rendered resource blocks stay explicit (5.552791ms)
+✔ P02b invalid/oversized result fences uncertainty without raw dumping (8.891375ms)
+✔ P02b success: native projection and scoped full result survive restart (1108.444ms)
+✔ P02b error: native projection and scoped full result survive restart (655.995792ms)
+✔ P02b installed SDK output schema rejection is effect-unknown (9.188ms)
+✔ P02b failed result retention cannot become a successful empty result (2.413667ms)
+✔ P02b repeated native call IDs receive distinct Host dispatch identities (2.596208ms)
+✔ T-IDEM-1: replaying the same commandId with the same input returns the same run (582.095ms)
+✔ T-IDEM-2: replaying the same commandId with a different input is 409 command_conflict (68.350125ms)
+✔ T-IDEM-3: two concurrent creates with the same commandId produce exactly one run (74.384917ms)
+✔ T-IDEM-4: a lost response then a resend returns the same run and executes once (350.627042ms)
+✔ T-IDEM-6: the same commandId in another session is a different command (998.782542ms)
+✔ C4: unloaded extension preserves old receipts but still blocks new work (587.135458ms)
+✔ Inspector separates recorded/current targets and folds version/cache details without losing unknown accounting (17.9525ms)
+✔ Inspector tool activity reuses thread projection and never turns an unfinished tool into success (1.018209ms)
+✔ T-CANCEL-1: cancel during tool execution leaves no partial file (111.81625ms)
+✔ cancelling a run with no pending question also ends cancelled (493.468208ms)
+startup: reconciled workspace of session cb0e0c24-db12-400b-8522-0acb51fb6ce8 after an interrupted run; 0 file(s) are not covered by a recorded content version
+✔ T-RESTART-1: restart during waiting_user yields unknown/expired_restart and the host session continues (1950.095959ms)
+✔ T-USAGE-1: a completed run records non-zero usage with missing:false (503.133959ms)
+✔ T-USAGE-2: cancelling in the second turn keeps the first turn's usage and marks missing (782.958792ms)
+✔ T-USAGE-3: a provider error after a good turn fails the run without erasing usage (14217.28725ms)
+✔ T-BUDGET-1: waiting_user time is excluded from the execution deadline (3498.256208ms)
+✔ T-USAGE-4: a retried provider call is surfaced as a notice and counted once (2509.272958ms)
+✔ T-USAGE-5: a long waiting_user then an answer completes with whole usage and no budget trip (2995.904375ms)
+✔ real HTTP candidate pages preserve Markdown bytes, and wrong Matter scope is refused (635.583875ms)
+✔ accepted Artifact pages remain exact after producer deletion and extension unload (478.455417ms)
+✔ independent SHA-256 and code-point helpers agree with the browser source contract (4.389833ms)
+✔ readCoreManifest returns verified file refs and sends a bounded candidate query (1.105042ms)
+✔ readCoreManifest uses the explicit Artifact selector and preserves its identity (0.131625ms)
+✔ readCoreManifest rejects wrong identities, holes, duplicate paths and unsupported pages (0.468709ms)
+✔ readCoreFile assembles pages using server code-point cursors and an independent final hash (1.796625ms)
+✔ readCoreFile accepts an exact empty terminal page (0.2605ms)
+✔ readCoreFile rejects wrong IDs, hash swaps, path swaps and pagination holes (0.422125ms)
+✔ readCoreFile rejects a continuation replay or changed duplicate page (0.148583ms)
+✔ readCoreFile rejects a changed identity on any page and a wrong final digest (0.437584ms)
+✔ readCoreFile aborts before and after a delayed page, without returning partial source (0.272875ms)
+✔ coreFileSubjects exposes only supported, scoped Core file refs (0.143542ms)
+✔ projectMarkdown preserves BOM, CRLF, combining marks, duplicate block ranges and safe semantic nodes (12.419292ms)
+✔ projectMarkdown parses complete definitions, keeps unsafe links inert, and emits bounded warnings (2.550333ms)
+✔ projectMarkdown refuses malformed identity, source text, and size (0.661292ms)
+✔ projectMarkdown creates a revision-local key and never claims writable review state (1.660083ms)
+✔ sha256Text does not silently normalize source (1.377125ms)
+✔ readCoreFile propagates producer absence as an exact read, not a fallback (0.305458ms)
+lint-materials: 2 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+✔ 产品样式表通过材质 lint 两项 (78.404666ms)
+✔ 未登记的类名上出现 backdrop-filter 会被拒绝 (67.491583ms)
+✔ 半透明表面缺少 reduced-transparency 回退会被拒绝 (64.299041ms)
+✔ 私有 blur 取值会被拒绝 (66.384125ms)
+✔ model capability contract: legacy boolean is not promoted into invented effort tiers; explicit per-model lists stay isolated (118.608292ms)
+✔ model capability contract: effort lists reject invalid values; config CAS detects missing and stale writers (68.355708ms)
+✔ installed model descriptors are API-specific and preserve exact concrete effort ladders (69.994708ms)
+✔ editing a connection invalidates selected effort, and each Run freezes a capability binding across reopen (337.92425ms)
+✔ schema12→13 migration preserves config and active Run, adds unknown capability, bumps CAS epoch, and invalidates old receipt (624.848292ms)
+✔ search rerender and direct click cannot re-enable/save a stale unsupported effort (18.037ms)
+✔ 三条 happy path 是闭集，且每条只用后端目录里真有的 provider 身份 (1.539083ms)
+✔ 路径由连接记录自己说，不由一份全局配置反推 (0.175708ms)
+✔ Connections 列后端注册表报的每一条，结构不假设单数 (0.214667ms)
+✔ PV-27 / PV-30 · 窗口读数如实：unknown、目录值、用户填的值各说各的 (11.935334ms)
+✔ PV-34 / PV-46 · 保存失败的三类直接消费后端错误码与枚举，前端不重新归类 (0.293834ms)
+✔ WK-108/PV-62 · 冒烟不再留位：BE-39 落地后六步全部可用，各自说清楚做什么 (0.305875ms)
+✔ PV-73 · smoke 步的 “· Answered” 状态词只在成功后出现，字承担完成态 (0.241709ms)
+✔ WK-108 · 探测控件只出现在表单里写得出 Base URL 的那条路径上 (0.089458ms)
+✔ WK-108 · 请求体逐字按文档：三个字段，无 key 省略字段，不加 header (0.137208ms)
+✔ WK-108 · 结果原样呈现后端 status 与 message；ok 不被改写成一句更强的话 (0.292417ms)
+✔ PV-24 · 目录报来的模型 ID 进入这条连接的 Model 列表，并随连接保存 (0.322333ms)
+✔ BE02 契约 · 凭据请求体的键是连接 id，不是 provider 身份 (0.212667ms)
+✔ PV-M-1 · 两处写入合一：任一处保存都不清掉另一处的字段 (0.217666ms)
+✔ PV-53 · 模型选择器的用户连接分组标签是它的端点主机名，取不到注册表时退回 id (0.093792ms)
+✔ PV-27 · 未知与 unsupported 都用 provider default；enum 按 API 精确列值 (0.309208ms)
+✔ PV-61 · reasoningSource:"unknown" 换成真话，不再替目录说它没说过的话 (0.038833ms)
+✔ 项 7 · origin:"connection" 的模型在选择器路由行追加一句，目录原生行不追加 (0.043042ms)
+✔ MCP 走同一形态：六步，未交付的三步同样只留位 (0.060375ms)
+✔ WK-105 ⑤ · 侧栏宽落进 256–280 的下沿 (0.101375ms)
+✔ PV-64 · 六态回执的文案映射：五类登记文案，unknown 只写原话 (3.17625ms)
+✔ PV-42 · 连接行的最近回执：成功/失败/null 三态 (0.165625ms)
+✔ 连接行 lastVerification 有值 / null 两态；configurationStatus 非 ready 时降级 (0.198625ms)
+✔ PV-63 · 自动发现的触发条件与去抖：baseUrl/key 的 input 去抖 600ms，blur 立即跑 (0.187708ms)
+✔ PV-63/38 · “Save and ask once” 与 “Save only” 的请求序：event.submitter 分流，冒烟不自动触发 (0.224667ms)
+✔ PV-64 · is-arrived 一帧后移除：同一帧加、下一帧 rAF 移除，交给既有过渡播放 (0.131208ms)
+✔ PV-64 · “Ask again” 显式重放同一个 {connectionId, model} (0.074166ms)
+✔ PV-59/63 · 键入一个模型 ID 的三步序：PUT connection → PUT config →（主动作）POST verify，中途失败停步不回滚 (0.113625ms)
+✔ PV-61 · custom model reasoning declaration records exact optional effort values (0.076625ms)
+✔ 回执块六态的文案落点：成功两行不着色，失败一行借 --danger，`is-asking`/`is-failed` 互斥 (0.183667ms)
+✔ bounded NDA playbook and fixture manifest are versioned and serializable (1.950084ms)
+✔ buildReview produces the four frozen gold outcomes with source-aware anchors (2.858917ms)
+✔ verifyReview rejects self-reported conclusions, missing coverage and duplicate rules (1.05525ms)
+✔ verifyReview rejects bad source anchors and reconciliation tampering (1.045417ms)
+✔ candidate adapters are serializable and preserve proposal-only obligations (0.440208ms)
+✔ a missing source clause remains unresolved and a forged pass is rejected (0.324917ms)
+✔ source conflict and unsupported clause stay visible with bounded evidence (0.611417ms)
+✔ development and holdout fixtures are distinct but obey the same deterministic contract (0.607917ms)
+✔ the delivered NDA renderer is served at its declared path and carries no data channel of its own (172.286375ms)
+✔ the packet reading takes the rules, the status words and the lineage the packet actually carries (0.363875ms)
+✔ only the advertised decisions are readable as controls, and none in read-only history (0.383ms)
+✔ a domain payload this build cannot decode is not read as findings (0.135584ms)
+✔ NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context (1546.822708ms)
+✔ NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail (856.542333ms)
+✔ cumulative assistant deltas and their final stay one non-pending row (0.95125ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.766334ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.120167ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.150791ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.149ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.074167ms)
+✔ permission CAS mismatches leave pending question, waiter, events and persisted bytes untouched (1085.4015ms)
+✔ each expectation is independently optional and malformed expectations are 400 (1533.15725ms)
+✔ CAS comparison happens inside the mutation queue after a stale service read (468.977ms)
+✔ two matching concurrent answers still resolve at most once (993.766958ms)
+✔ ask_user does not accept permission expectations (537.592333ms)
+✔ T-PERM-1: ask mode + allow lets ws_write succeed (343.923833ms)
+✔ T-PERM-2: ask mode + deny returns isError and writes nothing (743.774583ms)
+✔ T-PERM-3: cancel while waiting on a permission leaves no file and Run cancelled (258.636875ms)
+✔ read_only permission mode never injects ws_write (236.902542ms)
+✔ T-PERM-4: the allowed write matches the approved contentSha256 (759.036541ms)
+✔ T-PERM-5: changed parameters open a new permission and the old questionId is dead (999.401291ms)
+✔ toStatTiles reads the three sets' totals in the window the backend can express (1.553291ms)
+✔ a set the answer did not carry reads as words, never as a zero (0.0865ms)
+✔ the caption states the scope it was actually given (0.067292ms)
+✔ toWorkCards passes recorded fields through and names the missing ones (0.151666ms)
+✔ pending rows keep the server's own request word and invent no run state (0.101042ms)
+✔ inspection rows keep unknown apart from failed and report a missing code as null (0.086625ms)
+✔ adapters do not read the clock (0.080542ms)
+✔ the recorded story is a work-only sample: no host facts, every entry a 2xx work read (0.935791ms)
+✔ entry: only a workspace with no projects and nothing remembered enters on its own (0.33ms)
+✔ inactive, the layer answers nothing; active, it answers work reads from the story and leaves host reads alone (0.81ms)
+✔ reads of an example object that were not recorded fail as not found; reads of real objects pass through (0.307167ms)
+✔ writes: drafts on example chats are a no-op, every other write against an example object is refused with a sentence, real writes pass (0.938916ms)
+✔ mutation bodies cannot target an example object through an ID-free route (0.159125ms)
+✔ aggregate preview reads are bypassed only after real project context exists (0.07775ms)
+✔ exit: an admitted real run establishes the workspace for good; leaving by hand only remembers 'off' and can be reopened (0.2125ms)
+✔ a broken storage is survivable: memory reads null, writes are dropped (0.119458ms)
+✔ FE-04 · 在途词只有一个，且只在在途时出现 (0.771417ms)
+✔ FE-04 / M-9 · 五个送出一次决定的控件都经过同一个在途词，且保持静止态宽度 (0.3625ms)
+✔ FE-04 · cancel requested 不把 Run 说成 stopped (0.109084ms)
+✔ FE-04 · 在途的是哪一个决定也是事实，回执到达时一并撤掉 (0.10775ms)
+✔ FE-04 · 重试之前撤掉上一次的失败，两卡一致 (0.1275ms)
+✔ FE-04 · 问题卡的提交失败会被读出来 (0.118708ms)
+✔ FE-04 · Failed 与 Interrupted 由两个不同的事实给出 (0.254625ms)
+✔ FE-04 · 授权卡上不存在 always-allow 这一档 (0.217417ms)
+✔ FE-04 · inbox 键盘没有批量键与数字键 (1.070875ms)
+✔ every registry glyph is in the sprite and in the ui-controls allowlist (0.805291ms)
+✔ sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes (5.479ms)
+✔ domain glyphs follow the admitted geometry contract (0.373209ms)
+✔ Spark, Attention and Chat seats and the Settings groups carry their registered glyphs (1.12675ms)
+✔ registry owners and generated browser projection agree (11.321583ms)
+✔ single-purpose collisions fail while contextual shared geometry is admitted (1.321ms)
+✔ unknown geometry and unapproved identity state variants fail (0.444375ms)
+✔ contextual names are complete, no-icon and Pages representations are legal (0.2955ms)
+✔ semantic action preserves existing control anatomy and handler (0.935666ms)
+✔ migrated workspace close/add controls cannot return to raw glyph calls (0.720625ms)
+✔ Pages text projection cannot leak its App glyph, malformed owner and representations fail (0.425292ms)
+✔ actual workspace consumers preserve callbacks and contextual names (3.075459ms)
+✔ domain navigation preserves its handler with a visible label and glyph (0.239708ms)
+✔ PV-54: both consumers use one pure provider projection, preserving existing exports (5.086041ms)
+✔ PV-54: the real host serves exactly the shared projection module (101.884833ms)
+✔ PV-32 · 旧 credentials.json 的 provider 键一次性迁到连接 id (151.77325ms)
+✔ PV-25 · 兼容连接：发现 → 保存 → 选中 → 真跑一次 run，run 记录读得出连接与凭据来源 (175.038666ms)
+✔ PV-26 · 两条连接各持自己的 key，互不覆盖 (756.087584ms)
+✔ PV-31 · 用户连接注册在独立 provider id 上，删除即注销 (88.78975ms)
+✔ PV-30 · 未知 contextWindow 不猜值：关压缩并显式记录，用户填值后来源标为 user (406.787542ms)
+✔ PV-24 · 零成本的 Model 记录不会在 usage 面变成事实上的 $0 (507.552417ms)
+✔ 重启后连接与凭据仍可用；列表落空的连接不阻止启动 (187.356375ms)
+✔ PV-34 · 保存失败区分认证失败 / 目录不可达 / 模型不在该目录 (59.240916ms)
+✔ 连接的增删改查受同一条配置队列与 active_run 冻结约束 (758.158917ms)
+✔ T-CRED · 用户连接路径同样不读 HOME/.pi 与环境变量 (235.721417ms)
+✔ PV-59 · 目录连接 PUT 只接受 models；api/baseUrl/apiKey 出现即 400 (106.717417ms)
+✔ PV-59 · 追加的模型 id 不得与已装目录冲突 (62.748167ms)
+✔ PV-59 · 目录连接加一个不在已装目录的模型：可保存、可选为生效、run 发起门放行；删掉后 run 发起门 503；原生模型仍可解析 (924.275792ms)
+✔ reasoning capability · legacy 三态保留但不生成伪档位，显式 effort list 才提供具体档位 (89.364708ms)
+✔ PV-62/PV-84 · verify 四类 fixture 结果：成功 ok、401→authentication_failed、未知模型→http_error、不可达→unreachable，且不冒充精度 (115.150292ms)
+✔ PV-62 · verify 的三道门：模型不可准入 400、连接无凭据 400、活动 run 期间 409 (1282.164333ms)
+✔ PV-42 · 回执绑定失配返回 null；重启后额外模型与回执可用 (209.302333ms)
+✔ T-CRED-VERIFY · fixture 除外：fake 连接的 verify 不要求预先配置凭据；兼容连接仍要求，且不读 HOME/.pi 与环境变量 (59.770916ms)
+✔ provider preview HTTP contract, bounds, authentication and unchanged runtime (10633.972084ms)
+✔ openai-completions: real SDK tool loop, stable consecutive prefix, cache usage and restart (1308.047ms)
+✔ openai-responses: real SDK tool loop, stable consecutive prefix, cache usage and restart (930.929083ms)
+✔ schema13 upgrade preserves every schema11 pending operation, including missing-record recovery (133.987584ms)
+✔ verify resolves active identity API/endpoint overrides without leaking them to another connection (105.904083ms)
+✔ HYP-01: abort before openQuestion waiter is installed does not hang (137.199125ms)
+✔ NDA renderer is an exact declared path: missing is 404, present bytes are served, siblings stay private (663.634125ms)
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (3.369958ms)
+✔ provider-default payload omits generated reasoning controls after the existing callback (0.422833ms)
+✔ explicit effort uses the declared adapter mapping and provider identity, not endpoint hostname (0.1305ms)
+✔ production compatible registration pins generic reasoning on heuristic-looking loopback paths (74.444459ms)
+✔ capability projection admits only values the selected adapter can encode (0.148ms)
+✔ request telemetry keeps SDK setting provenance and a safe capability snapshot (0.232459ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.2425ms)
+✔ result-only SDK calls still emit a terminal request measurement exactly once (0.1235ms)
+✔ provider response identifiers stay separate from runtime identity without forwarding extra metadata (0.297042ms)
+✔ effort is capability checked and recorded by real local SDK requests (493.156917ms)
+✔ malformed measurement records are omitted before rendering (0.269ms)
+✔ schema6 migration preserves both global and project sessions (103.391125ms)
+✔ no ready frame rejects within readyTimeoutMs and reaps the failed worker (87.544875ms)
+✔ a request with no response times out, clears pending, and reaps the transport (1115.71675ms)
+✔ close ignores a missing close acknowledgement, is bounded, and reaps the worker (42.156209ms)
+✔ a partial response frame is bounded by the request deadline and the transport is reaped (134.544333ms)
+✔ invalid JSON invalidates and reaps the transport (33.718416ms)
+✔ an oversized unterminated frame is rejected before unbounded buffering (38.139208ms)
+✔ stderr is capped while a failed request is cleaned up (131.8535ms)
+✔ concurrent starts share one worker and one readiness result (36.368167ms)
+✔ close during startup rejects start and reaps the child (2.324458ms)
+✔ maxPending rejects excess calls and failed transport cleanup leaves no pending entries (130.576417ms)
+✔ a failed transport can restart after its child has been reaped (65.102167ms)
+✔ late events from an old generation cannot satisfy or damage the replacement (182.20025ms)
+✔ close rejects in-flight admissions, then permits a reaped replacement generation (61.976792ms)
+✔ Runtime11 migrates a real schema10 byte sequence, preserves provider fields, and fences the old host (358.880125ms)
+✔ a fixed schema10 host can read an exact schema10 backup in an independent directory (288.225292ms)
+✔ Runtime11 pending configuration markers survive reopen and finish durably (143.215166ms)
+✔ Runtime11 refuses a malformed pending marker without changing the original bytes (98.675ms)
+✔ Q02 · HTTP/store field boundaries preserve valid Unicode and reject controls without changing files (249.767709ms)
+✔ Q02 · a 240-character model and 2048-character endpoint survive reopen and keep the execution descriptor (836.262917ms)
+✔ Q02 · registration failure leaves a recoverable record without a ghost provider (73.862458ms)
+✔ Q02 · a provider store failure can be retried with PUT and does not publish a ghost registration (81.993584ms)
+✔ Q02 · replacing a connection fences the route when the new store write fails, then recovers after restart (125.094125ms)
+▶ Q02 · credential file, runtime key, and generation failures remain inspectable and retryable
+  ✔ runtime-key (98.974125ms)
+  ✔ credential-path (73.448584ms)
+  ✔ generation (72.719167ms)
+✔ Q02 · credential file, runtime key, and generation failures remain inspectable and retryable (245.566458ms)
+✔ Q02 · credential_delete explicitly abandons a pending credential_set and clears its key (98.408917ms)
+✔ Q02 · a final pending-marker persist failure fences an already-applied credential until the same retry (70.181709ms)
+✔ Q02 · startup skips pending registration/key load, preserves receipt replay, and only same-operation retry clears it (379.919708ms)
+✔ Q02 · a pending delete with a missing record can be retried to clean credentials (160.530292ms)
+✔ BG02-T1: a cancelled, a failed and a restart-unknown Run can each be continued, and the continued Run is unchanged (15432.966959ms)
+✔ BG02-T1/T7: a Run left in flight by SIGKILL becomes unknown, keeps its lineage and can itself be continued (15113.649542ms)
+✔ BG02-T2: lineage is a chain — a Run that already has a continuation refuses a second one (42955.267333ms)
+✔ BG02-T3: completed, still-running, foreign/absent and effect-unreconciled targets are each refused (28921.296125ms)
+✔ BG02-T4: command identity includes the lineage claim (28767.396916ms)
+✔ BG02-T5: a continuation carries its own input; the earlier prompt is not copied or replayed (14324.667792ms)
+✔ BG02-T6: schema 8 upgrades once with an exact backup, and an occupied backup path stops the upgrade (200.242875ms)
+✔ BG02-T6: a schema 11 state with an impossible lineage fails closed, and the schema10 host refuses schema 11 entirely (392.843041ms)
+✔ integration: main schema 9 lineage survives schema 11 provider-connection migration (132.885042ms)
+✔ current host context reaches the model without changing user input; capabilities use the installed catalog (588.362625ms)
+✔ a Run waits for its final event to persist before publishing completion (669.685542ms)
+✔ event persistence failure is reported as runtime failure instead of completion (328.089417ms)
+✔ CLI SIGTERM settles a waiting Run and the same data directory reopens (1351.660542ms)
+✔ runtime projection: parent/profile gates are explanations, not removable overrides (0.7795ms)
+✔ runtime projection: historical counts stay partial; new catalogs count admitted text only (0.089458ms)
+✔ BE-5: POST /runtime-sources/resolve returns exact UTF-8 identity for all six inline kinds; provenance stays unverified and nothing is imported (115.928125ms)
+✔ BE-5: token, origin, content-type and body-size guards plus malformed/extra-field input follow the existing host boundaries (166.891958ms)
+✔ BE-5: every locator kind stays explicitly unsupported over real HTTP with an exact echo, and no content identity is invented (70.255666ms)
+✔ BE-5: an isolated child probe proves locator and inline MCP resolution performs no file read, socket connect, HTTP request, fetch or child process (783.3405ms)
+✔ BE-5: pure resolution stays available during an active Run while config, disk, revision and the Run binding remain unchanged and nothing imports (160.4985ms)
+✔ BE-5: the service seam mirrors the pure resolver and adapts its 400s to the host error shape (67.05025ms)
+✔ attention: a healthy snapshot produces an empty list, not a hidden one (1.460333ms)
+✔ attention: health, diagnostics, ask permissions, trust and missing ids each raise one entry (0.412042ms)
+✔ contrast: the ratio is WCAG 2.x and the extremes are exact (0.174709ms)
+✔ contrast: the browser warning checks exactly the build report pairs (0.614125ms)
+✔ RuntimeStore persists schemaVersion 13 session/run fields and the canonical user event (93.610667ms)
+✔ RuntimeStore createRun is idempotent by commandId and rejects a conflicting replay (43.864208ms)
+✔ RuntimeStore rejects an older schemaVersion file with no migration and does not rewrite it (82.798583ms)
+✔ T-CRED-6: credentialGeneration is persisted and keeps increasing across a reopen (84.455333ms)
+✔ copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics (14.087125ms)
+✔ raw consumer guard rejects new, duplicated and stale literal consumers (0.992834ms)
+✖ actual raw consumers and Pages cross-map remain registered (14.430541ms)
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (1.005584ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.39825ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.514791ms)
+✖ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (2.167875ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.333ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.247ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.069875ms)
+✔ 一组完整的 Tier S token 通过，并被规范成可以直接落进样式表的声明 (1.525125ms)
+✔ 旧 gray-steel 全量块仍可读取，但新外观格式不接受其固定语义键 (0.638167ms)
+✔ 产品内的 gray-steel 与 skins/gray-steel.css 逐字相同：两处不许漂移 (1.048625ms)
+✔ 不是既有 token 名的声明被逐行拒绝，整组不落地 (0.110917ms)
+✔ 颜色 token 只接受 hex：命名色、函数与变量都不行 (0.224667ms)
+✔ url( · expression · @import · 转义 · 标记这些形状先于逐行解析被拒绝 (0.079083ms)
+✔ 半套色阶被拒绝，并把缺的名字说出来 (0.065417ms)
+✔ 行号指回原文，一次报完所有问题 (0.072584ms)
+✔ legacy 数值可读，但新外观许可域拒绝材质参数 (0.21225ms)
+✔ 一次只收一个块：粘贴整份 skin 文件被拒绝而不是只应用第一段 (0.117083ms)
+✔ 空输入与超长输入各有自己的话，不是同一句错误 (0.065917ms)
+✔ 代码字体只收字体族名，收不下分号与括号 (0.092333ms)
+✔ 读偏好只认闭集里的值：坏掉的存储读成默认，不是读成垃圾 (0.094792ms)
+✔ Home 版面偏好是闭集：默认 Modules，坏值读回 Modules 而不是读成第三种版面 (0.10075ms)
+✔ Home 模块只安装有既定读取接缝的 Activity 与 Attention (0.097042ms)
+✔ Models 模块不复述 composer chip 的事实：它没有自己的读取 (0.056792ms)
+✔ 页面的九个组是闭集，未知的节名落回 General (0.055958ms)
+✔ CC-I · provenance 的词表今日是闭集的两个词，判定是与 owner 默认值的字面比较 (0.061625ms)
+✔ CC-I · 默认态：provenance 是 Default，复位不呈现 (0.507292ms)
+✔ CC-I · 改一项之后翻为 Changed on this device，复位可用且可达名字带属性名 (0.128375ms)
+✔ CC-I · 复位：值回默认、provenance 回 Default、焦点落在本行控件上、有一条可播报的回执 (0.226625ms)
+✔ CC-I · 复位之后的下一次改值作废那条回执，回执不是一条会留在页面上的旧话 (0.093875ms)
+✔ CC-I · 没有 owner 默认值的行一个字都不多：同一个函数，不长出这三样 (0.085459ms)
+✔ CC-I · provenance 挂在控件上，读屏听得到它而不是一段孤立的文字 (0.072667ms)
+✔ CC-I · Code font：未提交的编辑不是 modified，提交后才是，校验失败不改 provenance (0.379958ms)
+✔ CC-I · Palette 选了 Custom tokens 但没 Apply 不算 changed：provenance 读生效值不读草稿 (0.304667ms)
+✔ CC-I · appearance keeps no value controls; only the provider context window is numeric (1.230042ms)
+✔ failed browser storage keeps the active projection but exposes session-only persistence (0.233292ms)
+lint-shapes: 1 处违反 WK-128
+lint-shapes: 1 处违反 WK-128
+lint-shapes: 1 处违反 WK-128
+✔ 产品样式表通过形状 lint (80.409334ms)
+✔ 满弧写成 50% 会被拒绝，并指回 --radius-pill (67.097917ms)
+✔ 组件私有的游离圆角会被拒绝 (65.789167ms)
+✔ 不建立在形状角色上的表达式会被拒绝，派生式与多角声明通过 (133.524291ms)
+✔ 登记表内的形状按登记放行 (67.473708ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (1.416625ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (0.258542ms)
+✔ legacy values remain readable while projection ignores semantic and material keys (3.130125ms)
+✔ unknown, semantic, and material declarations cannot enter the modern skin (1.546541ms)
+✔ first paint retains raw storage but writes only canonical projected CSS (1.64075ms)
+✔ a legal input over 4000 bytes and under 8000 bytes projects identically at first paint (1.447041ms)
+✔ the policy is a synchronous classic script before the first-frame bootstrap (0.179458ms)
+✔ Dystopia uses one closed preference registry and unknown choices fall back (1.624625ms)
+✔ Dystopia is exactly the permitted opaque appearance scale in both modes (0.7195ms)
+✔ MR-A1a: meta contract — version, units and byte limit are explicit (1.464792ms)
+✔ MR-A1a: plain ASCII — counts, hash and identity conversions (0.496833ms)
+✔ MR-A1a: empty content is allowed and every offset except 0 is rejected (0.253291ms)
+✔ MR-A1a: BOM is preserved, counted as one code point, never stripped (0.158792ms)
+✔ MR-A1a: CRLF and trailing newline are literal code points, not normalized (0.088958ms)
+✔ MR-A1a: combining characters are preserved; no Unicode normalization happens (0.134542ms)
+✔ MR-A1a: emoji/astral — surrogate-pair interiors are rejected, never snapped (0.183375ms)
+✔ MR-A1a: strict UTF-8 — malformed and truncated input is rejected with invalid_utf8 (0.360167ms)
+✔ MR-A1a: size boundaries — 65536 bytes accepted, 65537 rejected as source_too_large (5.376875ms)
+✔ MR-A1a: offset validation — unsafe integers, wrong ranges and bad units (0.385125ms)
+✔ MR-A1a: input is copied — later mutation never reaches the built coordinates (0.126791ms)
+✔ MR-A1a: Buffer and offset views are accepted and measured by their own bytes (0.23ms)
+✔ MR-A1a: wrong input types are a caller contract violation (TypeError) (0.171875ms)
+✔ MR-A1a: returned object is frozen; output metadata edits cannot pollute conversions (0.166709ms)
+✔ MR-A1a: repeated builds are deterministic and independent of each other (0.090708ms)
+✔ MR-A1a: fixture corpus parity — module equals the independent oracle and the static expectations (6.119542ms)
+✔ MR-A1a: NUL and control characters are ordinary code points, never trimmed (0.067167ms)
+✔ MR-A1a integration: spoofed non-byte views are rejected by internal type (0.049875ms)
+✔ MR-A1a integration: invalid unit errors never coerce caller objects (0.103125ms)
+✔ R2: six inline kinds resolve without changing config, then explicit imports preserve exact bytes (24.774ms)
+✔ R2: hashes bind bytes and interpretation; origin is only a caller assertion and outputs own their data (0.269958ms)
+✔ R2: skill/profile declarations remain unverified requirements without new capabilities (0.344458ms)
+✔ R2: MCP and locators never fetch, connect or read their declared target (0.134083ms)
+✔ R2: malformed, executable and ambiguous sources cannot be silently reinterpreted (0.349834ms)
+✔ R2: invalid YAML and cyclic projected metadata fail before config persistence (15.195417ms)
+✔ BE41-B accepts source FILE zero and replacement rollback without accepting identical or negative versions (1.292ms)
+✔ BE41-B binds live empty pages to the top token and rejects contradictory or malformed top tokens (0.323ms)
+✔ BE41-B paginator sends exact snapshot; changed snapshot refresh starts at page zero without old token (4.684958ms)
+✔ BE41-B late pagination cannot replace a closed and reopened read (1.30525ms)
+✔ BE41-B actual authenticated empty endpoint projects with its live top token (174.66175ms)
+✔ BE41-B a live snapshot rejection discards explicit sample and exposes Refresh (1.471125ms)
+✔ SP1-FE · stale.json validates: one Matter behind, one fully current, sharing a snapshot (2.091542ms)
+✔ SP1-FE · quiet.json validates: every Matter current, no prompt-worthy bucket (0.211875ms)
+✔ SP1-FE · empty.json validates: no Matters, page.total 0 (0.142ms)
+✔ SP1-FE · partial.json validates: unavailable Matter keeps null counts, not zero (0.184292ms)
+✔ SP1-FE · truncated.json validates: 20 refs loaded, true count stated separately (0.719917ms)
+✔ SP1-FE · a 0 where a non-observed Matter must publish null is rejected, not read as zero (0.112959ms)
+✔ SP1-FE · an observed Matter reporting stale:null instead of a real zero is rejected (0.089208ms)
+✔ SP1-FE · a genuine zero-stale Matter is accepted and stays a real, distinct zero (0.114792ms)
+✔ SP1-FE · staleRefsTruncated true with fewer than 20 loaded refs is rejected (0.10325ms)
+✔ SP1-FE · staleRefsTruncated false while refs fall short of the stated stale count is rejected (0.13075ms)
+✔ SP1-FE · more than the 20-ref page ceiling is rejected outright (0.123166ms)
+✔ SP1-FE · two Matters in one page reporting different snapshotRefs is rejected (0.084375ms)
+✔ SP1-FE · sameSnapshot refuses to confirm consistency across a null snapshot (0.055458ms)
+✔ SP1-FE · wrong schemaVersion is rejected (0.063875ms)
+✔ SP1-FE · a stale ref not actually behind the Matter's source revision is rejected (0.065875ms)
+✔ SP1-FE · byStatus counts that don't sum to derivations.current/stale are rejected (0.071541ms)
+✔ SP1-FE · an observed Matter must not carry a reason (0.061833ms)
+✔ SP1-FE · a partial Matter must carry a reason (0.054166ms)
+✔ SP1-FE · sourceSetChange with a non-increasing revision pair is rejected (0.062292ms)
+✔ SP1-FE · a missing sourceSetChange key (vs. an explicit null) is rejected (0.062708ms)
+✔ SP1-FE · duplicate matterId within one page is rejected (0.067791ms)
+✔ SP1-FE · page bounds exceeding the reported total are rejected (0.0485ms)
+✔ SP1-FE · coverage.matters partial without a machine-readable reason is rejected (0.045ms)
+✔ SP1-FE · a non-object payload, and a missing top-level field, are both rejected (0.056375ms)
+✔ SP1-FE · activityRows narrows to one candidate status without reordering (0.105875ms)
+✔ SP1-FE · truncationNote is null once every stale ref for a Matter is loaded (0.067959ms)
+✔ Spark route selects a stable bound owner and opens the existing Work preview (10.055834ms)
+✔ Spark route cannot manufacture a Work session for an unbound Matter (0.465708ms)
+✔ a newer navigation cancels a pending Spark owner lookup (0.424916ms)
+✔ a newer navigation cancels Spark Work activation after session selection (0.390167ms)
+✔ Spark revalidates the loaded session binding before activating Work (0.395208ms)
+✔ Spark does not activate Work when the selected session failed to load (0.371ms)
+✔ WO-SD-01 · GET /web/samples/spark-derivations/<name>.json 200s for all five scenarios, each a valid, unaltered BE-41 payload (104.745125ms)
+✔ WO-SD-01 · the sample route is a literal allowlist: an unregistered scenario name 404s, no directory listing, no traversal (65.51425ms)
+✔ WO-SD-01 · the fixture directory no longer exists under app/tests — SD-18's git mv landed for real, not just in spark-projection.test.mjs's path (0.337542ms)
+✔ SP1-FE · createSparkView keeps the frozen constructor signature (0.943666ms)
+✔ SP1-FE · a projection module fetches nothing, writes nothing, reads no clock (0.59175ms)
+✔ SP1-FE · Spark makes no request path containing 'attention' — it resolves, creates or edits no Attention item (0.144375ms)
+✔ SP1-FE · Spark writes nothing: no POST/PUT/PATCH/DELETE method anywhere in the view (0.111375ms)
+✔ SP1-FE · no Spark-private persistence: no localStorage, sessionStorage or IndexedDB (0.09975ms)
+✔ SP1-FE · Spark introduces no new dependency: only relative app/web imports (0.14925ms)
+✔ SP1-FE · a 404 is read as unimplemented, never rendered as zero maintenance items (0.058333ms)
+✔ SP1-FE · Unavailable is stated in words, not shown as a bare number (0.045833ms)
+✔ SP1-FE · pagination carries the prior snapshotRef and can be rejected (0.071459ms)
+✔ SP1-FE · row navigation calls the host's onOpenMatter and opens no dialog/session of its own (0.129ms)
+✔ SP1-FE · static allowlist: spark-view.mjs / spark-projection.mjs are registered (0.791625ms)
+✔ SP1-FE · app.mjs wires the sidebar entry without touching the static allowlist array itself (0.144125ms)
+✔ SD-01 · createSparkView keeps the frozen constructor signature — sample introduces no new dependency, no new parameter (0.076875ms)
+✔ SD-01 · the sample fetch reads the static sample route, never /work-derivations (0.035541ms)
+✔ SD-01 · 'Show sample data' appears exactly once as code (comments stripped), inside the unimplemented branch, and nowhere else (0.115042ms)
+✔ SD-01 · the sample header label 'Sample data' appears exactly once in the source (one row, no per-card label, no colour class, no icon() call) (0.104958ms)
+✔ SD-01 · the scenario select is a single control offering exactly the five frozen fixtures, defaulting to stale (0.060791ms)
+✔ SD-01 · exit and re-probe copy match SD-17 exactly: 'Hide sample data', 'Check for a source again' (0.059833ms)
+✔ SD-01 · sample rows are read-only: matterRow and the Activity section heading both branch on readOnly before ever calling onOpenMatter (0.143083ms)
+✔ SD-01 · sample state is discarded on any valid live payload (including empty) and on any non-404 error, but survives a 404 (0.049292ms)
+✔ SD-01 · sample never issues its own /work-derivations request: only load() (via request()) reaches that endpoint (0.0555ms)
+✔ SD-01 · switching projects clears sample state before the live probe fires (0.041375ms)
+✔ SD-01 · sample state is checked before every other render branch and returns before the pager can run (0.045916ms)
+✔ SD-01 · sample rendering reuses renderOverview/renderActivity — no second renderer for sample data (0.042ms)
+✔ SD-01 · styles.css gained only additions for the sample row: one new class, --muted-strong, no new colour token (0.502542ms)
+✔ SD-01 · the static allowlist registers the five sample JSON files as one loop, with the JSON content type (0.036833ms)
+✔ SE_TEST_CRASH_POINT alone is inert, and the server says so at startup (1141.237125ms)
+✔ T-SELF-2: with no python3 on PATH the server refuses to start and names the reason (633.298584ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (14.2235ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (7.168834ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (0.795792ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (1.8415ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (126.804667ms)
+✔ skin-policy.js is an exact synchronous static route (69.783542ms)
+✔ Run projection keeps the selected Session/Run identity and recorded file locator (1.808292ms)
+✔ Run projection fails closed for missing or cross-Session identity (0.098667ms)
+✔ unknown status is distinct from an explicit empty recorded-file set (0.180625ms)
+✔ loading, error, unavailable, and incompatible phases do not expose stale files (0.218167ms)
+✔ invalid artifact entries are filtered without turning unknown data into empty (0.147917ms)
+✔ readerUnavailable keeps file provenance but revokes every open capability (0.059125ms)
+✔ Run card starts collapsed with Files and Run information disclosures (2.204375ms)
+✔ Run card does not turn unknown or unavailable files into a zero count (0.31575ms)
+✔ Run card rejects stale Open intents after identity or generation changes (0.500333ms)
+✔ Run card prevents duplicate async Open actions and preserves both disclosures and focus (3.440125ms)
+✔ a late rejected action cannot block or annotate a replacement identity (0.741ms)
+✔ Run card only offers Retry for an error and exposes callback failures (1.073125ms)
+✔ removing a focused Retry action returns focus to Run information and preserves both disclosures (0.464ms)
+✔ Run card hides incompatible projection schemas instead of rendering stale details (0.444458ms)
+✔ Summary run preserves the clicked opener when disabling it clears browser focus (1.057041ms)
+✔ Summary file preserves the clicked opener when disabling it clears browser focus (0.538041ms)
+✔ Summary file focus identity follows the recorded version when files reorder (0.872958ms)
+✔ T-SYNC-1: afterSeq past the server's last seq is 400 cursor_ahead and reports nextSeq (607.20675ms)
+✔ T-SYNC-2: repeating a request for the same seq is idempotent and the sequence has no gaps (488.200167ms)
+✔ T-SYNC-3: snapshot lastSeq joins the event stream with no gap and no overlap, 50x under concurrent writes (1996.96425ms)
+✔ T-SYNC-4: polling and re-cancelling after a terminal state changes nothing (511.835833ms)
+✔ host timing has independent request origins and preserves missing versus measured zero (2.360875ms)
+✔ out-of-interval observations stay in detail and do not become clamped chart marks (0.072958ms)
+✔ request view uses one on-demand disclosure, preserves semantic gaps and restores its open state (1.552542ms)
+✔ missing usage stays unknown and a reported request estimate keeps its method (12.321292ms)
+✔ all historical requests share the same outer disclosure while compact views select only the latest (0.626958ms)
+✔ malformed v1 metadata is rejected while out-of-interval timing remains inspectable (0.179083ms)
+✔ request detail distinguishes runtime and provider aliases while retaining historical records (1.227458ms)
+✔ effort detail separates requested intent, SDK settings and unobserved provider behavior (0.756791ms)
+✔ thread projection scopes runs and resolves exact permission request (2.060041ms)
+✔ tool calls with identical IDs in different runs remain separate and require live admission (0.144041ms)
+✔ permission display distinguishes remote actions from writes using only the recorded binding (0.220416ms)
+✔ one tool state vocabulary serves both chat presentations (0.107875ms)
+✔ the long-message preview reads as words and never replaces the original (0.552959ms)
+✔ Usage keeps UTC start-day, route identity, partial/zero/unknown and global scope (3.559417ms)
+✔ model route keys include exact endpoint without leaking endpoint in overview (0.201ms)
+✔ chart series and Other membership sum exactly and ties never split heatmap levels (1.24575ms)
+✔ matching runs require same snapshot and preserve model/date filter through pagination (0.224334ms)
+✔ combined token overflow fails closed and malformed frontend DTOs are rejected (0.249417ms)
+✔ HTTP Usage scope, strict input and changed-snapshot rejection use actual retained Runs (599.835375ms)
+✔ Usage calendar shares Home Monday-first orientation with bounded keyboard movement (0.517625ms)
+✔ overview rejects malformed dates, scope, counts and incoherent model totals (0.902541ms)
+✔ drilldown rejects malformed rows, wrong observation echo and unsafe pagination (0.866875ms)
+✔ drilldown accepts a persisted stopping run without turning it into stopped (0.3035ms)
+✔ versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions (640.601917ms)
+✔ unresolved and source-stale parents can be revised only with currently verified NDA input (276.65275ms)
+✔ host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation (1013.672458ms)
+✔ artifact read is paged by code point and bound to an open trusted Matter/Run (94.531375ms)
+✔ model and human projections preserve source/contract/base applicability without granting authority (1.941458ms)
+✔ HTTP accepted short/25k/100k text resumes in new Session with scoped artifact pages; URLs are content (3120.877875ms)
+✔ same Matter in new Session, project isolation, detach to chat, producer absent restart history (719.227375ms)
+✔ provider provenance is host-derived and preserves prior simulation records (real-route protocol uses loopback fixture) (642.706708ms)
+✔ concurrent Session admission is serialized before either execution starts (990.146917ms)
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (147.921708ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (132.694375ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (719.349042ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (433.112417ms)
+✔ missing application metadata fails closed; terminal Run cannot change or claim another candidate (237.90275ms)
+✔ BE41-A HTTP snapshot binds project identity and rejects off-page changes (181.758792ms)
+✔ BE41-A HTTP keeps a top-level snapshot token on an empty beyond-total page (130.097958ms)
+✔ BE41-A preserves FILE/Matter version zero and reports source revision zero as partial (160.582208ms)
+✔ BE41-A staleRefs thresholds 19/20/21 retain exact refs and truncation (108.110333ms)
+✔ BE41 empty/zero, project scope, stable pages and stale snapshot rejection without writes (148.960084ms)
+✔ BE41 exact status counts, immutable lineage, 20-ref truncation and source membership diff (90.354459ms)
+✔ BE41 migrated missing source history gives null counts and project-wide partial coverage (160.809541ms)
+✔ BE41 authenticated HTTP validates queries; no Session or producer required (161.165792ms)
+✔ BE41 source rollback is real, large diffs are partial, and policy/off-page membership invalidates tokens (186.274333ms)
+✔ BE41 oversized identity metadata refuses explicitly rather than breaking the worker frame (88.124875ms)
+✔ Core SIGKILL before commit / after commit before ACK, followed by HTTP receipt reconciliation and continuation (1828.556292ms)
+ℹ {"stage":"before_commit","signal":"SIGKILL","receiptBeforeRetry":null,"artifactBeforeRetry":null,"afterRetry":{"candidate_hash":"92c729e9a42cc7f2aac81e1724b6d5e1f46b422b5df03ca96325263de741d3ad","candidate_id":"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372-1"},"durable":{"work":{"id":"matter-635da09b-cf25-480f-8807-96b8cac86410","version":1,"contract_version":"se-contract-v5.0","source_version":1,"active_artifact":"artifact-candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372-1","obligations_json":"[{\"blocking\":false,\"evidence_refs\":[],\"id\":\"follow-up\",\"status\":\"open\",\"text\":\"Confirm the owner\"}]"},"artifact":{"id":"artifact-candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372-1","candidate_id":"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372","candidate_hash":"92c729e9a42cc7f2aac81e1724b6d5e1f46b422b5df03ca96325263de741d3ad","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca"},"decisions":[{"request_id":"crash-request","matter_id":"matter-635da09b-cf25-480f-8807-96b8cac86410","candidate_id":"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372","action":"accept","reason":"Synthetic review","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372\",\"matter_id\":\"matter-635da09b-cf25-480f-8807-96b8cac86410\",\"run_id\":\"417dfca9-5746-480c-803c-409862f4b54a\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372-1\",\"candidate_id\":\"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372\",\"matter_id\":\"matter-635da09b-cf25-480f-8807-96b8cac86410\",\"request_id\":\"crash-request\",\"version\":1}"}],"audits":[{"id":1,"request_id":"crash-request","matter_id":"matter-635da09b-cf25-480f-8807-96b8cac86410","candidate_id":"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372","action":"accept","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372\",\"matter_id\":\"matter-635da09b-cf25-480f-8807-96b8cac86410\",\"run_id\":\"417dfca9-5746-480c-803c-409862f4b54a\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372-1\",\"candidate_id\":\"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372\",\"matter_id\":\"matter-635da09b-cf25-480f-8807-96b8cac86410\",\"request_id\":\"crash-request\",\"version\":1}"}],"receipts":[{"request_id":"crash-request","request_hash":"920849806efc09e8dff0107f8ffab14e4b82ceaba168bc98b561875d2a358f7b","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372-1\",\"candidate_id\":\"candidate-30d37e373ffac98218b5c353f699b894c905ca9b9320fac57ee26050f6f79372\",\"matter_id\":\"matter-635da09b-cf25-480f-8807-96b8cac86410\",\"request_id\":\"crash-request\",\"version\":1}"}]},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"e05c51da42b35626b43085e15f368b2d16662e5b2770459fdc71fef0593c5067","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+ℹ {"stage":"after_commit_before_ack","signal":"SIGKILL","receiptBeforeRetry":{"action":"accept","active_artifact":"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1","candidate_id":"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621","matter_id":"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a","request_id":"crash-request","version":1},"artifactBeforeRetry":{"candidate_hash":"04060620501fc3828a457f3801784bf52fee46aaf92d6662d41da3165d56aac9","candidate_id":"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1"},"afterRetry":{"candidate_hash":"04060620501fc3828a457f3801784bf52fee46aaf92d6662d41da3165d56aac9","candidate_id":"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1"},"durable":{"work":{"id":"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a","version":1,"contract_version":"se-contract-v5.0","source_version":1,"active_artifact":"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1","obligations_json":"[{\"blocking\":false,\"evidence_refs\":[],\"id\":\"follow-up\",\"status\":\"open\",\"text\":\"Confirm the owner\"}]"},"artifact":{"id":"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1","candidate_id":"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621","candidate_hash":"04060620501fc3828a457f3801784bf52fee46aaf92d6662d41da3165d56aac9","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca"},"decisions":[{"request_id":"crash-request","matter_id":"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a","candidate_id":"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621","action":"accept","reason":"Synthetic review","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621\",\"matter_id\":\"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a\",\"run_id\":\"278b3e8e-c8d9-483b-8ccb-233ddd73c7c2\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1\",\"candidate_id\":\"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621\",\"matter_id\":\"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a\",\"request_id\":\"crash-request\",\"version\":1}"}],"audits":[{"id":1,"request_id":"crash-request","matter_id":"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a","candidate_id":"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621","action":"accept","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621\",\"matter_id\":\"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a\",\"run_id\":\"278b3e8e-c8d9-483b-8ccb-233ddd73c7c2\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1\",\"candidate_id\":\"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621\",\"matter_id\":\"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a\",\"request_id\":\"crash-request\",\"version\":1}"}],"receipts":[{"request_id":"crash-request","request_hash":"0c06c850259a0eb6dac2d32fb19609ebc0d60901599c8ccf79a49df11b39c85f","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621-1\",\"candidate_id\":\"candidate-328105a8a5ebe6d2c32932b29cd7140952d83269378c6d934129983630702621\",\"matter_id\":\"matter-736c88a6-629f-4f00-b8e0-b3de9d54e19a\",\"request_id\":\"crash-request\",\"version\":1}"}]},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"9a269c495720c59e5d078e6cbfad89645c318b9fa4896dbf7116e32d94b4ffbc","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+✔ HTTP stale source refusal, producer unload/read-only/reload and legal revised completion (449.25375ms)
+✔ UTC bins count unique retained run IDs, every status, and start time rather than end time (2.457875ms)
+✔ empty differs from reported zero and aggregate overflow fails instead of rounding (0.444792ms)
+✔ summary UTC filter uses each collection timestamp before pagination (0.404541ms)
+✔ authenticated HTTP metrics are read-only, survive restart, and honestly shrink after deletion (425.321834ms)
+✔ read during an unpublished mutation sees the whole previous snapshot (156.039458ms)
+✔ Pro R-01: before-write never reports completed or discards settlement error (1088.3835ms)
+✔ Pro R-01: after-write-ack-loss never reports completed or discards settlement error (1001.211292ms)
+✔ Pro R-01: cancel-and-finish-failure never reports completed or discards settlement error (633.470875ms)
+✔ Pro R-02: ordinary first instruction discovers scoped source refs only from host context (366.637875ms)
+✔ Pro R-04: intermediate tool updates stay nonterminal until end (3.081709ms)
+✔ summary sees one published view across paused resolve persistence (56.573875ms)
+✔ summary sees one published view across paused cancel persistence (45.307041ms)
+✔ work summary distinguishes empty, no-run, completed, failed and unknown (1090.871292ms)
+✔ live ask_user and permission entries disappear after answer or cancel, and stale posts remain 409 (1000.292625ms)
+✔ summary excludes stale question states and paginates pending/inspection by project with a union of lastSeq (102.517ms)
+✔ restart hides the old live question, exposes its unknown Run, and a new Run gets a new ID (1616.782166ms)
+✔ summary keeps project sources separate and has deterministic tie ordering, offsets and bounds (95.973959ms)
+✔ summary is allowlisted and read-only; unauthorized and failed reads are errors rather than empty results (227.934542ms)
+✔ CC-W 第 0 项 · 工作面定性按视口分档，旧的 not-a-third-column 已不在文档里 (0.837083ms)
+✔ CC-W 第 0 项 · 尺寸 token 表登记了 ≥1680 断点、--doc-min 与正文行宽上限 (0.113875ms)
+✔ CC-W 第 0 项 · M-9 在途换词不换宽度，按钮元素本身不被替换 (0.2365ms)
+✔ CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻即时 (0.141042ms)
+✔ CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段 (0.737958ms)
+✔ CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作 (0.356125ms)
+✔ CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质 (0.262708ms)
+✔ CC-W 3 · C 态是三条真的列轨，各自滚动，chrome 同一基线 (0.338792ms)
+✔ CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位 (0.298958ms)
+✔ CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0 (0.299042ms)
+✔ CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不只靠颜色 (0.2465ms)
+✔ T-WS-1: '..' path segments are rejected (3.06275ms)
+✔ T-WS-2: absolute paths are rejected (1.21425ms)
+✔ T-WS-3: symlink escape is rejected (4.560083ms)
+✔ T-WS-4: an over-limit file is rejected by ws_read (throws; pi-agent-core turns a thrown tool error into isError:true) (3.259667ms)
+✔ T-WS-5: ws_read then ws_write round-trips through the workspace endpoints (590.847917ms)
+✔ materials endpoint rejects path separators in the name (68.521917ms)
+✔ addMaterial rejects content over the 1 MiB limit (service-level, below the HTTP body cap) (62.316ms)
+✔ T-WS-6: repeated writes yield two content versions and one current file (545.3655ms)
+✔ addMaterial routes through the shared path guard, which rejects a '..' name (69.766375ms)
+✔ T-ART-1: a completed run with no write has no artifacts and no acceptance field (426.455958ms)
+✔ T-ART-2: two writes to one path keep both content versions and one current file (499.3245ms)
+✔ ws_grep rejects nested quantifiers and over-long patterns before compiling them (40.940583ms)
+✔ getWorkspaceFile truncates on a UTF-8 boundary and keeps the whole-file digest (68.991333ms)
+✔ a second run in a continued session revises the first run's file (722.07375ms)
+✔ 颜色字面量只出现在 tier:S 块内 (101.756708ms)
+✔ 两 skin × 两宗的角色对比度不低于门槛 (72.604959ms)
+✔ renderer is a neutral projection surface and dispatches typed actions without actor fields (1.919459ms)
+✔ catalog exposes development evidence-memo and business-free probe factories (1.829458ms)
+✔ manifest is machine-marked development and advertises generic binding fields (0.098083ms)
+✔ legacy transport import resolves the single shared Core owner (0.725042ms)
+✔ createBinding owns Matter creation and projection exposes source, evidence, candidate, artifact and draft (83.0575ms)
+✔ begin exposes only namespaced source/propose tools and Core rejects late candidate calls after close (80.189ms)
+✔ humanAction accepts only host-derived local-user and uses the same Review route for formal Artifact (80.731917ms)
+✔ close gates admission before cleanup and finish maps cancellation without acceptance (82.427458ms)
+✔ same data directory admits one POSIX flock owner and keeps the inode after release (133.772917ms)
+✔ unexpected holder death invokes onLost and the next host can safely reacquire (84.176625ms)
+✔ owner SIGKILL closes the parent pipe and does not require deleting the lock file (195.052291ms)
+ℹ tests 889
+ℹ suites 0
+ℹ pass 887
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 236285.17425
+
+✖ failing tests:
+
+test at app/tests/semantic-guards.test.mjs:21:1
+✖ actual raw consumers and Pages cross-map remain registered (14.430541ms)
+  Error: app/web/attention-agent-view.mjs:207: unregistered semantic consumer: glyph: 'activity',
+  app/web/chat-sources.mjs:72: unregistered semantic consumer: content.replaceChildren(el('p',{className:'form-help',text:`Candidate ${ref.candidateId} · complete text, ${[...source.text].length} code points. Model use is not recorded by this read.`}),el('pre',{className:'file-text',text:source.text}));
+  Stale consumer exception: app/web/app.mjs: const groupKey = sessionScopeKey("activity", row.id);
+  Consumer count changed: ["app/web/attention-agent-view.mjs","glyph: 'activity',"]: 1
+  Consumer count changed: ["app/web/chat-sources.mjs","content.replaceChildren(el('p',{className:'form-help',text:`Candidate ${ref.candidateId} · complete text, ${[...source.text].length} code points. Model use is not recorded by this read.`}),el('pre',{className:'file-text',text:source.text}));"]: 1
+      at checkConsumers (file:///private/tmp/courtwork-chat-ui-completion-20260913/tools/check-semantic-consumers.mjs:38:26)
+      at async TestContext.<anonymous> (file:///private/tmp/courtwork-chat-ui-completion-20260913/app/tests/semantic-guards.test.mjs:22:14)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+
+test at app/tests/settings-navigation.test.mjs:77:1
+✖ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (2.167875ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /unfinishedToolWord\(status\) === "Unknown"/. Input:
+
+  'import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";\n' +
+    'import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";\n' +
+    'import {\n' +
+    '  executionDisclosureMemberId,\n' +
+    '  projectExecutionDisclosures,\n' +
+    '} from "./execution-disclosure.mjs";\n' +
+    "import { semanticIcon, semanticPresentation, setSemanticControl } from './semantic-controls.mjs';\n" +
+    'import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";\n' +
+    'import {\n' +
+    '  el,\n' +
+    '  icon,\n' +
+    '  flowRow,\n' +
+    '  action,\n' +
+    '  setAction,\n' +
+    '  copyAction,\n' +
+    '  markdown,\n' +
+    '  installTooltips,\n' +
+    '  anchorPopover,\n' +
+    '  sessionMode,\n' +
+    '  sessionModeLabel,\n' +
+    '  setRequestLabel,\n' +
+    '  MEMORY_SCOPE_OFF,\n' +
+    '} from "./ui-controls.mjs";\n' +
+    '\n' +
+    'import { projectRunSummary } from "./summary-disclosure-projection.mjs";\n' +
+    'import { createRunSummaryCard, createCardDisclosureMemory, createSurfaceEntryDirectory } from "./summary-disclosure.mjs";\n' +
+    '\n' +
+    'import { installShellLayout } from "./shell-layout.mjs";\n' +
+    'installShellLayout({ window, document, navigator });\n' +
+    'import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";\n' +
+    'import { createAttentionWorkspace } from "./attention-view.mjs";\n' +
+    'import { createChatPage } from "./chat-page.mjs";\n' +
+    'import {\n' +
+    '  createPreviewLayer,\n' +
+    '  PreviewRefusal,\n' +
+    '  shouldBypassPreviewStats,\n' +
+    '} from "./preview-layer.mjs";\n' +
+    'import { createAttentionAgent } from "./attention-agent-view.mjs";\n' +
+    'import { renderRequestMeasurements } from "./telemetry-view.mjs";\n' +
+    'import { createModelPicker } from "./model-picker.mjs";\n' +
+    'import { createUsageView } from "./usage-view.mjs";\n' +
+    'import { createSparkView } from "./spark-view.mjs";\n' +
+    'let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView, chatPage;\n' +
+    'import {\n' +
+    '  createSettingsPage,\n' +
+    '  createSettingsView,\n' +
+    '  isSettingsSection,\n' +
+    '  permissionLabels,\n' +
+    '  providerLabels,\n' +
+    '  renderConnectionCard,\n' +
+    '  readPreferences,\n' +
+    '  DEFAULT_SECTION,\n' +
+    '} from "./settings-view.mjs";\n' +
+    'import {\n' +
+    '  renderRun,\n' +
+    '  createFileView,\n' +
+    '  runLabels,\n' +
+    '  noticeText,\n' +
+    '  formatBytes,\n' +
+    '} from "./inspector.mjs";\n' +
+    'import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";\n' +
+    'import { createMaterialsView } from "./materials-view.mjs";\n' +
+    'import {\n' +
+    '  renderHome,\n' +
+    '  renderHomeBand,\n' +
+    '  renderHomeModuleBand,\n' +
+    '  homeSets,\n' +
+    '} from "./home-view.mjs";\n' +
+    'import {\n' +
+    '  projectThread,\n' +
+    '  toolStateWord,\n' +
+    '  canAnswer,\n' +
+    '  validPermission,\n' +
+    '  permissionPresentation,\n' +
+    '} from "./thread-projection.mjs";\n' +
+    '\n' +
+    'import {\n' +
+    '  renderSessionOverview,\n' +
+    '  renderRunHistory,\n' +
+    '} from "./workspace-view.mjs";\n' +
+    'import {\n' +
+    '  surfaceModules,\n' +
+    '  surfaceModule,\n' +
+    '  resolveSurfaceSlot,\n' +
+    '  slotStatusLine,\n' +
+    '  workPacket,\n' +
+    '  renderWorkPacket,\n' +
+    '  decisionWords,\n' +
+    '  shortRef,\n' +
+    '} from "./surface-modules.mjs";\n' +
+    'import { renderUserMessage } from "./user-message.mjs";\n' +
+    'import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";\n' +
+    'import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.mjs";\n' +
+    '\n' +
+    'const API_BASE = "/api/v5";\n' +
+    'const UI_STORAGE_KEY = "schema-engineering.ui.v6";\n' +
+    '/* Stage 4 (ONE-SHOT 2026-09-11) · the example workspace is a projection layer\n' +
+    ' * over `request()`: while it is active, work reads are answered from one\n' +
+    ' * recorded synthetic story and writes against example objects are refused\n' +
+    ' * locally. Host facts, the data directory and every real object stay real. */\n' +
+    'const preview = createPreviewLayer({ storage: (() => { try { return window.localStorage; } catch { return null; } })() });\n' +
+    'const HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;\n' +
+    'const surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");\n' +
+    '// WK-58 · below 768 the composer docks at the foot of the frame on Home too, so\n' +
+    '// the placement itself is viewport-dependent and not only its padding.\n' +
+    'const narrowQuery = window.matchMedia("(max-width: 767px)");\n' +
+    '/* WK-113 ① / CC-W · 工作面按视口分档的那条线。从 1680 起 nav 256 + chat ≥640 +\n' +
+    ' * doc ≥688 在算术上成立，工作面因此是真正的第三栏；1024–1679 它是主区内的视图\n' +
+    ' * 切换（B），<1024 仍是全屏 sheet。断点写在这里一次，CSS 里同一个数字。 */\n' +
+    'const surfaceThreePaneQuery = window.matchMedia("(min-width: 1680px)");\n' +
+    '\n' +
+    'const state = {\n' +
+    '  token: null,\n' +
+    '  editMessageCandidate: null,\n' +
+    '  view: "home",\n' +
+    '  navigationOpen: false,\n' +
+    '  sidebarCollapsed: false,\n' +
+    '  attentionOpen: false,\n' +
+    '  chatOpen: false,\n' +
+    '  homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },\n' +
+    '  homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },\n' +
+    '  home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },\n' +
+    '  homeDraft: "",\n' +
+    '  homeProjectId: null,\n' +
+    '  homePermissionMode: "ask",\n' +
+    '  homeStart: null,\n' +
+    '  homeProjectRequest: false,\n' +
+    '  sessionListErrors: new Map(),\n' +
+    '  unconfirmedRuns: new Map(),\n' +
+    '  createAttempts: new Map(),\n' +
+    '  startAfterProject: false,\n' +
+    '  newSessionProjectId: null,\n' +
+    '  runtimeInfo: null,\n' +
+    '  capabilities: null,\n' +
+    '  adapterId: null,\n' +
+    '  projects: [],\n' +
+    '  sessionsByProject: new Map(),\n' +
+    '  openProjectIds: new Set(),\n' +
+    '  activeProjectId: null,\n' +
+    '  activeSessionId: null,\n' +
+    '  restoreSessionId: null,\n' +
+    '  navigationEpoch: 0,\n' +
+    '  navigationFilter: "",\n' +
+    '  session: null,\n' +
+    '  events: [],\n' +
+    '  runs: [],\n' +
+    '  lastSeq: 0,\n' +
+    '  sessionEpoch: 0,\n' +
+    '  pollController: null,\n' +
+    '  pollTimer: null,\n' +
+    '  recordedContext: new Map(),\n' +
+    '  draftCache: new Map(),\n' +
+    '  draftDirty: new Set(),\n' +
+    '  draftTimers: new Map(),\n' +
+    '  draftRevisions: new Map(),\n' +
+    '  draftQueues: new Map(),\n' +
+    '  pendingRuns: new Map(),\n' +
+    '  pendingCancels: new Map(),\n' +
+    '  sessionMutationVersions: new Map(),\n' +
+    '  sessionReadTokens: new Map(),\n' +
+    '  operationSequence: 0,\n' +
+    '  questionDrafts: new Map(),\n' +
+    '  questionControls: new Map(),\n' +
+    '  questionSubmitting: new Set(),\n' +
+    '  questionSubmitted: new Set(),\n' +
+    '  questionErrors: new Map(),\n' +
+    '  toolOpen: new Map(),\n' +
+    '  navigationLimits: new Map(),\n' +
+    '  longMessageOpen: new Map(),\n' +
+    '  messageReading: new Map(),\n' +
+    '  bindingExtensionId: null,\n' +
+    '  extensions: [],\n' +
+    '  providerConfig: null,\n' +
+    '  /* WK-78 / FN-26 · Settings 是页面而不是模态，所以它不改会话，也不改 state.view：\n' +
+    '   * 它只是主区当前显示的东西。`section` 与 hash 同步，`returnFocus` 记住进入前握着\n' +
+    '   * 焦点的那个控件，Back 与 Escape 都把焦点还回去。 */\n' +
+    '  settings: { open: false, section: DEFAULT_SECTION, returnFocus: null },\n' +
+    '  focusIntentEpoch: 0,\n' +
+    '  feedback: new Map(),\n' +
+    '  connectionLost: false,\n' +
+    '  connectionEpoch: 0,\n' +
+    '  recoveryProbeTimer: null,\n' +
+    '  recoveryProbeController: null,\n' +
+    '  surface: {\n' +
+    '    open: false,\n' +
+    '    kind: "preview",\n' +
+    '    runId: null,\n' +
+    '    fileRef: null,\n' +
+    '    returnFocus: null,\n' +
+    '    returnFocusEpoch: null,\n' +
+    '    runReadGeneration: 0,\n' +
+    '    runReadController: null,\n' +
+    '    workspaceGeneration: 0,\n' +
+    '    // WK-41 · the workspace tree is fetched once by the host and handed to both\n' +
+    '    // rail states, so collapsing and expanding never re-reads the same tree.\n' +
+    '    workspace: null,\n' +
+    '    expanded: false,\n' +
+    '    maximized: false,\n' +
+    '    /* WK-72 ·两个量测结果（非形式状态，不入 localStorage）：悬浮层收成 glyph 竖条\n' +
+    '     * 与否，以及 composer 当前占去的高度。 */\n' +
+    '    strip: false,\n' +
+    '    composerHeight: 0,\n' +
+    '    requestId: 0,\n' +
+    '    fetchRequestId: 0,\n' +
+    '    fetchController: null,\n' +
+    '    controller: null,\n' +
+    '    context: null,\n' +
+    '    info: null,\n' +
+    '    rendererUnavailableContext: null,\n' +
+    '    projection: null,\n' +
+    '    module: null,\n' +
+    '    ownedContainer: null,\n' +
+    '    mounted: null,\n' +
+    '  },\n' +
+    "  /* WO-WK10b 第二段 · the formal decisions of the session's bound work, and the\n" +
+    '   * committed receipt for each. The Chat Flow row is drawn from the receipt,\n' +
+    '   * not from the decision: a decision the server cannot confirm has no receipt,\n' +
+    '   * and a null receipt never becomes a success row (frontend-entries 3.4).\n' +
+    '   * This store is read for a bound session whether or not the work surface is\n' +
+    '   * open, because the receipt row belongs to the conversation. */\n' +
+    '  work: { sessionId: null, decisions: [], receipts: new Map(), matterId: null, stateVersion: null },\n' +
+    '  /* Which rule rows of the read-only fallback are open. A disclosure is a view\n' +
+    '   * state, not a formal one, and it survives a re-read (FN-23). */\n' +
+    '  surfaceRuleOpen: new Set(),\n' +
+    '  /* WO-WK10b 第二段 · the work this project already owns, read once when the\n' +
+    '   * binding panel opens. The route is per project, so work of another project\n' +
+    '   * is not in this list and cannot be offered here. */\n' +
+    '  projectWork: { projectId: null, extensionId: null, matters: null, error: null },\n' +
+    '};\n' +
+    '\n' +
+    'const $ = (id) => document.getElementById(id);\n' +
+    'let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView;\n' +
+    'const dialogReturns = new Map();\n' +
+    'const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";\n' +
+    'function storeUnconfirmedRuns() {\n' +
+    '  try {\n' +
+    '    window.sessionStorage.setItem(\n' +
+    '      COMMAND_STORAGE_KEY,\n' +
+    '      JSON.stringify([...state.unconfirmedRuns]),\n' +
+    '    );\n' +
+    '  } catch {\n' +
+    '    /* receipt remains in memory */\n' +
+    '  }\n' +
+    '}\n' +
+    'function setWorkspaceTitle(title) {\n' +
+    '  if (state.surface.kind === "preview") $("surface-title").textContent = title;\n' +
+    '}\n' +
+    'function restoreLayerFocus(preferred, fallback = $("session-title")) {\n' +
+    '  const target =\n' +
+    '    preferred?.isConnected &&\n' +
+    '    !preferred.disabled &&\n' +
+    '    !preferred.closest("[inert]") &&\n' +
+    '    preferred.getClientRects().length\n' +
+    '      ? preferred\n' +
+    '      : fallback;\n' +
+    '  target?.focus();\n' +
+    '}\n' +
+    '\n' +
+    'function element(tag, options = {}, ...children) {\n' +
+    '  const item = document.createElement(tag);\n' +
+    '  if (options.className) item.className = options.className;\n' +
+    '  if (options.text !== undefined) item.textContent = String(options.text);\n' +
+    '  if (options.attrs) {\n' +
+    '    for (const [name, value] of Object.entries(options.attrs)) {\n' +
+    '      if (value !== undefined && value !== null)\n' +
+    '        item.setAttribute(name, String(value));\n' +
+    '    }\n' +
+    '  }\n' +
+    '  for (const child of children) {\n' +
+    '    if (child === null || child === undefined || child === false) continue;\n' +
+    '    item.append(\n' +
+    '      typeof child === "string" ? document.createTextNode(child) : child,\n' +
+    '    );\n' +
+    '  }\n' +
+    '  return item;\n' +
+    '}\n' +
+    '\n' +
+    'function clear(item) {\n' +
+    '  while (item.firstChild) item.removeChild(item.firstChild);\n' +
+    '}\n' +
+    '\n' +
+    'function readUiState() {\n' +
+    '  try {\n' +
+    '    if (!window.localStorage) return {};\n' +
+    '    const raw = window.localStorage.getItem(UI_STORAGE_KEY);\n' +
+    '    if (!raw) return {};\n' +
+    '    const parsed = JSON.parse(raw);\n' +
+    '    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))\n' +
+    '      return {};\n' +
+    '    return parsed;\n' +
+    '  } catch {\n' +
+    '    return {};\n' +
+    '  }\n' +
+    '}\n' +
+    '\n' +
+    'function writeUiState() {\n' +
+    '  try {\n' +
+    '    if (!window.localStorage) return;\n' +
+    '    windo'... 256223 more characters
+
+      at TestContext.<anonymous> (file:///private/tmp/courtwork-chat-ui-completion-20260913/app/tests/settings-navigation.test.mjs:86:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";\nimport { captureChatReading, restoreChatReading } from "./chat-reading.mjs";\nimport {\n  executionDisclosureMemberId,\n  projectExecutionDisclosures,\n} from "./execution-disclosure.mjs";\nimport { semanticIcon, semanticPresentation, setSemanticControl } from \'./semantic-controls.mjs\';\nimport { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";\nimport {\n  el,\n  icon,\n  flowRow,\n  action,\n  setAction,\n  copyAction,\n  markdown,\n  installTooltips,\n  anchorPopover,\n  sessionMode,\n  sessionModeLabel,\n  setRequestLabel,\n  MEMORY_SCOPE_OFF,\n} from "./ui-controls.mjs";\n\nimport { projectRunSummary } from "./summary-disclosure-projection.mjs";\nimport { createRunSummaryCard, createCardDisclosureMemory, createSurfaceEntryDirectory } from "./summary-disclosure.mjs";\n\nimport { installShellLayout } from "./shell-layout.mjs";\ninstallShellLayout({ window, document, navigator });\nimport { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";\nimport { createAttentionWorkspace } from "./attention-view.mjs";\nimport { createChatPage } from "./chat-page.mjs";\nimport {\n  createPreviewLayer,\n  PreviewRefusal,\n  shouldBypassPreviewStats,\n} from "./preview-layer.mjs";\nimport { createAttentionAgent } from "./attention-agent-view.mjs";\nimport { renderRequestMeasurements } from "./telemetry-view.mjs";\nimport { createModelPicker } from "./model-picker.mjs";\nimport { createUsageView } from "./usage-view.mjs";\nimport { createSparkView } from "./spark-view.mjs";\nlet attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView, chatPage;\nimport {\n  createSettingsPage,\n  createSettingsView,\n  isSettingsSection,\n  permissionLabels,\n  providerLabels,\n  renderConnectionCard,\n  readPreferences,\n  DEFAULT_SECTION,\n} from "./settings-view.mjs";\nimport {\n  renderRun,\n  createFileView,\n  runLabels,\n  noticeText,\n  formatBytes,\n} from "./inspector.mjs";\nimport { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";\nimport { createMaterialsView } from "./materials-view.mjs";\nimport {\n  renderHome,\n  renderHomeBand,\n  renderHomeModuleBand,\n  homeSets,\n} from "./home-view.mjs";\nimport {\n  projectThread,\n  toolStateWord,\n  canAnswer,\n  validPermission,\n  permissionPresentation,\n} from "./thread-projection.mjs";\n\nimport {\n  renderSessionOverview,\n  renderRunHistory,\n} from "./workspace-view.mjs";\nimport {\n  surfaceModules,\n  surfaceModule,\n  resolveSurfaceSlot,\n  slotStatusLine,\n  workPacket,\n  renderWorkPacket,\n  decisionWords,\n  shortRef,\n} from "./surface-modules.mjs";\nimport { renderUserMessage } from "./user-message.mjs";\nimport { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";\nimport { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.mjs";\n\nconst API_BASE = "/api/v5";\nconst UI_STORAGE_KEY = "schema-engineering.ui.v6";\n/* Stage 4 (ONE-SHOT 2026-09-11) · the example workspace is a projection layer\n * over `request()`: while it is active, work reads are answered from one\n * recorded synthetic story and writes against example objects are refused\n * locally. Host facts, the data directory and every real object stay real. */\nconst preview = createPreviewLayer({ storage: (() => { try { return window.localStorage; } catch { return null; } })() });\nconst HOME_DRAFT_KEY = `${UI_STORAGE_KEY}.home-draft`;\nconst surfaceOverlayQuery = window.matchMedia("(max-width: 1023px)");\n// WK-58 · below 768 the composer docks at the foot of the frame on Home too, so\n// the placement itself is viewport-dependent and not only its padding.\nconst narrowQuery = window.matchMedia("(max-width: 767px)");\n/* WK-113 ① / CC-W · 工作面按视口分档的那条线。从 1680 起 nav 256 + chat ≥640 +\n * doc ≥688 在算术上成立，工作面因此是真正的第三栏；1024–1679 它是主区内的视图\n * 切换（B），<1024 仍是全屏 sheet。断点写在这里一次，CSS 里同一个数字。 */\nconst surfaceThreePaneQuery = window.matchMedia("(min-width: 1680px)");\n\nconst state = {\n  token: null,\n  editMessageCandidate: null,\n  view: "home",\n  navigationOpen: false,\n  sidebarCollapsed: false,\n  attentionOpen: false,\n  chatOpen: false,\n  homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },\n  homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },\n  home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },\n  homeDraft: "",\n  homeProjectId: null,\n  homePermissionMode: "ask",\n  homeStart: null,\n  homeProjectRequest: false,\n  sessionListErrors: new Map(),\n  unconfirmedRuns: new Map(),\n  createAttempts: new Map(),\n  startAfterProject: false,\n  newSessionProjectId: null,\n  runtimeInfo: null,\n  capabilities: null,\n  adapterId: null,\n  projects: [],\n  sessionsByProject: new Map(),\n  openProjectIds: new Set(),\n  activeProjectId: null,\n  activeSessionId: null,\n  restoreSessionId: null,\n  navigationEpoch: 0,\n  navigationFilter: "",\n  session: null,\n  events: [],\n  runs: [],\n  lastSeq: 0,\n  sessionEpoch: 0,\n  pollController: null,\n  pollTimer: null,\n  recordedContext: new Map(),\n  draftCache: new Map(),\n  draftDirty: new Set(),\n  draftTimers: new Map(),\n  draftRevisions: new Map(),\n  draftQueues: new Map(),\n  pendingRuns: new Map(),\n  pendingCancels: new Map(),\n  sessionMutationVersions: new Map(),\n  sessionReadTokens: new Map(),\n  operationSequence: 0,\n  questionDrafts: new Map(),\n  questionControls: new Map(),\n  questionSubmitting: new Set(),\n  questionSubmitted: new Set(),\n  questionErrors: new Map(),\n  toolOpen: new Map(),\n  navigationLimits: new Map(),\n  longMessageOpen: new Map(),\n  messageReading: new Map(),\n  bindingExtensionId: null,\n  extensions: [],\n  providerConfig: null,\n  /* WK-78 / FN-26 · Settings 是页面而不是模态，所以它不改会话，也不改 state.view：\n   * 它只是主区当前显示的东西。`section` 与 hash 同步，`returnFocus` 记住进入前握着\n   * 焦点的那个控件，Back 与 Escape 都把焦点还回去。 */\n  settings: { open: false, section: DEFAULT_SECTION, returnFocus: null },\n  focusIntentEpoch: 0,\n  feedback: new Map(),\n  connectionLost: false,\n  connectionEpoch: 0,\n  recoveryProbeTimer: null,\n  recoveryProbeController: null,\n  surface: {\n    open: false,\n    kind: "preview",\n    runId: null,\n    fileRef: null,\n    returnFocus: null,\n    returnFocusEpoch: null,\n    runReadGeneration: 0,\n    runReadController: null,\n    workspaceGeneration: 0,\n    // WK-41 · the workspace tree is fetched once by the host and handed to both\n    // rail states, so collapsing and expanding never re-reads the same tree.\n    workspace: null,\n    expanded: false,\n    maximized: false,\n    /* WK-72 ·两个量测结果（非形式状态，不入 localStorage）：悬浮层收成 glyph 竖条\n     * 与否，以及 composer 当前占去的高度。 */\n    strip: false,\n    composerHeight: 0,\n    requestId: 0,\n    fetchRequestId: 0,\n    fetchController: null,\n    controller: null,\n    context: null,\n    info: null,\n    rendererUnavailableContext: null,\n    projection: null,\n    module: null,\n    ownedContainer: null,\n    mounted: null,\n  },\n  /* WO-WK10b 第二段 · the formal decisions of the session\'s bound work, and the\n   * committed receipt for each. The Chat Flow row is drawn from the receipt,\n   * not from the decision: a decision the server cannot confirm has no receipt,\n   * and a null receipt never becomes a success row (frontend-entries 3.4).\n   * This store is read for a bound session whether or not the work surface is\n   * open, because the receipt row belongs to the conversation. */\n  work: { sessionId: null, decisions: [], receipts: new Map(), matterId: null, stateVersion: null },\n  /* Which rule rows of the read-only fallback are open. A disclosure is a view\n   * state, not a formal one, and it survives a re-read (FN-23). */\n  surfaceRuleOpen: new Set(),\n  /* WO-WK10b 第二段 · the work this project already owns, read once when the\n   * binding panel opens. The route is per project, so work of another project\n   * is not in this list and cannot be offered here. */\n  projectWork: { projectId: null, extensionId: null, matters: null, error: null },\n};\n\nconst $ = (id) => document.getElementById(id);\nlet tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView;\nconst dialogReturns = new Map();\nconst COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";\nfunction storeUnconfirmedRuns() {\n  try {\n    window.sessionStorage.setItem(\n      COMMAND_STORAGE_KEY,\n      JSON.stringify([...state.unconfirmedRuns]),\n    );\n  } catch {\n    /* receipt remains in memory */\n  }\n}\nfunction setWorkspaceTitle(title) {\n  if (state.surface.kind === "preview") $("surface-title").textContent = title;\n}\nfunction restoreLayerFocus(preferred, fallback = $("session-title")) {\n  const target =\n    preferred?.isConnected &&\n    !preferred.disabled &&\n    !preferred.closest("[inert]") &&\n    preferred.getClientRects().length\n      ? preferred\n      : fallback;\n  target?.focus();\n}\n\nfunction element(tag, options = {}, ...children) {\n  const item = document.createElement(tag);\n  if (options.className) item.className = options.className;\n  if (options.text !== undefined) item.textContent = String(options.text);\n  if (options.attrs) {\n    for (const [name, value] of Object.entries(options.attrs)) {\n      if (value !== undefined && value !== null)\n        item.setAttribute(name, String(value));\n    }\n  }\n  for (const child of children) {\n    if (child === null || child === undefined || child === false) continue;\n    item.append(\n      typeof child === "string" ? document.createTextNode(child) : child,\n    );\n  }\n  return item;\n}\n\nfunction clear(item) {\n  while (item.firstChild) item.removeChild(item.firstChild);\n}\n\nfunction readUiState() {\n  try {\n    if (!window.localStorage) return {};\n    const raw = window.localStorage.getItem(UI_STORAGE_KEY);\n    if (!raw) return {};\n    const parsed = JSON.parse(raw);\n    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))\n      return {};\n    return parsed;\n  } catch {\n    return {};\n  }\n}\n\nfunction writeUiState() {\n  try {\n    if (!window.localStorage) return;\n    windo'... 256223 more characters,
+    expected: /unfinishedToolWord\(status\) === "Unknown"/,
+    operator: 'match',
+    diff: 'simple'
+  }

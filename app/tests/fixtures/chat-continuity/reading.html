@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Chat reading continuity verification</title>
+<style>body{font:16px system-ui;margin:2rem}#stream{height:180px;overflow:auto;width:340px;border:1px solid}article{min-height:140px}#result{white-space:pre-wrap}</style>
+<h1>Chat reading continuity · synthetic browser checks</h1><div id="stream"></div><pre id="result">Running…</pre>
+<script type="module">
+import {captureChatReading,restoreChatReading} from '/web/chat-reading.mjs';
+const stream=document.querySelector('#stream'),result=document.querySelector('#result'),selection=getSelection(),checks=[];
+const check=(label,condition)=>{checks.push({label,passed:Boolean(condition)});if(!condition)throw new Error(label);};
+function rows(){stream.innerHTML='<article data-reading-key="s:r:a"><p>Alpha 😀 paragraph with <code>inline_code</code> and more text.</p></article><article data-reading-key="s:r:b"><p>Second paragraph preserves a backward selection.</p></article><article data-reading-key="s:r:c">Final paragraph.</article>';}
+try {
+ rows();let text=stream.querySelector('p').firstChild;selection.setBaseAndExtent(text,0,text,8);stream.scrollTop=30;
+ let snapshot=captureChatReading(stream);rows();stream.querySelector('p').append(' Streaming addition.');restoreChatReading(stream,snapshot);
+ check('Unicode selection survives replacing and extending the message',selection.toString()==='Alpha 😀');
+ check('Reading scroll position survives a message replacement',stream.scrollTop===30);
+ rows();const first=stream.querySelector('p').firstChild,second=stream.querySelectorAll('p')[1].firstChild;
+ selection.setBaseAndExtent(second,6,first,2);const before=selection.toString();snapshot=captureChatReading(stream);rows();restoreChatReading(stream,snapshot);
+ check('Backward selection spanning message rows retains exact bytes',selection.toString()===before);
+ check('Backward selection retains anchor direction',selection.anchorNode.parentElement.closest('article').dataset.readingKey==='s:r:b');
+ snapshot=captureChatReading(stream);rows();for(const row of stream.children)row.dataset.readingKey='new:'+row.dataset.readingKey;restoreChatReading(stream,snapshot);
+ check('Another session does not inherit the old selection',selection.isCollapsed);
+ result.textContent=JSON.stringify({passed:true,checks},null,2);result.dataset.passed='true';
+} catch(error){result.textContent=JSON.stringify({passed:false,error:error.message,checks},null,2);result.dataset.passed='false';}
+</script>

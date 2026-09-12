@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Chat UI完整改版接线
+
+[生产回执](research/chat-memory-broker-2026-09-12/ui-completion/README.md)完成模型适配合流、成功执行折叠、测量按需披露、正文阅读连续性、精确来源/文件引用及附件左/模型右布局。模型适配Luna独立63/63，整合后全量890/890；来源r1/r2、重复Quote、Home附件零Run与六组响应式检查通过，Astra/Luna交叉有界复核。通用Broker/connector候选与原生a11y门保留各自边界；无付费调用、个人数据迁移、push或部署。
+
 ## 2026-09-13 · Model / effort生产接线
 
 按用户explore后修改生产授权，在Courtwork临时隔离分支完成[逐模型能力接线](research/chat-memory-broker-2026-09-12/model-adaptation/production.md)：精确runtime/人工声明集合经Host准入投影，统一picker含默认省略、失效值重选与CAS冲突保留草稿；schema13保留旧记录并失效旧检查绑定。Run冻结能力版本，最终payload控制普通与压缩请求，SDK设置不冒充Provider实效。Luna有界实现与非作者复核、合成测试和浏览器证据见回执；未跑付费Provider、迁移个人数据、合共享main、push或部署。

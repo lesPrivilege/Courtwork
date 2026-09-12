@@ -48,40 +48,65 @@ export function requestTiming(rows) {
     firstText: maximum > 0 && nonnegative(row.firstTextMs) && row.firstTextMs <= row.elapsedMs ? row.firstTextMs / maximum * 100 : null,
   }));
 }
-export function renderRequestMeasurements(events, runId, {compact=false, opened=new Set()}={}) {
+export function renderRequestMeasurements(events, runId, {compact=false, opened=new Set(), onDisclosureChange}={}) {
   const rows=requestMeasurements(events,runId);
   const box=el('section',{className:'request-measurements'});
   if(!rows.length){box.append(el('p',{className:'form-help',text:'Request timing was not recorded for this run.'}));return box;}
+
   const selected=compact?rows.slice(-1):rows;
   const timings=requestTiming(selected);
-  box.append(el('h3',{text:compact?'Latest request':'Model requests'}));
+  const phaseWords={started:'Starting',streaming:'Streaming',completed:'Completed',cancelled:'Cancelled',failed:'Failed',interrupted:'Interrupted'};
+  const latest=selected.at(-1);
+  const summaryText=compact
+    ? `Latest request · ${phaseWords[latest.phase]} · ${requestDuration(latest.elapsedMs)}`
+    : `${selected.length} model ${selected.length===1?'request':'requests'} · latest request: ${phaseWords[latest.phase]} · ${requestDuration(latest.elapsedMs)}`;
+  const disclosure=el('details',{className:'request-disclosure',attrs:{'data-section':'request-measurements'}},
+    el('summary',{className:'request-disclosure-summary',text:summaryText}));
+  disclosure.open=opened?.has?.('request-measurements')===true;
+  disclosure.addEventListener('toggle',()=>{
+    if(disclosure.open) opened?.add?.('request-measurements');
+    else opened?.delete?.('request-measurements');
+    if(typeof onDisclosureChange==='function') onDisclosureChange(disclosure.open);
+  });
+
+  const body=el('div',{className:'request-measurements-body'});
   for(const [index,row] of selected.entries()){
     const timing=timings[index];
-    const summary=el('summary',{className:'request-summary'},
+    const record=el('section',{className:'request-detail',attrs:{'data-request-id':row.requestId}});
+    const heading=el('h4',{className:'request-record-heading'},
       el('span',{text:`Request ${row.requestId}`}),
-      el('span',{className:'request-disclosure',attrs:{'aria-hidden':'true'},text:'›'}),
-      el('span',{className:'request-phase',text:({started:'Starting',streaming:'Streaming',completed:'Completed',cancelled:'Cancelled',failed:'Failed',interrupted:'Interrupted'})[row.phase]}),
+      el('span',{className:'request-phase',text:phaseWords[row.phase]}),
       el('span',{className:'request-duration',text:requestDuration(row.elapsedMs)}));
     const chart=el('span',{className:'request-timing',attrs:{role:'img','aria-label':`Host elapsed ${requestDuration(row.elapsedMs)}; first output ${requestDuration(row.firstOutputMs)}; first text ${requestDuration(row.firstTextMs)}.`}});
     const bar=el('span',{className:'request-timing-bar'});bar.style.width=`${timing.width}%`;chart.append(bar);
     for(const [key,kind] of [['firstOutput','output'],['firstText','text']]) if(timing[key]!==null){
       const marker=el('span',{className:`request-timing-marker marker-${kind}`});marker.style.left=`${timing[key]}%`;chart.append(marker);
     }
-    summary.append(chart);
-    const detail=el('details',{className:'request-detail',attrs:{'data-section':`request-${row.requestId}`}},summary);
-    detail.open=opened.has(`request-${row.requestId}`);
-    const dl=el('dl',{className:'data-list'});
-    const fields=[['Purpose',row.purpose??'Not recorded'],['Host first output',requestDuration(row.firstOutputMs)],['Host first text',requestDuration(row.firstTextMs)],['Observed request time',requestDuration(row.elapsedMs)],['Requested effort',row.requestedEffort??'Provider default'],['SDK setting',row.sdkEffectiveEffort??row.effectiveEffort??'Not recorded'],['Provider effort','Not reported'],['Decode TPS','Unavailable · no token deltas']];
-    if(row.context) fields.push(['Request context estimate',`~${row.context.estimatedTokens.toLocaleString()} tokens · serialized text ÷ 4`]);
-    fields.push(['Requested model',`${row.requestedModel.provider} · ${row.requestedModel.model} · ${row.requestedModel.api}`],['Runtime model',row.observedModel?`${row.observedModel.provider??'unknown'} · ${row.observedModel.model}`:'Not reported']);
+
+    const fields=[
+      ['Purpose',row.purpose??'Not recorded'],
+      ['Host first output',requestDuration(row.firstOutputMs)],
+      ['Host first text',requestDuration(row.firstTextMs)],
+      ['Host elapsed time',requestDuration(row.elapsedMs)],
+      ['Requested effort',row.requestedEffort??'Provider default'],
+      ['SDK setting',row.sdkEffectiveEffort??row.effectiveEffort??'Not recorded'],
+      ['Provider effort','Not reported'],
+      ['Decode TPS','Unavailable · no token deltas'],
+      ['Request context estimate',row.context?`~${row.context.estimatedTokens.toLocaleString()} tokens · serialized UTF-16 chars ÷ 4`:'Not reported'],
+      ['Requested model',`${row.requestedModel.provider} · ${row.requestedModel.model} · ${row.requestedModel.api}`],
+      ['Runtime model',row.observedModel?`${row.observedModel.provider??'unknown'} · ${row.observedModel.model}`:'Not reported'],
+    ];
     if(row.providerResponse?.model) fields.push(['Provider-reported model',row.providerResponse.model]);
     if(row.providerResponse?.id) fields.push(['Provider response ID',row.providerResponse.id]);
-    if(row.usage) for(const [key,label] of [['input','Input tokens'],['output','Output tokens'],['cacheRead','Cache read'],['cacheWrite','Cache write']]) fields.push([label,row.usage[key]===null?'Not reported':String(row.usage[key])]);
-    for(const [label,value]of fields)dl.append(el('dt',{text:label}),el('dd',{text:value}));
-    detail.append(dl);box.append(detail);
+    for(const [key,label] of [['input','Input tokens'],['output','Output tokens'],['cacheRead','Cache read'],['cacheWrite','Cache write']])
+      fields.push([label,row.usage?.[key]===null||row.usage?.[key]===undefined?'Not reported':String(row.usage[key])]);
+    const dl=el('dl',{className:'data-list'});
+    for(const [label,value] of fields) dl.append(el('dt',{text:label}),el('dd',{text:value}));
+    record.append(heading,chart,dl);
+    body.append(record);
   }
-  box.append(el('p',{className:'form-help request-scale',text:'Host elapsed time, each request from its own start. Marks show first output and first text.'}));
-  const definitions=el('details',{className:'request-definitions',attrs:{'data-section':'request-definitions'}},el('summary',{text:'Measurement details'}),el('p',{className:'form-help',text:'Host timings include transport and adapter work; they are not provider TTFT. First output includes tool activity; first text is the first observed text. Context is a heuristic, not remaining capacity. Cache counts can overlap input; no billing is inferred.'}));
-  definitions.open=opened.has('request-definitions');box.append(definitions);
+  body.append(el('p',{className:'form-help request-definitions',text:'Host timings include transport and adapter work; they are not provider TTFT. First output includes tool activity; first text is the first observed text. Context is a heuristic, not remaining capacity. Cache counts can overlap input; no billing is inferred.'}));
+  disclosure.append(body);
+  box.append(disclosure);
   return box;
 }

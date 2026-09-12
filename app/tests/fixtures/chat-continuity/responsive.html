@@ -1,0 +1,12 @@
+<!doctype html><meta charset="utf-8"><title>Production Chat responsive verification</title>
+<style>body{margin:0;font:14px system-ui}nav{position:sticky;top:0;background:white;padding:8px;z-index:1}iframe{display:block;border:0;transform-origin:top left}#stage{overflow:auto}</style>
+<nav>Production app in a fixed CSS viewport · <button data-width="390">390</button> <button data-width="1280">1280</button> <button data-width="1440">1440</button> <output id="size"></output></nav>
+<div id="stage"><iframe id="app-frame" title="Production Chat" width="390" height="844"></iframe></div>
+<script>
+const frame=document.querySelector('iframe'),port=new URL(location.href).searchParams.get('port');
+if(!/^\d{4,5}$/.test(port||''))throw new Error('A local test server port is required');
+frame.src=`http://127.0.0.1:${port}/`;
+function size(width){frame.width=width;frame.height=width===390?844:900;frame.style.transform=`scale(${Math.min(1,innerWidth/width)})`;document.querySelector('#size').textContent=`${width} × ${frame.height}`;}
+for(const button of document.querySelectorAll('button'))button.addEventListener('click',()=>size(Number(button.dataset.width)));
+size(390);
+</script>

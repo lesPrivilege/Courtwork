@@ -28,16 +28,9 @@
   },
   {
     "file": "app/web/app.mjs",
-    "source": "const groupKey = sessionScopeKey(\"activity\", row.id);",
-    "disposition": "data-identifier",
-    "reason": "activity is the persisted scope key for the tool Activity group, not a glyph argument or rendered icon.",
-    "semanticKeys": []
-  },
-  {
-    "file": "app/web/app.mjs",
     "source": "glyph: \"activity\",",
     "disposition": "mapped-raw",
-    "reason": "The group is explicitly titled Activity and aggregates recorded tool actions within one Run, matching activity.view.",
+    "reason": "Execution exposes recorded successful tool calls from one completed Run. The activity glyph describes recorded activity; the button does not confer approval or acceptance.",
     "semanticKeys": [
       "activity.view"
     ]
@@ -307,5 +300,21 @@
     "semanticKeys": [
       "file.object"
     ]
+  },
+  {
+    "file": "app/web/attention-agent-view.mjs",
+    "source": "glyph: 'activity',",
+    "disposition": "mapped-raw",
+    "reason": "Execution exposes successful recorded calls of one completed Attention Run; pending, denied, failed and unknown rows remain independent. The glyph describes recorded activity.",
+    "semanticKeys": [
+      "activity.view"
+    ]
+  },
+  {
+    "file": "app/web/chat-sources.mjs",
+    "source": "content.replaceChildren(el('p',{className:'form-help',text:`Candidate ${ref.candidateId} · complete text, ${[...source.text].length} code points. Model use is not recorded by this read.`}),el('pre',{className:'file-text',text:source.text}));",
+    "disposition": "data-identifier",
+    "reason": "file-text is the existing preformatted-reading CSS class on exact historical source bytes, not a glyph call.",
+    "semanticKeys": []
   }
 ]

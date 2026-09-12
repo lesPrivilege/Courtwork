@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "label": "Unicode selection survives replacing and extending the message",
+      "passed": true
+    },
+    {
+      "label": "Reading scroll position survives a message replacement",
+      "passed": true
+    },
+    {
+      "label": "Backward selection spanning message rows retains exact bytes",
+      "passed": true
+    },
+    {
+      "label": "Backward selection retains anchor direction",
+      "passed": true
+    },
+    {
+      "label": "Another session does not inherit the old selection",
+      "passed": true
+    }
+  ]
+}

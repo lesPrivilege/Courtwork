@@ -1,0 +1,43 @@
+✔ stream append restores selection onto replacement nodes and preserves viewport anchor (1.02325ms)
+✔ a different session or missing immutable row cannot inherit selection or anchor (1.119333ms)
+✔ changed selected source bytes are not silently selected as if unchanged (0.118375ms)
+✔ following latest does not restore an older viewport anchor (0.086125ms)
+✔ recorded references deduplicate exact identity but retain different Run versions (1.288084ms)
+✔ unbound discussion reads no made-up source endpoint; file opens exact captured version (9.552208ms)
+✔ scope change rejects late work projection, with no source bytes in the replacement view (1.221041ms)
+✔ read failure remains explicit and refresh is available (0.585667ms)
+✔ fixed candidate evidence never substitutes the current source revision (0.187042ms)
+✔ quoting a full recorded file keeps exact text lines and provenance; current files are rejected (0.238959ms)
+✔ missing or mismatched historical bytes stay explicit rather than falling back to latest (1.394709ms)
+✔ completed Run disclosure groups successful tools and exact allowed history in timeline order (4.33675ms)
+✔ incomplete, failed, pending, denied, malformed, and cross-call rows stay outside the summary (0.433375ms)
+✔ a completed Run with only errors or unfinished calls gets no empty summary (0.151ms)
+✔ member IDs and disclosure state keys remain stable and surface-scoped (0.246208ms)
+✔ Home Activity rejects malformed dates, totals, and requested periods (3.037667ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.42725ms)
+✔ Home Attention detail accepts only the display contract (0.213125ms)
+✔ standalone Attention ignores an older project query after a newer open (19.153042ms)
+✔ standalone Attention ignores a stale detail after project selection changes (2.095167ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.274667ms)
+✔ Back to items clears a pending detail and rejects its late response (1.291875ms)
+✔ Review belongs only to needs_you across Home and Attention states (2.668125ms)
+✔ text-only pending and failed Home rows render and retain their exact navigation scope (0.742708ms)
+✔ Home retains native targets for unchanged projections and uses current callbacks (0.461292ms)
+✔ Home immediately renders changed facts, removed targets, filters, and errors (0.788584ms)
+✔ Home remounts after the shared stream was used by a chat (0.3375ms)
+✔ host timing has independent request origins and preserves missing versus measured zero (2.95425ms)
+✔ out-of-interval observations stay in detail and do not become clamped chart marks (0.346125ms)
+✔ request view uses one on-demand disclosure, preserves semantic gaps and restores its open state (1.919667ms)
+✔ missing usage stays unknown and a reported request estimate keeps its method (19.055791ms)
+✔ all historical requests share the same outer disclosure while compact views select only the latest (0.787542ms)
+✔ malformed v1 metadata is rejected while out-of-interval timing remains inspectable (0.19625ms)
+✔ request detail distinguishes runtime and provider aliases while retaining historical records (1.059208ms)
+✔ effort detail separates requested intent, SDK settings and unobserved provider behavior (0.690667ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 181.158125

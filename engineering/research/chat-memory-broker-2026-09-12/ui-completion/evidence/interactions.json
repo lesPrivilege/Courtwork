@@ -1,0 +1,15 @@
+{
+  "environment": "Synthetic local production runtime; no paid calls or personal data",
+  "observations": {
+    "homeAttachmentCreatesSessionWithoutRun": true,
+    "candidateSourceV1ReadWhileCurrentV2": true,
+    "repeatedRecordedFileQuoteCount": 2,
+    "quotePreservesEarlierDraftAndFocusesComposer": true,
+    "measurementInitiallyClosed": true,
+    "measurementExpandedShowsActualRequest": true,
+    "measurementRetainedAcrossConnectionCardReopen": true,
+    "attachmentLeftOfModel": true,
+    "syntheticThemeAndMotionRestoredToSystem": true
+  },
+  "limitations": ["Not a native 200% zoom test", "No physical touch or forced-colors test"]
+}

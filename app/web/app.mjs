@@ -1,3 +1,9 @@
+import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";
+import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";
+import {
+  executionDisclosureMemberId,
+  projectExecutionDisclosures,
+} from "./execution-disclosure.mjs";
 import { semanticIcon, semanticPresentation, setSemanticControl } from './semantic-controls.mjs';
 import { coreFileSubjects, readCoreManifest } from "./markdown-source.mjs";
 import {
@@ -63,7 +69,6 @@ import {
 import {
   projectThread,
   toolStateWord,
-  unfinishedToolWord,
   canAnswer,
   validPermission,
   permissionPresentation,
@@ -2532,12 +2537,18 @@ function messageActionRow(row, session) {
   });
 }
 
+let chatSourcesView = null;
+let chatSourcesSession = null;
+let chatSourcesEpoch = null;
+let chatSourcesBinding = null;
 function renderMessageStream() {
   const stream = $("message-stream");
   if (state.view === "home") {
     renderHomeState();
     return;
   }
+  const readingSnapshot = captureChatReading(stream);
+  const focusedReadingKey = document.activeElement?.closest?.("[data-reading-key]")?.dataset?.readingKey || null;
   const previousFocusKey = document.activeElement?.dataset?.focusKey;
   const focusedQuestionKey =
     document.activeElement?.dataset?.questionKey || null;
@@ -2606,16 +2617,34 @@ function renderMessageStream() {
   }
 
   const streamList = element("div", { className: "message-list" });
+  const sourcesBinding = JSON.stringify(session.extensionBinding ?? null);
+  if (chatSourcesSession !== session.id || chatSourcesEpoch !== state.sessionEpoch || chatSourcesBinding !== sourcesBinding) {
+    chatSourcesView?.destroy();
+    chatSourcesSession = session.id;
+    chatSourcesEpoch = state.sessionEpoch;
+    chatSourcesBinding = sourcesBinding;
+    const ownEpoch = state.sessionEpoch;
+    chatSourcesView = createChatSources({session, request,
+      isCurrent: () => state.activeSessionId === session.id && state.sessionEpoch === ownEpoch && JSON.stringify(currentSession()?.extensionBinding ?? null) === sourcesBinding,
+      onOpenFile: openFile, onOpenWork: opener => activateSurface("preview", opener),
+    });
+  }
+  chatSourcesView.update(rows);
+  if (session.extensionBinding || rows.some(row => row.kind === "artifact")) streamList.append(chatSourcesView.root);
+  const executionDisclosures = projectExecutionDisclosures(rows, runStatuses);
+  const executionMembers = new Map();
+  const executionOpen = new Map();
   let list = streamList,
     runtimeRunId = null,
-    activityGroup = null,
     pendingList = null;
   /* WK-115 ② · Chat Flow 的未决卡是一条列表，Home 下带的行是另一条：一条是这一个
    * 会话里等着人回答或授权的东西，一条是跨会话的收件箱。两者各自 `role="list"`，
    * 不合并成一条 —— 合并会让读屏把「本会话 3 项」读成整个工作区的计数。列表键
    * （j / k / o / Enter / Home / End）在两条上行为一致，但走的是各自的那一条。
    * 除未决卡以外的流内容不是列表项，遇到它就把这一段收口。 */
+  let readingRowKey = null;
   const appendFlowRow = (node) => {
+    if (readingRowKey) node.dataset.readingKey = readingRowKey;
     if (!node?.matches?.("[data-nav-item]")) {
       pendingList = null;
       list.append(node);
@@ -2636,7 +2665,18 @@ function renderMessageStream() {
       ),
     );
   };
+  const readingIndices = new Map(rows.map((row, index) => [
+    JSON.stringify([session.id, row.runId, row.kind, row.id]),
+    index,
+  ]));
+  const selectionIndices = [readingSnapshot.selection?.start?.key, readingSnapshot.selection?.end?.key]
+    .map((key) => readingIndices.get(key))
+    .filter(Number.isInteger);
+  const selectionSpan = selectionIndices.length
+    ? [Math.min(...selectionIndices), Math.max(...selectionIndices)]
+    : null;
   for (const row of rows) {
+    readingRowKey = JSON.stringify([session.id, row.runId, row.kind, row.id]);
     if (row.kind === "user") {
       list = streamList;
       runtimeRunId = null;
@@ -2648,11 +2688,56 @@ function renderMessageStream() {
       streamList.append(list);
       runtimeRunId = row.runId;
     }
-    if (row.kind !== "tool" && !(row.kind === "assistant" && !row.text?.trim()))
-      activityGroup = null;
     const status =
       runStatuses.get(row.runId) ||
       state.runs.find((run) => run.id === row.runId)?.status;
+    const executionMember = executionDisclosures.members.get(row);
+    if (executionMember && executionMember.index === executionMember.plan.firstIndex) {
+      const plan = executionMember.plan;
+      const groupKey = sessionScopeKey("execution", plan.runId);
+      const continuityKeys = new Set([
+        readingSnapshot.anchor?.key,
+        readingSnapshot.selection?.start?.key,
+        readingSnapshot.selection?.end?.key,
+      ].filter(Boolean));
+      const selectionTouchesGroup = plan.items.some(({ row: member, index }) => {
+        const key = JSON.stringify([session.id, member.runId, member.kind, member.id]);
+        return continuityKeys.has(key) || focusedReadingKey === key ||
+          (selectionSpan && index >= selectionSpan[0] && index <= selectionSpan[1]);
+      });
+      const groupOpen = state.toolOpen.has(groupKey)
+        ? Boolean(state.toolOpen.get(groupKey))
+        : selectionTouchesGroup || plan.items.some(({ row: member }) => member.kind === "tool"
+          ? state.toolOpen.get(toolScopeKey(member.runId, member.callId, member.name)) === true
+          : state.toolOpen.get(`permission-history:${questionScopeKey(member.runId, member.id)}`) === true);
+      const ids = plan.items.map(({ row: member }) =>
+        executionDisclosureMemberId("chat", session.id, plan.runId, `${member.kind}:${member.id}`),
+      );
+      const button = flowRow("button", {
+        glyph: "activity",
+        title: "Execution",
+        meta: `${plan.callCount} successful ${plan.callCount === 1 ? "tool action" : "tool actions"}`,
+        className: "execution-disclosure-summary",
+        attrs: {
+          type: "button",
+          "aria-expanded": String(groupOpen),
+          "aria-controls": ids.join(" "),
+          "data-focus-key": `execution:${plan.runId}`,
+        },
+      });
+      button.addEventListener("click", () => {
+        const nextOpen = button.getAttribute("aria-expanded") !== "true";
+        button.setAttribute("aria-expanded", String(nextOpen));
+        state.toolOpen.set(groupKey, nextOpen);
+        for (const node of executionMembers.get(plan) || []) node.hidden = !nextOpen;
+      });
+      executionMembers.set(plan, []);
+      executionOpen.set(plan, groupOpen);
+      const rowReadingKey = readingRowKey;
+      readingRowKey = JSON.stringify([session.id, plan.runId, "execution", plan.runId]);
+      appendFlowRow(button);
+      readingRowKey = rowReadingKey;
+    }
     if (row.kind === "user") {
       appendFlowRow(
         renderUserMessage(row, {
@@ -2698,12 +2783,6 @@ function renderMessageStream() {
       details.open = state.toolOpen.has(key)
         ? state.toolOpen.get(key)
         : row.isError;
-      const toolStillActive = [
-        "created",
-        "running",
-        "waiting_user",
-        "stopping",
-      ].includes(status);
       /* WK-57 · the state word is a word in its own slot, not a lower-case
        * suffix glued to the tool's name with a middle dot. A finished tool row
        * still carries no state word: the group summary above it already says
@@ -2724,71 +2803,12 @@ function renderMessageStream() {
       details.addEventListener("toggle", () =>
         state.toolOpen.set(key, details.open),
       );
-      if (!activityGroup) {
-        const groupKey = sessionScopeKey("activity", row.id);
-        const group = element("details", { className: "activity-group" });
-        /* The group heading is the same anatomy as the rows it holds: the type
-         * glyph, the object name (how many tool actions), and one state word. */
-        const summary = flowRow("summary", {
-          glyph: "activity",
-          title: "Activity",
-        });
-        group.append(summary);
-        group.open = state.toolOpen.has(groupKey)
-          ? state.toolOpen.get(groupKey)
-          : row.isError;
-        group.addEventListener("toggle", () =>
-          state.toolOpen.set(groupKey, group.open),
-        );
-        activityGroup = {
-          node: group,
-          title: summary.querySelector(".flow-title"),
-          meta: element("span", { className: "flow-meta" }),
-          count: 0,
-          errors: 0,
-          working: 0,
-          interrupted: 0,
-          unknown: 0,
-        };
-        summary.append(activityGroup.meta);
-        appendFlowRow(group);
+      if (executionMember) {
+        details.id = executionDisclosureMemberId("chat", session.id, row.runId, `${row.kind}:${row.id}`);
+        details.hidden = !executionOpen.get(executionMember.plan);
+        executionMembers.get(executionMember.plan)?.push(details);
       }
-      activityGroup.count++;
-      activityGroup.errors += row.isError ? 1 : 0;
-      activityGroup.working +=
-        row.phase !== "result" && toolStillActive ? 1 : 0;
-      activityGroup.interrupted +=
-        row.phase !== "result" &&
-        !toolStillActive &&
-        unfinishedToolWord(status) === "Interrupted"
-          ? 1
-          : 0;
-      activityGroup.unknown +=
-        row.phase !== "result" &&
-        !toolStillActive &&
-        unfinishedToolWord(status) === "Unknown"
-          ? 1
-          : 0;
-      activityGroup.title.textContent = `${activityGroup.count} ${activityGroup.count === 1 ? "tool action" : "tool actions"}`;
-      activityGroup.meta.textContent = activityGroup.errors
-        ? `${activityGroup.errors} failed`
-        : activityGroup.working
-          ? status === "waiting_user"
-            ? "Waiting for you"
-            : status === "stopping"
-              ? "Stopping"
-              : "Working"
-          : activityGroup.interrupted
-            ? "Interrupted"
-            : activityGroup.unknown
-              ? "Unknown"
-              : "Completed";
-      activityGroup.node.classList.toggle("is-failed", activityGroup.errors > 0);
-      activityGroup.node.classList.toggle(
-        "is-working",
-        !activityGroup.errors && activityGroup.working > 0 && status === "running",
-      );
-      activityGroup.node.append(details);
+      appendFlowRow(details);
     } else if (row.kind === "question") {
       if (
         !canAnswer(
@@ -3000,7 +3020,13 @@ function renderMessageStream() {
       }
       appendFlowRow(card);
     } else if (row.kind === "permission") {
-      appendFlowRow(renderPermission(row));
+      const permission = renderPermission(row);
+      if (executionMember) {
+        permission.id = executionDisclosureMemberId("chat", session.id, row.runId, `${row.kind}:${row.id}`);
+        permission.hidden = !executionOpen.get(executionMember.plan);
+        executionMembers.get(executionMember.plan)?.push(permission);
+      }
+      appendFlowRow(permission);
     } else if (row.kind === "artifact") {
       if (
         row.file?.kind !== "content-version" ||
@@ -3124,12 +3150,13 @@ function renderMessageStream() {
     setJumpLatestVisible(!reading.followLatest);
     return;
   }
-  if (reading.followLatest) stream.scrollTop = stream.scrollHeight;
+  if (reading.followLatest && !readingSnapshot.selection) stream.scrollTop = stream.scrollHeight;
   else
     stream.scrollTop = Math.min(
       reading.scrollTop,
       Math.max(0, stream.scrollHeight - stream.clientHeight),
     );
+  restoreChatReading(stream, readingSnapshot, {followLatest: reading.followLatest && !readingSnapshot.selection});
   state.messageReading.set(session.id, {
     followLatest: reading.followLatest,
     scrollTop: stream.scrollTop,
@@ -3204,7 +3231,8 @@ function renderChatHeader() {
   $("home-composer-intro").hidden = !home;
   $("home-composer-context").hidden = !home;
   if (!home) $("home-start-status").hidden = true;
-  $("materials-button").hidden = home || !session;
+  $("materials-button").hidden = !home && !session;
+  $("materials-button").disabled = home && Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
   $("permission-settings-button").hidden = home || !session;
   const body = $("conversation-body"),
     composer = $("composer-area"),
@@ -3342,6 +3370,7 @@ function renderComposer() {
   if (state.view === "home" && !session) {
     textarea.disabled = false;
     textarea.readOnly = Boolean(state.homeStart?.pending);
+    $("materials-button").disabled = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
     if (textarea.value !== state.homeDraft) textarea.value = state.homeDraft;
     textarea.placeholder = "Describe the work you want to do…";
     send.hidden = false;
@@ -4978,10 +5007,10 @@ function renderHomeComposerContext() {
   status.hidden = !message;
   status.dataset.error = state.homeStart?.error ? "true" : "false";
 }
-async function submitHomeRun() {
+async function submitHomeRun({prepareOnly = false} = {}) {
   if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) return;
   const input = $("composer-input").value;
-  if (!input.trim()) return;
+  if (!prepareOnly && !input.trim()) return;
   state.homeDraft = input;
   const projectId = homeProjectId();
   if (!projectId) {
@@ -5006,7 +5035,7 @@ async function submitHomeRun() {
     if (!operation.session) {
       const result = await request("/sessions", { method: "POST", body: {
         projectId: operation.projectId,
-        title: input.trim().split(/\r?\n/)[0].slice(0, 100),
+        title: input.trim().split(/\r?\n/)[0].slice(0, 100) || "New chat",
         permissionMode: state.homePermissionMode,
       } });
       if (!result.session?.id || result.session.projectId !== operation.projectId)
@@ -5044,7 +5073,10 @@ async function submitHomeRun() {
     });
     // Only the existing Run pipeline admits execution, preserving its receipt,
     // draft revision, cancellation and recovery owners.
-    await submitSessionRun({ commandId: operation.commandId });
+    if (prepareOnly) {
+      openDialog("materials-dialog", "close-materials-button");
+      materialsView.open();
+    } else await submitSessionRun({ commandId: operation.commandId });
     void loadHome();
   } catch (error) {
     operation.unconfirmed = !operation.session && isUncertainCommandError(error);
@@ -5329,6 +5361,7 @@ function useEditedMessage() {
   });
 }
 
+const connectionMeasurementViews = new Map();
 function openConnectionCard(anchor) {
   const popover = $("connection-popover");
   if (popover.matches(":popover-open")) {
@@ -5336,6 +5369,9 @@ function openConnectionCard(anchor) {
     return;
   }
   state.connectionCardAnchor = anchor;
+  const measurementKey = JSON.stringify([state.activeSessionId, (currentRun() || state.runs.at(-1))?.id]);
+  if (!connectionMeasurementViews.has(measurementKey)) connectionMeasurementViews.set(measurementKey, new Set());
+  const measurementOpened = connectionMeasurementViews.get(measurementKey);
   const render = () =>
     renderConnectionCard(popover, {
       config: state.providerConfig?.config || null,
@@ -5345,7 +5381,7 @@ function openConnectionCard(anchor) {
         popover.hidePopover();
         state.connectionCardAnchor?.focus?.();
       },
-      measurements: renderRequestMeasurements(state.events, (currentRun() || state.runs.at(-1))?.id, {compact:true}),
+      measurements: renderRequestMeasurements(state.events, (currentRun() || state.runs.at(-1))?.id, {compact:true, opened:measurementOpened}),
       onChooseModel: () => { popover.hidePopover(); void modelPicker.open(); },
       onChangeConnection: () => {
         popover.hidePopover();
@@ -6319,6 +6355,7 @@ function wireEvents() {
     });
   }
   $("materials-button").addEventListener("click", () => {
+    if (state.view === "home" && !currentSession()) { void submitHomeRun({prepareOnly:true}); return; }
     openDialog("materials-dialog", "close-materials-button");
     materialsView.open();
   });
@@ -6704,7 +6741,16 @@ async function init() {
       },
     },
   );
-  fileView = createFileView($("file-content"), { request });
+  fileView = createFileView($("file-content"), { request, onQuote: ({ref, text}) => {
+    if (ref.sessionId !== state.activeSessionId) return;
+    const quote = quoteRecordedFile({ref,text});
+    const input = $("composer-input");
+    const previous = input.value;
+    input.value = previous ? `${previous}\n\n${quote}` : quote;
+    input.dispatchEvent(new Event("input", {bubbles:true}));
+    closeSurface({restoreFocus:false});
+    input.focus();
+  } });
   materialsView = createMaterialsView({
     request,
     getSession: currentSession,

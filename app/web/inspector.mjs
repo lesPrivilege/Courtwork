@@ -326,7 +326,7 @@ export function validateFilePayload(ref, payload) {
     throw new Error("The recorded version does not match this target.");
   return payload;
 }
-export function createFileView(container, { request }) {
+export function createFileView(container, { request, onQuote }) {
   let controller = null,
     generation = 0,
     ref = null,
@@ -383,6 +383,13 @@ export function createFileView(container, { request }) {
           copyAction(payload.text, "Copy displayed file text"),
         ),
       );
+      if (onQuote && next.kind !== "current" && !payload.truncated) {
+        const quote = el("button", {className:"text-button", text:"Quote into draft", attrs:{type:"button"}});
+        quote.addEventListener("click", () => {
+          if (JSON.stringify(ref) === key && container.contains(quote)) onQuote({ref:{...next},text:payload.text});
+        });
+        heading.querySelector(".file-heading-actions").append(quote);
+      }
       const version = el(
         "details",
         { className: "version-details" },

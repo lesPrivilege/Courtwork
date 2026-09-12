@@ -1,0 +1,94 @@
+{
+  "method": "Production app iframe; intrinsic CSS viewport width verified inside frame. Desktop frame scaled only for capture. Native viewport override did not take effect on existing tabs.",
+  "light": [
+    {
+      "attachmentsVisible": true,
+      "execution": [
+        {
+          "expanded": "false",
+          "members": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "longCodeOverflows": 0,
+      "modelClipped": false,
+      "overflow": false,
+      "width": 390
+    },
+    {
+      "attachmentsVisible": true,
+      "execution": [
+        {
+          "expanded": "false",
+          "members": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "longCodeOverflows": 0,
+      "modelClipped": false,
+      "overflow": false,
+      "width": 1280
+    },
+    {
+      "attachmentsVisible": true,
+      "execution": [
+        {
+          "expanded": "false",
+          "members": [
+            true,
+            true,
+            true
+          ]
+        }
+      ],
+      "longCodeOverflows": 0,
+      "modelClipped": false,
+      "overflow": false,
+      "width": 1440
+    }
+  ],
+  "darkReducedMotion": [
+    {
+      "background": "rgb(23, 26, 27)",
+      "codeOverflow": 0,
+      "model": {
+        "client": 162,
+        "scroll": 162
+      },
+      "motion": "reduce",
+      "overflow": false,
+      "theme": "dark",
+      "width": 390
+    },
+    {
+      "background": "rgb(23, 26, 27)",
+      "codeOverflow": 0,
+      "model": {
+        "client": 162,
+        "scroll": 162
+      },
+      "motion": "reduce",
+      "overflow": false,
+      "theme": "dark",
+      "width": 1280
+    },
+    {
+      "background": "rgb(23, 26, 27)",
+      "codeOverflow": 0,
+      "model": {
+        "client": 162,
+        "scroll": 162
+      },
+      "motion": "reduce",
+      "overflow": false,
+      "theme": "dark",
+      "width": 1440
+    }
+  ]
+}

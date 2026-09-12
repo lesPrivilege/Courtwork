@@ -11,6 +11,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
+import { toolStateWord } from "../web/thread-projection.mjs";
+import { projectExecutionDisclosures } from "../web/execution-disclosure.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
 const read = (p) => readFileSync(`${root}${p}`, "utf8");
@@ -76,15 +78,18 @@ test("CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨",
 
 test("WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现", () => {
   const helper = /export const unfinishedToolWord = \(status\) =>\s*\n?\s*status === "cancelled" \|\| status === "failed" \? "Interrupted" : "Unknown";/;
-  // 判断只有一处：两处 Chat 的工具行与 Activity 组头都从投影模块读它。
+  // 状态词仍由共享投影持有；Execution 只收明确完成的成功调用。
   assert.match(projectionSource, helper);
   assert.doesNotMatch(appSource, /const unfinishedToolWord =/);
   assert.match(projectionSource, /export function toolStateWord\(row, status\) \{/);
   assert.match(projectionSource, /return unfinishedToolWord\(status\);/);
   assert.match(appSource, /const toolState = toolStateWord\(row, status\);/);
   assert.match(agentSource, /toolStateWord\(row, runStatuses\.get\(row\.runId\)/);
-  assert.match(appSource, /unfinishedToolWord\(status\) === "Unknown"/);
-  assert.match(appSource, /activityGroup\.unknown\s*\n?\s*\?\s*"Unknown"/);
+  for (const [status, word] of [["unknown","Unknown"],[undefined,"Unknown"],["failed","Interrupted"],["cancelled","Interrupted"]]) {
+    const row={kind:"tool",runId:"r",callId:"c",phase:"started",isError:false};
+    assert.equal(toolStateWord(row,status),word);
+    assert.equal(projectExecutionDisclosures([row],new Map([["r",status]])).members.size,0);
+  }
   // 契约表已登记这个词。
   assert.ok(glyphs.includes("`Interrupted` / `Unknown`"));
 });

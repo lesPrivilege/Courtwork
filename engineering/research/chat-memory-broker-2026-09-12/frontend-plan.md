@@ -98,3 +98,8 @@ Luna实现纯投影及接线成熟片，涉及身份、跨Provider披露、恢�
 ## Model / effort逐Provider适配 · 2026-09-12
 
 用户以三张截图明确统一入口，并要求逐model/provider握手能力自适应；进一步采用adapter作为上游中间层。[登记与官方研究](model-adaptation/README.md)冻结adapter发现/描述/编码/观察→Host校验并注册既有目录→UI消费数据投影的关系。当前布尔reasoning派生通用档位、默认medium与陈旧配置保存是具体差额；[前后端切片](model-adaptation/implementation.md)沿PV/BE-39/Runtime落实精确能力、来源/版本、CAS和Run绑定。截图不赋予档位语义，未知不画假强度，SDK配置不冒称Provider实效。本轮研究/合同登记，不改生产UI或启动真实探测。
+
+
+## 生产接线完成 · 2026-09-13
+
+用户后续授权完整UI改版，实际覆盖、owner候选边界、最近先例与验证统一见[生产回执](ui-completion/README.md)。本页前文保留登记时序，不再据其历史“未实现”描述推断当前状态。
