@@ -112,9 +112,10 @@ export class MCPManager {
   toolsFor(binding, onUnknown) {
     return binding.resources.filter(r => r.kind === 'tool' && r.mcp && r.exposed).map(r => ({
       name: r.executionName, label: r.title, description: r.description || r.title, parameters: r.inputSchema,
-      execute: async (_callId, args, signal) => {
+      execute: async (callId, args, signal) => {
         const entry = this.connections.get(r.mcp.serverId);
         if (!entry?.connected || entry.hash !== r.mcp.configHash) throw new Error('MCP provider is no longer connected to the bound configuration');
+        if (signal?.aborted) throw new Error('MCP call canceled before dispatch');
         try {
           const result = await entry.client.callTool({ name: r.mcp.name, arguments: args }, { signal, timeout: 60000 });
           if (result.isError) throw Object.assign(new Error('MCP tool reported a failure'), { reported: true });
@@ -124,8 +125,15 @@ export class MCPManager {
           if (!content.length && result.structuredContent !== undefined) content.push({ type: 'text', text: JSON.stringify(result.structuredContent) });
           return { content, details: { serverId: r.mcp.serverId, tool: r.mcp.name } };
         } catch (error) {
-          if (!error.reported) await onUnknown({ serverId: r.mcp.serverId, tool: r.mcp.name });
-          throw new Error(error.reported ? 'MCP tool reported a failure' : 'MCP result is unknown; remote effects may have occurred. Do not retry automatically.');
+          // A business error says a response arrived, not that no effect happened.
+          // The owner closes admission before attempting durable settlement.
+          await onUnknown({ callId, serverId: r.mcp.serverId, tool: r.mcp.name,
+            configHash: r.mcp.configHash, bindingHash: binding.hash ?? null,
+            bindingRevision: binding.revision ?? null,
+            failureKind: error.reported ? 'tool-reported-error' : 'result-unavailable' });
+          throw new Error(error.reported
+            ? 'MCP tool reported a failure; remote effects may have occurred. Do not retry automatically.'
+            : 'MCP result is unknown; remote effects may have occurred. Do not retry automatically.');
         }
       },
     }));

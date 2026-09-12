@@ -1,0 +1,15 @@
+✔ P02 reported: effect is unknown, fenced and preserved across restart (652.573875ms)
+✔ P02 drop: effect is unknown, fenced and preserved across restart (934.678083ms)
+✔ P02 receipt-failure: effect is unknown, fenced and preserved across restart (995.073292ms)
+✔ P02 cancel: effect is unknown, fenced and preserved across restart (608.074709ms)
+✔ P02 restart-inflight: effect is unknown, fenced and preserved across restart (577.96425ms)
+✔ P02 orphan-cancel: effect is unknown, fenced and preserved across restart (499.519709ms)
+✔ P02 pre-dispatch refusal has no effect and no unknown receipt (2.880916ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4884.971875

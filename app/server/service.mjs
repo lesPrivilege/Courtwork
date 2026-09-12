@@ -274,7 +274,7 @@ export class RuntimeService {
     const interrupted = [];
     for (const run of this.store.listRuns()) {
       if (ACTIVE_STATUSES.has(run.status)) {
-        await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: { code: "restart_unknown", message: "run was in flight during restart" } }, {
+        await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" ? run.error : { code: "restart_unknown", message: "run was in flight during restart" } }, {
           type: "run.status",
           data: { status: "unknown" },
         });
@@ -1820,7 +1820,12 @@ export class RuntimeService {
         sessionManager: entry.sessionManager,
         customTools: governTools([askUserTool, ...selectedWorkspaceTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
-          await this.#appendNotice(run.id, { code: 'mcp_effect_unknown', message: 'Remote tool effects are unknown. Reconcile with the provider before retrying.', ...detail });
+          entry.externalUnknownDetail = detail;
+          // This is an effect settlement receipt, not a best-effort UI notice.
+          // The in-memory fence remains closed even if persistence fails.
+          await this.store.updateRunWithEvent(run.id, { admissionOpen: false, error: { code: 'mcp_effect_unknown', message: 'Remote tool effects require reconciliation' } }, {
+            type: 'run.notice', data: { code: 'mcp_effect_unknown', message: 'Remote tool effects are unknown. Reconcile with the provider before retrying.', ...detail },
+          });
         }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {
           binding: entry.runtimeBinding, permissionMode: entry.permissionMode, workspaceDir: entry.workspaceDir,
           isOpen: () => Boolean(this.store.getRun(run.id)?.admissionOpen) && !entry.cancelRequested && !entry.externalUnknown,
@@ -1904,9 +1909,9 @@ export class RuntimeService {
       if (current && !terminal(current.status)) {
         const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
           ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
-        await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? lastError ?? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : null) : null }, {
+        await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, {
           type: "run.status",
-          data: { status: finalStatus },
+          data: { status: finalStatus, ...(entry.externalUnknownDetail ? { externalUnknown: entry.externalUnknownDetail } : {}) },
         });
       }
       for (const [questionId, waiter] of this.questionWaiters) {
@@ -2063,7 +2068,7 @@ export class RuntimeService {
     if (!entry) {
       // This process cannot abort what it is not driving, so it must not
       // claim the run stopped. `unknown` is the honest terminal state.
-      const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: { code: "not_in_process", message: "run is not active in this process" } }, {
+      const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" ? run.error : { code: "not_in_process", message: "run is not active in this process" } }, {
         type: "run.status",
         data: { status: "unknown" },
       });
