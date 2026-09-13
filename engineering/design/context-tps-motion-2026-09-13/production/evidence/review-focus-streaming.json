@@ -1,0 +1,20 @@
+{
+  "before": {
+    "focus": "Work review: Synthetic review focus. No pending review. Read-only.",
+    "order": [
+      "message-list",
+      "run-activity is-moving",
+      "surface-block work-review-summary is-quiet"
+    ],
+    "text": 2187
+  },
+  "after": {
+    "focus": "Work review: Synthetic review focus. No pending review. Read-only.",
+    "order": [
+      "message-list",
+      "run-activity is-moving",
+      "surface-block work-review-summary is-quiet"
+    ],
+    "text": 4993
+  }
+}

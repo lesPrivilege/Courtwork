@@ -113,3 +113,24 @@ test('a view outside the current scope does not start a request', () => withTiny
   await flush();
   assert.equal(reads, 0);
 }));
+
+test('summary reread returns detached keyboard focus without stealing a later user focus', () => withTinyDom(async container => {
+  document.body = container;
+  let next = null;
+  const view = createWorkReviewSummary({session, request: () => next ? next.promise : Promise.resolve(available()), isCurrent: () => true, onOpenWork() {}});
+  container.append(view.root); await flush();
+  const open = view.root.querySelector('.work-review-open');
+  open.focus(); next = deferred();
+  const reading = view.refresh();
+  document.activeElement = document.body; // Native detach moves focus to body; TinyDOM does not model it.
+  next.resolve(available({pendingCount: 1, reviewableCount: 1})); await reading;
+  assert.equal(document.activeElement, open);
+  next = deferred(); const later = view.refresh();
+  const other = document.createElement('button'); container.append(other); other.focus();
+  next.resolve(available()); await later;
+  assert.equal(document.activeElement, other);
+  open.focus(); next = deferred(); const failed = view.refresh();
+  document.activeElement = document.body;
+  next.reject(new Error('Core offline')); await failed;
+  assert.equal(document.activeElement, view.root.querySelector('[aria-label="Refresh work review"]'));
+}));

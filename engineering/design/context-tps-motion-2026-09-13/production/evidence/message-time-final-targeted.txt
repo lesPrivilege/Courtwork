@@ -1,0 +1,43 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (249.154792ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (345.059459ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (165.75825ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.67275ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.161667ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.148667ms)
+✔ conversation rename persists metadata without changing history, scope or draft (68.284625ms)
+✔ cumulative assistant deltas and their final stay one non-pending row (2.549792ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.834709ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.134292ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.165292ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.174458ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.080208ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (1.981459ms)
+✔ message time has readable provenance content without naming the native time role (37.219541ms)
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (0.954459ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.154667ms)
+✔ Attention can subtract measurement actions without removing the status fact (0.922125ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.173958ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (28.218917ms)
+✔ copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics (32.672834ms)
+✔ raw consumer guard rejects new, duplicated and stale literal consumers (1.031042ms)
+✔ actual raw consumers and Pages cross-map remain registered (17.866583ms)
+✔ thread projection scopes runs and resolves exact permission request (2.030292ms)
+✔ tool calls with identical IDs in different runs remain separate and require live admission (0.17075ms)
+✔ permission display distinguishes remote actions from writes using only the recorded binding (0.262958ms)
+✔ one tool state vocabulary serves both chat presentations (0.092834ms)
+✔ the long-message preview reads as words and never replaces the original (0.590834ms)
+✔ available summary stays visible at zero and opens the existing Work review (3.782875ms)
+✔ candidate, stale and read-only facts remain separate without an impossible ready count (0.753292ms)
+✔ pending count stays a single compact fact when all or only some candidates are reviewable (1.342875ms)
+✔ refresh clears old facts while loading and on failure (2.405042ms)
+✔ late and mismatched responses cannot replace the current scope (1.706791ms)
+✔ a view outside the current scope does not start a request (0.457542ms)
+✔ summary reread returns detached keyboard focus without stealing a later user focus (1.351541ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1562.021417

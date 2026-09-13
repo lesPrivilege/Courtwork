@@ -42,6 +42,16 @@ export function messageSummary(text, limit = 280) {
   return source.length > limit ? source.slice(0, limit).trimEnd() + "…" : source;
 }
 
+// Both message footers use the recorded Run start; no per-message clock is inferred.
+export function renderMessageTime(value, label = "Started") {
+  const time = new Date(value || "");
+  if (!Number.isFinite(time.valueOf())) return null;
+  return el("time", {
+    attrs: { datetime: time.toISOString(), title: `${label} ${time.toLocaleString()}` },
+  }, el("span", { className: "sr-only", text: `${label} ${time.toLocaleString()}` }),
+  el("span", { text: time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), attrs: { "aria-hidden": "true" } }));
+}
+
 // A view of an immutable input record. Edits prepare a new composer draft.
 export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key = row.id, editDisabled = false, actions = null }) {
   const message = el("article", {
@@ -64,22 +74,8 @@ export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key =
   content.append(source);
   message.append(content);
   const footer = el("footer", { className: "user-message-actions" });
-  const time = new Date(row.startedAt || "");
-  if (Number.isFinite(time.valueOf())) {
-    footer.append(
-      el("time", {
-        text: time.toLocaleTimeString([], {
-          hour: "numeric",
-          minute: "2-digit",
-        }),
-        attrs: {
-          datetime: time.toISOString(),
-          title: `Started ${time.toLocaleString()}`,
-          "aria-label": `Started ${time.toLocaleString()}`,
-        },
-      }),
-    );
-  }
+  const time = renderMessageTime(row.startedAt);
+  if (time) footer.append(time);
   if (actions) footer.append(actions);
   else footer.append(
     el("div", { className: "chat-action-row", attrs: { role: "group", "aria-label": "Message actions" } },

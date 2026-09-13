@@ -29,6 +29,12 @@ test('word clock survives polling, announces facts once, and stale callbacks can
   time = 3500; pending();
   assert.equal(view.root.querySelector('.run-activity-phrase').textContent, 'Thinking…');
   assert.equal(view.root.querySelector('[role="status"]').textContent, 'Working');
+  time = 4000; document.hidden = true; view.update(facts);
+  assert.equal(scheduled.size, 0);
+  time = 18000; document.hidden = false; view.update(facts);
+  assert.equal(view.root.querySelector('.run-activity-phrase').textContent, 'Thinking…');
+  time = 21000; [...scheduled.values()].at(-1)();
+  assert.equal(view.root.querySelector('.run-activity-phrase').textContent, 'Pondering…');
   const stale = [...scheduled.values()].at(-1);
   view.update({ run: run('waiting_user') }); stale();
   assert.equal(view.root.querySelector('.run-activity-phrase').textContent, 'Waiting for you');

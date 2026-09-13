@@ -1,0 +1,27 @@
+✔ cumulative assistant deltas and their final stay one non-pending row (9.310167ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (10.295875ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.3585ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.644917ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.41625ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.184708ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (0.363292ms)
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (1.627042ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.580167ms)
+✔ Attention can subtract measurement actions without removing the status fact (6.565208ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.523ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (124.274583ms)
+✔ available summary stays visible at zero and opens the existing Work review (13.128792ms)
+✔ candidate, stale and read-only facts remain separate without an impossible ready count (7.802209ms)
+✔ pending count stays a single compact fact when all or only some candidates are reviewable (0.668333ms)
+✔ refresh clears old facts while loading and on failure (43.57575ms)
+✔ late and mismatched responses cannot replace the current scope (64.828166ms)
+✔ a view outside the current scope does not start a request (8.546875ms)
+✔ summary reread returns detached keyboard focus without stealing a later user focus (8.943875ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 883.953

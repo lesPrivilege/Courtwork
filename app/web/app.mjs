@@ -90,7 +90,7 @@ import {
   decisionWords,
   shortRef,
 } from "./surface-modules.mjs";
-import { renderUserMessage } from "./user-message.mjs";
+import { renderUserMessage, renderMessageTime } from "./user-message.mjs";
 import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";
 import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.mjs";
 
@@ -2612,12 +2612,15 @@ function renderMessageStream() {
   let questionFocusTarget = null;
   let questionSelectionTarget = null;
   const session = currentSession();
+  const reviewSummary = session ? workReviewSummaryFor(session) : null;
   const previousReading = session && state.messageReading.get(session.id);
   const previousScrollTop = previousReading?.scrollTop ?? stream.scrollTop;
   const followLatest = previousReading?.followLatest ?? true;
-  // Keep the process glyph mounted while message projections refresh. Its
-  // breathing/word clock must not restart for every streamed delta.
-  for (const child of [...stream.children]) if (child !== measurements.activity) child.remove();
+  // Keep activity and the Work opener mounted across message refreshes:
+  // streaming must not restart motion or detach the focused Review button.
+  for (const child of [...stream.children]) {
+    if (child !== measurements.activity && child !== reviewSummary?.root) child.remove();
+  }
   if (!session) {
     setJumpLatestVisible(false);
     stream.append(
@@ -2640,12 +2643,11 @@ function renderMessageStream() {
     state.runs,
     session.id,
   );
-  const reviewSummary = workReviewSummaryFor(session);
 
   if (!rows.length) {
     const active = currentRun();
     setJumpLatestVisible(false);
-    if (reviewSummary) {
+    if (reviewSummary && reviewSummary.root.parentNode !== stream) {
       stream.append(reviewSummary.root);
     }
     stream.append(
@@ -2813,7 +2815,10 @@ function renderMessageStream() {
         row.text,
         sessionScopeKey("assistant", row.id),
       );
-      const footer = element("footer", { className: "assistant-message-actions" }, messageActionRow(row, session));
+      const footer = element("footer", { className: "assistant-message-actions" });
+      const time = renderMessageTime(row.startedAt, "Run started");
+      if (time) footer.append(time);
+      footer.append(messageActionRow(row, session));
       wrapper.append(footer);
       appendFlowRow(wrapper);
     } else if (row.kind === "tool") {
@@ -3160,8 +3165,10 @@ function renderMessageStream() {
     );
   }
   stream.prepend(streamList);
-  if (measurements.activity.parentNode !== stream) stream.append(measurements.activity);
-  if (reviewSummary) stream.append(reviewSummary.root);
+  if (measurements.activity.parentNode !== stream) {
+    stream.insertBefore(measurements.activity, reviewSummary?.root.parentNode === stream ? reviewSummary.root : null);
+  }
+  if (reviewSummary && reviewSummary.root.parentNode !== stream) stream.append(reviewSummary.root);
   if (questionFocusTarget) {
     questionFocusTarget.focus();
     if (

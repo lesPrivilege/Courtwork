@@ -29,3 +29,7 @@ Product source hashes are retained in [source-sha256.txt](evidence/source-sha256
 ## Ring refinement · user follow-up
 
 Based on implemented `9a5694c`, the Context SVG box shrinks from 18 to 14px, stroke from 1.7 to 1.4 viewBox units, with 4px extra margin on each side using the existing spacing token. Desktop 32px / narrow 44px hit targets remain. This refines `context.capacity` beside the existing model and Send controls without changing measurement semantics. Author browser verified [390px](evidence/15-fine-ring-mobile.png) and [1280px](evidence/16-fine-ring-desktop.png); narrow document width equals viewport width, and computed ring/margin/hit size match 14/4/44px. Color and interaction lint pass. No new behavior tests or full-suite rerun for this geometry-only adjustment. Earlier hashes and captures describe the initial integration.
+
+## Independent review and combined closure
+
+[Closure record](closure.md) covers Luna’s independent findings and Astra’s repairs, acceptance of the separate Work review card on de55674, source-classification intake, and the user’s agent-time/smaller-action additions. Original author-only statements above describe the initial delivery; see the closure for final review and test scope.

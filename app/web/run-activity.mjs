@@ -70,7 +70,7 @@ export function createRunActivity({ onInspect, now = Date.now, schedule = setTim
   const glyph = el(onInspect ? 'button' : 'span', {
     className: 'run-activity-glyph',
     attrs: onInspect ? { type: 'button', 'aria-label': 'Measurement details', 'data-tooltip': 'Measurement details',
-      'aria-haspopup': 'true', 'aria-expanded': 'false' } : { 'aria-hidden': 'true' },
+      'aria-haspopup': 'dialog', 'aria-expanded': 'false' } : { 'aria-hidden': 'true' },
   }, el('span', { className: 'run-activity-bars', attrs: { 'aria-hidden': 'true' } },
     ...Array.from({ length: 7 }, () => el('i'))));
   const phrase = el('span', { className: 'run-activity-phrase', attrs: { 'aria-hidden': 'true' } });
@@ -78,11 +78,13 @@ export function createRunActivity({ onInspect, now = Date.now, schedule = setTim
   const root = el('div', { className: 'run-activity' }, glyph, phrase, live);
   root.hidden = true;
   if (onInspect) glyph.addEventListener('click', event => onInspect(glyph, event));
-  let projection = projectRunActivity(), started = now(), timer = null, generation = 0, destroyed = false;
+  let projection = projectRunActivity(), started = now(), pausedAt = null, timer = null, generation = 0, destroyed = false;
   function paint() {
     cancel(timer); timer = null;
     const own = ++generation;
     const moving = projection.moving && !media?.matches && document.documentElement?.getAttribute('data-motion') !== 'reduce' && !document.hidden;
+    if (!moving && pausedAt === null) pausedAt = now();
+    else if (moving && pausedAt !== null) { started += now() - pausedAt; pausedAt = null; }
     root.classList.toggle('is-moving', moving);
     const words = projection.words || ambientWords;
     const index = moving ? Math.floor(Math.max(0, now() - started) / 3500) % words.length : 0;
@@ -100,7 +102,7 @@ export function createRunActivity({ onInspect, now = Date.now, schedule = setTim
   media?.addEventListener?.('change', wake);
   function update(facts) {
     const next = projectRunActivity(facts);
-    if (next.key !== projection.key) started = now();
+    if (next.key !== projection.key) { started = now(); pausedAt = null; }
     if (next.label !== projection.label) live.textContent = next.label;
     projection = next;
     root.hidden = !next.visible;

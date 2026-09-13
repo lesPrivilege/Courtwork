@@ -14,3 +14,7 @@ The increment proposes classifying cognitive tasks before checking page consiste
 | Work / Reader, Usage, Settings | Calm workspace / reader; Limns / Geist for analytics; configuration grammar for Settings |
 
 The source reports 71 candidates across six lines; this is its claim, not a new sweep or verified count here. Follow-up should retrieve and freeze the full source and inspect relevant primary references, then apply the existing [IA plan](ia-plan.md) and [frontend contract](../agent-interface-2026-09-10/frontend-contract.md). Do not expand the Claude Attention packet or change current product pages just from this registration.
+
+## Full-source intake · same-day continuation
+
+The user has now supplied the [complete source](../context-tps-motion-2026-09-13/production/review/surface-intake-attachment.txt); [Luna’s bounded intake](../context-tps-motion-2026-09-13/production/review/surface-intake.md) records the SHA and maps it to existing IA/Attention/Work contracts. Astra adopts that mapping. The source-archive gap is closed; vendor implementation claims and the 71-candidate sweep remain unverified. Current Chatspace projection and the separate Core Work review entry fit the existing classification. Future surfaces stay on the original queue and owners; this is not a new full-site audit.

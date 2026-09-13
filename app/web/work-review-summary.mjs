@@ -32,7 +32,7 @@ function readSummary(response, session) {
 // A compact read of Core-owned review state. It never derives review state
 // from Run presentation and never sends a Work command.
 export function createWorkReviewSummary({session, request, isCurrent, onOpenWork}) {
-  let generation = 0, destroyed = false;
+  let generation = 0, destroyed = false, restoreFocusAfterRead = false;
   const root = el('section', {
     className: 'surface-block work-review-summary',
     attrs: {
@@ -79,6 +79,7 @@ export function createWorkReviewSummary({session, request, isCurrent, onOpenWork
   async function load() {
     if (destroyed || !isCurrent()) return;
     const own = ++generation;
+    if (controls.contains(document.activeElement)) restoreFocusAfterRead = true;
     refresh.disabled = true;
     controls.replaceChildren();
     root.classList.remove('is-quiet');
@@ -100,7 +101,14 @@ export function createWorkReviewSummary({session, request, isCurrent, onOpenWork
         controls.replaceChildren(refresh);
       }
     } finally {
-      if (live(own)) refresh.disabled = false;
+      if (live(own)) {
+        refresh.disabled = false;
+        if (restoreFocusAfterRead && document.activeElement === document.body) {
+          if (controls.contains(open)) open.focus();
+          else if (controls.contains(refresh)) refresh.focus();
+        }
+        restoreFocusAfterRead = false;
+      }
     }
   }
 

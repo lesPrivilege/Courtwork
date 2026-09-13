@@ -4,6 +4,10 @@
 
 [源会话与核验](research/slash-compaction-2026-09-13/README.md)完整入账；自动压缩相关15/15通过，两个local探针确认当前slash会按普通input进入模型，manual compact未实现。即时校正[能力说明](../app/docs/commands-and-compaction.md)，采用typed effect/source/target分层及commandId幂等身份不复用。[RD-008](research/RD-008-command-compaction.md)登记CMD-01命令discovery/dispatch与CMP-01 idle-only原生manual生命周期到Release后期Developer队列，CMP-02质量/观测再后置；不照收外部“小包”排期，不自动新增G门。没有修改生产JS、schema或压缩算法，不声称slash或真实模型质量通过；未push/部署。
 
+## 2026-09-13 · Chatspace / Work review 联合收尾
+
+本Astra按用户授权接收de55674的独立Work review对象卡，并修复Luna审阅指出的隐藏轮播时钟、测量dialog语义和Review流式/结束重读焦点问题；新增agent左侧常显Run开始时间与16px消息动作，时间可访问文本亦经复核。[联合回执](design/context-tps-motion-2026-09-13/production/closure.md)区分Luna非作者审阅、Astra作者浏览器与固定源码：隔离快照全量941/941，最后时间可访问性微调后定向35/35，smoke通过。六原型附件补全原文并沿原IA队列消费；未扩全站audit。范围仅本片组合接受，不关闭真实TPS/容量、完整可访问性矩阵或Release门；未push/部署。
+
 ## 2026-09-13 · Work review 独立对象卡片
 
 按用户截图与施工同意完成[紧凑卡片](../evidence/work-review-object-card-20260913/README.md)：实际工作标题、待审/旧版本/只读摘要和Review，退出消息操作区，排在活动行之后；零待审弱化，正常移除刷新图标，失败仍可重试。原Core/正式动作语义不变。作者定向17/17、三个lint及明暗1440/1280/390通过；合流后的深色1440/390、同Matter空Chat、键盘打开与返回焦点另留证。200%/forced-colors未实测，不称独立视觉接受。本地合流包含同期Context细环调整，其后续外观仍引用原writer证据；未push/部署。

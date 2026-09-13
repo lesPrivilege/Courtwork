@@ -32,7 +32,8 @@ export function projectThread(events, runs, sessionId) {
       const id = `${runId}:${segments.get(runId) || 0}`;
       let row = assistants.get(id);
       if (!row) {
-        row = { kind: "assistant", text: "", runId, id };
+        row = { kind: "assistant", text: "", runId, id,
+          startedAt: runs.find(run => run.id === runId && run.sessionId === sessionId)?.startedAt || null };
         assistants.set(id, row);
         rows.push(row);
       }
