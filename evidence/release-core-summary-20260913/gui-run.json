@@ -1,0 +1,1564 @@
+{
+  "source": "09f9177",
+  "dataClass": "synthetic GUI -> actual Pi -> loopback HTTP",
+  "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+  "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+  "configuration": {
+    "version": 3,
+    "config": {
+      "provider": "fake-openai-loopback",
+      "model": "fake-model",
+      "api": "openai-completions"
+    },
+    "execution": {
+      "mode": "local-fake",
+      "realProvider": false,
+      "adapterId": "pi-coding-agent@0.85.1/agent-session"
+    }
+  },
+  "events": [
+    {
+      "seq": 1,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "user.message",
+      "data": {
+        "text": "/fixture script [{\"name\":\"se_read_artifact\",\"arguments\":{\"artifactId\":\"artifact-candidate-8e27c881ee89d6620efcb8f04259242bbf3f6ca74324608f738bb9c25a0a0605-1\",\"offset\":0,\"limit\":4000}}]"
+      }
+    },
+    {
+      "seq": 2,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "run.status",
+      "data": {
+        "status": "running"
+      }
+    },
+    {
+      "seq": 3,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "runtime.bound",
+      "data": {
+        "revision": 1,
+        "hash": "f51c89761b8190da33342d02665f0bc42522c0809da77a1230cb51586bfdebb5",
+        "sessionScope": {
+          "kind": "project",
+          "projectId": "3272eeb3-f7c5-49fd-9b32-f118baa4d7a8"
+        },
+        "composition": {
+          "id": "agent:general",
+          "version": "builtin",
+          "status": "compatible",
+          "resourceIds": null,
+          "uiSlots": [
+            "runtime.inspector",
+            "work.surface"
+          ],
+          "missing": []
+        },
+        "resources": [
+          {
+            "id": "tool:ask_user",
+            "kind": "tool",
+            "title": "ask_user",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ask_user",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_list",
+            "kind": "tool",
+            "title": "ws_list",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_list",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_read",
+            "kind": "tool",
+            "title": "ws_read",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_read",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_write",
+            "kind": "tool",
+            "title": "ws_write",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_write",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_grep",
+            "kind": "tool",
+            "title": "ws_grep",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_grep",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:runtime_load",
+            "kind": "tool",
+            "title": "runtime_load",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "runtime_load",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:evidence-memo",
+            "kind": "plugin",
+            "title": "Evidence Memo (development)",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "capabilities": [
+              "tool:se_read_source",
+              "tool:se_submit_candidate",
+              "tool:se_read_artifact",
+              "tool:se_read_candidate_file",
+              "tool:se_read_artifact_file"
+            ],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "tool:se_read_source",
+            "kind": "tool",
+            "title": "se_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_source",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_submit_candidate",
+            "kind": "tool",
+            "title": "se_submit_candidate",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_submit_candidate",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact",
+            "kind": "tool",
+            "title": "se_read_artifact",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_candidate_file",
+            "kind": "tool",
+            "title": "se_read_candidate_file",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_candidate_file",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact_file",
+            "kind": "tool",
+            "title": "se_read_artifact_file",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact_file",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:inbound-nda",
+            "kind": "plugin",
+            "title": "Inbound NDA Playbook Review",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": true,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "capabilities": [
+              "tool:se_read_source",
+              "tool:se_submit_candidate",
+              "tool:se_read_artifact"
+            ],
+            "generation": 1,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "tool:se_read_source",
+            "kind": "tool",
+            "title": "se_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_source",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_submit_candidate",
+            "kind": "tool",
+            "title": "se_submit_candidate",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_submit_candidate",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact",
+            "kind": "tool",
+            "title": "se_read_artifact",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:probe",
+            "kind": "plugin",
+            "title": "Lifecycle Probe (development)",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "capabilities": [],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "agent:general",
+            "kind": "agent_profile",
+            "title": "General",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "composition": "inbound-nda",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "agent",
+                  "id": "agent:general"
+                },
+                "value": true,
+                "reason": "profile selection"
+              }
+            ]
+          },
+          {
+            "id": "provider:current",
+            "kind": "provider",
+            "title": "fake-openai-loopback",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "model:current",
+            "kind": "model",
+            "title": "fake-model",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "secret:provider",
+            "kind": "secret",
+            "title": "Provider credential",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "credentialStatus": "configured",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "sandbox:workspace",
+            "kind": "sandbox",
+            "title": "Session filesystem boundary",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "session",
+              "id": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "filesystem": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/se-c1-test-bLTaq0/workspaces/28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+            "shell": false,
+            "processIsolation": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "session",
+                  "id": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "policy:host",
+            "kind": "permission_policy",
+            "title": "draft",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "context:session",
+            "kind": "session_context",
+            "title": "Native session history",
+            "source": {
+              "type": "builtin",
+              "version": "pi-coding-agent@0.85.1/agent-session"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "owner": "Pi AgentSession",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          }
+        ],
+        "content": [],
+        "policies": [],
+        "context": []
+      }
+    },
+    {
+      "seq": 4,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "runtime.request.telemetry",
+      "data": {
+        "schemaVersion": 1,
+        "requestId": 1,
+        "source": "host-semantic-stream",
+        "purpose": "agent",
+        "requestedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "requestedEffort": null,
+        "effectiveEffort": "off",
+        "sdkEffectiveEffort": "off",
+        "effectiveEffortSource": "sdk-setting",
+        "providerEffectiveEffort": null,
+        "reasoningCapability": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "configVersion": 3
+        },
+        "startedAt": "2026-09-13T08:43:44.972Z",
+        "context": {
+          "method": "serialized-request-utf16-chars-divided-by-4",
+          "characters": 16652,
+          "estimatedTokens": 4163,
+          "exact": false
+        },
+        "contextWindow": 4096,
+        "phase": "started",
+        "elapsedMs": 0.17,
+        "firstOutputMs": null,
+        "firstTextMs": null,
+        "providerTtftMs": null,
+        "decodeTokensPerSecond": null,
+        "missing": [
+          "provider_token_timing",
+          "token_deltas"
+        ]
+      }
+    },
+    {
+      "seq": 5,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": ""
+      }
+    },
+    {
+      "seq": 6,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": ""
+      }
+    },
+    {
+      "seq": 7,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "runtime.request.telemetry",
+      "data": {
+        "schemaVersion": 1,
+        "requestId": 1,
+        "source": "host-semantic-stream",
+        "purpose": "agent",
+        "requestedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "requestedEffort": null,
+        "effectiveEffort": "off",
+        "sdkEffectiveEffort": "off",
+        "effectiveEffortSource": "sdk-setting",
+        "providerEffectiveEffort": null,
+        "reasoningCapability": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "configVersion": 3
+        },
+        "startedAt": "2026-09-13T08:43:44.972Z",
+        "context": {
+          "method": "serialized-request-utf16-chars-divided-by-4",
+          "characters": 16652,
+          "estimatedTokens": 4163,
+          "exact": false
+        },
+        "contextWindow": 4096,
+        "phase": "streaming",
+        "elapsedMs": 23.894,
+        "firstOutputMs": 23.891,
+        "firstTextMs": null,
+        "providerTtftMs": null,
+        "decodeTokensPerSecond": null,
+        "missing": [
+          "provider_token_timing",
+          "token_deltas"
+        ]
+      }
+    },
+    {
+      "seq": 8,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": ""
+      }
+    },
+    {
+      "seq": 9,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": ""
+      }
+    },
+    {
+      "seq": 10,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "runtime.request.telemetry",
+      "data": {
+        "schemaVersion": 1,
+        "requestId": 1,
+        "source": "host-semantic-stream",
+        "purpose": "agent",
+        "requestedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "requestedEffort": null,
+        "effectiveEffort": "off",
+        "sdkEffectiveEffort": "off",
+        "effectiveEffortSource": "sdk-setting",
+        "providerEffectiveEffort": null,
+        "reasoningCapability": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "configVersion": 3
+        },
+        "startedAt": "2026-09-13T08:43:44.972Z",
+        "context": {
+          "method": "serialized-request-utf16-chars-divided-by-4",
+          "characters": 16652,
+          "estimatedTokens": 4163,
+          "exact": false
+        },
+        "contextWindow": 4096,
+        "phase": "completed",
+        "elapsedMs": 24.408,
+        "firstOutputMs": 23.891,
+        "firstTextMs": null,
+        "providerTtftMs": null,
+        "decodeTokensPerSecond": null,
+        "missing": [
+          "provider_token_timing",
+          "token_deltas"
+        ],
+        "usage": {
+          "input": 1,
+          "output": 1,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        },
+        "observedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "providerResponse": {
+          "source": "sdk-response-metadata",
+          "model": null,
+          "id": "fake-response-1"
+        },
+        "finishedAt": "2026-09-13T08:43:44.996Z"
+      }
+    },
+    {
+      "seq": 11,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.message",
+      "data": {
+        "text": "",
+        "stopReason": "toolUse"
+      }
+    },
+    {
+      "seq": 12,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "tool.start",
+      "data": {
+        "callId": "fake-script-1-0",
+        "name": "se_read_artifact"
+      }
+    },
+    {
+      "seq": 13,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "tool.result",
+      "data": {
+        "callId": "fake-script-1-0",
+        "name": "se_read_artifact",
+        "text": "{\"artifactId\":\"artifact-candidate-8e27c881ee89d6620efcb8f04259242bbf3f6ca74324608f738bb9c25a0a0605-1\",\"candidateId\":\"candidate-8e27c881ee89d6620efcb8f04259242bbf3f6ca74324608f738bb9c25a0a0605\",\"contentDigest\":\"4287b2c7de331e6208c62346008cd4f55765c8aa58bbc4799aad32d5549c1771\",\"end\":492,\"lengthCodePoints\":492,\"nextOffset\":null,\"offset\":0,\"text\":\"Inbound NDA Playbook Review (inbound-nda-playbook-v1)\\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\\npurpose-limitation: pass — the intended use matches the synthetic transaction purpose\\nneed-to-know-recipients: pass — all listed synthetic recipients are need-to-know and bound\\nsecurity-and-notice: pass — reasonable safeguards and a notice window of at most 24 hours are recorded\\nterm-duration: pass — the term duration matches the synthetic three-year check\"}",
+        "isError": false
+      }
+    },
+    {
+      "seq": 14,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "runtime.request.telemetry",
+      "data": {
+        "schemaVersion": 1,
+        "requestId": 2,
+        "source": "host-semantic-stream",
+        "purpose": "agent",
+        "requestedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "requestedEffort": null,
+        "effectiveEffort": "off",
+        "sdkEffectiveEffort": "off",
+        "effectiveEffortSource": "sdk-setting",
+        "providerEffectiveEffort": null,
+        "reasoningCapability": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "configVersion": 3
+        },
+        "startedAt": "2026-09-13T08:43:45.009Z",
+        "context": {
+          "method": "serialized-request-utf16-chars-divided-by-4",
+          "characters": 19136,
+          "estimatedTokens": 4784,
+          "exact": false
+        },
+        "contextWindow": 4096,
+        "phase": "started",
+        "elapsedMs": 0.104,
+        "firstOutputMs": null,
+        "firstTextMs": null,
+        "providerTtftMs": null,
+        "decodeTokensPerSecond": null,
+        "missing": [
+          "provider_token_timing",
+          "token_deltas"
+        ]
+      }
+    },
+    {
+      "seq": 15,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": "SIMULATED scripted response"
+      }
+    },
+    {
+      "seq": 16,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "runtime.request.telemetry",
+      "data": {
+        "schemaVersion": 1,
+        "requestId": 2,
+        "source": "host-semantic-stream",
+        "purpose": "agent",
+        "requestedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "requestedEffort": null,
+        "effectiveEffort": "off",
+        "sdkEffectiveEffort": "off",
+        "effectiveEffortSource": "sdk-setting",
+        "providerEffectiveEffort": null,
+        "reasoningCapability": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "configVersion": 3
+        },
+        "startedAt": "2026-09-13T08:43:45.009Z",
+        "context": {
+          "method": "serialized-request-utf16-chars-divided-by-4",
+          "characters": 19136,
+          "estimatedTokens": 4784,
+          "exact": false
+        },
+        "contextWindow": 4096,
+        "phase": "streaming",
+        "elapsedMs": 3.335,
+        "firstOutputMs": 3.329,
+        "firstTextMs": 3.329,
+        "providerTtftMs": null,
+        "decodeTokensPerSecond": null,
+        "missing": [
+          "provider_token_timing",
+          "token_deltas"
+        ]
+      }
+    },
+    {
+      "seq": 17,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": "SIMULATED scripted response"
+      }
+    },
+    {
+      "seq": 18,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": "SIMULATED scripted response"
+      }
+    },
+    {
+      "seq": 19,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.delta",
+      "data": {
+        "text": "SIMULATED scripted response"
+      }
+    },
+    {
+      "seq": 20,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "runtime.request.telemetry",
+      "data": {
+        "schemaVersion": 1,
+        "requestId": 2,
+        "source": "host-semantic-stream",
+        "purpose": "agent",
+        "requestedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "requestedEffort": null,
+        "effectiveEffort": "off",
+        "sdkEffectiveEffort": "off",
+        "effectiveEffortSource": "sdk-setting",
+        "providerEffectiveEffort": null,
+        "reasoningCapability": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "configVersion": 3
+        },
+        "startedAt": "2026-09-13T08:43:45.009Z",
+        "context": {
+          "method": "serialized-request-utf16-chars-divided-by-4",
+          "characters": 19136,
+          "estimatedTokens": 4784,
+          "exact": false
+        },
+        "contextWindow": 4096,
+        "phase": "completed",
+        "elapsedMs": 3.546,
+        "firstOutputMs": 3.329,
+        "firstTextMs": 3.329,
+        "providerTtftMs": null,
+        "decodeTokensPerSecond": null,
+        "missing": [
+          "provider_token_timing",
+          "token_deltas"
+        ],
+        "usage": {
+          "input": 1,
+          "output": 2,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        },
+        "observedModel": {
+          "provider": "fake-openai-loopback",
+          "model": "fake-model",
+          "api": "openai-completions"
+        },
+        "providerResponse": {
+          "source": "sdk-response-metadata",
+          "model": null,
+          "id": "fake-response-2"
+        },
+        "finishedAt": "2026-09-13T08:43:45.013Z"
+      }
+    },
+    {
+      "seq": 21,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "assistant.message",
+      "data": {
+        "text": "SIMULATED scripted response",
+        "stopReason": "stop"
+      }
+    },
+    {
+      "seq": 22,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "run.usage",
+      "data": {
+        "input": 2,
+        "output": 3,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "turns": 2,
+        "missing": false
+      }
+    },
+    {
+      "seq": 23,
+      "runId": "3dfaa2c3-e135-4d43-a89e-6fb31c52fd5f",
+      "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+      "type": "run.status",
+      "data": {
+        "status": "completed"
+      }
+    }
+  ],
+  "wireSha256": "265853bbe3c735a61150aca8edc4941f8d4f432ea7ca61d47562e3de87942a81",
+  "requests": [
+    {
+      "model": "fake-model",
+      "tools": [
+        "ask_user",
+        "runtime_load",
+        "se_read_artifact",
+        "se_read_source",
+        "se_submit_candidate",
+        "ws_grep",
+        "ws_list",
+        "ws_read",
+        "ws_write"
+      ],
+      "hasArtifactIdentity": true,
+      "hasArtifactResult": false,
+      "effortPresent": []
+    },
+    {
+      "model": "fake-model",
+      "tools": [
+        "ask_user",
+        "runtime_load",
+        "se_read_artifact",
+        "se_read_source",
+        "se_submit_candidate",
+        "ws_grep",
+        "ws_list",
+        "ws_read",
+        "ws_write"
+      ],
+      "hasArtifactIdentity": true,
+      "hasArtifactResult": true,
+      "effortPresent": []
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+import {boot} from '../../app/tests/helpers.mjs';
+import {NORMAL_FACTS,SYNTHETIC_SOURCES} from '../../app/domains/inbound-nda/fixtures.mjs';
+import {buildReview} from '../../app/domains/inbound-nda/index.mjs';
+const h=await boot();
+await h.api('POST','/extensions/inbound-nda/lifecycle',{action:'load'});
+const a=await h.createSession({title:'Release · pending NDA'});
+await h.api('POST',`/sessions/${a.id}/extension`,{extensionId:'inbound-nda',input:{title:'Synthetic inbound NDA',sourceText:SYNTHETIC_SOURCES[0].text,facts:NORMAL_FACTS}});
+const p=(await h.api('GET',`/sessions/${a.id}/surface`)).json.projection;
+const domain=buildReview({sources:p.sources,facts:p.domain.facts});
+const r=await h.api('POST',`/sessions/${a.id}/runs`,{commandId:'browser-candidate',input:h.scriptInput([{name:'se_submit_candidate',arguments:{domain}}])});
+await h.pollRun(r.json.run.id);
+const b=await h.createSession({title:'Release · continue same NDA'});
+await h.api('POST',`/sessions/${b.id}/extension`,{extensionId:'inbound-nda',input:{existingMatterId:p.matter.id}});
+const plain=await h.createSession({title:'Release · plain conversation'});
+console.log(JSON.stringify({url:h.runtime.url,dataDir:h.dataDir,projectId:h.projectId,pending:a.id,empty:b.id,plain:plain.id}));
+process.on('SIGINT',async()=>{await h.runtime.close();process.exit(0);});

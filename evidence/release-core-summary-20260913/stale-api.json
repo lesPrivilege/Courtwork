@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "28e56172-0795-4f8a-8ad1-52f7fe7b14ce",
+  "extensionId": "inbound-nda",
+  "status": "available",
+  "summary": {
+    "matterId": "matter-757f1d4f-81b1-4884-8803-d8b9dbf97cad",
+    "title": "Synthetic inbound NDA",
+    "version": 1,
+    "sourceVersion": 2,
+    "contractVersion": "inbound-nda-v1",
+    "stateVersion": "b300d0cce42f69d7854c09156ca4da0f944b0735bb3bf13a60fb871951c6f23a",
+    "readOnly": false,
+    "pendingCount": 1,
+    "stalePendingCount": 1,
+    "reviewableCount": 0,
+    "acceptedArtifactId": "artifact-candidate-8e27c881ee89d6620efcb8f04259242bbf3f6ca74324608f738bb9c25a0a0605-1"
+  }
+}

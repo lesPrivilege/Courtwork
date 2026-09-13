@@ -1,0 +1,43 @@
+{
+  "buttons": [
+    {
+      "rect": {
+        "bottom": 209.796875,
+        "height": 44,
+        "left": 16,
+        "right": 123.5,
+        "top": 165.796875,
+        "width": 107.5,
+        "x": 16,
+        "y": 165.796875
+      },
+      "text": "Open work review"
+    },
+    {
+      "rect": {
+        "bottom": 209.796875,
+        "height": 44,
+        "left": 131.5,
+        "right": 251.5703125,
+        "top": 165.796875,
+        "width": 120.0703125,
+        "x": 131.5,
+        "y": 165.796875
+      },
+      "text": "Refresh work review"
+    }
+  ],
+  "documentWidth": 390,
+  "height": 844,
+  "summary": {
+    "bottom": 209.796875,
+    "height": 137.796875,
+    "left": 16,
+    "right": 374,
+    "top": 72,
+    "width": 358,
+    "x": 16,
+    "y": 72
+  },
+  "width": 390
+}

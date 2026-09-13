@@ -1,0 +1,64 @@
+TAP version 13
+# (node:66653) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+ok 1 - NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+  ---
+  duration_ms: 1347.204167
+  type: 'test'
+  ...
+# Subtest: NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+ok 2 - NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+  ---
+  duration_ms: 483.910167
+  type: 'test'
+  ...
+# (node:66654) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions
+ok 3 - versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions
+  ---
+  duration_ms: 688.664625
+  type: 'test'
+  ...
+# Subtest: unresolved and source-stale parents can be revised only with currently verified NDA input
+ok 4 - unresolved and source-stale parents can be revised only with currently verified NDA input
+  ---
+  duration_ms: 472.945208
+  type: 'test'
+  ...
+# Subtest: host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation
+ok 5 - host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation
+  ---
+  duration_ms: 540.284416
+  type: 'test'
+  ...
+# (node:66655) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+ok 6 - Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+  ---
+  duration_ms: 683.330459
+  type: 'test'
+  ...
+# Subtest: Core review summary keeps stale pending and domain review separate from authority to accept
+ok 7 - Core review summary keeps stale pending and domain review separate from authority to accept
+  ---
+  duration_ms: 475.787667
+  type: 'test'
+  ...
+# Subtest: Core review summary does not turn missing Core projections or failures into zero pending
+ok 8 - Core review summary does not turn missing Core projections or failures into zero pending
+  ---
+  duration_ms: 159.817958
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2888.877209

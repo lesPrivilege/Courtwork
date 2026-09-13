@@ -1,0 +1,120 @@
+TAP version 13
+# (node:16470) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: global Attention has replayable identity, shared configuration and a real governed Run
+ok 1 - global Attention has replayable identity, shared configuration and a real governed Run
+  ---
+  duration_ms: 632.826458
+  type: 'test'
+  ...
+# Subtest: progressive memory lists metadata, excludes drafts/tools and binds exact message text
+ok 2 - progressive memory lists metadata, excludes drafts/tools and binds exact message text
+  ---
+  duration_ms: 344.728667
+  type: 'test'
+  ...
+# Subtest: schema5 with retained records migrates exactly and global/project invariants reject corruption
+ok 3 - schema5 with retained records migrates exactly and global/project invariants reject corruption
+  ---
+  duration_ms: 140.081708
+  type: 'test'
+  ...
+# Subtest: conversation retry preserves creation identity and exact Run command after a lost receipt
+ok 4 - conversation retry preserves creation identity and exact Run command after a lost receipt
+  ---
+  duration_ms: 0.589334
+  type: 'test'
+  ...
+# Subtest: closing during send keeps its receipt and restores the finished conversation on reopen
+ok 5 - closing during send keeps its receipt and restores the finished conversation on reopen
+  ---
+  duration_ms: 0.149208
+  type: 'test'
+  ...
+# Subtest: a delayed history choice cannot replace the newer conversation or draft
+ok 6 - a delayed history choice cannot replace the newer conversation or draft
+  ---
+  duration_ms: 0.1345
+  type: 'test'
+  ...
+# Subtest: conversation rename persists metadata without changing history, scope or draft
+ok 7 - conversation rename persists metadata without changing history, scope or draft
+  ---
+  duration_ms: 69.630292
+  type: 'test'
+  ...
+# Subtest: completed Run disclosure groups successful tools and exact allowed history in timeline order
+ok 8 - completed Run disclosure groups successful tools and exact allowed history in timeline order
+  ---
+  duration_ms: 1.793
+  type: 'test'
+  ...
+# Subtest: incomplete, failed, pending, denied, malformed, and cross-call rows stay outside the summary
+ok 9 - incomplete, failed, pending, denied, malformed, and cross-call rows stay outside the summary
+  ---
+  duration_ms: 0.829542
+  type: 'test'
+  ...
+# Subtest: a completed Run with only errors or unfinished calls gets no empty summary
+ok 10 - a completed Run with only errors or unfinished calls gets no empty summary
+  ---
+  duration_ms: 0.072167
+  type: 'test'
+  ...
+# Subtest: member IDs and disclosure state keys remain stable and surface-scoped
+ok 11 - member IDs and disclosure state keys remain stable and surface-scoped
+  ---
+  duration_ms: 0.1065
+  type: 'test'
+  ...
+# Subtest: every registry glyph is in the sprite and in the ui-controls allowlist
+ok 12 - every registry glyph is in the sprite and in the ui-controls allowlist
+  ---
+  duration_ms: 0.566208
+  type: 'test'
+  ...
+# Subtest: offline icon geometry reproduces every pinned sprite shape without changes
+ok 13 - offline icon geometry reproduces every pinned sprite shape without changes
+  ---
+  duration_ms: 1.477916
+  type: 'test'
+  ...
+# Subtest: recreated controls contain local shapes and retain their action after disconnection
+ok 14 - recreated controls contain local shapes and retain their action after disconnection
+  ---
+  duration_ms: 1.652875
+  type: 'test'
+  ...
+# Subtest: disclosure rows use a native SVG chevron without changing the summary or its name
+ok 15 - disclosure rows use a native SVG chevron without changing the summary or its name
+  ---
+  duration_ms: 0.2935
+  type: 'test'
+  ...
+# Subtest: sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes
+ok 16 - sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes
+  ---
+  duration_ms: 6.999208
+  type: 'test'
+  ...
+# Subtest: domain glyphs follow the admitted geometry contract
+ok 17 - domain glyphs follow the admitted geometry contract
+  ---
+  duration_ms: 0.5985
+  type: 'test'
+  ...
+# Subtest: Spark, Attention and Chat seats and the Settings groups carry their registered glyphs
+ok 18 - Spark, Attention and Chat seats and the Settings groups carry their registered glyphs
+  ---
+  duration_ms: 2.083709
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2153.465959

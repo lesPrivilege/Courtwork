@@ -1,0 +1,100 @@
+TAP version 13
+# (node:82327) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+ok 1 - NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+  ---
+  duration_ms: 1765.603083
+  type: 'test'
+  ...
+# Subtest: NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+ok 2 - NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+  ---
+  duration_ms: 726.521792
+  type: 'test'
+  ...
+# (node:82328) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions
+ok 3 - versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions
+  ---
+  duration_ms: 356.737625
+  type: 'test'
+  ...
+# Subtest: unresolved and source-stale parents can be revised only with currently verified NDA input
+ok 4 - unresolved and source-stale parents can be revised only with currently verified NDA input
+  ---
+  duration_ms: 783.203291
+  type: 'test'
+  ...
+# Subtest: host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation
+ok 5 - host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation
+  ---
+  duration_ms: 351.794375
+  type: 'test'
+  ...
+# Subtest: available summary stays visible at zero and opens the existing Work review
+ok 6 - available summary stays visible at zero and opens the existing Work review
+  ---
+  duration_ms: 3.211834
+  type: 'test'
+  ...
+# Subtest: candidate, stale and read-only facts remain separate without an impossible ready count
+ok 7 - candidate, stale and read-only facts remain separate without an impossible ready count
+  ---
+  duration_ms: 0.722167
+  type: 'test'
+  ...
+# Subtest: ready count is shown only when part of the pending set is reviewable
+ok 8 - ready count is shown only when part of the pending set is reviewable
+  ---
+  duration_ms: 0.525375
+  type: 'test'
+  ...
+# Subtest: refresh clears old facts while loading and on failure
+ok 9 - refresh clears old facts while loading and on failure
+  ---
+  duration_ms: 0.38625
+  type: 'test'
+  ...
+# Subtest: late and mismatched responses cannot replace the current scope
+ok 10 - late and mismatched responses cannot replace the current scope
+  ---
+  duration_ms: 1.014333
+  type: 'test'
+  ...
+# Subtest: a view outside the current scope does not start a request
+ok 11 - a view outside the current scope does not start a request
+  ---
+  duration_ms: 0.263125
+  type: 'test'
+  ...
+# (node:82330) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+ok 12 - Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+  ---
+  duration_ms: 632.742958
+  type: 'test'
+  ...
+# Subtest: Core review summary keeps stale pending and domain review separate from authority to accept
+ok 13 - Core review summary keeps stale pending and domain review separate from authority to accept
+  ---
+  duration_ms: 507.618791
+  type: 'test'
+  ...
+# Subtest: Core review summary does not turn missing Core projections or failures into zero pending
+ok 14 - Core review summary does not turn missing Core projections or failures into zero pending
+  ---
+  duration_ms: 160.89875
+  type: 'test'
+  ...
+1..14
+# tests 14
+# suites 0
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3200.754625
