@@ -218,9 +218,9 @@
 | grammar entry | [候选位置与口径](../context-tps-motion-2026-09-13/README.md) |
 | nearest local precedent | [runtime-view.mjs](../../../app/web/runtime-view.mjs) 的 `renderContextBar`；仅构成先例，不是容量meter |
 | verification entry | [候选验证](../context-tps-motion-2026-09-13/verification.md) |
-| status | `reference`（用户指定视觉候选；生产容量测量仍deferred） |
+| status | `reference`（[已产品应用](../context-tps-motion-2026-09-13/production/README.md)；容量测量仍deferred，未独立接受） |
 | do_not_infer | estimate→capacity；声明窗口→已用百分比；截图→真实quota |
-| next_if_missing | 一级保留无比例圆环，左侧与Send对称；二级说明现有口径 |
+| next_if_missing | 一级无比例圆环位于模型/effort右侧、Send/Stop之前；二级说明现有口径 |
 
 ### `request.activity`
 
@@ -231,7 +231,7 @@
 | grammar entry | [活动行候选](../context-tps-motion-2026-09-13/README.md) |
 | nearest local precedent | [PresenceView候选](../agent-presence-2026-09-11/return-v1/src/presence.mjs)、[telemetry-view.mjs](../../../app/web/telemetry-view.mjs) |
 | verification entry | [候选验证](../context-tps-motion-2026-09-13/verification.md)、[Luna材质源码复核](../context-tps-motion-2026-09-13/card-audit.md) |
-| status | `reference`（视觉候选，不称生产已接线） |
+| status | `reference`（[已产品应用](../context-tps-motion-2026-09-13/production/README.md)；真实TPS仍缺测，未独立接受） |
 | do_not_infer | ambient→thinking事实或TPS；Host timing→Provider TTFT；终态仍伪装running |
 | next_if_missing | 用户授权运行中保留非数值动态兜底，可用左侧waveform替代bot；一级无数值/Unavailable/箭头，缺测说明在二级，reduced-motion静止 |
 

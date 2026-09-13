@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Chatspace Context / activity 产品接线
+
+用户接受候选后，Astra完成[产品应用](design/context-tps-motion-2026-09-13/production/README.md)：Context圆环按最新裁决位于模型/推理强度右侧、Send/Stop之前；活动glyph与过程短语进入Chatspace，Attention减去测量入口。过程来自真实Run/tool/notice事件，一级无TPS数字/缺测文案，二级保留估算与Host口径。作者合成Runtime浏览器覆盖收发/停止/待答/失败、窄屏明暗与详情返回；全量937/937，后续位置与偏好减动微调另有定向复验。作者证据不替代非作者接受；真实容量/TPS、完整可访问性矩阵和Release门仍开放，未push/部署。
+
 ## 2026-09-13 · Release干净安装与模型提交协议筹备
 
 [本片证据](../evidence/release-preflight-20260913/README.md)已随`6464df3`合入本地main：独立clone安装、真实GUI Local test接受/跨Session/正常重开留证，9文件65/65迁移恢复通过。准备真实探针发现NDA提交协议不充分，Astra补完整静态schema/reason规则，Luna非作者18/18；未预置当前答案或放宽Core接受。固定产品全量934项中933通过、唯一refresh语义登记漏项已补，独立守卫3/3、smoke/links复验通过，原失败保留且未声称第二轮全量。真实Provider探针、G4演示录制、G5最终owner声明仍待收口；首个工作指南与具体操作稿已准备。其他writer在途UI/测量改动不在此固定候选结果内；未push/tag/部署。

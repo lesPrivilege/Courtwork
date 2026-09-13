@@ -382,8 +382,15 @@ export function installTooltips() {
   });
   listen(document, "focusin", (event) => {
     const target = event.target.closest?.("[data-tooltip]");
-    if (target?.matches(":focus-visible")) show(target);
-    else hide();
+    hide();
+    if (target?.matches(":focus-visible")) {
+      // Native popover dismissal restores focus inside its own show/hide
+      // operation. Open the tooltip after that operation, not reentrantly.
+      const own = generation;
+      queueMicrotask(() => {
+        if (own === generation && target.contains(document.activeElement)) show(target);
+      });
+    }
   });
   listen(document, "focusout", hide);
   listen(document, "pointerdown", hide, { capture: true });

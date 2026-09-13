@@ -308,6 +308,7 @@
             <label class="sr-only" for="composer-input">Message</label>
             <textarea
               id="composer-input"
+              aria-describedby="composer-run-hint"
               rows="2"
               maxlength="100000"
               placeholder="What would you like to work on?"
@@ -315,7 +316,7 @@
             ></textarea>
             <!-- CI-F · one sentence when a paste carried only an image; see composer-field.mjs. -->
             <p id="composer-notice" class="composer-notice" role="status" hidden></p>
-            <p id="composer-run-hint" class="composer-run-hint" hidden>
+            <p id="composer-run-hint" class="sr-only" hidden>
               Work in progress — your input will not be sent automatically.
             </p>
             <div class="composer-controls">

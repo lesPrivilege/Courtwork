@@ -38,6 +38,7 @@ import {
 } from "./preview-layer.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
+import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
@@ -2588,6 +2589,7 @@ function renderMessageStream() {
     renderHomeState();
     return;
   }
+  const measurements = updateChatMeasurements();
   const readingSnapshot = captureChatReading(stream);
   const focusedReadingKey = document.activeElement?.closest?.("[data-reading-key]")?.dataset?.readingKey || null;
   const previousFocusKey = document.activeElement?.dataset?.focusKey;
@@ -2613,7 +2615,9 @@ function renderMessageStream() {
   const previousReading = session && state.messageReading.get(session.id);
   const previousScrollTop = previousReading?.scrollTop ?? stream.scrollTop;
   const followLatest = previousReading?.followLatest ?? true;
-  clear(stream);
+  // Keep the process glyph mounted while message projections refresh. Its
+  // breathing/word clock must not restart for every streamed delta.
+  for (const child of [...stream.children]) if (child !== measurements.activity) child.remove();
   if (!session) {
     setJumpLatestVisible(false);
     stream.append(
@@ -3133,8 +3137,13 @@ function renderMessageStream() {
           attrs: { "data-focus-key": row.id },
         }),
       );
-      card.append(header);
-      appendFlowRow(card);
+      if (row.runId === (currentRun() || state.runs.at(-1))?.id) {
+        // The latest Run has one activity/inspection locus in Chat Space.
+        measurements.activity.querySelector('button').setAttribute('data-focus-key', row.id);
+      } else {
+        card.append(header);
+        appendFlowRow(card);
+      }
       /* frontend-entries 3.4 · the Run's formal outcome, one read-only row
        * after the Run it belongs to. It restates nothing the decision changed:
        * which version was decided, how, and at which work state. There is no
@@ -3153,7 +3162,8 @@ function renderMessageStream() {
       ),
     );
   }
-  stream.append(streamList);
+  stream.prepend(streamList);
+  if (measurements.activity.parentNode !== stream) stream.append(measurements.activity);
   if (questionFocusTarget) {
     questionFocusTarget.focus();
     if (
@@ -3398,6 +3408,18 @@ function stopWorkingClock() {
  * **cancel requested ≠ stopped**。状态词不动：`Stopping` 只在宿主把 Run 报成
  * `stopping` 之后才出现，取消请求本身不把 Run 提前说成已停（FN-19）。 */
 const userMessageViews = new Map();
+let chatMeasurements = null;
+function updateChatMeasurements() {
+  if (!chatMeasurements) {
+    chatMeasurements = createChatMeasurements({ onOpenRun: id => openRun(id) });
+    $("cancel-run-button").before(chatMeasurements.context);
+  }
+  const session = currentSession(), active = currentRun();
+  chatMeasurements.update({ session, run: active || state.runs.at(-1), events: state.events,
+    connected: !state.connectionLost, pendingCancel: Boolean(active && state.pendingCancels.get(active.id)),
+    visible: state.view === "session" && Boolean(session) && !state.settings.open && !state.attentionOpen && !state.chatOpen });
+  return chatMeasurements;
+}
 const COMPOSER_SEND_LABEL = "Send";
 const COMPOSER_CANCEL_LABEL = "Stop working";
 function renderComposer() {
@@ -3409,6 +3431,7 @@ function renderComposer() {
   const active = currentRun();
   const pendingRun = session && state.pendingRuns.get(session.id);
   const pendingCancel = active && state.pendingCancels.get(active.id);
+  updateChatMeasurements();
   if (state.view === "home" && !session) {
     textarea.disabled = false;
     textarea.readOnly = Boolean(state.homeStart?.pending);

@@ -362,6 +362,13 @@
     "semanticKeys": []
   },
   {
+    "file": "app/web/chat-measurements.mjs",
+    "source": "const refresh = action('refresh-cw', 'Refresh measurements', () => renderBody());",
+    "disposition": "named-read",
+    "reason": "Named read of the selected retained request; refresh does not execute a model or manufacture timing.",
+    "semanticKeys": []
+  },
+  {
     "file": "app/web/work-review-summary.mjs",
     "source": "const refresh = action('refresh-cw', 'Refresh work review', () => void load());",
     "disposition": "named-read",

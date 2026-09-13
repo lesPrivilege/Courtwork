@@ -43,3 +43,7 @@ Existing color roles and SVG icon geometry are reused. No new dependency, backen
 [User reference](evidence/14-user-unavailable-reference.png) prompted the left-side waveform alternative above. The received [five-word fixture](../agent-presence-2026-09-11/return-v1/fixtures/words.json) is now fully mapped: Thinking…, Pondering…, Musing…, Considering…, Reflecting…. These are local sample phrases; the source's mentioned 185-word list was not received. Current-field fallback retains Working…, Taking a look…, Putting it together…. The 2026-09-13 user authorization allows this nonnumeric running decoration; the historical fixture's stricter fact gate remains preserved in its original source. Terminal labels have no ellipsis; reduced motion stays on the initial word.
 
 This supersedes the earlier bot-plus-TPS-number placement in screenshots 06–11. Latest placement: [12](evidence/12-waveform-slot.png), [13](evidence/13-waveform-details-narrow.png). No product bot implementation is declared complete.
+
+## Product application
+
+User-authorized [production integration](production/README.md) now implements the Chatspace-first projection and reduced Attention variant. Latest placement supersedes this historical candidate: Context ring follows model/effort, immediately before Send/Stop. Candidate source and screenshots remain historical evidence. Real capacity/TPS ownership remains open.
