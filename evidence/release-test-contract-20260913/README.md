@@ -39,3 +39,5 @@ Astra结合Sol实现、Luna非作者runner反例/源码复核及本地结果，�
 [整合回执](integration.json)固定本地产品main d0b18ce及与8461ff2的源码等价关系。整合前102个未提交文件逐项核对；唯有并行前端writer的ia-full.txt在执行期间继续追加，本片未写入该文件。current仅增量登记本片，既有research段落保留。共享工作区后续UI在途内容不属于上述固定候选测试范围。
 
 本片未push、未触发Pages/Runtime远端workflow或创建Release。下一施工重点为P05/P06实际输入与压缩/下一Run身份关联，再补剩余DF-06与Core Review接线。
+
+格式检查补充：首次对全部已暂存交付运行diff --check时，冻结附件原件的Markdown双空格换行被报告为trailing whitespace。原件必须保留字节，未修剪；随后排除这一原件对本片活动文件检查通过，原件SHA-256再次一致。此项不涉及运行测试失败。
