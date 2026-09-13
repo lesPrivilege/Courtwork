@@ -52,7 +52,7 @@ export function declaredProtocolCompatibility(definitionId, api) {
   if (!format) throw new TypeError("unsupported provider protocol registration");
   return {
     thinkingFormat: format.reasoningFormat === "deepseek" ? "deepseek" : "openai",
-    supportsReasoningEffort: true,
+    supportsReasoningEffort: format.reasoningFormat !== "none",
     requiresReasoningContentOnAssistantMessages: format.reasoningFormat === "deepseek",
     requiresThinkingAsText: false,
   };

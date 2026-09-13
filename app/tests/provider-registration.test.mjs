@@ -6,6 +6,7 @@ import { providerFormatsOf } from '../web/settings-view.mjs';
 import { createRuntimeView } from '../web/runtime-view.mjs';
 import { withTinyDom } from './tiny-dom.mjs';
 import { boot } from './helpers.mjs';
+import { createReasoningPayloadHook } from '../runtime/pi-session-runtime.mjs';
 
 test('Provider requirements stay separate from model declarations and endpoint names', () => {
   const model = { id: 'shared-model', reasoningEfforts: ['high'] };
@@ -62,3 +63,11 @@ test('Models presents the reported harness and links tool configuration without 
   assert.deepEqual(links, ['#settings/tools', '#settings/permissions', '#settings/developer']);
   assert.equal(environment.querySelectorAll('select,input').length, 0);
 }));
+
+test('fixture no-reasoning protocol cannot gain a native effort field from extra model declarations', () => {
+  const connection = { kind: 'catalog', providerIdentity: 'fake-openai-loopback', api: 'openai-completions', models: [{ id: 'fixture-extra', reasoningEfforts: ['high'] }] };
+  const model = { ...registrationExtras(connection)[0], provider: connection.providerIdentity };
+  assert.equal(model.compat.supportsReasoningEffort, false);
+  assert.throws(() => createReasoningPayloadHook({ requestedEffort: 'high', reasoningCapability: { values: ['high'] } })({ model: model.id }, model), /no native field/);
+  assert.deepEqual(createReasoningPayloadHook()({ model: model.id, reasoning_effort: 'high' }, model), { model: model.id });
+});

@@ -24,3 +24,7 @@
 - 末轮链接命中区仅CSS调整，未重复全量；colors/materials/interaction及文档链接检查另跑。未测原生200%、forced-colors、屏幕阅读器或任意长adapter ID；六主题尺寸图覆盖新增harness区，不扩大为整个连接表单的全矩阵。作者图不是独立视觉接受。
 
 静态UI依赖新增Host协议声明；部署组合需要重启Host读取新模块，不能仅刷新旧Host托管的新前端。合成预览使用独立数据与端口，发布任务另行接收源码、刷新正式Host及验证。
+
+## Independent integration follow-up · 2026-09-14
+
+Release-task Luna review identified that the fixture's `reasoningFormat: none` still produced `supportsReasoningEffort: true` for extra model declarations. Astra corrected the compatibility projection to disable native effort for that protocol. A bounded regression checks that an extra fixture model declaring `high` cannot encode a reasoning parameter, while provider-default removes it. Provider registration tests: 5/5. This fixes the reviewed mismatch without adding new provider capabilities.
