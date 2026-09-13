@@ -1,0 +1,58 @@
+{
+  "error": "Error: locator.click: Error: strict mode violation: getByRole('dialog', { name: 'Spark Explore', exact: true }).getByRole('button', { name: /Findings ready · Compare the delivery/ }) resolved to 4 elements:\n    1) <button type=\"button\" class=\"quiet-button\">Findings ready · Compare the delivery timing in t…</button> aka getByRole('button', { name: 'Findings ready · Compare the' }).nth(1)\n    2) <button type=\"button\" class=\"quiet-button\">Findings ready · Compare the delivery timing in t…</button> aka getByRole('button', { name: 'Findings ready · Compare the' }).nth(2)\n    3) <button type=\"button\" class=\"quiet-button\">Findings ready · Compare the delivery timing in t…</button> aka getByRole('button', { name: 'Findings ready · Compare the' }).nth(3)\n    4) <button type=\"button\" class=\"quiet-button\">Findings ready · Compare the delivery timing in t…</button> aka getByRole('button', { name: 'Findings ready · Compare the' }).nth(4)\n\nCall log:\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Spark Explore', exact: true }).getByRole('button', { name: /Findings ready · Compare the delivery/ })\u001b[22m\n",
+  "checks": [
+    {
+      "name": "Chat right rail opens the same Host source directory",
+      "pass": true
+    },
+    {
+      "name": "Lost creation receipt retries one assignment and one child attempt",
+      "pass": true
+    },
+    {
+      "name": "Findings expand exact sources and immutable local notes",
+      "pass": true
+    },
+    {
+      "name": "Explicit project mount reflects persisted state",
+      "pass": true
+    },
+    {
+      "name": "Revocation removes project access without deleting findings",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit light 1440",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit dark 1440",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit light 1280",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit dark 1280",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit light 390",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit dark 390",
+      "pass": true
+    },
+    {
+      "name": "Forced colors and reduced motion candidate captured",
+      "pass": true
+    },
+    {
+      "name": "Escape returns focus to the Chat rail opener",
+      "pass": true
+    }
+  ],
+  "errors": []
+}

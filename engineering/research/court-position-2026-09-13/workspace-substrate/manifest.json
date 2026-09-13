@@ -1,0 +1,50 @@
+{
+  "README.md": {
+    "sha256": "6758f3d9e28393f1ac3bd08ac6f7c3aadc9fa7b57df69dcbb00c60822b9e18d8",
+    "bytes": 5682
+  },
+  "acp-README.md.txt": {
+    "sha256": "ae62a42ca1c5efea86665bb04faef2a20fa8aacdafb0ba9a43a60b43ff4eef87",
+    "bytes": 40673
+  },
+  "codescout-README.md.txt": {
+    "sha256": "e402d58edee4d73c6fe60079a1dad0c48501c923a4bc53aa6eee2b37c649476f",
+    "bytes": 9058
+  },
+  "coding-agent-fabric-README.md.txt": {
+    "sha256": "6416cf2b750aa201fa296d4dfd535c571ab5f7f11d1856707c8c0df0e200814a",
+    "bytes": 45764
+  },
+  "external-pins.json": {
+    "sha256": "49e9174432bf80a09465241c5b640371f7b9dd18031ddbecda47ae72ba8bde33",
+    "bytes": 5483
+  },
+  "mass-README.md.txt": {
+    "sha256": "d0bb44848e4ffb3e755f266a09b41ac9824478728f4a05525b162f0364e665f9",
+    "bytes": 9687
+  },
+  "scip-README.md.txt": {
+    "sha256": "fce767acbc4242c6f589fedf6f81a3089d6da766789e4d5a0a5673d2f6a927c0",
+    "bytes": 3176
+  },
+  "source-conversation.json": {
+    "sha256": "3e5da4a44f502481172fc824a582cac5ce8e9c79fbf58ff3fd9641341415f616",
+    "bytes": 33605
+  },
+  "source-conversation.md": {
+    "sha256": "abf3a88bc77b23caddb76d173b3ce2e34f13459b21dfe636bab49be3b5e414b6",
+    "bytes": 19615
+  },
+  "succubus-README.md.txt": {
+    "sha256": "8db8b4db89eba38346cbc482324879739b8d14d2ead9e4c7e802c79389e89adc",
+    "bytes": 13114
+  },
+  "tessera-README.md.txt": {
+    "sha256": "cb8099611cf8f5e258a4f5ba15cfbf12c407c440c8eef7a7e136e40e41dfb09f",
+    "bytes": 6749
+  },
+  "url-ledger.json": {
+    "sha256": "0b13e4f6fe207056f8e7a5034f7eae8ff669e935f9344569bc2d879be764ab79",
+    "bytes": 2059
+  }
+}

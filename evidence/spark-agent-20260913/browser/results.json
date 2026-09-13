@@ -1,0 +1,75 @@
+{
+  "synthetic": true,
+  "checks": [
+    {
+      "name": "Chat right rail opens the same Host source directory",
+      "pass": true
+    },
+    {
+      "name": "Lost creation receipt retries one assignment and one child attempt",
+      "pass": true
+    },
+    {
+      "name": "Findings expand exact sources and immutable local notes",
+      "pass": true
+    },
+    {
+      "name": "Explicit project mount reflects persisted state",
+      "pass": true
+    },
+    {
+      "name": "Revocation removes project access without deleting findings",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit light 1440",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit dark 1440",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit light 1280",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit dark 1280",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit light 390",
+      "pass": true
+    },
+    {
+      "name": "Findings, controls and reading area fit dark 390",
+      "pass": true
+    },
+    {
+      "name": "Forced colors and reduced motion candidate captured",
+      "pass": true
+    },
+    {
+      "name": "Escape returns focus to the Chat rail opener",
+      "pass": true
+    },
+    {
+      "name": "Independent Spark entry opens the same assignment",
+      "pass": true
+    },
+    {
+      "name": "Findings return to the original main Chat",
+      "pass": true
+    },
+    {
+      "name": "Agent lifecycle controls reflect actual admission",
+      "pass": true
+    },
+    {
+      "name": "No uncaught browser errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "source": "working candidate; see source-identity.json"
+}

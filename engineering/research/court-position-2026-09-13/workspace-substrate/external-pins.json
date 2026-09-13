@@ -1,0 +1,142 @@
+[
+  {
+    "requestedRepository": "wjueyao/mass",
+    "scope": "README and repository metadata only; no install or execution",
+    "fetchedAt": "2026-09-13T14:23:13.685941+00:00",
+    "repository": "wjueyao/mass",
+    "defaultBranch": "main",
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "fork": true,
+    "parent": "zoumo/mass",
+    "commit": "32f3f269ab25dcd286e9f20aeb570c0eef87e967",
+    "readmeSha256": "d0bb44848e4ffb3e755f266a09b41ac9824478728f4a05525b162f0364e665f9",
+    "readmeBytes": 9687,
+    "readmeUrl": "https://github.com/wjueyao/mass/blob/32f3f269ab25dcd286e9f20aeb570c0eef87e967/README.md"
+  },
+  {
+    "requestedRepository": "chrismichaelps/acp",
+    "scope": "README and repository metadata only; no install or execution",
+    "fetchedAt": "2026-09-13T14:23:13.687161+00:00",
+    "repository": "chrismichaelps/acp",
+    "defaultBranch": "main",
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "fork": false,
+    "parent": null,
+    "commit": "374978da478d846e981d30f6e95d1e4fe482f60a",
+    "readmeSha256": "ae62a42ca1c5efea86665bb04faef2a20fa8aacdafb0ba9a43a60b43ff4eef87",
+    "readmeBytes": 40673,
+    "readmeUrl": "https://github.com/chrismichaelps/acp/blob/374978da478d846e981d30f6e95d1e4fe482f60a/README.md"
+  },
+  {
+    "requestedRepository": "scip-code/scip",
+    "scope": "README and repository metadata only; no install or execution",
+    "fetchedAt": "2026-09-13T14:23:13.687404+00:00",
+    "repository": "scip-code/scip",
+    "defaultBranch": "main",
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "fork": false,
+    "parent": null,
+    "commit": "482f6f79d32584c70a49cd3f04fd9faaa4f9a27c",
+    "readmeSha256": "fce767acbc4242c6f589fedf6f81a3089d6da766789e4d5a0a5673d2f6a927c0",
+    "readmeBytes": 3176,
+    "readmeUrl": "https://github.com/scip-code/scip/blob/482f6f79d32584c70a49cd3f04fd9faaa4f9a27c/README.md"
+  },
+  {
+    "requestedRepository": "razasaad/tessera",
+    "scope": "README and repository metadata only; no install or execution",
+    "fetchedAt": "2026-09-13T14:23:13.687633+00:00",
+    "repository": "razasaad/tessera",
+    "defaultBranch": "main",
+    "license": {
+      "key": "agpl-3.0",
+      "name": "GNU Affero General Public License v3.0",
+      "spdx_id": "AGPL-3.0",
+      "url": "https://api.github.com/licenses/agpl-3.0",
+      "node_id": "MDc6TGljZW5zZTE="
+    },
+    "fork": false,
+    "parent": null,
+    "commit": "08556dd09c185b6a9dd74a7caaf187607a1131f0",
+    "readmeSha256": "cb8099611cf8f5e258a4f5ba15cfbf12c407c440c8eef7a7e136e40e41dfb09f",
+    "readmeBytes": 6749,
+    "readmeUrl": "https://github.com/razasaad/tessera/blob/08556dd09c185b6a9dd74a7caaf187607a1131f0/README.md"
+  },
+  {
+    "requestedRepository": "mareurs/codescout",
+    "scope": "README and repository metadata only; no install or execution",
+    "fetchedAt": "2026-09-13T14:23:19.471542+00:00",
+    "repository": "mareurs/codescout",
+    "defaultBranch": "master",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "fork": false,
+    "parent": null,
+    "commit": "5a8b146917ca9ae72bf75161e39337d2ef34e280",
+    "readmeSha256": "e402d58edee4d73c6fe60079a1dad0c48501c923a4bc53aa6eee2b37c649476f",
+    "readmeBytes": 9058,
+    "readmeUrl": "https://github.com/mareurs/codescout/blob/5a8b146917ca9ae72bf75161e39337d2ef34e280/README.md"
+  },
+  {
+    "requestedRepository": "enowdev/succubus",
+    "scope": "README and repository metadata only; no install or execution",
+    "fetchedAt": "2026-09-13T14:23:19.472148+00:00",
+    "repository": "enowdev/succubus",
+    "defaultBranch": "main",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "fork": false,
+    "parent": null,
+    "commit": "5542f6080316fddde77d71485deb20fb27311579",
+    "readmeSha256": "8db8b4db89eba38346cbc482324879739b8d14d2ead9e4c7e802c79389e89adc",
+    "readmeBytes": 13114,
+    "readmeUrl": "https://github.com/enowdev/succubus/blob/5542f6080316fddde77d71485deb20fb27311579/README.md"
+  },
+  {
+    "requestedRepository": "matteblack9/agent-fabric",
+    "scope": "README and repository metadata only; no install or execution",
+    "fetchedAt": "2026-09-13T14:23:24.097891+00:00",
+    "repository": "matteblack9/coding-agent-fabric",
+    "defaultBranch": "main",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "fork": false,
+    "parent": null,
+    "commit": "ce77b736dae2cd014e4602d293c35ced80de93e6",
+    "readmeSha256": "6416cf2b750aa201fa296d4dfd535c571ab5f7f11d1856707c8c0df0e200814a",
+    "readmeBytes": 45764,
+    "readmeUrl": "https://github.com/matteblack9/coding-agent-fabric/blob/ce77b736dae2cd014e4602d293c35ced80de93e6/README.md"
+  }
+]

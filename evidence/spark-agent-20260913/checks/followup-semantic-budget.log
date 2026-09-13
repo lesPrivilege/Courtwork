@@ -1,0 +1,108 @@
+TAP version 13
+# Subtest: copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics
+ok 1 - copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics
+  ---
+  duration_ms: 21.341625
+  type: 'test'
+  ...
+# Subtest: raw consumer guard rejects new, duplicated and stale literal consumers
+ok 2 - raw consumer guard rejects new, duplicated and stale literal consumers
+  ---
+  duration_ms: 0.66675
+  type: 'test'
+  ...
+# Subtest: actual raw consumers and Pages cross-map remain registered
+ok 3 - actual raw consumers and Pages cross-map remain registered
+  ---
+  duration_ms: 29.958291
+  type: 'test'
+  ...
+# (node:16847) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt
+ok 4 - Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt
+  ---
+  duration_ms: 395.641667
+  type: 'test'
+  ...
+# Subtest: Spark refuses forged source, actor and recursive delegation; stale actions do not mutate
+ok 5 - Spark refuses forged source, actor and recursive delegation; stale actions do not mutate
+  ---
+  duration_ms: 785.420333
+  type: 'test'
+  ...
+# Subtest: two exact Intake versions → local note → project mount → main progressive reads and machine consumption
+ok 6 - two exact Intake versions → local note → project mount → main progressive reads and machine consumption
+  ---
+  duration_ms: 937.772875
+  type: 'test'
+  ...
+# Subtest: omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads
+ok 7 - omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads
+  ---
+  duration_ms: 563.533333
+  type: 'test'
+  ...
+# Subtest: runtime delegation yields the single lane and does not replay or silently resume the parent
+ok 8 - runtime delegation yields the single lane and does not replay or silently resume the parent
+  ---
+  duration_ms: 648.927959
+  type: 'test'
+  ...
+# Subtest: source discovery paginates exact versions, respects source and target policy, and rejects malformed queries
+ok 9 - source discovery paginates exact versions, respects source and target policy, and rejects malformed queries
+  ---
+  duration_ms: 75.080917
+  type: 'test'
+  ...
+# Subtest: cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work
+ok 10 - cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work
+  ---
+  duration_ms: 62.112875
+  type: 'test'
+  ...
+# Subtest: failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result
+ok 11 - failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result
+  ---
+  duration_ms: 807.3895
+  type: 'test'
+  ...
+# Subtest: a changed provider route blocks old queue item without stranding later valid work
+ok 12 - a changed provider route blocks old queue item without stranding later valid work
+  ---
+  duration_ms: 335.915
+  type: 'test'
+  ...
+# Subtest: schema rejects corrupt derived relationships and forged read receipts
+ok 13 - schema rejects corrupt derived relationships and forged read receipts
+  ---
+  duration_ms: 408.334625
+  type: 'test'
+  ...
+# Subtest: active cancellation closes late source/note admission and never publishes a result
+ok 14 - active cancellation closes late source/note admission and never publishes a result
+  ---
+  duration_ms: 83.280416
+  type: 'test'
+  ...
+# Subtest: SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation
+ok 15 - SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation
+  ---
+  duration_ms: 1053.98375
+  type: 'test'
+  ...
+# Subtest: revoking source policy after a tool read blocks the next provider request
+ok 16 - revoking source policy after a tool read blocks the next provider request
+  ---
+  duration_ms: 174.616541
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7437.170334

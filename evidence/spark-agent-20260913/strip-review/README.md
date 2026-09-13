@@ -1,0 +1,12 @@
+# Compact Chat tools · scoped audit and correction
+
+2026-09-13 · User feedback: the right-side UI looked strange. The provided [exact screenshot](00-user-reference.png) is retained. Astra inspected the actual compact state in the Codex in-app browser on synthetic local data; this is a bounded component/flow audit, not a whole-product accessibility acceptance.
+
+1. **Collapsed strip — structural issue.** [Before, 1100px](01-before-1100.png): a second “More” card squeezes a text disclosure into the icon rail. The supplied screenshot also shows Run and panel-toggle sharing the panel glyph, and a visible keyboard focus ring. The focus ring itself is useful and must remain; the duplicated symbol and competing rounded containers obscure meaning.
+2. **More expanded — poor value for its prominence.** [Expanded](02-more-expanded-1100.png): eight slots appear, six unavailable and two empty because no Run exists. These slots provide no current action. The component has honest states and no fake enabled actions, but the product should not promote its roadmap as a navigation panel.
+3. **Corrected compact entry — author candidate.** [After, 1100px](03-after-1100.png): real Workspace/Runtime/Spark entries share a flat compact group; there is no detached More capsule. In compact mode Activity/Context remain reachable through Run details. Wide cards retain their source/owner-backed information.
+4. **Existing Run and keyboard — checked.** [Run entry](04-run-entry-1100.png) uses Activity rather than the panel-toggle glyph. [Dark](05-dark-1100.png) and [keyboard focus](06-keyboard-focus.png) use the existing theme/focus roles; Tab moved Workspace → Runtime → Spark and Enter opened Spark. Source and findings remained reachable through that entry.
+
+The directory now omits unimplemented/unsupported/empty slots, but keeps real loading and error states. The original scope/revision/open-callback fences remain; focused tests check that a stale reader cannot navigate a changed scope. No Core state, Review acceptance or tool policy follows from this visual change.
+
+The snapshots support layout, copy and observed keyboard behavior only. They do not establish screen-reader interoperability, native 200% browser zoom or complete WCAG compliance. The selected in-app automation surface exposes responsive viewport control but no native zoom/forced-colors setting; earlier synthetic browser candidates separately cover the stated themes/forced-colors scope. Final source and verification scope are recorded in the parent evidence index.

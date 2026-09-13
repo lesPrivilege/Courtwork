@@ -209,3 +209,7 @@ Astra采用[自足架构节点](research/architecture-node-2026-09-13/README.md)
 ### DEC-014补充 · Spark独立Agent治理（2026-09-13）
 
 按用户明确要求，[Astra设计](research/spark-explore-2026-09-13/design.md)裁定Spark具有独立持久身份、版本化定义、Assignment和独立任务上下文；profile不替代Agent身份。Host持身份/授权/分配，Runtime持执行，原资源owner持字节/版本，Core持正式决定。组织归属不授数据权限，检索优先级不提升效力。首片遵守单活动Run与显式释放/排队/恢复，不引入隐式并行或第二正式账本；实际schema/端点由施工提交后复裁。
+
+### DEC-014补充 · Workspace Substrate与Agent渐进披露（2026-09-13）
+
+[正式架构](research/architecture-node-2026-09-13/workspace-substrate.md)裁定工作现场独立于单次Runtime，源/派生结果/索引/Context/Provider缓存分立；按存在→目录→索引→片段→精确来源披露，挂载保持原owner与双端当前权限。普通内部存取/消费不设普遍人工Review；正式接受不变。[增量外部索引](research/court-position-2026-09-13/workspace-substrate/README.md)收录新增两轮及7个固定README，区分两种ACP、建议性lease与真正隔离。Spark本地资料和机器目录即时消费，SCIP/Tree-sitter/第二Runtime保持候选，不引入框架或新Release门。

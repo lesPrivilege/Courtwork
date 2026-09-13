@@ -38,3 +38,7 @@
 [Astra逐项裁决](research/court-position-2026-09-13/README.md)与[Luna选型/快照](research/court-position-2026-09-13/explore.md)补充机制参考，不改变上表生产依赖。AO用于比较事实/投影及durable work提案，Kandev用于执行器/环境接缝，Warden用于Review证据与Attention；Meathill用于规范、验证和知识沉淀的工作制度；VS Code词汇、Temporal持久执行及Kubernetes协调机制用于明确边界。外部文档、提案、源码和实测分别记账。
 
 本轮选择复用责任原则与反例，没有选定AO/Kandev/Warden作为Runtime，没有引入ACP、Temporal、Kubernetes或workflow DSL。框架接入重开须提供固定消费者、权限/取消/恢复/版本合同及退出成本，继续沿RD-005、RD-007和Runtime替换矩阵；不得用参考项目功能清单扩大本次Release支持范围。
+
+## 共享工作资料与可替换执行器 · 2026-09-13增量
+
+[Workspace Substrate裁决](research/architecture-node-2026-09-13/workspace-substrate.md)是当前数据/接口方向；[7项外部索引](research/court-position-2026-09-13/workspace-substrate/README.md)固定MASS、Agent Coordination Protocol、SCIP、Tessera、codescout、succubus、Coding Agent Fabric的README及来源等级。即时取manifest、版本reader、渐进披露与引用挂载；原生协议/缓存不统一。SCIP/Tree-sitter与supervision仅候选，未改变当前Pi或引入新依赖。

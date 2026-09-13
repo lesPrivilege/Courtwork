@@ -1,0 +1,30 @@
+{
+  "synthetic": true,
+  "assignmentId": "5af687a9-7f44-4ed4-97c4-b8fb94ce5286",
+  "status": "resolved",
+  "attempts": [
+    {
+      "number": 1,
+      "sessionId": "9e447856-ca3c-4937-a569-a086251cc424",
+      "runId": "55389d55-918f-4002-9536-de3d4c68a8ab",
+      "status": "completed"
+    }
+  ],
+  "result": {
+    "revision": 1,
+    "attempt": 1,
+    "sessionId": "9e447856-ca3c-4937-a569-a086251cc424",
+    "runId": "55389d55-918f-4002-9536-de3d4c68a8ab",
+    "sha256": "dbbb07ca2fd71dbda4d9994f1ffb1e43a5d82a532cf7bee48e29f0a1c81f20e5",
+    "bytes": 276,
+    "coverage": "2/2 assigned source versions read; interpretation is model-reported",
+    "unknown": "No independent acceptance or external-source coverage is implied"
+  },
+  "sourceReadCount": 2,
+  "procedure": [
+    "proxy forwarded assignment and returned HTTP502 instead of its success receipt",
+    "browser reload",
+    "Recover previous request",
+    "same assignment, exactly one attempt"
+  ]
+}

@@ -93,3 +93,7 @@ Chat网页端材料、检索/connector与成熟交互索引用于论证连续性
 ## Spark独立身份设计接续 · 2026-09-13
 
 [Spark独立Agent治理设计](../spark-explore-2026-09-13/design.md)补充本页角色定义：Agent实例、版本化定义、Assignment、Session/Run及结果修订分别寻址，data/organization/authority分轴。Host目录与协调服务增量承接身份和分配，沿原owner持执行、字节与正式效力；设计采用不等于现生产已交付。
+
+## 结构化工作现场与间接披露接续 · 2026-09-13
+
+[Workspace Substrate正式裁决](workspace-substrate.md)把Agent入场前的资料组织、共享版本索引、Runtime私有cache、项目挂载与机器消费分开。它是现owner提供的查询/引用能力，不新增执行层或统一总账；Spark本轮即时实现的范围另看实际交付。普通Agent通信不逐次进入人工Review，正式效力仍由原合同决定。
