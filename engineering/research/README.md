@@ -1,5 +1,7 @@
 # RD：研究与开发验证
 
+[RD-008 · Typed commands与手动压缩](RD-008-command-compaction.md)：2026-09-13，完整源会话入账；自动压缩相关15/15及slash fallthrough探针，校正当前能力说明。CMD-01/CMP-01登记Release后期Developer增量，CMP-02质量优化后置，未实现新入口。
+
 [工作义务闭环](obligation-closure-2026-09-12/README.md)：2026-09-12，Astra裁决Attention/Spark职责、版本回执、关闭权限与heartbeat边界；只登记，调度与实现后置，不进入发布面。
 
 [Chat Memory Broker长期增量](chat-memory-broker-2026-09-12/README.md)：2026-09-12，受治理检索/编译与可见对话分离；接BE-19/20/23、LG/RG既有PR文稿，不改变本次发布面，无实现。

@@ -1,0 +1,108 @@
+TAP version 13
+# (node:20980) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: native compaction cancel settles with no persisted partial summary
+ok 1 - native compaction cancel settles with no persisted partial summary
+  ---
+  duration_ms: 261.943625
+  type: 'test'
+  ...
+# Subtest: native compaction deadline settles with no persisted partial summary
+ok 2 - native compaction deadline settles with no persisted partial summary
+  ---
+  duration_ms: 400.925333
+  type: 'test'
+  ...
+# Subtest: native overflow recovery persists a summary and a restarted host uses it
+ok 3 - native overflow recovery persists a summary and a restarted host uses it
+  ---
+  duration_ms: 265.066708
+  type: 'test'
+  ...
+# (node:21016) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: automatic threshold persists a summary and sends it in the next request
+ok 4 - automatic threshold persists a summary and sends it in the next request
+  ---
+  duration_ms: 255.555375
+  type: 'test'
+  ...
+# Subtest: provider-default omits SDK-generated reasoning controls on ordinary and compaction requests
+ok 5 - provider-default omits SDK-generated reasoning controls on ordinary and compaction requests
+  ---
+  duration_ms: 370.17525
+  type: 'test'
+  ...
+# Subtest: failed summary leaves the journal unchanged and marks run usage missing
+ok 6 - failed summary leaves the journal unchanged and marks run usage missing
+  ---
+  duration_ms: 305.040625
+  type: 'test'
+  ...
+# Subtest: native summary retry succeeds but usage stays missing and counts only reported values
+ok 7 - native summary retry succeeds but usage stays missing and counts only reported values
+  ---
+  duration_ms: 2218.707917
+  type: 'test'
+  ...
+# Subtest: maxCompactions disables later automatic summaries while the ordinary turn completes
+ok 8 - maxCompactions disables later automatic summaries while the ordinary turn completes
+  ---
+  duration_ms: 277.524625
+  type: 'test'
+  ...
+# (node:21087) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: release input binding: initial context and runtime_load keep source identity without granting tools
+ok 9 - release input binding: initial context and runtime_load keep source identity without granting tools
+  ---
+  duration_ms: 676.243041
+  type: 'test'
+  ...
+# Subtest: release input binding: compaction cannot expand a replacement binding or rewrite an old one
+ok 10 - release input binding: compaction cannot expand a replacement binding or rewrite an old one
+  ---
+  duration_ms: 496.552417
+  type: 'test'
+  ...
+# Subtest: release input binding: aggregate compiled context is rejected before Run identity exists
+ok 11 - release input binding: aggregate compiled context is rejected before Run identity exists
+  ---
+  duration_ms: 89.9825
+  type: 'test'
+  ...
+# (node:21109) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: current host context reaches the model without changing user input; capabilities use the installed catalog
+ok 12 - current host context reaches the model without changing user input; capabilities use the installed catalog
+  ---
+  duration_ms: 1011.664917
+  type: 'test'
+  ...
+# Subtest: a Run waits for its final event to persist before publishing completion
+ok 13 - a Run waits for its final event to persist before publishing completion
+  ---
+  duration_ms: 994.901958
+  type: 'test'
+  ...
+# Subtest: event persistence failure is reported as runtime failure instead of completion
+ok 14 - event persistence failure is reported as runtime failure instead of completion
+  ---
+  duration_ms: 992.829666
+  type: 'test'
+  ...
+# Subtest: CLI SIGTERM settles a waiting Run and the same data directory reopens
+ok 15 - CLI SIGTERM settles a waiting Run and the same data directory reopens
+  ---
+  duration_ms: 1124.575083
+  type: 'test'
+  ...
+1..15
+# tests 15
+# suites 0
+# pass 15
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 13279.243958

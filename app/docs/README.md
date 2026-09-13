@@ -3,6 +3,7 @@
 ## 运行基础
 
 - [Runtime foundation](runtime-foundation.md)：Host、Pi 集成、模型与能力接口、关闭与恢复。
+- [命令入口与压缩边界](commands-and-compaction.md)：现有GUI/API、原生自动压缩与尚未实现的slash/manual入口。
 - [HTTP 基础契约](api-v6.md)：`/api/v5` 下的会话、运行、凭据、文件与事件。
 - [历史文件与 compaction](api-runtime-mx-r1.md)：MX-R1 增量接口。
 - [运行数据与迁移](../README.md#store-schema-v9-validated-v3v4v5v6v7v8-upgrade)：当前 Host schema 10。

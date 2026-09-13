@@ -133,3 +133,7 @@ Astra已将[接缝清账、DeepSeek协议probe、同Expert替换证明、Profile
 ## 2026-09-12 · Chat薄能力补充（未派发）
 
 [薄能力层裁决](../../../research/chat-memory-broker-2026-09-12/thin-capabilities.md)接原Chat/BE-19/20/23与LG/RG来源路线，默认只做讨论所需的可选search/read/context；实际effect、账号绑定、披露和handoff命令分别检查，不开放通用执行环境，不复制connector注册表。设置分类与Provider兼容性待具体实现验证，本轮无新增API或UI。
+
+## 2026-09-13 · CMD-01 / CMP-01，Release后期Developer入口（未派发）
+
+[RD-008](../../../research/RD-008-command-compaction.md)与[消费账](../../../research/slash-compaction-2026-09-13/README.md)登记两项已确认缺口，不重复编号为BE。CMD-01由Host持有typed command discovery/dispatch、scope/version与literal escape；复用现provider-config/CAS、Stop与Runtime resources，不虚构session-local model配置，不让command name占用Run.commandId。CMP-01由Host/Pi adapter补idle-only共享admission、可查回幂等操作、budget/cancel/close/journal恢复后调用native compact；禁止直接abort活动Run或用普通prompt模拟。自动压缩已实现，本轮相关15/15，不重开auto工单。CMP-02质量/观测后置，沿BE-42口径边界；这些登记不声称API/schema已交付，不新增当前Release门。

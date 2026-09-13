@@ -1,0 +1,105 @@
+{
+  "baseline": "de55674939d3a80afaa0f5ecaf0e4bd159adf95f",
+  "sourceConversationId": "6aa6752c-fc94-83ec-9641-1d56d177ba6b",
+  "turns": 1,
+  "items": 2,
+  "attachments": 0,
+  "hasMore": false,
+  "sdk": {
+    "package": "@earendil-works/pi-coding-agent",
+    "version": "0.85.1",
+    "lockIntegrity": "sha512-FGRN+OHbWaefBPGaTggAdLjrIHW+s2PzLyglz/5dfLzb9of7uuXMXYC0fJIeZTw+shS32o2cuQ9jF7YSDuL/oQ=="
+  },
+  "sourceHashes": [
+    {
+      "path": "app/package.json",
+      "sha256": "692008799a6cdf1b7be88e3d85e83e273045e4cc06b26dfe6a2e171994bf2759"
+    },
+    {
+      "path": "app/package-lock.json",
+      "sha256": "67b567397768de73fc85da1247903555d8a0e39c94ae57717f29b2f6bc405936"
+    },
+    {
+      "path": "app/runtime/pi-session-runtime.mjs",
+      "sha256": "89a7844df42932cbd3b9e0bbd3a31949146d3e108ae953475635c8bfca8a4247"
+    },
+    {
+      "path": "app/server/service.mjs",
+      "sha256": "0d2e7388be7f27f28c5ad64174a963270e5e503b63d75f7f0223e77f1f714518"
+    },
+    {
+      "path": "app/server/index.mjs",
+      "sha256": "1a5eed5fc08dc6391eefd0ebf9be5e98c1282fde6e1766fff07f36156fc19d8b"
+    },
+    {
+      "path": "app/web/app.mjs",
+      "sha256": "4317d445e00566ae93027f76c0fc6dfb53a06e39567d7603d36370f604c46bdc"
+    },
+    {
+      "path": "app/web/model-picker.mjs",
+      "sha256": "c90fc0d0c417627b1d07db04edf5e779f5f55275ab26fff5a2b9c965cf8c2f35"
+    },
+    {
+      "path": "app/tests/compaction-runtime.test.mjs",
+      "sha256": "a8b3aee400286e3dd8b6c607b030f6f5c2b20ad25c00972f49fff762367a2cbc"
+    },
+    {
+      "path": "app/tests/compaction-lifecycle.test.mjs",
+      "sha256": "e2b8b19a26268c7fcad26ca7be9333fab13101bce6f5f5fcc022ceb68a40df0a"
+    },
+    {
+      "path": "app/tests/release-input-binding.test.mjs",
+      "sha256": "4de5636106d45945646e3f442be461e167bba61e7d20f40ea62820fe5178110c"
+    },
+    {
+      "path": "app/tests/runtime-foundation.test.mjs",
+      "sha256": "4051b429453295abd7924f7bce40327683b4f9c6cf7271776f4ad1a03d797bdb"
+    },
+    {
+      "path": "app/node_modules/@earendil-works/pi-coding-agent/package.json",
+      "sha256": "f1738e4b42203e5f22bcb513f13fb2fb224f1e98d1f129ff042f87048665a94c"
+    },
+    {
+      "path": "app/node_modules/@earendil-works/pi-coding-agent/dist/core/agent-session.js",
+      "sha256": "fb8a3981c20c8c0bbd42231b1c99a10335fb3858b659056b341954de9cfa467f"
+    },
+    {
+      "path": "app/node_modules/@earendil-works/pi-coding-agent/dist/core/compaction/compaction.js",
+      "sha256": "3d5f1f2a3e801c965214717b6abad1839239b4a030517bffdf0c8eff25df5c2a"
+    },
+    {
+      "path": "app/node_modules/@earendil-works/pi-coding-agent/docs/rpc.md",
+      "sha256": "15fcd26bee72777b373fd5f2edd77091a01cadd4de95e48b08422ced0552a28d"
+    }
+  ],
+  "evidenceHashes": [
+    {
+      "path": "engineering/research/slash-compaction-2026-09-13/README.md",
+      "sha256": "df59716139330365d96083ed84e1fde23aa66565303cf7f7bd889aed271c5bcb"
+    },
+    {
+      "path": "engineering/research/slash-compaction-2026-09-13/baseline-15.tap",
+      "sha256": "04382e16ad381f3120efe992b078b419163cb87c55a97e2a1e25ae416cdc5499"
+    },
+    {
+      "path": "engineering/research/slash-compaction-2026-09-13/current-surface-probe.json",
+      "sha256": "7b425e69b93d6b0e62a4e0f4eb151deb45a1e3c5bf8fe3600ff218c5328e16de"
+    },
+    {
+      "path": "engineering/research/slash-compaction-2026-09-13/current-surface-probe.mjs",
+      "sha256": "dbb7595f122d72b45b7524bc9fe77e711dd72651b3391c53276ef01913f8d1fb"
+    },
+    {
+      "path": "engineering/research/slash-compaction-2026-09-13/source-conversation.json",
+      "sha256": "70b548fd2319bb20b4179ae1ef3eb9bf67b5d1da075c871d764ae9733e9c81b9"
+    },
+    {
+      "path": "engineering/research/slash-compaction-2026-09-13/source-conversation.md",
+      "sha256": "39effe76854c53edf1234c1b4335fcfd5cf29e27c947fa6a05786ce0914ab1b0"
+    },
+    {
+      "path": "engineering/research/slash-compaction-2026-09-13/sources-review.md",
+      "sha256": "ff16967b28b62a37eb61cb5f4cd5783e7b91beff9a90f6f0a93fcf959fd22df5"
+    }
+  ]
+}

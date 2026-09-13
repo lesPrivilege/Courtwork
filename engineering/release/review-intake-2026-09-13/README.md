@@ -79,3 +79,7 @@ G1缺最终候选干净启动与最新wire真实小探针；G2缺最终完整候
 ## Release前串行筹备增量
 
 [干净安装、GUI与迁移证据](../../../evidence/release-preflight-20260913/README.md)已交付：本地canonical clone实际安装与全GUI Local test闭环、跨Session/正常重开、9文件65/65合成恢复。真实模型准备揭示NDA工具提交协议缺口，Astra补完整静态schema/reason规则，Luna非作者18/18；未预注入当前答案或放宽接受。完整934项中933通过、唯一语义登记漏项已修，独立守卫3/3、smoke/links复验通过，保留原失败且不称第二轮全量。G1真实Provider探针、G4可公开2–4分钟演示及G5 owner最终映射仍开放；[操作稿与边界](../../../evidence/release-preflight-20260913/live-probe-plan.md)和[支持声明映射](../../../evidence/release-preflight-20260913/public-facts.md)已备妥。未push/tag/deploy。
+
+## Slash / compaction来源即时消费（2026-09-13）
+
+[完整入账与探针](../../research/slash-compaction-2026-09-13/README.md)已核对自动压缩相关15/15及当前slash普通文本fallthrough。当前Release只声明已实现的GUI/API和原生自动压缩，**不声明Host slash dispatcher或手动compact可用**；使用说明已[明确现状](../../../app/docs/commands-and-compaction.md)。Astra将[RD-008的CMD-01/CMP-01](../../research/RD-008-command-compaction.md)登记Release后期Developer增量，CMP-02质量优化再后置。来源建议的两个“小包”未直接转为新G门；manual所需独占、可查回回执/取消/恢复及command作用域/escape在RD中固定。若后续发行范围要求slash/manual，则先完成对应缺口；现有真实Provider、G4/G5门不能被这笔登记替代。

@@ -67,3 +67,7 @@ CC-D0-a `30014cf` 与 r4d `5b4c981` 已按顺序无冲突组合，合流证据�
 ## 2026-09-12 · 资源治理前端消费稿（未派发）
 
 [RG-FE-01…03](../../../research/mature-practices-2026-09-12/pr-plan.md)登记Session/Matter资源列表与Inspector、明确保留/关联动作、检索与版本注释，依[RG roadmap](../../../research/mature-practices-2026-09-12/roadmap.md)的真实读写接缝。此为后续消费输入，不重排上文历史或当前在途writer；Library不授予权限，文件卡不产生Core接受。开工重读current、frontend contract与最近实现先例，不先加全局导航/Graph或复制Finder。
+
+## 2026-09-13 · Developer命令与压缩入口（Release后期、未派发）
+
+[RD-008 / CMD-01、CMP-01](../../../research/RD-008-command-compaction.md)明确前端依赖Host同一份command discovery和真实target；composer slash、按钮、picker只是投影，不自建固定命令表、不展示尚未实现manual compact。先复用现有model/effort、Stop、Runtime界面，unknown命令与literal escape同片验链；模型配置保留当前Host作用域。未来compact可由Context二级面进入，必须已有idle-only admission、操作回执/取消/恢复；不得仅把字符串发进普通Run或临时借全局SDK handle。本条不改变当前活动行/Review等writer顺序，不把自动压缩误记为未实现；具体键盘/草稿/明暗宽窄/陈旧失败验证见RD。

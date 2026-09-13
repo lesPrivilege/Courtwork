@@ -1,0 +1,27 @@
+{
+  "purpose": "current unsupported slash surface observation",
+  "realProvider": false,
+  "observations": [
+    {
+      "input": "/compact focus on constraints",
+      "discoveryStatus": 404,
+      "typedCompactStatus": 404,
+      "ordinaryRunCreated": true,
+      "runStatus": "completed",
+      "providerRequests": 1,
+      "literalInputObservedOnWire": true,
+      "compactionNotices": 0
+    },
+    {
+      "input": "/unknown-courtwork-probe",
+      "discoveryStatus": 404,
+      "typedCompactStatus": 404,
+      "ordinaryRunCreated": true,
+      "runStatus": "completed",
+      "providerRequests": 1,
+      "literalInputObservedOnWire": true,
+      "compactionNotices": 0
+    }
+  ],
+  "interpretation": "The ordinary input channel does not implement Host slash commands. These are confirmed gaps, not successful command executions."
+}

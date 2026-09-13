@@ -3,7 +3,9 @@
 The runtime runs independently of the Web UI. Its current deployable scope is
 one agent per active session, constrained text workspace tools, permission
 questions, persistent conversation and content versions, cancellation, usage,
-and native compaction. It does not claim shell, browser, fork, child-agent or
+and native automatic compaction. [Command surface availability](commands-and-compaction.md)
+distinguishes that support from the unimplemented Host slash/manual-compaction entry.
+It does not claim shell, browser, fork, child-agent or
 scheduler support. Those capabilities can be added when needed through explicit
 execution and lifecycle adapters.
 
