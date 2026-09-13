@@ -1,0 +1,439 @@
+{
+  "origin": "http://127.0.0.1:8871",
+  "label": "before",
+  "captured_at": "2026-09-13T09:47:48.179Z",
+  "report": [
+    {
+      "file": "01-list-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "01-list-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "01-list-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "01-list-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "01-list-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "01-list-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "02-detail-needs-you-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "02-detail-needs-you-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "02-detail-needs-you-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "02-detail-needs-you-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "02-detail-needs-you-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "02-detail-needs-you-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "03-detail-context-open-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "03-detail-context-open-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "03-detail-context-open-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "03-detail-context-open-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "03-detail-context-open-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "03-detail-context-open-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "04-detail-due-later-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "04-detail-due-later-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "04-detail-due-later-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "04-detail-due-later-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "04-detail-due-later-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "04-detail-due-later-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "05-detail-resolved-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "05-detail-resolved-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "05-detail-resolved-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "05-detail-resolved-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "05-detail-resolved-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "05-detail-resolved-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "06-editor-snooze-field-error-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "06-editor-snooze-field-error-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "06-editor-snooze-field-error-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "06-editor-snooze-field-error-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "06-editor-snooze-field-error-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "06-editor-snooze-field-error-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "07-sending-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "07-sending-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "07-sending-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "07-sending-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "07-sending-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "07-sending-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "08-receipt-left-view-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "08-receipt-left-view-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "08-receipt-left-view-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "08-receipt-left-view-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "08-receipt-left-view-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "08-receipt-left-view-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "09-conflict-draft-kept-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "09-conflict-draft-kept-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "09-conflict-draft-kept-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "09-conflict-draft-kept-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "09-conflict-draft-kept-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "09-conflict-draft-kept-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "10-unknown-retry-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "10-unknown-retry-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "10-unknown-retry-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "10-unknown-retry-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "10-unknown-retry-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "10-unknown-retry-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "11-seen-receipt-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "11-seen-receipt-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "11-seen-receipt-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "11-seen-receipt-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "11-seen-receipt-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "11-seen-receipt-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "12-registry-unavailable-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "12-registry-unavailable-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "12-registry-unavailable-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "12-registry-unavailable-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "12-registry-unavailable-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "12-registry-unavailable-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "13-empty-project-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "13-empty-project-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "13-empty-project-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "13-empty-project-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "13-empty-project-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "13-empty-project-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "14-long-text-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "14-long-text-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "14-long-text-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "14-long-text-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "14-long-text-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "14-long-text-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "15-paged-second-page-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "15-paged-second-page-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "15-paged-second-page-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "15-paged-second-page-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "15-paged-second-page-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "15-paged-second-page-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "16-loading-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "16-loading-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "16-loading-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "16-loading-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "16-loading-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "16-loading-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "17-home-entry-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "17-home-entry-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "17-home-entry-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "17-home-entry-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "17-home-entry-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "17-home-entry-390-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "18-assistant-open-1440-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "18-assistant-open-1440-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "18-assistant-open-1280-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "18-assistant-open-1280-dark.png",
+      "status": "captured"
+    },
+    {
+      "file": "18-assistant-open-390-light.png",
+      "status": "captured"
+    },
+    {
+      "file": "18-assistant-open-390-dark.png",
+      "status": "captured"
+    }
+  ]
+}

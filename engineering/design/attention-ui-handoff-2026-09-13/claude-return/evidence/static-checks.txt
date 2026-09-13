@@ -1,0 +1,27 @@
+# static checks · 2026-09-13T10:21:20Z
+## node tools/lint-colors.mjs
+exit 0
+lint-colors: ok (46 files · 字面量与高度层两项)
+## node tools/lint-materials.mjs
+exit 0
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+## node tools/lint-interaction.mjs
+exit 0
+lint-interaction: ok (41 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+## node tools/lint-shapes.mjs
+exit 0
+lint-shapes: ok (5 files · token / 0 / 派生式三种取值)
+## node tools/contrast-report.mjs
+exit 0
+| control-unavailable-ink | control-unavailable-fill | 6.81 | 4.5 | 通过 |
+
+## node tools/check-product-copy.mjs
+exit 0
+{"scope":"app/web hard-coded text/title/aria-label fields plus index.html text nodes","diagnosticExceptions":3}
+## node tools/check-semantic-consumers.mjs
+exit 0
+{"guardedGlyphs":["message-square","activity","plug","folder","file-text","refresh-cw"],"entries":46,"scope":"app/web module literal lines; vendor, static allowlist and generated projection excluded"}
+## node tools/check-doc-links.mjs
+exit 0
+  "problems": []
+}
