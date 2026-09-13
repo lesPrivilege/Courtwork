@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "conversation_id": "6aa6ce70-31b4-83ec-8dd3-623d0652e8bf",
+  "captured_on": "2026-09-14",
+  "snapshots": [
+    {
+      "path": "conversation-repository-followup.json",
+      "sha256": "f5eb2f685a4bd8dd40e6336b2fad9e1ae080d8846ed4b92f88dfe5652af74991",
+      "turns": 3,
+      "message_ids": [
+        "fab551c9-b2d9-4cab-b1ff-cd99b1b391ce",
+        "68fbef9d-59d7-4d7e-aaeb-14c6d25f269a",
+        "4be18043-6407-4e57-bff0-3cf2d77cb503",
+        "c32422a7-3546-4557-9d2a-0df9e18e82b8",
+        "6793b603-36c3-4f0c-8fe6-6776e6379f9e",
+        "bad7ff76-c9e2-4354-88d0-bf5ef61b1c31"
+      ],
+      "has_more": false,
+      "attachments": 0
+    },
+    {
+      "path": "conversation-verification-followup.json",
+      "sha256": "d1aefea974b05725afc2c363d0afa7805b280bac41ed6b43716089a985bb752c",
+      "turns": 5,
+      "message_ids": [
+        "fab551c9-b2d9-4cab-b1ff-cd99b1b391ce",
+        "68fbef9d-59d7-4d7e-aaeb-14c6d25f269a",
+        "4be18043-6407-4e57-bff0-3cf2d77cb503",
+        "c32422a7-3546-4557-9d2a-0df9e18e82b8",
+        "6793b603-36c3-4f0c-8fe6-6776e6379f9e",
+        "bad7ff76-c9e2-4354-88d0-bf5ef61b1c31",
+        "20a3b6a3-d42f-49fa-9f0e-cf376ff01508",
+        "7ce84be3-5335-44c0-9d2e-e44ff4af8302",
+        "d75f95e7-191b-4086-a68b-68b7de650455",
+        "0d21a2c8-be57-48a1-9e65-8788070f5baf"
+      ],
+      "has_more": false,
+      "attachments": 0
+    }
+  ],
+  "context_policy": "Raw provenance is read only for explicit recall, not default instructions. The 3-turn and 5-turn snapshots are successive complete returns and preserve earlier snapshots unchanged.",
+  "content_review": "Product/repository/verification discussion; no credentials or personal runtime stores included. External links and assistant claims are reference inputs, not authorization or accepted engineering facts.",
+  "decision_owner": "Astra",
+  "research_role": "Luna bounded source exploration and repository audit; neither changes original contracts or accepts its own implementation."
+}

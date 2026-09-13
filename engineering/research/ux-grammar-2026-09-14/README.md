@@ -27,3 +27,14 @@
 [Luna核源与映射](explore.md)、[八项一手来源](sources.json)和[输入回执](receipt.json)已完成。Astra复核后保留上述裁决：外部动作词存在方言差异，反馈采用情境默认，既有owner合同优先。文档链接与README生成检查在完整文件集上复核；本片不扩为产品行为接受。
 
 同一外部会话后来增加仓库治理一轮，完整3轮快照另存[repository follow-up](conversation-repository-followup.json)，原2轮快照不覆盖。用户明确要求先完成当前开放实现任务，再将此轮作为仓库整理收尾优先消费；该轮的Explore、audit与Astra裁决将在收尾记录中单独列出，不混进上面的八项UX来源核查。
+
+
+## 仓库与验证接续 · Astra裁决
+
+同会话再次扩展后，完整5轮/10消息返回另存[verification follow-up](conversation-verification-followup.json)；[增量回执](followup-receipt.json)登记3轮及5轮快照的消息ID、hash与边界，原2轮/3轮输入保留不覆盖。新增轮次分别讨论发布前仓库治理、AI端到端测试选型与模型额度分配；它们不改变当前产品实现归属。
+
+仓库整理采用现有[目录归属](../../../docs/repository-layout.md)：原始输入、探索、裁决、设计参考与验证证据各归原主题包和owner。下一轮按current最近相关入口读工单，再定向读原文；原始会话不成为默认指令。发布与研究索引新增当前批次链接，current将在主线合流时追加简短状态入口，不改写其他writer的在途内容，不批量搬迁历史文件。Luna的[仓库审计](../../release/final-preparation-2026-09-13/repository-audit.md)提供发现与取舍，Astra只采用这组最小收尾。
+
+验证采用[验证选择](../../verification.md)：先用户结果与不变量，再选最低成本但足够真实的接缝检查；新增E2E说明为何局部测试不足。确定性GUI检查、真实harness能力验证、探索式浏览器和故障恢复各自承担不同问题；已能稳定复现的bug下沉契约/集成测试。最终组合只在产品变化或具体失败需要时重跑；截图留给几何、层级与实际视觉判断，真实模型调用沿既有授权。
+
+[Luna核源](verification-explore.md)将Viking文章限定为单项目实践，不接受100%核心旅程E2E、local-only或固定token节省比例作为普遍要求。Google/Fowler的分层测试、Playwright语义定位及Anthropic的环境结果评估只消费其适用原则；不引入新Playwright runner、XState或新的Runtime状态，不用脚本数量替代架构/产品裁决。本文和测试策略均不关闭真实人审、付费provider或Release G1–G5的未完成证据。

@@ -55,3 +55,12 @@ Astra reviewed the Settings receipt implementation and its actual Host/Settings 
 The Models non-author review identified a fixture protocol that declared no reasoning yet enabled reasoning effort compatibility. The separate author fix `722f5e9` is integrated as `c9c1db1`, preserving the no-reasoning declaration and testing the extra-model counterexample. Final combined testing and browser inspection will follow the explicitly authorized context-meter delivery.
 
 [Version 2 synthetic fixture](fixture-guide.md) supplies natural project/session names for all 13 capture slots through actual Host routes. The older preliminary preview Host was stopped normally before starting the final fixture; its original data directory remains outside Git for provenance. Synthetic state does not close the real-work release gates.
+
+
+## Governance closeout · 2026-09-14
+
+Astra accepts the [local repository audit](repository-audit.md) as a bounded navigation/provenance finding. Its smallest-safe-closeout direction is implemented through the release/research indices, neutral engineering entry, [material ownership](../../../docs/repository-layout.md), versioned transcript receipts and [verification selection](../../verification.md). Raw inputs stay immutable and are recalled by message/source identity; they are not default agent instructions. The large current-status history and all 62 canonical in-progress files remain preserved; the final main integration will prepend only this release's compact current-status pointer.
+
+The original governance request also asks about public pushed content and external repository practice. Those two bounded source checks are being completed separately; the local audit alone does not claim either. Their results will be linked and adjudicated here before publication. Verification research has already been [consumed](../../research/ux-grammar-2026-09-14/README.md): no fixed E2E count or token-savings claim, no new framework, and no synthetic replacement for real-work acceptance.
+
+The no-reasoning protocol correction invalidated two older fixture-only effort expectations in the other author's initial full run (1,004/1,006). Test correction `846b18f`, integrated as `49bda24`, keeps low/high/max declarations exercised on compatible connections whose protocol supports effort encoding, while fixture declarations cannot grant native reasoning. The original failure log and 18/18 focused rerun remain in the Models evidence. Final combined verification still follows the last context/diagnostics delivery.

@@ -14,7 +14,7 @@ The sole persistent development entry is `Courtwork`. Read the actual branch and
 
 ## Verification and Git
 
-- Run checks appropriate to the actual change. Runtime/UI baseline commands are in README; use independent fixtures for migration/recovery and do not run paid providers by default.
+- Choose checks through `engineering/verification.md` for the actual change; green tests do not confer architecture or capability acceptance. Runtime/UI baseline commands are in README; use independent fixtures for migration/recovery and do not run paid providers by default.
 - Runtime schema 4 must not share upgraded data with an old host. Credentials and mutable session/workspace data stay outside Git. Do not inspect or copy personal credential stores.
 - Stage explicit paths and review `git diff --cached --name-only`; no `git add .`/`git add -A`. Do not rewrite shared history.
 - Keep source/evidence paths portable in active documentation. Preserve historical archive bytes and provenance; use frozen SHA + path for legacy recall.

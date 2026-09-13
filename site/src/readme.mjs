@@ -84,7 +84,7 @@ Schema Engineering 追问：跨越多个会话与执行者时，工作应当保�
 - **架构**：[模块与责任](engineering/architecture.md) · [Runtime 与 Work](engineering/architecture-runtime-canon.md) · [Core 契约](engineering/core-contracts.md)
 - **UX**：[UX Grammar](engineering/design/ux-grammar.md) · [前端连续性规范](engineering/design/agent-interface-2026-09-10/frontend-contract.md) · [文案](engineering/design/copy-convention.md) · [编排](engineering/design/ui-composition-standard.md) · [控件与图标](engineering/design/atlas/README.md)
 
-新增界面先确认对象、动作、状态与恢复语义，再复用已登记的组件、原生 SVG 和实现先例。交付记录保留验证范围与例外，供后续维护接续。
+新增界面先确认对象、动作、状态与恢复语义，再复用已登记的组件、原生 SVG 和实现先例。按[验证选择](engineering/verification.md)确定局部检查、真实用户路径和浏览器目验，交付记录保留证据范围与例外。
 
 ## 项目结构
 

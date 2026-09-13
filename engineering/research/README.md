@@ -1,5 +1,7 @@
 # RD：研究与开发验证
 
+[UX、仓库治理与验证选择输入](ux-grammar-2026-09-14/README.md)：分版本会话、来源核查及Astra裁决。原始输入按需召回；日常入口是[UX Grammar](../design/ux-grammar.md)、[验证选择](../verification.md)与[材料归属](../../docs/repository-layout.md)。
+
 [Court定位参考实践](court-position-2026-09-13/README.md)：2026-09-13，两轮/三消息及截图入账，Luna探索/选型快照、Astra补充DEC-014词汇与控制责任；缺口沿RD-005/007和义务闭环承接，未引入框架或新增Release门。
 
 [RD-008 · Typed commands与手动压缩](RD-008-command-compaction.md)：2026-09-13，完整源会话入账；自动压缩相关15/15及slash fallthrough探针，校正当前能力说明。CMD-01/CMP-01登记Release后期Developer增量，CMP-02质量优化后置，未实现新入口。

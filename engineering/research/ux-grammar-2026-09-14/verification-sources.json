@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-09-14",
+  "review_note": "verification-explore.md",
+  "input": {
+    "path": "conversation-verification-followup.json",
+    "sha256": "d1aefea974b05725afc2c363d0afa7805b280bac41ed6b43716089a985bb752c",
+    "thread_id": "6aa6ce70-31b4-83ec-8dd3-623d0652e8bf",
+    "page_order": "newest_first",
+    "position_semantics": "Snapshot positions follow page.order and are not chronological turn numbers; source user-message IDs are unchanged.",
+    "user_positions": [
+      {
+        "snapshot_position": 1,
+        "user_message_id": "d75f95e7-191b-4086-a68b-68b7de650455",
+        "topic": "Prioritize scarce model budget for high-value browser checks."
+      },
+      {
+        "snapshot_position": 2,
+        "user_message_id": "20a3b6a3-d42f-49fa-9f0e-cf376ff01508",
+        "topic": "Supplies the Viking E2E article and distinguishes low-level correctness from higher-value end-to-end findings."
+      },
+      {
+        "snapshot_position": 4,
+        "user_message_id": "4be18043-6407-4e57-bff0-3cf2d77cb503",
+        "topic": "UX Grammar request; previously cross-checked in explore.md and sources.json."
+      },
+      {
+        "snapshot_position": 5,
+        "user_message_id": "fab551c9-b2d9-4cab-b1ff-cd99b1b391ce",
+        "topic": "UX text and composition request; previously cross-checked in explore.md and sources.json."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "url": "https://vikingz.me/ai-e2e/",
+      "title": "我是怎样使用 AI 构建 E2E 测试体系的？",
+      "type": "First-party practitioner case study",
+      "checked_on": "2026-09-14",
+      "checked_scope": "Article dated 2026-06-06; problem, five-stage workflow, Verify/Test, Green, and E2E execution sections.",
+      "observed_point": "The author describes TinyShip's three frontend frameworks by two databases, a Spec → Code → browser Verify → Playwright Test → Green workflow, 100% coverage of that product's critical journeys, and local E2E runs for selected change/release events.",
+      "limits": "Evidence of one project's workflow, not a universal coverage rule. Framework/database combinations and CI constraints are product-specific. The article's 80%+ token-savings figure gives no baseline, sample, prompt, or measurement method, so it is not reproducible here."
+    },
+    {
+      "url": "https://abseil.io/resources/swe-book/html/ch14.html",
+      "title": "Software Engineering at Google — Larger Testing",
+      "type": "Engineering handbook chapter",
+      "checked_on": "2026-09-14",
+      "checked_scope": "Fidelity, gaps in smaller tests, integration/system tests, and browser/device testing sections.",
+      "observed_point": "Larger tests chiefly address fidelity gaps such as unfaithful doubles and real component combinations; higher fidelity brings cost and failure risk. Browser/device checks are one kind of functional test.",
+      "limits": "Supports choosing a higher-fidelity check for a named risk; it does not prescribe CourtWork's test-layer ratio, browser count, or release gate."
+    },
+    {
+      "url": "https://martinfowler.com/articles/practical-test-pyramid.html",
+      "title": "The Practical Test Pyramid (Ham Vocke)",
+      "type": "Practitioner article hosted on Martin Fowler's site",
+      "checked_on": "2026-09-14",
+      "checked_scope": "Acceptance-test levels and Avoid Test Duplication sections.",
+      "observed_point": "Acceptance checks can run below the UI when the design permits. When a higher-level test finds a defect, add a lower-level regression; push checks down where they add no unique confidence.",
+      "limits": "A general practitioner heuristic, not a CourtWork-specific suite shape or numerical coverage target. The article is by Ham Vocke."
+    },
+    {
+      "url": "https://playwright.dev/docs/test-agents",
+      "title": "Playwright Test Agents",
+      "type": "Official Playwright documentation",
+      "checked_on": "2026-09-14",
+      "checked_scope": "Planner, Generator, Healer, inputs and outputs sections.",
+      "observed_point": "Playwright documents agents that explore and write a test plan, generate tests from that plan, and replay/repair failing tests; documented healer outputs include a passing or skipped test.",
+      "limits": "Documents test-authoring features, not proof that generated assertions or healing preserve product intent. It does not confer acceptance or release authority."
+    },
+    {
+      "url": "https://playwright.dev/docs/best-practices",
+      "title": "Playwright Best Practices",
+      "type": "Official Playwright documentation",
+      "checked_on": "2026-09-14",
+      "checked_scope": "Locator guidance, user-facing attributes, explicit contracts, and generator locator priorities.",
+      "observed_point": "Playwright recommends resilient locators based on user-facing attributes and explicit contracts rather than CSS/XPath or DOM structure; its generator prioritizes roles, text, and test IDs.",
+      "limits": "Tool guidance only. A locator does not by itself verify durable backend state, accessibility conformance, or visual quality."
+    },
+    {
+      "url": "https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents",
+      "title": "Demystifying evals for AI agents",
+      "type": "Anthropic engineering guide",
+      "checked_on": "2026-09-14",
+      "checked_scope": "Definitions of task, trial, transcript, outcome and agent harness; grader types; coding-agent evaluation.",
+      "observed_point": "The guide separates a run transcript from the final environment outcome, defines an evaluated agent as model plus harness, and notes model variability as a reason for multiple trials and outcome checks.",
+      "limits": "Supports separating capability evidence from deterministic UI evidence; it does not set CourtWork's trial count, acceptance threshold, or provider authorization."
+    },
+    {
+      "url": "https://stately.ai/docs/xstate-test",
+      "title": "XState Test",
+      "type": "Official Stately documentation",
+      "checked_on": "2026-09-14",
+      "checked_scope": "Current package notice and model-based testing examples.",
+      "observed_point": "The page says the prior @xstate/test utilities are now in @xstate/graph and that graph testing documentation is forthcoming; the displayed @xstate/test examples are for the beta package.",
+      "limits": "Transitional documentation is not a package selection or compatibility verification. No dependency was installed or tested for CourtWork."
+    }
+  ]
+}
