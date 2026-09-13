@@ -365,7 +365,7 @@
     "file": "app/web/work-review-summary.mjs",
     "source": "const refresh = action('refresh-cw', 'Refresh work review', () => void load());",
     "disposition": "named-read",
-    "reason": "This named read reloads the existing Core work-review summary. Its complete accessible name states the target; it neither creates a decision nor confers acceptance.",
+    "reason": "Named read of the existing Core work-review projection; no accept/reject action is implied.",
     "semanticKeys": []
   }
 ]
