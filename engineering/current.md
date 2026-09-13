@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Attention 定位与多视图增量消费
+
+“信息架构收敛 Auditing”新增轮次及Tasktori附件已[归档并采用](design/frontend-audit-2026-09-13/attention-consumption.md)。沿现有Attention对象/查询与List–Detail，修正活动先例索引仍称typed actions未交付的旧状态；区分本地acknowledge置seen与外部认领语义，due_at不作调度承诺。Board/Time仅候选，来源/外部效果继续接HL-A0/HL-A1；不新增状态、View引擎或产品控件。本片仅文档与来源检查，未重跑产品测试、push或部署。
+
 ## 2026-09-13 · Context/TPS 接线审计与代码块灰底
 
 Luna 完成[Context/TPS 有界审计](design/frontend-audit-2026-09-13/context-tps-audit.md)，Astra 核对合流身份：字符构成、request 启发式、声明窗口、原生 compaction 与 Host 首输出/首文本已在本地 main；容量消费百分比、Provider TTFT 与真实 decode TPS 未接线。Design Scout 的测量门及合成 specimen 不代表生产选型完成，BE-42 仍为已登记/待 owner 合同。另以 `66b0eb4` 将助手代码块改为 diff 共用中性灰，保留文本/边框；[验证](design/frontend-audit-2026-09-13/code-gray.md)含明暗组件图、对比度检查与 Luna 非作者源码复核。审计未改产品功能、未重跑产品测试；本轮未 push/部署。
