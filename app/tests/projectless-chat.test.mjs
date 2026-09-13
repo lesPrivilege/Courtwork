@@ -61,7 +61,7 @@ test('unassigned coordination scope does not merge all null-project conversation
   const t=await c.create({threadId:randomUUID(),sessionId:a.id,title:'A thread'});
   assert.equal(t.scope.sessionId,a.id);
   const options=projectSessionOptions({sessions:[a,b]});assert(options);assert(!sameScope(options[0].scope,options[1].scope));
-  assert(projectDirectory(c.list(a.id))); 
+  assert(projectDirectory(c.list(a.id)));
   await assert.rejects(c.attach(t.id,{sessionId:b.id,expectedRevision:1}),{code:'coordination_binding'});
   assert.equal(c.runtimeDirectory(b.id).threads.length,0);
  }finally{await store.close();await rm(dataDir,{recursive:true,force:true});}
