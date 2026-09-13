@@ -121,7 +121,8 @@ export function flowRow(
   { glyph, title, meta, className = "", attrs } = {},
   action = null,
 ) {
-  const disclosure = tag === 'summary' ? icon('chevron-right', { size: 16 }) : null;
+  const disclosure = tag === 'summary' || (tag === 'button' && attrs && Object.hasOwn(attrs, 'aria-expanded'))
+    ? icon('chevron-right', { size: 16 }) : null;
   disclosure?.classList.add('flow-disclosure-icon');
   return el(
     tag,

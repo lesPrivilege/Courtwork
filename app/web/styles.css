@@ -1369,11 +1369,26 @@ summary.flow-row {
 summary.flow-row::-webkit-details-marker {
   display: none;
 }
-summary.flow-row > .flow-disclosure-icon {
+summary.flow-row > .flow-disclosure-icon,
+button.flow-row[aria-expanded] > .flow-disclosure-icon {
   transition: transform var(--duration) var(--ease-out);
 }
-details[open] > summary.flow-row > .flow-disclosure-icon {
+details[open] > summary.flow-row > .flow-disclosure-icon,
+button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   transform: rotate(90deg);
+}
+.execution-disclosure-summary {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  text-align: left;
+}
+.execution-disclosure-summary > .flow-title,
+.execution-disclosure-summary > .flow-meta {
+  flex: 0 1 auto;
+}
+.execution-disclosure-summary > .flow-meta {
+  white-space: normal;
 }
 @media (max-width: 1023px) {
   .flow-row {

@@ -234,8 +234,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
             onEdit: () => { controller.setDraft(row.text); input.value = row.text; updateControls(); input.focus(); }
           }));
         } else if (row.kind === 'assistant') {
-          block.append(el('div', { className: 'attention-agent-message-heading' }, el('span', { className: 'message-role', text: 'Attention' })),
-            markdown(row.text, { key: `attention:${state.session?.id}:${row.id}` }));
+          block.append(markdown(row.text, { key: `attention:${state.session?.id}:${row.id}` }));
           block.append(el('footer', { className: 'assistant-message-actions' }, messageActionRow(row, state)));
         } else if (row.kind === 'tool') {
           const word = toolStateWord(row, runStatuses.get(row.runId) || state.runs.find(run => run.id === row.runId)?.status);

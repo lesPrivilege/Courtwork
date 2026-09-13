@@ -2806,12 +2806,6 @@ function renderMessageStream() {
       const wrapper = element("article", {
         className: `message assistant ${row.pending ? "pending" : ""}`,
       });
-      const header = element(
-        "div",
-        { className: "message-header" },
-        element("span", { className: "message-role", text: currentSession()?.scope === "global" ? "Attention" : "Assistant" }),
-      );
-      wrapper.append(header);
       appendAssistantBody(
         wrapper,
         row.text,
