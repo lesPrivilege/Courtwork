@@ -89,3 +89,7 @@ Chat网页端材料、检索/connector与成熟交互索引用于论证连续性
 | E 分发与规模化 | 由重复局部需求决定包格式、独立进程/沙箱、registry与调度 | 维护成本、权限隔离、迁移/回退、版本兼容有独立证据；不要求热插拔或Rust重写 |
 
 方案以有界工作价值和可证伪边界推进。当前阶段不新增全部五层同名包，也不将架构收尾扩大为实现所有后续能力。性能研究继续沿BM/BE-42口径：host首输出不是Provider TTFT，缺token时间不报decode TPS；真实Provider调用另遵既有具体授权与预算。
+
+## Spark独立身份设计接续 · 2026-09-13
+
+[Spark独立Agent治理设计](../spark-explore-2026-09-13/design.md)补充本页角色定义：Agent实例、版本化定义、Assignment、Session/Run及结果修订分别寻址，data/organization/authority分轴。Host目录与协调服务增量承接身份和分配，沿原owner持执行、字节与正式效力；设计采用不等于现生产已交付。

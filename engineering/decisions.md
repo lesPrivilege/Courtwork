@@ -205,3 +205,7 @@ Astra采用[自足架构节点](research/architecture-node-2026-09-13/README.md)
 ### DEC-014补充 · Court定位与参考实践（2026-09-13）
 
 [Astra即时消费](research/court-position-2026-09-13/README.md)采用持续工作控制责任的内部解释，补齐[对象词汇](research/architecture-node-2026-09-13/architecture.md)与[选型依据](options.md)。Luna独立负责参考探索和来源快照；外部提案不当实现，作者宣称不当运行证据。工作制度、事实/投影分离、Review注意力与恢复反例进入既有RD-005/007、治理地图及Runtime替换方向，不新增总编排账本、框架依赖或Release门；不将架构定位变成全部能力已完成或领先性主张。
+
+### DEC-014补充 · Spark独立Agent治理（2026-09-13）
+
+按用户明确要求，[Astra设计](research/spark-explore-2026-09-13/design.md)裁定Spark具有独立持久身份、版本化定义、Assignment和独立任务上下文；profile不替代Agent身份。Host持身份/授权/分配，Runtime持执行，原资源owner持字节/版本，Core持正式决定。组织归属不授数据权限，检索优先级不提升效力。首片遵守单活动Run与显式释放/排队/恢复，不引入隐式并行或第二正式账本；实际schema/端点由施工提交后复裁。
