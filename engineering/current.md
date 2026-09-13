@@ -1,5 +1,25 @@
 # 当前工程状态
 
+## 2026-09-13 · 前后端合流与 UI 文案收敛
+
+按用户授权将 Settings/Runtime 层级、MCP/Skill/本地 CW Plugin 导入与八种原生 SVG 合入本地 main `42a7bdb`，保留同期可选workspace Chat和Spark设计登记。[合流回执](design/developer-control-panel-2026-09-13/integration.md)确认63个原有在途文件逐字节保留；以下Runtime/Settings历史条目的隔离状态由本条取代。代码复核与视觉接受分列，未push/tag/部署。
+
+组合全量983/983，末轮恢复标记类型校验及文案小片定向32/32；Luna故障闭环末轮8/8通过。前后端实际导入后合成MCP deny/allow、Skill按需加载、Plugin生命周期与绑定留证，可信本地包不提供OS隔离。Hook/Registry仍adapter-required，完整无障碍与Release门开放。
+
+[Luna文案探索与Astra裁决](design/frontend-audit-2026-09-13/copy-review.md)：热力图常识不写教程，单位/UTC/覆盖/后果保留；Home日格沿IC-3共享hover/focus提示，Usage移除颜色强弱解释。统一grammar已登记，Runtime多层重复准入说明、小格触屏精度与Usage触屏精确值沿原IA队列继续，不称已全站精简。
+
+## 2026-09-13 · Runtime 详情层级候选
+
+[施工与证据](design/frontend-audit-2026-09-13/runtime-hierarchy/README.md)：继承已目验Settings容器，详情独立阅读、单层源码滚动、重绘保留阅读位置与焦点；长源码shell溢出及窄屏标题已修复。Astra作者与Luna非作者复核分列，用户目验待回执。仍在独立分支，未合main/部署。[开发者控制面板参考](research/developer-control-panel-2026-09-13/README.md)另行核对登记，不冒充adapter闭环交付。
+
+## 2026-09-13 · Settings M1 用户目验通过
+
+用户已接受`4833e11`的Settings实色连续配置面，并授权下一单；[回执](design/frontend-audit-2026-09-13/hierarchy-polish/acceptance.md)。后续接原队列Runtime对象详情层级，保留本片已接受容器；仍在独立分支，未合main/发布，不扩大完整可访问性声明。
+
+## 2026-09-13 · Settings 空间层级 M1 独立施工
+
+[施工与裁决](design/frontend-audit-2026-09-13/hierarchy-polish/README.md)：Luna探索，Astra选型及实现。当前Settings采用contained实色配置面、内部平整分隔、组标题滚动锚点；搜索多组取消sticky，窄屏空态及可见容器焦点环已修正。Home/Chat/Attention保留现有层级。本记录仅对应codex/ui-hierarchy-polish-20260913独立分支，未合main；非作者源码复核与作者浏览器证据分列，不宣告全站IA接受，未push/部署。
+
 ## 2026-09-13 · Spark独立Agent治理设计已裁决
 
 用户明确Spark为独立Agent，Astra完成[正式设计](research/spark-explore-2026-09-13/design.md)：持久身份/版本化定义、Assignment、数据分区与来源链、组织角色和权限分轴、串行调度及取消恢复、成果与消费回执。profile仅为能力机制；Host/Runtime/资源/Core各持唯一写权，不新造正式状态库。覆盖旧的仅profile定位，接DEC-014与中央架构；另一分支保持施工归属，待实际schema/权限/证据合入复裁。本片只裁设计、未改生产或接受Release。
