@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-13 · Settings 资源管理与图标辨识
+
+按用户授权以 `c1bdaa9` 合入本地main：[施工与证据](design/settings-resource-management-2026-09-13/README.md)。Settings新增Plugins，共用Runtime快照与状态语义，提供资源链接Tools/Skills/Permissions；Developer保留本地可信代码登记、Host Extensions生命周期与运行时组合/绑定。插件更新与删除仍无契约，不绘制可用按钮。Plugins采用固定Lucide拼图图标，Models保留芯片，语义投影与源哈希同链更新。
+
+作者定向69/69、六组1440/1280/390明暗浏览器、搜索/跳转/返回完整App、smoke与相关lint通过；本机8847直接消费main静态页面。保留其他writer在途内容，未push/部署，不称独立视觉接受或完整无障碍通过。用户追加可自定义模块登记、检索与Build with agent，Luna沿Exa调研并核对现有后端能力，结果另行裁决。
+
 ## 2026-09-13 · 前后端合流与 UI 文案收敛
 
 按用户授权将 Settings/Runtime 层级、MCP/Skill/本地 CW Plugin 导入与八种原生 SVG 合入本地 main `42a7bdb`，保留同期可选workspace Chat和Spark设计登记。[合流回执](design/developer-control-panel-2026-09-13/integration.md)确认63个原有在途文件逐字节保留；以下Runtime/Settings历史条目的隔离状态由本条取代。代码复核与视觉接受分列，未push/tag/部署。
