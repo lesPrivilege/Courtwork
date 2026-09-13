@@ -38,7 +38,8 @@ export function deriveWorkSummary(state, options, availableQuestionIds) {
     if (INSPECT.has(run.status)) inspection.push({ scope: session.scope, projectId: session.projectId, sessionId: session.id,
       ...runFields(run), errorCode: run.error?.code ?? null, resultAt: run.endedAt ?? run.startedAt });
   }
-  const candidates = sessions.map((s) => ({ scope: s.scope, projectId: s.projectId, sessionId: s.id, title: s.title,
+  const childSessions=new Set((state.subagents?.assignments??[]).flatMap(a=>a.attempts.map(t=>t.sessionId)));
+  const candidates = sessions.filter(s=>!childSessions.has(s.id)).map((s) => ({ scope: s.scope, projectId: s.projectId, sessionId: s.id, title: s.title,
     createdAt: s.createdAt, recordedActivityAt: activity.get(s.id), latestRun: latest.has(s.id) ? runFields(latest.get(s.id)) : null }));
   candidates.sort((a, b) => newest(a, b, "recordedActivityAt", "sessionId"));
   const pending = [];

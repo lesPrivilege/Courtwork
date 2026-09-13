@@ -12,6 +12,7 @@ test('Spark executes in a fresh restricted Session, keeps stable identity and ex
   const parent=await f.createSession();const input={id:randomUUID(),parentSessionId:parent.id,brief:'Explain what sources are missing.',sources:[]};
   const created=await f.api('POST','/subagents',input);assert.equal(created.status,200,JSON.stringify(created.json));
   const a=await waitAssignment(f,input.id);assert.equal(a.status,'resolved',JSON.stringify(a));assert.notEqual(a.attempts[0].sessionId,parent.id);assert.equal(a.agentId,'spark');
+  const summary=(await f.api('GET','/work-summary')).json;assert.equal(summary.sessionCandidates.items.some(s=>s.sessionId===a.attempts[0].sessionId),false,'child context is not an ordinary Continue target');
   const result=await f.api('GET',`/subagents/${a.id}/result`);assert.equal(result.status,200);assert.equal(result.json.authority,'finding-only');
   const retry=await f.api('POST','/subagents',input);assert.equal(retry.json.assignment.id,a.id);assert.equal(retry.json.assignment.attempts.length,1);
   assert.equal((await f.api('POST','/subagents',{...input,brief:'different'})).status,409);

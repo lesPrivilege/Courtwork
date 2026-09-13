@@ -4226,7 +4226,7 @@ function renderSurfaceRail() {
     const glyphs = surfaceModules
       .filter((module) => module.kind === "run" ? summarySnapshot : module.adapter(facts))
       .map((module) =>
-        action(module.icon, module.title, () => {
+        action(module.kind === "run" ? "activity" : module.icon, module.kind === "run" ? "Run details" : module.title, () => {
           if (module.kind === "runtime") return railHost.openRuntimeSettings();
           if (module.kind !== "run") return activateSurface(module.kind);
           const latest = runSummarySnapshot();
@@ -4242,9 +4242,9 @@ function renderSurfaceRail() {
         }),
       );
     if(subagentView&&!subagentView.element.hidden)glyphs.push(action("spark","Spark",()=>subagentView.open(currentSession()),{attrs:{"data-module":"subagents","data-focus-key":"strip:subagents"}}));
-    rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs), surfaceEntryDirectory.element);
+    rail.replaceChildren(el("div", { className: "rail-strip", attrs: {role:"group","aria-label":"Chat tools"} }, ...glyphs));
     if (focusKey && document.activeElement === document.body) {
-      const key = focusKey.startsWith("strip:") ? focusKey : `strip:${focusModule === "run-summary" ? "run" : focusModule}`;
+      const key = focusKey.startsWith("strip:") ? focusKey : `strip:${["run-summary", "more"].includes(focusModule) ? "run" : focusModule}`;
       rail.querySelector(`[data-focus-key="${CSS.escape(key)}"]`)?.focus();
     }
     return;

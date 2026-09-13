@@ -10,7 +10,7 @@ const output=value=>({content:[{type:'text',text:JSON.stringify(value)}],details
 const id=Type.String({minLength:1,maxLength:200});
 export class Subagents {
   constructor(service) { this.service=service;this.store=service.store;this.pumping=null;this.library=new SubagentLibrary(this); }
-  mutate(fn) { return this.store._mutate(state=>{const result=fn(state);validateSubagents(state.subagents);return result;}); }
+  mutate(fn) { return this.store._mutate(state=>{const result=fn(state);validateSubagents(state.subagents,state);return result;}); }
   find(state,id) {const a=state.subagents.assignments.find(a=>a.id===id);check(a,'Assignment unavailable','spark_unavailable',404);return a;}
   authorized(state,a) {
     const parent=state.sessions.find(s=>s.id===a.parentSessionId);

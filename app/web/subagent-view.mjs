@@ -6,6 +6,14 @@ export function createSubagentView({request,getSession,onMaintenance,onOpenSessi
  const dialog=el('dialog',{className:'spark-dialog',attrs:{'aria-label':'Spark Explore'}});document.body.append(dialog);
  let owner=null,data=null,epoch=0,opener=null,timer=null,selected=null,expanded=new Set(),busy=false,pendingCreate=null,pendingSessionId=null,railSignature=null;
  const pendingCommands=new Map(),pendingMounts=new Map();
+ const pendingKey='courtwork.spark.pending-create.v1';
+ try{const saved=JSON.parse(sessionStorage.getItem(pendingKey)||'null');pendingCreate=saved?.create??null;pendingSessionId=saved?.sessionId??null;}catch{/* An invalid local draft never changes Host state. */}
+ const keepPending=()=>{try{if(pendingCreate||pendingSessionId)sessionStorage.setItem(pendingKey,JSON.stringify({create:pendingCreate,sessionId:pendingSessionId}));else sessionStorage.removeItem(pendingKey);}catch{/* Host idempotency still applies within this page. */}};
+ async function submitPending(){
+  try{const response=await request('/subagents',{method:'POST',body:{id:pendingCreate.id,...pendingCreate.payload}});if(response?.assignment?.id!==pendingCreate.id)throw Error('The task receipt was incomplete. Retry to recover it.');pendingCreate=null;pendingSessionId=null;keepPending();await refresh();await detail(response.assignment.id);}
+  catch(e){if(e.status&&e.status<500){pendingCreate=null;keepPending();}throw e;}
+ }
+
  const button=(text,fn)=>{const b=el('button',{text,className:'quiet-button',attrs:{type:'button'}});b.addEventListener('click',()=>void fn());return b;};
  const taskButton=(a,fn)=>{const b=button(a.available?`${labels[a.status]??'Unknown'} · ${a.brief}`:'Assignment unavailable',fn);b.dataset.assignmentId=a.id;return b;};
  const notice=el('p',{className:'form-help',attrs:{role:'status'}});
@@ -49,16 +57,16 @@ export function createSubagentView({request,getSession,onMaintenance,onOpenSessi
    if(!brief.value.trim())throw Error('Enter a brief.');
    const chosen=sources.filter(s=>s.checkbox.checked).map(s=>s.ref);if(chosen.length>16)throw Error('Choose up to 16 source versions.');
    let parentSessionId=select.value;
-   if(!parentSessionId){pendingSessionId??=crypto.randomUUID();const created=await request('/sessions',{method:'POST',body:{sessionId:pendingSessionId,title:'Spark tasks'}});parentSessionId=created.session.id;}
+   if(!parentSessionId){pendingSessionId??=crypto.randomUUID();keepPending();const created=await request('/sessions',{method:'POST',body:{sessionId:pendingSessionId,title:'Spark tasks'}});parentSessionId=created.session.id;}
    const payload={parentSessionId,brief:brief.value,sources:chosen};
    if(pendingCreate&&JSON.stringify(pendingCreate.payload)!==JSON.stringify(payload))throw Error('The previous request has an uncertain receipt. Retry the unchanged brief and sources first.');
-   pendingCreate??={id:crypto.randomUUID(),payload};
-   const response=await request('/subagents',{method:'POST',body:{id:pendingCreate.id,...pendingCreate.payload}});pendingCreate=null;pendingSessionId=null;
-   await refresh();await detail(response.assignment.id);
+   pendingCreate??={id:crypto.randomUUID(),payload};keepPending();
+   await submitPending();
   }));
   start.disabled=data?.agents?.[0]?.status!=='active';
   content.append(el('p',{text:'A separate agent context checks only the brief and selected source versions. Your current model is used.',className:'form-help'}),select,brief,sourceBox,start);
   await sourceOptions();
+  if(pendingCreate)content.append(el('p',{text:'A previous task request has no confirmed receipt.',className:'form-help'}),button('Recover previous request',()=>guarded(submitPending)));
   content.append(el('h3',{text:'Tasks'}));
   for(const a of [...(data?.assignments??[])].filter(a=>!a.archived).reverse())content.append(taskButton(a,()=>guarded(()=>detail(a.id))));
   content.append(button(data?.agents?.[0]?.status==='disabled'?'Enable Spark':'Disable Spark',()=>guarded(async()=>{await request('/subagents/agent',{method:'PUT',body:{status:data?.agents?.[0]?.status==='disabled'?'active':'disabled'}});await refresh();await directory();})));

@@ -208,21 +208,8 @@ button.sd-entry-row:hover { background: var(--hover); }
 button.sd-entry-row:active { background: var(--pressed); }
 .sd-entry-title { font-size: var(--text-label); font-weight: 500; }
 .sd-entry-detail { font-size: var(--text-meta); color: var(--muted-strong); overflow-wrap: anywhere; }
-/* Compact mode keeps the fallback reachable. This is an inline disclosure,
-   not a modal or an additional reader host; the rail itself can scroll. */
-.surface-panel.is-strip:has(.sd-entry-directory details[open]) { width: min(288px, calc(100vw - 2 * var(--col-gap))); }
-.surface-panel.is-strip .sd-entry-directory { padding: var(--space-1); }
-.surface-panel.is-strip .sd-entry-directory:has(details[open]) {
-  background: var(--float);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-card);
-  padding: var(--space-3);
-}
-.surface-panel.is-strip .sd-entry-directory > details:not([open]) > summary { padding-inline: 0; font-size: var(--text-caption); }
+/* Narrow Chat tools use the existing Run entry for Activity and Context.
+   A text directory is never squeezed into the icon strip. */
 .sd-entry-row:not(button) { flex-direction: row; justify-content: space-between; align-items: baseline; }
 .sd-entry-row:not(button) .sd-entry-detail { max-width: 60%; text-align: right; }
 .surface-panel.is-strip .rail-strip { width: var(--strip-width); align-self: flex-end; }
-.surface-panel.is-strip:has(.sd-entry-directory details[open]) .surface-rail { overflow: auto; }
-/* Opening the fallback in compact mode replaces the glyph strip visually;
-   never stretch the old strip into a second, empty full-width card. */
-.surface-panel.is-strip:has(.sd-entry-directory details[open]) .rail-strip { display: none; }

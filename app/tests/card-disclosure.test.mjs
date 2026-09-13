@@ -34,17 +34,14 @@ test('Runtime summary rejects previous-session counts and preserves unknown rath
 
 import {createSurfaceEntryDirectory, surfaceEntryDefinitions} from '../web/summary-disclosure.mjs';
 
-test('presentation entry directory retains honest fallback rows without synthetic actions',()=>withTinyDom(()=>{
+test('presentation entry directory omits unimplemented slots and keeps actual loading/error states',()=>withTinyDom(()=>{
   let snapshot={schemaVersion:1,scope:'s1',entries:{}};
   const directory=createSurfaceEntryDirectory({getSnapshot:()=>snapshot});directory.update();
-  assert.equal(directory.element.querySelector('details').open,false);
-  assert.equal(directory.element.querySelectorAll('[data-entry]').length,surfaceEntryDefinitions.length);
-  assert.equal(directory.element.querySelectorAll('button').length,0);
-  snapshot.entries.task={state:'ready',identity:'t1'};directory.update();
-  assert.match(directory.element.textContent,/Reading is not available/);
-  assert.equal(directory.element.querySelectorAll('button').length,0);
-  snapshot.schemaVersion=9;directory.update();
-  assert.match(directory.element.textContent,/Not supported/);
+  assert.equal(directory.element.hidden,true);assert.equal(directory.element.querySelectorAll('[data-entry]').length,0);
+  snapshot.entries.task={state:'ready',identity:'t1'};directory.update();assert.equal(directory.element.hidden,true);
+  snapshot.entries.task={state:'error',detail:'Recorded task read failed.'};directory.update();
+  assert.equal(directory.element.hidden,false);assert.match(directory.element.textContent,/Recorded task read failed/);assert.equal(directory.element.querySelectorAll('button').length,0);
+  snapshot.schemaVersion=9;directory.update();assert.equal(directory.element.hidden,true);
 }));
 
 test('injected reader checks live scope identity revision and resets disclosure after scope change',()=>withTinyDom(()=>{

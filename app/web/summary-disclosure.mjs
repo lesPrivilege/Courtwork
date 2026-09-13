@@ -469,6 +469,11 @@ export function createSurfaceEntryDirectory({getSnapshot}) {
       root.hidden = !scope;
       root.replaceChildren();
       if (!scope) { disclosure = null; return; }
+      const visibleDefinitions=surfaceEntryDefinitions.filter(definition=>{
+        const entry=snapshot.schemaVersion===1?snapshot.entries?.[definition.id]:null;
+        return entry&&(['loading','error'].includes(entry.state)||(entry.state==='ready'&&typeof entry.identity==='string'&&entry.identity.length>0&&typeof entry.open==='function'));
+      });
+      if(!visibleDefinitions.length){root.hidden=true;disclosure=null;return;}
       const capturedScope = scope;
       disclosure = el('details', {}, el('summary', {className:'sd-run-summary-trigger', text:'More',
         attrs:{'data-focus-key':'surface-entry-more'}}));
@@ -476,7 +481,7 @@ export function createSurfaceEntryDirectory({getSnapshot}) {
       const body = el('div', {className:'sd-entry-groups'});
       let group = null;
       let list = null;
-      for (const definition of surfaceEntryDefinitions) {
+      for (const definition of visibleDefinitions) {
         if (group !== definition.group) {
           group = definition.group;
           list = el('div', {className:'sd-entry-group', attrs:{role:'group','aria-label':group}},
