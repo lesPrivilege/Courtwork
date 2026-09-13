@@ -133,7 +133,7 @@ test('a changed provider route blocks old queue item without stranding later val
 test('schema rejects corrupt derived relationships and forged read receipts',async()=>{
  const f=await boot();try{
   const parent=await f.createSession(),c=f.runtime.service.subagents;const a=await c.create({id:randomUUID(),parentSessionId:parent.id,brief:'Result integrity',sources:[]});await c.pump();await waitAssignment(f,a.id);
-  for(const corrupt of [s=>{s.subagents.assignments[0].results[0].sessionId='forged';s.subagents.assignments[0].result.sessionId='forged';},s=>{s.subagents.mounts.push({id:'x',assignmentId:'missing',target:{kind:'project',id:f.projectId},revision:1,enabled:true,actor:'local-user'});},s=>{s.subagents.assignments[0].consumption.push({commandId:'x',consumer:'local-user',resultRevision:99,decision:'read',reason:'bad',expandedSources:[]});}]){const state=f.runtime.store.snapshot();corrupt(state);assert.throws(()=>validateState(state));}
+  for(const corrupt of [s=>{s.subagents.assignments[0].budget.maxTurns=9;},s=>{s.subagents.assignments[0].results[0].sessionId='forged';s.subagents.assignments[0].result.sessionId='forged';},s=>{s.subagents.mounts.push({id:'x',assignmentId:'missing',target:{kind:'project',id:f.projectId},revision:1,enabled:true,actor:'local-user'});},s=>{s.subagents.assignments[0].consumption.push({commandId:'x',consumer:'local-user',resultRevision:99,decision:'read',reason:'bad',expandedSources:[]});}]){const state=f.runtime.store.snapshot();corrupt(state);assert.throws(()=>validateState(state));}
  }finally{await f.runtime.close();}
 });
 
@@ -162,7 +162,9 @@ test('SIGKILL during a child Run restarts blocked without replay and requires ex
   restarted=await reopen(dataDir);const c=restarted.runtime.service.subagents,a=c.find(restarted.runtime.store.snapshot(),'crash-assignment');assert.equal(a.status,'blocked');assert.equal(a.attempts[0].status,'unknown');assert.equal(a.attempts.length,1);
   await c.pump();assert.equal(c.find(restarted.runtime.store.snapshot(),a.id).attempts.length,1);
   await assert.rejects(c.action(a.id,{action:'retry',expectedRevision:a.revision,commandId:randomUUID(),reason:'Cannot guess completion',expandedSources:[]}),{code:'spark_unknown'});
-  const reconciled=await c.action(a.id,{action:'reconcile',expectedRevision:a.revision,commandId:randomUUID(),reason:'Read-only interrupted attempt checked',expandedSources:[]});assert.equal(reconciled.attempts[0].status,'failed');assert.equal(reconciled.status,'blocked');assert.equal(reconciled.attempts.length,1);
+  await assert.rejects(c.action(a.id,{action:'archive',expectedRevision:a.revision,commandId:randomUUID(),reason:'Cannot hide unknown execution',expandedSources:[]}),{code:'spark_conflict'});
+  const stop=await c.action(a.id,{action:'cancel',expectedRevision:a.revision,commandId:randomUUID(),reason:'Stop unknown',expandedSources:[]});assert.equal(stop.status,'blocked');assert.equal(stop.attempts[0].status,'unknown');
+  const reconciled=await c.action(a.id,{action:'reconcile',expectedRevision:stop.revision,commandId:randomUUID(),reason:'Read-only interrupted attempt checked',expandedSources:[]});assert.equal(reconciled.attempts[0].status,'failed');assert.equal(reconciled.status,'blocked');assert.equal(reconciled.attempts.length,1);
  }finally{await worker?.kill();await restarted?.runtime.close();await rm(dataDir,{recursive:true,force:true});}
 });
 

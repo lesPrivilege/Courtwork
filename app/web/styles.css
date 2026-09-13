@@ -6704,8 +6704,14 @@ html[data-theme="dark"] {
 /* Spark Explore reuses the chat rail and existing dialog/material grammar. */
 /* Spark is another card in the existing right-side surface rail. Its strip,
    narrow-screen overlay, content inset and scroll owner remain shared. */
-.subagent-card h3 { font-size: var(--text-meta); color: var(--muted-strong); }
-.subagent-card button { display: block; text-align: left; max-width: 100%; overflow-wrap: anywhere; margin-block: var(--space-2); }
+.subagent-card > button { display: block; text-align: left; max-width: 100%; overflow-wrap: anywhere; margin: 0; }
 .subagent-result { white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: var(--text-body); }
 .spark-dialog fieldset label { display: flex; gap: var(--space-2); align-items: center; overflow-wrap: anywhere; }
 .spark-dialog textarea { width: 100%; margin-block: var(--space-3); }
+
+.spark-dialog .observation-dialog-body { overflow-wrap: anywhere; }
+.spark-dialog .observation-dialog-body button { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+
+.subagent-information { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-2); }
+.subagent-information dt { color: var(--muted-strong); }
+.subagent-information dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }

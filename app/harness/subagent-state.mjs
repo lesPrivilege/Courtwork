@@ -18,7 +18,7 @@ export function validateSubagents(value,state=null) {
     keys(a,['id','revision','briefRevision','agentId','brief','parentSessionId','origin','scope','sources','definition','status','cancelRequested','attempts','result','consumption','createdAt','reason','notes','sourceReads','commands','archived','results','providerSelection','budget']);
     str(a.id); check(!ids.has(a.id),'Duplicate Assignment'); ids.add(a.id); revision(a.revision); check(a.revision>=1 && a.briefRevision===1,'Invalid brief revision');
     keys(a.providerSelection,['provider','model','api','baseUrl','configVersion']);for(const k of ['provider','model','api'])str(a.providerSelection[k],300);if(a.providerSelection.baseUrl!==null)str(a.providerSelection.baseUrl,2048);revision(a.providerSelection.configVersion);
-    keys(a.budget,['deadlineMs','maxTurns','maxToolCalls']);check(Number.isFinite(a.budget.deadlineMs)&&a.budget.deadlineMs>0&&a.budget.deadlineMs<=60000,'Invalid deadline');for(const k of ['maxTurns','maxToolCalls'])check(Number.isInteger(a.budget[k])&&a.budget[k]>0&&a.budget[k]<=32,'Invalid budget');
+    keys(a.budget,['deadlineMs','maxTurns','maxToolCalls']);check(Number.isFinite(a.budget.deadlineMs)&&a.budget.deadlineMs>0&&a.budget.deadlineMs<=60000,'Invalid deadline');for(const k of ['maxTurns','maxToolCalls'])check(Number.isInteger(a.budget[k])&&a.budget[k]>0&&a.budget[k]<=(k==='maxTurns'?SPARK_DEFINITION.maxTurns:32),'Invalid budget');
     str(a.brief,16000); str(a.parentSessionId); check(a.agentId==='spark' && same(a.definition,SPARK_DEFINITION),'Invalid definition binding');
     keys(a.origin,['actor','runId','callId']); check(['human','runtime'].includes(a.origin.actor),'Invalid origin');
     for (const key of ['runId','callId']) { if(a.origin[key]!==null) str(a.origin[key]); }
@@ -60,7 +60,7 @@ export function validateSubagents(value,state=null) {
     for(const c of a.commands){check(['cancel','archive','reconcile','retry','read','adopt','reject','defer'].includes(c.action),'Invalid command action');check(c.expectedRevision>=1,'Invalid command revision');check(c.expandedSources.every(i=>Number.isInteger(i)&&i>=0&&i<a.sources.length),'Invalid command source');}
     check(a.status!=='active'||['prepared','active'].includes(a.attempts.at(-1)?.status),'Active assignment without active attempt');
     check(a.status!=='resolved'||a.attempts.at(-1)?.status==='completed','Resolved attempt incomplete');
-    check(!a.archived||!['active','queued'].includes(a.status),'Archived task running');
+    check(!a.archived||(!['active','queued'].includes(a.status)&&!a.attempts.some(t=>t.status==='unknown')),'Archived task unsettled');
     str(a.createdAt);check(Number.isFinite(Date.parse(a.createdAt)),'Invalid timestamp'); if(a.reason!==null)str(a.reason,2000);
   }
   for(const m of value.mounts)check(ids.has(m.assignmentId),'Mount assignment missing');

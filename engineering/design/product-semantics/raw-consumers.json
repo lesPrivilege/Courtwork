@@ -374,5 +374,17 @@
     "disposition": "named-read",
     "reason": "Named read of the existing Core work-review projection; no accept/reject action is implied.",
     "semanticKeys": []
+  },
+  {
+    "file": "app/web/app.mjs",
+    "source": "action(module.kind === \"run\" ? \"activity\" : module.icon, module.kind === \"run\" ? \"Run details\" : module.title, () => {",
+    "disposition": "mapped-raw",
+    "reason": "Compact Chat Run entry uses the existing activity glyph; panel-right remains the shell panel toggle."
+  },
+  {
+    "file": "app/web/subagent-view.mjs",
+    "source": "const controls=el('div',{className:'spark-controls'});content.append(controls);controls.append(action('refresh-cw','Refresh task',()=>void guarded(async()=>{selected=null;await refresh();await detail(id);})));",
+    "disposition": "mapped-raw",
+    "reason": "Explicitly refreshes the selected assignment projection; does not retry execution."
   }
 ]
