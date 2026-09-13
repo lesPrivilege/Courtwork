@@ -6167,6 +6167,9 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .assistant-message-actions { display: flex; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); }
 .message .code-block, .attention-agent-message .code-block { background: var(--panel); color: var(--ink); border-color: var(--line-strong); }
 .message .code-toolbar, .attention-agent-message .code-toolbar { background: var(--panel-muted); color: var(--muted-strong); }
+/* Chat code uses the same neutral fill as diff removal marks. Keep the
+   authored user-message plane on its own paired foreground/background. */
+.message.assistant .code-block, .attention-agent-message.is-assistant .code-block { background: var(--selected); }
 
 /* ==== tier:S · authored reading plane · neutral dark in both themes ==== */
 :root { --authored-base-s: #202426; --authored-raised-s: #303638; --authored-ink-s: #f5f7f8; --authored-muted-s: #c8cdd0; --authored-line-s: #596267; }

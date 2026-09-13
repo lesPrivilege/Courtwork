@@ -58,6 +58,12 @@ The latest context applies; older context is historical and grants no permission
 Workspace files become model input only through tools. Permission enforcement
 remains in the tool implementations.
 
+Hiding or replacing a source changes subsequent Run bindings and callable tools;
+it does not erase source bodies or tool results already loaded into native history.
+Pi may retain or summarize that history during later compaction. Historical text
+does not grant current capabilities. These controls do not implement history
+erasure or guarantee removal of prior content from later summaries.
+
 Pi owns conversation JSONL, summary generation, retry and the tool loop. The
 adapter tracks asynchronous host event writes because AgentSession's public
 event emitter does not await subscribers. A Run settles after primary event

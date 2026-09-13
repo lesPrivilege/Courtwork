@@ -73,3 +73,7 @@ Skin 管获准外观，Review 管稳定待决语义；相同scheme下切skin不�
 ### 信息层与页面编排接续（2026-09-13）
 
 新增或调整二/三级面，在原变更记录中补充任务骨架、文本作用与默认/上下文/技术披露层；参照[编排选择表](../ui-composition-standard.md#信息预算与跨面编排2026-09-13)和[文案审计标记](../copy-convention.md#信息架构审计标记2026-09-13)。它们扩展既有审阅，不建立全库自动接受门。版本、授权范围/后果、未知与失败按任务承重，不能按技术字段黑名单隐藏；字体也不能按源格式一刀切。
+
+### Attention 与多视图接续（2026-09-13）
+
+[增量采用记录](../frontend-audit-2026-09-13/attention-consumption.md)将对象/query/projection分离落在原owner上：列表扫描、详情判断；视图不产生状态或跨页排序保证。Board需真实分组与任务，拖拽需合法typed action；Time需日期查询/覆盖，due_at不等于调度器。Core acknowledge仅置seen，resolve不批准外部效果。现有typed actions已交付，后续沿原Attention工单，不按历史只读索引重复施工。

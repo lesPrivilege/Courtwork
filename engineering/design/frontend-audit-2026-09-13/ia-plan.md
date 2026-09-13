@@ -24,3 +24,7 @@ L1操作、L2上下文、L3技术是审计标记，按当前任务分层。版�
 ## 回归规则的采用边界
 
 新增/修改二三级面应在变更记录声明floorplan、文本作用与披露层。先建立有限、可复核的surface清单；不把本轮有限扫描冒称全库每条动态字符串均已分类。CI只守可机械判断的不变量，不以句子数、字段黑名单或模板配额代替语义审阅。
+
+## Attention 增量接续
+
+再次读取同一对话取得新增轮次及Tasktori附件，见[采用与后续顺序](attention-consumption.md)。已实现的List–Detail/状态查询/typed actions继续作为先例；Board/Time、saved views及来源/外部效果按原owner与缺口推进。

@@ -148,10 +148,10 @@
 | grammar entry | [attention-triage-2026-09-10](../attention-triage-2026-09-10/README.md)、[attention-surface-2026-09-09](../attention-surface-2026-09-09) |
 | nearest local precedent | [WO-ATT-FE01.md](../../mvp/execution/work-surface-kit/work-orders/WO-ATT-FE01.md)、[app/web/attention-view.mjs](../../../app/web/attention-view.mjs) |
 | verification entry | [evidence/attention-agent-20260910](../../../evidence/attention-agent-20260910)、[evidence/attention-independent-20260909](../../../evidence/attention-independent-20260909) |
-| status | `canonical`（仅已裁Attention合同与现有只读registry/detail） |
+| status | `canonical`（Core合同、registry/detail及已交付typed triage actions；见[独立回执](../../../evidence/delivery-rollup-20260910/attention/independent-verification.md)） |
 | do_not_infer | Priority score；批量动作；email 状态；GitHub 状态；超出 owner fact 的 scheduled snooze 语义 |
-| deferred scope | typed triage actions前端、批量与未获准入口反转；后端广告不是前端交付证据 |
-| next_if_missing | 实施时按钮只由 `human_actions` 广告生成；常驻入口的反转仍待确认，不在同一 PR 偷改 |
+| deferred scope | 批量、saved views、density、scheduler、grant/关系编辑与proposal；[增量消费](../frontend-audit-2026-09-13/attention-consumption.md)记录Board/Time准入 |
+| next_if_missing | 按钮继续只由 `human_actions` 广告生成；入口反转已由WO-ATT-FE01执行回执确认，勿按旧稿重复施工 |
 
 ## 4. Projection（如何读）
 
