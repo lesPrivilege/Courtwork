@@ -115,7 +115,7 @@ test("Spark, Attention and Chat seats and the Settings groups carry their regist
     assert.ok(productSemantics.entries.some((e) => e.semanticKey === `settings.${id}` && e.glyphRef), `settings.${id} registered with a glyph`);
 });
 
- test("Plugins and Models use distinct established object silhouettes", () => {
+test("Plugins and Models use distinct established object silhouettes", () => {
   const plugin = productSemantics.entries.find(entry => entry.semanticKey === "plugin.object");
   const model = productSemantics.entries.find(entry => entry.semanticKey === "settings.models");
   assert.equal(plugin.glyphRef, "puzzle");

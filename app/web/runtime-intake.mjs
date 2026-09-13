@@ -1,13 +1,14 @@
 import { el } from './ui-controls.mjs';
 
-const titles = { mcp_server: 'MCP server', skill: 'Skill' };
+const titles = { mcp_server: 'MCP server', skill: 'Skill', instruction: 'Instruction', reference: 'Reference', prompt_template: 'Prompt template' };
+const contextKinds = ['skill', 'instruction', 'reference', 'prompt_template'];
 const scopeKey = scope => scope ? `${scope.type}:${scope.id}` : '';
 
 /** Local drafts only. Validation and every saved value come from the Host.
  * The parent retains the configuration queue, CAS and session boundary. */
 export function createRuntimeIntake({ request, getContext, submit, render, onSaved }) {
   const drafts = new Map();
-  let epoch = 0;
+  let epoch = 0, contextKind = "skill";
   const contextKey = kind => {
     const { sessionId, scope } = getContext();
     return `${sessionId || ''}/${scopeKey(scope)}/${kind}`;
@@ -15,7 +16,7 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
   function draftFor(kind) {
     const key = contextKey(kind);
     if (!drafts.has(key)) drafts.set(key, {
-      key, kind, open: false, id: `local:${kind === 'mcp_server' ? 'mcp' : 'skill'}-${crypto.randomUUID().slice(0, 8)}`,
+      key, kind, open: false, id: `local:${kind === 'mcp_server' ? 'mcp' : kind.replaceAll('_', '-')}-${crypto.randomUUID().slice(0, 8)}`,
       title: '', url: '', protocol: '2026-07-28', content: '', preview: null,
       error: '', pending: false, message: '', editing: false, token: 0, supportingFiles: [], folderName: null,
     });
@@ -76,7 +77,7 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
     if (done) {
       draft.open = false;
       draft.preview = null;
-      draft.message = draft.kind === 'mcp_server' ? 'Saved. Connect to discover this server’s capabilities.' : 'Saved. Use its exposure switch when you want the model to discover this skill.';
+      draft.message = draft.kind === 'mcp_server' ? 'Saved. Connect to discover this server’s capabilities.' : 'Saved. Exposure remains a separate setting.';
       drafts.delete(draft.key);
       onSaved?.(resource);
     } else draft.error = 'Not saved. Your draft is kept here. Review the error and retry explicitly.';
@@ -115,24 +116,40 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
     input.addEventListener(options ? 'change' : 'input', () => { draft[key] = input.value; changed(draft); });
     return el('label', { className: 'runtime-intake-field' }, el('span', { text: label }), input);
   }
-  function view(kind) {
+  function view(kind, { contextPicker = false } = {}) {
     const draft = draftFor(kind), { scope, disabled } = getContext();
     const label = titles[kind];
     const box = el('section', { className: 'runtime-intake', attrs: { 'data-intake': kind } });
-    const toggle = el('button', { className: 'text-button', text: draft.open ? `Close ${label} editor` : `Add ${label}`, attrs: {
+    const toggle = el('button', { className: 'text-button', text: contextPicker ? (draft.open ? "Close resource editor" : "Add resource") : draft.open ? `Close ${label} editor` : `Add ${label}`, attrs: {
       type: 'button', 'aria-expanded': String(draft.open), 'data-focus-key': `intake:${kind}:toggle`,
     } });
     toggle.disabled = !scope || disabled || draft.pending;
     toggle.addEventListener('click', () => { draft.open = !draft.open; render(); });
     box.append(toggle);
     if (!draft.open) return box;
+    if (contextPicker) {
+      const type = el('select', { attrs: { 'aria-label': 'Resource type', 'data-focus-key': 'intake:context:type' } });
+      for (const candidate of contextKinds) type.append(el('option', { text: titles[candidate], attrs: { value: candidate } }));
+      type.value = kind;
+      type.disabled = disabled || draft.pending || draft.editing;
+      type.addEventListener('change', () => {
+        if (!contextKinds.includes(type.value)) return;
+        const container = box.parentNode;
+        draft.open = false;
+        contextKind = type.value;
+        draftFor(contextKind).open = true;
+        render();
+        container?.querySelector('[data-focus-key="intake:context:type"]')?.focus({ preventScroll: true });
+      });
+      box.append(el('label', { className: 'runtime-intake-field' }, el('span', { text: 'Resource type' }), type));
+    }
     box.append(el('p', { className: 'form-help', text: `${draft.editing ? 'Editing' : 'Saving in'} the ${scope.type} scope.${draft.editing ? ' Its ID and owning scope stay fixed.' : ' The resource is saved with exposure off.'}` }),
       field(draft, 'title', `${label} name`));
     if (kind === 'mcp_server') {
       box.append(field(draft, 'url', 'MCP endpoint URL'), field(draft, 'protocol', 'MCP protocol', { options: [
         ['2026-07-28', '2026-07-28'], ['legacy-2025', 'Legacy 2025'],
       ] }), el('p', { className: 'form-help', text: 'Streamable HTTP, without authentication. Remote endpoints require HTTPS; HTTP is allowed for loopback. Saving does not connect or call tools.' }));
-    } else {
+    } else if (kind === 'skill') {
       const file = el('input', { attrs: { type: 'file', accept: '.md,text/markdown,text/plain', 'aria-label': 'Choose SKILL.md', 'data-focus-key': 'intake:skill:file' } });
       file.disabled = disabled || draft.pending;
       file.addEventListener('change', () => void readFile(draft, file));
@@ -144,6 +161,7 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
         field(draft, 'content', 'SKILL.md content', { multiline: true }),
         el('p', { className: 'form-help', text: 'Imports the instruction file. Scripts and supporting files are not imported or executed. Requested tools remain subject to host policy.' }));
     }
+    if (contextKinds.includes(kind) && kind !== 'skill') box.append(field(draft, 'content', `${label} content`, { multiline: true }));
     if (draft.supportingFiles.length) box.append(el('p', { className: 'form-help', text: `Supporting files found, not imported: ${draft.supportingFiles.join(' · ')}` }));
     box.append(el('details', { className: 'runtime-intake-advanced', attrs: { 'data-runtime-disclosure': `intake-identity:${draft.key}` } }, el('summary', { text: 'Resource identity' }), field(draft, 'id', `${label} ID`)));
     const actions = el('div', { className: 'runtime-row-actions' });
@@ -157,7 +175,7 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
       const declared = result.capabilities?.declared || {};
       for (const [key, value] of Object.entries(declared)) dl.append(el('dt', { text: key }), el('dd', {}, el('span', { text: typeof value === 'string' ? value : JSON.stringify(value) })));
       box.append(el('div', { className: 'runtime-intake-preview' }, el('h5', { text: 'Configuration checked' }), dl,
-        el('p', { className: 'form-help', text: kind === 'mcp_server' ? 'Syntax is valid. Server identity and capabilities are checked only when you connect.' : 'Metadata is valid. This does not grant the skill any tool permissions.' })));
+        el('p', { className: 'form-help', text: kind === 'mcp_server' ? 'Syntax is valid. Server identity and capabilities are checked only when you connect.' : kind === 'skill' ? 'Metadata is valid. This does not grant the skill any tool permissions.' : 'Source is valid. Saving does not enable it for the model.' })));
       const button = el('button', { className: 'primary-button', text: draft.editing ? 'Save changes' : `Save ${label}`, attrs: { type: 'button', 'data-focus-key': `intake:${kind}:save` } });
       button.disabled = disabled || draft.pending;
       button.addEventListener('click', () => void save(draft));
@@ -167,10 +185,11 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
     if (draft.error) box.append(el('p', { className: 'inline-error', text: draft.error, attrs: { role: 'alert' } }));
     return box;
   }
-  return { view, reset() { epoch++; drafts.clear(); },
+  return { view, viewContext() { return view(contextKind, { contextPicker: true }); }, reset() { epoch++; drafts.clear(); contextKind = "skill"; },
     async edit(resource) {
       const context = getContext();
       if (!sameScope(resource.scope, context.scope) || context.disabled) return;
+      if (contextKinds.includes(resource.kind)) contextKind = resource.kind;
       const draft = draftFor(resource.kind), ownEpoch = epoch;
       draft.open = true; draft.pending = true; draft.error = ''; render();
       try {

@@ -996,7 +996,7 @@ export function createRuntimeView(
       button.addEventListener("click", () => void explainPermission(resource.id));
       bar.append(button);
     }
-    if (["mcp_server", "skill"].includes(resource.kind) && resource.id.startsWith("local:") && sameScope(resource.scope, activeScope())) {
+    if (["mcp_server", ...CONTEXT_KINDS].includes(resource.kind) && resource.id.startsWith("local:") && sameScope(resource.scope, activeScope())) {
       const edit = el("button", { className: "text-button", text: "Edit configuration", attrs: { type: "button", "data-focus-key": `edit:${resource.id}` } });
       edit.disabled = busy || frozen();
       edit.addEventListener("click", async () => { await intake.edit(resource); pendingFocus = `intake:${resource.kind}:title`; render(); });
@@ -1784,7 +1784,7 @@ export function createRuntimeView(
         "Instructions, skills, references and prompt templates. Four different admissions: an instruction is injected into every run, a skill or reference is listed in the catalog and its body loads only on demand, and a template contributes nothing until you invoke it and it returns a draft.",
       ),
       ...scopeStrip({ where: "instructions" }),
-      intake.view("skill"),
+      intake.viewContext(),
       ...[kindChips("instructions", CONTEXT_KINDS)].filter(Boolean),
     );
     const resources = (snapshot.resources || []).filter((resource) =>
@@ -2018,7 +2018,7 @@ export function createRuntimeView(
       ),
     );
     if (!packages.length) {
-      wrap.append(note("No package is installed."));
+      wrap.append(note("No MCP server is configured."));
       return wrap;
     }
     const table = el("table", { className: "settings-table runtime-inventory-table" });

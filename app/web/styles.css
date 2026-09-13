@@ -6673,7 +6673,8 @@ html[data-theme="dark"] {
 .runtime-intake-field { display: grid; gap: var(--space-2); min-width: 0; }
 .runtime-intake-field > span { font-size: var(--text-meta); color: var(--ink); }
 .runtime-intake-field input, .runtime-intake-field select, .runtime-intake-field textarea { width: 100%; min-width: 0; }
-.runtime-intake-field textarea { resize: vertical; font-family: var(--font-mono); font-size: var(--text-meta); }
+.runtime-intake-field textarea { resize: vertical; font-family: inherit; font-size: var(--text-meta); }
+.runtime-intake[data-intake="skill"] textarea { font-family: var(--font-mono); }
 .runtime-intake-preview { display: grid; gap: var(--space-2); }
 .runtime-intake-preview h5 { margin: 0; font-size: var(--text-meta); }
 

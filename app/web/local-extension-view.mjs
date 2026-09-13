@@ -11,7 +11,10 @@ export function createLocalExtensionView(mount, { request, onRegistered, disable
     toggle.disabled = pending || disabled();
     toggle.addEventListener('click', () => { expanded = !expanded; render(); });
     mount.append(toggle);
-    if (!expanded) return;
+    if (!expanded) {
+      if (focus) toggle.focus({ preventScroll: true });
+      return;
+    }
     const input = el('input', { attrs: { 'aria-label': 'Local Plugin folder', placeholder: '/absolute/path/to/extension', 'data-local-field': 'path' } });
     input.value = directory; input.disabled = pending || disabled();
     input.addEventListener('input', () => { directory = input.value; preview = null; trusted = false; generation++; error = ''; render(); });

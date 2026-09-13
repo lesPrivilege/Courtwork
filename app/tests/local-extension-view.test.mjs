@@ -22,3 +22,21 @@ test('Changing a reviewed local path clears the visible trust and registration c
   assert.deepEqual(requests.map(r => r.path), ['/extensions/preview-local']);
   view.render(); assert.equal(node('path').value, '/synthetic/two');
 }));
+
+test('Closing the local extension editor retains focus on its collapsed entry', () => withTinyDom(async body => {
+  const mount = document.createElement('div'); body.append(mount);
+  const replace = mount.replaceChildren.bind(mount);
+  mount.replaceChildren = (...children) => {
+    if (mount.contains(document.activeElement)) body.focus();
+    replace(...children);
+  };
+  const view = createLocalExtensionView(mount, { request: async () => { throw new Error('No request expected'); } });
+  const toggle = () => mount.querySelector('button');
+  toggle().focus(); toggle().click();
+  assert.equal(toggle().getAttribute('aria-expanded'), 'true');
+  toggle().focus(); toggle().click();
+  assert.equal(toggle().getAttribute('aria-expanded'), 'false');
+  assert.equal(document.activeElement, toggle());
+  view.render();
+  assert.equal(document.activeElement, toggle(), 'a collapsed refresh preserves the same focus target');
+}));

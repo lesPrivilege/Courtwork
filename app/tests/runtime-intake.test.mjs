@@ -4,11 +4,11 @@ import { createRuntimeIntake } from '../web/runtime-intake.mjs';
 import { deferred, waitFor, withTinyDom } from './tiny-dom.mjs';
 import { boot, reopen } from './helpers.mjs';
 
-function fixture(body, { resolve, save = async () => true } = {}) {
+function fixture(body, { resolve, save = async () => true, contextEditor = false } = {}) {
   let context = { sessionId: 'a', scope: { type: 'session', id: 'a' }, disabled: false, resources: [] };
   const sent = [], checked = [];
   let intake;
-  const render = () => body.replaceChildren(intake.view('mcp_server'), intake.view('skill'));
+  const render = () => body.replaceChildren(intake.view('mcp_server'), contextEditor ? intake.viewContext() : intake.view('skill'));
   intake = createRuntimeIntake({
     request: async (path, options) => { checked.push({ path, ...options }); return resolve ? resolve(options.body) : { status: 'resolved', disposition: 'inspect-only', capabilities: { declared: {} } }; },
     getContext: () => context,
@@ -97,3 +97,60 @@ test('Skill file reads invalidate previews even when a later directory selection
   assert.ok(body.textContent.includes('SKILL.md at its root'));
   assert.equal(h.sent.length, 0);
 }));
+
+for (const kind of ['instruction', 'reference', 'prompt_template']) {
+  test(`${kind} shares the reviewed, unexposed intake path without Skill-only fields`, () => withTinyDom(async body => {
+    const h = fixture(body, { contextEditor: true });
+    h.node('intake:skill:toggle').click();
+    const selector = h.node('intake:context:type');
+    selector.value = kind; selector.dispatchEvent({ type: 'change' });
+    assert.equal(h.node('intake:skill:file'), undefined);
+    h.fill(kind, 'title', `Fixture ${kind}`);
+    h.fill(kind, 'content', `Synthetic ${kind} content.`);
+    h.node(`intake:${kind}:review`).click();
+    await waitFor(() => h.node(`intake:${kind}:save`));
+    assert.equal(h.checked[0].body.kind, kind);
+    h.node(`intake:${kind}:save`).click();
+    await waitFor(() => h.sent.length === 1);
+    assert.equal(h.sent[0].resource.kind, kind);
+    assert.equal(h.sent[0].resource.content, `Synthetic ${kind} content.`);
+    assert.equal(h.sent[0].exposed, false);
+    assert.deepEqual(h.sent[0].resource.scope, { type: 'session', id: 'a' });
+  }));
+}
+
+test('Switching resource types keeps independent drafts and cannot reuse another type preview', () => withTinyDom(async body => {
+  const h = fixture(body, { contextEditor: true });
+  h.node('intake:skill:toggle').click();
+  const select = kind => { const selector = h.node('intake:context:type'); selector.value = kind; selector.dispatchEvent({ type: 'change' }); };
+  select('instruction'); h.fill('instruction', 'content', 'Keep this draft'); h.fill('instruction', 'title', 'Instruction');
+  h.node('intake:instruction:review').click(); await waitFor(() => h.node('intake:instruction:save'));
+  select('reference');
+  assert.equal(h.node('intake:reference:save'), undefined);
+  assert.equal(h.node('intake:reference:content').value, '');
+  select('instruction'); assert.equal(h.node('intake:instruction:content').value, 'Keep this draft');
+  h.intake.reset(); h.render(); h.node('intake:skill:toggle').click(); select('instruction');
+  assert.equal(h.node('intake:instruction:content').value, '');
+  assert.equal(h.node('intake:instruction:save'), undefined);
+}));
+
+test('Text resource intake resolves and persists all three kinds without model admission', async () => {
+  const h = await boot();
+  try {
+    let revision = (await h.api('GET', '/runtime-control')).json.revision;
+    for (const kind of ['instruction', 'reference', 'prompt_template']) {
+      const source = { kind, title: `Synthetic ${kind}`, content: `Recorded ${kind} source` };
+      const checked = await h.api('POST', '/runtime-sources/resolve', { type: 'inline', ...source });
+      assert.equal(checked.status, 200);
+      assert.equal(checked.json.status, 'resolved');
+      const id = `local:context-${kind.replaceAll('_', '-')}`;
+      const saved = await h.api('PUT', '/runtime-control', { revision, operation: 'put', resource: { id, ...source, scope: { type: 'user', id: 'local' } }, exposed: false });
+      assert.equal(saved.status, 200);
+      revision = saved.json.revision;
+      const descriptor = saved.json.resources.find(resource => resource.id === id);
+      assert.equal(descriptor.kind, kind);
+      assert.equal(descriptor.exposed, false);
+      assert.equal((await h.api('GET', `/runtime-resources/${encodeURIComponent(id)}`)).json.content, source.content);
+    }
+  } finally { await h.runtime.close(); }
+});
