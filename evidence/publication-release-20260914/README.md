@@ -47,9 +47,9 @@ Astra visually checked these four views and observed no horizontal overflow at t
 - `node site/scripts/check-figures.mjs`: passed, no figure problems.
 - `node --test site/scripts/public-data.test.mjs site/scripts/capture-plan.test.mjs`: 5/5 passed.
 - `node site/scripts/check-links.mjs`: passed; 188 built files and 296 local references, no problems.
-- `node tools/check-doc-links.mjs`: passed; 1,277 documents, 7,224 links, no problems at the final check.
+- `node tools/check-doc-links.mjs`: passed; 1,310 documents, 7,292 links, no problems.
 - The actual manifest also passed `validateCaptureBatch(..., { publish: true })`: all 13 slots have one light/dark pair with matching state IDs and source SHA.
-- `node site/scripts/check-capture-ready.mjs` is intentionally deferred. At verification time local `main` was `5d9cf51b628aef30ac9ceb141b624c2793ac6213`, so the captured source was not yet its ancestor. Rerun this guard after `fd96f96bc40725e301a4c92e0f2f50fd3245458c` is fast-forwarded to `main`.
+- `node site/scripts/check-capture-ready.mjs`: passed after fast-forward. `main` and the candidate worktree were both at `ed015c1f291728278f7fb5bf087a4f629a26db10`; the main worktree was clean. The guard reported `Screenshot batch ready.`
 
 ## Review scope and limits
 

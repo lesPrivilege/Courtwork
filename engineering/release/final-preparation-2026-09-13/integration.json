@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "integration": "main-fast-forward-and-preservation",
+  "candidate": {
+    "branch": "codex/release-final-20260913",
+    "head": "ed015c1f291728278f7fb5bf087a4f629a26db10",
+    "capture_batch_source_sha": "fd96f96bc40725e301a4c92e0f2f50fd3245458c"
+  },
+  "main": {
+    "source_head_before_fast_forward": "5d9cf51b628aef30ac9ceb141b624c2793ac6213",
+    "head_after_fast_forward": "ed015c1f291728278f7fb5bf087a4f629a26db10",
+    "working_tree": "clean"
+  },
+  "preservation": {
+    "manifest": "engineering/release/final-preparation-2026-09-13/retained-worktree-inputs/preservation.json",
+    "manifest_sha256": "d33900b30838590505f3c19e7ea7401b0e4c890fe51edc5a73a13cf00b5e9ca6",
+    "backup_label": "cw-main-retained-backup-20260914-2rc2q7or",
+    "backup_location": "temporary directory outside the repository on the integration host",
+    "manifest_entries": 62,
+    "original_status_counts": {
+      " M": 2,
+      "??": 60
+    },
+    "backup_receipt_sha256": "8234a16d3edccfece2c8fdb5531fcf83d9c0453516dddbe87753c698b92cf8a9",
+    "verification": {
+      "backup_file_set_matches_manifest_plus_receipt": true,
+      "backup_hashes_and_sizes_match_manifest": true,
+      "candidate_head_target_blobs_match_manifest": true,
+      "main_head_target_blobs_match_manifest": true,
+      "main_worktree_target_bytes_match_manifest": true,
+      "verified_backup_files": 62
+    }
+  },
+  "checks": {
+    "capture_ready": {
+      "command": "node site/scripts/check-capture-ready.mjs",
+      "exit_code": 0,
+      "result": "Screenshot batch ready."
+    },
+    "documentation_links": {
+      "command": "node tools/check-doc-links.mjs",
+      "exit_code": 0,
+      "documents": 1310,
+      "links_checked": 7292,
+      "problems": 0
+    }
+  }
+}
