@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Runtime 详情层级候选
+
+[施工与证据](design/frontend-audit-2026-09-13/runtime-hierarchy/README.md)：继承已目验Settings容器，详情独立阅读、单层源码滚动、重绘保留阅读位置与焦点；长源码shell溢出及窄屏标题已修复。Astra作者与Luna非作者复核分列，用户目验待回执。仍在独立分支，未合main/部署。[开发者控制面板参考](research/developer-control-panel-2026-09-13/README.md)另行核对登记，不冒充adapter闭环交付。
+
 ## 2026-09-13 · Settings M1 用户目验通过
 
 用户已接受`4833e11`的Settings实色连续配置面，并授权下一单；[回执](design/frontend-audit-2026-09-13/hierarchy-polish/acceptance.md)。后续接原队列Runtime对象详情层级，保留本片已接受容器；仍在独立分支，未合main/发布，不扩大完整可访问性声明。

@@ -591,7 +591,7 @@ export function createRuntimeView(
     const configurable = resource.configurable && scope && !frozen();
     // The authoritative effective value, never a value the page reconstructs.
     const value = Boolean(resource.exposed);
-    const id = `rc-switch-${resource.id.replace(/[^a-z0-9]+/gi, "-")}`;
+    const id = `rc-switch-${encodeURIComponent(resource.id)}`;
     const input = el("input", {
       attrs: {
         type: "checkbox",
@@ -995,7 +995,7 @@ export function createRuntimeView(
    * the permission trace, the descriptor and the recorded source. */
   function resourceRow(resource, { child = false, readOnly = false } = {}) {
     const scope = activeScope();
-    const detailId = `rc-detail-${resource.id.replace(/[^a-z0-9]+/gi, "-")}`;
+    const detailId = `rc-detail-${encodeURIComponent(resource.id)}`;
     const expanded = open.has(resource.id);
     const chevron = icon(expanded ? "chevron-down" : "chevron-right");
     const item = contextItemFor(resource.id);
@@ -1005,6 +1005,7 @@ export function createRuntimeView(
         className: "runtime-row-title",
         attrs: {
           type: "button",
+          id: `${detailId}-title`,
           "aria-expanded": String(expanded),
           "aria-controls": detailId,
           "data-focus-key": `row:${resource.id}`,
@@ -1073,12 +1074,25 @@ export function createRuntimeView(
     if (resource.kind === "mcp_server" && !readOnly) row.append(mcpStateLine(resource));
     const detail = el("div", {
       className: "runtime-detail",
-      attrs: { id: detailId, hidden: expanded ? null : "" },
+      attrs: {
+        id: detailId,
+        hidden: expanded ? null : "",
+        role: "group",
+        "aria-labelledby": `${detailId}-title`,
+        tabindex: 0,
+        "data-focus-key": `detail:${resource.id}`,
+      },
     });
     if (expanded) {
       if (compactTool) detail.append(el('div', {className:'runtime-dimensions'}, ...lifecycle));
       if (resource.description)
         detail.append(el("p", { className: "runtime-description", text: resource.description }));
+      // Inspection actions and their read-only answers share the entry of this
+      // bounded reader; opening one must not reveal its answer below the fold.
+      detail.append(...[rowActions(resource)].filter(Boolean));
+      if (explanation?.resourceId === resource.id)
+        detail.append(explanationBlock());
+      detail.append(...[sourceInspector(resource)].filter(Boolean));
       detail.append(...[layerBlock(resource, scope), permissionDetail(resource), sourceDetail(resource)].filter(Boolean));
       if (Array.isArray(resource.diagnostics) && resource.diagnostics.length)
         detail.append(
@@ -1091,9 +1105,6 @@ export function createRuntimeView(
             ),
           ),
         );
-      detail.append(...[rowActions(resource), sourceInspector(resource)].filter(Boolean));
-      if (explanation?.resourceId === resource.id)
-        detail.append(explanationBlock());
     }
     row.append(detail);
     return row;
@@ -2371,8 +2382,19 @@ export function createRuntimeView(
       const mount = mounts[name];
       if (!mount) continue;
       if (polling && holdsTextEntry(mount)) continue;
+      // The object inspector has its own reading position. A snapshot or
+      // source response may replace its DOM, but must not restart that read.
+      const detailReading = new Map([...mount.querySelectorAll('.runtime-detail')]
+        .map(node => [node.getAttribute('id'), { top: node.scrollTop, left: node.scrollLeft }]));
       const disclosed = new Set([...mount.querySelectorAll('details[data-runtime-disclosure]')].filter(node => node.open).map(node => node.dataset.runtimeDisclosure));
       renderSection();
+      for (const node of mount.querySelectorAll('.runtime-detail')) {
+        const reading = detailReading.get(node.getAttribute('id'));
+        if (reading) {
+          node.scrollTop = reading.top;
+          node.scrollLeft = reading.left;
+        }
+      }
       for (const node of mount.querySelectorAll('details[data-runtime-disclosure]')) node.open = disclosed.has(node.dataset.runtimeDisclosure);
       if (frozen()) mount.setAttribute("data-frozen", "true");
       else mount.removeAttribute("data-frozen");
@@ -2393,7 +2415,7 @@ export function createRuntimeView(
       for (const mount of Object.values(mounts)) {
         const next = mount?.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
         if (next) {
-          next.focus();
+          next.focus({ preventScroll: next.classList.contains('runtime-detail') });
           break;
         }
       }

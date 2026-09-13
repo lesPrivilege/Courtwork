@@ -9,6 +9,7 @@ Runtime resources, permissions, context, model connections and MCP are composed 
 - [Acceptance and frontend handoff](acceptance.md)
 - [Independent Luna backend review](backend-review.md)
 - [Runtime R2 source inspection](source-resolver.md) — pure parser and authenticated inspect-only HTTP seam; no UI/model tool or locator acquisition
+- [Developer control panel intake](../../engineering/research/developer-control-panel-2026-09-13/README.md) — source review and adapter follow-up; not an implementation claim
 - [Typed control contract](../../app/runtime/control-contract.d.ts)
 
 ## Resource coverage

@@ -1,0 +1,19 @@
+{
+  "documentWidth": 390,
+  "reader": [
+    {
+      "extent": 17272,
+      "focused": true,
+      "height": 318,
+      "scroll": 298,
+      "scrollWidth": 322,
+      "width": 322
+    }
+  ],
+  "shell": {
+    "extent": 844,
+    "height": 844,
+    "scroll": 0
+  },
+  "width": 390
+}

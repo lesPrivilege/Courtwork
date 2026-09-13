@@ -4253,11 +4253,22 @@ court-symbol {
   color: var(--muted-strong);
 }
 .runtime-detail {
-  border-top: 1px solid var(--line);
-  padding-top: var(--space-2);
+  position: relative;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  padding: var(--space-4);
+  max-height: min(320px, 45dvh);
+  overflow: auto;
+  /* At the reader's edge, normal scroll chaining continues the resource list. */
+  scrollbar-gutter: stable;
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-4);
   min-width: 0;
+}
+.runtime-detail:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
 }
 .runtime-detail-block > h5,
 .runtime-loaded + h4,
@@ -4278,22 +4289,34 @@ court-symbol {
   font-size: var(--text-meta);
   line-height: 1.5;
   color: var(--muted-strong);
-  border-left: 2px solid var(--line-strong);
-  padding-left: var(--space-2);
 }
 .runtime-source {
   border-top: 1px solid var(--line);
   padding-top: var(--space-2);
 }
+.runtime-source .file-heading {
+  display: flex;
+  flex-wrap: wrap;
+}
 .runtime-source .file-heading h5 {
+  flex: 1 1 24ch;
   margin: 0;
   font-size: var(--text-reading);
+  text-transform: none;
+  letter-spacing: var(--tracking-heading);
+  color: var(--ink);
 }
 .runtime-source .file-document {
   margin-top: var(--space-3);
   padding-top: var(--space-3);
   max-height: 320px;
   overflow: auto;
+}
+/* Recorded source shares the object's reader rather than nesting a third
+   vertical scroller inside Settings and the resource detail. */
+.runtime-detail .runtime-source .file-document {
+  max-height: none;
+  overflow: visible;
 }
 .runtime-loaded-row {
   display: flex;

@@ -1,0 +1,35 @@
+✔ control: scope provenance, reset, CAS, and cross-session isolation survive restart (173.809ms)
+✔ control: active Run freezes config; retry preserves its original runtime binding (108.40075ms)
+✔ policy: last match within scope, outer ceilings and literal regex characters (0.364542ms)
+✔ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (325.611833ms)
+✔ policy: path denial reaches the executor; exposed write does not imply allowed write (483.630292ms)
+✔ policy: domain tools use the same execution gate, including exact arguments across approval (0.936875ms)
+✔ context: skill metadata is progressive, installed content grants no plugin/tool authority (189.05575ms)
+✔ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (327.794625ms)
+✔ control config: corrupt or future version fails closed without overwriting the file (125.279625ms)
+✔ compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (104.664083ms)
+✔ MCP modern: discovery is separate from exposure and execution consent (431.657542ms)
+✔ MCP legacy: discovery is separate from exposure and execution consent (826.462542ms)
+✔ MCP: first unknown outcome closes subsequent tool admission in the same Run (500.774792ms)
+✔ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (658.873541ms)
+✔ admission serializes permission changes and extension binding before runtime snapshots can diverge (768.467666ms)
+✔ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (88.061959ms)
+✔ Runtime detail retains each object reading position and focus through a snapshot refresh (16.749625ms)
+✔ Late recorded-source completion preserves the currently read object position (9.788334ms)
+✔ Changing Session does not carry an old object reading position into the new context (8.535583ms)
+✔ Permission explanation remains before an already opened long recorded source (15.29225ms)
+✔ Distinct legal resource IDs keep independent DOM relationships and reading positions (8.393167ms)
+✔ runtime projection: parent/profile gates are explanations, not removable overrides (0.8325ms)
+✔ runtime projection: historical counts stay partial; new catalogs count admitted text only (0.686667ms)
+✔ attention: a healthy snapshot produces an empty list, not a hidden one (1.665083ms)
+✔ attention: health, diagnostics, ask permissions, trust and missing ids each raise one entry (0.320208ms)
+✔ contrast: the ratio is WCAG 2.x and the extremes are exact (0.14025ms)
+✔ contrast: the browser warning checks exactly the build report pairs (0.611375ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6230.481666
