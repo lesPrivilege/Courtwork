@@ -28,6 +28,28 @@ export function candidateBasis(candidate, matter) {
   return {current:reasons.length === 0,reasons};
 }
 
+// Compact the already-authorized surface, including domain restrictions. This
+// is a read snapshot, not a decision descriptor or a second pending-work store.
+export function workReviewSummary(projection) {
+  const matter = projection?.matter;
+  if (!matter || typeof matter.id !== 'string' || !Number.isSafeInteger(matter.version)
+    || !Number.isSafeInteger(matter.source_version) || typeof matter.contract_version !== 'string'
+    || typeof projection.stateVersion !== 'string' || !Array.isArray(projection.candidates)) return null;
+  const pending = projection.candidates.filter(candidate => candidate.status === 'pending');
+  const reviewable = new Set((projection.readOnly !== false ? [] : projection.humanActions ?? [])
+    .filter(action => action.action === 'decide')
+    .map(action => action.payloadSchema?.properties?.candidate_id?.const));
+  return {
+    matterId: matter.id, title: projection.title ?? '', version: matter.version,
+    sourceVersion: matter.source_version, contractVersion: matter.contract_version,
+    stateVersion: projection.stateVersion, readOnly: projection.readOnly !== false,
+    pendingCount: pending.length,
+    stalePendingCount: pending.filter(candidate => !candidateBasis(candidate, matter).current).length,
+    reviewableCount: pending.filter(candidate => reviewable.has(candidate.id)).length,
+    acceptedArtifactId: projection.artifact?.id ?? null,
+  };
+}
+
 export function workProjection(view, { extension, writable = false, contractVersion = null, revisionProposalSchema = MEMO_PROPOSAL_SCHEMA } = {}) {
   const candidates = view.candidates ?? [];
   const compatible = contractVersion === view.matter.contract_version

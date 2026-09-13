@@ -10,7 +10,7 @@ import { ATTENTION_TOOL_NAMES, createAttentionTools } from '../runtime/attention
 import { AsyncTasks, ASYNC_TOOL_NAMES } from './async-tasks.mjs';
 import { utcDateRange } from "./work-metrics.mjs";
 import { previewProvider, PreviewInputError } from './provider-preview.mjs';
-import { workProjection } from '../core/owner.mjs';
+import { workProjection, workReviewSummary } from '../core/owner.mjs';
 import { MCPManager } from "../runtime/mcp-manager.mjs";
 import { mkdir, writeFile, rename, stat, rm, open as openFile } from "node:fs/promises";
 import path from "node:path";
@@ -1396,6 +1396,17 @@ export class RuntimeService {
     // this contract; the generic fallback remains readable until ES-FE ships.
     return {extension: projection.contractVersion === 'se-file-memo-v1'
       ? {...record,surface:{...record.surface,module:null}} : record,projection};
+  }
+
+  async getReviewSummary(sessionId) {
+    const session = this.store.getSession(sessionId);
+    if (!session) throw new ServiceError(404, 'not_found', 'session not found');
+    const extensionId = session.extensionBinding?.extensionId ?? null;
+    const base = {schemaVersion: 1, sessionId, extensionId};
+    if (!extensionId) return {...base, status: 'unbound', summary: null};
+    const {projection} = await this.getSurface(sessionId);
+    const summary = workReviewSummary(projection);
+    return {...base, status: summary ? 'available' : 'unavailable', summary};
   }
 
   renameSession(sessionId, input) {

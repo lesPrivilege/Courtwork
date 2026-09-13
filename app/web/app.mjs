@@ -1,4 +1,5 @@
 import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";
+import { createWorkReviewSummary } from "./work-review-summary.mjs";
 import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";
 import {
   executionDisclosureMemberId,
@@ -968,6 +969,11 @@ function mergeEvents(events) {
     state.lastSeq,
   );
   if (changed) bumpSessionMutation(state.activeSessionId);
+  if (fresh.some(event => {
+    const type = normalizedType(event.type);
+    return type === "run/error" || type === "artifact/written" || type === "assistant/final"
+      || type === "run/status";
+  })) void workReviewSummaryView?.refresh();
   return changed;
 }
 
@@ -1733,6 +1739,7 @@ async function loadExtensions() {
   await invalidateSurfaceForExtensionChange(previousExtensions);
   renderExtensionList();
   renderBindingPanel();
+  await workReviewSummaryView?.refresh();
 }
 
 async function loadProviderConfig() {
@@ -2543,6 +2550,38 @@ let chatSourcesView = null;
 let chatSourcesSession = null;
 let chatSourcesEpoch = null;
 let chatSourcesBinding = null;
+let workReviewSummaryView = null;
+let workReviewSummarySession = null;
+let workReviewSummaryEpoch = null;
+let workReviewSummaryBinding = null;
+
+function workReviewSummaryFor(session) {
+  const binding = JSON.stringify(session.extensionBinding ?? null);
+  if (!session.extensionBinding) {
+    workReviewSummaryView?.destroy();
+    workReviewSummaryView = null;
+    workReviewSummarySession = null;
+    workReviewSummaryEpoch = null;
+    workReviewSummaryBinding = null;
+    return null;
+  }
+  if (workReviewSummarySession !== session.id || workReviewSummaryEpoch !== state.sessionEpoch
+    || workReviewSummaryBinding !== binding) {
+    workReviewSummaryView?.destroy();
+    workReviewSummarySession = session.id;
+    workReviewSummaryEpoch = state.sessionEpoch;
+    workReviewSummaryBinding = binding;
+    const ownEpoch = state.sessionEpoch;
+    workReviewSummaryView = createWorkReviewSummary({
+      session, request,
+      isCurrent: () => state.activeSessionId === session.id && state.sessionEpoch === ownEpoch
+        && JSON.stringify(currentSession()?.extensionBinding ?? null) === binding,
+      onOpenWork: opener => activateSurface("preview", opener),
+    });
+  }
+  return workReviewSummaryView;
+}
+
 function renderMessageStream() {
   const stream = $("message-stream");
   if (state.view === "home") {
@@ -2597,10 +2636,16 @@ function renderMessageStream() {
     state.runs,
     session.id,
   );
+  const reviewSummary = workReviewSummaryFor(session);
 
   if (!rows.length) {
     const active = currentRun();
     setJumpLatestVisible(false);
+    if (reviewSummary) {
+      const summaryList = element("div", { className: "message-list" });
+      summaryList.append(reviewSummary.root);
+      stream.append(summaryList);
+    }
     stream.append(
       element(
         "div",
@@ -3103,6 +3148,7 @@ function renderMessageStream() {
       for (const receipt of decisionReceiptRows(row.runId)) appendFlowRow(receipt);
     }
   }
+  if (reviewSummary) streamList.append(reviewSummary.root);
   if (!streamList.childElementCount) {
     streamList.append(
       element(
@@ -4683,15 +4729,17 @@ async function dispatchSurfaceAction(
      * its draft and receives the error, so it can say what was refused; the
      * host never replays the command (FN-19). */
     if (error?.name !== "AbortError" && Number.isFinite(error?.status) && error.status < 500)
-      await loadSurface(context.epoch);
+      await Promise.all([loadSurface(context.epoch), workReviewSummaryView?.refresh()]);
     throw error;
   }
   if (!guardForSurface(context))
     throw new Error("The work surface changed before the action completed.");
   invalidateSurfaceFetches();
   if (result.projection !== undefined) {
-    if (projectionsEqual(state.surface.projection, result.projection))
+    if (projectionsEqual(state.surface.projection, result.projection)) {
+      await workReviewSummaryView?.refresh();
       return result;
+    }
     if (!guardForSurface(context))
       throw new Error("The work surface changed before the projection update.");
     state.surface.projection = result.projection;
@@ -4730,6 +4778,7 @@ async function dispatchSurfaceAction(
   /* A committed decision changes what the conversation shows, so the receipt
    * half is re-read from the same authority that just answered. */
   await loadWorkReceipts(context.epoch, state.surface.projection);
+  await workReviewSummaryView?.refresh();
   return result;
 }
 
@@ -6437,6 +6486,7 @@ function wireEvents() {
   $("refresh-button").addEventListener("click", async () => {
     try {
       await refreshNavigationAndSession();
+      await workReviewSummaryView?.refresh();
       await loadExtensions();
       await loadProviderConfig();
       await loadHome();
@@ -6456,6 +6506,9 @@ function wireEvents() {
     } catch (error) {
       showToast(`Refresh failed: ${error.message}`, "error");
     }
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") void workReviewSummaryView?.refresh();
   });
   $("runtime-setup-button").addEventListener("click", (event) =>
     openSettings(state.settings.section, { trigger: event.currentTarget }),

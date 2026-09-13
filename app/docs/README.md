@@ -11,6 +11,7 @@
 ## 工作与运行投影
 
 - [Work summary](work-summary-api.md)：工作索引与摘要。
+- [Bound Core Review summary](work-review-summary.md)：会话绑定的Core待审计数、版本与只读边界。
 - [Activity 与 Usage](work-metrics.md)：已记录的运行指标。
 - [异步读取任务](async-tasks.md)：任务状态、取消、恢复与消费。
 - [Runtime Control Plane](../../docs/runtime-control/INDEX.md)：资源、策略、来源解析与 MCP。
