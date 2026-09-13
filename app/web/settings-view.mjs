@@ -450,8 +450,8 @@ export function renderConnectionCard(
         el("dt", { text: "Model" }),
         el("dd", { text: modelName }),
       ),
-      onChooseModel ? action("settings-2", "Choose model & effort", onChooseModel, { visible:true, className:"context-row" }) : null,
-      action("settings-2", "Change connection", onChangeConnection, {
+      onChooseModel ? action("settings-2", "Model & effort", onChooseModel, { visible:true, className:"context-row" }) : null,
+      action("settings-2", "Connections", onChangeConnection, {
         visible: true,
         className: "context-row",
       }),

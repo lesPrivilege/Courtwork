@@ -144,7 +144,7 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 | 用户词 | 它是什么 | 不用 |
 |---|---|---|
 | Models | 模块带上那一行的**对象名**：它标的是这一行通向哪一类设置 | Connections（那是 Settings › Models 里的段名）· Provider · LLM |
-| Manage connections | 通往 `Settings › Models` 的**目的地**。词组而不是单词：动作与对象各占一半，去掉任一半就指不出去哪里。它**不说**模型名——那件事 composer 底部的 chip 已经说过一次（WK-114 ⑤、§3 不发明第二套说法） | Configure · Edit · Models（与模块名重复）· Open settings |
+| Connections | Home 模块带页脚通往 `Settings › Models` 的连接列表；目的地名独立承重。2026-09-14 按用户裁定替代旧 `Manage connections`，当前页脚没有重复 Models 标题。 | Manage connections · Configure · Edit · Open settings |
 | Hide modules · Show modules | 折叠那条带。带没有自己的标题（消融记录见 text-sweep §12.3），所以控件自己说出它折的是什么；两个词随 `aria-expanded` 成对翻面 | Hide · Show · Collapse · Expand · ⌄ |
 
 **这条带上没有状态词。** 模块要么陈述一个今天已经加载的事实并因此承担它的六个显示状态，要么不安装；`Models` 这一行不陈述任何连接事实，所以它没有 loading / empty / stale 可写，也不写 `Backend pending` / `Coming soon` / `until BE-nn` 一类实现状态（WK-114 ③、WK-117 (b)）。准入合同见 [home-modules](../mvp/execution/work-surface-kit/contracts/home-modules.md)。
@@ -212,3 +212,9 @@ MCP 与策略设为 ask 的非写工具也沿既有 permission 事件请求一�
 | Retry / Refresh | Retry重新发起明确失败的操作；Refresh重新读取事实 | 写重试须保持scope/revision/幂等边界，不能偷偷重放未知外部效果 |
 
 常驻文本逐项执行删除检查：删掉后是否仍能识别对象、正确选择、知道状态/后果并恢复错误？能则删或按需披露；不能则保留最接近任务的一份。原生SVG可取代已建立的通用动作图形，仍须可访问名和等价触达；Matter、Spark、Attention等产品概念以及关键决定不能只剩难辨的图标。默认不再增加解释控件本身的句子，不影响必要的读屏提示。
+
+## 入口动词收敛 · 2026-09-14
+
+选择器与设置导航在对象名已足够时使用名词：Workspace、Connections、Model & effort、Tools、Permissions、Developer。控件的 role、展开状态与实际目的地继续说明交互；选中 workspace 保留完整对象名及可访问上下文。Save、Delete、Connect、New project、Hide/Show modules 等实际动作或状态变化保留必要动词。此裁定覆盖 §3.5b 旧 Manage connections 局部要求，非全局删动词规则。
+
+[本轮 Luna 审核、Astra 实现与截图](action-copy-cleanup-2026-09-14/README.md)同步登记 Workspace 二级卡片；选中状态仍由原 Home 草稿 owner 决定。

@@ -306,7 +306,7 @@ export function renderHomeModuleBand(container, options) {
     }
   }
   container.replaceChildren(el("div", { className: "home-module-band-inner" }, list,
-    el("div", { className: "home-module-footer" }, homeButton("Manage connections", onManageConnections, "home-module-models"), toggle)));
+    el("div", { className: "home-module-footer" }, homeButton("Connections", onManageConnections, "home-module-models"), toggle)));
   if (focusKey) {
     const target = container.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)
       ?? (/attention/i.test(focusKey) ? container.querySelector('.home-attention-project') :

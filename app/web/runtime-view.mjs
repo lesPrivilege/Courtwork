@@ -2130,11 +2130,11 @@ export function createRuntimeView(
       mount.append(section);
     }
     mount.append(el("p", { className: "form-help" },
-      el("a", { text: "Manage permissions", attrs: { href: "#settings/permissions" } })));
+      el("a", { text: "Permissions", attrs: { href: "#settings/permissions" } })));
     mount.append(el("details", { className: "runtime-kind", attrs: { "data-runtime-disclosure": "plugin-host-management" } },
       el("summary", { text: "Host extension management", attrs: { "data-focus-key": "plugin-host-management" } }),
       note("Local code registration, loading and recovery are managed by the host. Package updates and removal are not supported yet."),
-      el("a", { text: "Open Developer", attrs: { href: "#settings/developer" } })));
+      el("a", { text: "Developer", attrs: { href: "#settings/developer" } })));
   }
 
   /* ── Permissions & environment ─────────────────────────────────────── */
@@ -2431,9 +2431,9 @@ export function createRuntimeView(
       readOnlyRow("Runtime adapter", "Runs sessions and tools independently of the selected model.", environment.info?.adapterId || snapshot.adapterId || "Not reported"),
       note("Changing the provider or model keeps this runtime adapter. Tool exposure and permissions are configured separately."),
       el("div", { className: "runtime-row-actions" },
-        el("a", { className: "settings-jump", attrs: { href: "#settings/tools" }, text: "Manage tools" }),
-        el("a", { className: "settings-jump", attrs: { href: "#settings/permissions" }, text: "Review permissions" }),
-        el("a", { className: "settings-jump", attrs: { href: "#settings/developer" }, text: "Inspect runtime" }),
+        el("a", { className: "settings-jump", attrs: { href: "#settings/tools" }, text: "Tools" }),
+        el("a", { className: "settings-jump", attrs: { href: "#settings/permissions" }, text: "Permissions" }),
+        el("a", { className: "settings-jump", attrs: { href: "#settings/developer" }, text: "Developer" }),
       ),
     );
     const details = el('details', {className:'runtime-environment-details'}, el('summary',{text:'Saved model and host details'}), environmentFacts());

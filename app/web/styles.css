@@ -6545,7 +6545,7 @@ html[data-theme="dark"] {
 .chat-action-confirm p { margin: 0 0 var(--space-2); font-size: var(--text-meta); }
 .chat-action-confirm button + button { margin-left: var(--space-2); }
 .chat-actions-menu { position: fixed; inset: auto; margin: 0; width: min(260px, calc(100vw - 32px)); max-height: min(420px, 70dvh); overflow: auto; padding: var(--space-2); border: 1px solid var(--line-strong); border-radius: var(--radius-container); background: var(--float); color: var(--ink); box-shadow: var(--rim), var(--shadow-float); }
-.chat-actions-menu > button { display: flex; align-items: center; justify-content: flex-start; gap: var(--space-2); width: 100%; min-height: 36px; padding: var(--space-2); white-space: normal; text-align: left; }
+.chat-actions-menu > button, .chat-actions-menu > .workspace-options > button { display: flex; align-items: center; justify-content: flex-start; gap: var(--space-2); width: 100%; min-height: 36px; padding: var(--space-2); white-space: normal; text-align: left; }
 .assistant-message-actions .chat-action-row,
 .user-message-actions .chat-action-row { opacity: 1; }
 .user-message-actions .chat-action-row { justify-content: flex-end; }
@@ -6573,7 +6573,7 @@ html[data-theme="dark"] {
 }
 @media (hover: none), (pointer: coarse), (max-width: 767px) {
   .chat-action-row > .icon-only { width: 44px; min-width: 44px; height: 44px; }
-  .chat-actions-menu > button { min-height: 44px; }
+  .chat-actions-menu > button, .chat-actions-menu > .workspace-options > button { min-height: 44px; }
 }
 @media (forced-colors: active) {
   .chat-actions [aria-pressed="true"], .chat-actions [aria-checked="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
@@ -6692,7 +6692,11 @@ html[data-theme="dark"] {
   background: var(--float); color: var(--ink); box-shadow: var(--shadow-float);
   inset: auto; margin: 0;
 }
-.workspace-options, .draft-attachment-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.draft-attachment-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.workspace-options { display: flex; flex-direction: column; }
+.workspace-popover > #home-create-project { margin-top: var(--space-2); }
+.workspace-popover .workspace-options { padding-bottom: var(--space-2); border-bottom: 1px solid var(--line); }
+.workspace-choice-state { margin-left: auto; padding-left: var(--space-2); flex: 0 0 auto; font-size: var(--text-meta); color: var(--muted-strong); }
 .workspace-option { text-align: left; overflow-wrap: anywhere; }
 .workspace-option[aria-pressed="true"] { background: var(--selected); }
 .recent-section { flex: 0 0 auto; }

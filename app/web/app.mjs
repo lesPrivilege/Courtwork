@@ -5140,9 +5140,9 @@ function renderHomeComposerContext() {
   const project = $("home-project-button");
   const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId);
   const chosen = state.projects.find(p => p.id === homeProjectId());
-  project.textContent = chosen?.name || "Choose workspace";
-  project.title = chosen?.name || "Choose workspace";
-  project.setAttribute("aria-label", chosen ? `Workspace: ${chosen.name}` : "Choose workspace");
+  project.textContent = chosen?.name || "Workspace";
+  project.title = chosen?.name || "Workspace";
+  project.setAttribute("aria-label", chosen ? `Workspace: ${chosen.name}` : "Workspace");
   project.disabled = locked;
   homeAttachments?.render();
   $("home-permission-input").value = state.homePermissionMode;
@@ -6753,6 +6753,7 @@ function wireEvents() {
     for (const project of [{id:null,name:"No workspace"}, ...state.projects.filter(p=>!p.preview)]) {
       const button = element("button", {className:"quiet-button workspace-option", text:project.name,
         attrs:{type:"button","aria-pressed":String(project.id===homeProjectId())}});
+      if (project.id === homeProjectId()) button.append(el("span", { className: "workspace-choice-state", text: "Selected", attrs: { "aria-hidden": "true" } }));
       button.addEventListener("click",()=>{
         state.homeProjectId=project.id;storeHomeDraft();renderComposer();workspacePopover.hidePopover();workspaceButton.focus();
       }); choices.append(button);
