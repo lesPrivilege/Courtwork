@@ -1,0 +1,37 @@
+{
+  "package": "claude-fakesnews-report-handoff-2026-09-11",
+  "status": "prepared-not-run",
+  "observedAt": "2026-09-11",
+  "timezone": "Asia/Singapore",
+  "sourceConversation": {
+    "threadId": "6aa3cac2-0b64-83ec-86d3-f4556e2bee0e",
+    "title": "绘制品牌图标 SVG",
+    "sourceUse": "User-authored creative and editorial input; not independent evidence"
+  },
+  "projectBaseline": "Courtwork main@2337ada33f1d59543c33ac9e98fcacc5a9e34d21",
+  "allowedFiles": [
+    "CLAUDE-WORK-GUIDE.md",
+    "network-policy.json",
+    "manifest.json",
+    "source-bundle/00-project-facts.md",
+    "source-bundle/01-brand-and-fiction.md",
+    "source-bundle/02-external-context.md",
+    "source-bundle/03-conversation-ledger.md",
+    "source-bundle/04-editorial-rubric.md"
+  ],
+  "writeFiles": [
+    "out/report.md",
+    "out/fact-ledger.md",
+    "out/sources.md",
+    "out/README.md"
+  ],
+  "externalAccess": "denied",
+  "acceptance": {
+    "article": false,
+    "fictionDisclosure": "required",
+    "factCheck": false,
+    "publication": false,
+    "product": false,
+    "deployment": false
+  }
+}

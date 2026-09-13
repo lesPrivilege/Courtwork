@@ -1,0 +1,182 @@
+TAP version 13
+# (node:50712) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: adapter reads inclusive input once, preserves explicit zero, and never uses output/cache/estimated totals
+ok 1 - adapter reads inclusive input once, preserves explicit zero, and never uses output/cache/estimated totals
+  ---
+  duration_ms: 0.545875
+  type: 'test'
+  ...
+# Subtest: SSE adapter preserves bytes across chunk boundaries and clears usage for each retry
+ok 2 - SSE adapter preserves bytes across chunk boundaries and clears usage for each retry
+  ---
+  duration_ms: 6.316833
+  type: 'test'
+  ...
+# Subtest: bounded observer recovers after oversized frames and forwards stream errors
+ok 3 - bounded observer recovers after oversized frames and forwards stream errors
+  ---
+  duration_ms: 48.243625
+  type: 'test'
+  ...
+# Subtest: request binding exposes measured capacity only when completed, with no normalized-zero fallback
+ok 4 - request binding exposes measured capacity only when completed, with no normalized-zero fallback
+  ---
+  duration_ms: 1.131
+  type: 'test'
+  ...
+# Subtest: ring projects completed request scope, zero, overflow and unknown without using heuristics
+ok 5 - ring projects completed request scope, zero, overflow and unknown without using heuristics
+  ---
+  duration_ms: 0.729042
+  type: 'test'
+  ...
+# Subtest: real local SDK transport persists request-input capacity with the recorded model window
+ok 6 - real local SDK transport persists request-input capacity with the recorded model window
+  ---
+  duration_ms: 627.067167
+  type: 'test'
+  ...
+# Subtest: cache diagnostics separate hit/miss from capacity and preserve missing versus zero
+ok 7 - cache diagnostics separate hit/miss from capacity and preserve missing versus zero
+  ---
+  duration_ms: 3.943417
+  type: 'test'
+  ...
+# Subtest: Context disclosure uses raw request diagnostics once; normalized request history stays in the measurement view
+ok 8 - Context disclosure uses raw request diagnostics once; normalized request history stays in the measurement view
+  ---
+  duration_ms: 1.465125
+  type: 'test'
+  ...
+# (node:50713) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: host stream observation separates first output/text and preserves terminal identity without claiming TPS
+ok 9 - host stream observation separates first output/text and preserves terminal identity without claiming TPS
+  ---
+  duration_ms: 3.949583
+  type: 'test'
+  ...
+# Subtest: provider-default payload omits generated reasoning controls after the existing callback
+ok 10 - provider-default payload omits generated reasoning controls after the existing callback
+  ---
+  duration_ms: 0.411041
+  type: 'test'
+  ...
+# Subtest: explicit effort uses the declared adapter mapping and provider identity, not endpoint hostname
+ok 11 - explicit effort uses the declared adapter mapping and provider identity, not endpoint hostname
+  ---
+  duration_ms: 0.101292
+  type: 'test'
+  ...
+# Subtest: production compatible registration pins generic reasoning on heuristic-looking loopback paths
+ok 12 - production compatible registration pins generic reasoning on heuristic-looking loopback paths
+  ---
+  duration_ms: 124.739875
+  type: 'test'
+  ...
+# Subtest: capability projection admits only values the selected adapter can encode
+ok 13 - capability projection admits only values the selected adapter can encode
+  ---
+  duration_ms: 0.158125
+  type: 'test'
+  ...
+# Subtest: request telemetry keeps SDK setting provenance and a safe capability snapshot
+ok 14 - request telemetry keeps SDK setting provenance and a safe capability snapshot
+  ---
+  duration_ms: 0.373333
+  type: 'test'
+  ...
+# Subtest: interrupted stream and dispatch error do not report successful usage
+ok 15 - interrupted stream and dispatch error do not report successful usage
+  ---
+  duration_ms: 0.250041
+  type: 'test'
+  ...
+# Subtest: result-only SDK calls still emit a terminal request measurement exactly once
+ok 16 - result-only SDK calls still emit a terminal request measurement exactly once
+  ---
+  duration_ms: 0.116875
+  type: 'test'
+  ...
+# Subtest: provider response identifiers stay separate from runtime identity without forwarding extra metadata
+ok 17 - provider response identifiers stay separate from runtime identity without forwarding extra metadata
+  ---
+  duration_ms: 0.400833
+  type: 'test'
+  ...
+# Subtest: effort is capability checked and recorded by real local SDK requests
+ok 18 - effort is capability checked and recorded by real local SDK requests
+  ---
+  duration_ms: 479.887125
+  type: 'test'
+  ...
+# Subtest: malformed measurement records are omitted before rendering
+ok 19 - malformed measurement records are omitted before rendering
+  ---
+  duration_ms: 0.236125
+  type: 'test'
+  ...
+# Subtest: schema6 migration preserves both global and project sessions
+ok 20 - schema6 migration preserves both global and project sessions
+  ---
+  duration_ms: 104.313916
+  type: 'test'
+  ...
+# Subtest: host timing has independent request origins and preserves missing versus measured zero
+ok 21 - host timing has independent request origins and preserves missing versus measured zero
+  ---
+  duration_ms: 5.711791
+  type: 'test'
+  ...
+# Subtest: out-of-interval observations stay in detail and do not become clamped chart marks
+ok 22 - out-of-interval observations stay in detail and do not become clamped chart marks
+  ---
+  duration_ms: 0.086791
+  type: 'test'
+  ...
+# Subtest: request view uses one on-demand disclosure, preserves semantic gaps and restores its open state
+ok 23 - request view uses one on-demand disclosure, preserves semantic gaps and restores its open state
+  ---
+  duration_ms: 1.882167
+  type: 'test'
+  ...
+# Subtest: missing usage stays unknown and a reported request estimate keeps its method
+ok 24 - missing usage stays unknown and a reported request estimate keeps its method
+  ---
+  duration_ms: 41.920083
+  type: 'test'
+  ...
+# Subtest: all historical requests share the same outer disclosure while compact views select only the latest
+ok 25 - all historical requests share the same outer disclosure while compact views select only the latest
+  ---
+  duration_ms: 0.790625
+  type: 'test'
+  ...
+# Subtest: malformed v1 metadata is rejected while out-of-interval timing remains inspectable
+ok 26 - malformed v1 metadata is rejected while out-of-interval timing remains inspectable
+  ---
+  duration_ms: 0.149
+  type: 'test'
+  ...
+# Subtest: request detail distinguishes runtime and provider aliases while retaining historical records
+ok 27 - request detail distinguishes runtime and provider aliases while retaining historical records
+  ---
+  duration_ms: 1.404917
+  type: 'test'
+  ...
+# Subtest: effort detail separates requested intent, SDK settings and unobserved provider behavior
+ok 28 - effort detail separates requested intent, SDK settings and unobserved provider behavior
+  ---
+  duration_ms: 1.769542
+  type: 'test'
+  ...
+1..28
+# tests 28
+# suites 0
+# pass 28
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1831.137708

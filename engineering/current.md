@@ -1,5 +1,13 @@
 # 当前工程状态
 
+## 2026-09-14 · 发布收敛与历史材料保全
+
+[最终筹备回执](release/final-preparation-2026-09-13/README.md)汇总并行交付合流、前后端组合验证及Astra实际浏览器目验。产品源码固定 `fd96f96bc40725e301a4c92e0f2f50fd3245458c`：Settings/Runtime资源与模板、Models/连接、Context披露及Model草稿语义已合流；组合全量1029项与后续定向回归分列留证。Luna承担有界探索、行为/文档核对，Astra保留架构与发布裁决。
+
+[13图位明暗新批次](../evidence/publication-release-20260914/README.md)共26张原生1440×900截图，来自同一固定源码的独立合成实例；安装预览同步固定该SHA。Review候选保持pending，未制造人审决定，不关闭真实工作G1–G5、原生200%或完整辅助技术门。实际push与Pages结果以后述回执为准。
+
+[治理裁决](research/repository-governance-2026-09-14/README.md)复用现有owner、任务合同、先例与验证入口，仅补简短PR模板。[原62个在途文件保全](release/final-preparation-2026-09-13/main-cleanup-inventory.md)保留历史研究/QA字节与状态；未归因WK-98修改独立留存，不覆盖正式旧证据。SE中文9.8已独立发布且本地/远端对齐；Courtwork的工程采用仍固定9.6，未自动迁移Paper pin。
+
 ## 2026-09-13 · Spark独立Agent与Workspace Substrate交付
 
 [Spark实现与证据](../evidence/spark-agent-20260913/README.md)已合本地main：稳定Agent/版本定义、独立上下文、串行Assignment/attempt、RuntimeStore schema15、本地笔记/成果索引、精确来源与按需读取、显式挂载及双端验权。未知attempt须先核对才可重试/归档；机器消费不替代Core正式接受。[架构裁决](research/architecture-node-2026-09-13/workspace-substrate.md)与增量7项外部固定索引已接实际实现，Paper未改。
@@ -121,7 +129,6 @@ Luna 完成[Context/TPS 有界审计](design/frontend-audit-2026-09-13/context-t
 ## 2026-09-13 · 前端 Audit 首批实现
 
 按用户直接main施工授权完成[首批审计与修复](design/frontend-audit-2026-09-13/report.md)，产品提交 `9525215`。Spark断连空X由外部use重绘依赖复现，共享icon改为固定源生成的原生SVG几何；Spark/Usage固定退出header；Chat/Attention items/Settings精简文案，披露箭头统一SVG。全量915/915，最终定向21/21及三个lint通过；Luna非作者有界复核与Astra真实浏览器证据分开记录。Usage局部返回、Files比较按钮显示和真实200%验证等留在[消费工单](design/frontend-audit-2026-09-13/work-orders.md)；不关闭整体前端或Release门。本轮未push/部署，其他写者在途修改保留。
-
 
 ## 2026-09-13 · 自足架构与工作区治理节点
 
@@ -283,6 +290,18 @@ Claude返件f4dca5a经1ae1784合流，f7c6b4d补diff方角整行色块、去内�
 ## 2026-09-11 · Claude Paper v1已裁并本地集成
 
 [完整原件、八项裁定与验证](research/claude-paper-return-2026-09-11/v1/README.md)接收140文件原包，采用E1封面、黑色宗默认／上横红彩色宗可选；Astra修正元数据、alt、资源缺失和打印层叠。SE本地main已到0f23ad1，浏览器110/110、译文门8与资源负例3通过；源文／译文／历史发布20文件字节不变。CourtWork仅保存裁定与证据，未推送SE或触发Pages，原生a11y等未测项保持开放。此状态替代先前待作者返回记录。
+
+## 2026-09-11 · Research lab 筹备轨道
+
+[Lab preparation](research/lab-preparation-2026-09-11/README.md) 已将最新同步的6个会话 turn（累计登记11个）收敛为真实 research/software lab 的筹备输入：先建立 evidence compiler、盲写作者/盲评审、replacement/continuity benchmark 与 authority/provenance study，再决定是否具备长期运行条件。新增的虚构创始人命名、蕾丝/Lovelace 暗线、开源知识流动和 provider observation privilege 均保留为 fictional/editorial 或待核验研究输入，不进入现实品牌、产品权限或对外事实。对 Anthropic 的“对标”仅指研究问题、证据纪律和比较轴的可比，不声称模型、组织、资本、规模、质量或商业等价；Anthropic 公开材料仅作带归因的外部语境。当前仍是 preparation-only，未运行 benchmark、未使用真实 provider/个人凭据、未新增产品或 Paper 能力、未提交/推送/部署。
+
+前一版[离线 Claude brand SVG handoff](research/claude-brand-svg-handoff-2026-09-11/README.md)因交付目标误读已标记 superseded；显式标签的[Claude Fake 报道 handoff](research/claude-fakesnews-report-handoff-2026-09-11/README.md)仅作 operator 参照。当前真正的[Claude independent report blind handoff](research/claude-independent-report-handoff-2026-09-11/README.md)只向 Claude 暴露中性素材与写作任务，不告知 Fake、satire、反 Anthropic、预期风格或编排意图；[operator-only notes](research/claude-independent-report-operator-2026-09-11/README.md)不挂载给 Claude。可见包允许只读包内材料、只写 `out/`；当前未运行、未接受、未发布。若宿主无法实际执行边界，任务必须停止，不得把文档约束冒充安全沙箱。
+
+Claude 已返回 [The Acceptance Gap](research/claude-independent-report-handoff-2026-09-11/out/report.md) 及 fact-ledger/sources/README 四件套；[return-intake](research/claude-independent-report-handoff-2026-09-11/return-intake.md)记录其为未接受候选。独立核对得到 1,630 词（返回 README 写 1,606，元数据需修订），并发现将“材料未建立某事实”写成“项目没有某事实”的绝对措辞；不修改作者原件，不计文章接受或发布。
+
+## 2026-09-11 · FakesNews reviewer 素材蒸馏
+
+[独立 dossier](research/fakesnews-distillation-2026-09-11/README.md) 已完成 Courtwork 冻结分支、Paper 9.6、les Privilege 品牌登记、Anthropic 官方公开材料与社区口碑样本的素材蒸馏。Fact / inference / satire 分层、来源清单与不可越过的现实公司指控边界均已登记；anti-Anthropic 被限定为虚构厂商的结构性镜像与品牌立场，不是对 Anthropic 的事实指控。当前只交付研究底稿，未写 FakesNews 成稿、未修改 Paper/产品/品牌发布面、未发送外部消息或使用真实 provider。
 
 ## 2026-09-11 · Context Window产品化待消费
 

@@ -1,0 +1,70 @@
+{
+  "title": "Research lab preparation · 2026-09-11",
+  "observedAt": "2026-09-11",
+  "timezone": "Asia/Singapore",
+  "status": "preparation-only",
+  "thread": {
+    "id": "6aa3cac2-0b64-83ec-86d3-f4556e2bee0e",
+    "syncedTurns": 11,
+    "newTurnsThisSync": 6,
+    "attachments": ["IMG_2425.jpeg", "IMG_2422.jpeg", "A5ADF748-84A2-45B5-A38C-7C68CFCF49F4.jpeg"],
+    "interpretation": "Conversation input and editorial material; not independent external evidence"
+  },
+  "courtwork": {
+    "currentRef": "main@2337ada33f1d59543c33ac9e98fcacc5a9e34d21",
+    "sources": [
+      "engineering/architecture.md",
+      "docs/work-core/contract.md",
+      "PAPER.md",
+      "engineering/research/fakesnews-distillation-2026-09-11/README.md",
+      "engineering/research/independent-review-handoff-2026-09-11/README.md",
+      "engineering/research/claude-brand-svg-handoff-2026-09-11/README.md"
+    ]
+  },
+  "externalSources": [
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/detecting-and-preventing-distillation-attacks",
+      "use": "Public Anthropic account of distillation claims; attribute to Anthropic"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/threat-intelligence-report-september-2026",
+      "use": "Public Anthropic threat report; claims are not independently verified here"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/position-open-weights-models",
+      "use": "Public position statement used for comparison"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/research/alignment-assessment-cybersecurity-incidents",
+      "use": "Public review of cybersecurity evaluation incidents"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/engineering/april-23-postmortem",
+      "use": "Public Claude Code product-layer postmortem"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/claude-text-watermark",
+      "use": "Public watermark explanation and limitations"
+    }
+  ],
+  "methodRules": [
+    "Separate observed facts, interpretations, hypotheses, satire, and not-established claims.",
+    "Treat the latest conversation and attachments as research input, not independent evidence.",
+    "Do not claim Anthropic equivalence, model parity, organizational parity, or benchmark completion.",
+    "Preserve raw traces and distinguish source, projection, model proposal, system check, and human decision.",
+    "Use synthetic data or explicitly authorized providers; do not inspect personal credentials or use paid providers by default."
+  ],
+  "notPerformed": [
+    "No benchmark run",
+    "No blind-writing pilot",
+    "No provider call",
+    "No external message or publication",
+    "No product, Paper, brand, schema, or deployment change"
+  ]
+}

@@ -89,3 +89,21 @@ V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/prac
 ## 2026-09-11 · Chat与Attention分工快照
 
 [5轮来源快照与CA-01](chat-attention-2026-09-11/README.md)：长期roadmap不全裁，Chat入口／命名小项留待稍后合流；外部生态主张未重新核验。
+
+## 2026-09-11 · Research lab 与受控写作材料
+
+- [Lab preparation](lab-preparation-2026-09-11/README.md)：筹备和方法基线；未运行 benchmark 或真实 provider，不是产品能力或部署回执。
+- [Claude brand SVG handoff](claude-brand-svg-handoff-2026-09-11/README.md)：交付目标误读后的 superseded 包；未运行、未接受资产，保留作来源记录。
+- [Claude FakesNews report handoff](claude-fakesnews-report-handoff-2026-09-11/README.md)：显式标签的 operator 材料；不是 blind writer 输入，也不是已完成文章。
+- [Claude independent report handoff](claude-independent-report-handoff-2026-09-11/README.md)：中性输入与已返回候选；未接受、未发布。Return intake 记录 1,630/1,606 词数差及待软化的绝对措辞。
+- [Independent report operator notes](claude-independent-report-operator-2026-09-11/README.md)：与 writer 输入分开，维护盲测输入边界；operator 标记不代表凭据或个人隐私分类。
+- [FakesNews distillation](fakesnews-distillation-2026-09-11/README.md)：素材蒸馏和来源分类；未撰写文章，不改变产品或 Paper。
+- [Independent review source pack](independent-review-handoff-2026-09-11/README.md)：source intake only；未撰写 review article。
+
+## 2026-09-14 · 前端测试技术栈与企业 Agent 讨论
+
+[完整会话与输入登记](frontend-testing-stack-2026-09-14/README.md)：2页、12轮、24消息及用户截图；索引前端测试栈候选、本地 Agent runtime、企业治理、受治理工作状态与 Schema/retrieval 讨论。外部事实未核验；引用的 Paper handoff 附件未返回，独立 SE 修订任务线程 ID 待定。仅作历史输入，不改当前验证合同或产品状态。
+
+## 2026-09-14 · Repository governance follow-up
+
+[Local cross-check and Astra ruling](repository-governance-2026-09-14/README.md): records the supplied input hash, the local owner/index/verification comparison, and Astra's decision to retain task-based source retrieval and nearest precedents while adding only a short PR handoff template. External claims remain unverified; no owner rules or CI gates changed.

@@ -1,0 +1,42 @@
+{
+  "policyVersion": 1,
+  "mode": "offline-package-only",
+  "enforcementRequired": true,
+  "readAllowlist": [
+    "CLAUDE-WORK-GUIDE.md",
+    "network-policy.json",
+    "manifest.json",
+    "source-bundle/**"
+  ],
+  "writeAllowlist": [
+    "out/report.md",
+    "out/fact-ledger.md",
+    "out/sources.md",
+    "out/README.md"
+  ],
+  "network": {
+    "allow": false,
+    "dns": false,
+    "http": false,
+    "https": false,
+    "browser": false,
+    "externalMcp": false
+  },
+  "tools": {
+    "shell": false,
+    "packageInstall": false,
+    "credentials": false,
+    "providerCalls": false,
+    "externalMessages": false,
+    "gitMutation": false,
+    "deployment": false
+  },
+  "data": {
+    "personalData": false,
+    "realProviderData": false,
+    "paidServices": false,
+    "syntheticOnly": true
+  },
+  "failureMode": "stop-without-output",
+  "note": "This JSON is a policy contract for the host runner. It is not, by itself, a security sandbox."
+}

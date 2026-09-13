@@ -38,3 +38,5 @@
 验证采用[验证选择](../../verification.md)：先用户结果与不变量，再选最低成本但足够真实的接缝检查；新增E2E说明为何局部测试不足。确定性GUI检查、真实harness能力验证、探索式浏览器和故障恢复各自承担不同问题；已能稳定复现的bug下沉契约/集成测试。最终组合只在产品变化或具体失败需要时重跑；截图留给几何、层级与实际视觉判断，真实模型调用沿既有授权。
 
 [Luna核源](verification-explore.md)将Viking文章限定为单项目实践，不接受100%核心旅程E2E、local-only或固定token节省比例作为普遍要求。Google/Fowler的分层测试、Playwright语义定位及Anthropic的环境结果评估只消费其适用原则；不引入新Playwright runner、XState或新的Runtime状态，不用脚本数量替代架构/产品裁决。本文和测试策略均不关闭真实人审、付费provider或Release G1–G5的未完成证据。
+
+同日用户另指定合流前最后一笔前端注意力审计，并建议直接派 Luna、将 Astra 额度留给真实视觉 computer use；见 [独立输入登记与审计范围](../frontend-attention-audit-2026-09-14/README.md)。其中用户提供的外部引文和减字比例未核验，审计清单与实际浏览器证据分开保存。

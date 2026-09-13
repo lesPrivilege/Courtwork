@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "research_date": "2026-09-14",
+  "code_base": {
+    "branch": "codex/release-final-20260913",
+    "head": "d8115b7ae97ebb05eec611dc9f7cd50ec456178f"
+  },
+  "scope": "Bounded external-source research for repository governance in an AI-assisted development workflow: agent-facing repository guidance, GitHub issue/PR intake templates, and architectural decision record ownership and lifecycle. This is evidence for parent-owned adjudication, not a local policy decision.",
+  "search_accounting": {
+    "discovery_tool": "Exa web search",
+    "exa_search_calls": 3,
+    "requested_result_slots": 15,
+    "direct_page_fetches": 4,
+    "distinct_primary_documents_retained": 4,
+    "count_definition": "The 15 requested search-result slots are discovery volume, not validated source count. Four distinct source pages were selected, fetched, and directly checked; duplicate results and additional candidates were not retained.",
+    "searches": [
+      {
+        "query": "Official AGENTS.md documentation describing the open cross-agent repository instruction format, README relationship, nested path-specific guidance, and scope.",
+        "numResults": 5,
+        "validated_source_ids": ["agents-md-format"]
+      },
+      {
+        "query": "Official GitHub Docs explaining repository issue templates and pull request templates, their storage locations, configurable fields, and how templates guide contributors.",
+        "numResults": 5,
+        "validated_source_ids": ["github-issue-templates", "github-pr-template"]
+      },
+      {
+        "query": "An established official ADR process guide specifying ADR owner responsibilities, proposal/review/acceptance/rejection status, immutability, and superseding records.",
+        "numResults": 5,
+        "validated_source_ids": ["aws-adr-process"]
+      }
+    ],
+    "verification": "Pages were fetched with Exa and opened directly in the browser. The cross-check did not add source documents beyond the four listed below."
+  },
+  "sources": [
+    {
+      "id": "agents-md-format",
+      "title": "AGENTS.md",
+      "url": "https://agents.md/",
+      "publisher": "AGENTS.md project; the page states stewardship by the Agentic AI Foundation under the Linux Foundation",
+      "source_type": "Open-format project documentation",
+      "revision_or_date": "Current live page; no stable revision/date displayed",
+      "accessed": "2026-09-14",
+      "observed": [
+        "AGENTS.md is ordinary Markdown for repository-specific coding-agent context and instructions, including setup, tests, conventions, and security considerations.",
+        "The page presents AGENTS.md as complementary to human-facing README files and describes root and nested instructions for projects and subprojects.",
+        "It does not prescribe required fields."
+      ],
+      "application_inference": "Keep the root agent entry concise and durable: repository boundaries, how to start, and links to current contracts or evidence. Put subject-specific detail in the owning documents and use pointers to support progressive disclosure.",
+      "limits": [
+        "The page describes the format's intended use, not a measured guarantee that instructions will always be read or followed.",
+        "Its reported adoption count is a publisher statement and was not independently measured here.",
+        "An instruction file is not a transcript archive, issue tracker, roadmap, decision log, or evidence of user authorization."
+      ]
+    },
+    {
+      "id": "github-issue-templates",
+      "title": "Configuring issue templates for your repository",
+      "url": "https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/configuring-issue-templates-for-your-repository",
+      "publisher": "GitHub Docs",
+      "source_type": "Official platform documentation",
+      "revision_or_date": "Current live documentation; accessed 2026-09-14",
+      "accessed": "2026-09-14",
+      "observed": [
+        "Issue templates and forms can shape contributor input; issue forms support structured fields such as text, dropdowns, checkboxes, and uploads.",
+        "Issue forms live in `.github/ISSUE_TEMPLATE`; the template chooser can enable or disable blank issues and route some reports to contact links.",
+        "Templates become available to contributors after they are merged into the repository's default branch. The page marks issue forms as public preview."
+      ],
+      "application_inference": "Use an issue template to request a stable problem statement, reproduction/evidence links, scope, and impact. Keep the submitted GitHub issue as the platform record and link it from the local execution or research record; the form does not itself adjudicate or accept the request.",
+      "limits": [
+        "This describes GitHub's issue intake mechanism, not a universal issue lifecycle or records-retention policy.",
+        "The documentation does not cover roadmaps, architecture decisions, agent Explore reports, human chat transcripts, or repository disclosure of private inputs."
+      ]
+    },
+    {
+      "id": "github-pr-template",
+      "title": "Creating a pull request template for your repository",
+      "url": "https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/creating-a-pull-request-template-for-your-repository",
+      "publisher": "GitHub Docs",
+      "source_type": "Official platform documentation",
+      "revision_or_date": "Current live documentation; accessed 2026-09-14",
+      "accessed": "2026-09-14",
+      "observed": [
+        "A pull request template pre-populates the PR body and can ask for a related issue, a description of proposed changes, and reviewers.",
+        "Templates can be placed in supported root, `docs/`, or `.github/` paths; multiple templates can be selected through a template query parameter.",
+        "The template becomes available after merge to the default branch."
+      ],
+      "application_inference": "Use the PR body for a concise candidate-change summary, exact related ticket/decision IDs, verification evidence, and reviewers. Keep the live PR's status and review state authoritative; the local handoff should link to the actual PR and commit rather than label a local plan as a GitHub PR.",
+      "limits": [
+        "A template is a submission scaffold, not a durable decision log or release receipt.",
+        "The page does not define when a PR or issue should be mirrored or archived outside GitHub."
+      ]
+    },
+    {
+      "id": "aws-adr-process",
+      "title": "Architectural decision record process",
+      "url": "https://docs.aws.amazon.com/prescriptive-guidance/latest/architectural-decision-records/adr-process.html",
+      "publisher": "AWS Prescriptive Guidance",
+      "source_type": "Official vendor process guide; mature ADR practice example",
+      "revision_or_date": "Current live guidance; accessed 2026-09-14",
+      "accessed": "2026-09-14",
+      "observed": [
+        "An ADR records an architecturally significant choice, its context, and consequences; a collection forms a decision log whose headings help readers orient before opening details.",
+        "The guide assigns an ADR owner who maintains and communicates the record; other team members may contribute.",
+        "The lifecycle distinguishes proposed, accepted, and rejected decisions; after acceptance or rejection the record is treated as immutable, and a later accepted ADR supersedes the previous one."
+      ],
+      "application_inference": "Separate source-backed Explore from the decision owner's canonical ruling. For significant decisions, record the owner, status, context, decision, consequences, links to the inputs and implementation record, and any superseding decision; retain prior accepted/rejected records as history.",
+      "limits": [
+        "This is AWS's recommended ADR process, not a universal standard or a mandate to turn every product choice, issue, or user message into an ADR.",
+        "It does not specify how to archive ChatGPT sessions, raw user messages, roadmaps, design assets, or privacy-sensitive evidence."
+      ]
+    }
+  ],
+  "cross_source_inferences": [
+    "The sources support different record jobs: AGENTS.md provides predictable agent instructions; GitHub templates structure new issue/PR submissions; an ADR records an owned, reviewable decision. Combining these into one growing file would blur their owners and lifecycle.",
+    "The sources do not provide a shared external standard for roadmaps, intermediate multi-agent Explore notes, user-session transcripts, human user messages, or local design references. Their disposition must come from CourtWork's own contracts and explicit user choice.",
+    "The sources support discoverable entrypoints and linked detail, but do not justify automatically loading raw archives into every agent context or publishing private source material."
+  ],
+  "research_limits": [
+    "This is a four-document source check, not a survey or frequency study of repository practice.",
+    "GitHub's documentation establishes platform behavior, not the repository's actual issue/PR state.",
+    "No tools, schemas, archive policy, retention period, or framework were selected by this research."
+  ]
+}

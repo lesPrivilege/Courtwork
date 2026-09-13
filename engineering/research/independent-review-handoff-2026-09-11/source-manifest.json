@@ -1,0 +1,81 @@
+{
+  "title": "Independent review source pack",
+  "observedAt": "2026-09-11",
+  "status": "intake-only",
+  "project": {
+    "repository": "https://github.com/lesPrivilege/Courtwork",
+    "currentRef": "main@2337ada33f1d59543c33ac9e98fcacc5a9e34d21",
+    "frozenRef": "archive/courtwork-main@f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+    "files": [
+      "README.md",
+      "docs/architecture/principles.md",
+      "docs/architecture/schema-engineering.md",
+      "engineering/architecture.md",
+      "docs/work-core/contract.md",
+      "engineering/release/public-narrative-2026-09-10/README.md",
+      "engineering/research/le-brand-2026-09-11/update.md",
+      "brand/les-privilege/README.md"
+    ]
+  },
+  "labPreparation": {
+    "path": "../lab-preparation-2026-09-11/README.md",
+    "status": "preparation-only",
+    "scope": "Research/software lab methods and comparison axes; no claim of organization, model, benchmark, or Anthropic equivalence"
+  },
+  "paper": {
+    "repository": "https://github.com/lesPrivilege/Schema-Engineering",
+    "commit": "d78fd312955c1f594e59cbdcbb0d3074ac355940",
+    "edition": "9.6 / 2026-09-07",
+    "files": [
+      "papers/src/canonical.md",
+      "papers/src/practice.md",
+      "papers/src/practice-index.md"
+    ],
+    "editableBodyCopied": false
+  },
+  "externalSources": [
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/detecting-and-preventing-distillation-attacks"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/threat-intelligence-report-september-2026"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/position-open-weights-models"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/research/alignment-assessment-cybersecurity-incidents"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/engineering/april-23-postmortem"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/claude-text-watermark"
+    },
+    {
+      "kind": "community-sample",
+      "url": "https://www.reddit.com/r/ClaudeAI/comments/1stq98j/postmortem_on_recent_claude_code_quality_issues/"
+    },
+    {
+      "kind": "community-sample",
+      "url": "https://www.reddit.com/r/ClaudeAI/comments/1tdxwgx/long-term_user_report_claude_code_quality_in_may/"
+    },
+    {
+      "kind": "community-sample",
+      "url": "https://www.reddit.com/r/claude/comments/1vm38n4/claudes_take_on_the_recent_watermark_announcement/"
+    }
+  ],
+  "constraints": [
+    "Separate observed facts, interpretations, and open questions.",
+    "Attribute Anthropic claims to Anthropic; do not imply independent verification.",
+    "Treat community pages as anecdotal sentiment, not representative evidence.",
+    "Do not infer company registration, employees, funding, customers, deployment, or product acceptance.",
+    "Do not send external messages or use credentials or paid providers."
+  ]
+}

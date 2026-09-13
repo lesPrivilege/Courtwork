@@ -1,0 +1,158 @@
+[
+  {
+    "id": "settings",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:46:19.496Z",
+    "displayed_path": "http://127.0.0.1:58411/#settings/appearance"
+  },
+  {
+    "id": "settings",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:46:28.757Z",
+    "displayed_path": "http://127.0.0.1:58411/#settings/appearance"
+  },
+  {
+    "id": "approval",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:47:16.723Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "approval",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:48:00.605Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "home",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:48:18.721Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "spark",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:48:36.969Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "attention",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:49:03.281Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "conversation",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:49:22.375Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "artifact",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:49:39.722Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "continuity",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:52:20.079Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "matter",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:52:45.357Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "review",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:52:59.201Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "models",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:53:17.368Z",
+    "displayed_path": "http://127.0.0.1:58411/#settings/models"
+  },
+  {
+    "id": "integrations",
+    "theme": "light",
+    "captured_at": "2026-09-13T18:53:31.089Z",
+    "displayed_path": "http://127.0.0.1:58411/#settings/tools"
+  },
+  {
+    "id": "integrations",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:53:37.547Z",
+    "displayed_path": "http://127.0.0.1:58411/#settings/tools"
+  },
+  {
+    "id": "models",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:53:51.354Z",
+    "displayed_path": "http://127.0.0.1:58411/#settings/models"
+  },
+  {
+    "id": "review",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:54:09.158Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "continuity",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:54:28.310Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "matter",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:54:28.921Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "artifact",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:55:02.316Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "attention",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:55:11.986Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "conversation",
+    "theme": "dark",
+    "captured_at": "2026-09-13T18:55:12.298Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "spark",
+    "theme": "dark",
+    "captured_at": "2026-09-13T19:19:22.304Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "home",
+    "theme": "dark",
+    "captured_at": "2026-09-13T19:21:05.099Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "running",
+    "theme": "dark",
+    "captured_at": "2026-09-13T19:24:15.006Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  },
+  {
+    "id": "running",
+    "theme": "light",
+    "captured_at": "2026-09-13T19:25:51.392Z",
+    "displayed_path": "http://127.0.0.1:58411/#"
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "candidate": "Colophon",
+  "status": "candidate-not-accepted",
+  "generatedAt": "2026-09-11",
+  "timezone": "Asia/Singapore",
+  "sourcePackage": "claude-brand-svg-handoff-2026-09-11",
+  "files": [
+    {
+      "path": "colophon-mark.svg",
+      "kind": "monochrome-candidate",
+      "viewBox": "0 0 64 64",
+      "accessibilityName": "les Privilege",
+      "paletteRoles": {
+        "all": "currentColor — inherits host foreground"
+      },
+      "sha256": "968853207ae8254a824f0d5b87cd2ab909d3e6f68672ec6473f3e62fa4fd5f1c"
+    },
+    {
+      "path": "colophon-mark-tritone.svg",
+      "kind": "tritone-colour-treatment",
+      "viewBox": "0 0 64 64",
+      "accessibilityName": "les Privilege",
+      "paletteRoles": {
+        "L-path": "#242d33 — structural dark / primary body",
+        "bar-1": "#c95e55 — brand identity red (never error/active/review/permission/diff/safety)",
+        "bar-2": "#6f7e88 — subordinate grey",
+        "bar-3": "#6f7e88 — subordinate grey (shared with bar-2)"
+      },
+      "sha256": "db4b675fcfeff3bebf53ccd14b75e60d741ac53aaa4792a6a0aa6d592a006e78"
+    },
+    {
+      "path": "README.md",
+      "kind": "rationale"
+    },
+    {
+      "path": "verification.md",
+      "kind": "verification-notes"
+    },
+    {
+      "path": "manifest.json",
+      "kind": "manifest"
+    }
+  ],
+  "acceptance": {
+    "product": false,
+    "brand": false,
+    "paper": false,
+    "publication": false,
+    "deployment": false
+  }
+}

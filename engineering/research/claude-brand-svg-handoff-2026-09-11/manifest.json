@@ -1,0 +1,47 @@
+{
+  "package": "claude-brand-svg-handoff-2026-09-11",
+  "status": "prepared-not-run",
+  "observedAt": "2026-09-11",
+  "timezone": "Asia/Singapore",
+  "sourceConversation": {
+    "threadId": "6aa3cac2-0b64-83ec-86d3-f4556e2bee0e",
+    "title": "绘制品牌图标 SVG",
+    "sourceUse": "User-authored creative input and conversation material; not independent evidence"
+  },
+  "projectBaseline": "Courtwork main@2337ada33f1d59543c33ac9e98fcacc5a9e34d21",
+  "allowedFiles": [
+    "CLAUDE-WORK-GUIDE.md",
+    "network-policy.json",
+    "manifest.json",
+    "source-bundle/00-brief-and-status.md",
+    "source-bundle/01-brand-observations.md",
+    "source-bundle/02-project-and-paper-facts.md",
+    "source-bundle/03-conversation-material.md",
+    "source-bundle/04-external-context.md",
+    "references/current-mark.svg",
+    "references/current-tritone-mark.svg"
+  ],
+  "writeRoot": "out/",
+  "externalAccess": "denied",
+  "files": [
+    {
+      "path": "references/current-mark.svg",
+      "kind": "offline-reference",
+      "source": "brand/les-privilege/mark.svg",
+      "sha256": "f6491af9a90407c020d378f874afae250416aceb1581d5f7b2f5a5875f0c2299"
+    },
+    {
+      "path": "references/current-tritone-mark.svg",
+      "kind": "offline-reference",
+      "source": "brand/les-privilege/mark-tritone-light.svg",
+      "sha256": "57bbc63525b13c2729c5b5f88c243366b9ab1cc371e186174833fff3d42ffabc"
+    }
+  ],
+  "acceptance": {
+    "product": false,
+    "brand": false,
+    "paper": false,
+    "publication": false,
+    "deployment": false
+  }
+}

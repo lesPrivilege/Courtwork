@@ -18,3 +18,7 @@
 
 - `inputs/courtwork_se_gui_review_runtime_index_2026-09-08.md`：定本索引，检索层，不作 prompt payload。
 - 讨论四段（品牌图标 SVG 重绘与推理动画；索引 handoff；Opus / Astra 分工；日历 / 热力图 / 邮件卡片解耦）：要点已转录进 intake §1，不另存原文。
+
+## 历史只读探索
+
+- [EX-SS1 · Secondary Surface / Disclosure Grammar](explore/ex-ss1-secondary-surface.md)：Sonnet，2026-09-10；无派单编号，对用户供料作只读对照。来源提案未经独立核验；本件不作裁定或产品接受，也不评估 Attention。

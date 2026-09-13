@@ -1,0 +1,24 @@
+{
+  "package": "claude-independent-report-handoff-2026-09-11",
+  "status": "candidate-returned-not-accepted",
+  "observedAt": "2026-09-11",
+  "timezone": "Asia/Singapore",
+  "sourceConversation": {
+    "threadId": "6aa3cac2-0b64-83ec-86d3-f4556e2bee0e",
+    "sourceUse": "Supplied project and naming material; not independent evidence"
+  },
+  "projectBaseline": "Courtwork main@2337ada33f1d59543c33ac9e98fcacc5a9e34d21",
+  "allowedFiles": [
+    "CLAUDE-WORK-GUIDE.md",
+    "network-policy.json",
+    "manifest.json",
+    "source-bundle/00-project-facts.md",
+    "source-bundle/01-brand-and-naming.md",
+    "source-bundle/02-public-context.md",
+    "source-bundle/03-conversation-ledger.md",
+    "source-bundle/04-review-rubric.md"
+  ],
+  "writeFiles": ["out/report.md", "out/fact-ledger.md", "out/sources.md", "out/README.md"],
+  "externalAccess": "denied",
+  "acceptance": {"article": false, "independentReview": false, "publication": false, "product": false, "deployment": false}
+}

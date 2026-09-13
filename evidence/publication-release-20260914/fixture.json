@@ -1,0 +1,229 @@
+{
+  "synthetic": true,
+  "fixtureVersion": 3,
+  "sourceSha": "fd96f96bc40725e301a4c92e0f2f50fd3245458c",
+  "generatedAt": "2026-09-13T18:45:36.389Z",
+  "hostUrl": "http://127.0.0.1:58411",
+  "dataDir": "synthetic/workspace",
+  "provider": "fake-openai-loopback",
+  "project": {
+    "id": "22526cd0-bcba-474f-a9e1-cb05424eb66d",
+    "name": "Project Cedar"
+  },
+  "sessions": {
+    "home": {
+      "id": "e977f9d6-cfce-43ce-8753-f662254b2bdf",
+      "title": "Overview",
+      "scope": "project"
+    },
+    "chat": {
+      "id": "1b896a9d-d745-4b74-9b95-423b0d4ebd7f",
+      "title": "Delivery question",
+      "scope": "unassigned"
+    },
+    "artifact": {
+      "id": "695bc142-85e2-44d0-9f37-282f4eac151e",
+      "title": "Delivery note",
+      "scope": "project"
+    },
+    "review": {
+      "id": "4957eac2-5fb0-4162-b0c3-45e41a01d72d",
+      "title": "Inbound NDA · Cedar",
+      "scope": "project"
+    },
+    "continuity": {
+      "id": "24a0fe52-df09-4c3d-a4f3-b22a41ac388a",
+      "title": "Cedar follow-up",
+      "scope": "project"
+    },
+    "spark": {
+      "id": "2b118f02-c366-4273-bb00-ca6c714827b3",
+      "title": "Compare Cedar drafts",
+      "scope": "project"
+    },
+    "running": {
+      "id": "a975ec01-ad9b-4c91-882e-741dd673eaa4",
+      "title": "Delivery plan review",
+      "scope": "project"
+    },
+    "approval": {
+      "id": "b28abbe9-6fb7-44d0-9663-98574bd78e15",
+      "title": "Approve delivery note",
+      "scope": "project"
+    }
+  },
+  "attentionConversation": {
+    "id": "5fe8aceb-02b3-43da-a580-ce4a3ed1faa3",
+    "title": "Attention",
+    "scope": "global"
+  },
+  "matterId": "matter-7956283a-ac34-495c-92d0-c5b832624784",
+  "attentionId": "release-preview-attention",
+  "spark": {
+    "assignmentId": "bb71d578-61be-4175-bae4-f44dcb6cfa92",
+    "status": "resolved",
+    "sourceRefs": [
+      {
+        "kind": "material",
+        "sourceId": "56ed1886-9497-46aa-ac54-9579babdd416",
+        "revision": 1,
+        "path": "materials/cedar-draft-v1.txt",
+        "sha256": "4b70359784292bffecc89febdb54541e3421943b9695daadda24531efbbf87db",
+        "bytes": 60
+      },
+      {
+        "kind": "material",
+        "sourceId": "063a7c41-7de6-4fc9-a74a-cc9eb04ba497",
+        "revision": 1,
+        "path": "materials/cedar-draft-v2.txt",
+        "sha256": "cb6f87852e6b4ea416da39f9be314e2c6f55499cd1fda23d8b611241eccff7cd",
+        "bytes": 60
+      }
+    ]
+  },
+  "artifact": {
+    "runId": "a9c11941-8868-4de0-a229-09aa6b330be5",
+    "status": "completed",
+    "path": "out/delivery-note.md"
+  },
+  "workReview": {
+    "runId": "4fde39b8-3bd2-450b-b863-08bc8118c9cc",
+    "status": "completed",
+    "candidateId": "candidate-ef871b6ef60060a025030c06f913edd13aefe58e745aaa7967f5c705916be715",
+    "candidateStatus": "pending",
+    "seededBeforeActiveRun": true,
+    "initialReadOnly": false,
+    "initialActions": [
+      {
+        "action": "decide",
+        "choices": [
+          "accept",
+          "reject",
+          "request_evidence"
+        ]
+      },
+      {
+        "action": "revise_candidate",
+        "choices": []
+      }
+    ],
+    "matterId": "matter-7956283a-ac34-495c-92d0-c5b832624784",
+    "liveNote": "Any active Host Run makes the Work Review surface read-only until the Run settles."
+  },
+  "approval": {
+    "runId": "8b47d7d2-13af-43bb-a6ed-428c30d2fd67",
+    "status": "waiting_user",
+    "permissionQuestionId": "8b778a08-2946-4211-9f9d-7ebd3236ec00",
+    "control": "Use the product permission control after capturing this state; that completes the Run and frees the one-Run-at-a-time lane."
+  },
+  "running": {
+    "prompt": "Compare the delivery dates in the two Project Cedar drafts and identify what needs confirmation.",
+    "expectedDurationSeconds": 180,
+    "instructions": "Enter this exact prompt in Delivery plan review and capture while the Run is active. The fake local stream completes after about 180 seconds unless stopped in the UI."
+  },
+  "slots": [
+    {
+      "id": "home",
+      "stateId": "release-preview-home",
+      "path": "#",
+      "journey": "Home",
+      "sessionId": "e977f9d6-cfce-43ce-8753-f662254b2bdf"
+    },
+    {
+      "id": "spark",
+      "stateId": "release-preview-spark-completed",
+      "path": "#",
+      "journey": "Open Compare Cedar drafts; inspect the completed assignment and exact sources.",
+      "sessionId": "2b118f02-c366-4273-bb00-ca6c714827b3",
+      "assignmentId": "bb71d578-61be-4175-bae4-f44dcb6cfa92"
+    },
+    {
+      "id": "running",
+      "stateId": "release-preview-running-active",
+      "path": "#",
+      "journey": "Open Delivery plan review; enter the exact RUNNING prompt below.",
+      "sessionId": "a975ec01-ad9b-4c91-882e-741dd673eaa4"
+    },
+    {
+      "id": "attention",
+      "stateId": "release-preview-attention-item",
+      "path": "#",
+      "journey": "Open Attention and inspect the synthetic delivery timing item.",
+      "attentionId": "release-preview-attention"
+    },
+    {
+      "id": "approval",
+      "stateId": "release-preview-approval-pending",
+      "path": "#",
+      "journey": "Open Approve delivery note; keep waiting_user visible for both screenshots.",
+      "sessionId": "b28abbe9-6fb7-44d0-9663-98574bd78e15",
+      "runId": "8b47d7d2-13af-43bb-a6ed-428c30d2fd67",
+      "permissionQuestionId": "8b778a08-2946-4211-9f9d-7ebd3236ec00"
+    },
+    {
+      "id": "artifact",
+      "stateId": "release-preview-artifact-recorded",
+      "path": "#",
+      "journey": "Open Delivery note; open out/delivery-note.md.",
+      "sessionId": "695bc142-85e2-44d0-9f37-282f4eac151e",
+      "runId": "a9c11941-8868-4de0-a229-09aa6b330be5"
+    },
+    {
+      "id": "matter",
+      "stateId": "release-preview-cedar-matter",
+      "path": "#",
+      "journey": "Open Cedar follow-up; inspect its bound Project Cedar Matter.",
+      "sessionId": "24a0fe52-df09-4c3d-a4f3-b22a41ac388a",
+      "matterId": "matter-7956283a-ac34-495c-92d0-c5b832624784"
+    },
+    {
+      "id": "review",
+      "stateId": "release-preview-nda-candidate-pending",
+      "path": "#",
+      "journey": "Open Inbound NDA · Cedar; inspect the pending candidate. Do not record a decision.",
+      "sessionId": "4957eac2-5fb0-4162-b0c3-45e41a01d72d",
+      "runId": "4fde39b8-3bd2-450b-b863-08bc8118c9cc",
+      "matterId": "matter-7956283a-ac34-495c-92d0-c5b832624784"
+    },
+    {
+      "id": "continuity",
+      "stateId": "release-preview-continuity-same-matter",
+      "path": "#",
+      "journey": "Open Cedar follow-up; confirm identity remains the same across Sessions.",
+      "sessionId": "24a0fe52-df09-4c3d-a4f3-b22a41ac388a",
+      "matterId": "matter-7956283a-ac34-495c-92d0-c5b832624784"
+    },
+    {
+      "id": "models",
+      "stateId": "release-preview-local-model-settings",
+      "path": "#settings/models",
+      "journey": "Models settings; the only configured route is the local fake provider."
+    },
+    {
+      "id": "integrations",
+      "stateId": "release-preview-local-integrations",
+      "path": "#settings/tools",
+      "journey": "Tools / integrations settings; inspect local extension state only."
+    },
+    {
+      "id": "settings",
+      "stateId": "release-preview-appearance-default",
+      "path": "#settings/appearance",
+      "journey": "Appearance settings; keep the same configuration for the light/dark screenshot pair."
+    },
+    {
+      "id": "conversation",
+      "stateId": "release-preview-attention-conversation",
+      "path": "#",
+      "journey": "Open the Attention conversation.",
+      "sessionId": "5fe8aceb-02b3-43da-a580-ce4a3ed1faa3",
+      "runId": "12ef43d6-b0ef-4fda-a7bd-b4da8b459508"
+    }
+  ],
+  "cautions": [
+    "All names, source text, project work, Runs, candidate, Matter, Attention item, and conversation are synthetic local preview state.",
+    "The pending candidate is not a human decision; Run completion is not acceptance.",
+    "The fake provider performs no external model call. The saved credential is a fixed local test marker, not a real secret.",
+    "No token, auth value, or real credential is stored in this manifest."
+  ]
+}

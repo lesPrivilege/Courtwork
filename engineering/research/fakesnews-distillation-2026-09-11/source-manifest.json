@@ -1,0 +1,124 @@
+{
+  "title": "FakesNews 素材蒸馏 dossier",
+  "observedAt": "2026-09-11",
+  "timezone": "Asia/Singapore",
+  "status": "distilled-materials-not-article",
+  "courtwork": {
+    "currentBranch": "main",
+    "currentHead": "2337ada33f1d59543c33ac9e98fcacc5a9e34d21",
+    "frozenLegacyRef": "archive/courtwork-main",
+    "frozenLegacyCommit": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+    "sourceFiles": [
+      {
+        "path": "README.md",
+        "ref": "archive/courtwork-main",
+        "sha256": "e31f30370e8f6d16b37ab9636e805c0cddc028a75b420b82eecacdbb351a6627"
+      },
+      {
+        "path": "docs/architecture/principles.md",
+        "ref": "archive/courtwork-main",
+        "sha256": "87254a9f69eac34802b78068a68e8274cc7e7ef231aae2e60b1d8d2002714bb0"
+      },
+      {
+        "path": "docs/architecture/schema-engineering.md",
+        "ref": "archive/courtwork-main",
+        "sha256": "3d28cd259d0b72731bc21887dd5a7bbbf53cc9ed928a4912b816a70a4f9d2387"
+      },
+      {
+        "path": "engineering/architecture.md",
+        "ref": "main",
+        "sha256": "0fff85bc067ec5ec6a0897517d64b9a3b1cd8143ed0bd6e338026c6eae74321b"
+      },
+      {
+        "path": "docs/work-core/contract.md",
+        "ref": "main",
+        "sha256": "5fb6c883eb8a8fb579812727b0e6ef24610bac2c5fb671f7ca2d9bb7e6bffc58"
+      },
+      {
+        "path": "engineering/research/le-brand-2026-09-11/update.md",
+        "ref": "main",
+        "sha256": "65090c53942d8a7856fb6df38536bb9b122aaa38f4accd80cbe84664889c0f8b"
+      },
+      {
+        "path": "brand/les-privilege/README.md",
+        "ref": "main",
+        "sha256": "57839cefc48fdc79abc84217152af596f535ab4f811226b156ebe372466e2dae"
+      }
+    ]
+  },
+  "paper": {
+    "repository": "https://github.com/lesPrivilege/Schema-Engineering",
+    "commit": "d78fd312955c1f594e59cbdcbb0d3074ac355940",
+    "edition": "9.6 / 2026-09-07",
+    "paths": [
+      "papers/src/canonical.md",
+      "papers/src/practice.md",
+      "papers/src/practice-index.md"
+    ],
+    "editableTextCopiedIntoCourtwork": false
+  },
+  "latestConversation": {
+    "threadId": "6aa3cac2-0b64-83ec-86d3-f4556e2bee0e",
+    "syncedTurns": 11,
+    "newTurnsThisSync": 6,
+    "attachments": ["IMG_2425.jpeg", "IMG_2422.jpeg", "A5ADF748-84A2-45B5-A38C-7C68CFCF49F4.jpeg"],
+    "use": "Internal editorial and method input; not independent evidence",
+    "intakeRecord": "../lab-preparation-2026-09-11/README.md"
+  },
+  "externalSources": [
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/detecting-and-preventing-distillation-attacks",
+      "use": "Anthropic's February 2026 public account of distillation claims"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/threat-intelligence-report-september-2026",
+      "use": "Anthropic's September 2026 public threat report; claims require attribution"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/research/alignment-assessment-cybersecurity-incidents",
+      "use": "Anthropic's public review of four cybersecurity evaluation incidents"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/engineering/april-23-postmortem",
+      "use": "Anthropic's Claude Code product-layer postmortem"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/claude-text-watermark",
+      "use": "Anthropic's watermark explanation and limitations"
+    },
+    {
+      "kind": "official",
+      "url": "https://www.anthropic.com/news/position-open-weights-models",
+      "use": "Anthropic's stated position on open weights and distillation"
+    },
+    {
+      "kind": "community",
+      "url": "https://www.reddit.com/r/ClaudeAI/comments/1stq98j/postmortem_on_recent_claude_code_quality_issues/",
+      "use": "Community sentiment sample; not a factual authority"
+    },
+    {
+      "kind": "community",
+      "url": "https://www.reddit.com/r/claude/comments/1vm38n4/claudes_take_on_the_recent_watermark_announcement/",
+      "use": "Community sentiment and anthropomorphism sample; not a factual authority"
+    }
+  ],
+  "editorialRules": [
+    "Keep fact, inference, and satire in separate lanes.",
+    "Attribute Anthropic's allegations to Anthropic and do not imply independent verification.",
+    "Do not invent anonymous Anthropic insiders or real-world allegations.",
+    "Keep the April Fools / fictional disclosure explicit in the final publication.",
+    "Do not treat UI, fixtures, screenshots, or author checks as product acceptance."
+  ],
+  "notPerformed": [
+    "No FakesNews article drafted",
+    "No external message sent",
+    "No Paper source edited",
+    "No product or brand publication changed",
+    "No live provider or personal credential used"
+  ]
+}
