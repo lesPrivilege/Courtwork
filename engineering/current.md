@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Release干净安装与模型提交协议筹备
+
+[本片证据](../evidence/release-preflight-20260913/README.md)已随`6464df3`合入本地main：独立clone安装、真实GUI Local test接受/跨Session/正常重开留证，9文件65/65迁移恢复通过。准备真实探针发现NDA提交协议不充分，Astra补完整静态schema/reason规则，Luna非作者18/18；未预置当前答案或放宽Core接受。固定产品全量934项中933通过、唯一refresh语义登记漏项已补，独立守卫3/3、smoke/links复验通过，原失败保留且未声称第二轮全量。真实Provider探针、G4演示录制、G5最终owner声明仍待收口；首个工作指南与具体操作稿已准备。其他writer在途UI/测量改动不在此固定候选结果内；未push/tag/部署。
+
 ## 2026-09-13 · Context/TPS 实际视觉候选
 
 Astra串行完成[交互候选](design/context-tps-motion-2026-09-13/README.md)：composer左侧仅圆环与Send对称，左侧呼吸条暂代bot槽位、短语带省略号，一级隐藏速率/Unavailable/箭头；运行中缺投射保留非数值轮播，五个Thinking样词已补齐。Luna完成材质源码audit，按现有solid raised/圆角/阴影/字阶/focus对齐；作者浏览器与2项fixture检查见[验证](design/context-tps-motion-2026-09-13/verification.md)。已登记两项grammar为reference，数值仍区分估算、缺测和合成测量；未改产品或声称真实TPS接线。最新IA选型轮次仅[登记后续消费](design/frontend-audit-2026-09-13/surface-classification-registration.md)。未push/部署。

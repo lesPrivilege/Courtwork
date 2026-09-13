@@ -47,3 +47,5 @@ Luna非作者另审阅本片证据与公开事实/演示稿的范围，未发现
 Luna独立确认59fa20fd登记与实际`load()`的只读Core摘要请求及完整accessible name一致；未修改代码或重跑测试。最终新增文档链接检查6333项通过。
 
 原始失败TAP的诊断空行保留Node输出中的空格；`git diff --check`仅对`producer-before.tap`、`producer-intermediate.tap`排除这项既存原字节格式，其余改动检查通过。manifest固定原始输出，不为消除格式告警改写失败证据。
+
+本地main合流`6464df33`。同期UI writer也补了同一Work review刷新登记；集成仅统一reason措辞，file/source/disposition/semanticKeys与已测登记一致，保留其独立的测量控件和所有其他在途改动。被测`app/`的Git树与最终合流一致；共享工作树未提交UI不在固定候选测试范围。
