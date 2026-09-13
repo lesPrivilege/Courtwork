@@ -19,6 +19,7 @@ import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
 import { StringDecoder } from "node:string_decoder";
 import { describeReasoning, MODEL_ADAPTER_VERSION } from "../runtime/model-capabilities.mjs";
+import { PROVIDER_DEFINITIONS, providerRouteError } from "../runtime/provider-definitions.mjs";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
 
 import {
@@ -34,8 +35,6 @@ import {
   FAKE_MODEL_ID,
   FAKE_PROVIDER_ID,
   FAKE_CREDENTIAL_KEY,
-  DEEPSEEK_PROVIDER_ID,
-  OPENAI_PROVIDER_ID,
   API_FORMATS,
   credentialSourceOf,
   registerConnectionProvider,
@@ -64,8 +63,7 @@ import {
   validateCatalogConnectionInput,
 } from "./provider-connections.mjs";
 
-const DEEPSEEK_API_ID = "openai-completions";
-const ALLOWED_PROVIDER_IDS = new Set([FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]);
+const ALLOWED_PROVIDER_IDS = new Set(PROVIDER_DEFINITIONS.filter(entry => entry.kind !== "compatible").map(entry => entry.id));
 const MAX_MATERIAL_BYTES = 1024 * 1024;
 const MATERIAL_NAME_PATTERN = /^[A-Za-z0-9._-]+$/;
 // PV-62: a fixed short prompt (never user-supplied), a small output ceiling,
@@ -377,6 +375,7 @@ export class RuntimeService {
       source: "installed-runtime-catalog",
       version: this.store.getProviderConfigVersion(),
       apiFormats: [...API_FORMATS],
+      providerDefinitions: structuredClone(PROVIDER_DEFINITIONS),
       models: this.modelRuntime.getModels()
         .filter((model) => this.#knownIdentities().has(model.provider) && this.#configurationStatusOf(this.#connectionByIdentity(model.provider).id) === "ready")
         .map(model => {
@@ -1294,12 +1293,10 @@ export class RuntimeService {
     // narrower closed-set door left to ask.
     const catalogModel = this.#admissibleModel(connection, config.model);
     if (!catalogModel) throw new ServiceError(400, "invalid_provider", "unknown provider model");
-    if (!API_FORMATS.includes(config.api)) throw new ServiceError(400, "invalid_provider", "unsupported API format");
+    const routeError = providerRouteError(connection, config);
+    if (routeError) throw new ServiceError(400, "invalid_provider", routeError);
     if (config.provider === FAKE_PROVIDER_ID && (config.api !== FAKE_API_ID || config.baseUrl)) {
       throw new ServiceError(400, "invalid_provider", "the fixture provider uses its local endpoint and chat format");
-    }
-    if (config.provider === DEEPSEEK_PROVIDER_ID && config.api !== DEEPSEEK_API_ID && !config.baseUrl) {
-      throw new ServiceError(400, "invalid_provider", "a non-catalog API format requires an explicit compatible endpoint");
     }
     if (config.reasoningEffort !== undefined && !this.#reasoningCapability(config).values.includes(config.reasoningEffort)) throw new ServiceError(400, "invalid_effort", "reasoning effort is not supported by this model");
     await this.store.setProviderConfig(config);
@@ -1747,8 +1744,7 @@ export class RuntimeService {
         throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
       }
     } else {
-      if (!API_FORMATS.includes(provider.api) || !this.#admissibleModel(connection, provider.model)
-        || (provider.provider === DEEPSEEK_PROVIDER_ID && provider.api !== DEEPSEEK_API_ID && !provider.baseUrl)) {
+      if (providerRouteError(connection, provider) || !this.#admissibleModel(connection, provider.model)) {
         throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
       }
     }

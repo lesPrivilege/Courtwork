@@ -73,15 +73,7 @@ const REGISTRY = [
 
 test("三条 happy path 是闭集，且每条只用后端目录里真有的 provider 身份", () => {
   assert.deepEqual(CONNECTION_PATHS.map((path) => path.id), ["catalog", "compatible", "local"]);
-  for (const path of CONNECTION_PATHS)
-    for (const provider of path.providers)
-      assert.ok(Object.hasOwn(providerLabels, provider), `${path.id}: ${provider}`);
-  // 目录与本地两条路径列的是目录身份的闭集。
-  assert.ok(CONNECTION_PATHS.find((p) => p.id === "catalog").providers.length);
-  assert.ok(CONNECTION_PATHS.find((p) => p.id === "local").providers.length);
-  /* PV-24 · 兼容路径不列任何目录身份：那条路上身份就是宿主登记的这条连接本身
-   * （BE02 的 `conn-` 前缀），不借用 openai / deepseek 的身份与凭据槽。 */
-  assert.deepEqual(CONNECTION_PATHS.find((p) => p.id === "compatible").providers, []);
+  assert.ok(CONNECTION_PATHS.every(path => !Object.hasOwn(path, "providers")), "form paths do not own provider identities");
   // 端点归谁决定，是三条路径唯一真正的差别。
   assert.deepEqual(CONNECTION_PATHS.map((path) => path.endpoint), ["provider", "required", "host"]);
 });

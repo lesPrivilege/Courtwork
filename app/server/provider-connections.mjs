@@ -1,4 +1,5 @@
 import { declaredThinkingMap } from "../runtime/model-capabilities.mjs";
+import { connectionDefinition, connectionDefinitionId, declaredProtocolCompatibility, COMPATIBLE_DEFINITION_ID, PROVIDER_API_FORMATS as API_FORMATS, PROVIDER_DEFINITIONS } from "../runtime/provider-definitions.mjs";
 // A CONNECTION is the unit of provider identity in this host: one endpoint,
 // one wire format, one credential, one model list. Every route runs through a
 // connection, including the three catalog ones, so there is exactly one shape
@@ -8,11 +9,10 @@ import { declaredThinkingMap } from "../runtime/model-capabilities.mjs";
 // the record shape, the identity derivation and the honest reading of a model
 // whose capabilities the directory never reported.
 
-import { API_FORMATS, DEEPSEEK_PROVIDER_ID, FAKE_API_ID, FAKE_PROVIDER_ID, OPENAI_PROVIDER_ID } from "../runtime/pi-session-runtime.mjs";
 import { assertProviderApiKey, assertProviderApi, normalizeProviderBaseUrl, validateProviderModels } from "./provider-fields.mjs";
 
 /** Catalog provider identities: the closed set this build ships with. */
-export const CATALOG_PROVIDER_IDS = Object.freeze([FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]);
+export const CATALOG_PROVIDER_IDS = Object.freeze(PROVIDER_DEFINITIONS.filter(entry => entry.kind !== "compatible").map(entry => entry.id));
 
 export const CATALOG_CONNECTION_PREFIX = "catalog-";
 export const USER_CONNECTION_PREFIX = "conn-";
@@ -53,7 +53,7 @@ export function defaultConnections(catalogApiFor = defaultCatalogApi) {
 }
 
 function defaultCatalogApi(providerId) {
-  return providerId === FAKE_PROVIDER_ID ? FAKE_API_ID : API_FORMATS[0];
+  return connectionDefinition({ kind: "catalog", providerIdentity: providerId }).defaultApi;
 }
 
 /** Where a model's context window came from. `catalog` means the installed
@@ -72,6 +72,7 @@ export function publicConnection(connection, { credentialStatus }) {
     id: connection.id,
     kind: connection.kind,
     providerIdentity: connection.providerIdentity,
+    definitionId: connectionDefinitionId(connection),
     api: connection.api,
     baseUrl: connection.baseUrl,
     models: connection.models.map((entry) => ({
@@ -145,7 +146,7 @@ export function registrationInput(connection) {
       thinkingLevelMap: declaredThinkingMap(entry),
       // This connection selected the generic OpenAI protocol. URL substrings
       // must not silently select a different vendor's reasoning grammar.
-      compat: { thinkingFormat: "openai", supportsReasoningEffort: true, requiresReasoningContentOnAssistantMessages: false, requiresThinkingAsText: false },
+      compat: declaredProtocolCompatibility(COMPATIBLE_DEFINITION_ID, connection.api),
       input: ["text"],
       cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
       ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),
@@ -169,6 +170,7 @@ export function registrationExtras(connection) {
     api: connection.api,
     reasoning: (entry.reasoningEfforts?.length ?? 0) > 0,
       thinkingLevelMap: declaredThinkingMap(entry),
+    compat: declaredProtocolCompatibility(connectionDefinitionId(connection), connection.api),
     input: ["text"],
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     ...(Number.isSafeInteger(entry.contextWindow) ? { contextWindow: entry.contextWindow } : {}),

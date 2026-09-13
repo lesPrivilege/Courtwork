@@ -8,20 +8,19 @@ import { InMemoryCredentialStore, createProvider, envApiKeyAuth } from "@earendi
 import * as openaiCompletions from "@earendil-works/pi-ai/api/openai-completions";
 import * as openaiResponses from "@earendil-works/pi-ai/api/openai-responses";
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";
+import { FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID, PROVIDER_API_FORMATS, PROVIDER_DEFINITIONS } from "./provider-definitions.mjs";
 
 // Host wraps Pi coding-agent v3 AgentSession (in-process SDK). This module owns
 // no persistence and no SE-specific fields; the service supplies credentials,
 // tools, and event/settle callbacks. No core patch, no bindExtensions, no
 // default coding tools, no resource/extension discovery.
 
-export const FAKE_PROVIDER_ID = "fake-openai-loopback";
+export { FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID };
 export const FAKE_MODEL_ID = "fake-model";
 export const FAKE_API_ID = "openai-completions";
 export const FAKE_CREDENTIAL_KEY = "fake-local-loopback-key";
 
-export const DEEPSEEK_PROVIDER_ID = "deepseek";
-export const OPENAI_PROVIDER_ID = "openai";
-export const API_FORMATS = Object.freeze(["openai-completions", "openai-responses"]);
+export const API_FORMATS = PROVIDER_API_FORMATS;
 
 const REASONING_CONTROL_FIELDS = Object.freeze(["reasoning", "reasoning_effort", "thinking"]);
 const REASONING_EFFORTS = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
@@ -190,16 +189,19 @@ export async function createIsolatedModelRuntime() {
   // Native provider factories have a single default transport. Register the
   // SDK's public per-API dispatch map so the chosen format actually selects
   // its encoder/stream parser; changing model.api alone is insufficient.
-  for (const id of [DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID]) {
+  const transports = { "openai-completions": openaiCompletions, "openai-responses": openaiResponses };
+  for (const definition of PROVIDER_DEFINITIONS.filter(entry => entry.kind === "catalog")) {
+    const { id } = definition;
     const provider = runtime.getProvider(id);
     const models = [...runtime.getModels(id)];
     const template = {
       id, name: provider.name, baseUrl: provider.baseUrl,
       auth: { apiKey: envApiKeyAuth(`${provider.name} application key`, []) },
-      api: {
-        "openai-completions": { stream: openaiCompletions.stream, streamSimple: openaiCompletions.streamSimple },
-        "openai-responses": { stream: openaiResponses.stream, streamSimple: openaiResponses.streamSimple },
-      },
+      api: Object.fromEntries(definition.protocols.map(({ id: api }) => {
+        const transport = transports[api];
+        if (!transport) throw new Error(`provider ${id} has no installed transport for ${api}`);
+        return [api, { stream: transport.stream, streamSimple: transport.streamSimple }];
+      })),
     };
     captureNativeTemplate(runtime, template, models);
   }

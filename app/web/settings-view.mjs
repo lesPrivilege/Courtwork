@@ -96,14 +96,21 @@ export const providerLabels = {
   deepseek: "DeepSeek",
   "fake-openai-loopback": "Local test",
 };
-/* WK-91 · Add provider 的三条 happy path。`providers` 是后端目录的闭集
- * （`ALLOWED_PROVIDER_IDS`）在前端的投影：provider ID 由目录给，前端不生成也不发明。
- * `endpoint` 说的是这条路径里端点归谁决定 —— 这正是三条路径唯一真正的差别。 */
+// These are installed protocol declarations, not evidence that a remote model
+// supports every parameter or tool. Missing declarations stay unavailable.
+export function providerDefinitionOf(catalog, connection, providerId) {
+  const id = connection?.definitionId || (connection?.kind === "compatible" ? "openai-compatible" : providerId);
+  return catalog?.providerDefinitions?.find(entry => entry.id === id) || null;
+}
+export function providerFormatsOf(catalog, connection, providerId) {
+  return providerDefinitionOf(catalog, connection, providerId)?.protocols || [];
+}
+/* Connection paths describe the form, not provider identities. The Host's
+ * providerDefinitions supplies the providers and their installed protocols. */
 export const CONNECTION_PATHS = [
   {
     id: "catalog",
     title: "Catalog provider",
-    providers: ["openai", "deepseek"],
     endpoint: "provider",
     help: "A provider this build already knows. Add an API key and choose a model; the endpoint is the provider's own.",
   },
@@ -113,14 +120,12 @@ export const CONNECTION_PATHS = [
      * 真的成为它的模型目录 —— 能选中、能保存、能执行。 */
     id: "compatible",
     title: "Compatible endpoint",
-    providers: [],
     endpoint: "required",
     help: "An endpoint that speaks one of the formats below. Give its Base URL under Advanced and an API key, then Fetch models: the IDs that directory reports become this connection's model list.",
   },
   {
     id: "local",
     title: "Local endpoint",
-    providers: ["fake-openai-loopback"],
     endpoint: "host",
     help: "The local test endpoint this build runs itself. It takes no key and its address is fixed by the host.",
   },
@@ -821,12 +826,13 @@ export function createSettingsView(
     "Optional, comma-separated exact values: off, minimal, low, medium, high, xhigh, max. Leave empty if unknown; a boolean reasoning claim does not identify supported levels.",
     reasoningLevels,
   );
+  const baseUrlRow = row("Base URL", "Leave empty for the provider default.", baseUrl);
   const advanced = el(
     "details",
     { className: "settings-advanced" },
     el("summary", { text: "Advanced" }),
-    row("API format", "Wire format the provider expects.", api),
-    row("Base URL", "Leave empty for the provider default.", baseUrl),
+    row("API format", "Installed protocol handlers; model support is checked separately.", api),
+    baseUrlRow,
     contextWindowRow,
     reasoningRow,
     el("p", {
@@ -834,6 +840,8 @@ export function createSettingsView(
       text: "Custom headers and provider compatibility quirks are not configurable here yet; this connection sends the format above and nothing else.",
     }),
   );
+  const protocolNotice = el("p", { className: "form-help", attrs: { "data-provider-requirements": "" } });
+  advanced.append(protocolNotice);
   const status = el("p", { className: "form-help", attrs: { role: "status" } });
   const error = el("p", {
     className: "inline-error",
@@ -1045,14 +1053,15 @@ export function createSettingsView(
         );
       provider.value = connectionById(preferred) ? preferred : "";
     } else {
-      const allowed = entry.providers;
+      const definitions = (catalog?.providerDefinitions || []).filter(definition => definition.kind === id);
+      const allowed = definitions.map(definition => definition.id);
       for (const value of allowed)
         provider.append(
-          el("option", { attrs: { value }, text: providerLabels[value] || value }),
+          el("option", { attrs: { value }, text: definitions.find(definition => definition.id === value)?.title || value }),
         );
       provider.value = allowed.includes(preferred || provider.value)
         ? preferred || provider.value
-        : allowed[0];
+        : allowed[0] || "";
     }
     baseUrl.disabled = entry.endpoint === "host";
     baseUrl.placeholder =
@@ -1061,7 +1070,7 @@ export function createSettingsView(
         : entry.endpoint === "required"
           ? "https://host/v1"
           : "Provider default";
-    if (entry.endpoint === "host") baseUrl.value = "";
+    if (id !== "compatible") baseUrl.value = "";
     if (entry.endpoint === "required") advanced.open = true;
     clearProbeResult();
     if (id === "compatible") {
@@ -1156,10 +1165,8 @@ export function createSettingsView(
   }
   function fillApis(preferred) {
     api.replaceChildren();
-    const formats =
-      activePath() !== "compatible" && provider.value === "fake-openai-loopback"
-        ? ["openai-completions"]
-        : ["openai-completions", "openai-responses"];
+    const formats = providerFormatsOf(catalog, activePath() === "compatible"
+      ? selectedConnection() || { kind: "compatible" } : selectedConnection(), provider.value).map(entry => entry.id);
     for (const format of formats)
       api.append(
         el("option", {
@@ -1172,7 +1179,11 @@ export function createSettingsView(
     const selected = availableModels().find((m) => m.id === model.value);
     api.value = formats.includes(preferred)
       ? preferred
-      : connection?.api || selected?.api || "openai-completions";
+      : [connection?.api, selected?.api].find(format => formats.includes(format)) || formats[0] || "";
+  }
+  function selectedProtocol() {
+    return providerFormatsOf(catalog, activePath() === "compatible"
+      ? selectedConnection() || { kind: "compatible" } : selectedConnection(), provider.value).find(entry => entry.id === api.value);
   }
   function lock() {
     const active = Boolean(info?.activeRuns) || Boolean(getSession()?.active);
@@ -1180,8 +1191,16 @@ export function createSettingsView(
       node.disabled = busy || active;
     const pathId = activePath();
     const path = CONNECTION_PATHS.find((entry) => entry.id === pathId);
-    const endpointMissing = path?.endpoint === "required" && !baseUrl.value.trim();
-    save.disabled = saveOnly.disabled = busy || active || !catalog || !model.value || endpointMissing;
+    const protocol = selectedProtocol();
+    const endpointMissing = (path?.endpoint === "required" || protocol?.endpoint === "explicit") && !baseUrl.value.trim();
+    save.disabled = saveOnly.disabled = busy || active || !catalog || !model.value || !protocol || endpointMissing;
+    protocolNotice.hidden = Boolean(protocol);
+    protocolNotice.textContent = "Provider protocol information is unavailable. Reload settings before saving.";
+    baseUrlRow.querySelector('.settings-row-help').textContent = protocol?.endpoint === "explicit"
+      ? "Required for this provider and API format."
+      : protocol?.endpoint === "host-fixed" ? "The test endpoint is fixed by the host." : "Leave empty for the provider default.";
+    baseUrl.placeholder = protocol?.endpoint === "explicit" ? "https://host/v1"
+      : protocol?.endpoint === "host-fixed" ? "Fixed by the host" : "Provider default";
     if (path?.endpoint === "host") baseUrl.disabled = true;
     // 窗口值与 reasoning 声明只在兼容路径上有可写之处：目录连接的这两样由目录/
     // 连接自己的原生行给出，用户改不了它们。
@@ -1237,7 +1256,7 @@ export function createSettingsView(
       baseUrl.value = connection?.baseUrl || "";
       contextWindow.value = "";
       fillApis(connection?.api);
-    }
+    } else baseUrl.value = "";
     fillModels();
     lock();
   });
@@ -1253,6 +1272,7 @@ export function createSettingsView(
   api.addEventListener("change", () => {
     dirty = true;
     clearVerifyReceipt();
+    lock();
   });
   contextWindow.addEventListener("input", () => {
     dirty = true;
@@ -2555,7 +2575,6 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     const details = el('details', { className: 'settings-host-details' },
       el('summary', { text: 'Host details' }),
       readOnlyRow("Data directory", "The host does not report its data directory.", "Not reported"),
-      readOnlyRow("Adapter", "Serves this workspace.", info?.adapterId || "Not loaded"),
       readOnlyRow("Host state", "Whether the host is accepting work.", info?.state || "Not loaded"),
       readOnlyRow("Tools", "Tools exposed by this host.", (info?.capabilities?.tools || []).join(", ") || "Not loaded"),
     );

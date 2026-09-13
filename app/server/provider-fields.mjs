@@ -2,14 +2,10 @@
 // store, credential, or HTTP dependencies: callers translate ProviderFieldError
 // into their own boundary error (HTTP input or invalid persisted state).
 
-/** These values mirror app/runtime/pi-session-runtime.mjs:24.  The helper is
- * kept independent of Pi so the store can enforce the same API domain while
- * validating a state file.  Runtime callers may pass their own allowed list to
- * assertProviderApi when the installed API registry is the authority. */
-export const PROVIDER_API_FORMATS = Object.freeze([
-  "openai-completions",
-  "openai-responses",
-]);
+/** Shared with the installed provider registry; no SDK, credentials or store
+ * dependency. Runtime callers may supply a narrower provider protocol set. */
+export { PROVIDER_API_FORMATS } from "../runtime/provider-definitions.mjs";
+import { PROVIDER_API_FORMATS } from "../runtime/provider-definitions.mjs";
 
 export const PROVIDER_FIELD_LIMITS = Object.freeze({
   baseUrl: 2048,

@@ -2427,6 +2427,15 @@ export function createRuntimeView(
       mount.append(note("The runtime has not been read yet."));
       return;
     }
+    mount.append(
+      readOnlyRow("Runtime adapter", "Runs sessions and tools independently of the selected model.", environment.info?.adapterId || snapshot.adapterId || "Not reported"),
+      note("Changing the provider or model keeps this runtime adapter. Tool exposure and permissions are configured separately."),
+      el("div", { className: "runtime-row-actions" },
+        el("a", { className: "settings-jump", attrs: { href: "#settings/tools" }, text: "Manage tools" }),
+        el("a", { className: "settings-jump", attrs: { href: "#settings/permissions" }, text: "Review permissions" }),
+        el("a", { className: "settings-jump", attrs: { href: "#settings/developer" }, text: "Inspect runtime" }),
+      ),
+    );
     const details = el('details', {className:'runtime-environment-details'}, el('summary',{text:'Saved model and host details'}), environmentFacts());
     details.open=open.has('environment-details');
     details.addEventListener('toggle',()=>{if(details.open)open.add('environment-details');else open.delete('environment-details');});
