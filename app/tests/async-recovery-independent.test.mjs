@@ -1,3 +1,4 @@
+import { historicalFixtures } from "./fixtures/historical/manifest.mjs";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { once } from 'node:events';
@@ -70,6 +71,10 @@ async function terminal(api, sessionId, runId) {
   }
 }
 async function withHistoricalStore(sha, run) {
+  if (sha === null) {
+    const { RuntimeStore } = await import('./fixtures/historical/schema3/server/store.mjs');
+    return run(RuntimeStore);
+  }
   const parent = await mkdtemp(path.join(tmpdir(), 'cw-async-historical-host-'));
   const checkout = path.join(parent, 'source');
   try {
@@ -150,17 +155,17 @@ for (const point of ['async_intent', 'async_dispatch', 'async_result', 'async_de
   });
 }
 
-test('fixed old main schema4 RuntimeStore rejects a schema5 state without changing bytes', async () => {
+test('fixed old main schema4 RuntimeStore rejects a schema13 state without changing bytes', async () => {
   const dataDir = await mkdtemp(path.join(tmpdir(), 'cw-async-old-host-state-'));
   const checkoutParent = await mkdtemp(path.join(tmpdir(), 'cw-async-old-main-'));
   const checkout = path.join(checkoutParent, 'source');
   try {
     const current = await new RuntimeStore({ dataDir }).open(); await current.close();
     const file = path.join(dataDir, 'runtime-state.json'); const original = await readFile(file);
-    await exec('git', ['-C', repoRoot, 'worktree', 'add', '--detach', checkout, '7c07ef6b5a19f0eb2c45b8894ab9911de87ea979']);
+    await exec('git', ['-C', repoRoot, 'worktree', 'add', '--detach', checkout, historicalFixtures.schema4.commit]);
     const { RuntimeStore: OldRuntimeStore } = await import(pathToFileURL(path.join(checkout, 'app/server/store.mjs')).href);
     await assert.rejects(new OldRuntimeStore({ dataDir }).open(), /schemaVersion 13 is not supported/);
-    assert.deepEqual(await readFile(file), original, 'the fixed old host refuses schema5 before rewriting any byte');
+    assert.deepEqual(await readFile(file), original, 'the fixed old host refuses schema13 before rewriting any byte');
   } finally {
     await exec('git', ['-C', repoRoot, 'worktree', 'remove', '--force', checkout]).catch(() => {});
     await rm(checkoutParent, { recursive: true, force: true }); await rm(dataDir, { recursive: true, force: true });
@@ -182,7 +187,7 @@ test('schema3 and schema4 migrate with an exact independent backup and reopen', 
       const legacyData = await mkdtemp(path.join(tmpdir(), `cw-async-schema${version}-legacy-`));
       try {
         await writeFile(path.join(legacyData, 'runtime-state.json'), await readFile(path.join(dataDir, backup)));
-        const historicalSha = version === 3 ? 'b26670c8975bd9bd2666a856be55b80fcb2963fc' : '7c07ef6b5a19f0eb2c45b8894ab9911de87ea979';
+        const historicalSha = version === 3 ? null : historicalFixtures.schema4.commit;
         await withHistoricalStore(historicalSha, async (HistoricalStore) => {
           const historical = await new HistoricalStore({ dataDir: legacyData }).open();
           assert.equal(historical.state.schemaVersion, version, `fixed historical schema${version} host opens its separate backup`);

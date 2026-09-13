@@ -1,3 +1,4 @@
+import { historicalFixtures } from "./fixtures/historical/manifest.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, rm, readFile, writeFile, mkdir, copyFile, symlink, readdir } from 'node:fs/promises';
@@ -6,7 +7,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { CoreClient } from '../core/client.mjs';
 
-const base = '6921dbd18de153020c87e4438eebe5260762fee0';
+const base = historicalFixtures.governance.commit;
 const fixturePath = new URL('./fixtures/work-core/governance-crash.py', import.meta.url).pathname;
 const corePath = new URL('../core/', import.meta.url).pathname;
 const ctx = {actor:'local-user',project_id:'p',purpose:'human-governance',execution:null};
@@ -37,8 +38,9 @@ async function fixture(fn) {
 }
 async function oldHost(dir) {
   const dest=path.join(dir,'old-host'); await mkdir(dest);
-  for(const name of ['core.py','file_candidates.py','attention.py','bridge.py']) {
-    const r=spawnSync('git',['show',`${base}:app/core/${name}`],{encoding:'utf8'});
+  for(const file of historicalFixtures.governance.files) {
+    const name = path.basename(file);
+    const r=spawnSync('git',['show',`${base}:app/${file}`],{encoding:'utf8'});
     successful(r); await writeFile(path.join(dest,name),r.stdout);
   }
   return dest;

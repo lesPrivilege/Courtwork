@@ -1,3 +1,4 @@
+import { historicalFixtures } from "./fixtures/historical/manifest.mjs";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
@@ -445,9 +446,9 @@ test('schema7 effort survives upgrade; fixed old host refuses schema9 and restor
   try{
     const code=path.join(dir,'old-code'),data=path.join(dir,'data'),restore=path.join(dir,'restore');
     const repo=fileURLToPath(new URL('../../',import.meta.url));
-    const files=['server/store.mjs','server/runtime-lock.mjs','server/runtime-lock.py','server/work-metrics.mjs','server/work-summary.mjs','server/async-task-state.mjs','runtime/test-hooks.mjs'];
+    const files=historicalFixtures.coordination.files;
     for(const file of files) {
-      const {stdout}=await promisify(execFile)('git',['show','6921dbd18de153020c87e4438eebe5260762fee0:app/'+file],{cwd:repo,encoding:'buffer'});
+      const {stdout}=await promisify(execFile)('git',['show',`${historicalFixtures.coordination.commit}:app/${file}`],{cwd:repo,encoding:'buffer'});
       const dest=path.join(code,file);await mkdir(path.dirname(dest),{recursive:true});await writeFile(dest,stdout);
     }
     const {RuntimeStore:Old}=await import(pathToFileURL(path.join(code,'server/store.mjs')).href);
