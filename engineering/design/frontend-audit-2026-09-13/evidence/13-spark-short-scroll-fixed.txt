@@ -1,0 +1,288 @@
+- dialog "Projects and chats":
+  - banner:
+    - link "CourtWork":
+      - /url: "#home"
+      - text: CourtWork
+    - button "Close navigation":
+      - generic: Close navigation
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "2"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Project Cedar review Example" [expanded]:
+        - generic: Project Cedar review
+        - generic: Example
+      - button "New chat in Project Cedar review":
+        - generic: New chat in Project Cedar review
+      - button "Continue Project Cedar review Work":
+        - generic: Continue Project Cedar review
+        - generic: Work
+      - button "Final review memo — working artifact":
+        - generic: Final review memo — working artifact
+      - button "Source refresh — Spark derivation Work":
+        - generic: Source refresh — Spark derivation
+        - generic: Work
+      - button "Inbound NDA — Project Cedar Work":
+        - generic: Inbound NDA — Project Cedar
+        - generic: Work
+      - button "Northside housing ledger Example" [expanded]:
+        - generic: Northside housing ledger
+        - generic: Example
+      - button "New chat in Northside housing ledger":
+        - generic: New chat in Northside housing ledger
+      - button "Northside ledger reconciliation":
+        - generic: Northside ledger reconciliation
+  - contentinfo "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main:
+  - button [expanded]:
+    - generic: Toggle navigation
+  - text: ·
+  - generic: Example
+  - region:
+    - paragraph: Explore an example workspace. Your first real run closes the example.
+    - button: Start with your own work
+    - button: Close the example
+  - region:
+    - region:
+      - button: Attention items
+      - combobox
+      - paragraph: 1 item · all states
+      - list:
+        - button:
+          - generic: Review Project Cedar source change
+          - generic: Investigating
+          - generic: The source-backed review needs human inspection after a source refresh.
+          - generic: Next · Inspect refreshed sources
+    - region:
+      - heading [level=3]:
+        - button: Activity
+      - button: 28d
+      - button [pressed]: 84d
+      - paragraph:
+        - strong: "6"
+        - generic: recorded runs · 84 days · all retained work
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - paragraph: 2026-06-20 — 2026-09-11
+      - paragraph: UTC · Retained runs only. Deleted-chat history is unknown.
+    - button: Manage connections
+    - button [expanded]: Hide modules
+  - region:
+    - heading [level=3]: Your work
+    - button:
+      - generic: Waiting for you
+      - generic: "0"
+      - generic: Open questions and approval requests, all retained work, right now.
+    - button:
+      - generic: Continue
+      - generic: "7"
+      - generic: Retained chats, all retained work, right now.
+    - button:
+      - generic: Needs a look
+      - generic: "0"
+      - generic: Runs recorded failed or unknown, all retained work, right now.
+  - log:
+    - heading [level=3]: Continue
+    - generic: "7"
+    - list:
+      - button:
+        - generic: Attention
+        - generic: Global Attention
+        - generic: Completed
+      - button:
+        - generic: Source refresh — Spark derivation
+        - generic: Project Cedar review
+        - generic: Completed
+      - button:
+        - generic: Northside ledger reconciliation
+        - generic: Northside housing ledger
+        - generic: Completed
+      - button:
+        - generic: Attention
+        - generic: Global Attention
+        - generic: Completed
+      - button:
+        - generic: Continue Project Cedar review
+        - generic: Project Cedar review
+        - generic: No run recorded
+      - button:
+        - generic: Final review memo — working artifact
+        - generic: Project Cedar review
+        - generic: Completed
+      - button:
+        - generic: Inbound NDA — Project Cedar
+        - generic: Project Cedar review
+        - generic: Completed
+  - heading [level=2]: Orchestrate your agents. Govern your work.
+  - generic: Message
+  - textbox:
+    - /placeholder: Describe the work you want to do…
+  - button:
+    - generic: Chat files
+  - button: Local test · Provider default
+  - button [disabled]:
+    - generic: Send
+  - status: Choose or create a project to send.
+  - text: Project
+  - combobox [disabled]
+  - button:
+    - generic: New project
+  - combobox
+- status
+- dialog "Spark":
+  - banner:
+    - heading "Spark" [level=2]
+    - paragraph: See which Matters need updating after their sources change.
+    - button "Close Spark":
+      - generic: Close Spark
+  - combobox "Spark project":
+    - option "Project Cedar review" [selected]
+    - option "Northside housing ledger"
+  - tablist "Spark view":
+    - tab "Overview"
+    - tab "Activity" [active] [selected]
+  - tabpanel "Activity":
+    - generic: Sample data
+    - combobox "Sample scenario":
+      - option "Stale" [selected]
+      - option "Quiet"
+      - option "Empty"
+      - option "Partial"
+      - option "Truncated"
+    - button "Check for a source again"
+    - button "Hide sample data"
+    - paragraph: As of 2026-09-10T12:34:56.000Z
+    - combobox "Filter by Matter":
+      - option "All Matters" [selected]
+      - option "Acme inbound NDA"
+      - option "Acme employment agreement"
+    - combobox "Filter by status":
+      - option "All statuses" [selected]
+      - option "Pending"
+      - option "Accepted"
+      - option "Rejected"
+      - option "Needs evidence"
+    - generic: Acme inbound NDA
+    - table:
+      - rowgroup:
+        - row "Candidate Status Candidate revision Behind by Supersedes":
+          - columnheader "Candidate"
+          - columnheader "Status"
+          - columnheader "Candidate revision"
+          - columnheader "Behind by"
+          - columnheader "Supersedes"
+      - rowgroup:
+        - row "c-9 Pending 1 of 3 2 —":
+          - rowheader "c-9"
+          - cell "Pending"
+          - cell "1 of 3"
+          - cell "2"
+          - cell "—"
+        - row "c-10 Pending 2 of 3 1 c-9":
+          - rowheader "c-10"
+          - cell "Pending"
+          - cell "2 of 3"
+          - cell "1"
+          - cell "c-9"

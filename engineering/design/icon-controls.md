@@ -65,3 +65,7 @@ IC-5 的 Lucide 静态子集继续是唯一发货中的通用家族。候选家�
 ## IC-8 · 家族选型裁定：不换族（WK-163，2026-09-10）
 
 [EX-IC1 specimen](icon-specimen/README.md) 在真实槽位并排 Lucide / MingCute Regular / Phosphor Regular 之后，裁定 **D：不做家族级迁移**。Lucide 1.41.0 静态子集仍是唯一 canonical 家族，IC-6 donor 通道保留。三条硬事实：候选族同名义尺寸下 bbox 占比中位 0.56 对 Lucide 0.69（全站小一档）；MingCute Regular 为 butt cap / miter join、Phosphor Regular 为填充轮廓，两者都不满足 IC-6 canonical geometry；Phosphor 缺 `panel-right`。IC-6 光学验收补一条：donor 归一后的占比须与同尺寸 Lucide 邻居同档。MingCute 仍是首选 donor 来源；Phosphor 降为参考，不作 donor 来源。symbol id 语义化仍以换族或引 donor 为触发，今日不做。全文见 [intake-round-3 §4ay WK-163](../mvp/execution/work-surface-kit/intake-round-3.md)。
+
+## IC-9 · 原生 SVG 几何注入（2026-09-13）
+
+通用 `icon()` 以 `createElementNS` 创建 SVG 及 path/rect/circle 等原生几何节点，消费固定源资产生成的 `app/web/vendor/icon-data.generated.mjs`，不在交互重绘时依赖外部 `<use>` 请求。生成器与源 sprite 逐枚等价校验；原源文件、版本、license、描边和家族选择不变。共享 flowRow 披露箭头也消费 canonical chevron-right，禁止以文本字符伪装该图标。浏览器原生 summary/select 标记仍由原生控件负责。详见[本轮报告](frontend-audit-2026-09-13/report.md)。

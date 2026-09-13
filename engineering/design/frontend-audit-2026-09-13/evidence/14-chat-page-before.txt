@@ -1,0 +1,116 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "2"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Project Cedar review Example" [expanded]:
+        - generic: Project Cedar review
+        - generic: Example
+      - button "New chat in Project Cedar review":
+        - generic: New chat in Project Cedar review
+      - button "Continue Project Cedar review Work":
+        - generic: Continue Project Cedar review
+        - generic: Work
+      - button "Final review memo — working artifact":
+        - generic: Final review memo — working artifact
+      - button "Source refresh — Spark derivation Work":
+        - generic: Source refresh — Spark derivation
+        - generic: Work
+      - button "Inbound NDA — Project Cedar Work":
+        - generic: Inbound NDA — Project Cedar
+        - generic: Work
+      - button "Northside housing ledger Example" [expanded]:
+        - generic: Northside housing ledger
+        - generic: Example
+      - button "New chat in Northside housing ledger":
+        - generic: New chat in Northside housing ledger
+      - button "Northside ledger reconciliation":
+        - generic: Northside ledger reconciliation
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "Chat" [level=1]: · Chat
+  - generic: Example
+  - region "Chat":
+    - paragraph: CHAT
+    - heading "Chat" [active] [level=1]:
+      - generic: Chat
+    - paragraph: Start from a question or an idea, choose who you are talking to, and let the conversation carry what it produces into the work.
+    - button "New chat"
+    - region "Continue":
+      - heading "Continue" [level=2]
+      - list:
+        - button "Northside ledger reconciliation Northside housing ledger 1d ago":
+          - generic: Northside ledger reconciliation
+          - generic: Northside housing ledger
+          - generic: 1d ago
+        - button "Continue Project Cedar review Project Cedar review Work 1d ago":
+          - generic: Continue Project Cedar review
+          - generic: Project Cedar review
+          - generic: Work
+          - generic: 1d ago
+        - button "Final review memo — working artifact Project Cedar review 1d ago":
+          - generic: Final review memo — working artifact
+          - generic: Project Cedar review
+          - generic: 1d ago
+        - button "Source refresh — Spark derivation Project Cedar review Work 1d ago":
+          - generic: Source refresh — Spark derivation
+          - generic: Project Cedar review
+          - generic: Work
+          - generic: 1d ago
+        - button "Inbound NDA — Project Cedar Project Cedar review Work 1d ago":
+          - generic: Inbound NDA — Project Cedar
+          - generic: Project Cedar review
+          - generic: Work
+          - generic: 1d ago
+    - region "Chat, Attention and Spark":
+      - article:
+        - heading "Chat" [level=2]:
+          - generic: Chat
+        - paragraph: A conversation that stays with the work. Talk something through, keep what matters, and hand it on when it is ready.
+        - paragraph: You are here.
+      - article:
+        - heading "Attention" [level=2]:
+          - generic: Attention
+        - paragraph: The changes across your work that need a look, with the object and the reason beside them.
+        - button "Open Attention"
+      - article:
+        - heading "Spark" [level=2]:
+          - generic: Spark
+        - paragraph: "Fast, focused preparation of material: organize, extract and translate the pieces the next step depends on."
+        - button "Open Spark"
+    - region "What a chat keeps":
+      - heading "What a chat keeps" [level=2]
+      - term: Its project.
+      - definition: A chat belongs to the project you chose. Files, materials and file access come from there, and the chat stays in that project's list.
+      - term: Its record.
+      - definition: Every run leaves its messages, tool actions and recorded files in the chat. Binding a chat to a Matter turns it into Work, where candidates and decisions are kept.
+      - term: Its model.
+      - definition: Chats run through the connection configured in Settings · Models. This page does not connect to a provider by itself.
+      - term: Later.
+      - definition: Carrying a conversation across providers, a shared memory, and handing a discussion to a run are planned. They appear here when they exist, not before.
+- status

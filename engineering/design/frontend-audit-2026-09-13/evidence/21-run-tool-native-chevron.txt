@@ -1,0 +1,70 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Frontend Audit · synthetic" [expanded]:
+        - generic: Frontend Audit · synthetic
+      - button "New chat in Frontend Audit · synthetic":
+        - generic: New chat in Frontend Audit · synthetic
+      - button "Audit files and return paths":
+        - generic: Audit files and return paths
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace"
+- complementary "Run details":
+  - button "Back to chat":
+    - generic: Chat
+  - heading "Run details" [level=2]
+  - tablist "Work surface views":
+    - tab "Workspace"
+    - tab "Work" [selected]
+  - button "Hide work surface":
+    - generic: Hide work surface
+  - tabpanel "Work":
+    - generic: Completed
+    - button "Refresh run details":
+      - generic: Refresh run details
+    - paragraph: Audit files and return paths
+    - time: Started 9/13/2026, 3:41:04 PM
+    - paragraph: "/fixture script [{\"name\":\"ws_read\",\"arguments\":{\"path\":\"materials/audit-brief.md\"}}]"
+    - heading "Results" [level=3]
+    - paragraph: No files were recorded for this run.
+    - heading "Usage" [level=3]
+    - term: Input tokens
+    - definition: "2"
+    - term: Output tokens
+    - definition: "3"
+    - term: Model turns
+    - definition: "2"
+    - generic "Cache counts"
+    - 'generic "2 model requests · latest request: Completed · 3 ms"'
+    - generic "Tool activity · 1 action" [active]
+    - list:
+      - generic "ws_readCompleted"
+    - generic "Runtime context · recorded"
+    - generic "Run information"
+    - generic "Event trace · 23 events"
+- status

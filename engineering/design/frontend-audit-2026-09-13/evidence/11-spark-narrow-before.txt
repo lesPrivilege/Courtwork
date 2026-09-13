@@ -1,0 +1,241 @@
+- main "Agent workspace":
+  - button "Toggle navigation":
+    - generic: Toggle navigation
+  - text: ·
+  - generic: Example
+  - region "Example workspace":
+    - paragraph: Explore an example workspace. Your first real run closes the example.
+    - button "Start with your own work"
+    - button "Close the example"
+  - region "Home modules":
+    - region "Attention items":
+      - button "Attention items"
+      - combobox "Attention project":
+        - option "Project Cedar review" [selected]
+        - option "Northside housing ledger"
+      - paragraph: 1 item · all states
+      - list:
+        - button "Review Project Cedar source change Investigating The source-backed review needs human inspection after a source refresh. Next · Inspect refreshed sources":
+          - generic: Review Project Cedar source change
+          - generic: Investigating
+          - generic: The source-backed review needs human inspection after a source refresh.
+          - generic: Next · Inspect refreshed sources
+    - region "Recorded activity":
+      - heading "Activity" [level=3]:
+        - button "Activity"
+      - generic "Activity period":
+        - button "28d"
+        - button "84d" [pressed]
+      - paragraph:
+        - strong: "6"
+        - generic: recorded runs · 84 days · all retained work
+      - group "Daily retained runs, UTC. Arrow keys move between days.":
+        - button "2026-06-20 · 0 retained runs (UTC)"
+        - button "2026-06-21 · 0 retained runs (UTC)"
+        - button "2026-06-22 · 0 retained runs (UTC)"
+        - button "2026-06-23 · 0 retained runs (UTC)"
+        - button "2026-06-24 · 0 retained runs (UTC)"
+        - button "2026-06-25 · 0 retained runs (UTC)"
+        - button "2026-06-26 · 0 retained runs (UTC)"
+        - button "2026-06-27 · 0 retained runs (UTC)"
+        - button "2026-06-28 · 0 retained runs (UTC)"
+        - button "2026-06-29 · 0 retained runs (UTC)"
+        - button "2026-06-30 · 0 retained runs (UTC)"
+        - button "2026-07-01 · 0 retained runs (UTC)"
+        - button "2026-07-02 · 0 retained runs (UTC)"
+        - button "2026-07-03 · 0 retained runs (UTC)"
+        - button "2026-07-04 · 0 retained runs (UTC)"
+        - button "2026-07-05 · 0 retained runs (UTC)"
+        - button "2026-07-06 · 0 retained runs (UTC)"
+        - button "2026-07-07 · 0 retained runs (UTC)"
+        - button "2026-07-08 · 0 retained runs (UTC)"
+        - button "2026-07-09 · 0 retained runs (UTC)"
+        - button "2026-07-10 · 0 retained runs (UTC)"
+        - button "2026-07-11 · 0 retained runs (UTC)"
+        - button "2026-07-12 · 0 retained runs (UTC)"
+        - button "2026-07-13 · 0 retained runs (UTC)"
+        - button "2026-07-14 · 0 retained runs (UTC)"
+        - button "2026-07-15 · 0 retained runs (UTC)"
+        - button "2026-07-16 · 0 retained runs (UTC)"
+        - button "2026-07-17 · 0 retained runs (UTC)"
+        - button "2026-07-18 · 0 retained runs (UTC)"
+        - button "2026-07-19 · 0 retained runs (UTC)"
+        - button "2026-07-20 · 0 retained runs (UTC)"
+        - button "2026-07-21 · 0 retained runs (UTC)"
+        - button "2026-07-22 · 0 retained runs (UTC)"
+        - button "2026-07-23 · 0 retained runs (UTC)"
+        - button "2026-07-24 · 0 retained runs (UTC)"
+        - button "2026-07-25 · 0 retained runs (UTC)"
+        - button "2026-07-26 · 0 retained runs (UTC)"
+        - button "2026-07-27 · 0 retained runs (UTC)"
+        - button "2026-07-28 · 0 retained runs (UTC)"
+        - button "2026-07-29 · 0 retained runs (UTC)"
+        - button "2026-07-30 · 0 retained runs (UTC)"
+        - button "2026-07-31 · 0 retained runs (UTC)"
+        - button "2026-08-01 · 0 retained runs (UTC)"
+        - button "2026-08-02 · 0 retained runs (UTC)"
+        - button "2026-08-03 · 0 retained runs (UTC)"
+        - button "2026-08-04 · 0 retained runs (UTC)"
+        - button "2026-08-05 · 0 retained runs (UTC)"
+        - button "2026-08-06 · 0 retained runs (UTC)"
+        - button "2026-08-07 · 0 retained runs (UTC)"
+        - button "2026-08-08 · 0 retained runs (UTC)"
+        - button "2026-08-09 · 0 retained runs (UTC)"
+        - button "2026-08-10 · 0 retained runs (UTC)"
+        - button "2026-08-11 · 0 retained runs (UTC)"
+        - button "2026-08-12 · 0 retained runs (UTC)"
+        - button "2026-08-13 · 0 retained runs (UTC)"
+        - button "2026-08-14 · 0 retained runs (UTC)"
+        - button "2026-08-15 · 0 retained runs (UTC)"
+        - button "2026-08-16 · 0 retained runs (UTC)"
+        - button "2026-08-17 · 0 retained runs (UTC)"
+        - button "2026-08-18 · 0 retained runs (UTC)"
+        - button "2026-08-19 · 0 retained runs (UTC)"
+        - button "2026-08-20 · 0 retained runs (UTC)"
+        - button "2026-08-21 · 0 retained runs (UTC)"
+        - button "2026-08-22 · 0 retained runs (UTC)"
+        - button "2026-08-23 · 0 retained runs (UTC)"
+        - button "2026-08-24 · 0 retained runs (UTC)"
+        - button "2026-08-25 · 0 retained runs (UTC)"
+        - button "2026-08-26 · 0 retained runs (UTC)"
+        - button "2026-08-27 · 0 retained runs (UTC)"
+        - button "2026-08-28 · 0 retained runs (UTC)"
+        - button "2026-08-29 · 0 retained runs (UTC)"
+        - button "2026-08-30 · 0 retained runs (UTC)"
+        - button "2026-08-31 · 0 retained runs (UTC)"
+        - button "2026-09-01 · 0 retained runs (UTC)"
+        - button "2026-09-02 · 0 retained runs (UTC)"
+        - button "2026-09-03 · 0 retained runs (UTC)"
+        - button "2026-09-04 · 0 retained runs (UTC)"
+        - button "2026-09-05 · 0 retained runs (UTC)"
+        - button "2026-09-06 · 0 retained runs (UTC)"
+        - button "2026-09-07 · 0 retained runs (UTC)"
+        - button "2026-09-08 · 0 retained runs (UTC)"
+        - button "2026-09-09 · 0 retained runs (UTC)"
+        - button "2026-09-10 · 0 retained runs (UTC)"
+        - button "2026-09-11 · 6 retained runs (UTC)"
+      - paragraph: 2026-06-20 — 2026-09-11
+      - paragraph: UTC · Retained runs only. Deleted-chat history is unknown.
+    - button "Manage connections"
+    - button "Hide modules" [expanded]
+  - region "Recorded totals":
+    - heading "Your work" [level=3]
+    - button "Waiting for you, 0":
+      - generic: Waiting for you
+      - generic: "0"
+      - generic: Open questions and approval requests, all retained work, right now.
+    - button "Continue, 7":
+      - generic: Continue
+      - generic: "7"
+      - generic: Retained chats, all retained work, right now.
+    - button "Needs a look, 0":
+      - generic: Needs a look
+      - generic: "0"
+      - generic: Runs recorded failed or unknown, all retained work, right now.
+  - log:
+    - heading "Continue" [level=3]
+    - generic: "7"
+    - list:
+      - button "Attention Global Attention Completed":
+        - generic: Attention
+        - generic: Global Attention
+        - generic: Completed
+      - button "Source refresh — Spark derivation Project Cedar review Completed":
+        - generic: Source refresh — Spark derivation
+        - generic: Project Cedar review
+        - generic: Completed
+      - button "Northside ledger reconciliation Northside housing ledger Completed":
+        - generic: Northside ledger reconciliation
+        - generic: Northside housing ledger
+        - generic: Completed
+      - button "Attention Global Attention Completed":
+        - generic: Attention
+        - generic: Global Attention
+        - generic: Completed
+      - button "Continue Project Cedar review Project Cedar review No run recorded":
+        - generic: Continue Project Cedar review
+        - generic: Project Cedar review
+        - generic: No run recorded
+      - button "Final review memo — working artifact Project Cedar review Completed":
+        - generic: Final review memo — working artifact
+        - generic: Project Cedar review
+        - generic: Completed
+      - button "Inbound NDA — Project Cedar Project Cedar review Completed":
+        - generic: Inbound NDA — Project Cedar
+        - generic: Project Cedar review
+        - generic: Completed
+  - heading "Orchestrate your agents. Govern your work." [level=2]
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: Describe the work you want to do…
+  - button "Chat files":
+    - generic: Chat files
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - button "Send" [disabled]:
+    - generic: Send
+  - status: Choose or create a project to send.
+  - text: Project
+  - combobox "Project for this chat" [disabled]:
+    - option "Create a project to begin" [selected]
+  - button "New project":
+    - generic: New project
+  - combobox "File access for this chat":
+    - option "Ask before editing" [selected]
+    - option "Allow edits"
+    - option "Read only"
+- status
+- dialog "Spark":
+  - banner:
+    - heading "Spark" [level=2]
+    - paragraph: See which Matters need updating after their sources change.
+    - button "Close Spark":
+      - generic: Close Spark
+  - combobox "Spark project":
+    - option "Project Cedar review" [selected]
+    - option "Northside housing ledger"
+  - tablist "Spark view":
+    - tab "Overview"
+    - tab "Activity" [active] [selected]
+  - tabpanel "Activity":
+    - generic: Sample data
+    - combobox "Sample scenario":
+      - option "Stale" [selected]
+      - option "Quiet"
+      - option "Empty"
+      - option "Partial"
+      - option "Truncated"
+    - button "Check for a source again"
+    - button "Hide sample data"
+    - paragraph: As of 2026-09-10T12:34:56.000Z
+    - combobox "Filter by Matter":
+      - option "All Matters" [selected]
+      - option "Acme inbound NDA"
+      - option "Acme employment agreement"
+    - combobox "Filter by status":
+      - option "All statuses" [selected]
+      - option "Pending"
+      - option "Accepted"
+      - option "Rejected"
+      - option "Needs evidence"
+    - generic: Acme inbound NDA
+    - table:
+      - rowgroup:
+        - row "Candidate Status Candidate revision Behind by Supersedes":
+          - columnheader "Candidate"
+          - columnheader "Status"
+          - columnheader "Candidate revision"
+          - columnheader "Behind by"
+          - columnheader "Supersedes"
+      - rowgroup:
+        - row "c-9 Pending 1 of 3 2 —":
+          - rowheader "c-9"
+          - cell "Pending"
+          - cell "1 of 3"
+          - cell "2"
+          - cell "—"
+        - row "c-10 Pending 2 of 3 1 c-9":
+          - rowheader "c-10"
+          - cell "Pending"
+          - cell "2 of 3"
+          - cell "1"
+          - cell "c-9"

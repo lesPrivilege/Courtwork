@@ -1,0 +1,45 @@
+- main "Agent workspace":
+  - button "Back to app" [active]
+  - heading "Settings" [level=1]: · Settings
+  - generic: Example
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "General" [selected]:
+        - generic: General
+      - tab "Appearance":
+        - generic: Appearance
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations":
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Memory":
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer":
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "General":
+      - heading "General" [level=3]
+      - heading "New chats" [level=4]
+      - generic: File access
+      - generic: Used when a chat is created. Existing chats keep their file access.
+      - group "File access for new chats":
+        - generic "Ask before editing":
+          - radio "Ask before editing" [checked]
+          - generic: Ask before editing
+        - generic "Allow edits":
+          - radio "Allow edits"
+          - generic: Allow edits
+        - generic "Read only":
+          - radio "Read only"
+          - generic: Read only
+      - heading "Data" [level=4]
+      - generic "Host details"
+- status

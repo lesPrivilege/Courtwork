@@ -1,0 +1,29 @@
+✔ recent chats across open projects, newest first, marking Work and the current one (12.42ms)
+✔ empty state and New chat stay primary while explanation and sibling entries are disclosed (1.022959ms)
+✔ app wiring: the Chat seat opens the page, the page closes like Attention, and it is served (1.470208ms)
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.974916ms)
+✔ WK-92 · Continue in Matter 只走既有的 extension 路由；不新增端点、不复制、不迁移 (0.870959ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.510041ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.255334ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.180042ms)
+✔ every registry glyph is in the sprite and in the ui-controls allowlist (0.842334ms)
+✔ offline icon geometry reproduces every pinned sprite shape without changes (2.430916ms)
+✔ recreated controls contain local shapes and retain their action after disconnection (1.7855ms)
+✔ disclosure rows use a native SVG chevron without changing the summary or its name (0.246792ms)
+✔ sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes (6.733959ms)
+✔ domain glyphs follow the admitted geometry contract (0.468958ms)
+✔ Spark, Attention and Chat seats and the Settings groups carry their registered glyphs (1.167459ms)
+✔ BE41-B accepts source FILE zero and replacement rollback without accepting identical or negative versions (1.895916ms)
+✔ BE41-B binds live empty pages to the top token and rejects contradictory or malformed top tokens (0.521208ms)
+✔ BE41-B paginator sends exact snapshot; changed snapshot refresh starts at page zero without old token (6.137834ms)
+✔ BE41-B late pagination cannot replace a closed and reopened read (1.7975ms)
+✔ BE41-B actual authenticated empty endpoint projects with its live top token (263.536792ms)
+✔ BE41-B a live snapshot rejection discards explicit sample and exposes Refresh (2.703834ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1445.714833

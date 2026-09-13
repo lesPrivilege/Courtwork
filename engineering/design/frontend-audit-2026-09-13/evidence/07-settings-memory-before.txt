@@ -1,0 +1,32 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]: · Settings
+  - generic: Example
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "General":
+        - generic: General
+      - tab "Appearance":
+        - generic: Appearance
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations":
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Memory" [active] [selected]:
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer":
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Memory":
+      - heading "Memory" [level=3]
+      - paragraph: "Nothing is remembered between chats. Matter memory and global memory have no adapter in this build, so a Chat or a Work reads only its own messages and the sources its project carries; there is no stored memory here to review, export or delete. Sources are files, not memory: they are configured under Skills and in the project itself, and they stay readable whatever this section later says."
+      - paragraph: Temporary chat — a chat that neither reads nor writes durable memory — has no host support yet, so there is no control for it here. With nothing remembered between chats, every chat in this build already behaves that way.
+- status

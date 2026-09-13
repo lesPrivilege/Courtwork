@@ -1,0 +1,61 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention" [active]:
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Frontend Audit · synthetic" [expanded]:
+        - generic: Frontend Audit · synthetic
+      - button "New chat in Frontend Audit · synthetic":
+        - generic: New chat in Frontend Audit · synthetic
+      - button "Audit files and return paths":
+        - generic: Audit files and return paths
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - generic: ·
+  - region "Attention workspace":
+    - heading "Attention items" [level=1]
+    - button "Back to workspace"
+    - combobox "Attention workspace project":
+      - option "Frontend Audit · synthetic" [selected]
+    - button "Refresh"
+    - group "Attention views":
+      - button "All" [pressed]
+      - button "Investigating"
+      - button "Needs you"
+      - button "Waiting"
+      - button "Later"
+      - button "Resolved"
+    - region "Attention items":
+      - paragraph: 0 items · all states
+      - heading "Nothing in this view" [level=3]
+      - paragraph: Recorded attention items matching this project and state will appear here.
+      - list
+    - region "Attention details":
+      - paragraph: Choose an item to read its reason, recorded next step and sources.
+      - button "Open Attention"
+- status

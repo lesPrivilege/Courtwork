@@ -1,0 +1,155 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Frontend Audit · synthetic" [expanded]:
+        - generic: Frontend Audit · synthetic
+      - button "New chat in Frontend Audit · synthetic":
+        - generic: New chat in Frontend Audit · synthetic
+      - button "Audit files and return paths":
+        - generic: Audit files and return paths
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "Audit files and return paths" [level=1]: · Audit files and return paths
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Hide work surface":
+    - generic: Hide work surface
+  - log:
+    - article "Your message":
+      - paragraph: "/fixture script [{\"name\":\"ws_read\",\"arguments\":{\"path\":\"materials/audit-brief.md\"}}]"
+      - generic "Source"
+      - time: 3:41 PM
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+    - region "Agent run":
+      - button "Execution 1 successful tool action":
+        - generic: Execution
+        - generic: 1 successful tool action
+      - article:
+        - generic: Assistant
+        - paragraph: SIMULATED scripted response
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+      - article:
+        - generic: Work
+        - generic: Completed
+        - button "Inspect this run":
+          - generic: Inspect this run
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+  - button "Chat files":
+    - generic: Chat files
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - button "Send":
+    - generic: Send
+  - 'button "File access: Allow edits"':
+    - generic: Allow edits
+- complementary "Work surface":
+  - region "Work summary":
+    - heading "Work" [level=3]
+    - generic: Completed
+    - status: No files were recorded for this run.
+    - generic "Files · 0"
+    - generic "Run information"
+  - region "Workspace":
+    - heading "Workspace" [level=3]
+    - generic: 1 file
+    - button "Open workspace":
+      - generic: Open
+    - paragraph: Current workspace files.
+    - generic "Files"
+  - region "Runtime":
+    - heading "Runtime" [level=3]
+    - generic: 24 resources
+    - button "Open runtime":
+      - generic: Open
+    - generic "Resources"
+  - region "More surfaces":
+    - generic "More"
+- status
+- dialog "Files":
+  - banner:
+    - paragraph: Audit files and return paths
+    - heading "Files" [level=2]
+    - button "Close files":
+      - generic: Close files
+  - heading "Workspace files · 1" [level=3]
+  - button "Refresh workspace files":
+    - generic: Refresh workspace files
+  - button "materials/audit-brief.md 2.3 KB":
+    - generic: materials/audit-brief.md
+    - generic: 2.3 KB
+  - heading "Retained uploads · 1" [level=3]
+  - button "Refresh retained uploads":
+    - generic: Refresh retained uploads
+  - paragraph: All 1 retained uploads are listed · list limit 200.
+  - generic "audit-brief.md Latest retained revision 2":
+    - generic: audit-brief.md
+    - generic: Latest retained revision 2
+  - paragraph: All 2 retained revisions are listed · version limit 200.
+  - button "Open audit-brief.md, revision 2":
+    - generic: Revision 2
+    - generic: 2.3 KB
+  - generic "Version details"
+  - button "Open audit-brief.md, revision 1" [active]:
+    - generic: Revision 1
+    - generic: 2.3 KB
+  - generic "Version details"
+  - heading "Compare retained revisions" [level=4]
+  - generic: From
+  - combobox "From revision":
+    - option "Choose a revision" [selected]
+    - option "Revision 2 · 2.3 KB"
+    - option "Revision 1 · 2.3 KB"
+  - generic: To
+  - combobox "To revision":
+    - option "Choose a revision" [selected]
+    - option "Revision 2 · 2.3 KB"
+    - option "Revision 1 · 2.3 KB"
+  - button "Compare" [disabled]
+  - paragraph: Choose two retained revisions and compare them.
+  - generic "Add text material"

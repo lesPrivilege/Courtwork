@@ -1,0 +1,32 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]: · Settings
+  - generic: Example
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "General":
+        - generic: General
+      - tab "Appearance":
+        - generic: Appearance
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations":
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Memory" [active] [selected]:
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer":
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Memory":
+      - heading "Memory" [level=3]
+      - paragraph: "Matter memory and global memory are not available here. Sources are separate: files configured under Skills and in the project remain readable."
+      - paragraph: Temporary chat is not available.
+- status

@@ -1,0 +1,267 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Frontend Audit · synthetic" [expanded]:
+        - generic: Frontend Audit · synthetic
+      - button "New chat in Frontend Audit · synthetic":
+        - generic: New chat in Frontend Audit · synthetic
+      - button "Audit files and return paths":
+        - generic: Audit files and return paths
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - generic: ·
+  - region "Home modules":
+    - region "Attention items":
+      - button "Attention items"
+      - combobox "Attention project":
+        - option "Frontend Audit · synthetic" [selected]
+      - paragraph: 0 items · all states
+      - paragraph: No attention items recorded in this project.
+      - list
+    - region "Recorded activity":
+      - heading "Activity" [level=3]:
+        - button "Activity"
+      - generic "Activity period":
+        - button "28d"
+        - button "84d" [pressed]
+      - paragraph:
+        - strong: "1"
+        - generic: recorded runs · 84 days · all retained work
+      - group "Daily retained runs, UTC. Arrow keys move between days.":
+        - button "2026-06-22 · 0 retained runs (UTC)"
+        - button "2026-06-23 · 0 retained runs (UTC)"
+        - button "2026-06-24 · 0 retained runs (UTC)"
+        - button "2026-06-25 · 0 retained runs (UTC)"
+        - button "2026-06-26 · 0 retained runs (UTC)"
+        - button "2026-06-27 · 0 retained runs (UTC)"
+        - button "2026-06-28 · 0 retained runs (UTC)"
+        - button "2026-06-29 · 0 retained runs (UTC)"
+        - button "2026-06-30 · 0 retained runs (UTC)"
+        - button "2026-07-01 · 0 retained runs (UTC)"
+        - button "2026-07-02 · 0 retained runs (UTC)"
+        - button "2026-07-03 · 0 retained runs (UTC)"
+        - button "2026-07-04 · 0 retained runs (UTC)"
+        - button "2026-07-05 · 0 retained runs (UTC)"
+        - button "2026-07-06 · 0 retained runs (UTC)"
+        - button "2026-07-07 · 0 retained runs (UTC)"
+        - button "2026-07-08 · 0 retained runs (UTC)"
+        - button "2026-07-09 · 0 retained runs (UTC)"
+        - button "2026-07-10 · 0 retained runs (UTC)"
+        - button "2026-07-11 · 0 retained runs (UTC)"
+        - button "2026-07-12 · 0 retained runs (UTC)"
+        - button "2026-07-13 · 0 retained runs (UTC)"
+        - button "2026-07-14 · 0 retained runs (UTC)"
+        - button "2026-07-15 · 0 retained runs (UTC)"
+        - button "2026-07-16 · 0 retained runs (UTC)"
+        - button "2026-07-17 · 0 retained runs (UTC)"
+        - button "2026-07-18 · 0 retained runs (UTC)"
+        - button "2026-07-19 · 0 retained runs (UTC)"
+        - button "2026-07-20 · 0 retained runs (UTC)"
+        - button "2026-07-21 · 0 retained runs (UTC)"
+        - button "2026-07-22 · 0 retained runs (UTC)"
+        - button "2026-07-23 · 0 retained runs (UTC)"
+        - button "2026-07-24 · 0 retained runs (UTC)"
+        - button "2026-07-25 · 0 retained runs (UTC)"
+        - button "2026-07-26 · 0 retained runs (UTC)"
+        - button "2026-07-27 · 0 retained runs (UTC)"
+        - button "2026-07-28 · 0 retained runs (UTC)"
+        - button "2026-07-29 · 0 retained runs (UTC)"
+        - button "2026-07-30 · 0 retained runs (UTC)"
+        - button "2026-07-31 · 0 retained runs (UTC)"
+        - button "2026-08-01 · 0 retained runs (UTC)"
+        - button "2026-08-02 · 0 retained runs (UTC)"
+        - button "2026-08-03 · 0 retained runs (UTC)"
+        - button "2026-08-04 · 0 retained runs (UTC)"
+        - button "2026-08-05 · 0 retained runs (UTC)"
+        - button "2026-08-06 · 0 retained runs (UTC)"
+        - button "2026-08-07 · 0 retained runs (UTC)"
+        - button "2026-08-08 · 0 retained runs (UTC)"
+        - button "2026-08-09 · 0 retained runs (UTC)"
+        - button "2026-08-10 · 0 retained runs (UTC)"
+        - button "2026-08-11 · 0 retained runs (UTC)"
+        - button "2026-08-12 · 0 retained runs (UTC)"
+        - button "2026-08-13 · 0 retained runs (UTC)"
+        - button "2026-08-14 · 0 retained runs (UTC)"
+        - button "2026-08-15 · 0 retained runs (UTC)"
+        - button "2026-08-16 · 0 retained runs (UTC)"
+        - button "2026-08-17 · 0 retained runs (UTC)"
+        - button "2026-08-18 · 0 retained runs (UTC)"
+        - button "2026-08-19 · 0 retained runs (UTC)"
+        - button "2026-08-20 · 0 retained runs (UTC)"
+        - button "2026-08-21 · 0 retained runs (UTC)"
+        - button "2026-08-22 · 0 retained runs (UTC)"
+        - button "2026-08-23 · 0 retained runs (UTC)"
+        - button "2026-08-24 · 0 retained runs (UTC)"
+        - button "2026-08-25 · 0 retained runs (UTC)"
+        - button "2026-08-26 · 0 retained runs (UTC)"
+        - button "2026-08-27 · 0 retained runs (UTC)"
+        - button "2026-08-28 · 0 retained runs (UTC)"
+        - button "2026-08-29 · 0 retained runs (UTC)"
+        - button "2026-08-30 · 0 retained runs (UTC)"
+        - button "2026-08-31 · 0 retained runs (UTC)"
+        - button "2026-09-01 · 0 retained runs (UTC)"
+        - button "2026-09-02 · 0 retained runs (UTC)"
+        - button "2026-09-03 · 0 retained runs (UTC)"
+        - button "2026-09-04 · 0 retained runs (UTC)"
+        - button "2026-09-05 · 0 retained runs (UTC)"
+        - button "2026-09-06 · 0 retained runs (UTC)"
+        - button "2026-09-07 · 0 retained runs (UTC)"
+        - button "2026-09-08 · 0 retained runs (UTC)"
+        - button "2026-09-09 · 0 retained runs (UTC)"
+        - button "2026-09-10 · 0 retained runs (UTC)"
+        - button "2026-09-11 · 0 retained runs (UTC)"
+        - button "2026-09-12 · 0 retained runs (UTC)"
+        - button "2026-09-13 · 1 retained run (UTC)"
+      - paragraph: 2026-06-22 — 2026-09-13
+      - paragraph: UTC · Retained runs only. Deleted-chat history is unknown.
+    - button "Manage connections"
+    - button "Hide modules" [expanded]
+  - heading "Orchestrate your agents. Govern your work." [level=2]
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: Describe the work you want to do…
+  - button "Chat files":
+    - generic: Chat files
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - button "Send" [disabled]:
+    - generic: Send
+  - text: Project
+  - combobox "Project for this chat":
+    - option "Frontend Audit · synthetic" [selected]
+  - button "New project":
+    - generic: New project
+  - combobox "File access for this chat":
+    - option "Ask before editing" [selected]
+    - option "Allow edits"
+    - option "Read only"
+  - region "Recorded totals":
+    - heading "Your work" [level=3]
+    - button "Waiting for you, 0":
+      - generic: Waiting for you
+      - generic: "0"
+      - generic: Open questions and approval requests, all retained work, right now.
+    - button "Continue, 1":
+      - generic: Continue
+      - generic: "1"
+      - generic: Retained chats, all retained work, right now.
+    - button "Needs a look, 0":
+      - generic: Needs a look
+      - generic: "0"
+      - generic: Runs recorded failed or unknown, all retained work, right now.
+  - log:
+    - heading "Continue" [level=3]
+    - generic: "1"
+    - list:
+      - button "Audit files and return paths Frontend Audit · synthetic Completed":
+        - generic: Audit files and return paths
+        - generic: Frontend Audit · synthetic
+        - generic: Completed
+- status
+- dialog "Usage":
+  - banner:
+    - heading "Usage" [level=2]
+    - paragraph: Retained runs · reported tokens
+    - button "Close usage":
+      - generic: Close usage
+  - combobox "Usage project":
+    - option "All retained work" [selected]
+    - option "Frontend Audit · synthetic"
+  - combobox "Usage period":
+    - option "7 days"
+    - option "30 days" [selected]
+    - option "84 days"
+    - option "366 days"
+  - combobox "Usage metric":
+    - option "Input + output" [selected]
+    - option "Input"
+    - option "Output"
+  - button "Refresh"
+  - tablist "Usage view":
+    - tab "Overview" [selected]
+    - tab "Models"
+  - tabpanel "Overview":
+    - paragraph: 5 reported tokens
+    - paragraph: 1 retained runs · 0 with incomplete usage · 2026-08-15 — 2026-09-13 · UTC
+    - generic: Mon
+    - generic: Tue
+    - generic: Wed
+    - generic: Thu
+    - generic: Fri
+    - generic: Sat
+    - generic: Sun
+    - generic: 08-15
+    - generic: 08-24
+    - generic: 09-07
+    - generic "Daily reported tokens":
+      - button "2026-08-15, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-16, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-17, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-18, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-19, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-20, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-21, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-22, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-23, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-24, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-25, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-26, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-27, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-28, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-29, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-30, 0 reported tokens, 0 incomplete runs"
+      - button "2026-08-31, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-01, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-02, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-03, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-04, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-05, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-06, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-07, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-08, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-09, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-10, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-11, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-12, 0 reported tokens, 0 incomplete runs"
+      - button "2026-09-13, 5 reported tokens, 0 incomplete runs"
+    - status: 2026-09-13, 5 reported tokens, 0 incomplete runs
+    - paragraph: "Darker means more reported tokens in this period. Dotted outline: incomplete usage."
+    - heading "Reported tokens by model" [level=3]
+    - button "fake-openai-loopback / fake-model · openai-completions 5":
+      - generic: fake-openai-loopback / fake-model · openai-completions
+      - generic: "5"
+    - generic "How to read this chart"
+    - generic "Daily values"
+    - generic "Model totals"
+    - paragraph: Retained records only · historical coverage unknown.
+    - generic "Accounting details"
+    - region "Matching usage runs" [active]:
+      - heading "Matching runs" [level=3]
+      - paragraph: 1 runs in this exact observation
+      - button "Audit files and return paths · 2026-09-13T07:41:04.383Z · completed · 5 reported tokens"

@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-13 · 前端 Audit 首批实现
+
+按用户直接main施工授权完成[首批审计与修复](design/frontend-audit-2026-09-13/report.md)，产品提交 `9525215`。Spark断连空X由外部use重绘依赖复现，共享icon改为固定源生成的原生SVG几何；Spark/Usage固定退出header；Chat/Attention items/Settings精简文案，披露箭头统一SVG。全量915/915，最终定向21/21及三个lint通过；Luna非作者有界复核与Astra真实浏览器证据分开记录。Usage局部返回、Files比较按钮显示和真实200%验证等留在[消费工单](design/frontend-audit-2026-09-13/work-orders.md)；不关闭整体前端或Release门。本轮未push/部署，其他写者在途修改保留。
+
+
 ## 2026-09-13 · 自足架构与工作区治理节点
 
 [当前架构节点](research/architecture-node-2026-09-13/README.md)由Astra裁决，Luna登记实现/缺口、清账既往主张并用Exa核查工作区治理机制。五层责任、设计公式、Pi本地优先/DeepSeek首适配、Codex公开能力替换条件，以及文档/数据/组织治理、渐进披露、多agent Review与Attention地图已登记；广义治理与第二runtime保持后续设计，不冒称全部实现。旧Runtime canon和options原字节归档，活动入口按实际基线distill，Spark陈旧路由注释更正。

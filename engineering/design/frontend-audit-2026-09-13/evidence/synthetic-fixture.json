@@ -1,0 +1,12 @@
+{
+  "host": "127.0.0.1:8847",
+  "provider": "local-fake",
+  "projectId": "19c4898c-9823-4247-bc25-8ddb438fc02a",
+  "sessionId": "a84ef9b0-d840-41db-8e7f-19a3bb7ed762",
+  "sourceId": "d7377438-ff39-479f-b461-712ceafd1347",
+  "revisions": [
+    1,
+    2
+  ],
+  "runId": "29aecee4-f85f-4f43-ad07-f979b6f3ab4a"
+}

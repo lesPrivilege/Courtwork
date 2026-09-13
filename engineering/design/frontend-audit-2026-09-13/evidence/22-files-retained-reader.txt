@@ -1,0 +1,73 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Frontend Audit · synthetic" [expanded]:
+        - generic: Frontend Audit · synthetic
+      - button "New chat in Frontend Audit · synthetic":
+        - generic: New chat in Frontend Audit · synthetic
+      - button "Audit files and return paths":
+        - generic: Audit files and return paths
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace"
+- complementary "File":
+  - button "Back to chat":
+    - generic: Chat
+  - heading "File" [level=2]
+  - tablist "Work surface views":
+    - tab "Workspace"
+    - tab "Work"
+    - tab "materials/audit-brief.md" [active] [selected]: audit-brief.md
+    - button "Close materials/audit-brief.md":
+      - generic: Close materials/audit-brief.md
+  - button "Hide work surface":
+    - generic: Hide work surface
+  - tabpanel "materials/audit-brief.md":
+    - paragraph: Retained upload · revision 1
+    - heading "materials/audit-brief.md" [level=3]
+    - generic: 2.3 KB
+    - button "Copy displayed file text":
+      - generic: Copy displayed file text
+    - button "Quote into draft"
+    - generic "Version details"
+    - complementary "File provenance":
+      - paragraph: Retained upload version. Workspace currency and Core adoption are not recorded here.
+    - region "Read-only Markdown document":
+      - button "Raw source"
+      - generic: Find
+      - searchbox "Find"
+      - status
+      - navigation "Document outline":
+        - generic: Outline
+        - list:
+          - button "Audit brief"
+      - article "Rendered Markdown":
+        - region "Markdown heading, code points 0 to 13":
+          - heading "Audit brief" [level=1]
+        - region "Markdown paragraph, code points 15 to 2345":
+          - paragraph: "Section 1: synthetic review material. Section 2: synthetic review material. Section 3: synthetic review material. Section 4: synthetic review material. Section 5: synthetic review material. Section 6: synthetic review material. Section 7: synthetic review material. Section 8: synthetic review material. Section 9: synthetic review material. Section 10: synthetic review material. Section 11: synthetic review material. Section 12: synthetic review material. Section 13: synthetic review material. Section 14: synthetic review material. Section 15: synthetic review material. Section 16: synthetic review material. Section 17: synthetic review material. Section 18: synthetic review material. Section 19: synthetic review material. Section 20: synthetic review material. Section 21: synthetic review material. Section 22: synthetic review material. Section 23: synthetic review material. Section 24: synthetic review material. Section 25: synthetic review material. Section 26: synthetic review material. Section 27: synthetic review material. Section 28: synthetic review material. Section 29: synthetic review material. Section 30: synthetic review material. Section 31: synthetic review material. Section 32: synthetic review material. Section 33: synthetic review material. Section 34: synthetic review material. Section 35: synthetic review material. Section 36: synthetic review material. Section 37: synthetic review material. Section 38: synthetic review material. Section 39: synthetic review material. Section 40: synthetic review material. Section 41: synthetic review material. Section 42: synthetic review material. Section 43: synthetic review material. Section 44: synthetic review material. Section 45: synthetic review material. Section 46: synthetic review material. Section 47: synthetic review material. Section 48: synthetic review material. Section 49: synthetic review material. Section 50: synthetic review material. Section 51: synthetic review material. Section 52: synthetic review material. Section 53: synthetic review material. Section 54: synthetic review material. Section 55: synthetic review material. Section 56: synthetic review material. Section 57: synthetic review material. Section 58: synthetic review material. Section 59: synthetic review material. Section 60: synthetic review material."
+- status

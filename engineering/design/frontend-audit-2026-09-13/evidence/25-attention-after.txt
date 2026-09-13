@@ -1,0 +1,138 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Frontend Audit · synthetic" [expanded]:
+        - generic: Frontend Audit · synthetic
+      - button "New chat in Frontend Audit · synthetic":
+        - generic: New chat in Frontend Audit · synthetic
+      - button "Audit files and return paths":
+        - generic: Audit files and return paths
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "Audit files and return paths" [level=1]: · Audit files and return paths
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Hide work surface":
+    - generic: Hide work surface
+  - log:
+    - article "Your message":
+      - paragraph: "/fixture script [{\"name\":\"ws_read\",\"arguments\":{\"path\":\"materials/audit-brief.md\"}}]"
+      - generic "Source"
+      - time: 3:41 PM
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+    - region "Agent run":
+      - button "Execution 1 successful tool action":
+        - generic: Execution
+        - generic: 1 successful tool action
+      - article:
+        - generic: Assistant
+        - paragraph: SIMULATED scripted response
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+      - article:
+        - generic: Work
+        - generic: Completed
+        - button "Inspect this run":
+          - generic: Inspect this run
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+  - button "Chat files":
+    - generic: Chat files
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - button "Send":
+    - generic: Send
+  - 'button "File access: Allow edits"':
+    - generic: Allow edits
+- complementary "Work surface":
+  - region "Work summary":
+    - heading "Work" [level=3]
+    - generic: Completed
+    - status: No files were recorded for this run.
+    - generic "Files · 0"
+    - generic "Run information"
+  - region "Workspace":
+    - heading "Workspace" [level=3]
+    - generic: 1 file
+    - button "Open workspace":
+      - generic: Open
+    - paragraph: Current workspace files.
+    - generic "Files"
+  - region "Runtime":
+    - heading "Runtime" [level=3]
+    - generic: 24 resources
+    - button "Open runtime":
+      - generic: Open
+    - generic "Resources"
+  - region "More surfaces":
+    - generic "More"
+- status
+- dialog "Attention":
+  - banner:
+    - heading "Attention" [level=2]
+    - paragraph: Your global assistant
+    - button "Close Attention":
+      - generic: Close Attention
+  - combobox "Attention conversation":
+    - option "New conversation" [selected]
+  - button "Refresh Attention":
+    - generic: Refresh Attention
+  - button "Conversations"
+  - button "Attention items"
+  - button "Configure Attention Runtime":
+    - generic: Configure Attention Runtime
+  - generic "Threads & messages"
+  - generic "Attention conversation messages":
+    - heading "What matters next?" [level=3]
+    - paragraph: Bring a question, find context from earlier work, or ask for a next step.
+    - generic: Attention is all you need!
+  - generic "Runtime & memory"
+  - textbox "Message Attention" [active]:
+    - /placeholder: What needs your attention?
+  - button "Choose model and effort": Local test
+  - button "Send to Attention" [disabled]:
+    - generic: Send to Attention

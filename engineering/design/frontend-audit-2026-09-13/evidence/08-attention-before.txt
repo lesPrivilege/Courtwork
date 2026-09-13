@@ -1,0 +1,85 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "2"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Project Cedar review Example" [expanded]:
+        - generic: Project Cedar review
+        - generic: Example
+      - button "New chat in Project Cedar review":
+        - generic: New chat in Project Cedar review
+      - button "Continue Project Cedar review Work":
+        - generic: Continue Project Cedar review
+        - generic: Work
+      - button "Final review memo — working artifact":
+        - generic: Final review memo — working artifact
+      - button "Source refresh — Spark derivation Work":
+        - generic: Source refresh — Spark derivation
+        - generic: Work
+      - button "Inbound NDA — Project Cedar Work":
+        - generic: Inbound NDA — Project Cedar
+        - generic: Work
+      - button "Northside housing ledger Example" [expanded]:
+        - generic: Northside housing ledger
+        - generic: Example
+      - button "New chat in Northside housing ledger":
+        - generic: New chat in Northside housing ledger
+      - button "Northside ledger reconciliation":
+        - generic: Northside ledger reconciliation
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - text: ·
+  - generic: Example
+  - region "Attention workspace":
+    - paragraph: YOUR WORKSPACE
+    - heading "Attention items" [level=1]
+    - paragraph: Keep the next human decision in view.
+    - button "Back to workspace"
+    - combobox "Attention workspace project" [active]:
+      - option "Project Cedar review" [selected]
+      - option "Northside housing ledger"
+    - button "Refresh"
+    - group "Attention views":
+      - button "All" [pressed]
+      - button "Investigating"
+      - button "Needs you"
+      - button "Waiting"
+      - button "Later"
+      - button "Resolved"
+    - region "Attention items":
+      - paragraph: 1 item · all states
+      - list:
+        - button "Review Project Cedar source change Investigating Updated 1d ago":
+          - generic: Review Project Cedar source change
+          - generic: Investigating
+          - time: Updated 1d ago
+    - region "Attention details":
+      - heading "A little context, before the next step." [level=2]
+      - paragraph: Choose an item to read its reason, recorded next step and sources.
+      - button "Open Attention"
+- status

@@ -1,0 +1,89 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "2"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Project Cedar review Example" [expanded]:
+        - generic: Project Cedar review
+        - generic: Example
+      - button "New chat in Project Cedar review":
+        - generic: New chat in Project Cedar review
+      - button "Continue Project Cedar review Work":
+        - generic: Continue Project Cedar review
+        - generic: Work
+      - button "Final review memo — working artifact":
+        - generic: Final review memo — working artifact
+      - button "Source refresh — Spark derivation Work":
+        - generic: Source refresh — Spark derivation
+        - generic: Work
+      - button "Inbound NDA — Project Cedar Work":
+        - generic: Inbound NDA — Project Cedar
+        - generic: Work
+      - button "Northside housing ledger Example" [expanded]:
+        - generic: Northside housing ledger
+        - generic: Example
+      - button "New chat in Northside housing ledger":
+        - generic: New chat in Northside housing ledger
+      - button "Northside ledger reconciliation":
+        - generic: Northside ledger reconciliation
+  - generic "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "Chat" [level=1]: · Chat
+  - generic: Example
+  - region "Chat":
+    - heading "Chat" [active] [level=1]:
+      - generic: Chat
+    - button "New chat"
+    - region "Continue":
+      - heading "Continue" [level=2]
+      - list:
+        - button "Northside ledger reconciliation Northside housing ledger 1d ago":
+          - generic: Northside ledger reconciliation
+          - generic: Northside housing ledger
+          - generic: 1d ago
+        - button "Continue Project Cedar review Project Cedar review Work 1d ago":
+          - generic: Continue Project Cedar review
+          - generic: Project Cedar review
+          - generic: Work
+          - generic: 1d ago
+        - button "Final review memo — working artifact Project Cedar review 1d ago":
+          - generic: Final review memo — working artifact
+          - generic: Project Cedar review
+          - generic: 1d ago
+        - button "Source refresh — Spark derivation Project Cedar review Work 1d ago":
+          - generic: Source refresh — Spark derivation
+          - generic: Project Cedar review
+          - generic: Work
+          - generic: 1d ago
+        - button "Inbound NDA — Project Cedar Project Cedar review Work 1d ago":
+          - generic: Inbound NDA — Project Cedar
+          - generic: Project Cedar review
+          - generic: Work
+          - generic: 1d ago
+    - generic "About chats"
+- status
