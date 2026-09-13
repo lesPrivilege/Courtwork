@@ -144,3 +144,8 @@ composer 是**一个** primitive 的两个 variant，不是两个组件（WK-97�
 ### UI 层级 polish 登记（2026-09-13）
 
 [空间与材质接续](frontend-audit-2026-09-13/hierarchy-polish-registration.md)将视觉注意力纳入原IA队列：变更时说明任务锚点、父子容器、scroll/clip和浮起理由；优先容器承担层级、内部内容平整，沿既有字阶/留白/selected/focus，避免装饰左衬线、伪按钮标签与同权浮卡。Glass仍按现有登记与回退约束，正文/常驻内容不扩blur。M0当前、M1 solid空间、M2有限Glass是待施工的比较方法，不是新材质许可、全站实施结论或新增Release门。
+
+
+### Settings 连续配置面（2026-09-13 独立M1）
+
+[层级施工与证据](frontend-audit-2026-09-13/hierarchy-polish/README.md)在独立分支沿原820px measure建立实色settings-sections阅读容器，内部settings-block改为平整分隔；导航与Runtime滚动owner不变。单组标题可吸顶，多组搜索回到普通流；面板焦点环由可见容器呈现。没有扩大blur白名单、增加shadow或新token。本条随候选分支版本生效，不表示已合main或全站IA完成。

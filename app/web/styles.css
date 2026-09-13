@@ -5358,33 +5358,57 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
 .settings-sections {
   min-width: 0;
   min-height: 0;
+  max-width: var(--settings-measure);
   overflow: auto;
-  padding-right: var(--space-1);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-padding-top: calc(var(--text-title) * 2 + var(--space-8));
+  border: 1px solid var(--line);
+  border-radius: var(--radius-container);
+  background: var(--float);
+  padding: 0 var(--card-padding) var(--card-padding);
 }
 .settings-section {
   max-width: var(--settings-measure);
 }
-/* 本身没有圆角的容器：radius = 视觉预期（卡）+ offset。 */
+/* Panel focus belongs to the visible scroll plane, not the offscreen height
+   of its content. Preserve a complete ring when the group is long. */
 .settings-section:focus-visible {
+  outline: none;
+}
+.settings-sections:has(> .settings-section:focus-visible) {
   outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: calc(var(--radius-card) + 2px);
+  outline-offset: -2px;
 }
 .settings-section-title {
-  margin: 0 0 var(--space-4);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: var(--space-5) 0 var(--space-4);
+  border-bottom: 1px solid var(--line);
+  background: var(--float);
   font-size: var(--text-title);
   font-weight: 500;
   letter-spacing: var(--tracking-heading);
 }
-/* 一节 = 一张平卡：把成组的行圈起来，不额外加一层高度。 */
+/* Search can reveal multiple groups. Those headings belong to the result flow,
+   rather than competing for the active group's sticky anchor. */
+.settings-sections:has(.settings-section:not([hidden]) ~ .settings-section:not([hidden])) .settings-section-title {
+  position: static;
+}
+/* One continuous configuration plane, following the contained Attention reader
+   and Work rail's flat interior. Blocks group facts without competing shells. */
 .settings-block {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  padding: var(--space-2) var(--card-padding);
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  padding: var(--space-2) 0 var(--space-5);
   margin-bottom: var(--settings-group-gap);
 }
 .settings-block:last-child {
   margin-bottom: 0;
+  border-bottom: 0;
 }
 .settings-block:empty {
   display: none;
@@ -5410,6 +5434,7 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
   margin: var(--space-2) 0 var(--space-3);
 }
 .settings-search-empty {
+  margin-top: var(--space-5);
   font-size: var(--text-body);
   color: var(--muted-strong);
 }
@@ -5591,6 +5616,7 @@ html[data-theme="dark"] {
 @media (max-width: 1023px) {
   .settings-page-body {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     gap: var(--space-3);
   }
   .settings-row button,
