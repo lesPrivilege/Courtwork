@@ -55,3 +55,7 @@ Retained donor URLs for the next bounded pass: [OpenRouter model metadata](https
 | `app.mjs` “Working for Ns” | Browser elapsed reading from Run startedAt; not TTFT, provider decode duration or server duration. |
 
 Luna found outdated “host reports no token usage” wording. This pass corrects the Planned capability row to **Per-source token counts**, acknowledging existing Run usage, and corrects the Effective Context Inspector comment. No metric behavior changed. Provider-native timing fields beyond the current persisted contract remain unverified.
+
+## Context Inspector 语义收敛 · 2026-09-14
+
+[Canonical contract](../context-capacity-ring-2026-09-14/contract.md)冻结 Source × Residency、Active/Reserved/Free 与 Cache diagnostics 的独立口径。新的 request-scoped adapter projection 可显示原始 inclusive input 占用和已确认分母的 cache Hit/Miss；旧字符估计与历史 Usage 不回填成实际容量。默认1M明确标来源，不改变 compaction。下一次 working set、来源分类与预留余量尚未由本片交付。

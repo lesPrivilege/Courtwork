@@ -1,3 +1,4 @@
+import { contextCapacitySnapshot } from './context-capacity.mjs';
 // Measurements at the host's semantic-stream boundary. No provider token clock
 // or tokenizer is inferred from a text chunk. This observer leaves the Pi stream
 // and its final result under their original owner.
@@ -37,7 +38,7 @@ export function reasoningCapabilitySnapshot(value) {
 }
 
 export async function observeRequestStream({ start, model, context, requestId, purpose = 'agent', requestedEffort = null,
-  effectiveEffort = null, sdkEffectiveEffort = undefined, reasoningCapability = null,
+  effectiveEffort = null, sdkEffectiveEffort = undefined, reasoningCapability = null, readContextUsage = () => null, readCache = () => null,
   record = () => {}, now = () => performance.now(), wallNow = () => new Date().toISOString() }) {
   const began = now();
   const sdkEffort = sdkEffectiveEffort === undefined ? effectiveEffort : sdkEffectiveEffort;
@@ -53,6 +54,8 @@ export async function observeRequestStream({ start, model, context, requestId, p
   let firstOutputMs = null, firstTextMs = null, finalized = false;
   const elapsed = () => Math.max(0, Math.round((now() - began) * 1000) / 1000);
   const emit = (phase, extra = {}) => record({...identity, phase, elapsedMs: elapsed(), firstOutputMs, firstTextMs,
+    contextCapacity: contextCapacitySnapshot(model, phase === 'completed' ? readContextUsage() : null),
+    cache: phase === 'completed' ? readCache() : null,
     providerTtftMs: null, decodeTokensPerSecond: null, missing: ['provider_token_timing', 'token_deltas'], ...extra});
   const finish = (type, message) => {
     if (finalized) return;

@@ -1,0 +1,40 @@
+✔ adapter reads inclusive input once, preserves explicit zero, and never uses output/cache/estimated totals (0.94875ms)
+✔ SSE adapter preserves bytes across chunk boundaries and clears usage for each retry (6.085042ms)
+✔ bounded observer recovers after oversized frames and forwards stream errors (44.087834ms)
+✔ request binding exposes measured capacity only when completed, with no normalized-zero fallback (1.253291ms)
+✔ ring projects completed request scope, zero, overflow and unknown without using heuristics (0.691ms)
+✔ real local SDK transport persists request-input capacity with the recorded model window (396.358959ms)
+✔ cache diagnostics separate hit/miss from capacity and preserve missing versus zero (6.236917ms)
+✔ host stream observation separates first output/text and preserves terminal identity without claiming TPS (3.104125ms)
+✔ provider-default payload omits generated reasoning controls after the existing callback (0.395917ms)
+✔ explicit effort uses the declared adapter mapping and provider identity, not endpoint hostname (0.119ms)
+✔ production compatible registration pins generic reasoning on heuristic-looking loopback paths (112.433208ms)
+✔ capability projection admits only values the selected adapter can encode (0.175209ms)
+✔ request telemetry keeps SDK setting provenance and a safe capability snapshot (0.272ms)
+✔ interrupted stream and dispatch error do not report successful usage (0.277292ms)
+✔ result-only SDK calls still emit a terminal request measurement exactly once (0.14075ms)
+✔ provider response identifiers stay separate from runtime identity without forwarding extra metadata (0.316792ms)
+✔ effort is capability checked and recorded by real local SDK requests (330.583208ms)
+✔ malformed measurement records are omitted before rendering (0.191375ms)
+✔ schema6 migration preserves both global and project sessions (102.39375ms)
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (0.901958ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.386625ms)
+✔ Attention can subtract measurement actions without removing the status fact (1.542ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.227ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (14.350834ms)
+✔ host timing has independent request origins and preserves missing versus measured zero (1.576667ms)
+✔ out-of-interval observations stay in detail and do not become clamped chart marks (0.082792ms)
+✔ request view uses one on-demand disclosure, preserves semantic gaps and restores its open state (1.601875ms)
+✔ missing usage stays unknown and a reported request estimate keeps its method (22.025542ms)
+✔ all historical requests share the same outer disclosure while compact views select only the latest (0.835625ms)
+✔ malformed v1 metadata is rejected while out-of-interval timing remains inspectable (0.183459ms)
+✔ request detail distinguishes runtime and provider aliases while retaining historical records (1.206459ms)
+✔ effort detail separates requested intent, SDK settings and unobserved provider behavior (0.713208ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1572.217625

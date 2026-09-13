@@ -1,3 +1,4 @@
+import { createContextUsageObserver } from './context-capacity.mjs';
 import { observeRequestStream } from "./request-telemetry.mjs";
 import {
   createAgentSession,
@@ -478,11 +479,13 @@ export async function createSessionRun({
       const error = new Error("Run cancelled"); error.name = "AbortError"; throw error;
     }
     beforeProviderRequest?.();
-    return observeRequestStream({ model: requestModel, context, requestId: ++requestOrdinal, purpose: requestPurpose,
+    const contextUsage = createContextUsageObserver(requestModel.api, options?.fetch);
+    return observeRequestStream({ readContextUsage: contextUsage.read, readCache: contextUsage.readCache, model: requestModel, context, requestId: ++requestOrdinal, purpose: requestPurpose,
       requestedEffort: reasoningEffort ?? null, sdkEffectiveEffort: session.thinkingLevel, reasoningCapability,
       record: data => forward(onTelemetry, data),
       start: () => nativeStream(requestModel, context, {
         ...options,
+        fetch: contextUsage.fetch,
         ...(reasoningEffort !== undefined ? { reasoning: reasoningEffort } : {}),
         onPayload: composeReasoningPayloadHook(options?.onPayload, { requestedEffort: reasoningEffort, reasoningCapability }),
         sessionId: sessionManager.getSessionId(),

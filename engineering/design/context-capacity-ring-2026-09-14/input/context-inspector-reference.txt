@@ -1,0 +1,667 @@
+这一单外部共识已经很清楚。我对照了 **Claude Code、Cursor、GitHub Copilot CLI / VS Code、OpenAI Codex / Responses** 的最新一手实现。截图中的 Claude `/context` 基本已经是目前最完整的产品参考，但 **Courtwork 不应该照抄它的分类，而应该抽出更稳定的跨 Provider 语义层**。
+
+最重要的定义可以先冻结：
+
+> **Context Window 投射的不是“这个 Session 拥有什么信息”，而是“下一次模型推理实际可见的 working set，以及为这次推理保留的容量”。**
+
+这一个定义能够解决后面大部分歧义。
+
+Claude 官方把 context 描述为 session 中模型实际知道的 instructions、files、responses 等，并明确指出 subagent 的大量读取留在独立 context，只把结果带回主 context。[Claude Code — Context Window](https://code.claude.com/docs/en/context-window)
+
+VS Code 的定义更直接：**Context is everything the model can see when generating a response**；索引里存在的东西、工作区存在的东西，只要没有进入 assembled prompt，就不属于 context。[VS Code — Context](https://github.com/microsoft/vscode-docs/blob/2e31a7ce/docs/agents/concepts/context.md)
+
+这也是 Courtwork 最应该采用的语义。
+
+---
+
+# 1. 你这张 Claude 图有一个非常好的细节
+
+把截图里的数字算一下：
+
+`Messages + System tools + MCP tools + Skills + System prompt + Memory + Agents`
+
+恰好约等于：
+
+**371.9k**
+
+也就是顶部：
+
+**371.9k / 1M (37%)**
+
+而：
+
+**Autocompact buffer 33k**
+
+并没有计入 Used。
+
+**595.1k Free + 33k Buffer + 371.9k Active ≈ 1M**
+
+同时：
+
+`MCP tools (deferred) 20.4k`
+
+和：
+
+`System tools (deferred) 16.1k`
+
+甚至不给 percentage，而是 `—`。
+
+这其实隐含了一套相当正确的 ontology：
+
+| 状态 | 是否属于 active context | 是否占当前窗口 |
+|---|---:|---:|
+| Active / resident | 是 | 是 |
+| Reserved | 否 | 是 |
+| Free | 否 | 是 |
+| Deferred / discoverable | 否 | **否** |
+| Subagent isolated | 主 Agent 否 | 主窗口否 |
+| Archived session/history | 否 | 否 |
+
+我认为 **这一层比 Claude 的 Messages / Skills / MCP 分类本身更值得继承。**
+
+---
+
+# 2. 外部产品事实上正在收敛成「来源 × 驻留状态」两个轴
+
+Claude 主要按 implementation source 分：
+
+`Messages / System tools / MCP / Skills / System prompt / Memory / Agents`
+
+Cursor 已经稍微更语义化一些：
+
+`System prompt / Tools / Rules / Skills / MCP / Subagents / Summarized conversation / Conversation`
+
+而 GitHub Copilot CLI 又是：
+
+`System Prompt / Custom Instructions / System Tools / MCP Tools / Messages / Free Space / Buffer`
+
+Cursor 官方的 context ring 现在就是点击展开这些类别，并把压缩后的历史 **Summarized conversation** 单独列出来。[Cursor — Prompting Agents](https://cursor.com/docs/agent/prompting)
+
+这说明没有必要追求行业统一的 category name。
+
+真正统一的是两个维度：
+
+**Source — 它从哪里来的？**
+
+和：
+
+**Residency — 它现在到底有没有进入模型？**
+
+Courtwork 应该冻结后者，前者允许 Runtime adapter 映射。
+
+---
+
+# 3. 我建议 Courtwork 的 canonical model 不直接叫 Claude 那几个类别
+
+底层可以建立类似：
+
+```text
+Context Projection
+
+capacity
+├── active
+├── reserved
+└── free
+
+sources
+├── instructions
+├── conversation
+├── tools
+├── workspace
+├── memory
+├── extensions
+└── derived
+
+non_resident
+├── deferred
+├── isolated
+└── archived
+```
+
+这里 `active + reserved + free = effective window`。
+
+**Deferred 永远不参与这个等式。**
+
+于是即使未来从 Claude runtime 换 Codex、OpenCode、Hermes，前端也不用跟着重定义 Context Window。
+
+---
+
+# 4. Sources 我建议最终冻结为 7 个语义族
+
+### Instructions
+
+包括：
+
+system / developer instructions、AGENTS、rules、user/project instructions。
+
+不要在 canonical schema 里把 `CLAUDE.md` 当一种 primitive。
+
+`CLAUDE.md` 只是：
+
+> `instructions.origin = project_file`
+
+GitHub/VS Code 也已经把 persistent custom instructions 当成独立 context source；Cursor 的 Rules 同样如此。
+
+### Conversation
+
+包括：
+
+user messages、assistant messages、tool-call envelopes，以及仍然 resident 的 interaction history。
+
+但这里建议**在详情层把 tool result 单独统计**。
+
+因为 GitHub 明确指出 tool output 往往是 context 膨胀的大户，所以 Copilot CLI 超过 20 KiB 的 tool output 会转存临时文件，只给模型 path + preview，而不是把完整结果继续塞进 window。[GitHub Copilot CLI — Context Management](https://docs.github.com/en/enterprise-cloud@latest/copilot/concepts/agents/copilot-cli/context-management)
+
+因此：
+
+```text
+Conversation  184k
+  User             31k
+  Assistant        47k
+  Tool interaction 106k
+```
+
+比顶层再多一个 “Tool results” 色块更干净。
+
+### Tools
+
+统一覆盖：
+
+`system / builtin / MCP / plugin`
+
+区别放在二级字段。
+
+重点是一个 tool definition 有：
+
+`resident | deferred`
+
+两种完全不同的状态。
+
+Cursor 也正在做 dynamic context discovery：只静态暴露很少的 tool information，需要时再动态取具体定义；他们公开的 A/B test 中，在实际调用 MCP 的 runs 里，总 agent token 使用下降了 46.9%。[Cursor — Dynamic Context Discovery](https://cursor.com/blog/dynamic-context-discovery)
+
+所以 **Deferred tool catalog 是“可获得能力”，不是 context。**
+
+### Workspace
+
+这是 Claude `/context` 相对不够显式，而 VS Code 定义得很好的东西：
+
+- files
+- selection
+- git state / diff
+- terminal
+- browser
+- fetched web material
+- retrieved snippets
+- attachment
+
+VS Code 进一步区分了：
+
+**Implicit context**
+
+和：
+
+**Explicit references**
+
+这个语义值得 Courtwork 消费。
+
+于是 workspace detail 可以有：
+
+```text
+src/runtime.ts
+4.1k · retrieved · automatic
+
+architecture.md
+2.3k · attached · user
+
+git diff
+1.7k · implicit · runtime
+```
+
+这样能回答一个非常重要的问题：
+
+> **为什么这个东西现在在 context 里？**
+
+### Memory
+
+只有**真正 injected 的 memory**算。
+
+这是必须严明的一条：
+
+> Memory store ≠ Memory index ≠ Loaded memory.
+
+某个 memory 存在数据库或者磁盘上，并不代表模型正在看到它。
+
+Claude 官方自己的 auto memory 也是在真正加载以后才进入 `/context` accounting。
+
+### Extensions
+
+Skill、custom agent description、expert/harness extension instructions 都可以归在这里。
+
+否则以后不断出现：
+
+`Skills / Custom Agents / Experts / Plugins / Commands / Modes`
+
+每一种又占一块颜色，UI 很快重新变成内部架构泄漏。
+
+前端可以显示它们的真实 subtype，但 canonical semantic 都是：
+
+> **可改变 Agent 行为的扩展描述或指令。**
+
+### Derived
+
+这是我认为 Claude UI 目前反而不如 Cursor 清晰的地方。
+
+至少包括：
+
+`compacted summary`
+
+`distilled state`
+
+`plan`
+
+以及未来可能存在的：
+
+`compiled context projection`
+
+Cursor 已经把 **Summarized conversation** 从 Conversation 单独列出。这非常合理，因为：
+
+**原始历史和历史的有损投影不是同一种 evidence。**
+
+OpenAI Responses 的新 compaction 更进一步：compaction item 甚至可以是一个 **opaque encrypted item**，不是给人读的自然语言摘要，但会作为下一 window 的 canonical input 继续存在。[OpenAI — Compaction](https://developers.openai.com/api/docs/guides/compaction)
+
+所以不能把：
+
+`Context summary = Messages`
+
+写死。
+
+应当是：
+
+`derived.kind = compaction`
+
+---
+
+# 5. 然后单独冻结 Residency 状态机
+
+我推荐只有五个：
+
+```text
+resident
+deferred
+isolated
+compacted
+archived
+```
+
+**Resident**
+
+当前 inference 实际可见。
+
+**Deferred**
+
+模型知道它可以取得，或者 Harness 知道它存在，但正文/schema 尚未进入当前 working set。
+
+例如 MCP tool schema。
+
+**Isolated**
+
+正在另一个 context window 中工作。
+
+例如 Explore / Browser / Spark subagent。
+
+Claude、Cursor 和 Copilot 现在都明确把 subagent 作为 context isolation 手段；主 Agent 最后只获得其返回结果，而不是 subagent 的全部 intermediate material。
+
+**Compacted**
+
+原材料已经退出 active context，但存在一个 replacement representation。
+
+注意：
+
+`compacted ≠ archived`
+
+因为 compacted representation **仍可能 resident**。
+
+准确表示甚至应该允许：
+
+```text
+original.residency = archived
+summary.residency = resident
+summary.derived_from = original
+```
+
+**Archived**
+
+Event/session/store 中仍存在，但当前模型看不到。
+
+这点对 Courtwork 尤其重要：
+
+> **“能够 recall”绝不能在 UI 上画成“正在 context 中”。**
+
+这与你现有 Event Log ≠ Matter State ≠ Model Context 的边界其实完全吻合。
+
+---
+
+# 6. Reserved 也不要直接写死成「Autocompact buffer」
+
+这是 Claude implementation terminology。
+
+GitHub Copilot CLI 把它叫：
+
+**Buffer — capacity reserved for the model's response and headroom.**
+
+OpenAI 又明确说明 model context window 包括 **input + output tokens**；Codex 的 agent loop 会在逼近窗口时主动 compact。[OpenAI — Unrolling the Codex Agent Loop](https://openai.com/index/unrolling-the-codex-agent-loop/)
+
+因此 Courtwork canonical semantic 应该只是：
+
+**Reserved capacity**
+
+然后允许 runtime 给出 reason：
+
+```text
+reserved
+  response_headroom
+  compaction
+  runtime_safety
+```
+
+如果当前 runtime 只有一个目的，UI 才显示：
+
+**Reserved for compaction**
+
+而不是把 Anthropic 的实现词汇固化进产品语言。
+
+---
+
+# 7. 顶部数字也应该叫 Active，而不是 Tokens used
+
+我会推荐：
+
+**Context**
+
+`371.9k active / 1M`
+
+`37%`
+
+而不是简单：
+
+`371.9k / 1M used`
+
+因为 **“tokens used”太容易被理解成计费 token usage**。
+
+尤其截图下面紧接着就是：
+
+`5-hour limit / Weekly usage`
+
+这两个其实完全不是一个概念。
+
+Courtwork 如果支持多 Provider，我建议不要跟 Claude 一样把 Plan Usage 塞进同一个 Context popover。
+
+它们应该属于两个 surface：
+
+**Context**
+
+> 这次 inference 看到了什么。
+
+**Usage**
+
+> Provider/account 消耗了多少额度、钱、请求或 token。
+
+最多在 Context 面板底部给一个 `Provider usage →` 链接。
+
+不要共享同一根进度条语义。
+
+---
+
+# 8. Cache 也绝对不能画成一种 Context source
+
+这是很容易犯的错误。
+
+Prompt cache 描述的是：
+
+> 当前 active prompt 中有多少部分能够复用之前的 inference computation。
+
+它不是新的 context。
+
+Codex 为了保持 prompt-cache exact prefix match，甚至会刻意稳定 tools ordering 和 prompt prefix；OpenAI 官方专门解释过 MCP tool list 改变会造成 cache miss。[OpenAI — Codex Agent Loop](https://openai.com/index/unrolling-the-codex-agent-loop/)
+
+所以应该是：
+
+```text
+Context
+371.9k active
+
+Diagnostics
+84% cached
+```
+
+而不是：
+
+```text
+Cached context 312k
+Uncached context 60k
+```
+
+作为两个互斥 source。
+
+Cache 是**active context 的一个属性**。
+
+---
+
+# 9. 同样，Index / RAG corpus / Repo 也不是 context
+
+这是另外一个容易产品化错误的地方。
+
+VS Code 已经明确区分：
+
+**workspace index**
+
+和：
+
+**assembled prompt/context**
+
+Index 只是让 Agent 能快速找到内容。
+
+只有 search 返回的 snippet/file 真正进入 prompt 后，它才成为 context。
+
+所以 Courtwork 后续即使有：
+
+`Matter index`
+
+`Research index`
+
+`Source library`
+
+`Chat history search`
+
+都不能在 Context Window 里直接画占用。
+
+它们属于：
+
+**Available / retrievable sources**
+
+只有 retrieval 后才产生：
+
+```text
+workspace/retrieved
+research/retrieved
+memory/retrieved
+```
+
+这种 resident context item。
+
+---
+
+# 10. Source item 最好带一个极小的 provenance schema
+
+我会建议底层每个 projected item 至少能回答：
+
+```yaml
+source:
+  family: workspace
+  subtype: file
+  origin: engineering/architecture.md
+
+injection:
+  mode: automatic
+  reason: tool_read
+
+residency:
+  state: resident
+  scope: main-agent
+
+tokens:
+  count: 2314
+  measurement: tokenizer
+
+lifecycle:
+  loaded_at: turn-128
+  compactable: true
+```
+
+这样以后展开 `Workspace 24.3k` 时，可以真正显示：
+
+```text
+architecture.md      4.2k   read
+harness-contract.md  3.1k   attached
+git diff             2.7k   automatic
+...
+```
+
+而不是暴露一堆 runtime implementation objects。
+
+这也为以后做 context governance 留下了稳定接口。
+
+---
+
+# 11. `measurement` 很有必要
+
+Context token 数不应该假装永远是绝对精确值。
+
+OpenAI 官方明确说明：客户端提交 `instructions / tools / input`，而 Responses server 最终决定怎样把这些东西 render 成模型 prompt。
+
+所以 Courtwork 最好允许：
+
+```text
+provider-reported
+tokenizer-measured
+estimated
+```
+
+如果 Provider 给了真实 input usage，就优先覆盖本地 estimate。
+
+如果没有，就显示：
+
+`≈ 371.9k`
+
+或在 tooltip 中说明：
+
+`Estimated locally`
+
+没必要在主 UI 上天天写“estimate”，但 schema 必须承认不确定性。
+
+---
+
+# 12. 最终 UI 我反而建议比 Claude 再克制一层
+
+主 popover 大约只需要：
+
+```text
+Context                           372k / 1M
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Conversation                     320k   32%
+Instructions                      11k    1%
+Tools                             33k    3%
+Workspace                          5k    1%
+Extensions                         3k   <1%
+Derived                            —      —
+
+Reserved                          33k    3%
+Free                             595k   60%
+
+Available on demand
+Tools                         36k · 64
+Sources                          · 128
+
+Context details →
+```
+
+数值只是示意。
+
+这里真正重要的改进是：
+
+**不要让 78 个 MCP tools 一字排下来。**
+
+点 Tools 再进入 detail：
+
+```text
+Tools
+
+Builtin
+  12 loaded · 18 deferred
+
+GitHub MCP
+   4 loaded · 21 deferred
+
+Playwright
+   0 loaded · 26 deferred
+```
+
+再展开某个 server 才显示 tool。
+
+符合之前确定的 progressive disclosure grammar。
+
+---
+
+# 13. Context details 才展示「为什么」
+
+Detail / inspector 可以进一步采用非常有价值的四个维度：
+
+| 字段 | 用户真正得到的信息 |
+|---|---|
+| **Source** | 它是什么 / 来自哪里 |
+| **Loaded by** | 为什么进入 context |
+| **Residency** | active / deferred / isolated / compacted |
+| **Retention** | 下一次 compact 后会怎样 |
+
+最后一个尤其有价值。
+
+Claude 官方现在已经明确列出了各种机制经过 compaction 后：
+
+`unchanged / reinjected / lost-until-needed / bounded reinjection`
+
+的差异。
+
+Courtwork 可以把这个抽象成：
+
+`persistent / reinjected / compactable / ephemeral`
+
+于是 Context 面板不只是一个 token meter，而开始成为真正的 **Context Inspector**。
+
+---
+
+## 合流前我建议冻结的规范
+
+这轮外部 Explore 后，我会认为已经足以裁定下面几条，不需要继续扩大调研面：
+
+**Context Window = current model-visible working set + reserved capacity。**
+
+**Stored / indexed / retrievable ≠ resident context。**
+
+**Active、Reserved、Free 三者组成容量投射；Deferred 不占当前窗口。**
+
+**Source 与 Residency 是两个正交维度。**
+
+**Compaction 必须留下 derived representation 的语义，不能简单显示成 Messages 变少。**
+
+**Subagent context 属于 isolated context，只有返回给 parent 的结果才能计入 parent。**
+
+**Cache、Provider quota、累计 token usage 都不是 Context source。**
+
+**Runtime-specific 名词如 CLAUDE.md、MCP、Skill、AGENTS.md 是 subtype，而不是 Courtwork 顶层 ontology。**
+
+最终其实可以用一句非常稳定的话定义这个产品面：
+
+> **Context Inspector answers two questions: _What can the model see now?_ and _Why is it here?_**
+
+我认为这已经可以作为前后端合流时 Context Window 的语义契约；具体 Claude 式彩条、popover、展开行为都只是这套契约的 renderer。
