@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Coding dogfooding 优先与 Spark 合入复裁
+
+用户明确先补齐能力、完成 coding 场景 dogfooding，另一分支正在施工，待交付后合入复裁。[顺序与Spark接收判据](research/spark-explore-2026-09-13/README.md)固定完整返回会话1轮2消息；引用的独立稿件未返回。沿DF-04/RD-009、既有Spark定义及RD-005/007接收，不重复施工、不推定分支已通过。复裁检查真实模型读改测、人审与重开接续，Spark可追溯成果/消费，权限及取消恢复反例；最终组合再定发布面与G1–G5。模型规格/外部实践尚未核验，不写成能力承诺；本片仅登记，未运行provider或部署。
+
 ## 2026-09-13 · 可选 workspace Chat 与 Recent 已实现
 
 按用户授权完成 BE-23/DWB-05：[实现契约](../app/docs/projectless-chat.md)、[验证证据](../evidence/projectless-chat-20260913/README.md)。侧栏 Projects 与 Recent 同级且 Projects 在上；Recent 展示全部普通会话，包括未分配 Chat。首次发送无需先选 Project 或命名，左下附件与 workspace 独立；Attention 仅新增附件。刷新按 Session ID 恢复，创建/上传失去回执沿原身份重试；Runtime schema14 的 v13 字节备份、旧宿主拒绝与独立恢复已验证。
