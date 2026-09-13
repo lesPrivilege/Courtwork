@@ -18,3 +18,7 @@ The source reports 71 candidates across six lines; this is its claim, not a new 
 ## Full-source intake · same-day continuation
 
 The user has now supplied the [complete source](../context-tps-motion-2026-09-13/production/review/surface-intake-attachment.txt); [Luna’s bounded intake](../context-tps-motion-2026-09-13/production/review/surface-intake.md) records the SHA and maps it to existing IA/Attention/Work contracts. Astra adopts that mapping. The source-archive gap is closed; vendor implementation claims and the 71-candidate sweep remain unverified. Current Chatspace projection and the separate Core Work review entry fit the existing classification. Future surfaces stay on the original queue and owners; this is not a new full-site audit.
+
+## Spatial hierarchy increment
+
+The later material-composition turn is separately preserved in [UI hierarchy polish registration](hierarchy-polish-registration.md). It extends the same IA queue with task anchors, container elevation, scrolling and selective material comparisons. Current Attention UI02 supersedes the source's older flat-split description; no new full-site audit or blanket Glass rollout is claimed.

@@ -1,0 +1,26 @@
+[
+  {
+    "path": "app/web/attention-view.mjs",
+    "expected": "7ffe92cc9fc1161490dfe75c3e1167b2f7087d4ae38f022b98a9df0704ec15a3",
+    "actual": "7ffe92cc9fc1161490dfe75c3e1167b2f7087d4ae38f022b98a9df0704ec15a3",
+    "pass": true
+  },
+  {
+    "path": "app/web/styles.css",
+    "expected": "7fd2c95878c057c640602d9545bd5dd6deb463bf9fab025b040a32736bb1b36e",
+    "actual": "7fd2c95878c057c640602d9545bd5dd6deb463bf9fab025b040a32736bb1b36e",
+    "pass": true
+  },
+  {
+    "path": "app/tests/attention-ui02.test.mjs",
+    "expected": "8b225a2f4254697614b5ae1d63cacfe9e79ad5c59f882c1deef7b117e08637c5",
+    "actual": "8b225a2f4254697614b5ae1d63cacfe9e79ad5c59f882c1deef7b117e08637c5",
+    "pass": true
+  },
+  {
+    "path": "engineering/design/attention-ui-handoff-2026-09-13/claude-return/evidence/product.patch",
+    "expected": "59fd3fc3f1c15ce08b314a57aae57917b10687206ec986df1dac1011668b19ec",
+    "actual": "59fd3fc3f1c15ce08b314a57aae57917b10687206ec986df1dac1011668b19ec",
+    "pass": true
+  }
+]

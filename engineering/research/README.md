@@ -1,5 +1,7 @@
 # RD：研究与开发验证
 
+[Court定位参考实践](court-position-2026-09-13/README.md)：2026-09-13，两轮/三消息及截图入账，Luna探索/选型快照、Astra补充DEC-014词汇与控制责任；缺口沿RD-005/007和义务闭环承接，未引入框架或新增Release门。
+
 [RD-008 · Typed commands与手动压缩](RD-008-command-compaction.md)：2026-09-13，完整源会话入账；自动压缩相关15/15及slash fallthrough探针，校正当前能力说明。CMD-01/CMP-01登记Release后期Developer增量，CMP-02质量优化后置，未实现新入口。
 
 [工作义务闭环](obligation-closure-2026-09-12/README.md)：2026-09-12，Astra裁决Attention/Spark职责、版本回执、关闭权限与heartbeat边界；只登记，调度与实现后置，不进入发布面。

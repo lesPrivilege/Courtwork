@@ -5846,42 +5846,183 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
   .chat-keeps dl { grid-template-columns: 1fr; gap: 2px 0; }
   .chat-keeps dd { margin-bottom: 10px; }
 }
-.attention-workspace-inner { max-width: 1040px; margin: 0 auto; }
-.attention-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
-.attention-workspace-heading h1 { font-size: 30px; letter-spacing: -0.02em; margin: 4px 0 8px; }
-.attention-eyebrow { font-size: var(--text-meta); letter-spacing: 0.08em; color: var(--muted-strong); }
-.attention-toolbar { display: flex; gap: 12px; margin-bottom: 24px; align-items: center; }
-.attention-toolbar select { width: auto; max-width: 38%; }
-/* WK-156 · the six state views are one horizontal strip of pressed buttons, not
-   a dropdown and not ARIA tabs: one panel, six queries. Labels never abbreviate;
-   a narrow viewport scrolls the strip instead of cutting a status word. */
-.attention-views { display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
+/* WO-ATT-UI02 · Attention items workspace (candidate, Claude, 2026-09-13).
+ *
+ * Reading order is the task order: scan the list → understand why → decide →
+ * see the recorded result → return to the same row. One query bar carries the
+ * project and the six views; the list is minimal (title, status, updated); the
+ * reading pane stays in view beside a long list and scrolls on its own.
+ *
+ * Roles only (tier U): no hex, no scale steps. Existing sizes: --control,
+ * --radius-*, --space-*, --text-*. Only opacity and transform are ever animated,
+ * from attention-view.mjs, and both reduce paths stop them. */
+
+.attention-workspace-inner { max-width: 1120px; margin: 0 auto; }
+
+/* ── heading and query bar ─────────────────────────────────────────────── */
+.attention-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
+.attention-workspace-heading h1 { font-size: calc(30px * var(--text-scale)); letter-spacing: var(--tracking-heading); margin: 0; }
+.attention-heading-actions { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; justify-content: flex-end; }
+.attention-open-assistant > .ui-icon { color: var(--muted-strong); }
+
+.attention-query { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); padding-bottom: var(--space-4); margin-bottom: var(--space-4); border-bottom: 1px solid var(--line); }
+.attention-toolbar { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
+.attention-toolbar select { width: auto; max-width: 280px; }
+.attention-query-views { display: flex; align-items: center; gap: var(--space-2) var(--space-4); flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+/* The views share the segmented grammar — track, raised thumb, meta type — but
+ * they are buttons in a group that re-query, so the thumb does not travel: a
+ * filter answers immediately. */
+.attention-views { display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--radius-control); background: var(--hover); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .attention-views::-webkit-scrollbar { display: none; }
-.attention-view-choice { flex: none; padding: 7px 12px; border-radius: var(--radius-control); white-space: nowrap; }
-.attention-view-choice:hover { background: var(--hover); }
-.attention-view-choice.is-current { background: var(--float); color: var(--ink); font-weight: 500; box-shadow: inset 0 0 0 1px var(--line); }
-.attention-row-title { font-weight: 500; }
-.attention-row-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; width: 100%; }
-.attention-row-time { font-size: var(--text-meta); color: var(--muted-strong); }
-.attention-columns { display: grid; grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.3fr); gap: 24px; align-items: start; }
+.attention-view-choice { flex: none; min-height: 26px; padding: 0 10px; border: 0; border-radius: calc(var(--radius-control) - 2px); font-size: var(--text-meta); color: var(--muted-strong); white-space: nowrap; }
+.attention-view-choice:hover { color: var(--ink); background: transparent; }
+.attention-view-choice.is-current { background: var(--panel); color: var(--ink); font-weight: 500; box-shadow: var(--shadow-thumb); }
+.attention-count { margin: 0 0 0 auto; font-size: var(--text-meta); color: var(--muted-strong); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.attention-departed { flex-basis: 100%; margin: 0; font-size: var(--text-meta); color: var(--ink); overflow-wrap: anywhere; }
+
+/* ── columns ───────────────────────────────────────────────────────────── */
+.attention-columns { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
 .attention-registry, .attention-reading { min-width: 0; }
-.attention-registry { padding: 16px 0; }
-.attention-count { font-size: var(--text-meta); color: var(--muted-strong); margin: 0 0 12px; }
-.attention-registry-row { width: 100%; display: flex; flex-direction: column; gap: 7px; align-items: start; text-align: left; padding: 13px 12px; border: 0; border-radius: var(--radius-small); background: none; margin-bottom: 4px; overflow-wrap: anywhere; }
+
+/* ── registry ──────────────────────────────────────────────────────────── */
+.attention-rows { display: grid; gap: 2px; }
+.attention-registry-row { position: relative; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); justify-content: stretch; gap: 3px; justify-items: start; text-align: left; padding: 9px 12px 10px; border: 0; border-radius: var(--radius-control); background: none; overflow-wrap: anywhere; }
 .attention-registry-row:hover { background: var(--hover); }
-.attention-registry-row[aria-pressed="true"] { background: var(--float); box-shadow: none; }
-.attention-reading { border-left: 1px solid var(--line); padding: 16px 24px; background: var(--float); }
-.attention-detail-head h2 { font-size: 24px; line-height: 1.3; margin: 12px 0; overflow-wrap: anywhere; }
-.attention-detail-head p, .attention-decision p { font-size: var(--text-body); line-height: 1.65; overflow-wrap: anywhere; }
-.attention-detail-state { font-size: var(--text-label); color: var(--muted-strong); }
-.attention-detail-state.is-review { color: var(--attention-review); font-weight: 600; }
-.attention-decision { padding: 20px 0; }
-.attention-decision h3 { font-size: var(--text-label); color: var(--muted-strong); margin: 14px 0 6px; }
-.attention-basis { font-size: var(--text-meta); color: var(--muted-strong); overflow-wrap: anywhere; }
-.attention-basis p { margin-top: 12px; }
-.attention-empty { padding: 36px 12px; color: var(--muted-strong); }
-.attention-empty h2, .attention-empty h3 { margin: 16px 0 12px; font-size: 20px; color: var(--ink); }
-.attention-empty p { font-size: var(--text-label); line-height: 1.6; }
+/* Selection follows the existing Chat row grammar: fill, with native focus. */
+.attention-registry-row[aria-pressed="true"] { background: var(--selected); }
+.attention-row-title { font-size: var(--text-body); font-weight: 500; line-height: 1.4; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.attention-row-meta { display: flex; align-items: baseline; gap: var(--space-2); width: 100%; font-size: var(--text-meta); }
+.attention-row-state { font-size: var(--text-meta); }
+.attention-row-time { color: var(--muted-strong); margin-left: auto; font-variant-numeric: tabular-nums; }
+.attention-pagination { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-2); margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.attention-pagination > :last-child { justify-self: end; }
+.attention-pagination > :first-child { justify-self: start; }
+.attention-pagination .form-help { font-variant-numeric: tabular-nums; }
+.attention-loading { margin: 0 0 var(--space-2); }
+.attention-placeholder { display: grid; gap: var(--space-2); }
+.attention-placeholder > span { display: block; height: 50px; border-radius: var(--radius-control); background: var(--panel-muted); }
+.attention-list-error { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-control); background: var(--panel-muted); font-size: var(--text-label); overflow-wrap: anywhere; }
+.attention-list-error p { margin: 0; }
+.attention-empty { padding: var(--space-8) var(--space-3); color: var(--muted-strong); }
+.attention-empty h3 { margin: 0 0 var(--space-2); font-size: var(--text-title); color: var(--ink); }
+.attention-empty p { margin: 0; font-size: var(--text-label); line-height: 1.6; }
+
+/* ── reading pane ──────────────────────────────────────────────────────── */
+/* It stays beside the list while the list scrolls; its own body scrolls. The
+ * offset keeps it below the host's top band. */
+.attention-reading { position: sticky; top: 0; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--float); }
+.attention-reading-body { max-height: calc(100dvh - var(--band-top) - var(--space-8)); overflow: auto; overscroll-behavior: contain; padding: var(--space-5) var(--space-6) var(--space-6); }
+/* Wide: the list is already beside the pane, so returning is a quiet control in
+ * the pane's corner; it is still where focus lands when an item opens. */
+.attention-reading-body { position: relative; }
+.attention-list-back { position: absolute; top: var(--space-3); right: var(--space-3); color: var(--muted-strong); }
+.attention-reading-empty { display: grid; justify-items: center; gap: var(--space-3); text-align: center; padding: 72px var(--space-6); }
+.attention-reading-empty > .ui-icon { color: var(--muted-strong); }
+.attention-reading.is-idle { visibility: hidden; }
+.attention-detail-loading { margin: 0; }
+
+.attention-detail-head { margin-bottom: var(--space-5); padding-right: 104px; }
+.attention-detail-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-3); margin: 0 0 var(--space-2); font-size: var(--text-label); }
+.attention-detail-state { display: inline-block; font-size: var(--text-label); font-weight: 600; color: var(--ink); }
+.attention-detail-state.is-review { color: var(--attention-review); }
+.attention-seen { color: var(--muted-strong); display: inline-block; }
+.attention-seen::before, .attention-detail-time::before { content: "·"; margin-right: var(--space-3); color: var(--muted-strong); }
+.attention-detail-time { color: var(--muted-strong); font-variant-numeric: tabular-nums; }
+.attention-detail-head h2 { margin: 0; font-weight: 600; font-size: calc(22px * var(--text-scale)); line-height: 1.3; letter-spacing: var(--tracking-heading); overflow-wrap: anywhere; }
+.attention-summary { margin: var(--space-2) 0 0; font-size: var(--text-body); line-height: 1.6; color: var(--muted-strong); overflow-wrap: anywhere; }
+
+.attention-decision { display: grid; gap: var(--space-4); padding: var(--space-4) var(--space-5); border-radius: var(--radius-card); background: var(--panel-muted); }
+.attention-decision h3 { margin: 0 0 var(--space-1); font-size: var(--text-label); font-weight: 500; color: var(--muted-strong); }
+.attention-decision p { margin: 0; overflow-wrap: anywhere; }
+.attention-reason { font-size: var(--text-reading); line-height: 1.6; max-width: var(--doc-measure); }
+.attention-next { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); font-size: var(--text-reading); line-height: 1.5; font-weight: 500; }
+.attention-next-kind { font-size: var(--text-label); font-weight: 500; color: var(--muted-strong); }
+.attention-next-trigger { margin-top: var(--space-1) !important; }
+
+/* ── actions ───────────────────────────────────────────────────────────── */
+/* WK-158 · the object decides what is on offer, so the choices are quiet and the
+ * chosen action's own submit is the only primary control. */
+.attention-actions { margin-top: var(--space-6); outline: none; }
+.attention-actions h3 { margin: 0 0 var(--space-2); font-size: var(--text-label); font-weight: 500; color: var(--muted-strong); }
+.attention-action-choices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.attention-action-choice.is-current { background: var(--selected); border-color: var(--line-strong); color: var(--ink); }
+.attention-action-editor { margin-top: var(--space-3); display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); }
+.attention-action-editor fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: var(--space-3); min-width: 0; }
+.attention-action-editor legend { padding: 0; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 500; color: var(--muted-strong); }
+.attention-status-target { display: flex !important; flex-wrap: wrap; gap: var(--space-1) var(--space-4) !important; }
+.attention-status-target legend { flex-basis: 100%; }
+.attention-field, .attention-field-control { display: grid; gap: 5px; min-width: 0; }
+.attention-field-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.attention-field-inline { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-body); }
+.attention-field-label { font-size: var(--text-label); color: var(--ink); }
+.attention-field textarea { resize: vertical; min-height: 72px; }
+.attention-field select, .attention-field input:not([type="radio"]) { width: 100%; }
+.attention-field-error { margin: 0; }
+.attention-submit-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.attention-consequence { margin: 0; flex: 1 1 220px; }
+.attention-action-alert { margin: var(--space-3) 0 0; }
+.attention-action-alert p { margin: 0; }
+.attention-uncertain { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); }
+.attention-conflict-now { margin: var(--space-2) 0 0; }
+.attention-receipt { margin: var(--space-3) 0 0; font-size: var(--text-label); color: var(--ink); }
+
+/* ── recorded context (L3) ─────────────────────────────────────────────── */
+.attention-basis { margin-top: var(--space-6); padding-top: var(--space-3); border-top: 1px solid var(--line); font-size: var(--text-meta); color: var(--muted-strong); overflow-wrap: anywhere; }
+.attention-basis > summary { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control); padding: 0 var(--space-2) 0 var(--space-1); margin-left: calc(-1 * var(--space-1)); border-radius: var(--radius-small); list-style: none; cursor: pointer; font-size: var(--text-label); color: var(--muted-strong); }
+.attention-basis > summary::-webkit-details-marker { display: none; }
+.attention-basis > summary:hover { background: var(--hover); color: var(--ink); }
+.attention-basis > summary > .ui-icon { width: 16px; height: 16px; transition: transform var(--duration-fast) var(--ease-out); }
+.attention-basis[open] > summary > .ui-icon { transform: rotate(90deg); }
+.attention-basis-body { display: grid; gap: var(--space-2); padding: var(--space-2) 0 0 var(--space-5); line-height: 1.55; }
+.attention-basis-body p { margin: 0; }
+.attention-sources { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.attention-sources li { display: grid; gap: 1px; }
+.attention-source-kind { color: var(--ink); }
+.attention-source-locator { font-family: var(--font-mono); font-size: var(--text-caption); }
+
+/* ── narrow: one pane at a time ────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .attention-workspace { padding: var(--space-4) var(--space-4) 40px; }
+  .attention-workspace-heading { align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+  .attention-workspace-heading h1 { font-size: calc(24px * var(--text-scale)); }
+  .attention-open-assistant > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .attention-open-assistant { width: 44px; padding: 0; }
+  .attention-open-assistant { position: relative; }
+  .attention-query { gap: var(--space-2); padding-bottom: var(--space-3); margin-bottom: var(--space-3); }
+  .attention-toolbar { flex: 1 1 100%; }
+  .attention-toolbar select { flex: 1; max-width: none; }
+  /* WK-156 · a status word is never abbreviated to fit: the strip scrolls
+     instead, and every control a finger can reach keeps a 44px target. */
+  .attention-query-views { flex-basis: 100%; }
+  .attention-views { margin: 0 calc(-1 * var(--space-4)); padding: 2px var(--space-4); border-radius: 0; background: none; }
+  .attention-view-choice { min-height: 44px; padding: 0 12px; }
+  .attention-view-choice.is-current { background: var(--selected); box-shadow: none; }
+  .attention-count { margin-left: 0; }
+  .attention-columns { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .attention-columns.has-selection .attention-registry { display: none; }
+  .attention-columns:not(.has-selection) .attention-reading { display: none; }
+  .attention-workspace-inner.is-reading .attention-query { display: none; }
+  .attention-reading { position: static; border: 0; border-radius: 0; background: none; }
+  .attention-reading-body { max-height: none; overflow: visible; padding: 0; }
+  .attention-list-back { position: static; margin: 0 0 var(--space-2) calc(-1 * var(--space-2)); }
+  .attention-detail-head { padding-right: 0; }
+  .attention-registry-row { padding: 12px; }
+  .attention-decision { padding: var(--space-4); }
+  .attention-field-pair { grid-template-columns: minmax(0, 1fr); }
+  .attention-action-editor { padding: var(--space-3); }
+  .attention-action-submit { flex: 1 1 100%; }
+  .attention-workspace button { min-height: 44px; }
+  .attention-workspace input:not([type="radio"]), .attention-workspace select, .attention-workspace textarea { min-height: 44px; }
+  .attention-workspace input[type="radio"] { width: 24px; height: 24px; }
+  .attention-field-inline { min-height: 44px; }
+  .attention-basis > summary { min-height: 44px; }
+}
+
+/* Forced colours: fills vanish, so selection and the thumb keep an outline. */
+@media (forced-colors: active) {
+  .attention-registry-row[aria-pressed="true"] { outline: 2px solid CanvasText; outline-offset: -2px; }
+  .attention-view-choice.is-current { outline: 2px solid CanvasText; outline-offset: -2px; }
+}
 .attention-assistant { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
 .attention-assistant-heading { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .attention-assistant-heading h3 { font-size: var(--text-body); }
@@ -5895,47 +6036,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .attention-assistant-composer button { align-self: flex-end; }
 .attention-prompt-preview { margin-top: 14px; font-size: var(--text-label); overflow-wrap: anywhere; }
 .attention-prompt-preview p { margin: 8px 0; }
-/* WK-158 · the disposition layer: the advertised choices, then one editor, then
-   one submit. Six permanent primary buttons would read as six standing offers;
-   the object decides what is on offer, so the choices are quiet and the chosen
-   action's own control is the only primary one. */
-.attention-actions { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
-.attention-actions h3 { font-size: var(--text-label); color: var(--muted-strong); margin: 0 0 12px; }
-.attention-action-choices { display: flex; flex-wrap: wrap; gap: 6px; }
-.attention-action-choice { padding: 7px 12px; border-radius: var(--radius-control); }
-.attention-action-choice:hover { background: var(--hover); }
-.attention-action-choice.is-current { background: var(--panel-muted); box-shadow: inset 0 0 0 1px var(--line); }
-.attention-action-editor { margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
-.attention-action-editor fieldset { border: 1px solid var(--line); border-radius: var(--radius-card); padding: 14px; margin: 0; display: flex; flex-direction: column; gap: 12px; }
-.attention-action-editor legend { padding: 0 6px; font-size: var(--text-label); color: var(--muted-strong); }
-.attention-field { display: flex; flex-direction: column; gap: 6px; }
-.attention-field-inline { flex-direction: row; align-items: center; gap: 8px; }
-.attention-field-label { font-size: var(--text-label); }
-.attention-field textarea { resize: vertical; }
-.attention-action-submit { align-self: flex-start; }
-.attention-field-error { margin: 0; }
-.attention-action-alert { margin-top: 14px; }
-.attention-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
-.attention-list-back { margin-bottom: 12px; }
 .attention-active .chat-title-wrap { display: none; }
-@media (max-width: 767px) {
-  .attention-workspace { padding: 20px 16px; }
-  .attention-workspace-heading { align-items: start; gap: 12px; }
-  .attention-workspace-heading h1 { font-size: 26px; }
-  .attention-toolbar { gap: 8px; flex-wrap: wrap; }
-  .attention-toolbar select { max-width: 100%; }
-  .attention-columns { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .attention-columns.has-selection .attention-registry { display: none; }
-  .attention-reading { padding: 16px; border-left: 0; }
-  .attention-columns:not(.has-selection) .attention-reading > .attention-empty { display: none; }
-  .attention-workspace button { min-height: 44px; }
-  /* WK-156 · a status word is never abbreviated to fit: the strip scrolls
-     instead, and every control a finger can reach keeps a 44px target. */
-  .attention-views { margin: 0 -16px 16px; padding: 0 16px; }
-  .attention-workspace input:not([type="radio"]), .attention-workspace select, .attention-workspace textarea { min-height: 44px; }
-  .attention-workspace input[type="radio"] { width: 24px; height: 24px; }
-  .attention-field-inline { min-height: 44px; }
-}
 
 /* Material fallback: unsupported blur must still produce a readable raised
    surface. The same two registered consumers keep their geometry and roles. */
@@ -6505,3 +6606,6 @@ html[data-theme="dark"] {
 @media(forced-colors:active) { .run-activity-bars i { color:CanvasText; background:currentColor; } .chat-measurement-popover { --float:Canvas; --ink:CanvasText; --muted-strong:CanvasText; --line:CanvasText; background:var(--float); color:var(--ink); border-color:var(--line); box-shadow:none; } }
 
 .chat-measurement-popover.is-keyboard { transition:none; }
+
+/* Keyboard disclosure changes are immediate, like Attention navigation. */
+.attention-workspace-inner[data-input="keyboard"] .attention-basis > summary > .ui-icon { transition: none; }

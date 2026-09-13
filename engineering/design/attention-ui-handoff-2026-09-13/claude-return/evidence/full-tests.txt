@@ -1,0 +1,10 @@
+# npm --prefix app test · worktree codex/attention-ui02-claude-20260913 · product files identical to the returned commit · run 2026-09-13
+ℹ tests 928
+ℹ suites 0
+ℹ pass 928
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 220097.641625
+EXIT 0

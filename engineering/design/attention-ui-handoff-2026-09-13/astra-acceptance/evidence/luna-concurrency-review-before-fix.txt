@@ -1,0 +1,36 @@
+✔ late A conflict cannot replace B draft or show A conflict in the same project (27.117917ms)
+✔ late A success after project switch leaves B draft and receipt state alone (5.498916ms)
+✔ keyboard opening, editing and receipt feedback call no WAAPI animations (9.542167ms)
+✖ overlapping settlements keep feedback motion held until B registry read finishes (7.722916ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 3
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 149.228916
+
+✖ failing tests:
+
+test at engineering/design/attention-ui-handoff-2026-09-13/astra-acceptance/luna-concurrency-review.test.mjs:171:1
+✖ overlapping settlements keep feedback motion held until B registry read finishes (7.722916ms)
+  AssertionError [ERR_ASSERTION]: B receipt feedback must wait while the B registry query is still unresolved
+  + actual - expected
+  
+  + [
+  +   'attention-receipt'
+  + ]
+  - []
+  
+      at file:///private/tmp/courtwork-attention-ui02-integration-20260913/engineering/design/attention-ui-handoff-2026-09-13/astra-acceptance/luna-concurrency-review.test.mjs:230:14
+      at async TestContext.<anonymous> (file:///private/tmp/courtwork-attention-ui02-integration-20260913/engineering/design/attention-ui-handoff-2026-09-13/astra-acceptance/luna-concurrency-review.test.mjs:199:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'attention-receipt' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

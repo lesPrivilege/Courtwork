@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "baseline": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+  "conversationId": "6aa682f1-2024-83ec-b099-351239cd1b30",
+  "captureScope": "2 returned turns, 3 messages, 1 attachment; no next page. No assistant item returned in first turn.",
+  "localSourceSnapshot": "local-source-snapshot.json",
+  "externalSnapshotManifest": "snapshots/manifest.json",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 6706,
+      "sha256": "88cf97da6076a619350bfb9edb626e7c6ec91d1e44b2f82d068b3d3c9974bbbb"
+    },
+    {
+      "path": "attachments/IMG_2441.jpeg",
+      "bytes": 475912,
+      "sha256": "c60351f0c62c443b7a6f487d53b6c1eb2b421e4b8570a13955a246b122844b7b"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 1196,
+      "sha256": "c15fdbb8cf16fce351086ceb64651e859cad46c89f1b051f24fc7b47ec43f250"
+    },
+    {
+      "path": "explore.md",
+      "bytes": 9348,
+      "sha256": "b96b3dc0565cbe6f2517e3e6a2b172f6940f105055bb35dc81cba5604848ca1b"
+    },
+    {
+      "path": "local-source-snapshot.json",
+      "bytes": 2590,
+      "sha256": "dd2a04ee75d4bbbd76f017cb6f610b913a123111718c24c6351d892e6b9cb31f"
+    },
+    {
+      "path": "snapshots/agent-orchestrator.txt",
+      "bytes": 460,
+      "sha256": "26f7f2fd38c9b634b18f9d5b58c8e1bec4ade974e5ac7d132c2bd5e065b789ad"
+    },
+    {
+      "path": "snapshots/ao-issue-2764.json",
+      "bytes": 1255,
+      "sha256": "81de8fbfb497d6059ac7b60e77097a59ccec09019d39761e335734c99e3afb61"
+    },
+    {
+      "path": "snapshots/kandev.txt",
+      "bytes": 492,
+      "sha256": "31dec6a97b0897cf4643c007d6d418c94521b78f71b8926feb1564e36747cf19"
+    },
+    {
+      "path": "snapshots/kubernetes-controller.txt",
+      "bytes": 252,
+      "sha256": "a946ec912dd9edb89502a787c92af9407d0f217afbe180c7a19c83fa43ad553f"
+    },
+    {
+      "path": "snapshots/manifest.json",
+      "bytes": 13508,
+      "sha256": "5d0af6837bf5ae7325f00455a74058f140d5e914d2f4d67784f9c232b34b3eae"
+    },
+    {
+      "path": "snapshots/meathill.txt",
+      "bytes": 247,
+      "sha256": "d80f530c8e9fc17a06de67df37b63722e4302ee3e25bfe41c90914701c574e2f"
+    },
+    {
+      "path": "snapshots/temporal-architecture.txt",
+      "bytes": 274,
+      "sha256": "8e06922da290493d0de2fa95eb53eea76d4e3c2ff5d26dc3a097997399328727"
+    },
+    {
+      "path": "snapshots/vscode-harness.txt",
+      "bytes": 257,
+      "sha256": "011ce0559e69b647229789f08ef207ebb868f564823a52ed06b006dc9d4df9fa"
+    },
+    {
+      "path": "snapshots/warden.txt",
+      "bytes": 429,
+      "sha256": "c80d0a17ed443c2f64bcebfb7963ce553179a14adda1a801648227a08018c690"
+    },
+    {
+      "path": "source-conversation.json",
+      "bytes": 15580,
+      "sha256": "f2d23313386ee1492fb6b03ba6f784fa4efdd8db240d309d76b1b4c271e6b62b"
+    },
+    {
+      "path": "source-conversation.md",
+      "bytes": 7425,
+      "sha256": "6134c62066de74de633a4f210bafdea075d037efe9b707ead0a89949e71b8151"
+    }
+  ],
+  "recordedAtUTC": "2026-09-13T11:33:36.706766+00:00"
+}

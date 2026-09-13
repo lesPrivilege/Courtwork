@@ -1,0 +1,9 @@
+# Warden (pinned source inspection)
+
+Selected source excerpt only; this is not a complete repository, article, or documentation mirror.
+
+Source locator: warden/verify.py:124 — `verify_branch` is present.
+
+Source locator: warden/verify.py:153 — `res = run_git(["worktree", "add", "--detach", str(wt_dir), branch], repo)`.
+
+The source docstring describes deterministic checks and a fresh-context audit; code was read, not run.

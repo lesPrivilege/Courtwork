@@ -1,0 +1,1211 @@
+From 93b9ec27d355b41cbc28d31ceb2abcb982942aad Mon Sep 17 00:00:00 2001
+From: lesPrivilege <lesprivilege@gmail.com>
+Date: Sun, 13 Sep 2026 18:21:54 +0800
+Subject: [PATCH] feat(attention): WO-ATT-UI02 candidate list-detail,
+ disposition feedback and motion
+
+Author candidate for Astra adjudication; not accepted, not merged.
+- attention-view: query bar, seen beside status, decision block, actions before
+  L3 context, receipt line, conflict version line, departed note, narrow round
+  trip with scroll restore, focus fixes for in-flight and unknown results
+- motion: token-driven WAAPI entries, both reduce paths, held until settled
+- synthetic preview (mock core ported from attention.py), before/after
+  captures, recordings, author browser checks and return docs
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+---
+ app/tests/attention-ui02.test.mjs | 184 +++++++++++
+ app/web/attention-view.mjs        | 486 ++++++++++++++++++++++++------
+ app/web/styles.css                | 248 ++++++++++-----
+ 3 files changed, 752 insertions(+), 166 deletions(-)
+ create mode 100644 app/tests/attention-ui02.test.mjs
+
+diff --git a/app/tests/attention-ui02.test.mjs b/app/tests/attention-ui02.test.mjs
+new file mode 100644
+index 0000000..4c8e7d6
+--- /dev/null
++++ b/app/tests/attention-ui02.test.mjs
+@@ -0,0 +1,184 @@
++/* WO-ATT-UI02 · the presentation facts the candidate adds on top of WK-158:
++ * seen is drawn apart from status, the receipt line exists only after a matched
++ * receipt and a re-read, a conflict states the re-read version and keeps the
++ * draft, an unknown result hands focus to its recovery control, and an empty
++ * payload action cannot be sent twice while it is out. Motion itself is a
++ * browser concern (tiny-dom has no animate()), so these tests pin the facts the
++ * motion is allowed to follow. */
++import assert from 'node:assert/strict';
++import test from 'node:test';
++import { readFileSync } from 'node:fs';
++import { createAttentionWorkspace } from '../web/attention-view.mjs';
++import { attentionDetail, attentionItem, attentionPage } from './attention-fixtures.mjs';
++import { deferred, flush, withTinyDom } from './tiny-dom.mjs';
++
++const FIXTURE = JSON.parse(readFileSync(new URL('./fixtures/attention-actions.json', import.meta.url), 'utf8'));
++const PROJECTS = [{ id: 'p1', name: 'One' }];
++const withRevision = (list, revision) => list.map(entry => ({ ...structuredClone(entry), expected_revision: revision }));
++const key = (container, k) => container.querySelector(`[data-attention-focus="${k}"]`);
++const type = (container, k, value) => {
++  const node = key(container, k);
++  node.value = value;
++  node.dispatchEvent({ type: 'input', target: node });
++};
++
++/* A small stateful stand-in: one item whose detail follows committed receipts. */
++function core({ status = 'needs_you', seen = false, view = 'all' } = {}) {
++  const item = { revision: FIXTURE.open.revision, status, seen };
++  const calls = [];
++  const hooks = { action: null };
++  const detail = () => attentionDetail('a', { title: 'Alpha', status: item.status, revision: item.revision,
++    human_actions: withRevision(FIXTURE[item.status === 'resolved' ? 'resolved' : 'open'].human_actions, item.revision), seen: item.seen });
++  const request = async (path, init = {}) => {
++    calls.push({ path, body: init.body ?? null });
++    if (path === '/attention/query') {
++      if (init.body.query.kind === 'request') return { schema_version: 1, result: null };
++      const visible = init.body.query.kind === 'exact' && init.body.query.value !== item.status ? [] : [attentionItem('a', { title: 'Alpha', status: item.status, revision: item.revision })];
++      return attentionPage(visible);
++    }
++    if (path.endsWith('/actions')) {
++      const hook = hooks.action?.(init.body.request, item);
++      if (hook instanceof Error) throw hook;
++      if (hook) return hook;
++      const { action, payload, request_id } = init.body.request;
++      if (action === 'acknowledge') item.seen = true;
++      if (action === 'resolve') item.status = 'resolved';
++      if (action === 'resume') item.status = payload.status ?? 'investigating';
++      item.revision += 1;
++      return { schema_version: 1, attention_id: 'a', request_id, revision: item.revision, event_id: `e${item.revision}`, status: item.status };
++    }
++    const d = detail();
++    return { ...d, seen: item.seen };
++  };
++  return { request, calls, hooks, item, view };
++}
++async function openA(container, c) {
++  const workspace = createAttentionWorkspace(container, { request: c.request, onBack() {} });
++  await workspace.open({ projects: PROJECTS, projectId: 'p1' });
++  if (c.view !== 'all') { key(container, `view-${c.view}`).click(); await flush(); }
++  key(container, 'item-a').click();
++  await flush();
++  return workspace;
++}
++const posts = c => c.calls.filter(call => call.path.endsWith('/actions'));
++
++test('seen and status are two drawn facts; acknowledging changes only seen', async () => {
++  await withTinyDom(async container => {
++    const c = core();
++    await openA(container, c);
++    assert.equal(container.querySelector('.attention-detail-state').textContent, 'Needs you');
++    assert.equal(container.querySelector('.attention-seen').textContent, 'Not seen');
++    key(container, 'action-acknowledge').click();
++    await flush(); await flush();
++    assert.equal(container.querySelector('.attention-detail-state').textContent, 'Needs you');
++    assert.equal(container.querySelector('.attention-seen').textContent, 'Seen');
++    assert.match(container.querySelector('.attention-receipt').textContent, /Recorded · Mark as seen · revision 2/);
++  });
++});
++
++test('the receipt line waits for the receipt and the re-read, and never precedes them', async () => {
++  await withTinyDom(async container => {
++    const c = core();
++    const held = deferred();
++    c.hooks.action = () => held.promise;
++    await openA(container, c);
++    key(container, 'action-resolve').click(); await flush();
++    type(container, 'field-reason', 'Handled.');
++    key(container, 'submit-resolve').click(); await flush();
++    assert.equal(container.querySelector('.attention-receipt'), null);
++    assert.equal(container.querySelector('.attention-detail-state').textContent, 'Needs you');
++    const request = posts(c)[0].body.request;
++    c.item.status = 'resolved'; c.item.revision += 1;
++    held.resolve({ schema_version: 1, attention_id: 'a', request_id: request.request_id, revision: c.item.revision, event_id: 'e', status: 'resolved' });
++    await flush(); await flush(); await flush();
++    assert.equal(container.querySelector('.attention-detail-state').textContent, 'Resolved');
++    assert.match(container.querySelector('.attention-receipt').textContent, /Recorded · Resolve · revision 2/);
++  });
++});
++
++test('a mismatched receipt draws no receipt line', async () => {
++  await withTinyDom(async container => {
++    const c = core();
++    c.hooks.action = request => ({ schema_version: 1, attention_id: 'a', request_id: 'someone-else', revision: 9, status: 'resolved' });
++    await openA(container, c);
++    key(container, 'action-acknowledge').click();
++    await flush(); await flush(); await flush();
++    assert.equal(container.querySelector('.attention-receipt'), null);
++    assert.match(container.textContent, /The recorded receipt did not match this request/);
++  });
++});
++
++test('a version conflict keeps the draft and states the version now on screen', async () => {
++  await withTinyDom(async container => {
++    const c = core();
++    c.hooks.action = (request, item) => {
++      item.revision += 1; item.status = 'waiting';
++      return Object.assign(new Error('changed'), { status: 409, body: { error: { code: 'VERSION_CONFLICT' } } });
++    };
++    await openA(container, c);
++    key(container, 'action-resolve').click(); await flush();
++    type(container, 'field-reason', 'Words worth keeping.');
++    key(container, 'submit-resolve').click();
++    await flush(); await flush(); await flush();
++    assert.equal(key(container, 'field-reason').value, 'Words worth keeping.');
++    assert.equal(container.querySelector('.attention-conflict-now').textContent, 'Now Waiting (was Needs you) · revision 2. Your draft is kept.');
++    assert.equal(container.querySelector('.attention-receipt'), null);
++  });
++});
++
++test('an unknown result moves focus to Retry sending and keeps the submit closed', async () => {
++  await withTinyDom(async container => {
++    const c = core();
++    c.hooks.action = () => new Error('The local runtime could not be reached.');
++    await openA(container, c);
++    key(container, 'action-resolve').click(); await flush();
++    type(container, 'field-reason', 'Handled.');
++    key(container, 'submit-resolve').click();
++    await flush(); await flush();
++    assert.equal(document.activeElement, key(container, 'retry-mutation'));
++    assert.equal(key(container, 'submit-resolve').disabled, true);
++    assert.equal(container.querySelector('.attention-receipt'), null);
++  });
++});
++
++test('Mark as seen cannot be sent twice while its request is out', async () => {
++  await withTinyDom(async container => {
++    const c = core();
++    const held = deferred();
++    c.hooks.action = () => held.promise;
++    await openA(container, c);
++    key(container, 'action-acknowledge').click(); await flush();
++    assert.equal(key(container, 'action-acknowledge').textContent, 'Sending…');
++    key(container, 'action-acknowledge').click(); await flush();
++    assert.equal(posts(c).length, 1);
++    held.resolve({ schema_version: 1, attention_id: 'a', request_id: posts(c)[0].body.request.request_id, revision: 2, status: 'needs_you' });
++    await flush(); await flush();
++  });
++});
++
++test('an item that leaves the current view after a receipt is named, with its new status', async () => {
++  await withTinyDom(async container => {
++    const c = core({ view: 'needs_you' });
++    await openA(container, c);
++    key(container, 'action-resolve').click(); await flush();
++    type(container, 'field-reason', 'Handled.');
++    key(container, 'submit-resolve').click();
++    await flush(); await flush(); await flush(); await flush();
++    assert.equal(container.querySelectorAll('.attention-registry-row').length, 0);
++    assert.equal(container.querySelector('.attention-departed').textContent, 'Alpha · now Resolved, not in this view');
++    key(container, 'view-all').click(); await flush();
++    assert.equal(container.querySelector('.attention-departed'), null);
++  });
++});
++
++test('the assistant entry is part of the workspace heading, not an item detail', async () => {
++  await withTinyDom(async container => {
++    const c = core();
++    const workspace = createAttentionWorkspace(container, { request: c.request, onBack() {}, onOpenAssistant() {} });
++    await workspace.open({ projects: PROJECTS, projectId: 'p1' });
++    key(container, 'item-a').click(); await flush();
++    const open = key(container, 'open-assistant');
++    assert.ok(open.closest('.attention-workspace-heading'));
++    assert.equal(open.closest('.attention-reading'), null);
++  });
++});
+diff --git a/app/web/attention-view.mjs b/app/web/attention-view.mjs
+index 365965e..4eca53e 100644
+--- a/app/web/attention-view.mjs
++++ b/app/web/attention-view.mjs
+@@ -1,4 +1,4 @@
+-import { el, icon } from './ui-controls.mjs';
++import { el, icon, setRequestLabel } from './ui-controls.mjs';
+ import { attentionLabels, toAttentionActionDescriptors, toHomeAttention, toHomeAttentionDetail } from './presentation-adapters.mjs';
+ 
+ /* The Attention items workspace. It reads the same Core queries Home reads and,
+@@ -43,6 +43,13 @@ const NEXT_KIND_WORDS = { inspect: 'Inspect', decide: 'Decide', wait: 'Wait', fo
+ /* The trigger says what the recorded next action waits on. None of these start a
+  * timer: the contract is explicit that a recorded due time is not a scheduler. */
+ const TRIGGER_WORDS = { manual: 'Manual', at: 'At a recorded time', after: 'After something else', external: 'External' };
++const SOURCE_ROLE_WORDS = { supports: 'Supports', reports: 'Reports', contradicts: 'Contradicts' };
++/* UI02 · the one consequence that belongs beside a submit rather than in a
++ * disclosure: resolving is a judgment recorded on this object and nothing else
++ * (attention.md §HTTP: "These actions affect Attention only"). */
++const ACTION_CONSEQUENCE = {
++  resolve: 'Records your decision on this item only. Nothing outside Courtwork is approved or changed.',
++};
+ /* M-3 · the visible sentence for each refusal the Core can return. These are
+  * read from the structured `error.code`; no English message is ever parsed, and
+  * `NOT_FOUND` says only that the item is unavailable — the contract returns one
+@@ -72,11 +79,43 @@ const TEXT_ENTRY = new Set(['input', 'textarea', 'select']);
+ const isTextEntry = node => Boolean(node) &&
+   (TEXT_ENTRY.has(String(node.tagName || '').toLowerCase()) || node.isContentEditable === true);
+ 
++/* ── UI02 · motion ──────────────────────────────────────────────────────────
++ * Motion here states a relationship the DOM has already committed: which object
++ * is now being read, which pane replaced which on a narrow screen, that an
++ * editor opened under its choice, and that a receipt changed a recorded fact.
++ * It never gates focus, input or a state change, and nothing waits for it to
++ * finish. Durations and the curve are read from the existing tokens
++ * (--duration-fast, --duration, --ease-out); a missing token means no motion,
++ * not a local literal. Both reduce paths — the system query and the explicit
++ * `data-motion="reduce"` — skip every animation. Only opacity and transform
++ * move. A re-render replaces nodes, which ends any running animation at its
++ * final state; that is the interruption rule for every entry below. */
++const cssToken = name => {
++  try { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); } catch { return ''; }
++};
++function motionAllowed() {
++  const root = globalThis.document?.documentElement;
++  if (!root || typeof globalThis.matchMedia !== 'function') return false;
++  if (root.getAttribute('data-motion') === 'reduce') return false;
++  return !globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
++}
++function play(node, keyframes, { duration = '--duration', delay = 0, fill = 'none' } = {}) {
++  if (!node || typeof node.animate !== 'function' || !motionAllowed()) return null;
++  const ms = Number.parseFloat(cssToken(duration));
++  const easing = cssToken('--ease-out');
++  if (!Number.isFinite(ms) || !easing) return null;
++  const delayMs = typeof delay === 'string' ? Number.parseFloat(cssToken(delay)) || 0 : delay;
++  return node.animate(keyframes, { duration: ms, delay: delayMs, easing, fill });
++}
++const NARROW = '(max-width: 767px)';
++const isNarrow = () => typeof globalThis.matchMedia === 'function' && globalThis.matchMedia(NARROW).matches;
++const rect = node => typeof node?.getBoundingClientRect === 'function' ? node.getBoundingClientRect() : null;
++
+ export function createAttentionWorkspace(container, { request, onBack, onOpenAssistant }) {
+   const state = { projects: [], projectId: null, view: 'all', data: null, detail: null,
+     selectedId: null, cursorId: null, returnFocusKey: null, loading: false, error: null,
+     detailError: null, detailLoading: false, generation: 0, detailGeneration: 0,
+-    editor: null, mutationError: null };
++    editor: null, mutationError: null, receipt: null, conflict: null, departed: null, refreshing: false };
+   /* One human submit is one request identity until its outcome is known. The
+    * entry survives re-renders and selection changes — a lost response is not a
+    * reason to mint a second identity for the same decision. */
+@@ -93,6 +132,13 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+   const focusKey = key => container.querySelector(`[data-attention-focus="${CSS.escape(key)}"]`);
+   function focusRow(id) { state.cursorId = id; focusKey(`item-${id}`)?.focus(); }
+ 
++  /* Motion cues are one-shot: set where the transition happens, consumed by the
++   * next render that draws its result. `shown` remembers which object the
++   * reading pane last drew, so a re-inspect of the same object never replays
++   * the entrance. The narrow list keeps its own scroll offset across the
++   * list → detail → list round trip. */
++  const motion = { cue: null, shown: null, previousIndex: -1, listScroll: 0, alert: null, departed: null, hold: false };
++
+   /* WK-157 · the list's own keys. `J`/`K` never fire while a text control has
+    * focus, and the cursor clamps at both ends instead of wrapping — a wrap makes
+    * "I am at the last item" unreadable. Rows stay ordinary buttons, so `Enter`
+@@ -136,25 +182,61 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+     focusKey(`view-${state.view}`)?.focus();
+   }
+   function backToList() {
++    const narrow = isNarrow();
+     state.selectedId = null; state.detail = null; state.detailLoading = false;
+     state.detailError = null; state.detailGeneration++;
+-    state.editor = null; state.mutationError = null;
++    state.editor = null; state.mutationError = null; state.receipt = null; state.conflict = null;
++    if (narrow) motion.cue = 'list-return';
+     render();
++    if (narrow) container.scrollTop = motion.listScroll;
+     restoreFocus();
+   }
+ 
+   function render() {
+     const focused = container.contains(document.activeElement) ? document.activeElement?.dataset.attentionFocus : null;
+-    const root = el('div',{className:'attention-workspace-inner'});
++    const previousReading = container.querySelector?.('.attention-reading-body');
++    const readingScroll = previousReading?.scrollTop ?? 0;
++    const root = el('div',{className:`attention-workspace-inner${state.selectedId?' is-reading':''}`});
+     root.addEventListener('keydown', onKeyDown);
+-    root.append(el('div',{className:'attention-workspace-heading'},
+-      el('div',{},el('h1',{text:'Attention items'})),
+-      button('Back to workspace',onBack,'back')));
++    root.append(heading(), queryBar());
++    const columns=el('div',{className:`attention-columns ${state.selectedId?'has-selection':''}`});
++    const list = registry();
++    const reading = readingPane();
++    columns.append(list, reading);
++    root.append(columns);
++    container.replaceChildren(root);
++    let target = focused ? container.querySelector(`[data-attention-focus="${CSS.escape(focused)}"]`) : null;
++    /* A disabled control cannot hold focus in a browser. While a request is in
++     * flight the focus stays inside the action region that owns it instead of
++     * dropping to the document. */
++    if (target?.disabled) target = target.closest?.('[data-attention-focus="actions"]') ?? null;
++    if (focused) (target ?? container.querySelector('[data-attention-focus="project"]'))?.focus();
++    const body = reading.querySelector('.attention-reading-body');
++    if (body && motion.shown === state.selectedId && typeof readingScroll === 'number') body.scrollTop = readingScroll;
++    runMotion(list, reading);
++  }
++
++  function heading() {
++    const actions = el('div',{className:'attention-heading-actions'});
++    /* The assistant is a global conversation, so its entry sits with the
++     * workspace, not inside an item's detail where it would read as attached. */
++    if (onOpenAssistant) {
++      const open = button('', onOpenAssistant, 'open-assistant', 'quiet-button attention-open-assistant');
++      open.append(icon('attention', { size: 18 }), el('span', { text: 'Open Attention' }));
++      actions.append(open);
++    }
++    actions.append(button('Back to workspace',onBack,'back','quiet-button'));
++    return el('div',{className:'attention-workspace-heading'}, el('h1',{text:'Attention items'}), actions);
++  }
++
++  function queryBar() {
+     const scope = el('select',{attrs:{'aria-label':'Attention workspace project','data-attention-focus':'project'}});
+     scope.append(...state.projects.map(p=>el('option',{text:p.name,attrs:{value:p.id}})));scope.value=state.projectId??'';
+     scope.disabled=!state.projects.length;
+     scope.addEventListener('change',()=>{state.projectId=scope.value;void load();});
+-    root.append(el('div',{className:'attention-toolbar'},scope,button('Refresh',()=>load(),'refresh')));
++    /* Text, not the refresh glyph: refresh-cw is a guarded semantic consumer
++     * (product-semantics raw-consumers), and a word needs no ledger entry. */
++    const refresh = button('Refresh', () => load(), 'refresh', 'quiet-button attention-refresh');
+     /* The state views are buttons in a group, not ARIA tabs: there is one panel
+      * and each choice re-queries the server, which is a filter, not a tab. */
+     const views = el('div',{className:'attention-views',attrs:{role:'group','aria-label':'Attention views'}});
+@@ -163,74 +245,138 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+       choice.setAttribute('aria-pressed', String(state.view === value));
+       views.append(choice);
+     }
+-    root.append(views);
+-    const columns=el('div',{className:`attention-columns ${state.selectedId?'has-selection':''}`});
+-    const list=el('section',{className:'attention-registry',attrs:{'aria-label':'Attention items'}});
+-    if(state.loading)list.append(el('p',{className:'form-help',text:'Loading items…',attrs:{role:'status'}}));
+-    if(state.error)list.append(el('p',{className:'form-help',text:state.error,attrs:{role:'status'}}));
++    const page = toHomeAttention(state.data);
++    const count = page
++      ? el('p',{className:'attention-count',text:`${page.count} ${page.count===1?'item':'items'} · ${state.view==='all'?'all states':attentionLabels[state.view]}`,attrs:{'aria-live':'polite'}})
++      : null;
++    return el('div',{className:'attention-query'},
++      el('div',{className:'attention-toolbar'},scope,refresh),
++      el('div',{className:'attention-query-views'},views,count,
++        state.departed ? el('p',{className:'attention-departed',text:`${state.departed.title} · now ${attentionLabels[state.departed.status]}, not in this view`,attrs:{role:'status'}}) : null));
++  }
++
++  function registry() {
++    const list=el('section',{className:'attention-registry',attrs:{'aria-label':'Attention items','aria-busy':String(state.loading)}});
++    if(state.loading){
++      list.append(el('p',{className:'form-help attention-loading',text:'Loading items…',attrs:{role:'status'}}));
++      /* Placeholder geometry only: three quiet bands that hold the list's place so
++       * the reading pane does not jump. They carry no text, no count and no
++       * progress. */
++      list.append(el('div',{className:'attention-placeholder',attrs:{'aria-hidden':'true'}},
++        el('span'),el('span'),el('span')));
++    }
++    if(state.error)list.append(el('div',{className:'attention-list-error',attrs:{role:'status'}},
++      el('p',{text:state.error}), button('Retry',()=>load(toHomeAttention(state.data)?.offset ?? 0),'list-retry','quiet-button')));
+     const page=toHomeAttention(state.data);
+     if(page){
+-      list.append(el('p',{className:'attention-count',text:`${page.count} ${page.count===1?'item':'items'} · ${state.view==='all'?'all states':attentionLabels[state.view]}`}));
+       if(!page.items.length)list.append(el('div',{className:'attention-empty'},el('h3',{text:'Nothing in this view'}),el('p',{text:'Recorded attention items matching this project and state will appear here.'})));
+-      const rows=el('div',{attrs:{role:'list'}});
++      const rows=el('div',{className:'attention-rows',attrs:{role:'list'}});
+       for(const item of page.items){
++        const selected = state.selectedId===item.id;
+         const row=button('',()=>select(item.id),`item-${item.id}`,'attention-registry-row');
+-        row.setAttribute('aria-pressed',String(state.selectedId===item.id));
++        row.setAttribute('aria-pressed',String(selected));
++        row.setAttribute('data-attention-row', item.id);
+         const relative=relativeUpdated(item.updatedAt);
+         row.append(el('span',{className:'attention-row-title',text:item.title}),
+           el('span',{className:'attention-row-meta'},
+-            el('span',{className:`home-attention-state ${item.status==='needs_you'?'is-review':''}`,text:item.label}),
++            el('span',{className:`attention-row-state home-attention-state ${item.status==='needs_you'?'is-review':''}`,text:item.label}),
+             relative?el('time',{className:'attention-row-time',text:`Updated ${relative}`,attrs:{datetime:item.updatedAt,title:time(item.updatedAt)}}):null));
+         rows.append(el('div',{attrs:{role:'listitem'}},row));
+       }
+       list.append(rows);
+       if(page.offset>0||page.nextOffset!==null){
+         const pages=el('div',{className:'attention-pagination'});
+-        if(page.offset>0)pages.append(button('Previous',()=>load(Math.max(0,page.offset-PAGE)),'previous'));
++        pages.append(page.offset>0?button('Previous',()=>load(Math.max(0,page.offset-PAGE)),'previous','quiet-button'):el('span'));
+         pages.append(el('span',{className:'form-help',text:`${page.items.length? page.offset+1:0}–${page.offset+page.items.length} of ${page.count}`}));
+-        if(page.nextOffset!==null)pages.append(button('Next',()=>load(page.nextOffset),'next'));
++        pages.append(page.nextOffset!==null?button('Next',()=>load(page.nextOffset),'next','quiet-button'):el('span'));
+         list.append(pages);
+       }
+     }else if(!state.projectId)list.append(el('p',{className:'form-help',text:'Create a project to begin.'}));
+-    const detail=el('section',{className:'attention-reading',attrs:{'aria-label':'Attention details'}});
+-    if(state.selectedId)detail.append(button('Back to items',()=>backToList(),'list-back','text-button attention-list-back'));
+-    if(state.detailLoading)detail.append(el('p',{className:'form-help',text:'Loading item…',attrs:{role:'status'}}));
+-    if(state.detailError)detail.append(el('p',{className:'form-help',text:state.detailError,attrs:{role:'status'}}),button('Retry item',()=>select(state.selectedId),'detail-retry'));
++    return list;
++  }
++
++  function readingPane() {
++    /* With nothing to choose (loading, empty, unavailable) the pane is not drawn:
++     * an invitation to choose an item that does not exist would be a false offer. */
++    const idle = !state.selectedId && !toHomeAttention(state.data)?.items.length;
++    const detail=el('section',{className:`attention-reading${idle?' is-idle':''}`,attrs:{'aria-label':'Attention details'}});
++    const body = el('div',{className:'attention-reading-body'});
++    detail.append(body);
++    if(state.selectedId)body.append(button('Back to items',()=>backToList(),'list-back','quiet-button attention-list-back'));
++    if(state.detailLoading)body.append(el('p',{className:'form-help attention-detail-loading',text:'Loading item…',attrs:{role:'status'}}));
++    if(state.detailError)body.append(el('div',{className:'attention-list-error',attrs:{role:'status'}},
++      el('p',{text:state.detailError}),button('Retry item',()=>select(state.selectedId),'detail-retry','quiet-button')));
+     const d=toHomeAttentionDetail(state.detail);
+     if(d){
+-      detail.append(el('div',{className:'attention-detail-head'},
+-        el('span',{className:`attention-detail-state ${d.status==='needs_you'?'is-review':''}`,text:attentionLabels[d.status]}),
+-        el('h2',{text:d.descriptor.title}),d.descriptor.summary?el('p',{text:d.descriptor.summary}):null));
+-      detail.append(el('div',{className:'attention-decision'},
+-        el('h3',{text:'Why this needs attention'}),el('p',{text:d.reason}),
+-        el('h3',{text:'Next step'}),el('p',{text:d.next_action?.label??'Not recorded'}),
+-        d.next_action?.due_at?el('p',{className:'form-help',text:`Recorded due time: ${time(d.next_action.due_at)}`}):null));
+-      const refs=el('details',{className:'attention-basis'},el('summary',{text:'Recorded context'}));
+-      refs.append(el('p',{text:`Revision ${d.revision} · Updated ${time(d.updated_at)}`}),
+-        el('p',{text:'This view reads the recorded item. Opening it does not acknowledge or resolve it.'}));
+-      for(const ref of (Array.isArray(state.detail.source_refs)?state.detail.source_refs:[]).filter(ref=>ref && typeof ref.locator==='string'))refs.append(el('p',{text:`${ref.kind==='core'?'Retained source':'External reference'} · ${ref.locator}`}));
+-      if (Array.isArray(state.detail.source_refs) && !state.detail.source_refs.length) refs.append(el('p',{text:'No source references recorded.'}));
+-      else if (!Array.isArray(state.detail.source_refs)) refs.append(el('p',{text:'Source references are not available in this view.'}));
+-      /* WK-158 §25 · the recorded Runtime grant is readable here and editable
+-       * nowhere: the policy editor is a separate authority (CC-P). No Revoke,
+-       * no synthesized "Active" badge and no countdown. */
+-      if (state.detail.policy) {
+-        const grant = state.detail.policy.grant;
+-        refs.append(el('p',{text: grant && typeof grant.expires_at === 'string'
+-          ? `Runtime disclosure until ${time(grant.expires_at)} · recorded fields: ${(Array.isArray(grant.fields)?grant.fields:[]).join(', ') || 'none'}`
+-          : 'Runtime disclosure: None'}));
+-      }
+-      const basis = state.detail.basis;
+-      if (basis && Number.isSafeInteger(basis.revision) && typeof basis.event_id === 'string') refs.append(el('p',{text:`Recorded basis: revision ${basis.revision} · Event ${basis.event_id}. External availability is unconfirmed; execution references describe historical observations.`}));
+-      for (const ref of (Array.isArray(state.detail.relation_refs)?state.detail.relation_refs:[])) {
+-        if (ref && typeof ref.kind === 'string' && typeof ref.id === 'string') refs.append(el('p',{text:`Related ${ref.kind}: ${ref.id}`}));
+-      }
+-      detail.append(refs);
+-      detail.append(actionSurface(d));
+-    }else if(!state.selectedId)detail.append(el('div',{className:'attention-empty'},el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
+-    if (onOpenAssistant) detail.append(button('Open Attention', onOpenAssistant, 'open-assistant'));
+-    columns.append(list,detail);root.append(columns);container.replaceChildren(root);
+-    if(focused)(container.querySelector(`[data-attention-focus="${CSS.escape(focused)}"]`)??container.querySelector('[data-attention-focus="project"]'))?.focus();
++      const article = el('article',{className:'attention-detail'});
++      article.append(detailHead(d), decision(d), actionSurface(d), recordedContext(d));
++      body.append(article);
++    }else if(!state.selectedId && toHomeAttention(state.data)?.items.length)body.append(el('div',{className:'attention-empty attention-reading-empty'},
++      icon('attention',{size:20}), el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
++    return detail;
++  }
++
++  /* L1 · what it is and where it stands. Status and seen are two facts and are
++   * drawn as two: acknowledging changes the second and never the first. */
++  function detailHead(d) {
++    const seen = typeof state.detail.seen === 'boolean' ? state.detail.seen : null;
++    const relative = relativeUpdated(d.updated_at);
++    const meta = el('p',{className:'attention-detail-meta'},
++      el('span',{className:`attention-detail-state ${d.status==='needs_you'?'is-review':''}`,text:attentionLabels[d.status]}),
++      seen === null ? null : el('span',{className:`attention-seen ${seen?'is-seen':''}`,text:seen?'Seen':'Not seen'}),
++      relative ? el('time',{className:'attention-detail-time',text:`Updated ${relative}`,attrs:{datetime:d.updated_at,title:time(d.updated_at)}}) : null);
++    return el('header',{className:'attention-detail-head'}, meta,
++      el('h2',{text:d.descriptor.title}), d.descriptor.summary?el('p',{className:'attention-summary',text:d.descriptor.summary}):null);
++  }
++
++  /* L1 · why, and what is recorded as next. The trigger word is what the next
++   * step waits on; a due time is a recorded instant, never a reminder. */
++  function decision(d) {
++    const next = d.next_action;
++    const nextLine = el('p',{className:'attention-next'},
++      next && next.kind !== 'none' ? el('span',{className:'attention-next-kind',text:NEXT_KIND_WORDS[next.kind]}) : null,
++      el('span',{className:'attention-next-label',text:next?.label??'Not recorded'}));
++    const conditions = next?.due_at
++      ? el('p',{className:'attention-next-trigger form-help',text:`Recorded due time: ${time(next.due_at)}. Nothing is delivered at this time.`})
++      : next && next.kind !== 'none' && next.trigger !== 'manual'
++        ? el('p',{className:'attention-next-trigger form-help',text:TRIGGER_WORDS[next.trigger]}) : null;
++    return el('div',{className:'attention-decision'},
++      el('section',{},el('h3',{text:'Why this needs attention'}),el('p',{className:'attention-reason',text:d.reason})),
++      el('section',{},el('h3',{text:'Next step'}),nextLine,conditions));
++  }
++
++  /* L3 · version, provenance and the recorded grant, on request. */
++  function recordedContext(d) {
++    const refs=el('details',{className:'attention-basis'},el('summary',{},
++      icon('chevron-right',{size:16}), el('span',{text:'Recorded context'})));
++    const list = el('div',{className:'attention-basis-body'});
++    const freshness = state.detail.freshness === 'unknown' ? ' · Freshness unknown' : '';
++    list.append(el('p',{text:`Revision ${d.revision}${freshness} · Updated ${time(d.updated_at)}`}),
++      el('p',{text:'This view reads the recorded item. Opening it does not acknowledge or resolve it.'}));
++    const sources = el('ul',{className:'attention-sources'});
++    for(const ref of (Array.isArray(state.detail.source_refs)?state.detail.source_refs:[]).filter(ref=>ref && typeof ref.locator==='string'))
++      sources.append(el('li',{},
++        el('span',{className:'attention-source-kind',text:[SOURCE_ROLE_WORDS[ref.role], ref.kind==='core'?'Retained source':'External reference'].filter(Boolean).join(' · ')}),
++        el('span',{className:'attention-source-locator',text:ref.locator})));
++    if (sources.children.length) list.append(sources);
++    if (Array.isArray(state.detail.source_refs) && !state.detail.source_refs.length) list.append(el('p',{text:'No source references recorded.'}));
++    else if (!Array.isArray(state.detail.source_refs)) list.append(el('p',{text:'Source references are not available in this view.'}));
++    /* WK-158 §25 · the recorded Runtime grant is readable here and editable
++     * nowhere: the policy editor is a separate authority (CC-P). No Revoke,
++     * no synthesized "Active" badge and no countdown. */
++    if (state.detail.policy) {
++      const grant = state.detail.policy.grant;
++      list.append(el('p',{text: grant && typeof grant.expires_at === 'string'
++        ? `Runtime disclosure until ${time(grant.expires_at)} · recorded fields: ${(Array.isArray(grant.fields)?grant.fields:[]).join(', ') || 'none'}`
++        : 'Runtime disclosure: None'}));
++    }
++    const basis = state.detail.basis;
++    if (basis && Number.isSafeInteger(basis.revision) && typeof basis.event_id === 'string') list.append(el('p',{text:`Recorded basis: revision ${basis.revision} · Event ${basis.event_id}. External availability is unconfirmed; execution references describe historical observations.`}));
++    for (const ref of (Array.isArray(state.detail.relation_refs)?state.detail.relation_refs:[])) {
++      if (ref && typeof ref.kind === 'string' && typeof ref.id === 'string') list.append(el('p',{text:`Related ${ref.kind}: ${ref.id}`}));
++    }
++    refs.append(list);
++    return refs;
+   }
+ 
+   /* ── WK-158 · the disposition layer ───────────────────────────────────────
+@@ -239,7 +385,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+    * visible button still confers no authority — the server may refuse — and an
+    * advertised action this app does not understand renders nothing at all. */
+   function actionSurface(d) {
+-    const surface = el('section',{className:'attention-actions',attrs:{'aria-label':'Attention actions'}});
++    const surface = el('section',{className:'attention-actions',attrs:{'aria-label':'Attention actions','data-attention-focus':'actions',tabindex:'-1'}});
+     surface.append(el('h3',{text:'Actions'}));
+     const descriptors = toAttentionActionDescriptors(state.detail);
+     if (!descriptors) {
+@@ -247,39 +393,63 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+       return surface;
+     }
+     if (!descriptors.actions.length) surface.append(el('p',{className:'form-help',text:'No action is available on this item right now.'}));
++    const waiting = currentPending();
+     const choices = el('div',{className:'attention-action-choices'});
+     for (const descriptor of descriptors.actions) {
+       const word = ACTION_WORDS[descriptor.action];
+       const open = state.editor?.action === descriptor.action;
+-      const choice = button(word, () => chooseAction(descriptor), `action-${descriptor.action}`,
+-        `text-button attention-action-choice${open?' is-current':''}`);
+-      if (Object.keys(descriptor.fields).length) choice.setAttribute('aria-expanded', String(open));
++      const immediate = !Object.keys(descriptor.fields).length;
++      const choice = button('', () => chooseAction(descriptor), `action-${descriptor.action}`,
++        `secondary-button attention-action-choice${open?' is-current':''}`);
++      /* `acknowledge` is the action itself, so its own control says `Sending…`
++       * in place while it is out; every other choice only opens an editor. */
++      if (immediate) setRequestLabel(choice, word, waiting?.phase === 'sending' && waiting.action === descriptor.action);
++      else choice.textContent = word;
++      choice.setAttribute('aria-label', `${word} · ${d.descriptor.title}`);
++      if (!immediate) choice.setAttribute('aria-expanded', String(open));
++      if ((waiting && immediate) || state.refreshing) choice.disabled = true;
+       choices.append(choice);
+     }
+     surface.append(choices);
+     const chosen = descriptors.actions.find(descriptor => descriptor.action === state.editor?.action);
+     if (chosen) surface.append(actionEditor(chosen, d));
+     if (state.mutationError) surface.append(el('p',{className:'inline-notice attention-action-alert',text:state.mutationError,attrs:{role:'alert'}}));
++    /* A conflict re-reads the object; this line says what the re-read found, so
++     * the kept draft is re-decided against the version now on screen. */
++    if (state.conflict && state.conflict.attentionId === state.selectedId && state.conflict.revision !== d.revision) {
++      const was = state.conflict.status !== d.status ? ` (was ${attentionLabels[state.conflict.status]})` : '';
++      surface.append(el('p',{className:'attention-conflict-now form-help',text:`Now ${attentionLabels[d.status]}${was} · revision ${d.revision}. Your draft is kept.`}));
++    }
+     /* An unknown transport result is neither a failure nor a completion. The
+      * same stored request — same identity, same payload — is what gets sent
+      * again, so a retry can never become a second recorded action. */
+-    const waiting = currentPending();
+     if (waiting?.phase === 'uncertain') {
+-      const notice = el('div',{className:'inline-notice attention-action-alert',attrs:{role:'alert'}},
++      const notice = el('div',{className:'inline-notice attention-action-alert attention-uncertain',attrs:{role:'alert'}},
+         el('p',{text:waiting.message}));
+-      notice.append(button('Retry sending', () => void send(waiting), 'retry-mutation'));
++      notice.append(button('Retry sending', () => void send(waiting), 'retry-mutation', 'secondary-button'));
+       surface.append(notice);
+     }
++    /* The receipt line is drawn only from a receipt that matched this request
++     * and after the object was read again: it is the committed fact, stated
++     * once, beside the control that asked for it. */
++    const receipt = state.receipt;
++    if (receipt && receipt.attentionId === state.selectedId && d.revision >= receipt.revision && !waiting)
++      surface.append(el('p',{className:'attention-receipt',text:`Recorded · ${ACTION_WORDS[receipt.action]} · revision ${receipt.revision}`,attrs:{role:'status'}}));
+     return surface;
+   }
+   function chooseAction(descriptor) {
+     state.mutationError = null;
+     /* `acknowledge` carries an empty payload, so it is the action itself, not a
+      * form. It is not a toggle: seen does not come back. */
+-    if (!Object.keys(descriptor.fields).length) { state.editor = null; void mutate(descriptor, {}); return; }
+-    state.editor = state.editor?.action === descriptor.action
+-      ? null
+-      : { action: descriptor.action, draft: { ...DEFAULT_DRAFT }, fieldError: null };
++    if (!Object.keys(descriptor.fields).length) {
++      if (currentPending()) return;
++      state.editor = null; void mutate(descriptor, {}); return;
++    }
++    const opening = state.editor?.action !== descriptor.action;
++    state.editor = opening
++      ? { action: descriptor.action, draft: { ...DEFAULT_DRAFT }, fieldError: null }
++      : null;
++    if (opening) motion.cue = 'editor-open';
+     render();
+     (focusKey('field-reason') ?? focusKey(`action-${descriptor.action}`))?.focus();
+   }
+@@ -307,30 +477,36 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+       node.value = value;
+       return bind(node, key, onChange);
+     };
+-    const field = (label, control, help = null) =>
+-      el('label',{className:'attention-field'}, el('span',{className:'attention-field-label',text:label}), control,
+-        help ? el('span',{className:'form-help',text:help}) : null);
++    /* A field error sits under the control it names, where focus lands. */
++    const fieldError = name => fail?.field === name
++      ? el('p',{className:'inline-error attention-field-error',text:fail.message,attrs:{id:errorId,role:'alert'}}) : null;
++    const field = (label, control, help = null, name = null) =>
++      el('div',{className:'attention-field'}, el('label',{className:'attention-field-control'},
++        el('span',{className:'attention-field-label',text:label}), control),
++        help ? el('span',{className:'form-help',text:help}) : null, name ? fieldError(name) : null);
+     if (descriptor.fields.reason) {
+       const box = el('textarea',{attrs:{rows:3,maxlength:descriptor.fields.reason.maxLength,
+-        'data-attention-focus':'field-reason','aria-describedby':describe('reason')}});
++        'data-attention-focus':'field-reason','aria-describedby':describe('reason'),'aria-invalid':fail?.field==='reason'?'true':null}});
+       box.value = draft.reason;
+-      form.append(field('Reason', bind(box,'reason')));
++      form.append(field('Reason', bind(box,'reason'), null, 'reason'));
+     }
+     if (descriptor.fields.nextAction) {
+       const next = descriptor.fields.nextAction;
+       const group = el('fieldset',{className:'attention-next-action'}, el('legend',{text:'Next action'}));
+-      group.append(field('Kind', choose('kind', next.kinds.map(kind=>[kind,NEXT_KIND_WORDS[kind]]), draft.kind, 'field-kind')));
++      const pair = el('div',{className:'attention-field-pair'});
++      pair.append(field('Kind', choose('kind', next.kinds.map(kind=>[kind,NEXT_KIND_WORDS[kind]]), draft.kind, 'field-kind')));
++      pair.append(field('Trigger', choose('trigger', next.triggers.map(trigger=>[trigger,TRIGGER_WORDS[trigger]]), draft.trigger, 'field-trigger', () => render())));
++      group.append(pair);
+       const label = el('input',{attrs:{type:'text',maxlength:next.labelMaxLength,
+-        'data-attention-focus':'field-label','aria-describedby':describe('label')}});
++        'data-attention-focus':'field-label','aria-describedby':describe('label'),'aria-invalid':fail?.field==='label'?'true':null}});
+       label.value = draft.label;
+-      group.append(field('Label', bind(label,'label')));
+-      group.append(field('Trigger', choose('trigger', next.triggers.map(trigger=>[trigger,TRIGGER_WORDS[trigger]]), draft.trigger, 'field-trigger', () => render())));
++      group.append(field('Label', bind(label,'label'), null, 'label'));
+       /* A recorded due time, and nothing else: no countdown, no timer, no
+        * delivery promise. The contract says a due time is not a scheduler. */
+       if (draft.trigger === 'at') {
+-        const due = el('input',{attrs:{type:'datetime-local','data-attention-focus':'field-due','aria-describedby':describe('due')}});
++        const due = el('input',{attrs:{type:'datetime-local','data-attention-focus':'field-due','aria-describedby':describe('due'),'aria-invalid':fail?.field==='due'?'true':null}});
+         due.value = draft.dueLocal;
+-        group.append(field('Due time', bind(due,'dueLocal'), 'Recorded on the item. Nothing is delivered at this time.'));
++        group.append(field('Due time', bind(due,'dueLocal'), 'Recorded on the item. Nothing is delivered at this time.', 'due'));
+       }
+       form.append(group);
+     }
+@@ -347,14 +523,16 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+       }
+       form.append(group);
+     }
+-    if (fail) form.append(el('p',{className:'inline-error attention-field-error',text:fail.message,attrs:{id:errorId,role:'alert'}}));
+     const waiting = currentPending();
+     const sending = waiting?.phase === 'sending' && waiting.action === descriptor.action;
+-    const submit = button(sending ? 'Sending…' : word, () => submitAction(descriptor), `submit-${descriptor.action}`,
++    const submit = button('', () => submitAction(descriptor), `submit-${descriptor.action}`,
+       'primary-button attention-action-submit');
++    setRequestLabel(submit, word, sending);
+     submit.setAttribute('aria-label', `${word} · ${d.descriptor.title}`);
+-    submit.disabled = Boolean(waiting);
+-    form.append(submit);
++    submit.disabled = Boolean(waiting) || state.refreshing;
++    const consequence = ACTION_CONSEQUENCE[descriptor.action];
++    form.append(el('div',{className:'attention-submit-row'}, submit,
++      consequence ? el('p',{className:'form-help attention-consequence',text:consequence}) : null));
+     return form;
+   }
+   /* The payload is built from the draft and checked against the descriptor's own
+@@ -411,16 +589,20 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+     const projectId = state.projectId, attentionId = state.selectedId;
+     const key = pendingKey(projectId, attentionId);
+     const entry = { projectId, attentionId, action: descriptor.action, phase: 'sending', message: null,
++      before: { status: state.detail?.status ?? null, seen: state.detail?.seen ?? null, revision: descriptor.expectedRevision },
+       request: { schema_version: 1, request_id: crypto.randomUUID(), attention_id: attentionId,
+         expected_revision: descriptor.expectedRevision, action: descriptor.action, payload } };
+     pending.set(key, entry);
++    state.receipt = null; state.conflict = null;
+     return send(entry);
+   }
+   async function send(entry) {
+     const { projectId, attentionId } = entry;
+     const key = pendingKey(projectId, attentionId);
++    const wasUncertain = entry.phase === 'uncertain';
+     entry.phase = 'sending'; entry.message = null; state.mutationError = null;
+     render();
++    if (wasUncertain) focusKey('actions')?.focus();
+     let receipt;
+     try {
+       receipt = await request(`/attention/${encodeURIComponent(attentionId)}/actions`,
+@@ -442,8 +624,13 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+      * rendered from it. */
+     pending.delete(key);
+     state.editor = null;
++    committed(entry, receipt);
+     return settle(entry);
+   }
++  function committed(entry, receipt) {
++    if (Number.isSafeInteger(receipt?.revision))
++      state.receipt = { attentionId: entry.attentionId, action: entry.action, revision: receipt.revision, before: entry.before, played: false };
++  }
+   async function refuse(entry, error) {
+     pending.delete(pendingKey(entry.projectId, entry.attentionId));
+     const code = error.body?.error?.code ?? null;
+@@ -452,6 +639,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+      * made again against new canonical state, not that the words were wrong.
+      * The next submit is a new decision and takes a new identity and a new
+      * expected revision — this client never silently replays. */
++    if (code === 'VERSION_CONFLICT') state.conflict = { attentionId: entry.attentionId, status: entry.before.status, revision: entry.before.revision };
+     if (code && REINSPECT_AFTER.has(code)) return settle(entry);
+     render();
+   }
+@@ -463,6 +651,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+       if (found?.result) {
+         pending.delete(pendingKey(projectId, attentionId));
+         state.editor = null; state.mutationError = null;
++        committed(entry, found.result);
+         return settle(entry);
+       }
+       entry.phase = 'uncertain';
+@@ -472,15 +661,28 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+       entry.message = 'The result of this request is not known yet. It can be sent again unchanged.';
+     }
+     render();
++    if (state.selectedId === attentionId) focusKey('retry-mutation')?.focus();
+   }
+   /* Re-inspect, then re-read the current registry page. */
++  /* The re-inspect and the registry re-read each render; feedback motion is held
++   * until both have landed, so the one render that states the settled facts is
++   * the one that animates them and no later render cuts the animation short. */
+   async function settle(entry) {
+     const { projectId, attentionId } = entry;
+     if (projectId !== state.projectId) { render(); return; }
+     const before = rowIds();
+-    if (state.selectedId === attentionId) await select(attentionId, { keepFocus: true });
+-    await refreshRegistry();
+-    if (!rowIds().includes(attentionId) && before.includes(attentionId)) {
++    const positions = rowPositions();
++    motion.hold = true;
++    try {
++      if (state.selectedId === attentionId) await select(attentionId, { keepFocus: true });
++      if (!await refreshRegistry()) return;
++    } finally { motion.hold = false; }
++    const departed = !rowIds().includes(attentionId) && before.includes(attentionId);
++    if (departed && state.detail?.attention_id === attentionId && state.detail.status)
++      state.departed = { id: attentionId, title: state.detail.descriptor?.title, status: state.detail.status };
++    render();
++    if (departed) {
++      closeGap(positions);
+       state.returnFocusKey = `item-${attentionId}`;
+       restoreFocus(before);
+     }
+@@ -488,14 +690,16 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+   const registryQuery = offset => ({ schema_version: 1, kind: state.view === 'all' ? 'registry' : 'exact',
+     limit: PAGE, offset, ...(state.view === 'all' ? {} : { field: 'status', value: state.view }) });
+   /* Re-reads the current page after a committed action. The registry is the
+-   * server's answer, so nothing here filters or reorders what comes back. */
++   * server's answer, so nothing here filters or reorders what comes back. It
++   * does not render; the caller draws the settled state once. Returns false when
++   * a newer load has taken over. */
+   async function refreshRegistry() {
+     const own = state.generation, projectId = state.projectId;
+     let offset = toHomeAttention(state.data)?.offset ?? 0;
+     try {
+       for (;;) {
+         const data = await request('/attention/query',{method:'POST',body:{projectId,query:registryQuery(offset)}});
+-        if (own !== state.generation || projectId !== state.projectId) return;
++        if (own !== state.generation || projectId !== state.projectId) return false;
+         const page = toHomeAttention(data);
+         if (!page) break;
+         state.data = data; state.error = null;
+@@ -505,9 +709,10 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+         offset = Math.max(0, offset - PAGE);
+       }
+     } catch (error) {
+-      if (own === state.generation) state.error = refusalText(error);
++      if (own !== state.generation) return false;
++      state.error = refusalText(error);
+     }
+-    render();
++    return true;
+   }
+   /* A view change is a new query, not a filter over the loaded page: offset,
+    * selection and detail all reset, and the server's order is preserved. */
+@@ -519,6 +724,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+   async function load(offset=0, selectedId=null){
+     const own=++state.generation;state.detailGeneration++;state.selectedId=null;state.detail=null;state.detailError=null;state.detailLoading=false;
+     state.cursorId=null;state.data=null;state.error=null;state.editor=null;state.mutationError=null;
++    state.receipt=null;state.conflict=null;state.departed=null;motion.shown=null;
+     state.loading=Boolean(state.projectId);render();
+     if(!state.projectId)return;
+     const projectId=state.projectId;
+@@ -530,14 +736,108 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
+   }
+   async function select(id,{keepFocus=false}={}){
+     const own=++state.detailGeneration;const projectId=state.projectId;
++    if(!keepFocus){
++      const narrow = isNarrow();
++      if (narrow && !state.selectedId) { motion.listScroll = container.scrollTop ?? 0; motion.cue = 'detail-push'; }
++      const ids = rowIds();
++      motion.previousIndex = ids.indexOf(state.selectedId);
++      if (state.selectedId !== id) { state.receipt=null; state.conflict=null; }
++      state.departed=null;
++    }
+     state.selectedId=id;state.returnFocusKey=`item-${id}`;state.cursorId=id;
+     if(!keepFocus){state.editor=null;state.mutationError=null;}
+-    state.detail=null;state.detailError=null;state.detailLoading=true;render();
+-    if(!keepFocus)container.querySelector('[data-attention-focus="list-back"]')?.focus();
++    /* A re-inspect keeps the object on screen until the new read arrives, so the
++     * decision the human is looking at does not blank out under a receipt. */
++    if(!keepFocus){state.detail=null;motion.shown=null;}
++    state.detailError=null;state.detailLoading=!keepFocus;state.refreshing=keepFocus&&Boolean(state.detail);render();
++    if(!keepFocus){
++      if (isNarrow()) container.scrollTop = 0;
++      container.querySelector('[data-attention-focus="list-back"]')?.focus();
++    }
+     try{const data=await request(`/attention/${encodeURIComponent(id)}?${new URLSearchParams({projectId})}`);if(!toHomeAttentionDetail(data)||data.attention_id!==id)throw new Error("Unsupported attention item.");if(own===state.detailGeneration&&projectId===state.projectId)state.detail=data;}
+-    catch(error){if(own===state.detailGeneration)state.detailError=refusalText(error);}
+-    finally{if(own===state.detailGeneration){state.detailLoading=false;render();}}
++    catch(error){if(own===state.detailGeneration){state.detailError=refusalText(error);if(keepFocus)state.detail=null;}}
++    finally{if(own===state.detailGeneration){state.detailLoading=false;state.refreshing=false;render();}}
+   }
++
++  /* ── UI02 · motion, applied after a render has committed its DOM ───────── */
++  function runMotion(list, reading) {
++    const cue = motion.cue;
++    motion.cue = null;
++    const narrow = isNarrow();
++    /* Narrow round trip: the pane that replaced the other enters from the side
++     * it logically sits on — detail from the right, the list back from the left. */
++    if (cue === 'detail-push' && narrow) play(reading, [{ opacity: 0, transform: 'translateX(24px)' }, { opacity: 1, transform: 'none' }]);
++    if (cue === 'list-return' && narrow) play(list, [{ opacity: 0, transform: 'translateX(-24px)' }, { opacity: 1, transform: 'none' }]);
++    /* A slow read shows its status line only if it is still loading after the
++     * short duration, so a fast read never flashes "Loading item…". The node is
++     * in the DOM (and announced) immediately; only its paint is delayed. */
++    const slow = reading.querySelector('.attention-detail-loading');
++    if (slow) play(slow, [{ opacity: 0 }, { opacity: 1 }], { duration: '--duration-fast', delay: '--duration', fill: 'backwards' });
++    const listLoading = list.querySelector('.attention-placeholder');
++    if (listLoading) play(listLoading, [{ opacity: 0 }, { opacity: 1 }], { duration: '--duration', delay: '--duration-fast', fill: 'backwards' });
++    const article = reading.querySelector('.attention-detail');
++    if (article && motion.shown !== state.selectedId) {
++      /* A different object is now being read. On a wide screen the text rises
++       * from the direction of the row that was chosen relative to the last one,
++       * so the eye can tell "the next item" from "an earlier item". */
++      if (!narrow || cue !== 'detail-push') {
++        const ids = rowIds();
++        const index = ids.indexOf(state.selectedId);
++        const offset = motion.previousIndex >= 0 && index >= 0 && index < motion.previousIndex ? -6 : 6;
++        play(article, [{ opacity: 0, transform: `translateY(${offset}px)` }, { opacity: 1, transform: 'none' }]);
++      }
++      motion.shown = state.selectedId;
++    }
++    if (cue === 'editor-open') {
++      const editor = reading.querySelector('.attention-action-editor');
++      play(editor, [{ opacity: 0, transform: 'translateY(-4px)' }, { opacity: 1, transform: 'none' }], { duration: '--duration-fast' });
++    }
++    /* Feedback: a changed recorded fact settles into place once, after the
++     * receipt matched and the object was read again. An unchanged fact does not
++     * move, and nothing here runs for a refusal or an unknown result. */
++    if (motion.hold) return;
++    const receipt = state.receipt;
++    if (receipt && !receipt.played && state.detail?.attention_id === receipt.attentionId && state.detail.revision >= receipt.revision) {
++      receipt.played = true;
++      const settleIn = [{ opacity: 0.35, transform: 'translateY(3px)' }, { opacity: 1, transform: 'none' }];
++      if (receipt.before.status !== state.detail.status) {
++        play(reading.querySelector('.attention-detail-state'), settleIn);
++        play(list.querySelector(`[data-attention-row="${CSS.escape(receipt.attentionId)}"] .attention-row-state`), settleIn);
++      }
++      if (receipt.before.seen !== state.detail.seen) play(reading.querySelector('.attention-seen'), settleIn);
++      play(reading.querySelector('.attention-receipt'), [{ opacity: 0 }, { opacity: 1 }]);
++    }
++    /* A refusal, a conflict or an unknown result appears without travel: it
++     * fades in once when its sentence is new, and a later re-render of the same
++     * sentence does not replay it. */
++    const alerts = [...reading.querySelectorAll('.attention-action-alert, .attention-conflict-now')];
++    const alertKey = alerts.map(node => node.textContent).join('|');
++    if (alertKey && alertKey !== motion.alert) for (const alert of alerts) play(alert, [{ opacity: 0 }, { opacity: 1 }], { duration: '--duration-fast' });
++    motion.alert = alertKey || null;
++    const departed = container.querySelector('.attention-departed');
++    if (departed && motion.departed !== state.departed) play(departed, [{ opacity: 0 }, { opacity: 1 }]);
++    motion.departed = state.departed;
++  }
++  function rowPositions() {
++    const positions = new Map();
++    for (const row of container.querySelectorAll('[data-attention-row]')) {
++      const box = rect(row);
++      if (box) positions.set(row.getAttribute('data-attention-row'), box.top);
++    }
++    return positions;
++  }
++  /* When a committed action moves a row out of this view, the rows beneath it
++   * close the gap from where they were, so the list does not appear to jump. */
++  function closeGap(positions) {
++    if (!positions.size) return;
++    for (const row of container.querySelectorAll('[data-attention-row]')) {
++      const was = positions.get(row.getAttribute('data-attention-row'));
++      const box = rect(row);
++      if (was === undefined || !box || Math.abs(was - box.top) < 1) continue;
++      play(row, [{ transform: `translateY(${was - box.top}px)` }, { transform: 'none' }]);
++    }
++  }
++
+   return {
+     open({projects,projectId,attentionId=null}){state.projects=projects;state.projectId=projects.find(p=>p.id===projectId)?.id??projects[0]?.id??null;state.view='all';return load(0,attentionId);},
+     deactivate(){state.generation++;state.detailGeneration++;},
+diff --git a/app/web/styles.css b/app/web/styles.css
+index 8522914..5ac6864 100644
+--- a/app/web/styles.css
++++ b/app/web/styles.css
+@@ -5830,42 +5830,184 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
+   .chat-keeps dl { grid-template-columns: 1fr; gap: 2px 0; }
+   .chat-keeps dd { margin-bottom: 10px; }
+ }
+-.attention-workspace-inner { max-width: 1040px; margin: 0 auto; }
+-.attention-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+-.attention-workspace-heading h1 { font-size: 30px; letter-spacing: -0.02em; margin: 4px 0 8px; }
+-.attention-eyebrow { font-size: var(--text-meta); letter-spacing: 0.08em; color: var(--muted-strong); }
+-.attention-toolbar { display: flex; gap: 12px; margin-bottom: 24px; align-items: center; }
+-.attention-toolbar select { width: auto; max-width: 38%; }
+-/* WK-156 · the six state views are one horizontal strip of pressed buttons, not
+-   a dropdown and not ARIA tabs: one panel, six queries. Labels never abbreviate;
+-   a narrow viewport scrolls the strip instead of cutting a status word. */
+-.attention-views { display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
++/* WO-ATT-UI02 · Attention items workspace (candidate, Claude, 2026-09-13).
++ *
++ * Reading order is the task order: scan the list → understand why → decide →
++ * see the recorded result → return to the same row. One query bar carries the
++ * project and the six views; the list is minimal (title, status, updated); the
++ * reading pane stays in view beside a long list and scrolls on its own.
++ *
++ * Roles only (tier U): no hex, no scale steps. Existing sizes: --control,
++ * --radius-*, --space-*, --text-*. Only opacity and transform are ever animated,
++ * from attention-view.mjs, and both reduce paths stop them. */
++
++.attention-workspace-inner { max-width: 1120px; margin: 0 auto; }
++
++/* ── heading and query bar ─────────────────────────────────────────────── */
++.attention-workspace-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-4); }
++.attention-workspace-heading h1 { font-size: 30px; letter-spacing: var(--tracking-heading); margin: 0; }
++.attention-heading-actions { display: flex; align-items: center; gap: var(--space-1); flex-wrap: wrap; justify-content: flex-end; }
++.attention-open-assistant > .ui-icon { color: var(--muted-strong); }
++
++.attention-query { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3) var(--space-4); padding-bottom: var(--space-4); margin-bottom: var(--space-4); border-bottom: 1px solid var(--line); }
++.attention-toolbar { display: flex; align-items: center; gap: var(--space-1); min-width: 0; }
++.attention-toolbar select { width: auto; max-width: 280px; }
++.attention-query-views { display: flex; align-items: center; gap: var(--space-2) var(--space-4); flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
++/* The views share the segmented grammar — track, raised thumb, meta type — but
++ * they are buttons in a group that re-query, so the thumb does not travel: a
++ * filter answers immediately. */
++.attention-views { display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--radius-control); background: var(--hover); max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+ .attention-views::-webkit-scrollbar { display: none; }
+-.attention-view-choice { flex: none; padding: 7px 12px; border-radius: var(--radius-control); white-space: nowrap; }
+-.attention-view-choice:hover { background: var(--hover); }
+-.attention-view-choice.is-current { background: var(--float); color: var(--ink); font-weight: 500; box-shadow: inset 0 0 0 1px var(--line); }
+-.attention-row-title { font-weight: 500; }
+-.attention-row-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; width: 100%; }
+-.attention-row-time { font-size: var(--text-meta); color: var(--muted-strong); }
+-.attention-columns { display: grid; grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.3fr); gap: 24px; align-items: start; }
++.attention-view-choice { flex: none; min-height: 26px; padding: 0 10px; border: 0; border-radius: calc(var(--radius-control) - 2px); font-size: var(--text-meta); color: var(--muted-strong); white-space: nowrap; }
++.attention-view-choice:hover { color: var(--ink); background: transparent; }
++.attention-view-choice.is-current { background: var(--panel); color: var(--ink); font-weight: 500; box-shadow: var(--shadow-thumb); }
++.attention-count { margin: 0 0 0 auto; font-size: var(--text-meta); color: var(--muted-strong); font-variant-numeric: tabular-nums; white-space: nowrap; }
++.attention-departed { flex-basis: 100%; margin: 0; font-size: var(--text-meta); color: var(--ink); overflow-wrap: anywhere; }
++
++/* ── columns ───────────────────────────────────────────────────────────── */
++.attention-columns { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: var(--space-6); align-items: start; }
+ .attention-registry, .attention-reading { min-width: 0; }
+-.attention-registry { padding: 16px 0; }
+-.attention-count { font-size: var(--text-meta); color: var(--muted-strong); margin: 0 0 12px; }
+-.attention-registry-row { width: 100%; display: flex; flex-direction: column; gap: 7px; align-items: start; text-align: left; padding: 13px 12px; border: 0; border-radius: var(--radius-small); background: none; margin-bottom: 4px; overflow-wrap: anywhere; }
++
++/* ── registry ──────────────────────────────────────────────────────────── */
++.attention-rows { display: grid; gap: 2px; }
++.attention-registry-row { position: relative; width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); justify-content: stretch; gap: 3px; justify-items: start; text-align: left; padding: 9px 12px 10px; border: 0; border-radius: var(--radius-control); background: none; overflow-wrap: anywhere; }
+ .attention-registry-row:hover { background: var(--hover); }
+-.attention-registry-row[aria-pressed="true"] { background: var(--float); box-shadow: none; }
+-.attention-reading { border-left: 1px solid var(--line); padding: 16px 24px; background: var(--float); }
+-.attention-detail-head h2 { font-size: 24px; line-height: 1.3; margin: 12px 0; overflow-wrap: anywhere; }
+-.attention-detail-head p, .attention-decision p { font-size: var(--text-body); line-height: 1.65; overflow-wrap: anywhere; }
+-.attention-detail-state { font-size: var(--text-label); color: var(--muted-strong); }
+-.attention-detail-state.is-review { color: var(--attention-review); font-weight: 600; }
+-.attention-decision { padding: 20px 0; }
+-.attention-decision h3 { font-size: var(--text-label); color: var(--muted-strong); margin: 14px 0 6px; }
+-.attention-basis { font-size: var(--text-meta); color: var(--muted-strong); overflow-wrap: anywhere; }
+-.attention-basis p { margin-top: 12px; }
+-.attention-empty { padding: 36px 12px; color: var(--muted-strong); }
+-.attention-empty h2, .attention-empty h3 { margin: 16px 0 12px; font-size: 20px; color: var(--ink); }
+-.attention-empty p { font-size: var(--text-label); line-height: 1.6; }
++/* The selected row carries a rail on its leading edge as well as the fill, so
++ * selection still reads where the fill contrast is low. */
++.attention-registry-row[aria-pressed="true"] { background: var(--selected); box-shadow: inset 2px 0 0 var(--ink); }
++.attention-row-title { font-size: var(--text-body); font-weight: 500; line-height: 1.4; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
++.attention-row-meta { display: flex; align-items: baseline; gap: var(--space-2); width: 100%; font-size: var(--text-meta); }
++.attention-row-state { font-size: var(--text-meta); }
++.attention-row-time { color: var(--muted-strong); margin-left: auto; font-variant-numeric: tabular-nums; }
++.attention-pagination { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--space-2); margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
++.attention-pagination > :last-child { justify-self: end; }
++.attention-pagination > :first-child { justify-self: start; }
++.attention-pagination .form-help { font-variant-numeric: tabular-nums; }
++.attention-loading { margin: 0 0 var(--space-2); }
++.attention-placeholder { display: grid; gap: var(--space-2); }
++.attention-placeholder > span { display: block; height: 50px; border-radius: var(--radius-control); background: var(--panel-muted); }
++.attention-list-error { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-control); background: var(--panel-muted); font-size: var(--text-label); overflow-wrap: anywhere; }
++.attention-list-error p { margin: 0; }
++.attention-empty { padding: var(--space-8) var(--space-3); color: var(--muted-strong); }
++.attention-empty h3 { margin: 0 0 var(--space-2); font-size: var(--text-title); color: var(--ink); }
++.attention-empty p { margin: 0; font-size: var(--text-label); line-height: 1.6; }
++
++/* ── reading pane ──────────────────────────────────────────────────────── */
++/* It stays beside the list while the list scrolls; its own body scrolls. The
++ * offset keeps it below the host's top band. */
++.attention-reading { position: sticky; top: 0; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--float); }
++.attention-reading-body { max-height: calc(100dvh - var(--band-top) - var(--space-8)); overflow: auto; overscroll-behavior: contain; padding: var(--space-5) var(--space-6) var(--space-6); }
++/* Wide: the list is already beside the pane, so returning is a quiet control in
++ * the pane's corner; it is still where focus lands when an item opens. */
++.attention-reading-body { position: relative; }
++.attention-list-back { position: absolute; top: var(--space-3); right: var(--space-3); color: var(--muted-strong); }
++.attention-reading-empty { display: grid; justify-items: center; gap: var(--space-3); text-align: center; padding: 72px var(--space-6); }
++.attention-reading-empty > .ui-icon { color: var(--muted-strong); }
++.attention-reading.is-idle { visibility: hidden; }
++.attention-detail-loading { margin: 0; }
++
++.attention-detail-head { margin-bottom: var(--space-5); padding-right: 104px; }
++.attention-detail-meta { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-3); margin: 0 0 var(--space-2); font-size: var(--text-label); }
++.attention-detail-state { display: inline-block; font-size: var(--text-label); font-weight: 600; color: var(--ink); }
++.attention-detail-state.is-review { color: var(--attention-review); }
++.attention-seen { color: var(--muted-strong); display: inline-block; }
++.attention-seen::before, .attention-detail-time::before { content: "·"; margin-right: var(--space-3); color: var(--muted-strong); }
++.attention-detail-time { color: var(--muted-strong); font-variant-numeric: tabular-nums; }
++.attention-detail-head h2 { margin: 0; font-weight: 600; font-size: 22px; line-height: 1.3; letter-spacing: var(--tracking-heading); overflow-wrap: anywhere; }
++.attention-summary { margin: var(--space-2) 0 0; font-size: var(--text-body); line-height: 1.6; color: var(--muted-strong); overflow-wrap: anywhere; }
++
++.attention-decision { display: grid; gap: var(--space-4); padding: var(--space-4) var(--space-5); border-radius: var(--radius-card); background: var(--panel-muted); }
++.attention-decision h3 { margin: 0 0 var(--space-1); font-size: var(--text-label); font-weight: 500; color: var(--muted-strong); }
++.attention-decision p { margin: 0; overflow-wrap: anywhere; }
++.attention-reason { font-size: var(--text-reading); line-height: 1.6; max-width: var(--doc-measure); }
++.attention-next { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); font-size: var(--text-reading); line-height: 1.5; font-weight: 500; }
++.attention-next-kind { padding: 1px 6px; border-radius: var(--radius-small); background: var(--float); box-shadow: var(--shadow-thumb); font-size: var(--text-meta); font-weight: 600; color: var(--ink); }
++.attention-next-trigger { margin-top: var(--space-1) !important; }
++
++/* ── actions ───────────────────────────────────────────────────────────── */
++/* WK-158 · the object decides what is on offer, so the choices are quiet and the
++ * chosen action's own submit is the only primary control. */
++.attention-actions { margin-top: var(--space-6); outline: none; }
++.attention-actions h3 { margin: 0 0 var(--space-2); font-size: var(--text-label); font-weight: 500; color: var(--muted-strong); }
++.attention-action-choices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
++.attention-action-choice.is-current { background: var(--selected); border-color: var(--line-strong); color: var(--ink); }
++.attention-action-editor { margin-top: var(--space-3); display: grid; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--panel); }
++.attention-action-editor fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: var(--space-3); min-width: 0; }
++.attention-action-editor legend { padding: 0; margin-bottom: var(--space-2); font-size: var(--text-label); font-weight: 500; color: var(--muted-strong); }
++.attention-status-target { display: flex !important; flex-wrap: wrap; gap: var(--space-1) var(--space-4) !important; }
++.attention-status-target legend { flex-basis: 100%; }
++.attention-field, .attention-field-control { display: grid; gap: 5px; min-width: 0; }
++.attention-field-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
++.attention-field-inline { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-body); }
++.attention-field-label { font-size: var(--text-label); color: var(--ink); }
++.attention-field textarea { resize: vertical; min-height: 72px; }
++.attention-field select, .attention-field input:not([type="radio"]) { width: 100%; }
++.attention-field-error { margin: 0; }
++.attention-submit-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
++.attention-consequence { margin: 0; flex: 1 1 220px; }
++.attention-action-alert { margin: var(--space-3) 0 0; box-shadow: inset 2px 0 0 var(--line-strong); }
++.attention-action-alert p { margin: 0; }
++.attention-uncertain { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-2) var(--space-3); }
++.attention-conflict-now { margin: var(--space-2) 0 0; }
++.attention-receipt { margin: var(--space-3) 0 0; font-size: var(--text-label); color: var(--ink); }
++
++/* ── recorded context (L3) ─────────────────────────────────────────────── */
++.attention-basis { margin-top: var(--space-6); padding-top: var(--space-3); border-top: 1px solid var(--line); font-size: var(--text-meta); color: var(--muted-strong); overflow-wrap: anywhere; }
++.attention-basis > summary { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control); padding: 0 var(--space-2) 0 var(--space-1); margin-left: calc(-1 * var(--space-1)); border-radius: var(--radius-small); list-style: none; cursor: pointer; font-size: var(--text-label); color: var(--muted-strong); }
++.attention-basis > summary::-webkit-details-marker { display: none; }
++.attention-basis > summary:hover { background: var(--hover); color: var(--ink); }
++.attention-basis > summary > .ui-icon { width: 16px; height: 16px; transition: transform var(--duration-fast) var(--ease-out); }
++.attention-basis[open] > summary > .ui-icon { transform: rotate(90deg); }
++.attention-basis-body { display: grid; gap: var(--space-2); padding: var(--space-2) 0 0 var(--space-5); line-height: 1.55; }
++.attention-basis-body p { margin: 0; }
++.attention-sources { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
++.attention-sources li { display: grid; gap: 1px; }
++.attention-source-kind { color: var(--ink); }
++.attention-source-locator { font-family: var(--font-mono); font-size: var(--text-caption); }
++
++/* ── narrow: one pane at a time ────────────────────────────────────────── */
++@media (max-width: 767px) {
++  .attention-workspace { padding: var(--space-4) var(--space-4) 40px; }
++  .attention-workspace-heading { align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
++  .attention-workspace-heading h1 { font-size: 24px; }
++  .attention-open-assistant > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
++  .attention-open-assistant { width: 44px; padding: 0; }
++  .attention-open-assistant { position: relative; }
++  .attention-query { gap: var(--space-2); padding-bottom: var(--space-3); margin-bottom: var(--space-3); }
++  .attention-toolbar { flex: 1 1 100%; }
++  .attention-toolbar select { flex: 1; max-width: none; }
++  /* WK-156 · a status word is never abbreviated to fit: the strip scrolls
++     instead, and every control a finger can reach keeps a 44px target. */
++  .attention-query-views { flex-basis: 100%; }
++  .attention-views { margin: 0 calc(-1 * var(--space-4)); padding: 2px var(--space-4); border-radius: 0; background: none; }
++  .attention-view-choice { min-height: 44px; padding: 0 12px; }
++  .attention-view-choice.is-current { background: var(--selected); box-shadow: none; }
++  .attention-count { margin-left: 0; }
++  .attention-columns { grid-template-columns: minmax(0, 1fr); gap: 0; }
++  .attention-columns.has-selection .attention-registry { display: none; }
++  .attention-columns:not(.has-selection) .attention-reading { display: none; }
++  .attention-workspace-inner.is-reading .attention-query { display: none; }
++  .attention-reading { position: static; border: 0; border-radius: 0; background: none; }
++  .attention-reading-body { max-height: none; overflow: visible; padding: 0; }
++  .attention-list-back { position: static; margin: 0 0 var(--space-2) calc(-1 * var(--space-2)); }
++  .attention-detail-head { padding-right: 0; }
++  .attention-registry-row { padding: 12px; }
++  .attention-decision { padding: var(--space-4); }
++  .attention-field-pair { grid-template-columns: minmax(0, 1fr); }
++  .attention-action-editor { padding: var(--space-3); }
++  .attention-action-submit { flex: 1 1 100%; }
++  .attention-workspace button { min-height: 44px; }
++  .attention-workspace input:not([type="radio"]), .attention-workspace select, .attention-workspace textarea { min-height: 44px; }
++  .attention-workspace input[type="radio"] { width: 24px; height: 24px; }
++  .attention-field-inline { min-height: 44px; }
++  .attention-basis > summary { min-height: 44px; }
++}
++
++/* Forced colours: fills vanish, so selection and the thumb keep an outline. */
++@media (forced-colors: active) {
++  .attention-registry-row[aria-pressed="true"] { outline: 2px solid CanvasText; outline-offset: -2px; }
++  .attention-view-choice.is-current { outline: 2px solid CanvasText; outline-offset: -2px; }
++}
+ .attention-assistant { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
+ .attention-assistant-heading { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+ .attention-assistant-heading h3 { font-size: var(--text-body); }
+@@ -5879,47 +6021,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
+ .attention-assistant-composer button { align-self: flex-end; }
+ .attention-prompt-preview { margin-top: 14px; font-size: var(--text-label); overflow-wrap: anywhere; }
+ .attention-prompt-preview p { margin: 8px 0; }
+-/* WK-158 · the disposition layer: the advertised choices, then one editor, then
+-   one submit. Six permanent primary buttons would read as six standing offers;
+-   the object decides what is on offer, so the choices are quiet and the chosen
+-   action's own control is the only primary one. */
+-.attention-actions { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+-.attention-actions h3 { font-size: var(--text-label); color: var(--muted-strong); margin: 0 0 12px; }
+-.attention-action-choices { display: flex; flex-wrap: wrap; gap: 6px; }
+-.attention-action-choice { padding: 7px 12px; border-radius: var(--radius-control); }
+-.attention-action-choice:hover { background: var(--hover); }
+-.attention-action-choice.is-current { background: var(--panel-muted); box-shadow: inset 0 0 0 1px var(--line); }
+-.attention-action-editor { margin-top: 16px; display: flex; flex-direction: column; gap: 14px; }
+-.attention-action-editor fieldset { border: 1px solid var(--line); border-radius: var(--radius-card); padding: 14px; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+-.attention-action-editor legend { padding: 0 6px; font-size: var(--text-label); color: var(--muted-strong); }
+-.attention-field { display: flex; flex-direction: column; gap: 6px; }
+-.attention-field-inline { flex-direction: row; align-items: center; gap: 8px; }
+-.attention-field-label { font-size: var(--text-label); }
+-.attention-field textarea { resize: vertical; }
+-.attention-action-submit { align-self: flex-start; }
+-.attention-field-error { margin: 0; }
+-.attention-action-alert { margin-top: 14px; }
+-.attention-pagination { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+-.attention-list-back { margin-bottom: 12px; }
+ .attention-active .chat-title-wrap { display: none; }
+-@media (max-width: 767px) {
+-  .attention-workspace { padding: 20px 16px; }
+-  .attention-workspace-heading { align-items: start; gap: 12px; }
+-  .attention-workspace-heading h1 { font-size: 26px; }
+-  .attention-toolbar { gap: 8px; flex-wrap: wrap; }
+-  .attention-toolbar select { max-width: 100%; }
+-  .attention-columns { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+-  .attention-columns.has-selection .attention-registry { display: none; }
+-  .attention-reading { padding: 16px; border-left: 0; }
+-  .attention-columns:not(.has-selection) .attention-reading > .attention-empty { display: none; }
+-  .attention-workspace button { min-height: 44px; }
+-  /* WK-156 · a status word is never abbreviated to fit: the strip scrolls
+-     instead, and every control a finger can reach keeps a 44px target. */
+-  .attention-views { margin: 0 -16px 16px; padding: 0 16px; }
+-  .attention-workspace input:not([type="radio"]), .attention-workspace select, .attention-workspace textarea { min-height: 44px; }
+-  .attention-workspace input[type="radio"] { width: 24px; height: 24px; }
+-  .attention-field-inline { min-height: 44px; }
+-}
+ 
+ /* Material fallback: unsupported blur must still produce a readable raised
+    surface. The same two registered consumers keep their geometry and roles. */
+-- 
+2.50.1 (Apple Git-155)
+

@@ -1,0 +1,212 @@
+{
+  "origin": "http://127.0.0.1:8872",
+  "run_at": "2026-09-13T10:17:09.640Z",
+  "browser": "system Google Chrome (headless) via Playwright",
+  "results": [
+    {
+      "name": "detail swap animates opacity/transform with the duration token; direction follows row order",
+      "pass": true,
+      "down": {
+        "target": "attention-detail",
+        "duration": 180,
+        "easing": "cubic-bezier(0.2, 0, 0, 1)",
+        "from": "translateY(6px)",
+        "props": [
+          "transform",
+          "opacity"
+        ]
+      },
+      "up": {
+        "target": "attention-detail",
+        "duration": 180,
+        "easing": "cubic-bezier(0.2, 0, 0, 1)",
+        "from": "translateY(-6px)",
+        "props": [
+          "transform",
+          "opacity"
+        ]
+      }
+    },
+    {
+      "name": "data-motion=\"reduce\" runs no animation through select, editor, receipt",
+      "pass": true,
+      "animations": 0
+    },
+    {
+      "name": "system prefers-reduced-motion runs no animation",
+      "pass": true,
+      "animations": 0
+    },
+    {
+      "name": "J/K move focus only: no selection change and no animation",
+      "pass": true,
+      "focus": "item-att-0102",
+      "animations": 0
+    },
+    {
+      "name": "narrow round trip: detail enters from the right, list returns from the left with scroll and focus restored",
+      "pass": true,
+      "before": 600,
+      "after": 600,
+      "detailTop": 0,
+      "focus": "item-att-0308",
+      "push": {
+        "target": "attention-reading",
+        "duration": 180,
+        "easing": "cubic-bezier(0.2, 0, 0, 1)",
+        "from": "translateX(24px)",
+        "props": [
+          "transform",
+          "opacity"
+        ]
+      },
+      "back": {
+        "target": "attention-registry",
+        "duration": 180,
+        "easing": "cubic-bezier(0.2, 0, 0, 1)",
+        "from": "translateX(-24px)",
+        "props": [
+          "transform",
+          "opacity"
+        ]
+      }
+    },
+    {
+      "name": "Sending… is in place, nothing optimistic, no settle before the receipt; settle after",
+      "pass": true,
+      "during": {
+        "label": "Sending…",
+        "width": 79.484375,
+        "status": "Needs you",
+        "row": "Needs you",
+        "settle": 0,
+        "receipt": false
+      },
+      "width0": 79.484375,
+      "settle": 2,
+      "status": "Resolved"
+    },
+    {
+      "name": "acknowledge changes seen and not status",
+      "pass": true,
+      "before": [
+        "Needs you",
+        "Not seen"
+      ],
+      "after": [
+        "Needs you",
+        "Seen"
+      ]
+    },
+    {
+      "name": "conflict keeps the draft and states the re-read version",
+      "pass": true,
+      "draft": "Draft that must survive.",
+      "line": "Now Waiting (was Needs you) · revision 5. Your draft is kept.",
+      "alert": "This item changed while you were deciding. Reload it and try again."
+    },
+    {
+      "name": "unknown result: Retry sending takes focus, same request id is re-sent, receipt then recorded",
+      "pass": true,
+      "focus": "retry-mutation",
+      "sent": [
+        "4dcc710f-8091-44e3-9913-844e7bbc5d98",
+        "4dcc710f-8091-44e3-9913-844e7bbc5d98"
+      ]
+    },
+    {
+      "name": "Escape closes the editor to its choice, then the detail to its row",
+      "pass": true,
+      "inField": "field-reason",
+      "toChoice": "action-snooze",
+      "toRow": "item-att-0103"
+    },
+    {
+      "name": "Home entry opens the same object; Back to workspace returns focus to the Home entry",
+      "pass": true,
+      "selected": "true",
+      "focus": "attention-workspace-link"
+    },
+    {
+      "name": "assistant dialog opens from the workspace heading and returns focus on close",
+      "pass": true,
+      "open": true,
+      "focus": "open-assistant"
+    },
+    {
+      "name": "no horizontal overflow · 200% zoom of 1440×900 (720×450) · list, long detail, editor, context",
+      "pass": true,
+      "states": [
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        }
+      ]
+    },
+    {
+      "name": "no horizontal overflow · 390 long text · list, long detail, editor, context",
+      "pass": true,
+      "states": [
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        }
+      ]
+    },
+    {
+      "name": "no horizontal overflow · 1280 long text · list, long detail, editor, context",
+      "pass": true,
+      "states": [
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        },
+        {
+          "page": true,
+          "workspace": true
+        }
+      ]
+    },
+    {
+      "name": "touch targets at 390 are at least 44px for workspace buttons, fields and summary",
+      "pass": true,
+      "small": []
+    },
+    {
+      "name": "large text size keeps the layout without horizontal overflow",
+      "pass": true
+    }
+  ]
+}

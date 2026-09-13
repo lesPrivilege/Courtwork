@@ -1,0 +1,43 @@
+{
+  "work_order": "WO-ATT-UI02",
+  "author": "Claude",
+  "status": "author candidate; not accepted by Astra; not merged; not pushed",
+  "base": "93a8ac4 (app/ identical to 6e211bd5f5169a603bc801024d16f87eec16a071)",
+  "branch": "codex/attention-ui02-claude-20260913",
+  "candidate_commit": "93b9ec27d355b41cbc28d31ceb2abcb982942aad",
+  "product_files": [
+    {
+      "path": "app/web/attention-view.mjs",
+      "sha256": "7ffe92cc9fc1161490dfe75c3e1167b2f7087d4ae38f022b98a9df0704ec15a3",
+      "base_sha256": "06054ddf16f59fa933e6baab99a07755a9584cb3528d0f4e17daec0284b9c111"
+    },
+    {
+      "path": "app/web/styles.css",
+      "sha256": "7fd2c95878c057c640602d9545bd5dd6deb463bf9fab025b040a32736bb1b36e",
+      "base_sha256": "fd0aeb9ea4b427db40c60512a787dc88b751608682c87e8e18c00f80438ad041"
+    },
+    {
+      "path": "app/tests/attention-ui02.test.mjs",
+      "sha256": "8b225a2f4254697614b5ae1d63cacfe9e79ad5c59f882c1deef7b117e08637c5",
+      "base_sha256": null
+    }
+  ],
+  "patch": {
+    "path": "engineering/design/attention-ui-handoff-2026-09-13/claude-return/evidence/product.patch",
+    "sha256": "59fd3fc3f1c15ce08b314a57aae57917b10687206ec986df1dac1011668b19ec",
+    "scope": "app/ only"
+  },
+  "evidence": {
+    "screens_before": 108,
+    "screens_after": 108,
+    "compare": 42,
+    "recordings": [
+      "failure-1440-dark.webm",
+      "narrow-roundtrip-390-light.webm",
+      "normal-1440-light.webm",
+      "reduced-1440-light.webm"
+    ],
+    "browser_checks": "17/17 pass (author)",
+    "unit": "49/49 targeted, 928/928 full suite (author)"
+  }
+}

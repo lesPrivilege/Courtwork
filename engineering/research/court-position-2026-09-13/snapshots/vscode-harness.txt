@@ -1,0 +1,5 @@
+# VS Code agent harness concepts
+
+Selected source excerpt only; this is not a complete repository, article, or documentation mirror.
+
+Section “How a harness differs from other agent concepts”: “They work together, but they are not interchangeable.”

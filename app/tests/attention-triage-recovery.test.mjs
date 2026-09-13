@@ -159,7 +159,7 @@ test('ATT-ACT-2 · a stale revision is refused, announced and never silently rep
       await waitFor(() => alertText(container), { label: 'conflict alert' });
       const alert = container.querySelectorAll('.attention-action-alert')[0];
       assert.equal(alert.getAttribute('role'), 'alert');
-      assert.equal(alert.textContent, 'This item changed while you were deciding. Reload it and try again.');
+      assert.equal(alert.textContent, 'This item changed while you were deciding. Review its current state before trying again.');
       const after = await inspect(h, id);
       assert.equal(after.status, 'investigating', 'no partial commit');
       assert.equal(calls.filter(call => call.path.endsWith('/actions')).length, 1, 'no silent replay');
