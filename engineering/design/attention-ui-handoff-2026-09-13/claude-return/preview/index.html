@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Attention preview · synthetic</title>
+    <!-- Product styles, served from app/web (working tree or --ref). -->
+    <link rel="stylesheet" href="/web/styles.css" />
+    <link rel="stylesheet" href="/web/summary-disclosure.css" />
+    <link rel="stylesheet" href="/web/surface-layout.css" />
+    <!-- Preview-only chrome: the synthetic shell and the scenario panel. -->
+    <link rel="stylesheet" href="/preview/preview.css" />
+    <script>
+      /* Theme and motion come from the URL so every capture is reproducible. The
+       * attributes are the product's own: data-theme and data-motion. */
+      (function () {
+        var q = new URLSearchParams(location.search);
+        var root = document.documentElement;
+        if (q.get("theme") === "light" || q.get("theme") === "dark") root.setAttribute("data-theme", q.get("theme"));
+        if (q.get("motion") === "reduce") root.setAttribute("data-motion", "reduce");
+        if (q.get("panel") === "0") root.setAttribute("data-preview-panel", "hidden");
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="preview-shell">
+      <nav class="preview-rail" aria-label="Synthetic navigation">
+        <p class="preview-wordmark">CourtWork</p>
+        <button id="preview-home" class="nav-home quiet-button" type="button">Home</button>
+        <button id="preview-attention" class="nav-home quiet-button" type="button">Attention</button>
+        <p class="preview-rail-note">Synthetic preview. No runtime, provider or personal data.</p>
+      </nav>
+      <main class="preview-main">
+        <section id="preview-home-frame" class="preview-home" aria-label="Home" hidden>
+          <div class="preview-home-inner">
+            <h1 class="preview-home-title">Home</h1>
+            <p class="form-help">Only the Attention module is drawn here, to show entry into the same object and the return.</p>
+            <div id="home-module-band" class="home-module-band"></div>
+          </div>
+        </section>
+        <section id="attention-workspace" class="attention-workspace" aria-label="Attention workspace" hidden></section>
+      </main>
+    </div>
+
+    <dialog id="attention-agent-dialog" class="attention-agent-dialog preview-assistant" aria-labelledby="preview-assistant-title">
+      <header class="attention-agent-header">
+        <div>
+          <h2 id="preview-assistant-title">Attention</h2>
+          <p class="form-help">Synthetic stand-in for the independent global assistant. It is not attached to the item you had open, and closing it does not cancel a Run.</p>
+        </div>
+        <button id="preview-assistant-close" class="quiet-button" type="button">Close</button>
+      </header>
+      <div class="attention-agent-stream"><p class="form-help">The real conversation, Runtime &amp; memory disclosure and model choice belong to attention-agent-view.mjs and are not redrawn in this work order.</p></div>
+    </dialog>
+
+    <aside class="preview-panel" aria-label="Synthetic scenario controls">
+      <details id="preview-panel-details" open>
+        <summary>Synthetic scenario</summary>
+        <div class="preview-panel-body">
+          <label>Theme <select id="pv-theme"><option value="">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+          <label>Motion <select id="pv-motion"><option value="">System</option><option value="reduce">Reduce</option></select></label>
+          <label>Latency <select id="pv-latency"><option value="0">0 ms</option><option value="120">120 ms</option><option value="260">260 ms</option><option value="900">900 ms</option></select></label>
+          <label>Next action result
+            <select id="pv-action">
+              <option value="">Receipt</option>
+              <option value="slow">Receipt after 1.8 s</option>
+              <option value="conflict">Revision conflict</option>
+              <option value="lost-after-commit">Response lost · committed</option>
+              <option value="lost-before-commit">Response lost · not committed</option>
+              <option value="refused">Refused · invalid transition</option>
+            </select>
+          </label>
+          <label>Next recovery query
+            <select id="pv-recovery"><option value="">Answers</option><option value="unreachable">Unreachable</option></select>
+          </label>
+          <div class="preview-panel-row">
+            <button id="pv-list-down" class="quiet-button" type="button">Fail next list read</button>
+            <button id="pv-detail-down" class="quiet-button" type="button">Fail next item read</button>
+          </div>
+          <div class="preview-panel-row">
+            <button id="pv-reset" class="quiet-button" type="button">Reset data</button>
+          </div>
+          <ol id="pv-log" class="preview-log" aria-label="Synthetic core log"></ol>
+        </div>
+      </details>
+    </aside>
+    <script type="module" src="/preview/harness.mjs"></script>
+  </body>
+</html>
