@@ -1,0 +1,62 @@
+{
+  "defaultProductSource": "448e8f1d2fc5382e1dc95a0203c5a24b832c07a9",
+  "defaultRuns2And3Commit": "7c58f45",
+  "equivalence": "Only CI YAML changed between run 1 and runs 2/3; app/tests/runner unchanged. Same Node22.19, default concurrency4.",
+  "lifecycleProductSource": "8461ff2ff77859d652ab467d78b4939296a5b43c",
+  "checks": [
+    {
+      "log": "node22-default-1.log",
+      "tests": 915,
+      "pass": 915,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 214122.801209
+    },
+    {
+      "log": "node22-default-2.log",
+      "tests": 915,
+      "pass": 915,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 213321.161083
+    },
+    {
+      "log": "node22-default-3.log",
+      "tests": 915,
+      "pass": 915,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 213874.037583
+    },
+    {
+      "log": "lifecycle-independent.log",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "duration_ms": 4043.268416
+    }
+  ],
+  "realProvider": "not_run",
+  "remoteCI": "not_run",
+  "load": {
+    "log": "node22-load-8.log",
+    "sourceCommit": "8461ff2ff77859d652ab467d78b4939296a5b43c",
+    "tests": 916,
+    "pass": 916,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0,
+    "duration_ms": 183107.683084
+  },
+  "decision": "Accept bounded local test-contract slice and lifecycle composite evidence; not full P12-A/DF-06 or G1-G5."
+}

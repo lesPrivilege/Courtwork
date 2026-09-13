@@ -1,0 +1,9 @@
+{
+  "baseline": "ad33118a56ae15f1c3244e97147bd63c234e6916",
+  "mode": "local uncommitted documentation only",
+  "existing_current_content_preserved": true,
+  "other_files_changed_since_receipt": [
+    "engineering/design/frontend-audit-2026-09-13/evidence/tests-full.txt"
+  ],
+  "note": "Existing frontend evidence writer changed tests-full.txt during this turn; this task never writes that file. No checkout, stash, reset, commit, push or deployment."
+}

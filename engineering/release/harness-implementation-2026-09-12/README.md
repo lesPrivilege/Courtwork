@@ -39,3 +39,9 @@ P01目录完整性、P02效果未知与崩溃结算、P02b结果保真已实现�
 ## 用户后续顺序修订
 
 采用[保留 Pi 与 coding dogfooding](harness-dogfooding.md)：节点一后先 DF-01～06 小工单，第二 runtime 不再是 dogfooding 前置；P03/P04/DRT-03 保留按需。能力注册、cache 与挂起边界同时裁决，成熟实践由 Luna 探索；此处为排单，尚未执行 DF 工单。
+
+## 2026-09-13 · 独立审阅增量采用
+
+[本地消费与施工片](../review-intake-2026-09-13/README.md)沿原P/DF/G收口最终候选证据、测试合同、能力生命周期与正式工作闭环。沿既有dogfooding顺序修订，进一步明确第二Runtime不作为首版闭环前置。上文schema12是登记时点；最新model适配已到schema13，最终候选按各owner复核。旧测试与发布状态均保留原时点，当前统一见current。
+
+[Release首片施工回执](../../../evidence/release-test-contract-20260913/README.md)：用户采用Luna explore、Sol worker、Astra裁决与集成；默认测试合同及一个受控MCP能力的有界组合证据已进入本地main。P05/P06、其余DF-06与G1–G5仍开放。

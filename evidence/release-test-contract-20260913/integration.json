@@ -1,0 +1,14 @@
+{
+  "sourceCandidate": "8461ff2ff77859d652ab467d78b4939296a5b43c",
+  "mainBefore": "449877d5a99b4fd7b4f140d2b895de2cd0f504a5",
+  "productMain": "d0b18ce96cf43c5515abd78f68690572e2fc87ad",
+  "method": "cherry-pick only d05c347, 7c58f45, 7d9100e",
+  "trackedProductEquivalence": "git diff 8461ff2 HEAD -- app tests README.md .github is empty",
+  "uncommittedFilesCheckedBeforeDocEdits": 102,
+  "filesChangedDuringCodeIntegration": [
+    "engineering/design/frontend-audit-2026-09-13/evidence/ia-full.txt"
+  ],
+  "dirtyProductNote": "Parallel UI writer has later uncommitted app/test changes. Fixed candidate results do not cover those working-tree changes.",
+  "push": "not_run",
+  "deploy": "not_run"
+}

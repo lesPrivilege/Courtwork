@@ -1,0 +1,28 @@
+{
+  "sourceCommit": "448e8f1d2fc5382e1dc95a0203c5a24b832c07a9",
+  "implementationCommit": "d05c347",
+  "frontendMerge": "9525215f556758f09cd60916edf4ad03db181802",
+  "node": "v22.19.0",
+  "npm": "10.9.3",
+  "python": "Python 3.14.2",
+  "git": "git version 2.50.1 (Apple Git-155)",
+  "os": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "cpuCount": 8,
+  "defaultConcurrency": 4,
+  "loadConcurrency": 8,
+  "nodeArchiveSha256": "c59006db713c770d6ec63ae16cb3edc11f49ee093b5c415d667bb4f436c6526d",
+  "nodeArchiveSource": "https://nodejs.org/dist/v22.19.0/node-v22.19.0-darwin-arm64.tar.gz",
+  "lockfileSha256": "67b567397768de73fc85da1247903555d8a0e39c94ae57717f29b2f6bc405936",
+  "productScope": "Synthetic only; independent temp data and loopback endpoints. No paid provider or personal store.",
+  "workflowCommit": "7c58f45",
+  "sourceEquivalence": "7c58f45 changes only .github/workflows/runtime.yml; app, tests and runner are byte-identical to 448e8f1.",
+  "ciMatrix": {
+    "os": "ubuntu-latest",
+    "node": [
+      "22.19.0",
+      "24.x"
+    ],
+    "python": "3.12",
+    "execution": "not_run"
+  }
+}
