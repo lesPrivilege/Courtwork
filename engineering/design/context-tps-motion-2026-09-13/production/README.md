@@ -25,3 +25,7 @@ Author browser used an isolated temporary Runtime and loopback fake provider wit
 - Reduced motion has deterministic lifecycle coverage; native OS reduced motion, forced-colors, reduced-transparency, real 200% zoom and screen-reader hardware were not exercised. Solid material needs no transparency fallback; forced-colors CSS and shared app reduction are present. This is not the complete accessibility matrix or independent acceptance. No push/deployment.
 
 Product source hashes are retained in [source-sha256.txt](evidence/source-sha256.txt); integration began at `84574246ee4fd9302c9a607b2861a9d789ac90a1`, with concurrent main advancing to `44953e74bd5918db082d32f4e5ac60b400ce526c` during checks. Other writers’ edits are preserved.
+
+## Ring refinement · user follow-up
+
+Based on implemented `9a5694c`, the Context SVG box shrinks from 18 to 14px, stroke from 1.7 to 1.4 viewBox units, with 4px extra margin on each side using the existing spacing token. Desktop 32px / narrow 44px hit targets remain. This refines `context.capacity` beside the existing model and Send controls without changing measurement semantics. Author browser verified [390px](evidence/15-fine-ring-mobile.png) and [1280px](evidence/16-fine-ring-desktop.png); narrow document width equals viewport width, and computed ring/margin/hit size match 14/4/44px. Color and interaction lint pass. No new behavior tests or full-suite rerun for this geometry-only adjustment. Earlier hashes and captures describe the initial integration.
