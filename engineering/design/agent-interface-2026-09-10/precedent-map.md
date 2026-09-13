@@ -155,7 +155,7 @@
 
 ## 4. Projection（如何读）
 
-四行共用：owner fact 必须先存在，投影必须报口径。负规则见 [Atlas](../atlas/README.md) Projection Grammar 段与 [data-visualization.md](../home-composition-2026-09-10/data-visualization.md)。
+数值投影共用：owner fact 必须先存在，投影必须报口径。负规则见 [Atlas](../atlas/README.md) Projection Grammar 段与 [data-visualization.md](../home-composition-2026-09-10/data-visualization.md)。
 
 ### `projection.value`
 
@@ -208,6 +208,32 @@
 | status | `canonical` |
 | do_not_infer | 无数据格与零值格同色；自定义色阶脱离 color governance |
 | next_if_missing | 回 [contracts/color-governance.md](../../mvp/execution/work-surface-kit/contracts/color-governance.md) |
+
+### `context.capacity`
+
+| 字段 | 值 |
+|---|---|
+| trigger | Context window圆环、容量详情 |
+| owner / fact entry | [request-telemetry](../../../app/docs/request-telemetry.md)、[接线审计](../frontend-audit-2026-09-13/context-tps-audit.md) |
+| grammar entry | [候选位置与口径](../context-tps-motion-2026-09-13/README.md) |
+| nearest local precedent | [runtime-view.mjs](../../../app/web/runtime-view.mjs) 的 `renderContextBar`；仅构成先例，不是容量meter |
+| verification entry | [候选验证](../context-tps-motion-2026-09-13/verification.md) |
+| status | `reference`（用户指定视觉候选；生产容量测量仍deferred） |
+| do_not_infer | estimate→capacity；声明窗口→已用百分比；截图→真实quota |
+| next_if_missing | 一级保留无比例圆环，左侧与Send对称；二级说明现有口径 |
+
+### `request.activity`
+
+| 字段 | 值 |
+|---|---|
+| trigger | Bot、Thinking轮播、TPS同行活动提示 |
+| owner / fact entry | Run状态与[request telemetry](../../../app/docs/request-telemetry.md)各自负责事实 |
+| grammar entry | [活动行候选](../context-tps-motion-2026-09-13/README.md) |
+| nearest local precedent | [PresenceView候选](../agent-presence-2026-09-11/return-v1/src/presence.mjs)、[telemetry-view.mjs](../../../app/web/telemetry-view.mjs) |
+| verification entry | [候选验证](../context-tps-motion-2026-09-13/verification.md)、[Luna材质源码复核](../context-tps-motion-2026-09-13/card-audit.md) |
+| status | `reference`（视觉候选，不称生产已接线） |
+| do_not_infer | ambient→thinking事实或TPS；Host timing→Provider TTFT；终态仍伪装running |
+| next_if_missing | 用户授权运行中保留非数值动态兜底；真实速率缺测仍Unavailable，reduced-motion静止 |
 
 ## 5. 视觉语法
 
@@ -319,4 +345,4 @@
 
 ## 8. 覆盖与缺口
 
-本表当前 21 个条目 / 21 个 status 行，覆盖 22 个 problem_key（两种 material 合并）。canonical仅限各行明确的合同/已接受范围，不将整行代码、工单、specimen统称为已接受；`contextual.actions`本条为deferred；其PropertyRow前置已实现但不授予toolbar能力。`iconography`的canonical限Lucide，EX-IC1已完成且裁定保留Lucide，MingCute/Phosphor仅外部reference。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。
+本表当前 23 个条目 / 23 个 status 行，覆盖 24 个 problem_key（两种 material 合并）。canonical仅限各行明确的合同/已接受范围，不将整行代码、工单、specimen统称为已接受；`contextual.actions`本条为deferred；其PropertyRow前置已实现但不授予toolbar能力。`iconography`的canonical限Lucide，EX-IC1已完成且裁定保留Lucide，MingCute/Phosphor仅外部reference。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。

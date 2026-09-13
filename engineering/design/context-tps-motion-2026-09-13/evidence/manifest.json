@@ -1,0 +1,66 @@
+{
+  "index.html": {
+    "bytes": 6020,
+    "sha256": "4ee02347b95ab022c45bd50bb78c5152c9c8b28073a1a4f65a81128b54950c2d"
+  },
+  "study.css": {
+    "bytes": 16487,
+    "sha256": "3026c4ea3c95655d126a24606ffacb95726ce8b2feea56572e1890f84088e091"
+  },
+  "study.mjs": {
+    "bytes": 12312,
+    "sha256": "d66bb055a80c6f13f183a020cc1a5edded9e406da178fb9df8bed9d8974030bd"
+  },
+  "fixtures.mjs": {
+    "bytes": 1345,
+    "sha256": "301d9ec6ef03e4de02844e68e8a120b9ac52ecb341084a947e81745e9aaebadd"
+  },
+  "fixtures.test.mjs": {
+    "bytes": 1128,
+    "sha256": "e2409dba2a27216d5090f2c6dc4ebe6bf6998b5a8eca5e5a91be8f2502f387b0"
+  },
+  "evidence/01-runtime-before.png": {
+    "bytes": 36050,
+    "sha256": "e5d8cb3ff1bc9a2e2fe96fdc8460c3fe8ca0cd8823409cd82fee83133f7856b2"
+  },
+  "evidence/02-concept-dark.png": {
+    "bytes": 29013,
+    "sha256": "91ebf9e243aeecd5f5fccb2ae6af15021aead9f3946396a07c95f212223b9f13"
+  },
+  "evidence/03-composer-light.png": {
+    "bytes": 25503,
+    "sha256": "a5712e0ce370993d485030c4afb93ef011f203ae6fdaf7f4db76d6b9b5149aad"
+  },
+  "evidence/04-user-activity-row.png": {
+    "bytes": 15134,
+    "sha256": "386e16853fcb532505b7fb309448cac3bb6a52de7ecaa68b3d273babc1ae442a"
+  },
+  "evidence/05-ring-narrow.png": {
+    "bytes": 17330,
+    "sha256": "5eb3fb19c0c057bd546bf3230c5a4187c337c4fb844d0ed5404b7395badd4bf8"
+  },
+  "evidence/06-light-activity.png": {
+    "bytes": 37938,
+    "sha256": "1359bc3229ff9fe2efa78e7ab561ac28666bbd6897e1545d93e7d547265451ff"
+  },
+  "evidence/07-dark-throughput.png": {
+    "bytes": 45763,
+    "sha256": "1e14c4dc128255c77d06bacc0b900ae6590790ee6727810c9f59d7f6f0cdf666"
+  },
+  "evidence/08-current-fields.png": {
+    "bytes": 44789,
+    "sha256": "d251f00c25fa09085c4ed4e6883ae0f85415c02838b60cb16c57995f1745eae8"
+  },
+  "evidence/09-narrow-fallback.png": {
+    "bytes": 5966,
+    "sha256": "ff0581886c25bc3291718ce836bc692b7b971d9e2537f5e3ed606aec53721809"
+  },
+  "evidence/10-narrow-failed.png": {
+    "bytes": 29193,
+    "sha256": "42f3de0b8888873e72456a7855c0678d3c58dbd9c8fdb16a83c97a6a3ed9313c"
+  },
+  "evidence/11-context-expanded.png": {
+    "bytes": 47787,
+    "sha256": "e9b98f48d4d55fbfcd44af3246618d09fd24715295ecf40e21aba044a6b75b16"
+  }
+}

@@ -77,3 +77,7 @@ Skin 管获准外观，Review 管稳定待决语义；相同scheme下切skin不�
 ### Attention 与多视图接续（2026-09-13）
 
 [增量采用记录](../frontend-audit-2026-09-13/attention-consumption.md)将对象/query/projection分离落在原owner上：列表扫描、详情判断；视图不产生状态或跨页排序保证。Board需真实分组与任务，拖拽需合法typed action；Time需日期查询/覆盖，due_at不等于调度器。Core acknowledge仅置seen，resolve不批准外部效果。现有typed actions已交付，后续沿原Attention工单，不按历史只读索引重复施工。
+
+### Context 圆环与活动行（2026-09-13候选登记）
+
+用户指定 [Context/TPS motion candidate](../context-tps-motion-2026-09-13/README.md) 的位置语法：`context.capacity` 一级仅圆环，位于composer左下，与右侧Send对称；数字/构成/口径在二级卡。`request.activity` 将bot、Thinking轮播与TPS放同一活动行。运行中缺真实thinking/TPS投射时允许非数值兜底轮播，缺测速率仍Unavailable；终态/断连不持续冒充活动，reduced-motion静止。两项登记为候选/reference，未生产接线；比例环与速率仍须真实同口径owner数据，不把估算、Host首输出或装饰动画当测量。详情材质沿solid raised，浮层几何/焦点/关闭沿既有规则。

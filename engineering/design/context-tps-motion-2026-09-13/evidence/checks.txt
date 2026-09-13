@@ -1,0 +1,227 @@
+$ node --check engineering/design/context-tps-motion-2026-09-13/study.mjs
+
+Exit: 0
+
+$ node --test engineering/design/context-tps-motion-2026-09-13/fixtures.test.mjs
+✔ current request estimates never become throughput or capacity observations (1.45625ms)
+✔ synthetic category total and failed samples retain distinct meanings (0.129375ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 120.512417
+
+Exit: 0
+
+$ node tools/lint-colors.mjs
+lint-colors: ok (47 files · 字面量与高度层两项)
+
+Exit: 0
+
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+
+Exit: 0
+
+$ node tools/contrast-report.mjs
+Warning: truncated output (original token count: 2477)
+Total output lines: 228
+
+# WK7 对比度表（WCAG 2.x 相对亮度）
+
+生成：`node tools/contrast-report.mjs`。门槛：文字 4.5:1，非文字 3:1。边线（line / line-strong）不作为控件的唯一指示（输入有焦点环），不设门槛，见 color-governance §2。
+
+## lead-gray · light
+
+| 角色 | 底面 | 比值 | 门槛 | 结果 |
+|---|---|---:|---:|---|
+| ink | panel | 12.87 | 4.5 | 通过 |
+| ink | float | 14.05 | 4.5 | 通过 |
+| ink | frame | 10.98 | 4.5 | 通过 |
+| muted-strong | frame | 4.66 | 4.5 | 通过 |
+| muted-strong | panel | 5.46 | 4.5 | 通过 |
+| muted-strong | float | 5.96 | 4.5 | 通过 |
+| muted | panel | 5.46 | 3 | 通过 |
+| accent-ink | panel | 12.87 | 4.5 | 通过 |
+| accent-ink | float | 14.05 | 4.5 | 通过 |
+| on-accent | accent | 13.82 | 4.5 | 通过 |
+| on-accent | accent-strong | 13.82 | 4.5 | 通过 |
+| danger | panel | 6.22 | 4.5 | 通过 |
+| success | panel | 5.30 | 4.5 | 通过 |
+| focus | panel | 12.87 | 3 | 通过 |
+| focus | float | 14.05 | 3 | 通过 |
+| ink | hover | 10.98 | 4.5 | 通过 |
+| ink | selected | 10.34 | 4.5 | 通过 |
+| ink | accent-soft | 11.92 | 4.5 | 通过 |
+| danger | danger-soft | 5.92 | 4.5 | 通过 |
+| attention-review | panel | 5.71 | 4.5 | 通过 |
+| attention-review | float | 6.23 | 4.5 | 通过 |
+| attention-review | panel-muted | 5.29 | 4.5 | 通过 |
+| attention-review | hover | 4.87 | 4.5 | 通过 |
+| diff-add | panel | 5.98 | 4.5 | 通过 |
+| diff-add | float | 6.53 | 4.5 | 通过 |
+| diff-add | panel-muted | 5.54 | 4.5 | 通过 |
+| diff-add-mark-ink | diff-add-mark | 5.19 | 4.5 | 通过 |
+| control-accent | panel | 4.90 | 3 | 通过 |
+| control-accent | float | 5.34 | 3 | 通过 |
+| control-accent | panel-muted | 4.54 | 3 | 通过 |
+| panel | control-accent | 4.90 | 3 | 通过 |
+| control-unavailable-ink | control-unavailable-fill | 9.88 | 4.5 | 通过 |
+| muted-strong | panel-muted | 5.06 | 4.5 | 通过 |
+
+## lead-gray · dark
+
+| 角色 | 底面 | 比值 | 门槛 | 结果 |
+|---|---|---:|---:|---|
+| ink | panel | 14.00 | 4.5 | 通过 |
+| ink | float | 11.72 | 4.5 | 通过 |
+| ink | frame | 16.03 | 4.5 | 通过 |
+| muted-strong | frame | 9.28 | 4.5 | 通过 |
+| muted-strong | panel | 8.10 | 4.5 | 通过 |
+| muted-strong | float | 6.78 | 4.5 | 通过 |
+| muted | panel | 8.10 | 3 | 通过 |
+| accent-ink | panel | 14.00 | 4.5 | 通过 |
+| accent-ink | float | 11.72 | 4.5 | 通过 |
+| on-accent | accent | 17.28 | 4.5 | 通过 |
+| on-accent | accent-strong | 17.28 | 4.5 | 通过 |
+| danger | panel | 7.25 | 4.5 | 通过 |
+| success | panel | 8.14 | 4.5 | 通过 |
+| focus | panel | 14.00 | 3 | 通过 |
+| focus | float | 11.72 | 3 | 通过 |
+| ink | hover | 10.44 | 4.5 | 通过 |
+| ink | selected | 8.30 | 4.5 | 通过 |
+| ink | accent-soft | 15.05 | 4.5 | 通过 |
+| danger | danger-soft | 7.75 | 4.5 | 通过 |
+| attention-review | panel | 7.97 | 4.5 | 通过 |
+| attention-review | float | 6.68 | 4.5 | 通过 |
+| attention-review | panel-muted | 8.57 | 4.5 | 通过 |
+| attention-review | hover | 5.94 | 4.5 | 通过 |
+| diff-add | panel | 6.01 | 4.5 | 通过 |
+| diff-add | float | 5.03 | 4.5 | 通过 |
+| diff-add | panel-muted | 6.46 | 4.5 | 通过 |
+| diff-add-mark-ink | diff-add-mark | 5.12 | 4.5 | 通过 |
+| control-accent | panel | 4.41 | 3 | 通过 |
+| control-accent | float | 3.69 | 3 | 通过 |
+| control-accent | panel-muted | 4.74 | 3 | 通过 |
+| panel | control-accent | 4.41 | 3 | 通过 |
+| control-unavailable-ink | control-unavailable-fill | 6.81 | 4.5 | 通过 |
+| muted-strong | panel-muted | 8.71 | 4.5 | 通过 |
+
+## gray-steel · light
+
+| 角色 | 底面 | 比值 | 门槛 | 结果 |
+|---|---|---:|---:|---|
+| ink | panel | 16.29 | 4.5 | 通过 |
+| ink | float | 16.29 | 4.5 | 通过 |
+| ink | frame | 14.30 | 4.5 | 通过 |
+| muted-strong | frame | 5.19 | 4.5 | 通过 |
+| muted-strong | panel | 5.92 | 4.5 | 通过 |
+| muted-strong | float | 5.92 | 4.5 | 通过 |
+| muted | panel | 3.79 | 3 | 通过 |
+| accent-ink | panel | 6.93 | 4.5 | 通过 |
+| accent-ink |…477 tokens truncated…通过 |
+| ink | selected | 12.37 | 4.5 | 通过 |
+| ink | accent-soft | 12.82 | 4.5 | 通过 |
+| danger | danger-soft | 7.75 | 4.5 | 通过 |
+| attention-review | panel | 8.30 | 4.5 | 通过 |
+| attention-review | float | 7.49 | 4.5 | 通过 |
+| attention-review | panel-muted | 9.17 | 4.5 | 通过 |
+| attention-review | hover | 8.30 | 4.5 | 通过 |
+| diff-add | panel | 6.25 | 4.5 | 通过 |
+| diff-add | float | 5.64 | 4.5 | 通过 |
+| diff-add | panel-muted | 6.91 | 4.5 | 通过 |
+| diff-add-mark-ink | diff-add-mark | 5.12 | 4.5 | 通过 |
+| control-accent | panel | 4.59 | 3 | 通过 |
+| control-accent | float | 4.14 | 3 | 通过 |
+| control-accent | panel-muted | 5.07 | 3 | 通过 |
+| panel | control-accent | 4.59 | 3 | 通过 |
+| control-unavailable-ink | control-unavailable-fill | 6.81 | 4.5 | 通过 |
+
+## dystopia · light
+
+| 角色 | 底面 | 比值 | 门槛 | 结果 |
+|---|---|---:|---:|---|
+| ink | panel | 12.33 | 4.5 | 通过 |
+| ink | float | 13.50 | 4.5 | 通过 |
+| ink | frame | 10.70 | 4.5 | 通过 |
+| muted-strong | frame | 4.87 | 4.5 | 通过 |
+| muted-strong | panel | 5.61 | 4.5 | 通过 |
+| muted-strong | float | 6.14 | 4.5 | 通过 |
+| muted | panel | 4.31 | 3 | 通过 |
+| accent-ink | panel | 12.33 | 4.5 | 通过 |
+| accent-ink | float | 13.50 | 4.5 | 通过 |
+| on-accent | accent | 13.50 | 4.5 | 通过 |
+| on-accent | accent-strong | 15.93 | 4.5 | 通过 |
+| danger | panel | 5.98 | 4.5 | 通过 |
+| success | panel | 5.09 | 4.5 | 通过 |
+| focus | panel | 12.36 | 3 | 通过 |
+| focus | float | 13.53 | 3 | 通过 |
+| ink | hover | 10.90 | 4.5 | 通过 |
+| ink | selected | 10.15 | 4.5 | 通过 |
+| ink | accent-soft | 11.46 | 4.5 | 通过 |
+| danger | danger-soft | 5.92 | 4.5 | 通过 |
+| attention-review | panel | 5.48 | 4.5 | 通过 |
+| attention-review | float | 6.00 | 4.5 | 通过 |
+| attention-review | panel-muted | 5.09 | 4.5 | 通过 |
+| attention-review | hover | 4.85 | 4.5 | 通过 |
+| diff-add | panel | 5.75 | 4.5 | 通过 |
+| diff-add | float | 6.29 | 4.5 | 通过 |
+| diff-add | panel-muted | 5.34 | 4.5 | 通过 |
+| diff-add-mark-ink | diff-add-mark | 5.19 | 4.5 | 通过 |
+| control-accent | panel | 4.70 | 3 | 通过 |
+| control-accent | float | 5.15 | 3 | 通过 |
+| control-accent | panel-muted | 4.37 | 3 | 通过 |
+| panel | control-accent | 4.70 | 3 | 通过 |
+| control-unavailable-ink | control-unavailable-fill | 9.88 | 4.5 | 通过 |
+
+## dystopia · dark
+
+| 角色 | 底面 | 比值 | 门槛 | 结果 |
+|---|---|---:|---:|---|
+| ink | panel | 11.99 | 4.5 | 通过 |
+| ink | float | 10.28 | 4.5 | 通过 |
+| ink | frame | 14.29 | 4.5 | 通过 |
+| muted-strong | frame | 9.32 | 4.5 | 通过 |
+| muted-strong | panel | 7.83 | 4.5 | 通过 |
+| muted-strong | float | 6.71 | 4.5 | 通过 |
+| muted | panel | 5.70 | 3 | 通过 |
+| accent-ink | panel | 11.99 | 4.5 | 通过 |
+| accent-ink | float | 10.28 | 4.5 | 通过 |
+| on-accent | accent | 14.29 | 4.5 | 通过 |
+| on-accent | accent-strong | 16.14 | 4.5 | 通过 |
+| danger | panel | 6.86 | 4.5 | 通过 |
+| success | panel | 7.71 | 4.5 | 通过 |
+| focus | panel | 13.24 | 3 | 通过 |
+| focus | float | 11.35 | 3 | 通过 |
+| ink | hover | 10.13 | 4.5 | 通过 |
+| ink | selected | 8.49 | 4.5 | 通过 |
+| ink | accent-soft | 10.13 | 4.5 | 通过 |
+| danger | danger-soft | 7.75 | 4.5 | 通过 |
+| attention-review | panel | 7.54 | 4.5 | 通过 |
+| attention-review | float | 6.46 | 4.5 | 通过 |
+| attention-review | panel-muted | 8.71 | 4.5 | 通过 |
+| attention-review | hover | 6.37 | 4.5 | 通过 |
+| diff-add | panel | 5.68 | 4.5 | 通过 |
+| diff-add | float | 4.87 | 4.5 | 通过 |
+| diff-add | panel-muted | 6.56 | 4.5 | 通过 |
+| diff-add-mark-ink | diff-add-mark | 5.12 | 4.5 | 通过 |
+| control-accent | panel | 4.17 | 3 | 通过 |
+| control-accent | float | 3.57 | 3 | 通过 |
+| control-accent | panel-muted | 4.81 | 3 | 通过 |
+| panel | control-accent | 4.17 | 3 | 通过 |
+| control-unavailable-ink | control-unavailable-fill | 6.81 | 4.5 | 通过 |
+
+
+Exit: 0
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (42 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+
+Exit: 0
+
+$ node tools/check-doc-links.mjs
+pass: true, documents: 1204, checked: 6304, problems: []
+Exit: 0

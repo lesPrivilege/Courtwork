@@ -32,3 +32,8 @@ L1操作、L2上下文、L3技术是审计标记，按当前任务分层。版�
 ## WO-ATT-UI02 独立前端绘制
 
 用户指定UI先行：Luna分层/索引，用户转交Claude独立绘制与motion，Astra裁决验收后合入。独立[工单与交接包入口](../attention-ui-handoff-2026-09-13/README.md)已建立；Context/TPS motion另归Astra稍后串行真实视觉，不派给Claude。
+
+
+## 最新选型增量登记（2026-09-13）
+
+用户要求稍后消费的[Surface classification轮次](surface-classification-registration.md)已登记：Home/Attention/Runtime/Run等先按认知任务审计。外部候选未在本片重新核验；不扩大正在交接的Attention工单或本轮Context/TPS视觉范围。

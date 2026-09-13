@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Context/TPS 实际视觉候选
+
+Astra串行完成[交互候选](design/context-tps-motion-2026-09-13/README.md)：composer左侧仅圆环与Send对称，bot/Thinking/TPS同行，运行中缺投射保留非数值轮播。Luna完成材质源码audit，按现有solid raised/圆角/阴影/字阶/focus对齐；作者浏览器与2项fixture检查见[验证](design/context-tps-motion-2026-09-13/verification.md)。已登记两项grammar为reference，数值仍区分估算、缺测和合成测量；未改产品或声称真实TPS接线。最新IA选型轮次仅[登记后续消费](design/frontend-audit-2026-09-13/surface-classification-registration.md)。未push/部署。
+
 ## 2026-09-13 · Release输入、MCP故障与Core审阅入口合流
 
 按原施工分工完成[P05/P06](../evidence/release-input-binding-20260913/README.md)、[MCP故障补证](../evidence/release-mcp-failures-20260913/README.md)与[Core Review摘要](../evidence/release-core-summary-20260913/README.md)，本地main合流`524ce32`。Core原投影持有待审/版本与正式动作；Sources外入口可发现，同Matter新Session及合成人类接受、来源变化/只读/断线恢复留证。固定`09f9177`全量932/932、smoke与链接通过；用户追加Execution收紧/去角色头非作者18/18，Work review紧凑入口非作者14/14及明暗1440/1280/390浏览器通过，各保留源码范围。最终真实Provider小探针、可公开演示与G5声明映射仍开放，未签完整Release、未push/tag/部署；并行writer内容保留。
