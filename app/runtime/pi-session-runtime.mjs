@@ -662,9 +662,16 @@ export function assistantMessageText(message) {
  */
 export function mapSessionEvent(event) {
   switch (event.type) {
-    case "message_update":
+    case "message_update": {
       if (event.message?.role !== "assistant") return null;
-      return { type: "assistant.delta", data: { text: assistantMessageText(event.message) } };
+      // Pi also updates the message for thinking and tool-call arguments.
+      // Those are not visible text changes; persisting their snapshots can
+      // flood the journal and force a UI redraw for every argument token.
+      const update = event.assistantMessageEvent?.type;
+      if (update && update !== "text_delta" && update !== "text_end") return null;
+      const text = assistantMessageText(event.message);
+      return text ? { type: "assistant.delta", data: { text } } : null;
+    }
     case "message_end":
       if (event.message?.role !== "assistant") return null;
       return {
