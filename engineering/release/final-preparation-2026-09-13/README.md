@@ -1,6 +1,6 @@
 # Release final preparation · 2026-09-13
 
-Astra owns scope/adjudication, integration, final visual inspection and publication. Luna owns bounded exploration and evidence collection. Starting product main: `f937c98a86b794b79e4b363c19ca56c4cebe39f9`; isolated preparation branch: `codex/release-final-20260913`. This record is a live preparation record; it does not assert completion or deployment.
+Astra owns scope/adjudication, integration, final visual inspection and publication. Luna owns bounded exploration and evidence collection. Starting product main: `f937c98a86b794b79e4b363c19ca56c4cebe39f9`; isolated preparation branch: `codex/release-final-20260913`. Preparation history is retained below; the [verified publication receipt](publication.json) records completed Courtwork and SE Pages deployment and their exact verification scopes.
 
 ## Current user instruction
 
@@ -79,3 +79,7 @@ Astra adopts the [governance reference](../../research/repository-governance-202
 The user additionally requested a clean local/remote node. [The retained-file inventory](main-cleanup-inventory.md) records the 62 original in-progress paths and the subsequent bounded content review. Historical research inputs and QA keep their original bytes and statuses; an unattributed WK-98 modification is preserved separately rather than replacing the accepted historical result. Repository cleanliness does not promote research candidates or synthetic UI evidence into product acceptance.
 
 SE 9.8 is separately published. Its clean main and remote match `ec8d57ea9d2e69e84ebdc187472c5c50795804f7`; [Pages run 34778033066](https://github.com/lesPrivilege/Schema-Engineering/actions/runs/34778033066) succeeded. Luna verified the live Chinese reader against its exact candidate bytes (SHA-256 `8fcd1645813d246084ccf2da1e1dbd5fb020ee80412b5b2abf9fe73588d2cc06`). Snapshot ancestor `a263805` remains reachable; English 9.8 remains withheld. Courtwork's fixed 9.6 engineering adoption remains unchanged.
+
+## Publication closeout
+
+Courtwork [manual Pages run 34780489668](https://github.com/lesPrivilege/Courtwork/actions/runs/34780489668) completed successfully on `fd4012c` after the strict capture guard passed. Luna verified live Home/Tour/Release, both manifests and all 26 new media files against the local build, and verified that the fixed install commit and source links are reachable. Both persistent main checkouts were clean and matched their remotes; their ignored build outputs were refreshed as well. [The receipt](publication.json) retains these exact facts, while [integration.json](integration.json) records the 62-file preservation checks and clean fast-forward. This documentation-only closeout is published through the same workflow without changing the site assets.

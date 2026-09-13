@@ -53,4 +53,6 @@ Astra visually checked these four views and observed no horizontal overflow at t
 
 ## Review scope and limits
 
+The batch is published through the verified manual Pages workflow; [the publication receipt](../../engineering/release/final-preparation-2026-09-13/publication.json) records the deployment, live routes, manifests, all 26 media hashes and reachable install links.
+
 Per the task handoff, Astra inspected all 26 images in the actual browser. This metadata update is not an independent visual review and does not claim independent visual acceptance. The capture batch demonstrates synthetic interface states only; it does not establish model quality, formal product acceptance, a human Decision, or closure of the G1–G5 work-loop release gates. Existing media files were retained unchanged.

@@ -4,7 +4,7 @@
 
 [最终筹备回执](release/final-preparation-2026-09-13/README.md)汇总并行交付合流、前后端组合验证及Astra实际浏览器目验。产品源码固定 `fd96f96bc40725e301a4c92e0f2f50fd3245458c`：Settings/Runtime资源与模板、Models/连接、Context披露及Model草稿语义已合流；组合全量1029项与后续定向回归分列留证。Luna承担有界探索、行为/文档核对，Astra保留架构与发布裁决。
 
-[13图位明暗新批次](../evidence/publication-release-20260914/README.md)共26张原生1440×900截图，来自同一固定源码的独立合成实例；安装预览同步固定该SHA。Review候选保持pending，未制造人审决定，不关闭真实工作G1–G5、原生200%或完整辅助技术门。实际push与Pages结果以后述回执为准。
+[13图位明暗新批次](../evidence/publication-release-20260914/README.md)共26张原生1440×900截图，来自同一固定源码的独立合成实例；安装预览同步固定该SHA。Review候选保持pending，未制造人审决定，不关闭真实工作G1–G5、原生200%或完整辅助技术门。[发布回执](release/final-preparation-2026-09-13/publication.json)记录两个仓库push与Pages成功、线上内容核验及本地/远端清洁对齐。
 
 [治理裁决](research/repository-governance-2026-09-14/README.md)复用现有owner、任务合同、先例与验证入口，仅补简短PR模板。[原62个在途文件保全](release/final-preparation-2026-09-13/main-cleanup-inventory.md)保留历史研究/QA字节与状态；未归因WK-98修改独立留存，不覆盖正式旧证据。SE中文9.8已独立发布且本地/远端对齐；Courtwork的工程采用仍固定9.6，未自动迁移Paper pin。
 

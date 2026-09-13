@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "record_type": "verified-pages-publication",
+  "date": "2026-09-14",
+  "courtwork": {
+    "published_commit": "fd4012c358cc324be882ee4a959de1ece38b6a9b",
+    "product_and_capture_source": "fd96f96bc40725e301a4c92e0f2f50fd3245458c",
+    "workflow_event": "workflow_dispatch",
+    "workflow_run": "https://github.com/lesPrivilege/Courtwork/actions/runs/34780489668",
+    "completed_at": "2026-09-13T20:21:55Z",
+    "build_result": "success",
+    "deploy_result": "success",
+    "url": "https://lesprivilege.github.io/Courtwork/",
+    "verified_http_routes": ["index.html", "tour.html", "get.html"],
+    "route_html_matches_local_build": true,
+    "build_manifest_matches_local_build": true,
+    "media_manifest_matches_local_build": true,
+    "verified_media_count": 26,
+    "media_http_status": 200,
+    "media_sizes_and_sha256_match_manifest": true,
+    "install_commit_and_four_source_links_reachable": true,
+    "local_main_equals_remote_main_at_verification": true,
+    "working_tree_at_verification": "clean"
+  },
+  "schema_engineering": {
+    "published_commit": "ec8d57ea9d2e69e84ebdc187472c5c50795804f7",
+    "workflow_run": "https://github.com/lesPrivilege/Schema-Engineering/actions/runs/34778033066",
+    "build_result": "success",
+    "deploy_result": "success",
+    "url": "https://lesprivilege.github.io/Schema-Engineering/",
+    "edition": "2026-09-14",
+    "revision": "9.8",
+    "language": "zh-CN",
+    "reader_bytes": 393543,
+    "reader_sha256": "8fcd1645813d246084ccf2da1e1dbd5fb020ee80412b5b2abf9fe73588d2cc06",
+    "live_reader_matches_local_build": true,
+    "fixed_snapshot_ancestor": "a263805f65c326ba044392c792e5adf09ecfb98d",
+    "english_9_8": "withheld",
+    "local_main_equals_remote_main_at_verification": true,
+    "working_tree_at_verification": "clean"
+  },
+  "verification_scope": {
+    "operator": "Astra integration, publication and actual browser inspection",
+    "independent_checks": "Luna bounded source, preservation, build, HTTP and hash verification; individual authorship scopes remain in the linked records",
+    "local_outputs": "Both persistent main checkouts regenerated ignored build outputs; Courtwork's 188-file output matches the prepared build byte-for-byte",
+    "preservation": "integration.json and retained-worktree-inputs/preservation.json",
+    "limits": "The HTTP verification does not cover every one of the 188 output files or full accessibility. Synthetic UI captures do not close the real-work G1–G5 gates. Courtwork's engineering Paper adoption remains 9.6."
+  },
+  "receipt_note": "This record identifies the verified deployment preceding this documentation-only receipt. The receipt changes no published product or site asset; its final commit is pushed and dispatched through the same Pages workflow."
+}
