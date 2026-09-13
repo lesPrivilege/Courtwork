@@ -1,0 +1,42 @@
+TAP version 13
+# (node:22978) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: model capability contract: legacy boolean is not promoted into invented effort tiers; explicit per-model lists stay isolated
+ok 1 - model capability contract: legacy boolean is not promoted into invented effort tiers; explicit per-model lists stay isolated
+  ---
+  duration_ms: 139.428459
+  type: 'test'
+  ...
+# Subtest: model capability contract: effort lists reject invalid values; config CAS detects missing and stale writers
+ok 2 - model capability contract: effort lists reject invalid values; config CAS detects missing and stale writers
+  ---
+  duration_ms: 69.56075
+  type: 'test'
+  ...
+# Subtest: installed model descriptors are API-specific and preserve exact concrete effort ladders
+ok 3 - installed model descriptors are API-specific and preserve exact concrete effort ladders
+  ---
+  duration_ms: 65.28725
+  type: 'test'
+  ...
+# Subtest: editing a connection invalidates selected effort, and each Run freezes a capability binding across reopen
+ok 4 - editing a connection invalidates selected effort, and each Run freezes a capability binding across reopen
+  ---
+  duration_ms: 398.766791
+  type: 'test'
+  ...
+# Subtest: schema12→13 migration preserves config and active Run, adds unknown capability, bumps CAS epoch, and invalidates old receipt
+ok 5 - schema12→13 migration preserves config and active Run, adds unknown capability, bumps CAS epoch, and invalidates old receipt
+  ---
+  duration_ms: 531.863416
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2168.333375

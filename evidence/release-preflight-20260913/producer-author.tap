@@ -1,0 +1,86 @@
+TAP version 13
+# Subtest: bounded NDA playbook and fixture manifest are versioned and serializable
+ok 1 - bounded NDA playbook and fixture manifest are versioned and serializable
+  ---
+  duration_ms: 1.562
+  type: 'test'
+  ...
+# Subtest: buildReview produces the four frozen gold outcomes with source-aware anchors
+ok 2 - buildReview produces the four frozen gold outcomes with source-aware anchors
+  ---
+  duration_ms: 5.464959
+  type: 'test'
+  ...
+# Subtest: verifyReview rejects self-reported conclusions, missing coverage and duplicate rules
+ok 3 - verifyReview rejects self-reported conclusions, missing coverage and duplicate rules
+  ---
+  duration_ms: 3.173833
+  type: 'test'
+  ...
+# Subtest: verifyReview rejects bad source anchors and reconciliation tampering
+ok 4 - verifyReview rejects bad source anchors and reconciliation tampering
+  ---
+  duration_ms: 2.159209
+  type: 'test'
+  ...
+# Subtest: candidate adapters are serializable and preserve proposal-only obligations
+ok 5 - candidate adapters are serializable and preserve proposal-only obligations
+  ---
+  duration_ms: 4.643125
+  type: 'test'
+  ...
+# Subtest: a missing source clause remains unresolved and a forged pass is rejected
+ok 6 - a missing source clause remains unresolved and a forged pass is rejected
+  ---
+  duration_ms: 0.955959
+  type: 'test'
+  ...
+# Subtest: source conflict and unsupported clause stay visible with bounded evidence
+ok 7 - source conflict and unsupported clause stay visible with bounded evidence
+  ---
+  duration_ms: 1.229875
+  type: 'test'
+  ...
+# Subtest: development and holdout fixtures are distinct but obey the same deterministic contract
+ok 8 - development and holdout fixtures are distinct but obey the same deterministic contract
+  ---
+  duration_ms: 0.804416
+  type: 'test'
+  ...
+# (node:24689) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: NDA producer receives the full submission schema and static reason contract on actual Pi wire
+ok 9 - NDA producer receives the full submission schema and static reason contract on actual Pi wire
+  ---
+  duration_ms: 775.836125
+  type: 'test'
+  ...
+# Subtest: a reference producer can submit from advertised vocabulary and approved sources without buildReview
+ok 10 - a reference producer can submit from advertised vocabulary and approved sources without buildReview
+  ---
+  duration_ms: 517.868917
+  type: 'test'
+  ...
+# (node:24690) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+ok 11 - NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+  ---
+  duration_ms: 2225.741334
+  type: 'test'
+  ...
+# Subtest: NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+ok 12 - NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+  ---
+  duration_ms: 768.973584
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5256.508667

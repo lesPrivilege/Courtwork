@@ -1,0 +1,13 @@
+{
+  "source": "01f37f09b3b11d5c317ab9d45d31d1f9a87766ee",
+  "cloneHead": "01f37f09b3b11d5c317ab9d45d31d1f9a87766ee",
+  "cloneMethod": "git clone --no-hardlinks --no-local from the local canonical repository; not remote publication verification",
+  "cleanBeforeInstall": true,
+  "node": "v22.19.0",
+  "python": "3.14.2",
+  "git": "git version 2.50.1 (Apple Git-155)",
+  "os": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "cpuCount": 8,
+  "lockSha256": "67b567397768de73fc85da1247903555d8a0e39c94ae57717f29b2f6bc405936",
+  "dataKind": "fresh synthetic, no personal data or provider credentials"
+}

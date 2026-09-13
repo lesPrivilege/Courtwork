@@ -1,0 +1,54 @@
+TAP version 13
+# (node:22126) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: global Attention has replayable identity, shared configuration and a real governed Run
+ok 1 - global Attention has replayable identity, shared configuration and a real governed Run
+  ---
+  duration_ms: 608.696042
+  type: 'test'
+  ...
+# Subtest: progressive memory lists metadata, excludes drafts/tools and binds exact message text
+ok 2 - progressive memory lists metadata, excludes drafts/tools and binds exact message text
+  ---
+  duration_ms: 494.708208
+  type: 'test'
+  ...
+# Subtest: schema5 with retained records migrates exactly and global/project invariants reject corruption
+ok 3 - schema5 with retained records migrates exactly and global/project invariants reject corruption
+  ---
+  duration_ms: 141.78725
+  type: 'test'
+  ...
+# Subtest: conversation retry preserves creation identity and exact Run command after a lost receipt
+ok 4 - conversation retry preserves creation identity and exact Run command after a lost receipt
+  ---
+  duration_ms: 0.576125
+  type: 'test'
+  ...
+# Subtest: closing during send keeps its receipt and restores the finished conversation on reopen
+ok 5 - closing during send keeps its receipt and restores the finished conversation on reopen
+  ---
+  duration_ms: 0.147209
+  type: 'test'
+  ...
+# Subtest: a delayed history choice cannot replace the newer conversation or draft
+ok 6 - a delayed history choice cannot replace the newer conversation or draft
+  ---
+  duration_ms: 0.133458
+  type: 'test'
+  ...
+# Subtest: conversation rename persists metadata without changing history, scope or draft
+ok 7 - conversation rename persists metadata without changing history, scope or draft
+  ---
+  duration_ms: 67.292875
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1898.808875

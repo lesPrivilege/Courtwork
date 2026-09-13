@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: governance policy SIGKILL before_commit preserves zero/one complete effect
+ok 1 - governance policy SIGKILL before_commit preserves zero/one complete effect
+  ---
+  duration_ms: 273.795667
+  type: 'test'
+  ...
+# Subtest: governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect
+ok 2 - governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect
+  ---
+  duration_ms: 256.136084
+  type: 'test'
+  ...
+# Subtest: Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup
+ok 3 - Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup
+  ---
+  duration_ms: 480.621375
+  type: 'test'
+  ...
+# Subtest: migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes
+ok 4 - migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes
+  ---
+  duration_ms: 715.767959
+  type: 'test'
+  ...
+# Subtest: governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together
+ok 5 - governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together
+  ---
+  duration_ms: 332.7685
+  type: 'test'
+  ...
+# Subtest: governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together
+ok 6 - governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together
+  ---
+  duration_ms: 321.774417
+  type: 'test'
+  ...
+# Subtest: disclosure expiry is checked at query time with a deterministic future clock
+ok 7 - disclosure expiry is checked at query time with a deterministic future clock
+  ---
+  duration_ms: 182.70125
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2608.223417

@@ -1,0 +1,78 @@
+{
+  "sessionId": "07624590-c016-43bb-aa23-e5744793ce9f",
+  "projection": {
+    "schemaVersion": 1,
+    "contractVersion": "inbound-nda-v1",
+    "domain": {
+      "facts": {
+        "disclosingParty": "Northstar Bio, Inc.",
+        "matterId": "synthetic-nda-matter-001",
+        "recipients": [
+          {
+            "boundToConfidentiality": true,
+            "kind": "employees",
+            "name": "Courtwork deal team",
+            "needToKnow": true
+          },
+          {
+            "boundToConfidentiality": true,
+            "kind": "professional advisers",
+            "name": "Harrow LLP",
+            "needToKnow": true
+          }
+        ],
+        "representedParty": "Courtwork Holdings Pte. Ltd.",
+        "security": {
+          "noticeHours": 24,
+          "safeguards": "reasonable"
+        },
+        "term": {
+          "years": 3
+        },
+        "transaction": {
+          "id": "project-cedar",
+          "name": "Project Cedar acquisition",
+          "purpose": "evaluate Project Cedar acquisition"
+        },
+        "use": {
+          "purpose": "evaluate Project Cedar acquisition"
+        }
+      },
+      "kind": "inbound-nda",
+      "playbookVersion": "inbound-nda-playbook-v1",
+      "schemaVersion": 1
+    },
+    "extension": {
+      "id": "inbound-nda",
+      "version": "0.1.0",
+      "releaseStatus": "development"
+    },
+    "matter": {
+      "active_artifact": null,
+      "contract_version": "inbound-nda-v1",
+      "id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+      "obligations": [],
+      "source_version": 1,
+      "version": 0
+    },
+    "title": "Release preflight · Project Cedar",
+    "sources": [
+      {
+        "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+        "id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+        "text": "SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+        "version": 1
+      }
+    ],
+    "candidates": [],
+    "artifact": null,
+    "draft": "",
+    "decisions": [],
+    "runs": [],
+    "evidence": [],
+    "stateVersion": "91d274e1390f31630b731d4a7ee07a38a52fe0d56d0bed2d5785f4090b713ccf",
+    "readOnly": false,
+    "compatibility": "supported",
+    "humanActions": []
+  }
+}

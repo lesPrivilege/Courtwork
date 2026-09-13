@@ -1,0 +1,66 @@
+TAP version 13
+# (node:22304) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: BG02-T1: a cancelled, a failed and a restart-unknown Run can each be continued, and the continued Run is unchanged
+ok 1 - BG02-T1: a cancelled, a failed and a restart-unknown Run can each be continued, and the continued Run is unchanged
+  ---
+  duration_ms: 14787.314125
+  type: 'test'
+  ...
+# Subtest: BG02-T1/T7: a Run left in flight by SIGKILL becomes unknown, keeps its lineage and can itself be continued
+ok 2 - BG02-T1/T7: a Run left in flight by SIGKILL becomes unknown, keeps its lineage and can itself be continued
+  ---
+  duration_ms: 15129.947
+  type: 'test'
+  ...
+# Subtest: BG02-T2: lineage is a chain — a Run that already has a continuation refuses a second one
+ok 3 - BG02-T2: lineage is a chain — a Run that already has a continuation refuses a second one
+  ---
+  duration_ms: 43298.948416
+  type: 'test'
+  ...
+# Subtest: BG02-T3: completed, still-running, foreign/absent and effect-unreconciled targets are each refused
+ok 4 - BG02-T3: completed, still-running, foreign/absent and effect-unreconciled targets are each refused
+  ---
+  duration_ms: 29023.80675
+  type: 'test'
+  ...
+# Subtest: BG02-T4: command identity includes the lineage claim
+ok 5 - BG02-T4: command identity includes the lineage claim
+  ---
+  duration_ms: 29000.635708
+  type: 'test'
+  ...
+# Subtest: BG02-T5: a continuation carries its own input; the earlier prompt is not copied or replayed
+ok 6 - BG02-T5: a continuation carries its own input; the earlier prompt is not copied or replayed
+  ---
+  duration_ms: 14966.377458
+  type: 'test'
+  ...
+# Subtest: BG02-T6: schema 8 upgrades once with an exact backup, and an occupied backup path stops the upgrade
+ok 7 - BG02-T6: schema 8 upgrades once with an exact backup, and an occupied backup path stops the upgrade
+  ---
+  duration_ms: 209.932333
+  type: 'test'
+  ...
+# Subtest: BG02-T6: a schema 11 state with an impossible lineage fails closed, and the schema10 host refuses schema 11 entirely
+ok 8 - BG02-T6: a schema 11 state with an impossible lineage fails closed, and the schema10 host refuses schema 11 entirely
+  ---
+  duration_ms: 380.42575
+  type: 'test'
+  ...
+# Subtest: integration: main schema 9 lineage survives schema 11 provider-connection migration
+ok 9 - integration: main schema 9 lineage survives schema 11 provider-connection migration
+  ---
+  duration_ms: 249.979916
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 147649.250375

@@ -1,0 +1,49 @@
+TAP version 13
+# (node:24004) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: NDA producer receives the full submission schema and static reason contract on actual Pi wire
+not ok 1 - NDA producer receives the full submission schema and static reason contract on actual Pi wire
+  ---
+  duration_ms: 614.4265
+  type: 'test'
+  location: '/private/tmp/courtwork-release-preflight-20260913/app/tests/nda-producer-contract.test.mjs:7:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+    + undefined
+    - [
+    -   'schemaVersion',
+    -   'contractVersion',
+    -   'playbookVersion',
+    -   'facts',
+    -   'findings',
+    -   'reconciliation'
+    - ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'schemaVersion'
+    1: 'contractVersion'
+    2: 'playbookVersion'
+    3: 'facts'
+    4: 'findings'
+    5: 'reconciliation'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/courtwork-release-preflight-20260913/app/tests/nda-producer-contract.test.mjs:19:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1669.595333

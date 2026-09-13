@@ -1,0 +1,124 @@
+TAP version 13
+# Subtest: the limited scanner recognizes imports while ignoring comments and strings
+ok 1 - the limited scanner recognizes imports while ignoring comments and strings
+  ---
+  duration_ms: 1.053083
+  type: 'test'
+  ...
+# Subtest: legal and forbidden synthetic edges exercise all approved boundaries
+ok 2 - legal and forbidden synthetic edges exercise all approved boundaries
+  ---
+  duration_ms: 1.260958
+  type: 'test'
+  ...
+# Subtest: the current Core, runtime, renderer, and composition-root graph obeys ownership
+ok 3 - the current Core, runtime, renderer, and composition-root graph obeys ownership
+  ---
+  duration_ms: 47.369167
+  type: 'test'
+  ...
+# Subtest: bounded NDA playbook and fixture manifest are versioned and serializable
+ok 4 - bounded NDA playbook and fixture manifest are versioned and serializable
+  ---
+  duration_ms: 0.866459
+  type: 'test'
+  ...
+# Subtest: buildReview produces the four frozen gold outcomes with source-aware anchors
+ok 5 - buildReview produces the four frozen gold outcomes with source-aware anchors
+  ---
+  duration_ms: 2.85925
+  type: 'test'
+  ...
+# Subtest: verifyReview rejects self-reported conclusions, missing coverage and duplicate rules
+ok 6 - verifyReview rejects self-reported conclusions, missing coverage and duplicate rules
+  ---
+  duration_ms: 1.226917
+  type: 'test'
+  ...
+# Subtest: verifyReview rejects bad source anchors and reconciliation tampering
+ok 7 - verifyReview rejects bad source anchors and reconciliation tampering
+  ---
+  duration_ms: 0.71075
+  type: 'test'
+  ...
+# Subtest: candidate adapters are serializable and preserve proposal-only obligations
+ok 8 - candidate adapters are serializable and preserve proposal-only obligations
+  ---
+  duration_ms: 0.481583
+  type: 'test'
+  ...
+# Subtest: a missing source clause remains unresolved and a forged pass is rejected
+ok 9 - a missing source clause remains unresolved and a forged pass is rejected
+  ---
+  duration_ms: 0.259375
+  type: 'test'
+  ...
+# Subtest: source conflict and unsupported clause stay visible with bounded evidence
+ok 10 - source conflict and unsupported clause stay visible with bounded evidence
+  ---
+  duration_ms: 0.756958
+  type: 'test'
+  ...
+# Subtest: development and holdout fixtures are distinct but obey the same deterministic contract
+ok 11 - development and holdout fixtures are distinct but obey the same deterministic contract
+  ---
+  duration_ms: 0.483542
+  type: 'test'
+  ...
+# (node:25271) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: NDA producer receives the full submission schema and static reason contract on actual Pi wire
+ok 12 - NDA producer receives the full submission schema and static reason contract on actual Pi wire
+  ---
+  duration_ms: 613.753792
+  type: 'test'
+  ...
+# Subtest: a reference producer can submit from advertised vocabulary and approved sources without buildReview
+ok 13 - a reference producer can submit from advertised vocabulary and approved sources without buildReview
+  ---
+  duration_ms: 499.281833
+  type: 'test'
+  ...
+# (node:25285) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+ok 14 - NDA through Pi: verified proposal, trusted decision, revised candidate, source history and new Session context
+  ---
+  duration_ms: 1623.347875
+  type: 'test'
+  ...
+# Subtest: NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+ok 15 - NDA unresolved facts remain reviewable; forged pass and attempted acceptance fail
+  ---
+  duration_ms: 879.172375
+  type: 'test'
+  ...
+# (node:25309) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: release input binding: initial context and runtime_load keep source identity without granting tools
+ok 16 - release input binding: initial context and runtime_load keep source identity without granting tools
+  ---
+  duration_ms: 372.989333
+  type: 'test'
+  ...
+# Subtest: release input binding: compaction cannot expand a replacement binding or rewrite an old one
+ok 17 - release input binding: compaction cannot expand a replacement binding or rewrite an old one
+  ---
+  duration_ms: 722.108333
+  type: 'test'
+  ...
+# Subtest: release input binding: aggregate compiled context is rejected before Run identity exists
+ok 18 - release input binding: aggregate compiled context is rejected before Run identity exists
+  ---
+  duration_ms: 84.98875
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7079.401

@@ -1,0 +1,20 @@
+{
+  "fullSuite": {
+    "source": "4cc919c41b661a7eff5a522e6057197c8fd7dc3b",
+    "tests": 934,
+    "passed": 933,
+    "failed": 1,
+    "durationMs": 223728.312416,
+    "log": "product-before-registry.log",
+    "failure": "unregistered Work review refresh named-read consumer"
+  },
+  "repair": {
+    "source": "59fa20fd58bd0e9f19cda4204e90d35534fbeddf",
+    "changed": "engineering/design/product-semantics/raw-consumers.json",
+    "guardPassed": 3,
+    "smoke": "passed",
+    "docLinks": 6267,
+    "secondFullSuite": "not_run"
+  },
+  "realProvider": "not_run"
+}

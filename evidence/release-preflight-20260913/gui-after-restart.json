@@ -1,0 +1,1152 @@
+[
+  {
+    "sessionId": "07624590-c016-43bb-aa23-e5744793ce9f",
+    "checks": {
+      "candidateEqual": true,
+      "artifactEqual": true,
+      "eventsEqual": true,
+      "summaryEqual": true
+    },
+    "summary": {
+      "schemaVersion": 1,
+      "sessionId": "07624590-c016-43bb-aa23-e5744793ce9f",
+      "extensionId": "inbound-nda",
+      "status": "available",
+      "summary": {
+        "matterId": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+        "title": "Release preflight \u00b7 Project Cedar",
+        "version": 1,
+        "sourceVersion": 1,
+        "contractVersion": "inbound-nda-v1",
+        "stateVersion": "6654b09d55a97f9c2f68c1deb703339ed846653308d623d35674af98b029d68c",
+        "readOnly": false,
+        "pendingCount": 0,
+        "stalePendingCount": 0,
+        "reviewableCount": 0,
+        "acceptedArtifactId": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1"
+      }
+    },
+    "surface": {
+      "extension": {
+        "id": "inbound-nda",
+        "version": "0.1.0",
+        "generation": 0,
+        "status": "loaded",
+        "kind": "development-extension",
+        "releaseStatus": "development",
+        "title": "Inbound NDA Playbook Review",
+        "surface": {
+          "id": "inbound-nda",
+          "title": "Inbound NDA Review",
+          "module": "/extensions/inbound-nda/renderer.mjs"
+        },
+        "tools": [
+          "se_read_source",
+          "se_submit_candidate",
+          "se_read_artifact"
+        ],
+        "bindingFields": [
+          {
+            "name": "title",
+            "label": "Title",
+            "multiline": false,
+            "required": true,
+            "maxLength": 120
+          },
+          {
+            "name": "sourceText",
+            "label": "Source text",
+            "multiline": true,
+            "required": true,
+            "maxLength": 100000
+          },
+          {
+            "name": "facts",
+            "label": "Represented party and transaction facts (JSON)",
+            "multiline": true,
+            "required": true,
+            "maxLength": 20000
+          }
+        ]
+      },
+      "projection": {
+        "schemaVersion": 1,
+        "contractVersion": "inbound-nda-v1",
+        "domain": {
+          "facts": {
+            "disclosingParty": "Northstar Bio, Inc.",
+            "matterId": "synthetic-nda-matter-001",
+            "recipients": [
+              {
+                "boundToConfidentiality": true,
+                "kind": "employees",
+                "name": "Courtwork deal team",
+                "needToKnow": true
+              },
+              {
+                "boundToConfidentiality": true,
+                "kind": "professional advisers",
+                "name": "Harrow LLP",
+                "needToKnow": true
+              }
+            ],
+            "representedParty": "Courtwork Holdings Pte. Ltd.",
+            "security": {
+              "noticeHours": 24,
+              "safeguards": "reasonable"
+            },
+            "term": {
+              "years": 3
+            },
+            "transaction": {
+              "id": "project-cedar",
+              "name": "Project Cedar acquisition",
+              "purpose": "evaluate Project Cedar acquisition"
+            },
+            "use": {
+              "purpose": "evaluate Project Cedar acquisition"
+            }
+          },
+          "kind": "inbound-nda",
+          "playbookVersion": "inbound-nda-playbook-v1",
+          "schemaVersion": 1
+        },
+        "extension": {
+          "id": "inbound-nda",
+          "version": "0.1.0",
+          "releaseStatus": "development"
+        },
+        "matter": {
+          "active_artifact": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1",
+          "contract_version": "inbound-nda-v1",
+          "id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+          "obligations": [],
+          "source_version": 1,
+          "version": 1
+        },
+        "title": "Release preflight \u00b7 Project Cedar",
+        "sources": [
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "text": "SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+            "version": 1
+          }
+        ],
+        "candidates": [
+          {
+            "artifact_text": "Inbound NDA Playbook Review (inbound-nda-playbook-v1)\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\npurpose-limitation: pass \u2014 the intended use matches the synthetic transaction purpose\nneed-to-know-recipients: pass \u2014 all listed synthetic recipients are need-to-know and bound\nsecurity-and-notice: pass \u2014 reasonable safeguards and a notice window of at most 24 hours are recorded\nterm-duration: pass \u2014 the term duration matches the synthetic three-year check",
+            "base_version": 0,
+            "contract_version": "inbound-nda-v1",
+            "domain": {
+              "contractVersion": "inbound-nda-v1",
+              "facts": {
+                "disclosingParty": "Northstar Bio, Inc.",
+                "matterId": "synthetic-nda-matter-001",
+                "recipients": [
+                  {
+                    "boundToConfidentiality": true,
+                    "kind": "employees",
+                    "name": "Courtwork deal team",
+                    "needToKnow": true
+                  },
+                  {
+                    "boundToConfidentiality": true,
+                    "kind": "professional advisers",
+                    "name": "Harrow LLP",
+                    "needToKnow": true
+                  }
+                ],
+                "representedParty": "Courtwork Holdings Pte. Ltd.",
+                "security": {
+                  "noticeHours": 24,
+                  "safeguards": "reasonable"
+                },
+                "term": {
+                  "years": 3
+                },
+                "transaction": {
+                  "id": "project-cedar",
+                  "name": "Project Cedar acquisition",
+                  "purpose": "evaluate Project Cedar acquisition"
+                },
+                "use": {
+                  "purpose": "evaluate Project Cedar acquisition"
+                }
+              },
+              "findings": [
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 268,
+                      "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 168
+                    }
+                  ],
+                  "reason": "the intended use matches the synthetic transaction purpose",
+                  "ruleId": "purpose-limitation",
+                  "status": "pass"
+                },
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 482,
+                      "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 269
+                    }
+                  ],
+                  "reason": "all listed synthetic recipients are need-to-know and bound",
+                  "ruleId": "need-to-know-recipients",
+                  "status": "pass"
+                },
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 671,
+                      "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 483
+                    }
+                  ],
+                  "reason": "reasonable safeguards and a notice window of at most 24 hours are recorded",
+                  "ruleId": "security-and-notice",
+                  "status": "pass"
+                },
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 765,
+                      "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 672
+                    }
+                  ],
+                  "reason": "the term duration matches the synthetic three-year check",
+                  "ruleId": "term-duration",
+                  "status": "pass"
+                }
+              ],
+              "playbookVersion": "inbound-nda-playbook-v1",
+              "reconciliation": {
+                "complete": true,
+                "conflictRuleIds": [],
+                "coveredRuleIds": [
+                  "purpose-limitation",
+                  "need-to-know-recipients",
+                  "security-and-notice",
+                  "term-duration"
+                ],
+                "deviationRuleIds": [],
+                "missingRuleIds": [],
+                "sourceAnchors": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 268,
+                    "ruleId": "purpose-limitation",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 168
+                  },
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 482,
+                    "ruleId": "need-to-know-recipients",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 269
+                  },
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 671,
+                    "ruleId": "security-and-notice",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 483
+                  },
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 765,
+                    "ruleId": "term-duration",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 672
+                  }
+                ],
+                "status": "complete",
+                "unknownRuleIds": [],
+                "unresolvedRuleIds": []
+              },
+              "schemaVersion": 1
+            },
+            "evidence": [
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 268,
+                "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 168
+              },
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 482,
+                "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 269
+              },
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 671,
+                "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 483
+              },
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 765,
+                "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 672
+              }
+            ],
+            "id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "obligations": [],
+            "run_id": "c51a592c-5f97-4b24-a3a8-35e9eeaa5d94",
+            "source_version": 1,
+            "status": "accepted"
+          }
+        ],
+        "artifact": {
+          "candidate_hash": "5d03d647294dddbc5d203b65bbe3a32808d118a541cf98fd223c3b1fbe036369",
+          "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+          "content": "Inbound NDA Playbook Review (inbound-nda-playbook-v1)\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\npurpose-limitation: pass \u2014 the intended use matches the synthetic transaction purpose\nneed-to-know-recipients: pass \u2014 all listed synthetic recipients are need-to-know and bound\nsecurity-and-notice: pass \u2014 reasonable safeguards and a notice window of at most 24 hours are recorded\nterm-duration: pass \u2014 the term duration matches the synthetic three-year check",
+          "content_digest": "4287b2c7de331e6208c62346008cd4f55765c8aa58bbc4799aad32d5549c1771",
+          "id": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1"
+        },
+        "draft": "",
+        "decisions": [
+          {
+            "action": "accept",
+            "actor": {
+              "id": "reviewer-1",
+              "kind": "local_reviewer"
+            },
+            "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "reason": "Synthetic preflight review: checked source revision 1, four playbook findings and recorded transaction facts; accept this version for the fixture only.",
+            "request_id": "decide-db09c19c-4c7e-44f7-ab67-8de3ac8f57c4",
+            "result": {
+              "action": "accept",
+              "active_artifact": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1",
+              "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+              "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+              "request_id": "decide-db09c19c-4c7e-44f7-ab67-8de3ac8f57c4",
+              "version": 1
+            },
+            "scope": {
+              "base_version": 0,
+              "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+              "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+              "run_id": "c51a592c-5f97-4b24-a3a8-35e9eeaa5d94"
+            }
+          }
+        ],
+        "runs": [
+          {
+            "admissionOpen": false,
+            "base_version": 0,
+            "candidateId": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "contract_version": "inbound-nda-v1",
+            "endedAt": "2026-09-13T09:22:58.977+00:00",
+            "error": null,
+            "id": "c51a592c-5f97-4b24-a3a8-35e9eeaa5d94",
+            "instruction": "/fixture script [{\"name\":\"se_submit_candidate\",\"arguments\":{\"domain\":{\"schemaVersion\":1,\"contractVersion\":\"inbound-nda-v1\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"findings\":[{\"ruleId\":\"purpose-limitation\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":168,\"end\":268,\"quote\":\"1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"the intended use matches the synthetic transaction purpose\"},{\"ruleId\":\"need-to-know-recipients\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":269,\"end\":482,\"quote\":\"2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"all listed synthetic recipients are need-to-know and bound\"},{\"ruleId\":\"security-and-notice\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":483,\"end\":671,\"quote\":\"3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"reasonable safeguards and a notice window of at most 24 hours are recorded\"},{\"ruleId\":\"term-duration\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":672,\"end\":765,\"quote\":\"4. Term. These confidentiality obligations continue for three years after the Effective Date.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"the term duration matches the synthetic three-year check\"}],\"reconciliation\":{\"status\":\"complete\",\"complete\":true,\"coveredRuleIds\":[\"purpose-limitation\",\"need-to-know-recipients\",\"security-and-notice\",\"term-duration\"],\"unresolvedRuleIds\":[],\"conflictRuleIds\":[],\"unknownRuleIds\":[],\"missingRuleIds\":[],\"deviationRuleIds\":[],\"sourceAnchors\":[{\"ruleId\":\"purpose-limitation\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":168,\"end\":268,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"},{\"ruleId\":\"need-to-know-recipients\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":269,\"end\":482,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"},{\"ruleId\":\"security-and-notice\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":483,\"end\":671,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"},{\"ruleId\":\"term-duration\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":672,\"end\":765,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}]}}}}]",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "mode": "simulation",
+            "model": "fake-model",
+            "preset_version": "inbound-nda-playbook-v1",
+            "provider": "fake-openai-loopback",
+            "providerConfig": {
+              "api": "openai-completions",
+              "credentialStatus": "configured",
+              "executionMode": "simulation",
+              "model": "fake-model",
+              "provider": "fake-openai-loopback"
+            },
+            "session_ref": "07624590-c016-43bb-aa23-e5744793ce9f",
+            "source_version": 1,
+            "startedAt": "2026-09-13T09:22:58.934+00:00",
+            "status": "completed",
+            "workContext": {
+              "provenance": {
+                "characters": 1068,
+                "contractVersion": "inbound-nda-v1",
+                "limit": 24000,
+                "matterId": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+                "omitted": [
+                  "artifact body available through se_read_artifact",
+                  "source bodies available through scoped read tool",
+                  "closed candidates and execution trace"
+                ],
+                "runtimeProfile": {
+                  "composition": {
+                    "id": "agent:general",
+                    "missing": [],
+                    "resourceIds": null,
+                    "status": "compatible",
+                    "uiSlots": [
+                      "runtime.inspector",
+                      "work.surface"
+                    ],
+                    "version": "builtin"
+                  },
+                  "hash": "6df6befbaae82887b5dbcf2496a86e79bdfa96ed68f78cc12d34c3d2b57883be",
+                  "revision": 0
+                },
+                "selected": [
+                  "active artifact identity and input basis",
+                  "obligations",
+                  "pending candidates and input basis",
+                  "source references"
+                ],
+                "sourceVersion": 1,
+                "stateVersion": 0
+              },
+              "text": "{\"schemaVersion\":2,\"domain\":{\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"kind\":\"inbound-nda\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"schemaVersion\":1},\"matter\":{\"active_artifact\":null,\"contract_version\":\"inbound-nda-v1\",\"id\":\"matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"version\":1,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"pending\":[]}"
+            }
+          },
+          {
+            "admissionOpen": false,
+            "base_version": 1,
+            "candidateId": null,
+            "contract_version": "inbound-nda-v1",
+            "endedAt": "2026-09-13T09:26:45.780+00:00",
+            "error": null,
+            "id": "ae9f8582-1943-4746-b071-09232a77c6b0",
+            "instruction": "/fixture script [{\"name\":\"se_read_artifact\",\"arguments\":{\"artifactId\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"offset\":0,\"limit\":4000}}]",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "mode": "simulation",
+            "model": "fake-model",
+            "preset_version": "inbound-nda-playbook-v1",
+            "provider": "fake-openai-loopback",
+            "providerConfig": {
+              "api": "openai-completions",
+              "credentialStatus": "configured",
+              "executionMode": "simulation",
+              "model": "fake-model",
+              "provider": "fake-openai-loopback"
+            },
+            "session_ref": "09227c08-8780-40e6-862f-62e150e7067d",
+            "source_version": 1,
+            "startedAt": "2026-09-13T09:26:45.734+00:00",
+            "status": "completed",
+            "workContext": {
+              "provenance": {
+                "characters": 1709,
+                "contractVersion": "inbound-nda-v1",
+                "limit": 24000,
+                "matterId": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+                "omitted": [
+                  "artifact body available through se_read_artifact",
+                  "source bodies available through scoped read tool",
+                  "closed candidates and execution trace"
+                ],
+                "runtimeProfile": {
+                  "composition": {
+                    "id": "agent:general",
+                    "missing": [],
+                    "resourceIds": null,
+                    "status": "compatible",
+                    "uiSlots": [
+                      "runtime.inspector",
+                      "work.surface"
+                    ],
+                    "version": "builtin"
+                  },
+                  "hash": "280d65c2e7ee36c073d8dca5a783ec50b8ac016d4202b2c8fcc9613785665441",
+                  "revision": 0
+                },
+                "selected": [
+                  "active artifact identity and input basis",
+                  "obligations",
+                  "pending candidates and input basis",
+                  "source references"
+                ],
+                "sourceVersion": 1,
+                "stateVersion": 1
+              },
+              "text": "{\"schemaVersion\":2,\"domain\":{\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"kind\":\"inbound-nda\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"schemaVersion\":1},\"matter\":{\"active_artifact\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"contract_version\":\"inbound-nda-v1\",\"id\":\"matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288\",\"obligations\":[],\"source_version\":1,\"version\":1},\"artifact\":{\"id\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"candidateId\":\"candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2\",\"contentDigest\":\"4287b2c7de331e6208c62346008cd4f55765c8aa58bbc4799aad32d5549c1771\",\"lengthCodePoints\":492,\"acceptedVersion\":1,\"sourceVersion\":1,\"contractVersion\":\"inbound-nda-v1\",\"basis\":{\"current\":true,\"reasons\":[]},\"read\":{\"tool\":\"se_read_artifact\",\"artifactId\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"offset\":0,\"limit\":4000}},\"sourceRefs\":[{\"id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"version\":1,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"pending\":[]}"
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 268,
+            "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 168
+          },
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 482,
+            "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 269
+          },
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 671,
+            "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 483
+          },
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 765,
+            "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 672
+          }
+        ],
+        "stateVersion": "6654b09d55a97f9c2f68c1deb703339ed846653308d623d35674af98b029d68c",
+        "readOnly": false,
+        "compatibility": "supported",
+        "humanActions": [
+          {
+            "schemaVersion": 1,
+            "action": "revise_candidate",
+            "label": "Revise candidate candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "payloadSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "candidate_id",
+                "new_candidate_id",
+                "base_version",
+                "proposal"
+              ],
+              "properties": {
+                "candidate_id": {
+                  "const": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2"
+                },
+                "new_candidate_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "base_version": {
+                  "const": 1
+                },
+                "proposal": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "domain"
+                  ],
+                  "properties": {
+                    "domain": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    "sessionId": "09227c08-8780-40e6-862f-62e150e7067d",
+    "checks": {
+      "candidateEqual": true,
+      "artifactEqual": true,
+      "eventsEqual": true,
+      "summaryEqual": true
+    },
+    "summary": {
+      "schemaVersion": 1,
+      "sessionId": "09227c08-8780-40e6-862f-62e150e7067d",
+      "extensionId": "inbound-nda",
+      "status": "available",
+      "summary": {
+        "matterId": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+        "title": "Release preflight \u00b7 Project Cedar",
+        "version": 1,
+        "sourceVersion": 1,
+        "contractVersion": "inbound-nda-v1",
+        "stateVersion": "6654b09d55a97f9c2f68c1deb703339ed846653308d623d35674af98b029d68c",
+        "readOnly": false,
+        "pendingCount": 0,
+        "stalePendingCount": 0,
+        "reviewableCount": 0,
+        "acceptedArtifactId": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1"
+      }
+    },
+    "surface": {
+      "extension": {
+        "id": "inbound-nda",
+        "version": "0.1.0",
+        "generation": 0,
+        "status": "loaded",
+        "kind": "development-extension",
+        "releaseStatus": "development",
+        "title": "Inbound NDA Playbook Review",
+        "surface": {
+          "id": "inbound-nda",
+          "title": "Inbound NDA Review",
+          "module": "/extensions/inbound-nda/renderer.mjs"
+        },
+        "tools": [
+          "se_read_source",
+          "se_submit_candidate",
+          "se_read_artifact"
+        ],
+        "bindingFields": [
+          {
+            "name": "title",
+            "label": "Title",
+            "multiline": false,
+            "required": true,
+            "maxLength": 120
+          },
+          {
+            "name": "sourceText",
+            "label": "Source text",
+            "multiline": true,
+            "required": true,
+            "maxLength": 100000
+          },
+          {
+            "name": "facts",
+            "label": "Represented party and transaction facts (JSON)",
+            "multiline": true,
+            "required": true,
+            "maxLength": 20000
+          }
+        ]
+      },
+      "projection": {
+        "schemaVersion": 1,
+        "contractVersion": "inbound-nda-v1",
+        "domain": {
+          "facts": {
+            "disclosingParty": "Northstar Bio, Inc.",
+            "matterId": "synthetic-nda-matter-001",
+            "recipients": [
+              {
+                "boundToConfidentiality": true,
+                "kind": "employees",
+                "name": "Courtwork deal team",
+                "needToKnow": true
+              },
+              {
+                "boundToConfidentiality": true,
+                "kind": "professional advisers",
+                "name": "Harrow LLP",
+                "needToKnow": true
+              }
+            ],
+            "representedParty": "Courtwork Holdings Pte. Ltd.",
+            "security": {
+              "noticeHours": 24,
+              "safeguards": "reasonable"
+            },
+            "term": {
+              "years": 3
+            },
+            "transaction": {
+              "id": "project-cedar",
+              "name": "Project Cedar acquisition",
+              "purpose": "evaluate Project Cedar acquisition"
+            },
+            "use": {
+              "purpose": "evaluate Project Cedar acquisition"
+            }
+          },
+          "kind": "inbound-nda",
+          "playbookVersion": "inbound-nda-playbook-v1",
+          "schemaVersion": 1
+        },
+        "extension": {
+          "id": "inbound-nda",
+          "version": "0.1.0",
+          "releaseStatus": "development"
+        },
+        "matter": {
+          "active_artifact": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1",
+          "contract_version": "inbound-nda-v1",
+          "id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+          "obligations": [],
+          "source_version": 1,
+          "version": 1
+        },
+        "title": "Release preflight \u00b7 Project Cedar",
+        "sources": [
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "text": "SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+            "version": 1
+          }
+        ],
+        "candidates": [
+          {
+            "artifact_text": "Inbound NDA Playbook Review (inbound-nda-playbook-v1)\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\npurpose-limitation: pass \u2014 the intended use matches the synthetic transaction purpose\nneed-to-know-recipients: pass \u2014 all listed synthetic recipients are need-to-know and bound\nsecurity-and-notice: pass \u2014 reasonable safeguards and a notice window of at most 24 hours are recorded\nterm-duration: pass \u2014 the term duration matches the synthetic three-year check",
+            "base_version": 0,
+            "contract_version": "inbound-nda-v1",
+            "domain": {
+              "contractVersion": "inbound-nda-v1",
+              "facts": {
+                "disclosingParty": "Northstar Bio, Inc.",
+                "matterId": "synthetic-nda-matter-001",
+                "recipients": [
+                  {
+                    "boundToConfidentiality": true,
+                    "kind": "employees",
+                    "name": "Courtwork deal team",
+                    "needToKnow": true
+                  },
+                  {
+                    "boundToConfidentiality": true,
+                    "kind": "professional advisers",
+                    "name": "Harrow LLP",
+                    "needToKnow": true
+                  }
+                ],
+                "representedParty": "Courtwork Holdings Pte. Ltd.",
+                "security": {
+                  "noticeHours": 24,
+                  "safeguards": "reasonable"
+                },
+                "term": {
+                  "years": 3
+                },
+                "transaction": {
+                  "id": "project-cedar",
+                  "name": "Project Cedar acquisition",
+                  "purpose": "evaluate Project Cedar acquisition"
+                },
+                "use": {
+                  "purpose": "evaluate Project Cedar acquisition"
+                }
+              },
+              "findings": [
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 268,
+                      "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 168
+                    }
+                  ],
+                  "reason": "the intended use matches the synthetic transaction purpose",
+                  "ruleId": "purpose-limitation",
+                  "status": "pass"
+                },
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 482,
+                      "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 269
+                    }
+                  ],
+                  "reason": "all listed synthetic recipients are need-to-know and bound",
+                  "ruleId": "need-to-know-recipients",
+                  "status": "pass"
+                },
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 671,
+                      "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 483
+                    }
+                  ],
+                  "reason": "reasonable safeguards and a notice window of at most 24 hours are recorded",
+                  "ruleId": "security-and-notice",
+                  "status": "pass"
+                },
+                {
+                  "evidence": [
+                    {
+                      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                      "end": 765,
+                      "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+                      "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                      "source_version": 1,
+                      "start": 672
+                    }
+                  ],
+                  "reason": "the term duration matches the synthetic three-year check",
+                  "ruleId": "term-duration",
+                  "status": "pass"
+                }
+              ],
+              "playbookVersion": "inbound-nda-playbook-v1",
+              "reconciliation": {
+                "complete": true,
+                "conflictRuleIds": [],
+                "coveredRuleIds": [
+                  "purpose-limitation",
+                  "need-to-know-recipients",
+                  "security-and-notice",
+                  "term-duration"
+                ],
+                "deviationRuleIds": [],
+                "missingRuleIds": [],
+                "sourceAnchors": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 268,
+                    "ruleId": "purpose-limitation",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 168
+                  },
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 482,
+                    "ruleId": "need-to-know-recipients",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 269
+                  },
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 671,
+                    "ruleId": "security-and-notice",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 483
+                  },
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 765,
+                    "ruleId": "term-duration",
+                    "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                    "source_version": 1,
+                    "start": 672
+                  }
+                ],
+                "status": "complete",
+                "unknownRuleIds": [],
+                "unresolvedRuleIds": []
+              },
+              "schemaVersion": 1
+            },
+            "evidence": [
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 268,
+                "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 168
+              },
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 482,
+                "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 269
+              },
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 671,
+                "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 483
+              },
+              {
+                "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                "end": 765,
+                "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+                "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+                "source_version": 1,
+                "start": 672
+              }
+            ],
+            "id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "obligations": [],
+            "run_id": "c51a592c-5f97-4b24-a3a8-35e9eeaa5d94",
+            "source_version": 1,
+            "status": "accepted"
+          }
+        ],
+        "artifact": {
+          "candidate_hash": "5d03d647294dddbc5d203b65bbe3a32808d118a541cf98fd223c3b1fbe036369",
+          "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+          "content": "Inbound NDA Playbook Review (inbound-nda-playbook-v1)\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\npurpose-limitation: pass \u2014 the intended use matches the synthetic transaction purpose\nneed-to-know-recipients: pass \u2014 all listed synthetic recipients are need-to-know and bound\nsecurity-and-notice: pass \u2014 reasonable safeguards and a notice window of at most 24 hours are recorded\nterm-duration: pass \u2014 the term duration matches the synthetic three-year check",
+          "content_digest": "4287b2c7de331e6208c62346008cd4f55765c8aa58bbc4799aad32d5549c1771",
+          "id": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1"
+        },
+        "draft": "",
+        "decisions": [
+          {
+            "action": "accept",
+            "actor": {
+              "id": "reviewer-1",
+              "kind": "local_reviewer"
+            },
+            "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "reason": "Synthetic preflight review: checked source revision 1, four playbook findings and recorded transaction facts; accept this version for the fixture only.",
+            "request_id": "decide-db09c19c-4c7e-44f7-ab67-8de3ac8f57c4",
+            "result": {
+              "action": "accept",
+              "active_artifact": "artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1",
+              "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+              "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+              "request_id": "decide-db09c19c-4c7e-44f7-ab67-8de3ac8f57c4",
+              "version": 1
+            },
+            "scope": {
+              "base_version": 0,
+              "candidate_id": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+              "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+              "run_id": "c51a592c-5f97-4b24-a3a8-35e9eeaa5d94"
+            }
+          }
+        ],
+        "runs": [
+          {
+            "admissionOpen": false,
+            "base_version": 0,
+            "candidateId": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "contract_version": "inbound-nda-v1",
+            "endedAt": "2026-09-13T09:22:58.977+00:00",
+            "error": null,
+            "id": "c51a592c-5f97-4b24-a3a8-35e9eeaa5d94",
+            "instruction": "/fixture script [{\"name\":\"se_submit_candidate\",\"arguments\":{\"domain\":{\"schemaVersion\":1,\"contractVersion\":\"inbound-nda-v1\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"findings\":[{\"ruleId\":\"purpose-limitation\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":168,\"end\":268,\"quote\":\"1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"the intended use matches the synthetic transaction purpose\"},{\"ruleId\":\"need-to-know-recipients\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":269,\"end\":482,\"quote\":\"2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"all listed synthetic recipients are need-to-know and bound\"},{\"ruleId\":\"security-and-notice\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":483,\"end\":671,\"quote\":\"3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"reasonable safeguards and a notice window of at most 24 hours are recorded\"},{\"ruleId\":\"term-duration\",\"status\":\"pass\",\"evidence\":[{\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":672,\"end\":765,\"quote\":\"4. Term. These confidentiality obligations continue for three years after the Effective Date.\",\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"reason\":\"the term duration matches the synthetic three-year check\"}],\"reconciliation\":{\"status\":\"complete\",\"complete\":true,\"coveredRuleIds\":[\"purpose-limitation\",\"need-to-know-recipients\",\"security-and-notice\",\"term-duration\"],\"unresolvedRuleIds\":[],\"conflictRuleIds\":[],\"unknownRuleIds\":[],\"missingRuleIds\":[],\"deviationRuleIds\":[],\"sourceAnchors\":[{\"ruleId\":\"purpose-limitation\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":168,\"end\":268,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"},{\"ruleId\":\"need-to-know-recipients\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":269,\"end\":482,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"},{\"ruleId\":\"security-and-notice\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":483,\"end\":671,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"},{\"ruleId\":\"term-duration\",\"source_id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"source_version\":1,\"start\":672,\"end\":765,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}]}}}}]",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "mode": "simulation",
+            "model": "fake-model",
+            "preset_version": "inbound-nda-playbook-v1",
+            "provider": "fake-openai-loopback",
+            "providerConfig": {
+              "api": "openai-completions",
+              "credentialStatus": "configured",
+              "executionMode": "simulation",
+              "model": "fake-model",
+              "provider": "fake-openai-loopback"
+            },
+            "session_ref": "07624590-c016-43bb-aa23-e5744793ce9f",
+            "source_version": 1,
+            "startedAt": "2026-09-13T09:22:58.934+00:00",
+            "status": "completed",
+            "workContext": {
+              "provenance": {
+                "characters": 1068,
+                "contractVersion": "inbound-nda-v1",
+                "limit": 24000,
+                "matterId": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+                "omitted": [
+                  "artifact body available through se_read_artifact",
+                  "source bodies available through scoped read tool",
+                  "closed candidates and execution trace"
+                ],
+                "runtimeProfile": {
+                  "composition": {
+                    "id": "agent:general",
+                    "missing": [],
+                    "resourceIds": null,
+                    "status": "compatible",
+                    "uiSlots": [
+                      "runtime.inspector",
+                      "work.surface"
+                    ],
+                    "version": "builtin"
+                  },
+                  "hash": "6df6befbaae82887b5dbcf2496a86e79bdfa96ed68f78cc12d34c3d2b57883be",
+                  "revision": 0
+                },
+                "selected": [
+                  "active artifact identity and input basis",
+                  "obligations",
+                  "pending candidates and input basis",
+                  "source references"
+                ],
+                "sourceVersion": 1,
+                "stateVersion": 0
+              },
+              "text": "{\"schemaVersion\":2,\"domain\":{\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"kind\":\"inbound-nda\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"schemaVersion\":1},\"matter\":{\"active_artifact\":null,\"contract_version\":\"inbound-nda-v1\",\"id\":\"matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"version\":1,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"pending\":[]}"
+            }
+          },
+          {
+            "admissionOpen": false,
+            "base_version": 1,
+            "candidateId": null,
+            "contract_version": "inbound-nda-v1",
+            "endedAt": "2026-09-13T09:26:45.780+00:00",
+            "error": null,
+            "id": "ae9f8582-1943-4746-b071-09232a77c6b0",
+            "instruction": "/fixture script [{\"name\":\"se_read_artifact\",\"arguments\":{\"artifactId\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"offset\":0,\"limit\":4000}}]",
+            "matter_id": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+            "mode": "simulation",
+            "model": "fake-model",
+            "preset_version": "inbound-nda-playbook-v1",
+            "provider": "fake-openai-loopback",
+            "providerConfig": {
+              "api": "openai-completions",
+              "credentialStatus": "configured",
+              "executionMode": "simulation",
+              "model": "fake-model",
+              "provider": "fake-openai-loopback"
+            },
+            "session_ref": "09227c08-8780-40e6-862f-62e150e7067d",
+            "source_version": 1,
+            "startedAt": "2026-09-13T09:26:45.734+00:00",
+            "status": "completed",
+            "workContext": {
+              "provenance": {
+                "characters": 1709,
+                "contractVersion": "inbound-nda-v1",
+                "limit": 24000,
+                "matterId": "matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288",
+                "omitted": [
+                  "artifact body available through se_read_artifact",
+                  "source bodies available through scoped read tool",
+                  "closed candidates and execution trace"
+                ],
+                "runtimeProfile": {
+                  "composition": {
+                    "id": "agent:general",
+                    "missing": [],
+                    "resourceIds": null,
+                    "status": "compatible",
+                    "uiSlots": [
+                      "runtime.inspector",
+                      "work.surface"
+                    ],
+                    "version": "builtin"
+                  },
+                  "hash": "280d65c2e7ee36c073d8dca5a783ec50b8ac016d4202b2c8fcc9613785665441",
+                  "revision": 0
+                },
+                "selected": [
+                  "active artifact identity and input basis",
+                  "obligations",
+                  "pending candidates and input basis",
+                  "source references"
+                ],
+                "sourceVersion": 1,
+                "stateVersion": 1
+              },
+              "text": "{\"schemaVersion\":2,\"domain\":{\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"kind\":\"inbound-nda\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"schemaVersion\":1},\"matter\":{\"active_artifact\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"contract_version\":\"inbound-nda-v1\",\"id\":\"matter-165d7f3a-0a6d-4dee-bf3d-1192ebc11288\",\"obligations\":[],\"source_version\":1,\"version\":1},\"artifact\":{\"id\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"candidateId\":\"candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2\",\"contentDigest\":\"4287b2c7de331e6208c62346008cd4f55765c8aa58bbc4799aad32d5549c1771\",\"lengthCodePoints\":492,\"acceptedVersion\":1,\"sourceVersion\":1,\"contractVersion\":\"inbound-nda-v1\",\"basis\":{\"current\":true,\"reasons\":[]},\"read\":{\"tool\":\"se_read_artifact\",\"artifactId\":\"artifact-candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2-1\",\"offset\":0,\"limit\":4000}},\"sourceRefs\":[{\"id\":\"source-1c572579-7089-4faf-ac78-126424bb680b\",\"version\":1,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"pending\":[]}"
+            }
+          }
+        ],
+        "evidence": [
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 268,
+            "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 168
+          },
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 482,
+            "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 269
+          },
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 671,
+            "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 483
+          },
+          {
+            "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+            "end": 765,
+            "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+            "source_id": "source-1c572579-7089-4faf-ac78-126424bb680b",
+            "source_version": 1,
+            "start": 672
+          }
+        ],
+        "stateVersion": "6654b09d55a97f9c2f68c1deb703339ed846653308d623d35674af98b029d68c",
+        "readOnly": false,
+        "compatibility": "supported",
+        "humanActions": [
+          {
+            "schemaVersion": 1,
+            "action": "revise_candidate",
+            "label": "Revise candidate candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2",
+            "payloadSchema": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "candidate_id",
+                "new_candidate_id",
+                "base_version",
+                "proposal"
+              ],
+              "properties": {
+                "candidate_id": {
+                  "const": "candidate-7f03a8eb3b9f30dadb40bbc21de6f10d3de362ed5eedc2347e36e6182aa487c2"
+                },
+                "new_candidate_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "base_version": {
+                  "const": 1
+                },
+                "proposal": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "domain"
+                  ],
+                  "properties": {
+                    "domain": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+]

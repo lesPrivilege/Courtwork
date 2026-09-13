@@ -1,0 +1,88 @@
+{
+  "source": "01f37f09b3b11d5c317ab9d45d31d1f9a87766ee",
+  "execution": "serial, one node --test file at a time, clean independent clone",
+  "results": [
+    {
+      "file": "app/tests/async-recovery-independent.test.mjs",
+      "exitCode": 0,
+      "seconds": 19.6,
+      "log": "courtwork-preflight-async-recovery-independent.tap",
+      "tests": 7,
+      "passed": 7,
+      "sha256": "13e0e321dea87ae65a2cad9ce0949c51b66b344316ea612389def74774028542"
+    },
+    {
+      "file": "app/tests/attention-agent.test.mjs",
+      "exitCode": 0,
+      "seconds": 1.94,
+      "log": "courtwork-preflight-attention-agent.tap",
+      "tests": 7,
+      "passed": 7,
+      "sha256": "caaacfebd272268f685e2aa3ab6bec9eddbecf0c9e263d918bb577c1713ffa35"
+    },
+    {
+      "file": "app/tests/coordination.test.mjs",
+      "exitCode": 0,
+      "seconds": 5.97,
+      "log": "courtwork-preflight-coordination.tap",
+      "tests": 22,
+      "passed": 22,
+      "sha256": "e3f82d4cac1331952baa2dc3170ffb132a1a6e1194fe99890a17c35327311594"
+    },
+    {
+      "file": "app/tests/run-lineage.test.mjs",
+      "exitCode": 0,
+      "seconds": 147.68,
+      "log": "courtwork-preflight-run-lineage.tap",
+      "tests": 9,
+      "passed": 9,
+      "sha256": "de8fd7737734e8d9ee9172400f1bb33b8268e86ab7a331221f96fd7440be6845"
+    },
+    {
+      "file": "app/tests/review-provider-publication-migration.test.mjs",
+      "exitCode": 0,
+      "seconds": 1.03,
+      "log": "courtwork-preflight-review-provider-publication-migration.tap",
+      "tests": 4,
+      "passed": 4,
+      "sha256": "ad2d54715356a4d7e48bafb5b5b6907b52f035df2b404228297925c1e2d5dbca"
+    },
+    {
+      "file": "app/tests/provider-schema12-pending.test.mjs",
+      "exitCode": 0,
+      "seconds": 0.22,
+      "log": "courtwork-preflight-provider-schema12-pending.tap",
+      "tests": 1,
+      "passed": 1,
+      "sha256": "50ce735d1203ada606a5eb1c67e104b5d72a82d8e8d1dc1690503b3a51c08f27"
+    },
+    {
+      "file": "app/tests/model-capability-adaptation.test.mjs",
+      "exitCode": 0,
+      "seconds": 2.2,
+      "log": "courtwork-preflight-model-capability-adaptation.tap",
+      "tests": 5,
+      "passed": 5,
+      "sha256": "484e9ba78a587f01f0315e77d5b076c7baed9e78f27a5b8fb4437470db5344da"
+    },
+    {
+      "file": "app/tests/governance-recovery.test.mjs",
+      "exitCode": 0,
+      "seconds": 2.64,
+      "log": "courtwork-preflight-governance-recovery.tap",
+      "tests": 7,
+      "passed": 7,
+      "sha256": "7cec9210ef7e55fcca9a5e1e256f7e27028eade65efe8b03d86661736633e870"
+    },
+    {
+      "file": "app/tests/release-mcp-failures.test.mjs",
+      "exitCode": 0,
+      "seconds": 2.64,
+      "log": "courtwork-preflight-release-mcp-failures.tap",
+      "tests": 3,
+      "passed": 3,
+      "sha256": "31c565fd098daf4333c90f6d4af903d0da930fbd148e51ff2c9c26082be4e9c2"
+    }
+  ],
+  "totalPassed": 65
+}

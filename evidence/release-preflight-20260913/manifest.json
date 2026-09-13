@@ -1,0 +1,152 @@
+{
+  "files": [
+    {
+      "path": "evidence/release-preflight-20260913/README.md",
+      "sha256": "9b7ee70cf695805885b4be562a0ddab3922cbbe2029cecea40bf271d07123957"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-async-recovery-independent.tap",
+      "sha256": "13e0e321dea87ae65a2cad9ce0949c51b66b344316ea612389def74774028542"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-attention-agent.tap",
+      "sha256": "caaacfebd272268f685e2aa3ab6bec9eddbecf0c9e263d918bb577c1713ffa35"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-coordination.tap",
+      "sha256": "e3f82d4cac1331952baa2dc3170ffb132a1a6e1194fe99890a17c35327311594"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-governance-recovery.tap",
+      "sha256": "7cec9210ef7e55fcca9a5e1e256f7e27028eade65efe8b03d86661736633e870"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-model-capability-adaptation.tap",
+      "sha256": "484e9ba78a587f01f0315e77d5b076c7baed9e78f27a5b8fb4437470db5344da"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-provider-schema12-pending.tap",
+      "sha256": "50ce735d1203ada606a5eb1c67e104b5d72a82d8e8d1dc1690503b3a51c08f27"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-release-mcp-failures.tap",
+      "sha256": "31c565fd098daf4333c90f6d4af903d0da930fbd148e51ff2c9c26082be4e9c2"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-review-provider-publication-migration.tap",
+      "sha256": "ad2d54715356a4d7e48bafb5b5b6907b52f035df2b404228297925c1e2d5dbca"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/courtwork-preflight-run-lineage.tap",
+      "sha256": "de8fd7737734e8d9ee9172400f1bb33b8268e86ab7a331221f96fd7440be6845"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/doc-links.log",
+      "sha256": "3f3293c3ca4a484ce4648d85a7d98b19819e4563cd49644ed7b62befebe7425c"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/environment.json",
+      "sha256": "004e7deaa7a0fc6d7cd77da0f7d405431ae9447e1ed2d073fc6b00d616a32ac5"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/fresh-gui-accepted.png",
+      "sha256": "3556ce00990cc3b820f381ccc599906ca22db0450e88ab8312b3831df275358a"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/fresh-gui-continued.png",
+      "sha256": "1fc4f6bf01fd481b8415d2403db442242c10f17ed0c0b50cba4a65a3a3fdf280"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/fresh-gui-reopened.png",
+      "sha256": "58480b25dee4c505efe7f6d5e98a5b9138d06d1a0bfc0eae4a3780c42ddd1f18"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/fresh-gui-run.json",
+      "sha256": "c5066a97d7e69d4e278b17536b831d9329af14bae41717dc621397f224626e55"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/fresh-gui-run.png",
+      "sha256": "0468f5ce2d71c526293d85e592fe90886c3a387e5921e01b8abe5a6cafb18f9a"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/fresh-gui-same-matter.png",
+      "sha256": "afbc47c48a3ac71271d3f29205d462b20c4b29d0374e11f0e9472c1428528edf"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/fresh-model-key-form.png",
+      "sha256": "847ff7d7f9f406a06e8d689a154bf07b44bffd4cba7a4705ec9d5b101514583a"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/gui-after-restart.json",
+      "sha256": "f79247d9d0187158ca04acfa3ab008d1e810203219b4dff725e6b02b7438854a"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/gui-before-restart.json",
+      "sha256": "8ca2a10c01cdad07e66f998f682b94be468480c84d5b74d73bef7656ec35b9b0"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/gui-final-runs.json",
+      "sha256": "b3d0f2ffb31413bba76951e4471662412dfb64e2cb64e13dd4a4411e9fa56691"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/gui-matter-before.json",
+      "sha256": "bbed2a162f3cf58a576910dbb728e54907fc3c7555fa550f509e0b9db076e2a7"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/install.log",
+      "sha256": "dabd756e83199338df4c6733d7155d1e169fc42aec677bbd47eb22a887f6c6b4"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/live-probe-plan.md",
+      "sha256": "1287b5e574ba6335239409e2a9347066f3b0fd1473f00f8e7fffa8f6f13f2b87"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/producer-author.tap",
+      "sha256": "523a139ce32374350dcddff9d3ea6ad165b1afa9426f2476e114d100aac8741d"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/producer-before.tap",
+      "sha256": "b57e1971ed26a5faa0a91bad667c3817e6a59518766bbf99910634df5f5faf35"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/producer-contract.md",
+      "sha256": "df57d3d45cb6f9f2abf9aea9f457bd0cc1b07aacf6c18b51a447feccbde76aa1"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/producer-intermediate.tap",
+      "sha256": "e0933ff3851145167eebb16a302c80facd7f3f7b02555af657c29ec095e12595"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/producer-luna.tap",
+      "sha256": "39e626a47f2989d7acd211955088833f354a93d02908a081a1f5424366e22f26"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/producer-setup-failure.tap",
+      "sha256": "039b2af0e8fe82c2b90a2429bf5db78edc98613853f160679ecd381f58a0555b"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/product-before-registry.log",
+      "sha256": "289720338f261d50fee86f4530319bd428134a59e56cabb9ca9b4031a0e3b82f"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/product-results.json",
+      "sha256": "0757d288a946ce4c1c98e5be3e984e068611b201bd72c286e3e7a6f4b35499e9"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/public-facts.md",
+      "sha256": "9c5c03c895f0fa7c3fc1dd8ec0746686feb01ae4d89f95c5e9a2ef613b40c725"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/recovery-results.json",
+      "sha256": "a24a6a511e18b63b625800be7798799c29c1d464459ccae567fb58e1ec504086"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/registry-after.tap",
+      "sha256": "b5be5dfe2fbec04a97e890384127e2d060c40f10b9361d0bc1817604c5c75d89"
+    },
+    {
+      "path": "evidence/release-preflight-20260913/smoke.log",
+      "sha256": "013f0a7a639ae1e5abb5945356b22c02c4eca8a682444d54ebc0cecf0630f6eb"
+    }
+  ]
+}
