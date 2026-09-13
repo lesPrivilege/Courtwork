@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Slash / compaction 登记与即时消费
+
+[源会话与核验](research/slash-compaction-2026-09-13/README.md)完整入账；自动压缩相关15/15通过，两个local探针确认当前slash会按普通input进入模型，manual compact未实现。即时校正[能力说明](../app/docs/commands-and-compaction.md)，采用typed effect/source/target分层及commandId幂等身份不复用。[RD-008](research/RD-008-command-compaction.md)登记CMD-01命令discovery/dispatch与CMP-01 idle-only原生manual生命周期到Release后期Developer队列，CMP-02质量/观测再后置；不照收外部“小包”排期，不自动新增G门。没有修改生产JS、schema或压缩算法，不声称slash或真实模型质量通过；未push/部署。
+
 ## 2026-09-13 · Chatspace / Work review 联合收尾
 
 本Astra按用户授权接收de55674的独立Work review对象卡，并修复Luna审阅指出的隐藏轮播时钟、测量dialog语义和Review流式/结束重读焦点问题；新增agent左侧常显Run开始时间与16px消息动作，时间可访问文本亦经复核。[联合回执](design/context-tps-motion-2026-09-13/production/closure.md)区分Luna非作者审阅、Astra作者浏览器与固定源码：隔离快照全量941/941，最后时间可访问性微调后定向35/35，smoke通过。六原型附件补全原文并沿原IA队列消费；未扩全站audit。范围仅本片组合接受，不关闭真实TPS/容量、完整可访问性矩阵或Release门；未push/部署。
