@@ -1,0 +1,122 @@
+TAP version 13
+# Subtest: MA2-02 · the Thread directory projects only the published contract
+ok 1 - MA2-02 · the Thread directory projects only the published contract
+  ---
+  duration_ms: 1.516583
+  type: 'test'
+  ...
+# Subtest: MA2-02 · a mailbox page must stay inside the bounds the server reported
+ok 2 - MA2-02 · a mailbox page must stay inside the bounds the server reported
+  ---
+  duration_ms: 0.487
+  type: 'test'
+  ...
+# Subtest: MA2-02 · an undelivered message keeps an explicit null, not an empty time
+ok 3 - MA2-02 · an undelivered message keeps an explicit null, not an empty time
+  ---
+  duration_ms: 0.116083
+  type: 'test'
+  ...
+# Subtest: MA2-02 · receipts are validated with the same gate as the directory rows
+ok 4 - MA2-02 · receipts are validated with the same gate as the directory rows
+  ---
+  duration_ms: 0.160792
+  type: 'test'
+  ...
+# Subtest: MA2-02 · Session options carry the scope the server itself derives
+ok 5 - MA2-02 · Session options carry the scope the server itself derives
+  ---
+  duration_ms: 0.181541
+  type: 'test'
+  ...
+# Subtest: MA2-02 · option lists offer only bindings the server would accept
+ok 6 - MA2-02 · option lists offer only bindings the server would accept
+  ---
+  duration_ms: 0.187334
+  type: 'test'
+  ...
+# Subtest: MA2-02 · both new modules are admitted by the static allowlist
+ok 7 - MA2-02 · both new modules are admitted by the static allowlist
+  ---
+  duration_ms: 0.757375
+  type: 'test'
+  ...
+# Subtest: MA2-02 · the consumer surface adds no second run-start path
+ok 8 - MA2-02 · the consumer surface adds no second run-start path
+  ---
+  duration_ms: 0.633166
+  type: 'test'
+  ...
+# (node:53395) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+ok 9 - unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+  ---
+  duration_ms: 673.485625
+  type: 'test'
+  ...
+# Subtest: unassigned coordination scope does not merge all null-project conversations
+ok 10 - unassigned coordination scope does not merge all null-project conversations
+  ---
+  duration_ms: 43.326
+  type: 'test'
+  ...
+# Subtest: schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+ok 11 - schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+  ---
+  duration_ms: 129.738375
+  type: 'test'
+  ...
+# Subtest: summary labels use explicit Session scope, never null project as Attention authority
+ok 12 - summary labels use explicit Session scope, never null project as Attention authority
+  ---
+  duration_ms: 0.386625
+  type: 'test'
+  ...
+# (node:53396) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: work summary distinguishes empty, no-run, completed, failed and unknown
+ok 13 - work summary distinguishes empty, no-run, completed, failed and unknown
+  ---
+  duration_ms: 1585.556833
+  type: 'test'
+  ...
+# Subtest: live ask_user and permission entries disappear after answer or cancel, and stale posts remain 409
+ok 14 - live ask_user and permission entries disappear after answer or cancel, and stale posts remain 409
+  ---
+  duration_ms: 1089.036375
+  type: 'test'
+  ...
+# Subtest: summary excludes stale question states and paginates pending/inspection by project with a union of lastSeq
+ok 15 - summary excludes stale question states and paginates pending/inspection by project with a union of lastSeq
+  ---
+  duration_ms: 102.037292
+  type: 'test'
+  ...
+# Subtest: restart hides the old live question, exposes its unknown Run, and a new Run gets a new ID
+ok 16 - restart hides the old live question, exposes its unknown Run, and a new Run gets a new ID
+  ---
+  duration_ms: 1379.533292
+  type: 'test'
+  ...
+# Subtest: summary keeps project sources separate and has deterministic tie ordering, offsets and bounds
+ok 17 - summary keeps project sources separate and has deterministic tie ordering, offsets and bounds
+  ---
+  duration_ms: 92.86475
+  type: 'test'
+  ...
+# Subtest: summary is allowlisted and read-only; unauthorized and failed reads are errors rather than empty results
+ok 18 - summary is allowlisted and read-only; unauthorized and failed reads are errors rather than empty results
+  ---
+  duration_ms: 340.889709
+  type: 'test'
+  ...
+1..18
+# tests 18
+# suites 0
+# pass 18
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5553.029625

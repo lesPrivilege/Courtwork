@@ -1,0 +1,20 @@
+PASS Lost creation receipt recovers exact Session ID on refresh with draft retained and no duplicate POST
+PASS Lost upload response retains exact command and revision across refresh; no duplicate Session or retained revision
+PASS Failed Recent read keeps the last list and unsent draft with an explicit retry
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+locator.click: Timeout 30000ms exceeded.
+Call log:
+[2m  - waiting for locator('#recent-list').getByRole('button', { name: 'Retry', exact: true })[22m
+[2m    - locator resolved to <button type="button" class="text-button">Retry</button>[22m
+[2m  - attempting click action[22m
+[2m    - waiting for element to be visible, enabled and stable[22m
+[2m  - element was detached from the DOM, retrying[22m
+
+    at /private/tmp/courtwork-projectless-chat-20260913/evidence/projectless-chat-20260913/browser-recovery.mjs:72:124 {
+  name: 'TimeoutError'
+}
+
+Node.js v25.9.0

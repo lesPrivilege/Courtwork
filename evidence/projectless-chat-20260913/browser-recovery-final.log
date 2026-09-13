@@ -1,0 +1,7 @@
+PASS Lost creation receipt recovers exact Session ID on refresh with draft retained and no duplicate POST
+PASS Lost upload response retains exact command and revision across refresh; no duplicate Session or retained revision
+PASS Failed Recent read keeps the last list and unsent draft with an explicit retry
+PASS Long selected workspace name truncates visually and retains the full accessible name
+PASS 720 CSS-pixel reflow (1440 at 200% equivalent width) remains within the viewport
+PASS Forced colors and reduced motion keep workspace choice and Escape usable
+PASS Narrow navigation retains peer Projects-before-Recent order

@@ -21,3 +21,7 @@ The [runtime and UI contract](../../app/docs/projectless-chat.md) specifies sche
 Nearest implemented precedents: Home draft/admission in `app/web/app.mjs`, retained material commands in `app/web/materials-view.mjs`, native `anchorPopover` in `app/web/ui-controls.mjs`, and existing Project sidebar rows. Affected grammar: composer organization, peer sidebar collections, native anchored overlays and focus return. Final screenshots were visually inspected. Core Review projections and formal decision authority retain their existing owners.
 
 The browser harness uses a separate synthetic host and ports/data; it does not operate the earlier real-model candidate. This slice does not provide external-folder connection, post-creation project relocation, binary attachments or native zoom certification.
+
+## Final fixed-source result
+
+Source `b81403c` is identified by its full SHA in [source identity](source-identity.json). [Node 22 product check](product-final-node22.log) passed **964/964**, deterministic runtime smoke and 6,649 documentation links (exit 0). Four interface lints passed: [colors](lint-colors.log), [materials](lint-materials.log), [interaction](lint-interaction.log), [shapes](lint-shapes.log); [contrast results](contrast.log) are retained. No production source changed after this run. [Evidence hashes](manifest.json) cover all delivery files other than the manifest itself.

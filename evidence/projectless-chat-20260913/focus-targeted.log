@@ -1,0 +1,84 @@
+TAP version 13
+# Subtest: staging has no backend effect, preserves focus nodes on unchanged render, and exposes a visible count
+not ok 1 - staging has no backend effect, preserves focus nodes on unchanged render, and exposes a visible count
+  ---
+  duration_ms: 1.53175
+  type: 'test'
+  location: '/private/tmp/courtwork-projectless-chat-20260913/app/tests/draft-attachments.test.mjs:7:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'append')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/draft-attachments.test.mjs:9:16
+    file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/tiny-dom.mjs:154:17
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: an unknown upload is immutable until exact replay reconciles its retained revision
+not ok 2 - an unknown upload is immutable until exact replay reconciles its retained revision
+  ---
+  duration_ms: 0.274167
+  type: 'test'
+  location: '/private/tmp/courtwork-projectless-chat-20260913/app/tests/draft-attachments.test.mjs:18:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'append')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/draft-attachments.test.mjs:19:87
+    file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/tiny-dom.mjs:154:17
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: a confirmed upload refusal permits removing the unsaved draft attachment
+not ok 3 - a confirmed upload refusal permits removing the unsaved draft attachment
+  ---
+  duration_ms: 0.2815
+  type: 'test'
+  location: '/private/tmp/courtwork-projectless-chat-20260913/app/tests/draft-attachments.test.mjs:28:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot read properties of undefined (reading 'append')"
+  code: 'ERR_TEST_FAILURE'
+  name: 'TypeError'
+  stack: |-
+    file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/draft-attachments.test.mjs:29:87
+    file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/tiny-dom.mjs:154:17
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# (node:81584) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+ok 4 - unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+  ---
+  duration_ms: 682.811792
+  type: 'test'
+  ...
+# Subtest: unassigned coordination scope does not merge all null-project conversations
+ok 5 - unassigned coordination scope does not merge all null-project conversations
+  ---
+  duration_ms: 45.361291
+  type: 'test'
+  ...
+# Subtest: schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+ok 6 - schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+  ---
+  duration_ms: 132.00925
+  type: 'test'
+  ...
+# Subtest: summary labels use explicit Session scope, never null project as Attention authority
+ok 7 - summary labels use explicit Session scope, never null project as Attention authority
+  ---
+  duration_ms: 0.306375
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 4
+# fail 3
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1845.920042

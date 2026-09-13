@@ -1,0 +1,376 @@
+TAP version 13
+# (node:53126) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: global Attention has replayable identity, shared configuration and a real governed Run
+ok 1 - global Attention has replayable identity, shared configuration and a real governed Run
+  ---
+  duration_ms: 917.295583
+  type: 'test'
+  ...
+# Subtest: progressive memory lists metadata, excludes drafts/tools and binds exact message text
+ok 2 - progressive memory lists metadata, excludes drafts/tools and binds exact message text
+  ---
+  duration_ms: 493.552625
+  type: 'test'
+  ...
+# Subtest: schema5 with retained records migrates exactly and global/project invariants reject corruption
+ok 3 - schema5 with retained records migrates exactly and global/project invariants reject corruption
+  ---
+  duration_ms: 136.395459
+  type: 'test'
+  ...
+# Subtest: conversation retry preserves creation identity and exact Run command after a lost receipt
+ok 4 - conversation retry preserves creation identity and exact Run command after a lost receipt
+  ---
+  duration_ms: 0.621458
+  type: 'test'
+  ...
+# Subtest: closing during send keeps its receipt and restores the finished conversation on reopen
+ok 5 - closing during send keeps its receipt and restores the finished conversation on reopen
+  ---
+  duration_ms: 0.159
+  type: 'test'
+  ...
+# Subtest: a delayed history choice cannot replace the newer conversation or draft
+ok 6 - a delayed history choice cannot replace the newer conversation or draft
+  ---
+  duration_ms: 0.156625
+  type: 'test'
+  ...
+# Subtest: conversation rename persists metadata without changing history, scope or draft
+ok 7 - conversation rename persists metadata without changing history, scope or draft
+  ---
+  duration_ms: 67.935375
+  type: 'test'
+  ...
+# Subtest: Chat sits in the Home / Attention / Spark group as a plain button
+ok 8 - Chat sits in the Home / Attention / Spark group as a plain button
+  ---
+  duration_ms: 1.728
+  type: 'test'
+  ...
+# Subtest: openChatPage opens the page over the existing session and creates nothing
+ok 9 - openChatPage opens the page over the existing session and creates nothing
+  ---
+  duration_ms: 0.719834
+  type: 'test'
+  ...
+# Subtest: recent chats across open projects, newest first, marking Work and the current one
+ok 10 - recent chats across open projects, newest first, marking Work and the current one
+  ---
+  duration_ms: 14.641208
+  type: 'test'
+  ...
+# Subtest: empty state and New chat stay primary while explanation and sibling entries are disclosed
+ok 11 - empty state and New chat stay primary while explanation and sibling entries are disclosed
+  ---
+  duration_ms: 1.18225
+  type: 'test'
+  ...
+# Subtest: app wiring: the Chat seat opens the page, the page closes like Attention, and it is served
+ok 12 - app wiring: the Chat seat opens the page, the page closes like Attention, and it is served
+  ---
+  duration_ms: 1.674417
+  type: 'test'
+  ...
+# Subtest: MA2-02 · the Thread directory projects only the published contract
+ok 13 - MA2-02 · the Thread directory projects only the published contract
+  ---
+  duration_ms: 3.005792
+  type: 'test'
+  ...
+# Subtest: MA2-02 · a mailbox page must stay inside the bounds the server reported
+ok 14 - MA2-02 · a mailbox page must stay inside the bounds the server reported
+  ---
+  duration_ms: 0.973917
+  type: 'test'
+  ...
+# Subtest: MA2-02 · an undelivered message keeps an explicit null, not an empty time
+ok 15 - MA2-02 · an undelivered message keeps an explicit null, not an empty time
+  ---
+  duration_ms: 0.313584
+  type: 'test'
+  ...
+# Subtest: MA2-02 · receipts are validated with the same gate as the directory rows
+ok 16 - MA2-02 · receipts are validated with the same gate as the directory rows
+  ---
+  duration_ms: 0.397875
+  type: 'test'
+  ...
+# Subtest: MA2-02 · Session options carry the scope the server itself derives
+ok 17 - MA2-02 · Session options carry the scope the server itself derives
+  ---
+  duration_ms: 0.341625
+  type: 'test'
+  ...
+# Subtest: MA2-02 · option lists offer only bindings the server would accept
+ok 18 - MA2-02 · option lists offer only bindings the server would accept
+  ---
+  duration_ms: 0.387333
+  type: 'test'
+  ...
+# Subtest: MA2-02 · both new modules are admitted by the static allowlist
+ok 19 - MA2-02 · both new modules are admitted by the static allowlist
+  ---
+  duration_ms: 0.171625
+  type: 'test'
+  ...
+# Subtest: MA2-02 · the consumer surface adds no second run-start path
+ok 20 - MA2-02 · the consumer surface adds no second run-start path
+  ---
+  duration_ms: 0.577333
+  type: 'test'
+  ...
+# Subtest: Home Activity rejects malformed dates, totals, and requested periods
+ok 21 - Home Activity rejects malformed dates, totals, and requested periods
+  ---
+  duration_ms: 2.609709
+  type: 'test'
+  ...
+# Subtest: Home Attention rejects invalid identity, revision, and pagination packets
+ok 22 - Home Attention rejects invalid identity, revision, and pagination packets
+  ---
+  duration_ms: 1.509792
+  type: 'test'
+  ...
+# Subtest: Home Attention detail accepts only the display contract
+ok 23 - Home Attention detail accepts only the display contract
+  ---
+  duration_ms: 0.365167
+  type: 'test'
+  ...
+# Subtest: standalone Attention ignores an older project query after a newer open
+ok 24 - standalone Attention ignores an older project query after a newer open
+  ---
+  duration_ms: 20.419417
+  type: 'test'
+  ...
+# Subtest: standalone Attention ignores a stale detail after project selection changes
+ok 25 - standalone Attention ignores a stale detail after project selection changes
+  ---
+  duration_ms: 3.06825
+  type: 'test'
+  ...
+# Subtest: Attention registry opens the global agent explicitly without a model request
+ok 26 - Attention registry opens the global agent explicitly without a model request
+  ---
+  duration_ms: 1.618125
+  type: 'test'
+  ...
+# Subtest: Back to items clears a pending detail and rejects its late response
+ok 27 - Back to items clears a pending detail and rejects its late response
+  ---
+  duration_ms: 4.124584
+  type: 'test'
+  ...
+# Subtest: Review belongs only to needs_you across Home and Attention states
+ok 28 - Review belongs only to needs_you across Home and Attention states
+  ---
+  duration_ms: 1.86075
+  type: 'test'
+  ...
+# Subtest: text-only pending and failed Home rows render and retain their exact navigation scope
+ok 29 - text-only pending and failed Home rows render and retain their exact navigation scope
+  ---
+  duration_ms: 1.721708
+  type: 'test'
+  ...
+# Subtest: Home retains native targets for unchanged projections and uses current callbacks
+ok 30 - Home retains native targets for unchanged projections and uses current callbacks
+  ---
+  duration_ms: 1.276792
+  type: 'test'
+  ...
+# Subtest: Home immediately renders changed facts, removed targets, filters, and errors
+ok 31 - Home immediately renders changed facts, removed targets, filters, and errors
+  ---
+  duration_ms: 2.006125
+  type: 'test'
+  ...
+# Subtest: Home remounts after the shared stream was used by a chat
+ok 32 - Home remounts after the shared stream was used by a chat
+  ---
+  duration_ms: 1.128375
+  type: 'test'
+  ...
+# (node:53131) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+ok 33 - unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+  ---
+  duration_ms: 992.024625
+  type: 'test'
+  ...
+# Subtest: unassigned coordination scope does not merge all null-project conversations
+ok 34 - unassigned coordination scope does not merge all null-project conversations
+  ---
+  duration_ms: 49.413958
+  type: 'test'
+  ...
+# Subtest: schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+ok 35 - schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+  ---
+  duration_ms: 127.95275
+  type: 'test'
+  ...
+# lint-shapes: 1 处违反 WK-128
+# lint-shapes: 1 处违反 WK-128
+# lint-shapes: 1 处违反 WK-128
+# Subtest: 产品样式表通过形状 lint
+ok 36 - 产品样式表通过形状 lint
+  ---
+  duration_ms: 62.358291
+  type: 'test'
+  ...
+# Subtest: 满弧写成 50% 会被拒绝，并指回 --radius-pill
+ok 37 - 满弧写成 50% 会被拒绝，并指回 --radius-pill
+  ---
+  duration_ms: 32.956417
+  type: 'test'
+  ...
+# Subtest: 组件私有的游离圆角会被拒绝
+ok 38 - 组件私有的游离圆角会被拒绝
+  ---
+  duration_ms: 43.998833
+  type: 'test'
+  ...
+# Subtest: 不建立在形状角色上的表达式会被拒绝，派生式与多角声明通过
+ok 39 - 不建立在形状角色上的表达式会被拒绝，派生式与多角声明通过
+  ---
+  duration_ms: 67.896375
+  type: 'test'
+  ...
+# Subtest: 登记表内的形状按登记放行
+ok 40 - 登记表内的形状按登记放行
+  ---
+  duration_ms: 33.853416
+  type: 'test'
+  ...
+# (node:53134) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: work summary distinguishes empty, no-run, completed, failed and unknown
+ok 41 - work summary distinguishes empty, no-run, completed, failed and unknown
+  ---
+  duration_ms: 1385.31875
+  type: 'test'
+  ...
+# Subtest: live ask_user and permission entries disappear after answer or cancel, and stale posts remain 409
+not ok 42 - live ask_user and permission entries disappear after answer or cancel, and stale posts remain 409
+  ---
+  duration_ms: 512.717125
+  type: 'test'
+  location: '/private/tmp/courtwork-projectless-chat-20260913/app/tests/work-summary.test.mjs:124:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        'createdAt',
+        'kind',
+        'label',
+        'projectId',
+        'questionId',
+        'runId',
+    +   'scope',
+        'sessionId'
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'createdAt'
+    1: 'kind'
+    2: 'label'
+    3: 'projectId'
+    4: 'questionId'
+    5: 'runId'
+    6: 'sessionId'
+  actual:
+    0: 'createdAt'
+    1: 'kind'
+    2: 'label'
+    3: 'projectId'
+    4: 'questionId'
+    5: 'runId'
+    6: 'scope'
+    7: 'sessionId'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/work-summary.test.mjs:136:12)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: summary excludes stale question states and paginates pending/inspection by project with a union of lastSeq
+ok 43 - summary excludes stale question states and paginates pending/inspection by project with a union of lastSeq
+  ---
+  duration_ms: 108.426625
+  type: 'test'
+  ...
+# Subtest: restart hides the old live question, exposes its unknown Run, and a new Run gets a new ID
+ok 44 - restart hides the old live question, exposes its unknown Run, and a new Run gets a new ID
+  ---
+  duration_ms: 1391.242208
+  type: 'test'
+  ...
+# Subtest: summary keeps project sources separate and has deterministic tie ordering, offsets and bounds
+ok 45 - summary keeps project sources separate and has deterministic tie ordering, offsets and bounds
+  ---
+  duration_ms: 88.85825
+  type: 'test'
+  ...
+# Subtest: summary is allowlisted and read-only; unauthorized and failed reads are errors rather than empty results
+not ok 46 - summary is allowlisted and read-only; unauthorized and failed reads are errors rather than empty results
+  ---
+  duration_ms: 508.578958
+  type: 'test'
+  location: '/private/tmp/courtwork-projectless-chat-20260913/app/tests/work-summary.test.mjs:456:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Expected values to be strictly deep-equal:
+    + actual - expected
+    
+      [
+        'createdAt',
+        'latestRun',
+        'projectId',
+        'recordedActivityAt',
+    +   'scope',
+        'sessionId',
+        'title'
+      ]
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+    0: 'createdAt'
+    1: 'latestRun'
+    2: 'projectId'
+    3: 'recordedActivityAt'
+    4: 'sessionId'
+    5: 'title'
+  actual:
+    0: 'createdAt'
+    1: 'latestRun'
+    2: 'projectId'
+    3: 'recordedActivityAt'
+    4: 'scope'
+    5: 'sessionId'
+    6: 'title'
+  operator: 'deepStrictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///private/tmp/courtwork-projectless-chat-20260913/app/tests/work-summary.test.mjs:473:14)
+    process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+1..46
+# tests 46
+# suites 0
+# pass 44
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4970.496291

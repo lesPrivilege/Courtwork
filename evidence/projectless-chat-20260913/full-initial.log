@@ -1,0 +1,234 @@
+
+> se-agent-v5-runtime@0.1.0 pretest
+> node scripts/check-historical-fixtures.mjs
+
+Historical test inputs verified: 45 commit/path/hash checks.
+
+> se-agent-v5-runtime@0.1.0 test
+> node --test --test-concurrency=4 tests/*.test.mjs ../tests/*.test.mjs
+
+TAP version 13
+# Subtest: 颜色字面量只出现在 tier:S 块内
+ok 1 - 颜色字面量只出现在 tier:S 块内
+  ---
+  duration_ms: 104.965083
+  type: 'test'
+  ...
+# Subtest: 两 skin × 两宗的角色对比度不低于门槛
+ok 2 - 两 skin × 两宗的角色对比度不低于门槛
+  ---
+  duration_ms: 197.42375
+  type: 'test'
+  ...
+# Subtest: renderer is a neutral projection surface and dispatches typed actions without actor fields
+ok 3 - renderer is a neutral projection surface and dispatches typed actions without actor fields
+  ---
+  duration_ms: 1.194541
+  type: 'test'
+  ...
+# Subtest: catalog exposes development evidence-memo and business-free probe factories
+ok 4 - catalog exposes development evidence-memo and business-free probe factories
+  ---
+  duration_ms: 1.045667
+  type: 'test'
+  ...
+# Subtest: manifest is machine-marked development and advertises generic binding fields
+ok 5 - manifest is machine-marked development and advertises generic binding fields
+  ---
+  duration_ms: 0.189708
+  type: 'test'
+  ...
+# Subtest: legacy transport import resolves the single shared Core owner
+ok 6 - legacy transport import resolves the single shared Core owner
+  ---
+  duration_ms: 0.530083
+  type: 'test'
+  ...
+# Subtest: createBinding owns Matter creation and projection exposes source, evidence, candidate, artifact and draft
+ok 7 - createBinding owns Matter creation and projection exposes source, evidence, candidate, artifact and draft
+  ---
+  duration_ms: 327.04775
+  type: 'test'
+  ...
+# Subtest: begin exposes only namespaced source/propose tools and Core rejects late candidate calls after close
+ok 8 - begin exposes only namespaced source/propose tools and Core rejects late candidate calls after close
+  ---
+  duration_ms: 143.4905
+  type: 'test'
+  ...
+# Subtest: humanAction accepts only host-derived local-user and uses the same Review route for formal Artifact
+ok 9 - humanAction accepts only host-derived local-user and uses the same Review route for formal Artifact
+  ---
+  duration_ms: 138.091125
+  type: 'test'
+  ...
+# Subtest: close gates admission before cleanup and finish maps cancellation without acceptance
+ok 10 - close gates admission before cleanup and finish maps cancellation without acceptance
+  ---
+  duration_ms: 311.80325
+  type: 'test'
+  ...
+# Subtest: same data directory admits one POSIX flock owner and keeps the inode after release
+ok 11 - same data directory admits one POSIX flock owner and keeps the inode after release
+  ---
+  duration_ms: 402.753042
+  type: 'test'
+  ...
+# Subtest: unexpected holder death invokes onLost and the next host can safely reacquire
+ok 12 - unexpected holder death invokes onLost and the next host can safely reacquire
+  ---
+  duration_ms: 135.659292
+  type: 'test'
+  ...
+# Subtest: owner SIGKILL closes the parent pipe and does not require deleting the lock file
+ok 13 - owner SIGKILL closes the parent pipe and does not require deleting the lock file
+  ---
+  duration_ms: 457.833417
+  type: 'test'
+  ...
+# (node:12742) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: answer admission race: ask_user queued behind cancel returns 409
+ok 14 - answer admission race: ask_user queued behind cancel returns 409
+  ---
+  duration_ms: 649.279917
+  type: 'test'
+  ...
+# Subtest: answer admission race: permission queued behind cancel returns 409
+ok 15 - answer admission race: permission queued behind cancel returns 409
+  ---
+  duration_ms: 487.441542
+  type: 'test'
+  ...
+# Subtest: normal ask_user answer still resolves and completes the run
+ok 16 - normal ask_user answer still resolves and completes the run
+  ---
+  duration_ms: 603.440959
+  type: 'test'
+  ...
+# Subtest: double permission answer records one decision and rejects the other
+ok 17 - double permission answer records one decision and rejects the other
+  ---
+  duration_ms: 886.383
+  type: 'test'
+  ...
+# Subtest: the limited scanner recognizes imports while ignoring comments and strings
+ok 18 - the limited scanner recognizes imports while ignoring comments and strings
+  ---
+  duration_ms: 1.341
+  type: 'test'
+  ...
+# Subtest: legal and forbidden synthetic edges exercise all approved boundaries
+ok 19 - legal and forbidden synthetic edges exercise all approved boundaries
+  ---
+  duration_ms: 1.901208
+  type: 'test'
+  ...
+# Subtest: the current Core, runtime, renderer, and composition-root graph obeys ownership
+ok 20 - the current Core, runtime, renderer, and composition-root graph obeys ownership
+  ---
+  duration_ms: 76.196458
+  type: 'test'
+  ...
+# (node:12801) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: AM-C final wire golden and no-op are stable after temporary path canonicalization
+ok 21 - AM-C final wire golden and no-op are stable after temporary path canonicalization
+  ---
+  duration_ms: 631.979833
+  type: 'test'
+  ...
+# Subtest: AM-C separates request shape, old prefix, and semantic tool diffs
+ok 22 - AM-C separates request shape, old prefix, and semantic tool diffs
+  ---
+  duration_ms: 494.968084
+  type: 'test'
+  ...
+# Subtest: AM-C records description, schema, and permission changes as expected diffs
+ok 23 - AM-C records description, schema, and permission changes as expected diffs
+  ---
+  duration_ms: 1625.229375
+  type: 'test'
+  ...
+# Subtest: history refs keep exact UTF-8 blobs reachable through Git GC; another session cannot read them
+ok 24 - history refs keep exact UTF-8 blobs reachable through Git GC; another session cannot read them
+  ---
+  duration_ms: 800.759125
+  type: 'test'
+  ...
+# Subtest: history cancellation waits for the Git process to exit and the next save repairs interrupted init
+ok 25 - history cancellation waits for the Git process to exit and the next save repairs interrupted init
+  ---
+  duration_ms: 1625.291834
+  type: 'test'
+  ...
+# Subtest: existing non-blob history object is an integrity failure
+ok 26 - existing non-blob history object is an integrity failure
+  ---
+  duration_ms: 358.309959
+  type: 'test'
+  ...
+# (node:12877) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: R1-HIST-1: v1 and v2 remain readable after current-file deletion
+ok 27 - R1-HIST-1: v1 and v2 remain readable after current-file deletion
+  ---
+  duration_ms: 799.2895
+  type: 'test'
+  ...
+# Subtest: R1-HIST-2: cross-session, wrong-record, and unrecorded lookups are 404 and reads are pure
+ok 28 - R1-HIST-2: cross-session, wrong-record, and unrecorded lookups are 404 and reads are pure
+  ---
+  duration_ms: 879.0605
+  type: 'test'
+  ...
+# Subtest: R1-HIST-3: historical text truncates on a UTF-8 boundary with full bytes/hash
+ok 29 - R1-HIST-3: historical text truncates on a UTF-8 boundary with full bytes/hash
+  ---
+  duration_ms: 823.387708
+  type: 'test'
+  ...
+# Subtest: R1-HIST-4: a recorded legacy artifact without history returns 410 history_unavailable
+ok 30 - R1-HIST-4: a recorded legacy artifact without history returns 410 history_unavailable
+  ---
+  duration_ms: 251.32325
+  type: 'test'
+  ...
+# Subtest: R1-HIST-5: object/metadata byte mismatch returns 500 artifact_integrity_failed
+ok 31 - R1-HIST-5: object/metadata byte mismatch returns 500 artifact_integrity_failed
+  ---
+  duration_ms: 546.265125
+  type: 'test'
+  ...
+# Subtest: R1-HIST-6: SIGKILL after history and before rename exposes neither file nor artifact
+ok 32 - R1-HIST-6: SIGKILL after history and before rename exposes neither file nor artifact
+  ---
+  duration_ms: 1551.788333
+  type: 'test'
+  ...
+# Subtest: R1-HIST-7: SIGKILL after rename and before record leaves current file unrecorded
+ok 33 - R1-HIST-7: SIGKILL after rename and before record leaves current file unrecorded
+  ---
+  duration_ms: 1759.738167
+  type: 'test'
+  ...
+# Subtest: R1-HIST-8: SIGKILL after record preserves historical bytes across restart
+ok 34 - R1-HIST-8: SIGKILL after record preserves historical bytes across restart
+  ---
+  duration_ms: 1511.141458
+  type: 'test'
+  ...
+# (node:14316) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: only native text updates project as assistant deltas
+ok 35 - only native text updates project as assistant deltas
+  ---
+  duration_ms: 2.149458
+  type: 'test'
+  ...
+# Subtest: stream filtering retains final assistant messages and request telemetry
+ok 36 - stream filtering retains final assistant messages and request telemetry
+  ---
+  duration_ms: 627.206792
+  type: 'test'
+  ...

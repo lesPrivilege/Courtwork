@@ -1,0 +1,20 @@
+{
+  "message": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#recent-list').getByRole('button', { name: 'Retry', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"text-button\">Retry</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n",
+  "stack": "locator.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#recent-list').getByRole('button', { name: 'Retry', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"text-button\">Retry</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n    at /private/tmp/courtwork-projectless-chat-20260913/evidence/projectless-chat-20260913/browser-recovery.mjs:72:124",
+  "errors": [],
+  "checks": [
+    {
+      "name": "Lost creation receipt recovers exact Session ID on refresh with draft retained and no duplicate POST",
+      "pass": true
+    },
+    {
+      "name": "Lost upload response retains exact command and revision across refresh; no duplicate Session or retained revision",
+      "pass": true
+    },
+    {
+      "name": "Failed Recent read keeps the last list and unsent draft with an explicit retry",
+      "pass": true
+    }
+  ],
+  "body": "CourtWork\nHome\nNew chat\nChat\nAttention\nSpark\nExpert\nPlanned\nFind a project or chat\nPROJECTS\n1\nNew project\nSynthetic workspace\nNew chat in Synthetic workspace\nWorkspace chat with a staged attachment\nRECENT\nRecover retained synthetic attachment\nRecover an uncertain synthetic creation\nWorkspace chat with a staged attachment\nStandalone chat about a synthetic note\nRefresh workspace\nSettings\nToggle navigation\nAttention items\nSynthetic workspace\n\n0 items · all states\n\nNo attention items recorded in this project.\n\nActivity\n28d\n84d\n\n5\nrecorded runs · 84 days · all retained work\n\n2026-06-22 — 2026-09-13\n\nUTC · Retained runs only. Deleted-chat history is unknown.\n\nManage connections\nHide modules\nOrchestrate your agents. Govern your work.\nMessage\nAttachments\nChoose workspace\nLocal test · Provider default\nSend\nAsk before editing\nAllow edits\nRead only\nYour work\nWaiting for you\n0\nOpen questions and approval requests, all retained work, right now.\nContinue\n5\nRetained chats, all retained work, right now.\nNeeds a look\n0\nRuns recorded failed or unknown, all retained work, right now.\nContinue\n5\nRecover retained synthetic attachment\nNo workspace\nCompleted\nRecover an uncertain synthetic creation\nNo workspace\nCompleted\nAttention\nGlobal Attention\nCompleted\nWorkspace chat with a staged attachment\nSynthetic workspace\nCompleted\nStandalone chat about a synthetic note\nNo workspace\nCompleted"
+}

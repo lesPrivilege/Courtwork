@@ -1,0 +1,118 @@
+TAP version 13
+# (node:53941) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: global Attention has replayable identity, shared configuration and a real governed Run
+ok 1 - global Attention has replayable identity, shared configuration and a real governed Run
+  ---
+  duration_ms: 481.539125
+  type: 'test'
+  ...
+# Subtest: progressive memory lists metadata, excludes drafts/tools and binds exact message text
+ok 2 - progressive memory lists metadata, excludes drafts/tools and binds exact message text
+  ---
+  duration_ms: 151.325
+  type: 'test'
+  ...
+# Subtest: schema5 with retained records migrates exactly and global/project invariants reject corruption
+ok 3 - schema5 with retained records migrates exactly and global/project invariants reject corruption
+  ---
+  duration_ms: 151.093084
+  type: 'test'
+  ...
+# Subtest: conversation retry preserves creation identity and exact Run command after a lost receipt
+ok 4 - conversation retry preserves creation identity and exact Run command after a lost receipt
+  ---
+  duration_ms: 0.616833
+  type: 'test'
+  ...
+# Subtest: closing during send keeps its receipt and restores the finished conversation on reopen
+ok 5 - closing during send keeps its receipt and restores the finished conversation on reopen
+  ---
+  duration_ms: 0.164209
+  type: 'test'
+  ...
+# Subtest: a delayed history choice cannot replace the newer conversation or draft
+ok 6 - a delayed history choice cannot replace the newer conversation or draft
+  ---
+  duration_ms: 0.144833
+  type: 'test'
+  ...
+# Subtest: conversation rename persists metadata without changing history, scope or draft
+ok 7 - conversation rename persists metadata without changing history, scope or draft
+  ---
+  duration_ms: 68.79725
+  type: 'test'
+  ...
+# (node:53942) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T-IDEM-1: replaying the same commandId with the same input returns the same run
+ok 8 - T-IDEM-1: replaying the same commandId with the same input returns the same run
+  ---
+  duration_ms: 473.790833
+  type: 'test'
+  ...
+# Subtest: T-IDEM-2: replaying the same commandId with a different input is 409 command_conflict
+ok 9 - T-IDEM-2: replaying the same commandId with a different input is 409 command_conflict
+  ---
+  duration_ms: 101.242417
+  type: 'test'
+  ...
+# Subtest: T-IDEM-3: two concurrent creates with the same commandId produce exactly one run
+ok 10 - T-IDEM-3: two concurrent creates with the same commandId produce exactly one run
+  ---
+  duration_ms: 76.964291
+  type: 'test'
+  ...
+# Subtest: T-IDEM-4: a lost response then a resend returns the same run and executes once
+ok 11 - T-IDEM-4: a lost response then a resend returns the same run and executes once
+  ---
+  duration_ms: 496.331166
+  type: 'test'
+  ...
+# Subtest: T-IDEM-6: the same commandId in another session is a different command
+ok 12 - T-IDEM-6: the same commandId in another session is a different command
+  ---
+  duration_ms: 496.968416
+  type: 'test'
+  ...
+# Subtest: C4: unloaded extension preserves old receipts but still blocks new work
+ok 13 - C4: unloaded extension preserves old receipts but still blocks new work
+  ---
+  duration_ms: 518.312833
+  type: 'test'
+  ...
+# (node:53943) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+ok 14 - unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID
+  ---
+  duration_ms: 564.498167
+  type: 'test'
+  ...
+# Subtest: unassigned coordination scope does not merge all null-project conversations
+ok 15 - unassigned coordination scope does not merge all null-project conversations
+  ---
+  duration_ms: 49.349834
+  type: 'test'
+  ...
+# Subtest: schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+ok 16 - schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS
+  ---
+  duration_ms: 150.045042
+  type: 'test'
+  ...
+# Subtest: summary labels use explicit Session scope, never null project as Attention authority
+ok 17 - summary labels use explicit Session scope, never null project as Attention authority
+  ---
+  duration_ms: 0.366167
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3228.467125

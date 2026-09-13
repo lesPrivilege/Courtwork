@@ -1,0 +1,91 @@
+{
+  "checks": [
+    {
+      "name": "Projects and Recent are peers; Projects first",
+      "pass": true,
+      "sameParent": true,
+      "projectAbove": true,
+      "fonts": [
+        "500 10.5px / 15.75px ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif",
+        "500 10.5px / 15.75px ui-sans-serif, system-ui, -apple-system, \"system-ui\", \"Segoe UI\", sans-serif"
+      ]
+    },
+    {
+      "name": "First send creates an unassigned chat without naming or workspace selection",
+      "pass": true
+    },
+    {
+      "name": "Adding a draft attachment does not create or bind a chat",
+      "pass": true
+    },
+    {
+      "name": "Workspace selection after adding files preserves draft and binds retained material to the selected chat",
+      "pass": true
+    },
+    {
+      "name": "Refresh restores assigned Session ID",
+      "pass": true
+    },
+    {
+      "name": "Refresh restores unassigned Session ID",
+      "pass": true
+    },
+    {
+      "name": "Workspace Escape returns focus; new chat does not inherit the active project",
+      "pass": true
+    },
+    {
+      "name": "Attention attachment is retained globally without a workspace chooser or ordinary Recent entry",
+      "pass": true
+    },
+    {
+      "name": "Home and chooser fit light 1440",
+      "pass": true
+    },
+    {
+      "name": "Home and chooser fit dark 1440",
+      "pass": true
+    },
+    {
+      "name": "Home and chooser fit light 1280",
+      "pass": true
+    },
+    {
+      "name": "Home and chooser fit dark 1280",
+      "pass": true
+    },
+    {
+      "name": "Home and chooser fit light 390",
+      "pass": true
+    },
+    {
+      "name": "Home and chooser fit dark 390",
+      "pass": true
+    },
+    {
+      "name": "No uncaught browser errors",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "sessions": [
+    {
+      "id": "0a84b040-efd0-4726-9cf7-7a2c0db58a1a",
+      "scope": "global",
+      "projectId": null,
+      "title": "Attention"
+    },
+    {
+      "id": "c79096bc-023e-4372-93a1-13915e3821c9",
+      "scope": "project",
+      "projectId": "6a678eda-df01-43e9-b290-473ac0b6cb70",
+      "title": "Workspace chat with a staged attachment"
+    },
+    {
+      "id": "24a0b0ca-1f2a-45da-b0f1-0bae1bbc400e",
+      "scope": "unassigned",
+      "projectId": null,
+      "title": "Standalone chat about a synthetic note"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+import {startServer} from '../../app/server/index.mjs';
+import {FAKE_CREDENTIAL_KEY} from '../../app/runtime/pi-session-runtime.mjs';
+import {mkdtemp} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+const dataDir=process.env.CW_BROWSER_DATA || await mkdtemp(path.join(tmpdir(),'cw-projectless-browser-'));
+const runtime=await startServer({dataDir,port:Number(process.env.CW_BROWSER_PORT || 54319),logger:()=>{}});
+await fetch(`${runtime.url}/api/v5/provider-credential`,{method:'PUT',headers:{'content-type':'application/json','x-work-token':runtime.token},body:JSON.stringify({connectionId:'catalog-fake-openai-loopback',apiKey:FAKE_CREDENTIAL_KEY})});
+console.log(JSON.stringify({url:runtime.url,dataDir}));
+process.on('SIGTERM',async()=>{await runtime.close();process.exit();});
