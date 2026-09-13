@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-13 · 可选 workspace Chat 与 Recent 已实现
+
+按用户授权完成 BE-23/DWB-05：[实现契约](../app/docs/projectless-chat.md)、[验证证据](../evidence/projectless-chat-20260913/README.md)。侧栏 Projects 与 Recent 同级且 Projects 在上；Recent 展示全部普通会话，包括未分配 Chat。首次发送无需先选 Project 或命名，左下附件与 workspace 独立；Attention 仅新增附件。刷新按 Session ID 恢复，创建/上传失去回执沿原身份重试；Runtime schema14 的 v13 字节备份、旧宿主拒绝与独立恢复已验证。
+
+源码 b81403c 作者全量 964/964、smoke、链接及四项 UI lint 通过；22 项合成浏览器检查覆盖明暗窄屏、键盘、强制配色、丢回执与草稿恢复。证据提交 4fd29fd 已快进本地 main，其他 writer 的 62 个原有文件逐字节保留；本记录仅暂存自己的新增段落。原生 200% 未实测（720 CSSpx 等效宽度已测），未新增真实 provider Run；本片不替代非作者接受，不关闭既有 Release 门，未 push/tag/部署。此节替代下方历史记录的“尚未生产接线”状态。
+
 ## 2026-09-13 · Release复核修复与真实模型候选
 
 [24bd954审查轮](release/review-intake-2026-09-13/round-24bd954/README.md)及ZIP/附件/会话与截图已固定哈希，Luna探索/非作者审阅、Astra裁决及实现。历史fixture完整输入与临时目录修复，支持集合及安装/媒体源码身份解耦；真实GUI暴露并修复reasoningEffort进入严格扩展描述符的初始化失败、非正文流更新误存为正文事件。最终9eece81组合Node22全量957/957、smoke/links通过，Node24定向10/10与Pages36/36；[证据与源码等价范围](../evidence/release-readiness-20260913/README.md)保留早期942结果、失败和中止记录。
