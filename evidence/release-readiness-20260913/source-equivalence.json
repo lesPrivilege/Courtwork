@@ -1,0 +1,22 @@
+{
+  "real_gui_source_sha": "cb5ca68314d53fa5b1c8a40ad18b4bfad40cf71d",
+  "integrated_source_sha": "9eece81f1b90729388d4fd4ffec162264d2eaa4c",
+  "unchangedPaths": [
+    "app/server",
+    "app/extensions",
+    "app/domains",
+    "app/web/app.mjs",
+    "app/web/workspace-view.mjs",
+    "app/web/work-review-summary.mjs"
+  ],
+  "changedAppPaths": [
+    "app/runtime/pi-session-runtime.mjs",
+    "app/tests/assistant-stream-projection.test.mjs",
+    "app/tests/attention-triage-recovery.test.mjs",
+    "app/tests/attention-ui02-concurrency.test.mjs",
+    "app/tests/attention-ui02.test.mjs",
+    "app/web/attention-view.mjs",
+    "app/web/styles.css"
+  ],
+  "scope": "NDA source/domain/service and main Chat path unchanged; adapter text event projection intentionally changed, latest Attention UI separately integrated. Does not claim a real-provider rerun of final adapter."
+}

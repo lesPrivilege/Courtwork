@@ -1,0 +1,78 @@
+TAP version 13
+# (node:76098) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: only native text updates project as assistant deltas
+ok 1 - only native text updates project as assistant deltas
+  ---
+  duration_ms: 0.89275
+  type: 'test'
+  ...
+# Subtest: stream filtering retains final assistant messages and request telemetry
+ok 2 - stream filtering retains final assistant messages and request telemetry
+  ---
+  duration_ms: 672.594
+  type: 'test'
+  ...
+# (node:76099) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Inbound NDA reaches loopback with declared reasoning while Work metadata stays fixed
+ok 3 - Inbound NDA reaches loopback with declared reasoning while Work metadata stays fixed
+  ---
+  duration_ms: 662.468625
+  type: 'test'
+  ...
+# (node:76100) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T-EXT-1: se_read_source succeeds through service.createRun on AgentSession
+ok 4 - T-EXT-1: se_read_source succeeds through service.createRun on AgentSession
+  ---
+  duration_ms: 659.07175
+  type: 'test'
+  ...
+# Subtest: T-EXT-2: se_submit_candidate goes through once and Core rejects the late call
+ok 5 - T-EXT-2: se_submit_candidate goes through once and Core rejects the late call
+  ---
+  duration_ms: 330.942125
+  type: 'test'
+  ...
+# (node:76101) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Pro R-01: before-write never reports completed or discards settlement error
+ok 6 - Pro R-01: before-write never reports completed or discards settlement error
+  ---
+  duration_ms: 987.193417
+  type: 'test'
+  ...
+# Subtest: Pro R-01: after-write-ack-loss never reports completed or discards settlement error
+ok 7 - Pro R-01: after-write-ack-loss never reports completed or discards settlement error
+  ---
+  duration_ms: 1505.3025
+  type: 'test'
+  ...
+# Subtest: Pro R-01: cancel-and-finish-failure never reports completed or discards settlement error
+ok 8 - Pro R-01: cancel-and-finish-failure never reports completed or discards settlement error
+  ---
+  duration_ms: 685.123208
+  type: 'test'
+  ...
+# Subtest: Pro R-02: ordinary first instruction discovers scoped source refs only from host context
+ok 9 - Pro R-02: ordinary first instruction discovers scoped source refs only from host context
+  ---
+  duration_ms: 308.251542
+  type: 'test'
+  ...
+# Subtest: Pro R-04: intermediate tool updates stay nonterminal until end
+ok 10 - Pro R-04: intermediate tool updates stay nonterminal until end
+  ---
+  duration_ms: 1.602291
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4695.782917
