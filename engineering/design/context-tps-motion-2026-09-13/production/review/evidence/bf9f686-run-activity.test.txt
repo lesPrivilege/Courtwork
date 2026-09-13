@@ -1,0 +1,13 @@
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (0.95825ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.268625ms)
+✔ Attention can subtract measurement actions without removing the status fact (1.237917ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.241833ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (14.26375ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 197.231125

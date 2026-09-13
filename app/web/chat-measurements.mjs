@@ -44,7 +44,7 @@ export function renderChatMeasurementBody(kind, { events = [], run } = {}) {
 
 export function createChatMeasurements({ host = document.body, onOpenRun } = {}) {
   let snapshot = {}, anchor = null, kind = 'context', cleanup = null, identity = '';
-  const popover = el('section', { className: 'chat-measurement-popover', attrs: { popover: 'auto', 'aria-label': 'Request context' } });
+  const popover = el('section', { className: 'chat-measurement-popover', attrs: { popover: 'auto', role: 'dialog', 'aria-label': 'Request context' } });
   function close({ restore = false } = {}) {
     if (popover.matches(':popover-open')) popover.hidePopover();
     cleanup?.(); cleanup = null;
@@ -85,7 +85,7 @@ export function createChatMeasurements({ host = document.body, onOpenRun } = {})
     if (event.key === 'Escape' && !event.isComposing) { event.preventDefault(); event.stopPropagation(); popover.classList.add('is-keyboard'); close({ restore: true }); }
   });
   const context = el('button', { className: 'context-capacity-button', attrs: { type: 'button',
-    'aria-label': 'Context details, capacity usage unknown', 'data-tooltip': 'Context details', 'aria-haspopup': 'true', 'aria-expanded': 'false' } }, contextRing());
+    'aria-label': 'Context details, capacity usage unknown', 'data-tooltip': 'Context details', 'aria-haspopup': 'dialog', 'aria-expanded': 'false' } }, contextRing());
   context.addEventListener('click', event => open('context', context, event.detail === 0));
   const activity = createRunActivity({ onInspect: (target, event) => open('throughput', target, event.detail === 0) });
   function update(facts) {

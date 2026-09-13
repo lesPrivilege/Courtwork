@@ -1,0 +1,45 @@
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (0.978541ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.217167ms)
+✔ Attention can subtract measurement actions without removing the status fact (1.5755ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.288417ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (14.36675ms)
+✔ available summary stays visible at zero and opens the existing Work review (4.145ms)
+✔ candidate, stale and read-only facts remain separate without an impossible ready count (0.648917ms)
+✔ pending count stays a single compact fact when all or only some candidates are reviewable (1.024375ms)
+✔ refresh clears old facts while loading and on failure (0.871375ms)
+✔ late and mismatched responses cannot replace the current scope (1.794375ms)
+✔ a view outside the current scope does not start a request (0.395958ms)
+node:internal/modules/package_json_reader:301
+  throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+        ^
+
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@earendil-works/pi-ai' imported from /private/tmp/courtwork-review-de55674.sN2I1M/app/runtime/fake-provider.mjs
+    at Object.getPackageJSONURL (node:internal/modules/package_json_reader:301:9)
+    at packageResolve (node:internal/modules/esm/resolve:764:81)
+    at moduleResolve (node:internal/modules/esm/resolve:855:18)
+    at defaultResolve (node:internal/modules/esm/resolve:988:11)
+    at #cachedDefaultResolve (node:internal/modules/esm/loader:697:20)
+    at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:714:38)
+    at ModuleLoader.resolveSync (node:internal/modules/esm/loader:746:52)
+    at #resolve (node:internal/modules/esm/loader:679:17)
+    at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:599:35)
+    at ModuleJob.syncLink (node:internal/modules/esm/module_job:162:33) {
+  code: 'ERR_MODULE_NOT_FOUND'
+}
+
+Node.js v25.9.0
+✖ app/tests/work-review-summary.test.mjs (180.719167ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 11
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 195.587792
+
+✖ failing tests:
+
+test at app/tests/work-review-summary.test.mjs:1:1
+✖ app/tests/work-review-summary.test.mjs (180.719167ms)
+  'test failed'

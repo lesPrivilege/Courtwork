@@ -1,0 +1,39 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (607.23275ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (161.984416ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (135.481708ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.672667ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.16325ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.160833ms)
+✔ conversation rename persists metadata without changing history, scope or draft (70.304375ms)
+✔ cumulative assistant deltas and their final stay one non-pending row (0.978167ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.788583ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.121041ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.154166ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.168959ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.078375ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (0.084625ms)
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (1.064917ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.120917ms)
+✔ Attention can subtract measurement actions without removing the status fact (0.95175ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.179583ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (14.362416ms)
+✔ thread projection scopes runs and resolves exact permission request (1.746417ms)
+✔ tool calls with identical IDs in different runs remain separate and require live admission (0.145167ms)
+✔ permission display distinguishes remote actions from writes using only the recorded binding (0.260334ms)
+✔ one tool state vocabulary serves both chat presentations (0.0855ms)
+✔ the long-message preview reads as words and never replaces the original (0.587083ms)
+✔ available summary stays visible at zero and opens the existing Work review (3.630083ms)
+✔ candidate, stale and read-only facts remain separate without an impossible ready count (0.7495ms)
+✔ pending count stays a single compact fact when all or only some candidates are reviewable (1.083167ms)
+✔ refresh clears old facts while loading and on failure (1.117291ms)
+✔ late and mismatched responses cannot replace the current scope (1.043333ms)
+✔ a view outside the current scope does not start a request (0.319542ms)
+✔ summary reread returns detached keyboard focus without stealing a later user focus (0.902084ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1981.018833

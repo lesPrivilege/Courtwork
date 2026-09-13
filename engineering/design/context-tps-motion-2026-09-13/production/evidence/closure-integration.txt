@@ -1,0 +1,25 @@
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (1.166083ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.092084ms)
+✔ Attention can subtract measurement actions without removing the status fact (1.198875ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.183208ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (13.921083ms)
+✔ copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics (24.3375ms)
+✔ raw consumer guard rejects new, duplicated and stale literal consumers (0.988ms)
+✔ actual raw consumers and Pages cross-map remain registered (20.2045ms)
+✔ available summary stays visible at zero and opens the existing Work review (3.457542ms)
+✔ candidate, stale and read-only facts remain separate without an impossible ready count (0.6135ms)
+✔ pending count stays a single compact fact when all or only some candidates are reviewable (0.765416ms)
+✔ refresh clears old facts while loading and on failure (1.446625ms)
+✔ late and mismatched responses cannot replace the current scope (0.703042ms)
+✔ a view outside the current scope does not start a request (0.33225ms)
+✔ Core review summary follows pending, decision, new Session and lifecycle without returning bodies (325.033666ms)
+✔ Core review summary keeps stale pending and domain review separate from authority to accept (783.467417ms)
+✔ Core review summary does not turn missing Core projections or failures into zero pending (208.796042ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2494.588

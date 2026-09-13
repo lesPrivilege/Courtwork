@@ -1,0 +1,26 @@
+# Independent review: context, activity, and Work review
+
+**Disposition:** bounded accept for the reviewed paths; all four P2 findings below are fixed in the delivered source. This is not overall product acceptance or deployment approval.
+
+**Scope:** the Context ring and event-driven Run activity from `9a5694c` and `bf9f686` (base `44953e74`), expanded to the Work review card changes through `de55674` and the delivered 12-file update. The final source set is identified by [`closure-delivered-source-sha256.txt`](../evidence/closure-delivered-source-sha256.txt). I reviewed lifecycle/state mapping, accessible semantics, focus retention, message-time projection, and the scoped tests.
+
+The nearest implemented precedents are `context.capacity` and `request.activity` in the frontend contract's precedent index. Affected UI grammar is the composer accessory/disclosure, the inline activity/status row, message-footer metadata, and the Work review summary/action cluster.
+
+## Findings and disposition
+
+1. **P2 — hidden-tab activity clock jumped on resume (fixed).** The candidate used wall-clock time across `document.hidden`, so a short visible run could resume several phrase rotations ahead. The delivered `createRunActivity` pauses elapsed time when motion stops and resumes from the retained phase in [`app/web/run-activity.mjs:85`](../../../../../app/web/run-activity.mjs#L85). The regression test covers visible time, a hidden interval, and the next phrase boundary in [`app/tests/run-activity.test.mjs:32`](../../../../../app/tests/run-activity.test.mjs#L32). Before/after deterministic outputs are in [`bf9f686-hidden-clock-repro.txt`](evidence/bf9f686-hidden-clock-repro.txt) and [`working-tree-hidden-clock-repro.txt`](evidence/working-tree-hidden-clock-repro.txt).
+
+2. **P2 — popup trigger and popup semantics disagreed (fixed).** The candidate used `aria-haspopup="true"` for a popup without a dialog role/name. The delivered trigger declares `dialog`, and the popover exposes a named `dialog` in [`app/web/chat-measurements.mjs:47`](../../../../../app/web/chat-measurements.mjs#L47) and [`app/web/chat-measurements.mjs:87`](../../../../../app/web/chat-measurements.mjs#L87). The [WAI-ARIA `aria-haspopup` definition](https://www.w3.org/TR/wai-aria/#aria-haspopup) maps `true` to `menu`; current DOM snapshots are in [`bf9f686-popup-semantics.txt`](evidence/bf9f686-popup-semantics.txt) and [`working-tree-popup-semantics.txt`](evidence/working-tree-popup-semantics.txt).
+
+3. **P2 — streaming and summary reads detached the focused Work review action (fixed).** Chat now preserves the current-scope summary node across stream updates in [`app/web/app.mjs:2619`](../../../../../app/web/app.mjs#L2619). When a refresh replaces its controls, the summary restores focus after success or failure only if focus fell to `body`, avoiding focus theft when the user moved elsewhere; see [`app/web/work-review-summary.mjs:79`](../../../../../app/web/work-review-summary.mjs#L79) and the focused regression in [`app/tests/work-review-summary-view.test.mjs`](../../../../../app/tests/work-review-summary-view.test.mjs). The streaming and terminal browser records are Astra-authored evidence, not an independent browser run: [`review-focus-streaming.json`](../evidence/review-focus-streaming.json), [`review-focus-terminal.json`](../evidence/review-focus-terminal.json).
+
+4. **P2 — `aria-label` on native `<time>` did not provide the intended Run-start context (fixed).** W3C [ARIA in HTML](https://www.w3.org/TR/html-aria/#el-time) marks naming on `<time>` prohibited, and the [APG role guidance](https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/#accessible-name-guidance-by-role) says naming is unsupported. The delivered helper keeps the full “Run started …” text in `.sr-only`, marks the short clock display `aria-hidden`, retains machine-readable `datetime`, and omits invalid/missing values in [`app/web/user-message.mjs:46`](../../../../../app/web/user-message.mjs#L46). The focused markup/projection assertions are in [`app/tests/output-message-boundary.test.mjs:147`](../../../../../app/tests/output-message-boundary.test.mjs#L147).
+
+## Verification and limits
+
+- Independent post-fix targeted run: **20/20 passed**, including the final time-markup regression; see [`final-focused-tests.txt`](evidence/final-focused-tests.txt).
+- The isolated closure snapshot reports **941/941 passed** in [`closure-final-full-tests.txt`](../evidence/closure-final-full-tests.txt). That run predates the final time-markup adjustment; the final adjustment is covered by the 20-test run above. The delivered source manifest records that final adjustment separately.
+- Interaction/material/color lints, contrast report, docs-link check, and `git diff --check` passed on the prior closure tree. The final change only altered timestamp markup and its test.
+- I did not run an independent browser or screen reader. Browser evidence referenced above is author-supplied. A standalone server-side Work review test in the clean `de55674` worktree could not load because `@earendil-works/pi-ai` was absent; no dependency was installed.
+
+No unresolved finding remains in this bounded review. Other CourtWork gates and final product acceptance remain outside this disposition.

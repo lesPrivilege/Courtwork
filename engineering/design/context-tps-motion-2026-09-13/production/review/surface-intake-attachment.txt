@@ -1,0 +1,237 @@
+可以。Pokecut 把选型空间又打开了一层：前一轮主要是在研究 **Inbox / Triage / List–Detail**，而它更接近一种 **Operational Cockpit / Overview Dashboard**。这两类其实不冲突，反而可以分别承担 Courtwork 的不同页面。
+
+我用 Exa 又沿 6 条线看了 71 个候选，并直接读取了 Pokecut、Limns、bunqueue、Inngest、ObjectOS、Sphinx、dayGLANCE 等实现。比较值得留下的不是某一套完整 UI，而是下面几种成熟的 **presentation archetype**。
+
+| 原型 | 高价值参考 | 核心 grammar | Courtwork 最适合消费 |
+|---|---|---|---|
+| **Cockpit** | [Pokecut](https://pokecut.vercel.app/)、[Limns](https://limns-admin.vercel.app/) | 少量 KPI + trend + exception queue + health | **Home / Overview** |
+| **Attention Workbench** | [ObjectOS Approvals](https://www.objectos.ai/en/approvals/)、Sentry Inbox、Linear | queue + selected detail + contextual actions | **Attention** |
+| **Operator Console** | [bunqueue dashboard](https://egeominotti.github.io/bunqueue-dashboard/docs/)、QueueDash | health → objects → state-gated controls → diagnostics | **Runtime / Harness** |
+| **Trace Inspector** | [Inngest Traces](https://www.inngest.com/docs/platform/monitor/traces)、Trigger.dev | timeline/waterfall + contextual inspector | **Run / Session inspection** |
+| **Governance Inbox** | [Sphinx](https://github.com/LandslideLab/Sphinx)、VekInbox、AgentGate | risk / SLA / decision / audit | **高风险 HITL / Approvals** |
+| **Calm Workspace** | [dayGLANCE](https://dayglance.app)、Cove、Kiyoshi | orientation + current work + quiet secondary surfaces | **普通用户态 Home / Work** |
+
+### Pokecut 本身最值得拿走的东西
+
+它不是组件有什么特别新，而是 **首屏职责分得很清楚**。页面数据大致只有四层：
+
+**headline metric → trend → actionable exception → system health**
+
+例如它把 Total Users / Images Generated / Revenue 放在摘要，把 Content Moderation 单独做成可以立刻处理的 queue，System Health 则退到更小的状态区域。详细信息统一往 `See in details` 后退。
+
+这恰好对应 Courtwork 当前缺失的一点：
+
+> **Overview 不需要把底层对象的所有属性压缩成小卡片，而应该把完整系统编译成“现在值得看什么”。**
+
+所以 Pokecut 可以消费，但我不建议直接复制它常见的 SaaS dashboard 形式——四五个同权 KPI、每个 KPI 一个 card、再填几个 chart。Courtwork 很容易因此又陷入“信息很多，但没有主线”。
+
+更适合的是 **asymmetric cockpit**：
+
+```text
+Home
+
+Current work / orientation
+────────────────────────────────────────────
+
+Continue
+Matter / Chat / Run that matters now
+[Resume]
+
+───────────────────────┬────────────────────
+Needs you              │ Activity
+3                      │ restrained trend
+one-line reason        │
+                       │
+[Open Attention]       │
+───────────────────────┼────────────────────
+Runtime                │ Recent
+Healthy                │ 3 quiet events
+1 degraded extension   │
+───────────────────────┴────────────────────
+```
+
+也就是说，**不追求网格填满，而追求注意力的面积分配**。
+
+---
+
+### 我认为这一轮出现的一个更强参考是 ObjectOS
+
+它几乎直接验证了我们上一轮对 Attention 的判断。
+
+ObjectOS 的 Approvals 不是 dashboard，也不是 Kanban。它只有：
+
+**My pending / Submitted by me / All → queue → side panel → snapshot / timeline → approve/reject/comment**
+
+并且高频审批支持 `j/k` 移动、`Enter` 打开、`a/r` 决策。
+
+更关键的是它对 Agent 的处理：
+
+> AI 提出的结构变化进入同一个审批队列，而 **diff 本身就是 request**。
+
+这非常适合 Courtwork。将来 Attention Item 不需要写成：
+
+> Agent proposes a change to runtime configuration because...
+
+如果真正需要人批准的是一个 adapter 配置 diff、文件 patch、policy change，那么 Attention detail 应该直接呈现那个 **reviewable artifact**：
+
+```text
+Needs your decision
+
+Harness extension wants to expose filesystem.write
+
+Change
+- filesystem.read
++ filesystem.read
++ filesystem.write
+
+Scope
+This workspace
+
+[Reject]                       [Allow]
+```
+
+解释、provenance、完整 trace 再向下展开。
+
+这比目前很多 Agent UI 把一大段“Agent reasoning”展示给人类要成熟得多。
+
+---
+
+### Runtime 又应该采用完全不同的 grammar
+
+[bunqueue dashboard](https://egeominotti.github.io/bunqueue-dashboard/docs/) 很值得作为 Courtwork Runtime/Harness 控制面的反例与正例一起研究。
+
+它有一个非常好的原则：
+
+> **control availability follows real state。**
+
+无法证明原子安全的 DLQ retry，它就不提供；破坏性操作明确 target；Inspector 可以很深，但 Overview 不承担全部 diagnostics。
+
+这对 CW 比普通 shadcn admin dashboard 更有价值。
+
+Runtime 页面因此可以稳定成：
+
+```text
+Runtime
+
+Healthy · 4 extensions · 2 providers
+
+Needs attention
+DeepSeek adapter        degraded
+Filesystem              awaiting approval
+
+────────────────────────────────
+
+Extensions
+Harnesses
+Providers
+Tools & MCP
+Context
+
+                     [Inspect →]
+```
+
+点击对象后才进入：
+
+```text
+Identity
+State
+Exposure
+Authority
+Source
+Provenance
+Diagnostics
+Technical details
+```
+
+而不是像现在那样，让正常页面一进来就读 scope precedence、source default、exposure provenance、host adapter 等后端本体论。
+
+---
+
+### Run / Harness 执行详情则几乎可以直接把 Inngest 列为一级参考
+
+[Inngest Trace](https://www.inngest.com/docs/platform/monitor/traces) 的结构异常稳定：
+
+**左：execution timeline  
+右：selected thing inspector**
+
+而且时间图不是装饰：它严格区分 queue delay、server execution、wait、retry、child span。选择一个 span 后右侧才出现 Input / Output / Error / Headers / Metadata。
+
+对于 Courtwork 后面的 Harness / Work：
+
+```text
+Run
+───────────────────────────┬──────────────────────
+User request               │ Tool call
+  Model                     │
+    Tool call ━━━━━         │ Duration
+    Wait         ─────      │ Result
+    Worker        ━━━       │
+    Model            ━━━━   │ [Output]
+                            │ [Files]
+                            │ [Technical]
+───────────────────────────┴──────────────────────
+```
+
+会比“把 trace 写成若干连续文字卡片”强很多。
+
+这也恰好能帮助你之前说的 **Event Log ≠ Matter State ≠ Model Context**：三者完全没有必要共享一个视觉 grammar。
+
+---
+
+## 还有一支不要遗漏：Calm Workspace
+
+这一轮我特意增加了小型个人生产力软件，而不只看 admin/dashboard。
+
+[dayGLANCE](https://dayglance.app) 有一个很值得 CW 消费的分工：
+
+**Glance = 今天的 orientation  
+Inbox = 尚未承诺的输入  
+Timeline = 已经安排的工作  
+Focus = 当前执行**
+
+同一批 work objects，因为认知任务不同而换 projection。
+
+这比传统企业 dashboard 更接近普通人真正使用 Courtwork 的状态。未来 Home 可以更偏这种 **quiet orientation surface**，而开发者信息依然通过 Runtime / Inspect 随时可达。
+
+因此我现在反而不建议 Courtwork 全局都向 Pokecut/Vercel Admin 靠。否则很容易变成一个非常漂亮的后台管理系统。
+
+---
+
+## 由这些样本，可以把前端 grammar 再收紧一级
+
+我现在会把原来的六种 floorplan 再分成两个层次：
+
+**Product surfaces**
+`Home / Attention / Work / Reader`
+
+负责“人现在要干什么”。
+
+**Control surfaces**
+`Runtime / Inspector / Analytics / Settings`
+
+负责“系统是什么状态、为什么如此、如何配置”。
+
+两者共享颜色、spacing、typography、controls，但**不共享信息密度**。
+
+于是 Courtwork 可以形成这样的稳定映射：
+
+| Surface | 首选参考 |
+|---|---|
+| **Home** | Pokecut 的信息压缩 × dayGLANCE 的安静 orientation |
+| **Attention** | ObjectOS × Sentry × Linear |
+| **Work / Matter** | calm workspace + reader |
+| **Run Detail** | Inngest / Trigger.dev |
+| **Runtime** | bunqueue / QueueDash |
+| **Approvals** | ObjectOS / Sphinx |
+| **Usage / Telemetry** | Limns / Geist |
+| **Settings** | 普通 configuration grammar，禁止 dashboard 化 |
+
+这样也解释了为什么不应该追求“一套页面模板统一全部 Courtwork”。
+
+真正应该统一的是：
+
+> **同一种认知任务使用同一种 grammar；不同认知任务可以有明确不同的 floorplan，但都服从同一个 design language。**
+
+这比简单要求“所有二级页面长得差不多”更稳。
+
+下一轮前端审计也因此可以从“页面级一致性”升级为 **surface classification audit**：先给现有每一个 Home / Attention / Spark / Runtime / Usage / Telemetry / Materials / Settings 子页面判定属于哪种认知任务，再检查它有没有用了错误的 grammar。这样会很容易找到目前那些“内容本身没错，但出现在了错误页面、错误层级、错误形式”的部分。

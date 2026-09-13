@@ -1,0 +1,19 @@
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (3.51575ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.746833ms)
+✔ Attention can subtract measurement actions without removing the status fact (1.206417ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.396042ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (28.7065ms)
+✔ available summary stays visible at zero and opens the existing Work review (49.456333ms)
+✔ candidate, stale and read-only facts remain separate without an impossible ready count (3.893792ms)
+✔ pending count stays a single compact fact when all or only some candidates are reviewable (1.575791ms)
+✔ refresh clears old facts while loading and on failure (3.764083ms)
+✔ late and mismatched responses cannot replace the current scope (1.531042ms)
+✔ a view outside the current scope does not start a request (0.898875ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 899.766583

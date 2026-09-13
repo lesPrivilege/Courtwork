@@ -1257,7 +1257,8 @@ button {
   margin-top: 4px;
   color: var(--muted-strong);
 }
-.user-message-actions time {
+.user-message-actions time,
+.assistant-message-actions time {
   font-size: var(--text-caption);
   margin-right: 6px;
   font-variant-numeric: tabular-nums;
@@ -6179,7 +6180,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 
 /* Keep message metadata and action feedback in the layout; only the secondary
    action row may tuck away on a precise, hover-capable primary pointer. */
-.assistant-message-actions { display: flex; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); }
+.assistant-message-actions { display: flex; align-items: center; gap: 2px; justify-content: flex-start; margin-top: 6px; color: var(--muted-strong); }
 .message .code-block, .attention-agent-message .code-block { background: var(--panel); color: var(--ink); border-color: var(--line-strong); }
 .message .code-toolbar, .attention-agent-message .code-toolbar { background: var(--panel-muted); color: var(--muted-strong); }
 /* Chat code uses the same neutral fill as diff removal marks. Keep the
@@ -6380,6 +6381,8 @@ html[data-theme="dark"] {
 .chat-action-row { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
 .chat-action-row > .icon-only { width: 32px; min-width: 32px; height: 32px; padding: 0; }
 .chat-actions .ui-icon { width: 18px; height: 18px; flex: none; }
+.assistant-message-actions .chat-action-row .ui-icon,
+.user-message-actions .chat-action-row .ui-icon { width: 16px; height: 16px; }
 .chat-actions [aria-pressed="true"], .chat-actions [aria-checked="true"] { background: var(--selected); color: var(--ink); }
 .chat-actions [data-action-state="busy"] { opacity: .6; }
 .chat-action-status { margin: 4px 0 0; color: var(--muted-strong); font-size: var(--text-meta); line-height: 1.5; overflow-wrap: anywhere; }

@@ -142,3 +142,26 @@ test("terminal run keeps an incomplete delta pending but a terminal final is set
   assert.equal(completed.length, 1);
   assert.equal(completed[0].pending, false);
 });
+
+test('assistant time uses only its matching recorded Run start, never a redraw clock', () => {
+  const startedAt = '2026-09-13T10:12:00.000Z';
+  const input = [event(1, 'run-1', 'assistant.delta', {text: 'Hello'})];
+  assert.equal(assistantRows(input, [run('run-1', 'running', {startedAt})])[0].startedAt, startedAt);
+  assert.equal(assistantRows(input, [run('run-1', 'running', {sessionId: 'foreign', startedAt})])[0].startedAt, null);
+  input.push(event(2, 'run-1', 'assistant.message', {text: 'Hello again'}));
+  assert.equal(assistantRows(input, [run('run-1', 'completed', {startedAt})])[0].startedAt, startedAt);
+});
+
+test('message time has readable provenance content without naming the native time role', async () => {
+  const {withTinyDom} = await import('./tiny-dom.mjs');
+  const {renderMessageTime} = await import('../web/user-message.mjs');
+  await withTinyDom(() => {
+    const time = renderMessageTime('2026-09-13T10:12:00.000Z', 'Run started');
+    assert.equal(time.getAttribute('aria-label'), null);
+    assert.equal(time.getAttribute('datetime'), '2026-09-13T10:12:00.000Z');
+    assert.match(time.querySelector('.sr-only').textContent, /^Run started /);
+    assert.ok(time.querySelector('[aria-hidden="true"]').textContent);
+    assert.equal(renderMessageTime(null), null);
+    assert.equal(renderMessageTime('invalid'), null);
+  });
+});

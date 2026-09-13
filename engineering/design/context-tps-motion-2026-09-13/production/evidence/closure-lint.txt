@@ -1,0 +1,3 @@
+lint-colors: ok (49 files · 字面量与高度层两项)
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+lint-interaction: ok (44 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
