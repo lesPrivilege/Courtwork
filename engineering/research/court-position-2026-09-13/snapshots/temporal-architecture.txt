@@ -1,0 +1,5 @@
+# Temporal architecture
+
+Selected source excerpt only; this is not a complete repository, article, or documentation mirror.
+
+History Service section: “The Event History (every event/step of each Workflow) is the key to making your application reliable and crash-proof.”

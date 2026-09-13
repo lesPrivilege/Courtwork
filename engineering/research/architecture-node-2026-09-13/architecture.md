@@ -24,6 +24,25 @@
 
 **Expert**是可版本化专业能力组合：领域结构、Work Contract、能力需求、验证方法和Review声明。Work Extension承载专业差异；Expert可以引用执行profile，但不把某Provider或Runtime固定为工作语义。`Schema < Contract < Expert`不作为继承关系。**Runtime**是实际执行组合或原生执行器实例；**Environment**是动作发生的位置与约束。**Work Compiler**是将当前合法工作投影与能力编成Run输入的责任，目前分散在context/activation/adapter，尚非完整独立服务。
 
+## 定位与对象词汇补充 · 2026-09-13
+
+[Court定位参考实践](../court-position-2026-09-13/README.md)补充DEC-014。CourtWork面向跨会话、执行者和人的持续工作；“AI work control plane”可作内部架构解释，描述协调执行、受治理工作状态、证据与人的决定的责任，不是新产品名、独立中央服务或已完成全部控制能力的声明。Orchestration是其中一种策略能力。外部参考不证明Court的领先性、可靠性或通用产品完成度。
+
+| 词汇 | CourtWork中的含义 / 当前落点 | 必须区分 |
+|---|---|---|
+| Work / Matter | Work为工作问题域；Matter为Core拥有的正式工作对象，含来源、候选、决定和版本关系 | 不是每条聊天或每个coding任务都自动成为Matter；不能以Session日志代替正式记录 |
+| Task / Assignment | 普通task是待办/任务称呼；产品合同必须说明来自哪个协议或owner。Assignment是拟议有界责任合同，见治理地图 | 外部A2A Task、第三方work graph、Codex开发任务与Core Matter不做同名映射；尚无通用durable assignment服务 |
+| Host Session / Run | Session是Host持久对话与配置/绑定范围；Run是一次已准入的执行，有独立身份、输入绑定和终态 | Pi AgentSession/SessionManager是执行协议对象；既不与Host Session等同，也不持有Matter接受权。当前每Run创建/释放AgentSession |
+| Provider / Model | Provider是模型访问服务及其endpoint/协议身份；Model是该服务可寻址的模型及有来源的能力声明 | Pi是执行SDK，不是Provider；Claude/Codex名称必须说明具体模型、应用或执行器；requested、encoded与observed分开 |
+| Agent Role / Expert | Role描述有界任务职责或profile；Expert是前述可版本化专业能力组合 | 名称不授予权限；reviewer角色、另一个context或更强模型均不自动获得正式接受权 |
+| Harness / Runtime | Harness负责执行循环及配套机制；Runtime是实际绑定的执行组合/实例，由Adapter接Host | 不是Provider别名，不强制所有原生执行器绕回Pi；通用Runtime Port与第二执行器仍待验证 |
+| Execution Environment / Session Target | Environment是动作所在位置和约束；外部工具的Session Target是其路由/宿主选择词汇，接入时须逐项映射 | 本地/worktree/容器/远端是环境或资源形式；worktree本身不构成沙箱；不为外部词汇新增CW对象 |
+| Orchestrator | 在已获准任务范围内安排、观察和协调执行的策略/能力 | 不成为新的正式状态总账，不从worker完成推导工作接受，也不隐含持久调度或无界自动派工 |
+
+这些是关系轴，不是单一上下级目录。Chat、Spark、Attention是产品职责/工作面，Expert是能力组合，Provider是外部服务，Environment是执行约束；不能将它们串成一条固定服务调用链。消息记录、执行事件、正式工作状态和Model Context分别按原owner保存或编译；“只存事实、派生UI”不意味着删除合法草稿、配置、协议历史或正式决定。
+
+活动架构和新adapter合同必须写清对象的owner、身份、版本、范围与转换依据；遇到外部同名词先映射再采用。本片完成上述中央术语补充，未审计并改写所有历史文档、未迁移数据库或重命名现有API，也不新增Release gate。当前实现事实仍查具体源码与交付回执。
+
 ## 设计公式及其检验方式
 
 下列公式是合同记法，不是性能定理或当前DTO。每个项都须有版本/身份/范围；缺失依赖保持unknown或拒绝，不用模型文本补齐。

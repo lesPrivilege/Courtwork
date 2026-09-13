@@ -32,3 +32,9 @@
 先比较合同适合度，再比较胶水、维护、许可、平台与退出成本。成熟组件用于通用机制，精度投入语义所有权、提交、来源、恢复和验证；若上游已有等价能力，先评估复用或删除本地实现。stars、文档篇幅和测试数量不换算为可靠性。
 
 每项采用记录具体问题/消费者、候选与版本、必需合同、证据及反例、采用方式（配置/SDK/adapter/fork）、维护owner、迁移/导出/回退和重开条件。未满足时保持候选。新增语言/进程需要具体收益；当前已经是Node与Python组合，历史“单语言起步”不再被用于否认实际实现。
+
+## 持续工作与编排参考 · 2026-09-13
+
+[Astra逐项裁决](research/court-position-2026-09-13/README.md)与[Luna选型/快照](research/court-position-2026-09-13/explore.md)补充机制参考，不改变上表生产依赖。AO用于比较事实/投影及durable work提案，Kandev用于执行器/环境接缝，Warden用于Review证据与Attention；Meathill用于规范、验证和知识沉淀的工作制度；VS Code词汇、Temporal持久执行及Kubernetes协调机制用于明确边界。外部文档、提案、源码和实测分别记账。
+
+本轮选择复用责任原则与反例，没有选定AO/Kandev/Warden作为Runtime，没有引入ACP、Temporal、Kubernetes或workflow DSL。框架接入重开须提供固定消费者、权限/取消/恢复/版本合同及退出成本，继续沿RD-005、RD-007和Runtime替换矩阵；不得用参考项目功能清单扩大本次Release支持范围。

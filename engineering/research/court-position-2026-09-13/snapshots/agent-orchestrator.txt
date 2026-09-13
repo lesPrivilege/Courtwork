@@ -1,0 +1,9 @@
+# Agent Orchestrator (pinned source inspection)
+
+Selected source excerpt only; this is not a complete repository, article, or documentation mirror.
+
+Documentation excerpt: “Display status is never stored. It is computed at read time from durable facts.”
+
+Code locator: backend/internal/service/session/kanban.go:17 — `return contract.DeriveKanbanPresentation(`.
+
+Test locator: backend/pkg/contract/kanban_test.go:46 — test symbol exists; not executed.

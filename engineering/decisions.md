@@ -200,3 +200,8 @@ DEC-012 接收补注（Astra）：本次采用9.6不追加代码改动或自动�
 Astra采用[自足架构节点](research/architecture-node-2026-09-13/README.md)：Adapter、Harness Core/Extension、Work Core/Extension分责，本地Pi与DeepSeek首适配，第二Runtime按公开Codex能力逐项证明。Work治理覆盖文档、数据、组织与渐进披露，稳定语义与配套存储/服务分开；Chat、Spark、Experts和Attention围绕获准工作状态形成闭环，执行、核查与正式接受各有owner。
 
 [设计公式](research/architecture-node-2026-09-13/architecture.md)与[接管地图](research/architecture-node-2026-09-13/workspace-governance.md)是后续产研方向，用户允许延后完整实现。旧canon原字节归档，当前实现/缺口和非作者核查分别留证。此决定覆盖过时排序及窄化Work Core为当前表结构的理解，不变更SE9.6采用版本、不授予模型自接受权，也不宣称第二runtime或组织级治理已实现。用户授权本节点merge、push和既有Pages部署；最终事实以节点交付回执为准。
+
+
+### DEC-014补充 · Court定位与参考实践（2026-09-13）
+
+[Astra即时消费](research/court-position-2026-09-13/README.md)采用持续工作控制责任的内部解释，补齐[对象词汇](research/architecture-node-2026-09-13/architecture.md)与[选型依据](options.md)。Luna独立负责参考探索和来源快照；外部提案不当实现，作者宣称不当运行证据。工作制度、事实/投影分离、Review注意力与恢复反例进入既有RD-005/007、治理地图及Runtime替换方向，不新增总编排账本、框架依赖或Release门；不将架构定位变成全部能力已完成或领先性主张。

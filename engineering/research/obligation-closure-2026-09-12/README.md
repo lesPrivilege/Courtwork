@@ -61,3 +61,5 @@ Tension只作为“未闭合义务引起的注意力需求”的可解释投影�
 整体模型接续见[四角色与governed work loop裁决](../../release/governed-work-loop-2026-09-12/README.md)：职责可组合，状态owner不合并；Spark准备/治理写入仍需独立授权，Expert可反查原始依据。此前关闭与heartbeat边界保持。
 
 后续增量：[工作现场恢复与有界巡检](recovery-surface.md)采用获准工作集合、obligation↔evidence与版本化Recovery Surface；示例Matter状态不是已实现枚举，冻结退出巡检不关闭义务，恢复理解不等于恢复执行。
+
+2026-09-13增量：[Court定位参考实践](../court-position-2026-09-13/README.md)采用证据优先Review与持久协调的反例。Steering送达/采用/完成必须分开，排序不得产生关闭权；Temporal/Kubernetes只作机制参考，未引入框架或启动巡检。

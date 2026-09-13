@@ -29,3 +29,5 @@
 
 
 2026-09-11补充输入：[WCI-02–04](work-capability-input-2026-09-11/README.md)接本路线；Explore/有界Worker/可选Code capability与same-worker/child/hybrid为合同及对照候选，权限不由角色名授予，未新增自主MAS或实施派工。
+
+2026-09-13补充：[Court定位参考实践](court-position-2026-09-13/README.md)将AO durable work提案、Kandev执行接缝和Warden Review证据列为机制参考；durable assignment/依赖/接管反例沿本路线冻结，不将Session metadata或第三方work graph升级成新的正式账本，未选新Runtime依赖。
