@@ -43,3 +43,15 @@ The release integration found a shared intake retry defect: after a 409, a succe
 ## UX maintenance priority · 2026-09-14
 
 The user added the complete reference conversation “UX文案实践参考” and explicitly prioritized its consumption before release. [Consumption and Astra decision](../../research/ux-grammar-2026-09-14/README.md) records both turns and the maintenance contract. README now exposes separate architecture and UX development entries; AGENTS, the design index and the frontend change template route future work through the same rule owners. This documentation priority is completed before product freeze; it does not claim a whole-UI audit merely from adding a standard.
+
+
+The dynamic latest-Paper footer uses the edition-neutral label “Schema Engineering”. Courtwork's separate fixed engineering adoption remains 9.6 in PAPER.md and its contract links; the footer therefore remains accurate if the independently authored 9.7 reader is published later.
+
+
+## Combined-source review · 2026-09-14
+
+Astra reviewed the Settings receipt implementation and its actual Host/Settings behavior tests, then committed it as `f202976`. [Review and author checks](settings-integration-review.md) distinguish Luna's original non-author review from its authored repair. The parallel Models and navigation deliveries are integrated as `ba419b8` and `aecfbaa`; the only merge conflict was an append in copy-convention, resolved by retaining both the action semantics table and the later noun-based navigation rule. No runtime ownership rule changed in that resolution.
+
+The Models non-author review identified a fixture protocol that declared no reasoning yet enabled reasoning effort compatibility. The separate author fix `722f5e9` is integrated as `c9c1db1`, preserving the no-reasoning declaration and testing the extra-model counterexample. Final combined testing and browser inspection will follow the explicitly authorized context-meter delivery.
+
+[Version 2 synthetic fixture](fixture-guide.md) supplies natural project/session names for all 13 capture slots through actual Host routes. The older preliminary preview Host was stopped normally before starting the final fixture; its original data directory remains outside Git for provenance. Synthetic state does not close the real-work release gates.

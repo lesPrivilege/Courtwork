@@ -365,7 +365,7 @@ function footer(fill, identity) {
           const text = fill(item);
           if (item === "Source on GitHub") return `<a href="${REPO}" lang="en">${escape(text)}</a>`;
           if (item === "MIT License") return `<a href="${BLOB("LICENSE")}" lang="en">${escape(text)}</a>`;
-          if (item === "Schema Engineering 9.6")
+          if (item === "Schema Engineering")
             return `<a href="${PAPER_ENTRY.href}" lang="en">${escape(text)}</a>`;
           return `<span class="is-mono">${escape(text)}</span>`;
         })

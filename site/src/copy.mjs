@@ -142,5 +142,5 @@ export const BUILD = {
 };
 
 export const FOOTER = {
-  items: ["Open source", "Source on GitHub", "MIT License", "Schema Engineering 9.6"],
+  items: ["Open source", "Source on GitHub", "MIT License", "Schema Engineering"],
 };
