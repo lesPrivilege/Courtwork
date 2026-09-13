@@ -1,0 +1,127 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]: · Settings
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "General":
+        - generic: General
+      - tab "Appearance":
+        - generic: Appearance
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations":
+        - generic: Tools & Integrations
+      - tab "Skills" [selected]:
+        - generic: Skills
+      - tab "Memory":
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer":
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Skills":
+      - heading "Skills" [level=3]
+      - heading "Instructions, skills and references" [level=4]
+      - paragraph: "Instructions, skills, references and prompt templates. Four different admissions: an instruction is injected into every run, a skill or reference is listed in the catalog and its body loads only on demand, and a template contributes nothing until you invoke it and it returns a draft."
+      - tablist "Configuration scope":
+        - tab "User"
+        - tab "Workspace"
+        - tab "Session" [selected]
+      - paragraph: Editing the session layer.
+      - paragraph: Narrower scopes cannot loosen a wider deny or ask.
+      - generic "Scope details"
+      - button "Add Skill"
+      - heading "Skills · 1" [level=5]
+      - paragraph: A skill contributes its name and description to the catalog; its body loads only when the agent asks for it.
+      - button "Synthetic review skill local config listed" [expanded]:
+        - generic: Synthetic review skill
+        - generic: local config
+        - generic: listed
+      - generic: Installed
+      - generic: "Yes"
+      - generic: Running
+      - generic: Not applicable
+      - generic: Exposed
+      - switch "Expose Synthetic review skill to the model" [checked]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: n/a
+      - paragraph: "Exposure: from user · your user override. The switch overrides it for this session."
+      - paragraph: Its name and description are listed in the catalog; the body loads only when the agent asks for it.
+      - group "Synthetic review skill local config listed":
+        - paragraph: Review the supplied synthetic material
+        - button "Hide source" [active]
+        - heading "Synthetic review skill" [level=5]
+        - generic: Recorded source · local config
+        - code: ca575365c7cd
+        - button "Copy recorded source hash":
+          - generic: Copy recorded source hash
+        - generic: "--- name: synthetic-review description: Review the supplied synthetic material --- Read the bound source before responding."
+        - heading "Source · Requested · Effective · Bound" [level=5]
+        - term: Source
+        - definition:
+          - generic: local config
+          - generic: hash ca575365c7cd
+        - term: Requested
+        - definition:
+          - generic: Nothing requested in the session layer.
+        - term: Effective
+        - definition:
+          - generic: Exposed to the next run
+          - generic: server revision 4
+        - term: Bound
+        - definition:
+          - generic: Exposed in this run
+          - generic: run 7078c0d0 · revision 4
+        - paragraph: A later edit never changes a bound run. The hash identifies bytes only; it is not a second effective value.
+        - heading "Descriptor" [level=5]
+        - term: Kind
+        - definition:
+          - generic: Skill
+        - term: Owning scope
+        - definition:
+          - generic: user · local
+        - term: Activation
+        - definition:
+          - generic: manual
+        - term: Health
+        - definition:
+          - generic: healthy
+        - term: Default exposure
+        - definition:
+          - generic: exposed
+        - term: Size
+        - definition:
+          - generic: 123 characters, not tokens
+        - term: Hash
+        - definition:
+          - code: ca575365c7cd
+          - button "Copy source hash":
+            - generic: Copy source hash
+      - heading "Effective context inspector" [level=5]
+      - table:
+        - rowgroup:
+          - row "Item Admission Scope Admitted Deferred":
+            - columnheader "Item"
+            - columnheader "Admission"
+            - columnheader "Scope"
+            - columnheader "Admitted"
+            - columnheader "Deferred"
+        - rowgroup:
+          - row "Synthetic review skill Skill ca575365c7cd listed user 148 123":
+            - rowheader "Synthetic review skill Skill ca575365c7cd":
+              - generic: Synthetic review skill
+              - generic: Skill
+              - code: ca575365c7cd
+            - cell "listed"
+            - cell "user"
+            - cell "148"
+            - cell "123"
+      - paragraph: Sizes are characters, not tokens. Admitted is what the compiler wrote; deferred is the body that loads only on request. Session history and other host context are excluded.
+      - generic "Unavailable capabilities"
+- status

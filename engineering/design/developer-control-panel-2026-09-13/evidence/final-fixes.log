@@ -1,0 +1,40 @@
+✔ Home Activity rejects malformed dates, totals, and requested periods (4.042584ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.535291ms)
+✔ Home Attention detail accepts only the display contract (0.450209ms)
+✔ standalone Attention ignores an older project query after a newer open (22.323167ms)
+✔ standalone Attention ignores a stale detail after project selection changes (3.233708ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.608292ms)
+✔ Back to items clears a pending detail and rejects its late response (3.129083ms)
+✔ Review belongs only to needs_you across Home and Attention states (4.379916ms)
+✔ text-only pending and failed Home rows render and retain their exact navigation scope (1.36125ms)
+✔ Home retains native targets for unchanged projections and uses current callbacks (0.670875ms)
+✔ Home immediately renders changed facts, removed targets, filters, and errors (1.1515ms)
+✔ Home remounts after the shared stream was used by a chat (0.31125ms)
+✔ Local registration is inert, pins reviewed bytes, and loads through existing lifecycle and binding (580.112834ms)
+✔ Local intake rejects symbolic links, malformed manifests and stale previews without loading code (63.705042ms)
+✔ Registered snapshot tampering fails closed before a local module import (63.327291ms)
+✔ An executable that violates its reviewed ABI is disposed before load fails (65.303042ms)
+✔ Local startup failure disposes synchronous instances both on Load and on restart (197.647833ms)
+✔ Failed local cleanup persists invalidation and never restores a loaded package on restart (119.071666ms)
+✔ A failed unload receipt cannot reactivate the disposed local package on restart (118.89575ms)
+✔ Malformed persisted suspension markers fail closed before local activation (131.057209ms)
+✔ Changing a reviewed local path clears the visible trust and registration controls (20.462ms)
+✔ Usage keeps UTC start-day, route identity, partial/zero/unknown and global scope (3.549166ms)
+✔ model route keys include exact endpoint without leaking endpoint in overview (0.338209ms)
+✔ chart series and Other membership sum exactly and ties never split heatmap levels (2.24775ms)
+✔ matching runs require same snapshot and preserve model/date filter through pagination (0.284375ms)
+✔ combined token overflow fails closed and malformed frontend DTOs are rejected (2.028709ms)
+✔ HTTP Usage scope, strict input and changed-snapshot rejection use actual retained Runs (510.943209ms)
+✔ Usage calendar shares Home Monday-first orientation with bounded keyboard movement (0.453292ms)
+✔ overview rejects malformed dates, scope, counts and incoherent model totals (0.799208ms)
+✔ drilldown rejects malformed rows, wrong observation echo and unsafe pagination (0.71725ms)
+✔ drilldown accepts a persisted stopping run without turning it into stopped (0.266583ms)
+✔ Usage local return restores its origin and rejects late drill responses (55.679375ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2489.47425

@@ -28,3 +28,11 @@
 真实浏览器操作了 MCP Add/Review/Save/Connect/Expose、Skill 粘贴/Review/Save/Expose、Plugin Inspect/Trust/Register/Load/Unload。随后 [HTTP 合成运行回执](evidence/live-flow.json)对这些实际导入资源连接、绑定 Plugin、执行精确 MCP deny/allow 和 runtime_load；该部分是 API 操作，不标作 GUI 权限点击。生命周期测试另证明未加载重开、篡改拒绝和旧源目录变更不影响快照。原生文件/目录分支由合成 DOM/Host 检查覆盖，未称自动化操作过 OS 文件选择器。
 
 [桌面 MCP](evidence/mcp-preview-1440-light.png)、[桌面 Skill](evidence/skill-editor-1440-light.png)、[窄屏 Skill](evidence/skill-editor-390-dark-large.png)、[窄屏 Plugin](evidence/plugin-intake-390-dark-large.png)、[桌面 Plugin](evidence/plugin-loaded-desktop.png)、[窄屏几何](evidence/narrow-geometry.json)、[SVG 明暗16/18/20/24对照](evidence/glyph-contact-sheet.png)为 Astra 作者证据。八图形在小尺寸保留区分轮廓；完整屏幕阅读器、200%缩放与 forced-colors 未覆盖，非独立视觉接受。独立代码复核另记，不以作者测试代替。
+
+## 前后端合流与最终修复
+
+用户随后授权前后端合流。`2462b05`固定intake候选，`7fadc56`组合main `ada8657`的可选workspace Chat与Recent；只冲突合并静态模块清单和两组独立CSS，保留所有接入与附件模块。当前状态文档在主线最后单独叠加本片段落，避免覆盖其他writer的未提交状态文字。
+
+组合[全量983/983](evidence/integrated-full.log)，之后持久标记类型验证及[文案小片](../frontend-audit-2026-09-13/copy-review.md)由[定向32/32](evidence/final-fixes.log)覆盖。[Luna非作者复核](luna-review.md)的故障闭环及最后8/8独立检查无剩余阻塞。颜色/材质/形状/交互、语义/文案、对比度与smoke组合检查通过。无付费provider运行，不关闭Release或完整无障碍门。
+
+合成旧数据重开由schema13升级14，历史字节备份沿既有迁移合同；[组合Chat](evidence/integrated-chat.png)、[绑定Skill](evidence/integrated-bound-skill.png)、[可访问内容](evidence/integrated-bound-skill.txt)留证。Home改用共享提示后的[键盘精确值](evidence/home-exact-value-keyboard.png)已实测，保持完整日期与UTC；Usage的冗余颜色解释已删除，缺失用量和coverage保留。当前作者视觉证据覆盖1440与390；原计划1280截图的实际DOM读回为1440，已按真实尺寸命名，不称本片完成1280或200%矩阵。

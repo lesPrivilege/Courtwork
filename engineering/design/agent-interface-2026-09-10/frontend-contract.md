@@ -89,3 +89,5 @@ Skin 管获准外观，Review 管稳定待决语义；相同scheme下切skin不�
 ### 空间层级 polish 接续（2026-09-13登记）
 
 [UI层级polish](../frontend-audit-2026-09-13/hierarchy-polish-registration.md)作为原IA队列的横向检查：后续相关改动记录任务锚点、父子表面、滚动/裁切、elevation理由及Glass资格。优先既有solid容器关系与平整内容，避免装饰左衬线/同权浮卡；不改颜色层级或自动扩blur登记。已合Attention UI02及Work Surface为当前先例，旧截图描述须先与实际HEAD核对。该登记未宣告全站视觉接受。
+
+文案收敛（2026-09-13）：[Home/Usage/Runtime有界审查](../frontend-audit-2026-09-13/copy-review.md)沿原IA队列；跨控件hover/focus/touch仍由IC-3统一，独立承重与去重归copy-convention，不建立页面私有tooltip。

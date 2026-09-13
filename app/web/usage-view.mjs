@@ -82,7 +82,7 @@ export function createUsageView({request,getProjects,onOpenRun}) {
         const weekdays=el('div',{className:'usage-weekdays',attrs:{'aria-hidden':'true'}},...['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(text=>el('span',{text})));
         const scroll=el('div',{className:'usage-calendar-scroll'},weekLabels,grid);
         const calendarView=el('div',{},el('div',{className:'usage-calendar'},weekdays,scroll),exactDay,
-          el('p',{className:'form-help',text:'Higher-contrast cells mean more reported tokens in this period. Dotted outline: incomplete usage.'}));
+          el('p',{className:'form-help',text:'Dotted outline: incomplete usage.'}));
         const ranked=el('section',{className:'usage-ranked'},el('h3',{text:'Reported tokens by model'}));
         const series=modelSeries(data,metric),totals=series.map(item=>item.values.reduce((sum,value)=>sum+value,0)),maximum=Math.max(1,...totals);
         for(const [index,item] of series.entries()){

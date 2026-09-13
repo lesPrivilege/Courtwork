@@ -40,6 +40,8 @@ The existing Home fixed Run-count scale remains. For a future heavy-tailed token
 
 Tooltip and keyboard/touch inspection expose exact date, metric, value, timezone and reporting status. A scale that recomputes after period changes must not imply fixed color-to-value comparability. Unknown historical coverage stays visible even when retained-record values are complete.
 
+2026-09-13 copy/inspection refinement: short chart hover/focus help follows [IC-3](../icon-controls.md), using the shared `data-tooltip` adapter. The Home day cell retains its complete accessible value plus focus/click selection in the visible live day row; hover is supplementary. Preserve units, UTC, reporting coverage and stale/last-confirmed facts. Visual-intensity tutorials can be omitted when the meaning is conventional; relative thresholds remain in the existing scale disclosure. Usage click-to-drilldown does not itself prove touch value inspection. Small Home cell hit areas and Usage touch inspection remain explicit follow-ups, not completed accessibility claims.
+
 ## Model chart and drilldown
 
 Choose Total / Input / Output as the metric, then stack by model. “Total” requires the contract to define input + output as reported token counts with compatible semantics; cache stays separately disclosed. Do not encode model and direction as a dozen near-identical series. At most five plotted series: top four plus Other, ranked over the whole selected interval with deterministic tie handling. Preserve a full model table, explicit unknown identity, exact values and percentages of the declared reported metric; zero denominators show no percentage. Keep series identity and ordering stable across dates. Other drilldown must preserve its model membership for that observation.

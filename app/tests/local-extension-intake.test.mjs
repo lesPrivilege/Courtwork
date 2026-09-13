@@ -162,3 +162,19 @@ test('A failed unload receipt cannot reactivate the disposed local package on re
     assert.equal(globalThis.__cwReceiptStarts, 1);
   } finally { await h.runtime.close(); delete globalThis.__cwReceiptStarts; }
 });
+
+test('Malformed persisted suspension markers fail closed before local activation', async () => {
+  const fixture = await packageFixture('malformed-suspension'); const h = await boot();
+  try {
+    const preview = (await h.api('POST', '/extensions/preview-local', { path: fixture.folder })).json;
+    await h.api('POST', '/extensions/register-local', { previewId: preview.previewId, hash: preview.hash, trust: 'host-trusted' });
+    await h.api('POST', `/extensions/${fixture.manifest.id}/lifecycle`, { action: 'load' });
+    const imports = globalThis.__cwLocalImports;
+    await h.runtime.close();
+    const indexPath = path.join(h.dataDir, 'local-extensions', 'index.json');
+    const index = JSON.parse(await readFile(indexPath, 'utf8'));
+    index.entries[0].suspended = 'true'; await writeFile(indexPath, JSON.stringify(index));
+    await assert.rejects(reopen(h.dataDir), /suspension marker/);
+    assert.equal(globalThis.__cwLocalImports, imports);
+  } finally { await h.runtime.close(); }
+});

@@ -208,7 +208,7 @@ function activityCard({ activity, onActivityDays, onActivityRetry, onOpenUsage }
   const cells = data.buckets.map((bucket, index) => {
     const button = homeButton("", () => { selected.textContent = bucket.label; }, `activity-day-${bucket.date}`, "home-heatmap-cell");
     button.dataset.level = String(bucket.level);
-    button.title = bucket.label;
+    button.setAttribute("data-tooltip", bucket.label);
     button.setAttribute("aria-label", bucket.label);
     button.tabIndex = index === data.buckets.length - 1 ? 0 : -1;
     button.addEventListener("focus", () => {

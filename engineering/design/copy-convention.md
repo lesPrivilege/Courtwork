@@ -14,11 +14,13 @@
 | 承载范围或后果的动作 | 短语，保留范围词 | Approve this write · Stop working · Use as draft |
 | 状态 | 单词或两词，灰字；只有 failed / waiting_user 可着色 | Running · Completed · Cancelled · Failed · Waiting for you |
 | 模式选择的可见标签 | 说全后果的短语；控件带 disclosure 记号，标签不再重复一次（WK-94） | Ask before editing · Allow edits · Read only |
-| 帮助句 | 一句，说明作用域或后果，不解释界面 | Choose or create a project to send. |
+| 帮助句 | 一句，说明作用域或后果，不解释界面 | Changes apply to the next run. |
 | 标题 | 对象名本身，无 eyebrow、无副标题 | Chat 标题；Projects |
 | 占位符 | 动作指令，不问候 | Describe the work you want to do… |
 
 可见文字、accessible name、tooltip 三者同词根；icon-only 控件的 accessible name 必须完整。
+
+2026-09-13 · 可由图形通识达成共识的视觉操作不另写教程（如“颜色越深数值越多”）；单位、时间范围、时区、缺失/覆盖状态和操作后果仍需独立承重。辅助短句沿[IC-3](icon-controls.md#ic-3--hover--focus-的二级文本)统一hover/focus/touch通路；完整原理、来源与详细优先关系使用已有details。权限边界、错误原因和能力限制不改为hover-only。同一事实在组说明、类型说明和对象行重复时，优先保留最接近实际对象/操作的一份；工程源码注释不等于可见文案，另按维护需要保留。
 
 ## 3. 词表（用户可见概念；沿 owner 与语义登记更新）
 

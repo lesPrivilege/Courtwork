@@ -30,6 +30,7 @@ export class LocalExtensions {
     const ids = new Set();
     for (const entry of data.entries) {
       if (!entry || !/^[a-f0-9]{64}$/.test(entry.hash) || entry.trust !== 'host-trusted' || typeof entry.sourcePath !== 'string') invalid('Invalid local extension record');
+      if (Object.hasOwn(entry, 'suspended') && typeof entry.suspended !== 'boolean') invalid('Invalid local activation suspension marker.');
       this.manifest(entry.manifest);
       if (ids.has(entry.manifest.id)) invalid('Duplicate local extension ID');
       ids.add(entry.manifest.id);

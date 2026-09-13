@@ -38,6 +38,8 @@ Icon-only control 必须有明确 accessible name；开关、展开和当前页�
 - Tooltip不能藏授权范围、错误原因、状态后果或尚不支持的能力；这些信息应在决定处可见。完整路径/hash可用 tooltip补全，同时提供点击详情/复制，不能只给鼠标用户。
 - 快捷键仅在产品真实支持时显示，不从外部 GUI 截图照搬。
 
+2026-09-13 · 跨图表与控件的一致性补充：沿 `ui-controls.mjs` 的 `data-tooltip` / `installTooltips` 单例，不新增页面私有 hover 或原生 title。当前实现首次400ms、分组窗口300ms；hover 与可见键盘focus共用内容，Escape/blur/pointerdown关闭，不转移焦点。touch pointer 不弹 tooltip，必须另有可见点选值、详情或明确的更多入口。不得把点击导航算作已提供“先读精确值”的触屏通路。已有可见事实、accessible name 与短提示同词根，tooltip不承载长段说明。
+
 延迟和动效使用所选成熟组件的合理默认，再按 SE 工具栏密度验证；不对每个按钮单独定计时器，不新造通用 tooltip 框架。Floating 定位库不自动负责 menu/tooltip全部语义，接线必须覆盖键盘、触屏、失焦、滚动、窗口边界与资源清理。
 
 ## IC-4 · 验收清单与既有语义
