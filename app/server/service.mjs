@@ -1830,7 +1830,12 @@ export class RuntimeService {
           binding: session.extensionBinding.binding,
           // Connection provenance belongs to the run record, not to the
           // extension descriptor, whose accepted field set is fixed.
-          provider: (() => { const { realProvider: _realProvider, connectionId: _connectionId, credentialSource: _credentialSource, contextWindowSource: _contextWindowSource, capabilityNotice: _capabilityNotice, reasoningBinding: _reasoningBinding, ...descriptor } = provider; return {...descriptor, executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real", credentialStatus: credentialConfigured ? "configured" : "not_configured"}; })(),
+          provider: {
+            provider: provider.provider, model: provider.model, api: provider.api,
+            ...(provider.baseUrl !== undefined ? { baseUrl: provider.baseUrl } : {}),
+            executionMode: provider.provider === FAKE_PROVIDER_ID ? "simulation" : "real",
+            credentialStatus: credentialConfigured ? "configured" : "not_configured",
+          },
           instruction,
           runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash,composition:entry.runtimeBinding.composition},
         });
