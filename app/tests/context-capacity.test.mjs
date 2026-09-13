@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { contextCapacitySnapshot, createContextUsageObserver, reportedInputTokens, reportedCache } from '../runtime/context-capacity.mjs';
 import { observeRequestStream } from '../runtime/request-telemetry.mjs';
-import { projectContextCapacity, contextRing, renderCacheDiagnostic } from '../web/chat-measurements.mjs';
+import { projectContextCapacity, contextRing, renderCacheDiagnostic, renderChatMeasurementBody } from '../web/chat-measurements.mjs';
 import { withTinyDom } from './tiny-dom.mjs';
 import { boot } from './helpers.mjs';
 const encoder = new TextEncoder();
@@ -117,4 +117,29 @@ test('cache diagnostics separate hit/miss from capacity and preserve missing ver
   assert.equal(read({ prompt_tokens: 0, prompt_cache_hit_tokens: 0 }).hit_rate, undefined);
   const responses = reportedCache('openai-responses', { type: 'response.completed', response: { usage: { input_tokens: 100, input_tokens_details: { cached_tokens: 80 } } } });
   assert.equal(responses.miss_tokens, 20); assert.equal(responses.hit_rate, .8);
+}));
+
+
+test('Context disclosure uses raw request diagnostics once; normalized request history stays in the measurement view', () => withTinyDom(async () => {
+  const create = document.createElement.bind(document);
+  document.createElement = tag => Object.assign(create(tag), { style: {} });
+  const rows = [];
+  const message = { stopReason: 'stop', usage: { input: 375000, output: 12, cacheRead: 375000, cacheWrite: 0 } };
+  const stream = await observeRequestStream({ model: { id: 'fixture', provider: 'local', api: 'openai-completions' }, context: {}, requestId: 1,
+    readContextUsage: () => 750000,
+    readCache: () => reportedCache('openai-completions', { usage: { prompt_tokens: 750000, prompt_tokens_details: { cached_tokens: 375000 } } }),
+    record: data => rows.push({ type: 'runtime.request.telemetry', runId: 'r', data }),
+    start: () => ({ result: () => message, async *[Symbol.asyncIterator]() { yield { type: 'done', message }; } }) });
+  await Array.fromAsync(stream);
+  const facts = { events: rows, run: { id: 'r' } };
+  const context = renderChatMeasurementBody('context', facts);
+  assert.match(context.textContent, /750,000 \/ 1,000,000 tokens/);
+  assert.match(context.textContent, /Cache hit.*50%/);
+  assert.doesNotMatch(context.textContent, /Cache read|Cache write|Latest request ·/);
+  assert.equal(context.querySelectorAll('[data-section="request-measurements"]').length, 0);
+  const measurements = renderChatMeasurementBody('activity', facts);
+  assert.match(measurements.textContent, /Cache read/);
+  assert.match(measurements.textContent, /Input tokens/);
+  rows.at(-1).data.cache = { status: 'unavailable', source: 'provider', scope: 'request' };
+  assert.doesNotMatch(renderChatMeasurementBody('context', facts).textContent, /Cache hit|Cache read|Cache write|Runtime diagnostics/);
 }));

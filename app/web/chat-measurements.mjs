@@ -114,7 +114,7 @@ export function renderChatMeasurementBody(kind, { events = [], run } = {}) {
     const cache = renderCacheDiagnostic(latest.cache);
     if (cache) body.append(cache);
   }
-  if (run?.id) body.append(renderRequestMeasurements(events, run.id, { compact: true }));
+  if (run?.id && kind !== 'context') body.append(renderRequestMeasurements(events, run.id, { compact: true }));
   body.append(el('p', { className: 'form-help chat-measurement-snapshot', text: 'Latest retained request when opened. Refresh to update.' }));
   return body;
 }
