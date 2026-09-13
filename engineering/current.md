@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Release输入、MCP故障与Core审阅入口合流
+
+按原施工分工完成[P05/P06](../evidence/release-input-binding-20260913/README.md)、[MCP故障补证](../evidence/release-mcp-failures-20260913/README.md)与[Core Review摘要](../evidence/release-core-summary-20260913/README.md)，本地main合流`524ce32`。Core原投影持有待审/版本与正式动作；Sources外入口可发现，同Matter新Session及合成人类接受、来源变化/只读/断线恢复留证。固定`09f9177`全量932/932、smoke与链接通过；用户追加Execution收紧/去角色头非作者18/18，Work review紧凑入口非作者14/14及明暗1440/1280/390浏览器通过，各保留源码范围。最终真实Provider小探针、可公开演示与G5声明映射仍开放，未签完整Release、未push/tag/部署；并行writer内容保留。
+
 ## 2026-09-13 · Attention UI 独立绘制工单
 
 按用户指定分工建立 [WO-ATT-UI02](design/attention-ui-handoff-2026-09-13/README.md)：Luna完成分层标注/内外参考索引，用户转交Claude独立前端绘制与motion，Astra裁决验收后合入。包内提供固定源码、历史截图与返回/验收清单；当前为交接准备，未冒称Claude完成或视觉接受。Context window/TPS motion另由Astra稍后串行、采用实际图像与UI核验；估算/Unavailable/真实测量分开。本片不改产品或发布。
