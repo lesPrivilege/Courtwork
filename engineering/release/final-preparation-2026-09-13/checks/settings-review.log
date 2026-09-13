@@ -1,0 +1,306 @@
+# Settings integration review · 2026-09-14
+
+Candidate: 26a86bf9d0cf16908f56af49f6222eb72b77c0a2
+Runtime: Node v22.19.0 (task-pinned runtime)
+
+Commands run:
+- `node --test app/tests/runtime-intake.test.mjs app/tests/settings-plugins.test.mjs app/tests/local-extension-view.test.mjs app/tests/control-plane.test.mjs app/tests/runtime-projection.test.mjs app/tests/runtime-source-service.test.mjs app/tests/governance-http.test.mjs`
+- `node tools/lint-interaction.mjs`
+
+TAP version 13
+# (node:64094) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: control: scope provenance, reset, CAS, and cross-session isolation survive restart
+ok 1 - control: scope provenance, reset, CAS, and cross-session isolation survive restart
+  ---
+  duration_ms: 363.217708
+  type: 'test'
+  ...
+# Subtest: control: active Run freezes config; retry preserves its original runtime binding
+ok 2 - control: active Run freezes config; retry preserves its original runtime binding
+  ---
+  duration_ms: 334.32775
+  type: 'test'
+  ...
+# Subtest: policy: last match within scope, outer ceilings and literal regex characters
+ok 3 - policy: last match within scope, outer ceilings and literal regex characters
+  ---
+  duration_ms: 0.396917
+  type: 'test'
+  ...
+# Subtest: control APIs: source content remains pinned after replacement; templates are human-invoked drafts
+ok 4 - control APIs: source content remains pinned after replacement; templates are human-invoked drafts
+  ---
+  duration_ms: 294.964083
+  type: 'test'
+  ...
+# Subtest: policy: path denial reaches the executor; exposed write does not imply allowed write
+ok 5 - policy: path denial reaches the executor; exposed write does not imply allowed write
+  ---
+  duration_ms: 684.751292
+  type: 'test'
+  ...
+# Subtest: policy: domain tools use the same execution gate, including exact arguments across approval
+ok 6 - policy: domain tools use the same execution gate, including exact arguments across approval
+  ---
+  duration_ms: 0.350875
+  type: 'test'
+  ...
+# Subtest: context: skill metadata is progressive, installed content grants no plugin/tool authority
+ok 7 - context: skill metadata is progressive, installed content grants no plugin/tool authority
+  ---
+  duration_ms: 316.573666
+  type: 'test'
+  ...
+# Subtest: composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission
+ok 8 - composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission
+  ---
+  duration_ms: 197.311333
+  type: 'test'
+  ...
+# Subtest: control config: corrupt or future version fails closed without overwriting the file
+ok 9 - control config: corrupt or future version fails closed without overwriting the file
+  ---
+  duration_ms: 115.101083
+  type: 'test'
+  ...
+# Subtest: compatibility: valid schema 3 upgrades with exact backup and schema 6 fence
+ok 10 - compatibility: valid schema 3 upgrades with exact backup and schema 6 fence
+  ---
+  duration_ms: 116.505541
+  type: 'test'
+  ...
+# Subtest: MCP modern: discovery is separate from exposure and execution consent
+ok 11 - MCP modern: discovery is separate from exposure and execution consent
+  ---
+  duration_ms: 556.175541
+  type: 'test'
+  ...
+# Subtest: MCP legacy: discovery is separate from exposure and execution consent
+ok 12 - MCP legacy: discovery is separate from exposure and execution consent
+  ---
+  duration_ms: 718.023083
+  type: 'test'
+  ...
+# Subtest: MCP: first unknown outcome closes subsequent tool admission in the same Run
+ok 13 - MCP: first unknown outcome closes subsequent tool admission in the same Run
+  ---
+  duration_ms: 498.105875
+  type: 'test'
+  ...
+# Subtest: MCP: a lost remote call result becomes an unknown Run, never an automatic replay
+ok 14 - MCP: a lost remote call result becomes an unknown Run, never an automatic replay
+  ---
+  duration_ms: 495.524875
+  type: 'test'
+  ...
+# Subtest: admission serializes permission changes and extension binding before runtime snapshots can diverge
+ok 15 - admission serializes permission changes and extension binding before runtime snapshots can diverge
+  ---
+  duration_ms: 502.556708
+  type: 'test'
+  ...
+# Subtest: context: additive compiled counts separate catalog text, deferred bodies and draft-only templates
+ok 16 - context: additive compiled counts separate catalog text, deferred bodies and draft-only templates
+  ---
+  duration_ms: 88.01825
+  type: 'test'
+  ...
+# (node:64095) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: governance authenticated HTTP rejects identity injection and cross-project refs, grants are human-only
+ok 17 - governance authenticated HTTP rejects identity injection and cross-project refs, grants are human-only
+  ---
+  duration_ms: 370.03875
+  type: 'test'
+  ...
+# Subtest: global Pi tools discover, inspect and read exact governed evidence; project catalogs cannot install them
+ok 18 - global Pi tools discover, inspect and read exact governed evidence; project catalogs cannot install them
+  ---
+  duration_ms: 1409.648416
+  type: 'test'
+  ...
+# Subtest: runtime adapter rejects mismatched/closed host Runs and a change while Core read is pending
+ok 19 - runtime adapter rejects mismatched/closed host Runs and a change while Core read is pending
+  ---
+  duration_ms: 295.311625
+  type: 'test'
+  ...
+# Subtest: Changing a reviewed local path clears the visible trust and registration controls
+ok 20 - Changing a reviewed local path clears the visible trust and registration controls
+  ---
+  duration_ms: 19.53025
+  type: 'test'
+  ...
+# Subtest: Closing the local extension editor retains focus on its collapsed entry
+ok 21 - Closing the local extension editor retains focus on its collapsed entry
+  ---
+  duration_ms: 0.618291
+  type: 'test'
+  ...
+# (node:64097) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: MCP intake validates without connecting and saves an unexposed resource in the selected scope
+ok 22 - MCP intake validates without connecting and saves an unexposed resource in the selected scope
+  ---
+  duration_ms: 9.841458
+  type: 'test'
+  ...
+# Subtest: Changed source cannot use stale validation and failed save retains its draft
+ok 23 - Changed source cannot use stale validation and failed save retains its draft
+  ---
+  duration_ms: 19.683
+  type: 'test'
+  ...
+# Subtest: Late validation cannot populate a new Session draft; active runs disable saves
+ok 24 - Late validation cannot populate a new Session draft; active runs disable saves
+  ---
+  duration_ms: 1.164208
+  type: 'test'
+  ...
+# Subtest: New Skill exposure is atomic, survives restart, and can be enabled independently
+ok 25 - New Skill exposure is atomic, survives restart, and can be enabled independently
+  ---
+  duration_ms: 311.370292
+  type: 'test'
+  ...
+# Subtest: Skill file reads invalidate previews even when a later directory selection is invalid
+ok 26 - Skill file reads invalidate previews even when a later directory selection is invalid
+  ---
+  duration_ms: 12.037791
+  type: 'test'
+  ...
+# Subtest: instruction shares the reviewed, unexposed intake path without Skill-only fields
+ok 27 - instruction shares the reviewed, unexposed intake path without Skill-only fields
+  ---
+  duration_ms: 6.9645
+  type: 'test'
+  ...
+# Subtest: reference shares the reviewed, unexposed intake path without Skill-only fields
+ok 28 - reference shares the reviewed, unexposed intake path without Skill-only fields
+  ---
+  duration_ms: 7.357166
+  type: 'test'
+  ...
+# Subtest: prompt_template shares the reviewed, unexposed intake path without Skill-only fields
+ok 29 - prompt_template shares the reviewed, unexposed intake path without Skill-only fields
+  ---
+  duration_ms: 6.589625
+  type: 'test'
+  ...
+# Subtest: Switching resource types keeps independent drafts and cannot reuse another type preview
+ok 30 - Switching resource types keeps independent drafts and cannot reuse another type preview
+  ---
+  duration_ms: 6.577
+  type: 'test'
+  ...
+# Subtest: Text resource intake resolves and persists all three kinds without model admission
+ok 31 - Text resource intake resolves and persists all three kinds without model admission
+  ---
+  duration_ms: 78.746958
+  type: 'test'
+  ...
+# Subtest: runtime projection: parent/profile gates are explanations, not removable overrides
+ok 32 - runtime projection: parent/profile gates are explanations, not removable overrides
+  ---
+  duration_ms: 0.523708
+  type: 'test'
+  ...
+# Subtest: runtime projection: historical counts stay partial; new catalogs count admitted text only
+ok 33 - runtime projection: historical counts stay partial; new catalogs count admitted text only
+  ---
+  duration_ms: 0.078875
+  type: 'test'
+  ...
+# (node:64099) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: BE-5: POST /runtime-sources/resolve returns exact UTF-8 identity for all six inline kinds; provenance stays unverified and nothing is imported
+ok 34 - BE-5: POST /runtime-sources/resolve returns exact UTF-8 identity for all six inline kinds; provenance stays unverified and nothing is imported
+  ---
+  duration_ms: 279.384083
+  type: 'test'
+  ...
+# Subtest: BE-5: token, origin, content-type and body-size guards plus malformed/extra-field input follow the existing host boundaries
+ok 35 - BE-5: token, origin, content-type and body-size guards plus malformed/extra-field input follow the existing host boundaries
+  ---
+  duration_ms: 420.828917
+  type: 'test'
+  ...
+# Subtest: BE-5: every locator kind stays explicitly unsupported over real HTTP with an exact echo, and no content identity is invented
+ok 36 - BE-5: every locator kind stays explicitly unsupported over real HTTP with an exact echo, and no content identity is invented
+  ---
+  duration_ms: 65.561
+  type: 'test'
+  ...
+# Subtest: BE-5: an isolated child probe proves locator and inline MCP resolution performs no file read, socket connect, HTTP request, fetch or child process
+ok 37 - BE-5: an isolated child probe proves locator and inline MCP resolution performs no file read, socket connect, HTTP request, fetch or child process
+  ---
+  duration_ms: 730.105334
+  type: 'test'
+  ...
+# Subtest: BE-5: pure resolution stays available during an active Run while config, disk, revision and the Run binding remain unchanged and nothing imports
+ok 38 - BE-5: pure resolution stays available during an active Run while config, disk, revision and the Run binding remain unchanged and nothing imports
+  ---
+  duration_ms: 511.616375
+  type: 'test'
+  ...
+# Subtest: BE-5: the service seam mirrors the pure resolver and adapts its 400s to the host error shape
+ok 39 - BE-5: the service seam mirrors the pure resolver and adapts its 400s to the host error shape
+  ---
+  duration_ms: 64.477625
+  type: 'test'
+  ...
+# Subtest: Host-owned profile exposure is text while configurable resources retain a switch
+ok 40 - Host-owned profile exposure is text while configurable resources retain a switch
+  ---
+  duration_ms: 8.663292
+  type: 'test'
+  ...
+# Subtest: Plugins shows owner states without inventing a host lifecycle switch or duplicate tool row
+ok 41 - Plugins shows owner states without inventing a host lifecycle switch or duplicate tool row
+  ---
+  duration_ms: 1.7995
+  type: 'test'
+  ...
+# Subtest: Plugins preserves active-run restrictions and reports empty and failed reads
+ok 42 - Plugins preserves active-run restrictions and reports empty and failed reads
+  ---
+  duration_ms: 6.659291
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6300.807958
+lint-interaction: ok (48 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+file:///private/tmp/courtwork-release-final-20260913/[eval1]:14
+  toggle.click();
+         ^
+
+TypeError: Cannot read properties of null (reading 'click')
+    at file:///private/tmp/courtwork-release-final-20260913/[eval1]:14:10
+    at file:///private/tmp/courtwork-release-final-20260913/app/tests/tiny-dom.mjs:154:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async file:///private/tmp/courtwork-release-final-20260913/[eval1]:4:1
+
+Node.js v22.19.0
+
+## Final bounded verification · 2026-09-14
+
+The standalone `toggle.click()` TypeError immediately above came from an exploratory TinyDOM focus-selector probe: its selector returned `null` before the application click ran. It is a harness setup failure, not a product test failure. The final real Settings/Host fixture checks below exercise the current panel and retry paths directly.
+
+Checkout at verification: branch `codex/release-final-20260913`, HEAD `9cc8cdf24777433b5d4f6a23d6f4319bd7b3e59c`; local Settings receipt/notice edits were uncommitted.
+
+Command:
+`node --test app/tests/runtime-intake-retry.test.mjs app/tests/runtime-intake.test.mjs app/tests/settings-plugins.test.mjs app/tests/local-extension-view.test.mjs app/tests/control-plane.test.mjs app/tests/runtime-projection.test.mjs app/tests/runtime-source-service.test.mjs app/tests/governance-http.test.mjs`
+
+Result: exit 0; 50 tests, 50 passed, 0 failed/cancelled/skipped. The added real Settings/Host tests cover normal Save receipts, scope and Session changes, newer local edits, repeated CAS conflicts, active-run guidance in Tools and Skills, a real HTTP 503 read failure visible with the last confirmed revision in both groups, and the Tools CAS retry route.
+
+Command: `node tools/lint-interaction.mjs`
+
+Result: exit 0; `lint-interaction: ok` (48 files; 0 registered exceptions).

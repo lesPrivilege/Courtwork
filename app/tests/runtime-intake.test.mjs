@@ -12,7 +12,12 @@ function fixture(body, { resolve, save = async () => true, contextEditor = false
   intake = createRuntimeIntake({
     request: async (path, options) => { checked.push({ path, ...options }); return resolve ? resolve(options.body) : { status: 'resolved', disposition: 'inspect-only', capabilities: { declared: {} } }; },
     getContext: () => context,
-    submit: async body => { sent.push(body); return save(body); }, render,
+    submit: async (body, options) => {
+      sent.push(body);
+      const accepted = await save(body);
+      if (accepted) options?.onSuccess?.({ revision: 1, resources: [body.resource] });
+      return accepted;
+    }, render,
   });
   render();
   const node = key => [...body.querySelectorAll('button,input,textarea,select')].find(e => e.getAttribute('data-focus-key') === key);

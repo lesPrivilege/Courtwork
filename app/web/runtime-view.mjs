@@ -338,7 +338,7 @@ export function createRuntimeView(
 
   /** Every mutation is a CAS against the server's own revision, and the reply
    * replaces the snapshot outright. 409 is authoritative (RC-4). */
-  async function submit(body, { path = "/runtime-control", method = "PUT", key, label } = {}) {
+  async function submit(body, { path = "/runtime-control", method = "PUT", key, label, onSuccess } = {}) {
     if (busy || frozen()) return false;
     generation++;
     controller?.abort();
@@ -357,6 +357,13 @@ export function createRuntimeView(
       error = null;
       if (key) drafts.delete(key);
       frozenByServer = Boolean(result.activeRuns);
+      try {
+        onSuccess?.(result);
+      } catch (receiptError) {
+        // The Host has accepted the write. A local focus/cleanup callback must
+        // not turn that receipt into an apparent failed save.
+        console.error("Runtime save receipt callback failed after Host acceptance.", receiptError);
+      }
       void readContext(generation);
       return true;
     } catch (err) {
@@ -366,11 +373,11 @@ export function createRuntimeView(
         /* FN-16 · the edit is not applied and is not queued. It is kept where
            the user can still see and resubmit it by hand. */
         frozenByServer = true;
-        if (key) rememberDraft(key, { body, path, method, label, reason: "active-run" });
+        if (key) rememberDraft(key, { body, path, method, label, reason: "active-run", onSuccess });
         await read({ quiet: true });
       } else if (code === "runtime_conflict") {
         // Keep the unsent edit as a draft and refresh; never resend it.
-        if (key) rememberDraft(key, { body, path, method, label, reason: "conflict" });
+        if (key) rememberDraft(key, { body, path, method, label, reason: "conflict", onSuccess });
         await read({ quiet: true });
       } else if (code === "mcp_effect_unknown" || code === "unknown_effect") {
         unknownEffect = err.message;
@@ -1264,8 +1271,30 @@ export function createRuntimeView(
 
   /* ── banners ───────────────────────────────────────────────────────── */
 
-  function banners() {
+  function bannerGroup(entry) {
+    const body = entry.body || {};
+    if (body.operation === "policy") return "permissions";
+    if (body.operation === "profile") return "composition";
+    const kind = body.resource?.kind || resourceById(body.id)?.kind;
+    if (kind === "tool" || kind === "mcp_server") return "capabilities";
+    if (CONTEXT_KINDS.includes(kind)) return "instructions";
+    if (kind === "plugin" || entry.path?.startsWith("/plugins")) return "plugins";
+    if (kind === "agent_profile") return "composition";
+    return null;
+  }
+
+  function banners(target = null) {
     const list = [];
+    if (target && error)
+      list.push(
+        el("p", {
+          className: "inline-error",
+          attrs: snapshot ? { "data-stale": String(snapshot.revision) } : {},
+          text: snapshot
+            ? `${error.message} The readings below are the last snapshot the host confirmed, at revision ${snapshot.revision}. Any draft you have is kept.`
+            : error.message,
+        }),
+      );
     if (frozen())
       list.push(
         el("p", {
@@ -1283,6 +1312,7 @@ export function createRuntimeView(
         }),
       );
     for (const entry of drafts.values()) {
+      if (target && bannerGroup(entry) !== target) continue;
       const banner = el("div", {
         className: "runtime-banner",
         attrs: { role: "status", "data-banner": entry.reason === "active-run" ? "active-run-draft" : "conflict-draft" },
@@ -1310,6 +1340,7 @@ export function createRuntimeView(
           method: entry.method,
           key: entry.key,
           label: entry.label,
+          onSuccess: entry.onSuccess,
         });
       });
       const discard = el("button", {
@@ -1777,7 +1808,7 @@ export function createRuntimeView(
     const mount = mounts.instructions;
     mount.replaceChildren(blockTitle("Instructions, skills and references"));
     if (!snapshot) {
-      mount.append(note("The runtime has not been read yet."));
+      mount.append(error ? el("p", { className: "inline-error", text: error.message }) : note("The runtime has not been read yet."));
       return;
     }
     mount.append(
@@ -1785,6 +1816,7 @@ export function createRuntimeView(
         "Instructions, skills, references and prompt templates. Four different admissions: an instruction is injected into every run, a skill or reference is listed in the catalog and its body loads only on demand, and a template contributes nothing until you invoke it and it returns a draft.",
       ),
       ...scopeStrip({ where: "instructions" }),
+      ...banners("instructions"),
       intake.viewContext(),
       ...[kindChips("instructions", CONTEXT_KINDS)].filter(Boolean),
     );
@@ -1900,7 +1932,7 @@ export function createRuntimeView(
     const mount = mounts.capabilities;
     mount.replaceChildren(blockTitle("Tools and MCP servers"));
     if (!snapshot) {
-      mount.append(note("The runtime has not been read yet."));
+      mount.append(error ? el("p", { className: "inline-error", text: error.message }) : note("The runtime has not been read yet."));
       return;
     }
     mount.append(
@@ -1908,6 +1940,7 @@ export function createRuntimeView(
         "Connect servers and choose tools. Each tool call still follows its access policy.",
       ),
       ...scopeStrip({ where: "capabilities" }),
+      ...banners("capabilities"),
     );
     const tabs = el("div", {
       className: "runtime-subtabs",

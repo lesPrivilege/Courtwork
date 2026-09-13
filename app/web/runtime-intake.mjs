@@ -33,6 +33,19 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
     draft.error = '';
     draft.message = '';
   }
+  function completeSave(draft, { ownEpoch, token, preview, resource }, acceptedSnapshot) {
+    if (ownEpoch !== epoch || drafts.get(draft.key) !== draft || draft.token !== token || draft.preview !== preview) return false;
+    draft.pending = false;
+    draft.open = false;
+    draft.preview = null;
+    draft.error = '';
+    draft.message = draft.kind === 'mcp_server' ? 'Saved. Connect to discover this server’s capabilities.' : 'Saved. Exposure remains a separate setting.';
+    drafts.delete(draft.key);
+    const stillViewingDraft = contextKey(draft.kind) === draft.key &&
+      (!contextKinds.includes(draft.kind) || contextKind === draft.kind);
+    if (stillViewingDraft) onSaved?.(resource, acceptedSnapshot);
+    return true;
+  }
   async function review(draft) {
     if (draft.pending) return;
     const token = ++draft.token, ownEpoch = epoch;
@@ -66,21 +79,18 @@ export function createRuntimeIntake({ request, getContext, submit, render, onSav
       draft.error = 'This ID already exists. Edit that resource or choose another ID.';
       render(); return;
     }
-    const ownEpoch = epoch;
+    const ownEpoch = epoch, token = draft.token;
     const resource = { id: draft.id, ...preview.source, scope: { ...context.scope } };
     draft.pending = true;
     render();
     const done = await submit({ operation: 'put', resource, ...(!draft.editing ? { exposed: false } : {}) },
-      { key: `intake:${draft.key}`, label: `${resource.title} · ${resource.scope.type}` });
+      { key: `intake:${draft.key}`, label: `${resource.title} · ${resource.scope.type}`,
+        onSuccess: acceptedSnapshot => completeSave(draft, { ownEpoch, token, preview, resource }, acceptedSnapshot) });
     if (ownEpoch !== epoch) return;
+    if (done) return;
+    if (drafts.get(draft.key) !== draft || draft.token !== token || draft.preview !== preview) return;
     draft.pending = false;
-    if (done) {
-      draft.open = false;
-      draft.preview = null;
-      draft.message = draft.kind === 'mcp_server' ? 'Saved. Connect to discover this server’s capabilities.' : 'Saved. Exposure remains a separate setting.';
-      drafts.delete(draft.key);
-      onSaved?.(resource);
-    } else draft.error = 'Not saved. Your draft is kept here. Review the error and retry explicitly.';
+    draft.error = 'Not saved. Your draft is kept here. Review the error and retry explicitly.';
     render();
   }
   async function readFile(draft, input, directory = false) {
