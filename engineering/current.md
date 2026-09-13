@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Settings M1 用户目验通过
+
+用户已接受`4833e11`的Settings实色连续配置面，并授权下一单；[回执](design/frontend-audit-2026-09-13/hierarchy-polish/acceptance.md)。后续接原队列Runtime对象详情层级，保留本片已接受容器；仍在独立分支，未合main/发布，不扩大完整可访问性声明。
+
 ## 2026-09-13 · Settings 空间层级 M1 独立施工
 
 [施工与裁决](design/frontend-audit-2026-09-13/hierarchy-polish/README.md)：Luna探索，Astra选型及实现。当前Settings采用contained实色配置面、内部平整分隔、组标题滚动锚点；搜索多组取消sticky，窄屏空态及可见容器焦点环已修正。Home/Chat/Attention保留现有层级。本记录仅对应codex/ui-hierarchy-polish-20260913独立分支，未合main；非作者源码复核与作者浏览器证据分列，不宣告全站IA接受，未push/部署。
