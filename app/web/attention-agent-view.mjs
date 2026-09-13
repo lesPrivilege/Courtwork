@@ -10,6 +10,7 @@ import {
   executionDisclosureStateKey,
   projectExecutionDisclosures,
 } from './execution-disclosure.mjs';
+import { createDraftAttachments } from './draft-attachments.mjs';
 import { createAttentionConversation } from './attention-conversation.mjs';
 import { runLabels } from './inspector.mjs';
 import { createCoordinationView } from './coordination-view.mjs';
@@ -19,7 +20,9 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   const answers = new Map(), messageViews = new Map(), measurementViews = new Map();
   const executionOpenByRun = new Map();
   let managing = false, recentSignature = "";
-  const controller = createAttentionConversation({ request, changed: render });
+  let attachments = null, attachmentOwner = null;
+  const attachmentDrafts = new Map();
+  const controller = createAttentionConversation({ request, changed: render, beforeSend: id => attachments.flush(request,id) });
   const header = el('header', { className: 'attention-agent-header' },
     el('div', {}, el('h2', { text: 'Attention', attrs: { id: 'attention-agent-title' } }), el('p', { className: 'form-help', text: 'Your global assistant' })),
     action('x', 'Close Attention', close));
@@ -88,7 +91,9 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   const stop = action('square', 'Cancel Attention run', () => controller.cancel());
   const runtime = el('details', { className: 'attention-agent-runtime' }, el('summary', { text: 'Runtime & memory' }));
   const runtimeBody = el('div'); runtime.append(runtimeBody);
-  const composer = el('div', { className: 'attention-agent-composer' }, input, modelChoice, stop, send);
+  attachments = createDraftAttachments({locked:()=>controller.state.busy || Boolean(controller.state.command)});
+  const composer = el('div', { className: 'attention-agent-composer' }, input, attachments.trigger, modelChoice, stop, send);
+  composer.append(attachments.popover);
   // Attention subtracts the Chat measurement controls: one noninteractive state line.
   const activity = createRunActivity();
   const status = el('div', { className: 'attention-agent-status' }, activity.root, feedback, runtime);
@@ -105,6 +110,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   }
   function close() { dialog.close(); }
   function updateControls() {
+    attachments?.render();
     const state = controller.state, active = controller.active();
     input.readOnly = state.busy || Boolean(state.command);
     send.disabled = state.busy || Boolean(active) || !state.draft.trim();
@@ -118,6 +124,16 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
     full.hidden = !state.session; configure.disabled = state.busy || Boolean(state.command);
   }
   function render() {
+    const nextOwner = controller.state.conversationId;
+    if (nextOwner !== attachmentOwner) {
+      // Assigning the first ID continues the new draft. Selecting another ID
+      // restores that conversation's own pending attachments.
+      if (attachmentOwner !== null || !nextOwner || !controller.state.busy) {
+        attachmentDrafts.set(attachmentOwner, attachments.snapshot());
+        attachments.restore(attachmentDrafts.get(nextOwner) || []);
+      }
+      attachmentOwner = nextOwner;
+    }
     if (!visible) return;
     const state = controller.state;
     if (input.value !== state.draft) input.value = state.draft;

@@ -35,10 +35,10 @@ export function deriveWorkSummary(state, options, availableQuestionIds) {
     for (const time of [run.startedAt, run.endedAt]) {
       if (time && Date.parse(time) > Date.parse(activity.get(run.sessionId))) activity.set(run.sessionId, time);
     }
-    if (INSPECT.has(run.status)) inspection.push({ projectId: session.projectId, sessionId: session.id,
+    if (INSPECT.has(run.status)) inspection.push({ scope: session.scope, projectId: session.projectId, sessionId: session.id,
       ...runFields(run), errorCode: run.error?.code ?? null, resultAt: run.endedAt ?? run.startedAt });
   }
-  const candidates = sessions.map((s) => ({ projectId: s.projectId, sessionId: s.id, title: s.title,
+  const candidates = sessions.map((s) => ({ scope: s.scope, projectId: s.projectId, sessionId: s.id, title: s.title,
     createdAt: s.createdAt, recordedActivityAt: activity.get(s.id), latestRun: latest.has(s.id) ? runFields(latest.get(s.id)) : null }));
   candidates.sort((a, b) => newest(a, b, "recordedActivityAt", "sessionId"));
   const pending = [];
@@ -46,7 +46,7 @@ export function deriveWorkSummary(state, options, availableQuestionIds) {
     const run = runs.get(q.runId);
     if (q.status !== "pending" || !run?.admissionOpen || !OPEN.has(run.status) || !availableQuestionIds.has(q.id)) continue;
     if (q.kind !== "ask_user" && q.kind !== "permission") continue;
-    pending.push({ projectId: bySession.get(run.sessionId).projectId, sessionId: run.sessionId,
+    pending.push({ scope: bySession.get(run.sessionId).scope, projectId: bySession.get(run.sessionId).projectId, sessionId: run.sessionId,
       runId: run.id, questionId: q.id, kind: q.kind, createdAt: q.createdAt,
       label: q.kind === "permission" ? "Permission requested" : "Answer requested" });
   }

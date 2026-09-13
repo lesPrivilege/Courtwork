@@ -1,0 +1,11 @@
+{
+  "baselineSchema": 13,
+  "currentSchema": 14,
+  "oldHostRejects": true,
+  "untouchedOnRefusal": true,
+  "exactBackup": true,
+  "separateOldHostRestore": true,
+  "scope": "unassigned",
+  "originalSha256": "f1d5ba2ad17f5254c7c87e912f0a1e6e6fddf66632668268fac8b5c9cbc5b73d",
+  "upgradedSha256": "f757c7d0876deb41cb0a6af5be734553bd88b0b78336ac2f25d6c9cd22e13224"
+}

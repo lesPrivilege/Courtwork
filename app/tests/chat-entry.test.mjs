@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 const here = new URL(".", import.meta.url).pathname;
 const html = readFileSync(`${here}../web/index.html`, "utf8");
 const app = readFileSync(`${here}../web/app.mjs`, "utf8");
-const fn = (source, name) => { const start = source.indexOf(`async function ${name}(`); const end = source.indexOf("\nfunction ", start + 1); return source.slice(start, end); };
+const fn = (source, name) => { const start = source.indexOf(`async function ${name}(`); const following = source.slice(start + 1).search(/\n(?:async )?function /); const end = following < 0 ? source.length : start + 1 + following; return source.slice(start, end); };
 
 test("Chat sits in the Home / Attention / Spark group as a plain button", () => {
   const order = [...html.matchAll(/id="(home-button|chat-button|attention-button|spark-button)"/g)].map((m) => m[1]);

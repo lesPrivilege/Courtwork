@@ -30,3 +30,10 @@
 用户追加两张参考并明确“composer左下角，附件与选择workspace解耦”。采用两个独立入口：附件只管理本次带入的材料；workspace选择只设置新Chat的组织归属。未选显示“选择工作区”，保持可发送并归Recent；选中显示真实工作区名称。模型/effort、context和Send/Stop沿现有右侧顺序，不挪用附件菜单承载workspace、不把选择工作区解释为文件权限。窄屏允许工作区标签截断但保留可访问全名；不靠图标颜色区分授权。弹层沿现有anchorPopover，打开/关闭不丢draft，Escape返回各自触发器。参考中的Local/main、插件、Goal等不是本片能力输入，不能照搬成可用状态。此为DWB-05布局裁决，生产接线仍须先有BE-23身份合同。
 
 Attention独立页只保留附件，不提供workspace选择；它本身不限定单一工作区。这个页面布局不扩张Attention实际工具授权，具体动作仍按原scope/policy。普通Chat的可选组织归属不反向套用到Attention。
+
+
+## 2026-09-13 实施接续
+
+用户授权完成实现后，BE-23 / DWB-05采用独立`unassigned`普通Chat身份、Runtime14严格迁移及Session ID恢复；生产合同见[optional workspace chats](../../../app/docs/projectless-chat.md)，作者验证与未测项见[实施证据](../../../evidence/projectless-chat-20260913/README.md)。本节覆盖上文“尚未生产接线”的历史状态。
+
+用户补充：侧栏Projects与Recent是同级语义，Projects在上。两段沿相同heading/列表字阶与同一滚动区；Project内列表保留，Recent按普通会话真实Run边界活动排序，Attention不进入普通Recent。附件暂存不先创建或锁定Session，发送后才由原材料owner保留；已建会话的组织归属不可通过标签重写。

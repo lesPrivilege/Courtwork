@@ -6589,8 +6589,7 @@ html[data-theme="dark"] {
   .runtime-row.is-tool-summary > .runtime-dimensions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-/* ==== Stage 4 · the example workspace (ONE-SHOT 2026-09-11) ============
-   One chip in the title band, one banner at the head of Home, one tag on the
+/* ==== Stage 4 · the example workspace (ONE-SHOT 2026-09-11) =====   One chip in the title band, one banner at the head of Home, one tag on the
    story's project rows. All of it is the product's own type and level roles:
    the example is a labelled state, not a themed mode. */
 .preview-chip {
@@ -6683,3 +6682,21 @@ html[data-theme="dark"] {
 .runtime-local-trust { display: flex; align-items: start; gap: var(--space-2); font-size: var(--text-meta); }
 .runtime-local-trust input { flex: 0 0 auto; }
 #local-extension-intake code { overflow-wrap: anywhere; }
+/* DWB-05: independent draft materials and optional organization context. */
+.composer-workspace { min-width: 0; max-width: min(22ch, 30vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draft-attachments-popover {
+  box-sizing: border-box; width: min(360px, calc(100vw - 24px)); max-height: min(440px, 70vh); overflow: auto;
+  padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-container);
+  background: var(--float); color: var(--ink); box-shadow: var(--shadow-float);
+  inset: auto; margin: 0;
+}
+.workspace-options, .draft-attachment-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.workspace-option { text-align: left; overflow-wrap: anywhere; }
+.workspace-option[aria-pressed="true"] { background: var(--selected); }
+.recent-section { flex: 0 0 auto; }
+#recent-list { display: flex; flex-direction: column; }
+#recent-list .session-button { min-width: 0; text-align: left; }
+
+.nav-collections { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: var(--space-4); }
+.nav-collections .project-section, .nav-collections .recent-section { flex: none; display: flex; flex-direction: column; gap: var(--space-2); }
+.nav-collections .project-list { overflow: visible; }

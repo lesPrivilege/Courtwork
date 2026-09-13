@@ -1,0 +1,15 @@
+PASS Projects and Recent are peers; Projects first
+PASS First send creates an unassigned chat without naming or workspace selection
+PASS Adding a draft attachment does not create or bind a chat
+PASS Workspace selection after adding files preserves draft and binds retained material to the selected chat
+PASS Refresh restores assigned Session ID
+PASS Refresh restores unassigned Session ID
+PASS Workspace Escape returns focus; new chat does not inherit the active project
+PASS Attention attachment is retained globally without a workspace chooser or ordinary Recent entry
+PASS Home and chooser fit light 1440
+PASS Home and chooser fit dark 1440
+PASS Home and chooser fit light 1280
+PASS Home and chooser fit dark 1280
+PASS Home and chooser fit light 390
+PASS Home and chooser fit dark 390
+PASS No uncaught browser errors

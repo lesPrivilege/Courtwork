@@ -1,20 +1,10 @@
 # 当前工程状态
 
-## 2026-09-13 · Developer 导入闭环候选
+## 2026-09-13 · 可选 workspace Chat 与 Recent 已实现
 
-Astra 串行完成 [MCP / Skill / 本地 Plugin 与八种原生 SVG](design/developer-control-panel-2026-09-13/README.md)：配置预览/保存、连接/曝光/许可各自独立，Skill 根文件导入与按需绑定读取，本地 CW 包固定字节登记后另行 Load，沿原 ExtensionRegistry 与 Core owner。Hook/Registry 保持 adapter-required。全量972/972与后补定向38/38、lint/smoke通过，作者明暗桌面/390大字和实际导入后的合成 deny/allow/load 留证；原生 OS 文件选择器、完整无障碍矩阵与用户视觉接受仍开放。独立代码复核单列；本片在隔离候选分支，未合main、push或部署。
+按用户授权完成 BE-23/DWB-05：[实现契约](../app/docs/projectless-chat.md)、[验证证据](../evidence/projectless-chat-20260913/README.md)。侧栏 Projects 与 Recent 同级且 Projects 在上；Recent 展示全部普通会话，包括未分配 Chat。首次发送无需先选 Project 或命名，左下附件与 workspace 独立；Attention 仅新增附件。刷新按 Session ID 恢复，创建/上传失去回执沿原身份重试；Runtime schema14 的 v13 字节备份、旧宿主拒绝与独立恢复已验证。
 
-## 2026-09-13 · Runtime 详情层级候选
-
-[施工与证据](design/frontend-audit-2026-09-13/runtime-hierarchy/README.md)：继承已目验Settings容器，详情独立阅读、单层源码滚动、重绘保留阅读位置与焦点；长源码shell溢出及窄屏标题已修复。Astra作者与Luna非作者复核分列，用户目验待回执。仍在独立分支，未合main/部署。[开发者控制面板参考](research/developer-control-panel-2026-09-13/README.md)另行核对登记，不冒充adapter闭环交付。
-
-## 2026-09-13 · Settings M1 用户目验通过
-
-用户已接受`4833e11`的Settings实色连续配置面，并授权下一单；[回执](design/frontend-audit-2026-09-13/hierarchy-polish/acceptance.md)。后续接原队列Runtime对象详情层级，保留本片已接受容器；仍在独立分支，未合main/发布，不扩大完整可访问性声明。
-
-## 2026-09-13 · Settings 空间层级 M1 独立施工
-
-[施工与裁决](design/frontend-audit-2026-09-13/hierarchy-polish/README.md)：Luna探索，Astra选型及实现。当前Settings采用contained实色配置面、内部平整分隔、组标题滚动锚点；搜索多组取消sticky，窄屏空态及可见容器焦点环已修正。Home/Chat/Attention保留现有层级。本记录仅对应codex/ui-hierarchy-polish-20260913独立分支，未合main；非作者源码复核与作者浏览器证据分列，不宣告全站IA接受，未push/部署。
+源码 b81403c 作者全量 964/964、smoke、链接及四项 UI lint 通过；22 项合成浏览器检查覆盖明暗窄屏、键盘、强制配色、丢回执与草稿恢复。证据提交 4fd29fd 已快进本地 main，其他 writer 的 62 个原有文件逐字节保留；本记录仅暂存自己的新增段落。原生 200% 未实测（720 CSSpx 等效宽度已测），未新增真实 provider Run；本片不替代非作者接受，不关闭既有 Release 门，未 push/tag/部署。此节替代下方历史记录的“尚未生产接线”状态。
 
 ## 2026-09-13 · Release复核修复与真实模型候选
 

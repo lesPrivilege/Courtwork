@@ -39,7 +39,7 @@ Properties 的 label、help、control、validation、modified/reset、provenance
 
 按[RD-006五图语义参考](../../research/deferred-workspace-binding-2026-09-12/semantic-reference.md)，项目组织归属、外部资源目录、执行位置、Git/worktree、权限、模型/effort各有owner；不能把它们合成一个workspace权限标签，也不要求排六个chip。No folder与无project含义不同；托管成果目录不等于用户外部目录，Local不表示已授文件权限，未知Git不补成main。最近项只是候选，选择失败保留原scope与草稿，不自动继承最近目录。
 
-现有Attention可免选project创建，普通Chat仍依赖project；不得为表现空选项把普通Chat转成global Attention。Connect/Disconnect、跨project切换、worktree操作必须由真实服务capability驱动，截图不是动作授权或实现证据。当前无相关后端时，消费维度规则和既有入口，不渲染假连接状态或可用按钮。声明式资源草稿同样只由Host proposal事实浮现，模型文本不产生已安装状态，见[GUI控制面裁决](../../research/gui-agent-control-plane-2026-09-12/README.md)。
+普通Chat已按[BE-23 / DWB-05](../../../app/docs/projectless-chat.md)支持独立unassigned身份；Attention继续使用global身份。不得因projectId为空合并二者的权限、配置或投影。Connect/Disconnect、跨project切换、worktree操作必须由真实服务capability驱动，截图不是动作授权或实现证据。当前无相关后端时，消费维度规则和既有入口，不渲染假连接状态或可用按钮。声明式资源草稿同样只由Host proposal事实浮现，模型文本不产生已安装状态，见[GUI控制面裁决](../../research/gui-agent-control-plane-2026-09-12/README.md)。
 
 后端缺口与前端接线顺序见[DWB前端消费回执](../../research/deferred-workspace-binding-2026-09-12/frontend-consumption.md)。模型与文件权限继续用现有control，发送/取消、Session身份及Review语义保持各自合同。
 

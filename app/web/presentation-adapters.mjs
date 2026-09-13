@@ -86,8 +86,8 @@ export function toStatTiles(summary, { scope, observedAt, load }) {
   ];
 }
 
-const projectName = (projects, id) =>
-  id === null ? "Global Attention" : projects.find((project) => project.id === id)?.name ?? null;
+const projectName = (projects, id, scope) =>
+  id === null ? (scope === "unassigned" ? "No workspace" : scope === "global" ? "Global Attention" : null) : projects.find((project) => project.id === id)?.name ?? null;
 
 /**
  * work-summary.sessionCandidates → the lower band's WorkCards. The row state and
@@ -100,7 +100,7 @@ export function toWorkCards(summary, projects) {
     items: (page?.items ?? []).map((item) => ({
       sessionId: item.sessionId,
       title: item.title || "Open chat",
-      projectName: projectName(projects, item.projectId),
+      projectName: projectName(projects, item.projectId, item.scope),
       projectId: item.projectId,
       runStatus: item.latestRun?.status ?? null,
       missingRunLabel: MISSING_RUN_LABEL,
@@ -146,7 +146,7 @@ export function toPendingRows(summary, projects) {
     items: (page?.items ?? []).map((item) => ({
       sessionId: item.sessionId,
       projectId: item.projectId,
-      projectName: projectName(projects, item.projectId),
+      projectName: projectName(projects, item.projectId, item.scope),
       title: titles.get(item.sessionId) || "Open chat",
       runId: item.runId,
       questionId: item.questionId,
@@ -176,7 +176,7 @@ export function toInspectionRows(summary, projects) {
     items: (page?.items ?? []).map((item) => ({
       sessionId: item.sessionId,
       projectId: item.projectId,
-      projectName: projectName(projects, item.projectId),
+      projectName: projectName(projects, item.projectId, item.scope),
       title: titles.get(item.sessionId) || "Open chat",
       runId: item.runId,
       status: item.status,

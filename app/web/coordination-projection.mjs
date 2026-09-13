@@ -34,15 +34,16 @@ const object = (value) => Boolean(value) && typeof value === "object" && !Array.
 /** `{kind,projectId,matterId}` exactly as `harness/coordination-state.mjs` captures it. */
 function projectScope(scope) {
   if (!object(scope)) return null;
-  if (!["global", "project"].includes(scope.kind)) return null;
+  if (!["global", "project", "unassigned"].includes(scope.kind)) return null;
   if (!(scope.projectId === null || text(scope.projectId, 100))) return null;
   if (!(scope.matterId === null || text(scope.matterId))) return null;
-  return { kind: scope.kind, projectId: scope.projectId, matterId: scope.matterId };
+  if (scope.kind === "unassigned" && (!text(scope.sessionId) || scope.projectId !== null || scope.matterId !== null)) return null;
+  return { kind: scope.kind, projectId: scope.projectId, matterId: scope.matterId, ...(scope.kind === "unassigned" ? {sessionId:scope.sessionId} : {}) };
 }
 
 /** Scope equality is the server's own binding rule, restated for option lists only. */
 export const sameScope = (a, b) =>
-  Boolean(a) && Boolean(b) && a.kind === b.kind && a.projectId === b.projectId && a.matterId === b.matterId;
+  Boolean(a) && Boolean(b) && a.kind === b.kind && a.projectId === b.projectId && a.matterId === b.matterId && (a.kind !== "unassigned" || a.sessionId === b.sessionId);
 
 /* `available` is derived per read: `list()` and `mailbox()` attach it, while the
  * `POST` receipts return the stored record and carry no such field. So it is
@@ -139,7 +140,7 @@ export function projectSessionOptions(payload) {
   const sessions = [];
   for (const session of payload.sessions) {
     if (!object(session) || !text(session.id)) return null;
-    if (!["global", "project"].includes(session.scope)) return null;
+    if (!["global", "project", "unassigned"].includes(session.scope)) return null;
     if (!(session.projectId === null || session.projectId === undefined || text(session.projectId, 100))) return null;
     const binding = session.extensionBinding;
     if (!(binding === null || binding === undefined || object(binding))) return null;
@@ -151,6 +152,7 @@ export function projectSessionOptions(payload) {
         kind: session.scope,
         projectId: session.projectId ?? null,
         matterId: binding?.binding?.matterId ?? null,
+        ...(session.scope === "unassigned" ? {sessionId:session.id} : {}),
       },
     });
   }

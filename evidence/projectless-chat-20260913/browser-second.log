@@ -1,0 +1,8 @@
+{
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "http://127.0.0.1:54319/web/draft-attachments.mjs:net::ERR_ABORTED",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "body": "CourtWork\nHome\nChat\nAttention\nSpark\nExpert\nPlanned\nFind a project or chat\nPROJECTS\n0\nRECENT\nSettings\nHome"
+}

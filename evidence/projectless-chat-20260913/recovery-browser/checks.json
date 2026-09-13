@@ -1,0 +1,35 @@
+{
+  "checks": [
+    {
+      "name": "Lost creation receipt recovers exact Session ID on refresh with draft retained and no duplicate POST",
+      "pass": true
+    },
+    {
+      "name": "Lost upload response retains exact command and revision across refresh; no duplicate Session or retained revision",
+      "pass": true
+    },
+    {
+      "name": "Failed Recent read keeps the last list and unsent draft with an explicit retry",
+      "pass": true
+    },
+    {
+      "name": "Long selected workspace name truncates visually and retains the full accessible name",
+      "pass": true
+    },
+    {
+      "name": "720 CSS-pixel reflow (1440 at 200% equivalent width) remains within the viewport",
+      "pass": true
+    },
+    {
+      "name": "Forced colors and reduced motion keep workspace choice and Escape usable",
+      "pass": true
+    },
+    {
+      "name": "Narrow navigation retains peer Projects-before-Recent order",
+      "pass": true
+    }
+  ],
+  "errors": [],
+  "creationIdentity": "0fed8175-285f-4662-84c3-0bccad9e5443",
+  "uploadSession": "067420d6-d7cf-46d5-8706-243682e9107f"
+}

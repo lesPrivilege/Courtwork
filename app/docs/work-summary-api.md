@@ -39,7 +39,8 @@ use the existing 500 `internal_error`, never a successful empty fallback.
   event high-water mark; it is neither comparable across sessions nor a revision
   for fields changed without events. Sessions contributing only to totals have
   no version entry until their item is paged in.
-- `sessionCandidates.items`: `{projectId,sessionId,title,createdAt,
+- Each item carries its owning Session `scope` (`project`, `unassigned`, or `global`). A null `projectId` alone does not identify Attention.
+- `sessionCandidates.items`: `{scope,projectId,sessionId,title,createdAt,
   recordedActivityAt,latestRun}`. Includes all sessions, including those with no
   Run (`latestRun:null`). A candidate identifies a session the UI can reopen;
   it does not promise immediate Run admission while another Run is active.
@@ -48,13 +49,13 @@ use the existing 500 `internal_error`, never a successful empty fallback.
   createdAt and all of its recorded Run start/end timestamps. It excludes draft
   edits, user visits and events lacking timestamps. Sort: recordedActivityAt
   descending, sessionId ascending. No priority or “recently visited” is inferred.
-- `pendingItems.items`: `{projectId,sessionId,runId,questionId,kind,createdAt,label}`.
+- `pendingItems.items`: `{scope,projectId,sessionId,runId,questionId,kind,createdAt,label}`.
   Only `pending` ask_user/permission records with a running/waiting_user Run,
   admissionOpen true, and a live answer receiver are included. Fixed labels are
   `Answer requested` and `Permission requested`; clients can localize by kind.
   Sort: createdAt ascending, questionId ascending. Prompt, answer, permission
   payload, file path and content preview are intentionally absent.
-- `inspectionCandidates.items`: `{projectId,sessionId,runId,status,startedAt,
+- `inspectionCandidates.items`: `{scope,projectId,sessionId,runId,status,startedAt,
   endedAt,errorCode,resultAt}` for failed/unknown Runs only. `errorCode` is the
   recorded code or null; no error message/body is copied. `resultAt` is endedAt
   or, if absent, startedAt. Sort: resultAt descending, runId ascending. This is a

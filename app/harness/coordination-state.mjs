@@ -13,7 +13,7 @@ export function str(value, max = 200) { check(typeof value === 'string' && value
 export function revision(value) { check(Number.isSafeInteger(value) && value >= 0, 'Invalid revision'); return value; }
 export const emptyCoordination = () => ({ threads: [], messages: [] });
 export function sessionScope(session) {
-  return { kind: session.scope, projectId: session.projectId, matterId: session.extensionBinding?.binding?.matterId ?? null };
+  return { kind: session.scope, projectId: session.projectId, matterId: session.extensionBinding?.binding?.matterId ?? null, ...(session.scope === 'unassigned' ? {sessionId: session.id} : {}) };
 }
 export function validateCoordination(value) {
   keys(value, ['threads','messages']);
@@ -23,9 +23,10 @@ export function validateCoordination(value) {
     keys(t, ['id','title','scope','sessionIds','revision','status','createdAt','creation']);
     str(t.id); check(!ids.has(t.id), 'Duplicate Thread'); ids.add(t.id);
     str(t.title); revision(t.revision); check(t.revision >= 1, 'Invalid Thread revision');
-    keys(t.scope, ['kind','projectId','matterId']);
-    check(['global','project'].includes(t.scope.kind), 'Invalid scope');
+    keys(t.scope, ['kind','projectId','matterId', ...(t.scope.kind === 'unassigned' ? ['sessionId'] : [])]);
+    check(['global','project','unassigned'].includes(t.scope.kind), 'Invalid scope');
     if (t.scope.kind === 'global') check(t.scope.projectId === null && t.scope.matterId === null, 'Global Thread scope');
+    else if (t.scope.kind === 'unassigned') { str(t.scope.sessionId); check(t.scope.projectId === null && t.scope.matterId === null && t.sessionIds.length === 1 && t.sessionIds[0] === t.scope.sessionId, 'Unassigned Thread scope'); }
     else { str(t.scope.projectId); if (t.scope.matterId !== null) str(t.scope.matterId); }
     check(['open','closed'].includes(t.status) && Number.isFinite(Date.parse(t.createdAt)), 'Invalid Thread state');
     check(Array.isArray(t.sessionIds) && t.sessionIds.length > 0 && t.sessionIds.length <= 64, 'Invalid membership');

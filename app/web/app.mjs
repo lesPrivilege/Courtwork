@@ -37,6 +37,7 @@ import {
   PreviewRefusal,
   shouldBypassPreviewStats,
 } from "./preview-layer.mjs";
+import { createDraftAttachments } from "./draft-attachments.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createChatMeasurements } from "./chat-measurements.mjs";
@@ -139,6 +140,9 @@ const state = {
   adapterId: null,
   projects: [],
   sessionsByProject: new Map(),
+  recentSessions: [],
+  recentError: null,
+  recentGeneration: 0,
   openProjectIds: new Set(),
   activeProjectId: null,
   activeSessionId: null,
@@ -323,15 +327,17 @@ function writeUiState() {
   }
 }
 
+let homeAttachments = null;
 function storeHomeDraft() {
   try {
     const start = state.homeStart;
     window.sessionStorage?.setItem(HOME_DRAFT_KEY, JSON.stringify({
       draft: state.homeDraft,
+      attachments: homeAttachments?.snapshot() || [],
       projectId: state.homeProjectId,
       permissionMode: state.homePermissionMode,
       start: start ? {
-        projectId: start.projectId, commandId: start.commandId,
+        projectId: start.projectId, commandId: start.commandId, sessionId: start.sessionId || null,
         session: start.session || null,
         unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),
         error: start.error || "",
@@ -344,12 +350,13 @@ function restoreHomeDraft() {
     const saved = JSON.parse(window.sessionStorage?.getItem(HOME_DRAFT_KEY) || "null");
     if (typeof saved?.draft !== "string") return;
     state.homeDraft = saved.draft.slice(0, 100000);
+    homeAttachments?.restore(saved.attachments);
     state.homeProjectId = typeof saved.projectId === "string" ? saved.projectId : null;
     if (Object.hasOwn(permissionLabels, saved.permissionMode)) state.homePermissionMode = saved.permissionMode;
-    if (saved.start && typeof saved.start.projectId === "string" && typeof saved.start.commandId === "string") {
+    if (saved.start && (saved.start.projectId === null || typeof saved.start.projectId === "string") && typeof saved.start.commandId === "string") {
       state.homeStart = { ...saved.start, pending: false };
       if (saved.start.unconfirmed)
-        state.homeStart.error = "Creating the chat is unconfirmed. Refresh and check recent chats before trying again. Your instruction is kept.";
+        state.homeStart.error = "Creating the chat is unconfirmed. Refresh to recover the same chat. Your instruction is kept.";
     }
   } catch { /* Ignore malformed tab-local state. */ }
 }
@@ -976,6 +983,7 @@ function mergeEvents(events) {
     return type === "run/error" || type === "artifact/written" || type === "assistant/final"
       || type === "run/status";
   })) void workReviewSummaryView?.refresh();
+  if (fresh.some(event => ["run/status", "run/error"].includes(normalizedType(event.type)))) void loadRecentSessions();
   return changed;
 }
 
@@ -1533,6 +1541,10 @@ async function selectSession(
       })
     )
       return;
+    void loadRecentSessions();
+    state.activeProjectId = detail.session.projectId;
+    if (detail.session.projectId) state.openProjectIds.add(detail.session.projectId);
+    writeUiState();
     state.surface.open = !surfaceOverlayQuery.matches;
     renderAll();
     await loadSurface(epoch);
@@ -1586,6 +1598,54 @@ function clearActiveSession() {
   renderAll();
 }
 
+async function loadRecentSessions() {
+  const generation = ++state.recentGeneration;
+  try {
+    const result = await request("/sessions", preview.active ? {bypassPreview:true} : {});
+    if (generation !== state.recentGeneration) return;
+    state.recentSessions = (result.sessions || []).filter(s => s.scope !== "global");
+    state.recentError = null;
+    const start = state.homeStart;
+    if (start?.unconfirmed && start.sessionId) {
+      const found = state.recentSessions.find(s => s.id === start.sessionId && s.projectId === start.projectId);
+      start.session = found || null;
+      start.unconfirmed = false;
+      start.error = found ? "Your chat was recovered. Send to continue in it." : "Send to retry the same chat identity.";
+      storeHomeDraft();
+      renderComposer();
+    }
+  } catch (error) { if (generation !== state.recentGeneration) return; state.recentError = error.message; }
+  renderRecentSessions();
+}
+function renderRecentSessions() {
+  if(state.session && state.session.scope !== "global") {
+    state.recentSessions = state.recentSessions.map(s=>s.id===state.session.id ? {...s,...state.session} : s);
+  }
+  const list = $("recent-list");
+  const query = state.navigationFilter.trim().toLocaleLowerCase();
+  const rows = state.recentSessions.filter(s=>String(s.title).toLocaleLowerCase().includes(query));
+  const limit = state.navigationLimits.get("recent") || 8;
+  const signature = JSON.stringify([query, limit, state.recentError, state.activeSessionId, rows.map(s=>[s.id,s.title])]);
+  if (list.dataset.signature === signature) return;
+  list.dataset.signature = signature;
+  const focused = list.contains(document.activeElement) ? document.activeElement?.dataset.recentKey : null;
+  list.replaceChildren();
+  if(state.recentError){
+    list.append(element("p",{className:"inline-error",text:"Could not refresh recent chats."}));
+    const retry=element("button",{className:"text-button",text:"Retry",attrs:{type:"button","data-recent-key":"retry"}});
+    retry.addEventListener("click",()=>void loadRecentSessions());list.append(retry);
+  }
+  if (!rows.length && !state.recentError) list.append(element("p",{className:"empty-list",text:query?"No matching chats.":"No chats yet."}));
+  for(const session of rows.slice(0,query?rows.length:limit)){
+    const button=element("button",{className:`session-button ${state.activeSessionId===session.id?"active":""}`,
+      attrs:{type:"button","data-recent-key":session.id,"data-recent-id":session.id,"aria-current":state.activeSessionId===session.id?"page":null,title:session.title}},
+      element("span",{className:"session-name",text:session.title||"Untitled chat"}));
+    button.addEventListener("click",()=>void selectSession(session.id));list.append(button);
+  }
+  if(!query&&rows.length>limit){const more=element("button",{className:"text-button nav-more",text:"Show more",attrs:{type:"button","data-recent-key":"more"}});more.addEventListener("click",()=>{state.navigationLimits.set("recent",limit+10);renderRecentSessions();});list.append(more);}
+  if(focused&&document.activeElement===document.body)(list.querySelector(`[data-recent-key="${CSS.escape(focused)}"]`) || $("recent-heading")).focus();
+}
+
 async function loadSessionsForProject(projectId, { force = false } = {}) {
   if (!projectId || (!force && state.sessionsByProject.has(projectId)))
     return state.sessionsByProject.get(projectId) || [];
@@ -1608,13 +1668,14 @@ async function refreshNavigationAndSession() {
   const navigationEpoch = state.navigationEpoch + 1;
   state.navigationEpoch = navigationEpoch;
   await loadProjects();
+  await loadRecentSessions();
   if (navigationEpoch !== state.navigationEpoch) return;
   const projectIds = new Set([...state.openProjectIds, state.activeProjectId].filter(Boolean));
   await Promise.all([...projectIds].map(id => loadSessionsForProject(id, { force: true })));
   if (navigationEpoch !== state.navigationEpoch) return;
   renderProjectList();
   if (state.view === "home") { await loadHome(); return; }
-  const sessions = state.sessionsByProject.get(state.activeProjectId);
+  const sessions = state.activeProjectId ? state.sessionsByProject.get(state.activeProjectId) : state.recentSessions;
   if (navigationEpoch !== state.navigationEpoch || !sessions) return;
   if (
     state.activeSessionId &&
@@ -1707,30 +1768,21 @@ async function loadProjects() {
   state.openProjectIds = new Set(
     [...state.openProjectIds].filter((projectId) => valid.has(projectId)),
   );
-  if (state.activeProjectId && !valid.has(state.activeProjectId)) {
-    state.activeProjectId = null;
-    state.restoreSessionId = null;
-    clearActiveSession();
-  }
+  if (state.activeProjectId && !valid.has(state.activeProjectId)) state.activeProjectId = null;
   renderProjectList();
 }
 
 async function restoreUiSelection() {
-  const projectId =
-    state.activeProjectId &&
-    state.projects.some((project) => project.id === state.activeProjectId)
-      ? state.activeProjectId
-      : state.projects[0]?.id || null;
-  if (!projectId) {
-    state.activeProjectId = null;
-    state.restoreSessionId = null;
-    clearActiveSession();
-    void loadHome();
-    return;
-  }
+  await loadRecentSessions();
   const requestedSessionId = state.restoreSessionId;
   state.restoreSessionId = null;
-  await selectProject(projectId, { sessionId: requestedSessionId });
+  if (requestedSessionId) {
+    await selectSession(requestedSessionId);
+  } else {
+    state.activeProjectId = null;
+    clearActiveSession();
+    void loadHome();
+  }
   writeUiState();
 }
 
@@ -1798,6 +1850,7 @@ async function refreshActiveSession() {
 }
 
 function renderProjectList() {
+  renderRecentSessions();
   const list = $("project-list");
   const focusedKey = list.contains(document.activeElement)
     ? document.activeElement?.dataset.navKey
@@ -2086,7 +2139,7 @@ function renderExtensionList() {
         () => void lifecycle(extension.id, "reload"),
       );
       actions.append(reloadButton);
-      if (session && session.scope !== "global" && !session.extensionBinding) {
+      if (session && session.scope === "project" && !session.extensionBinding) {
         const bindButton = element("button", {
           className: "secondary-button",
           attrs: { type: "button" },
@@ -2267,7 +2320,7 @@ function renderBindingPanel() {
     (item) => item.id === state.bindingExtensionId,
   );
   const session = currentSession();
-  if (!extension || !session || session.scope === "global" || session.extensionBinding) {
+  if (!extension || !session || session.scope !== "project" || session.extensionBinding) {
     panel.hidden = true;
     return;
   }
@@ -3292,8 +3345,10 @@ function renderChatHeader() {
   $("app-shell").classList.toggle("home-active", home);
   $("home-composer-intro").hidden = !home;
   $("home-composer-context").hidden = !home;
+  $("home-project-button").hidden = !home;
+  if (homeAttachments) homeAttachments.trigger.hidden = !home;
   if (!home) $("home-start-status").hidden = true;
-  $("materials-button").hidden = !home && !session;
+  $("materials-button").hidden = home || !session;
   $("materials-button").disabled = home && Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
   $("permission-settings-button").hidden = home || !session;
   const body = $("conversation-body"),
@@ -3454,7 +3509,7 @@ function renderComposer() {
       COMPOSER_SEND_LABEL,
       Boolean(state.homeStart?.pending),
     );
-    send.disabled = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) || !state.homeDraft.trim() || !homeProjectId();
+    send.disabled = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) || !state.homeDraft.trim();
     cancel.hidden = true;
     setRequestLabel(cancel, COMPOSER_CANCEL_LABEL, false);
     cancel.disabled = true;
@@ -5066,10 +5121,9 @@ function isUncertainCommandError(error) {
 
 function homeProjectId() {
   const start = state.homeStart;
-  const fixedProject = start?.pending || start?.unconfirmed || start?.session;
-  const preferred = (fixedProject ? start.projectId : state.homeProjectId) || state.activeProjectId;
-  const own = state.projects.filter((project) => !project.preview);
-  return own.find((project) => project.id === preferred)?.id || own[0]?.id || null;
+  const fixedProject = start?.pending || start?.unconfirmed || start?.session || start?.sessionId;
+  const preferred = fixedProject ? start.projectId : state.homeProjectId;
+  return state.projects.find(project => !project.preview && project.id === preferred)?.id || null;
 }
 function previewStatsRequestOptions() {
   const realProjectCount = state.projects.filter((project) => !project.preview).length;
@@ -5078,18 +5132,14 @@ function previewStatsRequestOptions() {
     : {};
 }
 function renderHomeComposerContext() {
-  const project = $("home-project-input");
-  const own = state.projects.filter((item) => !item.preview);
-  const signature = JSON.stringify(own.map(({ id, name }) => [id, name]));
-  if (project.dataset.options !== signature) {
-    project.replaceChildren(...(own.length
-      ? own.map((item) => element("option", { text: item.name, attrs: { value: item.id } }))
-      : [element("option", { text: "Create a project to begin", attrs: { value: "" } })]));
-    project.dataset.options = signature;
-  }
-  project.value = homeProjectId() || "";
-  const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session);
-  project.disabled = locked || !own.length;
+  const project = $("home-project-button");
+  const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId);
+  const chosen = state.projects.find(p => p.id === homeProjectId());
+  project.textContent = chosen?.name || "Choose workspace";
+  project.title = chosen?.name || "Choose workspace";
+  project.setAttribute("aria-label", chosen ? `Workspace: ${chosen.name}` : "Choose workspace");
+  project.disabled = locked;
+  homeAttachments?.render();
   $("home-permission-input").value = state.homePermissionMode;
   $("home-permission-input").disabled = locked;
   $("home-create-project").disabled = locked;
@@ -5098,27 +5148,20 @@ function renderHomeComposerContext() {
     ? "Starting your chat…"
     : state.homeStart?.error || (state.homeStart?.session
       ? "Your chat is ready. Send to continue in it."
-      : !homeProjectId() ? "Choose or create a project to send." : "");
+      : "");
   status.textContent = message;
   status.hidden = !message;
   status.dataset.error = state.homeStart?.error ? "true" : "false";
 }
-async function submitHomeRun({prepareOnly = false} = {}) {
+async function submitHomeRun() {
   if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) return;
   const input = $("composer-input").value;
-  if (!prepareOnly && !input.trim()) return;
+  if (!input.trim()) return;
   state.homeDraft = input;
   const projectId = homeProjectId();
-  if (!projectId) {
-    storeHomeDraft();
-    state.homeProjectRequest = true;
-    state.startAfterProject = false;
-    openDialog("project-dialog", "project-name-input");
-    return;
-  }
   const ticket = guardRegisterIntent();
-  const operation = state.homeStart?.session ? state.homeStart : {
-    projectId, commandId: crypto.randomUUID(), session: null,
+  const operation = state.homeStart?.session || state.homeStart?.sessionId ? state.homeStart : {
+    projectId, commandId: crypto.randomUUID(), sessionId: crypto.randomUUID(), session: null,
   };
   operation.pending = true;
   operation.error = "";
@@ -5131,15 +5174,17 @@ async function submitHomeRun({prepareOnly = false} = {}) {
     if (!operation.session) {
       const result = await request("/sessions", { method: "POST", body: {
         projectId: operation.projectId,
+        sessionId: operation.sessionId,
         title: input.trim().split(/\r?\n/)[0].slice(0, 100) || "New chat",
         permissionMode: state.homePermissionMode,
       } });
-      if (!result.session?.id || result.session.projectId !== operation.projectId)
+      if (!result.session?.id || result.session.id !== operation.sessionId || result.session.projectId !== operation.projectId)
         throw new Error("Creating the chat returned no matching receipt.");
       operation.session = result.session;
       storeHomeDraft();
     }
     const session = operation.session;
+    await homeAttachments.flush(request, session.id);
     const items = state.sessionsByProject.get(operation.projectId) || [];
     state.sessionsByProject.set(operation.projectId, [...items.filter((item) => item.id !== session.id), session]);
     const revision = draftRevision(session.id) + 1;
@@ -5153,7 +5198,8 @@ async function submitHomeRun({prepareOnly = false} = {}) {
       return;
     }
     state.activeProjectId = operation.projectId;
-    state.openProjectIds.add(operation.projectId);
+    if (operation.projectId) state.openProjectIds.add(operation.projectId);
+    await loadRecentSessions();
     await selectSession(session.id, { focus: false });
     if (state.navigationEpoch !== ticket.navEpoch + 1 || currentSession()?.id !== session.id) {
       operation.error = "The chat was created; your instruction has not been sent. Return Home to continue.";
@@ -5169,15 +5215,13 @@ async function submitHomeRun({prepareOnly = false} = {}) {
     });
     // Only the existing Run pipeline admits execution, preserving its receipt,
     // draft revision, cancellation and recovery owners.
-    if (prepareOnly) {
-      openDialog("materials-dialog", "close-materials-button");
-      materialsView.open();
-    } else await submitSessionRun({ commandId: operation.commandId });
+    await submitSessionRun({ commandId: operation.commandId });
     void loadHome();
   } catch (error) {
     operation.unconfirmed = !operation.session && isUncertainCommandError(error);
+    if (!operation.session && !operation.unconfirmed) operation.sessionId = null;
     operation.error = operation.unconfirmed
-      ? "Creating the chat is unconfirmed. Refresh and check recent chats before trying again. Your instruction is kept."
+      ? "Creating the chat is unconfirmed. Refresh to recover the same chat. Your instruction is kept."
       : `Could not start: ${error.message}. Your instruction is kept.`;
   } finally {
     operation.pending = false;
@@ -5301,6 +5345,7 @@ async function submitSessionRun({ commandId = null } = {}) {
     storeUnconfirmedRuns();
     if (state.pendingRuns.get(sessionId) !== operation) return;
     state.pendingRuns.delete(sessionId);
+    void loadRecentSessions();
     if (state.activeSessionId === sessionId && result.run?.id)
       mergeRun(result.run, { sessionId, preserveStatus: true });
     // A matching 2xx receipt establishes the person's real work identity. The
@@ -5627,7 +5672,7 @@ function renderHomeState() {
       renderHomeState();
     },
     onSession: async (item, { inspect }) => {
-      await selectProject(item.projectId, { sessionId: item.sessionId });
+      await selectSession(item.sessionId);
       if (state.activeSessionId === item.sessionId && inspect)
         openRun(item.runId);
     },
@@ -5716,6 +5761,7 @@ function loadHomeModules() {
   void loadHomeAttention();
 }
 async function loadHome(key = null, offset = 0) {
+  void loadRecentSessions();
   if (!key) loadHomeModules();
   const own = ++state.home.generation;
   state.home.loading = true;
@@ -5800,31 +5846,25 @@ async function openChatPage() {
   chatPage.open({
     projects: state.projects.filter((project) => state.openProjectIds.has(project.id) || project.id === state.activeProjectId),
     sessionsByProject: state.sessionsByProject,
+    recentSessions: state.recentSessions,
     activeSessionId: state.activeSessionId,
     currentSession: currentSession(),
     example: preview.available && !preview.active ? { label: "See the example workspace" } : null,
   });
   $("chat-page").querySelector('[data-chat-focus="title"]')?.focus();
 }
-function startNewSession({ projectId = null } = {}) {
-  state.homeProjectRequest = false;
-  if (preview.isExampleId(projectId || state.activeProjectId)) {
-    showToast("This project is the example. New chats begin in a project of your own.");
-    projectId = null;
-    state.activeProjectId = null;
-  }
-  if (!state.projects.some((project) => !project.preview)) {
-    state.startAfterProject = true;
-    openDialog("project-dialog", "project-name-input");
+async function startNewSession({ projectId = null } = {}) {
+  if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId) {
+    await goHome();
+    showToast("Finish or recover the chat being started before opening another.");
     return;
   }
-  state.newSessionProjectId =
-    projectId || state.activeProjectId || state.projects.find((project) => !project.preview).id;
-  $("session-project-label").textContent =
-    state.projects.find((p) => p.id === state.newSessionProjectId)?.name ||
-    "Project";
-  openDialog("session-dialog", "session-title-input");
+  state.homeProjectRequest = false;
+  state.homeProjectId = state.projects.some(p => p.id === projectId && !p.preview) ? projectId : null;
+  storeHomeDraft();
+  await goHome();
 }
+
 function renderPermission(row) {
   const key = questionScopeKey(row.runId, row.id),
     run = state.runs.find((item) => item.id === row.runId),
@@ -6453,7 +6493,6 @@ function wireEvents() {
     });
   }
   $("materials-button").addEventListener("click", () => {
-    if (state.view === "home" && !currentSession()) { void submitHomeRun({prepareOnly:true}); return; }
     openDialog("materials-dialog", "close-materials-button");
     materialsView.open();
   });
@@ -6524,7 +6563,7 @@ function wireEvents() {
             .querySelectorAll("button,input,select")
             .forEach((node) => (node.disabled = false));
         }
-      if (state.homeStart?.unconfirmed) {
+      if (state.homeStart?.unconfirmed && !state.homeStart.sessionId && !state.recentError) {
         state.homeStart = null;
         storeHomeDraft();
         showToast("Workspace refreshed. Check recent chats before sending the kept instruction again.");
@@ -6701,17 +6740,32 @@ function wireEvents() {
     event.preventDefault();
     $("composer-form").requestSubmit();
   });
-  $("home-project-input").addEventListener("change", (event) => {
-    if (state.homeStart?.pending || state.homeStart?.session) return;
-    state.homeProjectId = event.target.value;
-    storeHomeDraft();
-    renderComposer();
+  const workspaceButton = $("home-project-button"), workspacePopover = $("home-project-popover");
+  let stopWorkspaceAnchor = null;
+  workspaceButton.addEventListener("click", () => {
+    if (workspaceButton.disabled) return;
+    const choices = $("home-project-choices"); choices.replaceChildren();
+    for (const project of [{id:null,name:"No workspace"}, ...state.projects.filter(p=>!p.preview)]) {
+      const button = element("button", {className:"quiet-button workspace-option", text:project.name,
+        attrs:{type:"button","aria-pressed":String(project.id===homeProjectId())}});
+      button.addEventListener("click",()=>{
+        state.homeProjectId=project.id;storeHomeDraft();renderComposer();workspacePopover.hidePopover();workspaceButton.focus();
+      }); choices.append(button);
+    }
+    workspacePopover.showPopover();choices.querySelector('button[aria-pressed="true"]')?.focus();
   });
+  workspacePopover.addEventListener("toggle",event=>{
+    stopWorkspaceAnchor?.();stopWorkspaceAnchor=null;
+    workspaceButton.setAttribute("aria-expanded",String(event.newState==="open"));
+    if(event.newState==="open")stopWorkspaceAnchor=anchorPopover(workspaceButton,workspacePopover,{placement:"top-start"});
+  });
+  workspacePopover.addEventListener("keydown",event=>{if(event.key==="Escape"){event.preventDefault();event.stopPropagation();workspacePopover.hidePopover();workspaceButton.focus();}});
   $("home-permission-input").addEventListener("change", (event) => {
     state.homePermissionMode = event.target.value;
     storeHomeDraft();
   });
   $("home-create-project").addEventListener("click", () => {
+    $("home-project-popover").hidePopover();
     state.homeProjectRequest = true;
     state.startAfterProject = false;
     openDialog("project-dialog", "project-name-input");
@@ -6721,6 +6775,9 @@ function wireEvents() {
 }
 
 async function init() {
+  homeAttachments = createDraftAttachments({changed:storeHomeDraft, locked:()=>Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed)});
+  $("materials-button").after(homeAttachments.trigger);
+  document.body.append(homeAttachments.popover);
   restoreHomeDraft();
   const savedUi = readUiState();
   state.activeProjectId =
@@ -6888,7 +6945,7 @@ async function init() {
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   chatPage = createChatPage($("chat-page"), {
     onOpenSession: (sessionId, projectId) => void (projectId && projectId !== state.activeProjectId ? selectProject(projectId, { sessionId }) : selectSession(sessionId)),
-    onNewChat: () => startNewSession({ projectId: state.activeProjectId }),
+    onNewChat: () => startNewSession(),
     onOpenAttention: () => attentionAgent.open(),
     onOpenSpark: () => sparkView.open(currentProject()?.id ?? null),
     onExample: () => void openPreview(),
@@ -6917,8 +6974,9 @@ async function init() {
     state.capabilities = bootstrap.capabilities || null;
     state.adapterId = bootstrap.adapterId || null;
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
+    await loadRecentSessions();
     await preview.load();
-    if (preview.shouldAutoEnter({ projectCount: state.projects.length })) {
+    if (preview.shouldAutoEnter({ projectCount: state.projects.length + state.recentSessions.length })) {
       preview.enter();
       await loadProjects();
       state.openProjectIds = new Set(state.projects.filter((project) => project.preview).map((project) => project.id));
@@ -6930,7 +6988,8 @@ async function init() {
       [...state.openProjectIds].map((id) => loadSessionsForProject(id)),
     );
     await loadHome();
-    // Home is the default entry; previous chats remain in Continue.
+    if (!state.settings.open && state.restoreSessionId) await restoreUiSelection();
+    // An explicitly saved Session restores by ID, including unassigned chats.
     /* 现在 token 在手，深链落地的那一页才发它的两个读取（WK-98 (4)）。 */
     if (state.settings.open) refreshSettingsReads();
 

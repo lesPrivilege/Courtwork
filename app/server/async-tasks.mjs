@@ -41,7 +41,7 @@ export class AsyncTasks {
   }
   #origin(state, runId) {
     const run = state.runs.find(r => r.id === runId), session = state.sessions.find(s => s.id === run?.sessionId);
-    taskAssert(active(run) && session && !session.extensionBinding, 'task_admission_closed', 'Async task admission is closed', 409);
+    taskAssert(active(run) && session?.scope === 'project' && !session.extensionBinding, 'task_admission_closed', 'Async task admission is closed', 409);
     return { run, session };
   }
   #adapter(t) {

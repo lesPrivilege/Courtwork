@@ -398,7 +398,7 @@ export class RuntimeService {
     const session = sessionId ? this.store.getSession(sessionId) : null;
     if (sessionId && !session) throw new ServiceError(404, "not_found", "session not found");
     return this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
-      additionalTools: [...(session?.scope === 'global' ? ATTENTION_TOOL_NAMES : this.asyncTasks?.enabled && !session?.extensionBinding ? ASYNC_TOOL_NAMES : []), ...(!session?.extensionBinding && session && this.coordination.list(session.id).currentThreadId ? COORDINATION_TOOLS : [])] });
+      additionalTools: [...(session?.scope === 'global' ? ATTENTION_TOOL_NAMES : this.asyncTasks?.enabled && session?.scope === 'project' && !session?.extensionBinding ? ASYNC_TOOL_NAMES : []), ...(!session?.extensionBinding && session && this.coordination.list(session.id).currentThreadId ? COORDINATION_TOOLS : [])] });
   }
 
   changeRuntimeControl(sessionId, input) {
@@ -624,20 +624,29 @@ export class RuntimeService {
 
   async createSession(input) {
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["projectId", "title", "permissionMode"]));
+    assertKeys(value, new Set(["projectId", "title", "permissionMode", "sessionId"]));
     const permissionMode = value.permissionMode === undefined ? "draft" : text(value.permissionMode, "permissionMode", { max: 20 });
     if (!PERMISSION_MODES.has(permissionMode)) throw new ServiceError(400, "invalid_input", "permissionMode is invalid");
-    const sessionId = randomUUID();
+    const projectId = value.projectId == null ? null : text(value.projectId, "projectId", { max: 100 });
+    if (projectId !== null && !this.store.listProjects().some(p => p.id === projectId)) throw new ServiceError(404, 'not_found', 'project not found');
+    const sessionId = value.sessionId === undefined ? randomUUID() : text(value.sessionId, 'sessionId', {max:36});
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(sessionId)) throw new ServiceError(400, 'invalid_input', 'sessionId must be a UUID v4');
+    const existing = this.store.getSession(sessionId);
+    if (existing && (existing.scope !== (projectId === null ? 'unassigned' : 'project') || existing.projectId !== projectId)) throw new ServiceError(409, 'scope_conflict', 'Conversation identity is unavailable');
     const workspaceDir = path.join(this.dataDir, "workspaces", sessionId);
     await mkdir(path.join(workspaceDir, "materials"), { recursive: true });
     await mkdir(path.join(workspaceDir, "out"), { recursive: true });
     return {
       session: await this.store.createSession({
         id: sessionId,
-        projectId: text(value.projectId, "projectId", { max: 100 }),
+        projectId,
+        scope: projectId === null ? "unassigned" : "project",
         title: value.title === undefined ? "New session" : text(value.title, "title", { max: 200 }),
         workspaceDir,
         permissionMode,
+      }).catch(error => {
+        if(error.code === 'SESSION_IDENTITY_CONFLICT') throw new ServiceError(409, 'scope_conflict', 'Conversation identity is unavailable');
+        throw error;
       }),
     };
   }
@@ -1333,7 +1342,7 @@ export class RuntimeService {
     requireObject(value.input, "input");
     const session = this.store.getSession(sessionId);
     if (!session) throw new ServiceError(404, "not_found", "session not found");
-    if (session.scope === 'global') throw new ServiceError(409, 'scope_conflict', 'Matter experts require a project conversation');
+    if (session.scope !== 'project') throw new ServiceError(409, 'scope_conflict', 'Matter experts require a project conversation');
     if (value.input.detach === true) {
       assertKeys(value.input,new Set(['detach']));
       if (session.extensionBinding?.extensionId !== extensionId) throw new ServiceError(409,'binding_mismatch','bound extension mismatch');
@@ -1911,7 +1920,7 @@ export class RuntimeService {
         adapterForProject: projectId => this.attentionRuntimeAdapter(session.id, run.id, projectId),
         governanceForProject: projectId => this.governanceRuntimeAdapter(session.id, run.id, projectId) }) : [];
       const collaborationTools = !session.extensionBinding && this.coordination.list(session.id).currentThreadId ? coordinationTools(this.coordination,session.id,run.id) : [];
-      const asyncTools = this.asyncTasks.enabled && session.scope !== 'global' && !session.extensionBinding ? this.asyncTasks.tools(run.id) : [];
+      const asyncTools = this.asyncTasks.enabled && session.scope === 'project' && !session.extensionBinding ? this.asyncTasks.tools(run.id) : [];
       const asyncContext = asyncTools.length ? 'Host-catalogued immutable async read sources: ' + JSON.stringify(this.asyncTasks.catalog())
         + '\nLaunch returns only a handle. Get/wait for each requested task before finalizing; continue independent steps while other tasks run. A pending task or tool error is not source evidence.' : '';
       const currentContext = [extensionContext, compileControlContext(entry.runtimeBinding), asyncContext].filter(Boolean).join("\n\n");

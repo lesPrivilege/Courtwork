@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "b81403cdd9a326629d84e2aaaa27edcc50e2b7fc",
+  "baselineCommit": "4cf5ed9ebdaf1894ebae039cd69a0227e6991db3",
+  "runtime": "Node.js 22.19.0",
+  "platform": "macOS arm64",
+  "browser": "Google Chrome headless with isolated Playwright profile",
+  "browserEvidenceScope": "Final production files; screenshots preceded source commit; no production changes after browser checks",
+  "verificationOwner": "Astra author verification",
+  "independentAcceptance": false,
+  "realProviderRunInThisSlice": false
+}
