@@ -1,4 +1,4 @@
-import {action, el, flowRow, icon} from './ui-controls.mjs';
+import {action, el, flowRow} from './ui-controls.mjs';
 
 const STATUSES = new Set(['unbound', 'unavailable', 'available']);
 
@@ -45,7 +45,8 @@ export function createWorkReviewSummary({session, request, isCurrent, onOpenWork
     meta: 'No pending review',
     className: 'work-review-open',
     attrs: {type: 'button'},
-  }, icon('chevron-right', {size: 16}));
+  }, el('span', {className: 'work-review-verb', text: 'Review'}));
+  const title = open.querySelector('.flow-title');
   const pending = open.querySelector('.flow-meta');
   const refresh = action('refresh-cw', 'Refresh work review', () => void load());
   const controls = el('div', {className: 'work-review-summary-controls'}, refresh);
@@ -63,22 +64,24 @@ export function createWorkReviewSummary({session, request, isCurrent, onOpenWork
   }
 
   function renderAvailable(summary) {
-    pending.textContent = summary.pendingCount === 0 ? 'No pending review' : `${summary.pendingCount} pending`;
-    const facts = [];
-    if (summary.stalePendingCount > 0)
-      facts.push(`${summary.stalePendingCount} based on an earlier version.`);
-    if (summary.readOnly)
-      facts.push('Review actions are read-only right now.');
-    if (facts.length) note.replaceChildren(el('p', {className: 'form-help', text: facts.join(' ')}));
-    else note.replaceChildren();
-    controls.replaceChildren(open, refresh);
+    title.textContent = summary.title || 'Untitled work';
+    title.title = title.textContent;
+    const facts = [summary.pendingCount === 0 ? 'No pending review' : `${summary.pendingCount} pending`];
+    if (summary.stalePendingCount > 0) facts.push(`${summary.stalePendingCount} earlier version`);
+    if (summary.readOnly) facts.push('Read-only');
+    pending.textContent = facts.join(' · ');
+    open.setAttribute('aria-label', `Work review: ${title.textContent}. ${facts.join('. ')}.`);
+    root.classList.toggle('is-quiet', summary.pendingCount === 0);
+    note.replaceChildren();
+    controls.replaceChildren(open);
   }
 
   async function load() {
     if (destroyed || !isCurrent()) return;
     const own = ++generation;
     refresh.disabled = true;
-    controls.replaceChildren(refresh);
+    controls.replaceChildren();
+    root.classList.remove('is-quiet');
     // Unknown while the read is in flight: old counts must not survive as if
     // they described the new state.
     renderMessage('Reading work review summary…');
@@ -86,10 +89,16 @@ export function createWorkReviewSummary({session, request, isCurrent, onOpenWork
       const response = readSummary(await request(`/sessions/${encodeURIComponent(session.id)}/review-summary`), session);
       if (!live(own)) return;
       if (response.status === 'unbound') renderMessage('No work review is bound to this chat.');
-      else if (response.status === 'unavailable') renderMessage('Work review summary is unavailable.');
+      else if (response.status === 'unavailable') {
+        renderMessage('Work review summary is unavailable.');
+        controls.replaceChildren(refresh);
+      }
       else renderAvailable(response.summary);
     } catch (error) {
-      if (live(own)) renderMessage(`Work review summary unavailable: ${error.message}`, {alert: true});
+      if (live(own)) {
+        renderMessage(`Work review summary unavailable: ${error.message}`, {alert: true});
+        controls.replaceChildren(refresh);
+      }
     } finally {
       if (live(own)) refresh.disabled = false;
     }

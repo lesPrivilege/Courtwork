@@ -23,9 +23,10 @@ test('available summary stays visible at zero and opens the existing Work review
   assert.doesNotMatch(view.root.textContent, /Accepted artifact available/);
   assert.doesNotMatch(view.root.textContent, /opaque-artifact-id/);
   const open = view.root.querySelector('.work-review-open');
-  assert.equal(open.querySelector('.flow-title').textContent, 'Work review');
+  assert.equal(open.querySelector('.flow-title').textContent, 'Synthetic NDA');
   assert.equal(open.querySelector('.flow-meta').textContent, 'No pending review');
-  assert.equal(view.root.querySelector('[aria-label="Refresh work review"]')?.classList.contains('icon-only'), true);
+  assert.equal(view.root.querySelector('[aria-label="Refresh work review"]'), null);
+  assert.equal(view.root.classList.contains('is-quiet'), true);
   await view.refresh();
   assert.equal(view.root.querySelector('.work-review-open'), open);
   open.click();
@@ -40,8 +41,8 @@ test('candidate, stale and read-only facts remain separate without an impossible
   container.append(view.root);
   await flush();
   assert.match(view.root.textContent, /3 pending/);
-  assert.match(view.root.textContent, /2 based on an earlier version/);
-  assert.match(view.root.textContent, /Review actions are read-only right now/);
+  assert.match(view.root.textContent, /2 earlier version/);
+  assert.match(view.root.textContent, /Read-only/);
   assert.ok(view.root.querySelector('.work-review-open'));
 }));
 
@@ -78,6 +79,9 @@ test('refresh clears old facts while loading and on failure', () => withTinyDom(
   await refreshing;
   assert.match(view.root.textContent, /Work review summary unavailable: Core offline/);
   assert.doesNotMatch(view.root.textContent, /2 pending/);
+  const retry = view.root.querySelector('[aria-label="Refresh work review"]');
+  assert.ok(retry);
+  assert.equal(retry.disabled, false);
 }));
 
 test('late and mismatched responses cannot replace the current scope', () => withTinyDom(async container => {
