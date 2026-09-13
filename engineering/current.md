@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Work review 独立对象卡片
+
+按用户截图与施工同意完成[紧凑卡片](../evidence/work-review-object-card-20260913/README.md)：实际工作标题、待审/旧版本/只读摘要和Review，退出消息操作区，排在活动行之后；零待审弱化，正常移除刷新图标，失败仍可重试。原Core/正式动作语义不变。作者定向17/17、三个lint及明暗1440/1280/390通过；合流后的深色1440/390、同Matter空Chat、键盘打开与返回焦点另留证。200%/forced-colors未实测，不称独立视觉接受。本地合流包含同期Context细环调整，其后续外观仍引用原writer证据；未push/部署。
+
 ## 2026-09-13 · Chatspace Context / activity 产品接线
 
 用户接受候选后，Astra完成[产品应用](design/context-tps-motion-2026-09-13/production/README.md)：Context圆环按最新裁决位于模型/推理强度右侧、Send/Stop之前；活动glyph与过程短语进入Chatspace，Attention减去测量入口。过程来自真实Run/tool/notice事件，一级无TPS数字/缺测文案，二级保留估算与Host口径。作者合成Runtime浏览器覆盖收发/停止/待答/失败、窄屏明暗与详情返回；全量937/937，后续位置与偏好减动微调另有定向复验。作者证据不替代非作者接受；真实容量/TPS、完整可访问性矩阵和Release门仍开放，未push/部署。
