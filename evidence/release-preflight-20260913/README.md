@@ -45,3 +45,5 @@ Core3/app4→Core4/app5由governance-recovery验证独占原字节backup、旧ho
 Luna非作者另审阅本片证据与公开事实/演示稿的范围，未发现阻断性夸大：65/65保留01f37f0身份、GUI保留Local test身份，真实探针、演示录制和G5 owner收口仍开放。该文档审阅没有重跑测试；producer的18/18与作者完整检查分别记账。
 
 Luna独立确认59fa20fd登记与实际`load()`的只读Core摘要请求及完整accessible name一致；未修改代码或重跑测试。最终新增文档链接检查6333项通过。
+
+原始失败TAP的诊断空行保留Node输出中的空格；`git diff --check`仅对`producer-before.tap`、`producer-intermediate.tap`排除这项既存原字节格式，其余改动检查通过。manifest固定原始输出，不为消除格式告警改写失败证据。
