@@ -9,6 +9,8 @@ Writer / reviewer:
 
 Owner fact + contract:
 Semantic / projection / control / placement:
+Affected UX rule IDs / persistent text purpose / disclosure level:
+Action result / feedback / recovery / draft and scope identity:
 Nearest precedent: repository path + symbol + evidence + fixed SHA
 Evidence type: implemented precedent / accepted baseline / candidate / external reference
 Governance status: canonical / reference / unverified / deferred (with evidence and scope)

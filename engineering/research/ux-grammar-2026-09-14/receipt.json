@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "research_date": "2026-09-14",
+  "code_base": "5466c8c83ae22ef7d12413b50dd7e711ddbc32c7",
+  "branch": "codex/release-final-20260913",
+  "scope": "Bounded external-source and local-contract cross-check for the UX Grammar adoption. No product code, service contract, parent design documents, or saved input transcript was edited.",
+  "input": {
+    "path": "engineering/research/ux-grammar-2026-09-14/conversation.json",
+    "sha256": "ecec82028200a32654f59d97dd191a3be185f6ef03b208bb7538ec4094eeda2c",
+    "conversation_id": "6aa6ce70-31b4-83ec-8dd3-623d0652e8bf",
+    "scope_note": "This is the original two-turn UX writing/design-source request snapshot. The later repository-governance follow-up is a separate input and is not represented by this file or this report.",
+    "turns": 2,
+    "messages": 4,
+    "has_more": false,
+    "attachment_count": 0,
+    "message_ids": [
+      "4be18043-6407-4e57-bff0-3cf2d77cb503",
+      "c32422a7-3546-4557-9d2a-0df9e18e82b8",
+      "fab551c9-b2d9-4cab-b1ff-cd99b1b391ce",
+      "68fbef9d-59d7-4d7e-aaeb-14c6d25f269a"
+    ],
+    "context_policy": "raw provenance; read only for explicit recall, not default instructions",
+    "content_review": "Reviewed as product/design discussion; no credentials or personal mutable session data in this captured input."
+  },
+  "method": {
+    "source_count": 8,
+    "source_register": "engineering/research/ux-grammar-2026-09-14/sources.json",
+    "approach": "Opened eight selected first-party source pages directly and mapped the observed statements to the existing CourtWork copy, composition, frontend, Atlas, state, and UX Grammar documents.",
+    "search_result_claims_reproduced": false,
+    "additional_checks_excluded_from_source_count": [
+      "Apple HIG Writing URL returned a JavaScript-required shell.",
+      "The supplied Shopify Polaris Common Actions URL redirected to a generic API index."
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "engineering/research/ux-grammar-2026-09-14/explore.md",
+      "role": "Evidence-to-local-contract mapping and source limitations"
+    },
+    {
+      "path": "engineering/research/ux-grammar-2026-09-14/sources.json",
+      "role": "Eight-source register with observed facts, inferences, and limits"
+    },
+    {
+      "path": "engineering/research/ux-grammar-2026-09-14/receipt.json",
+      "role": "Input provenance, scope, and research method"
+    }
+  ],
+  "local_contracts_reviewed": [
+    "engineering/design/ux-grammar.md",
+    "engineering/design/copy-convention.md",
+    "engineering/design/ui-composition-standard.md",
+    "engineering/design/agent-interface-2026-09-10/frontend-contract.md",
+    "engineering/design/atlas/README.md",
+    "engineering/mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md",
+    "engineering/research/ux-grammar-2026-09-14/README.md"
+  ],
+  "verification": {
+    "source_count_checked": 8,
+    "json_parse": "passed Python json.loads for sources.json and receipt.json; source count is 8",
+    "doc_link_check": "The parent will rerun its batch doc-link check after these files are complete; this subtask did not rerun it.",
+    "software_tests": "Not applicable; this subtask changed research documentation only."
+  },
+  "limitations": [
+    "The report checks support and conflicts in selected guidance; it is not independent approval of Astra's UX Grammar or an accessibility acceptance.",
+    "The follow-up repository-governance request is outside this receipt and requires its own bounded audit record.",
+    "No external design-system page overrides CourtWork object, permission, state, persistence, recovery, or formal-acceptance contracts."
+  ],
+  "checkout_role": "isolated release preparation worktree"
+}

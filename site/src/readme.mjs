@@ -12,7 +12,7 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
 
 人在其中，工作继续。你可以随时介入、调整指令或改变方向，也可以暂时离开，再从已有记录接着做。
 
-[体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [阅读论文](https://lesprivilege.github.io/Schema-Engineering/) · [运行文档](app/README.md)
+[体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [阅读论文](https://lesprivilege.github.io/Schema-Engineering/) · [运行文档](app/README.md) · [架构](engineering/architecture.md) · [UX Grammar](engineering/design/ux-grammar.md)
 
 ## 让下一次接手有据可循
 
@@ -30,7 +30,7 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
 
 **Attention · 跟进与核查。** 把重要请求、已有处置和对应结果放在一起，帮助人和 Agent 找到下一步。中断或切换任务后，沿可检查的记录继续，知道还有什么需要决定。
 
-**Spark · 准备与核对。** 面向检索、快读、翻译、比较与审计等短任务，把获准材料整理成可回源、可检查、可重新生成的准备结果，减少人和主 Agent 的阅读成本。
+**Spark · 独立探索与核对。** 独立 Explore Agent 围绕本次工作获准提供的已保留材料进行比较与核对，给出可回到精确版本的发现；来源与探索笔记可以按需展开，为后续判断与工作提供依据。
 
 Expert 用专业工作契约组织责任、能力需求与验证要求。这些角色可以选择不同执行配置；正式工作进入 Matter，人的决定对应具体来源与版本。普通交谈不要求先建立 Matter。
 
@@ -76,6 +76,15 @@ npm --prefix app run check:product
 Schema Engineering 追问：跨越多个会话与执行者时，工作应当保留什么、按什么规则改变？CourtWork 将这些区分落实到日常工作：材料进入 Matter，执行形成候选，验证与授权接受使判断落到具体版本。
 
 产品重心是持有正式来源、状态与决定的 Work Core。先有编排：Agent、模型与运行环境各司其职，也可以更换；再有 Court：工作本身留在 CourtWork 手中。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。这条边界、一次运行的组成，以及从专业要求到正式决定的路径，见 [Features 页的结构图](https://lesprivilege.github.io/Courtwork/features.html#architecture) 与 [Experts](https://lesprivilege.github.io/Courtwork/experts.html)；模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
+
+## 开发入口
+
+开工先核对分支、HEAD 与[当前工程状态](engineering/current.md)，再读对应工单和证据。
+
+- **架构**：[模块与责任](engineering/architecture.md) · [Runtime 与 Work](engineering/architecture-runtime-canon.md) · [Core 契约](engineering/core-contracts.md)
+- **UX**：[UX Grammar](engineering/design/ux-grammar.md) · [前端连续性规范](engineering/design/agent-interface-2026-09-10/frontend-contract.md) · [文案](engineering/design/copy-convention.md) · [编排](engineering/design/ui-composition-standard.md) · [控件与图标](engineering/design/atlas/README.md)
+
+新增界面先确认对象、动作、状态与恢复语义，再复用已登记的组件、原生 SVG 和实现先例。交付记录保留验证范围与例外，供后续维护接续。
 
 ## 项目结构
 

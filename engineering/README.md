@@ -5,6 +5,8 @@
 
 CourtWork当前实现、设计、契约与证据在本仓main维护，唯一持久开发目录为Courtwork。Schema Engineering独立编订论文；冻结旧实现仅通过 [legacy召回索引](ecosystem/legacy-recall-index.md)按需读取。
 
+**开工入口：** [架构与责任](architecture.md) · [Runtime / Work](architecture-runtime-canon.md) · [UX Grammar](design/ux-grammar.md) · [前端连续性规范](design/agent-interface-2026-09-10/frontend-contract.md)。
+
 ## 当前阅读顺序
 
 1. [current](current.md)：当前代码/证据、责任与未闭合项，唯一产品状态入口。

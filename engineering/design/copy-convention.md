@@ -26,7 +26,7 @@
 
 2026-09-09 改写（WK-89，FE-01）。上一版为工程内部一致而回避了成熟产品已有的用户心智；本版逆转：**用户看见成熟 agent 的词，架构词退回 Developer 与代码。** 一行的三列是「用户看见什么 / 它是什么 / 什么词不再出现」。
 
-2026-09-11 · VS-01 修订：本表的工作对象与授权边界结合 [Product Semantics Registry](product-semantics/README.md) 使用。Registry 管已裁文字/图形映射，Runtime/Core/service 继续管对象、能力与状态。未迁移 raw consumer 不因登记存在而算完成。Attention 是代理；Attention items 是队列入口；不另创 Inbox owner。Spark 是维护面，不是 Refresh 的别名。Review 的证据判断、Approval 的单次许可、Permissions 的持久策略分别保留。
+2026-09-11 · VS-01 修订：本表的工作对象与授权边界结合 [Product Semantics Registry](product-semantics/README.md) 使用。Registry 管已裁文字/图形映射，Runtime/Core/service 继续管对象、能力与状态。未迁移 raw consumer 不因登记存在而算完成。Attention 是代理；Attention items 是队列入口；不另创 Inbox owner。Spark现为独立Explore Agent；Source maintenance保留原只读Matter派生查看，两者不混成Refresh动作（见[实现合同](../../app/docs/spark-agent.md)）。Review 的证据判断、Approval 的单次许可、Permissions 的持久策略分别保留。
 
 VS-04/05：默认卡片与入口使用 Work / Work history；Run 保留在已披露的执行记录、ID 和诊断中。`Stop working` 只表示当前取消请求的意图；返回状态仍等 host，不把点击当成已停止。`Continue in Matter` 沿已有绑定操作把 Chat 接到持久事项，不创建另一种 Work store。Attention、Spark 的文字导航是有意无 glyph；审批、问题、候选与决定保留对象/状态/范围，不能以通用文件或会话图标暗示归属。
 
@@ -195,3 +195,20 @@ MCP 与策略设为 ask 的非写工具也沿既有 permission 事件请求一�
 审阅新增/修改文本时，除§1去留条件，注明其作用：标题、标签、状态、原因、约束、动作、错误恢复或技术事实；再注明默认可见、上下文披露或技术检查。标记记录在变更清单，不要求每条DOM文本新增属性或引入第二词表。
 
 一句helper若同时解释功能、后端实现、协议和未来路线，应拆开取舍。工程工单号、实现进度及证明界面为何没撒谎的旁白退回工程文档；用户做决定所需的不可用状态、权限风险、计量口径与版本身份留在相关任务处。可用内容与技术详情不因减字丢失；不机械要求所有错误或授权只用一句。实施与逐项去留见[本轮登记](frontend-audit-2026-09-13/ia-plan.md)。
+
+
+## 通用动作方言（2026-09-14）
+
+沿[UX Grammar](ux-grammar.md)维护，同一词不在不同页面临时改义。下表约束新/修改操作的语义选择；已有领域typed action与上文具名入口优先，登记不触发无差别改名或新后端能力。
+
+| 动作 | 固定用途 | 约束 |
+|---|---|---|
+| Create / Add | Create创建新对象；Add加入当前集合或登记入口 | 现有Add provider、Add资源是已裁入口，可在后续表单创建配置；不能据此混同对象创建与关系加入 |
+| Copy / Duplicate | Copy复制到剪贴板；Duplicate创建独立副本 | 副本需真实创建合同；复制回执不称已保存文件 |
+| Remove / Delete / Clear | Remove解除关系；Delete删除目标对象；Clear清空字段、筛选或当前选择 | 删除的可恢复性按owner说明，Delete不天然等于永久物理清除 |
+| Reset / Revert | Reset回到明确基准；Revert恢复指定已记录版本/状态 | 目标基准必须真实且可辨，不能假设有历史恢复能力 |
+| Cancel / Close / Stop working | Cancel放弃当前未提交操作；Close离开表面；Stop working请求停止执行 | Close不自动回滚或取消Run；Cancel编辑不等于运行已停止 |
+| Save / Apply | Save持久化修改；Apply应用明确指定的一组修改 | Apply是否持久化由实际合同决定，不采用“Apply一律不保存”的外部简化；不得用换词掩盖保存时点 |
+| Retry / Refresh | Retry重新发起明确失败的操作；Refresh重新读取事实 | 写重试须保持scope/revision/幂等边界，不能偷偷重放未知外部效果 |
+
+常驻文本逐项执行删除检查：删掉后是否仍能识别对象、正确选择、知道状态/后果并恢复错误？能则删或按需披露；不能则保留最接近任务的一份。原生SVG可取代已建立的通用动作图形，仍须可访问名和等价触达；Matter、Spark、Attention等产品概念以及关键决定不能只剩难辨的图标。默认不再增加解释控件本身的句子，不影响必要的读屏提示。

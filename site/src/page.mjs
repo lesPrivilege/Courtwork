@@ -290,7 +290,7 @@ function researchFigures() {
     <p class="lede">CourtWork 的产品分工：Chat 交谈与交接，Spark 准备与核对，Expert 组织专业责任，Attention 跟进请求与处置。正式工作由 Matter 保留来源、决定与依据，让每次回来都有清楚的下一步。</p>
     ${figure("pipeline", "plate", "保存工作，治理版本与权限，再为当前任务组织上下文。")}
     <div class="long-work-stages">
-      <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>把快读、翻译与核对结果连回来源，让后续工作可以检查并继续。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
+      <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>在获准提供的已保留材料中独立探索、比较与核对；发现连回精确来源，来源与笔记可按需展开。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
       <section><p class="index">ATTENTION</p><h3>Make room for judgment.</h3><p>查看已记录的请求、处置与结果，找到需要判断的一项。每次介入，都能沿着明确的对象继续。</p>${figure("attention", "object", "安静推进的工作，与需要你的一刻。")}</section>
       <section><p class="index">EXPERTS & EXECUTION</p><h3>Roles compose.</h3><p>Expert 定义责任，执行配置承载这项工作。角色与模型可以切换，Matter 保留共同的工作依据。</p>${figure("roles", "object", "责任、执行与工作，各有归属。")}</section>
     </div>

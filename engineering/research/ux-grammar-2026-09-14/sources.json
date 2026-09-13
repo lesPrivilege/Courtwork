@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "research_date": "2026-09-14",
+  "scope": "Bounded source cross-check of the adopted rules in engineering/design/ux-grammar.md against selected first-party design guidance and the existing CourtWork contracts. Eight pages were opened directly; this is not a new design-system survey.",
+  "sources": [
+    {
+      "id": "shopify-content-fundamentals-archived",
+      "title": "Content Fundamentals",
+      "url": "https://github.com/Shopify/polaris-react-archive/blob/main/polaris.shopify.com/content/content/fundamentals.mdx",
+      "publisher": "Shopify Polaris",
+      "source_type": "First-party design-system content guidance in an archived repository",
+      "revision_or_date": "Repository archived 2026-09-11; source file retained at the archive's main branch",
+      "accessed": "2026-09-14",
+      "quality": "Primary first-party guidance for Shopify's design system; use as a documented practice example because the repository is archived.",
+      "scope_checked": "Content Fundamentals, especially the copy-purpose and editing guidance around lines 211-249.",
+      "observed": [
+        "Recommends considering the purpose and value of each word, using supporting copy only when needed, and editing away text whose meaning is already carried by the interface."
+      ],
+      "application_inference": "Supports a deliberate deletion pass and text-with-a-purpose rule in UX-01; it does not establish CourtWork's permitted text roles as a universal taxonomy.",
+      "limits": [
+        "The repository is archived and should not be presented as a currently maintained standard.",
+        "Its content guidance does not decide CourtWork domain names, permission disclosure, error recovery, or acceptance semantics."
+      ]
+    },
+    {
+      "id": "govuk-writing-ui",
+      "title": "Writing for user interfaces",
+      "url": "https://www.gov.uk/service-manual/design/writing-for-user-interfaces",
+      "publisher": "GOV.UK Service Manual",
+      "source_type": "Official government service-design guidance",
+      "revision_or_date": "Page reports last updated 2018-04-16",
+      "accessed": "2026-09-14",
+      "quality": "Primary published guidance for UK government services; older page, used only for the stated writing principles.",
+      "scope_checked": "Guidance on using short, clear interface text and reviewing products that require substantial instructional copy, especially around lines 81-122.",
+      "observed": [
+        "Recommends starting with minimal UI text and improving the design where people need long instructions to use it."
+      ],
+      "application_inference": "Supports trying removal and redesign before adding explanatory copy; it does not justify hiding facts users need for decisions or recovery.",
+      "limits": [
+        "The source is not a CourtWork interface contract and its advice is not a complete accessibility or disclosure specification."
+      ]
+    },
+    {
+      "id": "gitlab-contextual-help",
+      "title": "Contextual help",
+      "url": "https://design.gitlab.com/patterns/contextual-help/",
+      "publisher": "GitLab Pajamas Design System",
+      "source_type": "First-party design-system pattern guidance",
+      "revision_or_date": "Page reports last updated 2026-07-13",
+      "accessed": "2026-09-14",
+      "quality": "Primary pattern documentation maintained by GitLab; evidence of that system's pattern, not an industry-wide requirement.",
+      "scope_checked": "Placement and format guidance around lines 9-19 and 69-88.",
+      "observed": [
+        "Distinguishes information that belongs directly in a task from optional details that can be available in a drawer, panel, or longer-lived documentation."
+      ],
+      "application_inference": "Supports UX-02's task-led progressive disclosure and the existing CourtWork default/context/technical layers.",
+      "limits": [
+        "GitLab's specific component choices do not determine CourtWork's surface taxonomy, disclosure persistence, or authorization rules."
+      ]
+    },
+    {
+      "id": "carbon-common-actions-preview",
+      "title": "Common actions",
+      "url": "https://preview.carbondesignsystem.com/building-blocks/core/patterns/common-actions",
+      "publisher": "IBM Carbon Design System",
+      "source_type": "First-party design-system pattern guidance on the preview domain",
+      "revision_or_date": "Page reports last updated 2026-08-11",
+      "accessed": "2026-09-14",
+      "quality": "Primary Carbon guidance; treat as a vendor pattern and preview-domain publication, not CourtWork authority.",
+      "scope_checked": "Action semantics and selection around lines 26-76 and 98-128; deletion and feedback guidance around lines 165-185.",
+      "observed": [
+        "Encourages action-specific labels and review of scope, persistence, permission, expected time, failure, and single-versus-bulk effects.",
+        "Uses Copy for creating an identical object instance, which differs from CourtWork's Copy-to-clipboard and Duplicate-to-create-a-copy mapping.",
+        "Discusses Apply as the last saved checkpoint in Reset guidance; it does not define Apply as universally transient or non-persistent.",
+        "Scales deletion confirmation to consequence and recovery, and gives a page-specific example recommending success feedback after a deletion."
+      ],
+      "application_inference": "Supports maintaining an explicit local action vocabulary and consequence-aware feedback/recovery checks. The differences in Copy, Apply, and success feedback show why CourtWork must keep its own owner contracts and retain contextual qualifiers such as 'usually'.",
+      "limits": [
+        "Carbon action meanings are not universal semantics and must not overwrite CourtWork typed actions or wording.",
+        "Advice to use Undo assumes a real recovery path; it does not provide one for CourtWork."
+      ]
+    },
+    {
+      "id": "w3c-apg-switch",
+      "title": "Switch Pattern",
+      "url": "https://www.w3.org/WAI/ARIA/apg/patterns/switch/",
+      "publisher": "World Wide Web Consortium (W3C) Web Accessibility Initiative",
+      "source_type": "WAI-ARIA Authoring Practices Guide pattern",
+      "revision_or_date": "APG page accessed 2026-09-14; no revision date relied on",
+      "accessed": "2026-09-14",
+      "quality": "Primary W3C accessibility implementation guidance for the switch pattern; not a product permission model.",
+      "scope_checked": "Switch role, accessible name, checked state, and keyboard interaction around lines 21-50.",
+      "observed": [
+        "Defines a switch as a binary on/off control with an accessible name, state exposure, and expected keyboard interaction."
+      ],
+      "application_inference": "Supports UX-03's semantic and accessibility requirements for a real writable binary value; it does not imply that a switch grants authorization or that read-only facts should look writable.",
+      "limits": [
+        "The APG specifies interaction/accessibility behavior, not the business meaning or authority of the underlying state."
+      ]
+    },
+    {
+      "id": "primer-loading",
+      "title": "Loading",
+      "url": "https://primer.style/product/ui-patterns/loading/",
+      "publisher": "GitHub Primer Product UI",
+      "source_type": "First-party design-system loading-pattern guidance",
+      "revision_or_date": "Page date not relied on; accessed 2026-09-14",
+      "accessed": "2026-09-14",
+      "quality": "Primary loading-pattern guidance from GitHub; pattern donor, not evidence of CourtWork runtime capability.",
+      "scope_checked": "Loading strategy by duration, long-running work, and background work around lines 202-269 and 332-360.",
+      "observed": [
+        "Uses approximate duration ranges to guide loading feedback and recommends keeping other interaction available for work lasting over ten seconds by moving it to a background process if possible."
+      ],
+      "application_inference": "Supports the distinction between a long wait and a nonblocking/background interaction only when that capability exists. The time threshold does not itself create a CourtWork Run state, worker, or background execution permission.",
+      "limits": [
+        "Timing thresholds are pattern guidance, not service state definitions or a requirement to implement background processing.",
+        "The page does not establish CourtWork's cancellation, status, or ownership model."
+      ]
+    },
+    {
+      "id": "microsoft-ux-for-agents",
+      "title": "UX design for agents",
+      "url": "https://microsoft.design/articles/ux-design-for-agents/",
+      "publisher": "Microsoft Design",
+      "source_type": "First-party product-design article about agent experiences",
+      "revision_or_date": "Article date not relied on; accessed 2026-09-14",
+      "accessed": "2026-09-14",
+      "quality": "First-party design guidance, not a normative accessibility or runtime specification.",
+      "scope_checked": "Agent activity and background work transparency/control around lines 92-102 and 123-135.",
+      "observed": [
+        "Calls for agent activity and background actions to remain visible, inspectable, and controllable, with access to relevant status and context."
+      ],
+      "application_inference": "Supports UX-05/08's distinction between execution state, background placement, and inspectable provenance; it does not authorize a new CourtWork execution lane or history source.",
+      "limits": [
+        "A product-design article does not define the owner service, typed actions, or formal review semantics for CourtWork."
+      ]
+    },
+    {
+      "id": "carbon-for-ai-preview",
+      "title": "Carbon for AI",
+      "url": "https://preview.carbondesignsystem.com/building-blocks/foundations/carbon-for-ai",
+      "publisher": "IBM Carbon Design System",
+      "source_type": "First-party design-system guidance on the preview domain",
+      "revision_or_date": "Page date not relied on; accessed 2026-09-14",
+      "accessed": "2026-09-14",
+      "quality": "Primary Carbon guidance for its AI visual and interaction conventions; not a universal AI styling standard.",
+      "scope_checked": "AI transparency and styling around lines 50-64 and 95-107.",
+      "observed": [
+        "Uses labels/explanations to communicate AI involvement and places explanations in the workflow when relevant or requested; its AI styling is tied to identifying AI use."
+      ],
+      "application_inference": "Supports UX-08's provenance and separation of AI-produced material from ordinary controls. Carbon's colors and visual treatment remain Carbon's dialect and do not establish CourtWork design tokens.",
+      "limits": [
+        "Does not define CourtWork's model-run, source, tool, human-review, or formal-acceptance contracts.",
+        "The page is on Carbon's preview domain."
+      ]
+    }
+  ],
+  "excluded_checks": [
+    {
+      "title": "Apple Human Interface Guidelines: Writing",
+      "url": "https://developer.apple.com/design/human-interface-guidelines/writing",
+      "reason": "The page returned a JavaScript-required shell in this check, so its writing guidance was not validated and is not used as evidence."
+    },
+    {
+      "title": "Shopify Polaris Common Actions URL supplied in the conversation",
+      "reason": "It redirected to a general Shopify API index rather than a Common Actions guide; no claimed action mapping from that page is used."
+    }
+  ],
+  "research_limits": [
+    "The saved conversation's search-result totals and unattributed quotations were not reproduced or used.",
+    "External design-system guidance supports or qualifies design choices; CourtWork contracts and Astra's recorded decision remain the authority for object, state, permission, persistence, recovery, and formal acceptance semantics.",
+    "This report does not claim full UX/accessibility acceptance or runtime verification."
+  ]
+}

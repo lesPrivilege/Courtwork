@@ -1,5 +1,7 @@
 # Design · Work Agent GUI
 
+**UI开工先读：** [UX Grammar](ux-grammar.md) → [前端连续性规范](agent-interface-2026-09-10/frontend-contract.md) → 工单相关owner合同与实现先例。文字去留沿[文案体例](copy-convention.md)，布局沿[编排标准](ui-composition-standard.md)，组件沿[Atlas](atlas/README.md)。
+
 设计目标是具有独立语言、能持续完成工作的 Agent GUI。设计研究、原型比较与工程验证并行：先探索人的工作方式，再把交互契约交给 Adapter/Core 验证，不等待全部后端完成才设计界面。
 
 文档、静态候选、交互和实测状态以 [current](../current.md) 与 [RD-003](../research/RD-003-work-surface.md) 为准；视觉候选不等于已选择方向或已通过交互验收。
