@@ -413,18 +413,18 @@ async function main() {
     const settingsPath = (section) => `#settings/${section}`;
     const slots = [
       { id: 'home', stateId: 'release-preview-home', path: '#', journey: 'Home', sessionId: sessions.home.id },
-      { id: 'spark', stateId: 'release-preview-spark-completed', path: '#', journey: 'Open UI Preview · Spark · Cedar drafts; inspect the completed assignment and exact sources.', sessionId: sessions.spark.id, assignmentId },
-      { id: 'running', stateId: 'release-preview-running-active', path: '#', journey: 'Open UI Preview · Running · Long local stream; enter the exact RUNNING prompt below.', sessionId: sessions.running.id },
+      { id: 'spark', stateId: 'release-preview-spark-completed', path: '#', journey: 'Open Compare Cedar drafts; inspect the completed assignment and exact sources.', sessionId: sessions.spark.id, assignmentId },
+      { id: 'running', stateId: 'release-preview-running-active', path: '#', journey: 'Open Delivery plan review; enter the exact RUNNING prompt below.', sessionId: sessions.running.id },
       { id: 'attention', stateId: 'release-preview-attention-item', path: '#', journey: 'Open Attention and inspect the synthetic delivery timing item.', attentionId },
-      { id: 'approval', stateId: 'release-preview-approval-pending', path: '#', journey: 'Open UI Preview · Approval · Pending write; keep waiting_user visible for both screenshots.', sessionId: sessions.approval.id, runId: approvalRun.id, permissionQuestionId: approvalState.questionId },
-      { id: 'artifact', stateId: 'release-preview-artifact-recorded', path: '#', journey: 'Open UI Preview · Artifact · Delivery note; open out/delivery-note.md.', sessionId: sessions.artifact.id, runId: artifactRun.id },
-      { id: 'matter', stateId: 'release-preview-cedar-matter', path: '#', journey: 'Open UI Preview · Continue same Matter; inspect its bound Project Cedar Matter.', sessionId: sessions.continuity.id, matterId },
-      { id: 'review', stateId: 'release-preview-nda-candidate-pending', path: '#', journey: 'Open UI Preview · Work Review · Inbound NDA; inspect the pending candidate. Do not record a decision.', sessionId: sessions.review.id, runId: reviewRun.id, matterId },
-      { id: 'continuity', stateId: 'release-preview-continuity-same-matter', path: '#', journey: 'Open UI Preview · Continue same Matter; confirm identity remains the same across Sessions.', sessionId: sessions.continuity.id, matterId },
+      { id: 'approval', stateId: 'release-preview-approval-pending', path: '#', journey: 'Open Approve delivery note; keep waiting_user visible for both screenshots.', sessionId: sessions.approval.id, runId: approvalRun.id, permissionQuestionId: approvalState.questionId },
+      { id: 'artifact', stateId: 'release-preview-artifact-recorded', path: '#', journey: 'Open Delivery note; open out/delivery-note.md.', sessionId: sessions.artifact.id, runId: artifactRun.id },
+      { id: 'matter', stateId: 'release-preview-cedar-matter', path: '#', journey: 'Open Cedar follow-up; inspect its bound Project Cedar Matter.', sessionId: sessions.continuity.id, matterId },
+      { id: 'review', stateId: 'release-preview-nda-candidate-pending', path: '#', journey: 'Open Inbound NDA · Cedar; inspect the pending candidate. Do not record a decision.', sessionId: sessions.review.id, runId: reviewRun.id, matterId },
+      { id: 'continuity', stateId: 'release-preview-continuity-same-matter', path: '#', journey: 'Open Cedar follow-up; confirm identity remains the same across Sessions.', sessionId: sessions.continuity.id, matterId },
       { id: 'models', stateId: 'release-preview-local-model-settings', path: settingsPath('models'), journey: 'Models settings; the only configured route is the local fake provider.' },
       { id: 'integrations', stateId: 'release-preview-local-integrations', path: settingsPath('tools'), journey: 'Tools / integrations settings; inspect local extension state only.' },
       { id: 'settings', stateId: 'release-preview-appearance-default', path: settingsPath('appearance'), journey: 'Appearance settings; keep the same configuration for the light/dark screenshot pair.' },
-      { id: 'conversation', stateId: 'release-preview-attention-conversation', path: '#', journey: 'Open Attention conversation UI Preview · Attention conversation.', sessionId: conversation.id, runId: conversationRun.id },
+      { id: 'conversation', stateId: 'release-preview-attention-conversation', path: '#', journey: 'Open the Attention conversation.', sessionId: conversation.id, runId: conversationRun.id },
     ];
 
     const fixture = {
