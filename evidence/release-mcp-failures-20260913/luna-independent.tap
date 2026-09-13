@@ -1,0 +1,180 @@
+TAP version 13
+# (node:83722) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: P02 reported: effect is unknown, fenced and preserved across restart
+ok 1 - P02 reported: effect is unknown, fenced and preserved across restart
+  ---
+  duration_ms: 1112.66625
+  type: 'test'
+  ...
+# Subtest: P02 drop: effect is unknown, fenced and preserved across restart
+ok 2 - P02 drop: effect is unknown, fenced and preserved across restart
+  ---
+  duration_ms: 995.8215
+  type: 'test'
+  ...
+# Subtest: P02 receipt-failure: effect is unknown, fenced and preserved across restart
+ok 3 - P02 receipt-failure: effect is unknown, fenced and preserved across restart
+  ---
+  duration_ms: 1005.814917
+  type: 'test'
+  ...
+# Subtest: P02 cancel: effect is unknown, fenced and preserved across restart
+ok 4 - P02 cancel: effect is unknown, fenced and preserved across restart
+  ---
+  duration_ms: 660.426375
+  type: 'test'
+  ...
+# Subtest: P02 restart-inflight: effect is unknown, fenced and preserved across restart
+ok 5 - P02 restart-inflight: effect is unknown, fenced and preserved across restart
+  ---
+  duration_ms: 567.152292
+  type: 'test'
+  ...
+# Subtest: P02 orphan-cancel: effect is unknown, fenced and preserved across restart
+ok 6 - P02 orphan-cancel: effect is unknown, fenced and preserved across restart
+  ---
+  duration_ms: 750.980042
+  type: 'test'
+  ...
+# Subtest: P02 pre-dispatch refusal has no effect and no unknown receipt
+ok 7 - P02 pre-dispatch refusal has no effect and no unknown receipt
+  ---
+  duration_ms: 3.697667
+  type: 'test'
+  ...
+# Subtest: P02 SIGKILL after remote effect before result leaves a durable unreconciled dispatch
+ok 8 - P02 SIGKILL after remote effect before result leaves a durable unreconciled dispatch
+  ---
+  duration_ms: 1015.77375
+  type: 'test'
+  ...
+# Subtest: P02 failed durable dispatch intent prevents the remote call
+ok 9 - P02 failed durable dispatch intent prevents the remote call
+  ---
+  duration_ms: 4.166417
+  type: 'test'
+  ...
+# (node:83723) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: P02b actual modern SDK preserves structured {"answer":42}
+ok 10 - P02b actual modern SDK preserves structured {"answer":42}
+  ---
+  duration_ms: 59.467292
+  type: 'test'
+  ...
+# Subtest: P02b actual modern SDK preserves structured [1,"two"]
+ok 11 - P02b actual modern SDK preserves structured [1,"two"]
+  ---
+  duration_ms: 9.84975
+  type: 'test'
+  ...
+# Subtest: P02b actual modern SDK preserves structured null
+ok 12 - P02b actual modern SDK preserves structured null
+  ---
+  duration_ms: 9.230125
+  type: 'test'
+  ...
+# Subtest: P02b actual modern SDK preserves structured false
+ok 13 - P02b actual modern SDK preserves structured false
+  ---
+  duration_ms: 7.796584
+  type: 'test'
+  ...
+# Subtest: P02b actual modern SDK preserves structured 0
+ok 14 - P02b actual modern SDK preserves structured 0
+  ---
+  duration_ms: 13.8715
+  type: 'test'
+  ...
+# Subtest: P02b actual modern SDK preserves structured "scalar"
+ok 15 - P02b actual modern SDK preserves structured "scalar"
+  ---
+  duration_ms: 11.73875
+  type: 'test'
+  ...
+# Subtest: P02b actual legacy SDK preserves body plus supported structure
+ok 16 - P02b actual legacy SDK preserves body plus supported structure
+  ---
+  duration_ms: 25.669209
+  type: 'test'
+  ...
+# Subtest: P02b structured-only and non-rendered resource blocks stay explicit
+ok 17 - P02b structured-only and non-rendered resource blocks stay explicit
+  ---
+  duration_ms: 13.708459
+  type: 'test'
+  ...
+# Subtest: P02b invalid/oversized result fences uncertainty without raw dumping
+ok 18 - P02b invalid/oversized result fences uncertainty without raw dumping
+  ---
+  duration_ms: 18.20775
+  type: 'test'
+  ...
+# Subtest: P02b success: native projection and scoped full result survive restart
+ok 19 - P02b success: native projection and scoped full result survive restart
+  ---
+  duration_ms: 1072.047041
+  type: 'test'
+  ...
+# Subtest: P02b error: native projection and scoped full result survive restart
+ok 20 - P02b error: native projection and scoped full result survive restart
+  ---
+  duration_ms: 994.142459
+  type: 'test'
+  ...
+# Subtest: P02b installed SDK output schema rejection is effect-unknown
+ok 21 - P02b installed SDK output schema rejection is effect-unknown
+  ---
+  duration_ms: 9.477375
+  type: 'test'
+  ...
+# Subtest: P02b failed result retention cannot become a successful empty result
+ok 22 - P02b failed result retention cannot become a successful empty result
+  ---
+  duration_ms: 2.660208
+  type: 'test'
+  ...
+# Subtest: P02b repeated native call IDs receive distinct Host dispatch identities
+ok 23 - P02b repeated native call IDs receive distinct Host dispatch identities
+  ---
+  duration_ms: 2.756417
+  type: 'test'
+  ...
+# (node:83724) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: release capability lifecycle: advertise, effect, suspend, restore, and restart stay bound
+ok 24 - release capability lifecycle: advertise, effect, suspend, restore, and restart stay bound
+  ---
+  duration_ms: 3040.81025
+  type: 'test'
+  ...
+# (node:83725) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: DF06 MCP permission denial records no dispatch intent and reaches no remote effect
+ok 25 - DF06 MCP permission denial records no dispatch intent and reaches no remote effect
+  ---
+  duration_ms: 1035.524334
+  type: 'test'
+  ...
+# Subtest: DF06 cancelling a pending MCP approval ends cancelled without dispatch or effect
+ok 26 - DF06 cancelling a pending MCP approval ends cancelled without dispatch or effect
+  ---
+  duration_ms: 1012.8105
+  type: 'test'
+  ...
+# Subtest: DF06 failed MCP result-receipt persistence fences one remote effect and never replays after reopen
+ok 27 - DF06 failed MCP result-receipt persistence fences one remote effect and never replays after reopen
+  ---
+  duration_ms: 1067.463875
+  type: 'test'
+  ...
+1..27
+# tests 27
+# suites 0
+# pass 27
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7408.647542

@@ -1,0 +1,4 @@
+94ac7517bf3550d710f3dda1d472f65ab0a2aed93bad85a323c752e65321731b  app/tests/release-mcp-failures.test.mjs
+ae8f338eec3f1089320e2bbe4e1dda42d3bb531caafa1d8b26d22d9bc710d479  evidence/release-mcp-failures-20260913/luna-independent.tap
+a0c35e34104fcc67caab22edc655548d15a944c8cd7595b60f7942fee92e3f1e  evidence/release-mcp-failures-20260913/sol-adjacent.tap
+139665ce43e6e3cea280a348b2b185711b25aec6c0089819cf6ec4964e226a36  evidence/release-mcp-failures-20260913/sol-focused.tap

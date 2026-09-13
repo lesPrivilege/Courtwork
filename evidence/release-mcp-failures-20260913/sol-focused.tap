@@ -1,0 +1,30 @@
+TAP version 13
+# (node:82726) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: DF06 MCP permission denial records no dispatch intent and reaches no remote effect
+ok 1 - DF06 MCP permission denial records no dispatch intent and reaches no remote effect
+  ---
+  duration_ms: 1120.823834
+  type: 'test'
+  ...
+# Subtest: DF06 cancelling a pending MCP approval ends cancelled without dispatch or effect
+ok 2 - DF06 cancelling a pending MCP approval ends cancelled without dispatch or effect
+  ---
+  duration_ms: 514.301791
+  type: 'test'
+  ...
+# Subtest: DF06 failed MCP result-receipt persistence fences one remote effect and never replays after reopen
+ok 3 - DF06 failed MCP result-receipt persistence fences one remote effect and never replays after reopen
+  ---
+  duration_ms: 1065.61675
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3718.791542
