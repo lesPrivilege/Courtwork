@@ -28,3 +28,7 @@ L1操作、L2上下文、L3技术是审计标记，按当前任务分层。版�
 ## Attention 增量接续
 
 再次读取同一对话取得新增轮次及Tasktori附件，见[采用与后续顺序](attention-consumption.md)。已实现的List–Detail/状态查询/typed actions继续作为先例；Board/Time、saved views及来源/外部效果按原owner与缺口推进。
+
+## WO-ATT-UI02 独立前端绘制
+
+用户指定UI先行：Luna分层/索引，用户转交Claude独立绘制与motion，Astra裁决验收后合入。独立[工单与交接包入口](../attention-ui-handoff-2026-09-13/README.md)已建立；Context/TPS motion另归Astra稍后串行真实视觉，不派给Claude。
