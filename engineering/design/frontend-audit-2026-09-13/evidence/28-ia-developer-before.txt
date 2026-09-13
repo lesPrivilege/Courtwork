@@ -1,0 +1,163 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]: · Settings
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "General":
+        - generic: General
+      - tab "Appearance":
+        - generic: Appearance
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations":
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Memory":
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer" [active] [selected]:
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Developer":
+      - heading "Developer" [level=3]
+      - heading "Runtime" [level=4]
+      - paragraph: "The runtime is the architecture underneath a chat: which configuration a run was composed from, and which values it froze. Nothing here changes what a chat is allowed to do — that is Permissions."
+      - heading "Overview" [level=4]
+      - generic: The runtime the next run in this chat would be composed from.
+      - button "Refresh the runtime snapshot":
+        - generic: Refresh the runtime snapshot
+      - paragraph: Session overrides workspace, and workspace overrides user. A narrower scope cannot loosen a deny or ask that a wider one set.
+      - tablist "Configuration scope":
+        - tab "User" [selected]
+      - paragraph: Editing the user layer · local. Revision 0.
+      - term: Profile
+      - definition:
+        - generic: agent:general · compatible
+      - term: Adapter
+      - definition:
+        - generic: pi-coding-agent@0.85.1/agent-session
+      - term: Exposed
+      - definition:
+        - generic: 10 of 24 resources
+      - term: Active runs
+      - definition:
+        - generic: "0"
+      - heading "Attention · 0" [level=5]
+      - paragraph: Every resource reports healthy, nothing is waiting for a permission answer, and every plugin is host-trusted.
+      - paragraph: The next-run context is not loaded.
+      - heading "Recorded bindings" [level=5]
+      - paragraph: What a run actually froze. Later edits never change these records.
+      - paragraph: No run has been recorded in this chat yet.
+      - heading "Composition" [level=4]
+      - paragraph: "The agent profile a run is composed from, what it depends on and where it applies. Saving a runtime configuration is not publishing a verified Work Expert: that needs a work semantics, a scope it applies to and an acceptance, none of which a profile carries."
+      - generic: Profile
+      - generic: Chosen in the user layer. Inherit removes this layer's choice; it does not select the built-in profile.
+      - combobox "Selected profile":
+        - option "Inherit the wider layer" [selected]
+        - option "General · agent:general"
+      - generic "Package Runtime configuration"
+      - heading "Source · Requested · Effective · Bound" [level=5]
+      - term: Source
+      - definition:
+        - generic: builtin · pi-coding-agent@0.85.1/agent-session
+      - term: Requested
+      - definition:
+        - generic: Nothing requested in the user layer.
+      - term: Effective
+      - definition:
+        - generic: agent:general · compatible
+        - generic: server revision 0
+      - term: Bound
+      - definition:
+        - generic: No recorded run is open.
+        - generic: choose one under Overview › Recorded bindings
+      - heading "Dependencies" [level=5]
+      - paragraph: This profile restricts no resource list. Every resource the host exposes stays available, subject to policy.
+      - heading "Applicability" [level=5]
+      - term: Status
+      - definition:
+        - generic: compatible
+      - term: Version
+      - definition:
+        - generic: builtin
+      - term: UI slots
+      - definition:
+        - generic: runtime.inspector, work.surface — declared, not executed
+      - paragraph: A declared slot is saved configuration, not a registered renderer. Nothing mounts because a profile named it.
+      - heading "Agent profiles · 1" [level=5]
+      - paragraph: "Selecting a profile is a different act from exposing a resource: a profile filters and restricts, and it can never grant authority the host does not already hold. These rows are the profiles themselves — the selection is the control above, and none of them has a switch."
+      - button "General builtin":
+        - generic: General
+        - generic: builtin
+      - generic: Installed
+      - generic: "Yes"
+      - generic: Running
+      - generic: Not applicable
+      - generic: Exposed
+      - switch "Expose General to the model" [checked] [disabled]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: n/a
+      - paragraph: "Exposure: determined by the selected profile."
+      - paragraph: Exposure is not configurable here; the service that owns this kind decides it.
+      - heading "Extensions" [level=4]
+      - button "Refresh extensions":
+        - generic: Refresh extensions
+      - generic: Evidence Memo (development)
+      - generic: unloaded
+      - paragraph: evidence-memo · v0.1.0 · gen 0
+      - paragraph: development-extension · development
+      - button "Load"
+      - button "Invalidate"
+      - generic: Inbound NDA Playbook Review
+      - generic: unloaded
+      - paragraph: inbound-nda · v0.1.0 · gen 0
+      - paragraph: development-extension · development
+      - button "Load"
+      - button "Invalidate"
+      - generic: Lifecycle Probe (development)
+      - generic: unloaded
+      - paragraph: probe · v0.1.0 · gen 0
+      - paragraph: development-extension · development
+      - button "Load"
+      - button "Invalidate"
+      - heading "Runtime info" [level=4]
+      - term: Adapter
+      - definition: pi-coding-agent@0.85.1/agent-session
+      - term: Host
+      - definition: ready
+      - term: Tools
+      - definition: ask_user, ws_list, ws_read, ws_write, ws_grep
+      - heading "Planned" [level=4]
+      - paragraph: These belong to the runtime contract but have no host adapter yet. They are listed so their absence is legible, and they carry no controls.
+      - generic: MCP OAuth
+      - generic: Only unauthenticated Streamable HTTP servers can connect today.
+      - generic: Backend pending
+      - generic: MCP stdio transport
+      - generic: Local process servers cannot be launched or supervised.
+      - generic: Backend pending
+      - generic: Third-party plugin isolation
+      - generic: Only host-trusted extensions load; there is no sandbox for outside code.
+      - generic: Backend pending
+      - generic: Memory providers
+      - generic: Attention reads retained conversation messages. External and derived providers remain pending.
+      - generic: Backend pending
+      - generic: Workflows
+      - generic: No workflow runner exists to execute a saved sequence.
+      - generic: Backend pending
+      - generic: Hooks
+      - generic: No executable hook point exists.
+      - generic: Backend pending
+      - generic: Registries
+      - generic: Package resolution and signature checks are not implemented.
+      - generic: Backend pending
+      - generic: Per-source token counts
+      - generic: Usage is reported in the work inspector. Individual context-source sizes remain character counts.
+      - generic: Backend pending
+- status

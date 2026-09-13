@@ -34,3 +34,12 @@ FA-03/04：`attention-view.mjs:render`、`settings-view.mjs:renderMemory/renderK
 - FA-09（P2待复现裁决）：合成Files双版本比较已显示1 added/1 removed，按钮仍显示Comparing…（24截图）。检查materials-view比较按钮引用与重绘后更新，不能据此称请求仍运行；下一批先加入可复现回归再修复。
 - Icon gap台账：当前确认的是渲染依赖缺口而非新图形语义。通用返回/刷新已有文字功能并非必须全部icon-only；需要glyph时先查canonical家族与semantic key，新增图形另记来源/几何/配文/可访问名称。
 - 本轮FA-01～04不要求新后端。发现需要新事实的前端面仍先登记最小reader/capability与原owner，合成标本先验证，生产未知/失败态不填假值。
+
+## IA串行接续状态（2026-09-13）
+
+用户新授权及来源见[IA Plan](ia-plan.md)，后续证据见[IA交付](ia-delivery.md)。此段更新上方首批时点：
+
+- FA-06局部Usage返回已实现：保持同一snapshot，恢复origin/view/scroll，退出递增generation拒绝迟到结果；分页不覆盖原图表返回点。真实日→记录→原日期格通过，其他触发点及分页由定向回归覆盖范围约束。全局FE-NAV未关闭。
+- FA-09已复现并修复：Files reader隐藏时cancelRequests清空button map，而returnFromFile恢复原DOM，比较完成无法更新按钮。保留该scope DOM引用，session change/reset仍重建；先红后绿回归及同路径浏览器均通过。
+- IA-2/3已消费：技术scope/revision披露、默认来源去重、无能力列表披露、Home revision后移、Attention agent空态去装饰。风险/权限/失败保持可见，来源详见ia-inventory与ia-data-surfaces。
+- 真实200%仍未取得可核验百分比/截图；本轮Chrome原生菜单工具返回不完整，恢复缩放快捷键已尝试，不能称该项通过。390窄屏与键盘代表路径另有实测。

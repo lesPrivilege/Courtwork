@@ -1,0 +1,204 @@
+- dialog "Projects and chats":
+  - banner:
+    - link "CourtWork":
+      - /url: "#home"
+      - text: CourtWork
+    - button "Close navigation":
+      - generic: Close navigation
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Expert
+  - generic: Planned
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Frontend Audit · synthetic" [expanded]:
+        - generic: Frontend Audit · synthetic
+      - button "New chat in Frontend Audit · synthetic":
+        - generic: New chat in Frontend Audit · synthetic
+      - button "Audit files and return paths":
+        - generic: Audit files and return paths
+  - contentinfo "Workspace tools":
+    - button "Refresh workspace":
+      - generic: Refresh workspace
+    - button "Settings":
+      - generic: Settings
+- main:
+  - button [expanded]:
+    - generic: Toggle navigation
+  - text: ·
+  - region:
+    - region:
+      - button: Attention items
+      - combobox
+      - paragraph: 0 items · all states
+      - paragraph: No attention items recorded in this project.
+    - region:
+      - heading [level=3]:
+        - button: Activity
+      - button: 28d
+      - button [pressed]: 84d
+      - paragraph:
+        - strong: "1"
+        - generic: recorded runs · 84 days · all retained work
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - button
+      - paragraph: 2026-06-22 — 2026-09-13
+      - paragraph: UTC · Retained runs only. Deleted-chat history is unknown.
+    - button: Manage connections
+    - button [expanded]: Hide modules
+  - region:
+    - heading [level=3]: Your work
+    - button:
+      - generic: Waiting for you
+      - generic: "0"
+      - generic: Open questions and approval requests, all retained work, right now.
+    - button:
+      - generic: Continue
+      - generic: "1"
+      - generic: Retained chats, all retained work, right now.
+    - button:
+      - generic: Needs a look
+      - generic: "0"
+      - generic: Runs recorded failed or unknown, all retained work, right now.
+  - log:
+    - heading [level=3]: Continue
+    - generic: "1"
+    - list:
+      - button:
+        - generic: Audit files and return paths
+        - generic: Frontend Audit · synthetic
+        - generic: Completed
+  - heading [level=2]: Orchestrate your agents. Govern your work.
+  - generic: Message
+  - textbox:
+    - /placeholder: Describe the work you want to do…
+  - button:
+    - generic: Chat files
+  - button: Local test · Provider default
+  - button [disabled]:
+    - generic: Send
+  - text: Project
+  - combobox
+  - button:
+    - generic: New project
+  - combobox
+- status
+- dialog "Attention":
+  - banner:
+    - heading "Attention" [level=2]
+    - paragraph: Your global assistant
+    - button "Close Attention":
+      - generic: Close Attention
+  - combobox "Attention conversation":
+    - option "New conversation" [selected]
+  - button "Refresh Attention":
+    - generic: Refresh Attention
+  - button "Conversations"
+  - button "Attention items"
+  - button "Configure Attention Runtime":
+    - generic: Configure Attention Runtime
+  - generic "Threads & messages"
+  - generic "Attention conversation messages" [active]:
+    - paragraph: Ask a question or find context from earlier work.
+  - generic "Runtime & memory"
+  - textbox "Message Attention":
+    - /placeholder: What needs your attention?
+  - button "Choose model and effort": Local test
+  - button "Send to Attention" [disabled]:
+    - generic: Send to Attention

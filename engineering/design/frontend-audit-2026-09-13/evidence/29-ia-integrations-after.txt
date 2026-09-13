@@ -1,0 +1,176 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]: · Settings
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "General":
+        - generic: General
+      - tab "Appearance":
+        - generic: Appearance
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations" [active] [selected]:
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Memory":
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer":
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Tools & Integrations":
+      - heading "Tools & Integrations" [level=3]
+      - heading "Adding an MCP server" [level=4]
+      - paragraph: Servers are added through host configuration. Manage imported servers below.
+      - generic "Setup steps and current limits"
+      - heading "Tools, MCP servers and plugins" [level=4]
+      - paragraph: Connect servers and choose tools. Each tool call still follows its access policy.
+      - tablist "Configuration scope":
+        - tab "User" [selected]
+      - paragraph: Editing the user layer.
+      - paragraph: Narrower scopes cannot loosen a wider deny or ask.
+      - generic "Scope details"
+      - tablist "Capability view":
+        - tab "Configurable" [selected]
+        - tab "Inventory"
+      - heading "Tools · 6" [level=5]
+      - button "ask_user builtin":
+        - generic: ask_user
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose ask_user to the model" [checked]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: allow
+      - button "ws_list builtin":
+        - generic: ws_list
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose ws_list to the model" [checked]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: allow
+      - button "ws_read builtin":
+        - generic: ws_read
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose ws_read to the model" [checked]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: allow
+      - button "ws_write builtin":
+        - generic: ws_write
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose ws_write to the model" [checked]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: allow
+      - button "ws_grep builtin":
+        - generic: ws_grep
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose ws_grep to the model" [checked]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: allow
+      - button "runtime_load builtin":
+        - generic: runtime_load
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose runtime_load to the model" [checked]
+      - generic: Exposed
+      - generic: Permitted
+      - generic: allow
+      - heading "Tools from extensions · 8" [level=5]
+      - paragraph: Provided by an installed extension. Its lifecycle is in Developer › Extensions; only exposure is set here.
+      - paragraph: Evidence Memo (development)
+      - button "se_read_source builtin":
+        - generic: se_read_source
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_read_source to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Evidence Memo (development) is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - button "se_submit_candidate builtin":
+        - generic: se_submit_candidate
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_submit_candidate to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Evidence Memo (development) is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - button "se_read_artifact builtin":
+        - generic: se_read_artifact
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_read_artifact to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Evidence Memo (development) is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - button "se_read_candidate_file builtin":
+        - generic: se_read_candidate_file
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_read_candidate_file to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Evidence Memo (development) is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - button "se_read_artifact_file builtin":
+        - generic: se_read_artifact_file
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_read_artifact_file to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Evidence Memo (development) is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - paragraph: Inbound NDA Playbook Review
+      - button "se_read_source builtin":
+        - generic: se_read_source
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_read_source to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Inbound NDA Playbook Review is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - button "se_submit_candidate builtin":
+        - generic: se_submit_candidate
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_submit_candidate to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Inbound NDA Playbook Review is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - button "se_read_artifact builtin":
+        - generic: se_read_artifact
+        - generic: builtin
+      - generic: Exposed
+      - switch "Expose se_read_artifact to the model" [disabled]
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: deny
+      - paragraph: "Exposure: Inbound NDA Playbook Review is not running."
+      - paragraph: Expose and connect the parent resource before changing this tool's exposure.
+      - generic "Unavailable capabilities"
+- status

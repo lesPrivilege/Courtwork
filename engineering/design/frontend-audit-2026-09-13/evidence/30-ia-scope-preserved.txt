@@ -1,0 +1,85 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]: · Settings
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "General":
+        - generic: General
+      - tab "Appearance":
+        - generic: Appearance
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations" [selected]:
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Memory":
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer":
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Tools & Integrations":
+      - heading "Tools & Integrations" [level=3]
+      - heading "Adding an MCP server" [level=4]
+      - paragraph: Servers are added through host configuration. Manage imported servers below.
+      - generic "Setup steps and current limits"
+      - heading "Tools, MCP servers and plugins" [level=4]
+      - paragraph: Connect servers and choose tools. Each tool call still follows its access policy.
+      - tablist "Configuration scope":
+        - tab "User" [selected]
+      - paragraph: Editing the user layer.
+      - paragraph: Narrower scopes cannot loosen a wider deny or ask.
+      - generic "Scope details"
+      - paragraph: Session overrides workspace, and workspace overrides user. A narrower scope cannot loosen a deny or ask that a wider one set.
+      - paragraph:
+        - code: user:local · revision 0
+      - tablist "Capability view":
+        - tab "Configurable"
+        - tab "Inventory" [active] [selected]
+      - paragraph: "Installed packages and the capabilities they declare. A declaration is not an executable package: the host loads its own extensions only, and an imported MCP configuration is a connection, not code. For an extension, trust is who signed it and how it is isolated; for a remote server it is the authentication it accepts and the transport it speaks — this host connects only to unauthenticated Streamable HTTP."
+      - table:
+        - rowgroup:
+          - row "Package Kind Source Trust Declares State":
+            - columnheader "Package"
+            - columnheader "Kind"
+            - columnheader "Source"
+            - columnheader "Trust"
+            - columnheader "Declares"
+            - columnheader "State"
+        - rowgroup:
+          - row "Evidence Memo (development) plugin:evidence-memo Plugin builtin · 0.1.0 host-trusted · in-process 5 tools not running":
+            - rowheader "Evidence Memo (development) plugin:evidence-memo":
+              - generic: Evidence Memo (development)
+              - code: plugin:evidence-memo
+            - cell "Plugin"
+            - cell "builtin · 0.1.0"
+            - cell "host-trusted · in-process"
+            - cell "5 tools"
+            - cell "not running"
+          - row "Inbound NDA Playbook Review plugin:inbound-nda Plugin builtin · 0.1.0 host-trusted · in-process 3 tools not running":
+            - rowheader "Inbound NDA Playbook Review plugin:inbound-nda":
+              - generic: Inbound NDA Playbook Review
+              - code: plugin:inbound-nda
+            - cell "Plugin"
+            - cell "builtin · 0.1.0"
+            - cell "host-trusted · in-process"
+            - cell "3 tools"
+            - cell "not running"
+          - row "Lifecycle Probe (development) plugin:probe Plugin builtin · 0.1.0 host-trusted · in-process 0 tools not running":
+            - rowheader "Lifecycle Probe (development) plugin:probe":
+              - generic: Lifecycle Probe (development)
+              - code: plugin:probe
+            - cell "Plugin"
+            - cell "builtin · 0.1.0"
+            - cell "host-trusted · in-process"
+            - cell "0 tools"
+            - cell "not running"
+      - paragraph: Extension lifecycle — start, stop, restart — is in Developer › Extensions, where the host owns it. Nothing on this tab starts or stops anything.
+      - generic "Unavailable capabilities"
+- status

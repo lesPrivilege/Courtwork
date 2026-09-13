@@ -54,6 +54,10 @@ Gap 记录字段：ID/既有工单、surface+state、用户任务、截图与复
 
 实施须运行适用的 README 基线检查、相关 icon/material lint 与有意义的行为测试；不为纯文案/文档机械增加测试。无付费 provider、个人数据读取/迁移或凭本 Plan 发布。合流不代表产品全面接受。
 
+## 信息架构串行接续
+
+用户随后要求将“信息架构收敛 Auditing”一并登记、串行施工、工作方式不变。[IA执行片](ia-plan.md)接续本Plan，先补FA-06/09，再收敛Settings/Runtime/Home，P1数据与阅读面保留各自grammar。首批报告保留历史时点；最新状态见[IA交付](ia-delivery.md)。
+
 ## 当前检查点
 
 - 原图、两位Luna探索及Exa来源裁决已保留，见[explore](explore.md)。

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · 信息架构收敛串行接续
+
+按用户要求将“信息架构收敛 Auditing”并入[原前端Audit](design/frontend-audit-2026-09-13/PLAN.md)，来源全文、官方先例和[串行计划](design/frontend-audit-2026-09-13/ia-plan.md)已登记；Astra裁决/实现与Luna有界探索/非作者复核方式保持。产品 `ccc7bb0` 修复Usage原位返回、Files reader后比较按钮，收敛Settings/Runtime/Home默认信息与技术披露，保留权限/插件隔离/MCP认证限制。全量916/916、最终定向80/80及分页1/1通过；[交付记录](design/frontend-audit-2026-09-13/ia-delivery.md)区分作者浏览器、Luna源码复核和真实200%等未测项。五类数据/阅读面已有grammar映射，不封闭模板、不强制Markdown衬线、不新增后端owner。本轮未push/部署，其他writer改动保留。
+
 ## 2026-09-13 · Release首片施工与能力生命周期证据
 
 按用户施工授权，Luna explore/非作者复核、Sol worker、Astra裁决与集成完成[测试合同前置片](../evidence/release-test-contract-20260913/README.md)：默认并发4、负载8、独立Runtime检查入口与Node22.19/24、Python3.12 CI配置。固定产品源码Node22.19默认连续三轮915/915，smoke与链接检查通过；新增DF-06预备组合后负载916/916，生命周期Astra独立1/1。main产品d0b18ce与被验候选8461ff2的产品、测试与检查入口逐项相同；原始冷启动失败及CI未远端运行的上限保留。正常重开/manager旧绑定证据不冒称in-flight crash不重放，P05/P06完整输入关联与其余DF-06/G1–G5继续开放。并行前端的新在途改动保留且未纳入这些固定候选结果；未push/部署。

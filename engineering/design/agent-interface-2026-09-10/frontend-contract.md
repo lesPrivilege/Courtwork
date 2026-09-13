@@ -69,3 +69,7 @@ Skin 管获准外观，Review 管稳定待决语义；相同scheme下切skin不�
 ## 外部材料的消费边界
 
 本轮完整读取[3轮输入](input-conversation.md)。Appica的按需文档/同版本规则、Atlassian的token工具、Figma的实际组件映射、Storybook的视觉diff均只作为方法参考，核验见[sources-review](sources-review.md)。不安装Appica/React/Tailwind，不建立第二套token/lexicon，不声称自动loader、CI像素门或全库AST守卫已经存在。
+
+### 信息层与页面编排接续（2026-09-13）
+
+新增或调整二/三级面，在原变更记录中补充任务骨架、文本作用与默认/上下文/技术披露层；参照[编排选择表](../ui-composition-standard.md#信息预算与跨面编排2026-09-13)和[文案审计标记](../copy-convention.md#信息架构审计标记2026-09-13)。它们扩展既有审阅，不建立全库自动接受门。版本、授权范围/后果、未知与失败按任务承重，不能按技术字段黑名单隐藏；字体也不能按源格式一刀切。

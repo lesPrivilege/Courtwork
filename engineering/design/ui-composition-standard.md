@@ -123,3 +123,20 @@ composer 是**一个** primitive 的两个 variant，不是两个组件（WK-97�
 当前产品没有连续缩放画布或 zoom 控件；不新增虚构缩放功能。检查重点为 viewport 变窄时的 reflow、长文案、弹窗内部滚动、动作可达性，以及 browser zoom 的实际能力边界。320px 有效宽度检查不等于已验证浏览器 200% 缩放，更不等于通过整套 WCAG。
 
 本轮修正：首页 composer 12px/列表16px 边距不齐；编辑弹窗独立 padding；设置输入最小宽度挤压；弹窗动作不换行；零散字号统一 token，窄屏 10px 元数据提升到 caption。实际截图、运行与重连证据见 `evidence/final-ui-audit/README.md`。品牌命名与语义注入、完整设备 IME/读屏/浏览器缩放矩阵留有明确后续边界。
+
+## 信息预算与跨面编排（2026-09-13）
+
+沿[信息架构接续裁决](frontend-audit-2026-09-13/ia-plan.md)采用任务驱动的三层检查：默认层呈现对象、状态、关键事实及下一动作；上下文层补原因、关系与约束；技术层提供来源、标识、原始记录和诊断。后一层增加信息，不重复默认层。版本、权限范围、风险、失败与未知如直接影响当前决定，应保留在操作处；不按字段名永久隐藏。
+
+| 用户要回答的问题 | 首选grammar | 保持的关系 |
+|---|---|---|
+| 当前有什么需处理 | Overview / exception preview | 少量状态与真实入口，不复制完整inspector |
+| 在同类对象中找谁、看谁 | list / list–detail | 对象行、选区、详情与返回连续 |
+| 改哪项设置、在哪个范围生效 | form / PropertyRow | label、scope、control、结果；权限约束当场可见 |
+| 精确比较记录 | table | 共享列与单位；不堆重复卡片 |
+| 观察时间或分布 | chart / heatmap + exact values | 先声明问题、单位、范围与覆盖；图形不创造事实 |
+| 查来源、技术证据 | disclosure / inspector | 可发现、可到达；披露保留展开/焦点，避免层层重复 |
+| 连续阅读文档 | Reader | 阅读宽度/行高与代码、表格独立；格式不强制字体 |
+| 对话与执行反馈 | Chat Flow | 消息、动作、状态和结果连续，不能强塞进表格模板 |
+
+这是一组选择依据，不是封闭模板全集。新面仍按frontend-contract登记最近实现先例与偏离理由；没有新建通用Card、数据owner或presentation runtime。字阶/材质沿原token；sans适合控件，mono用于需精确读取的机器文本，serif是否适合长文由实际阅读profile与验证决定，不因Markdown格式直接切族。
