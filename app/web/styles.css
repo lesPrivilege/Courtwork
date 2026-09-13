@@ -4163,7 +4163,7 @@ court-symbol {
   width: 44px;
   height: var(--control);
   flex: none;
-  margin: 0 -7px;
+  margin: 0;
   border: 0;
   background: transparent;
   position: relative;
@@ -4589,16 +4589,6 @@ court-symbol {
 @media (max-width: 767px) {
   .runtime-dimensions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .runtime-switch input {
-    width: 40px;
-    height: 24px;
-  }
-  .runtime-switch input::after {
-    width: 18px;
-  }
-  .runtime-switch input:checked::after {
-    transform: translateX(16px);
   }
   /* The word is a real label, so switch + word form one 44px-tall target. */
   .runtime-switch {

@@ -34,3 +34,11 @@ Plugins 导航与对象行共享 `plugin.object`，改用已固定 Lucide 1.41.0
 Build with agent的源草稿回流、删除UI和远端Registry检索仍未实现：后续应先保护原Chat草稿、形成可编辑待审源，再走同一校验/保存；不能因生成而自动登记、安装、加载、曝光或执行。本轮不增加无后端的功能按钮。
 
 正文输入沿现有表单字体，Skill源编辑保留等宽；[末轮截图](audit/11-resource-prose.png)由iAB保存，Luna非作者审读另列审计报告。追加交付留在 `codex/settings-resource-management-20260913`，交由发布任务负责最终合流及组合验收；本任务不追加 main 合流、push 或部署。前一片 `c1bdaa9` 已进入 main，不重复接收。
+
+## 2026-09-14 · 用户截图反馈的曝光控件重叠
+
+基线 `5c92f27`；最近先例为同片 Plugins 的只读曝光事实与原 runtime-switch。用户指出 Developer Agent profiles 的 Exposed 与开关重叠：不可配置资源仍画禁用开关，且767px以下滑块宽度/位移扩大后超过原轨道，负margin进一步挤占标签。`exposureCell` 对 `configurable=false` 仅呈现Host曝光事实；可配置但忙碌/冻结的资源仍保留禁用控件。移除窄屏私有滑块几何和负margin，保持共享30px轨道/12px滑块、窄屏44px点击框、6px标签间距，不改变资源曝光owner或权限。
+
+作者定向 `settings-plugins` / `runtime-detail-reading` / `runtime-intake` 共20/20，interaction/colors lint通过。iAB合成390×844 light：[Profile只读事实](audit/12-profile-exposure-390.png)、[相邻Instruction选中开关](audit/13-switch-exposure-390.png)已目验；DOM量测点击框44×44、标签间距6px，键盘Space开/关通过，恢复未曝光。未重跑深色、200%与完整无障碍矩阵；本追加不是前11图Luna审计的自动延伸。
+
+归属核对：Models的Connection与Environment承载provider/model连接配置；adapter当前在General › Data › Host details与Developer › Runtime只读显示，没有Models同页的adapter切换入口。本修复不变更该架构归属，交发布任务继续合流。

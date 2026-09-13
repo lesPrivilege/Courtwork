@@ -8,6 +8,24 @@ const plugin = { id: 'plugin:fixture', kind: 'plugin', title: 'Fixture plugin', 
   source: { type: 'builtin', version: '1' }, installed: true, running: false,
   exposed: false, configurable: false, health: 'healthy', trust: 'host-trusted',
   capabilities: ['tool:fixture'], provenance: [] };
+test('Host-owned profile exposure is text while configurable resources retain a switch', () => withTinyDom(async body => {
+  document.body = body;
+  const composition = document.createElement('div'), instructions = document.createElement('div');
+  body.append(composition, instructions);
+  const view = createRuntimeView({ composition, instructions }, {
+    getSessionId: () => null,
+    request: async () => ({ revision: 1, activeRuns: 0, scopes: [scope], resources: [
+      { ...plugin, id: 'agent:general', kind: 'agent_profile', title: 'General', exposed: true },
+      { ...plugin, id: 'local:instruction', kind: 'instruction', title: 'Guidance', configurable: true },
+    ], composition: { id: 'agent:general', status: 'compatible', resourceIds: null, uiSlots: [] } }),
+  });
+  await view.load();
+  const profile = composition.querySelector('.runtime-row');
+  assert.ok(profile);
+  assert.equal(profile.querySelectorAll('input').length, 0);
+  assert.match(profile.textContent, /ExposedExposed/);
+  assert.equal(instructions.querySelectorAll('input[role="switch"]').length, 1);
+}));
 async function fixture(body, request) {
   document.body = body;
   document.activeElement = body;

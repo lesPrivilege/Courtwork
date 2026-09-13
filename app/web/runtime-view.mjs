@@ -601,6 +601,7 @@ export function createRuntimeView(
   }
 
   function exposureCell(resource, scope) {
+    if (!resource.configurable) return dimension("Exposed", resource.exposed ? "Exposed" : "Not exposed");
     const configurable = resource.configurable && scope && !frozen();
     // The authoritative effective value, never a value the page reconstructs.
     const value = Boolean(resource.exposed);
