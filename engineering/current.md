@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Attention UI 独立绘制工单
+
+按用户指定分工建立 [WO-ATT-UI02](design/attention-ui-handoff-2026-09-13/README.md)：Luna完成分层标注/内外参考索引，用户转交Claude独立前端绘制与motion，Astra裁决验收后合入。包内提供固定源码、历史截图与返回/验收清单；当前为交接准备，未冒称Claude完成或视觉接受。Context window/TPS motion另由Astra稍后串行、采用实际图像与UI核验；估算/Unavailable/真实测量分开。本片不改产品或发布。
+
 ## 2026-09-13 · Attention 定位与多视图增量消费
 
 “信息架构收敛 Auditing”新增轮次及Tasktori附件已[归档并采用](design/frontend-audit-2026-09-13/attention-consumption.md)。沿现有Attention对象/查询与List–Detail，修正活动先例索引仍称typed actions未交付的旧状态；区分本地acknowledge置seen与外部认领语义，due_at不作调度承诺。Board/Time仅候选，来源/外部效果继续接HL-A0/HL-A1；不新增状态、View引擎或产品控件。本片仅文档与来源检查，未重跑产品测试、push或部署。
