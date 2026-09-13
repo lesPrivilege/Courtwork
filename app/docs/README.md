@@ -32,3 +32,5 @@
 - [Thread / local messaging](coordination.md)：持久工作线、本地outbox/inbox、权限与child conformance边界。
 - [Run attempts and lineage](run-attempts.md)：Run 显式承接（`supersedes`）、合法目标与不可分叉的链。
 - [Usage detail and snapshot drilldown](usage-details.md)：每日、模型与精确Run读面。
+
+- [First work: synthetic NDA review](first-work.md): GUI setup, fixed public input, formal review and same-Matter continuation.

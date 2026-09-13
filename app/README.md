@@ -2,6 +2,8 @@
 
 The local host composes the Web UI, Pi AgentSession, runtime control plane and Work Core. Start it from the [repository README](../README.md); the current HTTP contract is [api-v6.md](docs/api-v6.md).
 
+For the first supported work path, follow [the synthetic NDA walkthrough](docs/first-work.md). It covers the existing GUI configuration, source binding, human Review and same-Matter continuation.
+
 ## Modules
 
 | Directory | Responsibility |

@@ -1,3 +1,4 @@
+import {REASON_TEMPLATES, formatReason} from './protocol.mjs';
 import {
   CONTRACT_VERSION,
   PLAYBOOK_VERSION,
@@ -205,8 +206,8 @@ function assessSource(rule, sources) {
       state: 'conflict',
       evidence: uniqueAnchors([...normal, ...conflict]),
       reason: normalComplete
-        ? 'the supplied source contains both the playbook clause and an explicit conflicting clause'
-        : 'the supplied source contains an explicit clause that conflicts with the playbook',
+        ? REASON_TEMPLATES.source.conflictWithNormal
+        : REASON_TEMPLATES.source.conflictWithoutNormal,
     };
   }
   if (normalComplete) return { state: 'exact', evidence: uniqueAnchors(normal) };
@@ -214,13 +215,13 @@ function assessSource(rule, sources) {
     return {
       state: 'unknown',
       evidence: uniqueAnchors([...normal, ...markers]),
-      reason: 'the supplied source clause is changed or cannot be parsed against the playbook',
+      reason: REASON_TEMPLATES.source.unknown,
     };
   }
   return {
     state: 'missing',
     evidence: [],
-    reason: 'the supplied source does not contain the playbook clause',
+    reason: REASON_TEMPLATES.source.missing,
   };
 }
 
@@ -277,76 +278,76 @@ function evaluatePurpose(facts) {
   const transactionPurpose = classifyScalar(getPath(facts, ['transaction', 'purpose']));
   const usePurpose = classifyScalar(getPath(facts, ['use', 'purpose']));
   for (const item of [transactionPurpose, usePurpose]) {
-    if (item.state === 'conflict') return statusResult('conflict', 'the transaction or intended-use fact contains conflicting values');
-    if (item.state === 'unknown') return statusResult('unknown', 'the transaction or intended-use fact is explicitly unknown');
-    if (item.state === 'missing') return statusResult('missing', 'the transaction purpose and intended use are both required');
+    if (item.state === 'conflict') return statusResult('conflict', REASON_TEMPLATES.purpose.conflict);
+    if (item.state === 'unknown') return statusResult('unknown', REASON_TEMPLATES.purpose.unknown);
+    if (item.state === 'missing') return statusResult('missing', REASON_TEMPLATES.purpose.missing);
   }
   if (transactionPurpose.value !== 'evaluate Project Cedar acquisition') {
-    return statusResult('deviation', 'the transaction purpose does not match the synthetic playbook purpose');
+    return statusResult('deviation', REASON_TEMPLATES.purpose.transactionDeviation);
   }
   if (usePurpose.value !== transactionPurpose.value) {
-    return statusResult('deviation', 'the intended use differs from the transaction purpose');
+    return statusResult('deviation', REASON_TEMPLATES.purpose.useDeviation);
   }
-  return statusResult('pass', 'the intended use matches the synthetic transaction purpose');
+  return statusResult('pass', REASON_TEMPLATES.purpose.pass);
 }
 
 function evaluateRecipients(facts) {
   const value = getPath(facts, ['recipients']);
   if (value === undefined || value === null || (Array.isArray(value) && value.length === 0)) {
-    return statusResult('missing', 'at least one recipient with need-to-know and confidentiality facts is required');
+    return statusResult('missing', REASON_TEMPLATES.recipients.missing);
   }
-  if (isUnknownMarker(value)) return statusResult('unknown', 'the recipient set is explicitly unknown');
-  if (isConflictMarker(value)) return statusResult('conflict', 'the recipient set is explicitly conflicting');
-  if (!Array.isArray(value)) return statusResult('unknown', 'the recipient fact is not a structured list');
+  if (isUnknownMarker(value)) return statusResult('unknown', REASON_TEMPLATES.recipients.unknownSet);
+  if (isConflictMarker(value)) return statusResult('conflict', REASON_TEMPLATES.recipients.conflictSet);
+  if (!Array.isArray(value)) return statusResult('unknown', REASON_TEMPLATES.recipients.notList);
 
   const seen = new Map();
   for (const [index, recipient] of value.entries()) {
-    if (!isRecord(recipient)) return statusResult('unknown', `recipient ${index + 1} is not a structured fact`);
+    if (!isRecord(recipient)) return statusResult('unknown', formatReason(REASON_TEMPLATES.recipients.notRecord, index + 1));
     const category = recipient.kind ?? recipient.category;
     const needToKnow = classifyScalar(recipient.needToKnow);
     const bound = classifyScalar(recipient.boundToConfidentiality ?? recipient.bound);
-    if (needToKnow.state === 'conflict' || bound.state === 'conflict') return statusResult('conflict', `recipient ${index + 1} has conflicting controls`);
-    if (needToKnow.state === 'unknown' || bound.state === 'unknown') return statusResult('unknown', `recipient ${index + 1} has an unknown control`);
+    if (needToKnow.state === 'conflict' || bound.state === 'conflict') return statusResult('conflict', formatReason(REASON_TEMPLATES.recipients.conflictControl, index + 1));
+    if (needToKnow.state === 'unknown' || bound.state === 'unknown') return statusResult('unknown', formatReason(REASON_TEMPLATES.recipients.unknownControl, index + 1));
     if (needToKnow.state === 'missing' || bound.state === 'missing' || typeof category !== 'string' || category.trim() === '') {
-      return statusResult('missing', `recipient ${index + 1} is missing a category or control fact`);
+      return statusResult('missing', formatReason(REASON_TEMPLATES.recipients.missingControl, index + 1));
     }
     const normalizedCategory = category.trim().toLowerCase().replaceAll('-', ' ').replaceAll('_', ' ');
     if (!['employee', 'employees', 'adviser', 'advisers', 'professional adviser', 'professional advisers'].includes(normalizedCategory)) {
-      return statusResult('unknown', `recipient ${index + 1} has an unrecognized category`);
+      return statusResult('unknown', formatReason(REASON_TEMPLATES.recipients.unknownCategory, index + 1));
     }
     const key = `${normalizedCategory}:${recipient.name ?? index}`;
     const tuple = `${needToKnow.value}:${bound.value}`;
-    if (seen.has(key) && seen.get(key) !== tuple) return statusResult('conflict', `recipient ${index + 1} repeats with conflicting controls`);
+    if (seen.has(key) && seen.get(key) !== tuple) return statusResult('conflict', formatReason(REASON_TEMPLATES.recipients.conflictRepeated, index + 1));
     seen.set(key, tuple);
-    if (needToKnow.value !== true || bound.value !== true) return statusResult('deviation', `recipient ${index + 1} is not both need-to-know and bound`);
+    if (needToKnow.value !== true || bound.value !== true) return statusResult('deviation', formatReason(REASON_TEMPLATES.recipients.deviation, index + 1));
   }
-  return statusResult('pass', 'all listed synthetic recipients are need-to-know and bound');
+  return statusResult('pass', REASON_TEMPLATES.recipients.pass);
 }
 
 function evaluateSecurity(facts) {
   const safeguards = classifyScalar(getPath(facts, ['security', 'safeguards']));
   const noticeHours = classifyScalar(getPath(facts, ['security', 'noticeHours']));
   for (const item of [safeguards, noticeHours]) {
-    if (item.state === 'conflict') return statusResult('conflict', 'the security facts contain conflicting values');
-    if (item.state === 'unknown') return statusResult('unknown', 'the security facts are explicitly unknown');
-    if (item.state === 'missing') return statusResult('missing', 'safeguards and a notice window are required');
+    if (item.state === 'conflict') return statusResult('conflict', REASON_TEMPLATES.security.conflict);
+    if (item.state === 'unknown') return statusResult('unknown', REASON_TEMPLATES.security.unknown);
+    if (item.state === 'missing') return statusResult('missing', REASON_TEMPLATES.security.missing);
   }
-  if (safeguards.value !== 'reasonable') return statusResult('deviation', 'the stated safeguard level does not match the synthetic check');
+  if (safeguards.value !== 'reasonable') return statusResult('deviation', REASON_TEMPLATES.security.safeguardsDeviation);
   if (typeof noticeHours.value !== 'number' || !Number.isFinite(noticeHours.value)) {
-    return statusResult('unknown', 'the notice window is not a finite number of hours');
+    return statusResult('unknown', REASON_TEMPLATES.security.noticeUnknown);
   }
-  if (noticeHours.value < 0 || noticeHours.value > 24) return statusResult('deviation', 'the notice window exceeds the synthetic 24-hour check');
-  return statusResult('pass', 'reasonable safeguards and a notice window of at most 24 hours are recorded');
+  if (noticeHours.value < 0 || noticeHours.value > 24) return statusResult('deviation', REASON_TEMPLATES.security.noticeDeviation);
+  return statusResult('pass', REASON_TEMPLATES.security.pass);
 }
 
 function evaluateTerm(facts) {
   const term = classifyScalar(getPath(facts, ['term', 'years']));
-  if (term.state === 'conflict') return statusResult('conflict', 'the term fact contains conflicting durations');
-  if (term.state === 'unknown') return statusResult('unknown', 'the term duration is explicitly unknown');
-  if (term.state === 'missing') return statusResult('missing', 'a term duration is required');
-  if (typeof term.value !== 'number' || !Number.isFinite(term.value)) return statusResult('unknown', 'the term duration is not a finite number of years');
-  if (term.value !== 3) return statusResult('deviation', 'the term duration differs from the synthetic three-year check');
-  return statusResult('pass', 'the term duration matches the synthetic three-year check');
+  if (term.state === 'conflict') return statusResult('conflict', REASON_TEMPLATES.term.conflict);
+  if (term.state === 'unknown') return statusResult('unknown', REASON_TEMPLATES.term.unknown);
+  if (term.state === 'missing') return statusResult('missing', REASON_TEMPLATES.term.missing);
+  if (typeof term.value !== 'number' || !Number.isFinite(term.value)) return statusResult('unknown', REASON_TEMPLATES.term.notNumber);
+  if (term.value !== 3) return statusResult('deviation', REASON_TEMPLATES.term.deviation);
+  return statusResult('pass', REASON_TEMPLATES.term.pass);
 }
 
 function evaluateRule(ruleId, facts) {
