@@ -1,0 +1,26 @@
+{
+  "base_main": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+  "candidate": "667cd18b18abba3327d5af251ff788525d357efa",
+  "files": [
+    {
+      "path": "app/web/attention-view.mjs",
+      "sha256": "4afb9a34096f6cb8e39bf3c33d6594a64df110f58cb50d510d5eda105799080a"
+    },
+    {
+      "path": "app/web/styles.css",
+      "sha256": "2fe6fd4978728a2cce10d59038af9cd076aff078d26c2f1153fff8dff1544eae"
+    },
+    {
+      "path": "app/tests/attention-ui02.test.mjs",
+      "sha256": "8b225a2f4254697614b5ae1d63cacfe9e79ad5c59f882c1deef7b117e08637c5"
+    },
+    {
+      "path": "app/tests/attention-ui02-concurrency.test.mjs",
+      "sha256": "cbf9131f8292830fa6c282e11e976fa136c0f62b7a9f76fc3a764a8445f689dc"
+    },
+    {
+      "path": "app/tests/attention-triage-recovery.test.mjs",
+      "sha256": "4d62eadc6128f937b56085916ed4b3067e3c84b0ba573b6e21e922d787564b31"
+    }
+  ]
+}

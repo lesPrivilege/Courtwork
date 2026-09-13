@@ -1,0 +1,33 @@
+✔ ATT-ACT-1 · a submitted action carries the inspected revision and is read back canonically (590.66625ms)
+✔ ATT-ACT-2 · a stale revision is refused, announced and never silently replayed (1037.770375ms)
+✔ ATT-ACT-3 · a lost response is recovered from the receipt, not guessed (463.934291ms)
+✔ ATT-ACT-4 · a request that never left is retried under its own identity, once (532.639ms)
+✔ ATT-ACT-5 · a reused identity with different content is refused and surfaced (470.978958ms)
+✔ Snooze records Later, which stays a visible view and starts no timer (531.639667ms)
+✔ the workspace holds no timer of its own (0.5135ms)
+✔ relative time reads the recorded instant without rewriting it (14.278625ms)
+✔ the state strip is six explicit views and each one is its own exact query (6.650458ms)
+✔ All renders the order the server returned and adds no client sort (0.679375ms)
+✔ a row states its status and when the record was updated, and nothing else (0.661792ms)
+✔ J K and the arrows walk the list, clamp at both ends and stay out of text controls (1.814584ms)
+✔ Enter opens the focused row and Escape returns focus to it (3.316583ms)
+✔ Back to items returns to the row, never to the project selector (1.678917ms)
+✔ pagination is explicit and a view change starts again at the first page (2.36175ms)
+✔ a pending query keeps the workspace readable and never sorts a half page (0.56275ms)
+✔ a refused read speaks the adjudicated sentence, never the wire code (1.083125ms)
+✔ seen and status are two drawn facts; acknowledging changes only seen (26.79875ms)
+✔ the receipt line waits for the receipt and the re-read, and never precedes them (6.415583ms)
+✔ a mismatched receipt draws no receipt line (3.413542ms)
+✔ a version conflict keeps the draft and states the version now on screen (4.292292ms)
+✔ an unknown result moves focus to Retry sending and keeps the submit closed (3.122667ms)
+✔ Mark as seen cannot be sent twice while its request is out (3.253459ms)
+✔ an item that leaves the current view after a receipt is named, with its new status (4.784291ms)
+✔ the assistant entry is part of the workspace heading, not an item detail (1.424166ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4787.416042

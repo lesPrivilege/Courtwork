@@ -55,7 +55,7 @@ const ACTION_CONSEQUENCE = {
  * `NOT_FOUND` says only that the item is unavailable — the contract returns one
  * uniform unavailable result and the UI must not infer existence from it. */
 const ERROR_COPY = {
-  VERSION_CONFLICT: 'This item changed while you were deciding. Reload it and try again.',
+  VERSION_CONFLICT: 'This item changed while you were deciding. Review its current state before trying again.',
   IDEMPOTENCY_CONFLICT: 'A different request already used this identity. Reload the item before retrying.',
   NOT_FOUND: 'This item is unavailable.',
   DISCLOSURE_DENIED: 'You do not have access to this field.',
@@ -99,7 +99,7 @@ function motionAllowed() {
   if (root.getAttribute('data-motion') === 'reduce') return false;
   return !globalThis.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
-function play(node, keyframes, { duration = '--duration', delay = 0, fill = 'none' } = {}) {
+function animateElement(node, keyframes, { duration = '--duration', delay = 0, fill = 'none' } = {}) {
   if (!node || typeof node.animate !== 'function' || !motionAllowed()) return null;
   const ms = Number.parseFloat(cssToken(duration));
   const easing = cssToken('--ease-out');
@@ -137,13 +137,18 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
    * reading pane last drew, so a re-inspect of the same object never replays
    * the entrance. The narrow list keeps its own scroll offset across the
    * list → detail → list round trip. */
-  const motion = { cue: null, shown: null, previousIndex: -1, listScroll: 0, alert: null, departed: null, hold: false };
+  let keyboardInput = false;
+  const ownsSelection = entry => entry.projectId === state.projectId && entry.attentionId === state.selectedId;
+  const play = (...args) => keyboardInput ? null : animateElement(...args);
+  const motion = { cue: null, shown: null, previousIndex: -1, listScroll: 0, alert: null, departed: null, hold: 0 };
 
   /* WK-157 · the list's own keys. `J`/`K` never fire while a text control has
    * focus, and the cursor clamps at both ends instead of wrapping — a wrap makes
    * "I am at the last item" unreadable. Rows stay ordinary buttons, so `Enter`
    * keeps its native activation and needs no handler here. */
   function onKeyDown(event) {
+    keyboardInput = true;
+    container.querySelector('.attention-workspace-inner')?.setAttribute('data-input', 'keyboard');
     const key = event.key;
     if (key === 'Escape') {
       event.preventDefault?.();
@@ -197,7 +202,9 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
     const previousReading = container.querySelector?.('.attention-reading-body');
     const readingScroll = previousReading?.scrollTop ?? 0;
     const root = el('div',{className:`attention-workspace-inner${state.selectedId?' is-reading':''}`});
+    root.setAttribute('data-input', keyboardInput ? 'keyboard' : 'pointer');
     root.addEventListener('keydown', onKeyDown);
+    root.addEventListener('pointerdown', () => { keyboardInput = false; root.setAttribute('data-input', 'pointer'); });
     root.append(heading(), queryBar());
     const columns=el('div',{className:`attention-columns ${state.selectedId?'has-selection':''}`});
     const list = registry();
@@ -616,30 +623,30 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
     }
     if (receipt?.attention_id !== attentionId || receipt?.request_id !== entry.request.request_id) {
       pending.delete(key);
-      state.mutationError = 'The recorded receipt did not match this request.';
+      if (ownsSelection(entry)) state.mutationError = 'The recorded receipt did not match this request.';
       return settle(entry);
     }
     /* The receipt describes the action that committed, not necessarily the
      * newest state, so the canonical object is read again before anything is
      * rendered from it. */
     pending.delete(key);
-    state.editor = null;
+    if (ownsSelection(entry)) state.editor = null;
     committed(entry, receipt);
     return settle(entry);
   }
   function committed(entry, receipt) {
-    if (Number.isSafeInteger(receipt?.revision))
+    if (ownsSelection(entry) && Number.isSafeInteger(receipt?.revision))
       state.receipt = { attentionId: entry.attentionId, action: entry.action, revision: receipt.revision, before: entry.before, played: false };
   }
   async function refuse(entry, error) {
     pending.delete(pendingKey(entry.projectId, entry.attentionId));
     const code = error.body?.error?.code ?? null;
-    state.mutationError = refusalText(error);
+    if (ownsSelection(entry)) state.mutationError = refusalText(error);
     /* The human-authored draft is kept: a conflict means the decision must be
      * made again against new canonical state, not that the words were wrong.
      * The next submit is a new decision and takes a new identity and a new
      * expected revision — this client never silently replays. */
-    if (code === 'VERSION_CONFLICT') state.conflict = { attentionId: entry.attentionId, status: entry.before.status, revision: entry.before.revision };
+    if (ownsSelection(entry) && code === 'VERSION_CONFLICT') state.conflict = { attentionId: entry.attentionId, status: entry.before.status, revision: entry.before.revision };
     if (code && REINSPECT_AFTER.has(code)) return settle(entry);
     render();
   }
@@ -650,7 +657,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
         schema_version: 1, kind: 'request', attention_id: attentionId, request_id: entry.request.request_id } } });
       if (found?.result) {
         pending.delete(pendingKey(projectId, attentionId));
-        state.editor = null; state.mutationError = null;
+        if (ownsSelection(entry)) { state.editor = null; state.mutationError = null; }
         committed(entry, found.result);
         return settle(entry);
       }
@@ -661,7 +668,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
       entry.message = 'The result of this request is not known yet. It can be sent again unchanged.';
     }
     render();
-    if (state.selectedId === attentionId) focusKey('retry-mutation')?.focus();
+    if (ownsSelection(entry)) focusKey('retry-mutation')?.focus();
   }
   /* Re-inspect, then re-read the current registry page. */
   /* The re-inspect and the registry re-read each render; feedback motion is held
@@ -670,18 +677,20 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
   async function settle(entry) {
     const { projectId, attentionId } = entry;
     if (projectId !== state.projectId) { render(); return; }
+    const generation = state.generation;
     const before = rowIds();
     const positions = rowPositions();
-    motion.hold = true;
+    motion.hold += 1;
     try {
       if (state.selectedId === attentionId) await select(attentionId, { keepFocus: true });
+      if (generation !== state.generation || projectId !== state.projectId) return;
       if (!await refreshRegistry()) return;
-    } finally { motion.hold = false; }
+    } finally { motion.hold -= 1; }
     const departed = !rowIds().includes(attentionId) && before.includes(attentionId);
     if (departed && state.detail?.attention_id === attentionId && state.detail.status)
       state.departed = { id: attentionId, title: state.detail.descriptor?.title, status: state.detail.status };
     render();
-    if (departed) {
+    if (departed && ownsSelection(entry)) {
       closeGap(positions);
       state.returnFocusKey = `item-${attentionId}`;
       restoreFocus(before);
