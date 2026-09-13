@@ -36,3 +36,7 @@ Not independently exercised: native desktop host, screen reader, actual 200% bro
 ## Luna findings disposition
 
 Astra retained solid material and adopted container radius/float shadow/16px padding, caption/meta roles, pill role for circular controls and 2px focus offset. WAAPI existed before the audit; the corrected audit distinguishes it from production anchored lifecycle reuse. This study controller has keyboard/Escape/outside and interruption handling; production integration should reuse the app's owner-backed anchored surface lifecycle. The source audit does not promote the candidate to canonical.
+
+## Integration identity
+
+Candidate committed as `0b728cb` on parent `5660622ab2c9dd73fa70a5ef777f93a15347d155`. Another writer advanced main during this work. Compared imported production files against the starting `93a8ac4`: changes in `styles.css` are limited to Execution disclosure / Work review summary selectors not used by the study, and `ui-controls.mjs` only extends `flowRow` (the study imports `icon`); Presence sources are unchanged. Shared token and icon implementation used here are unchanged. The initial base records the start, not a claim that the shared checkout stayed frozen. Other writer's remaining current/status and regression edits were preserved.
