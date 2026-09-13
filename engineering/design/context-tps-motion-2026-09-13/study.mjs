@@ -5,11 +5,13 @@ import {icon} from '../../../app/web/ui-controls.mjs';
 const $=id=>document.getElementById(id), root=document.documentElement;
 let mode='concept', scenario='thinking', count=8, selected=7, timer=null, playing=false;
 let ambientTimer=null, ambientIndex=0;
+// The five thinking phrases are the received local fixture, not the missing 185-word list.
+const thinkingWords=['Thinking','Pondering','Musing','Considering','Reflecting'];
 const ambientWords=['Working','Taking a look','Putting it together'];
 const fallbackActive=()=>mode==='current'&&['thinking','streaming'].includes(scenario);
 function paintAmbient(){
  if(!fallbackActive())return;
- const el=$('presence-text');el.textContent=ambientWords[reduced()?0:ambientIndex%ambientWords.length];el.hidden=false;
+ const el=$('presence-text');el.textContent=`${ambientWords[reduced()?0:ambientIndex%ambientWords.length]}…`;el.hidden=false;
 }
 function syncAmbient(){
  clearTimeout(ambientTimer);ambientTimer=null;
@@ -25,7 +27,7 @@ $('send-preview').append(icon('arrow-up',{size:17}));
 $('draft').addEventListener('input',()=>{$('send-preview').disabled=!$('draft').value.trim();});
 $('send-preview').addEventListener('click',()=>{if(!$('draft').value.trim())return;$('draft').value='';$('send-preview').disabled=true;run();});
 const presenceClock=createClock({playing:true});
-const presence=new PresenceView({mark:$('presence-mark'),text:$('presence-text'),live:$('presence-live'),root:$('activity-row'),clock:presenceClock,candidate:'JP',size:20,material:'flat',words:['Thinking','Considering','Reflecting'],intervalMs:3500,seed:13,reducedMotion:reduced(),onFrame:()=>{if(scenario==='compacting')text('presence-text','Compacting');paintAmbient();}});
+const presence=new PresenceView({mark:$('presence-mark'),text:$('presence-text'),live:$('presence-live'),root:$('activity-row'),clock:presenceClock,candidate:'JP',size:20,material:'flat',words:thinkingWords,intervalMs:3500,seed:13,reducedMotion:reduced(),onFrame:fr=>{if(['thinking','streaming','compacting'].includes(scenario)){text('presence-text',`${scenario==='compacting'?'Compacting':fr.text}…`);}paintAmbient();}});
 function presenceFacts(){
  const status=scenario==='completed'?'completed':scenario==='failed'?'failed':scenario==='unavailable'?'unknown':'running';
  const facts={connection:scenario==='unavailable'?'unknown':'connected',run:{id:'synthetic-run',status}};
@@ -33,7 +35,7 @@ function presenceFacts(){
  presence.setFacts(facts);
  text('activity-elapsed',scenario==='unavailable'?'—':'28 s');
  text('activity-tokens',scenario==='unavailable'?'not recorded':'1.5k tokens');
- if(scenario==='compacting')text('presence-text','Compacting');
+ if(scenario==='compacting')text('presence-text','Compacting…');
  syncAmbient();
 }
 
@@ -49,7 +51,7 @@ function render(animate=false){
  text('context-denominator',p.missing?'':p.future?'/ 1M tokens':'tokens');
  text('context-percent',p.missing||!p.future?'':`${Math.round(p.used/p.limit*100)}%`);
  const ring=document.querySelector('.context-ring');ring.classList.toggle('unknown',p.missing||!p.future);ring.setAttribute('aria-hidden','true');$('context-detail').querySelector('summary').setAttribute('aria-label',p.missing||!p.future?'Context details, capacity usage unknown':`Context details, synthetic ${Math.round(p.used/p.limit*100)} percent`);ring.querySelector('.ring-fill').style.strokeDashoffset=p.missing||!p.future?'100':String(100-p.used/p.limit*100);
- const mini=document.querySelector('.mini-bars');mini.classList.toggle('unmeasured',p.missing||!p.future);mini.querySelectorAll('i').forEach((bar,i)=>{const v=p.values[Math.max(0,p.values.length-9)+i];bar.style.transform=`scaleY(${v===null?.12:v===undefined?.12:.2+v/60*.8})`;bar.style.opacity=v===undefined?'.2':'1';});
+ const mini=document.querySelector('.mini-bars');mini.classList.toggle('is-active',['thinking','streaming','compacting'].includes(scenario));mini.style.setProperty('--breath-duration',`${p.tps===null?1.8:Math.max(1,2.4-p.tps/45)}s`);mini.classList.toggle('unmeasured',p.missing||!p.future);mini.querySelectorAll('i').forEach((bar,i)=>{const v=p.values[Math.max(0,p.values.length-9)+i];bar.style.transform=`scaleY(${v===null?.12:v===undefined?.12:.2+v/60*.8})`;bar.style.opacity=v===undefined?'.2':'1';});
  $('context-detail').querySelector('h3').textContent=p.future?'Context window':'Request context';
  $('composition').hidden=p.missing;
  const total=p.future?p.limit:p.parts.reduce((n,x)=>n+x[1],0);

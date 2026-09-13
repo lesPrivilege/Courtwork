@@ -225,3 +225,5 @@ Exit: 0
 $ node tools/check-doc-links.mjs
 pass: true, documents: 1204, checked: 6304, problems: []
 Exit: 0
+
+17:18 refinement: node --check study.mjs exit 0; node tools/check-doc-links.mjs exit 0 (1204 documents, 6308 links, no problems).

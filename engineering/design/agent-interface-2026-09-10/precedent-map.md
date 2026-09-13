@@ -233,7 +233,7 @@
 | verification entry | [候选验证](../context-tps-motion-2026-09-13/verification.md)、[Luna材质源码复核](../context-tps-motion-2026-09-13/card-audit.md) |
 | status | `reference`（视觉候选，不称生产已接线） |
 | do_not_infer | ambient→thinking事实或TPS；Host timing→Provider TTFT；终态仍伪装running |
-| next_if_missing | 用户授权运行中保留非数值动态兜底；真实速率缺测仍Unavailable，reduced-motion静止 |
+| next_if_missing | 用户授权运行中保留非数值动态兜底，可用左侧waveform替代bot；一级无数值/Unavailable/箭头，缺测说明在二级，reduced-motion静止 |
 
 ## 5. 视觉语法
 

@@ -81,3 +81,5 @@ Skin 管获准外观，Review 管稳定待决语义；相同scheme下切skin不�
 ### Context 圆环与活动行（2026-09-13候选登记）
 
 用户指定 [Context/TPS motion candidate](../context-tps-motion-2026-09-13/README.md) 的位置语法：`context.capacity` 一级仅圆环，位于composer左下，与右侧Send对称；数字/构成/口径在二级卡。`request.activity` 将bot、Thinking轮播与TPS放同一活动行。运行中缺真实thinking/TPS投射时允许非数值兜底轮播，缺测速率仍Unavailable；终态/断连不持续冒充活动，reduced-motion静止。两项登记为候选/reference，未生产接线；比例环与速率仍须真实同口径owner数据，不把估算、Host首输出或装饰动画当测量。详情材质沿solid raised，浮层几何/焦点/关闭沿既有规则。
+
+同日后续视觉方向：活动glyph可暂代未完成bot槽位，放在短语左侧；一级隐藏TPS数字/Unavailable和展开箭头，点击glyph仍可检查二级测量。运行短语加省略号，五个已收到Thinking样词入账。呼吸/音乐条形外观是无标尺活动装饰，不将动画速度作为可读TPS；参考候选README的17:18修订。

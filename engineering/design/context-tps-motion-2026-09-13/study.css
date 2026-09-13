@@ -37,3 +37,20 @@ body{margin:0;background:var(--frame);color:var(--ink);height:auto;min-height:10
 
 .measure-panel .source,.measure-panel .context-caption,.measure-panel .policy-row,.measure-panel .method,.measure-panel .method p,.measure-panel .chart-meta,.measure-panel .timing-row span{font-size:var(--text-caption)}
 .measure-panel .key-row,.measure-panel .context-reading>span,.measure-panel .tps-reading>span{font-size:var(--text-meta)}
+
+/* User refinement: the waveform fills the unfinished bot slot. */
+.activity-row #presence-mark,.activity-row .activity-elapsed,.activity-row .activity-tokens,.activity-row .activity-dot{display:none}
+.activity-row #tps-detail{order:-1;flex:none;margin:0}.activity-row{gap:7px}
+.activity-row #tps-detail>summary{width:32px;height:32px;padding:0;min-height:32px;justify-content:center;border-radius:var(--radius-small);border-color:transparent;background:transparent}
+.activity-row .mini-bars{width:28px;height:20px;gap:2px}.activity-row .mini-bars i{min-width:1px;height:16px!important}
+.activity-row .presence-text{width:140px}.activity-row .mini-bars.unmeasured i{visibility:visible!important;opacity:.6}
+.activity-row .mini-bars.is-active i{animation:work-breath var(--breath-duration,1.8s) var(--ease-out) infinite alternate;animation-delay:calc(var(--index,0)*-130ms)}
+.activity-row .mini-bars i:nth-child(2n){--index:2}.activity-row .mini-bars i:nth-child(3n){--index:4}.activity-row .mini-bars i:nth-child(4n){--index:6}
+@keyframes work-breath{from{opacity:.35;transform:scaleY(.2)}to{opacity:.9;transform:scaleY(.75)}}
+.activity-row .mini-bars.unmeasured.is-active i{transform:none!important;animation-name:work-breath-unmeasured}
+@keyframes work-breath-unmeasured{from{opacity:.35;scale:1 .2}to{opacity:.75;scale:1 .65}}
+#tps-detail .measure-panel{left:0;right:auto;transform-origin:16px 100%}
+@media(max-width:700px){.activity-row #tps-detail>summary{width:44px;height:44px;min-height:44px}.activity-row .presence-text{width:140px}#tps-detail .measure-panel{left:-12px;right:auto}}
+
+.instant .mini-bars.unmeasured.is-active i,html[data-motion=reduce] .mini-bars.unmeasured.is-active i{transform:scaleY(.3)!important}
+@media(prefers-reduced-motion:reduce){.mini-bars.unmeasured.is-active i{transform:scaleY(.3)!important}}

@@ -40,3 +40,7 @@ Astra retained solid material and adopted container radius/float shadow/16px pad
 ## Integration identity
 
 Candidate committed as `0b728cb` on parent `5660622ab2c9dd73fa70a5ef777f93a15347d155`. Another writer advanced main during this work. Compared imported production files against the starting `93a8ac4`: changes in `styles.css` are limited to Execution disclosure / Work review summary selectors not used by the study, and `ui-controls.mjs` only extends `flowRow` (the study imports `icon`); Presence sources are unchanged. Shared token and icon implementation used here are unchanged. The initial base records the start, not a claim that the shared checkout stayed frozen. Other writer's remaining current/status and regression edits were preserved.
+
+## 17:18 waveform-slot refinement
+
+At base `01f37f0`, the user selected an alternative presentation. Author verified the bot is hidden, the glyph is first/left, the TPS summary's visible text is empty and its accessible name remains Activity and measurement details. Working has an ellipsis. Current mode uses `work-breath-unmeasured`; the Reduced motion control yields animation none. At 390px, document width is 390; the left-anchored card spans x=27…337. Keyboard open/Escape remains available. The earlier five-word fixture was read and fully registered in the controller/README. These observations are author checks, not a new Luna audit.
