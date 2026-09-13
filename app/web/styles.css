@@ -6335,6 +6335,14 @@ html[data-theme="dark"] {
 .chat-sources .surface-block { min-width: 0; gap: var(--space-2); }
 .chat-sources .secondary-button,
 .chat-sources .text-button { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; text-align: left; justify-content: flex-start; }
+.work-review-summary { min-width: 0; gap: var(--space-1); margin-block: var(--space-2); }
+.work-review-summary-controls { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-1); min-width: 0; }
+.work-review-summary-controls > .work-review-open { flex: 0 1 auto; min-width: 0; max-width: 100%; justify-content: flex-start; text-align: left; }
+.work-review-open > .flow-title, .work-review-open > .flow-meta { flex: 0 1 auto; }
+.work-review-open > .flow-title { font-weight: 600; }
+.work-review-open > .flow-meta { white-space: normal; }
+.work-review-summary-controls > .icon-only { flex: none; }
+.work-review-summary-note { min-width: 0; padding-inline-start: var(--space-3); }
 /* VS-03 · Home's Monday-first calendar grammar, with exact labels and scroll. */
 .usage-calendar { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 10px; margin: 20px 0; }
 .usage-calendar-scroll { overflow-x: auto; padding: 3px; }

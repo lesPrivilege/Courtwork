@@ -1,4 +1,4 @@
-import {el} from './ui-controls.mjs';
+import {action, el, flowRow, icon} from './ui-controls.mjs';
 
 const STATUSES = new Set(['unbound', 'unavailable', 'available']);
 
@@ -29,10 +29,6 @@ function readSummary(response, session) {
   return response;
 }
 
-function candidates(count) {
-  return `${count} candidate${count === 1 ? '' : 's'}`;
-}
-
 // A compact read of Core-owned review state. It never derives review state
 // from Run presentation and never sends a Work command.
 export function createWorkReviewSummary({session, request, isCurrent, onOpenWork}) {
@@ -44,48 +40,45 @@ export function createWorkReviewSummary({session, request, isCurrent, onOpenWork
       'data-reading-key': JSON.stringify([session.id, 'work-review-summary']),
     },
   });
-  const heading = el('strong', {text: 'Work review'});
-  const body = el('div', {className: 'surface-block'});
-  const refresh = el('button', {className: 'text-button', text: 'Refresh work review', attrs: {type: 'button'}});
-  const open = el('button', {className: 'text-button', text: 'Open work review', attrs: {type: 'button'}});
-  const actions = el('div', {className: 'work-actions'}, refresh);
+  const open = flowRow('button', {
+    title: 'Work review',
+    meta: 'No pending review',
+    className: 'work-review-open',
+    attrs: {type: 'button'},
+  }, icon('chevron-right', {size: 16}));
+  const pending = open.querySelector('.flow-meta');
+  const refresh = action('refresh-cw', 'Refresh work review', () => void load());
+  const controls = el('div', {className: 'work-review-summary-controls'}, refresh);
+  const note = el('div', {className: 'work-review-summary-note'});
   const live = own => !destroyed && own === generation && isCurrent();
   open.addEventListener('click', () => {
-    if (!destroyed && isCurrent() && actions.contains(open)) onOpenWork(open);
+    if (!destroyed && isCurrent() && controls.contains(open)) onOpenWork(open);
   });
 
   function renderMessage(text, {alert = false} = {}) {
-    body.replaceChildren(el('p', {
+    note.replaceChildren(el('p', {
       className: 'form-help', text,
       attrs: alert ? {role: 'alert'} : {role: 'status'},
     }));
   }
 
   function renderAvailable(summary) {
+    pending.textContent = summary.pendingCount === 0 ? 'No pending review' : `${summary.pendingCount} pending`;
     const facts = [];
-    facts.push(el('p', {
-      className: 'form-help',
-      text: summary.pendingCount === 0
-        ? 'No candidates pending review.'
-        : `${candidates(summary.pendingCount)} pending review.`,
-    }));
-    if (!summary.readOnly && summary.reviewableCount > 0 && summary.reviewableCount < summary.pendingCount)
-      facts.push(el('p', {className: 'form-help', text: `${candidates(summary.reviewableCount)} ready to review.`}));
     if (summary.stalePendingCount > 0)
-      facts.push(el('p', {className: 'form-help', text: `${candidates(summary.stalePendingCount)} based on an earlier work version.`}));
+      facts.push(`${summary.stalePendingCount} based on an earlier version.`);
     if (summary.readOnly)
-      facts.push(el('p', {className: 'form-help', text: 'Review actions are read-only right now.'}));
-    if (summary.acceptedArtifactId)
-      facts.push(el('p', {className: 'form-help', text: 'Accepted artifact available.'}));
-    body.replaceChildren(...facts);
-    actions.replaceChildren(open, refresh);
+      facts.push('Review actions are read-only right now.');
+    if (facts.length) note.replaceChildren(el('p', {className: 'form-help', text: facts.join(' ')}));
+    else note.replaceChildren();
+    controls.replaceChildren(open, refresh);
   }
 
   async function load() {
     if (destroyed || !isCurrent()) return;
     const own = ++generation;
     refresh.disabled = true;
-    actions.replaceChildren(refresh);
+    controls.replaceChildren(refresh);
     // Unknown while the read is in flight: old counts must not survive as if
     // they described the new state.
     renderMessage('Reading work review summary…');
@@ -102,8 +95,7 @@ export function createWorkReviewSummary({session, request, isCurrent, onOpenWork
     }
   }
 
-  refresh.addEventListener('click', () => void load());
-  root.append(heading, body, actions);
+  root.append(controls, note);
   void load();
   return {
     root,

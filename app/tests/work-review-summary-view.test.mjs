@@ -19,12 +19,15 @@ test('available summary stays visible at zero and opens the existing Work review
   const view = createWorkReviewSummary({session, request: async () => available({acceptedArtifactId: 'opaque-artifact-id'}), isCurrent: () => true, onOpenWork: value => { opener = value; }});
   container.append(view.root);
   await flush();
-  assert.match(view.root.textContent, /No candidates pending review/);
-  assert.match(view.root.textContent, /Accepted artifact available/);
+  assert.match(view.root.textContent, /No pending review/);
+  assert.doesNotMatch(view.root.textContent, /Accepted artifact available/);
   assert.doesNotMatch(view.root.textContent, /opaque-artifact-id/);
-  const open = view.root.querySelectorAll('button').find(button => button.textContent === 'Open work review');
+  const open = view.root.querySelector('.work-review-open');
+  assert.equal(open.querySelector('.flow-title').textContent, 'Work review');
+  assert.equal(open.querySelector('.flow-meta').textContent, 'No pending review');
+  assert.equal(view.root.querySelector('[aria-label="Refresh work review"]')?.classList.contains('icon-only'), true);
   await view.refresh();
-  assert.equal(view.root.querySelectorAll('button').find(button => button.textContent === 'Open work review'), open);
+  assert.equal(view.root.querySelector('.work-review-open'), open);
   open.click();
   assert.equal(opener, open);
 }));
@@ -36,41 +39,45 @@ test('candidate, stale and read-only facts remain separate without an impossible
   });
   container.append(view.root);
   await flush();
-  assert.match(view.root.textContent, /3 candidates pending review/);
-  assert.doesNotMatch(view.root.textContent, /ready to review/);
-  assert.match(view.root.textContent, /2 candidates based on an earlier work version/);
+  assert.match(view.root.textContent, /3 pending/);
+  assert.match(view.root.textContent, /2 based on an earlier version/);
   assert.match(view.root.textContent, /Review actions are read-only right now/);
-  assert.ok(view.root.querySelectorAll('button').some(button => button.textContent === 'Open work review'));
+  assert.ok(view.root.querySelector('.work-review-open'));
 }));
 
-test('ready count is shown only when part of the pending set is reviewable', () => withTinyDom(async container => {
+test('pending count stays a single compact fact when all or only some candidates are reviewable', () => withTinyDom(async container => {
   const responses = [available({pendingCount: 3, reviewableCount: 1}), available({pendingCount: 3, reviewableCount: 3})];
   const view = createWorkReviewSummary({session, request: async () => responses.shift(), isCurrent: () => true, onOpenWork() {}});
   container.append(view.root);
   await flush();
-  assert.match(view.root.textContent, /1 candidate ready to review/);
+  assert.equal(view.root.querySelector('.flow-meta').textContent, '3 pending');
+  assert.doesNotMatch(view.root.textContent, /ready to review/);
   await view.refresh();
+  assert.equal(view.root.querySelector('.flow-meta').textContent, '3 pending');
   assert.doesNotMatch(view.root.textContent, /ready to review/);
 }));
 
 test('refresh clears old facts while loading and on failure', () => withTinyDom(async container => {
   const wait = deferred();
-  let reads = 0;
+  let reads = 0, opens = 0;
   const view = createWorkReviewSummary({
     session,
     request: () => ++reads === 1 ? Promise.resolve(available({pendingCount: 2, reviewableCount: 2})) : wait.promise,
-    isCurrent: () => true, onOpenWork() {},
+    isCurrent: () => true, onOpenWork() { opens++; },
   });
   container.append(view.root);
   await flush();
-  assert.match(view.root.textContent, /2 candidates pending/);
+  assert.match(view.root.textContent, /2 pending/);
+  const open = view.root.querySelector('.work-review-open');
   const refreshing = view.refresh();
-  assert.doesNotMatch(view.root.textContent, /2 candidates pending/);
+  assert.doesNotMatch(view.root.textContent, /2 pending/);
   assert.match(view.root.textContent, /Reading work review summary/);
+  open.click();
+  assert.equal(opens, 0, 'a detached stale opener cannot activate Work review');
   wait.reject(new Error('Core offline'));
   await refreshing;
   assert.match(view.root.textContent, /Work review summary unavailable: Core offline/);
-  assert.doesNotMatch(view.root.textContent, /2 candidates pending/);
+  assert.doesNotMatch(view.root.textContent, /2 pending/);
 }));
 
 test('late and mismatched responses cannot replace the current scope', () => withTinyDom(async container => {
