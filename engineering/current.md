@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · UI层级polish登记
+
+[空间层级与材质编排](design/frontend-audit-2026-09-13/hierarchy-polish-registration.md)已沿原IA-0…5队列登记，并接入frontend-contract与composition规范；最新对话全文及hash固定。后续优先任务锚点、容器关系、独立滚动与稀疏elevation，再比较有限Glass；现配色、正文实色及材质白名单不变。Attention已合UI02取代来源旧分栏描述，不重复派工；外部30候选/80%收益仍为未核验来源主张。本片仅登记与源码先例校正，6557链接检查通过，无生产改动、无新视觉接受，未push/部署。
+
 ## 2026-09-13 · Attention UI02 裁决与合入
 
 Claude候选667cd18经Astra修订及Luna有界非作者复核，已以2737378合入本地main；[裁决与证据](design/attention-ui-handoff-2026-09-13/astra-acceptance/README.md)、[合入回执](design/attention-ui-handoff-2026-09-13/astra-acceptance/integration.md)。沿原grammar去除左侧衬线与伪按钮式说明牌，标题响应文字偏好；修复迟到回执跨事项草稿污染、键盘动效、冲突提示和并发重读过早播放反馈。隔离全量950/950，最终组合定向53/53、Luna4/4探针与25/25相邻检查通过；真实整页Core/本地合成助手、明暗窄屏/返回焦点留证。当前任务顺序采用，真实事件timeline登记为历史增强，Board/Time未实现；完整可访问性与Release门仍开放。保留并行文档与未提交编辑，未push/部署。
