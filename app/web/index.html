@@ -520,6 +520,17 @@
                 ></div>
               </section>
               <section
+                id="settings-plugins"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-plugins-title"
+                hidden
+              >
+                <h3 id="settings-plugins-title" class="settings-section-title">Plugins</h3>
+                <div id="settings-runtime-plugins" class="settings-block"></div>
+              </section>
+              <section
                 id="settings-memory"
                 class="settings-section"
                 role="tabpanel"
@@ -592,7 +603,7 @@
                 ></div>
                 <div class="settings-block">
                   <div class="section-heading">
-                    <h4 class="settings-block-title">Plugins · CW Host Extensions</h4>
+                    <h4 class="settings-block-title">Host Extensions</h4>
                     <button
                       id="refresh-extensions-button"
                       class="quiet-button"
@@ -600,6 +611,7 @@
                       aria-label="Refresh extensions"
                     ></button>
                   </div>
+                  <p class="settings-row-help">Trusted code running inside the host. Load, reload and invalidate extensions here; inspect their resources in <a href="#settings/plugins">Plugins</a>.</p>
                   <div id="local-extension-intake" class="runtime-intake"></div>
                   <div id="extension-list" class="extension-list"></div>
                 </div>

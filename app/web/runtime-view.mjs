@@ -4,7 +4,7 @@ import { semanticIcon } from "./semantic-controls.mjs";
 const RESOURCE_ICONS = {tool: "tool.object", mcp_server: "mcp.server", skill: "skill.object", plugin: "plugin.object", hook: "hook.object", registry: "registry.object", agent_profile: "agent.profile"};
 
 /* WO-WK11 · the Runtime Workbench. One controller owns the authoritative
-   control-plane snapshot and renders it into the five intent groups of the
+   control-plane snapshot and renders it into the intent groups of the
    Settings page (frontend-layering-spec §3.1). It never synthesizes authority:
    every value on screen comes from the last snapshot the server returned, every
    mutation replaces the whole snapshot, and the only state this module keeps of
@@ -227,9 +227,9 @@ function sameRules(a, b) {
   return JSON.stringify(a || []) === JSON.stringify(b || []);
 }
 
-/** The Workbench controller. `mounts` are the five Settings blocks named in
+/** The Workbench controller. `mounts` are the Settings blocks named in
  * frontend-layering-spec §3.1; the host owns the page, this module owns what is
- * inside those five blocks. */
+ * inside those blocks. */
 export function createRuntimeView(
   mounts,
   { request, getSessionId, notify, onDraft, getRuns, getBinding, loadBinding, onEditConnection, onRendered },
@@ -1897,7 +1897,7 @@ export function createRuntimeView(
 
   function renderCapabilities() {
     const mount = mounts.capabilities;
-    mount.replaceChildren(blockTitle("Tools, MCP servers and plugins"));
+    mount.replaceChildren(blockTitle("Tools and MCP servers"));
     if (!snapshot) {
       mount.append(note("The runtime has not been read yet."));
       return;
@@ -1947,12 +1947,6 @@ export function createRuntimeView(
     });
     mount.append(intake.view("mcp_server"), tabs);
     mount.append(capabilitiesTab === "configurable" ? configurableView() : inventoryView());
-    const planned = plannedRows(["workflow", "hook", "registry"]);
-    if (planned)
-      mount.append(
-        el("details", { className: "runtime-kind", attrs: { "data-kind": "unsupported", "data-runtime-disclosure": "unsupported-capabilities" } },
-          el("summary", { text: "Unavailable capabilities", attrs: { "data-focus-key": "unsupported:capabilities" } }), planned),
-      );
   }
 
   function configurableView() {
@@ -1997,7 +1991,7 @@ export function createRuntimeView(
         "section",
         { className: "runtime-kind", attrs: { "data-kind": "plugin-tools" } },
         el("h5", { text: `Tools from extensions · ${pluginTools.reduce((n, [, tools]) => n + tools.length, 0)}` }),
-        note("Provided by an installed extension. Its lifecycle is in Developer › Extensions; only exposure is set here."),
+        note("Provided by an installed extension. Its lifecycle is in Developer › Host Extensions; only exposure is set here."),
       );
       for (const [id, tools] of pluginTools) {
         section.append(el("p", { className: "runtime-group-label", text: resourceById(id).title }));
@@ -2010,19 +2004,17 @@ export function createRuntimeView(
     return wrap;
   }
 
-  /* WK-68 · the Inventory half of the DSH form: what is installed, who
-     provided it and what it declares. It is read only on purpose — an imported
-     declaration is not an executable package, and this host runs no outside
-     code (architecture.md). */
+  /* MCP inventory reports the configured remote providers. Plugin inventory
+     has its own Settings group; host lifecycle stays in Developer. */
   function inventoryView() {
     const wrap = el("div", { className: "runtime-tabpanel", attrs: { "data-panel": "inventory" } });
     const resources = snapshot.resources || [];
     const packages = resources.filter((resource) =>
-      ["plugin", "mcp_server"].includes(resource.kind),
+      resource.kind === "mcp_server",
     );
     wrap.append(
       note(
-        "Installed packages and their declared capabilities. CW Host Extensions run trusted code in this host process; local registration does not provide a sandbox or a verified signature. MCP configuration connects a remote capability provider using unauthenticated Streamable HTTP.",
+        "Configured MCP servers and their declared capabilities. Plugin packages are managed in Settings › Plugins.",
       ),
     );
     if (!packages.length) {
@@ -2042,10 +2034,7 @@ export function createRuntimeView(
     );
     const body = el("tbody", {});
     for (const resource of packages) {
-      const declared =
-        resource.kind === "plugin"
-          ? (Array.isArray(resource.capabilities) ? resource.capabilities : []).length
-          : resource.capabilities?.tools ?? 0;
+      const declared = resource.capabilities?.tools ?? 0;
       body.append(
         el("tr", { className: "runtime-inventory-row", attrs: { "data-package": resource.id } },
           el("th", { attrs: { scope: "row" } },
@@ -2054,27 +2043,64 @@ export function createRuntimeView(
           el("td", { text: KIND_LABELS[resource.kind] }),
           el("td", { text: `${sourceWord(resource.source)}${resource.source?.version ? ` · ${resource.source.version}` : ""}${resource.source?.uri ? ` · ${resource.source.uri}` : ""}` }),
           el("td", {
-            text:
-              resource.kind === "plugin"
-                ? `${resource.trust || "trust not reported"} · ${resource.isolation || "isolation not reported"}`
-                : `${resource.authentication || "authentication not reported"} · ${resource.transport || "transport not reported"}${resource.protocol ? ` ${resource.protocol}` : ""}`,
+            text: `${resource.authentication || "authentication not reported"} · ${resource.transport || "transport not reported"}${resource.protocol ? ` ${resource.protocol}` : ""}`,
           }),
           el("td", {
-            text:
-              resource.kind === "plugin"
-                ? plural(declared, "tool")
-                : `${plural(declared, "tool")} · ${plural(resource.capabilities?.resources ?? 0, "resource")} · ${plural(resource.capabilities?.prompts ?? 0, "prompt")}`,
+            text: `${plural(declared, "tool")} · ${plural(resource.capabilities?.resources ?? 0, "resource")} · ${plural(resource.capabilities?.prompts ?? 0, "prompt")}`,
           }),
-          el("td", { text: resource.kind === "mcp_server" ? mcpStateWords(resource).join(" · ") : resource.running ? "running" : "not running" }),
+          el("td", { text: mcpStateWords(resource).join(" · ") }),
         ),
       );
     }
     table.append(body);
     wrap.append(el("div", { className: "runtime-table-scroll" }, table));
-    wrap.append(
-      note("Extension lifecycle — start, stop, restart — is in Developer › Extensions, where the host owns it. Nothing on this tab starts or stops anything."),
-    );
     return wrap;
+  }
+
+  // Resource management uses the same snapshot, scope and exposure owner as
+  // Tools and Skills. Host lifecycle remains a separate operation in Developer.
+  function renderPlugins() {
+    const mount = mounts.plugins;
+    mount.replaceChildren();
+    const header = el("div", { className: "section-heading" }, blockTitle("Installed plugins"));
+    mount.append(header);
+    if (!snapshot) {
+      mount.append(error ? el("p", { className: "inline-error", text: error.message }) : note("Loading plugins…"));
+      if (error) mount.append(action("refresh-cw", "Retry loading plugins", () => void read(), { visible: true }));
+      return;
+    }
+    header.append(action("refresh-cw", "Refresh plugins", () => void read()));
+    mount.append(...banners());
+    if (error) mount.append(el("p", { className: "inline-error", text: `${error.message} Showing the last confirmed snapshot, revision ${snapshot.revision}.` }));
+    if ((snapshot.resources || []).some(resource => resource.kind === "plugin" && resource.configurable))
+      mount.append(...scopeStrip({ where: "plugins" }));
+    const plugins = (snapshot.resources || []).filter(resource => resource.kind === "plugin");
+    if (!plugins.length) mount.append(note("No plugin is installed."));
+    for (const plugin of plugins) {
+      const section = el("section", { className: "runtime-kind", attrs: { "data-kind": "plugin" } });
+      section.append(resourceRow(plugin, { readOnly: !plugin.configurable }));
+      const provided = (snapshot.resources || []).filter(resource => resource.parent === plugin.id);
+      if (provided.length) {
+        const disclosure = el("details", { attrs: { "data-runtime-disclosure": `plugin-resources:${plugin.id}` } },
+          el("summary", { text: `Provided resources · ${provided.length}`, attrs: { "data-focus-key": `plugin-resources:${plugin.id}` } }));
+        const list = el("ul");
+        for (const resource of provided) {
+          const target = resource.kind === "tool" ? "tools" : CONTEXT_KINDS.includes(resource.kind) ? "skills" : null;
+          list.append(el("li", {}, target
+            ? el("a", { text: `${resource.title} · ${KIND_LABELS[resource.kind] || resource.kind}`, attrs: { href: `#settings/${target}` } })
+            : el("span", { text: `${resource.title} · ${KIND_LABELS[resource.kind] || resource.kind}` })));
+        }
+        disclosure.append(list);
+        section.append(disclosure);
+      }
+      mount.append(section);
+    }
+    mount.append(el("p", { className: "form-help" },
+      el("a", { text: "Manage permissions", attrs: { href: "#settings/permissions" } })));
+    mount.append(el("details", { className: "runtime-kind", attrs: { "data-runtime-disclosure": "plugin-host-management" } },
+      el("summary", { text: "Host extension management", attrs: { "data-focus-key": "plugin-host-management" } }),
+      note("Local code registration, loading and recovery are managed by the host. Package updates and removal are not supported yet."),
+      el("a", { text: "Open Developer", attrs: { href: "#settings/developer" } })));
   }
 
   /* ── Permissions & environment ─────────────────────────────────────── */
@@ -2397,6 +2423,7 @@ export function createRuntimeView(
       ["composition", renderComposition],
       ["instructions", renderInstructions],
       ["capabilities", renderCapabilities],
+      ["plugins", renderPlugins],
       ["permissions", renderPermissions],
       ["environment", renderEnvironment],
     ]) {

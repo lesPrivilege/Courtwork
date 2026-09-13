@@ -6877,6 +6877,7 @@ async function init() {
       composition: $("settings-runtime-composition"),
       instructions: $("settings-runtime-instructions"),
       capabilities: $("settings-runtime-capabilities"),
+      plugins: $("settings-runtime-plugins"),
       permissions: $("settings-runtime-permissions"),
       environment: $("settings-runtime-environment"),
     },

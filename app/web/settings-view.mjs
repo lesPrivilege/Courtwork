@@ -1631,6 +1631,7 @@ export const SETTINGS_GROUPS = [
   { id: "models", title: "Models", panel: "settings-models" },
   { id: "tools", title: "Tools & Integrations", panel: "settings-tools" },
   { id: "skills", title: "Skills", panel: "settings-skills" },
+  { id: "plugins", title: "Plugins", panel: "settings-plugins" },
   { id: "memory", title: "Memory", panel: "settings-memory" },
   { id: "permissions", title: "Permissions", panel: "settings-permissions" },
   { id: "keyboard", title: "Keyboard", panel: "settings-keyboard" },
@@ -2017,7 +2018,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         tabindex: "-1",
       },
     });
-    tab.append(semanticIcon(`settings.${group.id}`, { size: 18 }), el("span", { className: "settings-tab-label", text: group.title }));
+    tab.append(semanticIcon(group.id === "plugins" ? "plugin.object" : `settings.${group.id}`, { size: 18 }), el("span", { className: "settings-tab-label", text: group.title }));
     tab.addEventListener("click", () => select(group.id, { focusPanel: false }));
     nav.append(tab);
     dropdown.append(el("option", { attrs: { value: group.id }, text: group.title }));

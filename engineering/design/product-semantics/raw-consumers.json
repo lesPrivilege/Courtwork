@@ -392,5 +392,19 @@
     "source": "const sourceArea=el('div');for(const [i,s] of result.sources.entries())sourceArea.append(referenceButton('file-text',`Read source ${i+1} · ${s.path} · ${s.revision?`v${s.revision}`:s.sha256.slice(0,12)} · ${result.sourceFreshness[i]==='historical-version'?'historical version':result.sourceFreshness[i]==='workspace-freshness-unchecked'?'snapshot · live freshness unknown':'latest retained version'}`,()=>guarded(async()=>{const read=await request(`/subagents/${encodeURIComponent(id)}/sources/${i}`);expanded.add(i);sourceArea.append(el('pre',{className:'subagent-result',text:read.text}));})));resultArea.append(sourceArea);for(const note of result.notes??[])resultArea.append(referenceButton('book-open',`Read local note · ${note.title}`,()=>guarded(async()=>{const read=await request(`/subagents/${encodeURIComponent(id)}/notes/${encodeURIComponent(note.id)}`);resultArea.append(el('pre',{className:'subagent-result',text:read.text}));})));",
     "disposition": "mapped-raw",
     "reason": "Retained source reader uses the existing file glyph with visible path, exact revision/hash and freshness; derived note uses book-open."
+  },
+  {
+    "file": "app/web/runtime-view.mjs",
+    "source": "if (error) mount.append(action(\"refresh-cw\", \"Retry loading plugins\", () => void read(), { visible: true }));",
+    "disposition": "named-read",
+    "reason": "Reads the shared runtime snapshot for the Plugins settings page; no lifecycle or resource mutation.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/runtime-view.mjs",
+    "source": "header.append(action(\"refresh-cw\", \"Refresh plugins\", () => void read()));",
+    "disposition": "named-read",
+    "reason": "Reads the shared runtime snapshot for the Plugins settings page; no lifecycle or resource mutation.",
+    "semanticKeys": []
   }
 ]
