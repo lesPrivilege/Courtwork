@@ -74,4 +74,4 @@ G1缺最终候选干净启动与最新wire真实小探针；G2缺最终完整候
 
 用户随后授权开始施工，分工更新为Luna explore、Sol worker、Astra裁决/架构与模型能力瓶颈实现。上文“本轮仅计划”指接收时点。首片[测试合同与有界生命周期证据](../../../evidence/release-test-contract-20260913/README.md)已进入本地main；后续P05/P06、其余DF-06及G门保持各自退出条件，未push/deploy。
 
-后续施工已完成[P05/P06合成输入绑定](../../../evidence/release-input-binding-20260913/README.md)、[DF-06 MCP审批/回执失败补证](../../../evidence/release-mcp-failures-20260913/README.md)及[Core Review摘要接线](../../../evidence/release-core-summary-20260913/README.md)。固定09f9177产品检查932/932、smoke和链接通过；用户追加Execution排版/去角色头后非作者18/18与浏览器复验。该增量不重写原G门：最终候选fresh install/真实Provider合成NDA闭环、2–4分钟可公开演示及G5支持声明映射仍须另留证；通用导入与第二Runtime保持后置。未push/tag/deploy。
+后续施工已完成[P05/P06合成输入绑定](../../../evidence/release-input-binding-20260913/README.md)、[DF-06 MCP审批/回执失败补证](../../../evidence/release-mcp-failures-20260913/README.md)及[Core Review摘要接线](../../../evidence/release-core-summary-20260913/README.md)。固定09f9177产品检查932/932、smoke和链接通过；用户追加Execution排版/去角色头后非作者18/18与浏览器复验，Work review精简后非作者14/14与明暗1440/1280/390复验。该增量不重写原G门：最终候选fresh install/真实Provider合成NDA闭环、2–4分钟可公开演示及G5支持声明映射仍须另留证；通用导入与第二Runtime保持后置。未push/tag/deploy。

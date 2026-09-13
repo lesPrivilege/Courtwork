@@ -6,7 +6,7 @@
 
 新增[只读API](../../app/docs/work-review-summary.md)从既有Core surface投影提取待审、过期及可Review数量、工作版本、只读和已接受成果身份；域adapter对动作的限制与Host活动Run/生命周期限制保持。正文和正式action schema不放进摘要。UI在Sources折叠外呈现：有消息时位于消息尾部；同Matter的空会话也可发现。Open work review进入原审阅面，仍由原actor/CAS/幂等合同作决定。
 
-[UI变更记录](ui-change.md)给出最近先例、grammar与信息层。首次浏览器发现新模块漏进静态allowlist，已补注册及HTTP serving断言。后续修正重复计数、按钮布局、Matter校验及稳定opener，决定后刷新仍能返回原入口。未新增CSS、token、动画、材质、依赖或安装器。
+[UI变更记录](ui-change.md)给出最近先例、grammar与信息层。首次浏览器发现新模块漏进静态allowlist，已补注册及HTTP serving断言。后续修正重复计数、按钮布局、Matter校验及稳定opener，决定后刷新仍能返回原入口。初次摘要接线未新增CSS、token、动画、材质、依赖或安装器；后续用户目测接续仅使用既有token调整局部布局。
 
 ## 固定候选检查
 
@@ -36,3 +36,5 @@ Astra使用真实内置浏览器与独立仓外合成dataDir，实际HTTP/Pi/Cor
 本片完成Core摘要必要接线与本地合成闭环，不签全部G1–G5。仍需最终候选的真实Provider小探针、原门的2–4分钟可公开演示/source SHA、公开支持声明映射及其余原生检查；P11当前只接受既有受信组合入口的合成路径，通用插件导入、OAuth/stdio等不纳入首版。仅本地集成，无push、tag或部署。
 
 用户目测接续修复Execution过宽排布和重复Assistant/Attention头；见[修订记录](ui-change.md#用户目测接续)。非作者[18/18](luna-execution-ui.tap)、1440/390真实浏览器及鼠标/Space折叠通过。此前932/932固定于09f9177；这次仅表现层四文件变化后做有界回归，未把旧全量重称为新全量。
+
+用户Work review目测接续产品`4afd84b`将标题、计数与Open合并为一个紧凑入口，Refresh改为有名称的图标，过期/只读提示保留；[改前](review-summary-before-user.png)、[改后局部](review-summary-after-detail.png)、[深色1440](review-summary-after-dark-1440.png)、[浅色1280](review-summary-after-light-1280.png)、[深色390](review-summary-after-dark-390.png)、[浅色390](review-summary-after-light-390.png)。Astra实际打开原Review→Back焦点返回同一入口、刷新通过；390文档无横溢出，两操作高度44px。Luna固定三文件diff非作者[14/14](luna-summary-compact.tap)，identity、unknown清旧计数、detach期间点击拒绝与stable opener通过；三个lint、shape检查及对比度生成通过。最后样式仅8行既有token局部布局；未重跑全量932或200%/forced-colors，原全量身份不变。

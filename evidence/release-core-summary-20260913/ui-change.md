@@ -13,3 +13,5 @@ Grammar为 `output.review`、`projection.status` 与 `button.action`；沿[front
 ## 用户目测接续
 
 用户指出Execution图标/标题/成功计数被过度横向拉开，且左侧消息默认属于agent，无须Assistant标签。沿`ui-controls:flowRow`最近先例，仅execution modifier收紧标题/metadata并左对齐；显式aria-expanded的flowRow按钮复用原summary chevron，展开状态沿原attribute旋转。Chat与Attention移除重复角色头，顶层身份、消息正文、正式Work/工具状态保留。用户[原截图](execution-before-user.png)、[桌面修复](execution-after-dark-1440.png)、[窄屏修复](execution-after-dark-390.png)及[局部](execution-after-detail.png)留证。作者浏览器点击展开、Space折叠通过；Luna非作者现有相邻18/18通过，新增button分支无独立unit断言，浏览器覆盖实际可见联动。
+
+用户随后指出Work review区块堆叠。接续基线`ff1fe0e`，任务骨架仍为发现待审→进入原Review；沿`ui-controls:flowRow`的紧凑入口和既有icon action，只调整默认信息层：Work review与待审数量合为单一入口，过期/只读必要说明保留，已接受成果的详细状态回原Review读取。Refresh降级为有可访问名称的图标操作。加载/失败清除旧计数、同一opener、scope与generation约束不变；不新增或推导正式工作状态。用户[改前截图](review-summary-before-user.png)保留。
