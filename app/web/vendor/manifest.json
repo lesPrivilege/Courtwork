@@ -215,6 +215,10 @@
       "x.svg": {
         "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/x.svg",
         "sha256": "4a9cdab38fbb96162e7dace28e33f4ca0e49d8963a6162abc3d4691b7d675117"
+      },
+      "puzzle.svg": {
+        "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/puzzle.svg",
+        "sha256": "6d80d0c3b214c96945ed0f1c6ee0e4c4ea3911c6cc91c75751fdba08c31eab02"
       }
     }
   },
@@ -294,8 +298,8 @@
     "floating.mjs": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
     "marked.mjs": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
     "purify.mjs": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
-    "icons.svg": "956761e051e7c122ef1f213a1306019fc0197d9ad5fd4220b6bc5d1149b613b9",
-    "icon-data.generated.mjs": "d43ecf0971a086b73b02d7153a52083eac51243c71317a1ca8166d3f545847eb",
+    "icons.svg": "612b459305eb995da7c0051b4cfeabf89185b9ead151b5698bec36945c58a52d",
+    "icon-data.generated.mjs": "09d2e80bc2be9975b5b7cd9ca45c14b0cc877ded560c28583b515be6be926aa3",
     "LICENSES.txt": "2d46e15ce43cff012f432563e577e536b95c8ad8d48cbeb727c968b09c0f5493"
   }
 }

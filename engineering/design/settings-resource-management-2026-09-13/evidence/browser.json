@@ -1,0 +1,77 @@
+{
+  "checks": [
+    {
+      "name": "1440/light geometry",
+      "value": true
+    },
+    {
+      "name": "1440/light plugin owner states",
+      "value": true
+    },
+    {
+      "name": "1440/dark geometry",
+      "value": true
+    },
+    {
+      "name": "1440/dark plugin owner states",
+      "value": true
+    },
+    {
+      "name": "1280/light geometry",
+      "value": true
+    },
+    {
+      "name": "1280/light plugin owner states",
+      "value": true
+    },
+    {
+      "name": "1280/dark geometry",
+      "value": true
+    },
+    {
+      "name": "1280/dark plugin owner states",
+      "value": true
+    },
+    {
+      "name": "390/light geometry",
+      "value": true
+    },
+    {
+      "name": "390/light plugin owner states",
+      "value": true
+    },
+    {
+      "name": "390/dark geometry",
+      "value": true
+    },
+    {
+      "name": "390/dark plugin owner states",
+      "value": true
+    },
+    {
+      "name": "provided resource navigation",
+      "value": true
+    },
+    {
+      "name": "policy owner navigation",
+      "value": true
+    },
+    {
+      "name": "developer retains lifecycle and registration",
+      "value": true
+    },
+    {
+      "name": "search Enter opens plugin detail",
+      "value": true
+    },
+    {
+      "name": "return to full app",
+      "value": true
+    },
+    {
+      "name": "no browser exceptions",
+      "value": true
+    }
+  ],
+  "exceptions": []
+}

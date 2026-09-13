@@ -110,7 +110,15 @@ test("Spark, Attention and Chat seats and the Settings groups carry their regist
   assert.match(app, /"show-run-button": \["text-align-start", "Chat overview"\]/);
   assert.match(app, /"show-surface-button": \["panel-right", "Open work surface"\]/, "work-surface entry keeps panel-right");
   const settings = read("app/web/settings-view.mjs");
-  assert.match(settings, /semanticIcon\(`settings\.\$\{group\.id\}`, \{ size: 18 \}\)/);
+  assert.match(settings, /semanticIcon\(group\.id === "plugins" \? "plugin\.object" : `settings\.\$\{group\.id\}`, \{ size: 18 \}\)/);
   for (const id of ["general", "appearance", "models", "tools", "skills", "memory", "permissions", "keyboard", "developer"])
     assert.ok(productSemantics.entries.some((e) => e.semanticKey === `settings.${id}` && e.glyphRef), `settings.${id} registered with a glyph`);
+});
+
+ test("Plugins and Models use distinct established object silhouettes", () => {
+  const plugin = productSemantics.entries.find(entry => entry.semanticKey === "plugin.object");
+  const model = productSemantics.entries.find(entry => entry.semanticKey === "settings.models");
+  assert.equal(plugin.glyphRef, "puzzle");
+  assert.notEqual(plugin.glyphRef, model.glyphRef);
+  assert.notDeepEqual(iconData[plugin.glyphRef], iconData[model.glyphRef]);
 });

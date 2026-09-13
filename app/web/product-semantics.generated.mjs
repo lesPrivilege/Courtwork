@@ -525,7 +525,7 @@ export const productSemantics = freeze({
         "pages"
       ],
       "glyphPolicy": "single-purpose",
-      "glyphRef": "runtime-plugin",
+      "glyphRef": "puzzle",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,

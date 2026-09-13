@@ -77,6 +77,7 @@ const icons = new Set([
   "sliders-horizontal",
   "palette",
   "cpu",
+  "puzzle",
   "book-open",
   "database",
   "key-round",
