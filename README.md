@@ -53,6 +53,15 @@ npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data 
 
 打开终端显示的地址。默认运行本地确定性 provider；在 Settings → Models 配置你的模型连接。详细配置、数据迁移与备份见 [运行文档](app/README.md)。
 
+本地产品检查使用合成 fixture 和确定性 provider，不需要真实模型凭据：
+
+```sh
+npm --prefix app run check:product
+```
+
+默认测试最多并行运行 4 个测试文件。需要观察资源竞争时，可单独运行
+`npm --prefix app run test:load`，其并发上限为 8；该负载入口不替代默认验收命令。
+
 ## 工作如何衔接
 
 Schema Engineering 追问：跨越多个会话与执行者时，工作应当保留什么、按什么规则改变？CourtWork 将这些区分落实到日常工作：材料进入 Matter，执行形成候选，验证与授权接受使判断落到具体版本。

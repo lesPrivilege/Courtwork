@@ -220,12 +220,21 @@ overridable via `startServer({ budget })`.
 From `app`:
 
 ```sh
-node --test tests/*.test.mjs ../tests/*.test.mjs
+npm test
+npm run smoke
+node ../tools/check-doc-links.mjs
 ```
 
-The suite covers the Host, Work Core, model and tool integration, UI contracts,
-permission waits, idempotency, cancellation, reconnection and recovery. It uses
-synthetic fixtures and local deterministic providers.
+`npm test` runs the synthetic suite with at most four test files in parallel.
+It covers the Host, Work Core, model and tool integration, UI contracts,
+permission waits, idempotency, cancellation, reconnection and recovery. The
+smoke check uses a local deterministic provider. Neither command needs a real
+provider credential.
+
+`npm run check:product` runs the default test, smoke and repository link checks
+in sequence. Use `npm run test:load` separately to run the same suite with a
+bounded concurrency of eight when diagnosing resource contention; it is not the
+default acceptance command.
 
 ## Test-only crash points
 

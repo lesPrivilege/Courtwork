@@ -1,0 +1,36 @@
+name: Runtime
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-runtime:
+    name: Node ${{ matrix.node }} · synthetic runtime
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node:
+          - "22.19.0"
+          - "24.x"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - name: Install locked dependencies
+        run: npm --prefix app ci --ignore-scripts
+      - name: Run bounded synthetic tests
+        run: npm --prefix app test
+      - name: Run deterministic runtime smoke
+        run: npm --prefix app run smoke
+      - name: Check repository documentation links
+        run: node tools/check-doc-links.mjs
