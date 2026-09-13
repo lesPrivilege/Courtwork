@@ -151,7 +151,7 @@ export class RuntimeControlPlane {
     this.config = next;
   }
   inspect({ session, extensions, provider, adapterId, activeRuns = 0, mcp, additionalTools = [] }) {
-    const scopes = [{ type: 'user', id: 'local' }, ...(session ? [...(session.scope === 'global' ? [{ type: 'agent', id: 'attention' }] : [{ type: 'workspace', id: session.projectId }]), { type: 'session', id: session.id }] : [])];
+    const scopes = [{ type: 'user', id: 'local' }, ...(session ? [...(session.scope === 'global' ? [{ type: 'agent', id: 'attention' }] : session.scope === 'project' ? [{ type: 'workspace', id: session.projectId }] : []), { type: 'session', id: session.id }] : [])];
     const applies = value => scopes.some(s => sameScope(s, value));
     const policies = scopes.flatMap(s => this.config.policies.filter(p => sameScope(s, p.scope)));
     const descriptor = (id, kind, title, extra = {}) => ({ id, kind, title, source: { type: 'builtin', version: adapterId }, scope: { type: 'user', id: 'local' }, activation: 'always', installed: true, running: null, exposed: true, health: 'healthy', configurable: false, ...extra });

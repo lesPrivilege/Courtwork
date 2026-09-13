@@ -1,6 +1,6 @@
 // A global conversation is still owned by Session/Run. This controller owns
 // only presentation, drafts and request receipts; it never runs an agent loop.
-export function createAttentionConversation({ request, changed = () => {}, uuid = () => crypto.randomUUID() }) {
+export function createAttentionConversation({ request, changed = () => {}, beforeSend = async () => {}, uuid = () => crypto.randomUUID() }) {
   const state = { session: null, events: [], runs: [], lastSeq: 0, draft: '', conversations: [],
     busy: false, loading: false, error: '', readError: '', command: null, conversationId: null, generation: 0 };
   const active = () => state.runs.find(run => ['running','waiting_user','stopping'].includes(run.status));
@@ -53,6 +53,7 @@ export function createAttentionConversation({ request, changed = () => {}, uuid 
         if (created.session?.id !== id || created.session.scope !== 'global') throw new Error('Conversation receipt is unavailable');
         state.session = created.session;
       }
+      await beforeSend(id);
       await request(`/sessions/${encodeURIComponent(id)}/draft`, { method: 'PUT', body: { text: operation.input } });
       const receipt = await request(`/sessions/${encodeURIComponent(id)}/runs`, { method: 'POST', body: operation });
       if (receipt.run?.sessionId !== id || receipt.run.commandId !== operation.commandId) throw new Error('Run receipt is unavailable');

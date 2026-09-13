@@ -133,7 +133,7 @@ test("live ask_user and permission entries disappear after answer or cancel, and
     const pendingAsk = await getSummary(api);
     const askItem = pendingAsk.pendingItems.items.find((item) => item.questionId === askOpen.data.id);
     assert.ok(askItem);
-    assert.deepEqual(Object.keys(askItem).sort(), ["createdAt", "kind", "label", "projectId", "questionId", "runId", "sessionId"]);
+    assert.deepEqual(Object.keys(askItem).sort(), ["createdAt", "kind", "label", "projectId", "questionId", "runId", "scope", "sessionId"]);
     assert.equal(askItem.kind, "ask_user");
     assert.equal(askItem.label, "Answer requested");
     assert.equal("prompt" in askItem, false, "summary does not copy the full prompt");
@@ -470,11 +470,11 @@ test("summary is allowlisted and read-only; unauthorized and failed reads are er
     collectionShape(result.pendingItems);
     collectionShape(result.inspectionCandidates);
     for (const item of result.sessionCandidates.items) {
-      assert.deepEqual(Object.keys(item).sort(), ["createdAt", "latestRun", "projectId", "recordedActivityAt", "sessionId", "title"]);
+      assert.deepEqual(Object.keys(item).sort(), ["createdAt", "latestRun", "projectId", "recordedActivityAt", "scope", "sessionId", "title"]);
       if (item.latestRun) assert.deepEqual(Object.keys(item.latestRun).sort(), ["endedAt", "runId", "startedAt", "status"]);
     }
-    for (const item of result.pendingItems.items) assert.deepEqual(Object.keys(item).sort(), ["createdAt", "kind", "label", "projectId", "questionId", "runId", "sessionId"]);
-    for (const item of result.inspectionCandidates.items) assert.deepEqual(Object.keys(item).sort(), ["endedAt", "errorCode", "projectId", "resultAt", "runId", "sessionId", "startedAt", "status"]);
+    for (const item of result.pendingItems.items) assert.deepEqual(Object.keys(item).sort(), ["createdAt", "kind", "label", "projectId", "questionId", "runId", "scope", "sessionId"]);
+    for (const item of result.inspectionCandidates.items) assert.deepEqual(Object.keys(item).sort(), ["endedAt", "errorCode", "projectId", "resultAt", "runId", "scope", "sessionId", "startedAt", "status"]);
     for (const item of result.sessionVersions) assert.deepEqual(Object.keys(item).sort(), ["lastSeq", "sessionId"]);
     assert.ok(!JSON.stringify(result).includes(runtime.token));
     assert.ok(!JSON.stringify(result).includes(FAKE_CREDENTIAL_KEY));

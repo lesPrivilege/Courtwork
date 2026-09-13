@@ -27,12 +27,12 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     });
     const title = el("span", { className: "chat-row-title", text: session.title || "Untitled chat" });
     const meta = el("span", { className: "chat-row-meta" });
-    meta.append(el("span", { text: project?.name || "Project" }));
+    meta.append(el("span", { text: project?.name || "No workspace" }));
     if (sessionMode(session) === "work") meta.append(el("span", { className: "session-mode-tag", text: "Work" }));
-    const when = relativeUpdated(session.updatedAt || session.createdAt);
+    const when = relativeUpdated(session.recordedActivityAt || session.updatedAt || session.createdAt);
     if (when) meta.append(el("span", { text: when }));
     button.append(semanticIcon("chat.object", { size: 16 }), el("span", { className: "chat-row-text" }, title, meta));
-    button.addEventListener("click", () => onOpenSession(session.id, project.id));
+    button.addEventListener("click", () => onOpenSession(session.id, session.projectId));
     return button;
   }
 
@@ -47,13 +47,15 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     return card;
   }
 
-  function render({ projects = [], sessionsByProject = new Map(), activeSessionId = null, currentSession = null, example = null } = {}) {
+  function render({ projects = [], sessionsByProject = new Map(), recentSessions = null, activeSessionId = null, currentSession = null, example = null } = {}) {
     generation += 1;
     const rows = [];
-    for (const project of projects) {
+    if(recentSessions) {
+      for(const session of recentSessions) rows.push({session,project:projects.find(p=>p.id===session.projectId),active:session.id===activeSessionId});
+    } else for (const project of projects) {
       for (const session of sessionsByProject.get(project.id) || []) rows.push({ session, project, active: session.id === activeSessionId });
     }
-    rows.sort((a, b) => String(b.session.updatedAt ?? b.session.createdAt ?? "").localeCompare(String(a.session.updatedAt ?? a.session.createdAt ?? "")) || a.session.id.localeCompare(b.session.id));
+    rows.sort((a, b) => String(b.session.recordedActivityAt ?? b.session.updatedAt ?? b.session.createdAt ?? "").localeCompare(String(a.session.recordedActivityAt ?? a.session.updatedAt ?? a.session.createdAt ?? "")) || a.session.id.localeCompare(b.session.id));
     const recent = rows.slice(0, 8);
 
     const heading = el("header", { className: "chat-page-heading" },
@@ -79,7 +81,7 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
       const list = el("div", { className: "chat-rows", attrs: { role: "list" } });
       for (const row of recent) list.append(el("div", { attrs: { role: "listitem" } }, chatRow(row)));
       continueSection.append(list);
-      if (rows.length > recent.length) continueSection.append(el("p", { className: "form-help", text: `${rows.length - recent.length} more in the project list.` }));
+      if (rows.length > recent.length) continueSection.append(el("p", { className: "form-help", text: `${rows.length - recent.length} more in Recent.` }));
     } else {
       continueSection.append(el("p", { className: "chat-empty", text: "No chats yet." }));
     }
@@ -96,7 +98,7 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     const keeps = el("section", { className: "chat-keeps", attrs: { "aria-labelledby": "chat-keeps-title" } },
       el("h2", { text: "What a chat keeps", attrs: { id: "chat-keeps-title" } }),
       el("dl", {},
-        el("dt", { text: "Project" }), el("dd", { text: "Each chat belongs to a project and keeps its own file access." }),
+        el("dt", { text: "Project" }), el("dd", { text: "A chat may belong to a workspace or stay in Recent. It keeps its own file access." }),
         el("dt", { text: "Record" }), el("dd", { text: "Messages, tool actions and recorded files remain with the chat. A chat bound to a Matter is Work." }),
         el("dt", { text: "Model" }), el("dd", { text: "Connections are configured in Settings · Models. Opening this page does not start a run." }),
       ),

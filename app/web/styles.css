@@ -6609,3 +6609,22 @@ html[data-theme="dark"] {
 
 /* Keyboard disclosure changes are immediate, like Attention navigation. */
 .attention-workspace-inner[data-input="keyboard"] .attention-basis > summary > .ui-icon { transition: none; }
+
+/* DWB-05: independent draft materials and optional organization context. */
+.composer-workspace { min-width: 0; max-width: min(22ch, 30vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.draft-attachments-popover {
+  box-sizing: border-box; width: min(360px, calc(100vw - 24px)); max-height: min(440px, 70vh); overflow: auto;
+  padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-container);
+  background: var(--float); color: var(--ink); box-shadow: var(--shadow-float);
+  inset: auto; margin: 0;
+}
+.workspace-options, .draft-attachment-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.workspace-option { text-align: left; overflow-wrap: anywhere; }
+.workspace-option[aria-pressed="true"] { background: var(--selected); }
+.recent-section { flex: 0 0 auto; }
+#recent-list { display: flex; flex-direction: column; }
+#recent-list .session-button { min-width: 0; text-align: left; }
+
+.nav-collections { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: var(--space-4); }
+.nav-collections .project-section, .nav-collections .recent-section { flex: none; display: flex; flex-direction: column; gap: var(--space-2); }
+.nav-collections .project-list { overflow: visible; }
