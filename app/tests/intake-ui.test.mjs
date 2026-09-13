@@ -146,6 +146,11 @@ test("comparison requires two explicit retained revisions and renders the exact 
     await flush();
     assert.equal(dom.list.querySelector("select.retained-compare-from").value, "1", "an unrelated workspace refresh preserves From");
     assert.equal(dom.list.querySelector("select.retained-compare-to").value, "2", "an unrelated workspace refresh preserves To");
+    // The shell closes Files while the retained reader is open, then restores
+    // the same DOM. Completion must still update that retained Compare button.
+    dom.list.querySelector("button.retained-version-open").click();
+    view.close();
+    assert.equal(view.returnFromFile(), true);
     compare = dom.list.querySelector("button.retained-compare-button");
     compare.focus();
     compare.click();

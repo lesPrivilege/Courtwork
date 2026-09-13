@@ -23,7 +23,7 @@ export function renderPlanned(container) {
   container.replaceChildren(
     el("p", {
       className: "form-help",
-      text: "These belong to the runtime contract but have no host adapter yet. They are listed so their absence is legible, and they carry no controls.",
+      text: "Not available in this host.",
     }),
     ...PLANNED_CAPABILITIES.map(([title, help]) =>
       el(
@@ -35,7 +35,7 @@ export function renderPlanned(container) {
           el("span", { className: "settings-row-title", text: title }),
           el("span", { className: "settings-row-help", text: help }),
         ),
-        el("span", { className: "planned-state", text: "Backend pending" }),
+        el("span", { className: "planned-state", text: "Not available" }),
       ),
     ),
   );
@@ -58,7 +58,7 @@ export function renderIntegrationsIntake(container) {
     el("h4", { className: "settings-block-title", text: "Adding an MCP server" }),
     el("p", {
       className: "form-help",
-      text: "Servers are added through host configuration. Manage imported servers below.",
+      text: "Servers use host configuration; only unauthenticated Streamable HTTP is supported.",
     }),
     el(
       "details",

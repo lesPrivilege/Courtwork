@@ -510,19 +510,15 @@ export function createRuntimeView(
   function scopeStrip({ primary = false, where = "overview" } = {}) {
     if (!snapshot) return [];
     const scope = activeScope();
+    const precedence = snapshot?.sessionScope?.kind === "global" ? "Session overrides Attention, and Attention overrides user. Narrower scopes cannot loosen a wider deny or ask." : PRECEDENCE_SENTENCE;
     return [
-      el("p", {
-        className: "runtime-precedence",
-        attrs: primary ? { id: "runtime-precedence" } : {},
-        text: snapshot?.sessionScope?.kind === "global" ? "Session overrides Attention, and Attention overrides user. Narrower scopes cannot loosen a wider deny or ask." : PRECEDENCE_SENTENCE,
-      }),
       scopeTabs(where),
-      el("p", {
-        className: "runtime-scope-note",
-        text: scope
-          ? `Editing the ${SCOPE_LABELS[scope.type]} layer · ${scope.id}. Revision ${snapshot.revision}.`
-          : `No writable scope. Revision ${snapshot.revision}.`,
-      }),
+      el("p", { className: "runtime-scope-note", text: scope ? `Editing the ${SCOPE_LABELS[scope.type]} layer.` : "No writable scope." }),
+      el("p", { className: "runtime-precedence", text: "Narrower scopes cannot loosen a wider deny or ask." }),
+      el("details", { attrs: { "data-runtime-disclosure": `scope-${where}` } },
+        el("summary", { text: "Scope details", attrs: { "data-focus-key": `scope-details:${where}` } }),
+        el("p", { className: "runtime-precedence", attrs: primary ? { id: "runtime-precedence" } : {}, text: precedence }),
+        el("p", { className: "runtime-scope-note" }, el("code", { text: scope ? `${scope.type}:${scope.id} · revision ${snapshot.revision}` : `revision ${snapshot.revision}` }))),
     ];
   }
 
@@ -629,12 +625,15 @@ export function createRuntimeView(
    * line. There is no third switch position. One line explains where the value
    * came from; a second appears only when there is an override to remove. */
   function exposureLines(resource, scope) {
-    const lines = [
-      el("p", {
-        className: "runtime-provenance",
-        text: provenanceSentence(resource, snapshot.resources),
-      }),
-    ];
+    // Routine source defaults are already inspectable in the resource's
+    // Source/Requested/Effective layers. Keep exceptions and override actions
+    // beside the switch, without repeating the default on every healthy row.
+    const routineDefault = scope && resource.configurable && !hasParentGate(resource) &&
+      (resource.provenance || []).at(-1)?.reason === "source default" &&
+      provenanceValue(resource) === Boolean(resource.exposed);
+    const lines = routineDefault ? [] : [el("p", {
+      className: "runtime-provenance", text: provenanceSentence(resource, snapshot.resources),
+    })];
     // The recorded chain does not carry an MCP server's gate, so where the two
     // disagree the row names the fact that actually decided the value.
     if (provenanceValue(resource) !== Boolean(resource.exposed)) {
@@ -680,7 +679,7 @@ export function createRuntimeView(
         }),
       );
     if (!overrideAt(resource, scope)) {
-      if (!hasParentGate(resource) && !ceiling)
+      if (!routineDefault && !hasParentGate(resource) && !ceiling)
         lines[0].textContent = `${lines[0].textContent} The switch overrides it for ${scope.type === "session" ? "this session" : `this ${SCOPE_LABELS[scope.type]}`}.`;
       return lines;
     }
@@ -1337,7 +1336,7 @@ export function createRuntimeView(
     return el(
       "div",
       { className: "planned-list", attrs: { "data-kind": "unsupported" } },
-      ...rows.map(([, title, help, request]) =>
+      ...rows.map(([, title, help]) =>
         el(
           "div",
           { className: "planned-row" },
@@ -1345,9 +1344,9 @@ export function createRuntimeView(
             "div",
             { className: "planned-row-text" },
             el("span", { className: "settings-row-title", text: title }),
-            el("span", { className: "settings-row-help", text: `${help} Backend request ${request}.` }),
+            el("span", { className: "settings-row-help", text: help }),
           ),
-          el("span", { className: "planned-state", text: "Backend pending" }),
+          el("span", { className: "planned-state", text: "Not available" }),
         ),
       ),
     );
@@ -1420,7 +1419,7 @@ export function createRuntimeView(
     attention.append(el("h5", { text: `Attention · ${items.length}` }));
     if (!items.length)
       attention.append(
-        note("Every resource reports healthy, nothing is waiting for a permission answer, and every plugin is host-trusted."),
+        note("No resource issues reported."),
       );
     for (const item of items) {
       const line = el("p", { className: "runtime-attention-row" }, el("span", { text: item.text }));
@@ -1573,7 +1572,7 @@ export function createRuntimeView(
     }
     mount.append(
       note(
-        "The agent profile a run is composed from, what it depends on and where it applies. Saving a runtime configuration is not publishing a verified Work Expert: that needs a work semantics, a scope it applies to and an acceptance, none of which a profile carries.",
+        "Choose the profile for future runs; saving its configuration does not grant permissions or accept work.",
       ),
     );
     /* Composition shares Developer › Runtime with Overview, and Overview already
@@ -1785,10 +1784,8 @@ export function createRuntimeView(
     const planned = plannedRows(["memory_provider"]);
     if (planned)
       mount.append(
-        el("section", { className: "runtime-kind", attrs: { "data-kind": "unsupported" } },
-          el("h5", { text: "Not available in this host" }),
-          note("This host does not provide these capabilities."),
-          planned),
+        el("details", { className: "runtime-kind", attrs: { "data-kind": "unsupported", "data-runtime-disclosure": "unsupported-instructions" } },
+          el("summary", { text: "Unavailable capabilities", attrs: { "data-focus-key": "unsupported:instructions" } }), planned),
       );
   }
 
@@ -1921,10 +1918,8 @@ export function createRuntimeView(
     const planned = plannedRows(["workflow", "hook", "registry"]);
     if (planned)
       mount.append(
-        el("section", { className: "runtime-kind", attrs: { "data-kind": "unsupported" } },
-          el("h5", { text: "Not available in this host" }),
-          note("This host does not provide these capabilities."),
-          planned),
+        el("details", { className: "runtime-kind", attrs: { "data-kind": "unsupported", "data-runtime-disclosure": "unsupported-capabilities" } },
+          el("summary", { text: "Unavailable capabilities", attrs: { "data-focus-key": "unsupported:capabilities" } }), planned),
       );
   }
 
@@ -2376,7 +2371,9 @@ export function createRuntimeView(
       const mount = mounts[name];
       if (!mount) continue;
       if (polling && holdsTextEntry(mount)) continue;
+      const disclosed = new Set([...mount.querySelectorAll('details[data-runtime-disclosure]')].filter(node => node.open).map(node => node.dataset.runtimeDisclosure));
       renderSection();
+      for (const node of mount.querySelectorAll('details[data-runtime-disclosure]')) node.open = disclosed.has(node.dataset.runtimeDisclosure);
       if (frozen()) mount.setAttribute("data-frozen", "true");
       else mount.removeAttribute("data-frozen");
     }

@@ -177,9 +177,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
         readingSnapshot.selection?.start?.key,
         readingSnapshot.selection?.end?.key,
       ].filter(Boolean));
-      if (!rows.length) stream.append(el('div', { className: 'attention-agent-empty' }, el('h3', { text: 'What matters next?' }),
-        el('p', { text: 'Bring a question, find context from earlier work, or ask for a next step.' }),
-        el('small', { className: 'attention-easter-egg', text: 'Attention is all you need!' })));
+      if (!rows.length) stream.append(el('div', { className: 'attention-agent-empty' }, el('p', { text: 'Ask a question or find context from earlier work.' })));
       let responseGroup = null, responseRun = null;
       for (const row of rows) {
         if (row.kind === "assistant" && !row.text?.trim()) continue;

@@ -572,11 +572,9 @@
                 <div class="settings-block">
                   <h4 class="settings-block-title">Runtime</h4>
                   <p class="settings-row-help">
-                    The runtime is the architecture underneath a chat: which
-                    configuration a run was composed from, and which values it
-                    froze. Nothing here changes what a chat is allowed to do —
-                    that is Permissions.
+                    Configuration for future runs and records of what past runs used.
                   </p>
+                  <p class="settings-row-help">Only host-trusted extensions load; third-party code is not sandboxed.</p>
                 </div>
                 <div
                   id="settings-runtime-overview"
@@ -604,10 +602,10 @@
                   <h4 class="settings-block-title">Runtime info</h4>
                   <div id="runtime-info" class="runtime-info"></div>
                 </div>
-                <div class="settings-block">
-                  <h4 class="settings-block-title">Planned</h4>
+                <details class="settings-block">
+                  <summary>Unavailable capabilities</summary>
                   <div id="planned-capabilities" class="planned-list"></div>
-                </div>
+                </details>
               </section>
             </div>
           </div>

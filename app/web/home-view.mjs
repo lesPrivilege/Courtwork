@@ -257,7 +257,9 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
       el("p", { text: d.reason }),
       d.next_action?.kind !== "none" ? el("p", { text: `Next: ${d.next_action?.label ?? "Not available"}` }) : null,
       d.next_action?.due_at ? el("p", { text: `Recorded due time: ${stamp(d.next_action.due_at)}` }) : null,
-      el("p", { className: "home-insight-note", text: `Updated ${stamp(d.updated_at)} · Revision ${d.revision}. Read-only.` })));
+      el("p", { className: "home-insight-note", text: `Updated ${stamp(d.updated_at)} · Read-only` }),
+      el("details", {}, el("summary", { text: "Recorded context" }),
+        el("p", { className: "home-insight-note", text: `Revision ${d.revision}` }))));
     return card;
   }
   if (!data) {

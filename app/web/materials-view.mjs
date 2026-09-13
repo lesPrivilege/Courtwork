@@ -843,7 +843,8 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     detailGenerations.clear();
     for (const sourceId of comparisonControllers.keys()) cancelComparison(sourceId, "The comparison was interrupted. Compare the selected revisions again.");
     comparisonControllers.clear();
-    comparisonButtons.clear();
+    // A reader round trip restores the same Files DOM. Keep its control refs;
+    // session change/reset replaces them together with their owning state.
   }
 
   function returnFromFile() {
