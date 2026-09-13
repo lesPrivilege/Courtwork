@@ -1,5 +1,13 @@
 # 当前工程状态
 
+## 2026-09-13 · Spark独立Agent与Workspace Substrate交付
+
+[Spark实现与证据](../evidence/spark-agent-20260913/README.md)已合本地main：稳定Agent/版本定义、独立上下文、串行Assignment/attempt、RuntimeStore schema15、本地笔记/成果索引、精确来源与按需读取、显式挂载及双端验权。未知attempt须先核对才可重试/归档；机器消费不替代Core正式接受。[架构裁决](research/architecture-node-2026-09-13/workspace-substrate.md)与增量7项外部固定索引已接实际实现，Paper未改。
+
+Chat右卡片与Spark入口共用Host事实；沿Workspace/Runtime标题grammar复用SVG，紧凑栏移除无动作More，来源保留版本/新旧信息，详情用字段替代JSON。修复丢回执刷新恢复、窄屏长文本和执行/消费事实更新。Luna独立有界审阅与Astra修正/浏览器目验分列；候选截图不冒充用户视觉接受。
+
+组合源码`83df385`包含同期Settings/Plugin main交付，Node22全量1002/1002、smoke、6,879链接及五项UI检查通过；[合流回执](../evidence/spark-agent-20260913/integration.json)记录62个原有在途文件保留。本片未用真实provider，原生200%及完整无障碍、真实coding人审与Release门继续开放；未push/tag/部署。下方Spark“待施工/合入复裁”为历史状态，本节取代其实现进度。
+
 ## 2026-09-13 · Settings 资源管理与图标辨识
 
 按用户授权以 `c1bdaa9` 合入本地main：[施工与证据](design/settings-resource-management-2026-09-13/README.md)。Settings新增Plugins，共用Runtime快照与状态语义，提供资源链接Tools/Skills/Permissions；Developer保留本地可信代码登记、Host Extensions生命周期与运行时组合/绑定。插件更新与删除仍无契约，不绘制可用按钮。Plugins采用固定Lucide拼图图标，Models保留芯片，语义投影与源哈希同链更新。

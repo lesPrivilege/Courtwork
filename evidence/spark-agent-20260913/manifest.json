@@ -1,7 +1,7 @@
 {
   "README.md": {
-    "sha256": "d46946b9b29415a53dfd860e69430fd34c9a2859516af9ebf078588f08a952c9",
-    "bytes": 6316
+    "sha256": "daf419b123ea0d160fc8f8a8edd67866fceb401f638a172ef2c520152e7df503",
+    "bytes": 6472
   },
   "browser/chat-light-1440.png": {
     "sha256": "5df0b3a566e6ee37e689930612cb952b7f8f32af136f7d2dab2d9123c5bd6577",
@@ -66,6 +66,10 @@
   "checks/followup-semantic-budget.log": {
     "sha256": "6f143f0da45da4f5543af388190502cdc02d799522ea84d77dcfc0efad1c9270",
     "bytes": 4294
+  },
+  "checks/integrated-doc-links.log": {
+    "sha256": "d4d4843a8442480d7fe34a58a008f8e0bae0880f64a50ea15a92c4b0e8f97329",
+    "bytes": 77
   },
   "checks/lint-colors.log": {
     "sha256": "ef8dd0d81c4e3407f269679adb97ea56e868ae0351dd60081dafdc6a70c6f675",
@@ -202,6 +206,10 @@
   "final-fixture.json": {
     "sha256": "790c1c646ccdc4ec05cc50c8bde89e7c6b18f9e55a376034bc5adb708ae87e09",
     "bytes": 172
+  },
+  "integration.json": {
+    "sha256": "296b2412b7ca25140a26976ccea430db3fbb7197d9c23a15a44d5ba7a2ddb15b",
+    "bytes": 10149
   },
   "lost-response-proxy.mjs": {
     "sha256": "9e7f273d43a1dc1a09909724b2610da29703ce0b9351dfa5b4979039fb9f2850",
