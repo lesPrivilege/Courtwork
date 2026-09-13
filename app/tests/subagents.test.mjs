@@ -160,6 +160,7 @@ test('SIGKILL during a child Run restarts blocked without replay and requires ex
   `});
   const ready=await worker.waitForLine(v=>v.ready);assert.ok(ready);assert.equal(ready.assignment.status,'active');assert.ok(ready.assignment.attempts[0].runId);await worker.kill();
   restarted=await reopen(dataDir);const c=restarted.runtime.service.subagents,a=c.find(restarted.runtime.store.snapshot(),'crash-assignment');assert.equal(a.status,'blocked');assert.equal(a.attempts[0].status,'unknown');assert.equal(a.attempts.length,1);
+  const invalidArchive=restarted.runtime.store.snapshot();invalidArchive.subagents.assignments[0].archived=true;assert.throws(()=>validateState(invalidArchive),/Archived task unsettled/);
   await c.pump();assert.equal(c.find(restarted.runtime.store.snapshot(),a.id).attempts.length,1);
   await assert.rejects(c.action(a.id,{action:'retry',expectedRevision:a.revision,commandId:randomUUID(),reason:'Cannot guess completion',expandedSources:[]}),{code:'spark_unknown'});
   await assert.rejects(c.action(a.id,{action:'archive',expectedRevision:a.revision,commandId:randomUUID(),reason:'Cannot hide unknown execution',expandedSources:[]}),{code:'spark_conflict'});

@@ -386,5 +386,11 @@
     "source": "const controls=el('div',{className:'spark-controls'});content.append(controls);controls.append(action('refresh-cw','Refresh task',()=>void guarded(async()=>{selected=null;await refresh();await detail(id);})));",
     "disposition": "mapped-raw",
     "reason": "Explicitly refreshes the selected assignment projection; does not retry execution."
+  },
+  {
+    "file": "app/web/subagent-view.mjs",
+    "source": "const sourceArea=el('div');for(const [i,s] of result.sources.entries())sourceArea.append(referenceButton('file-text',`Read source ${i+1} · ${s.path} · ${s.revision?`v${s.revision}`:s.sha256.slice(0,12)} · ${result.sourceFreshness[i]==='historical-version'?'historical version':result.sourceFreshness[i]==='workspace-freshness-unchecked'?'snapshot · live freshness unknown':'latest retained version'}`,()=>guarded(async()=>{const read=await request(`/subagents/${encodeURIComponent(id)}/sources/${i}`);expanded.add(i);sourceArea.append(el('pre',{className:'subagent-result',text:read.text}));})));resultArea.append(sourceArea);for(const note of result.notes??[])resultArea.append(referenceButton('book-open',`Read local note · ${note.title}`,()=>guarded(async()=>{const read=await request(`/subagents/${encodeURIComponent(id)}/notes/${encodeURIComponent(note.id)}`);resultArea.append(el('pre',{className:'subagent-result',text:read.text}));})));",
+    "disposition": "mapped-raw",
+    "reason": "Retained source reader uses the existing file glyph with visible path, exact revision/hash and freshness; derived note uses book-open."
   }
 ]
