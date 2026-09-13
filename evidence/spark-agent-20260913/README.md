@@ -12,7 +12,7 @@ Default card: preset identity and recent assignment status. Task detail: brief, 
 
 ## Verification record
 
-Source is fixed at `1d691c5c6ae82825639a08d47fedfd286cab3a85`; the final backend is unchanged from `52c486c`. The retained [synthetic Host](synthetic-host.mjs) uses the normal HTTP, RuntimeStore, Pi loop and UI, with a deterministic fake provider and new temporary data. [Browser checks](browser-check.mjs) exercise the actual application. Unit/integration tests live in `app/tests/subagents.test.mjs` and `app/tests/subagent-migration.test.mjs`.
+Spark source is fixed at `1d691c5c6ae82825639a08d47fedfd286cab3a85`; the final backend is unchanged from `52c486c`. The retained [synthetic Host](synthetic-host.mjs) uses the normal HTTP, RuntimeStore, Pi loop and UI, with a deterministic fake provider and new temporary data. [Browser checks](browser-check.mjs) exercise the actual application. Unit/integration tests live in `app/tests/subagents.test.mjs` and `app/tests/subagent-migration.test.mjs`.
 
 Author checks do not constitute independent acceptance. Browser screenshots are candidates, not replacement accepted baselines. Real-provider S4 coding, human review of a resulting diff, full release media and G1–G5 remain outside this slice's claimed evidence. Paper remains its separate user-reviewed doctrine source.
 
@@ -28,3 +28,7 @@ Author checks do not constitute independent acceptance. Browser screenshots are 
 The Codex in-app browser then checked the [compact strip correction](strip-review/README.md), lost response followed by reload/recovery with exactly one assignment/attempt ([receipt](final-browser/recovery-receipt.json)), long unbroken text at 390 CSSpx (332px client/scroll width after correction), live task-state updates, labeled execution data, SVG controls and light/dark adjacent Chat surfaces. Final captures are indexed in [browser scope](final-browser/README.md). The synthetic Host was started from `11d6081`; static UI was reloaded from the later commits as labeled. Backend archive/recovery corrections were verified by the final real-process tests, not claimed as exercised on that older running Host.
 
 Native 200% zoom and screen-reader interoperability were not tested. Earlier forced-colors evidence is limited to its candidate. No real provider was called in this Spark slice; separate prior release dogfooding evidence is not repurposed as Spark validation. The UI remains an author candidate for user inspection; it does not change formal acceptance.
+
+## Concurrent main integration
+
+Main advanced from the initial base to `6bb58cd` with Settings/Plugin management while Spark was being checked. The active UI checkout was left intact. The Spark worktree merged that main delivery as `83df385`; the only textual conflict was the append-only semantic-consumer ledger, resolved by preserving both registered sets (53 consumers). `app/web/app.mjs` merged its distinct changes automatically. [Exact merged-source combination](checks/product-83df385.log) passed 1002/1002, runtime smoke and 6,879 documentation links on Node 22.19.0; all five UI checks also passed. No production changes followed that run. Local-main preservation is recorded separately after the transition.

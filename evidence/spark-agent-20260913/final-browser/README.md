@@ -8,6 +8,7 @@ All data is synthetic. The running normal Host uses `11d6081`; static frontend f
 - 07–10: shared wide card, exact source freshness, labeled execution fields and light/dark 390px result views at `52c486c` UI.
 - 11–12: final accessible Spark card at dark 1280px and flat compact toolbar at 1100px.
 - 13: `d4a3153` SVG source/note/close/refresh controls and automatically completed task at 1100px.
+- 15: combined `83df385` frontend, light 1440px, with the concurrently delivered Settings resources and Spark changes present.
 - 14: final `1d691c5` narrow source controls after wrapping visible labels; no horizontal overflow. The discovered intermediate label regression is retained under `debug/source-label-overflow-before-wrap.png`.
 
 Astra visually inspected every retained after-capture. Native zoom and screen-reader behavior are not established. Earlier forced-color checks belong to the separately recorded browser candidate. No browser interaction used personal work or a paid provider.

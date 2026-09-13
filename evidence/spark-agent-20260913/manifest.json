@@ -1,7 +1,7 @@
 {
   "README.md": {
-    "sha256": "b47c291378d08aaede0b80ee22a3b2d46d8df971f57a2e850c8ccb78f39c326c",
-    "bytes": 5590
+    "sha256": "d46946b9b29415a53dfd860e69430fd34c9a2859516af9ebf078588f08a952c9",
+    "bytes": 6316
   },
   "browser/chat-light-1440.png": {
     "sha256": "5df0b3a566e6ee37e689930612cb952b7f8f32af136f7d2dab2d9123c5bd6577",
@@ -87,9 +87,33 @@
     "sha256": "39432288978ebfa852e3362bf5b11c5640c3b1524f6c5e357ff13e24b44c497d",
     "bytes": 887
   },
+  "checks/merged-colors.log": {
+    "sha256": "ef8dd0d81c4e3407f269679adb97ea56e868ae0351dd60081dafdc6a70c6f675",
+    "bytes": 58
+  },
+  "checks/merged-contrast.log": {
+    "sha256": "ce220ebdc1392cd0d550fd7753ecba9b95f6daeb6f8c8ccdad46c28ae1aeaf26",
+    "bytes": 9907
+  },
+  "checks/merged-interaction.log": {
+    "sha256": "7e798b3ac362130deee12d56ca3c2a9d5edbac6f9524fcdc1f081981ea7d181d",
+    "bytes": 145
+  },
+  "checks/merged-materials.log": {
+    "sha256": "19365883357daf0580a19c1e0088b3e46560af1eef6c9eb1ac27f9c942a4412c",
+    "bytes": 82
+  },
+  "checks/merged-shapes.log": {
+    "sha256": "39432288978ebfa852e3362bf5b11c5640c3b1524f6c5e357ff13e24b44c497d",
+    "bytes": 887
+  },
   "checks/product-52c486c.log": {
     "sha256": "0c45245e492f8ba448e659c6c923c096664d91dd4da82062771756515585c0f3",
     "bytes": 257127
+  },
+  "checks/product-83df385.log": {
+    "sha256": "e801a1da6b7a3198e3018f51fec5d96146d03bdf2c53b4ee646050c2382976f3",
+    "bytes": 257822
   },
   "debug/earlier-browser-failure.json": {
     "sha256": "9ac69cf5b443dd3fb18b3694144fa77aa049cd86b7de2bebff0b325040f798e8",
@@ -163,9 +187,13 @@
     "sha256": "ded231ef91792c516c2520131e796eb9de4464ee29748e0e934ca0bc775b0923",
     "bytes": 42612
   },
+  "final-browser/15-merged-findings-light-1440.png": {
+    "sha256": "33f2d93a2bcc08b09966e5ce0aadb50241feef81fb4eb239655530c9687b1d08",
+    "bytes": 79532
+  },
   "final-browser/README.md": {
-    "sha256": "1f41e40111b317182f9e5369af47062d9511b391620b91e96425f209a9c36bc4",
-    "bytes": 1468
+    "sha256": "60e69e7bcfa4440503d8a143baf27c8cd8fca25bdf3e3980233570868bb03717",
+    "bytes": 1595
   },
   "final-browser/recovery-receipt.json": {
     "sha256": "0f31d0b1a09d881e4d6d4ebefd35003e6aa980846f31b7a18d38a70eaa055628",
@@ -184,8 +212,8 @@
     "bytes": 1522
   },
   "source-identity.json": {
-    "sha256": "29218de660c704b6c768faef201de52ecca11dc4ad9058dae3224a5952aa5834",
-    "bytes": 3831
+    "sha256": "7007ab8701ee5297005dd1e227f527dcb03639b18235b8d401fb42e90bea725f",
+    "bytes": 3964
   },
   "strip-review/00-user-reference.png": {
     "sha256": "2bb32d3e08339145eb120c2e9c6116244d18b1c9dc45f731a7439ea284ad5670",
