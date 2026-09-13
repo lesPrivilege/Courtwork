@@ -114,8 +114,8 @@ test("PV-59 · 目录连接加一个不在已装目录的模型：可保存、�
 });
 
 // A legacy reasoning boolean is not a declaration of any exact parameter
-// ladder. Only reasoningEfforts supplies selectable concrete tiers.
-test("reasoning capability · legacy 三态保留但不生成伪档位，显式 effort list 才提供具体档位", async () => {
+// ladder. Model declarations cannot override a fixture protocol without effort encoding.
+test("reasoning capability · legacy 与显式声明保留，但不越过 fixture 无 reasoning 协议", async () => {
   const h = await boot();
   try {
     const saved = await putCatalogModels(h, [
@@ -141,7 +141,7 @@ test("reasoning capability · legacy 三态保留但不生成伪档位，显式 
     assert.deepEqual(byId["reasoning-false"].supportedEfforts, []);
     assert.equal(byId["reasoning-false"].defaultEffort, null);
     assert.equal(byId["reasoning-false"].reasoningSource, "user", "declared off is still declared, not unknown");
-    assert.deepEqual(byId["reasoning-explicit"].supportedEfforts, ["low", "high"]);
+    assert.deepEqual(byId["reasoning-explicit"].supportedEfforts, [], "no-reasoning protocol takes precedence over saved model declarations");
     assert.equal(byId["reasoning-explicit"].defaultEffort, null);
     assert.equal(byId[FAKE_MODEL_ID].origin, "catalog");
     assert.equal(byId[FAKE_MODEL_ID].reasoningSource, "catalog");

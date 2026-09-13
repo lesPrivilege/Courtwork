@@ -28,3 +28,5 @@
 ## Independent integration follow-up · 2026-09-14
 
 Release-task Luna review identified that the fixture's `reasoningFormat: none` still produced `supportsReasoningEffort: true` for extra model declarations. Astra corrected the compatibility projection to disable native effort for that protocol. A bounded regression checks that an extra fixture model declaring `high` cannot encode a reasoning parameter, while provider-default removes it. Provider registration tests: 5/5. This fixes the reviewed mismatch without adding new provider capabilities.
+
+The first subsequent full run was 1004/1006 ([original failure log](evidence/context-first-full-tests.log)): two older fixture tests expected declared effort lists to override the fixture's missing protocol encoder. Their assertions now preserve those declarations while expecting no selectable fixture effort. Exact low/high/max and per-connection isolation assertions remain on the compatible protocol that supports them. The affected suites pass [18/18](evidence/fixture-none-targeted.log); no product check was removed. Final combined full verification belongs to the release task.

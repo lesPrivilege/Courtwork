@@ -31,10 +31,10 @@ test("model capability contract: legacy boolean is not promoted into invented ef
     assert.deepEqual(rows["legacy-reasoning-true"].supportedEfforts, [], "legacy true means reasoning is declared, not that any exact tier is known");
     assert.equal(rows["legacy-reasoning-true"].defaultEffort, null);
     assert.ok(rows["legacy-reasoning-true"].reasoningCapability);
-    assert.deepEqual(rows["explicit-low"].supportedEfforts, ["low"]);
-    assert.deepEqual(rows["explicit-high"].supportedEfforts, ["high", "max"]);
-    assert.equal(rows["explicit-low"].reasoningCapability.source, "user-declared");
-    assert.deepEqual(rows["explicit-low"].reasoningByApi["openai-completions"].values, ["low"]);
+    assert.deepEqual(rows["explicit-low"].supportedEfforts, [], "fixture protocol cannot gain effort encoding from a model declaration");
+    assert.deepEqual(rows["explicit-high"].supportedEfforts, []);
+    assert.equal(rows["explicit-low"].reasoningCapability.source, "unknown");
+    assert.deepEqual(rows["explicit-low"].reasoningByApi["openai-completions"].values, []);
 
     const connectionA = await h.api("POST", "/provider-connections", {
       api: "openai-completions", baseUrl: h.runtime.fakeProvider.baseUrl, apiKey: "capability-a",
@@ -42,7 +42,7 @@ test("model capability contract: legacy boolean is not promoted into invented ef
     });
     const connectionB = await h.api("POST", "/provider-connections", {
       api: "openai-completions", baseUrl: h.runtime.fakeProvider.baseUrl, apiKey: "capability-b",
-      models: [{ id: FAKE_MODEL_ID, reasoning: true, reasoningEfforts: ["high"] }],
+      models: [{ id: FAKE_MODEL_ID, reasoning: true, reasoningEfforts: ["high", "max"] }],
     });
     assert.equal(connectionA.status, 200, JSON.stringify(connectionA.json));
     assert.equal(connectionB.status, 200, JSON.stringify(connectionB.json));
@@ -50,8 +50,11 @@ test("model capability contract: legacy boolean is not promoted into invented ef
       .filter((row) => row.id === FAKE_MODEL_ID && row.provider !== FAKE_PROVIDER_ID);
     assert.deepEqual(compatibleRows.map((row) => [row.provider, row.supportedEfforts]).sort((a, b) => a[0].localeCompare(b[0])), [
       [connectionA.json.connection.providerIdentity, ["low"]],
-      [connectionB.json.connection.providerIdentity, ["high"]],
+      [connectionB.json.connection.providerIdentity, ["high", "max"]],
     ].sort((a, b) => a[0].localeCompare(b[0])), "same model id on distinct connections keeps its own capability declaration");
+
+    assert.ok(compatibleRows.every(row => row.reasoningCapability.source === "user-declared"));
+    assert.deepEqual(compatibleRows.find(row => row.provider === connectionA.json.connection.providerIdentity).reasoningByApi["openai-completions"].values, ["low"]);
 
     const connection = (await h.api("GET", "/provider-connections")).json.connections.find((item) => item.id === FAKE_CATALOG_ID);
     assert.deepEqual(connection.models.find((item) => item.id === "explicit-low").reasoningEfforts, ["low"]);
@@ -166,7 +169,7 @@ test("editing a connection invalidates selected effort, and each Run freezes a c
     assert.equal(completed.provider.reasoningBinding.configVersion, selected.json.version);
 
     const changed = await h.api("PUT", `/provider-connections/${connection.id}`, {
-      api: connection.api, baseUrl: connection.baseUrl, models: [{ id: FAKE_MODEL_ID, reasoning: true, reasoningEfforts: ["high"] }],
+      api: connection.api, baseUrl: connection.baseUrl, models: [{ id: FAKE_MODEL_ID, reasoning: true, reasoningEfforts: ["high", "max"] }],
     });
     assert.equal(changed.status, 200, JSON.stringify(changed.json));
     const rejected = await h.api("POST", `/sessions/${session.id}/runs`, {

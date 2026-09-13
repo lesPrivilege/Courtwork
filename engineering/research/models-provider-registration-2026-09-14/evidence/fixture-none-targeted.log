@@ -1,0 +1,26 @@
+✔ model capability contract: legacy boolean is not promoted into invented effort tiers; explicit per-model lists stay isolated (192.39475ms)
+✔ model capability contract: effort lists reject invalid values; config CAS detects missing and stale writers (83.377959ms)
+✔ installed model descriptors are API-specific and preserve exact concrete effort ladders (405.223084ms)
+✔ editing a connection invalidates selected effort, and each Run freezes a capability binding across reopen (534.559083ms)
+✔ schema12→13 migration preserves config and active Run, adds unknown capability, bumps CAS epoch, and invalidates old receipt (496.925917ms)
+✔ PV-59 · 目录连接 PUT 只接受 models；api/baseUrl/apiKey 出现即 400 (149.787709ms)
+✔ PV-59 · 追加的模型 id 不得与已装目录冲突 (78.111167ms)
+✔ PV-59 · 目录连接加一个不在已装目录的模型：可保存、可选为生效、run 发起门放行；删掉后 run 发起门 503；原生模型仍可解析 (913.031583ms)
+✔ reasoning capability · legacy 与显式声明保留，但不越过 fixture 无 reasoning 协议 (83.816167ms)
+✔ PV-62/PV-84 · verify 四类 fixture 结果：成功 ok、401→authentication_failed、未知模型→http_error、不可达→unreachable，且不冒充精度 (132.947583ms)
+✔ PV-62 · verify 的三道门：模型不可准入 400、连接无凭据 400、活动 run 期间 409 (1249.514042ms)
+✔ PV-42 · 回执绑定失配返回 null；重启后额外模型与回执可用 (226.805958ms)
+✔ T-CRED-VERIFY · fixture 除外：fake 连接的 verify 不要求预先配置凭据；兼容连接仍要求，且不读 HOME/.pi 与环境变量 (65.667625ms)
+✔ Provider requirements stay separate from model declarations and endpoint names (1.835917ms)
+✔ Models uses only provider protocols advertised by the Host (0.115041ms)
+✔ Provider declaration read is harmless and DeepSeek route validation preserves saved configuration (137.257792ms)
+✔ Models presents the reported harness and links tool configuration without inventing an adapter switch (2.43475ms)
+✔ fixture no-reasoning protocol cannot gain a native effort field from extra model declarations (0.406125ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4035.393625
