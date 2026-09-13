@@ -1,3 +1,5 @@
+import { createSubagentView } from './subagent-view.mjs';
+let subagentView;
 import { createLocalExtensionView } from "./local-extension-view.mjs";
 import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";
 import { createWorkReviewSummary } from "./work-review-summary.mjs";
@@ -3288,6 +3290,7 @@ function renderMessageStream() {
 // header carries the run state word instead of an animated mark.
 
 function renderChatHeader() {
+  subagentView?.sync(currentSession(),state.view !== "home" && !state.settings.open && !state.attentionOpen && !state.chatOpen);
   const session = currentSession(),
     project = currentProject();
   /* WK-78 · Settings 在场时顶带说的是这一页，而不是它盖住的那个会话；进入设置的入口
@@ -4238,6 +4241,7 @@ function renderSurfaceRail() {
           },
         }),
       );
+    if(subagentView&&!subagentView.element.hidden)glyphs.push(action("spark","Spark",()=>subagentView.open(currentSession()),{attrs:{"data-module":"subagents","data-focus-key":"strip:subagents"}}));
     rail.replaceChildren(el("div", { className: "rail-strip" }, ...glyphs), surfaceEntryDirectory.element);
     if (focusKey && document.activeElement === document.body) {
       const key = focusKey.startsWith("strip:") ? focusKey : `strip:${focusModule === "run-summary" ? "run" : focusModule}`;
@@ -4262,6 +4266,7 @@ function renderSurfaceRail() {
       cards.push(cardDisclosures.wrap(module.card(schema, railHost), module.kind, identity, label));
     }
   }
+  if(subagentView&&!subagentView.element.hidden)cards.push(subagentView.element);
   cards.push(surfaceEntryDirectory.element);
   rail.replaceChildren(...cards);
   rail.scrollTop = scroll;
@@ -6464,7 +6469,7 @@ function wireEvents() {
   $("home-button").addEventListener("click", goHome);
   $("chat-button").addEventListener("click", () => void openChatPage());
   $("attention-button").addEventListener("click", () => attentionAgent.open());
-  $("spark-button").addEventListener("click", () => sparkView.open(currentProject()?.id ?? null));
+  $("spark-button").addEventListener("click", () => subagentView.open(currentSession()));
   $("workspace-home-link").addEventListener("click", (event) => {
     event.preventDefault();
     void goHome();
@@ -6941,13 +6946,14 @@ async function init() {
   }
   usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
   sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
+  subagentView = createSubagentView({request,getSession:currentSession,onOpenSession:id=>selectSession(id),onMaintenance:()=>sparkView.open(currentProject()?.id ?? null)});
   modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   chatPage = createChatPage($("chat-page"), {
     onOpenSession: (sessionId, projectId) => void (projectId && projectId !== state.activeProjectId ? selectProject(projectId, { sessionId }) : selectSession(sessionId)),
     onNewChat: () => startNewSession(),
     onOpenAttention: () => attentionAgent.open(),
-    onOpenSpark: () => sparkView.open(currentProject()?.id ?? null),
+    onOpenSpark: () => subagentView.open(currentSession()),
     onExample: () => void openPreview(),
   });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {

@@ -16,14 +16,14 @@ test("schema13 upgrade preserves every schema11 pending operation, including mis
     for (const marker of pending) await store.beginProviderConfiguration(marker.connectionId, marker.operation);
     const legacy = store.snapshot();
     await store.close(); store = null;
-    legacy.schemaVersion = 11;
+    legacy.schemaVersion = 11; delete legacy.subagents;
     delete legacy.providerConfigVersion;
     delete legacy.providerVerifications;
     const original = Buffer.from(JSON.stringify(legacy, null, 3) + "\n");
     const statePath = path.join(dataDir, "runtime-state.json");
     await writeFile(statePath, original);
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.snapshot().schemaVersion, 14);
+    assert.equal(store.snapshot().schemaVersion, 15);
     assert.deepEqual(store.getProviderConfigurationPending(), pending, "upgrade cannot waive recovery obligations");
     assert.equal(store.getProviderConfigVersion(), 0);
     assert.deepEqual(store.snapshot().providerVerifications, []);

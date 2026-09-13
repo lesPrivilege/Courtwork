@@ -212,7 +212,7 @@ test("schema12→13 migration preserves config and active Run, adds unknown capa
 
     const statePath = path.join(dataDir, "runtime-state.json");
     const raw12 = activeSnapshot;
-    raw12.schemaVersion = 12;
+    raw12.schemaVersion = 12; delete raw12.subagents;
     raw12.providerConfig = config;
     raw12.providerConfigVersion = 7;
     raw12.providerVerifications = [{
@@ -236,7 +236,7 @@ test("schema12→13 migration preserves config and active Run, adds unknown capa
 
     store = await new RuntimeStore({ dataDir }).open();
     const upgraded = store.snapshot();
-    assert.equal(upgraded.schemaVersion, 14);
+    assert.equal(upgraded.schemaVersion, 15);
     assert.deepEqual(upgraded.providerConfig, config, "the chosen host-global descriptor survives the upgrade");
     assert.equal(upgraded.providerConfigVersion, 8, "migration advances the shared epoch so old verification bindings become stale");
     assert.deepEqual(upgraded.providerVerifications, raw12.providerVerifications, "historical receipt is retained for audit");

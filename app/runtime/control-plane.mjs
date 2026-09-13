@@ -26,6 +26,7 @@ function matches(pattern, value) {
   return new RegExp('^' + pattern.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$').test(value);
 }
 export function hostToolCeiling(name, permissionMode) {
+  if (name === 'spark_explore') return permissionMode === 'ask' ? 'ask' : 'allow';
   if (name === 'message_other_agent') return permissionMode === 'read_only' ? 'deny' : 'ask';
   if (name === 'ws_write') return permissionMode === 'read_only' ? 'deny' : permissionMode === 'ask' ? 'ask' : 'allow';
   return 'allow';

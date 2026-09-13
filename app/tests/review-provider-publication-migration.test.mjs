@@ -95,7 +95,7 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
 
     const file = path.join(dataDir, "runtime-state.json");
     const schema10 = JSON.parse(await readFile(file, "utf8"));
-    schema10.schemaVersion = 10;
+    schema10.schemaVersion = 10; delete schema10.subagents;
     delete schema10.providerConfigurationPending;
     // A real schema10 file predates providerConfigVersion/providerVerifications
     // and both reasoning capability fields: strip them so this simulates the
@@ -109,7 +109,7 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
     const digest = createHash("sha256").update(original).digest("hex");
 
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.state.schemaVersion, 14);
+    assert.equal(store.state.schemaVersion, 15);
     assert.deepEqual(store.getProviderConnections(), [fixture.connection]);
     assert.deepEqual(store.getProviderConfig(), fixture.config);
     assert.deepEqual(store.getRun(created.run.id).provider, fixture.runProvider);
@@ -124,7 +124,7 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
     assert.deepEqual(JSON.parse(migrated).providerConfigurationPending, []);
 
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.state.schemaVersion, 14);
+    assert.equal(store.state.schemaVersion, 15);
     assert.equal(store.getProviderConnections()[0].models[0].id, fixture.model);
     assert.equal(store.getProviderConnections()[0].baseUrl, fixture.baseUrl);
     assert.equal(store.getProviderConfig().model, fixture.model);
@@ -140,7 +140,7 @@ test("Runtime11 migrates a real schema10 byte sequence, preserves provider field
     const codeRoot = path.join(dataDir, "historical-store");
     const LegacyStore = await historicalStore(codeRoot);
     const bytesBeforeLegacyOpen = await readFile(file);
-    await assert.rejects(new LegacyStore({ dataDir }).open(), /schemaVersion 14 is not supported/);
+    await assert.rejects(new LegacyStore({ dataDir }).open(), /schemaVersion 15 is not supported/);
     assert.deepEqual(await readFile(file), bytesBeforeLegacyOpen, "the schema10 host must not rewrite Runtime11 bytes");
   } finally {
     await store?.close().catch(() => {});
@@ -177,7 +177,7 @@ test("a fixed schema10 host can read an exact schema10 backup in an independent 
 
     const file = path.join(dataDir, "runtime-state.json");
     const state = JSON.parse(await readFile(file, "utf8"));
-    state.schemaVersion = 10;
+    state.schemaVersion = 10; delete state.subagents;
     delete state.providerConfigurationPending;
     delete state.providerConfigVersion;
     delete state.providerVerifications;
@@ -187,7 +187,7 @@ test("a fixed schema10 host can read an exact schema10 backup in an independent 
     await writeFile(file, original);
 
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.state.schemaVersion, 14);
+    assert.equal(store.state.schemaVersion, 15);
     await store.close();
     store = null;
     const digest = createHash("sha256").update(original).digest("hex");

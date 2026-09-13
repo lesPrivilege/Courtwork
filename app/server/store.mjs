@@ -1,3 +1,4 @@
+import { emptySubagents, validateSubagents, bindSubagentRun } from '../harness/subagent-state.mjs';
 import { deriveUsageDetails } from "./usage-details.mjs";
 import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node:fs/promises";
 import path from "node:path";
@@ -27,18 +28,18 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 14;
+const SCHEMA_VERSION = 15;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration", "asyncTasks", "coordination", "providerConnections", "providerConfigurationPending",
-  "providerConfigVersion", "providerVerifications",
+  "providerConfigVersion", "providerVerifications", "subagents",
 ]);
 
 function now() { return new Date().toISOString(); }
 
 function emptyState() {
   return {
-    schemaVersion: SCHEMA_VERSION, projects: [], sessions: [], runs: [], events: [], questions: [],
+    schemaVersion: SCHEMA_VERSION, subagents: emptySubagents(), projects: [], sessions: [], runs: [], events: [], questions: [],
     providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [], coordination: emptyCoordination(),
     providerConnections: [], providerConfigurationPending: [], providerConfigVersion: 0, providerVerifications: [],
   };
@@ -219,8 +220,8 @@ function validateArtifact(value, label) {
 
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 or 13 can be upgraded)`);
-  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')))), "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 or 14 can be upgraded)`);
+  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
@@ -335,6 +336,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
   if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig", { schema, legacy: legacyDescriptors });
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
   if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
+  if (schema >= 15) validateSubagents(parsed.subagents,parsed);
   if (schema >= 8) validateCoordination(parsed.coordination);
   if (schema >= 10) validateConnections(parsed.providerConnections, { historical: true, schema });
   if (schema >= 11) validatePending(parsed.providerConfigurationPending);
@@ -502,12 +504,12 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
-          const upgraded = validateState({ ...parsed, schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
+          const upgraded = validateState({ ...parsed, subagents: emptySubagents(), schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
             coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(),
             // A pre-12 connection's models never reported reasoning; `null`
             // (never declared, PV-61) is the only honest default, not a guess.
@@ -717,6 +719,7 @@ export class RuntimeStore {
         hostSession: workspaceHostSession ? structuredClone(workspaceHostSession) : null,
         credentialGeneration,
       };
+      bindSubagentRun(state, sessionId, run.id, commandId);
       state.runs.push(run);
       appendEventToState(state, { runId: run.id, sessionId, type: "user.message", data: { text: input } });
       appendEventToState(state, { runId: run.id, sessionId, type: "run.status", data: { status: "running" } });

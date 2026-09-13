@@ -162,12 +162,17 @@ function maintenanceExtension(variantState) {
   });
 }
 
-test("AM-C final wire golden and no-op are stable after temporary path canonicalization", async () => {
+test("AM-C unchanged core wire golden and complete no-op remain stable with Explore contribution", async () => {
   const h = await harness();
   try {
     const first = await h.run(await h.createSession(), "am-c-golden-one");
     const firstBody = canonicalRequest(h.requests.at(-1).body);
-    assert.deepEqual(firstBody, baseline, "captured final request must match the checked-in golden");
+    // Spark is a new trusted Harness contribution. Keep the original core
+    // wire fixture immutable; separately assert the exact added tool set and
+    // compare the complete new request in the no-op check below.
+    const sparkNames=['spark_sources','spark_explore','spark_directory','spark_findings','spark_read','spark_read_source','spark_consume'].sort();
+    assert.deepEqual(firstBody.tools.filter(t=>t.function.name.startsWith('spark_')).map(t=>t.function.name),sparkNames);
+    assert.deepEqual({...firstBody,tools:firstBody.tools.filter(t=>!sparkNames.includes(t.function.name))}, baseline, "unchanged core request must match the retained golden");
 
     const second = await h.run(await h.createSession(), "am-c-golden-two");
     const secondBody = canonicalRequest(h.requests.at(-1).body);

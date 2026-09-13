@@ -428,6 +428,7 @@ export async function createSessionRun({
   beforeTool,
   beforeExtraInput,
   beforeInitialInput,
+  beforeProviderRequest,
   reasoningEffort,
   reasoningCapability = null,
   onTelemetry,
@@ -474,6 +475,7 @@ export async function createSessionRun({
     if (stopped) {
       const error = new Error("Run cancelled"); error.name = "AbortError"; throw error;
     }
+    beforeProviderRequest?.();
     return observeRequestStream({ model: requestModel, context, requestId: ++requestOrdinal, purpose: requestPurpose,
       requestedEffort: reasoningEffort ?? null, sdkEffectiveEffort: session.thinkingLevel, reasoningCapability,
       record: data => forward(onTelemetry, data),
