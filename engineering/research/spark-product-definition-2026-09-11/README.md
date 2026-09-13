@@ -60,3 +60,7 @@ Gemini性能/价格/能力与Google Spark栈、Codex Spark下架/使用量、Lun
 ## 2026-09-12 · 有界准备与闭环核查
 
 [工作义务闭环裁决](../obligation-closure-2026-09-12/README.md)补入来源整理/pre-review与固定修订核查场景；复用本profile及Attention/ME-06。核查coverage、实际使用证据与关闭权限分开，Spark不自行resolve；调度和stale规则待真实trace。本轮只登记，不改变发布文案或首阶段执行定义。
+
+## 2026-09-13 · 独立Agent身份补充
+
+用户明确Spark作为独立Agent；[Astra设计裁决](../spark-explore-2026-09-13/design.md)采用持久Agent身份、Assignment与独立任务上下文。受限profile保留为能力实现机制，不再单独代表产品身份；数据/组织归属与权限分轴，执行仍优先复用Pi。该设计覆盖前文“首先是受限execution profile”的身份范围，不宣称实现或新增执行权限。

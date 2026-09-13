@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Spark独立Agent治理设计已裁决
+
+用户明确Spark为独立Agent，Astra完成[正式设计](research/spark-explore-2026-09-13/design.md)：持久身份/版本化定义、Assignment、数据分区与来源链、组织角色和权限分轴、串行调度及取消恢复、成果与消费回执。profile仅为能力机制；Host/Runtime/资源/Core各持唯一写权，不新造正式状态库。覆盖旧的仅profile定位，接DEC-014与中央架构；另一分支保持施工归属，待实际schema/权限/证据合入复裁。本片只裁设计、未改生产或接受Release。
+
 ## 2026-09-13 · Coding dogfooding 优先与 Spark 合入复裁
 
 用户明确先补齐能力、完成 coding 场景 dogfooding，另一分支正在施工，待交付后合入复裁。[顺序与Spark接收判据](research/spark-explore-2026-09-13/README.md)固定完整返回会话1轮2消息；引用的独立稿件未返回。沿DF-04/RD-009、既有Spark定义及RD-005/007接收，不重复施工、不推定分支已通过。复裁检查真实模型读改测、人审与重开接续，Spark可追溯成果/消费，权限及取消恢复反例；最终组合再定发布面与G1–G5。模型规格/外部实践尚未核验，不写成能力承诺；本片仅登记，未运行provider或部署。
