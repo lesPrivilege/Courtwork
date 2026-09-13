@@ -2,11 +2,11 @@
 
 Orchestrate your agents. Govern your work.
 
-编排让不同 Agent 分工、调用模型与工具、彼此接力。一件持续的工作还需要明确每个参与者的职责与权限，保留材料的出处、决定的依据和未完事项，让下一次接手有据可循。
+让不同 Agent 分工、调用模型与工具、彼此接力，是 CourtWork 的产品方向。一件持续的工作还需要明确每个参与者的职责与权限，保留材料的出处、决定的依据和未完事项，让下一次接手有据可循。
 
 CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围绕自己的项目、文件与材料展开讨论，委托 Agent 执行，查看成果并作出决定。自由协作与明确的工作规则在这里相遇，构成我们所说的 Court。
 
-人在其中，工作继续。你可以随时介入、调整分工或改变方向，也可以暂时离开，再从已有记录接着做。
+人在其中，工作继续。你可以随时介入、调整指令或改变方向，也可以暂时离开，再从已有记录接着做。
 
 [体验 CourtWork](https://lesprivilege.github.io/Courtwork/) · [阅读论文](https://lesprivilege.github.io/Schema-Engineering/) · [运行文档](app/README.md)
 
