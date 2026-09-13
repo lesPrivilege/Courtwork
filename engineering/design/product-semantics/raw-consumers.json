@@ -360,5 +360,12 @@
     "disposition": "named-read",
     "reason": "This named read refreshes the failed exact source revision list; its complete accessible name carries the target and it creates no source or acceptance fact.",
     "semanticKeys": []
+  },
+  {
+    "file": "app/web/work-review-summary.mjs",
+    "source": "const refresh = action('refresh-cw', 'Refresh work review', () => void load());",
+    "disposition": "named-read",
+    "reason": "Named read of the existing Core work-review projection; no accept/reject action is implied.",
+    "semanticKeys": []
   }
 ]
