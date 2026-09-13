@@ -2646,9 +2646,7 @@ function renderMessageStream() {
     const active = currentRun();
     setJumpLatestVisible(false);
     if (reviewSummary) {
-      const summaryList = element("div", { className: "message-list" });
-      summaryList.append(reviewSummary.root);
-      stream.append(summaryList);
+      stream.append(reviewSummary.root);
     }
     stream.append(
       element(
@@ -3151,7 +3149,6 @@ function renderMessageStream() {
       for (const receipt of decisionReceiptRows(row.runId)) appendFlowRow(receipt);
     }
   }
-  if (reviewSummary) streamList.append(reviewSummary.root);
   if (!streamList.childElementCount) {
     streamList.append(
       element(
@@ -3164,6 +3161,7 @@ function renderMessageStream() {
   }
   stream.prepend(streamList);
   if (measurements.activity.parentNode !== stream) stream.append(measurements.activity);
+  if (reviewSummary) stream.append(reviewSummary.root);
   if (questionFocusTarget) {
     questionFocusTarget.focus();
     if (

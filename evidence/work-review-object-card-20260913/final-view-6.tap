@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: available summary stays visible at zero and opens the existing Work review
+ok 1 - available summary stays visible at zero and opens the existing Work review
+  ---
+  duration_ms: 8.591125
+  type: 'test'
+  ...
+# Subtest: candidate, stale and read-only facts remain separate without an impossible ready count
+ok 2 - candidate, stale and read-only facts remain separate without an impossible ready count
+  ---
+  duration_ms: 1.920708
+  type: 'test'
+  ...
+# Subtest: pending count stays a single compact fact when all or only some candidates are reviewable
+ok 3 - pending count stays a single compact fact when all or only some candidates are reviewable
+  ---
+  duration_ms: 1.167958
+  type: 'test'
+  ...
+# Subtest: refresh clears old facts while loading and on failure
+ok 4 - refresh clears old facts while loading and on failure
+  ---
+  duration_ms: 2.431375
+  type: 'test'
+  ...
+# Subtest: late and mismatched responses cannot replace the current scope
+ok 5 - late and mismatched responses cannot replace the current scope
+  ---
+  duration_ms: 1.592292
+  type: 'test'
+  ...
+# Subtest: a view outside the current scope does not start a request
+ok 6 - a view outside the current scope does not start a request
+  ---
+  duration_ms: 0.336708
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 91.329541

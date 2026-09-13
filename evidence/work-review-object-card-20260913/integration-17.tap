@@ -1,0 +1,114 @@
+TAP version 13
+# Subtest: activity stops on wait, disconnect and terminal state without inventing cancellation acceptance
+ok 1 - activity stops on wait, disconnect and terminal state without inventing cancellation acceptance
+  ---
+  duration_ms: 0.650417
+  type: 'test'
+  ...
+# Subtest: word clock survives polling, announces facts once, and stale callbacks cannot revive old work
+ok 2 - word clock survives polling, announces facts once, and stale callbacks cannot revive old work
+  ---
+  duration_ms: 1.16775
+  type: 'test'
+  ...
+# Subtest: Attention can subtract measurement actions without removing the status fact
+ok 3 - Attention can subtract measurement actions without removing the status fact
+  ---
+  duration_ms: 0.554041
+  type: 'test'
+  ...
+# Subtest: process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim
+ok 4 - process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim
+  ---
+  duration_ms: 0.166334
+  type: 'test'
+  ...
+# Subtest: Context reads the selected Run only, preserves missing and zero, and never computes capacity usage
+ok 5 - Context reads the selected Run only, preserves missing and zero, and never computes capacity usage
+  ---
+  duration_ms: 12.555792
+  type: 'test'
+  ...
+# Subtest: copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics
+ok 6 - copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics
+  ---
+  duration_ms: 21.879
+  type: 'test'
+  ...
+# Subtest: raw consumer guard rejects new, duplicated and stale literal consumers
+ok 7 - raw consumer guard rejects new, duplicated and stale literal consumers
+  ---
+  duration_ms: 0.644208
+  type: 'test'
+  ...
+# Subtest: actual raw consumers and Pages cross-map remain registered
+ok 8 - actual raw consumers and Pages cross-map remain registered
+  ---
+  duration_ms: 22.826541
+  type: 'test'
+  ...
+# Subtest: available summary stays visible at zero and opens the existing Work review
+ok 9 - available summary stays visible at zero and opens the existing Work review
+  ---
+  duration_ms: 3.768292
+  type: 'test'
+  ...
+# Subtest: candidate, stale and read-only facts remain separate without an impossible ready count
+ok 10 - candidate, stale and read-only facts remain separate without an impossible ready count
+  ---
+  duration_ms: 0.890084
+  type: 'test'
+  ...
+# Subtest: pending count stays a single compact fact when all or only some candidates are reviewable
+ok 11 - pending count stays a single compact fact when all or only some candidates are reviewable
+  ---
+  duration_ms: 0.465458
+  type: 'test'
+  ...
+# Subtest: refresh clears old facts while loading and on failure
+ok 12 - refresh clears old facts while loading and on failure
+  ---
+  duration_ms: 0.902083
+  type: 'test'
+  ...
+# Subtest: late and mismatched responses cannot replace the current scope
+ok 13 - late and mismatched responses cannot replace the current scope
+  ---
+  duration_ms: 0.603042
+  type: 'test'
+  ...
+# Subtest: a view outside the current scope does not start a request
+ok 14 - a view outside the current scope does not start a request
+  ---
+  duration_ms: 0.292625
+  type: 'test'
+  ...
+# (node:62396) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+ok 15 - Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+  ---
+  duration_ms: 627.994667
+  type: 'test'
+  ...
+# Subtest: Core review summary keeps stale pending and domain review separate from authority to accept
+ok 16 - Core review summary keeps stale pending and domain review separate from authority to accept
+  ---
+  duration_ms: 176.972583
+  type: 'test'
+  ...
+# Subtest: Core review summary does not turn missing Core projections or failures into zero pending
+ok 17 - Core review summary does not turn missing Core projections or failures into zero pending
+  ---
+  duration_ms: 135.732583
+  type: 'test'
+  ...
+1..17
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1859.456625

@@ -6336,6 +6336,7 @@ html[data-theme="dark"] {
 .chat-sources .secondary-button,
 .chat-sources .text-button { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: anywhere; text-align: left; justify-content: flex-start; }
 .work-review-summary { min-width: 0; gap: var(--space-1); margin-block: var(--space-5) var(--space-2); }
+.message-stream > .work-review-summary { max-width: var(--column); margin-inline: auto; }
 .work-review-summary-controls { min-width: 0; }
 .work-review-summary-controls > .work-review-open { width: 100%; min-width: 0; text-align: left; padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--panel); gap: var(--space-3); }
 .work-review-open > .flow-title { flex: 1 1 auto; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }

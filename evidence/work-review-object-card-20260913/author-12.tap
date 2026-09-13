@@ -1,0 +1,84 @@
+TAP version 13
+# Subtest: copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics
+ok 1 - copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics
+  ---
+  duration_ms: 33.006625
+  type: 'test'
+  ...
+# Subtest: raw consumer guard rejects new, duplicated and stale literal consumers
+ok 2 - raw consumer guard rejects new, duplicated and stale literal consumers
+  ---
+  duration_ms: 0.958292
+  type: 'test'
+  ...
+# Subtest: actual raw consumers and Pages cross-map remain registered
+ok 3 - actual raw consumers and Pages cross-map remain registered
+  ---
+  duration_ms: 25.293709
+  type: 'test'
+  ...
+# Subtest: available summary stays visible at zero and opens the existing Work review
+ok 4 - available summary stays visible at zero and opens the existing Work review
+  ---
+  duration_ms: 7.307375
+  type: 'test'
+  ...
+# Subtest: candidate, stale and read-only facts remain separate without an impossible ready count
+ok 5 - candidate, stale and read-only facts remain separate without an impossible ready count
+  ---
+  duration_ms: 1.189042
+  type: 'test'
+  ...
+# Subtest: pending count stays a single compact fact when all or only some candidates are reviewable
+ok 6 - pending count stays a single compact fact when all or only some candidates are reviewable
+  ---
+  duration_ms: 0.861584
+  type: 'test'
+  ...
+# Subtest: refresh clears old facts while loading and on failure
+ok 7 - refresh clears old facts while loading and on failure
+  ---
+  duration_ms: 3.449334
+  type: 'test'
+  ...
+# Subtest: late and mismatched responses cannot replace the current scope
+ok 8 - late and mismatched responses cannot replace the current scope
+  ---
+  duration_ms: 0.946708
+  type: 'test'
+  ...
+# Subtest: a view outside the current scope does not start a request
+ok 9 - a view outside the current scope does not start a request
+  ---
+  duration_ms: 0.412542
+  type: 'test'
+  ...
+# (node:34738) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+ok 10 - Core review summary follows pending, decision, new Session and lifecycle without returning bodies
+  ---
+  duration_ms: 637.899333
+  type: 'test'
+  ...
+# Subtest: Core review summary keeps stale pending and domain review separate from authority to accept
+ok 11 - Core review summary keeps stale pending and domain review separate from authority to accept
+  ---
+  duration_ms: 613.516208
+  type: 'test'
+  ...
+# Subtest: Core review summary does not turn missing Core projections or failures into zero pending
+ok 12 - Core review summary does not turn missing Core projections or failures into zero pending
+  ---
+  duration_ms: 615.469833
+  type: 'test'
+  ...
+1..12
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3109.773292
