@@ -18,19 +18,25 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
 
 **从当前工作继续。** 执行过程留下记录，正式工作状态保存有效决定，下一次运行按需取得相关材料。模型与运行配置可以变化，工作的依据继续保留。
 
-## 第一个工作闭环：Chat、准备、执行与核查
+## Chat、Spark 与 Attention
 
-**Chat · 持续交谈。** 从一个问题或想法开始，选择交谈对象，逐步形成判断。对话中的材料和思路可以被保留、引用与交接，让讨论成为下一步工作的起点。
+三个入口表达 CourtWork 的产品分工；当前源码的使用范围见[预览说明](app/docs/supported-preview.md)。
 
-**Attention · 处理重要变化。** 把分散在不同工作中的变化带到眼前，连同相关材料与可采取的行动一起查看。你可以了解发生了什么，作出判断，再回到工作继续。
+**Chat · 交谈与交接。** 选择受支持的模型连接，围绕问题与材料持续讨论。CourtWork 管理应用自身保留的对话、附件与引用，按获准范围把材料和工具提供给本次运行，让讨论能够进入后续工作。
 
-**Spark · 围绕来源持续推进。** 从持续积累的资料中整理线索、比较变化、形成发现。每项发现都能回到来源；材料更新时，相关知识也能重新整理，为后续工作提供依据。
+**Attention · 跟进与核查。** 把重要请求、已有处置和对应结果放在一起，帮助人和 Agent 找到下一步。中断或切换任务后，沿可检查的记录继续，知道还有什么需要决定。
 
-Expert 用专业工作契约组织责任、能力需求与验证要求。Chat 形成思路，Spark 整理来源与证据，Expert 推进工作，Attention 让未闭合事项保持可见。人的判断落在同一份工作状态上。
+**Spark · 准备与核对。** 面向检索、快读、翻译、比较与审计等短任务，把获准材料整理成可回源、可检查、可重新生成的准备结果，减少人和主 Agent 的阅读成本。
+
+Expert 用专业工作契约组织责任、能力需求与验证要求。这些角色可以选择不同执行配置；正式工作进入 Matter，人的决定对应具体来源与版本。普通交谈不要求先建立 Matter。
 
 **回来，就知道从哪里继续。** Matter 把当前状态、已作决定、未完事项与相关证据组织在一起。新的参与者先看清工作到了哪里，再按需展开材料。连续性来自工作本身留下的状态，不依赖上一位参与者记住全部经过。
 
 [Chat](https://lesprivilege.github.io/Courtwork/chat.html) · [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
+
+## 产品方向：Harness Extensions
+
+Harness Extensions 面向电脑工作环境，围绕文件、命令、检索、视觉与协作组织可组合的能力。开发者场景以理解仓库、修改文件、检查结果和接续任务来检验这套接入体例；coding 是验证场景，产品可以继续服务其他工作。扩展优先复用开放生态，以明确的配置、权限、运行记录和界面接入。
 
 ## Can the work continue?
 
@@ -51,13 +57,15 @@ npm --prefix app ci
 npm --prefix app start -- --data-dir /absolute/path/outside-repo/courtwork-data --port 8845
 ```
 
-打开终端显示的地址。默认运行本地确定性 provider；在 Settings → Models 配置你的模型连接。详细配置、数据迁移与备份见 [运行文档](app/README.md)。
+打开终端显示的地址。默认运行本地确定性 provider；在 Settings → Models 配置你的模型连接。源码预览复用固定 Pi 执行组合，Local test 用于检查连接与运行路径。合成 NDA 工作指南使用受支持的真实模型生成候选，再由人检查与决定。详细配置、当前能力范围、数据迁移与备份见 [运行文档](app/README.md)。
 
 本地产品检查使用合成 fixture 和确定性 provider，不需要真实模型凭据：
 
 ```sh
 npm --prefix app run check:product
 ```
+
+测试使用完整 Git 历史；历史输入会在运行前校验。
 
 默认测试最多并行运行 4 个测试文件。需要观察资源竞争时，可单独运行
 `npm --prefix app run test:load`，其并发上限为 8；该负载入口不替代默认验收命令。
