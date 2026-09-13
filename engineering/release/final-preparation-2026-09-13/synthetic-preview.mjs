@@ -15,6 +15,8 @@ const REPOSITORY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)
 const HOME_PROMPT = "Review Project Cedar's delivery timing and flag what needs confirmation.";
 const CHAT_PROMPT = 'The revised Project Cedar draft changes delivery from 30 to 45 days. What should I confirm before replying?';
 const ATTENTION_PROMPT = 'Draft a short message asking which Project Cedar delivery date is current.';
+const APPROVAL_PROMPT = 'Save a draft delivery note for Project Cedar with the 30-day assumption, and leave the date open for confirmation.';
+const ARTIFACT_PROMPT = 'Read the delivery brief and draft a short Project Cedar delivery note for review.';
 const REVIEW_PROMPT = 'Review the Project Cedar NDA against the supplied information and prepare the review for inspection.';
 const RUNNING_PROMPT = 'Compare the delivery dates in the two Project Cedar drafts and identify what needs confirmation.';
 const DELIVERY_FACTS = [
@@ -45,7 +47,7 @@ const NDA_SOURCE_TEXT = SYNTHETIC_SOURCES[0].text.replace(
   'INBOUND NON-DISCLOSURE AGREEMENT',
 );
 const CREATED_AT = new Date().toISOString();
-const FIXTURE_VERSION = 2;
+const FIXTURE_VERSION = 3;
 let sourceSha = null;
 try {
   sourceSha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: REPOSITORY_ROOT, encoding: 'utf8' }).trim();
@@ -64,6 +66,27 @@ function currentTurnToolCount(body) {
 function fakeResponder({ body, requestNumber, mode }) {
   const tools = body?.tools ?? [];
   const turnToolCount = currentTurnToolCount(body);
+  if (mode === APPROVAL_PROMPT) {
+    if (turnToolCount === 0) return {
+      kind: 'tool', id: `release-approval-${requestNumber}`, created: 1,
+      toolCallId: `release-approval-write-${requestNumber}`, name: 'ws_write',
+      arguments: { path: 'out/approval-draft.txt', text: 'Draft delivery date: 30 days. Confirm against the executed version before sending.' },
+    };
+    return { kind: 'text', id: `release-approval-${requestNumber}`, created: 1, text: 'The delivery date remains open for confirmation against the executed version.' };
+  }
+  if (mode === ARTIFACT_PROMPT) {
+    if (turnToolCount === 0) return {
+      kind: 'tool', id: `release-artifact-${requestNumber}`, created: 1,
+      toolCallId: `release-artifact-read-${requestNumber}`, name: 'ws_read',
+      arguments: { path: 'materials/delivery-brief.txt' },
+    };
+    if (turnToolCount === 1) return {
+      kind: 'tool', id: `release-artifact-${requestNumber}`, created: 1,
+      toolCallId: `release-artifact-write-${requestNumber}`, name: 'ws_write',
+      arguments: { path: 'out/delivery-note.md', text: '# Delivery note\n\nDraft assumption: delivery in 30 days. Confirm against the executed version before sending.\n' },
+    };
+    return { kind: 'text', id: `release-artifact-${requestNumber}`, created: 1, text: 'The draft preserves the 30-day assumption and flags the delivery date for confirmation before sending.' };
+  }
   if (mode === REVIEW_PROMPT) {
     if (turnToolCount === 0 && reviewDomain) {
       return {
@@ -218,7 +241,7 @@ async function main() {
 
     async function createApprovalRun(sessionId, commandId) {
       const approvalRun = (await api('POST', `/sessions/${encodeURIComponent(sessionId)}/runs`, {
-        input: `/fixture script ${JSON.stringify([{ name: 'ws_write', arguments: { path: 'out/approval-draft.txt', text: 'Draft delivery date: 30 days. Confirm against the executed version before sending.' } }])}`,
+        input: APPROVAL_PROMPT,
         commandId,
       })).run;
       const deadline = Date.now() + 10000;
@@ -315,10 +338,7 @@ async function main() {
     });
     const artifactRun = await runToTerminal(
       sessions.artifact,
-      `/fixture script ${JSON.stringify([
-        { name: 'ws_read', arguments: { path: 'materials/delivery-brief.txt' } },
-        { name: 'ws_write', arguments: { path: 'out/delivery-note.md', text: '# Delivery note\n\nDraft assumption: delivery in 30 days. Confirm against the executed version before sending.\n' } },
-      ])}`,
+      ARTIFACT_PROMPT,
       'release-artifact-seed',
     );
 
