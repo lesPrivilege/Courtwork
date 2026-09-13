@@ -10,6 +10,7 @@ Runtime resources, permissions, context, model connections and MCP are composed 
 - [Independent Luna backend review](backend-review.md)
 - [Runtime R2 source inspection](source-resolver.md) — pure parser and authenticated inspect-only HTTP seam; no UI/model tool or locator acquisition
 - [Developer control panel intake](../../engineering/research/developer-control-panel-2026-09-13/README.md) — source review and adapter follow-up; not an implementation claim
+- [Developer intake implementation](../../engineering/design/developer-control-panel-2026-09-13/README.md) — MCP/Skill forms, explicitly trusted local CW package acquisition and native object SVGs
 - [Typed control contract](../../app/runtime/control-contract.d.ts)
 
 ## Resource coverage
@@ -19,9 +20,9 @@ Runtime resources, permissions, context, model connections and MCP are composed 
 | Kind | Implemented behavior | Remaining boundary |
 |---|---|---|
 | tool | Native/domain/MCP catalog, exposure and execution policy | No arbitrary executable import |
-| mcp_server | Explicit connect/disconnect/restart, tool discovery/calls, remote provenance | Streamable HTTP only; no OAuth or stdio; resources/prompts catalog only |
-| skill | Frontmatter validation, metadata catalog, explicit body load | No scripts, bundled asset loader or package discovery |
-| plugin | Existing trusted extension registry/lifecycle and bindings | No third-party code sandbox or package installer |
+| mcp_server | UI configuration intake/edit, explicit connect/disconnect/restart, tool discovery/calls, remote provenance | Streamable HTTP only; no OAuth or stdio; resources/prompts catalog only |
+| skill | SKILL.md paste/file/root-directory intake, frontmatter validation, metadata catalog, explicit body load | No scripts, bundled asset loader or package discovery |
+| plugin | Reviewed local CW package registration, trusted extension registry/lifecycle and bindings | No sandbox, dependency installer, custom renderer or package update/removal |
 | instruction | Scoped text, next-run admission, pinned historical source | No repository file discovery |
 | prompt_template | Human invocation returning a draft | No automatic model invocation |
 | memory_provider | Adapter-required marker | Persistence/retrieval provider not implemented |

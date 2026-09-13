@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "local-lifecycle-sample",
+  "version": "1.0.0",
+  "title": "Local lifecycle sample",
+  "kind": "development-extension",
+  "releaseStatus": "development",
+  "owner": "Synthetic test",
+  "applicability": "Local intake verification",
+  "exclusions": [
+    "No business effects"
+  ],
+  "declaredTools": [],
+  "surface": null,
+  "bindingFields": [],
+  "stateCompatibility": "sample-v1",
+  "rollback": "Unload future activation",
+  "deprecation": null,
+  "evalObligations": [
+    "Fixture only"
+  ]
+}

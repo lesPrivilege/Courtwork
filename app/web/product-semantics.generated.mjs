@@ -494,15 +494,15 @@ export const productSemantics = freeze({
         "app",
         "pages"
       ],
-      "glyphPolicy": "none",
-      "glyphRef": null,
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-tool",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
       "interactionRole": "identity",
       "tooltipRule": "accessible-name-when-icon-only",
       "representations": {
-        "app": "text",
+        "app": "glyph",
         "pages": "text"
       },
       "reviewStatus": "mapped",
@@ -524,15 +524,15 @@ export const productSemantics = freeze({
         "app",
         "pages"
       ],
-      "glyphPolicy": "none",
-      "glyphRef": null,
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-plugin",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
       "interactionRole": "identity",
       "tooltipRule": "accessible-name-when-icon-only",
       "representations": {
-        "app": "text",
+        "app": "glyph",
         "pages": "text"
       },
       "reviewStatus": "mapped",
@@ -554,8 +554,8 @@ export const productSemantics = freeze({
         "app",
         "pages"
       ],
-      "glyphPolicy": "multi-purpose",
-      "glyphRef": "plug",
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-mcp",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
@@ -1681,6 +1681,156 @@ export const productSemantics = freeze({
       },
       "reviewStatus": "mapped",
       "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "skill.object",
+      "meaning": "procedure sheet with an entry mark.",
+      "ownerRef": "docs/runtime-control/INDEX.md",
+      "words": {
+        "en": "Skill"
+      },
+      "accessibleName": {
+        "en": "Skill"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| skill |",
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-skill",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      }
+    },
+    {
+      "semanticKey": "plugin.host-extension",
+      "meaning": "contained module with a host-side frame; Plugin subtype.",
+      "ownerRef": "docs/runtime-control/INDEX.md",
+      "words": {
+        "en": "CW Host Extension"
+      },
+      "accessibleName": {
+        "en": "CW Host Extension"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| plugin |",
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-host-extension",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      }
+    },
+    {
+      "semanticKey": "hook.object",
+      "meaning": "lifecycle interception node.",
+      "ownerRef": "docs/runtime-control/INDEX.md",
+      "words": {
+        "en": "Hook"
+      },
+      "accessibleName": {
+        "en": "Hook"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| hook |",
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-hook",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      }
+    },
+    {
+      "semanticKey": "registry.object",
+      "meaning": "indexed module rack.",
+      "ownerRef": "docs/runtime-control/INDEX.md",
+      "words": {
+        "en": "Registry"
+      },
+      "accessibleName": {
+        "en": "Registry"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| registry |",
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-registry",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      }
+    },
+    {
+      "semanticKey": "agent.profile",
+      "meaning": "resource composition, not a robot identity.",
+      "ownerRef": "docs/runtime-control/INDEX.md",
+      "words": {
+        "en": "Agent profile"
+      },
+      "accessibleName": {
+        "en": "Agent profile"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "reviewStatus": "mapped",
+      "ownerAnchor": "| agent_profile |",
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "runtime-profile",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      }
     }
   ]
 });

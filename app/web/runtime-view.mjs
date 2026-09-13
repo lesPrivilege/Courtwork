@@ -1,4 +1,7 @@
 import { el, icon, action, copyAction } from "./ui-controls.mjs";
+import { createRuntimeIntake } from "./runtime-intake.mjs";
+import { semanticIcon } from "./semantic-controls.mjs";
+const RESOURCE_ICONS = {tool: "tool.object", mcp_server: "mcp.server", skill: "skill.object", plugin: "plugin.object", hook: "hook.object", registry: "registry.object", agent_profile: "agent.profile"};
 
 /* WO-WK11 · the Runtime Workbench. One controller owns the authoritative
    control-plane snapshot and renders it into the five intent groups of the
@@ -238,6 +241,7 @@ export function createRuntimeView(
     scopeType = null,
     busy = false,
     generation = 0,
+    sessionEpoch = 0,
     controller = null,
     sessionId = null,
     frozenByServer = false,
@@ -256,6 +260,10 @@ export function createRuntimeView(
   const packageDrafts = new Map();
   const open = new Set();
   const filters = new Map();
+  const intake = createRuntimeIntake({ request, submit, render,
+    getContext: () => ({ sessionId, scope: activeScope(), resources: snapshot?.resources || [], disabled: busy || frozen() }),
+    onSaved: resource => { open.add(resource.id); pendingFocus = resource.id; notify?.(`${resource.title} saved. Exposure stays under its own control.`); },
+  });
 
   function writableScopes() {
     return (snapshot?.scopes || []).filter((scope) => scopeRank(scope) >= 0);
@@ -332,15 +340,19 @@ export function createRuntimeView(
    * replaces the snapshot outright. 409 is authoritative (RC-4). */
   async function submit(body, { path = "/runtime-control", method = "PUT", key, label } = {}) {
     if (busy || frozen()) return false;
+    generation++;
+    controller?.abort();
     busy = true;
     render();
     const id = sessionId;
+    const ownEpoch = sessionEpoch;
     const query = id ? `?sessionId=${encodeURIComponent(id)}` : "";
     try {
       const result = await request(`${path}${query}`, {
         method,
         body: { ...body, revision: snapshot.revision },
       });
+      if (ownEpoch !== sessionEpoch) return false;
       snapshot = result;
       error = null;
       if (key) drafts.delete(key);
@@ -348,6 +360,7 @@ export function createRuntimeView(
       void readContext(generation);
       return true;
     } catch (err) {
+      if (ownEpoch !== sessionEpoch) return false;
       const code = err.body?.error?.code;
       if (code === "active_run") {
         /* FN-16 · the edit is not applied and is not queued. It is kept where
@@ -456,16 +469,16 @@ export function createRuntimeView(
     }
     inspected = { id: resource.id, loading: true };
     render();
-    const own = ++generation;
+    const own = inspected;
     try {
       const id = sessionId;
       const result = await request(
         `/runtime-resources/${encodeURIComponent(resource.id)}${id ? `?sessionId=${encodeURIComponent(id)}` : ""}`,
       );
-      if (own !== generation || inspected?.id !== resource.id) return;
+      if (inspected !== own) return;
       inspected = { id: resource.id, ...result };
     } catch (err) {
-      if (inspected?.id === resource.id)
+      if (inspected === own)
         inspected = { id: resource.id, error: err.message };
     } finally {
       render();
@@ -478,7 +491,7 @@ export function createRuntimeView(
     if (!resourceId) return;
     explanation = { resourceId, resource: path, loading: true };
     render();
-    const own = ++generation;
+    const own = explanation;
     try {
       const id = sessionId;
       const result = await request(
@@ -488,10 +501,10 @@ export function createRuntimeView(
           body: { resourceId, ...(path ? { resource: path } : {}) },
         },
       );
-      if (own !== generation) return;
+      if (explanation !== own) return;
       explanation = { resourceId, resource: path, ...result };
     } catch (err) {
-      explanation = { resourceId, resource: path, error: err.message };
+      if (explanation === own) explanation = { resourceId, resource: path, error: err.message };
     } finally {
       render();
     }
@@ -983,6 +996,12 @@ export function createRuntimeView(
       button.addEventListener("click", () => void explainPermission(resource.id));
       bar.append(button);
     }
+    if (["mcp_server", "skill"].includes(resource.kind) && resource.id.startsWith("local:") && sameScope(resource.scope, activeScope())) {
+      const edit = el("button", { className: "text-button", text: "Edit configuration", attrs: { type: "button", "data-focus-key": `edit:${resource.id}` } });
+      edit.disabled = busy || frozen();
+      edit.addEventListener("click", async () => { await intake.edit(resource); pendingFocus = `intake:${resource.kind}:title`; render(); });
+      bar.append(edit);
+    }
     return bar.childNodes.length ? bar : null;
   }
 
@@ -1012,6 +1031,7 @@ export function createRuntimeView(
         },
       },
       chevron,
+      RESOURCE_ICONS[resource.kind] ? semanticIcon(RESOURCE_ICONS[resource.kind], {size: 16}) : null,
       el("span", { className: "runtime-row-name", text: resource.title }),
       el("span", {
         className: "runtime-row-tag",
@@ -1347,14 +1367,14 @@ export function createRuntimeView(
     return el(
       "div",
       { className: "planned-list", attrs: { "data-kind": "unsupported" } },
-      ...rows.map(([, title, help]) =>
+      ...rows.map(([kind, title, help]) =>
         el(
           "div",
           { className: "planned-row" },
           el(
             "div",
             { className: "planned-row-text" },
-            el("span", { className: "settings-row-title", text: title }),
+            el("span", { className: "settings-row-title" }, RESOURCE_ICONS[kind] ? semanticIcon(RESOURCE_ICONS[kind], {size:16}) : null, title),
             el("span", { className: "settings-row-help", text: help }),
           ),
           el("span", { className: "planned-state", text: "Not available" }),
@@ -1764,6 +1784,7 @@ export function createRuntimeView(
         "Instructions, skills, references and prompt templates. Four different admissions: an instruction is injected into every run, a skill or reference is listed in the catalog and its body loads only on demand, and a template contributes nothing until you invoke it and it returns a draft.",
       ),
       ...scopeStrip({ where: "instructions" }),
+      intake.view("skill"),
       ...[kindChips("instructions", CONTEXT_KINDS)].filter(Boolean),
     );
     const resources = (snapshot.resources || []).filter((resource) =>
@@ -1924,7 +1945,7 @@ export function createRuntimeView(
       event.preventDefault();
       list[(index + (event.key === "ArrowRight" ? 1 : list.length - 1)) % list.length].click();
     });
-    mount.append(tabs);
+    mount.append(intake.view("mcp_server"), tabs);
     mount.append(capabilitiesTab === "configurable" ? configurableView() : inventoryView());
     const planned = plannedRows(["workflow", "hook", "registry"]);
     if (planned)
@@ -2001,7 +2022,7 @@ export function createRuntimeView(
     );
     wrap.append(
       note(
-        "Installed packages and the capabilities they declare. A declaration is not an executable package: the host loads its own extensions only, and an imported MCP configuration is a connection, not code. For an extension, trust is who signed it and how it is isolated; for a remote server it is the authentication it accepts and the transport it speaks — this host connects only to unauthenticated Streamable HTTP.",
+        "Installed packages and their declared capabilities. CW Host Extensions run trusted code in this host process; local registration does not provide a sandbox or a verified signature. MCP configuration connects a remote capability provider using unauthenticated Streamable HTTP.",
       ),
     );
     if (!packages.length) {
@@ -2400,6 +2421,10 @@ export function createRuntimeView(
       else mount.removeAttribute("data-frozen");
     }
     if (scroll !== undefined && scroller()) scroller().scrollTop = scroll;
+    if (pendingFocus?.startsWith('intake:')) {
+      const input = Object.values(mounts).map(mount => mount?.querySelector(`[data-focus-key="${CSS.escape(pendingFocus)}"]`)).find(Boolean);
+      if (input) { pendingFocus = null; input.focus(); }
+    }
     if (pendingFocus) {
       const row = mounts.overview?.ownerDocument.querySelector(
         `.runtime-row[data-resource="${CSS.escape(pendingFocus)}"]`,
@@ -2475,6 +2500,8 @@ export function createRuntimeView(
     openResource,
     load() {
       if (getSessionId() !== sessionId) {
+        sessionEpoch++;
+        intake.reset();
         snapshot = null;
         context = null;
         drafts.clear();
@@ -2491,11 +2518,13 @@ export function createRuntimeView(
       return read();
     },
     refresh() {
-      if (snapshot) return read({ quiet: true, polling: true });
+      if (snapshot && !busy) return read({ quiet: true, polling: true });
       return Promise.resolve();
     },
     pause() {
       generation++;
+      inspected = null;
+      explanation = null;
       controller?.abort();
       controller = null;
     },

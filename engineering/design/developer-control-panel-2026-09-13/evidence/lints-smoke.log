@@ -1,0 +1,38 @@
+lint-colors: ok (51 files · 字面量与高度层两项)
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+lint-shapes: ok (5 files · token / 0 / 派生式三种取值)
+lint-shapes: 满弧登记 15 处（人工复核 isolated / prominent，见 WK-128 ⑦）：
+  app/web/styles.css:1492 .jump-latest-button
+  app/web/styles.css:1611 .composer-run-hint::before
+  app/web/styles.css:1776 .tab-activity
+  app/web/styles.css:3024 #send-button, #cancel-run-button
+  app/web/styles.css:3183 .run-badge.running::before, .run-badge.waiting_user::before
+  app/web/styles.css:3309 .status-badge
+  app/web/styles.css:3867 .connection-dot
+  app/web/styles.css:4182 .runtime-switch input::before
+  app/web/styles.css:4193 .runtime-switch input::after
+  app/web/styles.css:4435 .runtime-chip
+  app/web/styles.css:6296 .spark-chip
+  app/web/styles.css:6601 .preview-chip
+  app/web/styles.css:6621 .project-tag
+  app/web/styles.css:6636 .run-activity-bars i
+  app/web/styles.css:6643 .context-capacity-button
+lint-interaction: ok (46 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+{"guardedGlyphs":["message-square","activity","plug","folder","file-text","refresh-cw"],"entries":48,"scope":"app/web module literal lines; vendor, static allowlist and generated projection excluded"}
+{"scope":"app/web hard-coded text/title/aria-label fields plus index.html text nodes","diagnosticExceptions":3}
+{"entries":63,"generated":false}
+{
+  "status": "passed",
+  "provider": "local-fake",
+  "transport": "public runtime service",
+  "checks": [
+    "material read",
+    "tool write",
+    "persisted artifact",
+    "runtime close/reopen",
+    "session continuation",
+    "revision",
+    "historical bytes"
+  ],
+  "realProvider": "not_run"
+}

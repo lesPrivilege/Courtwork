@@ -1,3 +1,4 @@
+import { createLocalExtensionView } from "./local-extension-view.mjs";
 import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";
 import { createWorkReviewSummary } from "./work-review-summary.mjs";
 import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";
@@ -232,7 +233,7 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
-let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView;
+let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView, localExtensionView;
 let materialsFileReturnEpoch = null;
 const dialogReturns = new Map();
 const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";
@@ -1739,6 +1740,7 @@ async function loadExtensions() {
   state.extensions = result.extensions || [];
   await invalidateSurfaceForExtensionChange(previousExtensions);
   renderExtensionList();
+  localExtensionView?.render();
   renderBindingPanel();
   await workReviewSummaryView?.refresh();
 }
@@ -2019,10 +2021,10 @@ function renderExtensionList() {
     const head = element(
       "div",
       { className: "extension-row-head" },
-      element("span", {
-        className: "extension-row-title",
-        text: extension.title || extension.id,
-      }),
+      element("span", { className: "extension-row-title" },
+        semanticIcon("plugin.host-extension", {size: 18}),
+        element("span", { text: extension.title || extension.id }),
+      ),
       element("span", {
         className: `extension-status ${extension.status || ""}`,
         text: extension.status || "unknown",
@@ -2041,6 +2043,9 @@ function renderExtensionList() {
         text: updateExtensionStatus(extension),
       }),
     );
+    row.append(element("p", { className: "extension-row-meta", text: `Plugin · CW Host Extension · host-trusted · in-process${extension.source?.hash ? ' · package ' + extension.source.hash.slice(0, 12) : ''}` }));
+    if (extension.source?.uri) row.append(element("p", {className: "extension-row-meta", text: extension.source.uri}));
+    for (const diagnostic of extension.diagnostics || []) row.append(element("p", {className: "inline-error", text: diagnostic}));
     const actions = element("div", { className: "extension-actions" });
     const lifecycleAction =
       extension.status === "loaded"
@@ -6838,6 +6843,10 @@ async function init() {
       },
     },
   );
+  localExtensionView = createLocalExtensionView($("local-extension-intake"), {
+    request, disabled: () => Boolean(currentRun()),
+    onRegistered: async () => { await loadExtensions(); await runtimeView.refresh(); showToast("Plugin registered without loading. Use Load when ready."); },
+  });
   fileView = createFileView($("file-content"), { request, onQuote: ({ref, text}) => {
     if (ref.sessionId !== state.activeSessionId) return;
     const quote = quoteRecordedFile({ref,text});

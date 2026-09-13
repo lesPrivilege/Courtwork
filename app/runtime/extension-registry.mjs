@@ -5,6 +5,7 @@
  */
 
 import path from "node:path";
+import { LocalExtensions } from "./local-extensions.mjs";
 
 const MANIFEST_KEYS = new Set([
   "schemaVersion", "id", "version", "title", "kind", "releaseStatus", "owner",
@@ -90,7 +91,10 @@ function summary(manifest, status, generation) {
 
 export class ExtensionRegistry {
   constructor({ catalog = {}, dataDir, store = null, workCore = null } = {}) {
-    this.catalog = catalog;
+    this.catalog = { ...catalog };
+    this.local = new LocalExtensions({ dataDir, validateManifest });
+    this.localEntries = new Map();
+    this.localErrors = new Map();
     this.dataDir = dataDir;
     this.store = store;
     this.workCore = workCore;
@@ -123,8 +127,40 @@ export class ExtensionRegistry {
       // explicit reload rather than silently reviving an old binding.
       if (status === "loaded") await instance.start?.();
     }
+    await this.local.initialize();
+    const restoredLocal = [];
+    for (const entry of this.local.entries) {
+      const id = entry.manifest.id;
+      if (this.records.has(id)) fail("local extension conflicts with a host catalog ID");
+      this.catalog[id] = this.local.factory(entry);
+      this.localEntries.set(id, entry);
+      this.manifests.set(id, entry.manifest);
+      const saved = savedRecords.get(id);
+      let status = saved && ["loaded", "unloaded", "invalidated"].includes(saved.status) ? saved.status : "unloaded";
+      if (status === "loaded" && entry.suspended === true) {
+        status = "invalidated";
+        this.localErrors.set(id, "Activation was interrupted or disabled; explicit reload is required.");
+      }
+      const generation = Number.isSafeInteger(saved?.generation) && saved.generation >= 0 ? saved.generation : 0;
+      this.records.set(id, summary(entry.manifest, status, generation));
+      // Registration is inert. Only a previously explicit load is restored.
+      if (status === "loaded") {
+        let instance;
+        try {
+          await this.#localSuspended(id, true);
+          instance = await this.#newInstance(id); await instance.start?.(); this.instances.set(id, instance);
+          restoredLocal.push(id);
+        }
+        catch (error) {
+          try { await instance?.dispose?.(); } catch { /* Retain the startup failure. */ }
+          this.localErrors.set(id, error.message);
+          this.records.set(id, summary(entry.manifest, "invalidated", generation + 1));
+        }
+      }
+    }
     this.initialized = true;
     if (this.records.size) await this.#persist();
+    for (const id of restoredLocal) await this.#localSuspended(id, false);
     return this;
   }
 
@@ -134,13 +170,35 @@ export class ExtensionRegistry {
 
   list() {
     this.#ensureInitialized();
-    return [...this.records.values()].map((item) => structuredClone(item));
+    return [...this.records.values()].map((item) => this.#describe(item));
   }
 
   getRecord(id) {
     this.#ensureInitialized();
     const item = this.records.get(id);
-    return item ? structuredClone(item) : null;
+    return item ? this.#describe(item) : null;
+  }
+
+  #describe(item) {
+    const local = this.localEntries.get(item.id);
+    return { ...structuredClone(item), format: "cw-host-extension", trust: "host-trusted", isolation: "in-process",
+      source: local ? { type: "local-config", uri: local.sourcePath, hash: local.hash } : { type: "builtin", version: item.version },
+      ...(this.localErrors.has(item.id) ? { diagnostics: [this.localErrors.get(item.id)] } : {}),
+    };
+  }
+
+  previewLocal(directory) { this.#ensureInitialized(); return this.local.preview(directory); }
+
+  async registerLocal(input) {
+    this.#ensureInitialized();
+    const entry = await this.local.install(input, Object.keys(this.catalog));
+    const id = entry.manifest.id;
+    this.catalog[id] = this.local.factory(entry);
+    this.localEntries.set(id, entry);
+    this.manifests.set(id, entry.manifest);
+    this.records.set(id, summary(entry.manifest, "unloaded", 0));
+    await this.#persist();
+    return this.getRecord(id);
   }
 
   #manifest(id) {
@@ -168,13 +226,30 @@ export class ExtensionRegistry {
     }
   }
 
+  async #localSuspended(id, value) {
+    if (this.localEntries.has(id)) this.localEntries.set(id, await this.local.setSuspended(id, value));
+  }
+
   async #start(id, instance, generation) {
     const manifest = this.#manifest(id);
-    await instance.start?.();
-    this.instances.set(id, instance);
-    this.records.set(id, summary(manifest, "loaded", generation));
-    await this.#persist();
-    return structuredClone(this.records.get(id));
+    try {
+      await instance.start?.();
+      this.instances.set(id, instance);
+      this.records.set(id, summary(manifest, "loaded", generation));
+      await this.#persist();
+      await this.#localSuspended(id, false);
+      this.localErrors.delete(id);
+      return structuredClone(this.records.get(id));
+    } catch (error) {
+      if (this.localEntries.has(id)) {
+        try { await instance.dispose?.(); } catch { /* Retain the activation failure. */ }
+        this.instances.delete(id);
+        this.records.set(id, summary(manifest, "invalidated", generation));
+        this.localErrors.set(id, error.message);
+        try { await this.#persist(); } catch { /* Durable suspension still blocks restart. */ }
+      }
+      throw error;
+    }
   }
 
   async lifecycle(id, action) {
@@ -184,37 +259,58 @@ export class ExtensionRegistry {
     if (action === "load") {
       if (current?.status === "loaded") return structuredClone(current);
       if (current?.status === "invalidated") throw new Error("invalidated extension requires explicit reload");
+      await this.#localSuspended(id, true);
       return this.#start(id, this.instances.get(id) ?? await this.#newInstance(id), current?.generation ?? 0);
     }
     if (action === "invalidate") {
+      await this.#localSuspended(id, true);
       const next = (current?.generation ?? 0) + 1;
       this.records.set(id, summary(manifest, "invalidated", next));
       await this.#persist();
       return structuredClone(this.records.get(id));
     }
     if (action === "unload") {
+      await this.#localSuspended(id, true);
       const next = (current?.generation ?? 0) + 1;
-      this.records.set(id, summary(manifest, "unloaded", next));
       // Shared work data outlives its producer. Release executable resources;
       // the host Core reader serves history without this singleton.
       const instance = this.instances.get(id);
-      if (instance?.core === this.workCore && this.workCore) {
-        await instance.dispose?.();
+      if (this.localEntries.has(id) || (instance?.core === this.workCore && this.workCore)) {
+        try { await instance?.dispose?.(); }
+        catch (error) {
+          if (this.localEntries.has(id)) {
+            this.records.set(id, summary(manifest, "invalidated", next));
+            this.localErrors.set(id, `Cleanup failed; process resources may remain active: ${error.message}`);
+            await this.#persist();
+          }
+          throw error;
+        }
         this.instances.delete(id);
       }
-      await this.#persist();
+      this.localErrors.delete(id);
+      this.records.set(id, summary(manifest, "unloaded", next));
+      try { await this.#persist(); }
+      catch (error) {
+        if (this.localEntries.has(id)) {
+          this.records.set(id, summary(manifest, "invalidated", next));
+          this.localErrors.set(id, `Lifecycle receipt failed; automatic activation is blocked: ${error.message}`);
+        }
+        throw error;
+      }
       return structuredClone(this.records.get(id));
     }
     if (action === "reload") {
+      await this.#localSuspended(id, true);
       const old = this.instances.get(id);
-      if (old) await old.dispose?.();
-      this.instances.delete(id);
       try {
+        if (old) await old.dispose?.();
+        this.instances.delete(id);
         const replacement = await this.#newInstance(id);
         const result = await this.#start(id, replacement, (current?.generation ?? 0) + 1);
         return result;
       } catch (error) {
-        this.records.set(id, summary(manifest, "invalidated", current?.generation ?? 0));
+        this.records.set(id, summary(manifest, "invalidated", (current?.generation ?? 0) + 1));
+        if (this.localEntries.has(id)) this.localErrors.set(id, error.message);
         await this.#persist();
         throw error;
       }
@@ -255,8 +351,12 @@ export class ExtensionRegistry {
   }
 
   async dispose() {
-    for (const instance of new Set(this.instances.values())) await instance.dispose?.();
+    const errors = [];
+    for (const instance of new Set(this.instances.values())) {
+      try { await instance.dispose?.(); } catch (error) { errors.push(error); }
+    }
     this.instances.clear();
+    if (errors.length) throw new AggregateError(errors, "Extension cleanup failed");
   }
 }
 

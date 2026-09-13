@@ -120,7 +120,7 @@ export interface RuntimeSnapshot {
   compatibility: Record<string, unknown>;
 }
 export type RuntimeChange = { revision: number } & (
-  | { operation: 'put'; resource: ImportedResource }
+  | { operation: 'put'; resource: ImportedResource; exposed?: boolean }
   | { operation: 'remove'; id: string }
   | { operation: 'exposure'; id: string; scope: ConfigurableScope; exposed: boolean | null }
   | { operation: 'profile'; id: string | null; scope: ConfigurableScope }

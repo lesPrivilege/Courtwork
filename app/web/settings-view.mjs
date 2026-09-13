@@ -45,12 +45,12 @@ export function renderPlanned(container) {
  * 哪里；没有注册端点的两步说明它们缺什么，不画按钮。Enable / Advanced 与权限复核
  * 都已经在下面的 Tools, MCP servers and plugins 块里，本块不复制它们。 */
 export const MCP_INTAKE_STEPS = [
-  ["Add", "Not available yet: a server arrives with the runtime configuration this build imports; there is no form here that registers a new one."],
-  ["Configure", "Not available yet: endpoint and transport come from that same imported configuration."],
-  ["Test connection", "Not available yet: the model-connection probe reads an OpenAI-compatible model directory. An MCP server speaks a different protocol, and there is no endpoint here that probes one."],
-  ["Review permissions", "Below: each server and the tools it declares carry their source, scope and the rule that decided them."],
-  ["Enable", "Below: Connect, Disconnect and Restart act on a declared server."],
-  ["Advanced", "Below: transport, configuration hash and the tools a server exposes."],
+  ["Add", "Use Add MCP server below to enter a name, endpoint and supported protocol."],
+  ["Configure", "Review configuration checks the source syntax. Save stores it with exposure off."],
+  ["Connect and discover", "Connect opens the saved endpoint and reads its identity and capability catalog. It does not call tools."],
+  ["Review permissions", "Each server and tool keeps its source, scope and access policy."],
+  ["Expose", "Choose whether the model may discover the server and its tools. Each call still follows policy."],
+  ["Advanced", "Inspect the recorded configuration, hash, protocol and capability schema."],
 ];
 export function renderIntegrationsIntake(container) {
   if (!container) return;
@@ -58,7 +58,7 @@ export function renderIntegrationsIntake(container) {
     el("h4", { className: "settings-block-title", text: "Adding an MCP server" }),
     el("p", {
       className: "form-help",
-      text: "Servers use host configuration; only unauthenticated Streamable HTTP is supported.",
+      text: "Add a server below. Only unauthenticated Streamable HTTP is supported.",
     }),
     el(
       "details",

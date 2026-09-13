@@ -63,7 +63,7 @@ export function validateRuntimeSource(item) {
   if (item.kind === 'mcp_server') { try { return { mcp: parseMcpConfig(item.content) }; } catch (error) { check(false, error.message); } }
   if (item.kind === 'agent_profile') return { profile: parseProfile(item.content) };
   if (item.kind === 'skill') {
-    check(item.content.startsWith('---\n'), 'Skill requires SKILL.md YAML frontmatter');
+    check(/^---\r?\n/.test(item.content), 'Skill requires SKILL.md YAML frontmatter');
     let frontmatter;
     try { ({ frontmatter } = parseFrontmatter(item.content)); }
     catch { check(false, 'Skill frontmatter must be valid YAML'); }
@@ -123,6 +123,13 @@ export class RuntimeControlPlane {
       const prior = next.resources.find(r => r.id === input.resource.id);
       check(!prior || (prior.kind === input.resource.kind && sameScope(prior.scope, input.resource.scope)), 'Resource kind and owning scope are immutable');
       next.resources = next.resources.filter(r => r.id !== input.resource.id).concat(clone(input.resource));
+      // Intake may save a new resource without admitting it to the model.
+      // Persist the owning-scope exposure choice in the same CAS transaction.
+      if (input.exposed !== undefined) {
+        check(typeof input.exposed === 'boolean' && input.resource.kind !== 'agent_profile', 'Invalid initial exposure');
+        next.overrides = next.overrides.filter(o => !(o.id === input.resource.id && sameScope(o.scope, input.resource.scope)));
+        next.overrides.push({ id: input.resource.id, scope: clone(input.resource.scope), exposed: input.exposed });
+      }
     } else if (input.operation === 'profile') {
       scope(input.scope);
       check(input.id === null || input.id === 'agent:general' || next.resources.some(r => r.id === input.id && r.kind === 'agent_profile' && knownIds.includes(r.id)), 'Profile is unavailable in this scope');
@@ -158,7 +165,7 @@ export class RuntimeControlPlane {
     const resources = [...TOOLS, ...additionalTools].map(name => descriptor('tool:' + name, 'tool', name, { configurable: true, action: name }));
     for (const ext of extensions) {
       const bound = session?.extensionBinding?.extensionId === ext.id;
-      resources.push(descriptor('plugin:' + ext.id, 'plugin', ext.title, { installed: true, running: ext.status === 'loaded', exposed: Boolean(bound && ext.status === 'loaded'), health: ext.status === 'invalidated' ? 'error' : 'healthy', source: { type: 'builtin', version: ext.version }, trust: 'host-trusted', isolation: 'in-process', capabilities: ext.tools.map(t => 'tool:' + t), generation: ext.generation }));
+      resources.push(descriptor('plugin:' + ext.id, 'plugin', ext.title, { installed: true, running: ext.status === 'loaded', exposed: Boolean(bound && ext.status === 'loaded'), health: ext.status === 'invalidated' ? 'error' : 'healthy', source: ext.source ?? { type: 'builtin', version: ext.version }, format: 'cw-host-extension', trust: 'host-trusted', isolation: 'in-process', diagnostics: ext.diagnostics ?? [], capabilities: ext.tools.map(t => 'tool:' + t), generation: ext.generation }));
       for (const name of ext.tools) resources.push(descriptor('tool:' + name, 'tool', name, { configurable: true, action: name, exposed: Boolean(bound && ext.status === 'loaded'), parent: 'plugin:' + ext.id }));
     }
     for (const item of this.config.resources.filter(r => applies(r.scope))) {

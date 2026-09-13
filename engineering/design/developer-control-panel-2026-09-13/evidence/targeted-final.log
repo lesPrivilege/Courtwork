@@ -1,0 +1,46 @@
+✔ Local registration is inert, pins reviewed bytes, and loads through existing lifecycle and binding (677.666708ms)
+✔ Local intake rejects symbolic links, malformed manifests and stale previews without loading code (63.113875ms)
+✔ Registered snapshot tampering fails closed before a local module import (62.785417ms)
+✔ An executable that violates its reviewed ABI is disposed before load fails (65.264167ms)
+✔ 三条 happy path 是闭集，且每条只用后端目录里真有的 provider 身份 (1.71325ms)
+✔ 路径由连接记录自己说，不由一份全局配置反推 (0.2285ms)
+✔ Connections 列后端注册表报的每一条，结构不假设单数 (0.261041ms)
+✔ PV-27 / PV-30 · 窗口读数如实：unknown、目录值、用户填的值各说各的 (12.465459ms)
+✔ PV-34 / PV-46 · 保存失败的三类直接消费后端错误码与枚举，前端不重新归类 (0.323166ms)
+✔ WK-108/PV-62 · 冒烟不再留位：BE-39 落地后六步全部可用，各自说清楚做什么 (0.338125ms)
+✔ PV-73 · smoke 步的 “· Answered” 状态词只在成功后出现，字承担完成态 (0.25475ms)
+✔ WK-108 · 探测控件只出现在表单里写得出 Base URL 的那条路径上 (0.096417ms)
+✔ WK-108 · 请求体逐字按文档：三个字段，无 key 省略字段，不加 header (0.1395ms)
+✔ WK-108 · 结果原样呈现后端 status 与 message；ok 不被改写成一句更强的话 (0.401667ms)
+✔ PV-24 · 目录报来的模型 ID 进入这条连接的 Model 列表，并随连接保存 (0.354292ms)
+✔ BE02 契约 · 凭据请求体的键是连接 id，不是 provider 身份 (0.2245ms)
+✔ PV-M-1 · 两处写入合一：任一处保存都不清掉另一处的字段 (0.694875ms)
+✔ PV-53 · 模型选择器的用户连接分组标签是它的端点主机名，取不到注册表时退回 id (0.105208ms)
+✔ PV-27 · 未知与 unsupported 都用 provider default；enum 按 API 精确列值 (0.642417ms)
+✔ PV-61 · reasoningSource:"unknown" 换成真话，不再替目录说它没说过的话 (0.066666ms)
+✔ 项 7 · origin:"connection" 的模型在选择器路由行追加一句，目录原生行不追加 (0.048041ms)
+✔ MCP intake keeps saving, discovery and exposure as separate steps (0.086084ms)
+✔ WK-105 ⑤ · 侧栏宽落进 256–280 的下沿 (0.120625ms)
+✔ PV-64 · 六态回执的文案映射：五类登记文案，unknown 只写原话 (3.451917ms)
+✔ PV-42 · 连接行的最近回执：成功/失败/null 三态 (0.165791ms)
+✔ 连接行 lastVerification 有值 / null 两态；configurationStatus 非 ready 时降级 (0.215542ms)
+✔ PV-63 · 自动发现的触发条件与去抖：baseUrl/key 的 input 去抖 600ms，blur 立即跑 (0.195958ms)
+✔ PV-63/38 · “Save and ask once” 与 “Save only” 的请求序：event.submitter 分流，冒烟不自动触发 (0.233167ms)
+✔ PV-64 · is-arrived 一帧后移除：同一帧加、下一帧 rAF 移除，交给既有过渡播放 (0.144667ms)
+✔ PV-64 · “Ask again” 显式重放同一个 {connectionId, model} (0.077375ms)
+✔ PV-59/63 · 键入一个模型 ID 的三步序：PUT connection → PUT config →（主动作）POST verify，中途失败停步不回滚 (0.124041ms)
+✔ PV-61 · custom model reasoning declaration records exact optional effort values (0.083084ms)
+✔ 回执块六态的文案落点：成功两行不着色，失败一行借 --danger，`is-asking`/`is-failed` 互斥 (0.246542ms)
+✔ MCP intake validates without connecting and saves an unexposed resource in the selected scope (12.019834ms)
+✔ Changed source cannot use stale validation and failed save retains its draft (18.875834ms)
+✔ Late validation cannot populate a new Session draft; active runs disable saves (2.163333ms)
+✔ New Skill exposure is atomic, survives restart, and can be enabled independently (168.943625ms)
+✔ Skill file reads invalidate previews even when a later directory selection is invalid (12.343333ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1885.324208

@@ -135,3 +135,30 @@ test('Distinct legal resource IDs keep independent DOM relationships and reading
     assert.equal(h.detail(id).getAttribute('aria-labelledby'), h.title(id).getAttribute('id'));
   });
 }));
+
+test('A pending source read and permission explanation settle independently', () => withTinyDom(async body => {
+  const pending = deferred();
+  const h = await fixture(body, () => pending.promise);
+  h.title('tool:ws_write').click();
+  h.detail('tool:ws_write').querySelector('[data-focus-key="source:tool:ws_write"]').click();
+  h.detail('tool:ws_write').querySelector('[data-focus-key="explain:tool:ws_write"]').click();
+  await waitFor(() => h.detail('tool:ws_write').textContent.includes('Permission explanation'));
+  pending.resolve({ content: 'Concurrent recorded source.' });
+  await waitFor(() => h.detail('tool:ws_write').textContent.includes('Concurrent recorded source.'));
+}));
+
+test('A failed source response from a prior Session cannot replace the new read', () => withTinyDom(async body => {
+  const old = deferred();
+  let calls = 0;
+  const h = await fixture(body, () => ++calls === 1 ? old.promise : Promise.resolve({ content: 'New Session source.' }));
+  h.title('tool:ws_write').click();
+  h.detail('tool:ws_write').querySelector('[data-focus-key="source:tool:ws_write"]').click();
+  h.setSession('session-b'); await h.view.load();
+  h.title('tool:ws_write').click();
+  h.detail('tool:ws_write').querySelector('[data-focus-key="source:tool:ws_write"]').click();
+  await waitFor(() => h.detail('tool:ws_write').textContent.includes('New Session source.'));
+  old.reject(new Error('Old Session failure'));
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.ok(h.detail('tool:ws_write').textContent.includes('New Session source.'));
+  assert.ok(!h.detail('tool:ws_write').textContent.includes('Old Session failure'));
+}));

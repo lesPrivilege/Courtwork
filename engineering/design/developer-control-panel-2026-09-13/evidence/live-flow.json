@@ -1,0 +1,161 @@
+{
+  "mode": "local-fake",
+  "provenance": "MCP and Skill created through UI; Plugin inspected, registered and loaded through UI. This script connects the restarted MCP, binds the Plugin, submits synthetic calls and answers exact permission prompts via HTTP.",
+  "session": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+  "mcp": "local:mcp-2a66752c",
+  "skill": "local:skill-17b18ff2",
+  "records": [
+    {
+      "id": "f2224548-ee44-4f34-abda-c5168bd68c28",
+      "status": "completed",
+      "decision": "deny",
+      "calls": [
+        {
+          "name": "mcp_836fef96a9e56afc9b6817b7",
+          "arguments": {
+            "text": "synthetic denied echo"
+          }
+        }
+      ]
+    },
+    {
+      "id": "7078c0d0-0b4f-46a1-8b2d-f30a2a4bb00f",
+      "status": "completed",
+      "decision": "allow",
+      "calls": [
+        {
+          "name": "mcp_836fef96a9e56afc9b6817b7",
+          "arguments": {
+            "text": "synthetic allowed echo"
+          }
+        },
+        {
+          "name": "runtime_load",
+          "arguments": {
+            "id": "local:skill-17b18ff2"
+          }
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "seq": 22,
+      "runId": "f2224548-ee44-4f34-abda-c5168bd68c28",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "permission.open",
+      "data": {
+        "id": "903e98da-3415-41b8-bcd7-d75e44cb3798",
+        "kind": "permission",
+        "toolCallId": "fake-script-1-0",
+        "tool": "mcp_836fef96a9e56afc9b6817b7",
+        "path": "*",
+        "bytes": 32,
+        "contentSha256": "3a558061fad3d1f1e61fde928bfdf99c868be66c1852f288eeaefcd07b4001c1",
+        "preview": "{\"text\":\"synthetic denied echo\"}"
+      }
+    },
+    {
+      "seq": 24,
+      "runId": "f2224548-ee44-4f34-abda-c5168bd68c28",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "permission.resolved",
+      "data": {
+        "id": "903e98da-3415-41b8-bcd7-d75e44cb3798",
+        "kind": "permission",
+        "decision": "deny"
+      }
+    },
+    {
+      "seq": 26,
+      "runId": "f2224548-ee44-4f34-abda-c5168bd68c28",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "tool.result",
+      "data": {
+        "callId": "fake-script-1-0",
+        "name": "mcp_836fef96a9e56afc9b6817b7",
+        "text": "Runtime action was denied by the user",
+        "isError": true
+      }
+    },
+    {
+      "seq": 44,
+      "runId": "7078c0d0-0b4f-46a1-8b2d-f30a2a4bb00f",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "permission.open",
+      "data": {
+        "id": "6a842849-cc0e-413d-851d-6eabe62a3457",
+        "kind": "permission",
+        "toolCallId": "fake-script-3-0",
+        "tool": "mcp_836fef96a9e56afc9b6817b7",
+        "path": "*",
+        "bytes": 33,
+        "contentSha256": "29dec177a03ee4011e3ddca01e72f5348d88008e7a74504471dcff2d1929215a",
+        "preview": "{\"text\":\"synthetic allowed echo\"}"
+      }
+    },
+    {
+      "seq": 46,
+      "runId": "7078c0d0-0b4f-46a1-8b2d-f30a2a4bb00f",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "permission.resolved",
+      "data": {
+        "id": "6a842849-cc0e-413d-851d-6eabe62a3457",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 50,
+      "runId": "7078c0d0-0b4f-46a1-8b2d-f30a2a4bb00f",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "tool.result",
+      "data": {
+        "callId": "fake-script-3-0",
+        "name": "mcp_836fef96a9e56afc9b6817b7",
+        "text": "synthetic allowed echo",
+        "isError": false,
+        "mcpResult": {
+          "dispatchId": "e06f79fa-98c8-4203-9be3-6589d984ac04",
+          "callId": "fake-script-3-0",
+          "serverId": "local:mcp-2a66752c",
+          "tool": "echo",
+          "configHash": "c0a933fd9f103711fafdb725bef109aacd4a4093ab6e3e8d33745bbb1281ba74",
+          "bindingHash": "34a805a97e2cf1aed0f0b516292a44621442f70c34d974780ef0aa876017a3e4",
+          "bindingRevision": 4,
+          "sha256": "89944a10a68da2eec96d9f5a21cf3146b0ab8eef800952d21030a35ee0739a0c",
+          "bytes": 77,
+          "isError": false,
+          "projection": "complete"
+        }
+      }
+    },
+    {
+      "seq": 56,
+      "runId": "7078c0d0-0b4f-46a1-8b2d-f30a2a4bb00f",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "runtime.context.loaded",
+      "data": {
+        "id": "local:skill-17b18ff2",
+        "kind": "skill",
+        "source": {
+          "type": "local-config",
+          "hash": "ca575365c7cd5012c81621bd6dc957042f61edf8b4c8857a6353c5d5308d26e4"
+        },
+        "characters": 123
+      }
+    },
+    {
+      "seq": 57,
+      "runId": "7078c0d0-0b4f-46a1-8b2d-f30a2a4bb00f",
+      "sessionId": "a3f1bbea-4e28-465f-ae1d-7c1d48c8dccc",
+      "type": "tool.result",
+      "data": {
+        "callId": "fake-script-4-1",
+        "name": "runtime_load",
+        "text": "---\nname: synthetic-review\ndescription: Review the supplied synthetic material\n---\nRead the bound source before responding.",
+        "isError": false
+      }
+    }
+  ]
+}

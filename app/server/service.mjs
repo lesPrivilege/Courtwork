@@ -1362,6 +1362,25 @@ export class RuntimeService {
     return { session: await this.store.bindExtension(sessionId, { extensionId, binding }) };
   }
 
+  async previewLocalExtension(input) {
+    const value = requireObject(input, "body");
+    assertKeys(value, new Set(["path"]));
+    const directory = text(value.path, "path", { max: 4000 });
+    try { return await this.extensionRegistry.previewLocal(directory); }
+    catch (error) { throw new ServiceError(error.status ?? 400, error.code ?? 'invalid_local_extension', error.status ? error.message : 'The selected extension folder could not be read.'); }
+  }
+
+  registerLocalExtension(input) {
+    return this.#withConfiguration(async () => {
+      if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "extension registration is frozen during a run");
+      if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
+      const value = requireObject(input, "body");
+      assertKeys(value, new Set(["previewId", "hash", "trust"]));
+      try { return { extension: await this.extensionRegistry.registerLocal(value) }; }
+      catch (error) { if (error.status) throw new ServiceError(error.status, error.code, error.message); throw error; }
+    });
+  }
+
   listExtensions() {
     return { extensions: this.extensionRegistry.list() };
   }
@@ -1390,6 +1409,8 @@ export class RuntimeService {
       return {extension:record,projection:workProjection(await this.workCore.snapshot(session.extensionBinding.binding.matterId),{writable:false})};
     }
     if (!record) return { extension: null, projection: null };
+    if (record.source?.type === 'local-config' && record.status !== 'loaded')
+      return { extension: record, projection: { readOnly: true, humanActions: [], summary: 'This local extension is not loaded. Its recorded run history remains in Chat.' } };
     const projection = await this.extensionRegistry.projection({extensionId:session.extensionBinding.extensionId,binding:session.extensionBinding.binding});
     if (record.status !== 'loaded' || this.store.hasActiveRun()) { projection.humanActions = []; projection.readOnly = true; }
     // The existing memo renderer predates file review. It must not mount on

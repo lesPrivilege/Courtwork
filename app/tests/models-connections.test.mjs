@@ -405,12 +405,12 @@ test("项 7 · origin:\"connection\" 的模型在选择器路由行追加一句�
   assert.match(pickerSource, /selected\.origin==='connection'\?' Added on this connection\.':''/);
 });
 
-test("MCP 走同一形态：六步，未交付的三步同样只留位", () => {
+test("MCP intake keeps saving, discovery and exposure as separate steps", () => {
   assert.deepEqual(MCP_INTAKE_STEPS.map(([title]) => title), [
-    "Add", "Configure", "Test connection", "Review permissions", "Enable", "Advanced",
+    "Add", "Configure", "Connect and discover", "Review permissions", "Expose", "Advanced",
   ]);
   const pending = MCP_INTAKE_STEPS.filter(([, note]) => note.startsWith("Not available yet"));
-  assert.equal(pending.length, 3);
+  assert.equal(pending.length, 0);
 });
 
 test("WK-105 ⑤ · 侧栏宽落进 256–280 的下沿", () => {
