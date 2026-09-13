@@ -1,0 +1,5 @@
+# Kubernetes controller pattern
+
+Selected source excerpt only; this is not a complete repository, article, or documentation mirror.
+
+Controller pattern section: “Each controller tries to move the current cluster state closer to the desired state.”

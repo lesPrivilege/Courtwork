@@ -1,0 +1,290 @@
+{
+  "schemaVersion": 1,
+  "projectBaseline": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+  "generatedAtUTC": "2026-09-13T11:31:27Z",
+  "scope": "Eight references from source-conversation.json; minimal selected excerpts only; full source resources are anchored by response/source SHA-256 and URL or pinned commit/path; no upstream projects run.",
+  "entries": [
+    {
+      "id": "ao-issue-2764",
+      "reference": "Untrivial-ai/agent-orchestrator issue #2764",
+      "accessUTC": "2026-09-13T11:27:53Z",
+      "snapshot": "ao-issue-2764.json",
+      "snapshotSHA256": "81de8fbfb497d6059ac7b60e77097a59ccec09019d39761e335734c99e3afb61",
+      "sources": [
+        {
+          "url": "https://api.github.com/repos/Untrivial-ai/agent-orchestrator/issues/2764",
+          "type": "GitHub Issues API JSON",
+          "sha256": "0f0cf3c66a8044f86e1d531e91461bf028c1c3f7d89553fdb066d3cb0bb60ed3",
+          "sizeBytes": 10368,
+          "http": {
+            "status": 200,
+            "etag": "W/\"7d9293fd8dcd463aeb89ec3e69859ee2e368d92ae78868e36a264405959a2ae9\"",
+            "last_modified": "Sun, 13 Sep 2026 08:43:42 GMT"
+          },
+          "capturedFields": [
+            "state",
+            "state_reason",
+            "created_at",
+            "updated_at",
+            "closed_at",
+            "body",
+            "pull_request"
+          ]
+        },
+        {
+          "url": "https://api.github.com/repos/Untrivial-ai/agent-orchestrator/issues/2764/comments",
+          "type": "GitHub Issue comments API JSON",
+          "sha256": "d4b9042f846d667ff2255f699a8b25a545e71cfaa5c2ab42b541506d787665b9",
+          "sizeBytes": 11015,
+          "http": {
+            "status": 200,
+            "etag": "W/\"2a2727e2c42746568d5c4157c975d8e1a6468fdd1d3ce91469671aecd5c15799\"",
+            "last_modified": null
+          },
+          "capturedCommentId": 5528043866,
+          "capturedFields": [
+            "user.login",
+            "created_at",
+            "html_url",
+            "body"
+          ]
+        }
+      ],
+      "finding": "Issue text is a proposal; API says closed/completed while a comment says closing as not planned. Neither is implementation or runtime-test evidence."
+    },
+    {
+      "id": "agent-orchestrator",
+      "reference": "Agent Orchestrator (pinned source inspection)",
+      "accessUTC": "2026-09-13T11:31:16Z",
+      "snapshot": "agent-orchestrator.txt",
+      "snapshotSHA256": "26f7f2fd38c9b634b18f9d5b58c8e1bec4ade974e5ac7d132c2bd5e065b789ad",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/Untrivial-ai/agent-orchestrator/c1538a9a29bb081398ecbcb1a63ce4230e95576a/docs/architecture.md",
+          "type": "GitHub raw file at pinned commit",
+          "gitCommit": "c1538a9a29bb081398ecbcb1a63ce4230e95576a",
+          "path": "docs/architecture.md",
+          "sha256": "d597041adfe76ee90c8a699a06969c352fb23aeda4cca01e4dcf3096277f9d76",
+          "sizeBytes": 34291,
+          "http": {
+            "status": 200,
+            "etag": "\"e0d1455fd19025b5da5176cbac649a4c5a5a59f62f1931c54a1afd78574fe600\"",
+            "last_modified": null,
+            "content_type": "text/plain; charset=utf-8"
+          }
+        },
+        {
+          "url": "https://raw.githubusercontent.com/Untrivial-ai/agent-orchestrator/c1538a9a29bb081398ecbcb1a63ce4230e95576a/backend/internal/service/session/kanban.go",
+          "type": "GitHub raw file at pinned commit",
+          "gitCommit": "c1538a9a29bb081398ecbcb1a63ce4230e95576a",
+          "path": "backend/internal/service/session/kanban.go",
+          "sha256": "ec211cce4a321c436b536909fc30e3bfc8a7281d3035eff8918704df9638677e",
+          "sizeBytes": 2107,
+          "http": {
+            "status": 200,
+            "etag": "\"e1dc1ab5597820f444093652c7dfab0dd243a6b22610b77f5c9f72f2ffc4eb68\"",
+            "last_modified": null,
+            "content_type": "text/plain; charset=utf-8"
+          }
+        },
+        {
+          "url": "https://raw.githubusercontent.com/Untrivial-ai/agent-orchestrator/c1538a9a29bb081398ecbcb1a63ce4230e95576a/backend/pkg/contract/kanban_test.go",
+          "type": "GitHub raw file at pinned commit",
+          "gitCommit": "c1538a9a29bb081398ecbcb1a63ce4230e95576a",
+          "path": "backend/pkg/contract/kanban_test.go",
+          "sha256": "9151b7dd0b305d097b32701a6be82f385831ecd59fa1b549c309abc8b6c627bb",
+          "sizeBytes": 22844,
+          "http": {
+            "status": 200,
+            "etag": "\"e62ee226cbdd289c12eaa4f4ee1224a476d6bd02309aa8edb404da00b9cf3878\"",
+            "last_modified": null,
+            "content_type": "text/plain; charset=utf-8"
+          }
+        }
+      ],
+      "confirmed": "A source-level reducer and named unit-test cases support the documentation’s derived-view mechanism.",
+      "notVerified": "No runtime execution, reliability measurement, or evidence for a general Court work graph.",
+      "execution": "not run"
+    },
+    {
+      "id": "kandev",
+      "reference": "Kandev (pinned source inspection)",
+      "accessUTC": "2026-09-13T11:31:18Z",
+      "snapshot": "kandev.txt",
+      "snapshotSHA256": "31dec6a97b0897cf4643c007d6d418c94521b78f71b8926feb1564e36747cf19",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/dionet/kandev/805a36b6e82c82b8ddcaa138b05163210ff45591/apps/backend/internal/agent/runtime/lifecycle/executor_backend.go",
+          "type": "GitHub raw file at pinned commit",
+          "gitCommit": "805a36b6e82c82b8ddcaa138b05163210ff45591",
+          "path": "apps/backend/internal/agent/runtime/lifecycle/executor_backend.go",
+          "sha256": "233662853549a0238d169aac7fe9d86a8c1df5318ca8a4a66690b0e95aac2a27",
+          "sizeBytes": 14808,
+          "http": {
+            "status": 200,
+            "etag": "\"398ebb3155a8f59efca45b3ddc80b0b56c892bd191a4f4b021e9e79370e43e1e\"",
+            "last_modified": null,
+            "content_type": "text/plain; charset=utf-8"
+          }
+        },
+        {
+          "url": "https://raw.githubusercontent.com/dionet/kandev/805a36b6e82c82b8ddcaa138b05163210ff45591/apps/backend/internal/agent/runtime/lifecycle/executor_registry.go",
+          "type": "GitHub raw file at pinned commit",
+          "gitCommit": "805a36b6e82c82b8ddcaa138b05163210ff45591",
+          "path": "apps/backend/internal/agent/runtime/lifecycle/executor_registry.go",
+          "sha256": "3feeec00a14470adb2cc98f85c86e07fd1810c9133fe5f9e826eca48cbdb6cc6",
+          "sizeBytes": 4345,
+          "http": {
+            "status": 200,
+            "etag": "\"f9ef8e85fdb58550a325f37468c186dca38a6b62d912f41f06ace24b5e47c09b\"",
+            "last_modified": null,
+            "content_type": "text/plain; charset=utf-8"
+          }
+        },
+        {
+          "url": "https://raw.githubusercontent.com/dionet/kandev/805a36b6e82c82b8ddcaa138b05163210ff45591/apps/backend/internal/agentctl/server/adapter/transport/acp/adapter.go",
+          "type": "GitHub raw file at pinned commit",
+          "gitCommit": "805a36b6e82c82b8ddcaa138b05163210ff45591",
+          "path": "apps/backend/internal/agentctl/server/adapter/transport/acp/adapter.go",
+          "sha256": "8f783890cf83f313e0061f3a8eab21847d74fced054e9649811c14e3bd7d4a83",
+          "sizeBytes": 20399,
+          "http": {
+            "status": 200,
+            "etag": "\"b8461d4d85e682b18a35447b3bf1044b8925905e693ebd0c7db0766c58ad1d7d\"",
+            "last_modified": null,
+            "content_type": "text/plain; charset=utf-8"
+          }
+        }
+      ],
+      "confirmed": "An executor backend seam, registry, and ACP transport adapter are present in pinned source.",
+      "notVerified": "No ACP interoperability, runtime isolation, reliability, or supported-agent matrix tested.",
+      "execution": "not run"
+    },
+    {
+      "id": "warden",
+      "reference": "Warden (pinned source inspection)",
+      "accessUTC": "2026-09-13T11:31:20Z",
+      "snapshot": "warden.txt",
+      "snapshotSHA256": "c80d0a17ed443c2f64bcebfb7963ce553179a14adda1a801648227a08018c690",
+      "sources": [
+        {
+          "url": "https://raw.githubusercontent.com/Gentoflakes/warden/3983833b13c7e7367cee936157f5425f289ba5ed/warden/verify.py",
+          "type": "GitHub raw file at pinned commit",
+          "gitCommit": "3983833b13c7e7367cee936157f5425f289ba5ed",
+          "path": "warden/verify.py",
+          "sha256": "aa91cf227a58351e2cdbc21769a746c714a7d91ddc16a96b128d788c49765e5e",
+          "sizeBytes": 9127,
+          "http": {
+            "status": 200,
+            "etag": "\"4bf8c76e93e75559f2c4df62bd37399d84e58be9878ca85d7d35e354a621b6ed\"",
+            "last_modified": null,
+            "content_type": "text/plain; charset=utf-8"
+          }
+        }
+      ],
+      "confirmed": "The verifier path contains detached worktree setup in source.",
+      "notVerified": "No model audit quality, risk-score calibration, merge correctness, or cost tested.",
+      "execution": "not run"
+    },
+    {
+      "id": "meathill",
+      "reference": "Meathill workflow article",
+      "accessUTC": "2026-09-13T11:31:22Z",
+      "snapshot": "meathill.txt",
+      "snapshotSHA256": "d80f530c8e9fc17a06de67df37b63722e4302ee3e25bfe41c90914701c574e2f",
+      "sources": [
+        {
+          "url": "https://meathill.com/posts/tech/my-great-ai-workflow-with-different-ai-models",
+          "type": "HTTP HTML document",
+          "sha256": "436360340c963cc8597240df13cde57386f6b8bc6bb454ad938514a7ab65ab14",
+          "sizeBytes": 130475,
+          "http": {
+            "status": 200,
+            "etag": null,
+            "last_modified": null,
+            "content_type": "text/html; charset=utf-8"
+          },
+          "contentRevision": "unversioned live page; anchored by URL, access time, and response SHA-256"
+        }
+      ],
+      "confirmed": "Author describes personal workflow; not a controlled comparison.",
+      "notVerified": "No independent outcome data, quality measurements, or universal process evidence.",
+      "execution": "not run"
+    },
+    {
+      "id": "vscode",
+      "reference": "VS Code agent harness concepts",
+      "accessUTC": "2026-09-13T11:31:25Z",
+      "snapshot": "vscode-harness.txt",
+      "snapshotSHA256": "011ce0559e69b647229789f08ef207ebb868f564823a52ed06b006dc9d4df9fa",
+      "sources": [
+        {
+          "url": "https://code.visualstudio.com/docs/agents/concepts/agent-harnesses",
+          "type": "HTTP HTML document",
+          "sha256": "901cadc2bc53098e86b268eb694fea332ba27f4007da61b290fde11cae9c00e4",
+          "sizeBytes": 99665,
+          "http": {
+            "status": 200,
+            "etag": "W/\"18551-dUhT+na0eaP6oVMemXST86DLfqw\"",
+            "last_modified": null,
+            "content_type": "text/html; charset=utf-8"
+          },
+          "contentRevision": "unversioned live page; anchored by URL, access time, and response SHA-256"
+        }
+      ],
+      "confirmed": "Official documentation separates model, agent role, harness, execution environment, and session target.",
+      "notVerified": "No cross-vendor interoperability test or Court UI/architecture validation.",
+      "execution": "not run"
+    },
+    {
+      "id": "temporal",
+      "reference": "Temporal architecture",
+      "accessUTC": "2026-09-13T11:31:26Z",
+      "snapshot": "temporal-architecture.txt",
+      "snapshotSHA256": "8e06922da290493d0de2fa95eb53eea76d4e3c2ff5d26dc3a097997399328727",
+      "sources": [
+        {
+          "url": "https://docs.temporal.io/encyclopedia/architecture/temporal-architecture",
+          "type": "HTTP HTML document",
+          "sha256": "8ad98db0b5b4cac30cfd5af4a24757e1122003f2bfc250d6b8a00a4ac417dc52",
+          "sizeBytes": 53120,
+          "http": {
+            "status": 200,
+            "etag": "\"00027724f1297017cb8371173533bcdc\"",
+            "last_modified": "Sat, 12 Sep 2026 02:45:13 GMT",
+            "content_type": "text/html; charset=utf-8"
+          },
+          "contentRevision": "unversioned live page; anchored by URL, access time, and response SHA-256"
+        }
+      ],
+      "confirmed": "Official architecture docs describe workflow history, replay/recovery, task queue dispatch, and idempotency/determinism concepts.",
+      "notVerified": "No Court integration, operational-cost, or durability semantics tested.",
+      "execution": "not run"
+    },
+    {
+      "id": "kubernetes",
+      "reference": "Kubernetes controller pattern",
+      "accessUTC": "2026-09-13T11:31:27Z",
+      "snapshot": "kubernetes-controller.txt",
+      "snapshotSHA256": "a946ec912dd9edb89502a787c92af9407d0f217afbe180c7a19c83fa43ad553f",
+      "sources": [
+        {
+          "url": "https://kubernetes.io/docs/concepts/architecture/controller/",
+          "type": "HTTP HTML document",
+          "sha256": "4331952153bb9a43054c2915ba41c93b12a496aa738a47ac21d8c763a00a0a44",
+          "sizeBytes": 506817,
+          "http": {
+            "status": 200,
+            "etag": "\"5767c033ff13279db83192c4dc8cbc6e-ssl\"",
+            "last_modified": null,
+            "content_type": "text/html; charset=UTF-8"
+          },
+          "contentRevision": "unversioned live page; anchored by URL, access time, and response SHA-256"
+        }
+      ],
+      "confirmed": "Official docs describe observe/act/report loops and multiple controllers with bounded responsibilities.",
+      "notVerified": "No proof that continuously reconciling desired state fits human decisions or non-idempotent Court effects.",
+      "execution": "not run"
+    }
+  ]
+}

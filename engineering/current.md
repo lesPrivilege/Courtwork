@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Court定位参考实践即时消费
+
+[两轮原文、截图与裁决](research/court-position-2026-09-13/README.md)已完整按返回范围入账；Luna核验八项参考并固定三个仓库版本及最小来源快照，Astra补充DEC-014、中央架构对象词汇与options。AI work control plane仅作内部责任解释；AO work graph保留提案及关闭字段/评论差异，不当已实现证据。持久分配、接管、知识治理和Review证据沿RD-005/007与义务闭环承接，不新增框架、总账或Release门。来源/附件与八份快照hash、6507链接检查通过；未改生产、未运行上游或模型试验，未push/部署，其他writer在途修改保留。
+
 ## 2026-09-13 · Slash / compaction 登记与即时消费
 
 [源会话与核验](research/slash-compaction-2026-09-13/README.md)完整入账；自动压缩相关15/15通过，两个local探针确认当前slash会按普通input进入模型，manual compact未实现。即时校正[能力说明](../app/docs/commands-and-compaction.md)，采用typed effect/source/target分层及commandId幂等身份不复用。[RD-008](research/RD-008-command-compaction.md)登记CMD-01命令discovery/dispatch与CMP-01 idle-only原生manual生命周期到Release后期Developer队列，CMP-02质量/观测再后置；不照收外部“小包”排期，不自动新增G门。没有修改生产JS、schema或压缩算法，不声称slash或真实模型质量通过；未push/部署。

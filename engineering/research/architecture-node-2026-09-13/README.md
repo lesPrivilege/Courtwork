@@ -28,3 +28,5 @@ Astra裁决与集成；Luna登记实际实现、复核既往论断，并独立�
 旧Runtime canon原字节归档为[273ad12快照](archive/runtime-canon-273ad12.txt)，SHA-256 `2e1f150ed7be0c99bd97c9739bdd6d011204c23bd6a3af3e71835c434817c0f8`；原坐标为 `273ad12a9796aa0547d65e4811a6c56baa5c6a49:engineering/architecture-runtime-canon.md`。归档内相对链接按该原坐标解释，历史时点声明不恢复为当前指令。活动canon现为本节点导读。其它历史证据和inputs原件不重写；当前方向、实现和验收分别由本节点、current及具体交付记录承担。
 
 旧options同样按原字节归档为[选型快照](archive/options-273ad12.txt)，原坐标 `273ad12a9796aa0547d65e4811a6c56baa5c6a49:engineering/options.md`，SHA-256 `3fb9026b4913c4bb354a5279ce03039cae2990f89ae8dc23f75ef4664f9277f3`。活动[options](../../options.md)现区分真实采用与待验证候选，不再由早期OpenCode/TypeScript/React矩阵暗示当前基线。仅扩展名改为txt以保留原字节和原相对坐标，不重写历史链接。
+
+2026-09-13增量：[Court定位参考实践](../court-position-2026-09-13/README.md)补充持续工作控制责任、对象词汇和成熟机制选型快照；Astra裁决、Luna来源探索，不改五层owner或自动新增产品/Release义务。

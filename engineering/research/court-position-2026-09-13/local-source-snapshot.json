@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-13T11:20:09.063295+00:00",
+  "baseline": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+  "scope": "Local source hashes and symbol reading; no product execution",
+  "files": [
+    {
+      "path": "engineering/options.md",
+      "sha256": "ac8ad8cf13c3d5398f4b59a9d2376f63a8f19c57999e5066f102a0ad71f4776d",
+      "bytes": 4457
+    },
+    {
+      "path": "engineering/research/architecture-node-2026-09-13/architecture.md",
+      "sha256": "6b22740cc9de80ebae7eaf07786927c9d017984902ca30cbb8ab7cf5851dda1a",
+      "bytes": 11986
+    },
+    {
+      "path": "engineering/research/architecture-node-2026-09-13/workspace-governance.md",
+      "sha256": "ba2991c0e5651f08e1d64fe520e2c437f3d33021065d3af0033adaf158d32b3a",
+      "bytes": 12463
+    },
+    {
+      "path": "engineering/research/RD-005-multi-agent-selection.md",
+      "sha256": "de29e41a7b66f89355bae0415ad7c25d17ca56562afeffe001f2fb556c7879d9",
+      "bytes": 4131
+    },
+    {
+      "path": "engineering/research/RD-007-resource-governance.md",
+      "sha256": "6c88e46e6046c9d8b1b558923333002b830e5ec219edeb156416da43408850a0",
+      "bytes": 8580
+    },
+    {
+      "path": "app/server/service.mjs",
+      "sha256": "0d2e7388be7f27f28c5ad64174a963270e5e503b63d75f7f0223e77f1f714518",
+      "bytes": 136000
+    },
+    {
+      "path": "app/runtime/pi-session-runtime.mjs",
+      "sha256": "89a7844df42932cbd3b9e0bbd3a31949146d3e108ae953475635c8bfca8a4247",
+      "bytes": 32733
+    },
+    {
+      "path": "app/core/client.mjs",
+      "sha256": "68007e6a9f6b7b2cfdbc7f2cd864327f8242bf8e3eccd3022e95a2e40c06ed6a",
+      "bytes": 13431
+    },
+    {
+      "path": "PAPER.md",
+      "sha256": "cc56d6402b1c39a5a4def461ed06bffbaae4837c91ab1c339000d9f8b66e8f00",
+      "bytes": 2091
+    }
+  ],
+  "observations": [
+    {
+      "path": "app/server/service.mjs",
+      "symbols": [
+        "#ensureHostSession",
+        "createRun",
+        "#createRun"
+      ],
+      "finding": "Host Session locator reopens/creates Pi SessionManager; Run admission and Work binding remain separate."
+    },
+    {
+      "path": "app/runtime/pi-session-runtime.mjs",
+      "symbols": [
+        "createSessionRun",
+        "createAgentSession",
+        "session.dispose"
+      ],
+      "finding": "AgentSession created per Run; normal and error disposal paths exist. Source reading only."
+    },
+    {
+      "path": "app/core/client.mjs",
+      "symbols": [
+        "decide"
+      ],
+      "finding": "Typed trusted_decide goes through Core client; model execution completion is not this operation."
+    }
+  ]
+}

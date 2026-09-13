@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "checkedAtUTC": "2026-09-13T11:33:16.375676+00:00",
+  "sourceIntegrity": {
+    "turns": 2,
+    "messages": 3,
+    "bodiesMatchRawReturn": true,
+    "attachmentBytesMatch": true
+  },
+  "snapshotIntegrity": {
+    "entries": 8,
+    "localExcerptHashesVerified": true,
+    "remoteFullResponseHashes": "Recorded by Luna at retrieval; full responses not retained and not independently replayed by Astra"
+  },
+  "productTests": "not run; documentation-only change",
+  "upstreamExecution": "not run",
+  "author": "Astra",
+  "sourceExplorer": "Luna",
+  "docLinks": {
+    "pass": true,
+    "documents": 1190,
+    "checked": 6507,
+    "problems": [],
+    "command": "node tools/check-doc-links.mjs",
+    "node": "22.19.0"
+  },
+  "reviewCorrections": [
+    "Baseline SHA populated from git, not transcription",
+    "Temporal/DSL choice attributed to this intake rather than RD-007",
+    "Comment author repository role not inferred"
+  ],
+  "whitespace": {
+    "pass": true,
+    "sourceException": "source-conversation.md preserves original Markdown hard-break spaces",
+    "normalized": "Authored excerpt wrappers trailing blank lines removed; not original full source bytes"
+  }
+}

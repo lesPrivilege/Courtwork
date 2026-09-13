@@ -1,0 +1,9 @@
+# Kandev (pinned source inspection)
+
+Selected source excerpt only; this is not a complete repository, article, or documentation mirror.
+
+Source excerpt: “Runtime abstracts the agent execution environment”; `type ExecutorBackend interface {`.
+
+Registry locator: apps/backend/internal/agent/runtime/lifecycle/executor_registry.go:37 — `Register(ExecutorBackend)`.
+
+ACP adapter locator: apps/backend/internal/agentctl/server/adapter/transport/acp/adapter.go:1 — protocol adapter source.

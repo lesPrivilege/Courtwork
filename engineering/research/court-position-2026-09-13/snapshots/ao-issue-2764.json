@@ -1,0 +1,27 @@
+{
+  "source": "GitHub issue API response excerpt; not a full mirror",
+  "issue": {
+    "number": 2764,
+    "title": "feat(work-graph): durable project work items, deps, and session ownership",
+    "state": "closed",
+    "state_reason": "completed",
+    "created_at": "2026-07-17T11:14:47Z",
+    "updated_at": "2026-09-03T15:28:47Z",
+    "closed_at": "2026-09-03T15:28:47Z",
+    "html_url": "https://github.com/Untrivial-ai/agent-orchestrator/issues/2764"
+  },
+  "body_evidence": {
+    "designStatus": "proposed",
+    "proposal_excerpt": "Sessions remain the runtime unit. The work graph is the coordination overlay.",
+    "unchecked_acceptance_items_present": true,
+    "pull_request_field": null
+  },
+  "comment_evidence": {
+    "comment_author": "Rishet11",
+    "created_at": "2026-09-03T15:28:47Z",
+    "html_url": "https://github.com/Untrivial-ai/agent-orchestrator/issues/2764#issuecomment-5528043866",
+    "comment_excerpt": "closing as not planned"
+  },
+  "interpretation_boundary": "API state_reason and comment wording differ; this snapshot preserves both without inferring implementation or overriding either source.",
+  "snapshot_note": "Excerpt-only snapshot; original issue and comments API response hashes are preserved in manifest.json."
+}
