@@ -151,8 +151,17 @@ async function emitMethod(from, to) {
 await emitMethod("benchmarks/SPEC.md", "benchmark-contract.md");
 await emitMethod("engineering/execution/2026-09-10-benchmark-series/README.md", "benchmark-series.md");
 await emit("index.html", renderPage({ identity, evidence, recording, diagram, media, pageMedia }));
-const packageVersion = JSON.parse(productBytes(pageMedia.source_sha, "app/package.json").toString("utf8")).version;
-const productPages = renderProductPages({identity, media: pageMedia, recording, packageVersion});
+// Installation is pinned independently of historical screenshot evidence.
+const sourcePreview = JSON.parse(await readFile(path.join(SITE, "src", "source-preview.json"), "utf8"));
+if (!/^[0-9a-f]{40}$/.test(sourcePreview.source_sha) || sourcePreview.status !== "source-preview") throw new Error("Invalid source preview identity");
+const previewFiles = ["README.md", "app/package.json", "app/docs/supported-preview.md", "app/docs/first-work.md"];
+const previewInputs = previewFiles.map(file => {
+  const bytes = execFileSync("git", ["-C", ROOT, "show", `${sourcePreview.source_sha}:${file}`], {maxBuffer: 1024 * 1024});
+  if (!bytes.length) throw new Error(`Empty source preview input: ${file}`);
+  return {path: file, sha256: sha256(bytes)};
+});
+const packageVersion = JSON.parse(productBytes(sourcePreview.source_sha, "app/package.json").toString("utf8")).version;
+const productPages = renderProductPages({identity, media: pageMedia, recording, packageVersion, sourcePreview});
 for (const [name, html] of Object.entries(productPages)) await emit(name, html);
 await emit("product-pages.css", await readFile(path.join(SITE, "src", "product-pages.css")));
 await emit("product-pages.mjs", await readFile(path.join(SITE, "src", "product-interactions.mjs")));
@@ -193,6 +202,8 @@ const manifest = {
   supported_platforms: ["local run from source on macOS and Linux"],
   download_assets: [],
   source_preview_version: packageVersion,
+  source_preview_sha: sourcePreview.source_sha,
+  source_preview_inputs: previewInputs,
   product_pages: Object.keys(productPages),
   known_limits: evidence.knownLimits,
   locale_content_hashes: { "zh-CN": sha256(await readFile(path.join(DIST, "index.html"))) },
