@@ -2,6 +2,7 @@ import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";
 import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";
 import { renderUserMessage } from "./user-message.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
+import { createRunActivity } from "./run-activity.mjs";
 import { el, action, flowRow, markdown } from './ui-controls.mjs';
 import { projectThread, toolStateWord, canAnswer, validPermission } from './thread-projection.mjs';
 import {
@@ -88,7 +89,9 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   const runtime = el('details', { className: 'attention-agent-runtime' }, el('summary', { text: 'Runtime & memory' }));
   const runtimeBody = el('div'); runtime.append(runtimeBody);
   const composer = el('div', { className: 'attention-agent-composer' }, input, modelChoice, stop, send);
-  const status = el('div', { className: 'attention-agent-status' }, feedback, runtime);
+  // Attention subtracts the Chat measurement controls: one noninteractive state line.
+  const activity = createRunActivity();
+  const status = el('div', { className: 'attention-agent-status' }, activity.root, feedback, runtime);
   /* WO-MA2-02 · the Thread consumer panel. It is collapsed by default, fetches
    * only while expanded, and does not compete with the composer for focus. */
   const coordination = createCoordinationView({ request });
@@ -97,7 +100,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   dialog.addEventListener('cancel', event => { if (event.isComposing) event.preventDefault(); });
   dialog.addEventListener('keydown', event => { if (event.key === 'Escape' && event.isComposing) event.preventDefault(); });
   function deactivate() {
-    visible = false; openingEpoch++; clearTimeout(timer); timer = null; controller.deactivate(); coordination.deactivate();
+    visible = false; openingEpoch++; clearTimeout(timer); timer = null; controller.deactivate(); coordination.deactivate(); activity.deactivate();
     if (opener?.isConnected) opener.focus();
   }
   function close() { dialog.close(); }
@@ -133,7 +136,8 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
     const recentKey = JSON.stringify([state.conversations, state.busy, Boolean(state.command)]);
     if (recentSignature !== recentKey) { recentSignature = recentKey; renderRecent(); }
     const run = controller.active() || state.runs.at(-1);
-    feedback.textContent = state.error || state.readError || (state.busy ? 'Sending request…' : state.loading && !state.session ? 'Loading…' : controller.active() ? (runLabels[run.status] || runLabels.unknown) : '');
+    activity.update({ run: controller.active(), events: state.events, connected: !state.readError, pendingCancel: state.busy, visible: visible && !managing });
+    feedback.textContent = state.error || state.readError || (state.busy ? 'Sending request…' : state.loading && !state.session ? 'Loading…' : '');
     feedback.hidden = !feedback.textContent;
     const provider = getProvider?.();
     modelChoice.textContent = provider?.config?.provider === "fake-openai-loopback" ? "Local test" : provider?.config?.model || "Model";

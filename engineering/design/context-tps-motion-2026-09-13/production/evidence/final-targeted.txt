@@ -1,0 +1,27 @@
+✔ activity stops on wait, disconnect and terminal state without inventing cancellation acceptance (1.522125ms)
+✔ word clock survives polling, announces facts once, and stale callbacks cannot revive old work (1.1065ms)
+✔ Attention can subtract measurement actions without removing the status fact (0.996291ms)
+✔ process phrases follow exact tool/notice lifecycles and never turn prose into a progress claim (0.188542ms)
+✔ Context reads the selected Run only, preserves missing and zero, and never computes capacity usage (13.65525ms)
+✔ copy guard rejects default record nouns and allows verbs, user values and disclosed diagnostics (15.971458ms)
+✔ raw consumer guard rejects new, duplicated and stale literal consumers (0.973958ms)
+✔ actual raw consumers and Pages cross-map remain registered (19.207167ms)
+✔ CC-W 第 0 项 · 工作面定性按视口分档，旧的 not-a-third-column 已不在文档里 (0.894709ms)
+✔ CC-W 第 0 项 · 尺寸 token 表登记了 ≥1680 断点、--doc-min 与正文行宽上限 (0.111125ms)
+✔ CC-W 第 0 项 · M-9 在途换词不换宽度，按钮元素本身不被替换 (0.235792ms)
+✔ CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻即时 (0.152958ms)
+✔ CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段 (0.786667ms)
+✔ CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作 (0.363208ms)
+✔ CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质 (0.271291ms)
+✔ CC-W 3 · C 态是三条真的列轨，各自滚动，chrome 同一基线 (0.365083ms)
+✔ CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位 (0.293917ms)
+✔ CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0 (0.299583ms)
+✔ CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不只靠颜色 (0.253458ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 133.950792
