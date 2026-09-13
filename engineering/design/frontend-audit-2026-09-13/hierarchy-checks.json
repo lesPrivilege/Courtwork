@@ -1,0 +1,16 @@
+{
+  "base": "050f031d45db2e37cbd3155b873e97c7d06303bc",
+  "source_sha256": "e60d02c0971ad57c66672c220be3fa10fc9012e0372a0e4d53ee9195c2fdd75b",
+  "source_agent_characters": 9875,
+  "returned_turns": 4,
+  "has_more": false,
+  "scope": "registration and bounded source verification only; no UI implementation or visual acceptance",
+  "doc_links": {
+    "pass": true,
+    "documents": 1199,
+    "checked": 6557,
+    "problems": []
+  },
+  "product_tests": "not_run_documentation_only",
+  "external_research": "not_run"
+}

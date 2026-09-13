@@ -140,3 +140,7 @@ composer 是**一个** primitive 的两个 variant，不是两个组件（WK-97�
 | 对话与执行反馈 | Chat Flow | 消息、动作、状态和结果连续，不能强塞进表格模板 |
 
 这是一组选择依据，不是封闭模板全集。新面仍按frontend-contract登记最近实现先例与偏离理由；没有新建通用Card、数据owner或presentation runtime。字阶/材质沿原token；sans适合控件，mono用于需精确读取的机器文本，serif是否适合长文由实际阅读profile与验证决定，不因Markdown格式直接切族。
+
+### UI 层级 polish 登记（2026-09-13）
+
+[空间与材质接续](frontend-audit-2026-09-13/hierarchy-polish-registration.md)将视觉注意力纳入原IA队列：变更时说明任务锚点、父子容器、scroll/clip和浮起理由；优先容器承担层级、内部内容平整，沿既有字阶/留白/selected/focus，避免装饰左衬线、伪按钮标签与同权浮卡。Glass仍按现有登记与回退约束，正文/常驻内容不扩blur。M0当前、M1 solid空间、M2有限Glass是待施工的比较方法，不是新材质许可、全站实施结论或新增Release门。

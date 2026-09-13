@@ -85,3 +85,7 @@ Skin 管获准外观，Review 管稳定待决语义；相同scheme下切skin不�
 同日后续视觉方向：活动glyph可暂代未完成bot槽位，放在短语左侧；一级隐藏TPS数字/Unavailable和展开箭头，点击glyph仍可检查二级测量。运行短语加省略号，五个已收到Thinking样词入账。呼吸/音乐条形外观是无标尺活动装饰，不将动画速度作为可读TPS；参考候选README的17:18修订。
 
 生产接续：用户接受后已完成[Chatspace产品应用](../context-tps-motion-2026-09-13/production/README.md)。最新位置裁决为模型/推理强度右侧、Send/Stop之前的圆环，替代上文左侧候选；Attention只取过程行。工具/回复/压缩/重试按既有事件轮播，不从模型正文发明具体任务进度。容量比例与真实TPS仍缺owner，未升为canonical或非作者接受。
+
+### 空间层级 polish 接续（2026-09-13登记）
+
+[UI层级polish](../frontend-audit-2026-09-13/hierarchy-polish-registration.md)作为原IA队列的横向检查：后续相关改动记录任务锚点、父子表面、滚动/裁切、elevation理由及Glass资格。优先既有solid容器关系与平整内容，避免装饰左衬线/同权浮卡；不改颜色层级或自动扩blur登记。已合Attention UI02及Work Surface为当前先例，旧截图描述须先与实际HEAD核对。该登记未宣告全站视觉接受。

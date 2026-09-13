@@ -37,3 +37,7 @@ L1操作、L2上下文、L3技术是审计标记，按当前任务分层。版�
 ## 最新选型增量登记（2026-09-13）
 
 用户要求稍后消费的[Surface classification轮次](surface-classification-registration.md)已登记：Home/Attention/Runtime/Run等先按认知任务审计。外部候选未在本片重新核验；不扩大正在交接的Attention工单或本轮Context/TPS视觉范围。
+
+## UI 层级 polish 接续（2026-09-13）
+
+[空间与材质编排登记](hierarchy-polish-registration.md)接入IA-0…5的原面与owner：以任务锚点、容器关系、独立滚动和稀疏elevation保持视觉注意力，先solid空间方案，再判断有限Glass增益。现有配色与材质边界不变；原文S0…S4不升为新token体系。Attention已合UI02作为新基线，旧border-left描述不再派工；本片是登记，不是全站audit或新产品接受。
