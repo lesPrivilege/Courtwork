@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Attention UI02 裁决与合入
+
+Claude候选667cd18经Astra修订及Luna有界非作者复核，已以2737378合入本地main；[裁决与证据](design/attention-ui-handoff-2026-09-13/astra-acceptance/README.md)、[合入回执](design/attention-ui-handoff-2026-09-13/astra-acceptance/integration.md)。沿原grammar去除左侧衬线与伪按钮式说明牌，标题响应文字偏好；修复迟到回执跨事项草稿污染、键盘动效、冲突提示和并发重读过早播放反馈。隔离全量950/950，最终组合定向53/53、Luna4/4探针与25/25相邻检查通过；真实整页Core/本地合成助手、明暗窄屏/返回焦点留证。当前任务顺序采用，真实事件timeline登记为历史增强，Board/Time未实现；完整可访问性与Release门仍开放。保留并行文档与未提交编辑，未push/部署。
+
 ## 2026-09-13 · Court定位参考实践即时消费
 
 [两轮原文、截图与裁决](research/court-position-2026-09-13/README.md)已完整按返回范围入账；Luna核验八项参考并固定三个仓库版本及最小来源快照，Astra补充DEC-014、中央架构对象词汇与options。AI work control plane仅作内部责任解释；AO work graph保留提案及关闭字段/评论差异，不当已实现证据。持久分配、接管、知识治理和Review证据沿RD-005/007与义务闭环承接，不新增框架、总账或Release门。来源/附件与八份快照hash、6507链接检查通过；未改生产、未运行上游或模型试验，未push/部署，其他writer在途修改保留。
