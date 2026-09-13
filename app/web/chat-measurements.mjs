@@ -11,7 +11,7 @@ export function projectContextReading(events = [], runId) {
 
 export function contextRing() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  for (const [name, value] of Object.entries({ viewBox: '0 0 20 20', width: '18', height: '18',
+  for (const [name, value] of Object.entries({ viewBox: '0 0 20 20', width: '14', height: '14',
     'aria-hidden': 'true', focusable: 'false', class: 'context-capacity-ring' })) svg.setAttribute(name, value);
   const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
   for (const [name, value] of Object.entries({ cx: '10', cy: '10', r: '7' })) circle.setAttribute(name, value);
