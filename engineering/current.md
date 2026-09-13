@@ -2,7 +2,7 @@
 
 ## 2026-09-13 · Context/TPS 实际视觉候选
 
-Astra串行完成[交互候选](design/context-tps-motion-2026-09-13/README.md)：composer左侧仅圆环与Send对称，bot/Thinking/TPS同行，运行中缺投射保留非数值轮播。Luna完成材质源码audit，按现有solid raised/圆角/阴影/字阶/focus对齐；作者浏览器与2项fixture检查见[验证](design/context-tps-motion-2026-09-13/verification.md)。已登记两项grammar为reference，数值仍区分估算、缺测和合成测量；未改产品或声称真实TPS接线。最新IA选型轮次仅[登记后续消费](design/frontend-audit-2026-09-13/surface-classification-registration.md)。未push/部署。
+Astra串行完成[交互候选](design/context-tps-motion-2026-09-13/README.md)：composer左侧仅圆环与Send对称，左侧呼吸条暂代bot槽位、短语带省略号，一级隐藏速率/Unavailable/箭头；运行中缺投射保留非数值轮播，五个Thinking样词已补齐。Luna完成材质源码audit，按现有solid raised/圆角/阴影/字阶/focus对齐；作者浏览器与2项fixture检查见[验证](design/context-tps-motion-2026-09-13/verification.md)。已登记两项grammar为reference，数值仍区分估算、缺测和合成测量；未改产品或声称真实TPS接线。最新IA选型轮次仅[登记后续消费](design/frontend-audit-2026-09-13/surface-classification-registration.md)。未push/部署。
 
 ## 2026-09-13 · Release输入、MCP故障与Core审阅入口合流
 

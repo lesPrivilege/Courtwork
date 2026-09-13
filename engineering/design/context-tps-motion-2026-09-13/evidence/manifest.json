@@ -1,15 +1,15 @@
 {
   "index.html": {
-    "bytes": 6020,
-    "sha256": "4ee02347b95ab022c45bd50bb78c5152c9c8b28073a1a4f65a81128b54950c2d"
+    "bytes": 6008,
+    "sha256": "6b980098b6c00860e6d7b24b1a9a886f8c1e3110c9accbf82291c1ea9742947f"
   },
   "study.css": {
-    "bytes": 16487,
-    "sha256": "3026c4ea3c95655d126a24606ffacb95726ce8b2feea56572e1890f84088e091"
+    "bytes": 18320,
+    "sha256": "870bc217a4172d976e97e9a71c72f4528fd67a69de403a1fac82b38844c5bffb"
   },
   "study.mjs": {
-    "bytes": 12312,
-    "sha256": "d66bb055a80c6f13f183a020cc1a5edded9e406da178fb9df8bed9d8974030bd"
+    "bytes": 12730,
+    "sha256": "5605fac1db8e138beb65b9efeb9e3cfd655dcade4939d60e2e7084605b37173a"
   },
   "fixtures.mjs": {
     "bytes": 1345,
@@ -62,5 +62,17 @@
   "evidence/11-context-expanded.png": {
     "bytes": 47787,
     "sha256": "e9b98f48d4d55fbfcd44af3246618d09fd24715295ecf40e21aba044a6b75b16"
+  },
+  "evidence/12-waveform-slot.png": {
+    "bytes": 36938,
+    "sha256": "6541f2679ba5d2416bf9c55bf3f86a6b82a559d2938d85bbe2b4427e9da1506e"
+  },
+  "evidence/13-waveform-details-narrow.png": {
+    "bytes": 29898,
+    "sha256": "b7c3c3125dcc88c1ac23e86bf3f2b6b6084f6fdca3b6adb17164cc73dd4301f3"
+  },
+  "evidence/14-user-unavailable-reference.png": {
+    "bytes": 5470,
+    "sha256": "0fd5aa6fe9a45f33ceb98f8321c7f365e737138d2f32ff163d93d2aa91e59b31"
   }
 }
