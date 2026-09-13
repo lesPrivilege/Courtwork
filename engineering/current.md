@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-13 · Context/TPS 接线审计与代码块灰底
+
+Luna 完成[Context/TPS 有界审计](design/frontend-audit-2026-09-13/context-tps-audit.md)，Astra 核对合流身份：字符构成、request 启发式、声明窗口、原生 compaction 与 Host 首输出/首文本已在本地 main；容量消费百分比、Provider TTFT 与真实 decode TPS 未接线。Design Scout 的测量门及合成 specimen 不代表生产选型完成，BE-42 仍为已登记/待 owner 合同。另以 `66b0eb4` 将助手代码块改为 diff 共用中性灰，保留文本/边框；[验证](design/frontend-audit-2026-09-13/code-gray.md)含明暗组件图、对比度检查与 Luna 非作者源码复核。审计未改产品功能、未重跑产品测试；本轮未 push/部署。
+
 ## 2026-09-13 · 信息架构收敛串行接续
 
 按用户要求将“信息架构收敛 Auditing”并入[原前端Audit](design/frontend-audit-2026-09-13/PLAN.md)，来源全文、官方先例和[串行计划](design/frontend-audit-2026-09-13/ia-plan.md)已登记；Astra裁决/实现与Luna有界探索/非作者复核方式保持。产品 `ccc7bb0` 修复Usage原位返回、Files reader后比较按钮，收敛Settings/Runtime/Home默认信息与技术披露，保留权限/插件隔离/MCP认证限制。全量916/916、最终定向80/80及分页1/1通过；[交付记录](design/frontend-audit-2026-09-13/ia-delivery.md)区分作者浏览器、Luna源码复核和真实200%等未测项。五类数据/阅读面已有grammar映射，不封闭模板、不强制Markdown衬线、不新增后端owner。本轮未push/部署，其他writer改动保留。
