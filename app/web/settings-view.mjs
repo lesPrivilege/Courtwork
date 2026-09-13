@@ -861,7 +861,7 @@ export function createSettingsView(
   });
   const saveHelp = el("p", {
     className: "form-help",
-    text: "Saving sends one short prompt to the selected model so you can see it answer. Nothing else is sent.",
+    text: "Save and ask once sends one short prompt to the selected model. Nothing else is sent.",
   });
   const addProvider = el(
     "details",

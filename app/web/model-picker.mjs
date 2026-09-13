@@ -20,7 +20,7 @@ export function createModelPicker({ request, onSaved }) {
     let busy = false, matchesCurrent = true, conflict = false, versionAligned = true, selectionCanSave = false;
     const own = ++epoch; opener = document.activeElement;
     const close = action('x', 'Close model picker', () => dialog.close());
-    const header = el('header', {className:'model-picker-header'}, el('h2',{text:'Model & effort',attrs:{id:'model-picker-title'}}), close);
+    const header = el('header', {className:'model-picker-header'}, el('h2',{text:'Model',attrs:{id:'model-picker-title'}}), close);
     const status = el('p', {className:'form-help',text:'Loading installed models…',attrs:{role:'status'}});
     dialog.replaceChildren(header,status); dialog.showModal(); close.focus();
     try {
@@ -37,6 +37,14 @@ export function createModelPicker({ request, onSaved }) {
       if (!Array.isArray(catalog.models)) throw new Error('Model catalog unavailable');
       let models = catalog.models;
       const groupLabels = new Map(connections.filter(c=>c.kind==='compatible').map(c=>[c.providerIdentity,connectionLabel(c)]));
+      const modelGroupLabel = provider => groupLabels.get(provider) || provider;
+      const modelBaseName = model => model?.name || model?.id || 'Not selected';
+      const visibleModelName = model => {
+        const name = modelBaseName(model);
+        const ambiguous = Boolean(model?.provider) && models.some(other => other !== model && other.provider !== model.provider &&
+          (modelBaseName(other) === name || (model.id && other.id === model.id)));
+        return ambiguous ? `${name} · ${modelGroupLabel(model.provider)}` : name;
+      };
       let selected = models.find(m=>m.provider===current.config.provider && m.id===current.config.model);
       let effort = selected ? current.config.reasoningEffort : undefined;
       versionAligned = Number.isSafeInteger(current.version) && current.version===catalog.version;
@@ -48,18 +56,23 @@ export function createModelPicker({ request, onSaved }) {
       const effortRow = el('label',{},el('span',{text:'Reasoning effort'}),effortControl);
       const currentName=el('h3',{text:current.config.model||'Not selected'});
       const currentMeta=el('p',{className:'form-help'});
-      const currentSummary = el('section',{className:'model-picker-current',attrs:{'aria-label':'Current model'}},
-        el('p',{className:'eyebrow',text:'Current model'}),currentName,currentMeta);
+      const currentSummary = el('section',{className:'model-picker-current',attrs:{'aria-label':'Saved model'}},
+        el('p',{className:'eyebrow',text:'Saved'}),currentName);
       const renderCurrentSummary=()=>{
-        currentName.textContent=current.config.model||'Not selected';
-        currentMeta.textContent=`${current.config.provider} · ${current.config.api} · ${current.config.reasoningEffort??'Provider default'}`;
+        const savedModel=models.find(model=>model.provider===current.config.provider&&model.id===current.config.model)
+          || { provider:current.config.provider, id:current.config.model };
+        currentName.textContent=visibleModelName(savedModel);
+        currentMeta.textContent='Model ID: '+(current.config.model||'not selected')+' · Connection/provider: '+(current.config.provider||'not selected')+' · API: '+(current.config.api||'unknown')+' · Saved effort: '+(current.config.reasoningEffort??'Provider default');
       };
       const proposedSummary=el('p',{className:'model-picker-proposed',attrs:{role:'status'}});
+      proposedSummary.hidden=true;
       const changeModel=el('details',{className:'model-picker-change-model'});
       changeModel.append(el('summary',{text:'Change model'}));
       const modelList=el('div',{className:'model-picker-model-list'});
       const route = el('p',{className:'form-help'});
       const capability = el('p',{className:'form-help'});
+      const modelDetails=el('details',{className:'model-picker-change-model model-picker-details'});
+      modelDetails.append(el('summary',{text:'Model details'}),currentMeta,route,capability);
       const refresh=action('refresh-cw','Refresh current settings',async()=>{
         if(busy)return;
         status.textContent='Refreshing saved settings…';refresh.disabled=true;
@@ -77,7 +90,7 @@ export function createModelPicker({ request, onSaved }) {
         finally{refresh.disabled=false;}
       },{visible:true,className:'text-button',attrs:{'data-testid':'refresh-model-config'}});
       refresh.hidden=true;
-      const save = el('button',{text:'Use for next runs',className:'primary-button',attrs:{type:'button'}});
+      const save = el('button',{text:'Set default',className:'primary-button',attrs:{type:'button'}});
       const defaultValue='__provider_default__';
       const canSaveNow = () => !busy && Boolean(selected) && matchesCurrent && versionAligned && !conflict && selectionCanSave;
       const apiForSelection = () => selected && selected.provider === current.config.provider
@@ -104,20 +117,18 @@ export function createModelPicker({ request, onSaved }) {
           effortControl.replaceChildren(effortSelect);
         } else {
           if (!savedEffortIsInvalid) effort = undefined;
-          effortFixed.textContent = !selected ? 'Provider default.'
-            : reasoning?.kind === 'unsupported' ? 'This model does not support selectable reasoning effort. Provider default will be used.'
-              : 'Reasoning effort is not verified for this model. Provider default will be used.';
+          effortFixed.textContent = 'Provider default';
           effortControl.replaceChildren(effortFixed);
         }
         const sameProvider=selected?.provider===current.config.provider;
-        proposedSummary.textContent = selected
-          ? `Next runs: ${selected.name || selected.id} · ${selected.provider} · ${effort == null || effort === defaultValue ? 'Provider default' : effort}.`
-          : 'Choose a model to draft a change.';
+        const draftModelDiffers=Boolean(selected)&&(selected.provider!==current.config.provider||selected.id!==current.config.model);
+        proposedSummary.textContent = draftModelDiffers ? 'Draft · '+visibleModelName(selected) : '';
+        proposedSummary.hidden = !draftModelDiffers;
         /* PV-27 · 未报窗口就写 `unknown`，不写 `unavailable` 也不套用同名模型的目录值。
          * PV-60/项 7 · `origin:"connection"` 的一行追加一句：它不是已装目录原生的，
          * 是有人在这条连接上加的。目录原生行（`origin:"catalog"`）不追加。 */
         route.textContent=selected
-          ? `${selected.provider} · ${sameProvider?current.config.api:selected.api}${sameProvider && current.config.baseUrl?' · custom endpoint':''}. Context window: ${Number.isSafeInteger(selected.contextWindow)?`${selected.contextWindow.toLocaleString()} tokens`:'unknown'}.${selected.origin==='connection'?' Added on this connection.':''}`
+          ? `Model ID: ${selected.id} · ${selected.provider} · ${sameProvider?current.config.api:selected.api}${sameProvider && current.config.baseUrl?' · custom endpoint':''}. Context window: ${Number.isSafeInteger(selected.contextWindow)?`${selected.contextWindow.toLocaleString()} tokens`:'unknown'}.${selected.origin==='connection'?' Added on this connection.':''}`
           : 'Select an installed model.';
         /* State the exact evidence source of this capability. A list without its
          * provenance would make a user declaration look like a catalog fact. */
@@ -125,10 +136,10 @@ export function createModelPicker({ request, onSaved }) {
           : reasoning?.source === 'user-declared' ? 'your connection declaration'
             : 'not verified';
         const effortEvidence = reasoning?.kind === 'enum'
-          ? `Supported values (${sourceLabel}): ${supported.join(', ')}.`
+          ? 'Supported values ('+sourceLabel+'): '+supported.join(', ')+'.'
           : reasoning?.kind === 'unsupported'
-            ? 'This model does not support selectable reasoning effort; provider default will be used.'
-            : selected ? 'Reasoning effort is not verified for this model; provider default will be used.' : '';
+            ? 'Selectable reasoning effort is unsupported ('+sourceLabel+'); provider default will be used.'
+            : selected ? 'Reasoning effort is not verified; source: '+sourceLabel+'; provider default will be used.' : '';
         const notice = [...new Set([isInForce ? current.reasoningCapability?.notice : null, reasoning?.notice, effortEvidence].filter(Boolean))].join(' ');
         const source = isInForce && current.capability?.contextWindowSource === 'user'
           ? 'The context window above came from your entry on this connection.' : '';
@@ -360,11 +371,11 @@ export function createModelPicker({ request, onSaved }) {
       }
       customUseAsk.addEventListener('click', () => void submitCustomModel(true));
       customUseOnly.addEventListener('click', () => void submitCustomModel(false));
-      dialog.append(currentSummary,proposedSummary,changeModel);
+      dialog.append(currentSummary,proposedSummary,modelDetails,changeModel);
       changeModel.append(search,modelList,customToggle,customPanel);
       modelList.append(select);
-      dialog.append(effortRow,route,capability,refresh,
-        el('p',{className:'form-help',text:'Applies to all chats for future runs. Current runs keep their recorded configuration. Credentials and connection settings stay in Models.'}),save);
+      dialog.append(effortRow,refresh,
+        el('p',{className:'form-help',text:'All chats · future runs'}),save);
       renderCurrentSummary();renderOptions();renderSelection();search.focus();
     } catch(error) {if(own===epoch)status.textContent=error.message;}
   }};

@@ -389,7 +389,7 @@ test("PV-61 · reasoningSource:\"unknown\" 换成真话，不再替目录说它�
   // 旧句子（"这条目录报的就是没有"）在 unknown 语境下替目录说了它没说过的话；
   // 换成"没人核过"，并指去唯一能改这件事的地方。
   assert.match(pickerSource, /reasoning\?\.kind === 'unsupported'/);
-  assert.match(pickerSource, /Reasoning effort is not verified for this model\. Provider default will be used\./);
+  assert.match(pickerSource, /Reasoning effort is not verified; source: '\+sourceLabel\+'; provider default will be used\./);
   assert.match(pickerSource, /Provider default will be used\./);
 });
 
@@ -508,7 +508,7 @@ test("PV-63 · 自动发现的触发条件与去抖：baseUrl/key 的 input 去�
 test("PV-63/38 · “Save and ask once” 与 “Save only” 的请求序：event.submitter 分流，冒烟不自动触发", () => {
   assert.match(settingsSource, /text: "Save and ask once"/);
   assert.match(settingsSource, /text: "Save only"/);
-  assert.match(settingsSource, /Saving sends one short prompt to the selected model so you can see it answer\. Nothing else is sent\./);
+  assert.match(settingsSource, /Save and ask once sends one short prompt to the selected model\. Nothing else is sent\./);
   assert.match(settingsSource, /const askOnce = event\.submitter === save;/);
   // 冒烟只在保存成功之后、且只在主按钮被点了的分支里触发一次；已保存的连接不回滚。
   assert.match(settingsSource, /if \(askOnce\) \{[\s\S]{0,300}void runVerify\(target\.id, snapshot\.config\.model, connectionLabel\(target\)\)/);
