@@ -25,6 +25,7 @@ export function createUsageView({request,getProjects,onOpenRun}) {
   function render(){
     if(!visible)return;
     const focus=document.activeElement?.dataset.usageFocus;
+    const scrollTop=dialog.querySelector('.observation-dialog-body')?.scrollTop??0;
     const opened=new Set([...dialog.querySelectorAll('details[open][data-usage-section]')].map(node=>node.dataset.usageSection));
     const header=el('header',{className:'usage-header'},el('div',{},el('h2',{text:'Usage',attrs:{id:'usage-title'}}),el('p',{className:'form-help',text:'Retained runs · reported tokens'})),action('x','Close usage',()=>dialog.close()));
     const controls=el('div',{className:'usage-controls'});
@@ -44,7 +45,8 @@ export function createUsageView({request,getProjects,onOpenRun}) {
       tab.addEventListener('keydown',event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();view=event.key==='Home'?'overview':event.key==='End'?'models':view==='overview'?'models':'overview';render();dialog.querySelector(`#usage-tab-${view}`).focus();}});tabs.append(tab);
     }
     const panel=el('section',{attrs:{id:'usage-panel',role:'tabpanel','aria-labelledby':`usage-tab-${view}`}});
-    dialog.replaceChildren(header,controls,tabs,panel);
+    const body=el('div',{className:'observation-dialog-body'},controls,tabs,panel);
+    dialog.replaceChildren(header,body);
     if(loading)panel.append(el('p',{text:'Loading usage…',attrs:{role:'status'}}));
     if(error)panel.append(el('p',{text:error+(data?' Showing the last loaded observation.':''),attrs:{role:'alert'}}));
     if(data){
@@ -69,7 +71,7 @@ export function createUsageView({request,getProjects,onOpenRun}) {
         const weekdays=el('div',{className:'usage-weekdays',attrs:{'aria-hidden':'true'}},...['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(text=>el('span',{text})));
         const scroll=el('div',{className:'usage-calendar-scroll'},weekLabels,grid);
         const calendarView=el('div',{},el('div',{className:'usage-calendar'},weekdays,scroll),exactDay,
-          el('p',{className:'form-help',text:'Darker means more reported tokens in this period. Dotted outline: incomplete usage.'}));
+          el('p',{className:'form-help',text:'Higher-contrast cells mean more reported tokens in this period. Dotted outline: incomplete usage.'}));
         const ranked=el('section',{className:'usage-ranked'},el('h3',{text:'Reported tokens by model'}));
         const series=modelSeries(data,metric),totals=series.map(item=>item.values.reduce((sum,value)=>sum+value,0)),maximum=Math.max(1,...totals);
         for(const [index,item] of series.entries()){
@@ -109,6 +111,7 @@ export function createUsageView({request,getProjects,onOpenRun}) {
         if(drill.result.offset>0)detail.append(button('Previous',()=>inspect(drill.filter,Math.max(0,drill.result.offset-25))));if(drill.result.nextOffset!==null)detail.append(button('Next',()=>inspect(drill.filter,drill.result.nextOffset)));}
       panel.append(detail);
     }
+    body.scrollTop=scrollTop;
     if(focus)dialog.querySelector(`[data-usage-focus="${CSS.escape(focus)}"]`)?.focus();
   }
   return {open(){if(visible)return;opener=document.activeElement;visible=true;dialog.showModal();render();void load();}};

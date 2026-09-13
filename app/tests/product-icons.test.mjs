@@ -8,6 +8,9 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { productSemantics } from "../web/product-semantics.generated.mjs";
+import { iconData } from "../web/vendor/icon-data.generated.mjs";
+import { action, icon, flowRow } from "../web/ui-controls.mjs";
+import { withTinyDom } from "./tiny-dom.mjs";
 
 const ROOT = path.resolve(fileURLToPath(new URL("../../", import.meta.url)));
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -26,6 +29,52 @@ test("every registry glyph is in the sprite and in the ui-controls allowlist", (
     assert.ok(allowed.has(ref), `ui-controls icons set lacks ${ref}`);
   }
 });
+
+test("offline icon geometry reproduces every pinned sprite shape without changes", () => {
+  assert.deepEqual(Object.keys(iconData).sort(), [...symbols].sort());
+  const normalize = (value) => value.replace(/\s+/g, ' ').replace(/\s*\/>/g, '/>').replace(/>\s+</g, '><').trim();
+  for (const [, name, body] of sprite.matchAll(/<symbol id="([^"]+)"[^>]*>([\s\S]*?)<\/symbol>/g)) {
+    const rendered = iconData[name].map(([tag, attrs]) =>
+      `<${tag} ${Object.entries(attrs).map(([key, value]) => `${key}="${value}"`).join(' ')}/>`).join('');
+    assert.equal(normalize(rendered), normalize(body), `${name} geometry changed`);
+    assert.ok(Object.isFrozen(iconData[name]));
+    for (const shape of iconData[name]) assert.ok(Object.isFrozen(shape) && Object.isFrozen(shape[1]));
+  }
+  assert.ok(Object.isFrozen(iconData));
+});
+
+test("recreated controls contain local shapes and retain their action after disconnection", () => withTinyDom((container) => {
+  let closed = 0;
+  const first = action('x', 'Close Spark', () => closed++);
+  container.append(first);
+  container.replaceChildren();
+  const reopened = action('x', 'Close Spark', () => closed++);
+  container.append(reopened);
+  assert.equal(reopened.getAttribute('aria-label'), 'Close Spark');
+  assert.equal(reopened.querySelector('svg').getAttribute('aria-hidden'), 'true');
+  assert.equal(reopened.querySelectorAll('path').length, 2);
+  assert.equal(reopened.querySelectorAll('use, image, [href]').length, 0, 'no external SVG resolution after rerender');
+  reopened.click();
+  assert.equal(closed, 1);
+  for (const name of allowed) {
+    const svg = icon(name, { size: 18 });
+    assert.equal(svg.getAttribute('width'), '18');
+    assert.equal(svg.getAttribute('viewBox'), '0 0 24 24');
+    assert.equal(svg.children.length, iconData[name].length);
+    assert.equal(svg.querySelectorAll('use, image, [href]').length, 0);
+  }
+  assert.throws(() => icon('unregistered-action'), /Unknown static icon/);
+}));
+
+test("disclosure rows use a native SVG chevron without changing the summary or its name", () => withTinyDom(() => {
+  const row = flowRow('summary', { title: 'Recorded sources', glyph: 'file-text' });
+  assert.equal(row.tagName, 'summary');
+  assert.equal(row.textContent, 'Recorded sources');
+  const chevron = row.querySelector('.flow-disclosure-icon');
+  assert.equal(chevron.getAttribute('aria-hidden'), 'true');
+  assert.equal(chevron.querySelectorAll('path').length, 1);
+  assert.equal(flowRow('div', { title: 'Plain row' }).querySelector('.flow-disclosure-icon'), null);
+}));
 
 test("sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes", () => {
   const expected = new Set([...Object.keys(lucide.files), ...Object.keys(domain.files)].filter((f) => f.endsWith(".svg")).map((f) => f.replace(/\.svg$/, "")));

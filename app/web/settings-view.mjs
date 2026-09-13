@@ -2464,13 +2464,13 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
        * 归 Skills 与项目管，混为一谈会让"关掉记忆"读成"看不见文件"。 */
       el("p", {
         className: "settings-row-help",
-        text: "Nothing is remembered between chats. Matter memory and global memory have no adapter in this build, so a Chat or a Work reads only its own messages and the sources its project carries; there is no stored memory here to review, export or delete. Sources are files, not memory: they are configured under Skills and in the project itself, and they stay readable whatever this section later says.",
+        text: "Matter memory and global memory are not available here. Sources are separate: files configured under Skills and in the project remain readable.",
       }),
       /* WK-92 · Temporary chat 待 BE-20：一行说明，零控件。画一个开关会许诺一个
        * 今天不存在的第二种会话。 */
       el("p", {
         className: "settings-row-help",
-        text: "Temporary chat — a chat that neither reads nor writes durable memory — has no host support yet, so there is no control for it here. With nothing remembered between chats, every chat in this build already behaves that way.",
+        text: "Temporary chat is not available.",
       }),
     );
   }
@@ -2478,10 +2478,6 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   /* ── Keyboard ─────────────────────────────────────────────────────── */
   function renderKeyboard() {
     document.getElementById("settings-keyboard-rows").replaceChildren(
-      el("p", {
-        className: "settings-row-help",
-        text: "The keys this build already answers to. They are the same commands the controls raise, through the same admission.",
-      }),
       el(
         "table",
         { className: "settings-table" },

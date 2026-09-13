@@ -34,7 +34,7 @@ test("recent chats across open projects, newest first, marking Work and the curr
   assert.match(back.textContent, /Return to Ledger notes/);
 }));
 
-test("empty state, New chat route, sibling entries and honest planning copy", () => withTinyDom(() => {
+test("empty state and New chat stay primary while explanation and sibling entries are disclosed", () => withTinyDom(() => {
   const calls = [];
   const page = createChatPage(document.createElement("section"), { onOpenSession() {}, onNewChat: () => calls.push("new"), onOpenAttention: () => calls.push("attention"), onOpenSpark: () => calls.push("spark") });
   const node = page.open({ projects: [], sessionsByProject: new Map() });
@@ -45,8 +45,11 @@ test("empty state, New chat route, sibling entries and honest planning copy", ()
   node.querySelector('[data-chat-facet="spark"]').dispatchEvent({ type: "click" });
   assert.deepEqual(calls, ["new", "attention", "spark"]);
   const text = node.textContent;
-  assert.match(text, /planned/);
-  assert.match(text, /does not connect to a provider/);
+  assert.match(text, /Opening this page does not start a run/);
+  const about = node.querySelector('details.chat-about');
+  assert.equal(about.hasAttribute('open'), false);
+  assert.equal(about.querySelector('[data-chat-action="new"]'), null);
+  assert.equal(about.querySelectorAll('.chat-facet').length, 3);
   assert.equal(node.querySelectorAll("input, select").length, 0, "no fake toggles");
   assert.equal(node.querySelectorAll(".chat-facet").length, 3);
   assert.equal(node.querySelector(".chat-facet.is-current").querySelector(".chat-facet-name").textContent, "Chat");

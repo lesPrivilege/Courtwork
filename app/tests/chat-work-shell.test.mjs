@@ -91,8 +91,8 @@ test("WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，T
   assert.doesNotMatch(settingsSource, /Session Memory/i);
   const memory = settingsSource.slice(settingsSource.indexOf("function renderMemory"));
   const block = memory.slice(0, memory.indexOf("/* ── Keyboard"));
-  assert.match(block, /Matter memory and global memory have no adapter/);
-  assert.match(block, /Sources are files, not memory/);
+  assert.match(block, /Matter memory and global memory are not available here/);
+  assert.match(block, /Sources are separate: files configured under Skills and in the project remain readable/);
   assert.match(block, /Temporary chat/);
   // 一行说明，不是一个开关：这一段里没有任何可聚焦的东西。
   for (const control of ['el("button"', 'el("input"', 'el("select"', "segmented("])

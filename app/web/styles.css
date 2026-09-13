@@ -1369,16 +1369,10 @@ summary.flow-row {
 summary.flow-row::-webkit-details-marker {
   display: none;
 }
-summary.flow-row::after {
-  content: "›";
-  flex: none;
-  align-self: center;
-  color: var(--muted);
-  font-size: var(--text-navigation-title);
-  line-height: 1;
+summary.flow-row > .flow-disclosure-icon {
   transition: transform var(--duration) var(--ease-out);
 }
-details[open] > summary.flow-row::after {
+details[open] > summary.flow-row > .flow-disclosure-icon {
   transform: rotate(90deg);
 }
 @media (max-width: 1023px) {
@@ -5799,19 +5793,17 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .home-attention-heading-link { padding: 0; min-height: 0; border: 0; border-radius: 0; background: none; color: var(--ink); font-size: var(--text-body); font-weight: 600; }
 .home-attention-heading-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 .attention-workspace { min-height: 0; flex: 1; overflow: auto; padding: 32px var(--page-gutter) 48px; }
-/* Chat page: the same page anatomy as the Attention workspace (eyebrow, title,
- * one lede, sections in the 1040 measure); no new material, no glass. */
+/* Chat page: object heading, primary actions and rows; secondary explanation
+ * is disclosed on demand. Same 1040 measure as Attention, solid material. */
 .chat-page { min-height: 0; flex: 1; overflow: auto; padding: 32px var(--page-gutter) 48px; }
 .chat-page-inner { max-width: 1040px; margin: 0 auto; display: grid; gap: 32px; }
 .chat-page-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
 .chat-page-heading h1 { display: flex; align-items: center; gap: 10px; font-size: 30px; letter-spacing: -0.02em; margin: 4px 0 8px; }
 .chat-page-heading h1 > .ui-icon { color: var(--muted-strong); }
-.chat-eyebrow { font-size: var(--text-meta); letter-spacing: 0.08em; color: var(--muted-strong); margin: 0; }
-.chat-lede { margin: 0; max-width: 60ch; color: var(--muted-strong); }
 .chat-page-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .chat-page h2 { font-size: var(--text-title); margin: 0 0 12px; }
 .chat-rows { display: grid; gap: 4px; }
-.chat-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: var(--control); padding: 8px 10px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.chat-row { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; min-height: var(--control); padding: 8px 10px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
 .chat-row:hover { background: var(--hover); }
 .chat-row.is-current { background: var(--selected); }
 .chat-row > .ui-icon { flex: none; color: var(--muted-strong); }
@@ -5827,6 +5819,9 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .chat-facet p { margin: 0; color: var(--muted-strong); font-size: var(--text-body); }
 .chat-facet-here { color: var(--muted-strong); font-size: var(--text-meta); }
 .chat-facet .quiet-button { justify-self: start; }
+.chat-about > summary { cursor:pointer; color:var(--muted-strong); }
+.chat-about[open] > summary { margin-bottom:var(--section-gap); }
+.chat-about > .chat-keeps { margin-top:var(--section-gap); }
 .chat-keeps dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 20px; margin: 0; max-width: 72ch; }
 .chat-keeps dt { font-weight: 600; }
 .chat-keeps dd { margin: 0; color: var(--muted-strong); }
@@ -6056,6 +6051,12 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
   --usage-series-5: var(--dataviz-slate);
 }
 /* tier:U · Usage reading surface and data marks. */
+/* FA-02 · same fixed-header / scrolling-body relationship as Files. A long
+   observation must not scroll its only visible exit out of reach. The 4px
+   gutter preserves the existing 2px + 2px focus ring at the scroll boundary. */
+.usage-dialog[open], .spark-dialog[open] { display:flex; flex-direction:column; overflow:hidden; }
+.usage-header, .spark-header { flex:0 0 auto; }
+.observation-dialog-body { min-height:0; overflow:auto; overscroll-behavior:contain; padding:4px; margin:-4px; }
 .usage-dialog { width: min(1040px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); overflow: auto; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius-card); padding: 24px; }
 .usage-dialog::backdrop { background: var(--scrim); }
 .usage-header { display:flex; align-items:start; justify-content:space-between; gap:16px; }

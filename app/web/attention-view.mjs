@@ -148,8 +148,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
     const root = el('div',{className:'attention-workspace-inner'});
     root.addEventListener('keydown', onKeyDown);
     root.append(el('div',{className:'attention-workspace-heading'},
-      el('div',{},el('p',{className:'attention-eyebrow',text:'YOUR WORKSPACE'}),el('h1',{text:'Attention items'}),
-        el('p',{className:'form-help',text:'Keep the next human decision in view.'})),
+      el('div',{},el('h1',{text:'Attention items'})),
       button('Back to workspace',onBack,'back')));
     const scope = el('select',{attrs:{'aria-label':'Attention workspace project','data-attention-focus':'project'}});
     scope.append(...state.projects.map(p=>el('option',{text:p.name,attrs:{value:p.id}})));scope.value=state.projectId??'';
@@ -228,7 +227,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
       }
       detail.append(refs);
       detail.append(actionSurface(d));
-    }else if(!state.selectedId)detail.append(el('div',{className:'attention-empty'},el('h2',{text:'A little context, before the next step.'}),el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
+    }else if(!state.selectedId)detail.append(el('div',{className:'attention-empty'},el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
     if (onOpenAssistant) detail.append(button('Open Attention', onOpenAssistant, 'open-assistant'));
     columns.append(list,detail);root.append(columns);container.replaceChildren(root);
     if(focused)(container.querySelector(`[data-attention-focus="${CSS.escape(focused)}"]`)??container.querySelector('[data-attention-focus="project"]'))?.focus();

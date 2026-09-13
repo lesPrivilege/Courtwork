@@ -286,9 +286,12 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
   function render() {
     if (!visible) return;
     const focused = document.activeElement;
+    const scrollTop = dialog.querySelector('.observation-dialog-body')?.scrollTop ?? 0;
     const focusKey = dialog.contains(focused) ? (focused.id || focused.getAttribute('aria-label') || focused.getAttribute('data-spark-focus')) : null;
     try { renderContents();
     } finally {
+      const body = dialog.querySelector('.observation-dialog-body');
+      if (body) body.scrollTop = scrollTop;
       if (focusKey) {
         const target = [...dialog.querySelectorAll('button, select')].find((node) => (node.id || node.getAttribute('aria-label') || node.getAttribute('data-spark-focus')) === focusKey && !node.disabled);
         (target || dialog.querySelector('[aria-label="Close Spark"]'))?.focus();
@@ -338,7 +341,7 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
     }
 
     const panel = el('section', { attrs: { id: 'spark-panel', role: 'tabpanel', 'aria-labelledby': `spark-tab-${tab}` } });
-    dialog.replaceChildren(header, controls, tabs, panel);
+    dialog.replaceChildren(header, el('div', { className: 'observation-dialog-body' }, controls, tabs, panel));
 
     if (!projectId) { panel.append(el('p', { className: 'form-help', text: 'No project to read maintenance state for.' })); return; }
 

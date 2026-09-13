@@ -7,6 +7,7 @@ import {
 } from "./vendor/floating.mjs";
 import { marked } from "./vendor/marked.mjs";
 import DOMPurify from "./vendor/purify.mjs";
+import { iconData } from "./vendor/icon-data.generated.mjs";
 
 export function el(tag, { className, text, attrs } = {}, ...children) {
   const node = document.createElement(tag);
@@ -96,9 +97,14 @@ export function icon(name, { size = 20 } = {}) {
     class: "ui-icon",
   }))
     svg.setAttribute(key, String(value));
-  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-  use.setAttribute("href", `/web/vendor/icons.svg#${name}`);
-  svg.append(use);
+  // The Host can disappear while the UI remains open. New controls must keep
+  // their glyphs without resolving another external SVG resource on each render.
+  // Geometry is generated from the same pinned source as icons.svg, not redrawn.
+  for (const [tag, attrs] of iconData[name]) {
+    const shape = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [key, value] of Object.entries(attrs)) shape.setAttribute(key, value);
+    svg.append(shape);
+  }
   return svg;
 }
 /* WK-57 · one anatomy for every Chat Flow row, reached by subtraction from the
@@ -115,6 +121,8 @@ export function flowRow(
   { glyph, title, meta, className = "", attrs } = {},
   action = null,
 ) {
+  const disclosure = tag === 'summary' ? icon('chevron-right', { size: 16 }) : null;
+  disclosure?.classList.add('flow-disclosure-icon');
   return el(
     tag,
     { className: `flow-row ${className}`.trim(), attrs },
@@ -122,6 +130,7 @@ export function flowRow(
     el("span", { className: "flow-title", text: title }),
     meta ? el("span", { className: "flow-meta", text: meta }) : null,
     action,
+    disclosure,
   );
 }
 /* M-16（WK-131 / WK-132）· 一个动作按钮的解剖只有一个主人。

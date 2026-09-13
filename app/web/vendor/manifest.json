@@ -255,6 +255,7 @@
   "adaptations": [
     "Floating DOM is bundled to ESM; Marked and DOMPurify distributions copied without edits.",
     "Lucide paths copied into static symbols; native SVG use retains viewBox 24, stroke currentColor, stroke-width 2, round caps/joins, fill none.",
+    "The same pinned shapes are packaged as immutable ESM data; app controls render namespaced SVG children without a per-render external use request, including after Host disconnect.",
     "CourtWork domain glyphs (tools/ui-vendor/courtwork) are appended to the same sprite under the same geometry contract; sources and hashes recorded under courtwork."
   ],
   "outputs": {
@@ -262,6 +263,7 @@
     "marked.mjs": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
     "purify.mjs": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
     "icons.svg": "802e1b71c3c8b285874bbb0bbec5f184586220b995499427808d5277af23f3f9",
+    "icon-data.generated.mjs": "7287d53df7fa69338ab70509c7c3f9fbc6dd598551b03cb0e9d0585d85f04e95",
     "LICENSES.txt": "2d46e15ce43cff012f432563e577e536b95c8ad8d48cbeb727c968b09c0f5493"
   }
 }

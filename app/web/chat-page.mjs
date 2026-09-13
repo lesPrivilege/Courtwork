@@ -12,9 +12,9 @@ import { sessionMode } from "./ui-controls.mjs";
 import { relativeUpdated } from "./attention-view.mjs";
 
 const FACETS = [
-  { key: "chat.surface", name: "Chat", line: "A conversation that stays with the work. Talk something through, keep what matters, and hand it on when it is ready.", current: true },
-  { key: "attention.agent", name: "Attention", line: "The changes across your work that need a look, with the object and the reason beside them." },
-  { key: "spark.surface", name: "Spark", line: "Fast, focused preparation of material: organize, extract and translate the pieces the next step depends on." },
+  { key: "chat.surface", name: "Chat", line: "Conversations and their recorded work.", current: true },
+  { key: "attention.agent", name: "Attention", line: "Questions and decisions that need your attention." },
+  { key: "spark.surface", name: "Spark", line: "Matters that may need updating after their sources change." },
 ];
 
 export function createChatPage(container, { onOpenSession, onNewChat, onOpenAttention, onOpenSpark, onExample = null }) {
@@ -42,7 +42,6 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     card.append(head, el("p", { text: entry.line }));
     if (entry.key === "attention.agent") card.append(el("button", { className: "quiet-button", text: "Open Attention", attrs: { type: "button", "data-chat-facet": "attention" } }));
     if (entry.key === "spark.surface") card.append(el("button", { className: "quiet-button", text: "Open Spark", attrs: { type: "button", "data-chat-facet": "spark" } }));
-    if (entry.current) card.append(el("p", { className: "chat-facet-here", text: "You are here." }));
     card.querySelector('[data-chat-facet="attention"]')?.addEventListener("click", () => onOpenAttention());
     card.querySelector('[data-chat-facet="spark"]')?.addEventListener("click", () => onOpenSpark());
     return card;
@@ -59,9 +58,7 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
 
     const heading = el("header", { className: "chat-page-heading" },
       el("div", {},
-        el("p", { className: "chat-eyebrow", text: "CHAT" }),
         el("h1", { attrs: { tabindex: "-1", "data-chat-focus": "title" } }, semanticIcon("chat.surface", { size: 24 }), el("span", { text: "Chat" })),
-        el("p", { className: "chat-lede", text: "Start from a question or an idea, choose who you are talking to, and let the conversation carry what it produces into the work." }),
       ),
     );
     const actions = el("div", { className: "chat-page-actions" });
@@ -84,7 +81,7 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
       continueSection.append(list);
       if (rows.length > recent.length) continueSection.append(el("p", { className: "form-help", text: `${rows.length - recent.length} more in the project list.` }));
     } else {
-      continueSection.append(el("p", { className: "chat-empty", text: "No chats yet. New chat starts one; Home's composer does the same with a project chosen." }));
+      continueSection.append(el("p", { className: "chat-empty", text: "No chats yet." }));
     }
     /* Stage 4 · the example workspace can be looked at again from here whether
      * or not real chats exist; the entry is a quiet button, never a row. */
@@ -99,14 +96,14 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     const keeps = el("section", { className: "chat-keeps", attrs: { "aria-labelledby": "chat-keeps-title" } },
       el("h2", { text: "What a chat keeps", attrs: { id: "chat-keeps-title" } }),
       el("dl", {},
-        el("dt", { text: "Its project." }), el("dd", { text: "A chat belongs to the project you chose. Files, materials and file access come from there, and the chat stays in that project's list." }),
-        el("dt", { text: "Its record." }), el("dd", { text: "Every run leaves its messages, tool actions and recorded files in the chat. Binding a chat to a Matter turns it into Work, where candidates and decisions are kept." }),
-        el("dt", { text: "Its model." }), el("dd", { text: "Chats run through the connection configured in Settings · Models. This page does not connect to a provider by itself." }),
-        el("dt", { text: "Later." }), el("dd", { text: "Carrying a conversation across providers, a shared memory, and handing a discussion to a run are planned. They appear here when they exist, not before." }),
+        el("dt", { text: "Project" }), el("dd", { text: "Each chat belongs to a project and keeps its own file access." }),
+        el("dt", { text: "Record" }), el("dd", { text: "Messages, tool actions and recorded files remain with the chat. A chat bound to a Matter is Work." }),
+        el("dt", { text: "Model" }), el("dd", { text: "Connections are configured in Settings · Models. Opening this page does not start a run." }),
       ),
     );
 
-    container.replaceChildren(el("div", { className: "chat-page-inner" }, heading, continueSection, facets, keeps));
+    const about = el("details", { className: "chat-about" }, el("summary", { text: "About chats" }), facets, keeps);
+    container.replaceChildren(el("div", { className: "chat-page-inner" }, heading, continueSection, about));
     return container;
   }
 
