@@ -1,0 +1,9 @@
+{
+  "integrated_main_sha": "27006f05eb82609d6eb731d41faa880e809b49d4",
+  "tested_product_sha": "9eece81f1b90729388d4fd4ffec162264d2eaa4c",
+  "parallelUncommittedBytesPreserved": true,
+  "currentIndexScope": "only this release section; parallel current edits remain unstaged",
+  "releaseAcceptance": false,
+  "realCandidateDecision": "pending human review",
+  "remoteMutations": false
+}

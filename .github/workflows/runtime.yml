@@ -22,6 +22,8 @@ jobs:
           - "24.x"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
@@ -32,6 +34,8 @@ jobs:
           python-version: "3.12"
       - name: Install locked dependencies
         run: npm --prefix app ci --ignore-scripts
+      - name: Verify fixed historical test inputs
+        run: node app/scripts/check-historical-fixtures.mjs
       - name: Run bounded synthetic tests
         run: npm --prefix app test
       - name: Run deterministic runtime smoke

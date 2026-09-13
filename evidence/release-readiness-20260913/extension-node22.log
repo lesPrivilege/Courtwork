@@ -1,0 +1,78 @@
+TAP version 13
+# (node:44423) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Inbound NDA reaches loopback with declared reasoning while Work metadata stays fixed
+ok 1 - Inbound NDA reaches loopback with declared reasoning while Work metadata stays fixed
+  ---
+  duration_ms: 623.224875
+  type: 'test'
+  ...
+# (node:44424) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: extension restart: loaded binding continues; invalidation and unload keep their generations
+ok 2 - extension restart: loaded binding continues; invalidation and unload keep their generations
+  ---
+  duration_ms: 989.256041
+  type: 'test'
+  ...
+# Subtest: extension restart: changed version requires reload; empty composition preserves dormant records
+ok 3 - extension restart: changed version requires reload; empty composition preserves dormant records
+  ---
+  duration_ms: 225.223167
+  type: 'test'
+  ...
+# (node:44425) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: T-EXT-1: se_read_source succeeds through service.createRun on AgentSession
+ok 4 - T-EXT-1: se_read_source succeeds through service.createRun on AgentSession
+  ---
+  duration_ms: 619.7575
+  type: 'test'
+  ...
+# Subtest: T-EXT-2: se_submit_candidate goes through once and Core rejects the late call
+ok 5 - T-EXT-2: se_submit_candidate goes through once and Core rejects the late call
+  ---
+  duration_ms: 499.930042
+  type: 'test'
+  ...
+# (node:44426) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: model capability contract: legacy boolean is not promoted into invented effort tiers; explicit per-model lists stay isolated
+ok 6 - model capability contract: legacy boolean is not promoted into invented effort tiers; explicit per-model lists stay isolated
+  ---
+  duration_ms: 233.107334
+  type: 'test'
+  ...
+# Subtest: model capability contract: effort lists reject invalid values; config CAS detects missing and stale writers
+ok 7 - model capability contract: effort lists reject invalid values; config CAS detects missing and stale writers
+  ---
+  duration_ms: 96.668083
+  type: 'test'
+  ...
+# Subtest: installed model descriptors are API-specific and preserve exact concrete effort ladders
+ok 8 - installed model descriptors are API-specific and preserve exact concrete effort ladders
+  ---
+  duration_ms: 66.904625
+  type: 'test'
+  ...
+# Subtest: editing a connection invalidates selected effort, and each Run freezes a capability binding across reopen
+ok 9 - editing a connection invalidates selected effort, and each Run freezes a capability binding across reopen
+  ---
+  duration_ms: 306.819375
+  type: 'test'
+  ...
+# Subtest: schema12→13 migration preserves config and active Run, adds unknown capability, bumps CAS epoch, and invalidates old receipt
+ok 10 - schema12→13 migration preserves config and active Run, adds unknown capability, bumps CAS epoch, and invalidates old receipt
+  ---
+  duration_ms: 513.385584
+  type: 'test'
+  ...
+1..10
+# tests 10
+# suites 0
+# pass 10
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2019.118833

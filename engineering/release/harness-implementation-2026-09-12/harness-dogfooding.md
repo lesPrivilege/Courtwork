@@ -47,3 +47,7 @@
 后续按用户要求采用小工单异步 loop：Luna 负责有界探索、可复现实验和独立核查，Astra 保留架构裁决、关键修复及合流。每轮取得明确结论或证据缺口即收束，不做无限轮询；这不是自动定时任务。[DF-UI-01](research/home-pointer-loop.md)已复现组件重绘丢点击的可能机制，现场归因仍未证实，未改产品。
 
 用户随后授权生产修改：[Home 修复回执](evidence/home-production-fix/README.md)覆盖未变化列表的节点保留，以及现场确认的窄屏列表被挤压遮挡。实际 GUI 鼠标返回已通过；不是通用列表重排/热插拔工程。
+
+## 2026-09-13 · 下一轮扩展收敛
+
+[Release审查与Harness提案](../review-intake-2026-09-13/round-24bd954/README.md)已逐项入账。[RD-009](../../research/RD-009-trusted-harness-extensions.md)把DF-04细化为一个coding组合内的Host固定recipe：精确权限预览、最小环境、限时/限输出、取消后独立settle与Run/call身份。普通子进程不称sandbox。当前首个NDA Release不广告agent自行运行仓库检查；Developer消费者实际采用时，DF-04证据成为该声称前置。Hooks/视觉/浏览器/子任务按同一owner接缝准备，未执行任意扩展或新设发布门。

@@ -1,0 +1,2 @@
+Historical test inputs unavailable. Use a full-history clone (or git fetch --unshallow) and preserve the committed schema3 fixture. No tests were skipped.
+schema3: frozen bytes changed for server/store.mjs

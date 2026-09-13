@@ -1,3 +1,4 @@
+import { historicalFixtures } from "./fixtures/historical/manifest.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
@@ -11,19 +12,9 @@ import { test } from "node:test";
 import { RuntimeStore } from "../server/store.mjs";
 
 const exec = promisify(execFile);
-const BASE_SHA = "a579929edd66544e6aa7cd8cd7d2399fae8265d3";
+const BASE_SHA = historicalFixtures.providerPublication.commit;
 const repoRoot = path.resolve(fileURLToPath(new URL("../../", import.meta.url)));
-const HISTORICAL_STORE_FILES = [
-  "server/store.mjs",
-  "server/runtime-lock.mjs",
-  "server/runtime-lock.py",
-  "server/work-metrics.mjs",
-  "server/work-summary.mjs",
-  "server/async-task-state.mjs",
-  "harness/coordination-state.mjs",
-  "runtime/test-hooks.mjs",
-  "server/usage-details.mjs",
-];
+const HISTORICAL_STORE_FILES = historicalFixtures.providerPublication.files;
 
 function endpointOfLength(length) {
   const prefix = "https://provider.example.test/";

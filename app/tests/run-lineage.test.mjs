@@ -1,3 +1,4 @@
+import { historicalFixtures } from "./fixtures/historical/manifest.mjs";
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { randomUUID, createHash } from 'node:crypto';
@@ -15,7 +16,7 @@ import { boot, spawnWorker, reopen } from './helpers.mjs';
 // immutable, the lineage is a chain, no input is copied and nothing is
 // replayed. Every server here uses port 0 and an mkdtemp data directory.
 
-const BASE_SHA = '461ab12';
+const BASE_SHA = historicalFixtures.lineage.commit;
 const exec = promisify(execFile);
 const repoRoot = path.resolve(fileURLToPath(new URL('../../', import.meta.url)));
 const FAILING = '/fixture error make this run fail';
@@ -268,8 +269,7 @@ test('BG02-T6: a schema 11 state with an impossible lineage fails closed, and th
     // The pre-BG-02 host must refuse the new schema outright rather than drop
     // the field it cannot see.
     const code = path.join(dir, 'base-code');
-    const files = ['server/store.mjs', 'server/usage-details.mjs', 'server/runtime-lock.mjs', 'server/runtime-lock.py',
-      'server/work-metrics.mjs', 'server/work-summary.mjs', 'server/async-task-state.mjs', 'harness/coordination-state.mjs', 'runtime/test-hooks.mjs'];
+    const files = historicalFixtures.lineage.files;
     for (const name of files) {
       const { stdout } = await exec('git', ['show', `${BASE_SHA}:app/${name}`], { cwd: repoRoot, encoding: 'buffer', maxBuffer: 8 * 1024 * 1024 });
       const dest = path.join(code, name); await mkdir(path.dirname(dest), { recursive: true }); await writeFile(dest, stdout);

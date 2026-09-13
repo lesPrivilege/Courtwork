@@ -1,0 +1,17 @@
+✔ extension restart: loaded binding continues; invalidation and unload keep their generations (1344.629792ms)
+✔ extension restart: changed version requires reload; empty composition preserves dormant records (222.09575ms)
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (509.41125ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (632.919875ms)
+✔ model capability contract: legacy boolean is not promoted into invented effort tiers; explicit per-model lists stay isolated (220.534625ms)
+✔ model capability contract: effort lists reject invalid values; config CAS detects missing and stale writers (76.638042ms)
+✔ installed model descriptors are API-specific and preserve exact concrete effort ladders (73.549709ms)
+✔ editing a connection invalidates selected effort, and each Run freezes a capability binding across reopen (326.290625ms)
+✔ schema12→13 migration preserves config and active Run, adds unknown capability, bumps CAS epoch, and invalidates old receipt (553.566584ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2706.760917

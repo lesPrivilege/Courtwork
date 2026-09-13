@@ -1,0 +1,55 @@
+{
+  "source_sha": "cb5ca68314d53fa5b1c8a40ad18b4bfad40cf71d",
+  "runId": "b293f25e-617b-4944-b415-346f1a035fa2",
+  "status": "completed",
+  "candidateId": "candidate-1d8e935fa6b2f402de7ac7d6749aeb5204737bd8af19ecf03f1d0c5e6bced260",
+  "candidateStatus": "pending",
+  "sourceChecks": [
+    {
+      "ruleId": "purpose-limitation",
+      "status": "pass",
+      "exactSourceMatch": true
+    },
+    {
+      "ruleId": "need-to-know-recipients",
+      "status": "pass",
+      "exactSourceMatch": true
+    },
+    {
+      "ruleId": "security-and-notice",
+      "status": "pass",
+      "exactSourceMatch": true
+    },
+    {
+      "ruleId": "term-duration",
+      "status": "pass",
+      "exactSourceMatch": true
+    }
+  ],
+  "decisions": 0,
+  "usage": {
+    "input": 6115,
+    "output": 10859,
+    "cacheRead": 49408,
+    "cacheWrite": 0,
+    "turns": 5,
+    "missing": false
+  },
+  "eventCounts": {
+    "user.message": 1,
+    "run.status": 4,
+    "runtime.bound": 1,
+    "runtime.request.telemetry": 17,
+    "assistant.delta": 10546,
+    "assistant.message": 5,
+    "tool.start": 5,
+    "tool.result": 5,
+    "permission.open": 1,
+    "permission.resolved": 1,
+    "artifact.written": 1,
+    "run.usage": 1
+  },
+  "emptyTextSnapshots": 8541,
+  "snapshotUncompressedSha256": "92cdac9e1da24d375d9da25d3d69e7c69feae681a0fffaa51bd4da9927c84410",
+  "scope": "synthetic fixture and recorded source checks; not independent legal quality acceptance"
+}

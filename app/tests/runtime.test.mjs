@@ -1,18 +1,38 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { test } from "node:test";
 import { RuntimeStore } from "../server/store.mjs";
+
+async function fixture(t, prefix) {
+  const dataDir = await mkdtemp(path.join(tmpdir(), prefix));
+  const stores = [];
+  t.after(async () => {
+    try { for (const store of stores) await store.close(); }
+    finally { await rm(dataDir, { recursive: true, force: true }); }
+  });
+  return {
+    dataDir,
+    async open() {
+      const store = new RuntimeStore({ dataDir });
+      stores.push(store);
+      return store.open();
+    },
+  };
+}
 
 // schemaVersion 13: the app store keeps no private conversation transcript
 // (_history) — the host's Pi JSONL session file is the only journal, the
 // store's own "events" array is a generic UI-facing projection, and
 // run.commandId/artifacts/usage/hostSession carry the run's own facts.
 // Version 3 adds the persisted credentialGeneration counter. There is no
-// migration in either direction: an older file is refused, not rewritten.
+// migration for versions 1/2: those inputs are refused without rewriting.
+// Supported later input versions have separate migration/recovery tests.
 
-test("RuntimeStore persists schemaVersion 13 session/run fields and the canonical user event", async () => {
-  const dataDir = await mkdtemp("/private/tmp/v5-store-");
-  const store = await new RuntimeStore({ dataDir }).open();
+test("RuntimeStore persists schemaVersion 13 session/run fields and the canonical user event", async (t) => {
+  const { dataDir, open } = await fixture(t, "v5-store-");
+  const store = await open();
   const project = await store.createProject("test project");
   const session = await store.createSession({
     projectId: project.id,
@@ -47,7 +67,7 @@ test("RuntimeStore persists schemaVersion 13 session/run fields and the canonica
   await store.updateRun(run.id, { status: "completed", admissionOpen: false });
   await store.close();
 
-  const reopened = await new RuntimeStore({ dataDir }).open();
+  const reopened = await open();
   const stored = reopened.getRun(run.id);
   assert.equal(stored.status, "completed");
   // An artifact entry is a content version, stamped by the store: the caller
@@ -63,9 +83,9 @@ test("RuntimeStore persists schemaVersion 13 session/run fields and the canonica
   await reopened.close();
 });
 
-test("RuntimeStore createRun is idempotent by commandId and rejects a conflicting replay", async () => {
-  const dataDir = await mkdtemp("/private/tmp/v5-idem-");
-  const store = await new RuntimeStore({ dataDir }).open();
+test("RuntimeStore createRun is idempotent by commandId and rejects a conflicting replay", async (t) => {
+  const { dataDir, open } = await fixture(t, "v5-idem-");
+  const store = await open();
   const project = await store.createProject("p");
   const session = await store.createSession({ projectId: project.id, title: "s", workspaceDir: `${dataDir}/ws`, permissionMode: "draft" });
   const provider = { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions", realProvider: false };
@@ -81,13 +101,13 @@ test("RuntimeStore createRun is idempotent by commandId and rejects a conflictin
   await store.close();
 });
 
-test("RuntimeStore rejects an older schemaVersion file with no migration and does not rewrite it", async () => {
+test("RuntimeStore rejects an older schemaVersion file with no migration and does not rewrite it", async (t) => {
   for (const version of [1, 2]) {
-    const dataDir = await mkdtemp("/private/tmp/v5-invalid-state-");
+    const { dataDir, open } = await fixture(t, "v5-invalid-state-");
     const filePath = `${dataDir}/runtime-state.json`;
     const original = `{"schemaVersion":${version}}\n`;
     await writeFile(filePath, original);
-    await assert.rejects(() => new RuntimeStore({ dataDir }).open(), (error) => {
+    await assert.rejects(() => open(), (error) => {
       assert.equal(error.code, "INVALID_STATE");
       assert.match(error.message, new RegExp(`schemaVersion ${version} is not supported`));
       return true;
@@ -99,16 +119,16 @@ test("RuntimeStore rejects an older schemaVersion file with no migration and doe
 // T-CRED-6: the credential generation counter is persisted state, not a
 // process-local integer. A restart must not hand out a generation a
 // pre-restart run already recorded.
-test("T-CRED-6: credentialGeneration is persisted and keeps increasing across a reopen", async () => {
-  const dataDir = await mkdtemp("/private/tmp/v5-credgen-");
-  const store = await new RuntimeStore({ dataDir }).open();
+test("T-CRED-6: credentialGeneration is persisted and keeps increasing across a reopen", async (t) => {
+  const { dataDir, open } = await fixture(t, "v5-credgen-");
+  const store = await open();
   assert.equal(store.getCredentialGeneration(), 0);
   await store.bumpCredentialGeneration();
   await store.bumpCredentialGeneration();
   assert.equal(store.getCredentialGeneration(), 2);
   await store.close();
 
-  const reopened = await new RuntimeStore({ dataDir }).open();
+  const reopened = await open();
   assert.equal(reopened.getCredentialGeneration(), 2, "a restart must not reset the counter");
   assert.equal(await reopened.bumpCredentialGeneration(), 3);
   await reopened.close();

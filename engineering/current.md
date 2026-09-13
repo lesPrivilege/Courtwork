@@ -12,6 +12,12 @@
 
 [施工与裁决](design/frontend-audit-2026-09-13/hierarchy-polish/README.md)：Luna探索，Astra选型及实现。当前Settings采用contained实色配置面、内部平整分隔、组标题滚动锚点；搜索多组取消sticky，窄屏空态及可见容器焦点环已修正。Home/Chat/Attention保留现有层级。本记录仅对应codex/ui-hierarchy-polish-20260913独立分支，未合main；非作者源码复核与作者浏览器证据分列，不宣告全站IA接受，未push/部署。
 
+## 2026-09-13 · Release复核修复与真实模型候选
+
+[24bd954审查轮](release/review-intake-2026-09-13/round-24bd954/README.md)及ZIP/附件/会话与截图已固定哈希，Luna探索/非作者审阅、Astra裁决及实现。历史fixture完整输入与临时目录修复，支持集合及安装/媒体源码身份解耦；真实GUI暴露并修复reasoningEffort进入严格扩展描述符的初始化失败、非正文流更新误存为正文事件。最终9eece81组合Node22全量957/957、smoke/links通过，Node24定向10/10与Pages36/36；[证据与源码等价范围](../evidence/release-readiness-20260913/README.md)保留早期942结果、失败和中止记录。
+
+独立clone真实DeepSeek六个有界Run：普通回复、精确deny/approve及读回成立；正常重启后新Chat沿原Matter提交一个真实待审NDA候选，5turn完成。人的Decision尚待，取消子项未观察、接受后接续与真实闭环影片未完成，G1–G5整体未关闭。扩展后续入RD-009；[BE-23/DWB-05入口](research/deferred-workspace-binding-2026-09-12/recent-onboarding-20260913.md)采用Chat左下附件/workspace独立、未分配归Recent、取消前置命名，Attention仅附件且不限定工作区，尚未生产接线。已以27006f0快进本地main并保留其他writer内容，未push/tag/部署。
+
 ## 2026-09-13 · UI层级polish登记
 
 [空间层级与材质编排](design/frontend-audit-2026-09-13/hierarchy-polish-registration.md)已沿原IA-0…5队列登记，并接入frontend-contract与composition规范；最新对话全文及hash固定。后续优先任务锚点、容器关系、独立滚动与稀疏elevation，再比较有限Glass；现配色、正文实色及材质白名单不变。Attention已合UI02取代来源旧分栏描述，不重复派工；外部30候选/80%收益仍为未核验来源主张。本片仅登记与源码先例校正，6557链接检查通过，无生产改动、无新视觉接受，未push/部署。

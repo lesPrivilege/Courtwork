@@ -1,0 +1,25 @@
+{
+  "source_preview_sha": "9eece81f1b90729388d4fd4ffec162264d2eaa4c",
+  "requiredInputsPresent": true,
+  "historical_media_sha": "07688226330121e5877a6ff1e09e6ebf82995ae3",
+  "historicalSupportDocMissing": true,
+  "buildRecordsInputHashes": true,
+  "requiredInputHashes": [
+    {
+      "path": "README.md",
+      "sha256": "9767c87192d6f046db237069b12d5cb279558ee0c1b43218636e5836d3239faa"
+    },
+    {
+      "path": "app/package.json",
+      "sha256": "d72404a45d88ca06d0032f9a38bfcddc291f029facd6f9ffd56ec3de4c342f50"
+    },
+    {
+      "path": "app/docs/supported-preview.md",
+      "sha256": "8ac439803ee565c2d92600b0c759c75460a533673ecb79ffd2d2a13c594c71a5"
+    },
+    {
+      "path": "app/docs/first-work.md",
+      "sha256": "da00fd08504de294b2a54379f596c8d2acd0b9f87cfd5e98d15f17ed2c2cf764"
+    }
+  ]
+}

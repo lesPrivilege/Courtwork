@@ -1,0 +1,26 @@
+(node:7580) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ only native text updates project as assistant deltas (3.116416ms)
+✔ stream filtering retains final assistant messages and request telemetry (389.6685ms)
+(node:7581) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Inbound NDA reaches loopback with declared reasoning while Work metadata stays fixed (829.681625ms)
+(node:7582) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (586.141125ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (171.856584ms)
+(node:7583) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ Pro R-01: before-write never reports completed or discards settlement error (799.040833ms)
+✔ Pro R-01: after-write-ack-loss never reports completed or discards settlement error (793.36175ms)
+✔ Pro R-01: cancel-and-finish-failure never reports completed or discards settlement error (706.803875ms)
+✔ Pro R-02: ordinary first instruction discovers scoped source refs only from host context (288.361042ms)
+✔ Pro R-04: intermediate tool updates stay nonterminal until end (2.369125ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4188.728917

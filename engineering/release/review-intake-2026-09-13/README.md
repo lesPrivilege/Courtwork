@@ -83,3 +83,7 @@ G1缺最终候选干净启动与最新wire真实小探针；G2缺最终完整候
 ## Slash / compaction来源即时消费（2026-09-13）
 
 [完整入账与探针](../../research/slash-compaction-2026-09-13/README.md)已核对自动压缩相关15/15及当前slash普通文本fallthrough。当前Release只声明已实现的GUI/API和原生自动压缩，**不声明Host slash dispatcher或手动compact可用**；使用说明已[明确现状](../../../app/docs/commands-and-compaction.md)。Astra将[RD-008的CMD-01/CMP-01](../../research/RD-008-command-compaction.md)登记Release后期Developer增量，CMP-02质量优化再后置。来源建议的两个“小包”未直接转为新G门；manual所需独占、可查回回执/取消/恢复及command作用域/escape在RD中固定。若后续发行范围要求slash/manual，则先完成对应缺口；现有真实Provider、G4/G5门不能被这笔登记替代。
+
+## 24bd954审查回收与可复现性修复
+
+[本轮逐项处置](round-24bd954/README.md)保存完整会话实际返回、ZIP四原件与Harness补充提案。Luna有界audit/explore，Astra修复历史输入、平台临时目录与README源漂移，明确产品角色和实际支持集合；扩展缺口沿DF-04、RD-005/008/009，不重编旧P卡。[实测与交付](../../../evidence/release-readiness-20260913/README.md)单列本地Node22/24、干净clone、浏览器及真实Provider，远端CI/演示/发行按实际状态记账，不沿旧SHA自动签G门。

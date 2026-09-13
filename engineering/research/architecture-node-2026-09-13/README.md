@@ -29,4 +29,6 @@ Astra裁决与集成；Luna登记实际实现、复核既往论断，并独立�
 
 旧options同样按原字节归档为[选型快照](archive/options-273ad12.txt)，原坐标 `273ad12a9796aa0547d65e4811a6c56baa5c6a49:engineering/options.md`，SHA-256 `3fb9026b4913c4bb354a5279ce03039cae2990f89ae8dc23f75ef4664f9277f3`。活动[options](../../options.md)现区分真实采用与待验证候选，不再由早期OpenCode/TypeScript/React矩阵暗示当前基线。仅扩展名改为txt以保留原字节和原相对坐标，不重写历史链接。
 
+2026-09-13 Release审查增量：[本地裁决](../../release/review-intake-2026-09-13/round-24bd954/README.md)明确Chat交谈/交接、Spark短任务准备/核对、Attention请求/处置核查的产品角色；当前支持集合由[运行说明](../../../app/docs/supported-preview.md)单列。单一活动Run、披露与正式决定owner保持。受信执行扩展接缝登记[RD-009](../RD-009-trusted-harness-extensions.md)，coding recipe沿DF-04触发；不把scoped memory P07改义为hook，不将产品定义当实现接受。
+
 2026-09-13增量：[Court定位参考实践](../court-position-2026-09-13/README.md)补充持续工作控制责任、对象词汇和成熟机制选型快照；Astra裁决、Luna来源探索，不改五层owner或自动新增产品/Release义务。

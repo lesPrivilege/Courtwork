@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "b26670c8975bd9bd2666a856be55b80fcb2963fc",
+  "purpose": "Original schema3 host reads separate migration backup; source is not reachable from main. Frozen bytes, never current implementation.",
+  "files": {
+    "server/store.mjs": "5be9fbd7ab55f66ac45f52f0481a7618ae4e4e3e00d68414e762eafd3e2f7364",
+    "server/runtime-lock.mjs": "f01b6253eed9bd5b890b1561e018cfe8fa8aaa6add73728e0223059af926d587",
+    "server/runtime-lock.py": "efc384f9224902573f1d610dca94b8ea306df1297259ab7dc2f6ee83348ae871",
+    "server/work-summary.mjs": "12f9bd2b55f9f167f13de622a254cfaba3e5b61b4b7a377b1012a88d2aa72d66",
+    "runtime/test-hooks.mjs": "fd655e384097f6c2612fc150965ce9a44ad686041c7a58c0fca8b47d17f700e7"
+  }
+}

@@ -244,11 +244,11 @@ function architecture(fill, diagram) {
 }
 
 function productAtoms() {
-  return `<section class="product-atoms" aria-label="Spark and Attention" data-product-story="current" data-motion="instant">
+  return `<section class="product-atoms" aria-label="Spark and Attention product roles" data-product-story="concept" data-motion="instant">
     <article class="product-atom atom-spark" data-semantic-key="spark.surface" aria-labelledby="spark-title">
-      <p class="index">SPARK</p>
+      <p class="index">PRODUCT ROLE / SPARK</p>
       <h2 id="spark-title">Knowledge,<br><em>rebuilt.</em></h2>
-      <p class="atom-thesis">来源更新，发现随之重建。<br>知识保持新鲜，决定保留来路。</p>
+      <p class="atom-thesis">快速准备材料，按来源核对。<br>保留可检查的版本与来路。</p>
       <div class="atom-diagram spark-diagram" aria-hidden="true">
         <svg viewBox="0 0 520 190" focusable="false">
           <path class="atom-wire" d="M88 94H185M185 94V42H286M185 94H286M185 94V146H286"/>
@@ -264,7 +264,7 @@ function productAtoms() {
       <div class="atom-bottom"><p class="atom-state" data-spark-state>当前来源，当前发现。</p><button type="button" class="atom-control" data-story-toggle aria-pressed="false" aria-label="演示来源变化对 Spark 与 Attention 的影响" hidden>更新来源 <span aria-hidden="true">↗</span></button></div>
     </article>
     <article class="product-atom atom-attention" data-semantic-key="attention.agent" aria-labelledby="attention-title">
-      <p class="index">ATTENTION</p>
+      <p class="index">PRODUCT ROLE / ATTENTION</p>
       <h2 id="attention-title">Attention,<br><em>well spent.</em></h2>
       <p class="atom-thesis">让工作持续推进。<br>把你的注意力留给重要变化。</p>
       <div class="atom-diagram attention-diagram" aria-hidden="true">
@@ -287,11 +287,11 @@ function researchFigures() {
   return `<section class="section long-work" id="long-work" aria-labelledby="long-work-title">
     <p class="index">HOW THE WORK CONTINUES</p>
     <h2 id="long-work-title"><span lang="en">More knowledge.<br>A clearer next step.</span><span class="zh">工作持续积累，每次只关注当下。</span></h2>
-    <p class="lede">Chat 形成思路，Spark 整理来源与证据，Expert 推进工作，Attention 让未闭合事项保持可见。共同的 Matter 留下当前状态、决定与依据，让每次回来都有清楚的下一步。</p>
+    <p class="lede">CourtWork 的产品分工：Chat 交谈与交接，Spark 准备与核对，Expert 组织专业责任，Attention 跟进请求与处置。正式工作由 Matter 保留来源、决定与依据，让每次回来都有清楚的下一步。</p>
     ${figure("pipeline", "plate", "保存工作，治理版本与权限，再为当前任务组织上下文。")}
     <div class="long-work-stages">
-      <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>来源与正式判断留下，摘要与发现随之更新。让知识保持新鲜，也始终找得到来路。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
-      <section><p class="index">ATTENTION</p><h3>Make room for judgment.</h3><p>关联变化，合并重复，把需要判断的一项带到人面前。每次介入，都能沿着明确的对象继续。</p>${figure("attention", "object", "安静推进的工作，与需要你的一刻。")}</section>
+      <section><p class="index">SPARK</p><h3>Rebuild the view.</h3><p>把快读、翻译与核对结果连回来源，让后续工作可以检查并继续。</p>${figure("spark", "object", "派生可以重建，工作依据持续保留。")}</section>
+      <section><p class="index">ATTENTION</p><h3>Make room for judgment.</h3><p>查看已记录的请求、处置与结果，找到需要判断的一项。每次介入，都能沿着明确的对象继续。</p>${figure("attention", "object", "安静推进的工作，与需要你的一刻。")}</section>
       <section><p class="index">EXPERTS & EXECUTION</p><h3>Roles compose.</h3><p>Expert 定义责任，执行配置承载这项工作。角色与模型可以切换，Matter 保留共同的工作依据。</p>${figure("roles", "object", "责任、执行与工作，各有归属。")}</section>
     </div>
     <p class="actions"><a href="./features.html">Explore the features →</a><a href="./experts.html">Meet the roles →</a></p>

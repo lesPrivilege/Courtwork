@@ -11,7 +11,9 @@
     "test": "node --test --test-concurrency=4 tests/*.test.mjs ../tests/*.test.mjs",
     "test:load": "node --test --test-concurrency=8 tests/*.test.mjs ../tests/*.test.mjs",
     "smoke": "node scripts/runtime-smoke.mjs",
-    "check:product": "node scripts/product-check.mjs"
+    "check:product": "node scripts/product-check.mjs",
+    "pretest": "node scripts/check-historical-fixtures.mjs",
+    "pretest:load": "node scripts/check-historical-fixtures.mjs"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "0.85.1",
