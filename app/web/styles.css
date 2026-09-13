@@ -6715,3 +6715,4 @@ html[data-theme="dark"] {
 .subagent-information { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-2); }
 .subagent-information dt { color: var(--muted-strong); }
 .subagent-information dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.spark-dialog .quiet-button:not(.icon-only) .button-label { min-width: 0; white-space: normal; overflow-wrap: anywhere; text-align: left; }
