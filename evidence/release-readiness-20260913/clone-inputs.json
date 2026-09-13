@@ -1,0 +1,9 @@
+{
+  "clone": "single-branch; initial depth1 then unshallow; no local object sharing",
+  "sha": "93864cac4cf85da83dbd78c9d076b747413ef545",
+  "shallowRejected": true,
+  "fullHistoryPassed": true,
+  "corruptionRejected": true,
+  "schema3CommitAbsent": true,
+  "status": ""
+}

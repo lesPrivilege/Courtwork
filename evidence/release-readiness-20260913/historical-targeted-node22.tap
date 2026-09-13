@@ -1,0 +1,334 @@
+TAP version 13
+# (node:73441) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: independent recovery: SIGKILL at async_intent keeps one original task/run and never relaunches
+ok 1 - independent recovery: SIGKILL at async_intent keeps one original task/run and never relaunches
+  ---
+  duration_ms: 939.674709
+  type: 'test'
+  ...
+# Subtest: independent recovery: SIGKILL at async_dispatch keeps one original task/run and never relaunches
+ok 2 - independent recovery: SIGKILL at async_dispatch keeps one original task/run and never relaunches
+  ---
+  duration_ms: 886.945584
+  type: 'test'
+  ...
+# Subtest: independent recovery: SIGKILL at async_result keeps one original task/run and never relaunches
+ok 3 - independent recovery: SIGKILL at async_result keeps one original task/run and never relaunches
+  ---
+  duration_ms: 1274.265875
+  type: 'test'
+  ...
+# Subtest: independent recovery: SIGKILL at async_delivery keeps one original task/run and never relaunches
+ok 4 - independent recovery: SIGKILL at async_delivery keeps one original task/run and never relaunches
+  ---
+  duration_ms: 1293.867917
+  type: 'test'
+  ...
+# Subtest: fixed old main schema4 RuntimeStore rejects a schema5 state without changing bytes
+ok 5 - fixed old main schema4 RuntimeStore rejects a schema5 state without changing bytes
+  ---
+  duration_ms: 1433.28375
+  type: 'test'
+  ...
+# Subtest: schema3 and schema4 migrate with an exact independent backup and reopen
+ok 6 - schema3 and schema4 migrate with an exact independent backup and reopen
+  ---
+  duration_ms: 1021.752416
+  type: 'test'
+  ...
+# Subtest: invalid UTF-8 schema4 input is refused before migration and its bytes remain untouched
+ok 7 - invalid UTF-8 schema4 input is refused before migration and its bytes remain untouched
+  ---
+  duration_ms: 89.429583
+  type: 'test'
+  ...
+# (node:73442) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Thread identity and membership are durable, explicit and not Session identity
+ok 8 - Thread identity and membership are durable, explicit and not Session identity
+  ---
+  duration_ms: 135.601708
+  type: 'test'
+  ...
+# Subtest: outbox replay is idempotent; conflicting payload and invented source are refused
+ok 9 - outbox replay is idempotent; conflicting payload and invented source are refused
+  ---
+  duration_ms: 57.021042
+  type: 'test'
+  ...
+# Subtest: late delivery retains origin and distinguishes stale target from missing target
+ok 10 - late delivery retains origin and distinguishes stale target from missing target
+  ---
+  duration_ms: 56.223
+  type: 'test'
+  ...
+# Subtest: reply lineage requires a delivered reverse envelope, not an unrelated latest message
+ok 11 - reply lineage requires a delivered reverse envelope, not an unrelated latest message
+  ---
+  duration_ms: 60.557708
+  type: 'test'
+  ...
+# Subtest: global Attention directory spans scopes; it never yields another mailbox body or membership
+ok 12 - global Attention directory spans scopes; it never yields another mailbox body or membership
+  ---
+  duration_ms: 55.359208
+  type: 'test'
+  ...
+# Subtest: runtime cross-scope sending is Attention-only; a project Run is refused at that guard alone
+ok 13 - runtime cross-scope sending is Attention-only; a project Run is refused at that guard alone
+  ---
+  duration_ms: 65.645291
+  type: 'test'
+  ...
+# Subtest: a domain-bound Session cannot message from a Run even with a host-shaped origin
+ok 14 - a domain-bound Session cannot message from a Run even with a host-shaped origin
+  ---
+  duration_ms: 55.4065
+  type: 'test'
+  ...
+# Subtest: delete and scope change do not recreate a recipient or reroute queued messages
+ok 15 - delete and scope change do not recreate a recipient or reroute queued messages
+  ---
+  duration_ms: 49.4595
+  type: 'test'
+  ...
+# Subtest: RuntimeStore6 migration preserves global scope and exact backup; corrupt ledger fails closed
+ok 16 - RuntimeStore6 migration preserves global scope and exact backup; corrupt ledger fails closed
+  ---
+  duration_ms: 137.682333
+  type: 'test'
+  ...
+# Subtest: child grant monotonically narrows; the reducer passes caller-supplied conflict strings through and refuses contradictory results for one execution ID
+ok 17 - child grant monotonically narrows; the reducer passes caller-supplied conflict strings through and refuses contradictory results for one execution ID
+  ---
+  duration_ms: 8.163709
+  type: 'test'
+  ...
+# Subtest: child tool boundary denies widening and completion remains undelivered/unaccepted
+ok 18 - child tool boundary denies widening and completion remains undelivered/unaccepted
+  ---
+  duration_ms: 0.62225
+  type: 'test'
+  ...
+# Subtest: cancel, timeout, late completion and mutated caller input cannot change child settlement or origin
+ok 19 - cancel, timeout, late completion and mutated caller input cannot change child settlement or origin
+  ---
+  duration_ms: 6.875125
+  type: 'test'
+  ...
+# Subtest: authenticated HTTP Thread/message entry reaches a real inbox without starting a model
+ok 20 - authenticated HTTP Thread/message entry reaches a real inbox without starting a model
+  ---
+  duration_ms: 118.306334
+  type: 'test'
+  ...
+# Subtest: a crash inside the enqueue write leaves no half message; the same key then sends exactly once
+ok 21 - a crash inside the enqueue write leaves no half message; the same key then sends exactly once
+  ---
+  duration_ms: 224.370167
+  type: 'test'
+  ...
+# Subtest: a crash inside the delivery write keeps the message queued; recovery then delivers it exactly once
+ok 22 - a crash inside the delivery write keeps the message queued; recovery then delivers it exactly once
+  ---
+  duration_ms: 176.238
+  type: 'test'
+  ...
+# Subtest: clean restart after the outbox write completed recovers exactly one local delivery without a Run
+ok 23 - clean restart after the outbox write completed recovers exactly one local delivery without a Run
+  ---
+  duration_ms: 829.842084
+  type: 'test'
+  ...
+# Subtest: model messages require a real permission decision and cannot auto-run the recipient
+ok 24 - model messages require a real permission decision and cannot auto-run the recipient
+  ---
+  duration_ms: 620.587917
+  type: 'test'
+  ...
+# Subtest: global Attention crosses scope through the model tool, still spending exactly one exact-argument decision
+ok 25 - global Attention crosses scope through the model tool, still spending exactly one exact-argument decision
+  ---
+  duration_ms: 825.386959
+  type: 'test'
+  ...
+# Subtest: domain-bound Sessions receive no coordination tool at either composition site
+ok 26 - domain-bound Sessions receive no coordination tool at either composition site
+  ---
+  duration_ms: 498.884792
+  type: 'test'
+  ...
+# Subtest: read-only tool metadata agrees with dispatch denial; project model directory excludes other scopes
+ok 27 - read-only tool metadata agrees with dispatch denial; project model directory excludes other scopes
+  ---
+  duration_ms: 499.664416
+  type: 'test'
+  ...
+# Subtest: schema7 effort survives upgrade; fixed old host refuses schema9 and restores only the separate original backup
+ok 28 - schema7 effort survives upgrade; fixed old host refuses schema9 and restores only the separate original backup
+  ---
+  duration_ms: 292.6725
+  type: 'test'
+  ...
+# Subtest: mailbox pagination preserves ordered identities and refuses duplicate or oversized queries
+ok 29 - mailbox pagination preserves ordered identities and refuses duplicate or oversized queries
+  ---
+  duration_ms: 75.945167
+  type: 'test'
+  ...
+# Subtest: governance policy SIGKILL before_commit preserves zero/one complete effect
+ok 30 - governance policy SIGKILL before_commit preserves zero/one complete effect
+  ---
+  duration_ms: 405.447
+  type: 'test'
+  ...
+# Subtest: governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect
+ok 31 - governance policy SIGKILL after_commit_before_ack preserves zero/one complete effect
+  ---
+  duration_ms: 310.594583
+  type: 'test'
+  ...
+# Subtest: Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup
+ok 32 - Core3/app4 migrates atomically with an exclusive original backup; fixed old host refuses new DB and reads separate backup
+  ---
+  duration_ms: 528.820291
+  type: 'test'
+  ...
+# Subtest: migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes
+ok 33 - migration refuses existing or symlink backup, malformed owned schema, and partial new tables without modifying old bytes
+  ---
+  duration_ms: 720.66425
+  type: 'test'
+  ...
+# Subtest: governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together
+ok 34 - governance migration SIGKILL governance_migration_before_commit keeps schema markers and tables together
+  ---
+  duration_ms: 318.7295
+  type: 'test'
+  ...
+# Subtest: governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together
+ok 35 - governance migration SIGKILL governance_migration_after_commit keeps schema markers and tables together
+  ---
+  duration_ms: 316.939875
+  type: 'test'
+  ...
+# Subtest: disclosure expiry is checked at query time with a deterministic future clock
+ok 36 - disclosure expiry is checked at query time with a deterministic future clock
+  ---
+  duration_ms: 180.177417
+  type: 'test'
+  ...
+# Subtest: Runtime11 migrates a real schema10 byte sequence, preserves provider fields, and fences the old host
+ok 37 - Runtime11 migrates a real schema10 byte sequence, preserves provider fields, and fences the old host
+  ---
+  duration_ms: 307.133125
+  type: 'test'
+  ...
+# Subtest: a fixed schema10 host can read an exact schema10 backup in an independent directory
+ok 38 - a fixed schema10 host can read an exact schema10 backup in an independent directory
+  ---
+  duration_ms: 254.00575
+  type: 'test'
+  ...
+# Subtest: Runtime11 pending configuration markers survive reopen and finish durably
+ok 39 - Runtime11 pending configuration markers survive reopen and finish durably
+  ---
+  duration_ms: 125.9465
+  type: 'test'
+  ...
+# Subtest: Runtime11 refuses a malformed pending marker without changing the original bytes
+ok 40 - Runtime11 refuses a malformed pending marker without changing the original bytes
+  ---
+  duration_ms: 83.384292
+  type: 'test'
+  ...
+# (node:74305) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: BG02-T1: a cancelled, a failed and a restart-unknown Run can each be continued, and the continued Run is unchanged
+ok 41 - BG02-T1: a cancelled, a failed and a restart-unknown Run can each be continued, and the continued Run is unchanged
+  ---
+  duration_ms: 15045.14075
+  type: 'test'
+  ...
+# Subtest: BG02-T1/T7: a Run left in flight by SIGKILL becomes unknown, keeps its lineage and can itself be continued
+ok 42 - BG02-T1/T7: a Run left in flight by SIGKILL becomes unknown, keeps its lineage and can itself be continued
+  ---
+  duration_ms: 15282.093292
+  type: 'test'
+  ...
+# Subtest: BG02-T2: lineage is a chain — a Run that already has a continuation refuses a second one
+ok 43 - BG02-T2: lineage is a chain — a Run that already has a continuation refuses a second one
+  ---
+  duration_ms: 43208.621333
+  type: 'test'
+  ...
+# Subtest: BG02-T3: completed, still-running, foreign/absent and effect-unreconciled targets are each refused
+ok 44 - BG02-T3: completed, still-running, foreign/absent and effect-unreconciled targets are each refused
+  ---
+  duration_ms: 29555.864542
+  type: 'test'
+  ...
+# Subtest: BG02-T4: command identity includes the lineage claim
+ok 45 - BG02-T4: command identity includes the lineage claim
+  ---
+  duration_ms: 29451.857625
+  type: 'test'
+  ...
+# Subtest: BG02-T5: a continuation carries its own input; the earlier prompt is not copied or replayed
+ok 46 - BG02-T5: a continuation carries its own input; the earlier prompt is not copied or replayed
+  ---
+  duration_ms: 14487.539
+  type: 'test'
+  ...
+# Subtest: BG02-T6: schema 8 upgrades once with an exact backup, and an occupied backup path stops the upgrade
+ok 47 - BG02-T6: schema 8 upgrades once with an exact backup, and an occupied backup path stops the upgrade
+  ---
+  duration_ms: 185.077875
+  type: 'test'
+  ...
+# Subtest: BG02-T6: a schema 11 state with an impossible lineage fails closed, and the schema10 host refuses schema 11 entirely
+ok 48 - BG02-T6: a schema 11 state with an impossible lineage fails closed, and the schema10 host refuses schema 11 entirely
+  ---
+  duration_ms: 386.400416
+  type: 'test'
+  ...
+# Subtest: integration: main schema 9 lineage survives schema 11 provider-connection migration
+ok 49 - integration: main schema 9 lineage survives schema 11 provider-connection migration
+  ---
+  duration_ms: 129.152625
+  type: 'test'
+  ...
+# Subtest: RuntimeStore persists schemaVersion 13 session/run fields and the canonical user event
+ok 50 - RuntimeStore persists schemaVersion 13 session/run fields and the canonical user event
+  ---
+  duration_ms: 93.651666
+  type: 'test'
+  ...
+# Subtest: RuntimeStore createRun is idempotent by commandId and rejects a conflicting replay
+ok 51 - RuntimeStore createRun is idempotent by commandId and rejects a conflicting replay
+  ---
+  duration_ms: 44.4035
+  type: 'test'
+  ...
+# Subtest: RuntimeStore rejects an older schemaVersion file with no migration and does not rewrite it
+ok 52 - RuntimeStore rejects an older schemaVersion file with no migration and does not rewrite it
+  ---
+  duration_ms: 85.044
+  type: 'test'
+  ...
+# Subtest: T-CRED-6: credentialGeneration is persisted and keeps increasing across a reopen
+ok 53 - T-CRED-6: credentialGeneration is persisted and keeps increasing across a reopen
+  ---
+  duration_ms: 84.732458
+  type: 'test'
+  ...
+1..53
+# tests 53
+# suites 0
+# pass 53
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 158523.815834

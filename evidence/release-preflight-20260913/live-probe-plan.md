@@ -2,9 +2,11 @@
 
 此为待执行配方。先通过新候选产品检查，再由用户在独立GUI配置自己的已授权连接；不从其他实例读取/复制key，不在聊天、日志或证据导出key。Provider身份、model、API/endpoint、config revision、declared reasoning与实际省略/发送字段分开记录。预算是请求/turn与wall-clock边界，不冒称货币预算。
 
+2026-09-13实启修正：原操作稿的compaction-limit 0被CLI正整数校验拒绝，未启动Host、未调用模型；改用受支持下限1，实际compaction另计，不声称关闭自动压缩。此处修正待执行配方，不重写旧运行证据。
+
 ## 有界真实探针
 
-沿现有Pi与同一合成Project Cedar，CLI启动时使用`--max-turns 8 --deadline-ms 180000 --compaction-limit 0`；每个目标只执行一次，失败保留原回执，不无限重试。最多6个Run，加GUI显式的一次连接检查；合计最多48个普通agent turn与一次连接测试；这不是HTTP传输次数硬上限，adapter传输重试另计实际attempts。每Run最多8个普通turn。真实返回较少时记录实际数；工具错误或需要用户输入不会被剪成成功。取消执行计时不包括人等候，与CLI合同一致。
+沿现有Pi与同一合成Project Cedar，CLI启动时使用`--max-turns 8 --deadline-ms 180000 --compaction-limit 1`；每个目标只执行一次，失败保留原回执，不无限重试。最多6个Run，加GUI显式的一次连接检查；合计最多48个普通agent turn与一次连接测试；这不是HTTP传输次数硬上限，adapter传输重试另计实际attempts。每Run最多8个普通turn。真实返回较少时记录实际数；工具错误或需要用户输入不会被剪成成功。取消执行计时不包括人等候，与CLI合同一致。
 
 1. 默认参数普通回复；核对Provider配置、实际response和终态。
 2. 单个合成`ws_write`请求：在GUI精确Deny，检查未写入。工具拒绝不等于整个Run失败，保留模型后续响应。

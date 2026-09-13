@@ -1,0 +1,37 @@
+PASS  tour · light · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  tour · dark · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  tour · 390px scale 1  {"overflow":0}
+PASS  tour · 1440px scale 2  {"overflow":0}
+PASS  get · light · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  get · dark · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  get · 390px scale 1  {"overflow":0}
+PASS  get · 1440px scale 2  {"overflow":0}
+PASS  cli · light · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  cli · dark · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  cli · 390px scale 1  {"overflow":0}
+PASS  cli · 1440px scale 2  {"overflow":0}
+PASS  changelog · light · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  changelog · dark · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  changelog · 390px scale 1  {"overflow":0}
+PASS  changelog · 1440px scale 2  {"overflow":0}
+PASS  models · light · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  models · dark · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  models · 390px scale 1  {"overflow":0}
+PASS  models · 1440px scale 2  {"overflow":0}
+PASS  data · light · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  data · dark · contrast, layout and local resources  {"failures":[],"foreign":[],"overflow":0}
+PASS  data · 390px scale 1  {"overflow":0}
+PASS  data · 1440px scale 2  {"overflow":0}
+PASS  Desktop preview explains actual distribution  {}
+PASS  Dialog Escape closes  {}
+PASS  Install pins evidence and external data directory  {"source_sha":"07688226330121e5877a6ff1e09e6ebf82995ae3"}
+PASS  Denied clipboard retains manual copy  {}
+PASS  CLI uses recorded counts and exact source  {}
+PASS  CLI review does not decide; routes are explicit  {}
+PASS  CLI input remains text and clear works  {}
+PASS  CLI performs no remote requests  {"foreign":[]}
+PASS  Tour renders the complete current capture batch  {"states":13,"images":13,"captured":13,"provenance":0,"reserved":["home","running","artifact","spark","matter","continuity","attention","approval","review","models","integrations","settings","conversation"]}
+PASS  get · no-script content remains  {}
+PASS  cli · no-script content remains  {}
+PASS  tour · no-script content remains  {}
+36/36 passed

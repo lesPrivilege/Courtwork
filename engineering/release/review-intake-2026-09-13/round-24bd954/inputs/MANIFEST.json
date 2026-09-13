@@ -1,0 +1,28 @@
+{
+  "review_date": "2026-09-13",
+  "repository": "lesPrivilege/Courtwork",
+  "baseline_commit": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+  "status": "read-only review; proposed text not adopted; candidate release held",
+  "remote_mutations": false,
+  "local_product_tests_run": false,
+  "live_provider_calls_run": false,
+  "browser_visual_audit_run": false,
+  "raw_repository_or_actions_logs_archived": false,
+  "files": [
+    {
+      "path": "REVIEW-AND-HANDOFF.md",
+      "bytes": 17753,
+      "sha256": "f750904db673db68a8a39decab1707f600998fd3008dee00f2e8f27a17a3e98b"
+    },
+    {
+      "path": "PRODUCT-DEFINITION-DRAFT.md",
+      "bytes": 11867,
+      "sha256": "0ca887a70a30ae857a4d0bd451063582362025269ce5aa74e4e9342de0dfd33d"
+    },
+    {
+      "path": "SOURCES.md",
+      "bytes": 6667,
+      "sha256": "f3c519f4f395236e80e55fc88b1cee375077c9dbf1a3145d735ac4843a0194b5"
+    }
+  ]
+}

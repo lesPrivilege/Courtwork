@@ -39,3 +39,7 @@
 ## 判别与停止
 
 PR验收见[施工文稿](deferred-workspace-binding-2026-09-12/pr-plan.md)。身份改变、授权隐式扩大、旧回执被重算、路径检查可绕过或恢复无法确定目标时，保持外部能力关闭。需要改变Core/Session scope/第三方cwd生命周期时退回Astra，不把nullable修补冒充本路线完成。本次没有新产品测试、provider调用、迁移、部署或产品门关闭。
+
+## 2026-09-13入口顺序增量
+
+用户真实验证后的[Recent与可选工作区裁决](deferred-workspace-binding-2026-09-12/recent-onboarding-20260913.md)前置BE-23/DWB-05：普通projectless Chat、顶层Recent、发送前可选组织位置、取消前置命名。先补身份/schema/配置与恢复，外部目录仍由DWB-01/02负责；尚未实施，不以Attention替代。

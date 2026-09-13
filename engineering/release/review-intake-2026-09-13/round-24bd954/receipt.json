@@ -1,0 +1,22 @@
+{
+  "baseline": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+  "conversationId": "6aa67cee-e538-83ec-b58d-a2ac005a3e2a",
+  "sourceAuthority": "reference proposals; current user request authorizes local development and preparation",
+  "sha256": {
+    "SOURCES.md": "f3c519f4f395236e80e55fc88b1cee375077c9dbf1a3145d735ac4843a0194b5",
+    "MANIFEST.json": "15d30b872296fe76f7bc36d7833e1e6033582a1d994b00d319ce6a1c2176083a",
+    "HARNESS-EXTENSIONS-NEXT-ROUND.md": "c638b033d2daa6023a269386df496f5db604364bf382a1e503d059d1a798db58",
+    "PRODUCT-DEFINITION-DRAFT.md": "0ca887a70a30ae857a4d0bd451063582362025269ce5aa74e4e9342de0dfd33d",
+    "REVIEW-AND-HANDOFF.md": "f750904db673db68a8a39decab1707f600998fd3008dee00f2e8f27a17a3e98b",
+    "Courtwork-review-24bd954-20260913.zip": "5ce6e5aad9b21cb4e63d967460f96563099b6e7542f9ff3d4a9702c4f66eba47",
+    "conversation.json": "54468e60e5c1d29f19020fb5fafa09785899d10d2280012be80dfc580be6fca4",
+    "user-project-name-gate.png": "8c8f8de743b5a4d5c5bda7440f7a9c9ee0c5d0376a5f50a489d7e913bd6a5aff",
+    "user-workspace-composer-reference.png": "a1ec85e16d9eca6b72f749817cb069c72520190ede073e6647ca653c884a62a0",
+    "user-attachment-menu-reference.png": "999efb8a0a0af5d5fdd1a0a34b7f96eadac524374232da630ba92f3e7e7854f3",
+    "user-composer-workspace-layout.png": "5f87a6381dd6f1ab645a38c57ee99657445feda284fd9e2b73f945c613329aba"
+  },
+  "bundleManifestVerification": {
+    "files": 3,
+    "allBytesAndHashesMatch": true
+  }
+}
