@@ -75,7 +75,9 @@ export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key =
   message.append(content);
   const footer = el("footer", { className: "user-message-actions" });
   const time = renderMessageTime(row.startedAt);
-  if (time) footer.append(time);
+  // Run surface: the time sits at the bubble's own right edge. The action row
+  // comes first because it keeps its width while collapsed; putting it after
+  // the time would push the time inward by that width.
   if (actions) footer.append(actions);
   else footer.append(
     el("div", { className: "chat-action-row", attrs: { role: "group", "aria-label": "Message actions" } },
@@ -87,6 +89,7 @@ export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key =
       }),
     ),
   );
+  if (time) footer.append(time);
   message.append(footer);
   return message;
 }
