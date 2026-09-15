@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-15 · 分支清理
+
+[清理回执](release/final-preparation-2026-09-13/branch-cleanup-20260915.md)：本地/远端仅保留main与冻结archive/courtwork-main；34个本地、5个远端分支已删除。完整refs先备份，26棵工作树原提交与修改不变，解除分支关联；未完成施工仍接原owner，未合入main或扩大接受。
+
 ## 2026-09-15 · Main自足接续节点
 
 [本次合流与清理记录](release/final-preparation-2026-09-13/node-20260915.md)保全91个原在途路径并接原owner；Copy/Composer产品提交 `496af6a`，研究/治理登记分别保留事实与待办。Luna复核源码、入口与相关临时树，未完成的RD-006施工树保留。当前产品为该新提交，已发布媒体/安装仍固定 `fd96f96`；Host15/Core4/bridge5与Paper采用9.6不变。视觉、DF-04与G1–G5继续开放；历次“未commit/push”是当时状态，当前节点以本回执接续。

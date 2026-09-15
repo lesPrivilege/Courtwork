@@ -1,0 +1,378 @@
+{
+  "baseline": "60b592fd21c5e063083c76c0ba8a88edeb3f60fc",
+  "kept": [
+    "main",
+    "archive/courtwork-main"
+  ],
+  "frozen_sha": "f9ade85b72e5abcdc64c3a6c43ed3a13a2292476",
+  "local_deleted": [
+    {
+      "ref": "refs/heads/archive/fresh-pre-courtwork",
+      "sha": "c0c4d811044b08d1982ebd6ad23d50658a05e300",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/accept-pi-base-gui-2737c98-luna",
+      "sha": "385f18effd072879175abf146540dfb91ff5cd64",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/accept-pi-bounded-site-1",
+      "sha": "5f3e1ca6eb46df96f52abb414e520d2ffe6f1667",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/codex-arch-tool-read-1r1",
+      "sha": "a9aa6cd3c1168bd00e523b196fa4ab4f18d1d8b8",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/archive/legacy-branch/gui-hierarchy-1",
+      "sha": "d213d5f8568b20ad1d0ab0831c357c644e1a6dae",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/codex/attention-ui02-claude-20260913",
+      "sha": "667cd18b18abba3327d5af251ff788525d357efa",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/attention-ui02-integration-20260913",
+      "sha": "2737378a3b94125d430dbad017b72e8147beda3c",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/chat-copy-feedback-20260914",
+      "sha": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/chat-harness-intake-20260912",
+      "sha": "ea51ffc654c19706547a38fd9159902cd1b9094a",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/chat-ui-completion-20260913",
+      "sha": "4698e0e5036268af40990dd1b5ac12a4c5d124aa",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/composer-access-20260914",
+      "sha": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/court-position-intake-20260913",
+      "sha": "ad41b92f97bfde6c3e0193f8f0de746634ba0ff1",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/data-surfaces-20260913",
+      "sha": "0462360d30288cf5e2d3acbc595373001fd5fdea",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/developer-control-panel-20260913",
+      "sha": "42a7bdbc8a873bb1778b3ed6c71f07df72806493",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/harness-release-20260912",
+      "sha": "7a2e26c6f35f3810d3c3ad4c77b83a3079d7bcc1",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/projectless-chat-20260913",
+      "sha": "4fd29fdbce0ea8e8761542fb5bd061a4fd6e6a42",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/release-capability-lifecycle-20260913",
+      "sha": "7d9100e9400b2f105d4d8579b81f4b94e226bb5d",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/codex/release-core-summary-20260913",
+      "sha": "524ce320d3bde86b58be2eb7cc017d0c79b31026",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/release-final-20260913",
+      "sha": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/release-input-binding-20260913",
+      "sha": "8c07912b576f381e5849512d015ba2c8a940d27f",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/codex/release-mcp-failures-20260913",
+      "sha": "6b56e3f92b379a1905e083cd71e04bfe5af9657b",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/codex/release-preflight-20260913",
+      "sha": "6464df33ab3a0c31e6770b78acd7e8493edf49c4",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/release-readiness-20260913",
+      "sha": "27006f05eb82609d6eb731d41faa880e809b49d4",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/release-review-intake-20260913",
+      "sha": "ad33118a56ae15f1c3244e97147bd63c234e6916",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/release-test-contract-20260913",
+      "sha": "8461ff2ff77859d652ab467d78b4939296a5b43c",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/codex/runtime-inspector-hierarchy-20260913",
+      "sha": "92dcec91b28f7842863568c2f861b0dbaa05aea7",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/settings-resource-management-20260913",
+      "sha": "98d3ab0368df2291cf18b9f7b1ff4096167b7829",
+      "merged_into_main": false
+    },
+    {
+      "ref": "refs/heads/codex/slash-compaction-intake-20260913",
+      "sha": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/spark-agent-20260913",
+      "sha": "531079babf0043b42a780f49a6c58acc53764915",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/telemetry-slice1-20260914",
+      "sha": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/ui-hierarchy-polish-20260913",
+      "sha": "e9a1c057b61b405459a62456f9bf4b8534fb4235",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/ui-hierarchy-registration-20260913",
+      "sha": "dcc2bf135e00bcd0c4e6ef9090b8e2813995853e",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/work-review-object-card-20260913",
+      "sha": "7ccb1c3b2331492da1fc1d6f50d17b60f44d74b6",
+      "merged_into_main": true
+    },
+    {
+      "ref": "refs/heads/codex/workspace-access-20260914",
+      "sha": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+      "merged_into_main": true
+    }
+  ],
+  "remote_deleted": [
+    "refs/heads/archive/fresh-pre-courtwork",
+    "refs/heads/archive/legacy-branch/accept-pi-base-gui-2737c98-luna",
+    "refs/heads/archive/legacy-branch/accept-pi-bounded-site-1",
+    "refs/heads/archive/legacy-branch/codex-arch-tool-read-1r1",
+    "refs/heads/archive/legacy-branch/gui-hierarchy-1"
+  ],
+  "detached_worktrees": [
+    {
+      "former_branch": "refs/heads/codex/attention-ui02-claude-20260913",
+      "head": "667cd18b18abba3327d5af251ff788525d357efa",
+      "had_uncommitted_changes": false,
+      "index_sha256": "d365c73ddf3d5424818037a9c798c38aba8faa9e7077f8dc7b2e088e11fc604a",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/attention-ui02-integration-20260913",
+      "head": "2737378a3b94125d430dbad017b72e8147beda3c",
+      "had_uncommitted_changes": true,
+      "index_sha256": "1ad9dbacdc585ad0156ffe4393ba96a3b7e927aa46c2288058f7cf7bd91ba8a7",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/chat-harness-intake-20260912",
+      "head": "ea51ffc654c19706547a38fd9159902cd1b9094a",
+      "had_uncommitted_changes": false,
+      "index_sha256": "1973ec924ec610b480a4e95433f328e85b4bff8c40e9778b697ff6f4e7dc467a",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/chat-ui-completion-20260913",
+      "head": "4698e0e5036268af40990dd1b5ac12a4c5d124aa",
+      "had_uncommitted_changes": false,
+      "index_sha256": "cf46bd41a8e3fedea8a7b29fc7c907ff85ffcab94c3f593f5f95f61d8c70bb70",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/composer-access-20260914",
+      "head": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+      "had_uncommitted_changes": true,
+      "index_sha256": "e7cb2c6b04dfb8dbfc306f5ebea02269a45f942f826043b98f757ff713f5903c",
+      "diff_sha256": "b273d55fa03f912f94e6aa45b3ccd113fe1c6728e4f07f2f43f77050fba77b30"
+    },
+    {
+      "former_branch": "refs/heads/codex/data-surfaces-20260913",
+      "head": "0462360d30288cf5e2d3acbc595373001fd5fdea",
+      "had_uncommitted_changes": false,
+      "index_sha256": "f7e8e39dbfb48ab12f00f1887c279e73a2391bf1ca9f9ba07f8c385ef36f791a",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/developer-control-panel-20260913",
+      "head": "42a7bdbc8a873bb1778b3ed6c71f07df72806493",
+      "had_uncommitted_changes": true,
+      "index_sha256": "ce949b580630ba53f0cfc0758d1162514528c3df336101a687c18f506a885860",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/harness-release-20260912",
+      "head": "7a2e26c6f35f3810d3c3ad4c77b83a3079d7bcc1",
+      "had_uncommitted_changes": false,
+      "index_sha256": "a211f2b44639014e9fe5608f19c71083a5ee56bbcf091f121609f1cfbb815160",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/court-position-intake-20260913",
+      "head": "ad41b92f97bfde6c3e0193f8f0de746634ba0ff1",
+      "had_uncommitted_changes": false,
+      "index_sha256": "7900c7494683c6bb1ee223eafc0a0f9697bfc30d934318ee78a1c46da65ead77",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/projectless-chat-20260913",
+      "head": "4fd29fdbce0ea8e8761542fb5bd061a4fd6e6a42",
+      "had_uncommitted_changes": true,
+      "index_sha256": "c2a7d6f90b6b59cbcf7b9fbadce8201d92590901e4ab8aaac0895bdccdc6a54f",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-capability-lifecycle-20260913",
+      "head": "7d9100e9400b2f105d4d8579b81f4b94e226bb5d",
+      "had_uncommitted_changes": false,
+      "index_sha256": "dfbecba8a1f49a4a86f8ae463e1a7d2bf3a4264c7d9839a2384e6015a4058e37",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-core-summary-20260913",
+      "head": "524ce320d3bde86b58be2eb7cc017d0c79b31026",
+      "had_uncommitted_changes": true,
+      "index_sha256": "111e88aaf3073dc47a51cefb7faecf6b95032468a96b5be3410cba3cbf167c24",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-input-binding-20260913",
+      "head": "8c07912b576f381e5849512d015ba2c8a940d27f",
+      "had_uncommitted_changes": false,
+      "index_sha256": "433d260b2fb0b9ddd7a2b1c8c9116ef106e3ed0cdc73b587c16ff01fb074d2f6",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-mcp-failures-20260913",
+      "head": "6b56e3f92b379a1905e083cd71e04bfe5af9657b",
+      "had_uncommitted_changes": false,
+      "index_sha256": "0e27ea44529f3e1557b76a8c305edf8252094362202c72474113fb211118eea9",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-preflight-20260913",
+      "head": "6464df33ab3a0c31e6770b78acd7e8493edf49c4",
+      "had_uncommitted_changes": false,
+      "index_sha256": "878b8a4e5c31624a5dcd5e97d7647cf1036599f4b23609fa16c042049316b0d0",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-readiness-20260913",
+      "head": "27006f05eb82609d6eb731d41faa880e809b49d4",
+      "had_uncommitted_changes": false,
+      "index_sha256": "77db516690250b72f3f60ef634c14fa7acdc2904f6532b74e2a8fdd7a71cea26",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-review-intake-20260913",
+      "head": "ad33118a56ae15f1c3244e97147bd63c234e6916",
+      "had_uncommitted_changes": true,
+      "index_sha256": "25981886a2243165a7f8aead8c390ed30b07ce246058292542ad4dd3f5ac19dd",
+      "diff_sha256": "fd24b1087ee0924239c3f105a092a9f9a3be3465d28b06e058ea41d278655a2e"
+    },
+    {
+      "former_branch": "refs/heads/codex/release-test-contract-20260913",
+      "head": "8461ff2ff77859d652ab467d78b4939296a5b43c",
+      "had_uncommitted_changes": true,
+      "index_sha256": "3477846ab45bf3ffb74ccac33a882745787cebcca15c43e38cb8843d988ea441",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/runtime-inspector-hierarchy-20260913",
+      "head": "92dcec91b28f7842863568c2f861b0dbaa05aea7",
+      "had_uncommitted_changes": true,
+      "index_sha256": "fc9e137d6f7c263ae4b405261afba2a23fa6ab2b93df875f26199d7bfbc2ca61",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/settings-resource-management-20260913",
+      "head": "98d3ab0368df2291cf18b9f7b1ff4096167b7829",
+      "had_uncommitted_changes": true,
+      "index_sha256": "3f5cd7634a91d0a6abfa70dd870d99dda14ffe155f78f65eacd1f39493c4b7fb",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/slash-compaction-intake-20260913",
+      "head": "24bd9545936dd19a498fc6b7eed5de106ac0d5e8",
+      "had_uncommitted_changes": false,
+      "index_sha256": "9ddf823cde10b2fd23f037d749106becd5cae712c525073ca14a1e6a6057646c",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/spark-agent-20260913",
+      "head": "531079babf0043b42a780f49a6c58acc53764915",
+      "had_uncommitted_changes": true,
+      "index_sha256": "04460ff526dc704dc71572ddb94dcd32c542fd84417fa5b5d47745068a8b32d5",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/ui-hierarchy-polish-20260913",
+      "head": "e9a1c057b61b405459a62456f9bf4b8534fb4235",
+      "had_uncommitted_changes": true,
+      "index_sha256": "3c7e725a8a5cb4f0165e00e244a788a8403f02e1e6cb065597a8fc9a334fc09d",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/ui-hierarchy-registration-20260913",
+      "head": "dcc2bf135e00bcd0c4e6ef9090b8e2813995853e",
+      "had_uncommitted_changes": false,
+      "index_sha256": "84c9a90d2b5b2e6f664a0535147f23b8615cf1c9bf2be34cb8d3006e5c1c6214",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/work-review-object-card-20260913",
+      "head": "7ccb1c3b2331492da1fc1d6f50d17b60f44d74b6",
+      "had_uncommitted_changes": false,
+      "index_sha256": "3b6377c033aa06ca914b6ae04463cb974c5102d11122ebb095139c91b8ab4073",
+      "diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "former_branch": "refs/heads/codex/workspace-access-20260914",
+      "head": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+      "had_uncommitted_changes": true,
+      "index_sha256": "e7cb2c6b04dfb8dbfc306f5ebea02269a45f942f826043b98f757ff713f5903c",
+      "diff_sha256": "9c3a17e207c814df9e28eb76924aef60185efe952e07c2380cd3c4cd05a3a8c2"
+    }
+  ],
+  "worktree_content_verification": "HEAD, status, index and tracked diff identical before/after; no checkout/reset or file changes",
+  "bundle": {
+    "location": "external Codex backups / Courtwork-branches-20260915-150631/branches.bundle",
+    "verified": true,
+    "sha256": "ddf8b7d86fb8dbead1549699990b4aec331ed67acb7f6b35daa5b17b5b7a3b38"
+  },
+  "stale_tracking_sections_removed": 8
+}
