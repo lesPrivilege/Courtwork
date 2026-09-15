@@ -1502,13 +1502,6 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
     backdrop-filter: none;
   }
 }
-@media (max-width: 767px) and (prefers-reduced-transparency: reduce) {
-  .composer-area {
-    background: var(--float);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
 .composer-area {
   flex: none;
   padding: var(--space-2) var(--chat-inset) var(--space-4);
@@ -5106,21 +5099,15 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
    ground, one strong hairline, the float shadow — so the header band, the rows
    and the composer read as three different things rather than one flat sheet. */
 @media (max-width: 767px) {
-  /* WK-101 chrome layer: the docked composer band floats over the still-scrolling
-     page, so it is glass like the jump-latest control, not a solid card with a
-     line. Reduced transparency falls back to the solid frame below. */
+  /* The docked composer band is the page's own colour: no line, no glass.
+     The composer card carries its own edge; the transition between the
+     reading column and the composer is tone-free by ruling (2026-09-16). */
   .composer-area {
     position: sticky;
     bottom: 0;
     z-index: 2;
-    background: var(--glass);
-    -webkit-backdrop-filter: blur(var(--blur-chrome));
-    backdrop-filter: blur(var(--blur-chrome));
-    /* The band has no top edge: like the scrolling header (WK-127) its glass
-       fades in over the first 20px, so nothing draws a boundary line. */
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
-    mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
-    padding: calc(var(--space-2) + 12px) var(--chat-inset)
+    background: var(--panel);
+    padding: var(--space-2) var(--chat-inset)
       max(var(--space-2), env(safe-area-inset-bottom));
   }
   /* Home's modules, totals and rows share one scroll owner. Giving only

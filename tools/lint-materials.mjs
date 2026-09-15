@@ -28,7 +28,6 @@ const files = args.length ? args : walk(join(root, "app/web"));
    永远不入表。 */
 const REGISTERED = new Map([
   [".jump-latest-button", { layer: "chrome", blur: "--blur-chrome" }],
-  [".composer-area", { layer: "chrome", blur: "--blur-chrome" }],
   [".context-popover", { layer: "transient", blur: "--blur-transient" }],
 ]);
 /* 闭集：只有这两档，且 saturate() 只许出现在 transient。 */
