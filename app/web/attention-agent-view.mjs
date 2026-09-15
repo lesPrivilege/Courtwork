@@ -255,10 +255,12 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
           }));
         } else if (row.kind === 'assistant') {
           block.append(markdown(row.text, { key: `attention:${state.session?.id}:${row.id}` }));
-          const footer = el('footer', { className: 'assistant-message-actions' });
-          const time = renderMessageTime(row.startedAt, 'Run started');
-          if (time) footer.append(time);
-          footer.append(messageActionRow(row, state)); block.append(footer);
+          if (!row.pending) {
+            const footer = el('footer', { className: 'assistant-message-actions' });
+            const time = renderMessageTime(row.startedAt, 'Run started');
+            if (time) footer.append(time);
+            footer.append(messageActionRow(row, state)); block.append(footer);
+          }
         } else if (row.kind === 'tool') {
           const word = toolStateWord(row, runStatuses.get(row.runId) || state.runs.find(run => run.id === row.runId)?.status);
           const summary = el('summary', { text: row.name });

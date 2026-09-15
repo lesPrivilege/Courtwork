@@ -187,23 +187,82 @@ export function action(
   if (onClick) button.addEventListener("click", onClick);
   return button;
 }
+
+/** One lifecycle for transient action feedback. `begin` invalidates prior
+ * async work and cancels/restores any visible success label. `show` only
+ * applies its feedback while that action is still current and the owner is
+ * still attached. Scheduling functions are injectable for deterministic tests. */
+export function createTransientActionFeedback({
+  duration = 1600,
+  isCurrent = () => true,
+  schedule = setTimeout,
+  cancel = clearTimeout,
+} = {}) {
+  let epoch = 0;
+  let timer = null;
+  let restore = null;
+
+  function clearTimer() {
+    if (timer !== null) cancel(timer);
+    timer = null;
+  }
+
+  function begin() {
+    epoch += 1;
+    clearTimer();
+    const reset = restore;
+    restore = null;
+    if (reset && isCurrent()) reset();
+    return epoch;
+  }
+
+  function isCurrentEpoch(token) {
+    return token === epoch && isCurrent();
+  }
+
+  function show(token, apply, reset) {
+    if (!isCurrentEpoch(token)) return false;
+    apply();
+    restore = reset;
+    timer = schedule(() => {
+      if (token !== epoch) return;
+      timer = null;
+      const callback = restore;
+      restore = null;
+      if (callback && isCurrent()) callback();
+    }, duration);
+    return true;
+  }
+
+  function dispose() {
+    epoch += 1;
+    clearTimer();
+    restore = null;
+  }
+
+  return Object.freeze({ begin, show, isCurrent: isCurrentEpoch, dispose });
+}
+
 export function copyAction(text, label = "Copy", focusKey = "") {
+  let feedback;
   const button = action(
     "copy",
     label,
     async () => {
+      const epoch = feedback.begin();
+      setAction(button, "copy", label);
       try {
         await navigator.clipboard.writeText(String(text));
-        setAction(button, "copy", "Copied");
-        const timer = setTimeout(() => {
-          if (button.isConnected) setAction(button, "copy", label);
-        }, 1600);
+        feedback.show(epoch,
+          () => setAction(button, "copy", "Copied"),
+          () => setAction(button, "copy", label));
       } catch {
-        setAction(button, "copy", "Copy unavailable");
+        if (feedback.isCurrent(epoch)) setAction(button, "copy", "Copy unavailable");
       }
     },
     { attrs: { "data-focus-key": focusKey } },
   );
+  feedback = createTransientActionFeedback({ isCurrent: () => button.isConnected });
   return button;
 }
 const markdownTags = [

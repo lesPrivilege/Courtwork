@@ -2601,7 +2601,7 @@ function messageActionRow(row, session) {
   return createChatActions({target,
     getTarget: () => currentSession()?.id === session.id && state.sessionEpoch === epoch ? target : null,
     adapter: createProductionActionAdapter({
-      copy: async ({text}) => { await navigator.clipboard.writeText(text); showToast(row.kind === "user" ? "Message copied." : "Response copied."); },
+      copy: async ({text}) => { await navigator.clipboard.writeText(text); },
       ...(row.kind === "user" ? {edit: () => openMessageEditor(row)} : {}),
     }),
   });
@@ -2875,11 +2875,13 @@ function renderMessageStream() {
         row.text,
         sessionScopeKey("assistant", row.id),
       );
-      const footer = element("footer", { className: "assistant-message-actions" });
-      const time = renderMessageTime(row.startedAt, "Run started");
-      if (time) footer.append(time);
-      footer.append(messageActionRow(row, session));
-      wrapper.append(footer);
+      if (!row.pending) {
+        const footer = element("footer", { className: "assistant-message-actions" });
+        const time = renderMessageTime(row.startedAt, "Run started");
+        if (time) footer.append(time);
+        footer.append(messageActionRow(row, session));
+        wrapper.append(footer);
+      }
       appendFlowRow(wrapper);
     } else if (row.kind === "tool") {
       /* WK-47 ablation · the whole row no longer turns red. A failed tool is

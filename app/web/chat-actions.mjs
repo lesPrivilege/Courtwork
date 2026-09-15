@@ -1,5 +1,5 @@
 import { semanticPresentation } from './semantic-controls.mjs';
-import { el, action, setAction, anchorPopover } from './ui-controls.mjs';
+import { el, action, setAction, anchorPopover, createTransientActionFeedback } from './ui-controls.mjs';
 
 // Presentation intents. These names confer no backend capability or authority.
 export const CHAT_ACTIONS = Object.freeze(Object.fromEntries(["copy", "edit", "read-aloud", "stop-reading", "like", "dislike", "regenerate", "fork", "share", "pin", "copy-path", "copy-hash", "download", "open-with", "reveal"].map(intent => {
@@ -34,7 +34,7 @@ export function createProductionActionAdapter(handlers = {}) {
       if (!PRODUCTION_ACTIONS.has(intent) || typeof handlers[intent] !== 'function') throw new Error(REASONS[intent] || 'Action unavailable.');
       const result = await handlers[intent](target, context);
       if (result === false) throw new Error('The action could not be completed.');
-      return { state: 'success', message: intent.startsWith('copy') ? 'Copied.' : '' };
+      return { state: 'success', message: '' };
     },
   };
 }
@@ -49,6 +49,7 @@ let nextMenu = 0;
 export function createChatActions({ target, adapter, getTarget = () => target,
   positionPopover = anchorPopover }) {
   const captured = Object.freeze({ ...target });
+  if (captured.pending) return null;
   const root = el('div', { className: 'chat-actions', attrs: { 'data-chat-target': captured.key } });
   const bar = el('div', { className: 'chat-action-row', attrs: {
     role: 'group', 'aria-label': captured.role === 'file' ? 'Recorded file actions' : captured.role === 'user' ? 'Message actions' : 'Response actions',
@@ -60,8 +61,10 @@ export function createChatActions({ target, adapter, getTarget = () => target,
   const menu = el('div', { className: 'chat-actions-menu', attrs: { id: menuId, popover: 'auto', role: 'menu', 'aria-label': 'More actions' } });
   const buttons = new Map(), states = new Map(), locks = new Set();
   let cleanup = null, audio = 'idle', feedback = null, pinned = false, audioAbort = null;
+  let transientCopyIntent = null;
   const key = intent => `chat-action:${encodeURIComponent(captured.key)}:${intent}`;
   const current = () => root.isConnected && sameTarget(captured, getTarget());
+  const transientFeedback = createTransientActionFeedback({ isCurrent: current });
   function notice(message, state = '') {
     status.textContent = message || ''; status.hidden = !message;
     status.dataset.state = state;
@@ -72,7 +75,9 @@ export function createChatActions({ target, adapter, getTarget = () => target,
     return adapter.availability(intent, captured) || { available: false, reason: 'This action is not available here.' };
   }
   function labelFor(intent) {
-    if (intent === 'copy') return captured.role === 'user' ? 'Copy message' : captured.pending ? 'Copy current text' : 'Copy response';
+    if (transientCopyIntent === intent) return 'Copied';
+    if (intent === 'copy') return captured.role === 'user' ? 'Copy message' : 'Copy response';
+    if (intent.startsWith('copy-')) return CHAT_ACTIONS[intent].label;
     if (intent === 'read-aloud') return audio === 'playing' ? 'Pause reading' : audio === 'paused' ? 'Resume reading' : 'Read aloud';
     if (intent === 'pin' && pinned) return 'Unpin message';
     return CHAT_ACTIONS[intent].label;
@@ -106,9 +111,14 @@ export function createChatActions({ target, adapter, getTarget = () => target,
   async function invoke(intent, confirmed = false) {
     if (!current()) return;
     const available = availability(intent);
-    if (!available.available) { notice(available.reason || 'This action is not available here.', 'unavailable'); return; }
+    if (!available.available) {
+      transientFeedback.begin();
+      notice(available.reason || 'This action is not available here.', 'unavailable');
+      return;
+    }
     const lock = intent === 'like' || intent === 'dislike' ? 'feedback' : intent;
     if (locks.has(lock)) return;
+    const noticeEpoch = transientFeedback.begin();
     if (intent === 'regenerate' && !confirmed) {
       confirm.hidden = false;
       confirm.replaceChildren(el('p', { text: 'Regenerate this response? The original stays available; this creates another attempt.' }),
@@ -135,9 +145,21 @@ export function createChatActions({ target, adapter, getTarget = () => target,
         if (typeof result.pinned !== 'boolean') throw new Error('The pin result was not recognised.');
         pinned = result.pinned;
       }
-      states.set(intent, result.state); notice(result.message || '', result.state);
+      states.set(intent, result.state);
+      if (transientFeedback.isCurrent(noticeEpoch)) {
+        if (intent === 'copy' || intent.startsWith('copy-')) {
+          notice('', result.state);
+          transientCopyIntent = intent;
+          transientFeedback.show(noticeEpoch,
+            () => paint(),
+            () => { transientCopyIntent = null; states.set(intent, 'idle'); paint(); });
+        } else notice(result.message || '', result.state);
+      }
     } catch (error) {
-      if (current() && !controller.signal.aborted) { states.set(intent, 'error'); notice(error.message || 'The action failed. Try again.', 'error'); }
+      if (current() && !controller.signal.aborted) {
+        states.set(intent, 'error');
+        if (transientFeedback.isCurrent(noticeEpoch)) notice(error.message || 'The action failed. Try again.', 'error');
+      }
     } finally {
       locks.delete(lock);
       if (current()) paint();

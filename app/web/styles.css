@@ -1582,10 +1582,31 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
 .permission-mode {
   color: var(--muted-strong);
 }
-/* Composer ends are stable: attachments left, model and execution controls right. */
+/* Actionable context stays left; model/effort and execution controls stay right. */
 .composer-form .composer-controls { flex-wrap: nowrap; }
-.composer-controls > .composer-context { flex: 0 0 auto; }
+.composer-controls > .composer-context { flex: 1 1 auto; }
 .composer-controls > .composer-buttons { flex: 0 1 auto; margin-left: auto; }
+.composer-context { flex-wrap: nowrap; }
+.home-composer-context { flex: 0 1 auto; min-width: 0; }
+.home-composer-context .home-choice-select {
+  border-color: transparent;
+  background-color: transparent;
+  padding: 4px 22px 4px 6px;
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  max-width: 220px;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-composer-context .home-choice-select:hover { background-color: var(--hover); }
+.permission-mode { min-width: 0; }
+.permission-mode .button-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .composer-buttons > #send-button,
 .composer-buttons > #cancel-run-button { flex: none; }
 #model-settings-button.composer-model {
@@ -2594,12 +2615,6 @@ select {
   :root {
     --nav: 220px;
   }
-  .composer-controls {
-    flex-wrap: wrap;
-  }
-  .composer-context {
-    flex-wrap: wrap;
-  }
   .composer-buttons {
     margin-left: auto;
   }
@@ -2732,9 +2747,8 @@ select {
     align-items: flex-end;
   }
   .composer-context {
-    flex-wrap: wrap;
-    gap: 0 2px;
-    flex: 1;
+    gap: 2px;
+    flex: 1 1 auto;
   }
   .composer-model {
     max-width: min(130px, 100%);
@@ -2744,8 +2758,12 @@ select {
     min-height: 44px;
     padding: 4px 6px;
   }
+  .home-composer-context .home-choice-select {
+    min-height: 44px;
+    max-width: min(150px, 37vw);
+  }
   .composer-buttons {
-    align-self: flex-start;
+    align-self: center;
   }
   .composer-buttons .primary-button {
     padding: 0;
@@ -3677,17 +3695,16 @@ dialog[open]::backdrop {
   .home-active #composer-input { max-height: min(160px, 28dvh); }
 }
 
-/* WK-12 · Project and file-writes scope join the model chip in the composer's
-   own bottom control row; Send stays at the trailing edge. */
+/* Composer-internal controls are actionable context for the next execution.
+   Home's selector and an existing Chat's access disclosure share the left
+   context with files and Workspace; Model/effort and Send/Stop stay right. */
 .home-composer-context {
   display: flex;
   align-items: center;
-  gap: var(--space-1) var(--space-3);
+  gap: var(--space-1);
   min-width: 0;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
-.home-choice { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--text-meta); color: var(--muted-strong); }
-.home-choice select { width: auto; max-width: 150px; min-width: 0; padding: 6px 22px 6px 8px; font-size: var(--text-meta); color: var(--ink); }
 .home-start-status { max-width: var(--column); margin: var(--space-2) auto 0; padding-inline: var(--space-3); font-size: var(--text-meta); color: var(--muted-strong); }
 .home-start-status[data-error="true"] { color: var(--danger); }
 
@@ -3959,11 +3976,9 @@ dialog[open]::backdrop {
 .home-active .home-section > .section-heading h3 { font-weight: 500; color: var(--muted-strong); }
 
 @media (max-width: 600px) {
-  .home-composer-context { gap: var(--space-2); align-items: stretch; width: 100%; }
-  .home-choice { width: 100%; justify-content: space-between; }
-  .home-choice select { max-width: 75%; flex: 1; }
-  /* Send stays at the trailing bottom corner once the context row stacks. */
-  .home-active .composer-buttons { align-self: flex-end; }
+  .home-composer-context { gap: 0; }
+  .composer-context > .composer-workspace { max-width: min(22ch, 30vw); }
+  .home-composer-context .home-choice-select { max-width: min(150px, 37vw); }
 }
 
 /* Shared content rhythm: text growth and browser zoom must reflow controls. */
@@ -4614,10 +4629,9 @@ court-symbol {
   .runtime-switch input { height: 44px; }
 }
 
-/* WK-55 · The composer keeps only its stable parts (input, files, connection,
-   Send). Context that changes with Home or the session — project, file writes,
-   new project — sits in one quiet line below it, the way a launcher states
-   "Project or folder · Auto". Ids and select semantics are unchanged. */
+/* WK-55's former placement rule is superseded: the composer contains actionable
+   context for the next execution; below it, only already-bound work facts remain.
+   Existing IDs, control semantics, permission owner, and project fact are preserved. */
 .composer-below {
   display: flex;
   flex-wrap: wrap;
@@ -4630,27 +4644,6 @@ court-symbol {
   width: 100%;
 }
 
-.composer-below .home-composer-context { gap: var(--space-1) var(--space-4); }
-.composer-below .home-choice { font-size: var(--text-label); }
-.composer-below .home-choice select {
-  border-color: transparent;
-  background-color: transparent;
-  padding: 4px 22px 4px 6px;
-  font-size: var(--text-label);
-  max-width: 200px;
-}
-.composer-below .home-choice select:hover { background-color: var(--hover); }
-/* WK-94 · `Ask before editing ▾`：控件自己说全后果，上面不再有一个 File writes 标签。 */
-.composer-below .home-choice-select {
-  border-color: transparent;
-  background-color: transparent;
-  padding: 4px 22px 4px 6px;
-  font-size: var(--text-label);
-  color: var(--muted-strong);
-  max-width: 220px;
-}
-.composer-below .home-choice-select:hover { background-color: var(--hover); }
-.composer-below .permission-mode { padding-left: 6px; }
 .composer-below:not(:has(> *:not([hidden]))) { display: none; }
 /* WK-73 · the project a session writes into is a fact, not a control. */
 .composer-project {
