@@ -149,3 +149,31 @@ function renderText(row) {
   }
   return text;
 }
+
+/** Parse a unified patch (as `git diff` prints it) into one entry per file
+ * with the row shape diffModel understands. Only what the Host's bounded
+ * candidate diff can contain: text hunks, added and modified regular files. */
+export function parseUnifiedPatch(patch) {
+  const files = [];
+  let file = null, oldNo = 0, newNo = 0;
+  for (const raw of String(patch ?? "").split("\n")) {
+    if (raw.startsWith("diff --git ")) {
+      const match = /^diff --git a\/(.+?) b\/(.+)$/.exec(raw);
+      file = { path: match ? match[2] : raw.slice(11), status: "modified", lines: [] };
+      files.push(file);
+      continue;
+    }
+    if (!file) continue;
+    if (raw.startsWith("new file mode")) { file.status = "added"; continue; }
+    if (raw.startsWith("deleted file mode")) { file.status = "deleted"; continue; }
+    if (raw.startsWith("--- ") || raw.startsWith("+++ ") || raw.startsWith("index ") || raw.startsWith("similarity") || raw.startsWith("rename")) continue;
+    if (raw.startsWith("Binary files")) { file.binary = true; continue; }
+    const hunk = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@/.exec(raw);
+    if (hunk) { oldNo = Number(hunk[1]); newNo = Number(hunk[2]); continue; }
+    if (raw === "\\ No newline at end of file") { const last = file.lines.at(-1); if (last) last.noNewline = true; continue; }
+    if (raw.startsWith("+")) { file.lines.push({ kind: "add", text: raw.slice(1), newNo: newNo++ }); continue; }
+    if (raw.startsWith("-")) { file.lines.push({ kind: "del", text: raw.slice(1), oldNo: oldNo++ }); continue; }
+    if (raw.startsWith(" ")) { file.lines.push({ kind: "context", text: raw.slice(1), oldNo: oldNo++, newNo: newNo++ }); continue; }
+  }
+  return files;
+}

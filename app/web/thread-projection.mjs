@@ -173,7 +173,11 @@ export function validPermission(payload) {
 // Never infer a file write from the shared path/hash envelope, or relabel an
 // old request using the current (possibly replaced) runtime catalog.
 export function permissionPresentation(payload, binding) {
-  const write = payload?.tool === "ws_write";
+  const write = payload?.tool === "ws_write" || payload?.tool === "repo_write";
+  // RD-006 · a repo_write lands in the Host's private candidate, never in the
+  // connected folder; the card says so and names the exact prior state.
+  const candidate = payload?.tool === "repo_write";
+  const priorHash = typeof payload?.expectedSha256 === "string" && payload.expectedSha256 ? payload.expectedSha256 : null;
   const resource = binding?.resources?.find(
     (item) => item.id === `tool:${payload?.tool}`,
   );
@@ -193,5 +197,8 @@ export function permissionPresentation(payload, binding) {
     source: remote ? resource.source?.uri || "Recorded remote source unavailable" : null,
     details: write ? "Write details" : "Action details",
     hashLabel: write ? "Copy proposed content hash" : "Copy proposed arguments hash",
+    scope: candidate
+      ? (priorHash ? `Private candidate · replaces the file whose hash starts ${priorHash.slice(0, 12)}` : "Private candidate · new file")
+      : null,
   };
 }

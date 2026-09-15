@@ -824,6 +824,20 @@
       popover="auto"
       aria-label="Connection and file access"
     ></div>
+    <!-- RD-006 / 02 · the human's view of the private candidate: the same bounded
+         Host patch the model gets from repo_diff, per file, from the fixed base commit. -->
+    <dialog id="candidate-dialog" class="runtime-dialog" aria-labelledby="candidate-title">
+      <div class="runtime-dialog-inner">
+        <header class="runtime-dialog-header">
+          <div>
+            <h2 id="candidate-title">Changes in the private candidate</h2>
+            <p id="candidate-base" class="form-help"></p>
+          </div>
+          <button id="close-candidate-button" class="quiet-button" type="button" aria-label="Close changes"></button>
+        </header>
+        <div id="candidate-dialog-body" class="runtime-dialog-body"></div>
+      </div>
+    </dialog>
     <div
       id="workspace-popover"
       class="context-popover connection-popover"

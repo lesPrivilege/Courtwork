@@ -72,7 +72,10 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 | Local | 上下文条的事实 chip：在这台电脑上运行；不是权限等级 | Full access · Local machine · Sandbox |
 | Branch · main | 上下文条的事实 chip，只在 Host 读到 Git 分支时出现；未知不画 main，游离 HEAD 不画分支 | main（无对象词时）· Tree · Worktree |
 | Project | Home composer 里选择组织归属的控件，选中后显示 Project 名；2026-09-14 曾按名词收敛写作 Workspace，本次因 Workspace 回归 §3.1 原义而改回 | Workspace（作 Project 选择器时）· Folder |
-| Private candidate | Host 从明确 commit 新建的可写副本，`repo_write` 只写它；**词已冻结，控件随 02 片交付** | Worktree · Branch · Draft copy · Sandbox |
+| Private candidate | Host 从明确 commit 新建的可写副本，`repo_write` 只写它。Workspace 卡片的 Edits 区以 `from <commit>` 与 Writes 计数陈述它 | Worktree · Branch · Draft copy · Sandbox |
+| Start private candidate · Stop edits | 从目录当前 commit 创建候选；撤销候选而不删除其文件（后果句写在动作旁）。无 commit 的目录不能开始 | Enable edits · Create worktree · Delete candidate · Revoke |
+| Review changes · Changes in the private candidate | 从 Host 读同一份有界 patch 的入口与对话框标题；每个文件一节，标题是路径 | Diff · Show diff · Compare |
+| Private candidate · new file / replaces the file whose hash starts … | `repo_write` 批准卡的范围行：落点与精确前态 | Overwrite · Edit file |
 
 上下文条只在 Home 与尚无 Run 的 Chat 出现；工作开始后它不再占用 composer，Workspace 事实与入口移到 `This chat` 概览的同名行。`Available after this run ends.` 沿 File access 卡原句；在途词沿 §3.4b 的 `Sending…`；等待原生对话框时写 `Choose a folder in the dialog that opened.`。Work 面板里"Browse workspace / Workspace · N files"仍指托管成果目录，属 10 片的文字收敛项。
 

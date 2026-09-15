@@ -20,6 +20,8 @@ export const REPOSITORY_SCOPE_LABEL = "Read only";
 export const REPOSITORY_HELP = "The next run can read files under the folder you connect. Nothing is uploaded and the folder is not changed.";
 export const REPOSITORY_ACTIVE_RUN = "Available after this run ends.";
 export const REPOSITORY_DIALOG_OPEN = "Choose a folder in the dialog that opened.";
+export const CANDIDATE_HELP = "Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.";
+export const CANDIDATE_NO_GIT = "This folder has no Git commit to start from, so edits stay unavailable.";
 const CHOOSE_PROMPT = "Connect a repository";
 
 export function repositoryName(rootPath) {
@@ -33,7 +35,7 @@ export function activeRepositoryBinding(session) {
   return binding?.status === "active" ? binding : null;
 }
 
-export function createWorkspaceCard({ request, onSession, onClose }) {
+export function createWorkspaceCard({ request, onSession, onClose, onReviewChanges }) {
   let directory = "", pending = false, choosing = false, error = "", generation = 0, requestId = null, requestFor = null;
   let recent = null, recentLoading = false, pickerUnavailable = false, pathOpen = false;
 
@@ -73,6 +75,7 @@ export function createWorkspaceCard({ request, onSession, onClose }) {
           el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL })),
         el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : "Disconnecting stops further reads. Files the model already read stay in this chat." }),
         disconnect));
+      children.push(renderCandidateSection());
     } else {
       if (recent === null && !recentLoading) void loadRecent();
       const connectPath = rootPath => draft
@@ -136,6 +139,66 @@ export function createWorkspaceCard({ request, onSession, onClose }) {
     return header;
 
     function rerender() { render(container, { session, active, draft }); }
+    /* RD-006 / 02 · the private candidate is the only place `repo_write` can
+     * land. Start it from the folder's current commit (a Host fact read live,
+     * never guessed); stop it without deleting anything. */
+    function renderCandidateSection() {
+      const candidate = session?.repositoryCandidate?.status === "active" ? session.repositoryCandidate : null;
+      const candidateRevision = session?.repositoryCandidateRevision ?? 0;
+      const section = el("section", { className: "context-card" }, el("h4", { text: "Edits" }));
+      if (candidate) {
+        const review = el("button", { className: "context-row", text: "Review changes", attrs: { type: "button", "data-repository-field": "review" } });
+        review.disabled = pending || !onReviewChanges;
+        review.addEventListener("click", () => onReviewChanges?.());
+        const stop = el("button", { className: "quiet-button", text: pending ? SENDING_LABEL : "Stop edits", attrs: { type: "button", "data-repository-field": "stop-edits" } });
+        stop.disabled = busy;
+        stop.addEventListener("click", () => submitCandidate({ operation: "revoke", requestId: crypto.randomUUID(), expectedRevision: candidateRevision, expectedBindingRevision: binding.revision, candidateId: candidate.id }));
+        section.append(
+          el("dl", { className: "data-list" },
+            el("dt", { text: "Private candidate" }), el("dd", {}, el("code", { text: `from ${candidate.baseCommit.slice(0, 12)}` })),
+            el("dt", { text: "Writes" }), el("dd", { text: String(candidate.writeRevision ?? 0) })),
+          review,
+          el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : "Stopping keeps the candidate's files; later edits need a new candidate." }),
+          stop);
+        return section;
+      }
+      const start = el("button", { className: "quiet-button", text: pending ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
+      start.disabled = busy;
+      start.addEventListener("click", () => startCandidate());
+      section.append(el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : CANDIDATE_HELP }), start);
+      return section;
+    }
+    async function startCandidate() {
+      if (busy || !session?.id) return;
+      const own = ++generation;
+      pending = true; error = ""; rerender();
+      try {
+        const inspection = await request(`/repositories/inspect?rootPath=${encodeURIComponent(binding.rootPath)}`);
+        if (own !== generation) return;
+        const head = inspection?.git?.head;
+        if (typeof head !== "string" || !head) { pending = false; error = CANDIDATE_NO_GIT; rerender(); return; }
+        pending = false;
+        await submitCandidate({ operation: "create", requestId: crypto.randomUUID(), expectedRevision: session.repositoryCandidateRevision ?? 0,
+          expectedBindingRevision: binding.revision, candidateId: crypto.randomUUID(), baseCommit: head });
+      } catch (err) {
+        if (own !== generation) return;
+        pending = false; error = err?.message || "The folder could not be inspected."; rerender();
+      }
+    }
+    async function submitCandidate(body) {
+      if (pending || active || !session?.id) return;
+      const own = ++generation;
+      pending = true; error = ""; rerender();
+      try {
+        await request(`/sessions/${encodeURIComponent(session.id)}/repository-candidate`, { method: "PUT", body });
+        if (own !== generation) return;
+        pending = false;
+        await onSession?.(session.id);
+      } catch (err) {
+        if (own !== generation) return;
+        pending = false; error = err?.message || "The private candidate could not be changed."; rerender();
+      }
+    }
     async function loadRecent() {
       const own = ++generation;
       recentLoading = true;

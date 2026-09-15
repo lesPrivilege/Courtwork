@@ -74,6 +74,7 @@ export function renderSessionOverview(
     onHistory,
     onPermissions,
     onRepository,
+    onReviewChanges,
   },
 ) {
   const header = el(
@@ -101,7 +102,8 @@ export function renderSessionOverview(
         ? [row("folder", session.repositoryBinding?.status === "active" ? session.repositoryBinding.rootPath.slice(session.repositoryBinding.rootPath.replace(/\/+$/, "").lastIndexOf("/") + 1) || session.repositoryBinding.rootPath : "Choose workspace", onRepository),
            ...(session.repositoryBinding?.status === "active"
              ? [el("p", { className: "context-meta" }, el("code", { text: session.repositoryBinding.rootPath }), el("span", { text: " · Read only" }))]
-             : [])]
+             : []),
+           ...(onReviewChanges ? [row("chevron-right", "Review changes", onReviewChanges)] : [])]
         : []),
       row("paperclip", "Chat files", onMaterials),
       row(

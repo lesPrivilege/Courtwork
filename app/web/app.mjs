@@ -58,6 +58,7 @@ import {
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
 import { createWorkspaceCard, activeRepositoryBinding, repositoryName } from "./workspace-card.mjs";
+import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
 import {
   renderRun,
   createFileView,
@@ -5575,8 +5576,40 @@ function openConnectionCard(anchor) {
   popover.showPopover();
   header.querySelector("button").focus();
 }
+/* RD-006 / 02 · the human opens the candidate's exact diff from the Host,
+ * not from the model's narration: same bounded patch, per file, against the
+ * fixed base commit. Nothing here accepts or publishes anything. */
+async function openCandidateDiff() {
+  const session = currentSession();
+  if (!session?.repositoryCandidate || session.repositoryCandidate.status !== "active") return;
+  const body = $("candidate-dialog-body");
+  body.replaceChildren(element("p", { className: "form-help", text: "Reading the candidate…", attrs: { role: "status" } }));
+  $("candidate-base").textContent = `From commit ${session.repositoryCandidate.baseCommit.slice(0, 12)} · ${session.repositoryCandidate.writeRevision} write${session.repositoryCandidate.writeRevision === 1 ? "" : "s"}`;
+  openDialog("candidate-dialog", "close-candidate-button");
+  try {
+    const result = await request(`/sessions/${encodeURIComponent(session.id)}/repository-candidate/diff`);
+    if (currentSession()?.id !== session.id) return;
+    const files = parseUnifiedPatch(result.patch);
+    body.replaceChildren();
+    if (!files.length) {
+      body.append(element("p", { className: "empty-list", text: "No changes yet." }));
+      return;
+    }
+    for (const file of files) {
+      const meta = result.files?.find((item) => item.path === file.path);
+      const section = element("section", { className: "candidate-diff-file" },
+        element("h3", { className: "candidate-diff-path" }, element("code", { text: file.path }), element("span", { className: "context-meta", text: ` · ${file.status}${meta ? ` · ${formatBytes(meta.bytes)}` : ""}` })),
+        renderDiff(file.lines, { label: `Changes in ${file.path}` }));
+      body.append(section);
+    }
+    body.append(element("p", { className: "form-help" }, element("span", { text: "Patch " }), element("code", { text: result.patchSha256 }), copyAction(result.patchSha256, "Copy patch hash")));
+  } catch (error) {
+    body.replaceChildren(element("p", { className: "inline-error", text: error.message, attrs: { role: "alert" } }));
+  }
+}
 const workspaceCard = createWorkspaceCard({
   request,
+  onReviewChanges: () => { $("workspace-popover").hidePopover(); void openCandidateDiff(); },
   onClose: () => {
     $("workspace-popover").hidePopover();
     state.workspaceCardAnchor?.focus?.();
@@ -5690,6 +5723,7 @@ function openContextSummary() {
     onHistory: go(openRunHistory),
     onPermissions: go(() => openSettings("permissions")),
     onRepository: go(() => openWorkspaceCard($("show-run-button"))),
+    onReviewChanges: session.repositoryCandidate?.status === "active" ? go(() => void openCandidateDiff()) : null,
   });
   popover.showPopover();
   header.querySelector("button").focus();
@@ -6009,6 +6043,7 @@ function renderPermission(row) {
         text: payload.preview,
       }),
     );
+    if (display.scope) details.append(element("p", { className: "form-help", text: display.scope }));
     if (display.source) details.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
     details.addEventListener("toggle", () =>
       state.toolOpen.set(keyOpen, details.open),
@@ -6026,6 +6061,7 @@ function renderPermission(row) {
       text: display.target,
     }),
   );
+  if (display.scope) card.append(element("p", { className: "form-help", text: display.scope }));
   if (display.source) card.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
   if (validPermission(payload)) {
     card.append(
@@ -6530,6 +6566,7 @@ function wireEvents() {
     "show-surface-button": ["panel-right", "Open work surface"],
     "close-surface-button": ["panel-right", "Hide work surface"],
     "close-materials-button": ["x", "Close files"],
+    "close-candidate-button": ["x", "Close changes"],
     "materials-button": ["paperclip", "Chat files"],
     "refresh-extensions-button": ["refresh-cw", "Refresh extensions"],
   };
@@ -6592,6 +6629,7 @@ function wireEvents() {
     openDialog("materials-dialog", "close-materials-button");
     materialsView.open();
   });
+  $("close-candidate-button").addEventListener("click", () => closeDialog("candidate-dialog"));
   $("close-materials-button").addEventListener("click", () =>
     closeDialog("materials-dialog"),
   );

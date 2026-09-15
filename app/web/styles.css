@@ -6815,3 +6815,6 @@ html[data-theme="dark"] {
 /* Home module band · the collapse control is a disclosure glyph, not a word:
  * its accessible name says Hide/Show modules. */
 .home-module-collapse.icon-only { padding: 4px; min-width: 28px; justify-content: center; }
+/* Candidate changes dialog · one section per file; the path is the title. */
+.candidate-diff-file { display: grid; gap: 8px; }
+.candidate-diff-path { font-size: var(--text-meta); font-weight: 500; margin: 0; }
