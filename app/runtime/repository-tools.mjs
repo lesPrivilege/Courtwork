@@ -61,7 +61,10 @@ export function grepRepositoryInWorker(files, pattern, signal) {
 
 export function repositorySource(path, bytes, digest) { return { path, bytes, sha256: digest }; }
 
-export function createRepositoryTools({ binding, runId, runRepositoryFs, recordRead, assertActive }) {
+const EFFECT_WEIGHT = { allow: 0, ask: 1, deny: 2 };
+function strictestEffect(a, b) { return EFFECT_WEIGHT[a] >= EFFECT_WEIGHT[b] ? a : b; }
+
+export function createRepositoryTools({ binding, runId, runRepositoryFs, recordRead, assertActive, admitPath = () => "allow" }) {
   if (!binding || binding.status !== "active") return [];
   const bindingId = binding.id;
   const revision = binding.revision;
@@ -128,7 +131,7 @@ export function createRepositoryTools({ binding, runId, runRepositoryFs, recordR
   const grepTool = {
     name: "repo_grep",
     label: "Search connected repository files",
-    description: "Search UTF-8 text files under the connected repository or a relative subdirectory with a regular-expression pattern. Symlinks are not followed; bounded searches report when the result is partial.",
+    description: "Search UTF-8 text files under the connected repository or a relative subdirectory with a regular-expression pattern. Symlinks are not followed; bounded searches report when the result is partial. Never includes a file that policy denies or that needs per-file approval (excludedByPolicy/excludedPendingApproval count them without naming them); use repo_read on an exact path to request approval for one of those files.",
     parameters: Type.Object({
       pattern: Type.String({ minLength: 1, maxLength: MAX_PATTERN_CHARS }),
       path: Type.Optional(Type.String({ maxLength: MAX_PATH_CHARS })),
@@ -137,8 +140,17 @@ export function createRepositoryTools({ binding, runId, runRepositoryFs, recordR
       const relativePath = params.path ?? ".";
       const scanned = await read("grep", relativePath, signal);
       if (!Array.isArray(scanned.files) || scanned.files.length > MAX_GREP_FILES) throw repositoryToolError("repository helper returned an invalid search set", "invalid_helper_response");
-      for (const file of scanned.files) decodeRepositoryText(file.dataBase64, file.bytes, file.sha256);
-      const matched = await grepRepositoryInWorker(scanned.files, params.pattern, signal);
+      let excludedByPolicy = 0;
+      let excludedPendingApproval = 0;
+      const admitted = [];
+      for (const file of scanned.files) {
+        const effect = strictestEffect(admitPath("repo_grep", file.path), admitPath("repo_read", file.path));
+        if (effect === "deny") { excludedByPolicy++; continue; }
+        if (effect === "ask") { excludedPendingApproval++; continue; }
+        admitted.push(file);
+      }
+      for (const file of admitted) decodeRepositoryText(file.dataBase64, file.bytes, file.sha256);
+      const matched = await grepRepositoryInWorker(admitted, params.pattern, signal);
       const result = {
         matches: matched.matches,
         truncated: scanned.truncated || matched.truncated,
@@ -147,11 +159,13 @@ export function createRepositoryTools({ binding, runId, runRepositoryFs, recordR
         skippedBinary: scanned.skippedBinary,
         skippedLarge: scanned.skippedLarge,
         skippedSymlinks: scanned.skippedSymlinks,
+        excludedByPolicy,
+        excludedPendingApproval,
       };
       const text = JSON.stringify(result, null, 2);
-      const sources = scanned.files.map(file => repositorySource(file.path, file.bytes, file.sha256));
+      const sources = admitted.map(file => repositorySource(file.path, file.bytes, file.sha256));
       await record("grep", scanned.path, text, sources, signal);
-      return { content: [{ type: "text", text }], details: { path: scanned.path, matches: matched.matches.length, truncated: result.truncated, scannedFiles: result.scannedFiles } };
+      return { content: [{ type: "text", text }], details: { path: scanned.path, matches: matched.matches.length, truncated: result.truncated, scannedFiles: result.scannedFiles, excludedByPolicy, excludedPendingApproval } };
     },
   };
 

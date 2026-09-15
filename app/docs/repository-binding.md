@@ -53,6 +53,22 @@ case, so a Host volume's case aliases cannot bypass a path-specific deny or ask
 rule. On a case-sensitive volume this can make a rule more restrictive for a
 differently cased path.
 
+Aggregate reads (`repo_grep`, `candidate_grep`, `repo_diff`) apply the same
+per-path policy to every file they would otherwise disclose, not just to their
+own call-site argument. For each candidate file, the Host takes the strictest
+of the aggregate tool's own effect and the corresponding single-file read
+tool's effect (`repo_read` for `repo_grep`; `candidate_read` for
+`candidate_grep` and `repo_diff`) on that exact relative path, so a read-only
+deny or ask rule on one file also removes it from search and diff results. A
+denied or ask-gated file is filtered out before the model sees anything -
+excluded from the search worker's input, from the diff's per-file patches and
+file list, and from the recorded provenance sources - and never generates a
+permission question of its own. The result JSON instead carries
+`excludedByPolicy` and `excludedPendingApproval` counts so the model knows its
+view was partial without learning which paths were withheld; request an
+excluded file directly with `repo_read` or `candidate_read` to trigger its own
+approval.
+
 ## Private Git candidate
 
 Candidate creation requires an active source binding to a complete local Git
@@ -73,6 +89,11 @@ commit, only when the complete patch fits the 2 MiB aggregate review limit. An
 oversized patch fails with `candidate_diff_too_large`; the Host stops collecting
 per-file patches as soon as the remaining aggregate budget is exceeded. It
 does not return a truncated patch or accept an arbitrary Git command or base.
+Per-path policy admission (see above) is applied before any per-file patch is
+generated, so a denied or ask-gated changed file is dropped from the tracked
+and untracked path lists first and never consumes diff or patch-size budget;
+its exclusion is reflected only in the `excludedByPolicy` /
+`excludedPendingApproval` counts alongside the disclosed `files` and `patch`.
 `repo_write` takes a bounded relative path and UTF-8 text. If `expectedSha256`
 is omitted, the file must not exist; replacing an existing ordinary file
 requires its exact prior hash. The Host stages a new inode and atomically

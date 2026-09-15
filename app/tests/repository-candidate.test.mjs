@@ -985,6 +985,77 @@ test("schema17 candidate API keeps source reads separate, asks before writes, re
   }
 });
 
+test("candidate_grep and repo_diff exclude a candidate_read-denied file, counting it without naming it", async () => {
+  const h = await boot();
+  const source = await import("node:fs/promises").then(({ mkdtemp }) => mkdtemp(path.join(tmpdir(), "cw-candidate-grep-deny-source-")));
+  try {
+    const { baseCommit } = await makeRepository(source);
+    const session = await h.createSession();
+    const bound = await h.api("PUT", `/sessions/${session.id}/repository-binding`, {
+      operation: "bind", requestId: "candidate-grep-deny-bind", expectedRevision: 0, rootPath: source,
+    });
+    assert.equal(bound.status, 200, JSON.stringify(bound.json));
+    const candidateId = "523e4567-e89b-42d3-a456-426614174000";
+    const created = await h.api("PUT", `/sessions/${session.id}/repository-candidate`, {
+      operation: "create", requestId: "candidate-grep-deny-create", expectedRevision: 0,
+      expectedBindingRevision: 1, candidateId, baseCommit,
+    });
+    assert.equal(created.status, 200, JSON.stringify(created.json));
+
+    const writeRun = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "candidate-grep-deny-write",
+      input: h.scriptInput([
+        { name: "repo_write", arguments: { path: "a.txt", text: "SENTINEL in the open file\n" } },
+        { name: "repo_write", arguments: { path: "secret.txt", text: "SENTINEL in the private file\n" } },
+      ]),
+    });
+    assert.equal(writeRun.status, 200, JSON.stringify(writeRun.json));
+    assert.equal((await h.pollRun(writeRun.json.run.id)).status, "completed", JSON.stringify((await h.api("GET", `/runs/${writeRun.json.run.id}`)).json.run.error));
+
+    const control = (await h.api("GET", `/runtime-control?sessionId=${session.id}`)).json;
+    // A single candidate_read rule must also exclude the file from
+    // candidate_grep and repo_diff, because the effective per-file effect is
+    // the strictest of the aggregate tool's own rule and the corresponding
+    // single-file read rule (candidate_read).
+    const policy = await h.api("PUT", `/runtime-control?sessionId=${session.id}`, {
+      revision: control.revision, operation: "policy", scope: { type: "session", id: session.id },
+      rules: [{ action: "candidate_read", resource: "secret.txt", effect: "deny" }],
+    });
+    assert.equal(policy.status, 200, JSON.stringify(policy.json));
+
+    const run = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "candidate-grep-deny-run",
+      input: h.scriptInput([
+        { name: "candidate_grep", arguments: { pattern: "SENTINEL", path: "." } },
+        { name: "repo_diff", arguments: {} },
+      ]),
+    });
+    assert.equal(run.status, 200, JSON.stringify(run.json));
+    assert.equal((await h.pollRun(run.json.run.id)).status, "completed");
+
+    const events = (await h.api("GET", `/sessions/${session.id}/events`)).json.events;
+    const grepResult = events.find(event => event.runId === run.json.run.id && event.type === "tool.result" && event.data.name === "candidate_grep");
+    assert.equal(grepResult?.data.isError, false, JSON.stringify(grepResult));
+    const grepPayload = JSON.parse(grepResult.data.text);
+    assert.deepEqual(grepPayload.matches.map(match => match.path), ["a.txt"]);
+    assert.equal(grepPayload.excludedByPolicy, 1);
+    assert.equal(grepPayload.excludedPendingApproval, 0);
+
+    const diffResult = events.find(event => event.runId === run.json.run.id && event.type === "tool.result" && event.data.name === "repo_diff");
+    assert.equal(diffResult?.data.isError, false, JSON.stringify(diffResult));
+    const diffPayload = JSON.parse(diffResult.data.text);
+    assert.deepEqual(diffPayload.files.map(file => file.path), ["a.txt"]);
+    assert.equal(diffPayload.excludedByPolicy, 1);
+    assert.equal(diffPayload.excludedPendingApproval, 0);
+    assert.equal(diffPayload.patch.includes("secret.txt"), false, "an excluded file's path never reaches the disclosed patch");
+    assert.equal(diffPayload.patch.includes("SENTINEL in the private file"), false, "an excluded file's content never reaches the disclosed patch");
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(source, { recursive: true, force: true });
+  }
+});
+
 test("source binding replacement requires an active private candidate to be revoked first", async () => {
   const h = await boot();
   const sources = await import("node:fs/promises").then(({ mkdtemp }) => mkdtemp(path.join(tmpdir(), "cw-candidate-rebind-")));

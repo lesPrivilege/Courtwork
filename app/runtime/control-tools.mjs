@@ -17,9 +17,24 @@ export function createRuntimeLoadTool(binding, onLoad) {
   };
 }
 
+/** Computes the same per-tool policy effect governTools uses for its entry
+ * decision, but for an arbitrary resource string (typically a relative path)
+ * instead of the tool's own call-site resource. This is the single place
+ * that knows how a (tool name, resource) pair resolves to an effect, so
+ * aggregate tools (repo_grep, candidate_grep, repo_diff) can apply the same
+ * per-file admission governTools applies per call. */
+export function createPathAdmission({ binding, permissionMode }) {
+  return function admitPath(toolName, resource) {
+    const descriptor = binding.resources.find(r => r.id === 'tool:' + toolName);
+    const ceiling = hostToolCeiling(toolName, permissionMode);
+    return evaluatePolicy(binding.policies, descriptor?.action ?? toolName, resource, ceiling, descriptor?.mcp ? 'ask' : 'allow').effect;
+  };
+}
+
 /** All model-callable executors pass this boundary, including trusted domain
  * tools. Catalog filtering is presentation; this wrapper enforces admission. */
 export function governTools(tools, { binding, permissionMode, workspaceDir, requestPermission, isOpen }) {
+  const admitPath = createPathAdmission({ binding, permissionMode });
   return tools.filter(tool => binding.resources.some(r => r.id === 'tool:' + tool.name && r.exposed))
     .filter(tool => !(['ws_write','repo_write','message_other_agent'].includes(tool.name) && permissionMode === 'read_only'))
     .map(tool => {
@@ -31,12 +46,10 @@ export function governTools(tools, { binding, permissionMode, workspaceDir, requ
       let resource = tool.name === 'runtime_load' ? args.id : '*';
       if (tool.name.startsWith('ws_') && typeof args.path === 'string' && args.path) resource = (await resolveWorkspacePath(workspaceDir, args.path)).relativePath;
       if ((tool.name.startsWith('repo_') || tool.name.startsWith('candidate_')) && typeof args.path === 'string' && args.path) resource = args.path;
-      const descriptor = binding.resources.find(r => r.id === 'tool:' + tool.name);
-      const ceiling = hostToolCeiling(tool.name, permissionMode);
-      const decision = evaluatePolicy(binding.policies, descriptor?.action ?? tool.name, resource, ceiling, descriptor?.mcp ? 'ask' : 'allow');
-      if (decision.effect === 'deny') throw new Error('Runtime policy denied ' + tool.name);
+      const effect = admitPath(tool.name, resource);
+      if (effect === 'deny') throw new Error('Runtime policy denied ' + tool.name);
       let approvedContext = null;
-      if (decision.effect === 'ask') {
+      if (effect === 'ask') {
         const content = ['ws_write', 'repo_write'].includes(tool.name) && typeof args.text === 'string' ? args.text : JSON.stringify(args);
         const context = typeof permissionContext === 'function' ? permissionContext(args) : {};
         approvedContext = context;

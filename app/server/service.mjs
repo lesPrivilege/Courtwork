@@ -44,7 +44,7 @@ import {
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
-import { createRuntimeLoadTool, governTools } from "../runtime/control-tools.mjs";
+import { createRuntimeLoadTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
 import { createPrivateRepositoryCandidate } from "../runtime/repository-candidate.mjs";
@@ -2249,6 +2249,8 @@ export class RuntimeService {
         },
       }) : workspaceTools;
 
+      const admitPath = createPathAdmission({ binding: entry.runtimeBinding, permissionMode: entry.permissionMode });
+
       const repositoryTools = createRepositoryTools({
         binding: run.repositoryBindingSnapshot,
         runId: run.id,
@@ -2261,6 +2263,7 @@ export class RuntimeService {
           return Boolean(current?.status === "active" && current.id === bindingId && current.revision === revision
             && currentRun?.admissionOpen && ACTIVE_STATUSES.has(currentRun.status));
         },
+        admitPath,
       });
 
       const repositoryCandidateTools = createRepositoryCandidateTools({
@@ -2270,6 +2273,7 @@ export class RuntimeService {
         recordRead: (detail) => this.store.recordRepositoryCandidateRead(run.id, detail),
         writeCandidate: (request, options) => this.#writeRepositoryCandidate(run.id, run.repositoryCandidateSnapshot, request, options.signal),
         assertActive: (candidateId, revision, writeRevision) => this.#repositoryCandidateIsActive(run.id, candidateId, revision, writeRevision),
+        admitPath,
       });
 
       if (typeof extensionContext !== "string" || extensionContext.length > 100_000) throw new Error("invalid extension context");

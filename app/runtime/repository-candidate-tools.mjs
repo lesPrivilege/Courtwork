@@ -34,6 +34,9 @@ function decodeFile(base64, bytes, digest) {
   catch (error) { throw candidateError("candidate file is not bounded UTF-8 text", error.code ?? "binary_file"); }
 }
 
+const EFFECT_WEIGHT = { allow: 0, ask: 1, deny: 2 };
+function strictestEffect(a, b) { return EFFECT_WEIGHT[a] >= EFFECT_WEIGHT[b] ? a : b; }
+
 export function createRepositoryCandidateTools({
   candidate,
   runRepositoryFs,
@@ -41,6 +44,7 @@ export function createRepositoryCandidateTools({
   recordRead,
   writeCandidate,
   assertActive,
+  admitPath = () => "allow",
 } = {}) {
   if (!candidate || candidate.status !== "active") return [];
   const candidateId = candidate.id;
@@ -104,19 +108,29 @@ export function createRepositoryCandidateTools({
   const grepTool = {
     name: "candidate_grep",
     label: "Search private candidate files",
-    description: "Search bounded UTF-8 text files inside the Host-owned private Git candidate. Symlinks and .git control paths are never followed or exposed.",
+    description: "Search bounded UTF-8 text files inside the Host-owned private Git candidate. Symlinks and .git control paths are never followed or exposed. Never includes a file that policy denies or that needs per-file approval (excludedByPolicy/excludedPendingApproval count them without naming them); use candidate_read on an exact path to request approval for one of those files.",
     parameters: Type.Object({ pattern: Type.String({ minLength: 1, maxLength: MAX_PATTERN_CHARS }), path: Type.Optional(Type.String({ maxLength: MAX_PATH_CHARS })) }),
     async execute(_callId, params, signal) {
       const scanned = await read("grep", params.path ?? ".", signal);
       if (!Array.isArray(scanned.files) || scanned.files.length > MAX_GREP_FILES) throw candidateError("candidate search set exceeded its Host limit", "invalid_helper_response");
-      for (const file of scanned.files) decodeFile(file.dataBase64, file.bytes, file.sha256);
-      const matched = await grepRepositoryInWorker(scanned.files, params.pattern, signal);
+      let excludedByPolicy = 0;
+      let excludedPendingApproval = 0;
+      const admitted = [];
+      for (const file of scanned.files) {
+        const effect = strictestEffect(admitPath("candidate_grep", file.path), admitPath("candidate_read", file.path));
+        if (effect === "deny") { excludedByPolicy++; continue; }
+        if (effect === "ask") { excludedPendingApproval++; continue; }
+        admitted.push(file);
+      }
+      for (const file of admitted) decodeFile(file.dataBase64, file.bytes, file.sha256);
+      const matched = await grepRepositoryInWorker(admitted, params.pattern, signal);
       const result = { matches: matched.matches, truncated: scanned.truncated || matched.truncated,
         scannedFiles: scanned.files.length, scannedBytes: scanned.scannedBytes, skippedBinary: scanned.skippedBinary,
-        skippedLarge: scanned.skippedLarge, skippedSymlinks: scanned.skippedSymlinks };
+        skippedLarge: scanned.skippedLarge, skippedSymlinks: scanned.skippedSymlinks,
+        excludedByPolicy, excludedPendingApproval };
       const text = JSON.stringify(result, null, 2);
-      await record("grep", scanned.path, text, scanned.files.map(file => repositorySource(file.path, file.bytes, file.sha256)), signal);
-      return { content: [{ type: "text", text }], details: { path: scanned.path, matches: matched.matches.length, truncated: result.truncated, scannedFiles: result.scannedFiles, candidateId } };
+      await record("grep", scanned.path, text, admitted.map(file => repositorySource(file.path, file.bytes, file.sha256)), signal);
+      return { content: [{ type: "text", text }], details: { path: scanned.path, matches: matched.matches.length, truncated: result.truncated, scannedFiles: result.scannedFiles, excludedByPolicy, excludedPendingApproval, candidateId } };
     },
   };
 
@@ -159,7 +173,7 @@ export function createRepositoryCandidateTools({
   const diffTool = {
     name: "repo_diff",
     label: "Review private candidate changes",
-    description: "Show a bounded text diff from the immutable commit used to create this private candidate. The base cannot be changed by the caller.",
+    description: "Show a bounded text diff from the immutable commit used to create this private candidate. The base cannot be changed by the caller. Never includes a file that policy denies or that needs per-file approval (excludedByPolicy/excludedPendingApproval count them without naming them); use candidate_read on an exact path to request approval for one of those files.",
     parameters: Type.Object({}),
     async execute(_callId, _params, signal) {
       await verify(signal);
@@ -168,11 +182,12 @@ export function createRepositoryCandidateTools({
         candidateDirectory: candidate.candidateDirectory, candidateContainerDevice: candidate.containerDevice,
         candidateContainerInode: candidate.containerInode, stagingDevice: candidate.stagingDevice,
         stagingInode: candidate.stagingInode, gitDirectory: candidate.gitDirectory, gitDevice: candidate.gitDevice, gitInode: candidate.gitInode,
-      }, baseCommit: candidate.baseCommit, signal });
+      }, baseCommit: candidate.baseCommit, signal,
+        admitPath: relativePath => strictestEffect(admitPath("repo_diff", relativePath), admitPath("candidate_read", relativePath)) });
       await verify(signal);
       const text = JSON.stringify(result, null, 2);
       await record("diff", ".", text, result.files.map(file => repositorySource(file.path, file.bytes, file.sha256)), signal);
-      return { content: [{ type: "text", text }], details: { baseCommit: result.baseCommit, files: result.files.length, patchBytes: result.patchBytes, patchSha256: result.patchSha256, truncated: result.truncated, candidateId } };
+      return { content: [{ type: "text", text }], details: { baseCommit: result.baseCommit, files: result.files.length, patchBytes: result.patchBytes, patchSha256: result.patchSha256, truncated: result.truncated, excludedByPolicy: result.excludedByPolicy, excludedPendingApproval: result.excludedPendingApproval, candidateId } };
     },
   };
 

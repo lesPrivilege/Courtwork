@@ -495,6 +495,7 @@ export async function readPrivateRepositoryCandidateDiff({
   baseCommit,
   signal,
   gitBinary = "/usr/bin/git",
+  admitPath = () => "allow",
 } = {}) {
   if (!candidate || typeof candidate !== "object") fail("invalid_candidate", "candidate identity is required");
   if (typeof baseCommit !== "string" || !OID.test(baseCommit)) fail("invalid_commit", "candidate diff base must be a full Git object id");
@@ -525,13 +526,27 @@ export async function readPrivateRepositoryCandidateDiff({
     ...runOptions, operation: "candidate untracked-path inspection", trimOutput: false, strictOutput: true,
   });
   const untracked = splitGitPaths(untrackedText, "untracked-path inspection", candidate.candidatePath);
-  const allPaths = [...tracked, ...untracked];
+
+  // Filter out files policy denies or needs per-file approval for BEFORE any
+  // per-file patch is generated, so excluded files consume no diff budget and
+  // never reach the disclosed patch, file list or provenance sources.
+  let excludedByPolicy = 0;
+  let excludedPendingApproval = 0;
+  const admitDiffPaths = paths => paths.filter(relativePath => {
+    const effect = admitPath(relativePath);
+    if (effect === "deny") { excludedByPolicy++; return false; }
+    if (effect === "ask") { excludedPendingApproval++; return false; }
+    return true;
+  });
+  const admittedTracked = admitDiffPaths(tracked);
+  const admittedUntracked = admitDiffPaths(untracked);
+  const allPaths = [...admittedTracked, ...admittedUntracked];
   if (allPaths.length > 500 || new Set(allPaths).size !== allPaths.length) {
     fail("candidate_diff_too_large", "candidate diff contains too many or duplicate paths", candidate.candidatePath);
   }
 
   const fileRecords = [];
-  for (const relativePath of tracked) {
+  for (const relativePath of admittedTracked) {
     const state = await runRepositoryCandidateFs({
       operation: "inspect", ...candidateFsIdentity(candidate), path: relativePath,
     }, { signal });
@@ -541,7 +556,7 @@ export async function readPrivateRepositoryCandidateDiff({
     });
     fileRecords.push({ path: relativePath, status: "modified", beforeSha256, sha256: state.target.sha256, bytes: state.target.bytes });
   }
-  for (const relativePath of untracked) {
+  for (const relativePath of admittedUntracked) {
     const state = await runRepositoryCandidateFs({
       operation: "inspect", ...candidateFsIdentity(candidate), path: relativePath,
     }, { signal });
@@ -566,13 +581,13 @@ export async function readPrivateRepositoryCandidateDiff({
     patchBytesLength += partBytes;
     patches.push(patchPart);
   };
-  if (tracked.length) {
+  if (admittedTracked.length) {
     await appendBoundedPatch([
       "-C", candidate.candidatePath, "diff", "--binary", "--no-ext-diff", "--no-textconv",
-      "--no-color", "--no-renames", "--unified=3", baseCommit, "--",
+      "--no-color", "--no-renames", "--unified=3", baseCommit, "--", ...admittedTracked,
     ], { ...runOptions, operation: "candidate tracked diff" });
   }
-  for (const relativePath of untracked) {
+  for (const relativePath of admittedUntracked) {
     await appendBoundedPatch([
       "-C", candidate.candidatePath, "diff", "--no-index", "--binary", "--no-ext-diff", "--no-textconv",
       "--no-color", "--no-renames", "--unified=3", "--", "/dev/null", relativePath,
@@ -592,6 +607,8 @@ export async function readPrivateRepositoryCandidateDiff({
     patch,
     patchBytes: patchBytes.length,
     patchSha256: sha256(patchBytes),
+    excludedByPolicy,
+    excludedPendingApproval,
     truncated: false,
   };
 }

@@ -339,3 +339,93 @@ test("repository path deny rules block case aliases on case-insensitive Host vol
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("repo_grep excludes a repo_read-denied file, counts it, and keeps only allowed sources in provenance", async t => {
+  const h = await boot();
+  const root = await mkdtemp(path.join(tmpdir(), "cw-repository-grep-deny-"));
+  try {
+    await mkdir(path.join(root, "src"), { recursive: true });
+    await mkdir(path.join(root, "private"), { recursive: true });
+    await writeFile(path.join(root, "src", "a.txt"), "SENTINEL in the open file\n");
+    await writeFile(path.join(root, "private", "secret.txt"), "SENTINEL in the private file\n");
+
+    const session = await h.createSession();
+    const bound = await h.api("PUT", `/sessions/${session.id}/repository-binding`, {
+      operation: "bind", requestId: "grep-deny-bind", expectedRevision: 0, rootPath: root,
+    });
+    assert.equal(bound.status, 200, JSON.stringify(bound.json));
+    const control = (await h.api("GET", `/runtime-control?sessionId=${session.id}`)).json;
+    // A single repo_read rule must also exclude the file from repo_grep,
+    // because the effective per-file effect is the strictest of the
+    // aggregate tool's own rule and the corresponding single-file read rule.
+    const policy = await h.api("PUT", `/runtime-control?sessionId=${session.id}`, {
+      revision: control.revision, operation: "policy", scope: { type: "session", id: session.id },
+      rules: [{ action: "repo_read", resource: "private/secret.txt", effect: "deny" }],
+    });
+    assert.equal(policy.status, 200, JSON.stringify(policy.json));
+
+    const started = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "grep-deny-run", input: h.scriptInput([{ name: "repo_grep", arguments: { pattern: "SENTINEL", path: "." } }]),
+    });
+    assert.equal(started.status, 200, JSON.stringify(started.json));
+    assert.equal((await h.pollRun(started.json.run.id)).status, "completed");
+
+    const events = (await h.api("GET", `/sessions/${session.id}/events`)).json.events;
+    const result = events.find(event => event.runId === started.json.run.id && event.type === "tool.result" && event.data.name === "repo_grep");
+    assert.equal(result?.data.isError, false, JSON.stringify(result));
+    const payload = JSON.parse(result.data.text);
+    assert.deepEqual(payload.matches.map(match => match.path), ["src/a.txt"]);
+    assert.equal(payload.excludedByPolicy, 1);
+    assert.equal(payload.excludedPendingApproval, 0);
+
+    const readEvent = events.find(event => event.runId === started.json.run.id && event.type === "repository.read" && event.data.operation === "grep");
+    assert.deepEqual(readEvent.data.sources.map(s => s.path), ["src/a.txt"]);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("repo_grep excludes an ask-gated file without opening a permission question", async t => {
+  const h = await boot();
+  const root = await mkdtemp(path.join(tmpdir(), "cw-repository-grep-ask-"));
+  try {
+    await mkdir(path.join(root, "src"), { recursive: true });
+    await mkdir(path.join(root, "private"), { recursive: true });
+    await writeFile(path.join(root, "src", "a.txt"), "SENTINEL in the open file\n");
+    await writeFile(path.join(root, "private", "secret.txt"), "SENTINEL in the private file\n");
+
+    const session = await h.createSession();
+    const bound = await h.api("PUT", `/sessions/${session.id}/repository-binding`, {
+      operation: "bind", requestId: "grep-ask-bind", expectedRevision: 0, rootPath: root,
+    });
+    assert.equal(bound.status, 200, JSON.stringify(bound.json));
+    const control = (await h.api("GET", `/runtime-control?sessionId=${session.id}`)).json;
+    const policy = await h.api("PUT", `/runtime-control?sessionId=${session.id}`, {
+      revision: control.revision, operation: "policy", scope: { type: "session", id: session.id },
+      rules: [{ action: "repo_grep", resource: "private/secret.txt", effect: "ask" }],
+    });
+    assert.equal(policy.status, 200, JSON.stringify(policy.json));
+
+    const started = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "grep-ask-run", input: h.scriptInput([{ name: "repo_grep", arguments: { pattern: "SENTINEL", path: "." } }]),
+    });
+    assert.equal(started.status, 200, JSON.stringify(started.json));
+    const finished = await h.pollRun(started.json.run.id);
+    assert.equal(finished.status, "completed", "an ask-gated aggregate file is excluded, not waited on");
+
+    const events = (await h.api("GET", `/sessions/${session.id}/events`)).json.events;
+    assert.equal(events.some(event => event.runId === started.json.run.id && event.type === "permission.open"), false);
+    const result = events.find(event => event.runId === started.json.run.id && event.type === "tool.result" && event.data.name === "repo_grep");
+    assert.equal(result?.data.isError, false, JSON.stringify(result));
+    const payload = JSON.parse(result.data.text);
+    assert.deepEqual(payload.matches.map(match => match.path), ["src/a.txt"]);
+    assert.equal(payload.excludedByPolicy, 0);
+    assert.equal(payload.excludedPendingApproval, 1);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(root, { recursive: true, force: true });
+  }
+});
