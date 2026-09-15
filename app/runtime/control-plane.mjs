@@ -8,7 +8,9 @@ export const RESOURCE_KINDS = Object.freeze(['tool', 'mcp_server', 'skill', 'plu
 export const SCOPES = Object.freeze(['org', 'user', 'workspace', 'agent', 'session', 'invocation']);
 const IMPORT_KINDS = new Set(['instruction', 'skill', 'reference', 'prompt_template', 'agent_profile', 'mcp_server']);
 const CONTENT_KINDS = new Set(['instruction', 'skill', 'reference', 'prompt_template']);
-const TOOLS = ['ask_user', 'ws_list', 'ws_read', 'ws_write', 'ws_grep', 'runtime_load'];
+const TOOLS = ['ask_user', 'ws_list', 'ws_read', 'ws_write', 'ws_grep', 'repo_list', 'repo_read', 'repo_grep', 'candidate_list', 'candidate_read', 'candidate_grep', 'repo_write', 'repo_diff', 'runtime_load'];
+const SOURCE_REPOSITORY_TOOLS = new Set(['repo_list', 'repo_read', 'repo_grep']);
+const CANDIDATE_TOOLS = new Set(['candidate_list', 'candidate_read', 'candidate_grep', 'repo_write', 'repo_diff']);
 const weights = { allow: 0, ask: 1, deny: 2 };
 const hash = value => createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
 const clone = value => structuredClone(value);
@@ -21,21 +23,26 @@ function scope(value) {
   check(value.type === 'user' ? value.id === 'local' : string(value.id), 'Invalid scope identity');
 }
 function sameScope(a, b) { return a.type === b.type && a.id === b.id; }
-function matches(pattern, value) {
+function matches(pattern, value, { caseInsensitive = false } = {}) {
   // Deliberately small, documented glob: * matches any sequence, including /.
+  if (caseInsensitive) { pattern = pattern.toLowerCase(); value = value.toLowerCase(); }
   return new RegExp('^' + pattern.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$').test(value);
 }
 export function hostToolCeiling(name, permissionMode) {
   if (name === 'spark_explore') return permissionMode === 'ask' ? 'ask' : 'allow';
   if (name === 'message_other_agent') return permissionMode === 'read_only' ? 'deny' : 'ask';
-  if (name === 'ws_write') return permissionMode === 'read_only' ? 'deny' : permissionMode === 'ask' ? 'ask' : 'allow';
+  if (name === 'ws_write' || name === 'repo_write') return permissionMode === 'read_only' ? 'deny' : permissionMode === 'ask' ? 'ask' : 'allow';
   return 'allow';
 }
 
 export function evaluatePolicy(layers, action, resource, ceiling = 'allow', fallback = 'allow') {
   let effect = ceiling;
   const trace = [{ source: 'host-ceiling', effect: ceiling }];
-  const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource)).at(-1) })).filter(item => item.rule);
+  // Repository paths may be addressed through case aliases on a Host volume
+  // whose lookup is case-insensitive. Match those path policies without case
+  // so a deny/ask cannot be bypassed by changing only the path's spelling.
+  const caseInsensitiveResource = action.startsWith('repo_') || action.startsWith('candidate_');
+  const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource, { caseInsensitive: caseInsensitiveResource })).at(-1) })).filter(item => item.rule);
   const host = selections.filter(item => item.layer.scope?.type !== 'agent');
   if (!host.length) {
     if (weights[fallback] > weights[effect]) effect = fallback;
@@ -163,7 +170,13 @@ export class RuntimeControlPlane {
     const applies = value => scopes.some(s => sameScope(s, value));
     const policies = scopes.flatMap(s => this.config.policies.filter(p => sameScope(s, p.scope)));
     const descriptor = (id, kind, title, extra = {}) => ({ id, kind, title, source: { type: 'builtin', version: adapterId }, scope: { type: 'user', id: 'local' }, activation: 'always', installed: true, running: null, exposed: true, health: 'healthy', configurable: false, ...extra });
-    const resources = [...TOOLS, ...additionalTools].map(name => descriptor('tool:' + name, 'tool', name, { configurable: true, action: name }));
+    const repositoryBound = session?.repositoryBinding?.status === 'active';
+    const candidateBound = session?.repositoryCandidate?.status === 'active';
+    const resources = [...TOOLS, ...additionalTools].map(name => descriptor('tool:' + name, 'tool', name, {
+      configurable: true, action: name,
+      ...(SOURCE_REPOSITORY_TOOLS.has(name) ? { exposed: repositoryBound, running: repositoryBound, health: repositoryBound ? 'healthy' : 'unavailable' } : {}),
+      ...(CANDIDATE_TOOLS.has(name) ? { exposed: candidateBound, running: candidateBound, health: candidateBound ? 'healthy' : 'unavailable' } : {}),
+    }));
     for (const ext of extensions) {
       const bound = session?.extensionBinding?.extensionId === ext.id;
       resources.push(descriptor('plugin:' + ext.id, 'plugin', ext.title, { installed: true, running: ext.status === 'loaded', exposed: Boolean(bound && ext.status === 'loaded'), health: ext.status === 'invalidated' ? 'error' : 'healthy', source: ext.source ?? { type: 'builtin', version: ext.version }, format: 'cw-host-extension', trust: 'host-trusted', isolation: 'in-process', diagnostics: ext.diagnostics ?? [], capabilities: ext.tools.map(t => 'tool:' + t), generation: ext.generation }));
@@ -192,6 +205,11 @@ export class RuntimeControlPlane {
       for (const s of scopes) for (const override of this.config.overrides.filter(o => o.id === resource.id && sameScope(o.scope, s))) {
         resource.exposed = override.exposed;
         resource.provenance.push({ scope: s, value: override.exposed, reason: 'explicit override' });
+      }
+      const toolName = resource.id.startsWith('tool:') ? resource.id.slice(5) : null;
+      if ((SOURCE_REPOSITORY_TOOLS.has(toolName) && !repositoryBound || CANDIDATE_TOOLS.has(toolName) && !candidateBound) && resource.exposed) {
+        resource.exposed = false;
+        resource.provenance.push({ scope: resource.scope, value: false, reason: SOURCE_REPOSITORY_TOOLS.has(toolName) ? 'repository binding unavailable' : 'repository candidate unavailable' });
       }
       // A scoped override cannot load or bind an extension.
       const parent = resources.find(r => r.id === resource.parent);

@@ -28,7 +28,10 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 15;
+const SCHEMA_VERSION = 17;
+const REPOSITORY_COMMAND_LIMIT = 512;
+const REPOSITORY_WRITE_EFFECT_LIMIT = 512;
+const REPOSITORY_RETAINED_BYTES_LIMIT = 64 * 1024 * 1024;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration", "asyncTasks", "coordination", "providerConnections", "providerConfigurationPending",
@@ -218,9 +221,167 @@ function validateArtifact(value, label) {
   timestamp(value.writtenAt, label + ".writtenAt");
 }
 
+function validateRepositoryBinding(value, label, { activeOnly = false } = {}) {
+  if (value === null) { assert(!activeOnly, label + " is required"); return; }
+  exactKeys(value, new Set(["id", "rootPath", "device", "inode", "revision", "status"]), label);
+  id(value.id, label + ".id");
+  text(value.rootPath, label + ".rootPath", 4000);
+  assert(path.isAbsolute(value.rootPath), label + ".rootPath must be absolute");
+  text(value.device, label + ".device", 40); assert(/^\d+$/.test(value.device), label + ".device is invalid");
+  text(value.inode, label + ".inode", 40); assert(/^\d+$/.test(value.inode), label + ".inode is invalid");
+  nonNegativeInt(value.revision, label + ".revision"); assert(value.revision > 0, label + ".revision must be positive");
+  assert(value.status === "active" || (!activeOnly && value.status === "revoked"), label + ".status is invalid");
+}
+
+function validateRepositoryBindingCommands(value, label, currentRevision) {
+  assert(Array.isArray(value), label + " must be an array");
+  const requestIds = new Set();
+  for (const command of value) {
+    exactKeys(command, new Set(["requestId", "requestHash", "operation", "expectedRevision", "receipt"]), label + " item");
+    id(command.requestId, label + ".requestId"); assert(!requestIds.has(command.requestId), label + " requestId is not unique"); requestIds.add(command.requestId);
+    sha256Hex(command.requestHash, label + ".requestHash");
+    assert(command.operation === "bind" || command.operation === "revoke", label + ".operation is invalid");
+    nonNegativeInt(command.expectedRevision, label + ".expectedRevision");
+    exactKeys(command.receipt, new Set(["requestId", "operation", "bindingId", "revision", "status", "rootPath"]), label + ".receipt");
+    id(command.receipt.requestId, label + ".receipt.requestId"); assert(command.receipt.requestId === command.requestId, label + " receipt requestId mismatch");
+    assert(command.receipt.operation === command.operation, label + " receipt operation mismatch");
+    id(command.receipt.bindingId, label + ".receipt.bindingId");
+    nonNegativeInt(command.receipt.revision, label + ".receipt.revision");
+    assert(command.receipt.revision === command.expectedRevision + 1 && command.receipt.revision <= currentRevision, label + ".receipt revision is invalid");
+    assert(command.receipt.status === (command.operation === "bind" ? "active" : "revoked"), label + ".receipt status is invalid");
+    text(command.receipt.rootPath, label + ".receipt.rootPath", 4000);
+    assert(path.isAbsolute(command.receipt.rootPath), label + ".receipt.rootPath must be absolute");
+  }
+}
+
+const REPOSITORY_CANDIDATE_STATUSES = new Set(["active", "revoked"]);
+const REPOSITORY_CANDIDATE_COMMAND_STATUSES = new Set(["preparing", "active", "revoked", "failed"]);
+const REPOSITORY_WRITE_EFFECT_STATUSES = new Set(["prepared", "confirmed", "unknown", "failed"]);
+
+function validateFileState(value, label, { absent = false } = {}) {
+  if (value && value.present === false) {
+    exactKeys(value, new Set(["present"]), label);
+    assert(absent, label + " cannot be absent");
+    return;
+  }
+  exactKeys(value, new Set(["present", "sha256", "bytes", "device", "inode", "mode"]), label);
+  assert(value.present === true, label + ".present is invalid");
+  sha256Hex(value.sha256, label + ".sha256");
+  nonNegativeInt(value.bytes, label + ".bytes");
+  text(value.device, label + ".device", 40); assert(/^\d+$/.test(value.device), label + ".device is invalid");
+  text(value.inode, label + ".inode", 40); assert(/^\d+$/.test(value.inode), label + ".inode is invalid");
+  nonNegativeInt(value.mode, label + ".mode");
+  assert((value.mode & ~0o777) === 0, label + ".mode is invalid");
+}
+
+function validateRepositoryCandidate(value, label, { activeOnly = false } = {}) {
+  if (value === null) { assert(!activeOnly, label + " is required"); return; }
+  exactKeys(value, new Set([
+    "id", "status", "revision", "sourceBindingId", "sourceBindingRevision", "baseCommit", "objectFormat",
+    "candidatePath", "device", "inode", "candidateDirectory", "containerDevice", "containerInode",
+    "stagingDevice", "stagingInode", "gitDirectory", "gitDevice", "gitInode", "gitVersion", "writeRevision", "createdAt",
+  ]), label);
+  id(value.id, label + ".id");
+  assert(REPOSITORY_CANDIDATE_STATUSES.has(value.status) && (!activeOnly || value.status === "active"), label + ".status is invalid");
+  nonNegativeInt(value.revision, label + ".revision"); assert(value.revision > 0, label + ".revision must be positive");
+  id(value.sourceBindingId, label + ".sourceBindingId");
+  nonNegativeInt(value.sourceBindingRevision, label + ".sourceBindingRevision"); assert(value.sourceBindingRevision > 0, label + ".sourceBindingRevision must be positive");
+  assert(["sha1", "sha256"].includes(value.objectFormat), label + ".objectFormat is invalid");
+  assert(typeof value.baseCommit === "string" && new RegExp(`^(?:[0-9a-f]{${value.objectFormat === "sha1" ? 40 : 64}})$`).test(value.baseCommit), label + ".baseCommit is invalid");
+  for (const key of ["candidatePath", "candidateDirectory", "gitDirectory"]) {
+    text(value[key], `${label}.${key}`, 4000); assert(path.isAbsolute(value[key]), `${label}.${key} must be absolute`);
+  }
+  for (const key of ["device", "inode", "containerDevice", "containerInode", "stagingDevice", "stagingInode", "gitDevice", "gitInode"]) {
+    text(value[key], `${label}.${key}`, 40); assert(/^\d+$/.test(value[key]), `${label}.${key} is invalid`);
+  }
+  text(value.gitVersion, label + ".gitVersion", 120);
+  nonNegativeInt(value.writeRevision, label + ".writeRevision");
+  timestamp(value.createdAt, label + ".createdAt");
+}
+
+function validateRepositoryCandidateCommands(value, label) {
+  assert(Array.isArray(value) && value.length <= REPOSITORY_COMMAND_LIMIT, label + " must be a bounded array");
+  const requestIds = new Set();
+  for (const command of value) {
+    exactKeys(command, new Set(["requestId", "requestHash", "operation", "expectedRevision", "expectedBindingRevision", "sourceBindingId", "candidateId", "baseCommit", "receipt"]), label + " item");
+    id(command.requestId, label + ".requestId"); assert(!requestIds.has(command.requestId), label + " requestId is not unique"); requestIds.add(command.requestId);
+    sha256Hex(command.requestHash, label + ".requestHash");
+    assert(command.operation === "create" || command.operation === "revoke", label + ".operation is invalid");
+    nonNegativeInt(command.expectedRevision, label + ".expectedRevision");
+    nonNegativeInt(command.expectedBindingRevision, label + ".expectedBindingRevision");
+    id(command.sourceBindingId, label + ".sourceBindingId"); id(command.candidateId, label + ".candidateId");
+    assert(typeof command.baseCommit === "string" && /^[0-9a-f]{40}([0-9a-f]{24})?$/.test(command.baseCommit), label + ".baseCommit is invalid");
+    exactKeys(command.receipt, new Set(["requestId", "operation", "candidateId", "revision", "status", "sourceBindingId", "sourceBindingRevision", "baseCommit", "failureCode"]), label + ".receipt");
+    assert(command.receipt.requestId === command.requestId && command.receipt.operation === command.operation, label + ".receipt identity mismatch");
+    assert(command.receipt.candidateId === command.candidateId && command.receipt.sourceBindingId === command.sourceBindingId, label + ".receipt binding mismatch");
+    nonNegativeInt(command.receipt.revision, label + ".receipt.revision"); assert(command.receipt.revision === command.expectedRevision + 1, label + ".receipt revision is invalid");
+    nonNegativeInt(command.receipt.sourceBindingRevision, label + ".receipt.sourceBindingRevision");
+    assert(command.receipt.sourceBindingRevision === command.expectedBindingRevision, label + ".receipt source revision mismatch");
+    assert(command.receipt.baseCommit === command.baseCommit, label + ".receipt base commit mismatch");
+    assert(REPOSITORY_CANDIDATE_COMMAND_STATUSES.has(command.receipt.status), label + ".receipt status is invalid");
+    if (command.receipt.status === "failed") id(command.receipt.failureCode, label + ".receipt.failureCode");
+    else assert(command.receipt.failureCode === null, label + ".receipt.failureCode must be null");
+  }
+}
+
+function validateRepositoryWriteEffects(value, label, runsById, sessionId) {
+  assert(Array.isArray(value) && value.length <= REPOSITORY_WRITE_EFFECT_LIMIT, label + " must be a bounded array");
+  const ids = new Set();
+  const requestIds = new Set();
+  let retainedBytes = 0;
+  for (const effect of value) {
+    exactKeys(effect, new Set([
+      "effectId", "requestHash", "requestId", "runId", "candidateId", "candidateRevision", "sourceBindingId",
+      "sourceBindingRevision", "candidateWriteRevision", "path", "expectedSha256", "before", "contentSha256", "bytes",
+      "contentRef", "status", "createdAt", "settledAt", "result", "failure",
+    ]), label + " item");
+    assert(typeof effect.effectId === "string" && /^[0-9a-f]{64}$/.test(effect.effectId), label + ".effectId is invalid");
+    assert(!ids.has(effect.effectId), label + ".effectId is not unique"); ids.add(effect.effectId);
+    sha256Hex(effect.requestHash, label + ".requestHash");
+    id(effect.requestId, label + ".requestId");
+    assert(!requestIds.has(effect.requestId), label + ".requestId is not unique"); requestIds.add(effect.requestId);
+    id(effect.runId, label + ".runId");
+    assert(runsById.has(effect.runId), label + ".runId is missing");
+    assert(runsById.get(effect.runId).sessionId === sessionId, label + ".runId belongs to another session");
+    id(effect.candidateId, label + ".candidateId"); nonNegativeInt(effect.candidateRevision, label + ".candidateRevision");
+    id(effect.sourceBindingId, label + ".sourceBindingId"); nonNegativeInt(effect.sourceBindingRevision, label + ".sourceBindingRevision");
+    nonNegativeInt(effect.candidateWriteRevision, label + ".candidateWriteRevision");
+    text(effect.path, label + ".path", 1000);
+    assert(!path.isAbsolute(effect.path) && !effect.path.includes("\\") && effect.path.split("/").every(part => part && part !== "." && part !== ".." && part.toLowerCase() !== ".git"), label + ".path is invalid");
+    assert(effect.expectedSha256 === null || (typeof effect.expectedSha256 === "string" && /^[0-9a-f]{64}$/.test(effect.expectedSha256)), label + ".expectedSha256 is invalid");
+    validateFileState(effect.before, label + ".before", { absent: true });
+    assert((effect.before.present ? effect.before.sha256 : null) === effect.expectedSha256, label + ".before state does not match expected hash");
+    sha256Hex(effect.contentSha256, label + ".contentSha256"); nonNegativeInt(effect.bytes, label + ".bytes");
+    if (effect.contentRef !== null) {
+      assert(effect.contentRef === `effect-${effect.effectId}.payload`, label + ".contentRef is invalid");
+      retainedBytes += effect.bytes;
+    }
+    assert(REPOSITORY_WRITE_EFFECT_STATUSES.has(effect.status), label + ".status is invalid");
+    timestamp(effect.createdAt, label + ".createdAt");
+    assert(effect.settledAt === null || typeof effect.settledAt === "string", label + ".settledAt is invalid");
+    if (effect.settledAt !== null) timestamp(effect.settledAt, label + ".settledAt");
+    if (effect.result !== null) {
+      exactKeys(effect.result, new Set(["after", "created", "writeRevision"]), label + ".result");
+      validateFileState(effect.result.after, label + ".result.after");
+      assert(effect.result.after.sha256 === effect.contentSha256 && effect.result.after.bytes === effect.bytes, label + ".result content mismatch");
+      assert(typeof effect.result.created === "boolean", label + ".result.created is invalid");
+      nonNegativeInt(effect.result.writeRevision, label + ".result.writeRevision");
+    }
+    if (effect.failure !== null) {
+      exactKeys(effect.failure, new Set(["code", "message"]), label + ".failure");
+      id(effect.failure.code, label + ".failure.code"); text(effect.failure.message, label + ".failure.message", 4000);
+    }
+    if (effect.status === "prepared") assert(effect.settledAt === null && effect.result === null && effect.failure === null && effect.contentRef !== null, label + " prepared receipt is invalid");
+    if (effect.status === "confirmed") assert(effect.settledAt !== null && effect.result !== null && effect.failure === null && effect.contentRef === null, label + " confirmed receipt is invalid");
+    if (effect.status === "unknown") assert(effect.settledAt !== null && effect.result === null && effect.failure !== null && effect.contentRef !== null, label + " unknown receipt is invalid");
+    if (effect.status === "failed") assert(effect.settledAt !== null && effect.result === null && effect.failure !== null && effect.contentRef === null, label + " failed receipt is invalid");
+  }
+  assert(retainedBytes <= REPOSITORY_RETAINED_BYTES_LIMIT, label + " exceeds retained payload budget");
+}
+
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 or 14 can be upgraded)`);
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 16 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -233,7 +394,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
   }
   const sessionIds = new Set();
   for (const session of parsed.sessions) {
-    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession", ...(schema >= 6 ? ['scope'] : [])]), "session");
+    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession", ...(schema >= 6 ? ['scope'] : []), ...(schema >= 16 ? ["repositoryBinding", "repositoryBindingRevision", "repositoryBindingCommands"] : []), ...(schema >= 17 ? ["repositoryCandidate", "repositoryCandidateRevision", "repositoryCandidateCommands", "repositoryWriteEffects"] : [])]), "session");
     id(session.id, "session.id"); assert(!sessionIds.has(session.id), "duplicate session id"); sessionIds.add(session.id);
     if ((schema >= 6 && session.scope === 'global') || (schema >= 14 && session.scope === 'unassigned')) {
       assert(session.projectId === null && session.extensionBinding === null, 'unassigned/global session cannot own a project or Matter binding');
@@ -246,6 +407,19 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     text(session.workspaceDir, "session.workspaceDir", 4000);
     assert(PERMISSION_MODES.has(session.permissionMode), "session.permissionMode is invalid");
     validateHostSession(session.hostSession, "session.hostSession");
+    if (schema >= 16) {
+      nonNegativeInt(session.repositoryBindingRevision, "session.repositoryBindingRevision");
+      validateRepositoryBinding(session.repositoryBinding, "session.repositoryBinding");
+      assert((session.repositoryBinding?.revision ?? 0) === session.repositoryBindingRevision, "session.repositoryBinding revision mismatch");
+      validateRepositoryBindingCommands(session.repositoryBindingCommands, "session.repositoryBindingCommands", session.repositoryBindingRevision);
+    }
+    if (schema >= 17) {
+      nonNegativeInt(session.repositoryCandidateRevision, "session.repositoryCandidateRevision");
+      validateRepositoryCandidate(session.repositoryCandidate, "session.repositoryCandidate");
+      assert((session.repositoryCandidate?.revision ?? 0) === session.repositoryCandidateRevision, "session.repositoryCandidate revision mismatch");
+      validateRepositoryCandidateCommands(session.repositoryCandidateCommands, "session.repositoryCandidateCommands");
+      validateRepositoryWriteEffects(session.repositoryWriteEffects, "session.repositoryWriteEffects", new Map(parsed.runs.map(run => [run.id, run])), session.id);
+    }
     if (session.extensionBinding !== null) {
       exactKeys(session.extensionBinding, new Set(["extensionId", "binding"]), "session.extensionBinding");
       id(session.extensionBinding.extensionId, "extensionBinding.extensionId"); validateBinding(session.extensionBinding.binding, "extensionBinding.binding");
@@ -257,7 +431,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     exactKeys(run, new Set([
       "id", "sessionId", "status", "admissionOpen", "adapterId", "provider", "extension",
       "startedAt", "endedAt", "error", "commandId", "artifacts", "usage", "hostSession", "credentialGeneration",
-      ...(schema >= 9 ? ["supersedes"] : []),
+      ...(schema >= 9 ? ["supersedes"] : []), ...(schema >= 16 ? ["repositoryBindingSnapshot"] : []), ...(schema >= 17 ? ["repositoryCandidateSnapshot"] : []),
     ]), "run");
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
@@ -282,6 +456,8 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     validateUsage(run.usage, "run.usage");
     validateHostSession(run.hostSession, "run.hostSession");
     nonNegativeInt(run.credentialGeneration, "run.credentialGeneration");
+    if (schema >= 16 && run.repositoryBindingSnapshot !== null) validateRepositoryBinding(run.repositoryBindingSnapshot, "run.repositoryBindingSnapshot", { activeOnly: true });
+    if (schema >= 17 && run.repositoryCandidateSnapshot !== null) validateRepositoryCandidate(run.repositoryCandidateSnapshot, "run.repositoryCandidateSnapshot", { activeOnly: true });
   }
   // Lineage is validated after every Run is known, because a superseding Run
   // may be stored before its target. A stored link must still name a
@@ -322,13 +498,29 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     } else {
       // A permission is bound to one tool call and to the exact bytes it
       // would write, so an approval cannot be replayed onto a later call.
-      exactKeys(question.payload, new Set(["toolCallId", "tool", "path", "bytes", "contentSha256", "preview"]), "question.payload");
+      const repositoryWrite = question.payload?.tool === "repo_write";
+      exactKeys(question.payload, new Set(["toolCallId", "tool", "path", "bytes", "contentSha256", "preview",
+        ...(repositoryWrite ? ["candidateId", "candidateRevision", "candidateWriteRevision", "sourceBindingId", "sourceBindingRevision", "expectedSha256"] : [])]), "question.payload");
       id(question.payload.toolCallId, "question.payload.toolCallId");
       id(question.payload.tool, "question.payload.tool");
       text(question.payload.path, "question.payload.path", 4000);
       nonNegativeInt(question.payload.bytes, "question.payload.bytes");
       sha256Hex(question.payload.contentSha256, "question.payload.contentSha256");
       text(question.payload.preview, "question.payload.preview", 400);
+      if (question.payload.tool === "repo_write") {
+        id(question.payload.candidateId, "question.payload.candidateId");
+        nonNegativeInt(question.payload.candidateRevision, "question.payload.candidateRevision");
+        assert(question.payload.candidateRevision > 0, "question.payload.candidateRevision must be positive");
+        nonNegativeInt(question.payload.candidateWriteRevision, "question.payload.candidateWriteRevision");
+        id(question.payload.sourceBindingId, "question.payload.sourceBindingId");
+        nonNegativeInt(question.payload.sourceBindingRevision, "question.payload.sourceBindingRevision");
+        assert(question.payload.sourceBindingRevision > 0, "question.payload.sourceBindingRevision must be positive");
+        assert(question.payload.expectedSha256 === null || (typeof question.payload.expectedSha256 === "string" && /^[0-9a-f]{64}$/.test(question.payload.expectedSha256)), "question.payload.expectedSha256 is invalid");
+      } else {
+        for (const key of ["candidateId", "candidateRevision", "candidateWriteRevision", "sourceBindingId", "sourceBindingRevision", "expectedSha256"]) {
+          assert(!Object.hasOwn(question.payload, key), `question.payload.${key} is only valid for repo_write`);
+        }
+      }
     }
     timestamp(question.createdAt, "question.createdAt");
   }
@@ -444,6 +636,56 @@ function commandReceipt(state, sessionId, commandId, input, supersedes = null) {
 
 function lineageError(code, message) { const error = new Error(message); error.code = code; return error; }
 
+function repositoryBindingRequestHash({ operation, rootPath, expectedRevision }) {
+  return createHash("sha256").update(JSON.stringify({
+    operation,
+    rootPath: operation === "bind" ? rootPath : null,
+    expectedRevision,
+  })).digest("hex");
+}
+
+function repositoryBindingError(code, message) { const error = new Error(message); error.code = code; return error; }
+
+function repositoryCandidateRequestHash(value) {
+  // Hash the public command intent, not Host-derived state. In particular a
+  // source rebind or a newer candidate must not change the replay identity of
+  // an already-recorded create/revoke command. A revoke body has no base OID.
+  const intent = {
+    operation: value.operation, expectedRevision: value.expectedRevision,
+    expectedBindingRevision: value.expectedBindingRevision, candidateId: value.candidateId,
+  };
+  if (value.operation === "create") intent.baseCommit = value.baseCommit;
+  return createHash("sha256").update(JSON.stringify(intent)).digest("hex");
+}
+
+function repositoryCandidateError(code, message) { const error = new Error(message); error.code = code; return error; }
+
+function assertRepositoryWriteCapacity(session, bytes) {
+  if (!Number.isSafeInteger(bytes) || bytes < 0) {
+    throw repositoryCandidateError("INVALID_RECEIPT", "repository write byte count is invalid");
+  }
+  if (session.repositoryWriteEffects.length >= REPOSITORY_WRITE_EFFECT_LIMIT) {
+    throw repositoryCandidateError("WRITE_EFFECT_LIMIT", "repository write receipt budget is exhausted");
+  }
+  const retainedBytes = session.repositoryWriteEffects.reduce((total, effect) => total + (effect.contentRef === null ? 0 : effect.bytes), 0);
+  if (retainedBytes + bytes > REPOSITORY_RETAINED_BYTES_LIMIT) {
+    throw repositoryCandidateError("RETAINED_PAYLOAD_LIMIT", "repository write recovery payload budget is exhausted");
+  }
+}
+
+function repositoryWriteRequestHash(value) {
+  // writeRevision is an admission fence supplied by the Host's tool closure,
+  // not part of the user/model's request identity. A duplicate tool call can
+  // arrive after its first invocation advanced that fence; requestId plus the
+  // write intent below must still resolve to the original durable receipt.
+  return createHash("sha256").update(JSON.stringify({
+    requestId: value.requestId, runId: value.runId, candidateId: value.candidateId,
+    candidateRevision: value.candidateRevision, sourceBindingId: value.sourceBindingId,
+    sourceBindingRevision: value.sourceBindingRevision,
+    path: value.path, expectedSha256: value.expectedSha256, contentSha256: value.contentSha256, bytes: value.bytes,
+  })).digest("hex");
+}
+
 /**
  * D03: a superseding Run may only continue a Run of the same Session that has
  * already ended in `unknown|failed|cancelled`, is not already continued by
@@ -504,12 +746,12 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
-          const upgraded = validateState({ ...parsed, subagents: emptySubagents(), schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
+          const upgraded = validateState({ ...parsed, subagents: parsed.schemaVersion >= 15 ? parsed.subagents : emptySubagents(), schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
             coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(),
             // A pre-12 connection's models never reported reasoning; `null`
             // (never declared, PV-61) is the only honest default, not a guess.
@@ -522,8 +764,14 @@ export class RuntimeStore {
             providerConfigurationPending: parsed.schemaVersion >= 11 ? parsed.providerConfigurationPending : [],
             providerConfigVersion: parsed.schemaVersion >= 13 ? parsed.providerConfigVersion : parsed.schemaVersion >= 12 ? parsed.providerConfigVersion + 1 : 0,
             providerVerifications: parsed.schemaVersion >= 12 ? parsed.providerVerifications : [],
-            sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project' })),
-            runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
+            sessions: parsed.sessions.map(session => ({ ...session, scope: parsed.schemaVersion >= 6 ? session.scope : 'project',
+              repositoryBinding: parsed.schemaVersion >= 16 ? session.repositoryBinding : null,
+              repositoryBindingRevision: parsed.schemaVersion >= 16 ? session.repositoryBindingRevision : 0,
+              repositoryBindingCommands: parsed.schemaVersion >= 16 ? session.repositoryBindingCommands : [],
+              repositoryCandidate: null, repositoryCandidateRevision: 0, repositoryCandidateCommands: [], repositoryWriteEffects: [],
+            })),
+            runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null,
+              repositoryBindingSnapshot: parsed.schemaVersion >= 16 ? run.repositoryBindingSnapshot : null, repositoryCandidateSnapshot: null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -531,6 +779,36 @@ export class RuntimeStore {
           this.state = upgraded;
           this.logger(`store: upgraded schema ${parsed.schemaVersion} to ${SCHEMA_VERSION}; exact original state preserved in ${path.basename(backup)}`);
         } else this.state = validateState(parsed);
+        if (this.state.schemaVersion >= 17) {
+          let recovered = false;
+          for (const session of this.state.sessions) {
+            for (const command of session.repositoryCandidateCommands) {
+              if (command.operation === "create" && command.receipt.status === "preparing") {
+                command.receipt.status = "failed";
+                command.receipt.failureCode = "candidate_creation_interrupted";
+                recovered = true;
+              }
+            }
+            for (const effect of session.repositoryWriteEffects) {
+              if (effect.status !== "prepared") continue;
+              effect.status = "unknown";
+              effect.settledAt = now();
+              effect.failure = { code: "effect_unknown_after_restart", message: "The prepared repository write may have completed before the Host stopped" };
+              const run = this.state.runs.find(item => item.id === effect.runId);
+              if (run && !TERMINAL_STATUSES.has(run.status)) {
+                run.status = "unknown"; run.admissionOpen = false; run.endedAt = effect.settledAt;
+                run.error = { code: "repository_write_unknown", message: "A repository write needs reconciliation before more writes" };
+              }
+              if (run) appendEventToState(this.state, { runId: run.id, sessionId: session.id, type: "repository.write.unknown", data: { effectId: effect.effectId, requestId: effect.requestId, candidateId: effect.candidateId, path: effect.path, code: effect.failure.code } });
+              recovered = true;
+            }
+          }
+          if (recovered) {
+            this.state = validateState(this.state);
+            await this._persist(this.state);
+            this.logger("store: unresolved repository writes were fenced as unknown; no write was replayed");
+          }
+        }
       }
       this.opened = true; return this;
     } catch (error) { await this.#releaseLock(); throw error; }
@@ -607,7 +885,8 @@ export class RuntimeStore {
       assert(PERMISSION_MODES.has(permissionMode), "permissionMode is invalid");
       const session = {
         id: sessionId, scope, projectId, title, draft: "", extensionBinding: null, createdAt: now(), _nextSeq: 0,
-        workspaceDir, permissionMode, hostSession: null,
+        workspaceDir, permissionMode, hostSession: null, repositoryBinding: null, repositoryBindingRevision: 0, repositoryBindingCommands: [],
+        repositoryCandidate: null, repositoryCandidateRevision: 0, repositoryCandidateCommands: [], repositoryWriteEffects: [],
       };
       state.sessions.push(session); return publicSession(session);
     });
@@ -634,6 +913,334 @@ export class RuntimeStore {
   getCredentialGeneration() { return this.state.credentialGeneration; }
   hasActiveRun(sessionId) {
     return this.state.runs.some((run) => (!sessionId || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status));
+  }
+
+  getRepositoryBindingReceipt(sessionId, { requestId, operation, rootPath = null, expectedRevision }) {
+    const session = this.state.sessions.find(item => item.id === sessionId);
+    if (!session) throw new Error("session not found");
+    const requestHash = repositoryBindingRequestHash({ operation, rootPath, expectedRevision });
+    const existing = session.repositoryBindingCommands.find(item => item.requestId === requestId);
+    if (!existing) return null;
+    if (existing.requestHash !== requestHash) throw repositoryBindingError("IDEMPOTENCY_CONFLICT", "repository binding requestId was already used with different input");
+    return structuredClone(existing.receipt);
+  }
+
+  getRepositoryCandidateReceipt(sessionId, request) {
+    const session = this.state.sessions.find(item => item.id === sessionId);
+    if (!session) throw new Error("session not found");
+    const requestHash = repositoryCandidateRequestHash(request);
+    const existing = session.repositoryCandidateCommands.find(item => item.requestId === request.requestId);
+    if (!existing) return null;
+    if (existing.requestHash !== requestHash) throw repositoryCandidateError("IDEMPOTENCY_CONFLICT", "repository candidate requestId was already used with different input");
+    return structuredClone(existing.receipt);
+  }
+
+  async beginRepositoryCandidate(sessionId, request) {
+    const requestHash = repositoryCandidateRequestHash(request);
+    return this._mutate(state => {
+      const session = state.sessions.find(item => item.id === sessionId);
+      if (!session) throw new Error("session not found");
+      const existing = session.repositoryCandidateCommands.find(item => item.requestId === request.requestId);
+      if (existing) {
+        if (existing.requestHash !== requestHash) throw repositoryCandidateError("IDEMPOTENCY_CONFLICT", "repository candidate requestId was already used with different input");
+        return { receipt: structuredClone(existing.receipt), candidate: structuredClone(session.repositoryCandidate), idempotent: true };
+      }
+      if (request.expectedRevision !== session.repositoryCandidateRevision) throw repositoryCandidateError("STALE_REVISION", "repository candidate revision changed");
+      const binding = session.repositoryBinding;
+      if (!binding || binding.status !== "active" || binding.id !== request.sourceBindingId
+        || binding.revision !== request.expectedBindingRevision) throw repositoryCandidateError("BINDING_CHANGED", "source repository binding changed");
+      const activeRuns = state.runs.filter(run => run.sessionId === sessionId && ACTIVE_STATUSES.has(run.status));
+      let receipt;
+      let runsToCancel = [];
+      if (request.operation === "create") {
+        if (activeRuns.length) throw repositoryCandidateError("ACTIVE_RUN", "repository candidate cannot change during a Run");
+        if (session.repositoryCandidate?.status === "active") throw repositoryCandidateError("ACTIVE_CANDIDATE", "a repository candidate is already active");
+        // A create can make a candidate that must later be revocable. Leave
+        // one durable receipt slot for that revoke; a failed create at the
+        // boundary may therefore exhaust the remaining lifecycle budget.
+        if (session.repositoryCandidateCommands.length >= REPOSITORY_COMMAND_LIMIT - 1) {
+          throw repositoryCandidateError("CANDIDATE_COMMAND_LIMIT", "repository candidate command receipt budget is exhausted");
+        }
+        receipt = { requestId: request.requestId, operation: "create", candidateId: request.candidateId,
+          revision: session.repositoryCandidateRevision + 1, status: "preparing", sourceBindingId: binding.id,
+          sourceBindingRevision: binding.revision, baseCommit: request.baseCommit, failureCode: null };
+      } else if (request.operation === "revoke") {
+        const current = session.repositoryCandidate;
+        if (!current || current.status !== "active" || current.id !== request.candidateId || current.sourceBindingId !== binding.id) {
+          throw repositoryCandidateError("NO_ACTIVE_CANDIDATE", "no matching active repository candidate exists");
+        }
+        if (session.repositoryCandidateCommands.length >= REPOSITORY_COMMAND_LIMIT) {
+          throw repositoryCandidateError("CANDIDATE_COMMAND_LIMIT", "repository candidate command receipt budget is exhausted");
+        }
+        const next = { ...structuredClone(current), revision: session.repositoryCandidateRevision + 1, status: "revoked" };
+        session.repositoryCandidate = next;
+        session.repositoryCandidateRevision = next.revision;
+        runsToCancel = activeRuns.filter(run => run.repositoryCandidateSnapshot?.id === current.id).map(run => run.id);
+        receipt = { requestId: request.requestId, operation: "revoke", candidateId: current.id,
+          revision: next.revision, status: "revoked", sourceBindingId: binding.id,
+          sourceBindingRevision: binding.revision, baseCommit: current.baseCommit, failureCode: null };
+      } else throw repositoryCandidateError("INVALID_OPERATION", "repository candidate operation is invalid");
+      session.repositoryCandidateCommands.push({ requestId: request.requestId, requestHash, operation: request.operation,
+        expectedRevision: request.expectedRevision, expectedBindingRevision: request.expectedBindingRevision,
+        sourceBindingId: request.sourceBindingId, candidateId: request.candidateId, baseCommit: request.baseCommit, receipt });
+      return { receipt: structuredClone(receipt), candidate: structuredClone(session.repositoryCandidate), idempotent: false, runsToCancel };
+    });
+  }
+
+  async activateRepositoryCandidate(sessionId, { requestId, candidate }) {
+    return this._mutate(state => {
+      const session = state.sessions.find(item => item.id === sessionId);
+      if (!session) throw new Error("session not found");
+      const command = session.repositoryCandidateCommands.find(item => item.requestId === requestId);
+      if (!command || command.operation !== "create") throw repositoryCandidateError("CANDIDATE_COMMAND_MISSING", "candidate create command is unavailable");
+      if (command.receipt.status === "active") return { receipt: structuredClone(command.receipt), candidate: structuredClone(session.repositoryCandidate), idempotent: true };
+      if (command.receipt.status !== "preparing") throw repositoryCandidateError("CANDIDATE_COMMAND_CLOSED", "candidate create command is no longer pending");
+      const binding = session.repositoryBinding;
+      if (!binding || binding.status !== "active" || binding.id !== command.sourceBindingId
+        || binding.revision !== command.expectedBindingRevision
+        || session.repositoryCandidateRevision !== command.expectedRevision) {
+        throw repositoryCandidateError("BINDING_CHANGED", "source repository changed during candidate creation");
+      }
+      const next = {
+        id: command.candidateId, status: "active", revision: command.receipt.revision,
+        sourceBindingId: command.sourceBindingId, sourceBindingRevision: command.expectedBindingRevision,
+        baseCommit: command.baseCommit, objectFormat: candidate.objectFormat,
+        candidatePath: candidate.candidatePath, device: candidate.candidateDevice, inode: candidate.candidateInode,
+        candidateDirectory: candidate.candidateDirectory, containerDevice: candidate.candidateContainerDevice,
+        containerInode: candidate.candidateContainerInode, stagingDevice: candidate.stagingDevice,
+        stagingInode: candidate.stagingInode, gitDirectory: candidate.gitDirectory,
+        gitDevice: candidate.gitDevice, gitInode: candidate.gitInode, gitVersion: candidate.gitVersion,
+        writeRevision: 0, createdAt: now(),
+      };
+      validateRepositoryCandidate(next, "repository candidate", { activeOnly: true });
+      session.repositoryCandidate = next; session.repositoryCandidateRevision = next.revision;
+      command.receipt.status = "active";
+      return { receipt: structuredClone(command.receipt), candidate: structuredClone(next), idempotent: false };
+    });
+  }
+
+  async failRepositoryCandidate(sessionId, { requestId, code }) {
+    return this._mutate(state => {
+      const session = state.sessions.find(item => item.id === sessionId);
+      const command = session?.repositoryCandidateCommands.find(item => item.requestId === requestId);
+      if (!command) throw repositoryCandidateError("CANDIDATE_COMMAND_MISSING", "candidate create command is unavailable");
+      if (command.receipt.status !== "preparing") return { receipt: structuredClone(command.receipt), idempotent: true };
+      command.receipt.status = "failed"; command.receipt.failureCode = code;
+      return { receipt: structuredClone(command.receipt), idempotent: false };
+    });
+  }
+
+  async recordRepositoryCandidateRead(runId, { candidateId, revision, writeRevision, operation, path: relativePath, resultSha256, sources }) {
+    return this._mutate(state => {
+      const run = state.runs.find(item => item.id === runId);
+      if (!run) throw new Error("run not found");
+      const session = state.sessions.find(item => item.id === run.sessionId);
+      const current = session?.repositoryCandidate;
+      const snapshot = run.repositoryCandidateSnapshot;
+      if (!run.admissionOpen || !ACTIVE_STATUSES.has(run.status)) throw repositoryCandidateError("RUN_CLOSED", "run admission is closed");
+      if (!current || current.status !== "active" || !snapshot || current.id !== candidateId || snapshot.id !== candidateId
+        || current.revision !== revision || snapshot.revision !== revision || current.writeRevision !== writeRevision
+        || current.sourceBindingId !== session.repositoryBinding?.id || session.repositoryBinding?.status !== "active") {
+        throw repositoryCandidateError("CANDIDATE_REVOKED", "repository candidate is no longer active for this Run");
+      }
+      if (!["list", "read", "grep", "diff"].includes(operation)) throw repositoryCandidateError("INVALID_OPERATION", "repository candidate read operation is invalid");
+      text(relativePath, "repository candidate read path", 1000);
+      if (!/^([a-f0-9]{64})$/.test(resultSha256)) throw repositoryCandidateError("INVALID_RECEIPT", "candidate read result digest is invalid");
+      assert(Array.isArray(sources) && sources.length <= 500, "repository candidate read sources are invalid");
+      return appendEventToState(state, { runId, sessionId: session.id, type: "repository.candidate.read", data: {
+        candidateId, revision, writeRevision, operation, path: relativePath, resultSha256, sources: structuredClone(sources),
+      } });
+    });
+  }
+
+  async prepareRepositoryWrite(runId, input) {
+    const checked = structuredClone(input);
+    const requestHash = repositoryWriteRequestHash({ ...checked, runId });
+    return this._mutate(state => {
+      const run = state.runs.find(item => item.id === runId);
+      if (!run) throw new Error("run not found");
+      const session = state.sessions.find(item => item.id === run.sessionId);
+      const existing = session.repositoryWriteEffects.find(item => item.requestId === checked.requestId);
+      if (existing) {
+        if (existing.requestHash !== requestHash) throw repositoryCandidateError("IDEMPOTENCY_CONFLICT", "repository write requestId was already used with different input");
+        return { effect: structuredClone(existing), idempotent: true };
+      }
+      if (!run.admissionOpen || !ACTIVE_STATUSES.has(run.status)) throw repositoryCandidateError("RUN_CLOSED", "run admission is closed");
+      const candidate = session.repositoryCandidate;
+      const snapshot = run.repositoryCandidateSnapshot;
+      const binding = session.repositoryBinding;
+      if (!candidate || candidate.status !== "active" || !snapshot || candidate.id !== checked.candidateId || snapshot.id !== checked.candidateId
+        || candidate.revision !== checked.candidateRevision || snapshot.revision !== checked.candidateRevision
+        || candidate.writeRevision !== checked.candidateWriteRevision || binding?.status !== "active"
+        || binding.id !== checked.sourceBindingId || binding.revision !== checked.sourceBindingRevision
+        || candidate.sourceBindingId !== binding.id || candidate.sourceBindingRevision !== binding.revision) {
+        throw repositoryCandidateError("CANDIDATE_CHANGED", "repository candidate changed while permission was pending");
+      }
+      if (session.repositoryWriteEffects.some(effect => effect.candidateId === candidate.id && ["prepared", "unknown"].includes(effect.status))) {
+        throw repositoryCandidateError("EFFECT_UNKNOWN", "a repository write needs reconciliation before another write");
+      }
+      if (!checked.before || !checked.before.present && checked.expectedSha256 !== null
+        || checked.before.present && checked.before.sha256 !== checked.expectedSha256) throw repositoryCandidateError("INVALID_RECEIPT", "candidate write before-state does not match its expected hash");
+      assertRepositoryWriteCapacity(session, checked.bytes);
+      const effectId = createHash("sha256").update(`${session.id}\n${checked.requestId}`).digest("hex");
+      const effect = {
+        effectId, requestHash, requestId: checked.requestId, runId,
+        candidateId: candidate.id, candidateRevision: candidate.revision, sourceBindingId: binding.id,
+        sourceBindingRevision: binding.revision, candidateWriteRevision: candidate.writeRevision,
+        path: checked.path, expectedSha256: checked.expectedSha256, before: checked.before,
+        contentSha256: checked.contentSha256, bytes: checked.bytes, contentRef: `effect-${effectId}.payload`,
+        status: "prepared", createdAt: now(), settledAt: null, result: null, failure: null,
+      };
+      session.repositoryWriteEffects.push(effect);
+      return { effect: structuredClone(effect), idempotent: false };
+    });
+  }
+
+  getRepositoryWriteEffect(sessionId, requestId) {
+    const session = this.state.sessions.find(item => item.id === sessionId);
+    return structuredClone(session?.repositoryWriteEffects.find(item => item.requestId === requestId) ?? null);
+  }
+
+  assertRepositoryWriteCapacity(sessionId, bytes) {
+    const session = this.state.sessions.find(item => item.id === sessionId);
+    if (!session) throw new Error("session not found");
+    assertRepositoryWriteCapacity(session, bytes);
+  }
+
+  getRepositoryWriteReceipt(runId, input) {
+    const run = this.state.runs.find(item => item.id === runId);
+    if (!run) return null;
+    const session = this.state.sessions.find(item => item.id === run.sessionId);
+    const existing = session?.repositoryWriteEffects.find(item => item.requestId === input.requestId);
+    if (!existing) return null;
+    const requestHash = repositoryWriteRequestHash({ ...input, runId });
+    if (existing.requestHash !== requestHash) throw repositoryCandidateError("IDEMPOTENCY_CONFLICT", "repository write requestId was already used with different input");
+    return structuredClone(existing);
+  }
+
+  async settleRepositoryWrite(runId, effectId, { status, result = null, failure = null }) {
+    return this._mutate(state => {
+      const run = state.runs.find(item => item.id === runId);
+      if (!run) throw new Error("run not found");
+      const session = state.sessions.find(item => item.id === run.sessionId);
+      const effect = session?.repositoryWriteEffects.find(item => item.effectId === effectId);
+      if (!effect) throw repositoryCandidateError("EFFECT_NOT_FOUND", "repository write receipt is unavailable");
+      if (effect.status !== "prepared") return structuredClone(effect);
+      if (!["confirmed", "unknown", "failed"].includes(status)) throw repositoryCandidateError("INVALID_STATUS", "repository write result status is invalid");
+      effect.status = status; effect.settledAt = now(); effect.failure = failure ? structuredClone(failure) : null;
+      if (status === "confirmed" || status === "failed") effect.contentRef = null;
+      if (status === "confirmed") {
+        if (!result || !result.after || result.after.sha256 !== effect.contentSha256 || result.after.bytes !== effect.bytes) throw repositoryCandidateError("INVALID_RECEIPT", "candidate write result does not match the prepared content");
+        const candidate = session.repositoryCandidate;
+        if (!candidate || candidate.id !== effect.candidateId) throw repositoryCandidateError("CANDIDATE_CHANGED", "repository candidate changed during the write");
+        candidate.writeRevision += 1;
+        effect.result = { after: structuredClone(result.after), created: Boolean(result.created), writeRevision: candidate.writeRevision };
+      } else effect.result = null;
+      if (status === "unknown") {
+        if (run && !TERMINAL_STATUSES.has(run.status)) { run.status = "unknown"; run.admissionOpen = false; run.endedAt = effect.settledAt; run.error = { code: "repository_write_unknown", message: "A repository write needs reconciliation before more writes" }; }
+        appendEventToState(state, { runId: run.id, sessionId: session.id, type: "repository.write.unknown", data: { effectId, requestId: effect.requestId, candidateId: effect.candidateId, path: effect.path, code: failure?.code ?? "write_outcome_unknown" } });
+      } else if (status === "confirmed") appendEventToState(state, { runId: run.id, sessionId: session.id, type: "repository.write.confirmed", data: { effectId, requestId: effect.requestId, candidateId: effect.candidateId, path: effect.path, contentSha256: effect.contentSha256, bytes: effect.bytes, writeRevision: effect.result.writeRevision } });
+      else appendEventToState(state, { runId: run.id, sessionId: session.id, type: "repository.write.failed", data: { effectId, requestId: effect.requestId, candidateId: effect.candidateId, path: effect.path, code: failure?.code ?? "write_failed" } });
+      return structuredClone(effect);
+    });
+  }
+
+  async changeRepositoryBinding(sessionId, { requestId, operation, rootPath = null, expectedRevision, resolvedRoot = null }) {
+    const requestHash = repositoryBindingRequestHash({ operation, rootPath, expectedRevision });
+    return this._mutate((state) => {
+      const session = state.sessions.find(item => item.id === sessionId);
+      if (!session) throw new Error("session not found");
+      const existing = session.repositoryBindingCommands.find(item => item.requestId === requestId);
+      if (existing) {
+        if (existing.requestHash !== requestHash) throw repositoryBindingError("IDEMPOTENCY_CONFLICT", "repository binding requestId was already used with different input");
+        const runsToCancel = operation === "revoke"
+          ? state.runs.filter(run => run.sessionId === sessionId && ACTIVE_STATUSES.has(run.status)
+            && run.repositoryBindingSnapshot?.id === existing.receipt.bindingId).map(run => run.id)
+          : [];
+        return { receipt: structuredClone(existing.receipt), binding: structuredClone(session.repositoryBinding), idempotent: true, runsToCancel };
+      }
+      if (expectedRevision !== session.repositoryBindingRevision) throw repositoryBindingError("STALE_REVISION", "repository binding revision changed");
+      const activeRuns = state.runs.filter(run => run.sessionId === sessionId && ACTIVE_STATUSES.has(run.status));
+      let nextBinding;
+      let runsToCancel = [];
+      if (operation === "bind") {
+        if (activeRuns.length) throw repositoryBindingError("ACTIVE_RUN", "repository binding cannot change during an active run");
+        if (session.repositoryCandidate?.status === "active") {
+          throw repositoryBindingError("ACTIVE_CANDIDATE", "revoke the private candidate before changing its source repository binding");
+        }
+        if (!resolvedRoot || typeof resolvedRoot.path !== "string" || !path.isAbsolute(resolvedRoot.path)
+          || typeof resolvedRoot.device !== "string" || !/^\d+$/.test(resolvedRoot.device)
+          || typeof resolvedRoot.inode !== "string" || !/^\d+$/.test(resolvedRoot.inode)) {
+          throw repositoryBindingError("INVALID_ROOT", "repository root identity is invalid");
+        }
+        nextBinding = {
+          id: randomUUID(), rootPath: resolvedRoot.path, device: resolvedRoot.device, inode: resolvedRoot.inode,
+          revision: session.repositoryBindingRevision + 1, status: "active",
+        };
+      } else if (operation === "revoke") {
+        if (!session.repositoryBinding || session.repositoryBinding.status !== "active") throw repositoryBindingError("NO_ACTIVE_BINDING", "no active repository binding exists");
+        const current = session.repositoryBinding;
+        nextBinding = { ...structuredClone(current), revision: session.repositoryBindingRevision + 1, status: "revoked" };
+        runsToCancel = activeRuns.filter(run => run.repositoryBindingSnapshot?.id === current.id).map(run => run.id);
+        if (session.repositoryCandidate?.status === "active" && session.repositoryCandidate.sourceBindingId === current.id) {
+          const candidate = session.repositoryCandidate;
+          session.repositoryCandidate = { ...structuredClone(candidate), revision: session.repositoryCandidateRevision + 1, status: "revoked" };
+          session.repositoryCandidateRevision = session.repositoryCandidate.revision;
+          runsToCancel = [...new Set([...runsToCancel, ...activeRuns.filter(run => run.repositoryCandidateSnapshot?.id === candidate.id).map(run => run.id)])];
+          for (const runId of activeRuns.filter(run => run.repositoryCandidateSnapshot?.id === candidate.id).map(run => run.id)) appendEventToState(state, {
+            runId, sessionId, type: "repository.candidate.revoked", data: { candidateId: candidate.id, revision: session.repositoryCandidateRevision, reason: "source_binding_revoked" },
+          });
+        }
+      } else throw repositoryBindingError("INVALID_OPERATION", "repository binding operation is invalid");
+      const receipt = {
+        requestId, operation, bindingId: nextBinding.id, revision: nextBinding.revision,
+        status: nextBinding.status, rootPath: nextBinding.rootPath,
+      };
+      session.repositoryBinding = nextBinding;
+      session.repositoryBindingRevision = nextBinding.revision;
+      session.repositoryBindingCommands.push({ requestId, requestHash, operation, expectedRevision, receipt });
+      for (const runId of runsToCancel) appendEventToState(state, {
+        runId, sessionId, type: "repository.binding.revoked",
+        data: { bindingId: nextBinding.id, revision: nextBinding.revision },
+      });
+      return { receipt: structuredClone(receipt), binding: structuredClone(nextBinding), idempotent: false, runsToCancel };
+    });
+  }
+
+  async recordRepositoryRead(runId, { bindingId, revision, operation, path: relativePath, resultSha256, sources }) {
+    return this._mutate((state) => {
+      const run = state.runs.find(item => item.id === runId);
+      if (!run) throw new Error("run not found");
+      const session = state.sessions.find(item => item.id === run.sessionId);
+      if (!session) throw new Error("session not found");
+      const current = session.repositoryBinding;
+      const snapshot = run.repositoryBindingSnapshot;
+      if (!run.admissionOpen || !ACTIVE_STATUSES.has(run.status)) throw repositoryBindingError("RUN_CLOSED", "run admission is closed");
+      if (!current || current.status !== "active" || !snapshot
+        || current.id !== bindingId || snapshot.id !== bindingId
+        || current.revision !== revision || snapshot.revision !== revision
+        || current.device !== snapshot.device || current.inode !== snapshot.inode || current.rootPath !== snapshot.rootPath) {
+        throw repositoryBindingError("BINDING_REVOKED", "repository binding is no longer active for this run");
+      }
+      if (!["list", "read", "grep"].includes(operation)) throw repositoryBindingError("INVALID_OPERATION", "repository read operation is invalid");
+      text(relativePath, "repository read path", 1000);
+      const validRelativePath = value => value === "." || (!path.isAbsolute(value) && !value.includes("\\")
+        && value.split("/").every(part => part && part !== "." && part !== ".."));
+      assert(validRelativePath(relativePath), "repository read path is invalid");
+      sha256Hex(resultSha256, "repository read resultSha256");
+      assert(Array.isArray(sources) && sources.length <= 500, "repository read sources are invalid");
+      const checkedSources = sources.map((source, index) => {
+        exactKeys(source, new Set(["path", "bytes", "sha256"]), `repository read source ${index}`);
+        text(source.path, `repository read source ${index}.path`, 1000);
+        assert(validRelativePath(source.path), `repository read source ${index}.path is invalid`);
+        nonNegativeInt(source.bytes, `repository read source ${index}.bytes`);
+        sha256Hex(source.sha256, `repository read source ${index}.sha256`);
+        return structuredClone(source);
+      });
+      return appendEventToState(state, { runId, sessionId: run.sessionId, type: "repository.read", data: {
+        bindingId, revision, operation, path: relativePath, resultSha256, sources: checkedSources,
+      } });
+    });
   }
 
   async setDraft(sessionId, textValue) {
@@ -694,7 +1301,7 @@ export class RuntimeStore {
    * are serialized through the mutation queue, so two requests racing on the
    * same commandId still observe each other in order).
    */
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null }) {
     // Validate and detach the descriptor before it enters the mutation queue.
     // A caller must not be able to mutate a checked object while an earlier
     // queued write is still pending, and an invalid descriptor must never
@@ -705,25 +1312,35 @@ export class RuntimeStore {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input, supersedes);
       if (receipt) return receipt;
+      if (expectedRepositoryBindingRevision !== null && expectedRepositoryBindingRevision !== session.repositoryBindingRevision) {
+        throw repositoryBindingError("BINDING_CHANGED", "repository binding changed during run admission");
+      }
+      if (expectedRepositoryCandidateRevision !== null && expectedRepositoryCandidateRevision !== session.repositoryCandidateRevision) {
+        throw repositoryCandidateError("CANDIDATE_CHANGED", "repository candidate changed during run admission");
+      }
       // Lineage admission shares this serialized closure with the commandId
       // check, so two requests racing to continue the same Run still observe
       // each other in order and only one of them wins.
       if (supersedes !== null) assertSupersedable(state, sessionId, supersedes);
       if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       const timestamp = now();
+      const repositoryBindingSnapshot = session.repositoryBinding?.status === "active" ? structuredClone(session.repositoryBinding) : null;
+      const repositoryCandidateSnapshot = session.repositoryCandidate?.status === "active" ? structuredClone(session.repositoryCandidate) : null;
       const run = {
         id: randomUUID(), sessionId, status: "running", admissionOpen: true, adapterId,
         provider: checkedProvider, extension: extension ? structuredClone(extension) : null,
         startedAt: timestamp, endedAt: null, error: null,
         commandId, supersedes, artifacts: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, turns: 0, missing: true },
         hostSession: workspaceHostSession ? structuredClone(workspaceHostSession) : null,
-        credentialGeneration,
+        credentialGeneration, repositoryBindingSnapshot, repositoryCandidateSnapshot,
       };
       bindSubagentRun(state, sessionId, run.id, commandId);
       state.runs.push(run);
       appendEventToState(state, { runId: run.id, sessionId, type: "user.message", data: { text: input } });
       appendEventToState(state, { runId: run.id, sessionId, type: "run.status", data: { status: "running" } });
       if (runtimeSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "runtime.bound", data: runtimeSnapshot });
+      if (repositoryBindingSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "repository.bound", data: { bindingId: repositoryBindingSnapshot.id, revision: repositoryBindingSnapshot.revision } });
+      if (repositoryCandidateSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "repository.candidate.bound", data: { candidateId: repositoryCandidateSnapshot.id, revision: repositoryCandidateSnapshot.revision, baseCommit: repositoryCandidateSnapshot.baseCommit } });
       session.draft = "";
       return { run: publicRun(run), idempotent: false };
     });

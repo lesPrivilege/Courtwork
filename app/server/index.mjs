@@ -47,6 +47,20 @@ function fail(res, status, code, message, details = null) {
   json(res, status, { error: { code, message, ...(details ?? {}) } });
 }
 
+const PUBLIC_CANDIDATE_FIELDS = ["id", "status", "revision", "sourceBindingId", "sourceBindingRevision", "baseCommit", "objectFormat", "writeRevision", "createdAt"];
+function publicRuntimeProjection(value) {
+  if (Array.isArray(value)) return value.map(publicRuntimeProjection);
+  if (!value || typeof value !== "object" || Buffer.isBuffer(value)) return value;
+  const projected = {};
+  for (const [key, item] of Object.entries(value)) {
+    if (key === "repositoryCandidate" || key === "repositoryCandidateSnapshot") {
+      projected[key] = item === null ? null : Object.fromEntries(PUBLIC_CANDIDATE_FIELDS
+        .filter(field => Object.hasOwn(item ?? {}, field)).map(field => [field, item[field]]));
+    } else projected[key] = publicRuntimeProjection(item);
+  }
+  return projected;
+}
+
 function decodePart(value) {
   try { return decodeURIComponent(value); } catch { throw new ServiceError(400, "invalid_path", "request path is invalid"); }
 }
@@ -167,6 +181,10 @@ function routeService(service, req, url) {
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "events" && method === "GET") return () => service.getEvents(tail[1], url.searchParams.get("afterSeq") ?? 0);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "draft" && method === "PUT") return async () => service.updateDraft(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "permission-mode" && method === "PUT") return async () => service.setPermissionMode(tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "repository-binding" && method === "GET") return () => service.getRepositoryBinding(tail[1]);
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "repository-binding" && method === "PUT") return async () => service.changeRepositoryBinding(tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "repository-candidate" && method === "GET") return () => service.getRepositoryCandidate(tail[1]);
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "repository-candidate" && method === "PUT") return async () => service.changeRepositoryCandidate(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "materials" && method === "GET") return () => service.listMaterials(tail[1], url.searchParams);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "materials" && tail[3] === "compare" && method === "GET") return () => service.compareMaterials(tail[1], url.searchParams);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "materials" && tail[3] === "file" && method === "GET") return () => service.getMaterialFile(tail[1], url.searchParams);
@@ -236,7 +254,7 @@ export async function startServer({ dataDir, host = "127.0.0.1", port = 0, exten
           const handler = routeService(service, req, url);
           if (!handler) { fail(res, 404, "not_found", "request not found"); return; }
           const result = await handler();
-          json(res, 200, await result);
+          json(res, 200, publicRuntimeProjection(await result));
           return;
         }
         if (req.method === "GET" && STATIC.has(url.pathname)) {

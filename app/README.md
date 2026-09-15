@@ -4,6 +4,9 @@ The local host composes the Web UI, Pi AgentSession, runtime control plane and W
 
 The [source preview support table](docs/supported-preview.md) distinguishes usable capabilities from product roles.
 
+An explicitly connected external directory is governed by the separate
+[Session repository-binding contract](docs/repository-binding.md).
+
 For the first supported work path, follow [the synthetic NDA walkthrough](docs/first-work.md). It covers the existing GUI configuration, source binding, human Review and same-Matter continuation.
 
 ## Modules
@@ -87,7 +90,7 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 14 store (see below)
+  runtime-state.json        # schemaVersion 17 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
@@ -95,6 +98,7 @@ task.
   workspaces/<sessionId>/
     materials/               # POST .../materials writes here
     out/                      # where the model is expected to write results
+  repository-candidates/<sha256(sessionId)>/<candidateId>/ # private Git worktree; never merged into its source
   artifact-history/<sha256(sessionId)>/objects.git/ # private reachable content blobs
   pi-agent/                  # AgentSession agentDir; nothing under ~/.pi is read or written
   pi-sessions/<sessionId>/   # one Pi JSONL session file per app session (the only conversation journal)
@@ -109,19 +113,22 @@ task.
 <a id="store-schema-v11-validated-v3v4v5v6v7v8v9v10-upgrade"></a>
 <a id="store-schema-v12-validated-v3v4v5v6v7v8v9v10v11-upgrade"></a>
 <a id="store-schema-v13-validated-v3v4v5v6v7v8v9v10v11v12-upgrade"></a>
-## Store schema (v14, validated v3/v4/v5/v6/v7/v8/v9/v10/v11/v12/v13 upgrade)
+<a id="store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade"></a>
+## Store schema (v17, validated v3/v4/v5/v6/v7/v8/v9/v10/v11/v12/v13/v14/v15/v16 upgrade)
 
-`schemaVersion` is `14`. A valid v3/v4/v5/v6/v7/v8/v9/v10/v11/v12/v13 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v14. Runtime14 adds ordinary `unassigned` Chat scope, distinct from global Attention; v13→v14 preserves existing scope, model capabilities, verification receipts and configuration epoch exactly. See [optional workspace chats](docs/projectless-chat.md). Runtime13 adds exact `reasoningEfforts: null | string[]` to connection models; legacy booleans remain unchanged and never create a ladder. A v12 upgrade increments `providerConfigVersion` and retains historical verification receipts, making those receipts stale through their existing binding. New Runs freeze `reasoningBinding` (capability source, adapter and config version); new verification receipts record their single-turn, no-tools, omitted-parameter coverage. `GET /provider-config` and `/provider-models` expose `version`; `PUT /provider-config` requires top-level `expectedVersion` and returns `409 config_conflict` for stale saves. Provider default omits reasoning parameters; explicit values are validated by the Host. Runtime12 (WO-PV-BE03) adds two top-level fields and one connection-model field: `providerConfigVersion` (a monotonic counter, bumped by any `providerConfig` or `providerConnections` write) and `providerVerifications` (one BE-39 verify receipt per connection id, bound to `{providerConfigVersion, credentialGeneration}` — either changing invalidates it); each connection model entry gains `reasoning: true | false | null` (PV-61), defaulting to `null` (never declared) on upgrade. Runtime11 adds durable pending configuration markers; v10 connections and v9 lineage are preserved. Older schemas receive the Provider Connections ledger; v3–8 runs receive a null predecessor. [Run attempts and lineage](docs/run-attempts.md) adds one immutable `supersedes` link per Run. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
+`schemaVersion` is `17`. A valid v3/v4/v5/v6/v7/v8/v9/v10/v11/v12/v13/v14/v15/v16 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v17. Runtime17 adds per-Session private Git candidate state, candidate command receipts and durable write-effect records; Runs freeze the candidate identity/revision. Runtime16 adds per-Session external repository binding state and per-Run source binding snapshots; historical Sessions migrate to no external binding while managed workspaces remain intact. Runtime15 adds stable Spark assignment, attempt and mount state. Runtime14 adds ordinary `unassigned` Chat scope, distinct from global Attention; v13→v14 preserves existing scope, model capabilities, verification receipts and configuration epoch exactly. See [optional workspace chats](docs/projectless-chat.md). Runtime13 adds exact `reasoningEfforts: null | string[]` to connection models; legacy booleans remain unchanged and never create a ladder. A v12 upgrade increments `providerConfigVersion` and retains historical verification receipts, making those receipts stale through their existing binding. New Runs freeze `reasoningBinding` (capability source, adapter and config version); new verification receipts record their single-turn, no-tools, omitted-parameter coverage. `GET /provider-config` and `/provider-models` expose `version`; `PUT /provider-config` requires top-level `expectedVersion` and returns `409 config_conflict` for stale saves. Provider default omits reasoning parameters; explicit values are validated by the Host. Runtime12 (WO-PV-BE03) adds two top-level fields and one connection-model field: `providerConfigVersion` (a monotonic counter, bumped by any `providerConfig` or `providerConnections` write) and `providerVerifications` (one BE-39 verify receipt per connection id, bound to `{providerConfigVersion, credentialGeneration}` — either changing invalidates it); each connection model entry gains `reasoning: true | false | null` (PV-61), defaulting to `null` (never declared) on upgrade. Runtime11 adds durable pending configuration markers; v10 connections and v9 lineage are preserved. Older schemas receive the Provider Connections ledger; v3–8 runs receive a null predecessor. [Run attempts and lineage](docs/run-attempts.md) adds one immutable `supersedes` link per Run. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
 `INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
  Sessions no longer keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)
 is the only conversation journal, restored automatically into `AgentSession`
 on the next Run for that app session. New session fields: `workspaceDir`,
 `permissionMode` (`read_only` | `draft` | `ask`), `hostSession` (`{id,path}`
-or `null` until the first Run). New run fields: `commandId`, `artifacts[]`,
+or `null` until the first Run), and `repositoryBinding`,
+`repositoryBindingRevision`, `repositoryBindingCommands` for optional external
+repository access, one private candidate and bounded candidate/write receipts. Each Session keeps at most 512 candidate lifecycle receipts and 512 write effects without eviction; new candidate lifecycle commands and writes are rejected at those receipt limits. Candidate writes also retain at most 64 MiB of prepared/unknown payloads, with capacity checked before payload pinning and again before the effect is stored. Candidate write bytes are pinned in session-scoped ArtifactHistory; prepared/unknown effects retain a bound reference, while confirmed/failed settlement clears only that effect reference. ArtifactHistory has no automatic deletion/GC policy, so the 64 MiB outstanding-effect payload budget is not a lifetime storage quota. A restarted prepared write is recorded as unknown and is never replayed. New run fields: `commandId`, `artifacts[]`,
 `usage` (`{input,output,cacheRead,cacheWrite,turns,missing}`), `hostSession`,
-`credentialGeneration`. Top-level `credentialGeneration` (added in v3) is the
+`credentialGeneration`, `repositoryBindingSnapshot`, and `repositoryCandidateSnapshot`. Source `repo_*` reads keep using the connected directory; `candidate_*` tools read the private worktree, `repo_write` changes only that candidate, and `repo_diff` compares it with its fixed creation commit. See [repository binding and candidate tools](docs/repository-binding.md). Top-level `credentialGeneration` (added in v3) is the
 persisted counter those run records freeze: it survives a restart, so a
 post-restart credential change can never reuse a generation a pre-restart run
 already recorded.
@@ -164,6 +171,14 @@ discovery stay disabled. Explicit host-registered skills/instructions/profiles
 are governed by the [control plane](../docs/runtime-control/architecture.md).
 Read-only/ask/deny and profile restrictions are checked at actual execution,
 not inferred from an icon or UI switch.
+
+An explicitly connected repository exposes bounded source reads through
+`repo_list`, `repo_read` and `repo_grep`. If a separate Host-owned candidate is
+active, that Run also gets `candidate_list`, `candidate_read`,
+`candidate_grep`, `repo_write` and `repo_diff`; writes affect only the private
+candidate. Managed `ws_*` tools keep using the separate Session workspace.
+This is not arbitrary shell access or an OS sandbox. See
+[repository binding and candidate tools](docs/repository-binding.md).
 
 ## Idempotent Run creation
 

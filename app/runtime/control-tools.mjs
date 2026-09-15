@@ -21,23 +21,32 @@ export function createRuntimeLoadTool(binding, onLoad) {
  * tools. Catalog filtering is presentation; this wrapper enforces admission. */
 export function governTools(tools, { binding, permissionMode, workspaceDir, requestPermission, isOpen }) {
   return tools.filter(tool => binding.resources.some(r => r.id === 'tool:' + tool.name && r.exposed))
-    .filter(tool => !(['ws_write','message_other_agent'].includes(tool.name) && permissionMode === 'read_only'))
-    .map(tool => ({ ...tool, async execute(callId, params, signal, onUpdate) {
+    .filter(tool => !(['ws_write','repo_write','message_other_agent'].includes(tool.name) && permissionMode === 'read_only'))
+    .map(tool => {
+      const { permissionContext, ...runtimeTool } = tool;
+      return { ...runtimeTool, async execute(callId, params, signal, onUpdate) {
       if (signal?.aborted || !isOpen()) throw new Error('Run admission is closed');
       // Own a copy of the exact arguments across a pending human response.
       const args = structuredClone(params);
       let resource = tool.name === 'runtime_load' ? args.id : '*';
       if (tool.name.startsWith('ws_') && typeof args.path === 'string' && args.path) resource = (await resolveWorkspacePath(workspaceDir, args.path)).relativePath;
+      if ((tool.name.startsWith('repo_') || tool.name.startsWith('candidate_')) && typeof args.path === 'string' && args.path) resource = args.path;
       const descriptor = binding.resources.find(r => r.id === 'tool:' + tool.name);
       const ceiling = hostToolCeiling(tool.name, permissionMode);
       const decision = evaluatePolicy(binding.policies, descriptor?.action ?? tool.name, resource, ceiling, descriptor?.mcp ? 'ask' : 'allow');
       if (decision.effect === 'deny') throw new Error('Runtime policy denied ' + tool.name);
+      let approvedContext = null;
       if (decision.effect === 'ask') {
-        const content = tool.name === 'ws_write' ? args.text : JSON.stringify(args);
-        const answer = await requestPermission({ toolCallId: callId, tool: tool.name, path: resource, bytes: Buffer.byteLength(content), contentSha256: createHash('sha256').update(content).digest('hex'), preview: content.slice(0, 400), signal });
+        const content = ['ws_write', 'repo_write'].includes(tool.name) && typeof args.text === 'string' ? args.text : JSON.stringify(args);
+        const context = typeof permissionContext === 'function' ? permissionContext(args) : {};
+        approvedContext = context;
+        const answer = await requestPermission({ toolCallId: callId, tool: tool.name, path: resource,
+          bytes: Buffer.byteLength(content), contentSha256: createHash('sha256').update(content).digest('hex'),
+          preview: content.slice(0, 400), ...context, signal });
         if (answer !== 'allow') throw new Error('Runtime action was denied by the user');
       }
       if (signal?.aborted || !isOpen()) throw new Error('Run admission is closed');
-      return tool.execute(callId, args, signal, onUpdate);
-    } }));
+      return tool.execute(callId, args, signal, onUpdate, approvedContext);
+      } };
+    });
 }

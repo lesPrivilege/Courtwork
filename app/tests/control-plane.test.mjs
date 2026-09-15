@@ -68,6 +68,16 @@ test('policy: last match within scope, outer ceilings and literal regex characte
   assert.equal(evaluatePolicy([allow, profile], 'mcp.local:server.read', '*', 'allow', 'ask').effect, 'allow', 'an explicit host policy can authorize a specific MCP action');
 });
 
+test('repository path policy is case-insensitive to block Host-volume case aliases', () => {
+  const rules = [{ scope: { type: 'session', id: 'fixture' }, rules: [
+    { action: 'repo_read', resource: 'Secrets.txt', effect: 'deny' },
+    { action: 'repo_write', resource: 'Output/*', effect: 'ask' },
+  ] }];
+  assert.equal(evaluatePolicy(rules, 'repo_read', 'secrets.txt').effect, 'deny');
+  assert.equal(evaluatePolicy(rules, 'repo_write', 'output/new.txt').effect, 'ask');
+  assert.equal(evaluatePolicy(rules, 'ws_read', 'secrets.txt').effect, 'allow', 'non-repository resource policy matching retains existing case semantics');
+});
+
 test('control APIs: source content remains pinned after replacement; templates are human-invoked drafts', async () => {
   const h = await boot();
   try {
@@ -176,13 +186,13 @@ test('compatibility: valid schema 3 upgrades with exact backup and schema 6 fenc
   const session = await h.createSession();
   await h.runtime.close();
   const file = path.join(h.dataDir, 'runtime-state.json');
-  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3; delete old.subagents; delete old.asyncTasks; delete old.coordination; delete old.providerConnections; delete old.providerConfigurationPending; delete old.providerConfigVersion; delete old.providerVerifications; old.sessions.forEach(session => delete session.scope);
+  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3; delete old.subagents; delete old.asyncTasks; delete old.coordination; delete old.providerConnections; delete old.providerConfigurationPending; delete old.providerConfigVersion; delete old.providerVerifications; old.sessions.forEach(session => { delete session.scope; delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); old.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; });
   const original = JSON.stringify(old);
   await writeFile(file, original);
   const next = await reopen(h.dataDir);
   try {
     const state = JSON.parse(await readFile(file, 'utf8'));
-    assert.equal(state.schemaVersion, 15);
+    assert.equal(state.schemaVersion, 17);
     assert.equal(next.runtime.store.getSession(session.id).id, session.id);
     const backups = (await readdir(h.dataDir)).filter(name => name.startsWith('runtime-state.schema3.'));
     assert.equal(backups.length, 1);

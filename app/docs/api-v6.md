@@ -110,6 +110,79 @@ already have changed.
 
 Historical retrieval is now available; see [MX-R1 additions](api-runtime-mx-r1.md).
 
+## External repository and private candidate (current RuntimeStore17)
+
+The authenticated Host API separates the user-selected source directory from a
+Host-owned writable candidate. The binding routes and filesystem scope are
+specified in [repository binding and candidate tools](repository-binding.md).
+
+| Method and path | Request / response |
+|---|---|
+| `GET /api/v5/sessions/:id/repository-binding` | `{schemaVersion:1,binding,revision}` |
+| `PUT /api/v5/sessions/:id/repository-binding` | Bind with `{operation:"bind",requestId,expectedRevision,rootPath}`; revoke with `{operation:"revoke",requestId,expectedRevision}`. Returns `{receipt,binding,idempotent}`. |
+| `GET /api/v5/sessions/:id/repository-candidate` | `{schemaVersion:1,candidate,revision}`; `candidate` contains the active/revoked candidate summary and fixed base commit, never Host candidate paths. |
+| `PUT /api/v5/sessions/:id/repository-candidate` | Create with `{operation:"create",requestId,expectedRevision,expectedBindingRevision,candidateId,baseCommit}` where `candidateId` is UUID v4; revoke with `{operation:"revoke",requestId,expectedRevision,expectedBindingRevision,candidateId}`. Returns `{receipt,candidate,idempotent}`. |
+
+Binding a new source while its candidate is active returns `409
+repository_candidate_active`; revoke the candidate first, or revoke the source
+binding (which cascades to that candidate), before rebinding.
+
+Candidate creation requires an active binding to a complete local Git repository
+and a full commit object ID. It creates one private detached worktree from that
+commit. Uncommitted source files are not copied. The source binding continues to
+power `repo_list`, `repo_read` and `repo_grep`; these remain read-only. With an
+active candidate, a Run additionally receives `candidate_list`, `candidate_read`,
+`candidate_grep`, `repo_write` and `repo_diff`. `repo_diff` compares against the
+candidate's fixed creation commit; callers cannot select another base or Git
+command. A complete patch must fit the 2 MiB aggregate review limit; otherwise
+the Host stops collecting patches and returns `candidate_diff_too_large`, with
+no truncated patch. `repo_write` can create a missing ordinary UTF-8 file or replace a
+regular file by supplying its expected prior `expectedSha256`. Omitting that
+field means the target must not exist. It cannot delete/move files, invoke a
+shell, or write the source checkout. The candidate is not merged or published
+automatically.
+
+Session and Run responses apply the same candidate summary projection and omit
+the Host candidate directory, Git directory, staging path and filesystem
+identity fields.
+
+`repo_write` follows the existing permission mode and policy. `read_only`
+denies it; `ask` opens a permission question bound to the exact tool call; after
+the answer the Host rechecks Run admission, permission mode, source/candidate
+identity and revisions, and target hash before persisting a prepared effect and
+attempting the write. Parallel ask-mode writes freeze the candidate revision in
+each approval; if an earlier write advances it, the later approval is stale and
+must be reviewed again. Candidate read/diff/write operations are serialized
+within a Run so provenance names the observed revision. A stale target is
+rejected. The commit helper stages a
+new inode and performs a bounded same-volume replacement under the Host's
+single-writer contract; the expected hash and rename do not provide atomic CAS
+against a non-cooperating writer.
+
+Session state records candidate create/revoke receipts and write effects. A
+prepared effect is persisted before file replacement. Outcomes are
+`prepared`, `confirmed`, `failed` or `unknown`. A prepared effect found at
+restart becomes `unknown`, closes the Run and blocks further writes to that
+candidate; the Host does not replay or infer success. Unknown effects require
+review, but this slice has no effect-resolution endpoint: inspecting or retrying
+does not unblock the affected candidate. After review, a user may revoke it and
+create a separate candidate from an explicit source commit; the old candidate
+remains retained. Revoking the source binding also revokes the candidate and
+cancels Runs using either snapshot. The candidate remains under the Host data
+directory after revoke for inspection; it is not deleted or written back to the
+source tree. Candidate creation checks the current mount scope immediately
+after making the Host container and before each Host Git/config/filesystem
+operation that writes into it; unavailable checks fail closed.
+
+Each Session keeps at most 512 candidate lifecycle receipts and 512 write
+effect byte budget is not a lifetime disk quota.
+effect receipts without eviction. Candidate creation stops at 511 lifecycle
+receipts to leave one durable slot for revoking an active candidate. If the
+ledger is full, source-binding revoke remains available to disable access.
+Writes are rejected before payload retention when the effect-count or 64 MiB
+outstanding-effect payload budget is exhausted. ArtifactHistory has no automatic
+GC, so the outstanding-effect byte budget is not a lifetime disk quota.
+
 ## Provider and credentials
 
 `GET /api/v5/provider-config` →
@@ -209,9 +282,18 @@ it authorises:
   the file that lands hashes to this value.
 - `preview` — the first 400 characters of that content.
 
+For `repo_write`, those byte fields describe the exact UTF-8 `text` written into
+the Host-owned private candidate, not a JSON encoding of the tool arguments.
+Its permission payload also carries `candidateId`, `candidateRevision`,
+`candidateWriteRevision`, `sourceBindingId`, `sourceBindingRevision`, and
+`expectedSha256`; a `null` expected hash means the target must be absent.
+
 An approval is bound to that call and that content. If the model then calls
-`ws_write` with different parameters, a **new** question opens; the earlier
-`questionId` is already resolved and re-answering it is `409 question_unavailable`.
+`ws_write` or `repo_write` with different parameters, a **new** question opens;
+the earlier `questionId` is already resolved and re-answering it is `409 question_unavailable`.
+Candidate writes are also checked against the frozen candidate/source
+identities, revisions, target path and expected prior hash after the user
+decides.
 
 ### Reconnecting
 
@@ -287,15 +369,23 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
   the flock on the data directory in its own process, which is what makes an owner
   SIGKILL release the lock. If it is missing the server refuses to start
   (`LOCK_NO_PYTHON`); there is no unlocked fallback.
-- The current state file is `schemaVersion` 5. Fully validated schema 3/4 upgrades through an exclusive exact-byte backup; other versions refuse. Restore separately with a matching old host. See [async task persistence](async-tasks.md).
+- The `schemaVersion` 5 migration in [async task persistence](async-tasks.md) is historical: Runtime schema 5 introduced the `asyncTasks` collection, with validated schema 3/4 upgrades and that version's old-Host refusal boundary. The current Host RuntimeStore is `schemaVersion` 17; see the [current store schema](../README.md#store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade) for the validated migration and refusal boundary from schemas 3–16.
 
 ## What is not here
 
-No bash tool, no network tool, no path outside the session workspace: those
-capabilities do not exist in this build rather than being switched off. The
-workspace path guard is the boundary of a restricted tool surface, not OS-level
-isolation. A real DeepSeek run is an authorised provider network call; it had not
-been exercised with a real key when this document was written.
+No bash tool or generic network tool exists in this build. Without an active
+repository binding, the workspace endpoints and `ws_*` tools stay within that
+Session's managed workspace. An explicit Host-directory binding separately
+enables only bounded read-only `repo_list`, `repo_read` and `repo_grep` over
+relative paths under the selected root; see [repository binding](repository-binding.md).
+An active binding may create a separate Host-owned private Git candidate; only
+that candidate receives `candidate_*`, `repo_write` and fixed-base `repo_diff`.
+The service has no Connect/Access UI, external source writes, automatic merge,
+or repo test runner.
+The workspace path guard is the boundary of its restricted tool surface, not
+OS-level isolation, and repository binding is not an OS sandbox. A real DeepSeek
+run is an authorised provider network call; it had not been exercised with a
+real key when this document was written.
 
 ## C4 r1 tool responsiveness correction
 
