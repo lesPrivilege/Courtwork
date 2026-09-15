@@ -31,3 +31,8 @@
 视觉检查完整 composer 与 Settings 返回路径，覆盖桌面/390px、明暗、长模型名、键盘与200%缩放；观察层级、点击目标、档位标签与焦点，按实际记录通过/未测。遵循 UX Grammar、frontend-contract 与 precedent index 的 Model + effort 条目；仅文档登记不运行产品全量测试。
 
 本次未实现产品、未改用户配置、未操作其正在配置的浏览器。登记不代表独立验收或真实模型能力通过。
+
+## 2026-09-16 · 实现回执（Claude 施工单 05）
+
+两片按 [05 记录](../../execution/claude-frontend-harness-2026-09-16/05-models-composer.md)实现。片 A：composer 的模型控件改为打开一张 Model & effort 卡，其 Connections 行经 `openSettings("models", {connectionId})` 与 `settingsView.locateConnection` 落在生效连接那一行（无连接时展开 Add provider）；composer 常驻，草稿、附件与焦点原地，Back to app 回到控件；导航不调用模型。片 B：卡片上的 Reasoning effort 是原生单选分段，只画 Provider default 与 Host `reasoningCapability` 列出的精确值，unknown/unsupported 不画阶梯，失效已存值点名并允许回到 Provider default；选择即按现有全局范围保存（`projectProviderConfig` + `expectedVersion`），旧回执不覆盖新选择，活动 Run 期间禁用并沿 Host 的 409 active_run。Host 测试证明保存值即下一 Run 的 `provider.reasoningEffort` 与 `reasoningBinding`，线上字段为 `reasoning_effort`，Provider default 不带字段。未做：真实 provider 组合、非作者复核、200%/读屏目验。滑轨未采纳。
+

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-16 · Claude 施工单 05：Composer 的模型卡与 effort 快选
+
+[05 记录](execution/claude-frontend-harness-2026-09-16/05-models-composer.md)：composer 的模型控件改为打开一张 Model & effort 卡（沿 connection-popover 解剖）：Model 段写生效模型、连接名 · API、Change model（完整对话框一行之外）、Connections（落在 Settings › Models 生效连接那一行，无连接时展开 Add provider；composer 常驻，草稿与焦点原地）；Reasoning effort 段是原生单选分段，只画 Provider default 与 Host `reasoningCapability` 列出的精确值，unknown/unsupported 不画阶梯，失效已存值点名；选择即按全局范围保存（唯一投影 + expectedVersion），旧回执不覆盖新选择，活动 Run 期间禁用并沿 Host 409。新增 `settingsView.locateConnection`。定向全部通过，`npm test` 1127/1127；作者浏览器验证 user-declared 三值枚举 → 保存 → 下一 Run binding 一致。真实 provider 组合、非作者复核、200%/读屏未做；未 push/部署；06（能力管理真实消费）未开始。
+
 ## 2026-09-16 · Claude 施工单 04：Run 工作面
 
 [04 记录](execution/claude-frontend-harness-2026-09-16/04-run-surface.md)：Run surface 原 PR 的未完项处置——"已完成动作"指调用已结算而非 Run 已结束，执行披露对任意已知 Run 折叠已结算成功调用，当前调用/失败/待批准保持可见；用户消息 footer 动作在前、时间贴气泡右缘；run-rows.mjs 持有工具字形、工具与检查详情、工具行渲染，Chat 与 Attention 同源；工作面只属 session 视图。用户中途指令：窄屏停靠带透明，composer 自身阴影承担过渡，不引入 blur。定向 57/57，`npm test` 1117 项中 1116 通过，唯一失败为一条迁移后过期的源码断言（改指后 16/16）；作者浏览器目验失败写入 + 成功检查、两次成功折叠、时间对齐。渲染器仍整体重建（状态外置恢复）；question/permission 卡两面一致性留 10 片；非作者复核与真实 provider 未做；未 push/部署；05（Models 原 PR）未开始。
