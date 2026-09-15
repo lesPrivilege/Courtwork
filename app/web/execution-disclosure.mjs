@@ -1,10 +1,17 @@
 import { validPermission } from "./thread-projection.mjs";
 
 /**
- * Plan one collapsed disclosure for each completed Run. Member rows remain at
- * their original indices; the presentation inserts one control at the first
- * member and hides the other member roots in place. This keeps assistant text,
- * artifacts, pending decisions and unresolved/failed tools in the Run timeline.
+ * Plan one collapsed disclosure per Run for its settled, successful tool calls.
+ * Member rows remain at their original indices; the presentation inserts one
+ * control at the first member and hides the other member roots in place. This
+ * keeps assistant text, artifacts, pending decisions and unresolved/failed
+ * tools in the Run timeline.
+ *
+ * Run surface (2026-09-16): "completed actions" means the call has settled,
+ * not that the Run has ended. A running Run collapses what it has finished
+ * while its current call, failures and waiting approvals stay visible; a
+ * failed, cancelled or unknown Run keeps the successes before its end
+ * collapsed the same way. The Run must be known to the caller's status map.
  */
 export function projectExecutionDisclosures(rows, statuses) {
   const successfulCallsByRun = new Map();
@@ -14,7 +21,7 @@ export function projectExecutionDisclosures(rows, statuses) {
       row?.kind !== "tool" ||
       typeof row.runId !== "string" ||
       !row.runId ||
-      statuses?.get?.(row.runId) !== "completed" ||
+      !statuses?.has?.(row.runId) ||
       typeof row.callId !== "string" ||
       !row.callId ||
       row.phase !== "result" ||

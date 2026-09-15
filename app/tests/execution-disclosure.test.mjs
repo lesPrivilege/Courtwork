@@ -74,14 +74,24 @@ test("incomplete, failed, pending, denied, malformed, and cross-call rows stay o
     allowedPermission({ id: "other-run", runId: "run-2" }),
   ];
 
-  for (const status of ["running", "waiting_user", "failed", "cancelled", "unknown"]) {
-    const { plans } = projectExecutionDisclosures(rows, new Map([["run-1", status], ["run-2", "completed"]]));
-    assert.equal(plans.size, 0, status);
+  // A settled successful call collapses whatever the Run's status is; the
+  // Run only has to be one the caller knows about.
+  for (const status of ["running", "waiting_user", "failed", "cancelled", "unknown", "completed"]) {
+    const { plans, members } = projectExecutionDisclosures(rows, new Map([["run-1", status], ["run-2", "completed"]]));
+    assert.equal(plans.size, 1, status);
+    assert.equal(plans.get("run-1").callCount, 1, status);
+    assert.deepEqual([...members.keys()], [success], status);
   }
-  const { plans, members } = projectExecutionDisclosures(rows, new Map([["run-1", "completed"], ["run-2", "completed"]]));
-  assert.equal(plans.size, 1);
+  assert.equal(projectExecutionDisclosures(rows, new Map([["run-2", "completed"]])).plans.size, 0, "an unknown Run id never collapses");
+});
+
+test("a running Run collapses the calls it has finished while the current call stays visible", () => {
+  const done = successfulTool({ callId: "done", id: "done" });
+  const current = successfulTool({ callId: "current", id: "current", phase: "started" });
+  const { plans, members } = projectExecutionDisclosures([done, current], new Map([["run-1", "running"]]));
   assert.equal(plans.get("run-1").callCount, 1);
-  assert.deepEqual([...members.keys()], [success]);
+  assert.equal(members.has(done), true);
+  assert.equal(members.has(current), false);
 });
 
 test("a completed Run with only errors or unfinished calls gets no empty summary", () => {
