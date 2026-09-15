@@ -5648,7 +5648,7 @@ function renderContextStrip(session, home) {
     const branch = workspaceInspections.get(rootPath)?.git?.branch;
     if (branch) children.push(element("span", { className: "context-chip context-chip-fact", text: `Branch · ${branch}`, attrs: { "aria-label": `Git branch: ${branch}` } }));
   }
-  strip.replaceChildren(...children);
+  strip.replaceChildren(element("div", { className: "context-tab" }, ...children));
 }
 function applySessionUpdate(session, id) {
   if (session?.id !== id) return;

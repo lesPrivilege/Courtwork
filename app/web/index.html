@@ -310,12 +310,13 @@
             <h2>Orchestrate your agents. Govern your work.</h2>
           </div>
           <div id="draft-status" class="draft-status" aria-live="polite"></div>
+          <!-- RD-006 · where this chat works: the connected folder (Workspace),
+               the execution location and the Git branch when known. A tab card
+               that rises from the composer's top edge, shown while the chat has
+               no run yet; afterwards the facts live in the chat overview and
+               only the composer remains. -->
+          <div id="composer-context-strip" class="composer-context-strip" role="group" aria-label="Where this chat works" hidden></div>
           <form id="composer-form" class="composer-form">
-            <!-- RD-006 · where this chat works: the connected folder (Workspace),
-                 the execution location and the Git branch when known. Shown
-                 while the chat has no run yet; afterwards the facts live in the
-                 chat overview so the composer keeps its space. -->
-            <div id="composer-context-strip" class="composer-context-strip" role="group" aria-label="Where this chat works" hidden></div>
             <label class="sr-only" for="composer-input">Message</label>
             <textarea
               id="composer-input"

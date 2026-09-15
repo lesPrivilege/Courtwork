@@ -180,8 +180,12 @@ test("Strip placement and shell wiring for the Workspace control", () => {
   const css = readFileSync(`${root}app/web/styles.css`, "utf8");
   const server = readFileSync(`${root}app/server/index.mjs`, "utf8");
   const formStart = html.indexOf('<form id="composer-form"');
-  const textareaStart = html.indexOf('<textarea', formStart);
-  assert.ok(html.indexOf('id="composer-context-strip"') > formStart && html.indexOf('id="composer-context-strip"') < textareaStart, "the strip sits above the message field inside the composer");
+  const areaStart = html.indexOf('<footer id="composer-area"');
+  const stripStart = html.indexOf('id="composer-context-strip"');
+  assert.ok(stripStart > areaStart && stripStart < formStart, "the strip is its own card above the composer, inside the composer area");
+  assert.match(app, /strip\.replaceChildren\(element\("div", \{ className: "context-tab" \}/);
+  assert.match(css, /\.context-tab \{[^}]*border-bottom: 0;/, "the tab rises from the composer's top edge");
+  assert.doesNotMatch(css.slice(css.indexOf(".composer-context-strip {"), css.indexOf(".context-chip {")), /backdrop-filter/, "no blur on the strip");
   assert.doesNotMatch(html, /id="repository-button"/, "no standing control in the composer row");
   assert.match(html, /id="workspace-popover"[^>]*popover="auto"[^>]*aria-label="Workspace"/);
   assert.match(html, /id="home-project-button"[^>]*>Project<\/button>/);
