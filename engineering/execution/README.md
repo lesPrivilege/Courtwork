@@ -2,6 +2,7 @@
 
 This directory contains dated execution contracts and handoff packets. The packet README owns its scope, writer, dependencies and delivery boundaries; current product status remains [`../current.md`](../current.md). These packets are plans and execution records, not a second status ledger.
 
+- [2026-09-16 Claude serial frontend / real Harness integration](claude-frontend-harness-2026-09-16/README.md): shared grammar and copy convergence, owner-linked implementation slices, isolated prototypes and Pages design; planning registration, not implementation acceptance.
 - [2026-09-08 Luna two orders](2026-09-08-luna-two-orders/README.md)
 - [2026-09-08 main round](2026-09-08-main-round/README.md)
 - [2026-09-08 two lines](2026-09-08-two-lines/README.md)
