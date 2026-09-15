@@ -3374,7 +3374,7 @@ function renderChatHeader() {
       );
     if (currentRun()) appendRunBadge(meta, currentRun().status);
   }
-  $("show-surface-button").hidden = settingsOpen || state.attentionOpen || state.chatOpen || !session;
+  $("show-surface-button").hidden = !surfaceAllowed();
   $("show-run-button").hidden = settingsOpen || state.attentionOpen || state.chatOpen || !session;
   const home = state.view === "home" && !state.attentionOpen && !state.chatOpen;
   $("composer-area").hidden = settingsOpen || state.attentionOpen || state.chatOpen || (!home && !session);
@@ -3962,13 +3962,20 @@ function toggleNavigation() {
   renderSurfaceVisibility();
   if (state.navigationOpen) $("close-nav-button").focus();
 }
+/* One predicate says whether the work surface (panel, cards and rail) belongs
+ * on screen at all: only a session view shows it, never Home, the Chat list,
+ * Attention or Settings. Collapsing (state.surface.open / expanded) is a
+ * separate question that only applies once this is true. */
+function surfaceAllowed() {
+  return Boolean(currentSession()) && !state.attentionOpen && !state.chatOpen && !state.settings.open;
+}
 function renderSurfaceVisibility() {
   measureSurfaceLayout({ render: false });
   const shell = $("app-shell"),
     panel = $("surface-panel"),
     nav = $("navigation-panel"),
     chat = shell.querySelector(".chat-panel");
-  const open = Boolean(!state.attentionOpen && state.surface.open && currentSession()),
+  const open = Boolean(surfaceAllowed() && state.surface.open),
     expanded = open && state.surface.expanded;
   const overlay = surfaceOverlayQuery.matches;
   /* WK-113 ① · 展开态有两种，不是一种：≥1680 三栏并列（C），1024–1679 主区内的
@@ -4047,7 +4054,7 @@ function renderSurfaceVisibility() {
   $("surface-expand-button").setAttribute("aria-expanded", String(state.surface.maximized));
   $("surface-expand-button").hidden =
     (viewSwitch && !state.surface.maximized) || overlay;
-  $("show-surface-button").hidden = expanded || state.settings.open || state.attentionOpen || !currentSession();
+  $("show-surface-button").hidden = expanded || !surfaceAllowed();
   const back = $("surface-back-button");
   back.hidden = !viewSwitch;
   if (viewSwitch) {
@@ -4243,9 +4250,7 @@ const cardDisclosures = createCardDisclosureMemory();
 function renderSurfaceRail() {
   cardDisclosures.resetScope(`${state.activeSessionId}:${state.sessionEpoch}`);
   const rail = $("surface-rail");
-  const visible = Boolean(
-    state.surface.open && currentSession() && !state.surface.expanded,
-  );
+  const visible = Boolean(surfaceAllowed() && state.surface.open && !state.surface.expanded);
   rail.hidden = !visible;
   const summarySnapshot = runSummarySnapshot();
   runSummaryCard.update(summarySnapshot);

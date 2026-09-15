@@ -42,6 +42,10 @@ Independent review: 无
 
 一次真实反例：Host 重启后 fixture provider 的 toolCallId 计数归零，与重启前的写入 callId 撞车，Host 以"callId already used with different input"拒绝写入并让后续检查仍为 Exit 1；这是幂等守卫按合同 fail-closed，不是产品缺陷；真实 provider 的 callId 不重复。
 
+## 用户中途指令处置
+
+"Chat 列表页露出其他面的 UI 残余，根因是折叠与收敛两套逻辑混乱" → 采用：新增唯一谓词 `surfaceAllowed()`（有 Session 且非 Home/Chat 列表/Attention/Settings），工作面面板、折叠 rail 与头部入口按钮三处同源；折叠（open/expanded）只在该谓词为真时才有意义。原先 rail 与后一次布局重绘各自维护一份缺少 Chat 页的判断。
+
 ## 未完项
 
 - 只有一条 recipe，catalog 固定在代码里；Settings/Runtime 未列出 recipe（RD-009 要求的"可理解的默认检查入口"留 06/10）。
