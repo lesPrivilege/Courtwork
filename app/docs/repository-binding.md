@@ -46,11 +46,13 @@ cannot be withdrawn from a model's history.
 The control plane exposes the `repo_*` descriptors only for a Session with an
 active binding. `repo_list`, `repo_read` and `repo_grep` receive relative paths
 only and always read the bound source checkout. The source remains read-only
-when a candidate exists. The current API accepts a Host path directly; it does
-not provide a browser folder picker or Connect/Access UI. Runtime policy
-resource matching for `repo_*` and `candidate_*` path actions ignores letter
-case, so a Host volume's case aliases cannot bypass a path-specific deny or ask
-rule. On a case-sensitive volume this can make a rule more restrictive for a
+when a candidate exists. The API still accepts a Host path directly; the
+`host/choose-directory` and `repositories/*` routes below help the Connect UI
+fill that path in, but binding itself stays the explicit `PUT` described above.
+Runtime policy resource matching for `repo_*` and `candidate_*` path actions
+ignores letter case, so a Host volume's case aliases cannot bypass a
+path-specific deny or ask rule. On a case-sensitive volume this can make a
+rule more restrictive for a
 differently cased path.
 
 Aggregate reads (`repo_grep`, `candidate_grep`, `repo_diff`) apply the same
@@ -68,6 +70,58 @@ permission question of its own. The result JSON instead carries
 view was partial without learning which paths were withheld; request an
 excluded file directly with `repo_read` or `candidate_read` to trigger its own
 approval.
+
+## Host helpers for the Connect UI
+
+Three more authenticated `/api/v5` routes help the Connect UI fill in a
+`rootPath` without granting anything themselves; binding remains the explicit
+`PUT /sessions/:sessionId/repository-binding` above.
+
+| Method and path | Request / response |
+|---|---|
+| `POST /host/choose-directory` | Body `{}` or `{prompt}` (≤120 chars, sanitized). Success `{rootPath}`; a dismissed dialog `{cancelled:true}`. |
+| `GET /repositories/recent` | `{schemaVersion:1,entries:[{rootPath,lastConnectedAt,available,sessions,git}]}`, most recent first, deduped by exact `rootPath`, at most 12. |
+| `GET /repositories/inspect?rootPath=` | `{rootPath,available,git}` for one path, computed live. |
+
+`choose-directory` opens the Host's native folder dialog: on Darwin it spawns
+`/usr/bin/osascript` with `shell:false`, a fixed AppleScript literal (the
+prompt has quotes, backslashes and control characters stripped before
+interpolation) and a minimal environment (`PATH`, `HOME`, `LANG` only -- no
+provider credential ever reaches this child). Off Darwin it responds 501
+`directory_picker_unavailable` rather than shelling out to a Linux dialog
+tool. A dialog left open past 5 minutes is killed and reported as 504
+`directory_picker_timeout`; the Cancel button resolves 200 `{cancelled:true}`,
+detected from the -128 AppleScript error rather than treated as a failure.
+Only one dialog may be open on a Host at a time; a second concurrent call gets
+409 `directory_picker_busy` instead of queuing behind the first. Tests
+substitute the real dialog with `SE_TEST_DIRECTORY_PICKER=<script path>`,
+honoured only when `SE_TEST_MODE=1` (the same inert-by-default contract as the
+crash-point hooks in `runtime/test-hooks.mjs`); the script receives the
+sanitized prompt as its one argument and is expected to print a path or exit
+non-zero with `User canceled` on stderr.
+
+`repositories/recent` never scans the filesystem for candidates: it is
+derived entirely from every Session's persisted repository-binding-command
+receipts (each bind receipt now carries `at`, an ISO timestamp; commands
+persisted before this field existed are treated as older than every
+timestamped one, never guessed). `available` and the `git` object are the one
+live fact each entry adds, via `fs.stat` and two `git rev-parse` calls, inside
+a shared 2 second budget for the whole list -- once that budget is spent,
+later entries simply get `available:false`/`git:null` rather than starting
+more subprocesses. `rootPath` values are Host filesystem paths by design here,
+the same as the existing `GET .../repository-binding` response; this slice
+adds no new absolute-path disclosure.
+
+`repositories/inspect` answers the same live `available`/`git` pair for one
+path outside the recent list (e.g. before a first bind). `git` is only ever
+computed when `available` is true, by spawning `/usr/bin/git` directly
+(`shell:false`, cwd `rootPath`, fixed argv, a minimal environment with hooks
+and global/system config disabled, 5 second timeout) for
+`rev-parse --abbrev-ref HEAD` and `rev-parse HEAD`; a non-repository or a
+repository with no commits yet makes both fail closed to `git:null` rather
+than showing a guessed branch. Neither this route nor the recent list persists
+anything or grants a tool -- they are read-only UI conveniences alongside the
+security-hardened `repo_*` path above, not a substitute for it.
 
 ## Private Git candidate
 

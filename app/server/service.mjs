@@ -50,6 +50,8 @@ import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs
 import { createPrivateRepositoryCandidate } from "../runtime/repository-candidate.mjs";
 import { runRepositoryCandidateFs } from "../runtime/repository-candidate-fs.mjs";
 import { createRepositoryCandidateTools } from "../runtime/repository-candidate-tools.mjs";
+import { chooseHostDirectory, DirectoryPickerError } from "../runtime/host-directory-picker.mjs";
+import { inspectRepositoryGitStatus } from "../runtime/repository-git-status.mjs";
 import { resolveRuntimeSource as resolveDeclarativeSource } from "../runtime/source-resolver.mjs";
 import { ArtifactHistory, ArtifactHistoryError } from "../runtime/artifact-history.mjs";
 import { ACTIVE_STATUSES, PERMISSION_MODES } from "./store.mjs";
@@ -80,6 +82,11 @@ const VERIFY_PROMPT = "This is a connection check, not a real conversation. Repl
 const VERIFY_MAX_TOKENS = 16;
 const VERIFY_TIMEOUT_MS = 20_000;
 const VERIFY_REPLY_PREVIEW_CHARS = 200;
+const RECENT_REPOSITORIES_LIMIT = 12;
+const RECENT_REPOSITORIES_BUDGET_MS = 2000;
+// A bind receipt written before the `at` field existed has no recorded time;
+// this sorts it after every timestamped receipt instead of guessing one.
+const OLDEST_RECEIPT_TIME = new Date(0).toISOString();
 
 export class ServiceError extends Error {
   /** `details` carries the machine-readable facts a client needs to recover
@@ -151,6 +158,32 @@ function terminal(status) {
 
 const DEFAULT_BUDGET = Object.freeze({ maxTurns: 40, deadlineMs: 600_000 });
 
+/** `stat`s `rootPath`, bounded by the shared `deadline` (ms epoch) rather
+ * than its own fixed timeout, so a whole list of entries shares one wall-
+ * clock budget. Any error -- ENOENT, a non-directory, or running past the
+ * deadline -- reports unavailable rather than throwing. */
+async function statDirectoryWithin(rootPath, deadline) {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) return false;
+  try {
+    const info = await Promise.race([
+      stat(rootPath),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("stat_timeout")), remaining)),
+    ]);
+    return info.isDirectory();
+  } catch { return false; }
+}
+
+/** Same shared-deadline shape as statDirectoryWithin, for the Git status
+ * lookup: once the deadline is spent, later entries simply get `git: null`
+ * instead of starting a subprocess that would blow the budget. */
+async function gitStatusWithin(rootPath, deadline) {
+  const remaining = deadline - Date.now();
+  if (remaining <= 0) return null;
+  try { return await inspectRepositoryGitStatus(rootPath, { timeoutMs: remaining }); }
+  catch { return null; }
+}
+
 /** Redact anything resembling a live secret from text bound for storage, an
  * event, or an error message. Defense-in-depth on top of never reading keys
  * back from any endpoint. */
@@ -182,6 +215,7 @@ export class RuntimeService {
     this.logger = logger;
     this.active = new Map();
     this.closing = false;
+    this.directoryPickerInFlight = false;
     this.admissions = new Set();
     this.configurationQueue = Promise.resolve();
     this.questionWaiters = new Map();
@@ -1014,6 +1048,73 @@ export class RuntimeService {
       }
     }
     return { receipt: result.receipt, binding: result.binding, idempotent: result.idempotent };
+  }
+
+  // Deliberately NOT routed through #withConfiguration: that queue serializes
+  // (delays) a second call rather than rejecting it, which would let two
+  // pickers overlap before the busy check below ever runs. The busy check
+  // has to see directoryPickerInFlight the instant a second request arrives.
+  async chooseHostDirectory(input) {
+    const value = requireObject(input, "body");
+    assertKeys(value, new Set(["prompt"]));
+    const prompt = value.prompt !== undefined ? text(value.prompt, "prompt", { max: 120 }) : undefined;
+    if (this.directoryPickerInFlight) throw new ServiceError(409, "directory_picker_busy", "a folder picker is already open on this Host");
+    this.directoryPickerInFlight = true;
+    try {
+      return await chooseHostDirectory({ prompt });
+    } catch (error) {
+      if (error instanceof DirectoryPickerError) {
+        const status = error.code === "directory_picker_unavailable" ? 501 : error.code === "directory_picker_timeout" ? 504 : 503;
+        throw new ServiceError(status, error.code, error.message);
+      }
+      throw error;
+    } finally {
+      this.directoryPickerInFlight = false;
+    }
+  }
+
+  /** Distinct Host directories any Session has ever bound, most recently
+   * connected first. This never scans the filesystem for candidates -- it is
+   * derived entirely from persisted bind receipts; the only filesystem call
+   * is one `stat` per entry to report current availability. */
+  async getRecentRepositories() {
+    const sessions = this.store.listSessions();
+    const byPath = new Map();
+    for (const session of sessions) {
+      for (const command of session.repositoryBindingCommands ?? []) {
+        if (command.operation !== "bind") continue;
+        const rootPath = command.receipt.rootPath;
+        const at = command.receipt.at ?? OLDEST_RECEIPT_TIME;
+        let entry = byPath.get(rootPath);
+        if (!entry) { entry = { lastConnectedAt: at, sessionIds: new Set() }; byPath.set(rootPath, entry); }
+        if (at > entry.lastConnectedAt) entry.lastConnectedAt = at;
+        entry.sessionIds.add(session.id);
+      }
+    }
+    const ranked = [...byPath.entries()]
+      .map(([rootPath, entry]) => ({ rootPath, lastConnectedAt: entry.lastConnectedAt, sessions: entry.sessionIds.size }))
+      .sort((a, b) => (a.lastConnectedAt === b.lastConnectedAt ? a.rootPath.localeCompare(b.rootPath) : a.lastConnectedAt < b.lastConnectedAt ? 1 : -1))
+      .slice(0, RECENT_REPOSITORIES_LIMIT);
+
+    const deadline = Date.now() + RECENT_REPOSITORIES_BUDGET_MS;
+    const entries = [];
+    for (const item of ranked) {
+      const available = await statDirectoryWithin(item.rootPath, deadline);
+      const git = available ? await gitStatusWithin(item.rootPath, deadline) : null;
+      entries.push({ ...item, available, git });
+    }
+    return { schemaVersion: 1, entries };
+  }
+
+  /** One live, read-only Git fact for the Connect UI strip (never persisted,
+   * never used to grant tool access -- that stays the explicit bind PUT). */
+  async getRepositoryInspection(rootPathInput) {
+    if (typeof rootPathInput !== "string" || !path.isAbsolute(rootPathInput) || rootPathInput.includes("\0")) {
+      throw new ServiceError(400, "invalid_repository_root", "rootPath must be an absolute host directory path");
+    }
+    const available = await statDirectoryWithin(rootPathInput, Date.now() + RECENT_REPOSITORIES_BUDGET_MS);
+    const git = available ? await inspectRepositoryGitStatus(rootPathInput).catch(() => null) : null;
+    return { rootPath: rootPathInput, available, git };
   }
 
   addMaterial(sessionId, input) {

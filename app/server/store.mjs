@@ -242,7 +242,11 @@ function validateRepositoryBindingCommands(value, label, currentRevision) {
     sha256Hex(command.requestHash, label + ".requestHash");
     assert(command.operation === "bind" || command.operation === "revoke", label + ".operation is invalid");
     nonNegativeInt(command.expectedRevision, label + ".expectedRevision");
-    exactKeys(command.receipt, new Set(["requestId", "operation", "bindingId", "revision", "status", "rootPath"]), label + ".receipt");
+    // `at` is optional: it was added after this receipt shape shipped, so
+    // already-persisted commands may not carry it. New commands always do
+    // (see #changeRepositoryBinding's receipt construction).
+    const hasAt = Object.hasOwn(command.receipt, "at");
+    exactKeys(command.receipt, new Set(["requestId", "operation", "bindingId", "revision", "status", "rootPath", ...(hasAt ? ["at"] : [])]), label + ".receipt");
     id(command.receipt.requestId, label + ".receipt.requestId"); assert(command.receipt.requestId === command.requestId, label + " receipt requestId mismatch");
     assert(command.receipt.operation === command.operation, label + " receipt operation mismatch");
     id(command.receipt.bindingId, label + ".receipt.bindingId");
@@ -251,6 +255,7 @@ function validateRepositoryBindingCommands(value, label, currentRevision) {
     assert(command.receipt.status === (command.operation === "bind" ? "active" : "revoked"), label + ".receipt status is invalid");
     text(command.receipt.rootPath, label + ".receipt.rootPath", 4000);
     assert(path.isAbsolute(command.receipt.rootPath), label + ".receipt.rootPath must be absolute");
+    if (hasAt) timestamp(command.receipt.at, label + ".receipt.at");
   }
 }
 
@@ -1194,7 +1199,7 @@ export class RuntimeStore {
       } else throw repositoryBindingError("INVALID_OPERATION", "repository binding operation is invalid");
       const receipt = {
         requestId, operation, bindingId: nextBinding.id, revision: nextBinding.revision,
-        status: nextBinding.status, rootPath: nextBinding.rootPath,
+        status: nextBinding.status, rootPath: nextBinding.rootPath, at: now(),
       };
       session.repositoryBinding = nextBinding;
       session.repositoryBindingRevision = nextBinding.revision;

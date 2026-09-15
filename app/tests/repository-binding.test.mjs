@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { mkdtemp, mkdir, readFile, rename, rm, stat, symlink, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, mkdir, readFile, rename, rm, stat, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -427,5 +427,177 @@ test("repo_grep excludes an ask-gated file without opening a permission question
     await h.runtime.close();
     await rm(h.dataDir, { recursive: true, force: true });
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("choose-directory uses the SE_TEST_MODE picker script, reports a cancel, and requires the work token", async () => {
+  const h = await boot();
+  const scratch = await mkdtemp(path.join(tmpdir(), "cw-directory-picker-"));
+  try {
+    const pickedDir = path.join(scratch, "picked-repo");
+    await mkdir(pickedDir);
+    const successScript = path.join(scratch, "pick-success.sh");
+    await writeFile(successScript, `#!/bin/sh\nprintf '%s\\n' "${pickedDir}/"\n`);
+    await chmod(successScript, 0o755);
+    const cancelScript = path.join(scratch, "pick-cancel.sh");
+    await writeFile(cancelScript, `#!/bin/sh\necho "User canceled." 1>&2\nexit 1\n`);
+    await chmod(cancelScript, 0o755);
+
+    process.env.SE_TEST_MODE = "1";
+    try {
+      process.env.SE_TEST_DIRECTORY_PICKER = successScript;
+      const picked = await h.api("POST", "/host/choose-directory", { prompt: "Pick a repository" });
+      assert.equal(picked.status, 200, JSON.stringify(picked.json));
+      assert.equal(picked.json.rootPath, pickedDir, "a trailing slash printed by the dialog is trimmed");
+      assert.equal(picked.json.cancelled, undefined);
+
+      process.env.SE_TEST_DIRECTORY_PICKER = cancelScript;
+      const cancelled = await h.api("POST", "/host/choose-directory", {});
+      assert.equal(cancelled.status, 200, JSON.stringify(cancelled.json));
+      assert.equal(cancelled.json.cancelled, true);
+      assert.equal(cancelled.json.rootPath, undefined, "a cancel never carries a path");
+    } finally {
+      delete process.env.SE_TEST_MODE;
+      delete process.env.SE_TEST_DIRECTORY_PICKER;
+    }
+
+    const unauthorized = await fetch(h.runtime.url + "/api/v5/host/choose-directory", {
+      method: "POST", headers: { "content-type": "application/json" }, body: "{}",
+    });
+    assert.equal(unauthorized.status, 401);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+
+test("choose-directory rejects a second concurrent picker with 409 while the first is still open", async () => {
+  const h = await boot();
+  const scratch = await mkdtemp(path.join(tmpdir(), "cw-directory-picker-busy-"));
+  try {
+    const slowScript = path.join(scratch, "pick-slow.sh");
+    await writeFile(slowScript, `#!/bin/sh\nsleep 1\nprintf '%s\\n' "${scratch}"\n`);
+    await chmod(slowScript, 0o755);
+    process.env.SE_TEST_MODE = "1";
+    process.env.SE_TEST_DIRECTORY_PICKER = slowScript;
+    try {
+      const first = h.api("POST", "/host/choose-directory", {});
+      await new Promise(resolve => setTimeout(resolve, 150));
+      const second = await h.api("POST", "/host/choose-directory", {});
+      assert.equal(second.status, 409);
+      assert.equal(second.json.error.code, "directory_picker_busy");
+      const resolved = await first;
+      assert.equal(resolved.status, 200, JSON.stringify(resolved.json));
+      assert.equal(resolved.json.rootPath, scratch);
+      // The flag must clear once the first picker settles, or every later
+      // call would wrongly see the Host as permanently busy.
+      const third = await h.api("POST", "/host/choose-directory", {});
+      assert.equal(third.status, 200);
+    } finally {
+      delete process.env.SE_TEST_MODE;
+      delete process.env.SE_TEST_DIRECTORY_PICKER;
+    }
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+
+test("recent repositories are derived from bind receipts, deduped by exact path, ordered, and report live availability", async () => {
+  const h = await boot();
+  const rootA = await mkdtemp(path.join(tmpdir(), "cw-recent-repo-a-"));
+  const rootB = await mkdtemp(path.join(tmpdir(), "cw-recent-repo-b-"));
+  try {
+    const sessionOne = await h.createSession();
+    const sessionTwo = await h.createSession();
+    const sessionThree = await h.createSession();
+
+    const bindOne = await h.api("PUT", `/sessions/${sessionOne.id}/repository-binding`, { operation: "bind", requestId: "recent-bind-1", expectedRevision: 0, rootPath: rootA });
+    assert.equal(bindOne.status, 200, JSON.stringify(bindOne.json));
+    await new Promise(resolve => setTimeout(resolve, 15));
+    const bindTwo = await h.api("PUT", `/sessions/${sessionTwo.id}/repository-binding`, { operation: "bind", requestId: "recent-bind-2", expectedRevision: 0, rootPath: rootB });
+    assert.equal(bindTwo.status, 200, JSON.stringify(bindTwo.json));
+    await new Promise(resolve => setTimeout(resolve, 15));
+    // A second session binding the SAME resolved root dedupes into one entry
+    // and becomes its newest `lastConnectedAt`, while `sessions` counts both.
+    const bindThree = await h.api("PUT", `/sessions/${sessionThree.id}/repository-binding`, { operation: "bind", requestId: "recent-bind-3", expectedRevision: 0, rootPath: rootA });
+    assert.equal(bindThree.status, 200, JSON.stringify(bindThree.json));
+    const normalizedRootA = bindThree.json.binding.rootPath;
+    assert.equal(bindOne.json.binding.rootPath, normalizedRootA, "the same input directory resolves to the same canonical path");
+
+    const revoke = await h.api("PUT", `/sessions/${sessionTwo.id}/repository-binding`, { operation: "revoke", requestId: "recent-revoke-2", expectedRevision: 1 });
+    assert.equal(revoke.status, 200, JSON.stringify(revoke.json));
+
+    await rm(rootB, { recursive: true, force: true });
+
+    const recent = await h.api("GET", "/repositories/recent");
+    assert.equal(recent.status, 200, JSON.stringify(recent.json));
+    assert.equal(recent.json.schemaVersion, 1);
+    assert.equal(recent.json.entries.length, 2, "two distinct rootPaths, deduped");
+    assert.equal(recent.json.entries[0].rootPath, normalizedRootA, "the most recently (re)connected path sorts first");
+
+    const entryA = recent.json.entries.find(entry => entry.rootPath === normalizedRootA);
+    assert.equal(entryA.sessions, 2, "two distinct sessions have ever bound this path");
+    assert.equal(entryA.available, true);
+
+    const entryB = recent.json.entries.find(entry => entry.rootPath === bindTwo.json.binding.rootPath);
+    assert.equal(entryB.sessions, 1);
+    assert.equal(entryB.available, false, "revoked and its directory deleted, so it is no longer available");
+
+    const unauthorized = await fetch(h.runtime.url + "/api/v5/repositories/recent");
+    assert.equal(unauthorized.status, 401);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(rootA, { recursive: true, force: true }).catch(() => {});
+    await rm(rootB, { recursive: true, force: true }).catch(() => {});
+  }
+});
+
+test("repositories/inspect reports live availability and Git branch/HEAD without persisting or granting access", async () => {
+  const h = await boot();
+  const gitRoot = await mkdtemp(path.join(tmpdir(), "cw-repo-inspect-git-"));
+  const plainRoot = await mkdtemp(path.join(tmpdir(), "cw-repo-inspect-plain-"));
+  const missingParent = await mkdtemp(path.join(tmpdir(), "cw-repo-inspect-missing-"));
+  const missingRoot = path.join(missingParent, "does-not-exist");
+  try {
+    execFileSync("git", ["init", "-b", "main"], { cwd: gitRoot });
+    execFileSync("git", ["config", "user.email", "test@example.invalid"], { cwd: gitRoot });
+    execFileSync("git", ["config", "user.name", "Test"], { cwd: gitRoot });
+    await writeFile(path.join(gitRoot, "README.md"), "hello\n");
+    execFileSync("git", ["add", "README.md"], { cwd: gitRoot });
+    execFileSync("git", ["commit", "-m", "initial"], { cwd: gitRoot });
+    const head = execFileSync("git", ["rev-parse", "HEAD"], { cwd: gitRoot }).toString().trim();
+
+    const gitResult = await h.api("GET", `/repositories/inspect?rootPath=${encodeURIComponent(gitRoot)}`);
+    assert.equal(gitResult.status, 200, JSON.stringify(gitResult.json));
+    assert.equal(gitResult.json.rootPath, gitRoot);
+    assert.equal(gitResult.json.available, true);
+    assert.deepEqual(gitResult.json.git, { branch: "main", head, detached: false });
+
+    const plainResult = await h.api("GET", `/repositories/inspect?rootPath=${encodeURIComponent(plainRoot)}`);
+    assert.equal(plainResult.status, 200, JSON.stringify(plainResult.json));
+    assert.equal(plainResult.json.available, true);
+    assert.equal(plainResult.json.git, null, "a directory that is not a Git repository reports git: null");
+
+    const missingResult = await h.api("GET", `/repositories/inspect?rootPath=${encodeURIComponent(missingRoot)}`);
+    assert.equal(missingResult.status, 200, JSON.stringify(missingResult.json));
+    assert.equal(missingResult.json.available, false);
+    assert.equal(missingResult.json.git, null);
+
+    const relative = await h.api("GET", "/repositories/inspect?rootPath=relative/path");
+    assert.equal(relative.status, 400);
+    assert.equal(relative.json.error.code, "invalid_repository_root");
+
+    const unauthorized = await fetch(h.runtime.url + `/api/v5/repositories/inspect?rootPath=${encodeURIComponent(gitRoot)}`);
+    assert.equal(unauthorized.status, 401);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(gitRoot, { recursive: true, force: true });
+    await rm(plainRoot, { recursive: true, force: true });
+    await rm(missingParent, { recursive: true, force: true });
   }
 });
