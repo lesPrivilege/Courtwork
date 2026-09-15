@@ -64,7 +64,7 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 | 用户词 | 它是什么 | 不用 |
 |---|---|---|
 | Workspace | §3.1 原义：一个 Chat 显式连接的外部目录，供 `repo_list/read/grep` 只读使用。它是 composer 上方上下文条的第一枚 chip、同名卡片的标题；与 Project（组织归属）、Chat files（托管成果）分开 | Repository（作对象名时）· Folder（作对象名时）· Mount · Source |
-| Choose workspace | 未连接时 chip 的动作词；连接后可见词换成目录名，可访问名带完整路径与 `Read only` | Connect repository · Select workspace · Open project |
+| Choose workspace | 未连接时 chip 的动作词；连接后可见词换成目录名，可访问名带完整路径与 `Read only`。chip 只有文字，与 Local / Branch 同一行文法；文件夹图标只在卡片行里出现 | Connect repository · Select workspace · Open project |
 | Open folder… | 卡片主动作：Host 打开原生选目录对话框。Home 上选中即成为草稿，发送时先绑定再开始 Run；Chat 里选中即提交绑定命令。对话框不可用时退回路径输入 | Choose folder · Browse · Upload |
 | Connected before | 卡片里由 Host 回执得出的已连接过目录清单；点一行就是连接（或写入草稿），不是自动继承。找不到的目录保留行并写 `Not found` | Recent（作标题时）· History · Favorites |
 | Enter a path instead | 路径输入的 disclosure 标题；其内动作词是 `Connect` | Advanced · Manual |

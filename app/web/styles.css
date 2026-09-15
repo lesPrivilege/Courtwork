@@ -6836,8 +6836,7 @@ html[data-theme="dark"] {
 .home-module-details::details-content { height: 0; overflow: clip; transition: height 200ms ease, content-visibility 200ms allow-discrete; }
 .home-module-details[open]::details-content { height: auto; }
 @media (prefers-reduced-motion: reduce) { .home-module-details::details-content { transition: none; } }
-/* The workspace chip's glyph sits at text height, not control height. */
-.context-chip > .ui-icon { width: 0.75em; height: 0.75em; }
+
 /* Candidate changes dialog · one section per file; the path is the title. */
 .candidate-diff-file { display: grid; gap: 8px; }
 .candidate-diff-path { font-size: var(--text-meta); font-weight: 500; margin: 0; }
