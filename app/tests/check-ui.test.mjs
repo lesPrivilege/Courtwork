@@ -49,8 +49,8 @@ test("A check approval names the recipe, what runs, where, and the limits", () =
 test("Activity word and glyph wiring for checks", () => {
   const process = projectRunProcess([{ type: "tool/start", data: { callId: "c1", name: "check_run" } }].map((e, i) => ({ seq: i, runId: "r1", ...e })), run);
   assert.equal(process, "checking");
-  const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
-  assert.match(app, /if \(tool === "check_run"\) return "play"/);
-  assert.match(app, /function appendCheckDetails\(container, check\)/);
-  assert.match(app, /if \(row\.check && row\.check\.status !== "running"\) \{\s*appendCheckDetails\(container, row\.check\);/);
+  const runRows = readFileSync(`${root}app/web/run-rows.mjs`, "utf8");
+  assert.match(runRows, /if \(tool === "check_run"\) return "play"/);
+  assert.match(runRows, /function appendCheckDetails\(container, check\)/);
+  assert.match(runRows, /if \(row\.check && row\.check\.status !== "running"\) \{\s*appendCheckDetails\(container, row\.check\);/);
 });

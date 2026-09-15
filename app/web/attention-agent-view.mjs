@@ -14,6 +14,7 @@ import { createDraftAttachments } from './draft-attachments.mjs';
 import { createAttentionConversation } from './attention-conversation.mjs';
 import { runLabels } from './inspector.mjs';
 import { createCoordinationView } from './coordination-view.mjs';
+import { renderToolRow } from './run-rows.mjs';
 
 export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel }) {
   let visible = false, timer = null, opener = null, signature = '', openingEpoch = 0;
@@ -263,11 +264,9 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
           }
         } else if (row.kind === 'tool') {
           const word = toolStateWord(row, runStatuses.get(row.runId) || state.runs.find(run => run.id === row.runId)?.status);
-          const summary = el('summary', { text: row.name });
-          if (word) summary.append(el('span', { className: 'attention-tool-state', text: word }));
-          const detail = el('details', { attrs: { 'data-row': row.id } }, summary,
-            el('pre', { text: JSON.stringify({ request: row.request, result: row.result }, null, 2) }));
-          detail.open = expanded.has(row.id); block.append(detail);
+          const detail = renderToolRow(row, { toolState: word, open: expanded.has(row.id), onToggle: () => {} });
+          detail.dataset.row = row.id;
+          block.append(detail);
         } else if (row.kind === 'question' || row.kind === 'permission') {
           const run = state.runs.find(run => run.id === row.runId);
           block.append(el('strong', { text: row.kind === 'permission' ? 'Approval request' : 'Question' }), el('p', { text: row.prompt }));

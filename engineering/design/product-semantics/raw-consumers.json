@@ -9,7 +9,7 @@
     ]
   },
   {
-    "file": "app/web/app.mjs",
+    "file": "app/web/run-rows.mjs",
     "source": "if (tool === \"ws_list\" || tool === \"repo_list\" || tool === \"candidate_list\") return \"folder\";",
     "disposition": "mapped-raw",
     "reason": "ws_list, repo_list and candidate_list expose a directory target (managed workspace, connected repository, private candidate); retain the tool name and use the registered folder representation.",
@@ -19,7 +19,7 @@
     ]
   },
   {
-    "file": "app/web/app.mjs",
+    "file": "app/web/run-rows.mjs",
     "source": "if (tool === \"ws_read\" || tool === \"se_read_source\" || tool === \"repo_read\" || tool === \"candidate_read\") return \"file-text\";",
     "disposition": "mapped-raw",
     "reason": "These tools read a named file; file-text is the registered file.object representation while the tool name supplies the read verb. repo_read and candidate_read read one file from the connected repository or private candidate; same file glyph, tool name retained.",
