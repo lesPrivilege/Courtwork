@@ -100,6 +100,7 @@ import {
 import { renderUserMessage, renderMessageTime } from "./user-message.mjs";
 import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";
 import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.mjs";
+import { renderToolRow, toolGlyph, safeText } from "./run-rows.mjs";
 
 const API_BASE = "/api/v5";
 const UI_STORAGE_KEY = "schema-engineering.ui.v6";
@@ -502,16 +503,6 @@ function rememberMessageReading(stream, { forceFollow = null } = {}) {
   state.messageReading.set(session.id, reading);
   setJumpLatestVisible(!followLatest);
   return reading;
-}
-
-function safeText(value, fallback = "") {
-  if (value === null || value === undefined) return fallback;
-  if (typeof value === "string") return value;
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
-  }
 }
 
 function normalizedType(type) {
@@ -2512,83 +2503,6 @@ function appendAssistantBody(container, text, key) {
   );
 }
 
-/* WK-57 / IC-1 · the type glyph says what kind of act the row records, so the
- * user does not have to read the tool identifier to tell a read from a write.
- * The identifier itself stays visible beside it — the glyph never replaces the
- * object name, and "open the current file" and "write to it" are not allowed to
- * share one file glyph (IC-1, «成果摘要入口» row). Unrecognised tools use
- * their recorded name without an inferred category glyph. */
-function toolGlyph(name) {
-  const tool = String(name || "");
-  if (tool === "ws_write" || tool === "repo_write") return "square-pen";
-  if (tool === "ws_list" || tool === "repo_list" || tool === "candidate_list") return "folder";
-  if (tool === "ws_grep" || tool === "repo_grep" || tool === "candidate_grep") return "search";
-  if (tool === "ws_read" || tool === "se_read_source" || tool === "repo_read" || tool === "candidate_read") return "file-text";
-  if (tool === "check_run") return "play";
-  if (tool.startsWith("runtime_")) return "settings-2";
-  return null;
-}
-
-/* DF-04 · a check's settlement is Host fact: the exit status, how long it
- * ran, whether output was cut, and the streams themselves. It is shown as
- * those facts, not as the model's retelling of them; exit 0 is not
- * acceptance of anything. */
-function appendCheckDetails(container, check) {
-  const facts = [
-    ["Recipe", check.recipeId ? `${check.recipeId}${check.recipeVersion ? ` v${check.recipeVersion}` : ""}` : "unknown"],
-    ["Outcome", checkStateWord(check)],
-    ...(check.signal ? [["Signal", check.signal]] : []),
-    ...(Number.isFinite(check.durationMs) ? [["Duration", `${(check.durationMs / 1000).toFixed(1)} s`]] : []),
-    ...(check.truncated?.stdout || check.truncated?.stderr ? [["Output", "cut at the Host limit"]] : []),
-    ...(check.failure?.code ? [["Reason", check.failure.code]] : []),
-  ];
-  const list = element("dl", { className: "data-list" });
-  for (const [term, value] of facts) list.append(element("dt", { text: term }), element("dd", { text: value }));
-  container.append(list);
-  for (const [stream, text] of [["stdout", check.stdout], ["stderr", check.stderr]]) {
-    if (typeof text !== "string" || !text) continue;
-    container.append(element("h4", { className: "tool-detail-heading", text: stream }), element("pre", { className: "tool-detail", text }));
-  }
-}
-function appendToolDetails(container, row) {
-  const requestValue = row.request;
-  const resultValue = row.result;
-  if (row.check && row.check.status !== "running") {
-    appendCheckDetails(container, row.check);
-    return;
-  }
-  if (requestValue !== undefined && requestValue !== null) {
-    container.append(
-      element("h4", { className: "tool-detail-heading", text: "Request" }),
-    );
-    container.append(
-      element("pre", {
-        className: "tool-detail",
-        text: safeText(requestValue),
-      }),
-    );
-  }
-  if (resultValue !== undefined && resultValue !== null && resultValue !== "") {
-    container.append(
-      element("h4", { className: "tool-detail-heading", text: "Result" }),
-    );
-    container.append(
-      element("pre", {
-        className: `tool-detail ${row.isError ? "tool-error" : ""}`,
-        text: safeText(resultValue),
-      }),
-    );
-  }
-  if (!container.childElementCount) {
-    container.append(
-      element("p", {
-        className: "tool-detail",
-        text: "No request or result details were included in this event.",
-      }),
-    );
-  }
-}
-
 /* A decision becomes visible in the conversation only when the server confirms
  * it. `projection.decisions[]` says this host recorded one; the request query
  * says Core committed it. A null receipt draws nothing — not a success row, not
@@ -2919,31 +2833,18 @@ function renderMessageStream() {
        * named by its state word, and the failure text itself is inside; colour
        * was never the only carrier and the object name is not a state
        * (copy-convention §2, FN-28). */
-      const details = element("details", { className: "tool-card" });
       const key = toolScopeKey(row.runId, row.callId, row.name);
-      details.open = state.toolOpen.has(key)
-        ? state.toolOpen.get(key)
-        : row.isError;
       /* WK-57 · the state word is a word in its own slot, not a lower-case
        * suffix glued to the tool's name with a middle dot. A finished tool row
        * still carries no state word: the group summary above it already says
        * the run completed, and repeating it on every row answers nothing
        * (WK-47 ablation C-2). */
       const toolState = toolStateWord(row, status);
-      details.append(
-        flowRow("summary", {
-          glyph: toolGlyph(row.name),
-          title: row.name,
-          meta: toolState,
-          className: row.isError ? "is-failed" : "",
-        }),
-      );
-      const detail = element("div", { className: "tool-detail-block" });
-      appendToolDetails(detail, row);
-      details.append(detail);
-      details.addEventListener("toggle", () =>
-        state.toolOpen.set(key, details.open),
-      );
+      const details = renderToolRow(row, {
+        toolState,
+        open: state.toolOpen.has(key) ? state.toolOpen.get(key) : row.isError,
+        onToggle: (open) => state.toolOpen.set(key, open),
+      });
       if (executionMember) {
         details.id = executionDisclosureMemberId("chat", session.id, row.runId, `${row.kind}:${row.id}`);
         details.hidden = !executionOpen.get(executionMember.plan);
@@ -3967,7 +3868,7 @@ function toggleNavigation() {
  * Attention or Settings. Collapsing (state.surface.open / expanded) is a
  * separate question that only applies once this is true. */
 function surfaceAllowed() {
-  return Boolean(currentSession()) && !state.attentionOpen && !state.chatOpen && !state.settings.open;
+  return state.view === "session" && Boolean(currentSession()) && !state.attentionOpen && !state.chatOpen && !state.settings.open;
 }
 function renderSurfaceVisibility() {
   measureSurfaceLayout({ render: false });

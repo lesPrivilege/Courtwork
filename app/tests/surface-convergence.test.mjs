@@ -6,7 +6,7 @@ const root = new URL("../../", import.meta.url).pathname;
 const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
 
 test("The work surface, its rail and its header entry share one page predicate", () => {
-  assert.match(app, /function surfaceAllowed\(\) \{\s*return Boolean\(currentSession\(\)\) && !state\.attentionOpen && !state\.chatOpen && !state\.settings\.open;/);
+  assert.match(app, /function surfaceAllowed\(\) \{\s*return state\.view === "session" && Boolean\(currentSession\(\)\) && !state\.attentionOpen && !state\.chatOpen && !state\.settings\.open;/, "only the session view shows the surface: not Home, the Chat list, Attention or Settings");
   assert.match(app, /const open = Boolean\(surfaceAllowed\(\) && state\.surface\.open\)/, "panel visibility");
   assert.match(app, /const visible = Boolean\(surfaceAllowed\(\) && state\.surface\.open && !state\.surface\.expanded\);\s*rail\.hidden = !visible;/, "rail visibility");
   assert.match(app, /\$\("show-surface-button"\)\.hidden = !surfaceAllowed\(\);/, "header entry");
