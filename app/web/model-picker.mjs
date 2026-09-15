@@ -107,7 +107,7 @@ export function createModelPicker({ request, onSaved }) {
         const supported = reasoning?.kind === 'enum' ? reasoning.values : [];
         const savedEffortIsInvalid = isInForce && current.config.reasoningEffort != null && !supported.includes(current.config.reasoningEffort);
         if (effortSelectable(supported) || savedEffortIsInvalid) {
-          const options = [el('option',{text:'Provider default',attrs:{value:defaultValue}}), ...supported.map(level=>el('option',{text:level==='off'?'Off':level,attrs:{value:level}}))];
+          const options = [el('option',{text:'Provider default',attrs:{value:defaultValue}}), ...supported.map(level=>el('option',{text:level,attrs:{value:level}}))];
           if (savedEffortIsInvalid) options.push(el('option',{text:`Unavailable saved value: ${current.config.reasoningEffort}`,attrs:{value:`__invalid_${current.config.reasoningEffort}`} }));
           effortSelect.replaceChildren(...options);
           const selectedEffort = effort === undefined || effort === null ? defaultValue : effort;

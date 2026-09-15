@@ -44,6 +44,8 @@ import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelPicker } from "./model-picker.mjs";
+import { renderModelEffortCard } from "./model-effort.mjs";
+import { projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
 let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView, chatPage;
@@ -2477,6 +2479,7 @@ function focusBindingEntry() {
  * connection credentials remain in the separate Models settings surface. */
 function renderProviderPanel() {
   settingsView?.update(state.providerConfig);
+  renderModelCard();
   const config = state.providerConfig?.config;
   if (config) {
     const model = config.provider === "fake-openai-loopback" ? "Local test" : config.model;
@@ -5509,6 +5512,86 @@ function openConnectionCard(anchor) {
   popover.showPopover();
   header.querySelector("button").focus();
 }
+/* Models 05 · the composer's model control opens a card, not the full dialog.
+ * The card reads one Host snapshot; choosing a segment saves at once under the
+ * existing scope (all chats, future runs) with the snapshot's version, so a
+ * stale receipt can neither overwrite a newer choice nor invent a value the
+ * Host did not offer. The Host stays the authority on the active-Run freeze. */
+let modelCardEpoch = 0, modelCardBusy = false, modelCardFeedback = null;
+function renderModelCard() {
+  const popover = $("model-popover");
+  if (!popover.matches(":popover-open")) return null;
+  /* A redraw keeps the control the person is on: the same radio by id, or the
+   * same action by its accessible name; otherwise the card's close control. */
+  const focused = popover.contains(document.activeElement) ? document.activeElement : null;
+  const keep = focused?.id ? `#${CSS.escape(focused.id)}` : focused?.getAttribute("aria-label") ? `[aria-label="${focused.getAttribute("aria-label")}"]` : null;
+  const keepText = focused && !keep ? focused.textContent : null;
+  const header = renderModelEffortCard(popover, {
+    snapshot: state.providerConfig,
+    active: Boolean(currentRun()),
+    busy: modelCardBusy,
+    feedback: modelCardFeedback,
+    onClose: () => { popover.hidePopover(); state.modelCardAnchor?.focus?.(); },
+    onChangeModel: () => { popover.hidePopover(); void modelPicker.open(); },
+    onConnections: (connectionId) => {
+      const trigger = state.modelCardAnchor;
+      popover.hidePopover();
+      openSettings("models", { trigger, connectionId });
+    },
+    onEffort: saveEffortFromCard,
+  });
+  if (focused) {
+    const again = keep ? popover.querySelector(keep) : keepText ? [...popover.querySelectorAll("button")].find((node) => node.textContent === keepText) : null;
+    (again || header.querySelector("button"))?.focus();
+  }
+  return header;
+}
+function openModelCard(anchor) {
+  const popover = $("model-popover");
+  if (popover.matches(":popover-open")) { popover.hidePopover(); return; }
+  state.modelCardAnchor = anchor;
+  modelCardFeedback = null;
+  popover.showPopover();
+  const header = renderModelCard();
+  header?.querySelector("button")?.focus();
+  /* The card speaks from the Host's latest snapshot; a stale one is replaced
+   * as soon as the read returns, and only while this opening is still current. */
+  const own = ++modelCardEpoch;
+  void request("/provider-config").then((fresh) => {
+    if (own !== modelCardEpoch || !popover.matches(":popover-open")) return;
+    if (fresh.version === state.providerConfig?.version) return;
+    state.providerConfig = fresh;
+    renderProviderPanel();
+    renderModelCard();
+  }).catch(() => {});
+}
+async function saveEffortFromCard(effort) {
+  const own = ++modelCardEpoch;
+  const snapshot = state.providerConfig;
+  const config = snapshot?.config;
+  if (!config || modelCardBusy) return;
+  /* The Host's own capability for the in-force selection is the whole catalog
+   * this projection needs: it cannot keep a value the Host did not list. */
+  const catalog = { models: [{ provider: config.provider, id: config.model, api: config.api, baseUrl: config.baseUrl, reasoningCapability: snapshot.reasoningCapability }] };
+  const body = { ...projectProviderConfig(config, { reasoningEffort: effort }, catalog), expectedVersion: snapshot.version };
+  modelCardBusy = true; modelCardFeedback = "Saving…"; renderModelCard();
+  try {
+    const result = await request("/provider-config", { method: "PUT", body });
+    if (own !== modelCardEpoch) return;
+    state.providerConfig = result;
+    modelCardFeedback = `Saved · ${result.config?.reasoningEffort || "Provider default"} · all chats, future runs`;
+    renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh();
+  } catch (error) {
+    if (own !== modelCardEpoch) return;
+    if (error.code === "active_run") modelCardFeedback = "Available after this run ends.";
+    else if (error.status === 409 || error.code === "config_conflict") {
+      modelCardFeedback = "Saved settings changed elsewhere. Showing the current value.";
+      try { state.providerConfig = await request("/provider-config"); renderProviderPanel(); } catch {}
+    } else modelCardFeedback = error.message;
+  } finally {
+    if (own === modelCardEpoch) { modelCardBusy = false; renderModelCard(); }
+  }
+}
 /* RD-006 / 02 · the human opens the candidate's exact diff from the Host,
  * not from the model's narration: same bounded patch, per file, against the
  * fixed base commit. Nothing here accepts or publishes anything. */
@@ -6180,7 +6263,7 @@ function readSettingsHash() {
  * would spend a 401 and a retry on every `#settings/<section>` entry, so the
  * frame is painted first and `refreshSettingsReads()` runs once the token is
  * held. Every other caller reads, because by then the token exists. */
-function openSettings(section = state.settings.section, { trigger, hash = true, read = true } = {}) {
+function openSettings(section = state.settings.section, { trigger, hash = true, read = true, connectionId } = {}) {
   const target = isSettingsSection(section) ? section : DEFAULT_SECTION;
   if (!state.settings.open) state.settings.returnFocus = trigger ?? document.activeElement;
   state.settings.open = true;
@@ -6197,6 +6280,10 @@ function openSettings(section = state.settings.section, { trigger, hash = true, 
   /* 进这一页，焦点落在 Back：出去的路和 Escape 指的是同一件事，一开始就摆在手边。 */
   if (!$("settings-page").contains(document.activeElement)) $("settings-back-button").focus();
   if (read) refreshSettingsReads();
+  /* Models 05 · from the composer's card the destination is one connection row
+   * (or Add provider when there is none); the draft stays in the composer and
+   * Back to app returns focus to the model control. */
+  if (connectionId !== undefined) void settingsView.locateConnection(connectionId);
 }
 /* The Workbench reads for the Runtime group and for the rail card alike, so it
  * loads with the page rather than with one of its blocks. */
@@ -6343,6 +6430,14 @@ function handleSurfaceEscape(event) {
       event.preventDefault();
       $("connection-popover").hidePopover();
       state.connectionCardAnchor?.focus?.();
+    }
+    return;
+  }
+  if ($("model-popover").matches(":popover-open")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      $("model-popover").hidePopover();
+      state.modelCardAnchor?.focus?.();
     }
     return;
   }
@@ -6553,7 +6648,20 @@ function wireEvents() {
     void goHome();
   });
   $("show-run-button").addEventListener("click", openContextSummary);
-  $("model-settings-button").addEventListener("click", () => void modelPicker.open());
+  $("model-settings-button").addEventListener("click", (event) => openModelCard(event.currentTarget));
+  {
+    const popover = $("model-popover");
+    let stopFollowing = null;
+    popover.addEventListener("toggle", (event) => {
+      const open = event.newState === "open";
+      stopFollowing?.();
+      stopFollowing = null;
+      const anchor = state.modelCardAnchor;
+      if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-end" });
+      $("model-settings-button").setAttribute("aria-expanded", String(open));
+      if (!open) { modelCardEpoch++; modelCardBusy = false; }
+    });
+  }
   $("permission-settings-button").addEventListener("click", (event) => openConnectionCard(event.currentTarget));
   {
     const popover = $("workspace-popover");

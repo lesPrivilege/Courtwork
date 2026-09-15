@@ -579,3 +579,30 @@ test("回执块六态的文案落点：成功两行不着色，失败一行借 -
   assert.match(settingsSource, /probeStatus\.classList\.add\("is-asking"\);/);
   assert.doesNotMatch(styles, /<progress|role="progressbar"/);
 });
+
+/* RD-Models 05 · source assertion only: `createSettingsView` calls
+ * `document.getElementById` synchronously during construction (planned
+ * capabilities, integrations intake, session panel, runtime debug block —
+ * see settings-view.mjs around line 925), and `tests/tiny-dom.mjs`'s
+ * `TinyDocument` has no `getElementById`. Wiring a real instance up would mean
+ * extending the shared tiny-dom helper or hand-building a getElementById-backed
+ * document, well past the ~40 line scaffolding budget — so this stays a
+ * source-level assertion of the method's two branches. */
+test("05 · Settings › Models can land on one connection row, else on Add provider", () => {
+  assert.match(settingsSource, /async locateConnection\(connectionId\) \{/);
+  // Waits for the in-flight refresh (or the last one that ran) before it trusts the rows exist.
+  assert.match(settingsSource, /if \(lastRefresh\) await lastRefresh;/);
+  assert.match(settingsSource, /if \(!list\.children\.length\) renderConnections\(\);/);
+  // Found branch: locates the row by `data-connection`, scrolls it into view, focuses its configure button.
+  assert.match(
+    settingsSource,
+    /const row = connectionId \? list\.querySelector\(`\[data-connection="\$\{CSS\.escape\(connectionId\)\}"\]`\) : null;/,
+  );
+  assert.match(settingsSource, /if \(typeof row\.scrollIntoView === "function"\) row\.scrollIntoView\(\{ block: "center" \}\);/);
+  assert.match(settingsSource, /row\.querySelector\("button"\)\?\.focus\(\);/);
+  // Not-found branch: opens Add provider and focuses its first focusable control.
+  assert.match(settingsSource, /addProvider\.open = true;\s*\n\s*addProvider\.querySelector\("input,select,button:not\(summary\)"\)\?\.focus\(\);/);
+  // `refresh()` now records its own promise so `locateConnection` can await the same generation.
+  assert.match(settingsSource, /lastRefresh = refreshReads\(\);/, "the read is one named function; refresh only keeps its promise");
+  assert.match(settingsSource, /return lastRefresh;\s*\n\s*\},/);
+});

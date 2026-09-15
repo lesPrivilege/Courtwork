@@ -3428,6 +3428,11 @@ dialog[open]::backdrop {
   padding: 4px 6px;
   min-height: 36px;
 }
+/* Models 05 · the model card: the effort track keeps one row per value; a fixed
+   Provider default is a fact line in the same place, not a disabled control. */
+.model-popover .model-effort-segmented .segment { padding: 4px 4px; min-height: 30px; }
+.model-popover .model-effort-fixed { font-size: var(--text-meta); color: var(--ink); padding: 4px; }
+.model-popover .model-effort-name { overflow-wrap: anywhere; }
 /* Segmented control: native radios, one track, the checked segment lifts.
    WO-WK12 · 段数写成一个变量：Reduced motion 只有两档，滑块宽度不能再写死成三格。 */
 .segmented {
@@ -3465,6 +3470,23 @@ dialog[open]::backdrop {
 }
 .segmented:has(.segment:nth-child(3) input:checked)::before {
   translate: calc(200% + 4px) 0;
+}
+/* Models 05 · the effort track has as many segments as the Host lists (up to
+   seven values plus Provider default); the thumb follows the same derivation. */
+.segmented:has(.segment:nth-child(4) input:checked)::before {
+  translate: calc(300% + 6px) 0;
+}
+.segmented:has(.segment:nth-child(5) input:checked)::before {
+  translate: calc(400% + 8px) 0;
+}
+.segmented:has(.segment:nth-child(6) input:checked)::before {
+  translate: calc(500% + 10px) 0;
+}
+.segmented:has(.segment:nth-child(7) input:checked)::before {
+  translate: calc(600% + 12px) 0;
+}
+.segmented:has(.segment:nth-child(8) input:checked)::before {
+  translate: calc(700% + 14px) 0;
 }
 .segmented:disabled {
   background: var(--control-unavailable-fill);

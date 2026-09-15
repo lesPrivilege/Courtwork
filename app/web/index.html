@@ -365,7 +365,8 @@
                   class="composer-model quiet-button"
                   type="button"
                   aria-haspopup="dialog"
-                  aria-controls="model-picker-dialog"
+                  aria-expanded="false"
+                  aria-controls="model-popover"
                 >
                   Local test
                 </button>
@@ -823,6 +824,14 @@
       class="context-popover connection-popover"
       popover="auto"
       aria-label="Connection and file access"
+    ></div>
+    <!-- Models 05 · the composer's model control: in-force model, effort quick-select
+         from the Host's capability snapshot, and the way to its connection. -->
+    <div
+      id="model-popover"
+      class="context-popover connection-popover model-popover"
+      popover="auto"
+      aria-label="Model and effort"
     ></div>
     <!-- RD-006 / 02 · the human's view of the private candidate: the same bounded
          Host patch the model gets from repo_diff, per file, from the fixed base commit. -->

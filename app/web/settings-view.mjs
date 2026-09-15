@@ -492,6 +492,9 @@ export function createSettingsView(
     dirty = false,
     busy = false,
     generation = 0,
+    /* RD-Models 05 · `refresh()` 最近一次跑出来的 promise，供 `locateConnection`
+       等着行渲出来再找行；不是第二条状态，只是把已经在跑的那次异步暴露出来。 */
+    lastRefresh = null,
     /* 后端的连接注册表（`GET /provider-connections`）。列表、表单与凭据都读它，
        不再从一份全局 providerConfig 里反推唯一那条连接。 */
     connections = [],
@@ -1576,17 +1579,7 @@ export function createSettingsView(
       modeError,
     );
   }
-  return {
-    update(config) {
-      snapshot = config;
-      if (snapshot && !dirty && !busy && !form.contains(document.activeElement))
-        resetFields();
-      lock();
-      renderConnections();
-      sessionPanel();
-      pushToPage();
-    },
-    async refresh() {
+  async function refreshReads() {
       const own = ++generation;
       error.hidden = true;
       try {
@@ -1625,6 +1618,39 @@ export function createSettingsView(
       } catch (err) {
         if (own === generation) fail(err);
       }
+  }
+  return {
+    update(config) {
+      snapshot = config;
+      if (snapshot && !dirty && !busy && !form.contains(document.activeElement))
+        resetFields();
+      lock();
+      renderConnections();
+      sessionPanel();
+      pushToPage();
+    },
+    async refresh() {
+      /* RD-Models 05 · the promise is kept so `locateConnection` can wait for
+         the rows this same read draws; nothing else about the read changes. */
+      lastRefresh = refreshReads();
+      return lastRefresh;
+    },
+    /** RD-Models 05 · land on one connection row (or on Add provider when there
+     * is none). Waits for the current refresh so the rows exist; scrolls the
+     * row into view and focuses its configure control. Returns true when a
+     * row was found. */
+    async locateConnection(connectionId) {
+      if (lastRefresh) await lastRefresh;
+      if (!list.children.length) renderConnections();
+      const row = connectionId ? list.querySelector(`[data-connection="${CSS.escape(connectionId)}"]`) : null;
+      if (row) {
+        if (typeof row.scrollIntoView === "function") row.scrollIntoView({ block: "center" });
+        row.querySelector("button")?.focus();
+        return true;
+      }
+      addProvider.open = true;
+      addProvider.querySelector("input,select,button:not(summary)")?.focus();
+      return false;
     },
     close() {
       generation++;

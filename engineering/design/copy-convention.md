@@ -107,6 +107,22 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 | The directory reports N models | `discover` 成功后的第二行；说的是目录报了几个 | Found N models · N models available |
 | ok · authentication_failed · unsupported · … | 后端的状态词，原样上屏 | Success · Connected · Verified · Invalid key |
 
+### 3.3b Composer 的模型卡（2026-09-16 · Models 05）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Model & effort | composer 右侧控件的可访问名与它打开的卡片标题；可见文字是 `<模型> · <档位或 Provider default>`。卡片读 Host 一份快照：生效模型、其连接、凭据事实与该组合的 reasoning 能力 | Model settings · Model picker · Configure model |
+| Model | 卡片第一段的对象名；其下一行是模型名（Local test 或模型 ID），再下一行是连接名与 API 格式 | Current model · Selected |
+| Change model | 进入完整对话框（列表、未列出的 ID、模型详情）的行；卡片本身不列模型 | Switch model · Pick model · Browse |
+| Connections · Add provider | 卡片里通往 `Settings › Models` 的行：有连接时落在生效的那一条连接上，没有连接时落在 Add provider；返回用 Back to app，草稿与焦点原地 | Configure connection · Manage · Set up API key |
+| No API key on this connection. | 凭据事实行，只在 Host 报 `credentialStatus` 非 configured 且连接不是本地时出现；修复路径就是下面那一行 | Not configured · Missing credentials · ⚠ |
+| Reasoning effort | 第二段的对象名；控件是分段单选，一段 Provider default 加 Host 列出的每个精确值（`off`、`low`、`medium`、`high`……原样小写），段数由能力枚举决定，不写死档数 | Thinking · Intensity · Power · 滑轨 |
+| Provider default | 省略参数的独立选择，永远是第一段；能力为 unknown / unsupported 时它是唯一一行事实，不画假阶梯 | Auto · Default（单独）· Lowest · Off（作省略参数时） |
+| Saved value X is no longer offered by this model. Choose Provider default or a listed value. | 已存值不在当前枚举里时的状态句：不画那一段，不勾任何段 | Invalid · Reset |
+| All chats · future runs | 分段控件下的范围句（沿完整对话框）；保存即时发生，成功后写 `Saved · <值> · all chats, future runs` | Applied · Done · This chat only |
+| Available after this run ends. | 有 Run 在途时分段控件禁用并写此句（沿 File access 卡）；Host 拒绝的 `active_run` 回执写同一句 | Locked · Frozen · Busy |
+| Values declared on this connection; provider behavior has not been verified. | 枚举来源为用户声明时的一行；不把声明标成已验证 | Verified · Supported by provider |
+
 ### 3.4 记忆
 
 | 用户词 | 它是什么 | 不用 |
