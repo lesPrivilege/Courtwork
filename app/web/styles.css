@@ -5099,14 +5099,16 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
    ground, one strong hairline, the float shadow — so the header band, the rows
    and the composer read as three different things rather than one flat sheet. */
 @media (max-width: 767px) {
-  /* The docked composer band is the page's own colour: no line, no glass.
-     The composer card carries its own edge; the transition between the
-     reading column and the composer is tone-free by ruling (2026-09-16). */
+  /* The docked band has no colour of its own (2026-09-16 ruling): the
+     composer card's float shadow is the transition to the reading column.
+     While the workspace tab is above it (before work starts) the shadow is
+     dropped so the tab and card read as one; once work starts the tab is
+     gone and the shadow carries. */
   .composer-area {
     position: sticky;
     bottom: 0;
     z-index: 2;
-    background: var(--panel);
+    background: transparent;
     padding: var(--space-2) var(--chat-inset)
       max(var(--space-2), env(safe-area-inset-bottom));
   }
