@@ -57,3 +57,20 @@ PR验收见[施工文稿](deferred-workspace-binding-2026-09-12/pr-plan.md)。�
 第三施工片接GUI：Home与已有Chat复用Access选项/说明/选中态的共享primitive，保留各自保存时点。Project组织选择与Connect repository动作分开；本地浏览器不能直接提供Host目录句柄时可使用明确的Host路径输入与校验回执，不伪装上传为挂载。用户可查看真实绑定范围、失败与断开；能力未接通前不绘制成功态。按原UX grammar和相关precedent施工，不引入Full access语义。
 
 串行验收：每片作者交付后非作者Luna定向验收，再发下一片；GUI加Chrome人类目验。Astra仅处理新语义/集成裁决，不重复验收。此次是架构授权与发单，尚未实现、迁移用户数据或关闭产品能力门。
+
+## 2026-09-16 · 在途树恢复、逐路径披露修复与 Workspace GUI 首片（Claude 施工单 01）
+
+施工入口见[Claude 串行施工单](../execution/claude-frontend-harness-2026-09-16/README.md)与[01 记录](../execution/claude-frontend-harness-2026-09-16/01-workspace-binding.md)。本节只登记 RD-006 owner 事实；接受状态仍由 [current](../current.md) 持有。
+
+**在途树。** `codex/workspace-access-20260914` 的临时目录已随 `/private/tmp` 清理消失，2026-09-15 清理前的 bundle 只含已提交 ref。作者会话的 Codex rollout 日志保留了该树全部 236 次 `apply_patch` 调用；按时间顺序、按原工具的整补丁原子语义重放到 `7e1a1ff`，`app/` 下 26 个修改与 11 个新增文件的增删行数与 Luna 2026-09-15 06:48 记录逐文件相同，`app/docs/repository-binding.md` 前 178 行与当时整读逐字相同；工程文档因原树曾复制脏 main 内容而无法逐字恢复，其增量另行按当前 main 合入。恢复树定向 26/26，`npm test` 1058/1059（唯一失败为并发下 Core bridge 超时，单独重跑 13/13）。该结果以提交 `ab4b93d` 进入本单施工树；它是原作者工作的保全，不是接受。
+
+**逐路径披露缺口（原第三片预检发现）。** 裁定：聚合读取按文件裁决，取该聚合动作与对应单文件读取动作（`repo_grep`→`repo_read`，`candidate_grep`/`repo_diff`→`candidate_read`）两者中最严者；deny 与 ask 的文件在 worker、补丁与来源回执之前排除，结果只报 `excludedByPolicy` / `excludedPendingApproval` 计数，不点名路径；root 的 allow 不被带 ask 规则的文件继承，逐文件批准经单文件读取发起。选择"过滤并计数"而非"整次失败关闭"：一条 deny 规则不应使根目录搜索不可用，计数使模型知道覆盖不完整。实现为 `control-tools.mjs` 的 `createPathAdmission()`（`governTools` 同源），`repo_diff` 在生成补丁前过滤路径。回归：`repo_read` deny 下 `repo_grep(".")`、`repo_grep` 的 ask 规则不开问题、`candidate_read` deny 下 `candidate_grep` 与 `repo_diff`；定向 52/52。提交 `c8ac6fb`，Sonnet 5 按 Fable 裁定实现。
+
+**GUI 首片的语义裁定。** 用户在施工中要求按 Codex 形态：选目录用原生对话框、列出已连接过的目录、把 workspace / Local / 分支放在 composer 上方的独立卡、开工后只留 composer。采用如下：
+
+- 外部目录这一维统一叫 **Workspace**（[文案体例](../design/copy-convention.md) §3.1 原义）。Home 上原按名词收敛写作 Workspace 的 Project 选择器改回 **Project**，无 Project 的 Chat 写 `No project`。`repository.*` 语义键撤销，登记 `workspace.connect` / `workspace.disconnect`，`workspace.object` 的 owner 改指本合同。
+- composer 上方一张实色页签卡（不用 blur）：`Choose workspace` / 目录名、`Local`（执行位置事实）、`Branch · <名>`（仅 Host 读到分支时；未知不画 main，游离 HEAD 不画）。只在 Home 与尚无 Run 的 Chat 出现；开工后事实与入口移到 `This chat` 概览的 Workspace 行。
+- Workspace 卡：`Open folder…`（Host 原生对话框，Darwin `osascript`；其他平台 501 后退回路径输入）→ `Connected before`（由 Host 绑定回执得出，找不到的目录保留行写 `Not found`）→ `Enter a path instead`。Home 上卡片只写草稿，首次发送先绑定再开始 Run，每次开始一个 requestId，重试重放不重复绑定；绑定失败保留 Chat 与输入。Chat 内选中即提交绑定命令并读回 Session，不以回执冒充状态。
+- 新增 Host 只读辅助接口：`POST /host/choose-directory`、`GET /repositories/recent`、`GET /repositories/inspect`；均不绑定，绑定仍是显式 `PUT .../repository-binding`。
+
+未做与边界：Linux 原生对话框未实现（fail closed 到路径输入）；同 device mounted descendants 的范围合同不变；`repo_write` 的 GUI 批准卡与 candidate 面属 02 片；Work 面板的"Browse workspace / Workspace · N files"仍指托管成果目录，属 10 片文字收敛。

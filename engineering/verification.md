@@ -28,3 +28,5 @@
 当前采用现有Node测试、Host合成fixture与可用浏览器工具。外部文章提到的XState、Playwright CLI或其他框架只作可选方法；本裁决不引入依赖、新runtime状态或第二状态机。具体运行命令见[根README](../README.md)；UI覆盖按[前端连续性规范](design/agent-interface-2026-09-10/frontend-contract.md)结合实际变化记录。
 
 当前指针检查随受影响的变更执行：核对schema及迁移owner、支持清单、媒体manifest、安装源码、论文采用pin和发行状态在各当前入口中的一致性；无关项注明不适用即可。链接可达不能证明这些语义一致。历史回执、标本与媒体保留原SHA，不为同步当前入口改写；论文采用版本仅在明确升级裁决后更新。PR索引已完成的核对与剩余差异，不复制另一份版本台账。
+
+2026-09-16 · Claude 施工单 01（Workspace 绑定 GUI 与逐路径披露）：施工树 `claude-frontend-harness-20260916`；定向 `node --test tests/repository-binding.test.mjs tests/repository-candidate.test.mjs tests/runtime.test.mjs tests/durability.test.mjs` 43/43，`tests/workspace-card.test.mjs` 等 UI 定向 25/25，`npm test` 1086 项中 1085 通过；唯一失败为并发下 `review-core-client-lifecycle` 的 Core bridge ready 超时，与 00 片恢复树同一抖动，单独重跑 13/13，未改任何 Core 代码，`npm run smoke` 通过（local-fake）；语义/文案/交互/颜色/形状/材质 lint 与文档链接、diff 空白检查通过。浏览器目验用 Local test provider 与合成仓库走通 Home 草稿→首发绑定→`repo_read`→概览撤权→刷新；未做非作者复核、真实 provider、1440/1280、200% zoom 与读屏。恢复树（RD-006 在途）单独 `npm test` 1058/1059，失败项单独重跑 13/13。证据与边界见[01 记录](execution/claude-frontend-harness-2026-09-16/01-workspace-binding.md)。
