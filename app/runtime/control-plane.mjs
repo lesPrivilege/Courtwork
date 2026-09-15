@@ -8,9 +8,9 @@ export const RESOURCE_KINDS = Object.freeze(['tool', 'mcp_server', 'skill', 'plu
 export const SCOPES = Object.freeze(['org', 'user', 'workspace', 'agent', 'session', 'invocation']);
 const IMPORT_KINDS = new Set(['instruction', 'skill', 'reference', 'prompt_template', 'agent_profile', 'mcp_server']);
 const CONTENT_KINDS = new Set(['instruction', 'skill', 'reference', 'prompt_template']);
-const TOOLS = ['ask_user', 'ws_list', 'ws_read', 'ws_write', 'ws_grep', 'repo_list', 'repo_read', 'repo_grep', 'candidate_list', 'candidate_read', 'candidate_grep', 'repo_write', 'repo_diff', 'runtime_load'];
+const TOOLS = ['ask_user', 'ws_list', 'ws_read', 'ws_write', 'ws_grep', 'repo_list', 'repo_read', 'repo_grep', 'candidate_list', 'candidate_read', 'candidate_grep', 'repo_write', 'repo_diff', 'check_run', 'runtime_load'];
 const SOURCE_REPOSITORY_TOOLS = new Set(['repo_list', 'repo_read', 'repo_grep']);
-const CANDIDATE_TOOLS = new Set(['candidate_list', 'candidate_read', 'candidate_grep', 'repo_write', 'repo_diff']);
+const CANDIDATE_TOOLS = new Set(['candidate_list', 'candidate_read', 'candidate_grep', 'repo_write', 'repo_diff', 'check_run']);
 const weights = { allow: 0, ask: 1, deny: 2 };
 const hash = value => createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
 const clone = value => structuredClone(value);
@@ -32,6 +32,9 @@ export function hostToolCeiling(name, permissionMode) {
   if (name === 'spark_explore') return permissionMode === 'ask' ? 'ask' : 'allow';
   if (name === 'message_other_agent') return permissionMode === 'read_only' ? 'deny' : 'ask';
   if (name === 'ws_write' || name === 'repo_write') return permissionMode === 'read_only' ? 'deny' : permissionMode === 'ask' ? 'ask' : 'allow';
+  // A check recipe spawns a real process with the Host user's rights; unlike
+  // a candidate file write it always asks, even in draft mode.
+  if (name === 'check_run') return permissionMode === 'read_only' ? 'deny' : 'ask';
   return 'allow';
 }
 

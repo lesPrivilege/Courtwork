@@ -226,7 +226,9 @@ no-follow path traversal and current binding/revocation checks still apply. Any
 future Connect UI must explain this namespace-visible scope before binding.
 This contract grants the three source read tools. `repo_write` is authorized
 only for the Host-owned private candidate described above; it never writes the
-selected source directory.
+selected source directory. A Host check recipe (`check_run`) also runs only
+inside this same private candidate worktree, never the connected source
+directory or the managed workspace; see [`check-recipes.md`](check-recipes.md).
 
 The helpers require the configured Python 3 runtime and POSIX filesystem
 primitives. Reads are implemented on supported POSIX hosts. Candidate Git and

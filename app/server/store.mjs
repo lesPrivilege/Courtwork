@@ -29,6 +29,11 @@ const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
 const SCHEMA_VERSION = 17;
+// check.settled status: "unknown" is fenced in by the Host on restart for a
+// check.started event that never got a matching settlement (RD-009 durable
+// settlement rule); it is never produced by the runner itself.
+const CHECK_STATUSES = new Set(["completed", "cancelled", "timed_out", "failed", "unknown"]);
+const CHECK_OUTPUT_FIELD_LIMIT = 65536;
 const REPOSITORY_COMMAND_LIMIT = 512;
 const REPOSITORY_WRITE_EFFECT_LIMIT = 512;
 const REPOSITORY_RETAINED_BYTES_LIMIT = 64 * 1024 * 1024;
@@ -504,8 +509,10 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
       // A permission is bound to one tool call and to the exact bytes it
       // would write, so an approval cannot be replayed onto a later call.
       const repositoryWrite = question.payload?.tool === "repo_write";
+      const checkRun = question.payload?.tool === "check_run";
       exactKeys(question.payload, new Set(["toolCallId", "tool", "path", "bytes", "contentSha256", "preview",
-        ...(repositoryWrite ? ["candidateId", "candidateRevision", "candidateWriteRevision", "sourceBindingId", "sourceBindingRevision", "expectedSha256"] : [])]), "question.payload");
+        ...(repositoryWrite ? ["candidateId", "candidateRevision", "candidateWriteRevision", "sourceBindingId", "sourceBindingRevision", "expectedSha256"] : []),
+        ...(checkRun ? ["recipeId", "recipeVersion", "command", "argv", "cwd", "candidateId", "candidateWriteRevision", "timeoutMs", "outputLimitBytes", "env"] : [])]), "question.payload");
       id(question.payload.toolCallId, "question.payload.toolCallId");
       id(question.payload.tool, "question.payload.tool");
       text(question.payload.path, "question.payload.path", 4000);
@@ -521,9 +528,26 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
         nonNegativeInt(question.payload.sourceBindingRevision, "question.payload.sourceBindingRevision");
         assert(question.payload.sourceBindingRevision > 0, "question.payload.sourceBindingRevision must be positive");
         assert(question.payload.expectedSha256 === null || (typeof question.payload.expectedSha256 === "string" && /^[0-9a-f]{64}$/.test(question.payload.expectedSha256)), "question.payload.expectedSha256 is invalid");
+      } else if (question.payload.tool === "check_run") {
+        // The approval must show the exact recipe the Host will run: its id
+        // and pinned version, the fixed command/argv/cwd, the candidate this
+        // runs against, and the timeout/output limits -- the model supplied
+        // none of this, only the recipeId.
+        id(question.payload.recipeId, "question.payload.recipeId");
+        assert(Number.isSafeInteger(question.payload.recipeVersion) && question.payload.recipeVersion > 0, "question.payload.recipeVersion is invalid");
+        text(question.payload.command, "question.payload.command", 4000);
+        assert(Array.isArray(question.payload.argv) && question.payload.argv.length <= 64
+          && question.payload.argv.every(arg => typeof arg === "string" && arg.length <= 4000), "question.payload.argv is invalid");
+        text(question.payload.cwd, "question.payload.cwd", 200);
+        id(question.payload.candidateId, "question.payload.candidateId");
+        nonNegativeInt(question.payload.candidateWriteRevision, "question.payload.candidateWriteRevision");
+        assert(Number.isSafeInteger(question.payload.timeoutMs) && question.payload.timeoutMs > 0, "question.payload.timeoutMs is invalid");
+        assert(Number.isSafeInteger(question.payload.outputLimitBytes) && question.payload.outputLimitBytes > 0, "question.payload.outputLimitBytes is invalid");
+        text(question.payload.env, "question.payload.env", 40);
       } else {
-        for (const key of ["candidateId", "candidateRevision", "candidateWriteRevision", "sourceBindingId", "sourceBindingRevision", "expectedSha256"]) {
-          assert(!Object.hasOwn(question.payload, key), `question.payload.${key} is only valid for repo_write`);
+        for (const key of ["candidateId", "candidateRevision", "candidateWriteRevision", "sourceBindingId", "sourceBindingRevision", "expectedSha256",
+          "recipeId", "recipeVersion", "command", "argv", "cwd", "timeoutMs", "outputLimitBytes", "env"]) {
+          assert(!Object.hasOwn(question.payload, key), `question.payload.${key} is only valid for repo_write or check_run`);
         }
       }
     }
@@ -812,6 +836,31 @@ export class RuntimeStore {
             this.state = validateState(this.state);
             await this._persist(this.state);
             this.logger("store: unresolved repository writes were fenced as unknown; no write was replayed");
+          }
+          // A check.started with no matching check.settled (same runId+callId)
+          // means the Host stopped mid-check. The process outcome is genuinely
+          // unknown -- it is never replayed -- so fence it in as "unknown" the
+          // same way an interrupted repository write is fenced above.
+          let checksRecovered = false;
+          for (const run of this.state.runs) {
+            const runEvents = this.state.events.filter(event => event.runId === run.id);
+            const settledCallIds = new Set(runEvents.filter(event => event.type === "check.settled").map(event => event.data.callId));
+            for (const startEvent of runEvents.filter(event => event.type === "check.started")) {
+              if (settledCallIds.has(startEvent.data.callId)) continue;
+              const endedAt = now();
+              appendEventToState(this.state, { runId: run.id, sessionId: run.sessionId, type: "check.settled", data: {
+                callId: startEvent.data.callId, status: "unknown", exitCode: null, signal: null,
+                durationMs: Math.max(0, Date.parse(endedAt) - Date.parse(startEvent.data.startedAt)),
+                stdout: "", stderr: "", truncated: { stdout: false, stderr: false },
+                startedAt: startEvent.data.startedAt, endedAt, failure: { code: "check_unknown_after_restart" },
+              } });
+              checksRecovered = true;
+            }
+          }
+          if (checksRecovered) {
+            this.state = validateState(this.state);
+            await this._persist(this.state);
+            this.logger("store: unresolved check runs were fenced as unknown; no check was re-executed");
           }
         }
       }
@@ -1244,6 +1293,55 @@ export class RuntimeStore {
       });
       return appendEventToState(state, { runId, sessionId: run.sessionId, type: "repository.read", data: {
         bindingId, revision, operation, path: relativePath, resultSha256, sources: checkedSources,
+      } });
+    });
+  }
+
+  /**
+   * check.started/check.settled record a Run's check_run tool call durably,
+   * independent of Pi's own tool.result path (RD-009): a cancel closes Run
+   * admission before a late tool.* event would otherwise arrive, so the Host
+   * must persist the process outcome itself. recordCheckStarted refuses to
+   * start a new process for a Run that is already closing; recordCheckSettled
+   * has no such gate; it must succeed even after admission has closed, so the
+   * settlement for an in-flight process is never lost.
+   */
+  async recordCheckStarted(runId, { callId, recipeId, recipeVersion, candidateId, candidateWriteRevision, startedAt }) {
+    return this._mutate(state => {
+      const run = state.runs.find(item => item.id === runId);
+      if (!run) throw new Error("run not found");
+      if (!run.admissionOpen || !ACTIVE_STATUSES.has(run.status)) { const error = new Error("run admission is closed"); error.code = "RUN_CLOSED"; throw error; }
+      id(callId, "check.started callId");
+      id(recipeId, "check.started recipeId");
+      assert(Number.isSafeInteger(recipeVersion) && recipeVersion > 0, "check.started recipeVersion is invalid");
+      id(candidateId, "check.started candidateId");
+      nonNegativeInt(candidateWriteRevision, "check.started candidateWriteRevision");
+      timestamp(startedAt, "check.started startedAt");
+      return appendEventToState(state, { runId, sessionId: run.sessionId, type: "check.started", data: {
+        callId, recipeId, recipeVersion, candidateId, candidateWriteRevision, startedAt,
+      } });
+    });
+  }
+
+  async recordCheckSettled(runId, { callId, status, exitCode, signal, durationMs, stdout, stderr, truncated, startedAt, endedAt, failure = null }) {
+    return this._mutate(state => {
+      const run = state.runs.find(item => item.id === runId);
+      if (!run) throw new Error("run not found");
+      id(callId, "check.settled callId");
+      assert(CHECK_STATUSES.has(status), "check.settled status is invalid");
+      assert(exitCode === null || Number.isInteger(exitCode), "check.settled exitCode is invalid");
+      assert(signal === null || (typeof signal === "string" && signal.length > 0 && signal.length <= 40), "check.settled signal is invalid");
+      nonNegativeInt(durationMs, "check.settled durationMs");
+      text(stdout, "check.settled stdout", CHECK_OUTPUT_FIELD_LIMIT);
+      text(stderr, "check.settled stderr", CHECK_OUTPUT_FIELD_LIMIT);
+      assert(isRecord(truncated) && typeof truncated.stdout === "boolean" && typeof truncated.stderr === "boolean"
+        && Object.keys(truncated).length === 2, "check.settled truncated is invalid");
+      timestamp(startedAt, "check.settled startedAt");
+      timestamp(endedAt, "check.settled endedAt");
+      if (failure !== null) { exactKeys(failure, new Set(["code"]), "check.settled failure"); id(failure.code, "check.settled failure.code"); }
+      return appendEventToState(state, { runId, sessionId: run.sessionId, type: "check.settled", data: {
+        callId, status, exitCode, signal, durationMs, stdout, stderr,
+        truncated: { stdout: truncated.stdout, stderr: truncated.stderr }, startedAt, endedAt, failure,
       } });
     });
   }
