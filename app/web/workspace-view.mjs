@@ -73,6 +73,7 @@ export function renderSessionOverview(
     onRun,
     onHistory,
     onPermissions,
+    onRepository,
   },
 ) {
   const header = el(
@@ -94,8 +95,13 @@ export function renderSessionOverview(
     header,
     group(
       "Workspace",
-      ...(session.repositoryBinding?.status === "active"
-        ? [el("p", { className: "context-meta" }, el("code", { text: session.repositoryBinding.rootPath }), el("span", { text: " · Read only" }))]
+      // RD-006 · once work has started the connected folder is reached from
+      // here instead of the composer strip; the action still opens the same card.
+      ...(onRepository
+        ? [row("folder", session.repositoryBinding?.status === "active" ? session.repositoryBinding.rootPath.slice(session.repositoryBinding.rootPath.replace(/\/+$/, "").lastIndexOf("/") + 1) || session.repositoryBinding.rootPath : "Choose workspace", onRepository),
+           ...(session.repositoryBinding?.status === "active"
+             ? [el("p", { className: "context-meta" }, el("code", { text: session.repositoryBinding.rootPath }), el("span", { text: " · Read only" }))]
+             : [])]
         : []),
       row("paperclip", "Chat files", onMaterials),
       row(

@@ -59,16 +59,22 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 
 一次动作与一条策略不共用一个词，也不共用一个按钮：`Approve this write` 只批准这一次写入，`Ask before editing` 是这个 Chat 往后的模式。
 
-### 3.2b 外部仓库（2026-09-16 · RD-006 GUI）
+### 3.2b Workspace 与 composer 上下文条（2026-09-16 · RD-006 GUI）
 
 | 用户词 | 它是什么 | 不用 |
 |---|---|---|
-| Repository | 一个 Chat 显式连接的外部目录，供 `repo_list/read/grep` 只读使用；与 Project（组织归属）、Workspace（Home 选择器里的 Project 名、或托管成果目录）分开 | Folder（那是 Plugin/Skill 选择时的磁盘词）· Mount · Source（作对象名时）· Workspace |
-| Connect repository · Disconnect | 连接与撤权两个动作；标签在未连接时是动作，已连接后可见词换成目录名，可访问名带完整路径 | Bind · Attach · Revoke（用户可见时）· Remove · Open folder |
-| Read only | 已连接目录的范围陈述；不是 File access 的三值之一，两者同屏各说各的对象 | Read-only access · View only |
+| Workspace | §3.1 原义：一个 Chat 显式连接的外部目录，供 `repo_list/read/grep` 只读使用。它是 composer 上方上下文条的第一枚 chip、同名卡片的标题；与 Project（组织归属）、Chat files（托管成果）分开 | Repository（作对象名时）· Folder（作对象名时）· Mount · Source |
+| Choose workspace | 未连接时 chip 的动作词；连接后可见词换成目录名，可访问名带完整路径与 `Read only` | Connect repository · Select workspace · Open project |
+| Open folder… | 卡片主动作：Host 打开原生选目录对话框。Home 上选中即成为草稿，发送时先绑定再开始 Run；Chat 里选中即提交绑定命令。对话框不可用时退回路径输入 | Choose folder · Browse · Upload |
+| Connected before | 卡片里由 Host 回执得出的已连接过目录清单；点一行就是连接（或写入草稿），不是自动继承。找不到的目录保留行并写 `Not found` | Recent（作标题时）· History · Favorites |
+| Enter a path instead | 路径输入的 disclosure 标题；其内动作词是 `Connect` | Advanced · Manual |
+| Disconnect · Remove | Disconnect 撤销真实绑定；Remove 只清除 Home 草稿里的目录 | Revoke（用户可见时）· Clear · Delete |
+| Local | 上下文条的事实 chip：在这台电脑上运行；不是权限等级 | Full access · Local machine · Sandbox |
+| Branch · main | 上下文条的事实 chip，只在 Host 读到 Git 分支时出现；未知不画 main，游离 HEAD 不画分支 | main（无对象词时）· Tree · Worktree |
+| Project | Home composer 里选择组织归属的控件，选中后显示 Project 名；2026-09-14 曾按名词收敛写作 Workspace，本次因 Workspace 回归 §3.1 原义而改回 | Workspace（作 Project 选择器时）· Folder |
 | Private candidate | Host 从明确 commit 新建的可写副本，`repo_write` 只写它；**词已冻结，控件随 02 片交付** | Worktree · Branch · Draft copy · Sandbox |
 
-`Available after this run ends.` 沿 File access 卡原句，用于连接/断开在活动 Run 内不可用；在途词沿 §3.4b 的 `Sending…`。
+上下文条只在 Home 与尚无 Run 的 Chat 出现；工作开始后它不再占用 composer，Workspace 事实与入口移到 `This chat` 概览的同名行。`Available after this run ends.` 沿 File access 卡原句；在途词沿 §3.4b 的 `Sending…`；等待原生对话框时写 `Choose a folder in the dialog that opened.`。Work 面板里"Browse workspace / Workspace · N files"仍指托管成果目录，属 10 片的文字收敛项。
 
 ### 3.3 模型与接入
 

@@ -178,7 +178,7 @@ export function createCoordinationView({ request }) {
 
       source.replaceChildren(el('option', { text: 'Choose working conversation', attrs: { value: '' } }),
         ...sessions.map((s) => el('option', {
-          text: `${s.title ?? UNTITLED} · ${s.scope.kind === 'global' ? 'Attention' : s.scope.kind === 'unassigned' ? 'No workspace' : 'Project'} · ${s.id.slice(0, 8)}`,
+          text: `${s.title ?? UNTITLED} · ${s.scope.kind === 'global' ? 'Attention' : s.scope.kind === 'unassigned' ? 'No project' : 'Project'} · ${s.id.slice(0, 8)}`,
           attrs: { value: s.id },
         })));
       if (sessions.some((s) => s.id === sourceId)) source.value = sourceId;

@@ -1522,6 +1522,42 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
 .composer-form:focus-within {
   border-color: var(--ink);
 }
+/* RD-006 · context strip: where this chat works. Chips share the composer's
+ * meta type size; the Workspace chip is a control, the others are facts. */
+.composer-context-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: -4px 0 8px;
+}
+.context-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: max(var(--radius-small), calc(var(--radius-container) - 12px));
+  background: transparent;
+  color: var(--muted-strong);
+  font: inherit;
+  font-size: var(--text-meta);
+  line-height: 1.45;
+}
+button.context-chip { cursor: pointer; }
+button.context-chip:hover { background: var(--hover); color: var(--ink); }
+button.context-chip:active { background: var(--pressed); }
+button.context-chip:disabled { cursor: default; opacity: 0.6; }
+.context-chip .button-label {
+  min-width: 0;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.context-chip-fact { cursor: default; }
 /* WK-128 ① · 融入型文本域：它没有自己的边框与底色，此前却从通用的
    `input, textarea, select` 那里继承到一个 `control.default` 的 8px —— 一个不属于
    它语境的角色，眼下不可见，材质或密度一变就会显形。按公理派生：外壳 16、内缩 12。 */
@@ -1570,8 +1606,7 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   min-width: 0;
 }
 .composer-model,
-.permission-mode,
-.composer-repository {
+.permission-mode {
   font-size: var(--text-meta);
   line-height: 1.45;
   max-width: 170px;
@@ -1580,8 +1615,7 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   white-space: nowrap;
   padding: 4px 6px;
 }
-.permission-mode,
-.composer-repository {
+.permission-mode {
   color: var(--muted-strong);
 }
 /* Actionable context stays left; model/effort and execution controls stay right. */
@@ -1602,16 +1636,8 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   white-space: nowrap;
 }
 .home-composer-context .home-choice-select:hover { background-color: var(--hover); }
-.permission-mode,
-.composer-repository { min-width: 0; }
-.composer-repository { display: inline-flex; align-items: center; gap: 4px; }
+.permission-mode { min-width: 0; }
 .permission-mode .button-label {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.composer-repository .button-label {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -2763,8 +2789,7 @@ select {
   .composer-model {
     max-width: min(130px, 100%);
   }
-  .permission-mode,
-  .composer-repository {
+  .permission-mode {
     max-width: min(160px, 100%);
     min-height: 44px;
     padding: 4px 6px;
@@ -2949,6 +2974,24 @@ select {
 .context-row:active {
   background: var(--pressed);
 }
+/* Repository card · folders connected before: name carries the row, the path
+ * stays readable but secondary; an absent folder keeps its row as a fact. */
+.repository-recent { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.repository-recent-row { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.repository-recent-row:disabled { opacity: 0.6; cursor: default; }
+.repository-recent-name { color: var(--ink); }
+.repository-recent-path {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+  text-align: left;
+}
+.repository-path-details > summary { cursor: pointer; font-size: var(--text-meta); color: var(--muted-strong); padding: 6px 4px; }
+.repository-path-details[open] > summary { color: var(--ink); }
 .context-row > .ui-icon:last-child:not(:first-child) {
   margin-left: auto;
   width: 16px;
@@ -3340,7 +3383,7 @@ dialog[open]::backdrop {
 .status-badge[aria-expanded="true"],
 .composer-model[aria-expanded="true"],
 .permission-mode[aria-expanded="true"],
-.composer-repository[aria-expanded="true"] {
+.context-chip[aria-expanded="true"] {
   background: var(--selected);
   color: var(--ink);
 }

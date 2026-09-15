@@ -87,7 +87,7 @@ export function toStatTiles(summary, { scope, observedAt, load }) {
 }
 
 const projectName = (projects, id, scope) =>
-  id === null ? (scope === "unassigned" ? "No workspace" : scope === "global" ? "Global Attention" : null) : projects.find((project) => project.id === id)?.name ?? null;
+  id === null ? (scope === "unassigned" ? "No project" : scope === "global" ? "Global Attention" : null) : projects.find((project) => project.id === id)?.name ?? null;
 
 /**
  * work-summary.sessionCandidates → the lower band's WorkCards. The row state and

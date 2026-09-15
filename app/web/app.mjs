@@ -57,7 +57,7 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
-import { createRepositoryCard, activeRepositoryBinding, repositoryName } from "./repository-card.mjs";
+import { createWorkspaceCard, activeRepositoryBinding, repositoryName } from "./workspace-card.mjs";
 import {
   renderRun,
   createFileView,
@@ -339,9 +339,10 @@ function storeHomeDraft() {
       attachments: homeAttachments?.snapshot() || [],
       projectId: state.homeProjectId,
       permissionMode: state.homePermissionMode,
+      repositoryPath: state.homeRepositoryPath,
       start: start ? {
         projectId: start.projectId, commandId: start.commandId, sessionId: start.sessionId || null,
-        session: start.session || null,
+        session: start.session || null, bindRequestId: start.bindRequestId || null,
         unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),
         error: start.error || "",
       } : null,
@@ -355,6 +356,7 @@ function restoreHomeDraft() {
     state.homeDraft = saved.draft.slice(0, 100000);
     homeAttachments?.restore(saved.attachments);
     state.homeProjectId = typeof saved.projectId === "string" ? saved.projectId : null;
+    state.homeRepositoryPath = typeof saved.repositoryPath === "string" && saved.repositoryPath ? saved.repositoryPath : null;
     if (Object.hasOwn(permissionLabels, saved.permissionMode)) state.homePermissionMode = saved.permissionMode;
     if (saved.start && (saved.start.projectId === null || typeof saved.start.projectId === "string") && typeof saved.start.commandId === "string") {
       state.homeStart = { ...saved.start, pending: false };
@@ -3357,7 +3359,6 @@ function renderChatHeader() {
   $("materials-button").hidden = home || !session;
   $("materials-button").disabled = home && Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
   $("permission-settings-button").hidden = home || !session;
-  $("repository-button").hidden = home || !session;
   const body = $("conversation-body"),
     composer = $("composer-area"),
     band = $("home-top-band"),
@@ -3420,19 +3421,7 @@ function renderChatHeader() {
   );
   permission.setAttribute("aria-label", `File access: ${permissionSentence}`);
   permission.dataset.tooltip = `File access: ${permissionSentence}`;
-  /* RD-006 · the connected directory is a fact of this chat, beside file
-   * access: visible word = directory name, accessible name and tooltip carry
-   * the full Host path. Unbound chats show the action, not an empty value. */
-  const repository = $("repository-button"), binding = activeRepositoryBinding(session);
-  const repositoryWord = binding ? repositoryName(binding.rootPath) : "Connect repository";
-  repository.replaceChildren(
-    semanticIcon("repository.object", { size: 16 }),
-    element("span", { className: "button-label", text: repositoryWord }),
-    icon("chevron-down", { size: 16 }),
-  );
-  repository.setAttribute("aria-label", binding ? `Repository: ${binding.rootPath} · Read only` : "Connect repository");
-  repository.dataset.tooltip = binding ? `${binding.rootPath} · Read only` : "Connect a directory for read-only access";
-  repository.classList.toggle("composer-repository-bound", Boolean(binding));
+  renderContextStrip(session, home);
   $("home-button").setAttribute(
     "aria-current",
     !settingsOpen && !state.attentionOpen && state.view === "home" ? "page" : "false",
@@ -5157,9 +5146,9 @@ function renderHomeComposerContext() {
   const project = $("home-project-button");
   const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId);
   const chosen = state.projects.find(p => p.id === homeProjectId());
-  project.textContent = chosen?.name || "Workspace";
-  project.title = chosen?.name || "Workspace";
-  project.setAttribute("aria-label", chosen ? `Workspace: ${chosen.name}` : "Workspace");
+  project.textContent = chosen?.name || "Project";
+  project.title = chosen?.name || "Project";
+  project.setAttribute("aria-label", chosen ? `Project: ${chosen.name}` : "Project");
   project.disabled = locked;
   homeAttachments?.render();
   $("home-permission-input").value = state.homePermissionMode;
@@ -5206,6 +5195,19 @@ async function submitHomeRun() {
       storeHomeDraft();
     }
     const session = operation.session;
+    // A folder chosen on Home is an intent until this exact command binds it;
+    // the bind keeps one requestId per chat start so a retry replays, never
+    // double-binds. A failed bind keeps the chat and the instruction.
+    if (state.homeRepositoryPath && session.repositoryBinding?.status !== "active") {
+      operation.bindRequestId ||= crypto.randomUUID();
+      storeHomeDraft();
+      await request(`/sessions/${encodeURIComponent(session.id)}/repository-binding`, { method: "PUT", body: {
+        operation: "bind", requestId: operation.bindRequestId, expectedRevision: session.repositoryBindingRevision ?? 0, rootPath: state.homeRepositoryPath,
+      } });
+      const detail = await request(`/sessions/${encodeURIComponent(session.id)}`);
+      operation.session = detail.session;
+      storeHomeDraft();
+    }
     await homeAttachments.flush(request, session.id);
     const items = state.sessionsByProject.get(operation.projectId) || [];
     state.sessionsByProject.set(operation.projectId, [...items.filter((item) => item.id !== session.id), session]);
@@ -5229,6 +5231,7 @@ async function submitHomeRun() {
     }
     state.homeDraft = "";
     state.homeStart = null;
+    state.homeRepositoryPath = null;
     storeHomeDraft();
     guardHandoffFocus(ticket, {
       isTargetActive: () => currentSession()?.id === session.id,
@@ -5570,35 +5573,80 @@ function openConnectionCard(anchor) {
   popover.showPopover();
   header.querySelector("button").focus();
 }
-const repositoryCard = createRepositoryCard({
+const workspaceCard = createWorkspaceCard({
   request,
   onClose: () => {
-    $("repository-popover").hidePopover();
-    state.repositoryCardAnchor?.focus?.();
+    $("workspace-popover").hidePopover();
+    state.workspaceCardAnchor?.focus?.();
   },
   onSession: async (id) => {
     // The bind/revoke receipt is not a Session; read the Session back so the
-    // composer and card show what the Host now holds, not what was requested.
+    // strip and card show what the Host now holds, not what was requested.
     const detail = await request(`/sessions/${encodeURIComponent(id)}`);
     applySessionUpdate(detail.session, id);
-    const popover = $("repository-popover");
-    if (popover.matches(":popover-open")) renderRepositoryCard();
+    const popover = $("workspace-popover");
+    if (popover.matches(":popover-open")) renderWorkspaceCard();
   },
 });
-function renderRepositoryCard() {
-  return repositoryCard.render($("repository-popover"), { session: currentSession(), active: Boolean(currentRun()) });
+function homeWorkspaceDraft() {
+  return { path: state.homeRepositoryPath, onChange: (path) => { state.homeRepositoryPath = path || null; storeHomeDraft(); renderChatHeader(); } };
 }
-function openRepositoryCard(anchor) {
-  const popover = $("repository-popover");
+function renderWorkspaceCard() {
+  const home = state.view === "home" && !currentSession();
+  return workspaceCard.render($("workspace-popover"), { session: currentSession(), active: Boolean(currentRun()), draft: home ? homeWorkspaceDraft() : null });
+}
+function openWorkspaceCard(anchor) {
+  const popover = $("workspace-popover");
   if (popover.matches(":popover-open")) {
     popover.hidePopover();
     return;
   }
-  state.repositoryCardAnchor = anchor;
-  const header = renderRepositoryCard();
+  state.workspaceCardAnchor = anchor;
+  const header = renderWorkspaceCard();
   popover.showPopover();
-  const field = popover.querySelector('[data-repository-field="path"], [data-repository-field="disconnect"]');
+  const field = popover.querySelector('[data-repository-field="open"], [data-repository-field="path"], [data-repository-field="disconnect"], [data-repository-field="remove"]');
   (field || header.querySelector("button")).focus();
+}
+/* RD-006 · the strip above the composer says where this chat works: the
+ * connected folder (Workspace), the execution location and the Git branch
+ * when the Host knows it. It is shown on Home and in a chat that has no run
+ * yet; once work starts the facts move to the chat overview and the composer
+ * keeps its space. "Local" is a fact, not a permission; an unknown branch is
+ * not drawn as main. */
+const workspaceInspections = new Map();
+function inspectWorkspace(rootPath) {
+  if (!rootPath || workspaceInspections.has(rootPath)) return;
+  workspaceInspections.set(rootPath, null);
+  request(`/repositories/inspect?rootPath=${encodeURIComponent(rootPath)}`)
+    .then((result) => { workspaceInspections.set(rootPath, result || null); renderChatHeader(); })
+    .catch(() => { workspaceInspections.set(rootPath, { git: null }); });
+}
+function renderContextStrip(session, home) {
+  const strip = $("composer-context-strip");
+  const visible = home || (Boolean(session) && !state.runs.length && !state.attentionOpen);
+  strip.hidden = !visible;
+  if (!visible) { strip.replaceChildren(); return; }
+  const rootPath = home ? state.homeRepositoryPath : activeRepositoryBinding(session)?.rootPath;
+  const locked = home && Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
+  const chip = element("button", { className: "context-chip", attrs: { type: "button", id: "workspace-chip", "aria-haspopup": "dialog", "aria-controls": "workspace-popover", "aria-expanded": String($("workspace-popover").matches(":popover-open") && state.workspaceCardAnchor?.id === "workspace-chip") } },
+    semanticIcon("workspace.object", { size: 16 }),
+    element("span", { className: "button-label", text: rootPath ? repositoryName(rootPath) : "Choose workspace" }),
+  );
+  chip.disabled = locked;
+  chip.setAttribute("aria-label", rootPath ? `Workspace: ${rootPath} · Read only` : "Choose workspace");
+  chip.dataset.tooltip = rootPath ? `${rootPath} · Read only` : "Connect a folder for read-only access";
+  chip.addEventListener("click", (event) => openWorkspaceCard(event.currentTarget));
+  // "Local" is the visible word and the accessible name; the tooltip only
+  // adds the sentence (IC-3 secondary text), it does not rename the fact.
+  const local = element("span", { className: "context-chip context-chip-fact", text: "Local" });
+  local.dataset.tooltip = "Runs on this computer";
+  const children = [chip, local];
+  if (rootPath) {
+    inspectWorkspace(rootPath);
+    const branch = workspaceInspections.get(rootPath)?.git?.branch;
+    if (branch) children.push(element("span", { className: "context-chip context-chip-fact", text: `Branch · ${branch}`, attrs: { "aria-label": `Git branch: ${branch}` } }));
+  }
+  strip.replaceChildren(...children);
 }
 function applySessionUpdate(session, id) {
   if (session?.id !== id) return;
@@ -5637,6 +5685,7 @@ function openContextSummary() {
     onRun: (id) => go(() => openRun(id))(),
     onHistory: go(openRunHistory),
     onPermissions: go(() => openSettings("permissions")),
+    onRepository: go(() => openWorkspaceCard($("show-run-button"))),
   });
   popover.showPopover();
   header.querySelector("button").focus();
@@ -6524,37 +6573,16 @@ function wireEvents() {
   $("show-run-button").addEventListener("click", openContextSummary);
   $("model-settings-button").addEventListener("click", () => void modelPicker.open());
   $("permission-settings-button").addEventListener("click", (event) => openConnectionCard(event.currentTarget));
-  $("repository-button").addEventListener("click", (event) => openRepositoryCard(event.currentTarget));
   {
-    const popover = $("repository-popover");
+    const popover = $("workspace-popover");
     let stopFollowing = null;
     popover.addEventListener("toggle", (event) => {
       const open = event.newState === "open";
       stopFollowing?.();
       stopFollowing = null;
-      const anchor = state.repositoryCardAnchor;
+      const anchor = state.workspaceCardAnchor;
       if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start" });
-      $("repository-button").setAttribute("aria-expanded", String(open && anchor === $("repository-button")));
-    });
-  }
-  {
-    // Keep the card beside whichever control opened it; mark that control expanded.
-    const popover = $("connection-popover");
-    let stopFollowing = null;
-    popover.addEventListener("toggle", (event) => {
-      const open = event.newState === "open";
-      stopFollowing?.();
-      stopFollowing = null;
-      const anchor = state.connectionCardAnchor;
-      if (open && anchor?.isConnected)
-        stopFollowing = anchorPopover(anchor, popover, {
-          placement: "top-start",
-        });
-      for (const id of ["permission-settings-button"])
-        $(id).setAttribute(
-          "aria-expanded",
-          String(open && anchor === $(id)),
-        );
+      $("workspace-chip")?.setAttribute("aria-expanded", String(open && anchor === $("workspace-chip")));
     });
   }
   $("materials-button").addEventListener("click", () => {
@@ -6810,7 +6838,7 @@ function wireEvents() {
   workspaceButton.addEventListener("click", () => {
     if (workspaceButton.disabled) return;
     const choices = $("home-project-choices"); choices.replaceChildren();
-    for (const project of [{id:null,name:"No workspace"}, ...state.projects.filter(p=>!p.preview)]) {
+    for (const project of [{id:null,name:"No project"}, ...state.projects.filter(p=>!p.preview)]) {
       const button = element("button", {className:"quiet-button workspace-option", text:project.name,
         attrs:{type:"button","aria-pressed":String(project.id===homeProjectId())}});
       if (project.id === homeProjectId()) button.append(el("span", { className: "workspace-choice-state", text: "Selected", attrs: { "aria-hidden": "true" } }));

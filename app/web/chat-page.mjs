@@ -27,7 +27,7 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     });
     const title = el("span", { className: "chat-row-title", text: session.title || "Untitled chat" });
     const meta = el("span", { className: "chat-row-meta" });
-    meta.append(el("span", { text: project?.name || "No workspace" }));
+    meta.append(el("span", { text: project?.name || "No project" }));
     if (sessionMode(session) === "work") meta.append(el("span", { className: "session-mode-tag", text: "Work" }));
     const when = relativeUpdated(session.recordedActivityAt || session.updatedAt || session.createdAt);
     if (when) meta.append(el("span", { text: when }));

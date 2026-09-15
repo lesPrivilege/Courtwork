@@ -89,5 +89,5 @@ test('schema13 upgrades byte-backed identities and configuration without resetti
 
 test('summary labels use explicit Session scope, never null project as Attention authority',()=>{
  const summary={sessionCandidates:{items:[{sessionId:'a',title:'a',projectId:null,scope:'unassigned'},{sessionId:'b',title:'b',projectId:null,scope:'global'},{sessionId:'c',title:'c',projectId:null}]}};
- assert.deepEqual(toWorkCards(summary,[]).items.map(i=>i.projectName),['No workspace','Global Attention',null]);
+ assert.deepEqual(toWorkCards(summary,[]).items.map(i=>i.projectName),['No project','Global Attention',null]);
 });

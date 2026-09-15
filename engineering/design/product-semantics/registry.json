@@ -298,62 +298,32 @@
     },
     {
       "semanticKey": "workspace.object",
-      "meaning": "The folder binding and files of a session.",
-      "ownerRef": "app/docs/api-v6.md",
-      "words": {
-        "en": "Workspace"
-      },
-      "accessibleName": {
-        "en": "Workspace"
-      },
-      "symbolClass": "Object",
-      "admissionClass": "agent-common",
-      "allowedSurfaces": [
-        "app",
-        "pages"
-      ],
-      "glyphPolicy": "multi-purpose",
-      "glyphRef": "folder",
-      "colourRole": "inherited",
-      "stateVariants": {},
-      "capabilityRef": null,
-      "interactionRole": "identity",
-      "tooltipRule": "accessible-name-when-icon-only",
-      "representations": {
-        "app": "glyph",
-        "pages": "text"
-      },
-      "reviewStatus": "mapped",
-      "ownerAnchor": "## Workspace"
-    },
-    {
-      "symbolClass": "Object",
-      "admissionClass": "agent-common",
-      "allowedSurfaces": [
-        "app",
-        "pages"
-      ],
-      "glyphPolicy": "multi-purpose",
-      "glyphRef": "folder",
-      "colourRole": "inherited",
-      "stateVariants": {},
-      "capabilityRef": null,
-      "interactionRole": "identity",
-      "tooltipRule": "accessible-name-when-icon-only",
-      "representations": {
-        "app": "glyph",
-        "pages": "text"
-      },
-      "reviewStatus": "mapped",
-      "semanticKey": "repository.object",
-      "meaning": "One external directory a chat connected for read-only source tools; separate from the project and the managed workspace.",
+      "meaning": "The one external folder a chat connected for read-only source tools; separate from the Project and from the managed session files.",
       "ownerRef": "app/docs/repository-binding.md",
       "words": {
-        "en": "Repository"
+        "en": "Workspace"
       },
       "accessibleName": {
-        "en": "Repository: {name}"
+        "en": "Workspace"
       },
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "folder",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped",
       "ownerAnchor": "# Session repository binding and private candidate tools"
     },
     {
@@ -375,14 +345,14 @@
         "pages": "text"
       },
       "reviewStatus": "mapped",
-      "semanticKey": "repository.connect",
-      "meaning": "Bind one absolute Host directory to this chat for read-only source tools; takes effect on the next run.",
+      "semanticKey": "workspace.connect",
+      "meaning": "Bind one absolute Host folder to this chat for read-only source tools; chosen through the Host folder dialog, a folder connected before, or a typed path; takes effect on the next run.",
       "ownerRef": "app/docs/repository-binding.md",
       "words": {
-        "en": "Connect repository"
+        "en": "Choose workspace"
       },
       "accessibleName": {
-        "en": "Connect repository"
+        "en": "Choose workspace"
       },
       "ownerAnchor": "`PUT /sessions/:sessionId/repository-binding`"
     },
@@ -405,14 +375,14 @@
         "pages": "text"
       },
       "reviewStatus": "mapped",
-      "semanticKey": "repository.disconnect",
+      "semanticKey": "workspace.disconnect",
       "meaning": "Revoke the chat's repository binding; further reads fail and active runs are asked to stop. Nothing is deleted and disclosed text is not withdrawn.",
       "ownerRef": "app/docs/repository-binding.md",
       "words": {
         "en": "Disconnect"
       },
       "accessibleName": {
-        "en": "Disconnect repository"
+        "en": "Disconnect workspace"
       },
       "ownerAnchor": "Revocation"
     },
