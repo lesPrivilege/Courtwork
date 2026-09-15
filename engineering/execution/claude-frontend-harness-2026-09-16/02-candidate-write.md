@@ -39,7 +39,7 @@ Independent review: 无
 | `node --test tests/candidate-ui.test.mjs tests/workspace-card.test.mjs tests/thread-projection.test.mjs` | 16/16 |
 | Host 路由定向（Sonnet） | `node --test tests/repository-candidate.test.mjs tests/repository-binding.test.mjs` 34/34（含 diff/effects/去敏/409/401） |
 | 浏览器目验（Local test，合成仓库） | 绑定的 Chat → Workspace 卡 Start private candidate → `from 7c8dd3fc8709 · Writes 0` → `/fixture script` 发起 `repo_write NOTES.md` → 批准卡 `Approve this file write? / NOTES.md / Private candidate · new file / 16 B` → Approve → Execution 1 successful tool action → 重开卡片 Writes 1 → This chat 概览 Review changes → 对话框 `Changes in the private candidate / From commit 7c8dd3fc8709 · 1 write / NOTES.md · added · 16 B / 1 added, 0 removed / +fixed pagination / Patch <sha256>` |
-| `npm test` | __FULL__ |
+| `npm test` | 1093/1093（Node 25.9，并发 4） |
 | lint（copy/interaction/colors/semantics）与 `git diff --check` | 通过 |
 
 ## 用户中途指令处置

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-16 · Claude 施工单 02：私有 candidate 写入的 GUI
+
+[02 记录](execution/claude-frontend-harness-2026-09-16/02-candidate-write.md)：Workspace 卡加 Edits 区（从目录当前 commit 创建 Private candidate、Writes 计数、Stop edits 撤销不删文件）；`repo_write` 批准卡沿 `ws_write` 同一解剖加一行范围（new file / 替换的精确前态 hash）；人从 Host 直接打开候选 diff（新增 `GET …/repository-candidate/diff` 与 `…/effects`，HTTP 投影去掉 contentRef）。01 期间按用户指令追加：窄屏 composer 带改 chrome 玻璃、Home 模块带页脚只留披露箭头、Workspace 页签略窄于 composer。定向 34/34 与 16/16，`npm test` 1093/1093（Node 25.9，并发 4）；作者浏览器目验一条创建→批准写入→Writes 1→Review changes 路径。写入结算的 GUI 呈现与冲突反例 GUI 路径未做；无非作者复核、真实 provider，未 push/部署；03（Host 检查 recipe）未开始。
+
 ## 2026-09-16 · Claude 施工单 00–01：RD-006 在途树恢复与 Workspace 连接 GUI
 
 [施工单](execution/claude-frontend-harness-2026-09-16/README.md)入账（`3867f84`）。[00](execution/claude-frontend-harness-2026-09-16/00-intake.md)：`/private/tmp` 里的 RD-006 在途树已消失，按原作者 Codex 会话日志重放 236 次补丁重建，app 侧逐文件行数与 2026-09-15 审计相同，以 `ab4b93d` 保全进施工树；共享 grammar 与 owner 映射登记。[01](execution/claude-frontend-harness-2026-09-16/01-workspace-binding.md)：修复聚合读取绕过逐路径 deny（`c8ac6fb`）；按用户中途指令做成类 Codex 形态——composer 上方实色 Workspace 页签（目录 · Local · Branch）、Open folder 原生对话框、Connected before、开工后只留 composer；Host 加三条只读辅助接口；Workspace 回归"真实目录绑定"原义，Home 选择器改回 Project。定向 43/43 与 25/25，smoke 与全部 lint/链接检查通过，`npm test` 1086 项中 1085 通过；唯一失败为并发下 `review-core-client-lifecycle` 的 Core bridge ready 超时，与 00 片恢复树同一抖动，单独重跑 13/13，未改任何 Core 代码。作者浏览器目验一条 Home→绑定→`repo_read`→撤权→刷新路径；无非作者复核、无真实 provider、未 push/部署，02 片（`repo_write` 批准卡与 candidate 面）未开始。施工树 `Projects/.worktrees/courtwork-claude-harness-20260916`。

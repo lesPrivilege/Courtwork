@@ -74,3 +74,7 @@ PR验收见[施工文稿](deferred-workspace-binding-2026-09-12/pr-plan.md)。�
 - 新增 Host 只读辅助接口：`POST /host/choose-directory`、`GET /repositories/recent`、`GET /repositories/inspect`；均不绑定，绑定仍是显式 `PUT .../repository-binding`。
 
 未做与边界：Linux 原生对话框未实现（fail closed 到路径输入）；同 device mounted descendants 的范围合同不变；`repo_write` 的 GUI 批准卡与 candidate 面属 02 片；Work 面板的"Browse workspace / Workspace · N files"仍指托管成果目录，属 10 片文字收敛。
+
+### 2026-09-16 · 02 片：私有 candidate 的 GUI 与人的 diff 入口
+
+沿上节 Workspace 卡片加 Edits 区：从目录当前 commit（`GET /repositories/inspect` 的 live HEAD，不猜 main）创建 Private candidate，显示 `from <commit>` 与 Writes 计数，Stop edits 撤销而不删除文件；活动 Run 中命令禁用，命令后读回 Session。`repo_write` 的批准卡与 `ws_write` 同一解剖，只加一行范围（Private candidate · new file / replaces the file whose hash starts …），批准仍绑定 toolCallId 与内容 hash，Host 在批准后重验 candidate/revision/前态（既有实现）。人看 diff 不经模型：新增 `GET /sessions/:id/repository-candidate/diff`（与 `repo_diff` 同一份有界 Host patch，因目录属于用户本人而不做逐文件策略排除）与 `GET /sessions/:id/repository-candidate/effects`（写入回执，去掉 contentRef）；Session/Run 公共投影改为只带 candidate 摘要，Host 路径与文件系统身份不再随 `GET /sessions/:id` 出站。GUI 用 diff-view 按文件分节渲染 patch。记录见[02 记录](../execution/claude-frontend-harness-2026-09-16/02-candidate-write.md)。写入结算的 GUI 呈现、冲突反例的 GUI 路径与 Core 接受分列仍未做。
