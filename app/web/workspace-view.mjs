@@ -94,6 +94,9 @@ export function renderSessionOverview(
     header,
     group(
       "Workspace",
+      ...(session.repositoryBinding?.status === "active"
+        ? [el("p", { className: "context-meta" }, el("code", { text: session.repositoryBinding.rootPath }), el("span", { text: " · Read only" }))]
+        : []),
       row("paperclip", "Chat files", onMaterials),
       row(
         "panel-right",

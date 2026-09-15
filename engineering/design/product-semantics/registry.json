@@ -327,6 +327,96 @@
       "ownerAnchor": "## Workspace"
     },
     {
+      "symbolClass": "Object",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "folder",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped",
+      "semanticKey": "repository.object",
+      "meaning": "One external directory a chat connected for read-only source tools; separate from the project and the managed workspace.",
+      "ownerRef": "app/docs/repository-binding.md",
+      "words": {
+        "en": "Repository"
+      },
+      "accessibleName": {
+        "en": "Repository: {name}"
+      },
+      "ownerAnchor": "# Session repository binding and private candidate tools"
+    },
+    {
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "PUT /sessions/:sessionId/repository-binding",
+      "interactionRole": "command",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped",
+      "semanticKey": "repository.connect",
+      "meaning": "Bind one absolute Host directory to this chat for read-only source tools; takes effect on the next run.",
+      "ownerRef": "app/docs/repository-binding.md",
+      "words": {
+        "en": "Connect repository"
+      },
+      "accessibleName": {
+        "en": "Connect repository"
+      },
+      "ownerAnchor": "`PUT /sessions/:sessionId/repository-binding`"
+    },
+    {
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app",
+        "pages"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "PUT /sessions/:sessionId/repository-binding",
+      "interactionRole": "command",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text",
+        "pages": "text"
+      },
+      "reviewStatus": "mapped",
+      "semanticKey": "repository.disconnect",
+      "meaning": "Revoke the chat's repository binding; further reads fail and active runs are asked to stop. Nothing is deleted and disclosed text is not withdrawn.",
+      "ownerRef": "app/docs/repository-binding.md",
+      "words": {
+        "en": "Disconnect"
+      },
+      "accessibleName": {
+        "en": "Disconnect repository"
+      },
+      "ownerAnchor": "Revocation"
+    },
+    {
       "semanticKey": "matter.object",
       "meaning": "A governed domain work identity supplied by its binding.",
       "ownerRef": "docs/work-core/contract.md",

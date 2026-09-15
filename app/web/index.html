@@ -352,6 +352,17 @@
                   aria-expanded="false"
                   aria-controls="connection-popover"
                 ></button>
+                <!-- RD-006 · one connected external directory per chat, read only.
+                     The visible word is the directory name; the card carries the path. -->
+                <button
+                  id="repository-button"
+                  class="composer-repository quiet-button"
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-expanded="false"
+                  aria-controls="repository-popover"
+                  hidden
+                ></button>
               </div>
               <div class="composer-buttons">
                 <button
@@ -817,6 +828,12 @@
       class="context-popover connection-popover"
       popover="auto"
       aria-label="Connection and file access"
+    ></div>
+    <div
+      id="repository-popover"
+      class="context-popover connection-popover"
+      popover="auto"
+      aria-label="Repository"
     ></div>
     <div
       id="toast-region"

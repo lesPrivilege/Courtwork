@@ -59,6 +59,17 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 
 一次动作与一条策略不共用一个词，也不共用一个按钮：`Approve this write` 只批准这一次写入，`Ask before editing` 是这个 Chat 往后的模式。
 
+### 3.2b 外部仓库（2026-09-16 · RD-006 GUI）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Repository | 一个 Chat 显式连接的外部目录，供 `repo_list/read/grep` 只读使用；与 Project（组织归属）、Workspace（Home 选择器里的 Project 名、或托管成果目录）分开 | Folder（那是 Plugin/Skill 选择时的磁盘词）· Mount · Source（作对象名时）· Workspace |
+| Connect repository · Disconnect | 连接与撤权两个动作；标签在未连接时是动作，已连接后可见词换成目录名，可访问名带完整路径 | Bind · Attach · Revoke（用户可见时）· Remove · Open folder |
+| Read only | 已连接目录的范围陈述；不是 File access 的三值之一，两者同屏各说各的对象 | Read-only access · View only |
+| Private candidate | Host 从明确 commit 新建的可写副本，`repo_write` 只写它；**词已冻结，控件随 02 片交付** | Worktree · Branch · Draft copy · Sandbox |
+
+`Available after this run ends.` 沿 File access 卡原句，用于连接/断开在活动 Run 内不可用；在途词沿 §3.4b 的 `Sending…`。
+
 ### 3.3 模型与接入
 
 | 用户词 | 它是什么 | 不用 |

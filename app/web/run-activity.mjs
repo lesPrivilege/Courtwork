@@ -2,6 +2,11 @@ import { el } from './ui-controls.mjs';
 import { normalizedType } from './thread-projection.mjs';
 
 // Received local phrase fixture; not a provider thinking signal or progress estimate.
+// Managed workspace, connected repository and private candidate tools share
+// one activity word per act; the object each reads is named in the row itself.
+const READ_TOOLS = new Set(['ws_read', 'ws_list', 'repo_read', 'repo_list', 'candidate_read', 'candidate_list']);
+const WRITE_TOOLS = new Set(['ws_write', 'repo_write']);
+const SEARCH_TOOLS = new Set(['ws_grep', 'repo_grep', 'candidate_grep']);
 export const THINKING_PHRASES = Object.freeze(['Thinking', 'Pondering', 'Musing', 'Considering', 'Reflecting']);
 const ambientWords = ['Working', ...THINKING_PHRASES];
 export const PROCESS_PHRASES = Object.freeze({
@@ -41,9 +46,9 @@ export function projectRunProcess(events = [], run) {
   if (retrying) return 'retry';
   if (calls.size) {
     const names = [...calls.values()];
-    if (names.every(name => name === 'ws_read' || name === 'ws_list')) return 'reading';
-    if (names.every(name => name === 'ws_write')) return 'writing';
-    if (names.every(name => name === 'ws_grep')) return 'searching';
+    if (names.every(name => READ_TOOLS.has(name))) return 'reading';
+    if (names.every(name => WRITE_TOOLS.has(name))) return 'writing';
+    if (names.every(name => SEARCH_TOOLS.has(name))) return 'searching';
     return 'tools';
   }
   return response ? 'response' : 'working';

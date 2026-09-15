@@ -1570,7 +1570,8 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   min-width: 0;
 }
 .composer-model,
-.permission-mode {
+.permission-mode,
+.composer-repository {
   font-size: var(--text-meta);
   line-height: 1.45;
   max-width: 170px;
@@ -1579,7 +1580,8 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   white-space: nowrap;
   padding: 4px 6px;
 }
-.permission-mode {
+.permission-mode,
+.composer-repository {
   color: var(--muted-strong);
 }
 /* Actionable context stays left; model/effort and execution controls stay right. */
@@ -1600,8 +1602,16 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   white-space: nowrap;
 }
 .home-composer-context .home-choice-select:hover { background-color: var(--hover); }
-.permission-mode { min-width: 0; }
+.permission-mode,
+.composer-repository { min-width: 0; }
+.composer-repository { display: inline-flex; align-items: center; gap: 4px; }
 .permission-mode .button-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.composer-repository .button-label {
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -2753,7 +2763,8 @@ select {
   .composer-model {
     max-width: min(130px, 100%);
   }
-  .permission-mode {
+  .permission-mode,
+  .composer-repository {
     max-width: min(160px, 100%);
     min-height: 44px;
     padding: 4px 6px;
@@ -3328,7 +3339,8 @@ dialog[open]::backdrop {
 }
 .status-badge[aria-expanded="true"],
 .composer-model[aria-expanded="true"],
-.permission-mode[aria-expanded="true"] {
+.permission-mode[aria-expanded="true"],
+.composer-repository[aria-expanded="true"] {
   background: var(--selected);
   color: var(--ink);
 }

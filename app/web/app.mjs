@@ -57,6 +57,7 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
+import { createRepositoryCard, activeRepositoryBinding, repositoryName } from "./repository-card.mjs";
 import {
   renderRun,
   createFileView,
@@ -2515,10 +2516,10 @@ function appendAssistantBody(container, text, key) {
  * their recorded name without an inferred category glyph. */
 function toolGlyph(name) {
   const tool = String(name || "");
-  if (tool === "ws_write") return "square-pen";
-  if (tool === "ws_list") return "folder";
-  if (tool === "ws_grep") return "search";
-  if (tool === "ws_read" || tool === "se_read_source") return "file-text";
+  if (tool === "ws_write" || tool === "repo_write") return "square-pen";
+  if (tool === "ws_list" || tool === "repo_list" || tool === "candidate_list") return "folder";
+  if (tool === "ws_grep" || tool === "repo_grep" || tool === "candidate_grep") return "search";
+  if (tool === "ws_read" || tool === "se_read_source" || tool === "repo_read" || tool === "candidate_read") return "file-text";
   if (tool.startsWith("runtime_")) return "settings-2";
   return null;
 }
@@ -3356,6 +3357,7 @@ function renderChatHeader() {
   $("materials-button").hidden = home || !session;
   $("materials-button").disabled = home && Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
   $("permission-settings-button").hidden = home || !session;
+  $("repository-button").hidden = home || !session;
   const body = $("conversation-body"),
     composer = $("composer-area"),
     band = $("home-top-band"),
@@ -3418,6 +3420,19 @@ function renderChatHeader() {
   );
   permission.setAttribute("aria-label", `File access: ${permissionSentence}`);
   permission.dataset.tooltip = `File access: ${permissionSentence}`;
+  /* RD-006 · the connected directory is a fact of this chat, beside file
+   * access: visible word = directory name, accessible name and tooltip carry
+   * the full Host path. Unbound chats show the action, not an empty value. */
+  const repository = $("repository-button"), binding = activeRepositoryBinding(session);
+  const repositoryWord = binding ? repositoryName(binding.rootPath) : "Connect repository";
+  repository.replaceChildren(
+    semanticIcon("repository.object", { size: 16 }),
+    element("span", { className: "button-label", text: repositoryWord }),
+    icon("chevron-down", { size: 16 }),
+  );
+  repository.setAttribute("aria-label", binding ? `Repository: ${binding.rootPath} · Read only` : "Connect repository");
+  repository.dataset.tooltip = binding ? `${binding.rootPath} · Read only` : "Connect a directory for read-only access";
+  repository.classList.toggle("composer-repository-bound", Boolean(binding));
   $("home-button").setAttribute(
     "aria-current",
     !settingsOpen && !state.attentionOpen && state.view === "home" ? "page" : "false",
@@ -5555,6 +5570,36 @@ function openConnectionCard(anchor) {
   popover.showPopover();
   header.querySelector("button").focus();
 }
+const repositoryCard = createRepositoryCard({
+  request,
+  onClose: () => {
+    $("repository-popover").hidePopover();
+    state.repositoryCardAnchor?.focus?.();
+  },
+  onSession: async (id) => {
+    // The bind/revoke receipt is not a Session; read the Session back so the
+    // composer and card show what the Host now holds, not what was requested.
+    const detail = await request(`/sessions/${encodeURIComponent(id)}`);
+    applySessionUpdate(detail.session, id);
+    const popover = $("repository-popover");
+    if (popover.matches(":popover-open")) renderRepositoryCard();
+  },
+});
+function renderRepositoryCard() {
+  return repositoryCard.render($("repository-popover"), { session: currentSession(), active: Boolean(currentRun()) });
+}
+function openRepositoryCard(anchor) {
+  const popover = $("repository-popover");
+  if (popover.matches(":popover-open")) {
+    popover.hidePopover();
+    return;
+  }
+  state.repositoryCardAnchor = anchor;
+  const header = renderRepositoryCard();
+  popover.showPopover();
+  const field = popover.querySelector('[data-repository-field="path"], [data-repository-field="disconnect"]');
+  (field || header.querySelector("button")).focus();
+}
 function applySessionUpdate(session, id) {
   if (session?.id !== id) return;
   state.sessionsByProject.set(
@@ -6479,6 +6524,19 @@ function wireEvents() {
   $("show-run-button").addEventListener("click", openContextSummary);
   $("model-settings-button").addEventListener("click", () => void modelPicker.open());
   $("permission-settings-button").addEventListener("click", (event) => openConnectionCard(event.currentTarget));
+  $("repository-button").addEventListener("click", (event) => openRepositoryCard(event.currentTarget));
+  {
+    const popover = $("repository-popover");
+    let stopFollowing = null;
+    popover.addEventListener("toggle", (event) => {
+      const open = event.newState === "open";
+      stopFollowing?.();
+      stopFollowing = null;
+      const anchor = state.repositoryCardAnchor;
+      if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start" });
+      $("repository-button").setAttribute("aria-expanded", String(open && anchor === $("repository-button")));
+    });
+  }
   {
     // Keep the card beside whichever control opened it; mark that control expanded.
     const popover = $("connection-popover");

@@ -10,18 +10,19 @@
   },
   {
     "file": "app/web/app.mjs",
-    "source": "if (tool === \"ws_list\") return \"folder\";",
+    "source": "if (tool === \"ws_list\" || tool === \"repo_list\" || tool === \"candidate_list\") return \"folder\";",
     "disposition": "mapped-raw",
-    "reason": "ws_list exposes a workspace folder target; retain the tool name and use the registered workspace.object folder representation.",
+    "reason": "ws_list, repo_list and candidate_list expose a directory target (managed workspace, connected repository, private candidate); retain the tool name and use the registered folder representation.",
     "semanticKeys": [
-      "workspace.object"
+      "workspace.object",
+      "repository.object"
     ]
   },
   {
     "file": "app/web/app.mjs",
-    "source": "if (tool === \"ws_read\" || tool === \"se_read_source\") return \"file-text\";",
+    "source": "if (tool === \"ws_read\" || tool === \"se_read_source\" || tool === \"repo_read\" || tool === \"candidate_read\") return \"file-text\";",
     "disposition": "mapped-raw",
-    "reason": "These tools read a named file; file-text is the registered file.object representation while the tool name supplies the read verb.",
+    "reason": "These tools read a named file; file-text is the registered file.object representation while the tool name supplies the read verb. repo_read and candidate_read read one file from the connected repository or private candidate; same file glyph, tool name retained.",
     "semanticKeys": [
       "file.object"
     ]
