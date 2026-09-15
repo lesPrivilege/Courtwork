@@ -1,5 +1,7 @@
 # Release final preparation · 2026-09-13
 
+2026-09-15后续：[Main自足接续节点](node-20260915.md)记录Copy/Composer、研究登记、Luna校验与临时树处置；本页原发布SHA和证据保持历史身份。
+
 Astra owns scope/adjudication, integration, final visual inspection and publication. Luna owns bounded exploration and evidence collection. Starting product main: `f937c98a86b794b79e4b363c19ca56c4cebe39f9`; isolated preparation branch: `codex/release-final-20260913`. Preparation history is retained below; the [verified publication receipt](publication.json) records completed Courtwork and SE Pages deployment and their exact verification scopes.
 
 ## Current user instruction

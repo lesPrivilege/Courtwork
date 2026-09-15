@@ -1,0 +1,56 @@
+{
+  "date": "2026-09-14",
+  "kind": "research-and-design-proposal",
+  "courtwork_base": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+  "external_code_pin": {
+    "e2b-dev/e2b-cookbook": "5e61887a1154007e2e16d5a92fd5c8045d2fe51b"
+  },
+  "user_priority": "OpenAI Agents API first new runtime adapter; preserve parallel existing dogfooding",
+  "performed": [
+    "read selected roadmap and topic contracts through GitHub",
+    "Exa discovery and official documentation reads",
+    "web verification where available",
+    "read pinned E2B source README and selected OpenAPI section",
+    "write two-track plan and local Codex handoff"
+  ],
+  "not_performed": [
+    "repository mutation",
+    "dependency installation",
+    "paid API calls",
+    "account capability checks",
+    "runtime or browser tests",
+    "human acceptance",
+    "deployment"
+  ],
+  "version_limits": "API docs are dated mutable documentation; no service-side harness SHA or installed SDK version verified",
+  "package_files": {
+    "AGENTS-API-FIRST.md": {
+      "bytes": 13667,
+      "sha256": "3f270449c762c38706b4ebe077fcf16058a8e3477db42432fe27d404d60051cd"
+    },
+    "CODEX-HANDOFF.md": {
+      "bytes": 5629,
+      "sha256": "2a5e8e59f5d2217b1cb5eae2e98b161dc625c6d810354570fe6e0ae44b658072"
+    },
+    "LONG-HORIZON.md": {
+      "bytes": 11226,
+      "sha256": "e73ebfe701880e3507347da2aa8c633215a6f1aba3cb647499ec1e3109ba9a93"
+    },
+    "README.md": {
+      "bytes": 2613,
+      "sha256": "a32f5c8c8d36aac4c210093a26a0f373594b25608a084c9b3166fb1f9262663e"
+    },
+    "SHORT-LOOPS.md": {
+      "bytes": 5367,
+      "sha256": "57e84aeed03d5b65d5318034399dab6a7fde53404da2649190aa9a97540b796e"
+    },
+    "SOURCES.md": {
+      "bytes": 16783,
+      "sha256": "03a168e25c8eeb576b422d6fea646fcabfb335b1c2ee1fa05c3252df988036a7"
+    },
+    "sources.json": {
+      "bytes": 17943,
+      "sha256": "c193ec8ec4397bf890d5011de7ca700ef59a649c47b57070d9a4810eb9777a1d"
+    }
+  }
+}

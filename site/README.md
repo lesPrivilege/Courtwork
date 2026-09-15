@@ -1,6 +1,6 @@
 # CourtWork 发布面
 
-本目录包含 CourtWork Pages 的叙事、产品导览、Chat、Features、Experts、Eval、安装与运行入口，以及固定来源的离线标本。当前组合媒体与前端接受见[最终节点](../engineering/release/frontend-node-2026-09-12/README.md)；本地构建与线上部署分别记录。
+本目录包含 CourtWork Pages 的叙事、产品导览、Chat、Features、Experts、Eval、安装与运行入口，以及固定来源的离线标本。当前组合媒体见[2026-09-14截图回执](../evidence/publication-release-20260914/README.md)，发布状态见[最终筹备回执](../engineering/release/final-preparation-2026-09-13/README.md)；本地构建与线上部署分别记录。
 
 ```sh
 node site/build.mjs
@@ -17,7 +17,7 @@ node site/scripts/verify.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-por
 
 ## 版本与再取证
 
-`release.json.source_sha` 是产品证据快照。基础标本和 benchmark 属于 `9e5384f`；产品截图由 `media/main/manifest.json` 独立固定到最终产品提交（batch `publication-integrated-20260912`，见 manifest 的 `source_sha`）；上一批 `f1373cd`（`merged-20260911`）的 manifest 归档于 `media/archive/main-f1373cd.json`，其 JPEG 原样保留；构建直接从该 Git commit 读取产品 token 与 renderer，再记录各源文件 hash。当前 main 可以继续发展，构建不会把新产品代码混入旧证据。完整 Git 历史必须包含该 commit（浅克隆须先补齐历史）。
+`release.json.source_sha` 是产品证据快照。基础标本和 benchmark 属于 `9e5384f`；产品截图由 `media/main/manifest.json` 独立固定到最终产品提交（batch `publication-release-20260914`，见 manifest 的 `source_sha`）；上一批 `f1373cd`（`merged-20260911`）的 manifest 归档于 `media/archive/main-f1373cd.json`，其 JPEG 原样保留；构建直接从该 Git commit 读取产品 token 与 renderer，再记录各源文件 hash。当前 main 可以继续发展，构建不会把新产品代码混入旧证据。完整 Git 历史必须包含该 commit（浅克隆须先补齐历史）。
 
 `site_sha` 是页面原始源码与证据输入的 SHA-256，不是 Git commit；生成的 `dist/`、README 与标本副本不参与输入摘要，因此首次构建和后续重建一致。`dist/` 及 vendor-product 副本由构建生成，不提交、不手改。当前录制的九个机器路径字段已作公开投影，原始哈希与逐字段变更见 [脱敏回执](../evidence/public-repository-cleanup-20260910/specimen-redaction.json)。这是同一产品采集的展示脱敏，不是重新采集。构建会拒绝公开文本中出现机器绝对路径。
 
@@ -35,7 +35,7 @@ capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的
 
 本轮用户授权页面比产品更激进，Astra认领并裁定Archival Instrument；此前本页“仅连接线blur”“不启动新方向”的范围由本条覆盖。独立campaign材质、字阶与解释动效位于 `src/site.css`，产品标本仍保留固定token与来源守卫。`scripts/check-material.mjs`的材料字面量检查仅适用标本；campaign允许独立材质但禁止重定义产品语义token，并通过浏览器对比度、重排和偏好验证。
 
-Hero中的纸层保留原有构图与动效；其概念属性保存在图登记表中。Home 以独立区块进入产品导览。旧标本与 benchmark 仍固定9e5384f，不随新截图重标。当前媒体与验证见[本轮合流回执](../evidence/pages-main-visual-20260910/README.md)。
+Hero中的纸层保留原有构图与动效；其概念属性保存在图登记表中。Home 以独立区块进入产品导览。旧标本与 benchmark 仍固定9e5384f，不随新截图重标。该历史批次媒体与验证见[当时合流回执](../evidence/pages-main-visual-20260910/README.md)。
 
 ## Product-life pages
 
@@ -45,7 +45,7 @@ Hero中的纸层保留原有构图与动效；其概念属性保存在图登记�
 node site/scripts/verify-product-pages.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-port 19961
 ```
 
-Tour 编排13类状态；当前批次 `publication-integrated-20260912` 固定最终产品 `0768822` 的13对明暗原生截图。Astra采集/修正与Luna有界非作者复核已完成，来源、实际采集记录和复核范围以[组合回执](../evidence/publication-integrated-20260912/README.md)为准。上一批 `f1373cd` 保留在 `media/merged-20260911/`。旧批次 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的15份原生JPEG保留在历史媒体中，与基础 specimen 的 `9e5384f` manifest 分开；不会代作当前截图。历史批次见[原回执](../evidence/pages-main-visual-20260910/README.md)，当前交付以本轮合流回执为准。
+Tour 编排13类状态；当前批次 `publication-release-20260914` 固定产品 `fd96f96` 的13对明暗原生截图。来源、实际采集记录及作者与非作者范围以[当前截图回执](../evidence/publication-release-20260914/README.md)为准；合成截图不关闭真实工作门。上一批 `f1373cd` 保留在 `media/merged-20260911/`。旧批次 `e818463ab31aa06a4c9d52a968a68099fdb02c3e` 的15份原生JPEG保留在历史媒体中，与基础 specimen 的 `9e5384f` manifest 分开；不会代作当前截图。历史批次见[原回执](../evidence/pages-main-visual-20260910/README.md)，当前交付以2026-09-14截图回执为准。
 
 ## Product presentation and primary navigation
 
@@ -60,4 +60,4 @@ The first-principles integration keeps the mature Tour / Paper / Release header,
 
 2026-09-12 最终组合截图：26张原生1440×900 JPEG固定到 `07688226330121e5877a6ff1e09e6ebf82995ae3`，旧1397b99 manifest保持在 `media/archive/main-publication-final-1397b99.json`，图像未转码。采集、更正记录和独立复核范围见[组合回执](../evidence/publication-integrated-20260912/README.md)。这条覆盖此前待Astra采图的状态，不构成新的部署回执。
 
-媒体manifest中的`evidence_path`为CourtWork仓库相对来源路径，配合本仓历史阅读，不是部署站点的相对URL；对外页面使用已构建的媒体URL。完整采集与review回执在仓库[evidence](../evidence/publication-integrated-20260912/README.md)，与固定产品source_sha分开。
+媒体manifest中的`evidence_path`为CourtWork仓库相对来源路径，配合本仓历史阅读，不是部署站点的相对URL；对外页面使用已构建的媒体URL。当前采集与review范围在仓库[evidence](../evidence/publication-release-20260914/README.md)，与固定产品source_sha分开。

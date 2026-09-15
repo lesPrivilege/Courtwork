@@ -1,0 +1,101 @@
+✔ 回归#1: validateGraph 对未知依赖返回错误而不抛错（报告用例） (1.090916ms)
+✔ 回归#1: 多个未知依赖全部报出且不抛错 (0.088125ms)
+✔ 回归#1: 未知依赖出现在无其他边的节点上也不抛错 (0.081ms)
+✔ 回归#1: 未知依赖与真实环并存时两类错误都报出 (0.107ms)
+✔ 回归#1: 合法图的环检测未被削弱 (0.906083ms)
+✔ 回归#1: 查询函数对未知依赖的图仍抛 INVALID_GRAPH (0.340167ms)
+✔ 回归#2: 三层链路全量传播（报告用例） (1.282542ms)
+✔ 回归#2: 深链逐层传播到末端 (0.185458ms)
+✔ 回归#2: 菱形两侧与汇合点 (0.142875ms)
+✔ 回归#2: blocked 祖先传播且穿过非 pending 中间节点 (0.189ms)
+✔ 回归#2: 输入顺序颠倒时输出仍按原输入顺序 (0.1665ms)
+✔ 回归#2: 断开子图与无关分支不受影响 (0.101125ms)
+✔ 回归#2: 只输出自身 pending 的节点 (0.112291ms)
+✔ 回归#2: 与独立暴力祖先闭包实现逐组合一致 (31.296875ms)
+✔ 回归#2: 与暴力实现一致（深链，抽样状态） (0.5545ms)
+✔ 回归#2: 传播顺序与任务在输入数组中的位置无关 (0.294042ms)
+✔ validateGraph: 空图合法 (3.424958ms)
+✔ validateGraph: 非数组输入返回 invalid 且不抛错 (0.155708ms)
+✔ validateGraph: 合法图（链 / 菱形 / 断开子图） (0.157083ms)
+✔ validateGraph: 任务项不是对象不合法 (0.0915ms)
+✔ validateGraph: id 缺失或非字符串不合法 (0.08975ms)
+✔ validateGraph: 空白 id 不合法（不 trim 修复） (0.07425ms)
+✔ validateGraph: 重复 id 不合法 (0.085167ms)
+✔ validateGraph: deps 缺失或非数组不合法 (0.072166ms)
+✔ validateGraph: 依赖项不是字符串不合法 (0.071166ms)
+✔ validateGraph: 重复依赖不合法 (0.112625ms)
+✔ validateGraph: 未知依赖不合法 (0.061583ms)
+✔ validateGraph: 自依赖不合法 (0.049416ms)
+✔ validateGraph: 环（二元 / 三元 / 环+无关分支 / 长环） (0.112084ms)
+✔ validateGraph: 多个独立环各报一条 (0.077625ms)
+✖ validateGraph: id 不做 trim，按原字符串精确匹配 (1.025625ms)
+✔ validateGraph: 特殊字符串 id（原型相关键）合法 (0.061875ms)
+✔ validateGraph: 多处错误一并收集 (0.083167ms)
+✔ validateGraph: 4000 层深链不栈溢出 (6.179708ms)
+✔ topologicalOrder: 空图返回空数组 (0.19625ms)
+✔ topologicalOrder: 单节点 (0.101417ms)
+✔ topologicalOrder: 依赖先于被依赖者（输入顺序颠倒） (0.093792ms)
+✔ topologicalOrder: 稳定 Kahn —— 取当前可选节点中原输入索引最小者 (0.064458ms)
+✔ topologicalOrder: 断开子图交错时仍按索引最小优先 (0.053ms)
+✔ topologicalOrder: 菱形依赖 (0.053458ms)
+✔ topologicalOrder: 结果满足拓扑约束且包含全部 id (0.078708ms)
+✔ topologicalOrder: 无效图抛 TypeError (0.274667ms)
+✔ topologicalOrder: 返回新数组且不修改输入 (0.067292ms)
+✔ topologicalOrder: 深链（颠倒输入）不栈溢出 (8.39725ms)
+✔ getReadyTasks: 空图返回空数组 (0.442333ms)
+✔ getReadyTasks: 无依赖任务在空 states 下均 ready (0.189417ms)
+✔ getReadyTasks: 仅当直接依赖全部 succeeded 才 ready (0.243542ms)
+✔ getReadyTasks: 依赖处于 running / failed / blocked 均不 ready (0.12025ms)
+✔ getReadyTasks: 自身非 pending 的任务不 ready (0.062083ms)
+✔ getReadyTasks: states 遗漏的任务视为 pending (0.061666ms)
+✔ getReadyTasks: 按原输入顺序返回 (0.050542ms)
+✔ getReadyTasks: 不纠正非法状态组合（依赖 succeeded 但祖先是 failed 仍 ready） (0.037125ms)
+✔ getReadyTasks: 未知 id / 非法状态 / states 非对象 / 无效图 抛 TypeError (0.384291ms)
+✔ getReadyTasks: 不修改 tasks / states (0.2335ms)
+✔ getBlockedTasks: 空图 / 无失败来源时为空 (0.134667ms)
+✔ getBlockedTasks: 自身 pending 且有 failed 直接依赖 (0.064583ms)
+✔ getBlockedTasks: 多层传播 (0.070125ms)
+✔ getBlockedTasks: blocked 祖先继续向下传播 (0.047208ms)
+✔ getBlockedTasks: 菱形依赖 (0.054541ms)
+✔ getBlockedTasks: 不重列其他状态的任务 (0.078125ms)
+✔ getBlockedTasks: 失败节点的上游与旁支不受影响 (0.064ms)
+✔ getBlockedTasks: 按原输入顺序返回（输入顺序 != 拓扑序） (0.0525ms)
+✔ getBlockedTasks: 断开子图互不影响 (0.052417ms)
+✔ getBlockedTasks: 深链传播不栈溢出 (3.741083ms)
+✔ getBlockedTasks: 未知 id / 非法状态 / states 非对象 / 无效图 抛 TypeError (0.237208ms)
+✔ getBlockedTasks: 不修改 tasks / states (0.079125ms)
+✔ ready 与 blocked 在非法状态组合下可以重叠（不做状态纠正） (0.043917ms)
+✔ VALID_TASK_STATES 暴露合法状态集合 (0.02925ms)
+✔ 抛错统一为 TypeError 且带稳定 code (0.144709ms)
+✔ 四个函数组合的综合小场景 (0.087125ms)
+ℹ tests 70
+ℹ suites 0
+ℹ pass 69
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 129.21575
+
+✖ failing tests:
+
+test at scheduler.test.mjs:161:1
+✖ validateGraph: id 不做 trim，按原字符串精确匹配 (1.025625ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /unknown task/. Input:
+  
+  'tasks[1].id duplicates tasks[0].id: "a"'
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered-v2/scheduler.test.mjs:166:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'tasks[1].id duplicates tasks[0].id: "a"',
+    expected: /unknown task/,
+    operator: 'match',
+    diff: 'simple'
+  }

@@ -1,0 +1,502 @@
+[
+  {
+    "path": ".github/pull_request_template.md",
+    "bytes": 1020,
+    "sha256": "28cbf755c944750ec08ca74a2b748a41855883071385aaedd4c9fd33642f722a"
+  },
+  {
+    "path": "AGENTS.md",
+    "bytes": 4442,
+    "sha256": "470ad80e3e2b65dde45b4a791f91054581f5c050d4b7dc41b4d739938ca03288"
+  },
+  {
+    "path": "app/tests/chat-actions.test.mjs",
+    "bytes": 11799,
+    "sha256": "7beb88e3a77216bea66936230a9ec45a2664a74473590799cc7f1a567d0a0088"
+  },
+  {
+    "path": "app/tests/composer-access-placement.test.mjs",
+    "bytes": 3993,
+    "sha256": "21cbc15fb2c2f234aea81549733ace051dbba3394bfb7f93b1a76682c8ee7826"
+  },
+  {
+    "path": "app/web/app.mjs",
+    "bytes": 285500,
+    "sha256": "48b620199ad07d288b295401b538d1db742040f2373c0dabb935f8d459f8f562"
+  },
+  {
+    "path": "app/web/attention-agent-view.mjs",
+    "bytes": 24906,
+    "sha256": "837bdec8dc44716b040d898f1387fdba7c7802907db8a262ecccbe692f6c75cc"
+  },
+  {
+    "path": "app/web/chat-actions.mjs",
+    "bytes": 13589,
+    "sha256": "e63c919002cd211f862db37880f05f2733eb0fbccd6aaa8d4b9c8b75acf5a521"
+  },
+  {
+    "path": "app/web/index.html",
+    "bytes": 38186,
+    "sha256": "e630f82513fdb6a2e00cb7ecf35321d107ed94ce7fed36b4b5e95c2fce1cb9c3"
+  },
+  {
+    "path": "app/web/styles.css",
+    "bytes": 235298,
+    "sha256": "c0bcd8ea0a24d1ae5a0e04b7758201e49c73ea2cc23662dfef7ee10efdfd9d70"
+  },
+  {
+    "path": "app/web/ui-controls.mjs",
+    "bytes": 19323,
+    "sha256": "b0127ce83cb71f11d4132898c47ba7ba596d2e0b77b9c933da5ae8a35cf7f5e5"
+  },
+  {
+    "path": "engineering/architecture.md",
+    "bytes": 10871,
+    "sha256": "3200b0ade68043187090cd354df2c607632fdfe20edde4c9f488399ffb8a7024"
+  },
+  {
+    "path": "engineering/current.md",
+    "bytes": 169230,
+    "sha256": "15bd69093d66cb6e497d2242cf7603f3adfa3a0f9a016d1b20ac5ef56258db2e"
+  },
+  {
+    "path": "engineering/design/README.md",
+    "bytes": 4458,
+    "sha256": "83518fca686bfff6f2a91aa543d49d81a3fff383e0336b1992fb5a15a8bccaf7"
+  },
+  {
+    "path": "engineering/design/apple-hig-track-20260914.md",
+    "bytes": 3798,
+    "sha256": "bdbeb927f2fdc1ffa7e714878129e859a3d962949137057b32d382db8c95b921"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/README.md",
+    "bytes": 3624,
+    "sha256": "902eea33b6996884b95226f6df12e9ee761b2adc2fee3e57825cee4ba24568b4"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/composer-access-delivery.md",
+    "bytes": 6071,
+    "sha256": "130581e0c405d2becdb039a56044eec84d18ec15d95a851245af3edd0e3a40a0"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/composer-access-verification-luna.md",
+    "bytes": 3752,
+    "sha256": "62fe3fde15b32cceee7167d6b07a458719b78b9b7210a348a5a5d1b2abb8a95a"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/copy-feedback-p0.md",
+    "bytes": 2981,
+    "sha256": "baf386c2d20d39d0c7440150e7fd8c3b193ced37f6f6d5473d39506be65a3f33"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/polish-slices-20260914.md",
+    "bytes": 5228,
+    "sha256": "baf0c6e499d719eabfdf3d51bf0bdc276ac863d566a3ef43ab82cb0a67eecdbc"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/run-surface-input.json",
+    "bytes": 17310,
+    "sha256": "89ab34d62c22381c8bccae501428ef90acd0a77dde031ee9f6363e75d77330ff"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/run-surface-pr-20260914.md",
+    "bytes": 4190,
+    "sha256": "54916d7224d329be615ebba7fb4368c391e71ff8f50ec26d65035e6979dc150f"
+  },
+  {
+    "path": "engineering/design/chat-flow-2026-09-10/workspace-selection-gap-20260914.md",
+    "bytes": 2396,
+    "sha256": "3a26f4074b439c1e73488642c59632dfccb2777efa49d05a0ba789393d33f2d3"
+  },
+  {
+    "path": "engineering/design/context-tps-motion-2026-09-13/serial-dispatch-20260914.md",
+    "bytes": 1756,
+    "sha256": "e3d8b52d09f48e58def9ffc7a36f4689150764aeda2d076088839813d4ce0795"
+  },
+  {
+    "path": "engineering/design/context-tps-motion-2026-09-13/slice1-delivery.md",
+    "bytes": 4640,
+    "sha256": "54164fe6944694df6f6c1e2b1973ad0c0a008ac53108c664247fc356013644f4"
+  },
+  {
+    "path": "engineering/design/context-tps-motion-2026-09-13/telemetry-p1-20260914.md",
+    "bytes": 5178,
+    "sha256": "45cde7f30bf4e3369923e98b34578fe3020a4470716d24ef5e6cce0824ecc9b7"
+  },
+  {
+    "path": "engineering/design/object-command-grammar-20260914.md",
+    "bytes": 3896,
+    "sha256": "b230939e30455bc2462a48ac6313aed71169d5e62f0fa429e8feba7db2ed6f16"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/README.md",
+    "bytes": 15224,
+    "sha256": "41f384d009f591ef245ce69e5e8d91c44ae926e6661b3cb8ed831c07014cb724"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/node-20260915.md",
+    "bytes": 8580,
+    "sha256": "f845422c5d58f6750a2cd350be23ae22e039f4b8519ddf290d766c3909263f03"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/node-20260915/doc-links.json",
+    "bytes": 77,
+    "sha256": "2e36da7646d93de8c03a6bc5881faf3f988211a9075c4e6f0c4f01d2d878eea0"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/node-20260915/foundation-rerun.log",
+    "bytes": 1234,
+    "sha256": "2dd6f28f68c7325e6125e8668b43901fe09c84a47937175ce74e52eaff62a45f"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/node-20260915/intake-inventory.json",
+    "bytes": 18074,
+    "sha256": "c3bf438191601fc1ce7b0234e969049b28ba53e20f4ad301aae205473500e584"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/node-20260915/recovery-rerun.log",
+    "bytes": 5063,
+    "sha256": "2893fc4b2402b9de1ef65c89e29b8bd6e4c1233630bb8be7fd8abab6eca5e7fa"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/node-20260915/runtime-test.log",
+    "bytes": 269339,
+    "sha256": "cf2b06b7c70d75b25b02e920e87d23f0e4b6f3bbc09144f0d400cdded8584d8a"
+  },
+  {
+    "path": "engineering/release/final-preparation-2026-09-13/node-20260915/smoke.log",
+    "bytes": 539,
+    "sha256": "c0c5fcf8ea4a9fc789cfd1f49d1ddf1c5c5df132d7ab388903a90080f7f6dc18"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/README.md",
+    "bytes": 4716,
+    "sha256": "c87316e839168a657d7ed63a9036a4901d1df9c583ac17c4d176edc48f1ed1c1"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered-v2/README.md",
+    "bytes": 13945,
+    "sha256": "5191e06e84bbe66ab2f6766d65ea71608fc55c484a75c53870eb92f13e369f58"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered-v2/handoff.md",
+    "bytes": 15798,
+    "sha256": "3327e915e0fe8ced0b6c3d2ffbfe8bc777c49d179a84d4cf570c40366534c7e8"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered-v2/scheduler.mjs",
+    "bytes": 18611,
+    "sha256": "48675f9e7f7e82e77952c50baa8d60805d1da63f2023544c372a790e9fd0b419"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered-v2/scheduler.regressions.test.mjs",
+    "bytes": 10467,
+    "sha256": "5cde3ef9fdc864bfdce70d6cf853cae39a47efdf2c7e463f434ec67f321a69ce"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered-v2/scheduler.test.mjs",
+    "bytes": 21411,
+    "sha256": "ac01171453c636113a02395de53a7bea6c9f6b0b8c5bf694bfe97ac4ec3b367b"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/README.md",
+    "bytes": 11159,
+    "sha256": "1210a9891622a00760c73e21b448bdc2624e6ac8ac5e7e2cc1686793a1b5adf1"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/handoff.md",
+    "bytes": 10837,
+    "sha256": "a8dc508dc4c047cc7c5e3d6a745bef015819b086059c7de1de7f89bab459e35d"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.mjs",
+    "bytes": 16840,
+    "sha256": "32c11281d8c53e8f6b670a41c921415cbc26d83270d942e72ff4ec303256040d"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs",
+    "bytes": 21411,
+    "sha256": "ac01171453c636113a02395de53a7bea6c9f6b0b8c5bf694bfe97ac4ec3b367b"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/observed-v2.json",
+    "bytes": 1938,
+    "sha256": "bad45ce932bbb45caeff24ca78ef57ddead4b7a4649ac81aafab22d80d70de08"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/observed.json",
+    "bytes": 4941,
+    "sha256": "9d53079c65e5b8bc8194521301d0e239ea3e7a014e06559e67ff31bfbf2d8fac"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/oracle.mjs",
+    "bytes": 5380,
+    "sha256": "a0ca10d7f72db4169db0e86e068884d9966f3f9befbddde9ba4c2a3c73cd85b1"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/prompt.md",
+    "bytes": 2723,
+    "sha256": "4ef9c98366cc9806a15c5a768bf1925286c5917b82906523cc40464d24016143"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/repair-prompt.md",
+    "bytes": 1659,
+    "sha256": "7e5f69f60eae4eab351368b8e79e33cde30b0ec5eb0bd991a7348b0589fe645f"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/self-tests-v2.log",
+    "bytes": 6029,
+    "sha256": "b0612d44120c6675da72280966bde5631f74a79eb20077b5f9b6e75c38b85d02"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/self-tests.log",
+    "bytes": 15438,
+    "sha256": "a92720fef80e1f6cd9da9426a4644616d40a5c873d5539d693fdd5ed2f7dd355"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/session.json",
+    "bytes": 578,
+    "sha256": "7819f9f165c6d46fe29825c2606cef585edef4147308f263e9617256434a087e"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/spec.md",
+    "bytes": 3646,
+    "sha256": "e875bad93b08aa515f50495b7a56f18c2755d8531e22cf4e87e0175274cf9f74"
+  },
+  {
+    "path": "engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/verification-luna.md",
+    "bytes": 3215,
+    "sha256": "7536e74eb3ff451d9d1397b8127b083b3a514f4671d8d7933c863270f08be689"
+  },
+  {
+    "path": "engineering/release/independent-review-2026-09-14/README.md",
+    "bytes": 4679,
+    "sha256": "164160669fdb6c44e30dc0f6cf16a48cd13dd9fe1d66e8d7d40363afb95688f4"
+  },
+  {
+    "path": "engineering/release/independent-review-2026-09-14/REVIEW.md",
+    "bytes": 24401,
+    "sha256": "4a6e7d6443895bdc4042839964b7ab2ea82cc9324b7c2b0e5e1d21c543c15d5d"
+  },
+  {
+    "path": "engineering/release/independent-review-2026-09-14/conversation.json",
+    "bytes": 17368,
+    "sha256": "ae7a6ad666c4b7c8ff7bc6cb9cd9f888931f128e1ab68622c62e3a1920447c55"
+  },
+  {
+    "path": "engineering/release/independent-review-2026-09-14/source.json",
+    "bytes": 582,
+    "sha256": "f2274853ed929fc3088725d172c41dd0be9f12b16bfa52f45c97efa46248feaf"
+  },
+  {
+    "path": "engineering/release/review-intake-2026-09-13/README.md",
+    "bytes": 13467,
+    "sha256": "b5c53f8e51495ad5d5d368bffa414b7862fc2fd51daedff7e931f5c2db2cd2d7"
+  },
+  {
+    "path": "engineering/research/RD-005-multi-agent-selection.md",
+    "bytes": 4794,
+    "sha256": "c539a1c33f4d947d215e0499948f29f49d17d3b6bda40dd5f41e8713d8d94ab1"
+  },
+  {
+    "path": "engineering/research/RD-006-deferred-workspace-binding.md",
+    "bytes": 9548,
+    "sha256": "e808a56b3573f6ad53d364452f6a4a28734327a9f2760dd1916b0192c98449ec"
+  },
+  {
+    "path": "engineering/research/RD-007-resource-governance.md",
+    "bytes": 9734,
+    "sha256": "df516d3d776c17fa079a9ddec73056e2b33a6082ea992ca306c3959fb383051e"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/README.md",
+    "bytes": 4749,
+    "sha256": "02e3d7b9c25769fc4cd2392b2cb40bc688eb8cec1e916c78cb21b47ac30bf379"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/AGENTS-API-FIRST.md",
+    "bytes": 13667,
+    "sha256": "3f270449c762c38706b4ebe077fcf16058a8e3477db42432fe27d404d60051cd"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/CODEX-HANDOFF.md",
+    "bytes": 5629,
+    "sha256": "2a5e8e59f5d2217b1cb5eae2e98b161dc625c6d810354570fe6e0ae44b658072"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/LONG-HORIZON.md",
+    "bytes": 11226,
+    "sha256": "e73ebfe701880e3507347da2aa8c633215a6f1aba3cb647499ec1e3109ba9a93"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/README.md",
+    "bytes": 2613,
+    "sha256": "a32f5c8c8d36aac4c210093a26a0f373594b25608a084c9b3166fb1f9262663e"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/SHORT-LOOPS.md",
+    "bytes": 5367,
+    "sha256": "57e84aeed03d5b65d5318034399dab6a7fde53404da2649190aa9a97540b796e"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/SOURCES.md",
+    "bytes": 16783,
+    "sha256": "03a168e25c8eeb576b422d6fea646fcabfb335b1c2ee1fa05c3252df988036a7"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/receipt.json",
+    "bytes": 1946,
+    "sha256": "14ac81ab628c70e3f173a1b86916c29ec40bcc8e4c14802dbfb212f93f5685f2"
+  },
+  {
+    "path": "engineering/research/agents-api-first-2026-09-14/inputs/courtwork-rd-agents-api-first-20260914/sources.json",
+    "bytes": 17943,
+    "sha256": "c193ec8ec4397bf890d5011de7ca700ef59a649c47b57070d9a4810eb9777a1d"
+  },
+  {
+    "path": "engineering/research/architecture-node-2026-09-13/architecture.md",
+    "bytes": 16893,
+    "sha256": "ddfff5b994fe88dbce3d56449a9502eeb2523cb5d7777b2694be68a2cd8d8bf8"
+  },
+  {
+    "path": "engineering/research/chat-memory-broker-2026-09-12/README.md",
+    "bytes": 10521,
+    "sha256": "5203de8e55c4084273d913c77e6b5ec0537d6d5ac8cb94cc9261a4c0c9be91f6"
+  },
+  {
+    "path": "engineering/research/chat-memory-broker-2026-09-12/attention-governance-20260915.md",
+    "bytes": 7978,
+    "sha256": "b39bcb9ae81e691da9043b38522233672371d76795fa21095ef613bdeebcffe4"
+  },
+  {
+    "path": "engineering/research/chat-memory-broker-2026-09-12/attention-input-20260915.json",
+    "bytes": 86125,
+    "sha256": "00b729b76a7e3fe578de9ab1da6a3e43b17e233b1f217a0f4ac045bd476efeb7"
+  },
+  {
+    "path": "engineering/research/models-provider-registration-2026-09-14/README.md",
+    "bytes": 6190,
+    "sha256": "503edd3e261e1ac9b7c6a9f695f8eb4673d848a553a78b6def191410e68c9ab3"
+  },
+  {
+    "path": "engineering/research/models-provider-registration-2026-09-14/composer-inputs/current-model-picker.png",
+    "bytes": 124562,
+    "sha256": "a9c9ed4bdce1da6e4dc385054bb62afbb27325d793df5706e4b12c08fd32bb73"
+  },
+  {
+    "path": "engineering/research/models-provider-registration-2026-09-14/composer-inputs/effort-reference.png",
+    "bytes": 29351,
+    "sha256": "bbfe897e6b2a413ed1d05c05cad3860374f49dfb23f5b8550f5b844ba802ef25"
+  },
+  {
+    "path": "engineering/research/models-provider-registration-2026-09-14/composer-inputs/manifest.json",
+    "bytes": 397,
+    "sha256": "cb8233293388045fdd4b1e28361288d4242b587baf07b3445da22f938afaf923"
+  },
+  {
+    "path": "engineering/research/models-provider-registration-2026-09-14/composer-pr.md",
+    "bytes": 4869,
+    "sha256": "40067ea8f7771b6323c397b9fa814f1adfa9aa5a640007157c070941fd9e1f33"
+  },
+  {
+    "path": "engineering/research/repository-governance-2026-09-14/README.md",
+    "bytes": 7286,
+    "sha256": "68d16d3febd902fbd332572c767d437e883a176a7acdd89028e25b236c0f8aec"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/README.md",
+    "bytes": 4870,
+    "sha256": "684e4192fcaf7ab188720156fded51abed0cb707c22f6fecf5c2c59a9d724c1a"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/chat-states-increment-20260915.json",
+    "bytes": 56691,
+    "sha256": "d6e6f9e92ffbaa5c8b48b57cfc49752367b0d13fdac1a22a501490360ba518d0"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/chat-states-input-20260914.json",
+    "bytes": 51353,
+    "sha256": "802ebe5159d8b76b769dd7f32038c9e008fbc3b89045513e696af421d9f58dae"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/chat-states-recheck-20260915.json",
+    "bytes": 51353,
+    "sha256": "89339b87022334e8b789a1eeca4a3a54ce1b2af384628b078bbe4569b939290e"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/chat-states-runtime-input-20260915.json",
+    "bytes": 103817,
+    "sha256": "22278b638e42cd83e984b97e5224f18db1caa9da0ca60999cd297357b8ed9194"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/edited-files-reference-20260915.jpeg",
+    "bytes": 795713,
+    "sha256": "0ee990a247e4f39ea4a32a01b9e72803430fcb8b2ce1bbf1600ad5cb913bf3ab"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/presentation-20260914.md",
+    "bytes": 4949,
+    "sha256": "67ac299aa966c18551157547b7e6be323d95e3777c1d1709dfb67097072e5832"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/presentation-gateway-20260915.md",
+    "bytes": 8125,
+    "sha256": "b117fccd947a576d4e41b5a4c8118748c8296793f1e8496736014a643347e03e"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/projection-runtime-20260915.md",
+    "bytes": 9578,
+    "sha256": "f06744d45cd5024ebb89b892fd1e00d84dc19810bdcab311cac3ad5cd22dcaf2"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/visual-orchestration-20260915.md",
+    "bytes": 8849,
+    "sha256": "4ed573cba3a80e50252f90077a6bb1c03c6050efa0e875db93c1191a8d3c7a10"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/visual-orchestration-input-20260915.json",
+    "bytes": 53707,
+    "sha256": "d9d3206569e7719c015fb89751ceb94092468609696b209061feda4519885635"
+  },
+  {
+    "path": "engineering/research/review-surface-2026-09-09/visual-reference-audit-20260915.md",
+    "bytes": 7105,
+    "sha256": "eb14a388a9d3e1d63a502df4243d163d3164009ec3f6c6142466ba42acdb7497"
+  },
+  {
+    "path": "engineering/research/spark-explore-2026-09-13/README.md",
+    "bytes": 5016,
+    "sha256": "41f22c092a36161181760dd89c609022abcc5f31c683969fc4fa65929c804c6e"
+  },
+  {
+    "path": "engineering/research/spark-explore-2026-09-13/coordination-20260915.md",
+    "bytes": 9321,
+    "sha256": "9bc79be2446d537e7696b56753eed61670016ec468c4b6aa6737bbbeda97ca7c"
+  },
+  {
+    "path": "engineering/research/spark-explore-2026-09-13/coordination-input-20260915.json",
+    "bytes": 110052,
+    "sha256": "9dc973d95f4efeb97921e699d38ca454c3fc365252fd6a9482b247b3bcdc87b9"
+  },
+  {
+    "path": "engineering/research/spark-explore-2026-09-13/coordination-sources-20260915.md",
+    "bytes": 3415,
+    "sha256": "44b64447645a683a6c156261d610ad2846f02d99e7cee19bc4ce11473ee1bf1f"
+  },
+  {
+    "path": "engineering/research/spark-explore-2026-09-13/design.md",
+    "bytes": 13025,
+    "sha256": "33da755b474fd1aeaed22b3bdc4ed18444e0cea7f666505c06910eb434f02f23"
+  },
+  {
+    "path": "engineering/verification.md",
+    "bytes": 4547,
+    "sha256": "f7f9e2bb16e616e3d3be4a13fc27817c891ad5d408faa6e61c38e5276eb9bf61"
+  },
+  {
+    "path": "site/README.md",
+    "bytes": 7641,
+    "sha256": "7ffe399da1f772eca7e2433f57f8753c7edcbc3ea7ec6dac9407ded967229d76"
+  }
+]

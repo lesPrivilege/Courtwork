@@ -1,5 +1,83 @@
 # 当前工程状态
 
+## 2026-09-15 · Main自足接续节点
+
+[本次合流与清理记录](release/final-preparation-2026-09-13/node-20260915.md)保全91个原在途路径并接原owner；Copy/Composer产品提交 `496af6a`，研究/治理登记分别保留事实与待办。Luna复核源码、入口与相关临时树，未完成的RD-006施工树保留。当前产品为该新提交，已发布媒体/安装仍固定 `fd96f96`；Host15/Core4/bridge5与Paper采用9.6不变。视觉、DF-04与G1–G5继续开放；历次“未commit/push”是当时状态，当前节点以本回执接续。
+
+## 2026-09-15 · 多Agent协作瓶颈与Spark评测登记
+
+[8轮裁决](research/spark-explore-2026-09-13/coordination-20260915.md)接RD-005/Spark：少角色、有界隔离与结果reduce，Spark稳定产品位、Explorer临时角色、Provider分离；常驻/端云最小披露为待验证增量。SparkBench与Explorer/continuity轨道接MA-06/ME-09，18个外部URL待核；未实现benchmark、放宽权限/并行、启动后台或关闭产品门。
+
+## 2026-09-15 · 多源投影与Runtime Review增量
+
+[Chat States新5轮](research/review-surface-2026-09-09/projection-runtime-20260915.md)完整读取10轮，原5轮无修订，新增Edited files截图已保全。采用Command/Presentation/Resource/Interaction分源、预制renderer与兼容intent、可选Runtime review metadata；作者自述、Host事实、独立检查与正式接受分列。接原Review/Runtime/资源owner，外部近期能力待核；无产品施工或能力门关闭。
+
+## 2026-09-15 · Presentation Gateway与可组合grammar新增
+
+[Chat States新3轮裁决](research/review-surface-2026-09-09/presentation-gateway-20260915.md)已取得完整5轮，原2轮无修订；上次无增量仅对应当时返回。采用按需披露入口、content/composition受限组合、文本与结构化呈现混排、chart/flow优先验证；Host保留布局及权限约束。沿原facts纵切，无wire冻结、产品施工或能力接受。
+
+## 2026-09-15 · Memory披露与合理遗忘增量
+
+[5轮增量裁决](research/chat-memory-broker-2026-09-12/attention-governance-20260915.md)接Memory Broker/RD-007：任务适用性与抑制、保留/召回/激活分离、可触达而稀疏激活、可追溯沉淀与非破坏性遗忘。原4轮未改；再次引用的Chat States两轮与已登记快照一致。仅登记与fixture条件，无Memory实现、自动清理、schema迁移或产品验收。
+
+## 2026-09-15 · Agent可视化编排与Notes登记
+
+[本轮裁决与引用补账](research/review-surface-2026-09-09/visual-orchestration-20260915.md)完整消费4 turns：Luna探索及历史引用核对，Astra裁决。沿原Presentation facts只读纵切采用受限semantic grammar与composition patterns，补精确版本导出；HITL仍按Runtime/Core原owner分流。通用Notes接RD-007，明确已实现Spark notes与待做用户笔记/跨会话召回的差别。仅研究登记，不打断RD-006，不新增产品工具/schema/依赖或关闭能力门。
+
+## 2026-09-14 · Chat/Preview Presentation研究接续
+
+[原Review Surface接续](research/review-surface-2026-09-09/presentation-20260914.md)完整消费2 turns及图像输入，采用有限语义grammar、Host验证、同实例多placement与UI/Context/正式authority分离。先facts只读纵切再扩展，wire/schema及外部协议待核，不打断RD-006施工；本次无新工具、事件、产品实现或验收声明。
+
+## 2026-09-14 · Object Command语法登记
+
+[对象命令合同](design/object-command-grammar-20260914.md)统一command owner与右键/更多/inline投影，分离when与enablement，首批Project/Chat/Recent仅接真实能力；用户动作清单是候选而非已实现支持。排在当前RD-006真实仓库接入之后，未启动侧栏施工、未创建远端PR。Luna非作者验收与Chrome目验闭环，Astra不重复复验。
+
+## 2026-09-14 · P1 Telemetry与Chrome主验登记
+
+[P1合同](design/context-tps-motion-2026-09-13/telemetry-p1-20260914.md)采用DeepSeek首消费者、normalized provenance、cache last-confirmed与identity fence、ambient/output pulse/真实TPS分层。官方cache hit/miss字段已核；逐token计量/时钟尚未证实，不承诺live decode TPS。Chrome同8859 Host作为人类主验，IAB可用时做路径复验；自动Chrome控制同样超时，用户手动打开即可，不迁key。Luna非作者验收加目验闭环，Astra仅边界裁决。本轮为登记，无新产品计量实现或模型调用。
+
+## 2026-09-14 · Composer Access本地交付待目验
+
+P1已由本地Luna施工、非作者Luna检查并按精确基线同步main工作树：Access进入composer左侧context，下方保留Project事实；未改权限owner/API。[施工回执](design/chat-flow-2026-09-10/composer-access-delivery.md)记录范围。Luna报告组合定向22/22（含权限6/6）、interaction lint与目标diff检查通过；Astra按用户约定不重复复验。源码检查不等于计算布局，390–1200、长标签、弹层/焦点/200%仍待用户刷新目验，未关闭视觉项。此次为本地代施工，不计CW内部仓库接入能力；未commit/push/部署。
+
+## 2026-09-14 · P1施工环境缺口与本地改派
+
+CW内Agent实测仅托管out/、指定仓库文件不可达且无git/exec/browser，正确停止P1施工。Astra纠正发单环境，沿[原P1合同](design/chat-flow-2026-09-10/polish-slices-20260914.md)改派本地隔离树，Luna施工、非作者Luna验收与用户目验，不要求Astra重复复验。仓库接入/DF-04仍是产品能力缺口，不把本地代施工算成CW能力通过。当前为施工中，未push/部署。
+
+## 2026-09-14 · Chat polish与P1 Composer density登记
+
+[独立切片合同](design/chat-flow-2026-09-10/polish-slices-20260914.md)补齐inline/fenced两个selector验收与混合fixture要求，并将Access移入composer左侧context登记为P1；保留原权限owner/ID/API、仅外置已绑定Project事实，重点验768–1200及390宽不新增第二行。Copy、Run聚合、代码阅读面、composer分别交付，不相互冒称通过。本轮仅登记，未移控件或改code样式。
+
+## 2026-09-14 · Copy反馈P0本地修复
+
+[P0回执](design/chat-flow-2026-09-10/copy-feedback-p0.md)：Chat Copy复用1.6s短暂反馈，成功仅按钮Copied、错误保留，旧timer/异步结果不能覆盖新notice；Chat与Attention隐藏pending footer。Luna初稿、Astra修正合流，当前main工作树保留其他writer；35/35定向、interaction lint、diff检查通过，浏览器控制超时故视觉未验。未commit/push/部署，Run聚合与user时间右对齐后续片不混称已交付。
+
+## 2026-09-14 · Chat运行态PR与coding修复复验
+
+[Chat PR登记](design/chat-flow-2026-09-10/run-surface-pr-20260914.md)接完整引用讨论，采用Run聚合、pending动作门控及用户时间右对齐；Run授权与传输演进另片，未实现。[长任务v2](release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/README.md)固定五文件，外部执行70项69通过/1失败；两个实现根因消除，剩余精确ID测试错误构造重复ID，交回修正测试。原实现及证据保留，不将外部测试算成CW执行能力。
+
+## 2026-09-14 · 长任务 coding dogfooding 首轮反例
+
+用户手动粘贴工单，DeepSeek V4 Flash/high在CW真实Run完成13 turns及4份文件产物；[固定交付与外部复核](release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/README.md)核对Host版本/hash。外部实际执行模型自带54测试，44通过/10失败；未知依赖校验异常与多层阻塞传播漏报已复现，交回原Chat修复。产出成立但正确性未通过，未把外部exec算成CW自运行；DF-04及G1–G5不关闭。浏览器自动控制超时后由用户手动loop，本轮未新增自动视觉接受。
+
+## 2026-09-14 · Composer 模型连接与 effort 快选登记
+
+用户两张截图及哈希已保全，[PR工单](research/models-provider-registration-2026-09-14/composer-pr.md)接原Models owner：composer引导至对应Settings模型/API连接，返回保留草稿；effort在composer附近提供可视化离散快选，合法值来自provider adapter，默认/未知/不支持与scope保持原合同。仅登记待实现，未创建远端PR、未改产品或用户配置；用户正在配置的浏览器继续暂停操作。
+
+## 2026-09-14 · 内置浏览器 dogfooding 与 Agents API 候选切分
+
+[本轮裁决与现场记录](research/agents-api-first-2026-09-14/README.md)基于main `7e1a1ff`，保留原治理在途内容。Luna探索/独立持久化复验，Astra裁决与实际浏览器目验：独立8859实例经GUI完成一条Local test Chat，Host/Pi日志保留消息及completed Run。用户正在配置连接，按其要求暂停页面操作并保留实例；刷新接续及真实模型链尚未验证。
+
+附件为研究输入，Agents API进入原P03/P04/DRT-03优先核验候选，先协议/绑定，再工具往返、取消恢复及同Work接续；外部beta/SDK主张待官方复核，不表示已有适配。DF-04继续RD-009固定recipe与GUI纵切，不被第二runtime阻塞。本轮无产品代码修改、不关闭G1–G5或coding能力门，未push/部署。
+
+## 2026-09-14 · 动代码前治理规范
+
+按用户同意将[治理补充](research/repository-governance-2026-09-14/README.md)合入现有AGENTS、architecture、verification与PR模板：动代码前明确责任/owner及跨层理由、正式权威边界、交付声明与退出证据；按真实消费者触发债务，随变更同步当前指针，评审处置接原任务。仅文档规范，不增加审批或自动守卫，不宣称DF-04或真实工作门已完成；未push/部署。
+
+## 2026-09-14 · GitHub独立评审优先消费
+
+[原文、逐项裁决与修订](release/independent-review-2026-09-14/README.md)固定7e1a1ff与SE ec8d57e，用户补充REVIEW.md逐字节保全。Luna有界探索，Astra裁决及入口修订：IR-01继续真实G1–G5；IR-02明确coding已触发DF-04，沿RD-009施工入口；IR-03/04在实际Runtime替换/领域增量时兑现，不新增预览前置。IR-05同步Host15/Core4/bridge5、当前媒体及SE9.8已发布状态。已有预览证据保留；本轮消费不关闭真实工作或coding能力门，未push/部署。
+
 ## 2026-09-14 · 发布收敛与历史材料保全
 
 [最终筹备回执](release/final-preparation-2026-09-13/README.md)汇总并行交付合流、前后端组合验证及Astra实际浏览器目验。产品源码固定 `fd96f96bc40725e301a4c92e0f2f50fd3245458c`：Settings/Runtime资源与模板、Models/连接、Context披露及Model草稿语义已合流；组合全量1029项与后续定向回归分列留证。Luna承担有界探索、行为/文档核对，Astra保留架构与发布裁决。

@@ -32,3 +32,9 @@ The attachment's proposed single linear authority order is also not locally esta
 Astra adopts the existing workflow: one source of truth per owner; retrieve the relevant entry points by task; use the nearest implemented precedent; and keep executable checks separate from semantic and visual judgment. The sole new mechanism is the short, manual [PR template](../../../.github/pull_request_template.md), with five asks: problem and behavior change; applicable owner, nearest precedent and task record; new semantics/registrations or “None”; verification evidence and limits; author and independent reviewer responsibilities. It links the existing UI change template and risk-based verification guidance rather than duplicating either.
 
 This template is a handoff aid, not a new owner contract, automated report or release gate. No YAML resolver, universal schema, child `AGENTS.md` files, new significance levels or mandatory four-agent sequence is added. Owner authority and verification rules remain in their current sources; no additional owner rule changed.
+
+## 用户同意后的规范补充 · 2026-09-14
+
+用户在[独立评审消费](../../release/independent-review-2026-09-14/README.md)后同意先固化动代码前的治理规则。Astra将变更归属与局部性、正式权威边界、消费者触发的债务处置合入[architecture](../../architecture.md)；声明与退出证据、作者/非作者/人审范围和当前指针同步合入[verification](../../verification.md)。AGENTS只保留行动提示，PR模板索引原任务中的对应事实与评审处置。
+
+本补充沿现有owner执行，不增加审批、路线图或自动守卫。DF-04 recipe、Pi生命周期接口与领域迁移仍属各施工合同。本轮仅规范与模板修改，保留前轮评审消费及入口修订；文档链接与diff检查用于验证本片，无产品代码、运行测试、push或部署。

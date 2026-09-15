@@ -8,6 +8,8 @@
 
 ## 系列索引
 
+外部规范专题：[Apple HIG消费轨道](apple-hig-track-20260914.md)，按原工单采用Agency、反馈与交互连续性；官方核验和本地推论分列。
+
 | 文档 | 责任 |
 |---|---|
 | [principles.md](principles.md) | 设计目标、成熟行为底线与陌生化边界 |

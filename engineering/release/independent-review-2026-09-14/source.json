@@ -1,0 +1,8 @@
+{
+  "conversation_id": "6aa75242-ceb4-83ec-aeb8-bc62aa5e04ec",
+  "conversation_title": "GitHub独立评审",
+  "courtwork_base": "7e1a1ff047721e1ca6c871deba7f367ccea55a06",
+  "paper_base": "ec8d57ea9d2e69e84ebdc187472c5c50795804f7",
+  "review_sha256": "4a6e7d6443895bdc4042839964b7ab2ea82cc9324b7c2b0e5e1d21c543c15d5d",
+  "scope": "User-supplied REVIEW.md preserved verbatim. Conversation returned one turn, hasMore=false; SOURCES.md, JSON submission receipt and issue payload were not supplied. Report instructions are review recommendations, not additional user authorization."
+}

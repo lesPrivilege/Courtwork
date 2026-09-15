@@ -1,0 +1,304 @@
+✔ validateGraph: 空图合法 (2.2ms)
+✔ validateGraph: 非数组输入返回 invalid 且不抛错 (0.137083ms)
+✔ validateGraph: 合法图（链 / 菱形 / 断开子图） (0.137875ms)
+✔ validateGraph: 任务项不是对象不合法 (0.08975ms)
+✔ validateGraph: id 缺失或非字符串不合法 (0.087417ms)
+✔ validateGraph: 空白 id 不合法（不 trim 修复） (0.062542ms)
+✔ validateGraph: 重复 id 不合法 (0.073334ms)
+✔ validateGraph: deps 缺失或非数组不合法 (0.05675ms)
+✔ validateGraph: 依赖项不是字符串不合法 (0.064042ms)
+✔ validateGraph: 重复依赖不合法 (0.120042ms)
+✖ validateGraph: 未知依赖不合法 (0.166ms)
+✔ validateGraph: 自依赖不合法 (0.0485ms)
+✔ validateGraph: 环（二元 / 三元 / 环+无关分支 / 长环） (0.11425ms)
+✔ validateGraph: 多个独立环各报一条 (0.072083ms)
+✖ validateGraph: id 不做 trim，按原字符串精确匹配 (0.821583ms)
+✔ validateGraph: 特殊字符串 id（原型相关键）合法 (0.047958ms)
+✔ validateGraph: 多处错误一并收集 (0.058917ms)
+✔ validateGraph: 4000 层深链不栈溢出 (5.97ms)
+✔ topologicalOrder: 空图返回空数组 (0.194166ms)
+✔ topologicalOrder: 单节点 (0.097541ms)
+✔ topologicalOrder: 依赖先于被依赖者（输入顺序颠倒） (0.094417ms)
+✔ topologicalOrder: 稳定 Kahn —— 取当前可选节点中原输入索引最小者 (0.064416ms)
+✔ topologicalOrder: 断开子图交错时仍按索引最小优先 (0.046791ms)
+✔ topologicalOrder: 菱形依赖 (0.044833ms)
+✔ topologicalOrder: 结果满足拓扑约束且包含全部 id (0.078ms)
+✔ topologicalOrder: 无效图抛 TypeError (0.264375ms)
+✔ topologicalOrder: 返回新数组且不修改输入 (0.073125ms)
+✔ topologicalOrder: 深链（颠倒输入）不栈溢出 (6.692917ms)
+✔ getReadyTasks: 空图返回空数组 (0.164667ms)
+✔ getReadyTasks: 无依赖任务在空 states 下均 ready (0.064166ms)
+✔ getReadyTasks: 仅当直接依赖全部 succeeded 才 ready (0.09875ms)
+✔ getReadyTasks: 依赖处于 running / failed / blocked 均不 ready (0.072792ms)
+✔ getReadyTasks: 自身非 pending 的任务不 ready (0.054417ms)
+✔ getReadyTasks: states 遗漏的任务视为 pending (0.054ms)
+✔ getReadyTasks: 按原输入顺序返回 (0.043583ms)
+✔ getReadyTasks: 不纠正非法状态组合（依赖 succeeded 但祖先是 failed 仍 ready） (0.079959ms)
+✔ getReadyTasks: 未知 id / 非法状态 / states 非对象 / 无效图 抛 TypeError (0.306042ms)
+✔ getReadyTasks: 不修改 tasks / states (0.173625ms)
+✔ getBlockedTasks: 空图 / 无失败来源时为空 (0.097333ms)
+✔ getBlockedTasks: 自身 pending 且有 failed 直接依赖 (0.067459ms)
+✖ getBlockedTasks: 多层传播 (0.611708ms)
+✖ getBlockedTasks: blocked 祖先继续向下传播 (0.156208ms)
+✖ getBlockedTasks: 菱形依赖 (0.122959ms)
+✖ getBlockedTasks: 不重列其他状态的任务 (0.117625ms)
+✔ getBlockedTasks: 失败节点的上游与旁支不受影响 (0.068ms)
+✖ getBlockedTasks: 按原输入顺序返回（输入顺序 != 拓扑序） (0.119792ms)
+✔ getBlockedTasks: 断开子图互不影响 (0.111958ms)
+✖ getBlockedTasks: 深链传播不栈溢出 (4.098416ms)
+✔ getBlockedTasks: 未知 id / 非法状态 / states 非对象 / 无效图 抛 TypeError (0.211583ms)
+✔ getBlockedTasks: 不修改 tasks / states (0.076209ms)
+✖ ready 与 blocked 在非法状态组合下可以重叠（不做状态纠正） (0.113792ms)
+✔ VALID_TASK_STATES 暴露合法状态集合 (0.031125ms)
+✖ 抛错统一为 TypeError 且带稳定 code (0.123792ms)
+✔ 四个函数组合的综合小场景 (0.070042ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 44
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.331791
+
+✖ failing tests:
+
+test at scheduler.test.mjs:126:1
+✖ validateGraph: 未知依赖不合法 (0.166ms)
+  TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))
+      at Array.from (<anonymous>)
+      at stronglyConnectedComponents (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.mjs:321:62)
+      at validateGraph (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.mjs:266:20)
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:127:18)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7)
+
+test at scheduler.test.mjs:161:1
+✖ validateGraph: id 不做 trim，按原字符串精确匹配 (0.821583ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /unknown task/. Input:
+  
+  'tasks[1].id duplicates tasks[0].id: "a"'
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:166:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'tasks[1].id duplicates tasks[0].id: "a"',
+    expected: /unknown task/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:390:1
+✖ getBlockedTasks: 多层传播 (0.611708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'b',
+  -   'c',
+  -   'd'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:392:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'b' ],
+    expected: [ 'b', 'c', 'd' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:397:1
+✖ getBlockedTasks: blocked 祖先继续向下传播 (0.156208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'b',
+  -   'c'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:399:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'b' ],
+    expected: [ 'b', 'c' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:403:1
+✖ getBlockedTasks: 菱形依赖 (0.122959ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'b',
+      'c',
+  -   'd'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:405:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'b', 'c' ],
+    expected: [ 'b', 'c', 'd' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:410:1
+✖ getBlockedTasks: 不重列其他状态的任务 (0.117625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'c'
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:413:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'c' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:426:1
+✖ getBlockedTasks: 按原输入顺序返回（输入顺序 != 拓扑序） (0.119792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  -   'd',
+  -   'c',
+      'b'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:429:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'b' ],
+    expected: [ 'd', 'c', 'b' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:439:1
+✖ getBlockedTasks: 深链传播不栈溢出 (4.098416ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 1999
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:446:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 1999,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:483:1
+✖ ready 与 blocked 在非法状态组合下可以重叠（不做状态纠正） (0.113792ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'c'
+  - ]
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:487:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'c' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at scheduler.test.mjs:501:1
+✖ 抛错统一为 TypeError 且带稳定 code (0.123792ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:504:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: TypeError: undefined is not iterable (cannot read property Symbol(Symbol.iterator))
+        at Array.from (<anonymous>)
+        at stronglyConnectedComponents (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.mjs:321:62)
+        at validateGraph (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.mjs:266:20)
+        at analyze (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.mjs:356:18)
+        at topologicalOrder (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.mjs:449:20)
+        at file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:505:11
+        at getActual (node:assert:586:5)
+        at strict.throws (node:assert:734:24)
+        at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/Courtwork/engineering/release/harness-implementation-2026-09-12/evidence/dogfood-long-20260914/delivered/scheduler.test.mjs:504:10)
+        at Test.runInAsyncScope (node:async_hooks:226:14),
+    operator: 'throws',
+    diff: 'simple'
+  }

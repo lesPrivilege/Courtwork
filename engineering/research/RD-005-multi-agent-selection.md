@@ -1,5 +1,7 @@
 # RD-005 · Multi-agent 实践选型与执行分工
 
+2026-09-15增量：[多Agent协作瓶颈裁决](spark-explore-2026-09-13/coordination-20260915.md)消费8轮，采用少角色/有界fork/精确结果reduce，Spark产品位与Explorer角色解耦；Swarm继续后置。评测接MA-06/ME-09，Main整合不取代服务owner或独立/正式接受；未改single-active-Run或权限。
+
 2026-09-10；状态：研究已消费、架构方向与候选 PR 已裁定，产品实现未由本次登记接受。Astra 负责架构、取舍、集成及 PR 裁决；Luna 负责 fast explore、边界明确且有成熟参考的实现；瓶颈在模型能力的实现仍由 Astra 撰写。作者不能独立接受自己的代码。
 
 ## 问题与输入

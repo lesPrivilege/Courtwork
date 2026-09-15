@@ -1,5 +1,9 @@
 # Chat Flow construction intake · 2026-09-10
 
+2026-09-14：[本轮polish独立切片](polish-slices-20260914.md)登记inline-code contrast、fenced-code density及P1 composer Access迁移；Copy已有局部修复，其他各自待施工与视觉验收。
+
+2026-09-14：[Agent Run聚合与消息呈现PR登记](run-surface-pr-20260914.md)接用户真实dogfooding反馈，包含运行态分组、pending消息动作时机、user时间右对齐；权限与传输另片。仅登记，未实现。
+
 User supplied three screenshots and a full Chat Flow recommendation while the sequential Home backlog was in progress. User's actual directions: distinguish user messages with right-biased bounded bubbles/left whitespace, consider stronger bubble differentiation, and provide session management at the home of Attention. These steer this implementation. The attached report's multi-agent/runtime scope restriction describes that report; it does not cancel the already-authorized Runtime/Usage backlog.
 
 Immediate: right-aligned bounded authored bubble, asymmetric rounded corners, neutral secondary surface, no mirrored assistant bubble; remove duplicate terminal Run status beside composer. Session management joins the same actual Session owner and will be available from Attention home/recent conversations and the shared management entrance.

@@ -1,5 +1,7 @@
 # Spark 独立 Agent · 数据与组织治理设计裁决
 
+2026-09-15设计增量：[协作瓶颈与产品位裁决](coordination-20260915.md)采用Spark与Explorer解耦；稳定工作区身份可承载多类获准任务，高吞吐是目标。常驻维护/更广私域读权/脱敏出站仍待独立合同，本文及实际Store15的权限、串行和非自动续跑约束不因新定位放宽。
+
 2026-09-13 · Astra；设计基线 main `3f7e0e196a7d28bd867c741cc995d170142c83ae`。用户明确 Spark 作为独立 Agent 存在，要求数据、组织治理有严明体例并由 Astra 裁决 Design。本页为正式工程设计决定，供在途分支合入复裁；字段是待实现的逻辑合同，不宣称现API/schema已具备。继承 [PAPER](../../../PAPER.md)、[治理地图](../architecture-node-2026-09-13/workspace-governance.md)、[RD-005](../RD-005-multi-agent-selection.md)、[RD-007](../RD-007-resource-governance.md)。
 
 ## 1. 独立身份与职责

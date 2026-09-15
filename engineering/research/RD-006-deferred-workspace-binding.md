@@ -43,3 +43,17 @@ PR验收见[施工文稿](deferred-workspace-binding-2026-09-12/pr-plan.md)。�
 ## 2026-09-13入口顺序增量
 
 用户真实验证后的[Recent与可选工作区裁决](deferred-workspace-binding-2026-09-12/recent-onboarding-20260913.md)前置BE-23/DWB-05：普通projectless Chat、顶层Recent、发送前可选组织位置、取消前置命名。先补身份/schema/配置与恢复，外部目录仍由DWB-01/02负责；尚未实施，不以Attention替代。
+
+## 2026-09-14 · 真实仓库读写增量裁决
+
+用户明确要求真实仓库挂载及Access grammar，Astra采用Luna只读探索，启动DWB-01/02并将DWB-04从后置提升为本轮串行施工；不把只读片交付当成读写任务完成。当前核验Host schema15，若施工基线未变化则迁移16，Core4/bridge5不变。迁移由RuntimeStore原owner完成，旧Session默认空绑定，保留managed workspace、历史字节与旧Host拒读规则。
+
+第一施工片冻结绑定与读取：Session至多一个外部目录，独立于projectId、managed cwd/journal和ws_*。Runtime service/store持有稳定binding ID、规范化root及文件系统身份、revision、有效/撤销状态；命令使用requestId与expectedRevision，原回执幂等。新Run固定绑定快照；连接/替换须无活跃Run，撤权立即阻断后续调用并请求取消。新增repo_list/read/grep受控工具，模型只传相对路径。每次访问重验当前授权及root身份，源回执有binding/revision/path/hash/Run归因。绝对host路径不自动进入模型Context。采用现有store命令与事件先例，不另造permission store。
+
+第二施工片是独立外部写入效果，不将ws_write换根：Access持久枚举仍read_only/draft/ask，分别拒写/允许已绑定范围写/精确批准。绑定是用户明确连接目录的动作，Access不赋予其他目录或网络权限。repo_write必须携带目标预期hash（创建要求不存在），批准绑定目标、前态、新内容hash和binding revision。执行前重核；冲突拒绝且不覆盖。单Session写入串行；外部竞争者存在，因此不能把普通先检查后rename宣称原子CAS。施工者必须证明所选平台访问/提交机制的路径竞态与冲突边界；做不到时回报具体缺口，由Astra裁决，不悄悄降级覆盖。
+
+外部写入持久记录prepared/已确认结果/unknown及操作身份，故障恢复仅核对实际前后态，不自动重放未知写入；撤权与批准后的等待均须重新验权，已完成效果不能宣称被撤销。文件删除、移动、任意shell与测试recipe不纳入首个repo_write。使用隔离合成仓库验证越界、symlink/root替换、冲突、撤权、重启与重复请求后，再对接真实dogfood隔离树，绝不默认写共享dirty主树。
+
+第三施工片接GUI：Home与已有Chat复用Access选项/说明/选中态的共享primitive，保留各自保存时点。Project组织选择与Connect repository动作分开；本地浏览器不能直接提供Host目录句柄时可使用明确的Host路径输入与校验回执，不伪装上传为挂载。用户可查看真实绑定范围、失败与断开；能力未接通前不绘制成功态。按原UX grammar和相关precedent施工，不引入Full access语义。
+
+串行验收：每片作者交付后非作者Luna定向验收，再发下一片；GUI加Chrome人类目验。Astra仅处理新语义/集成裁决，不重复验收。此次是架构授权与发单，尚未实现、迁移用户数据或关闭产品能力门。

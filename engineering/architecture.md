@@ -8,6 +8,14 @@
 
 [五层架构裁决](research/architecture-node-2026-09-13/architecture.md)提供Adapter、Harness Core/Extension、Work Core/Extension的当前责任、设计公式及Chat/Attention/Spark/Experts闭环。既往术语与DRT排序已经distill，归档从[canon入口](architecture-runtime-canon.md)回溯；实际代码/owner/缺口见[Luna固定基线核查](research/architecture-node-2026-09-13/explore/implementation.md)。下表仍导航实现，不按目标名推导同名服务已存在。
 
+## 变更边界
+
+动产品代码前，在原任务合同注明本次改变的责任、事实owner、最近实现先例及必要的跨层修改理由。普通Provider、执行能力或垂类增量应沿对应合同接入；评审检查是否复制权威状态、使领域差异侵入主loop，或增加另一套UI语义。需要跨层修改时说明真实接缝与不变量，不能仅按目录数量判断解耦。
+
+执行、领域校验与正式接受分别归原owner。Extension可提供候选、专用动作与能力描述；Core继续检查actor、basis、版本、幂等及正式转换。工具获准执行、模型完成运行或领域校验通过，均不能替代成果接受。
+
+架构债务在原合同记录具体耦合、真实消费者触发条件与最小退出证据。Runtime替换、新领域接入或可复现的不变量失败触发必要重构；文件长度与目录整齐不能单独构成理由。新增自动守卫须有明确可判定的合同边界。具体recipe、生命周期接口和领域迁移方案留在各自施工合同。
+
 ## 当前实现
 
 BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governance.md)由既有Core owner查询领域对象；目录不落第二份状态，新增持久记录只保存Matter披露政策、事件与请求回执。Runtime工具只在全局Attention注入，Host每次捕获执行身份，Core每次检查对象范围与当前披露。
@@ -29,7 +37,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 
 ### 数据归属
 
-Host 的 runtime JSON（schema 13）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 13 分别演进。
+Host 的 runtime JSON（schema 15）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 15 分别演进。
 
 UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 

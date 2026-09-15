@@ -1,0 +1,154 @@
+{
+  "sessionId": "c4d7a7c6-5d57-44c0-b3c0-9ff9f3d2619c",
+  "runs": [
+    {
+      "id": "f31b712a-0ee6-46a5-9283-1523be1deda4",
+      "status": "completed",
+      "provider": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "api": "openai-completions",
+        "realProvider": false,
+        "connectionId": "catalog-fake-openai-loopback",
+        "credentialSource": null,
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 2
+        }
+      },
+      "adapterId": "pi-coding-agent@0.85.1/agent-session",
+      "startedAt": "2026-09-14T03:50:12.041Z",
+      "endedAt": "2026-09-14T03:50:12.092Z",
+      "error": null,
+      "artifacts": [],
+      "usage": {
+        "input": 1,
+        "output": 3,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "turns": 1,
+        "missing": false
+      }
+    },
+    {
+      "id": "4f19530c-be78-4cd3-a12d-e35cd82423b6",
+      "status": "completed",
+      "provider": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "api": "openai-completions",
+        "reasoningEffort": "high",
+        "realProvider": true,
+        "connectionId": "catalog-deepseek",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "enum",
+          "source": "runtime-catalog",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 4
+        }
+      },
+      "adapterId": "pi-coding-agent@0.85.1/agent-session",
+      "startedAt": "2026-09-14T04:02:24.872Z",
+      "endedAt": "2026-09-14T04:08:08.414Z",
+      "error": null,
+      "artifacts": [
+        {
+          "path": "out/scheduler.mjs",
+          "bytes": 16840,
+          "sha256": "32c11281d8c53e8f6b670a41c921415cbc26d83270d942e72ff4ec303256040d",
+          "kind": "content-version",
+          "writtenAt": "2026-09-14T04:05:10.958Z"
+        },
+        {
+          "path": "out/scheduler.test.mjs",
+          "bytes": 21110,
+          "sha256": "12f91325705e963f9db2a353b0fadf27af6177592b719453368bf294bbeeaa87",
+          "kind": "content-version",
+          "writtenAt": "2026-09-14T04:06:04.771Z"
+        },
+        {
+          "path": "out/scheduler.test.mjs",
+          "bytes": 21411,
+          "sha256": "ac01171453c636113a02395de53a7bea6c9f6b0b8c5bf694bfe97ac4ec3b367b",
+          "kind": "content-version",
+          "writtenAt": "2026-09-14T04:06:46.468Z"
+        },
+        {
+          "path": "out/README.md",
+          "bytes": 10914,
+          "sha256": "f98ac6013ff34146be337455806d466ae364d0bb41cf292511ffafee5bf0b0e5",
+          "kind": "content-version",
+          "writtenAt": "2026-09-14T04:07:03.315Z"
+        },
+        {
+          "path": "out/README.md",
+          "bytes": 11159,
+          "sha256": "1210a9891622a00760c73e21b448bdc2624e6ac8ac5e7e2cc1686793a1b5adf1",
+          "kind": "content-version",
+          "writtenAt": "2026-09-14T04:07:17.398Z"
+        },
+        {
+          "path": "out/handoff.md",
+          "bytes": 10326,
+          "sha256": "8169d391b8ba7d9e17782ba28ba83aab91ce377e7a782f05311480df0c7d8e2e",
+          "kind": "content-version",
+          "writtenAt": "2026-09-14T04:07:35.783Z"
+        },
+        {
+          "path": "out/handoff.md",
+          "bytes": 10837,
+          "sha256": "a8dc508dc4c047cc7c5e3d6a745bef015819b086059c7de1de7f89bab459e35d",
+          "kind": "content-version",
+          "writtenAt": "2026-09-14T04:07:59.968Z"
+        }
+      ],
+      "usage": {
+        "input": 31097,
+        "output": 68097,
+        "cacheRead": 634752,
+        "cacheWrite": 0,
+        "turns": 13,
+        "missing": false
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "out/scheduler.mjs",
+      "bytes": 16840,
+      "sha256": "32c11281d8c53e8f6b670a41c921415cbc26d83270d942e72ff4ec303256040d"
+    },
+    {
+      "path": "out/scheduler.test.mjs",
+      "bytes": 21411,
+      "sha256": "ac01171453c636113a02395de53a7bea6c9f6b0b8c5bf694bfe97ac4ec3b367b"
+    },
+    {
+      "path": "out/README.md",
+      "bytes": 11159,
+      "sha256": "1210a9891622a00760c73e21b448bdc2624e6ac8ac5e7e2cc1686793a1b5adf1"
+    },
+    {
+      "path": "out/handoff.md",
+      "bytes": 10837,
+      "sha256": "a8dc508dc4c047cc7c5e3d6a745bef015819b086059c7de1de7f89bab459e35d"
+    }
+  ]
+}

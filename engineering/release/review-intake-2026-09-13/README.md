@@ -87,3 +87,7 @@ G1缺最终候选干净启动与最新wire真实小探针；G2缺最终完整候
 ## 24bd954审查回收与可复现性修复
 
 [本轮逐项处置](round-24bd954/README.md)保存完整会话实际返回、ZIP四原件与Harness补充提案。Luna有界audit/explore，Astra修复历史输入、平台临时目录与README源漂移，明确产品角色和实际支持集合；扩展缺口沿DF-04、RD-005/008/009，不重编旧P卡。[实测与交付](../../../evidence/release-readiness-20260913/README.md)单列本地Node22/24、干净clone、浏览器及真实Provider，远端CI/演示/发行按实际状态记账，不沿旧SHA自动签G门。
+
+## 2026-09-14 · coding条件已触发
+
+[独立评审消费](../independent-review-2026-09-14/README.md)确认用户已将coding dogfooding列为能力目标，DF-04条件已触发；上述首版not-applicable仅属原NDA范围。检查recipe沿RD-009及既有执行owner施工，完整coding声明须有真实Agent测修、人审及接续证据；当前尚未交付。

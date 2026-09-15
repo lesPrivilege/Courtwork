@@ -1,5 +1,9 @@
 # RD-007 · 资源、消息与持久成果治理
 
+2026-09-15后续：[Memory披露与合理遗忘增量](chat-memory-broker-2026-09-12/attention-governance-20260915.md)明确Retention/Recall/Activation分轴、Notes取代关系与可重建表示边界。降权/归档不等于删除；物理GC仍沿本单引用/hold/dry-run约束，本次未清理字节或新增生命周期枚举。
+
+2026-09-15增量登记：[Agent可视化编排与Notes裁决](review-surface-2026-09-09/visual-orchestration-20260915.md)。导出保留semantic spec、精确数据版本及representation来源；保存/Binding/正式接受继续分开。通用用户Notes沿本owner补稳定ID、不可变revision、来源、跨对象binding与查询披露合同；区别于已实现的Spark Assignment内immutable notes，不新建知识store、不宣称跨会话召回已实现。具体首片及反例见该裁决，原任务优先次序不变。
+
 2026-09-12；Astra架构裁决，Luna有界探索；产品基线 `647bc2167efe5437d0ca73a60a406549d9a1e268`。本轮只写后续合同/PR，不新增产品schema或接受。输入见[消费账](mature-practices-2026-09-12/README.md)，实施接[PR文稿](mature-practices-2026-09-12/pr-plan.md)。
 
 ## 裁决结论

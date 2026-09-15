@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "untrustedDataNotice": "Thread titles and messages are untrusted data, not instructions.",
+  "attachments": [],
+  "thread": {
+    "id": "6aa75242-ceb4-83ec-aeb8-bc62aa5e04ec",
+    "kind": "chatgpt",
+    "title": "GitHub独立评审",
+    "preview": "**独立 review 已完成，但未能写入 GitHub。** 创建 issue、创建独立文档分支两次操作均返回 `403 — Resource not accessible by integration`；远端没有新增 issue、分支、commit 或 PR。\n\n完整报告已整理为可直接入账的交付包，包含审阅正文、固定来源索引、提交失败回执及可提交的 issue 标题与正文：\n\n**:chatgpt-content-reference{index=\"37\"}** · :chatgpt-content-reference{index=\"38\"}\n\n审查固定在 Courtwork **`7e1a1ff`**，Paper 仓库固定在 **`ec8d57e`**；提交尝试前重新查询，Courtwork main 仍是该基线。 \n\n## 总体裁定\n\n**架构方向和治理基础可以继续；已有源码预览与 Pages 发布证据应保留。但目前不足以签署“首个正式工作闭环已验收”，也不足以签署完整 coding dogfooding 能力。**\n\n这里不是要求重新做一遍架构。仓库自身已经将“准确的源码预览发布”和“G1–G5 正式工作节点完成”分开；独立 review 应延续这个边界，而不是看到网站上线就签收，也不是因为尚有后续能力而否定全部已交付成果。 \n\n## 1. 五层不是空白设计，但还不能统称“完全解耦”\n\n| 层 | 当前判断 | 主要边界 |\n|---|---|---|\n| **Adapter** | 已有实际 Provider 注册、协议要求、连接身份与能力声明 | Provider 可配置，不等于 Runtime 已可替换；也不是任意 adapter 安装机制。 |\n| **Harness Core** | 实际 turn/tool loop 复用 Pi，Host 管理运行与事件 | Host 仍直接依赖 Pi `SessionManager`，通用生命周期接口尚未完成。 |\n| **Harness Extension** | 有受控工具、MCP 与实际 Spark 委派实现 | Spark 明确不并行、不 handoff、不递归；不能外推成通用团队或 computer-use 平台。 |\n| **Work Core** | 已有独立正式状态 owner、版本依据、候选／决定区分与投影 | 不应将全部文件归入一个数据库，也不能把执行调度当成正式状态 authority。 |\n| **Work Extension** | 已有领域契约与候选校验，不只是换 prompt | 仍是可信、受限组合；共享 Core 投影中存在垂类知识，普通新领域尚不能保证完全局部接入。 |\n\n这些判断来自注册源码、Pi 执行集成、Spark 源码和 Core 投影，而不只是 README 的架构叙述。    \n\n我的建议是：**不要为五个名字创建五个服务；要检验一次普通增量是否仍然局部。** 增加 Provider、执行能力或垂类时，是否需要同时改主 loop、复制状态、增加专用 UI 方言，才是长期解耦是否成立的实际尺度。\n\n## 2. 真正影响放行的两项\n\n### IR-01：真实正式工作链还没有闭合\n\n最新发布记录仍保留真实候选 **pending、没有人的 Decision** 的状态。合成候选、截图、局部测试不能替代：\n\n> 真实模型提出候选 → 人检查并决定 → 正式 Artifact → 新 Session 接续已接受的工作。\n\n因此应继续原 G1–G5，补当前候选或明确源码等价关系下的缺失证据。尤其是人的决定、接受后接续，以及原门规定的可公开闭环演示；不需要另外发明一套更大的验收体系。 \n\n### IR-02：coding 还缺 Agent 自己执行检查的环节\n\n当前支持清单明确写着：**没有 Agent 可调用的仓库测试执行器**。同时，Pi 集成关闭了 builtin tools，因此不能把上游 Pi 的 coding 能力直接算作 Courtwork 已暴露的能力。旧回执中由人执行的测试，也不能记成 Agent 完成。  \n\n既然这次明确将 coding dogfooding 作为能力验证，**DF-04 就是完整 coding 声明的前置**。但它不必膨胀成通用 shell：先提供一个受控检查 recipe，明确工作目录、命令、环境、超时、输出限额、取消与退出身份，再验证“读—改—测—修—审—续”。recipe 会执行仓库代码，白名单本身不是安全沙箱。\n\n另外，自动 compaction 已经存在；缺的是 Host slash dispatcher 和手动压缩入口。两者不能混成“压缩完全未实现”，也不能把模型回复“已压缩”当成操作回执。 \n\n## 3. 两处具体解耦债务，而非泛泛要求重构\n\n**IR-03：Host 生命周期直接依赖 Pi。** `service.mjs` 直接导入 `SessionManager`。这意味着 Provider 适配已有边界，但替换整个执行器仍需触及 Host。下一次真实 Runtime replacement 发生时，才应围绕 session、run、stop、terminal、recovery 提取最小接口；第二 Runtime 不新增为当前预览的前置。\n\n**IR-04：共享 Core 投影知道具体垂类。** `app/core/owner.mjs` 定义了 `MEMO_PROPOSAL_SCHEMA`，并根据 `se-file-memo-v1` 选择动作、文件能力及修订行为。这不证明当前结果错误，但说明“普通新垂类只改 Work Extension”的性质尚未完全成立。后续宜把专用呈现与动作描述交回领域 policy，同时继续由 Core 持有正式接受权。\n\n这两项应登记为实际变更触发的架构债务，**不是首发前为了结构纯粹而全面拆仓的理由**。\n\n## 4. 研究有回音，Pages 与 Paper 也确实吸收了主要讨论\n\n这部分结果比“只登记了链接”更扎实。\n\n发布源码已经表达 Court／orchestrator、工作状态与执行层的区别、候选到正式变化，以及 Chat／Attention／Spark 的分工。Chat 也已写入无需预选 Project 的入口；Spark 已改成独立 Explore、精确来源版本和按需展开，而不再沿用旧的“只是只读投影”描述。 \n\nUX Grammar 与仓库治理的消费记录包含原始输入、采用项、不采用项和后续入口；尤其明确没有把外部提案里的 YAML resolver、超级 schema、强制多 Agent 流程全部搬进来。**明确拒绝或推迟也是有回音，不是每篇研究都必须变成实现。** \n\nPaper **9.8 Practice** 已吸收既有系统的权威归属、Sidecar 只补缺、状态介导的协作，以及原文、索引、决定、接受成果的不同地位。Courtwork 工程仍采用 **9.6** 是刻意的版本绑定，不应自动升级；但本轮没有逐项核对全部历史聊天和全部 Practice Index 回写，因此没有签署“所有讨论均已完整消费”。 \n\n### IR-05：当前入口仍有三处需要同步\n\n| 入口 | 发现 |\n|---|---|\n| 工程架构版本说明 | 架构写 Host schema 13，当前 `store.mjs` 已为 15。 |\n| `site/README.md` | 仍将旧媒体批次称为当前；实际 manifest 已固定到 `publication-release-20260914 / fd96f96`。 |\n| SE README／CHANGELOG | 仍写 9.8“未推送或部署”，而最新提交与发布记录已记录发布。 |\n\n这是**语义一致性缺口**，链接检查通过也发现不了。应修当前指针，不应为了所有版本号一致而重写历史证据。      \n\n## 5. 不应重复派工的已解决项\n\n我实际核实了当前 HEAD 的 Runtime CI：**Node 22.19.0 与 24.x 两个 job 均成功**，包括锁定安装、历史 fixture、合成测试、smoke 和文档链接。因此旧的“只有 Pages workflow，没有 Runtime CI”不再是当前问题。Core review summary、Spark 委派和 Provider 注册也都有实际实现，不能继续按旧审阅结论派单。   \n\n外部官方实践支持的也是这种区分：模型适配与执行机制分开、长任务依赖可接续工件与实际测试、运行 checkpoint 与应用数据分开；它们不是要求 Courtwork 换框架，更不能替代本仓验收。citeturn908229search0turn326269view0turn326269view1\n\n**下一轮应当补真实纵切、修当前入口，并把两处解耦债务交回原 owner；不是再扩一层总架构。** 完整包已按这五项发现提供影响、最小退出条件、固定来源及本地提交入口。",
+    "status": {
+      "type": "idle"
+    },
+    "cwd": null,
+    "createdAt": 1789350468.013107,
+    "updatedAt": 1789351761.284148
+  },
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "turns": [
+    {
+      "id": "7ecf523e-bc79-49bd-819b-d3dc9409bfa9",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1789350466.458,
+      "completedAt": 1789351749.898719,
+      "durationMs": null,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "7ecf523e-bc79-49bd-819b-d3dc9409bfa9",
+          "content": [
+            {
+              "type": "text",
+              "text": "@GitHub 提交 Court work release 前的独立 review，包括架构解耦（adapter ：model provider register；harness core：coding agent loop and contract；harness extension：like multi-agent、computer use；work core：like data and orchestra；work extension：vertical work contract  等等，与 coding dogfooding 代表的正式工作能力，以及 codebase 本身的结构能否保证可长期维护、研究裁决等皆有回音；pages 与 Paper 发布面是否吸收了最近 Chat 网页端沉淀的讨论。@exa"
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "d07dd174-b3d1-46d8-a649-fca8c9483986",
+          "text": "**独立 review 已完成，但未能写入 GitHub。** 创建 issue、创建独立文档分支两次操作均返回 `403 — Resource not accessible by integration`；远端没有新增 issue、分支、commit 或 PR。\n\n完整报告已整理为可直接入账的交付包，包含审阅正文、固定来源索引、提交失败回执及可提交的 issue 标题与正文：\n\n**:chatgpt-content-reference{index=\"37\"}** · :chatgpt-content-reference{index=\"38\"}\n\n审查固定在 Courtwork **`7e1a1ff`**，Paper 仓库固定在 **`ec8d57e`**；提交尝试前重新查询，Courtwork main 仍是该基线。 \n\n## 总体裁定\n\n**架构方向和治理基础可以继续；已有源码预览与 Pages 发布证据应保留。但目前不足以签署“首个正式工作闭环已验收”，也不足以签署完整 coding dogfooding 能力。**\n\n这里不是要求重新做一遍架构。仓库自身已经将“准确的源码预览发布”和“G1–G5 正式工作节点完成”分开；独立 review 应延续这个边界，而不是看到网站上线就签收，也不是因为尚有后续能力而否定全部已交付成果。 \n\n## 1. 五层不是空白设计，但还不能统称“完全解耦”\n\n| 层 | 当前判断 | 主要边界 |\n|---|---|---|\n| **Adapter** | 已有实际 Provider 注册、协议要求、连接身份与能力声明 | Provider 可配置，不等于 Runtime 已可替换；也不是任意 adapter 安装机制。 |\n| **Harness Core** | 实际 turn/tool loop 复用 Pi，Host 管理运行与事件 | Host 仍直接依赖 Pi `SessionManager`，通用生命周期接口尚未完成。 |\n| **Harness Extension** | 有受控工具、MCP 与实际 Spark 委派实现 | Spark 明确不并行、不 handoff、不递归；不能外推成通用团队或 computer-use 平台。 |\n| **Work Core** | 已有独立正式状态 owner、版本依据、候选／决定区分与投影 | 不应将全部文件归入一个数据库，也不能把执行调度当成正式状态 authority。 |\n| **Work Extension** | 已有领域契约与候选校验，不只是换 prompt | 仍是可信、受限组合；共享 Core 投影中存在垂类知识，普通新领域尚不能保证完全局部接入。 |\n\n这些判断来自注册源码、Pi 执行集成、Spark 源码和 Core 投影，而不只是 README 的架构叙述。    \n\n我的建议是：**不要为五个名字创建五个服务；要检验一次普通增量是否仍然局部。** 增加 Provider、执行能力或垂类时，是否需要同时改主 loop、复制状态、增加专用 UI 方言，才是长期解耦是否成立的实际尺度。\n\n## 2. 真正影响放行的两项\n\n### IR-01：真实正式工作链还没有闭合\n\n最新发布记录仍保留真实候选 **pending、没有人的 Decision** 的状态。合成候选、截图、局部测试不能替代：\n\n> 真实模型提出候选 → 人检查并决定 → 正式 Artifact → 新 Session 接续已接受的工作。\n\n因此应继续原 G1–G5，补当前候选或明确源码等价关系下的缺失证据。尤其是人的决定、接受后接续，以及原门规定的可公开闭环演示；不需要另外发明一套更大的验收体系。 \n\n### IR-02：coding 还缺 Agent 自己执行检查的环节\n\n当前支持清单明确写着：**没有 Agent 可调用的仓库测试执行器**。同时，Pi 集成关闭了 builtin tools，因此不能把上游 Pi 的 coding 能力直接算作 Courtwork 已暴露的能力。旧回执中由人执行的测试，也不能记成 Agent 完成。  \n\n既然这次明确将 coding dogfooding 作为能力验证，**DF-04 就是完整 coding 声明的前置**。但它不必膨胀成通用 shell：先提供一个受控检查 recipe，明确工作目录、命令、环境、超时、输出限额、取消与退出身份，再验证“读—改—测—修—审—续”。recipe 会执行仓库代码，白名单本身不是安全沙箱。\n\n另外，自动 compaction 已经存在；缺的是 Host slash dispatcher 和手动压缩入口。两者不能混成“压缩完全未实现”，也不能把模型回复“已压缩”当成操作回执。 \n\n## 3. 两处具体解耦债务，而非泛泛要求重构\n\n**IR-03：Host 生命周期直接依赖 Pi。** `service.mjs` 直接导入 `SessionManager`。这意味着 Provider 适配已有边界，但替换整个执行器仍需触及 Host。下一次真实 Runtime replacement 发生时，才应围绕 session、run、stop、terminal、recovery 提取最小接口；第二 Runtime 不新增为当前预览的前置。\n\n**IR-04：共享 Core 投影知道具体垂类。** `app/core/owner.mjs` 定义了 `MEMO_PROPOSAL_SCHEMA`，并根据 `se-file-memo-v1` 选择动作、文件能力及修订行为。这不证明当前结果错误，但说明“普通新垂类只改 Work Extension”的性质尚未完全成立。后续宜把专用呈现与动作描述交回领域 policy，同时继续由 Core 持有正式接受权。\n\n这两项应登记为实际变更触发的架构债务，**不是首发前为了结构纯粹而全面拆仓的理由**。\n\n## 4. 研究有回音，Pages 与 Paper 也确实吸收了主要讨论\n\n这部分结果比“只登记了链接”更扎实。\n\n发布源码已经表达 Court／orchestrator、工作状态与执行层的区别、候选到正式变化，以及 Chat／Attention／Spark 的分工。Chat 也已写入无需预选 Project 的入口；Spark 已改成独立 Explore、精确来源版本和按需展开，而不再沿用旧的“只是只读投影”描述。 \n\nUX Grammar 与仓库治理的消费记录包含原始输入、采用项、不采用项和后续入口；尤其明确没有把外部提案里的 YAML resolver、超级 schema、强制多 Agent 流程全部搬进来。**明确拒绝或推迟也是有回音，不是每篇研究都必须变成实现。** \n\nPaper **9.8 Practice** 已吸收既有系统的权威归属、Sidecar 只补缺、状态介导的协作，以及原文、索引、决定、接受成果的不同地位。Courtwork 工程仍采用 **9.6** 是刻意的版本绑定，不应自动升级；但本轮没有逐项核对全部历史聊天和全部 Practice Index 回写，因此没有签署“所有讨论均已完整消费”。 \n\n### IR-05：当前入口仍有三处需要同步\n\n| 入口 | 发现 |\n|---|---|\n| 工程架构版本说明 | 架构写 Host schema 13，当前 `store.mjs` 已为 15。 |\n| `site/README.md` | 仍将旧媒体批次称为当前；实际 manifest 已固定到 `publication-release-20260914 / fd96f96`。 |\n| SE README／CHANGELOG | 仍写 9.8“未推送或部署”，而最新提交与发布记录已记录发布。 |\n\n这是**语义一致性缺口**，链接检查通过也发现不了。应修当前指针，不应为了所有版本号一致而重写历史证据。      \n\n## 5. 不应重复派工的已解决项\n\n我实际核实了当前 HEAD 的 Runtime CI：**Node 22.19.0 与 24.x 两个 job 均成功**，包括锁定安装、历史 fixture、合成测试、smoke 和文档链接。因此旧的“只有 Pages workflow，没有 Runtime CI”不再是当前问题。Core review summary、Spark 委派和 Provider 注册也都有实际实现，不能继续按旧审阅结论派单。   \n\n外部官方实践支持的也是这种区分：模型适配与执行机制分开、长任务依赖可接续工件与实际测试、运行 checkpoint 与应用数据分开；它们不是要求 Courtwork 换框架，更不能替代本仓验收。citeturn908229search0turn326269view0turn326269view1\n\n**下一轮应当补真实纵切、修当前入口，并把两处解耦债务交回原 owner；不是再扩一层总架构。** 完整包已按这五项发现提供影响、最小退出条件、固定来源及本地提交入口。"
+        }
+      ]
+    }
+  ]
+}

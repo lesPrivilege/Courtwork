@@ -1,0 +1,36 @@
+TAP version 13
+# (node:73253) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: current host context reaches the model without changing user input; capabilities use the installed catalog
+ok 1 - current host context reaches the model without changing user input; capabilities use the installed catalog
+  ---
+  duration_ms: 1096.94375
+  type: 'test'
+  ...
+# Subtest: a Run waits for its final event to persist before publishing completion
+ok 2 - a Run waits for its final event to persist before publishing completion
+  ---
+  duration_ms: 495.262708
+  type: 'test'
+  ...
+# Subtest: event persistence failure is reported as runtime failure instead of completion
+ok 3 - event persistence failure is reported as runtime failure instead of completion
+  ---
+  duration_ms: 500.167292
+  type: 'test'
+  ...
+# Subtest: CLI SIGTERM settles a waiting Run and the same data directory reopens
+ok 4 - CLI SIGTERM settles a waiting Run and the same data directory reopens
+  ---
+  duration_ms: 1130.831208
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3877.383125

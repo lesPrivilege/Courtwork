@@ -1,5 +1,13 @@
 # Review Surface：CodeRabbit 自研 PR 准备
 
+2026-09-15再增5轮：[多源投影与Runtime Review协议](projection-runtime-20260915.md)登记Command/Presentation/Resource/Interaction分源、预制件与intent fallback、可选review metadata及作者/事实/检查边界。10轮输入与新增截图保全，外部近期主张单列待核，接原owner，不新增产品能力。
+
+2026-09-15新3轮：[Presentation Gateway增量](presentation-gateway-20260915.md)登记渐进协议披露、可组合grammar与Markdown/Presentation混排；chart/flow接facts之后的优先通用验证。接原Presentation工单，不新建工具系统或产品实现声明。
+
+2026-09-15接续：[Agent可视化编排裁决](visual-orchestration-20260915.md)完整消费4轮讨论，补编排约束、可追溯导出与引用覆盖；通用Notes增量接RD-007，原facts只读纵切继续，不扩工具/schema或另建队列。
+
+2026-09-14接续：[Chat/Preview Presentation验证节点](presentation-20260914.md)消费模型调用有限呈现grammar的完整讨论，接本owner；只读协议进入验证，未实现或冻结API，不改变下述历史证据。
+
 2026-09-09；读取基线 `main@a7a08f035cc5a716b8c7a93024cdfe4e44e4c07d`。用户授权将讨论转为自研 PR 入账；本包登记实现边界、消费次序和验证反例，尚未实现产品或创建远端 PR。
 
 ## 来源与覆盖

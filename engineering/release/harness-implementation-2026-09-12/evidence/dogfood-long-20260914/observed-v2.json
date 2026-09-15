@@ -1,0 +1,68 @@
+{
+  "sessionId": "c4d7a7c6-5d57-44c0-b3c0-9ff9f3d2619c",
+  "files": [
+    {
+      "path": "out/scheduler.mjs",
+      "bytes": 18611,
+      "sha256": "48675f9e7f7e82e77952c50baa8d60805d1da63f2023544c372a790e9fd0b419"
+    },
+    {
+      "path": "out/scheduler.test.mjs",
+      "bytes": 21411,
+      "sha256": "ac01171453c636113a02395de53a7bea6c9f6b0b8c5bf694bfe97ac4ec3b367b"
+    },
+    {
+      "path": "out/scheduler.regressions.test.mjs",
+      "bytes": 10467,
+      "sha256": "5cde3ef9fdc864bfdce70d6cf853cae39a47efdf2c7e463f434ec67f321a69ce"
+    },
+    {
+      "path": "out/README.md",
+      "bytes": 13945,
+      "sha256": "5191e06e84bbe66ab2f6766d65ea71608fc55c484a75c53870eb92f13e369f58"
+    },
+    {
+      "path": "out/handoff.md",
+      "bytes": 15798,
+      "sha256": "3327e915e0fe8ced0b6c3d2ffbfe8bc777c49d179a84d4cf570c40366534c7e8"
+    }
+  ],
+  "run": {
+    "id": "6b4e9527-3988-4194-807e-ff33fbc5dc9f",
+    "status": "completed",
+    "provider": {
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "api": "openai-completions",
+      "reasoningEffort": "high",
+      "realProvider": true,
+      "connectionId": "catalog-deepseek",
+      "credentialSource": "runtime",
+      "contextWindowSource": "catalog",
+      "capabilityNotice": null,
+      "reasoningBinding": {
+        "kind": "enum",
+        "source": "runtime-catalog",
+        "values": [
+          "low",
+          "high",
+          "max"
+        ],
+        "defaultMode": "omit",
+        "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+        "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+        "configVersion": 5
+      }
+    },
+    "usage": {
+      "input": 84705,
+      "output": 43211,
+      "cacheRead": 1127296,
+      "cacheWrite": 0,
+      "turns": 11,
+      "missing": false
+    },
+    "startedAt": "2026-09-14T04:11:02.142Z",
+    "endedAt": "2026-09-14T04:14:12.272Z"
+  }
+}

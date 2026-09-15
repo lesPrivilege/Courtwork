@@ -1,0 +1,18 @@
+{
+  "sessionId": "76935059-9b5e-41db-8667-2f5b0d6b3084",
+  "commandId": "673d88a4-feed-428d-af24-e1c5409e3b56",
+  "session": {
+    "session": {
+      "id": "76935059-9b5e-41db-8667-2f5b0d6b3084",
+      "scope": "unassigned",
+      "projectId": null,
+      "title": "DF-03 长任务 · DAG scheduler",
+      "draft": "",
+      "extensionBinding": null,
+      "createdAt": "2026-09-14T04:00:21.094Z",
+      "workspaceDir": "/tmp/courtwork-dogfood-20260914-ui/workspaces/76935059-9b5e-41db-8667-2f5b0d6b3084",
+      "permissionMode": "draft",
+      "hostSession": null
+    }
+  }
+}

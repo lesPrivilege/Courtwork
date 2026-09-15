@@ -97,3 +97,7 @@ Chat网页端材料、检索/connector与成熟交互索引用于论证连续性
 ## 结构化工作现场与间接披露接续 · 2026-09-13
 
 [Workspace Substrate正式裁决](workspace-substrate.md)把Agent入场前的资料组织、共享版本索引、Runtime私有cache、项目挂载与机器消费分开。它是现owner提供的查询/引用能力，不新增执行层或统一总账；Spark本轮即时实现的范围另看实际交付。普通Agent通信不逐次进入人工Review，正式效力仍由原合同决定。
+
+## 2026-09-14 · 独立评审的实际增量约束
+
+[IR-03/04裁决](../../release/independent-review-2026-09-14/README.md)定位Host对Pi SessionManager的生命周期依赖，以及共享Core投影内的memo专用schema/contract-id分支。下一Runtime替换沿原替换矩阵提取最小生命周期接口；下一Work Extension增量将领域动作与呈现描述交回可信policy，以共享owner不再增加专用ID分支验证。Core正式接受权保持。本条登记实际消费者触发的债务，不启动全面重构或新增预览门。
