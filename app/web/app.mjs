@@ -5643,6 +5643,14 @@ function openWorkspaceCard(anchor) {
   popover.showPopover();
   const field = popover.querySelector('[data-repository-field="open"], [data-repository-field="path"], [data-repository-field="disconnect"], [data-repository-field="remove"]');
   (field || header.querySelector("button")).focus();
+  // The card states Host facts (binding, candidate, write count) that a run
+  // may have advanced since the Session was last read; read it back now.
+  const session = currentSession();
+  if (session) void request(`/sessions/${encodeURIComponent(session.id)}`).then((detail) => {
+    if (currentSession()?.id !== session.id) return;
+    applySessionUpdate(detail.session, session.id);
+    if (popover.matches(":popover-open")) renderWorkspaceCard();
+  }).catch(() => {});
 }
 /* RD-006 · the strip above the composer says where this chat works: the
  * connected folder (Workspace), the execution location and the Git branch
