@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-16 · Claude 施工单 04：Run 工作面
+
+[04 记录](execution/claude-frontend-harness-2026-09-16/04-run-surface.md)：Run surface 原 PR 的未完项处置——"已完成动作"指调用已结算而非 Run 已结束，执行披露对任意已知 Run 折叠已结算成功调用，当前调用/失败/待批准保持可见；用户消息 footer 动作在前、时间贴气泡右缘；run-rows.mjs 持有工具字形、工具与检查详情、工具行渲染，Chat 与 Attention 同源；工作面只属 session 视图。用户中途指令：窄屏停靠带透明，composer 自身阴影承担过渡，不引入 blur。定向 57/57，`npm test` 1117 项中 1116 通过，唯一失败为一条迁移后过期的源码断言（改指后 16/16）；作者浏览器目验失败写入 + 成功检查、两次成功折叠、时间对齐。渲染器仍整体重建（状态外置恢复）；question/permission 卡两面一致性留 10 片；非作者复核与真实 provider 未做；未 push/部署；05（Models 原 PR）未开始。
+
 ## 2026-09-16 · Claude 施工单 03：Host 检查 recipe（DF-04 首个消费者）
 
 [03 记录](execution/claude-frontend-harness-2026-09-16/03-check-recipe.md)：一条固定 recipe（node-test）只在私有 candidate 内以 detached 进程组、最小环境、120 s / 64 KiB 限额执行；模型只传 recipeId，`check_run` 在 read_only 下 deny、其余一律 ask，批准卡陈述实际命令/位置/限额/环境；Host 以 `check.started`/`check.settled` 自行结算，取消只在进程组退出后落词，重启后未结算记 unknown 不重放；工具行状态词 Exit N / Cancelled / Timed out / Unknown，退出 0 不是接受。定向 66/66，`npm test` 1109/1109（Node 25.9，并发 4）；作者浏览器在同一 candidate 走通 Exit 1 → 精确批准修复 → Exit 0。RD-009 与 DF-04 已回写；Settings/Runtime 的 recipe 入口、真实模型发起、非作者复核未做；未 push/部署；04（Run 工作面）未开始。

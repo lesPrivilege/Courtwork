@@ -29,3 +29,7 @@ SSE/有界long-poll：defer至传输切片。先量测provider→Host→浏览�
 用本轮scheduler Run事件作脱敏固定回放：多次读写/中间叙述仍聚合，工具数量/顺序及日志身份不丢，批准动作绑定原call。覆盖completed/failed/cancelled/unknown/等待批准、空final、重复/迟到事件、刷新与历史重开；确定性Host+GUI复验不能替代真实模型结果。
 
 完整Chat/Attention共享消费者、桌面与390px、明暗、键盘、200%缩放、长代码/长中文、reduced-motion；核对用户时间右缘、动作目标、滚动与选择保持。按变化选projection/行为测试及interaction lint，后端权限/传输另跑真实接缝。Astra负责架构/关键视觉，Luna探索及非作者复验。文档登记不宣称实现、部署或独立产品接受。
+
+## 2026-09-16 · 主片实现回执（Claude 施工单 04）
+
+沿本 PR 主片在 [04 记录](../../execution/claude-frontend-harness-2026-09-16/04-run-surface.md)实现三项未完项：已结算成功调用在任意 Run 状态下折叠、用户时间贴气泡 footer 右缘、Chat 与 Attention 共用 `run-rows.mjs` 的工具行。中间叙述不带 footer、Stop 三态、刷新只读回原 Run 经比对已在 Copy P0 与既有实现中交付；"Allow edits for this run"按上文继续不出现。作者定向与全量测试通过，浏览器目验一条含失败写入与两次检查的 Run；非作者复验、390/200% 目验与 SSE 传输片仍开放。

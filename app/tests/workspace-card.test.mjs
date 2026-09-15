@@ -196,7 +196,8 @@ test("Strip placement and shell wiring for the Workspace control", () => {
   assert.match(app, /onRepository: go\(\(\) => openWorkspaceCard\(\$\("show-run-button"\)\)\)/, "after work starts the overview reaches the same card");
   assert.match(app, /if \(state\.homeRepositoryPath && session\.repositoryBinding\?\.status !== "active"\) \{\s*operation\.bindRequestId \|\|= crypto\.randomUUID\(\);/, "Home binds the draft before the first run with a stable requestId");
   assert.match(app, /const detail = await request\(`\/sessions\/\$\{encodeURIComponent\(id\)\}`\);\s*applySessionUpdate\(detail\.session, id\)/);
-  assert.match(app, /tool === "repo_read" \|\| tool === "candidate_read"\) return "file-text"/);
+  const runRows = readFileSync(`${root}app/web/run-rows.mjs`, "utf8");
+  assert.match(runRows, /tool === "repo_read" \|\| tool === "candidate_read"\) return "file-text"/, "repository reads share the read glyph in the shared row renderer");
   assert.match(css, /\.context-chip\[aria-expanded="true"\]/);
   assert.match(server, /"workspace-card\.mjs"/, "the Host serves the card module");
 });
