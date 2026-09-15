@@ -886,6 +886,46 @@ test("schema17 candidate API keeps source reads separate, asks before writes, re
     assert.equal(effects[0].status, "confirmed");
     assert.equal(effects[0].contentSha256, sha256(Buffer.from("edited in private candidate\n")));
     assert.equal(effects[0].result.writeRevision, 1);
+
+    const diffResponse = await h.api("GET", `/sessions/${session.id}/repository-candidate/diff`);
+    assert.equal(diffResponse.status, 200, JSON.stringify(diffResponse.json));
+    assert.equal(diffResponse.json.schemaVersion, 1);
+    assert.equal(diffResponse.json.candidateId, candidateId);
+    assert.equal(diffResponse.json.baseCommit, baseCommit);
+    assert.equal(diffResponse.json.writeRevision, 1);
+    const diffFile = diffResponse.json.files.find(file => file.path === "tracked.txt");
+    assert.ok(diffFile, "diff lists the written path");
+    assert.equal(diffFile.status, "modified");
+    assert.equal(diffFile.beforeSha256, sha256(original));
+    assert.equal(diffFile.sha256, sha256(Buffer.from("edited in private candidate\n")));
+    assert.ok(diffResponse.json.patch.includes("edited in private candidate"), "patch contains the written text");
+    assert.equal(diffResponse.json.patchSha256, sha256(Buffer.from(diffResponse.json.patch, "utf8")));
+    assert.equal(diffResponse.json.patchBytes, Buffer.byteLength(diffResponse.json.patch, "utf8"));
+    assert.equal(diffResponse.json.truncated, false);
+
+    const effectsResponse = await h.api("GET", `/sessions/${session.id}/repository-candidate/effects`);
+    assert.equal(effectsResponse.status, 200, JSON.stringify(effectsResponse.json));
+    assert.equal(effectsResponse.json.schemaVersion, 1);
+    assert.equal(effectsResponse.json.candidateId, candidateId);
+    assert.equal(effectsResponse.json.effects.length, 1);
+    const effectView = effectsResponse.json.effects[0];
+    assert.equal(effectView.path, "tracked.txt");
+    assert.equal(effectView.status, "confirmed");
+    assert.equal(effectView.contentSha256, sha256(Buffer.from("edited in private candidate\n")));
+    assert.equal(effectView.writeRevision, 1);
+    assert.equal(Object.hasOwn(effectView, "contentRef"), false, "effects view must not disclose contentRef");
+    assert.equal(JSON.stringify(effectsResponse.json).includes("contentRef"), false, "no contentRef anywhere in the effects JSON");
+
+    // The plain session read shares the same boundary: neither the candidate's
+    // Host filesystem identity nor the write effect's ArtifactHistory pointer
+    // may leave the Host through GET /sessions/:id either.
+    const sessionAfterWrite = await h.api("GET", `/sessions/${session.id}`);
+    assert.equal(sessionAfterWrite.status, 200);
+    const sessionJson = JSON.stringify(sessionAfterWrite.json);
+    for (const leaked of ["candidatePath", "candidateDirectory", "gitDirectory", "contentRef"]) {
+      assert.equal(sessionJson.includes(leaked), false, `GET /sessions/:id must not disclose ${leaked}`);
+    }
+
     const events = (await h.api("GET", `/sessions/${session.id}/events`)).json.events;
     assert.ok(events.some(event => event.type === "repository.read" && event.data.path === "README.md" && event.data.sources[0].sha256 === sha256(dirtyReadme)), "source repo_read remains bound to the original dirty checkout");
     assert.ok(events.some(event => event.type === "repository.candidate.read" && event.data.operation === "diff"));
@@ -982,6 +1022,22 @@ test("schema17 candidate API keeps source reads separate, asks before writes, re
     await h.runtime.close();
     await rm(h.dataDir, { recursive: true, force: true });
     await rm(source, { recursive: true, force: true });
+  }
+});
+
+test("human candidate diff route requires an active candidate and the work token", async () => {
+  const h = await boot();
+  try {
+    const session = await h.createSession({ permissionMode: "ask" });
+    const beforeCandidate = await h.api("GET", `/sessions/${session.id}/repository-candidate/diff`);
+    assert.equal(beforeCandidate.status, 409, JSON.stringify(beforeCandidate.json));
+    assert.equal(beforeCandidate.json.error.code, "no_repository_candidate");
+
+    const unauthorized = await fetch(h.runtime.url + `/api/v5/sessions/${session.id}/repository-candidate/diff`);
+    assert.equal(unauthorized.status, 401);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
   }
 });
 

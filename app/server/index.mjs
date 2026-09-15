@@ -56,6 +56,14 @@ function publicRuntimeProjection(value) {
     if (key === "repositoryCandidate" || key === "repositoryCandidateSnapshot") {
       projected[key] = item === null ? null : Object.fromEntries(PUBLIC_CANDIDATE_FIELDS
         .filter(field => Object.hasOwn(item ?? {}, field)).map(field => [field, item[field]]));
+    } else if (key === "repositoryWriteEffects") {
+      // Session.repositoryWriteEffects carries `contentRef`, a Host-only
+      // ArtifactHistory pointer (see server/store.mjs) that must never leave
+      // the Host, same rule as the Host paths stripped from repositoryCandidate above.
+      projected[key] = Array.isArray(item) ? item.map(effect => {
+        const { contentRef, ...rest } = effect ?? {};
+        return publicRuntimeProjection(rest);
+      }) : item;
     } else projected[key] = publicRuntimeProjection(item);
   }
   return projected;
@@ -185,6 +193,8 @@ function routeService(service, req, url) {
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "repository-binding" && method === "PUT") return async () => service.changeRepositoryBinding(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "repository-candidate" && method === "GET") return () => service.getRepositoryCandidate(tail[1]);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "repository-candidate" && method === "PUT") return async () => service.changeRepositoryCandidate(tail[1], await body(req));
+  if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "repository-candidate" && tail[3] === "diff" && method === "GET") return () => service.getRepositoryCandidateDiff(tail[1]);
+  if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "repository-candidate" && tail[3] === "effects" && method === "GET") return () => service.getRepositoryCandidateEffects(tail[1]);
   if (tail.length === 2 && tail[0] === "host" && tail[1] === "choose-directory" && method === "POST") return async () => service.chooseHostDirectory(await body(req));
   if (tail.length === 2 && tail[0] === "repositories" && tail[1] === "recent" && method === "GET") return () => service.getRecentRepositories();
   if (tail.length === 2 && tail[0] === "repositories" && tail[1] === "inspect" && method === "GET") return () => service.getRepositoryInspection(url.searchParams.get("rootPath"));

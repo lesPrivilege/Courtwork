@@ -47,7 +47,7 @@ import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../r
 import { createRuntimeLoadTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
-import { createPrivateRepositoryCandidate } from "../runtime/repository-candidate.mjs";
+import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } from "../runtime/repository-candidate.mjs";
 import { runRepositoryCandidateFs } from "../runtime/repository-candidate-fs.mjs";
 import { createRepositoryCandidateTools } from "../runtime/repository-candidate-tools.mjs";
 import { chooseHostDirectory, DirectoryPickerError } from "../runtime/host-directory-picker.mjs";
@@ -729,6 +729,56 @@ export class RuntimeService {
       baseCommit: candidate.baseCommit, objectFormat: candidate.objectFormat,
       writeRevision: candidate.writeRevision, createdAt: candidate.createdAt,
     } : null, revision: session.repositoryCandidateRevision };
+  }
+
+  // GET reads of the candidate follow the existing #getRepositoryCandidate
+  // pattern above: a plain store read outside #withConfiguration. That queue
+  // exists to serialize configuration MUTATIONS (bind/create/revoke/writes);
+  // a human diff/effects read changes nothing and does not need it.
+  async getRepositoryCandidateDiff(sessionId) {
+    const session = this.store.getSession(sessionId);
+    if (!session) throw new ServiceError(404, "not_found", "session not found");
+    const candidate = session.repositoryCandidate;
+    if (!candidate || candidate.status !== "active") throw new ServiceError(409, "no_repository_candidate", "no active repository candidate exists");
+    let result;
+    try {
+      result = await readPrivateRepositoryCandidateDiff({
+        candidate: {
+          candidateId: candidate.id, candidatePath: candidate.candidatePath, candidateDevice: candidate.device, candidateInode: candidate.inode,
+          candidateDirectory: candidate.candidateDirectory, candidateContainerDevice: candidate.containerDevice,
+          candidateContainerInode: candidate.containerInode, stagingDevice: candidate.stagingDevice,
+          stagingInode: candidate.stagingInode, gitDirectory: candidate.gitDirectory, gitDevice: candidate.gitDevice, gitInode: candidate.gitInode,
+        },
+        baseCommit: candidate.baseCommit,
+        // No admitPath: this read belongs to the human who owns the folder,
+        // not the model, so per-file policy admission (which governs what the
+        // model may see) does not apply here.
+      });
+    } catch (error) {
+      if (error?.code === "candidate_diff_too_large") throw new ServiceError(413, "candidate_diff_too_large", error.message);
+      if (error?.code === "candidate_base_changed") throw new ServiceError(409, "candidate_base_changed", error.message);
+      throw new ServiceError(503, "candidate_diff_failed", error?.message ?? "candidate diff could not be read");
+    }
+    return {
+      schemaVersion: 1, candidateId: candidate.id, baseCommit: result.baseCommit, writeRevision: candidate.writeRevision,
+      files: result.files, patch: result.patch, patchBytes: result.patchBytes, patchSha256: result.patchSha256, truncated: result.truncated,
+    };
+  }
+
+  getRepositoryCandidateEffects(sessionId) {
+    const session = this.store.getSession(sessionId);
+    if (!session) throw new ServiceError(404, "not_found", "session not found");
+    // Newest first, by push/creation order; effectId/requestHash/contentRef
+    // and every Host path stay out of this projection -- see PUBLIC_CANDIDATE_FIELDS
+    // and the repositoryWriteEffects case in index.mjs's publicRuntimeProjection
+    // for the equivalent redaction on the plain GET /sessions/:id path.
+    const effects = [...session.repositoryWriteEffects].reverse().map(effect => ({
+      id: effect.effectId, runId: effect.runId, candidateId: effect.candidateId, path: effect.path,
+      status: effect.status, bytes: effect.bytes, contentSha256: effect.contentSha256,
+      expectedSha256: effect.expectedSha256, writeRevision: effect.result?.writeRevision ?? null,
+      createdAt: effect.createdAt, settledAt: effect.settledAt,
+    }));
+    return { schemaVersion: 1, candidateId: session.repositoryCandidate?.id ?? null, effects };
   }
 
   changeRepositoryCandidate(sessionId, input) {
