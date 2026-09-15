@@ -1,5 +1,7 @@
 # Spark探索代理与 coding dogfooding · 合入复裁登记
 
+2026-09-15增量参考：[异步节奏与Attention Assistant](async-attention-20260915.md)新增4轮，保留依赖/就绪、结果消费、意图/义务维持与任务约束编译假设；仅登记，不施工。
+
 2026-09-15参考：[Spark形态与Context/Handoff](form-reference-20260915.md)保全5轮对话及截图，仅供后续参考；候选术语、外部快照和语义复利讨论未提升为新合同，不启动施工。
 
 2026-09-15接续：[多Agent协作与Spark定位增量](coordination-20260915.md)区分稳定产品身份、临时Explorer角色和Provider，登记端云最小披露及Spark/Explorer/continuity评测边界；不把常驻愿景当作现有后台/脱敏能力。

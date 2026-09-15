@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-15 · 异步节奏与Attention增量参考
+
+[新增4轮](research/spark-explore-2026-09-13/async-attention-20260915.md)接原Spark参考：完整会话现9轮18条消息、2张截图，原5轮无修订。登记异步依赖/就绪、结果消费及Attention维持意图/义务的讨论；仅供后续消费，无合同升级、施工或开工顺序调整。
+
 ## 2026-09-15 · Spark形态参考登记
 
 [参考记录](research/spark-explore-2026-09-13/form-reference-20260915.md)保存“总结Spark形态”完整5轮10条消息及截图：有界准备角色、Context/Fork/Fresh、Handoff/Receipt和语义复利讨论。按用户要求仅供参考；未采用新对象或合同，未启动施工，当前发布与下一轮开工基线保持下列回执。

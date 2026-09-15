@@ -1,5 +1,7 @@
 # Spark形态与Context/Handoff · 参考登记
 
+后续新增4轮及1张截图见[异步节奏与Attention Assistant](async-attention-20260915.md)。本页与首批5轮快照保留原登记范围。
+
 2026-09-15 · 状态：仅登记以备参考，不施工。接单main `caf3edbceb8cf9b535a28c547088874852752a1e`。本次负责保存输入和检索入口，归属现有Spark研究；最近先例为[协作瓶颈登记](coordination-20260915.md)。不产生新的采用裁决或跨层改动。
 
 ## 来源与保全
