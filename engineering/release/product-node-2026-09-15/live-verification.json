@@ -1,0 +1,71 @@
+{
+  "deployment_sha": "fe7f317b9e14d3ceb1692e1e565b6b8ac71baffe",
+  "run_id": 34946272671,
+  "checked_at": "2026-09-15T08:21:09.164948+00:00",
+  "items": [
+    {
+      "path": "build-manifest.json",
+      "http_status": 200,
+      "sha256": "7dba1c7dd06579794051c699f0c9e983221db3c8b1e2faa1b172d3930277074a",
+      "local_sha256": "7dba1c7dd06579794051c699f0c9e983221db3c8b1e2faa1b172d3930277074a",
+      "match": true
+    },
+    {
+      "path": "index.html",
+      "http_status": 200,
+      "sha256": "684f0676adacb6ef8e86378fda6441f63e4867c94d2c5ce3993e940cd6fe0753",
+      "local_sha256": "684f0676adacb6ef8e86378fda6441f63e4867c94d2c5ce3993e940cd6fe0753",
+      "match": true
+    },
+    {
+      "path": "features.html",
+      "http_status": 200,
+      "sha256": "a599a923e6de390e328be5ebbb24faa59f2198e6fefbc724cb8283deb152dc03",
+      "local_sha256": "a599a923e6de390e328be5ebbb24faa59f2198e6fefbc724cb8283deb152dc03",
+      "match": true
+    },
+    {
+      "path": "chat.html",
+      "http_status": 200,
+      "sha256": "7196a74382db13df5455481f891b3df40a3925835a40ea34169ee41c33386dce",
+      "local_sha256": "7196a74382db13df5455481f891b3df40a3925835a40ea34169ee41c33386dce",
+      "match": true
+    },
+    {
+      "path": "site.css",
+      "http_status": 200,
+      "sha256": "ebbf44e317891e10772a1ee8c572d90663046053670d37b7dd5d5c5621755926",
+      "local_sha256": "ebbf44e317891e10772a1ee8c572d90663046053670d37b7dd5d5c5621755926",
+      "match": true
+    },
+    {
+      "path": "product-pages.css",
+      "http_status": 200,
+      "sha256": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "local_sha256": "e52b7961cc9c9358d7b504abbe4cb9f898e3eca5e6f9fad25680f28c21efcd77",
+      "match": true
+    },
+    {
+      "path": "site.mjs",
+      "http_status": 200,
+      "sha256": "fff54cb98c86ba030acf2f0469b75bae43e1c7c2b4cb447f1a6183881805a4cd",
+      "local_sha256": "fff54cb98c86ba030acf2f0469b75bae43e1c7c2b4cb447f1a6183881805a4cd",
+      "match": true
+    },
+    {
+      "path": "product-pages.mjs",
+      "http_status": 200,
+      "sha256": "65a2edcbd1233742552217fdd76825cbf09a6ff5fd6c8fb696cb0a558e1e0c63",
+      "local_sha256": "65a2edcbd1233742552217fdd76825cbf09a6ff5fd6c8fb696cb0a558e1e0c63",
+      "match": true
+    },
+    {
+      "path": "media/main/manifest.json",
+      "http_status": 200,
+      "sha256": "3e3c59ea3381cc63a38f9c1b0654e8225442eb1fd107e456b63d706ac7468149",
+      "local_sha256": "3e3c59ea3381cc63a38f9c1b0654e8225442eb1fd107e456b63d706ac7468149",
+      "match": true
+    }
+  ],
+  "pass": true
+}

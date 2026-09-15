@@ -1,5 +1,7 @@
 # Engineering release and publication records
 
+[2026-09-15产品节点发布与下一轮基线](product-node-2026-09-15/deployment.md)：公开源fe7f317的Pages发布、线上核对及原单接续。
+
 [2026-09-15产品节点裁决](product-node-2026-09-15/README.md)：README与Pages公开声明可接续的工作场，稳定语义进入二级入口，实施继续原单。
 
 [2026-09-13–14最终筹备与合流](final-preparation-2026-09-13/README.md)：当前merge/push/部署责任、组合检查及开放产品门的单一批次回执。以下具名历史记录保留各自日期与事实，不自动成为当前待办。

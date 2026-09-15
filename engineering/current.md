@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-15 · 产品节点发布与下一轮基线
+
+[发布及开工回执](release/product-node-2026-09-15/deployment.md)：用户追加授权后，公开源`fe7f317`已push并由Pages手动运行34946272671部署成功；下一轮从包含该回执的main实际HEAD接单，先RD-006在途仓库绑定/读写，再DF-04内部recipe与同路径Chat/Presentation/Spark接续。产品最后变更`496af6a`，媒体/安装仍`fd96f96`，Host15/Core4/bridge5与Paper9.6不变；保留原未完成施工树和视觉/DF-04/G1–G5开放项。线上字节核对与完整SHA见回执，不以发布关闭产品门。
+
 ## 2026-09-15 · 可接续的工作场公开节点
 
 [消费与裁决](release/product-node-2026-09-15/README.md)接收完整会话及两份原稿；Luna只读探索，Astra裁定DEC-014产品语义补充。README与Pages登记下一节点：从问题开始，连接材料或仓库，执行、检查并接续真实工作；[产品方向](product-direction.md)冻结有限形态与功能语义，施工沿RD-006真实读写、DF-04/RD-009及原Chat/Presentation/Spark/continuity。此为文档与公开源修订；产品门、schema、已发布媒体/安装与Paper pin不变，实际验证与合流状态见消费回执。
