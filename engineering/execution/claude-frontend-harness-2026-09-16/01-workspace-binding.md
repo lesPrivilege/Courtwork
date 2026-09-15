@@ -41,7 +41,7 @@ Remaining work / accepted-baseline decision: 见下
 | `783a6f4` → `3f23780` → `c9277f1` → `(本片末)` | GUI：先在 composer 行加 Repository 按钮，随用户三条中途指令改为 composer 上方的 Workspace 页签、原生选目录、Connected before、开工后只留 composer；Workspace 语义收敛 |
 | `14dc9ae` | Host 辅助接口：`POST /host/choose-directory`、`GET /repositories/recent`、`GET /repositories/inspect`（Sonnet 5，Fable 规格） |
 
-用户中途指令逐条处置：Open folder 与已登记目录 → 采用（卡片主动作 + Connected before）；类 Codex 的 workspace/Local/tree 条、开工后不显示 → 采用（页签 + 概览行）；运行中更简洁 → 与前项一致，Run 中 composer 只剩既有控件；页签独立卡或 blur → 采用独立实色卡，不用 blur（连续性规范限 blur 于滚动 header）；页签不要框线、口号不必常驻 → 采用（--panel-muted 色阶、有保留 Chat 时不显示口号）；"新版太小、回退上一版"→ 已回退到等宽页签尺寸（`246b04b` 的内收与压低撤销），窄视图有页签时去掉 composer 的浮层阴影，分层只靠色阶。
+用户中途指令逐条处置：Open folder 与已登记目录 → 采用（卡片主动作 + Connected before）；类 Codex 的 workspace/Local/tree 条、开工后不显示 → 采用（页签 + 概览行）；运行中更简洁 → 与前项一致，Run 中 composer 只剩既有控件；页签独立卡或 blur → 采用独立实色卡，不用 blur（连续性规范限 blur 于滚动 header）；页签不要框线、口号不必常驻 → 采用（--panel-muted 色阶、有保留 Chat 时不显示口号）；"新版太小、回退上一版"→ 已回退到等宽页签尺寸（`246b04b` 的内收与压低撤销），窄视图有页签时去掉 composer 的浮层阴影，分层只靠色阶；"卡片略小于 composer 以显示层级、图标略小"→ 页签两侧各收 12px、高度不变，图标 16→14。命名保留 Fable 裁决：外部目录为 Workspace。
 
 ## 作者检查
 

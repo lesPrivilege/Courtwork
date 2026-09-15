@@ -5633,7 +5633,7 @@ function renderContextStrip(session, home) {
   const rootPath = home ? state.homeRepositoryPath : activeRepositoryBinding(session)?.rootPath;
   const locked = home && Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
   const chip = element("button", { className: "context-chip", attrs: { type: "button", id: "workspace-chip", "aria-haspopup": "dialog", "aria-controls": "workspace-popover", "aria-expanded": String($("workspace-popover").matches(":popover-open") && state.workspaceCardAnchor?.id === "workspace-chip") } },
-    semanticIcon("workspace.object", { size: 16 }),
+    semanticIcon("workspace.object", { size: 14 }),
     element("span", { className: "button-label", text: rootPath ? repositoryName(rootPath) : "Choose workspace" }),
   );
   chip.disabled = locked;

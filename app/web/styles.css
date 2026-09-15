@@ -1530,6 +1530,8 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   display: block;
   max-width: var(--column);
   margin: 0 auto -12px;
+  /* Slightly narrower than the composer: the tab is the lower layer. */
+  padding: 0 12px;
 }
 .context-tab {
   display: flex;
