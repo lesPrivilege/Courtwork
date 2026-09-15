@@ -1537,19 +1537,22 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   display: block;
   max-width: var(--column);
   margin: 0 auto -12px;
-  /* Slightly narrower than the composer: the tab is the lower layer. */
-  padding: 0 12px;
+  /* Narrower than the composer by its own corner radius on each side: the
+   * tab starts where the composer's rounded corner ends. */
+  padding: 0 var(--radius-container);
 }
+.home-active .composer-context-strip { max-width: var(--home-column); }
 .context-tab {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 2px;
   width: 100%;
-  padding: 4px 8px 16px;
+  padding: 3px 6px 15px;
   border-radius: var(--radius-container) var(--radius-container) 0 0;
   background: var(--panel-muted);
 }
+.context-tab .context-chip { min-height: 0; padding-top: 3px; padding-bottom: 3px; }
 .composer-form { position: relative; }
 .context-chip {
   display: inline-flex;
@@ -5764,7 +5767,7 @@ html[data-theme="dark"] {
    Simple retains its previous geometry. Cards use the existing host palette. */
 .home-module-band-inner { display: block; }
 .home-module-list { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 24px; align-items: start; }
-.home-module-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 12px; }
+.home-module-footer { display: flex; align-items: center; justify-content: flex-end; margin-top: 8px; gap: 12px; }
 .home-insight-card { min-width: 0; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--panel); }
 .home-insight-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
 .home-insight-head h3 { margin: 0; font-size: var(--text-body); font-weight: 600; }
