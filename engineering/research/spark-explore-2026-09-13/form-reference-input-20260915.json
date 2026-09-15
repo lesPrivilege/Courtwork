@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "registration": {
+    "date": "2026-09-15",
+    "status": "reference-only",
+    "note": "Normalized read_thread result. Message bodies and turn metadata preserved; redundant thread preview omitted; temporary attachment path replaced by portable archive path."
+  },
+  "thread": {
+    "id": "6aa90852-5b14-83ec-9484-8cf996dca82a",
+    "kind": "chatgpt",
+    "title": "总结Spark形态"
+  },
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "attachments": [
+    {
+      "name": "IMG_2469.png",
+      "path": "form-reference-20260915/IMG_2469.png"
+    }
+  ],
+  "turns": [
+    {
+      "id": "c1144dec-0b92-4f3a-a708-b1ae3da130c4",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1789463382.884509,
+      "completedAt": 1789463391.013853,
+      "durationMs": null,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "c1144dec-0b92-4f3a-a708-b1ae3da130c4",
+          "content": [
+            {
+              "type": "text",
+              "text": "对， 尤其是在CW和SE的理念之下，那么哪些语义更稳定，有更高的权重，其实已经在仓库或者工作群进行了一轮治理，那么复利会更方便。"
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "57416dd5-cd0e-479e-8bee-079b875ae304",
+          "text": "对。这其实已经开始表现出 **SE 自己的“复利机制”**：真正累积的不是某个 Agent Framework 的知识，而是被治理过、可复用的**语义资本**。\n\n以前做一次外部 Explore，容易变成“发现一个新框架 → 重新讨论架构 → 重新命名对象 → 再做一次迁移”。现在 CW/SE 已经有了一层相对稳定的判断基底，例如 `Event Log ≠ Matter State ≠ Model Context`、Context 是 governed work state 的临时投影、Matter 高于 Session、正式变化与探索过程分开。fileciteturn8file0L31-L61 早先的产品 ontology 也已经主动区分 Matter、Operator、Lane、Run、Event、Artifact/State、Review，并明确“不要把所有并行调用都叫 multi-agent”。fileciteturn8file8L680-L725\n\n因此新实践进来以后，首先不是问“要不要采用它”，而是问：\n\n| 权重 | CW / SE 中的性质 | 新实践进来以后怎么处理 |\n|---|---|---|\n| **最高** | 工作与效力不变量 | 除非出现强反例，否则新框架必须适配它 |\n| **高** | 稳定产品语义 | Matter、Workstream/Lane、Run、Artifact、Handoff、Receipt、Attention 等 |\n| **中** | Context / orchestration policy | continue / fork / fresh、fan-out、verification、single-writer |\n| **低** | Runtime topology | supervisor、subagent、agent-as-tool、peer handoff |\n| **最低** | Provider/API 实现 | Claude Thread、Codex Session、Agents SDK Handoff、A2A wire format 等 |\n\n这样一来，**外部世界变化越快，反而越能检验哪些内部语义不折旧。**\n\n例如这轮看到的 Fork，并不会迫使 CW 增加一个“Fork Agent”概念。它只是在现有体系下被吸收为：\n\n> `Compiled Context` 的一种构造策略。\n\nFresh 也一样：\n\n> 不继承 parent transcript，但从当前 Matter 重新编译一个独立 Context。\n\nCognition 的 single-writer 实践也不需要成为新的架构流派，它只是加强了已经存在的：\n\n> exploration/proposal 可以并行，commitment 必须经过治理边界。\n\nA2A 的 Task / Message / Artifact 区分，则可以用来检验 CW 自己的 Work / Event / Artifact 分离是否合理，但协议本身依然终止在 adapter。这个原则在此前 GUI/runtime 治理里其实已经明确登记：协议兼容不应该反过来决定 CW 的 human-facing ontology；trace 也只是 evidence，而不是 work state。fileciteturn8file4L415-L422\n\n所以仓库经过这一轮治理以后，会产生一个很实际的收益：**以后选型的成本从“重新定义产品”降成“做映射”。**\n\n比如：\n\n```text\nClaude fork\n→ ContextPolicy.Fork\n\nOpenAI handoff\n→ RuntimeHandoffAdapter\n→ CW Handoff\n\nA2A Artifact\n→ external artifact representation\n→ CW Artifact / Evidence\n\nDevin child session\n→ one possible Run / Workstream topology\n\nSpark parallel workers\n→ bounded Workstream fan-out\n```\n\n上面的左边可以每三个月换一轮，右边不需要跟着换。\n\n而且它不只降低架构讨论成本，还会逐渐降低 **Agent Coding 的施工成本**。因为本地 Agent 接到一个新功能时，不再自己临场判断“thread 是什么”“状态放在哪里”“handoff 应不应该是一条 message”“这个 provider 的 session 是否就是用户工作对象”。这些问题已经被上位语义裁掉了。它只需要在已经治理过的边界下面施工。\n\n这也是最近 `product-direction` 那一步很有价值的地方：现在已经明确“工作现场独立于一次执行而存在”，模型、执行器和任务角色围绕它参与；并且产品角色、Agent identity、Provider、execution permission 分轴。fileciteturn11file4L305-L326 于是 Multi-Agent 的新发现不会重新把产品拖回“Agent 组织结构图”。\n\n我甚至会把这种复利概括成：\n\n> **SE 把一次性的架构判断，逐步变成后续研发的先验。**\n\n外部 Explore 的价值也因此变化了。早期是在**寻找答案**；现在更多是在**寻找反例、补充实现谱系、校准既有边界**。如果新的成熟实践与现有 Canon 同向，它增加置信度；如果冲突，就定位究竟是低层实现不同，还是我们真正冻结错了一个高权重语义。\n\n这也意味着后续 Codex 登记这类研究时，最好不只按“Subagent / Multi-Agent”主题归档，而增加一个很轻的 **semantic impact** 标记：它是在验证已有 Canon、修订稳定语义、增加 Runtime 映射，还是仅仅提供实现候选。这样一年之后回看，真正留下来的不是几十份框架调研，而是一条越来越稳定的判断链。"
+        }
+      ]
+    },
+    {
+      "id": "c7ca8bd0-b587-4019-946b-aa1a167de137",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1789462990.2779222,
+      "completedAt": 1789463253.523915,
+      "durationMs": null,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "c7ca8bd0-b587-4019-946b-aa1a167de137",
+          "content": [
+            {
+              "type": "text",
+              "text": "我建议进行一轮外部explore快照，以备后续研发消费。 同时历史对话中关于 sub-agent 或者 multi-agent 的讨论也可以一并照回，我会交给 Codex登记入账。"
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "53428f80-4f8b-4b9e-b835-b6971a54b4b3",
+          "text": "可以。这一轮外部快照之后，结论比刚才更明确：**社区正在从“Multi-Agent = 多个角色”转向“Multi-Agent = 多个上下文、执行线程与工作单元如何安全地分叉、隔离、汇合”**。这与 CW 最近从“编排 Agent”外推到“让工作持续存在”的方向基本同向。\n\n下面这份可以直接作为给 Codex 的研究登记稿。\n\n# CourtWork · Context / Handoff / Multi-Agent External Explore Snapshot\n\n**Date:** 2026-09-15  \n**Purpose:** 为后续 CourtWork 的多执行者、Subagent、Fork/Fresh Context、Handoff、Thread/Workstream 与并发研发留下外部世界快照；同时照回此前 CW / SE 已形成的相关判断。  \n**Status:** research / product-architecture input；不是实现规格，不要求当前节点施工。\n\n## 1. 本轮裁决\n\n当前不值得冻结一个 “Multi-Agent Architecture”。\n\n更值得冻结的是一组**低于 Agent 角色、又高于具体 Runtime 的工作语义**：\n\n```text\nMatter\n  ├─ governed work state\n  ├─ artifacts / evidence / decisions\n  ├─ Workstream(s)\n  │    └─ Run(s)\n  │         └─ Compiled Context\n  │\n  ├─ Handoff\n  │    └─ Receipt\n  │\n  └─ Event Log\n```\n\n其中：\n\n**Matter 是持续工作的对象；Workstream 是工作的连续脉络；Run 是一次执行；Context 是为某一次执行编译出来的视图；Handoff 是工作在执行脉络之间的有界转移；Receipt 表示接收和处置；Agent / Model / Runtime / Provider 是执行元数据。**\n\n这与 CW 已登记的上位原则完全兼容：`Event Log ≠ Matter State ≠ Model Context`，Model Context 是治理后工作状态针对具体任务和模型生成的临时投影，而不是 source of truth。fileciteturn8file0L31-L61\n\n---\n\n## 2. 外部世界已经出现的稳定收敛\n\n### 2.1 Role Boundary 正在让位于 Context Boundary\n\nAnthropic 2026 年的官方总结几乎直接验证了截图里的说法：把 Planner / Implementer / Tester / Reviewer 按“工作类型”拆成 Agent，往往会因为不断交接而丢失上下文；更有效的是**按 context boundary 拆分**。同一 feature 和它的 tests 往往应留在同一个上下文，真正独立的 research path、干净接口组件和 black-box verification 才适合拆开。其测试中，多 Agent 同等任务通常消耗单 Agent 的 3–10 倍 token。citeturn875626search4\n\n所以截图中：\n\n> Role Boundary → Context Boundary\n\n不是孤立的社区观点，可以认为已经进入相当成熟的实践共识。\n\nCW 可以再向前一步：\n\n> **Context Boundary 决定是否值得产生新的 execution branch；Role 只是在确有独立责任、权限或能力边界时附着其上。**\n\n---\n\n### 2.2 Fork / Fresh 已经成为真实的两个 execution primitive\n\nClaude Code 当前官方文档已经明确区分两种机制：\n\n- 普通 named subagent 从 fresh context 开始；\n- experimental fork 继承父会话截至分叉点的完整 conversation、system prompt、tools、model 和 history，而自己的后续工具噪声不会回灌主 context；\n- fork 还可以复用父上下文的 prompt cache，并可在独立 worktree 中执行。citeturn321349search0\n\n这说明 Fork 不再只是一个思想实验。\n\n但对 CW 更重要的不是把 Claude `/fork` 抽象进 Core，而是确认：\n\n> **Fresh / Fork 是 Context Construction Policy，不是两类 Agent。**\n\n而且 Fork 仍然不能解决一切。它解决的是**出生时的信息继承**，没有自动解决：\n\n- fork 后父子状态继续漂移；\n- 谁拥有正式写权；\n- 子分支输出怎样回到正式工作；\n- 哪些 findings 被接受；\n- source / evidence 是否仍绑定精确版本；\n- 父分支在子分支运行期间已经发生什么变化。\n\n因此 Fork 只降低了 handoff 的一类损耗，**不能替代 governed merge / handoff / receipt**。\n\n---\n\n### 2.3 Fresh Context 不是缺陷，它有时就是验证机制\n\nCognition 2026 年生产实践得到一个很有价值的反例：Review Agent **故意不继承 coder 的漫长上下文**，只看 diff 并重新寻找必要上下文，反而更容易发现问题。他们最后收敛出来的原则是：\n\n**multiple agents may contribute intelligence, but writes stay single-threaded。**\n\n他们仍明确认为 arbitrary agents 相互协商的 unstructured swarm 大多是干扰项，更实际的是 map-reduce-and-manage。citeturn875626search2\n\n所以不能把产品原则写成：\n\n> Fork > Fresh。\n\n应该是：\n\n```text\nContinue\nwhen accumulated context is still useful and coherent\n\nFork\nwhen a branch needs the same accumulated understanding\nbut its subsequent work should stay isolated\n\nFresh\nwhen independence / clean attention / adversarial verification\nis itself valuable\n```\n\n甚至 CW 的 **Fresh** 不应该意味着“失忆”。\n\n它更准确应该是：\n\n> **不继承 parent transcript，但重新从 Matter 编译当前任务需要的 governed context。**\n\n这点非常重要。否则仍然是在 Chat 范式里理解 Fresh。\n\n---\n\n### 2.4 Multi-Agent 真正擅长的是可独立展开的 breadth，而不是任意分工\n\nAnthropic 的 Research 系统是多 Agent 成功最清楚的正例之一：各 subagent 使用独立上下文并行搜索不同方向，再压缩结果交给 lead agent。他们内部研究 eval 中这一形态显著优于单 Agent，但同时指出 multi-agent 消耗大约是普通 chat 的 15 倍 token，而且**需要大量共享上下文或强依赖关系的任务并不适合这种形态**。citeturn875626search0\n\n这与 Spark 很吻合。\n\nSpark 的 Explore / compare / verify / index 天然容易形成：\n\n```text\none governed input set\n       ↓\nbounded fan-out\n       ↓\nindependent findings\n       ↓\nsource-bound artifacts\n       ↓\nsynthesis / consumption\n```\n\n而不是：\n\n```text\nPlanner → Coder → Tester → Reviewer\n   ↓         ↓        ↓         ↓\ncontinually retelling the same work\n```\n\n所以 **Spark 很可能是 CW 首个自然消费多上下文并行的产品位**，但用户无需看到“5 个 Agent 正在开会”。\n\n---\n\n## 3. Handoff：外部实践正在从“转述”变成“状态与工件转移”\n\n这是这一轮最值得 CW 消费的部分。\n\nOpenAI Agents SDK 已经把两种语义明确分开：\n\n**Handoff** = specialist 接管后续 conversation ownership；  \n**Agent as tool** = manager 保持 ownership，specialist 只是 bounded capability。\n\nOpenAI 同时允许 handoff 携带 structured metadata，并允许对下一 Agent 看到的 history 做过滤；默认完整历史并不是不可改变的系统事实。OpenAI 也明确建议尽可能从一个 Agent 开始，只在 capability / policy / prompt / trace contract 真正发生变化时再拆。citeturn319772view0turn127863view0\n\n更关键的是，OpenAI 的 Handoff SDK 已经把以下几件事拆开：\n\n- handoff metadata；\n- application state；\n- receiving-agent history；\n- filtered / nested history。\n\n也就是说，**“传给下一位什么”不再等同于“复制整段对话”**。citeturn127863view1\n\nLangGraph 从另一条路线得出了类似结果：handoff 本质上是**持久 state 的 transition**；多 subgraph 时必须明确决定哪些 messages 流过去，盲目把完整内部历史传递下去反而会造成 context bloat 和 downstream confusion。citeturn875626search3\n\n这非常支持 CW 把 Handoff 从聊天语法升格成一个受治理对象。\n\n---\n\n## 4. A2A 给出了一个尤其值得借鉴的边界\n\nA2A 不应成为 CW 内部 ontology，但它的对象切分已经非常成熟：\n\n```text\nContext\n  ├── Task\n  ├── Task\n  └── Message\n\nTask\n  ├── Status\n  ├── History\n  └── Artifact(s)\n```\n\nA2A 甚至明确规定：\n\n**Messages 不应该承担 Task output；结果应该成为挂在 Task 上的 Artifact。**\n\nMessages 是通信，Artifacts 是结果。并且关键事实不能假定靠消息可靠投递。citeturn753069view1\n\n它还把 `contextId` 定义为可以包住多个 Tasks 和 Messages 的连续上下文，而不是把 thread 与 task 混为一个对象。citeturn753069view2\n\n一旦 Task 进入 terminal state，就不重新打开；后续 refinement 是同一 Context 下的**新 Task**。同一个 Context 下也可以出现多个并行 Task。citeturn753069view4turn753069view5\n\n这不是 CW 应该复制的 schema，但它是很强的外部旁证：\n\n> **continuity、unit of work、communication、result artifact，本来就应该是不同对象。**\n\n因此 CW 可以比“Thread = Work”更早脱离这一层绑死。\n\n---\n\n## 5. Session / Thread 也越来越明显只是 Runtime substrate\n\nAnthropic Managed Agents 把 session、harness、sandbox 分成独立接口，其中 session 是外置的 append-only event log；harness 即使崩溃也可以替换，因为执行上下文可以从 durable session 恢复。citeturn875626search1\n\n它目前的 multiagent implementation 又进一步说明：同一 Session 下可以存在多个持久 Thread，每条 Thread 都有自己的 isolated event stream / conversation history / model / prompt / tools；但它们又可以共享 sandbox/filesystem。citeturn298640search1\n\n这恰好说明：\n\n```text\nsame workspace\n≠ same thread\n≠ same context\n≠ same agent\n```\n\n对 CW 而言因此应继续坚持：\n\n> **provider-native Session / Thread 是 adapter/runtime object；CW 的工作连续性不能由它定义。**\n\n一个 CW Workstream 今天可以映射到 Claude Thread，明天映射到 Codex thread，后天 fresh compile 到另一个 Runtime。只要 Matter、Artifact、Handoff 和正式 State 没断，它仍然是同一条工作脉络。\n\n---\n\n## 6. 历史对话与现有文档照回\n\n其实这条路并不是今天突然形成的。\n\n较早一轮 CW 产品 ontology 已经写过：\n\n```text\nMatter\n→ Operator\n→ Lane\n→ Run / Operation\n→ Event\n→ Artifact / State\n→ Review\n```\n\n其中当时已经明确：\n\n- 只有真正出现独立 responsibility / scope / tools / authority / completion / escalation 才值得形成新的 Operator；\n- **不要把所有并行调用都叫 multi-agent**；\n- Lane 表示同一 Operator 内部的独立 execution cursor，解决的是 parallelism，而不是 delegation；\n- Transcript 是 execution evidence，而不是 canonical work state。fileciteturn8file8L680-L701 fileciteturn8file8L707-L725 fileciteturn8file8L744-L775\n\n当时也已经把：\n\n> **Session is an infrastructure object; Matter is the user object**\n\n作为产品原则。fileciteturn8file8L793-L831\n\n所以这轮不是推翻旧 ontology，而是可以做一次收敛：\n\n### `Lane → Workstream` 是自然演化\n\n旧 `Lane` 已经抓住了核心：**parallelism 不等于 delegation**。\n\n现在 Workstream 可以把这个概念稍微外推，使它不仅表示同一 Operator 内的 cursor，也可以表示跨 Run、跨 Runtime、甚至跨执行者仍然连续的一条工作线。\n\n现有实现若已经使用 `Lane`，不需要为了命名立刻新增第二套数据库实体；先在概念文档中登记映射即可。\n\n### `Operator` 可以进一步退后\n\n旧 Operator 的判断标准仍然有用，但不必再成为 CW 产品的中心名词。\n\nAgent / Human / Expert 可以作为某条 Workstream 的 participant / executor / authority holder。只有真正涉及稳定责任或授权时，才需要浮现 actor identity。\n\n这正符合 9 月 15 日刚刚收敛的产品节点：工作现场独立于一次执行而存在，模型、执行器与任务角色围绕它参与；工作连续性来自可寻址、可继续的记录，而不是某个 Agent 持有全部历史。fileciteturn11file4L305-L326\n\n而今天已经正式形成的 Chat / Spark / Attention 定义，也明确把产品角色、Agent identity、Provider 和 execution permission 分轴，并要求并行只由**工作能否隔离和独立检查**决定，而不是模型额度决定。fileciteturn11file3L167-L190\n\n---\n\n## 7. 建议冻结的 CW 语义\n\n到目前为止，我认为下面这些已经足以作为一个 **经典而有限的节点**，而不需要等待 Multi-Agent 实现成熟。\n\n| Object / rule | 建议定义 |\n|---|---|\n| **Matter** | 持续工作的 governed object；高于所有 session/thread/run |\n| **Workstream** | 一条可持续、分叉、汇合的工作脉络；不绑定 Agent 或 Runtime |\n| **Run** | 某个 Runtime 对 Workstream 的一次 activation |\n| **Compiled Context** | Matter 针对一次 Run 编译出的临时视图 |\n| **Context mode** | `continue / fork / fresh`；描述上下文来源，不描述 Agent 类型 |\n| **Handoff** | 从一个工作脉络向另一执行脉络移交目标、依据、结果和未决事项 |\n| **Receipt** | 接收端记录实际消费、接受、拒绝、延期或重新编译了什么 |\n| **Artifact / Delta** | Agent 工作的正式可消费输出；不是聊天消息 |\n| **Event** | 发生过什么的 append-only evidence；不等于 canonical State |\n| **Commit boundary** | 正式 Matter State 的变化必须串行化/仲裁，不能由并行 Agent 隐式覆盖 |\n| **Attention** | 只有 authority、真正的不确定判断或人的责任需要时才升级 |\n\n其中最值得明确的一条是：\n\n> **Fresh context ≠ blank state.**  \n> Fresh 表示不继承父执行者的 transcript framing；它仍然应从当前 Matter、精确版本和任务合同重新 Compile。\n\n---\n\n## 8. Handoff 的最小合同草案\n\n暂时不必上升成最终 schema，但可以先登记成研发语义：\n\n```yaml\nHandoff:\n  matter_ref:\n  from_workstream:\n  to_workstream: optional\n\n  objective:\n  basis:\n    state_version:\n    source_refs: []\n    artifact_refs: []\n\n  allowed_actions: []\n  authority_scope:\n\n  result:\n    artifact_refs: []\n    proposed_deltas: []\n    findings: []\n    conflicts: []\n    unknowns: []\n    uncovered: []\n\n  verification_refs: []\n\n  next_context:\n    mode: continue | fork | fresh\n\n  status:\n    offered | received | superseded | withdrawn\n```\n\n再单独存在：\n\n```yaml\nReceipt:\n  handoff_ref:\n  receiver:\n  consumed_refs: []\n  accepted_refs: []\n  rejected_refs: []\n  deferred_refs: []\n  resulting_state_refs: []\n```\n\n这里故意不把“summary”设为承重字段。\n\nSummary 可以帮助读，但 **exact source / artifact / version / delta 才承重**。\n\n这与现有 SE “provenance should be state, not prose”以及 Context 只是 governed state projection 的原则一致。fileciteturn8file1L218-L270\n\n---\n\n## 9. 并发写入应当形成单独的不变量\n\n这一轮外部快照给了 CW 一个值得提前冻结的原则：\n\n> **Parallel reasoning; isolated proposals; serialized commitment.**\n\n可以并行的：\n\n```text\nsearch\nexplore\ncompare\nclassify\ndraft\nreview\nverify\nalternative generation\n```\n\n需要特别治理的：\n\n```text\nshared mutable filesystem writes\nformal Matter state transition\naccepted artifact replacement\ndecision/authority mutation\ncross-branch reconciliation\n```\n\n这和 CW 现有 Proposal / VerificationReceipt / Commit 思路本来就是同一方向；现有 LayerFS 研究甚至已经把 branch-per-rollout、Proposal/Receipt、CAS、reconciliation 和 multi-agent stress 分开登记。fileciteturn10file3L124-L149\n\n所以未来即便底层 fork/worktree/snapshot 技术完全改变，这个不变量也不会轻易折旧。\n\n---\n\n## 10. UI 因而不需要变成 “Multi-Agent Dashboard”\n\n旧 GUI index 里目前存在 `AgentHandoff` 这个 primitive 名称。fileciteturn9file3L67-L74\n\n后续设计复核时可以考虑将其语义提升为：\n\n**Handoff / Work Handoff**\n\n而不是把 Agent 写死在组件 ontology 中。\n\n用户真正需要看的是：\n\n```text\n主工作线\n ├── fork: implementation alternative\n ├── fresh: independent review\n ├── spark: source comparison\n └── resumed continuation\n```\n\n以及：\n\n- 哪条仍在运行；\n- 哪条只是探索；\n- 哪条产生了 candidate delta；\n- 哪个 Handoff 尚未被消费；\n- 哪些 evidence / sources 支撑它；\n- 哪个结果已经 superseded；\n- 哪个正式变化正在等待 Attention / acceptance。\n\nAgent 名称、model、provider、thread id、runtime 都可以向下展开。\n\n这也延续了现有 GUI 裁决：协议应终止在 adapter，不允许 MCP / A2A / AG-UI 等 wire format 定义 CourtWork 的人类产品 ontology；trace 是 evidence，不是 work state。fileciteturn8file4L403-L422\n\n---\n\n## 11. 这一轮明确不冻结的东西\n\n以下都应该继续保留为 Runtime / research implementation detail：\n\n- `fork` 是否由 Claude、Codex 或 CW 自己提供；\n- provider-native Thread / Session ID；\n- Manager / Worker / Supervisor / Teammate 的固定组织图；\n- Planner / Coder / Reviewer 固定成三个 Agent；\n- arbitrary peer-to-peer Agent chat；\n- swarm；\n- 固定并发数；\n- 强制所有 Handoff 复制完整 transcript；\n- 强制所有 Handoff 都 summary；\n- 所有 parallel writer 自动 merge；\n- 把 Agent identity 当长期 work identity；\n- 把当前某个模型的 context-management weakness 固化进产品。\n\nAnthropic 自己已经出现过很典型的折旧案例：较弱模型需要 context reset + structured handoff，换成更强模型后该 reset 机制成为不再必要的复杂度。citeturn298640search0\n\n所以 CW 应冻结**语义接口**，而不是今天的 Harness workaround。\n\n---\n\n## 12. 外部反例也值得直接进入研发索引\n\nMAST 对 7 个 Multi-Agent frameworks、1642 条 execution traces 的研究整理出了 14 种 failure modes，集中在 system design、inter-agent misalignment、verification/termination；研究中不同系统的失败率达到 41%–86.7%。其中明确包括 conversation reset、错误假设、task derailment、information withholding、忽视其他 Agent 输入和 reasoning-action mismatch。citeturn875626academia69\n\n这可以直接变成未来 CW multi-workstream eval 的 failure seed，而不是另造一套抽象 benchmark：\n\n```text\ncontext lost?\nbasis stale?\nimportant evidence withheld?\nresult ignored?\nbranch derailed?\nwrong assumption propagated?\nunverified handoff accepted?\ntwo writers silently conflicted?\nterminal task accidentally resumed?\nsuperseded result treated as current?\n```\n\n这比评估“成功拉起了几个 Agent”有意义得多。\n\n---\n\n# 建议 Codex 入账方式\n\n这份 Explore 最适合独立登记为：\n\n`engineering/research/context-handoff-multiagent-2026-09-15/README.md`\n\n同时只做三个很小的上游回链：\n\n1. `engineering/product-direction.md`：登记 **执行拓扑从属于 Work / Context / Handoff 语义**；\n2. Runtime / Work canon：登记 `continue / fork / fresh` 为待实现的 provider-neutral context modes，不承诺具体 API；\n3. GUI / Review primitive index：登记 `AgentHandoff → Handoff / WorkHandoff` 为后续命名复核项，不要求现在改组件。\n\n**不要另开一个 “Multi-Agent subsystem” roadmap。**\n\n现有产品节点已经明确：“扩展数量、模型数量、并行实例数不代替完整闭环”，Swarm 也不属于当前节点。fileciteturn11file2L59-L67 fileciteturn11file3L183-L192\n\n如果只留一句作为这次研究的架构裁决，我会写成：\n\n> **CourtWork does not model a team of agents. It models work that may continue, branch, be independently re-examined, handed off, and committed across replaceable executors. Multi-agent is one runtime topology over that substrate.**\n\n这句话已经足以统御后面 Fork、Fresh、Subagent、Spark 并行、独立 Review、跨 Runtime continuation，以及未来还没有出现的多 Agent 形态。"
+        }
+      ]
+    },
+    {
+      "id": "83d2cbe4-4336-4328-a8ff-51c3c842038b",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1789462898.311627,
+      "completedAt": 1789462921.072089,
+      "durationMs": null,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "83d2cbe4-4336-4328-a8ff-51c3c842038b",
+          "content": [
+            {
+              "type": "text",
+              "text": "至于如何多 agent 通信，handoff，和 thread， 社区已经有了非常多的个人独自维护的成熟实践，那么其实有一些稳定的边界是可以作为一个产品形态确定下来的。\n\n[User attached 1 image; image contents were not included]"
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "e6f055e6-ea9e-4431-9678-14db16467a4a",
+          "text": "是。截图里最值得消费的不是 “Fork Subagent 比 Fresh Subagent 好”，而是它已经开始把 **Agent 的拆分依据从 Role Boundary 改成 Context Boundary**。CW 再往前推一步，甚至可以把 **Agent 本身从产品主语里拿掉**。\n\n因为 Fork 也没有真正消灭 handoff。它只是降低了“第二个执行者从零理解任务”的成本。分支完成以后，依然存在几个问题：它看过哪些 evidence、产生了哪些新事实、改动了什么、哪些只是推论、哪些已经写回正式状态、父分支此时是否已经继续前进。真正稳定的不是 fork/fresh，而是 **context inheritance + provenance + state transfer**。\n\n因此 CW 可以逐渐固定出一套与任何具体 Harness 无关的产品 grammar：\n\n- **Matter**：持续存在的工作对象。它高于任何 session/thread/agent。\n- **Workstream / Branch**：一个连续执行脉络。可以继承当前 Context，也可以从 Fresh Context 开始；这是 CW 自己的概念，不等于 OpenAI/Claude/Codex 的原生 thread。\n- **Context View**：某个执行者这一刻被允许看到的 Matter 投影。Fork 是继承一个 View 后继续扩展，Fresh 是重新 Compile 一个 View。\n- **Run**：某一次具体执行。谁跑、什么模型、哪个 Runtime、用了哪些工具，属于 Run metadata，不需要成为产品信息架构。\n- **Handoff**：不是一句“子 Agent 做完了”，而是一笔正式的 context/state transfer：输入来源、产物、evidence、diff、未决项、authority 都能被接收方解释。\n- **Receipt**：接收方明确表示“我收到了什么、采纳了什么、没有采纳什么”。这样 handoff 才真正闭环。\n- **Attention / Decision**：只有需要人的 authority 时才把工作抬升出来；Agent 之间完成多少内部协作，不等于正式状态已经改变。\n- **Event Log**：上述过程的执行证据。它记录发生过什么，但仍然不等于 Matter State。\n\n这样之后，“Single Agent / Fork Subagent / Fresh Subagent”实际上只是 **三种 runtime topology**，不是三种产品。\n\n一个连续任务可能一直由同一个 Run/Context 推进；探索可以 Fork 当前 Context；独立审阅可以 Fresh Compile；Spark 可以同时产生很多 bounded workstreams。它们最后都通过相同的 Handoff/Receipt 语义重新汇入 Matter。\n\n这会直接解决很多社区 multi-agent 系统后来才遇到的问题：**不要让 Agent 互相发一堆自然语言消息来维持系统状态。** Agent-to-Agent conversation 可以存在，但只是 execution detail。真正跨 Agent、跨 Runtime、跨时间仍然可靠的通信介质应该是：\n\n**governed state + artifacts + events + typed handoff。**\n\n甚至这与我们之前确立的三层恰好咬合：\n\n**Event Log ≠ Matter State ≠ Compiled Context。**\n\n所谓多 Agent，本质上只是在不断做：\n\n**Matter → Compile Context → Run → produce evidence/delta → Handoff → Govern → Matter**\n\n然后下一条 branch 再重新开始。这里根本不要求下一位执行者知道上一位叫 Planner、Coder 还是 Reviewer。\n\n这也意味着 UI 可以比现在多数 Harness 更稳定。用户不必面对一张“Agent 组织架构图”。真正值得浮现的是 **工作的分叉与汇合**：当前主线是什么、哪里开出了探索分支、哪些是 fresh review、哪个 handoff 尚未接收、哪个 branch 对正式状态产生了 delta、哪里正在等待 Attention。Agent avatar、模型名、Runtime 名都可以退到第二层 metadata。\n\n我认为这里已经有一个很接近“经典而有限”的产品节点：\n\n> **CW 不提供 Multi-Agent UI；CW 提供 Workstream / Context / Handoff / Attention UI。Agent 只是这些结构上的执行者。**\n\n这比现在就设计一个通用 swarm/subagent framework 稳定得多，也和最近 CW 外推后的定义一致：Chat、Spark、Attention 都可以生成和消费这些结构，而不会各自拥有一套通信协议。\n\n其中还可以做一个非常重要的收敛：**CW-owned Workstream 与 provider-native Thread 永远分开。** 一个 Workstream 今天可以映射到一个 Codex thread，明天 continuation 失败以后重新编译到 Claude session，后天再交给另一个 runtime；只要 Handoff 和 Matter 没断，它仍然是同一条工作脉络。这才真正把 Provider/Runtime 可替换落实到了产品层，而不是 adapter 层。"
+        }
+      ]
+    },
+    {
+      "id": "6e23676c-cbae-4c1a-b684-1d200d4115d6",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1789462759.833969,
+      "completedAt": 1789462777.546035,
+      "durationMs": null,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "6e23676c-cbae-4c1a-b684-1d200d4115d6",
+          "content": [
+            {
+              "type": "text",
+              "text": "CW 的定义外推了一步，可以看最近 chat"
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "b473eb87-1eb6-46cb-a63c-ca807f20c047",
+          "text": "对，我刚才那句 **“Spark = throughput-first 的执行位”已经落后于 CW 最近这一步定义**。\n\n最近几轮实际上已经把它外推成了更完整的产品结构：\n\n**CW 不是在编排几个 Agent，而是在定义一个“人和 Agent 持续工作的本地 AI 工作空间”。** 项目、材料、正式状态、来源、决定和成果属于这个持续工作现场；某一次 conversation、某一个模型、某一个 Harness/Runtime 都只是进入这个现场工作的执行者，可以整体替换。\n\n因此三入口现在更准确的是：\n\n- **Chat：承接交谈与执行。**\n- **Spark：准备工作所需的材料。**\n- **Attention：把人带回真正需要判断的位置。**\n\n三者围绕的是**同一件持续存在的工作**，而不是三个不同强度的 Agent。\n\n所以 Spark 又往外走了一层。它现在不首先由模型性能定义，甚至也不首先由“后台 Agent”定义。它更像一个 **bounded preparation layer / preparation role**：提前 Explore、索引、蒸馏、翻译、核对、脱敏、整理上下文，产生可以复用和交接的 preparation artifacts，让主 Agent 少读无关材料，也让人的 Attention 不被准备性劳动占据。\n\n这样一来，**高吞吐只是 Spark 极其合适的一种实现特征，而不是 Spark 的定义本身。**\n\n这也正好能重新解释 Muse Spark、Gemini Flash、Codex Spark，以及我们刚才讨论的企业私有模型：\n\n> 一个企业可以把自己的主权模型基础设施建设成非常强的 **Spark substrate**——因为它安全、本地、可并发、吞吐量高，非常适合大量准备性工作；但它不需要因此承担最终判断，也不需要追平 SOTA 模型的总体智能。\n\n而云端 SOTA、Codex/Claude Code、某个未来 Runtime 可以在需要的时候接管 **Chat / execution**；人只在 **Attention** 面进入真正值得判断的节点。\n\n这里还有一个很重要的边界：**Spark 做了多少准备，都不意味着正式责任转移给 Spark。** 它的产物进入共同工作现场，供后续 Agent 和人消费；取消、撤权、失败、来源和交接都应该有界。因此 Explorer 也不再需要成为一个常驻产品角色——**Explorer 是任务中的临时职责，Spark 才是稳定的产品位。**\n\n所以回到 Muse，我现在会更愿意把它视为一个外部旁证：\n\n**厂商过去积累的是 fast model / background agent / parallel worker；CW 最近这一步把这些东西抽象成了“持续工作空间里的准备层”。**\n\n这比“大家都逐渐有 Spark 模型”更强。模型层的 Spark 可能几年后名字就消失了，但 **Chat — Preparation — Attention** 这种工作分层反而可能是比较稳定的。"
+        }
+      ]
+    },
+    {
+      "id": "667a6ff9-addc-4c41-a270-73c5d1369c05",
+      "status": "completed",
+      "error": null,
+      "startedAt": 1789462647.19259,
+      "completedAt": 1789462677.584848,
+      "durationMs": null,
+      "items": [
+        {
+          "type": "userMessage",
+          "id": "667a6ff9-addc-4c41-a270-73c5d1369c05",
+          "content": [
+            {
+              "type": "text",
+              "text": "muse 的 spark 模型也很有意思，可能之前很多厂商积累了这个 spark 的形态"
+            }
+          ]
+        },
+        {
+          "type": "agentMessage",
+          "id": "d8b023de-243a-4985-ab81-9b655683985f",
+          "text": "是。而且 **Muse Spark 反而把这个谱系暴露得更清楚了：Spark 很可能不应该被定义成“小模型”，而是一种系统角色。**\n\nMeta 在 2026 年 4 月第一次发布 Muse Spark 时，明确说它是 **“small and fast by design”**，但同时从第一版就带 tool use、原生多模态和 multi-agent orchestration；到了 Muse Spark 1.2，Muse Code 又把它用于一组**整个 session 常驻的异步 background agents**，而不是每次任务临时 spawn；1.3 更进一步强调长周期工作、多 workflow 并存、主动补上下文缺口。也就是说，它的发展路径已经是：\n\n**fast model → agentic fast model → persistent background worker → long-horizon high-throughput worker**。citeturn356137search12turn819539search6turn819539search3\n\n这和 OpenAI Codex-Spark 又形成一个很有意思的对照。Codex-Spark 最初更纯粹：专门为了实时 interaction，>1000 tok/s、128K、小模型、targeted edits；但 OpenAI 在发布时已经明确描述最终形态是：**前台维持高速交互，同时把长任务交给后台 sub-agents，或者大量模型 fan-out 并行。** citeturn356137search0\n\n再向前追，就会发现基础零件其实早已存在：\n\n- **Google Flash** 从 2024 年就开始明确经营低延迟、高 rate limit、低成本这一条性能轴，而不是只追最大模型。citeturn356137search15\n- **Anthropic Haiku** 长期就是 fastest/lightweight tier，而且后来已经把 coding、computer use、agent tasks 能力补得相当完整。citeturn356137search17turn356137search18\n- OpenAI 则把这条性能轴直接推成了独立的 **real-time agent role**。\n- Meta 更进一步，把它和 **后台 agent、并行、多模态、长期 session** 合在一起了。\n\n所以我现在会把所谓 **Spark 形态**拆成四个彼此独立的属性，而不是某一种模型：\n\n**高吞吐 / 低延迟 × 可大量并发 × 可被主 Agent 委派 × 不要求占据主要人类 Attention。**\n\n至于它是不是小模型、便宜模型、弱模型，反而是次要的。Muse Spark 1.3 已经很好地说明了这一点：它仍然叫 Spark，但 Meta 已经让它承担长 horizon 和复杂 agentic workload。citeturn819539search3\n\n这对 Courtwork 的定义其实很重要。我们之前容易把 Spark 描述成“廉价、短上下文、点对点的小工”，现在看来更稳定的定义应该是：\n\n> **Spark 是 throughput-first 的执行位，而不是 intelligence-low 的模型档位。**\n\n因此 DeepSeek Flash、Muse Spark、未来某个企业私有的大吞吐模型，甚至一个很强但极低延迟的 frontier derivative，都可以坐在这个位置。真正决定它是不是 Spark 的，是 **调度方式、权限边界、Attention 占用和失败成本**，而不是参数量。\n\n甚至这能解释为什么最近突然感觉好多厂商都“有 Spark 了”：**不是大家突然同时发明了它，而是过去几年 Flash / Haiku / mini model、background agent、speculative/parallel execution、低延迟 inference 这些原本分散的积累，现在开始收敛成一个清晰的产品角色。**\n\n我觉得这个判断比具体登记某一个 Muse Spark 版本更值得进入 Courtwork 的架构定义：**Spark 是一个长期稳定的 orchestration primitive，模型只是可替换实现。**"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-15 · Spark形态参考登记
+
+[参考记录](research/spark-explore-2026-09-13/form-reference-20260915.md)保存“总结Spark形态”完整5轮10条消息及截图：有界准备角色、Context/Fork/Fresh、Handoff/Receipt和语义复利讨论。按用户要求仅供参考；未采用新对象或合同，未启动施工，当前发布与下一轮开工基线保持下列回执。
+
 ## 2026-09-15 · 产品节点发布与下一轮基线
 
 [发布及开工回执](release/product-node-2026-09-15/deployment.md)：用户追加授权后，公开源`fe7f317`已push并由Pages手动运行34946272671部署成功；下一轮从包含该回执的main实际HEAD接单，先RD-006在途仓库绑定/读写，再DF-04内部recipe与同路径Chat/Presentation/Spark接续。产品最后变更`496af6a`，媒体/安装仍`fd96f96`，Host15/Core4/bridge5与Paper9.6不变；保留原未完成施工树和视觉/DF-04/G1–G5开放项。线上字节核对与完整SHA见回执，不以发布关闭产品门。
