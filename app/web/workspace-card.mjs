@@ -14,7 +14,7 @@
  * focus preserved across re-render) and settings-view.mjs renderConnectionCard
  * (card sections, "Available after this run ends." meta). */
 import { el, SENDING_LABEL } from "./ui-controls.mjs";
-import { semanticAction } from "./semantic-controls.mjs";
+import { semanticAction, semanticIcon } from "./semantic-controls.mjs";
 
 export const REPOSITORY_SCOPE_LABEL = "Read only";
 export const REPOSITORY_HELP = "The next run can read files under the folder you connect. Nothing is uploaded and the folder is not changed.";
@@ -83,7 +83,11 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         : submit({ operation: "bind", requestId: bindRequestId(rootPath), expectedRevision: revision, rootPath }, session);
       const primary = el("section", { className: "context-card" });
       if (!pickerUnavailable) {
-        const open = el("button", { className: "primary-button", text: "Open folder…", attrs: { type: "button", "data-repository-field": "open", "aria-label": "Open a folder to connect" } });
+        // A card row like the connection card's actions, not a filled button:
+        // the card is a list of things this chat can do, and the folder glyph
+        // names the object the row opens.
+        const open = el("button", { className: "context-row", attrs: { type: "button", "data-repository-field": "open", "aria-label": "Open a folder to connect" } },
+          semanticIcon("workspace.object", { size: 18 }), el("span", { text: "Open folder…" }));
         open.disabled = busy;
         open.addEventListener("click", () => chooseFolder(session));
         primary.append(open);
