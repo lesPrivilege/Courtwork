@@ -32,3 +32,7 @@ Pi 0.85.1继续持有模型/工具loop与原生会话，Host service持有准入
 ## 本地PR准备与停止条件
 
 后续PR文稿可以分为DF-04 recipe、首个hook消费者和必要共享reader三片；这是待开工文稿，不是已创建GitHub PR。每片按原owner提交代码/负例/升级与退出说明，独立非作者审核，再更新current。若普通扩展仍需改主loop或复制正式状态，先定位共享合同缺口，不靠重复一套前端语法绕过。
+
+## 2026-09-16 · DF-04 首个 recipe 已接线（Claude 施工单 03）
+
+按上文合同实现并登记于[03 记录](../execution/claude-frontend-harness-2026-09-16/03-check-recipe.md)与[实现合同](../../app/docs/check-recipes.md)。裁定要点：recipe 只在 Session 的私有 candidate 内执行，用户目录与托管 workspace 从不作为 cwd；catalog 固定于代码（node-test v1），模型只传 recipeId；`check_run` 在 read_only 下 deny、其余一律 ask，批准卡陈述实际命令、位置、时限、输出上限与最小环境；执行为 detached 进程组、shell:false、仅 PATH/临时 HOME/LANG；Host 以 `check.started` / `check.settled` 事件自行结算，取消只在进程组退出后落 cancelled，重启后未结算记 unknown 且不重放。作者证据：Host 定向 66/66，浏览器在同一 candidate 内走通 Exit 1 → 精确批准修复 → Exit 0。未做：Settings/Runtime 的 recipe 入口、真实模型从 GUI 发起、非作者复核；普通子进程仍不称 sandbox。

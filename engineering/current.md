@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-16 · Claude 施工单 03：Host 检查 recipe（DF-04 首个消费者）
+
+[03 记录](execution/claude-frontend-harness-2026-09-16/03-check-recipe.md)：一条固定 recipe（node-test）只在私有 candidate 内以 detached 进程组、最小环境、120 s / 64 KiB 限额执行；模型只传 recipeId，`check_run` 在 read_only 下 deny、其余一律 ask，批准卡陈述实际命令/位置/限额/环境；Host 以 `check.started`/`check.settled` 自行结算，取消只在进程组退出后落词，重启后未结算记 unknown 不重放；工具行状态词 Exit N / Cancelled / Timed out / Unknown，退出 0 不是接受。定向 66/66，`npm test` 1109/1109（Node 25.9，并发 4）；作者浏览器在同一 candidate 走通 Exit 1 → 精确批准修复 → Exit 0。RD-009 与 DF-04 已回写；Settings/Runtime 的 recipe 入口、真实模型发起、非作者复核未做；未 push/部署；04（Run 工作面）未开始。
+
 ## 2026-09-16 · Claude 施工单 02：私有 candidate 写入的 GUI
 
 [02 记录](execution/claude-frontend-harness-2026-09-16/02-candidate-write.md)：Workspace 卡加 Edits 区（从目录当前 commit 创建 Private candidate、Writes 计数、Stop edits 撤销不删文件）；`repo_write` 批准卡沿 `ws_write` 同一解剖加一行范围（new file / 替换的精确前态 hash）；人从 Host 直接打开候选 diff（新增 `GET …/repository-candidate/diff` 与 `…/effects`，HTTP 投影去掉 contentRef）。01 期间按用户指令追加：窄屏 composer 带改 chrome 玻璃、Home 模块带页脚只留披露箭头、Workspace 页签略窄于 composer。定向 34/34 与 16/16，`npm test` 1093/1093（Node 25.9，并发 4）；作者浏览器目验一条创建→批准写入→Writes 1→Review changes 路径。写入结算的 GUI 呈现与冲突反例 GUI 路径未做；无非作者复核、真实 provider，未 push/部署；03（Host 检查 recipe）未开始。
