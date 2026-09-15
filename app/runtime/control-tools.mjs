@@ -17,6 +17,25 @@ export function createRuntimeLoadTool(binding, onLoad) {
   };
 }
 
+/** BE-6 first slice · the model may propose a declarative Skill. The call is a
+ * ledger write only: nothing is installed, exposed, loaded or permitted, and
+ * the author is the real Run, not a parameter. A person reviews it in
+ * Settings › Developer › Runtime and applies it under the configuration CAS. */
+export function createRuntimeProposeTool(onPropose) {
+  return {
+    name: 'runtime_propose', label: 'Propose a skill',
+    description: 'Propose a declarative Skill (SKILL.md text with YAML frontmatter name and description) for a person to review. The proposal is recorded only; it is not installed, exposed or loaded, and allowed-tools grants nothing.',
+    parameters: Type.Object({ title: Type.String({ maxLength: 200 }), content: Type.String({ maxLength: 65536 }) }),
+    async execute(_callId, params) {
+      const proposal = await onPropose({ title: params.title, content: params.content });
+      return {
+        content: [{ type: 'text', text: `Proposal ${proposal.id} revision ${proposal.revision} recorded for ${proposal.target.resourceId} (sha256 ${proposal.identity.contentSha256}). A person reviews it in Settings › Developer › Runtime; it is not loaded and grants nothing until applied.` }],
+        details: { proposalId: proposal.id, revision: proposal.revision, resourceId: proposal.target.resourceId, contentSha256: proposal.identity.contentSha256, status: proposal.status },
+      };
+    },
+  };
+}
+
 /** Computes the same per-tool policy effect governTools uses for its entry
  * decision, but for an arbitrary resource string (typically a relative path)
  * instead of the tool's own call-site resource. This is the single place

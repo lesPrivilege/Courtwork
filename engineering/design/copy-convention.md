@@ -123,6 +123,19 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 | Available after this run ends. | 有 Run 在途时分段控件禁用并写此句（沿 File access 卡）；Host 拒绝的 `active_run` 回执写同一句 | Locked · Frozen · Busy |
 | Values declared on this connection; provider behavior has not been verified. | 枚举来源为用户声明时的一行；不把声明标成已验证 | Verified · Supported by provider |
 
+### 3.3c Agent 提议的 Skill（2026-09-16 · BE-6/BE-7 首片）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Proposed by the agent | Runtime › Instructions, skills and references 里的披露段名；摘要尾随 `N awaiting review` | Agent proposals · Suggestions · Inbox |
+| Awaiting review · Applying · Applied · Rejected | 提案的四个状态词；`Applying` 只在 Apply 的待决标记与回执之间出现 | Pending · Approved · Done · Declined |
+| Review | 展开一条提案读它的 Source · Target · Change · Permissions · Context · Trust · After apply | Inspect · Details · Open |
+| Apply · Reject | 人对精确修订与精确摘要的两个决定；Apply 是在现有配置队列里的一次 put，不放宽任何策略 | Approve · Install · Accept · Decline · Discard（那是草稿词） |
+| Available after this run ends. | 有 Run 在途时 Apply 禁用并写此句（沿 File access 卡） | Frozen · Locked |
+| The configuration or proposal changed. Review again before applying. | 摘要过期（approval_stale / runtime_conflict / proposal_conflict）的状态句 | Conflict · Stale · Retry |
+| Applied at configuration revision N. The next run binds it; exposure follows the scope rule. | Apply 成功后的一句：说清"下一个 Run 才绑定"与"曝光按既有规则" | Enabled · Installed · Active now |
+| runtime_propose · proposing a skill | 工具名与 Chat 活动短语；工具行结果只写提案 id、修订与 hash | Skill created · Installed a skill |
+
 ### 3.4 记忆
 
 | 用户词 | 它是什么 | 不用 |

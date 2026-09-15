@@ -220,6 +220,11 @@ function routeService(service, req, url) {
   if (tail.length === 1 && tail[0] === "runtime-context" && method === "GET") return () => service.getRuntimeContext(url.searchParams.get("sessionId"), url.searchParams.get("runId"));
   if (tail.length === 2 && tail[0] === "runtime-permissions" && tail[1] === "evaluate" && method === "POST") return async () => service.evaluateRuntimePermission(url.searchParams.get("sessionId"), await body(req));
   if (tail.length === 3 && tail[0] === "mcp" && tail[2] === "lifecycle" && method === "POST") return async () => service.mcpLifecycle(url.searchParams.get("sessionId"), tail[1], await body(req));
+  if (tail.length === 1 && tail[0] === "runtime-proposals" && method === "GET") return () => service.listRuntimeProposals(url.searchParams.get("sessionId"));
+  if (tail.length === 2 && tail[0] === "runtime-proposals" && method === "GET") return () => service.getRuntimeProposal(tail[1]);
+  if (tail.length === 2 && tail[0] === "runtime-proposals" && method === "PUT") return async () => service.editRuntimeProposal(tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "runtime-proposals" && tail[2] === "reject" && method === "POST") return async () => service.rejectRuntimeProposal(tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "runtime-proposals" && tail[2] === "apply" && method === "POST") return async () => service.applyRuntimeProposal(tail[1], await body(req));
   if (tail.length === 1 && tail[0] === "runtime-control" && method === "GET") return () => service.getRuntimeControl(url.searchParams.get("sessionId"));
   if (tail.length === 1 && tail[0] === "runtime-control" && method === "PUT") return async () => service.changeRuntimeControl(url.searchParams.get("sessionId"), await body(req));
   if (tail.length === 2 && tail[0] === "runtime-resources" && method === "GET") return () => service.getRuntimeResource(url.searchParams.get("sessionId"), tail[1]);

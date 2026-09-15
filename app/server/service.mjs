@@ -44,7 +44,8 @@ import {
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
-import { createRuntimeLoadTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
+import { createRuntimeLoadTool, createRuntimeProposeTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
+import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposals.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
 import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } from "../runtime/repository-candidate.mjs";
@@ -206,6 +207,7 @@ export class RuntimeService {
     this.workCore = workCore;
     this.dataDir = dataDir;
     this.control = new RuntimeControlPlane({ dataDir });
+    this.proposals = new RuntimeProposalLedger({ dataDir });
     this.mcp = new MCPManager();
     this.artifactHistory = new ArtifactHistory(dataDir);
     this.intake = new IntakeStore(dataDir);
@@ -247,6 +249,10 @@ export class RuntimeService {
   async initialize() {
     await this.intake.open();
     await this.control.initialize();
+    await this.proposals.initialize();
+    /* BE-7 · an Apply interrupted between its pending marker and its receipt is
+     * settled here from the configuration's own audit: applied, or pending again. */
+    await this.proposals.recover(this.control);
     const stored = this.store.getProviderConfig();
     this.providerConfig = stored ?? { provider: FAKE_PROVIDER_ID, model: FAKE_MODEL_ID, api: FAKE_API_ID };
     if (!stored) await this.store.setProviderConfig(this.providerConfig);
@@ -484,6 +490,61 @@ export class RuntimeService {
       } catch (error) { if (error instanceof ServiceError) throw error; throw new ServiceError(502, 'mcp_connection_failed', 'MCP connection failed; inspect provider diagnostics'); }
       return this.getRuntimeControl(sessionId);
     });
+  }
+
+  /* ── BE-6 / BE-7 first slice · declarative Skill proposals ─────────────── */
+  #proposalCall(fn) {
+    try { return fn(); }
+    catch (error) { if (error instanceof ProposalError) throw new ServiceError(error.status, error.code, error.message); throw error; }
+  }
+  async #proposalAsync(fn) {
+    try { return await fn(); }
+    catch (error) { if (error instanceof ProposalError) throw new ServiceError(error.status, error.code, error.message); throw error; }
+  }
+  proposeRuntimeSkill(sessionId, runId, input) {
+    const run = this.store.getRun(runId);
+    if (!run || run.sessionId !== sessionId) throw new ServiceError(404, "not_found", "run not found in this session");
+    return this.#proposalAsync(() => this.proposals.propose({ sessionId, runId, title: input?.title, content: input?.content }));
+  }
+  listRuntimeProposals(sessionId = null) {
+    if (sessionId && !this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
+    return { revision: this.proposals.data.revision, proposals: this.proposals.list({ sessionId }) };
+  }
+  #reviewProposal(id) {
+    const proposal = this.#proposalCall(() => this.proposals.get(id));
+    const sessionId = proposal.target.scope.id;
+    const inspection = this.store.getSession(sessionId) ? this.getRuntimeControl(sessionId) : this.getRuntimeControl(null);
+    return this.#proposalCall(() => this.proposals.review(id, { control: this.control, inspection }));
+  }
+  getRuntimeProposal(id) {
+    const review = this.#reviewProposal(id);
+    return { ...review, activeRun: this.store.hasActiveRun(), sessionExists: Boolean(this.store.getSession(review.proposal.target.scope.id)) };
+  }
+  editRuntimeProposal(id, input) {
+    return this.#proposalAsync(() => this.proposals.edit(id, requireObject(input, 'body')));
+  }
+  rejectRuntimeProposal(id, input) {
+    return this.#proposalAsync(() => this.proposals.reject(id, requireObject(input, 'body')));
+  }
+  applyRuntimeProposal(id, input) {
+    return this.#withConfiguration(() => this.#proposalAsync(async () => {
+      requireObject(input, 'body');
+      if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
+      if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "Runtime configuration is frozen while a run is active");
+      const proposal = this.proposals.get(id);
+      const sessionId = proposal.target.scope.id;
+      if (!this.store.getSession(sessionId)) throw new ServiceError(409, "session_gone", "The proposal's session no longer exists");
+      return this.proposals.apply(id, input, {
+        review: () => this.#reviewProposal(id),
+        commit: async ({ expectedConfigRevision, resource }) => {
+          const snapshot = this.getRuntimeControl(sessionId);
+          if (snapshot.revision !== expectedConfigRevision) throw new ServiceError(409, "runtime_conflict", "Runtime changed; review before applying");
+          try { await this.control.change({ revision: expectedConfigRevision, operation: 'put', resource }, snapshot.resources); }
+          catch (error) { if (error.status) throw new ServiceError(error.status, error.code, error.message); throw error; }
+          return { revision: this.control.config.revision };
+        },
+      });
+    }));
   }
 
   listRuntimeResources(sessionId, kind = null) {
@@ -2515,7 +2576,7 @@ export class RuntimeService {
           await this.store.appendEvent({ runId: run.id, type: 'runtime.mcp.dispatch', data: identity });
           entry.mcpPending ??= new Map();
           entry.mcpPending.set(identity.dispatchId, identity);
-        }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data }))], {
+        }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data })), createRuntimeProposeTool(input => this.proposeRuntimeSkill(run.sessionId, run.id, input))], {
           binding: entry.runtimeBinding, permissionMode: entry.permissionMode, workspaceDir: entry.workspaceDir,
           isOpen: runIsOpen,
           requestPermission: ({ signal, ...payload }) => this.#waitForDecision(run.id, entry, { kind: "permission", prompt: `Permission requested for ${payload.tool}`, payload, signal }),

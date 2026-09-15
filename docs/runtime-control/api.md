@@ -14,6 +14,11 @@ Use the existing `/api/v5` base, loopback/origin protections and `x-work-token` 
 | POST `/runtime-permissions/evaluate` | Advisory effect and trace for a tool/resource |
 | POST `/mcp/:id/lifecycle` | Connect/disconnect/restart and refreshed snapshot |
 | POST `/runtime-sources/resolve` | Inspect-only declarative source resolution; 200 for `resolved` and explicit `unsupported` |
+| GET `/runtime-proposals?sessionId=` | Agent-proposed Skills for that session (BE-6 first slice); the ledger is not a registry |
+| GET `/runtime-proposals/:id` | Review: source, target, operations, effectiveDiff, permissionsDelta, contextImpact, trustImpact, persistence, rollback, `approvalSha256`, blockers, `activeRun` |
+| PUT `/runtime-proposals/:id` | Human edit `{revision, title?, content?}` → new proposal revision; earlier approval summaries are void |
+| POST `/runtime-proposals/:id/reject` | `{revision, requestId, reason?}`; persistent decision, no configuration change |
+| POST `/runtime-proposals/:id/apply` | `{revision, approvalSha256, requestId}`; one CAS `put` under the configuration queue and active-Run freeze; idempotent by requestId |
 
 Use the existing provider, credentials, permission mode, extension and Run APIs for their owned lifecycle. All new mutation bodies reject unknown keys. A stale revision returns `409 runtime_conflict`; an active Run returns `409 active_run`. Refresh and show the actual state rather than silently resubmitting a stale edit. MCP lifecycle checks configuration revision; connection health is live, and connection changes do not increment configuration revision.
 
@@ -54,6 +59,14 @@ Import an `mcp_server` with this JSON source text:
 ```
 
 Then POST lifecycle `{"revision":CURRENT_REVISION,"action":"connect"}`. Inspect remote descriptors, explicitly expose the server using an exposure mutation, and retain default per-call ask or write an explicit scoped policy for its readable `mcp.<server-id>.<remote-tool-name>` action. A connected server alone does not grant model access. Model tool calls use the descriptor's `executionName`, not its policy action. A failed/unknown remote effect is never a reason to automatically resend the same work.
+
+## Declarative Skill proposals (BE-6 / BE-7 first slice, 2026-09-16)
+
+`runtime_propose` is a model tool (in `TOOLS`, exposure-configurable, ceiling `allow` in every permission mode) that records a declarative Skill (`SKILL.md` text with YAML frontmatter `name` and `description`) in `<dataDir>/runtime-proposals.json`. The author is the real Session/Run of the call; parameters carry only `title` and `content`. Content is validated by the same `validateRuntimeSource` as imports, capped at 64 KiB, with at most 16 open proposals per session. A proposal is metadata: it is not a resource, enters no snapshot, catalog or context, cannot be `runtime_load`ed, and increments no configuration revision.
+
+`GET /runtime-proposals/:id` computes the BE-6 result against the configuration as it stands: `source` (hashes, bytes, characters, `trust: unverified`, `origin: agent-created`, author), `target` (`local:<name>`, session scope, `expectedConfigRevision`, whether the id exists and its current hash), `operations` (exactly one `put`), `effectiveDiff` (`before`/`after`, a unified `patch`, `unchanged`, and the real `exposure` rule or the descriptor's current value), `permissionsDelta` (no policy or exposure change; `allowed-tools` echoed as a declaration), `contextImpact` (catalog and body characters, `tokens: null`), `trustImpact`, `persistence: session`, `rollback` (remove, or restore the previous hash). `approvalSha256` is the hash of that whole summary with the proposal id and revision; Apply must present it, so an edit, a configuration change or a differing reading makes the approval stale (`409 approval_stale`) and the person reviews again.
+
+Apply runs inside the configuration queue: `409 active_run` while a Run is in flight, `409 proposal_conflict` on a stale proposal revision, `409 proposal_state` unless `proposed`, `409 runtime_conflict` if the configuration moved. The ledger persists a pending marker before the single CAS `put`, then the receipt (`decidedBy`, proposal revision, approval hash, configuration revision before/after, `recovered`). The same `requestId` replays the same receipt; a different body under the same `requestId` is `409 idempotency_conflict`. Startup reconciles an `applying` proposal from the configuration's own audit: applied (with `recovered: true`) when the put at `expectedConfigRevision + 1` is there with the same content hash, otherwise back to `proposed`; the configuration itself is never rewritten. Apply sets no exposure override and relaxes no policy; the new resource follows the existing scope rules, and the next Run's `runtime.bound` / `runtime.context.loaded` events remain the only evidence of consumption. Rollback is a later human request under the CAS of its time (not implemented in this slice).
 
 ## Declarative source resolution (`POST /runtime-sources/resolve`)
 
