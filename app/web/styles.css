@@ -1522,25 +1522,23 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
 .composer-form:focus-within {
   border-color: var(--ink);
 }
-/* RD-006 · context strip: where this chat works. A solid tab card rising
- * from the composer's top edge (no blur: transient chrome only); the
- * composer stacks above it so the tab's lower edge disappears behind it. */
+/* RD-006 · context strip: where this chat works. A solid tab as wide as the
+ * composer, one tonal step below the panel and no line; the composer card
+ * stacks above it so the tab's lower edge disappears behind it. No blur:
+ * that material is reserved for transient chrome. */
 .composer-context-strip {
-  display: flex;
+  display: block;
   max-width: var(--column);
   margin: 0 auto -12px;
-  padding: 0 12px;
 }
 .context-tab {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 2px;
-  max-width: 100%;
-  padding: 4px 6px 16px;
-  border: 1px solid var(--line);
-  border-bottom: 0;
-  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  width: 100%;
+  padding: 4px 8px 16px;
+  border-radius: var(--radius-container) var(--radius-container) 0 0;
   background: var(--panel-muted);
 }
 .composer-form { position: relative; }

@@ -3351,7 +3351,9 @@ function renderChatHeader() {
   const home = state.view === "home" && !state.attentionOpen && !state.chatOpen;
   $("composer-area").hidden = settingsOpen || state.attentionOpen || state.chatOpen || (!home && !session);
   $("app-shell").classList.toggle("home-active", home);
-  $("home-composer-intro").hidden = !home;
+  // The slogan introduces an empty Home; once retained chats exist Home
+  // leads with the work and the composer, and the sentence steps aside.
+  $("home-composer-intro").hidden = !home || state.recentSessions.length > 0;
   $("home-composer-context").hidden = !home;
   $("home-project-button").hidden = !home;
   if (homeAttachments) homeAttachments.trigger.hidden = !home;
