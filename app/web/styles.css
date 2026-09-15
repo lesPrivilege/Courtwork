@@ -331,7 +331,7 @@
      `@media (prefers-reduced-transparency: reduce)` 的实色回退，回退到 --float。
      两条检查在 tools/lint-materials.mjs，进 npm test。 */
   --blur-chrome: 12px;
-  --blur-transient: 16px;
+  --blur-transient: 8px; /* 2026-09-16 · lighter: transient glass keeps the edge by rim and shadow, not a line */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -2960,7 +2960,7 @@ select {
   max-height: calc(100dvh - 110px);
   overflow: auto;
   padding: 16px;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: var(--radius-container);
   background: var(--glass-muted);
   -webkit-backdrop-filter: blur(var(--blur-transient)) saturate(1.4);
@@ -5109,7 +5109,11 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
     background: var(--glass);
     -webkit-backdrop-filter: blur(var(--blur-chrome));
     backdrop-filter: blur(var(--blur-chrome));
-    padding: var(--space-2) var(--chat-inset)
+    /* The band has no top edge: like the scrolling header (WK-127) its glass
+       fades in over the first 20px, so nothing draws a boundary line. */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 20px);
+    padding: calc(var(--space-2) + 12px) var(--chat-inset)
       max(var(--space-2), env(safe-area-inset-bottom));
   }
   /* Home's modules, totals and rows share one scroll owner. Giving only
