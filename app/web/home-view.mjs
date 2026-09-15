@@ -295,24 +295,27 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
 export function renderHomeModuleBand(container, options) {
   const focusKey = container.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
   const { collapsed, onCollapse } = options;
-  // The composer already reaches Model & effort → Connections, so the band's
-  // footer keeps only the disclosure; the glyph carries it, the name says it.
+  // Native disclosure: the band is a <details>, its <summary> is the only
+  // control and carries the glyph; the words are its accessible name. The
+  // modules stay in the DOM while closed so the height can transition
+  // instead of the composer jumping (styles: .home-module-details).
   const toggleName = collapsed ? "Show modules" : "Hide modules";
-  const toggle = el("button", { className: "home-module-collapse icon-only", attrs: { type: "button", "data-focus-key": "home-module-collapse", "aria-label": toggleName } },
+  const summary = el("summary", { className: "home-module-collapse icon-only", attrs: { "data-focus-key": "home-module-collapse", "aria-label": toggleName } },
     icon(collapsed ? "chevron-right" : "chevron-down", { size: 16 }));
-  toggle.dataset.tooltip = toggleName;
-  toggle.addEventListener("click", () => onCollapse(!collapsed));
-  toggle.setAttribute("aria-expanded", String(!collapsed));
-  toggle.setAttribute("aria-controls", "home-module-list");
+  summary.dataset.tooltip = toggleName;
   const list = el("div", { className: "home-module-list", attrs: { id: "home-module-list" } });
-  if (!collapsed) {
-    for (const id of ["attention", "activity"]) {
-      const module = homeBandModules().find(module => module.id === id);
-      if (module?.render) list.append(module.render(options));
-    }
+  for (const id of ["attention", "activity"]) {
+    const module = homeBandModules().find(module => module.id === id);
+    if (module?.render) list.append(module.render(options));
   }
-  container.replaceChildren(el("div", { className: "home-module-band-inner" }, list,
-    el("div", { className: "home-module-footer" }, toggle)));
+  const details = el("details", { className: "home-module-details" }, summary, list);
+  if (!collapsed) details.setAttribute("open", "");
+  details.addEventListener("toggle", () => {
+    const open = details.open === true || details.hasAttribute("open");
+    if (open === !collapsed) return;
+    onCollapse(!open);
+  });
+  container.replaceChildren(el("div", { className: "home-module-band-inner" }, details));
   if (focusKey) {
     const target = container.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)
       ?? (/attention/i.test(focusKey) ? container.querySelector('.home-attention-project') :
