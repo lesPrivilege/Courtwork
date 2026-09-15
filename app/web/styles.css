@@ -1529,7 +1529,9 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
 .composer-context-strip {
   display: block;
   max-width: var(--column);
-  margin: 0 auto -12px;
+  margin: 0 auto -14px;
+  /* Inset from the composer's edges at every width; the wide layout sets the proportion. */
+  padding: 0 clamp(20px, 6%, 52px);
 }
 .context-tab {
   display: flex;
@@ -1537,10 +1539,11 @@ button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
   align-items: center;
   gap: 2px;
   width: 100%;
-  padding: 4px 8px 16px;
+  padding: 2px 6px 14px;
   border-radius: var(--radius-container) var(--radius-container) 0 0;
   background: var(--panel-muted);
 }
+.context-tab .context-chip { min-height: 0; padding-top: 3px; padding-bottom: 3px; }
 .composer-form { position: relative; }
 .context-chip {
   display: inline-flex;
