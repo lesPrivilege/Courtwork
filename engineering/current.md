@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-15 · 可接续的工作场公开节点
+
+[消费与裁决](release/product-node-2026-09-15/README.md)接收完整会话及两份原稿；Luna只读探索，Astra裁定DEC-014产品语义补充。README与Pages登记下一节点：从问题开始，连接材料或仓库，执行、检查并接续真实工作；[产品方向](product-direction.md)冻结有限形态与功能语义，施工沿RD-006真实读写、DF-04/RD-009及原Chat/Presentation/Spark/continuity。此为文档与公开源修订；产品门、schema、已发布媒体/安装与Paper pin不变，实际验证与合流状态见消费回执。
+
 ## 2026-09-15 · 分支清理
 
 [清理回执](release/final-preparation-2026-09-13/branch-cleanup-20260915.md)：本地/远端仅保留main与冻结archive/courtwork-main；34个本地、5个远端分支已删除。完整refs先备份，26棵工作树原提交与修改不变，解除分支关联；未完成施工仍接原owner，未合入main或扩大接受。

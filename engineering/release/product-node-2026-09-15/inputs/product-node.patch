@@ -1,0 +1,392 @@
+diff --git a/README.md b/README.md
+index c60ab17..dd25a9d 100644
+--- a/README.md
++++ b/README.md
+@@ -2,9 +2,9 @@
+ 
+ Orchestrate your agents. Govern your work.
+ 
+-让不同 Agent 分工、调用模型与工具、彼此接力，是 CourtWork 的产品方向。一件持续的工作还需要明确每个参与者的职责与权限，保留材料的出处、决定的依据和未完事项，让下一次接手有据可循。
++CourtWork 是一个让人和 Agent 持续工作的本地 AI 工作空间。项目、材料、成果与决定构成共同的工作现场；模型与执行者围绕它参与、分工和接力。工作留在这里，不随一次对话或执行结束。
+ 
+-CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围绕自己的项目、文件与材料展开讨论，委托 Agent 执行，查看成果并作出决定。自由协作与明确的工作规则在这里相遇，构成我们所说的 Court。
++你可以围绕自己的问题、文件与材料展开讨论，委托 Agent 执行，展开依据并作出决定。每个参与者有职责和权限，每份材料有出处，每次交接有可继续的记录。自由协作与明确的工作规则在这里相遇，构成我们所说的 Court。
+ 
+ 人在其中，工作继续。你可以随时介入、调整指令或改变方向，也可以暂时离开，再从已有记录接着做。
+ 
+@@ -20,13 +20,13 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
+ 
+ ## Chat、Spark 与 Attention
+ 
+-三个入口表达 CourtWork 的产品分工；当前源码的使用范围见[预览说明](app/docs/supported-preview.md)。
++Chat 承接交谈与执行，Spark 准备工作所需的材料，Attention 帮助人回到需要判断的地方。三者围绕同一件工作协作。
+ 
+ **Chat · 交谈与交接。** 选择受支持的模型连接，围绕问题与材料持续讨论。CourtWork 管理应用自身保留的对话、附件与引用，按获准范围把材料和工具提供给本次运行，让讨论能够进入后续工作。
+ 
+ **Attention · 跟进与核查。** 把重要请求、已有处置和对应结果放在一起，帮助人和 Agent 找到下一步。中断或切换任务后，沿可检查的记录继续，知道还有什么需要决定。
+ 
+-**Spark · 独立探索与核对。** 独立 Explore Agent 围绕本次工作获准提供的已保留材料进行比较与核对，给出可回到精确版本的发现；来源与探索笔记可以按需展开，为后续判断与工作提供依据。
++**Spark · 准备、探索与核对。** 为当前工作整理获准材料、保留探索笔记与来源索引，把有依据的发现交给下一位参与者。Spark 是稳定的产品角色；Explorer 是一次任务中的探索职责，模型与执行配置按任务选择。交接先给出简明结果与精确引用，细节按需展开。
+ 
+ Expert 用专业工作契约组织责任、能力需求与验证要求。这些角色可以选择不同执行配置；正式工作进入 Matter，人的决定对应具体来源与版本。普通交谈不要求先建立 Matter。
+ 
+@@ -34,9 +34,19 @@ Expert 用专业工作契约组织责任、能力需求与验证要求。这些
+ 
+ [Chat](https://lesprivilege.github.io/Courtwork/chat.html) · [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
+ 
+-## 产品方向：Harness Extensions
++## 下一实现节点：可接续的工作场
+ 
+-Harness Extensions 面向电脑工作环境，围绕文件、命令、检索、视觉与协作组织可组合的能力。开发者场景以理解仓库、修改文件、检查结果和接续任务来检验这套接入体例；coding 是验证场景，产品可以继续服务其他工作。扩展优先复用开放生态，以明确的配置、权限、运行记录和界面接入。
++从一个问题开始，在需要时连接自己的材料或仓库，完成一次可检查、可中断、可接续的真实工作。这是 CourtWork 下一节点的产品承诺。
++
++**开始与连接。** 交谈先于目录和流程；项目归属、资料连接与执行权限各自清楚。需要操作文件时，明确连接范围，再开展工作。
++
++**执行与检查。** 在同一条工作流中读材料、修改文件、检查结果。Chat 保持可读，运行细节按需展开；Preview 展示原件、差异与结构化结果，Review 将依据与决定放在一起。
++
++**保留与接手。** 留下确切版本、可复用的准备结果和未完事项。下一次从工作记录继续，按任务取用所需材料，而不是背负全部对话与每一步中间过程。
++
++界面收敛为项目与最近记录、Chat 与运行控制、资料与 Preview、Review 与 Attention，以及模型和能力设置。Harness Extensions 以文件、受控命令、检索和有界协作为基本能力；coding 用来检验从真实仓库到成果检查的完整路径。视觉、浏览器与专业能力沿同一体例扩展。
++
++[产品形态与稳定语义](engineering/product-direction.md)规定这个节点应当保持的关系；[工程分流与施工接续](engineering/release/product-node-2026-09-15/README.md)将它落实到已有工单。
+ 
+ ## Can the work continue?
+ 
+@@ -74,11 +84,11 @@ npm --prefix app run check:product
+ 
+ Schema Engineering 追问：跨越多个会话与执行者时，工作应当保留什么、按什么规则改变？CourtWork 将这些区分落实到日常工作：材料进入 Matter，执行形成候选，验证与授权接受使判断落到具体版本。
+ 
+-产品重心是持有正式来源、状态与决定的 Work Core。先有编排：Agent、模型与运行环境各司其职，也可以更换；再有 Court：工作本身留在 CourtWork 手中。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。这条边界、一次运行的组成，以及从专业要求到正式决定的路径，见 [Features 页的结构图](https://lesprivilege.github.io/Courtwork/features.html#architecture) 与 [Experts](https://lesprivilege.github.io/Courtwork/experts.html)；模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
++产品重心是工作本身的连续性：材料由各自的资源服务保留，Work Core 管理正式状态、版本关系与决定。Agent、模型与运行环境围绕这个工作现场编排，也可以更换；编排服务于工作，而不是让工作依附某个执行器。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。这条边界、一次运行的组成，以及从专业要求到正式决定的路径，见 [Features 页的结构图](https://lesprivilege.github.io/Courtwork/features.html#architecture) 与 [Experts](https://lesprivilege.github.io/Courtwork/experts.html)；模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
+ 
+ ## 开发入口
+ 
+-开工先核对分支、HEAD 与[当前工程状态](engineering/current.md)，再读对应工单和证据。
++开工先核对分支、HEAD 与[当前工程状态](engineering/current.md)，再读[产品方向](engineering/product-direction.md)、对应工单和证据。
+ 
+ - **架构**：[模块与责任](engineering/architecture.md) · [Runtime 与 Work](engineering/architecture-runtime-canon.md) · [Core 契约](engineering/core-contracts.md)
+ - **UX**：[UX Grammar](engineering/design/ux-grammar.md) · [前端连续性规范](engineering/design/agent-interface-2026-09-10/frontend-contract.md) · [文案](engineering/design/copy-convention.md) · [编排](engineering/design/ui-composition-standard.md) · [控件与图标](engineering/design/atlas/README.md)
+diff --git a/engineering/README.md b/engineering/README.md
+index 2370fde..232bf20 100644
+--- a/engineering/README.md
++++ b/engineering/README.md
+@@ -1,5 +1,7 @@
+ # CourtWork 工程入口
+ 
++**下一产品节点：** [可接续的工作场](product-direction.md) · [研究裁决与施工分流](release/product-node-2026-09-15/README.md)。先对齐稳定产品语义，再消费下列原工单；本入口不替代 current 的实现状态。
++
+ [Runtime与Work架构裁决](architecture-runtime-canon.md) · [原始输入消费账](research/deepseek-runtime-2026-09-11/README.md) · [发布面与图表记录](release/architecture-reconciliation-2026-09-11.md)。这些入口保留各自范围与日期，实际实现和开放项以[current](current.md)最近相关记录为准。
+ 
+ 
+diff --git a/engineering/architecture-runtime-canon.md b/engineering/architecture-runtime-canon.md
+index 48ebdae..1a607ad 100644
+--- a/engineering/architecture-runtime-canon.md
++++ b/engineering/architecture-runtime-canon.md
+@@ -1,5 +1,11 @@
+ # Runtime与Work语义 · 当前裁决入口
+ 
++## 2026-09-15 · 产品形态与下一节点
++
++[可接续的工作场](product-direction.md)将 DEC-014 与近期 Spark、Memory 披露、Presentation、对象命令及真实仓库接入研究收敛为稳定产品合同。工作对象与效力规则先于执行拓扑，产品角色、Provider 与权限分轴；下一节点沿当前仓库工作与 facts/Review 最小纵切推进，不以第二 Runtime 或完整 Memory 为前置。第二执行组合沿[9月14日裁决](research/agents-api-first-2026-09-14/README.md)保持 Agents API 优先核验候选，保留 Codex 历史矩阵。[裁决、来源与施工分流](release/product-node-2026-09-15/README.md)保留工程边界；current 继续拥有实际状态。
++
++## 2026-09-13 · 五层与治理基线
++
+ 2026-09-13，Astra。当前采用[五层架构与工作闭环](research/architecture-node-2026-09-13/architecture.md)：Adapter、Harness Core、Harness Extension、Work Core、Work Extension按变化责任划分；Host共享治理与UI投影保留原owner。Pi本地优先、DeepSeek首适配，原生Runtime通过独立Runtime Adapter接入；第二runtime以[Codex公开能力和替换矩阵](research/architecture-node-2026-09-13/runtime-replacement.md)验证，尚未实施。
+ 
+ Work Core同时是文档、数据与组织治理的稳定语义方向，不能由当前Matter表结构限定长期范围；也不意味着把所有原文、索引、凭据和运行日志搬进同一Core数据库。具体owner、渐进披露与工作接管见[治理地图](research/architecture-node-2026-09-13/workspace-governance.md)，实际实现见[Luna核查](research/architecture-node-2026-09-13/explore/implementation.md)，工程状态见[current](current.md)。
+diff --git a/engineering/product-direction.md b/engineering/product-direction.md
+new file mode 100644
+index 0000000..c1aef86
+--- /dev/null
++++ b/engineering/product-direction.md
+@@ -0,0 +1,85 @@
++# 产品方向 · 可接续的工作场
++
++2026-09-15。本文规定下一实现节点的产品合同与稳定语义，承接[五层架构](research/architecture-node-2026-09-13/architecture.md)与[Workspace Substrate](research/architecture-node-2026-09-13/workspace-substrate.md)。
++
++## 从工作出发
++
++CourtWork 为人和 Agent 提供共同的工作现场。材料、成果、版本、决定与未完事项属于工作；模型、执行器与任务角色围绕它参与。工作的连续性来自可理解、可寻址、可继续的记录，而不是某个 Agent 持有全部历史。
++
++由此确定三个优先级：工作对象与效力规则先于执行拓扑；人的交谈与判断先于运行细节；可接续的小闭环先于能力数量。新的局部选型应当解释它怎样服务这些关系，而不是反过来要求产品围绕框架重新组织。
++
++## 下一节点的完整路径
++
++**从问题开始 → 明确连接材料 → 执行有界工作 → 展开成果与依据 → 作出决定或留下未决事项 → 回来继续。**
++
++首个完整消费者是电脑上的资料与仓库工作：理解材料、检索文件、进行获准修改、执行受控检查、阅读结果并接续任务。Coding 检验电脑操作的基本能力；正式 Matter 工作则继续检验候选、来源与接受之间的关系。两类工作共用基本体例，各自保留完成条件。
++
++这一节点以真实闭环为完成面。扩展数量、模型数量、并行实例数和界面图表数量不代替闭环。
++
++## 经典而有限的产品形态
++
++| 工作面 | 稳定职责 | 交互语义 |
++|---|---|---|
++| 项目与最近记录 | 找到工作、回到上次位置 | 项目组织、会话身份、资料绑定与执行位置分开；先交谈，按需连接材料 |
++| Chat 与 Composer | 表达意图、交谈、开始和调整执行 | 主对话保持连贯；模型、能力与权限范围可理解；运行过程聚合，细节按需展开 |
++| 资料与 Preview | 定位来源、打开确切版本、理解产物 | 原件、保留的派生结果与临时呈现分开；目录、索引、片段与原文逐步展开 |
++| Review | 对成果和依据作判断 | 作者说明、实际变化、检查结果与正式接受分源；决定绑定对象和版本 |
++| Attention | 回到需要人跟进的工作 | 待决、阻塞、冲突与未完事项保持可定位；阅读通知不等于完成工作 |
++| 模型与能力设置 | 管理连接、扩展、适用范围与运行配置 | 配置、启用、授权、本次绑定和实际使用各有含义；停用能力不改写历史 |
++
++这些是职责与入口，不要求六个等权面板同时占据屏幕。Chat 保持主工作流，资料、过程与检查按需要展开。已有设计语言、组件和图标语义继续复用。
++
++返回与前进恢复访问位置、草稿和视图状态；关闭 Preview 回到原对象与焦点。它们不撤销文件变化或正式决定。撤销必须由对应业务命令提供。通知提示需要注意的变化，不把每次工具调用变成人工收件箱。
++
++## Chat、Spark、Attention 与执行角色
++
++Chat 是人主导的交谈与工作入口。普通交谈不需要先建立 Matter；需要正式管理的工作再进入相应合同。
++
++Spark 是稳定的准备与核对角色：整理获准材料、维护可引用的探索笔记与派生索引、承担有界的比较和核验。Explorer 是一次任务中的探索职责；它可以由 Spark 承担，也可以由其他获准执行者承担。产品角色、Agent 身份、模型 Provider 与执行权限分别定义。
++
++Attention 组织人的跟进与判断。它不复制工作状态的第二份总账，也不要求人审阅每次内部检索、索引展开和 Agent 之间的资料消费。
++
++默认用少量清楚的职责组织协作。委派说明目标、输入版本、允许动作、预算、结束条件与结果位置；返回简短发现、精确引用、冲突和未覆盖项，正文按需取用。是否并行取决于工作可否隔离与独立检查，而不是模型额度是否空闲。
++
++## 资料保留与合理遗忘
++
++**保留、召回与激活是三件事。** 资源服务保留字节和版本；检索按当前权限返回候选；Context 按任务、适用性与预算选择实际披露的内容。可读不代表应当进入每次上下文，语义相似也不代替适用性判断。
++
++源材料、保留的派生结果、可重建索引、Model Context 与 Provider cache 分开。索引说明覆盖范围与新旧关系；摘要保留来源，不因重复引用成为更高权威。普通查询优先当前适用材料，历史查询可以回到确切旧版本。
++
++合理遗忘先表现为停止默认激活、降低优先级、归档视图与重建索引；它不是悄悄删除被引用的历史。必要约束、未决义务、冲突和失败不因摘要更简短而消失。没有 Memory，基本工作路径仍然成立。
++
++本地工作现场不等于所有模型都在本地运行。资料选择与向外部 Provider 披露分别受来源、接收方和当前授权约束；模型给出的脱敏建议不代替发送权限。
++
++## 可组合呈现，而非任意生成界面
++
++Chat 容纳文字、运行事实、资料引用、结构化呈现和需要人回应的交互。共享同一外观或位置，不代表它们拥有同一类权力。
++
++| 来源 | 呈现与动作归属 |
++|---|---|
++| 系统命令与运行事实 | Host 或对应运行服务提供事实；可确定的查询不必绕经模型 |
++| 模型生成的结构化表达 | 使用受限语义、可信组件目录和预编译 renderer；保留文字回退与来源 |
++| 文件及其他资源预览 | 按资源引用、确切版本与表示形式打开；展示位置不改变资源归属 |
++| 提问、执行授权与工作接受 | 分别回到各自的动作处理方；不能因都是按钮就合并为通用 approve |
++
++通用表达从 facts、表格、简单 chart 与 flow 及少量组合关系生长。模型提出内容和关系，Host 校验并决定布局、数据解析与动作路由。复杂度、来源效力和权限彼此独立：简单表格可以展示正式数据，复杂图也可以只是推测。
++
++同一呈现实例可在 Chat 内展开或进入 Preview，身份、版本与动作对象保持不变。局部排序、筛选和展开属于视图状态；正式动作仍调用原处理方。浏览器实时操作、可执行 HTML 和外部应用各自保留执行边界，不由打开 Preview 自动获得授权。
++
++运行时的文字浮现、活动提示和动效负责可读与反馈；进度、用量和检查结论必须来自真实可观察事实。不能用阶段文案、颜色或动画补出不存在的运行状态。
++
++## 可替换执行与专业能力
++
++五层继续按变化责任划分：Adapter 接外部协议，Harness Core 驱动执行，Harness Extension 提供可组合能力，Work Core 管理正式工作变化，Work Extension 承载专业差异。Host 与 UI 组合这些责任，不把它们变成五个强制串行网关。
++
++模型切换、执行器替换与工作接手是不同合同。工作接手使用获准的来源、成果与义务；原生会话只按其兼容协议恢复。可替换性以固定任务类别和明确能力集合检验，不以原生会话全量互转定义。
++
++Expert 组织领域结构、工作契约、能力需求、验证方法与 Review 要求。它可以选择执行配置，但不把某个模型或 Runtime 写成专业语义。工具、Skill、MCP、Prompt 与其他扩展沿共同的配置、准入、范围、本次绑定及回执体例接入。
++
++## 节点的收敛边界
++
++下一节点完成一条真实的材料与仓库工作路径、一条有依据的成果检查路径，以及一次中断后的工作接续。已有 Spark 的有界准备结果与精确引用进入同一条路径；结构化呈现先打通 facts 的最小纵切。
++
++第二 Runtime、独立 Spark Provider、完整 Memory Broker、更多图表和专业扩展按独立消费者推进。Swarm、全量后台维护、破坏性自动清理、通用云端调度与任意界面代码生成不加入这个节点的完成条件。
++
++[施工分流](release/product-node-2026-09-15/README.md)连接原有任务与验证；[current](current.md)继续维护实际工程状态。
+diff --git a/engineering/release/product-node-2026-09-15/README.md b/engineering/release/product-node-2026-09-15/README.md
+new file mode 100644
+index 0000000..5fb4279
+--- /dev/null
++++ b/engineering/release/product-node-2026-09-15/README.md
+@@ -0,0 +1,85 @@
++# 2026-09-15 · 产品节点裁决与公开面修订
++
++## 基线与工作范围
++
++本轮按用户“先裁决产品/架构与功能语义，公开登记下一实现节点，再按方向施工”的请求整理。只修订叙事、产品方向及工程索引；不实施产品功能，不合并到 main，不触发 Pages 部署。
++
++仓库读取基线：`60b592fd21c5e063083c76c0ba8a88edeb3f60fc`，树 `19648db4a53290e82ff507742fcafad9e56b23e8`。该节点记载当前产品提交 `496af6a4aa3232de91c05a5a045885858454430e`；已发布媒体/安装来源仍固定 `fd96f96bc40725e301a4c92e0f2f50fd3245458c`。Host15 / Core4 / bridge5 与 SE9.6 采用不变，实际开放项沿 [current](../../current.md)。这些是基线记录，不是本轮再次运行的结论。
++
++提交前再次核对 main 为 `e8f02dd1152acc9e184a43afdba28f6138921bff`。相对读取基线仅增加分支清理回执及 current 的对应登记，未改本轮目标文件；文档候选以该提交及树 `d6a88259671b3050922a70c9cbd0526c5b45eaf9` 为父基线，完整保留这一并行增量。
++
++近期会话通过仓库已入账的研究裁决及其源快照链接消费，重点为“多Agent协作瓶颈”“Agent可视化编排方案”“Chat状态可视化编排”。本轮没有再次逐字核验所有会话 JSON，也不声称检索了用户全部聊天。原始会话、附件、历史回执和此前“仅登记”的时间性事实均不改写。
++
++## 本轮上位裁决
++
++**采用“可接续的工作场”作为下一实现节点的产品合同。** 以从问题出发、连接材料、执行、检查和回来继续的闭环收敛；不以完成一个编排平台、增加 Agent 数量或支持所有 Runtime 为目标。
++
++本次是 DEC-014 的产品语义补充，不另立架构层、状态总账或平行 roadmap。[产品方向](../../product-direction.md)承接稳定语义；实现及证据仍由原服务、原 RD 和原任务持有。文档中的采用不构成产品验收。
++
++公开叙事可以明确写产品职责、设计承诺与下一节点。此前各研究单“不进入本次公开面”的编辑范围由本次用户请求覆盖；其未实现事实、授权限制与验证义务不随之改变。对外不逐段附加“尚未实现”等保护性旁白，也不把目标伪装成已发布版本、可点击功能、客户使用或已测性能。
++
++优先级为：工作对象与效力规则 → 用户任务和可接续路径 → 稳定交互语义 → 服务责任与接口 → 局部技术/Provider 选型。后者若与前者冲突，应返回原责任方裁决，而不是先施工再倒改产品定义。
++
++## 研究提升与分流
++
++| 已入账来源 | 本轮处置 | 公开与二级文档 | 后续仍归原 owner |
++|---|---|---|---|
++| [五层架构](../../research/architecture-node-2026-09-13/architecture.md)、[Substrate](../../research/architecture-node-2026-09-13/workspace-substrate.md) | 提升工作现场独立于单次执行、材料与工作效力分责 | README 开篇、工作如何衔接；product-direction | DEC-014、Runtime/Work canon、原资源/Core owner |
++| [Spark/协作增量](../../research/spark-explore-2026-09-13/coordination-20260915.md) | 采用稳定 Spark / 临时 Explorer / 可替换 Provider 的最终区分；少职责、有界结果交接 | README Spark 段、角色与委派语义 | RD-005、Spark 原设计；MA-06/ME-09 评测 |
++| [合理遗忘](../../research/chat-memory-broker-2026-09-12/attention-governance-20260915.md) | 提升保留/召回/激活、适用性和可追溯降权；不提升“全量 Memory” | README 保留与接手、Pages 叙事；二级资料语义 | Memory Broker、BE-19/20、LG/RG、RD-007；实现非当前节点前置 |
++| [Gateway](../../research/review-surface-2026-09-09/presentation-gateway-20260915.md)、[多源投影](../../research/review-surface-2026-09-09/projection-runtime-20260915.md) | 提升异构 Chat、受限 grammar、同实例多 placement、动作分责；先 facts | README 执行与检查；二级呈现合同 | 原 Presentation / Review Surface，Runtime/Core 动作各自原 owner |
++| [延迟绑定与真实仓库](../../research/RD-006-deferred-workspace-binding.md) | 采用 task-first、组织/资源/执行权限分轴；保持 9月14日真实读写施工增量 | 下一节点“开始与连接” | BE-23/DWB-05 与 DWB-01/02/04，不能把只读交付算完整读写 |
++| [Object Command](../../design/object-command-grammar-20260914.md)、[UX Grammar](../../design/ux-grammar.md) | 稳定对象命令、出现条件/可执行性、导航与业务撤销分开；不因新功能重绘一套控件 | 二级形态与控制面语义 | 原前端合同与具体对象/命令 owner |
++| [Chat 运行态](../../design/chat-flow-2026-09-10/polish-slices-20260914.md) | 保持主对话连贯，Run 聚合与动作时机优先；动效不伪造过程 | README / 二级 Chat 语义 | 原 Chat 分片；不将 Copy/Composer 已交付扩大成 Run 聚合已完成 |
++| [Agents API 候选](../../research/agents-api-first-2026-09-14/README.md)、[Runtime 替换](../../research/architecture-node-2026-09-13/runtime-replacement.md) | 替换能力按合同验证；保持 Agents API 优先核验候选，不自动声称已选定可用执行后端 | 二级可替换执行；品牌/SDK 不占公开主叙事 | P03/P04/DRT-03；第二 Runtime 不阻塞当前 dogfooding |
++| [独立评审](../independent-review-2026-09-14/README.md) | 生命周期依赖与领域专用分支按真实下一消费者消债 | 二级责任原则，细节不进 Hero | IR-03/04 回原任务；不设全面重构前置 |
++| [工作义务闭环](../../research/obligation-closure-2026-09-12/README.md) | 提升未完事项、人的决定与接续；不承诺常驻监控/自动关闭 | Attention 与回来继续 | 原义务/Core/Attention owner；scheduler/watchers 后置 |
++
++外部 Provider 性能排名、吞吐百分比、端云脱敏收益、闭源产品内部机制与“新颖/领先”判断不进入产品宣言。局部选型可以进入 RD，只有固定实验能支持实验结论。
++
++## 下一施工节点：小闭环而非新平台
++
++本表只是原工单的消费顺序与结果映射，不新发编号、不改各项接受权，也不覆盖 current 中更新的真实交付。
++
++| 顺序 | 有界交付 | 消费既有任务 | 应当留下的证据 |
++|---|---|---|---|
++| 先收束在途 | 真实仓库连接、受控读写与可见范围；普通 Chat 身份和资源绑定分别接续 | RD-006 / DWB 与原 BE-23；保留当前隔离施工树 | 身份不变、越界/撤权/源冲突拒绝、未知写入不盲重放；GUI 与原回执一致 |
++| 真实工作贯通 | 读仓库→获准修改→固定 recipe 检查→在同一工作流阅读结果 | DF-04 / [RD-009](../../research/RD-009-trusted-harness-extensions.md)，沿[Harness实施入口](../harness-implementation-2026-09-12/README.md) | CW 内部的真实执行证据，不把外部 Agent 代跑测试算成 CW 能力；取消、错误与重复请求可解释 |
++| 同路径可读 | Run 聚合、真实文件变化、精确来源 Preview；facts 从 Host 到 Chat/Preview 的最小纵切 | Chat 原分片、Presentation / Review Surface | 原件可读、同实例/版本一致、未知 renderer 文字回退；提问/权限/接受不串路由 |
++| 准备与再接手 | 已有 Spark 有界结果在工作中被引用；中断后回到成果、未决事项及下一动作 | Spark 原合同、原 continuity / Attention 路径 | 精确源版本、读取/消费分列、旧结果不覆盖新 basis；记录存在不自动接受或自动恢复进程 |
++
++节点收束需要上述真实路径按原验证合同成立；“公开宣言写完”只完成方向登记。不另增 G 编号。普通 Chat 不必成为 Matter；涉及正式工作效力的切片继续走 Core 原 Candidate/Decision 及 G1–G5 等相应检验，不能以 coding 成功代替。
++
++chart、flow 各一例是 facts 之后的优先消费者，不要求所有 family 同时交付。第二 Runtime、完整 Memory Broker、用户通用 Notes、跨会话自动召回与独立 Spark Provider 是后续独立增量；Swarm、自动 GC、企业 serving stack、任意生成 JS、全面 UI framework 迁移不加入本节点。
++
++## 外部复核：只消费可迁移的机制
++
++2026-09-15 用 Exa 分三路检索：持久工作与执行解耦、声明式呈现、传统产品命令语法；对关键官方页面追加直接读取。以下为网页快照机制，不是已拉取的固定 SDK 源码，也不证明 CW 已实现。
++
++| 官方来源 | 可消费结论 | 不从该来源推出什么 |
++|---|---|---|
++| [Anthropic Managed Agents](https://www.anthropic.com/engineering/managed-agents)，2026-04-08 | session、harness、sandbox 分开；持久事件可供执行器按需读取 | 不把 provider session 作为 CW Matter；不照搬其运行服务或性能收益 |
++| [Anthropic Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)，2025-09-29 | 引用、按需取用和持久笔记可与有限上下文配合 | 不证明任意摘要可靠，不取消来源与任务适用性判断 |
++| [A2UI Actions](https://a2ui.org/concepts/actions/) 与[组件目录](https://a2ui.org/concepts/components/) | 可信目录、声明式数据、动作返回、局部视图与后端校验分开；数据同步还需要接收方隔离 | 不指定全量采用 A2UI，不把 UI 检查当正式接受；v1.0 在页面导航中仍为 candidate |
++| [VS Code Commands](https://code.visualstudio.com/api/extension-guides/command) | 一个命令可出现在不同位置，菜单 when 与命令 enablement 分开 | 不把出现/禁用状态当权限系统，不为右键菜单另造业务命令 |
++| [OpenAI Agents API events/items](https://developers.openai.com/api/docs/guides/agents-api/sessions/events) | Exa 返回事件与持久 items 区分、断流后按记录恢复、turn 结束不保证每个工具成功 | 直接 web fetch 本轮 cache miss；接入前须再固定官方 SDK/协议与运行证据，不据此宣称现有 adapter 已兼容 |
++
++A2UI 的全量 surface data model 同步需要显式接收方隔离，这与 CW 按需披露原则有关；“使用成熟组件”不会自动解决出站数据治理。以上机制服务现有原生前端与 owner 接缝，不形成新的依赖安装清单。
++
++## 实际修订面与保全
++
++README 由 `site/src/readme.mjs` 生成，必须成对修改；Pages 仅调整 `site/src/copy.mjs` 的 Hero、架构叙事及 Review 说明。新 `engineering/product-direction.md` 为稳定二级入口，本页保留来源、处置与施工消费；原 canon 和工程入口新增链接。
++
++不修改 app、schema、Runtime 权限、依赖锁、PAPER.md、release.json、媒体 manifest、历史截图、原始研究快照或既有测试结果。旧图片不成为新节点能力证明。Pages 的具体 Features/Chat 详页布局与图示另沿原发布 owner 消费，不在本轮假称全站设计已更新。
++
++## 文档验证与合入要求
++
++本地只重建本轮实际修改的文本文件；从 GitHub 返回内容恢复的两个源模块用 Git blob SHA 校验，分别为 `65edf59d7f3a658808c4365e7ba8f00dff3fb4bd` 与 `34ea606f2187db231e3bc69fca33214fc178ee8a`。由旧生成器重建的 README 对应 `c60ab17a9ec0ccabec4a1ad40238f8768b6b6cbd`，确认生成来源一致。
++
++合入前由完整仓库执行 `node tools/check-doc-links.mjs`、`node site/build.mjs --write-readme`、`node site/scripts/check-links.mjs`、`node site/scripts/check-material.mjs` 与 `git diff --check`，再检查实际页面的窄屏、长文本和原有导航。检查本轮新增文案而非重拍历史产品证据；构建不等于部署。
++
++当前环境不能克隆完整 Git 历史，因此本轮不声称完成全站构建、全库链接检查、浏览器目验或产品测试。局部语法、生成一致性、保留常量及变更范围检查另见交付回执。作者的文本检查不构成非作者产品接受。
++
++本轮已执行：两个发布源模块 `node --check`；README 生成器与输出逐字一致；Paper 链接、导航、证据标本常量、运行命令、Eval 说明与许可逐项不变；七个目标文件的局部 `git diff --check`。这些检查在源绑定的局部文本树运行，不是完整仓库 CI。
++
++远端写入回执：GitHub 集成的 create_tree 与 create_branch 均返回 `403 Resource not accessible by integration`；未创建远端提交、分支或 PR。交付方式为七文件源绑定补丁与本地接单包，不把本候选记作 main 已修改。
+diff --git a/site/src/copy.mjs b/site/src/copy.mjs
+index 34ea606..a86b145 100644
+--- a/site/src/copy.mjs
++++ b/site/src/copy.mjs
+@@ -1,7 +1,8 @@
+-// The page's words, publishing copy (work-first-2026-09-11).
++// The page's words, publishing copy (work-continuity-node-2026-09-15).
+ //
+ // Copy is shared by the page and README. Version/count placeholders are filled
+-// from the fixed evidence receipt. The current editorial policy is PS-26.
++// from the fixed evidence receipt. PS-26 remains; the next-node declaration
++// is recorded in engineering/release/product-node-2026-09-15/README.md.
+ export const PAPER_ENTRY = {
+   href: "https://lesprivilege.github.io/Schema-Engineering/",
+   baseline: "https://github.com/lesPrivilege/Schema-Engineering/blob/d78fd312955c1f594e59cbdcbb0d3074ac355940/papers/src/canonical.md",
+@@ -16,7 +17,7 @@ export const HERO = {
+   wordmark: "CourtWork",
+   tagline: "A place for work to continue.",
+   h1: ["Orchestrate your agents.", "Govern your work."],
+-  lede: "让不同 Agent 在同一件工作中分工与接力。CourtWork 将这种编排放进一个共同的工作场合：每个参与者有职责和权限，材料有出处，决定有依据。你可以在自己的电脑与资料上展开工作，随时介入、调整方向，再从已有记录继续。这样的工作场合，就是 Court。",
++  lede: "让人和 Agent 围绕同一件工作分工与接力：材料有出处，成果有版本，决定有依据。这样的工作场合，就是 Court。下一实现节点聚焦一个完整闭环：从问题开始，连接自己的材料，执行、检查，再从留下的工作记录继续。",
+   actions: [{ href: "./get.html", label: "Get CourtWork", primary: true }, { ...NAV[0], label: "Explore the product" }],
+ };
+ 
+@@ -64,9 +65,9 @@ export const ARCHITECTURE = {
+   index: "THE COMMITMENT LOOP",
+   title: ["From proposal to decision.", "把提议变成有据可循的决定。"],
+   paragraphs: [
+-    "人和 Agent 参与搜索、比较、起草与执行。CourtWork 为同一件工作保留材料、成果、决定和未完事项，让交接有共同依据。",
+-    "每项任务都有明确的范围、可用材料与完成要求。成果附上来源和依据，经过必要的检查与确认，再纳入正式工作记录。",
+-    "一次执行结束后，已确认的决定、当前版本与待办义务仍可查证。下一次工作从这些记录出发。",
++    "工作现场独立于一次执行而存在。材料、成果、决定与未完事项形成共同依据；Agent、模型与运行环境围绕它参与，也可以替换。",
++    "Chat 承接交谈与执行，Spark 准备与核对材料，Attention 汇集需要跟进的事项。来源、探索笔记和检查结果按需展开，人的判断落在具体版本上。",
++    "保留记录与激活上下文各有目的。下一次工作按任务选择相关材料，保留必要的约束与未完事项，让工作继续，而不是重放全部历史。",
+   ],
+   figureTitle: "From state to committed change",
+   caption:
+@@ -104,7 +105,7 @@ export const REVIEW = {
+     },
+     { word: "Provenance", text: "谁、何时、基于哪个版本。产生候选的一方离场后，历史仍然可读。" },
+   ],
+-  distinction: "逐条展开依据，比较修订，保留决定的完整来路。",
++  distinction: "看清作者的说明、实际变化与检查依据，展开原件，再作出决定。",
+ };
+ 
+ export const BUILD = {
+diff --git a/site/src/readme.mjs b/site/src/readme.mjs
+index 65edf59..902f4df 100644
+--- a/site/src/readme.mjs
++++ b/site/src/readme.mjs
+@@ -6,9 +6,9 @@ export function renderReadme() {
+ 
+ Orchestrate your agents. Govern your work.
+ 
+-让不同 Agent 分工、调用模型与工具、彼此接力，是 CourtWork 的产品方向。一件持续的工作还需要明确每个参与者的职责与权限，保留材料的出处、决定的依据和未完事项，让下一次接手有据可循。
++CourtWork 是一个让人和 Agent 持续工作的本地 AI 工作空间。项目、材料、成果与决定构成共同的工作现场；模型与执行者围绕它参与、分工和接力。工作留在这里，不随一次对话或执行结束。
+ 
+-CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围绕自己的项目、文件与材料展开讨论，委托 Agent 执行，查看成果并作出决定。自由协作与明确的工作规则在这里相遇，构成我们所说的 Court。
++你可以围绕自己的问题、文件与材料展开讨论，委托 Agent 执行，展开依据并作出决定。每个参与者有职责和权限，每份材料有出处，每次交接有可继续的记录。自由协作与明确的工作规则在这里相遇，构成我们所说的 Court。
+ 
+ 人在其中，工作继续。你可以随时介入、调整指令或改变方向，也可以暂时离开，再从已有记录接着做。
+ 
+@@ -24,13 +24,13 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
+ 
+ ## Chat、Spark 与 Attention
+ 
+-三个入口表达 CourtWork 的产品分工；当前源码的使用范围见[预览说明](app/docs/supported-preview.md)。
++Chat 承接交谈与执行，Spark 准备工作所需的材料，Attention 帮助人回到需要判断的地方。三者围绕同一件工作协作。
+ 
+ **Chat · 交谈与交接。** 选择受支持的模型连接，围绕问题与材料持续讨论。CourtWork 管理应用自身保留的对话、附件与引用，按获准范围把材料和工具提供给本次运行，让讨论能够进入后续工作。
+ 
+ **Attention · 跟进与核查。** 把重要请求、已有处置和对应结果放在一起，帮助人和 Agent 找到下一步。中断或切换任务后，沿可检查的记录继续，知道还有什么需要决定。
+ 
+-**Spark · 独立探索与核对。** 独立 Explore Agent 围绕本次工作获准提供的已保留材料进行比较与核对，给出可回到精确版本的发现；来源与探索笔记可以按需展开，为后续判断与工作提供依据。
++**Spark · 准备、探索与核对。** 为当前工作整理获准材料、保留探索笔记与来源索引，把有依据的发现交给下一位参与者。Spark 是稳定的产品角色；Explorer 是一次任务中的探索职责，模型与执行配置按任务选择。交接先给出简明结果与精确引用，细节按需展开。
+ 
+ Expert 用专业工作契约组织责任、能力需求与验证要求。这些角色可以选择不同执行配置；正式工作进入 Matter，人的决定对应具体来源与版本。普通交谈不要求先建立 Matter。
+ 
+@@ -38,9 +38,19 @@ Expert 用专业工作契约组织责任、能力需求与验证要求。这些
+ 
+ [Chat](https://lesprivilege.github.io/Courtwork/chat.html) · [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
+ 
+-## 产品方向：Harness Extensions
++## 下一实现节点：可接续的工作场
+ 
+-Harness Extensions 面向电脑工作环境，围绕文件、命令、检索、视觉与协作组织可组合的能力。开发者场景以理解仓库、修改文件、检查结果和接续任务来检验这套接入体例；coding 是验证场景，产品可以继续服务其他工作。扩展优先复用开放生态，以明确的配置、权限、运行记录和界面接入。
++从一个问题开始，在需要时连接自己的材料或仓库，完成一次可检查、可中断、可接续的真实工作。这是 CourtWork 下一节点的产品承诺。
++
++**开始与连接。** 交谈先于目录和流程；项目归属、资料连接与执行权限各自清楚。需要操作文件时，明确连接范围，再开展工作。
++
++**执行与检查。** 在同一条工作流中读材料、修改文件、检查结果。Chat 保持可读，运行细节按需展开；Preview 展示原件、差异与结构化结果，Review 将依据与决定放在一起。
++
++**保留与接手。** 留下确切版本、可复用的准备结果和未完事项。下一次从工作记录继续，按任务取用所需材料，而不是背负全部对话与每一步中间过程。
++
++界面收敛为项目与最近记录、Chat 与运行控制、资料与 Preview、Review 与 Attention，以及模型和能力设置。Harness Extensions 以文件、受控命令、检索和有界协作为基本能力；coding 用来检验从真实仓库到成果检查的完整路径。视觉、浏览器与专业能力沿同一体例扩展。
++
++[产品形态与稳定语义](engineering/product-direction.md)规定这个节点应当保持的关系；[工程分流与施工接续](engineering/release/product-node-2026-09-15/README.md)将它落实到已有工单。
+ 
+ ## Can the work continue?
+ 
+@@ -75,11 +85,11 @@ npm --prefix app run check:product
+ 
+ Schema Engineering 追问：跨越多个会话与执行者时，工作应当保留什么、按什么规则改变？CourtWork 将这些区分落实到日常工作：材料进入 Matter，执行形成候选，验证与授权接受使判断落到具体版本。
+ 
+-产品重心是持有正式来源、状态与决定的 Work Core。先有编排：Agent、模型与运行环境各司其职，也可以更换；再有 Court：工作本身留在 CourtWork 手中。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。这条边界、一次运行的组成，以及从专业要求到正式决定的路径，见 [Features 页的结构图](https://lesprivilege.github.io/Courtwork/features.html#architecture) 与 [Experts](https://lesprivilege.github.io/Courtwork/experts.html)；模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
++产品重心是工作本身的连续性：材料由各自的资源服务保留，Work Core 管理正式状态、版本关系与决定。Agent、模型与运行环境围绕这个工作现场编排，也可以更换；编排服务于工作，而不是让工作依附某个执行器。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。这条边界、一次运行的组成，以及从专业要求到正式决定的路径，见 [Features 页的结构图](https://lesprivilege.github.io/Courtwork/features.html#architecture) 与 [Experts](https://lesprivilege.github.io/Courtwork/experts.html)；模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
+ 
+ ## 开发入口
+ 
+-开工先核对分支、HEAD 与[当前工程状态](engineering/current.md)，再读对应工单和证据。
++开工先核对分支、HEAD 与[当前工程状态](engineering/current.md)，再读[产品方向](engineering/product-direction.md)、对应工单和证据。
+ 
+ - **架构**：[模块与责任](engineering/architecture.md) · [Runtime 与 Work](engineering/architecture-runtime-canon.md) · [Core 契约](engineering/core-contracts.md)
+ - **UX**：[UX Grammar](engineering/design/ux-grammar.md) · [前端连续性规范](engineering/design/agent-interface-2026-09-10/frontend-contract.md) · [文案](engineering/design/copy-convention.md) · [编排](engineering/design/ui-composition-standard.md) · [控件与图标](engineering/design/atlas/README.md)

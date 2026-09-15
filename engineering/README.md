@@ -1,5 +1,7 @@
 # CourtWork 工程入口
 
+[产品方向与下一节点](product-direction.md) · [本轮研究裁决与施工接续](release/product-node-2026-09-15/README.md)。
+
 [Runtime与Work架构裁决](architecture-runtime-canon.md) · [原始输入消费账](research/deepseek-runtime-2026-09-11/README.md) · [发布面与图表记录](release/architecture-reconciliation-2026-09-11.md)。这些入口保留各自范围与日期，实际实现和开放项以[current](current.md)最近相关记录为准。
 
 

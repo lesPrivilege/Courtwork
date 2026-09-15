@@ -1,4 +1,4 @@
-// The page's words, publishing copy (work-first-2026-09-11).
+// The page's words, publishing copy (work-continuity-node-2026-09-15).
 //
 // Copy is shared by the page and README. Version/count placeholders are filled
 // from the fixed evidence receipt. The current editorial policy is PS-26.
@@ -16,7 +16,7 @@ export const HERO = {
   wordmark: "CourtWork",
   tagline: "A place for work to continue.",
   h1: ["Orchestrate your agents.", "Govern your work."],
-  lede: "让不同 Agent 在同一件工作中分工与接力。CourtWork 将这种编排放进一个共同的工作场合：每个参与者有职责和权限，材料有出处，决定有依据。你可以在自己的电脑与资料上展开工作，随时介入、调整方向，再从已有记录继续。这样的工作场合，就是 Court。",
+  lede: "CourtWork 是让人和 Agent 持续工作的本地 AI 工作空间。项目、材料、成果与决定构成共同现场，模型与执行者围绕它分工和接力。下一实现节点：从一个问题开始，在需要时连接自己的材料或仓库，完成一次可检查、可中断、可接续的真实工作。",
   actions: [{ href: "./get.html", label: "Get CourtWork", primary: true }, { ...NAV[0], label: "Explore the product" }],
 };
 
@@ -66,7 +66,7 @@ export const ARCHITECTURE = {
   paragraphs: [
     "人和 Agent 参与搜索、比较、起草与执行。CourtWork 为同一件工作保留材料、成果、决定和未完事项，让交接有共同依据。",
     "每项任务都有明确的范围、可用材料与完成要求。成果附上来源和依据，经过必要的检查与确认，再纳入正式工作记录。",
-    "一次执行结束后，已确认的决定、当前版本与待办义务仍可查证。下一次工作从这些记录出发。",
+    "材料由各自资源服务保留，Work Core 管理正式状态、版本关系与决定。一次执行结束后，下一位仍能找到有效成果、待办义务与相关依据。",
   ],
   figureTitle: "From state to committed change",
   caption:
@@ -96,7 +96,7 @@ export const REVIEW = {
   quote:
     "把候选、证据与来源放在一起。看清依据，再作决定。",
   words: [
-    { word: "Proposal", text: "逐条规则的候选，绑定它所依据的来源版本。" },
+    { word: "Proposal", text: "待检查的候选成果或修订，绑定它所依据的来源版本。" },
     { word: "Evidence", text: "直接查看候选引用的原文、事实与待补证据。" },
     {
       word: "Decision",
@@ -104,7 +104,7 @@ export const REVIEW = {
     },
     { word: "Provenance", text: "谁、何时、基于哪个版本。产生候选的一方离场后，历史仍然可读。" },
   ],
-  distinction: "逐条展开依据，比较修订，保留决定的完整来路。",
+  distinction: "展开原件与差异，核对结构化结果，保留决定的完整来路。",
 };
 
 export const BUILD = {

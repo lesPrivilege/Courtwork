@@ -1,5 +1,7 @@
 # Engineering release and publication records
 
+[2026-09-15产品节点裁决](product-node-2026-09-15/README.md)：README与Pages公开声明可接续的工作场，稳定语义进入二级入口，实施继续原单。
+
 [2026-09-13–14最终筹备与合流](final-preparation-2026-09-13/README.md)：当前merge/push/部署责任、组合检查及开放产品门的单一批次回执。以下具名历史记录保留各自日期与事实，不自动成为当前待办。
 
 [Claude Paper正式串行开工](claude-paper-2026-09-11/ONE-SHOT.md)：用户已授权，les Privilege两宗、原创编辑插画与独立阅读面候选；待作者认领/返回。

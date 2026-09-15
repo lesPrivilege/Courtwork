@@ -213,3 +213,7 @@ Astra采用[自足架构节点](research/architecture-node-2026-09-13/README.md)
 ### DEC-014补充 · Workspace Substrate与Agent渐进披露（2026-09-13）
 
 [正式架构](research/architecture-node-2026-09-13/workspace-substrate.md)裁定工作现场独立于单次Runtime，源/派生结果/索引/Context/Provider缓存分立；按存在→目录→索引→片段→精确来源披露，挂载保持原owner与双端当前权限。普通内部存取/消费不设普遍人工Review；正式接受不变。[增量外部索引](research/court-position-2026-09-13/workspace-substrate/README.md)收录新增两轮及7个固定README，区分两种ACP、建议性lease与真正隔离。Spark本地资料和机器目录即时消费，SCIP/Tree-sitter/第二Runtime保持候选，不引入框架或新Release门。
+
+### DEC-014补充 · 可接续的工作场（2026-09-15）
+
+采用[产品方向](product-direction.md)与[本轮逐项裁决](release/product-node-2026-09-15/README.md)：下一节点公开声明从问题开始、连接材料或仓库、执行与检查、保留与接手。稳定产品角色、资源/执行/正式动作分责及经典交互语义先于局部选型；RD-006真实读写→DF-04/RD-009内部检查→原Chat/Presentation与Spark/continuity按同一路径消费。第二Runtime保持Agents API优先核验，不作为当前闭环前置；不另设架构层、路线或产品门。当前实现、权限、媒体及Paper pin不由宣言改写。

@@ -1,0 +1,85 @@
+# 2026-09-15 · 产品节点裁决与公开面修订
+
+## 基线与工作范围
+
+本轮按用户“先裁决产品/架构与功能语义，公开登记下一实现节点，再按方向施工”的请求整理。只修订叙事、产品方向及工程索引；不实施产品功能，不合并到 main，不触发 Pages 部署。
+
+仓库读取基线：`60b592fd21c5e063083c76c0ba8a88edeb3f60fc`，树 `19648db4a53290e82ff507742fcafad9e56b23e8`。该节点记载当前产品提交 `496af6a4aa3232de91c05a5a045885858454430e`；已发布媒体/安装来源仍固定 `fd96f96bc40725e301a4c92e0f2f50fd3245458c`。Host15 / Core4 / bridge5 与 SE9.6 采用不变，实际开放项沿 [current](../../current.md)。这些是基线记录，不是本轮再次运行的结论。
+
+提交前再次核对 main 为 `e8f02dd1152acc9e184a43afdba28f6138921bff`。相对读取基线仅增加分支清理回执及 current 的对应登记，未改本轮目标文件；文档候选以该提交及树 `d6a88259671b3050922a70c9cbd0526c5b45eaf9` 为父基线，完整保留这一并行增量。
+
+近期会话通过仓库已入账的研究裁决及其源快照链接消费，重点为“多Agent协作瓶颈”“Agent可视化编排方案”“Chat状态可视化编排”。本轮没有再次逐字核验所有会话 JSON，也不声称检索了用户全部聊天。原始会话、附件、历史回执和此前“仅登记”的时间性事实均不改写。
+
+## 本轮上位裁决
+
+**采用“可接续的工作场”作为下一实现节点的产品合同。** 以从问题出发、连接材料、执行、检查和回来继续的闭环收敛；不以完成一个编排平台、增加 Agent 数量或支持所有 Runtime 为目标。
+
+本次是 DEC-014 的产品语义补充，不另立架构层、状态总账或平行 roadmap。[产品方向](../../product-direction.md)承接稳定语义；实现及证据仍由原服务、原 RD 和原任务持有。文档中的采用不构成产品验收。
+
+公开叙事可以明确写产品职责、设计承诺与下一节点。此前各研究单“不进入本次公开面”的编辑范围由本次用户请求覆盖；其未实现事实、授权限制与验证义务不随之改变。对外不逐段附加“尚未实现”等保护性旁白，也不把目标伪装成已发布版本、可点击功能、客户使用或已测性能。
+
+优先级为：工作对象与效力规则 → 用户任务和可接续路径 → 稳定交互语义 → 服务责任与接口 → 局部技术/Provider 选型。后者若与前者冲突，应返回原责任方裁决，而不是先施工再倒改产品定义。
+
+## 研究提升与分流
+
+| 已入账来源 | 本轮处置 | 公开与二级文档 | 后续仍归原 owner |
+|---|---|---|---|
+| [五层架构](../../research/architecture-node-2026-09-13/architecture.md)、[Substrate](../../research/architecture-node-2026-09-13/workspace-substrate.md) | 提升工作现场独立于单次执行、材料与工作效力分责 | README 开篇、工作如何衔接；product-direction | DEC-014、Runtime/Work canon、原资源/Core owner |
+| [Spark/协作增量](../../research/spark-explore-2026-09-13/coordination-20260915.md) | 采用稳定 Spark / 临时 Explorer / 可替换 Provider 的最终区分；少职责、有界结果交接 | README Spark 段、角色与委派语义 | RD-005、Spark 原设计；MA-06/ME-09 评测 |
+| [合理遗忘](../../research/chat-memory-broker-2026-09-12/attention-governance-20260915.md) | 提升保留/召回/激活、适用性和可追溯降权；不提升“全量 Memory” | README 保留与接手、Pages 叙事；二级资料语义 | Memory Broker、BE-19/20、LG/RG、RD-007；实现非当前节点前置 |
+| [Gateway](../../research/review-surface-2026-09-09/presentation-gateway-20260915.md)、[多源投影](../../research/review-surface-2026-09-09/projection-runtime-20260915.md) | 提升异构 Chat、受限 grammar、同实例多 placement、动作分责；先 facts | README 执行与检查；二级呈现合同 | 原 Presentation / Review Surface，Runtime/Core 动作各自原 owner |
+| [延迟绑定与真实仓库](../../research/RD-006-deferred-workspace-binding.md) | 采用 task-first、组织/资源/执行权限分轴；保持 9月14日真实读写施工增量 | 下一节点“开始与连接” | BE-23/DWB-05 与 DWB-01/02/04，不能把只读交付算完整读写 |
+| [Object Command](../../design/object-command-grammar-20260914.md)、[UX Grammar](../../design/ux-grammar.md) | 稳定对象命令、出现条件/可执行性、导航与业务撤销分开；不因新功能重绘一套控件 | 二级形态与控制面语义 | 原前端合同与具体对象/命令 owner |
+| [Chat 运行态](../../design/chat-flow-2026-09-10/polish-slices-20260914.md) | 保持主对话连贯，Run 聚合与动作时机优先；动效不伪造过程 | README / 二级 Chat 语义 | 原 Chat 分片；不将 Copy/Composer 已交付扩大成 Run 聚合已完成 |
+| [Agents API 候选](../../research/agents-api-first-2026-09-14/README.md)、[Runtime 替换](../../research/architecture-node-2026-09-13/runtime-replacement.md) | 替换能力按合同验证；保持 Agents API 优先核验候选，不自动声称已选定可用执行后端 | 二级可替换执行；品牌/SDK 不占公开主叙事 | P03/P04/DRT-03；第二 Runtime 不阻塞当前 dogfooding |
+| [独立评审](../independent-review-2026-09-14/README.md) | 生命周期依赖与领域专用分支按真实下一消费者消债 | 二级责任原则，细节不进 Hero | IR-03/04 回原任务；不设全面重构前置 |
+| [工作义务闭环](../../research/obligation-closure-2026-09-12/README.md) | 提升未完事项、人的决定与接续；不承诺常驻监控/自动关闭 | Attention 与回来继续 | 原义务/Core/Attention owner；scheduler/watchers 后置 |
+
+外部 Provider 性能排名、吞吐百分比、端云脱敏收益、闭源产品内部机制与“新颖/领先”判断不进入产品宣言。局部选型可以进入 RD，只有固定实验能支持实验结论。
+
+## 下一施工节点：小闭环而非新平台
+
+本表只是原工单的消费顺序与结果映射，不新发编号、不改各项接受权，也不覆盖 current 中更新的真实交付。
+
+| 顺序 | 有界交付 | 消费既有任务 | 应当留下的证据 |
+|---|---|---|---|
+| 先收束在途 | 真实仓库连接、受控读写与可见范围；普通 Chat 身份和资源绑定分别接续 | RD-006 / DWB 与原 BE-23；保留当前隔离施工树 | 身份不变、越界/撤权/源冲突拒绝、未知写入不盲重放；GUI 与原回执一致 |
+| 真实工作贯通 | 读仓库→获准修改→固定 recipe 检查→在同一工作流阅读结果 | DF-04 / [RD-009](../../research/RD-009-trusted-harness-extensions.md)，沿[Harness实施入口](../harness-implementation-2026-09-12/README.md) | CW 内部的真实执行证据，不把外部 Agent 代跑测试算成 CW 能力；取消、错误与重复请求可解释 |
+| 同路径可读 | Run 聚合、真实文件变化、精确来源 Preview；facts 从 Host 到 Chat/Preview 的最小纵切 | Chat 原分片、Presentation / Review Surface | 原件可读、同实例/版本一致、未知 renderer 文字回退；提问/权限/接受不串路由 |
+| 准备与再接手 | 已有 Spark 有界结果在工作中被引用；中断后回到成果、未决事项及下一动作 | Spark 原合同、原 continuity / Attention 路径 | 精确源版本、读取/消费分列、旧结果不覆盖新 basis；记录存在不自动接受或自动恢复进程 |
+
+节点收束需要上述真实路径按原验证合同成立；“公开宣言写完”只完成方向登记。不另增 G 编号。普通 Chat 不必成为 Matter；涉及正式工作效力的切片继续走 Core 原 Candidate/Decision 及 G1–G5 等相应检验，不能以 coding 成功代替。
+
+chart、flow 各一例是 facts 之后的优先消费者，不要求所有 family 同时交付。第二 Runtime、完整 Memory Broker、用户通用 Notes、跨会话自动召回与独立 Spark Provider 是后续独立增量；Swarm、自动 GC、企业 serving stack、任意生成 JS、全面 UI framework 迁移不加入本节点。
+
+## 外部复核：只消费可迁移的机制
+
+2026-09-15 用 Exa 分三路检索：持久工作与执行解耦、声明式呈现、传统产品命令语法；对关键官方页面追加直接读取。以下为网页快照机制，不是已拉取的固定 SDK 源码，也不证明 CW 已实现。
+
+| 官方来源 | 可消费结论 | 不从该来源推出什么 |
+|---|---|---|
+| [Anthropic Managed Agents](https://www.anthropic.com/engineering/managed-agents)，2026-04-08 | session、harness、sandbox 分开；持久事件可供执行器按需读取 | 不把 provider session 作为 CW Matter；不照搬其运行服务或性能收益 |
+| [Anthropic Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)，2025-09-29 | 引用、按需取用和持久笔记可与有限上下文配合 | 不证明任意摘要可靠，不取消来源与任务适用性判断 |
+| [A2UI Actions](https://a2ui.org/concepts/actions/) 与[组件目录](https://a2ui.org/concepts/components/) | 可信目录、声明式数据、动作返回、局部视图与后端校验分开；数据同步还需要接收方隔离 | 不指定全量采用 A2UI，不把 UI 检查当正式接受；v1.0 在页面导航中仍为 candidate |
+| [VS Code Commands](https://code.visualstudio.com/api/extension-guides/command) | 一个命令可出现在不同位置，菜单 when 与命令 enablement 分开 | 不把出现/禁用状态当权限系统，不为右键菜单另造业务命令 |
+| [OpenAI Agents API events/items](https://developers.openai.com/api/docs/guides/agents-api/sessions/events) | Exa 返回事件与持久 items 区分、断流后按记录恢复、turn 结束不保证每个工具成功 | 直接 web fetch 本轮 cache miss；接入前须再固定官方 SDK/协议与运行证据，不据此宣称现有 adapter 已兼容 |
+
+A2UI 的全量 surface data model 同步需要显式接收方隔离，这与 CW 按需披露原则有关；“使用成熟组件”不会自动解决出站数据治理。以上机制服务现有原生前端与 owner 接缝，不形成新的依赖安装清单。
+
+## 实际修订面与保全
+
+README 由 `site/src/readme.mjs` 生成，必须成对修改；Pages 仅调整 `site/src/copy.mjs` 的 Hero、架构叙事及 Review 说明。新 `engineering/product-direction.md` 为稳定二级入口，本页保留来源、处置与施工消费；原 canon 和工程入口新增链接。
+
+不修改 app、schema、Runtime 权限、依赖锁、PAPER.md、release.json、媒体 manifest、历史截图、原始研究快照或既有测试结果。旧图片不成为新节点能力证明。Pages 的具体 Features/Chat 详页布局与图示另沿原发布 owner 消费，不在本轮假称全站设计已更新。
+
+## 文档验证与合入要求
+
+本地只重建本轮实际修改的文本文件；从 GitHub 返回内容恢复的两个源模块用 Git blob SHA 校验，分别为 `65edf59d7f3a658808c4365e7ba8f00dff3fb4bd` 与 `34ea606f2187db231e3bc69fca33214fc178ee8a`。由旧生成器重建的 README 对应 `c60ab17a9ec0ccabec4a1ad40238f8768b6b6cbd`，确认生成来源一致。
+
+合入前由完整仓库执行 `node tools/check-doc-links.mjs`、`node site/build.mjs --write-readme`、`node site/scripts/check-links.mjs`、`node site/scripts/check-material.mjs` 与 `git diff --check`，再检查实际页面的窄屏、长文本和原有导航。检查本轮新增文案而非重拍历史产品证据；构建不等于部署。
+
+当前环境不能克隆完整 Git 历史，因此本轮不声称完成全站构建、全库链接检查、浏览器目验或产品测试。局部语法、生成一致性、保留常量及变更范围检查另见交付回执。作者的文本检查不构成非作者产品接受。
+
+本轮已执行：两个发布源模块 `node --check`；README 生成器与输出逐字一致；Paper 链接、导航、证据标本常量、运行命令、Eval 说明与许可逐项不变；七个目标文件的局部 `git diff --check`。这些检查在源绑定的局部文本树运行，不是完整仓库 CI。
+
+远端写入回执：GitHub 集成的 create_tree 与 create_branch 均返回 `403 Resource not accessible by integration`；未创建远端提交、分支或 PR。交付方式为七文件源绑定补丁与本地接单包，不把本候选记作 main 已修改。

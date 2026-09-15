@@ -1,0 +1,14 @@
+{
+  "baseline": "e8f02dd1152acc9e184a43afdba28f6138921bff",
+  "apply_to_isolated_index": "pass",
+  "files": {
+    "engineering/product-direction.md": {
+      "patch_matches_attachment": true,
+      "patch_sha256": "03fcc63f4bd6f0991efaaa3900742b2a965cfb20c1d274bb88469d00a0e83a16"
+    },
+    "engineering/release/product-node-2026-09-15/README.md": {
+      "patch_matches_attachment": true,
+      "patch_sha256": "23b9164e3c241c9509398c86a5910b5ee305844a1f54aa9a4ea95f3c9b8d1a37"
+    }
+  }
+}

@@ -6,9 +6,9 @@ export function renderReadme() {
 
 Orchestrate your agents. Govern your work.
 
-让不同 Agent 分工、调用模型与工具、彼此接力，是 CourtWork 的产品方向。一件持续的工作还需要明确每个参与者的职责与权限，保留材料的出处、决定的依据和未完事项，让下一次接手有据可循。
+CourtWork 是一个让人和 Agent 持续工作的本地 AI 工作空间。项目、材料、成果与决定构成共同的工作现场；模型与执行者围绕它参与、分工和接力。工作留在这里，不随一次对话或执行结束。
 
-CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围绕自己的项目、文件与材料展开讨论，委托 Agent 执行，查看成果并作出决定。自由协作与明确的工作规则在这里相遇，构成我们所说的 Court。
+你可以从一个问题开始，连接自己的资料，委托 Agent 执行，检查成果并作出决定。每个参与者有职责和权限，材料有出处，判断有依据，共同构成我们所说的 Court。
 
 人在其中，工作继续。你可以随时介入、调整指令或改变方向，也可以暂时离开，再从已有记录接着做。
 
@@ -24,13 +24,13 @@ CourtWork 把这些关系放在同一个本地 AI 工作空间中。你可以围
 
 ## Chat、Spark 与 Attention
 
-三个入口表达 CourtWork 的产品分工；当前源码的使用范围见[预览说明](app/docs/supported-preview.md)。
+Chat 承接交谈与执行，Spark 准备工作所需的材料，Attention 帮助人回到需要判断的地方。三者围绕同一件工作协作。
 
 **Chat · 交谈与交接。** 选择受支持的模型连接，围绕问题与材料持续讨论。CourtWork 管理应用自身保留的对话、附件与引用，按获准范围把材料和工具提供给本次运行，让讨论能够进入后续工作。
 
 **Attention · 跟进与核查。** 把重要请求、已有处置和对应结果放在一起，帮助人和 Agent 找到下一步。中断或切换任务后，沿可检查的记录继续，知道还有什么需要决定。
 
-**Spark · 独立探索与核对。** 独立 Explore Agent 围绕本次工作获准提供的已保留材料进行比较与核对，给出可回到精确版本的发现；来源与探索笔记可以按需展开，为后续判断与工作提供依据。
+**Spark · 准备、探索与核对。** Spark 是持续工作的产品角色，围绕本次工作获准提供的已保留材料进行比较与核对，给出可回到精确版本的发现；来源与探索笔记可以按需展开，为后续判断与工作提供依据。
 
 Expert 用专业工作契约组织责任、能力需求与验证要求。这些角色可以选择不同执行配置；正式工作进入 Matter，人的决定对应具体来源与版本。普通交谈不要求先建立 Matter。
 
@@ -38,7 +38,19 @@ Expert 用专业工作契约组织责任、能力需求与验证要求。这些�
 
 [Chat](https://lesprivilege.github.io/Courtwork/chat.html) · [Features](https://lesprivilege.github.io/Courtwork/features.html) · [Product tour](https://lesprivilege.github.io/Courtwork/tour.html) · [Experts](https://lesprivilege.github.io/Courtwork/experts.html)
 
-## 产品方向：Harness Extensions
+## 下一实现节点：可接续的工作场
+
+**从一个问题开始，在需要时连接自己的材料或仓库，完成一次可检查、可中断、可接续的真实工作。**
+
+**开始与连接。** 先交谈，再按任务连接资料或仓库；项目归属、连接范围与执行权限分别表达。
+
+**执行与检查。** 在同一条工作流中读材料、修改文件、检查结果。Chat 保持可读，运行细节按需展开；Preview 展示原件、差异与结构化结果，Review 将依据与决定放在一起。
+
+**保留与接手。** 留下确切版本、可复用的准备结果和未完事项。下一次从工作记录继续，按任务取用材料。
+
+[产品形态与功能语义](engineering/product-direction.md)说明这条工作流的稳定职责与接续关系。
+
+## 能力如何接入
 
 Harness Extensions 面向电脑工作环境，围绕文件、命令、检索、视觉与协作组织可组合的能力。开发者场景以理解仓库、修改文件、检查结果和接续任务来检验这套接入体例；coding 是验证场景，产品可以继续服务其他工作。扩展优先复用开放生态，以明确的配置、权限、运行记录和界面接入。
 
@@ -75,11 +87,11 @@ npm --prefix app run check:product
 
 Schema Engineering 追问：跨越多个会话与执行者时，工作应当保留什么、按什么规则改变？CourtWork 将这些区分落实到日常工作：材料进入 Matter，执行形成候选，验证与授权接受使判断落到具体版本。
 
-产品重心是持有正式来源、状态与决定的 Work Core。先有编排：Agent、模型与运行环境各司其职，也可以更换；再有 Court：工作本身留在 CourtWork 手中。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。这条边界、一次运行的组成，以及从专业要求到正式决定的路径，见 [Features 页的结构图](https://lesprivilege.github.io/Courtwork/features.html#architecture) 与 [Experts](https://lesprivilege.github.io/Courtwork/experts.html)；模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
+产品重心是可持续接手的工作现场。材料由各自资源服务保留，Work Core 管理正式状态、版本关系与决定；编排组织 Agent、模型与运行环境参与执行。工作对象和责任稳定，执行组合沿这些关系接入与更换。当前实现采用 [Schema Engineering 9.6](PAPER.md)，执行集成复用 Pi；专业契约与运行适配分开。这条边界、一次运行的组成，以及从专业要求到正式决定的路径，见 [Features 页的结构图](https://lesprivilege.github.io/Courtwork/features.html#architecture) 与 [Experts](https://lesprivilege.github.io/Courtwork/experts.html)；模块归属见 [架构文档](engineering/architecture.md)，概念与实施边界见 [Runtime 与 Work](engineering/architecture-runtime-canon.md)。
 
 ## 开发入口
 
-开工先核对分支、HEAD 与[当前工程状态](engineering/current.md)，再读对应工单和证据。
+开工先核对分支、HEAD 与[当前工程状态](engineering/current.md)，再读[产品方向](engineering/product-direction.md)、对应工单和证据。
 
 - **架构**：[模块与责任](engineering/architecture.md) · [Runtime 与 Work](engineering/architecture-runtime-canon.md) · [Core 契约](engineering/core-contracts.md)
 - **UX**：[UX Grammar](engineering/design/ux-grammar.md) · [前端连续性规范](engineering/design/agent-interface-2026-09-10/frontend-contract.md) · [文案](engineering/design/copy-convention.md) · [编排](engineering/design/ui-composition-standard.md) · [控件与图标](engineering/design/atlas/README.md)
