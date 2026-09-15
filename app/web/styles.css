@@ -2987,8 +2987,6 @@ select {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  direction: rtl;
-  text-align: left;
 }
 .repository-path-details > summary { cursor: pointer; font-size: var(--text-meta); color: var(--muted-strong); padding: 6px 4px; }
 .repository-path-details[open] > summary { color: var(--ink); }

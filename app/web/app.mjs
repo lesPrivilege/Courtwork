@@ -5589,7 +5589,9 @@ const workspaceCard = createWorkspaceCard({
   },
 });
 function homeWorkspaceDraft() {
-  return { path: state.homeRepositoryPath, onChange: (path) => { state.homeRepositoryPath = path || null; storeHomeDraft(); renderChatHeader(); } };
+  // A getter, not a snapshot: the card re-renders from the same draft object
+  // after it changes the path, so it must read the live Home state.
+  return { get path() { return state.homeRepositoryPath; }, onChange: (path) => { state.homeRepositoryPath = path || null; storeHomeDraft(); renderChatHeader(); } };
 }
 function renderWorkspaceCard() {
   const home = state.view === "home" && !currentSession();
