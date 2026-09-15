@@ -1,0 +1,83 @@
+{
+  "mcp": {
+    "resourceId": "local:cap-mcp",
+    "sessionId": "12da66f5-cb42-4f12-bdca-c370c7bc356b",
+    "runIds": {
+      "before": "4a1d2b43-92c6-4816-858e-41fe74cda541",
+      "used": "e85e5ebc-cc9a-49ee-88f4-25d0976faa6f"
+    },
+    "bindingRevision": 2,
+    "bindingHash": "93f08410c2bcce7143b7c641613037f6f8cff8edd2c3c477575aab88a3605b2b",
+    "exposed": {
+      "beforeSave": false,
+      "afterEnabling": true,
+      "afterLaterChange": false
+    },
+    "usedEvidence": [
+      {
+        "type": "permission.open",
+        "seq": 21
+      },
+      {
+        "type": "tool.result",
+        "seq": 27,
+        "dispatchId": "f5e19518-09df-4434-a2d7-31afaf101c86"
+      }
+    ],
+    "historicalBindingUnchanged": true
+  },
+  "skill": {
+    "resourceId": "local:cap-skill",
+    "sessionId": "41dcc346-352a-4fb7-9be8-3709ddd2157c",
+    "runIds": {
+      "before": "2e34b63b-97ae-4c82-bca3-d1c05f8a3938",
+      "used": "b43a7362-f549-4fc2-b165-84442af03c4d"
+    },
+    "bindingRevision": 2,
+    "bindingHash": "f25d008dd301bc8209d6f6a6272d53a11a8cce5a83823db1d0648777cc08b774",
+    "exposed": {
+      "beforeSave": false,
+      "afterEnabling": true,
+      "afterLaterChange": false
+    },
+    "usedEvidence": [
+      {
+        "type": "runtime.context.loaded",
+        "seq": 21,
+        "characters": 110
+      },
+      {
+        "type": "tool.result",
+        "seq": 22
+      }
+    ],
+    "loadedContentMatchesSaved": true,
+    "historicalBindingUnchanged": true
+  },
+  "plugin": {
+    "resourceId": "plugin:cap-probe",
+    "sessionId": "30c774eb-504a-45d2-bf3e-c31bdf0191bb",
+    "runIds": {
+      "before": "9c4297a0-4ac9-4fdd-b285-1dfeb5c064cc",
+      "used": "57596cf5-d0d6-4512-b713-202a508c3d9f"
+    },
+    "bindingRevision": 0,
+    "bindingHash": "91fb95dc3b044bdcc5adef2745495a3d06057046523b113bfc129da66f69fb0f",
+    "exposed": {
+      "beforeSave": false,
+      "afterEnabling": true
+    },
+    "usedEvidence": [
+      {
+        "type": "tool.start",
+        "seq": 20
+      },
+      {
+        "type": "tool.result",
+        "seq": 21
+      }
+    ],
+    "runExtensionId": "cap-probe",
+    "historicalBindingUnchanged": true
+  }
+}
