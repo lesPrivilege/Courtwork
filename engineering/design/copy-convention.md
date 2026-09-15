@@ -76,6 +76,8 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 | Start private candidate · Stop edits | 从目录当前 commit 创建候选；撤销候选而不删除其文件（后果句写在动作旁）。无 commit 的目录不能开始 | Enable edits · Create worktree · Delete candidate · Revoke |
 | Review changes · Changes in the private candidate | 从 Host 读同一份有界 patch 的入口与对话框标题；每个文件一节，标题是路径 | Diff · Show diff · Compare |
 | Private candidate · new file / replaces the file whose hash starts … | `repo_write` 批准卡的范围行：落点与精确前态 | Overwrite · Edit file |
+| Check · Approve this check · Deny this check | `check_run` 的批准：一次在私有 candidate 里执行 Host 固定 recipe；卡片标题 `Approve this check?`，对象是 recipe 名与版本，范围行写实际命令、位置、时限、输出上限与最小环境 | Run tests · Execute · Allow command |
+| Checking · Exit N · Timed out · Cancelled · Unknown | 检查行的状态词：进程结束写退出码，不写 Passed/Failed（退出 0 不是接受）；取消只在进程组确认退出后写；Host 重启后未结算写 Unknown | Passed · Success · Green · Aborted |
 
 上下文条只在 Home 与尚无 Run 的 Chat 出现；工作开始后它不再占用 composer，Workspace 事实与入口移到 `This chat` 概览的同名行。`Available after this run ends.` 沿 File access 卡原句；在途词沿 §3.4b 的 `Sending…`；等待原生对话框时写 `Choose a folder in the dialog that opened.`。Work 面板里"Browse workspace / Workspace · N files"仍指托管成果目录，属 10 片的文字收敛项。
 

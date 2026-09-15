@@ -80,6 +80,7 @@ import {
   canAnswer,
   validPermission,
   permissionPresentation,
+  checkStateWord,
 } from "./thread-projection.mjs";
 
 import {
@@ -2523,13 +2524,39 @@ function toolGlyph(name) {
   if (tool === "ws_list" || tool === "repo_list" || tool === "candidate_list") return "folder";
   if (tool === "ws_grep" || tool === "repo_grep" || tool === "candidate_grep") return "search";
   if (tool === "ws_read" || tool === "se_read_source" || tool === "repo_read" || tool === "candidate_read") return "file-text";
+  if (tool === "check_run") return "play";
   if (tool.startsWith("runtime_")) return "settings-2";
   return null;
 }
 
+/* DF-04 · a check's settlement is Host fact: the exit status, how long it
+ * ran, whether output was cut, and the streams themselves. It is shown as
+ * those facts, not as the model's retelling of them; exit 0 is not
+ * acceptance of anything. */
+function appendCheckDetails(container, check) {
+  const facts = [
+    ["Recipe", check.recipeId ? `${check.recipeId}${check.recipeVersion ? ` v${check.recipeVersion}` : ""}` : "unknown"],
+    ["Outcome", checkStateWord(check)],
+    ...(check.signal ? [["Signal", check.signal]] : []),
+    ...(Number.isFinite(check.durationMs) ? [["Duration", `${(check.durationMs / 1000).toFixed(1)} s`]] : []),
+    ...(check.truncated?.stdout || check.truncated?.stderr ? [["Output", "cut at the Host limit"]] : []),
+    ...(check.failure?.code ? [["Reason", check.failure.code]] : []),
+  ];
+  const list = element("dl", { className: "data-list" });
+  for (const [term, value] of facts) list.append(element("dt", { text: term }), element("dd", { text: value }));
+  container.append(list);
+  for (const [stream, text] of [["stdout", check.stdout], ["stderr", check.stderr]]) {
+    if (typeof text !== "string" || !text) continue;
+    container.append(element("h4", { className: "tool-detail-heading", text: stream }), element("pre", { className: "tool-detail", text }));
+  }
+}
 function appendToolDetails(container, row) {
   const requestValue = row.request;
   const resultValue = row.result;
+  if (row.check && row.check.status !== "running") {
+    appendCheckDetails(container, row.check);
+    return;
+  }
   if (requestValue !== undefined && requestValue !== null) {
     container.append(
       element("h4", { className: "tool-detail-heading", text: "Request" }),

@@ -67,6 +67,27 @@ export function projectThread(events, runs, sessionId) {
       row.result = data.result ?? data.text ?? data.error ?? row.result;
       row.isError = Boolean(data.isError || data.error);
       row.phase = type === "tool/result" ? "result" : "started";
+    } else if (type === "check/started" || type === "check/settled") {
+      // DF-04 · the Host settles a check itself (check.settled) even when the
+      // Run was cancelled and Pi's own tool/result never arrives; the row is
+      // the same tool row, and the settlement is its authoritative outcome.
+      const callId = data.callId, key = `${runId}:${callId}`;
+      let row = tools.get(key);
+      if (!row) {
+        nextSegment(runId);
+        row = { kind: "tool", runId, callId, name: "check_run", id: key };
+        tools.set(key, row);
+        rows.push(row);
+      }
+      if (type === "check/started") {
+        row.check = { status: "running", recipeId: data.recipeId, recipeVersion: data.recipeVersion, startedAt: data.startedAt };
+        row.request ??= { recipeId: data.recipeId };
+        row.phase ??= "started";
+      } else {
+        row.check = { ...(row.check ?? {}), ...data, status: data.status };
+        row.phase = "result";
+        if (["failed", "unknown"].includes(data.status)) row.isError = true;
+      }
     } else if (type === "question/open" || type === "permission/open") {
       nextSegment(runId);
       const id = data.id || data.questionId || event.seq,
@@ -139,7 +160,17 @@ export function projectThread(events, runs, sessionId) {
  * this one function so the vocabulary cannot drift between them. */
 export const unfinishedToolWord = (status) =>
   status === "cancelled" || status === "failed" ? "Interrupted" : "Unknown";
+export function checkStateWord(check) {
+  if (!check) return null;
+  if (check.status === "running") return "Checking";
+  if (check.status === "completed") return `Exit ${check.exitCode ?? "?"}`;
+  if (check.status === "cancelled") return "Cancelled";
+  if (check.status === "timed_out") return "Timed out";
+  if (check.status === "unknown") return "Unknown";
+  return "Failed";
+}
 export function toolStateWord(row, status) {
+  if (row.check) return checkStateWord(row.check);
   if (row.isError) return "Failed";
   if (row.phase === "result") return null;
   if (["created", "running", "waiting_user", "stopping"].includes(status))
@@ -178,6 +209,27 @@ export function permissionPresentation(payload, binding) {
   // connected folder; the card says so and names the exact prior state.
   const candidate = payload?.tool === "repo_write";
   const priorHash = typeof payload?.expectedSha256 === "string" && payload.expectedSha256 ? payload.expectedSha256 : null;
+  // DF-04 · a check runs one Host-owned recipe inside the private candidate;
+  // the card names the recipe, what it executes and the limits, never a
+  // model-supplied command.
+  const check = payload?.tool === "check_run";
+  if (check) {
+    const command = String(payload.command ?? "").split("/").pop() || "recipe";
+    const argv = Array.isArray(payload.argv) ? payload.argv.join(" ") : "";
+    const seconds = Number.isFinite(payload.timeoutMs) ? Math.round(payload.timeoutMs / 1000) : null;
+    const kib = Number.isFinite(payload.outputLimitBytes) ? Math.round(payload.outputLimitBytes / 1024) : null;
+    return {
+      title: "Approve this check?",
+      glyph: null,
+      noun: "check",
+      label: "Check",
+      target: payload.recipeId ? `${payload.recipeId}${payload.recipeVersion ? ` v${payload.recipeVersion}` : ""}` : "Recorded recipe identity unavailable",
+      source: null,
+      details: "Check details",
+      hashLabel: "Copy proposed arguments hash",
+      scope: [`${command} ${argv}`.trim(), "in the private candidate", seconds ? `${seconds} s` : null, kib ? `${kib} KiB per stream` : null, "minimal environment"].filter(Boolean).join(" · "),
+    };
+  }
   const resource = binding?.resources?.find(
     (item) => item.id === `tool:${payload?.tool}`,
   );
