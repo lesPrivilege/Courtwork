@@ -161,8 +161,8 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 | 用户词 | 它是什么 | 不用 |
 |---|---|---|
 | Models | 模块带上那一行的**对象名**：它标的是这一行通向哪一类设置 | Connections（那是 Settings › Models 里的段名）· Provider · LLM |
-| Connections | Home 模块带页脚通往 `Settings › Models` 的连接列表；目的地名独立承重。2026-09-14 按用户裁定替代旧 `Manage connections`，当前页脚没有重复 Models 标题。 | Manage connections · Configure · Edit · Open settings |
-| Hide modules · Show modules | 折叠那条带。带没有自己的标题（消融记录见 text-sweep §12.3），所以控件自己说出它折的是什么；两个词随 `aria-expanded` 成对翻面 | Hide · Show · Collapse · Expand · ⌄ |
+| Connections | 2026-09-16 起不再出现在 Home 模块带页脚：composer 的 Model & effort 已通往 Connections，同一目的地不放两个入口。词仍是 `Settings › Models` 内的连接列表名 | Manage connections · Configure · Edit · Open settings |
+| Hide modules · Show modules | 折叠那条带。2026-09-16 起控件只画披露箭头（chevron-down / chevron-right），这两个词是它的可访问名与 tooltip，随 `aria-expanded` 成对翻面 | Hide · Show · Collapse · Expand · ⌄（作可见文字时） |
 
 **这条带上没有状态词。** 模块要么陈述一个今天已经加载的事实并因此承担它的六个显示状态，要么不安装；`Models` 这一行不陈述任何连接事实，所以它没有 loading / empty / stale 可写，也不写 `Backend pending` / `Coming soon` / `until BE-nn` 一类实现状态（WK-114 ③、WK-117 (b)）。准入合同见 [home-modules](../mvp/execution/work-surface-kit/contracts/home-modules.md)。
 

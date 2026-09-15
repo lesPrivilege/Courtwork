@@ -5762,7 +5762,6 @@ function renderHomeState() {
           .querySelector('[data-focus-key="home-module-collapse"]')
           ?.focus();
       },
-      onManageConnections: () => openSettings("models"),
     });
   renderHome($("message-stream"), {
     summary: state.home.data,

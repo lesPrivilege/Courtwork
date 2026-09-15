@@ -294,8 +294,14 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
 }
 export function renderHomeModuleBand(container, options) {
   const focusKey = container.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
-  const { collapsed, onCollapse, onManageConnections } = options;
-  const toggle = homeButton(collapsed ? "Show modules" : "Hide modules", () => onCollapse(!collapsed), "home-module-collapse", "home-module-collapse");
+  const { collapsed, onCollapse } = options;
+  // The composer already reaches Model & effort → Connections, so the band's
+  // footer keeps only the disclosure; the glyph carries it, the name says it.
+  const toggleName = collapsed ? "Show modules" : "Hide modules";
+  const toggle = el("button", { className: "home-module-collapse icon-only", attrs: { type: "button", "data-focus-key": "home-module-collapse", "aria-label": toggleName } },
+    icon(collapsed ? "chevron-right" : "chevron-down", { size: 16 }));
+  toggle.dataset.tooltip = toggleName;
+  toggle.addEventListener("click", () => onCollapse(!collapsed));
   toggle.setAttribute("aria-expanded", String(!collapsed));
   toggle.setAttribute("aria-controls", "home-module-list");
   const list = el("div", { className: "home-module-list", attrs: { id: "home-module-list" } });
@@ -306,7 +312,7 @@ export function renderHomeModuleBand(container, options) {
     }
   }
   container.replaceChildren(el("div", { className: "home-module-band-inner" }, list,
-    el("div", { className: "home-module-footer" }, homeButton("Connections", onManageConnections, "home-module-models"), toggle)));
+    el("div", { className: "home-module-footer" }, toggle)));
   if (focusKey) {
     const target = container.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)
       ?? (/attention/i.test(focusKey) ? container.querySelector('.home-attention-project') :
