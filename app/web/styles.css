@@ -4676,6 +4676,25 @@ court-symbol {
   }
 }
 
+/* BE-6/BE-7 · "Proposed by the agent" rows: the summary carries a title and a
+   help line like any other settings row, just stacked inside a <summary>
+   instead of a .settings-row-text; the Apply/Reject pair below it reuses
+   .runtime-row-actions. */
+.runtime-proposal > summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-block: var(--space-2);
+  cursor: pointer;
+}
+.runtime-proposal + .runtime-proposal {
+  border-top: 1px solid var(--line);
+}
+.runtime-proposal .runtime-row-actions input[type="text"] {
+  min-width: 12rem;
+  flex: 1 1 12rem;
+}
+
 .planned-section > summary {
   padding: 10px 0;
 }

@@ -1,6 +1,7 @@
 import { el, icon, action, copyAction } from "./ui-controls.mjs";
 import { createRuntimeIntake } from "./runtime-intake.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
+import { parseUnifiedPatch, renderDiff } from "./diff-view.mjs";
 const RESOURCE_ICONS = {tool: "tool.object", mcp_server: "mcp.server", skill: "skill.object", plugin: "plugin.object", hook: "hook.object", registry: "registry.object", agent_profile: "agent.profile"};
 
 /* WO-WK11 · the Runtime Workbench. One controller owns the authoritative
@@ -91,6 +92,9 @@ const SOURCE_LABELS = {
   "local-config": "local config",
   remote: "remote",
 };
+/* BE-6/BE-7 · the ledger's four proposal states, in the exact words the row
+   summary and the decided-row line use. */
+const PROPOSAL_STATE_WORDS = { proposed: "Awaiting review", applying: "Applying", applied: "Applied", rejected: "Rejected" };
 /* WK-27 · kinds the contract names and this host has no adapter for. They are
    text rows with no interactive descendant, so the page cannot imply an
    authority that does not exist. The backend request that would put a control
@@ -211,6 +215,24 @@ export function attentionItems(snapshot) {
     });
   return items;
 }
+/** "Proposed by the agent" row projection: proposed/applying first (newest
+ * first), then decided proposals (also newest first). Pure so the sort and
+ * the state words can be tested without a snapshot or a DOM. */
+export function proposalRows(proposals) {
+  const pending = new Set(["proposed", "applying"]);
+  const rank = (proposal) => (pending.has(proposal?.status) ? 0 : 1);
+  const at = (proposal) => new Date(proposal?.updatedAt || proposal?.createdAt || 0).getTime();
+  return [...(proposals || [])]
+    .sort((a, b) => rank(a) - rank(b) || at(b) - at(a))
+    .map((proposal) => ({
+      id: proposal.id,
+      title: proposal.title,
+      resourceId: proposal.target?.resourceId,
+      runShort: (proposal.author?.runId || "").slice(0, 8),
+      revision: proposal.revision,
+      stateWord: PROPOSAL_STATE_WORDS[proposal.status] || proposal.status,
+    }));
+}
 function shortHash(value) {
   return typeof value === "string" && value.length > 12 ? value.slice(0, 12) : value;
 }
@@ -252,7 +274,9 @@ export function createRuntimeView(
     boundRunId = null,
     capabilitiesTab = "configurable",
     pendingFocus = null,
-    environment = { config: null, info: null };
+    environment = { config: null, info: null },
+    proposals = null,
+    proposalsError = null;
   /* FN-14 "Requested" · a change the user asked for in the selected scope that
      the server has not accepted. Keyed by object and scope so two edits never
      overwrite each other, and never resent on their own (FN-19). */
@@ -260,6 +284,12 @@ export function createRuntimeView(
   const packageDrafts = new Map();
   const open = new Set();
   const filters = new Map();
+  /* BE-6/BE-7 · one opened proposal's loaded review, keyed by proposal id:
+     { loading, error, review, requestId, applying, rejecting, message }. Never
+     a second source of truth for the proposal itself — the list from
+     `read /runtime-proposals` stays that — only the on-demand review reading
+     and the transient state of an Apply/Reject in flight. */
+  const proposalDetails = new Map();
   const intake = createRuntimeIntake({ request, submit, render,
     getContext: () => ({ sessionId, scope: activeScope(), resources: snapshot?.resources || [], disabled: busy || frozen() }),
     onSaved: resource => { open.add(resource.id); pendingFocus = resource.id; notify?.(`${resource.title} saved. Exposure stays under its own control.`); },
@@ -305,11 +335,37 @@ export function createRuntimeView(
       if (!snapshot.activeRuns) frozenByServer = false;
       render({ polling });
       await readContext(own, polling);
+      await readProposals(own, polling);
     } catch (err) {
       if (own !== generation || err.name === "AbortError") return;
       error = err;
       render({ polling });
     }
+  }
+
+  /* The Host ledger of what the agent has proposed in this chat (BE-6/BE-7).
+     A read failure here leaves the rest of the block readable; it never masks
+     the control snapshot with a proposal-ledger error. */
+  async function readProposals(own = generation, polling = false) {
+    const id = sessionId;
+    if (!id) {
+      if (own !== generation) return;
+      proposals = null;
+      proposalsError = null;
+      render({ polling });
+      return;
+    }
+    try {
+      const result = await request(`/runtime-proposals?sessionId=${encodeURIComponent(id)}`);
+      if (own !== generation) return;
+      proposals = result.proposals || [];
+      proposalsError = null;
+    } catch (err) {
+      if (own !== generation) return;
+      proposals = null;
+      proposalsError = err;
+    }
+    render({ polling });
   }
 
   /* The next-run admission catalog. It is a second endpoint but not a second
@@ -1846,6 +1902,7 @@ export function createRuntimeView(
     }
     if (!shown) list.append(note("No resource of this kind is configured."));
     mount.append(list, contextInspector());
+    mount.append(renderProposalKind());
     const planned = plannedRows(["memory_provider"]);
     if (planned)
       mount.append(
@@ -1924,6 +1981,222 @@ export function createRuntimeView(
       ),
     );
     return section;
+  }
+
+  /* ── Proposed by the agent (BE-6/BE-7) ────────────────────────────────
+     The ledger is not a second capability registry: nothing here is
+     compiled, exposed or loaded. A row states what the agent proposed and
+     what a person decided; only Apply, through the review a person reads
+     right here, turns a draft into a resource. */
+
+  function mergeProposalDetail(id, patch) {
+    proposalDetails.set(id, { ...(proposalDetails.get(id) || {}), ...patch });
+  }
+
+  /** Opening a row reads its BE-6 review once; re-fetched after any action so
+   * the row always reflects what the server just did, never a stale local
+   * guess. `requestId` is generated with the review, so an unmodified retry
+   * reuses it and a re-fetched review always carries a fresh one. */
+  async function loadProposalReview(id, { force = false, silent = false } = {}) {
+    const existing = proposalDetails.get(id);
+    if (existing?.loading) return;
+    if (!force && existing?.review) return;
+    const own = generation;
+    mergeProposalDetail(id, { loading: true, error: null });
+    if (!silent) render();
+    try {
+      const review = await request(`/runtime-proposals/${encodeURIComponent(id)}`);
+      if (own !== generation) return;
+      mergeProposalDetail(id, { review, loading: false, error: null, requestId: crypto.randomUUID() });
+    } catch (err) {
+      if (own !== generation) return;
+      mergeProposalDetail(id, { review: null, loading: false, error: err });
+    }
+    render();
+  }
+
+  async function applyProposal(proposal) {
+    const entry = proposalDetails.get(proposal.id);
+    if (!entry?.review || entry.applying || entry.rejecting) return;
+    const { review, requestId } = entry;
+    mergeProposalDetail(proposal.id, { applying: true, message: null });
+    render();
+    try {
+      const result = await request(`/runtime-proposals/${encodeURIComponent(proposal.id)}/apply`, {
+        method: "POST",
+        body: { revision: review.proposal.revision, approvalSha256: review.approvalSha256, requestId },
+      });
+      await readProposals();
+      await loadProposalReview(proposal.id, { force: true, silent: true });
+      mergeProposalDetail(proposal.id, {
+        applying: false,
+        message: `Applied at configuration revision ${result.receipt.configRevisionAfter}. The next run binds it; exposure follows the scope rule.`,
+      });
+    } catch (err) {
+      const code = err.body?.error?.code;
+      if (code === "active_run") {
+        mergeProposalDetail(proposal.id, { applying: false, message: "Available after this run ends." });
+      } else if (["approval_stale", "runtime_conflict", "proposal_conflict"].includes(code)) {
+        await loadProposalReview(proposal.id, { force: true, silent: true });
+        mergeProposalDetail(proposal.id, { applying: false, message: "The configuration or proposal changed. Review again before applying." });
+      } else {
+        mergeProposalDetail(proposal.id, { applying: false, message: err.message });
+      }
+    } finally {
+      pendingFocus = `proposal:${proposal.id}`;
+      render();
+    }
+  }
+
+  async function rejectProposal(proposal, reason) {
+    const entry = proposalDetails.get(proposal.id);
+    if (!entry?.review || entry.applying || entry.rejecting) return;
+    const trimmed = (reason || "").trim();
+    mergeProposalDetail(proposal.id, { rejecting: true, message: null });
+    render();
+    try {
+      await request(`/runtime-proposals/${encodeURIComponent(proposal.id)}/reject`, {
+        method: "POST",
+        body: { revision: entry.review.proposal.revision, requestId: crypto.randomUUID(), ...(trimmed ? { reason: trimmed } : {}) },
+      });
+      await readProposals();
+      await loadProposalReview(proposal.id, { force: true, silent: true });
+      mergeProposalDetail(proposal.id, { rejecting: false });
+    } catch (err) {
+      const code = err.body?.error?.code;
+      if (["approval_stale", "runtime_conflict", "proposal_conflict", "proposal_state"].includes(code)) {
+        await loadProposalReview(proposal.id, { force: true, silent: true });
+        mergeProposalDetail(proposal.id, { rejecting: false, message: "The configuration or proposal changed. Review again before applying." });
+      } else {
+        mergeProposalDetail(proposal.id, { rejecting: false, message: err.message });
+      }
+    } finally {
+      pendingFocus = `proposal:${proposal.id}`;
+      render();
+    }
+  }
+
+  /** The Host's `effectiveDiff.patch` carries the same git-style header the
+   * candidate diff reader parses, so one reader serves both. */
+  function proposalDiff(effectiveDiff) {
+    return parseUnifiedPatch(effectiveDiff.patch || "")[0]?.lines || [];
+  }
+
+  function proposalBody(proposal, entry) {
+    const body = el("div", { className: "runtime-detail-block" });
+    if (!entry) return body;
+    if (entry.error) {
+      body.append(note(entry.error.message));
+      return body;
+    }
+    if (entry.loading && !entry.review) {
+      body.append(note("Reading the proposal review…"));
+      return body;
+    }
+    const review = entry.review;
+    if (!review) return body;
+    const { source, target, effectiveDiff, permissionsDelta, contextImpact, trustImpact, rollback, blockers, activeRun } = review;
+    body.append(
+      readOnlyRow("Source", null, `${source.kind} · ${shortHash(source.contentSha256)} · ${source.bytes} bytes · ${source.trust} · ${source.origin}`),
+      readOnlyRow(
+        "Target",
+        null,
+        `${target.resourceId} · Session scope · configuration revision ${target.expectedConfigRevision} · ${
+          target.exists ? `Replaces the current version (${shortHash(target.currentContentSha256)})` : "New resource"
+        }`,
+      ),
+      el("h5", { text: "Change" }),
+    );
+    body.append(
+      effectiveDiff.unchanged
+        ? note("Identical to the current version.")
+        : renderDiff(proposalDiff(effectiveDiff), { label: `Proposed change to ${target.resourceId}` }),
+    );
+    body.append(
+      readOnlyRow(
+        "Permissions",
+        null,
+        `No policy change.${permissionsDelta.requestedTools?.length ? ` allowed-tools declared: ${permissionsDelta.requestedTools.join(", ")} (grants nothing).` : ""}`,
+      ),
+      readOnlyRow(
+        "Context",
+        null,
+        `Catalog text ${contextImpact.catalogCharacters.toLocaleString()} characters when exposed; body ${contextImpact.deferredBodyCharacters.toLocaleString()} characters on an explicit load. Tokens are not estimated.`,
+      ),
+      readOnlyRow("Trust", null, `${trustImpact.trust} · ${trustImpact.origin} · does not execute`),
+      readOnlyRow(
+        "After apply",
+        null,
+        `Persistence: this chat. Rollback: ${
+          rollback.action === "put" ? `restore the previous version (${shortHash(rollback.previousContentSha256)})` : "remove the resource"
+        }. Exposure: ${effectiveDiff.exposure.current === null ? "follows the scope's default rule" : effectiveDiff.exposure.current ? "exposed" : "not exposed"}.`,
+      ),
+    );
+    for (const blocker of blockers || []) body.append(note(blocker.message));
+    if (review.proposal.status === "proposed") {
+      const actions = el("div", { className: "runtime-row-actions" });
+      const reason = el("input", {
+        attrs: { type: "text", "aria-label": "Reason (optional)", "data-focus-key": `proposal:${proposal.id}:reason` },
+      });
+      const applyButton = el("button", { className: "primary-button", text: "Apply", attrs: { type: "button", "data-focus-key": `proposal:${proposal.id}:apply` } });
+      const rejectButton = el("button", { className: "text-button", text: "Reject", attrs: { type: "button", "data-focus-key": `proposal:${proposal.id}:reject` } });
+      const blocked = Boolean(blockers?.length);
+      applyButton.disabled = busy || activeRun || blocked || Boolean(entry.applying) || Boolean(entry.rejecting);
+      rejectButton.disabled = busy || Boolean(entry.applying) || Boolean(entry.rejecting);
+      applyButton.addEventListener("click", () => void applyProposal(proposal));
+      rejectButton.addEventListener("click", () => void rejectProposal(proposal, reason.value));
+      actions.append(reason, applyButton, rejectButton);
+      body.append(actions);
+      if (activeRun) body.append(note("Available after this run ends."));
+    } else if (review.proposal.decision) {
+      const decision = review.proposal.decision;
+      const label = decision.action === "apply" ? `Applied at revision ${decision.configRevisionAfter}` : "Rejected";
+      body.append(note(`Decision: ${label} · ${decision.at}${decision.reason ? ` · ${decision.reason}` : ""}`));
+    }
+    if (entry.message) body.append(note(entry.message));
+    return body;
+  }
+
+  function renderProposalRow(proposal, row) {
+    const details = el("details", { className: "runtime-proposal", attrs: { "data-proposal-id": proposal.id, "data-runtime-disclosure": `proposal:${proposal.id}` } });
+    details.append(
+      el("summary", { attrs: { "data-focus-key": `proposal:${proposal.id}` } },
+        el("span", { className: "settings-row-title", text: row.title }),
+        el("span", { className: "settings-row-help", text: `${row.resourceId} · Proposed by run ${row.runShort} · revision ${row.revision} · ${row.stateWord}` }),
+      ),
+      proposalBody(proposal, proposalDetails.get(proposal.id)),
+    );
+    details.addEventListener("toggle", () => { if (details.open) void loadProposalReview(proposal.id); });
+    return details;
+  }
+
+  function renderProposalKind() {
+    const details = el("details", { className: "runtime-kind", attrs: { "data-kind": "proposal" } });
+    const id = getSessionId();
+    if (!id) {
+      details.append(el("summary", { text: "Proposed by the agent" }), note("Open a chat to read its proposals."));
+      details.open = true;
+      return details;
+    }
+    if (proposalsError) {
+      details.append(el("summary", { text: "Proposed by the agent" }), note(proposalsError.message));
+      details.open = true;
+      return details;
+    }
+    const list = proposals || [];
+    const pendingCount = list.filter((proposal) => proposal.status === "proposed" || proposal.status === "applying").length;
+    details.append(
+      el("summary", { text: list.length ? `Proposed by the agent · ${pendingCount} awaiting review` : "Proposed by the agent" }),
+    );
+    if (!list.length) {
+      details.append(note("No proposals from the agent in this chat."));
+      details.open = true;
+      return details;
+    }
+    const byId = new Map(list.map((proposal) => [proposal.id, proposal]));
+    for (const row of proposalRows(list)) details.append(renderProposalRow(byId.get(row.id), row));
+    details.open = true;
+    return details;
   }
 
   /* ── Capabilities & connections ────────────────────────────────────── */
@@ -2495,6 +2768,12 @@ export function createRuntimeView(
       const input = Object.values(mounts).map(mount => mount?.querySelector(`[data-focus-key="${CSS.escape(pendingFocus)}"]`)).find(Boolean);
       if (input) { pendingFocus = null; input.focus(); }
     }
+    if (pendingFocus?.startsWith('proposal:')) {
+      // A decided row swaps its actions for a decision line, so the Apply/Reject
+      // button just clicked may no longer exist; the row's own summary always does.
+      const summary = Object.values(mounts).map(mount => mount?.querySelector(`[data-focus-key="${CSS.escape(pendingFocus)}"]`)).find(Boolean);
+      if (summary) { pendingFocus = null; summary.focus(); }
+    }
     if (pendingFocus) {
       const row = mounts.overview?.ownerDocument.querySelector(
         `.runtime-row[data-resource="${CSS.escape(pendingFocus)}"]`,
@@ -2584,6 +2863,9 @@ export function createRuntimeView(
         open.clear();
         filters.clear();
         scopeType = null;
+        proposals = null;
+        proposalsError = null;
+        proposalDetails.clear();
       }
       return read();
     },

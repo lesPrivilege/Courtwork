@@ -16,6 +16,7 @@ export const PROCESS_PHRASES = Object.freeze({
   writing: ['Updating files', 'Writing changes'],
   searching: ['Searching files', 'Looking for matches'],
   checking: ['Running checks', 'Waiting for checks'],
+  proposing: ['Proposing a skill', 'Drafting a proposal'],
   response: ['Writing response', 'Composing response'],
   compaction: ['Summarizing context', 'Compacting history'],
   retry: ['Retrying request', 'Retry in progress'],
@@ -51,6 +52,7 @@ export function projectRunProcess(events = [], run) {
     if (names.every(name => WRITE_TOOLS.has(name))) return 'writing';
     if (names.every(name => SEARCH_TOOLS.has(name))) return 'searching';
     if (names.every(name => name === 'check_run')) return 'checking';
+    if (names.every(name => name === 'runtime_propose')) return 'proposing';
     return 'tools';
   }
   return response ? 'response' : 'working';

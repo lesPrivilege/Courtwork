@@ -155,7 +155,8 @@ export class RuntimeProposalLedger {
     const operations = [{ operation: 'put', resource: { id: proposal.target.resourceId, kind: proposal.kind, title: proposal.title, scope: clone(proposal.target.scope), contentSha256: proposal.identity.contentSha256 } }];
     const effectiveDiff = {
       before: existing ? existing.content : null, after: proposal.content, unchanged: Boolean(same),
-      patch: createTwoFilesPatch(existing ? `${proposal.target.resourceId} (current)` : '/dev/null', `${proposal.target.resourceId} (proposed)`, existing ? existing.content : '', proposal.content, '', '', { context: 3 }),
+      // The same git-style patch shape the candidate diff reader already parses.
+      patch: `diff --git a/${proposal.target.resourceId} b/${proposal.target.resourceId}\n` + createTwoFilesPatch(existing ? `${proposal.target.resourceId} (current)` : '/dev/null', `${proposal.target.resourceId} (proposed)`, existing ? existing.content : '', proposal.content, '', '', { context: 3 }),
       exposure: descriptor ? { current: descriptor.exposed, provenance: clone(descriptor.provenance ?? []) } : { current: null, rule: 'A new skill is exposed by the default rule of its owning scope until you close it; Apply sets no exposure override.' },
     };
     const requestedTools = Array.isArray(proposal.declared.requestedTools) ? clone(proposal.declared.requestedTools) : proposal.declared.requestedTools ?? null;
