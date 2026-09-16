@@ -36,3 +36,8 @@
 组合[全量983/983](evidence/integrated-full.log)，之后持久标记类型验证及[文案小片](../frontend-audit-2026-09-13/copy-review.md)由[定向32/32](evidence/final-fixes.log)覆盖。[Luna非作者复核](luna-review.md)的故障闭环及最后8/8独立检查无剩余阻塞。颜色/材质/形状/交互、语义/文案、对比度与smoke组合检查通过。无付费provider运行，不关闭Release或完整无障碍门。
 
 合成旧数据重开由schema13升级14，历史字节备份沿既有迁移合同；[组合Chat](evidence/integrated-chat.png)、[绑定Skill](evidence/integrated-bound-skill.png)、[可访问内容](evidence/integrated-bound-skill.txt)留证。Home改用共享提示后的[键盘精确值](evidence/home-exact-value-keyboard.png)已实测，保持完整日期与UTC；Usage的冗余颜色解释已删除，缺失用量和coverage保留。当前作者视觉证据覆盖1440与390；原计划1280截图的实际DOM读回为1440，已按真实尺寸命名，不称本片完成1280或200%矩阵。
+
+## 2026-09-16 · 回归回执（Claude 施工单 06 第一段）
+
+三条链（MCP 发现/曝光/批准/调用；Skill 导入/曝光/加载；本地受信 Plugin 登记/加载/绑定/卸载/重启）在 [capability-consumption 测试](../../../app/tests/capability-consumption.test.mjs)里各自陈述四个事实：保存后未启用的 Run 绑定里没有它；启用后的下一 Run 绑定里有它；Run 事件记下真实使用（MCP dispatchId 的 tool.result、runtime.context.loaded 与逐字相等的加载正文、扩展工具的真实结果）；此后配置再改，早先 Run 的绑定 hash/revision 不变。证据见 [06-capability-consumption.json](../../execution/claude-frontend-harness-2026-09-16/evidence/06-capability-consumption.json)。未改本面代码。
+

@@ -34,3 +34,8 @@ Rollback作为新的人类请求，经当前CAS恢复先前资源版本并留下
 复用Runtime Workbench目录/详情和现有diff、button、focus/overlay规则；草稿区显示作者、scope、变更、状态及Review动作，聊天仅链接真实proposal id。不存在的Apply endpoint不渲染可用按钮。Nearest precedent为[Runtime view](../../../app/web/runtime-view.mjs)，scope/revision沿[HTTP contract](../../../docs/runtime-control/api.md)；施工时按[continuity](../../design/agent-interface-2026-09-10/frontend-contract.md)记录固定版本及布局证据。
 
 验收使用独立合成目录和本地fake provider，覆盖：agent身份不可伪造；无效/超限文本；draft不入compile；跨Session拒绝；edit后旧批准拒绝；CAS冲突；active Run冻结；reject无配置变化；重复apply；崩溃/重启恢复；apply后下一Run metadata出现；runtime_load精确正文和trace；历史Run绑定不变。前端补空/错误/冲突/待审/已应用、键盘与返回焦点、宽窄明暗。作者证据与非作者验收分开。
+
+## 2026-09-16 · 实现回执（Claude 施工单 06）
+
+proposal / apply 子片按 [06 记录](../../execution/claude-frontend-harness-2026-09-16/06-capability-consumption.md)实现：`runtime_propose` 只写 Host 账本（作者取真实 Session/Run，resolver 校验与 hash，64 KiB、每 Session 16 条上限），不入快照、不入 context、不能 `runtime_load`、不动配置 revision；`GET /runtime-proposals/:id` 给出 BE-6 九字段并整体 hash 为 approvalSha256；Apply 在配置队列与活动 Run 冻结内核对修订与摘要、持久待决标记、一次 CAS put、写回执（requestId 幂等），启动按配置 audit 结算中断的 Apply；Reject 持久不改配置；Edit 出新修订使旧摘要失效。Workbench 展示作者、scope、diff、状态与 Apply/Reject。验收清单中除"Rollback"外各项有 Host 测试；Rollback 未实现，完整 BE-7 继续开放。
+

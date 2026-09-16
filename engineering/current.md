@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-16 · Claude 施工单 06：能力管理被下一次运行真正消费；声明式 Skill 提案首片
+
+[06 记录](execution/claude-frontend-harness-2026-09-16/06-capability-consumption.md)：第一段以一个回归套件为 MCP / Skill / 本地 Plugin 各证四事实（保存≠启用、启用后下一 Run 绑定、Run 事件记真实使用、历史绑定不变），证据 JSON 入包；三条链原有端到端测试无缺步，未改控制面代码。第二段实现 BE-6/BE-7 proposal/apply 子片：模型工具 `runtime_propose` 只写 Host 账本 runtime-proposals.json（作者取真实 Run，resolver 校验与 hash，64 KiB / 每 Session 16 条），不入快照、不入 context、不能加载、配置 revision 不动；review 给 BE-6 九字段并整体 hash 为 approvalSha256；Apply 在配置队列与活动 Run 冻结内核对修订与摘要、持久待决标记、一次 CAS put、写回执（requestId 幂等），启动按配置 audit 结算中断的 Apply；Reject 持久不改配置；Edit 出新修订。Workbench › Instructions, skills and references 末尾 Proposed by the agent 段读 diff 并 Apply/Reject。定向全部通过，`npm test` 1143 项中 1142 通过（唯一失败为 wire golden 看见新工具，单独断言后 3/3）；作者浏览器走通提案 → 复审 → Apply → 下一 Run 加载。Rollback 未实现，完整 BE-7 不关闭；非作者复核未做；未 push/部署；07（命令与手动压缩）未开始。
+
 ## 2026-09-16 · Claude 施工单 05：Composer 的模型卡与 effort 快选
 
 [05 记录](execution/claude-frontend-harness-2026-09-16/05-models-composer.md)：composer 的模型控件改为打开一张 Model & effort 卡（沿 connection-popover 解剖）：Model 段写生效模型、连接名 · API、Change model（完整对话框一行之外）、Connections（落在 Settings › Models 生效连接那一行，无连接时展开 Add provider；composer 常驻，草稿与焦点原地）；Reasoning effort 段是原生单选分段，只画 Provider default 与 Host `reasoningCapability` 列出的精确值，unknown/unsupported 不画阶梯，失效已存值点名；选择即按全局范围保存（唯一投影 + expectedVersion），旧回执不覆盖新选择，活动 Run 期间禁用并沿 Host 409。新增 `settingsView.locateConnection`。定向全部通过，`npm test` 1127/1127；作者浏览器验证 user-declared 三值枚举 → 保存 → 下一 Run binding 一致。真实 provider 组合、非作者复核、200%/读屏未做；未 push/部署；06（能力管理真实消费）未开始。
