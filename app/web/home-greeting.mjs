@@ -20,7 +20,15 @@ export function localMoment(now = new Date(), timeZone = null) {
   const get = (type) => parts.find((p) => p.type === type)?.value ?? "";
   const hour = Number(get("hour")) % 24;
   const weekday = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(get("weekday"));
-  return { hour, weekday, date: `${get("year")}-${get("month")}-${get("day")}`, bucket: bucketOf(hour) };
+  return { hour, weekday, date: `${get("year")}-${get("month")}-${get("day")}`, bucket: bucketOf(hour), dateLine: dateLineOf(now, timeZone) };
+}
+
+/** The date set under the greeting: weekday, month and day, in the profile's
+ * zone, English only for now (no year: the year is not what a day needs). */
+export function dateLineOf(now = new Date(), timeZone = null) {
+  const options = { weekday: "long", month: "long", day: "numeric" };
+  try { return new Intl.DateTimeFormat("en-US", { ...options, ...(timeZone ? { timeZone } : {}) }).format(now); }
+  catch { return new Intl.DateTimeFormat("en-US", options).format(now); }
 }
 
 export function bucketOf(hour) {
@@ -42,29 +50,6 @@ export function addressOf(profile) {
 /* Each entry: which buckets, an optional weekday condition, an optional session
  * condition, and the two forms — with an address and without one. Sentences
  * are short, work-facing, and never discover features. */
-const ZH = [
-  { buckets: ["morning"], text: "早上好，{name}。", plain: "早上好。" },
-  { buckets: ["morning"], text: "上午好，{name}。", plain: "上午好。" },
-  { buckets: ["morning"], text: "新的一天，{name}。", plain: "新的一天。" },
-  { buckets: ["morning"], text: "今天从哪里开始？", plain: "今天从哪里开始？" },
-  { buckets: ["morning"], weekdays: [1], text: "新的一周，{name}。", plain: "新的一周。" },
-  { buckets: ["morning"], weekdays: [5], text: "周五了，{name}。", plain: "周五了。" },
-  { buckets: ["morning"], weekdays: [0, 6], text: "周末好，{name}。", plain: "周末好。" },
-  { buckets: ["afternoon"], text: "下午好，{name}。", plain: "下午好。" },
-  { buckets: ["afternoon"], text: "又见面了，{name}。", plain: "又见面了。" },
-  { buckets: ["afternoon"], text: "继续吗，{name}？", plain: "继续吗？" },
-  { buckets: ["afternoon"], text: "今天还有什么要处理？", plain: "今天还有什么要处理？" },
-  { buckets: ["evening"], text: "晚上好，{name}。", plain: "晚上好。" },
-  { buckets: ["evening"], text: "继续一会儿？", plain: "继续一会儿？" },
-  { buckets: ["evening"], text: "收尾，还是开一件新的？", plain: "收尾，还是开一件新的？" },
-  { buckets: ["night"], text: "夜深了，{name}。", plain: "夜深了。" },
-  { buckets: ["night"], text: "还在工作，{name}？", plain: "还在工作？" },
-  { buckets: ["night"], text: "今晚想先处理哪一件？", plain: "今晚想先处理哪一件？" },
-  { buckets: TIME_BUCKETS, session: "return", text: "欢迎回来，{name}。", plain: "欢迎回来。" },
-  { buckets: TIME_BUCKETS, session: "recent", text: "继续上次的工作？", plain: "继续上次的工作？" },
-  { buckets: TIME_BUCKETS, session: "fresh", text: "从一件事开始，{name}。", plain: "从一件事开始。" },
-];
-
 const EN = [
   { buckets: ["morning"], text: "Good morning, {name}.", plain: "Good morning." },
   { buckets: ["morning"], text: "A new day, {name}.", plain: "A new day." },
@@ -86,7 +71,10 @@ const EN = [
   { buckets: TIME_BUCKETS, session: "fresh", text: "Start with one thing, {name}.", plain: "Start with one thing." },
 ];
 
-export const GREETING_CORPUS = Object.freeze({ zh: ZH, en: EN });
+/* English only for now (user ruling 2026-09-16): no translated corpus and no
+ * projection into other languages; the profile's language field is kept but
+ * does not select a corpus. */
+export const GREETING_CORPUS = Object.freeze({ en: EN });
 
 /** FNV-1a over the seed: deterministic, tiny, no crypto needed. */
 export function seedHash(seed) {
@@ -95,8 +83,8 @@ export function seedHash(seed) {
   return h >>> 0;
 }
 
-export function corpusFor(language) {
-  return String(language || "").toLowerCase().startsWith("zh") ? ZH : EN;
+export function corpusFor() {
+  return EN;
 }
 
 /**
@@ -117,7 +105,7 @@ export function homeGreeting({ profile = null, now = new Date(), session = null,
   const seed = `${seedBase}|${moment.date}|${moment.bucket}|${session ?? ""}`;
   const pick = eligible[seedHash(seed) % eligible.length];
   const text = name ? pick.text.replaceAll("{name}", name) : pick.plain;
-  return { text, bucket: moment.bucket, date: moment.date, weekday: moment.weekday, seed, address: name };
+  return { text, dateLine: moment.dateLine, bucket: moment.bucket, date: moment.date, weekday: moment.weekday, seed, address: name };
 }
 
 /** Whether a new choice is due: a new bucket, a new day, or a long absence. */

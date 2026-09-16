@@ -5,6 +5,8 @@ import { semanticIcon } from "./semantic-controls.mjs";
 import { DIFF_PREVIEW } from "./diff-fixture.mjs";
 import { effortSelectable, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
 export { PROVIDER_CONFIG_FIELDS, effortSelectable, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
+import { renderAvatar } from "./avatar-mark.mjs";
+import { homeGreeting } from "./home-greeting.mjs";
 
 /* WK-27: capabilities the backend does not have are drawn nowhere except this
    list. Text rows only — no switch, no button, nothing focusable, so the page
@@ -2035,6 +2037,24 @@ const SHORTCUTS = [
   ["Enter", "In the composer, send. Shift + Enter starts a new line instead."],
   ["Escape", "Close the layer on top: the navigation, then the work surface, then this page."],
 ];
+
+/* Home identity · Profile carries no usage number and composes nothing on its
+ * own: the work-address suggestion is one deterministic guess from fields the
+ * person already saved, offered as a button they press, never written for
+ * them. Chinese keeps the classic "surname + role" form (first character of
+ * the full name); every other language reads "<Role> <Full name>". */
+export const PROFILE_AVATAR_MAX_BYTES = 256 * 1024;
+export function suggestWorkAddress(profile) {
+  const fullName = String(profile?.fullName ?? "").trim();
+  const role = String(profile?.role ?? "").trim();
+  if (!fullName || !role) return "";
+  if (String(profile?.language ?? "").toLowerCase().startsWith("zh")) {
+    const surname = [...fullName][0];
+    return `${surname}${role}`;
+  }
+  return `${role} ${fullName}`;
+}
+
 /** Settings 页自己的控制器：分组切换、只过滤本页行的搜索、Appearance 偏好、
  *  Keyboard 只读表、Data 只读事实，以及 Runtime 组留给 WK11 的节位。
  *  页面的开合、hash、Escape 与焦点归还不在这里，在 app.mjs。 */
@@ -2214,10 +2234,6 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       } catch (error) { notify?.(error.message, "error"); }
       finally { busy = false; render(); }
     };
-    const language = el("select", { attrs: { "aria-label": "Language" } });
-    for (const [value, text] of [["zh-CN", "简体中文"], ["en", "English"]]) language.append(el("option", { text, attrs: { value } }));
-    language.value = profile.language;
-    language.addEventListener("change", () => void save({ language: language.value }));
     const zone = el("input", { attrs: { type: "text", "aria-label": "Time zone", placeholder: "Asia/Shanghai", autocomplete: "off", list: "settings-timezone-list" } });
     zone.value = profile.timeZone ?? "";
     zone.addEventListener("change", () => void save({ timeZone: zone.value.trim() || null }));
@@ -2225,10 +2241,198 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     greetings.checked = profile.preferences?.contextualGreetings !== false;
     greetings.addEventListener("change", () => void save({ preferences: { contextualGreetings: greetings.checked } }));
     return [
-      settingsRow("Language", "The language of the Home greeting. It does not change the product's own words.", language),
       settingsRow("Time zone", "An IANA zone name; the greeting's morning and evening follow it. Empty follows this device.", zone),
       settingsRow("Contextual home greetings", "One short line on Home for the time of day and your work address. Off leaves Home without it.", greetings),
     ];
+  }
+
+  /* ── Profile: quiet fields with inline edits; the avatar carries the only
+   * personality on this page (user ruling 2026-09-16). Each field saves
+   * itself on change (blur/Enter), CAS'd against the last-loaded revision.
+   * A stale save (409 profile_conflict) keeps the typed value on screen and
+   * asks for a reload instead of guessing a merge — the panel is only
+   * rebuilt from the server after a save actually lands. */
+  let profileBusy = false;
+  let avatarDraftKind = null; // "photo" while the file picker is open but nothing saved yet
+  async function saveProfile(change) {
+    const current = getProfile?.();
+    if (!current || profileBusy) return;
+    profileBusy = true;
+    try {
+      const result = await request?.("/profile", { method: "PUT", body: { expectedRevision: current.revision, ...change } });
+      onProfileSaved?.(result.profile);
+      avatarDraftKind = null;
+      accountStale = true;
+      render();
+    } catch (error) {
+      const message = error?.body?.error?.code === "profile_conflict"
+        ? "Profile changed elsewhere; reload before saving."
+        : error?.message;
+      notify?.(message, "error");
+    } finally {
+      profileBusy = false;
+    }
+  }
+  function profileTextRow(profile, key, title, help, max) {
+    const input = el("input", { attrs: { type: "text", "aria-label": title, maxlength: String(max), autocomplete: "off" } });
+    input.value = profile[key] || "";
+    input.addEventListener("change", () => void saveProfile({ [key]: input.value }));
+    return settingsRow(title, help, input);
+  }
+  function renderProfile() {
+    const mount = document.getElementById("settings-profile-rows");
+    if (!mount) return;
+    const profile = getProfile?.();
+    if (!profile) {
+      mount.replaceChildren(el("p", { className: "form-help", text: "Profile is not loaded." }));
+      return;
+    }
+    const kind = avatarDraftKind ?? profile.avatar.kind;
+    const avatarChoice = segmented({
+      name: "profile-avatar-kind",
+      label: "Avatar",
+      options: [["initial", "Initial"], ["photo", "Photo"], ["portrait", "Portrait"]],
+      value: kind,
+      onChange: (value) => {
+        if (value === "photo") { avatarDraftKind = "photo"; renderProfile(); return; }
+        avatarDraftKind = null;
+        void saveProfile({ avatar: { kind: value } });
+      },
+    });
+    const rows = [
+      el("div", { className: "profile-avatar-row" }, renderAvatar(profile, { size: 72 }), avatarChoice),
+    ];
+    if (kind === "photo") {
+      const fileInput = el("input", {
+        attrs: { type: "file", accept: "image/png,image/jpeg,image/webp", "aria-label": "Choose a photo" },
+      });
+      fileInput.addEventListener("change", () => {
+        const file = fileInput.files?.[0];
+        if (!file) return;
+        if (file.size > PROFILE_AVATAR_MAX_BYTES) {
+          notify?.("The photo is larger than 256 KiB.", "error");
+          fileInput.value = "";
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => void saveProfile({ avatar: { kind: "photo", dataUrl: String(reader.result) } });
+        reader.onerror = () => notify?.("The photo could not be read.", "error");
+        reader.readAsDataURL(file);
+      });
+      rows.push(el("div", { className: "settings-row" }, fileInput));
+    }
+    rows.push(
+      profileTextRow(profile, "fullName", "Full name", "", 80),
+      profileTextRow(profile, "preferredName", "Preferred name", "", 80),
+      profileTextRow(profile, "workAddress", "Work address", "How Home and the agent address you. Free text; suggested from your role, never composed automatically.", 40),
+    );
+    if (!profile.workAddress && profile.role) {
+      const suggestion = suggestWorkAddress(profile);
+      if (suggestion) {
+        const suggestButton = el("button", { className: "text-button", attrs: { type: "button" }, text: `Use “${suggestion}”` });
+        suggestButton.addEventListener("click", () => void saveProfile({ workAddress: suggestion }));
+        rows.push(suggestButton);
+      }
+    }
+    rows.push(
+      profileTextRow(profile, "role", "Role", "", 60),
+      profileTextRow(profile, "organization", "Organization", "", 120),
+      settingsRow(
+        "Greeting preview",
+        "What Home says now, from these fields.",
+        el("span", { className: "settings-readout", text: homeGreeting({ profile, now: new Date(), session: null, seedBase: "preview" }).text }),
+      ),
+    );
+    mount.replaceChildren(...rows);
+  }
+
+  /* ── Account: a fixture plan stated as entitlement only, never a usage or
+   * quota number (user ruling 2026-09-16). Fetched once per page open and
+   * cached; a profile save marks it stale so the next render refetches it. */
+  let account = null;
+  let accountStale = true;
+  async function fetchAccount() {
+    if (!request) return;
+    try {
+      account = (await request("/account")).account;
+    } catch (error) {
+      notify?.(error?.message, "error");
+    }
+    renderAccount();
+  }
+  function disabledAccountButton(text) {
+    const button = el("button", {
+      className: "text-button",
+      attrs: { type: "button", title: "Available when accounts are connected." },
+      text,
+    });
+    button.disabled = true;
+    return button;
+  }
+  function accountActionRow(title, buttonText) {
+    return settingsRow(title, "", disabledAccountButton(buttonText));
+  }
+  function accountReadoutRow(title, value) {
+    return settingsRow(title, "", el("span", { className: "settings-readout", text: value }));
+  }
+  function renderAccount() {
+    const mount = document.getElementById("settings-account-rows");
+    if (!mount) return;
+    if (accountStale) { accountStale = false; void fetchAccount(); }
+    if (!account) {
+      mount.replaceChildren(el("p", { className: "form-help", text: "Account is not loaded." }));
+      return;
+    }
+    const renews = new Date(account.plan.renewsOn).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    const planBlock = el(
+      "div",
+      { className: "account-block" },
+      el("h4", { className: "settings-block-title", text: "Plan" }),
+      settingsRow(account.plan.name, account.plan.description, el("span", { className: "status-badge", text: "Active" })),
+      accountReadoutRow("Billing cycle", `${account.plan.cycle} · Renews ${renews}`),
+      accountActionRow("Manage plan", "Manage plan"),
+    );
+    const billingBlock = el(
+      "div",
+      { className: "account-block" },
+      el("h4", { className: "settings-block-title", text: "Billing" }),
+      accountReadoutRow("Payment method", account.billing.paymentMethod),
+      accountReadoutRow("Billing email", account.billing.billingEmail),
+      accountActionRow("Invoices", "View history"),
+    );
+    const privacyBlock = el(
+      "div",
+      { className: "account-block" },
+      el("h4", { className: "settings-block-title", text: "Privacy & data" }),
+      accountReadoutRow("Improve Courtwork", account.privacy.improveCourtwork ? "On" : "Off"),
+      accountReadoutRow("Local activity", account.privacy.localActivity ? "On" : "Off"),
+      accountActionRow("Export my data", "Export"),
+    );
+    const sessionsBlock = el(
+      "div",
+      { className: "account-block" },
+      el("h4", { className: "settings-block-title", text: "Sessions" }),
+      ...account.sessions.map((session) => accountReadoutRow(session.device, session.current ? "Current" : (session.lastSeen || ""))),
+      accountActionRow("Sign out of all devices", "Sign out of all devices"),
+    );
+    const accountBlock = el(
+      "div",
+      { className: "account-block" },
+      el("h4", { className: "settings-block-title", text: "Account" }),
+      accountActionRow("Sign out", "Sign out"),
+      el("div", { className: "danger-zone" }, accountActionRow("Delete account", "Delete account")),
+    );
+    mount.replaceChildren(
+      planBlock,
+      billingBlock,
+      privacyBlock,
+      sessionsBlock,
+      accountBlock,
+      el("p", {
+        className: "form-help",
+        text: "Plan, billing and sessions are fixture rows in this build; the actions become available when accounts are connected. No usage or quota is shown because none is measured.",
+      }),
+    );
   }
 
   /* ── Appearance ───────────────────────────────────────────────────── */
@@ -2654,6 +2858,10 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   function render() {
     if (!document.getElementById("settings-data").contains(document.activeElement))
       renderData();
+    if (!document.getElementById("settings-profile-rows")?.contains(document.activeElement))
+      renderProfile();
+    if (!document.getElementById("settings-account-rows")?.contains(document.activeElement))
+      renderAccount();
     syncNewSessions();
     applyFilter();
   }
@@ -2674,6 +2882,8 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
   renderKeyboard();
   renderMemory();
   renderNewSessions();
+  renderProfile();
+  renderAccount();
   select(DEFAULT_SECTION);
 
   return {

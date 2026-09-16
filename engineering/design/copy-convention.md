@@ -95,6 +95,22 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 | Runtime（右栏卡，已删） | 右侧工作面不再常驻资源统计卡；资源与配置在 Settings › Developer › Runtime，某次 Run 的绑定在该 Run 的详情 | Resources · N resources · Runtime details have not been read |
 | Not accepted by a review.（已删） | 普通 Chat 的记录文件不再反复贴此句；接受状态只在 Core 候选真实携带时陈述 | Unreviewed · Pending review（作普通文件时） |
 
+### 3.2d Home 身份、问候与账户（2026-09-16 · Home identity）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Good morning, {name}. · Where does today start? 等（问候语料，English only） | Home 的一句 orientation：地址 × 时段 × 星期 × 会话状态，一个时段内固定一句，只在新时段、新一天或长时间离开后重抽；两类并存——称呼型与行动型；不做功能发现，不轮播。2026-09-16 用户裁定：语料全部英文，暂不翻译或投影为中文 | Orchestrate your agents. Govern your work.（旧 tagline，已退役）· 生活化寒暄（Coffee time?）· 打字机效果 · 中文语料（暂不） |
+| Work address | Profile 的一等字段：Home 与 Agent 对用户的称呼（如 林律师），自由编辑；建议来自 Role 但保存的是字符串。fallback：Work address → Preferred name → Full name → 无称呼版 | Nickname · Display name（作此字段名时）· surname+role 永久拼接 |
+| Full name · Preferred name · Role · Organization · Time zone | Profile 其余字段；Time zone 决定时段。Language 字段保留在 Host profile 但暂无消费者，Preferences 不画它 | Username · Handle |
+| Profile · Preferences · Account | Settings 前三组：身份来源 / 本设备显示与问候偏好 / 计划关系。Runtime、Models、MCP 等产品控制面不入这三组 | Personal · Billing（作组名时）· Me |
+| Contextual home greetings | Preferences 里的开关；关则 Home 无问候 | Show greeting · Fun mode |
+| Max · Active | 账户页的 plan 权益词（本构建为 fixture）；只表达 entitlement，不表达用量 | 80% used · Weekly quota · Renewal countdown |
+| Manage plan · View history · Export · Sign out · Sign out of all devices · Delete account | 账户动作；本构建全部禁用并写 `Available when accounts are connected.` | 假开关、假跳转 |
+| Available when accounts are connected. | 账户动作不可用的原因句；左下角菜单的 Sign out 同句 | Coming soon · Not implemented |
+| Initial · Photo · Portrait | 头像三来源；Portrait 是由姓名首字与角色在固定网格生成的 Courtwork 印章式标记 | Generate avatar · AI avatar |
+| 左下角：头像 + Work address + 计划词 | 侧栏页脚的身份行，回答"现在是谁""处于什么 plan"；点击开菜单（Profile · Preferences · Account · Settings · Sign out） | token、TPS、额度百分比、renewal date（永不在此处） |
+| Example workspace 行 | 原 Example banner 降级为问候旁的一句灰字与其动作（Start with your own work · Close the example / See the example workspace），不再是独占首行的卡片；header 的 Example chip 继续承担状态 | 卡片、边框、独立 action row |
+
 ### 3.3 模型与接入
 
 | 用户词 | 它是什么 | 不用 |

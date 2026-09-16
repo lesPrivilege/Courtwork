@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { homeGreeting, addressOf, bucketOf, localMoment, greetingIsStale, GREETING_CORPUS, corpusFor } from "../web/home-greeting.mjs";
+import { homeGreeting, addressOf, bucketOf, localMoment, greetingIsStale, GREETING_CORPUS, corpusFor, dateLineOf } from "../web/home-greeting.mjs";
 
 const LIN = { fullName: "林知远", preferredName: "知远", workAddress: "林律师", role: "律师", language: "zh-CN", timeZone: "Asia/Shanghai" };
+const EN = GREETING_CORPUS.en;
 const at = (iso) => new Date(iso);
 
 test("greeting · the address chain is work address → preferred name → full name → none; Home composes nothing", () => {
@@ -29,32 +30,32 @@ test("greeting · one sentence per bucket, fixed by the seed; the address is use
   const b = homeGreeting({ profile: LIN, now: at("2026-09-14T03:59:00Z"), session: null, seedBase: "u1" });
   assert.equal(a.text, b.text, "the same bucket keeps the same line");
   assert.equal(a.bucket, "morning");
-  const morningLines = GREETING_CORPUS.zh.filter((e) => e.buckets.includes("morning") && (!e.weekdays || e.weekdays.includes(1)) && !e.session).map((e) => e.text.replaceAll("{name}", "林律师"));
+  const morningLines = EN.filter((e) => e.buckets.includes("morning") && (!e.weekdays || e.weekdays.includes(1)) && !e.session).map((e) => e.text.replaceAll("{name}", "林律师"));
   assert.ok(morningLines.includes(a.text), a.text);
   const afternoon = homeGreeting({ profile: LIN, now: at("2026-09-14T06:00:00Z"), session: null, seedBase: "u1" });
   assert.equal(afternoon.bucket, "afternoon");
   assert.notEqual(afternoon.seed, a.seed);
   for (let d = 14; d < 21; d++) {
     const g = homeGreeting({ profile: LIN, now: at(`2026-09-${d}T01:00:00Z`), session: null, seedBase: "u1" });
-    if (g.weekday === 5) assert.ok(!g.text.includes("新的一周")); // Friday never gets the Monday line
-    if (g.weekday !== 1) assert.ok(!g.text.includes("新的一周"));
-    if (![0, 6].includes(g.weekday)) assert.ok(!g.text.includes("周末"));
+    if (g.weekday !== 1) assert.ok(!g.text.includes("A new week"), "the Monday line stays on Monday");
+    if (![0, 6].includes(g.weekday)) assert.ok(!g.text.includes("Weekend"));
   }
   const fresh = homeGreeting({ profile: LIN, now: monday, session: "fresh", seedBase: "u1" });
-  assert.ok(GREETING_CORPUS.zh.some((e) => e.text.replaceAll("{name}", "林律师") === fresh.text));
+  assert.ok(EN.some((e) => e.text.replaceAll("{name}", "林律师") === fresh.text));
   const noSession = homeGreeting({ profile: LIN, now: monday, session: null, seedBase: "u1" });
-  assert.ok(!noSession.text.includes("欢迎回来") && !noSession.text.includes("上次的工作") && !noSession.text.includes("从一件事开始"), "session lines need their state");
+  assert.ok(!/Welcome back|left off|one thing/.test(noSession.text), "session lines need their state");
 });
 
-test("greeting · without an address the plain form is used, never a placeholder; English follows the language", () => {
+test("greeting · without an address the plain form is used, never a placeholder; the corpus is English only for now", () => {
   const g = homeGreeting({ profile: { language: "zh-CN", timeZone: "Asia/Shanghai" }, now: at("2026-09-16T01:00:00Z"), seedBase: "u1" });
-  assert.ok(!g.text.includes("{name}") && !g.text.includes("，。"), g.text);
+  assert.ok(!g.text.includes("{name}") && !g.text.includes(", ."), g.text);
   assert.equal(g.address, null);
   const en = homeGreeting({ profile: { workAddress: "Counsel Lin", language: "en", timeZone: "Asia/Shanghai" }, now: at("2026-09-16T01:00:00Z"), seedBase: "u1" });
-  assert.ok(GREETING_CORPUS.en.some((e) => e.text.replaceAll("{name}", "Counsel Lin") === en.text), en.text);
-  assert.equal(corpusFor("zh-TW"), GREETING_CORPUS.zh);
-  assert.equal(corpusFor(undefined), GREETING_CORPUS.en);
-  for (const entry of [...GREETING_CORPUS.zh, ...GREETING_CORPUS.en]) assert.ok(entry.plain && !entry.plain.includes("{name}"));
+  assert.ok(EN.some((e) => e.text.replaceAll("{name}", "Counsel Lin") === en.text), en.text);
+  assert.equal(corpusFor("zh-TW"), EN, "no translated corpus is projected yet");
+  assert.equal(corpusFor(undefined), EN);
+  assert.deepEqual(Object.keys(GREETING_CORPUS), ["en"]);
+  for (const entry of EN) { assert.ok(entry.plain && !entry.plain.includes("{name}")); assert.ok(/^[A-Za-z0-9 ,.?'{}]+$/.test(entry.text), entry.text); }
 });
 
 test("greeting · a new choice is due only on a new bucket, a new day, or a long absence", () => {
@@ -66,3 +67,12 @@ test("greeting · a new choice is due only on a new bucket, a new day, or a long
   assert.equal(greetingIsStale(first, { now: at("2026-09-16T01:10:00Z"), timeZone: "Asia/Shanghai", lastActiveAt: at("2026-09-16T01:00:00Z").getTime() }), false);
   assert.equal(greetingIsStale(null, {}), true);
 });
+
+test("greeting · the date line is set under the sentence: weekday, month and day in the profile's zone, English, no year", () => {
+  assert.equal(dateLineOf(at("2026-09-16T01:30:00Z"), "Asia/Shanghai"), "Wednesday, September 16");
+  assert.equal(dateLineOf(at("2026-09-16T23:30:00Z"), "Asia/Shanghai"), "Thursday, September 17", "the day rolls with the zone, not with UTC");
+  const g = homeGreeting({ profile: LIN, now: at("2026-09-16T01:30:00Z"), seedBase: "u1" });
+  assert.equal(g.dateLine, "Wednesday, September 16");
+  assert.equal(dateLineOf(at("2026-09-16T01:30:00Z"), "Not/AZone"), dateLineOf(at("2026-09-16T01:30:00Z"), null));
+});
+

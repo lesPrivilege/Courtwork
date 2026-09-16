@@ -3306,6 +3306,9 @@ function renderChatHeader() {
   if (simpleGreeting) {
     const line = intro.querySelector("[data-greeting]") ?? intro.querySelector("h2");
     if (line) { line.setAttribute("data-greeting", ""); line.classList.add("home-greeting"); if (line.textContent !== state.greeting.text) line.textContent = state.greeting.text; }
+    let date = intro.querySelector("[data-greeting-date]");
+    if (!date) { date = element("p", { className: "home-greeting-date", attrs: { "data-greeting-date": "" } }); line?.after(date); }
+    if (date.textContent !== state.greeting.dateLine) date.textContent = state.greeting.dateLine ?? "";
   }
   $("home-composer-context").hidden = !home;
   $("home-project-button").hidden = !home;
@@ -5591,6 +5594,7 @@ function refreshGreeting({ force = false } = {}) {
   renderGreetingLines();
 }
 function renderGreetingLines() {
+  for (const date of document.querySelectorAll("[data-greeting-date]")) if (date.textContent !== (state.greeting?.dateLine ?? "")) date.textContent = state.greeting?.dateLine ?? "";
   const text = state.greeting?.text ?? "";
   for (const line of document.querySelectorAll("[data-greeting]")) {
     if (line.textContent === text) continue;
@@ -6026,7 +6030,7 @@ function renderHomeState() {
         $("home-module-band").querySelector(`[data-focus-key="attention-item-${CSS.escape(id)}"]`)?.focus();
       },
       collapsed: homeModuleBandCollapsed(),
-      greeting: state.greeting?.text ?? null,
+      greeting: state.greeting ?? null,
       onCollapse: (collapsed) => {
         settingsPage?.setHomeModuleBand(collapsed ? "collapsed" : "expanded");
         renderHomeState();

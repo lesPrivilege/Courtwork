@@ -296,8 +296,12 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
  * profile's address and the moment, never a module, never a card, and it
  * reads nothing that could fail. The same primitive serves the Simple intro
  * and the Modules masthead. */
-export function renderHomeGreeting(text) {
-  return el("h2", { className: "home-greeting", text, attrs: { "data-greeting": "" } });
+export function renderHomeGreeting(greeting) {
+  const value = typeof greeting === "string" ? { text: greeting } : greeting;
+  const block = el("div", { className: "home-greeting-block" },
+    el("h2", { className: "home-greeting", text: value.text, attrs: { "data-greeting": "" } }));
+  if (value.dateLine) block.append(el("p", { className: "home-greeting-date", text: value.dateLine, attrs: { "data-greeting-date": "" } }));
+  return block;
 }
 
 export function renderHomeModuleBand(container, options) {

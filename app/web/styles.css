@@ -6919,6 +6919,18 @@ html[data-theme="dark"] {
   transition: opacity 180ms var(--ease-out);
 }
 .home-greeting.is-updating { opacity: 0; }
+/* The date is set under the greeting as one typographic unit: the sentence
+   carries the weight, the date is a quiet, tabular, slightly tracked line. */
+.home-greeting-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.home-greeting-date {
+  margin: 0;
+  font-size: var(--text-meta);
+  line-height: 1.4;
+  color: var(--muted-strong);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.home-composer-intro .home-greeting-date { margin-top: 2px; }
 .home-masthead {
   display: flex;
   flex-wrap: wrap;
@@ -6975,4 +6987,12 @@ html[data-theme="dark"] {
 .account-popover .account-menu-head { padding: 4px; }
 .account-popover .account-menu-email { font-size: var(--text-meta); color: var(--muted-strong); }
 .account-popover .context-row[disabled] { color: var(--control-unavailable-ink); cursor: default; }
+
+/* Home identity · Profile & Account panels (user ruling 2026-09-16): the
+ * avatar is the only personality on the Profile page, and Account's fixture
+ * rows group into blocks with breathing room between them. */
+.profile-avatar-row { display:flex; gap: var(--space-4); align-items:center; }
+.profile-avatar-row .avatar { --avatar-size: 72px; font-size: 32px; }
+.account-block + .account-block { margin-top: var(--space-5); }
+.danger-zone { border-top: 1px solid var(--line); padding-top: var(--space-3); }
 
