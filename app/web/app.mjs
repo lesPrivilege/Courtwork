@@ -3547,9 +3547,9 @@ function renderChatHeader() {
   intro.hidden = !simpleGreeting && !(home && homeLayoutPreference() !== "modules" && !previewBannerNode()?.hidden);
   if (simpleGreeting) {
     const line = intro.querySelector("[data-greeting]") ?? intro.querySelector("h2");
-    if (line) { line.setAttribute("data-greeting", ""); line.classList.add("home-greeting"); if (line.textContent !== state.greeting.text) line.textContent = state.greeting.text; }
+    if (line && line.textContent !== state.greeting.text) line.textContent = state.greeting.text;
     let date = intro.querySelector("[data-greeting-date]");
-    if (!date) { date = element("p", { className: "home-greeting-date", attrs: { "data-greeting-date": "" } }); line?.after(date); }
+    if (!date) { date = element("span", { className: "home-greeting-date", attrs: { "data-greeting-date": "" } }); line?.after(" ", date); }
     if (date.textContent !== state.greeting.dateLine) date.textContent = state.greeting.dateLine ?? "";
   }
   $("home-composer-context").hidden = !home;
