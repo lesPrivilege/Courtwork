@@ -44,3 +44,18 @@
 - Project 行只有 New chat；Project 改名 / 删除无 Host 通路，不画。
 - Chat 列表页（chat-page）与 Attention 里的 Chat 行未接同一菜单（那两处的行是导航按钮，本片只覆盖侧栏 Recent / Project 行）。
 - 通知中心按 packet 进入 12。
+
+## 复核回应（2026-09-16 · Luna 独立审查，基线 `f64c7e8`）
+
+| 发现 | 处置 | 修正与证据 |
+|---|---|---|
+| NAV-R1 · 返回时丢失离开处的阅读锚点；异步返回期间打开另一 Chat 时界面与游标不一致 | 采纳，已修 | `traverseHistory` 先 `leaveLocation()` 再移动游标（此前游标先动，身份守卫因此跳过保存）；画面上没有行（层盖住 Chat、仍在加载）不再把已存锚点覆盖为空；`arriveLocation` 在返回未决时遇到另一处到达，放弃未决返回、按画面推进轨迹，只有「被拒绝对象后落到 Home」保持游标不动。浏览器（8861）：B 滚到 3000 → 去 A → Back 到 B 恢复到同一锚点；延迟 A 的读取、Back 后打开 C：轨迹 [A, C]、游标在 C、traversal 清空、标题是 C。`navigation-history.test.mjs` 钉住三处源码事实 |
+| NAV-R2 · 示例 Chat 仍露出 Open 菜单 | 采纳，已修 | `chat.open` 的 `when` 同样排除示例；示例行完全无菜单，行自身点击仍打开；测试改为断言空列表 |
+| NAV-R3 · 禁用项保留打开时的可执行性 | 采纳为交互问题，已修 | 菜单持有 dispatcher 的 `list`，`renderAll` 每次调用 `objectMenu.refresh()` 就地更新 `aria-disabled` 与理由；命令消失则关闭菜单；点击禁用行时再问一次 dispatcher，此刻可用才执行。tiny-dom 测试覆盖 Run 结束后 Delete 就地启用与命令消失关闭 |
+| 08 维护 · `presentation.mjs` 校验正则含原始控制字节，Git 视为二进制 | 采纳，已修 | 改为 `\u0000-\u0008\u000B\u000C\u000E-\u001F` 转义，语义不变；presentation 5 项测试通过 |
+| schema 指针不一致（store 18 / README 17 / AGENTS 与 architecture 15） | 采纳，已修 | README store 节改为 v18（写明 operations 与 17→18 只加空账本）、AGENTS.md 与 architecture.md 改 18；新增 `tests/schema18-upgrade.test.mjs`：17 升 18 一次、精确备份、其余字段不变、二次打开不再升级、伪造 operations 拒绝 |
+| P 记录测试计数 5 / 实际 6 | 采纳，已改 | 记录改 6 |
+| `full-test-09b.log` 不在交付树 | 采纳 | 日志在会话 scratchpad；本轮把全量摘要行写入 `evidence/09-full-test.txt` |
+| 04/10 · 同一 Run 的中间 assistant 段各带 footer 与时间 | 采纳，归 10 片 | 未在本片改 |
+| 展开缺共同锚点流程；流式表述；Back to latest / ask_user 选择 / Copy 反馈 | 采纳，归 10/11 片；流式登记文本属另一会话，本树不改 | 未在本片改 |
+| 01–03 真实 coding 闭环未过 | 采纳，待办 | 需真实 provider 的 RuntimeLock 工单在固定 candidate 上重走读、改、测与回执；本会话无该凭据，留给 11 片与用户的 8805 环境 |

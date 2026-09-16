@@ -17,7 +17,7 @@ The sole persistent development entry is `Courtwork`. Read the actual branch and
 ## Verification and Git
 
 - Choose checks through `engineering/verification.md` for the actual change; green tests do not confer architecture or capability acceptance. Runtime/UI baseline commands are in README; use independent fixtures for migration/recovery and do not run paid providers by default.
-- Host RuntimeStore schema 15 and Core user schema 4 / bridge app schema 5 evolve separately; see `engineering/architecture.md` and their store/bridge migration owners. Upgraded data must not be shared with an old host. Credentials and mutable session/workspace data stay outside Git. Do not inspect or copy personal credential stores.
+- Host RuntimeStore schema 18 and Core user schema 4 / bridge app schema 5 evolve separately; see `engineering/architecture.md` and their store/bridge migration owners. Upgraded data must not be shared with an old host. Credentials and mutable session/workspace data stay outside Git. Do not inspect or copy personal credential stores.
 - Stage explicit paths and review `git diff --cached --name-only`; no `git add .`/`git add -A`. Do not rewrite shared history.
 - Keep source/evidence paths portable in active documentation. Preserve historical archive bytes and provenance; use frozen SHA + path for legacy recall.
 - When changing schema, supported capabilities or release sources, synchronize the affected current entry points under `engineering/verification.md`; preserve historical evidence identities and explicitly pinned adoption versions.

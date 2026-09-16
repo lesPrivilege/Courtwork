@@ -1,0 +1,13 @@
+# 09 · full-suite summaries (npm test, Node v25.9.0, --test-concurrency=4)
+
+## after the schema fixture pins (worktree 491cada), scratchpad full-test-09b.log
+ℹ tests 1195
+ℹ pass 1195
+ℹ fail 0
+ℹ duration_ms 239915.013
+
+## after the review fixes (NAV-R1/R2/R3, presentation regex, schema18-upgrade test), scratchpad full-test-09c.log
+ℹ tests 1196
+ℹ pass 1196
+ℹ fail 0
+ℹ duration_ms 232991.619916
