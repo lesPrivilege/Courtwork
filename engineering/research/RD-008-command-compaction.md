@@ -57,3 +57,8 @@ owner：Host service、Pi adapter、现有Session journal；Astra负责admission
 后于CMP-01和真实长会话证据；不是当前Release门。先利用现有request telemetry与native结果，区分tokensBefore来源、estimatedTokensAfter、真实usage与未知；不从动画或字符数声称Provider窗口/TPS。接现有[BE-42](../mvp/execution/work-surface-kit/backend-requests.md)的测量边界，但不冒称decode测量等同compaction统计。
 
 通过有界真实coding长会话定位具体丢失（路径、constraints、tool结果、未决工作），再决定需否摘要校验器或双阶段probe。Gemini阈值/保留比例/输出预算、truncation回退、双阶段摘要先留研究候选，不直接移植参数。持久治理状态仍归Core/Runtime/LG/RG原owner，memory需求接RD-007及现有Memory Broker，不新增平行存储。
+
+## 2026-09-16 · 实现回执（Claude 施工单 07）
+
+CMD-01 与 CMP-01 按 [07 记录](../execution/claude-frontend-harness-2026-09-16/07-commands-compaction.md)分两个可验提交实现：Host 一份命令目录（read / client_ui / setting / control / passthrough，availability 带原因，修订 hash 自事实），分派重新裁决且不 fallthrough，parseSlash 固定 `//` 转义与路径/空白文本规则，whole-message 形式让 Host 做唯一读者；`Run.commandId` 仍是幂等键。手动压缩是 RuntimeStore 18 的 Host operation，与 Run 共用独占席位（不排队、不 abort 原 Run），调用 Pi 0.85.1 `compact(focus)` 于会话自己的 journal，记录估算与 provider 用量分列、summary 条目前后计数、非成功原因；同 requestId 查回不重复付费，重启记 unknown。验收矩阵各行有 Host 测试；`/model <id>` setting、skill/prompt 展开、GUI 取消控件与 CMP-02 未做。
+

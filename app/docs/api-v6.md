@@ -218,6 +218,37 @@ model validated against the installed catalog) and `fake-openai-loopback` (tests
   `409 command_conflict`. The check and the run record are persisted together, so a
   restart does not forget it.
 - A second active run in the same session is `409 active_run`.
+- While a manual compaction runs anywhere on the Host, run creation is
+  `409 operation_active` (CMP-01); the Host holds one seat for work.
+
+## Commands (CMD-01, 2026-09-16)
+
+`GET /api/v5/sessions/:id/commands` → `{ protocolVersion, revision, source, commands[] }`,
+the Host-owned catalog for that chat (`status`, `tools`, `model`, `effort`,
+`compact`, `fixture`), each with `kind`, `availability {available, reason}`,
+`args`, `sideEffects`, `interactive`, `target`, `source`, `scope`, `version`.
+
+`POST /api/v5/sessions/:id/commands/:name` — `{ revision?, args, requestId? }` →
+`{ kind: "read", facts }` | `{ kind: "client_ui", target }` |
+`{ kind: "setting", saved }` | `{ kind: "control", operation }` |
+`{ kind: "passthrough" }`. `POST /api/v5/sessions/:id/commands` —
+`{ text, revision?, requestId? }` reads the whole composer message: it answers
+`{ kind: "text" | "literal", text }` for ordinary input or dispatches the
+command. Errors: `409 command_revision` (details carry the current revision),
+`404 unknown_command`, `409 command_unavailable`, `400 invalid_arguments`. None
+creates a Run or sends a model request.
+
+## Compactions (CMP-01, 2026-09-16)
+
+`POST /api/v5/sessions/:id/compactions` — `{ requestId, focus? }` → `{ operation, idempotent }`.
+`GET /api/v5/sessions/:id/compactions` → `{ operations[] }`;
+`GET /api/v5/sessions/:id/compactions/:opId` → `{ operation }`;
+`POST /api/v5/sessions/:id/compactions/:opId/cancel` → `{ operation }`.
+An operation carries `{ id, kind: "compaction", sessionId, requestId, status,
+reason: "manual", focus, startedAt, settledAt, provider, journal, result, error }`.
+Refusals: `409 active_run`, `409 operation_active`, `409 nothing_to_compact`,
+`409 compaction_unavailable`, `409 credential_missing`, `409 idempotency_conflict`.
+See [commands-and-compaction](commands-and-compaction.md) for semantics.
 
 `GET /api/v5/runs/:id` → `{ run }`, where a run carries
 `{ id, sessionId, status, admissionOpen, adapterId, provider, extension, startedAt, endedAt, error, commandId, artifacts[], usage, hostSession, credentialGeneration }`.

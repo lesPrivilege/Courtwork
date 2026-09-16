@@ -136,6 +136,21 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 | Applied at configuration revision N. The next run binds it; exposure follows the scope rule. | Apply 成功后的一句：说清"下一个 Run 才绑定"与"曝光按既有规则" | Enabled · Installed · Active now |
 | runtime_propose · proposing a skill | 工具名与 Chat 活动短语；工具行结果只写提案 id、修订与 hash | Skill created · Installed a skill |
 
+### 3.3d 命令与手动压缩（2026-09-16 · CMD-01 / CMP-01）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| /status · /tools · /model · /effort · /compact | 命令名原样小写；菜单里一行是 `/name`、说明与参数提示（`<default\|low\|high>`、`<focus>`）；不可用行灰显并写 Host 给的原因 | Slash commands（作标题时）· Shortcuts |
+| Commands | 命令菜单的可访问名 | Palette · Actions |
+| Commands work inside a chat. · No command matches. | 菜单的两句空态 | No results · Start a chat first |
+| Unknown command /x. To send it as text, start with //x. | 未知命令的拒绝句：草稿保留，0 个 Run、0 次模型请求；`//` 是唯一的字面转义 | Did you mean · Sending as text |
+| Commands changed. Try again. | 目录修订过期（command_revision）时的拒绝句 | Stale · Refresh |
+| /status 卡：This chat · Model · Reasoning effort · File access · Workspace · Private candidate · Runtime · Runs · Compaction | 读命令的结果卡，沿 connection-card 解剖；尾句 `Read from the Host. No model request.` | Status report · Summary |
+| Reasoning effort · high · all chats, future runs | `/effort` 保存后的回执句（沿模型卡） | Effort set · Updated |
+| Compacting… the next run continues from the summary. | 手动压缩进行中的持久句 | Compressing · Summarizing · Please wait |
+| Compacted · about 1,234 → 456 tokens (estimate) · 78 tokens used | 完成句：前后都是 SDK 估算，用量是 provider 报的；缺用量写 `usage not reported` | Saved N tokens · Context reduced by X% |
+| Compaction failed · … · Compaction cancelled · Compaction outcome unknown | 非成功结果句，尾接 Host 的原因（already compacted / too small / deadline） | Error · Retry |
+
 ### 3.4 记忆
 
 | 用户词 | 它是什么 | 不用 |
