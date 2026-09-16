@@ -233,6 +233,18 @@ WK-91 / WK-108 · `Test connection` 与对未保存表单的 `Fetch models` 已�
 
 `Memory · Off` 一字未改，只是从会话 meta 行搬到工作面的标题带（M-2 / WK-113 ③）。
 
+### 3.4e 返回、前进与对象命令（2026-09-16 · 09 FE-NAV / Object Command）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Back to <地名> / Forward to <地名> | 侧栏 Home 行上的两个控件，沿本窗口自己的访问轨迹走：地名是 Home 或某个 Chat 的标题。有去处时可访问名带地名，两端各自禁用只剩 `Back` / `Forward`。只动视图：不发草稿、不重试、不取消、不改绑定与权限 | ← · → · Previous · Next · Undo |
+| <地名> no longer exists. Showing Home. / <地名> could not be opened. Showing Home. | 轨迹上那一处对象已被 Host 拒绝（404 / 其它）时控件下面那一行。对象留在轨迹上被标记，可继续 Back；不会换成同名的另一个 Chat | Session not found · Error · Redirected |
+| Open · Rename · Delete（可见）/ Open chat · Rename chat · Delete chat（可访问名） | Chat 行菜单里的三条：菜单已点名对象，行上只留动词；可访问名把对象说全。Delete 对话框陈述保留什么（`Files in its workspace are kept.`） | Remove · Trash · Edit title · Go to |
+| New chat（可见）/ New chat in <Project>（可访问名） | Project 行菜单里的一条，与行内那个 `+` 是同一条命令、同一条路径 | Add chat · Create |
+| More chat actions / More project actions | 行右端的 `…`，与右键、Menu 键打开同一份菜单 | Options · Actions · ⋯ |
+| This chat is already open. / Unavailable while a Run is active. / Finish or recover the chat being started first. | 命令存在但此刻不能执行时，行仍在菜单里、禁用，理由挂在行上；不存在的能力不画行 | Planned · Coming soon · Disabled |
+| This item is no longer available. | 菜单打开后对象被删或失权，点下去时重新解析得出的结果；不执行陈旧目标 | Stale · Refresh and try again |
+
 ### 3.5 外观
 
 | 用户词 | 它是什么 | 不用 |

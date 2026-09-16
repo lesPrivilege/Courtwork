@@ -99,13 +99,20 @@
             aria-label="Close navigation"
           ></button>
         </header>
+        <!-- FE-NAV · the Shell's own trail: Back / Forward along the places
+             visited in this window (Home, a Chat). They move only the view. -->
         <div class="nav-home-row">
+          <div class="nav-history" role="group" aria-label="Recent places">
+            <button id="nav-back-button" class="quiet-button" type="button" disabled></button>
+            <button id="nav-forward-button" class="quiet-button" type="button" disabled></button>
+          </div>
           <button id="home-button" class="nav-home quiet-button" type="button">Home</button>
           <button id="new-session-button" class="quiet-button" type="button" aria-label="New chat"></button>
         </div>
         <!-- CA-01 · Chat is the plain-conversation seat beside Attention and
              Spark: it returns to the chat you were in or the most recent one,
              and otherwise lands on Home's composer. It creates nothing. -->
+        <p id="nav-history-notice" class="nav-history-notice" role="status" hidden></p>
         <button id="chat-button" class="nav-home quiet-button" type="button">Chat</button>
         <button id="attention-button" class="nav-home quiet-button" type="button">Attention</button>
         <!-- SP-10 · Spark reads one fact today: Matters whose derivations have
@@ -881,6 +888,13 @@
       popover="auto"
       aria-label="Account"
     ></div>
+    <!-- Object commands · one menu for Chat and Project rows, opened by a
+         secondary click, the row's More button or the Menu key. -->
+    <div
+      id="object-menu"
+      class="context-popover object-menu"
+      popover="auto"
+    ></div>
     <div
       id="model-popover"
       class="context-popover connection-popover model-popover"
@@ -1011,6 +1025,45 @@
           ><button class="primary-button" value="default" type="submit">
             Create project
           </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="rename-dialog"
+      class="form-dialog"
+      aria-labelledby="rename-dialog-title"
+    >
+      <form id="rename-form" method="dialog">
+        <h2 id="rename-dialog-title">Rename chat</h2>
+        <p id="rename-subject" class="form-help"></p>
+        <label for="rename-title-input">Chat title</label
+        ><input
+          id="rename-title-input"
+          name="title"
+          maxlength="200"
+          required
+          autocomplete="off"
+        />
+        <p id="rename-error" class="inline-error" role="alert" hidden></p>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>Cancel</button
+          ><button class="primary-button" value="default" type="submit">Rename</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog
+      id="delete-dialog"
+      class="form-dialog"
+      aria-labelledby="delete-dialog-title"
+    >
+      <form id="delete-form" method="dialog">
+        <h2 id="delete-dialog-title">Delete chat</h2>
+        <p id="delete-subject" class="form-help"></p>
+        <p class="form-help">The chat leaves your lists. Files in its workspace are kept.</p>
+        <p id="delete-error" class="inline-error" role="alert" hidden></p>
+        <div class="dialog-actions">
+          <button class="quiet-button" value="cancel" type="submit" formnovalidate>Cancel</button
+          ><button class="primary-button" value="default" type="submit">Delete</button>
         </div>
       </form>
     </dialog>

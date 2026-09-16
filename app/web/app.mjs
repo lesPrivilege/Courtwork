@@ -50,6 +50,9 @@ import { renderPresentationInline, renderPresentationPane } from "./presentation
 import { homeGreeting, greetingIsStale } from "./home-greeting.mjs";
 import { renderAvatar } from "./avatar-mark.mjs";
 import { createCommandMenu } from "./command-menu.mjs";
+import { createLocationHistory, describeLocation, sameLocation } from "./location-history.mjs";
+import { createCommandDispatcher } from "./object-commands.mjs";
+import { createObjectMenu } from "./object-menu.mjs";
 import { projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
@@ -167,6 +170,10 @@ const state = {
   activeSessionId: null,
   restoreSessionId: null,
   navigationEpoch: 0,
+  history: createLocationHistory(),
+  traversal: null,
+  historyNotice: null,
+  sessionLoadError: null,
   navigationFilter: "",
   session: null,
   events: [],
@@ -1511,6 +1518,7 @@ async function selectSession(
   const navigationEpoch = suppliedNavigationEpoch ?? state.navigationEpoch + 1;
   if (suppliedNavigationEpoch === null) state.navigationEpoch = navigationEpoch;
   if (navigationEpoch !== state.navigationEpoch) return;
+  leaveLocation();
   await persistCurrentDraft();
   if (navigationEpoch !== state.navigationEpoch) return;
   stopPolling();
@@ -1564,6 +1572,7 @@ async function selectSession(
       })
     )
       return;
+    arriveLocation({ kind: "session", sessionId, projectId: detail.session.projectId ?? null, title: detail.session.title });
     void loadRecentSessions();
     state.activeProjectId = detail.session.projectId;
     if (detail.session.projectId) state.openProjectIds.add(detail.session.projectId);
@@ -1583,6 +1592,7 @@ async function selectSession(
       !isCurrentSessionRead(sessionId, readToken)
     )
       return;
+    state.sessionLoadError = { sessionId, status: error.status ?? null, message: error.message };
     showToast(`Could not load session: ${error.message}`, "error");
     state.session = null;
     renderAll();
@@ -1617,6 +1627,7 @@ function clearActiveSession() {
   state.surface.maximized = false;
   state.recordedContext.clear();
   runtimeView?.pause();
+  arriveLocation({ kind: "home" });
   writeUiState();
   renderAll();
 }
@@ -1640,6 +1651,215 @@ async function loadRecentSessions() {
   } catch (error) { if (generation !== state.recentGeneration) return; state.recentError = error.message; }
   renderRecentSessions();
 }
+/* FE-NAV · the Shell's trail (location-history.mjs). A place is Home or one
+ * Chat; Settings, the Chat list and Attention are layers over it and close on
+ * their own controls. Nothing here touches a Run, a binding, a permission or a
+ * model setting; the draft stays with its Session and is only referred to. */
+function leaveLocation() {
+  const current = state.history.current();
+  if (!current || current.kind !== "session" || current.sessionId !== state.activeSessionId) return;
+  const stream = $("message-stream");
+  if (!stream?.clientHeight) return;
+  const reading = captureChatReading(stream);
+  state.history.remember(reading.anchor ? { reading: { anchor: reading.anchor, selection: null } } : null);
+}
+function arriveLocation(location) {
+  const entry = state.traversal;
+  if (entry) {
+    if (sameLocation(entry, location)) { entry.unavailable = false; entry.reason = null; if (location.title) entry.title = location.title; }
+  } else {
+    state.history.arrive(location);
+    state.historyNotice = null;
+  }
+  renderHistoryControls();
+}
+function nameHistoryControl(button, glyph, word, entry) {
+  const label = entry ? `${word} to ${describeLocation(entry)}` : word;
+  setAction(button, glyph, label);
+  button.setAttribute("data-semantic-key", word === "Back" ? "nav.back" : "nav.forward");
+}
+function renderHistoryControls() {
+  const back = $("nav-back-button"), forward = $("nav-forward-button");
+  if (!back || !forward) return;
+  const previous = state.history.peekBack(), next = state.history.peekForward();
+  back.disabled = !previous || Boolean(state.traversal);
+  forward.disabled = !next || Boolean(state.traversal);
+  nameHistoryControl(back, "arrow-left", "Back", previous);
+  nameHistoryControl(forward, "arrow-right", "Forward", next);
+  const notice = $("nav-history-notice");
+  if (notice) { notice.hidden = !state.historyNotice; notice.textContent = state.historyNotice ?? ""; }
+}
+async function traverseHistory(direction) {
+  if (state.traversal) return;
+  const entry = direction === "back" ? state.history.back() : state.history.forward();
+  if (!entry) return;
+  state.traversal = entry;
+  state.historyNotice = null;
+  renderHistoryControls();
+  try {
+    if (entry.kind === "home") { await goHome(); return; }
+    state.sessionLoadError = null;
+    await selectSession(entry.sessionId, { focus: true });
+    if (state.traversal !== entry || state.activeSessionId !== entry.sessionId) return;
+    if (state.session) {
+      /* The object is back and rendered; now the anchor, then the focus the
+       * view already placed on its title. A vanished anchor leaves the start. */
+      const stream = $("message-stream");
+      if (entry.restore?.reading && stream) restoreChatReading(stream, entry.restore.reading, { followLatest: false });
+      return;
+    }
+    const failure = state.sessionLoadError?.sessionId === entry.sessionId ? state.sessionLoadError : null;
+    const reason = failure?.status === 404 ? "no longer exists" : failure?.status === 403 ? "cannot be opened" : "could not be opened";
+    state.history.markUnavailable(entry, reason);
+    state.historyNotice = `${describeLocation(entry)} ${reason}. Showing Home.`;
+    clearActiveSession();
+    void loadHome();
+    restoreLayerFocus($("composer-input"));
+  } finally {
+    if (state.traversal === entry) state.traversal = null;
+    renderHistoryControls();
+  }
+}
+
+/* Object commands (object-commands.mjs, object-menu.mjs) · one dispatcher for
+ * every entry point on a Chat or Project row. The context is resolved when a
+ * menu opens and again when a command runs; the real owners are the Host
+ * routes and the app's own navigation. */
+let objectMenu = null;
+function findKnownSession(id) {
+  return state.recentSessions.find((session) => session.id === id)
+    || [...state.sessionsByProject.values()].flat().find((session) => session.id === id)
+    || (state.session?.id === id ? state.session : null);
+}
+function resolveCommandTarget(ref) {
+  if (!ref) return null;
+  if (ref.kind === "project") {
+    const project = state.projects.find((item) => item.id === ref.id);
+    if (!project) return null;
+    const start = state.homeStart;
+    return { target: { kind: "project", id: project.id, title: project.name, preview: Boolean(project.preview) },
+      activeSessionId: state.activeSessionId, view: state.view,
+      startPending: Boolean(start?.pending || start?.unconfirmed || start?.session || start?.sessionId) };
+  }
+  const session = findKnownSession(ref.id);
+  if (!session) return null;
+  const project = state.projects.find((item) => item.id === session.projectId);
+  const activeRun = session.id === state.activeSessionId && state.runs.some(isActiveRun);
+  return { target: { kind: "chat", id: session.id, title: session.title, projectId: session.projectId ?? null,
+    preview: Boolean(project?.preview) || preview.isExampleId(session.id), activeRun },
+    activeSessionId: state.activeSessionId, view: state.view, startPending: false };
+}
+const objectCommands = createCommandDispatcher({
+  resolve: resolveCommandTarget,
+  handlers: {
+    open: (target) => target.projectId && target.projectId !== state.activeProjectId
+      ? selectProject(target.projectId, { sessionId: target.id }) : selectSession(target.id),
+    newChat: (target) => startNewSession({ projectId: target.id }),
+    rename: (target) => openRenameDialog(target),
+    delete: (target) => openDeleteDialog(target),
+  },
+});
+async function runObjectCommand(id, ref) {
+  const result = await objectCommands.run(id, ref);
+  if (result.state !== "done") showToast(result.reason, "error");
+}
+function menuLabelFor(ref) {
+  const context = resolveCommandTarget(ref);
+  const title = context?.target.title || (ref.kind === "project" ? "Project" : "Chat");
+  return `${ref.kind === "project" ? "Project" : "Chat"} actions · ${title}`;
+}
+function attachObjectCommands(row, ref, { attrs = {}, more = true } = {}) {
+  const openMenu = ({ anchor = null, point = null }) => {
+    const commands = objectCommands.list(ref);
+    if (!commands.length || !objectMenu) return false;
+    return objectMenu.show({ commands, anchor, point, opener: row, label: menuLabelFor(ref), onPick: (id) => void runObjectCommand(id, ref) });
+  };
+  row.addEventListener("contextmenu", (event) => {
+    if (openMenu({ point: { x: event.clientX, y: event.clientY } })) event.preventDefault();
+  });
+  row.addEventListener("keydown", (event) => {
+    if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) { if (openMenu({ anchor: row })) event.preventDefault(); }
+  });
+  if (!more) return null;
+  const presentation = semanticPresentation("menu.more", { values: { target: ref.kind } });
+  const button = action(presentation.glyph, presentation.label, () => {
+    if (objectMenu?.isOpen()) { objectMenu.close({ restoreFocus: false }); button.focus(); return; }
+    openMenu({ anchor: button });
+  }, { size: 16, className: "quiet-button object-more", attrs: { "aria-haspopup": "menu", "aria-controls": "object-menu", "data-semantic-key": "menu.more", ...attrs } });
+  return button;
+}
+function openRenameDialog(target) {
+  state.renameTarget = { id: target.id, title: target.title };
+  const project = state.projects.find((item) => item.id === target.projectId);
+  const subject = $("rename-subject");
+  subject.textContent = project ? `In ${project.name}` : "No project";
+  $("rename-title-input").value = target.title || "";
+  $("rename-error").hidden = true;
+  openDialog("rename-dialog", "rename-title-input");
+  $("rename-title-input").select?.();
+}
+async function submitRename(event) {
+  event.preventDefault();
+  if (event.submitter?.value === "cancel") { closeDialog("rename-dialog"); return; }
+  const target = state.renameTarget;
+  if (!target) return;
+  const title = $("rename-title-input").value.trim();
+  const error = $("rename-error");
+  if (!title) { error.textContent = "A title is needed."; error.hidden = false; return; }
+  const submit = $("rename-form").querySelector('button[value="default"]');
+  submit.disabled = true;
+  try {
+    const result = await request(`/sessions/${encodeURIComponent(target.id)}`, { method: "PATCH", body: { title } });
+    applyRenamedSession(result.session ?? { id: target.id, title });
+    closeDialog("rename-dialog");
+  } catch (err) {
+    error.textContent = err.status === 404 ? "This chat no longer exists." : err.message;
+    error.hidden = false;
+  } finally { submit.disabled = false; }
+}
+function applyRenamedSession(session) {
+  const patch = (item) => item.id === session.id ? { ...item, title: session.title } : item;
+  state.recentSessions = state.recentSessions.map(patch);
+  for (const [projectId, list] of state.sessionsByProject) state.sessionsByProject.set(projectId, list.map(patch));
+  if (state.session?.id === session.id) state.session = { ...state.session, title: session.title };
+  state.history.retitle(session.id, session.title);
+  renderAll();
+}
+function openDeleteDialog(target) {
+  state.deleteTarget = { id: target.id, title: target.title };
+  $("delete-subject").textContent = `“${target.title || "Untitled chat"}”`;
+  $("delete-error").hidden = true;
+  openDialog("delete-dialog", null);
+  $("delete-form").querySelector('button[value="cancel"]')?.focus();
+}
+async function submitDelete(event) {
+  event.preventDefault();
+  if (event.submitter?.value === "cancel") { closeDialog("delete-dialog"); return; }
+  const target = state.deleteTarget;
+  if (!target) return;
+  const error = $("delete-error");
+  const submit = $("delete-form").querySelector('button[value="default"]');
+  submit.disabled = true;
+  try {
+    await request(`/sessions/${encodeURIComponent(target.id)}`, { method: "DELETE" });
+    state.recentSessions = state.recentSessions.filter((item) => item.id !== target.id);
+    for (const [projectId, list] of state.sessionsByProject) state.sessionsByProject.set(projectId, list.filter((item) => item.id !== target.id));
+    state.history.forget(target.id);
+    closeDialog("delete-dialog");
+    if (state.activeSessionId === target.id) {
+      clearActiveSession();
+      void loadHome();
+      restoreLayerFocus($("composer-input"));
+    } else renderAll();
+    showToast(`Deleted “${target.title || "Untitled chat"}”. Its workspace files are kept.`);
+  } catch (err) {
+    const code = err.code ?? err.body?.error?.code;
+    error.textContent = code === "active_run" || err.status === 409 ? "Unavailable while a Run is active."
+      : err.status === 404 ? "This chat no longer exists." : err.message;
+    error.hidden = false;
+  } finally { submit.disabled = false; }
+}
+
 function renderRecentSessions() {
   if(state.session && state.session.scope !== "global") {
     state.recentSessions = state.recentSessions.map(s=>s.id===state.session.id ? {...s,...state.session} : s);
@@ -1663,7 +1883,9 @@ function renderRecentSessions() {
     const button=element("button",{className:`session-button ${state.activeSessionId===session.id?"active":""}`,
       attrs:{type:"button","data-recent-key":session.id,"data-recent-id":session.id,"aria-current":state.activeSessionId===session.id?"page":null,title:session.title}},
       element("span",{className:"session-name",text:session.title||"Untitled chat"}));
-    button.addEventListener("click",()=>void selectSession(session.id));list.append(button);
+    button.addEventListener("click",()=>void selectSession(session.id));
+    const more=attachObjectCommands(button,{kind:"chat",id:session.id},{attrs:{"data-recent-key":`more:${session.id}`}});
+    list.append(element("div",{className:"session-row"},button,more));
   }
   if(!query&&rows.length>limit){const more=element("button",{className:"text-button nav-more",text:"Show more",attrs:{type:"button","data-recent-key":"more"}});more.addEventListener("click",()=>{state.navigationLimits.set("recent",limit+10);renderRecentSessions();});list.append(more);}
   if(focused&&document.activeElement===document.body)(list.querySelector(`[data-recent-key="${CSS.escape(focused)}"]`) || $("recent-heading")).focus();
@@ -1754,6 +1976,7 @@ async function selectProject(projectId, { sessionId = null } = {}) {
   if (!projectId) return;
   const navigationEpoch = state.navigationEpoch + 1;
   state.navigationEpoch = navigationEpoch;
+  leaveLocation();
   await persistCurrentDraft();
   if (navigationEpoch !== state.navigationEpoch) return;
   if (!state.projects.some((project) => project.id === projectId)) return;
@@ -1958,10 +2181,11 @@ function renderProjectList() {
         void loadSessionsForProject(project.id).then(() => renderProjectList());
       }
     });
+    attachObjectCommands(button, { kind: "project", id: project.id }, { more: false });
     const create = action(
       "plus",
       `New chat in ${project.name}`,
-      () => startNewSession({ projectId: project.id }),
+      () => void runObjectCommand("project.new-chat", { kind: "project", id: project.id }),
       {
         className: "quiet-button project-create",
         attrs: { "data-nav-key": `create:${project.id}` },
@@ -2045,7 +2269,8 @@ function renderProjectList() {
             "click",
             () => void selectProject(project.id, { sessionId: session.id }),
           );
-          sessionList.append(sessionButton);
+          const more = attachObjectCommands(sessionButton, { kind: "chat", id: session.id }, { attrs: { "data-nav-key": `more:${session.id}` } });
+          sessionList.append(element("div", { className: "session-row" }, sessionButton, more));
         }
       }
       if (
@@ -6246,6 +6471,7 @@ async function goHome() {
   state.chatOpen = false;
   attentionWorkspace?.deactivate();
   closeSettings({ restoreFocus: false });
+  leaveLocation();
   const own = ++state.navigationEpoch;
   await persistCurrentDraft();
   if (own !== state.navigationEpoch) return;
@@ -7287,6 +7513,12 @@ function wireEvents() {
   });
   $("project-form").addEventListener("submit", createProject);
   $("session-form").addEventListener("submit", createSession);
+  $("rename-form").addEventListener("submit", (event) => void submitRename(event));
+  $("delete-form").addEventListener("submit", (event) => void submitDelete(event));
+  $("nav-back-button").addEventListener("click", () => void traverseHistory("back"));
+  $("nav-forward-button").addEventListener("click", () => void traverseHistory("forward"));
+  objectMenu = createObjectMenu({ popover: $("object-menu") });
+  renderHistoryControls();
 }
 
 async function init() {
@@ -7540,6 +7772,7 @@ function renderAll() {
   renderSurfaceVisibility();
   renderConnectionStatus();
   renderPreviewChrome();
+  renderHistoryControls();
 }
 
 /* --- Stage 4 · the example workspace ------------------------------------
@@ -7563,7 +7796,13 @@ async function reloadWorld() {
   state.attentionOpen = false;
   await loadProjects();
   const valid = new Set(state.projects.map((project) => project.id));
-  if (!state.activeProjectId || !valid.has(state.activeProjectId) || preview.isExampleId(state.activeSessionId)) {
+  /* The place is kept unless it cannot be: an example chat has no life after
+   * the example, and a chat whose project vanished has lost its scope. A chat
+   * with no project is a real place (projectless chat) — the first real run
+   * from Home is exactly that, and closing the example must not throw the
+   * person back to Home while their Run goes on (dogfooding, 2026-09-16). */
+  const projectGone = Boolean(state.activeProjectId) && !valid.has(state.activeProjectId);
+  if (projectGone || preview.isExampleId(state.activeSessionId)) {
     state.activeProjectId = null;
     state.restoreSessionId = null;
     clearActiveSession();

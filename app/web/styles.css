@@ -7011,3 +7011,25 @@ html[data-theme="dark"] {
 .presentation-fallback-text { margin: 0; white-space: pre-wrap; font-family: var(--font-mono); font-size: var(--text-meta); }
 #presentation-content .presentation-title { margin: 0 0 8px; }
 
+
+/* FE-NAV · Back / Forward in the Home row: two quiet 32-square controls before
+   Home, the notice under them only when a place could not be opened. */
+.nav-history { display: flex; align-items: stretch; flex: none; margin-right: var(--space-1); }
+.nav-history > button { --control: 32px; width: 32px; min-width: 32px; min-height: max(32px, var(--control)); }
+.nav-history > button:disabled { opacity: 0.38; }
+.nav-history-notice { margin: 2px 8px 6px; font-size: var(--text-meta); color: var(--muted-strong); }
+/* Object commands · a Chat row keeps its button; the More control sits at its
+   right edge and shows on hover, focus and touch. The project row already has
+   its inline New chat control, which is the same command. */
+.session-row { display: flex; align-items: stretch; gap: 0; min-width: 0; }
+.session-row > .session-button { flex: 1; min-width: 0; }
+.session-row > .object-more { --control: 32px; flex: none; opacity: 0; align-self: center; }
+.session-row:hover > .object-more, .session-row:focus-within > .object-more, .session-row > .object-more[aria-expanded="true"] { opacity: 1; }
+@media (hover: none) { .session-row > .object-more { opacity: 1; } }
+.object-menu { position: fixed; inset: auto; width: min(240px, calc(100vw - 32px)); padding: var(--space-2); }
+.object-menu > .menu-separator { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+.object-command { gap: var(--space-2); min-height: 36px; }
+.object-command-blank { width: 16px; height: 16px; flex: none; }
+.object-command.is-disabled { color: var(--muted-strong); cursor: default; }
+.object-command.is-disabled:hover, .object-command.is-disabled:active { background: transparent; }
+.object-command.is-destructive:not(.is-disabled) { color: var(--danger-11); }

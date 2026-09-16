@@ -1947,6 +1947,146 @@ export const productSemantics = freeze({
         "app": "glyph",
         "pages": "text"
       }
+    },
+    {
+      "semanticKey": "nav.back",
+      "meaning": "Return along the Shell's own trail of places to the previous Home or Chat; it moves nothing but the view.",
+      "ownerRef": "docs/interface-components.md",
+      "ownerAnchor": "## Navigation history and object commands (2026-09-16)",
+      "words": {
+        "en": "Back"
+      },
+      "accessibleName": {
+        "en": "Back"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "arrow-left",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/location-history.mjs#createLocationHistory",
+      "interactionRole": "navigation",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "nav.forward",
+      "meaning": "Advance along the Shell's trail to the place left by Back; it moves nothing but the view.",
+      "ownerRef": "docs/interface-components.md",
+      "ownerAnchor": "## Navigation history and object commands (2026-09-16)",
+      "words": {
+        "en": "Forward"
+      },
+      "accessibleName": {
+        "en": "Forward"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "arrow-right",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/location-history.mjs#createLocationHistory",
+      "interactionRole": "navigation",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "chat.open",
+      "meaning": "Open this Chat where it lives; the same route the row's own click takes.",
+      "ownerRef": "docs/interface-components.md",
+      "ownerAnchor": "## Navigation history and object commands (2026-09-16)",
+      "words": {
+        "en": "Open"
+      },
+      "accessibleName": {
+        "en": "Open chat"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "none",
+      "glyphRef": null,
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/object-commands.mjs#createCommandDispatcher",
+      "interactionRole": "navigation",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "text"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "chat.rename",
+      "meaning": "Change this Chat's title through the Host (PATCH /sessions/:id); the Chat and its work are unchanged.",
+      "ownerRef": "docs/interface-components.md",
+      "ownerAnchor": "## Navigation history and object commands (2026-09-16)",
+      "words": {
+        "en": "Rename"
+      },
+      "accessibleName": {
+        "en": "Rename chat"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "pencil-line",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/object-commands.mjs#createCommandDispatcher",
+      "interactionRole": "edit",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
+      "semanticKey": "chat.delete",
+      "meaning": "Remove this Chat's record through the Host (DELETE /sessions/:id); workspace bytes are kept, and the Host refuses while a Run is active.",
+      "ownerRef": "docs/interface-components.md",
+      "ownerAnchor": "## Navigation history and object commands (2026-09-16)",
+      "words": {
+        "en": "Delete"
+      },
+      "accessibleName": {
+        "en": "Delete chat"
+      },
+      "symbolClass": "Action",
+      "admissionClass": "agent-common",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "trash",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": "app/web/object-commands.mjs#createCommandDispatcher",
+      "interactionRole": "destructive",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
     }
   ]
 });

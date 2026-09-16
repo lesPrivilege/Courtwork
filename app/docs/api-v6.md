@@ -57,6 +57,19 @@ document's revision of the contract, not a new route namespace.
 `PUT /api/v5/sessions/:id/permission-mode` — `{ permissionMode }`. Refused with
 `409 active_run` while a run is active.
 
+`PATCH /api/v5/sessions/:id` — `{ title }` (1–200 characters, no other fields).
+Returns `{ session }`; `404 not_found` for an unknown session. The title is the
+record: every list and the chat header read it back. Allowed during a run.
+
+`DELETE /api/v5/sessions/:id` — removes the execution catalog record (the
+session, its runs, events and questions). Returns
+`{ deleted: true, sessionId, workspaceRetained: true }`: workspace and journal
+bytes on disk are kept, this is not secure erasure. Refused with `409 active_run`
+while a run is active anywhere; `404 not_found` afterwards, so a second delete is
+not an idempotent success. The sidebar's Chat rows offer both through one command
+set (right-click, the row's More button, the Menu key); see
+[interface-components](../../docs/interface-components.md#navigation-history-and-object-commands-2026-09-16).
+
 A session response carries `workspaceDir`, `permissionMode`, and
 `hostSession: null | { id, path }` (the Pi JSONL session this app session continues).
 
