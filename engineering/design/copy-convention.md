@@ -64,8 +64,8 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 | 用户词 | 它是什么 | 不用 |
 |---|---|---|
 | Workspace | §3.1 原义：一个 Chat 显式连接的外部目录，供 `repo_list/read/grep` 只读使用。它是 composer 上方上下文条的第一枚 chip、同名卡片的标题；与 Project（组织归属）、Chat files（托管成果）分开 | Repository（作对象名时）· Folder（作对象名时）· Mount · Source |
-| Choose workspace | 未连接时 chip 的动作词；连接后可见词换成目录名，可访问名带完整路径与 `Read only`。chip 只有文字，与 Local / Branch 同一行文法；文件夹图标只在卡片行里出现 | Connect repository · Select workspace · Open project |
-| Open folder… | 卡片主动作：Host 打开原生选目录对话框。Home 上选中即成为草稿，发送时先绑定再开始 Run；Chat 里选中即提交绑定命令。对话框不可用时退回路径输入 | Choose folder · Browse · Upload |
+| Connect folder | 未连接时 chip 的动作词（2026-09-16 v2 入口审查起，原 Choose workspace 改此）；连接后可见词换成目录名，可访问名带完整路径与 `Read only`。chip 只有文字，与 Local / Branch 同一行文法 | Choose workspace · Connect repository · Select workspace · Open project |
+| Connect folder… | 卡片主动作：Host 打开原生选目录对话框（返回 Host 可解释的绝对路径，不是浏览器句柄）。Home 上选中即成为草稿，发送时先绑定再开始 Run；Chat 里选中即提交绑定命令。对话框不可用时退回路径输入 | Open folder · Choose folder · Browse · Upload |
 | Connected before | 卡片里由 Host 回执得出的已连接过目录清单；点一行就是连接（或写入草稿），不是自动继承。找不到的目录保留行并写 `Not found` | Recent（作标题时）· History · Favorites |
 | Enter a path instead | 路径输入的 disclosure 标题；其内动作词是 `Connect` | Advanced · Manual |
 | Disconnect · Remove | Disconnect 撤销真实绑定；Remove 只清除 Home 草稿里的目录 | Revoke（用户可见时）· Clear · Delete |
@@ -80,6 +80,20 @@ WK-92 · Chat 与 Work 是**同一个对象的两种交互模式**，不是两�
 | Checking · Exit N · Timed out · Cancelled · Unknown | 检查行的状态词：进程结束写退出码，不写 Passed/Failed（退出 0 不是接受）；取消只在进程组确认退出后写；Host 重启后未结算写 Unknown | Passed · Success · Green · Aborted |
 
 上下文条只在 Home 与尚无 Run 的 Chat 出现；工作开始后它不再占用 composer，Workspace 事实与入口移到 `This chat` 概览的同名行。`Available after this run ends.` 沿 File access 卡原句；在途词沿 §3.4b 的 `Sending…`；等待原生对话框时写 `Choose a folder in the dialog that opened.`。Work 面板里"Browse workspace / Workspace · N files"仍指托管成果目录，属 10 片的文字收敛项。
+
+### 3.2c 入口存废与原位恢复（2026-09-16 · v2/v3 入口审查）
+
+| 用户词 | 它是什么 | 不用 |
+|---|---|---|
+| Check status | 创建、发送、上传结果未确认时在原位置的查回动作：按已固定的身份读回同一记录，不重放副作用；可访问名写对象（Check chat creation status · Check project creation status） | Refresh · Retry（那是重新发起明确失败的操作）· Reload |
+| Creation could not be confirmed. Check its status before creating “X” again. | 创建对话框里的未确认句；X 是输入的名字 | Refresh the workspace and check for X |
+| Creating the chat is unconfirmed. Check its status to recover the same chat. Your instruction is kept. | Home 首发未确认句 | Refresh to recover the same chat |
+| Not created. Create again to use the same identity. | 查回未找到记录时的句子；表单解锁，身份保留 | Failed · Try again |
+| Your chat was recovered. Send to continue in it. | 查回找到记录时的句子（沿原文） | Recovered · Restored |
+| Refresh workspace（已删） | 2026-09-16 起侧栏页脚不再有常驻全局刷新；读态更新沿各对象 reader 与重连，读取失败在该区域给局部 Retry | Refresh · Reload all · Sync |
+| Expert · Planned（已删） | 导航里的被动占位席位移出生产；`expert.role` 语义键保留给真实 Expert 绑定与原型入口 | Planned（作导航席位时）· Coming soon |
+| Runtime（右栏卡，已删） | 右侧工作面不再常驻资源统计卡；资源与配置在 Settings › Developer › Runtime，某次 Run 的绑定在该 Run 的详情 | Resources · N resources · Runtime details have not been read |
+| Not accepted by a review.（已删） | 普通 Chat 的记录文件不再反复贴此句；接受状态只在 Core 候选真实携带时陈述 | Unreviewed · Pending review（作普通文件时） |
 
 ### 3.3 模型与接入
 

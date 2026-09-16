@@ -87,3 +87,42 @@ Sonnet 5 只读探索施工树，结论经作者复核。
 各待改工作面已有可定位 owner、primitive 与缺口（上表）。已交付项去重：MCP/Skill/Plugin 面、自动压缩、Context 圆环与活动行、Copy/Composer P0/P1 均按 README 表列为复用与回归，不重建。原型与真实功能分清：12 片五项 Prototype 与 Harness 卡在本包分目录登记。本片没有新增 registry、状态机库、UI 框架或目录迁移。
 
 下一片 01 从 `ab4b93d` 开始：先修逐路径 deny 缺口并补回归，再修文档指针，再做 Connect repository 的 Home/Chat 接线。
+
+## 入口存废审查（2026-09-16 · 接 v2 [入口清理增补](frontend-entry-audit.md) 与 v3 [右栏与轨迹增补](sidebar-trace-review.md)）
+
+在 05–07 完成后按 v2/v3 增补回到本片。范围：生产 Shell、Home/Composer、Files/Preview、Settings/Runtime、Attention/Spark 的常驻入口；按当前 `index.html` 与 `app.mjs` 逐项核，不从历史文档想象控件。处置词：删除 / 合并 / 改名归位 / 补真实通路 / 保留 / 移出生产原型化。
+
+| 入口 · 用户意图 | 真实目标 · handler | 结果 owner | 失败恢复 | 处置 | 证据 |
+|---|---|---|---|---|---|
+| 侧栏页脚 `Refresh workspace`（#refresh-button）· "刷新" | 串行重读导航/会话/Review 摘要/extensions/provider 配置/Home，并释放 createAttempts 的 unconfirmed、清 Home 未确认起始，弹 Workspace refreshed. | 混合：多路 reader + 前端锁 | 无对象；用户被文案要求"Refresh" | **删除**；三种责任归位：读态更新沿各 reader/重连；读取失败用局部 Retry（Recent 列表与 Home 已有）；未确认创建在原位 Check status | entry-audit 测试；浏览器页脚只剩 Settings |
+| 创建对话框（Project / Chat）未确认 | `createEntity` → POST /projects · /sessions | Host | 原文案要求 Refresh 并按名查找 | **补真实通路**：创建前固定 clientId（chat 用既有 sessionId 合同；project 新增 `projectId` 幂等接缝），未确认时 Check status 按 id 读回同一记录（GET /sessions/:id · GET /projects），找到即按原回执路径接纳，未找到则解锁并保留身份 | api-v6 Projects 段；entry-audit 测试 1 |
+| Home 首发未确认 | `submitHomeRun` 固定 sessionId 再 POST | Host | 原文案要求 Refresh；Recent 列表加载时顺带恢复 | **改名归位**：状态行加 Check status（GET /sessions/:id），找到写"Your chat was recovered…"，未找到写"Send to retry the same chat identity."；Recent 顺带恢复保留 | entry-audit 测试 2 |
+| Run 发送未确认 | `recoverRunReceipt` 同 commandId 重放 | Host（幂等） | 已有 Recover 动作 | **保留** | 既有 |
+| 附件上传未确认 | draft-attachments 同 commandId | Host（幂等） | 已有 attempted 标记 | **保留**（上传是保留字节，不改名为 Open folder） | 既有 |
+| 导航 `Expert · Planned`（#expert-seat） | 无 handler，仅加图标 | 无 | 无 | **移出生产原型化**：删除席位与其 CSS；`expert.role` 语义键保留 | entry-audit 测试 2 |
+| 侧栏 Home / Chat / Attention / Spark / New chat / Find a chat / Projects + / Settings | 各自导航与创建 handler | 前端导航 owner / Host | 局部 | **保留** | — |
+| Home composer `Project`（#home-project-button） | 选组织归属（state.homeProjectId） | Host（创建时提交 projectId） | — | **保留**（01 片已改回 Project；不叫 Workspace） | copy-convention §3.2b |
+| composer 上下文条 `Choose workspace` | 打开 Workspace 卡（Host 原生目录对话框 → 绝对路径 → 绑定） | Host（RD-006） | 取消/失败保留旧绑定与草稿 | **改名**：Connect folder（chip 与卡片主动作 Connect folder…）；对象名 Workspace 沿 §3.1 | copy-convention §3.2b；registry `workspace.connect` |
+| composer 附件 / File access / Model & effort / Send / Stop working | 各自 owner | Host | 各自 | **保留** | 05 片 |
+| 右栏 `Runtime` 卡（surface-modules runtimeModule） | 资源总数/分类/frozen/Attention 计数；Open → Settings | Workbench 快照的二次读 | 无 | **删除**（v3）：资源与配置在 Settings › Developer › Runtime；某次 Run 的绑定在其详情；`loadRailFacts` 不再读 runtime | entry-audit 测试 3；浏览器右栏卡：run-summary · preview · more |
+| 右栏 `Workspace` 空卡（Workspace files have not been read.） | 未读树时的占位 | — | — | **删除空态**：未读且无错误时卡不出现（WK-45/47） | 同上 |
+| 右栏 Run 卡 / Inspector 的 "Not accepted by a review." | 普通 Chat 记录文件上的免责句 | — | — | **删除**：接受状态只在 Core 候选真实携带时陈述 | 同上 |
+| 右栏默认打开（进入 Chat 即 `surface.open`） | 无对象的三张卡 | — | — | **改**：进入 Chat 不开右栏；Open work surface、文件/变更/检查/候选对象打开时才开 | 浏览器：进入 Chat panel/rail hidden，点 Open work surface 后打开 |
+| Files 阅读面的 `Refresh workspace files`、Settings 的 `Refresh extensions`、`Refresh current settings`、Attention 的 `Refresh Attention` | 各自对象的确切读态刷新 | 各 owner | 局部 | **保留**（逐对象判断，不一刀切） | raw-consumers 账 |
+| Settings 页 chrome（Back to app · 搜索 · 分组）、Runtime Workbench 各块 | 既有 | — | — | **保留** | — |
+
+### 提交与检查
+
+| 项 | 结果 |
+|---|---|
+| 提交 | `4ab6ef7`（代码与测试）· `7ec73c3`（文案、接口说明、本节） |
+| 定向 | entry-audit 4 项；card-disclosure / workspace-card / surface-convergence / chat-work-shell / shell-layout / work-surface-tabs / product-semantics / semantic-guards / static-web-manifest / home-presentation / settings-navigation / projectless-chat / intake-ui / inspector-presentation 共 90/90 |
+| `npm test` | __FULL__ |
+| lint | interaction / colors / shapes / materials / product-copy / semantic-consumers（53 项账，删去 refresh-button 例外）/ doc-links 通过 |
+| 浏览器（Local test Host） | 侧栏页脚只剩 Settings；导航无 Expert 席位；上下文条 chip 为 Connect folder；进入 Chat 时右栏与面板均隐藏；Open work surface 后卡片为 run-summary · preview · more，无 Runtime 卡 |
+
+### 未完项
+
+- v2 §6 的 A/B/上传同名反例 fixture 与"下一 Run 真实读到 A"的 GUI 验收归 01 片增补，尚未做；01 片已有的 Host 原生目录对话框返回绝对路径，属 v2 §4.1 的"Host 提供的目录选择器"分支。
+- 创建对话框的 Check status 只有源码断言与 Host 幂等测试，浏览器里未模拟丢 ACK。
+- v3 的 Inspector 重排、顺序概览与选中项详情归 04/08/10 片；本片只做右栏存废。

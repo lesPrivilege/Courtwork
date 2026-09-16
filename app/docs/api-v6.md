@@ -221,6 +221,13 @@ model validated against the installed catalog) and `fake-openai-loopback` (tests
 - While a manual compaction runs anywhere on the Host, run creation is
   `409 operation_active` (CMP-01); the Host holds one seat for work.
 
+## Projects
+
+`GET /api/v5/projects` → `{ projects[] }`. `POST /api/v5/projects` — `{ name, projectId? }` → `{ project, idempotent? }`.
+`projectId` (UUID v4) may be fixed by the client before the POST so a lost receipt is
+answered by the same record: the same id with the same name replays it (`idempotent: true`),
+the same id with another name is `409 project_conflict`, a malformed id is `400`.
+
 ## Commands (CMD-01, 2026-09-16)
 
 `GET /api/v5/sessions/:id/commands` → `{ protocolVersion, revision, source, commands[] }`,

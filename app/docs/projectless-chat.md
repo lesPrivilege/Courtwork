@@ -4,7 +4,7 @@ The Home composer accepts a first message without a Project or a title form. Its
 left controls independently manage draft attachments and an optional workspace
 (Project organization). Projects and Recent are peer sidebar sections, with
 Projects first. Recent includes ordinary project and unassigned conversations;
-global Attention keeps its separate entry and history. A selected workspace is
+global Attention keeps its separate entry and history. A selected Project is
 an organization choice, not an external directory or a file access grant.
 
 ## Identity and persistence
