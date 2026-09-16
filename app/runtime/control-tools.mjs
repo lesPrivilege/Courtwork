@@ -36,6 +36,23 @@ export function createRuntimeProposeTool(onPropose) {
   };
 }
 
+/** 08 · the model's one presentation entry. The spec is validated and recorded
+ * by the Host; the receipt is short and claims only that. */
+export function createPresentTool(onPresent) {
+  return {
+    name: 'cw_present', label: 'Present a structured reading',
+    description: 'Show the person a small structured reading. First slice: { kind: "facts", version: 1, title, items: [{ label, value }] } (at most 40 items, 16 KiB). Values are shown as model-derived; recording proves nothing about the world and grants nothing.',
+    parameters: Type.Object({ spec: Type.Any() }),
+    async execute(callId, params) {
+      const instance = await onPresent({ callId, spec: params.spec });
+      return {
+        content: [{ type: 'text', text: `Presentation ${instance.instanceId} recorded (${instance.kind} v${instance.version}, ${instance.items} item${instance.items === 1 ? '' : 's'}). It is shown to the person as model-derived; nothing else is claimed.` }],
+        details: { instanceId: instance.instanceId, revision: instance.revision, kind: instance.kind, version: instance.version, specSha256: instance.specSha256 },
+      };
+    },
+  };
+}
+
 /** Computes the same per-tool policy effect governTools uses for its entry
  * decision, but for an arbitrary resource string (typically a relative path)
  * instead of the tool's own call-site resource. This is the single place

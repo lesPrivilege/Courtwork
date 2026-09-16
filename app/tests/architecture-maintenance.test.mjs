@@ -179,7 +179,11 @@ test("AM-C unchanged core wire golden and complete no-op remain stable with Expl
     assert.ok(propose, 'runtime_propose is offered to the model');
     assert.deepEqual(Object.keys(propose.function.parameters.properties).sort(), ['content', 'title']);
     assert.deepEqual(propose.function.parameters.required, ['title', 'content']);
-    const added = new Set([...sparkNames, 'runtime_propose']);
+    // 08 · `cw_present` is the governed presentation entry, likewise asserted apart.
+    const present = firstBody.tools.find(t => t.function.name === 'cw_present');
+    assert.ok(present, 'cw_present is offered to the model');
+    assert.deepEqual(Object.keys(present.function.parameters.properties), ['spec']);
+    const added = new Set([...sparkNames, 'runtime_propose', 'cw_present']);
     assert.deepEqual({...firstBody,tools:firstBody.tools.filter(t=>!added.has(t.function.name))}, baseline, "unchanged core request must match the retained golden");
 
     const second = await h.run(await h.createSession(), "am-c-golden-two");

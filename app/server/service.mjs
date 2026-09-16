@@ -45,7 +45,8 @@ import {
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
-import { createRuntimeLoadTool, createRuntimeProposeTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
+import { createRuntimeLoadTool, createRuntimeProposeTool, createPresentTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
+import { validatePresentationSpec, PresentationError } from "../runtime/presentation.mjs";
 import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposals.mjs";
 import { discoverCommands, findCommand, parseArguments, parseSlash } from "../runtime/commands.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
@@ -496,6 +497,34 @@ export class RuntimeService {
       } catch (error) { if (error instanceof ServiceError) throw error; throw new ServiceError(502, 'mcp_connection_failed', 'MCP connection failed; inspect provider diagnostics'); }
       return this.getRuntimeControl(sessionId);
     });
+  }
+
+  /* ── 08 · governed presentation (facts v1) ───────────────────────────── */
+  /** Record one presentation instance for a Run. The same callId replays the
+   * same instance (a provider retry is not a second reading); the receipt is
+   * the Host's processing fact only. */
+  async recordPresentation(runId, { callId, spec }) {
+    const run = this.store.getRun(runId);
+    if (!run) throw new Error("run not found");
+    const existing = this.store.listEvents({ sessionId: run.sessionId, runId }).find(e => e.type === "presentation.created" && e.data.origin?.callId === callId);
+    if (existing) return { ...existing.data, items: existing.data.spec.items.length };
+    let checked;
+    try { checked = validatePresentationSpec(spec); }
+    catch (error) { if (error instanceof PresentationError) throw new Error(`${error.message} (${error.code})`); throw error; }
+    const instance = { instanceId: `pres-${randomUUID()}`, revision: 1, kind: checked.kind, version: checked.version, spec: checked.spec,
+      specSha256: checked.specSha256, bytes: checked.bytes, origin: { runId, callId, source: "model-derived" }, createdAt: new Date().toISOString() };
+    await this.store.appendEvent({ runId, type: "presentation.created", data: instance });
+    return { ...instance, items: checked.items };
+  }
+  listPresentations(sessionId) {
+    if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
+    return { presentations: this.store.listEvents({ sessionId }).filter(e => e.type === "presentation.created").map(e => ({ ...e.data, seq: e.seq })) };
+  }
+  getPresentation(sessionId, instanceId) {
+    if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
+    const event = this.store.listEvents({ sessionId }).find(e => e.type === "presentation.created" && e.data.instanceId === instanceId);
+    if (!event) throw new ServiceError(404, "not_found", "presentation not found in this session");
+    return { presentation: { ...event.data, seq: event.seq } };
   }
 
   /* ── CMD-01 · Host command discovery and dispatch ─────────────────────── */
@@ -2782,7 +2811,7 @@ export class RuntimeService {
           await this.store.appendEvent({ runId: run.id, type: 'runtime.mcp.dispatch', data: identity });
           entry.mcpPending ??= new Map();
           entry.mcpPending.set(identity.dispatchId, identity);
-        }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data })), createRuntimeProposeTool(input => this.proposeRuntimeSkill(run.sessionId, run.id, input))], {
+        }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data })), createRuntimeProposeTool(input => this.proposeRuntimeSkill(run.sessionId, run.id, input)), createPresentTool(input => this.recordPresentation(run.id, input))], {
           binding: entry.runtimeBinding, permissionMode: entry.permissionMode, workspaceDir: entry.workspaceDir,
           isOpen: runIsOpen,
           requestPermission: ({ signal, ...payload }) => this.#waitForDecision(run.id, entry, { kind: "permission", prompt: `Permission requested for ${payload.tool}`, payload, signal }),
