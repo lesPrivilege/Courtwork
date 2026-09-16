@@ -168,16 +168,23 @@
         <!-- WK-94 · 连接身份在 composer 的上下文行说一次就够了；这里原本的头像盘与
              连接名是同一屏的第二遍，而头像盘背后并没有一个可打开的身份。剩下的是
              这一栏真正的两个动作。 -->
-        <footer class="sidebar-account" aria-label="Workspace tools">
-          <span class="account-tools">
-            <button
-              id="runtime-setup-button"
-              class="quiet-button"
-              type="button"
-            >
-              Settings
-            </button>
-          </span>
+        <!-- Home identity · who is here and on what plan; everything else about
+             the account is one click further, in its own menu. -->
+        <footer class="sidebar-account" aria-label="Account">
+          <button
+            id="account-button"
+            class="account-identity quiet-button"
+            type="button"
+            aria-haspopup="dialog"
+            aria-expanded="false"
+            aria-controls="account-popover"
+          >
+            <span id="account-avatar" class="account-avatar"></span>
+            <span class="account-words">
+              <span id="account-address" class="account-address"></span>
+              <span id="account-plan" class="account-plan"></span>
+            </span>
+          </button>
         </footer>
       </aside>
       <main class="chat-panel" aria-label="Agent workspace">
@@ -450,6 +457,19 @@
                 <div id="settings-data" class="settings-block"></div>
               </section>
               <section
+                id="settings-profile"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-profile-title"
+                hidden
+              >
+                <h3 id="settings-profile-title" class="settings-section-title">
+                  Profile
+                </h3>
+                <div id="settings-profile-rows" class="settings-block"></div>
+              </section>
+              <section
                 id="settings-appearance"
                 class="settings-section"
                 role="tabpanel"
@@ -458,9 +478,22 @@
                 hidden
               >
                 <h3 id="settings-appearance-title" class="settings-section-title">
-                  Appearance
+                  Preferences
                 </h3>
                 <div id="settings-appearance-rows" class="settings-block"></div>
+              </section>
+              <section
+                id="settings-account"
+                class="settings-section"
+                role="tabpanel"
+                tabindex="-1"
+                aria-labelledby="settings-account-title"
+                hidden
+              >
+                <h3 id="settings-account-title" class="settings-section-title">
+                  Account
+                </h3>
+                <div id="settings-account-rows" class="settings-block"></div>
               </section>
               <section
                 id="settings-models"
@@ -820,6 +853,14 @@
     ></div>
     <!-- Models 05 · the composer's model control: in-force model, effort quick-select
          from the Host's capability snapshot, and the way to its connection. -->
+    <!-- Home identity · the account menu: identity, three settings entries,
+         and the actions this build cannot perform, said plainly. -->
+    <div
+      id="account-popover"
+      class="context-popover connection-popover account-popover"
+      popover="auto"
+      aria-label="Account"
+    ></div>
     <div
       id="model-popover"
       class="context-popover connection-popover model-popover"

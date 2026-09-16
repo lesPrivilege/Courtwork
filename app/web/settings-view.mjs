@@ -1672,8 +1672,13 @@ export function createSettingsView(
    （语义审查 §1）。旧的 `#settings/runtime` 深链因此不再解析，按「不保留向后兼容」
    落回 General，而不是加一层重定向。 */
 export const SETTINGS_GROUPS = [
+  /* Home identity · the person's own three entries lead: who they are, how
+   * this device shows things, and the plan relation. Product control faces
+   * (Models, Tools, Runtime…) keep their own groups below. */
+  { id: "profile", title: "Profile", panel: "settings-profile" },
+  { id: "appearance", title: "Preferences", panel: "settings-appearance" },
+  { id: "account", title: "Account", panel: "settings-account" },
   { id: "general", title: "General", panel: "settings-general" },
-  { id: "appearance", title: "Appearance", panel: "settings-appearance" },
   { id: "models", title: "Models", panel: "settings-models" },
   { id: "tools", title: "Tools & Integrations", panel: "settings-tools" },
   { id: "skills", title: "Skills", panel: "settings-skills" },
@@ -2033,7 +2038,7 @@ const SHORTCUTS = [
 /** Settings 页自己的控制器：分组切换、只过滤本页行的搜索、Appearance 偏好、
  *  Keyboard 只读表、Data 只读事实，以及 Runtime 组留给 WK11 的节位。
  *  页面的开合、hash、Escape 与焦点归还不在这里，在 app.mjs。 */
-export function createSettingsPage({ home, onSection, onEditConnection, onOpenRuntimeResource, onHomeLayout }) {
+export function createSettingsPage({ home, onSection, onEditConnection, onOpenRuntimeResource, onHomeLayout, getProfile = null, onProfileSaved = null, request = null, notify = null }) {
   const nav = document.getElementById("settings-nav");
   const dropdown = document.getElementById("settings-nav-select");
   const search = document.getElementById("settings-search");
@@ -2191,6 +2196,39 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     applyFilter();
     onSection?.(section);
     if (focusPanel) panels.get(section)?.focus();
+  }
+
+  /* ── Preferences kept on the Host profile (language, zone, greeting) ──
+   * These three are read from and saved to the profile, not to this device:
+   * the greeting's language and clock follow the person, not the browser. */
+  function profileRows() {
+    const profile = getProfile?.();
+    if (!profile) return [];
+    let busy = false;
+    const save = async (change) => {
+      if (busy) return;
+      busy = true;
+      try {
+        const result = await request?.("/profile", { method: "PUT", body: { expectedRevision: profile.revision, ...change } });
+        onProfileSaved?.(result.profile);
+      } catch (error) { notify?.(error.message, "error"); }
+      finally { busy = false; render(); }
+    };
+    const language = el("select", { attrs: { "aria-label": "Language" } });
+    for (const [value, text] of [["zh-CN", "简体中文"], ["en", "English"]]) language.append(el("option", { text, attrs: { value } }));
+    language.value = profile.language;
+    language.addEventListener("change", () => void save({ language: language.value }));
+    const zone = el("input", { attrs: { type: "text", "aria-label": "Time zone", placeholder: "Asia/Shanghai", autocomplete: "off", list: "settings-timezone-list" } });
+    zone.value = profile.timeZone ?? "";
+    zone.addEventListener("change", () => void save({ timeZone: zone.value.trim() || null }));
+    const greetings = el("input", { attrs: { type: "checkbox", "aria-label": "Contextual home greetings" } });
+    greetings.checked = profile.preferences?.contextualGreetings !== false;
+    greetings.addEventListener("change", () => void save({ preferences: { contextualGreetings: greetings.checked } }));
+    return [
+      settingsRow("Language", "The language of the Home greeting. It does not change the product's own words.", language),
+      settingsRow("Time zone", "An IANA zone name; the greeting's morning and evening follow it. Empty follows this device.", zone),
+      settingsRow("Contextual home greetings", "One short line on Home for the time of day and your work address. Off leaves Home without it.", greetings),
+    ];
   }
 
   /* ── Appearance ───────────────────────────────────────────────────── */
@@ -2492,6 +2530,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         homeLayout,
         governed("homeLayout"),
       ),
+      ...profileRows(),
       advanced,
       appearanceStatus,
     );

@@ -38,7 +38,8 @@ test("00 · entry audit: the global Refresh and the passive Expert seat are gone
   assert.doesNotMatch(html, /id="expert-seat"|Planned<\/span>/, "no passive Expert placeholder in navigation");
   assert.doesNotMatch(app, /expert-seat/);
   assert.doesNotMatch(css, /\.nav-planned-seat|\.nav-seat-plan/);
-  assert.match(html, /id="runtime-setup-button"/, "Settings stays in the sidebar footer");
+  assert.match(html, /id="account-button"/, "the sidebar footer is the account identity");
+  assert.match(app, /attrs: \{ id: "runtime-setup-button" \}/, "Settings stays reachable from the account menu");
   assert.match(app, /clientId: crypto\.randomUUID\(\), value, projectId, nav, startNext, homeRequest, unconfirmed: false/, "a creation fixes its identity before the POST");
   assert.match(app, /\? \{ name: value, projectId: attempt\.clientId \}/, "projects are created under the fixed id");
   assert.match(app, /sessionId: attempt\.clientId,/, "chats from the dialog are created under the fixed id");

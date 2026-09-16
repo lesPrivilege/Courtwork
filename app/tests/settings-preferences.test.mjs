@@ -226,12 +226,16 @@ test("Models 模块不复述 composer chip 的事实：它没有自己的读取"
 
 /* WK-90 · 九个组按用户任务命名。`runtime` 不再是一个组：它是架构词，落在
    Developer 里，旧深链因此落回 General（不保留向后兼容）。 */
-test("页面的十个组是闭集，未知的节名落回 General", () => {
+test("页面的十二个组是闭集，未知的节名落回 General", () => {
+  // Home identity · the person's three entries lead; Appearance keeps its id
+  // under the title Preferences; product control faces follow.
   assert.deepEqual(SETTINGS_GROUPS.map((group) => group.id), [
-    "general", "appearance", "models", "tools", "skills", "plugins",
+    "profile", "appearance", "account", "general", "models", "tools", "skills", "plugins",
     "memory", "permissions", "keyboard", "developer",
   ]);
   assert.equal(isSettingsSection("appearance"), true);
+  assert.equal(isSettingsSection("profile"), true);
+  assert.equal(isSettingsSection("account"), true);
   assert.equal(isSettingsSection("runtime"), false);
   assert.equal(isSettingsSection("billing"), false);
 });

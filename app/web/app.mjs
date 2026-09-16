@@ -46,6 +46,8 @@ import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { renderModelEffortCard } from "./model-effort.mjs";
 import { renderCommandResult } from "./command-result.mjs";
+import { homeGreeting, greetingIsStale } from "./home-greeting.mjs";
+import { renderAvatar } from "./avatar-mark.mjs";
 import { createCommandMenu } from "./command-menu.mjs";
 import { projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
@@ -143,6 +145,12 @@ const state = {
   sessionListErrors: new Map(),
   unconfirmedRuns: new Map(),
   createAttempts: new Map(),
+  /* Home identity · the profile is the source of the address; the greeting
+   * is derived from it and the moment; the account is the fixture plan. */
+  profile: null,
+  account: null,
+  greeting: null,
+  lastActiveAt: Date.now(),
   startAfterProject: false,
   newSessionProjectId: null,
   runtimeInfo: null,
@@ -2413,7 +2421,7 @@ function renderBindingPanel() {
   cancel.addEventListener("click", () => {
     state.bindingExtensionId = null;
     renderBindingPanel();
-    $("runtime-setup-button")?.focus();
+    $("account-button")?.focus();
   });
   actions.append(cancel);
   const submit = element("button", {
@@ -3289,7 +3297,16 @@ function renderChatHeader() {
   $("app-shell").classList.toggle("home-active", home);
   // The slogan introduces an empty Home; once retained chats exist Home
   // leads with the work and the composer, and the sentence steps aside.
-  $("home-composer-intro").hidden = !home || state.recentSessions.length > 0;
+  /* Home identity · the intro hosts the greeting on the Simple layout; the
+   * Modules layout projects the same line into the band's masthead instead. */
+  const intro = $("home-composer-intro");
+  const simpleGreeting = home && homeLayoutPreference() !== "modules" && state.greeting?.text;
+  // On Simple the intro also hosts the example line, so it stays while that line shows.
+  intro.hidden = !simpleGreeting && !(home && homeLayoutPreference() !== "modules" && !$("preview-banner").hidden);
+  if (simpleGreeting) {
+    const line = intro.querySelector("[data-greeting]") ?? intro.querySelector("h2");
+    if (line) { line.setAttribute("data-greeting", ""); line.classList.add("home-greeting"); if (line.textContent !== state.greeting.text) line.textContent = state.greeting.text; }
+  }
   $("home-composer-context").hidden = !home;
   $("home-project-button").hidden = !home;
   if (homeAttachments) homeAttachments.trigger.hidden = !home;
@@ -3327,8 +3344,12 @@ function renderChatHeader() {
   // composer. DOM order is reading/tab order. Mobile keeps its docked composer.
   if (bandLayout && body.firstElementChild !== modules) body.prepend(modules);
   // Stage 4 · the example banner is the first thing on Home in every layout.
+  /* The example line sits beside the greeting — in the band's masthead on
+   * Modules, in the intro on Simple — as one quiet sentence, not a card. */
   const previewBanner = $("preview-banner");
-  if (home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
+  const modulesHome = home && homeLayoutPreference() === "modules";
+  if (home && !modulesHome && previewBanner.parentElement !== intro) intro.append(previewBanner);
+  else if (!home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
   measureHomeLead();
   const config = state.providerConfig?.config;
@@ -5545,6 +5566,76 @@ function openConnectionCard(anchor) {
   popover.showPopover();
   header.querySelector("button").focus();
 }
+/* Home identity · profile → address → greeting; account → plan word. The
+ * greeting is chosen once per bucket and replaced only on a new bucket, a new
+ * day or a return after a long absence, with a short crossfade — never on a
+ * timer, never per render. */
+async function loadProfileAndAccount() {
+  try { state.profile = (await request("/profile")).profile; } catch { state.profile = null; }
+  try { state.account = (await request("/account")).account; } catch { state.account = null; }
+  refreshGreeting({ force: true });
+  renderAccountIdentity();
+}
+function homeSessionState() {
+  if (state.recentSessions.length) return "recent";
+  if (!state.projects.length) return "fresh";
+  return null;
+}
+function refreshGreeting({ force = false } = {}) {
+  const profile = state.profile;
+  if (!profile || profile.preferences?.contextualGreetings === false) { state.greeting = null; renderGreetingLines(); return; }
+  const now = new Date();
+  const returned = Date.now() - state.lastActiveAt >= 30 * 60 * 1000;
+  if (!force && !greetingIsStale(state.greeting, { now, timeZone: profile.timeZone, lastActiveAt: state.lastActiveAt })) return;
+  state.greeting = homeGreeting({ profile, now, session: returned ? "return" : homeSessionState(), seedBase: "local" });
+  renderGreetingLines();
+}
+function renderGreetingLines() {
+  const text = state.greeting?.text ?? "";
+  for (const line of document.querySelectorAll("[data-greeting]")) {
+    if (line.textContent === text) continue;
+    if (!text || line.hidden || !line.isConnected || !line.textContent) { line.textContent = text; continue; }
+    line.classList.add("is-updating");
+    const swap = () => { line.textContent = text; line.classList.remove("is-updating"); };
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) swap(); else setTimeout(swap, 180);
+  }
+  if (state.view === "home") renderChatHeader();
+}
+function renderAccountIdentity() {
+  const button = $("account-button");
+  if (!button) return;
+  const profile = state.profile ?? {};
+  const address = profile.workAddress || profile.preferredName || profile.fullName || "You";
+  $("account-avatar").replaceChildren(renderAvatar(profile, { size: 28 }));
+  $("account-address").textContent = address;
+  const plan = state.account?.plan;
+  $("account-plan").textContent = plan ? plan.name : "";
+  button.setAttribute("aria-label", `Account · ${address}${plan ? ` · ${plan.name}` : ""}`);
+}
+function openAccountMenu(anchor) {
+  const popover = $("account-popover");
+  if (popover.matches(":popover-open")) { popover.hidePopover(); return; }
+  state.accountMenuAnchor = anchor;
+  const profile = state.profile ?? {};
+  const address = profile.workAddress || profile.preferredName || profile.fullName || "You";
+  const head = element("div", { className: "account-menu-head" },
+    element("p", { className: "account-menu-address", text: address }),
+    element("p", { className: "account-menu-email", text: state.account?.identity?.email ?? "" }));
+  const go = (section) => () => { popover.hidePopover(); openSettings(section, { trigger: anchor }); };
+  const rows = [
+    action("square-pen", "Profile", go("profile"), { visible: true, className: "context-row" }),
+    action("settings-2", "Preferences", go("appearance"), { visible: true, className: "context-row" }),
+    action("key-round", "Account", go("account"), { visible: true, className: "context-row" }),
+    action("settings-2", "Settings", () => { popover.hidePopover(); openSettings(state.settings.section, { trigger: anchor }); }, { visible: true, className: "context-row", attrs: { id: "runtime-setup-button" } }),
+  ];
+  const signOut = action("external-link", "Sign out", () => {}, { visible: true, className: "context-row" });
+  signOut.disabled = true;
+  signOut.dataset.tooltip = "Available when accounts are connected.";
+  popover.replaceChildren(head, element("div", { className: "context-card" }, ...rows), element("div", { className: "context-card" }, signOut,
+    element("p", { className: "context-meta", text: "Available when accounts are connected." })));
+  popover.showPopover();
+  rows[0].focus();
+}
 /* CMD-01 · typed commands. The Host owns the catalog and the reading of the
  * slash; the composer only carries the message there and shows what came
  * back. A refusal keeps the draft and says why; nothing falls through to a
@@ -5909,7 +6000,11 @@ function renderHomeState() {
          * leaves the focus on the tile that now states the filter. */
       },
     });
-  if (state.view === "home" && homeLayoutPreference() === "modules")
+  if (state.view === "home" && homeLayoutPreference() === "modules") {
+    /* The band is rebuilt whole; the example line is a persistent element,
+     * so it is parked outside first and seated in the new masthead after. */
+    const parkedBanner = $("preview-banner");
+    if (parkedBanner && $("home-module-band").contains(parkedBanner)) $("conversation-body").append(parkedBanner);
     renderHomeModuleBand($("home-module-band"), {
       activity: state.homeActivity,
       attention: state.homeAttention,
@@ -5931,6 +6026,7 @@ function renderHomeState() {
         $("home-module-band").querySelector(`[data-focus-key="attention-item-${CSS.escape(id)}"]`)?.focus();
       },
       collapsed: homeModuleBandCollapsed(),
+      greeting: state.greeting?.text ?? null,
       onCollapse: (collapsed) => {
         settingsPage?.setHomeModuleBand(collapsed ? "collapsed" : "expanded");
         renderHomeState();
@@ -5939,6 +6035,11 @@ function renderHomeState() {
           ?.focus();
       },
     });
+    /* The example line sits beside the greeting in the masthead; the band is
+     * drawn after the header, so the move happens here, not in the header. */
+    const aside = $("home-masthead-aside"), banner = $("preview-banner");
+    if (aside && banner && banner.parentElement !== aside) aside.append(banner);
+  }
   renderHome($("message-stream"), {
     summary: state.home.data,
     error: state.home.error,
@@ -6558,6 +6659,14 @@ function handleSurfaceEscape(event) {
     }
     return;
   }
+  if ($("account-popover").matches(":popover-open")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      $("account-popover").hidePopover();
+      state.accountMenuAnchor?.focus?.();
+    }
+    return;
+  }
   if ($("command-popover").matches(":popover-open")) {
     if (event.key === "Escape") {
       event.preventDefault();
@@ -6790,7 +6899,6 @@ function wireEvents() {
   setSemanticControl($("chat-button"), "chat.surface", { visible: true });
   setSemanticControl($("attention-button"), "attention.agent", { visible: true });
   setSemanticControl($("spark-button"), "spark.surface", { visible: true });
-  setAction($("runtime-setup-button"), "settings-2", "Settings");
   setAction($("new-session-button"), "square-pen", "New chat");
   setAction($("home-create-project"), "plus", "New project", { visible: true });
   setAction($("send-button"), "arrow-up", "Send");
@@ -6920,9 +7028,25 @@ function wireEvents() {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") void workReviewSummaryView?.refresh();
   });
-  $("runtime-setup-button").addEventListener("click", (event) =>
-    openSettings(state.settings.section, { trigger: event.currentTarget }),
-  );
+  $("account-button").addEventListener("click", (event) => openAccountMenu(event.currentTarget));
+  {
+    const popover = $("account-popover");
+    let stopFollowing = null;
+    popover.addEventListener("toggle", (event) => {
+      const open = event.newState === "open";
+      stopFollowing?.();
+      stopFollowing = null;
+      const anchor = state.accountMenuAnchor;
+      if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start" });
+      $("account-button").setAttribute("aria-expanded", String(open));
+    });
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") { state.lastActiveAt = Date.now(); return; }
+    refreshGreeting();
+    state.lastActiveAt = Date.now();
+  });
+  window.addEventListener("focus", () => { refreshGreeting(); state.lastActiveAt = Date.now(); });
   $("settings-back-button").addEventListener("click", () => closeSettings());
   window.addEventListener("hashchange", syncSettingsFromHash);
   setAction($("close-run-history"), "x", "Close run history");
@@ -7161,6 +7285,10 @@ async function init() {
   /* WK-78 · 页壳自己的控制器：分组、搜索、外观偏好、只读表。它不取数据；
    * 需要的快照由 settingsView 推给它（`page` 选项），所以一个事实仍只有一个来源。 */
   settingsPage = createSettingsPage({
+    request,
+    notify: showToast,
+    getProfile: () => state.profile,
+    onProfileSaved: (profile) => { state.profile = profile; refreshGreeting({ force: true }); renderAccountIdentity(); },
     home: {
       get: () => state.homePermissionMode,
       set: (value) => {
@@ -7334,6 +7462,7 @@ async function init() {
     await Promise.all(
       [...state.openProjectIds].map((id) => loadSessionsForProject(id)),
     );
+    await loadProfileAndAccount();
     await loadHome();
     if (!state.settings.open && state.restoreSessionId) await restoreUiSelection();
     // An explicitly saved Session restores by ID, including unassigned chats.
@@ -7395,6 +7524,7 @@ async function reloadWorld() {
     state.view = "home";
   }
   await Promise.all([...state.openProjectIds].map((id) => loadSessionsForProject(id)));
+  await loadProfileAndAccount();
   await loadHome();
   writeUiState();
   renderAll();

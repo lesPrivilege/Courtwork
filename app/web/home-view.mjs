@@ -292,6 +292,14 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
   }
   return card;
 }
+/* Home identity · the greeting is one unframed line: it is text from the
+ * profile's address and the moment, never a module, never a card, and it
+ * reads nothing that could fail. The same primitive serves the Simple intro
+ * and the Modules masthead. */
+export function renderHomeGreeting(text) {
+  return el("h2", { className: "home-greeting", text, attrs: { "data-greeting": "" } });
+}
+
 export function renderHomeModuleBand(container, options) {
   const focusKey = container.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
   const { collapsed, onCollapse } = options;
@@ -303,11 +311,21 @@ export function renderHomeModuleBand(container, options) {
   const summary = el("summary", { className: "home-module-collapse icon-only", attrs: { "data-focus-key": "home-module-collapse", "aria-label": toggleName } },
     icon(collapsed ? "chevron-right" : "chevron-down", { size: 16 }));
   summary.dataset.tooltip = toggleName;
+  /* Two columns, two readings: the primary stack (masthead, then Attention)
+   * and the quieter Activity instrument. The masthead is the greeting and the
+   * example line side by side; it takes the height the left column already
+   * had to spare, so the composer keeps its place. */
   const list = el("div", { className: "home-module-list", attrs: { id: "home-module-list" } });
+  const masthead = el("div", { className: "home-masthead", attrs: { id: "home-masthead" } });
+  if (options.greeting) masthead.append(renderHomeGreeting(options.greeting));
+  masthead.append(el("div", { className: "home-masthead-aside", attrs: { id: "home-masthead-aside" } }));
+  const primary = el("div", { className: "home-primary-stack" }, masthead);
   for (const id of ["attention", "activity"]) {
     const module = homeBandModules().find(module => module.id === id);
-    if (module?.render) list.append(module.render(options));
+    if (!module?.render) continue;
+    if (id === "attention") primary.append(module.render(options)); else list.append(module.render(options));
   }
+  list.prepend(primary);
   const details = el("details", { className: "home-module-details" }, summary, list);
   if (!collapsed) details.setAttribute("open", "");
   details.addEventListener("toggle", () => {

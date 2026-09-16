@@ -1519,14 +1519,70 @@ export const productSemantics = freeze({
       "ownerAnchor": "## Settings"
     },
     {
-      "semanticKey": "settings.appearance",
-      "meaning": "The Appearance group of the Settings page; names a category of settings, not a capability.",
+      "semanticKey": "settings.profile",
+      "meaning": "The Profile group of the Settings page: who is addressed and how; names a category of settings, not a capability.",
       "ownerRef": "docs/interface-components.md",
       "words": {
-        "en": "Appearance"
+        "en": "Profile"
       },
       "accessibleName": {
-        "en": "Appearance"
+        "en": "Profile"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "square-pen",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.account",
+      "meaning": "The Account group of the Settings page: the plan relation; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Account"
+      },
+      "accessibleName": {
+        "en": "Account"
+      },
+      "symbolClass": "Object",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "multi-purpose",
+      "glyphRef": "house",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "identity",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped",
+      "ownerAnchor": "## Settings"
+    },
+    {
+      "semanticKey": "settings.appearance",
+      "meaning": "The Preferences group of the Settings page (formerly Appearance): this device's display choices plus the profile-kept language, zone and greeting preference; names a category of settings, not a capability.",
+      "ownerRef": "docs/interface-components.md",
+      "words": {
+        "en": "Preferences"
+      },
+      "accessibleName": {
+        "en": "Preferences"
       },
       "symbolClass": "Object",
       "admissionClass": "universal-ui",
