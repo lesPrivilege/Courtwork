@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-16 · English-first bilingual documentation
+
+The root [README](../README.md) now provides the English entry point with a reciprocal [Simplified Chinese edition](../README.zh-CN.md). The [documentation language convention](../AGENTS.md#documentation-language) makes English the default for new and substantially revised architecture, Design/UX, API, contract, and other secondary documentation; existing Chinese documents migrate incrementally, while historical evidence and source bytes remain intact. This documentation-only change preserves product scope, commands, and version facts from `f76dd7e`. Author verification: repository document links, bilingual link/command parity, and diff whitespace checks passed. No product tests or independent product acceptance are claimed. The user subsequently authorized committing and pushing this documentation change; deployment is outside this change.
+
 ## 2026-09-15 · 异步节奏与Attention增量参考
 
 [新增4轮](research/spark-explore-2026-09-13/async-attention-20260915.md)接原Spark参考：完整会话现9轮18条消息、2张截图，原5轮无修订。登记异步依赖/就绪、结果消费及Attention维持意图/义务的讨论；仅供后续消费，无合同升级、施工或开工顺序调整。
