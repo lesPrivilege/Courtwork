@@ -1661,13 +1661,25 @@ function leaveLocation() {
   const stream = $("message-stream");
   if (!stream?.clientHeight) return;
   const reading = captureChatReading(stream);
-  state.history.remember(reading.anchor ? { reading: { anchor: reading.anchor, selection: null } } : null);
+  /* No rows on screen (a layer covers the Chat, or it is still loading) is
+   * not a position: the anchor kept from the last real departure stands. */
+  if (!reading.anchor) return;
+  state.history.remember({ reading: { anchor: reading.anchor, selection: null } });
 }
 function arriveLocation(location) {
   const entry = state.traversal;
-  if (entry) {
-    if (sameLocation(entry, location)) { entry.unavailable = false; entry.reason = null; if (location.title) entry.title = location.title; }
+  if (entry && sameLocation(entry, location)) {
+    entry.unavailable = false; entry.reason = null;
+    if (location.title) entry.title = location.title;
+  } else if (entry && entry.unavailable && location.kind === "home") {
+    /* The landing after a refused place: Home is shown, the cursor stays on
+     * the marked entry so Back can continue past it. */
   } else {
+    /* Either an ordinary arrival, or a place the person opened while a
+     * return was still pending: the trail follows what is on screen, and
+     * the pending return is abandoned (its reader is already outrun by the
+     * navigation epoch). */
+    state.traversal = null;
     state.history.arrive(location);
     state.historyNotice = null;
   }
@@ -1691,6 +1703,10 @@ function renderHistoryControls() {
 }
 async function traverseHistory(direction) {
   if (state.traversal) return;
+  if (!(direction === "back" ? state.history.canBack() : state.history.canForward())) return;
+  /* The place being left is still the current entry: its anchor is taken
+   * now, before the cursor moves (NAV-R1). */
+  leaveLocation();
   const entry = direction === "back" ? state.history.back() : state.history.forward();
   if (!entry) return;
   state.traversal = entry;
@@ -1772,7 +1788,7 @@ function attachObjectCommands(row, ref, { attrs = {}, more = true } = {}) {
   const openMenu = ({ anchor = null, point = null }) => {
     const commands = objectCommands.list(ref);
     if (!commands.length || !objectMenu) return false;
-    return objectMenu.show({ commands, anchor, point, opener: row, label: menuLabelFor(ref), onPick: (id) => void runObjectCommand(id, ref) });
+    return objectMenu.show({ commands, list: () => objectCommands.list(ref), anchor, point, opener: row, label: menuLabelFor(ref), onPick: (id) => void runObjectCommand(id, ref) });
   };
   row.addEventListener("contextmenu", (event) => {
     if (openMenu({ point: { x: event.clientX, y: event.clientY } })) event.preventDefault();
@@ -7773,6 +7789,7 @@ function renderAll() {
   renderConnectionStatus();
   renderPreviewChrome();
   renderHistoryControls();
+  objectMenu?.refresh();
 }
 
 /* --- Stage 4 · the example workspace ------------------------------------

@@ -23,7 +23,7 @@ test("09 · `when` draws only commands with a real path; `enablement` keeps a re
   assert.deepEqual(open.map((c) => [c.id, c.enabled, c.reason]).slice(0, 1), [["chat.open", false, "This chat is already open."]]);
   const running = commandsFor(chatContext({}, { activeRun: true }));
   assert.deepEqual(running.find((c) => c.id === "chat.delete").reason, "Unavailable while a Run is active.");
-  assert.deepEqual(commandsFor(chatContext({}, { preview: true })).map((c) => c.id), ["chat.open"], "an example chat has no rename or delete path");
+  assert.deepEqual(commandsFor(chatContext({}, { preview: true })), [], "an example chat has no menu at all; its row's own click still opens it");
   assert.deepEqual(commandsFor(projectContext()).map((c) => [c.id, c.word, c.label, c.enabled]), [["project.new-chat", "New chat", "New chat in Cedar", true]]);
   assert.equal(commandsFor(projectContext({ startPending: true }))[0].reason, "Finish or recover the chat being started first.");
   assert.deepEqual(commandsFor(projectContext({}, { preview: true })), [], "no menu for the example project");
@@ -99,5 +99,24 @@ test("09 · the menu primitive: groups with separators only between them, disabl
     assert.deepEqual(picks, ["chat.rename"]);
     assert.equal(menu.isOpen(), false);
     assert.equal(document.activeElement, opener, "focus is home before the command runs, so a dialog returns there");
+
+    /* NAV-R3 · enablement is the moment's: a Run that ends while the menu is
+     * open re-enables Delete in place, and a disabled row asks again on click. */
+    let running = true;
+    const live = () => commandsFor(chatContext({}, { activeRun: running }));
+    menu.show({ commands: live(), list: live, anchor: opener, opener, label: "live", onPick: (id) => picks.push(id) });
+    const del = () => popover.querySelectorAll('[role="menuitem"]').find((b) => b.dataset.command === "chat.delete");
+    assert.equal(del().getAttribute("aria-disabled"), "true");
+    del().click();
+    assert.deepEqual(picks, ["chat.rename"], "still disabled: nothing runs");
+    running = false;
+    menu.refresh();
+    assert.equal(del().getAttribute("aria-disabled"), null, "the open menu follows the dispatcher");
+    assert.equal(del().dataset.tooltip, undefined);
+    del().click();
+    assert.deepEqual(picks, ["chat.rename", "chat.delete"]);
+    menu.show({ commands: live(), list: () => [], anchor: opener, opener, label: "gone", onPick: () => {} });
+    menu.refresh();
+    assert.equal(menu.isOpen(), false, "a target whose commands vanished closes the menu");
   });
 });

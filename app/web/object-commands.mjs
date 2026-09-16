@@ -16,7 +16,9 @@ const ok = Object.freeze({ enabled: true });
 export const OBJECT_COMMANDS = Object.freeze([
   Object.freeze({
     id: "chat.open", semanticKey: "chat.open", targetKinds: ["chat"], group: "navigation", destructive: false,
-    when: () => true,
+    /* Example rows have no menu at all (grammar: fixture and real objects
+     * share no command set); the row's own click still opens them. */
+    when: (context) => !context.target.preview,
     enablement: (context) => context.target.id === context.activeSessionId && context.view === "session"
       ? { enabled: false, reason: "This chat is already open." } : ok,
     execute: (context, handlers) => handlers.open(context.target),

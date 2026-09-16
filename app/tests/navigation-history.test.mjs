@@ -29,7 +29,11 @@ test("09 · one stack: the Shell trail is in memory, the hash stays the Settings
 });
 
 test("09 · leave before every departure, arrive only through the reader; traversal resolves through selectSession and restores the anchor after render", () => {
-  assert.equal((app.match(/^\s*leaveLocation\(\);$/gm) || []).length, 3, "goHome, selectSession and selectProject capture the reading position before persisting the draft");
+  assert.equal((app.match(/^\s*leaveLocation\(\);$/gm) || []).length, 4, "goHome, selectSession, selectProject and a traversal capture the reading position before leaving");
+  assert.match(app, /leaveLocation\(\);\n\s*const entry = direction === "back" \? state\.history\.back\(\) : state\.history\.forward\(\);/, "NAV-R1: the departure anchor is taken before the cursor moves");
+  assert.match(app, /if \(!reading\.anchor\) return;\n\s*state\.history\.remember/, "no rows on screen never overwrites a kept anchor");
+  assert.match(app, /\} else \{\n[^}]*state\.traversal = null;\n\s*state\.history\.arrive\(location\);/, "NAV-R1: a place opened while a return is pending wins and the pending return is abandoned");
+  assert.match(app, /objectMenu\?\.refresh\(\);/, "NAV-R3: the open menu re-lists on every render");
   assert.match(app, /leaveLocation\(\);\n  const own = \+\+state\.navigationEpoch;\n  await persistCurrentDraft\(\);/);
   assert.match(app, /arriveLocation\(\{ kind: "session", sessionId, projectId: detail\.session\.projectId \?\? null, title: detail\.session\.title \}\);/);
   assert.match(app, /runtimeView\?\.pause\(\);\n  arriveLocation\(\{ kind: "home" \}\);/);

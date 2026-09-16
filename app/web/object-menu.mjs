@@ -12,6 +12,7 @@ export function createObjectMenu({ popover, position = anchorPopover, viewport =
   let opener = null;
   let onPick = null;
   let open = false;
+  let list = null;
   popover.setAttribute("role", "menu");
 
   function items() { return [...popover.querySelectorAll('[role="menuitem"]')]; }
@@ -23,19 +24,40 @@ export function createObjectMenu({ popover, position = anchorPopover, viewport =
     if (popover.hidePopover) { try { popover.hidePopover(); } catch {} }
     popover.replaceChildren();
     const target = opener;
-    opener = null; onPick = null;
+    opener = null; onPick = null; list = null;
     if (restoreFocus && target && target.isConnected !== false) target.focus();
   }
 
+  function setEnablement(button, command) {
+    button.classList.toggle("is-disabled", !command.enabled);
+    if (command.enabled) { button.removeAttribute("aria-disabled"); button.removeAttribute("data-tooltip"); }
+    else { button.setAttribute("aria-disabled", "true"); button.setAttribute("data-tooltip", command.reason); }
+  }
+  /** The menu is a projection of the dispatcher's list: while it stays open
+   * the app re-lists on every render, so a Run that ends re-enables Delete
+   * in place; a row whose command vanished closes the menu (NAV-R3). */
+  function refresh() {
+    if (!open || !list) return;
+    const current = list();
+    for (const button of items()) {
+      const command = current.find((item) => item.id === button.dataset.command);
+      if (!command) { close(); return; }
+      setEnablement(button, command);
+    }
+  }
   function row(command) {
-    const button = el("button", { className: `context-row object-command${command.destructive ? " is-destructive" : ""}${command.enabled ? "" : " is-disabled"}`,
-      attrs: { type: "button", role: "menuitem", "data-command": command.id, "data-semantic-key": command.semanticKey, "aria-label": command.label,
-        ...(command.enabled ? {} : { "aria-disabled": "true", "data-tooltip": command.reason }) } });
+    const button = el("button", { className: `context-row object-command${command.destructive ? " is-destructive" : ""}`,
+      attrs: { type: "button", role: "menuitem", "data-command": command.id, "data-semantic-key": command.semanticKey, "aria-label": command.label } });
+    setEnablement(button, command);
     button.append(command.glyph ? icon(command.glyph, { size: 16 }) : el("span", { className: "ui-icon object-command-blank", attrs: { "aria-hidden": "true" } }),
       el("span", { className: "object-command-label", text: command.word ?? command.label }));
     button.addEventListener("click", (event) => {
       event.preventDefault();
-      if (!command.enabled) return;
+      /* Enablement is the moment's, not the opening's: a disabled row asks
+       * the dispatcher again and only runs when it is enabled now. */
+      const now = list ? list().find((item) => item.id === command.id) : command;
+      if (!now) { close(); return; }
+      if (!now.enabled) { setEnablement(button, now); return; }
       /* Focus goes home to the row first, so a dialog the command opens
        * returns there when it closes, not to a menu row that no longer exists. */
       const pick = onPick;
@@ -71,12 +93,13 @@ export function createObjectMenu({ popover, position = anchorPopover, viewport =
   return {
     isOpen: () => open,
     close,
+    refresh,
     /** `commands` is the dispatcher's list; `anchor` or `point` says where;
      * `opener` is where focus returns; `label` names the menu for the target. */
-    show({ commands, anchor = null, point = null, opener: from = null, label, onPick: pick }) {
+    show({ commands, list: relist = null, anchor = null, point = null, opener: from = null, label, onPick: pick }) {
       close({ restoreFocus: false });
       if (!commands.length) return false;
-      opener = from; onPick = pick; open = true;
+      opener = from; onPick = pick; list = relist; open = true;
       popover.setAttribute("aria-label", label);
       const groups = groupCommands(commands);
       groups.forEach((group, i) => {
