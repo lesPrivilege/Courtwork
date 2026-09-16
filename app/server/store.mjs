@@ -947,8 +947,11 @@ export class RuntimeStore {
     return deriveUsageDetails(this.state, options);
   }
 
-  async createProject(name) {
-    return this._mutate((state) => { const project = { id: randomUUID(), name, createdAt: now() }; state.projects.push(project); return project; });
+  async createProject(name, id = randomUUID()) {
+    return this._mutate((state) => {
+      if (state.projects.some((project) => project.id === id)) throw new Error("project id exists");
+      const project = { id, name, createdAt: now() }; state.projects.push(project); return project;
+    });
   }
 
   listProjects() { return structuredClone(this.state.projects); }

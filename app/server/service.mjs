@@ -847,10 +847,22 @@ export class RuntimeService {
       : this.asyncTasks.reconcile(id, { projectId }, { expectedRevision: value.expectedRevision });
   }
 
+  /* v2 entry audit · a client may fix the project's id before the POST so a
+   * lost receipt is answered by the same record (query-back), never by a
+   * second project with the same name. */
   async createProject(input) {
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["name"]));
-    return { project: await this.store.createProject(text(value.name, "name", { max: 200 })) };
+    assertKeys(value, new Set(["name", "projectId"]));
+    const name = text(value.name, "name", { max: 200 });
+    if (value.projectId === undefined) return { project: await this.store.createProject(name) };
+    const projectId = text(value.projectId, "projectId", { max: 36 });
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(projectId)) throw new ServiceError(400, "invalid_input", "projectId must be a UUID v4");
+    const existing = this.store.listProjects().find((project) => project.id === projectId);
+    if (existing) {
+      if (existing.name !== name) throw new ServiceError(409, "project_conflict", "Project identity is unavailable");
+      return { project: existing, idempotent: true };
+    }
+    return { project: await this.store.createProject(name, projectId) };
   }
 
   getWorkMetrics(kind, params = new URLSearchParams()) {

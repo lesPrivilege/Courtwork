@@ -158,15 +158,8 @@ const runModule = {
           : `${schema.artifacts.length} files`,
       ),
     );
-    /* The consequence sentence stays whole (WK-59): a recorded file is not an
-     * accepted result, and nothing else on this card says so. */
-    if (schema.artifacts.length)
-      rows.push(
-        el("p", {
-          className: "rail-note",
-          text: "Not accepted by a review.",
-        }),
-      );
+    /* v3 · an ordinary chat's recorded files are versions, not review objects;
+     * acceptance is stated only where a Core candidate really carries it. */
     return railCard(
       runModule,
       {
@@ -271,6 +264,9 @@ const workspaceModule = {
   repaint: true,
   adapter({ sessionId, workspace, extension, slot, projection }) {
     if (!sessionId) return null;
+    /* v3 · an ordinary chat whose tree has not been read has nothing to say
+     * yet: the card is absent, not a blank "not read" note (WK-45 / WK-47). */
+    if (!extension && !Array.isArray(workspace?.files) && !workspace?.error) return null;
     return {
       sessionId,
       extension: extension || null,
@@ -415,55 +411,6 @@ const workspaceModule = {
   },
 };
 
-/* ---- runtime ---------------------------------------------------------------
- * WK-66 · two grains, one reading. The rail card is the coarse first level: how
- * much the next run carries, whether a run has frozen it, and what needs
- * attention. The fine grain — every object, its four facts and its four layers —
- * is the Workbench in Settings › Runtime (WO-WK11), so this card has no pane of
- * its own and there is no second place the same catalogue is drawn. The card
- * reads the summary the Workbench's own snapshot produces: no second fetch, no
- * second state machine, nothing the rail can write back. */
-const runtimeModule = {
-  kind: "runtime",
-  title: "Runtime",
-  icon: "settings-2",
-  adapter({ sessionId, runtime }) {
-    if (!sessionId) return null;
-    return runtime?.sessionId === sessionId ? runtime : { loaded: false };
-  },
-  card(schema, host) {
-    const rows = [];
-    if (!schema.loaded) rows.push(el("p", { className: "rail-note", text: "Runtime details have not been read." }));
-    /* FN-16 · while a run holds the runtime the group is read only. The card
-     * keeps that consequence and does not promise a later application. */
-    if (schema.frozen)
-      rows.push(
-        el("p", {
-          className: "rail-note",
-          text: "Read only while this run is going.",
-        }),
-      );
-    for (const [label, count] of schema.rows || [])
-      rows.push(railRow(label, String(count)));
-    if (Number.isFinite(schema.attention))
-      rows.push(railRow("Attention", String(schema.attention)));
-    return railCard(
-      runtimeModule,
-      {
-        stateWord: Number.isFinite(schema.total)
-          ? schema.total === 1
-            ? "1 resource"
-            : `${schema.total} resources`
-          : null,
-        open: openAction("Open runtime", "rail-open:runtime", () =>
-          host.openRuntimeSettings(),
-        ),
-      },
-      ...rows,
-    );
-  },
-};
-
 /* The rail order. The tab strip keeps its own DOM order (a retained item in
  * docs/ui-composition.md): Workspace first, because it is the one kind that is
  * always there. The cards lead with the run and the file, because those are the
@@ -472,7 +419,6 @@ export const surfaceModules = [
   runModule,
   fileModule,
   workspaceModule,
-  runtimeModule,
 ];
 
 export function surfaceModule(kind) {

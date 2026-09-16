@@ -166,13 +166,6 @@ export function renderRun(
       ),
     );
   }
-  if (artifacts.length)
-    section.append(
-      el("p", {
-        className: "form-help",
-        text: "Recorded files have not been accepted by a review.",
-      }),
-    );
   container.append(section);
   const usage = run.usage;
   if (usage) {

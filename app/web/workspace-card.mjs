@@ -87,7 +87,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         // the card is a list of things this chat can do, and the folder glyph
         // names the object the row opens.
         const open = el("button", { className: "context-row", attrs: { type: "button", "data-repository-field": "open", "aria-label": "Open a folder to connect" } },
-          semanticIcon("workspace.object", { size: 18 }), el("span", { text: "Open folder…" }));
+          semanticIcon("workspace.object", { size: 18 }), el("span", { text: "Connect folder…" }));
         open.disabled = busy;
         open.addEventListener("click", () => chooseFolder(session));
         primary.append(open);

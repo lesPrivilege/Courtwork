@@ -47,13 +47,6 @@
   },
   {
     "file": "app/web/app.mjs",
-    "source": "\"refresh-button\": [\"refresh-cw\", \"Refresh workspace\"],",
-    "disposition": "named-read",
-    "reason": "This is a named workspace refresh read; the full accessible name states the target and refresh-cw carries the generic read action.",
-    "semanticKeys": []
-  },
-  {
-    "file": "app/web/app.mjs",
     "source": "\"refresh-extensions-button\": [\"refresh-cw\", \"Refresh extensions\"],",
     "disposition": "named-read",
     "reason": "This is a named extension-list refresh read; the full accessible name states the target and refresh-cw carries the generic read action.",

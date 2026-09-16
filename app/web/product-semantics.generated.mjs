@@ -117,7 +117,7 @@ export const productSemantics = freeze({
         "pages": "text"
       },
       "reviewStatus": "mapped",
-      "ownerAnchor": "async createProject(name)"
+      "ownerAnchor": "async createProject(name, id = randomUUID())"
     },
     {
       "semanticKey": "material.add",
@@ -296,7 +296,7 @@ export const productSemantics = freeze({
         "pages": "text"
       },
       "reviewStatus": "mapped",
-      "ownerAnchor": "async createProject(name)"
+      "ownerAnchor": "async createProject(name, id = randomUUID())"
     },
     {
       "semanticKey": "workspace.object",
@@ -351,10 +351,10 @@ export const productSemantics = freeze({
       "meaning": "Bind one absolute Host folder to this chat for read-only source tools; chosen through the Host folder dialog, a folder connected before, or a typed path; takes effect on the next run.",
       "ownerRef": "app/docs/repository-binding.md",
       "words": {
-        "en": "Choose workspace"
+        "en": "Connect folder"
       },
       "accessibleName": {
-        "en": "Choose workspace"
+        "en": "Connect folder"
       },
       "ownerAnchor": "`PUT /sessions/:sessionId/repository-binding`"
     },

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {withTinyDom} from './tiny-dom.mjs';
 import {el} from '../web/ui-controls.mjs';
 import {createCardDisclosureMemory} from '../web/summary-disclosure.mjs';
-import {surfaceModule} from '../web/surface-modules.mjs';
+import {surfaceModules, surfaceModule} from '../web/surface-modules.mjs';
 
 const card = () => el('section', {}, el('div',{className:'rail-card-head',text:'Workspace'}),
   el('p',{className:'rail-note',text:'Current files'}),el('p',{className:'rail-file',text:'file.txt'}));
@@ -24,12 +24,9 @@ test('card middle layer retains same-target disclosure, resets target and scope,
   assert.equal(state.wrap(card(),'preview','workspace2','Files').querySelector('details').open,false);
 }));
 
-test('Runtime summary rejects previous-session counts and preserves unknown rather than zero',()=>{
-  const m=surfaceModule('runtime');
-  assert.deepEqual(m.adapter({sessionId:'new',runtime:{sessionId:'old',loaded:true,total:12}}),{loaded:false});
-  assert.equal(m.adapter({sessionId:null,runtime:{total:12}}),null);
-  const runtime={sessionId:'new',loaded:true,total:0};
-  assert.equal(m.adapter({sessionId:'new',runtime}),runtime);
+test('v3 · the rail has no Runtime inventory card: resources live in Settings, bindings in the run details',()=>{
+  assert.equal(surfaceModule('runtime'),null);
+  assert.deepEqual(surfaceModules.map(m=>m.kind),['run','file','preview']);
 });
 
 import {createSurfaceEntryDirectory, surfaceEntryDefinitions} from '../web/summary-disclosure.mjs';

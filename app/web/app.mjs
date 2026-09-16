@@ -368,7 +368,7 @@ function restoreHomeDraft() {
     if (saved.start && (saved.start.projectId === null || typeof saved.start.projectId === "string") && typeof saved.start.commandId === "string") {
       state.homeStart = { ...saved.start, pending: false };
       if (saved.start.unconfirmed)
-        state.homeStart.error = "Creating the chat is unconfirmed. Refresh to recover the same chat. Your instruction is kept.";
+        state.homeStart.error = "Creating the chat is unconfirmed. Check its status to recover the same chat. Your instruction is kept.";
     }
   } catch { /* Ignore malformed tab-local state. */ }
 }
@@ -1480,7 +1480,9 @@ async function selectSession(
    * 会话流程，不还给打开设置的那个控件。 */
   closeSettings({ restoreFocus: false });
   if (sessionId === state.activeSessionId) {
-    if (state.view !== "session") state.surface.open = !surfaceOverlayQuery.matches;
+    /* v3 · the work surface opens for an object a person opened, not for a
+     * chat as such: an ordinary conversation has no rail of cards. */
+    if (state.view !== "session") state.surface.open = false;
     state.view = "session";
     closeNavigation({ restoreFocus: false });
     renderAll();
@@ -1547,7 +1549,7 @@ async function selectSession(
     state.activeProjectId = detail.session.projectId;
     if (detail.session.projectId) state.openProjectIds.add(detail.session.projectId);
     writeUiState();
-    state.surface.open = !surfaceOverlayQuery.matches;
+    state.surface.open = false;
     renderAll();
     await loadSurface(epoch);
     await loadWorkThread(epoch);
@@ -4122,7 +4124,6 @@ const railHost = {
   /* WK-66 / WK-90 · the coarse card opens the fine reading, which is now the
    * Runtime block of Settings › Developer. One entry, one controller, one
    * admission (FN-05); only the path changed. */
-  openRuntimeSettings: () => openSettings("developer"),
   openMaterials: () => {
     $("material-add").open = true;
     openDialog("materials-dialog", "material-name");
@@ -4174,7 +4175,6 @@ function renderSurfaceRail() {
       .filter((module) => module.kind === "run" ? summarySnapshot : module.adapter(facts))
       .map((module) =>
         action(module.kind === "run" ? "activity" : module.icon, module.kind === "run" ? "Run details" : module.title, () => {
-          if (module.kind === "runtime") return railHost.openRuntimeSettings();
           if (module.kind !== "run") return activateSurface(module.kind);
           const latest = runSummarySnapshot();
           if (latest && summarySnapshot && latest.generation === summarySnapshot.generation &&
@@ -4208,8 +4208,7 @@ function renderSurfaceRail() {
       const identity = JSON.stringify(module.kind === "file" ? schema.ref :
         [facts.sessionId, module.kind, schema.extension?.id || null,
           schema.extension?.generation ?? null, schema.projection?.stateVersion ?? null, schema.revision ?? null]);
-      const label = module.kind === "file" ? "File information" :
-        module.kind === "runtime" ? "Resources" : schema.extension ? "Work information" : "Files";
+      const label = module.kind === "file" ? "File information" : schema.extension ? "Work information" : "Files";
       cards.push(cardDisclosures.wrap(module.card(schema, railHost), module.kind, identity, label));
     }
   }
@@ -4247,7 +4246,6 @@ function loadSurfaceKind(kind) {
  * use, so a session switch discards them. */
 function loadRailFacts() {
   if (!state.surface.info?.extension) void loadWorkspaceTree();
-  void runtimeView?.load();
 }
 function activateSurface(kind, opener = document.activeElement) {
   if (!currentSession() || !surfaceModule(kind)?.tabId) return;
@@ -5101,9 +5099,34 @@ function renderHomeComposerContext() {
     : state.homeStart?.error || (state.homeStart?.session
       ? "Your chat is ready. Send to continue in it."
       : "");
-  status.textContent = message;
+  status.replaceChildren(document.createTextNode(message));
+  /* v2 entry audit · the unconfirmed chat is read back by its own fixed id;
+   * nothing is created or sent by asking. */
+  if (state.homeStart?.unconfirmed && state.homeStart.sessionId) {
+    const check = element("button", { className: "text-button", text: "Check status", attrs: { type: "button", "aria-label": "Check chat creation status" } });
+    check.addEventListener("click", () => void checkHomeStart());
+    status.append(" ", check);
+  }
   status.hidden = !message;
   status.dataset.error = state.homeStart?.error ? "true" : "false";
+}
+async function checkHomeStart() {
+  const start = state.homeStart;
+  if (!start?.unconfirmed || !start.sessionId) return;
+  try {
+    let found = null;
+    try { found = (await request(`/sessions/${encodeURIComponent(start.sessionId)}`)).session ?? null; }
+    catch (err) { if (err.status !== 404) throw err; }
+    if (state.homeStart !== start) return;
+    start.session = found && found.projectId === start.projectId ? found : null;
+    start.unconfirmed = false;
+    start.error = start.session ? "Your chat was recovered. Send to continue in it." : "Send to retry the same chat identity.";
+  } catch (err) {
+    if (state.homeStart !== start) return;
+    start.error = `Check failed · ${err.message}. Your instruction is kept.`;
+  }
+  storeHomeDraft();
+  renderComposer();
 }
 async function submitHomeRun() {
   if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost) return;
@@ -5187,7 +5210,7 @@ async function submitHomeRun() {
     operation.unconfirmed = !operation.session && isUncertainCommandError(error);
     if (!operation.session && !operation.unconfirmed) operation.sessionId = null;
     operation.error = operation.unconfirmed
-      ? "Creating the chat is unconfirmed. Refresh to recover the same chat. Your instruction is kept."
+      ? "Creating the chat is unconfirmed. Check its status to recover the same chat. Your instruction is kept."
       : `Could not start: ${error.message}. Your instruction is kept.`;
   } finally {
     operation.pending = false;
@@ -5786,10 +5809,10 @@ function renderContextStrip(session, home) {
   const chip = element("button", { className: "context-chip", attrs: { type: "button", id: "workspace-chip", "aria-haspopup": "dialog", "aria-controls": "workspace-popover", "aria-expanded": String($("workspace-popover").matches(":popover-open") && state.workspaceCardAnchor?.id === "workspace-chip") } },
     // Text only, like the Local and Branch chips: the strip reads as one line
     // of facts; the folder glyph lives in the card's rows at control size.
-    element("span", { className: "button-label", text: rootPath ? repositoryName(rootPath) : "Choose workspace" }),
+    element("span", { className: "button-label", text: rootPath ? repositoryName(rootPath) : "Connect folder" }),
   );
   chip.disabled = locked;
-  chip.setAttribute("aria-label", rootPath ? `Workspace: ${rootPath} · Read only` : "Choose workspace");
+  chip.setAttribute("aria-label", rootPath ? `Workspace: ${rootPath} · Read only` : "Connect folder");
   chip.dataset.tooltip = rootPath ? `${rootPath} · Read only` : "Connect a folder for read-only access";
   chip.addEventListener("click", (event) => openWorkspaceCard(event.currentTarget));
   // "Local" is the visible word and the accessible name; the tooltip only
@@ -6609,7 +6632,8 @@ async function createEntity(event, kind) {
     closeDialog(dialogId);
     return;
   }
-  if (state.createAttempts.has(kind)) return;
+  const existing = state.createAttempts.get(kind);
+  if (existing && !existing.unconfirmed) return;
   const input = $(
     kind === "project" ? "project-name-input" : "session-title-input",
   );
@@ -6621,70 +6645,115 @@ async function createEntity(event, kind) {
     startNext = state.startAfterProject,
     homeRequest = state.homeProjectRequest;
   if (kind === "session" && !projectId) return;
-  const attempt = nextOperationId(kind);
+  /* v2 entry audit · the identity is fixed before the POST. An unconfirmed
+   * attempt keeps it, so a retry asks the Host about the same record instead
+   * of creating a second one; Check status reads it back without a write. */
+  const attempt = existing?.unconfirmed && existing.value === value
+    ? { ...existing, unconfirmed: false, nav, startNext, homeRequest }
+    : { id: nextOperationId(kind), kind, clientId: crypto.randomUUID(), value, projectId, nav, startNext, homeRequest, unconfirmed: false };
   state.createAttempts.set(kind, attempt);
-  const controls = [
-    ...dialog.querySelectorAll('button:not([value="cancel"]),input,select'),
-  ];
+  const controls = createControls(dialog);
   controls.forEach((node) => (node.disabled = true));
   const error = $(`${kind}-create-error`);
   error.hidden = true;
   try {
     const body =
       kind === "project"
-        ? { name: value }
+        ? { name: value, projectId: attempt.clientId }
         : {
             projectId,
             title: value,
             permissionMode: $("session-permission-input").value,
+            sessionId: attempt.clientId,
           };
     const result = await request(
       kind === "project" ? "/projects" : "/sessions",
       { method: "POST", body },
     );
     const entity = result[kind];
-    if (!entity?.id)
-      throw new Error(
-        "No creation receipt returned. Refresh before creating again.",
-      );
-    const admit = dialog.open && nav === state.navigationEpoch;
-    if (kind === "project") await loadProjects();
-    else {
-      const items = state.sessionsByProject.get(projectId) || [];
-      state.sessionsByProject.set(projectId, [
-        ...items.filter((item) => item.id !== entity.id),
-        entity,
-      ]);
-    }
-    if (admit && dialog.open && nav === state.navigationEpoch) {
-      closeDialog(dialogId);
-      input.value = "";
-      if (kind === "project") {
-        await selectProject(entity.id);
-        if (homeRequest) {
-          state.homeProjectRequest = false;
-          state.homeProjectId = entity.id;
-          storeHomeDraft();
-          await goHome();
-        } else if (startNext) startNewSession();
-      } else await selectProject(projectId, { sessionId: entity.id });
-    } else renderProjectList();
-    void loadHome();
+    if (!entity?.id || entity.id !== attempt.clientId)
+      throw new Error("No matching creation receipt returned. Check its status before creating again.");
+    await admitCreatedEntity(kind, entity, attempt);
   } catch (err) {
-    error.hidden = false;
-    error.textContent = isUncertainCommandError(err)
-      ? `Creation could not be confirmed. Refresh the workspace and check for “${value}” before creating again.`
-      : err.message;
     if (isUncertainCommandError(err)) {
-      state.createAttempts.set(kind, "unconfirmed");
+      attempt.unconfirmed = true;
+      renderCreateError(kind, `Creation could not be confirmed. Check its status before creating “${value}” again.`, { check: true });
       return;
     }
+    renderCreateError(kind, err.message, { check: false });
   } finally {
-    if (state.createAttempts.get(kind) !== "unconfirmed") {
+    if (!state.createAttempts.get(kind)?.unconfirmed) {
       state.createAttempts.delete(kind);
       controls.forEach((node) => (node.disabled = false));
     }
   }
+}
+function createControls(dialog) {
+  return [...dialog.querySelectorAll('button:not([value="cancel"]),input,select')];
+}
+function renderCreateError(kind, text, { check }) {
+  const error = $(`${kind}-create-error`);
+  error.hidden = false;
+  error.replaceChildren(document.createTextNode(text));
+  if (check) {
+    const button = element("button", { className: "text-button", text: "Check status", attrs: { type: "button", "aria-label": `Check ${kind} creation status` } });
+    button.addEventListener("click", () => void checkCreationStatus(kind));
+    error.append(" ", button);
+  }
+}
+/* The same record the attempt named: found means created (admit it as if the
+ * receipt had arrived); absent means it never happened (create again with the
+ * same identity). Neither path writes anything. */
+async function checkCreationStatus(kind) {
+  const attempt = state.createAttempts.get(kind);
+  if (!attempt?.unconfirmed) return;
+  const dialog = $(`${kind}-dialog`);
+  try {
+    let entity = null;
+    if (kind === "project") entity = (await request("/projects")).projects?.find((project) => project.id === attempt.clientId) ?? null;
+    else {
+      try { entity = (await request(`/sessions/${encodeURIComponent(attempt.clientId)}`)).session ?? null; }
+      catch (err) { if (err.status !== 404) throw err; }
+    }
+    if (entity) {
+      attempt.unconfirmed = false;
+      await admitCreatedEntity(kind, entity, attempt);
+      state.createAttempts.delete(kind);
+      createControls(dialog).forEach((node) => (node.disabled = false));
+      return;
+    }
+    createControls(dialog).forEach((node) => (node.disabled = false));
+    renderCreateError(kind, "Not created. Create again to use the same identity.", { check: false });
+  } catch (err) {
+    renderCreateError(kind, `Check failed · ${err.message}`, { check: true });
+  }
+}
+async function admitCreatedEntity(kind, entity, attempt) {
+  const dialogId = `${kind}-dialog`, dialog = $(dialogId);
+  const { projectId, nav, startNext, homeRequest } = attempt;
+  const admit = dialog.open && nav === state.navigationEpoch;
+  if (kind === "project") await loadProjects();
+  else {
+    const items = state.sessionsByProject.get(projectId) || [];
+    state.sessionsByProject.set(projectId, [
+      ...items.filter((item) => item.id !== entity.id),
+      entity,
+    ]);
+  }
+  if (admit && dialog.open && nav === state.navigationEpoch) {
+    closeDialog(dialogId);
+    $(kind === "project" ? "project-name-input" : "session-title-input").value = "";
+    if (kind === "project") {
+      await selectProject(entity.id);
+      if (homeRequest) {
+        state.homeProjectRequest = false;
+        state.homeProjectId = entity.id;
+        storeHomeDraft();
+        await goHome();
+      } else if (startNext) startNewSession();
+    } else await selectProject(projectId, { sessionId: entity.id });
+  } else renderProjectList();
+  void loadHome();
 }
 async function createProject(event) {
   return createEntity(event, "project");
@@ -6699,7 +6768,6 @@ function wireEvents() {
     "new-project-button": ["plus", "New project"],
     "close-nav-button": ["x", "Close navigation"],
     "toggle-nav-button": ["panel-left", "Toggle navigation"],
-    "refresh-button": ["refresh-cw", "Refresh workspace"],
     "clear-nav-filter-button": ["x", "Clear filter"],
     "show-run-button": ["text-align-start", "Chat overview"],
     "show-surface-button": ["panel-right", "Open work surface"],
@@ -6722,7 +6790,6 @@ function wireEvents() {
   setSemanticControl($("chat-button"), "chat.surface", { visible: true });
   setSemanticControl($("attention-button"), "attention.agent", { visible: true });
   setSemanticControl($("spark-button"), "spark.surface", { visible: true });
-  $("expert-seat").prepend(semanticIcon("expert.role", { size: 20 }));
   setAction($("runtime-setup-button"), "settings-2", "Settings");
   setAction($("new-session-button"), "square-pen", "New chat");
   setAction($("home-create-project"), "plus", "New project", { visible: true });
@@ -6850,30 +6917,6 @@ function wireEvents() {
   });
   $("project-dialog").addEventListener("close", () => { state.homeProjectRequest = false; });
   $("new-session-button").addEventListener("click", startNewSession);
-  $("refresh-button").addEventListener("click", async () => {
-    try {
-      await refreshNavigationAndSession();
-      await workReviewSummaryView?.refresh();
-      await loadExtensions();
-      await loadProviderConfig();
-      await loadHome();
-      for (const kind of ["project", "session"])
-        if (state.createAttempts.get(kind) === "unconfirmed") {
-          state.createAttempts.delete(kind);
-          $(`${kind}-dialog`)
-            .querySelectorAll("button,input,select")
-            .forEach((node) => (node.disabled = false));
-        }
-      if (state.homeStart?.unconfirmed && !state.homeStart.sessionId && !state.recentError) {
-        state.homeStart = null;
-        storeHomeDraft();
-        showToast("Workspace refreshed. Check recent chats before sending the kept instruction again.");
-      } else showToast("Workspace refreshed.");
-      renderComposer();
-    } catch (error) {
-      showToast(`Refresh failed: ${error.message}`, "error");
-    }
-  });
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") void workReviewSummaryView?.refresh();
   });

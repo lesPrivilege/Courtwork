@@ -191,7 +191,7 @@ test("Strip placement and shell wiring for the Workspace control", () => {
   assert.match(html, /id="workspace-popover"[^>]*popover="auto"[^>]*aria-label="Workspace"/);
   assert.match(html, /id="home-project-button"[^>]*>Project<\/button>/);
   assert.match(app, /const visible = home \|\| \(Boolean\(session\) && !state\.runs\.length && !state\.attentionOpen\)/, "the strip leaves once work has started");
-  assert.match(app, /text: rootPath \? repositoryName\(rootPath\) : "Choose workspace"/);
+  assert.match(app, /text: rootPath \? repositoryName\(rootPath\) : "Connect folder"/);
   assert.match(app, /if \(branch\) children\.push/, "an unknown branch is never drawn");
   assert.match(app, /onRepository: go\(\(\) => openWorkspaceCard\(\$\("show-run-button"\)\)\)/, "after work starts the overview reaches the same card");
   assert.match(app, /if \(state\.homeRepositoryPath && session\.repositoryBinding\?\.status !== "active"\) \{\s*operation\.bindRequestId \|\|= crypto\.randomUUID\(\);/, "Home binds the draft before the first run with a stable requestId");
