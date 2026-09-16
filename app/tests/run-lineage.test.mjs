@@ -203,7 +203,7 @@ async function schema9Fixture(dir) {
 async function writeSchema8(dir, ids) {
   const file = path.join(dir, 'runtime-state.json');
   const state = JSON.parse(await readFile(file, 'utf8'));
-  state.schemaVersion = 8; delete state.subagents; state.sessions.forEach(session => { delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); state.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; });
+  state.schemaVersion = 8; delete state.operations; delete state.subagents; state.sessions.forEach(session => { delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); state.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; });
   delete state.providerConnections;
   delete state.providerConfigurationPending;
   delete state.providerConfigVersion;
@@ -221,7 +221,7 @@ test('BG02-T6: schema 8 upgrades once with an exact backup, and an occupied back
     const ids = await schema9Fixture(dir);
     const { file, raw } = await writeSchema8(dir, ids);
     store = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(store.state.schemaVersion, 17);
+    assert.equal(store.state.schemaVersion, 18);
     assert.equal(store.listRuns().length, 4);
     for (const run of store.listRuns()) assert.equal(run.supersedes, null, 'history is never reinterpreted into a chain');
     await store.close(); store = null;
@@ -264,7 +264,7 @@ test('BG02-T6: a schema 11 state with an impossible lineage fails closed, and th
     }
     await writeFile(file, JSON.stringify(good, null, 2));
     const reopened = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(reopened.state.schemaVersion, 17); await reopened.close();
+    assert.equal(reopened.state.schemaVersion, 18); await reopened.close();
 
     // The pre-BG-02 host must refuse the new schema outright rather than drop
     // the field it cannot see.
@@ -276,7 +276,7 @@ test('BG02-T6: a schema 11 state with an impossible lineage fails closed, and th
     }
     const { RuntimeStore: Base } = await import(pathToFileURL(path.join(code, 'server/store.mjs')).href);
     const bytes = await readFile(file);
-    await assert.rejects(new Base({ dataDir: dir }).open(), /schemaVersion 17 is not supported/);
+    await assert.rejects(new Base({ dataDir: dir }).open(), /schemaVersion 18 is not supported/);
     assert.deepEqual(await readFile(file), bytes, 'a refusing old host does not rewrite the state');
   } finally { await rm(dir, { recursive: true, force: true }); }
 });
@@ -289,13 +289,13 @@ test('integration: main schema 9 lineage survives schema 11 provider-connection 
     const ids = await schema9Fixture(dir);
     const file = path.join(dir, 'runtime-state.json');
     const old = JSON.parse(await readFile(file, 'utf8'));
-    old.schemaVersion = 9; delete old.subagents; old.sessions.forEach(session => { delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); old.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; }); delete old.providerConnections; delete old.providerConfigurationPending;
+    old.schemaVersion = 9; delete old.operations; delete old.subagents; old.sessions.forEach(session => { delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); old.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; }); delete old.providerConnections; delete old.providerConfigurationPending;
     delete old.providerConfigVersion; delete old.providerVerifications;
     old.runs.find(run => run.id === ids.second).supersedes = ids.first;
     const raw = Buffer.from(JSON.stringify(old, null, 2) + '\n');
     await writeFile(file, raw);
     store = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(store.state.schemaVersion, 17);
+    assert.equal(store.state.schemaVersion, 18);
     assert.deepEqual(store.state.runs.map(({ repositoryBindingSnapshot, repositoryCandidateSnapshot, ...run }) => run), old.runs);
     assert.ok(store.state.runs.every(run => run.repositoryBindingSnapshot === null));
     assert.deepEqual(store.getProviderConnections(), []);
