@@ -2,7 +2,9 @@
 
 2026-09-16 · Courtwork。研究基线：`main@f76dd7ec9f6cef845f67360cc0a22768ae309ca6`。本文登记施工顺序、跨面约束与验收；产品代码由 Claude 后续串行交付。实际产品状态仍由 [current](../../current.md) 持有。
 
-**v2 · 入口清理与目录接通：** [本轮源码审查与施工增补](frontend-entry-audit.md)并入 00、01–03、09–11。先迁好原位恢复再删除全局 Refresh；Project 选择与目录连接分开；从实际 Open / Choose folder 节点验到 Host binding、真实工具与重启接续。原 00→13 顺序及各 owner 保持。
+**v3 · 右侧工作面与轨迹：** [本轮源码审查与消费表](sidebar-trace-review.md)并入 00、04、08、10、11。移除默认 Runtime 资源统计卡；右侧按当前对象打开；复用 DSH 的顺序记录、选中项检查与具名工具呈现，不引入完整 docking/观测平台。先裁入口价值，再补保留能力的真实后端。
+
+**v2 · 入口清理与目录接通（继续有效）：** [本轮源码审查与施工增补](frontend-entry-audit.md)并入 00、01–03、09–11。先迁好原位恢复再删除全局 Refresh；Project 选择与目录连接分开；从实际 Open / Choose folder 节点验到 Host binding、真实工具与重启接续。原 00→13 顺序及各 owner 保持。
 
 > 从一个问题开始，连接明确的材料或仓库，完成获准修改和真实检查，在同一工作面读懂结果，再从保留的工作记录继续。所有界面说同一种语言。
 
@@ -31,7 +33,7 @@
 | 产品 Prototype | 资源关系、Memory 披露、Attention 组织与更丰富的 Presentation | 隔离的交互原型、固定 fixture、状态矩阵、后端缺口与迁移路径；不接生产写入，不充当 Harness 实现 |
 | 发布面 | 更有表现力的 Pages 与可理解的产品故事 | 独立 campaign 设计、真实产品媒体与概念图分源，构建和浏览器检查；不改产品语义，不自动部署 |
 
-Claude 是本单唯一产品 writer，按队列串行修改前后端。开发时可以用 fixture 比较界面；**Harness 卡的交付必须换成真实后端，不接受把 fixture 留在生产路径作为结案方式。** Hook、浏览器/桌面操作、任意 shell、第二 Runtime 等未纳入本单基础集合的能力，继续保留原后续任务，不能画成可用功能。
+Claude 是本单唯一产品 writer，按队列串行修改前后端。开发时可以用 fixture 比较界面；**先删除无独立用户价值的入口；保留的 Harness 能力必须接到真实服务和执行回执，不接受把 fixture 留在生产路径作为结案方式。** Hook、浏览器/桌面操作、任意 shell、第二 Runtime 等未纳入本单基础集合的能力，继续保留原后续任务，不能画成可用功能。
 
 本单复用 [产品方向](../../product-direction.md)、[五层责任](../../architecture.md) 与 [Runtime/Work](../../architecture-runtime-canon.md)，不新建领域状态、全局 registry 或另一套 agent loop。下列数字只表示本包顺序，不替换 DWB、DF、RD、FE、BE、P/G 原编号。原合同持有功能语义，本包持有施工编排与本次设计要求。
 
@@ -95,17 +97,17 @@ Copy、状态反馈和错误文案与组件一起施工，不留到最后统一�
 
 | 顺序 | 原任务 / 工作面 | 本片输出 |
 |---|---|---|
-| 00 | 接单 / UX continuity / 入口清理 | 在途盘点、共享 grammar、入口存废；迁好原位恢复再删除全局 Refresh，修正 Project/目录错名 |
+| 00 | 接单 / UX continuity / 入口清理 | 在途盘点、入口价值与存废；迁好恢复再删全局 Refresh，修正 Project/目录错名，移除右栏 Runtime 统计卡 |
 | 01 | DWB-01/02 | 实际 Open/Choose folder→Host binding→真实读取；撤权、取消、迟到与 GUI 状态 |
 | 02 | DWB-04 | 精确授权的真实仓库写入、差异与故障结算 |
 | 03 | DF-04 / RD-009 | Host 固定检查 recipe、真实进程、取消后结算与工具卡 |
-| 04 | Chat Flow / Run surface | 单 Run 聚合、流式阅读、权限插入、最终答复和恢复 |
+| 04 | Chat Flow / Run surface | 单 Run 聚合、权限与最终答复；既有过程记录的选中检查和长 Run 顺序定位 |
 | 05 | Models 原 PR | Composer→模型配置→原草稿返回；真实 effort 保存与绑定 |
 | 06 | Runtime R4/R5、BE-6/7 | 既有能力真实消费回归；声明式 Skill 提案→人审→下一 Run |
 | 07 | CMD-01 / CMP-01 | typed command 与真实手动 compact，分两个可验提交 |
-| 08 | Review / Presentation 原线 | 文件差异、检查回执、facts 的 Host→Chat→Preview 纵切 |
+| 08 | Review / Presentation 原线 | 对象驱动的右侧阅读、文件差异与检查；facts 真实纵切，不常驻平铺后台卡 |
 | 09 | FE-NAV / Object Command | 返回前进、对象更多菜单与原命令复用 |
-| 10 | BE-42 / Telemetry P1 / Chat polish | Context/活动/用量的真实投影与跨面文字、代码阅读收敛 |
+| 10 | BE-42 / Telemetry P1 / Chat polish | 必要计量按需进入详情，真实时间图有条件接入；跨面文字、代码阅读收敛 |
 | 11 | 原 DF / P / G 与 UX 验收 | 单一候选提交上的真实工作闭环、失败路径及跨面一致性 |
 | 12 | RD-007 / Memory / Attention / Presentation | 独立 Prototype 与后端缺口登记，不扩大 Harness 完成声明 |
 | 13 | PS / Pages | 更激进的发布面设计及新媒体采集候选，不自动部署 |
@@ -122,7 +124,9 @@ Copy、状态反馈和错误文案与组件一起施工，不留到最后统一�
 
 按[入口清理增补](frontend-entry-audit.md)登记常驻入口存废，迁移 Refresh 中隐藏的创建/发送/上传查回，再移除全局刷新按钮；Project 选择按真实语义命名，被动能力占位移出生产导航。失败恢复不能随按钮删除，局部视图动作也不强求后端。
 
-本片退出：每个待改工作面有可定位的 owner、现有 primitive 和缺口；已交付项去重，当前原型与真实功能分清。无新增通用 registry、状态机库、UI 框架或大规模目录迁移。
+按[右栏与轨迹增补](sidebar-trace-review.md)核实际挂载，移除默认 Runtime inventory 卡和无任务的空卡；Settings 与真实 Review/恢复入口保留。先判定入口价值，不能为保住一个卡片反过来制造后端。
+
+本片退出：每个保留的待改工作面有可定位的 owner、现有 primitive 和缺口；已交付项去重，当前原型与真实功能分清。无新增通用 registry、状态机库、UI 框架或大规模目录迁移。
 
 ### 01 · 连接并读到真正的仓库
 
@@ -162,6 +166,8 @@ UI 的折叠工具行→结果详情展示真实 exitCode/signal、stdout/stderr
 
 稳定身份增量更新，保持选择、展开、键盘焦点、滚动及代码块完整性。用户时间在气泡所属 footer 右侧，不按全屏右缘对齐。Chat/Attention 共用该解剖；不复制第二套运行卡。
 
+沿[DSH 消费表](sidebar-trace-review.md)改进现有 Tool activity/Inspector：精简顺序记录→选中调用→原输入/结果/错误与确切文件。长 Run 可加等宽顺序概览，短 Run 不凑图。复用 Run/call/seq 和历史读取，不新增 trace store；配对失败、取消与部分覆盖明确保留。
+
 Stop 发真实 cancel；请求在途、Host stopping、确认终态分开。刷新/重连读取原 Run，不自动重发。SSE/long-poll 仅在定位传输缺口后另片实现；动效不冒充实时性。宽泛“Allow edits for this run”不混入本片，继续原独立授权合同。
 
 ### 05 · 模型配置与 effort 的短路径
@@ -196,6 +202,8 @@ CMP-01 只在 idle Session 的共享 admission 中运行 native compact，不隐
 
 把模型说明、Host 实际文件变化、检查进程回执、Core 正式决定放在可组合但来源明确的阅读面。原件、记录版本和当前版本可区分；打开当前文件不改写历史检查所依据的版本。优先 Files/diff/Inspector 与现有 renderer，不另建一个“万能 Review”。
 
+按[右侧工作面合同](sidebar-trace-review.md)先看对象，再决定卡片：无打开对象时可收起；文件、差异、检查与正式候选沿原 reader 进入同一阅读位置。来源分开不要求四张等权卡；普通 Chat 不反复显示“未被正式接受”。保留实际版本、异常和待决后果，技术配置不与成果并列。
+
 facts 最小纵切必须真实：获准提交→Host 校验/持久回执→Chat inline→同 instance/version 的 Preview→重开恢复；有文本 fallback。系统命令、资源预览、提问/授权/接受保持原 handler，不全塞进模型 Presentation Gateway。
 
 新 wire 先冻结 instance/part/source/version、顺序、预算、重复/迟到及取消后处理。无任意 HTML/JS/Mermaid 执行。chart/flow 和受限组合的丰富表现先入 12 的 Prototype，不能凭 renderer 存在宣称后端已消费。
@@ -214,6 +222,8 @@ Project/Chat/Recent 的右键、更多与 inline 共用 command descriptor/handl
 
 复用 [production](../../design/context-tps-motion-2026-09-13/production/README.md) 的 `run-activity.mjs` / `chat-measurements.mjs` 及已采用位置：Context 在 model/effort 与 Send/Stop 之间；不恢复旧左侧候选。圆环/细节和活动行只使用同口径、同身份的数据。缺容量/速率不给伪百分比或 decode TPS；估算、Host 首输出、provider usage 与 cache provenance 分列。终态/断线不继续动画；reduced-motion 有静态形态。现有 Usage 日历/模型下钻复用，小时矩阵及新归因无数据不填色。
 
+顺序图不带毫秒刻度；真实时间图只消费有口径的起止事实，缺 timing 不阻断过程阅读。不把 DSH 的 Step-to-token TTFT 移植为 Provider TTFT，不为卡片采集完整敏感 prompt。计量与配置详情按所选记录披露，未知字段不成为默认空指标墙。见[时间图边界](sidebar-trace-review.md)。
+
 代码阅读覆盖 inline 与 fenced 两类：边界、对比、溢出、选择/复制、长中文混排及明暗；不只修一个 selector。保留已交付 Copy/Composer 行为，修的是当前剩余问题。App 不新增局部字体/颜色/token 方言。
 
 最后跨 Home/Chat/Preview/Settings/Runtime/Attention 做一次默认文字层审阅；每处重复文字在源头收敛，而非藏在小字号和 tooltip 中。
@@ -228,7 +238,7 @@ Project/Chat/Recent 的右键、更多与 inline 共用 command descriptor/handl
 
 ## 从前端反推后端的登记方式
 
-前端可以首先揭示缺口：按钮需要什么命令、卡片需要什么状态、返回需要什么身份、图表需要什么口径。缺口直接写回原功能 PR，不另造公共状态总表。
+先证明一个入口能帮助当前工作，再由前端揭示必要缺口：按钮需要什么命令、卡片需要什么状态、返回需要什么身份、图表需要什么口径。无独立价值的卡片直接移除，不为它补统计或配置后端。必要缺口写回原功能 PR，不另造公共状态总表。
 
 | 每个缺口必须回答 | 登记内容 |
 |---|---|
@@ -289,6 +299,8 @@ Claude 在现有 campaign 源中比较两个局部方案后选一：一是纸面
 
 增加[目录识别 fixture 与入口回归矩阵](frontend-entry-audit.md)：两个目录的同名文件和已上传副本使用不同内容，真实工具必须读到所选目录；删除 Refresh 后，未确认创建/发送/上传仍能按原身份恢复。
 
+补[右侧工作面与轨迹场景](sidebar-trace-review.md)：普通问答无占位右栏；真实文件/变更/检查按对象打开；缺 timing 仍可顺序复盘；>100 事件的覆盖可理解；跨会话迟到、历史 prepend、上翻与返回不丢身份/焦点。移除技术卡不能隐藏待授权、失败或结果未知。
+
 另做一个有真实来源/版本的成果检查路径；需要 Core 正式接受时走原 Candidate→Decision→Artifact，不把测试 exit 0 当作接受。Spark 已有准备结果可进入此路径，独立后台 Provider/调度器不是本单前置。
 
 ### 证据各自承重
@@ -340,6 +352,7 @@ node site/scripts/check-material.mjs
 | 仓库与检查 | [RD-006](../../research/RD-006-deferred-workspace-binding.md)、[DF](../../release/harness-implementation-2026-09-12/harness-dogfooding.md)、[RD-009](../../research/RD-009-trusted-harness-extensions.md) | 01–03；不把 cwd、工具和 sandbox 混为一谈 |
 | Run 与模型 | [Run PR](../../design/chat-flow-2026-09-10/run-surface-pr-20260914.md)、[Models PR](../../research/models-provider-registration-2026-09-14/composer-pr.md)、[Pi 源码](../../../app/runtime/pi-session-runtime.mjs) | 04–05；真实状态、配置与能力枚举 |
 | 能力提案与命令 | [GUI Control](../../research/gui-agent-control-plane-2026-09-12/README.md)、[RD-008](../../research/RD-008-command-compaction.md) | 06–07；提案/配置/执行分开 |
+| 右栏、卡片与轨迹 | [本轮固定源码与 DSH 消费](sidebar-trace-review.md) | 00/04/08/10/11；对象优先、顺序定位、选中检查，拒绝默认技术指标墙及无任务 docking |
 | 多源可组合呈现 | [Gateway](../../research/review-surface-2026-09-09/presentation-gateway-20260915.md)、[Runtime Projection](../../research/review-surface-2026-09-09/projection-runtime-20260915.md) | 08 真实 facts；12 更丰富交互 |
 | 位置与观测 | [Shell](../../design/shell-control-plane-2026-09-12/README.md)、[Object Command](../../design/object-command-grammar-20260914.md)、[Telemetry](../../design/context-tps-motion-2026-09-13/telemetry-p1-20260914.md) | 09–10；返回不是撤销，图形不是测量 |
 | 资源/Memory/Attention | [RD-007](../../research/RD-007-resource-governance.md)、[Attention 增量](../../research/spark-explore-2026-09-13/async-attention-20260915.md) | 12；只做有明确消费目标的原型，参考草案不升为新 schema |
@@ -349,8 +362,8 @@ node site/scripts/check-material.mjs
 
 ## Claude 接单入口
 
-读取本包、[入口清理增补](frontend-entry-audit.md)、AGENTS 与最新 current，先对账原 RD-006 在途树，再按 00→13 串行推进。每片只打开对应 owner、最近实现和必要 Explore/Design 来源；已有实现按实际证据复用，不从旧待办重建。
+读取本包、[入口清理增补](frontend-entry-audit.md)、[右栏与轨迹增补](sidebar-trace-review.md)、AGENTS 与最新 current，先对账原 RD-006 在途树，再按 00→13 串行推进。每片只打开对应 owner、最近实现和必要 Explore/Design 来源；已有实现按实际证据复用，不从旧待办重建。
 
-每个 Harness 控件都要沿真实服务完成读写和查回；每个新增局部面都要继承共同语义、控件、编排与文字层。原型放隔离入口，未来后端缺口写回原 PR。遇到可逆的本单内局部选型直接完成并记理由；涉及新增权限、正式状态或超出当前架构边界时保留具体反例交回裁决，不能悄悄扩大。
+删除无独立用户价值的入口；保留的 Harness 能力沿真实服务完成读写和查回，纯视图动作不伪造后端需求；每个新增局部面都要继承共同语义、控件、编排与文字层。原型放隔离入口，未来后端缺口写回原 PR。遇到可逆的本单内局部选型直接完成并记理由；涉及新增权限、正式状态或超出当前架构边界时保留具体反例交回裁决，不能悄悄扩大。
 
 本单结束时交付一条可重开的真实 Harness 工作路径、一套如出一手且文字收敛的产品工作面、一组有后端接续条件的 Prototype，以及一个更有表现力的 Pages 发布候选。
