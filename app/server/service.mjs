@@ -48,6 +48,7 @@ import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../r
 import { createRuntimeLoadTool, createRuntimeProposeTool, createPresentTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
 import { validatePresentationSpec, PresentationError } from "../runtime/presentation.mjs";
 import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposals.mjs";
+import { ProfileStore, ProfileError, accountFixture } from "./profile-store.mjs";
 import { discoverCommands, findCommand, parseArguments, parseSlash } from "../runtime/commands.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
@@ -211,6 +212,7 @@ export class RuntimeService {
     this.dataDir = dataDir;
     this.control = new RuntimeControlPlane({ dataDir });
     this.proposals = new RuntimeProposalLedger({ dataDir });
+    this.profile = new ProfileStore({ dataDir });
     this.mcp = new MCPManager();
     this.artifactHistory = new ArtifactHistory(dataDir);
     this.intake = new IntakeStore(dataDir);
@@ -255,6 +257,7 @@ export class RuntimeService {
     await this.intake.open();
     await this.control.initialize();
     await this.proposals.initialize();
+    await this.profile.initialize();
     /* BE-7 · an Apply interrupted between its pending marker and its receipt is
      * settled here from the configuration's own audit: applied, or pending again. */
     await this.proposals.recover(this.control);
@@ -498,6 +501,14 @@ export class RuntimeService {
       return this.getRuntimeControl(sessionId);
     });
   }
+
+  /* ── Home identity · Profile (source of the address) and the fixture Account ── */
+  getProfile() { return { profile: this.profile.get() }; }
+  async saveProfile(input) {
+    try { return { profile: await this.profile.save(requireObject(input, "body")) }; }
+    catch (error) { if (error instanceof ProfileError) throw new ServiceError(error.status, error.code, error.message); throw error; }
+  }
+  getAccount() { return { account: accountFixture(this.profile.get()) }; }
 
   /* ── 08 · governed presentation (facts v1) ───────────────────────────── */
   /** Record one presentation instance for a Run. The same callId replays the

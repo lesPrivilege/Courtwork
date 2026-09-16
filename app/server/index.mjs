@@ -220,6 +220,9 @@ function routeService(service, req, url) {
   if (tail.length === 1 && tail[0] === "runtime-context" && method === "GET") return () => service.getRuntimeContext(url.searchParams.get("sessionId"), url.searchParams.get("runId"));
   if (tail.length === 2 && tail[0] === "runtime-permissions" && tail[1] === "evaluate" && method === "POST") return async () => service.evaluateRuntimePermission(url.searchParams.get("sessionId"), await body(req));
   if (tail.length === 3 && tail[0] === "mcp" && tail[2] === "lifecycle" && method === "POST") return async () => service.mcpLifecycle(url.searchParams.get("sessionId"), tail[1], await body(req));
+  if (tail.length === 1 && tail[0] === "profile" && method === "GET") return () => service.getProfile();
+  if (tail.length === 1 && tail[0] === "profile" && method === "PUT") return async () => service.saveProfile(await body(req));
+  if (tail.length === 1 && tail[0] === "account" && method === "GET") return () => service.getAccount();
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "presentations" && method === "GET") return () => service.listPresentations(tail[1]);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "presentations" && method === "GET") return () => service.getPresentation(tail[1], tail[3]);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "commands" && method === "GET") return () => service.listCommands(tail[1]);
