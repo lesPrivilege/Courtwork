@@ -101,7 +101,7 @@ Sonnet 5 只读探索施工树，结论经作者复核。
 | 附件上传未确认 | draft-attachments 同 commandId | Host（幂等） | 已有 attempted 标记 | **保留**（上传是保留字节，不改名为 Open folder） | 既有 |
 | 导航 `Expert · Planned`（#expert-seat） | 无 handler，仅加图标 | 无 | 无 | **移出生产原型化**：删除席位与其 CSS；`expert.role` 语义键保留 | entry-audit 测试 2 |
 | 侧栏 Home / Chat / Attention / Spark / New chat / Find a chat / Projects + / Settings | 各自导航与创建 handler | 前端导航 owner / Host | 局部 | **保留** | — |
-| Home composer `Project`（#home-project-button） | 选组织归属（state.homeProjectId） | Host（创建时提交 projectId） | — | **保留**（01 片已改回 Project；不叫 Workspace） | copy-convention §3.2b |
+| Home composer `Project`（#home-project-button） | 选组织归属（state.homeProjectId） | Host（创建时提交 projectId） | — | **保留**（01 片已改回 Project；不叫 Workspace）。用户 2026-09-16 下午追问「首页已登记 workspace，composer 内的 Project 是否冗余」，Fable 裁定**不冗余**：`Connect folder`（上下文条）绑定一个真实目录，决定 agent 读什么；`Project` 是 Chat 的归档容器，决定新 Chat 归在侧栏哪一组、Attention 按哪一范围看；两者各有 Host 字段（repository-binding / `projectId`），v2 审查已把它们分开命名。位置规则：上下文条只放「这个 Chat 在哪里工作」的事实（目录 · Local · 分支），composer 控件行只放「要起的这个 Chat」的选择（Project、文件权限、模型）。可省的只有一种情形——没有任何真实 Project 时该控件不出现（现状已如此） | copy-convention §3.2b · §3.2c |
 | composer 上下文条 `Choose workspace` | 打开 Workspace 卡（Host 原生目录对话框 → 绝对路径 → 绑定） | Host（RD-006） | 取消/失败保留旧绑定与草稿 | **改名**：Connect folder（chip 与卡片主动作 Connect folder…）；对象名 Workspace 沿 §3.1 | copy-convention §3.2b；registry `workspace.connect` |
 | composer 附件 / File access / Model & effort / Send / Stop working | 各自 owner | Host | 各自 | **保留** | 05 片 |
 | 右栏 `Runtime` 卡（surface-modules runtimeModule） | 资源总数/分类/frozen/Attention 计数；Open → Settings | Workbench 快照的二次读 | 无 | **删除**（v3）：资源与配置在 Settings › Developer › Runtime；某次 Run 的绑定在其详情；`loadRailFacts` 不再读 runtime | entry-audit 测试 3；浏览器右栏卡：run-summary · preview · more |
@@ -117,7 +117,7 @@ Sonnet 5 只读探索施工树，结论经作者复核。
 |---|---|
 | 提交 | `4ab6ef7`（代码与测试）· `7ec73c3`（文案、接口说明、本节） |
 | 定向 | entry-audit 4 项；card-disclosure / workspace-card / surface-convergence / chat-work-shell / shell-layout / work-surface-tabs / product-semantics / semantic-guards / static-web-manifest / home-presentation / settings-navigation / projectless-chat / intake-ui / inspector-presentation 共 90/90 |
-| `npm test` | __FULL__ |
+| `npm test` | 1195/1195（09 片补钉八套 schema fixture 后的同一次运行） |
 | lint | interaction / colors / shapes / materials / product-copy / semantic-consumers（53 项账，删去 refresh-button 例外）/ doc-links 通过 |
 | 浏览器（Local test Host） | 侧栏页脚只剩 Settings；导航无 Expert 席位；上下文条 chip 为 Connect folder；进入 Chat 时右栏与面板均隐藏；Open work surface 后卡片为 run-summary · preview · more，无 Runtime 卡 |
 

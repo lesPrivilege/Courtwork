@@ -1,5 +1,25 @@
 # 当前工程状态
 
+## 2026-09-16 · Claude 施工单 09：返回轨迹与对象命令共同语法
+
+[09 记录](execution/claude-frontend-harness-2026-09-16/09-navigation-commands.md)：Shell 自己的访问轨迹（Home、某个 Chat；Settings / Chat 列表 / Attention 是其上的层先关）——有界内存单栈，hash 仍只是 Settings 深链、不 pushState；侧栏 Home 行 `Back to <地名>` / `Forward to <地名>`，离开时记阅读锚点、返回经真实 reader 重读后恢复，不可用对象标记在轨迹上并在控件下说明去向；只动视图，不动 Run / 绑定 / 权限 / 模型。Chat 与 Project 行的右键、More 按钮、Menu 键共用一套 command descriptor（when / enablement 分开、点下去时重新解析）与一个 popover 菜单 primitive；只画真实通路：Open / Rename（PATCH）/ Delete（DELETE，保留工作区文件）与 New chat；示例行无菜单。用户中途 dogfooding 报告的「Home 发送后停在首页」已复现并修（示例退出时不再清掉无 Project 的 Chat）。定向 10/10，`npm test` 1195/1195（09 片补钉八套 schema fixture 后的同一次运行）；作者浏览器目验 1280 与 375。未做：快捷键、暗色 / 200%、非作者复核、真实 provider；未 push / 部署；10（观测与阅读面收敛）未开始。
+
+## 2026-09-16 · Claude 施工单 08：模型呈现 facts 纵切
+
+[08 记录](execution/claude-frontend-harness-2026-09-16/08-presentation.md)：`cw_present` 工具经 Host 校验器（facts v1，16 KiB / 40 项）记为 `presentation.created` 事件（callId 幂等），Chat 行在事件位置画同一实例，工作面 Presentation tab 按 id 读回同一实例同一版本，不可画的版本以文字呈现并说明；无常驻 Runtime 卡。定向 5/5，`npm test` 1195/1195（09 片补钉八套 schema fixture 后的同一次运行）；作者浏览器走通发出 → 行 → 工作面 → 刷新。chart / flow / composition 未做；非作者复核未做；未 push / 部署。
+
+## 2026-09-16 · Claude 产品片 P：Home 身份、问候与账户
+
+[P 记录](execution/claude-frontend-harness-2026-09-16/p-home-identity.md)：Profile（工作称呼 / 语言 / 时区 / 头像）与 Account（fake Max 只作 entitlement）落 Host `profile.json`；Home 问候只读 Profile 称呼链，English 语料 18 句按 用户+日期+时段 定种、不轮播；左下角身份行与账户菜单；Settings 前三组 Profile / Preferences / Account 只放个人设置。用户下午裁定：问候与日期一行拼接、Modules 下与 Activity 卡标题行同中心；日期点击日历视图登记未研发。定向通过，`npm test` 1195/1195（09 片补钉八套 schema fixture 后的同一次运行）。未做：Photo 上传浏览器路径、语料非作者审读、真实账户。
+
+## 2026-09-16 · Claude 施工单 07：typed command 与真实手动压缩
+
+[07 记录](execution/claude-frontend-harness-2026-09-16/07-commands-compaction.md)：Host 拥有命令目录与斜杠语法（`//` 转义；路径、前导空格不是命令），`POST /sessions/:id/commands` 整句分派；`/status` `/tools` 结果卡、`/model` 打开选择器、`/effort` 与 `/compact` 给 Host 的可用性理由；手动压缩为 schema 18 的 operation（活动 Run 互斥、重启记 unknown），走 Pi 的 compaction 事件计数。定向 20/20，`npm test` 1195/1195（09 片补钉八套 schema fixture 后的同一次运行）。GUI 无取消压缩控件；`/model <id>`、`/skill:name` 未做。
+
+## 2026-09-16 · Claude 施工单 00 · v2/v3 入口存废审查
+
+[00 记录](execution/claude-frontend-harness-2026-09-16/00-intake.md)入口审查节：全局 Refresh 迁好恢复（局部 Retry、Check status 在原位、草稿与身份保留、不重放）后删除；Project 与目录分开命名（`Project / No project`、`Connect folder`）；Expert · Planned 席位出生产；右栏默认 Runtime 统计卡删除、进入 Chat 不开右栏、普通文件不套 "Not accepted by a review"；composer 内 `Project` 与上下文条 `Connect folder` 不冗余（Fable 裁定，见记录）。定向 90/90，`npm test` 1195/1195（09 片补钉八套 schema fixture 后的同一次运行）。
+
 ## 2026-09-16 · Claude 施工单 06：能力管理被下一次运行真正消费；声明式 Skill 提案首片
 
 [06 记录](execution/claude-frontend-harness-2026-09-16/06-capability-consumption.md)：第一段以一个回归套件为 MCP / Skill / 本地 Plugin 各证四事实（保存≠启用、启用后下一 Run 绑定、Run 事件记真实使用、历史绑定不变），证据 JSON 入包；三条链原有端到端测试无缺步，未改控制面代码。第二段实现 BE-6/BE-7 proposal/apply 子片：模型工具 `runtime_propose` 只写 Host 账本 runtime-proposals.json（作者取真实 Run，resolver 校验与 hash，64 KiB / 每 Session 16 条），不入快照、不入 context、不能加载、配置 revision 不动；review 给 BE-6 九字段并整体 hash 为 approvalSha256；Apply 在配置队列与活动 Run 冻结内核对修订与摘要、持久待决标记、一次 CAS put、写回执（requestId 幂等），启动按配置 audit 结算中断的 Apply；Reject 持久不改配置；Edit 出新修订。Workbench › Instructions, skills and references 末尾 Proposed by the agent 段读 diff 并 Apply/Reject。定向全部通过，`npm test` 1143 项中 1142 通过（唯一失败为 wire golden 看见新工具，单独断言后 3/3）；作者浏览器走通提案 → 复审 → Apply → 下一 Run 加载。Rollback 未实现，完整 BE-7 不关闭；非作者复核未做；未 push/部署；07（命令与手动压缩）未开始。

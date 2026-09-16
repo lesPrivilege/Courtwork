@@ -31,7 +31,7 @@ Exceptions: 只有 facts v1；chart/flow、组合（composition）、本地 sort
 | 检查 | 结果 |
 |---|---|
 | 定向 | `tests/presentation.test.mjs` 2、`tests/presentation-view.test.mjs` 3，及 card-disclosure / chat-work-shell / work-surface-tabs / static-web-manifest / surface-convergence / entry-audit / shell-layout / thread-projection / run-rows 通过 |
-| `npm test` | __FULL__ |
+| `npm test` | 1195/1195（09 片补钉八套 schema fixture 后的同一次运行） |
 | lint | shapes / colors / product-copy / semantic-consumers / interaction 通过 |
 | 浏览器（Local test Host，1280） | Chat 发 `/fixture script [{cw_present…}]`：行显示 Parcel helper 的三项 facts、身份行 `Model-derived · facts v1 · revision 1 · 27fa3fde`、Open in work surface；点开后工作面 Presentation tab 选中，pane 同标题、同三项、同身份行；刷新后行仍在、再次打开同实例；无 Runtime 卡回流 |
 

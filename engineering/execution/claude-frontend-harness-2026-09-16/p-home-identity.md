@@ -33,9 +33,15 @@ Exceptions: Sign out / Delete account / Manage plan / Export / View history 全�
 | 检查 | 结果 |
 |---|---|
 | 定向 | `tests/home-greeting.test.mjs` 5、`tests/profile.test.mjs` 2、settings-preferences / product-semantics / semantic-guards / entry-audit / static-web-manifest / home-presentation / settings-navigation / product-icons / shell-layout / chat-work-shell / composer-access-placement 87/87 |
-| `npm test` | __FULL__ |
+| `npm test` | 1195/1195（09 片补钉八套 schema fixture 后的同一次运行） |
 | lint | interaction / colors / shapes / materials / product-copy / semantic-consumers / doc-links 通过 |
 | 浏览器（Local test Host，1280） | 空 profile：页脚 You · Max、masthead "Back again."；PUT 林知远/知远/林律师/律师/衡山律师事务所/zh-CN/Asia/Shanghai 后：masthead "继续吗，林律师？"（上海下午时段）、页脚 林律师 · Max、头像 林；composer top 414 → 414（差 0 px）；primary stack 127 < Activity 248；Example 行落在 masthead aside（两行灰字）。Simple：问候进 intro，Example 行在其右，band 隐藏。390：问候首行、Example 两行、composer sticky 底部、无横向溢出 |
+
+## 用户下午裁定（2026-09-16，截图）
+
+- 问候只留一行：句子与日期拼接（句子在前，日期同一行、较轻的等宽数字），`.home-greeting-text` / `.home-greeting-date` 两个 span 在同一个 h2 里；Simple 的 intro 与 Modules 的 masthead 同一结构（`2837a1f`）。
+- Modules 展开时与 Activity 卡对齐：masthead 上补 18px，使问候行盒（30 高）与 Activity 标题行（28 高）同中心；1280 实测 98–128 对 99–127，composer 顶仍为 427。
+- 日期点击展开日历视图：**登记为需求，本轮不研发**。日期现在是文字不是控件，避免死入口；何时做由后续单独裁定（数据来源候选：`/work-activity` 日桶）。
 
 ## 未完项
 

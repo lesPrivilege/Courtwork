@@ -1,0 +1,46 @@
+# 09 · 返回轨迹与对象命令共同语法
+
+2026-09-16 · Fable 施工。沿 [FE-NAV-01…03](../../design/shell-control-plane-2026-09-12/navigation.md) 与 [Object Command grammar](../../design/object-command-grammar-20260914.md)；施工树 `claude-frontend-harness-20260916`。
+
+## 裁定
+
+| 项 | 裁定 | 依据 |
+|---|---|---|
+| 历史单位 | 地点只有两种：Home、某个 Chat（Session）。Settings、Chat 列表页、Attention 是画在地点之上的层，各自的返回控件先关它们；Back 不越过它们 | navigation.md §3（有可关闭 modal 先走其关闭） |
+| 与浏览器 history / hash 的同步 | 冻结为**单栈**：Shell 栈只在本窗口内存；hash 仍只是 Settings 深链，不 pushState、不监听 popstate | navigation.md 首片须冻结同步策略；避免双回退 |
+| 入口位置 | 侧栏 Home 行左端两个 32 方控件（`Back to <地名>` / `Forward to <地名>`），两端禁用；顶带左槽仍只放一个离开动作（侧栏开关 / Back to app） | interface-components「一个槽位一种离开动作」 |
+| 恢复内容 | 离开 Chat 时记 `chat-reading` 的滚动锚点（只引用，不复制草稿）；返回时先经 `selectSession` 由真实 reader 重新读对象，渲染落位后再恢复锚点；焦点沿既有规则落在会话标题 / composer | navigation.md §4–§5 |
+| 对象不可用 | reader 拒绝（404 / 其它）时：轨迹上该项标记 unavailable，视图落到 Home，控件下面一行 `<地名> no longer exists. Showing Home.`；项留在轨迹上可继续 Back，不换成同名对象 | navigation.md §6；packet §09「不回退成另一个看似相同的对象」 |
+| 快捷键 | 未接。⌘[ / ⌘] 与 Alt+方向属宿主保留；两个控件可聚焦、可键盘操作 | navigation.md「快捷键可后置」 |
+| 命令集合 | 只接真实通路：Chat → `Open`（导航）/ `Rename`（`PATCH /sessions/:id`）/ `Delete`（`DELETE /sessions/:id`）；Project → `New chat`（与行内 `+` 同一命令）；示例行无菜单。Pin / Archive / Move / Share / Fork 无 owner，不画 | grammar「无能力/不适用的动作隐藏；不新增 Planned 占位项」 |
+| when 与 enablement | `when` 决定画不画（示例对象、目标种类），`enablement` 决定此刻能不能执行并给理由（已打开、活动 Run、Home 正在起草）；点下去时按当时上下文重新解析，菜单快照不是依据 | grammar「触发时重新解析目标与权限」 |
+| 入口 | 右键（pointer 位置）、行右端 `More chat actions`（hover / focus / 触屏常显）、Menu 键 / Shift+F10（锚在行上）三者打开同一份菜单；只有真有菜单才拦截原生右键 | grammar「可见更多按钮提供相同命令；只有成功提供菜单时才拦截原生菜单」 |
+| 菜单 primitive | `object-menu.mjs`：native popover，分组顺序 navigation / organization / lifecycle / interop / destructive，只在两侧都有行时画分隔线，破坏性最后；禁用行可聚焦带 `data-tooltip` 理由；方向键 / Home / End 环绕，Escape 回到行，Tab 关闭；选中后焦点先回行再执行 | grammar「键盘 Menu 键 / Shift+F10、方向键、Escape、焦点返回与触屏可达」 |
+| 破坏性确认 | Delete 走对话框：对象名 + `The chat leaves your lists. Files in its workspace are kept.`；Host 409 `active_run` 原样成理由 | grammar「按实际对象后果走既有确认合同」；Host 注释 workspaceRetained |
+
+## 交付
+
+| 提交 | 内容 |
+|---|---|
+| `7d30d06` | vendor：同一 Lucide commit 钉 `arrow-left` / `arrow-right` / `pencil-line` / `trash`，sprite 与 icon-data 重建 |
+| 本片 | `web/location-history.mjs`（有界内存栈：arrive 去重与前向截断、back / forward、remember、markUnavailable、retitle、forget）；`web/object-commands.mjs`（描述符、`commandsFor`、`groupCommands`、`createCommandDispatcher`）；`web/object-menu.mjs`；app.mjs：`leaveLocation` 在 goHome / selectSession / selectProject 三处离开点、`arriveLocation` 在 clearActiveSession 与 selectSession 成功路径、`traverseHistory`、`renderHistoryControls`、`attachObjectCommands`、rename / delete 对话框；index.html 控件、通知行、`#object-menu`、两个对话框；registry 五条（`nav.back` / `nav.forward` / `chat.open` / `chat.rename` / `chat.delete`）；文案 §3.4e；接口说明 PATCH / DELETE；interface-components 新节 |
+
+## Dogfooding 修复（用户中途报告）
+
+用户在 8805 真实 provider 上从 Home 发送后停留在首页而未进入 Chat。复现（8862 空数据目录，示例自动进入，fake provider）：Run 受理 → `leavePreview("established")` → `reloadWorld()` → `!state.activeProjectId` 对无 Project 的 Chat 为真 → `clearActiveSession()` 回 Home。修正：只有示例 Chat 或所属 Project 消失才清会话；无 Project 的 Chat 是真实地点。修正后同一路径视图停在 session、示例退出、Recent 与轨迹正确；`tests/navigation-history.test.mjs` 钉住该条件。
+
+## 作者检查
+
+| 检查 | 结果 |
+|---|---|
+| 定向 | `tests/location-history.test.mjs` 2、`tests/object-commands.test.mjs` 3（含 tiny-dom 菜单）、`tests/object-command-host.test.mjs` 1（PATCH / DELETE 与 400 / 404）、`tests/navigation-history.test.mjs` 4（源码合同）；相邻 entry-audit / static-web-manifest / shell-layout / settings-navigation / chat-page / home-presentation / chat-entry / projectless-chat / product-semantics / semantic-guards / product-icons 通过 |
+| `npm test` | 1195/1195（Node 25.9，并发 4；09 片补钉 coordination / run-lineage / model-capability-adaptation / provider-schema12-pending / repository-binding / request-telemetry / review-provider-publication-migration / runtime 八套 schema fixture 后，`full-test-09b.log`） |
+| lint | interaction / colors（去掉 Delete 主按钮的 danger 底色后）/ shapes / materials / product-copy / semantic-consumers / doc-links 通过 |
+| 浏览器（Local test Host 8862，1280） | Home → 发送进 Chat：轨迹 [Home, Chat]，`Back to Home`；Back → Home（Forward 名带标题、焦点 composer）；Forward → 同一 Chat（焦点标题）。当前 Chat 行右键：菜单在指针处，`Open` 禁用带 "This chat is already open."，Rename / Delete 可用，两条分隔线；ArrowDown 跳过到 Rename，Escape 关闭焦点回行。另一行 `More chat actions` → 锚定菜单 → Rename 对话框预填标题、"No project" → PATCH 后行标题更新；右键 → Delete → 对话框对象名 → DELETE 后行消失、toast 说保留文件。删除当前 Chat → Home，轨迹标记；Back 到已删 Chat → "… no longer exists. Showing Home."，再 Back → Home 起点。375：抽屉内 Back / Forward 32×44、行右端 More 常显（hover: none）、菜单在视口内、无横向溢出 |
+
+## 未完项
+
+- 快捷键未接；暗色与 200% 未目验；非作者复核未做；真实 provider 未走。
+- Project 行只有 New chat；Project 改名 / 删除无 Host 通路，不画。
+- Chat 列表页（chat-page）与 Attention 里的 Chat 行未接同一菜单（那两处的行是导航按钮，本片只覆盖侧栏 Recent / Project 行）。
+- 通知中心按 packet 进入 12。

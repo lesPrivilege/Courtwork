@@ -33,8 +33,8 @@ Exceptions: `/model <id>` 的 setting 形态未做（只开 picker）；skill/pr
 | 检查 | 结果 |
 |---|---|
 | `node --test tests/manual-compaction.test.mjs tests/commands.test.mjs tests/command-surface.test.mjs tests/command-menu.test.mjs` | 3 + 5 + 2 + 4（+ static-web-manifest 6）= 20/20 |
-| 相邻套件 | __NEIGHBOURS__ |
-| `npm test` | __FULL__ |
+| 相邻套件 | durability / async-recovery-independent / repository-candidate / subagent-migration / projectless-chat / control-plane / async-tasks / attention-agent（schema 18 钉更新后）通过；coordination / run-lineage 的 schema 6/8/9 fixture 在 09 片补钉（`delete …operations`、17→18） |
+| `npm test` | 1195/1195（09 片补钉八套 schema fixture 后的同一次运行） |
 | lint | interaction / colors / shapes / materials / product-copy / semantic-consumers / doc-links 通过 |
 | 浏览器目验（Local test Host，8861） | 本地 Host 数据目录从 schema 17 升到 18（备份保留）。Chat 内：`/status` → 结果卡（Local test · Provider default · ask · Not connected · None · revision 1 · 14 exposed tools · 1 context item · 2 runs · 压缩不可用原因），焦点在 Close；`/frobnicate now` → 草稿保留、feedback "Unknown command /frobnicate. To send it as text, start with //frobnicate."；`/effort high` → "Reasoning effort is not selectable on the configured model."；`/compact` → "Compaction needs a known context window on the configured model."（Local test 无窗口）；`/model` → picker 打开、composer 清空。命令菜单在隐藏的浏览器面板里拿不到焦点（触发条件 activeElement === textarea），只由 4 项 tiny-dom 测试覆盖；手动压缩的 GUI 路径未在浏览器走（fake provider 需显式开启 compaction），由 3 项 Host 测试覆盖 |
 

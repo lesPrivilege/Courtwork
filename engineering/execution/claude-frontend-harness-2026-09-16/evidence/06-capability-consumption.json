@@ -1,13 +1,13 @@
 {
   "mcp": {
     "resourceId": "local:cap-mcp",
-    "sessionId": "cb957d8c-29a8-4a1d-b832-624c91ee2592",
+    "sessionId": "20dcceca-c670-4abb-a59c-a4ec98d92812",
     "runIds": {
-      "before": "94713271-459f-43fb-b9d9-faa48d7edf87",
-      "used": "3f693a47-24d9-4175-b09a-743b322810c7"
+      "before": "92cb1095-a2cc-46b8-a500-ae2216440210",
+      "used": "1ad999d0-842c-47da-9e96-54a9304005dc"
     },
     "bindingRevision": 2,
-    "bindingHash": "f62e2dc5a2d34b23533c29b40e45fa6be6944488dee2329f47b244e3437f9e46",
+    "bindingHash": "bb668d033821ad6e6cf7e1b84ad4ad0231289a089140f57e495e74b8cf5cab29",
     "exposed": {
       "beforeSave": false,
       "afterEnabling": true,
@@ -21,20 +21,20 @@
       {
         "type": "tool.result",
         "seq": 27,
-        "dispatchId": "8d8971e8-d5e7-4917-b98c-7e1cac566508"
+        "dispatchId": "1c586538-dff5-4994-b7b7-b7c1778c8808"
       }
     ],
     "historicalBindingUnchanged": true
   },
   "skill": {
     "resourceId": "local:cap-skill",
-    "sessionId": "c51fdd6a-b84e-45e7-a4f6-a565da306d6a",
+    "sessionId": "74c34300-57ce-4a4b-9d41-e34fe68bba4d",
     "runIds": {
-      "before": "d14a22d0-0727-4876-964e-f42dfad3a256",
-      "used": "7100ee8e-31de-4574-9bc5-bbbad81f04b5"
+      "before": "5540bfe6-f66c-4a70-9527-285f10b259e6",
+      "used": "8af5f40a-e115-4303-887d-d81f9fcaede0"
     },
     "bindingRevision": 2,
-    "bindingHash": "2802198cc2cb21e60c3a3768d3d911caf5a7fffa67c55358ccc928f5bd393a6b",
+    "bindingHash": "ce28b0784f184d236ab48db1ba6c99ab839fea85f7d7eaae0c5b6fbe37ac4d45",
     "exposed": {
       "beforeSave": false,
       "afterEnabling": true,
@@ -56,13 +56,13 @@
   },
   "plugin": {
     "resourceId": "plugin:cap-probe",
-    "sessionId": "d7287625-a69f-4384-ad45-443d42140578",
+    "sessionId": "23b0f12f-78f4-47a1-a066-2a293977a38a",
     "runIds": {
-      "before": "f541ddc7-0313-43e9-8638-82ef29c0d070",
-      "used": "ceeb81a1-fdf9-431b-bde6-e6cc71442d98"
+      "before": "7fb1808e-6a5d-471d-a06d-6811ddf4302c",
+      "used": "41096424-575a-457f-b80a-9d70125e6ecc"
     },
     "bindingRevision": 0,
-    "bindingHash": "cc09c098dd1054502f4c3d3ba813db508ed3b8c123aba2104f863150ce0d8e97",
+    "bindingHash": "c2b18d356fff881eb62229c2bdbbe8bec7ed00492d14c33daac4a4f8daa8c0f9",
     "exposed": {
       "beforeSave": false,
       "afterEnabling": true
