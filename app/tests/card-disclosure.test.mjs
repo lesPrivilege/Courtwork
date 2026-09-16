@@ -26,7 +26,7 @@ test('card middle layer retains same-target disclosure, resets target and scope,
 
 test('v3 · the rail has no Runtime inventory card: resources live in Settings, bindings in the run details',()=>{
   assert.equal(surfaceModule('runtime'),null);
-  assert.deepEqual(surfaceModules.map(m=>m.kind),['run','file','preview']);
+  assert.deepEqual(surfaceModules.map(m=>m.kind),['run','file','preview','presentation']);
 });
 
 import {createSurfaceEntryDirectory, surfaceEntryDefinitions} from '../web/summary-disclosure.mjs';

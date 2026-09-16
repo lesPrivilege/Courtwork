@@ -411,6 +411,34 @@ const workspaceModule = {
   },
 };
 
+/* ---- presentation ------------------------------------------------------------
+ * Facts: the recorded `presentation.created` instance the person opened, read
+ * from the session's own events (or fetched by id when the loaded window does
+ * not hold it). The pane draws the same instance and version the Chat row
+ * drew; a kind this build cannot draw reads as text and says so. */
+const presentationModule = {
+  kind: "presentation",
+  title: "Presentation",
+  icon: "panel-right",
+  tabId: "surface-presentation-tab",
+  contentId: "presentation-content",
+  repaint: true,
+  adapter({ sessionId, presentationRef, events }) {
+    if (!presentationRef || presentationRef.sessionId !== sessionId) return null;
+    const event = (events || []).find((item) => item.type === "presentation.created" && item.data?.instanceId === presentationRef.instanceId);
+    return { ref: presentationRef, instance: event?.data ?? null };
+  },
+  card(schema, host) {
+    return railCard(presentationModule,
+      { stateWord: "Model-derived", open: openAction("Open presentation", "rail-open:presentation", () => host.open("presentation")) },
+      railRow("Title", schema.instance?.spec?.title ?? "Reading…"),
+      railRow("Version", schema.instance ? `${schema.instance.kind} v${schema.instance.version} · revision ${schema.instance.revision}` : "—"));
+  },
+  pane(schema, host) {
+    host.renderPresentation(schema);
+  },
+};
+
 /* The rail order. The tab strip keeps its own DOM order (a retained item in
  * docs/ui-composition.md): Workspace first, because it is the one kind that is
  * always there. The cards lead with the run and the file, because those are the
@@ -419,6 +447,7 @@ export const surfaceModules = [
   runModule,
   fileModule,
   workspaceModule,
+  presentationModule,
 ];
 
 export function surfaceModule(kind) {

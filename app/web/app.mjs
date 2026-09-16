@@ -46,6 +46,7 @@ import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { renderModelEffortCard } from "./model-effort.mjs";
 import { renderCommandResult } from "./command-result.mjs";
+import { renderPresentationInline, renderPresentationPane } from "./presentation-facts.mjs";
 import { homeGreeting, greetingIsStale } from "./home-greeting.mjs";
 import { renderAvatar } from "./avatar-mark.mjs";
 import { createCommandMenu } from "./command-menu.mjs";
@@ -212,6 +213,8 @@ const state = {
     kind: "preview",
     runId: null,
     fileRef: null,
+    /* 08 · the recorded presentation instance the person opened. */
+    presentationRef: null,
     returnFocus: null,
     returnFocusEpoch: null,
     runReadGeneration: 0,
@@ -255,6 +258,14 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+/* Home identity · the example line is one persistent element that moves
+ * between the Simple intro, the Modules masthead and the conversation body;
+ * a retained reference survives any container being rebuilt around it. */
+let previewBannerElement = null;
+function previewBannerNode() {
+  if (!previewBannerElement) previewBannerElement = document.getElementById("preview-banner");
+  return previewBannerElement;
+}
 let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView, localExtensionView;
 let materialsFileReturnEpoch = null;
 const dialogReturns = new Map();
@@ -3084,6 +3095,12 @@ function renderMessageStream() {
         executionMembers.get(executionMember.plan)?.push(permission);
       }
       appendFlowRow(permission);
+    } else if (row.kind === "presentation") {
+      const card = renderPresentationInline(row.instance, {
+        onOpen: (instance) => openPresentation({ sessionId: session.id, runId: row.runId, instanceId: instance.instanceId, revision: instance.revision }, card.querySelector(".presentation-open")),
+      });
+      card.dataset.focusKey = row.id;
+      appendFlowRow(card);
     } else if (row.kind === "artifact") {
       if (
         row.file?.kind !== "content-version" ||
@@ -3302,7 +3319,7 @@ function renderChatHeader() {
   const intro = $("home-composer-intro");
   const simpleGreeting = home && homeLayoutPreference() !== "modules" && state.greeting?.text;
   // On Simple the intro also hosts the example line, so it stays while that line shows.
-  intro.hidden = !simpleGreeting && !(home && homeLayoutPreference() !== "modules" && !$("preview-banner").hidden);
+  intro.hidden = !simpleGreeting && !(home && homeLayoutPreference() !== "modules" && !previewBannerNode()?.hidden);
   if (simpleGreeting) {
     const line = intro.querySelector("[data-greeting]") ?? intro.querySelector("h2");
     if (line) { line.setAttribute("data-greeting", ""); line.classList.add("home-greeting"); if (line.textContent !== state.greeting.text) line.textContent = state.greeting.text; }
@@ -3349,10 +3366,12 @@ function renderChatHeader() {
   // Stage 4 · the example banner is the first thing on Home in every layout.
   /* The example line sits beside the greeting — in the band's masthead on
    * Modules, in the intro on Simple — as one quiet sentence, not a card. */
-  const previewBanner = $("preview-banner");
+  const previewBanner = previewBannerNode();
   const modulesHome = home && homeLayoutPreference() === "modules";
-  if (home && !modulesHome && previewBanner.parentElement !== intro) intro.append(previewBanner);
-  else if (!home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
+  if (previewBanner) {
+    if (home && !modulesHome && previewBanner.parentElement !== intro) intro.append(previewBanner);
+    else if (!home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
+  }
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
   measureHomeLead();
   const config = state.providerConfig?.config;
@@ -3701,7 +3720,9 @@ function visibleSurfaceKinds() {
         ? Boolean(state.surface.runId)
         : module.kind === "file"
           ? Boolean(state.surface.fileRef)
-          : true,
+          : module.kind === "presentation"
+            ? Boolean(state.surface.presentationRef)
+            : true,
     )
     .map((module) => module.kind);
 }
@@ -4122,6 +4143,7 @@ function surfaceFacts() {
     events: state.events,
     recordedContext: state.recordedContext.get(state.surface.runId) || null,
     fileRef: state.surface.fileRef,
+    presentationRef: state.surface.presentationRef,
     workspace: state.surface.workspace,
     extension: state.surface.info?.extension || null,
     /* WK-43 · the host's slot resolution travels with the facts, so the module
@@ -4145,6 +4167,18 @@ const railHost = {
     if (ref) void fileView.load(ref);
   },
   loadRuntime: () => void runtimeView.load(),
+  /* 08 · the pane draws the recorded instance; when the loaded event window
+   * does not hold it, it is read back by id from the Host, never re-derived. */
+  renderPresentation: (schema) => {
+    const container = $("presentation-content");
+    if (schema?.instance) { renderPresentationPane(container, schema.instance); return; }
+    const ref = schema?.ref;
+    if (!ref) return;
+    container.replaceChildren(element("p", { className: "form-help", text: "Reading the presentation…", attrs: { role: "status" } }));
+    void request(`/sessions/${encodeURIComponent(ref.sessionId)}/presentations/${encodeURIComponent(ref.instanceId)}`)
+      .then((result) => { if (state.surface.presentationRef === ref) renderPresentationPane(container, result.presentation); })
+      .catch((error) => { if (state.surface.presentationRef === ref) container.replaceChildren(element("p", { className: "inline-error", text: error.message, attrs: { role: "alert" } })); });
+  },
   /* WK-66 / WK-90 · the coarse card opens the fine reading, which is now the
    * Runtime block of Settings › Developer. One entry, one controller, one
    * admission (FN-05); only the path changed. */
@@ -4291,6 +4325,14 @@ function activateSurface(kind, opener = document.activeElement) {
 function openRun(runId, opener = document.activeElement) {
   state.surface.runId = runId;
   activateSurface("run", opener);
+}
+/* 08 · open the same recorded instance the Chat row drew; identity and version
+ * travel with the ref, the pane reads the event, nothing is re-derived. */
+function openPresentation(ref, opener = document.activeElement) {
+  if (ref.sessionId !== state.activeSessionId) return;
+  if (opener && opener !== document.body && opener.isConnected) rememberSurfaceFocus(opener);
+  state.surface.presentationRef = ref;
+  activateSurface("presentation", opener);
 }
 function openFile(ref, opener = document.activeElement, fromMaterials = false) {
   if (ref.sessionId !== state.activeSessionId) return;
@@ -6007,7 +6049,7 @@ function renderHomeState() {
   if (state.view === "home" && homeLayoutPreference() === "modules") {
     /* The band is rebuilt whole; the example line is a persistent element,
      * so it is parked outside first and seated in the new masthead after. */
-    const parkedBanner = $("preview-banner");
+    const parkedBanner = previewBannerNode();
     if (parkedBanner && $("home-module-band").contains(parkedBanner)) $("conversation-body").append(parkedBanner);
     renderHomeModuleBand($("home-module-band"), {
       activity: state.homeActivity,
@@ -6041,7 +6083,7 @@ function renderHomeState() {
     });
     /* The example line sits beside the greeting in the masthead; the band is
      * drawn after the header, so the move happens here, not in the header. */
-    const aside = $("home-masthead-aside"), banner = $("preview-banner");
+    const aside = $("home-masthead-aside"), banner = previewBannerNode();
     if (aside && banner && banner.parentElement !== aside) aside.append(banner);
   }
   renderHome($("message-stream"), {

@@ -126,6 +126,10 @@ export function projectThread(events, runs, sessionId) {
         file: data,
         id: `artifact:${event.seq}`,
       });
+    /* 08 · a recorded presentation is a row of its own at its event position:
+     * the same instance the work surface opens, never the model's retelling. */
+    else if (type === "presentation/created" && data?.instanceId)
+      rows.push({ kind: "presentation", runId, instance: data, id: `presentation:${data.instanceId}` });
     else if (type === "run/notice")
       rows.push({ kind: "notice", runId, data, id: `notice:${event.seq}` });
   }

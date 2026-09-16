@@ -724,6 +724,17 @@
             >
               File
             </button>
+            <button
+              id="surface-presentation-tab"
+              class="surface-tab"
+              role="tab"
+              aria-controls="presentation-content"
+              aria-selected="false"
+              type="button"
+              hidden
+            >
+              Presentation
+            </button>
             <!-- WK-113 ④ ⑥ · 至多一个可关闭的文档实例 tab。BE-2 未交付，所以只有
                  一份受信活动文档，没有多实例 map、没有伪多实例。选中区与关闭区是
                  两个命中区；类型 tab 没有关闭区。 -->
@@ -789,6 +800,15 @@
           class="surface-content"
           role="tabpanel"
           aria-labelledby="surface-file-tab"
+          tabindex="0"
+          hidden
+        ></div>
+        <!-- 08 · the same recorded presentation the Chat row drew, in the work surface. -->
+        <div
+          id="presentation-content"
+          class="surface-content"
+          role="tabpanel"
+          aria-labelledby="surface-presentation-tab"
           tabindex="0"
           hidden
         ></div>

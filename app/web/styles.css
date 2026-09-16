@@ -6996,3 +6996,13 @@ html[data-theme="dark"] {
 .account-block + .account-block { margin-top: var(--space-5); }
 .danger-zone { border-top: 1px solid var(--line); padding-top: var(--space-3); }
 
+/* 08 · the presentation row and pane: one instance, one identity, two placements. */
+.presentation-inline { padding: 8px 4px; display: grid; gap: 6px; max-width: var(--doc-measure, 740px); }
+.presentation-inline .presentation-title { margin: 0; font-size: var(--text-label); font-weight: 600; }
+.presentation-facts { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; font-size: var(--text-body); }
+.presentation-facts dt { color: var(--muted-strong); }
+.presentation-facts dd { margin: 0; overflow-wrap: anywhere; }
+.presentation-identity { padding: 0; }
+.presentation-fallback-text { margin: 0; white-space: pre-wrap; font-family: var(--font-mono); font-size: var(--text-meta); }
+#presentation-content .presentation-title { margin: 0 0 8px; }
+
