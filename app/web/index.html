@@ -318,6 +318,8 @@
           <div id="composer-context-strip" class="composer-context-strip" role="group" aria-label="Where this chat works" hidden></div>
           <form id="composer-form" class="composer-form">
             <label class="sr-only" for="composer-input">Message</label>
+            <!-- CMD-01 · the Host's command catalog, shown while the message is a lone slash word. -->
+            <div id="command-menu" class="command-menu" hidden></div>
             <textarea
               id="composer-input"
               aria-describedby="composer-run-hint"
@@ -832,6 +834,13 @@
       class="context-popover connection-popover model-popover"
       popover="auto"
       aria-label="Model and effort"
+    ></div>
+    <!-- CMD-01 · what a read command (/status, /tools) returned from the Host. -->
+    <div
+      id="command-popover"
+      class="context-popover connection-popover command-popover"
+      popover="auto"
+      aria-label="Command result"
     ></div>
     <!-- RD-006 / 02 · the human's view of the private candidate: the same bounded
          Host patch the model gets from repo_diff, per file, from the fixed base commit. -->

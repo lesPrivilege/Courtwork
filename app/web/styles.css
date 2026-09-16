@@ -6870,3 +6870,55 @@ html[data-theme="dark"] {
 /* Candidate changes dialog · one section per file; the path is the title. */
 .candidate-diff-file { display: grid; gap: 8px; }
 .candidate-diff-path { font-size: var(--text-meta); font-weight: 500; margin: 0; }
+
+/* CMD-01 · the command menu sits above the composer field; the result card
+   lists Host facts in the connection-card anatomy. */
+.composer-form { position: relative; }
+.command-menu { position: absolute; left: 0; right: 0; bottom: 100%; margin-bottom: 8px; z-index: 2; }
+.command-tools { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.command-tool { display: flex; justify-content: space-between; gap: 8px; padding: 2px 4px; font-size: var(--text-meta); }
+.command-tool.is-unavailable .command-tool-name { color: var(--muted-strong); }
+
+
+/* CMD-01 · command menu list — the container's position above the composer
+   is set where it is declared (.composer-form / .command-menu in index.html);
+   this is the list's own anatomy, in the popover/menu material. */
+.command-menu {
+  display: grid;
+  gap: 2px;
+  padding: 4px;
+  max-height: 240px;
+  overflow: auto;
+  background: var(--panel);
+  border-radius: var(--radius-card);
+  box-shadow: var(--rim), var(--shadow-float);
+}
+.command-option {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-radius: max(var(--radius-small), calc(var(--radius-card) - 12px));
+  background: transparent;
+  color: inherit;
+  padding: 6px 8px;
+}
+.command-option:hover {
+  background: var(--hover);
+}
+.command-option[aria-selected="true"] {
+  background: var(--selected);
+}
+.command-option[aria-disabled="true"] {
+  color: var(--control-unavailable-ink);
+  cursor: default;
+}
+.command-name {
+  font-family: var(--font-mono);
+}
+.command-desc,
+.command-reason {
+  font-size: var(--text-meta);
+  color: var(--muted-strong);
+}

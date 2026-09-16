@@ -45,6 +45,8 @@ import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { renderModelEffortCard } from "./model-effort.mjs";
+import { renderCommandResult } from "./command-result.mjs";
+import { createCommandMenu } from "./command-menu.mjs";
 import { projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
@@ -563,14 +565,14 @@ function showToast(message, kind = "info") {
 // newer write of the same category replaces it, but different categories
 // coexist and are all shown. #draft-status is the only place that reads
 // this store; nothing else writes to that element directly.
-const FEEDBACK_CATEGORY_ORDER = ["run", "cancel", "draft"];
+const FEEDBACK_CATEGORY_ORDER = ["run", "cancel", "draft", "command"];
 
 function feedbackBucket(sessionId) {
   if (!sessionId) return null;
   if (!state.feedback.has(sessionId)) {
     state.feedback.set(sessionId, {
       transient: null,
-      persistent: { run: null, cancel: null, draft: null },
+      persistent: { run: null, cancel: null, draft: null, command: null },
     });
   }
   return state.feedback.get(sessionId);
@@ -5228,10 +5230,18 @@ async function submitSessionRun({ commandId = null } = {}) {
     return;
   }
   const textarea = $("composer-input");
-  const input = textarea.value;
+  let input = textarea.value;
   if (!input.trim()) {
     showToast("Enter a message first.", "error");
     return;
+  }
+  /* CMD-01 · a leading slash is read by the Host, never by the model: a
+   * command is dispatched here and no Run starts; `//…` and paths come back
+   * as text and continue below as an ordinary message. */
+  if (input.startsWith("/")) {
+    const read = await readComposerCommand(session, input);
+    if (read.handled) return;
+    if (read.text !== input) { input = read.text; textarea.value = input; }
   }
 
   const sessionId = session.id;
@@ -5511,6 +5521,90 @@ function openConnectionCard(anchor) {
   const header = render();
   popover.showPopover();
   header.querySelector("button").focus();
+}
+/* CMD-01 · typed commands. The Host owns the catalog and the reading of the
+ * slash; the composer only carries the message there and shows what came
+ * back. A refusal keeps the draft and says why; nothing falls through to a
+ * model turn. */
+let commandMenu = null;
+async function readComposerCommand(session, text) {
+  const sessionId = session.id;
+  const opId = nextOperationId("command");
+  const catalog = commandMenu?.catalog(sessionId);
+  let result;
+  try {
+    result = await request(`/sessions/${encodeURIComponent(sessionId)}/commands`, {
+      method: "POST", body: { text, ...(catalog?.revision ? { revision: catalog.revision } : {}), requestId: crypto.randomUUID() },
+    });
+  } catch (error) {
+    const code = error.code ?? error.body?.error?.code;
+    const name = text.slice(1).split(/\s/)[0].slice(0, 40);
+    const message = code === "unknown_command" ? `Unknown command /${name}. To send it as text, start with //${name}.`
+      : code === "command_revision" ? "Commands changed. Try again."
+      : error.message;
+    if (code === "command_revision") void commandMenu?.refresh(sessionId);
+    setPersistentFeedback(sessionId, opId, "command", message);
+    return { handled: true };
+  }
+  clearPersistentFeedback(sessionId, "command");
+  if (result.kind === "text" || result.kind === "passthrough") return { handled: false, text };
+  if (result.kind === "literal") return { handled: false, text: result.text };
+  await clearComposerAfterCommand(sessionId);
+  if (result.kind === "read") { openCommandResult(result); return { handled: true }; }
+  if (result.kind === "client_ui") { if (result.target === "model-picker") void modelPicker.open(); return { handled: true }; }
+  if (result.kind === "setting") {
+    try { state.providerConfig = await request("/provider-config"); renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); } catch {}
+    setTransientFeedback(sessionId, opId, "command", `Reasoning effort · ${result.saved?.reasoningEffort ?? "Provider default"} · all chats, future runs`, { duration: 6000 });
+    return { handled: true };
+  }
+  if (result.kind === "control" && result.operation) { void followCompaction(sessionId, opId, result.operation); return { handled: true }; }
+  setTransientFeedback(sessionId, opId, "command", `/${result.command ?? name} done.`);
+  return { handled: true };
+}
+/* The command was the whole message; a handled one leaves an empty composer. */
+async function clearComposerAfterCommand(sessionId) {
+  const textarea = $("composer-input");
+  textarea.value = "";
+  const revision = draftRevision(sessionId) + 1;
+  state.draftRevisions.set(sessionId, revision);
+  state.draftCache.set(sessionId, "");
+  state.draftDirty.delete(sessionId);
+  if (state.session?.id === sessionId) state.session.draft = "";
+  renderComposer();
+  try { await persistDraftForSession(sessionId, { revision, text: "" }); } catch {}
+}
+function compactionWords(op) {
+  if (op.status === "completed") {
+    const before = op.result?.tokensBefore?.value, after = op.result?.estimatedTokensAfter?.value, used = op.result?.usage;
+    const estimate = Number.isFinite(before) && Number.isFinite(after) ? ` · about ${before.toLocaleString()} → ${after.toLocaleString()} tokens (estimate)` : "";
+    const usage = used ? ` · ${(used.totalTokens ?? (used.input ?? 0) + (used.output ?? 0)).toLocaleString()} tokens used` : " · usage not reported";
+    return `Compacted${estimate}${usage}`;
+  }
+  const word = op.status === "cancelled" ? "Compaction cancelled" : op.status === "unknown" ? "Compaction outcome unknown" : "Compaction failed";
+  return op.error?.message ? `${word} · ${op.error.message}` : word;
+}
+async function followCompaction(sessionId, opId, operation) {
+  setPersistentFeedback(sessionId, opId, "command", "Compacting… the next run continues from the summary.");
+  let op = operation;
+  try {
+    while (op.status === "running") {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      op = (await request(`/sessions/${encodeURIComponent(sessionId)}/compactions/${encodeURIComponent(op.id)}`)).operation;
+    }
+  } catch (error) {
+    clearPersistentFeedback(sessionId, "command");
+    setPersistentFeedback(sessionId, opId, "command", `Compaction status unknown · ${error.message}`);
+    return;
+  }
+  clearPersistentFeedback(sessionId, "command");
+  setTransientFeedback(sessionId, opId, "command", compactionWords(op), { duration: 10000 });
+}
+function openCommandResult(result) {
+  const popover = $("command-popover");
+  state.commandResultAnchor = $("composer-input");
+  const header = renderCommandResult(popover, result, { onClose: () => { popover.hidePopover(); state.commandResultAnchor?.focus?.(); } });
+  if (!popover.matches(":popover-open")) popover.showPopover();
+  header.querySelector("button")?.focus();
 }
 /* Models 05 · the composer's model control opens a card, not the full dialog.
  * The card reads one Host snapshot; choosing a segment saves at once under the
@@ -6441,6 +6535,14 @@ function handleSurfaceEscape(event) {
     }
     return;
   }
+  if ($("command-popover").matches(":popover-open")) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      $("command-popover").hidePopover();
+      state.commandResultAnchor?.focus?.();
+    }
+    return;
+  }
   if ($("context-popover").matches(":popover-open")) {
     if (event.key === "Escape") {
       event.preventDefault();
@@ -6660,6 +6762,21 @@ function wireEvents() {
       if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-end" });
       $("model-settings-button").setAttribute("aria-expanded", String(open));
       if (!open) { modelCardEpoch++; modelCardBusy = false; }
+    });
+  }
+  {
+    const popover = $("command-popover");
+    let stopFollowing = null;
+    popover.addEventListener("toggle", (event) => {
+      stopFollowing?.();
+      stopFollowing = null;
+      const anchor = $("composer-form");
+      if (event.newState === "open" && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start" });
+    });
+    commandMenu = createCommandMenu({
+      textarea: $("composer-input"), container: $("command-menu"), request,
+      getSessionId: () => currentSession()?.id ?? null,
+      onPick: () => {},
     });
   }
   $("permission-settings-button").addEventListener("click", (event) => openConnectionCard(event.currentTarget));
