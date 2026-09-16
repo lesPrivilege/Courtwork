@@ -220,6 +220,10 @@ function routeService(service, req, url) {
   if (tail.length === 1 && tail[0] === "runtime-context" && method === "GET") return () => service.getRuntimeContext(url.searchParams.get("sessionId"), url.searchParams.get("runId"));
   if (tail.length === 2 && tail[0] === "runtime-permissions" && tail[1] === "evaluate" && method === "POST") return async () => service.evaluateRuntimePermission(url.searchParams.get("sessionId"), await body(req));
   if (tail.length === 3 && tail[0] === "mcp" && tail[2] === "lifecycle" && method === "POST") return async () => service.mcpLifecycle(url.searchParams.get("sessionId"), tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "compactions" && method === "GET") return () => service.listCompactions(tail[1]);
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "compactions" && method === "POST") return async () => service.compactSession(tail[1], await body(req));
+  if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "compactions" && method === "GET") return () => service.getCompaction(tail[1], tail[3]);
+  if (tail.length === 5 && tail[0] === "sessions" && tail[2] === "compactions" && tail[4] === "cancel" && method === "POST") return () => service.cancelCompaction(tail[1], tail[3]);
   if (tail.length === 1 && tail[0] === "runtime-proposals" && method === "GET") return () => service.listRuntimeProposals(url.searchParams.get("sessionId"));
   if (tail.length === 2 && tail[0] === "runtime-proposals" && method === "GET") return () => service.getRuntimeProposal(tail[1]);
   if (tail.length === 2 && tail[0] === "runtime-proposals" && method === "PUT") return async () => service.editRuntimeProposal(tail[1], await body(req));

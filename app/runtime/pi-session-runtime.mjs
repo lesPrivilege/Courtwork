@@ -410,6 +410,53 @@ export function resolveCompactionPolicy(model, options = {}) {
 }
 
 /**
+ * CMP-01 · manual compaction of one session journal, outside any Run. A fresh
+ * AgentSession is opened on the caller's SessionManager with no tools and no
+ * prompt; Pi's own `compact()` (the same summarizer and JSONL owner automatic
+ * compaction uses) runs once with the bounded focus text. Nothing is prompted,
+ * no turn is added, and the journal entry is Pi's. The caller owns admission,
+ * the deadline and the receipt; this function only reports what Pi returned.
+ */
+export async function compactSessionJournal({ cwd, agentDir, modelRuntime, model, sessionManager, focus = null, compaction = {}, reasoningEffort, signal }) {
+  const compactionPolicy = resolveCompactionPolicy(model, compaction);
+  if (!compactionPolicy.enabled) throw Object.assign(new Error('compaction is not enabled for this model'), { code: 'compaction_unavailable' });
+  const { session } = await createAgentSession({
+    cwd, agentDir, modelRuntime, model,
+    ...(reasoningEffort !== undefined ? { thinkingLevel: reasoningEffort } : {}),
+    noTools: 'builtin', customTools: [],
+    resourceLoader: createEmptyResourceLoader(''),
+    sessionManager,
+    settingsManager: SettingsManager.inMemory({ compaction: { enabled: true, reserveTokens: compactionPolicy.reserveTokens, keepRecentTokens: compactionPolicy.keepRecentTokens } }),
+  });
+  const onAbort = () => { session.abortCompaction(); };
+  if (signal?.aborted) onAbort(); else signal?.addEventListener('abort', onAbort, { once: true });
+  // Pi appends its own bookkeeping entries (model / thinking level) when a
+  // session opens; only compaction entries say whether a summary was written.
+  const summaries = () => sessionManager.getEntries().filter(entry => entry.type === 'compaction').length;
+  const entriesBefore = summaries();
+  try {
+    const result = await session.compact(typeof focus === 'string' && focus.trim() ? focus.trim() : undefined);
+    return {
+      outcome: 'completed',
+      tokensBefore: Number.isFinite(result.tokensBefore) ? result.tokensBefore : null,
+      estimatedTokensAfter: Number.isFinite(result.estimatedTokensAfter) ? result.estimatedTokensAfter : null,
+      usage: result.usage ? structuredClone(result.usage) : null,
+      entriesBefore, entriesAfter: summaries(),
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    const code = signal?.aborted || message === 'Compaction cancelled' ? 'cancelled'
+      : message === 'Already compacted' ? 'already_compacted'
+        : message.startsWith('Nothing to compact') ? 'too_small'
+          : 'compaction_failed';
+    return { outcome: code === 'cancelled' ? 'cancelled' : 'failed', code, message, entriesBefore, entriesAfter: summaries() };
+  } finally {
+    signal?.removeEventListener('abort', onAbort);
+    session.dispose();
+  }
+}
+
+/**
  * Start one Run's AgentSession. Creates a fresh AgentSession per Run (bound
  * to this run's tool closures) against a caller-supplied SessionManager,
  * which is what carries continuity across Runs within one app session.

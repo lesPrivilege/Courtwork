@@ -164,7 +164,7 @@ test('fixed old main schema4 RuntimeStore rejects a schema17 state without chang
     const file = path.join(dataDir, 'runtime-state.json'); const original = await readFile(file);
     await exec('git', ['-C', repoRoot, 'worktree', 'add', '--detach', checkout, historicalFixtures.schema4.commit]);
     const { RuntimeStore: OldRuntimeStore } = await import(pathToFileURL(path.join(checkout, 'app/server/store.mjs')).href);
-    await assert.rejects(new OldRuntimeStore({ dataDir }).open(), /schemaVersion 17 is not supported/);
+    await assert.rejects(new OldRuntimeStore({ dataDir }).open(), /schemaVersion 18 is not supported/);
     assert.deepEqual(await readFile(file), original, 'the fixed old host refuses schema13 before rewriting any byte');
   } finally {
     await exec('git', ['-C', repoRoot, 'worktree', 'remove', '--force', checkout]).catch(() => {});
@@ -178,12 +178,12 @@ test('schema3 and schema4 migrate with an exact independent backup and reopen', 
     try {
       let store = await new RuntimeStore({ dataDir }).open(); await store.close();
       const file = path.join(dataDir, 'runtime-state.json'); const oldState = JSON.parse(await readFile(file, 'utf8'));
-      oldState.schemaVersion = version; delete oldState.subagents; delete oldState.asyncTasks; delete oldState.coordination; delete oldState.providerConnections; delete oldState.providerConfigurationPending; delete oldState.providerConfigVersion; delete oldState.providerVerifications; oldState.sessions.forEach(session => { delete session.scope; delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); oldState.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; });
+      oldState.schemaVersion = version; delete oldState.operations; delete oldState.subagents; delete oldState.asyncTasks; delete oldState.coordination; delete oldState.providerConnections; delete oldState.providerConfigurationPending; delete oldState.providerConfigVersion; delete oldState.providerVerifications; oldState.sessions.forEach(session => { delete session.scope; delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); oldState.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; });
       const original = Buffer.from(JSON.stringify(oldState)); await writeFile(file, original);
-      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 17); await store.close();
+      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 18); await store.close();
       const backup = (await readdir(dataDir)).find((name) => name.startsWith(`runtime-state.schema${version}.`));
       assert.deepEqual(await readFile(path.join(dataDir, backup)), original, 'migration backup is the original byte sequence');
-      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 17); await store.close();
+      store = await new RuntimeStore({ dataDir }).open(); assert.equal(store.state.schemaVersion, 18); await store.close();
       const legacyData = await mkdtemp(path.join(tmpdir(), `cw-async-schema${version}-legacy-`));
       try {
         await writeFile(path.join(legacyData, 'runtime-state.json'), await readFile(path.join(dataDir, backup)));

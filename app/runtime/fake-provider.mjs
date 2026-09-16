@@ -88,7 +88,7 @@ function scriptForMode(mode) {
   }
 }
 
-function makeResponse({ body, requestNumber, responder, spentErrorOnce }) {
+async function makeResponse({ body, requestNumber, responder, spentErrorOnce }) {
   const messages = Array.isArray(body?.messages) ? body.messages : [];
   const mode = requestMode(messages);
   const toolResult = hasToolResult(messages);
@@ -96,7 +96,8 @@ function makeResponse({ body, requestNumber, responder, spentErrorOnce }) {
   const created = Math.floor(Date.now() / 1000);
 
   if (typeof responder === "function") {
-    const custom = responder({ body: structuredClone(body), requestNumber, mode });
+    // A test responder may hold a request open (a gate) before answering.
+    const custom = await responder({ body: structuredClone(body), requestNumber, mode });
     if (custom && typeof custom === "object") return custom;
   }
 
@@ -259,7 +260,7 @@ export async function createFakeOpenAiProvider({ host = "127.0.0.1", port = 0, r
           res.end(JSON.stringify({ error: { message: "Incorrect API key provided" } }));
           return;
         }
-        const response = makeResponse({ body, requestNumber: current, responder: responseHook, spentErrorOnce });
+        const response = await makeResponse({ body, requestNumber: current, responder: responseHook, spentErrorOnce });
         if (response.kind === "http-error") {
           res.writeHead(response.status, { "content-type": "application/json" });
           res.end(JSON.stringify({ error: { message: response.message } }));

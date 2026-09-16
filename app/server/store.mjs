@@ -28,7 +28,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 17;
+const SCHEMA_VERSION = 18;
 // check.settled status: "unknown" is fenced in by the Host on restart for a
 // check.started event that never got a matching settlement (RD-009 durable
 // settlement rule); it is never produced by the runner itself.
@@ -40,7 +40,7 @@ const REPOSITORY_RETAINED_BYTES_LIMIT = 64 * 1024 * 1024;
 const STATE_KEYS = new Set([
   "schemaVersion", "projects", "sessions", "runs", "events", "questions", "providerConfig", "extensionRecords",
   "credentialGeneration", "asyncTasks", "coordination", "providerConnections", "providerConfigurationPending",
-  "providerConfigVersion", "providerVerifications", "subagents",
+  "providerConfigVersion", "providerVerifications", "subagents", "operations",
 ]);
 
 function now() { return new Date().toISOString(); }
@@ -49,7 +49,7 @@ function emptyState() {
   return {
     schemaVersion: SCHEMA_VERSION, subagents: emptySubagents(), projects: [], sessions: [], runs: [], events: [], questions: [],
     providerConfig: null, extensionRecords: [], credentialGeneration: 0, asyncTasks: [], coordination: emptyCoordination(),
-    providerConnections: [], providerConfigurationPending: [], providerConfigVersion: 0, providerVerifications: [],
+    providerConnections: [], providerConfigurationPending: [], providerConfigVersion: 0, providerVerifications: [], operations: [],
   };
 }
 
@@ -389,13 +389,38 @@ function validateRepositoryWriteEffects(value, label, runsById, sessionId) {
   assert(retainedBytes <= REPOSITORY_RETAINED_BYTES_LIMIT, label + " exceeds retained payload budget");
 }
 
+/* Schema 18 · Host operations. A manual compaction is not a Run: it has no
+ * user message, no model turn and no tool admission, but it does hold the
+ * same exclusive seat (one active piece of work per Host) and it does spend
+ * provider requests, so it is recorded, settled and recovered like one. */
+const OPERATION_KINDS = new Set(["compaction"]);
+const OPERATION_ACTIVE = new Set(["running"]);
+const OPERATION_STATUSES = new Set(["running", "completed", "failed", "cancelled", "unknown"]);
+function validateOperations(value, sessions) {
+  assert(Array.isArray(value), "operations must be an array");
+  const ids = new Set(), sessionIds = new Set(sessions.map(s => s.id));
+  for (const op of value) {
+    exactKeys(op, new Set(["id", "kind", "sessionId", "requestId", "requestHash", "status", "reason", "focus", "startedAt", "settledAt", "provider", "journal", "result", "error"]), "operation");
+    id(op.id, "operation.id"); assert(!ids.has(op.id), "duplicate operation id"); ids.add(op.id);
+    assert(OPERATION_KINDS.has(op.kind), "operation.kind"); assert(sessionIds.has(op.sessionId), "operation.sessionId");
+    text(op.requestId, "operation.requestId", 200); text(op.requestHash, "operation.requestHash", 64);
+    assert(OPERATION_STATUSES.has(op.status), "operation.status"); assert(op.reason === "manual", "operation.reason");
+    assert(op.focus === null || (typeof op.focus === "string" && op.focus.length <= 4000), "operation.focus");
+    timestamp(op.startedAt, "operation.startedAt"); assert(op.settledAt === null || typeof op.settledAt === "string", "operation.settledAt");
+    assert(isRecord(op.provider) && isRecord(op.journal), "operation.provider/journal");
+    assert(op.result === null || isRecord(op.result), "operation.result"); assert(op.error === null || isRecord(op.error), "operation.error");
+    assert(OPERATION_ACTIVE.has(op.status) === (op.settledAt === null), "an operation is settled exactly when it has settledAt");
+  }
+}
+
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 16 can be upgraded)`);
-  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')))), "state");
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 17 can be upgraded)`);
+  exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')) && (schema >= 18 || k !== 'operations'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
   }
+  if (schema >= 18) validateOperations(parsed.operations, parsed.sessions);
   const projectIds = new Set();
   for (const project of parsed.projects) {
     exactKeys(project, new Set(["id", "name", "createdAt"]), "project");
@@ -775,7 +800,7 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
@@ -797,10 +822,17 @@ export class RuntimeStore {
               repositoryBinding: parsed.schemaVersion >= 16 ? session.repositoryBinding : null,
               repositoryBindingRevision: parsed.schemaVersion >= 16 ? session.repositoryBindingRevision : 0,
               repositoryBindingCommands: parsed.schemaVersion >= 16 ? session.repositoryBindingCommands : [],
-              repositoryCandidate: null, repositoryCandidateRevision: 0, repositoryCandidateCommands: [], repositoryWriteEffects: [],
+              repositoryCandidate: parsed.schemaVersion >= 17 ? session.repositoryCandidate : null,
+              repositoryCandidateRevision: parsed.schemaVersion >= 17 ? session.repositoryCandidateRevision : 0,
+              repositoryCandidateCommands: parsed.schemaVersion >= 17 ? session.repositoryCandidateCommands : [],
+              repositoryWriteEffects: parsed.schemaVersion >= 17 ? session.repositoryWriteEffects : [],
             })),
+            // Schema 18 · Host operations (manual compaction). None can be in
+            // flight across an upgrade; an old file simply has none.
+            operations: parsed.schemaVersion >= 18 ? parsed.operations : [],
             runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null,
-              repositoryBindingSnapshot: parsed.schemaVersion >= 16 ? run.repositoryBindingSnapshot : null, repositoryCandidateSnapshot: null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
+              repositoryBindingSnapshot: parsed.schemaVersion >= 16 ? run.repositoryBindingSnapshot : null,
+              repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -967,6 +999,10 @@ export class RuntimeStore {
   getCredentialGeneration() { return this.state.credentialGeneration; }
   hasActiveRun(sessionId) {
     return this.state.runs.some((run) => (!sessionId || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status));
+  }
+  /** True while any Host operation (manual compaction) holds the exclusive seat. */
+  hasActiveOperation() {
+    return this.state.operations.some((op) => OPERATION_ACTIVE.has(op.status));
   }
 
   getRepositoryBindingReceipt(sessionId, { requestId, operation, rootPath = null, expectedRevision }) {
@@ -1404,6 +1440,45 @@ export class RuntimeStore {
    * are serialized through the mutation queue, so two requests racing on the
    * same commandId still observe each other in order).
    */
+  /* ── Host operations (schema 18) ───────────────────────────────────── */
+  listOperations(sessionId = null) {
+    return structuredClone(this.state.operations.filter((op) => !sessionId || op.sessionId === sessionId));
+  }
+  getOperation(id) {
+    const op = this.state.operations.find((item) => item.id === id);
+    return op ? structuredClone(op) : null;
+  }
+  /** Admission for a manual operation shares the serialized closure with Run
+   * creation: no active Run anywhere, no running operation; the same
+   * requestId replays the same record, a different body under it conflicts. */
+  async createOperation({ kind, sessionId, requestId, focus = null, provider, journal }) {
+    const requestHash = createHash("sha256").update(JSON.stringify({ kind, sessionId, focus })).digest("hex");
+    return this._mutate((state) => {
+      if (!state.sessions.some((item) => item.id === sessionId)) throw new Error("session not found");
+      const existing = state.operations.find((op) => op.requestId === requestId && op.sessionId === sessionId);
+      if (existing) {
+        if (existing.requestHash !== requestHash) { const error = new Error("requestId was used for a different operation"); error.code = "IDEMPOTENCY_CONFLICT"; throw error; }
+        return { operation: structuredClone(existing), idempotent: true };
+      }
+      if (state.runs.some((run) => ACTIVE_STATUSES.has(run.status))) { const error = new Error("active run exists"); error.code = "ACTIVE_RUN"; throw error; }
+      if (state.operations.some((op) => OPERATION_ACTIVE.has(op.status))) { const error = new Error("operation in progress"); error.code = "OPERATION_ACTIVE"; throw error; }
+      const operation = { id: randomUUID(), kind, sessionId, requestId, requestHash, status: "running", reason: "manual", focus, startedAt: now(), settledAt: null,
+        provider: structuredClone(provider), journal: structuredClone(journal), result: null, error: null };
+      state.operations.push(operation);
+      return { operation: structuredClone(operation), idempotent: false };
+    });
+  }
+  async settleOperation(id, { status, result = null, error = null, journal = null }) {
+    if (!OPERATION_STATUSES.has(status) || OPERATION_ACTIVE.has(status)) throw new Error("invalid operation settlement");
+    return this._mutate((state) => {
+      const op = state.operations.find((item) => item.id === id); if (!op) throw new Error("operation not found");
+      if (!OPERATION_ACTIVE.has(op.status)) return structuredClone(op);
+      op.status = status; op.settledAt = now(); op.result = result ? structuredClone(result) : null; op.error = error ? structuredClone(error) : null;
+      if (journal) op.journal = { ...op.journal, ...structuredClone(journal) };
+      return structuredClone(op);
+    });
+  }
+
   async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null }) {
     // Validate and detach the descriptor before it enters the mutation queue.
     // A caller must not be able to mutate a checked object while an earlier
@@ -1426,6 +1501,7 @@ export class RuntimeStore {
       // each other in order and only one of them wins.
       if (supersedes !== null) assertSupersedable(state, sessionId, supersedes);
       if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
+      if (state.operations.some((op) => OPERATION_ACTIVE.has(op.status))) throw new Error("operation in progress");
       const timestamp = now();
       const repositoryBindingSnapshot = session.repositoryBinding?.status === "active" ? structuredClone(session.repositoryBinding) : null;
       const repositoryCandidateSnapshot = session.repositoryCandidate?.status === "active" ? structuredClone(session.repositoryCandidate) : null;

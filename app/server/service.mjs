@@ -41,6 +41,7 @@ import {
   unregisterConnectionProvider,
   registerCatalogExtraModels,
   nativeCatalogModelIds,
+  compactSessionJournal,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
@@ -220,6 +221,8 @@ export class RuntimeService {
     this.closing = false;
     this.directoryPickerInFlight = false;
     this.admissions = new Set();
+    /* CMP-01 · in-process handles of running Host operations (manual compaction). */
+    this.operations = new Map();
     this.configurationQueue = Promise.resolve();
     this.questionWaiters = new Map();
     this.providerConfig = null;
@@ -324,6 +327,8 @@ export class RuntimeService {
     // every non-terminal run becomes unknown, and every pending question
     // (across all runs) is marked expired_restart so nothing is stuck
     // permanently unanswerable.
+    for (const op of this.store.listOperations()) if (op.status === "running")
+      await this.store.settleOperation(op.id, { status: "unknown", error: { code: "restart_unknown", message: "the operation was in flight during restart; the journal may or may not hold its summary" } });
     const interrupted = [];
     for (const run of this.store.listRuns()) {
       if (ACTIVE_STATUSES.has(run.status)) {
@@ -461,7 +466,7 @@ export class RuntimeService {
 
   changeRuntimeControl(sessionId, input) {
     return this.#withConfiguration(async () => {
-      if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "Runtime configuration is frozen while a run is active");
+      if (this.#busy()) throw new ServiceError(409, "active_run", "Runtime configuration is frozen while a run is active");
       if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
       const snapshot = this.getRuntimeControl(sessionId);
       const target = input?.scope ?? input?.resource?.scope;
@@ -479,7 +484,7 @@ export class RuntimeService {
       assertKeys(requireObject(input, 'body'), new Set(['action', 'revision']));
       const snapshot = this.getRuntimeControl(sessionId);
       if (input.revision !== snapshot.revision) throw new ServiceError(409, 'runtime_conflict', 'Runtime changed; refresh before connecting');
-      if (this.store.hasActiveRun()) throw new ServiceError(409, 'active_run', 'MCP lifecycle is frozen while a run is active');
+      if (this.#busy()) throw new ServiceError(409, 'active_run', 'MCP lifecycle is frozen while a run is active');
       const descriptor = snapshot.resources.find(r => r.id === id && r.kind === 'mcp_server');
       if (!descriptor) throw new ServiceError(404, 'not_found', 'MCP provider not found');
       const resource = this.control.config.resources.find(r => r.id === id);
@@ -490,6 +495,106 @@ export class RuntimeService {
       } catch (error) { if (error instanceof ServiceError) throw error; throw new ServiceError(502, 'mcp_connection_failed', 'MCP connection failed; inspect provider diagnostics'); }
       return this.getRuntimeControl(sessionId);
     });
+  }
+
+  /* ── CMP-01 · manual compaction as a Host operation ───────────────────── */
+  #busy() { return this.store.hasActiveRun() || this.store.hasActiveOperation(); }
+  listCompactions(sessionId) {
+    if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
+    return { operations: this.store.listOperations(sessionId).filter(op => op.kind === "compaction") };
+  }
+  getCompaction(sessionId, id) {
+    const op = this.store.getOperation(id);
+    if (!op || op.sessionId !== sessionId || op.kind !== "compaction") throw new ServiceError(404, "not_found", "operation not found in this session");
+    return { operation: op };
+  }
+  /** Idle-only: the store's serialized closure refuses while any Run or
+   * operation is active, so no second writer is ever opened on the journal.
+   * The same requestId replays the same record (query-back after a lost ACK
+   * never pays for a second summary). */
+  compactSession(sessionId, input) {
+    if (this.closing) return Promise.reject(new ServiceError(503, "runtime_closing", "runtime is stopping"));
+    return this.#withConfiguration(async () => {
+      const value = requireObject(input, "body");
+      assertKeys(value, new Set(["requestId", "focus"]));
+      const requestId = text(value.requestId, "requestId", { max: 200 });
+      const focus = value.focus === undefined || value.focus === null ? null : text(value.focus, "focus", { max: 4000 });
+      const session = this.store.getSession(sessionId);
+      if (!session) throw new ServiceError(404, "not_found", "session not found");
+      if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
+      const replay = this.store.listOperations(sessionId).find(op => op.requestId === requestId);
+      if (replay) return { operation: replay, idempotent: true };
+      if (!session.hostSession) throw new ServiceError(409, "nothing_to_compact", "This chat has no recorded conversation to compact");
+      const connection = this.#connectionByIdentity(this.providerConfig.provider);
+      this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
+      if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      const model = this.#resolveModel(this.providerConfig);
+      if (!model) throw new ServiceError(503, "provider_error", "the configured model could not be resolved");
+      const policy = this.#compactionPolicy(model);
+      if (!policy.enabled) throw new ServiceError(409, "compaction_unavailable", "Compaction needs a known context window on the configured model");
+      const credentialConfigured = this.providerConfig.provider === FAKE_PROVIDER_ID || this.#credentialStatusOf(connection) === "configured";
+      if (!credentialConfigured) throw new ServiceError(409, "credential_missing", "no credential is configured for this provider");
+      const provider = { provider: this.providerConfig.provider, model: this.providerConfig.model, api: this.providerConfig.api,
+        ...(this.providerConfig.baseUrl ? { baseUrl: this.providerConfig.baseUrl } : {}), connectionId: connection.id,
+        configVersion: this.store.getProviderConfigVersion(), reasoningEffort: this.providerConfig.reasoningEffort ?? null,
+        contextWindow: model.contextWindow ?? null, policy: { reserveTokens: policy.reserveTokens, keepRecentTokens: policy.keepRecentTokens } };
+      let created;
+      try {
+        created = await this.store.createOperation({ kind: "compaction", sessionId, requestId, focus, provider, journal: { path: session.hostSession.path, summariesBefore: null, summariesAfter: null } });
+      } catch (error) {
+        if (error.code === "ACTIVE_RUN") throw new ServiceError(409, "active_run", "Compaction waits for the active run to end; it is not queued");
+        if (error.code === "OPERATION_ACTIVE") throw new ServiceError(409, "operation_active", "Another compaction is in progress");
+        if (error.code === "IDEMPOTENCY_CONFLICT") throw new ServiceError(409, "idempotency_conflict", error.message);
+        throw error;
+      }
+      if (created.idempotent) return { operation: created.operation, idempotent: true };
+      const entry = { controller: new AbortController(), reason: null, timer: null };
+      entry.timer = setTimeout(() => { entry.reason = "deadline"; entry.controller.abort(); }, this.budget.deadlineMs);
+      this.operations.set(created.operation.id, entry);
+      entry.task = this.#executeCompaction(created.operation, session, model, entry).catch(error => this.logger?.(`compaction ${created.operation.id} settlement failed: ${error?.message ?? error}`));
+      return { operation: created.operation, idempotent: false };
+    });
+  }
+  async #executeCompaction(operation, session, model, entry) {
+    let settlement;
+    try {
+      if (this.providerConfig.provider === FAKE_PROVIDER_ID) await this.modelRuntime.setRuntimeApiKey(FAKE_PROVIDER_ID, FAKE_CREDENTIAL_KEY);
+      const manager = SessionManager.open(session.hostSession.path);
+      const outcome = await compactSessionJournal({
+        cwd: session.workspaceDir, agentDir: path.join(this.dataDir, "pi-agent"), modelRuntime: this.modelRuntime, model,
+        sessionManager: manager, focus: operation.focus, compaction: this.#compactionOptions(model),
+        reasoningEffort: this.providerConfig.reasoningEffort, signal: entry.controller.signal,
+      });
+      const journal = { summariesBefore: outcome.entriesBefore, summariesAfter: outcome.entriesAfter };
+      if (outcome.outcome === "completed") {
+        settlement = { status: "completed", journal, result: {
+          tokensBefore: { value: outcome.tokensBefore, source: "sdk-estimate" },
+          estimatedTokensAfter: { value: outcome.estimatedTokensAfter, source: "sdk-estimate" },
+          usage: outcome.usage ? { ...outcome.usage, source: "provider-reported" } : null,
+          usageMissing: !outcome.usage,
+        } };
+      } else if (outcome.outcome === "cancelled") {
+        settlement = { status: "cancelled", journal, error: { code: entry.reason === "deadline" ? "deadline" : "cancelled", message: entry.reason === "deadline" ? "the compaction deadline passed before a summary was written" : "compaction was cancelled before a summary was written" } };
+      } else {
+        // Raw provider text stays out of the record; the code says what happened.
+        this.logger?.(`compaction ${operation.id} failed: ${outcome.message}`);
+        settlement = { status: "failed", journal, error: { code: outcome.code, message: outcome.code === "already_compacted" ? "the conversation is already compacted; nothing new to summarize"
+          : outcome.code === "too_small" ? "the conversation is too small to compact" : "the summary request failed" } };
+      }
+    } catch (error) {
+      this.logger?.(`compaction ${operation.id} errored: ${error?.message ?? error}`);
+      settlement = { status: "failed", error: { code: error.code === "compaction_unavailable" ? "compaction_unavailable" : "compaction_failed", message: error.code === "compaction_unavailable" ? "compaction is not enabled for this model" : "the compaction could not run" } };
+    } finally {
+      clearTimeout(entry.timer);
+      this.operations.delete(operation.id);
+    }
+    await this.store.settleOperation(operation.id, settlement);
+  }
+  async cancelCompaction(sessionId, id) {
+    const { operation } = this.getCompaction(sessionId, id);
+    const entry = this.operations.get(id);
+    if (entry && operation.status === "running") { entry.reason ??= "user"; entry.controller.abort(); await entry.task; }
+    return this.getCompaction(sessionId, id);
   }
 
   /* ── BE-6 / BE-7 first slice · declarative Skill proposals ─────────────── */
@@ -530,7 +635,7 @@ export class RuntimeService {
     return this.#withConfiguration(() => this.#proposalAsync(async () => {
       requireObject(input, 'body');
       if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
-      if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "Runtime configuration is frozen while a run is active");
+      if (this.#busy()) throw new ServiceError(409, "active_run", "Runtime configuration is frozen while a run is active");
       const proposal = this.proposals.get(id);
       const sessionId = proposal.target.scope.id;
       if (!this.store.getSession(sessionId)) throw new ServiceError(409, "session_gone", "The proposal's session no longer exists");
@@ -1614,7 +1719,7 @@ export class RuntimeService {
    * directory does not list. Probe success still says only that the directory
    * accepted this request (PV-11). */
   async #saveProviderConnection(connectionId, input) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
     const existing = connectionId ? this.#connectionById(connectionId) : null;
     if (existing?.kind === "catalog") return this.#saveCatalogConnectionModels(existing, input);
     const recoveringCreate = connectionId && this.pendingConfigurations.get(connectionId)?.operation === "connection_save" && connectionId.startsWith("conn-");
@@ -1681,7 +1786,7 @@ export class RuntimeService {
   }
 
   async #deleteProviderConnection(connectionId) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "connections are frozen during a run");
     const existing = this.#connectionById(connectionId);
     const pending = this.pendingConfigurations.get(connectionId);
     if (!existing && !pending) throw new ServiceError(404, "not_found", "connection not found");
@@ -1711,7 +1816,7 @@ export class RuntimeService {
   verifyProviderConnection(connectionId, input) { return this.#withConfiguration(() => this.#verifyProviderConnection(connectionId, input)); }
 
   async #verifyProviderConnection(connectionId, input) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "verify is frozen while a run is active");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "verify is frozen while a run is active");
     const connection = this.#connectionById(connectionId);
     if (!connection) throw new ServiceError(404, "not_found", "connection not found");
     this.#requireReadyConnection(connection.id);
@@ -1804,7 +1909,7 @@ export class RuntimeService {
   setProviderConfig(input) { return this.#withConfiguration(() => this.#setProviderConfig(input)); }
 
   async #setProviderConfig(input) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "provider config is frozen during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "provider config is frozen during a run");
     const body = requireObject(input, "body");
     if (!Number.isSafeInteger(body.expectedVersion) || body.expectedVersion < 0) throw new ServiceError(400, "invalid_config_version", "expectedVersion is required");
     if (body.expectedVersion !== this.store.getProviderConfigVersion()) throw new ServiceError(409, "config_conflict", "Provider configuration changed. Reload before saving.");
@@ -1841,7 +1946,7 @@ export class RuntimeService {
   putProviderCredential(input) { return this.#withConfiguration(() => this.#putProviderCredential(input)); }
 
   async #putProviderCredential(input) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "credentials are frozen during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "credentials are frozen during a run");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["connectionId", "apiKey"]));
     const connectionId = text(value.connectionId, "connectionId", { max: 200 });
@@ -1861,7 +1966,7 @@ export class RuntimeService {
   deleteProviderCredential(input) { return this.#withConfiguration(() => this.#deleteProviderCredential(input)); }
 
   async #deleteProviderCredential(input) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "credentials are frozen during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "credentials are frozen during a run");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["connectionId"]));
     const connectionId = text(value.connectionId, "connectionId", { max: 200 });
@@ -1879,7 +1984,7 @@ export class RuntimeService {
   createExtensionBinding(sessionId, input) { return this.#withConfiguration(() => this.#createExtensionBinding(sessionId, input)); }
 
   async #createExtensionBinding(sessionId, input) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "extension binding is frozen during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "extension binding is frozen during a run");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["extensionId", "input"]));
     const extensionId = text(value.extensionId, "extensionId", { max: 120 });
@@ -1925,7 +2030,7 @@ export class RuntimeService {
 
   registerLocalExtension(input) {
     return this.#withConfiguration(async () => {
-      if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "extension registration is frozen during a run");
+      if (this.#busy()) throw new ServiceError(409, "active_run", "extension registration is frozen during a run");
       if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
       const value = requireObject(input, "body");
       assertKeys(value, new Set(["previewId", "hash", "trust"]));
@@ -1941,7 +2046,7 @@ export class RuntimeService {
   extensionLifecycle(id, input) { return this.#withConfiguration(() => this.#extensionLifecycle(id, input)); }
 
   async #extensionLifecycle(id, input) {
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "extension lifecycle is frozen during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "extension lifecycle is frozen during a run");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["action"]));
     const action = text(value.action, "action", { max: 40 });
@@ -2157,7 +2262,7 @@ export class RuntimeService {
     if (!binding || binding.extensionId !== value.extensionId) throw new ServiceError(409, "binding_mismatch", "session extension binding mismatch");
     const record = this.extensionRegistry.getRecord(value.extensionId);
     if (!record || record.status !== "loaded" || record.generation !== value.generation) throw new ServiceError(409, "generation_mismatch", "extension generation is not active");
-    if (this.store.hasActiveRun()) throw new ServiceError(409, "active_run", "human action is unavailable during a run");
+    if (this.#busy()) throw new ServiceError(409, "active_run", "human action is unavailable during a run");
     if (['evidence-memo','inbound-nda'].includes(binding.extensionId)) {
       const matter = (await this.workCore.getMatter(binding.binding.matterId)).matter;
       if (matter.contract_version === 'se-file-memo-v1' && value.fileCapabilityVersion !== 1)
@@ -2333,6 +2438,7 @@ export class RuntimeService {
       if (error?.code === "BINDING_CHANGED") throw new ServiceError(409, "repository_binding_changed", "repository binding changed during Run admission; retry with a new commandId");
       if (error?.code === "CANDIDATE_CHANGED") throw new ServiceError(409, "repository_candidate_changed", "repository candidate changed during Run admission; retry with a new commandId");
       if (error?.message === "active run exists") throw new ServiceError(409, "active_run", "only one active run is allowed");
+      if (error?.message === "operation in progress") throw new ServiceError(409, "operation_active", "a compaction is in progress; runs resume when it settles");
       if (error?.message === "session not found") throw new ServiceError(404, "not_found", "session not found");
       throw error;
     }
