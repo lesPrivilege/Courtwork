@@ -85,6 +85,15 @@ test("CMD-01 · Host dispatch: reads make no Run and no model request; unknown, 
     assert.equal(requests.length, 0, "no model request was made");
     assert.equal(h.runtime.store.listRuns().length, 0, "no Run was created");
 
+    // The whole-message form: the Host reads the slash for the composer.
+    const literal = await h.api("POST", `/sessions/${session.id}/commands`, { text: "//status", revision: catalog.revision });
+    assert.equal(literal.status, 200); assert.deepEqual(literal.json, { kind: "literal", text: "/status" });
+    const pathText = await h.api("POST", `/sessions/${session.id}/commands`, { text: "/tmp/x is a path", revision: catalog.revision });
+    assert.equal(pathText.status, 200); assert.deepEqual(pathText.json, { kind: "text", text: "/tmp/x is a path" });
+    const viaText = await h.api("POST", `/sessions/${session.id}/commands`, { text: "/status", revision: catalog.revision });
+    assert.equal(viaText.status, 200); assert.equal(viaText.json.kind, "read"); assert.equal(viaText.json.command, "status");
+    const unknownText = await h.api("POST", `/sessions/${session.id}/commands`, { text: "/frobnicate now", revision: catalog.revision });
+    assert.equal(unknownText.status, 404); assert.equal(unknownText.json.error.code, "unknown_command");
     const unknown = await h.api("POST", `/sessions/${session.id}/commands/frobnicate`, { revision: catalog.revision, args: "" });
     assert.equal(unknown.status, 404); assert.equal(unknown.json.error.code, "unknown_command");
     const stale = await h.api("POST", `/sessions/${session.id}/commands/status`, { revision: "0".repeat(64), args: "" });

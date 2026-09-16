@@ -47,7 +47,7 @@ import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWork
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
 import { createRuntimeLoadTool, createRuntimeProposeTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
 import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposals.mjs";
-import { discoverCommands, findCommand, parseArguments } from "../runtime/commands.mjs";
+import { discoverCommands, findCommand, parseArguments, parseSlash } from "../runtime/commands.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
 import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } from "../runtime/repository-candidate.mjs";
@@ -572,6 +572,17 @@ export class RuntimeService {
       return { kind: "control", command: "compact", operation: started.operation, idempotent: started.idempotent };
     }
     throw new ServiceError(500, "command_unhandled", "the command has no dispatcher");
+  }
+
+  /** The composer's whole message: the Host reads the slash (one reader for
+   * everyone), answers `text`/`literal` for ordinary input, or dispatches. */
+  async dispatchText(sessionId, input) {
+    const body = requireObject(input, "body");
+    assertKeys(body, new Set(["text", "revision", "requestId"]));
+    const message = text(body.text, "text", { max: 100000, allowEmpty: true });
+    const read = parseSlash(message);
+    if (read.kind !== "command") return { kind: read.kind, text: read.text };
+    return this.dispatchCommand(sessionId, read.name, { revision: body.revision, args: read.args, ...(body.requestId !== undefined ? { requestId: body.requestId } : {}) });
   }
 
   /* ── CMP-01 · manual compaction as a Host operation ───────────────────── */
