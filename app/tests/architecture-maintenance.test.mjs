@@ -172,7 +172,15 @@ test("AM-C unchanged core wire golden and complete no-op remain stable with Expl
     // compare the complete new request in the no-op check below.
     const sparkNames=['spark_sources','spark_explore','spark_directory','spark_findings','spark_read','spark_read_source','spark_consume'].sort();
     assert.deepEqual(firstBody.tools.filter(t=>t.function.name.startsWith('spark_')).map(t=>t.function.name),sparkNames);
-    assert.deepEqual({...firstBody,tools:firstBody.tools.filter(t=>!sparkNames.includes(t.function.name))}, baseline, "unchanged core request must match the retained golden");
+    // BE-6 first slice (2026-09-16): `runtime_propose` is a further trusted Host
+    // contribution on the wire, asserted the same way — exact name, exact
+    // parameter set — while the retained core golden stays immutable.
+    const propose = firstBody.tools.find(t => t.function.name === 'runtime_propose');
+    assert.ok(propose, 'runtime_propose is offered to the model');
+    assert.deepEqual(Object.keys(propose.function.parameters.properties).sort(), ['content', 'title']);
+    assert.deepEqual(propose.function.parameters.required, ['title', 'content']);
+    const added = new Set([...sparkNames, 'runtime_propose']);
+    assert.deepEqual({...firstBody,tools:firstBody.tools.filter(t=>!added.has(t.function.name))}, baseline, "unchanged core request must match the retained golden");
 
     const second = await h.run(await h.createSession(), "am-c-golden-two");
     const secondBody = canonicalRequest(h.requests.at(-1).body);
