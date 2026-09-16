@@ -2,7 +2,9 @@
 
 2026-09-16 · Courtwork。研究基线：`main@f76dd7ec9f6cef845f67360cc0a22768ae309ca6`。本文登记施工顺序、跨面约束与验收；产品代码由 Claude 后续串行交付。实际产品状态仍由 [current](../../current.md) 持有。
 
-**v3 · 右侧工作面与轨迹：** [本轮源码审查与消费表](sidebar-trace-review.md)并入 00、04、08、10、11。移除默认 Runtime 资源统计卡；右侧按当前对象打开；复用 DSH 的顺序记录、选中项检查与具名工具呈现，不引入完整 docking/观测平台。先裁入口价值，再补保留能力的真实后端。
+**v4 · 首个新增 Runtime：** [OpenAI Agents API 技术方案与 A–F 施工片](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)接原 P03/P04/DRT-03。先采用无环境会话＋CW 受控函数工具；托管环境与自托管 executor 后置。Pi 保留，DWB→DF 共同后端顺序保留；前端沿同一 Chat/授权/文件检查面合流，不恢复右栏 Runtime 统计卡。
+
+**v3 · 右侧工作面与轨迹（继续有效）：** [本轮源码审查与消费表](sidebar-trace-review.md)并入 00、04、08、10、11。移除默认 Runtime 资源统计卡；右侧按当前对象打开；复用 DSH 的顺序记录、选中项检查与具名工具呈现，不引入完整 docking/观测平台。先裁入口价值，再补保留能力的真实后端。
 
 **v2 · 入口清理与目录接通（继续有效）：** [本轮源码审查与施工增补](frontend-entry-audit.md)并入 00、01–03、09–11。先迁好原位恢复再删除全局 Refresh；Project 选择与目录连接分开；从实际 Open / Choose folder 节点验到 Host binding、真实工具与重启接续。原 00→13 顺序及各 owner 保持。
 
@@ -33,7 +35,7 @@
 | 产品 Prototype | 资源关系、Memory 披露、Attention 组织与更丰富的 Presentation | 隔离的交互原型、固定 fixture、状态矩阵、后端缺口与迁移路径；不接生产写入，不充当 Harness 实现 |
 | 发布面 | 更有表现力的 Pages 与可理解的产品故事 | 独立 campaign 设计、真实产品媒体与概念图分源，构建和浏览器检查；不改产品语义，不自动部署 |
 
-Claude 是本单唯一产品 writer，按队列串行修改前后端。开发时可以用 fixture 比较界面；**先删除无独立用户价值的入口；保留的 Harness 能力必须接到真实服务和执行回执，不接受把 fixture 留在生产路径作为结案方式。** Hook、浏览器/桌面操作、任意 shell、第二 Runtime 等未纳入本单基础集合的能力，继续保留原后续任务，不能画成可用功能。
+Claude 是本单唯一产品 writer，按队列串行修改前后端。开发时可以用 fixture 比较界面；**先删除无独立用户价值的入口；保留的 Harness 能力必须接到真实服务和执行回执，不接受把 fixture 留在生产路径作为结案方式。** OpenAI Agents API 现列为首个新增 Runtime 的真实样板，按[专项方案](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)实施；这覆盖前版对全部第二 Runtime 的统一后置。Hook、浏览器/桌面操作、任意 shell、更多 Runtime 及高级托管能力继续沿原后续任务，不绘制假可用入口。
 
 本单复用 [产品方向](../../product-direction.md)、[五层责任](../../architecture.md) 与 [Runtime/Work](../../architecture-runtime-canon.md)，不新建领域状态、全局 registry 或另一套 agent loop。下列数字只表示本包顺序，不替换 DWB、DF、RD、FE、BE、P/G 原编号。原合同持有功能语义，本包持有施工编排与本次设计要求。
 
@@ -42,6 +44,7 @@ Claude 是本单唯一产品 writer，按队列串行修改前后端。开发时
 | 面 | 固定基线的依据 | 本单处置 |
 |---|---|---|
 | Pi / 模型 loop | [Harness 实施包](../../release/harness-implementation-2026-09-12/README.md)、[实际 adapter](../../../app/runtime/pi-session-runtime.mjs)；Pi 三包锁定 0.85.1 | 复用；不重新接一个聊天 demo，不用升级底座代替补齐接缝 |
+| 首个新增 Runtime | [原 Agents API 登记](../../research/agents-api-first-2026-09-14/README.md)、[本轮协议与 SDK 核验](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md) | 由优先核验候选推进到具体施工样板；独立于 Pi loop，通过共享 Host 工具与工作面验证 |
 | MCP / Skill / 本地 Plugin | [Developer 交付](../../design/developer-control-panel-2026-09-13/README.md)、[当前资源覆盖](../../../docs/runtime-control/INDEX.md) | Add/Edit/导入/受信登记与生命周期已有实现，列为真实消费和回归，不按旧缺口重建 |
 | 普通免 Project Chat、Recent、Copy/Composer | [current](../../current.md)、[前端连续性规范](../../design/agent-interface-2026-09-10/frontend-contract.md) | 保留现有交付；剩余布局和浏览器覆盖单独完成，不把历史待办全量重新打开 |
 | 外部仓库绑定与写入 | [RD-006 最新读写增量](../../research/RD-006-deferred-workspace-binding.md)；current 保留原在途树 | 首先核对并接续在途交付，完成真实 GUI 纵切；远端 main 无法代替本地 worktree 盘点 |
@@ -101,6 +104,7 @@ Copy、状态反馈和错误文案与组件一起施工，不留到最后统一�
 | 01 | DWB-01/02 | 实际 Open/Choose folder→Host binding→真实读取；撤权、取消、迟到与 GUI 状态 |
 | 02 | DWB-04 | 精确授权的真实仓库写入、差异与故障结算 |
 | 03 | DF-04 / RD-009 | Host 固定检查 recipe、真实进程、取消后结算与工具卡 |
+| 接 03；并入 04/05/08/10/11 | P03/P04/DRT-03 A–F | 首个新增 OpenAI Agents Runtime；协议、Pi 接缝、函数往返、故障恢复、同仓库读改测与工作接手 |
 | 04 | Chat Flow / Run surface | 单 Run 聚合、权限与最终答复；既有过程记录的选中检查和长 Run 顺序定位 |
 | 05 | Models 原 PR | Composer→模型配置→原草稿返回；真实 effort 保存与绑定 |
 | 06 | Runtime R4/R5、BE-6/7 | 既有能力真实消费回归；声明式 Skill 提案→人审→下一 Run |
@@ -112,7 +116,7 @@ Copy、状态反馈和错误文案与组件一起施工，不留到最后统一�
 | 12 | RD-007 / Memory / Attention / Presentation | 独立 Prototype 与后端缺口登记，不扩大 Harness 完成声明 |
 | 13 | PS / Pages | 更激进的发布面设计及新媒体采集候选，不自动部署 |
 
-01→02→03 接续 current 已指定的 RD-006→DF-04 顺序。00 只是必要接单，不以设计系统重建阻塞它们。各片完成代码、定向检查及文档回写后再改下一片；原卡有非作者门时照原门执行。不得把本地 Claude 的工作树操作算作 CW 产品能力。
+01→02→03 接续 current 已指定的 RD-006→DF-04 顺序。OpenAI Agents A/B 协议和接缝先准备；C 的只读源首片可先验证，E 的完整读改测必须接真实 DWB/DF 后端，F 并入 11；按[专项方案](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)由同一 Claude 串行施工。原 00–13 是责任索引，不给 A–F 另造全局编号；新的 Runtime 样板不阻断旧 Pi/NDA 独立验收。00 只是必要接单，不以设计系统重建阻塞它们。各片完成代码、定向检查及文档回写后再改下一片；原卡有非作者门时照原门执行。不得把本地 Claude 的工作树操作算作 CW 产品能力。
 
 ## 逐片施工合同
 
@@ -158,6 +162,12 @@ UI 的折叠工具行→结果详情展示真实 exitCode/signal、stdout/stderr
 
 先验证成功/非零退出、Deny 零执行、超时/超输出、取消、回执丢失/重启不重放、下次 Run 挂起与恢复；再用获准的真实模型从 GUI 发起一次检查。Claude 在自己的终端运行测试只属于开发验证。
 
+#### 首个新增 Runtime · 接原 P03/P04/DRT-03
+
+按[OpenAI Agents A–F](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)先抽取足以承接两种 Runtime 的薄接口；Pi 私有 SessionManager 留在 Pi adapter，Host 仍持有准入、工具权限和效果回执。原生 Session/turn/call 与 CW Chat/Run/调用分别关联，不能只在 Model registry 加名字。
+
+首节点 `environment.type: none`，由 CW 函数工具处理真实材料、目录和检查；不开放原生远端 shell、不上传整仓。首建未取得 ID、消息 ACK 丢失、tool-result 重交和取消迟到分别查回；不把断流当停止，不盲重试副作用。新执行器的 read-only first slice 与完整仓库样板分别验收。
+
 ### 04 · 让真实长 Run 保持可读
 
 消费 [Run surface 原 PR](../../design/chat-flow-2026-09-10/run-surface-pr-20260914.md)。最近先例为 `thread-projection.mjs`、`user-message.mjs`、`chat-actions.mjs`、`app.mjs` 及 followLatest。
@@ -170,6 +180,8 @@ UI 的折叠工具行→结果详情展示真实 exitCode/signal、stdout/stderr
 
 Stop 发真实 cancel；请求在途、Host stopping、确认终态分开。刷新/重连读取原 Run，不自动重发。SSE/long-poll 仅在定位传输缺口后另片实现；动效不冒充实时性。宽泛“Allow edits for this run”不混入本片，继续原独立授权合同。
 
+OpenAI 原生 item/delta/done 经 adapter 进入同一 projection；保存的 item 可补读，但丢失中间事件不伪重建为完整 trace。函数等待、人的批准、root turn 终态与子 turn 终态分别处理。身份、恢复和取消矩阵见[专项方案](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)。
+
 ### 05 · 模型配置与 effort 的短路径
 
 完整消费 [Composer Models 原 PR](../../research/models-provider-registration-2026-09-14/composer-pr.md)。复用 `createModelPicker`、provider-config、Settings Models 和 adapter 能力，不复制配置表单。
@@ -177,6 +189,8 @@ Stop 发真实 cancel；请求在途、Host stopping、确认终态分开。刷�
 Composer 能直达对应连接，返回恢复 Chat、草稿、附件和焦点；导航不触发模型调用。effort 快选取真实能力枚举，不硬编码六档或连续算力滑轨；Provider default 是省略参数，不是最低档。unknown/unsupported 和失效旧值有明确恢复路径。
 
 保存遵守现有 scope 和活动 Run 冻结；控件靠近 Chat 不意味着配置变成 Chat-local。验证 Host 已存值、下一 Run binding 与实际编码一致；失败/迟到回执不覆盖新选择。用两组不同能力 fixture 加一个受支持真实组合验证，不承诺所有 Provider。
+
+OpenAI Agents 的执行方式与模型分字段，复用当前连接/设置返回路径；第一选择用于新 Chat，不暗改全部历史会话。配置发生实质变化时新建执行谱系并受控接手，不能用 metadata update 冒充原生 model/effort 热切换。完整范围见[配置合同](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md#身份配置与工作接手)。
 
 ### 06 · 能力管理必须被下一次运行真正消费
 
@@ -194,7 +208,9 @@ Hook 的第一真实消费者、视觉/浏览器/桌面操作、完整包安装�
 
 CMD-01 用 Host discovery/dispatcher 提供 read/client_ui/setting 行为；`/status` 零普通 Run、零模型请求，`/model` 复用 picker。unknown、shadow、旧 discovery、撤权和参数错误不能静默 fallthrough；明确 literal escape/绝对路径输入。`Run.commandId` 仍是幂等键，不拿来存命令名称。前端菜单与 slash 同源，不维护第二份命令数组。
 
-CMP-01 只在 idle Session 的共享 admission 中运行 native compact，不隐式 abort 活动 Run。持久化操作 ID、查回、预算、失败/取消/unknown 与 journal 顺序；ACK 丢失先查回，不能重复付费压缩。压缩前后 provenance、真实 usage 与估算分开；不改用户历史、Core 记录或权限。自动压缩按既有合同回归，不重新实现 summarizer。
+CMP-01 是 Pi 的能力，只在 idle Session 的共享 admission 中运行 native compact，不隐式 abort 活动 Run。持久化操作 ID、查回、预算、失败/取消/unknown 与 journal 顺序；ACK 丢失先查回，不能重复付费压缩。压缩前后 provenance、真实 usage 与估算分开；不改用户历史、Core 记录或权限。自动压缩按既有合同回归，不重新实现 summarizer。
+
+OpenAI Agents 的自动压缩归托管 harness；等价手动 compact 尚无本单已核接口，不能广告该命令、把 `/compact` 当文本送给模型，或偷用 Pi 替它执行。命令、MCP、Skill 和 Plugin 都按已验证的 Runtime 支持组合消费，不因原控制面已安装就承诺全部可用。
 
 ### 08 · Preview 与检查：四种来源不混成一个绿色结果
 
@@ -228,9 +244,13 @@ Project/Chat/Recent 的右键、更多与 inline 共用 command descriptor/handl
 
 最后跨 Home/Chat/Preview/Settings/Runtime/Attention 做一次默认文字层审阅；每处重复文字在源头收敛，而非藏在小字号和 tooltip 中。
 
+OpenAI Agents 的 turn/session usage 保留独立口径和后补来源；累计值不再与逐 turn 相加，缺失内部模型请求/计量保持缺失。不给新适配另造常驻云端面板，详见[观测和前端边界](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)。
+
 ### 11 · 同一候选提交的真实合流
 
 按下节组合验收记录一条真实成功路径、一条取消路径及一条版本/授权失效路径。全部使用同一候选 SHA 和独立数据；不同切片的旧截图不拼成“整版已验”。Claude 作者自检、非作者复核、人类判断分列；沿原 Gate 逐项记证据，不以文档登记或一次成功全关 G1–G5。
+
+新增执行器样板沿[专项验收](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md#验收与后续节点)补真实函数往返、原生取消、断线补读、同仓库读改测及同 Matter 接手；Pi 与 OpenAI 使用相同的工具 owner 和固定 fixture，记录差异而非强求功能完全等价。未完成新 Runtime 不回写旧 Pi 证据为失败；完成旧 Pi 也不替代新 Runtime 接受。
 
 ### 12–13 · 产品探索与发布面
 
@@ -350,6 +370,7 @@ node site/scripts/check-material.mjs
 | 形态与来源消费 | [Atlas](../../design/atlas/README.md)、[Scout](../../design/scout/README.md)、[Scout digest](../../design/se-control-one-shot-2026-09-11/scout-digest.md) | assistant-ui/AI Elements 取解剖，APG/Base UI/React Aria 取行为，60fps 取 motion；不引入整库 |
 | 真能力/旧缺口去重 | [Runtime Index](../../../docs/runtime-control/INDEX.md)、[Developer 交付](../../design/developer-control-panel-2026-09-13/README.md)、[Harness 实施](../../release/harness-implementation-2026-09-12/README.md) | 既有 MCP/Skill/Plugin 复用；真实消费而非表单数量 |
 | 仓库与检查 | [RD-006](../../research/RD-006-deferred-workspace-binding.md)、[DF](../../release/harness-implementation-2026-09-12/harness-dogfooding.md)、[RD-009](../../research/RD-009-trusted-harness-extensions.md) | 01–03；不把 cwd、工具和 sandbox 混为一谈 |
+| 首个新增 Runtime | [本轮 Agents API 核源和技术方案](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)、[原 Sep14 登记](../../research/agents-api-first-2026-09-14/README.md) | P03/P04/DRT-03 A–F；none＋CW tools、独立 native 身份、取消/恢复、同工作接手 |
 | Run 与模型 | [Run PR](../../design/chat-flow-2026-09-10/run-surface-pr-20260914.md)、[Models PR](../../research/models-provider-registration-2026-09-14/composer-pr.md)、[Pi 源码](../../../app/runtime/pi-session-runtime.mjs) | 04–05；真实状态、配置与能力枚举 |
 | 能力提案与命令 | [GUI Control](../../research/gui-agent-control-plane-2026-09-12/README.md)、[RD-008](../../research/RD-008-command-compaction.md) | 06–07；提案/配置/执行分开 |
 | 右栏、卡片与轨迹 | [本轮固定源码与 DSH 消费](sidebar-trace-review.md) | 00/04/08/10/11；对象优先、顺序定位、选中检查，拒绝默认技术指标墙及无任务 docking |
@@ -362,7 +383,7 @@ node site/scripts/check-material.mjs
 
 ## Claude 接单入口
 
-读取本包、[入口清理增补](frontend-entry-audit.md)、[右栏与轨迹增补](sidebar-trace-review.md)、AGENTS 与最新 current，先对账原 RD-006 在途树，再按 00→13 串行推进。每片只打开对应 owner、最近实现和必要 Explore/Design 来源；已有实现按实际证据复用，不从旧待办重建。
+读取本包、[入口清理增补](frontend-entry-audit.md)、[右栏与轨迹增补](sidebar-trace-review.md)、[Agents API 技术方案](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)、AGENTS 与最新 current，先对账原 RD-006 在途树，再沿主队列与原 P03/P04/DRT-03 A–F 串行推进。每片只打开对应 owner、最近实现和必要 Explore/Design 来源；已有实现按实际证据复用，不从旧待办重建。
 
 删除无独立用户价值的入口；保留的 Harness 能力沿真实服务完成读写和查回，纯视图动作不伪造后端需求；每个新增局部面都要继承共同语义、控件、编排与文字层。原型放隔离入口，未来后端缺口写回原 PR。遇到可逆的本单内局部选型直接完成并记理由；涉及新增权限、正式状态或超出当前架构边界时保留具体反例交回裁决，不能悄悄扩大。
 

@@ -1,5 +1,13 @@
 # Agents API 候选与 GUI dogfooding · Astra 裁决
 
+## 2026-09-16 · 首个新增 Runtime 样板
+
+[官方核源、技术方案与 A–F 施工片](implementation-plan-20260916.md)接用户新要求：OpenAI Agents API 作为首个新增 Runtime 样板，先采用 `none`＋CW 受控函数工具，原生 Session/turn/call、效果结算、取消/恢复与同一 GUI 合流。Pi 保留；完整仓库样板接 RD-006→DF-04，托管环境与 self-hosted executor 后置。接 [Claude 主施工单](../../execution/claude-frontend-harness-2026-09-16/README.md)，不另建 roadmap、不恢复右栏 Runtime 统计卡。
+
+本日新增官方协议/SDK 源码核验及施工计划；下文 Sep14 的外部待核状态保留其原时点，未把当时 Local test 记作新 API 实测。本轮没有产品代码、真实 API 调用或能力接受。
+
+## 2026-09-14 · 原登记与现场记录
+
 2026-09-14，实读 `main@7e1a1ff047721e1ca6c871deba7f367ccea55a06`。原工作树有治理与独立评审文档在途，均保留；本轮无产品代码修改。用户授权内置浏览器开始 dogfooding、Luna 探索与复验、Astra 架构与工单切分。附件及所引会话为研究输入，不自行赋予执行、凭据、部署或正式决定权限。
 
 ## 裁决与原 owner
