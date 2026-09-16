@@ -2,6 +2,8 @@
 
 2026-09-16 · Courtwork。研究基线：`main@f76dd7ec9f6cef845f67360cc0a22768ae309ca6`。本文登记施工顺序、跨面约束与验收；产品代码由 Claude 后续串行交付。实际产品状态仍由 [current](../../current.md) 持有。
 
+**v2 · 入口清理与目录接通：** [本轮源码审查与施工增补](frontend-entry-audit.md)并入 00、01–03、09–11。先迁好原位恢复再删除全局 Refresh；Project 选择与目录连接分开；从实际 Open / Choose folder 节点验到 Host binding、真实工具与重启接续。原 00→13 顺序及各 owner 保持。
+
 > 从一个问题开始，连接明确的材料或仓库，完成获准修改和真实检查，在同一工作面读懂结果，再从保留的工作记录继续。所有界面说同一种语言。
 
 施工记录：[00 接单基线与公共语言](00-intake.md)、[01 连接并读到真正的仓库](01-workspace-binding.md)、[02 写入必须是真实效果](02-candidate-write.md)、[03 从产品里执行检查](03-check-recipe.md)、[04 让真实长 Run 保持可读](04-run-surface.md)、[05 模型配置与 effort 的短路径](05-models-composer.md)、[06 能力管理必须被下一次运行真正消费](06-capability-consumption.md)、[07 命令与手动压缩](07-commands-compaction.md)。后续每片在本目录追加记录并回写原 owner；[current](../../current.md) 只登记最新状态。
@@ -93,8 +95,8 @@ Copy、状态反馈和错误文案与组件一起施工，不留到最后统一�
 
 | 顺序 | 原任务 / 工作面 | 本片输出 |
 |---|---|---|
-| 00 | 接单 / UX continuity | 在途盘点、共享 grammar 映射与本轮固定场景；不先大重构 |
-| 01 | DWB-01/02 | 仓库连接、读取、撤权与 GUI 状态 |
+| 00 | 接单 / UX continuity / 入口清理 | 在途盘点、共享 grammar、入口存废；迁好原位恢复再删除全局 Refresh，修正 Project/目录错名 |
+| 01 | DWB-01/02 | 实际 Open/Choose folder→Host binding→真实读取；撤权、取消、迟到与 GUI 状态 |
 | 02 | DWB-04 | 精确授权的真实仓库写入、差异与故障结算 |
 | 03 | DF-04 / RD-009 | Host 固定检查 recipe、真实进程、取消后结算与工具卡 |
 | 04 | Chat Flow / Run surface | 单 Run 聚合、流式阅读、权限插入、最终答复和恢复 |
@@ -118,15 +120,19 @@ Copy、状态反馈和错误文案与组件一起施工，不留到最后统一�
 
 读取 [UX Grammar](../../design/ux-grammar.md)→[frontend contract](../../design/agent-interface-2026-09-10/frontend-contract.md)→[precedent map](../../design/agent-interface-2026-09-10/precedent-map.md)，仅展开当片的相关先例。用同一合成仓库、同一长 Chat、同一权限卡和同一 Settings 配置制作贯穿本轮的场景；历史 golden 不自动升级为新基线。
 
+按[入口清理增补](frontend-entry-audit.md)登记常驻入口存废，迁移 Refresh 中隐藏的创建/发送/上传查回，再移除全局刷新按钮；Project 选择按真实语义命名，被动能力占位移出生产导航。失败恢复不能随按钮删除，局部视图动作也不强求后端。
+
 本片退出：每个待改工作面有可定位的 owner、现有 primitive 和缺口；已交付项去重，当前原型与真实功能分清。无新增通用 registry、状态机库、UI 框架或大规模目录迁移。
 
 ### 01 · 连接并读到真正的仓库
 
 承接 [RD-006](../../research/RD-006-deferred-workspace-binding.md) 与 DWB 原 PR，写入由 Runtime service/store 持有；前端复用 Home/Chat Access 与对象/弹层 primitive。
 
-完成 Connect repository、路径校验、已连接范围、读取失败、断开/撤权。Project 归属、外部资源 binding、managed cwd、Access 分别表达；普通提问无须选目录。浏览器不能提供 Host 目录句柄时使用明确的 Host 路径输入，不伪装上传为挂载。
+从用户实际的 Open / Choose folder 节点核对 picker 返回类型，完成与能力一致的目录连接、路径校验、已连接范围、读取失败、断开/撤权。一般目录入口沿[增补](frontend-entry-audit.md)使用 Connect folder；repository 仅用于确有仓库语义的能力，不给同一命令制造同义入口。Project 归属、外部资源 binding、managed cwd、Access 分别表达；普通提问无须选目录。浏览器不能提供 Host 目录句柄时使用明确的 Host 路径输入，不伪装上传为挂载。
 
 `repo_list/read/grep` 在访问点重验授权、root 身份、相对路径与 binding revision；源回执保留精确路径/hash/Run 归因。下一 Run 固定 binding，活动 Run 不热换 cwd。撤权阻断后续调用；刷新不能凭旧本地选择恢复“已连接”。
+
+选中目录、Project 归属、上传材料与 Runtime 文件能力分别验证；浏览器 handle 不直接当作 Node Host 授权。Home 首发需要目录时，沿原 Session 身份完成绑定后才发起原指令；连接失败不默默退回无目录执行。
 
 验收：无绑定、连接成功、失败/失效、撤权、symlink/root 替换、跨会话、重复请求/旧 revision、刷新和重开。读取后的资料能从 GUI 回到对应来源。改动候选为 `app/server/service.mjs`、原 store、`app/runtime/` 与现有 Home/Chat 接线，精确写权以在途成果核对后登记。
 
@@ -281,6 +287,8 @@ Claude 在现有 campaign 源中比较两个局部方案后选一：一是纸面
 | 版本冲突与撤权 | 批准后原文件改变或资源被撤权；执行拒绝，GUI 保留原意图并说明冲突；不默认重新批准/覆盖 |
 | 重试与恢复 | 丢 ACK、刷新或重启后用原操作身份查回；不重复写入或付费调用，历史 binding 不由当前配置重算 |
 
+增加[目录识别 fixture 与入口回归矩阵](frontend-entry-audit.md)：两个目录的同名文件和已上传副本使用不同内容，真实工具必须读到所选目录；删除 Refresh 后，未确认创建/发送/上传仍能按原身份恢复。
+
 另做一个有真实来源/版本的成果检查路径；需要 Core 正式接受时走原 Candidate→Decision→Artifact，不把测试 exit 0 当作接受。Spark 已有准备结果可进入此路径，独立后台 Provider/调度器不是本单前置。
 
 ### 证据各自承重
@@ -341,7 +349,7 @@ node site/scripts/check-material.mjs
 
 ## Claude 接单入口
 
-读取本包、AGENTS 与最新 current，先对账原 RD-006 在途树，然后按 00→13 串行推进。每片只打开对应 owner、最近实现和必要 Explore/Design 来源；已有实现按实际证据复用，不从旧待办重建。
+读取本包、[入口清理增补](frontend-entry-audit.md)、AGENTS 与最新 current，先对账原 RD-006 在途树，再按 00→13 串行推进。每片只打开对应 owner、最近实现和必要 Explore/Design 来源；已有实现按实际证据复用，不从旧待办重建。
 
 每个 Harness 控件都要沿真实服务完成读写和查回；每个新增局部面都要继承共同语义、控件、编排与文字层。原型放隔离入口，未来后端缺口写回原 PR。遇到可逆的本单内局部选型直接完成并记理由；涉及新增权限、正式状态或超出当前架构边界时保留具体反例交回裁决，不能悄悄扩大。
 
