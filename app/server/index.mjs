@@ -220,6 +220,8 @@ function routeService(service, req, url) {
   if (tail.length === 1 && tail[0] === "runtime-context" && method === "GET") return () => service.getRuntimeContext(url.searchParams.get("sessionId"), url.searchParams.get("runId"));
   if (tail.length === 2 && tail[0] === "runtime-permissions" && tail[1] === "evaluate" && method === "POST") return async () => service.evaluateRuntimePermission(url.searchParams.get("sessionId"), await body(req));
   if (tail.length === 3 && tail[0] === "mcp" && tail[2] === "lifecycle" && method === "POST") return async () => service.mcpLifecycle(url.searchParams.get("sessionId"), tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "commands" && method === "GET") return () => service.listCommands(tail[1]);
+  if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "commands" && method === "POST") return async () => service.dispatchCommand(tail[1], tail[3], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "compactions" && method === "GET") return () => service.listCompactions(tail[1]);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "compactions" && method === "POST") return async () => service.compactSession(tail[1], await body(req));
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "compactions" && method === "GET") return () => service.getCompaction(tail[1], tail[3]);

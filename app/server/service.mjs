@@ -47,6 +47,7 @@ import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWork
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
 import { createRuntimeLoadTool, createRuntimeProposeTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
 import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposals.mjs";
+import { discoverCommands, findCommand, parseArguments } from "../runtime/commands.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
 import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } from "../runtime/repository-candidate.mjs";
@@ -495,6 +496,82 @@ export class RuntimeService {
       } catch (error) { if (error instanceof ServiceError) throw error; throw new ServiceError(502, 'mcp_connection_failed', 'MCP connection failed; inspect provider diagnostics'); }
       return this.getRuntimeControl(sessionId);
     });
+  }
+
+  /* ── CMD-01 · Host command discovery and dispatch ─────────────────────── */
+  #commandFacts(sessionId) {
+    const session = this.store.getSession(sessionId);
+    if (!session) throw new ServiceError(404, "not_found", "session not found");
+    const runtime = this.getRuntimeControl(sessionId);
+    const model = this.#resolveModel(this.providerConfig);
+    const capability = this.#reasoningCapability(this.providerConfig);
+    let compaction;
+    if (!session.hostSession) compaction = { available: false, reason: "This chat has no recorded conversation to compact." };
+    else if (!model) compaction = { available: false, reason: "The configured model could not be resolved." };
+    else if (!this.#compactionPolicy(model).enabled) compaction = { available: false, reason: "Compaction needs a known context window on the configured model." };
+    else compaction = { available: true, reason: null };
+    return { session, runtime, facts: {
+      sessionId, runtimeRevision: runtime.revision, providerConfigVersion: this.store.getProviderConfigVersion(),
+      permissionMode: session.permissionMode, activeRun: this.store.hasActiveRun(), activeOperation: this.store.hasActiveOperation(),
+      fakeProvider: this.providerConfig.provider === FAKE_PROVIDER_ID,
+      effortValues: capability.kind === "enum" ? capability.values : [], compaction,
+    } };
+  }
+  listCommands(sessionId) {
+    const { facts } = this.#commandFacts(sessionId);
+    return discoverCommands(facts);
+  }
+  /** Dispatch re-decides from current facts; a stale catalog is refused, an
+   * unknown or unavailable command is refused, bad arguments are refused —
+   * each with a reason and never by falling through to a model turn. */
+  async dispatchCommand(sessionId, name, input) {
+    const body = requireObject(input, "body");
+    assertKeys(body, new Set(["revision", "args", "requestId"]));
+    const { session, runtime, facts } = this.#commandFacts(sessionId);
+    const catalog = discoverCommands(facts);
+    if (body.revision !== undefined && body.revision !== catalog.revision) throw new ServiceError(409, "command_revision", "Commands changed; read them again before dispatching", { revision: catalog.revision });
+    const command = findCommand(catalog, name);
+    if (!command) throw new ServiceError(404, "unknown_command", `Unknown command /${String(name).slice(0, 40)}`);
+    if (!command.availability.available) throw new ServiceError(409, "command_unavailable", command.availability.reason, { command: command.name });
+    const parsed = parseArguments(command, typeof body.args === "string" ? body.args : "");
+    if (parsed.error) throw new ServiceError(400, "invalid_arguments", parsed.error, { command: command.name });
+    const args = parsed.value;
+    if (command.kind === "client_ui") return { kind: "client_ui", command: command.name, target: command.target };
+    if (command.kind === "passthrough") return { kind: "passthrough", command: command.name };
+    if (command.kind === "read") {
+      if (command.name === "status") {
+        const config = this.providerConfig;
+        const binding = session.repositoryBinding?.status === "active" ? session.repositoryBinding : null;
+        const candidate = session.repositoryCandidate?.status === "active" ? session.repositoryCandidate : null;
+        const runs = this.store.listRuns().filter(r => r.sessionId === sessionId);
+        const last = runs.at(-1) ?? null;
+        return { kind: "read", command: "status", facts: {
+          model: { provider: config.provider, model: config.model, api: config.api, reasoningEffort: config.reasoningEffort ?? null, configVersion: facts.providerConfigVersion, localTest: facts.fakeProvider },
+          fileAccess: session.permissionMode,
+          workspace: binding ? { rootPath: binding.rootPath, revision: binding.revision } : null,
+          privateCandidate: candidate ? { baseCommit: candidate.baseCommit, writeRevision: candidate.writeRevision } : null,
+          runtime: { revision: runtime.revision, exposedTools: runtime.resources.filter(r => r.kind === "tool" && r.exposed).length, context: runtime.context.length },
+          runs: { count: runs.length, last: last ? { id: last.id, status: last.status, endedAt: last.endedAt } : null },
+          activeRun: facts.activeRun, compaction: facts.compaction, commandsRevision: catalog.revision,
+        } };
+      }
+      if (command.name === "tools") {
+        const tools = runtime.resources.filter(r => r.kind === "tool").map(r => ({ id: r.id, name: r.title, exposed: r.exposed, permission: r.permission?.effect ?? null, parent: r.parent ?? null }));
+        return { kind: "read", command: "tools", facts: { revision: runtime.revision, tools } };
+      }
+    }
+    if (command.kind === "setting" && command.name === "effort") {
+      const { reasoningEffort, ...current } = publicProviderConfig(this.providerConfig);
+      const next = { ...current, ...(args.value === "default" ? {} : { reasoningEffort: args.value }), expectedVersion: facts.providerConfigVersion };
+      const saved = await this.setProviderConfig(next);
+      return { kind: "setting", command: "effort", saved: { reasoningEffort: saved.config.reasoningEffort ?? null, version: saved.version }, scope: "all chats, future runs" };
+    }
+    if (command.kind === "control" && command.name === "compact") {
+      const requestId = text(body.requestId ?? randomUUID(), "requestId", { max: 200 });
+      const started = await this.compactSession(sessionId, { requestId, ...(args.focus ? { focus: args.focus } : {}) });
+      return { kind: "control", command: "compact", operation: started.operation, idempotent: started.idempotent };
+    }
+    throw new ServiceError(500, "command_unhandled", "the command has no dispatcher");
   }
 
   /* ── CMP-01 · manual compaction as a Host operation ───────────────────── */
