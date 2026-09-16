@@ -298,10 +298,14 @@ function attentionCard({ attention, projects, onAttentionProject, onAttentionRet
  * and the Modules masthead. */
 export function renderHomeGreeting(greeting) {
   const value = typeof greeting === "string" ? { text: greeting } : greeting;
-  const block = el("div", { className: "home-greeting-block" },
-    el("h2", { className: "home-greeting", text: value.text, attrs: { "data-greeting": "" } }));
-  if (value.dateLine) block.append(el("p", { className: "home-greeting-date", text: value.dateLine, attrs: { "data-greeting-date": "" } }));
-  return block;
+  /* User ruling 2026-09-16 (afternoon): the sentence is trimmed to one line
+   * and simply joined with the date — sentence first, date after it in a
+   * lighter face on the same line. The date is text, not a control: the
+   * calendar view behind it is registered, not built. */
+  const heading = el("h2", { className: "home-greeting" },
+    el("span", { className: "home-greeting-text", text: value.text, attrs: { "data-greeting": "" } }));
+  if (value.dateLine) heading.append(" ", el("span", { className: "home-greeting-date", text: value.dateLine, attrs: { "data-greeting-date": "" } }));
+  return el("div", { className: "home-greeting-block" }, heading);
 }
 
 export function renderHomeModuleBand(container, options) {

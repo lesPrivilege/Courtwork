@@ -6918,25 +6918,30 @@ html[data-theme="dark"] {
   font-weight: 600;
   transition: opacity 180ms var(--ease-out);
 }
-.home-greeting.is-updating { opacity: 0; }
-/* The date is set under the greeting as one typographic unit: the sentence
-   carries the weight, the date is a quiet, tabular, slightly tracked line. */
-.home-greeting-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.home-greeting-text.is-updating { opacity: 0; }
+.home-greeting-text { transition: opacity 180ms var(--ease-out); }
+/* One line, one typographic unit (user ruling 2026-09-16): the sentence
+   carries the weight, the date follows it in a lighter, tabular run. The date
+   wraps under the sentence only when the column is too narrow for both. */
+.home-greeting-block { display: flex; flex-direction: column; min-width: 0; }
 .home-greeting-date {
-  margin: 0;
-  font-size: var(--text-meta);
-  line-height: 1.4;
+  font-size: calc(17px * var(--text-scale));
+  font-weight: 400;
   color: var(--muted-strong);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
-.home-composer-intro .home-greeting-date { margin-top: 2px; }
+/* Modules · the masthead's first line sits on the Activity card's title line:
+   the card pads 18 and its title row is 28 high, so the 30-high sentence line
+   needs 18 above it for the two lines to share a centre (measured at 1280). */
 .home-masthead {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-2) var(--space-4);
+  padding-top: 18px;
   margin-bottom: var(--space-4);
   min-height: 0;
 }
