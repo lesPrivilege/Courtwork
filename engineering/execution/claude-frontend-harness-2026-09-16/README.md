@@ -10,7 +10,7 @@
 
 > 从一个问题开始，连接明确的材料或仓库，完成获准修改和真实检查，在同一工作面读懂结果，再从保留的工作记录继续。所有界面说同一种语言。
 
-施工记录：[00 接单基线与公共语言](00-intake.md)、[01 连接并读到真正的仓库](01-workspace-binding.md)、[02 写入必须是真实效果](02-candidate-write.md)、[03 从产品里执行检查](03-check-recipe.md)、[04 让真实长 Run 保持可读](04-run-surface.md)、[05 模型配置与 effort 的短路径](05-models-composer.md)、[06 能力管理必须被下一次运行真正消费](06-capability-consumption.md)、[07 命令与手动压缩](07-commands-compaction.md)；编号外产品片：[P · Home 身份、问候与账户](p-home-identity.md)。后续每片在本目录追加记录并回写原 owner；[current](../../current.md) 只登记最新状态。
+施工记录：[00 接单基线与公共语言](00-intake.md)、[01 连接并读到真正的仓库](01-workspace-binding.md)、[02 写入必须是真实效果](02-candidate-write.md)、[03 从产品里执行检查](03-check-recipe.md)、[04 让真实长 Run 保持可读](04-run-surface.md)、[05 模型配置与 effort 的短路径](05-models-composer.md)、[06 能力管理必须被下一次运行真正消费](06-capability-consumption.md)、[07 命令与手动压缩](07-commands-compaction.md)、[08 facts 纵切与对象驱动右栏](08-presentation.md)；编号外产品片：[P · Home 身份、问候与账户](p-home-identity.md)。后续每片在本目录追加记录并回写原 owner；[current](../../current.md) 只登记最新状态。
 
 ## 目录
 

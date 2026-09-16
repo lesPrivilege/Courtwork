@@ -26,7 +26,7 @@ Exceptions: Sign out / Delete account / Manage plan / Export / View history 全�
 |---|---|
 | `1a87bf2` | Host profile-store（CAS、限额、fixture Account）、路由、home-greeting 语法与语料、profile / greeting 测试 |
 | `e798306` | Home 问候放置（masthead / intro）、Example 行降级、左下角身份行与账户菜单、Settings 三组与 Preferences 三行、avatar-mark、registry 与生成投影 |
-| `__PANELS__` | Profile 与 Account 面板（Sonnet）及其测试 |
+| `46d2b01` · `ac81800` | Profile / Account 面板（Sonnet；其未提交改动被前一提交一并带入，见提交说明）；问候 English only 与日期行；面板测试 |
 
 ## 作者检查
 
@@ -39,7 +39,7 @@ Exceptions: Sign out / Delete account / Manage plan / Export / View history 全�
 
 ## 未完项
 
-- Profile / Account 面板由 Sonnet 交付后补入本表；Photo 上传的浏览器目验未做。
+- Profile / Account 面板：Sonnet 交付（工作地址建议是按钮而非自动填充；账户动作全部禁用带原因；256 KiB 客户端拒绝），浏览器目验未做（Photo 上传、409 冲突）。
 - 语料未做非作者审读；English only 18 句，中文语料按用户裁定暂不做。
 - 跨时段淡入淡出未在浏览器观察（需等时段变化）；逻辑有单元测试。
 - 无真实账户服务：Sign out 等动作禁用；未 push、未部署。

@@ -30,3 +30,8 @@ UI动作分三类：本地视图状态、已有navigation intent、owner授权�
 3. 待前两片成立再做垂直Review语法与外部adapter。真实provider验证沿届时授权与隔离数据执行，不由引用讨论自动发起付费调用。
 
 本轮仅接收研究并裁定进入验证，未冻结API、新增事件/工具/schema或实现UI。排队不打断当前RD-006施工；Luna非作者验收与Chrome目验，Astra不重复复验。
+
+## 2026-09-16 · 实现回执（Claude 施工单 08）
+
+facts 只读纵切按 [08 记录](../../execution/claude-frontend-harness-2026-09-16/08-presentation.md)打通：`cw_present` 经既有工具治理提交受限 Spec（facts v1），Host 精确校验、分配 instance/revision、记 `presentation.created` 于 Run（origin 与 model-derived 来源），同 callId 幂等，回执只陈述已记录；Chat 行与工作面 Presentation pane 读同一实例同一版本，未知 kind/version 以文本 fallback 并说明；重开保留、只经本 Session 读回。chart/table/checklist、本地 sort/filter、正式动作、Gateway 披露与 Review 语法未做，wire 未冻结为公共 API。
+
