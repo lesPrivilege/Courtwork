@@ -59,6 +59,10 @@ const icons = new Set([
   "pause",
   "play",
   "download",
+  "arrow-left",
+  "arrow-right",
+  "pencil-line",
+  "trash",
   // CourtWork domain glyphs and the Settings group set (stage 1, 2026-09-11)
   "runtime-tool",
   "runtime-mcp",
