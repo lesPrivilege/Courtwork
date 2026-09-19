@@ -34,6 +34,8 @@
 
 权威 token 位于 `app/web/styles.css` 的 `:root`：`--text-*`、`--space-*`、`--page-gutter`、`--panel-padding`、`--card-padding`、`--column`、`--control`、`--radius-*`。新组件消费同一组 token，新增例外必须注明具体用途，不能为一个页面复制另一套按钮。
 
+间距（margin/padding/gap）与 font-size 的字面量由 `tools/lint-spacing.mjs` 守（G3 · gui-grammar-convergence-20260919）：只允许 `0`/`auto`、`var(--space-*)`/`var(--text-*)`、由 token 或相对单位派生的表达式，以及登记在该文件 `REGISTERED_SPACE` / `REGISTERED_FONT` 表里的 selector + 值例外（含少数标注 NEEDS RULING、待后续裁定的项）；1–3px 发丝/光学偏移全局放行，不逐条登记。
+
 ## 尺寸 token（WK-94 / WK-96，2026-09-09 FE-01）
 
 层级首先来自尺寸、间距与表面高度，不来自边框。下表是**产品配置**，权威取值在 `app/web/styles.css` 的 `:root`；本页记的是每个数字回答哪一个问题，改数字必须同时改这里。

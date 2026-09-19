@@ -199,6 +199,40 @@ Owner **styles.css / visual contract**.
 - Add `tools/lint-spacing.mjs` and a type-size check, following `tools/lint-shapes.mjs` and `app/tests/shape-governance.test.mjs`. No debt allowlist.
 - If a real gap needs a new token value, stop and ask for an Opus ruling.
 
+#### G3 delivery · Sonnet author, Opus review (2026-09-20)
+
+Same branch. A Sonnet worker implemented G3 from this spec after G2 was handed over; Opus reviewed the result and adjusted it. Precedent: `tools/lint-shapes.mjs` and `app/tests/shape-governance.test.mjs`.
+
+**Change.** The scope is `styles.css`, `summary-disclosure.css` and `markdown-reader.css`; `surface-layout.css` was already clean.
+- Spacing: 584 raw px values before the change.
+  - 422 were mechanical replacements, token-equal values rewritten as `var(--space-*)` with no visual change.
+  - 64 were snapped to the nearest token.
+  - 58 selector+value pairs were registered with reasons, mostly the 6 px label/chrome rhythm and ≥40 px page-level paddings.
+  - 1–3 px hairlines are allowed by one documented global rule.
+- Font size: 23 raw values before the change. 2 became role tokens, 6 were snapped and 16 registered as display exceptions (hero, greeting, dialog title, avatar glyph, reading-document h1, Usage total).
+- New gate `tools/lint-spacing.mjs` with two rules, spacing and font size, plus `app/tests/spacing-governance.test.mjs`. `ui-composition-standard` points to it. No new token value was added.
+
+**Opus review dispositions.**
+- **Adjusted, restored as registered control anatomy:**
+  - global `button` padding 5×10 (type-density-constraints);
+  - `input` inline padding 10;
+  - `.home-greeting-date` 17 px (user ruling 2026-09-16).
+- **Adjusted, restored as written derivations rather than snaps:**
+  - `.usage-weekdays` padding-top 27 = 3 + `--space-4` + `--space-2`, the offset of the heatmap's first row;
+  - `.context-tab` bottom 15 = `--space-3` overlap + 3, symmetric with its top.
+- **Ruled, two worker "needs ruling" items registered:**
+  - `.markdown-body h1` 23, a reading-document level above `--text-title`;
+  - `.usage-total` 28/24, the one summary figure per page, and not a general "large number" role.
+- **Accepted after before/after comparison** (pre-G3 `fbab236` on port 8872 against the branch on 8871, 1440×900 light):
+  - Home: rows +2 px, sidebar rows ±1 px.
+  - Settings › Preferences: indistinguishable.
+  - Attention detail: the heading goes from 22 to 18, which is the title role, and the hierarchy holds. Segments are 2 px narrower.
+  - `nav-filter` input: +2 px, with icon clearance kept.
+
+The complete snap table was generated in the author scratchpad; the registration table in the lint carries the durable reasons.
+
+**Checks.** `npm --prefix app test` passes 1215/1215. `lint-spacing`, `lint-colors`, `lint-shapes`, `lint-materials`, `lint-interaction`, `check-semantic-consumers` and `contrast-report` pass. Surfaces not compared visually: Chat thread with long content, Usage dialog, Spark, markdown reader. G4 covers them.
+
 ### G4 · Cross-surface visual state matrix (non-author acceptance)
 
 One fixed synthetic dataset on one candidate SHA. The surfaces are Home, Chat and Attention, plus Spark only if Spark renders a surface on that SHA.
