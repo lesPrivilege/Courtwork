@@ -44,6 +44,10 @@
 
 [施工单](execution/claude-frontend-harness-2026-09-16/README.md)入账（`3867f84`）。[00](execution/claude-frontend-harness-2026-09-16/00-intake.md)：`/private/tmp` 里的 RD-006 在途树已消失，按原作者 Codex 会话日志重放 236 次补丁重建，app 侧逐文件行数与 2026-09-15 审计相同，以 `ab4b93d` 保全进施工树；共享 grammar 与 owner 映射登记。[01](execution/claude-frontend-harness-2026-09-16/01-workspace-binding.md)：修复聚合读取绕过逐路径 deny（`c8ac6fb`）；按用户中途指令做成类 Codex 形态——composer 上方实色 Workspace 页签（目录 · Local · Branch）、Open folder 原生对话框、Connected before、开工后只留 composer；Host 加三条只读辅助接口；Workspace 回归"真实目录绑定"原义，Home 选择器改回 Project。定向 43/43 与 25/25，smoke 与全部 lint/链接检查通过，`npm test` 1086 项中 1085 通过；唯一失败为并发下 `review-core-client-lifecycle` 的 Core bridge ready 超时，与 00 片恢复树同一抖动，单独重跑 13/13，未改任何 Core 代码。作者浏览器目验一条 Home→绑定→`repo_read`→撤权→刷新路径；无非作者复核、无真实 provider、未 push/部署，02 片（`repo_write` 批准卡与 candidate 面）未开始。施工树 `Projects/.worktrees/courtwork-claude-harness-20260916`。
 
+## 2026-09-16 · English-first bilingual documentation
+
+The root [README](../README.md) now provides the English entry point with a reciprocal [Simplified Chinese edition](../README.zh-CN.md). The [documentation language convention](../AGENTS.md#documentation-language) makes English the default for new and substantially revised architecture, Design/UX, API, contract, and other secondary documentation; existing Chinese documents migrate incrementally, while historical evidence and source bytes remain intact. This documentation-only change preserves product scope, commands, and version facts from `f76dd7e`. Author verification: repository document links, bilingual link/command parity, and diff whitespace checks passed. No product tests or independent product acceptance are claimed. The user subsequently authorized committing and pushing this documentation change; deployment is outside this change.
+
 ## 2026-09-15 · 异步节奏与Attention增量参考
 
 [新增4轮](research/spark-explore-2026-09-13/async-attention-20260915.md)接原Spark参考：完整会话现9轮18条消息、2张截图，原5轮无修订。登记异步依赖/就绪、结果消费及Attention维持意图/义务的讨论；仅供后续消费，无合同升级、施工或开工顺序调整。
@@ -278,7 +282,6 @@ Luna 完成[Context/TPS 有界审计](design/frontend-audit-2026-09-13/context-t
 
 UI审计修复Files长内容退出入口、Settings页面ARIA和Home Attention返回焦点；相关回归51/51及33/33通过，Files在175%缩放下由Luna复测。待Review摘要可发现性仍待既有Core投影接线，不以Run完成代替工作接受。已合main并推送；Pages run `34716338041`成功部署`3bd43b6`，线上19文件hash通过。[节点交付记录](research/architecture-node-2026-09-13/delivery.md)保留发布SHA、合流保护及覆盖上限。此前各段的“未push/部署”是对应历史时点，不取消本轮授权。
 
-
 ## 2026-09-13 · 数据工作面串行纵切
 
 补收交接资料后按Luna缺口登记、Astra架构裁决推进[数据工作面](research/data-surfaces-2026-09-13/README.md)：主动上传UTF-8文本独立Intake保留，Session范围精确版本reader、Files列表/引用，以及复用jsdiff的同源双版本比较。历史工作区不自动回填，保留版本不冒充当前工作区或Core采用；目录/OCR、跨scope授权、工作绑定与context优先级仍保留原owner缺口。全量912/912，最终UI非作者9/9；[UI交付](research/data-surfaces-2026-09-13/ui-delivery.md)分别记录作者、非作者和浏览器检查；不使用个人数据、付费Provider、push或部署。
@@ -477,21 +480,17 @@ Claude 已返回 [The Acceptance Gap](research/claude-independent-report-handoff
 
 [总结Anthropic新指控完整入账](research/work-capability-input-2026-09-11/README.md)：12轮/24消息及截图已固定，Astra逐轮处置；原报告指控与独立归因分开，provider身份、局部coding能力、上下文重投影及CUA登记WCI候选并接DRT/RD-005。未新增Runtime/UI实现或改变Claude Pages范围。
 
-
 ## 2026-09-11 · Claude Pages正式开工授权
 
 用户确认v2裁决后批准开工。[正式ONE-SHOT](release/fresh-claude-pages-2026-09-11/ONE-SHOT.md)固定内容输入bf7fa82：Claude先修A/B，再对Home五拍P1与Tour候选→正式结果P2各出3个不同构图，独立scratchpad返回；无需再等选段落。Astra保留语义、选型、集成与发布治理；当前为已授权、待作者认领/返回，未声称实际施工或新资产接受。
-
 
 ## 2026-09-11 · Claude A/B v2接收与Pages另单准备
 
 [A/B原件与Astra裁决](research/se-control-design-return-2026-09-11/v2/README.md)已固定98文件/hash，并查看35张作者PNG；采纳已修方向，保留架构owner/窄屏/裁切/palette及Spark错误reason修订项。A2仍光学候选。下一独立Pages任务沿[分层one-shot](release/fresh-claude-pages-2026-09-11/ONE-SHOT.md)复用原资产、比较不同构图；本轮未改App/Pages或部署。用户消息截图已补CR-05，Chat阅读共五项接DR-04；未称实现或独立产品接受。
 
-
 ## 2026-09-11 · Runtime架构与发布语义准备
 
 已登记[DeepSeek Runtime会话与两份附件](research/deepseek-runtime-2026-09-11/README.md)，Astra完成DEC-013[概念/实际实现裁决](architecture-runtime-canon.md)，修正架构页RuntimeStore当前版本为12（Core4/app5不变）。README、后端DRT-01–04候选、[下一轮图表合同](release/architecture-reconciliation-2026-09-11.md)及[Chat阅读四项合同](design/chat-reading-2026-09-11.md)已接入。当前仅文档准备，未实施解耦/DeepSeek probe/彩色代码或修改Pages；独立架构review由用户后续提交，Claude绘图下一轮串行。原会话架构回答尾部截断如实保留，不补造原文；Paper仍固定SE9.6。
-
 
 ## 2026-09-11 · Pages已发布；独立Design返回已裁决
 
@@ -526,7 +525,6 @@ Chat actions明确不在本次交付，WIP固定2361a83，召回路径与归档�
 后续用户补充已并入[P0.5 Product Semantics Registry计划](execution/2026-09-11-semantic-polish/semantic-registry-plan.md)：semantic与glyph分层、single/multi-purpose、六族碰撞审查、跨App/Pages映射及机器gate；复用现有renderer与来源账，不开始实现。
 
 [语义治理与对齐入账包](research/semantic-governance-2026-09-11/README.md)登记全部5 turn/9消息及附件；一条接口截断已从原对话UI补齐可见正文，原始Markdown字节限制明确。Astra完成PR/路线review、Luna有界源码explore，省并为[WO-VS-01本轮roadmap](execution/2026-09-11-semantic-polish/README.md)。固定准备基线9bc6090，等待用户merge清洁节点后再loop；只交文档计划，未改产品、未启动UI验收或部署。PR1已MERGED，PR2仍OPEN但head已在main祖先中，不重复合旧树。
-
 
 ## 2026-09-11 · Chat icon / Fake UI 先行
 
@@ -789,13 +787,11 @@ WK-110已接收为设计输入：只用现有brand包，生成图不作逐像素
 
 用户授权消费“设计索引方法论”，从实际main `f9bafb6` 隔离完整读取5个turn、8条文本及1张截图。[研究索引](research/chat-space-2026-09-09/README.md)把约束/方案/减法方法、用户Markdown、ask_user/permission和File/Artifact下载映射至既有WK-112、前端工作面与服务合同。外部协议/库建议按原文与本轮核验分列；共享局部UI不合并状态owner，输入accept、工具allow、执行完成和Core接受分别成立。仅文档入账，不安装依赖或实现新状态/API，不改Paper、单writer队列、ES-01及G1–G5。
 
-
 ## 后端并行施工：Activity / Usage与AM离线基线（2026-09-09）
 
 用户授权fresh Astra与Luna explore并行推进后端。本轮交付`codex/backend-bounded-20260909@52f75dd`，基线`5ea5ff0`；BE-1/3/25、BE-29代码`fd3861b`提供认证只读Activity/Usage与summary UTC日期过滤，无Core/Runtime schema迁移、前端、新依赖或静态准入变化。[正式协议](../app/docs/work-metrics.md)明确保留记录complete、历史unknown，partial/missing非账单；极端usage溢出时两端点均报错，未作为已修复缺陷。
 
 AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，不称原生async或真实cache收益。[合流证据](../evidence/backend-bounded-main-integration-20260909/README.md)记录代码审阅与组合验证，原作者/Luna独验在[交付包](../evidence/backend-bounded-20260909/README.md)分列。ES-01只完成可信record/history、输入覆盖与迁移边界探索；Attention仍研究。BE-2按最新CC-W范围交合同owner，不新增backend tab账本；后续前端模块消费沿现有队列，G1–G5不关闭。
-
 
 ## 可选浏览能力：研究入账（2026-09-09）
 
@@ -803,11 +799,9 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 
 来源Astra复读研究包、原文及合同/PR边界，核对逐字稿hash、15个本地链接和diff后接收文档。上游21文件hash由研究作者核验，不冒称本次重复独立核验。未安装/执行上游、浏览器或模型，npm发布artifact未验；不启动BR-01…03、Core或前端施工，不改Paper及G1–G5。
 
-
 ## Review Surface：CodeRabbit自研PR入账（2026-09-09）
 
 用户授权消费“分析CodeRabbit巧思”，从实际main `a7a08f0` 隔离完整读取1轮2条文本、核验6个显式官方URL。[准备包](research/review-surface-2026-09-09/README.md)将15项机制归入历史定位/版本提示、阅读分组、领域比较与覆盖、Attention/局部对话四个有界PR建议，复用Core/ES/ATT与既有前端队列。分组不授予接受权，缺席不表示已解决，历史读取与逐动作当前基线分别成立。仅文档入账；未实现、未建立远端PR、未改Paper或关闭产品门。ES后端在途交付应由实际固定SHA另行接受。
-
 
 ## BE-30 / AM / ES-01：后端合流（2026-09-09）
 
@@ -816,7 +810,6 @@ AM-C配套`87c8818`仅固定local-fake最终出站请求golden与语义差异，
 [合流证据](../evidence/harness-next-main-integration-20260909/README.md)：来源Astra代码审阅、组合290/290与smoke通过，BE-30七组及固定SHA迁移/Core反例复跑通过；作者与两位Luna证据分列，无集成产品补丁。Core2/app3仅从验证过的Core1/app1或app2备份迁移；旧host拒新库，恢复用独立目录。RuntimeStore仍4；没有升级用户数据。
 
 文件GUI/catalog创建入口未做，旧renderer只读fallback；完整输入coverage限洁净Session且compaction禁用，额外输入保守unknown；结构PASS不等于专业质量。Attention fresh Astra任务已启动边界准备，本次合流后从最终main接Core/service写权；前端继续CC-D0-a → FE-05a → FE-05 → CC-I，main/current/台账由来源Astra持有。真实provider、Paper、发布和G1–G5保持原边界。
-
 
 ## Attention：后端独立接受与合流（2026-09-09）
 
@@ -864,7 +857,6 @@ T3专门前端投影/packets与A2真实模型调度评测后置；T1证明现有
 
 2026-09-10 Pages 接续：Claude 原施工 `e492dc9` 由 Astra 恢复为 `230a719`，Terra 定价 `082b35f`/`f412a62`，Astra 完整版面 `e142b56`；与 async 当前 main `85693a6` 合流为 `e2f3ef0`。唯一冲突 README 按页面生成器重建并保留 schema 5 迁移/独占备份要求。真实 composer 图标回退在 `9e5384f` 修复，独立复核与页面回执另列；固定快照测试不代表合流后全量数量。用户将独立 review 页面，不关闭真实模型与产品门。品牌 `15b6464` 保留独立分支，不随本轮发布。
 
-
 ## BE-5：声明式来源解析 HTTP 接缝（2026-09-10）
 
 从实际main `5909f2f` 隔离接收作者代码 `9cbae87` 与证据 `470498b`，无产品冲突。新增认证 `POST /api/v5/runtime-sources/resolve` 直接复用既有resolver；原文identity、unverified来源、granted空与inspect-only保持，locator明确unsupported，不获取/安装/连接/执行。Astra独立3/3、组合全量352/352与smoke通过，见 [合流回执](../evidence/runtime-source-service-integration-20260910/README.md)。无产品集成修补，仅修正索引/接缝说明与当前状态。
@@ -896,7 +888,6 @@ Astra作者全量395/395、smoke、色彩/对比度通过；Luna有界非作者3
 按用户授权，由 Luna 探查目录与公开素材，Astra 整理导航、README 架构、生成物和公开数据。`site/dist/` 与 specimen vendor 副本改为构建生成；品牌分发 SVG 保留。桌面参考图从当前树移除，保留来源哈希；当前固定快照 `9e5384f` 的机器路径作公开投影，旧标本仅留冻结来源索引。模块与验证包导航见 [仓库目录](../docs/repository-layout.md)，范围、验证与归因见 [本单回执](../evidence/public-repository-cleanup-20260910/README.md)。产品代码、数据 schema、品牌选向与 G1–G5 未改变。
 
 本次整理已合入 `cd2a5b8` 并按既有授权发布 Pages；[线上回执](../evidence/public-repository-cleanup-20260910/live-verification.json)核对页面与脱敏标本 HTTP 200、manifest/字节一致。独立干净构建46/46、浏览器17/17及文档相对路径检查通过；产品快照仍为 `9e5384f`。
-
 
 ## MR-A1a · 原始文本坐标基础接收（2026-09-10）
 
@@ -930,7 +921,6 @@ Home handoff后续施工（2026-09-10）：用户授权按 Runtime→Usage→Tab
 
 Usage接续：已接每日/模型projection和快照一致的Run下钻、Overview/Models读面、精确日表/模型表、Top4+Other。模型身份固定为Run开始时配置，UTC起始日归属，缺失用量/历史覆盖保持明确，数据变化下钻返回409。全量431/431、定向18/18、最终Usage6/6及合成浏览器验证通过；[合同](../app/docs/usage-details.md)、[证据](../evidence/home-backlog-20260910/usage/README.md)。用户另补Chat Flow材料与气泡/首页会话管理要求：先落实右对齐窄气泡，余项在Usage收尾后优先接续，见[处置](design/chat-flow-2026-09-10/README.md)。
 
-
 ## Multi-agent · Thread与本地通信首片（2026-09-10）
 
 本单原认领multi-agent、Thread、message other agent的入账与Harness入口；用户随后明确Attention Chat flow UI单独施工，最终交付已撤出本单全部web改动。两份原文、14项裁定、七接缝与MA-00–07在[研究账](research/multi-agent-2026-09-10/README.md)；Astra架构/实现，Luna有界只读探索与独立反例。实际从 `27d37da` 隔离，保留telemetry/effort及Usage `ee6df72`，最终产品 `105458a` 已快进合入main。
@@ -940,7 +930,6 @@ RuntimeStore8持有显式Thread成员关系与本地outbox/inbox，提供受认�
 Usage组合 `c1f2122` 全量446/446；撤出UI后定向22/22、smoke、两项lint与文档链接通过；Luna固定组合定向21/21为有界非作者证据，非完整独立产品接受，见[交付回执](../evidence/multi-agent-20260910/README.md)。Core3/app4、Paper与G1–G5保持；未迁移个人数据、调用付费provider、外发或部署。
 
 Interaction Grammar 接续（2026-09-10）：从实际 `ee6df72` 认领并消费用户转交的 Projection / Control Grammar 材料（Exa 94 结果 / 5 workstream，[转录](mvp/execution/work-surface-kit/inputs/interaction-grammar-2026-09-10.md)），裁定见 [intake §4ar WK-139…144](mvp/execution/work-surface-kit/intake-round-3.md)。Projection Grammar 采纳为 [atlas 新段](design/atlas/README.md)，但定位为给既有纯 adapter 层（`presentation-adapters` / `usage-projection` / `thread-projection` 与 presentation-primitives 三条规则）命名，并加第四条「投影不得创造事实」；四条负规则中两条可 lint，另加本地第五条 `estimate ≠ meter`。context meter 与 TPS / TTFT sparkline 当期拒绝——今日 `Decode TPS · Unavailable · no token deltas`、host 首输出不是 provider TTFT、context 是启发式估算；Approval 不升为十一字段 grammar（无 reviewer 身份 / policy version / 到期钟等 owner 事实），只留「scope 可视化先于 scope 按钮」为 CC-P 前置；16 项 specimen board 不另立，Provenance 列与 applicability placement 并入 CC-I。Sonnet 只读 [EX-PG1](mvp/execution/work-surface-kit/explore/ex-pg1-projection-inventory.md) 回执已到并消费为 [WK-145…149](mvp/execution/work-surface-kit/intake-round-3.md)，更正四处事实：控件清点改写（两个 element builder 共存，Temporal 类今日不空）；context 今日已有比例条且代码逐字拒绝画成 percentage-of-limit，meter 类仍为空；`runtime-view.mjs` 的工具权限 CAS 规则表已经是一个 rule builder（与 Attention grant 是两个 policy 对象）；Attention typed actions 是后端合同已有、前端未建。四条负规则按"已验证合规 / 空集 / 不适用"三态记，不得简写为四条已通过。外部主张回填：Base UI 五模态与两阶段 commit、wavesurfer core/plugins 已核验；Braintrust 三视图经核验不成立；LangSmith / Tailscale / assistant-ui 未核验，不作规则依据。`presentation-primitives.d.ts` 名不副实（heatmap gap 注释过期、四个签名从未实现），裁为以代码为准并按事实收敛。施工只派 WO-PG-01（`tools/lint-interaction.mjs` 的三项机械检查 + 该契约收敛），写权不含 `app/web/**`，不抢 Home backlog 的单一 composer writer。本轮未改产品代码、未新增依赖或组件、未实现任何图表或控件，前端队列与 G1–G5 不变。
-
 
 ## Backend governance · BG-01（2026-09-10）
 

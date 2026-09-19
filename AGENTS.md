@@ -14,6 +14,12 @@ The sole persistent development entry is `Courtwork`. Read the actual branch and
 - `engineering/current.md` owns current project status; contracts/RD own their specific facts. `brand/` is a separately usable zero-dependency SVG package. SE's filesystem directory maintains papers, not product tickets.
 - For UI work, read `engineering/design/ux-grammar.md`, then `engineering/design/agent-interface-2026-09-10/frontend-contract.md` and load only the relevant entries from its precedent index. Record the nearest implemented precedent, affected grammar and verification evidence; review semantics remain independent of skin.
 
+## Documentation language
+
+- English is the default authoring language. Keep `README.md` as the English entry point and `README.zh-CN.md` as its Simplified Chinese counterpart, with reciprocal language links. Update both in the same change when shared content changes; commands, links, capability scope, and version facts must stay aligned.
+- Prefer English for new and substantially revised secondary documentation, including architecture, Design/UX, API, contracts, module READMEs, and engineering guidance. Chinese explanations or translations may supplement English when useful; a bilingual copy is not required for every document.
+- Migrate existing Chinese documentation incrementally when relevant to the work. Preserve historical records, evidence, source transcripts, and quotations in their original language and bytes; add an English summary separately when needed. Language changes do not change contract authority, acceptance, or implementation status.
+
 ## Verification and Git
 
 - Choose checks through `engineering/verification.md` for the actual change; green tests do not confer architecture or capability acceptance. Runtime/UI baseline commands are in README; use independent fixtures for migration/recovery and do not run paid providers by default.
