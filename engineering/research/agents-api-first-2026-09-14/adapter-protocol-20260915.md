@@ -88,3 +88,9 @@ The Codex line delivered this slice on 2026-09-15 as uncommitted files in `Proje
 | A-4 | `reconcile` returns the session's `required_actions` but does not load them into the settlement tracker. The existing recovery test settles `completed` after a snapshot that showed `call_9` pending | **Defer to slice D** for a ruling: either the Host passes `effectsUnknown` from the returned `pendingActions`, or the adapter seeds pending calls from the snapshot. The delivered semantics are unchanged here |
 
 Not established: any live API round trip, account access, SDK runtime, service or UI wiring, or anything from slices B–F. The lane stays unavailable, and G1–G5 and DF-04 are unchanged.
+
+### Independent acceptance of A-1 · 2026-09-19
+
+An independent Codex/Astra session reviewed author commit `53ab038` after the gap-closure session. The fix is **accepted** within slice A's offline recovery scope. During reconciliation, only buffered text for an item already final in saved history is marked seen and suppressed; every other buffered native event goes through the same ledger → tracker → Host dispatch path as a live event. This preserves stream order, event-id deduplication, pending-call tracking and root settlement. The counterexample covers a required action followed by a root terminal during the paged saved-items window, verifies the intermediate `effects_unreconciled` decision, then verifies completion after the tool result and one settlement observation after redelivery.
+
+Independent checks on `main@2488e63`: `node --test app/tests/drt03-agents-api-protocol.test.mjs app/tests/architecture-boundaries.test.mjs` passed **16/16**. Source review found no new blocking defect in `53ab038`. A-2…A-4 remain deferred exactly as recorded above. No live API, account, SDK runtime, service/UI wiring or release claim was tested; the lane remains unavailable.

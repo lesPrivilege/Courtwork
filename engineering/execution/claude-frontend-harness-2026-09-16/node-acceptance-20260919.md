@@ -92,3 +92,16 @@ The user authorised serial construction and closure, with Sonnet 5 available for
 **Cleanup.** Before removal, each tree's HEAD, binary `git diff HEAD` patch and untracked files were added to `~/.codex/backups/Courtwork-worktrees-20260919-124513/snapshots/`. Removed: `Courtwork-fresh`, `~/.codex/worktrees/f757`, `~/.codex/worktrees/expert-sidebar-glyph-20260912`, and the adapter tree (its content is now in main, and branch `agents-api-adapter-20260915` is merged and deleted). The remaining worktrees are the frozen `Courtwork-legacy-frozen` and `Projects/.worktrees/courtwork-pages-20260911` (N-13, which waits with the Pages work).
 
 **For the next independent acceptance:** the author commits `53ab038` (A-1) and `22b4bf6` (N-01/N-04/N-06). Still open: N-02, N-03, N-05, N-07, N-09, N-11 and N-13.
+
+## Independent acceptance of gap fixes · 2026-09-19
+
+An independent Codex/Astra session reviewed author commits `53ab038` and `22b4bf6` on `main@2488e63`. Both commits are **accepted within their stated scopes**; this closes A-1, N-01, N-04 and N-06. The session did not author either commit.
+
+| Item | Independent result |
+|---|---|
+| A-1 · buffered recovery events (`53ab038`) | Source review confirms that only saved-history-covered final text is suppressed; required actions and root terminal events take the ordinary ledger/tracker/Host path in order. Adapter plus architecture tests passed 16/16. The detailed acceptance is in the [adapter owner record](../../research/agents-api-first-2026-09-14/adapter-protocol-20260915.md#independent-acceptance-of-a-1--2026-09-19) |
+| N-01 · inert example More (`22b4bf6`) | Accepted. `attachObjectCommands` asks the shared dispatcher before drawing the control. Independent isolated-browser check on port 8891: all five example Chat rows had no More control; after a synthetic Local test Run, the real Chat row exposed More with Open (disabled for the current row with its reason), Rename and Delete. `navigation-history`, object-command unit/menu tests and Host command tests passed in the 12-test adjacent run |
+| N-04 · tracked evidence rewrite (`22b4bf6`) | Accepted. A default capability-consumption run left the tracked evidence blob at `e88155dc…b4f38` before and after; an explicit `CW_CAPABILITY_EVIDENCE=<temporary path>` run wrote valid JSON. Both three-test runs passed |
+| N-06 · repository schema pointer (`22b4bf6`) | Accepted. The owner document now names RuntimeStore schema 18 while preserving that binding arrived in 16 and the private candidate in 17; the focused 17→18 migration test passed |
+
+Additional independent checks: interaction lint passed; document links passed (1,396 documents, 7,888 links); `git diff --check` passed. The author had already run the same final tree's full suite (1209/1209) and smoke, so this pass selected risk-specific checks rather than repeating an unchanged full suite. No real provider, full visual matrix, 200% zoom, screen reader, release or deployment check was performed. N-02, N-03, N-05, N-07, N-09, N-11 and N-13 remain open.
