@@ -363,3 +363,33 @@ test('DRT03 recovery: saved items page by after cursor and merge by item id with
 
   fixture.closeStream(FIXTURE_SESSION_ID);
 });
+
+test('DRT03 recovery: a root terminal or required action buffered during recovery is delivered, not swallowed', async () => {
+  const { fixture, adapter, binding } = await setup({ pageSize: 2 });
+  // Two pages of saved history keep the recovery window open for both events.
+  fixture.setItems(FIXTURE_SESSION_ID, ['msg_a', 'msg_b', 'msg_c'].map((id) => ({
+    id, type: 'message', role: 'assistant', status: 'completed', turn_id: 'turn_0',
+    content: [{ type: 'output_text', text: id }] })));
+  const { seen, onObservation } = collect();
+  const events = nativeEvents();
+
+  const recoveryPromise = adapter.reconcile(binding, { onObservation, disconnected: true });
+  await fixture.emit(FIXTURE_SESSION_ID, events.requiresAction({
+    eventId: 'r1', calls: [{ turnId: 'turn_1', callId: 'call_r', name: 'get_source' }],
+  }));
+  await fixture.emit(FIXTURE_SESSION_ID, events.turnCompleted({ eventId: 'r2' }));
+  const recovery = await recoveryPromise;
+
+  assert.equal(recovery.unclaimed, 2, 'non-text events are not item updates');
+  assert.deepEqual(seen.filter((o) => o.kind !== 'coverage.gap').map((o) => o.kind),
+    ['runtime.function_call.pending', 'run.settlement'], 'both reach the Host in stream order');
+  assert.deepEqual(adapter.settle(binding, {}), { status: 'unknown', source: 'host-condition',
+    reason: 'effects_unreconciled', turnId: 'turn_1' }, 'the buffered call stays pending, so the terminal cannot settle completed');
+  await adapter.submitToolResult(binding, { turnId: 'turn_1', callId: 'call_r', success: true, output: 'ok' });
+  assert.equal(adapter.settle(binding, {}).status, 'completed', 'the buffered root terminal was kept');
+
+  // A redelivery after recovery is still one event.
+  await fixture.emit(FIXTURE_SESSION_ID, events.turnCompleted({ eventId: 'r2' }));
+  assert.equal(seen.filter((o) => o.kind === 'run.settlement').length, 1);
+  fixture.closeStream(FIXTURE_SESSION_ID);
+});

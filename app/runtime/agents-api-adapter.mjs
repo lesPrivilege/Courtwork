@@ -707,16 +707,16 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
       const snapshot = buffered.splice(0, buffered.length);
       const merged = mergeRecoveredItems({ items, buffered: snapshot, disconnected });
 
-      // Mark buffered events seen, then re-emit only the ones the merge kept.
-      // This runs while still buffering, so live events cannot interleave the
-      // restored view; they are drained below and then flow live.
-      for (const nativeEvent of snapshot) state.ledger.mark(nativeEvent);
+      // Only a text update for an item the saved history already finalised is
+      // dropped (marked seen so a redelivery stays dropped). Everything else
+      // the stream delivered while buffering — kept text, and non-item events
+      // such as a root turn terminal or required actions — takes the ordinary
+      // path, so the tracker and the Host still see it; buffering only delays
+      // it. This runs while still buffering, so live events cannot interleave
+      // the restored view; they are drained below and then flow live.
       for (const [index, nativeEvent] of snapshot.entries()) {
-        if (merged.decisions[index] !== 'applied') continue;
-        const observationResult = normalizeNativeEvent(nativeEvent);
-        if (!observationResult) continue;
-        state.tracker.observe(observationResult);
-        await onObservation?.(observationResult);
+        if (merged.decisions[index] === 'discarded') { state.ledger.mark(nativeEvent); continue; }
+        await dispatch(state, nativeEvent, onObservation);
       }
       if (merged.gap) {
         await onObservation?.({
