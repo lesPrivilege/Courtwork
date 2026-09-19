@@ -155,6 +155,41 @@ Owners **04 run surface / thread projection**; consumers are Chat and Attention 
 3. Event-burst fixture: ≥100 tool events in one run, with one failure, one pending permission and one produced artifact. The failure, the permission and the artifact must stay individually visible, the successes must group, and the reading position must hold across reload.
 4. Out of scope: new runtime event types, exposure of model thinking, and any change to the grouping predicate without the evidence above.
 
+#### G2 delivery · author evidence (Claude/Opus, 2026-09-20)
+
+Same branch as G1. Nearest precedents: `projectThread`, `projectExecutionDisclosures` and the shared row renderers in `app.mjs` and `attention-agent-view.mjs`. Affected grammar: UX-05 and UX-10.
+
+**UX-10 class of every thread row kind, as rendered at this SHA.**
+
+| Row kind | UX-10 class | Current weight | Disposition |
+|---|---|---|---|
+| `user` | person's input | message body | conforms |
+| `assistant` | response / result | message body | conforms |
+| `tool`, successful result | ordinary progress | grouped into one `Execution · N successful tool actions` disclosure per Run | conforms; the summary names the object (tool actions) and the outcome (successful) from owner facts. No time part, because the row has no owner timestamp |
+| `tool`, running | ordinary progress / current state | one row with its state word | conforms |
+| `tool`, failed or unknown | exception | individual row outside the group | conforms |
+| `question` / `permission`, pending | decision object | `.question-card` / `.permission-card` | conforms; the one card weight in the thread |
+| `permission`, resolved allow for a grouped call | trace | inside the Execution group | conforms |
+| `question` / `permission`, other resolved | history | `details` row | conforms |
+| `presentation` | result / new artifact | inline presentation object with Open | conforms |
+| `artifact` | new artifact | file row (glyph, path, `Recorded version`, opens) | conforms |
+| `notice`, runtime progress | ordinary progress | **was** a start line and an end line per compaction or retry | **fixed:** a paired `*_end` removes its `*_start`, so only the outcome remains. An unpaired start still reads as the current state |
+| `notice`, `unrecorded_files` | exception | `.notice-row.attention` in danger colour | conforms |
+| `error` | exception | `.message.error` with danger rule | conforms |
+| `run-status` | state | one badge line per Run; the latest Run's state lives in the activity locus | conforms; the badge carries the status word only |
+
+**Change.** `app/web/thread-projection.mjs` adds the `noticePairs` aggregation (`compaction_end`→`compaction_start`, `auto_retry_end`→`auto_retry_start`). Chat and Attention both read it.
+
+**New test:** `app/tests/event-weight.test.mjs` builds the G2 burst fixture: 100 successful tool calls, 1 failure, 1 pending permission, 1 produced artifact, and a compaction notice pair.
+- Successes group, `callCount` = 100.
+- The failure, the permission and the artifact are not group members.
+- There is one state line per Run.
+- The paired notice leaves only its outcome; an unpaired start remains.
+
+`npm --prefix app test` passes 1210/1210.
+
+**Residuals.** Reading position across reload for a burst was not re-run in a browser. The execution summary's reading key is `[session, run, "execution", run]`, stable across reload, and capture/restore is covered by `chat-reading.test.mjs`. A live host burst needs a provider that emits 100 tool calls and was not run (no paid provider).
+
 ### G3 · Token discipline (bounded; suitable for a Sonnet worker)
 
 Owner **styles.css / visual contract**.
