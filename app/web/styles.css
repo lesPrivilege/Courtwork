@@ -3755,8 +3755,6 @@ dialog[open]::backdrop {
    连同它与 composer 之间的间距，composer 之上的非 chrome 内容不超过 180。 */
 .home-composer-intro {
   max-width: var(--home-column);
-  max-height: 120px;
-  overflow: hidden;
   margin: 0 auto var(--section-gap);
   display: flex;
   align-items: center;
@@ -3793,166 +3791,6 @@ dialog[open]::backdrop {
 .home-start-status { max-width: var(--column); margin: var(--space-2) auto 0; padding-inline: var(--space-3); font-size: var(--text-meta); color: var(--muted-strong); }
 .home-start-status[data-error="true"] { color: var(--danger); }
 
-/* ==== WO-WK13, revised by FE-01 (WK-94 / 96) =====================   Today is the head of the module list below the composer, not a band above it.
-   One strip, three numbers, no card frame; the gap above it is the 32–48 that
-   separates the entry from the modules that hang off it. */
-.home-top-band {
-  padding: var(--space-8) var(--page-gutter) 0;
-}
-.home-module-title {
-  font-size: var(--text-section);
-  font-weight: 600;
-  color: var(--muted-strong);
-}
-.home-band-inner {
-  max-width: var(--home-column);
-  margin: 0 auto;
-  display: grid;
-  gap: var(--space-2);
-  min-width: 0;
-}
-/* WK-94 border 审计 · 三个数字是一条 strip，不是三个格子：竖分隔线取消，
-   间距与对齐已经把它们分开，边线留给 input / selected / floating / error。 */
-.stat-row {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
-}
-/* SH-1 · a plain statistic stays flat: no card frame, no shadow, no second
-   boundary. The tile reads as a control through hover, focus and pressed state
-   alone, and it is a control because pressing it does something — it filters
-   band 3 to this set (DC-2 allows the sets to overlap). */
-.home-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 0;
-  min-width: 0;
-  text-align: left;
-  padding: var(--space-2) var(--space-4);
-  border: 0;
-  border-radius: var(--radius-control);
-  background: none;
-}
-.stat-row > .home-stat:first-child {
-  padding-left: 0;
-}
-.home-stat:hover {
-  background: var(--hover);
-}
-.home-stat:active {
-  background: var(--pressed);
-}
-.home-stat[aria-pressed="true"] {
-  background: var(--selected);
-}
-.stat-inline {
-  display: contents;
-}
-.stat-label {
-  font-size: var(--text-label);
-  font-weight: 600;
-  color: var(--muted-strong);
-}
-.stat-value {
-  font-size: calc(20px * var(--text-scale));
-  line-height: 1.1;
-  letter-spacing: var(--tracking-heading);
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
-}
-/* A set the answer did not carry reads as words, never as a 0 (FN-28). */
-.stat-value.is-missing {
-  font-size: var(--text-body);
-  line-height: 1.4;
-  letter-spacing: normal;
-  color: var(--muted-strong);
-}
-.stat-caption {
-  font-size: var(--text-caption);
-  line-height: 1.4;
-  color: var(--muted-strong);
-}
-.home-observed {
-  font-size: var(--text-caption);
-  color: var(--muted-strong);
-}
-
-/* ==== CC-D0-a · the secondary module band =========================   One band under Today, on the same 820 column as the composer and Today, so
-   Home still reads as one column and not as a grid that appeared. Modules are
-   laid out along the remaining width and wrap rather than overflow: 820 is the
-   ceiling, never a promise that two fixed widths fit inside it (WO density).
-   No card frame, no shadow, no second boundary — the band is a group of rows,
-   and a statistic that needs a frame to be read is not a statistic (SH-1). */
-.home-module-band {
-  padding: var(--space-5) var(--page-gutter) 0;
-}
-/* Modules only · the band spends height between Today and the work list, and at
-   a 900-high viewport that height comes straight out of the first concrete
-   to-do (HOME-11). The list therefore closes up by one step under the band —
-   24 rather than 32 — and `Simple` keeps its own 32 untouched, which is what
-   makes `Simple` pixel-for-pixel the Home it was. */
-#home-module-band:not([hidden]) ~ .message-stream-wrap .home-view > .home-section:first-child {
-  margin-top: var(--space-6);
-}
-/* One line: the modules along the column, the fold at its right edge. The band
-   has no heading of its own — with one module a heading over one row is a
-   second structure drawn around a single fact, and the line it costs is the
-   line that pushed the first concrete to-do off a 900-high first screen
-   (HOME-11, WK-117 (b)). The region is named by `aria-label`, and the fold says
-   what it folds. */
-.home-module-band-inner {
-  max-width: var(--home-column);
-  margin: 0 auto;
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  min-width: 0;
-}
-.home-module-collapse {
-  border: 0;
-  background: none;
-  padding: var(--space-1) var(--space-2);
-  margin-right: calc(var(--space-2) * -1);
-  border-radius: var(--radius-control);
-  /* The fold and the module's own action are the same level — both are what you
-     can do here — so they take the same size. Only the module name is a step up
-     (13 / 600 against 12 / 400): the hierarchy holds without a colour or a rule
-     line (WK-120). */
-  font-size: var(--text-meta);
-  color: var(--muted-strong);
-}
-.home-module-collapse:hover {
-  background: var(--hover);
-}
-.home-module-collapse:active {
-  background: var(--pressed);
-}
-/* Modules share one row while the row holds them and wrap when it does not.
-   Each takes the width its own content needs, never a painted fixed width. */
-.home-module-list {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-3) var(--space-6);
-  min-width: 0;
-  flex: 1 1 auto;
-}
-.home-module-row {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  min-width: 0;
-  flex: 0 1 auto;
-}
-.home-module-name {
-  font-size: var(--text-label);
-  font-weight: 600;
-  color: var(--muted-strong);
-}
-
 /* WK-94 / 视觉审查 §7 · 连接不可达是一行状态，不是一整块横向面板。圆点、一句事实、
    一个 Retry，诊断在 disclosure 里。它复用既有的状态色，不新增视觉概念。 */
 .connection-line {
@@ -3987,73 +3825,6 @@ dialog[open]::backdrop {
   justify-content: flex-start;
   padding-top: var(--space-2);
 }
-/* WK-56 · the card state of the same WorkCard: the rail's anatomy (glyph 16,
-   object name, one state word, one action) on the L1 panel, so the boundary is
-   a hairline and not the rail card's floating material (WK-69, SH-2). */
-/* WK-94 border 审计 · 层级来自尺寸、间距与表面，不来自边框；边框留给 input、
-   selected、floating 与 error。可打开的 Work 对象仍然成卡（card is earned），
-   但它的边界是一层表面色，不是一圈线。 */
-.home-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--card-padding);
-  margin-top: var(--space-3);
-  border-radius: var(--radius-card);
-  background: var(--panel-muted);
-}
-.home-card-meta {
-  font-size: var(--text-meta);
-  color: var(--muted-strong);
-  overflow-wrap: anywhere;
-}
-
-@media (max-width: 767px) {
-  /* WO-WK13 · at 390 the three tiles read as two rows rather than one line of
-     three: a 120px column cannot hold a label, a count and a definition. */
-  .stat-row {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-2) 0;
-  }
-  .stat-row > .home-stat:first-child {
-    padding-left: var(--space-2);
-  }
-  /* The rule between two tiles reads as a column divider; on a two-row grid the
-     third tile has no neighbour to its left, so the rule would point at nothing. */
-  .stat-row > .home-stat + .home-stat {
-    box-shadow: none;
-  }
-  .home-stat {
-    padding: var(--space-1) var(--space-2);
-  }
-  .stat-inline {
-    display: flex;
-    align-self: stretch;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--space-2);
-  }
-  .stat-value {
-    font-size: var(--text-title);
-  }
-  .home-top-band {
-    padding-top: var(--space-3);
-  }
-  /* 390 · the one control on this band is a touch target before it is a word
-     (WO accessibility, ≥44). The label stays the same size; only the region
-     around it grows, so nothing is read differently on a phone. */
-  .home-module-band {
-    padding-top: var(--space-3);
-  }
-  .home-module-collapse {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  .home-module-list {
-    gap: var(--space-2) var(--space-4);
-  }
-}
-
 /* WK-11 · One quiet section label --space-8 below the composer, no rule line:
    the rows below already carry their own boundaries. */
 .home-active .home-view { max-width: var(--home-column); margin: 0 auto; }
@@ -5157,6 +4928,12 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
   .home-active .home-view {
     padding-bottom: var(--space-4);
   }
+  /* GUI grammar G1 · docked Home: identity leads the reading column on the
+     same inset as the blocks below it, not inside the dock. */
+  .conversation-body > .home-composer-intro {
+    margin: 0;
+    padding: var(--space-6) var(--page-gutter) var(--space-2);
+  }
   .conversation-body {
     background: var(--panel);
   }
@@ -5779,20 +5556,37 @@ html[data-theme="dark"] {
 }
 
 
-/* Home composition · two bounded read-only modules, 2026-09-10.
-   Simple retains its previous geometry. Cards use the existing host palette. */
-.home-module-band-inner { display: block; }
-.home-module-list { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr); gap: 24px; align-items: start; }
-.home-module-footer { display: flex; align-items: center; justify-content: flex-end; margin-top: 8px; gap: 12px; }
-.home-insight-card { min-width: 0; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--panel); }
-.home-insight-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-.home-insight-head h3 { margin: 0; font-size: var(--text-body); font-weight: 600; }
-.home-range { display: flex; gap: 2px; }
-.home-range button { padding: 4px 7px; border-radius: calc(var(--radius-control) - 2px); }
-.home-range button[aria-pressed="true"] { background: var(--hover); color: var(--ink); }
-.home-activity-total { display: flex; flex-wrap: wrap; align-items: baseline; gap: 7px; font-size: var(--text-meta); color: var(--muted-strong); margin: 0 0 10px; }
-.home-activity-total strong { font-size: 24px; font-weight: 600; line-height: 1.2; color: var(--ink); font-variant-numeric: tabular-nums; }
-.home-heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 10px); grid-template-columns: repeat(var(--heatmap-weeks), minmax(0, 1fr)); gap: 3px; }
+/* GUI grammar G1 · Home blocks below the composer. Every block is a flat
+   section on the Home column: a label line, at most three rows, no card. The
+   rows are the shared .home-row anatomy; only Activity adds an instrument. */
+.home-slot[hidden] { display: none; }
+/* The label line: name and count read as one unit; the one way to more sits
+   at the column's right edge. */
+.home-active .home-section > .section-heading { justify-content: flex-start; gap: var(--space-2); }
+.home-section > .section-heading .text-button { margin-left: auto; }
+/* Attention's state word (Home rows and the Attention workspace): review keeps
+   its own role colour, never the run accent. */
+.home-attention-state { font-size: var(--text-meta); color: var(--muted-strong); }
+.home-row-status.is-review, .home-attention-state.is-review { color: var(--attention-review); font-weight: 600; }
+.home-module-error { font-size: var(--text-meta); margin: var(--space-2) 0; overflow-wrap: anywhere; }
+.home-module-error > button { margin-left: var(--space-2); }
+
+/* Activity · ambient history, last, collapsible in place (UX-03). */
+.home-activity > summary { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding-block: var(--space-1); border-radius: var(--radius-control); list-style: none; }
+.home-activity > summary::-webkit-details-marker { display: none; }
+.home-activity > summary:hover h3 { color: var(--ink); }
+.home-activity > summary > .ui-icon { color: var(--muted-strong); transition: transform 140ms var(--ease-out); }
+.home-activity[open] > summary > .ui-icon { transform: rotate(90deg); }
+@media (prefers-reduced-motion: reduce) { .home-activity > summary > .ui-icon { transition: none; } }
+html[data-motion="reduce"] .home-activity > summary > .ui-icon { transition: none; }
+.home-activity > summary h3 { margin: 0; font-size: var(--text-section); font-weight: 500; color: var(--muted-strong); }
+.home-activity-total { font-size: var(--text-meta); color: var(--muted-strong); font-variant-numeric: tabular-nums; }
+.home-activity-body { display: grid; justify-items: start; gap: var(--space-2); padding-top: var(--space-2); }
+.home-activity-controls { display: flex; align-items: center; gap: var(--space-3); }
+.home-range { display: flex; gap: 2px; padding: 2px; background: var(--panel-muted); border-radius: var(--radius-control); box-shadow: inset 0 0 0 1px var(--line); }
+.home-range button { padding: var(--space-1) var(--space-2); border-radius: calc(var(--radius-control) - 2px); }
+.home-range button[aria-pressed="true"] { background: var(--float); color: var(--ink); box-shadow: var(--shadow-thumb); }
+.home-heatmap { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px); grid-template-columns: repeat(var(--heatmap-weeks), 12px); gap: 3px; }
 .home-heatmap-cell { min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: calc(var(--radius-small) / 2); background: var(--hover); }
 .home-heatmap-cell[data-level="0"] { background: var(--panel); box-shadow: inset 0 0 0 1px var(--line); }
 .home-heatmap-cell[data-level="1"] { background: var(--dataviz-activity-1); }
@@ -5800,87 +5594,18 @@ html[data-theme="dark"] {
 .home-heatmap-cell[data-level="3"] { background: var(--dataviz-activity-3); }
 .home-heatmap-cell[data-level="4"] { background: var(--dataviz-activity-4); }
 .home-heatmap-cell:not([data-level="0"]) { border: 1px solid var(--dataviz-activity-outline); }
+.home-heatmap-cell:hover { outline: 1px solid var(--line-strong); outline-offset: 1px; }
 .home-heatmap-cell:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 @media (forced-colors: active) {
   .home-heatmap-cell:not([data-level="0"]) { border-color: CanvasText; }
   .home-heatmap-cell:focus-visible { outline-color: Highlight; }
 }
-.home-activity-day { margin: 8px 0 5px; min-height: 16px; color: var(--muted-strong); font-size: var(--text-meta); }
-.home-insight-note { margin: 5px 0 0; font-size: var(--text-meta); line-height: 1.45; color: var(--muted-strong); overflow-wrap: anywhere; }
-.home-attention-project { min-width: 0; max-width: 58%; width: auto; padding: 4px 22px 4px 7px; font-size: var(--text-meta); }
-.home-attention-item { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto 14px; gap: 8px; align-items: center; text-align: left; padding: 11px 0; border: 0; border-bottom: 1px solid var(--line); background: none; font-size: var(--text-label); }
-.home-attention-item > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.home-attention-item:hover { background: var(--hover); }
-.home-attention-state { font-size: var(--text-meta); color: var(--muted-strong); }
-.home-attention-state.is-waiting { color: var(--accent); }
-.home-attention-empty { margin: 25px 0; color: var(--muted-strong); font-size: var(--text-label); line-height: 1.6; }
-.home-attention-pages { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; }
-.home-attention-detail { max-height: 240px; overflow: auto; overflow-wrap: anywhere; font-size: var(--text-label); }
-.home-attention-detail h4 { margin: 12px 0 5px; font-size: var(--text-body); }
-.home-attention-detail p { margin: 9px 0; }
-.home-module-error { font-size: var(--text-meta); margin: 8px 0; overflow-wrap: anywhere; }
-.home-module-error > button { margin-left: 8px; }
+.home-activity-day { margin: 0; min-height: 16px; color: var(--muted-strong); font-size: var(--text-meta); }
+.home-insight-note { margin: 0; font-size: var(--text-meta); line-height: 1.45; color: var(--muted-strong); overflow-wrap: anywhere; }
 @media (max-width: 767px) {
-  .home-insight-card { padding: 16px; }
-  .home-range button, .home-module-footer button, .home-attention-pages button { min-height: 44px; }
-  .home-heatmap { grid-template-rows: repeat(7, 14px); gap: 4px; }
+  .home-range button, .home-activity-controls .text-button { min-height: 44px; }
+  .home-heatmap { grid-template-rows: repeat(7, 16px); grid-template-columns: repeat(var(--heatmap-weeks), 16px); gap: var(--space-1); }
 }
-@media (min-width: 768px) {
-  .home-modules-active #composer-input { min-height: 48px; }
-  .home-modules-active .home-composer-intro { margin-bottom: 16px; }
-  .home-modules-active .home-top-band { padding-top: 16px; }
-}
-@media (min-width: 768px) {
-  .home-modules-active .stat-inline { display: flex; align-items: baseline; gap: 8px; }
-  .home-modules-active .home-module-title { margin-bottom: 0; }
-  .home-modules-active .home-stat { padding-block: 4px; }
-  .home-modules-active .home-insight-card { padding-block: 16px; }
-  .home-modules-active #home-module-band ~ .message-stream-wrap .home-view > .home-section:first-child { margin-top: 8px; }
-}
-
-/* User refinement: an overview shelf above the composer. Attention is the
-   primary reading surface; Activity is a recessed, quieter instrument. */
-.home-module-band { padding-top: 32px; }
-.home-attention { background: var(--float); background-image: linear-gradient(155deg, var(--float), var(--panel)); box-shadow: var(--rim), 0 5px 18px rgba(var(--alpha-ink), var(--shadow-alpha)); }
-.home-activity { background: var(--panel-muted); border-color: var(--line); box-shadow: inset 0 1px 0 var(--float); }
-.home-card-title { display: flex; align-items: center; gap: 9px; min-width: 0; }
-.home-card-title > .ui-icon { color: var(--muted-strong); flex: none; }
-.home-attention .home-card-title > .ui-icon { color: var(--accent-ink); }
-.home-attention-project { border-color: transparent; background-color: var(--panel); box-shadow: var(--shadow-thumb); }
-.home-attention-list { margin-top: 8px; }
-.home-attention-item { padding: 11px 9px; border: 0; border-radius: max(var(--radius-small), calc(var(--radius-container) - 20px)); margin-bottom: 3px; }
-.home-attention-item-title { font-weight: 500; }
-.home-attention-state.is-waiting { color: var(--accent-ink); font-weight: 600; }
-.home-attention-item > .ui-icon { color: var(--muted-strong); transition: transform 140ms ease-out; }
-.home-attention-item:hover > .ui-icon { transform: translateX(2px); }
-.home-range { padding: 2px; background: var(--panel-muted); border-radius: var(--radius-control); box-shadow: inset 0 0 0 1px var(--line); }
-.home-range button[aria-pressed="true"] { background: var(--float); box-shadow: var(--shadow-thumb); }
-.home-heatmap-cell:hover { outline: 1px solid var(--line-strong); outline-offset: 1px; }
-@media (min-width: 768px) {
-  .home-modules-active .home-module-band { padding-top: 32px; }
-  .home-modules-active .home-composer-intro h2 { font-size: calc(28px * var(--text-scale)); line-height: 1.2; }
-}
-@media (max-width: 1100px) { .home-module-list { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 767px) {
-  .home-module-band { padding-top: 24px; }
-  .home-module-list { gap: 16px; }
-  .home-heatmap { grid-template-rows: repeat(7, 12px); }
-}
-@media (prefers-reduced-motion: reduce) { .home-attention-item > .ui-icon { transition: none; } .home-attention-item:hover > .ui-icon { transform: none; } }
-html[data-motion="reduce"] .home-attention-item > .ui-icon { transition: none; transform: none; }
-@media (max-width: 767px) {
-  .home-modules-active #composer-input { min-height: 48px; }
-  .home-modules-active .home-composer-intro { margin-bottom: 12px; }
-  .home-modules-active .home-composer-intro h2 { font-size: calc(22px * var(--text-scale)); line-height: 1.25; }
-}
-
-/* A readable first-item preview carries the emphasis; no decorative left rail.
-   State uses a compact text tile. Its geometry derives from the card inset. */
-.home-attention-featured { padding: 10px 8px; row-gap: 4px; margin: 4px 0; background: var(--panel-muted); }
-.home-attention-reason, .home-attention-next { grid-column: 1 / -1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-meta); }
-.home-attention-reason { color: var(--muted-strong); }
-.home-attention-next { color: var(--ink); font-weight: 500; }
-.home-attention-featured .home-attention-state { padding: 2px 5px; background: var(--panel); border-radius: var(--radius-small); box-shadow: var(--shadow-thumb); }
 
 /* tier:S · Neutral strata and one human-review slot.
    Default slate only: explicit legacy/custom skins remain available. */
@@ -5958,10 +5683,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
   --accent-strong: var(--home-neutral-ink);
   --accent-soft: var(--home-neutral-sunken);
 }
-.home-attention-state.is-review { color: var(--attention-review); font-weight: 600; }
 
-.home-attention-heading-link { padding: 0; min-height: 0; border: 0; border-radius: 0; background: none; color: var(--ink); font-size: var(--text-body); font-weight: 600; }
-.home-attention-heading-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 .attention-workspace { min-height: 0; flex: 1; overflow: auto; padding: 32px var(--page-gutter) 48px; }
 /* Chat page: object heading, primary actions and rows; secondary explanation
  * is disclosed on demand. Same 1040 measure as Attention, solid material. */
@@ -6839,20 +6561,6 @@ html[data-theme="dark"] {
 .context-cache-bar { display: block; width: 100%; height: 6px; margin-block: var(--space-2); overflow: hidden; border-radius: var(--radius-pill); background: var(--panel-muted); }
 .context-cache-hit { fill: var(--control-accent); }
 @media (forced-colors: active) { .context-cache-bar { outline: 1px solid ButtonText; } .context-cache-hit { fill: Highlight; } }
-/* Home module band · the collapse control is a disclosure glyph, not a word:
- * its accessible name says Hide/Show modules. */
-.home-module-collapse.icon-only { padding: 4px; min-width: 28px; justify-content: center; }
-/* Native disclosure for the module band. The summary is the last thing on
- * screen (flex column-reverse keeps it first in the DOM), and the content
- * height transitions so the composer below slides rather than jumps. */
-.home-module-details { display: flex; flex-direction: column-reverse; interpolate-size: allow-keywords; }
-.home-module-details > summary { list-style: none; cursor: pointer; align-self: flex-end; display: flex; align-items: center; margin-top: 8px; color: var(--muted-strong); border-radius: calc(var(--radius-control) - 2px); }
-.home-module-details > summary::-webkit-details-marker { display: none; }
-.home-module-details > summary:hover { background: var(--hover); color: var(--ink); }
-.home-module-details::details-content { height: 0; overflow: clip; transition: height 200ms ease, content-visibility 200ms allow-discrete; }
-.home-module-details[open]::details-content { height: auto; }
-@media (prefers-reduced-motion: reduce) { .home-module-details::details-content { transition: none; } }
-
 /* Candidate changes dialog · one section per file; the path is the title. */
 .candidate-diff-file { display: grid; gap: 8px; }
 .candidate-diff-path { font-size: var(--text-meta); font-weight: 500; margin: 0; }
@@ -6909,7 +6617,7 @@ html[data-theme="dark"] {
   color: var(--muted-strong);
 }
 
-/* Home identity · greeting, masthead, the example line, the account row. */
+/* Home identity · greeting, the example line, the account row. */
 .home-greeting {
   margin: 0;
   font-size: calc(24px * var(--text-scale));
@@ -6932,21 +6640,6 @@ html[data-theme="dark"] {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-/* Modules · the masthead's first line sits on the Activity card's title line:
-   the card pads 18 and its title row is 28 high, so the 30-high sentence line
-   needs 18 above it for the two lines to share a centre (measured at 1280). */
-.home-masthead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-2) var(--space-4);
-  padding-top: 18px;
-  margin-bottom: var(--space-4);
-  min-height: 0;
-}
-.home-masthead:empty { display: none; }
-.home-primary-stack { display: flex; flex-direction: column; min-width: 0; }
 .home-composer-intro .home-greeting { font-size: clamp(26px, 2.2vw, 32px); line-height: 1.2; }
 .home-composer-intro { flex-wrap: wrap; justify-content: space-between; }
 /* The example line: one quiet sentence with its actions, not a card. */

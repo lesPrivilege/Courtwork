@@ -102,6 +102,50 @@ Exit evidence:
 - degradation to flow at native 200% zoom with no clipping;
 - a keyboard pass through the Activity disclosure.
 
+#### G1 delivery · author evidence (Claude/Opus, 2026-09-20)
+
+Branch `claude/gui-grammar-20260919`, isolated worktree, from `main@72c91a2`. The author supplies this evidence; the visual/layout decision needs a non-author review (Luna or the user), because Opus authored G1.
+
+**Change.** Nearest precedents: the Simple composer anchor (`measureHomeLead`, `--home-lead`), the WK-47 set rows, and the native `details` disclosure. Affected grammar: UX-01/02/03/07/09.
+- `app/web/home-view.mjs`: rewritten around one slot per block with its own fingerprint and focus restoration. The order is Waiting for you → Attention → Needs a look → Continue → Activity, with at most `HOME_ROWS` = 3 rows each. `Show all` expands a set in place through the existing filter and returns via `All work`. Attention uses the shared `.home-row` anatomy and opens the Attention workspace at the item. Activity is a flat native `details` with the heatmap, period switch and `Open Usage`. Removed: `renderHomeBand` (stat strip), `renderHomeModuleBand` (band, masthead, two-column cards), `workCard`, the in-place Attention detail/preview/paging, and the `today` registry entry.
+- `app/web/app.mjs`:
+  - Identity sits in the composer intro on both layouts. Desktop Home order is composer → blocks; docked (mobile) Home order is identity → blocks → composer.
+  - `measureHomeLead` uses one centred anchor. The Modules 24 px lead is gone.
+  - The anchor also re-measures when `#conversation-body` or `#home-composer-intro` resizes. Without this, the first load left a stale lead (composer at 59% instead of 56%).
+  - The Attention registry query takes 3 rows, with no first-item preview fetch. `openHomeAttention` is removed.
+  - Focus moves to `All work` when a set expands, and back to the set's `Show all` when it collapses.
+- `app/web/settings-view.mjs`: the preference `homeModuleBand` is replaced by `homeActivity` (`expanded|collapsed`), with no compatibility read.
+- `app/web/index.html`: `#home-top-band` and `#home-module-band` are removed.
+- `app/web/styles.css`:
+  - Removed: the stat strip, module band, insight cards, masthead and old Attention card rules.
+  - Added: flat block rules, the Activity disclosure chevron (with reduced-motion handling), fixed 12/16 px heatmap cells, and the mobile identity inset.
+  - The `.home-composer-intro` `max-height:120px; overflow:hidden` clipping box is removed (WCAG F69/F104).
+  - `.home-attention-state` is kept because the Attention workspace consumes it.
+- Tests: `home-presentation`, `settings-preferences`, `settings-navigation` and `workspace-card` are updated to the new structure. `engineering/design/product-semantics/raw-consumers.json` re-registers the four `activity` data-identifier lines.
+
+**Checks.**
+- `npm --prefix app test`: 1208/1208 pass.
+- Pass: `lint-colors`, `lint-shapes`, `lint-materials`, `lint-interaction`, `check-semantic-consumers` and `contrast-report`.
+- `check-doc-links`: one problem on this branch alone. The Astra paragraph above links `orchestra-start-node-20260919.md`, which exists only in the shared main checkout. It resolves in the combined tree.
+
+**Browser evidence.** Isolated host on port 8871 with a scratch data directory; the example workspace was the synthetic data. No personal data and no paid provider.
+- **1440×900, light:**
+  - The populated Home shows identity → composer → Attention (1) → Continue (7, 3 shown, `Show all`) → Activity.
+  - Composer top is 472 px, with its centre at 56%, in both the populated and the empty state. The identity grew from 38 to 69 px and the lead fell from 333 to 302 px.
+  - A long injected greeting grew the intro to 145 px and cut the lead to 226 px, while the composer top stayed at 472.
+  - Blocks share the composer's left edge (438).
+  - `Show all`, `All work` and focus return, plus Activity collapse persisting across reload, were checked by script.
+- **1280×800, dark:** composer centre at 56%, shared left edge at 358, no horizontal overflow.
+- **375×812:** order is identity → blocks → docked composer. No overlap after scrolling, no horizontal overflow, and range buttons are 44 px.
+
+**Deviations and residuals.**
+- The Attention registry query supports only offset/limit, so the block shows the registry's first 3 items with their state words, not only items that need a decision. A status filter belongs to the Attention owner.
+- The empty-projects guard was fixed during the author check. Closing the example previously left stale Attention rows.
+- The block rows keep their existing glyph difference: Continue has a chat glyph, the other rows have none. So title start lines differ by 16 px between blocks. This is recorded for G4, not changed.
+- `#conversation-body` extends 48 px below the viewport under the top band. This existed before G1 and is recorded for G4.
+- **Not executed:** native 200% zoom (the tool only emulates viewport size), forced colors, a full screen-reader pass, and the 390 and 1280 cells in the other colour scheme.
+- The historical evidence scripts (`fe01`, `fe02`, `wk13`) still reference the removed band DOM. They are preserved unchanged as history.
+
 ### G2 · Event weight in the thread
 
 Owners **04 run surface / thread projection**; consumers are Chat and Attention process rows.

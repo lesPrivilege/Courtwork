@@ -7,7 +7,7 @@ import {
   toHomeAttention,
   toHomeAttentionDetail,
 } from "../web/presentation-adapters.mjs";
-import { homeModules, renderHome } from "../web/home-view.mjs";
+import { HOME_ROWS, renderHome } from "../web/home-view.mjs";
 import { createAttentionWorkspace } from "../web/attention-view.mjs";
 import { deferred, flush, withTinyDom } from "./tiny-dom.mjs";
 
@@ -250,19 +250,25 @@ test("Review belongs only to needs_you across Home and Attention states", async 
       assert.equal(nodes.length, 4);
       for (let i = 0; i < states.length; i++) assert.equal(nodes[i].className.includes("is-review"), states[i] === "needs_you");
     };
-    const render = homeModules.find(module => module.id === "attention").render;
-    assertStates(labels(render({ projects, attention: { data: packet } })));
-    for (const status of states) {
-      const detail = { ...attentionDetail(status), status };
-      const nodes = labels(render({ projects, attention: { selectedId: status, detail } }));
-      assert.equal(nodes.length, 1);
-      assert.equal(nodes[0].className.includes("is-review"), status === "needs_you");
-    }
+    /* Home: the Attention block's rows use the shared row anatomy and show at
+     * most HOME_ROWS items; review still belongs only to needs_you. */
+    const rowStates = node => {
+      const all = [];
+      const walk = n => { if (n.className.includes("home-row-status")) all.push(n); n.children.forEach(walk); };
+      walk(node); return all;
+    };
+    const home = document.createElement("main");
+    renderHome(home, { projects, modules: { attention: { data: packet, projectId: "p1" } } });
+    const homeNodes = rowStates(home);
+    assert.equal(homeNodes.length, HOME_ROWS);
+    for (let i = 0; i < HOME_ROWS; i++) assert.equal(homeNodes[i].className.includes("is-review"), states[i] === "needs_you");
     const workspace = createAttentionWorkspace(container, { request: async () => packet, onBack() {} });
     await workspace.open({ projects, projectId: "p1" });
     assertStates(labels(container));
     const invalid = attentionPage([{ ...attentionItem("bad"), status: "unknown" }]);
-    assert.equal(labels(render({ projects, attention: { data: invalid } })).length, 0);
+    const rejected = document.createElement("main");
+    renderHome(rejected, { projects, modules: { attention: { data: invalid, projectId: "p1" } } });
+    assert.equal(rowStates(rejected).length, 0);
   });
 });
 
@@ -306,7 +312,8 @@ test('Home immediately renders changed facts, removed targets, filters, and erro
   assert.notEqual(container.querySelector('.home-row'),first);
   assert.match(container.textContent,/After/);
   renderHome(container,{...options,activeSet:'sessionCandidates'});
-  assert.ok(container.querySelector('.home-card'));
+  assert.ok(container.querySelector('.home-filter-line'));
+  assert.ok(container.querySelector('.home-row'));
   summary.sessionCandidates.items=[];summary.sessionCandidates.total=0;
   renderHome(container,options);
   assert.equal(container.querySelector('.home-row'),null);

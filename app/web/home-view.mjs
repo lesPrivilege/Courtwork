@@ -1,39 +1,44 @@
-/* WO-WK13, revised by FE-01 item 4 (WK-94 / 96 / 97) · Home's modules below the
- * composer.
+/* GUI grammar convergence G1 (2026-09-19) · Home below the composer.
  *
- * Home reads from the centre downwards: orientation, then the composer as the
- * one L1 anchor, then the modules. The three recorded totals are no longer a
- * band above the composer — they are the head of the Today module underneath
- * it, one strip of three numbers with no card frame (WK-94, visual review §5).
- * This module owns the Today strip and the module list; the composer is the
- * application's own mounted composer and is untouched here.
+ * The composer is the anchor; identity sits above it, in the composer's own
+ * intro. Everything here hangs below it as blocks in order of relative
+ * importance: Waiting for you → Attention → Needs a look → Continue →
+ * Activity. A block with nothing to show is absent. Each block's default layer
+ * is a label, a count and at most HOME_ROWS unframed rows; the rest opens in
+ * place ("Show all") or at the block's own destination. No block is a card.
  *
  * Every number and every word below comes through `presentation-adapters.mjs`.
  * Nothing in this file reads the response shape, decides what a count means, or
  * computes a time — those belong to the adapter, so that a display change
  * cannot silently change a metric (boundaries §5, WK-34 / WK-80).
  */
-import { el, icon, action } from "./ui-controls.mjs";
+import { el, icon } from "./ui-controls.mjs";
 import { runLabels } from "./inspector.mjs";
 import {
   toHomeActivity,
   toHomeAttention,
-  toHomeAttentionDetail,
-  attentionLabels,
-  toStatTiles,
   toWorkCards,
   toPendingRows,
   toInspectionRows,
 } from "./presentation-adapters.mjs";
 
-/* The three sets of DC-2, in the order the top band states them. A tile and the
- * section it filters to carry the same name: two names for one set would be a
- * second vocabulary for one fact (copy-convention §3). */
+/* The three sets of DC-2. A set and the block that shows it carry one name:
+ * two names for one set would be a second vocabulary for one fact
+ * (copy-convention §3). */
 export const homeSets = [
   "pendingItems",
   "sessionCandidates",
   "inspectionCandidates",
 ];
+/* Reading order of the blocks (UX-09: actionable → recent → ambient). */
+const blockOrder = [
+  "pendingItems",
+  "attention",
+  "inspectionCandidates",
+  "sessionCandidates",
+  "activity",
+];
+export const HOME_ROWS = 3;
 const setLabels = {
   pendingItems: "Waiting for you",
   sessionCandidates: "Continue",
@@ -74,287 +79,40 @@ function stamp(value) {
       })
     : null;
 }
-function recordedTime(card) {
-  const started = stamp(card.runStartedAt);
-  if (started) {
-    const ended = stamp(card.runEndedAt);
-    return ended ? `Run ${started} – ${ended}` : `Run started ${started}`;
-  }
-  const created = stamp(card.sessionCreatedAt);
-  return created ? `Created ${created}` : null;
-}
 const projectLine = (name) => name ?? "Project not resolved";
 
-/* ── Today · the module head ──────────────────────────────────────────────
- * Three numbers on one strip. SH-1: a plain statistic stays flat — the tile is
- * a control because it does something (it filters the module list to its own
- * set, DC-2 overlap allowed), not because a frame was drawn round a number.
- * WK-94 · the Heatmap `Backend pending` row is gone: an implementation state is
- * not production Home copy, and the day-by-day count has no data source to
- * appear for (WK-96 "Activity / Calendar 位只在有数据源时出现"). */
-export function renderHomeBand(
-  container,
-  { summary, load, activeSet, onFilter },
-) {
-  const tiles = toStatTiles(summary, {
-    scope: { projectId: null },
-    observedAt: summary?.observedAt ?? null,
-    load,
-  });
-  const row = el("div", { className: "stat-row" });
-  tiles.forEach((tile, index) => {
-    const key = homeSets[index];
-    const missing = tile.value === null;
-    const reading = missing ? tile.missingLabel : String(tile.value);
-    const button = el(
-      "button",
-      {
-        className: "home-stat",
-        attrs: {
-          type: "button",
-          "aria-pressed": String(activeSet === key),
-          /* The accessible name is the set and its count (WO-WK13 item 2); the
-           * caption is the definition and is read as the description. */
-          "aria-label": `${tile.label}, ${reading}`,
-          "aria-describedby": `stat-caption-${key}`,
-          "data-set": key,
-          "data-focus-key": `stat:${key}`,
-        },
-      },
-      el(
-        "span",
-        { className: "stat-inline" },
-        el("span", { className: "stat-label", text: tile.label }),
-        el("span", {
-          className: missing ? "stat-value is-missing" : "stat-value",
-          text: reading,
-        }),
-      ),
-      el("span", {
-        className: "stat-caption",
-        text: tile.caption,
-        attrs: { id: `stat-caption-${key}` },
-      }),
-    );
-    button.addEventListener("click", () =>
-      onFilter(activeSet === key ? null : key),
-    );
-    row.append(button);
-  });
-  const inner = el(
-    "div",
-    { className: "home-band-inner" },
-    el("h3", { className: "home-module-title", text: "Your work" }),
-    row,
-  );
-  /* ux-conventions §4 · while a read is failing the tiles keep the last values
-   * they confirmed, so the band must say when that was. With no failure the
-   * numbers are current and the line would be noise. */
-  const observedAt = stamp(tiles[0].observedAt);
-  if (load.error && observedAt)
-    inner.append(
-      el("p", {
-        className: "home-observed",
-        text: `Last confirmed ${observedAt}.`,
-      }),
-    );
-  container.replaceChildren(inner);
-}
-
-/* Home composition, 2026-09-10. Registry entries consume existing read-only
- * services. All requests and identity/generation guards remain in app.mjs. */
+/* Home modules registry (WO-CC-D0-a · contracts/home-modules.md). Only modules
+ * with an established read seam are installed; both render as Home blocks on
+ * the Modules layout. Models has no read of its own and renders nothing here. */
 export const homeModules = [
-  { id: "today", title: "Your work", place: "band", source: "work-summary", installed: true },
-  { id: "activity", render: activityCard, title: "Activity", place: "modules", source: "work-activity", installed: true },
-  { id: "attention", render: attentionCard, title: "Attention items", place: "modules", source: "attention/query", installed: true },
-  { id: "models", title: "Models", place: "modules", source: null, installed: true },
+  { id: "activity", title: "Activity", source: "work-activity", installed: true },
+  { id: "attention", title: "Attention", source: "attention/query", installed: true },
+  { id: "models", title: "Models", source: null, installed: true },
 ];
-export const homeBandModules = () => homeModules.filter(m => m.installed && m.place === "modules");
 
 function homeButton(text, handler, key, className = "text-button") {
   const button = el("button", { text, className, attrs: { type: "button", "data-focus-key": key } });
   button.addEventListener("click", handler);
   return button;
 }
-function moduleMessage(container, state, noun, retry) {
-  if (state.loading) container.append(el("p", { className: "form-help", text: `Loading ${noun}…`, attrs: { role: "status" } }));
-  if (state.error) container.append(el("div", { className: "home-module-error", attrs: { role: "status" } },
-    el("span", { text: `${noun} unavailable. ${state.data ? "Showing the last loaded records." : ""}` }),
-    homeButton("Retry", retry, `retry-${noun}`),
-    el("details", {}, el("summary", { text: "Details" }), el("p", { text: state.error }))));
+/* A block's label line: the name, its count, and the one way to more. */
+function blockHeading(title, count, more) {
+  return el("div", { className: "section-heading" },
+    el("h3", { text: title }),
+    count === null ? null : el("span", { className: "count-badge", text: String(count) }),
+    more);
 }
-function activityCard({ activity, onActivityDays, onActivityRetry, onOpenUsage }) {
-  const data = toHomeActivity(activity.data, activity.days);
-  const card = el("section", { className: "home-insight-card home-activity", attrs: { "aria-label": "Recorded activity" } });
-  const ranges = el("div", { className: "home-range", attrs: { "aria-label": "Activity period" } });
-  for (const days of [28, 84]) {
-    const button = homeButton(`${days}d`, () => onActivityDays(days), `activity-days-${days}`);
-    button.setAttribute("aria-pressed", String(activity.days === days));
-    ranges.append(button);
-  }
-  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, icon("activity", { size: 16 }), el("h3", {}, onOpenUsage ? homeButton("Activity", onOpenUsage, "open-usage") : el("span", {text:"Activity"}))), ranges));
-  moduleMessage(card, activity, "Activity", onActivityRetry);
-  if (!data) {
-    if (!activity.loading && !activity.error) card.append(el("p", { className: "form-help", text: "Activity records are not available." }));
-    return card;
-  }
-  card.append(el("p", { className: "home-activity-total" }, el("strong", { text: String(data.total) }),
-    el("span", { text: ` recorded runs · ${data.days} days · all retained work` })));
-  const selected = el("p", { className: "home-activity-day", text: `${data.buckets[0].date} — ${data.buckets.at(-1).date}`, attrs: { "aria-live": "polite" } });
-  const grid = el("div", { className: "home-heatmap", attrs: { role: "group", "aria-label": "Daily retained runs, UTC. Arrow keys move between days." } });
-  const offset = (new Date(`${data.buckets[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;
-  grid.style.setProperty("--heatmap-weeks", String(Math.ceil((offset + data.buckets.length) / 7)));
-  for (let i = 0; i < offset; i++) grid.append(el("span", { attrs: { "aria-hidden": "true" } }));
-  const cells = data.buckets.map((bucket, index) => {
-    const button = homeButton("", () => { selected.textContent = bucket.label; }, `activity-day-${bucket.date}`, "home-heatmap-cell");
-    button.dataset.level = String(bucket.level);
-    button.setAttribute("data-tooltip", bucket.label);
-    button.setAttribute("aria-label", bucket.label);
-    button.tabIndex = index === data.buckets.length - 1 ? 0 : -1;
-    button.addEventListener("focus", () => {
-      cells.forEach(cell => { cell.tabIndex = cell === button ? 0 : -1; });
-      selected.textContent = bucket.label;
-    });
-    button.addEventListener("keydown", event => {
-      const row = (offset + index) % 7;
-      const delta = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: row === 0 ? 0 : -1, ArrowDown: row === 6 ? 0 : 1 }[event.key];
-      if (delta === undefined && event.key !== "Home" && event.key !== "End") return;
-      event.preventDefault();
-      const next = event.key === "Home" ? 0 : event.key === "End" ? cells.length - 1 : Math.max(0, Math.min(cells.length - 1, index + delta));
-      cells[next].focus();
-    });
-    return button;
-  });
-  grid.append(...cells);
-  card.append(grid, selected, el("p", { className: "home-insight-note", text: data.coverage }));
-  if (activity.error) card.append(el("p", { className: "home-insight-note", text: `Last confirmed ${stamp(data.observedAt)}.` }));
-  return card;
-}
-function attentionCard({ attention, projects, onAttentionProject, onAttentionRetry, onAttentionPage, onAttentionOpen, onAttentionBack, onOpenAttentionWorkspace }) {
-  const data = toHomeAttention(attention.data);
-  const card = el("section", { className: "home-insight-card home-attention", attrs: { "aria-label": "Attention items" } });
-  const project = el("select", { className: "home-attention-project", attrs: { "aria-label": "Attention project", "data-focus-key": "attention-project" } });
-  project.append(...projects.map(p => el("option", { text: p.name, attrs: { value: p.id } })));
-  project.value = attention.projectId ?? "";
-  project.hidden = !projects.length;
-  project.addEventListener("change", () => onAttentionProject(project.value));
-  card.append(el("div", { className: "home-insight-head" }, el("div", { className: "home-card-title" }, homeButton("Attention items", onOpenAttentionWorkspace, "attention-workspace-link", "home-attention-heading-link")), project));
-  if (!projects.length) {
-    card.append(el("p", { className: "form-help", text: attention.loading ? "Loading projects…" : "Create a project to keep track of what needs attention." }));
-    return card;
-  }
-  moduleMessage(card, attention, "Attention items", onAttentionRetry);
-  if (attention.selectedId) {
-    card.append(homeButton("Back to items", onAttentionBack, "attention-back"));
-    if (attention.detailLoading) card.append(el("p", { className: "form-help", text: "Loading item…", attrs: { role: "status" } }));
-    if (attention.detailError) card.append(el("p", { className: "form-help", text: `Item unavailable. ${attention.detailError}`, attrs: { role: "status" } }), homeButton("Retry item", () => onAttentionOpen(attention.selectedId), "attention-retry-item"));
-    const d = toHomeAttentionDetail(attention.detail);
-    if (attention.detail && !d) card.append(el("p", { className: "form-help", text: "This item uses an unsupported format." }));
-    if (d) card.append(el("div", { className: "home-attention-detail" },
-      el("h4", { text: d.descriptor.title }),
-      el("span", { className: `home-attention-state ${d.status === "needs_you" ? "is-review" : ""}`, text: attentionLabels[d.status] ?? "Not available" }),
-      d.descriptor.summary ? el("p", { text: d.descriptor.summary }) : null,
-      el("p", { text: d.reason }),
-      d.next_action?.kind !== "none" ? el("p", { text: `Next: ${d.next_action?.label ?? "Not available"}` }) : null,
-      d.next_action?.due_at ? el("p", { text: `Recorded due time: ${stamp(d.next_action.due_at)}` }) : null,
-      el("p", { className: "home-insight-note", text: `Updated ${stamp(d.updated_at)} · Read-only` }),
-      el("details", {}, el("summary", { text: "Recorded context" }),
-        el("p", { className: "home-insight-note", text: `Revision ${d.revision}` }))));
-    return card;
-  }
-  if (!data) {
-    if (!attention.loading && !attention.error) card.append(el("p", { className: "form-help", text: "Attention records are not available." }));
-    return card;
-  }
-  card.append(el("p", { className: "home-insight-note", text: `${data.count} ${data.count === 1 ? "item" : "items"} · all states` }));
-  if (!data.items.length) card.append(el("p", { className: "home-attention-empty", text: "No attention items recorded in this project." }));
-  const list = el("div", { className: "home-attention-list", attrs: { role: "list" } });
-  for (const item of data.items) {
-    const button = homeButton("", () => onAttentionOpen(item.id), `attention-item-${item.id}`, "home-attention-item");
-    button.dataset.status = item.status;
-    const preview = item.id === data.items[0]?.id ? toHomeAttentionDetail(attention.preview) : null;
-    button.classList.toggle("home-attention-featured", Boolean(preview));
-    button.append(el("span", { className: "home-attention-item-title", text: item.title }),
-      el("span", { className: `home-attention-state ${item.status === "needs_you" ? "is-review" : ""}`, text: item.label }), icon("chevron-right", { size: 14 }));
-    if (preview) button.append(el("span", { className: "home-attention-reason", text: preview.reason }),
-      preview.next_action?.kind !== "none" ? el("span", { className: "home-attention-next", text: `Next · ${preview.next_action?.label ?? "Not available"}` }) : null);
-    list.append(el("div", { attrs: { role: "listitem" } }, button));
-  }
-  card.append(list);
-  if (attention.previewError) card.append(el("p", { className: "home-insight-note", text: "Preview unavailable. Open an item to retry its details." }));
-  if (attention.error && attention.loadedAt) card.append(el("p", { className: "home-insight-note", text: `Last loaded ${stamp(attention.loadedAt)}.` }));
-  if (data.offset > 0 || data.nextOffset !== null) {
-    const pages = el("div", { className: "home-attention-pages" });
-    if (data.offset > 0) pages.append(homeButton("Previous", () => onAttentionPage(Math.max(0, data.offset - 2)), "attention-prev"));
-    pages.append(el("span", { className: "home-insight-note", text: `${data.offset + 1}–${data.offset + data.items.length} of ${data.count}` }));
-    if (data.nextOffset !== null) pages.append(homeButton("Next", () => onAttentionPage(data.nextOffset), "attention-next"));
-    card.append(pages);
-  }
-  return card;
-}
-/* Home identity · the greeting is one unframed line: it is text from the
- * profile's address and the moment, never a module, never a card, and it
- * reads nothing that could fail. The same primitive serves the Simple intro
- * and the Modules masthead. */
-export function renderHomeGreeting(greeting) {
-  const value = typeof greeting === "string" ? { text: greeting } : greeting;
-  /* User ruling 2026-09-16 (afternoon): the sentence is trimmed to one line
-   * and simply joined with the date — sentence first, date after it in a
-   * lighter face on the same line. The date is text, not a control: the
-   * calendar view behind it is registered, not built. */
-  const heading = el("h2", { className: "home-greeting" },
-    el("span", { className: "home-greeting-text", text: value.text, attrs: { "data-greeting": "" } }));
-  if (value.dateLine) heading.append(" ", el("span", { className: "home-greeting-date", text: value.dateLine, attrs: { "data-greeting-date": "" } }));
-  return el("div", { className: "home-greeting-block" }, heading);
+function moduleError(noun, error, hasData, retry) {
+  return el("div", { className: "home-module-error", attrs: { role: "status" } },
+    el("span", { text: `${noun} unavailable.${hasData ? " Showing the last loaded records." : ""}` }),
+    homeButton("Retry", retry, `retry-${noun.toLowerCase()}`),
+    el("details", {}, el("summary", { text: "Details" }), el("p", { text: error })));
 }
 
-export function renderHomeModuleBand(container, options) {
-  const focusKey = container.contains(document.activeElement) ? document.activeElement?.dataset.focusKey : null;
-  const { collapsed, onCollapse } = options;
-  // Native disclosure: the band is a <details>, its <summary> is the only
-  // control and carries the glyph; the words are its accessible name. The
-  // modules stay in the DOM while closed so the height can transition
-  // instead of the composer jumping (styles: .home-module-details).
-  const toggleName = collapsed ? "Show modules" : "Hide modules";
-  const summary = el("summary", { className: "home-module-collapse icon-only", attrs: { "data-focus-key": "home-module-collapse", "aria-label": toggleName } },
-    icon(collapsed ? "chevron-right" : "chevron-down", { size: 16 }));
-  summary.dataset.tooltip = toggleName;
-  /* Two columns, two readings: the primary stack (masthead, then Attention)
-   * and the quieter Activity instrument. The masthead is the greeting and the
-   * example line side by side; it takes the height the left column already
-   * had to spare, so the composer keeps its place. */
-  const list = el("div", { className: "home-module-list", attrs: { id: "home-module-list" } });
-  const masthead = el("div", { className: "home-masthead", attrs: { id: "home-masthead" } });
-  if (options.greeting) masthead.append(renderHomeGreeting(options.greeting));
-  masthead.append(el("div", { className: "home-masthead-aside", attrs: { id: "home-masthead-aside" } }));
-  const primary = el("div", { className: "home-primary-stack" }, masthead);
-  for (const id of ["attention", "activity"]) {
-    const module = homeBandModules().find(module => module.id === id);
-    if (!module?.render) continue;
-    if (id === "attention") primary.append(module.render(options)); else list.append(module.render(options));
-  }
-  list.prepend(primary);
-  const details = el("details", { className: "home-module-details" }, summary, list);
-  if (!collapsed) details.setAttribute("open", "");
-  details.addEventListener("toggle", () => {
-    const open = details.open === true || details.hasAttribute("open");
-    if (open === !collapsed) return;
-    onCollapse(!open);
-  });
-  container.replaceChildren(el("div", { className: "home-module-band-inner" }, details));
-  if (focusKey) {
-    const target = container.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`)
-      ?? (/attention/i.test(focusKey) ? container.querySelector('.home-attention-project') :
-          /activity/i.test(focusKey) ? container.querySelector('.home-range button[aria-pressed="true"]') : null);
-    target?.focus();
-  }
-}
-
-/* ── lower band ───────────────────────────────────────────────────────────
- * WK-56 · the row and the card are two states of one WorkCard fed by one
- * adapter output. The row is the standing state of the three-set list; the card
- * is the state the set takes when the band is filtered to it alone, where the
- * recorded run time and an explicit Open have room to be stated. */
+/* ── rows ──────────────────────────────────────────────────────────────────
+ * One row anatomy for every Home block (GUI grammar G1): glyph where the set has
+ * one, the object's name, one meta line, one state word, the chevron. Home rows
+ * point to objects; the object itself opens at its own surface. */
 function workRow(card, onOpen) {
   const status = card.runStatus;
   const button = el(
@@ -385,54 +143,6 @@ function workRow(card, onOpen) {
   );
   button.addEventListener("click", onOpen);
   return button;
-}
-
-/* The card anatomy is the rail's (WK-47 (2)): glyph 16, the object's own name,
- * one state word, one trailing action — then rows. No nested card, no progress
- * bar, no percentage. The frame is a hairline rather than the rail card's
- * floating material, because this card sits on the L1 panel (WK-69). */
-function workCard(card, onOpen) {
-  const status = card.runStatus;
-  const open = action("chevron-right", `Open ${card.title}`, onOpen, {
-    visible: "Open",
-    trailing: true,
-    size: 16,
-    className: "quiet-button rail-open",
-    attrs: {
-      /* The one control the list keyboard activates for this card, so that
-       * Enter / o and a pointer reach the same target (FN-05). */
-      "data-nav-open": "",
-      "data-focus-key": `home:open:${card.sessionId}`,
-    },
-  });
-  const time = recordedTime(card);
-  return el(
-    "article",
-    {
-      className: "home-card",
-      attrs: {
-        tabindex: "-1",
-        "data-nav-item": "",
-        "data-focus-key": `home:sessionCandidates:${card.sessionId}`,
-      },
-    },
-    el(
-      "div",
-      { className: "rail-card-head" },
-      icon(setGlyphs.sessionCandidates, { size: 16 }),
-      el("h4", { className: "rail-card-title", text: card.title }),
-      el("span", {
-        className: stateWordClass("rail-card-state", status),
-        text: status ? runLabels[status] || status : card.missingRunLabel,
-      }),
-      open,
-    ),
-    el("p", {
-      className: "home-card-meta",
-      text: projectLine(card.projectName),
-    }),
-    time ? el("p", { className: "home-card-meta", text: time }) : null,
-  );
 }
 
 function pendingRow(item, onOpen) {
@@ -535,10 +245,169 @@ function pageNotes(key, page, items, onMore) {
   return notes;
 }
 
-// Unrelated Home module responses must not detach a button between native
-// pointerdown and click. Cache only this band's projected facts, not callbacks
-// or the whole summary (whose observation timestamp changes independently).
+/* ── blocks ────────────────────────────────────────────────────────────────
+ * Each block renders into its own slot with its own fingerprint. An unrelated
+ * read (Attention, Activity, the summary's observation time) must not detach a
+ * button between native pointerdown and click, and callbacks always dispatch
+ * to the latest caller. */
+function setBlock(key, { sets, activeSet }, call) {
+  if (!sets) return null;
+  if (activeSet && key !== activeSet) return null;
+  const { items, page } = sets[key];
+  /* WK-47 · a set holding nothing and expecting nothing is a divider without a
+   * fact. Continue is the exception: Home exists for that list, so its
+   * condition sentence is the answer to an empty screen. */
+  if (!activeSet && key !== "sessionCandidates" && page && !page.total) return null;
+  const shown = activeSet ? items : items.slice(0, HOME_ROWS);
+  const more = !activeSet && page && page.total > shown.length
+    ? homeButton("Show all", () => call("onFilter", key), `home-more:${key}`)
+    : null;
+  if (more) more.setAttribute("aria-label", `Show all ${setLabels[key]}`);
+  const section = el("section", { className: "home-section", attrs: { "data-home-block": key } },
+    blockHeading(setLabels[key], page ? page.total : null, more));
+  const open = (item, options) => () => call("onSession", item, options);
+  /* WK-115 ② · the row is a button, so the list item is the layer around it:
+   * a role on the button would replace the semantics the row relies on. */
+  const listNode = el("div", { className: "home-list", attrs: { role: "list" } });
+  const listItem = (node) => el("div", { className: "home-list-item", attrs: { role: "listitem" } }, node);
+  for (const item of shown) {
+    const row = key === "pendingItems" ? pendingRow(item, open(item, { question: true, inspect: false }))
+      : key === "inspectionCandidates" ? inspectionRow(item, open(item, { question: false, inspect: true }))
+      : workRow(item, open(item, { question: false, inspect: false }));
+    listNode.append(listItem(row));
+  }
+  if (listNode.childElementCount ?? listNode.children.length) section.append(listNode);
+  if (activeSet || !items.length || !page) section.append(...pageNotes(key, page, shown, (...args) => call("onMore", ...args)));
+  return { node: section, print: { key, shown, total: page?.total ?? null, page: Boolean(page), activeSet: activeSet || null, more: Boolean(more) } };
+}
+
+function attentionRow(item, projectName, onOpen) {
+  const button = el("button", { className: "home-row", attrs: { type: "button", "data-nav-item": "", "data-focus-key": `home:attention:${item.id}` } },
+    el("span", { className: "home-row-content" },
+      el("span", { className: "home-row-title", text: item.title }),
+      el("span", { className: "home-row-meta", text: projectLine(projectName) })),
+    /* Attention state is not Today's "Waiting for you": review keeps its own
+     * role colour and never borrows the run accent (home-composition §State). */
+    el("span", { className: item.status === "needs_you" ? "home-row-status is-review" : "home-row-status", text: item.label }),
+    icon("chevron-right", { size: 16 }));
+  button.addEventListener("click", (event) => onOpen(item.id, event.currentTarget ?? button));
+  return button;
+}
+function attentionBlock(modules, projects, call) {
+  if (!modules?.attention) return null;
+  const { attention } = modules;
+  const data = toHomeAttention(attention.data);
+  const projectName = projects?.find((project) => project.id === attention.projectId)?.name ?? null;
+  if (!attention.error && (!data || !data.count)) return null;
+  const more = data && data.count > data.items.length
+    ? homeButton("Show all", (event) => call("onOpenAttentionWorkspace", event?.currentTarget ?? null), "home-more:attention")
+    : null;
+  if (more) more.setAttribute("aria-label", "Show all Attention items");
+  const section = el("section", { className: "home-section", attrs: { "data-home-block": "attention" } },
+    blockHeading("Attention", data ? data.count : null, more));
+  if (attention.error) section.append(moduleError("Attention", attention.error, Boolean(data), () => call("onAttentionRetry")));
+  if (data?.items.length) {
+    const list = el("div", { className: "home-list", attrs: { role: "list" } });
+    for (const item of data.items.slice(0, HOME_ROWS))
+      list.append(el("div", { className: "home-list-item", attrs: { role: "listitem" } },
+        attentionRow(item, projectName, (id, trigger) => call("onAttentionOpen", id, trigger))));
+    section.append(list);
+  }
+  return { node: section, print: { data: data && { count: data.count, items: data.items.slice(0, HOME_ROWS) }, error: attention.error || null, projectName } };
+}
+
+function heatmap(data) {
+  const selected = el("p", { className: "home-activity-day", text: `${data.buckets[0].date} — ${data.buckets.at(-1).date}`, attrs: { "aria-live": "polite" } });
+  const grid = el("div", { className: "home-heatmap", attrs: { role: "group", "aria-label": "Daily retained runs, UTC. Arrow keys move between days." } });
+  const offset = (new Date(`${data.buckets[0].date}T00:00:00Z`).getUTCDay() + 6) % 7;
+  grid.style?.setProperty?.("--heatmap-weeks", String(Math.ceil((offset + data.buckets.length) / 7)));
+  for (let i = 0; i < offset; i++) grid.append(el("span", { attrs: { "aria-hidden": "true" } }));
+  const cells = data.buckets.map((bucket, index) => {
+    const button = homeButton("", () => { selected.textContent = bucket.label; }, `activity-day-${bucket.date}`, "home-heatmap-cell");
+    button.setAttribute("data-level", String(bucket.level));
+    button.setAttribute("data-tooltip", bucket.label);
+    button.setAttribute("aria-label", bucket.label);
+    button.tabIndex = index === data.buckets.length - 1 ? 0 : -1;
+    button.addEventListener("focus", () => {
+      cells.forEach(cell => { cell.tabIndex = cell === button ? 0 : -1; });
+      selected.textContent = bucket.label;
+    });
+    button.addEventListener("keydown", event => {
+      const row = (offset + index) % 7;
+      const delta = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: row === 0 ? 0 : -1, ArrowDown: row === 6 ? 0 : 1 }[event.key];
+      if (delta === undefined && event.key !== "Home" && event.key !== "End") return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? cells.length - 1 : Math.max(0, Math.min(cells.length - 1, index + delta));
+      cells[next].focus();
+    });
+    return button;
+  });
+  grid.append(...cells);
+  return [grid, selected];
+}
+/* Activity is ambient history: one flat object, last, collapsible in place
+ * (UX-03). The heatmap stays; the collapse is the reader's own preference. */
+function activityBlock(modules, call) {
+  if (!modules?.activity) return null;
+  const { activity } = modules;
+  const data = toHomeActivity(activity.data, activity.days);
+  /* The widest period holding nothing means there is no history to show; a
+   * narrower empty period keeps the block so its period control stays put. */
+  if (!activity.error && (!data || (!data.total && activity.days === 84))) return null;
+  const summaryLine = data ? `${data.total} recorded ${data.total === 1 ? "run" : "runs"} · ${data.days} days` : null;
+  const summary = el("summary", { className: "home-activity-summary", attrs: { "data-focus-key": "home-activity-toggle" } },
+    el("h3", { text: "Activity" }),
+    summaryLine ? el("span", { className: "home-activity-total", text: summaryLine }) : null,
+    /* The disclosure's own affordance: it turns with the open state. */
+    icon("chevron-right", { size: 14 }));
+  const body = el("div", { className: "home-activity-body" });
+  const ranges = el("div", { className: "home-range", attrs: { role: "group", "aria-label": "Activity period" } });
+  for (const days of [28, 84]) {
+    const button = homeButton(`${days}d`, () => call("onActivityDays", days), `activity-days-${days}`);
+    button.setAttribute("aria-pressed", String(activity.days === days));
+    ranges.append(button);
+  }
+  const usage = modules.onOpenUsage ? homeButton("Open Usage", () => call("onOpenUsage"), "open-usage") : null;
+  body.append(el("div", { className: "home-activity-controls" }, ranges, usage));
+  if (activity.error) body.append(moduleError("Activity", activity.error, Boolean(data), () => call("onActivityRetry")));
+  if (data) {
+    body.append(...heatmap(data), el("p", { className: "home-insight-note", text: data.coverage }));
+    if (activity.error) body.append(el("p", { className: "home-insight-note", text: `Last confirmed ${stamp(data.observedAt)}.` }));
+  }
+  const details = el("details", { className: "home-activity" }, summary, body);
+  if (!modules.activityCollapsed) details.setAttribute("open", "");
+  details.addEventListener("toggle", () => {
+    const open = details.open === true || details.hasAttribute("open");
+    call("onActivityCollapse", !open);
+  });
+  const section = el("section", { className: "home-section", attrs: { "data-home-block": "activity" } }, details);
+  return { node: section, print: { data: data && { total: data.total, days: data.days, buckets: data.buckets, coverage: data.coverage }, days: activity.days, error: activity.error || null, usage: Boolean(usage) } };
+}
+
 const homeRenders = new WeakMap();
+
+function skeleton(container, retained) {
+  const home = el("div", { className: "home-view" });
+  retained.slots = {};
+  for (const key of ["status", "filter", ...blockOrder]) {
+    const slot = el("div", { className: "home-slot", attrs: { "data-home-slot": key } });
+    retained.slots[key] = slot;
+    home.append(slot);
+  }
+  retained.prints = {};
+  container.replaceChildren(home);
+  retained.home = home;
+}
+function fill(retained, key, result) {
+  const slot = retained.slots[key];
+  const print = JSON.stringify(result?.print ?? null);
+  if (retained.prints[key] === print && (result ? slot.children.length : !slot.children.length)) return;
+  const focused = slot.contains(document.activeElement) ? document.activeElement?.dataset?.focusKey : null;
+  if (result) slot.replaceChildren(result.node); else slot.replaceChildren();
+  slot.hidden = !result;
+  retained.prints[key] = print;
+  if (focused) slot.querySelector(`[data-focus-key="${CSS.escape(focused)}"]`)?.focus();
+}
 
 export function renderHome(container, options) {
   const { summary, error, loading, projects, activeSet } = options;
@@ -548,135 +417,49 @@ export function renderHome(container, options) {
     homeRenders.set(container, retained);
   }
   retained.options = options;
+  // Retained nodes always dispatch to the latest caller. No synthetic click.
+  const call = (name, ...args) => retained.options[name]?.(...args);
+  const modules = options.modules ?? null;
+  if (retained.home?.parentNode !== container) skeleton(container, retained);
   const sets = summary ? {
     pendingItems: toPendingRows(summary, projects),
     sessionCandidates: toWorkCards(summary, projects),
     inspectionCandidates: toInspectionRows(summary, projects),
   } : null;
-  const fingerprint = JSON.stringify({ sets, error: error || null,
-    loading: Boolean(loading && !summary), activeSet: activeSet || null });
-  if (retained.home?.parentNode === container && retained.fingerprint === fingerprint) return;
-  // Retained nodes always dispatch to the latest caller, even when their
-  // displayed facts have not changed. No synthetic click or deferred state.
-  const onSession = (...args) => retained.options.onSession(...args);
-  const onRetry = (...args) => retained.options.onRetry(...args);
-  const onMore = (...args) => retained.options.onMore(...args);
-  const onFilter = (...args) => retained.options.onFilter(...args);
-  const previousFocus = container.contains(document.activeElement)
-    ? document.activeElement?.dataset?.focusKey
-    : null;
-  const home = el("div", { className: "home-view" });
+
+  let status = null;
   if (error) {
     /* WK-94 / visual review §7 · an unreachable runtime is a connection state,
-     * not a horizontal panel of its own. One line says which connection is
-     * unavailable and offers the one action; the message the host actually
-     * returned is the disclosure underneath, so the diagnosis is still one
-     * click away and never the loudest thing on Home (FN-28). */
-    const retry = el("button", {
-      className: "text-button",
-      attrs: { type: "button", "aria-label": "Retry loading your workspace" },
-      text: "Retry",
-    });
-    retry.addEventListener("click", onRetry);
-    home.append(
-      el(
-        "div",
-        { className: "connection-line" },
-        el("span", { className: "connection-dot", attrs: { "aria-hidden": "true" } }),
-        el("span", {
-          className: "connection-line-text",
-          text: "Local runtime unavailable",
-        }),
-        retry,
-        el(
-          "details",
-          { className: "connection-diagnosis" },
-          el("summary", { text: "Details" }),
-          el("p", { className: "form-help", text: error }),
-        ),
-      ),
-    );
+     * not a panel of its own. One line names the connection and offers the one
+     * action; the host's own message is the disclosure underneath (FN-28). */
+    const retry = el("button", { className: "text-button", attrs: { type: "button", "aria-label": "Retry loading your workspace", "data-focus-key": "home-retry" }, text: "Retry" });
+    retry.addEventListener("click", () => call("onRetry"));
+    status = { node: el("div", { className: "connection-line" },
+      el("span", { className: "connection-dot", attrs: { "aria-hidden": "true" } }),
+      el("span", { className: "connection-line-text", text: "Local runtime unavailable" }),
+      retry,
+      el("details", { className: "connection-diagnosis" }, el("summary", { text: "Details" }), el("p", { className: "form-help", text: error }))),
+      print: { error } };
   } else if (loading && !summary)
-    home.append(
-      el("p", { className: "form-help", text: "Loading your workspace…" }),
-    );
-  if (summary) {
-    if (activeSet) {
-      /* Without this line the only way back to the three sets is to press the
-       * same tile a second time in another band, which nothing on screen says. */
-      const all = el("button", {
-        className: "text-button",
-        attrs: { type: "button", "aria-label": "Show all work" },
-        text: "Show all",
-      });
-      all.addEventListener("click", () => onFilter(null));
-      home.append(el("div", { className: "home-filter-line" }, all));
-    }
-    for (const key of homeSets) {
-      if (activeSet && key !== activeSet) continue;
-      const { items, page } = sets[key];
-      /* WK-47 · a section holding nothing and expecting nothing is a divider
-       * without a fact. The session set is the exception: Home exists for that
-       * list, so its condition sentence is the answer to an empty screen. */
-      if (!activeSet && key !== "sessionCandidates" && page && !page.total)
-        continue;
-      const section = el(
-        "section",
-        { className: "home-section" },
-        el(
-          "div",
-          { className: "section-heading" },
-          el("h3", { text: setLabels[key] }),
-          el("span", {
-            className: "count-badge",
-            text: page ? page.total : "—",
-          }),
-        ),
-      );
-      const open = (item, options) => () => onSession(item, options);
-      /* WK-115 ② · Home 下带的行是一条列表，会话里的未决卡是另一条；两者不合并。
-       * 行本身是 button / article，所以列表项是包着它的那一层：把 role 直接写在
-       * 按钮上会把按钮语义换掉，而这些行正是靠「可按」在说自己能做什么。 */
-      const listNode = el("div", {
-        className: "home-list",
-        attrs: { role: "list" },
-      });
-      const listItem = (node) =>
-        el("div", { className: "home-list-item", attrs: { role: "listitem" } }, node);
-      if (key === "pendingItems")
-        for (const item of items)
-          listNode.append(
-            listItem(
-              pendingRow(item, open(item, { question: true, inspect: false })),
-            ),
-          );
-      else if (key === "inspectionCandidates")
-        for (const item of items)
-          listNode.append(
-            listItem(
-              inspectionRow(item, open(item, { question: false, inspect: true })),
-            ),
-          );
-      else
-        for (const item of items)
-          listNode.append(
-            listItem(
-              (activeSet === key ? workCard : workRow)(
-                item,
-                open(item, { question: false, inspect: false }),
-              ),
-            ),
-          );
-      if (listNode.childElementCount) section.append(listNode);
-      section.append(...pageNotes(key, page, items, onMore));
-      home.append(section);
-    }
+    status = { node: el("p", { className: "form-help", text: "Loading your workspace…" }), print: { loading: true } };
+  fill(retained, "status", status);
+
+  let filter = null;
+  if (summary && activeSet) {
+    /* The way back from one expanded set to the whole of Home. */
+    const all = el("button", { className: "text-button", attrs: { type: "button", "aria-label": "Show all work", "data-focus-key": "home-all-work" }, text: "All work" });
+    all.addEventListener("click", () => call("onFilter", null));
+    filter = { node: el("div", { className: "home-filter-line" }, all), print: { activeSet } };
   }
-  container.replaceChildren(home);
-  retained.home = home;
-  retained.fingerprint = fingerprint;
-  if (previousFocus)
-    container
-      .querySelector(`[data-focus-key="${CSS.escape(previousFocus)}"]`)
-      ?.focus();
+  fill(retained, "filter", filter);
+
+  const context = { sets, activeSet };
+  /* One expanded set takes the whole of Home; the modules step aside. */
+  const blockModules = activeSet ? null : modules;
+  for (const key of blockOrder) {
+    const result = key === "attention" ? attentionBlock(blockModules, projects, call)
+      : key === "activity" ? activityBlock(blockModules, call)
+      : setBlock(key, context, call);
+    fill(retained, key, result);
+  }
 }

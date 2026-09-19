@@ -104,7 +104,7 @@ Settings 注（WK-116 / CC-S）：进入 Settings 后全局侧栏不渲染，这
 | 短视口上限（CI-B，暂定） | `min(160px, 28dvh)`，仅支持 dvh 时覆盖；否则 160 | `min(180px, 28dvh)`，同左；否则 180 | — |
 | composer 垂直位置 | 中心落在主区高的 55 % 或更下（现 56 %），由 `--home-lead` 量出 | 沉底 | — |
 | 其上非 chrome 内容 | ≤180，其中 orientation ≤120 且不含数字 | 只有 thread | — |
-| 下方 | Today 三数字 strip → Continue 行 → 有数据源才出现的 compact card；ragged layout，不填满 grid | 禁止出现任何 Home dashboard primitive | card 内无框内容，禁止 nested card |
+| 下方 | ~~Today 三数字 strip → Continue 行 → 有数据源才出现的 compact card~~（2026-09-19 superseded by [GUI grammar G1](../execution/claude-frontend-harness-2026-09-16/gui-grammar-convergence-20260919.md#g1--home-zoning-and-state-adaptivity-absorbs-the-zoning-pr)：Waiting → Attention → Needs a look → Continue → Activity，每块≤3行无框，统计不成卡；两种版面同一居中锚点）；ragged layout，不填满 grid | 禁止出现任何 Home dashboard primitive | card 内无框内容，禁止 nested card |
 | 首屏下半部 | 必须有可见的 continuity 内容 | — | — |
 | 右侧 contextual surface | — | 有内容才出现；**按视口分档（WK-113 / WK-116，CC-W）**：≥1680 是真正的第三栏（nav 256 · chat ≥640 · doc ≥`--doc-min` 688，各自滚动，顶部 chrome 同一基线）；1024–1679 折叠为悬浮卡、展开为主区内的视图切换（无遮罩、无模态卡外观，chat 列 `hidden` + `inert` 但 DOM 保留），正文 measure 仍 ≥640；<1024 全屏 sheet | 展开进入独立 surface；正文行宽另受 `--doc-measure` 约束 |
 

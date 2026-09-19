@@ -120,7 +120,7 @@ test("WK-115 ② · 两条列表各自 role=list，不合并", () => {
   // Home 下带。
   assert.match(
     homeSource,
-    /className: "home-list",\s*\n\s*attrs: \{ role: "list" \},/,
+    /className: "home-list",\s*attrs: \{ role: "list" \}/,
   );
   assert.match(homeSource, /attrs: \{ role: "listitem" \}/);
   // 行本身仍然是按钮 / article：role 写在包着它的那一层。

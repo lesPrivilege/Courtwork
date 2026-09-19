@@ -23,7 +23,7 @@ import {
   createPreferenceGovernance,
   settingsRow,
 } from "../web/settings-view.mjs";
-import { homeModules, homeBandModules } from "../web/home-view.mjs";
+import { homeModules } from "../web/home-view.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
 const styles = readFileSync(`${root}app/web/styles.css`, "utf8");
@@ -172,7 +172,7 @@ test("读偏好只认闭集里的值：坏掉的存储读成默认，不是读�
   globalThis.__cwPrefs = undefined;
   assert.deepEqual(readPreferences(), {
     scheme: "system", skin: "slate", customSkin: "", textSize: "medium", codeFont: "", motion: "system",
-    homeLayout: "modules", homeModuleBand: "expanded",
+    homeLayout: "modules", homeActivity: "expanded",
   });
   globalThis.__cwPrefs = original;
 });
@@ -181,16 +181,16 @@ test("读偏好只认闭集里的值：坏掉的存储读成默认，不是读�
    localStorage 不能把它读成第三种版面：闭集外的值一律读回 Modules。 */
 test("Home 版面偏好是闭集：默认 Modules，坏值读回 Modules 而不是读成第三种版面", () => {
   const original = globalThis.__cwPrefs;
-  globalThis.__cwPrefs = { value: { homeLayout: "modules", homeModuleBand: "collapsed" } };
+  globalThis.__cwPrefs = { value: { homeLayout: "modules", homeActivity: "collapsed" } };
   assert.deepEqual(
-    (({ homeLayout, homeModuleBand }) => ({ homeLayout, homeModuleBand }))(readPreferences()),
-    { homeLayout: "modules", homeModuleBand: "collapsed" },
+    (({ homeLayout, homeActivity }) => ({ homeLayout, homeActivity }))(readPreferences()),
+    { homeLayout: "modules", homeActivity: "collapsed" },
   );
   for (const value of ["dashboard", "", 1, null, {}, "Modules"]) {
-    globalThis.__cwPrefs = { value: { homeLayout: value, homeModuleBand: value } };
+    globalThis.__cwPrefs = { value: { homeLayout: value, homeActivity: value } };
     const read = readPreferences();
     assert.equal(read.homeLayout, "modules", String(value));
-    assert.equal(read.homeModuleBand, "expanded", String(value));
+    assert.equal(read.homeActivity, "expanded", String(value));
   }
   globalThis.__cwPrefs = original;
 });
@@ -199,29 +199,17 @@ test("Home 版面偏好是闭集：默认 Modules，坏值读回 Modules 而不�
    not_applicable）的模块才允许安装。没有接缝的模块不在代码里，只在
    contracts/home-modules.md 里声明——所以这条测的是"没有多出来的模块"。 */
 test("Home 模块只安装有既定读取接缝的 Activity 与 Attention", () => {
-  assert.deepEqual(homeModules.map((module) => module.id), ["today", "activity", "attention", "models"]);
+  // GUI grammar G1 · the Today strip is gone; the registry holds the Modules blocks.
   assert.deepEqual(
-    homeModules.map((module) => [module.id, module.place, module.installed]),
-    [["today", "band", true], ["activity", "modules", true], ["attention", "modules", true], ["models", "modules", true]],
+    homeModules.map((module) => [module.id, module.source, module.installed]),
+    [["activity", "work-activity", true], ["attention", "attention/query", true], ["models", null, true]],
   );
-  assert.deepEqual(homeBandModules().map((module) => module.id), ["activity", "attention", "models"]);
-  for (const absent of ["usage", "mail", "calendar"])
+  for (const absent of ["today", "usage", "mail", "calendar"])
     assert.equal(
       homeModules.some((module) => module.id === absent),
       false,
       `${absent} 没有接缝，不该出现在注册表里`,
     );
-});
-
-/* WK-114 ⑤ · Models 不做第二处展示：带上那一行不说模型名、不说连接状态，
-   只说去哪里管它。这条盯的是"这一行没有变成第二个信息模块"。 */
-test("Models 模块不复述 composer chip 的事实：它没有自己的读取", () => {
-  const models = homeModules.find((module) => module.id === "models");
-  assert.equal(models.source, null);
-  assert.equal(models.place, "modules");
-  const today = homeModules.find((module) => module.id === "today");
-  assert.equal(today.source, "work-summary");
-  assert.equal(today.row, undefined);
 });
 
 /* WK-90 · 九个组按用户任务命名。`runtime` 不再是一个组：它是架构词，落在
