@@ -1,0 +1,37 @@
+{
+  "kind": "test-environment",
+  "date": "2026-09-15",
+  "base_sha": "caf3edbceb8cf9b535a28c547088874852752a1e",
+  "branch": "agents-api-adapter-20260915",
+  "isolated_worktree": "~/Projects/.worktrees/courtwork-agents-api-adapter-20260915",
+  "node": "v25.9.0",
+  "package_engines": ">=22.19.0",
+  "frozen_sources": {
+    "app/runtime/agents-api-adapter.mjs": "eed8919cc06fcb1b9c98ed9422974d63029387b8b6c48e645bab9557523bd98a",
+    "app/runtime/agents-api-contract.d.ts": "cbfb6ead6b615c33f784de18db5920808dfe70798f76f1231fbcb9ef2b8fb328",
+    "app/tests/drt03-agents-api-protocol.test.mjs": "f85f4f74321b955bb1fdc5daad4d0df2183a982e19465647484616eb6eb06e0c",
+    "app/tests/fixtures/agents-api-native.mjs": "d31a90eeb38d72d9f4622cc046915ff9844dcc6dab25f47e6a8c01a6a139b56b"
+  },
+  "commands": {
+    "targeted": "node --test app/tests/drt03-agents-api-protocol.test.mjs",
+    "architecture_boundaries": "node --test app/tests/architecture-boundaries.test.mjs",
+    "syntax": "node --check <each new .mjs>"
+  },
+  "results": {
+    "targeted": "12 tests, 12 pass, 0 fail",
+    "architecture_boundaries": "3 tests, 3 pass, 0 fail",
+    "syntax": "ok"
+  },
+  "full_suite": {
+    "command": "cd app && npm test (worktree node_modules symlinked to the main checkout at the same commit)",
+    "log": "full-suite.log",
+    "status": "regression context only: the run started before the final two small edits to the new adapter module and its test; no other test imports that module, and the frozen revision is covered by targeted.log",
+    "documentation_links": "tools/check-doc-links.mjs: pass, 1368 documents / 7553 links / 0 problems"
+  },
+  "not_run": [
+    "live Agents API probe (no credential, no account capability check)",
+    "SDK runtime execution (no dependency installed for this slice; npm artifact verified by bytes only)",
+    "service/UI wiring (deliberately outside the slice)",
+    "Work Core acceptance path (no schema or Core change)"
+  ]
+}

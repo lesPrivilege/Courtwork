@@ -1,0 +1,20 @@
+✔ DRT03 protocol: beta wire identity is pinned and every unverified capability stays unavailable (1.620208ms)
+✔ DRT03 creation: environment:none binds CW identity once and fails closed without touching the transport (0.606209ms)
+✔ DRT03 events: duplicates collapse by event id and diagnostics never settle (0.69425ms)
+✔ DRT03 settlement: root turn.completed settles completed; idle and subagent turns do not (0.732166ms)
+✔ DRT03 settlement: root turn.failed keeps a bounded error and is not masked by text (0.2185ms)
+✔ DRT03 cancel: input.cancel is intent only; only turn.cancelled confirms it (0.239541ms)
+✔ DRT03 cancel: closing the stream is never a cancellation (0.184459ms)
+✔ DRT03 settlement: unreconciled effects and session failure keep ambiguity unknown (0.263667ms)
+✔ DRT03 settlement: an unreconciled session failure cannot be reported as a plain failure (0.175541ms)
+✔ DRT03 functions: pending actions are observations and results echo turn_id and call_id (0.235375ms)
+✔ DRT03 settlement: the replay helper applies the same rules as the live tracker (0.1035ms)
+✔ DRT03 recovery: saved items page by after cursor and merge by item id without fabricating gaps (0.552459ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.5165

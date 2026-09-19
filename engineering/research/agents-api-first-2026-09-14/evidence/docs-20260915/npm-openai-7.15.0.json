@@ -1,0 +1,28 @@
+{
+  "kind": "npm-artifact-verification",
+  "verified_at": "2026-09-15",
+  "package": "openai",
+  "version": "7.15.0",
+  "registry": "https://registry.npmjs.org/openai",
+  "tarball": "https://registry.npmjs.org/openai/-/openai-7.15.0.tgz",
+  "tarball_bytes": 2654336,
+  "tarball_sha256": "a9428a67be47b7039468d534118a9fd258862978cd6862fcf3f9dd2f687afb90",
+  "verified": [
+    "tarball contains 243 paths matching beta/agents",
+    "sessions/sessions.js exposes create/list/retrieve/delete/stream",
+    "sessions/events.js exposes create/stream",
+    "sessions/items.js exposes list"
+  ],
+  "sample_paths": [
+    "package/resources/beta/agents/sessions/sessions.js",
+    "package/resources/beta/agents/sessions/events.js",
+    "package/resources/beta/agents/sessions/items.js",
+    "package/resources/beta/agents/sessions/subagents/turns/items.js",
+    "package/resources/beta/agents/environments/files.js"
+  ],
+  "notes": [
+    "Version was 'latest' on the npm registry at verification time; the pin is this exact version, not a floating range.",
+    "The adapter does not import this package in this slice; a future Host transport implementation must pin the version explicitly.",
+    "No credentials, account access or live API call was used for this verification."
+  ]
+}

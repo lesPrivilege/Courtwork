@@ -1,0 +1,123 @@
+{
+  "kind": "external-documentation-snapshot",
+  "retrieved": "2026-09-15 (Asia/Shanghai)",
+  "source_notes": [
+    "Pages fetched with curl -L from developers.openai.com; documented URL + bytes + sha256 below.",
+    "The sessions items list reference page has no .md variant; its response schema was extracted into items-list.schema-excerpt.txt (source page bytes sha256 recorded in items-list-source.json).",
+    "Documentation is mutable; hashes identify the exact bytes read on 2026-09-15 and do not claim future stability."
+  ],
+  "files": [
+    {
+      "file": "overview.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/overview.md",
+      "bytes": 14299,
+      "sha256": "203f4190c1aec39699df57c092204cc37de4f32e62fdba99327e35f4a5493aae",
+      "retrieved_at": "2026-09-15T16:55:53.385295+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "architecture.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/architecture.md",
+      "bytes": 5845,
+      "sha256": "755df9fa1c04a492876c914dab97e88a358ef069a96c2acc39f88d189bdfc2e3",
+      "retrieved_at": "2026-09-15T16:55:53.388298+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "sessions.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/sessions.md",
+      "bytes": 15900,
+      "sha256": "d6d8294fce00f6f1bb618752610b69b57fe550e0681afda49e8f95fba6e6fd8e",
+      "retrieved_at": "2026-09-15T16:55:53.391346+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "sessions_events.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/sessions/events.md",
+      "bytes": 20236,
+      "sha256": "5cec92261618edcc21fb1606fddfe87344e4b3927c528c236fabc110950cfab6",
+      "retrieved_at": "2026-09-15T16:55:53.394152+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "tools_functions.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/tools/functions.md",
+      "bytes": 6440,
+      "sha256": "08fdbd58eb1feff71e38bf2aa5e1be9f3b7b1c98b1092b3b1ca4e6c95392af90",
+      "retrieved_at": "2026-09-15T16:55:53.396872+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "multi-agent.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/multi-agent.md",
+      "bytes": 15709,
+      "sha256": "7715182a9cd0f2a47b1d86fc4c16883dda488be8fd075a7cc51df4706905dff6",
+      "retrieved_at": "2026-09-15T16:55:53.399636+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "environments_openai-hosted.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/environments/openai-hosted.md",
+      "bytes": 12444,
+      "sha256": "60fc182bef2a56bfb5b1a3ace2d22e483f4cd20da94d16516750ca38c8a954a8",
+      "retrieved_at": "2026-09-15T16:55:53.402306+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "environments_self-hosted.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/environments/self-hosted.md",
+      "bytes": 10446,
+      "sha256": "6720e51217f2aac4275862c935bd3e75fe509a0a9537d105c83aa15115735c4d",
+      "retrieved_at": "2026-09-15T16:55:53.405037+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "environments_files.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/environments/files.md",
+      "bytes": 5627,
+      "sha256": "b304e00194252d49556cc6192cedc9489c45ce544c71189cdafcb2c193b0f6c0",
+      "retrieved_at": "2026-09-15T16:55:53.407573+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "environments_lifecycle.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/environments/lifecycle.md",
+      "bytes": 6655,
+      "sha256": "da107cd0a7d60fd296695da9d74d737518eb4ba943ea7f5b54d169f355ac4240",
+      "retrieved_at": "2026-09-15T16:55:53.409943+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "observability.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/observability.md",
+      "bytes": 15682,
+      "sha256": "a76ea70aa427cf86ddf7ce095adc3dd961fb21a806c11c686bdef7fb593d0465",
+      "retrieved_at": "2026-09-15T16:55:53.412330+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "configuration.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/configuration.md",
+      "bytes": 13520,
+      "sha256": "5a1f5221dd0e3fabc68d1066bd0b3b4f1ea411cbb76e4d3719e82ff8b4980499",
+      "retrieved_at": "2026-09-15T16:55:53.414531+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "quickstart.md",
+      "url": "https://developers.openai.com/api/docs/guides/agents-api/quickstart.md",
+      "bytes": 12458,
+      "sha256": "d38f9e88d4f8ede8104825ab919c7072200b9f3123203e9b07b9d8816937989d",
+      "retrieved_at": "2026-09-15T16:55:53.416743+08:00",
+      "format": "official markdown endpoint (append .md)"
+    },
+    {
+      "file": "ref_streaming-events.md",
+      "url": "https://developers.openai.com/api/reference/resources/beta/subresources/agents/streaming-events.md",
+      "bytes": 169127,
+      "sha256": "e1a32d3f5010d8cdb2e97c939149d5a310eeb4aa4d6bdd5f0ee3c071860b3154",
+      "retrieved_at": "2026-09-15T16:55:53.419103+08:00",
+      "format": "official markdown endpoint (append .md)"
+    }
+  ]
+}

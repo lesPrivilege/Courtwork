@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-15 · Agents API Runtime Adapter 协议与绑定回填
+
+[P03/DRT-03第一片](research/agents-api-first-2026-09-14/adapter-protocol-20260915.md)冻结最小Runtime Adapter DTO与native映射；离线fixture 12/12覆盖创建、事件去重、completed/failed/cancelled/unknown结算、saved-items恢复与取消映射。environment:none协议已映射但对外保持unavailable，self-hosted整lane本轮unsupported，精确文档字节与npm `openai@7.15.0`固定于其evidence。未接真实凭据、未接service/UI、未改Core schema或既有产品文件；不改变下一轮RD-006优先次序，真实API探针另需用户授权凭据与有界预算。
+
 ## 2026-09-15 · 产品节点发布与下一轮基线
 
 [发布及开工回执](release/product-node-2026-09-15/deployment.md)：用户追加授权后，公开源`fe7f317`已push并由Pages手动运行34946272671部署成功；下一轮从包含该回执的main实际HEAD接单，先RD-006在途仓库绑定/读写，再DF-04内部recipe与同路径Chat/Presentation/Spark接续。产品最后变更`496af6a`，媒体/安装仍`fd96f96`，Host15/Core4/bridge5与Paper9.6不变；保留原未完成施工树和视觉/DF-04/G1–G5开放项。线上字节核对与完整SHA见回执，不以发布关闭产品门。
