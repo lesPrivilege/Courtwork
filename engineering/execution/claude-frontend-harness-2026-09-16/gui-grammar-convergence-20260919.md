@@ -245,6 +245,45 @@ One fixed synthetic dataset on one candidate SHA. The surfaces are Home, Chat an
 
 In every cell, check the zone order ruled for that surface, weights against UX-10, the stable card left edge and content-start line, and that there is no overlap or horizontal overflow. Record characters per line as an observation. The author supplies captures; a non-author decides. Unexecuted cells are listed as unexecuted.
 
+#### G4 candidate evidence (Sonnet capture, 2026-09-20)
+
+The [candidate evidence packet](../../../evidence/gui-grammar-20260920/README.md) was captured by headless Chrome over CDP against branch HEAD `fc8dd61`, with a reproducible `capture.mjs` and `manifest.json`. It has 19 executed cells and 18 viewport PNGs covering Home, Chat, Attention and Spark:
+- Home at 1440 in empty, normal, long-content and simulated-failure states;
+- Home at 1280 and 390, light and dark, sidebar collapsed, and reduced motion;
+- a CSS-equivalent 200% cell (720×450 @2x), which is not native zoom.
+
+Each cell's method is labelled: real, INJECTED DOM TEXT, SIMULATED NETWORK FAILURE, or CSS-equivalent. **Not executed:**
+- Waiting/approval present: the example fixture has no pending item, and no data was faked into the host.
+- A live event burst: this needs a provider that emits 100 tool calls, and no paid provider was run. `event-weight.test.mjs` covers it at unit level.
+- Native 200% zoom, forced colors and a screen-reader pass.
+
+**Measured facts recorded for the reviewer.**
+- The composer top holds at 472 px with its centre at 56% across the empty, normal and long-content states. In the long-content state the intro grew from 69 to 222 px and the lead fell from 302 to 150 px.
+- Every captured Home cell shares one left edge.
+- The 30-step keyboard sequence is recorded, and the Activity summary toggles on Enter.
+- At 390 and at 720 @2x, the docked composer's box intersects a block that has not been scrolled yet. The docked composer is sticky at the end of the scrolling body. In the G1 author pass at 375×812, scrolling brought the Activity block fully above the dock; the capture did not exercise scrolling.
+
+**Acceptance is not claimed.** Per the start node, the next step is non-author verification (Luna), and the visual/layout decision for G1–G3 belongs to that review.
+
+## Construction report and writer release (Claude/Opus, 2026-09-20)
+
+**Deliverable.** Branch `claude/gui-grammar-20260919` from `main@72c91a2`, with commits `9b4fc2f` (owner record), `e431d0b` (G1), `fbab236` (G2), `fc8dd61` (G3) and the G4 evidence commit that follows `fc8dd61`. The agreed GUI scope G1 → G4 is complete as author work. Visual acceptance is pending non-author review.
+
+**Integration notes for Astra.**
+- The shared main checkout still holds **older uncommitted copies** of this slice's documents: `ux-grammar.md`, this record, the zoning PR note, the packet README line and the GUI `current.md` entry. The branch versions supersede them, so take the branch bytes for these paths. The Orchestra entry in main's `current.md` belongs to another author and must be kept; the two entries sit in adjacent hunks.
+- On this branch alone `check-doc-links` reports one problem. The Astra paragraph in this record links `orchestra-start-node-20260919.md`, which is untracked in main. It resolves in the combined tree.
+- `app/node_modules` in the task worktree is an untracked symlink to main's dependencies, used only to run tests. It is not part of the deliverable.
+
+**Residuals, each with an owner.**
+- Attention status filter for Home: Attention owner.
+- The 16 px title-start difference between glyph and no-glyph rows, and `#conversation-body` extending 48 px under the top band: G4 reviewer disposition.
+- The not-executed cells listed above: G4 reviewer.
+- Historical evidence scripts `fe01`, `fe02` and `wk13` reference the removed DOM; they are preserved as history.
+
+**Not covered by this scope.** This GUI round ran **no coding-dogfood path**: no CW agent read, admitted an edit, invoked a check or reopened a path. N-02 and the RD-006/DF-04 closure stay with their owners and are not advanced by this report.
+
+**Writer release.** Claude releases the files this branch changes once it is integrated. The isolated host ports used here (8871, 8873) were stopped or are scratch; no shared data directory or port is held.
+
 ## Division of labour
 
 Opus rules and authors G1 and G2's weight mapping. Sonnet explores, implements G3 and captures G4 evidence. New grammar questions raised during a slice come back to Opus; they are not settled inside the slice.
