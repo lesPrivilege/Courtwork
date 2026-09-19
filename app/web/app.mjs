@@ -1796,7 +1796,10 @@ function attachObjectCommands(row, ref, { attrs = {}, more = true } = {}) {
   row.addEventListener("keydown", (event) => {
     if (event.key === "ContextMenu" || (event.shiftKey && event.key === "F10")) { if (openMenu({ anchor: row })) event.preventDefault(); }
   });
-  if (!more) return null;
+  /* The More control is drawn only when the dispatcher has a command for
+   * this target now: example rows (and any target without a real path) get
+   * no inert menu button, matching their empty context menu. */
+  if (!more || !objectCommands.list(ref).length) return null;
   const presentation = semanticPresentation("menu.more", { values: { target: ref.kind } });
   const button = action(presentation.glyph, presentation.label, () => {
     if (objectMenu?.isOpen()) { objectMenu.close({ restoreFocus: false }); button.focus(); return; }

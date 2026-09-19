@@ -39,5 +39,5 @@
 
 ## 2026-09-16 · 回归回执（Claude 施工单 06 第一段）
 
-三条链（MCP 发现/曝光/批准/调用；Skill 导入/曝光/加载；本地受信 Plugin 登记/加载/绑定/卸载/重启）在 [capability-consumption 测试](../../../app/tests/capability-consumption.test.mjs)里各自陈述四个事实：保存后未启用的 Run 绑定里没有它；启用后的下一 Run 绑定里有它；Run 事件记下真实使用（MCP dispatchId 的 tool.result、runtime.context.loaded 与逐字相等的加载正文、扩展工具的真实结果）；此后配置再改，早先 Run 的绑定 hash/revision 不变。证据见 [06-capability-consumption.json](../../execution/claude-frontend-harness-2026-09-16/evidence/06-capability-consumption.json)。未改本面代码。
+三条链（MCP 发现/曝光/批准/调用；Skill 导入/曝光/加载；本地受信 Plugin 登记/加载/绑定/卸载/重启）在 [capability-consumption 测试](../../../app/tests/capability-consumption.test.mjs)里各自陈述四个事实：保存后未启用的 Run 绑定里没有它；启用后的下一 Run 绑定里有它；Run 事件记下真实使用（MCP dispatchId 的 tool.result、runtime.context.loaded 与逐字相等的加载正文、扩展工具的真实结果）；此后配置再改，早先 Run 的绑定 hash/revision 不变。证据见 [06-capability-consumption.json](../../execution/claude-frontend-harness-2026-09-16/evidence/06-capability-consumption.json)（其 ID 每次运行随机，普通测试不再覆写；需要刷新时以 `CW_CAPABILITY_EVIDENCE=<路径>` 运行该测试）。未改本面代码。
 

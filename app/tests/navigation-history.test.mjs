@@ -34,6 +34,7 @@ test("09 · leave before every departure, arrive only through the reader; traver
   assert.match(app, /if \(!reading\.anchor\) return;\n\s*state\.history\.remember/, "no rows on screen never overwrites a kept anchor");
   assert.match(app, /\} else \{\n[^}]*state\.traversal = null;\n\s*state\.history\.arrive\(location\);/, "NAV-R1: a place opened while a return is pending wins and the pending return is abandoned");
   assert.match(app, /objectMenu\?\.refresh\(\);/, "NAV-R3: the open menu re-lists on every render");
+  assert.match(app, /if \(!more \|\| !objectCommands\.list\(ref\)\.length\) return null;/, "N-01: no More control where the dispatcher lists nothing, as on example rows");
   assert.match(app, /leaveLocation\(\);\n  const own = \+\+state\.navigationEpoch;\n  await persistCurrentDraft\(\);/);
   assert.match(app, /arriveLocation\(\{ kind: "session", sessionId, projectId: detail\.session\.projectId \?\? null, title: detail\.session\.title \}\);/);
   assert.match(app, /runtimeView\?\.pause\(\);\n  arriveLocation\(\{ kind: "home" \}\);/);

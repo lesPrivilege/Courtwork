@@ -4,7 +4,6 @@ import { mkdtemp, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import http from 'node:http';
-import { fileURLToPath } from 'node:url';
 import { boot } from './helpers.mjs';
 
 // 06 · "Save is not enabled; enabled is not used." Three chains (MCP, Skill,
@@ -317,10 +316,13 @@ test('06 · Local plugin: registered, loaded and bound — the Run records the b
   } finally { await h.runtime.close(); }
 });
 
+/* The tracked record (engineering/execution/claude-frontend-harness-2026-09-16/
+ * evidence/06-capability-consumption.json) is refreshed deliberately, never by
+ * an ordinary run: its ids are random per run. Set CW_CAPABILITY_EVIDENCE to
+ * the output path to write it, as governance-http does with its packets. */
 after(async () => {
-  const here = path.dirname(fileURLToPath(import.meta.url)); // app/tests
-  const repoRoot = path.resolve(here, '..', '..');
-  const dir = path.join(repoRoot, 'engineering/execution/claude-frontend-harness-2026-09-16/evidence');
-  await mkdir(dir, { recursive: true });
-  await writeFile(path.join(dir, '06-capability-consumption.json'), JSON.stringify(evidence, null, 2) + '\n');
+  const out = process.env.CW_CAPABILITY_EVIDENCE;
+  if (!out) return;
+  await mkdir(path.dirname(path.resolve(out)), { recursive: true });
+  await writeFile(out, JSON.stringify(evidence, null, 2) + '\n');
 });
