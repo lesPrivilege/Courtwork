@@ -1,0 +1,11 @@
+✔ the limited scanner recognizes imports while ignoring comments and strings (2.035834ms)
+✔ legal and forbidden synthetic edges exercise all approved boundaries (0.674542ms)
+✔ the current Core, runtime, renderer, and composition-root graph obeys ownership (43.924708ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 128.564

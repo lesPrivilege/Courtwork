@@ -1,0 +1,46 @@
+# Sessions items list — response schema excerpt
+
+Source: https://developers.openai.com/api/reference/resources/beta/subresources/agents/subresources/sessions/subresources/items/methods/list
+Fetched: 2026-09-15. No `.md` variant exists for this page; this is an
+operator-extracted excerpt of the rendered schema, not original bytes. Source
+HTML bytes/hash: see items-list-source.json.
+
+## Query parameters
+
+- `after`: optional string. Return resources after this resource ID in the
+  selected order. minLength 0, maxLength 1048576.
+- `limit`: optional number, 1–100. Defaults to 20.
+- `order`: optional `"asc"` or `"desc"`. Defaults to `desc`.
+
+## Response
+
+- `data`: array of `AgentSessionItem` — "The resources returned in this page, in
+  the requested sort order."
+- `first_id`, `last_id`, `has_more`: standard page envelope; `has_more` is
+  "Whether there are more resources to retrieve after this page."
+
+## `AgentSessionItem` union members (names as published)
+
+- `AgentSessionMessage` / `AgentMessage` — user or assistant messages.
+  - `id: string or null` ("null for legacy user messages whose ID was not
+    recorded"); `content` (input/output text, input image, encrypted content);
+    `role: "user" | "assistant"`; `phase: "commentary" | "final_answer" | null`;
+    `status: "in_progress" | "completed" | "incomplete"` (user messages are
+    always completed); `turn_id`; `type: "message"`.
+- `AgentFunctionCallItem`, `AgentMcpCallItem`, `AgentCommandExecutionItem`,
+  `AgentWebSearchCallItem` — tool/action records. Call status union:
+  `"in_progress" | "completed" | "failed" | "incomplete"`.
+- `AgentReasoningItem` — reasoning summaries.
+- `AgentCreateSubagentCallItem`, `AgentSendSubagentInputCallItem`,
+  `AgentWaitForSubagentsCallItem`, `AgentCloseSubagentCallItem`,
+  `AgentInterruptSubagentCallItem`, `AgentResumeSubagentCallItem` — delegation
+  records (delegation is disabled in the adapter's first slice).
+
+## How this slice uses it
+
+The adapter reads the page with `order: "asc"` and `limit: 100`, follows
+`has_more` using `last_id` as the next `after` cursor, restores state keyed by
+item `id`, and treats an item without a string id as non-mergeable (counted as
+malformed) rather than inventing identity. Only message text and item
+status/role/turn_id are used; other union members are carried in history but
+not surfaced by this slice.

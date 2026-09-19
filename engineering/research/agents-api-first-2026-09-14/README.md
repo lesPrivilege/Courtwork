@@ -35,3 +35,7 @@ Agents API 提为原 P03/P04/DRT-03 下的优先核验候选；App Server 历史
 内置浏览器实际打开首页，在 Local test 下发送“Dogfooding 20260914：验证普通 Chat 发送与刷新接续。”；页面显示首 Run 已记录、示例关闭及 Continue 项 Completed。这只证明确定性运行入口，不证明真实模型或 coding 能力。随后页面切入模型配置，点击原页面节点返回无布局对象；实际截图显示 Settings/Models。用户确认正在配置连接并要求暂不操作页面，故暂停 GUI，刷新接续未验。为用户继续配置保留本地实例。
 
 截图由 Astra 实际查看，未保存为视觉接受 baseline；Luna 独立持久化核查另附。未代用户作成果 Decision，G1–G5 / DF-04 未关闭，未 push/部署。
+
+## 2026-09-15 · P03/DRT-03 第一片回填
+
+[协议与绑定裁决及证据](adapter-protocol-20260915.md)：已冻结最小 Runtime Adapter DTO 与 native 映射（创建/续发/取消/观察/恢复/结算责任），离线 fixture 12/12 覆盖创建、事件去重、completed/failed/cancelled/unknown 结算、saved-items 恢复与取消映射；`environment:none` 协议已映射但按未经实测一律 unavailable，self-hosted 整 lane 本轮 unsupported。官方文档固定字节、`OpenAI-Beta: agents=v1` 与 npm `openai@7.15.0` 存于 `evidence/`。未接真实凭据、未接 service/UI、未改 Core schema、未改既有产品文件。
