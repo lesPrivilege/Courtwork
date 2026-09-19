@@ -1,5 +1,13 @@
 # 当前工程状态
 
+## 2026-09-19 · Main node: Claude frontend/Harness candidate accepted and merged
+
+The [acceptance record and gap register](execution/claude-frontend-harness-2026-09-16/node-acceptance-20260919.md) merge candidate `fa03143` (slices 00–09 and P; Host RuntimeStore schema 18) with main `9d6624d` into local main. A non-author Claude Opus 5 session checked the review fixes of 09 (NAV-R1/R2/R3, the presentation escape and the schema 17→18 test) in source and in an isolated browser. On the merge tree, `npm test` passed 1196/1196 and smoke passed with no real provider. The 09 fixes are accepted; one residual is open: example rows still carry an inert More control (N-01). The node also commits the previously uncommitted Luna/Astra review records, the streaming PR registration and the RD-006 2026-09-14 in-flight records. Open gaps N-01…N-10 stay with their owners: the real coding loop through 01–03, the Run reading surface under 04/10/11, test-rewritten evidence, the uncommitted Agents API adapter, schema 18 against the published `fd96f96` host, and worktree cleanup, which waits for user sign-off. The node makes no release, visual or accessibility acceptance claim. It is not pushed or deployed.
+
+## 2026-09-16 · Live assistant text streaming PR 登记
+
+[PR 合同](execution/claude-frontend-harness-2026-09-16/live-assistant-text-streaming-20260916.md)登记 Chat/Attention 可见 assistant 文本从 Runtime、Host、传输、投影到共享渲染器的增量流与最终消息收敛语义，覆盖重连幂等、工具事件交错、局部失败/取消、Markdown/CJK、选择/焦点/滚动及确定性 fixture。此为独立候选，施工顺序尚未指定，不重排 00–13 队列；没有产品实现、部署或接受声明，不关闭 RD-006/DF-04 门。
+
 ## 2026-09-16 · Claude 施工单 09：返回轨迹与对象命令共同语法
 
 [09 记录](execution/claude-frontend-harness-2026-09-16/09-navigation-commands.md)：Shell 自己的访问轨迹（Home、某个 Chat；Settings / Chat 列表 / Attention 是其上的层先关）——有界内存单栈，hash 仍只是 Settings 深链、不 pushState；侧栏 Home 行 `Back to <地名>` / `Forward to <地名>`，离开时记阅读锚点、返回经真实 reader 重读后恢复，不可用对象标记在轨迹上并在控件下说明去向；只动视图，不动 Run / 绑定 / 权限 / 模型。Chat 与 Project 行的右键、More 按钮、Menu 键共用一套 command descriptor（when / enablement 分开、点下去时重新解析）与一个 popover 菜单 primitive；只画真实通路：Open / Rename（PATCH）/ Delete（DELETE，保留工作区文件）与 New chat；示例行无菜单。用户中途 dogfooding 报告的「Home 发送后停在首页」已复现并修（示例退出时不再清掉无 Project 的 Chat）。定向 10/10，`npm test` 1195/1195（09 片补钉八套 schema fixture 后的同一次运行）；作者浏览器目验 1280 与 375。Luna 独立审查（基线 `f64c7e8`）暂不验收：NAV-R1/R2/R3 已按其发现修正（离开锚点先于游标保存、未决返回被新到达放弃、示例行无菜单、菜单随渲染重列），`presentation.mjs` 控制字节转义、schema 指针同步 18 并加 17→18 专项测试，修正后 `npm test` 1196/1196（Node 25.9，并发 4；含新增 schema18-upgrade 1 项；摘要见 evidence/09-full-test.txt）；归 10/11 的发现（同一 Run 中间段 footer、展开锚点、Back to latest / ask_user / Copy 反馈）与真实 provider 的 coding 闭环仍开放，不宣称 release。未 push / 部署；10（观测与阅读面收敛）未开始。

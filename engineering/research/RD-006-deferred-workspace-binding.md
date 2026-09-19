@@ -58,6 +58,79 @@ PR验收见[施工文稿](deferred-workspace-binding-2026-09-12/pr-plan.md)。�
 
 串行验收：每片作者交付后非作者Luna定向验收，再发下一片；GUI加Chrome人类目验。Astra仅处理新语义/集成裁决，不重复验收。此次是架构授权与发单，尚未实现、迁移用户数据或关闭产品能力门。
 
+## 2026-09-14 · DWB绑定/只读施工片责任记录
+
+本片改变Runtime对Session外部目录绑定的持有责任：RuntimeStore持有绑定、revision及幂等回执；Runtime service串行化绑定命令、Run快照和撤权；受控repo读取工具只接收相对路径并在读取时核对有效绑定。最近实现先例为 `app/server/store.mjs` 的严格Session验证/序列化迁移、`service.mjs` 的Run内配置快照与事件归因，以及 `control-tools.mjs` 的逐工具治理；`workspace-tools.mjs` 仅作功能形态参考，其路径校验不能直接充当外部目录安全边界。
+
+必要跨层变更限于Host RuntimeStore 15→16、Host session/binding命令与读取工具治理；Core user schema 4、bridge app schema 5、managed `workspaceDir`/Pi cwd/journal/artifact root不变。绝对host路径供Host展示与固定helper使用，不进入模型Context或模型工具参数。第一片不实施写工具、Access UI、shell、测试recipe、Core/bridge迁移或用户数据升级。作者在施工前核对：当前Node/Darwin文件API的descriptor-relative访问能力不足以仅靠既有path guard证明根/祖先替换安全；`repo_*` 工具开放须有可复现的根身份及TOCTOU处理证据，不能将 `ws_*` 的旧guard直接移用。
+
+### 2026-09-14 · DWB绑定与只读工具首片交付（作者自检）
+
+按Astra后续裁决固定helper边界：Host以 `shell:false` 调用固定Python标准库helper，结构化stdin只接收闭集操作；模型不提供可执行命令、环境、根目录或绝对Host路径。helper先开绑定根并用文件描述符 `fstat` 核对持久device/inode，再逐级以 `dir_fd` 与 `O_NOFOLLOW` 访问；文件通过同一打开描述符读取。根身份在读取结束前复核，结果交付前服务再次验绑定并将来源回执写入现有RuntimeStore。超时/取消回收helper；大小、遍历、结果与搜索计算有上限。该机制只约束三项内置只读工具，不能宣称OS sandbox或任意extension隔离。
+
+实现于隔离分支 `codex/workspace-access-20260914`，基线是提交 `7e1a1ff047721e1ca6c871deba7f367ccea55a06`；未改共享main工作树及用户数据。RuntimeStore schema15→16 为旧Session写入空外部绑定，保留managed workspace与旧Run；新增绑定/撤权revision与原请求回执、Run绑定快照/事件、认证的GET/PUT服务端点，以及只在有效绑定Run中治理开放的 `repo_list/read/grep`。读取事件存relative path、binding/revision、Run归因及结果/来源hash。复用既有Session、Run、配置串行队列与RuntimeStore owner；Core4/bridge5和`ws_*`根不变。实现合同与当前界限见[repository binding文档](../../app/docs/repository-binding.md)。
+
+合成验证用固定旧Host在原始提交上生成schema15字节，再独立升级、检查精确备份、旧Host拒读和独立备份恢复；合成目录覆盖列表/UTF-8读取/grep、符号链接/上跳拒绝、替换根检测、来源hash、幂等冲突、revision竞态及撤权取消。`node --test tests/repository-binding.test.mjs` 为4/4；受影响历史迁移文件定向组79/79；最终 `npm test`（pretest核45项历史fixture）1036/1036；`npm run smoke` local-fake通过，真实provider未调用。修改的JS `node --check`、Python helper AST compile、`git diff --check`通过。首次文档链接检查报告11条 dirty-main 状态文档目标缺失；将隔离`current.md`恢复为HEAD基线并保留本片记录后，`node tools/check-doc-links.mjs`复验通过：1312份文档、7312条链接、0问题。首次全量发现降版合成fixture带入schema16字段；按实际schema移除后定向与最终全量通过。
+
+边界与剩余片：当前 helper 用POSIX device/inode核对根，并跳过 `st_dev` 不同的子文件系统。Astra裁定本只读片的授权范围是用户所选root在Host文件系统namespace内可经普通相对路径访问的内容，因此预先存在的同device mounted descendants在范围内；helper不单独识别其mount边界，不承诺物理底层目录隔离，也不保护恶意mount-namespace变更。现有根身份、symlink/no-follow、不同device和撤权守卫继续生效。第二片`repo_write`/外部效果与第三片Access GUI尚未实施；真实Agent成功、用户体验、UI验收和首片非作者复验均未完成。本段记录作者实现与源码/合成检查，不称整个仓库读写目标或能力门已通过。
+
+### 2026-09-14 · 首片非作者复验处置
+
+[首片独立复核](deferred-workspace-binding-2026-09-12/independent-review-20260914.md)提出两项P1：同device bind-mount descendant可由获准相对路径读取，授权范围当时未冻结；`api-v6.md`仍把schema 5称为current并声称没有workspace外路径。Astra裁定后，原任务处置如下：
+
+| Finding | Disposition | Rationale and evidence |
+|---|---|---|
+| Same-device mounted descendants | **Adjust** | 将只读授权定义为Host namespace中所选root下普通相对路径可达的内容；同device mounted descendants纳入范围。保留symlink与不同device拒绝，明确不保证物理目录隔离或恶意mount-namespace变更防护。仅澄清合同，不要求helper新增mount-ID拒绝。裁决仅适用于`repo_*`只读工具，不授权`repo_write`，也不放宽第二片既有外写要求。 |
+| Current API and preview wording | **Adjust** | `api-v6.md`保留Runtime schema 5引入`asyncTasks`的历史含义，当前Host RuntimeStore指针改为schema 16；明确无绑定时`ws_*`维持managed workspace，外部目录读取是单独受控API能力。Supported preview注明API-only、无Connect/Access UI及连接前须向用户说明范围。 |
+| 11 missing source links | **Adjust** | 缺失引用来自隔离输入`engineering/current.md`中的dirty-main非本片状态条目。已先保全字节，再只在隔离树将current调整为HEAD基线加本片当前记录；共享main和其他writer文件未改删。`node tools/check-doc-links.mjs`复验通过：1312份文档、7312条链接、0问题；本片合同链接均在树内。 |
+
+本次是文档与原任务记录处置；源码/helper没有变化。已更新[repository binding合同](../../app/docs/repository-binding.md)、[API接口文档](../../app/docs/api-v6.md)与[Supported preview](../../app/docs/supported-preview.md)。本段末句记录的是文档复验前状态；后续复验与接受结论见下节。
+
+### 2026-09-14 · 首片 API-only 只读范围接收
+
+Astra按API-only Host只读范围接收首片，组合证据为作者记录的全量`npm test` 1036/1036、迁移定向组79/79、`repository-binding.test.mjs` 4/4及local-fake smoke，初轮[非作者代码/探针复核](deferred-workspace-binding-2026-09-12/independent-review-20260914.md)，以及原复核者对P1文档处置的后续定向复验。后续复验仅检查文档：`node tools/check-doc-links.mjs` 通过（1312份文档、7312条链接、0问题），`git diff --check`通过；没有重跑产品源码全量。两项P1已按前表`Adjust`并闭环。接收限于首片API只读合同及其源码/Host合成证据，不包含GUI、真实Agent任务/provider、真实用户目录挂载或完整产品接受；本分支仍未实现/暴露`repo_write`，未升级真实用户数据或触碰实时8859实例。
+
+### 2026-09-14 · 第二片 `repo_write` 平台原语探针（未实现，待Astra裁决）
+
+本节是对第二片的边界探查，不是实施或降级原RD-006写入合同。合成目录和原生探针在Darwin `25.6.0` arm64运行（Node `v25.9.0`、Python `3.14.2`）；使用临时目录，一次性Python脚本与临时C探针，没有接触真实仓库/用户文件。Linux部分仅核对上游系统调用文档，没有Linux运行时探针。`repo_write`仍未进入tool registry，未添加工具或产品代码。
+
+| 合成反例/探针 | 观察 | 对合同的含义 |
+|---|---|---|
+| 两个线程同时以`os.link(stage, target)`发布同名新文件 | 一个成功、一个`EEXIST`；目标是唯一胜者的完整字节（本次胜者`candidate-b`） | 原子“仅当目标不存在”可由排他创建表达；此结果不提供替换既有内容的比较交换。stage到target间是额外硬链接，提交后需移除stage；崩溃时要识别并收敛遗留stage。 |
+| 本机C探针调用`renameatx_np(rootfd, stage, rootfd, target, RENAME_EXCL \| RENAME_NOFOLLOW_ANY \| RENAME_RESOLVE_BENEATH)` | 本机临时卷上目标不存在时成功；目标存在时`EEXIST`且原目标仍为`A`。Apple文档说明`RENAME_EXCL`仅适用于支持它的卷；本机探针只证明当前临时卷支持，不能外推所有卷。 | Darwin有可用的排他rename，但不支持时必须失败关闭，不能回退普通rename。`RENAME_NOFOLLOW_ANY`会拒绝中间路径符号链接（合成结果`ELOOP`）；最终source leaf若本身是symlink，探针仍成功地把symlink条目移到目标，因此stage leaf必须单独校验身份/类型，不能把该flag解释为“stage必为普通文件”。 |
+| 读取既有文件hash后，模拟外部进程写入`external-edit`，再调用`os.replace(stage, target)` | target最终是`agent-new`；外部改动被无条件覆盖。 | 新鲜的expected-hash检查和原子rename之间仍有竞态；普通rename原子替换的是目录项，不以旧内容hash为条件。当前“冲突拒绝、不覆盖”合同不能用check-then-rename满足。 |
+| 外部进程将同长度字节改写，并用`os.utime`恢复记录的mtime | 大小相同、mtime_ns相同，内容hash不同。 | mtime/size不能作为冲突安全证明。Apple `generationIdentifier`可在支持的卷上检测文件数据变化，但读取generation再写仍非原子条件提交。 |
+| 打开子目录fd后，将该目录rename到绑定root之外，再经旧fd创建文件 | 文件在移动后的root外目录被创建；原相对路径不存在。 | dirfd固定目录对象，不固定该对象相对于绑定root的祖先关系。限定root直接子文件可避免此类子目录fd逃移；支持嵌套路径时仍须解决路径解析与祖先rename竞态，`openat2`仅约束单次解析。root自身在操作期间改名时，也须由Astra冻结权限跟随目录对象身份还是要求已绑定名称持续匹配。 |
+| 给既有文件建立hardlink alias，再用stage和`os.replace`原子替换target | target换成新inode/`new-target`，alias仍读到旧inode/`old-shared`。 | 原子替换只改这个路径的目录项，不会更新其它hardlink别名；反之，对既有inode做in-place truncate/write会影响全部别名。若未来允许更新文件，应只替换新inode，但这仍不能解决expected-hash的原子CAS。 |
+
+平台文档交叉核对：Linux[`rename(2)`](https://man7.org/linux/man-pages/man2/rename.2.html)定义`RENAME_NOREPLACE`，并要求底层文件系统支持；普通rename遇到既存目标会原子替换。Linux[`openat2(2)`](https://man7.org/linux/man-pages/man2/openat2.2.html)的`RESOLVE_BENEATH`、`RESOLVE_NO_SYMLINKS`、`RESOLVE_NO_XDEV`可以拒绝逃逸、符号链接与挂载点跨越（含bind mount）的单次路径解析；调用能力始于Linux 5.6，未在本机执行。Linux[`link(2)`](https://man7.org/linux/man-pages/man2/link.2.html)记载`linkat`目标存在时报错以及NFS服务器崩溃时回执可能与实际提交不一致；[`rename(2)`的NFS说明](https://man7.org/linux/man-pages/man2/renameat.2.html)也要求调用方处理执行后失败的歧义。Darwin 25.6 SDK本机`man 2 rename`/`man 2 link`及`sys/stdio.h`确认`renameatx_np`提供`RENAME_EXCL`、`RENAME_NOFOLLOW_ANY`、`RENAME_RESOLVE_BENEATH`，但上述flag没有Linux式`NO_XDEV`；Apple[`volumeSupportsExclusiveRenaming`](https://developer.apple.com/documentation/foundation/urlresourcevalues/volumesupportsexclusiverenaming)可查询卷是否支持`RENAME_EXCL`。Apple[`generationIdentifier`](https://developer.apple.com/documentation/foundation/urlresourcevalues/generationidentifier)文档把它定义为可比较的变化标识、并明确并非所有卷支持；它不是条件rename。当前`st_dev`不能区别同device mounted descendants；只读裁决纳入这些后代，不意味着它们继承外写授权。
+
+供Astra裁决的边界与选项：
+
+1. **窄版新文件创建（建议先评估）：** `repo_write`只接受绑定root下一个相对basename，目标必须不存在；拒绝任何既存目标、子目录、删除、移动和shell。此范围不进入挂载后代；Root fd锚定用户选定目录对象，执行前后仍核对binding ID/revision及root identity。Darwin在卷确认支持时使用`renameatx_np(RENAME_EXCL|RENAME_NOFOLLOW_ANY|RENAME_RESOLVE_BENEATH)`；Linux使用支持该flag的`renameat2(RENAME_NOREPLACE)`并以单次受限路径解析限制root直系目标。文件系统不支持排他原语就拒绝，不降级到`rename`；`linkat`可作明示的硬链接发布选项，但要验证硬链接支持并把stage清理/崩溃遗留列入恢复。提交后核对target为普通文件、与打开stage的device/inode一致且内容hash符合批准值。此原语只能保证目标不存在，不能阻止授权范围外进程在提交后再次修改它，也不能抵抗同UID进程并发篡改可写目录中的stage；不得宣称OS sandbox。
+2. **既有文件更新：** 按现有合同，先拒绝任何已存在target。若第二片必须编辑共享树中的既有文件，Astra需先选择可落实的排他写入模型（例如受Host控制的私有worktree/candidate并由人类另行发布，或明确保证绑定树没有绕过Host的并发写者）；一般`flock`/Git index lock只约束合作的持锁者，不能约束普通编辑器/外部程序。若不接受这种更改产品合同或限制授权范围，则既有target更新应保持关闭。expected content hash可用于批准时展示和重验，但在普通用户可写的目录上不能冒充原子CAS。
+3. **撤权、恢复与不确定结果：** 精确批准绑定Session/Run、binding ID与revision、相对target、前态（create时为absence）和新内容hash。Run或revision快照本身不延长授权。把写入prepared持久化后，写效应与revoke应在同一Session级线性化门中决定谁先发生；等待中的批准在撤权后失效。操作已提交但响应/确认丢失时记录unknown，恢复只核对target/stage的实际identity与hash，不自动重放；已确认的外部结果不会因撤权被回滚。NFS及其它返回语义不明的卷要走unknown并要求人工新请求。
+
+需要Astra先定：首版是否接受“只创建root直系的新文件”而把既有target更新后置；root name被rename时授权是否跟随固定目录identity；以及是否需要抵抗同UID并发修改staging/root namespace。以上是合同边界，不可由实现者自行扩大或用更多hash/mtime检查替代。外写能力、Access grammar、GUI、真实dogfood树写入均未实现或启动。
+
+本次只修改原任务记录和`engineering/current.md`，无产品代码/test变更；`git diff --check`通过，`node tools/check-doc-links.mjs`通过（1312份文档、7315条链接、0问题）。
+
+### 2026-09-14 · 第二片私有Git candidate施工责任与执行面核查
+
+Astra后续在[第二轮方案](deferred-workspace-binding-2026-09-12/write-dogfood-round2.md)选择Host新建私有Git candidate worktree路线。本方案取代上文“直接在任意绑定root创建文件/拒绝更新既存文件”的候选边界：外部用户绑定树仍只读；candidate可以更新基线已有源码，但仅在Host-owned单writer合同内使用expected-hash+rename，明确不抵抗不合作writer、不宣称原子CAS、不自动写回/合并原树。先前绑定root上的目录移动/hardlink探针仍说明直接写用户目录不安全；对candidate路径要求同样的身份、symlink、`.git`控制面与挂载边界守卫。
+
+变更责任归属：RuntimeStore持有candidate/effect生命周期、Run快照、revision及幂等回执；Runtime service固定Git argv、candidate绑定、ask/write/revoke同Session效应门与恢复unknown；candidate文件helper负责锚定Host root身份、相对路径walk、拒绝symlink/`.git`/挂载后代/非普通文件、新inode stage+替换及前后hash观察；control-plane只在candidate绑定且`permissionMode`允许时开放对应内置工具，source `repo_*`读取仍绑定原目录。最近实现先例为本片schema16 Session绑定/Run快照/只读helper，以及`workspace-tools.mjs`的`ws_write`精确内容批准和Runtime的重启后效果复核。必要跨层为Host RuntimeStore独立schema迁移（若最终合同需schema17）、Runtime HTTP/API/工具治理、专用Host固定Git与FD helper、synthetic store/FS/HTTP/Crash tests、app/API/verification/current docs；Core4、bridge5、managed `workspaceDir`、`ws_*`和第三片Access UI不扩权。
+
+施工前提交Astra确认的持久合同包含：candidate唯一性/读面与source `repo_*`的区别，Session candidate身份/状态/生命周期revision/writeRevision，Run候选快照，`prepared|confirmed|unknown`效果记录及恢复观测，create/revoke/write幂等范围，以及Host产生的精确diff/receipt。现有schema16是严格闭集：`app/server/store.mjs`的Session/run校验仅有`repositoryBinding`/`repositoryBindingSnapshot`与只读request receipts；不能把candidate/effect状态塞入旧字段或只升级数字。上述schema/读目标/diff接口尚待Astra答复；答复前不改持久模型或暴露外写工具。独立Git/FD/helper与测试可先推进。
+
+固定Git调用的Darwin合成执行面探针：Git `2.50.1 (Apple Git-155)`、Node `v25.9.0`、Python `3.14.2`。从合成worktree用`clone --bare --local --no-hardlinks --dissociate --no-checkout --template=<Host空模板> -c core.hooksPath=<Host空hooks目录>`建立私有Git dir，再通过固定`worktree add --detach --no-checkout`与checkout；用`--no-recurse-submodules`并固定diff选项`--no-ext-diff --no-textconv`。带恶意source `post-checkout`/`filter.evil.smudge` sentinel的合成仓库在覆盖hooksPath、无checkout clone、隔离checkout后未生成sentinel，candidate读取的是已提交字节，source/candidate object inode不同；source `filter.evil.smudge`与`core.fsmonitor`未进入新config。发现Git clone会复制source `core.hooksPath`，必须在clone初始config中即覆写并读回校验，不能等第一次可能执行hook的Git调用后再修正。另造source `objects/info/alternates`指向独立对象库；普通local clone保留该依赖，而添加`--dissociate`后候选无alternates，alternate离线时candidate `cat-file`和`fsck --full`均成功。该探针只证明本地合成worktree行为，不覆盖全Git版本/全卷、配置读取面、恶意同UID或候选路径被外部挂载等情形。
+
+权威来源：[Git clone `--local`/`--no-hardlinks`/`--dissociate`](https://git-scm.com/docs/git-clone)说明local clone绕开Git-aware transport、可能与源端并发修改竞争，且`--dissociate`会把借来的alternate对象复制为私有对象；[Git hooks](https://git-scm.com/docs/githooks)说明checkout hooks的执行点；[Git worktree](https://git-scm.com/docs/git-worktree)描述detached/no-checkout worktree选项；[Git attributes](https://git-scm.com/docs/gitattributes)规定未配置filter driver按透传处理；[Git diff](https://git-scm.com/docs/git-diff)记录`--no-ext-diff`/`--no-textconv`选项。clone从明确完整commit创建时仍需在source root身份和OID上前后核验，源有并发变更或任何固定Git命令超时/不一致时失败关闭并保留候选证据。
+
+实际diff也是未冻结接口：现`repo_list/read/grep`没有candidate读/差异能力且禁止访问`.git`，因此模型不能可靠交付Astra退出条件中的实际patch。建议Astra冻结一个Host只读candidate diff/receipt能力，由Host固定commit/candidate身份后调用仅本地、无外部diff/textconv的bounded `git diff`，并返回精确patch、路径、hash、revision及截断事实；不得提供shell或任意Git命令。仍待裁决。
+
+两项后续视觉dogfood已分开准备在[paste工单](deferred-workspace-binding-2026-09-12/dogfood-work-orders-2026-09-14.md)，共享synthetic混合Markdown fixture路径及SHA记录于该文件/fixtures目录。UI遵循`engineering/design/ux-grammar.md`、`frontend-contract.md` `markdown.reading`最近先例、`chat-reading-2026-09-11.md` CR-03/CR-04；工单先inline-code contrast，再fenced-code density。外部候选执行需候选工具非作者接受；仓库当前没有连接/Access GUI集成该paste recipe，准备工作不代表任务已paste、启动、完成或GUI可用。设备有Node/npm、全局Playwright模块和Chrome，但不能替代外部Agent真实交付/产品GUI接通。未触碰真实仓库/provider/共享main，也没有改产品代码。
+
 ## 2026-09-16 · 在途树恢复、逐路径披露修复与 Workspace GUI 首片（Claude 施工单 01）
 
 施工入口见[Claude 串行施工单](../execution/claude-frontend-harness-2026-09-16/README.md)与[01 记录](../execution/claude-frontend-harness-2026-09-16/01-workspace-binding.md)。本节只登记 RD-006 owner 事实；接受状态仍由 [current](../current.md) 持有。

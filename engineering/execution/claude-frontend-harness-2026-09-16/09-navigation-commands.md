@@ -45,6 +45,18 @@
 - Chat 列表页（chat-page）与 Attention 里的 Chat 行未接同一菜单（那两处的行是导航按钮，本片只覆盖侧栏 Recent / Project 行）。
 - 通知中心按 packet 进入 12。
 
+## Independent review disposition · 2026-09-16
+
+Baseline `f64c7e8f9fdb5eb28d8a43e4f9d8e52529878a17`. Luna independently reviewed source and ran five targeted suites; Astra adopts the findings below. **Acceptance withheld pending navigation fixes.** This does not withdraw the author's recorded checks or claim that the project-less Home fix failed.
+
+| Finding | Disposition | Evidence / required correction |
+|---|---|---|
+| NAV-R1: traversal loses the departure anchor and can desynchronize the visible Chat and history | Adopt, P2, slice 09 owner | `app/web/app.mjs:1694` moves the cursor before `selectSession` calls `leaveLocation`; the identity guard at 1660 then skips saving the old Chat. Home→A→B→Back→Forward loses B's current reading anchor. If A's Back reader is pending and C is opened first, `arriveLocation(C)` at 1666–1674 is suppressed by traversal A; A's stale reader is subsequently discarded. Source-order replay with the real history helper produced `{activeSessionId:"c",historyCurrent:"a",bRestore:null}`. Save the departure state before moving the cursor and cancel/fence traversal when another navigation wins; add behavioral tests for both orderings. This replay was not a browser E2E test. |
+| NAV-R2: preview Chat still exposes an Open menu | Adopt, P2, slice 09 owner | `app/web/object-commands.mjs:18–21` allows preview Open and `app/tests/object-commands.test.mjs:26` asserts it, contrary to this record and the object-command grammar's no-example-menu rule. Align implementation and test with the declared scope. |
+| NAV-R3: disabled menu entries retain opening-time enablement | Adjust: bounded interaction issue, not an authorization bypass | `app/web/object-menu.mjs:38` returns before dispatch when the original entry was disabled. A Run ending while the menu remains open does not enable Delete until reopening. Either refresh enablement or document/reconcile this limitation; retain Host validation. |
+
+Independent checks: `node --test --test-timeout=10000 app/tests/location-history.test.mjs app/tests/object-commands.test.mjs app/tests/object-command-host.test.mjs app/tests/navigation-history.test.mjs app/tests/projectless-chat.test.mjs` passed **14/14**, approximately 1.54s. Navigation integration tests include source-pattern assertions and do not establish anchor restoration or asynchronous navigation correctness. No independent browser, full-suite or real-provider pass is claimed. The project-less condition is supported by source review and related Host tests; the author's reloadWorld GUI path was not independently repeated.
+
 ## 复核回应（2026-09-16 · Luna 独立审查，基线 `f64c7e8`）
 
 | 发现 | 处置 | 修正与证据 |

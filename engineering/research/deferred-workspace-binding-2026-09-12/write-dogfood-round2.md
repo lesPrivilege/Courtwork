@@ -1,0 +1,39 @@
+# 第二轮dogfooding · 私有工作树写入方案
+
+2026-09-14 Astra裁决，用户授权写入方案并准备第二轮。接RD-006首片和平台探针，选择可修改既有源码的私有candidate worktree路线；仅root新文件创建不足以完成本轮coding目标。
+
+## 授权与owner
+
+任意用户绑定目录仍只读。可写目标必须是Host通过固定Git操作新建的独立worktree，置于Host专属目录，禁止将任意已有目录标为Host-owned。原repo/ref/commit、工作树身份、Session及写入revision由Runtime owner记录；从明确commit创建，不隐式复制dirty主树。工作树不是安全沙箱：明确单writer使用合同，不对同UID恶意进程或绕过Host的编辑器提供原子内容CAS保证。已有可观察内容冲突拒写；候选成果仅供后续人审，绝不自动回写/merge源树。
+
+固定Git调用使用shell:false、固定子命令/选项和校验后的路径/ref；不执行hooks、submodules、用户filters或模型自带command，不将此基础设施能力暴露成shell工具。施工者先核Git创建过程是否可禁用仓库配置执行面；不能保证时报告具体接缝，不运行真实仓库副作用。
+
+repo_write允许该私有树内普通源码文件创建/更新，路径由Host锚定，拒绝.git控制面、symlink、挂载后代与非普通文件；禁止模型改Host元数据。目录结构来自隔离checkout，新增目录若提供须受同一规则治理。文件写使用新inode替换而非原inode truncate，避免hardlink别名随写。守卫、额度及来源沿首片。仅在Host-owned单writer合同下使用expected hash+替换；不把它描述为对不合作writer的原子CAS。
+
+read_only/draft/ask持久枚举不变；ask批准绑定目录身份/revision、目标、前态hash或absence、新字节hash。所有写入、撤权在同一Session效应门排序；撤权先发生则拒绝排队写，提交先发生则保留已发生事实。prepared先持久化，确认丢失标unknown，恢复只核对实际identity/hash，不自动重放。root名称或身份改变即禁后续写并将可能已发生的效果标unknown，不把事后检查声称能撤销效果。私有树生命周期不自动删除，失败也保留可审产物。
+
+## 施工与第二轮任务
+
+Luna先完成合成repo→Host新建candidate worktree→绑定→真实repo_read/write→diff/回执→撤权的纵切；更新相关schema/API/能力入口，若需进一步迁移须先报Astra，不能沿用16而静默改变持久合同。非作者Luna验收后才接GUI或真实数据。当前8859与共享main不变。
+
+第二轮真实dogfooding拟任务：在明确源码基线的candidate worktree修复inline-code contrast与fenced-code density，沿现有polish合同，分别验收selector、混合fixture和明暗阅读面；不得改权限、Runtime或本轮接入实现。Agent交付真实diff、文件hash、检查状态和handoff。缺少执行recipe时测试由外部Luna运行并反馈给原Agent修复，不声称CW自测通过。GUI尚未就绪则先准备环境与paste工单，不伪装菜单已可挂载。
+
+退出证据：候选树实际修改、原repo未被修改、ask拒绝/批准与read_only、冲突、越界/.git/symlink、撤权竞争、重复请求、kill/restart未知恢复、diff正确归因；Chrome视觉项独立。整轮完成需Luna非作者检查加用户目验，源码实现者不自我接受。
+
+状态：方案已裁定并派施工；尚未实现repo_write、启动真实任务或升级用户数据。
+
+## Runtime接线裁决
+
+Astra批准Host schema16→17，Core/bridge不变。每Session至多一个active candidate，create仅在无active Run时，撤销保留历史效果与候选文件；无自动删除。Session严格持有repositoryCandidate（身份、状态、生命周期revision、source binding身份/revision、完整base commit、object format、Host路径及root/container/staging/git目录身份、writeRevision、createdAt），candidate命令回执与写效果沿Session原owner保存，不再另设顶层重复效果日志。Run新增candidate snapshot。旧版本经既有严格迁移链补null/空记录，备份原字节并拒旧Host。命令回执不可因容量限制遗忘后重放副作用；达到预算拒绝新命令，后续保留策略另议。
+
+读取目标固定且显式：repo_list/read/grep继续读取source；新增candidate_list/read/grep读取私有树，repo_write仅写candidate，repo_diff仅比较candidate与固定base。工具描述/回执明确资源kind/id/revision，不用隐式优先级切换root。相对path不允许模型传Host绝对路径。candidate读复用已有受控边界，不复制不必要的权限实现。diff采用已实现的Host有界接口，覆盖tracked/untracked普通文件，禁ext-diff/textconv，提供截断事实、路径与hash；截断patch不可宣称完整可应用补丁。
+
+source `.git`读取反例处置为Adopt修复：三项source工具及candidate工具均拒绝任一路径分量大小写归一后的.git，列表/递归搜索不披露内容；补直接读、目录遍历与grep反例。先前首片接收范围记录新增发现，不改历史通过证据或宣称此项早已通过。该控制面可能含remote凭据，不能用一般绑定范围说明替代排除。
+
+效果状态采用prepared/confirmed/unknown，另允许明确无副作用失败终态failed，以免已确定冲突被误写unknown。准备记录含稳定effect ID/request hash、Run/candidate/revision、target、前态、提案hash/字节数及受控保留内容引用；重复ID异内容拒绝。同candidate的写入和撤权由Session效应门串行。ask等待不占门；批准后入门重新核Run、模式、source/candidate有效性、生命周期与writeRevision、前态及精确批准。read_only拒写，draft直接进入同一受控流程；授权降级使旧批准失效。
+
+prepared持久化后才允许落盘；任一不确定副作用标unknown并阻断该candidate后续写。重启将遗留prepared标unknown，读取观察不能仅凭hash相同就追认为成功；原请求不重放。恢复只提供Host观测回执，用户显式确认处置后才能发新命令，具体恢复UI后片；本片可保持unknown写关闭。confirmed写入递增writeRevision；即使撤权也保留确认事实。source撤权同时使关联candidate失去后续工具权限并请求取消，不延用快照授权。
+
+挂载边界限定为Host新建无挂载candidate；创建与操作前核已知mount table，发现candidate下挂载即拒绝，无法取得所需平台检查时不开放写入。恶意同权限/特权进程在检查后改mount namespace不在保证范围；不能宣称绝对无竞态。根名称/身份变化失败关闭，提交可能发生则unknown。沿原单writer合同，不新增抵抗恶意同UID staging篡改的保证。
+
+实施只使用合成数据；通过非作者检查前不升级8859、不执行真实dogfood。上述字段与事件由本片同步API/verification/current，未实现项仍保持未实现标记。

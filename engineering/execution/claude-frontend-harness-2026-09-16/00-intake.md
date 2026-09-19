@@ -126,3 +126,40 @@ Sonnet 5 只读探索施工树，结论经作者复核。
 - v2 §6 的 A/B/上传同名反例 fixture 与"下一 Run 真实读到 A"的 GUI 验收归 01 片增补，尚未做；01 片已有的 Host 原生目录对话框返回绝对路径，属 v2 §4.1 的"Host 提供的目录选择器"分支。
 - 创建对话框的 Check status 只有源码断言与 Host 幂等测试，浏览器里未模拟丢 ACK。
 - v3 的 Inspector 重排、顺序概览与选中项详情归 04/08/10 片；本片只做右栏存废。
+
+
+## Independent review · 2026-09-16
+
+Reviewed delivery: `f64c7e8f9fdb` (resolve the full object with Git); main at intake was `9d6624de52350bd97a94cbbad75a67cf1578f145`. Astra owns this disposition; independent Luna reviewers inspected bounded implementation seams. Review changes live in an isolated checkout, not the author's active tree. No integration, deployment, real-provider run, or complete product acceptance is claimed.
+
+The user supplied the “推荐后端工单” dogfood conversation. The retrieved latest ten turns (older turns remain outside this retrieval) are preserved in [source evidence](evidence/dogfood-review-source.json). Its user reports are observations from the earlier running Host, not proof of the current candidate's complete capability inventory. The screenshot was inspected; a still image cannot establish scroll stability.
+
+| Input | Disposition and owner | Required exit evidence |
+|---|---|---|
+| RuntimeLock Run reached repository reads but could neither edit the repository nor run checks | Adopt under RD-006 / DF-04 and slices 01–03/11. Existing candidate/write/check implementation must be exercised, not rebuilt on the assumption that a bounded scan proves absence. Git/worktree preparation remains an operator responsibility. | Repeat the same small RuntimeLock task on a fixed candidate and isolated Courtwork worktree; retain actual governed edit, controlled check exit/result and durable receipts. External test execution and fake-provider results do not close this gate. |
+| Multiple intermediate assistant footers, missing visible streaming, unstable reading position | Adopt under existing Chat Flow / Run Surface and slices 04/10/11. The other session's streaming registration is preserved and is not implementation evidence. | One coherent Run response, canonical final settlement, stable following/detached reading across streaming and disclosure. |
+| Back to latest positioning; user-message expansion; ask_user selection/copy; visible Copy feedback | Adopt as reported interaction gaps; current-source findings and unverified browser observations must remain distinct. | Same-candidate GUI reproduction including composer resizing, side panels, narrow width and 200%; native text selection and visible copy success. |
+| Schema entry points disagree | Adopt as a pre-integration documentation correction. `app/server/store.mjs:31` is schema 18; `app/README.md:93,117–120` says 17; `AGENTS.md:20` and `engineering/architecture.md:40` say 15. | Synchronize current schema/migration pointers without rewriting historical evidence. |
+
+Decision: the reported 1195/1195 author run does not establish independent acceptance or release readiness. Product release remains open until the bounded real coding loop and usable reading/interaction path are demonstrated. Full architectural Core/UI convergence is not introduced as a prerequisite by this review.
+
+
+### Current-source qualification of the dogfood UI reports
+
+- **Visible streaming — adjust the blank-slate claim.** Pi `message_update(text_delta)` maps to `assistant.delta` (`app/runtime/pi-session-runtime.mjs:717–728`), Host appends it (`app/server/service.mjs:2979–2996`), the active-Run browser poll reads and renders events (`app/web/app.mjs:1067–1146`), and `thread-projection.mjs:31–44` builds a pending row. An existing polling-based visible-delta seam therefore exists. `assistant-stream-projection.test.mjs:56–73` reads events after completion, so it does not prove pre-terminal browser paint. Adopt live-paint/settlement/reconnect verification under the existing streaming owner; do not rebuild on a claimed absence.
+- **Disclosure anchoring — adopt the missing guarantee.** `chat-reading.mjs:22–50` and `renderMessageStream` preserve anchors around full render, while user-message expansion (`user-message.mjs:63–73`), Source loading (`chat-sources.mjs:60–75`), tool disclosure (`run-rows.mjs:101–116`) and execution groups (`app.mjs:3035–3040`) mutate layout without that shared before/after path. Add behavioral coverage for following and detached states; the reported visible jitter was not independently reproduced.
+- **Back to latest — keep the reported defect open, reject an unsupported root-cause claim.** The button is absolute inside a flex reading wrapper followed by the composer sibling; ordinary layout can therefore track composer height indirectly and shares its centered column. No live geometry test was performed. The code alone does not establish the screenshot's misalignment.
+- **ask_user selection — defer root-cause verdict pending reproduction.** The prompt is an ordinary span; no question-specific user-select prohibition was found. Preserve the user's report and test native selection/copy, answer input and interaction boundaries.
+- **Copy feedback — adjust the claim.** Current actions temporarily change accessible labels and success color but retain the copy glyph (`chat-actions.mjs:77–96,148–156`; `styles.css:3284–3286`). It is not literally zero feedback; whether it is sufficiently visible remains unverified. The proposed check glyph is a concrete candidate for the existing Copy owner, not an already implemented fix.
+
+Review execution note: a second reviewer briefly launched the full suite, then stopped it at the coordinator's request before a summary. It supplies no new full-suite result. Its capability-consumption after-hook regenerated random evidence IDs; the generated bytes were preserved as [review test output](evidence/review-test-generated-capability.json), and only that originally clean artifact was restored in the author's tree. Existing current.md and streaming-registration edits were preserved.
+
+
+### Remaining bounded review results
+
+- **Adopt under 04/10:** completed intermediate assistant segments each receive a footer/actions and the Run startedAt timestamp (`thread-projection.mjs:31` and `app.mjs:3064` onward); only pending segments suppress it. This supports the reported repeated-message appearance within one Run. Distinguish settled intermediate segments from the canonical final response.
+- **Adopt under 08, maintenance correction:** `app/runtime/presentation.mjs:21` contains raw control bytes in its validation regex, causing Git to classify the JavaScript source as binary. Express the same range with escapes so ordinary diffs and review work. No runtime failure was established.
+- **Adjust verification records:** P's Home greeting record reports five tests while the file contains six. The referenced `full-test-09b.log` was not found in the delivery tree; 1195/1195 remains an author-reported result. The independently executed historical-fixture precheck passed 45 entries; the interrupted full run adds no pass total.
+- **Schema pins:** review found only fixture changes in the two pin commits; they remove schema18-only operations when simulating old versions and expect upgrade to18. No evidence was found that these changes conceal a migration defect. Add a focused schema17→18 case when correcting this owner's validation coverage; current code accepts17 and initializes operations.
+
+00/07/P/08 source review found no additional functional counterexample within its bounded scope; this is not full independent acceptance. The navigation findings are recorded in [09](09-navigation-commands.md#independent-review-disposition--2026-09-16).
