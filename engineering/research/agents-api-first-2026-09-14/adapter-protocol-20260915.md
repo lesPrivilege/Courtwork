@@ -69,3 +69,22 @@
 3. **coding / 同 Work**：托管环境与文件回收另行核验；Core 候选与 Decision 走原 owner 与真实人审。
 
 触发复核的条件：beta 头/事件 schema 变化、SDK 主版本变化、文档声称与本片映射不符、真实探针出现未对账副作用语义差异。相关新文件清单与索引见 [证据目录](evidence/docs-20260915/manifest.json) 与本页表格。
+
+## Independent acceptance · 2026-09-19
+
+The Codex line delivered this slice on 2026-09-15 as uncommitted files in `Projects/.worktrees/courtwork-agents-api-adapter-20260915` (base `caf3edb`). A non-author session (Claude Opus 5) reviewed it, committed it verbatim (`3b03cc9`) and merged it into main (`364ca59`). The four frozen sources match the SHA-256 values in `evidence/tests-20260915/environment.json`. Against slice **A** of the [v4 plan](implementation-plan-20260916.md#串行-pr-切片), the slice meets its scope: it pins the protocol, headers and SDK; it binds identity; its fixture transport shows the create, input, cancel and tool-result request shapes; and every capability stays unavailable without live verification. The plan names the six port responsibilities differently (`describe`/`start`/`recover`/…); the plan leaves naming to P03, so this is not a defect.
+
+| Check | Result |
+|---|---|
+| Source review of the adapter, contract, fixture and tests | One defect (A-1); three items for slice D (A-2…A-4) |
+| `node --test app/tests/drt03-agents-api-protocol.test.mjs app/tests/architecture-boundaries.test.mjs` on main | 15/15 as delivered; 16/16 with the A-1 counterexample and fix |
+| `npm test` on the closure tree (main plus this slice, the A-1 fix and gap fixes N-01/N-04/N-06) | **1209/1209**, Node 25.9.0; smoke passes with `realProvider: not_run` |
+
+| ID | Finding | Disposition |
+|---|---|---|
+| A-1 | `reconcile` marked every event buffered during saved-items retrieval as seen and re-emitted only merged text. A root `turn.completed`/`failed`/`cancelled` or a `requires_action` arriving in that window was therefore lost, and later deduplicated if redelivered. `settle` stayed `null` and the pending call was never seen. Reproduced offline. This contradicts R3 ("re-deliver kept updates") and the recovery row of R4. | **Adopt, fixed in `53ab038`**, which was written at acceptance time and needs its own independent check. Now only a text update for an item already final in history is dropped; every other buffered event takes the ordinary ledger → tracker → Host path. New test `a root terminal or required action buffered during recovery is delivered, not swallowed` fails on `3b03cc9` and passes on the fix. |
+| A-2 | `createSession` records the `commandId` only after the transport returns. A lost ACK followed by a retry with the same `commandId` reaches the transport again and can create a second remote session. The doc already disclaims remote exactly-once behaviour | **Defer to slice D** ("首次创建未取得 ID"). The Host must hold the command as in flight or unknown and look it up, never replay it blindly |
+| A-3 | `observe()` and `reconcile()` each open a stream, and nothing stops both running at once on one binding; the second overwrites `state.handle` | **Defer to slice B/D**. The Host transport owner runs one pump per binding, or the adapter refuses a second one |
+| A-4 | `reconcile` returns the session's `required_actions` but does not load them into the settlement tracker. The existing recovery test settles `completed` after a snapshot that showed `call_9` pending | **Defer to slice D** for a ruling: either the Host passes `effectsUnknown` from the returned `pendingActions`, or the adapter seeds pending calls from the snapshot. The delivered semantics are unchanged here |
+
+Not established: any live API round trip, account access, SDK runtime, service or UI wiring, or anything from slices B–F. The lane stays unavailable, and G1–G5 and DF-04 are unchanged.
