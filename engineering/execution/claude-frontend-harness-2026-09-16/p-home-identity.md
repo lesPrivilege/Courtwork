@@ -45,6 +45,7 @@ Exceptions: Sign out / Delete account / Manage plan / Export / View history 全�
 
 ## 未完项
 
+- Home Modules 的 slogan/cards 分区与 Hide control 重排已按用户 2026-09-19 指令登记为独立 [Home layout zoning PR](home-layout-zoning-pr-20260919.md)；本页 2026-09-16 以 greeting 行中心对齐 Activity 标题行的做法在该后续片中被取代，本次只登记、未施工。
 - Profile / Account 面板：Sonnet 交付（工作地址建议是按钮而非自动填充；账户动作全部禁用带原因；256 KiB 客户端拒绝），浏览器目验未做（Photo 上传、409 冲突）。
 - 语料未做非作者审读；English only 18 句，中文语料按用户裁定暂不做。
 - 跨时段淡入淡出未在浏览器观察（需等时段变化）；逻辑有单元测试。

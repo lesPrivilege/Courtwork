@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-19 · Home layout zoning PR registered
+
+The user requested an explicit Home Modules partition so future slogan/greeting text cannot make the cards drift or lose alignment, together with a recomposition of the Show/Hide modules control. The [registered PR](execution/claude-frontend-harness-2026-09-16/home-layout-zoning-pr-20260919.md) separates band chrome, variable identity/slogan content and the card grid; card alignment is owned by the grid, and the native disclosure moves into stable band chrome while retaining its preference, keyboard and focus semantics. Owner remains P / Home composition; no service, schema or product implementation changed. The registration does not reorder the 00–13 queue and makes no visual acceptance claim.
+
 ## 2026-09-19 · Gap fixes independently accepted
 
 An independent Codex/Astra session accepted `53ab038` and `22b4bf6` within their stated scopes: the Agents API adapter now preserves required actions and root terminal events buffered during saved-items recovery; example Chat rows have no inert More control while a real Chat retains Open/Rename/Delete; ordinary capability-consumption tests do not rewrite tracked evidence, with explicit-path regeneration still working; and the repository-binding owner document points to RuntimeStore schema 18. Risk-specific tests passed (adapter/architecture 16/16; adjacent UI/Host/schema/capability checks 12/12 plus the explicit evidence 3/3), interaction lint and document links passed, and an isolated browser confirmed the example/real-row distinction. [Acceptance record](execution/claude-frontend-harness-2026-09-16/node-acceptance-20260919.md#independent-acceptance-of-gap-fixes--2026-09-19); [adapter A-1 record](research/agents-api-first-2026-09-14/adapter-protocol-20260915.md#independent-acceptance-of-a-1--2026-09-19). A-2…A-4 and N-02/N-03/N-05/N-07/N-09/N-11/N-13 remain open. No live API, release, deployment, full visual or accessibility claim is made.
