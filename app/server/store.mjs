@@ -1356,6 +1356,20 @@ export class RuntimeStore {
       id(candidateId, "check.started candidateId");
       nonNegativeInt(candidateWriteRevision, "check.started candidateWriteRevision");
       timestamp(startedAt, "check.started startedAt");
+      const session = state.sessions.find(item => item.id === run.sessionId);
+      const current = session?.repositoryCandidate;
+      const admitted = run.repositoryCandidateSnapshot;
+      const binding = session?.repositoryBinding;
+      if (current?.status !== "active" || current.id !== candidateId
+        || current.writeRevision !== candidateWriteRevision || !admitted
+        || ["id", "revision", "sourceBindingId", "sourceBindingRevision", "candidatePath"]
+          .some(key => current[key] !== admitted[key])
+        || binding?.status !== "active" || binding.id !== current.sourceBindingId
+        || binding.revision !== current.sourceBindingRevision) {
+        const error = new Error("Check candidate or binding changed");
+        error.code = "candidate_changed";
+        throw error;
+      }
       return appendEventToState(state, { runId, sessionId: run.sessionId, type: "check.started", data: {
         callId, recipeId, recipeVersion, candidateId, candidateWriteRevision, startedAt,
       } });

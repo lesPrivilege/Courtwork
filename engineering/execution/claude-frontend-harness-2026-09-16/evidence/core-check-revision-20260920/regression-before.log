@@ -1,0 +1,28 @@
+✖ same Run write then check approves and persists the current candidate revision (2797.1485ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3438.502917
+
+✖ failing tests:
+
+test at app/tests/check-recipes.test.mjs:400:1
+✖ same Run write then check approves and persists the current candidate revision (2797.1485ms)
+  AssertionError [ERR_ASSERTION]: approval must describe the same Run's confirmed write
+  
+  0 !== 1
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-harness-core-20260920/app/tests/check-recipes.test.mjs:423:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

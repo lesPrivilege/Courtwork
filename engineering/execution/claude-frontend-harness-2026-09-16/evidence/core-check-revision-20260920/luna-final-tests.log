@@ -1,0 +1,35 @@
+✔ check approval rejects changed write revision before recording a start (1.908333ms)
+✔ check approval rejects changed candidate identity before recording a start (0.096667ms)
+✔ check approval rejects changed candidate revision before recording a start (0.08125ms)
+✔ check approval rejects changed candidate status before recording a start (0.091708ms)
+✔ check approval rejects changed binding identity before recording a start (0.08525ms)
+✔ check approval rejects changed binding revision before recording a start (0.087292ms)
+✔ check approval rejects changed execution path before recording a start (0.088209ms)
+✔ check approval rejects changed missing active binding before recording a start (0.073666ms)
+✔ check requires the exact approved recipe descriptor (0.232625ms)
+✔ candidate drift while persisting check.started settles failed without executing (7.070542ms)
+✔ runner's final synchronous Host fence prevents actual process side effects (2.81725ms)
+✔ runner cancellation before preparation never spawns (0.624666ms)
+✔ runner cancellation inside final fence never spawns (0.926833ms)
+✔ admission closing during start persistence settles once as cancelled without spawn (0.538ms)
+✔ runCheckRecipe reports a clean exit without truncation (70.218417ms)
+✔ runCheckRecipe reports a non-zero exit without throwing (58.771417ms)
+✔ runCheckRecipe caps captured stdout/stderr and marks truncated (62.692125ms)
+✔ runCheckRecipe timeout kills the whole process group, including a nested child (305.8045ms)
+✔ runCheckRecipe cancels on abort and resolves only after the group has exited (205.248375ms)
+✔ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (1.668208ms)
+✔ check_run is denied with zero process start under read_only (2086.795875ms)
+✔ an unknown recipe id returns a tool error without opening a permission or spawning anything (2441.6195ms)
+✔ ask mode shows the exact recipe in the permission payload and deny records nothing (2076.406542ms)
+✔ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (3922.298ms)
+✔ cancelling a Run whose check is still running still records check.settled as cancelled (2488.105166ms)
+✔ an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (162.556208ms)
+✔ same Run write then check approves and persists the current candidate revision (3368.337542ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17902.519208

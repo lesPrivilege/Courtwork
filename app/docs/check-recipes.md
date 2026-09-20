@@ -75,8 +75,18 @@ just the recipe id:
 ```
 
 `candidateWriteRevision` is the write revision the Session's active candidate
-had when the Run that issued this call was admitted; it lets a reviewer see
-which state of the candidate the recipe is about to run against. This extends
+has when the Host opens this check's permission question. A confirmed
+`repo_write` earlier in the same Run is included. Execution requires that exact
+approved descriptor: candidate identity/binding remain pinned to the admitted
+candidate, and its write revision must still match approval. The Store validates
+that state atomically before appending `check.started`; the runner rechecks after
+asynchronous preparation immediately before spawning. A later mismatch starts
+no process and, if a start was already recorded, settles it as `failed` with
+`candidate_changed`. Cancellation/closed admission during preparation prevents
+spawn and settles an already recorded start as `cancelled`, with null exit
+code/signal/failure and empty output. In-flight cancellation still waits for
+the process group to exit. This is a start-boundary guarantee, not a filesystem
+snapshot or isolation guarantee for the duration of the process. This extends
 the same permission-question payload shape `repo_write` already uses
 (`app/server/store.mjs` validates a `check_run` question's payload with its
 own field set, the way it already does for `repo_write`); a permission for any

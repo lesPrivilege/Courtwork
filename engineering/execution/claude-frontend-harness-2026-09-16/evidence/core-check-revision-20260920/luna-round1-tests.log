@@ -1,0 +1,32 @@
+✔ check approval rejects changed write revision before recording a start (1.933125ms)
+✔ check approval rejects changed candidate identity before recording a start (0.099917ms)
+✔ check approval rejects changed candidate revision before recording a start (0.08025ms)
+✔ check approval rejects changed candidate status before recording a start (0.083791ms)
+✔ check approval rejects changed binding identity before recording a start (0.08925ms)
+✔ check approval rejects changed binding revision before recording a start (0.077083ms)
+✔ check approval rejects changed execution path before recording a start (0.079709ms)
+✔ check approval rejects changed missing active binding before recording a start (0.079333ms)
+✔ check requires the exact approved recipe descriptor (0.220875ms)
+✔ candidate drift while persisting check.started settles failed without executing (5.978042ms)
+✔ runner's final synchronous Host fence prevents actual process side effects (3.287792ms)
+✔ runCheckRecipe reports a clean exit without truncation (72.195ms)
+✔ runCheckRecipe reports a non-zero exit without throwing (60.378625ms)
+✔ runCheckRecipe caps captured stdout/stderr and marks truncated (63.673167ms)
+✔ runCheckRecipe timeout kills the whole process group, including a nested child (305.864792ms)
+✔ runCheckRecipe cancels on abort and resolves only after the group has exited (204.152375ms)
+✔ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (1.782167ms)
+✔ check_run is denied with zero process start under read_only (2603.005ms)
+✔ an unknown recipe id returns a tool error without opening a permission or spawning anything (2188.436916ms)
+✔ ask mode shows the exact recipe in the permission payload and deny records nothing (2614.6115ms)
+✔ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (3824.608791ms)
+✔ cancelling a Run whose check is still running still records check.settled as cancelled (3185.651541ms)
+✔ an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (176.233625ms)
+✔ same Run write then check approves and persists the current candidate revision (3852.350083ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19895.451333

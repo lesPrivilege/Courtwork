@@ -18,16 +18,26 @@ function killGroup(pid, signal) {
 /**
  * Run one check recipe to completion and report exactly what happened. Never
  * throws for a non-zero exit -- that is a normal check outcome, not a Host
- * failure. Throws (error.code === "spawn_failed") only when the child process
- * itself could not be started.
+ * failure. A process-start failure uses "spawn_failed"; a synchronous Host
+ * beforeSpawn validation failure preserves its own code and starts no child.
  */
-export async function runCheckRecipe({ recipe, cwd, signal, onOutput } = {}) {
+export async function runCheckRecipe({ recipe, cwd, signal, onOutput, beforeSpawn } = {}) {
   const startedAtMs = Date.now();
   const startedAt = new Date(startedAtMs).toISOString();
+  const cancelledBeforeSpawn = () => ({
+    exitCode: null, signal: null, durationMs: Date.now() - startedAtMs,
+    stdout: "", stderr: "", truncated: { stdout: false, stderr: false },
+    timedOut: false, cancelled: true, startedAt, endedAt: new Date().toISOString(),
+  });
+  if (signal?.aborted) return cancelledBeforeSpawn();
   const homeDir = await mkdtemp(path.join(tmpdir(), "cw-check-home-"));
   try {
     const env = { PATH: process.env.PATH ?? "/usr/bin:/bin", HOME: homeDir, LANG: "C" };
     return await new Promise((resolve, reject) => {
+      // Internal synchronous Host fence; no await may separate it from spawn.
+      if (signal?.aborted) { resolve(cancelledBeforeSpawn()); return; }
+      beforeSpawn?.();
+      if (signal?.aborted) { resolve(cancelledBeforeSpawn()); return; }
       let child;
       try {
         child = spawn(recipe.command, recipe.argv, {

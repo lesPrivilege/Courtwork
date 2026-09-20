@@ -2742,6 +2742,13 @@ export class RuntimeService {
       const runIsOpen = () => Boolean(this.store.getRun(run.id)?.admissionOpen) && !entry.cancelRequested && !entry.externalUnknown && !entry.sparkYield;
       const checkTools = createCheckTools({
         candidate: run.repositoryCandidateSnapshot,
+        resolveCandidate: () => {
+          const currentSession = this.store.getSession(run.sessionId);
+          const current = currentSession?.repositoryCandidate;
+          const binding = currentSession?.repositoryBinding;
+          return binding?.status === "active" && binding.id === current?.sourceBindingId
+            && binding.revision === current.sourceBindingRevision ? current : null;
+        },
         runId: run.id,
         recordStarted: (detail) => this.store.recordCheckStarted(run.id, detail),
         recordSettled: (detail) => this.store.recordCheckSettled(run.id, detail),

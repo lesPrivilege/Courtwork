@@ -396,3 +396,51 @@ test("an unresolved check.started is fenced to check.settled status unknown on r
     await rm(dataDir, { recursive: true, force: true });
   }
 });
+
+test("same Run write then check approves and persists the current candidate revision", async () => {
+  const h = await boot();
+  let closed = false;
+  let reopened;
+  try {
+    const { session, sourceDir } = await bindSyntheticCandidate(h);
+    const original = await readFile(path.join(sourceDir, KNOWN_BUG.path), "utf8");
+    const run = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "same-run-write-check",
+      input: h.scriptInput([
+        { name: "repo_write", arguments: { path: KNOWN_BUG.path,
+          text: original.replace(KNOWN_BUG.broken, KNOWN_BUG.fixed),
+          expectedSha256: sha256(Buffer.from(original)) } },
+        { name: "check_run", arguments: { recipeId: "node-test" } },
+      ]),
+    });
+    assert.equal(run.status, 200);
+    const runId = run.json.run.id;
+    const opens = tool => waitForMatch(() => eventsFor(h, session, runId),
+      e => e.type === "permission.open" && e.data.tool === tool);
+    const write = await opens("repo_write");
+    assert.equal((await h.api("POST", `/runs/${runId}/questions/${write.data.id}`, { decision: "allow" })).status, 200);
+    const check = await opens("check_run");
+    assert.equal(check.data.candidateWriteRevision, 1, "approval must describe the same Run's confirmed write");
+    await assert.rejects(h.runtime.store.recordCheckStarted(runId, {
+      callId: "stale-start", recipeId: "node-test", recipeVersion: 1,
+      candidateId: check.data.candidateId, candidateWriteRevision: 0, startedAt: new Date().toISOString(),
+    }), { code: "candidate_changed" });
+    assert.equal(eventsFor(h, session, runId).some(e => e.type === "check.started"), false,
+      "the Store must reject a stale start atomically without appending evidence");
+    assert.equal((await h.api("POST", `/runs/${runId}/questions/${check.data.id}`, { decision: "allow" })).status, 200);
+    assert.equal((await h.pollRun(runId)).status, "completed");
+    const evidence = eventsFor(h, session, runId).filter(e => e.type.startsWith("check."));
+    assert.deepEqual(evidence.map(e => e.type), ["check.started", "check.settled"]);
+    assert.equal(evidence[0].data.candidateWriteRevision, 1);
+    assert.equal(evidence[1].data.callId, evidence[0].data.callId);
+    assert.equal(evidence[1].data.status, "completed");
+    assert.equal(evidence[1].data.exitCode, 0);
+    await h.runtime.close();
+    closed = true;
+    reopened = await new RuntimeStore({ dataDir: h.dataDir }).open();
+    assert.deepEqual(reopened.snapshot().events.filter(e => e.runId === runId && e.type.startsWith("check.")), evidence);
+  } finally {
+    await reopened?.close();
+    if (!closed) await h.runtime.close();
+  }
+});
