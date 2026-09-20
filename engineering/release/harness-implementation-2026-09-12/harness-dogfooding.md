@@ -53,3 +53,9 @@
 [Release审查与Harness提案](../review-intake-2026-09-13/round-24bd954/README.md)已逐项入账。[RD-009](../../research/RD-009-trusted-harness-extensions.md)把DF-04细化为一个coding组合内的Host固定recipe：精确权限预览、最小环境、限时/限输出、取消后独立settle与Run/call身份。普通子进程不称sandbox。当前首个NDA Release不广告agent自行运行仓库检查；Developer消费者实际采用时，DF-04证据成为该声称前置。Hooks/视觉/浏览器/子任务按同一owner接缝准备，未执行任意扩展或新设发布门。
 
 2026-09-16 · DF-04 首个 Host recipe（node-test）已按 RD-009 合同在 Claude 施工单 03 接线并有 Host 定向与作者浏览器证据；真实模型发起与非作者复核仍开放，见[03 记录](../../execution/claude-frontend-harness-2026-09-16/03-check-recipe.md)。此登记不改变本页其他 DF/G 门的状态。
+
+## 2026-09-19 · Local Agent Orchestra direction
+
+[The Astra ruling and Luna evidence](../../research/architecture-node-2026-09-13/orchestra-direction-20260919.md) adopts this existing DF sequence as the first self-owned harness composition. It adds no DF/G numbers and does not make a second Runtime a prerequisite: finish the real RD-006/DF-04/RD-009 GUI read→edit→fixed self-check→precise result→interrupt/reopen path, then continue P03/DRT-03 and the Agents API A follow-ups. Pi's locked loop remains the dogfood baseline; Host owns admission, binding, effects, recovery, receipts, and unknowns. Existing synthetic results are not relabeled as real-model closure.
+
+The same record is the first consumer for future Role/Kit/Agent Instance composition. One Runtime family/version uses one Adapter; instances keep separate Session, provider/model configuration, permission, budget, and Kit binding. Kit/Skill context ordering does not change authority, credentials, or the existing `All chats · future runs` Composer scope. Spark/Attention and heterogeneous children remain later bounded consumers under RD-005.

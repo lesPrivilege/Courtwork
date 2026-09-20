@@ -1,0 +1,137 @@
+I'll build serially in G1 → G2 → G3 → G4 order without touching the active shared main checkout, since it has uncommitted work from other authors. Per AGENTS.md, I'll set up an isolated worktree for the build instead.
+
+The README and `current.md` in main mix changes from several authors. In the worktree I'll add only my own entries.
+
+The GUI draft links to `orchestra-start-node`, and I didn't write that link. Someone else must have edited the draft in main. Checking what changed:
+
+I'll preserve Astra's paragraph on the serial ruling as-is; the link check fails on this branch alone since the linked document only exists untracked in main, but should pass once combined, so I'll flag that dependency in the handoff. Committing the owner record now, then moving on to review the Home code.
+
+Owner record committed on the branch (`9b4fc2f`). Next, reading the Home code.
+
+The design is settled. Before I start coding, I need to know how far the Attention and Activity state logic and the preference item reach.
+
+The Attention registry query only supports offset/limit, not status filtering, so Home will show the first 3 registry items with their state words—I'll note this deviation in the delivery note. Next, checking index.html, the layout CSS, and tests.
+
+I now have the full picture and am rewriting `home-view.mjs` so each block renders into its own slot, preserving the existing pointer-protection while reordering blocks (Waiting → Attention → Needs a look → Continue → Activity), capping each at 3 rows by default with expandable "Show all," and updating Attention/Activity row handling accordingly.
+
+I'm rewriting `home-view.mjs`. I've read the test helper and the adapter interfaces and am about to write the code.
+
+Writing the new `home-view.mjs`:
+
+`home-view.mjs` passes the syntax check. Next is the Home wiring in `app.mjs`.
+
+Now applying the `app.mjs` edits:
+
+Deleting the old stat-strip, band and card CSS in bulk, then rewriting a much smaller Home blocks section.
+
+The Attention workspace (`attention-view.mjs`) also uses the `home-attention-state` class, so I'm restoring its two style rules to avoid breaking the workspace.
+
+The lints all pass; the list of full-radius shapes is informational output and is identical on main. Now running the related tests:
+
+Updating the three tests that depend on the old structure:
+
+The targeted tests all pass (46/46). Next, the full suite. This worktree has no `node_modules`, so first I'll check the dependency setup.
+
+The full suite has 1206/1208 passing. Both failures are source-text assertions that point at code I removed, and they pass on main. Looking at them:
+
+Let me check the registry format so I can update it to match the lines I changed.
+
+Fixing the second failure: a stale source assertion in the workspace-card test. After that I'll rerun the full suite, then check visually in the browser.
+
+The full suite passes: 1208/1208. Next I'll start an isolated service for a visual check, using a separate port and a temporary data directory with no personal data.
+
+The main checkout lacks a `.claude/` directory, so I'll avoid adding untracked files there and instead run the service in the background from the isolated tree, keeping its data directory in the scratchpad.
+
+The service is up and the example workspace (synthetic data) is showing the new Home structure. Now checking at 1440 and the other viewports.
+
+The layout structure checks out, but I noticed the Attention count is misaligned compared to Continue's, and the Activity section lacks a collapse indicator. I'll fix both issues now.
+
+Fixed the count position and the Activity collapse marker, and reloading to check them visually.
+
+Both fixes look right. Next, the interactions: collapsing Activity and keeping that state after reload, "Show all" expanding in place and back, and where focus goes.
+
+Every interaction checks out. Next I'll reload to confirm the collapse persists, then measure the composer's coordinates in each state.
+
+The collapse persists after reload, with the composer centered at 59% (meets ≥55% standard) and block rows aligned to its left edge. Next I'll close the example workspace, switch to empty Home, and verify the composer holds its position.
+
+Found a bug: the Attention block skips the empty-state guard the old card had, so it shows stale data after closing the example workspace—I'll add that check. Also spotted the composer centre width differing between empty and populated Home (56% vs 59%), likely because the lead isn't re-measured after identity text changes—investigating now.
+
+The lead wasn't recalculated after the identity area grew taller. I'll reopen the example workspace to reproduce the issue, then trigger a manual re-measure to compare.
+
+Confirmed the anchor holds when switching states on the same page—composer top stays at 472, with identity growing upward by 31px as the lead shrinks by the same amount. The earlier 59% discrepancy came from a fresh page load, so I'll now reproduce that scenario.
+
+The lead stays stale at 333 until resize instead of updating to 302 on load. I'll check whether an identity text change triggers a re-measure to determine if the observer isn't firing.
+
+The anchor holds correctly when the identity text changes—composer top stays fixed at 472 despite intro/lead resizing—confirming the observer works and the stale value only occurs during initial load. Now I'll poll right after load to pinpoint when the value goes wrong.
+
+The stale value likely comes from a layout shift that moves the composer without resizing any observed element, like a startup notice disappearing. I'll fix this by also observing the body and identity area, then re-check.
+
+Still stale, so I'll add a temporary debug log to `measureHomeLead` and look at the actual call sequence rather than keep guessing (it gets removed right after):
+
+The fix works—values now show correctly on load (lead 302, composer 56%); the earlier "333" reading was just a caching issue. Removing the debug log, then testing 1280, 390, and dark mode.
+
+At 1280 in dark mode the composer centre is back at 56%, with no horizontal overflow and the blocks sharing the composer's left edge. Next, 390 mobile:
+
+At 390 there's a real problem: on mobile the composer docks at the bottom and now carries the identity area with it, and the greeting overlaps the Activity content. Checking the mobile Home rules:
+
+Found the issue: on mobile, the identity area is docked with the composer at the bottom instead of sitting at the top of the reading flow. I'll move it above the content blocks, keeping only the composer docked.
+
+Mobile layout is fixed—identity leads, blocks follow, and the composer stays docked without overlap during scrolling. I'll reset the viewport and rerun the full test suite and all checks.
+
+All checks pass except the doc-link check, which flags the known cross-branch dependency from Astra's paragraph referencing a main-only document. I'll now write the G1 delivery record and mark the superseded passages in the three existing standards documents.
+
+Only the known cross-branch link problem remains. Next I'll add the G1 delivery status to `current.md` on the branch and commit G1.
+
+G1 is committed (`e431d0b`). Moving on to G2: event weight in the thread.
+
+The rendering paths are clear now. Before the row-by-row mapping, I'll check the tool-row event format and the existing tests:
+
+I've mapped each row kind against UX-10's weighting and found the rendering mostly matches, except run/notice start/end pairs should collapse into one line once the end notice arrives instead of showing both. Next I'll run a burst-load test with 100 successful calls, 1 failure, 1 pending permission, and 1 artifact.
+
+All 1210 tests pass, and I confirmed the notice aggregation also applies to the Attention agent view since it shares `projectThread`. Now I'll write the G2 delivery record with the row-by-row mapping and commit.
+
+G2 is committed. Now handing G3 (token discipline) to a Sonnet worker—first checking the in-scope CSS files and existing shape-lint precedent to define its boundaries.
+
+G1 and G2 are committed. Next I'm handing G3 (spacing and font-size token discipline) to a Sonnet worker, with precise boundaries and a closed set of rules.
+
+While the worker runs, I'll set up a before/after comparison for G3, since it changes spacing values across the app and needs visual review. I'll check out the pre-G3 commit (`fbab236`) into a temporary detached tree and run it on a second port.
+
+G3 is running in the background on the Sonnet worker. The pre-G3 comparison service is up on port 8872.
+
+Status so far:
+- **G1 (Home blocks) committed as `e431d0b`:**
+  - Identity sits above the composer, and the composer uses one centred anchor on both layouts.
+  - The blocks run in the order Waiting → Attention → Needs a look → Continue → Activity, with at most 3 rows each.
+  - The stat strip and the module band are removed. The heatmap is kept as a collapsible section.
+  - On mobile, identity leads the page and the composer docks at the bottom.
+  - I also fixed a stale anchor on first load, and removed a clipping box around the identity area that would have cut off text under zoom.
+- **G2 (event weight) committed as `fbab236`:** I mapped every thread row kind to UX-10. The only mismatch was runtime notices appearing as start and end pairs; now only the outcome remains. A 100-tool-call burst test was added.
+- The full test suite passes (1210/1210).
+
+When G3 comes back I'll review the diff and compare Home, Chat and Settings before and after in the browser. If it passes, I'll commit it and move on to G4.
+
+G3 is back: 1215/1215 passing, two items need a ruling, and some snaps change rendered sizes. Reviewing the diff and the snap table first:
+
+I'll revert the button/input padding and `.home-greeting-date` changes (registering them as exceptions), approve the two "needs ruling" items as register-worthy exceptions, and visually assess the padding changes to `.usage-weekdays` and `.context-tab` before deciding. Now checking the lint's registration format.
+
+The lint passes and the "needs ruling" entries are cleared. Next, the visual before/after comparison: 8872 is pre-G3, 8871 is current. Starting with Home:
+
+Home barely changes: the rows grew by about 2px and a sidebar row moved by about 1px, so the hierarchy and alignment hold. Next, the Usage calendar weekday alignment (27 → 24 is the risky one):
+
+27 is derived from the heatmap's offset inside the scroll area (3px scroll padding + 16px week-label row + 8px top margin), not an arbitrary value—snapping it to 24 would misalign the weekday labels by 3px. I'll write this out as an explicit derivation.
+
+Two more snaps look alignment-derived. Checking them:
+
+`nav-filter` looks fine after the snap despite a small 2px text/input shift. `context-tab` breaks symmetry when snapped to 16, so I'll document that as a derivation as well.
+
+Settings is virtually identical. Last is the Attention workspace, where the heading went from 22 to 18:
+
+The Attention detail heading (22→18) still reads correctly as the title, and buttons are unaffected since I reverted the global padding change. Now I'll run the full suite, write the G3 record, and commit.
+
+G3 is committed. Moving on to G4, the cross-surface visual state matrix—I'll check the repo's CDP helper used by existing evidence scripts to save the candidate captures as files.
+
+G1–G3 are done. I'm now handing off G4 candidate evidence to a Sonnet worker to capture the state matrix via headless Chrome, ensuring each cell's capture method is honestly labeled, injected/emulated cells are flagged, and unexecuted cells are marked as such.
+
+While G4 captures run, I'll clean up the temporary pre-G3 comparison tree and its service. It was only for my own comparison and holds no unique data.
+
+I stopped the pre-G3 comparison service and removed its temporary tree. The G4 evidence capture is still running in the background, and I'll review the evidence package when it finishes.

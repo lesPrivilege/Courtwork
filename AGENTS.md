@@ -5,7 +5,7 @@ The sole persistent development entry is `Courtwork`. Read the actual branch and
 ## Work and review
 
 - Check cwd, branch, HEAD, worktree status and the relevant delivery before acting. Do not infer current state from an old chat or clean working tree alone.
-- Astra owns architecture, integration and migration decisions; Luna may research, implement bounded assignments, or independently verify another author's work. Authors do not claim independent acceptance of their own code.
+- Astra owns architecture, integration and migration decisions. Use Luna for exploration and bounded non-author verification; DeepSeek may implement clearly scoped work where engineering execution, rather than model capability, is the bottleneck. Keep computer-use execution on an OpenAI provider. Preserve active author assignments and explicit task-specific routing. Authors do not claim independent acceptance of their own code.
 - Honor explicit user scope and existing authorization. Continue reversible, authorized work without inventing repeated approval gates. Do not send external messages without user authorization.
 - Preserve other writers' edits. Use isolated worktrees and independent synthetic data/ports; never checkout, stash or reset an active shared UI checkout.
 - Keep state/evidence ownership in the existing service/domain contracts. UI and brand motion display facts; they do not confer authority or formal acceptance.
@@ -15,6 +15,8 @@ The sole persistent development entry is `Courtwork`. Read the actual branch and
 - For UI work, read `engineering/design/ux-grammar.md`, then `engineering/design/agent-interface-2026-09-10/frontend-contract.md` and load only the relevant entries from its precedent index. Record the nearest implemented precedent, affected grammar and verification evidence; review semantics remain independent of skin.
 
 ## Documentation language
+
+- Use Pi as the public and development name for the upstream runtime; preserve existing underlying IDs and historical evidence. Keep Agent/Kit/Runtime/Provider/Model meanings consistent across architecture, README, Composer and Settings. Explain the task first and disclose technical detail where it helps the user decide.
 
 - English is the default authoring language. Keep `README.md` as the English entry point and `README.zh-CN.md` as its Simplified Chinese counterpart, with reciprocal language links. Update both in the same change when shared content changes; commands, links, capability scope, and version facts must stay aligned.
 - Prefer English for new and substantially revised secondary documentation, including architecture, Design/UX, API, contracts, module READMEs, and engineering guidance. Chinese explanations or translations may supplement English when useful; a bilingual copy is not required for every document.

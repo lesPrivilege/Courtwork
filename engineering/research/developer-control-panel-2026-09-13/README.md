@@ -39,3 +39,11 @@
 | Hook / Registry | 类型枚举与不可用投影已存在 | ImportedResource不接受；无执行/解析adapter |
 
 首个可交付闭环是表单→既有PUT runtime-control put→显式MCP lifecycle connect→权威catalog→另行曝光/策略→bound Run调用与provenance。若选预保存发现，则先实现临时连接隔离与销毁；不把外部建议的顺序当成现有API事实。`24bd954`为`11cfe4a5`祖先，其间369文件变化，不能等价使用。审阅期间main另有作者推进，独立片不自动继承后续提交；交付前重读tip为`4cf5ed9ebdaf1894ebae039cd69a0227e6991db3`，其并行编辑保留。
+
+## 2026-09-20 · Agent and Runtime settings boundary
+
+The [Astra local-runtime ruling](../architecture-node-2026-09-13/local-agent-runtimes-20260920.md) registers a target Settings → Agents group with Agent profiles (Role/Kit/default Runtime binding) and Runtimes (installed or hosted executor connections). This is future UI, conditional on actual Host binding and lifecycle facts; today's technical Runtime surface remains under Developer. Models continues to own provider/model/effort configuration. CC Switch's explicit application scope and native writeback/restart disclosure are consumed there, without creating another config authority. Developer displays diagnostics for the same objects, not a second editable truth. Reuse implemented model CAS/future-run scope, MCP Save/Connect separation and trusted Plugin inspection as precedents; a Runtime is not automatically a Plugin and a Kit is not merely a Skill. No new panel, installer, credential import or native-config writeback is implemented by this registration.
+
+## 2026-09-20 · Comprehension acceptance for the future management surface
+
+Follow the [existing presentation/ownership contract](../architecture-node-2026-09-13/local-agent-runtimes-20260920.md#comprehension-presentation-and-document-ownership). Show responsibility, Kit and execution/model choice before technical connection fields; keep permission consequences, errors and effective scope next to the action. Use Pi consistently while preserving underlying IDs and exact native facts in diagnostics. Agent profiles/Runtimes, Models and Developer retain their respective owners; no additional object layer is needed. A short introduction plus task-based review with an experienced agent user should check choosing/configuring an agent, locating runtime/model ownership, understanding future-run scope, resolving unavailable/permission states and finding results. These are future acceptance questions, not executed user tests or additions to active G1–G4 construction.

@@ -1,0 +1,51 @@
+{
+  "work_order": "CW-HERMES-CONSULT-20260920",
+  "created_at": "2026-09-19T16:12:05.524758+00:00",
+  "cw_head": "72c91a2f070cc8e134f1d09cebc7de735ff89415",
+  "profile": "praxis",
+  "requested_model": "profile default",
+  "toolsets_argument": "none",
+  "toolset_note": "Installed _select_tool_names starts empty; unrecognized none contributes no tools. This is a version-specific CLI selection, not a sandbox. No rules/profile settings overridden.",
+  "max_turns": 2,
+  "run_budget_seconds": 180,
+  "outer_timeout_seconds": 220,
+  "run_directory": "<temporary task directory outside the product and Praxis workspace>",
+  "sources": [
+    {
+      "id": "S1",
+      "source": "engineering/current.md",
+      "line_start": 1,
+      "line_end": 34,
+      "source_sha256": "0e7b63c4fa35a24a5871ca305ed6924b2ac002b279a384271409ea0aa8a89e24",
+      "snapshot": "S1.txt",
+      "snapshot_sha256": "bc6c5509f83704bd06360149099b622482078048dec71a4d8648808af2fb40f7"
+    },
+    {
+      "id": "S2",
+      "source": "engineering/execution/claude-frontend-harness-2026-09-16/orchestra-start-node-20260919.md",
+      "line_start": 1,
+      "line_end": 95,
+      "source_sha256": "4b69b0b427b643798fc657c5e26c389be3c7fbb89fe57e40bdaa702cb244e4cf",
+      "snapshot": "S2.txt",
+      "snapshot_sha256": "6a04ca5b8eb11d010fad0974b5113ca109a40acc38d9d9b74cfa799d5cd57568"
+    },
+    {
+      "id": "S3",
+      "source": "engineering/research/architecture-node-2026-09-13/praxis-kit-20260919.md",
+      "line_start": 1,
+      "line_end": 66,
+      "source_sha256": "43cb46c4761d2f16f5ac37979ee7d49b410720cf094edacb4f8aafe5337cb364",
+      "snapshot": "S3.txt",
+      "snapshot_sha256": "30d555a0bae09b2165d72c5e03f7b178ae2e493715d461a214198410ce9e9083"
+    },
+    {
+      "id": "S4",
+      "source": "controller observation",
+      "snapshot": "S4.txt",
+      "snapshot_sha256": "0cbf24fc040a7d246950c59543777425288fad810c173d16f147b4afe0908e21"
+    }
+  ],
+  "query_sha256": "3354c27c2b14bce9c12aa3e8715139ae3497126787bfe5709a6aa70095e5a543",
+  "hermes_source_commit": "d7b836ab1c0cddaafc109ed24c9a83b6191cdc88",
+  "hermes_source_dirty": false
+}

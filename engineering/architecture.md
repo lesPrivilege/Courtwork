@@ -8,6 +8,14 @@
 
 [五层架构裁决](research/architecture-node-2026-09-13/architecture.md)提供Adapter、Harness Core/Extension、Work Core/Extension的当前责任、设计公式及Chat/Attention/Spark/Experts闭环。既往术语与DRT排序已经distill，归档从[canon入口](architecture-runtime-canon.md)回溯；实际代码/owner/缺口见[Luna固定基线核查](research/architecture-node-2026-09-13/explore/implementation.md)。下表仍导航实现，不按目标名推导同名服务已存在。
 
+## 2026-09-19 · Local Agent Orchestra direction
+
+[The Astra ruling and Luna baseline](research/architecture-node-2026-09-13/orchestra-direction-20260919.md) register Local Agent Orchestra as the current research direction: continue the five layers and continuable workspace without adding a sixth layer, second ledger, or generic workflow engine. CW owns Host admission/effect/recovery, capability/permission/version binding, result references, cross-Runtime delegation, and diagnostics while reusing the locked Pi loop; Local and Hosted Runtimes meet the same minimum lifecycle obligations. Role, Kit, Agent Instance, ExpertDefinition/Instance, Runtime, Provider, Model, and Environment remain separate target vocabulary; this does not imply a Kit catalog/schema or a closed product loop.
+
+The minimum Runtime Port reuses the existing RD-001 / Agents API contract: `describe/admit`, `start/continue`, `observe/recover`, `reply/tool-result`, `interrupt/cancel`, and `dispose`. Host/CW Run and native references stay separate, and a cancellation request is distinct from confirmed termination; unresolved outcomes retain unknown semantics. Staging follows the existing RD-006/DF-04/RD-009, P03/DRT-03, and RD-005 records without a new route.
+
+The [2026-09-20 local-runtime and Settings ruling](research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md) specifies upstream maintenance, bounded-job versus managed-session adapters, and target Agents → Agent profiles / Runtimes configuration. Models retains provider ownership, Developer retains diagnostics, and CC Switch is consumed only as a Provider control-plane precedent. Connection removal, native uninstall and active-run cancellation remain separate operations.
+
 ## 变更边界
 
 动产品代码前，在原任务合同注明本次改变的责任、事实owner、最近实现先例及必要的跨层修改理由。普通Provider、执行能力或垂类增量应沿对应合同接入；评审检查是否复制权威状态、使领域差异侵入主loop，或增加另一套UI语义。需要跨层修改时说明真实接缝与不变量，不能仅按目录数量判断解耦。
@@ -37,7 +45,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 
 ### 数据归属
 
-Host 的 runtime JSON（schema 18）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 15 分别演进。
+Host 的 runtime JSON（schema 18）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 18 分别演进。
 
 UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 
@@ -91,3 +99,7 @@ Core 不导入宿主包、GUI 组件或 provider 名称。Adapter 可以依赖�
 ## 开工粒度
 
 施工单元示例是“比较 SDK 与进程协议的取消/恢复边界”或“验证单写者存储的重复提交行为”。它应能独立形成 RD、裁决和退出路径。源码文件、类、数据库字段全表与 UI 像素规格留到相关单元获准实现之后。
+
+## 2026-09-20 · Pi identity and understandable configuration
+
+Pi remains the upstream runtime name and development target; existing underlying IDs are retained. No fork-specific product identity or migration is introduced. The [comprehension and document-ownership contract](research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#comprehension-presentation-and-document-ownership) keeps the five engineering layers internal while presenting consistent Agent/Kit/Runtime/Provider/Model relationships through existing owners. Multica informs coherent architecture, documentation and Settings organization; it does not add another state authority.

@@ -1,0 +1,66 @@
+Luna's verification is in the main checkout's copy of the record, and my worktree's copy predates it. Reading those findings now.
+
+The main copy of that record is actually the older draft (it lacks my delivery notes), so the verification findings must be recorded elsewhere. Searching the main checkout:
+
+That's the G3/G4 review. The user also mentioned Attention stale data, which isn't in this file. Checking for other review documents:
+
+I have all three reviews. The findings are concrete and mostly correct. Let me check the disputed "empty Home" capture first, since it decides whether I need to recapture:
+
+Confirmed: the "empty Home" capture actually shows the example workspace — two projects, Attention 1, Continue 7. Luna is right, and that cell must be recaptured. I'll work through the findings in order, starting with the blocker (F-01, stale Attention scope).
+
+Now applying the four functional fixes (F-01 through F-04):
+
+The four fixes are in. Luna noted the tests didn't cover these cases, so I'm adding tests for each:
+
+The four fixes pass. Next, Luna's finding 4: three ways to bypass the spacing lint. Reading the checker:
+
+Confirmed all three holes. Fixing them: parse the last declaration in a block, reject undefined token names, and make each registration property-scoped.
+
+My quick regex missed 8 entries because of shorthand values. I'll generate the table from the lint's own parser instead, so the property recorded is exactly what the checker sees:
+
+Now rewriting the lint with property-scoped registrations, undefined-token rejection and full declaration parsing:
+
+The new rule immediately caught something real, though these are legitimate: `--native-controls-inset` is set at runtime from JS and used with a fallback. I'll refine the rule to accept tokens set in JS and any `var()` that carries a fallback:
+
+Now the negative tests Luna asked for, one per bypass:
+
+The lint holes are closed with tests. Now the G4 packet: the capture script screenshots the "empty" cell before closing the example, which is why that PNG shows example data. Fixing the script's precondition:
+
+Re-running the whole capture with the corrected precondition, so the PNGs and the manifest stay consistent:
+
+The empty cell is now genuinely empty: zero projects, no Attention or Activity, Continue 0 with its sentence. Updating the packet README to match the recapture and Luna's corrections:
+
+Now correcting the owner record: the PNG count, the native-zoom claim, the G3 coverage sentence, and a full disposition of every finding.
+
+Now adding the disposition section that records every finding and what I changed:
+
+The review records live in the shared checkout and aren't on my branch, so those links resolve only after integration, like the existing one. Noting that, then running the full suite:
+
+All 1222 tests and every lint pass. Verifying the F-01 blocker fix live, since that was the acceptance blocker:
+
+F-01 is fixed in the live app: closing the example leaves no stale Attention rows, with no reload needed. Committing the revision.
+
+All nine findings are fixed serially in one revision commit, `3413978`. Only the difference against `fc6eccf` needs re-review. The full suite passes at 1222/1222 (up from 1215; seven new tests) and every lint passes. The capture host is stopped and the tree is clean.
+
+**The blocker (F-01)**
+Your read was right, and my earlier claim that this was fixed was wrong: the guard I added only covered the "no projects at all" case, while the cached scope itself survived. Now a single owner decides which project the block reads. The scope is dropped when its project disappears, and the workspace picker moves it. I verified it live: closing the example leaves no Attention rows, with no reload needed.
+
+**The other three functional findings**
+- **F-02:** an empty Activity period now says "No runs recorded in the last N days." instead of showing a grid of zeros. The widest empty period is still absent, as ruled.
+- **F-03:** the "some items are outside this page" sentence now follows the merged set, so it no longer appears when everything is already on screen.
+- **F-04:** returning to Home clears an expanded set, and when a set's "Show all" is gone, focus falls back to that block's first row.
+
+**The three spacing-lint bypasses** — all closed, each with a negative test:
+- a block's last declaration without a semicolon is now parsed;
+- `var(--space-7)` and other undefined names are rejected, while a `var()` with a fallback is allowed (this immediately caught six real cases of tokens set at runtime from JS, which are now accepted properly);
+- registrations are keyed by selector *and* property, so a reason written for `padding` no longer covers `margin`.
+
+**G4 corrections**
+- You were right about the empty capture. The old PNG showed the example data. The script now closes the example, reloads and asserts zero projects and no Attention or Activity block before recording. The whole packet was recaptured, and the new empty capture is genuinely empty.
+- Native 200% zoom is now stated as unexecuted with a labelled CSS-equivalent substitute, in both the matrix and the disposition table.
+- The G3 note no longer claims G4 covers Chat long content, the Usage dialog and the markdown reader. They're listed as unexecuted.
+- The packet now records that two independent passes scrolled the overlapped block above the docked composer, while the capture itself measures the unscrolled rectangles.
+
+**Two notes for merging**
+- The recaptured packet reflects the fixed code, so the evidence and the code in this commit match.
+- The three review records live in the main checkout and aren't on my branch. Their links, like the existing `orchestra-start-node` one, resolve only in the combined tree.

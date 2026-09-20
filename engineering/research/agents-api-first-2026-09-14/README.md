@@ -4,6 +4,12 @@
 
 [官方核源、技术方案与 A–F 施工片](implementation-plan-20260916.md)接用户新要求：OpenAI Agents API 作为首个新增 Runtime 样板，先采用 `none`＋CW 受控函数工具，原生 Session/turn/call、效果结算、取消/恢复与同一 GUI 合流。Pi 保留；完整仓库样板接 RD-006→DF-04，托管环境与 self-hosted executor 后置。接 [Claude 主施工单](../../execution/claude-frontend-harness-2026-09-16/README.md)，不另建 roadmap、不恢复右栏 Runtime 统计卡。
 
+## 2026-09-19 · Local Agent Orchestra connection
+
+The [Orchestra direction](../architecture-node-2026-09-13/orchestra-direction-20260919.md) keeps this as the first new Runtime sample and reuses the existing A–F slices. The minimum Port vocabulary is `describe/admit`, `start/continue`, `observe/recover`, `reply/tool-result`, `interrupt/cancel`, and `dispose`; it does not create a competing DTO or claim the hosted lane is available. A-1 recovery repair is accepted in the existing record; A-2–A-4 remain deferred and `environment:none` plus CW function tools remain unavailable until a bounded real probe. Host/CW Run and native IDs stay separate, and native-only children/environment facts are projected only when actually exposed.
+
+This sample is the hosted side of the same Local/Hosted lifecycle contract. It must not be routed through the Pi loop to manufacture a replacement claim, and it does not move Work/Core ownership. The current Composer/Models binding, permission preview, Files/Review, and active-Run freeze remain the UI precedents. Future Kit/Role composition consumes this record only after a real consumer exists.
+
 本日新增官方协议/SDK 源码核验及施工计划；下文 Sep14 的外部待核状态保留其原时点，未把当时 Local test 记作新 API 实测。本轮没有产品代码、真实 API 调用或能力接受。
 
 ## 2026-09-14 · 原登记与现场记录

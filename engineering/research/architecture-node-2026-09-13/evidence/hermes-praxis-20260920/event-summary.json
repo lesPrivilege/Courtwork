@@ -1,0 +1,23 @@
+{
+  "event_counts": {
+    "system": 1,
+    "text": 1620,
+    "result": 1
+  },
+  "tool_use_events": [],
+  "result_count": 1,
+  "response_sha256": "34dbd3d623735dfaa5b1ad165f7457e550a9efafa75a9fc30619fe11d1b1f455",
+  "response_word_count_whitespace": 892,
+  "requested_word_limit": 800,
+  "native_session_id": "20260920_001224_207d5e",
+  "cw_managed_session": false,
+  "init": [
+    {
+      "type": "system",
+      "subtype": "init",
+      "model": "deepseek-v4-flash",
+      "session_id": "20260920_001224_207d5e",
+      "timestamp": 1789834344978
+    }
+  ]
+}

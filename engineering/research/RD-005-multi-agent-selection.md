@@ -1,5 +1,13 @@
 # RD-005 · Multi-agent 实践选型与执行分工
 
+## 2026-09-20 · Current execution routing
+
+The user prefers DeepSeek for its observed capability and speed while retaining Luna for exploration. This is an operational preference, not a repository benchmark result. Astra retains architecture, difficult cross-layer decisions and integration; Luna retains bounded exploration and non-author verification. Clearly scoped implementation with established contracts, precedents and executable checks may be assigned to DeepSeek (the configured `deepseek_worker` when available). Escalate ambiguity in architecture, permissions, recovery or acceptance to the existing owner instead of expanding a worker's scope. Computer-use execution remains on an OpenAI provider; a DeepSeek implementation author can hand off that verification to an appropriate OpenAI agent.
+
+This updates future assignment choices without transferring active Claude/Sonnet work, granting a new provider budget, or changing runtime/model configuration. Each worker receives explicit file ownership, inputs, exit evidence and existing authority limits; authors do not independently accept their own changes. The original serial construction → fresh-node verification → merge → preserved cleanup → first core slice order remains in force. Earlier dated routing below is historical where it differs from this entry.
+
+2026-09-20 · [Hermes/Praxis consultation receipt](architecture-node-2026-09-13/evidence/hermes-praxis-20260920/README.md): the user authorized one bounded CW work order through the installed `praxis` profile. The CLI returned a native session/result and a grounded advisory `not_ready` decision in 32.587 seconds, with no model tool events. Astra adopts the useful handoff/communication analysis with recorded corrections for stale inventory, output length and an infeasible next-test specification. This is a direct CLI consultation, not a production CW child/runtime adapter, Kit admission, or permission-enforcement acceptance; Claude's serial writer and merge/cleanup sequence remain unchanged.
+
 2026-09-15增量：[多Agent协作瓶颈裁决](spark-explore-2026-09-13/coordination-20260915.md)消费8轮，采用少角色/有界fork/精确结果reduce，Spark产品位与Explorer角色解耦；Swarm继续后置。评测接MA-06/ME-09，Main整合不取代服务owner或独立/正式接受；未改single-active-Run或权限。
 
 2026-09-10；状态：研究已消费、架构方向与候选 PR 已裁定，产品实现未由本次登记接受。Astra 负责架构、取舍、集成及 PR 裁决；Luna 负责 fast explore、边界明确且有成熟参考的实现；瓶颈在模型能力的实现仍由 Astra 撰写。作者不能独立接受自己的代码。
@@ -33,3 +41,19 @@
 2026-09-11补充输入：[WCI-02–04](work-capability-input-2026-09-11/README.md)接本路线；Explore/有界Worker/可选Code capability与same-worker/child/hybrid为合同及对照候选，权限不由角色名授予，未新增自主MAS或实施派工。
 
 2026-09-13补充：[Court定位参考实践](court-position-2026-09-13/README.md)将AO durable work提案、Kandev执行接缝和Warden Review证据列为机制参考；durable assignment/依赖/接管反例沿本路线冻结，不将Session metadata或第三方work graph升级成新的正式账本，未选新Runtime依赖。
+
+## 2026-09-19 · Orchestra direction disposition
+
+[The Local Agent Orchestra ruling](architecture-node-2026-09-13/orchestra-direction-20260919.md) keeps the two child ownership paths explicit: a CW-controlled child is a bounded second Session/Run with shared admission, permissions, receipts, result references, and unknown semantics; a runtime-native child remains runtime-owned and is only projected where facts are exposed. No shadow scheduler, shared transcript, or double cancellation authority is added. The current conformance child entry, mailbox coordination, and serial Spark dispatch remain their existing bounded capabilities; native trees do not make CW support true by donor presence alone.
+
+The direction also separates Role, Kit, Agent Instance, ExpertDefinition/Instance, Runtime, Provider, Model, and Environment. A Kit is a versioned context/work/verification composition and does not grant authority or credentials. One Runtime family/version reuses one Adapter while instances keep independent session, config, permission, budget, and Kit bindings. Heterogeneous child work remains on this RD's existing MA slices and stops when there is no bounded consumer or evidence benefit.
+
+## 2026-09-20 · Local-agent delegation seam
+
+The [local-runtime ruling](architecture-node-2026-09-13/local-agent-runtimes-20260920.md) adopts a future typed delegation tool backed by existing Host admission, attempt identity and result consumption. A native parent may select an approved agent binding and scoped packet; it may not choose arbitrary launch commands or confer grants. Keep native-owned children separate from CW-owned attempts. Pi subprocess examples and DeepSeek Harness provider/capability patterns are reference inputs; their source availability does not turn CW's conformance entry into a production scheduler. First validate deterministic transport and failure fixtures, then separately authorized native trials; preserve unknown outcomes and never kill a shared upstream daemon as a substitute for task cancellation. Implementation remains after the original dogfood/runtime owners and the user-authorized merge/cleanup sequence.
+
+The user further authorizes Pi as a Codex subordinate-worker candidate. The [two-path ruling](architecture-node-2026-09-13/local-agent-runtimes-20260920.md#codex-parent-with-local-pi-workers) distinguishes direct Codex process-tool delegation (parent-owned work order and acceptance) from later CW-managed children (Host-owned attempt/grants/receipts). Native CLI output is not a native Codex subagent record or a CW receipt. Installed interface/version, isolated scope and explicit inference budget remain concrete execution facts; no new invocation or product implementation is claimed here.
+
+## 2026-09-20 · Multica lifecycle reference
+
+The [Multica ruling](architecture-node-2026-09-13/multica-consumption-20260920.md) consumes claim/wakeup/recovery and work-versus-run distinctions as inputs to the existing child contract. CW retains exact attempt/native identity, source/grant bindings and unknown-effect handling; heartbeat loss and retry eligibility do not prove that a previous effectful process stopped. Multica Issue transitions do not become CW formal work acceptance. Its broad Squad/Autopilot and daemon-fleet topology are deferred; the next child sample remains bounded and follows the authorized integration sequence.

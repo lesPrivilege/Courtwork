@@ -12,7 +12,7 @@
 
 施工记录：[00 接单基线与公共语言](00-intake.md)、[01 连接并读到真正的仓库](01-workspace-binding.md)、[02 写入必须是真实效果](02-candidate-write.md)、[03 从产品里执行检查](03-check-recipe.md)、[04 让真实长 Run 保持可读](04-run-surface.md)、[05 模型配置与 effort 的短路径](05-models-composer.md)、[06 能力管理必须被下一次运行真正消费](06-capability-consumption.md)、[07 命令与手动压缩](07-commands-compaction.md)、[08 facts 纵切与对象驱动右栏](08-presentation.md)、[09 返回轨迹与对象命令](09-navigation-commands.md)；编号外产品片：[P · Home 身份、问候与账户](p-home-identity.md)。后续每片在本目录追加记录并回写原 owner；[current](../../current.md) 只登记最新状态。
 
-独立登记的 PR 候选：[Live assistant text streaming](live-assistant-text-streaming-20260916.md)。它沿 Runtime→Host→transport→Chat projection→共享 Chat/Attention renderer 打通可见文本增量、恢复与最终消息收敛；实现顺序尚未指定，不改变下方 00–13 队列，也不代表开工、实现或接受。
+独立登记的 PR 候选：[GUI grammar convergence](gui-grammar-convergence-20260919.md)（G1–G4，吸收 Home zoning PR）；[Live assistant text streaming](live-assistant-text-streaming-20260916.md)。它沿 Runtime→Host→transport→Chat projection→共享 Chat/Attention renderer 打通可见文本增量、恢复与最终消息收敛；实现顺序尚未指定，不改变下方 00–13 队列，也不代表开工、实现或接受。
 
 ## 目录
 
@@ -256,6 +256,8 @@ OpenAI Agents 的 turn/session usage 保留独立口径和后补来源；累计�
 
 ### 12–13 · 产品探索与发布面
 
+2026-09-19 follow-up: the [Orchestra and composable Kit Pages registration](orchestra-pages-registration-20260919.md) belongs to slice 13. The bilingual README and its generation source are revised now; page narrative/design, new captures, and publishing remain later work. The 00–13 order and existing UI writers are unchanged.
+
 分别按后两节执行。先形成基础真实闭环，再做本单隔离 Prototype 和 campaign。它们可消费相同 renderer/词汇，但不反向改变已闭合的权限、正式状态和运行事实。
 
 ## 从前端反推后端的登记方式
@@ -384,6 +386,8 @@ node site/scripts/check-material.mjs
 2026-09-16 补核两项已登记体系中的官方行为依据：[WAI-ARIA Tabs Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/tabs/) 用于键盘/激活方式；[VS Code Contribution Points](https://code.visualstudio.com/api/references/contribution-points#contributes.menus) 用于菜单可见条件与命令 enablement 的区分。它们提供行为参照，不提供 CW 授权、后端状态或新的 UI 技术栈；本轮不宣称重新核验全部历史 donor。
 
 ## Claude 接单入口
+
+[Post-Claude integration intake](orchestra-start-node-20260919.md) defines the user's next “fresh node”. **The user has ruled: Claude serial construction → independently checked fresh node → merge → safe task-worktree cleanup → core R&D.** G1/G3 must not run concurrently; bounded Sonnet slices are serial handoffs under Claude's writer ownership. This preserves the existing queue and owners and creates no second Fresh development line. After the final report, accepted source and preserved-byte cleanup, the next core slice consumes remaining RD-006/DF-04/RD-009 gaps before Runtime/delegation follow-ups. Local merge and cleanup are authorized at that stage; push/deployment are separate.
 
 读取本包、[入口清理增补](frontend-entry-audit.md)、[右栏与轨迹增补](sidebar-trace-review.md)、[Agents API 技术方案](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)、AGENTS 与最新 current，先对账原 RD-006 在途树，再沿主队列与原 P03/P04/DRT-03 A–F 串行推进。每片只打开对应 owner、最近实现和必要 Explore/Design 来源；已有实现按实际证据复用，不从旧待办重建。
 

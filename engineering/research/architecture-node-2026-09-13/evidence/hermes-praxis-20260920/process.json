@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "hermes",
+    "-p",
+    "praxis",
+    "chat",
+    "--query-file",
+    "<task-directory>/query.txt",
+    "--oneshot",
+    "--format",
+    "stream-json",
+    "--toolsets",
+    "none",
+    "--max-turns",
+    "2",
+    "--run-budget",
+    "180",
+    "--in",
+    "<task-directory>"
+  ],
+  "started_at": "2026-09-19T16:12:24.414024+00:00",
+  "exit_code": 0,
+  "timed_out": false,
+  "elapsed_seconds": 32.587
+}

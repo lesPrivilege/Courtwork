@@ -1,5 +1,7 @@
 # Home layout zoning PR registration
 
+> **2026-09-19 · First sub-item of [GUI grammar convergence G1](gui-grammar-convergence-20260919.md#g1--home-zoning-and-state-adaptivity-absorbs-the-zoning-pr).** Re-ruled there on 2026-09-19: the no-overlay/absolute-anchor and disclosure-continuity clauses carry forward. The two-column Attention|Activity alignment clause and the band-chrome placement of `Show/Hide modules` are superseded. Do not implement this record separately.
+
 2026-09-19 · User-requested follow-up to product slice P. This is a registered PR contract only: no product code, screenshot baseline, implementation order, deployment or visual acceptance is claimed.
 
 ## Outcome and owner

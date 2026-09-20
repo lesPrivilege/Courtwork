@@ -217,3 +217,9 @@ Astra采用[自足架构节点](research/architecture-node-2026-09-13/README.md)
 ### DEC-014补充 · 可接续的工作场（2026-09-15）
 
 采用[产品方向](product-direction.md)与[本轮逐项裁决](release/product-node-2026-09-15/README.md)：下一节点公开声明从问题开始、连接材料或仓库、执行与检查、保留与接手。稳定产品角色、资源/执行/正式动作分责及经典交互语义先于局部选型；RD-006真实读写→DF-04/RD-009内部检查→原Chat/Presentation与Spark/continuity按同一路径消费。第二Runtime保持Agents API优先核验，不作为当前闭环前置；不另设架构层、路线或产品门。当前实现、权限、媒体及Paper pin不由宣言改写。
+
+### DEC-014 supplement · Local Agent Orchestra (2026-09-19)
+
+Adopt the [Local Agent Orchestra ruling](research/architecture-node-2026-09-13/orchestra-direction-20260919.md) as the current research direction: it continues the five layers and continuable workspace without adding a sixth Orchestra Core, second work ledger, shared transcript, or generic workflow engine. CW owns reference harness composition, Host admission/effect/recovery, capability/permission/version binding, cross-Runtime delegation, Provider diagnostics, Context, and result references; the Pi loop, existing Work/Core/Host owners, and existing RD numbers remain in use.
+
+Role, Kit, Agent Instance, ExpertDefinition/Instance, Runtime, Provider, Model, and Environment stay separate. ExpertDefinition is a versioned professional capability composition with a Work Contract, not an expensive/powerful/high-permission model; Agent Instance is the frozen role/Kit/runtime/provider/model/environment/grants binding. A Kit grants neither permission nor credentials nor formal acceptance. One Runtime family/version reuses one Adapter while instances keep independent session/config/permission/budget/Kit bindings. Local Pi/installed agents and Hosted Agents API share the minimum lifecycle obligations. Codex App Server remains a local candidate; the removed `codex mcp-server` recommendation is not adopted. This registration does not change current implementation or release status.

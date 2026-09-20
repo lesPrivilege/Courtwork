@@ -105,3 +105,21 @@ An independent Codex/Astra session reviewed author commits `53ab038` and `22b4bf
 | N-06 · repository schema pointer (`22b4bf6`) | Accepted. The owner document now names RuntimeStore schema 18 while preserving that binding arrived in 16 and the private candidate in 17; the focused 17→18 migration test passed |
 
 Additional independent checks: interaction lint passed; document links passed (1,396 documents, 7,888 links); `git diff --check` passed. The author had already run the same final tree's full suite (1209/1209) and smoke, so this pass selected risk-specific checks rather than repeating an unchanged full suite. No real provider, full visual matrix, 200% zoom, screen reader, release or deployment check was performed. N-02, N-03, N-05, N-07, N-09, N-11 and N-13 remain open.
+
+## N-11 follow-up — README source parity, 2026-09-19
+
+**Adopt / source correction:** during the user-authorized bilingual README and architecture revision, Astra synchronized `site/src/readme.mjs` to the English entry point, preserving `README.zh-CN.md` as its aligned Chinese counterpart. Exact generation parity, bilingual shell-block/link-target parity, and `node site/build.mjs` passed in the isolated candidate based on `72c91a2`. The previous failure above remains historical evidence. This resolves the source mismatch in the candidate with author build evidence; independent acceptance remains open. [Scope and Pages follow-up](orchestra-pages-registration-20260919.md). The page redesign remains deferred; no media pin, release, or deployment claim changes.
+
+## N-11 independent build verification · 2026-09-19
+
+Luna, not the correction author, verified the uncommitted candidate based on `72c91a2` in `courtwork-orchestra-direction-20260919`. `node site/build.mjs`, `node site/scripts/check-links.mjs` (188 files / 296 local references / zero problems), and `node site/scripts/check-material.mjs` (one sheet / zero problems) passed. `renderReadme()` equals the English README byte-for-byte; the two fenced code blocks match across languages, and their 43 link targets per edition match after excluding reciprocal language links. The build left tracked status/index unchanged and generated only ignored output.
+
+Verified source SHA-256 values:
+
+| Path | SHA-256 |
+|---|---|
+| `README.md` | `a82c2c171568f93e996b4fb49da15e383d6686d29d8fe5e012f18f7b2dd2898e` |
+| `README.zh-CN.md` | `e42aebb50aa8bdb53cdc0652f509d2943d1b092c8c2a13c735086e7ab14c51a4` |
+| `site/src/readme.mjs` | `07e49a2d2f71a2b05570ec00d308fc6b4f6ec65445cbb035acce69a9f5aa374f` |
+
+**Astra disposition — adopt:** N-11's README generation-source defect has independent build verification for these bytes. Source commit/integration is pending; no successful remote CI, browser visual, product, release or deployment acceptance is inferred. This supersedes the earlier pending-independent-review status only for this correction. N-13 remains open: Luna's metadata inventory confirms 43 untracked captures (8,838,547 bytes) plus 31 tracked files (8,963,446 bytes); no historical manifest explains 105 → 43 untracked files. See the [fresh-node intake](orchestra-start-node-20260919.md) for retained worktrees and handoff scope.

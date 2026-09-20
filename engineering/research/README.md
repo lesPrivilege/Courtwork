@@ -1,6 +1,12 @@
 # RD：研究与开发验证
 
+[Multica source consumption](architecture-node-2026-09-13/multica-consumption-20260920.md): pinned 2026-09-20 Luna exploration and Astra ruling for local CLI adapters, work/run identity, recovery and context injection. Reference under RD-001/005/009; source-only, no imported code or runtime acceptance.
+
 [UX、仓库治理与验证选择输入](ux-grammar-2026-09-14/README.md)：分版本会话、来源核查及Astra裁决。原始输入按需召回；日常入口是[UX Grammar](../design/ux-grammar.md)、[验证选择](../verification.md)与[材料归属](../../docs/repository-layout.md)。
+
+[Local Agent Orchestra direction](architecture-node-2026-09-13/orchestra-direction-20260919.md): Astra's 2026-09-19 ruling and Luna's implementation baseline continue the five-layer architecture, Pi dogfooding, the Agents API first new-runtime sample, and RD-001/005/006/009. This registration adds no parallel roadmap, Orchestra ledger, or product acceptance. See the [read-only source report](architecture-node-2026-09-13/explore/orchestra-implementation-20260919.md) and the [official hosted Codex correction](architecture-node-2026-09-13/explore/orchestra-openai-20260919.md).
+
+[Local Runtime integration and Settings ruling](architecture-node-2026-09-13/local-agent-runtimes-20260920.md): 2026-09-20 Astra consumption of Luna’s installed CLI inventory, primary-source integration precedents and CC Switch recall; bounded jobs versus managed sessions, upstream ownership, and Agents/Models/Developer responsibilities. Documentation only; existing runtime/child owners and construction order remain unchanged.
 
 [Court定位参考实践](court-position-2026-09-13/README.md)：2026-09-13，两轮/三消息及截图入账，Luna探索/选型快照、Astra补充DEC-014词汇与控制责任；缺口沿RD-005/007和义务闭环承接，未引入框架或新增Release门。
 

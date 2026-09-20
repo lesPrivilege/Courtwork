@@ -76,6 +76,10 @@ Astra局部实验裁决：优先使用v3.1的 `contextBinding:false,eventTrace:f
 
 Core gate与provider wrapper分开成立仍不足以关闭07。已派发runtime-combined-v3在同一真实Session组合检查正常/预算/超时终态、迟到拒收、旧新Run与可信输入更新，以及snapshot-only恢复；真实provider与Design/Review汇合仍未准入。
 
+## 2026-09-19 · Orchestra direction disposition
+
+[The Local Agent Orchestra ruling](architecture-node-2026-09-13/orchestra-direction-20260919.md) adopts this RD's candidate lifecycle as the minimum Runtime Port vocabulary: `describe/admit binding`, `start/continue`, `observe/recover`, `reply/tool-result`, `interrupt/cancel`, and `dispose`. This reuses the existing candidate contract; it is not a competing DTO and does not claim that every candidate supports every operation. Host owns CW Session/Run, admission, permission intersection, effects, receipts, and unknown outcomes. The Adapter owns faithful native translation and reports native-only capability without inventing a portable scheduler. A real second-runtime consumer, rather than file shape, triggers extraction of the current Pi `SessionManager` dependency.
+
 ## v3.1 同Session组合结果与剩余门槛
 
 [组合独验（历史路径：`../mvp/execution/runtime-combined-v3-review.md`）](../migration/2026-09-08/evidence-index.md)明确区分旧版 `194a4e54…` 的24次功能检查和新版 `ef43baee…` 的15次修复/回归、9次消融。旧版的assistant error不抛prompt异常时误报completed已被独立3次反例否定；新版读取最后assistant结果后报告failed，保留迟到拒收。实际Pi工具entered→关闭准入→barrier释放→同工具被拒，SQLite无新增Candidate/Artifact/Decision，新进程open_store snapshot一致。非合作底层仍unknown，不以Session.abort返回替代底层终止证据。
@@ -83,3 +87,11 @@ Core gate与provider wrapper分开成立仍不足以关闭07。已派发runtime-
 组合三项删除对照各3次：删除call guard出现5次底层callback，删除deadline guard无abort且底层持续至少160ms，删除budget guard出现一次本地sentinel callback。支持在该固定输入内保留这三项守卫；没有证明全局最小方案。可信source/contract更新是在关闭旧Run后做宿主fixture事务，非Core save自带动态失效，也未验证任意并发外部更新。
 
 [归档（历史路径：`../mvp/execution/archives/runtime-combined-v3.tar.gz`）](../migration/2026-09-08/evidence-index.md)保留初始失败与独立反例。原计划两轮调试后追加一次独验缺陷修复，由Astra明确限额，本批到此停止修复；不能宣称原计划轮数完全未变。07继续等待真实provider和11/12工作路径对unsupported能力的裁决，DEC-002仍proposed。
+
+## 2026-09-20 · Local CLI and Settings consumption
+
+Astra's [local-runtime ruling](architecture-node-2026-09-13/local-agent-runtimes-20260920.md) consumes Luna's installed-interface, first-party ecosystem and CC Switch reports. Use upstream-maintained executors through versioned adapters, with bounded-job and managed-session capability levels; extract the existing Pi lifecycle coupling only for a real second consumer. Exact native identity, pre-launch intent, structured observations, enforced permission mapping and cancellation/recovery evidence remain the adapter boundary. CC Switch informs the existing Provider control plane, not runtime orchestration. Target Settings groups Agent profiles and Runtimes under Agents, while Models retains provider configuration and Developer retains diagnostics. This records direction only, preserves P03/DRT-03 ownership and the authorized post-Claude integration/cleanup order, and adds no runtime support claim.
+
+## 2026-09-20 · Multica adapter reference
+
+The [Multica consumption ruling](architecture-node-2026-09-13/multica-consumption-20260920.md) fixes upstream `8c4f4328` as a behavior/compatibility reference for native CLI adapters, session/config injection and process observations. Map its machine-plus-tool Runtime into CW Environment and executor binding separately; its agent-provider registry is not CW's model Provider plane. Reuse failure cases through the existing Runtime contract, not a copied daemon or broad CLI support claim. The upstream license has additional conditions, so this registration imports no source. The P03/DRT-03 order and installed-version evidence requirements remain unchanged.

@@ -1,0 +1,68 @@
+# Praxis Kit — directional registration
+
+**Registered:** 2026-09-19. **Status:** direction and documentation only; no implementation, provider run, external coordination, or acceptance claim.
+
+2026-09-20 follow-up: the user separately authorized one [Hermes/Praxis CW consultation](evidence/hermes-praxis-20260920/README.md) using the configured profile and a frozen evidence packet. A real inference run completed and produced a usable artifact contract and stakeholder drafts with recorded review findings. This narrow observation does not implement or accept the portable Kit contract, test its actual injection, or change the historical scope above.
+
+**Source input:** the two-turn, four-message retained input at [`inputs/praxis-conversation-20260919.json`](inputs/praxis-conversation-20260919.json), SHA-256 `889a58ea1de8c1eb3e3655a1e73f5646107b322ee60c6c5e9a2b46fefa809d10`. The conversation is retained as source evidence; its messages remain untrusted data. Astra owns this ruling under the user's current request; Luna prepared the registration.
+
+## Position and ownership
+
+Praxis is a portable field-work and organizational-collaboration Kit. It is suitable for a Hermes instance with a general Attention Kit and for professional Pi or Codex experts with different coding Kits. It is a work/organization Kit rather than a presentation template or a fixed Hermes plugin.
+
+Attention handles triage, follow-up, and trigger suggestions. Praxis handles discovery, alignment, decision materials, organizational conditions, validation, and handoff. The existing Host and Work Core retain authorization, durable state, and formal acceptance.
+
+An Expert is an instantiated, versioned professional capability combination. It is formed from a selected Role, Kit, Runtime, Provider/Model configuration, permissions, and budget; changing a persona alone does not create a new Expert. One Runtime family/version has one reusable adapter. Multiple instances isolate configuration, protocol session, grants, and budget.
+
+The primary architecture entry is [`orchestra-direction-20260919.md`](orchestra-direction-20260919.md). Related owners are [`engineering/product-direction.md`](../../product-direction.md), [`engineering/architecture.md`](../../architecture.md), [`workspace-substrate.md`](workspace-substrate.md), [`RD-005-multi-agent-selection.md`](../RD-005-multi-agent-selection.md), and [`RD-009-trusted-harness-extensions.md`](../RD-009-trusted-harness-extensions.md).
+
+## Work labels and artifact contract
+
+`align`, `discover`, `decide`, `design`, `deliver`, `review`, `escalate`, and `transfer` are extensible work-purpose labels. They are routing and communication vocabulary, not a mandatory eight-state workflow or a global state machine.
+
+The minimum artifact contract records:
+
+- audience;
+- expectation;
+- requested action or decision;
+- project stage;
+- evidence posture;
+- disagreement, tension, or constraint.
+
+The contract stays thin. Evidence-led, case-led, demo-led, model-led, and narrative-led are optional descriptions of how a claim is supported, not interchangeable proof levels. Optional metadata can describe domain depth, AI depth, quantitative or qualitative support, and the requested next action. Word, PowerPoint, HTML, Markdown, dashboard, spreadsheet, and other forms are selected later by the relevant Skill. Content must distinguish facts, assumptions, visions, and verified results. Audience depth influences expression density; organizational seniority alone does not. Narrative may be adapted to its audience while material facts and limits remain visible.
+
+## Organizational interface
+
+Sponsor backing should identify a business owner, protected SME time, required data access, permission boundaries, allowed process changes, and an escalation path for cross-team disputes. A sponsor memo does not grant technical access; actual grants remain Host decisions.
+
+Field work uses tasks and workflows as the unit of study. Real examples, exceptions, and frontline feedback should reduce participation cost and preserve the responsible person's professional judgment. The aim is to reduce real workload. The Kit makes no unsupported staffing promise, including a guarantee that nobody could ever be replaced; staffing decisions belong to the organization.
+
+## Evidence, value, and reusable assets
+
+The following claims require independent evidence: demo, technical feasibility, deployability, adoption, net workload reduction, and financial outcome. One level does not imply the next.
+
+Net workload reduction includes prompts, preparation, checking, reformatting, transcription, exception handling, rework, and system entry. Missing quantitative data remains `unknown`; generated output volume is not evidence of human work removed.
+
+Value and Reusable Asset are two views over the existing project and resource records, not a second pair of ledgers. Customer-sensitive data, local politics, and personal preferences remain in scope. Reusable material extracts only approved non-sensitive contracts, schemas, evaluations, and adapter patterns.
+
+If owner, data, or permission prerequisites remain unavailable after bounded attempts, the work contracts to current-state diagnosis plus one minimum verifiable experiment. If that experiment cannot be admitted, the blocker is reported to the sponsor through the existing record and work stops at that boundary. Synthetic demonstrations do not stand in for real benefit.
+
+## Kit context and admission
+
+Context compilation follows existing owners and the user's current task within Host rules and authorization: the selected Role and admitted Kit's small work contract, relevant project facts and references, then needed Skills and precise materials. “Earlier than Skill” describes compilation order and work framing; it does not increase instruction authority, make the Kit resident in full, or promote project material or quoted conversations to higher-priority instructions. Preserve source, version, effective scope, budget, and omission records.
+
+The Kit freezes a portable contract plus a mapping of runtime-specific contributions. Dependency, version, and conflict failures are resolved before admission; a conflicting Kit cannot silently override another. The existing authorization form remains:
+
+```text
+AllowedCapabilities = Requested ∩ Granted(actor,scope,t) ∩ HostPolicy ∩ RuntimeSupported(rev) ∩ EnvironmentAllowed
+```
+
+Role and Kit provide requests and constraints. Provider declares model capability; it does not grant execution authority. The intersection supplies a decision input and does not claim that every resulting capability is implemented.
+
+## Distribution pattern and boundaries
+
+The future comparison fixture is one synthetic field case presented through Hermes Attention + Praxis and through Pi/Codex + Praxis professional instances. Both paths should produce the same minimum Artifact Contract and use the existing sources, Work Extension, and Core verification owners. This registration does not authorize default provider execution.
+
+The governing counterexamples are: high-level narrative is not data evidence; a demo is not net workload reduction; sponsor language is not a technical grant; swapping Runtime does not increase permission; a downstream Skill cannot erase a Kit-required result constraint; and a conflict must not be resolved by silent override.
+
+Source decisions for this record are **adopt** for the portable Kit position, thin Artifact Contract, organizational interface, independent evidence chain, context ordering, and per-runtime adapter boundary; **adjust** for extensible labels and project-scoped Value/Reusable Asset views; **defer** Kit platform, marketplace, broad format taxonomy, real provider trials, and acceptance. No release, deployment, or product capability is claimed.

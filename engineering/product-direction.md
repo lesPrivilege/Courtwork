@@ -2,6 +2,12 @@
 
 2026-09-15 · Astra裁定；原稿与处置见[消费记录](release/product-node-2026-09-15/README.md)。本文规定下一实现节点的产品合同与稳定语义，承接[五层架构](research/architecture-node-2026-09-13/architecture.md)与[Workspace Substrate](research/architecture-node-2026-09-13/workspace-substrate.md)。
 
+## 2026-09-19 · Orchestra composition direction
+
+[The Local Agent Orchestra registration](research/architecture-node-2026-09-13/orchestra-direction-20260919.md) connects product roles to execution compositions without changing Work, Host, Core, or Composer ownership. Role is intent; Kit is an admitted instruction/source/work-contract/verification composition; Agent Instance is the frozen `Role + Kit + Runtime + Provider/Model where supported + Environment + grants + revisions` binding; ExpertDefinition remains a versioned professional capability composition with a Work Contract, while ExpertInstance is the binding that satisfies it. A lightweight profile is not an accepted Expert loop.
+
+Hermes + a general Attention Kit + Praxis and Pi/Codex + coding Kits are target compositions, not installed or accepted capabilities. Kit precedes on-demand Skill in Context compilation under Host rules and the current task, but does not raise authority, carry credentials, or turn materials into instructions; use the existing Context Compiler/activation/resource resolver. Each Runtime family/version reuses one Adapter; instances keep separate Session/config/permission/budget/Kit bindings. An Expert does not fork a wrapper, and shared process execution is not required. Composer continues to obey the existing Models card's `All chats · future runs`, `expectedVersion`, and active-Run freeze. A future role-first selection must resolve and freeze the binding before Run admission. Later Pages registration is recorded in [the authorized plan](execution/claude-frontend-harness-2026-09-16/orchestra-pages-registration-20260919.md).
+
 ## 从工作出发
 
 CourtWork 为人和 Agent 提供共同的工作现场。材料、成果、版本、决定与未完事项共同构成工作关系；材料字节与正式效力仍由各自责任方持有。模型、执行器与任务角色围绕它参与。工作的连续性来自可理解、可寻址、可继续的记录，而不是某个 Agent 持有全部历史。
@@ -83,3 +89,7 @@ Expert 组织领域结构、工作契约、能力需求、验证方法与 Review
 第二 Runtime、独立 Spark Provider、完整 Memory Broker、更多图表和专业扩展按独立消费者推进。[Agents API](research/agents-api-first-2026-09-14/README.md)保持第二执行组合的优先核验候选；当前 Pi dogfooding 沿原任务继续。Swarm、全量后台维护、破坏性自动清理、通用云端调度与任意界面代码生成不加入这个节点的完成条件。
 
 [施工分流](release/product-node-2026-09-15/README.md)连接原有任务与验证；[current](current.md)继续维护实际工程状态。
+
+## 2026-09-20 · Understandable agent configuration
+
+An experienced agent user should understand and use CW after a brief introduction to its purpose. The everyday explanation is: choose an agent for the work, apply a Kit when useful, execute through a connected Runtime/model within granted scope, inspect the result and continue. Use upstream Pi consistently and preserve existing underlying IDs. Expert composition need not become another setup stage. Composer, Settings, README and Pages use the same object names and actual configuration scope; the [presentation contract](research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#comprehension-presentation-and-document-ownership) records ownership and task-based comprehension checks. Multica is a reference for organized architecture, documentation and UI relationships. This target does not claim a completed onboarding or usability test.

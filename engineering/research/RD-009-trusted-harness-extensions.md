@@ -36,3 +36,13 @@ Pi 0.85.1继续持有模型/工具loop与原生会话，Host service持有准入
 ## 2026-09-16 · DF-04 首个 recipe 已接线（Claude 施工单 03）
 
 按上文合同实现并登记于[03 记录](../execution/claude-frontend-harness-2026-09-16/03-check-recipe.md)与[实现合同](../../app/docs/check-recipes.md)。裁定要点：recipe 只在 Session 的私有 candidate 内执行，用户目录与托管 workspace 从不作为 cwd；catalog 固定于代码（node-test v1），模型只传 recipeId；`check_run` 在 read_only 下 deny、其余一律 ask，批准卡陈述实际命令、位置、时限、输出上限与最小环境；执行为 detached 进程组、shell:false、仅 PATH/临时 HOME/LANG；Host 以 `check.started` / `check.settled` 事件自行结算，取消只在进程组退出后落 cancelled，重启后未结算记 unknown 且不重放。作者证据：Host 定向 66/66，浏览器在同一 candidate 内走通 Exit 1 → 精确批准修复 → Exit 0。未做：Settings/Runtime 的 recipe 入口、真实模型从 GUI 发起、非作者复核；普通子进程仍不称 sandbox。
+
+## 2026-09-19 · Orchestra direction disposition
+
+The [Orchestra direction](architecture-node-2026-09-13/orchestra-direction-20260919.md) keeps ordinary Extensions behind this RD's explicit trusted registry, activation, policy, and evidence boundaries. The reference harness is Host governance composed around the locked Pi loop; it does not first become a universal plugin SDK, marketplace, hot-swap ABI, or second event/acceptance ledger. A Kit may place a small manifest/core constraint before task-relevant fragments and on-demand Skills in Context compilation, but it does not carry credentials, grant permissions, or execute Hermes/Pi/Codex-specific behavior without the relevant Adapter/Extension.
+
+The first consumer remains the existing DF-04 path: real CW GUI read → edit → fixed Host check → exact result/artifact references → interrupt/reopen. Existing synthetic recipe evidence stays synthetic, and the real-model/non-author gates remain open. Browser, computer use, swarm, and broad third-party installation stay deferred until a concrete consumer and isolation contract exist.
+
+## 2026-09-20 · Multica context-injection reference
+
+The [Multica ruling](architecture-node-2026-09-13/multica-consumption-20260920.md) treats runtime-specific instructions/skills/MCP injection and preservation of native configuration as adapter/extension compatibility references. A managed marker is a file-update convention, not a trust or permission boundary. Any CW implementation must keep admitted content hashes/revisions, preserve unrelated bytes and surface conflicts; injected instructions cannot bypass Host grants. This is a future reference under existing owners, not a portable Kit ABI, source import or additional implementation slice.

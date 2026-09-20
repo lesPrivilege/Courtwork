@@ -48,6 +48,27 @@ Experts organize responsibilities, capability requirements, and verification req
 
 [Product direction and functional semantics](engineering/product-direction.md) defines the stable responsibilities and continuity relationships in this workflow.
 
+## Development direction: a local agent orchestra
+
+CourtWork's next development stage combines a Harness Core and Extensions built on upstream Pi with replaceable local and hosted agent runtimes. The immediate milestone is a real read–edit–check workflow with inspectable results and recovery after interruption. Runtime replacement and bounded delegation build on that working foundation.
+
+**Choose an agent for the job.** Its Role describes what it does; a Kit adds working methods and expected results. A Runtime such as Pi executes the task with an available provider/model connection and permitted tools. An Expert is an agent prepared with professional Kits. Agents can share a runtime adapter while keeping their sessions, settings, permissions, and budgets separate.
+
+The intended interface puts the agent's role first and model choices close at hand. Settings groups agent profiles and runtime connections under Agents, while Models manages provider connections. Setup should need only a brief product introduction for an experienced agent user; paths, protocols, and diagnostics appear when needed. This is the target structure, not the current support matrix.
+
+Examples of the intended composition are Hermes with an Attention Kit and Praxis for field work, or Pi/Codex with frontend, backend, or migration Kits for specialized coding. Praxis organizes discovery, organizational cooperation, decision materials, and evidence of useful outcomes. Document, presentation, and coding Skills provide task-specific methods within the chosen Kit's work contract. Context compilation establishes that contract before loading relevant Skills; it selects material by task and preserves its authority and provenance.
+
+The implementation sequence follows the existing work records:
+
+1. Complete Pi dogfooding and the controlled Extensions needed to read, edit, check, and continue real work.
+2. Validate the Runtime boundary with the existing OpenAI Agents API sample; add installed-agent adapters through the same lifecycle and permission contracts.
+3. Support bounded delegation across runtimes while preserving each runtime's native child ownership and exact result references.
+4. Connect role-first Composer configuration, independent Spark execution profiles, and Hermes/Praxis Attention work. Browser, computer-use, and swarm capabilities follow concrete demand.
+
+Kits declare requirements; Host policy and current grants determine executable permissions. Formal work decisions remain with Work Core. Portable Kit content and runtime-specific integrations are versioned separately. The current source preview still uses the pinned Pi stack; the Agents API lane remains unavailable pending its integration and runtime checks. The compositions above guide development.
+
+[Architecture ruling and owner mapping](engineering/research/architecture-node-2026-09-13/orchestra-direction-20260919.md) · [Praxis Kit direction](engineering/research/architecture-node-2026-09-13/praxis-kit-20260919.md)
+
 ## Connecting capabilities
 
 Harness Extensions organize composable capabilities for computer work: files, commands, retrieval, vision, and collaboration. Developer scenarios test this integration through repository understanding, file changes, result checks, and task continuity. Coding is a validation scenario; the product can serve other kinds of work. Extensions prioritize reuse of the open ecosystem, with explicit configuration, permissions, run records, and interface integration.

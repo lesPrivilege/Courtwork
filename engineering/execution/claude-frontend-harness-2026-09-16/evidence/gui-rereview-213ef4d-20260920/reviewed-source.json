@@ -1,0 +1,15 @@
+{
+  "candidate": "213ef4d55073996cb25cd717dc2905e775d6f560",
+  "scope": "Hashes of committed bytes inspected at review time; not contemporaneous capture provenance and not a claim that each script was executed in exactly this form.",
+  "files": {
+    "app/web/app.mjs": "61750c356f69ae2730f82da5c37713b56a4ec3c977965dd0cc7106882d7158c0",
+    "app/web/home-view.mjs": "63c471a25946397e43e097d0e4006b03057fe7b1719a14db89e7ba1e5be92222",
+    "app/runtime/fake-provider.mjs": "859968c740b99893e125549ee5d2c47327fda3ce589b8020c5f2e0d32b593804",
+    "tools/lint-spacing.mjs": "bb40c468925bd8a304defcf8b8fd0c3a25fa2c03c611bdf27fd3b1d89ec9ffe2",
+    "evidence/gui-grammar-20260920/capture.mjs": "adf9214315a45c195c1985d973395ecf1442314d28f82d80ff02c4d1730fb888",
+    "evidence/gui-grammar-20260920/capture-fixture-cells.mjs": "59be12e91c8bc13b43294c9db2fe73cf816859e62bdb9b2e2c3eceafcd715880",
+    "evidence/gui-grammar-20260920/capture-single-run-burst.mjs": "cbfa64a1d1c102ae204df78a9e2ed3526ee0f1eb99d34523e6756a1bb36395d7",
+    "evidence/gui-grammar-20260920/manifest.json": "e770fc188bff59e21f82d296d3f39c8a01e027c150d27635fdd9272ee5d008a5",
+    "evidence/gui-grammar-20260920/chat-burst-single-run-1440-light.png": "d188c7648b27d77307589e8888fbe57a5fa39502b15692d0af07554bc9532c12"
+  }
+}

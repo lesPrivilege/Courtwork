@@ -1,0 +1,49 @@
+Understood. The key point I must not paper over: the 100 successes were spread across five runs (1/32/32/32/3), because the local provider caps a script at 32 calls per run. No single run reached 100, and no artifact was produced since the write was left pending.
+
+Two things follow. First, a single run *can* hold a failure, an approved write (artifact) and a pending approval together, which is exactly what your receipt requires, so I'll capture that. Second, ≥100 events in one run is not reachable with this provider, and I won't edit product code to manufacture it. Checking the link count, then continuing the capture:
+
+All four unresolved links point at review records that exist only in the main checkout, as noted. Now the single-run composite cell:
+
+I've sent the capture agent back for one more cell: a single run containing all four facts at once — successful calls, one real failure, an approved write that produces an artifact, and a final write left pending — plus the reading position across a reload.
+
+On your receipt requirement, stated plainly:
+
+- **Actual events:** 102 tool rows in one session across 6 runs. 100 successful, grouped into five Execution disclosures of 1/32/32/32/3.
+- **Per-run maximum is 32** scripted calls, which is the local provider's own cap. So the 100 is a *session-level* burst, not a single run. A single run with ≥100 tool events is **not executed** in a browser, and `event-weight.test.mjs` remains its only coverage. I will not edit the provider to raise the cap just to produce evidence.
+- **Artifact:** none yet. The write was deliberately left pending, so nothing was written. The new cell fixes this by approving one write and leaving a second pending.
+- **Reading position:** scrollTop, first visible row and session id were identical before and after a real reload; the new cell records the same facts for the single-run case.
+- **Native 200% zoom, forced colors, screen reader, Usage, markdown reader and long-content Chat** stay unexecuted per your earlier ruling, and are now recorded in both the README and the manifest.
+
+I also corrected one claim from the capture: it reported that a second Home send "silently" drops the run. It doesn't. That path sets an explicit message ("The chat was created; your instruction has not been sent. Return Home to continue."). It's pre-existing and untouched by this branch, so it's recorded as a finding for the Home composer owner rather than fixed here.
+
+Code fixes for the first two items are done: the focus fallback now ends at the block itself and finally the composer, and `var(--space-7, 7px)` is rejected because a fallback is checked by the same scale. Suite is 1223/1223 with all lints passing, held as author evidence. I'll commit once the last cell lands, then hand the remaining differences to Luna.
+
+The single-run cell is complete. Verifying it before I commit:
+
+Verifying the single-run capture visually before recording it:
+
+The capture shows all four facts in one run: a grouped "Execution · 26 successful tool actions", the failed `ws_read` in danger red, the artifact row, and the pending approval card — the failure, artifact and approval all outside the disclosure. Recording the exact facts and committing:
+
+Serial closure is committed as `213ef4d`. Only the difference against `3413978` needs re-review. Suite 1223/1223, all lints pass, tree clean.
+
+**The three items**
+
+1. **F-04 focus fallback.** The ruled filter continuity is kept. The chain is now: the set's own "Show all" → that block's first row → the block itself (`tabindex="-1"`, so it catches focus without joining the tab sequence) → any Home row → the composer. Focus can't fall out of the page, with a test for the emptied-list case.
+2. **Lint.** `var(--space-7, 7px)` is rejected. A fallback is the value the declaration actually uses, so it's checked by the same scale; a token or hairline fallback still passes. The earlier test that asserted the opposite contract was rewritten.
+3. **G4.** Both cells are executed for real, and the packet states its true provenance.
+
+**The receipt facts you asked for**
+
+- **Session-level burst:** 102 tool rows across six runs; 100 successes in five disclosures (1/32/32/32/3).
+- **Single run** (`4f1aa25a`, session `816dc884`), one script of 28 calls:
+  - 26 successes in **one** disclosure ("26 successful tool actions", 27 members counting the resolved approval);
+  - 1 failure — `ws_read` on a missing path, real ENOENT, shown outside the disclosure;
+  - 1 artifact — `out/single-run-artifact.txt`, 59 B, sha256 `4fef558a3a21…`, a "Recorded version" row outside the disclosure;
+  - 1 pending approval — "Approve this file write?" for `out/single-run-pending.txt`, outside the disclosure;
+  - reload: scrollTop 0, same first visible row, same session id, with the artifact and pending card still present.
+- **The 32-call cap is not evidence of ≥100.** I've stated it plainly: a single run with ≥100 tool events stays **unexecuted** in a browser, with the unit fixture as its only coverage. It's recorded in the packet's not-executed table and in the manifest. I didn't touch `fake-provider.mjs` to raise the cap.
+- **Native 200% zoom, forced colors, screen reader, Usage, markdown reader and long-content Chat** remain unexecuted per your earlier ruling, in both the README and the manifest.
+
+**Two small corrections I made to the capture agent's output:** machine-specific scratch paths were replaced with portable defaults in the scripts and the manifest, and its claim that a second Home send "silently" drops the run was corrected — that path sets an explicit message, is untouched by this branch, and is recorded as a finding for the Home composer owner.
+
+The four unresolved doc links are all review records that exist only in the main checkout; they resolve once merged. Nothing is merged, no worktree is cleaned up, and core R&D hasn't started.

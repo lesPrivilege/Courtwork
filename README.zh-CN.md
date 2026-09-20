@@ -48,6 +48,27 @@ Expert 用专业工作契约组织责任、能力需求与验证要求。这些�
 
 [产品形态与功能语义](engineering/product-direction.md)说明这条工作流的稳定职责与接续关系。
 
+## 研发方向：本地 Agent Orchestra
+
+CourtWork 下一阶段基于上游 Pi 补齐 Harness Core 与 Extensions，并接入可替换的本地及托管 Agent Runtime。近期节点是一条真实的读—改—测工作流，成果可检查，中断后可恢复；Runtime 替换与有界委派在这个基础上推进。
+
+**按工作选择 Agent。** Role 说明它的职责，Kit 补充工作方法与预期成果；Pi 等 Runtime 使用可用的 Provider/Model 连接和获准工具执行任务。Expert 是配备专业 Kit 的 Agent。多个 Agent 可以复用 Runtime Adapter，同时分别保有会话、配置、权限和预算。
+
+目标界面优先呈现 Agent 的职责，模型选择就在附近。Settings 的 Agents 分组管理 Agent 配置与 Runtime 连接，Models 管理 Provider 连接。资深 Agent 用户经过简短的产品介绍即可理解和配置；路径、协议与诊断按需展开。这是目标结构，当前支持范围仍以实际实现为准。
+
+目标组合包括 Hermes 挂载 Attention Kit 与 Praxis 处理驻场工作，以及 Pi/Codex 挂载前端、后端或迁移 Kit 形成专项 coding 能力。Praxis 组织业务发现、组织协作、决策材料与实际效果证据；文档、演示和 coding Skill 在选定 Kit 的工作契约内提供局部方法。Context 编译先确定这份契约，再按需加载 Skill，并按任务选择材料、保留其权限层级与出处。
+
+实施顺序沿现有工单推进：
+
+1. 补齐 Pi dogfooding，以及真实读、改、测和接续所需的受控 Extensions。
+2. 通过已有 OpenAI Agents API 样板验证 Runtime 边界；本地已安装 Agent 的 Adapter 沿同一生命周期与权限合同接入。
+3. 支持跨 Runtime 的有界委派，保留各 Runtime 原生子任务的管理归属及精确结果引用。
+4. 接入 Role 优先的 Composer 配置、Spark 独立执行配置及 Hermes/Praxis Attention 工作；browser、computer use、swarm 随具体需求后续展开。
+
+Kit 声明需求，Host 策略与当前授权决定实际可执行权限；正式工作决定继续由 Work Core 持有。可移植 Kit 内容与 Runtime 专属接入分别版本化。当前源码预览仍使用固定 Pi 组合，Agents API 路径在完成接线与 Runtime 验证前保持不可用；上述组合用于指引研发。
+
+[架构裁决与责任映射](engineering/research/architecture-node-2026-09-13/orchestra-direction-20260919.md) · [Praxis Kit 方向](engineering/research/architecture-node-2026-09-13/praxis-kit-20260919.md)
+
 ## 能力如何接入
 
 Harness Extensions 面向电脑工作环境，围绕文件、命令、检索、视觉与协作组织可组合的能力。开发者场景以理解仓库、修改文件、检查结果和接续任务来检验这套接入体例；coding 是验证场景，产品可以继续服务其他工作。扩展优先复用开放生态，以明确的配置、权限、运行记录和界面接入。
