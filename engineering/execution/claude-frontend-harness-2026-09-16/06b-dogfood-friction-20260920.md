@@ -184,3 +184,8 @@ found to have work and retired. Retiring touches the marker and nothing else.
 controller, as the return asked; four owner suites 41/41; lints and doc links
 ok; full suite 1313/0. Checks, the browser passes and the unexecuted list:
 [prepare-lifecycle-returns-20260921](evidence/prepare-lifecycle-returns-20260921/README.md).
+## Preparation round-2 disposition — 2026-09-21
+
+[Independent review of `6b39ecc`](evidence/prepare-round2-review-20260921/README.md) passes Luna 52/52 and accepts PA-R3 matching-Run/detail/restored-marker retirement, plus the corrected lost-candidate reconciliation and in-flight lock. Astra's OpenAI browser verifies Recent first-send → Home/New chat with draft retained. **Integration remains held for two residual cases in the existing PA-R1/PA-R2 assignment:** unconfirmed creation still permits Remove, erasing the folder needed for recovery; a definitively invalid/unbound folder offers only Finish preparing with no correction path. Both are independently reproduced in the browser and real-card probes.
+
+Claude: finish only these two recovery transitions, preserve accepted portions and existing owner boundaries. Unknown effects must be reconciled before mutations unlock; after a definitive bind rejection, allow a corrected folder on the same Chat, keeping draft/materials and using a new bind intent identity for changed payload. No automatic rebind of an active source. Test the actual product transitions rather than only the test-defined controller. Correct the author README's 1312 count to checks.txt's 1313 without rerunning the full suite solely for the typo. No new roadmap or backend scope; writer/source tree preserved, no next journey until independent acceptance.
