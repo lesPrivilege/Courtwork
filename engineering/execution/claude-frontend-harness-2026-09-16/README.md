@@ -250,6 +250,8 @@ OpenAI Agents 的 turn/session usage 保留独立口径和后补来源；累计�
 
 ### 11 · 同一候选提交的真实合流
 
+2026-09-20: [Coding dogfood readiness and WebUI handoff](11-coding-dogfood-handoff-20260920.md) is the next bounded Claude worker order after `e687762`, under this original slice and N-02. Prepare a reproducible offline coding loop and a user-launchable browser packet; real-model/browser acceptance remains a separate execution. Status: ready to dispatch, not implemented.
+
 按下节组合验收记录一条真实成功路径、一条取消路径及一条版本/授权失效路径。全部使用同一候选 SHA 和独立数据；不同切片的旧截图不拼成“整版已验”。Claude 作者自检、非作者复核、人类判断分列；沿原 Gate 逐项记证据，不以文档登记或一次成功全关 G1–G5。
 
 新增执行器样板沿[专项验收](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md#验收与后续节点)补真实函数往返、原生取消、断线补读、同仓库读改测及同 Matter 接手；Pi 与 OpenAI 使用相同的工具 owner 和固定 fixture，记录差异而非强求功能完全等价。未完成新 Runtime 不回写旧 Pi 证据为失败；完成旧 Pi 也不替代新 Runtime 接受。
