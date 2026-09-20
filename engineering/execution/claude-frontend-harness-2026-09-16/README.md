@@ -409,3 +409,5 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 2026-09-20 · [06b independently accepted](evidence/coding-start-friction-review-20260920/README.md), merged at `f5b3752`; both ended source trees preserved and removed. Next serial frontend scope: explicit prepare-before-inference and recorded candidate identity in approval details, per [Astra's exploration disposition](06b-dogfood-friction-20260920.md#astra-exploration-disposition--2026-09-20). Tool-argument capture remains a deferred Runtime/Host contract.
 
 2026-09-20 · [Preparation/approval independent review](evidence/prepare-and-approval-review-20260920/README.md): candidate `afc9f31` held for Claude PA-R1–R3 UI recovery/lifecycle corrections; successful preparation and historical approval projection retained. No next journey or product merge yet.
+
+2026-09-21 · [Preparation round-2 review](evidence/prepare-round2-review-20260921/README.md): PA-R3 accepted at `6b39ecc`; two original PA-R1/PA-R2 recovery cases remain with Claude. Hold integration and next journey.

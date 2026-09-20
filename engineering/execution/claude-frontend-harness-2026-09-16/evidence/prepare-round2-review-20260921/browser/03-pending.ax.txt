@@ -1,0 +1,28 @@
+Browser tab: 11, Title: "CourtWork", URL: "http://127.0.0.1:8922/#home".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 72-74, 76-89
+~						48 text entry area Message, Value: Round 2 Recent lifecycle, ID: composer-input
+~						49 pop up button (disabled, collapsed) Description: Attachments, Secondary Actions: Expand
+~						50 pop up button (disabled, collapsed) Description: Project, ID: home-project-button, Secondary Actions: Expand
+~						51 pop up button (disabled, collapsed, settable) Description: File access for this chat, Value: Ask before editing, ID: home-permission-input, Secondary Actions: Expand
+~						57 button (disabled) Description: Sending…, ID: send-button
++					72 text Preparing your chat…
++		73 heading Workspace, Value: 3
++			74 text Workspace
+~		75 button Close workspace card
++		76 container
++			77 definition list
++				78 container Folder
++					79 text Folder
++				80 text /tmp/cw-prepare-round2-astra-20260921/source
++				81 container Access
++					82 text Access
++				83 text Read only
++			84 text Preparing this chat. Its folder and private candidate are being created; nothing is sent.
++			85 button (disabled) Remove
++		86 container
++			87 heading EDITS, Value: 4
++				88 text EDITS
++			89 text Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written. Preparing this chat. Its folder and private candidate are being created; nothing is sent.
++			90 button (disabled) Sending…
+The focused UI element is 0 AXWebArea CourtWork, URL: 127.0.0.1:8922/#home

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-21 · Preparation round 2: lifecycle accepted, two recovery cases remain
+
+[Review of `6b39ecc`](execution/claude-frontend-harness-2026-09-16/evidence/prepare-round2-review-20260921/README.md) passes Luna 52/52; Astra's OpenAI browser confirms PA-R3 Recent first-send retirement and draft continuity. The original lost-candidate reconciliation and in-flight lock are retained. Integration remains held for PA-R2's unconfirmed Remove path and PA-R1's missing correction path after a definite invalid-folder rejection, both reproduced. Claude keeps these two finite corrections in the existing tree; no next journey begins. Main product bytes remain unchanged, author source/evidence retained, review services stopped, user 8787/8899 preserved; no real provider, push/deploy or cleanup deletion, heartbeat paused.
+
 ## 2026-09-20 · Preparation reviewed; three bounded Claude returns
 
 [Independent review of `afc9f31`](execution/claude-frontend-harness-2026-09-16/evidence/prepare-and-approval-review-20260920/README.md) passes Luna 56/56 and verifies normal zero-inference preparation plus historical approval identity in the OpenAI browser. Integration is held for three demonstrated UI lifecycle defects: lost-reply recovery leaves the persisted command path, pending preparation permits conflicting folder actions, and a first send through Recent leaves Home falsely unsent and New chat blocked. Claude keeps the finite PA-R1–R3 correction in the existing tree; approval disclosure and prepared-title decisions are retained. Main product baseline remains `962046d`; only review documentation is added. Candidate/evidence retained, synthetic review services stopped, user 8787/8899 untouched, no provider call or push/deploy; heartbeat paused.
