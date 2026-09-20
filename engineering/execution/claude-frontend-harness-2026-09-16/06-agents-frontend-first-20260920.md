@@ -1,6 +1,6 @@
 # 06 · Agents frontend first, with a replaceable backend adapter
 
-2026-09-20 · **Ready to dispatch after the slice 11 readiness handoff; no implementation claimed.** User-authorized frontend-first development. Claude: serial frontend author. Astra: architecture and integration. Luna: bounded precedent exploration and non-author verification. Backend remains with the existing Provider / Runtime Control / RD-001 / RD-005 / RD-009 owners.
+2026-09-20 · **First journey delivered at `0f76407`; bounded author correction pending before frontend acceptance and integration.** User-authorized frontend-first development. Claude: serial frontend author. Astra: architecture and integration. Luna: bounded precedent exploration and non-author verification. Backend remains with the existing Provider / Runtime Control / RD-001 / RD-005 / RD-009 owners.
 
 ## Outcome before components
 
@@ -73,3 +73,9 @@ After the first journey is accepted, continue under the same existing owners:
 2. **Role-first Composer:** consume the accepted Agent selection/profile contract, keep model choice nearby, and preserve task text/materials/focus when visiting Settings. Existing production global future-run model scope remains truthful until per-agent binding is implemented.
 
 These are subsequent bounded slices, not simultaneous writers or a request to rebuild Home/Chat. Browser/computer-use product capabilities, swarm, enterprise gateway and Pages redesign are outside this frontend order.
+
+## 06a independent disposition — 0f76407 — 2026-09-20
+
+Astra retains the Settings/Agent/Kit/Runtime direction and fixture-adapter boundary. [The independent review](evidence/agents-profile-review-20260920/README.md) records Luna's 16/16 seam tests, one full-suite summary of 1254/1254 (capture-wrapper error disclosed), static-route isolation checks and OpenAI computer-use verification including native Escape/focus return. Acceptance is held for two controller race invariants, Save focus recovery, an edit path when the runtime is unavailable, capability/permission explanations and ownership/revision wording. Claude owns the finite AP-R1–R6 return; no next runtime-management or Composer journey starts.
+
+Missing backend fields remain assigned to the existing owners; configuration-wide revision/active-run precedents do not establish a per-profile API. The isolated frontend is retained despite the author's disclosed sequence deviation. Order 11's delivered status is not the accepted stable readiness handoff; its correction remains independently reviewed under its original record. No product merge, production Settings exposure, provider call, cleanup or deployment occurred in this disposition.

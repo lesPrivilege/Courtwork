@@ -1,0 +1,47 @@
+- banner:
+  - paragraph: Interactive synthetic preview
+  - heading "Settings › Agents › Agent profiles" [level=1]
+  - paragraph: Every agent, Kit, runtime, version, model reading and permission effect on this page is synthetic. Nothing here reads your host, discovers an installation, contacts a provider or saves outside this tab. A confirmed revision below is confirmed by the preview only.
+- region "Preview state":
+  - text: Scenario
+  - combobox "Scenario":
+    - option "Normal"
+    - option "No agent profiles"
+    - option "Save fails"
+    - option "Saved elsewhere first"
+    - option "Pi unavailable" [selected]
+  - checkbox "Slow replies"
+  - text: Slow replies
+  - text: Appearance
+  - combobox "Appearance":
+    - option "Light"
+    - option "Dark" [selected]
+  - button "Reset preview"
+- generic: Settings group
+- combobox "Settings group":
+  - option "Agents" [selected]
+  - option "Models" [disabled]
+  - option "Tools & Integrations" [disabled]
+  - option "Permissions" [disabled]
+  - option "Developer" [disabled]
+- paragraph: Only Agent profiles is built in this preview. The other groups are the product's real ones and are not reachable from here.
+- tabpanel "Agents":
+  - heading "Agents" [level=3]
+  - heading "Agent profiles" [level=4]
+  - paragraph: An agent is a role with the Kits it works from and the runtime that executes it. Choosing one here changes future runs, not a run already in flight.
+  - text: Work
+  - generic: "Ordinary work: read what you connect, draft it, revise it."
+  - generic: General work · No Kit · Pi · unavailable
+  - button "Why is Pi unavailable?" [active]:
+    - generic: Why is Pi unavailable?
+  - text: Coding
+  - generic: Fix a defect in a connected repository, with approval before each edit.
+  - generic: "Coding · Kits: Coding review · Pi · unavailable"
+  - generic: A run is using revision 7 now.
+  - button "Why is Pi unavailable?":
+    - generic: Why is Pi unavailable?
+  - text: Attention
+  - generic: Triage what is waiting on you and prepare the material for the decision.
+  - generic: "Attention · Kits: Attention triage, Praxis, Coding review · Pi · unavailable"
+  - button "Why is Pi unavailable?":
+    - generic: Why is Pi unavailable?

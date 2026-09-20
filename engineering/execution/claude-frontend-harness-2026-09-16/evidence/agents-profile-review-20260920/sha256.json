@@ -1,0 +1,78 @@
+{
+  "README.md": {
+    "sha256": "fcbc9705dca2c6bd2cfe0257006ab87123a74973fd5b3d9123fcc14ff2b2b929",
+    "bytes": 11954
+  },
+  "author-checks.txt": {
+    "sha256": "af565d7e3049633cd07265bbf1276a0029ac4e24fcd831bac18bb1be1b190e88",
+    "bytes": 2207
+  },
+  "author-delivery.txt": {
+    "sha256": "525b81b6f8e2d98a9cc6751e7e4b04194aafc0cf7f31f73c9146ac736beff877",
+    "bytes": 16502
+  },
+  "browser/01-list.png": {
+    "sha256": "15a2a0694deedecf011a693d5da1add3fcacd7dfa66a9c9e0a13306d11ff71d9",
+    "bytes": 46219
+  },
+  "browser/02-profile-desktop.png": {
+    "sha256": "435750f6a7fc885b9dc6d7a6f845e874a443c0e1f452cbea459ea2f2ed480416",
+    "bytes": 58196
+  },
+  "browser/03-runtime-modal.png": {
+    "sha256": "94615d6c6ff67e52ea961c1eef0f248d7a5b3f14ffdb45d382035311707f6ec3",
+    "bytes": 49686
+  },
+  "browser/04-saved.png": {
+    "sha256": "e87720bd0ef9f8490b6319076b608473aa77b5c65c55400639eb3d4be5a2b7ff",
+    "bytes": 65428
+  },
+  "browser/05-save-failed.png": {
+    "sha256": "510166ae7a14e99fb5f8f1727bcfbb7ba0675ce9fcf0dbdb19d2466d5842b004",
+    "bytes": 58930
+  },
+  "browser/06-failure-receipt.png": {
+    "sha256": "78175d5a69716f361d3ec9f1521e07c004763e30dd0fd8502fadd22b5044096f",
+    "bytes": 64264
+  },
+  "browser/07-narrow-dark.png": {
+    "sha256": "c2850b676429f3417b4e00aad28bb8778ef87f30f1f85827df27a103f983e41f",
+    "bytes": 44222
+  },
+  "browser/08-unavailable-list.png": {
+    "sha256": "de227f6644ea8615bdcfdefd82ce9e3b692fbafd7798a039960914a3628ab774",
+    "bytes": 45785
+  },
+  "browser/09-unavailable-modal.png": {
+    "sha256": "b72b23f96fc5218733d36903107ee04280bc6a257d8a71178e78c5b38fb22cdc",
+    "bytes": 41760
+  },
+  "browser/failure-dom.txt": {
+    "sha256": "633af35fdb9f1dc98dbfdd9d71da399140e3f17d264c360b6b358908b0e07c10",
+    "bytes": 3657
+  },
+  "browser/observations.json": {
+    "sha256": "638fc4956f8d3daa877de362cd42a8386eedb8593d1647e20a6780ddae1b159f",
+    "bytes": 1921
+  },
+  "browser/unavailable-dom.txt": {
+    "sha256": "f4f9a9d5d74ebfd89b40135f550ef436efc08754c16a9ae816d549c339042610",
+    "bytes": 2220
+  },
+  "independent-full-suite.log": {
+    "sha256": "2a501ea4beeeedb18f196d023612bcbb41cc53686baa3b0cacc155fdc8ced32a",
+    "bytes": 136223
+  },
+  "luna-checks.md": {
+    "sha256": "6957e31bb660aa32d8582af3bdffdb6b0ba25d82077c9883da5848a0d7533973",
+    "bytes": 3812
+  },
+  "luna-controller.md": {
+    "sha256": "460836424c2187df0cdcab4444279fb86cbc4fa0119ff2c69d6ace7664f41fd2",
+    "bytes": 6276
+  },
+  "source-sha256.json": {
+    "sha256": "f1b54ff3472c338c9092a138a48dfec040aa5e676df3511e5fc139576b5b631f",
+    "bytes": 3018
+  }
+}

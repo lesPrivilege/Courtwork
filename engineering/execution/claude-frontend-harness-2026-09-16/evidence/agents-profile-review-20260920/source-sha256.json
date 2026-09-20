@@ -1,0 +1,68 @@
+{
+  "sourceCommit": "0f76407ac3f0fc7aa34585a003921e855c80820b",
+  "baseCommit": "95ed9cfb068300d154dca9643bf754beebe1d295",
+  "sources": {
+    "app/scripts/agent-profiles-preview.mjs": {
+      "sha256": "49bca4eadfb1499be5ec1eb09954ba094fda08e47f6150a2e53aef28b396539d",
+      "bytes": 2592
+    },
+    "app/server/index.mjs": {
+      "sha256": "5606e8d4f61476f7f4b261702b8fb15365412d11786e9f0f8a4894e4b3ed2d27",
+      "bytes": 31847
+    },
+    "app/tests/agent-profiles-specimen.test.mjs": {
+      "sha256": "c3a2a41632ba1cb9eba168ec51ceabbe3ef5c1ae030f5b4ad80a6c6f8f2d3214",
+      "bytes": 13315
+    },
+    "app/tests/fixtures/agent-profiles/adapter.mjs": {
+      "sha256": "6f3d071aad61eadc115e1bc4922b5dd724681296b4c7b7b60f40000432551470",
+      "bytes": 11790
+    },
+    "app/tests/fixtures/agent-profiles/index.html": {
+      "sha256": "402da0d06b19080a17fe67eacaf19f1c56df75d9026997e4cb9e9165789c273d",
+      "bytes": 4637
+    },
+    "app/tests/fixtures/agent-profiles/preview.mjs": {
+      "sha256": "829de98a54b7daddbc043bfc0d51fa9cfcd14693daf8222e6b5db3f650b93130",
+      "bytes": 1524
+    },
+    "app/tests/fixtures/agent-profiles/specimen.css": {
+      "sha256": "058eda0d75c01fcc1cb6d1313bbd28a1cf786fedfe6abf0ff4fa50e63fdc1abf",
+      "bytes": 1902
+    },
+    "app/web/agent-profiles-contract.d.ts": {
+      "sha256": "f7d9ea39456f8ff34e3287b3ee1621fe2729d6ce65adfdc094ffa7cbf5507bc6",
+      "bytes": 5940
+    },
+    "app/web/agent-profiles-view.mjs": {
+      "sha256": "e0ada78895d59d128c8808792130dfea1a59211ad0d9b61e8538990f8404d57c",
+      "bytes": 24693
+    },
+    "app/web/agent-profiles.mjs": {
+      "sha256": "19d4814d740221ead12ef2b0edb80f08a1138799d22ab744e0b2cd9a412b813b",
+      "bytes": 15125
+    },
+    "engineering/execution/claude-frontend-harness-2026-09-16/06a-agents-profile-journey-20260920.md": {
+      "sha256": "525b81b6f8e2d98a9cc6751e7e4b04194aafc0cf7f31f73c9146ac736beff877",
+      "bytes": 16502
+    },
+    "engineering/execution/claude-frontend-harness-2026-09-16/README.md": {
+      "sha256": "04443e8e4c4ec7090518402ebbbc89fed808d2a81d80fafe50a1439074e5b60b",
+      "bytes": 50834
+    },
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/agents-profile-journey-20260920/browser-journey.md": {
+      "sha256": "c0b72935af84110e17c6095f568a615dcf4960410ce6e8831d07401212dd4e58",
+      "bytes": 7129
+    },
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/agents-profile-journey-20260920/checks.txt": {
+      "sha256": "af565d7e3049633cd07265bbf1276a0029ac4e24fcd831bac18bb1be1b190e88",
+      "bytes": 2207
+    }
+  },
+  "servedBytesMatchedOn8899": {
+    "/web/agent-profiles.mjs": "19d4814d740221ead12ef2b0edb80f08a1138799d22ab744e0b2cd9a412b813b",
+    "/web/agent-profiles-view.mjs": "e0ada78895d59d128c8808792130dfea1a59211ad0d9b61e8538990f8404d57c",
+    "/adapter.mjs": "6f3d071aad61eadc115e1bc4922b5dd724681296b4c7b7b60f40000432551470",
+    "/preview.mjs": "829de98a54b7daddbc043bfc0d51fa9cfcd14693daf8222e6b5db3f650b93130"
+  }
+}

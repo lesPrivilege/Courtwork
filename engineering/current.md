@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-20 · Agent profiles frontend reviewed; bounded 06a return
+
+Claude delivered isolated frontend candidate `0f76407`. [Astra's 06a disposition](execution/claude-frontend-harness-2026-09-16/evidence/agents-profile-review-20260920/README.md) retains the existing-Settings design and explicit synthetic adapter, while holding acceptance for controller reply races, Save focus/recovery and truthful capability/ownership disclosure. Luna's scoped 16/16 and full-suite summary 1254/1254 are recorded with the capture-wrapper limitation; OpenAI browser verification fills native Escape/return-focus coverage and records actual UI defects. Claude owns the bounded return; Runtime management/Role-first Composer remain unstarted. Order 11's stable handoff is still a separate acceptance condition. The user instance, author preview and source trees remain intact; heartbeat paused, no product merge or deployment.
+
 ## 2026-09-20 · Coding handoff reviewed; bounded Claude return before WebUI
 
 Order 11 candidate `94d60d2` (source `3f04f76`) passes Luna's independent public-HTTP rehearsal 14/14 and preparation/startup tests 8/8. [Astra's owner disposition](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-review-20260920/README.md) holds integration for demonstrated preparation path/quoting/manifest defects, startup-failure cleanup, and accurate durability/permission/recovery evidence. Claude owns this finite correction; accepted GUI/Core work is not reopened. The untouched browser instance is preserved, real-model N-02 stays open, and the heartbeat remains paused. The separate Agents frontend tree is now observed active at `95ed9cf` with uncommitted implementation; its writer is preserved and its work is not yet accepted. No merge, cleanup, user-instance launch, provider call or deployment occurred in this review.

@@ -1,0 +1,65 @@
+{
+  "reviewer": "OpenAI Codex/Astra through cua_repl in-app browser",
+  "candidate": "0f76407ac3f0fc7aa34585a003921e855c80820b",
+  "url": "http://127.0.0.1:8899/",
+  "steps": [
+    {
+      "action": "open Attention; runtime detail Hermes; Escape",
+      "observed": {
+        "dialogOpen": false,
+        "focusKey": "runtime-detail"
+      }
+    },
+    {
+      "action": "Attention add Coding Kit, select Pi, save",
+      "observed": {
+        "confirmedRevision": 3,
+        "focusTag": "BODY",
+        "focusKey": null
+      }
+    },
+    {
+      "action": "Back to profiles",
+      "observed": "focus on Attention row; rows asynchronously refresh to saved composition"
+    },
+    {
+      "action": "Save fails scenario; Work Role Coding; Save",
+      "observed": {
+        "error": "The host did not accept the change. Nothing was saved, and your draft is kept here.",
+        "savedRevision": 4,
+        "draftRole": "Coding",
+        "focusTag": "BODY",
+        "focusKey": null,
+        "nextTab": "back"
+      }
+    },
+    {
+      "action": "390x844 dark failure view",
+      "observed": {
+        "pageClient": 390,
+        "pageScroll": 390,
+        "panelClient": 324,
+        "panelScroll": 324,
+        "previewToolbar": "horizontal scroll separate from product form"
+      }
+    },
+    {
+      "action": "Pi unavailable scenario; Work row opens runtime detail",
+      "observed": {
+        "rowAction": "Why is Pi unavailable?",
+        "profileOpenActionAbsent": true,
+        "modalActions": [
+          "Close runtime detail"
+        ],
+        "escapeReturnsFocus": "row:ap-work"
+      }
+    }
+  ],
+  "limits": [
+    "No real backend/provider or personal runtime configuration",
+    "Native 200% zoom and screen reader not run",
+    "No new long-label stress fixture",
+    "No full G4 acceptance"
+  ],
+  "cleanup": "temporary viewport override reset; review tab closed; author preview server untouched"
+}
