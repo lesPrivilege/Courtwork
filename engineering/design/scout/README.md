@@ -105,3 +105,10 @@ Material 的后补材料收敛为 [token 草案与组件辖区](../home-composit
 [系统交接包](../se-control-one-shot-2026-09-11/HANDOFF.md)按用户要求登记Luna蒸馏的渐进披露摘要；摘要帮助检索，固定原文与本地裁决仍持有权威。新生态和Taste研究不直接升级为规则。
 
 渐进披露：[L0/L1摘要](../se-control-one-shot-2026-09-11/scout-digest.md) · [L2来源账](../se-control-one-shot-2026-09-11/scout-digest-index.json)。
+
+
+## 2026-09-20 · Frontend-first consumers and implementation reuse
+
+The user authorizes frontend development from expected user outcomes before the corresponding backend, using [the Agents frontend-first order](../../execution/claude-frontend-harness-2026-09-16/06-agents-frontend-first-20260920.md). Consume the nearest local grammar/primitive first, then the existing source/library index for a concrete missing behavior. Prefer adopted or compatible mature libraries over ad hoc infrastructure; record source/version/license, stack fit and behavior/accessibility/cleanup tradeoffs when adding one. Earlier B-layer “no dependency” donor entries do not impose a blanket ban on dependencies under this newer user instruction. They still do not justify importing an incompatible framework or an entire design system for one control.
+
+Design Scout remains a problem-addressed discovery index, not a second design authority. Fixed-question searches stop once a decision is supported. Interactive synthetic adapters can validate future frontend contracts; production facts and effects stay with the original backend owners. This registration adds no new library, backend capability or accepted visual evidence.

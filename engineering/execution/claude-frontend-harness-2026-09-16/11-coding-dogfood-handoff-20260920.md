@@ -1,6 +1,6 @@
 # 11 · Coding dogfood readiness and WebUI handoff
 
-2026-09-20 · **Status: ready to dispatch; not yet executed.** Architecture/integration: Astra. Implementation: Claude, serial product writer after accepting this order. Independent verification: Luna. Human/operator: the user starts the WebUI after the readiness handoff; subsequent computer use stays on an OpenAI provider.
+2026-09-20 · **Status: delivered at `94d60d2`; independent positive-path rehearsal passed; bounded correction pending before integration.** Architecture/integration: Astra. Implementation: Claude, serial product writer after accepting this order. Independent verification: Luna. Human/operator: the user starts the WebUI after the readiness handoff; subsequent computer use stays on an OpenAI provider.
 
 **Luna exploration consumed:** at `e687762`, the existing runtime smoke is in-process `ws_*` execution and explicitly excludes HTTP/UI; the current check regression reopens Store records but does not hand the user a clean restartable HTTP/WebUI scenario. Astra adopts a fresh-process public-HTTP rehearsal plus preparation packet as this order's concrete remaining seam. This is a scope review, not implementation acceptance.
 
@@ -72,11 +72,8 @@ After independent readiness acceptance, Astra integrates locally under the exist
 
 Out of scope: local runtime delegation, Agents API expansion, keychain/key migration, hook manager, CC Switch registration, enterprise gateway, Pages redesign and broad G4/accessibility completion. Those directions retain their owners and follow the dogfood consumer instead of becoming prerequisites for this order.
 
-## Delivery
+## Independent return — 94d60d2 — 2026-09-20
 
-Delivered by Claude on 2026-09-20 from `0e06d70`, branch
-`claude-coding-dogfood-20260920`:
-[coding dogfood readiness packet](evidence/coding-dogfood-readiness-20260920/README.md).
-Reported **`ready for independent review`**, not self-accepted. `real-model
-dogfood passed` and N-02 remain open: no browser pass and no real model have
-run.
+Astra pins source `3f04f76` and packet `94d60d2`. Luna independently passes the fresh-process public-HTTP rehearsal 14/14 and preparation/startup tests 8/8, but synthetic probes demonstrate preparation-root and command/manifest guard defects; startup-timeout cleanup is also unclosed. [The original-owner return](evidence/coding-dogfood-review-20260920/README.md) adopts DF11-R1–R4, strengthens the durable-event assertion in R5, and corrects permission/recovery/identity claims. Claude owns only these new utilities/tests/packet corrections; no previously accepted product work is reopened. Exact evidence and source hashes are retained there.
+
+Ready-for-WebUI acceptance and local merge are held until the correction delta passes. The user-reserved instance remains unopened. The separate Agents frontend writer is active and preserved; no competing UI work or backend expansion is authorized by this return. The existing heartbeat stays paused.

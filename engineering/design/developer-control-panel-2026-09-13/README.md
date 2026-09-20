@@ -46,3 +46,8 @@
 ## Deferred personal key and hook management — 2026-09-20
 
 Consume the [Astra ownership and secret/hook boundary](../../research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#personal-credentials-hooks-and-browser-dogfooding--2026-09-20) in the existing management owner. Models/Tools connections own authentication setup; target Agents owns runtime-native configuration and capability hooks; Developer retains redacted diagnostics. Shared Host secret references and RD-009 hook admission prevent duplicate state ownership. This is a registered design/engineering follow-up, not a key migration, secret-storage upgrade, native config rewrite, or new UI delivery. Use the existing save/enable/inspect/binding/permission precedents and verify redaction, future-run scope, failure and recovery before capability promotion.
+
+
+## Authorized frontend-first continuation — 2026-09-20
+
+The user now permits the [Agents profile → Kit → execution journey](../../execution/claude-frontend-harness-2026-09-16/06-agents-frontend-first-20260920.md) to be implemented by Claude before the backend. Use the existing Settings/Runtime primitives and a narrow synthetic adapter with visible preview identity; reverse-map consumer intents and state/error contracts to Provider, Runtime Control, RD-001/RD-005/RD-009. This supersedes waiting for every backend before building the interactive frontend, while preserving truthful production availability and original state owners. First deliver the slice 11 readiness node, then isolate this frontend from the user's fixed dogfood version. No implementation or new production capability is claimed by this registration.
