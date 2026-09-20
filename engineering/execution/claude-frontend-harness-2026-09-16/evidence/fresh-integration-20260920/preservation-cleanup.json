@@ -1,0 +1,14 @@
+{
+  "removed": [
+    "/Users/lesprivilege/Projects/.worktrees/courtwork-gui-grammar-20260919",
+    "/Users/lesprivilege/Projects/.worktrees/courtwork-gui-review-20260920",
+    "/Users/lesprivilege/Projects/.worktrees/courtwork-orchestra-direction-20260919",
+    "/Users/lesprivilege/Projects/.worktrees/courtwork-pages-20260911"
+  ],
+  "preserved": [
+    "/Users/lesprivilege/Projects/Courtwork",
+    "/Users/lesprivilege/Projects/Courtwork-legacy-frozen"
+  ],
+  "worktrees_after": "worktree /Users/lesprivilege/Projects/Courtwork-legacy-frozen\nHEAD f9ade85b72e5abcdc64c3a6c43ed3a13a2292476\ndetached\n\nworktree /Users/lesprivilege/Projects/Courtwork\nHEAD a8aa3235515d412dbf1845e685181f0afc052181\nbranch refs/heads/main\n\n",
+  "main": "a8aa3235515d412dbf1845e685181f0afc052181"
+}

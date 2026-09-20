@@ -185,3 +185,8 @@ Six worktrees remain registered. Main is `72c91a2`; merge, preservation/cleanup 
 ## Fresh node accepted for local integration — 2026-09-20
 
 Astra accepts GUI candidate `2b98abb5f412ba5b6f7c04837c4a23ed7d075a93` after [Luna's final delta review](evidence/gui-final-2b98abb-20260920/luna-final.md). The explicit final report and conditional file release are present. The two exact defects are closed; no new product scope was added. [The owner acceptance](gui-grammar-convergence-20260919.md#local-integration-acceptance--2b98abb--2026-09-20) retains full-matrix and dogfood residuals separately. Main-only documents are being committed before the merge so both histories can be preserved; merge and cleanup receipts will record their actual final SHAs and recovery artifacts.
+
+
+## Merge and cleanup complete — 2026-09-20
+
+The accepted GUI and Orchestra documents are integrated at `main@a8aa3235515d412dbf1845e685181f0afc052181`. The [completed recovery and cleanup receipt](evidence/fresh-integration-20260920/README.md#merge-and-preservationcleanup-receipt) records four full-byte archives, successful file/Git restoration, exact hashes and removal of the four ended task trees. Only Courtwork and the frozen shared-database dependency remain registered. The historical N-13 discrepancy stays open with Pages; its surviving bytes are preserved. No push or deployment occurred. The first missing RD-006/DF-04/RD-009 slice is now eligible to begin in a new isolated tree from the next main commit carrying this receipt.

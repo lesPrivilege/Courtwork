@@ -1,0 +1,48 @@
+{
+  "main": "a8aa3235515d412dbf1845e685181f0afc052181",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-gui-grammar-20260919",
+      "head": "2b98abb5f412ba5b6f7c04837c4a23ed7d075a93",
+      "archive_ref": "refs/archive/cleanup-20260920/courtwork-gui-grammar-20260919",
+      "entries": 8364,
+      "file_bytes": 439481407,
+      "archive_sha256": "0b55914fa72ed85ad1db285eaff7d398c4d6d66ee8e20edfac2ec9831d18bbe6",
+      "manifest_sha256": "f38bfdfb5a0f9400096137e262ec72be7f4ee233ab7b1304849a75dfc5646cd1",
+      "restored_and_verified": true
+    },
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-gui-review-20260920",
+      "head": "2b98abb5f412ba5b6f7c04837c4a23ed7d075a93",
+      "archive_ref": "refs/archive/cleanup-20260920/courtwork-gui-review-20260920",
+      "entries": 8355,
+      "file_bytes": 439165180,
+      "archive_sha256": "fd2b201478bebae90efa20b7cb32827d978bc2e515ac784ed3acc58ee976012d",
+      "manifest_sha256": "b8f880892c42c94de0d4aebbec43904fd076485849f881bd35fe3bb7d356d70e",
+      "restored_and_verified": true
+    },
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-orchestra-direction-20260919",
+      "head": "72c91a2f070cc8e134f1d09cebc7de735ff89415",
+      "archive_ref": "refs/archive/cleanup-20260920/courtwork-orchestra-direction-20260919",
+      "entries": 8560,
+      "file_bytes": 450026589,
+      "archive_sha256": "c797806065ed9aaf8ea0d807234306808d0fef6ca72351ae9f76df670ee705c2",
+      "manifest_sha256": "3715fb806a2019a81e5d4b2aa3d46f689a28d669ff4ccc6acdc690f00c673b09",
+      "restored_and_verified": true
+    },
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-pages-20260911",
+      "head": "9bc6090b5b463bdf6286a0c42bdcd399781fc067",
+      "archive_ref": "refs/archive/cleanup-20260920/courtwork-pages-20260911",
+      "entries": 4849,
+      "file_bytes": 175405249,
+      "archive_sha256": "c7cc810a8aafa606f885595a2fb47b2fa37cf905158f8b5b1232a51992092636",
+      "manifest_sha256": "f3d6e680a271f01680bbd21c187024ca87325268d47640e26d40156255407460",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "90a519bf04a3069601eddb7836f46663545e4050bcf4217462fb575cfa4b3440",
+  "bundle_restored_and_verified": true
+}

@@ -1,0 +1,11 @@
+# Courtwork ended-worktree preservation — 2026-09-20
+
+This local recovery packet preserves four ended task trees after GUI integration at main a8aa3235515d412dbf1845e685181f0afc052181. Courtwork itself and Courtwork-legacy-frozen are retained. The latter owns the shared Git database; this packet does not migrate or replace it.
+
+For each task, files.tar.gz includes the entire tree (tracked, untracked, ignored, and symlink objects without dereferencing). manifest.json records file hashes, lengths, modes, and symlink targets. Working/index patches and status are retained. Each archive is extracted to a temporary directory and every manifest entry compared before success is recorded. repository.bundle holds all Git refs plus explicit archive refs for all four HEADs; a mirror clone and connectivity check test recovery. SUCCESS.json is written only after every verification succeeds.
+
+Disposition: GUI author/review bytes are integrated into main and archived; Orchestra draft differences are superseded by integrated main documents but retained in full, not overwritten; Pages/N-13 source and all currently surviving evidence are archived under the original Pages owner. Its historical 105-to-43 untracked-file discrepancy remains unknown. Archiving does not claim visual/evidence acceptance or reconstruct missing historical bytes.
+
+Recovery: verify archive/bundle hashes against SUCCESS.json and the repository receipt. Clone repository.bundle into a new repository, use the recorded HEAD or refs/archive/cleanup-20260920/<tree-name> to create a checkout, then extract the desired archive into a separate temporary directory. Copy the recovered working files into that checkout excluding the archived .git pointer; keep the new checkout's own .git metadata. Archived app/node_modules symlinks refer to the retained Courtwork dependency tree and should not be followed when copying. File archives may also be inspected independently without Git. Do not reuse old worktree registration pointers.
+
+No personal credential stores were inspected/copied. All files within these four exact task trees are preserved; the filename-only inventory found no standalone credential stores. Main's unrelated .agents, .obsidian and skills-lock.json remain untouched in Courtwork.

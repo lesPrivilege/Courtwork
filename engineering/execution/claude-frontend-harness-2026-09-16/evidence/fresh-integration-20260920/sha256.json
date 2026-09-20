@@ -1,5 +1,8 @@
 {
   "product-check.log": "593091ee3a2554b233fcbcf99af0729bdf00e818be0e5c3ac4e381fe91f01b91",
-  "README.md": "cb9346351c9d3b23a2aa1dc7361ee01b305c0e67ee627685c6cae0fec90b65a9",
-  "luna-cleanup-inventory.md": "71b65fed107c7c52e83192263390d5ab8be4877ed99a0e224b1bce0bc186a338"
+  "preservation-SUCCESS.json": "18878e1400503a62cad7840100cab1939b96a3171a431cc2506fbd246c702899",
+  "README.md": "a1a78793c49863f9a44c7e4e096c2b1409e0b1d0f4214e0e1cdf1f1a71b19813",
+  "preservation-README.md": "9dd188d1ab6f4458c7e86736fcc5948afdd6a5f74cc929eff45f4410f882636b",
+  "luna-cleanup-inventory.md": "71b65fed107c7c52e83192263390d5ab8be4877ed99a0e224b1bce0bc186a338",
+  "preservation-cleanup.json": "7de12cdbd54e0d737ae9ac446cba74cc8f0ef8bc7cf469e74b81873e8e569dbc"
 }

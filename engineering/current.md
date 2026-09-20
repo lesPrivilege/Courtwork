@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-20 · GUI merged; ended task trees preserved and cleared
+
+GUI candidate `2b98abb` and Orchestra direction are integrated at `a8aa323`. The actual combined tree passed 1223 tests, deterministic smoke and relevant document/Pages checks. [Four ended worktrees are fully archived and removed](execution/claude-frontend-harness-2026-09-16/evidence/fresh-integration-20260920/README.md#merge-and-preservationcleanup-receipt) after successful file and Git recovery tests; their HEADs remain under archive refs. Courtwork and the frozen shared Git database remain. N-13's unexplained historical count difference and G4 visual residuals retain their owners. The first RD-006/DF-04/RD-009 core slice may now start from this recorded main baseline; no real provider, push or deployment was used.
+
 ## 2026-09-20 · GUI fresh node accepted for local integration
 
 Astra accepts `2b98abb` after [Luna's final non-author delta checks](execution/claude-frontend-harness-2026-09-16/evidence/gui-final-2b98abb-20260920/luna-final.md): Home continuity and both default capture paths pass. The [owner acceptance](execution/claude-frontend-harness-2026-09-16/gui-grammar-convergence-20260919.md#local-integration-acceptance--2b98abb--2026-09-20) retains the explicit G4/UI residuals and does not claim real coding dogfood. Local merge and subsequent preservation/cleanup are authorized and now proceeding; core work waits for those receipts.
