@@ -174,6 +174,12 @@ export function createAgentProfilesController({ adapter }) {
       view = "list";
       anchorId = anchor;
       runtimeDetail = { status: "closed", id: null, record: null, error: "" };
+      /* The rows from the previous reading stay — they are the anchor you came
+         back to and they are still worth reading — but they are not the
+         confirmed latest list until this read answers. `status` is the whole
+         difference, and the view must say it rather than draw them as settled
+         (ui-orchestration-contract: a failed or pending read must not leave an
+         old projection impersonating the newest one). */
       list = { status: "loading", rows: list.rows, error: "" };
       emit();
       try {
@@ -189,6 +195,11 @@ export function createAgentProfilesController({ adapter }) {
 
     async openProfile(id) {
       const own = ++profileEpoch;
+      /* Leaving the list invalidates the read it started, the same way openList
+         retires the profile's reads. Without this the older list reply lands
+         behind a newer navigation and is adopted as "ready" — rows nobody
+         asked for, confirmed by nothing (Luna F-01's symmetric case). */
+      listEpoch += 1;
       const kept = drafts.get(id) || null;
       /* Reopening the profile already on screen keeps its last confirmed
          values visible while the reload is out; a different profile starts

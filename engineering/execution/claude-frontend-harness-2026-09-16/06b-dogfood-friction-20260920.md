@@ -24,3 +24,63 @@ Two observations need a short recommendation before implementation: starting a p
 Use independent synthetic source/data and another loopback port. No real key/provider calls are needed for this frontend batch. Exercise folder change → start/bind Chat → private candidate → exact write approval → observed write/diff → fixed check/reload; retain the existing source unchanged. Reproduce the stale-count counterexample and list late-reply case at their actual seams. Use OpenAI computer use for the actual visual/focus journey; existing user 8787 is not a test fixture. A fixture can establish presentation mechanics but cannot claim another real-model success.
 
 Deliver one bounded source candidate, owner/precedent/change record, selected checks under verification.md, browser evidence and explicit unexecuted cases. Keep native zoom/screen-reader/long-label gaps honest; no automatic full G4 reopening. Release the writer for Luna's non-author delta review and Astra's integration decision before Runtime management or Role-first Composer. No push/deploy or deletion of source/evidence trees by the author.
+
+## Author delivery · 2026-09-20, Claude
+
+One bounded source candidate on `claude-frontend-friction-20260920`, from
+integrated main `a04b9ac`, in its own worktree. All four finite items are
+answered; neither exploration is implemented. **Not accepted** — released for
+Luna's non-author delta review and Astra's integration decision.
+
+The five seams were reproduced as measurements *before* any product code
+changed, by running one script against the unchanged `a04b9ac` tree and again
+against the candidate. Four frontend files changed, all existing owners:
+`workspace-card.mjs`, `app.mjs`, `agent-profiles.mjs`, `agent-profiles-view.mjs`,
+plus one new seam-test file. No new route, event, backend ledger, design system,
+token, icon or dependency; Host remains the binding, candidate, write-effect,
+permission and check authority.
+
+- **1 · folder, project and write target** — the card now reads Project, Folder
+  (Read only), File access and Private candidate side by side, with one
+  "Which is which" disclosure carrying the definitions, and a `Change folder…`
+  path that uses the existing `bind` command and states the Host's own
+  `ACTIVE_CANDIDATE` precondition instead of offering a failing control. No Kit
+  is named; nothing implies the source becomes writable.
+- **2 · boundary copy** — "Nothing is uploaded" and "Nothing is read before
+  then" were both measured false and replaced. The folder staying unwritten is
+  kept and sharpened; what a run reads is said to go to the configured model,
+  without naming a runtime or exposing a key, and without a warning wall.
+- **3 · candidate result continuity** — the write count is now a pure
+  projection over two Host receipts (`repository.write.confirmed` and the
+  Session's own field), and the changes dialog corrects its heading from the
+  diff reply's `writeRevision` in a separate text node, so the patch is never
+  rebuilt. Focus after Start private candidate lands on Review changes. Write,
+  check and source identities stay distinct.
+- **4 · 06a list refresh** — the list says when its read is out (`aria-busy`
+  plus a `role=status` line), keeps the rows and the navigation anchor, and
+  `openProfile` now retires the list read it navigated away from so a late
+  reply cannot land behind a newer navigation. Entirely inside the synthetic
+  adapter/controller/view.
+
+Two explorations were measured and **not** built: starting a private candidate
+before the first inference is fully supported by existing Host routes (verified
+end to end, zero-event session in the receipts) and needs only a frontend
+change in the existing owner; the candidate revision is already in the
+permission payload and needs only a frontend change; the pending tool call's
+request arguments are a real Host projection gap (`tool.start` carries
+`callId` and `name` only) and are returned to Astra.
+
+Checks, browser journey, unexecuted cases and the change record:
+[coding-start-friction-20260920](evidence/coding-start-friction-20260920/README.md).
+
+## Astra integration boundary — 2026-09-20
+
+Luna passes 45/45 but identifies two bounded integration corrections: the new File access explanation must describe all three actual modes (including Read only blocking writes/checks), and the new Which-is-which disclosure must retain its expanded state across event-driven card renders. Astra assigns Sol only workspace-card.mjs and focused coding-start-friction tests in the isolated integration tree; preserve Claude source/evidence. The precedent is this card's existing pathOpen state plus the three-state permission owner. No Host, schema, endpoint, layout or later frontend journey is changed. Luna independently verifies the final delta; Astra supplies OpenAI browser evidence before acceptance.
+
+## Astra exploration disposition — 2026-09-20
+
+Adopt exploration A and B1 as the next finite frontend scope **after this batch is accepted**, using existing Host contracts: (A) explicitly prepare a Chat/binding/private candidate before inference; (B1) show candidate identity and the recorded write revision in write/check approval details. “No backend gap” does not freeze the suggested UI implementation. Preserve Home draft text/materials, exactly-once session/bind/candidate identities across lost replies, and no automatic send/Run. A prepared Chat must have an explicit lifecycle and recovery destination; do not overload a failed-send banner or leave the next send targeting a second Chat. Approval details read historical payload facts, not the latest candidate revision; absent fields stay absent.
+
+Adjust B2: non-approval tool arguments are a Runtime/Host event-contract gap, owned by RD-006 / the existing tool trace projection, not a frontend workaround. Defer implementation pending a small contract decision. Current approval preview is a bounded substring (400 characters), **not evidence of general argument redaction**. Do not copy arbitrary arguments into the journal on that analogy. A later proposal must specify per-tool allowed fields, omitted/redacted values, explicit truncation, one snapshot at execution start (not argument-token updates), call identity and storage/retention bounds; unknown tools default to omitted request detail. Never expose keys, headers or arbitrary tool payloads by default. A digest cannot serve as recoverable argument content. No new event/schema or request capture is implemented in this batch.
+
+Astra's actual OpenAI browser check found one remaining wiring gap: a card left open through check completion still says “Available after this run ends” and keeps controls disabled after the Chat says Completed. Luna confirms ordinary pollEvents uses renderChat, bypassing the new renderAll hook. Astra owns the minimal same-owner integration correction in app.mjs: refresh the open card after a changed event page has been merged, so both write receipts and terminal status reach it. No new polling, event or state is added. Verify on the actual open-card/approval/terminal browser path; do not substitute another helper-only assertion.

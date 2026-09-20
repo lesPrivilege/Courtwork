@@ -67,7 +67,7 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
-import { createWorkspaceCard, activeRepositoryBinding, repositoryName } from "./workspace-card.mjs";
+import { createWorkspaceCard, activeRepositoryBinding, candidateWriteRevision, repositoryName } from "./workspace-card.mjs";
 import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
 import {
   renderRun,
@@ -1108,7 +1108,12 @@ async function pollEvents(epoch) {
       // connection state (or stop its probe) — just merge the page like an
       // ordinary successful poll.
       const changed = mergeEvents(page.events || []);
-      if (changed) renderChat();
+      if (changed) {
+        renderChat();
+        // The event poll does not pass through renderAll. Keep an already-open
+        // card on the same confirmed writes and terminal Run state as Chat.
+        if ($("workspace-popover").matches(":popover-open")) renderWorkspaceCard();
+      }
       if (state.surface.open && state.surface.kind === "run" && changed)
         void readRunDetails();
       if (hadActiveRun && !state.runs.some(isActiveRun)) {
@@ -6076,16 +6081,27 @@ async function saveEffortFromCard(effort) {
 /* RD-006 / 02 · the human opens the candidate's exact diff from the Host,
  * not from the model's narration: same bounded patch, per file, against the
  * fixed base commit. Nothing here accepts or publishes anything. */
+function candidateHeading(baseCommit, writeRevision) {
+  const count = Number.isSafeInteger(writeRevision) ? writeRevision : 0;
+  return `From commit ${String(baseCommit).slice(0, 12)} · ${count} write${count === 1 ? "" : "s"}`;
+}
 async function openCandidateDiff() {
   const session = currentSession();
   if (!session?.repositoryCandidate || session.repositoryCandidate.status !== "active") return;
   const body = $("candidate-dialog-body");
   body.replaceChildren(element("p", { className: "form-help", text: "Reading the candidate…", attrs: { role: "status" } }));
-  $("candidate-base").textContent = `From commit ${session.repositoryCandidate.baseCommit.slice(0, 12)} · ${session.repositoryCandidate.writeRevision} write${session.repositoryCandidate.writeRevision === 1 ? "" : "s"}`;
+  /* The heading opens on what the client already holds from the Host — the
+   * Session's count folded with any confirmed write event — and is corrected
+   * by the diff reply, which carries the authoritative writeRevision for the
+   * very patch below it (service.mjs getRepositoryCandidateDiff). It is a text
+   * node of its own, so refreshing it never re-enters the patch and never
+   * moves the reader's position in it. */
+  $("candidate-base").textContent = candidateHeading(session.repositoryCandidate.baseCommit, candidateWriteRevision(session, state.events));
   openDialog("candidate-dialog", "close-candidate-button");
   try {
     const result = await request(`/sessions/${encodeURIComponent(session.id)}/repository-candidate/diff`);
     if (currentSession()?.id !== session.id) return;
+    $("candidate-base").textContent = candidateHeading(result.baseCommit, result.writeRevision);
     const files = parseUnifiedPatch(result.patch);
     body.replaceChildren();
     if (!files.length) {
@@ -6127,7 +6143,19 @@ function homeWorkspaceDraft() {
 }
 function renderWorkspaceCard() {
   const home = state.view === "home" && !currentSession();
-  return workspaceCard.render($("workspace-popover"), { session: currentSession(), active: Boolean(currentRun()), draft: home ? homeWorkspaceDraft() : null });
+  const session = currentSession();
+  /* RD-006 · the card reads four separate owners' facts and merges none of
+   * them: the project this chat is organised under, the connected folder, the
+   * Host's write receipts for the private candidate, and the file-access
+   * sentence the composer already shows. */
+  return workspaceCard.render($("workspace-popover"), {
+    session,
+    active: Boolean(currentRun()),
+    draft: home ? homeWorkspaceDraft() : null,
+    events: state.events,
+    project: session ? state.projects.find((item) => item.id === session.projectId) || null : null,
+    permissionLabel: session ? permissionLabels[session.permissionMode] || null : null,
+  });
 }
 function openWorkspaceCard(anchor) {
   const popover = $("workspace-popover");
@@ -7741,6 +7769,11 @@ function renderAll() {
   renderConnectionStatus();
   renderPreviewChrome();
   renderHistoryControls();
+  /* RD-006 · the Workspace card states Host facts a Run advances while it is
+   * open — the candidate's confirmed writes above all. It re-reads them from
+   * the same state every other surface does; its own render preserves the
+   * focused field and any text in it. */
+  if ($("workspace-popover").matches(":popover-open")) renderWorkspaceCard();
   objectMenu?.refresh();
 }
 

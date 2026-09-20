@@ -1,0 +1,111 @@
+# Checks · coding-start friction batch
+
+Author: Claude (Opus 5). Isolated worktree
+  /Users/lesprivilege/Projects/.worktrees/courtwork-frontend-friction-20260920
+  branch claude-frontend-friction-20260920, from integrated main a04b9ac.
+Nothing was run inside /Users/lesprivilege/Projects/Courtwork (the persistent main
+checkout that serves preview 8899); no push, no deploy, nothing deleted.
+
+$ node --test tests/coding-start-friction.test.mjs   (from app/)
+✔ a confirmed write moves the candidate reading even though the cached Session still says zero (1.122334ms)
+✔ the reading belongs to one candidate: another candidate's writes and unconfirmed effects are not counted (0.067958ms)
+✔ the Workspace card's Writes line reads the confirmed write, not the cached Session field (1.006ms)
+✔ the changes dialog takes its count from the diff receipt it is already reading (1.978958ms)
+✔ Start private candidate leaves the keyboard on the control that now answers it (6.189291ms)
+✔ Stop edits puts the keyboard back on the control that can start another candidate (1.02625ms)
+✔ the folder card does not claim the Host reads nothing or sends nothing (0.277584ms)
+✔ the card names the four things a coding task depends on and keeps them apart (0.199916ms)
+✔ a bound folder can be changed without first disconnecting, and the Host's own precondition is stated (2.135125ms)
+✔ leaving the change-folder path keeps the binding and the typed draft (1.450583ms)
+✔ rows from the previous reading are not presented as the confirmed list while a read is out (1.622417ms)
+✔ a list reply that arrives after you have opened a profile does not land (12.784667ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 136.011208
+exit: 0
+
+$ node --test tests/candidate-ui.test.mjs tests/agent-profiles-specimen.test.mjs tests/diff-view.test.mjs   (the existing owners)
+✔ renderDiff treats markup as text, renders the no-newline marker, and handles empty input (0.434416ms)
+✔ Settings preview and the static allowlist use the shared renderer and fixture (2.860667ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 180.263959
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (61 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+exit: 0
+
+$ node tools/lint-colors.mjs
+lint-colors: ok (66 files · 字面量与高度层两项)
+exit: 0
+
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+exit: 0
+
+$ node tools/check-doc-links.mjs
+{
+  "pass": true,
+  "documents": 1465,
+  "checked": 8316,
+  "problems": []
+}
+exit: 0
+
+$ npm --prefix app test   (the full suite)
+✔ T-ART-2: two writes to one path keep both content versions and one current file (499.262666ms)
+✔ ws_grep rejects nested quantifiers and over-long patterns before compiling them (39.405125ms)
+✔ getWorkspaceFile truncates on a UTF-8 boundary and keeps the whole-file digest (67.945209ms)
+✔ a second run in a continued session revises the first run's file (896.014166ms)
+ℹ tests 1289
+ℹ suites 0
+ℹ pass 1289
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244803.597584
+
+$ node <packet>/counterexamples.mjs <app tree>
+    Run twice, against integrated main a04b9ac and against this candidate.
+    Output: counterexamples.txt. All five seams reproduce before and are
+    answered after.
+
+Browser passes (see browser/journey.md)
+    Host           node app/server/index.mjs --data-dir <instance>/runtime-data --port 8912
+    06a preview    CW_SPECIMEN_PORT=8913 node app/scripts/agent-profiles-preview.mjs
+    Both on 127.0.0.1, both started from this candidate, both on ports the
+    user's 8787 Host and 8899 preview do not use. Provider: Local test
+    (bootstrap reports realProvider:false, mode:local-fake). No credential
+    configured, read, copied or exported; no paid inference.
+    Viewports 1280x900 light, 1280x900 dark, 375x812 light.
+
+NOT RUN, and why
+    PNG screenshots. This author's browser tooling reads the live DOM,
+      accessibility state, focus and network but cannot write image files.
+      The packet carries verbatim DOM/focus captures instead. The earlier
+      packets' images came from OpenAI computer use in the user's own in-app
+      browser; that path was not available here and no equivalent visual
+      baseline is claimed.
+    OpenAI computer use. Not available to this author. The journey was driven
+      through the Claude desktop app's own browser pane instead. Recorded
+      here rather than described as the same thing.
+    200% native zoom, screen-reader verification, forced-colors. Not run.
+      The existing G4 residuals stay open and are not reopened or closed.
+    Real-model / paid-provider execution. Not run, and not needed for this
+      frontend batch; the 2026-09-20 real dogfood acceptance is untouched and
+      nothing here claims another real-model success.
+    Independent (non-author) review. Not run by definition — that is Luna's
+      delta review, which this delivery is released for.
+    Baseline suite count at a04b9ac. Not measured; the full suite was run on
+      this candidate only (1289 pass, of which 12 are this batch's new tests).

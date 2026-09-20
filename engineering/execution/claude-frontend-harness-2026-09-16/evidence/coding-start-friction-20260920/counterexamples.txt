@@ -1,0 +1,53 @@
+# Counterexamples · before / after, same script
+
+$ node ce2.mjs <app tree>  · integrated main a04b9ac (unchanged)
+app tree: /Users/lesprivilege/Projects/Courtwork/app
+
+[CE-1 stale write count]
+  claim the product holds : Host repository.write.confirmed carries writeRevision 1; GET /repository-candidate/diff returns writeRevision in the same reply that draws the patch
+  observed at this tree   : Workspace card reads "Writes 0" with that event in hand; app.mjs heading is `From commit ${session.repositoryCandidate.baseCommit.slice(0, 12)} · ${session.repositoryCandidate.writeRevision} write${session.repositoryCandidate.writeRevision === 1 ? "" : "s"}`
+  does any app/web module consume repository.write.confirmed? no
+  is the heading refreshed from the diff reply?                no
+
+[CE-2 focus after Start private candidate]
+  claim the product holds : after a command the card keeps focus inside itself (workspace-card.mjs render(), focus capture)
+  observed at this tree   : document.activeElement once the candidate exists: null — the page
+
+[CE-3 boundary copy]
+  claim the product holds : "The next run can read files under the folder you connect. Nothing is uploaded and the folder is not changed."; draft sentence "Connected when you send. Nothing is read before then."
+  observed at this tree   : a staged folder is stat'd and its Git status read before any send (getRepositoryInspection does stat+git: true); renderContextStrip calls it from Home to draw the Branch chip. Repository text a run reads goes on to the configured model.
+
+[CE-4a stale rows while the read is out]
+  claim the product holds : leaving a surface invalidates the reads it started (agent-profiles.mjs openList comment)
+  observed at this tree   : list.status=loading; the rendered rows still read "Before"; the pending read is marked in the DOM: no
+
+[CE-4b late list reply behind a newer navigation]
+  claim the product holds : openList retires profileEpoch/saveEpoch/detailEpoch when it navigates; openProfile does not apply the symmetric rule
+  observed at this tree   : after navigating into the profile, the older list read resolved and the list state is: status=ready, rows=["Stale"] (landed as the confirmed list: yes)
+
+----------------------------------------------------------------
+
+$ node ce2.mjs <app tree>  · this candidate
+app tree: /Users/lesprivilege/Projects/.worktrees/courtwork-frontend-friction-20260920/app
+
+[CE-1 stale write count]
+  claim the product holds : Host repository.write.confirmed carries writeRevision 1; GET /repository-candidate/diff returns writeRevision in the same reply that draws the patch
+  observed at this tree   : Workspace card reads "Writes 1" with that event in hand; app.mjs heading is candidateHeading(session.repositoryCandidate.baseCommit, candidateWriteRevision(session, state.events))
+  does any app/web module consume repository.write.confirmed? yes
+  is the heading refreshed from the diff reply?                yes
+
+[CE-2 focus after Start private candidate]
+  claim the product holds : after a command the card keeps focus inside itself (workspace-card.mjs render(), focus capture)
+  observed at this tree   : document.activeElement once the candidate exists: review
+
+[CE-3 boundary copy]
+  claim the product holds : "The next run can read files under the folder you connect. The folder is never written, and what a run reads is sent to the model this chat is configured with."; draft sentence null
+  observed at this tree   : a staged folder is stat'd and its Git status read before any send (getRepositoryInspection does stat+git: true); renderContextStrip calls it from Home to draw the Branch chip. Repository text a run reads goes on to the configured model.
+
+[CE-4a stale rows while the read is out]
+  claim the product holds : leaving a surface invalidates the reads it started (agent-profiles.mjs openList comment)
+  observed at this tree   : list.status=loading; the rendered rows still read "Before"; the pending read is marked in the DOM: yes
+
+[CE-4b late list reply behind a newer navigation]
+  claim the product holds : openList retires profileEpoch/saveEpoch/detailEpoch when it navigates; openProfile does not apply the symmetric rule
+  observed at this tree   : after navigating into the profile, the older list read resolved and the list state is: status=loading, rows=["After"] (landed as the confirmed list: no)

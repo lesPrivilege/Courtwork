@@ -1,0 +1,22 @@
+{
+  "note": "GET /sessions/:id/repository-candidate/diff, read from inside the page during the journey (step 7), while the candidate was still active. The candidate was later revoked by the Change-folder step, so the same read now answers 409 no_repository_candidate; the write effects and events in host-receipts.json are the durable record of the same facts.",
+  "sessionId": "387363db-c82d-43ef-81ca-b8a628d1727a",
+  "candidateId": "94b0a209-9cea-4a20-a48e-c150db854861",
+  "baseCommit": "58503f3df3af56163e02d98461aaa8b305481fef",
+  "writeRevision": 1,
+  "patchSha256": "0a66a5d141eb87b1a92124976dc385502680005cceaa4342037c068f48263fa3",
+  "truncated": false,
+  "files": [
+    {
+      "path": "src/parcel.mjs",
+      "status": "modified",
+      "bytes": 445,
+      "beforeSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+      "sha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51"
+    }
+  ],
+  "displayedHeadingAtOpen": "From commit 58503f3df3af · 1 write",
+  "displayedHeadingAfterRead": "From commit 58503f3df3af · 1 write",
+  "displayedDiffSummary": "1 added, 1 removed",
+  "counterexampleItReplaces": "evidence/real-dogfood-20260920/08-host-diff.png — 'From commit c8310f06ef60 · 0 writes' over the same one-line patch (same synthetic fixture, same patch hash 0a66a5d1…)"
+}
