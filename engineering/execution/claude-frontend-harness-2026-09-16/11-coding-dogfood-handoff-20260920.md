@@ -71,3 +71,12 @@ Astra pins the delivered source; Luna checks the bounded changed seams and prepa
 After independent readiness acceptance, Astra integrates locally under the existing authorization and gives the user the packet to launch WebUI. Claude stops at delivery and preserves its source/evidence for review; no automatic push, deployment or deletion of the task worktree. Existing heartbeat stays paused; this order does not silently restart it.
 
 Out of scope: local runtime delegation, Agents API expansion, keychain/key migration, hook manager, CC Switch registration, enterprise gateway, Pages redesign and broad G4/accessibility completion. Those directions retain their owners and follow the dogfood consumer instead of becoming prerequisites for this order.
+
+## Delivery
+
+Delivered by Claude on 2026-09-20 from `0e06d70`, branch
+`claude-coding-dogfood-20260920`:
+[coding dogfood readiness packet](evidence/coding-dogfood-readiness-20260920/README.md).
+Reported **`ready for independent review`**, not self-accepted. `real-model
+dogfood passed` and N-02 remain open: no browser pass and no real model have
+run.
