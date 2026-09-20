@@ -41,63 +41,105 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 // --------------------------------------------------------------------------
 
 /**
- * Start `server/index.mjs` on an ephemeral port and wait for the URL it
- * prints. The child inherits no provider environment: the Host strips
- * DEEPSEEK_API_KEY/OPENAI_API_KEY itself, and nothing here adds one.
+ * End a child process and wait for it to be gone, escalating if it will not
+ * cooperate. SIGTERM is the polite request the Host handles; a child that is
+ * wedged, ignoring signals or stuck in shutdown still has to stop, or the
+ * next Host cannot take the data directory's lock.
  */
-async function startHost(dataDir, label) {
+async function terminate(child, { graceMs = 15000 } = {}) {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return { code: child.exitCode, signal: child.signalCode, escalated: false };
+  }
+  const exited = new Promise((resolve) => child.once("exit", (code, signal) => resolve({ code, signal })));
+  child.kill("SIGTERM");
+  const graceful = await Promise.race([exited, sleep(graceMs).then(() => null)]);
+  if (graceful) return { ...graceful, escalated: false };
+  child.kill("SIGKILL");
+  return { ...(await exited), escalated: true };
+}
+
+/**
+ * The child's whole environment, written out rather than inherited.
+ *
+ * `spawn` without `env` hands the child everything this shell happens to
+ * hold. The Host strips `DEEPSEEK_API_KEY` and `OPENAI_API_KEY` itself, but
+ * that is the Host's list, not a guarantee about every provider variable, and
+ * a rehearsal should not depend on whoever ran it having a clean shell. This
+ * fixture needs a path, a home and a temp directory; nothing else is passed,
+ * so no credential or native runtime configuration can reach the child.
+ */
+function childEnvironment() {
+  return {
+    PATH: process.env.PATH ?? "/usr/bin:/bin",
+    HOME: process.env.HOME ?? tmpdir(),
+    TMPDIR: process.env.TMPDIR ?? tmpdir(),
+    LANG: "C",
+  };
+}
+
+/**
+ * Start `server/index.mjs` on an ephemeral port and wait for the URL it
+ * prints. The child is owned from `spawn` onwards: every way this can fail --
+ * an early exit, a readiness timeout, a bootstrap that does not answer --
+ * terminates it and waits for it to go, so no Host outlives a failed start
+ * and no data-directory lock is left held.
+ */
+async function startHost(dataDir, label, { readinessMs = 30000 } = {}) {
   const child = spawn(process.execPath, [SERVER_ENTRY, "--data-dir", dataDir, "--port", "0"], {
-    cwd: APP_DIR, stdio: ["ignore", "pipe", "pipe"],
+    cwd: APP_DIR, stdio: ["ignore", "pipe", "pipe"], env: childEnvironment(),
   });
   let stdout = "", stderr = "";
   child.stdout.on("data", (chunk) => { stdout += chunk; });
   child.stderr.on("data", (chunk) => { stderr += chunk; });
 
-  const deadline = Date.now() + 30000;
-  let url = null;
-  while (!url) {
-    const match = stdout.match(/http:\/\/127\.0\.0\.1:\d+/);
-    if (match) { url = match[0]; break; }
-    if (child.exitCode !== null) throw new Error(`Host ${label} exited before listening: ${stderr || stdout}`);
-    if (Date.now() > deadline) throw new Error(`Host ${label} did not print a URL: ${stderr || stdout}`);
-    await sleep(25);
-  }
+  try {
+    const deadline = Date.now() + readinessMs;
+    let url = null;
+    while (!url) {
+      const match = stdout.match(/http:\/\/127\.0\.0\.1:\d+/);
+      if (match) { url = match[0]; break; }
+      if (child.exitCode !== null || child.signalCode !== null) {
+        throw new Error(`Host ${label} exited before listening: ${stderr.trim() || stdout.trim() || "no output"}`);
+      }
+      if (Date.now() > deadline) {
+        throw new Error(`Host ${label} did not print a URL within ${readinessMs} ms: ${stderr.trim() || stdout.trim() || "no output"}`);
+      }
+      await sleep(25);
+    }
 
-  // The work token authenticates every /api/v5 call. It is per-process, it is
-  // held only here, and it never reaches the report or any durable file.
-  const bootstrap = await (await fetch(`${url}/api/v5/bootstrap`)).json();
-  const token = bootstrap.sessionToken;
-  assert.ok(typeof token === "string" && token.length > 0, "bootstrap must hand a browser its work token");
-  assert.equal(bootstrap.apiVersion, "v5");
+    // The work token authenticates every /api/v5 call. It is per-process, it is
+    // held only here, and it never reaches the report or any durable file.
+    const bootstrap = await (await fetch(`${url}/api/v5/bootstrap`)).json();
+    const token = bootstrap.sessionToken;
+    assert.ok(typeof token === "string" && token.length > 0, "bootstrap must hand a browser its work token");
+    assert.equal(bootstrap.apiVersion, "v5");
 
-  async function api(method, route, body) {
-    const res = await fetch(`${url}/api/v5${route}`, {
-      method,
-      headers: { "content-type": "application/json", "x-work-token": token },
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    const text = await res.text();
-    return { status: res.status, json: text ? JSON.parse(text) : null };
-  }
-
-  return {
-    label, url, api, child, token,
-    async get(pathname) {
-      const res = await fetch(url + pathname);
-      return { status: res.status, type: res.headers.get("content-type"), text: await res.text() };
-    },
-    async events(sessionId) {
-      return (await api("GET", `/sessions/${sessionId}/events`)).json.events;
-    },
-    async stop() {
-      if (child.exitCode !== null) return { code: child.exitCode, signal: child.signalCode };
-      child.kill("SIGTERM");
-      return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(`Host ${label} did not stop on SIGTERM`)), 30000);
-        child.once("exit", (code, signal) => { clearTimeout(timer); resolve({ code, signal }); });
+    async function api(method, route, body) {
+      const res = await fetch(`${url}/api/v5${route}`, {
+        method,
+        headers: { "content-type": "application/json", "x-work-token": token },
+        body: body === undefined ? undefined : JSON.stringify(body),
       });
-    },
-  };
+      const text = await res.text();
+      return { status: res.status, json: text ? JSON.parse(text) : null };
+    }
+
+    return {
+      label, url, api, child, token,
+      async get(pathname) {
+        const res = await fetch(url + pathname);
+        return { status: res.status, type: res.headers.get("content-type"), text: await res.text() };
+      },
+      async events(sessionId) {
+        return (await api("GET", `/sessions/${sessionId}/events`)).json.events;
+      },
+      stop: () => terminate(child),
+    };
+  } catch (error) {
+    // Readiness failed, so nobody else holds this child yet; it is ours to end.
+    await terminate(child).catch(() => {});
+    throw error;
+  }
 }
 
 async function pollRun(host, runId, { until = (run) => !["running", "waiting_user", "stopping"].includes(run.status), timeoutMs = 60000 } = {}) {
@@ -120,14 +162,26 @@ async function waitForEvent(host, sessionId, predicate, { timeoutMs = 60000 } = 
   }
 }
 
+/** PIDs of Host processes started from this server entry, live right now. */
+async function hostPids() {
+  try {
+    const { stdout } = await run("pgrep", ["-f", `${SERVER_ENTRY} --data-dir`]);
+    return stdout.split("\n").map((line) => Number(line.trim())).filter(Boolean);
+  } catch { return []; }
+}
+
 const scriptInput = (calls) => `/fixture script ${JSON.stringify(calls)}`;
 const runEvents = (events, runId) => events.filter((event) => event.runId === runId);
 
-/** The event facts that must survive a restart byte for byte. */
-function durableShape(events) {
-  return events
-    .filter((event) => event.type.startsWith("check.") || event.type.startsWith("repository."))
-    .map((event) => ({ seq: event.seq, runId: event.runId, type: event.type, callId: event.data.callId ?? null, status: event.data.status ?? null }));
+/**
+ * Every persisted `check.*`/`repository.*` event, complete, in order.
+ *
+ * Compared as parsed objects -- the whole event including its full `data`
+ * payload, not a chosen projection of a few fields, and not a claim about the
+ * raw bytes on disk, which this reads back through the API and never sees.
+ */
+function durableEvents(events) {
+  return events.filter((event) => event.type.startsWith("check.") || event.type.startsWith("repository."));
 }
 
 // --------------------------------------------------------------------------
@@ -152,7 +206,7 @@ async function rehearse(root) {
   // ---- process 1 -------------------------------------------------------
   const first = await startHost(manifest.dataDir, "first");
   report.tokensUsed = [first.token];
-  let sessionId, runIdSameRun, preStopShape, preStopEffects;
+  let sessionId, runIdSameRun, preStopEvents, preStopEffects;
   // The stop below is part of the scenario, so it is not in a `finally`; a
   // failure instead tears the child down through `stopOnFailure` so no Host
   // outlives this script.
@@ -174,6 +228,38 @@ async function rehearse(root) {
     assert.equal(unauthorized.status, 401, "the API refuses a request without the work token");
     record("WebUI document and assets are served and the API requires the token", {
       documentBytes: Buffer.byteLength(document.text), appModuleBytes: Buffer.byteLength(asset.text), unauthorizedStatus: unauthorized.status,
+    });
+
+    // ---- a Host that cannot start is still ours to clean up --------------
+    // A second Host on a data directory this one already holds is a real,
+    // operator-reachable failure (LOCK_BUSY), so it needs no injected fault.
+    // What matters is that the failed child is gone afterwards: a survivor
+    // would keep the lock and the restart below could never happen.
+    const before = new Set(await hostPids());
+    await assert.rejects(startHost(manifest.dataDir, "contending", { readinessMs: 20000 }),
+      (error) => /exited before listening|did not print a URL/.test(error.message));
+    const leaked = (await hostPids()).filter((pid) => !before.has(pid));
+    assert.deepEqual(leaked, [], "a Host that failed to start must not outlive the attempt");
+
+    // And a child that refuses SIGTERM is still ended, so a wedged Host can
+    // never hold the lock indefinitely. The stub announces itself once its
+    // handler is installed: signalling before that would only prove the
+    // default disposition kills a process still in Node's bootstrap.
+    const stubborn = spawn(process.execPath,
+      ["-e", "process.on('SIGTERM', () => {}); setInterval(() => {}, 1000); console.log('ignoring');"],
+      { stdio: ["ignore", "pipe", "ignore"], env: childEnvironment() });
+    await new Promise((resolve, reject) => {
+      stubborn.stdout.once("data", resolve);
+      stubborn.once("exit", () => reject(new Error("the uncooperative stub exited before it was ready")));
+      setTimeout(() => reject(new Error("the uncooperative stub never announced itself")), 10000);
+    });
+    const ended = await terminate(stubborn, { graceMs: 700 });
+    assert.equal(ended.escalated, true, "an uncooperative child must be escalated to SIGKILL");
+    assert.equal(ended.signal, "SIGKILL");
+    assert.throws(() => process.kill(stubborn.pid, 0), /ESRCH/, "and must actually be gone");
+    record("a failed start leaves no Host, and an uncooperative child is still ended", {
+      startupFailure: "LOCK_BUSY on a held data directory", leakedProcesses: 0,
+      uncooperativeChildEscalatedTo: ended.signal,
     });
 
     // An ordinary Chat, then the explicit repository connection on top of it.
@@ -317,12 +403,13 @@ async function rehearse(root) {
       runId: run3.id, runStatus: finished3.status, checkStarted: false,
     });
 
-    preStopShape = durableShape(await first.events(sessionId));
+    preStopEvents = durableEvents(await first.events(sessionId));
   } catch (error) { await stopOnFailure(error); }
 
   const firstExit = await first.stop();
   assert.equal(firstExit.signal ?? null, null, "the Host stops on SIGTERM without being killed");
-  record("stopped the first Host process", { exitCode: firstExit.code, signal: firstExit.signal });
+  assert.equal(firstExit.escalated, false, "a clean stop must not need SIGKILL");
+  record("stopped the first Host process", { exitCode: firstExit.code, signal: firstExit.signal, escalated: firstExit.escalated });
 
   // ---- process 2: continue from durable state ---------------------------
   const second = await startHost(manifest.dataDir, "second");
@@ -335,8 +422,10 @@ async function rehearse(root) {
     assert.equal(resumed.repositoryCandidate.writeRevision, 1, "with no write replayed or added by the restart");
     assert.equal(resumed.repositoryCandidate.baseCommit, manifest.sourceRepository.head, "still pinned to its original base commit");
 
-    const resumedShape = durableShape(await second.events(sessionId));
-    assert.deepEqual(resumedShape, preStopShape, "the restart must not replay, duplicate or recompute any recorded effect");
+    const resumedEvents = durableEvents(await second.events(sessionId));
+    assert.deepEqual(resumedEvents, preStopEvents,
+      "every persisted check/repository event, payload included, must survive the restart unchanged");
+    assert.ok(preStopEvents.length > 0, "the comparison must not pass by comparing two empty lists");
     const resumedEffects = (await second.api("GET", `/sessions/${sessionId}/repository-candidate/effects`)).json.effects;
     assert.deepEqual(resumedEffects, preStopEffects, "the write receipts are the same bytes after the restart");
     const resumedDiff = (await second.api("GET", `/sessions/${sessionId}/repository-candidate/diff`)).json;
@@ -344,7 +433,8 @@ async function rehearse(root) {
     assert.equal(resumedDiff.files.length, 1);
     record("a fresh Host process resolved the same Chat, candidate and history", {
       sessionId, candidateId: resumed.repositoryCandidate.id, writeRevision: resumed.repositoryCandidate.writeRevision,
-      durableEventsUnchanged: true, effectsUnchanged: true,
+      comparison: "complete persisted check.*/repository.* events, parsed-object equality (not raw storage bytes)",
+      durableEventsCompared: preStopEvents.length, durableEventsUnchanged: true, effectsUnchanged: true,
     });
 
     // ---- a NEW bounded task in the resumed Chat --------------------------
@@ -415,7 +505,7 @@ async function rehearse(root) {
     report.sameRunWriteCheckRunId = runIdSameRun;
   } finally {
     const secondExit = await second.stop();
-    record("stopped the second Host process", { exitCode: secondExit.code, signal: secondExit.signal });
+    record("stopped the second Host process", { exitCode: secondExit.code, signal: secondExit.signal, escalated: secondExit.escalated });
   }
 
   report.finishedAt = new Date().toISOString();

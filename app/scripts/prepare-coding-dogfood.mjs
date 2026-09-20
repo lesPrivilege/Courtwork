@@ -11,7 +11,7 @@
 // The Host itself is started separately (see the printed startup command);
 // this entry only lays down durable state the Host and the browser then use.
 import { execFile } from "node:child_process";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
@@ -41,15 +41,80 @@ Creates <root>/source (synthetic Git repository with a known failing test),
 No credential, API key or personal configuration is read or written.
 `;
 
-/** Absolute, no trailing separator, and never inside this repository. */
-function resolveRoot(value) {
-  const root = path.resolve(value);
-  const repoRoot = path.resolve(APP_DIR, "..");
-  const relative = path.relative(repoRoot, root);
-  if (relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative))) {
-    throw new Error(`--root must be outside the product repository (${repoRoot})`);
+const REPO_ROOT = path.resolve(APP_DIR, "..");
+
+/**
+ * Is `candidate` the same path as `parent`, or below it?
+ *
+ * Compared by path COMPONENT, never by string prefix: `path.relative` returns
+ * `..name` for an ordinary repository child called `..name`, and a
+ * `startsWith("..")` test reads that as "outside" and lets it through. Only a
+ * leading `..` component means the path actually leaves `parent`.
+ */
+function isWithin(parent, candidate) {
+  const relative = path.relative(parent, candidate);
+  if (relative === "") return true;
+  if (path.isAbsolute(relative)) return false;
+  return relative.split(path.sep)[0] !== "..";
+}
+
+/**
+ * The nearest ancestor of `target` that exists, with every symbolic link
+ * already resolved, plus the part of `target` still to be created below it.
+ * `path.resolve` alone cannot answer the containment question: it is lexical,
+ * so a symlink pointing into the repository resolves to a path that merely
+ * looks outside it.
+ */
+async function canonicalAncestor(target) {
+  let existing = target;
+  const pending = [];
+  for (;;) {
+    try { return { real: await realpath(existing), pending }; }
+    catch (error) {
+      if (error.code !== "ENOENT" && error.code !== "ENOTDIR") throw error;
+      const parent = path.dirname(existing);
+      if (parent === existing) throw new Error(`no existing ancestor for ${target}`);
+      pending.unshift(path.basename(existing));
+      existing = parent;
+    }
   }
-  return root;
+}
+
+/**
+ * Resolve `--root` and prove the destination really is outside the product
+ * repository -- after symbolic links, not before them. Called before anything
+ * is created, so a rejected root leaves no preparation files behind.
+ */
+async function resolveRoot(value) {
+  if (typeof value !== "string" || !value.trim()) throw new Error("--root must be a path");
+  const root = path.resolve(value);
+  const repoReal = await realpath(REPO_ROOT);
+  const { real, pending } = await canonicalAncestor(root);
+  const canonical = path.join(real, ...pending);
+  if (isWithin(repoReal, canonical) || isWithin(canonical, repoReal)) {
+    throw new Error(`--root must be outside the product repository (${REPO_ROOT}); `
+      + `${root} resolves to ${canonical}`);
+  }
+  return { root, canonical };
+}
+
+/**
+ * One argument, quoted for a POSIX shell (`sh`, `bash`, `zsh`).
+ *
+ * `JSON.stringify` is JSON encoding, not shell escaping: inside JSON's double
+ * quotes a POSIX shell still expands `$(...)`, backticks and `$VAR`. Single
+ * quotes suppress every expansion, and the one character they cannot carry --
+ * a single quote -- is spliced in as `'\''`.
+ */
+export function shellQuote(argument) {
+  const text = String(argument);
+  if (text !== "" && /^[A-Za-z0-9_@%+=:,./-]+$/.test(text)) return text;
+  return `'${text.replaceAll("'", `'\\''`)}'`;
+}
+
+/** A whole argv, quoted so a POSIX shell reproduces it verbatim. */
+export function shellCommand(parts) {
+  return parts.map(shellQuote).join(" ");
 }
 
 async function entries(dir) {
@@ -71,23 +136,67 @@ async function gitFact(dir, args) {
 }
 
 /**
+ * The launch contract, always built from THIS checkout.
+ *
+ * A manifest is a file on disk that anything can rewrite, so its recorded
+ * executable and argv are provenance, never instructions: printing them back
+ * would turn "reprint the command I created" into "run whatever this file now
+ * says". The command below is derived from `process.execPath` and the server
+ * entry resolved from `import.meta.url`; only the data directory comes from
+ * the instance, and it has already been proved to sit inside it.
+ */
+function launchContract(dataDir) {
+  return { command: process.execPath, args: [SERVER_ENTRY, "--data-dir", dataDir, "--port", "8787"] };
+}
+
+/**
+ * Accept a manifest only as a description of the instance at `root`.
+ *
+ * Every path it names must be the one this script would have created there,
+ * so a redirected `sourcePath`/`dataDir` cannot make `--reuse` read or report
+ * another instance. Mismatches fail closed and touch nothing: refusing is
+ * always safe, resetting the operator's data never is.
+ */
+function validateManifest(manifest, root) {
+  const fail = (why) => { throw new Error(`${path.join(root, MANIFEST_NAME)} does not describe this instance: ${why}`); };
+  if (!manifest || typeof manifest !== "object") fail("it is not an object");
+  if (manifest.schemaVersion !== SCHEMA_VERSION) fail(`schemaVersion ${manifest.schemaVersion} is not ${SCHEMA_VERSION}`);
+  if (manifest.scenario !== "coding-dogfood") fail(`scenario ${JSON.stringify(manifest.scenario)} is not "coding-dogfood"`);
+  if (path.resolve(manifest.root ?? "") !== root) fail("its root is a different directory");
+  if (path.resolve(manifest.sourcePath ?? "") !== path.join(root, "source")) fail("its sourcePath is not <root>/source");
+  if (path.resolve(manifest.dataDir ?? "") !== path.join(root, "runtime-data")) fail("its dataDir is not <root>/runtime-data");
+  if (!/^[0-9a-f]{40}$/.test(manifest.sourceRepository?.head ?? "")) fail("it records no source commit");
+  return manifest;
+}
+
+/**
  * Inspect an instance this script created. Reports the manifest together with
  * the source repository's CURRENT head and worktree cleanliness, so a rerun
  * can tell an untouched preparation from one a rehearsal or a browser pass has
  * already moved on from. Nothing is modified.
  */
 export async function inspectPreparation(rootValue) {
-  const root = resolveRoot(rootValue);
-  const manifest = await readManifest(root);
-  if (!manifest) throw new Error(`no ${MANIFEST_NAME} at ${root}: this is not a prepared instance`);
-  if (manifest.schemaVersion !== SCHEMA_VERSION) {
-    throw new Error(`${MANIFEST_NAME} schemaVersion ${manifest.schemaVersion} is not ${SCHEMA_VERSION}`);
+  const { root, canonical } = await resolveRoot(rootValue);
+  const stored = await readManifest(root);
+  if (!stored) throw new Error(`no ${MANIFEST_NAME} at ${root}: this is not a prepared instance`);
+  const manifest = validateManifest(stored, root);
+
+  // The instance must still be where it says it is, links included.
+  const sourceReal = await realpath(manifest.sourcePath);
+  if (!isWithin(canonical, sourceReal)) {
+    throw new Error(`${manifest.sourcePath} now resolves outside ${root}; refusing to read it`);
   }
+
   const currentHead = await gitFact(manifest.sourcePath, ["rev-parse", "HEAD"]);
   const status = await gitFact(manifest.sourcePath, ["status", "--porcelain"]);
   const dataEntries = (await entries(manifest.dataDir)) ?? [];
   return {
     manifest,
+    // Provenance, reported rather than trusted: an instance stays usable after
+    // this checkout moves, so a different appDir is information, not a fault.
+    preparedByAppDir: manifest.host?.appDir ?? null,
+    preparedByThisCheckout: manifest.host?.appDir === APP_DIR,
+    launch: launchContract(manifest.dataDir),
     sourceHeadMatchesManifest: currentHead === manifest.sourceRepository.head,
     currentSourceHead: currentHead,
     sourceWorktreeClean: status === "",
@@ -101,7 +210,7 @@ export async function inspectPreparation(rootValue) {
  * --reuse or a different root rather than having its candidate reset.
  */
 export async function createPreparation(rootValue) {
-  const root = resolveRoot(rootValue);
+  const { root } = await resolveRoot(rootValue);
   const existing = await entries(root);
   if (existing && existing.length) {
     const prepared = await readManifest(root);
@@ -114,6 +223,17 @@ export async function createPreparation(rootValue) {
   const dataDir = path.join(root, "runtime-data");
   await mkdir(sourcePath, { recursive: true });
   await mkdir(dataDir, { recursive: true });
+
+  // Recheck after creating: the boundary was proved against the destination as
+  // it was, and between then and now a link on the way could have changed.
+  // Nothing has been written into these directories yet.
+  const repoReal = await realpath(REPO_ROOT);
+  for (const created of [sourcePath, dataDir]) {
+    if (isWithin(repoReal, await realpath(created))) {
+      throw new Error(`${created} resolved inside the product repository after creation; refusing to prepare`);
+    }
+  }
+
   const { head, files } = await createSyntheticRepository(sourcePath);
 
   const manifest = {
@@ -134,7 +254,10 @@ export async function createPreparation(rootValue) {
     },
     host: {
       appDir: APP_DIR,
-      startup: { command: process.execPath, args: [SERVER_ENTRY, "--data-dir", dataDir, "--port", "8787"] },
+      // Provenance: what this checkout would run when the instance was made.
+      // `--reuse` derives the command it prints from the checked-out source
+      // instead of reading this back (see `launchContract`).
+      startup: launchContract(dataDir),
       env: { SE_RUNTIME_DATA_DIR: dataDir },
       defaultProvider: "fake-openai-loopback (Local test provider; no credential required)",
     },
@@ -144,9 +267,8 @@ export async function createPreparation(rootValue) {
   return manifest;
 }
 
-function instructions(manifest) {
-  const { startup } = manifest.host;
-  const quoted = [startup.command, ...startup.args].map(part => /[\s"']/.test(part) ? JSON.stringify(part) : part).join(" ");
+function instructions(manifest, launch = launchContract(manifest.dataDir)) {
+  const quoted = shellCommand([launch.command, ...launch.args]);
   return [
     "",
     "Prepared one coding dogfood instance.",
@@ -188,7 +310,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToP
       const report = await inspectPreparation(values.root);
       if (values.json) console.log(JSON.stringify(report, null, 2));
       else {
-        console.log(instructions(report.manifest));
+        console.log(instructions(report.manifest, report.launch));
         console.log([
           "Reusing an existing instance. Current state:",
           `  source head matches manifest     ${report.sourceHeadMatchesManifest}`,
@@ -197,6 +319,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(fileURLToP
           report.hostDataDirUsed
             ? "  (a Chat, candidate or history may already exist here; open it rather than expecting a blank start)"
             : "  (nothing has run against this instance yet)",
+          `  prepared by this checkout        ${report.preparedByThisCheckout}`,
+          report.preparedByThisCheckout
+            ? ""
+            : `  (it was prepared from ${report.preparedByAppDir}; the command above is this checkout's, which is the one that will run)`,
           "",
         ].join("\n"));
       }
