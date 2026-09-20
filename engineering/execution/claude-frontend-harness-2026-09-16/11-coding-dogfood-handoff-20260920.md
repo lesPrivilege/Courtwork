@@ -107,3 +107,7 @@ Focused author verification passed:
 - `node --check runtime/repository-candidate-tools.mjs`, `node --check tests/candidate-visible-hash.test.mjs`, and `git diff --check` — exit 0.
 
 Author source SHA-256 before commit: `app/runtime/repository-candidate-tools.mjs` `3ae6dccf25593b5c24fd97a4bc77540d87be221044dccedbb041f1422c6a4301`; `app/tests/candidate-visible-hash.test.mjs` `04fdbde5f3490e4e1da78915fe362a5f62b632321844b359f859a1b1766e48e2`. This is ready for Astra/Luna independent review, not self-acceptance. Remaining real-model/browser acceptance stays open; the only material compatibility risk is a larger provider-visible result for every candidate file read, bounded by the existing candidate read limit.
+
+## Real browser basic journey accepted — 2026-09-20
+
+Astra accepts the bounded synthetic-parcel real-model journey on integrated `95080e4`, after Luna independently accepts the model-visible hash correction (25/25). [Completion and exact identities](evidence/real-dogfood-20260920/completion.md) separate the earlier assisted run from the new unassisted write/check at candidate revision 1 and exit 0 (2/2), unchanged source, reload, previous process-restart comparison and restoration-verified repair-tree cleanup. N-02's historical RuntimeLock reproduction and broader robustness remain open; no G4 or arbitrary coding acceptance is inferred. Claude's queued frontend friction and 06a correction review retain their owners.

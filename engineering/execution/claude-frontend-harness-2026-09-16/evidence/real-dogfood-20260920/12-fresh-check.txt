@@ -1,0 +1,4 @@
+Browser tab: 4, Title: "CourtWork", URL: "http://127.0.0.1:8787/#".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~				536 text Waiting for you · 5m 47s · your input will not be sent automatically.
+The focused UI element is 1 AXWebArea CourtWork, URL: 127.0.0.1:8787/#

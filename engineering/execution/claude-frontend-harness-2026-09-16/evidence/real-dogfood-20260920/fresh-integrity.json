@@ -1,0 +1,8 @@
+{
+  "sourceHead": "b668ae99c7b249ec639acbb3d46f63b85784783d",
+  "sourceStatus": "",
+  "sourceFileSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+  "candidateFileSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+  "candidateWriteRevision": 1,
+  "candidateDiff": "diff --git a/src/parcel.mjs b/src/parcel.mjs\nindex 7b884a1..aabeed5 100644\n--- a/src/parcel.mjs\n+++ b/src/parcel.mjs\n@@ -2,7 +2,7 @@\n export function pageCount(count, perPage) {\n   if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\n   if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\n-  return Math.floor(count / perPage);\n+  return Math.ceil(count / perPage);\n }\n \n export function pageOf(index, perPage) {\n"
+}

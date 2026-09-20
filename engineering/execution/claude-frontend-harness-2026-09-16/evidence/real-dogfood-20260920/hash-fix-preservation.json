@@ -1,0 +1,18 @@
+{
+  "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-dogfood-visible-hash-20260920",
+  "head": "bb10925ec2760b174d7e515cad7f79c6dc4adc31",
+  "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-dogfood-visible-hash-20260920",
+  "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-dogfood-visible-hash-20260920/files.tar.gz",
+  "archiveSha256": "cc75a194ddda88953d29e6ad2819d818f3e8bf810a6ee3f35571d0b3a499ce7e",
+  "manifestSha256": "c6007ab51a5a373cfbb8a7f31dbbb9b0064d928af4ed0649b23626fa5f436b80",
+  "entryCount": 8516,
+  "fileBytes": 441218802,
+  "physicalRestoreVerified": true,
+  "sourceRecheckPassed": true,
+  "bundle": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/visible-hash-increment.bundle",
+  "bundleSha256": "0b9d78e623e032c41240168613b5375bb8cbef5d26b4f3be2cd587c9a93ea212",
+  "bundlePrerequisite": "972fc9a22389b85c4a495f1d1f720ec71d07e099",
+  "prerequisiteRestoredFrom": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/repository.bundle",
+  "bundleRestoreVerified": true,
+  "removed": true
+}

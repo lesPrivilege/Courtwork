@@ -1,8 +1,8 @@
 # 当前工程状态
 
-## 2026-09-20 · Real dogfood: assisted success; model-visible hash correction active
+## 2026-09-20 · Basic real coding dogfood accepted; 06a delta review next
 
-[Real browser evidence](execution/claude-frontend-harness-2026-09-16/evidence/real-dogfood-20260920/README.md) records successful real-model diagnosis, one prevented stale/create write, and an explicitly assisted write/check at exit 0 (2/2). `candidate_read` hides the required old-file hash in local metadata; autonomous N-02 stays open. Astra dispatches only that bounded runtime correction to Sol in an isolated tree, with Luna non-author verification and a fresh real retry afterward. Frontend friction is queued for Claude; revised 06a `aca21c8` is received, not accepted, and waits behind this serial blocker. No key export, product-source edit through CW, push or deployment.
+[The real browser completion](execution/claude-frontend-harness-2026-09-16/evidence/real-dogfood-20260920/completion.md) accepts fresh, unassisted DeepSeek diagnosis → exact candidate-write approval → same-Run Host check (revision 1, exit 0, 2/2) → reload, with the source unchanged. Sol's model-visible hash fix passes Luna's independent 25/25 and is merged at `95080e4`; its ended tree is restored-verified and removed. Earlier failure/assistance evidence remains intact. The historical RuntimeLock case, broader N-02 robustness and G4 residuals are not claimed closed. User Host/connection and synthetic data remain available. Claude's frontend friction batch stays queued; 06a `aca21c8` is now under bounded independent AP-R1…R6 review. Heartbeat paused; no key export, push or deployment.
 
 ## 2026-09-20 · Dogfood readiness independently accepted
 

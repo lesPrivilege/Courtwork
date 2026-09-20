@@ -1,0 +1,33 @@
+✔ candidate_read sends Pi the full-file CAS hash while preserving ranged Unicode text (79.814542ms)
+✔ repo_write still forwards a stale expected hash to the Host CAS boundary (0.840416ms)
+✔ candidate reads and writes serialize so provenance keeps the observed write revision (4.454833ms)
+✔ parallel ask-mode writes cannot spend approval after the candidate revision advances (2.63725ms)
+✔ private Git candidate uses the explicit commit, contains source execution config, and leaves the dirty source untouched (2560.530041ms)
+✔ private candidate dissociates source object alternates (2049.906542ms)
+✔ candidate diff stops collecting untracked patches at the aggregate Host limit (3738.205083ms)
+✔ Linux mountinfo parser detects escaped mountpoint descendants (36.566083ms)
+✔ candidate creation rejects a replaced bound source root (128.073292ms)
+✔ candidate FD write inspects expected hashes and replaces existing files with a new inode (2328.984042ms)
+✔ candidate FD write creates only absent targets and serializes the no-replace primitive (2043.71325ms)
+✔ candidate FD write rejects traversal, Git control paths, symlinks, and a replaced root (2115.821ms)
+✔ candidate FD post-operation check catches root replacement after its descriptor is opened (1943.7325ms)
+✔ candidate API rejects UUID versions the private-worktree builder cannot create before recording a receipt (102.336833ms)
+✔ candidate command history rejects overflow without poisoning restart and source revoke remains available (194.008917ms)
+✔ candidate receipt budget preserves NO_ACTIVE_CANDIDATE and refuses a create that would strand revoke (187.610208ms)
+✔ repository write effect cap rejects before mutation and leaves an openable store (192.57125ms)
+✔ repository retained-payload cap rejects a write from a later candidate (176.96425ms)
+✔ schema17 candidate API keeps source reads separate, asks before writes, records receipts, and revokes Run access (6838.389709ms)
+✔ human candidate diff route requires an active candidate and the work token (65.049542ms)
+✔ candidate_grep and repo_diff exclude a candidate_read-denied file, counting it without naming it (3666.534834ms)
+✔ source binding replacement requires an active private candidate to be revoked first (2278.808041ms)
+✔ confirmed candidate write replay returns its stored receipt without reapplying stale expected state (2701.705292ms)
+✔ schema16 migrates into schema17 without losing source binding snapshots (130.751417ms)
+✔ prepared repository writes become unknown after restart and are never replayed (127.48975ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34492.563375
