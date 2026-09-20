@@ -80,10 +80,32 @@ export function createAgentProfilesView(mount, controller) {
     return active.getAttribute("data-focus-key");
   }
 
+  /* Where the keyboard goes when the control it was on cannot take it back.
+     Pressing Save disables Save — so between the press and the reply there is
+     no control to return to, and focus would otherwise fall to `body` and send
+     the next Tab to the top of the form. The chain names the destination that
+     still answers the action: the button again if the save can be retried, and
+     otherwise the receipt that says what happened. */
+  const FOCUS_CHAIN = { save: ["save", "save-receipt"] };
+  let pendingFocusKey = null;
+
+  function node(key) {
+    return mount.querySelector(`[data-focus-key="${CSS.escape(key)}"]`);
+  }
+
   function restore(key) {
     if (!key) return;
-    const target = mount.querySelector(`[data-focus-key="${CSS.escape(key)}"]`);
-    target?.focus({ preventScroll: true });
+    for (const candidate of FOCUS_CHAIN[key] || [key]) {
+      const target = node(candidate);
+      if (target && !target.disabled) {
+        target.focus({ preventScroll: true });
+        pendingFocusKey = null;
+        return;
+      }
+    }
+    /* The control exists but cannot hold focus yet. Remember it and try again
+       on the next render — a request in flight is a wait, not a loss. */
+    pendingFocusKey = node(key) ? key : null;
   }
 
   /* ── List ───────────────────────────────────────────────────────────── */
@@ -98,19 +120,17 @@ export function createAgentProfilesView(mount, controller) {
         ? `${row.runtimeName} · unavailable`
         : row.runtimeName,
     ].join(" · ");
-    /* `chevron-right` is the established "this row opens something" mark. The
-       runtime detour has no established glyph and does not get an invented one
-       (IC-1): it is a named text action. */
+    /* One action, and it opens the profile — including when this profile's
+       runtime is down. Routing that row to a read-only runtime card instead
+       would strand the person on the page that cannot change the choice; the
+       reason travels with them, in the row's own text and in the profile. */
     const control = action(
-      row.nextAction.intent === "runtime" ? null : "chevron-right",
+      "chevron-right",
       row.nextAction.label,
-      () =>
-        row.nextAction.intent === "runtime"
-          ? openDetail(row.nextAction.targetId, `row:${row.id}`)
-          : controller.openProfile(row.id),
+      () => controller.openProfile(row.nextAction.targetId),
       {
         visible: true,
-        trailing: row.nextAction.intent === "open",
+        trailing: true,
         className: "quiet-button",
         attrs: { "data-focus-key": `row:${row.id}`, "data-testid": `row-action:${row.id}` },
       },
@@ -331,12 +351,18 @@ export function createAgentProfilesView(mount, controller) {
     }
     const list = el("dl", { className: "data-list", attrs: { "data-testid": "permission-scope" } });
     for (const request of projection.requests) {
+      /* Three different silences, and they must not be worded alike: no
+         runtime chosen yet, a runtime that cannot do this at all, and a
+         runtime that can but whose permission owner has reported nothing.
+         Telling the third "choose a runtime" asks for a choice already made. */
       const reading =
-        request.supported === false
-          ? `Not supported by ${projection.runtime.name}`
-          : request.effect
-            ? EFFECT_WORDS[request.effect]
-            : "Unknown — choose a runtime to read this";
+        request.supported === null
+          ? "Unknown until a runtime is chosen"
+          : request.supported === false
+            ? `Not supported by ${projection.runtime.name}`
+            : request.effect
+              ? EFFECT_WORDS[request.effect]
+              : "Permission effect not reported";
       list.append(
         el("dt", { text: request.label }),
         el("dd", {
@@ -423,6 +449,17 @@ export function createAgentProfilesView(mount, controller) {
       );
     const canSave = controller.canSave();
     const saving = save.status === "saving";
+    /* An owner that cannot accept this write at all says so here. Without it
+       the page shows a dead button and no reason — the exact failure the
+       fixture-vs-production boundary exists to prevent. */
+    if (!state.capabilities.canSave && state.capabilities.reason)
+      block.append(
+        el("p", {
+          className: "form-help",
+          attrs: { "data-testid": "capability-reason" },
+          text: state.capabilities.reason,
+        }),
+      );
     const saveButton = el("button", {
       className: "primary-button",
       text: saving ? "Saving…" : "Save",
@@ -453,16 +490,23 @@ export function createAgentProfilesView(mount, controller) {
     block.append(actions, el("p", { className: "form-help", text: NOT_AN_ACCEPTANCE_SENTENCE }));
     /* One live region for the receipt. It names the exact revision the owner
        confirmed, because "Saved" alone cannot be checked against anything. */
+    const confirmed = save.status === "saved";
     block.append(
       el("p", {
         className: "form-help",
-        attrs: { role: "status", "data-testid": "save-receipt" },
-        text:
-          save.status === "saved"
-            ? `Saved. This host confirmed revision ${save.revision}; it applies to the next run.`
-            : saving
-              ? "Saving…"
-              : "",
+        attrs: {
+          role: "status",
+          "data-testid": "save-receipt",
+          /* Focusable only once it is a finished receipt. While the request is
+             out there is nothing to land on yet, and the keyboard waits for
+             Save to come back instead. */
+          ...(confirmed ? { tabindex: "-1", "data-focus-key": "save-receipt" } : {}),
+        },
+        text: confirmed
+          ? `Saved. This host confirmed revision ${save.revision}; it applies to the next run.`
+          : saving
+            ? "Saving…"
+            : "",
       }),
     );
     return block;
@@ -604,7 +648,13 @@ export function createAgentProfilesView(mount, controller) {
   }
 
   function render() {
-    const key = focusKeyNow();
+    const owned = focusKeyNow();
+    /* Only resume a pending restore while nobody else has taken the keyboard.
+       If focus has moved on — to another control here or to anything outside
+       this panel — the wait is over and this surface does not take it back. */
+    const unclaimed = !document.activeElement || document.activeElement === document.body;
+    const key = owned || (unclaimed ? pendingFocusKey : null);
+    if (owned || !unclaimed) pendingFocusKey = null;
     mount.replaceChildren(...(state.view === "list" ? renderList() : renderProfile()));
     renderDialog();
     /* Focus belongs to the modal while one is open; reaching back into the

@@ -1,24 +1,27 @@
 /** Agent profile journey · consumer projection and intents (slice 1).
  *
  * This is the *minimum* the Settings → Agents → Agent profiles journey reads and
- * asks for. It is a frontend consumption contract, not a second ledger: every
- * field below names a fact that an existing backend owner either holds today or
- * is recorded as missing in the delivery record beside this file. The frontend
- * never synthesizes a value that is absent here — a missing fact stays missing.
+ * asks for. It is a frontend consumption contract, not a second ledger, and it
+ * is not an ownership ledger either: **every fact below already has an owner.**
+ * What some of them do not yet have is an implementation exposed to this
+ * consumer, which is a different thing and is recorded as such. The frontend
+ * never synthesizes a value that is absent — a missing fact stays missing.
  *
- * Ownership, per the 2026-09-20 local-runtime ruling and the runtime control
- * plane index:
- *   - profile identity / composition / revision → runtime control plane
- *     (`agent_profile` resource kind, `AgentCompositionSource`, snapshot
- *     `revision`, `RuntimeChange{operation:'profile'}`);
- *   - Kit identity, version and per-runtime support → **no owner today**;
- *   - Runtime registration, availability and model ownership → **no owner
- *     today** (target `Settings → Agents → Runtimes`);
- *   - effective model → existing provider configuration owner (`/provider-config`),
- *     whose scope is still global future-runs;
- *   - permission effect per requested action → runtime control plane
- *     (`PermissionExplanation`, `evaluatePermission`);
- *   - active-Run freeze → runtime snapshot `activeRuns`.
+ * Owners, per the 2026-09-20 local-runtime ruling and Astra's 06a disposition:
+ *   - profile composition and its revision → Runtime Control;
+ *   - Role semantics → the existing product / Host admission contract;
+ *   - Kit identity, version, admission and context → Harness Extension / RD-009;
+ *   - runtime registration, capability and lifecycle → Runtime Adapter / RD-001;
+ *   - provider, model and authentication → their existing configuration owner;
+ *   - cross-layer seams → adjudicated by Astra.
+ *
+ * What exists today versus what this consumer proposes. `app/runtime/control-
+ * contract.d.ts` exposes a configuration-wide snapshot `revision`, a numeric
+ * `activeRuns` count, and a scoped profile-selection mutation. It does **not**
+ * expose the per-profile `revision`, the `{runId, revision}` binding or the
+ * Role/Kit/Runtime save shape used below. Those are proposed consumer needs for
+ * the owners named above, not implemented API fields, and nothing here may be
+ * read as an agreed projection before those owners have agreed it.
  */
 
 /** A saved-and-confirmed composition. Draft values never appear here. */
@@ -30,12 +33,15 @@ export interface AgentProfileRecord {
   roleId: string;
   kitIds: string[];
   runtimeId: string;
-  /** The revision the owner confirmed for these exact values. */
+  /** The revision the owner confirmed for these exact values. **Proposed**:
+   * the control plane exposes a configuration-wide revision, not a per-profile
+   * one. */
   revision: number;
   /** Owner-supplied instant of that confirmation; never a client clock. */
   savedAt: string;
   /** Present only while a Run holds this profile. `revision` is what that Run
-   * is bound to, which can be older than `revision` above. */
+   * is bound to, which can be older than `revision` above. **Proposed**: the
+   * control plane exposes an `activeRuns` count, not this binding. */
   activeRun: { runId: string; revision: number } | null;
 }
 
@@ -112,9 +118,10 @@ export interface AgentProfileRow {
   runtimeAvailability: RuntimeAvailability;
   revision: number;
   activeRun: { runId: string; revision: number } | null;
-  /** The one action this row offers. `intent` selects an in-product
-   * destination; the adapter decides which one is useful for this row. */
-  nextAction: { intent: 'open' | 'runtime'; label: string; targetId: string };
+  /** The one action this row offers, and it always opens this profile: every
+   * choice — including changing an unavailable runtime — is made there, so a
+   * row must not route away from it. The adapter supplies the wording. */
+  nextAction: { label: string; targetId: string };
 }
 
 /** A read-only runtime view reached from a profile. Slice 1 reads only. */
@@ -139,7 +146,9 @@ export interface AgentProfilesAdapter {
   list(): Promise<{ rows: AgentProfileRow[] }>;
   open(id: string): Promise<AgentProfileDetail>;
   /** `expectedRevision` is the revision the draft was composed against. A
-   * mismatch must fail with `code: 'profile_conflict'`; it must never merge. */
+   * mismatch must fail with `code: 'profile_conflict'`; it must never merge.
+   * **Proposed**: `RuntimeChange` carries a revision for a scoped profile
+   * *selection*, and has no shape for a Role/Kit/Runtime composition save. */
   save(
     id: string,
     draft: { roleId: string; kitIds: string[]; runtimeId: string },

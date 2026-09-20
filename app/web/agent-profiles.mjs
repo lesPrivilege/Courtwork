@@ -167,6 +167,10 @@ export function createAgentProfilesController({ adapter }) {
       const own = ++listEpoch;
       profileEpoch += 1;
       saveEpoch += 1;
+      /* Leaving a surface invalidates the reads it started. Closing the detail
+         without retiring its epoch would let a reply still in flight reopen it
+         over the list a moment later (Luna F-01). */
+      detailEpoch += 1;
       view = "list";
       anchorId = anchor;
       runtimeDetail = { status: "closed", id: null, record: null, error: "" };
@@ -190,6 +194,7 @@ export function createAgentProfilesController({ adapter }) {
          values visible while the reload is out; a different profile starts
          from nothing rather than borrowing the previous one's facts. */
       const carried = profile?.id === id ? profile.detail : null;
+      detailEpoch += 1;
       view = "profile";
       anchorId = id;
       runtimeDetail = { status: "closed", id: null, record: null, error: "" };
@@ -257,7 +262,11 @@ export function createAgentProfilesController({ adapter }) {
     },
 
     discardDraft() {
-      if (!profile?.detail) return;
+      /* The view already hides this while a request is out; the rule belongs
+         here too. Discarding mid-flight would leave the draft describing one
+         thing and the reply confirming another, and the controller must stay
+         coherent under a race the view cannot see (Luna F-02). */
+      if (!profile?.detail || profile.save.status === "saving") return;
       profile.draft = draftOf(profile.detail.profile);
       profile.dirty = false;
       profile.save = emptySave();
@@ -293,12 +302,16 @@ export function createAgentProfilesController({ adapter }) {
            about a state nobody is looking at. */
         if (own !== saveEpoch || profile?.id !== id) return false;
         if (!sameDraft(profile.draft, requested)) {
-          profile.save = {
-            status: "idle",
-            message: "",
-            revision: null,
-          };
+          /* The owner did apply this save; the draft simply moved on while the
+             request was out. Dropping the reply here would imply the write was
+             cancelled, so the confirmed revision is adopted and named, and the
+             draft is re-measured against it rather than reported clean. */
           adopt(detail);
+          profile.draft = { ...profile.draft, kitIds: [...profile.draft.kitIds] };
+          profile.dirty = !sameDraft(profile.draft, draftOf(detail.profile));
+          if (profile.dirty) drafts.set(id, clone(profile.draft));
+          else drafts.delete(id);
+          profile.save = { status: "saved", message: "", revision: detail.profile.revision };
           emit();
           return false;
         }

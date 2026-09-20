@@ -16,6 +16,11 @@ export const VARIANTS = [
   "save-error",
   "stale-revision",
   "runtime-unavailable",
+  /* Two states a production adapter will really have and a happy fixture never
+     produces: an owner that cannot accept a write at all, and a supported
+     action the permission owner has not reported an effect for. */
+  "read-only",
+  "grant-unreported",
 ];
 
 const copy = (value) => structuredClone(value);
@@ -213,15 +218,23 @@ export function createAgentProfilesFixture({ pause = wait, readDelay = 160, save
   let otherWriterPending = false;
 
   const runtimesFor = () =>
-    RUNTIMES.map((runtime) =>
-      variant === "runtime-unavailable" && runtime.id === "rt-pi"
-        ? {
-            ...copy(runtime),
-            availability: "unavailable",
-            unavailableReason: "The Pi process is not running on this device.",
-          }
-        : copy(runtime),
-    );
+    RUNTIMES.map((runtime) => {
+      if (variant === "runtime-unavailable" && runtime.id === "rt-pi")
+        return {
+          ...copy(runtime),
+          availability: "unavailable",
+          unavailableReason: "The Pi process is not running on this device.",
+        };
+      if (variant === "grant-unreported") {
+        /* The action stays supported; only the permission owner's answer is
+           absent. Supported-with-no-effect and unsupported are different
+           readings and must not collapse into one another. */
+        const grants = { ...copy(runtime.grants) };
+        delete grants["reference.read"];
+        return { ...copy(runtime), grants };
+      }
+      return copy(runtime);
+    });
 
   const recordOf = (id) => {
     const record = records.find((entry) => entry.id === id);
@@ -238,7 +251,6 @@ export function createAgentProfilesFixture({ pause = wait, readDelay = 160, save
 
   function rowFor(record) {
     const runtime = runtimesFor().find((entry) => entry.id === record.runtimeId);
-    const unavailable = runtime?.availability === "unavailable";
     return {
       id: record.id,
       name: record.name,
@@ -249,12 +261,10 @@ export function createAgentProfilesFixture({ pause = wait, readDelay = 160, save
       runtimeAvailability: runtime?.availability ?? "unavailable",
       revision: record.revision,
       activeRun: copy(record.activeRun),
-      /* The useful next action is the one this row's own state asks for: a
-         profile whose executor is down sends you to the executor, not to a
-         form you cannot finish. */
-      nextAction: unavailable
-        ? { intent: "runtime", label: `Why is ${runtime.name} unavailable?`, targetId: runtime.id }
-        : { intent: "open", label: "Open", targetId: record.id },
+      /* One action, and it opens the profile. A row whose executor is down
+         still has to be openable — choosing another runtime is exactly what
+         that person needs to do, and the reason is waiting inside. */
+      nextAction: { label: "Open", targetId: record.id },
     };
   }
 
@@ -277,10 +287,16 @@ export function createAgentProfilesFixture({ pause = wait, readDelay = 160, save
     },
 
     capabilities() {
-      return {
-        canSave: true,
-        reason: "",
-      };
+      /* What a production adapter answers before its backend exists: the
+         operation is not offered, and it says why rather than leaving a dead
+         control on screen. */
+      return variant === "read-only"
+        ? {
+            canSave: false,
+            reason:
+              "This host cannot save an agent profile yet. You can read and compare the composition; the change is not kept.",
+          }
+        : { canSave: true, reason: "" };
     },
 
     async list() {
@@ -298,6 +314,8 @@ export function createAgentProfilesFixture({ pause = wait, readDelay = 160, save
     async save(id, draft, expectedRevision) {
       await pause(saveDelay);
       const record = recordOf(id);
+      if (variant === "read-only")
+        fail("save_unsupported", "This host cannot save an agent profile yet. Nothing was saved.");
       if (variant === "save-error")
         fail(
           "save_failed",

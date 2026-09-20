@@ -31,25 +31,32 @@ test('an empty host states that nothing is configured instead of an error', asyn
   assert.deepEqual(list.rows, []);
 });
 
-test('each row carries its own useful next action, and an unavailable runtime changes it', async () => {
+test('every row opens its own profile, including one whose runtime is down', async () => {
   const adapter = fast();
   const c = createAgentProfilesController({ adapter });
   await c.openList();
-  assert.deepEqual(
-    c.getState().list.rows.map(row => row.nextAction.intent),
-    ['open', 'open', 'open'],
-  );
+  for (const row of c.getState().list.rows) assert.equal(row.nextAction.targetId, row.id);
   adapter.configure('runtime-unavailable');
   await c.openList();
   const rows = c.getState().list.rows;
   const pi = rows.filter(row => row.runtimeName === 'Pi');
   assert.equal(pi.length, 2);
   for (const row of pi) {
-    assert.equal(row.runtimeAvailability, 'unavailable');
-    assert.equal(row.nextAction.intent, 'runtime');
-    assert.equal(row.nextAction.targetId, 'rt-pi');
+    assert.equal(row.runtimeAvailability, 'unavailable', 'the row still says the executor is down');
+    assert.equal(row.nextAction.targetId, row.id, 'and the way in is still this profile');
   }
-  assert.equal(rows.find(row => row.id === 'ap-attention').nextAction.intent, 'open');
+});
+
+test('an unavailable runtime can be replaced from inside the profile it blocks', async () => {
+  const adapter = fast();
+  adapter.configure('runtime-unavailable');
+  const c = await openedProfile('ap-work', adapter);
+  assert.match(c.getState().profile.projection.blockers.join(' '), /Pi is unavailable/);
+  c.setRuntime('rt-hermes');
+  assert.deepEqual(c.getState().profile.projection.blockers, []);
+  assert.equal(c.canSave(), true);
+  assert.equal(await c.save(), true);
+  assert.equal(c.getState().profile.detail.profile.runtimeId, 'rt-hermes');
 });
 
 test('an opened profile reports requested, supported and granted as three separate facts', async () => {
@@ -206,17 +213,63 @@ test('a late reply cannot land on another profile or on a newer draft', async ()
   assert.equal(c.getState().profile.id, 'ap-attention');
   assert.equal(c.getState().profile.detail.profile.id, 'ap-attention');
 
-  // A save reply that arrives after the draft moved on confirms nothing.
+  // A save reply that arrives after the draft moved on still happened: the
+  // confirmed revision is adopted and named, and the newer draft is measured
+  // against it rather than reported clean.
   c.toggleKit('kit-praxis');
   const saving = c.save();
   c.setRole('role-work');
   gates[3].resolve();
+  assert.equal(await saving, false, 'the draft on screen is not the one that was saved');
+  const { profile } = c.getState();
+  assert.equal(profile.detail.profile.revision, 3, 'the owner-confirmed record is adopted');
+  assert.equal(profile.save.status, 'saved');
+  assert.equal(profile.save.revision, 3, 'the receipt names what the owner actually confirmed');
+  assert.equal(profile.draft.roleId, 'role-work');
+  assert.equal(profile.dirty, true, 'the newer draft is still unsaved and says so');
+});
+
+test('discarding is refused while a save is in flight, and the reply stays coherent', async () => {
+  const { adapter, gates } = gated();
+  const c = createAgentProfilesController({ adapter });
+  const listing = c.openList();
+  gates[0].resolve();
+  await listing;
+  const open = c.openProfile('ap-work');
+  gates[1].resolve();
+  await open;
+  c.toggleKit('kit-praxis');
+  const saving = c.save();
+  c.discardDraft();
+  assert.deepEqual(c.getState().profile.draft.kitIds, ['kit-praxis'], 'discard is a no-op mid-flight');
+  gates[2].resolve();
+  assert.equal(await saving, true);
+  const { profile } = c.getState();
+  assert.deepEqual(profile.detail.profile.kitIds, ['kit-praxis']);
+  assert.equal(profile.detail.profile.revision, 5);
+  assert.equal(profile.dirty, false);
+  assert.equal(profile.save.revision, 5);
+});
+
+test('a draft that moves under an in-flight save is never reported clean', async () => {
+  const { adapter, gates } = gated();
+  const c = createAgentProfilesController({ adapter });
+  const listing = c.openList();
+  gates[0].resolve();
+  await listing;
+  const open = c.openProfile('ap-work');
+  gates[1].resolve();
+  await open;
+  c.toggleKit('kit-praxis');
+  const saving = c.save();
+  c.toggleKit('kit-praxis'); // back to no Kit while the request is out
+  gates[2].resolve();
   assert.equal(await saving, false);
   const { profile } = c.getState();
-  assert.equal(profile.save.status, 'idle', 'no receipt is shown for a draft nobody is holding');
-  assert.equal(profile.draft.roleId, 'role-work');
-  assert.equal(profile.dirty, true);
-  assert.equal(profile.detail.profile.revision, 3, 'the owner-confirmed record is still adopted');
+  assert.deepEqual(profile.detail.profile.kitIds, ['kit-praxis'], 'the write did happen');
+  assert.deepEqual(profile.draft.kitIds, []);
+  assert.equal(profile.dirty, true, 'and the draft still differs from it');
+  assert.equal(c.canSave(), true);
 });
 
 test('a save reply for a profile you have left does not follow you to the next one', async () => {
@@ -239,6 +292,63 @@ test('a save reply for a profile you have left does not follow you to the next o
   assert.equal(profile.id, 'ap-work');
   assert.equal(profile.detail.profile.id, 'ap-work');
   assert.equal(profile.save.status, 'idle');
+});
+
+test('a runtime detail reply cannot land after the surface that asked for it is gone', async () => {
+  const { adapter, gates } = gated();
+  const c = createAgentProfilesController({ adapter });
+  const listing = c.openList();
+  gates[0].resolve();
+  await listing;
+  const open = c.openProfile('ap-work');
+  gates[1].resolve();
+  await open;
+  // Leaving for the list while the detail read is out.
+  const detail = c.openRuntimeDetail('rt-pi');
+  const back = c.openList();
+  gates[3].resolve();
+  await back;
+  gates[2].resolve();
+  await detail;
+  assert.equal(c.getState().view, 'list');
+  assert.equal(c.getState().runtimeDetail.status, 'closed', 'no modal reopens over the list');
+
+  // And the same when the detour is abandoned for another profile.
+  const second = c.openProfile('ap-attention');
+  gates[4].resolve();
+  await second;
+  const detail2 = c.openRuntimeDetail('rt-hermes');
+  const moved = c.openProfile('ap-work');
+  gates[6].resolve();
+  await moved;
+  gates[5].resolve();
+  await detail2;
+  assert.equal(c.getState().runtimeDetail.status, 'closed');
+});
+
+test('a host that cannot save says so instead of offering a dead control', async () => {
+  const adapter = fast();
+  adapter.configure('read-only');
+  const c = await openedProfile('ap-work', adapter);
+  assert.equal(c.getState().capabilities.canSave, false);
+  assert.match(c.getState().capabilities.reason, /cannot save an agent profile yet/);
+  c.setRole('role-coding');
+  assert.equal(c.getState().profile.dirty, true, 'the draft is still composable');
+  assert.deepEqual(c.getState().profile.projection.blockers, [], 'nothing is wrong with the draft');
+  assert.equal(c.canSave(), false, 'but the owner does not offer the write');
+  assert.equal(await c.save(), false);
+  assert.deepEqual(adapter.operations(), []);
+});
+
+test('a supported action with no reported effect is not a missing runtime', async () => {
+  const adapter = fast();
+  adapter.configure('grant-unreported');
+  const c = await openedProfile('ap-attention', adapter);
+  const read = c.getState().profile.projection.requests.find(r => r.action === 'reference.read');
+  assert.equal(read.supported, true, 'Hermes can do it');
+  assert.equal(read.effect, null, 'the permission owner reported nothing');
+  const queue = c.getState().profile.projection.requests.find(r => r.action === 'attention.read');
+  assert.equal(queue.effect, 'allow', 'the other effects are unaffected');
 });
 
 test('the runtime read view reports unobserved facts as unobserved', async () => {
