@@ -55,6 +55,13 @@ export const PREPARE_BUSY = "Preparing this chat. Its folder and private candida
  * already used — starting a fresh candidate here would race whatever landed —
  * so this is a different command from Start private candidate and says so. */
 export const PREPARE_RESUME_SCOPE = "This chat was prepared but not finished. Continuing uses the same request it already sent, so nothing is created twice.";
+/* An outstanding effect nobody can see the result of. The folder must not move
+ * while it is outstanding — a change would land beside whatever is already
+ * there — and saying "still working" would be a different, false claim. */
+export const PREPARE_UNCERTAIN = "Whether the last step took effect is not known yet. The folder cannot change until that is settled; your folder and text are kept.";
+/* The opposite case: the Host refused, nothing landed, and the folder it
+ * refused is the thing to replace. */
+export const PREPARE_CORRECT_SCOPE = "This chat was made, but that folder could not be connected. Connect a different one to finish it; the chat and what you typed stay as they are.";
 /* The Host refuses to rebind while a candidate is open (store.mjs
  * ACTIVE_CANDIDATE). Say that where the control would have been rather than
  * offering a button whose command is already known to fail. */
@@ -172,12 +179,15 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
        * identities — so it only offers the command and says what pressing it
        * makes. Without an owner to call, the section is not drawn at all. */
       if (draft.onPrepare) {
-        const prepare = el("button", { className: "quiet-button", text: busy ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
+        const prepare = el("button", { className: "quiet-button", text: pending || draft.preparing ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
         prepare.disabled = busy || draft.locked === true;
         prepare.addEventListener("click", () => { commandField = "start-edits"; void draft.onPrepare(); });
         children.push(el("section", { className: "context-card" }, el("h4", { text: "Edits" }),
           el("p", { className: "context-meta", text: CANDIDATE_HELP }),
-          el("p", { className: "context-meta", text: busy ? PREPARE_BUSY : PREPARE_SCOPE }),
+          /* One reason, said once. While an owner holds this card the card has
+           * already said why at the top; repeating it here would be the same
+           * sentence twice, and the alternative sentence would contradict it. */
+          busyReason ? null : el("p", { className: "context-meta", text: PREPARE_SCOPE }),
           prepare));
       }
     } else if (resuming) {
@@ -189,6 +199,15 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       else facts.append(el("dt", { text: "Folder" }), el("dd", { text: "Not connected yet" }));
       if (permissionLabel) facts.append(el("dt", { text: "File access" }), el("dd", { text: permissionLabel }));
       children.push(el("section", { className: "context-card" }, facts), renderCandidateSection());
+      /* PA-R1 · the Host refused this folder and nothing landed, so the folder
+       * is what there is to correct. The same chooser the unbound card uses,
+       * over the same chat: picking one is a new binding intent and the
+       * preparation mints a new identity for it. Offered only when the owner
+       * says correcting is safe — never while an effect is outstanding. */
+      if (resuming.onCorrectFolder) {
+        children.push(el("p", { className: "context-meta", text: PREPARE_CORRECT_SCOPE }));
+        children.push(...chooserSections((rootPath) => { commandField = "open"; void resuming.onCorrectFolder(rootPath); }, busy));
+      }
     } else if (binding) {
       const candidate = activeRepositoryCandidate(session);
       const connectPath = rootPath => submit({ operation: "bind", requestId: bindRequestId(rootPath), expectedRevision: revision, rootPath }, session);
@@ -357,10 +376,14 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
        * revision the lost command already moved. */
       const start = el("button", {
         className: "quiet-button",
-        text: busy ? SENDING_LABEL : resuming ? "Finish preparing this chat" : "Start private candidate",
+        text: pending ? SENDING_LABEL : resuming ? "Finish preparing this chat" : "Start private candidate",
         attrs: { type: "button", "data-repository-field": "start-edits" },
       });
-      start.disabled = busy;
+      /* Continuing a preparation is how an unknown outcome is settled, so the
+       * lock that stops the folder moving must not stop this: it is the way
+       * out, not another thing landing beside it. Only a command actually in
+       * flight, or a Run holding the chat, takes it away. */
+      start.disabled = resuming ? pending || active : busy;
       start.addEventListener("click", () => {
         commandField = "start-edits";
         if (resuming) void resuming.onResume();

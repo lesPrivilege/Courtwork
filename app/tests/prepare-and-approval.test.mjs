@@ -253,17 +253,23 @@ test("the Home card offers preparation only with a folder and an owner, and says
   assert.equal(field(body, "start-edits"), undefined);
 }));
 
-test("Home wiring: the prepared chat is the card's session, keeps its own events, and starts no run", () => {
+test("Home wiring: the prepared chat is the card's session, keeps its own events, and starts no run", async () => {
   const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
   assert.match(app, /function preparedHomeChat\(\) \{\s*return state\.homeStart\?\.session\?\.id \? state\.homeStart\.session : null;/);
   assert.match(app, /draft: home && !prepared \? homeWorkspaceDraft\(\) : null,/, "a prepared chat is a Session, not a draft");
   assert.match(app, /events: session && session\.id === state\.activeSessionId \? state\.events : \[\],/,
     "a prepared chat must not borrow the loaded chat's write events");
   assert.match(app, /onPrepare: \(\) => prepareHomeChat\(\),/);
+  /* The sequence and its decisions moved into home-preparation.mjs (round 2);
+     what must stay true of them is asserted there. Here: preparing admits no
+     Run and spends nothing of the person's input, wherever it lives. */
+  const { readFileSync: read } = await import("node:fs");
+  const owner = read(`${root}app/web/home-preparation.mjs`, "utf8");
+  assert.doesNotMatch(owner, /submitSessionRun|\/runs/, "preparing never admits a Run");
+  assert.doesNotMatch(owner, /draftText = ""|attachments/, "and never spends the draft or its materials");
+  assert.match(owner, /marker\.prepared = true/);
   const prepare = app.slice(app.indexOf("async function prepareHomeChat"), app.indexOf("function paintWorkspaceCard"));
-  assert.doesNotMatch(prepare, /submitSessionRun|\/runs/, "preparing never admits a Run");
-  assert.doesNotMatch(prepare, /state\.homeDraft = ""|homeAttachments\.flush/, "and never spends the draft or its materials");
-  assert.match(prepare, /operation\.prepared = true/);
+  assert.doesNotMatch(prepare, /submitSessionRun|\/runs/);
   // The marker's identities survive a refresh.
   assert.match(app, /candidateRequestId: start\.candidateRequestId \|\| null, candidateId: start\.candidateId \|\| null,/);
   assert.match(app, /prepared: Boolean\(start\.prepared\),/);

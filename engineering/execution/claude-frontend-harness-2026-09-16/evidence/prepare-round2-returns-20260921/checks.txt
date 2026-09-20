@@ -1,0 +1,104 @@
+# Checks · round-2 returns (PA-R2 unconfirmed lock, PA-R1 folder correction)
+
+Author: Claude (Opus 5). Isolated worktree
+  /Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920
+  branch claude-prepare-and-approval-20260920, over 6b39ecc with the round-2
+  review documentation merged in.
+Nothing was run inside /Users/lesprivilege/Projects/Courtwork; no push, no deploy,
+nothing deleted.
+
+$ node --test tests/prepare-lifecycle.test.mjs   (from app/)
+✔ PA-R1 · after a lost candidate reply the visible command finishes the same preparation (8.070416ms)
+✔ PA-R1 · the counterexample: the ordinary create would have been refused (0.461667ms)
+✔ PA-R1 · a reply lost at any step is finished by the same visible command (4.041292ms)
+✔ PA-R1 · preparation continues against the folder the Host really bound (1.260917ms)
+✔ PA-R2 · nothing mutating is actionable while preparation is in flight (1.2155ms)
+✔ PA-R2 · a locked card is locked for the same reasons whichever surface it shows (0.486125ms)
+✔ PA-R2 · an unconfirmed create locks every folder mutation, and Check status stays reachable (1.72225ms)
+✔ PA-R2 · a create that never landed keeps its identity for the retry (0.382209ms)
+✔ what counts as settled is whether the Host answered, not the status number (0.167584ms)
+✔ PA-R1 · a refused folder can be corrected, and the correction is a new binding intent (2.286209ms)
+✔ PA-R1 · retrying the same folder keeps its identity; correcting is refused while anything is unknown (1.540417ms)
+✔ PA-R3 · a first send from anywhere retires the preparation, keeping the unsent Home text (1.505916ms)
+✔ PA-R3 · a send that was never admitted leaves the preparation recoverable (1.288291ms)
+✔ PA-R3 · retiring is scoped to the prepared chat and to real work (0.070667ms)
+✔ PA-R3 · a marker restored from storage reconciles against the Host once (0.151875ms)
+✔ the production seam: what the controller owns, and what app.mjs wires (3.193792ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 129.967625
+
+$ node --test tests/prepare-and-approval.test.mjs tests/workspace-card.test.mjs tests/coding-start-friction.test.mjs tests/candidate-ui.test.mjs
+✔ Strip placement and shell wiring for the Workspace control (3.430667ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3348.216417
+
+$ node --test tests/entry-audit.test.mjs
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 770.644833
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (62 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+$ node tools/lint-colors.mjs
+lint-colors: ok (67 files · 字面量与高度层两项)
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+
+$ node tools/check-doc-links.mjs
+      "file": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/prepare-round2-returns-20260921/README.md",
+      "target": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/prepare-round2-review-20260921/README.md",
+      "reason": "not a repository source path"
+    }
+  ]
+}
+
+$ npm --prefix app test
+✔ a second run in a continued session revises the first run's file (844.808959ms)
+ℹ tests 1318
+ℹ suites 0
+ℹ pass 1318
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244223.101875
+
+Browser passes (see browser/journey.md)
+    Host   node app/server/index.mjs --data-dir <instance>/runtime-data --port 8924
+    Proxy  node browser/create-loss-proxy.mjs <log>   (8925 → 8924), the review's
+           method aimed at POST /sessions; it touches no product code.
+    Local test provider. No credential configured, read, copied or exported.
+    The user's 8787 Host and 8899 preview were not used and are still running.
+    Viewport 1280x900 light.
+
+NOT RUN, and why
+    PNG screenshots and OpenAI computer use. Unavailable to this author;
+      verbatim DOM and network captures instead, and no visual baseline is
+      claimed.
+    200% native zoom, screen reader, forced-colors, material-upload recovery.
+      Not run; the review lists them among its own limits and they stay open.
+    "An effect is outstanding AND the folder was refused" in the browser. The
+      proxy can stage one lost reply per pass, so this combination is covered
+      by tests (the chooser is withdrawn and correctFolder() refuses outright)
+      rather than by a browser pass.
+    Real provider / real-model execution. Not run and not needed.
+    Independent (non-author) review. Not run by definition.
+    A rerun of the 2026-09-20 full suite to repair the 1312/1313 transcription.
+      Not run, as the review directed; the README now states the recorded 1313.

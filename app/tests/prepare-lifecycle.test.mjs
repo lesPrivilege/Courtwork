@@ -7,11 +7,13 @@
  *   PA-R3  a first send made from Recent left Home claiming nothing was sent
  *          and refusing a new chat.
  *
- * Each is exercised through the real path the review named — a Home controller
- * standing in for app.mjs's marker and render decisions, driving the actual
- * `createWorkspaceCard` and the actual `prepareChat` against a Host that can
- * lose a reply after its command has landed. The fake below is a transport and
- * a Host, not a stand-in for either module under test.
+ * Each is exercised through the production controller — `createHomePreparation`
+ * from `home-preparation.mjs`, the same instance app.mjs wires to `state` —
+ * driving the actual `createWorkspaceCard` against a Host that can lose a reply
+ * after its command has landed. Only the Home *state* is local here (the
+ * marker, the staged path, the draft text); the decisions between attempts are
+ * the product's own, which is what the round-2 review asked for after the
+ * earlier stand-in controller hid the unconfirmed case.
  *
  * Reproduction evidence:
  * evidence/prepare-and-approval-review-20260920/browser/lost-reply-commands.jsonl
@@ -20,18 +22,21 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { prepareChat, preparationState } from "../web/home-preparation.mjs";
+import { createHomePreparation, prepareChat, preparationState } from "../web/home-preparation.mjs";
 import {
   createWorkspaceCard,
   activeRepositoryBinding,
   activeRepositoryCandidate,
   PREPARE_BUSY,
+  PREPARE_CORRECT_SCOPE,
   PREPARE_RESUME_SCOPE,
+  PREPARE_UNCERTAIN,
 } from "../web/workspace-card.mjs";
 import { withTinyDom, flush, deferred } from "./tiny-dom.mjs";
 
 const ROOT_PATH = "/private/tmp/synthetic/parcel";
 const HEAD = "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0";
+const INVALID_PATH = "/private/tmp/synthetic/does-not-exist";
 const field = (body, key) =>
   [...body.querySelectorAll("button,input,summary,details")].find(
     (node) => node.getAttribute("data-repository-field") === key,
@@ -61,10 +66,17 @@ function fakeHost({ stagedPath = ROOT_PATH } = {}) {
       return answer({ session: snapshot() });
     }
     if (path.endsWith("/repository-binding") && method === "PUT") {
+      // A folder the Host cannot validate is refused definitively: nothing
+      // lands, and the client is told so with a 4xx rather than a 5xx.
+      if (body.rootPath === INVALID_PATH)
+        throw Object.assign(new Error("repository root could not be validated"),
+          // The real shape: a 5xx that is still the Host's own settled answer.
+          { status: 503, body: { error: { code: "repository_validation_failed", message: "repository root could not be validated" } } });
       // The Host resolves the folder it binds; the staged string need not match.
       if (!binds.has(body.requestId)) {
         if (body.expectedRevision !== session.repositoryBindingRevision)
-          throw Object.assign(new Error("repository binding changed; refresh before retrying"), { status: 409 });
+          throw Object.assign(new Error("repository binding changed; refresh before retrying"),
+            { status: 409, body: { error: { code: "stale_revision", message: "repository binding changed; refresh before retrying" } } });
         binds.add(body.requestId);
         session.repositoryBindingRevision += 1;
         session.repositoryBinding = { id: "b1", rootPath: ROOT_PATH, revision: session.repositoryBindingRevision, status: "active" };
@@ -78,7 +90,8 @@ function fakeHost({ stagedPath = ROOT_PATH } = {}) {
         /* The real refusal the review reproduced: a second create against a
          * revision the first one already moved is 409, whatever ids it uses. */
         if (body.expectedRevision !== session.repositoryCandidateRevision)
-          throw Object.assign(new Error("repository candidate changed; refresh before retrying"), { status: 409 });
+          throw Object.assign(new Error("repository candidate changed; refresh before retrying"),
+            { status: 409, body: { error: { code: "stale_revision", message: "repository candidate changed; refresh before retrying" } } });
         candidates.add(body.requestId);
         session.repositoryCandidateRevision += 1;
         session.repositoryCandidate = { id: body.candidateId, status: "active", revision: session.repositoryCandidateRevision,
@@ -119,35 +132,28 @@ function createHome(host, { stagedPath = ROOT_PATH } = {}) {
     card: null,
     container: null,
   };
-  home.phase = () => preparationState(home.marker);
   home.preparedChat = () => (home.marker?.session?.id ? home.marker.session : null);
 
-  /* app.mjs `prepareHomeChat`, minus the DOM: which marker to continue, the
-     canonical folder to continue against, and the same failure handling. */
-  home.prepare = async () => {
-    const previous = home.marker;
-    if (previous?.pending || previous?.unconfirmed) return;
-    if (!home.stagedPath && !previous?.session) return;
-    const marker = previous?.session || previous?.sessionId ? previous
-      : { projectId: null, commandId: "c1", sessionId: null, session: null };
-    marker.pending = true; marker.error = ""; marker.prepared = true;
-    home.marker = marker;
-    home.render();
-    try {
-      const rootPath = activeRepositoryBinding(marker.session)?.rootPath || home.stagedPath;
-      const session = await prepareChat({
-        request: host.request, marker, rootPath, title: home.draftText,
-        permissionMode: "ask", newId: host.newId, persist: () => {},
-      });
-      const bound = activeRepositoryBinding(session)?.rootPath;
-      if (bound && bound !== home.stagedPath) home.stagedPath = bound;
-    } catch (error) {
-      marker.error = `Could not prepare: ${error.message}. Your instruction is kept.`;
-    } finally {
-      marker.pending = false;
+  /* The product's own controller, given this test's Home state. `write` is
+     app.mjs's: adopt what changed, then re-render. */
+  home.controller = createHomePreparation({
+    request: host.request,
+    read: () => ({
+      marker: home.marker, rootPath: home.stagedPath, draftText: home.draftText,
+      permissionMode: "ask", projectId: null, connectionLost: Boolean(home.connectionLost),
+    }),
+    write: ({ marker, rootPath }) => {
+      if (marker !== undefined) home.marker = marker;
+      if (rootPath !== undefined) home.stagedPath = rootPath;
       home.render();
-    }
-  };
+    },
+    newId: host.newId,
+  });
+  home.phase = () => home.controller.phase();
+  home.prepare = () => home.controller.prepare();
+  home.correctFolder = (path) => home.controller.correctFolder(path);
+  // The Home status line's Check status, which stays reachable under the lock.
+  home.checkStatus = () => home.controller.settleUnconfirmed();
 
   /* app.mjs `retirePreparedChat`. */
   home.retire = (sessionId) => {
@@ -177,9 +183,16 @@ function createHome(host, { stagedPath = ROOT_PATH } = {}) {
       events: [],
       project: null,
       permissionLabel: "Ask before editing",
-      busyReason: phase.status === "preparing" ? PREPARE_BUSY : null,
+      busyReason: !(owned || !prepared) ? null
+        : phase.status === "preparing" ? PREPARE_BUSY
+        : phase.uncertain ? PREPARE_UNCERTAIN
+        : null,
       preparation: owned && phase.status === "unfinished"
-        ? { status: phase.status, error: phase.error, onResume: () => home.prepare() }
+        ? {
+          status: phase.status, error: phase.error,
+          onResume: () => home.prepare(),
+          onCorrectFolder: phase.correctable ? (path) => home.correctFolder(path) : null,
+        }
         : null,
     });
   };
@@ -212,11 +225,17 @@ test("PA-R1 · after a lost candidate reply the visible command finishes the sam
 
   assert.equal(home.phase().status, "unfinished", "the chat exists; what it was promised is not on the marker yet");
   const resume = field(body, "start-edits");
-  assert.ok(resume, "the card still offers a way forward");
+  assert.ok(resume && !resume.disabled, "the card still offers a way forward, and it is usable");
   assert.equal(resume.textContent, "Finish preparing this chat", "and it is not the ordinary create");
-  assert.match(body.textContent, new RegExp(PREPARE_RESUME_SCOPE.slice(0, 40)));
+  /* A dropped reply means the effect is outstanding, so the card says that
+     rather than offering to change anything — and continuing is how it gets
+     settled, which is why that one control stays live. */
+  assert.match(body.textContent, new RegExp(PREPARE_UNCERTAIN.slice(0, 40)));
+  assert.equal(home.phase().uncertain, true);
+  assert.equal(home.phase().correctable, false, "nothing may be corrected while an effect is unknown");
   assert.match(body.textContent, /Could not prepare/, "the failure is still readable beside it");
   assert.equal(field(body, "change-folder"), undefined, "and no other mutation is offered meanwhile");
+  assert.equal(field(body, "open"), undefined, "including a folder chooser");
 
   const idsBefore = { requestId: home.marker.candidateRequestId, candidateId: home.marker.candidateId };
   host.keepReplies();
@@ -265,7 +284,14 @@ test("PA-R1 · a reply lost at any step is finished by the same visible command"
     field(body, "start-edits").click();
     await settle();
     host.keepReplies();
-    // Whatever survived, the way forward is the one control that is there.
+    /* A create whose outcome is unknown is settled from the status line's
+       Check status — the card holds no Chat to act on yet — and every later
+       step is continued from the card. Both are the same controller. */
+    if (home.phase().status === "unconfirmed") {
+      await home.checkStatus();
+      home.render();
+      await settle();
+    }
     for (let attempt = 0; attempt < 3 && home.phase().status !== "ready"; attempt++) {
       const control = field(body, "start-edits");
       assert.ok(control && !control.disabled, `${step}: a usable correction path remains`);
@@ -355,6 +381,152 @@ test("PA-R2 · a locked card is locked for the same reasons whichever surface it
   assert.ok(field(body, "change-folder"));
 }));
 
+/* ── round 2 · PA-R2, the outcome nobody knows yet ──────────────────────── */
+
+test("PA-R2 · an unconfirmed create locks every folder mutation, and Check status stays reachable", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host);
+  home.mount(body);
+  // The create lands at the Host; its reply is lost, so the outcome is unknown.
+  host.loseRepliesTo((path, method) => path === "/sessions" && method === "POST");
+  field(body, "start-edits").click();
+  await settle();
+
+  assert.equal(home.phase().status, "unconfirmed");
+  assert.equal(home.phase().uncertain, true);
+  assert.equal(home.phase().correctable, false, "nothing is correctable while an effect is outstanding");
+  // The counterexample the round-2 review reproduced: Remove was still live,
+  // and clearing the folder made the recovery impossible.
+  assert.equal(field(body, "remove").disabled, true, "the staged folder cannot be cleared");
+  assert.equal(field(body, "start-edits").disabled, true, "and the command cannot be pressed again");
+  assert.match(body.textContent, new RegExp(PREPARE_UNCERTAIN.slice(0, 40)), "and it says what is unknown");
+  assert.doesNotMatch(body.textContent, /Preparing this chat\./, "not that something is still running");
+  assert.equal(home.stagedPath, ROOT_PATH, "so the folder the recovery needs is still there");
+
+  // Check status is the way out, and it is not part of the card's lock.
+  host.keepReplies();
+  await home.checkStatus();
+  home.render();
+  await settle();
+  assert.equal(home.phase().uncertain, false, "the outcome is settled");
+  assert.equal(home.preparedChat().id, host.session.id, "and it is the chat this preparation chose");
+
+  const resume = field(body, "start-edits");
+  assert.ok(resume && !resume.disabled, "and the preparation can now be finished");
+  resume.click();
+  await settle();
+  assert.equal(home.phase().status, "ready");
+  assert.equal(new Set(host.chatCommands().map((c) => c.body.sessionId)).size, 1, "one chat");
+  assert.equal(host.session.repositoryCandidateRevision, 1, "one candidate");
+}));
+
+test("PA-R2 · a create that never landed keeps its identity for the retry", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host);
+  home.mount(body);
+  // Lost reply, but the Host never made the chat: the 404 settles it as "no".
+  const original = host.request;
+  home.controller = createHomePreparation({
+    request: async (path, options) => {
+      if (path === "/sessions" && options?.method === "POST")
+        throw Object.assign(new Error("connection lost"), { name: "TypeError" });
+      if (/^\/sessions\/[^/]+$/.test(path) && !host.session)
+        throw Object.assign(new Error("session not found"), { status: 404 });
+      return original(path, options);
+    },
+    read: () => ({ marker: home.marker, rootPath: home.stagedPath, draftText: home.draftText, permissionMode: "ask", projectId: null, connectionLost: false }),
+    write: ({ marker, rootPath }) => { if (marker !== undefined) home.marker = marker; if (rootPath !== undefined) home.stagedPath = rootPath; home.render(); },
+    newId: host.newId,
+  });
+  await home.controller.prepare();
+  const chosen = home.marker.sessionId;
+  assert.equal(home.controller.phase().status, "unconfirmed");
+  await home.controller.settleUnconfirmed();
+  assert.equal(home.marker.session, null, "the Host says it was never created");
+  assert.equal(home.marker.unconfirmed, false, "and that is settled, not still unknown");
+  assert.equal(home.marker.sessionId, chosen, "the identity is kept, so the retry is the same chat");
+}));
+
+test("what counts as settled is whether the Host answered, not the status number", async () => {
+  const { uncertainFailure } = await import("../web/home-preparation.mjs");
+  // A 503 the Host itself states is a settled refusal: nothing landed.
+  assert.equal(uncertainFailure({ status: 503, body: { error: { code: "repository_validation_failed" } } }), false);
+  assert.equal(uncertainFailure({ status: 409, body: { error: { code: "stale_revision" } } }), false);
+  // A 503 from anything between here and the Host is not an answer at all.
+  assert.equal(uncertainFailure({ status: 503, body: { error: "synthetic reply loss after Host commit" } }), true);
+  assert.equal(uncertainFailure({ status: 502, body: null }), true);
+  assert.equal(uncertainFailure(new Error("The local runtime could not be reached.")), true);
+  assert.equal(uncertainFailure(undefined), true, "when in doubt, uncertain");
+});
+
+/* ── round 2 · PA-R1, a folder the Host definitively refused ─────────────── */
+
+test("PA-R1 · a refused folder can be corrected, and the correction is a new binding intent", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host, { stagedPath: INVALID_PATH });
+  home.mount(body);
+  field(body, "start-edits").click();
+  await settle();
+
+  // The Chat was made; the bind was refused definitively; nothing else landed.
+  const phase = home.phase();
+  assert.equal(phase.status, "unfinished");
+  assert.equal(phase.uncertain, false, "the Host said no — this is settled, not unknown");
+  assert.equal(phase.correctable, true);
+  assert.equal(host.session.repositoryBindingRevision, 0, "no binding landed");
+  assert.equal(host.session.repositoryCandidate, null, "and no candidate");
+  const chat = home.preparedChat().id;
+  const refusedRequestId = host.bindCommands().at(-1).body.requestId;
+
+  // The counterexample: before, the card offered only Close and Finish.
+  assert.match(body.textContent, new RegExp(PREPARE_CORRECT_SCOPE.slice(0, 40)));
+  const choose = field(body, "recent") || field(body, "path");
+  assert.ok(field(body, "path"), "a way to name another folder is offered");
+
+  const input = field(body, "path");
+  input.value = ROOT_PATH;
+  input.dispatchEvent({ type: "input", target: input });
+  field(body, "connect").click();
+  await settle();
+
+  assert.equal(home.phase().status, "ready", "the corrected folder finishes the preparation");
+  assert.equal(home.preparedChat().id, chat, "the same chat");
+  assert.equal(new Set(host.chatCommands().map((c) => c.body.sessionId)).size, 1, "one chat, not a second");
+  assert.equal(home.draftText, "Lost candidate reply review", "and the person's text is untouched");
+  const binds = host.bindCommands();
+  assert.equal(binds.at(-1).body.rootPath, ROOT_PATH);
+  assert.notEqual(binds.at(-1).body.requestId, refusedRequestId,
+    "a different folder is a different intent, so it does not reuse the refused request id");
+  assert.equal(host.session.repositoryBindingRevision, 1, "bound exactly once");
+  assert.equal([...host.runsBySession.values()].flat().length, 0, "and no run");
+}));
+
+test("PA-R1 · retrying the same folder keeps its identity; correcting is refused while anything is unknown", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host, { stagedPath: INVALID_PATH });
+  home.mount(body);
+  field(body, "start-edits").click();
+  await settle();
+  const first = host.bindCommands().at(-1).body.requestId;
+
+  // Retry without changing the intent: same identity.
+  field(body, "start-edits").click();
+  await settle();
+  assert.equal(host.bindCommands().at(-1).body.requestId, first, "an unchanged retry keeps its identity");
+
+  /* An outstanding effect withdraws the correction entirely. The Host's
+     refusal of the bad folder is definite, so uncertainty has to come from a
+     step whose answer is genuinely lost — here the reconciling read. */
+  host.loseRepliesTo((path, method) => method === "GET" && /^\/sessions\/[^/]+$/.test(path));
+  field(body, "start-edits").click();
+  await settle();
+  assert.equal(home.phase().uncertain, true, "an unanswered reconcile is not a settled state");
+  assert.equal(home.phase().correctable, false);
+  assert.equal(field(body, "path"), undefined, "no chooser while the last effect is unknown");
+  assert.equal(await home.correctFolder(ROOT_PATH), null, "and the owner refuses the correction outright");
+  assert.equal(home.stagedPath, INVALID_PATH, "so nothing moved under it");
+}));
+
 /* ── PA-R3 ─────────────────────────────────────────────────────────────────── */
 
 test("PA-R3 · a first send from anywhere retires the preparation, keeping the unsent Home text", () => withTinyDom(async (body) => {
@@ -430,27 +602,37 @@ test("PA-R3 · a marker restored from storage reconciles against the Host once",
 
 /* ── the wiring app.mjs owns ───────────────────────────────────────────────── */
 
-test("Home wiring for the three returns", async () => {
+test("the production seam: what the controller owns, and what app.mjs wires", async () => {
   const { readFileSync } = await import("node:fs");
   const root = new URL("../../", import.meta.url).pathname;
   const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
-  // PA-R1
-  assert.match(app, /preparation: owned && phase\.status === "unfinished"/, "the card is told who owns an unfinished preparation");
-  assert.match(app, /onResume: \(\) => prepareHomeChat\(\)/);
-  assert.match(app, /data-home-field": "resume-preparation"/, "and the recovery is reachable from the status too");
-  assert.match(app, /const bound = activeRepositoryBinding\(session\)\?\.rootPath;/, "the Host's path is adopted, not compared");
-  // PA-R2
-  assert.match(app, /busyReason: phase\.status === "preparing"/);
-  // PA-R3
+  const owner = readFileSync(`${root}app/web/home-preparation.mjs`, "utf8");
+
+  /* The decisions between attempts are the controller's, which is what the
+     round-2 review asked for: the tests above drive this very instance. */
+  assert.match(owner, /export function createHomePreparation\(/);
+  for (const decision of [
+    /const bound = activeRepositoryBinding\(session\)\?\.rootPath;/,   // the Host's path is adopted, not compared
+    /marker\.failure = \{ uncertain, message/,                          // settled or not, recorded on the marker
+    /marker\.bindRequestId = null;/,                                    // a different folder is a different intent
+    /async settleUnconfirmed\(\)/,                                      // the way out of an unknown create
+  ]) assert.match(owner, decision);
+  assert.doesNotMatch(app, /prepareChat\(\{/, "app.mjs no longer runs the sequence itself");
+  assert.match(app, /const homePreparation = createHomePreparation\(\{/);
+  assert.match(app, /await homePreparation\.prepare\(\);/);
+  assert.match(app, /await homePreparation\.settleUnconfirmed\(\);/);
+
+  // What app.mjs still owns: the persisted marker, the DOM, and rendering.
+  assert.match(app, /data-home-field": "resume-preparation"/, "the recovery is reachable from the status");
+  assert.match(app, /onCorrectFolder: phase\.correctable \? \(path\) => homePreparation\.correctFolder\(path\) : null,/);
+  assert.match(app, /: phase\.uncertain \? PREPARE_UNCERTAIN/, "an unknown outcome locks the folder, and says so");
   assert.match(app, /function retirePreparedChat\(sessionId\) \{/);
   const submit = app.slice(app.indexOf("async function submitSessionRun"));
   assert.match(submit.slice(0, submit.indexOf("} catch")), /retirePreparedChat\(sessionId\);/,
     "every send path reaches the same reconciliation, at the matching receipt");
-  assert.match(app, /if \(state\.runs\.length\) retirePreparedChat\(sessionId\);/, "and work admitted elsewhere is reconciled on load");
-  assert.match(app, /async function reconcileRestoredPreparation\(\) \{/, "a marker restored from storage is asked, not trusted");
-  assert.match(app, /if \(detail\.runs\?\.length\) \{ retirePreparedChat\(id\); renderComposer\(\); return; \}/);
-  assert.match(app, /void reconcileRestoredPreparation\(\);/);
-  assert.match(app, /if \(detail\.runs\?\.length && retirePreparedChat\(id\)\)/, "the card's own read-back carries the same answer");
+  assert.match(app, /if \(state\.runs\.length\) retirePreparedChat\(sessionId\);/);
+  assert.match(app, /async function reconcileRestoredPreparation\(\) \{/);
+  assert.match(app, /if \(detail\.runs\?\.length && retirePreparedChat\(id\)\)/);
   const retire = app.slice(app.indexOf("function retirePreparedChat"), app.indexOf("function retirePreparedChat") + 400);
   assert.doesNotMatch(retire, /homeDraft|homeAttachments|homeRepositoryPath/, "retiring never spends the person's unsent input");
 });

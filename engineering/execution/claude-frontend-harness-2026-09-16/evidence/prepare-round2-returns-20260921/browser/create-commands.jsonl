@@ -1,0 +1,2 @@
+{"path":"/api/v5/sessions","body":{"projectId":null,"sessionId":"c223a928-b96e-4e09-9ceb-d3535fa760b4","title":"Unconfirmed create review","permissionMode":"ask"},"hostStatus":200}
+{"path":"/api/v5/sessions","body":{"projectId":null,"sessionId":"0ec6b2d1-96e2-45a6-919e-87ed3e7ad924","title":"Invalid folder review","permissionMode":"ask"},"hostStatus":200}

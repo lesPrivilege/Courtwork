@@ -1,0 +1,33 @@
+{
+  "note": "Host receipts from the isolated Host 8924, reached through the create-loss proxy 8925. Local test provider; no credential configured, read or exported. The user's 8787 and 8899 were not used.",
+  "sessions": [
+    {
+      "boundTo": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-round2-instance/source",
+      "candidate": {
+        "baseCommit": "e3145dbe27cf12d5f7982ccb05080716e51b88d0",
+        "id": "908de849-8161-45b2-91a8-c335e73a29ef",
+        "status": "active"
+      },
+      "events": 0,
+      "id": "0ec6b2d1-96e2-45a6-919e-87ed3e7ad924",
+      "repositoryBindingRevision": 1,
+      "repositoryCandidateRevision": 1,
+      "runs": 0,
+      "title": "Invalid folder review"
+    },
+    {
+      "boundTo": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-round2-instance/source",
+      "candidate": {
+        "baseCommit": "e3145dbe27cf12d5f7982ccb05080716e51b88d0",
+        "id": "66d1355d-07eb-49f4-b2fb-9efd8fc27519",
+        "status": "active"
+      },
+      "events": 15,
+      "id": "c223a928-b96e-4e09-9ceb-d3535fa760b4",
+      "repositoryBindingRevision": 1,
+      "repositoryCandidateRevision": 1,
+      "runs": 1,
+      "title": "Unconfirmed create review"
+    }
+  ]
+}

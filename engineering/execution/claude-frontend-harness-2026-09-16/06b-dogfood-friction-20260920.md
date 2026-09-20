@@ -189,3 +189,53 @@ ok; full suite 1313/0. Checks, the browser passes and the unexecuted list:
 [Independent review of `6b39ecc`](evidence/prepare-round2-review-20260921/README.md) passes Luna 52/52 and accepts PA-R3 matching-Run/detail/restored-marker retirement, plus the corrected lost-candidate reconciliation and in-flight lock. Astra's OpenAI browser verifies Recent first-send → Home/New chat with draft retained. **Integration remains held for two residual cases in the existing PA-R1/PA-R2 assignment:** unconfirmed creation still permits Remove, erasing the folder needed for recovery; a definitively invalid/unbound folder offers only Finish preparing with no correction path. Both are independently reproduced in the browser and real-card probes.
 
 Claude: finish only these two recovery transitions, preserve accepted portions and existing owner boundaries. Unknown effects must be reconciled before mutations unlock; after a definitive bind rejection, allow a corrected folder on the same Chat, keeping draft/materials and using a new bind intent identity for changed payload. No automatic rebind of an active source. Test the actual product transitions rather than only the test-defined controller. Correct the author README's 1312 count to checks.txt's 1313 without rerunning the full suite solely for the typo. No new roadmap or backend scope; writer/source tree preserved, no next journey until independent acceptance.
+
+## Round-2 returns answered · author delivery, 2026-09-21 (Claude)
+
+The two remaining recovery gaps are corrected on the same branch over
+`6b39ecc`, together with the test-boundary criticism that produced them.
+**Not accepted** — released for re-review.
+
+**The seam first.** `createHomePreparation` is now a production module. It owns
+every decision between attempts — which marker to continue, which folder to
+continue against, whether an outcome is settled, whether a correction is safe,
+and how an unknown create is settled (`checkHomeStart` moved there too, since
+that is the same question). app.mjs keeps the persisted marker, the DOM and
+rendering. The lifecycle tests drive that instance and the real card; only Home
+*state* is local to them. The review was right that the stand-in hid exactly
+the two states it hid.
+
+**PA-R2.** The lock now covers every state where an effect is outstanding, not
+only a command in flight, and the two say different things because they are
+different things. With the create's reply dropped: Remove disabled, the command
+disabled, no chooser, and an accurate sentence — nothing claims to be running.
+**Check status** stays outside the lock, because it is the way out of
+uncertainty rather than another thing landing beside it; the same holds for
+Continue preparing. Then Check status → recovered → finish: one `POST /sessions`
+at status 200, one session, binding revision 1, candidate revision 1, 0 runs,
+0 events, with the staged folder and the Home text intact throughout.
+
+**PA-R1.** `uncertain` and `correctable` are opposite states and never both. A
+preparation is correctable only when the Host answered, nothing landed and no
+binding or candidate exists; then the card offers the same chooser the unbound
+card uses, over the same Chat. Choosing a folder issued one bind with a **new**
+request id — a different folder is a different intent — and the preparation
+completed: the corrected chat has binding revision 1, candidate revision 1,
+0 runs, 0 events, and there are only the two deliberate sessions. An unchanged
+retry keeps its original identity, and while any effect is outstanding the
+chooser is withdrawn and the correction is refused outright.
+
+**A correction the browser forced on the fix.** My first classifier called every
+5xx uncertain; the Host answers an invalid folder with 503
+`repository_validation_failed`, a settled refusal, so the correction was
+withheld exactly where it was needed. The test is now whether the Host
+*answered* — a reply carrying its own error envelope is settled, because on all
+three of these commands every coded refusal is raised before the effect —
+rather than what the status number was.
+
+16 lifecycle tests through the production controller, four owner suites 41/41,
+entry-audit 4/4, lints and doc links ok, full suite 1318/0. Three existing
+source-pinned assertions moved with the code they pin; the invariants are
+unchanged. The 2026-09-20 packet README's 1312 is corrected to the recorded
+1313 without a rerun. Checks, the browser passes and the unexecuted list:
+[prepare-round2-returns-20260921](evidence/prepare-round2-returns-20260921/README.md).

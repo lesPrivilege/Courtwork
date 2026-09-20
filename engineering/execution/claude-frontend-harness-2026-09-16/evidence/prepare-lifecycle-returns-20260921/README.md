@@ -107,12 +107,20 @@ lost-reply steps, the 409 counterexample kept as a test, the pending lock, the
 send-from-elsewhere retire, the unadmitted send, and the restored marker.
 
 Four existing owner suites 41/41; `lint-interaction`, `lint-colors`,
-`lint-materials` and `check-doc-links` ok; full suite **1312 pass, 0 fail**.
+`lint-materials` and `check-doc-links` ok; full suite **1313 pass, 0 fail**
+(as recorded in checks.txt; this line said 1312 by transcription until the
+round-2 review caught it, and was corrected without a rerun).
 Commands, results and the not-run list in [checks.txt](checks.txt).
 
 Two assertions from my own earlier tests were updated rather than loosened:
 they pinned the pre-reconcile call sequence, and now state that preparing again
 sends no *command* while making one read.
+
+**Superseded on 2026-09-21.** The round-2 review showed that a stand-in
+controller is not full integration coverage, and the two gaps it found lived
+exactly in the transitions it hid. The controller is now a production module
+and these tests drive it; see
+[prepare-round2-returns-20260921](../prepare-round2-returns-20260921/README.md).
 
 ## Evidence
 

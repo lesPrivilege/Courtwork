@@ -67,8 +67,8 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
-import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, repositoryName, PREPARE_BUSY } from "./workspace-card.mjs";
-import { prepareChat, preparationState } from "./home-preparation.mjs";
+import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, repositoryName, PREPARE_BUSY, PREPARE_UNCERTAIN } from "./workspace-card.mjs";
+import { createHomePreparation, preparationState } from "./home-preparation.mjs";
 import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
 import {
   renderRun,
@@ -5439,22 +5439,12 @@ function renderHomeComposerContext() {
   status.hidden = !message && !status.querySelector("button");
   status.dataset.error = state.homeStart?.error ? "true" : "false";
 }
+/* The recovery for a Chat whose creation is unknown. It reads the Chat back by
+ * the id this preparation chose; nothing is created by asking. The decision is
+ * home-preparation.mjs's, because whether an outcome is settled is the same
+ * question every other transition there answers. */
 async function checkHomeStart() {
-  const start = state.homeStart;
-  if (!start?.unconfirmed || !start.sessionId) return;
-  try {
-    let found = null;
-    try { found = (await request(`/sessions/${encodeURIComponent(start.sessionId)}`)).session ?? null; }
-    catch (err) { if (err.status !== 404) throw err; }
-    if (state.homeStart !== start) return;
-    start.session = found && found.projectId === start.projectId ? found : null;
-    start.unconfirmed = false;
-    start.error = start.session ? "Your chat was recovered. Send to continue in it." : "Send to retry the same chat identity.";
-  } catch (err) {
-    if (state.homeStart !== start) return;
-    start.error = `Check failed · ${err.message}. Your instruction is kept.`;
-  }
-  storeHomeDraft();
+  await homePreparation.settleUnconfirmed();
   renderComposer();
 }
 async function submitHomeRun() {
@@ -6190,6 +6180,7 @@ function homeWorkspaceDraft() {
     onChange: (path) => { state.homeRepositoryPath = path || null; storeHomeDraft(); renderChatHeader(); },
     get preparing() { return Boolean(state.homeStart?.pending); },
     get locked() { return Boolean(state.homeStart?.unconfirmed || state.connectionLost); },
+    get uncertain() { return preparationState(state.homeStart).uncertain; },
     onPrepare: () => prepareHomeChat(),
   };
 }
@@ -6203,67 +6194,33 @@ function workspaceCardSession() {
   return currentSession() || (state.view === "home" ? preparedHomeChat() : null);
 }
 /* RD-006 / 02 · prepare the place the work will happen before paying for any
- * inference. The sequence and its exactly-once identities live in
- * home-preparation.mjs; this is the Home start's half of it — which marker to
- * continue, what to call the Chat, and what the screen says while it happens.
+ * inference. The sequence, the marker's exactly-once identities and the
+ * decisions between attempts all live in home-preparation.mjs; this is the
+ * wiring that gives it the live Home state and takes back what changed.
  * Nothing here sends a message or admits a Run, and the Home draft and its
  * materials are left exactly where they are. */
+const homePreparation = createHomePreparation({
+  request,
+  read: () => ({
+    marker: state.homeStart,
+    rootPath: state.homeRepositoryPath,
+    draftText: state.homeDraft,
+    permissionMode: state.homePermissionMode,
+    projectId: homeProjectId(),
+    connectionLost: state.connectionLost,
+  }),
+  write: ({ marker, rootPath }) => {
+    if (marker !== undefined) state.homeStart = marker;
+    if (rootPath !== undefined) state.homeRepositoryPath = rootPath;
+    storeHomeDraft();
+    renderComposer();
+    paintWorkspaceCard();
+  },
+  onPrepared: () => loadRecentSessions(),
+});
 async function prepareHomeChat() {
-  const previous = state.homeStart;
-  if (previous?.pending || previous?.unconfirmed || state.connectionLost) return;
-  // A preparation that already made the Chat knows its own folder; only a
-  // first attempt needs one staged on Home.
-  if (!state.homeRepositoryPath && !previous?.session) return;
-  const operation = previous?.session || previous?.sessionId ? previous : {
-    projectId: homeProjectId(), commandId: crypto.randomUUID(), sessionId: null, session: null,
-  };
-  operation.pending = true;
-  operation.error = "";
-  operation.prepared = true;
-  state.homeStart = operation;
-  storeHomeDraft();
-  renderComposer();
-  paintWorkspaceCard();
-  try {
-    /* Named from what has been typed so far, or from the folder it will read.
-     * A prepared chat has to be findable in Recent before it holds a single
-     * message; it is renamed from there like any other chat. */
-    const rootPath = activeRepositoryBinding(operation.session)?.rootPath || state.homeRepositoryPath;
-    const title = state.homeDraft.trim().split(/\r?\n/)[0].slice(0, 100)
-      || repositoryName(rootPath)
-      || "New chat";
-    const session = await prepareChat({
-      request,
-      marker: operation,
-      rootPath,
-      title,
-      permissionMode: state.homePermissionMode,
-      persist: () => { if (state.homeStart === operation) storeHomeDraft(); },
-    });
-    /* The Host resolves the folder it binds, so its own rootPath is the source
-     * this chat actually reads — this client has no resolver of its own and
-     * cannot tell `/tmp` from `/private/tmp` by comparing strings. Adopt the
-     * binding's path rather than testing the staged one against it, so every
-     * surface names the folder that is really connected and nothing continues
-     * against a source the screen does not show. */
-    const bound = activeRepositoryBinding(session)?.rootPath;
-    if (bound && bound !== state.homeRepositoryPath) state.homeRepositoryPath = bound;
-    await loadRecentSessions();
-  } catch (error) {
-    operation.unconfirmed = !operation.session && isUncertainCommandError(error);
-    if (!operation.session && !operation.unconfirmed) operation.sessionId = null;
-    operation.error = operation.unconfirmed
-      ? "Creating the chat is unconfirmed. Check its status to recover the same chat. Your instruction is kept."
-      : `Could not prepare: ${error.message}. Your instruction is kept.`;
-  } finally {
-    if (state.homeStart === operation) {
-      operation.pending = false;
-      storeHomeDraft();
-      renderComposer();
-      paintWorkspaceCard();
-      renderRecentSessions();
-    }
-  }
+  await homePreparation.prepare();
+  renderRecentSessions();
 }
 function paintWorkspaceCard() {
   if ($("workspace-popover").matches(":popover-open")) renderWorkspaceCard();
@@ -6295,9 +6252,22 @@ function renderWorkspaceCard() {
     events: session && session.id === state.activeSessionId ? state.events : [],
     project: session ? state.projects.find((item) => item.id === session.projectId) || null : null,
     permissionLabel: session ? permissionLabels[session.permissionMode] || null : null,
-    busyReason: phase.status === "preparing" && (owned || (home && !session)) ? PREPARE_BUSY : null,
+    /* PA-R2 · a command in flight and an outcome nobody knows yet are both
+     * reasons nothing of this chat's folder may change, and they are not the
+     * same sentence: one is still running, the other already happened and its
+     * result was lost. */
+    busyReason: !(owned || (home && !session)) ? null
+      : phase.status === "preparing" ? PREPARE_BUSY
+      : phase.uncertain ? PREPARE_UNCERTAIN
+      : null,
     preparation: owned && phase.status === "unfinished"
-      ? { status: phase.status, error: phase.error, onResume: () => prepareHomeChat() }
+      ? {
+        status: phase.status,
+        error: phase.error,
+        onResume: () => prepareHomeChat(),
+        // PA-R1 · only once the Host has refused and nothing landed.
+        onCorrectFolder: phase.correctable ? (path) => homePreparation.correctFolder(path) : null,
+      }
       : null,
   });
 }
