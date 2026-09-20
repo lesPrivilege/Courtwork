@@ -1,0 +1,80 @@
+- banner:
+  - paragraph: Interactive synthetic preview
+  - heading "Settings › Agents › Agent profiles" [level=1]
+  - paragraph: Every agent, Kit, runtime, version, model reading and permission effect on this page is synthetic. Nothing here reads your host, discovers an installation, contacts a provider or saves outside this tab. A confirmed revision below is confirmed by the preview only.
+- region "Preview state":
+  - text: Scenario
+  - combobox "Scenario":
+    - option "Normal"
+    - option "No agent profiles"
+    - option "Save fails" [selected]
+    - option "Saved elsewhere first"
+    - option "Pi unavailable"
+  - checkbox "Slow replies"
+  - text: Slow replies
+  - text: Appearance
+  - combobox "Appearance":
+    - option "Light"
+    - option "Dark" [selected]
+  - button "Reset preview"
+- generic: Settings group
+- combobox "Settings group":
+  - option "Agents" [selected]
+  - option "Models" [disabled]
+  - option "Tools & Integrations" [disabled]
+  - option "Permissions" [disabled]
+  - option "Developer" [disabled]
+- paragraph: Only Agent profiles is built in this preview. The other groups are the product's real ones and are not reachable from here.
+- tabpanel "Agents" [active]:
+  - heading "Agents" [level=3]
+  - button "Back to agent profiles":
+    - generic: Agent profiles
+  - heading "Work" [level=4]:
+    - text: Work
+  - paragraph: "Ordinary work: read what you connect, draft it, revise it."
+  - paragraph: Saved revision 4 · 9/18/2026, 5:20:00 PM
+  - heading "Responsibility" [level=4]
+  - generic: Role
+  - generic: Reads a connected repository, proposes edits for approval, and runs the fixed check.
+  - combobox "Role":
+    - option "General work"
+    - option "Coding" [selected]
+    - option "Attention"
+  - heading "Kits" [level=4]
+  - paragraph: A Kit supplies working methods for this role. Kits are optional; general work needs none.
+  - generic: Coding review · 0.2
+  - generic: Read a repository, propose an exact edit, and run the project's own check on it.
+  - checkbox "Coding review 0.2"
+  - generic: Praxis · 0.4
+  - generic: "Field work and organisational collaboration: align, discover, decide, hand off."
+  - checkbox "Praxis 0.4"
+  - generic: Attention triage · 0.9
+  - generic: Group what is waiting on a person and propose the next follow-up.
+  - checkbox "Attention triage 0.9"
+  - heading "Execution" [level=4]
+  - generic: Runtime
+  - generic: Local process. Available for new runs.
+  - combobox "Runtime":
+    - option "Pi" [selected]
+    - option "Hermes"
+    - option "Codex — unavailable"
+  - term: Model owner
+  - definition: CourtWork · Models
+  - term: Effective model
+  - definition: Synthetic model · synthetic connection
+  - term: Where that comes from
+  - definition: Models · All chats · future runs
+  - term: Requested by this agent
+  - definition: Nothing — this agent makes no model request.
+  - paragraph: This agent has no model choice of its own yet. Every chat uses the one saved in Models.
+  - 'button "Runtime detail: Pi"':
+    - generic: Runtime detail
+  - heading "Permission scope" [level=4]
+  - paragraph: "A Kit states what it needs. It grants nothing: each line below is the effect the permission owner reports for this runtime."
+  - paragraph: No Kit is selected, so this agent requests nothing beyond what its role already needs.
+  - alert: The host did not accept the change. Nothing was saved, and your draft is kept here.
+  - paragraph: "Requested: role Coding. Effective is still what revision 4 holds."
+  - button "Save"
+  - button "Discard changes"
+  - paragraph: Saving records this composition. It does not publish an accepted Work Expert.
+  - status
