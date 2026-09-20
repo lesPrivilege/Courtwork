@@ -64,3 +64,28 @@ test("登记表内的间距按 selector + 值放行，换一个值仍拒绝", ()
   const notRegistered = withCss(`.project-toggle {\n  padding: 7px;\n}\n`);
   assert.equal(notRegistered.ok, false, notRegistered.out);
 });
+
+/* Luna 4（2026-09-20 独立复核）· 三条绕过路径，各配一条反向测试：
+   块内最后一条声明可以省分号；var() 里可以写一个没人定义的 token 名；
+   登记表若只按 selector + 值匹配，为 padding 写的理由会替 margin 背书。 */
+test("块内最后一条声明没有分号时同样被检查", () => {
+  const result = withCss(`.card {\n  padding: 7px\n}\n`);
+  assert.equal(result.ok, false, result.out);
+  assert.match(result.out, /游离值 7px/);
+});
+
+test("引用未定义的 token 名会被拒绝，带兜底的 var() 放行", () => {
+  const unknown = withCss(`.card {\n  padding: var(--space-7);\n}\n`);
+  assert.equal(unknown.ok, false, unknown.out);
+  assert.match(unknown.out, /未定义的 token --space-7/);
+  const fallback = withCss(`.card {\n  padding: var(--space-7, 8px);\n}\n`);
+  assert.equal(fallback.ok, true, fallback.out);
+});
+
+test("登记表按属性生效：为 padding 登记的值不替同一选择器的 margin 背书", () => {
+  const registeredProperty = withCss(`.project-toggle {\n  padding: 6px var(--space-2);\n}\n`);
+  assert.equal(registeredProperty.ok, true, registeredProperty.out);
+  const otherProperty = withCss(`.project-toggle {\n  margin: 6px;\n}\n`);
+  assert.equal(otherProperty.ok, false, otherProperty.out);
+  assert.match(otherProperty.out, /游离值 6px/);
+});

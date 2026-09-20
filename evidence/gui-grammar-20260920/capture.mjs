@@ -162,12 +162,28 @@ async function main() {
   await evaluate(`new Promise(r => { if (document.readyState === 'complete') r(); else window.addEventListener('load', r, { once: true }); })`);
   await sleep(800);
 
-  // Cell 1: empty Home, 1440 light, real, example not opened.
+  /* Cell 1: empty Home. A fresh data directory is NOT the precondition: the
+     first visit can open the example dataset on its own (Luna 2026-09-20).
+     The empty state is therefore reached explicitly — close the example, then
+     reload — and the capture asserts zero projects before it is recorded. */
   {
     const file = "home-empty-1440-light.png";
-    await screenshot(file);
-    const facts = await homeFacts();
-    record({ surface: "Home", state: "empty (fresh data dir, example not shown)", viewport: "1440x900", scheme: "light", method: "real", file, facts });
+    await evaluate(`(function(){ const b=document.getElementById('preview-leave-button'); if(b && !b.closest('[hidden]')){ b.click(); return true; } return false; })()`);
+    await sleep(1200);
+    await cdp("Page.navigate", { url: ORIGIN });
+    await sleep(1600);
+    const precondition = await evaluate(`(function(){
+      const rows = document.querySelectorAll('#navigation .project-toggle, #navigation [data-project-id]').length;
+      const slots = [...document.querySelectorAll('.home-slot:not([hidden])')].map(s => s.dataset.homeSlot);
+      return { projectRows: rows, slots, exampleBadge: Boolean(document.querySelector('#preview-banner:not([hidden]) #preview-banner-active:not([hidden])')) };
+    })()`);
+    if (precondition.projectRows > 0 || precondition.exampleBadge || precondition.slots.includes("attention") || precondition.slots.includes("activity"))
+      notExecuted({ cell: "Home · empty · 1440x900 light", reason: `precondition not met: ${JSON.stringify(precondition)}` });
+    else {
+      await screenshot(file);
+      const facts = await homeFacts();
+      record({ surface: "Home", state: "empty (example closed, then reloaded; asserted zero projects and no Attention/Activity block)", viewport: "1440x900", scheme: "light", method: "real", file, facts: { ...facts, precondition } });
+    }
   }
 
   // ---- Open the example workspace ---------------------------------------

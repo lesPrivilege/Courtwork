@@ -2,7 +2,7 @@
   "cells": [
     {
       "surface": "Home",
-      "state": "empty (fresh data dir, example not shown)",
+      "state": "empty (example closed, then reloaded; asserted zero projects and no Attention/Activity block)",
       "viewport": "1440x900",
       "scheme": "light",
       "method": "real",
@@ -14,14 +14,10 @@
         },
         "composerCentrePctOfBody": 56,
         "visibleHomeSlots": [
-          "attention",
-          "sessionCandidates",
-          "activity"
+          "sessionCandidates"
         ],
         "homeSectionLeftEdges": {
-          "attention": 438,
-          "sessionCandidates": 438,
-          "activity": 438
+          "sessionCandidates": 438
         },
         "composerFormLeft": 438,
         "horizontalOverflow": false,
@@ -33,22 +29,19 @@
             "bottom": 632
           },
           "homeSectionRects": {
-            "attention": {
-              "top": 664,
-              "bottom": 768,
-              "intersectsComposer": false
-            },
             "sessionCandidates": {
-              "top": 800,
-              "bottom": 1056,
-              "intersectsComposer": false
-            },
-            "activity": {
-              "top": 1088,
-              "bottom": 1316,
+              "top": 664,
+              "bottom": 714,
               "intersectsComposer": false
             }
           }
+        },
+        "precondition": {
+          "projectRows": 0,
+          "slots": [
+            "sessionCandidates"
+          ],
+          "exampleBadge": false
         }
       }
     },
@@ -181,7 +174,7 @@
         },
         "composerFormLeft": 16,
         "horizontalOverflow": false,
-        "introHeight": 164,
+        "introHeight": 133,
         "homeLead": "",
         "composerBlockOverlapCheck": {
           "composerRect": {
@@ -190,18 +183,18 @@
           },
           "homeSectionRects": {
             "attention": {
-              "top": 244,
-              "bottom": 346,
+              "top": 213,
+              "bottom": 315,
               "intersectsComposer": false
             },
             "sessionCandidates": {
-              "top": 378,
-              "bottom": 647,
+              "top": 347,
+              "bottom": 615,
               "intersectsComposer": false
             },
             "activity": {
-              "top": 679,
-              "bottom": 956,
+              "top": 647,
+              "bottom": 925,
               "intersectsComposer": true
             }
           }
@@ -473,7 +466,7 @@
         "domInjection": {
           "greetingFound": true,
           "bannerFound": true,
-          "beforeGreeting": "What comes first tonight?",
+          "beforeGreeting": "A new day, Multnomah County Circuit Court, Division.",
           "beforeBanner": "Explore an example workspace. Your first real run closes the example."
         },
         "before": {
@@ -747,7 +740,7 @@
       "file": "spark-1440-light.png",
       "facts": {
         "hasSparkHeading": true,
-        "bodyLength": 1361
+        "bodyLength": 1388
       }
     }
   ],

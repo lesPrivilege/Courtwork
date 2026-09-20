@@ -48,7 +48,7 @@ Observations). "Section left edge (shared)" means every visible
 
 | Surface | State | Viewport | Scheme | Method | File | Measured facts |
 |---|---|---|---|---|---|---|
-| Home | empty (fresh data dir, example not shown) | 1440×900 | light | real | `home-empty-1440-light.png` | composer top 472px/left 438px; centre 56.0% of `#conversation-body` height; visible slots: attention, sessionCandidates, activity; left edge 438px shared; no horizontal overflow; intro height 69px; `--home-lead` 302px |
+| Home | empty — example closed, then reloaded; the capture asserts zero projects, no example badge and no Attention/Activity slot before recording | 1440×900 | light | real | `home-empty-1440-light.png` | composer top 472px/left 438px; centre 56.0% of `#conversation-body` height; visible slots: **sessionCandidates only**; left edge 438px shared; no horizontal overflow; intro height 69px; `--home-lead` 302px; overlap check: none |
 | Home | normal (example workspace) | 1440×900 | light | real | `home-normal-1440-light.png` | composer top 472px/left 438px (identical to empty); centre 56.0%; slots: attention, sessionCandidates, activity; left edge 438px shared; no horizontal overflow; intro 69px; `--home-lead` 302px; overlap check: none |
 | Home | normal (example workspace) | 1280×800 | light | real | `home-normal-1280-light.png` | composer top 416px/left 358px; centre 56.0%; same slot set; left edge 358px shared; no horizontal overflow; intro 65px; `--home-lead` 250px |
 | Home | normal (example workspace) | 390×844 (mobile emulation) | light | real | `home-normal-390-light.png` | composer top 678px/left 16px; centre 89.6% (docked composer, see below); same slot set; left edge 16px shared; no horizontal overflow; intro 164px; `--home-lead` removed (narrow layout); **overlap check: the Activity block (top 679, bottom 956) overlaps the composer (top 678, bottom 844)** |
@@ -67,6 +67,17 @@ Observations). "Section left edge (shared)" means every visible
 | Attention | normal (example item) | 1440×900 | light | real | `attention-normal-1440-light.png` | opened at the example item ("Review Project Cedar source change", state Investigating); no horizontal overflow |
 | Attention | normal (example item) | 1440×900 | dark | real | `attention-normal-1440-dark.png` | no horizontal overflow |
 | Spark | normal, if rendered | 1440×900 | light | real | `spark-1440-light.png` | Spark renders as a modal dialog ("Spark · Explore") layered over a dimmed Home, not a distinct page-level surface |
+
+**Recapture note (2026-09-20).** An independent review found that the first
+version of this packet screenshotted the "empty" cell immediately after
+navigation, before closing the example, so a fresh data directory alone did not
+establish the precondition and that PNG showed the example dataset. `capture.mjs`
+now reaches the empty state explicitly (close the example, reload) and asserts
+the precondition before recording; the whole packet was recaptured with that
+script against the branch working tree carrying the review fixes (Attention
+scope invalidation, the empty Activity period line, the merged-page truncation
+sentence and the Home filter reset), which are committed together with this
+packet. Cell facts below come from that run.
 
 19 cells executed (13 Home + Chat/Attention/Spark desktop-light real states,
 plus dark, reduced-motion, sidebar-collapsed, long-content, failure and
@@ -100,6 +111,9 @@ No focus trap or skipped element was observed in this pass.
 |---|---|
 | Home — Waiting/approval present | The example workspace fixture (`app/web/samples/preview/responses.json`) carries no pending question or permission item — the `pendingItems` ("Waiting for you") slot was observed `hidden=true`, 0 rows, both on first load and after a reload. No local action can create a real pending question/permission without a configured paid model provider, which this capture does not use. |
 | Home — event burst (G2 fixture) | Requires a live provider Run emitting ≥100 tool events; none is available without a paid provider. Unit coverage exists instead: `app/tests/event-weight.test.mjs` builds the same 100-success/1-failure/1-pending-permission/1-artifact fixture referenced in the G2 slice and asserts the grouping, individual visibility and per-Run state-line behavior. |
+
+| Surfaces not captured at all | Usage dialog, markdown reader, and a long-content Chat thread. The G3 note previously pointed at this packet for them; they are unexecuted here and remain open for the reviewer. |
+| Forced colors, screen reader | Not exercised in this packet. |
 
 Native 200% browser zoom was also not available (headless Chrome only
 emulates viewport size/DPR, not the browser's own zoom feature) — per the
@@ -141,6 +155,14 @@ task's instruction this was captured instead as the CSS-equivalent
 
 These are measured facts, not a judgment of acceptance.
 
+- **Scroll reachability of the overlapped blocks (added 2026-09-20).** The
+  intersection below was checked by two independent live passes, one by the
+  author at 375×812 and one by a non-author reviewer at 390×844: scrolling the
+  conversation body brings the Activity block and its retention note fully
+  above the docked composer. The docked composer is the last element of the
+  scrolling body, so content above it is reachable. This disposes the
+  intersection for those two fixtures and viewports only; the capture script
+  itself still records the unscrolled rectangles below.
 - **Composer/block bounding-box overlap at narrow and short viewports.** At
   390×844 (mobile emulation) the Activity block's rect (top 679, bottom 956)
   overlaps the composer's rect (top 678, bottom 844). At the 720×450 @2x

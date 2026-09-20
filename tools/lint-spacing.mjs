@@ -42,70 +42,66 @@ const SPACING_PROPS = new Set([
 /* RULE 1 登记表：selector（rule 的任一逗号分支）+ 具体 px 字面量（含符号）→ 理由。
    1–3px 发丝/光学偏移不在这里：那条是全局规则，见档头。 */
 const REGISTERED_SPACE = [
-  // Control anatomy (type-density-constraints: 按钮 padding 5×10; field inline 10).
-  // A global control metric, ruled by Opus in G3 review: not snapped.
-  ["button", "5px", "控件解剖：按钮 padding 5×10（type-density-constraints 已裁）"],
-  ["button", "10px", "控件解剖：按钮 padding 5×10（type-density-constraints 已裁）"],
-  ["input", "10px", "控件解剖：输入框行内 padding 10，与按钮同一水平节奏"],
-  // 6px / -6px · ui-composition-standard 节奏：标签与字段 6/8px（比 --space-2 紧一档的
-  // chrome 间距，产品配置，不snap到刻度上）。
-  [".project-toggle", "6px", "chrome 6/8 节奏"],
-  [".session-mode-tag", "6px", "chrome 6/8 节奏"],
-  [".message-header > .icon-only", "-6px", "图标光学对齐偏移，量级取 6/8 节奏而非发丝"],
-  [".user-message-actions time", "6px", "chrome 6/8 节奏"],
-  [".context-tab", "6px", "chrome 6/8 节奏"],
-  [".context-chip", "6px", "chrome 6/8 节奏"],
-  [".composer-model", "6px", "chrome 6/8 节奏"],
-  [".home-composer-context .home-choice-select", "6px", "chrome 6/8 节奏"],
-  [".draft-status", "6px", "chrome 6/8 节奏"],
-  [".retained-source-summary", "6px", "chrome 6/8 节奏"],
-  [".retained-version-entry", "6px", "chrome 6/8 节奏"],
-  [".settings-form label", "6px", "label↔field 6/8 节奏"],
-  [".connection-paths .segment", "6px", "segment 6/8 节奏"],
-  [".ui-tooltip", "6px", "chrome 6/8 节奏"],
-  [".permission-mode", "6px", "chrome 6/8 节奏"],
-  [".context-row", "6px", "chrome 6/8 节奏"],
-  [".repository-path-details > summary", "6px", "chrome 6/8 节奏"],
-  [".connection-popover .segment", "6px", "segment 6/8 节奏"],
-  [".settings-row .segment", "6px", "segment 6/8 节奏"],
-  [".segment", "6px", "segment 6/8 节奏"],
-  [".runtime-scope-tab", "6px", "tab 6/8 节奏"],
-  [".runtime-switch", "6px", "chrome 6/8 节奏"],
-  [".runtime-subtab", "6px", "tab 6/8 节奏"],
-  [".composer-project", "6px", "chrome 6/8 节奏"],
-  [".rail-open", "6px", "chrome 6/8 节奏"],
-  [".settings-tab", "6px", "tab 6/8 节奏"],
-  [".attention-preview-label", "6px", "chrome 6/8 节奏"],
-  [".attention-suggestions button", "6px", "chrome 6/8 节奏"],
-  [".attention-agent-status > p", "6px", "chrome 6/8 节奏"],
-  [".attention-agent-composer", "6px", "chrome 6/8 节奏"],
-  [".runtime-package-resources label", "6px", "chrome 6/8 节奏"],
-  ["[data-package-editor] > label > span", "6px", "label↔field 6/8 节奏"],
-  [".model-picker-current .eyebrow", "6px", "chrome 6/8 节奏"],
-  [".model-picker-current .form-help", "6px", "chrome 6/8 节奏"],
-  [".usage-heatmap", "6px", "chrome 6/8 节奏"],
-  [".usage-stacked-chart", "6px", "chrome 6/8 节奏"],
-  [".usage-series-label::before", "6px", "chrome 6/8 节奏"],
-  [".usage-controls", "6px", "chrome 6/8 节奏"],
-  [".spark-chip-row", "6px", "chrome 6/8 节奏"],
-  [".spark-controls", "6px", "chrome 6/8 节奏"],
-  [".assistant-message-actions", "6px", "chrome 6/8 节奏"],
-  [".project-tag", "6px", "chrome 6/8 节奏"],
-  [".command-option", "6px", "chrome 6/8 节奏"],
-  [".account-identity", "6px", "chrome 6/8 节奏"],
-  [".presentation-inline", "6px", "chrome 6/8 节奏"],
-  [".nav-history-notice", "6px", "chrome 6/8 节奏"],
-  [".markdown-reader__outline-link", "6px", "chrome 6/8 节奏"],
-  [".markdown-reader__block :is(th", "6px", "table cell 6/8 节奏"],
-  // ≥40px，不是明确的页面/section 布局 gutter 角色（与 --content-inset / --band-top /
-  // --settings-gutter 数值巧合，但语义不同，不复用那些 token）。
-  [".home-intro", "40px", "Home intro 块底部留白，与 --content-inset 数值巧合但角色不同（那是 Chat 内容列的水平内距）"],
-  [".attention-workspace", "40px", "窄屏 attention-workspace 底部安全留白，与 --content-inset 数值巧合但角色不同"],
-  [".attention-workspace", "48px", "页面底部留白，与 --band-top 数值巧合但角色不同（那是顶部 chrome 带高）"],
-  [".chat-page", "48px", "页面底部留白，与 --band-top 数值巧合但角色不同"],
-  [".attention-agent-empty", "48px", "空态居中留白，产品取值，非布局 gutter 角色"],
-  [".attention-reading-empty", "72px", "空态居中留白，产品取值，非布局 gutter 角色"],
-  [".attention-detail-head", "104px", "为绝对定位的返回控件（.attention-list-back）预留水平空间，非间距刻度或布局 gutter"],
+  ["button", "padding", "5px", "控件解剖：按钮 padding 5×10（type-density-constraints 已裁）"],
+  ["button", "padding", "10px", "控件解剖：按钮 padding 5×10（type-density-constraints 已裁）"],
+  [".project-toggle", "padding", "6px", "chrome 6/8 节奏"],
+  [".session-mode-tag", "margin-left", "6px", "chrome 6/8 节奏"],
+  [".home-intro", "margin-bottom", "40px", "Home intro 块底部留白，与 --content-inset 数值巧合但角色不同（那是 Chat 内容列的水平内距）"],
+  [".message-header > .icon-only", "margin", "-6px", "图标光学对齐偏移，量级取 6/8 节奏而非发丝"],
+  [".user-message-actions time", "margin-right", "6px", "chrome 6/8 节奏"],
+  [".context-tab", "padding", "6px", "chrome 6/8 节奏"],
+  [".context-chip", "gap", "6px", "chrome 6/8 节奏"],
+  [".composer-model", "padding", "6px", "chrome 6/8 节奏"],
+  [".home-composer-context .home-choice-select", "padding", "6px", "chrome 6/8 节奏"],
+  [".draft-status", "padding-bottom", "6px", "chrome 6/8 节奏"],
+  [".retained-source-summary", "gap", "6px", "chrome 6/8 节奏"],
+  [".retained-version-entry", "padding", "6px", "chrome 6/8 节奏"],
+  [".settings-form label", "gap", "6px", "label↔field 6/8 节奏"],
+  ["input", "padding", "10px", "控件解剖：输入框行内 padding 10，与按钮同一水平节奏"],
+  [".connection-paths .segment", "padding", "6px", "segment 6/8 节奏"],
+  [".ui-tooltip", "padding", "6px", "chrome 6/8 节奏"],
+  [".permission-mode", "padding", "6px", "chrome 6/8 节奏"],
+  [".context-row", "padding", "6px", "chrome 6/8 节奏"],
+  [".repository-path-details > summary", "padding", "6px", "chrome 6/8 节奏"],
+  [".connection-popover .segment", "padding", "6px", "segment 6/8 节奏"],
+  [".settings-row .segment", "padding", "6px", "segment 6/8 节奏"],
+  [".segment", "padding", "6px", "segment 6/8 节奏"],
+  [".runtime-scope-tab", "padding", "6px", "tab 6/8 节奏"],
+  [".runtime-switch", "gap", "6px", "chrome 6/8 节奏"],
+  [".runtime-subtab", "padding", "6px", "tab 6/8 节奏"],
+  [".composer-project", "padding", "6px", "chrome 6/8 节奏"],
+  [".rail-open", "padding", "6px", "chrome 6/8 节奏"],
+  [".settings-tab", "padding", "6px", "tab 6/8 节奏"],
+  [".attention-workspace", "padding", "48px", "页面底部留白，与 --band-top 数值巧合但角色不同（那是顶部 chrome 带高）"],
+  [".chat-page", "padding", "48px", "页面底部留白，与 --band-top 数值巧合但角色不同"],
+  [".attention-reading-empty", "padding", "72px", "空态居中留白，产品取值，非布局 gutter 角色"],
+  [".attention-detail-head", "padding-right", "104px", "为绝对定位的返回控件（.attention-list-back）预留水平空间，非间距刻度或布局 gutter"],
+  [".attention-workspace", "padding", "40px", "窄屏 attention-workspace 底部安全留白，与 --content-inset 数值巧合但角色不同"],
+  [".attention-preview-label", "padding", "6px", "chrome 6/8 节奏"],
+  [".attention-suggestions button", "padding", "6px", "chrome 6/8 节奏"],
+  [".attention-agent-empty", "padding", "48px", "空态居中留白，产品取值，非布局 gutter 角色"],
+  [".attention-agent-status > p", "margin", "6px", "chrome 6/8 节奏"],
+  [".attention-agent-composer", "gap", "6px", "chrome 6/8 节奏"],
+  [".attention-agent-composer", "padding", "6px", "chrome 6/8 节奏"],
+  [".runtime-package-resources label", "padding", "6px", "chrome 6/8 节奏"],
+  ["[data-package-editor] > label > span", "margin-bottom", "6px", "label↔field 6/8 节奏"],
+  [".model-picker-current .eyebrow", "margin", "6px", "chrome 6/8 节奏"],
+  [".model-picker-current .form-help", "margin", "6px", "chrome 6/8 节奏"],
+  [".usage-heatmap", "gap", "6px", "chrome 6/8 节奏"],
+  [".usage-stacked-chart", "gap", "6px", "chrome 6/8 节奏"],
+  [".usage-series-label::before", "margin-right", "6px", "chrome 6/8 节奏"],
+  [".usage-controls", "gap", "6px", "chrome 6/8 节奏"],
+  [".spark-chip-row", "gap", "6px", "chrome 6/8 节奏"],
+  [".spark-chip-row", "margin-top", "6px", "chrome 6/8 节奏"],
+  [".spark-controls", "gap", "6px", "chrome 6/8 节奏"],
+  [".assistant-message-actions", "margin-top", "6px", "chrome 6/8 节奏"],
+  [".project-tag", "padding", "6px", "chrome 6/8 节奏"],
+  [".command-option", "padding", "6px", "chrome 6/8 节奏"],
+  [".account-identity", "padding", "6px", "chrome 6/8 节奏"],
+  [".presentation-inline", "gap", "6px", "chrome 6/8 节奏"],
+  [".nav-history-notice", "margin", "6px", "chrome 6/8 节奏"],
+  [".markdown-reader__outline-link", "padding", "6px", "chrome 6/8 节奏"],
+  [".markdown-reader__block :is(th", "padding", "6px", "table cell 6/8 节奏"],
 ];
 
 /* RULE 2 登记表：selector + font-size 的确切字面量 → 理由。 */
@@ -191,6 +187,25 @@ function parseRules(text) {
 const spaceProblems = [];
 const fontProblems = [];
 
+/* Luna 4 · var(--space-7) 不是间距刻度上的一档，它只是一个没人定义的名字，
+   解析成"无效"后整条声明消失。放行 var() 之前先确认这个名字真的被定义过。 */
+const definedTokens = new Set();
+for (const file of walk(join(root, "app/web")))
+  for (const decl of readFileSync(file, "utf8").matchAll(/(--[\w-]+)\s*:/g))
+    definedTokens.add(decl[1]);
+/* 有些 token 是量出来的，由 app 在运行时写进 style（--home-lead 等）：它们的定义
+   在 .mjs 里，不在样式表里。 */
+for (const file of readdirSync(join(root, "app/web")).filter((name) => name.endsWith(".mjs")))
+  for (const decl of readFileSync(join(root, "app/web", file), "utf8").matchAll(/setProperty\(\s*['"`](--[\w-]+)/g))
+    definedTokens.add(decl[1]);
+/* var(--x, fallback) 自带兜底，未定义时不会让整条声明失效。 */
+function unknownTokens(value) {
+  return [...value.matchAll(/var\(\s*(--[\w-]+)\s*(,?)/g)]
+    .filter((match) => !match[2])
+    .map((match) => match[1])
+    .filter((name) => !definedTokens.has(name));
+}
+
 /* 含 var() 或相对单位（%、em、lh、vw、vh、dvh）的 calc()/min()/max()/clamp()/env() 表达式，
    或任意 var() 引用（含 fallback 链），一律放行：这是"已经建立在 token 或相对量上"的那一层，
    不逐条登记。真正需要登记的是游离的 px 字面量本身。 */
@@ -206,12 +221,22 @@ for (const file of files) {
   const { rules, lineOf } = parseRules(text);
 
   for (const rule of rules) {
-    for (const decl of rule.body.matchAll(/(?<![-\w])([a-z-]+)\s*:\s*([^;]+);/g)) {
+    /* Luna 4 · 块内最后一条声明可以省掉分号；漏掉它等于给每条规则留一个后门。 */
+    for (const decl of rule.body.matchAll(/(?<![-\w])([a-z-]+)\s*:\s*([^;{}]+?)\s*(?:;|$)/g)) {
       const prop = decl[1];
       const rawValue = decl[2];
       const value = rawValue.trim();
       const at = rule.bodyStart + decl.index + decl[0].length - rawValue.length - 1;
       const where = () => `${relative(root, file)}:${lineOf(at)}`;
+
+      if (SPACING_PROPS.has(prop) || prop === "font-size") {
+        const unknown = unknownTokens(value);
+        if (unknown.length) {
+          const problems = SPACING_PROPS.has(prop) ? spaceProblems : fontProblems;
+          problems.push(`${where()}: ${rule.selectors[0]} 的 ${prop} 引用了未定义的 token ${unknown.join(", ")}`);
+          continue;
+        }
+      }
 
       if (SPACING_PROPS.has(prop)) {
         const withoutImportant = value.replace(/!\s*important\s*$/, "").trim();
@@ -225,8 +250,10 @@ for (const file of files) {
           }
           const num = parseFloat(m[1]);
           if (Math.abs(num) <= 3) continue; // 全局：1–3px 发丝/光学偏移放行
+          /* Luna 4 · 登记是"这个选择器的这个属性的这个值"，不是选择器＋值就通行：
+             为 padding 写的理由不替 margin 背书。 */
           const registered = REGISTERED_SPACE.find(
-            ([sel, val]) => rule.selectors.includes(sel) && val === part,
+            ([sel, registeredProp, val]) => rule.selectors.includes(sel) && registeredProp === prop && val === part,
           );
           if (registered) continue;
           spaceProblems.push(

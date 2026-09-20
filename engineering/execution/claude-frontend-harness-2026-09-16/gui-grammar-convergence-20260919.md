@@ -28,7 +28,7 @@
 | About four text levels | **Reject** | [type-density-constraints](../../design/type-density-constraints.md) | Eight roles are adopted and tokenised. The defect is raw literals (G3) |
 | Status badge carries only status | **Adopt** within UX-10 | UX Grammar | Follows UX-01 no duplication |
 | ~80-character measure | **Not a rule** | ui-composition-standard 740 px measure | G4 records characters per line as an observation |
-| 200% zoom with reflow | **Already required** | [frontend-contract](../../design/agent-interface-2026-09-10/frontend-contract.md) | G4 executes native 200% zoom |
+| 200% zoom with reflow | **Already required**; still unexecuted | [frontend-contract](../../design/agent-interface-2026-09-10/frontend-contract.md) | G4 records a labelled CSS-equivalent substitute (720×450 @2x). Native browser zoom is not available headlessly and remains open |
 | Visual state matrix | **Adopt** as G4 | G4 | Generalises the zoning PR's exit evidence |
 | External samples and the three existing reference images | **Design input** | — | Neither is presented as general external practice or as a visual baseline |
 
@@ -140,7 +140,7 @@ Branch `claude/gui-grammar-20260919`, isolated worktree, from `main@72c91a2`. Th
 
 **Deviations and residuals.**
 - The Attention registry query supports only offset/limit, so the block shows the registry's first 3 items with their state words, not only items that need a decision. A status filter belongs to the Attention owner.
-- The empty-projects guard was fixed during the author check. Closing the example previously left stale Attention rows.
+- The empty-projects guard added during the author check was **not sufficient**: the cached Attention scope itself survived. See F-01 in the review dispositions below.
 - The block rows keep their existing glyph difference: Continue has a chat glyph, the other rows have none. So title start lines differ by 16 px between blocks. This is recorded for G4, not changed.
 - `#conversation-body` extends 48 px below the viewport under the top band. This existed before G1 and is recorded for G4.
 - **Not executed:** native 200% zoom (the tool only emulates viewport size), forced colors, a full screen-reader pass, and the 390 and 1280 cells in the other colour scheme.
@@ -231,7 +231,7 @@ Same branch. A Sonnet worker implemented G3 from this spec after G2 was handed o
 
 The complete snap table was generated in the author scratchpad; the registration table in the lint carries the durable reasons.
 
-**Checks.** `npm --prefix app test` passes 1215/1215. `lint-spacing`, `lint-colors`, `lint-shapes`, `lint-materials`, `lint-interaction`, `check-semantic-consumers` and `contrast-report` pass. Surfaces not compared visually: Chat thread with long content, Usage dialog, Spark, markdown reader. G4 covers them.
+**Checks.** `npm --prefix app test` passes 1215/1215. `lint-spacing`, `lint-colors`, `lint-shapes`, `lint-materials`, `lint-interaction`, `check-semantic-consumers` and `contrast-report` pass. Surfaces not compared visually: Chat thread with long content, Usage dialog, markdown reader. G4 captures Spark but **not** the other three, so they stay unexecuted and open for the reviewer.
 
 ### G4 · Cross-surface visual state matrix (non-author acceptance)
 
@@ -241,13 +241,13 @@ One fixed synthetic dataset on one candidate SHA. The surfaces are Home, Chat an
 |---|---|
 | Content state | empty Home · normal Home · long slogan + long Example + long Profile address · Waiting/approval present · event burst (G2 fixture) · failure |
 | Viewport | 1440 · 1280 · 390; sidebar collapsed at 1440 |
-| Presentation | light and dark · native 200% zoom with reflow · reduced motion · keyboard pass |
+| Presentation | light and dark · reduced motion · keyboard pass · a labelled CSS-equivalent 200% substitute (native browser zoom remains unexecuted) |
 
 In every cell, check the zone order ruled for that surface, weights against UX-10, the stable card left edge and content-start line, and that there is no overlap or horizontal overflow. Record characters per line as an observation. The author supplies captures; a non-author decides. Unexecuted cells are listed as unexecuted.
 
 #### G4 candidate evidence (Sonnet capture, 2026-09-20)
 
-The [candidate evidence packet](../../../evidence/gui-grammar-20260920/README.md) was captured by headless Chrome over CDP against branch HEAD `fc8dd61`, with a reproducible `capture.mjs` and `manifest.json`. It has 19 executed cells and 18 viewport PNGs covering Home, Chat, Attention and Spark:
+The [candidate evidence packet](../../../evidence/gui-grammar-20260920/README.md) was captured by headless Chrome over CDP with a reproducible `capture.mjs` and `manifest.json`. It has 19 executed cells and 19 viewport PNGs covering Home, Chat, Attention and Spark (recaptured 2026-09-20 after the independent review; see the review dispositions below):
 - Home at 1440 in empty, normal, long-content and simulated-failure states;
 - Home at 1280 and 390, light and dark, sidebar collapsed, and reduced motion;
 - a CSS-equivalent 200% cell (720×450 @2x), which is not native zoom.
@@ -265,13 +265,31 @@ Each cell's method is labelled: real, INJECTED DOM TEXT, SIMULATED NETWORK FAILU
 
 **Acceptance is not claimed.** Per the start node, the next step is non-author verification (Luna), and the visual/layout decision for G1–G3 belongs to that review.
 
+## Independent review dispositions (2026-09-20)
+
+Non-author review of candidate `fc6eccf`: [functional](evidence/gui-independent-20260920/luna-functional.md), [style and evidence](evidence/gui-independent-20260920/luna-style-evidence.md), [browser observations](evidence/gui-independent-20260920/astra-browser.md). The candidate was held, not accepted. Each finding is disposed below, serially, by Opus. Those three review records live in the shared main checkout and are not carried on this branch, so their links resolve in the combined tree.
+
+| Finding | Disposition | Change |
+|---|---|---|
+| **F-01** The Attention scope survives a removed or changed project (acceptance blocker) | **Adopt** | One owner now decides the scope (`homeAttentionScope`: the workspace choice when it names a project, otherwise the first project). `loadProjects` invalidates a scope whose project is gone, and the workspace picker moves the scope with it. A cleared scope drops its rows instead of showing another project's items as "the last loaded records" |
+| **F-02** A zero 28-day Activity packet renders a full empty heatmap | **Adopt** | The block keeps its period control, but an empty period states `No runs recorded in the last N days.` instead of an all-zero grid. The widest empty period stays absent, as ruled |
+| **F-03** Merged `Show all` pages can claim items are outside the page | **Adopt** | The truncation sentence is computed from the merged collection, so it appears only while the displayed set holds fewer items than the total |
+| **F-04** The Home filter is never cleared; the collapse focus fallback can disappear | **Adopt** | `goHome` clears the expanded set, so entering Home shows the whole of Home. When a set's `Show all` no longer exists, focus falls back to that block's first row |
+| **Style 1** Packet metadata and the empty-cell fixture label | **Adopt** | The owner count now reads 19 PNGs. The first capture screenshotted the "empty" cell before closing the example, so it showed the example dataset. `capture.mjs` now closes the example, reloads, and asserts zero projects, no example badge and no Attention/Activity slot before recording. The packet was recaptured |
+| **Style 2** Native 200% zoom described inconsistently | **Adopt** | The disposition table and the G4 axis now say native zoom is unexecuted, with a labelled CSS-equivalent substitute |
+| **Style 3** G3 overclaims G4 coverage | **Adopt** | The G3 note lists Chat long content, the Usage dialog and the markdown reader as unexecuted; the packet records them as not captured |
+| **Style 4** Three enforceability holes in the spacing gate | **Adopt** | The parser reads a block's last declaration without a semicolon; `var()` must name a token defined in CSS or set at runtime in JS unless it carries a fallback; registrations are keyed by selector **and property**, so a `padding` reason no longer covers `margin`. Three negative tests cover exactly these cases |
+| **Style 5 / browser** Narrow-layout overlap and snap impact | **Adopt as recorded evidence** | The packet records that two independent live passes (author at 375, non-author at 390) scrolled the Activity block fully above the docked composer, and that the capture measures the unscrolled rectangles. The snap impact stays in the G3 note. Neither becomes a pass/fail claim |
+
+New tests: `app/tests/home-scope.test.mjs` covers F-01 through F-04, and `app/tests/spacing-governance.test.mjs` gains the three negative cases.
+
 ## Construction report and writer release (Claude/Opus, 2026-09-20)
 
 **Deliverable.** Branch `claude/gui-grammar-20260919` from `main@72c91a2`, with commits `9b4fc2f` (owner record), `e431d0b` (G1), `fbab236` (G2), `fc8dd61` (G3) and the G4 evidence commit that follows `fc8dd61`. The agreed GUI scope G1 → G4 is complete as author work. Visual acceptance is pending non-author review.
 
 **Integration notes for Astra.**
 - The shared main checkout still holds **older uncommitted copies** of this slice's documents: `ux-grammar.md`, this record, the zoning PR note, the packet README line and the GUI `current.md` entry. The branch versions supersede them, so take the branch bytes for these paths. The Orchestra entry in main's `current.md` belongs to another author and must be kept; the two entries sit in adjacent hunks.
-- On this branch alone `check-doc-links` reports one problem. The Astra paragraph in this record links `orchestra-start-node-20260919.md`, which is untracked in main. It resolves in the combined tree.
+- On this branch alone `check-doc-links` reports one problem: the Astra paragraph in this record links `orchestra-start-node-20260919.md`, untracked in main. The three independent-review records under `…/evidence/gui-independent-20260920/` are likewise only in main. All resolve in the combined tree.
 - `app/node_modules` in the task worktree is an untracked symlink to main's dependencies, used only to run tests. It is not part of the deliverable.
 
 **Residuals, each with an owner.**

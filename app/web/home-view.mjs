@@ -226,7 +226,10 @@ function pageNotes(key, page, items, onMore) {
           : emptyLabels[key],
       }),
     );
-  if (page.truncated)
+  /* Luna F-03 · the server marks every offset page truncated; after merging
+   * pages the displayed set can already hold everything. The sentence states
+   * what is missing from the screen, not which page carried it. */
+  if (page.truncated && items.length < page.total)
     notes.push(
       el("p", {
         className: "form-help",
@@ -351,9 +354,12 @@ function activityBlock(modules, call) {
   if (!modules?.activity) return null;
   const { activity } = modules;
   const data = toHomeActivity(activity.data, activity.days);
-  /* The widest period holding nothing means there is no history to show; a
-   * narrower empty period keeps the block so its period control stays put. */
+  /* The widest period holding nothing means there is no history to show. A
+   * narrower empty period keeps the block so its period control stays put, but
+   * says so in one line: an all-zero grid is a dense instrument stating
+   * nothing (Luna F-02, UX-09 "a zero category does not occupy a block"). */
   if (!activity.error && (!data || (!data.total && activity.days === 84))) return null;
+  const empty = Boolean(data) && !data.total;
   const summaryLine = data ? `${data.total} recorded ${data.total === 1 ? "run" : "runs"} · ${data.days} days` : null;
   const summary = el("summary", { className: "home-activity-summary", attrs: { "data-focus-key": "home-activity-toggle" } },
     el("h3", { text: "Activity" }),
@@ -370,7 +376,9 @@ function activityBlock(modules, call) {
   const usage = modules.onOpenUsage ? homeButton("Open Usage", () => call("onOpenUsage"), "open-usage") : null;
   body.append(el("div", { className: "home-activity-controls" }, ranges, usage));
   if (activity.error) body.append(moduleError("Activity", activity.error, Boolean(data), () => call("onActivityRetry")));
-  if (data) {
+  if (empty)
+    body.append(el("p", { className: "home-insight-note", text: `No runs recorded in the last ${data.days} days.` }));
+  else if (data) {
     body.append(...heatmap(data), el("p", { className: "home-insight-note", text: data.coverage }));
     if (activity.error) body.append(el("p", { className: "home-insight-note", text: `Last confirmed ${stamp(data.observedAt)}.` }));
   }
@@ -381,7 +389,7 @@ function activityBlock(modules, call) {
     call("onActivityCollapse", !open);
   });
   const section = el("section", { className: "home-section", attrs: { "data-home-block": "activity" } }, details);
-  return { node: section, print: { data: data && { total: data.total, days: data.days, buckets: data.buckets, coverage: data.coverage }, days: activity.days, error: activity.error || null, usage: Boolean(usage) } };
+  return { node: section, print: { data: data && { total: data.total, days: data.days, buckets: empty ? null : data.buckets, coverage: data.coverage }, empty, days: activity.days, error: activity.error || null, usage: Boolean(usage) } };
 }
 
 const homeRenders = new WeakMap();

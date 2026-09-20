@@ -2029,6 +2029,11 @@ async function loadProjects() {
     [...state.openProjectIds].filter((projectId) => valid.has(projectId)),
   );
   if (state.activeProjectId && !valid.has(state.activeProjectId)) state.activeProjectId = null;
+  /* Luna F-01 · a cached read outlives its scope: when the project it was read
+   * for is gone, its rows are not "the last loaded records" of anything the
+   * person can still open. Drop the scope and read the next one, so Home shows
+   * the real empty state instead of another project's items. */
+  invalidateHomeAttentionScope(valid);
   renderProjectList();
 }
 
@@ -6278,7 +6283,12 @@ function renderHomeState() {
       renderHomeState();
       /* The pressed control leaves with the view it opened; focus moves to the
        * control that now leads back, and back again to the set's own. */
-      $("message-stream").querySelector(`[data-focus-key="${key ? "home-all-work" : `home-more:${previous}`}"]`)?.focus();
+      const stream = $("message-stream");
+      const target = key
+        ? stream.querySelector('[data-focus-key="home-all-work"]')
+        : stream.querySelector(`[data-focus-key="home-more:${previous}"]`)
+          ?? stream.querySelector(`[data-home-block="${previous}"] .home-row`);
+      target?.focus();
     },
     onSession: async (item, { inspect }) => {
       await selectSession(item.sessionId);
@@ -6309,7 +6319,27 @@ async function loadHomeActivity() {
     }
   }
 }
-async function loadHomeAttention(projectId = state.homeAttention.projectId || homeProjectId() || state.projects[0]?.id || null, offset = 0) {
+/* The Attention block reads one project. Home owns which one: the workspace
+ * choice when it names a project, otherwise the first real project. */
+function homeAttentionScope() {
+  const valid = new Set(state.projects.map((project) => project.id));
+  const preferred = homeProjectId();
+  if (preferred && valid.has(preferred)) return preferred;
+  return state.projects[0]?.id ?? null;
+}
+function invalidateHomeAttentionScope(valid = new Set(state.projects.map((project) => project.id))) {
+  const target = state.homeAttention;
+  const next = homeAttentionScope();
+  if (target.projectId && valid.has(target.projectId) && target.projectId === next) return;
+  target.generation++;
+  target.data = null;
+  target.error = null;
+  target.loading = false;
+  target.projectId = null;
+  if (state.view === "home" && homeLayoutPreference() === "modules" && next) void loadHomeAttention(next);
+  else if (state.view === "home") renderHomeState();
+}
+async function loadHomeAttention(projectId = homeAttentionScope(), offset = 0) {
   const target = state.homeAttention;
   const own = ++target.generation;
   if (target.projectId !== projectId || target.data?.offset !== offset) target.data = null;
@@ -6402,6 +6432,9 @@ async function goHome() {
   if (own !== state.navigationEpoch) return;
   clearActiveSession();
   closeNavigation({ restoreFocus: false });
+  /* Luna F-04 · a set expanded in place is a view of this visit, not a saved
+   * preference: entering Home again shows the whole of Home. */
+  state.home.filter = null;
   restoreLayerFocus($("composer-input"));
   void loadHome();
 }
@@ -7419,7 +7452,7 @@ function wireEvents() {
         attrs:{type:"button","aria-pressed":String(project.id===homeProjectId())}});
       if (project.id === homeProjectId()) button.append(el("span", { className: "workspace-choice-state", text: "Selected", attrs: { "aria-hidden": "true" } }));
       button.addEventListener("click",()=>{
-        state.homeProjectId=project.id;storeHomeDraft();renderComposer();workspacePopover.hidePopover();workspaceButton.focus();
+        state.homeProjectId=project.id;storeHomeDraft();renderComposer();invalidateHomeAttentionScope();workspacePopover.hidePopover();workspaceButton.focus();
       }); choices.append(button);
     }
     workspacePopover.showPopover();choices.querySelector('button[aria-pressed="true"]')?.focus();
