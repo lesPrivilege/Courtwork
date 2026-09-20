@@ -1,0 +1,1255 @@
+{
+  "cells": [
+    {
+      "surface": "Home",
+      "state": "empty (example closed, then reloaded; asserted zero projects and no Attention/Activity block)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real",
+      "file": "home-empty-1440-light.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 438
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "sessionCandidates"
+        ],
+        "homeSectionLeftEdges": {
+          "sessionCandidates": 438
+        },
+        "composerFormLeft": 438,
+        "horizontalOverflow": false,
+        "introHeight": 69,
+        "homeLead": "302px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "sessionCandidates": {
+              "top": 664,
+              "bottom": 714,
+              "intersectsComposer": false
+            }
+          }
+        },
+        "precondition": {
+          "projectRows": 0,
+          "slots": [
+            "sessionCandidates"
+          ],
+          "exampleBadge": false
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "normal (example workspace)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real",
+      "file": "home-normal-1440-light.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 438
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 438,
+          "sessionCandidates": 438,
+          "activity": 438
+        },
+        "composerFormLeft": 438,
+        "horizontalOverflow": false,
+        "introHeight": 69,
+        "homeLead": "302px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 664,
+              "bottom": 768,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 800,
+              "bottom": 1056,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 1088,
+              "bottom": 1316,
+              "intersectsComposer": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "normal (example workspace)",
+      "viewport": "1280x800",
+      "scheme": "light",
+      "method": "real",
+      "file": "home-normal-1280-light.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 416,
+          "left": 358
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 358,
+          "sessionCandidates": 358,
+          "activity": 358
+        },
+        "composerFormLeft": 358,
+        "horizontalOverflow": false,
+        "introHeight": 65,
+        "homeLead": "250px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 416,
+            "bottom": 576
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 608,
+              "bottom": 711,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 743,
+              "bottom": 1000,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 1032,
+              "bottom": 1260,
+              "intersectsComposer": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "normal (example workspace)",
+      "viewport": "390x844 (mobile emulation)",
+      "scheme": "light",
+      "method": "real",
+      "file": "home-normal-390-light.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 678,
+          "left": 16
+        },
+        "composerCentrePctOfBody": 89.6,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 16,
+          "sessionCandidates": 16,
+          "activity": 16
+        },
+        "composerFormLeft": 16,
+        "horizontalOverflow": false,
+        "introHeight": 133,
+        "homeLead": "",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 678,
+            "bottom": 844
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 213,
+              "bottom": 315,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 347,
+              "bottom": 615,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 647,
+              "bottom": 925,
+              "intersectsComposer": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "normal, sidebar collapsed",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real",
+      "file": "home-normal-1440-light-sidebar-collapsed.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 310
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 310,
+          "sessionCandidates": 310,
+          "activity": 310
+        },
+        "composerFormLeft": 310,
+        "horizontalOverflow": false,
+        "introHeight": 69,
+        "homeLead": "302px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 664,
+              "bottom": 768,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 800,
+              "bottom": 1056,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 1088,
+              "bottom": 1316,
+              "intersectsComposer": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "normal (example workspace)",
+      "viewport": "1280x800",
+      "scheme": "dark",
+      "method": "real",
+      "file": "home-normal-1280-dark.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 416,
+          "left": 358
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 358,
+          "sessionCandidates": 358,
+          "activity": 358
+        },
+        "composerFormLeft": 358,
+        "horizontalOverflow": false,
+        "introHeight": 65,
+        "homeLead": "250px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 416,
+            "bottom": 576
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 608,
+              "bottom": 711,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 743,
+              "bottom": 1000,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 1032,
+              "bottom": 1260,
+              "intersectsComposer": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "normal (example workspace)",
+      "viewport": "1440x900",
+      "scheme": "dark",
+      "method": "real",
+      "file": "home-normal-1440-dark.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 438
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 438,
+          "sessionCandidates": 438,
+          "activity": 438
+        },
+        "composerFormLeft": 438,
+        "horizontalOverflow": false,
+        "introHeight": 69,
+        "homeLead": "302px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 664,
+              "bottom": 768,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 800,
+              "bottom": 1056,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 1088,
+              "bottom": 1316,
+              "intersectsComposer": false
+            }
+          }
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "normal, reduced motion",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (prefers-reduced-motion: reduce)",
+      "file": "home-normal-1440-light-reduced-motion.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 438
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 438,
+          "sessionCandidates": 438,
+          "activity": 438
+        },
+        "composerFormLeft": 438,
+        "horizontalOverflow": false,
+        "introHeight": 69,
+        "homeLead": "302px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 664,
+              "bottom": 768,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 800,
+              "bottom": 1056,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 1088,
+              "bottom": 1316,
+              "intersectsComposer": false
+            }
+          }
+        },
+        "activityChevronTransition": "none"
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "long slogan + long Example + long Profile address",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real Profile work address (Settings > Profile, maxlength 40) + INJECTED DOM TEXT (greeting span, Example banner line)",
+      "file": "home-long-1440-light.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 438
+        },
+        "composerCentrePctOfBody": 56.1,
+        "visibleHomeSlots": [
+          "attention",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "attention": 438,
+          "sessionCandidates": 438,
+          "activity": 438
+        },
+        "composerFormLeft": 438,
+        "horizontalOverflow": false,
+        "introHeight": 222,
+        "homeLead": "150px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "attention": {
+              "top": 664,
+              "bottom": 768,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 800,
+              "bottom": 1057,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 1089,
+              "bottom": 1316,
+              "intersectsComposer": false
+            }
+          }
+        },
+        "profileWorkAddressSet": {
+          "ok": true
+        },
+        "domInjection": {
+          "greetingFound": true,
+          "bannerFound": true,
+          "beforeGreeting": "A new day, Multnomah County Circuit Court, Division.",
+          "beforeBanner": "Explore an example workspace. Your first real run closes the example."
+        },
+        "before": {
+          "composerFormRect": {
+            "top": 472,
+            "left": 438
+          },
+          "composerCentrePctOfBody": 56,
+          "visibleHomeSlots": [
+            "attention",
+            "sessionCandidates",
+            "activity"
+          ],
+          "homeSectionLeftEdges": {
+            "attention": 438,
+            "sessionCandidates": 438,
+            "activity": 438
+          },
+          "composerFormLeft": 438,
+          "horizontalOverflow": false,
+          "introHeight": 69,
+          "homeLead": "302px",
+          "composerBlockOverlapCheck": {
+            "composerRect": {
+              "top": 472,
+              "bottom": 632
+            },
+            "homeSectionRects": {
+              "attention": {
+                "top": 664,
+                "bottom": 768,
+                "intersectsComposer": false
+              },
+              "sessionCandidates": {
+                "top": 800,
+                "bottom": 1056,
+                "intersectsComposer": false
+              },
+              "activity": {
+                "top": 1088,
+                "bottom": 1316,
+                "intersectsComposer": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "failure — Home read failure (preview closed, real empty workspace)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "SIMULATED NETWORK FAILURE (CDP Fetch.failRequest on *work-summary*, preview closed so the read is a real network request)",
+      "file": "home-failure-1440-light.png",
+      "facts": {
+        "connectionLineText": "Local runtime unavailable",
+        "connectionLinePresent": true
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "CSS-equivalent (720×450 @2x), not native zoom",
+      "viewport": "720x450 @2x",
+      "scheme": "light",
+      "method": "CSS-equivalent (720×450 @2x), not native zoom",
+      "file": "home-normal-zoom-css-equivalent-720-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 720,
+        "innerWidth": 720,
+        "clippedCandidates": [
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Toggle navigation"
+          },
+          {
+            "tag": "label",
+            "cls": "sr-only",
+            "text": "Message"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Attachments"
+          },
+          {
+            "tag": "span",
+            "cls": "request-label sr-only",
+            "text": "Send"
+          }
+        ]
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "normal (example session with tool rows/artifact)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real",
+      "file": "chat-normal-1440-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "sessionTitle": "Final review memo — working artifact"
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "normal (example session)",
+      "viewport": "1280x800",
+      "scheme": "light",
+      "method": "real",
+      "file": "chat-normal-1280-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 1280,
+        "innerWidth": 1280
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "normal (example session)",
+      "viewport": "390x844 (mobile emulation)",
+      "scheme": "light",
+      "method": "real",
+      "file": "chat-normal-390-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 390,
+        "innerWidth": 390
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "normal (example session)",
+      "viewport": "1440x900",
+      "scheme": "dark",
+      "method": "real",
+      "file": "chat-normal-1440-dark.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "CSS-equivalent (720×450 @2x), not native zoom",
+      "viewport": "720x450 @2x",
+      "scheme": "light",
+      "method": "CSS-equivalent (720×450 @2x), not native zoom",
+      "file": "chat-normal-zoom-css-equivalent-720-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 720,
+        "innerWidth": 720,
+        "clippedCandidates": [
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Toggle navigation"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Chat overview"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Open work surface"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Copy message"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Edit as new message"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "More message actions"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Started 9/11/2026, 10:32:06 PM"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "More file actions"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Run started 9/11/2026, 10:32:06 PM"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Copy response"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Read aloud"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Like response"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Dislike response"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "Regenerate response"
+          },
+          {
+            "tag": "span",
+            "cls": "sr-only",
+            "text": "More message actions"
+          }
+        ]
+      }
+    },
+    {
+      "surface": "Attention",
+      "state": "normal (example item)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real",
+      "file": "attention-normal-1440-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      }
+    },
+    {
+      "surface": "Attention",
+      "state": "normal (example item)",
+      "viewport": "1440x900",
+      "scheme": "dark",
+      "method": "real",
+      "file": "attention-normal-1440-dark.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "innerWidth": 1440
+      }
+    },
+    {
+      "surface": "Spark",
+      "state": "normal (Spark, if rendered)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real",
+      "file": "spark-1440-light.png",
+      "facts": {
+        "hasSparkHeading": true,
+        "bodyLength": 1388
+      }
+    },
+    {
+      "surface": "Home",
+      "state": "Waiting/approval present (real /fixture question, pending, real local-provider run)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives)",
+      "file": "home-waiting-1440-light.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 438
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "pendingItems",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "pendingItems": 438,
+          "sessionCandidates": 438,
+          "activity": 438
+        },
+        "composerFormLeft": 438,
+        "horizontalOverflow": false,
+        "introHeight": 69,
+        "homeLead": "302px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "pendingItems": {
+              "top": 664,
+              "bottom": 768,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 800,
+              "bottom": 903,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 935,
+              "bottom": 1163,
+              "intersectsComposer": false
+            }
+          }
+        },
+        "pendingItemsSlot": {
+          "hidden": false,
+          "rows": [
+            {
+              "text": "/fixture question\nNo project\nAnswer requested",
+              "focusKey": "home:pendingItems:e624a009-8480-4205-a13f-03b1f0da0ccf"
+            }
+          ]
+        },
+        "runId": "210964ec-202b-4182-8e25-5d28bebc8fbc",
+        "sessionId": "7ff2e4a9-0e13-4cc8-8054-94c53302eeb3"
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "pending decision card (real /fixture question, unanswered, real local-provider run)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives)",
+      "file": "chat-pending-decision-1440-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "cardText": "What should the fake run use as its answer?\nAnswer",
+        "cardClass": "question-card ",
+        "hasAnswerInput": true,
+        "activeSessionId": "7ff2e4a9-0e13-4cc8-8054-94c53302eeb3",
+        "sessionTitle": "/fixture question",
+        "runId": "210964ec-202b-4182-8e25-5d28bebc8fbc"
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "event burst (real local-provider runs: 1 answered question shown as a 1-call Execution group, three 32-call ws_list runs, one 3-call+1-failing-call run, one pending ws_write permission left unresolved)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives — several consecutive runs in ONE session, the provider's own 32-calls-per-run script cap)",
+      "file": "chat-burst-1440-light.png",
+      "facts": {
+        "totalToolCards": 102,
+        "hiddenToolCards": 100,
+        "visibleToolCards": 2,
+        "disclosures": [
+          {
+            "text": "Execution 1 successful tool action",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:210964ec-202b-4182-8e25-5d28bebc8fbc",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 32 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:a2717bad-ac91-431d-864a-5b3dc572da01",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 32 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:7d933837-f640-4757-9651-0d65f37fb945",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 32 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:0cc0c772-0dee-45d2-bb27-9c6f3c3a44f5",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 3 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:57a78ee8-c3fc-4355-9caa-89f27e14db45",
+            "ariaExpanded": "false"
+          }
+        ],
+        "failedRow": {
+          "visible": true,
+          "text": "ws_read\nFailed\nResult\nfile does not exist"
+        },
+        "pendingPermissionCard": {
+          "visible": true,
+          "text": "Approve this file write?\n\nout/burst-fixture-cells.txt\n\n48 B · Approval for this exact write only\n\nG4 burst cell — pending write, left unresolved\nWrite details\nDeny this write\nApprove this write"
+        },
+        "scrollTop": 0,
+        "scrollHeight": 852,
+        "totalScriptedToolCallAttempts": 101,
+        "successfulToolCallAttempts": 100,
+        "failedToolCallAttempts": 1,
+        "pendingToolCallAttempts": 1,
+        "runIds": {
+          "question": "210964ec-202b-4182-8e25-5d28bebc8fbc",
+          "A": "a2717bad-ac91-431d-864a-5b3dc572da01",
+          "B": "7d933837-f640-4757-9651-0d65f37fb945",
+          "C": "0cc0c772-0dee-45d2-bb27-9c6f3c3a44f5",
+          "D": "57a78ee8-c3fc-4355-9caa-89f27e14db45",
+          "E": "7ca48fd6-ad72-4573-95f2-eaf6fdeea17b"
+        },
+        "sessionId": "7ff2e4a9-0e13-4cc8-8054-94c53302eeb3",
+        "readingPositionBeforeReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": "Execution 3 successful tool actions"
+        },
+        "readingPositionAfterReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": "Execution 3 successful tool actions"
+        },
+        "sessionPreservedAcrossReload": true
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "single Run — 28-call script (25 successful ws_list, 1 failing ws_read, 1 approved ws_write producing a real artifact, 1 final ws_write left pending), all within ONE Run",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives — ONE run, ONE /fixture script, within the provider's 32-calls-per-run cap)",
+      "file": "chat-burst-single-run-1440-light.png",
+      "facts": {
+        "runId": "4f1aa25a-50c6-4f01-b534-bafa788787a7",
+        "sessionId": "816dc884-883b-430f-867e-6a252fdec4ac",
+        "scriptCallCount": 28,
+        "successfulToolCallAttempts": 26,
+        "failedToolCallAttempts": 1,
+        "pendingToolCallAttempts": 1,
+        "totalToolCardsForRun": 28,
+        "hiddenToolCards": 26,
+        "visibleToolCards": 2,
+        "failedToolCards": 1,
+        "failedToolText": "ws_read\nFailed\nResult\nfile does not exist",
+        "disclosures": [
+          {
+            "text": "Execution 26 successful tool actions",
+            "focusKey": "execution:4f1aa25a-50c6-4f01-b534-bafa788787a7",
+            "ariaControls": 27
+          }
+        ],
+        "artifactRow": {
+          "visible": true,
+          "title": null,
+          "meta": null
+        },
+        "runArtifacts": [
+          {
+            "path": "out/single-run-artifact.txt",
+            "bytes": 59,
+            "sha256": "4fef558a3a210f127782a38dba55ef30d2fadedfab917943138e529d461cdb55",
+            "kind": "content-version",
+            "writtenAt": "2026-09-20T04:49:10.679Z"
+          }
+        ],
+        "pendingPermissionCard": {
+          "visible": true,
+          "text": "Approve this file write?\n\nout/single-run-pending.txt\n\n27 B · Approval for this exact write only\n\nleft pending, not resolved\n\nWrite details\nDeny this write\nApprove this write"
+        },
+        "runStatus": "waiting_user",
+        "scrollTop": 0,
+        "scrollHeight": 852,
+        "firstPendingPermissionCardTextBeforeApproval": "Approve this file write?\n\nout/single-run-artifact.txt\n\n59 B · Approval for this exact write only\n\nG4 single-Run burst cell — approved write, real artifact\n\nWrite details\nDeny this write\nApprove this write",
+        "secondPendingPermissionCardText": "Approve this file write?\n\nout/single-run-pending.txt\n\n27 B · Approval for this exact write only\n\nleft pending, not resolved\n\nWrite details\nDeny this write\nApprove this write",
+        "readingPositionBeforeReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": {
+            "text": "/fixture script [{\"name\":\"ws_list\",\"arguments\":{}},{\"name\":\"ws_list\",\"arguments\"",
+            "focusKey": null
+          },
+          "sessionId": "816dc884-883b-430f-867e-6a252fdec4ac"
+        },
+        "readingPositionAfterReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": {
+            "text": "/fixture script [{\"name\":\"ws_list\",\"arguments\":{}},{\"name\":\"ws_list\",\"arguments\"",
+            "focusKey": null
+          },
+          "sessionId": "816dc884-883b-430f-867e-6a252fdec4ac",
+          "pendingPermissionStillVisible": true,
+          "artifactRowStillVisible": true
+        },
+        "sessionPreservedAcrossReload": true
+      }
+    }
+  ],
+  "notExecuted": [
+    {
+      "cell": "Presentation — native 200% browser zoom",
+      "reason": "Headless Chrome emulates viewport size and DPR, not the browser's own zoom. A labelled CSS-equivalent 720x450 @2x cell is recorded instead; native zoom stays open."
+    },
+    {
+      "cell": "Presentation — forced colors",
+      "reason": "Not exercised in this packet."
+    },
+    {
+      "cell": "Presentation — screen-reader pass",
+      "reason": "Not exercised in this packet; the 30-step keyboard sequence is recorded instead."
+    },
+    {
+      "cell": "Surface — Usage dialog",
+      "reason": "Not captured. The G3 note previously pointed at this packet for it; it stays open for the reviewer."
+    },
+    {
+      "cell": "Surface — markdown reader",
+      "reason": "Not captured; stays open for the reviewer."
+    },
+    {
+      "cell": "Chat — long-content thread",
+      "reason": "Not captured. The Chat cells here are ordinary example sessions plus the fixture burst; a long-content thread stays open."
+    },
+    {
+      "cell": "Chat — single Run with ≥100 tool events",
+      "reason": "The local deterministic provider's own script cap is 32 calls per Run (app/runtime/fake-provider.mjs::scriptForMode, unmodified, script.length > 32 is rejected). A single Run therefore cannot script more than 32 tool calls in this build; the 100-successful-call burst recorded above (Chat · event burst) is a SESSION-level burst across 5 Runs (1/32/32/32/3), not one Run. A single Run containing ≥50 tool events with a failing call, a pending permission and a produced artifact together is recorded instead (Chat · single Run, this cell, 28 calls). A single Run with ≥100 tool events remains not executed in a browser; app/tests/event-weight.test.mjs is its only coverage (synthetic events, not a live provider Run)."
+    }
+  ],
+  "keyboard": {
+    "startFocus": "composer-input",
+    "tabPresses": 30,
+    "sequence": [
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Attachments",
+        "id": null,
+        "text": "Attachments"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Project",
+        "id": "home-project-button",
+        "text": "Project"
+      },
+      {
+        "tag": "select",
+        "focusKey": null,
+        "ariaLabel": "File access for this chat",
+        "id": "home-permission-input",
+        "text": "Ask before editingAllow editsRead only"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Model and effort · Local test · Provider default",
+        "id": "model-settings-button",
+        "text": "Local test · Provider default"
+      },
+      {
+        "tag": "button",
+        "focusKey": "home:attention:capture-attention-3fc8426c-e68d-4b14-80c7-717e667751df",
+        "ariaLabel": null,
+        "id": null,
+        "text": "Review Project Cedar source changeProjec"
+      },
+      {
+        "tag": "button",
+        "focusKey": "home-more:sessionCandidates",
+        "ariaLabel": "Show all Continue",
+        "id": null,
+        "text": "Show all"
+      },
+      {
+        "tag": "button",
+        "focusKey": "home:sessionCandidates:9f912814-bb54-436d-a6cf-b6d4b4be047d",
+        "ariaLabel": null,
+        "id": null,
+        "text": "AttentionProject not resolvedCompleted"
+      },
+      {
+        "tag": "button",
+        "focusKey": "home:sessionCandidates:809bff44-5dac-4f1d-bb11-585809592468",
+        "ariaLabel": null,
+        "id": null,
+        "text": "Source refresh — Spark derivationProject"
+      },
+      {
+        "tag": "button",
+        "focusKey": "home:sessionCandidates:e470507e-e1c5-454f-a691-e464e9bcf4b5",
+        "ariaLabel": null,
+        "id": null,
+        "text": "Northside ledger reconciliationNorthside"
+      },
+      {
+        "tag": "summary",
+        "focusKey": "home-activity-toggle",
+        "ariaLabel": null,
+        "id": null,
+        "text": "Activity6 recorded runs · 84 days"
+      },
+      {
+        "note": "Enter pressed on Activity summary",
+        "openBefore": true,
+        "openAfter": false
+      },
+      {
+        "tag": "body",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "CourtWork\n          Close navigation\n   "
+      },
+      {
+        "tag": "a",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": "workspace-home-link",
+        "text": "CourtWork"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Home",
+        "id": "home-button",
+        "text": "Home"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "New chat",
+        "id": "new-session-button",
+        "text": "New chat"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Chat",
+        "id": "chat-button",
+        "text": "Chat"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Attention",
+        "id": "attention-button",
+        "text": "Attention"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Spark",
+        "id": "spark-button",
+        "text": "Spark"
+      },
+      {
+        "tag": "input",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": "nav-filter-input",
+        "text": ""
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "New project",
+        "id": "new-project-button",
+        "text": "New project"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "Project Cedar reviewExample"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "New chat in Project Cedar review",
+        "id": null,
+        "text": "New chat in Project Cedar review"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "Continue Project Cedar reviewWork"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "Final review memo — working artifact"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "Source refresh — Spark derivationWork"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "Inbound NDA — Project CedarWork"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "Northside housing ledgerExample"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "New chat in Northside housing ledger",
+        "id": null,
+        "text": "New chat in Northside housing ledger"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": null,
+        "id": null,
+        "text": "Northside ledger reconciliation"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Account · Multnomah County Circuit Court, Division · Max",
+        "id": "account-button",
+        "text": "M\n            \n              Multnomah C"
+      },
+      {
+        "tag": "button",
+        "focusKey": null,
+        "ariaLabel": "Toggle navigation",
+        "id": "toggle-nav-button",
+        "text": "Toggle navigation"
+      }
+    ]
+  },
+  "env": {
+    "chromeVersion": "Chrome/153.0.8010.53",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
+  },
+  "observations": [],
+  "fixtureCellsEnv": {
+    "chromeVersion": "Chrome/153.0.8010.53",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "appOrigin": "http://127.0.0.1:8878",
+    "appPort": 8878,
+    "cdpPort": 19678,
+    "dataDir": "<scratch outside the repository>/g4c/data-fixture-cells",
+    "note": "Second capture pass (capture-fixture-cells.mjs), same evidence packet. Its own headless Chrome instance and its own fresh, empty, real (non-preview) app server/data directory — independent of the chromeVersion/userAgent recorded under env for the first pass."
+  },
+  "singleRunBurstEnv": {
+    "chromeVersion": "Chrome/153.0.8010.53",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "appOrigin": "http://127.0.0.1:8879",
+    "appPort": 8879,
+    "cdpPort": 19679,
+    "dataDir": "<scratch outside the repository>/g4c/data-single-run-burst",
+    "note": "Third capture pass (capture-single-run-burst.mjs), same evidence packet, its own headless Chrome and its own fresh, empty, real app server/data directory."
+  }
+}

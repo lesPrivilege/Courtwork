@@ -6,7 +6,7 @@ Astra implements and adjudicates from `00b2f2886e04aa7b7facb588d4375a246f3e341d`
 
 ## Composition and service boundaries
 
-Default `Modules`: Attention + Activity precede the desktop composer, then Today and concrete work. Mobile retains reading order with the composer docked below. Explicit `Simple` preference remains. Modules use a finite 24px composer lead instead of the former 56%-height anchor; 820px column maximum, 24px desktop card gap and 16px narrow gap. Attention has a raised paper surface; Activity a recessed instrument surface. No decorative left rail. The two-item Attention page leaves room for the first human request.
+(2026-09-19: the Modules order and geometry below are superseded by [GUI grammar convergence G1](../../execution/claude-frontend-harness-2026-09-16/gui-grammar-convergence-20260919.md#g1--home-zoning-and-state-adaptivity-absorbs-the-zoning-pr). Both layouts use one centred composer anchor. Blocks sit below the composer: Waiting → Attention → Needs a look → Continue → Activity. There is no Today strip and no two-column card band. Attention rows open the Attention workspace.) Default `Modules`: Attention + Activity precede the desktop composer, then Today and concrete work. Mobile retains reading order with the composer docked below. Explicit `Simple` preference remains. Modules use a finite 24px composer lead instead of the former 56%-height anchor; 820px column maximum, 24px desktop card gap and 16px narrow gap. Attention has a raised paper surface; Activity a recessed instrument surface. No decorative left rail. The two-item Attention page leaves room for the first human request.
 
 | Surface | Source and meaning | Interaction |
 |---|---|---|

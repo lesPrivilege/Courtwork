@@ -3,6 +3,11 @@ export function normalizedType(type) {
   if (type === "assistant.message") return "assistant/final";
   return String(type || "").replace(".", "/");
 }
+/* Notice kinds that close an earlier notice of the same Run. */
+const noticePairs = {
+  compaction_end: "compaction_start",
+  auto_retry_end: "auto_retry_start",
+};
 export function projectThread(events, runs, sessionId) {
   const rows = [],
     assistants = new Map(),
@@ -130,8 +135,16 @@ export function projectThread(events, runs, sessionId) {
      * the same instance the work surface opens, never the model's retelling. */
     else if (type === "presentation/created" && data?.instanceId)
       rows.push({ kind: "presentation", runId, instance: data, id: `presentation:${data.instanceId}` });
-    else if (type === "run/notice")
+    else if (type === "run/notice") {
+      /* UX-10 · ordinary progress aggregates: once a paired notice ends, its
+       * start line has said all it had to say and leaves; the outcome stands
+       * at its own position. A start without an end still reads as the
+       * current state. */
+      const start = noticePairs[data.kind];
+      const open = start && rows.findLastIndex((row) => row.kind === "notice" && row.runId === runId && row.data?.kind === start);
+      if (open >= 0) rows.splice(open, 1);
       rows.push({ kind: "notice", runId, data, id: `notice:${event.seq}` });
+    }
   }
   const ordered = [],
     seen = new Set();

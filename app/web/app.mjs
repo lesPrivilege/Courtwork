@@ -31,7 +31,7 @@ import { createRunSummaryCard, createCardDisclosureMemory, createSurfaceEntryDir
 
 import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
-import { toHomeActivity, toHomeAttention, toHomeAttentionDetail } from "./presentation-adapters.mjs";
+import { toHomeActivity, toHomeAttention } from "./presentation-adapters.mjs";
 import { createAttentionWorkspace } from "./attention-view.mjs";
 import { createChatPage } from "./chat-page.mjs";
 import {
@@ -78,12 +78,7 @@ import {
 } from "./inspector.mjs";
 import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
-import {
-  renderHome,
-  renderHomeBand,
-  renderHomeModuleBand,
-  homeSets,
-} from "./home-view.mjs";
+import { renderHome, homeSets, HOME_ROWS } from "./home-view.mjs";
 import {
   projectThread,
   toolStateWord,
@@ -139,7 +134,7 @@ const state = {
   attentionReturnFocusKey: null,
   chatOpen: false,
   homeActivity: { data: null, error: null, loading: true, generation: 0, days: 84 },
-  homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null, selectedId: null, detail: null, detailGeneration: 0 },
+  homeAttention: { data: null, error: null, loading: true, generation: 0, projectId: null },
   home: { data: null, error: null, loading: false, generation: 0, offsets: {}, filter: null },
   homeDraft: "",
   homeProjectId: null,
@@ -2034,6 +2029,11 @@ async function loadProjects() {
     [...state.openProjectIds].filter((projectId) => valid.has(projectId)),
   );
   if (state.activeProjectId && !valid.has(state.activeProjectId)) state.activeProjectId = null;
+  /* Luna F-01 · a cached read outlives its scope: when the project it was read
+   * for is gone, its rows are not "the last loaded records" of anything the
+   * person can still open. Drop the scope and read the next one, so Home shows
+   * the real empty state instead of another project's items. */
+  invalidateHomeAttentionScope(valid);
   renderProjectList();
 }
 
@@ -3556,15 +3556,13 @@ function renderChatHeader() {
   const home = state.view === "home" && !state.attentionOpen && !state.chatOpen;
   $("composer-area").hidden = settingsOpen || state.attentionOpen || state.chatOpen || (!home && !session);
   $("app-shell").classList.toggle("home-active", home);
-  // The slogan introduces an empty Home; once retained chats exist Home
-  // leads with the work and the composer, and the sentence steps aside.
-  /* Home identity · the intro hosts the greeting on the Simple layout; the
-   * Modules layout projects the same line into the band's masthead instead. */
+  /* Home identity · the greeting and the example line sit in the composer's
+   * own intro on every Home layout: identity attaches to the anchor it names
+   * (GUI grammar G1). */
   const intro = $("home-composer-intro");
-  const simpleGreeting = home && homeLayoutPreference() !== "modules" && state.greeting?.text;
-  // On Simple the intro also hosts the example line, so it stays while that line shows.
-  intro.hidden = !simpleGreeting && !(home && homeLayoutPreference() !== "modules" && !previewBannerNode()?.hidden);
-  if (simpleGreeting) {
+  const greeting = home && state.greeting?.text;
+  intro.hidden = !greeting && !(home && !previewBannerNode()?.hidden);
+  if (greeting) {
     const line = intro.querySelector("[data-greeting]") ?? intro.querySelector("h2");
     if (line && line.textContent !== state.greeting.text) line.textContent = state.greeting.text;
     let date = intro.querySelector("[data-greeting-date]");
@@ -3580,40 +3578,26 @@ function renderChatHeader() {
   $("permission-settings-button").hidden = home || !session;
   const body = $("conversation-body"),
     composer = $("composer-area"),
-    band = $("home-top-band"),
-    modules = $("home-module-band"),
     stream = $("message-stream").closest(".message-stream-wrap");
-  // DOM order is reading order: Modules overview precedes the desktop composer;
-  // Simple keeps the centred composer, while mobile docks it below the work list.
-  band.hidden = !home;
-  // Simple removes the overview from layout and the accessibility tree.
-  const bandLayout = home && homeLayoutPreference() === "modules";
-  modules.hidden = !bandLayout;
-  $("app-shell").classList.toggle("home-modules-active", bandLayout);
-  /* WK-96 · in Work the Home dashboard primitives leave the document, not just
-   * the screen: a hidden band is still a rendered band, and the next reader of
-   * this DOM would find three Home statistics inside a chat. */
-  if (!home) band.replaceChildren();
-  if (!bandLayout) modules.replaceChildren();
-  const centred = home && !narrowQuery.matches;
-  if (centred) {
+  /* DOM order is reading order. Desktop Home: the composer is the anchor,
+   * identity sits in its intro and the blocks hang below it. Mobile docks the
+   * composer, so identity leads the reading column instead of riding in the
+   * dock over the blocks; chats have no identity line. */
+  const dockedHome = home && narrowQuery.matches;
+  if (home && !narrowQuery.matches) {
     if (body.firstElementChild !== composer) body.prepend(composer);
-    if (composer.nextElementSibling !== band) composer.after(band);
+    if (composer.nextElementSibling !== stream) composer.after(stream);
   } else {
-    if (body.firstElementChild !== band) body.prepend(band);
-    if (band.nextElementSibling !== stream) band.after(stream);
+    if (body.firstElementChild !== stream) body.prepend(stream);
     if (body.lastElementChild !== composer) body.append(composer);
   }
-  // User refinement: attention and recorded activity orient Home above the
-  // composer. DOM order is reading/tab order. Mobile keeps its docked composer.
-  if (bandLayout && body.firstElementChild !== modules) body.prepend(modules);
-  // Stage 4 · the example banner is the first thing on Home in every layout.
-  /* The example line sits beside the greeting — in the band's masthead on
-   * Modules, in the intro on Simple — as one quiet sentence, not a card. */
+  if (dockedHome) {
+    if (stream.previousElementSibling !== intro) stream.before(intro);
+  } else if (composer.firstElementChild !== intro) composer.prepend(intro);
+  /* The example line is one quiet sentence beside the greeting, not a card. */
   const previewBanner = previewBannerNode();
-  const modulesHome = home && homeLayoutPreference() === "modules";
   if (previewBanner) {
-    if (home && !modulesHome && previewBanner.parentElement !== intro) intro.append(previewBanner);
+    if (home && previewBanner.parentElement !== intro) intro.append(previewBanner);
     else if (!home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
   }
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
@@ -3835,8 +3819,8 @@ function syncComposerNotice(key) {
  * source of truth for anything (WK-107 ②). Reading them here rather than
  * caching a copy in `state` keeps one value in one place. */
 const homeLayoutPreference = () => readPreferences().homeLayout;
-const homeModuleBandCollapsed = () =>
-  readPreferences().homeModuleBand === "collapsed";
+const homeActivityCollapsed = () =>
+  readPreferences().homeActivity === "collapsed";
 
 const HOME_COMPOSER_CENTRE = 0.56;
 function measureHomeLead() {
@@ -3861,11 +3845,10 @@ function measureHomeLead() {
   const field = $("composer-input");
   const growth = Math.max(0, field.getBoundingClientRect().height - (Number.parseFloat(getComputedStyle(field).minHeight) || 0));
   const centre = box.top + (box.height - growth) / 2 - area.top;
-  // Modules have a finite top lead instead of the old 56%-height anchor:
-  // their records and the first pending item must fit in the same first screen.
-  const next = homeLayoutPreference() === "modules"
-    ? 24
-    : Math.max(32, Math.round(lead + (HOME_COMPOSER_CENTRE * area.height - centre)));
+  /* GUI grammar G1 · one anchor for both layouts: the identity above grows
+   * upward into the lead; past the floor the page falls back to plain flow in
+   * the same order, and nothing is clipped. */
+  const next = Math.max(32, Math.round(lead + (HOME_COMPOSER_CENTRE * area.height - centre)));
   if (Math.abs(next - lead) >= 1) shell.style.setProperty("--home-lead", `${next}px`);
 }
 
@@ -6273,74 +6256,45 @@ function renderHomeState() {
       )
     : 0;
   $("app-shell").classList.toggle("home-empty", !rows && !state.home.error);
-  const load = { loading: state.home.loading, error: state.home.error };
-  /* WK-32 · the top band is Home's first band; a session has no cross-session
-   * totals to state, so the band is absent rather than present-and-empty. The
-   * `hidden` flag itself is set with the rest of the band order in renderChat. */
-  const band = $("home-top-band");
-  if (state.view === "home")
-    renderHomeBand(band, {
-      summary,
-      load,
-      activeSet: state.home.filter,
-      onFilter: (key) => {
-        state.home.filter = key;
-        renderHomeState();
-        /* FN-05 · the tile and the row reach the same list; pressing a tile
-         * leaves the focus on the tile that now states the filter. */
-      },
-    });
-  if (state.view === "home" && homeLayoutPreference() === "modules") {
-    /* The band is rebuilt whole; the example line is a persistent element,
-     * so it is parked outside first and seated in the new masthead after. */
-    const parkedBanner = previewBannerNode();
-    if (parkedBanner && $("home-module-band").contains(parkedBanner)) $("conversation-body").append(parkedBanner);
-    renderHomeModuleBand($("home-module-band"), {
-      activity: state.homeActivity,
-      attention: state.homeAttention,
-      projects: state.projects,
-      onOpenAttentionWorkspace: (event) => openAttentionWorkspace(state.homeAttention.projectId, state.homeAttention.selectedId, event.currentTarget),
-      onOpenUsage: () => usageView.open(),
-      onActivityDays: (days) => { state.homeActivity.days = days; void loadHomeActivity(); },
-      onActivityRetry: () => loadHomeActivity(),
-      onAttentionProject: (projectId) => loadHomeAttention(projectId),
-      onAttentionRetry: () => loadHomeAttention(state.homeAttention.projectId),
-      onAttentionPage: (offset) => loadHomeAttention(state.homeAttention.projectId, offset),
-      onAttentionOpen: (id) => openHomeAttention(id),
-      onAttentionBack: () => {
-        const id = state.homeAttention.selectedId;
-        state.homeAttention.detailGeneration++;
-        state.homeAttention.selectedId = null;
-        state.homeAttention.detail = null;
-        renderHomeState();
-        $("home-module-band").querySelector(`[data-focus-key="attention-item-${CSS.escape(id)}"]`)?.focus();
-      },
-      collapsed: homeModuleBandCollapsed(),
-      greeting: state.greeting ?? null,
-      onCollapse: (collapsed) => {
-        settingsPage?.setHomeModuleBand(collapsed ? "collapsed" : "expanded");
-        renderHomeState();
-        $("home-module-band")
-          .querySelector('[data-focus-key="home-module-collapse"]')
-          ?.focus();
-      },
-    });
-    /* The example line sits beside the greeting in the masthead; the band is
-     * drawn after the header, so the move happens here, not in the header. */
-    const aside = $("home-masthead-aside"), banner = previewBannerNode();
-    if (aside && banner && banner.parentElement !== aside) aside.append(banner);
-  }
   renderHome($("message-stream"), {
     summary: state.home.data,
     error: state.home.error,
     loading: state.home.loading,
     projects: state.projects,
     activeSet: state.home.filter,
+    modules: state.view === "home" && homeLayoutPreference() === "modules" ? {
+      activity: state.homeActivity,
+      attention: state.homeAttention,
+      activityCollapsed: homeActivityCollapsed(),
+      onOpenUsage: () => usageView.open(),
+    } : null,
+    onActivityDays: (days) => { state.homeActivity.days = days; void loadHomeActivity(); },
+    onActivityRetry: () => loadHomeActivity(),
+    onActivityCollapse: (collapsed) => settingsPage?.setHomeActivity(collapsed ? "collapsed" : "expanded"),
+    onAttentionRetry: () => loadHomeAttention(state.homeAttention.projectId),
+    onAttentionOpen: (id, trigger) => openAttentionWorkspace(state.homeAttention.projectId, id, trigger),
+    onOpenAttentionWorkspace: (trigger) => openAttentionWorkspace(state.homeAttention.projectId, null, trigger),
+    onOpenUsage: () => usageView.open(),
     onRetry: () => loadHome(),
     onMore: (key, offset) => loadHome(key, offset),
     onFilter: (key) => {
+      const previous = state.home.filter;
       state.home.filter = key;
       renderHomeState();
+      /* The pressed control leaves with the view it opened; focus moves to the
+       * control that now leads back, and back again to the set's own. */
+      /* Luna F-04 · the way back must always land somewhere: the set's own
+       * control, else its first row, else the block itself once the list has
+       * gone to zero, else the composer — Home's anchor. Focus never falls
+       * out of the page. */
+      const stream = $("message-stream");
+      const target = key
+        ? stream.querySelector('[data-focus-key="home-all-work"]')
+        : stream.querySelector(`[data-focus-key="home-more:${previous}"]`)
+          ?? stream.querySelector(`[data-home-block="${previous}"] .home-row`)
+          ?? stream.querySelector(`[data-home-block="${previous}"]`)
+          ?? stream.querySelector(".home-row");
+      (target ?? $("composer-input"))?.focus();
     },
     onSession: async (item, { inspect }) => {
       await selectSession(item.sessionId);
@@ -6371,57 +6325,45 @@ async function loadHomeActivity() {
     }
   }
 }
-async function loadHomeAttention(projectId = state.homeAttention.projectId || homeProjectId() || state.projects[0]?.id || null, offset = 0) {
+/* The Attention block reads one project. Home owns which one: the workspace
+ * choice when it names a project, otherwise the first real project. */
+function homeAttentionScope() {
+  const valid = new Set(state.projects.map((project) => project.id));
+  const preferred = homeProjectId();
+  if (preferred && valid.has(preferred)) return preferred;
+  return state.projects[0]?.id ?? null;
+}
+function invalidateHomeAttentionScope(valid = new Set(state.projects.map((project) => project.id))) {
+  const target = state.homeAttention;
+  const next = homeAttentionScope();
+  if (target.projectId && valid.has(target.projectId) && target.projectId === next) return;
+  target.generation++;
+  target.data = null;
+  target.error = null;
+  target.loading = false;
+  target.projectId = null;
+  if (state.view === "home" && homeLayoutPreference() === "modules" && next) void loadHomeAttention(next);
+  else if (state.view === "home") renderHomeState();
+}
+async function loadHomeAttention(projectId = homeAttentionScope(), offset = 0) {
   const target = state.homeAttention;
   const own = ++target.generation;
-  target.detailGeneration++;
-  target.selectedId = null; target.detail = null; target.detailError = null; target.detailLoading = false;
   if (target.projectId !== projectId || target.data?.offset !== offset) target.data = null;
-  target.preview = null; target.previewError = null;
   target.projectId = projectId;
   target.loading = Boolean(projectId); target.error = null;
   if (state.view === "home") renderHomeState();
   if (!projectId) return;
   try {
-    const data = await request("/attention/query", { method: "POST", body: { projectId, query: { schema_version: 1, kind: "registry", limit: 2, offset } } });
+    const data = await request("/attention/query", { method: "POST", body: { projectId, query: { schema_version: 1, kind: "registry", limit: HOME_ROWS, offset } } });
     if (own !== target.generation) return;
     const page = toHomeAttention(data);
     if (!page) throw new Error("Unsupported attention records.");
     target.data = data;
-    target.loadedAt = new Date().toISOString(); // time this browser received the registry, not a service observation
-    if (page.items[0]) {
-      try {
-        const first = await request(`/attention/${encodeURIComponent(page.items[0].id)}?${new URLSearchParams({ projectId })}`);
-        if (own === target.generation && toHomeAttentionDetail(first) && first.attention_id === page.items[0].id && first.revision === page.items[0].revision) target.preview = first;
-      } catch (error) {
-        if (own === target.generation) target.previewError = error.message;
-      }
-    }
   } catch (error) {
     if (own === target.generation) target.error = error.message;
   } finally {
     if (own === target.generation) {
       target.loading = false;
-      if (state.view === "home") renderHomeState();
-    }
-  }
-}
-async function openHomeAttention(id) {
-  const target = state.homeAttention;
-  const own = ++target.detailGeneration;
-  const projectId = target.projectId;
-  target.selectedId = id; target.detail = null; target.detailError = null; target.detailLoading = true;
-  renderHomeState();
-  $("home-module-band").querySelector('[data-focus-key="attention-back"]')?.focus();
-  try {
-    const data = await request(`/attention/${encodeURIComponent(id)}?${new URLSearchParams({ projectId })}`);
-    if (!toHomeAttentionDetail(data) || data.attention_id !== id) throw new Error("Unsupported attention item.");
-    if (own === target.detailGeneration && projectId === target.projectId) target.detail = data;
-  } catch (error) {
-    if (own === target.detailGeneration) target.detailError = error.message;
-  } finally {
-    if (own === target.detailGeneration) {
-      target.detailLoading = false;
       if (state.view === "home") renderHomeState();
     }
   }
@@ -6496,6 +6438,9 @@ async function goHome() {
   if (own !== state.navigationEpoch) return;
   clearActiveSession();
   closeNavigation({ restoreFocus: false });
+  /* F-04, as ruled 2026-09-20: the expanded set is continuity, not a stale
+   * view — entering Home again returns to the set the person was reading, and
+   * `All work` is the way back out. Only that control clears it. */
   restoreLayerFocus($("composer-input"));
   void loadHome();
 }
@@ -7409,6 +7354,10 @@ function wireEvents() {
   });
   surfaceMetrics.observe(document.querySelector(".chat-panel"));
   surfaceMetrics.observe($("composer-area"));
+  /* GUI grammar G1 · the Home anchor is measured against the body, and the
+   * identity above it grows upward: either changing size re-measures. */
+  surfaceMetrics.observe($("conversation-body"));
+  surfaceMetrics.observe($("home-composer-intro"));
   window.addEventListener("resize", () => {
     measureSurfaceLayout();
     measureHomeLead();
@@ -7509,7 +7458,7 @@ function wireEvents() {
         attrs:{type:"button","aria-pressed":String(project.id===homeProjectId())}});
       if (project.id === homeProjectId()) button.append(el("span", { className: "workspace-choice-state", text: "Selected", attrs: { "aria-hidden": "true" } }));
       button.addEventListener("click",()=>{
-        state.homeProjectId=project.id;storeHomeDraft();renderComposer();workspacePopover.hidePopover();workspaceButton.focus();
+        state.homeProjectId=project.id;storeHomeDraft();renderComposer();invalidateHomeAttentionScope();workspacePopover.hidePopover();workspaceButton.focus();
       }); choices.append(button);
     }
     workspacePopover.showPopover();choices.querySelector('button[aria-pressed="true"]')?.focus();
@@ -7730,7 +7679,7 @@ async function init() {
     const key = state.attentionReturnFocusKey;
     state.attentionReturnFocusKey = null;
     const opener = state.view === "home" && key
-      ? $("home-module-band").querySelector(`[data-focus-key="${CSS.escape(key)}"]`)
+      ? $("message-stream").querySelector(`[data-focus-key="${CSS.escape(key)}"]`)
       : null;
     restoreLayerFocus(opener, $("attention-button"));
   } });

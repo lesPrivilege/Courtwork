@@ -185,7 +185,7 @@ test("Strip placement and shell wiring for the Workspace control", () => {
   assert.ok(stripStart > areaStart && stripStart < formStart, "the strip is its own card above the composer, inside the composer area");
   assert.match(app, /strip\.replaceChildren\(element\("div", \{ className: "context-tab" \}/);
   assert.doesNotMatch(css.slice(css.indexOf(".context-tab {"), css.indexOf(".composer-form { position: relative; }")), /border(?!-radius)/, "the tab is separated by tone, not by a line");
-  assert.match(app, /const simpleGreeting = home && homeLayoutPreference\(\) !== "modules" && state\.greeting\?\.text;/, "the intro hosts the greeting on Simple Home only (Home identity, 2026-09-16); Modules projects it into the masthead");
+  assert.match(app, /const greeting = home && state\.greeting\?\.text;/, "the composer intro hosts the greeting on every Home layout (GUI grammar G1)");
   assert.doesNotMatch(css.slice(css.indexOf(".composer-context-strip {"), css.indexOf(".context-chip {")), /backdrop-filter/, "no blur on the strip");
   assert.doesNotMatch(html, /id="repository-button"/, "no standing control in the composer row");
   assert.match(html, /id="workspace-popover"[^>]*popover="auto"[^>]*aria-label="Workspace"/);

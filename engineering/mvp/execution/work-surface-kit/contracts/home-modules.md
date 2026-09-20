@@ -1,5 +1,7 @@
 # Home 模块契约（CC-D0-a）
 
+> 2026-09-19 更新：[GUI grammar G1](../../../../execution/claude-frontend-harness-2026-09-16/gui-grammar-convergence-20260919.md#g1--home-zoning-and-state-adaptivity-absorbs-the-zoning-pr) 移除 `today`（Today strip）与次级模块带；注册表只余 `activity`、`attention`、`models`，前两者在 Modules 版面作为 composer 下方的块渲染。下文 `place`、`home-top-band` 与键盘顺序为历史记录。
+
 > 2026-09-10 更新：以下保留 CC-D0-a 时点记录；本轮用户明确重编 Home，Activity/Attention 已有真实读取接缝，默认 Modules、composer 上方概览及首屏几何由 [当前 Home composition 合同](../../../../design/home-composition-2026-09-10/README.md) 覆盖。Models 现在是 footer 导航，不是事实卡。旧“不可安装 / Simple 默认 / 顶部控制条”不再描述当前实现。
 
 2026-09-09，Claude Opus（`opus-wo-low`），**作者验证**（Astra 独验另计，本页不代它写结论）。

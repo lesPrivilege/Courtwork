@@ -70,25 +70,30 @@
   },
   {
     "file": "app/web/home-view.mjs",
-    "source": "{ id: \"activity\", render: activityCard, title: \"Activity\", place: \"modules\", source: \"work-activity\", installed: true },",
+    "source": "\"activity\",",
+    "disposition": "data-identifier",
+    "reason": "activity is a Home block key in the block reading order (GUI grammar G1), not a glyph or icon representation.",
+    "semanticKeys": []
+  },
+  {
+    "file": "app/web/home-view.mjs",
+    "source": "{ id: \"activity\", title: \"Activity\", source: \"work-activity\", installed: true },",
     "disposition": "data-identifier",
     "reason": "activity is a Home module registration id and source label here, not a glyph call.",
     "semanticKeys": []
   },
   {
     "file": "app/web/home-view.mjs",
-    "source": "card.append(el(\"div\", { className: \"home-insight-head\" }, el(\"div\", { className: \"home-card-title\" }, icon(\"activity\", { size: 16 }), el(\"h3\", {}, onOpenUsage ? homeButton(\"Activity\", onOpenUsage, \"open-usage\") : el(\"span\", {text:\"Activity\"}))), ranges));",
-    "disposition": "mapped-raw",
-    "reason": "The Home card is an explicit recorded Activity view with a period selector and retained totals, matching activity.view.",
-    "semanticKeys": [
-      "activity.view"
-    ]
+    "source": "const section = el(\"section\", { className: \"home-section\", attrs: { \"data-home-block\": \"activity\" } }, details);",
+    "disposition": "data-identifier",
+    "reason": "activity is the Home block's data attribute value; the block carries the visible Activity heading and no glyph.",
+    "semanticKeys": []
   },
   {
     "file": "app/web/home-view.mjs",
-    "source": "for (const id of [\"attention\", \"activity\"]) {",
+    "source": ": key === \"activity\" ? activityBlock(blockModules, call)",
     "disposition": "data-identifier",
-    "reason": "activity is a Home module lookup key in this loop, not a glyph or icon representation.",
+    "reason": "activity is a Home block lookup key in the render loop, not a glyph or icon representation.",
     "semanticKeys": []
   },
   {

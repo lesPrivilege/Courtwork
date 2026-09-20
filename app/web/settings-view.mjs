@@ -1781,10 +1781,10 @@ export const PREFERENCE_DEFAULTS = {
   textSize: "medium",
   codeFont: "",
   motion: "system",
-  /* CC-D0-a (WK-114 ②) · Home 的版面是一个本设备偏好，不是一个新首页：Modules 默认展示已接入的数据卡；既有 Simple 选择保持，沿旧几何。
-     `homeModuleBand` 是那条带的折叠状态，与显隐同一条通道（WK-114 ⑥）。 */
+  /* CC-D0-a (WK-114 ②) · Home 的版面是一个本设备偏好，不是一个新首页：Modules 在 composer 下方加入 Attention 与 Activity 两块；Simple 不加。两者同一锚点（GUI grammar G1）。
+     `homeActivity` 是 Activity 块原位折叠的状态，与显隐同一条通道。 */
   homeLayout: "modules",
-  homeModuleBand: "expanded",
+  homeActivity: "expanded",
 };
 const PREFERENCE_VALUES = {
   scheme: ["system", "light", "dark"],
@@ -1792,7 +1792,7 @@ const PREFERENCE_VALUES = {
   textSize: ["small", "medium", "large"],
   motion: ["system", "reduce"],
   homeLayout: ["simple", "modules"],
-  homeModuleBand: ["expanded", "collapsed"],
+  homeActivity: ["expanded", "collapsed"],
 };
 export const CODE_FONT_PATTERN = /^[A-Za-z0-9 ,'"_-]{1,120}$/;
 export function readPreferences() {
@@ -2482,7 +2482,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
     prefs = writePreferences({ ...prefs, ...change });
     /* Home 的版面偏好在 Settings 里改，在 Home 上生效：这里只回执改了什么，
        由 app 决定重画哪一块，Settings 不去碰 Home 的 DOM。 */
-    if (Object.hasOwn(change, "homeLayout") || Object.hasOwn(change, "homeModuleBand"))
+    if (Object.hasOwn(change, "homeLayout") || Object.hasOwn(change, "homeActivity"))
       onHomeLayout?.(prefs);
     governance.sync();
     renderSkinEditor();
@@ -2891,10 +2891,10 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       return section;
     },
     select,
-    /* Home 折叠那条带时写的是同一条偏好通道。Settings 的 Appearance 行只在下次
+    /* Home 折叠 Activity 块时写的是同一条偏好通道。Settings 的 Appearance 行只在下次
        重画时读它，所以这里不重画 Settings：折叠不是 Appearance 上的一个控件。 */
-    setHomeModuleBand(value) {
-      prefs = writePreferences({ ...prefs, homeModuleBand: value });
+    setHomeActivity(value) {
+      prefs = writePreferences({ ...prefs, homeActivity: value });
     },
     focusSection: () => panels.get(section)?.focus(),
     resetSearch() {
