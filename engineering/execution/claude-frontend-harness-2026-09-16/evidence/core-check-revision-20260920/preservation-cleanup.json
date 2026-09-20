@@ -1,0 +1,11 @@
+{
+  "removed": "/Users/lesprivilege/Projects/.worktrees/courtwork-harness-core-20260920",
+  "head": "8d5e91206c82ca56112696eaec245d0982da9006",
+  "original_manifest_rechecked": true,
+  "integrated_into_main": true,
+  "retained": [
+    "/Users/lesprivilege/Projects/Courtwork",
+    "/Users/lesprivilege/Projects/Courtwork-legacy-frozen"
+  ],
+  "worktrees_after": "worktree /Users/lesprivilege/Projects/Courtwork-legacy-frozen\nHEAD f9ade85b72e5abcdc64c3a6c43ed3a13a2292476\ndetached\n\nworktree /Users/lesprivilege/Projects/Courtwork\nHEAD 8d5e91206c82ca56112696eaec245d0982da9006\nbranch refs/heads/main\n\n"
+}

@@ -1,6 +1,6 @@
 # Courtwork integration start node — entry into core Orchestra R&D
 
-2026-09-19 · Architecture/integration owner: Astra. Independent verification: Luna. **Status (2026-09-20): GUI fresh node accepted, locally merged and four ended trees preserved/removed. The first bounded RD-006/DF-04/RD-009 Core correction started from receipt-bearing main `83041d1`; see the latest entry below. Historical entries retain their original status.**
+2026-09-19 · Architecture/integration owner: Astra. Independent verification: Luna. **Status (2026-09-20): GUI fresh node accepted, locally merged and four ended trees preserved/removed. The first bounded RD-006/DF-04/RD-009 Core correction is independently accepted and integrated at `8d5e912`; its ended task tree is preserved/removed and the heartbeat is paused. Historical entries retain their original status.**
 
 “Fresh node” means a new, pinned integration baseline in **Courtwork**, the sole development line. It does not recreate the retired Fresh checkout, rename the product, reset current work, or start another roadmap. This intake belongs to the [existing Claude assignment](README.md) and consumes the [Orchestra ruling](../../research/architecture-node-2026-09-13/orchestra-direction-20260919.md).
 
@@ -200,3 +200,8 @@ After merge/cleanup, Astra created `codex/harness-core-closure-20260920` from `8
 ### First-slice acceptance — `8aef0bd`
 
 Source `8aef0bd41fe9426d775f86e47aec6435d46f9ac5` contains the independently accepted same-Run approval and final cancellation correction. Author 82/82 and Luna 27/27 checks are recorded under the original DF-04/03 evidence packet. Subsequent documentation registers personal key/hook management and a future built-in-browser consumer only; it does not launch the Runtime/child roadmap or claim real-model dogfood. The first-slice heartbeat obligation is complete after its local integration/cleanup receipt; pause it at that point.
+
+
+### First-slice integration and stop receipt
+
+[Completed receipt](evidence/core-check-revision-20260920/README.md#local-integration-and-completion-receipt): accepted code `8aef0bd`, integrated main `8d5e912`, author 82/82, independent 27/27, final source hashes match. Core task-tree file/Git restoration passes before removal. Only Courtwork and the frozen shared-database dependency remain. The heartbeat is paused, not repurposed into a full-roadmap monitor. Real-model browser closure and later key/hook/runtime work remain explicitly owned future work.

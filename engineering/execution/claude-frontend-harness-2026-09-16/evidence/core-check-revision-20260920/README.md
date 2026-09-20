@@ -38,3 +38,11 @@ The raw Luna reports call the checkout “detached”; actual Git ownership is b
 ## Documentation checks
 
 Document links pass (1,433 documents / 8,132 links); the bilingual README direction is aligned and the English generator output is byte-identical. `node site/build.mjs` and `node site/scripts/check-links.mjs` pass. An initial `npm --prefix site run build` invocation failed because this repository uses a standalone build script and has no site package.json; the actual documented command was then used. This is local source validation, not deployment.
+
+## Local integration and completion receipt
+
+Accepted source `8aef0bd41fe9426d775f86e47aec6435d46f9ac5` and the subsequent direction/owner records were fast-forwarded into main at `8d5e91206c82ca56112696eaec245d0982da9006`. The actual integrated tree equals that branch, and every reviewed source hash matches. [Final status](completion.json) records author/independent checks and confirms heartbeat `courtwork-claude` is **PAUSED** under the user's first-slice stopping rule.
+
+The new Core task tree has also finished. Its 8,662 entries / 452,651,809 file bytes—including generated output and the dependency symlink without dereference—were fully archived, physically restored and compared; the Git bundle was verified, mirror-cloned and checked for HEAD recovery/connectivity. [Preservation verification](preservation-SUCCESS.json), [removal receipt](preservation-cleanup.json), and [recovery instructions](preservation-README.md) retain exact hashes. Archive location is `../.archives/courtwork-core-completion-20260920` beside the persistent Courtwork directory. The original four task-tree archives remain intact in `../.archives/courtwork-integration-20260920`.
+
+After rehashing the original tree immediately before deletion, the consumed Core worktree and branch were removed; its archive ref is retained. Registered trees are now only Courtwork and Courtwork-legacy-frozen, whose shared `.git` remains required and untouched. Existing main-only `.agents/`, `.obsidian/` and `skills-lock.json` remain unchanged and untracked. No active writer or unpreserved task-tree byte was deleted. No further Runtime/child slice was opened.

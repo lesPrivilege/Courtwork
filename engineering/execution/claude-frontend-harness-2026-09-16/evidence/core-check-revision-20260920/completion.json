@@ -1,0 +1,23 @@
+{
+  "accepted_source": "8aef0bd41fe9426d775f86e47aec6435d46f9ac5",
+  "integrated_main": "8d5e91206c82ca56112696eaec245d0982da9006",
+  "source_hashes_match": true,
+  "author_tests": 82,
+  "independent_tests": 27,
+  "heartbeat": {
+    "id": "courtwork-claude",
+    "status": "PAUSED"
+  },
+  "archive_directory": "../.archives/courtwork-core-completion-20260920",
+  "remaining_worktrees": [
+    "/Users/lesprivilege/Projects/Courtwork",
+    "/Users/lesprivilege/Projects/Courtwork-legacy-frozen"
+  ],
+  "limits": [
+    "N-02 real-model browser dogfood remains open",
+    "G4 residuals remain with GUI owner",
+    "N-13 historical count difference remains unexplained",
+    "Settings key/hook direction is deferred; no credentials read or migrated",
+    "No push or deployment"
+  ]
+}

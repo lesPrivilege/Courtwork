@@ -1,0 +1,9 @@
+# Core completion preservation — 2026-09-20
+
+Scope: ended `courtwork-harness-core-20260920` at `8d5e91206c82ca56112696eaec245d0982da9006`, already fast-forwarded to Courtwork main. Astra is the implementation/cleanup owner; Luna completed independent review and holds no writer lease. No product writer or test process remains assigned to this tree. Its unique commits relative to main are empty. Preserve all tracked/untracked/ignored entries, including generated site/dist and the app/node_modules symlink without dereferencing it.
+
+`SUCCESS.json` is written only after all original files have been hashed, a full archive extracted and compared, and repository.bundle verified, mirror-cloned and checked for connectivity/HEAD recovery. `cleanup.json` separately records actual removal after one more original-tree hash comparison. Original GUI/Orchestra/Pages recovery artifacts remain in the sibling courtwork-integration-20260920 archive.
+
+Recovery: verify the bundle and archive/manifest SHA-256 values against SUCCESS.json. Clone repository.bundle into a fresh path (`git clone --mirror repository.bundle restored.git`); all repository refs and the archived task HEAD are preserved. Extract courtwork-harness-core-20260920/files.tar.gz into a separate recovery directory and compare every entry against manifest.json. The archived .git pointer records its old registration; use the restored Git repository to create a new worktree before overlaying recovered files if resuming development. The node_modules link is preserved as a link to its original main dependency directory, not copied package contents. Never overwrite the active Courtwork checkout during recovery.
+
+Courtwork is retained. Courtwork-legacy-frozen and its shared Git database are retained; no Git-root migration, push or deployment occurs.

@@ -1,0 +1,18 @@
+{
+  "main": "8d5e91206c82ca56112696eaec245d0982da9006",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-harness-core-20260920",
+      "head": "8d5e91206c82ca56112696eaec245d0982da9006",
+      "archive_ref": "refs/archive/core-completion-20260920/courtwork-harness-core-20260920",
+      "entries": 8662,
+      "file_bytes": 452651809,
+      "archive_sha256": "bfcdd045687e9797ccf18a8d7b9115aee651390d02c375ae3725c73f2a5a4628",
+      "manifest_sha256": "b7280e2c5be76295bad9001e5dab1bc4a5271e23a7d174752de1fe8dfcc20352",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "e56f51d75fcde83a3af7a831e0ce5ce5fd800720ddba5d84b9109357e4b88f69",
+  "bundle_restored_and_verified": true
+}
