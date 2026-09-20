@@ -1,0 +1,103 @@
+review_commit=afc9f3193bf5b5913da566937e35e1554da14935
+command: node --test tests/prepare-and-approval.test.mjs tests/workspace-card.test.mjs tests/candidate-ui.test.mjs tests/check-approval-revision.test.mjs tests/workspace.test.mjs (cwd app)
+✔ parseUnifiedPatch splits a git patch into files with numbered rows the diff view understands (2.705875ms)
+✔ A repo_write approval names the private candidate and the exact prior state (0.325875ms)
+✔ Start private candidate reads the folder's HEAD from the Host and creates the candidate from that commit (11.175541ms)
+✔ A folder without a commit cannot start a candidate; nothing is sent (1.855542ms)
+✔ Stop edits revokes with both revisions; Review changes hands off to the dialog (2.166875ms)
+✔ Shell wiring for the candidate changes dialog (1.962541ms)
+✔ check approval rejects changed write revision before recording a start (2.265833ms)
+✔ check approval rejects changed candidate identity before recording a start (0.146875ms)
+✔ check approval rejects changed candidate revision before recording a start (0.11975ms)
+✔ check approval rejects changed candidate status before recording a start (0.392542ms)
+✔ check approval rejects changed binding identity before recording a start (0.319916ms)
+✔ check approval rejects changed binding revision before recording a start (0.248ms)
+✔ check approval rejects changed execution path before recording a start (0.232667ms)
+✔ check approval rejects changed missing active binding before recording a start (0.208958ms)
+✔ check requires the exact approved recipe descriptor (1.028083ms)
+✔ candidate drift while persisting check.started settles failed without executing (15.812208ms)
+✔ runner's final synchronous Host fence prevents actual process side effects (1.122041ms)
+✔ runner cancellation before preparation never spawns (1.373875ms)
+✔ runner cancellation inside final fence never spawns (2.255ms)
+✔ admission closing during start persistence settles once as cancelled without spawn (2.463459ms)
+✔ preparing makes a chat, a binding and a candidate, and asks for no run (2.043125ms)
+✔ a reply lost at any step is replayed against the same identities, never repeated (0.67675ms)
+✔ preparing again over a finished preparation is a no-op, and a half-done one finishes (0.238917ms)
+✔ preparing refuses without a folder, without a commit, and without a matching receipt (0.228667ms)
+✔ the Home card offers preparation only with a folder and an owner, and says what it makes (2.099417ms)
+✔ Home wiring: the prepared chat is the card's session, keeps its own events, and starts no run (1.246375ms)
+✔ a real Host prepares a chat, a binding and a candidate with no run and no events (2729.247333ms)
+✔ a write approval reports the candidate and the revision it was bound to (0.273792ms)
+✔ a check approval reports the write revision it will run against, and no revision it was never given (0.071ms)
+✔ an approval with no recorded candidate has no candidate reading, and zero is not absent (0.090291ms)
+✔ the reading is the recorded payload's, never the candidate as it is now (0.207042ms)
+✔ the recorded identity is drawn on the open request and on the record the transcript keeps (0.952042ms)
+✔ repositoryName shows the folder word; activeRepositoryBinding ignores revoked bindings (1.223666ms)
+✔ An unbound chat offers Open folder first, lists folders connected before, and keeps the path behind a disclosure (6.885292ms)
+✔ Choosing a folder connected before sends one bind command and reads the Session back (7.837ms)
+✔ Open folder asks the Host for a native dialog, binds the chosen path, and does nothing when cancelled (3.046042ms)
+✔ A Host without a folder dialog falls back to the typed path as the primary form (1.60575ms)
+✔ A rejected typed path keeps the text, shows the Host message and reuses the requestId on retry (2.643917ms)
+✔ A bound chat shows the folder and scope; Disconnect sends revoke with the current revision (2.500292ms)
+✔ On Home the card edits a draft: choosing writes the intent, nothing is bound, Remove clears it (2.845625ms)
+✔ While a run is active the card explains the wait and disables the commands (1.015542ms)
+✔ Strip placement and shell wiring for the Workspace control (2.808ms)
+✔ T-WS-1: '..' path segments are rejected (6.728583ms)
+✔ T-WS-2: absolute paths are rejected (0.437041ms)
+✔ T-WS-3: symlink escape is rejected (0.80125ms)
+✔ T-WS-4: an over-limit file is rejected by ws_read (throws; pi-agent-core turns a thrown tool error into isError:true) (1.423458ms)
+✔ T-WS-5: ws_read then ws_write round-trips through the workspace endpoints (612.969875ms)
+✔ materials endpoint rejects path separators in the name (66.11125ms)
+✔ addMaterial rejects content over the 1 MiB limit (service-level, below the HTTP body cap) (69.736875ms)
+✔ T-WS-6: repeated writes yield two content versions and one current file (529.454167ms)
+✔ addMaterial routes through the shared path guard, which rejects a '..' name (76.644167ms)
+✔ T-ART-1: a completed run with no write has no artifacts and no acceptance field (666.144208ms)
+✔ T-ART-2: two writes to one path keep both content versions and one current file (595.980792ms)
+✔ ws_grep rejects nested quantifiers and over-long patterns before compiling them (38.671625ms)
+✔ getWorkspaceFile truncates on a UTF-8 boundary and keeps the whole-file digest (75.541042ms)
+✔ a second run in a continued session revises the first run's file (382.235875ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4344.837166
+exit=0
+
+--- adversarial UI/state probes ---
+probe: Home draft while prepare is pending
+{"removeDisabled":false,"startDisabled":false,"startText":"Sending…"}
+probe: persisted partial-session retry route source markers
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/home-preparation.mjs:97:    marker.candidateRequestId ||= newId();
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/home-preparation.mjs:104:        requestId: marker.candidateRequestId,
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/workspace-card.mjs:82:export function activeRepositoryCandidate(session) {
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/workspace-card.mjs:99:  const candidate = activeRepositoryCandidate(session);
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/workspace-card.mjs:165:      const candidate = activeRepositoryCandidate(session);
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/workspace-card.mjs:305:      const candidate = activeRepositoryCandidate(session);
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/workspace-card.mjs:328:      start.addEventListener("click", () => { commandField = "start-edits"; startCandidate(); });
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/workspace-card.mjs:332:    async function startCandidate() {
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/app.mjs:378:        candidateRequestId: start.candidateRequestId || null, candidateId: start.candidateId || null,
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/app.mjs:6171:    onPrepare: () => prepareHomeChat(),
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/app.mjs:6189:async function prepareHomeChat() {
+/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920/app/web/app.mjs:6252:    draft: home && !prepared ? homeWorkspaceDraft() : null,
+
+--- prepared Recent lifecycle source probe ---
+selectSession/submitSessionRun/homeStart retirement references:
+1502:async function selectSession(
+1779:    newChat: (target) => startNewSession({ projectId: target.id }),
+5405:  const prepared = state.homeStart?.prepared ? preparedHomeChat() : null;
+5510:    state.homeStart = null;
+5540:async function submitSessionRun({ commandId = null } = {}) {
+6149:    if (preparedHomeChat()?.id === id) {
+6177:function preparedHomeChat() {
+6181:  return currentSession() || (state.view === "home" ? preparedHomeChat() : null);
+6243:  const prepared = home ? preparedHomeChat() : null;
+6277:    if (preparedHomeChat()?.id === session.id) { state.homeStart.session = detail.session; storeHomeDraft(); }
+6603:async function startNewSession({ projectId = null } = {}) {
+7255:      } else if (startNext) startNewSession();
+7286:    startNewSession();
+7420:  $("new-session-button").addEventListener("click", startNewSession);
+7826:    onNewChat: () => startNewSession(),
+Conclusion: submitSessionRun has no homeStart retirement; state.homeStart=null occurs only in submitHomeRun.

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-20 · Preparation reviewed; three bounded Claude returns
+
+[Independent review of `afc9f31`](execution/claude-frontend-harness-2026-09-16/evidence/prepare-and-approval-review-20260920/README.md) passes Luna 56/56 and verifies normal zero-inference preparation plus historical approval identity in the OpenAI browser. Integration is held for three demonstrated UI lifecycle defects: lost-reply recovery leaves the persisted command path, pending preparation permits conflicting folder actions, and a first send through Recent leaves Home falsely unsent and New chat blocked. Claude keeps the finite PA-R1–R3 correction in the existing tree; approval disclosure and prepared-title decisions are retained. Main product baseline remains `962046d`; only review documentation is added. Candidate/evidence retained, synthetic review services stopped, user 8787/8899 untouched, no provider call or push/deploy; heartbeat paused.
+
 ## 2026-09-20 · Coding-start friction accepted and integrated
 
 [06b independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/coding-start-friction-review-20260920/README.md) combines Claude `55bee59`, Sol disclosure/copy corrections and Astra event-poll wiring at source `d4a433d`, locally merged as `f5b3752`. Luna independently checks the finite deltas; final affected suites pass 46/46. OpenAI browser verification confirms candidate focus, accurate diff/count, profile pending state and terminal card refresh. Native zoom/screen-reader/G4 residuals remain open. Next frontend scope is prepare-before-inference plus approval identity details; ordinary tool argument capture awaits the existing Runtime/Host contract. Both ended 06b source trees are archived with file/Git restoration checks and removed; archive refs and frozen Git dependency remain. Next scope is ready for Claude pickup, not started. User 8787/8899 remain available, no real provider or credentials used in this review, heartbeat paused.

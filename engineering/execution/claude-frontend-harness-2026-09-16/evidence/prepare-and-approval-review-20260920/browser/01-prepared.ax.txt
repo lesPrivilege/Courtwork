@@ -1,0 +1,3 @@
+Browser tab: 8, Title: "CourtWork", URL: "http://127.0.0.1:8918/".
+There has been no change in the accessibility tree.
+The focused UI element is 252 button (collapsed) Which is which, Secondary Actions: Expand

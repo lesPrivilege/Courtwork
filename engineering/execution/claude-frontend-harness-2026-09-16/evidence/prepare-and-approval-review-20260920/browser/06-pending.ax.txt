@@ -1,0 +1,28 @@
+Browser tab: 9, Title: "CourtWork", URL: "http://127.0.0.1:8919/#home".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 168-170, 172-185
+~						48 text entry area Message, Value: Lost candidate reply review, ID: composer-input
+~						49 pop up button (disabled, collapsed) Description: Attachments, Secondary Actions: Expand
+~						50 pop up button (disabled, collapsed) Description: Project, ID: home-project-button, Secondary Actions: Expand
+~						51 pop up button (disabled, collapsed, settable) Description: File access for this chat, Value: Ask before editing, ID: home-permission-input, Secondary Actions: Expand
+~						57 button (disabled) Description: Sending…, ID: send-button
++					168 text Preparing your chat…
++		169 heading Workspace, Value: 3
++			170 text Workspace
+~		171 button Close workspace card
++		172 container
++			173 definition list
++				174 container Folder
++					175 text Folder
++				176 text /private/tmp/cw-prepare-approval-astra-20260920/source
++				177 container Access
++					178 text Access
++				179 text Read only
++			180 text Connected when you send. Until then the Host reads the folder's path and Git details only, to show them here.
++			181 button Remove
++		182 container
++			183 heading EDITS, Value: 4
++				184 text EDITS
++			185 text Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written. This makes the chat and connects the folder now. Nothing is sent and no model is called until you send.
++			186 button Sending…
+The focused UI element is 181 button Remove

@@ -1,0 +1,12 @@
+{
+  "commit": "afc9f3193bf5b5913da566937e35e1554da14935",
+  "trackedAndUntrackedStatus": "",
+  "files": {
+    "app/web/app.mjs": "11c7fa04c6bb1fe362ac03de544f8b1115f5c503df3f5865544b49c0116316a1",
+    "app/web/home-preparation.mjs": "a1322107e8c9be2ea4fc280d422d452024c1aa7ea5c5158abf1978d0c1753a1d",
+    "app/web/workspace-card.mjs": "f5cd9d89057fa077defabd5f60110f4348638ec00e256f848c2fcbcd638f762f",
+    "app/web/thread-projection.mjs": "f94789b3c38ef551365cc782df611a91d033b1f86fd07bcc438608b93e8c8a63",
+    "app/server/index.mjs": "da32835976f30a89ab8ab63303ab49229f57c29d176a0e28128c530708f53df4",
+    "app/tests/prepare-and-approval.test.mjs": "037b10eafb9f9e3350d6e19bf63a8e50035f88e690fae0f12831c93f51b84cf2"
+  }
+}

@@ -407,3 +407,5 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 2026-09-20 · [06a corrected frontend acceptance](evidence/agents-profile-round2-20260920/README.md), local merge and preservation cleanup complete. [06b dogfood friction batch](06b-dogfood-friction-20260920.md) is ready for Claude pickup before the Runtime-management journey.
 
 2026-09-20 · [06b independently accepted](evidence/coding-start-friction-review-20260920/README.md), merged at `f5b3752`; both ended source trees preserved and removed. Next serial frontend scope: explicit prepare-before-inference and recorded candidate identity in approval details, per [Astra's exploration disposition](06b-dogfood-friction-20260920.md#astra-exploration-disposition--2026-09-20). Tool-argument capture remains a deferred Runtime/Host contract.
+
+2026-09-20 · [Preparation/approval independent review](evidence/prepare-and-approval-review-20260920/README.md): candidate `afc9f31` held for Claude PA-R1–R3 UI recovery/lifecycle corrections; successful preparation and historical approval projection retained. No next journey or product merge yet.

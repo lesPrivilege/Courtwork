@@ -1,0 +1,4 @@
+Browser tab: 8, Title: "CourtWork", URL: "http://127.0.0.1:8918/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~					137 text Waiting for you · 37s · your input will not be sent automatically.
+The focused UI element is 110 button (expanded) Write details, Secondary Actions: Collapse
