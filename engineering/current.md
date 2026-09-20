@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-20 · Real dogfood: assisted success; model-visible hash correction active
+
+[Real browser evidence](execution/claude-frontend-harness-2026-09-16/evidence/real-dogfood-20260920/README.md) records successful real-model diagnosis, one prevented stale/create write, and an explicitly assisted write/check at exit 0 (2/2). `candidate_read` hides the required old-file hash in local metadata; autonomous N-02 stays open. Astra dispatches only that bounded runtime correction to Sol in an isolated tree, with Luna non-author verification and a fresh real retry afterward. Frontend friction is queued for Claude; revised 06a `aca21c8` is received, not accepted, and waits behind this serial blocker. No key export, product-source edit through CW, push or deployment.
+
 ## 2026-09-20 · Dogfood readiness independently accepted
 
 [Order 11 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-final-20260920/README.md) fixes source `3618947`: Claude’s round-2 delivery plus Astra’s minimal data-directory and bootstrap-deadline corrections. Luna independently passes 13/13 preparation, 2/2 lifecycle and 15/15 fresh-process rehearsal. This authorizes the prepared WebUI handoff and local integration; real-model N-02/browser acceptance remain open. The reserved instance and pending 06a frontend trees are preserved. Integrated main `972fc9a` now contains the accepted source. [The merge and preservation receipt](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-final-20260920/completion.md) records restoration-verified removal of all three ended dogfood trees, preserved archive refs and an unused reserved instance ready for the user’s WebUI pass. Heartbeat paused; no provider trial, push or deployment.

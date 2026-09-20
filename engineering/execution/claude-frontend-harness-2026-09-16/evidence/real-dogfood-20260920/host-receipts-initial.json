@@ -1,0 +1,87 @@
+{
+  "sessionId": "695443cc-abb4-4dfd-8800-090d95c33314",
+  "runs": [
+    {
+      "id": "c41f11bb-e260-4890-b397-6b2cb4c6a4a2",
+      "sessionId": "695443cc-abb4-4dfd-8800-090d95c33314",
+      "status": "completed",
+      "startedAt": "2026-09-20T08:30:27.191Z",
+      "endedAt": "2026-09-20T08:30:35.421Z",
+      "permissionMode": null
+    },
+    {
+      "id": "a2937313-4ecc-4239-9c01-a4ff6d571935",
+      "sessionId": "695443cc-abb4-4dfd-8800-090d95c33314",
+      "status": "cancelled",
+      "startedAt": "2026-09-20T08:31:28.830Z",
+      "endedAt": "2026-09-20T08:33:43.478Z",
+      "permissionMode": null
+    }
+  ],
+  "questions": [
+    {
+      "id": "f0aa16c0-01dd-454c-9d80-87debdffc661",
+      "runId": "a2937313-4ecc-4239-9c01-a4ff6d571935",
+      "status": "resolved",
+      "payload": {
+        "toolCallId": "call_00_kGRxRQ3zdDNGerEhZNms0319",
+        "tool": "repo_write",
+        "path": "src/parcel.mjs",
+        "bytes": 445,
+        "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+        "preview": "// Split `count` items into pages of `perPage` items each.\nexport function pageCount(count, perPage) {\n  if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\n  if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\n  return Math.ceil(count / perPage);\n}\n\nexport function pageOf(index, perPage) {",
+        "candidateId": "249b51c1-a020-4ed5-b109-caac0788a15d",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 0,
+        "sourceBindingId": "a8570082-736c-4762-bc4a-02bb3b352d3d",
+        "sourceBindingRevision": 1,
+        "expectedSha256": null
+      },
+      "answer": null
+    },
+    {
+      "id": "1f4389ff-4223-4546-a5b6-a2aca7e0e95c",
+      "runId": "a2937313-4ecc-4239-9c01-a4ff6d571935",
+      "status": "cancelled",
+      "payload": {
+        "toolCallId": "call_00_M2P0K50O2CtltzbjCDWD4734",
+        "tool": "repo_write",
+        "path": "src/parcel.mjs",
+        "bytes": 445,
+        "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+        "preview": "// Split `count` items into pages of `perPage` items each.\nexport function pageCount(count, perPage) {\n  if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\n  if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\n  return Math.ceil(count / perPage);\n}\n\nexport function pageOf(index, perPage) {",
+        "candidateId": "249b51c1-a020-4ed5-b109-caac0788a15d",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 0,
+        "sourceBindingId": "a8570082-736c-4762-bc4a-02bb3b352d3d",
+        "sourceBindingRevision": 1,
+        "expectedSha256": null
+      },
+      "answer": null
+    }
+  ],
+  "candidate": {
+    "id": "249b51c1-a020-4ed5-b109-caac0788a15d",
+    "status": "active",
+    "revision": 1,
+    "sourceBindingId": "a8570082-736c-4762-bc4a-02bb3b352d3d",
+    "sourceBindingRevision": 1,
+    "baseCommit": "c8310f06ef6049a9639ba418f6ea3c42cd7831ad",
+    "objectFormat": "sha1",
+    "candidatePath": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data/repository-candidates/3509ca84a0261e6cbd12d860bb9d6b8dd880869711db0265767cbd58987921cc/candidate-249b51c1-a020-4ed5-b109-caac0788a15d/worktree",
+    "device": "16777233",
+    "inode": "172102309",
+    "candidateDirectory": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data/repository-candidates/3509ca84a0261e6cbd12d860bb9d6b8dd880869711db0265767cbd58987921cc/candidate-249b51c1-a020-4ed5-b109-caac0788a15d",
+    "containerDevice": "16777233",
+    "containerInode": "172102234",
+    "stagingDevice": "16777233",
+    "stagingInode": "172102240",
+    "gitDirectory": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data/repository-candidates/3509ca84a0261e6cbd12d860bb9d6b8dd880869711db0265767cbd58987921cc/candidate-249b51c1-a020-4ed5-b109-caac0788a15d/git",
+    "gitDevice": "16777233",
+    "gitInode": "172102242",
+    "gitVersion": "git version 2.50.1 (Apple Git-155)",
+    "writeRevision": 0,
+    "createdAt": "2026-09-20T08:31:15.579Z"
+  },
+  "effects": []
+}

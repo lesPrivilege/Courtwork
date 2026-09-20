@@ -1,0 +1,5 @@
+Browser tab: 4, Title: "CourtWork", URL: "http://127.0.0.1:8787/#".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 571
++				577 text Waiting for you · 12s · your input will not be sent automatically.
+The focused UI element is 570 text entry area (settable) Message, ID: composer-input
