@@ -278,3 +278,30 @@ test("--reuse prints this checkout's launch command, not the manifest's", async 
     await rm(base, { recursive: true, force: true });
   }
 });
+
+
+test("--reuse rejects redirected runtime data before returning a launch command", async () => {
+  const base = await scratch();
+  try {
+    const root = path.join(base, "instance");
+    const manifest = await createPreparation(root);
+    const sentinel = path.join(base, "sentinel");
+    await mkdir(sentinel);
+    const marker = path.join(sentinel, "untouched.txt");
+    await writeFile(marker, "not Host data");
+    await rm(manifest.dataDir, { recursive: true });
+    for (const target of [sentinel, root, manifest.sourcePath]) {
+      await symlink(target, manifest.dataDir, "dir");
+      await assert.rejects(inspectPreparation(root), /instance data boundary/);
+      await rm(manifest.dataDir);
+    }
+    assert.equal(await readFile(marker, "utf8"), "not Host data");
+    await mkdir(manifest.dataDir);
+    const report = await inspectPreparation(root);
+    assert.equal(report.hostDataDirUsed, false);
+    assert.equal(report.sourceHeadMatchesManifest, true);
+    assert.equal(report.sourceWorktreeClean, true);
+  } finally {
+    await rm(base, { recursive: true, force: true });
+  }
+});

@@ -187,6 +187,13 @@ export async function inspectPreparation(rootValue) {
     throw new Error(`${manifest.sourcePath} now resolves outside ${root}; refusing to read it`);
   }
 
+  // The launch path is as sensitive as the source read: a redirected data
+  // directory would make the printed Host command open somebody else's state.
+  const dataReal = await realpath(manifest.dataDir);
+  if (!isWithin(canonical, dataReal) || dataReal === canonical || isWithin(sourceReal, dataReal)) {
+    throw new Error(`${manifest.dataDir} now resolves outside the instance data boundary; refusing to read or launch it`);
+  }
+
   const currentHead = await gitFact(manifest.sourcePath, ["rev-parse", "HEAD"]);
   const status = await gitFact(manifest.sourcePath, ["status", "--porcelain"]);
   const dataEntries = (await entries(manifest.dataDir)) ?? [];
