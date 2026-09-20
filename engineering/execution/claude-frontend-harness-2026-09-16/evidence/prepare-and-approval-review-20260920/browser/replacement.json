@@ -1,0 +1,75 @@
+{
+  "method": "independent synthetic Host HTTP commands, not browser actions",
+  "before": {
+    "id": "c7a64515-41a2-4efe-8385-56068982a315",
+    "status": "active",
+    "revision": 1,
+    "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+    "sourceBindingRevision": 1,
+    "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+    "objectFormat": "sha1",
+    "writeRevision": 1,
+    "createdAt": "2026-09-20T15:15:06.675Z"
+  },
+  "revoke": {
+    "receipt": {
+      "requestId": "d91f4774-2dcc-4e53-97d2-57be59553e56",
+      "operation": "revoke",
+      "candidateId": "c7a64515-41a2-4efe-8385-56068982a315",
+      "revision": 2,
+      "status": "revoked",
+      "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+      "sourceBindingRevision": 1,
+      "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+      "failureCode": null
+    },
+    "candidate": {
+      "id": "c7a64515-41a2-4efe-8385-56068982a315",
+      "status": "revoked",
+      "revision": 2,
+      "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+      "sourceBindingRevision": 1,
+      "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+      "objectFormat": "sha1",
+      "writeRevision": 1,
+      "createdAt": "2026-09-20T15:15:06.675Z"
+    },
+    "idempotent": false
+  },
+  "create": {
+    "receipt": {
+      "requestId": "0c2b99d5-fa12-4d98-90ac-b0b6b996220b",
+      "operation": "create",
+      "candidateId": "ac5f4edc-868f-4a3d-9480-8b48e9158e94",
+      "revision": 3,
+      "status": "active",
+      "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+      "sourceBindingRevision": 1,
+      "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+      "failureCode": null
+    },
+    "candidate": {
+      "id": "ac5f4edc-868f-4a3d-9480-8b48e9158e94",
+      "status": "active",
+      "revision": 3,
+      "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+      "sourceBindingRevision": 1,
+      "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+      "objectFormat": "sha1",
+      "writeRevision": 0,
+      "createdAt": "2026-09-20T15:18:29.444Z"
+    },
+    "idempotent": false
+  },
+  "current": {
+    "id": "ac5f4edc-868f-4a3d-9480-8b48e9158e94",
+    "status": "active",
+    "revision": 3,
+    "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+    "sourceBindingRevision": 1,
+    "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+    "objectFormat": "sha1",
+    "writeRevision": 0,
+    "createdAt": "2026-09-20T15:18:29.444Z"
+  }
+}

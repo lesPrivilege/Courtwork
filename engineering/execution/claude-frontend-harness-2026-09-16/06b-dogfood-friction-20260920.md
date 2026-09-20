@@ -131,3 +131,8 @@ guarantee.
 
 Checks, the browser pass, the unexecuted list and the change record:
 [prepare-and-approval-20260920](evidence/prepare-and-approval-20260920/README.md).
+## Preparation / approval review return — 2026-09-20
+
+Astra reviewed Claude `afc9f31` with Luna's independent 56/56 and actual OpenAI browser journeys. [The independent review](evidence/prepare-and-approval-review-20260920/README.md) retains the successful zero-inference preparation and historical approval identity; drawing the identity in decided records and keeping the original prepared title are adopted. **Hold local product integration. Claude retains three finite corrections:** PA-R1 restore the persisted preparation recovery route after lost create/bind/candidate replies; PA-R2 lock conflicting directory/start mutations while preparation is pending/unresolved; PA-R3 retire obsolete preparation state after the same Chat is first sent to via Recent, while preserving unsent Home text/materials. Reconcile canonical binding/path identity within PA-R1; do not add an automatic rebind.
+
+The browser reproduced candidate-create Host 200 → synthetic lost reply → visible retry with new IDs → Host 409, and Recent first-send Completed → Home still says Nothing was sent / New chat blocked. These are UI/controller lifecycle defects; direct helper green tests do not close them. Reuse accepted source and correct only this delta in the existing author tree, with real Home/card recovery tests and explicit evidence. Existing non-approval argument and G4 residual owners remain unchanged; no next frontend journey starts before this return is accepted. Source/evidence tree retained, user 8787/8899 untouched, no real provider or product merge.

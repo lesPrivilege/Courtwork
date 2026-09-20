@@ -1,0 +1,85 @@
+{
+  "sessions": {
+    "sessions": [
+      {
+        "id": "4a54f376-86ff-4ec6-a543-aeaf6dd0492a",
+        "scope": "unassigned",
+        "projectId": null,
+        "title": "Preparation review: preserve this draft",
+        "draft": "",
+        "extensionBinding": null,
+        "createdAt": "2026-09-20T15:15:04.828Z",
+        "workspaceDir": "/tmp/cw-prepare-approval-astra-20260920/runtime-data/workspaces/4a54f376-86ff-4ec6-a543-aeaf6dd0492a",
+        "permissionMode": "ask",
+        "hostSession": null,
+        "repositoryBinding": {
+          "id": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+          "rootPath": "/private/tmp/cw-prepare-approval-astra-20260920/source",
+          "device": "16777233",
+          "inode": "172594505",
+          "revision": 1,
+          "status": "active"
+        },
+        "repositoryBindingRevision": 1,
+        "repositoryBindingCommands": [
+          {
+            "requestId": "9f6ced5e-5f7b-41e0-b062-2654dcb0697b",
+            "requestHash": "e1f2726e781230c20e1fd4175a1d15caa9fbb72f9567da427466e5b54588574b",
+            "operation": "bind",
+            "expectedRevision": 0,
+            "receipt": {
+              "requestId": "9f6ced5e-5f7b-41e0-b062-2654dcb0697b",
+              "operation": "bind",
+              "bindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+              "revision": 1,
+              "status": "active",
+              "rootPath": "/private/tmp/cw-prepare-approval-astra-20260920/source",
+              "at": "2026-09-20T15:15:04.875Z"
+            }
+          }
+        ],
+        "repositoryCandidate": {
+          "id": "c7a64515-41a2-4efe-8385-56068982a315",
+          "status": "active",
+          "revision": 1,
+          "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+          "sourceBindingRevision": 1,
+          "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+          "objectFormat": "sha1",
+          "writeRevision": 0,
+          "createdAt": "2026-09-20T15:15:06.675Z"
+        },
+        "repositoryCandidateRevision": 1,
+        "repositoryCandidateCommands": [
+          {
+            "requestId": "56f6b7eb-dff1-4e72-9b03-a3f4ae8b85d3",
+            "requestHash": "0cc4bde412695c543ac777b5e967a897ca97404ca8e2371adcf39e3551d547e5",
+            "operation": "create",
+            "expectedRevision": 0,
+            "expectedBindingRevision": 1,
+            "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+            "candidateId": "c7a64515-41a2-4efe-8385-56068982a315",
+            "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+            "receipt": {
+              "requestId": "56f6b7eb-dff1-4e72-9b03-a3f4ae8b85d3",
+              "operation": "create",
+              "candidateId": "c7a64515-41a2-4efe-8385-56068982a315",
+              "revision": 1,
+              "status": "active",
+              "sourceBindingId": "b57a7d39-2bf6-4ef6-9dc4-28fb68bea5d7",
+              "sourceBindingRevision": 1,
+              "baseCommit": "c6f8d7f9a7dda9f1852575115e87d8b6abc6c9d0",
+              "failureCode": null
+            }
+          }
+        ],
+        "repositoryWriteEffects": [],
+        "recordedActivityAt": "2026-09-20T15:15:04.828Z"
+      }
+    ]
+  },
+  "events": {
+    "events": [],
+    "nextSeq": 0
+  }
+}
