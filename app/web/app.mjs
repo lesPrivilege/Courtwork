@@ -6438,9 +6438,9 @@ async function goHome() {
   if (own !== state.navigationEpoch) return;
   clearActiveSession();
   closeNavigation({ restoreFocus: false });
-  /* Luna F-04 · a set expanded in place is a view of this visit, not a saved
-   * preference: entering Home again shows the whole of Home. */
-  state.home.filter = null;
+  /* F-04, as ruled 2026-09-20: the expanded set is continuity, not a stale
+   * view — entering Home again returns to the set the person was reading, and
+   * `All work` is the way back out. Only that control clears it. */
   restoreLayerFocus($("composer-input"));
   void loadHome();
 }

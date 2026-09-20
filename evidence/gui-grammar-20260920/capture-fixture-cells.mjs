@@ -24,7 +24,7 @@ const REPO_ROOT = path.join(HERE, "..", "..");
 const APP_DIR = path.join(REPO_ROOT, "app");
 /* Scratch lives outside the repository: a synthetic data directory and a
    workspace folder, never a personal path. Override with G4C_SCRATCH. */
-const SCRATCH_ROOT = process.env.G4C_SCRATCH ?? path.join(os.tmpdir(), "cw-g4-fixture-cells");
+const SCRATCH_ROOT = process.env.G4C_SCRATCH ?? path.join(tmpdir(), "cw-g4-fixture-cells");
 const DATA_DIR = path.join(SCRATCH_ROOT, "data-fixture-cells");
 const APP_PORT = Number(process.env.G4C_APP_PORT ?? 8878);
 const ORIGIN = process.env.APP_URL ?? `http://127.0.0.1:${APP_PORT}`;

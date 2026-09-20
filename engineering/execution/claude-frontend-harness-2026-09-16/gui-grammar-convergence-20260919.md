@@ -274,7 +274,7 @@ Non-author review of candidate `fc6eccf`: [functional](evidence/gui-independent-
 | **F-01** The Attention scope survives a removed or changed project (acceptance blocker) | **Adopt** | One owner now decides the scope (`homeAttentionScope`: the workspace choice when it names a project, otherwise the first project). `loadProjects` invalidates a scope whose project is gone, and the workspace picker moves the scope with it. A cleared scope drops its rows instead of showing another project's items as "the last loaded records" |
 | **F-02** A zero 28-day Activity packet renders a full empty heatmap | **Adopt** | The block keeps its period control, but an empty period states `No runs recorded in the last N days.` instead of an all-zero grid. The widest empty period stays absent, as ruled |
 | **F-03** Merged `Show all` pages can claim items are outside the page | **Adopt** | The truncation sentence is computed from the merged collection, so it appears only while the displayed set holds fewer items than the total |
-| **F-04** The Home filter is never cleared; the collapse focus fallback can disappear | **Adopt** | `goHome` clears the expanded set, so entering Home shows the whole of Home. When a set's `Show all` no longer exists, focus falls back to that block's first row |
+| **F-04** The Home filter is never cleared; the collapse focus fallback can disappear | **Adopt in part** | The focus fallback is adopted. The clearing is **not**: the user ruled on 2026-09-20 that an expanded set is continuity, so returning Home shows the set the person was reading and `All work` stays the only way out. A first-round clearing in `goHome` was removed again in the third round |
 | **Style 1** Packet metadata and the empty-cell fixture label | **Adopt** | The owner count now reads 19 PNGs. The first capture screenshotted the "empty" cell before closing the example, so it showed the example dataset. `capture.mjs` now closes the example, reloads, and asserts zero projects, no example badge and no Attention/Activity slot before recording. The packet was recaptured |
 | **Style 2** Native 200% zoom described inconsistently | **Adopt** | The disposition table and the G4 axis now say native zoom is unexecuted, with a labelled CSS-equivalent substitute |
 | **Style 3** G3 overclaims G4 coverage | **Adopt** | The G3 note lists Chat long content, the Usage dialog and the markdown reader as unexecuted; the packet records them as not captured |
@@ -289,7 +289,7 @@ The reviewer accepted the Attention fix, the Activity empty state, the paginatio
 
 | Item | Disposition |
 |---|---|
-| **F-04** keep the ruled filter continuity, but complete the focus fallback once a list goes to zero | **Adopt.** The chain is now: the set's own `Show all` → that block's first row → the block itself (`tabindex="-1"`, so it catches focus without joining the tab sequence) → any Home row → the composer. Focus cannot fall out of the page. Covered by `home-scope.test.mjs` |
+| **F-04** keep the ruled filter continuity, but complete the focus fallback once a list goes to zero | **Adopt.** The chain is now: the set's own `Show all` → that block's first row → the block itself (`tabindex="-1"`, so it catches focus without joining the tab sequence) → any Home row → the composer. Focus cannot fall out of the page. Covered by `home-scope.test.mjs`. The `goHome` clearing left over from the first round survived this round by mistake and was removed in the third |
 | **lint** `var(--space-7, 7px)` still bypassed the scale | **Adopt.** A `var()` fallback is the value the declaration actually uses, so it is checked by the same rules: an undefined token with a literal fallback is rejected, a token or hairline fallback passes. The earlier test that asserted the opposite contract is rewritten |
 | **G4** the recapture still carried the old source SHA; the approval and burst cells had to be executed, not excused | **Adopt.** The packet states its true provenance (the 19 cells from the tree that became `3413978`; the new cells at `3413978` itself) and both cells are now **executed for real** with the local deterministic provider — no paid provider, no faked server data |
 
@@ -308,6 +308,17 @@ The reviewer accepted the Attention fix, the Activity empty state, the paginatio
 Still not executed, and recorded as such in both the packet README and `manifest.json`: native browser zoom, forced colors, a screen-reader pass, the Usage dialog, the markdown reader, and a long-content Chat thread.
 
 **One finding passed to another owner.** Driving two Home-composer sends back to back can trip the navigation-epoch guard in `submitHomeRun()`. The capture script first described this as a silent drop; it is not. That branch sets `operation.error = "The chat was created; your instruction has not been sent. Return Home to continue."`, which Home renders. The path is untouched by this branch, so it is pre-existing behaviour under scripted back-to-back navigation and belongs to the Home composer / session-creation owner. The correction is recorded in the packet.
+
+### Third review round (2026-09-20)
+
+The reviewer accepted the focus fallback, the lint fallback rule and the 23-cell evidence within its stated limits, and named two defects. Both are mine, and both are fixed.
+
+| Item | Disposition |
+|---|---|
+| `goHome()` still cleared the expanded set, and a test still demanded it, contradicting the ruled continuity | **Adopt.** The clearing is removed and the test now asserts the opposite: Home entry keeps the set, and only the filter control changes it. `All work` remains the way back to the whole of Home |
+| Both new capture scripts imported `tmpdir` but called `os.tmpdir()`, so a default start would throw | **Adopt.** They call `tmpdir()`. The startup expression of each script was evaluated to confirm it resolves to a scratch path outside the repository |
+
+Astra's ruling stands for the rest: native 200% zoom, a single run with ≥100 tool events, long-content Chat, the Usage dialog, the markdown reader, forced colors and a screen-reader pass stay with the G4 owner and do not block local integration. This is **not** full G4 acceptance.
 
 ## Construction report and writer release (Claude/Opus, 2026-09-20)
 

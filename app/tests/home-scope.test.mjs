@@ -75,8 +75,11 @@ test("Home invalidates the Attention scope when its project disappears or change
 
 /* Luna F-04 · an expanded set is a view of this visit, and the way back never
  * loses the focus sequence. */
-test("Home entry clears an expanded set and keeps a focus target when its control is gone", () => {
-  assert.match(app, /state\.home\.filter = null;\n\s*restoreLayerFocus\(\$\("composer-input"\)\);/, "goHome returns to the whole of Home");
+test("Home entry keeps the expanded set and keeps a focus target when its control is gone", () => {
+  /* Ruled 2026-09-20: filter continuity stays. Returning Home shows the set the
+   * person was reading; `All work` is the only way back to the whole of Home. */
+  assert.doesNotMatch(app, /state\.home\.filter = null;/, "Home entry must not clear an expanded set");
+  assert.match(app, /state\.home\.filter = key;/, "only the filter control changes it");
   assert.match(app, /\?\? stream\.querySelector\(`\[data-home-block="\$\{previous\}"\] \.home-row`\)/, "a block row is the fallback when Show all no longer exists");
   /* Luna 第二轮 · 列表归零后既没有 Show all 也没有行：焦点仍要落在说明它在哪里的
    * 那个块上，最后落回 Home 的锚点，而不是掉出页面。 */
