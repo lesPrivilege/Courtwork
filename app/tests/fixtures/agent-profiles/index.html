@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent profiles · synthetic preview</title>
+    <script src="/web/skin-policy.js"></script>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <link rel="stylesheet" href="./specimen.css" />
+  </head>
+  <body data-agent-profiles-preview>
+    <div class="preview-app">
+      <header class="preview-topbar">
+        <div>
+          <p class="eyebrow">Interactive synthetic preview</p>
+          <h1>Settings › Agents › Agent profiles</h1>
+        </div>
+        <p class="preview-disclosure">
+          Every agent, Kit, runtime, version, model reading and permission effect on this page is
+          synthetic. Nothing here reads your host, discovers an installation, contacts a provider or
+          saves outside this tab. A confirmed revision below is confirmed by the preview only.
+        </p>
+      </header>
+
+      <section class="preview-controls" aria-label="Preview state">
+        <label
+          >Scenario
+          <select id="variant-select" data-testid="variant-select">
+            <option value="normal">Normal</option>
+            <option value="empty">No agent profiles</option>
+            <option value="save-error">Save fails</option>
+            <option value="stale-revision">Saved elsewhere first</option>
+            <option value="runtime-unavailable">Pi unavailable</option>
+          </select>
+        </label>
+        <label class="preview-slow"
+          ><input id="slow-toggle" type="checkbox" data-testid="slow-toggle" /> Slow replies</label
+        >
+        <label
+          >Appearance
+          <select id="theme-select" data-testid="theme-select" aria-label="Appearance">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <button id="reset-preview" type="button" class="quiet-button" data-testid="reset">
+          Reset preview
+        </button>
+      </section>
+
+      <div class="settings-page">
+        <div class="settings-page-body">
+          <div class="settings-nav-column">
+            <div
+              class="settings-nav"
+              role="tablist"
+              aria-orientation="vertical"
+              aria-label="Settings groups"
+            >
+              <button
+                type="button"
+                role="tab"
+                class="settings-tab is-current"
+                aria-selected="true"
+                aria-controls="agents-panel"
+                id="agents-tab"
+              >
+                <span class="settings-tab-label">Agents</span>
+              </button>
+              <button type="button" class="settings-tab" disabled>
+                <span class="settings-tab-label">Models</span>
+              </button>
+              <button type="button" class="settings-tab" disabled>
+                <span class="settings-tab-label">Tools &amp; Integrations</span>
+              </button>
+              <button type="button" class="settings-tab" disabled>
+                <span class="settings-tab-label">Permissions</span>
+              </button>
+              <button type="button" class="settings-tab" disabled>
+                <span class="settings-tab-label">Developer</span>
+              </button>
+            </div>
+            <label class="sr-only" for="settings-nav-select">Settings group</label>
+            <select id="settings-nav-select" class="settings-nav-select" aria-label="Settings group">
+              <option value="agents" selected>Agents</option>
+              <option disabled>Models</option>
+              <option disabled>Tools &amp; Integrations</option>
+              <option disabled>Permissions</option>
+              <option disabled>Developer</option>
+            </select>
+            <p class="form-help">
+              Only Agent profiles is built in this preview. The other groups are the product's real
+              ones and are not reachable from here.
+            </p>
+          </div>
+          <div class="settings-sections">
+            <section
+              id="agents-panel"
+              class="settings-section"
+              role="tabpanel"
+              tabindex="-1"
+              aria-labelledby="agents-panel-title"
+            >
+              <h3 id="agents-panel-title" class="settings-section-title">Agents</h3>
+              <div id="agent-profiles-mount"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./preview.mjs"></script>
+  </body>
+</html>
