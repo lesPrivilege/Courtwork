@@ -1,0 +1,251 @@
+{
+  "note": "Host receipts from the isolated evidence Host on 127.0.0.1:8912. The Host, its data directory and both synthetic folders are outside the product repository; no credential is configured, read or written and the provider is the deterministic Local test one.",
+  "sessions": [
+    {
+      "candidateDiff": {
+        "baseCommit": "58503f3df3af56163e02d98461aaa8b305481fef",
+        "candidateId": "1F559A60-1B7F-4CF1-ABC0-E2CEB04B3171",
+        "files": [],
+        "patchBytes": 0,
+        "patchSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "schemaVersion": 1,
+        "truncated": false,
+        "writeRevision": 0
+      },
+      "eventTypes": [],
+      "id": "8a39d55f-8322-4205-9656-f34c3900c485",
+      "permissionMode": "draft",
+      "permissionOpens": [],
+      "permissionResolved": [],
+      "projectId": null,
+      "repositoryAndCheckEvents": [],
+      "repositoryBinding": {
+        "device": "16777233",
+        "id": "d1885031-aaba-456c-a22f-4f56f16bd8d6",
+        "inode": "172276321",
+        "revision": 1,
+        "rootPath": "/Users/lesprivilege/Projects/.worktrees/courtwork-frontend-friction-20260920-instance/source",
+        "status": "active"
+      },
+      "repositoryBindingRevision": 1,
+      "repositoryCandidate": {
+        "baseCommit": "58503f3df3af56163e02d98461aaa8b305481fef",
+        "createdAt": "2026-09-20T13:23:39.254Z",
+        "id": "1F559A60-1B7F-4CF1-ABC0-E2CEB04B3171",
+        "objectFormat": "sha1",
+        "revision": 1,
+        "sourceBindingId": "d1885031-aaba-456c-a22f-4f56f16bd8d6",
+        "sourceBindingRevision": 1,
+        "status": "active",
+        "writeRevision": 0
+      },
+      "repositoryCandidateRevision": 1,
+      "title": "candidate before any inference",
+      "writeEffects": []
+    },
+    {
+      "candidateDiff": "unavailable: HTTP Error 409: Conflict",
+      "eventTypes": [
+        "user.message",
+        "run.status",
+        "runtime.bound",
+        "repository.bound",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "run.usage",
+        "run.status",
+        "user.message",
+        "run.status",
+        "runtime.bound",
+        "repository.bound",
+        "repository.candidate.bound",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "tool.start",
+        "permission.open",
+        "run.status",
+        "permission.resolved",
+        "run.status",
+        "repository.write.confirmed",
+        "tool.result",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "tool.start",
+        "permission.open",
+        "run.status",
+        "permission.resolved",
+        "run.status",
+        "check.started",
+        "check.settled",
+        "tool.result",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "run.usage",
+        "run.status"
+      ],
+      "id": "387363db-c82d-43ef-81ca-b8a628d1727a",
+      "permissionMode": "ask",
+      "permissionOpens": [
+        {
+          "candidateId": "94b0a209-9cea-4a20-a48e-c150db854861",
+          "candidateWriteRevision": 0,
+          "expectedSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+          "path": "src/parcel.mjs",
+          "preview": "// Split `count` items into pages of `perPage` items each.\nexport function pageCount(count, perPage) {\n  if (!Number.isI",
+          "recipeId": null,
+          "seq": 27,
+          "tool": "repo_write"
+        },
+        {
+          "candidateId": "94b0a209-9cea-4a20-a48e-c150db854861",
+          "candidateWriteRevision": 1,
+          "expectedSha256": null,
+          "path": "*",
+          "preview": "{\"recipeId\":\"node-test\"}",
+          "recipeId": "node-test",
+          "seq": 38,
+          "tool": "check_run"
+        }
+      ],
+      "permissionResolved": [
+        {
+          "decision": "allow",
+          "seq": 29,
+          "status": null
+        },
+        {
+          "decision": "allow",
+          "seq": 40,
+          "status": null
+        }
+      ],
+      "projectId": null,
+      "repositoryAndCheckEvents": [
+        {
+          "data": {
+            "bindingId": "6602a7cc-923a-4c23-a91b-9349ea3f87be",
+            "revision": 1
+          },
+          "seq": 4,
+          "type": "repository.bound"
+        },
+        {
+          "data": {
+            "bindingId": "6602a7cc-923a-4c23-a91b-9349ea3f87be",
+            "revision": 1
+          },
+          "seq": 20,
+          "type": "repository.bound"
+        },
+        {
+          "data": {
+            "baseCommit": "58503f3df3af56163e02d98461aaa8b305481fef",
+            "candidateId": "94b0a209-9cea-4a20-a48e-c150db854861",
+            "revision": 1
+          },
+          "seq": 21,
+          "type": "repository.candidate.bound"
+        },
+        {
+          "data": {
+            "bytes": 445,
+            "candidateId": "94b0a209-9cea-4a20-a48e-c150db854861",
+            "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+            "effectId": "5e2ff601e01359f2a263c53c475390172dbea6e0dfd15ab831f755dc04f44626",
+            "path": "src/parcel.mjs",
+            "requestId": "fake-script-2-0",
+            "writeRevision": 1
+          },
+          "seq": 31,
+          "type": "repository.write.confirmed"
+        },
+        {
+          "data": {
+            "callId": "fake-script-3-1",
+            "candidateId": "94b0a209-9cea-4a20-a48e-c150db854861",
+            "candidateWriteRevision": 1,
+            "recipeId": "node-test",
+            "recipeVersion": 1,
+            "startedAt": "2026-09-20T13:15:35.253Z"
+          },
+          "seq": 42,
+          "type": "check.started"
+        },
+        {
+          "data": {
+            "callId": "fake-script-3-1",
+            "durationMs": 183,
+            "endedAt": "2026-09-20T13:15:35.440Z",
+            "exitCode": 0,
+            "failure": null,
+            "signal": null,
+            "startedAt": "2026-09-20T13:15:35.257Z",
+            "status": "completed",
+            "stderr": "",
+            "stdout": "\u2714 a partial last page still counts (0.6845ms)\n\u2714 item index maps to its page (0.062125ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 2\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 90.258917\n",
+            "truncated": {
+              "stderr": false,
+              "stdout": false
+            }
+          },
+          "seq": 43,
+          "type": "check.settled"
+        }
+      ],
+      "repositoryBinding": {
+        "device": "16777233",
+        "id": "c9b22057-ec55-461f-beb3-94330abd778b",
+        "inode": "172276321",
+        "revision": 3,
+        "rootPath": "/Users/lesprivilege/Projects/.worktrees/courtwork-frontend-friction-20260920-instance/source",
+        "status": "active"
+      },
+      "repositoryBindingRevision": 3,
+      "repositoryCandidate": {
+        "baseCommit": "58503f3df3af56163e02d98461aaa8b305481fef",
+        "createdAt": "2026-09-20T13:13:05.901Z",
+        "id": "94b0a209-9cea-4a20-a48e-c150db854861",
+        "objectFormat": "sha1",
+        "revision": 2,
+        "sourceBindingId": "6602a7cc-923a-4c23-a91b-9349ea3f87be",
+        "sourceBindingRevision": 1,
+        "status": "revoked",
+        "writeRevision": 1
+      },
+      "repositoryCandidateRevision": 2,
+      "title": "Read src/parcel.mjs and say why the pagination test fails. Do not write anything.",
+      "writeEffects": [
+        {
+          "bytes": 445,
+          "candidateId": "94b0a209-9cea-4a20-a48e-c150db854861",
+          "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+          "createdAt": "2026-09-20T13:14:41.733Z",
+          "expectedSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+          "id": "5e2ff601e01359f2a263c53c475390172dbea6e0dfd15ab831f755dc04f44626",
+          "path": "src/parcel.mjs",
+          "runId": "65cf128c-0671-418a-932b-9c24fba996b2",
+          "settledAt": "2026-09-20T13:14:41.776Z",
+          "status": "confirmed",
+          "writeRevision": 1
+        }
+      ]
+    }
+  ]
+}

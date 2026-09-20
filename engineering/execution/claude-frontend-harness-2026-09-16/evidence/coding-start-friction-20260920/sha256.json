@@ -1,0 +1,26 @@
+{
+  "baseSha": "a04b9ac056e6f197897702eefeefe4007bba7f9a",
+  "note": "sha256 of this packet's own files and of the source files this candidate changed, at the delivered tree.",
+  "packet": {
+    "README.md": "b4d9981b3d4ad502258227f7d922855273bc025295e44e0c07693ac85e91ee71",
+    "browser/candidate-diff-receipt.json": "0b885f8bb239e475589bdb77cff5d688642f3167c1efa66e4dcaebc367556783",
+    "browser/host-receipts.json": "44c41ed93fab16f2dbcba8ce55f9690e29e177d220558a5cf30529750b2becc9",
+    "browser/journey.md": "ef110be7bd7ff7fec997e85cb5179ae8ebb5896fcd8614529bbd5317d4443a98",
+    "browser/profile-list-pending.json": "03f60e5054a6631fed68d069a719ac939518e84897c149ea2560b2253d4917a4",
+    "browser/source-integrity.json": "31d8e7195d3e821992cdd505f642a28198b25069097d2a2d3b5648c9e52e5f1e",
+    "change-record.md": "4095a6611302e027ec4267f972ecea8cee57de68581c63e3ba23412fc1fd2e1a",
+    "checks.txt": "432fea5fd8c427a5b87eb470f9e2f05843907a727ee00d60901d86e854ff5f4e",
+    "counterexamples.mjs": "923e9215898fb693d7f9b211d427367c38d9cc70f88c88a6f3ee55ef332bc28f",
+    "counterexamples.txt": "c88e1c333a8360d05e8c9e77fc712413119f512482271650fa95532b217314c3",
+    "exploration.md": "3822836b984b88af92e93546ff9842ac0702427e670214661c482c7dfe8f0492"
+  },
+  "source": {
+    "app/tests/coding-start-friction.test.mjs": "ce8caeafc4c6746529a143eb58b4e90586879e38ed6eb82e2923b5ae26ac3c59",
+    "app/web/agent-profiles-view.mjs": "16d5217744e91de7e3c0c0d7d95291c7633b363be1223c08adabe8b70603a501",
+    "app/web/agent-profiles.mjs": "9536c750421f3d21beb338e37b5b9df4323d9a757f1168d64944975efbbf7690",
+    "app/web/app.mjs": "a9bd268cb533b3079f88b4fd55d84108827f0f22b7316f9123226c97865884d9",
+    "app/web/workspace-card.mjs": "2bf0e4e4b315753271eeb5c3c23c20110f82372b12974c134ae89190ecdf0eea",
+    "engineering/execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md": "64beda6439f8887988f125a68e2328da37597e1c9bb49236fa37d17a539c8ceb",
+    "engineering/verification.md": "efc3e2753d2677283da629e42edba9823dd5e0b24520997f0a48bca0ae4f8636"
+  }
+}

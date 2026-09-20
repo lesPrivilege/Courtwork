@@ -24,3 +24,51 @@ Two observations need a short recommendation before implementation: starting a p
 Use independent synthetic source/data and another loopback port. No real key/provider calls are needed for this frontend batch. Exercise folder change → start/bind Chat → private candidate → exact write approval → observed write/diff → fixed check/reload; retain the existing source unchanged. Reproduce the stale-count counterexample and list late-reply case at their actual seams. Use OpenAI computer use for the actual visual/focus journey; existing user 8787 is not a test fixture. A fixture can establish presentation mechanics but cannot claim another real-model success.
 
 Deliver one bounded source candidate, owner/precedent/change record, selected checks under verification.md, browser evidence and explicit unexecuted cases. Keep native zoom/screen-reader/long-label gaps honest; no automatic full G4 reopening. Release the writer for Luna's non-author delta review and Astra's integration decision before Runtime management or Role-first Composer. No push/deploy or deletion of source/evidence trees by the author.
+
+## Author delivery · 2026-09-20, Claude
+
+One bounded source candidate on `claude-frontend-friction-20260920`, from
+integrated main `a04b9ac`, in its own worktree. All four finite items are
+answered; neither exploration is implemented. **Not accepted** — released for
+Luna's non-author delta review and Astra's integration decision.
+
+The five seams were reproduced as measurements *before* any product code
+changed, by running one script against the unchanged `a04b9ac` tree and again
+against the candidate. Four frontend files changed, all existing owners:
+`workspace-card.mjs`, `app.mjs`, `agent-profiles.mjs`, `agent-profiles-view.mjs`,
+plus one new seam-test file. No new route, event, backend ledger, design system,
+token, icon or dependency; Host remains the binding, candidate, write-effect,
+permission and check authority.
+
+- **1 · folder, project and write target** — the card now reads Project, Folder
+  (Read only), File access and Private candidate side by side, with one
+  "Which is which" disclosure carrying the definitions, and a `Change folder…`
+  path that uses the existing `bind` command and states the Host's own
+  `ACTIVE_CANDIDATE` precondition instead of offering a failing control. No Kit
+  is named; nothing implies the source becomes writable.
+- **2 · boundary copy** — "Nothing is uploaded" and "Nothing is read before
+  then" were both measured false and replaced. The folder staying unwritten is
+  kept and sharpened; what a run reads is said to go to the configured model,
+  without naming a runtime or exposing a key, and without a warning wall.
+- **3 · candidate result continuity** — the write count is now a pure
+  projection over two Host receipts (`repository.write.confirmed` and the
+  Session's own field), and the changes dialog corrects its heading from the
+  diff reply's `writeRevision` in a separate text node, so the patch is never
+  rebuilt. Focus after Start private candidate lands on Review changes. Write,
+  check and source identities stay distinct.
+- **4 · 06a list refresh** — the list says when its read is out (`aria-busy`
+  plus a `role=status` line), keeps the rows and the navigation anchor, and
+  `openProfile` now retires the list read it navigated away from so a late
+  reply cannot land behind a newer navigation. Entirely inside the synthetic
+  adapter/controller/view.
+
+Two explorations were measured and **not** built: starting a private candidate
+before the first inference is fully supported by existing Host routes (verified
+end to end, zero-event session in the receipts) and needs only a frontend
+change in the existing owner; the candidate revision is already in the
+permission payload and needs only a frontend change; the pending tool call's
+request arguments are a real Host projection gap (`tool.start` carries
+`callId` and `name` only) and are returned to Astra.
+
+Checks, browser journey, unexecuted cases and the change record:
+[coding-start-friction-20260920](evidence/coding-start-friction-20260920/README.md).

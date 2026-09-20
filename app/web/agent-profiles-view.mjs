@@ -156,8 +156,15 @@ export function createAgentProfilesView(mount, controller) {
     );
   }
 
+  /* Coming back from a profile you just saved, or switching the specimen, does
+     not make the rows on screen the current list: the read that would confirm
+     them is still out. They stay — they are the anchor you returned to and the
+     only readable thing here — but the group is marked busy and says so in
+     words, which is the loading grammar attention-view.mjs already uses for a
+     list it is re-reading. Nothing pretends to be settled that is not. */
   function renderList() {
     const { list } = state;
+    const pending = list.status === "loading";
     const nodes = [
       el("h4", { className: "settings-block-title", text: "Agent profiles" }),
       el("p", {
@@ -165,10 +172,24 @@ export function createAgentProfilesView(mount, controller) {
         text: "An agent is a role with the Kits it works from and the runtime that executes it. Choosing one here changes future runs, not a run already in flight.",
       }),
     ];
-    if (list.status === "loading" && !list.rows.length)
-      nodes.push(el("p", { className: "form-help", attrs: { role: "status" }, text: "Loading agent profiles…" }));
+    /* Same shape attention-view.mjs gives a list it is re-reading: a section
+       that names itself and carries `aria-busy`, with no container of its own
+       so the rows keep the Settings page's anatomy exactly. */
+    const group = el("section", {
+      attrs: { "aria-label": "Agent profiles", "data-testid": "profile-list", "aria-busy": String(pending) },
+    });
+    if (pending && list.rows.length)
+      group.append(
+        el("p", {
+          className: "form-help",
+          attrs: { role: "status", "data-testid": "list-pending" },
+          text: "Reading the current agent profiles… the rows below are the previous reading.",
+        }),
+      );
+    if (pending && !list.rows.length)
+      group.append(el("p", { className: "form-help", attrs: { role: "status" }, text: "Loading agent profiles…" }));
     else if (list.status === "error")
-      nodes.push(
+      group.append(
         el("p", {
           className: "inline-error",
           attrs: { role: "alert", "data-testid": "list-error" },
@@ -176,14 +197,15 @@ export function createAgentProfilesView(mount, controller) {
         }),
       );
     else if (!list.rows.length)
-      nodes.push(
+      group.append(
         el("p", {
           className: "form-help",
           attrs: { "data-testid": "list-empty" },
           text: "No agent profile is configured on this host yet. An agent appears here once one is installed or created.",
         }),
       );
-    else nodes.push(...list.rows.map(listRow));
+    else group.append(...list.rows.map(listRow));
+    nodes.push(group);
     return nodes;
   }
 

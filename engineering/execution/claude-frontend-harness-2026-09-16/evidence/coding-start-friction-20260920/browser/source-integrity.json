@@ -1,0 +1,10 @@
+{
+  "gitHead": "58503f3df3af56163e02d98461aaa8b305481fef",
+  "gitStatusPorcelain": "",
+  "note": "The synthetic source the journey read. It was never the write target: every approved write landed in the Host's private candidate.",
+  "parcelSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+  "parcelStillHoldsTheDefect": true,
+  "secondSyntheticFolder": "/Users/lesprivilege/Projects/.worktrees/courtwork-frontend-friction-20260920-instance/other-source",
+  "secondSyntheticFolderHead": "18f872405dac39e7cf7bd4126b5c1b453fb913e1",
+  "sourcePath": "/Users/lesprivilege/Projects/.worktrees/courtwork-frontend-friction-20260920-instance/source"
+}
