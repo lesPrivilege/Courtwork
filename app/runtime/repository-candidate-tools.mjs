@@ -88,20 +88,39 @@ export function createRepositoryCandidateTools({
   const readTool = {
     name: "candidate_read",
     label: "Read private candidate file",
-    description: "Read UTF-8 text from the Host-owned private Git candidate. Reads from the user-selected source repository remain available through repo_read.",
+    description: "Read UTF-8 text from the Host-owned private Git candidate. The result includes the full-file SHA-256 to pass as repo_write.expectedSha256 when replacing this path; omit expectedSha256 only when creating an absent path. Reads from the user-selected source repository remain available through repo_read.",
     parameters: Type.Object({ path: Type.String({ minLength: 1, maxLength: MAX_PATH_CHARS }), startLine: Type.Optional(Type.Integer({ minimum: 1 })), endLine: Type.Optional(Type.Integer({ minimum: 1 })) }),
     async execute(_callId, params, signal) {
       const result = await read("read", params.path, signal);
       const decoded = decodeFile(result.dataBase64, result.bytes, result.sha256);
       let text = decoded.text;
+      const lines = text.split("\n");
+      let returnedLines = { startLine: 1, endLine: lines.length };
       if (params.startLine || params.endLine) {
-        const lines = text.split("\n");
         const start = Math.max(1, params.startLine ?? 1) - 1;
         const end = Math.min(lines.length, params.endLine ?? lines.length);
         text = lines.slice(start, end).join("\n");
+        returnedLines = end > start
+          ? { startLine: start + 1, endLine: end }
+          : { startLine: null, endLine: null };
       }
       await record("read", result.path, text, [repositorySource(result.path, result.bytes, result.sha256)], signal);
-      return { content: [{ type: "text", text }], details: { path: result.path, bytes: result.bytes, sha256: result.sha256, candidateId } };
+      const metadata = {
+        path: result.path,
+        bytes: result.bytes,
+        sha256: result.sha256,
+        hashScope: "full-file",
+        returnedLines,
+        fullFileLines: lines.length,
+        writeGuidance: "Pass sha256 as repo_write.expectedSha256 when replacing this path; omit expectedSha256 only when creating an absent path.",
+      };
+      return {
+        content: [
+          { type: "text", text },
+          { type: "text", text: `candidate_read metadata (the SHA-256 and byte count cover the full file; returnedLines identifies the text block above):\n${JSON.stringify(metadata, null, 2)}` },
+        ],
+        details: { path: result.path, bytes: result.bytes, sha256: result.sha256, candidateId },
+      };
     },
   };
 
