@@ -396,3 +396,8 @@ node site/scripts/check-material.mjs
 删除无独立用户价值的入口；保留的 Harness 能力沿真实服务完成读写和查回，纯视图动作不伪造后端需求；每个新增局部面都要继承共同语义、控件、编排与文字层。原型放隔离入口，未来后端缺口写回原 PR。遇到可逆的本单内局部选型直接完成并记理由；涉及新增权限、正式状态或超出当前架构边界时保留具体反例交回裁决，不能悄悄扩大。
 
 本单结束时交付一条可重开的真实 Harness 工作路径、一套如出一手且文字收敛的产品工作面、一组有后端接续条件的 Prototype，以及一个更有表现力的 Pages 发布候选。
+
+
+## 2026-09-20 · Frontend-first follow-up under the existing management owner
+
+[Agents frontend-first construction](06-agents-frontend-first-20260920.md) is authorized after the slice 11 readiness handoff. Claude grows one bounded journey at a time within CW's current Design, consuming Design Scout/local primitives/mature compatible libraries. Interactive synthetic adapters allow frontend acceptance before backend implementation; the real consumer contract is handed to the existing backend owners for later integration. User WebUI testing remains pinned to its delivered baseline, isolated from this frontend work.
