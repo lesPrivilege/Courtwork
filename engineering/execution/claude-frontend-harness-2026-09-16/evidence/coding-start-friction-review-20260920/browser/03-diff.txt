@@ -1,0 +1,22 @@
+Browser tab: 6, Title: "CourtWork", URL: "http://127.0.0.1:8914/".
+0 AXWebArea CourtWork, URL: 127.0.0.1:8914/
+	1 container Changes in the private candidate, ID: candidate-dialog
+		2 container
+			3 heading Changes in the private candidate, Value: 2, ID: candidate-title
+				4 text Changes in the private candidate
+			7 text From commit e9ac8be39920 · 1 write
+			6 button Description: Close changes, ID: close-candidate-button
+		8 container candidate-dialog-body
+			9 container
+				10 heading src/parcel.mjs · modified · 445 B, Value: 3
+					11 text src/parcel.mjs
+					12 text  · modified · 445 B
+				13 container Changes in src/parcel.mjs
+					14 text 1 added, 1 removed
+					15 container
+						16 text export function pageCount(count, perPage) {   if (!Number.isInteger(count) || count < 0) throw new RangeError("count must be a non-negative integer");   if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError("perPage must be a positive integer"); −   return  Math.floor(count  / perPage); +   return  Math.ceil(count  / perPage); } export function pageOf(index, perPage) {
+			17 container
+				18 text Patch  0a66a5d141eb87b1a92124976dc385502680005cceaa4342037c068f48263fa3
+				19 button Copy patch hash
+
+The focused UI element is 6 button Description: Close changes, ID: close-candidate-button

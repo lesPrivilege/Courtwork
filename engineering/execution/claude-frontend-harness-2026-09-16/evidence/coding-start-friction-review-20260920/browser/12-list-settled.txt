@@ -1,0 +1,10 @@
+Browser tab: 7, Title: "Agent profiles · synthetic preview", URL: "http://127.0.0.1:8915/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 48
+~				42 text Work Ordinary work: read what you connect, draft it, revise it. General work · No Kit · Pi · unavailable
+~				43 button Open
+~				44 text Coding Fix a defect in a connected repository, with approval before each edit. Coding · Kits: Coding review · Pi · unavailable A run is using revision 7 now.
+~				45 button Open
+~				46 text Attention Triage what is waiting on you and prepare the material for the decision. Attention · Kits: Attention triage, Praxis · Hermes
+~				47 button Open
+The focused UI element is 18 checkbox (settable, integer) Description: Slow replies, Value: 1, ID: slow-toggle

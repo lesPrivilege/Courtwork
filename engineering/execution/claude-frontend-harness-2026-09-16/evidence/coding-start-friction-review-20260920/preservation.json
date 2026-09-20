@@ -1,0 +1,43 @@
+{
+  "integratedMain": "f5b375259045d4b9b43cac185145b959a954b925",
+  "bundle": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/friction-increment.bundle",
+  "bundleSha256": "d5070678c1ae106084f9dcbc8ae5aefaa56be400e9010c1a1890b80c23287c0c",
+  "gitRestoreVerified": true,
+  "trees": [
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-frontend-friction-20260920",
+      "head": "55bee59c0d148ae7b5a4d11133b13a9dd19054c2",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-frontend-friction-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-frontend-friction-20260920/files.tar.gz",
+      "archiveSha256": "8ed39173cff6a77678e84597d3def4893a74cec62e2e6dbec967d9bca0a6f35c",
+      "manifestSha256": "152fb1df635be6978d91456439087394e9dc7c9a56c574608ee2a944cd4a056d",
+      "entryCount": 37919,
+      "fileBytes": 973242933,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true,
+      "lastStatus": "",
+      "removed": true
+    },
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-friction-integration-20260920",
+      "head": "d4a433d214121c762fdb7a1212ea7b013decb55c",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-friction-integration-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-friction-integration-20260920/files.tar.gz",
+      "archiveSha256": "d9ff009a5fdf8e2aa78558a609fbfd35f9b73e6fb8adf10eaf94d0e19f635f1d",
+      "manifestSha256": "82aecce0147a15f15ce937268e40cbe31915f677967cb54265b1eb36408e79b2",
+      "entryCount": 8605,
+      "fileBytes": 442784575,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true,
+      "lastStatus": "?? app/node_modules\n",
+      "removed": true
+    }
+  ],
+  "preserved": [
+    "Courtwork main",
+    "Courtwork-legacy-frozen shared Git database",
+    "user Host8787 and preview8899",
+    "user and author/review synthetic data outside removed trees"
+  ],
+  "integrationUntrackedDisposition": "app/node_modules was a symlink to main dependencies; link archived/restored exactly, target main retained"
+}

@@ -1,0 +1,458 @@
+{
+  "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+  "permissionMode": "ask",
+  "candidate": {
+    "id": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+    "status": "active",
+    "revision": 1,
+    "sourceBindingId": "49f27e47-f543-4acc-8184-ba41a932a72e",
+    "sourceBindingRevision": 1,
+    "baseCommit": "e9ac8be39920b8c02c9f354972feced6bb8bed5f",
+    "objectFormat": "sha1",
+    "candidatePath": "/private/tmp/cw-friction-review-20260920/runtime-data/repository-candidates/ae377f5f4b9e602fd9ad4584765cc084de0a56e719508ca0a0987fe5beda979b/candidate-8faa84c4-5e33-4e6c-b5e2-14549ae723e3/worktree",
+    "device": "16777233",
+    "inode": "172314912",
+    "candidateDirectory": "/private/tmp/cw-friction-review-20260920/runtime-data/repository-candidates/ae377f5f4b9e602fd9ad4584765cc084de0a56e719508ca0a0987fe5beda979b/candidate-8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+    "containerDevice": "16777233",
+    "containerInode": "172314837",
+    "stagingDevice": "16777233",
+    "stagingInode": "172314843",
+    "gitDirectory": "/private/tmp/cw-friction-review-20260920/runtime-data/repository-candidates/ae377f5f4b9e602fd9ad4584765cc084de0a56e719508ca0a0987fe5beda979b/candidate-8faa84c4-5e33-4e6c-b5e2-14549ae723e3/git",
+    "gitDevice": "16777233",
+    "gitInode": "172314845",
+    "gitVersion": "git version 2.50.1 (Apple Git-155)",
+    "writeRevision": 1,
+    "createdAt": "2026-09-20T13:49:41.319Z"
+  },
+  "effects": [
+    {
+      "effectId": "62219f49a41ad03630d69184e81da84111694fa99f6df307904582316be0a5cb",
+      "requestHash": "510a645e209854462ab48788aef1849064860e114264e51816c18556e545a921",
+      "requestId": "fake-script-1-0",
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+      "candidateRevision": 1,
+      "sourceBindingId": "49f27e47-f543-4acc-8184-ba41a932a72e",
+      "sourceBindingRevision": 1,
+      "candidateWriteRevision": 0,
+      "path": "src/parcel.mjs",
+      "expectedSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+      "before": {
+        "present": true,
+        "sha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+        "bytes": 446,
+        "device": "16777233",
+        "inode": "172314924",
+        "mode": 420
+      },
+      "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+      "bytes": 445,
+      "contentRef": null,
+      "status": "confirmed",
+      "createdAt": "2026-09-20T13:51:07.473Z",
+      "settledAt": "2026-09-20T13:51:07.533Z",
+      "result": {
+        "after": {
+          "present": true,
+          "sha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+          "bytes": 445,
+          "device": "16777233",
+          "inode": "172323857",
+          "mode": 420
+        },
+        "created": false,
+        "writeRevision": 1
+      },
+      "failure": null
+    }
+  ],
+  "runs": [
+    {
+      "id": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "status": "completed",
+      "startedAt": "2026-09-20T13:50:29.025Z",
+      "endedAt": "2026-09-20T13:51:24.215Z",
+      "error": null
+    },
+    {
+      "id": "8994cdfb-3a18-4202-8b10-224ab32a87ca",
+      "status": "completed",
+      "startedAt": "2026-09-20T13:52:26.981Z",
+      "endedAt": "2026-09-20T13:52:27.005Z",
+      "error": null
+    },
+    {
+      "id": "2d99b4a3-5be2-4d34-a9b2-78937ac2e95e",
+      "status": "completed",
+      "startedAt": "2026-09-20T13:54:05.155Z",
+      "endedAt": "2026-09-20T13:54:46.888Z",
+      "error": null
+    },
+    {
+      "id": "d7d82a99-871e-43af-8ea1-688182838208",
+      "status": "completed",
+      "startedAt": "2026-09-20T13:57:22.470Z",
+      "endedAt": "2026-09-20T13:57:55.216Z",
+      "error": null
+    }
+  ],
+  "events": [
+    {
+      "seq": 4,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.bound",
+      "data": {
+        "bindingId": "49f27e47-f543-4acc-8184-ba41a932a72e",
+        "revision": 1
+      }
+    },
+    {
+      "seq": 5,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.candidate.bound",
+      "data": {
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "revision": 1,
+        "baseCommit": "e9ac8be39920b8c02c9f354972feced6bb8bed5f"
+      }
+    },
+    {
+      "seq": 11,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.open",
+      "data": {
+        "id": "b75a572d-1d19-4e08-b662-520c4f405222",
+        "kind": "permission",
+        "toolCallId": "fake-script-1-0",
+        "tool": "repo_write",
+        "path": "src/parcel.mjs",
+        "bytes": 445,
+        "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+        "preview": "// Split `count` items into pages of `perPage` items each.\nexport function pageCount(count, perPage) {\n  if (!Number.isInteger(count) || count < 0) throw new RangeError(\"count must be a non-negative integer\");\n  if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError(\"perPage must be a positive integer\");\n  return Math.ceil(count / perPage);\n}\n\nexport function pageOf(index, perPage) {",
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 0,
+        "sourceBindingId": "49f27e47-f543-4acc-8184-ba41a932a72e",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233"
+      }
+    },
+    {
+      "seq": 13,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.resolved",
+      "data": {
+        "id": "b75a572d-1d19-4e08-b662-520c4f405222",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 15,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "62219f49a41ad03630d69184e81da84111694fa99f6df307904582316be0a5cb",
+        "requestId": "fake-script-1-0",
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "path": "src/parcel.mjs",
+        "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+        "bytes": 445,
+        "writeRevision": 1
+      }
+    },
+    {
+      "seq": 22,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.open",
+      "data": {
+        "id": "ec818baa-d09b-40ce-a80d-b5ea90cb86cc",
+        "kind": "permission",
+        "toolCallId": "fake-script-2-1",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "candidateWriteRevision": 1,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 24,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.resolved",
+      "data": {
+        "id": "ec818baa-d09b-40ce-a80d-b5ea90cb86cc",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 26,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "check.started",
+      "data": {
+        "callId": "fake-script-2-1",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "candidateWriteRevision": 1,
+        "startedAt": "2026-09-20T13:51:24.019Z"
+      }
+    },
+    {
+      "seq": 27,
+      "runId": "a02c10be-ad44-454b-8e42-0627eb201e97",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "check.settled",
+      "data": {
+        "callId": "fake-script-2-1",
+        "status": "completed",
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 179,
+        "stdout": "\u2714 a partial last page still counts (0.673375ms)\n\u2714 item index maps to its page (0.065458ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 2\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 95.160917\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-20T13:51:24.021Z",
+        "endedAt": "2026-09-20T13:51:24.200Z",
+        "failure": null
+      }
+    },
+    {
+      "seq": 41,
+      "runId": "8994cdfb-3a18-4202-8b10-224ab32a87ca",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.bound",
+      "data": {
+        "bindingId": "49f27e47-f543-4acc-8184-ba41a932a72e",
+        "revision": 1
+      }
+    },
+    {
+      "seq": 42,
+      "runId": "8994cdfb-3a18-4202-8b10-224ab32a87ca",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.candidate.bound",
+      "data": {
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "revision": 1,
+        "baseCommit": "e9ac8be39920b8c02c9f354972feced6bb8bed5f"
+      }
+    },
+    {
+      "seq": 56,
+      "runId": "2d99b4a3-5be2-4d34-a9b2-78937ac2e95e",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.bound",
+      "data": {
+        "bindingId": "49f27e47-f543-4acc-8184-ba41a932a72e",
+        "revision": 1
+      }
+    },
+    {
+      "seq": 57,
+      "runId": "2d99b4a3-5be2-4d34-a9b2-78937ac2e95e",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.candidate.bound",
+      "data": {
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "revision": 1,
+        "baseCommit": "e9ac8be39920b8c02c9f354972feced6bb8bed5f"
+      }
+    },
+    {
+      "seq": 63,
+      "runId": "2d99b4a3-5be2-4d34-a9b2-78937ac2e95e",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.open",
+      "data": {
+        "id": "a44e424b-e646-44b5-9b43-b77c879e8d83",
+        "kind": "permission",
+        "toolCallId": "fake-script-1-0",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "candidateWriteRevision": 1,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 65,
+      "runId": "2d99b4a3-5be2-4d34-a9b2-78937ac2e95e",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.resolved",
+      "data": {
+        "id": "a44e424b-e646-44b5-9b43-b77c879e8d83",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 67,
+      "runId": "2d99b4a3-5be2-4d34-a9b2-78937ac2e95e",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "check.started",
+      "data": {
+        "callId": "fake-script-1-0",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "candidateWriteRevision": 1,
+        "startedAt": "2026-09-20T13:54:46.687Z"
+      }
+    },
+    {
+      "seq": 68,
+      "runId": "2d99b4a3-5be2-4d34-a9b2-78937ac2e95e",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "check.settled",
+      "data": {
+        "callId": "fake-script-1-0",
+        "status": "completed",
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 169,
+        "stdout": "\u2714 a partial last page still counts (0.670875ms)\n\u2714 item index maps to its page (0.061042ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 2\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 91.307375\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-20T13:54:46.690Z",
+        "endedAt": "2026-09-20T13:54:46.859Z",
+        "failure": null
+      }
+    },
+    {
+      "seq": 82,
+      "runId": "d7d82a99-871e-43af-8ea1-688182838208",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.bound",
+      "data": {
+        "bindingId": "49f27e47-f543-4acc-8184-ba41a932a72e",
+        "revision": 1
+      }
+    },
+    {
+      "seq": 83,
+      "runId": "d7d82a99-871e-43af-8ea1-688182838208",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "repository.candidate.bound",
+      "data": {
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "revision": 1,
+        "baseCommit": "e9ac8be39920b8c02c9f354972feced6bb8bed5f"
+      }
+    },
+    {
+      "seq": 89,
+      "runId": "d7d82a99-871e-43af-8ea1-688182838208",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.open",
+      "data": {
+        "id": "e9e526ab-8547-484f-9c74-3f1f43de24b1",
+        "kind": "permission",
+        "toolCallId": "fake-script-3-0",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "candidateWriteRevision": 1,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 91,
+      "runId": "d7d82a99-871e-43af-8ea1-688182838208",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "permission.resolved",
+      "data": {
+        "id": "e9e526ab-8547-484f-9c74-3f1f43de24b1",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 93,
+      "runId": "d7d82a99-871e-43af-8ea1-688182838208",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "check.started",
+      "data": {
+        "callId": "fake-script-3-0",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "8faa84c4-5e33-4e6c-b5e2-14549ae723e3",
+        "candidateWriteRevision": 1,
+        "startedAt": "2026-09-20T13:57:54.986Z"
+      }
+    },
+    {
+      "seq": 94,
+      "runId": "d7d82a99-871e-43af-8ea1-688182838208",
+      "sessionId": "7508008f-2caa-4b33-a850-4d34fc580c94",
+      "type": "check.settled",
+      "data": {
+        "callId": "fake-script-3-0",
+        "status": "completed",
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 188,
+        "stdout": "\u2714 a partial last page still counts (0.797125ms)\n\u2714 item index maps to its page (0.077334ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 2\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 96.354333\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-20T13:57:54.990Z",
+        "endedAt": "2026-09-20T13:57:55.178Z",
+        "failure": null
+      }
+    }
+  ]
+}

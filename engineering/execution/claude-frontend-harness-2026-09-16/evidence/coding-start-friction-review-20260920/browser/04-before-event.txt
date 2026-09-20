@@ -1,0 +1,17 @@
+Browser tab: 6, Title: "CourtWork", URL: "http://127.0.0.1:8914/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~			89 button (expanded) Which is which, Secondary Actions: Collapse
++			106 definition list
++				107 container Project
++					108 text Project
++				109 text How this chat is organised. It does not connect a folder or grant access to one.
++				110 container Folder
++					111 text Folder
++				112 text Where a run reads source. It stays read only and is never written.
++				113 container Private candidate
++					114 text Private candidate
++				115 text The Host's own copy of the folder's current commit. It is the only place an edit lands.
++				116 container File access
++					117 text File access
++				118 text What happens when a run proposes a write: either the exact file and content are shown for approval first, or they are not.
+The focused UI element is 89 button (expanded) Which is which, Secondary Actions: Collapse

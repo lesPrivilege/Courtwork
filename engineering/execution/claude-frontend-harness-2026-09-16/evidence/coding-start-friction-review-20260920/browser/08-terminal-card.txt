@@ -1,0 +1,147 @@
+Browser tab: 6, Title: "CourtWork", URL: "http://127.0.0.1:8914/".
+1 AXWebArea CourtWork, URL: 127.0.0.1:8914/
+	2 container Agent workspace
+		3 container
+			4 button (collapsed) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Expand
+			5 heading 06b independent browser review, Value: 1, ID: session-title
+				281 text 06b independent browser review
+			7 button Description: Chat overview, ID: show-run-button
+			8 button Description: Open work surface, ID: show-surface-button
+		9 container conversation-body
+			10 container message-stream
+				282 container Your message
+					283 container
+						284 text /fixture script [{"name":"repo_write","arguments":{"path":"src/parcel.mjs","text":"// Split  count  items into pages of  perPage  items each.\nexport function pageCount(count, perPage) {\n if (!Number.isInteger(count) || count < 0) throw new RangeError("count must be a non-negative integer");\n if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError("perPage must be a positive integer");\n return Math.ceil(count / perPage);\n}\n\nexport function pageOf(index, perPage) {\n return Math.floor(index / perPage) + 1;\n}\n","expectedSha256":"d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233"}},{"name":"check_run","arguments":{"recipeId":"node-test"}}]
+					285 button (collapsed) Source, Secondary Actions: Expand
+						286 text Source
+					287 container
+						288 container Message actions
+							289 button Copy message
+							290 button Edit as new message
+							291 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+						292 text Started 9/20/2026, 9:50:29 PM
+				293 container Agent run
+					294 button (collapsed) Execution 2 successful tool actions, Secondary Actions: Expand
+						295 text Execution
+						296 text 2 successful tool actions
+					297 container
+						298 text SIMULATED scripted response
+						299 text Run started 9/20/2026, 9:50:29 PM
+						300 container Response actions
+							301 button Copy response
+							302 button (disabled) Read aloud
+							303 checkbox (disabled) Description: Like response, Value: 0
+							304 checkbox (disabled) Description: Dislike response, Value: 0
+							305 button (disabled) Regenerate response
+							306 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+					307 container
+						308 text Work Completed
+						309 button Inspect this run
+				310 container Your message
+					311 text Independent local event refresh probe.
+					312 button (collapsed) Source, Secondary Actions: Expand
+						313 text Source
+					314 container
+						315 container Message actions
+							316 button Copy message
+							317 button Edit as new message
+							318 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+						319 text Started 9/20/2026, 9:52:26 PM
+				320 container Agent run
+					321 container
+						322 text SIMULATED fake response: Independent local event refresh probe.
+						323 text Run started 9/20/2026, 9:52:26 PM
+						324 container Response actions
+							325 button Copy response
+							326 button (disabled) Read aloud
+							327 checkbox (disabled) Description: Like response, Value: 0
+							328 checkbox (disabled) Description: Dislike response, Value: 0
+							329 button (disabled) Regenerate response
+							330 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+					331 container
+						332 text Work Completed
+						333 button Inspect this run
+				334 container Your message
+					335 text /fixture script [{"name":"check_run","arguments":{"recipeId":"node-test"}}]
+					336 button (collapsed) Source, Secondary Actions: Expand
+						337 text Source
+					338 container
+						339 container Message actions
+							340 button Copy message
+							341 button Edit as new message
+							342 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+						343 text Started 9/20/2026, 9:54:05 PM
+				344 container Agent run
+					345 button (collapsed) Execution 1 successful tool action, Secondary Actions: Expand
+						346 text Execution
+						347 text 1 successful tool action
+					348 container
+						349 text SIMULATED scripted response
+						350 text Run started 9/20/2026, 9:54:05 PM
+						351 container Response actions
+							352 button Copy response
+							353 button (disabled) Read aloud
+							354 checkbox (disabled) Description: Like response, Value: 0
+							355 checkbox (disabled) Description: Dislike response, Value: 0
+							356 button (disabled) Regenerate response
+							357 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+				60 pop up button (collapsed) Description: Measurement details, Secondary Actions: Expand
+				358 text Completed
+			142 container composer-form
+				143 text Message
+				144 text entry area (settable) Message, ID: composer-input
+				146 pop up button Description: Chat files, ID: materials-button
+				147 pop up button (collapsed) Description: File access: Ask before editing, ID: permission-settings-button, Secondary Actions: Expand
+				148 pop up button (collapsed) Description: Model and effort · Local test · Provider default, ID: model-settings-button, Secondary Actions: Expand
+				149 pop up button (collapsed) Description: Context: 1 of 4,096 tokens, <0.1%, latest completed request input, Secondary Actions: Expand
+				359 button Description: Send, ID: send-button
+	232 container Description: Workspace, ID: workspace-popover
+		233 heading Workspace, Value: 3
+			234 text Workspace
+		235 button Close workspace card
+		236 container
+			237 definition list
+				238 container Project
+					239 text Project
+				240 text No project
+				241 container Folder
+					242 text Folder
+				243 text /private/tmp/cw-friction-review-20260920/source
+				244 container Access
+					245 text Access
+				246 text Read only
+				247 container File access
+					248 text File access
+				249 text Ask before editing
+			250 button (expanded) Which is which, Secondary Actions: Collapse
+				251 text Which is which
+			268 definition list
+				269 container Project
+					270 text Project
+				271 text How this chat is organised. It does not connect a folder or grant access to one.
+				272 container Folder
+					273 text Folder
+				274 text Where a run reads source. It stays read only and is never written.
+				275 container Private candidate
+					276 text Private candidate
+				277 text The Host's own copy of the folder's current commit. It is the only place an edit lands.
+				278 container File access
+					279 text File access
+				280 text Ask before editing shows each exact write and check for approval. Allow edits lets writes proceed without asking, but checks still require approval. Read only blocks writes and checks.
+			252 text Available after this run ends.
+			253 button (disabled) Disconnect
+		254 container
+			255 heading EDITS, Value: 4
+				256 text EDITS
+			257 definition list
+				258 container Private candidate
+					259 text Private candidate
+				260 text from e9ac8be39920
+				261 container Writes
+					262 text Writes
+				263 text 1
+			264 button Review changes
+			265 text Available after this run ends.
+			266 button (disabled) Stop edits
+
+The focused UI element is 250 button (expanded) Which is which, Secondary Actions: Collapse

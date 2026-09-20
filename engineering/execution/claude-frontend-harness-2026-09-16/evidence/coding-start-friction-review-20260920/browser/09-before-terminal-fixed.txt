@@ -1,0 +1,19 @@
+Browser tab: 6, Title: "CourtWork", URL: "http://127.0.0.1:8914/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 312
++				348 text Waiting for you · 15s · your input will not be sent automatically.
+~			331 button (expanded) Which is which, Secondary Actions: Collapse
++			349 definition list
++				350 container Project
++					351 text Project
++				352 text How this chat is organised. It does not connect a folder or grant access to one.
++				353 container Folder
++					354 text Folder
++				355 text Where a run reads source. It stays read only and is never written.
++				356 container Private candidate
++					357 text Private candidate
++				358 text The Host's own copy of the folder's current commit. It is the only place an edit lands.
++				359 container File access
++					360 text File access
++				361 text Ask before editing shows each exact write and check for approval. Allow edits lets writes proceed without asking, but checks still require approval. Read only blocks writes and checks.
+The focused UI element is 331 button (expanded) Which is which, Secondary Actions: Collapse
