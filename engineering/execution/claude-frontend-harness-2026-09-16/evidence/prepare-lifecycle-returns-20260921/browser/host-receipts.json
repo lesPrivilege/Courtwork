@@ -1,0 +1,33 @@
+{
+  "note": "Host receipts from the isolated Host on 127.0.0.1:8920, reached through the reply-loss proxy on 8921. Both built from this candidate; the provider is the deterministic Local test one and no credential was configured, read or exported. The user's 8787 Host and 8899 preview were not used.",
+  "sessions": [
+    {
+      "candidate": {
+        "baseCommit": "042ccda15fc4f667a5d6f1f1c787363a329ab691",
+        "id": "33d68539-6818-43ac-ab17-e310467badf4",
+        "status": "active",
+        "writeRevision": 0
+      },
+      "events": 14,
+      "id": "1c5f6c9b-aca9-4dba-9bd3-9fca661bdece",
+      "repositoryBindingRevision": 1,
+      "repositoryCandidateRevision": 1,
+      "runs": 1,
+      "title": "Restored marker review"
+    },
+    {
+      "candidate": {
+        "baseCommit": "042ccda15fc4f667a5d6f1f1c787363a329ab691",
+        "id": "6f3f4617-76cf-4912-a46d-8d45760d5076",
+        "status": "active",
+        "writeRevision": 0
+      },
+      "events": 15,
+      "id": "7cb0fb7e-e1b8-42ba-9dfb-7a27cafeeb3c",
+      "repositoryBindingRevision": 1,
+      "repositoryCandidateRevision": 1,
+      "runs": 1,
+      "title": "Lost candidate reply review"
+    }
+  ]
+}

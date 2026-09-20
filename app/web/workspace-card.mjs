@@ -46,6 +46,15 @@ export const CANDIDATE_NO_GIT = "This folder has no Git commit to start from, so
  * things it makes, and say that it is not a send — the person is about to
  * press a button on a screen whose other button costs a model call. */
 export const PREPARE_SCOPE = "This makes the chat and connects the folder now. Nothing is sent and no model is called until you send.";
+/* While preparation is in flight the folder it is binding cannot be changed
+ * from under it, and the command cannot be pressed a second time. The card is
+ * not the owner of that work, so it is told to lock rather than deciding to. */
+export const PREPARE_BUSY = "Preparing this chat. Its folder and private candidate are being created; nothing is sent.";
+/* A preparation whose reply was lost left a real Chat behind with part of what
+ * it promised missing. Finishing it has to reuse the identities that command
+ * already used — starting a fresh candidate here would race whatever landed —
+ * so this is a different command from Start private candidate and says so. */
+export const PREPARE_RESUME_SCOPE = "This chat was prepared but not finished. Continuing uses the same request it already sent, so nothing is created twice.";
 /* The Host refuses to rebind while a candidate is open (store.mjs
  * ACTIVE_CANDIDATE). Say that where the control would have been rather than
  * offering a button whose command is already known to fail. */
@@ -122,7 +131,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     return requestId;
   }
 
-  function render(container, { session, active, draft = null, events = null, project = null, permissionLabel = null }) {
+  function render(container, { session, active, draft = null, events = null, project = null, permissionLabel = null, busyReason = null, preparation = null }) {
     const owned = container.contains(document.activeElement) ? document.activeElement?.getAttribute("data-repository-field") : null;
     /* Only resume a remembered destination while nobody else has taken the
        keyboard; if focus moved outside this card the wait is over and the card
@@ -134,8 +143,18 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     const header = el("div", { className: "section-heading" }, el("h3", { text: "Workspace" }),
       semanticAction("surface.close", onClose, { values: { target: "workspace card" } }));
     const binding = draft ? (draft.path ? { rootPath: draft.path, status: "draft" } : null) : activeRepositoryBinding(session);
+    /* PA-R1 · an unfinished preparation owns this chat's folder and candidate
+     * identities, whichever of them landed. Its own command is the only way
+     * forward, so the card offers that instead of its ordinary Connect or
+     * Start — either of which would mint identities beside ones already in
+     * use and be refused against the revision they moved. */
+    const resuming = !draft && preparation?.onResume ? preparation : null;
     const revision = session?.repositoryBindingRevision ?? 0;
-    const busy = pending || choosing || active;
+    /* `busyReason` is an owner outside this card holding the same objects — a
+     * Home preparation creating this chat's folder and candidate. It locks the
+     * mutating commands exactly as this card's own in-flight command does, and
+     * says why; reading and navigation stay available. */
+    const busy = pending || choosing || active || Boolean(busyReason);
     const children = [header];
     if (binding && draft) {
       const remove = el("button", { className: "quiet-button", text: "Remove", attrs: { type: "button", "data-repository-field": "remove" } });
@@ -145,7 +164,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         el("dl", { className: "data-list" },
           el("dt", { text: "Folder" }), el("dd", {}, el("code", { text: binding.rootPath })),
           el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL })),
-        el("p", { className: "context-meta", text: REPOSITORY_DRAFT_SCOPE }),
+        el("p", { className: "context-meta", text: busyReason || REPOSITORY_DRAFT_SCOPE }),
         remove));
       /* A staged folder can be prepared into a real Chat with its own binding
        * and private candidate before anything is sent. The card does not own
@@ -153,14 +172,23 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
        * identities — so it only offers the command and says what pressing it
        * makes. Without an owner to call, the section is not drawn at all. */
       if (draft.onPrepare) {
-        const prepare = el("button", { className: "quiet-button", text: draft.preparing ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
+        const prepare = el("button", { className: "quiet-button", text: busy ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
         prepare.disabled = busy || draft.locked === true;
         prepare.addEventListener("click", () => { commandField = "start-edits"; void draft.onPrepare(); });
         children.push(el("section", { className: "context-card" }, el("h4", { text: "Edits" }),
           el("p", { className: "context-meta", text: CANDIDATE_HELP }),
-          el("p", { className: "context-meta", text: PREPARE_SCOPE }),
+          el("p", { className: "context-meta", text: busy ? PREPARE_BUSY : PREPARE_SCOPE }),
           prepare));
       }
+    } else if (resuming) {
+      const facts = el("dl", { className: "data-list" },
+        el("dt", { text: "Project" }), el("dd", { text: project?.name || "No project" }));
+      if (binding) facts.append(
+        el("dt", { text: "Folder" }), el("dd", {}, el("code", { text: binding.rootPath })),
+        el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL }));
+      else facts.append(el("dt", { text: "Folder" }), el("dd", { text: "Not connected yet" }));
+      if (permissionLabel) facts.append(el("dt", { text: "File access" }), el("dd", { text: permissionLabel }));
+      children.push(el("section", { className: "context-card" }, facts), renderCandidateSection());
     } else if (binding) {
       const candidate = activeRepositoryCandidate(session);
       const connectPath = rootPath => submit({ operation: "bind", requestId: bindRequestId(rootPath), expectedRevision: revision, rootPath }, session);
@@ -196,14 +224,14 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         primary.append(el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : "Connecting another folder replaces this one for this chat. Files the model already read stay in this chat." }), keep);
         children.push(primary, ...chooserSections(connectPath, busy));
       } else {
-        if (!candidate) {
+        if (!candidate && !busyReason && !preparation) {
           const change = el("button", { className: "context-row", attrs: { type: "button", "data-repository-field": "change-folder", "aria-label": "Change the connected folder" } },
             semanticIcon("workspace.object", { size: 18 }), el("span", { text: "Change folder…" }));
           change.disabled = busy;
           change.addEventListener("click", () => { commandField = "change-folder"; changing = true; error = ""; rerender(); });
           primary.append(change);
         }
-        primary.append(el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : candidate ? CHANGE_FOLDER_BLOCKED : "Disconnecting stops further reads. Files the model already read stay in this chat." }), disconnect);
+        primary.append(el("p", { className: "context-meta", text: busyReason || (active ? REPOSITORY_ACTIVE_RUN : candidate ? CHANGE_FOLDER_BLOCKED : "Disconnecting stops further reads. Files the model already read stay in this chat.") }), disconnect);
         children.push(primary, renderCandidateSection());
       }
     } else {
@@ -238,7 +266,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     }
     return header;
 
-    function rerender() { render(container, { session, active, draft, events, project, permissionLabel }); }
+    function rerender() { render(container, { session, active, draft, events, project, permissionLabel, busyReason, preparation }); }
 
     /* The chooser is the same list of ways to name a folder whether this chat
      * has none yet or is replacing the one it has; only the command behind
@@ -302,7 +330,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
      * land. Start it from the folder's current commit (a Host fact read live,
      * never guessed); stop it without deleting anything. */
     function renderCandidateSection() {
-      const candidate = activeRepositoryCandidate(session);
+      const candidate = !resuming ? activeRepositoryCandidate(session) : null;
       const candidateRevision = session?.repositoryCandidateRevision ?? 0;
       const section = el("section", { className: "context-card" }, el("h4", { text: "Edits" }));
       if (candidate) {
@@ -323,10 +351,26 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
           stop);
         return section;
       }
-      const start = el("button", { className: "quiet-button", text: pending ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
+      /* PA-R1 · an unfinished preparation still owns this chat's candidate
+       * identities. Its own command finishes the work; the card's ordinary
+       * create would mint new ones and be refused by the Host against the
+       * revision the lost command already moved. */
+      const start = el("button", {
+        className: "quiet-button",
+        text: busy ? SENDING_LABEL : resuming ? "Finish preparing this chat" : "Start private candidate",
+        attrs: { type: "button", "data-repository-field": "start-edits" },
+      });
       start.disabled = busy;
-      start.addEventListener("click", () => { commandField = "start-edits"; startCandidate(); });
-      section.append(el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : CANDIDATE_HELP }), start);
+      start.addEventListener("click", () => {
+        commandField = "start-edits";
+        if (resuming) void resuming.onResume();
+        else startCandidate();
+      });
+      section.append(
+        el("p", { className: "context-meta", text: busyReason || (active ? REPOSITORY_ACTIVE_RUN : resuming ? PREPARE_RESUME_SCOPE : CANDIDATE_HELP) }),
+        start,
+      );
+      if (resuming?.error) section.append(el("p", { className: "inline-error", text: resuming.error, attrs: { role: "alert" } }));
       return section;
     }
     async function startCandidate() {

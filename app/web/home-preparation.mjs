@@ -32,6 +32,25 @@ export const PREPARE_NO_GIT = "This folder has no Git commit to start from, so e
 const readSession = async (request, id) =>
   (await request(`/sessions/${encodeURIComponent(id)}`)).session;
 
+/** Where a preparation has got to, as one word a surface can act on.
+ *
+ * `unfinished` is the state a lost reply leaves behind: the Chat exists, so
+ * the screen is looking at a real Session, but the folder or the candidate it
+ * was promised is not there yet. It matters because the ordinary "start a
+ * candidate" command on that Session would mint fresh identities and race the
+ * command that may already have landed — the marker's own identities are the
+ * only safe way forward, and only this state knows they exist. */
+export function preparationState(marker) {
+  if (!marker?.prepared) return { status: "none", session: null, error: "" };
+  const error = marker.error || "";
+  if (marker.pending) return { status: "preparing", session: marker.session || null, error: "" };
+  if (marker.unconfirmed) return { status: "unconfirmed", session: null, error };
+  if (!marker.session) return { status: "unstarted", session: null, error };
+  const complete = activeRepositoryBinding(marker.session) !== null
+    && activeRepositoryCandidate(marker.session) !== null;
+  return { status: complete ? "ready" : "unfinished", session: marker.session, error };
+}
+
 /**
  * Bring `marker` up to "this Chat exists, reads that folder, and has a private
  * candidate", doing only the steps that are still missing.
@@ -68,6 +87,16 @@ export async function prepareChat({
   }
 
   const id = marker.session.id;
+
+  /* Before deciding which commands are still owed, ask the Host what it holds.
+   * The snapshot in the marker is whatever the last reply managed to deliver,
+   * and a reply lost after its command landed leaves it describing a state
+   * that is already out of date — which is exactly when this function is
+   * called again. Reconciling first means each step below is skipped when it
+   * is already done, and the expected revisions sent with the steps that
+   * remain are the Host's current ones rather than this client's arithmetic. */
+  marker.session = await readSession(request, id);
+  persist();
 
   if (activeRepositoryBinding(marker.session) === null) {
     marker.bindRequestId ||= newId();

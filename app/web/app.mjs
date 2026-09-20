@@ -67,8 +67,8 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
-import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, repositoryName } from "./workspace-card.mjs";
-import { prepareChat } from "./home-preparation.mjs";
+import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, repositoryName, PREPARE_BUSY } from "./workspace-card.mjs";
+import { prepareChat, preparationState } from "./home-preparation.mjs";
 import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
 import {
   renderRun,
@@ -393,7 +393,7 @@ function restoreHomeDraft() {
     state.homeRepositoryPath = typeof saved.repositoryPath === "string" && saved.repositoryPath ? saved.repositoryPath : null;
     if (Object.hasOwn(permissionLabels, saved.permissionMode)) state.homePermissionMode = saved.permissionMode;
     if (saved.start && (saved.start.projectId === null || typeof saved.start.projectId === "string") && typeof saved.start.commandId === "string") {
-      state.homeStart = { ...saved.start, pending: false };
+      state.homeStart = { ...saved.start, pending: false, restored: true };
       if (saved.start.unconfirmed)
         state.homeStart.error = "Creating the chat is unconfirmed. Check its status to recover the same chat. Your instruction is kept.";
     }
@@ -1466,6 +1466,9 @@ function applySessionDetail(
     state.session = detail.session || state.session;
     state.events = incomingEvents;
     state.runs = sessionRuns(detail.runs, sessionId);
+    // The same reconciliation for work admitted before this client saw it —
+    // another tab, or a reload after sending from the chat itself.
+    if (state.runs.length) retirePreparedChat(sessionId);
     state.lastSeq = incomingSeq;
   } else {
     // A local command/event was observed after this read began. Keep that
@@ -1655,6 +1658,7 @@ async function loadRecentSessions() {
       renderComposer();
     }
   } catch (error) { if (generation !== state.recentGeneration) return; state.recentError = error.message; }
+  void reconcileRestoredPreparation();
   renderRecentSessions();
 }
 /* FE-NAV · the Shell's trail (location-history.mjs). A place is Home or one
@@ -5402,16 +5406,19 @@ function renderHomeComposerContext() {
    * borrow that banner's words or its error styling. It says what exists, and
    * it says that nothing was sent — the whole point of preparing is that no
    * model has been called yet. */
+  const phase = preparationState(state.homeStart);
   const prepared = state.homeStart?.prepared ? preparedHomeChat() : null;
   const message = state.homeStart?.pending
     ? (state.homeStart.prepared ? "Preparing your chat…" : "Starting your chat…")
-    : state.homeStart?.error || (prepared
-      ? (activeRepositoryCandidate(prepared)
-        ? "Chat and private candidate are ready. Nothing was sent; send to start work in them."
-        : "Chat is ready. Nothing was sent; send to start work in it.")
-      : state.homeStart?.session
-        ? "Your chat is ready. Send to continue in it."
-        : "");
+    : state.homeStart?.error || (phase.status === "unfinished"
+      ? "Your chat was made but not finished. Continue to complete it with the same request; nothing is created twice."
+      : prepared
+        ? (activeRepositoryCandidate(prepared)
+          ? "Chat and private candidate are ready. Nothing was sent; send to start work in them."
+          : "Chat is ready. Nothing was sent; send to start work in it.")
+        : state.homeStart?.session
+          ? "Your chat is ready. Send to continue in it."
+          : "");
   status.replaceChildren(document.createTextNode(message));
   /* v2 entry audit · the unconfirmed chat is read back by its own fixed id;
    * nothing is created or sent by asking. */
@@ -5420,7 +5427,16 @@ function renderHomeComposerContext() {
     check.addEventListener("click", () => void checkHomeStart());
     status.append(" ", check);
   }
-  status.hidden = !message;
+  /* PA-R1 · the recovery has to be reachable from where the failure is
+   * reported, not only from a card the person may have closed. It continues
+   * the same preparation, with the identities it already used. */
+  if (phase.status === "unfinished" && !state.homeStart?.pending) {
+    const resume = element("button", { className: "text-button", text: "Continue preparing", attrs: { type: "button", "aria-label": "Continue preparing this chat", "data-home-field": "resume-preparation" } });
+    resume.disabled = Boolean(state.connectionLost);
+    resume.addEventListener("click", () => void prepareHomeChat());
+    status.append(" ", resume);
+  }
+  status.hidden = !message && !status.querySelector("button");
   status.dataset.error = state.homeStart?.error ? "true" : "false";
 }
 async function checkHomeStart() {
@@ -5655,6 +5671,11 @@ async function submitSessionRun({ commandId = null } = {}) {
     storeUnconfirmedRuns();
     if (state.pendingRuns.get(sessionId) !== operation) return;
     state.pendingRuns.delete(sessionId);
+    /* PA-R3 · a matching receipt is the moment this Chat has real work, and it
+     * is reached by every send path, not only Home's. An unconfirmed or failed
+     * admission never gets here, so a send that did not land stays
+     * recoverable and the preparation marker stays. */
+    retirePreparedChat(sessionId);
     void loadRecentSessions();
     if (state.activeSessionId === sessionId && result.run?.id)
       mergeRun(result.run, { sessionId, preserveStatus: true });
@@ -6146,6 +6167,7 @@ const workspaceCard = createWorkspaceCard({
     // The bind/revoke receipt is not a Session; read the Session back so the
     // strip and card show what the Host now holds, not what was requested.
     const detail = await request(`/sessions/${encodeURIComponent(id)}`);
+    if (detail.runs?.length && retirePreparedChat(id)) { renderAll(); paintWorkspaceCard(); return; }
     if (preparedHomeChat()?.id === id) {
       /* A Chat prepared from Home lives in the start marker, not in the
        * project lists yet. Keep the marker and the composer strip on what the
@@ -6189,7 +6211,9 @@ function workspaceCardSession() {
 async function prepareHomeChat() {
   const previous = state.homeStart;
   if (previous?.pending || previous?.unconfirmed || state.connectionLost) return;
-  if (!state.homeRepositoryPath) return;
+  // A preparation that already made the Chat knows its own folder; only a
+  // first attempt needs one staged on Home.
+  if (!state.homeRepositoryPath && !previous?.session) return;
   const operation = previous?.session || previous?.sessionId ? previous : {
     projectId: homeProjectId(), commandId: crypto.randomUUID(), sessionId: null, session: null,
   };
@@ -6204,17 +6228,26 @@ async function prepareHomeChat() {
     /* Named from what has been typed so far, or from the folder it will read.
      * A prepared chat has to be findable in Recent before it holds a single
      * message; it is renamed from there like any other chat. */
+    const rootPath = activeRepositoryBinding(operation.session)?.rootPath || state.homeRepositoryPath;
     const title = state.homeDraft.trim().split(/\r?\n/)[0].slice(0, 100)
-      || repositoryName(state.homeRepositoryPath)
+      || repositoryName(rootPath)
       || "New chat";
-    await prepareChat({
+    const session = await prepareChat({
       request,
       marker: operation,
-      rootPath: state.homeRepositoryPath,
+      rootPath,
       title,
       permissionMode: state.homePermissionMode,
       persist: () => { if (state.homeStart === operation) storeHomeDraft(); },
     });
+    /* The Host resolves the folder it binds, so its own rootPath is the source
+     * this chat actually reads — this client has no resolver of its own and
+     * cannot tell `/tmp` from `/private/tmp` by comparing strings. Adopt the
+     * binding's path rather than testing the staged one against it, so every
+     * surface names the folder that is really connected and nothing continues
+     * against a source the screen does not show. */
+    const bound = activeRepositoryBinding(session)?.rootPath;
+    if (bound && bound !== state.homeRepositoryPath) state.homeRepositoryPath = bound;
     await loadRecentSessions();
   } catch (error) {
     operation.unconfirmed = !operation.session && isUncertainCommandError(error);
@@ -6246,6 +6279,13 @@ function renderWorkspaceCard() {
    * them: the project this chat is organised under, the connected folder, the
    * Host's write receipts for the private candidate, and the file-access
    * sentence the composer already shows. */
+  /* PA-R1 / PA-R2 · while the Home preparation is working on this chat, or has
+   * left it unfinished, it — not the card — owns its folder and candidate. The
+   * card is told to lock its mutating commands and to route the Edits command
+   * back to that owner, so nothing here changes the staged folder underneath a
+   * command in flight or mints identities beside ones already in use. */
+  const phase = preparationState(state.homeStart);
+  const owned = phase.session && session && phase.session.id === session.id;
   return workspaceCard.render($("workspace-popover"), {
     session,
     active: Boolean(currentRun()),
@@ -6255,7 +6295,45 @@ function renderWorkspaceCard() {
     events: session && session.id === state.activeSessionId ? state.events : [],
     project: session ? state.projects.find((item) => item.id === session.projectId) || null : null,
     permissionLabel: session ? permissionLabels[session.permissionMode] || null : null,
+    busyReason: phase.status === "preparing" && (owned || (home && !session)) ? PREPARE_BUSY : null,
+    preparation: owned && phase.status === "unfinished"
+      ? { status: phase.status, error: phase.error, onResume: () => prepareHomeChat() }
+      : null,
   });
+}
+/* PA-R3 · a prepared Chat stops being "waiting for its first message" the
+ * moment real work is admitted in it, however the person got there — Home's
+ * own Send, opening it from Recent, or a tab that was already in it. Retiring
+ * the marker is the whole reconciliation: the Chat is now an ordinary chat, so
+ * Home stops claiming nothing was sent and stops refusing a new one. The
+ * person's unsent Home text and its materials are deliberately left exactly
+ * where they are; nothing is sent and nothing is deleted here. */
+function retirePreparedChat(sessionId) {
+  const start = state.homeStart;
+  if (!start?.prepared || start.session?.id !== sessionId) return false;
+  state.homeStart = null;
+  storeHomeDraft();
+  return true;
+}
+/* The same reconciliation for a marker this client never watched: restored
+ * from storage after the first send was made in another tab, or after this one
+ * was closed. `GET /sessions/:id` already carries the Run list, so asking once
+ * is enough — and a prepared Chat that has any is an ordinary chat now. A read
+ * that fails changes nothing: the marker and its recovery stay. */
+async function reconcileRestoredPreparation() {
+  const start = state.homeStart;
+  if (!start?.restored || !start.prepared || !start.session?.id) return;
+  start.restored = false;
+  const id = start.session.id;
+  try {
+    const detail = await request(`/sessions/${encodeURIComponent(id)}`);
+    if (state.homeStart !== start) return;
+    if (detail.runs?.length) { retirePreparedChat(id); renderComposer(); return; }
+    start.session = detail.session;
+    storeHomeDraft();
+    renderComposer();
+    paintWorkspaceCard();
+  } catch { /* Unreachable now is not a fact about the chat. */ }
 }
 function openWorkspaceCard(anchor) {
   const popover = $("workspace-popover");

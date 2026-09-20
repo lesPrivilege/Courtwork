@@ -121,13 +121,15 @@ test("preparing makes a chat, a binding and a candidate, and asks for no run", a
     host.calls.map((call) => `${call.method} ${call.path.split("?")[0]}`),
     [
       "POST /sessions",
+      // Reconcile: what does the Host hold before anything else is decided?
+      `GET /sessions/${marker.sessionId}`,
       `PUT /sessions/${marker.sessionId}/repository-binding`,
       `GET /sessions/${marker.sessionId}`,
       "GET /repositories/inspect",
       `PUT /sessions/${marker.sessionId}/repository-candidate`,
       `GET /sessions/${marker.sessionId}`,
     ],
-    "three commands and the read-backs between them, in that order",
+    "three commands, a reconcile, and the read-backs between them, in that order",
   );
   assert.equal(host.calls.some((call) => call.path.includes("/runs")), false, "no run is admitted");
   assert.equal(session.repositoryBinding.rootPath, ROOT_PATH);
@@ -175,9 +177,11 @@ test("preparing again over a finished preparation is a no-op, and a half-done on
   const marker = { projectId: null, commandId: "c1", sessionId: null, session: null };
   const options = { request: host.request, marker, rootPath: ROOT_PATH, title: "parcel", permissionMode: "ask", newId: host.newId };
   await prepareChat(options);
-  const after = host.calls.length;
+  const commandsAfter = () => host.calls.filter((call) => call.method !== "GET").length;
+  const before = commandsAfter();
   await prepareChat(options);
-  assert.equal(host.calls.length, after, "nothing is sent when all three already exist");
+  assert.equal(commandsAfter(), before, "no command is sent when all three already exist");
+  assert.equal(host.calls.at(-1).method, "GET", "it only asks the Host what it holds, and finds nothing owed");
 
   // A preparation that stopped after the chat resumes at the folder.
   const resumed = scriptedHost();

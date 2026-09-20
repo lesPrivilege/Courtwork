@@ -199,7 +199,9 @@ test("Strip placement and shell wiring for the Workspace control", () => {
      receipt. Since a Chat can now be prepared from Home before it is sent to,
      that read-back lands in whichever place holds it: the project lists, or
      the Home start marker that owns a prepared Chat. */
-  assert.match(app, /const detail = await request\(`\/sessions\/\$\{encodeURIComponent\(id\)\}`\);\s*if \(preparedHomeChat\(\)\?\.id === id\)/);
+  assert.match(app, /const detail = await request\(`\/sessions\/\$\{encodeURIComponent\(id\)\}`\);\s*if \(detail\.runs\?\.length && retirePreparedChat\(id\)\)/,
+    "that read already carries the Run list, so a prepared chat with work is reconciled here too");
+  assert.match(app, /if \(preparedHomeChat\(\)\?\.id === id\) \{/);
   assert.match(app, /\} else applySessionUpdate\(detail\.session, id\);/);
   const runRows = readFileSync(`${root}app/web/run-rows.mjs`, "utf8");
   assert.match(runRows, /tool === "repo_read" \|\| tool === "candidate_read"\) return "file-text"/, "repository reads share the read glyph in the shared row renderer");

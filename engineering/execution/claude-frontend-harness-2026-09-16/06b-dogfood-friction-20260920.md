@@ -136,3 +136,51 @@ Checks, the browser pass, the unexecuted list and the change record:
 Astra reviewed Claude `afc9f31` with Luna's independent 56/56 and actual OpenAI browser journeys. [The independent review](evidence/prepare-and-approval-review-20260920/README.md) retains the successful zero-inference preparation and historical approval identity; drawing the identity in decided records and keeping the original prepared title are adopted. **Hold local product integration. Claude retains three finite corrections:** PA-R1 restore the persisted preparation recovery route after lost create/bind/candidate replies; PA-R2 lock conflicting directory/start mutations while preparation is pending/unresolved; PA-R3 retire obsolete preparation state after the same Chat is first sent to via Recent, while preserving unsent Home text/materials. Reconcile canonical binding/path identity within PA-R1; do not add an automatic rebind.
 
 The browser reproduced candidate-create Host 200 → synthetic lost reply → visible retry with new IDs → Host 409, and Recent first-send Completed → Home still says Nothing was sent / New chat blocked. These are UI/controller lifecycle defects; direct helper green tests do not close them. Reuse accepted source and correct only this delta in the existing author tree, with real Home/card recovery tests and explicit evidence. Existing non-approval argument and G4 residual owners remain unchanged; no next frontend journey starts before this return is accepted. Source/evidence tree retained, user 8787/8899 untouched, no real provider or product merge.
+
+## Preparation returns answered · author delivery, 2026-09-21 (Claude)
+
+PA-R1, PA-R2, PA-R3 and the secondary path item are corrected on
+`claude-prepare-and-approval-20260920`, over the held candidate `afc9f31` with
+this review's documentation merged in. **Not accepted** — released for
+re-review. All three were real; each is answered against the review's own
+reproduction.
+
+**PA-R1.** An unfinished preparation still owns its chat's identities, so the
+card is told so and routes its Edits command back to that owner — *Finish
+preparing this chat*, not the ordinary create — with the recovery also reachable
+from the Home status in case the card is closed. `prepareChat` now reconciles
+against the Host before deciding which commands are still owed, which removes
+the 409 at the root: a retry is decided on current facts, not a stale snapshot.
+Same proxy method, same dropped reply, against this candidate: the log holds
+**one** create at status 200, and pressing the visible command issued a single
+`GET` and no command at all, because the candidate the lost reply created was
+already there. Host after: one binding, one candidate, zero events. The card no
+longer falls through before the folder binds either — an unfinished preparation
+is its own branch, so the ordinary Connect chooser is not offered over a bind
+that may already have landed. Secondary: nothing compares path strings; the
+binding's own `rootPath`, which the Host resolved, is adopted as the folder
+Home names, and a bound chat is never bound again — so `/tmp` versus
+`/private/tmp` cannot be rejected and no surface can name a source the chat is
+not reading.
+
+**PA-R2.** The card takes a lock reason from whoever holds its objects, feeding
+the same `busy` its own in-flight command uses. Sampled in the browser at
+0/60/120 ms: Remove disabled, the start control disabled, Change folder not
+offered, and the reason said. Reading and navigation stay available, and
+because the control is genuinely disabled the 06b focus rule applies — the
+keyboard waits instead of being handed to a mutation.
+
+**PA-R3.** The marker is retired where a Run becomes a fact, which every send
+path reaches: the matching run receipt. Two further reconciliations cover work
+this client never watched — the session detail load, which already carries
+`runs`, and one read of a marker restored from storage. An unconfirmed or
+failed admission reaches none of them, so a send that did not land stays
+recoverable. Browser: after a first send made from Recent, Home's status is
+empty and hidden, New chat is not refused, and the unsent Home text is intact;
+after a reload whose run was admitted elsewhere, the restored marker is asked,
+found to have work and retired. Retiring touches the marker and nothing else.
+
+11 new tests drive the real card and the real sequence through a Home
+controller, as the return asked; four owner suites 41/41; lints and doc links
+ok; full suite 1313/0. Checks, the browser passes and the unexecuted list:
+[prepare-lifecycle-returns-20260921](evidence/prepare-lifecycle-returns-20260921/README.md).
