@@ -56,3 +56,73 @@ $ node --test app/tests/static-web-manifest.test.mjs
 exit=0
 
 $ node tools/check-doc-links.mjs
+
+================================================================
+Correction round (AP-R1…AP-R6)
+Branch merged onto main 066be48; the reviewed commit 0f76407 is
+preserved as an ancestor rather than rewritten.
+================================================================
+$ node tools/lint-colors.mjs
+lint-colors: ok (66 files · 字面量与高度层两项)
+exit=0
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (61 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+exit=0
+
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+exit=0
+
+$ node tools/check-product-copy.mjs
+{"scope":"app/web hard-coded text/title/aria-label fields plus index.html text nodes","diagnosticExceptions":3}
+exit=0
+
+$ node tools/check-semantic-consumers.mjs
+{"guardedGlyphs":["message-square","activity","plug","folder","file-text","refresh-cw"],"entries":54,"scope":"app/web module literal lines; vendor, static allowlist and generated projection excluded"}
+exit=0
+
+$ node --test app/tests/agent-profiles-specimen.test.mjs 2>&1 | tail -n 8
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 193.610791
+exit=0
+
+$ node --test app/tests/static-web-manifest.test.mjs 2>&1 | grep -E '^. tests|^. pass|^. fail'
+ℹ tests 6
+ℹ pass 6
+ℹ fail 0
+exit=0
+
+$ node tools/check-doc-links.mjs
+{
+  "pass": true,
+  "documents": 1446,
+  "checked": 8201,
+  "problems": []
+}
+exit=0
+
+$ git diff --check
+exit=0
+
+$ npm --prefix app test  (full suite, corrected tree)
+ℹ tests 1260
+ℹ suites 0
+ℹ pass 1260
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 246456.354041
+
+The npm exit code was lost to the same capture trap Luna hit (the status of a
+piped command, not of npm). What is retained instead is the complete unfiltered
+output in full-suite-corrected.log, which contains zero "✖" and zero "not ok"
+lines. This receipt reports the summary and the raw log rather than claiming a
+captured exit 0.

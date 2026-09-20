@@ -213,7 +213,11 @@ rather than a correctness failure, and is **not** changed here; it stays open.
 ## Evidence
 
 [Browser journey and its limits](evidence/agents-profile-journey-20260920/browser-journey.md) ·
-[author check output](evidence/agents-profile-journey-20260920/checks.txt).
+[correction round](evidence/agents-profile-journey-20260920/corrections.md) ·
+[author check output](evidence/agents-profile-journey-20260920/checks.txt) ·
+[complete full-suite log on the corrected tree](evidence/agents-profile-journey-20260920/full-suite-corrected.log)
+(1260/1260, zero failure markers; the npm exit code was lost to the capture, so the raw log stands
+in for it rather than a claimed exit 0).
 
 Every required interactive case was exercised in the browser and is quoted verbatim there: empty
 list, loaded list, loaded profile, dirty draft, saving, confirmed revision, failed save with the
