@@ -1,0 +1,29 @@
+{
+  "reviewtree": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920",
+  "results": [
+    {
+      "probe": "in-repository-..name",
+      "rejected": true,
+      "created": false
+    },
+    {
+      "probe": "outside-symlink-to-reviewtree",
+      "rejected": true,
+      "createdInReviewtree": false
+    },
+    {
+      "probe": "shell-argv-roundtrip",
+      "roundTrip": true,
+      "substitutionMarkerCreated": false
+    },
+    {
+      "probe": "reuse-runtime-data-symlink",
+      "accepted": true,
+      "hostDataDirUsed": true,
+      "lexicalDataDir": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-data-link-7AeOdv/instance/runtime-data",
+      "realDataDir": "/private/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-sentinel-OuxdVC",
+      "externalSentinel": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-sentinel-OuxdVC",
+      "sourceHeadMatchesManifest": true
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+ok  prepared an independent scratch instance
+ok  first Host process is listening on an ephemeral loopback port
+ok  WebUI document and assets are served and the API requires the token
+ok  a failed start leaves no Host, and an uncooperative child is still ended
+ok  ordinary Chat bound one repository and started one private candidate
+ok  read the source and established the failing Host check
+ok  same Run approved one exact write and one check bound to that revision
+ok  inspected the exact candidate diff and write receipt
+ok  the connected source repository is unchanged
+ok  cancelling at the approval spawns nothing
+ok  stopped the first Host process
+ok  a fresh Host process resolved the same Chat, candidate and history
+ok  continued a new bounded read/check task in the resumed Chat
+ok  revoking the candidate before the approval is honoured
+ok  stopped the second Host process
+
+rehearsal passed · report /tmp/cw-dogfood-round2-process-root-eV5j9z/rehearsal-report.json

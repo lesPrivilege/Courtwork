@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-20 · Dogfood readiness independently accepted
+
+[Order 11 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-final-20260920/README.md) fixes source `3618947`: Claude’s round-2 delivery plus Astra’s minimal data-directory and bootstrap-deadline corrections. Luna independently passes 13/13 preparation, 2/2 lifecycle and 15/15 fresh-process rehearsal. This authorizes the prepared WebUI handoff and local integration; real-model N-02/browser acceptance remain open. The reserved instance and pending 06a frontend trees are preserved. Ended dogfood trees are being restoration-verified before cleanup; exact main/archive receipts follow. Heartbeat paused; no provider trial, push or deployment.
+
 ## 2026-09-20 · Agent profiles frontend reviewed; bounded 06a return
 
 Claude delivered isolated frontend candidate `0f76407`. [Astra's 06a disposition](execution/claude-frontend-harness-2026-09-16/evidence/agents-profile-review-20260920/README.md) retains the existing-Settings design and explicit synthetic adapter, while holding acceptance for controller reply races, Save focus/recovery and truthful capability/ownership disclosure. Luna's scoped 16/16 and full-suite summary 1254/1254 are recorded with the capture-wrapper limitation; OpenAI browser verification fills native Escape/return-focus coverage and records actual UI defects. Claude owns the bounded return; Runtime management/Role-first Composer remain unstarted. Order 11's stable handoff is still a separate acceptance condition. The user instance, author preview and source trees remain intact; heartbeat paused, no product merge or deployment.

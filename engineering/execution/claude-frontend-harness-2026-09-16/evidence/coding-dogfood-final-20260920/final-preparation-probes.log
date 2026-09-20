@@ -1,0 +1,39 @@
+{
+  "results": [
+    {
+      "probe": "ordinary-reuse",
+      "accepted": true,
+      "hostDataDirUsed": false,
+      "sourceHeadMatchesManifest": true,
+      "sourceWorktreeClean": true,
+      "launchDataDir": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-final-zHSv7o/ordinary/runtime-data"
+    },
+    {
+      "probe": "external-data-sentinel-and-aliases",
+      "rejectionReasons": [
+        {
+          "target": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-final-zHSv7o/sentinel",
+          "rejected": true
+        },
+        {
+          "target": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-final-zHSv7o/data-sentinel",
+          "rejected": true
+        },
+        {
+          "target": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-final-zHSv7o/data-sentinel/source",
+          "rejected": true
+        }
+      ],
+      "sentinelMarkerUnchanged": true,
+      "note": "No launch command was executed."
+    },
+    {
+      "probe": "legitimate-root-symlink-outside-repository",
+      "accepted": true,
+      "lexicalRoot": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-final-zHSv7o/legitimate-link/outward/instance",
+      "canonicalRoot": "/private/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-final-zHSv7o/legitimate-link/outside/instance",
+      "sourcePath": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-dogfood-round2-final-zHSv7o/legitimate-link/outward/instance/source",
+      "hostDataDirUsed": false
+    }
+  ]
+}

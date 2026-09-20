@@ -46,3 +46,7 @@ Documentation-only review registration: `node tools/check-doc-links.mjs` passes 
 ## Evidence integrity
 
 [SHA-256 manifest](sha256.json) covers this review and the retained evidence files (excluding itself). Raw author/Luna records are not rewritten to match the ruling; the dispositions above are authoritative for this return.
+
+## Superseding acceptance
+
+The bounded return above is closed by [the final independent readiness acceptance](../coding-dogfood-final-20260920/README.md). Historical review evidence and its original hashes remain unchanged; the added pointer is covered by the final completion commit rather than the earlier review manifest.

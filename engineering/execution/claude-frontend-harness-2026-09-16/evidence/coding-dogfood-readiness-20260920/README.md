@@ -16,7 +16,7 @@ correction: DF11-R1–R5 and four packet corrections.
 **`c6a2b91362df8800453a7b88fa0e57a643f29791`**; this packet is the commit after it, at
 the branch tip.
 
-**Status: `ready for independent review`.** Not self-accepted, and **not**
+**Status: [independently accepted for WebUI readiness](../coding-dogfood-final-20260920/README.md).** The author evidence below retains its source identity; final integration corrections have separate hashes. This is **not**
 `real-model dogfood passed` — no browser pass and no real model has run. N-02
 stays open.
 

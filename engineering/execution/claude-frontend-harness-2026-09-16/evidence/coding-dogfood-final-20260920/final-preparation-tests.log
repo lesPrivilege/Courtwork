@@ -1,0 +1,21 @@
+✔ a fresh root gets a synthetic source, an empty Host data directory and a manifest (207.597042ms)
+✔ the durable manifest carries neither a credential nor the fix (169.384583ms)
+✔ an already-prepared root is reported, never reset (173.180459ms)
+✔ a non-empty destination that is not a prepared instance is refused (1.163584ms)
+✔ a root inside the product repository is refused (0.352334ms)
+✔ --reuse inspects an instance and says whether anything has run against it (218.522875ms)
+✔ an in-repository child whose name merely begins with .. is still inside (0.627625ms)
+✔ a symlink ancestor cannot smuggle the destination back into the repository (175.585042ms)
+✔ the printed command survives a POSIX shell with its argv intact (3.609416ms)
+✔ a real preparation prints a command whose argv round-trips (175.29625ms)
+✔ --reuse refuses a manifest that has been pointed somewhere else (334.234417ms)
+✔ --reuse prints this checkout's launch command, not the manifest's (196.29625ms)
+✔ --reuse rejects redirected runtime data before returning a launch command (194.751542ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1938.8285

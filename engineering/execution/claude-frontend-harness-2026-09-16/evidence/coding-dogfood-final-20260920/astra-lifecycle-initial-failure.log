@@ -1,0 +1,28 @@
+✖ bootstrap headers stall times out and releases the real Host data lock (5037.317416ms)
+✖ bootstrap body stall times out and releases the real Host data lock (5042.309375ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25155.746209
+
+✖ failing tests:
+
+test at app/tests/coding-dogfood-lifecycle.test.mjs:9:3
+✖ bootstrap headers stall times out and releases the real Host data lock (5037.317416ms)
+  TypeError: mock.restore is not a function
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-dogfood-integration-20260920/app/tests/coding-dogfood-lifecycle.test.mjs:34:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3)
+
+test at app/tests/coding-dogfood-lifecycle.test.mjs:9:3
+✖ bootstrap body stall times out and releases the real Host data lock (5042.309375ms)
+  TypeError: mock.restore is not a function
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-dogfood-integration-20260920/app/tests/coding-dogfood-lifecycle.test.mjs:34:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7)

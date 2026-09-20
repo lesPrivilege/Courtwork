@@ -1,0 +1,31 @@
+{
+  "acceptedSource": "3618947a6441c644bfaded75d41e96a6b4251b38",
+  "claudeSource": "c6a2b91362df8800453a7b88fa0e57a643f29791",
+  "claudePacket": "231532a7886963eddca587a61cc8ab7bee813d14",
+  "astraCorrections": [
+    "46409b2e20d42fc7b37cda5276b9a65ec6d2ca3c",
+    "3618947a6441c644bfaded75d41e96a6b4251b38"
+  ],
+  "sources": {
+    "app/scripts/prepare-coding-dogfood.mjs": {
+      "sha256": "43548fe18eb9bacfbbfc74cdfc7fa78dc087f548183ecb43ced641f6f0bf4ca1",
+      "bytes": 15613
+    },
+    "app/scripts/coding-dogfood-rehearsal.mjs": {
+      "sha256": "ae8a3a9e29b15d94cc26497932a47c8bfa2b23ec02ecfcfc38170f458cfe5854",
+      "bytes": 31454
+    },
+    "app/tests/coding-dogfood-preparation.test.mjs": {
+      "sha256": "f8c1ca165a367dd1c86543bccd1c5ea68ce3557bd150981b1f3ad6233acb12fc",
+      "bytes": 14042
+    },
+    "app/tests/coding-dogfood-lifecycle.test.mjs": {
+      "sha256": "99a85e858110b71c52c545f9065f04cddc845ea92d86be75c8865fd37416eff6",
+      "bytes": 1712
+    },
+    "app/package.json": {
+      "sha256": "d528a3c3afe8f5a99dacd652da79c337495ff0cb729671bdd19c4c9fdf73b6e9",
+      "bytes": 897
+    }
+  }
+}
