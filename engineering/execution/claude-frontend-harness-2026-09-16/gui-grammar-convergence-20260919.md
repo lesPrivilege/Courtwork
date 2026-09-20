@@ -143,7 +143,7 @@ Branch `claude/gui-grammar-20260919`, isolated worktree, from `main@72c91a2`. Th
 - The empty-projects guard added during the author check was **not sufficient**: the cached Attention scope itself survived. See F-01 in the review dispositions below.
 - The block rows keep their existing glyph difference: Continue has a chat glyph, the other rows have none. So title start lines differ by 16 px between blocks. This is recorded for G4, not changed.
 - `#conversation-body` extends 48 px below the viewport under the top band. This existed before G1 and is recorded for G4.
-- **Not executed:** native 200% zoom (the tool only emulates viewport size), forced colors, a full screen-reader pass, and the 390 and 1280 cells in the other colour scheme.
+- **Not executed at G1 time:** native 200% zoom (the tool only emulates viewport size), forced colors, a full screen-reader pass, and the 390 and 1280 cells in the other colour scheme. G4 later executed the approval and burst cells; the rest stay open.
 - The historical evidence scripts (`fe01`, `fe02`, `wk13`) still reference the removed band DOM. They are preserved unchanged as history.
 
 ### G2 · Event weight in the thread
@@ -282,6 +282,32 @@ Non-author review of candidate `fc6eccf`: [functional](evidence/gui-independent-
 | **Style 5 / browser** Narrow-layout overlap and snap impact | **Adopt as recorded evidence** | The packet records that two independent live passes (author at 375, non-author at 390) scrolled the Activity block fully above the docked composer, and that the capture measures the unscrolled rectangles. The snap impact stays in the G3 note. Neither becomes a pass/fail claim |
 
 New tests: `app/tests/home-scope.test.mjs` covers F-01 through F-04, and `app/tests/spacing-governance.test.mjs` gains the three negative cases.
+
+### Second review round (2026-09-20)
+
+The reviewer accepted the Attention fix, the Activity empty state, the pagination sentence, the three original lint holes and the empty-page evidence correction, and named three items still open. Each is closed here.
+
+| Item | Disposition |
+|---|---|
+| **F-04** keep the ruled filter continuity, but complete the focus fallback once a list goes to zero | **Adopt.** The chain is now: the set's own `Show all` → that block's first row → the block itself (`tabindex="-1"`, so it catches focus without joining the tab sequence) → any Home row → the composer. Focus cannot fall out of the page. Covered by `home-scope.test.mjs` |
+| **lint** `var(--space-7, 7px)` still bypassed the scale | **Adopt.** A `var()` fallback is the value the declaration actually uses, so it is checked by the same rules: an undefined token with a literal fallback is rejected, a token or hairline fallback passes. The earlier test that asserted the opposite contract is rewritten |
+| **G4** the recapture still carried the old source SHA; the approval and burst cells had to be executed, not excused | **Adopt.** The packet states its true provenance (the 19 cells from the tree that became `3413978`; the new cells at `3413978` itself) and both cells are now **executed for real** with the local deterministic provider — no paid provider, no faked server data |
+
+**The two cells, as executed.** One real session carries both, driven through the local provider's `/fixture` directives:
+- **Home · Waiting/approval present:** a real `/fixture question` run reaches `waiting_user`; Home's `Waiting for you` block shows the unanswered item and Chat shows the live question card (`home-waiting-1440-light.png`, `chat-pending-decision-1440-light.png`).
+- **Chat · event burst, session level:** 102 tool rows in one session across six runs — 100 successful calls grouped into five `Execution` disclosures (1/32/32/32/3), one failing `ws_read` (real ENOENT) and one pending `ws_write` permission card, both outside every disclosure. Reading position and session identity were identical before and after a real reload (`chat-burst-1440-light.png`).
+- **Chat · event burst, single run** (`chat-burst-single-run-1440-light.png`), which is what the weighting claim is actually about. Run `4f1aa25a`, session `816dc884`, one `/fixture script` of 28 calls:
+  - 26 successful (25 `ws_list` + one approved `ws_write`) in **one** `Execution · 26 successful tool actions` disclosure, whose `aria-controls` lists 27 members (26 calls plus the resolved approval row);
+  - 1 failed `ws_read` on `materials/single-run-does-not-exist.txt`, real ENOENT, shown outside the disclosure as `Failed · file does not exist`;
+  - 1 produced artifact, `out/single-run-artifact.txt`, 59 B, sha256 `4fef558a3a21…`, as a `Recorded version` row outside the disclosure;
+  - 1 pending `ws_write` on `out/single-run-pending.txt` as a live `Approve this file write?` card outside the disclosure;
+  - reload: `scrollTop` 0 and the same first visible row before and after a real `Page.reload`, same `activeSessionId`, with the artifact row and the pending card both still present.
+
+**The per-run cap, stated plainly.** The local provider rejects a script longer than 32 calls (`app/runtime/fake-provider.mjs`, left unmodified — product code is not edited to produce evidence). So the 100-success figure is a **session-level** burst, and a **single run with ≥100 tool events remains unexecuted in a browser**; `app/tests/event-weight.test.mjs` is its only coverage. That item is recorded in the packet's not-executed table and in `manifest.json`, not excused by rewriting the matrix.
+
+Still not executed, and recorded as such in both the packet README and `manifest.json`: native browser zoom, forced colors, a screen-reader pass, the Usage dialog, the markdown reader, and a long-content Chat thread.
+
+**One finding passed to another owner.** Driving two Home-composer sends back to back can trip the navigation-epoch guard in `submitHomeRun()`. The capture script first described this as a silent drop; it is not. That branch sets `operation.error = "The chat was created; your instruction has not been sent. Return Home to continue."`, which Home renders. The path is untouched by this branch, so it is pre-existing behaviour under scripted back-to-back navigation and belongs to the Home composer / session-creation owner. The correction is recorded in the packet.
 
 ## Construction report and writer release (Claude/Opus, 2026-09-20)
 

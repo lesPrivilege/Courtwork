@@ -78,4 +78,16 @@ test("Home invalidates the Attention scope when its project disappears or change
 test("Home entry clears an expanded set and keeps a focus target when its control is gone", () => {
   assert.match(app, /state\.home\.filter = null;\n\s*restoreLayerFocus\(\$\("composer-input"\)\);/, "goHome returns to the whole of Home");
   assert.match(app, /\?\? stream\.querySelector\(`\[data-home-block="\$\{previous\}"\] \.home-row`\)/, "a block row is the fallback when Show all no longer exists");
+  /* Luna 第二轮 · 列表归零后既没有 Show all 也没有行：焦点仍要落在说明它在哪里的
+   * 那个块上，最后落回 Home 的锚点，而不是掉出页面。 */
+  assert.match(app, /\?\? stream\.querySelector\(`\[data-home-block="\$\{previous\}"\]`\)/, "the block itself catches focus once its list is empty");
+  assert.match(app, /\(target \?\? \$\("composer-input"\)\)\?\.focus\(\);/, "the composer is the last resort");
 });
+
+test("a Home block is a focus target of last resort without entering the tab sequence", () => withTinyDom(async (container) => {
+  const summary = { sessionCandidates: { items: [], total: 0 } };
+  renderHome(container, { summary, projects: [], onSession() {}, onFilter() {}, onMore() {} });
+  const block = container.querySelector('[data-home-block="sessionCandidates"]');
+  assert.ok(block, "Continue keeps its condition sentence when empty");
+  assert.equal(block.getAttribute("tabindex"), "-1");
+}));

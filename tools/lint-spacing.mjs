@@ -198,11 +198,30 @@ for (const file of walk(join(root, "app/web")))
 for (const file of readdirSync(join(root, "app/web")).filter((name) => name.endsWith(".mjs")))
   for (const decl of readFileSync(join(root, "app/web", file), "utf8").matchAll(/setProperty\(\s*['"`](--[\w-]+)/g))
     definedTokens.add(decl[1]);
-/* var(--x, fallback) 自带兜底，未定义时不会让整条声明失效。 */
+/* var(--x, fallback)：兜底本身就是这条声明真正会用到的值，所以它要按同一套刻度
+   受检。只有未定义 token 的兜底是"实际生效的那个值"，但一个写死的 7px 兜底不会因为
+   包在 var() 里就变成刻度上的一档（Luna 2026-09-20 第二轮）。 */
+function varFallbacks(value) {
+  const found = [];
+  for (let i = value.indexOf("var("); i !== -1; i = value.indexOf("var(", i + 4)) {
+    let depth = 0, comma = -1, end = -1;
+    for (let j = i + 3; j < value.length; j++) {
+      const ch = value[j];
+      if (ch === "(") depth++;
+      else if (ch === ")") { depth--; if (!depth) { end = j; break; } }
+      else if (ch === "," && depth === 1 && comma === -1) comma = j;
+    }
+    if (end === -1) break;
+    const name = value.slice(i + 4, comma === -1 ? end : comma).trim();
+    const fallback = comma === -1 ? null : value.slice(comma + 1, end).trim();
+    found.push({ name, fallback });
+  }
+  return found;
+}
 function unknownTokens(value) {
-  return [...value.matchAll(/var\(\s*(--[\w-]+)\s*(,?)/g)]
-    .filter((match) => !match[2])
-    .map((match) => match[1])
+  return varFallbacks(value)
+    .filter((entry) => !entry.fallback)
+    .map((entry) => entry.name)
     .filter((name) => !definedTokens.has(name));
 }
 
@@ -240,12 +259,18 @@ for (const file of files) {
 
       if (SPACING_PROPS.has(prop)) {
         const withoutImportant = value.replace(/!\s*important\s*$/, "").trim();
-        for (const part of splitTopLevel(withoutImportant)) {
+        const parts = splitTopLevel(withoutImportant);
+        for (const { name, fallback } of varFallbacks(withoutImportant))
+          if (fallback) parts.push(...splitTopLevel(fallback).map((part) => ({ part, inFallbackOf: name })));
+        for (const entry of parts) {
+          const part = typeof entry === "string" ? entry : entry.part;
+          const inFallbackOf = typeof entry === "string" ? null : entry.inFallbackOf;
           if (part === "0" || part === "0px" || part === "auto" || part === "inherit" || part === "normal") continue;
-          if (isDerivedOrRelative(part)) continue;
+          if (isDerivedOrRelative(part) && !inFallbackOf) continue;
+          if (inFallbackOf && /var\(/.test(part)) continue;
           const m = /^(-?\d+(?:\.\d+)?)px$/.exec(part);
           if (!m) {
-            spaceProblems.push(`${where()}: ${rule.selectors[0]} 的 ${prop} 有一个看不懂的值 ${part}`);
+            if (!inFallbackOf) spaceProblems.push(`${where()}: ${rule.selectors[0]} 的 ${prop} 有一个看不懂的值 ${part}`);
             continue;
           }
           const num = parseFloat(m[1]);
@@ -257,8 +282,9 @@ for (const file of files) {
           );
           if (registered) continue;
           spaceProblems.push(
-            `${where()}: ${rule.selectors[0]} 的 ${prop} 是游离值 ${part}；` +
-              `改用 var(--space-*)、写成 calc(...) 的派生式，或先进 lint-spacing 的登记表`,
+            `${where()}: ${rule.selectors[0]} 的 ${prop} 是游离值 ${part}` +
+              (inFallbackOf ? `（写在 var(${inFallbackOf}, …) 的兜底里）` : "") +
+              `；改用 var(--space-*)、写成 calc(...) 的派生式，或先进 lint-spacing 的登记表`,
           );
         }
       }

@@ -266,7 +266,10 @@ function setBlock(key, { sets, activeSet }, call) {
     ? homeButton("Show all", () => call("onFilter", key), `home-more:${key}`)
     : null;
   if (more) more.setAttribute("aria-label", `Show all ${setLabels[key]}`);
-  const section = el("section", { className: "home-section", attrs: { "data-home-block": key } },
+  /* The block itself is a focus target of last resort (Luna F-04): when the
+   * control that opened a set is gone and the set is empty, focus lands on the
+   * block whose heading names where it is. It is not in the tab sequence. */
+  const section = el("section", { className: "home-section", attrs: { "data-home-block": key, tabindex: "-1" } },
     blockHeading(setLabels[key], page ? page.total : null, more));
   const open = (item, options) => () => call("onSession", item, options);
   /* WK-115 ② · the row is a button, so the list item is the layer around it:

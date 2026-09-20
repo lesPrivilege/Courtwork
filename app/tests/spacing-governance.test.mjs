@@ -74,12 +74,18 @@ test("块内最后一条声明没有分号时同样被检查", () => {
   assert.match(result.out, /游离值 7px/);
 });
 
-test("引用未定义的 token 名会被拒绝，带兜底的 var() 放行", () => {
+test("引用未定义的 token 名会被拒绝；兜底值按同一套刻度受检", () => {
   const unknown = withCss(`.card {\n  padding: var(--space-7);\n}\n`);
   assert.equal(unknown.ok, false, unknown.out);
   assert.match(unknown.out, /未定义的 token --space-7/);
-  const fallback = withCss(`.card {\n  padding: var(--space-7, 8px);\n}\n`);
-  assert.equal(fallback.ok, true, fallback.out);
+  /* Luna 第二轮 · 兜底才是这条声明真正会用到的值：包进 var() 不让游离值变成一档。 */
+  const literalFallback = withCss(`.card {\n  padding: var(--space-7, 7px);\n}\n`);
+  assert.equal(literalFallback.ok, false, literalFallback.out);
+  assert.match(literalFallback.out, /游离值 7px（写在 var\(--space-7, …\) 的兜底里）/);
+  const tokenFallback = withCss(`.card {\n  padding: var(--native-controls-inset, var(--space-2));\n}\n`);
+  assert.equal(tokenFallback.ok, true, tokenFallback.out);
+  const hairlineFallback = withCss(`.card {\n  padding: var(--space-7, 2px);\n}\n`);
+  assert.equal(hairlineFallback.ok, true, hairlineFallback.out);
 });
 
 test("登记表按属性生效：为 padding 登记的值不替同一选择器的 margin 背书", () => {

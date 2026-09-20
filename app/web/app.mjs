@@ -6283,12 +6283,18 @@ function renderHomeState() {
       renderHomeState();
       /* The pressed control leaves with the view it opened; focus moves to the
        * control that now leads back, and back again to the set's own. */
+      /* Luna F-04 · the way back must always land somewhere: the set's own
+       * control, else its first row, else the block itself once the list has
+       * gone to zero, else the composer — Home's anchor. Focus never falls
+       * out of the page. */
       const stream = $("message-stream");
       const target = key
         ? stream.querySelector('[data-focus-key="home-all-work"]')
         : stream.querySelector(`[data-focus-key="home-more:${previous}"]`)
-          ?? stream.querySelector(`[data-home-block="${previous}"] .home-row`);
-      target?.focus();
+          ?? stream.querySelector(`[data-home-block="${previous}"] .home-row`)
+          ?? stream.querySelector(`[data-home-block="${previous}"]`)
+          ?? stream.querySelector(".home-row");
+      (target ?? $("composer-input"))?.focus();
     },
     onSession: async (item, { inspect }) => {
       await selectSession(item.sessionId);

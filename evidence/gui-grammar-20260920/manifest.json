@@ -742,16 +742,270 @@
         "hasSparkHeading": true,
         "bodyLength": 1388
       }
+    },
+    {
+      "surface": "Home",
+      "state": "Waiting/approval present (real /fixture question, pending, real local-provider run)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives)",
+      "file": "home-waiting-1440-light.png",
+      "facts": {
+        "composerFormRect": {
+          "top": 472,
+          "left": 438
+        },
+        "composerCentrePctOfBody": 56,
+        "visibleHomeSlots": [
+          "pendingItems",
+          "sessionCandidates",
+          "activity"
+        ],
+        "homeSectionLeftEdges": {
+          "pendingItems": 438,
+          "sessionCandidates": 438,
+          "activity": 438
+        },
+        "composerFormLeft": 438,
+        "horizontalOverflow": false,
+        "introHeight": 69,
+        "homeLead": "302px",
+        "composerBlockOverlapCheck": {
+          "composerRect": {
+            "top": 472,
+            "bottom": 632
+          },
+          "homeSectionRects": {
+            "pendingItems": {
+              "top": 664,
+              "bottom": 768,
+              "intersectsComposer": false
+            },
+            "sessionCandidates": {
+              "top": 800,
+              "bottom": 903,
+              "intersectsComposer": false
+            },
+            "activity": {
+              "top": 935,
+              "bottom": 1163,
+              "intersectsComposer": false
+            }
+          }
+        },
+        "pendingItemsSlot": {
+          "hidden": false,
+          "rows": [
+            {
+              "text": "/fixture question\nNo project\nAnswer requested",
+              "focusKey": "home:pendingItems:e624a009-8480-4205-a13f-03b1f0da0ccf"
+            }
+          ]
+        },
+        "runId": "210964ec-202b-4182-8e25-5d28bebc8fbc",
+        "sessionId": "7ff2e4a9-0e13-4cc8-8054-94c53302eeb3"
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "pending decision card (real /fixture question, unanswered, real local-provider run)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives)",
+      "file": "chat-pending-decision-1440-light.png",
+      "facts": {
+        "horizontalOverflow": false,
+        "scrollWidth": 1440,
+        "innerWidth": 1440,
+        "cardText": "What should the fake run use as its answer?\nAnswer",
+        "cardClass": "question-card ",
+        "hasAnswerInput": true,
+        "activeSessionId": "7ff2e4a9-0e13-4cc8-8054-94c53302eeb3",
+        "sessionTitle": "/fixture question",
+        "runId": "210964ec-202b-4182-8e25-5d28bebc8fbc"
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "event burst (real local-provider runs: 1 answered question shown as a 1-call Execution group, three 32-call ws_list runs, one 3-call+1-failing-call run, one pending ws_write permission left unresolved)",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives — several consecutive runs in ONE session, the provider's own 32-calls-per-run script cap)",
+      "file": "chat-burst-1440-light.png",
+      "facts": {
+        "totalToolCards": 102,
+        "hiddenToolCards": 100,
+        "visibleToolCards": 2,
+        "disclosures": [
+          {
+            "text": "Execution 1 successful tool action",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:210964ec-202b-4182-8e25-5d28bebc8fbc",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 32 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:a2717bad-ac91-431d-864a-5b3dc572da01",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 32 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:7d933837-f640-4757-9651-0d65f37fb945",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 32 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:0cc0c772-0dee-45d2-bb27-9c6f3c3a44f5",
+            "ariaExpanded": "false"
+          },
+          {
+            "text": "Execution 3 successful tool actions",
+            "title": null,
+            "meta": null,
+            "focusKey": "execution:57a78ee8-c3fc-4355-9caa-89f27e14db45",
+            "ariaExpanded": "false"
+          }
+        ],
+        "failedRow": {
+          "visible": true,
+          "text": "ws_read\nFailed\nResult\nfile does not exist"
+        },
+        "pendingPermissionCard": {
+          "visible": true,
+          "text": "Approve this file write?\n\nout/burst-fixture-cells.txt\n\n48 B · Approval for this exact write only\n\nG4 burst cell — pending write, left unresolved\nWrite details\nDeny this write\nApprove this write"
+        },
+        "scrollTop": 0,
+        "scrollHeight": 852,
+        "totalScriptedToolCallAttempts": 101,
+        "successfulToolCallAttempts": 100,
+        "failedToolCallAttempts": 1,
+        "pendingToolCallAttempts": 1,
+        "runIds": {
+          "question": "210964ec-202b-4182-8e25-5d28bebc8fbc",
+          "A": "a2717bad-ac91-431d-864a-5b3dc572da01",
+          "B": "7d933837-f640-4757-9651-0d65f37fb945",
+          "C": "0cc0c772-0dee-45d2-bb27-9c6f3c3a44f5",
+          "D": "57a78ee8-c3fc-4355-9caa-89f27e14db45",
+          "E": "7ca48fd6-ad72-4573-95f2-eaf6fdeea17b"
+        },
+        "sessionId": "7ff2e4a9-0e13-4cc8-8054-94c53302eeb3",
+        "readingPositionBeforeReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": "Execution 3 successful tool actions"
+        },
+        "readingPositionAfterReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": "Execution 3 successful tool actions"
+        },
+        "sessionPreservedAcrossReload": true
+      }
+    },
+    {
+      "surface": "Chat",
+      "state": "single Run — 28-call script (25 successful ws_list, 1 failing ws_read, 1 approved ws_write producing a real artifact, 1 final ws_write left pending), all within ONE Run",
+      "viewport": "1440x900",
+      "scheme": "light",
+      "method": "real (local deterministic provider, /fixture directives — ONE run, ONE /fixture script, within the provider's 32-calls-per-run cap)",
+      "file": "chat-burst-single-run-1440-light.png",
+      "facts": {
+        "runId": "4f1aa25a-50c6-4f01-b534-bafa788787a7",
+        "sessionId": "816dc884-883b-430f-867e-6a252fdec4ac",
+        "scriptCallCount": 28,
+        "successfulToolCallAttempts": 26,
+        "failedToolCallAttempts": 1,
+        "pendingToolCallAttempts": 1,
+        "totalToolCardsForRun": 28,
+        "hiddenToolCards": 26,
+        "visibleToolCards": 2,
+        "failedToolCards": 1,
+        "failedToolText": "ws_read\nFailed\nResult\nfile does not exist",
+        "disclosures": [
+          {
+            "text": "Execution 26 successful tool actions",
+            "focusKey": "execution:4f1aa25a-50c6-4f01-b534-bafa788787a7",
+            "ariaControls": 27
+          }
+        ],
+        "artifactRow": {
+          "visible": true,
+          "title": null,
+          "meta": null
+        },
+        "runArtifacts": [
+          {
+            "path": "out/single-run-artifact.txt",
+            "bytes": 59,
+            "sha256": "4fef558a3a210f127782a38dba55ef30d2fadedfab917943138e529d461cdb55",
+            "kind": "content-version",
+            "writtenAt": "2026-09-20T04:49:10.679Z"
+          }
+        ],
+        "pendingPermissionCard": {
+          "visible": true,
+          "text": "Approve this file write?\n\nout/single-run-pending.txt\n\n27 B · Approval for this exact write only\n\nleft pending, not resolved\n\nWrite details\nDeny this write\nApprove this write"
+        },
+        "runStatus": "waiting_user",
+        "scrollTop": 0,
+        "scrollHeight": 852,
+        "firstPendingPermissionCardTextBeforeApproval": "Approve this file write?\n\nout/single-run-artifact.txt\n\n59 B · Approval for this exact write only\n\nG4 single-Run burst cell — approved write, real artifact\n\nWrite details\nDeny this write\nApprove this write",
+        "secondPendingPermissionCardText": "Approve this file write?\n\nout/single-run-pending.txt\n\n27 B · Approval for this exact write only\n\nleft pending, not resolved\n\nWrite details\nDeny this write\nApprove this write",
+        "readingPositionBeforeReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": {
+            "text": "/fixture script [{\"name\":\"ws_list\",\"arguments\":{}},{\"name\":\"ws_list\",\"arguments\"",
+            "focusKey": null
+          },
+          "sessionId": "816dc884-883b-430f-867e-6a252fdec4ac"
+        },
+        "readingPositionAfterReload": {
+          "scrollTop": 0,
+          "firstVisibleRow": {
+            "text": "/fixture script [{\"name\":\"ws_list\",\"arguments\":{}},{\"name\":\"ws_list\",\"arguments\"",
+            "focusKey": null
+          },
+          "sessionId": "816dc884-883b-430f-867e-6a252fdec4ac",
+          "pendingPermissionStillVisible": true,
+          "artifactRowStillVisible": true
+        },
+        "sessionPreservedAcrossReload": true
+      }
     }
   ],
   "notExecuted": [
     {
-      "cell": "Home — Waiting/approval present",
-      "reason": "example workspace fixture (app/web/samples/preview/responses.json) has no pending question or permission item; pendingItems slot observed hidden=true rows=0. No local action can create one without a paid provider."
+      "cell": "Presentation — native 200% browser zoom",
+      "reason": "Headless Chrome emulates viewport size and DPR, not the browser's own zoom. A labelled CSS-equivalent 720x450 @2x cell is recorded instead; native zoom stays open."
     },
     {
-      "cell": "Home — event burst (G2 fixture)",
-      "reason": "Requires a live provider run emitting ≥100 tool events; none available without a paid provider. Unit coverage: app/tests/event-weight.test.mjs (builds the same 100-success/1-fail/1-pending/1-artifact fixture and asserts grouping)."
+      "cell": "Presentation — forced colors",
+      "reason": "Not exercised in this packet."
+    },
+    {
+      "cell": "Presentation — screen-reader pass",
+      "reason": "Not exercised in this packet; the 30-step keyboard sequence is recorded instead."
+    },
+    {
+      "cell": "Surface — Usage dialog",
+      "reason": "Not captured. The G3 note previously pointed at this packet for it; it stays open for the reviewer."
+    },
+    {
+      "cell": "Surface — markdown reader",
+      "reason": "Not captured; stays open for the reviewer."
+    },
+    {
+      "cell": "Chat — long-content thread",
+      "reason": "Not captured. The Chat cells here are ordinary example sessions plus the fixture burst; a long-content thread stays open."
+    },
+    {
+      "cell": "Chat — single Run with ≥100 tool events",
+      "reason": "The local deterministic provider's own script cap is 32 calls per Run (app/runtime/fake-provider.mjs::scriptForMode, unmodified, script.length > 32 is rejected). A single Run therefore cannot script more than 32 tool calls in this build; the 100-successful-call burst recorded above (Chat · event burst) is a SESSION-level burst across 5 Runs (1/32/32/32/3), not one Run. A single Run containing ≥50 tool events with a failing call, a pending permission and a produced artifact together is recorded instead (Chat · single Run, this cell, 28 calls). A single Run with ≥100 tool events remains not executed in a browser; app/tests/event-weight.test.mjs is its only coverage (synthetic events, not a live provider Run)."
     }
   ],
   "keyboard": {
@@ -979,5 +1233,23 @@
     "chromeVersion": "Chrome/153.0.8010.53",
     "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36"
   },
-  "observations": []
+  "observations": [],
+  "fixtureCellsEnv": {
+    "chromeVersion": "Chrome/153.0.8010.53",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "appOrigin": "http://127.0.0.1:8878",
+    "appPort": 8878,
+    "cdpPort": 19678,
+    "dataDir": "<scratch outside the repository>/g4c/data-fixture-cells",
+    "note": "Second capture pass (capture-fixture-cells.mjs), same evidence packet. Its own headless Chrome instance and its own fresh, empty, real (non-preview) app server/data directory — independent of the chromeVersion/userAgent recorded under env for the first pass."
+  },
+  "singleRunBurstEnv": {
+    "chromeVersion": "Chrome/153.0.8010.53",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+    "appOrigin": "http://127.0.0.1:8879",
+    "appPort": 8879,
+    "cdpPort": 19679,
+    "dataDir": "<scratch outside the repository>/g4c/data-single-run-burst",
+    "note": "Third capture pass (capture-single-run-burst.mjs), same evidence packet, its own headless Chrome and its own fresh, empty, real app server/data directory."
+  }
 }
