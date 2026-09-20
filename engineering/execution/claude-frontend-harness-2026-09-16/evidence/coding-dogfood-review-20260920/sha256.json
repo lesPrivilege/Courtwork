@@ -1,0 +1,30 @@
+{
+  "README.md": {
+    "sha256": "40c32657934707152c0299bd0f6b3df22bba9f188a248cbcae3148fca5dfaae8",
+    "bytes": 8554
+  },
+  "author-delivery.txt": {
+    "sha256": "2254429cdbcd1b67b6cb758c95dc9e750bc421be22748d8873ec4d31a6ac7199",
+    "bytes": 5308
+  },
+  "independent-rehearsal.json": {
+    "sha256": "e905d993c44ea91ac6e13b34a0e2043ecae0f04147fac48c0acd4dd863ef4744",
+    "bytes": 4097
+  },
+  "independent-rehearsal.log": {
+    "sha256": "ad6ba3effbc1443ef844790b0e691bfb36df19d92e8c24261f78fe8b0c760597",
+    "bytes": 896
+  },
+  "luna-preparation.md": {
+    "sha256": "820209e1fdb008da15a091207e04bd950fc88f8a9c3534dafeb0f0e7b5249cf5",
+    "bytes": 5408
+  },
+  "luna-process.md": {
+    "sha256": "973749ea29fccbbfff1846cd955c56a65e2a15cbf480d98d1b60f3bed8628595",
+    "bytes": 4587
+  },
+  "verified-source-sha256.json": {
+    "sha256": "c159c1c5e7cbe328654034a73759c2dd62f283a3670d600b2f1efffa51b0f43f",
+    "bytes": 813
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-20T07:33:07.802Z",
+  "transport": "public HTTP, separate Host process, ephemeral loopback port",
+  "provider": "fake-openai-loopback (Local test provider, deterministic)",
+  "realProvider": "not_run",
+  "browserInteraction": "not_run",
+  "source": {
+    "path": "/tmp/cw-dogfood-review-20260920-MC820B/source",
+    "head": "46aa9038ea5b6ccc962dfd2b84467fbaaee8d47d"
+  },
+  "toolchain": {
+    "node": "v25.9.0",
+    "git": "git version 2.50.1 (Apple Git-155)"
+  },
+  "sessionId": "e3e7399e-56b3-43e4-9c24-095b44ecfe66",
+  "sameRunWriteCheckRunId": "d1781eca-9c5f-4145-a892-40361ac02e21",
+  "finishedAt": "2026-09-20T07:33:13.768Z",
+  "steps": [
+    {
+      "step": "prepared an independent scratch instance",
+      "sourcePath": "/tmp/cw-dogfood-review-20260920-MC820B/source",
+      "dataDir": "/tmp/cw-dogfood-review-20260920-MC820B/runtime-data",
+      "sourceHead": "46aa9038ea5b6ccc962dfd2b84467fbaaee8d47d"
+    },
+    {
+      "step": "first Host process is listening on an ephemeral loopback port",
+      "url": "http://127.0.0.1:<ephemeral>"
+    },
+    {
+      "step": "WebUI document and assets are served and the API requires the token",
+      "documentBytes": 44150,
+      "appModuleBytes": 328538,
+      "unauthorizedStatus": 401
+    },
+    {
+      "step": "ordinary Chat bound one repository and started one private candidate",
+      "sessionId": "e3e7399e-56b3-43e4-9c24-095b44ecfe66",
+      "candidateId": "b1f2c3d4-e5a6-4b7c-8d9e-0a1b2c3d4e5f",
+      "baseCommit": "46aa9038ea5b6ccc962dfd2b84467fbaaee8d47d",
+      "writeRevision": 0
+    },
+    {
+      "step": "read the source and established the failing Host check",
+      "runId": "782bdb04-12bd-4be4-934e-3178d9b0dd0b",
+      "readPaths": "src/parcel.mjs",
+      "checkCallId": "fake-script-2-1",
+      "exitCode": 1
+    },
+    {
+      "step": "same Run approved one exact write and one check bound to that revision",
+      "runId": "d1781eca-9c5f-4145-a892-40361ac02e21",
+      "approvedPath": "src/parcel.mjs",
+      "writeRevisionAtApproval": 1,
+      "checkCallId": "fake-script-5-1",
+      "exitCode": 0,
+      "durationMs": 171
+    },
+    {
+      "step": "inspected the exact candidate diff and write receipt",
+      "files": [
+        "src/parcel.mjs"
+      ],
+      "patchSha256": "0a66a5d141eb87b1a92124976dc385502680005cceaa4342037c068f48263fa3",
+      "patchBytes": 521,
+      "effect": {
+        "id": "849df89be53bc01825aadeecbae4de63491010509621575269826a89f44f0de3",
+        "status": "confirmed",
+        "path": "src/parcel.mjs",
+        "writeRevision": 1,
+        "bytes": 445
+      }
+    },
+    {
+      "step": "the connected source repository is unchanged",
+      "head": "46aa9038ea5b6ccc962dfd2b84467fbaaee8d47d",
+      "worktreeClean": true
+    },
+    {
+      "step": "cancelling at the approval spawns nothing",
+      "runId": "77acced1-66d1-4ea2-a7c9-6588ec2a5b80",
+      "runStatus": "cancelled",
+      "checkStarted": false
+    },
+    {
+      "step": "stopped the first Host process",
+      "exitCode": 0,
+      "signal": null
+    },
+    {
+      "step": "a fresh Host process resolved the same Chat, candidate and history",
+      "sessionId": "e3e7399e-56b3-43e4-9c24-095b44ecfe66",
+      "candidateId": "b1f2c3d4-e5a6-4b7c-8d9e-0a1b2c3d4e5f",
+      "writeRevision": 1,
+      "durableEventsUnchanged": true,
+      "effectsUnchanged": true
+    },
+    {
+      "step": "continued a new bounded read/check task in the resumed Chat",
+      "runId": "05e86152-8d70-4f76-9a9c-99c05505b8a7",
+      "checkCallId": "fake-script-2-1",
+      "exitCode": 0,
+      "distinctCheckExecutions": 3,
+      "writesAdded": 0,
+      "fixtureCallIdsReusedAcrossProcesses": 1
+    },
+    {
+      "step": "revoking the candidate before the approval is honoured",
+      "runId": "a72761bd-6a60-46be-9327-835620dc4557",
+      "runStatus": "cancelled",
+      "checkStarted": false,
+      "checkSettledStatus": null,
+      "checkExitCode": null
+    },
+    {
+      "step": "stopped the second Host process",
+      "exitCode": 0,
+      "signal": null
+    }
+  ],
+  "result": "passed"
+}

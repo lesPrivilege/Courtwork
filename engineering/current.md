@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-20 · Coding handoff reviewed; bounded Claude return before WebUI
+
+Order 11 candidate `94d60d2` (source `3f04f76`) passes Luna's independent public-HTTP rehearsal 14/14 and preparation/startup tests 8/8. [Astra's owner disposition](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-review-20260920/README.md) holds integration for demonstrated preparation path/quoting/manifest defects, startup-failure cleanup, and accurate durability/permission/recovery evidence. Claude owns this finite correction; accepted GUI/Core work is not reopened. The untouched browser instance is preserved, real-model N-02 stays open, and the heartbeat remains paused. The separate Agents frontend tree is now observed active at `95ed9cf` with uncommitted implementation; its writer is preserved and its work is not yet accepted. No merge, cleanup, user-instance launch, provider call or deployment occurred in this review.
+
 ## 2026-09-20 · Claude frontend-first continuation authorized
 
 The user authorizes frontend-first construction from user outcomes, with backend self-development/integration later and priority consumption of existing Design Scout grammar, external indices and compatible mature libraries. [The ready-to-dispatch order](execution/claude-frontend-harness-2026-09-16/06-agents-frontend-first-20260920.md) starts with one interactive Agent profile → Kits → execution-summary journey under the existing Settings owner, using an explicit synthetic adapter and a backend handoff contract. Claude remains serial: deliver the slice 11 stable readiness node first, then build this in another isolated tree while the user tests the fixed WebUI version. Runtime/auth/hook management and Role-first Composer are subsequent frontend slices; production capabilities await their real backend owners. No Claude process, new tree, library or UI implementation has been started by this registration; the existing heartbeat stays paused.

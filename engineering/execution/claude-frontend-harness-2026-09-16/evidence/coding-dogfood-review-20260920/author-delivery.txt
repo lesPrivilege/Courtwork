@@ -1,0 +1,72 @@
+I'll start by verifying the actual repository state before doing anything else.
+
+Branch/HEAD verified. Main has advanced one commit past the order's observed baseline (`e687762` → `0e06d70`, which is the order document itself). Let me survey the repository and the referenced artifacts.
+
+Creating the isolated task worktree from current integrated main.
+
+I have the full picture. Now writing the operator preparation entry.
+
+Two defects in my own script: the reuse check reads the wrong manifest field, and refusals print a raw stack. Fixing both.
+
+Now the fresh-process public-HTTP rehearsal.
+
+Output was swallowed by the pipe to `tail`. Let me rerun unbuffered.
+
+The whole path works through restart. The failure is a real finding about the fixture — let me confirm exactly what collides before changing the assertion.
+
+Confirmed: the deterministic provider restarts its call-id counter per Host process, so `fake-script-2-1` recurs in a different Run. The Host fences per `(runId, callId)`, which is intact — my assertion was stronger than the contract.
+
+The rehearsal passes end to end. Now fixing a real defect in my own script: a failure inside process 1 would leak the child Host.
+
+Now a unit test for the preparation guards, including a guard that the durable manifest leaks neither keys nor the fix.
+
+The guard was crude — UUID-shaped values are legitimately in the report. Asserting the actual token strings instead.
+
+Let me verify the failure-path teardown actually leaves no orphan Host.
+
+While the suite runs, let me match the existing evidence-record conventions.
+
+Now verifying the exact operator startup command really binds port 8787 and serves the UI — on a throwaway instance, so the operator's stays untouched.
+
+The script prints "report written" but writes nothing — my last patch broke the write order. Let me look.
+
+Now the handoff packet itself.
+
+1244/1244 passed, but that run started before my final script fix. Re-running the full suite against the final bytes.
+
+The patch hash is deterministic across instances, so the README's quoted value holds. Let me now review my own script end to end.
+
+1244/1244 on the final bytes. Committing the source, then the packet.
+
+Main advanced during my session and another worktree appeared. Let me check whether that affects the delivery.
+
+Delivered. **`ready for independent review`** — not self-accepted, and not `real-model dogfood passed`.
+
+## What was built
+
+Worktree `/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920`, branch `claude-coding-dogfood-20260920`, from `0e06d70`. Two commits:
+
+- **`3f04f76`** (pin this) — [prepare-coding-dogfood.mjs](app/scripts/prepare-coding-dogfood.mjs), [coding-dogfood-rehearsal.mjs](app/scripts/coding-dogfood-rehearsal.mjs), [coding-dogfood-preparation.test.mjs](app/tests/coding-dogfood-preparation.test.mjs), one `package.json` line.
+- **`94d60d2`** — the packet under [evidence/coding-dogfood-readiness-20260920/](engineering/execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-readiness-20260920/README.md).
+
+The new seam is a real process boundary. The existing smoke is in-process `ws_*`; the accepted HTTP cases run the Host *inside* the test, so their "restart" is a Store reopen. The rehearsal starts `server/index.mjs` as a child on an ephemeral port, drives only public HTTP, **stops it**, and continues in a second process — same Chat, same candidate, `writeRevision` still 1, every `check.*`/`repository.*` event byte-identical, nothing replayed.
+
+## Two things recorded rather than repaired
+
+**A fixture hazard.** The Local test provider numbers tool calls per Host *process*, so `fake-script-2-1` legitimately recurs in a different Run after a restart. The Host is correct — it fences on `(Run, call)` — but evidence keyed on the call id alone would conflate two executions. The rehearsal now asserts the pair and records the reuse count.
+
+**Slice 02's write-effect note doesn't survive the current bytes.** `appendCheckDetails` already presents recipe, outcome, duration, truncation and both real streams; the Workspace card presents `Writes N` plus Review changes with the diff. Only the `/effects` receipt list has no screen, and the diff already answers "what exactly changed" — so I touched no UI and carried it as a watch item on the browser checklist instead.
+
+## Verified
+
+Rehearsal 14/14 · targeted 79/79 · `npm test` **1244/1244** on the final bytes · doc links 1,440/8,170 clean · real startup on 8787 serving the UI and refusing an untokened call · injected failure leaves no orphan Host.
+
+Three defects in my own scripts were found and fixed along the way — the worst printed "report written" while writing nothing.
+
+## Two things you should know
+
+An **untouched instance** is ready at `.worktrees/courtwork-coding-dogfood-20260920-instance` (source `c8310f06`, defect intact, no Host has opened it) — you can skip step 1 and go straight to the startup command.
+
+**Main moved during the session** to `95ed9cf`, and another writer opened `courtwork-agents-frontend-20260920`. That commit is docs for a different order and touches no file this branch touches; `git merge-tree` reports no conflict. I left both alone.
+
+Nothing pushed, nothing deleted, heartbeat still paused. Writer scope released.
