@@ -1,0 +1,36 @@
+✔ an empty host states that nothing is configured instead of an error (2.042584ms)
+✔ every row opens its own profile, including one whose runtime is down (0.429167ms)
+✔ an unavailable runtime can be replaced from inside the profile it blocks (0.934667ms)
+✔ an opened profile reports requested, supported and granted as three separate facts (0.479125ms)
+✔ an incompatible Kit and runtime pair is explained and blocks the save (0.430792ms)
+✔ an unavailable runtime cannot be saved as an execution choice (0.390166ms)
+✔ a saved draft returns the owner-confirmed revision and clears the draft (0.632166ms)
+✔ a failed save keeps the draft exactly as composed and saves nothing (0.526541ms)
+✔ a revision saved elsewhere is refused, kept beside the draft, and reloaded on request (0.980584ms)
+✔ a run holding the profile freezes saving without claiming a queue (0.483334ms)
+✔ a draft survives leaving for the list and reopening the same profile (0.924167ms)
+✔ a late reply cannot land on another profile or on a newer draft (0.605583ms)
+✔ discarding is refused while a save is in flight, and the reply stays coherent (0.41025ms)
+✔ a draft that moves under an in-flight save is never reported clean (0.401083ms)
+✔ a save reply for a profile you have left does not follow you to the next one (0.393083ms)
+✔ a runtime detail reply cannot land after the surface that asked for it is gone (1.0835ms)
+✔ a host that cannot save says so instead of offering a dead control (0.3215ms)
+✔ a supported action with no reported effect is not a missing runtime (0.266458ms)
+✔ the runtime read view reports unobserved facts as unobserved (0.35475ms)
+✔ model ownership stays with its owner in the projection (0.24775ms)
+✔ the projection is pure and invents nothing for an unknown id (0.054459ms)
+✔ the preview host serves the fixture page and the product assets, and mutates nothing (25.061667ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (6.908792ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (1.541584ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (0.800667ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (2.062583ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (173.841459ms)
+✔ skin-policy.js is an exact synchronous static route (79.959916ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1430.227958

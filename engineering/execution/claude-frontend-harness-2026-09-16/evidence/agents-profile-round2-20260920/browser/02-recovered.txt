@@ -1,0 +1,3 @@
+Browser tab: 5, Title: "Agent profiles · synthetic preview", URL: "http://127.0.0.1:8899/".
+There has been no change in the accessibility tree.
+The focused UI element is 94 container

@@ -1,0 +1,40 @@
+{
+  "integratedMain": "b98e8ae59c14b725f0b644b74c3b0b4348cab885",
+  "gitBundle": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/agents-profile-increment.bundle",
+  "gitBundleSha256": "b5e1f47a21a59e925c27a3964dc4b5c090bcbb428e2413bedfd62cb09d1e9f0f",
+  "gitRestoreVerified": true,
+  "trees": [
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-agents-frontend-20260920",
+      "head": "aca21c88fff2fc2e582f8c52d23d840d4ce53c3c",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-agents-frontend-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-agents-frontend-20260920/files.tar.gz",
+      "archiveSha256": "d8cb1c284f6fb39452bdcf202902a3f43146f608e434a858a577e4c1fca9dd77",
+      "manifestSha256": "ca9654fdc2395c56457b2b4322b46e5d6f697476fb79bb2c630dc795076a09a6",
+      "entryCount": 37802,
+      "fileBytes": 971448979,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true,
+      "removed": true
+    },
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-agents-review-20260920",
+      "head": "aca21c88fff2fc2e582f8c52d23d840d4ce53c3c",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-agents-review-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-agents-review-20260920/files.tar.gz",
+      "archiveSha256": "467592042b2615496e11dfec4edcc2ff9c522fe1e6a880d361f2a973d8e6a9fc",
+      "manifestSha256": "6ccad32f8c6698e7f1950fdbe2e4cfd9721740c83b306204fa95087180512c84",
+      "entryCount": 8496,
+      "fileBytes": 441301510,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true,
+      "removed": true
+    }
+  ],
+  "preserved": [
+    "Courtwork main",
+    "Courtwork-legacy-frozen shared Git database",
+    "real dogfood Host and both synthetic instances"
+  ],
+  "preview": "8899 moved to main; author PID40256 stopped; user Host8787 untouched"
+}

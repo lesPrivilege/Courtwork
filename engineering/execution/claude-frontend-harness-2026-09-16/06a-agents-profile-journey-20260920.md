@@ -37,10 +37,10 @@ in the preview exists.
 
 | Path | What it is |
 |---|---|
-| `app/web/agent-profiles-contract.d.ts` | The consumer projection and the five intents, each field annotated with the owner that holds it today or the fact that none does |
+| `app/web/agent-profiles-contract.d.ts` | The consumer projection and the five intents, each field annotated with its existing owner and whether the implementation is exposed |
 | `app/web/agent-profiles.mjs` | Controller: saved-vs-draft, epochs, per-profile drafts, and `projectProfile`, a pure projection. No DOM, no `fetch`, no clock |
 | `app/web/agent-profiles-view.mjs` | View: the Settings anatomy, whole-panel re-render with focus restored by `data-focus-key` |
-| `app/tests/fixtures/agent-profiles/adapter.mjs` | The synthetic adapter and its five scenarios |
+| `app/tests/fixtures/agent-profiles/adapter.mjs` | The synthetic adapter and its seven scenarios |
 | `app/tests/fixtures/agent-profiles/{index.html,preview.mjs,specimen.css}` | The preview page, its wiring and its page frame |
 | `app/scripts/agent-profiles-preview.mjs` | Read-only fixture host, copied from the chat-continuity preview |
 | `app/tests/agent-profiles-specimen.test.mjs` | 22 seam tests over the controller/adapter transitions |
@@ -267,3 +267,7 @@ No next frontend journey starts, and the stable order 11 handoff remains separat
 and its evidence tree stay in place. The next serial frontend consumers — runtime connection and
 local management, then the Role-first Composer — remain as the order describes them and are not
 started.
+
+## Astra round-2 acceptance — 2026-09-20
+
+[Independent acceptance](evidence/agents-profile-round2-20260920/README.md) adopts AP-R1…R6 at `aca21c8`, after Luna 22/22 and Astra's bounded OpenAI browser checks; integrated main `b98e8ae` passes 28/28 seam/static-manifest checks. This accepts the synthetic frontend journey only. Order 11's stable handoff and basic real coding loop are now independently accepted; the historical early-start deviation remains. Proposed backend facts remain proposed. List-refresh continuity is assigned to the finite Claude dogfood-friction batch; native zoom, screen readers and long labels retain their disclosed gaps.

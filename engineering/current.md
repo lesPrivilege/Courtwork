@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-20 · Agent profiles 06a accepted and integrated
+
+[Round-2 acceptance](execution/claude-frontend-harness-2026-09-16/evidence/agents-profile-round2-20260920/README.md) adopts AP-R1…R6 at `aca21c8`: Luna 22/22, Astra OpenAI browser focus/recovery/permission checks, and integrated main `b98e8ae` 28/28. The journey remains an explicit synthetic preview; no production Settings/backend capability is implied. [Claude’s next bounded batch](execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md) is ready for pickup: real dogfood frontend friction plus list-refresh continuity, before Runtime management. No author process is started by this registration. Existing accessibility residuals stay open. Both ended 06a trees are archived with verified file/Git recovery and removed; archive refs and the frozen Git dependency remain. Preview 8899 now runs from persistent main; user Host 8787 remains available. No push/deploy; heartbeat paused.
+
 ## 2026-09-20 · Basic real coding dogfood accepted; 06a delta review next
 
 [The real browser completion](execution/claude-frontend-harness-2026-09-16/evidence/real-dogfood-20260920/completion.md) accepts fresh, unassisted DeepSeek diagnosis → exact candidate-write approval → same-Run Host check (revision 1, exit 0, 2/2) → reload, with the source unchanged. Sol's model-visible hash fix passes Luna's independent 25/25 and is merged at `95080e4`; its ended tree is restored-verified and removed. Earlier failure/assistance evidence remains intact. The historical RuntimeLock case, broader N-02 robustness and G4 residuals are not claimed closed. User Host/connection and synthetic data remain available. Claude's frontend friction batch stays queued; 06a `aca21c8` is now under bounded independent AP-R1…R6 review. Heartbeat paused; no key export, push or deployment.

@@ -1,0 +1,64 @@
+Browser tab: 5, Title: "Agent profiles · synthetic preview", URL: "http://127.0.0.1:8899/".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 65-66, 69-86, 89-90, 92-102
+~			47 pop up button (collapsed, settable) Description: Role, Value: Attention, ID: settings-xyamkd, Secondary Actions: Expand
+~			57 checkbox (settable, integer) Description: Coding review 0.2, Value: 1, ID: settings-42qlhw
+~			58 text Not supported on Hermes. It needs to read the connected repository, write a private candidate edit and run the project's fixed check.
+~			59 text Praxis · 0.4
+~			60 text Field work and organisational collaboration: align, discover, decide, hand off.
+~			61 checkbox (settable, integer) Description: Praxis 0.4, Value: 1, ID: settings-wfg6dj
+~			62 text Attention triage · 0.9
+~			63 text Group what is waiting on a person and propose the next follow-up.
+~			64 checkbox (settable, integer) Description: Attention triage 0.9, Value: 1, ID: settings-xpg24d
++			65 heading Execution, Value: 4
++				66 text Execution
+~			67 text Runtime
+~			68 text Local process. Available for new runs.
++			69 pop up button (collapsed, settable) Description: Runtime, Value: Hermes, ID: settings-h4lybz, Secondary Actions: Expand
++				70 menu
++					71 Pi
++					72 (selected) Hermes
++					73 Codex — unavailable
++			74 definition list
++				75 container Model owner
++					76 text Model owner
++				77 text Hermes · its own settings
++				78 container Effective model
++					79 text Effective model
++				80 text Synthetic native model, as Hermes reports it
++				81 container Where that comes from
++					82 text Where that comes from
++				83 text Hermes' own settings
++				84 container Requested by this agent
++					85 text Requested by this agent
++				86 text Nothing — this agent makes no model request.
+~			87 text Hermes chooses its own model. CourtWork reads that choice and does not set it.
+~			88 button Runtime detail: Hermes
++			89 heading Permission scope, Value: 4
++				90 text Permission scope
+~			91 text A Kit states what it needs. It grants nothing: each line below is the effect the permission owner reports for this runtime.
++			92 definition list
++				93 container Read the Attention queue
++					94 text Read the Attention queue
++				95 text Allowed · asked for by Attention triage
++				96 container Read connected reference material
++					97 text Read connected reference material
++				98 text Permission effect not reported · asked for by Praxis
++				99 container Produce a decision material
++					100 text Produce a decision material
++				101 text Asks each time · asked for by Praxis
++				102 container Read the connected repository
++					103 text Read the connected repository
++				104 text Not supported by Hermes · asked for by Coding review
++				105 container Write a private candidate edit
++					106 text Write a private candidate edit
++				107 text Not supported by Hermes · asked for by Coding review
++				108 container Run the project's fixed check
++					109 text Run the project's fixed check
++				110 text Not supported by Hermes · asked for by Coding review
++			111 text Requested: Kits Attention triage, Praxis, Coding review. Effective is still what revision 2 holds.
++			112 text Coding review is not supported on Hermes. Remove the Kit or choose a runtime that supports it.
++			113 button (disabled) Save
++			114 button Discard changes
++			115 text Saving records this composition. It does not publish an accepted Work Expert.
+The focused UI element is 57 checkbox (settable, integer) Description: Coding review 0.2, Value: 1, ID: settings-42qlhw

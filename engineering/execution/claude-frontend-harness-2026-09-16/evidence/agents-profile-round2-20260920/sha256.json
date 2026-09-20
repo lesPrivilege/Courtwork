@@ -1,0 +1,17 @@
+{
+  "README.md": "6f069baa2ffcf8a2ca4a355247639d574ffeb21115cf1911f846701f0b5c179d",
+  "browser/01-failed-focus.png": "80b5c41f3231d5105902cf7b564110227b96c16b570c7a04971fafa04ba9d560",
+  "browser/01-failed-focus.txt": "d6a2d138feb84e14b24858b17e00d74a1c72a14dec81c02ae1355f3e63f2edda",
+  "browser/02-recovered.png": "bc32e193610b26a67fb33d23fd05d8b61522ea9e8f8548c3279ecc7538a362f6",
+  "browser/02-recovered.txt": "5bddfb415def6a74c150c60948801c08b6f85235ac133d303131629b1b73b4f4",
+  "browser/03-read-only.png": "62c37d89cc4478bd4c8951697600af19097a0f2dc4bdfd8e0595a128e336f9c9",
+  "browser/03-read-only.txt": "6b363baae297238fda7ce2a4db3486a6726c369f6c4f58ec5e35de03b3990a0c",
+  "browser/04-permission-readings.png": "4f0c67c0815ecc0f4ddc712d56e23d4b16ed45feae0cddac2734cbba3f1a96ca",
+  "browser/04-permission-readings.txt": "607d4019c6b56c8baca4cff328946e5090979a5d776c6613d3bff797b6d4a410",
+  "browser/05-no-focus-steal.txt": "b06b77c997dead993a85b747e7cb46495efd60b747bd170f295fd4d88d4f45ab",
+  "browser/served-source.json": "8f1a01da715feab0a3cdd42ad80a42d57c2a20a67d0e751642d2885ab6d0c9b5",
+  "integrated-tests.log": "1df2391df1c7789dac786ac69fdfc0eea491b5c655298566155d955592420947",
+  "luna-review.md": "e12b4fa61beaaee47f361fd9613b7864a25ee5c948e8e72a037349f5c7100050",
+  "luna-tests.log": "95beb420cde1d9afcb90bea3a1562f91209cfc59dc79b5acbeed0f9eddd3c984",
+  "preservation.json": "b258e552c22f42d98b38a989d5bfb3b982f289f4194a4f32a7555ed6b2a9d31c"
+}

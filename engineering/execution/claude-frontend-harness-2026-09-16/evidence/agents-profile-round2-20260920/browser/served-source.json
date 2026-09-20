@@ -1,0 +1,18 @@
+{
+  "app/web/agent-profiles.mjs": {
+    "sha256": "705700fac8f3498a1fcceaa0de3195014e126d3d8f6ba7a52534886bf36b4601",
+    "matchesCandidate": true
+  },
+  "app/web/agent-profiles-view.mjs": {
+    "sha256": "79bf9f37fa76680589f99250bd5cbd96b732cdec0e050d86251a0eb219569446",
+    "matchesCandidate": true
+  },
+  "app/tests/fixtures/agent-profiles/adapter.mjs": {
+    "sha256": "b6dc9e1bd8bee514a1b3e17c218f92a2125c20c083f9a3ec6ffcb0d7563e9e28",
+    "matchesCandidate": true
+  },
+  "app/tests/fixtures/agent-profiles/preview.mjs": {
+    "sha256": "829de98a54b7daddbc043bfc0d51fa9cfcd14693daf8222e6b5db3f650b93130",
+    "matchesCandidate": true
+  }
+}

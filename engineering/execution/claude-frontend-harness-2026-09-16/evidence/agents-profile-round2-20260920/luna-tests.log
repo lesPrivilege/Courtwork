@@ -1,0 +1,33 @@
+review_commit=aca21c88fff2fc2e582f8c52d23d840d4ce53c3c
+command: node --test app/tests/agent-profiles-specimen.test.mjs
+✔ an empty host states that nothing is configured instead of an error (1.97475ms)
+✔ every row opens its own profile, including one whose runtime is down (0.370959ms)
+✔ an unavailable runtime can be replaced from inside the profile it blocks (0.907541ms)
+✔ an opened profile reports requested, supported and granted as three separate facts (0.45625ms)
+✔ an incompatible Kit and runtime pair is explained and blocks the save (0.399542ms)
+✔ an unavailable runtime cannot be saved as an execution choice (0.371166ms)
+✔ a saved draft returns the owner-confirmed revision and clears the draft (0.61825ms)
+✔ a failed save keeps the draft exactly as composed and saves nothing (0.479667ms)
+✔ a revision saved elsewhere is refused, kept beside the draft, and reloaded on request (0.761833ms)
+✔ a run holding the profile freezes saving without claiming a queue (0.41375ms)
+✔ a draft survives leaving for the list and reopening the same profile (0.916417ms)
+✔ a late reply cannot land on another profile or on a newer draft (0.610125ms)
+✔ discarding is refused while a save is in flight, and the reply stays coherent (0.453083ms)
+✔ a draft that moves under an in-flight save is never reported clean (0.394875ms)
+✔ a save reply for a profile you have left does not follow you to the next one (0.41225ms)
+✔ a runtime detail reply cannot land after the surface that asked for it is gone (1.05175ms)
+✔ a host that cannot save says so instead of offering a dead control (0.328041ms)
+✔ a supported action with no reported effect is not a missing runtime (0.262042ms)
+✔ the runtime read view reports unobserved facts as unobserved (0.350709ms)
+✔ model ownership stays with its owner in the projection (0.239959ms)
+✔ the projection is pure and invents nothing for an unknown id (0.058334ms)
+✔ the preview host serves the fixture page and the product assets, and mutates nothing (24.808833ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 182.5005
+exit=0

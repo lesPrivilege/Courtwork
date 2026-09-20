@@ -1,0 +1,116 @@
+Browser tab: 5, Title: "Agent profiles · synthetic preview", URL: "http://127.0.0.1:8899/".
+0 AXWebArea Agent profiles · synthetic preview, URL: 127.0.0.1:8899/
+	1 container
+		2 text INTERACTIVE SYNTHETIC PREVIEW
+		3 heading Settings › Agents › Agent profiles, Value: 1
+			4 text Settings › Agents › Agent profiles
+		5 text Every agent, Kit, runtime, version, model reading and permission effect on this page is synthetic. Nothing here reads your host, discovers an installation, contacts a provider or saves outside this tab. A confirmed revision below is confirmed by the preview only.
+	6 container Preview state
+		7 container
+			8 text Scenario
+			9 pop up button (collapsed, settable) Scenario, Value: Permission effect not reported, ID: variant-select, Secondary Actions: Expand
+				10 menu
+					11 Normal
+					12 No agent profiles
+					13 Save fails
+					14 Saved elsewhere first
+					15 Pi unavailable
+					16 Host cannot save
+					17 (selected) Permission effect not reported
+		18 checkbox (settable, integer) Description: Slow replies, Value: 1, ID: slow-toggle
+		19 container
+			20 text Appearance
+			21 pop up button (collapsed, settable) Description: Appearance, Value: Light, ID: theme-select, Secondary Actions: Expand
+				22 menu
+					23 (selected) Light
+					24 Dark
+		25 button Reset preview, ID: reset-preview
+	26 tab group Settings groups
+		27 tab (selected, settable, boolean) Agents, Value: 1, ID: agents-tab
+		28 button (disabled) Models
+		29 button (disabled) Tools & Integrations
+		30 button (disabled) Permissions
+		31 button (disabled) Developer
+	32 text Settings group
+	33 text Only Agent profiles is built in this preview. The other groups are the product's real ones and are not reachable from here.
+	34 container Description: Agents, ID: agents-panel
+		35 heading Agents, Value: 3, ID: agents-panel-title
+			36 text Agents
+		37 container agent-profiles-mount
+			38 button Back to agent profiles
+			39 heading Attention, Value: 4
+				40 text Attention
+			41 text Triage what is waiting on you and prepare the material for the decision.
+			42 text Saved revision 3 · 9/20/2026, 8:00:00 PM
+			43 heading Responsibility, Value: 4
+				44 text Responsibility
+			45 text Role
+			46 text Sorts what needs a person, keeps follow-ups moving, and proposes triggers.
+			47 pop up button (collapsed, settable) Description: Role, Value: Attention, ID: settings-jmylnd, Secondary Actions: Expand
+				48 menu
+					49 General work
+					50 Coding
+					51 (selected) Attention
+			52 heading Kits, Value: 4
+				53 text Kits
+			54 text A Kit supplies working methods for this role. Kits are optional; general work needs none.
+			55 text Coding review · 0.2
+			56 text Read a repository, propose an exact edit, and run the project's own check on it.
+			57 checkbox (settable, integer) Description: Coding review 0.2, Value: 1, ID: settings-3obps7
+			58 text Praxis · 0.4
+			59 text Field work and organisational collaboration: align, discover, decide, hand off.
+			60 checkbox (settable, integer) Description: Praxis 0.4, Value: 1, ID: settings-cgj8tq
+			61 text Attention triage · 0.9
+			62 text Group what is waiting on a person and propose the next follow-up.
+			63 checkbox (settable, integer) Description: Attention triage 0.9, Value: 1, ID: settings-2f9fz8
+			64 heading Execution, Value: 4
+				65 text Execution
+			66 text Runtime
+			67 text Local process. Available for new runs.
+			68 pop up button (collapsed, settable) Description: Runtime, Value: Pi, ID: settings-rney6l, Secondary Actions: Expand
+				69 menu
+					70 (selected) Pi
+					71 Hermes
+					72 Codex — unavailable
+			73 definition list
+				74 container Model owner
+					75 text Model owner
+				76 text CourtWork · Models
+				77 container Effective model
+					78 text Effective model
+				79 text Synthetic model · synthetic connection
+				80 container Where that comes from
+					81 text Where that comes from
+				82 text Models · All chats · future runs
+				83 container Requested by this agent
+					84 text Requested by this agent
+				85 text Nothing — this agent makes no model request.
+			86 text This agent has no model choice of its own yet. Every chat uses the one saved in Models.
+			87 button Runtime detail: Pi
+			88 heading Permission scope, Value: 4
+				89 text Permission scope
+			90 text A Kit states what it needs. It grants nothing: each line below is the effect the permission owner reports for this runtime.
+			91 definition list
+				92 container Read the Attention queue
+					93 text Read the Attention queue
+				94 text Allowed · asked for by Attention triage
+				95 container Read connected reference material
+					96 text Read connected reference material
+				97 text Permission effect not reported · asked for by Praxis
+				98 container Produce a decision material
+					99 text Produce a decision material
+				100 text Asks each time · asked for by Praxis
+				101 container Read the connected repository
+					102 text Read the connected repository
+				103 text Allowed · asked for by Coding review
+				104 container Write a private candidate edit
+					105 text Write a private candidate edit
+				106 text Asks each time · asked for by Coding review
+				107 container Run the project's fixed check
+					108 text Run the project's fixed check
+				109 text Allowed · asked for by Coding review
+			110 button (disabled) Save
+			111 text Saving records this composition. It does not publish an accepted Work Expert.
+			112 text Saved. This host confirmed revision 3; it applies to the next run.
+
+The focused UI element is 38 button Back to agent profiles
