@@ -1,0 +1,63 @@
+{
+  "manifest": {
+    "schemaVersion": 1,
+    "createdAt": "2026-09-20T07:09:24.473Z",
+    "scenario": "coding-dogfood",
+    "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance",
+    "sourcePath": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/source",
+    "dataDir": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data",
+    "sourceRepository": {
+      "name": "synthetic-parcel",
+      "branch": "main",
+      "head": "c8310f06ef6049a9639ba418f6ea3c42cd7831ad",
+      "files": [
+        "package.json",
+        "README.md",
+        "src/parcel.mjs",
+        "test/parcel.test.mjs"
+      ],
+      "failingCheck": {
+        "recipeId": "node-test",
+        "expectedExitCode": 1,
+        "reportedBy": "test/parcel.test.mjs"
+      }
+    },
+    "host": {
+      "appDir": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920/app",
+      "startup": {
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "args": [
+          "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920/app/server/index.mjs",
+          "--data-dir",
+          "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data",
+          "--port",
+          "8787"
+        ]
+      },
+      "env": {
+        "SE_RUNTIME_DATA_DIR": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data"
+      },
+      "defaultProvider": "fake-openai-loopback (Local test provider; no credential required)"
+    },
+    "toolchain": {
+      "node": "v25.9.0",
+      "git": "git version 2.50.1 (Apple Git-155)"
+    }
+  },
+  "preparedByAppDir": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920/app",
+  "preparedByThisCheckout": false,
+  "launch": {
+    "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+    "args": [
+      "/Users/lesprivilege/Projects/Courtwork/app/server/index.mjs",
+      "--data-dir",
+      "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data",
+      "--port",
+      "8787"
+    ]
+  },
+  "sourceHeadMatchesManifest": true,
+  "currentSourceHead": "c8310f06ef6049a9639ba418f6ea3c42cd7831ad",
+  "sourceWorktreeClean": true,
+  "hostDataDirUsed": false
+}

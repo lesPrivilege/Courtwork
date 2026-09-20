@@ -1,0 +1,63 @@
+{
+  "integratedMain": "972fc9a22389b85c4a495f1d1f720ec71d07e099",
+  "acceptedSource": "3618947a6441c644bfaded75d41e96a6b4251b38",
+  "sourceHashesVerified": true,
+  "git": {
+    "bundle": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/repository.bundle",
+    "sha256": "dde81b9796a3947628345f5eeb0098ee86d8f19bf1681eb6f67bcfb493d8cf98",
+    "verified": true,
+    "mirrorRestoreRefsVerified": true,
+    "connectivityPassed": true,
+    "integratedMain": "972fc9a22389b85c4a495f1d1f720ec71d07e099",
+    "sourceHashesVerified": true
+  },
+  "removed": [
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920",
+      "head": "231532a7886963eddca587a61cc8ab7bee813d14",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-coding-dogfood-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-coding-dogfood-20260920/files.tar.gz",
+      "archiveSha256": "06f267f93e7b9d164184fe51a055742bf6f9a8bb933bc7380de3825f183c3771",
+      "manifestSha256": "d60599e073b9fb0e896fa2f60690e3c5f53e563f73081093509528960c542438",
+      "entryCount": 37783,
+      "fileBytes": 970904079,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true
+    },
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-review-20260920",
+      "head": "94d60d228c525ff1bc80de0d4e97deacd7afff8a",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-coding-dogfood-review-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-coding-dogfood-review-20260920/files.tar.gz",
+      "archiveSha256": "05807cc0ef5a5d8281776d60fe70b5ee2fabb403aa5ceb09b63b760aee40d139",
+      "manifestSha256": "c58a1d45fb5bbc568726e694101136d112fd8afbf639e0c1c8810a47e82ea275",
+      "entryCount": 8455,
+      "fileBytes": 440212434,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true
+    },
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-dogfood-integration-20260920",
+      "head": "972fc9a22389b85c4a495f1d1f720ec71d07e099",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-dogfood-integration-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-dogfood-integration-20260920/files.tar.gz",
+      "archiveSha256": "6034635110d0d28dd6fccd25bb13fc6bf9a86c8b9995c0a6449efd7b3a76eed4",
+      "manifestSha256": "ac526065aea72fe1602f44ea673f35e91f718205afe942d7530b327587b9f6d3",
+      "entryCount": 8510,
+      "fileBytes": 441153920,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true
+    }
+  ],
+  "remainingWorktrees": "worktree /Users/lesprivilege/Projects/Courtwork-legacy-frozen\nHEAD f9ade85b72e5abcdc64c3a6c43ed3a13a2292476\ndetached\n\nworktree /Users/lesprivilege/Projects/.worktrees/courtwork-agents-frontend-20260920\nHEAD 0f76407ac3f0fc7aa34585a003921e855c80820b\nbranch refs/heads/claude-agents-frontend-20260920\n\nworktree /Users/lesprivilege/Projects/.worktrees/courtwork-agents-review-20260920\nHEAD 0f76407ac3f0fc7aa34585a003921e855c80820b\ndetached\n\nworktree /Users/lesprivilege/Projects/Courtwork\nHEAD 972fc9a22389b85c4a495f1d1f720ec71d07e099\nbranch refs/heads/main\n\n",
+  "reservedInstanceUsed": false,
+  "heartbeat": "PAUSED",
+  "realProvider": "not_run",
+  "browserAcceptance": "not_run",
+  "pushOrDeployment": false,
+  "unrelatedUntrackedPreserved": [
+    ".agents/",
+    ".obsidian/",
+    "skills-lock.json"
+  ]
+}

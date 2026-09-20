@@ -2,7 +2,7 @@
 
 ## 2026-09-20 · Dogfood readiness independently accepted
 
-[Order 11 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-final-20260920/README.md) fixes source `3618947`: Claude’s round-2 delivery plus Astra’s minimal data-directory and bootstrap-deadline corrections. Luna independently passes 13/13 preparation, 2/2 lifecycle and 15/15 fresh-process rehearsal. This authorizes the prepared WebUI handoff and local integration; real-model N-02/browser acceptance remain open. The reserved instance and pending 06a frontend trees are preserved. Ended dogfood trees are being restoration-verified before cleanup; exact main/archive receipts follow. Heartbeat paused; no provider trial, push or deployment.
+[Order 11 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-final-20260920/README.md) fixes source `3618947`: Claude’s round-2 delivery plus Astra’s minimal data-directory and bootstrap-deadline corrections. Luna independently passes 13/13 preparation, 2/2 lifecycle and 15/15 fresh-process rehearsal. This authorizes the prepared WebUI handoff and local integration; real-model N-02/browser acceptance remain open. The reserved instance and pending 06a frontend trees are preserved. Integrated main `972fc9a` now contains the accepted source. [The merge and preservation receipt](execution/claude-frontend-harness-2026-09-16/evidence/coding-dogfood-final-20260920/completion.md) records restoration-verified removal of all three ended dogfood trees, preserved archive refs and an unused reserved instance ready for the user’s WebUI pass. Heartbeat paused; no provider trial, push or deployment.
 
 ## 2026-09-20 · Agent profiles frontend reviewed; bounded 06a return
 
