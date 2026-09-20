@@ -1108,7 +1108,12 @@ async function pollEvents(epoch) {
       // connection state (or stop its probe) — just merge the page like an
       // ordinary successful poll.
       const changed = mergeEvents(page.events || []);
-      if (changed) renderChat();
+      if (changed) {
+        renderChat();
+        // The event poll does not pass through renderAll. Keep an already-open
+        // card on the same confirmed writes and terminal Run state as Chat.
+        if ($("workspace-popover").matches(":popover-open")) renderWorkspaceCard();
+      }
       if (state.surface.open && state.surface.kind === "run" && changed)
         void readRunDetails();
       if (hadActiveRun && !state.runs.some(isActiveRun)) {
