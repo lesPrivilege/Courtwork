@@ -174,6 +174,38 @@ test("the card names the four things a coding task depends on and keeps them apa
   assert.doesNotMatch(text, /Kit/, "no Kit is named here, and none grants this");
 }));
 
+test("File access explains all three Host modes and the disclosure survives event renders", () => withTinyDom(async (body) => {
+  const request = async (path) => (path === "/repositories/recent" ? { entries: [] } : {});
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {}, onReviewChanges: () => {} });
+  const render = (events) => card.render(body, {
+    session: withCandidate, active: false, events,
+    project: { id: "p1", name: "Courtwork" }, permissionLabel: "Ask before editing",
+  });
+
+  render([]);
+  let disclosure = field(body, "roles-summary").parentNode;
+  assert.match(disclosure.textContent, /Ask before editing shows each exact write and check for approval/);
+  assert.match(disclosure.textContent, /Allow edits lets writes proceed without asking, but checks still require approval/);
+  assert.match(disclosure.textContent, /Read only blocks writes and checks/);
+
+  disclosure.open = true;
+  disclosure.setAttribute("open", "");
+  disclosure.dispatchEvent({ type: "toggle" });
+  render([CONFIRMED_WRITE]);
+  disclosure = field(body, "roles-summary").parentNode;
+  assert.equal(disclosure.hasAttribute("open"), true, "a Host event render preserves the user's expanded reading state");
+
+  disclosure.open = false;
+  disclosure.removeAttribute("open");
+  disclosure.dispatchEvent({ type: "toggle" });
+  const outside = body.ownerDocument.createElement("button");
+  outside.focus();
+  render([{ ...CONFIRMED_WRITE, seq: 42 }]);
+  disclosure = field(body, "roles-summary").parentNode;
+  assert.equal(disclosure.hasAttribute("open"), false, "a later Host event render also preserves an explicit collapse");
+  assert.equal(document.activeElement, outside, "refreshing the card does not take focus from another surface");
+}));
+
 test("a bound folder can be changed without first disconnecting, and the Host's own precondition is stated", () => withTinyDom(async (body) => {
   const calls = [];
   const request = async (path, options = {}) => {

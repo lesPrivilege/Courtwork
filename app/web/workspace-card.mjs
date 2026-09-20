@@ -106,7 +106,7 @@ export function candidateWriteRevision(session, events) {
 
 export function createWorkspaceCard({ request, onSession, onClose, onReviewChanges }) {
   let directory = "", pending = false, choosing = false, error = "", generation = 0, requestId = null, requestFor = null;
-  let recent = null, recentLoading = false, pickerUnavailable = false, pathOpen = false, changing = false;
+  let recent = null, recentLoading = false, pickerUnavailable = false, pathOpen = false, rolesOpen = false, changing = false;
   // The field a command was started from, kept for exactly as long as the
   // command is out: the control it names is about to be replaced or disabled.
   let commandField = null;
@@ -161,13 +161,16 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       const primary = el("section", { className: "context-card" }, facts);
       // UX-02 · the sentence each reading needs to be acted on stays at the
       // control; the longer definitions are one disclosure away.
-      primary.append(el("details", { className: "repository-path-details" },
+      const roles = el("details", { className: "repository-path-details" },
         el("summary", { text: "Which is which", attrs: { "data-repository-field": "roles-summary" } }),
         el("dl", { className: "data-list" },
           el("dt", { text: "Project" }), el("dd", { text: "How this chat is organised. It does not connect a folder or grant access to one." }),
           el("dt", { text: "Folder" }), el("dd", { text: "Where a run reads source. It stays read only and is never written." }),
           el("dt", { text: "Private candidate" }), el("dd", { text: "The Host's own copy of the folder's current commit. It is the only place an edit lands." }),
-          el("dt", { text: "File access" }), el("dd", { text: "What happens when a run proposes a write: either the exact file and content are shown for approval first, or they are not." }))));
+          el("dt", { text: "File access" }), el("dd", { text: "Ask before editing shows each exact write and check for approval. Allow edits lets writes proceed without asking, but checks still require approval. Read only blocks writes and checks." })));
+      if (rolesOpen) roles.setAttribute("open", "");
+      roles.addEventListener("toggle", () => { rolesOpen = roles.open === true || roles.hasAttribute("open"); });
+      primary.append(roles);
       if (changing) {
         const keep = el("button", { className: "quiet-button", text: "Keep this folder", attrs: { type: "button", "data-repository-field": "keep-folder" } });
         keep.disabled = busy;
