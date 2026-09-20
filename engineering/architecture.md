@@ -16,6 +16,8 @@ The minimum Runtime Port reuses the existing RD-001 / Agents API contract: `desc
 
 The [2026-09-20 local-runtime and Settings ruling](research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md) specifies upstream maintenance, bounded-job versus managed-session adapters, and target Agents → Agent profiles / Runtimes configuration. Models retains provider ownership, Developer retains diagnostics, and CC Switch is consumed only as a Provider control-plane precedent. Connection removal, native uninstall and active-run cancellation remain separate operations.
 
+The [personal credentials and hooks ruling](research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#personal-credentials-hooks-and-browser-dogfooding--2026-09-20) keeps configuration in the existing Models/Agents/Tools owners, with Host-held secret references and RD-009 hook governance. It is a deferred personal Settings improvement; enterprise identity/quota/gateway control belongs to separate FDE work. Secure storage is a target, not a claim of current encryption or process isolation.
+
 ## 变更边界
 
 动产品代码前，在原任务合同注明本次改变的责任、事实owner、最近实现先例及必要的跨层修改理由。普通Provider、执行能力或垂类增量应沿对应合同接入；评审检查是否复制权威状态、使领域差异侵入主loop，或增加另一套UI语义。需要跨层修改时说明真实接缝与不变量，不能仅按目录数量判断解耦。

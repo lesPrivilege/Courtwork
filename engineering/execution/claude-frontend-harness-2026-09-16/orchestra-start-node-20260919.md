@@ -1,6 +1,6 @@
 # Courtwork integration start node — entry into core Orchestra R&D
 
-2026-09-19 · Architecture/integration owner: Astra. Independent verification: Luna. **Status: Claude serial construction first; fresh-node acceptance, merge and worktree cleanup pending. Core R&D has not started.**
+2026-09-19 · Architecture/integration owner: Astra. Independent verification: Luna. **Status (2026-09-20): GUI fresh node accepted, locally merged and four ended trees preserved/removed. The first bounded RD-006/DF-04/RD-009 Core correction started from receipt-bearing main `83041d1`; see the latest entry below. Historical entries retain their original status.**
 
 “Fresh node” means a new, pinned integration baseline in **Courtwork**, the sole development line. It does not recreate the retired Fresh checkout, rename the product, reset current work, or start another roadmap. This intake belongs to the [existing Claude assignment](README.md) and consumes the [Orchestra ruling](../../research/architecture-node-2026-09-13/orchestra-direction-20260919.md).
 
@@ -190,3 +190,13 @@ Astra accepts GUI candidate `2b98abb5f412ba5b6f7c04837c4a23ed7d075a93` after [Lu
 ## Merge and cleanup complete — 2026-09-20
 
 The accepted GUI and Orchestra documents are integrated at `main@a8aa3235515d412dbf1845e685181f0afc052181`. The [completed recovery and cleanup receipt](evidence/fresh-integration-20260920/README.md#merge-and-preservationcleanup-receipt) records four full-byte archives, successful file/Git restoration, exact hashes and removal of the four ended task trees. Only Courtwork and the frozen shared-database dependency remain registered. The historical N-13 discrepancy stays open with Pages; its surviving bytes are preserved. No push or deployment occurred. The first missing RD-006/DF-04/RD-009 slice is now eligible to begin in a new isolated tree from the next main commit carrying this receipt.
+
+
+## First bounded Core slice — 2026-09-20
+
+After merge/cleanup, Astra created `codex/harness-core-closure-20260920` from `83041d158cea01f2272f010c098d538617e0c3c6` in a new isolated worktree. [The original DF-04/03 evidence packet](evidence/core-check-revision-20260920/README.md) records the same-Run candidate/check approval defect, its bounded correction and separate author/independent evidence. This consumes an actual missing Host boundary without repeating Claude's accepted GUI work. Real-model N-02 remains open; Runtime/child directions have not started. The heartbeat pauses after this first slice and its evidence are completed, as authorized.
+
+
+### First-slice acceptance — `8aef0bd`
+
+Source `8aef0bd41fe9426d775f86e47aec6435d46f9ac5` contains the independently accepted same-Run approval and final cancellation correction. Author 82/82 and Luna 27/27 checks are recorded under the original DF-04/03 evidence packet. Subsequent documentation registers personal key/hook management and a future built-in-browser consumer only; it does not launch the Runtime/child roadmap or claim real-model dogfood. The first-slice heartbeat obligation is complete after its local integration/cleanup receipt; pause it at that point.

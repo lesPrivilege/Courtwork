@@ -52,3 +52,18 @@ Independent review: 无
 - 取消路径与重启围栏只有 Host 测试，浏览器未走 Stop working 中断检查。
 - 真实模型从 GUI 发起一次检查（合同验收序列最后两步）未做；非作者复核未做。
 - Inspector 对 check 事件的呈现未改（工具行已含结算）。
+
+
+## First post-integration correction — 2026-09-20
+
+Astra implements the bounded [same-Run candidate approval correction](evidence/core-check-revision-20260920/README.md) under this original owner and RD-009. A successful write earlier in the Run now advances the check permission and start receipt to the current revision; subsequent candidate/binding or recipe-descriptor drift rejects before process execution. The Store validates the start atomically and the runner rechecks after asynchronous preparation. Author affected-seam checks pass 79/79, including real synthetic command execution and reopen. Luna's exploration recommendation is adjusted to support fresh exact approval rather than reject every same-Run write/check. Independent acceptance is recorded in the evidence packet when completed. Real-model/browser dogfood and broader G4 acceptance remain open.
+
+### Independent F-01 disposition — adopt
+
+[Luna's first review](evidence/core-check-revision-20260920/luna-review-round1.md) found cancellation could arrive during temporary-HOME preparation and still spawn a child before killing it. Astra adopts this blocker. Add a final synchronous signal/admission fence; a recorded check start cancelled before any child exists settles once as `cancelled`, with null exit code/signal/failure and empty output. A signal already aborted, one aborted by the final Host callback, and admission closed while persisting the start must all prevent process creation. Existing in-flight process cancellation still waits for group termination.
+
+### Bounded acceptance — 2026-09-20
+
+F-01 is closed. [Final author 82/82 and independent Luna 27/27 evidence](evidence/core-check-revision-20260920/README.md#final-independent-acceptance-and-f-01-disposition) supports local integration of this correction, with exact final hashes. Astra accepts this bounded slice and retains N-02/real-model GUI and full G4 residuals with their existing owners.
+
+Accepted source commit: `8aef0bd41fe9426d775f86e47aec6435d46f9ac5`. The preserved failing-test stdout has two whitespace-only output lines; they remain raw evidence rather than rewritten output. Product source whitespace checks pass.

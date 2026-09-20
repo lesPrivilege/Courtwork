@@ -159,3 +159,44 @@ The [2026-09-20 Multica ruling](multica-consumption-20260920.md) adds a fixed-so
 Luna's bounded read-only review identified four active downstream-worker recommendations in this ruling, RD-005, current and the Multica consumption record. Astra adopts their replacement with Pi and retains the historical inventory/source records unchanged. The review confirms that existing Settings owners suffice; no new object layer is required. Internal document links follow the revised headings; native runtime/provider/session IDs and product files were not changed.
 
 Luna subsequently reviewed the revised bilingual development sections, Pi worker/comprehension contract and RD-005 link. No blocking document inconsistencies or current-capability overclaims were found. Astra adopts this bounded document result; it is not product or usability acceptance.
+
+
+## Personal credentials, hooks and browser dogfooding — 2026-09-20
+
+**Astra ruling: adopt as scoped development direction; implementation deferred.** The user supplied the ChatGPT discussion “开源网关实践综述” (`6aaf5c1f-61f8-83ec-9c12-0a910e1f2f91`), read in this task. Its useful product boundary is CW as a personal workstation; organization identities, employee quotas, tenant policy and enterprise gateway operations belong to separate FDE work when a real customer workflow requires them. Upstream claims about Octop, LiteLLM, Bifrost, Envoy, Higress, APISIX, Portkey and MCPX are reference leads from that conversation, not independently verified adoption evidence in this revision. No gateway is installed or made a CW dependency.
+
+**Availability correction.** The user reports CC Switch/DeepSeek is not registered in this local Codex setup. The failed delegated DeepSeek worker is an account-channel observation, not a diagnosis of the separately installed Pi or Hermes runtimes. Keep their installation, native provider configuration, CW connection and per-task permissions as separate facts. Do not inspect native credentials to fill this gap.
+
+### Settings ownership
+
+| Existing owner / intended surface | Personal management responsibility |
+|---|---|
+| Models → a provider connection | Endpoint and model configuration; a credential reference and masked configured/missing/invalid state; add/replace/remove a key and explicitly bounded connection checks |
+| Agents → Runtimes → an installed runtime (target hierarchy) | Show whether authentication/configuration is upstream-owned or CW-managed; connect an explicitly chosen reference, disclose native projection/restart requirements and preserve upstream configuration |
+| Agents → Agent profile / Runtime capabilities, with RD-009 as execution owner | Expose that runtime's supported trusted hooks, source/version, trigger, requested data/actions and grant/binding scope; save, enable, test and disable are separate operations |
+| Tools & Integrations → the specific connection | Tool/channel authentication references and scope, reusing the same Host secret service rather than creating another credential store |
+| Developer | Redacted diagnostics, adapter compatibility and execution receipts; not the ordinary place to find keys or enable hooks |
+
+This extends the existing Models/Agents/Tools ownership. A shared credential service is an internal responsibility, not a new primary Settings category or a second configuration ledger. The simple user flow starts from the connection or agent being configured and discloses technical details when needed.
+
+### Credential boundary
+
+**Observed baseline, not the target:** [Luna's bounded source review](explore/local-secrets-hooks-20260920.md) at `83041d1` finds connection-ID keyed `credentials.json`, atomic writes with mode `0600`, and public credential-status projection without key readback. This is file-permission protection, not OS-keychain storage or encryption. Known-secret redaction covers tracked values of at least six characters and does not prove all native logs/hooks are scrubbed. Provider discovery/tests send credentials to the configured endpoint. The current hook vocabulary/trusted-extension lifecycle does not implement local Pi/Hermes hook management. No personal credential file was read in this review.
+
+Target OS-protected secret storage or a clearly identified existing native credential owner behind a Host-held reference. Keep raw values outside model context, Kit/Skill text, hook payloads, browser persistence, transcripts, logs, exports and Git. An intentional key entry must reach the Host to save it, but subsequent reads return only status/metadata; clear the input after submission. A future secure-store migration needs an explicit source/target plan and recovery evidence; never scan/import all local applications' keys automatically.
+
+Native-owned authentication may remain native-owned. CW should show where it is managed, and use a supported adapter handoff instead of copying the secret to create the appearance of centralized control. Default configuration exports contain references and scope, not secret values. Replacing or removing a CW reference must disclose affected future runs; revoking the upstream credential is a different operation. Connection tests disclose their destination and possible model/cost effect.
+
+Secret storage and redaction reduce exposure; they do not sandbox a full-trust local process. Child runtimes and hooks receive only explicitly allowed environment fields and the references/values required by their approved adapter contract. No ambient full-environment inheritance or unsolicited credential access. A runtime that cannot meet that boundary must report the limitation rather than claim leak prevention.
+
+### Hook boundary
+
+Reuse RD-009's observe/intercept/transform distinction and trusted source/hash binding. Runtime-native hooks and CW Host hooks remain distinct registrations; there is no implied portable hook ABI. A hook's manifest is declarative configuration, not permission to run arbitrary code. Specify trigger, ordering, timeout, cancellation, error behavior and disposal; transformed effect arguments must pass normal admission again. Observe hooks cannot silently obtain mutation rights, and failed permission hooks fail closed.
+
+Default hook payloads contain the minimum typed event metadata, without credentials or entire transcripts. Reading task content, writing files, launching commands or sending network requests needs an explicit supported capability and destination/scope policy. Redacted receipts record the hook/source/version/outcome. Enable applies at the supported future-run boundary; disable is distinct from confirming that an in-flight side effect has stopped. Native configuration writeback, if later supported, uses exact diffs, revision/conflict checks and backup/recovery while preserving unrelated upstream bytes.
+
+### Next WebUI check
+
+After the basic dogfooding consumer is ready, prepare a bounded task that can be pasted into CW's WebUI in the built-in browser. Use an independent synthetic repository/session and an OpenAI computer-use provider. The task should read a known defect, propose and obtain approval for an exact edit, invoke the fixed Host check, inspect the matching revision/result/diff, then interrupt/reload/reopen and continue. Include denied/stale approval behavior where the UI can genuinely exercise it.
+
+Record the actual CW runtime/provider/model, data fixture, source SHA, Run/call IDs, permission decisions and artifacts. A local deterministic-provider browser rehearsal proves GUI/Host wiring; a real-model task is separate evidence and requires an already authorized connection and bounded budget. Paste task instructions only—never keys or personal customer materials. This is a subsequent DF-04/N-02 browser consumer, not a claim that the first offline correction closes dogfooding or authorizes paid-provider discovery.

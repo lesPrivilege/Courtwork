@@ -123,3 +123,10 @@ Verified source SHA-256 values:
 | `site/src/readme.mjs` | `07e49a2d2f71a2b05570ec00d308fc6b4f6ec65445cbb035acce69a9f5aa374f` |
 
 **Astra disposition — adopt:** N-11's README generation-source defect has independent build verification for these bytes. Source commit/integration is pending; no successful remote CI, browser visual, product, release or deployment acceptance is inferred. This supersedes the earlier pending-independent-review status only for this correction. N-13 remains open: Luna's metadata inventory confirms 43 untracked captures (8,838,547 bytes) plus 31 tracked files (8,963,446 bytes); no historical manifest explains 105 → 43 untracked files. See the [fresh-node intake](orchestra-start-node-20260919.md) for retained worktrees and handoff scope.
+
+
+## N-10 / N-13 preservation disposition — 2026-09-20
+
+The later [integration and cleanup receipt](evidence/fresh-integration-20260920/README.md#merge-and-preservationcleanup-receipt) supersedes the historical kept-tree inventory above. GUI, review, Orchestra documentation and Pages task trees were fully archived and removed after file/Git recovery verification; their exact HEADs remain under archive refs. Main and the frozen shared Git database remain.
+
+**N-13 disposition (Astra): archive the surviving bytes as historical evidence under the Pages owner, with no adoption into current product claims.** All current tracked, untracked and ignored files were preserved. The observed 43 untracked files do not explain the earlier 105; that discrepancy remains unknown and owner-held. Cleanup is complete on the strength of full present-byte preservation and tested recovery, not a fabricated resolution of the historical difference. No remaining active work is assigned to the removed Pages tree.

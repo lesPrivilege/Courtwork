@@ -56,6 +56,8 @@ CourtWork 下一阶段基于上游 Pi 补齐 Harness Core 与 Extensions，并�
 
 目标界面优先呈现 Agent 的职责，模型选择就在附近。Settings 的 Agents 分组管理 Agent 配置与 Runtime 连接，Models 管理 Provider 连接。资深 Agent 用户经过简短的产品介绍即可理解和配置；路径、协议与诊断按需展开。这是目标结构，当前支持范围仍以实际实现为准。
 
+CW 保持个人工作站定位。计划中的 Settings 改进把凭据引用放在对应连接中，把受信 Hook 放在对应 Agent／Runtime 能力中，并保留上游管理归属。见[本地管理边界](engineering/research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#personal-credentials-hooks-and-browser-dogfooding--2026-09-20)；企业网关管理属于独立的 FDE 工作。
+
 目标组合包括 Hermes 挂载 Attention Kit 与 Praxis 处理驻场工作，以及 Pi/Codex 挂载前端、后端或迁移 Kit 形成专项 coding 能力。Praxis 组织业务发现、组织协作、决策材料与实际效果证据；文档、演示和 coding Skill 在选定 Kit 的工作契约内提供局部方法。Context 编译先确定这份契约，再按需加载 Skill，并按任务选择材料、保留其权限层级与出处。
 
 实施顺序沿现有工单推进：

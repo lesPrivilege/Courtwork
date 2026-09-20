@@ -59,6 +59,8 @@ CourtWork's next development stage combines a Harness Core and Extensions built 
 
 The intended interface puts the agent's role first and model choices close at hand. Settings groups agent profiles and runtime connections under Agents, while Models manages provider connections. Setup should need only a brief product introduction for an experienced agent user; paths, protocols, and diagnostics appear when needed. This is the target structure, not the current support matrix.
 
+CW remains a personal workstation. Planned Settings improvements keep credential references with their connections and trusted hooks with their agent/runtime capabilities, while preserving upstream ownership. See the [local management boundaries](engineering/research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#personal-credentials-hooks-and-browser-dogfooding--2026-09-20); enterprise gateway administration is separate FDE work.
+
 Examples of the intended composition are Hermes with an Attention Kit and Praxis for field work, or Pi/Codex with frontend, backend, or migration Kits for specialized coding. Praxis organizes discovery, organizational cooperation, decision materials, and evidence of useful outcomes. Document, presentation, and coding Skills provide task-specific methods within the chosen Kit's work contract. Context compilation establishes that contract before loading relevant Skills; it selects material by task and preserves its authority and provenance.
 
 The implementation sequence follows the existing work records:

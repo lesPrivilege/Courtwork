@@ -59,3 +59,8 @@
 [The Astra ruling and Luna evidence](../../research/architecture-node-2026-09-13/orchestra-direction-20260919.md) adopts this existing DF sequence as the first self-owned harness composition. It adds no DF/G numbers and does not make a second Runtime a prerequisite: finish the real RD-006/DF-04/RD-009 GUI read→edit→fixed self-check→precise result→interrupt/reopen path, then continue P03/DRT-03 and the Agents API A follow-ups. Pi's locked loop remains the dogfood baseline; Host owns admission, binding, effects, recovery, receipts, and unknowns. Existing synthetic results are not relabeled as real-model closure.
 
 The same record is the first consumer for future Role/Kit/Agent Instance composition. One Runtime family/version uses one Adapter; instances keep separate Session, provider/model configuration, permission, budget, and Kit binding. Kit/Skill context ordering does not change authority, credentials, or the existing `All chats · future runs` Composer scope. Spark/Attention and heterogeneous children remain later bounded consumers under RD-005.
+
+
+## 2026-09-20 · DF-04 same-Run check correctness
+
+The first post-integration Core slice repairs the existing Host recipe's candidate-version boundary: a governed write followed by a check in the same Run must approve and record the new write revision. Subsequent revision/binding drift fails closed. [Original owner and evidence](../../execution/claude-frontend-harness-2026-09-16/evidence/core-check-revision-20260920/README.md) distinguish author checks, independent verification and the remaining real-model GUI closure. No new DF/G gate, runtime rollout or paid-provider evidence is implied.

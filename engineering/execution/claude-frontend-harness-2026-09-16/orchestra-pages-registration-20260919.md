@@ -60,3 +60,8 @@ After the Pi/public-vocabulary revision, Astra rechecked exact English generator
 | `README.md` | `9f57382a2cb5a933eca507ee80893abc279f3fe013743e97e6cc2dabdf0835b5` |
 | `README.zh-CN.md` | `551a927d2744b639d89a31606604a51715ff0b46026d61319dbf750ccf168319` |
 | `site/src/readme.mjs` | `528609ccc8684e0042cf932e2f36c1007d01dab7a608c56372993de4465d7fc2` |
+
+
+## Deferred personal management explanation — 2026-09-20
+
+README and its English generator now explain the [personal credential/hook management direction](../../research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#personal-credentials-hooks-and-browser-dogfooding--2026-09-20). Later Models/Agents/Tour page work must distinguish upstream-owned native authentication from CW-managed references, and configured hooks from enabled/approved execution. Do not advertise encrypted storage, hook isolation, universal native integration or completed browser dogfood before implementation evidence exists. Enterprise employee/gateway management remains separate FDE work. This extends the current Pages registration; no page redesign or deployment occurs here.

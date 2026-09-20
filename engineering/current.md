@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-20 · First Core correction independently accepted; personal Settings direction registered
+
+After GUI integration and preservation/cleanup, the first RD-006/DF-04/RD-009 slice closes same-Run check approval drift and pre-spawn cancellation. [Author 82/82 and Luna non-author 27/27 checks](execution/claude-frontend-harness-2026-09-16/evidence/core-check-revision-20260920/README.md#final-independent-acceptance-and-f-01-disposition) pass; exact source hashes and original review finding/disposition are retained. Real-model N-02 and full G4 residuals remain open. The accepted source is `8aef0bd41fe9426d775f86e47aec6435d46f9ac5`; local integration and the final receipt are in progress, after which this heartbeat pauses.
+
+The user’s [personal credentials/hooks and built-in-browser dogfood direction](research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md#personal-credentials-hooks-and-browser-dogfooding--2026-09-20) is registered in architecture, bilingual README/generator, RD-009, Settings and deferred Pages owners. Existing keys use a protected local JSON file, not an OS keychain; native Pi/Hermes authentication remains separately owned. No key/hook UI, native config migration, enterprise gateway, paid-provider trial or browser dogfood was performed.
+
 ## 2026-09-20 · GUI merged; ended task trees preserved and cleared
 
 GUI candidate `2b98abb` and Orchestra direction are integrated at `a8aa323`. The actual combined tree passed 1223 tests, deterministic smoke and relevant document/Pages checks. [Four ended worktrees are fully archived and removed](execution/claude-frontend-harness-2026-09-16/evidence/fresh-integration-20260920/README.md#merge-and-preservationcleanup-receipt) after successful file and Git recovery tests; their HEADs remain under archive refs. Courtwork and the frozen shared Git database remain. N-13's unexplained historical count difference and G4 visual residuals retain their owners. The first RD-006/DF-04/RD-009 core slice may now start from this recorded main baseline; no real provider, push or deployment was used.
