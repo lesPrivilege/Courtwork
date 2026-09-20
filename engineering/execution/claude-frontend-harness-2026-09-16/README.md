@@ -401,3 +401,5 @@ node site/scripts/check-material.mjs
 ## 2026-09-20 · Frontend-first follow-up under the existing management owner
 
 [Agents frontend-first construction](06-agents-frontend-first-20260920.md) is authorized after the slice 11 readiness handoff. Claude grows one bounded journey at a time within CW's current Design, consuming Design Scout/local primitives/mature compatible libraries. Interactive synthetic adapters allow frontend acceptance before backend implementation; the real consumer contract is handed to the existing backend owners for later integration. User WebUI testing remains pinned to its delivered baseline, isolated from this frontend work.
+
+Its first journey is delivered: [Agent profile → Kits → execution summary](06a-agents-profile-journey-20260920.md), built at `95ed9cf` in an isolated tree against an explicit synthetic adapter. It carries the consumer contract with each fact's existing owner or recorded gap, and the browser evidence for every required state including the negative ones. Status: ready for independent review, not self-accepted, not integrated, and not a backend or capability claim.

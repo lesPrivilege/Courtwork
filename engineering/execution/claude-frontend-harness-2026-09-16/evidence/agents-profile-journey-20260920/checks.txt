@@ -1,0 +1,128 @@
+# Author checks · Agent profile journey
+
+Base 95ed9cfb068300d154dca9643bf754beebe1d295 · run in worktree
+/Users/lesprivilege/Projects/.worktrees/courtwork-agents-frontend-20260920 · 2026-09-20
+
+$ node tools/lint-colors.mjs
+lint-colors: ok (66 files · 字面量与高度层两项)
+exit=0
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (61 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+exit=0
+
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+exit=0
+
+$ node tools/check-product-copy.mjs
+{"scope":"app/web hard-coded text/title/aria-label fields plus index.html text nodes","diagnosticExceptions":3}
+exit=0
+
+$ node tools/check-semantic-consumers.mjs
+{"guardedGlyphs":["message-square","activity","plug","folder","file-text","refresh-cw"],"entries":54,"scope":"app/web module literal lines; vendor, static allowlist and generated projection excluded"}
+exit=0
+
+$ node --test app/tests/agent-profiles-specimen.test.mjs 2>&1 | tail -n 9
+✔ the preview host serves the fixture page and the product assets, and mutates nothing (23.252583ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 171.020458
+exit=0
+
+$ git diff --check
+exit=0
+
+$ npm --prefix app test  (full suite, run three times)
+run 1: ℹ tests 1254 · pass 1254 · fail 0
+run 2: ℹ tests 1254 · pass 1253 · fail 1   <- one intermittent failure, NOT captured
+run 3: ℹ tests 1254 · pass 1254 · fail 0
+exit=0 on runs 1 and 3
+
+The run-2 failure was lost: the command was piped through a summary filter that
+did not keep the failing test's name. It is recorded here rather than dropped.
+Two of three runs were fully green and the targeted suite for this slice passed
+on every run, but "the full suite is green" is not claimed unconditionally: an
+independent reviewer should run it again and, if a failure reappears, identify it
+before this slice is integrated.
+
+$ node --test app/tests/static-web-manifest.test.mjs
+ℹ tests 6 · pass 6 · fail 0   (after registering the two new modules in STATIC)
+exit=0
+
+$ node tools/check-doc-links.mjs
+
+================================================================
+Correction round (AP-R1…AP-R6)
+Branch merged onto main 066be48; the reviewed commit 0f76407 is
+preserved as an ancestor rather than rewritten.
+================================================================
+$ node tools/lint-colors.mjs
+lint-colors: ok (66 files · 字面量与高度层两项)
+exit=0
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (61 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+exit=0
+
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+exit=0
+
+$ node tools/check-product-copy.mjs
+{"scope":"app/web hard-coded text/title/aria-label fields plus index.html text nodes","diagnosticExceptions":3}
+exit=0
+
+$ node tools/check-semantic-consumers.mjs
+{"guardedGlyphs":["message-square","activity","plug","folder","file-text","refresh-cw"],"entries":54,"scope":"app/web module literal lines; vendor, static allowlist and generated projection excluded"}
+exit=0
+
+$ node --test app/tests/agent-profiles-specimen.test.mjs 2>&1 | tail -n 8
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 193.610791
+exit=0
+
+$ node --test app/tests/static-web-manifest.test.mjs 2>&1 | grep -E '^. tests|^. pass|^. fail'
+ℹ tests 6
+ℹ pass 6
+ℹ fail 0
+exit=0
+
+$ node tools/check-doc-links.mjs
+{
+  "pass": true,
+  "documents": 1446,
+  "checked": 8201,
+  "problems": []
+}
+exit=0
+
+$ git diff --check
+exit=0
+
+$ npm --prefix app test  (full suite, corrected tree)
+ℹ tests 1260
+ℹ suites 0
+ℹ pass 1260
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 246456.354041
+
+The npm exit code was lost to the same capture trap Luna hit (the status of a
+piped command, not of npm). What is retained instead is the complete unfiltered
+output in full-suite-corrected.log, which contains zero "✖" and zero "not ok"
+lines. This receipt reports the summary and the raw log rather than claiming a
+captured exit 0.
