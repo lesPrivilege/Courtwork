@@ -26,7 +26,7 @@ executed by the author.
 |---|---|---|---|
 | 1 | Open the Host URL | The Chat list loads | |
 | 2 | Choose the model connection in Settings | The picker shows the connection you intend to use, not the Local test provider | |
-| 2b | Set the permission mode to **Ask before editing** | The default is **Allow edits**, under which writes need no card; record the mode before the agent starts | |
+| 2b | Set the permission mode to **Ask before editing** | Verify the actual mode: Home defaults to ask but saved preferences can override it; draft permits writes without a card. Record the Run binding | |
 | 3 | Start an ordinary Chat | It opens with no repository connected | |
 | 4 | Connect the prepared source repository | The Workspace card names the path and its branch/commit | |
 | 5 | Start a private candidate | `from <commit> · Writes 0` | |

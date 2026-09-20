@@ -1,10 +1,11 @@
 # Paste-in task for the CW agent (real model)
 
 Before pasting anything, set the Chat's permission mode to **Ask before
-editing** and record that you did. The product default is **Allow edits**
-(`draft`), under which the Host allows `repo_write` with no approval card —
-only `check_run` still asks. Which mode was in force decides what the cards
-you see are evidence *of*.
+editing** and record the actual Run permission binding. Home starts in
+`ask` unless a saved preference overrides it; the service fallback for an
+omitted mode is `draft` (**Allow edits**). Under `draft`, the Host allows
+`repo_write` with no approval card; only `check_run` still asks. The mode in
+force determines what the cards you see are evidence of.
 
 Paste the block below into the Chat once the repository is connected, a
 private candidate has been started and the mode is recorded. It names no file

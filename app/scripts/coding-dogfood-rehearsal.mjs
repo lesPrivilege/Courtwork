@@ -66,7 +66,8 @@ async function terminate(child, { graceMs = 15000 } = {}) {
  * that is the Host's list, not a guarantee about every provider variable, and
  * a rehearsal should not depend on whoever ran it having a clean shell. This
  * fixture needs a path, a home and a temp directory; nothing else is passed,
- * so no credential or native runtime configuration can reach the child.
+ * so provider credential/configuration environment variables are not forwarded.
+ * PATH/HOME/TMPDIR still come from the caller; this is not filesystem isolation.
  */
 function childEnvironment() {
   return {
@@ -84,7 +85,7 @@ function childEnvironment() {
  * terminates it and waits for it to go, so no Host outlives a failed start
  * and no data-directory lock is left held.
  */
-async function startHost(dataDir, label, { readinessMs = 30000 } = {}) {
+export async function startHost(dataDir, label, { readinessMs = 30000 } = {}) {
   const child = spawn(process.execPath, [SERVER_ENTRY, "--data-dir", dataDir, "--port", "0"], {
     cwd: APP_DIR, stdio: ["ignore", "pipe", "pipe"], env: childEnvironment(),
   });
@@ -109,7 +110,9 @@ async function startHost(dataDir, label, { readinessMs = 30000 } = {}) {
 
     // The work token authenticates every /api/v5 call. It is per-process, it is
     // held only here, and it never reaches the report or any durable file.
-    const bootstrap = await (await fetch(`${url}/api/v5/bootstrap`)).json();
+    const bootstrap = await (await fetch(`${url}/api/v5/bootstrap`, {
+      signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
+    })).json();
     const token = bootstrap.sessionToken;
     assert.ok(typeof token === "string" && token.length > 0, "bootstrap must hand a browser its work token");
     assert.equal(bootstrap.apiVersion, "v5");

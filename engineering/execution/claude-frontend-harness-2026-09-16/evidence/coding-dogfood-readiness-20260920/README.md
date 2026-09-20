@@ -32,8 +32,8 @@ anyone spends a real model on it.
 | Natural-language task for the real model | [real-model-prompt.md](real-model-prompt.md) |
 | Deterministic replay input, labelled synthetic | [deterministic-replay.md](deterministic-replay.md) |
 | Browser checklist, blanks for the real pass | [browser-checklist.md](browser-checklist.md) |
-| Rehearsal console output / machine report | [rehearsal-run.log](rehearsal-run.log) · [rehearsal-report.json](rehearsal-report.json) |
-| Test evidence | [targeted-tests.log](targeted-tests.log) · [full-suite.log](full-suite.log) |
+| Rehearsal console output / machine report | [round-2 run](rehearsal-run-v2.log) · [round-2 report](rehearsal-report-v2.json) |
+| Test evidence | [round-2 targeted tests](targeted-tests-v2.log) · [round-2 full suite](full-suite-v2.log) |
 | Final source hashes | [source-sha256.json](source-sha256.json) |
 
 ## The new seam
@@ -54,7 +54,7 @@ What was missing, and is what this order adds:
    end to end against a **real `server/index.mjs` child process** on an
    ephemeral loopback port, over the public HTTP routes a browser uses, then
    stopped and continued in a **second, independent process**.
-3. **`app/tests/coding-dogfood-preparation.test.mjs`** — six guards on the
+3. **`app/tests/coding-dogfood-preparation.test.mjs`** — guards on the
    operator entry, so its refusals stay refusals.
 
 `package.json` gains one line: `dogfood:rehearsal`.
@@ -63,14 +63,16 @@ No schema, no route, no recipe, no UI and no permission semantics changed.
 
 ## What the rehearsal actually verified
 
-Every line below is an assertion in the script and a step in
-[rehearsal-report.json](rehearsal-report.json). It passed on
+The round-2 run is recorded in
+[rehearsal-report-v2.json](rehearsal-report-v2.json); final integration evidence
+is linked from the original order record. The following assertions describe
+the rehearsal, while round-1 files remain historical evidence. It passed on
 `fake-openai-loopback`, the local deterministic provider; no credential was
 configured, copied or discovered, and the per-process work token stays in
 memory — the script asserts the exact token string is absent from the report
 before writing it. Each Host child is spawned with an **explicit** environment
-(`PATH`, `HOME`, `TMPDIR`, `LANG` only), so nothing the invoking shell happens
-to hold can reach it.
+(`PATH`, `HOME`, `TMPDIR`, `LANG` only), excluding other ambient variables such as provider credentials; these four
+values still inherit caller paths and do not create filesystem isolation.
 
 **Process 1**
 
@@ -240,8 +242,8 @@ the manifest's command). Each is also a named test in
 
 The rehearsal is self-contained: it prepares its own instance, asserts every
 step, exits non-zero on the first failure and writes its own report. Reading
-[rehearsal-report.json](rehearsal-report.json) beside
-[rehearsal-run.log](rehearsal-run.log) shows which facts were checked; the
+[rehearsal-report-v2.json](rehearsal-report-v2.json) beside
+[rehearsal-run-v2.log](rehearsal-run-v2.log) shows which facts were checked; the
 assertions themselves are the contract, in
 `app/scripts/coding-dogfood-rehearsal.mjs`.
 

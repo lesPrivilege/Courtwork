@@ -49,9 +49,11 @@ of `--data-dir`.
 The model connection defaults to the **Local test provider**, which needs no
 credential. Choose a real connection in Settings when you want a real pass.
 
-The Chat's permission mode defaults to **Allow edits** (`draft`), in which
-candidate writes need no approval and only checks ask. For the browser pass,
-select **Ask before editing** first and record that you did.
+Home starts with **Ask before editing** when no saved preference overrides it;
+the service fallback for an omitted mode is **Allow edits** (`draft`). In
+`draft`, candidate writes need no approval and only checks ask. For this
+browser pass, explicitly select **Ask before editing** and record the actual
+Run permission binding rather than relying on either default.
 
 ## 3 · Stop and continue
 
