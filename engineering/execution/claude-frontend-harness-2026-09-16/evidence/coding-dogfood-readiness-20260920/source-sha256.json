@@ -1,0 +1,25 @@
+{
+  "baseCommit": "0e06d7006f1e9262e850102e349fcc3bca6517f3",
+  "round1SourceCommit": "3f04f76fa4ffaa742598b19703195575f537c708",
+  "round1PacketCommit": "94d60d228c525ff1bc80de0d4e97deacd7afff8a",
+  "sourceCommit": "c6a2b91362df8800453a7b88fa0e57a643f29791",
+  "branch": "claude-coding-dogfood-20260920",
+  "sources": {
+    "app/scripts/prepare-coding-dogfood.mjs": {
+      "sha256": "aa99ab01269b7debda9fc6e27c8c50b10e580c7774ef0fa51168285dba3ba74e",
+      "bytes": 15178
+    },
+    "app/scripts/coding-dogfood-rehearsal.mjs": {
+      "sha256": "fad41bec51429ef3d100ea7e6e0e6809eefffe9d3cb2ae4075493ef635ab0549",
+      "bytes": 31277
+    },
+    "app/tests/coding-dogfood-preparation.test.mjs": {
+      "sha256": "8dd449f8b87977818a2a87c702202142c1f8e6667f876de75ef5cbe18c050536",
+      "bytes": 12945
+    },
+    "app/package.json": {
+      "sha256": "d528a3c3afe8f5a99dacd652da79c337495ff0cb729671bdd19c4c9fdf73b6e9",
+      "bytes": 897
+    }
+  }
+}
