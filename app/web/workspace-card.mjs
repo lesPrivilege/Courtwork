@@ -42,6 +42,10 @@ export const REPOSITORY_ACTIVE_RUN = "Available after this run ends.";
 export const REPOSITORY_DIALOG_OPEN = "Choose a folder in the dialog that opened.";
 export const CANDIDATE_HELP = "Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.";
 export const CANDIDATE_NO_GIT = "This folder has no Git commit to start from, so edits stay unavailable.";
+/* Preparing is the one command on Home that creates something. Say which
+ * things it makes, and say that it is not a send — the person is about to
+ * press a button on a screen whose other button costs a model call. */
+export const PREPARE_SCOPE = "This makes the chat and connects the folder now. Nothing is sent and no model is called until you send.";
 /* The Host refuses to rebind while a candidate is open (store.mjs
  * ACTIVE_CANDIDATE). Say that where the control would have been rather than
  * offering a button whose command is already known to fail. */
@@ -143,6 +147,20 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
           el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL })),
         el("p", { className: "context-meta", text: REPOSITORY_DRAFT_SCOPE }),
         remove));
+      /* A staged folder can be prepared into a real Chat with its own binding
+       * and private candidate before anything is sent. The card does not own
+       * that sequence — it is the Home start's, which holds the exactly-once
+       * identities — so it only offers the command and says what pressing it
+       * makes. Without an owner to call, the section is not drawn at all. */
+      if (draft.onPrepare) {
+        const prepare = el("button", { className: "quiet-button", text: draft.preparing ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
+        prepare.disabled = busy || draft.locked === true;
+        prepare.addEventListener("click", () => { commandField = "start-edits"; void draft.onPrepare(); });
+        children.push(el("section", { className: "context-card" }, el("h4", { text: "Edits" }),
+          el("p", { className: "context-meta", text: CANDIDATE_HELP }),
+          el("p", { className: "context-meta", text: PREPARE_SCOPE }),
+          prepare));
+      }
     } else if (binding) {
       const candidate = activeRepositoryCandidate(session);
       const connectPath = rootPath => submit({ operation: "bind", requestId: bindRequestId(rootPath), expectedRevision: revision, rootPath }, session);

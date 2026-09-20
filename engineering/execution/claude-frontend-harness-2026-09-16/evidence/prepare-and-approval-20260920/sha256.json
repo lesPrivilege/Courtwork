@@ -1,0 +1,24 @@
+{
+  "baseSha": "962046d8b264f1d4aae5bd7f3dff9e1d69f40c21",
+  "note": "sha256 of this packet's files and of the source files this candidate changed, at the delivered tree.",
+  "packet": {
+    "README.md": "808cfc84b22ab3321a6a54e01e4cae44fd2759e39aa6de2975691c07cb99523a",
+    "browser/approval-identity.json": "4d85f0f2dd36ab81398b9a5544961577ecaebda851dbc6c165a4c9c15e472122",
+    "browser/host-receipts.json": "6c36506ed79c3b923362a81c0b71958d8d812e7a4e010e84c0df128e9744766f",
+    "browser/journey.md": "6c17155cc46910aac2b95fbc9fbd820630fbd6f07e291aa8fb4c84787cb66221",
+    "browser/source-integrity.json": "f9c29c30ba5f5bd49ee8e471385a8c7f4647acd03cd790db5ae69188372f8500",
+    "change-record.md": "0ba2d3d7a69410f1faef4d756e4f9969a6731338c312b5b585c25799f7f3c200",
+    "checks.txt": "57cab9d351ce2d7f0adb37d392302c0299e53d3689300fecd9fa841af702b78e"
+  },
+  "source": {
+    "app/server/index.mjs": "da32835976f30a89ab8ab63303ab49229f57c29d176a0e28128c530708f53df4",
+    "app/tests/prepare-and-approval.test.mjs": "037b10eafb9f9e3350d6e19bf63a8e50035f88e690fae0f12831c93f51b84cf2",
+    "app/tests/workspace-card.test.mjs": "4a99725d4d47a3349bef2044c3b74448e98782f6fabceaa4e0cef9b423e69cec",
+    "app/web/app.mjs": "11c7fa04c6bb1fe362ac03de544f8b1115f5c503df3f5865544b49c0116316a1",
+    "app/web/home-preparation.mjs": "a1322107e8c9be2ea4fc280d422d452024c1aa7ea5c5158abf1978d0c1753a1d",
+    "app/web/thread-projection.mjs": "f94789b3c38ef551365cc782df611a91d033b1f86fd07bcc438608b93e8c8a63",
+    "app/web/workspace-card.mjs": "f5cd9d89057fa077defabd5f60110f4348638ec00e256f848c2fcbcd638f762f",
+    "engineering/execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md": "31d26f8f9567a70b91f73f084c6d6a0be7ccf0284952e230fb5c97495ac85b25",
+    "engineering/verification.md": "c8586ccf6cf878746e0783bd61d7281102701471e9212d20745f31e8655a9d88"
+  }
+}

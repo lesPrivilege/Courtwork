@@ -1,0 +1,51 @@
+{
+  "note": "Verbatim DOM readings of the approval identity, captured from the isolated Host on 127.0.0.1:8916. `open` is the request while the decision was still open; `decided` is the record the transcript keeps, re-read after the candidate it names had been stopped and replaced.",
+  "currentCandidateWhenDecidedRecordsWereRead": {
+    "id": "3c956cac-c2fa-4316-ae1a-46dc668c1add",
+    "revision": 3,
+    "writeRevision": 0
+  },
+  "open": [
+    {
+      "title": "Approve this file write?",
+      "target": "src/parcel.mjs",
+      "scope": "Private candidate · replaces the file whose hash starts d2a9ace4a0d9",
+      "details": "Write details",
+      "recorded": ["Private candidate = 9a8ab169-0c42-48c8-80fa-6c853349c92c", "Candidate revision = 1", "Write revision = 0"],
+      "note": "As recorded when this approval was requested."
+    },
+    {
+      "title": "Approve this check?",
+      "target": "node-test v1",
+      "scope": "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment",
+      "details": "Check details",
+      "recorded": ["Private candidate = 9a8ab169-0c42-48c8-80fa-6c853349c92c", "Write revision = 1"],
+      "note": "As recorded when this approval was requested.",
+      "absent": "No Candidate revision row: check_run's recorded context never carries one."
+    }
+  ],
+  "decided": [
+    {
+      "summary": "src/parcel.mjs · Write approved",
+      "recorded": ["Private candidate = 9a8ab169-0c42-48c8-80fa-6c853349c92c", "Candidate revision = 1", "Write revision = 0"],
+      "note": "As recorded when this approval was requested."
+    },
+    {
+      "summary": "node-test v1 · Check approved",
+      "recorded": ["Private candidate = 9a8ab169-0c42-48c8-80fa-6c853349c92c", "Write revision = 1"],
+      "note": "As recorded when this approval was requested."
+    },
+    {
+      "summary": "NOTES.md · Write denied",
+      "recorded": ["Private candidate = 3c956cac-c2fa-4316-ae1a-46dc668c1add", "Candidate revision = 3", "Write revision = 0"],
+      "note": "As recorded when this approval was requested."
+    }
+  ],
+  "narrowViewport": {
+    "viewport": "375x812 dark",
+    "documentScrollWidth": 375,
+    "documentClientWidth": 375,
+    "recordedListWidth": 343,
+    "candidateIdOverflowWrap": "anywhere"
+  }
+}

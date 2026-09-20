@@ -195,7 +195,12 @@ test("Strip placement and shell wiring for the Workspace control", () => {
   assert.match(app, /if \(branch\) children\.push/, "an unknown branch is never drawn");
   assert.match(app, /onRepository: go\(\(\) => openWorkspaceCard\(\$\("show-run-button"\)\)\)/, "after work starts the overview reaches the same card");
   assert.match(app, /if \(state\.homeRepositoryPath && session\.repositoryBinding\?\.status !== "active"\) \{\s*operation\.bindRequestId \|\|= crypto\.randomUUID\(\);/, "Home binds the draft before the first run with a stable requestId");
-  assert.match(app, /const detail = await request\(`\/sessions\/\$\{encodeURIComponent\(id\)\}`\);\s*applySessionUpdate\(detail\.session, id\)/);
+  /* The card's own commands still read the Session back rather than trusting a
+     receipt. Since a Chat can now be prepared from Home before it is sent to,
+     that read-back lands in whichever place holds it: the project lists, or
+     the Home start marker that owns a prepared Chat. */
+  assert.match(app, /const detail = await request\(`\/sessions\/\$\{encodeURIComponent\(id\)\}`\);\s*if \(preparedHomeChat\(\)\?\.id === id\)/);
+  assert.match(app, /\} else applySessionUpdate\(detail\.session, id\);/);
   const runRows = readFileSync(`${root}app/web/run-rows.mjs`, "utf8");
   assert.match(runRows, /tool === "repo_read" \|\| tool === "candidate_read"\) return "file-text"/, "repository reads share the read glyph in the shared row renderer");
   assert.match(css, /\.context-chip\[aria-expanded="true"\]/);

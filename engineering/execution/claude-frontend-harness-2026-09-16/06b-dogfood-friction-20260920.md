@@ -88,3 +88,46 @@ Astra's actual OpenAI browser check found one remaining wiring gap: a card left 
 ## Final independent acceptance — 2026-09-20
 
 Astra accepts `d4a433d` (Claude `55bee59` plus Sol/Astra minimal review corrections), merged at `f5b3752`. [Independent receipt](evidence/coding-start-friction-review-20260920/README.md) records Luna's affected seam/continuity checks, actual OpenAI browser evidence, final 46/46 integrated tests and remaining device/accessibility limits. All four finite 06b outcomes are accepted within their recorded evidence; later preparation/approval-detail tasks are the next scope, and non-approval argument persistence remains deferred to Runtime/Host.
+
+## Adopted explorations · author delivery, 2026-09-20 (Claude)
+
+Both adopted consumers are built on `claude-prepare-and-approval-20260920`, one
+commit from accepted main `962046d`, in its own worktree. **Not accepted** —
+released for Luna's non-author review and Astra's integration decision.
+
+**A · preparation before inference.** With a folder staged, Home's Workspace
+card offers Start private candidate and runs the three existing Host commands —
+create the Chat, bind the folder, create the candidate from the folder's live
+HEAD — and stops. The sequence and its exactly-once identities are their own
+module (`app/web/home-preparation.mjs`): each identity is minted once and
+persisted before its command goes out, and each step is skipped when the
+Session read back says it is done, so a lost reply replays and a half-done
+preparation finishes rather than restarts. Measured, not asserted: the network
+capture shows three commands and no `/runs`; a real-Host test shows the
+prepared Session's event list empty; the next Send issues zero create/bind/
+candidate commands and admits its Run in the prepared Chat. The Home draft and
+its materials are untouched. A prepared Chat is kept distinct from a half-
+failed send in state, in the status line (no error styling) and in the New-chat
+refusal, and it is findable in Recent under its own title.
+
+**B · approval identity.** Write and Check details read the recorded
+`candidateId`, `candidateRevision` and `candidateWriteRevision` from the
+permission payload and from nothing else — the same values the Host re-checks
+before it acts. `check_run` carries no `candidateRevision`, so no such row is
+drawn; a recorded `0` is drawn. After the candidate was stopped and replaced,
+the decided records still name the candidate that no longer exists while the
+Host holds a different one.
+
+One scope note. The disclosure was built on the open request first; driving the
+journey showed that a decided request is kept in the transcript as its own
+record without the identity it was bound to, which is precisely what "at that
+time" asks for. The same reading is now drawn in both places from one helper —
+no new control, no new row kind, and no change to what is collapsed or decided.
+
+**Non-approval tool arguments stay untouched**, as ordered: no request capture,
+no new event or schema, and nothing persisted or displayed by analogy with the
+approval preview, which remains a bounded substring and not a redaction
+guarantee.
+
+Checks, the browser pass, the unexecuted list and the change record:
+[prepare-and-approval-20260920](evidence/prepare-and-approval-20260920/README.md).

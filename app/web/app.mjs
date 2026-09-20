@@ -67,7 +67,8 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
-import { createWorkspaceCard, activeRepositoryBinding, candidateWriteRevision, repositoryName } from "./workspace-card.mjs";
+import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, repositoryName } from "./workspace-card.mjs";
+import { prepareChat } from "./home-preparation.mjs";
 import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
 import {
   renderRun,
@@ -371,6 +372,11 @@ function storeHomeDraft() {
       start: start ? {
         projectId: start.projectId, commandId: start.commandId, sessionId: start.sessionId || null,
         session: start.session || null, bindRequestId: start.bindRequestId || null,
+        // Preparation mints one identity per Host command and writes it here
+        // before the command goes out, so a reply lost to a refresh is replayed
+        // against the same ids instead of creating a second candidate.
+        candidateRequestId: start.candidateRequestId || null, candidateId: start.candidateId || null,
+        prepared: Boolean(start.prepared),
         unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),
         error: start.error || "",
       } : null,
@@ -5392,11 +5398,20 @@ function renderHomeComposerContext() {
   $("home-permission-input").disabled = locked;
   $("home-create-project").disabled = locked;
   const status = $("home-start-status");
+  /* A Chat prepared on purpose is not a send that half failed, and must not
+   * borrow that banner's words or its error styling. It says what exists, and
+   * it says that nothing was sent — the whole point of preparing is that no
+   * model has been called yet. */
+  const prepared = state.homeStart?.prepared ? preparedHomeChat() : null;
   const message = state.homeStart?.pending
-    ? "Starting your chat…"
-    : state.homeStart?.error || (state.homeStart?.session
-      ? "Your chat is ready. Send to continue in it."
-      : "");
+    ? (state.homeStart.prepared ? "Preparing your chat…" : "Starting your chat…")
+    : state.homeStart?.error || (prepared
+      ? (activeRepositoryCandidate(prepared)
+        ? "Chat and private candidate are ready. Nothing was sent; send to start work in them."
+        : "Chat is ready. Nothing was sent; send to start work in it.")
+      : state.homeStart?.session
+        ? "Your chat is ready. Send to continue in it."
+        : "");
   status.replaceChildren(document.createTextNode(message));
   /* v2 entry audit · the unconfirmed chat is read back by its own fixed id;
    * nothing is created or sent by asking. */
@@ -6131,19 +6146,102 @@ const workspaceCard = createWorkspaceCard({
     // The bind/revoke receipt is not a Session; read the Session back so the
     // strip and card show what the Host now holds, not what was requested.
     const detail = await request(`/sessions/${encodeURIComponent(id)}`);
-    applySessionUpdate(detail.session, id);
-    const popover = $("workspace-popover");
-    if (popover.matches(":popover-open")) renderWorkspaceCard();
+    if (preparedHomeChat()?.id === id) {
+      /* A Chat prepared from Home lives in the start marker, not in the
+       * project lists yet. Keep the marker and the composer strip on what the
+       * Host now holds: changing or disconnecting the folder from here really
+       * does change this chat's binding, and the strip must not keep naming a
+       * folder that is no longer connected. */
+      state.homeStart.session = detail.session;
+      state.homeRepositoryPath = activeRepositoryBinding(detail.session)?.rootPath ?? null;
+      storeHomeDraft();
+      renderAll();
+    } else applySessionUpdate(detail.session, id);
+    paintWorkspaceCard();
   },
 });
 function homeWorkspaceDraft() {
   // A getter, not a snapshot: the card re-renders from the same draft object
   // after it changes the path, so it must read the live Home state.
-  return { get path() { return state.homeRepositoryPath; }, onChange: (path) => { state.homeRepositoryPath = path || null; storeHomeDraft(); renderChatHeader(); } };
+  return {
+    get path() { return state.homeRepositoryPath; },
+    onChange: (path) => { state.homeRepositoryPath = path || null; storeHomeDraft(); renderChatHeader(); },
+    get preparing() { return Boolean(state.homeStart?.pending); },
+    get locked() { return Boolean(state.homeStart?.unconfirmed || state.connectionLost); },
+    onPrepare: () => prepareHomeChat(),
+  };
+}
+/* A Chat prepared from Home is a real Session the person has not sent to yet.
+ * It is held in the Home start marker rather than in the project lists, so the
+ * surfaces that read "the chat this screen is about" have to look here too. */
+function preparedHomeChat() {
+  return state.homeStart?.session?.id ? state.homeStart.session : null;
+}
+function workspaceCardSession() {
+  return currentSession() || (state.view === "home" ? preparedHomeChat() : null);
+}
+/* RD-006 / 02 · prepare the place the work will happen before paying for any
+ * inference. The sequence and its exactly-once identities live in
+ * home-preparation.mjs; this is the Home start's half of it — which marker to
+ * continue, what to call the Chat, and what the screen says while it happens.
+ * Nothing here sends a message or admits a Run, and the Home draft and its
+ * materials are left exactly where they are. */
+async function prepareHomeChat() {
+  const previous = state.homeStart;
+  if (previous?.pending || previous?.unconfirmed || state.connectionLost) return;
+  if (!state.homeRepositoryPath) return;
+  const operation = previous?.session || previous?.sessionId ? previous : {
+    projectId: homeProjectId(), commandId: crypto.randomUUID(), sessionId: null, session: null,
+  };
+  operation.pending = true;
+  operation.error = "";
+  operation.prepared = true;
+  state.homeStart = operation;
+  storeHomeDraft();
+  renderComposer();
+  paintWorkspaceCard();
+  try {
+    /* Named from what has been typed so far, or from the folder it will read.
+     * A prepared chat has to be findable in Recent before it holds a single
+     * message; it is renamed from there like any other chat. */
+    const title = state.homeDraft.trim().split(/\r?\n/)[0].slice(0, 100)
+      || repositoryName(state.homeRepositoryPath)
+      || "New chat";
+    await prepareChat({
+      request,
+      marker: operation,
+      rootPath: state.homeRepositoryPath,
+      title,
+      permissionMode: state.homePermissionMode,
+      persist: () => { if (state.homeStart === operation) storeHomeDraft(); },
+    });
+    await loadRecentSessions();
+  } catch (error) {
+    operation.unconfirmed = !operation.session && isUncertainCommandError(error);
+    if (!operation.session && !operation.unconfirmed) operation.sessionId = null;
+    operation.error = operation.unconfirmed
+      ? "Creating the chat is unconfirmed. Check its status to recover the same chat. Your instruction is kept."
+      : `Could not prepare: ${error.message}. Your instruction is kept.`;
+  } finally {
+    if (state.homeStart === operation) {
+      operation.pending = false;
+      storeHomeDraft();
+      renderComposer();
+      paintWorkspaceCard();
+      renderRecentSessions();
+    }
+  }
+}
+function paintWorkspaceCard() {
+  if ($("workspace-popover").matches(":popover-open")) renderWorkspaceCard();
 }
 function renderWorkspaceCard() {
   const home = state.view === "home" && !currentSession();
-  const session = currentSession();
+  /* Home can hold a Chat that exists and has never been sent to. The card then
+   * reads that Session's own binding and candidate — Host facts — instead of
+   * the draft path, which was only ever an intent. */
+  const prepared = home ? preparedHomeChat() : null;
+  const session = currentSession() || prepared;
   /* RD-006 · the card reads four separate owners' facts and merges none of
    * them: the project this chat is organised under, the connected folder, the
    * Host's write receipts for the private candidate, and the file-access
@@ -6151,8 +6249,10 @@ function renderWorkspaceCard() {
   return workspaceCard.render($("workspace-popover"), {
     session,
     active: Boolean(currentRun()),
-    draft: home ? homeWorkspaceDraft() : null,
-    events: state.events,
+    draft: home && !prepared ? homeWorkspaceDraft() : null,
+    // The event list belongs to the Session that is loaded; a prepared Chat is
+    // not that one, and its candidate reading must not borrow another's writes.
+    events: session && session.id === state.activeSessionId ? state.events : [],
     project: session ? state.projects.find((item) => item.id === session.projectId) || null : null,
     permissionLabel: session ? permissionLabels[session.permissionMode] || null : null,
   });
@@ -6169,11 +6269,13 @@ function openWorkspaceCard(anchor) {
   const field = popover.querySelector('[data-repository-field="open"], [data-repository-field="path"], [data-repository-field="disconnect"], [data-repository-field="remove"]');
   (field || header.querySelector("button")).focus();
   // The card states Host facts (binding, candidate, write count) that a run
-  // may have advanced since the Session was last read; read it back now.
-  const session = currentSession();
+  // may have advanced since the Session was last read; read it back now. A
+  // Chat prepared from Home is read back the same way, by its own id.
+  const session = workspaceCardSession();
   if (session) void request(`/sessions/${encodeURIComponent(session.id)}`).then((detail) => {
-    if (currentSession()?.id !== session.id) return;
-    applySessionUpdate(detail.session, session.id);
+    if (workspaceCardSession()?.id !== session.id) return;
+    if (preparedHomeChat()?.id === session.id) { state.homeStart.session = detail.session; storeHomeDraft(); }
+    else applySessionUpdate(detail.session, session.id);
     if (popover.matches(":popover-open")) renderWorkspaceCard();
   }).catch(() => {});
 }
@@ -6501,7 +6603,9 @@ async function openChatPage() {
 async function startNewSession({ projectId = null } = {}) {
   if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId) {
     await goHome();
-    showToast("Finish or recover the chat being started before opening another.");
+    showToast(state.homeStart?.prepared && state.homeStart?.session
+      ? "A prepared chat is waiting for your first message. Send in it before starting another."
+      : "Finish or recover the chat being started before opening another.");
     return;
   }
   state.homeProjectRequest = false;
@@ -6510,6 +6614,29 @@ async function startNewSession({ projectId = null } = {}) {
   await goHome();
 }
 
+/* RD-006 / 02 · which private candidate an approval was asked about, and the
+ * revision it was bound to, exactly as the Host recorded them with the request.
+ *
+ * It is drawn in both places a request is read: on the card while the decision
+ * is open, and inside the record the transcript keeps after it is decided. The
+ * second is where it earns its keep — looking back at what you approved is the
+ * question the current candidate cannot answer, because by then it may have
+ * taken more writes, been stopped, or been replaced by one built from a
+ * different commit. Nothing here reads the Session, the binding or the live
+ * candidate, and a revision the Host did not record is not drawn at all. */
+function recordedApprovalIdentity(candidate) {
+  if (!candidate) return [];
+  const recorded = element("dl", { className: "data-list" });
+  const line = (term, value) =>
+    recorded.append(element("dt", { text: term }), element("dd", {}, value));
+  line("Private candidate", element("code", { text: candidate.id }));
+  if (candidate.revision !== null) line("Candidate revision", String(candidate.revision));
+  if (candidate.writeRevision !== null) line("Write revision", String(candidate.writeRevision));
+  return [
+    recorded,
+    element("p", { className: "form-help", text: "As recorded when this approval was requested." }),
+  ];
+}
 function renderPermission(row) {
   const key = questionScopeKey(row.runId, row.id),
     run = state.runs.find((item) => item.id === row.runId),
@@ -6552,6 +6679,7 @@ function renderPermission(row) {
     );
     if (display.scope) details.append(element("p", { className: "form-help", text: display.scope }));
     if (display.source) details.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
+    details.append(...recordedApprovalIdentity(display.candidate));
     details.addEventListener("toggle", () =>
       state.toolOpen.set(keyOpen, details.open),
     );
@@ -6585,6 +6713,7 @@ function renderPermission(row) {
       "details",
       {},
       element("summary", { text: display.details }),
+      ...recordedApprovalIdentity(display.candidate),
       element("code", { text: payload.contentSha256 }),
       copyAction(payload.contentSha256, display.hashLabel),
     );

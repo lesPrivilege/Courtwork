@@ -1,0 +1,9 @@
+{
+  "gitHead": "2729e71414be3a0534be6a5e1cd1d743b091c064",
+  "gitStatusPorcelain": "",
+  "note": "The synthetic source the journey read. It was never the write target: the approved write landed in the Host's private candidate, and the denied one landed nowhere.",
+  "notesMdCreated": false,
+  "parcelSha256": "d2a9ace4a0d96a5203cf11a6cd3edb52aad6142642bee3fade70de9fb7146233",
+  "parcelStillHoldsTheDefect": true,
+  "sourcePath": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920-instance/source"
+}
