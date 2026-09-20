@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-20T07:50:39.625Z",
+  "transport": "public HTTP, separate Host process, ephemeral loopback port",
+  "provider": "fake-openai-loopback (Local test provider, deterministic)",
+  "realProvider": "not_run",
+  "browserInteraction": "not_run",
+  "source": {
+    "path": "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/5fef381b-fae6-4afc-86e1-0b2723f1f0cc/scratchpad/delta/source",
+    "head": "3c452692b87b561976ce1a01b9e4de142d6b6209"
+  },
+  "toolchain": {
+    "node": "v25.9.0",
+    "git": "git version 2.50.1 (Apple Git-155)"
+  },
+  "sessionId": "71768577-0d95-44cd-9555-b8617ef46ec4",
+  "sameRunWriteCheckRunId": "18fca62d-d989-4625-a8a0-39a8a29adbd8",
+  "finishedAt": "2026-09-20T07:50:46.838Z",
+  "steps": [
+    {
+      "step": "prepared an independent scratch instance",
+      "sourcePath": "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/5fef381b-fae6-4afc-86e1-0b2723f1f0cc/scratchpad/delta/source",
+      "dataDir": "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/5fef381b-fae6-4afc-86e1-0b2723f1f0cc/scratchpad/delta/runtime-data",
+      "sourceHead": "3c452692b87b561976ce1a01b9e4de142d6b6209"
+    },
+    {
+      "step": "first Host process is listening on an ephemeral loopback port",
+      "url": "http://127.0.0.1:<ephemeral>"
+    },
+    {
+      "step": "WebUI document and assets are served and the API requires the token",
+      "documentBytes": 44150,
+      "appModuleBytes": 328538,
+      "unauthorizedStatus": 401
+    },
+    {
+      "step": "a failed start leaves no Host, and an uncooperative child is still ended",
+      "startupFailure": "LOCK_BUSY on a held data directory",
+      "leakedProcesses": 0,
+      "uncooperativeChildEscalatedTo": "SIGKILL"
+    },
+    {
+      "step": "ordinary Chat bound one repository and started one private candidate",
+      "sessionId": "71768577-0d95-44cd-9555-b8617ef46ec4",
+      "candidateId": "b1f2c3d4-e5a6-4b7c-8d9e-0a1b2c3d4e5f",
+      "baseCommit": "3c452692b87b561976ce1a01b9e4de142d6b6209",
+      "writeRevision": 0
+    },
+    {
+      "step": "read the source and established the failing Host check",
+      "runId": "feea4c60-ef5c-4e3f-bae6-7d90b65377b2",
+      "readPaths": "src/parcel.mjs",
+      "checkCallId": "fake-script-2-1",
+      "exitCode": 1
+    },
+    {
+      "step": "same Run approved one exact write and one check bound to that revision",
+      "runId": "18fca62d-d989-4625-a8a0-39a8a29adbd8",
+      "approvedPath": "src/parcel.mjs",
+      "writeRevisionAtApproval": 1,
+      "checkCallId": "fake-script-5-1",
+      "exitCode": 0,
+      "durationMs": 163
+    },
+    {
+      "step": "inspected the exact candidate diff and write receipt",
+      "files": [
+        "src/parcel.mjs"
+      ],
+      "patchSha256": "0a66a5d141eb87b1a92124976dc385502680005cceaa4342037c068f48263fa3",
+      "patchBytes": 521,
+      "effect": {
+        "id": "4f254cd845c5d33896a89394688da19df9117d1fd8a6e63973f0c1fa5f5ca65e",
+        "status": "confirmed",
+        "path": "src/parcel.mjs",
+        "writeRevision": 1,
+        "bytes": 445
+      }
+    },
+    {
+      "step": "the connected source repository is unchanged",
+      "head": "3c452692b87b561976ce1a01b9e4de142d6b6209",
+      "worktreeClean": true
+    },
+    {
+      "step": "cancelling at the approval spawns nothing",
+      "runId": "ccedf88e-c21e-4ee9-9cf9-b21650a455f9",
+      "runStatus": "cancelled",
+      "checkStarted": false
+    },
+    {
+      "step": "stopped the first Host process",
+      "exitCode": 0,
+      "signal": null,
+      "escalated": false
+    },
+    {
+      "step": "a fresh Host process resolved the same Chat, candidate and history",
+      "sessionId": "71768577-0d95-44cd-9555-b8617ef46ec4",
+      "candidateId": "b1f2c3d4-e5a6-4b7c-8d9e-0a1b2c3d4e5f",
+      "writeRevision": 1,
+      "comparison": "complete persisted check.*/repository.* events, parsed-object equality (not raw storage bytes)",
+      "durableEventsCompared": 12,
+      "durableEventsUnchanged": true,
+      "effectsUnchanged": true
+    },
+    {
+      "step": "continued a new bounded read/check task in the resumed Chat",
+      "runId": "346442dd-b9ad-45a9-a111-358915307841",
+      "checkCallId": "fake-script-2-1",
+      "exitCode": 0,
+      "distinctCheckExecutions": 3,
+      "writesAdded": 0,
+      "fixtureCallIdsReusedAcrossProcesses": 1
+    },
+    {
+      "step": "revoking the candidate before the approval is honoured",
+      "runId": "0154abf8-a023-4bde-9b71-5383d519084f",
+      "runStatus": "cancelled",
+      "checkStarted": false,
+      "checkSettledStatus": null,
+      "checkExitCode": null
+    },
+    {
+      "step": "stopped the second Host process",
+      "exitCode": 0,
+      "signal": null,
+      "escalated": false
+    }
+  ],
+  "result": "passed"
+}

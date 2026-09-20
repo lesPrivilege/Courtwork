@@ -49,16 +49,29 @@ of `--data-dir`.
 The model connection defaults to the **Local test provider**, which needs no
 credential. Choose a real connection in Settings when you want a real pass.
 
+The Chat's permission mode defaults to **Allow edits** (`draft`), in which
+candidate writes need no approval and only checks ask. For the browser pass,
+select **Ask before editing** first and record that you did.
+
 ## 3 · Stop and continue
 
-`Ctrl-C` (SIGINT) in the Host's terminal stops admission, settles Runs and
-releases the data directory lock. **Nothing is deleted.** Start the same
-command again on the same `--data-dir` and reopen the Chat: the candidate, its
-write revision and the whole history are still there, and nothing is replayed.
+`Ctrl-C` (SIGINT) in the Host's terminal stops admission, then **cancels every
+Run that is still open and waits for it**, and releases the data directory
+lock. **Nothing is deleted.** Start the same command again on the same
+`--data-dir` and reopen the Chat: the candidate, its write revision and the
+whole history are still there, and nothing is replayed.
 
-A check that was in flight when the Host stopped settles as `unknown` on the
-next open, with no exit code — it is never re-run and never reported as having
-passed.
+Because a clean stop drains Runs this way, a check that was running usually
+settles *before* the Host closes — typically as `cancelled`, with whatever
+output it had produced. `unknown` is reserved for an execution that was
+genuinely left unresolved, which is what a crash or a `SIGKILL` produces: on
+the next open its `check.started` is fenced with a `check.settled` of status
+`unknown`, no exit code, and `failure.code` `check_unknown_after_restart`.
+
+Either way the rule is the same: **read the receipt, do not infer it, and do
+not re-run the check to find out.** The Host never re-executes a recipe to
+resolve a past outcome, and a fresh check is a new execution with its own
+identity, not an answer about the old one.
 
 ## Identity rules
 
@@ -67,8 +80,9 @@ passed.
 - The **candidate** is a private worktree the Host owns, created from that one
   commit. Its `writeRevision` counts confirmed writes; an approval binds to the
   revision it was shown.
-- A **check** is identified by its `(Run, call)` pair, not by its call id
-  alone — see [deterministic-replay.md](deterministic-replay.md).
+- A **check** is identified by its `(Run, call)` pair. That is the key the
+  Host fences on, so it is the key to read evidence by — see
+  [deterministic-replay.md](deterministic-replay.md).
 
 ## Cleanup
 

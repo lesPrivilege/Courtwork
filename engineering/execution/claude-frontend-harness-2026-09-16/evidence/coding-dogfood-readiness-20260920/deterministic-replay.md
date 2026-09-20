@@ -46,3 +46,7 @@ The Local test provider numbers tool calls per **Host process**
 reappear in a later Run. The Host fences on the `(Run, call)` pair, which
 stays unique. Any evidence read across a restart must key on both — the
 rehearsal asserts this, and records how many ids were reused.
+
+This is an observation about this fixture. It is not a claim that some other
+provider would never repeat a call id; nothing here tests one. `(Run, call)`
+is the right key regardless of where the id came from.

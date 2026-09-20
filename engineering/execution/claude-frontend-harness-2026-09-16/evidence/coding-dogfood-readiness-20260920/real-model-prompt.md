@@ -1,8 +1,15 @@
 # Paste-in task for the CW agent (real model)
 
-Paste the block below into the Chat once the repository is connected and a
-private candidate has been started. It names no file line, no fix and no
-expected result, so what comes back is the agent's own work.
+Before pasting anything, set the Chat's permission mode to **Ask before
+editing** and record that you did. The product default is **Allow edits**
+(`draft`), under which the Host allows `repo_write` with no approval card —
+only `check_run` still asks. Which mode was in force decides what the cards
+you see are evidence *of*.
+
+Paste the block below into the Chat once the repository is connected, a
+private candidate has been started and the mode is recorded. It names no file
+line, no fix and no expected result, so what comes back is the agent's own
+work.
 
 Do **not** paste the deterministic `/fixture script` line from
 [`deterministic-replay.md`](deterministic-replay.md) into this Chat — that one
@@ -33,13 +40,26 @@ Do not tell me the tests pass unless a check you actually ran says so.
 
 ## What to watch while it works
 
-The agent has to come through the Host's own gates, so a real pass produces
-approvals you have to answer:
+Under **Ask before editing**, the agent has to come through two gates you
+answer:
 
 - a **write approval** naming `src/parcel.mjs`, `Private candidate`, and the
   hash of the bytes it replaces;
 - a **check approval** naming recipe `node-test`, the Node binary, `--test`,
   `cwd: private candidate`, and the candidate's current write revision.
 
-If the agent claims a fix without either card appearing, it has not written
-anything and has not run anything. That is a finding, not a pass.
+## How to judge the result
+
+Judge it on the Host's own receipts, not on the cards and not on what the
+agent says:
+
+- **Review changes** — the candidate diff: which files changed, and how.
+- the **check's tool row** — recipe, outcome, exit code and the real
+  `stdout`/`stderr`.
+- `GET /sessions/<id>/repository-candidate/effects` — one receipt per write,
+  with its status, byte count and content hash.
+
+A missing write card does **not** prove nothing was written: in `draft` mode
+there would be no card either way. The effects list and the diff are what
+settle it. Equally, an agent's sentence that the tests pass settles nothing —
+only a check receipt does.
