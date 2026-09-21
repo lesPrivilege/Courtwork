@@ -1,4 +1,6 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import OpenAI, { APIConnectionTimeoutError, APIError, APIUserAbortError } from "openai";
+import { VERSION as SDK_VERSION } from "openai/version";
 import { AGENTS_API_PROTOCOL } from "./agents-api-adapter.mjs";
 
 /**
@@ -32,10 +34,14 @@ const EVENT_KINDS = Object.freeze({
   "agent.session.input.cancel": "cancel",
 });
 
-// Nothing ambient reaches the wire: the SDK reads OPENAI_CUSTOM_HEADERS and
-// organization/project defaults from the environment, so headers are rebuilt
-// from this list at the fetch seam.
-const WIRE_HEADERS = new Set(["accept", "authorization", "content-type", "idempotency-key", "openai-beta", "user-agent"]);
+// Nothing ambient reaches the wire. The SDK merges OPENAI_CUSTOM_HEADERS from
+// the environment into every request and no client option turns that off, so
+// filtering header names is not enough: an ambient Idempotency-Key or
+// User-Agent has an allowed name. Every header value sent is written here,
+// from the connection the caller supplied and the call being made; none is
+// copied from what the SDK assembled.
+const USER_AGENT = `OpenAI/JS ${SDK_VERSION}`;
+const ACCEPT = Object.freeze({ createSession: "application/json", getSession: "application/json", listItems: "application/json", sendEvents: "*/*", streamEvents: "text/event-stream" });
 const SAFE_TOKEN = /^[\w.:-]{1,64}$/;
 const REQUEST_ID = /^[\x21-\x7e]{1,255}$/;
 
@@ -111,22 +117,30 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
   if (typeof fetchImpl !== "function") throw new TypeError("fetch must be a function");
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs <= 0) throw new TypeError("timeoutMs must be a positive integer");
 
+  // The call in progress, visible to the fetch seam. Per call, so concurrent
+  // operations each keep their own request identity.
+  const calls = new AsyncLocalStorage();
   const client = new OpenAI({
     apiKey, baseURL, timeout: timeoutMs, maxRetries: 0, logLevel: "off",
     adminAPIKey: null, organization: null, project: null, webhookSecret: null,
     fetch: (url, init = {}) => {
-      const headers = new Headers();
-      for (const [name, value] of new Headers(init.headers)) if (WIRE_HEADERS.has(name)) headers.set(name, value);
-      if (headers.get("openai-beta") !== AGENTS_API_PROTOCOL.betaHeader) throw new TypeError("unexpected beta header");
+      const current = calls.getStore();
+      if (!current) throw new TypeError("request made outside a transport call");
+      const headers = new Headers({
+        accept: ACCEPT[current.operation], authorization: `Bearer ${apiKey}`,
+        "openai-beta": AGENTS_API_PROTOCOL.betaHeader, "user-agent": USER_AGENT,
+      });
+      if (init.body != null) headers.set("content-type", "application/json");
+      if (current.requestId) headers.set("idempotency-key", current.requestId);
       return fetchImpl(url, { ...init, headers });
     },
   });
   const sessions = client.beta.agents.sessions;
   const options = (signal) => ({ maxRetries: 0, ...(signal ? { signal } : {}) });
 
-  async function call(operation, mutation, signal, run) {
+  async function call(operation, mutation, signal, run, requestId = null) {
     if (signal?.aborted) throw new AgentsTransportError("aborted", operation, "aborted before the request was made", { delivery: mutation ? "not_sent" : null });
-    try { return await run(); } catch (error) { throw translate(error, operation, mutation, signal); }
+    try { return await calls.run({ operation, requestId }, run); } catch (error) { throw translate(error, operation, mutation, signal); }
   }
 
   return Object.freeze({
@@ -154,7 +168,7 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
         throw invalid("sendEvents", "events must be agent.session.input message, tool_result or cancel events");
       }
       if (typeof requestId !== "string" || !REQUEST_ID.test(requestId)) throw invalid("sendEvents", "a caller-owned requestId is required");
-      await call("sendEvents", true, signal, () => sessions.events.create(sessionId, { events, "Idempotency-Key": requestId }, options(signal)));
+      await call("sendEvents", true, signal, () => sessions.events.create(sessionId, { events, "Idempotency-Key": requestId }, options(signal)), requestId);
       return { accepted: true };
     },
 
@@ -170,7 +184,7 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
       async function* events() {
         let stream;
         try {
-          stream = await sessions.events.stream(sessionId, options(controller.signal));
+          stream = await calls.run({ operation: "streamEvents", requestId: null }, () => sessions.events.stream(sessionId, options(controller.signal)));
           yield* stream;
         } catch (error) {
           if (controller.signal.aborted) return;
@@ -199,6 +213,13 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
       const body = page?.body;
       if (!body || typeof body !== "object" || !Array.isArray(body.data) || typeof body.has_more !== "boolean") {
         throw new AgentsTransportError("malformed_response", "listItems", "the response is not an items page");
+      }
+      // A page that says more exists must say where to continue: `last_id`, or
+      // failing that the id of its last item. Otherwise a caller that stops
+      // here would hold a partial history that looks complete.
+      const usable = (id) => typeof id === "string" && id !== "";
+      if (body.has_more && !usable(body.last_id) && !usable(body.data.at(-1)?.id)) {
+        throw new AgentsTransportError("malformed_response", "listItems", "the page reports more items but gives no cursor to continue from");
       }
       return body;
     },

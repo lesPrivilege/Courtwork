@@ -34,7 +34,10 @@ const timers = () => process.getActiveResourcesInfo().filter(name => name === 'T
 const posts = (wire) => wire.attempts.filter(attempt => attempt.method === 'POST');
 
 test('create, later input, cancel intent and function result reach the wire exactly as the caller identified them', async () => {
-  const ambient = { OPENAI_API_KEY: 'sk-ambient', OPENAI_BASE_URL: 'http://ambient.invalid/v1', OPENAI_ORG_ID: 'org-ambient', OPENAI_PROJECT_ID: 'proj-ambient', OPENAI_CUSTOM_HEADERS: 'X-Ambient: leaked' };
+  const ambient = { OPENAI_API_KEY: 'sk-ambient', OPENAI_BASE_URL: 'http://ambient.invalid/v1', OPENAI_ORG_ID: 'org-ambient', OPENAI_PROJECT_ID: 'proj-ambient',
+    // Names the wire legitimately carries, with ambient values (P03C-R1), plus one it does not.
+    OPENAI_CUSTOM_HEADERS: ['Authorization: Bearer sk-ambient-header', 'User-Agent: ambient-agent', 'Idempotency-Key: ambient-key', 'Accept: text/ambient',
+      'OpenAI-Beta: ambient=v0', 'Content-Type: text/ambient', 'X-Ambient: leaked'].join('\n') };
   const before = Object.fromEntries(Object.keys(ambient).map(name => [name, process.env[name]]));
   Object.assign(process.env, ambient);
   const { wire, adapter } = await harness();
@@ -77,6 +80,18 @@ test('create, later input, cancel intent and function result reach the wire exac
     assert.ok(wire.attempts.every(attempt => attempt.headers.authorization === `Bearer ${KEY}`), 'only the supplied credential is used');
     assert.ok(!JSON.stringify(wire.attempts).includes('mbient'), 'no ambient key, base URL, organization, project or custom header reaches the wire');
     assert.deepEqual(AGENTS_TRANSPORT_REQUEST_IDENTITY.create, { wire: null, guarantee: 'none' });
+
+    // Overlapping operations each keep the identity their caller gave them.
+    const sent = wire.attempts.length;
+    const release = [];
+    wire.respond(() => new Promise(resolve => { release.push(() => resolve({ status: 202, headers: {}, body: '' })); }));
+    const overlapping = ['cw-cmd-a', 'cw-cmd-b', 'cw-cmd-c'].map(requestId => adapter.submitInput(binding, { text: `text for ${requestId}`, requestId }));
+    while (release.length < 3) await delay(5);
+    release.reverse().forEach(answer => answer());
+    await Promise.all(overlapping);
+    assert.deepEqual(wire.attempts.slice(sent).map(attempt => [attempt.headers['idempotency-key'], attempt.body.events[0].input[0].content[0].text]).sort(),
+      [['cw-cmd-a', 'text for cw-cmd-a'], ['cw-cmd-b', 'text for cw-cmd-b'], ['cw-cmd-c', 'text for cw-cmd-c']]);
+    assert.ok(!JSON.stringify(wire.attempts).includes('mbient'), 'still nothing ambient, on any of the eight requests');
     if (process.env.AGENTS_WIRE_CAPTURE) await writeFile(process.env.AGENTS_WIRE_CAPTURE, `${JSON.stringify(captured, null, 2)}\n`);
   } finally {
     for (const [name, value] of Object.entries(before)) { if (value === undefined) delete process.env[name]; else process.env[name] = value; }
@@ -238,6 +253,23 @@ test('item pages keep the service cursors, and unusable answers are errors rathe
       [`/v1/agents/sessions/${SESSION}/items?order=asc&limit=100`, `/v1/agents/sessions/${SESSION}/items?order=asc&limit=100&after=cursor_not_an_item_id`],
       'the next page is asked for with the cursor the service returned');
     assert.equal((await transport.listItems(SESSION, { order: 'desc', limit: 2 })).last_id, 'cursor_not_an_item_id');
+
+    // P03C-R3: "more exists" with nowhere to continue from is not a history.
+    const historyOf = async (page) => {
+      wire.respond((attempt, { res }) => {
+        const url = new URL(attempt.path, 'http://wire');
+        if (url.pathname.endsWith('/events')) return wire.sse(res, []);
+        if (url.pathname.endsWith('/items')) return wire.json(200, url.searchParams.get('after') ? { object: 'list', data: [item('item_z', 'Z')], has_more: false } : { object: 'list', ...page });
+        return wire.json(200, native({ status: 'idle' }));
+      });
+      return adapter.reconcile(binding, {}).then(result => result.items.map(entry => entry.id), error => error);
+    };
+    for (const page of [{ data: [], has_more: true }, { data: [], has_more: true, last_id: '' }, { data: [{ type: 'message' }], has_more: true, last_id: null }]) {
+      const outcome = await historyOf(page);
+      assert.ok(outcome instanceof AgentsTransportError && outcome.code === 'malformed_response', `recovery must fail, got ${JSON.stringify(outcome)}`);
+    }
+    assert.deepEqual(await historyOf({ data: [item('item_y', 'Y')], has_more: true }), ['item_y', 'item_z'], 'the last item id is still a usable cursor when last_id is absent');
+    assert.deepEqual(await historyOf({ data: [], has_more: false }), [], 'an empty page that claims to be complete is an empty history');
 
     const secret = 'RESPONSE_BODY_SECRET';
     const cases = [
