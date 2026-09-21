@@ -1,0 +1,31 @@
+✔ the limited scanner recognizes imports while ignoring comments and strings (1.793ms)
+✔ legal and forbidden synthetic edges exercise all approved boundaries (0.683791ms)
+✔ the current Core, runtime, renderer, and composition-root graph obeys ownership (62.476834ms)
+✔ DRT03 protocol: beta wire identity is pinned and every unverified capability stays unavailable (1.784375ms)
+✔ DRT03 creation: environment:none binds CW identity once and fails closed without touching the transport (0.719875ms)
+✔ DRT03 events: duplicates collapse by event id and diagnostics never settle (0.846167ms)
+✔ DRT03 settlement: root turn.completed settles completed; idle and subagent turns do not (1.226208ms)
+✔ DRT03 settlement: root turn.failed keeps a bounded error and is not masked by text (0.289834ms)
+✔ DRT03 cancel: input.cancel is intent only; only turn.cancelled confirms it (0.308375ms)
+✔ DRT03 cancel: closing the stream is never a cancellation (0.211875ms)
+✔ DRT03 settlement: unreconciled effects and session failure keep ambiguity unknown (0.303667ms)
+✔ DRT03 settlement: an unreconciled session failure cannot be reported as a plain failure (0.227125ms)
+✔ DRT03 functions: pending actions are observations and results echo turn_id and call_id (0.292333ms)
+✔ DRT03 settlement: the replay helper applies the same rules as the live tracker (0.120875ms)
+✔ DRT03 recovery: saved items page by after cursor and merge by item id without fabricating gaps (0.603959ms)
+✔ DRT03 recovery: a root terminal or required action buffered during recovery is delivered, not swallowed (0.254542ms)
+✔ create, later input, cancel intent and function result reach the wire exactly as the caller identified them (49.729416ms)
+✔ a request the caller did not identify, or identified wrongly, is refused before the wire (6.214583ms)
+✔ fragmented frames, done without deltas and a normal end keep every outcome distinct (96.890459ms)
+✔ abort and disposal release the connection and send nothing to the service (21.010917ms)
+✔ item pages keep the service cursors, and unusable answers are errors rather than empty results (21.127709ms)
+✔ a mutation is attempted once: refusal, timeout and a lost reply never become a second create or a second result (325.721583ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 711.270791
+exit=0
