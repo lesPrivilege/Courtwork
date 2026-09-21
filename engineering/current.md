@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-22 · Grammar audit consumed; Runtime-only M1 lease granted
+
+[Parent disposition and M1 lease](design/grammar-convergence-20260921/disposition-20260922.md) consume the completed fresh Astra [read-only audit](design/grammar-convergence-20260921/audit/01a0c497-69ec-7ea1-9706-1f6ffaccdd07/README.md). Its32 files and8 screenshot hashes were preserved/verified. Reader stack weight is inherited, fine-pointer narrow target differences require scoped owner mapping rather than an automaticAA failure, and Chat/Attention need no appearance migration from this sample.
+
+Task **GUI Grammar Convergence · 只读审计**, `01a0c497-69ec-7ea1-9706-1f6ffaccdd07`, receives one usable M1 lease: Sol may modify runtime-management-view.mjs and necessary focused tests to scope existing block-gap tokens to Runtime detail only, with Astra visual checks and Luna verification. Global styles.css, Preview/reader, app.mjs, controllers and canonical rules remain excluded. Parent Arch keeps final selection/acceptance/merge;06d keeps PV-R1 and its own target follow-up. M1 is authorized, not implemented or accepted by this entry.
+
+
 ## 2026-09-22 · 06d A accepted; tabbed Preview B has one lifecycle return
 
 [Independent review](execution/claude-frontend-harness-2026-09-16/evidence/tabbed-preview-review-20260922/README.md) accepts A1/A2 and integrates them at `cd6856f` (actual-main87/87). Luna's B-focused58/58 and Astra's real OpenAI browser verify recorded-version tabs, reading-position restoration, cross-Chat isolation, last-tab close/draft retention and the latest Run entry. B source `736e0f7` remains held for PV-R1: close must invalidate the Workspace fetch and reject its late continuation. The original `claude-tabbed-preview-20260921@9860c6c` tree is preserved for that bounded correction; no deletion or full B acceptance.

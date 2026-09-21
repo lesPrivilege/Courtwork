@@ -25,3 +25,8 @@ Main inspected: `ef6b267`. Known code facts: `styles.css` defines `--control:28p
 06d remains the active Preview-tab writer and the first relevant specimen. Its tab strip, document header, provenance/actions and reader toolbar should be assessed as a combined stack, not independent large components. The new audit does not take those files or expand 06d into a whole-site redesign. Subsequent Settings, Chat toolbar, navigation and decision surfaces consume the same role selection, with their own owner/failure/continuity contracts.
 
 External sources were read, not executed. No dependency, global sizing change, screenshot baseline, accessibility acceptance or frontend implementation is delivered by this documentation intake. Exact computed measurements and migration candidates belong to the new audit; native zoom/reader evidence must not be invented.
+
+
+## First audit consumed — 2026-09-22
+
+[Parent disposition and finite M1 lease](disposition-20260922.md) consume the [completed read-only packet](audit/01a0c497-69ec-7ea1-9706-1f6ffaccdd07/README.md). Main/candidate reader geometry is inherited; narrow-target differences are a scoped06d/reader follow-up rather than an automatic AA failure. Only Runtime-detail-local block rhythm is released for implementation, in the view module with no shared CSS write. The original eight captures/measurements are retained byte-for-byte; no product or accessibility acceptance follows from the audit alone.

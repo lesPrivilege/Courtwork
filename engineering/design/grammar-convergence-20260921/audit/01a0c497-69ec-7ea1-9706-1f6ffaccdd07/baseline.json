@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-09-21T15:33:36.787516+00:00",
+  "worktrees": {
+    "audit": {
+      "head": "ef73d276bf892a73a818ca5abf94f10c1a106c1d",
+      "branch": "(detached)",
+      "status": ""
+    },
+    "main": {
+      "head": "3a9de98f304561d74f6751dbe46ba8bf54cb71cf",
+      "branch": "main",
+      "status": "?? .agents/\n?? .obsidian/\n?? skills-lock.json"
+    },
+    "preview_writer": {
+      "head": "9860c6ce4c6084dc2385f41ad500d40c06fa050f",
+      "branch": "claude-tabbed-preview-20260921",
+      "status": ""
+    },
+    "core_writer": {
+      "head": "3022b5c68f978c3a50561b47eb1de9e61ab0ea58",
+      "branch": "codex/core-runtime-loop-20260921",
+      "status": "M app/runtime/agents-api-adapter.mjs\n M app/runtime/openai-agents-transport.mjs\n M app/server/store.mjs\n?? app/server/remote-action-state.mjs"
+    }
+  },
+  "scope": "Read-only product audit. Main current entry reports Core authentication-blocked, but current Core dirty paths indicate source activity; no assumption of idle or implementation acceptance. Preview writer reserved even when clean."
+}

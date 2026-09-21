@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "sourceSha": "ef73d276bf892a73a818ca5abf94f10c1a106c1d",
+  "url": "http://127.0.0.1:51979/",
+  "classification": "fixture shell using production rendering primitives",
+  "productionConsumers": [
+    {
+      "module": "app/web/ui-controls.mjs",
+      "exports": ["el", "action", "markdown", "installTooltips"],
+      "use": "DOM primitives, icon action construction, Markdown rendering, and tooltips"
+    },
+    {
+      "module": "app/web/user-message.mjs",
+      "exports": ["renderUserMessage"],
+      "use": "user-message rendering"
+    },
+    {
+      "module": "app/web/chat-actions.mjs",
+      "exports": ["createChatActions"],
+      "use": "message action row and action availability projection"
+    },
+    {
+      "module": "app/web/model-picker.mjs",
+      "exports": ["createModelPicker"],
+      "use": "model-picker UI consumer against a synthetic request adapter"
+    },
+    {
+      "module": "app/web/composer-field.mjs",
+      "exports": ["installComposerGrowth"],
+      "use": "composer growth behavior"
+    },
+    {
+      "module": "app/web/chat-reading.mjs",
+      "exports": ["captureChatReading", "restoreChatReading"],
+      "use": "separate reading.html fixture only; not imported by the judgment scene entry page"
+    }
+  ],
+  "fixtureOwned": [
+    {
+      "module": "app/tests/fixtures/chat-continuity/view.mjs",
+      "functions": ["renderJudgmentCard", "renderOverlayContent", "renderMessages", "renderSearch"],
+      "note": "The visible awaiting-judgment card and read-only judgment overlay are fixture composition. They are not the production work-decision component or owner projection."
+    },
+    {
+      "module": "app/tests/fixtures/chat-continuity/controller.mjs",
+      "functions": ["createSpecimenController", "openJudgment", "refreshJudgment"],
+      "note": "Page-state experiment only; the source comment explicitly says there is no persistence, production navigation, or formal decision."
+    },
+    {
+      "module": "app/tests/fixtures/chat-continuity/adapter.mjs",
+      "functions": ["createSpecimenAdapter", "preview", "initialMessages"],
+      "note": "Fixed synthetic identities/evidence and preview facts; no network, credentials, disk, product state, or production DTOs."
+    },
+    {
+      "module": "app/tests/fixtures/chat-continuity/specimen.css",
+      "note": "Fixture layout and judgment-panel styling layered after production app/web/styles.css."
+    }
+  ],
+  "interpretation": "Use this preview to inspect shared Chat primitives and continuity mechanics. Treat its judgment panel as a synthetic composition reference only; it cannot establish production decision semantics or computed geometry for the full Host."
+}

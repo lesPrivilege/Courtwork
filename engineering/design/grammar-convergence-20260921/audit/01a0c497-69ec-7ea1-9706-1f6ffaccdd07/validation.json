@@ -1,0 +1,96 @@
+{
+  "capturedAt": "2026-09-21T15:49:06.315707+00:00",
+  "auditHead": "ef73d276bf892a73a818ca5abf94f10c1a106c1d",
+  "parentMainHeadAtStop": "3a9de98f304561d74f6751dbe46ba8bf54cb71cf",
+  "markdownLinkErrors": [],
+  "jsonParse": "pass",
+  "onlyOwnedAuditPathsDirty": true,
+  "trackedDiff": [],
+  "sourceHashes": {
+    "app/web/styles.css": {
+      "sha256": "1b116cb103cceb4fad685f732b41749dc21f77a57e3c3c5c2ac7af80f8c5e975",
+      "mainArchiveExact": true
+    },
+    "app/web/markdown-reader.css": {
+      "sha256": "8a8fdeff97c88517ce4d17d06de866225f575fcdcd59f2681ab1867127af68c1",
+      "mainArchiveExact": true
+    },
+    "app/web/runtime-management-view.mjs": {
+      "sha256": "99f942109cd669614b0ce7ea129a1b1544ec7db6695e95e28d614744c5f5367a",
+      "mainArchiveExact": true
+    },
+    "app/web/settings-view.mjs": {
+      "sha256": "85e7c9f955a1b4052f0cfd2c38cc75019c50de3ebe705edb6aaf3d900b85c30d",
+      "mainArchiveExact": true
+    },
+    "app/web/app.mjs": {
+      "sha256": "b993e2ed051fb800f7c9380f9d47553073ab586dcc834696a2013447288754db",
+      "mainArchiveExact": true
+    },
+    "app/web/attention-view.mjs": {
+      "sha256": "4afb9a34096f6cb8e39bf3c33d6594a64df110f58cb50d510d5eda105799080a",
+      "mainArchiveExact": true
+    }
+  },
+  "screenshots": {
+    "screenshots/06-main-chat.jpg": {
+      "sha256": "210baa0a847e645506082b43d4510d7eaed4066a123e655258b17cda78a6321c",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    },
+    "screenshots/07-main-reader.jpg": {
+      "sha256": "c02d57286dfbed43ce3f9be922f40ed716086eb754ed52d3152908e1de34a7ef",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    },
+    "screenshots/04-chat-judgment.jpg": {
+      "sha256": "9d339b065405ae8baf7abe6694b7d01f0aeaa462e371585baa5bb60e0ffc25e2",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    },
+    "screenshots/05-settings-narrow-dark.jpg": {
+      "sha256": "9dead22ac8ebe64a001754ecc48ac80b04e81909c0939d86d5cbb2de2de1aa53",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    },
+    "screenshots/08-main-attention.jpg": {
+      "sha256": "b0b6ed61069b3944ad996d374b9a403a2b1a631a80a25f014889065bedfd562b",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    },
+    "screenshots/03-preview-narrow.jpg": {
+      "sha256": "dbcaecd90c9ec61171803c0b3561f3b0bf774d42e73515ce7f59a657cbefb0f1",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    },
+    "screenshots/01-settings-desktop.jpg": {
+      "sha256": "7c40d4c6696c51f9f4d4ea9e41002df28e677d8956dc43821145fa80542d3a88",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    },
+    "screenshots/02-preview-desktop.jpg": {
+      "sha256": "9f2aea605311421ff4e7afeb58d202481322f3c105be4ce3539e3788468a88ad",
+      "mime": "image/jpeg",
+      "visuallyInspected": true
+    }
+  },
+  "productTests": "not run: read-only audit, no product changes",
+  "validationCorrections": [
+    "Corrected screenshot extensions to JPEG without changing image bytes",
+    "Replaced tooltip-obstructed Chat capture",
+    "Corrected artifact-relative links; candidate-only author evidence uses frozen SHA + path",
+    "Inventory selector/media inference marked heuristic; 13 checked source anchors retained"
+  ],
+  "scriptSyntax": {
+    "inventory.mjs": "node --check exit 0",
+    "reproduce-previews.sh": "sh -n exit 0"
+  },
+  "gitDiffCheck": "exit 0",
+  "parentMainAdvance": {
+    "paths": [
+      "engineering/current.md",
+      "engineering/design/grammar-convergence-20260921/task-start.md"
+    ],
+    "productChanges": false
+  }
+}
