@@ -1,0 +1,10 @@
+✔ a revision changed elsewhere is refused, the draft is kept, and Reload shows the owner's values beside it (32.234833ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244.16375
+exit 0

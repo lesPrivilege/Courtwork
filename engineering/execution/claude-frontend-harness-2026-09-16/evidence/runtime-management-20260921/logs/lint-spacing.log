@@ -1,0 +1,3 @@
+lint-spacing: ok (4 files · 间距 var(--space-*)/0/auto/派生式/登记表 · 字号 var(--text-*)/inherit/em/登记表；1–3px 全局放行）
+lint-spacing: 登记表 60 条间距 + 16 条字号
+exit 0

@@ -1,0 +1,616 @@
+{
+  "url": "http://127.0.0.1:8961/",
+  "steps": [
+    {
+      "name": "list",
+      "focus": "body",
+      "status": null,
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": null,
+      "rows": [
+        [
+          " Pi · example",
+          "Local process · Configured by CourtWork",
+          "Connected · takes new work",
+          "Used by Work and Coding · 1 run bound now",
+          "Manage"
+        ],
+        [
+          " Hermes · example",
+          "Local process · Configured in Hermes",
+          "Disconnected · not taking new work",
+          "Used by Attention",
+          "Connect"
+        ],
+        [
+          " Codex · example",
+          "Local process · Configured in Codex",
+          "Unavailable. This example reports no Codex installation on this device.",
+          "No agent profile chooses it",
+          "Details"
+        ]
+      ]
+    },
+    {
+      "name": "open Pi by keyboard",
+      "focus": "back",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true
+    },
+    {
+      "name": "Tab traversal from Back",
+      "focus": "theme-select",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": false,
+      "tabOrder": [
+        "label",
+        "credential-ref",
+        "reconnect",
+        "disable",
+        "disclosure:technical",
+        "variant-select",
+        "slow-toggle",
+        "theme-select"
+      ]
+    },
+    {
+      "name": "disable with bound run",
+      "focus": "command-status",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Disabled for new work. The preview confirmed Pi at revision 4 · connection syn-pi-conn-1.\n\nRead back: revision 4 · connection syn-pi-conn-1. Not taking new work: disabled for new work at revision 4.\n\nsynthetic-run-311 keeps revision 3; it was not stopped, moved or queued."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "admission": "Saved setting\nDisabled for new work\nNext admission\nNot taking new work: disabled for new work at revision 4.\nBound · synthetic-run-311\nCoding is running on revision 3. It keeps that binding whatever changes here.",
+      "disconnectReason": "A run is bound to this connection, so it cannot be disconnected now. Disconnecting never stops a run; this becomes available when synthetic-run-311 ends."
+    },
+    {
+      "name": "back to list",
+      "focus": "row:rt-pi",
+      "status": null,
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "row": " Pi · example\nLocal process · Configured by CourtWork\nConnected · disabled for new work\nUsed by Work and Coding · 1 run bound now\nPreview receipt: disabled for new work at revision 4.\nManage"
+    },
+    {
+      "name": "Hermes connect proposal and draft",
+      "focus": "label",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "draft": "Requested: name “Hermes, desk”. Not applied; saved is revision 6.",
+      "nextStep": "Next step, in Hermes: Sign in inside Hermes, with its own setup. CourtWork does not read, copy or store that sign-in; connecting only asks Hermes whether it reports one."
+    },
+    {
+      "name": "connect pending",
+      "focus": "body",
+      "status": {
+        "status": "pending",
+        "role": "status",
+        "text": "Preview command · Connecting Hermes… Leaving this page does not cancel it."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": null,
+      "focusWhilePending": "body"
+    },
+    {
+      "name": "connect confirmed and read back",
+      "focus": "command-status",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Connected. The preview confirmed Hermes at revision 7 · connection syn-hermes-conn-2.\n\nRead back: revision 7 · connection syn-hermes-conn-2 · Synthetic one-shot job. Takes new work. An agent that chooses Hermes can start its next run here."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true
+    },
+    {
+      "name": "disconnect confirmation opened",
+      "focus": "disconnect-cancel",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Connected. The preview confirmed Hermes at revision 7 · connection syn-hermes-conn-2.\n\nRead back: revision 7 · connection syn-hermes-conn-2 · Synthetic one-shot job. Takes new work. An agent that chooses Hermes can start its next run here."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true
+    },
+    {
+      "name": "Escape closes confirmation",
+      "focus": "disconnect",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Connected. The preview confirmed Hermes at revision 7 · connection syn-hermes-conn-2.\n\nRead back: revision 7 · connection syn-hermes-conn-2 · Synthetic one-shot job. Takes new work. An agent that chooses Hermes can start its next run here."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "confirmation": null
+    },
+    {
+      "name": "disconnected; history kept",
+      "focus": "command-status",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Disconnected. The preview confirmed Hermes at revision 8.\n\nRead back: revision 8. Not taking new work: it is not connected."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "history": "Hermes on this Mac · syn-hermes-conn-1\n9/12/2026, 4:00:00 PM to 9/19/2026, 1:40:00 AM · 4 runs recorded; their history is kept.\nHermes, desk · syn-hermes-conn-2\n9/21/2026, 5:24:00 PM to 9/21/2026, 5:41:00 PM · 2 runs recorded; their history is kept.",
+      "usedBy": "Used by Attention."
+    },
+    {
+      "name": "lost reply after commit → unknown",
+      "focus": "command-status",
+      "status": {
+        "status": "unknown",
+        "role": "alert",
+        "text": "The connection closed before the host answered. The command to disable for new work may or may not have taken effect.\n\nNothing else can change this runtime until Check status settles it. Checking asks about this exact command; it does not send it again. Your draft is kept.\n\nCheck status"
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "reasons": [
+        "reason:reconnect: Locked until Check status settles the last command.",
+        "reason:disable: Locked until Check status settles the last command.",
+        "reason:disconnect: A run is bound to this connection, so it cannot be disconnected now. Disconnecting never stops a run; this becomes available when synthetic-run-311 ends."
+      ],
+      "disabled": [
+        "action:reconnect=true",
+        "action:disable=true",
+        "action:disconnect=true"
+      ],
+      "traceBefore": [
+        {
+          "call": "list"
+        },
+        {
+          "call": "list"
+        },
+        {
+          "call": "open",
+          "id": "rt-pi"
+        },
+        {
+          "call": "command",
+          "id": "rt-pi",
+          "operationId": "ae98814f-9d41-46e8-8448-2fe87ff01008",
+          "kind": "disable",
+          "expectedRevision": 3
+        },
+        {
+          "effect": "disable",
+          "id": "rt-pi",
+          "operationId": "ae98814f-9d41-46e8-8448-2fe87ff01008",
+          "revision": 4
+        },
+        {
+          "effect": "reply-lost",
+          "operationId": "ae98814f-9d41-46e8-8448-2fe87ff01008"
+        }
+      ]
+    },
+    {
+      "name": "Check status settles the same operation",
+      "focus": "command-status",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Disabled for new work. The preview confirmed Pi at revision 4 · connection syn-pi-conn-1.\n\nRead back: revision 4 · connection syn-pi-conn-1. Not taking new work: disabled for new work at revision 4.\n\nsynthetic-run-311 keeps revision 3; it was not stopped, moved or queued."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "traceAfter": [
+        {
+          "call": "list"
+        },
+        {
+          "call": "list"
+        },
+        {
+          "call": "open",
+          "id": "rt-pi"
+        },
+        {
+          "call": "command",
+          "id": "rt-pi",
+          "operationId": "ae98814f-9d41-46e8-8448-2fe87ff01008",
+          "kind": "disable",
+          "expectedRevision": 3
+        },
+        {
+          "effect": "disable",
+          "id": "rt-pi",
+          "operationId": "ae98814f-9d41-46e8-8448-2fe87ff01008",
+          "revision": 4
+        },
+        {
+          "effect": "reply-lost",
+          "operationId": "ae98814f-9d41-46e8-8448-2fe87ff01008"
+        },
+        {
+          "call": "status",
+          "id": "rt-pi",
+          "operationId": "ae98814f-9d41-46e8-8448-2fe87ff01008"
+        },
+        {
+          "call": "open",
+          "id": "rt-pi"
+        }
+      ]
+    },
+    {
+      "name": "RM-R1 submitted draft, reply lost",
+      "focus": "command-status",
+      "status": "The connection closed before the host answered. The command to connect may or may not have taken effect.\n\nNothing else can change this runtime until Check status settles it. Checking asks about this exact command; it does not send it again. Your draft is kept.\n\nCheck status",
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "summary": "Submitted: name “Independent Hermes”. It may or may not have been applied; Check status settles it. Last confirmed: revision 6."
+    },
+    {
+      "name": "RM-R1 newer input while unknown",
+      "focus": "label",
+      "status": {
+        "status": "unknown",
+        "role": "alert",
+        "text": "The connection closed before the host answered. The command to connect may or may not have taken effect.\n\nNothing else can change this runtime until Check status settles it. Checking asks about this exact command; it does not send it again. Your draft is kept.\n\nCheck status"
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "summary": "Submitted: name “Independent Hermes”. It may or may not have been applied; Check status settles it. Last confirmed: revision 6. Your newer edits, not sent: name “Independent Hermes, desk”."
+    },
+    {
+      "name": "RM-R1 reconciled",
+      "focus": "command-status",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Connected. The preview confirmed Hermes at revision 7 · connection syn-hermes-conn-2.\n\nRead back: revision 7 · connection syn-hermes-conn-2 · Synthetic one-shot job. Takes new work. An agent that chooses Hermes can start its next run here."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "summary": "Requested: name “Independent Hermes, desk”. Not applied; saved is revision 7.",
+      "trace": [
+        {
+          "call": "command",
+          "id": "rt-hermes",
+          "operationId": "6d632f51-c579-4f56-b7d8-394d305b3896",
+          "kind": "connect",
+          "expectedRevision": 6
+        },
+        {
+          "effect": "connect",
+          "id": "rt-hermes",
+          "operationId": "6d632f51-c579-4f56-b7d8-394d305b3896",
+          "revision": 7
+        },
+        {
+          "effect": "reply-lost",
+          "operationId": "6d632f51-c579-4f56-b7d8-394d305b3896"
+        },
+        {
+          "call": "status",
+          "id": "rt-hermes",
+          "operationId": "6d632f51-c579-4f56-b7d8-394d305b3896"
+        }
+      ]
+    },
+    {
+      "name": "RM-R2 stale read-back locks changes",
+      "focus": "command-status",
+      "status": "Preview receipt · Disabled for new work. The preview confirmed Pi at revision 4 · connection syn-pi-conn-1.\n\nThe latest reading is revision 3, older than this command's revision 4. It is not taken as this command's result, and changes stay locked until a current reading arrives.\n\nRead again",
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "disabled": [
+        "action:reconnect=true",
+        "action:disable=true",
+        "action:disconnect=true"
+      ]
+    },
+    {
+      "name": "RM-R2 current reading settles it",
+      "focus": "command-status",
+      "status": "Preview receipt · Disabled for new work. The preview confirmed Pi at revision 4 · connection syn-pi-conn-1.\n\nRead back: revision 4 · connection syn-pi-conn-1. Not taking new work: disabled for new work at revision 4.\n\nsynthetic-run-311 keeps revision 3; it was not stopped, moved or queued.",
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "trace": [
+        {
+          "call": "command",
+          "id": "rt-pi",
+          "operationId": "f72b511f-f54d-4fb7-aba8-2d63613daae6",
+          "kind": "disable",
+          "expectedRevision": 3
+        },
+        {
+          "effect": "disable",
+          "id": "rt-pi",
+          "operationId": "f72b511f-f54d-4fb7-aba8-2d63613daae6",
+          "revision": 4
+        },
+        {
+          "effect": "stale-read",
+          "id": "rt-pi",
+          "revision": 3
+        }
+      ]
+    },
+    {
+      "name": "stale revision refused, draft kept",
+      "focus": "command-status",
+      "status": {
+        "status": "conflict",
+        "role": "alert",
+        "text": "Pi was changed elsewhere and is now at revision 4. This command was composed against revision 3; nothing was changed.\n\nReload runtime"
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "label": "Pi, lab"
+    },
+    {
+      "name": "reloaded beside the draft",
+      "focus": "reload-notice",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "notice": "Reloaded revision 4, changed elsewhere. Your draft is unchanged and not applied; review it against these values.",
+      "label": "Pi, lab"
+    },
+    {
+      "name": "connect refused, draft and focus kept",
+      "focus": "connect",
+      "status": {
+        "status": "refused",
+        "role": "alert",
+        "text": "Hermes did not report a signed-in session, so nothing was connected. Your connection name is kept."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "label": "Hermes, desk"
+    },
+    {
+      "name": "host cannot change runtimes",
+      "focus": "back",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "reasons": [
+        "This host cannot change a runtime yet. You can read it here; nothing is sent.",
+        "This host cannot change a runtime yet. You can read it here; nothing is sent.",
+        "This host cannot change a runtime yet. You can read it here; nothing is sent."
+      ]
+    },
+    {
+      "name": "unavailable engine",
+      "focus": "back",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "reason": "Nothing to connect: this example reports no Codex installation. That is a fact about this device, not a permission decision."
+    },
+    {
+      "name": "empty host",
+      "focus": "body",
+      "status": null,
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": null,
+      "empty": "No runtime is reported on this host. A runtime appears here once its owner reports it; nothing is searched for."
+    },
+    {
+      "name": "failed read",
+      "focus": "body",
+      "status": null,
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": null,
+      "error": "The runtime list could not be read. Nothing on this page was changed."
+    },
+    {
+      "name": "late command reply after navigation",
+      "focus": "back",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true,
+      "rowWhilePending": "Disabling for new work… still waiting for an answer.",
+      "hermesUnchanged": true,
+      "trace": [
+        {
+          "effect": "disable",
+          "id": "rt-pi",
+          "operationId": "3397f098-051d-43af-8853-70e6da0a80ac",
+          "revision": 4
+        }
+      ]
+    },
+    {
+      "name": "narrow list",
+      "focus": "body",
+      "status": null,
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": null
+    },
+    {
+      "name": "narrow long label",
+      "focus": "command-status",
+      "status": {
+        "status": "confirmed",
+        "role": "status",
+        "text": "Preview receipt · Connected. The preview confirmed Hermes at revision 7 · connection syn-hermes-conn-2.\n\nRead back: revision 7 · connection syn-hermes-conn-2 · Synthetic one-shot job. Takes new work. An agent that chooses Hermes can start its next run here."
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true
+    },
+    {
+      "name": "dark unknown",
+      "focus": "command-status",
+      "status": {
+        "status": "unknown",
+        "role": "alert",
+        "text": "The connection closed before the host answered. The command to disable for new work may or may not have taken effect.\n\nNothing else can change this runtime until Check status settles it. Checking asks about this exact command; it does not send it again. Your draft is kept.\n\nCheck status"
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true
+    },
+    {
+      "name": "720 CSS px at DPR 2 (emulated, not native zoom)",
+      "focus": "back",
+      "status": {
+        "status": "none",
+        "role": "status",
+        "text": ""
+      },
+      "overflow": {
+        "doc": 0,
+        "sections": 0
+      },
+      "nullText": false,
+      "focusVisible": true
+    }
+  ]
+}

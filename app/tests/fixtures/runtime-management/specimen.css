@@ -1,0 +1,22 @@
+/* Preview-page frame only. The panel itself uses the product's own Settings
+ * composition, so nothing here styles a row, a control or a state — this file
+ * exists to give the panel a page to sit on and to keep the synthetic identity
+ * of the preview visible above it. */
+body[data-runtime-management-preview] { display:block; overflow:hidden; background:var(--frame); color:var(--ink); }
+.preview-app { height:100dvh; display:grid; grid-template-rows:auto auto minmax(0,1fr); }
+.preview-topbar { display:flex; align-items:center; justify-content:space-between; gap:var(--space-8); padding:var(--space-5) var(--space-8); border-bottom:1px solid var(--line); }
+.preview-topbar h1 { font-size:var(--text-title); margin:0; }
+.preview-topbar .eyebrow { margin:0 0 var(--space-1); }
+.preview-disclosure { max-width:58ch; margin:0; color:var(--muted-strong); font-size:var(--text-meta); line-height:1.5; }
+.preview-controls { display:flex; gap:var(--space-4); align-items:end; overflow-x:auto; padding:var(--space-3) var(--space-8); border-bottom:1px solid var(--line); background:var(--panel-muted); }
+.preview-controls label { display:grid; gap:var(--space-1); flex:0 0 auto; font-size:var(--text-meta); color:var(--muted-strong); }
+.preview-controls select { min-width:11rem; min-height:36px; max-width:14rem; }
+.preview-controls .preview-slow { display:flex; align-items:center; align-self:center; white-space:nowrap; }
+.preview-controls button { white-space:nowrap; }
+.preview-app .settings-page { min-height:0; background:var(--panel); }
+.preview-app .settings-sections { min-width:0; overflow:auto; }
+.preview-app .settings-nav-column .form-help { margin-top:var(--space-4); line-height:1.5; }
+@media (max-width: 760px) {
+  .preview-topbar { flex-direction:column; align-items:flex-start; gap:var(--space-3); padding:var(--space-4); }
+  .preview-controls { padding:var(--space-3) var(--space-4); }
+}
