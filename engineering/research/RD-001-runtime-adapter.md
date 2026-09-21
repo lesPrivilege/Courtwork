@@ -103,3 +103,7 @@ The [bounded next assignment](../execution/claude-frontend-harness-2026-09-16/ne
 ## 2026-09-21 · P03-B accepted
 
 [Independent evidence](../execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md) accepts `c2be594`, merged `e2eaf6d`. Pi executes through the explicit port; Host status/governance and journal/schema identity remain unchanged. This consumes the bounded dispatch, not a second-runtime support claim. D1–D5 and remaining Provider/observation coupling are recorded for the existing P03-C consumer.
+
+## 2026-09-21 · P03-C first increment ready
+
+[The finite Fable transport order](../execution/claude-frontend-harness-2026-09-16/p03c-agents-transport-20260921.md) consumes the existing Agents protocol adapter. First increment adds the actual SDK transport and synthetic wire evidence, with no live exposure or Host/schema mutation. Remote binding and one governed read-tool consumer follow under this RD and the original Store owner; current Pi `{id,path}` must not be reused as a remote locator.

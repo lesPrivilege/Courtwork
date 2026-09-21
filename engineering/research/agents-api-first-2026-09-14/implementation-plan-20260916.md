@@ -312,3 +312,7 @@ SDK blob 定位：events.ts `3ddfbda67d65185a7035060a63ce1e3608e95e5f`；session
 ## 2026-09-21 · Slice B acceptance
 
 [Pi port independent acceptance](../../execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md) closes B at source `c2be594`, local merge `e2eaf6d`. Native journal/identity and Host governance remain unchanged; provider helpers and Pi-shaped options/outcomes await the actual C consumer. No hosted transport, CLI execution or C–F implementation is claimed or started by this acceptance.
+
+## 2026-09-21 · C transport dispatch
+
+[Ready Fable order](../../execution/claude-frontend-harness-2026-09-16/p03c-agents-transport-20260921.md) breaks C into serial reviewable increments: SDK transport/identity first, then Host remote binding and one governed read function. The first adds no schema/UI/live capability. Exact SDK artifact and request-key drift are verified before implementation; historical pins remain. C is not accepted until its original live read milestone is demonstrated. D/E/F retain their scope and ordering.

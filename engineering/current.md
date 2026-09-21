@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-21 · Next Fable order ready: P03-C transport
+
+[Finite transport order](execution/claude-frontend-harness-2026-09-16/p03c-agents-transport-20260921.md) consumes the existing Agents protocol adapter and accepted Pi seam. Fable may implement the production SDK transport with synthetic wire tests; Sonnet artifact preflight is limited to 12 calls. No Store/service/UI writes or live runtime exposure in this first increment. Current official-doc versus pinned-SDK request-key drift is explicitly assigned for artifact verification. The next Host read-tool consumer requires its narrow remote-binding/receipt migration before code, followed by original D/E. Composer writer remains separate. This is a ready handoff, not a launched Fable process; no credentials or paid calls.
+
 ## 2026-09-21 · P03-B Pi Runtime Port independently accepted
 
 [Independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md) integrates source `c2be594` as main `e2eaf6d`: Luna 56/56 including the six new port tests, Astra full suite 1326/1326 exit 0, actual-main runtime smoke exit 0. Host admission/status/governance remain authoritative; Pi journal/execution is behind an explicitly injected port. D1–D5 are disposed of within this slice; Provider coupling and P03-C–F remain with their original owners. The released tree is now archived with verified file/Git restoration and removed; the final inventory also finds the newly claimed Composer work-location tree at `3bf1e0b`, which is preserved. Persistent Courtwork and the frozen shared Git dependency are retained. Composer working-location is now observed claimed in `claude-work-location-20260921`; Codex did not start or duplicate its writer. User 8787/8899 remain on their original processes; no real provider, browser pass, push/deploy or heartbeat activation.

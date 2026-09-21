@@ -73,3 +73,7 @@ OS-backed key storage/native config migration, executable hooks, additional host
 ## 2026-09-21 · Core lane disposition
 
 P03-B source `c2be594` is [independently accepted](evidence/p03b-pi-runtime-port-review-20260921/README.md), merged `e2eaf6d`; the original extraction assignment is complete and must not be dispatched again. The existing C consumer is next in the core plan, with its own transport/access/permission contract and finite assignment before code. No C–F or third service writer starts automatically. Composer working-location remains the next frontend task.
+
+## 2026-09-21 · Fable continuation after B
+
+The user requests another important serial Fable assignment. [P03-C transport](p03c-agents-transport-20260921.md) is now ready: exact SDK/wire implementation over the existing adapter, offline verification, no Host/schema/UI changes. After independent acceptance comes the separately contracted Host binding/one-read-tool consumer, then original D/E. This supersedes the earlier “C needs a finite assignment” placeholder; it does not dispatch every increment at once.
