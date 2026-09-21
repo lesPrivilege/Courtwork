@@ -1,0 +1,189 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Parcel review" [expanded]:
+        - generic: Parcel review
+      - button "New chat in Parcel review":
+        - generic: New chat in Parcel review
+      - paragraph: Loading chats…
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "Unbound location check":
+        - generic: Unbound location check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Bound location check":
+        - generic: Bound location check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Quarterly ledger check":
+        - generic: Quarterly ledger check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Parcel brief review":
+        - generic: Parcel brief review
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "Parcel brief review" [level=1]: · Parcel brief review
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open preview" [active]:
+    - generic: Open preview
+  - log:
+    - generic "Sources and work versions"
+    - article "Your message":
+      - paragraph: "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/brief.md\",\"text\":\"# Parcel brief · version 1\\n\\n## Section 1 · parcel boundary reading\\n\\nParagraph 1.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real…"
+      - generic "Read full message"
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/22/2026, 12:26:18 AM
+        - text: 12:26 AM
+    - region "Agent run":
+      - button "Execution 3 successful tool actions":
+        - generic: Execution
+        - generic: 3 successful tool actions
+      - button "out/brief.md Recorded version":
+        - generic: out/brief.md
+        - generic: Recorded version
+      - group "Recorded file actions":
+        - button "More file actions":
+          - generic: More file actions
+      - button "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md Recorded version":
+        - generic: out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md
+        - generic: Recorded version
+      - group "Recorded file actions":
+        - button "More file actions":
+          - generic: More file actions
+      - region "Presentation · Parcel facts":
+        - heading "Parcel facts" [level=4]
+        - term: Boundary
+        - definition: Synthetic north line
+        - term: Survey
+        - definition: 2026-09-01 (synthetic)
+        - term: Owner of record
+        - definition: Synthetic Holdings
+        - paragraph: Model-derived · facts v1 · revision 1 · 1c3cc08e
+        - button "Open in Preview":
+          - generic: Open in Preview
+      - article:
+        - paragraph: SIMULATED scripted response
+        - time:
+          - generic: Run started 9/22/2026, 12:26:18 AM
+          - text: 12:26 AM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+      - article:
+        - generic: Work
+        - generic: Completed
+        - button "Inspect this run":
+          - generic: Inspect this run
+    - article "Your message":
+      - paragraph: "/fixture script [{\"name\":\"ws_write\",\"arguments\":{\"path\":\"out/brief.md\",\"text\":\"# Parcel brief · version 2\\n\\n## Section 1 · parcel boundary reading\\n\\nParagraph 1.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real…"
+      - generic "Read full message"
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/22/2026, 12:26:18 AM
+        - text: 12:26 AM
+    - region "Agent run":
+      - button "Execution 1 successful tool action":
+        - generic: Execution
+        - generic: 1 successful tool action
+      - button "out/brief.md Recorded version":
+        - generic: out/brief.md
+        - generic: Recorded version
+      - group "Recorded file actions":
+        - button "More file actions":
+          - generic: More file actions
+      - article:
+        - paragraph: SIMULATED scripted response
+        - time:
+          - generic: Run started 9/22/2026, 12:26:18 AM
+          - text: 12:26 AM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+    - button "Measurement details"
+    - generic: Completed
+    - status: Completed
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+    - text: Preview review draft — do not send
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Allow edits"':
+    - generic: Allow edits
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - 'button "Context: 1 of 4,096 tokens, <0.1%, latest completed request input"':
+  - button "Send":
+    - generic: Send
+  - paragraph: Parcel review
+- status

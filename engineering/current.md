@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-22 · 06d A accepted; tabbed Preview B has one lifecycle return
+
+[Independent review](execution/claude-frontend-harness-2026-09-16/evidence/tabbed-preview-review-20260922/README.md) accepts A1/A2 and integrates them at `cd6856f` (actual-main87/87). Luna's B-focused58/58 and Astra's real OpenAI browser verify recorded-version tabs, reading-position restoration, cross-Chat isolation, last-tab close/draft retention and the latest Run entry. B source `736e0f7` remains held for PV-R1: close must invalidate the Workspace fetch and reject its late continuation. The original `claude-tabbed-preview-20260921@9860c6c` tree is preserved for that bounded correction; no deletion or full B acceptance.
+
+Parent Astra retains Design/integration authority; density and native Back/Forward remain their separate owners. User services were not restarted. The backend loop tree is now observed at `37a14a5` with C/D author commits, so it is protected as claimed work pending its own report; this observation supersedes treating the tree as untouched, but does not establish live capability, independent acceptance or how the earlier CLI authentication condition was resolved. The isolated grammar-audit tree is also preserved.
+
+
 ## 2026-09-21 · Visual grammar consumed; fresh Astra read-only audit authorized
 
 [Visual / Spatial Grammar](design/visual-spatial-grammar.md) now places compact workbench chrome, readable review/body and explicit action/decision roles on the normal AGENTS → UX → frontend-contract → composition path. [Luna's primary-source index and parent Astra disposition](design/grammar-convergence-20260921/README.md) distinguish WCAG/APG facts from CW size choices and correct old universal32/44 wording without changing product CSS. Change records must state role/token/target/type/viewport assumptions and actual composition evidence; this is not a transcript-only registration or a new design system.
