@@ -1,0 +1,14 @@
+{
+  "integratedMain": "a3503fb2530a384d3a756de7cb0ccc246f97d3e0",
+  "oldPid": 43118,
+  "newPid": 65142,
+  "sessionCount": 2,
+  "runCount": 5,
+  "fullSessionDetailBeforeAfterEqual": true,
+  "allRunsTerminalBeforeRestart": true,
+  "moduleStatus": 200,
+  "servedModuleEqualsAcceptedSource": true,
+  "moduleSha256": "d91965c5fe69eb88c0b9b0c41d6d6d49e4918a0877438332afaa309a8b074847",
+  "credentialsReadOrExported": false,
+  "providerCalls": 0
+}

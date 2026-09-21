@@ -1,0 +1,34 @@
+{
+  "integratedMain": "a3503fb2530a384d3a756de7cb0ccc246f97d3e0",
+  "bundle": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/prepare-increment.bundle",
+  "bundleSha256": "4585ef81ad4440949d20dbb222585fd428853a15f1eda518433931d947d3e657",
+  "bundlePhysicalFetchAndFsckVerified": true,
+  "prerequisite": "f5b375259045d4b9b43cac185145b959a954b925",
+  "preDeletionInventoryUnchanged": true,
+  "trees": [
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920",
+      "head": "4b7b98ebce4819b94a42337ed87c1b6a58a166e4",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-prepare-approval-20260920",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-prepare-approval-20260920/files.tar.gz",
+      "archiveSha256": "4b233a031da79b2e66d65654b9a6005755fcf715588911be76e7df8e8d2cfb74",
+      "manifestSha256": "e4301afb5496c2f7aa22a2dbde435cdccf9ecb51c606bfe0651a479d5e5a33f5",
+      "entryCount": 38029,
+      "fileBytes": 974584666,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true
+    },
+    {
+      "root": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-integration-20260921",
+      "head": "ce50130e1d43c974f983fc27fb9df927138989c1",
+      "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-prepare-integration-20260921",
+      "archive": "/Users/lesprivilege/Projects/.archives/courtwork-dogfood-ready-20260920/courtwork-prepare-integration-20260921/files.tar.gz",
+      "archiveSha256": "ac0bcf7ad63039a6d5931245e1cc9bae2492687202e73b88d2a7438567d693e9",
+      "manifestSha256": "25fe04080d1608f82cd1b37b5d23b78e11fc0be4449f38c6c6e80a84e168b02c",
+      "entryCount": 8744,
+      "fileBytes": 444385193,
+      "physicalRestoreVerified": true,
+      "sourceRecheckPassed": true
+    }
+  ]
+}

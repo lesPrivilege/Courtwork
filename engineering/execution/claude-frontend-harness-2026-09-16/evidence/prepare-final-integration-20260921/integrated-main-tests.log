@@ -1,0 +1,32 @@
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (111.102959ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (4.263083ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (1.778667ms)
+✔ 00 · the folder entry says Connect folder; Project stays Project (1.260917ms)
+✔ PA-R1 · after a lost candidate reply the visible command finishes the same preparation (8.752583ms)
+✔ PA-R1 · the counterexample: the ordinary create would have been refused (0.45275ms)
+✔ PA-R1 · a reply lost at any step is finished by the same visible command (4.814167ms)
+✔ PA-R1 · preparation continues against the folder the Host really bound (1.375625ms)
+✔ PA-R2 · nothing mutating is actionable while preparation is in flight (1.231209ms)
+✔ PA-R2 · a locked card is locked for the same reasons whichever surface it shows (0.535291ms)
+✔ PA-R2 · an unconfirmed create locks every folder mutation, and Check status stays reachable (1.9845ms)
+✔ PA-R2 · a create that never landed keeps its identity for the retry (0.485292ms)
+✔ only a documented pre-effect mutation refusal is settled (0.1845ms)
+✔ a coded bind read-back failure stays unknown after the bind committed (0.509959ms)
+✔ PA-R1 · a refused folder can be corrected, and the correction is a new binding intent (2.55625ms)
+✔ a definitive folder refusal survives the production Home marker reload (1.370792ms)
+✔ PA-R1 · retrying the same folder keeps its identity; correcting is refused while anything is unknown (2.182375ms)
+✔ PA-R3 · a first send from anywhere retires the preparation, keeping the unsent Home text (1.692958ms)
+✔ PA-R3 · a send that was never admitted leaves the preparation recoverable (1.778209ms)
+✔ PA-R3 · retiring is scoped to the prepared chat and to real work (0.150209ms)
+✔ PA-R3 · a marker restored from storage reconciles against the Host once (0.199208ms)
+✔ the production seam: what the controller owns, and what app.mjs wires (2.414042ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1146.098791
+
+exit=0

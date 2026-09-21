@@ -1,6 +1,6 @@
 # Preparation and approval: final independent acceptance
 
-Astra accepts the bounded PA-R1–R3 preparation/approval delivery for local integration at source `b3f3fd75b7f2f2b5c3084d4be5d83c614eca3854` (2026-09-21). Claude's released source `4b7b98ebce4819b94a42337ed87c1b6a58a166e4` and earlier reviewed commits remain ancestors. Sol adds only the two final corrections; Claude's tree remains untouched. Merge and restoration-verified cleanup are recorded separately in completion.md once performed.
+Astra accepts the bounded PA-R1–R3 preparation/approval delivery for local integration at source `b3f3fd75b7f2f2b5c3084d4be5d83c614eca3854` (2026-09-21). Claude's released source `4b7b98ebce4819b94a42337ed87c1b6a58a166e4` and earlier reviewed commits remain ancestors. Sol adds only the two final corrections; Claude's tree remains untouched. [Merge and restoration-verified cleanup](completion.md) are complete.
 
 ## Disposition in the original owner
 
@@ -13,7 +13,7 @@ Astra accepts the bounded PA-R1–R3 preparation/approval delivery for local int
 
 [Luna's author-candidate review](luna-author-candidate-review.md) ran 68/68 at `4b7b98e` and identified the two final blockers. [Luna's final review](luna-final-review.md) accepts the `4b7b98e..b3f3fd7` delta with **70 passed, 0 failed**, production wiring, conservative classification, persistence and malformed-state probes. [Raw final tests](luna-final-tests.log). Sol's [author checks](sol-author-tests.log) separately pass 70 affected tests and 4 entry-audit checks; these are not independent evidence. Claude's full 1318/0 applies only to `4b7b98e`; a full suite was not repeated on the final delta.
 
-Astra used OpenAI computer use in the Codex in-app browser, separate synthetic Host/data and ports 8924/8925/8926, with Local test selected. No Send or paid provider was invoked. Final source was served from the integration tree. The user Host 8787 and preview 8899 were preserved without restart.
+Astra used OpenAI computer use in the Codex in-app browser, separate synthetic Host/data and ports 8924/8925/8926, with Local test selected. No Send or paid provider was invoked. Final source was served from the integration tree. The user Host 8787 and preview 8899 were untouched during isolated testing. After integration, the idle 8787 Host was gracefully restarted to load the new static-module allowlist, with exact before/after Session comparison; see the completion receipt.
 
 | Browser case | Source and observation | Evidence |
 | --- | --- | --- |

@@ -1,0 +1,8 @@
+worktree /Users/lesprivilege/Projects/Courtwork-legacy-frozen
+HEAD f9ade85b72e5abcdc64c3a6c43ed3a13a2292476
+detached
+
+worktree /Users/lesprivilege/Projects/Courtwork
+HEAD a3503fb2530a384d3a756de7cb0ccc246f97d3e0
+branch refs/heads/main
+
