@@ -22,7 +22,13 @@
  */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createHomePreparation, prepareChat, preparationState } from "../web/home-preparation.mjs";
+import {
+  createHomePreparation,
+  prepareChat,
+  preparationState,
+  restoreHomePreparationMarker,
+  serializeHomePreparationMarker,
+} from "../web/home-preparation.mjs";
 import {
   createWorkspaceCard,
   activeRepositoryBinding,
@@ -447,17 +453,53 @@ test("PA-R2 · a create that never landed keeps its identity for the retry", () 
   assert.equal(home.marker.sessionId, chosen, "the identity is kept, so the retry is the same chat");
 }));
 
-test("what counts as settled is whether the Host answered, not the status number", async () => {
+test("only a documented pre-effect mutation refusal is settled", async () => {
   const { uncertainFailure } = await import("../web/home-preparation.mjs");
-  // A 503 the Host itself states is a settled refusal: nothing landed.
-  assert.equal(uncertainFailure({ status: 503, body: { error: { code: "repository_validation_failed" } } }), false);
-  assert.equal(uncertainFailure({ status: 409, body: { error: { code: "stale_revision" } } }), false);
-  // A 503 from anything between here and the Host is not an answer at all.
+  const validation = { status: 503, body: { error: { code: "repository_validation_failed" } } };
+  assert.equal(uncertainFailure(validation, "bind-mutation"), false,
+    "the bind validator explicitly refuses before changing the binding");
+  assert.equal(uncertainFailure(validation, "bind-readback"), true,
+    "the same code on a read-back says nothing about the mutation before it");
+  assert.equal(uncertainFailure({ status: 409, body: { error: { code: "stale_revision" } } }, "bind-mutation"), true,
+    "unlisted coded mutation failures reconcile before allowing correction");
+  assert.equal(uncertainFailure({ status: 500, body: { error: { code: "internal_error" } } }, "reconcile-read"), true);
   assert.equal(uncertainFailure({ status: 503, body: { error: "synthetic reply loss after Host commit" } }), true);
   assert.equal(uncertainFailure({ status: 502, body: null }), true);
   assert.equal(uncertainFailure(new Error("The local runtime could not be reached.")), true);
   assert.equal(uncertainFailure(undefined), true, "when in doubt, uncertain");
 });
+
+test("a coded bind read-back failure stays unknown after the bind committed", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host);
+  const original = host.request;
+  let bindCommitted = false;
+  home.controller = createHomePreparation({
+    request: async (path, options = {}) => {
+      if (path.endsWith("/repository-binding") && options.method === "PUT") {
+        const result = await original(path, options);
+        bindCommitted = true;
+        return result;
+      }
+      if (bindCommitted && /^\/sessions\/[^/]+$/.test(path)) {
+        bindCommitted = false;
+        throw Object.assign(new Error("synthetic read-back failure"), {
+          status: 500, body: { error: { code: "internal_error", message: "synthetic read-back failure" } },
+        });
+      }
+      return original(path, options);
+    },
+    read: () => ({ marker: home.marker, rootPath: home.stagedPath, draftText: home.draftText, permissionMode: "ask", projectId: null, connectionLost: false }),
+    write: ({ marker, rootPath }) => { if (marker !== undefined) home.marker = marker; if (rootPath !== undefined) home.stagedPath = rootPath; home.render(); },
+    newId: host.newId,
+  });
+  home.mount(body);
+  await home.controller.prepare();
+  assert.equal(host.session.repositoryBinding?.status, "active", "the bind really committed before the read failed");
+  assert.equal(home.phase().uncertain, true);
+  assert.equal(home.phase().correctable, false, "no folder correction is exposed over an unobserved committed bind");
+  assert.equal(field(body, "path"), undefined);
+}));
 
 /* ── round 2 · PA-R1, a folder the Host definitively refused ─────────────── */
 
@@ -499,6 +541,29 @@ test("PA-R1 · a refused folder can be corrected, and the correction is a new bi
     "a different folder is a different intent, so it does not reuse the refused request id");
   assert.equal(host.session.repositoryBindingRevision, 1, "bound exactly once");
   assert.equal([...host.runsBySession.values()].flat().length, 0, "and no run");
+}));
+
+test("a definitive folder refusal survives the production Home marker reload", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host, { stagedPath: INVALID_PATH });
+  home.mount(body);
+  await home.controller.prepare();
+  assert.equal(home.phase().correctable, true);
+
+  const stored = JSON.parse(JSON.stringify(serializeHomePreparationMarker(home.marker)));
+  const restored = restoreHomePreparationMarker(stored);
+  const reloaded = { marker: restored, stagedPath: INVALID_PATH, draftText: home.draftText };
+  const controller = createHomePreparation({
+    request: host.request,
+    read: () => ({ marker: reloaded.marker, rootPath: reloaded.stagedPath, draftText: reloaded.draftText, permissionMode: "ask", projectId: null, connectionLost: false }),
+    write: ({ marker, rootPath }) => { if (marker !== undefined) reloaded.marker = marker; if (rootPath !== undefined) reloaded.stagedPath = rootPath; },
+    newId: host.newId,
+  });
+  assert.deepEqual(restored.failure, { uncertain: false, message: "repository root could not be validated" });
+  assert.equal(controller.phase().correctable, true, "the actual serializer/restorer keeps the correction route after reload");
+
+  stored.failure = { uncertain: "no", message: 42, envelope: { secret: "not retained" } };
+  assert.equal(restoreHomePreparationMarker(stored).failure, null, "malformed persisted failure data fails closed");
 }));
 
 test("PA-R1 · retrying the same folder keeps its identity; correcting is refused while anything is unknown", () => withTinyDom(async (body) => {

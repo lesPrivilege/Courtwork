@@ -271,8 +271,11 @@ test("Home wiring: the prepared chat is the card's session, keeps its own events
   const prepare = app.slice(app.indexOf("async function prepareHomeChat"), app.indexOf("function paintWorkspaceCard"));
   assert.doesNotMatch(prepare, /submitSessionRun|\/runs/);
   // The marker's identities survive a refresh.
-  assert.match(app, /candidateRequestId: start\.candidateRequestId \|\| null, candidateId: start\.candidateId \|\| null,/);
-  assert.match(app, /prepared: Boolean\(start\.prepared\),/);
+  assert.match(app, /start: serializeHomePreparationMarker\(start\),/);
+  assert.match(app, /const restoredStart = restoreHomePreparationMarker\(saved\.start\);/);
+  assert.match(owner, /candidateRequestId: start\.candidateRequestId \|\| null,/);
+  assert.match(owner, /candidateId: start\.candidateId \|\| null,/);
+  assert.match(owner, /prepared: Boolean\(start\.prepared\),/);
   // A deliberate preparation does not borrow the failed-send banner.
   assert.match(app, /const prepared = state\.homeStart\?\.prepared \? preparedHomeChat\(\) : null;/);
   assert.match(app, /Nothing was sent; send to start work in them/);

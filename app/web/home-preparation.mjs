@@ -34,22 +34,59 @@ const readSession = async (request, id) =>
 
 /** Was the effect of a failed step actually settled, or only reported?
  *
- * The test is whether the *Host* answered, not what the status number was. A
- * reply carrying its own error envelope is the Host speaking: on each of the
- * three commands this module sends, every coded refusal is raised before the
- * effect — an unvalidatable folder, a stale revision, a rejected receipt — so
- * nothing landed and correcting the input is safe. `repository_validation_failed`
- * is a 503 and is exactly that case, which is why the status alone cannot
- * decide this.
- *
- * Anything else is uncertain: a transport failure, or a status with no
- * envelope, which is what a proxy, a gateway or a reply lost after the Host
- * committed looks like from here. The command may have taken effect and only
- * its answer was lost — precisely when changing the input underneath it would
- * put a second effect beside the first. The two must never be shown as the
- * same thing, and when in doubt this answers "uncertain". */
-export function uncertainFailure(error) {
-  return typeof error?.body?.error?.code !== "string";
+ * Phase is part of the answer. A read or read-back never proves the preceding
+ * mutation did not land, even when its error has a Host code. Mutation errors
+ * are also unknown by default. Only an explicitly listed refusal whose Host
+ * contract rejects before the effect is settled; currently that is the bind
+ * validator's `repository_validation_failed` response. */
+const SETTLED_MUTATION_REFUSALS = new Map([
+  ["bind-mutation", new Set(["repository_validation_failed"])],
+]);
+
+export function uncertainFailure(error, phase = error?.preparationPhase) {
+  if (error?.preparationSettled === true) return false;
+  const code = error?.body?.error?.code;
+  return !(typeof code === "string" && SETTLED_MUTATION_REFUSALS.get(phase)?.has(code));
+}
+
+async function preparationStep(phase, operation) {
+  try { return await operation(); }
+  catch (error) {
+    if (error && typeof error === "object") {
+      try { error.preparationPhase = phase; } catch { /* An opaque error stays conservatively uncertain. */ }
+    }
+    throw error;
+  }
+}
+
+/** The tab-local Home projection. Keep the failure fact small and typed: it
+ * decides whether correction is safe after reload, but it is not a retained
+ * HTTP envelope or diagnostic payload. */
+export function preparationFailureForStorage(value) {
+  if (!value || typeof value !== "object" || typeof value.uncertain !== "boolean" || typeof value.message !== "string") return null;
+  return { uncertain: value.uncertain, message: value.message.slice(0, 1000) };
+}
+
+export function serializeHomePreparationMarker(start) {
+  if (!start) return null;
+  return {
+    projectId: start.projectId,
+    commandId: start.commandId,
+    sessionId: start.sessionId || null,
+    session: start.session || null,
+    bindRequestId: start.bindRequestId || null,
+    candidateRequestId: start.candidateRequestId || null,
+    candidateId: start.candidateId || null,
+    prepared: Boolean(start.prepared),
+    unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),
+    error: start.error || "",
+    failure: preparationFailureForStorage(start.failure),
+  };
+}
+
+export function restoreHomePreparationMarker(saved) {
+  if (!saved || (saved.projectId !== null && typeof saved.projectId !== "string") || typeof saved.commandId !== "string") return null;
+  return { ...saved, failure: preparationFailureForStorage(saved.failure), pending: false, restored: true };
 }
 
 /** Where a preparation has got to, as one word a surface can act on.
@@ -113,10 +150,10 @@ export async function prepareChat({
   if (!marker.session) {
     marker.sessionId ||= newId();
     persist();
-    const result = await request("/sessions", {
+    const result = await preparationStep("session-create", () => request("/sessions", {
       method: "POST",
       body: { projectId, sessionId: marker.sessionId, title, permissionMode },
-    });
+    }));
     /* The id was chosen here, so the receipt is checkable rather than
      * trustworthy: a Session that is not the one asked for is not adopted. */
     if (result?.session?.id !== marker.sessionId || (result.session.projectId ?? null) !== projectId)
@@ -134,13 +171,13 @@ export async function prepareChat({
    * called again. Reconciling first means each step below is skipped when it
    * is already done, and the expected revisions sent with the steps that
    * remain are the Host's current ones rather than this client's arithmetic. */
-  marker.session = await readSession(request, id);
+  marker.session = await preparationStep("reconcile-read", () => readSession(request, id));
   persist();
 
   if (activeRepositoryBinding(marker.session) === null) {
     marker.bindRequestId ||= newId();
     persist();
-    await request(`/sessions/${encodeURIComponent(id)}/repository-binding`, {
+    await preparationStep("bind-mutation", () => request(`/sessions/${encodeURIComponent(id)}/repository-binding`, {
       method: "PUT",
       body: {
         operation: "bind",
@@ -148,10 +185,10 @@ export async function prepareChat({
         expectedRevision: marker.session.repositoryBindingRevision ?? 0,
         rootPath,
       },
-    });
+    }));
     // The bind receipt is not a Session; the Session is read back so the next
     // step's expected revisions are the Host's, never this client's arithmetic.
-    marker.session = await readSession(request, id);
+    marker.session = await preparationStep("bind-readback", () => readSession(request, id));
     persist();
   }
 
@@ -159,13 +196,17 @@ export async function prepareChat({
     const binding = activeRepositoryBinding(marker.session);
     if (!binding) throw new Error(PREPARE_NOT_BOUND);
     // The base commit is a live Host reading of the folder, never a guess.
-    const inspection = await request(`/repositories/inspect?rootPath=${encodeURIComponent(binding.rootPath)}`);
+    const inspection = await preparationStep("inspect-read", () => request(`/repositories/inspect?rootPath=${encodeURIComponent(binding.rootPath)}`));
     const head = inspection?.git?.head;
-    if (typeof head !== "string" || !head) throw new Error(PREPARE_NO_GIT);
+    if (typeof head !== "string" || !head) {
+      const error = new Error(PREPARE_NO_GIT);
+      error.preparationSettled = true;
+      throw error;
+    }
     marker.candidateRequestId ||= newId();
     marker.candidateId ||= newId();
     persist();
-    await request(`/sessions/${encodeURIComponent(id)}/repository-candidate`, {
+    await preparationStep("candidate-mutation", () => request(`/sessions/${encodeURIComponent(id)}/repository-candidate`, {
       method: "PUT",
       body: {
         operation: "create",
@@ -175,8 +216,8 @@ export async function prepareChat({
         candidateId: marker.candidateId,
         baseCommit: head,
       },
-    });
-    marker.session = await readSession(request, id);
+    }));
+    marker.session = await preparationStep("candidate-readback", () => readSession(request, id));
     persist();
   }
 

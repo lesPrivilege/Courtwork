@@ -68,7 +68,12 @@ import {
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
 import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, repositoryName, PREPARE_BUSY, PREPARE_UNCERTAIN } from "./workspace-card.mjs";
-import { createHomePreparation, preparationState } from "./home-preparation.mjs";
+import {
+  createHomePreparation,
+  preparationState,
+  restoreHomePreparationMarker,
+  serializeHomePreparationMarker,
+} from "./home-preparation.mjs";
 import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
 import {
   renderRun,
@@ -369,17 +374,12 @@ function storeHomeDraft() {
       projectId: state.homeProjectId,
       permissionMode: state.homePermissionMode,
       repositoryPath: state.homeRepositoryPath,
-      start: start ? {
-        projectId: start.projectId, commandId: start.commandId, sessionId: start.sessionId || null,
-        session: start.session || null, bindRequestId: start.bindRequestId || null,
-        // Preparation mints one identity per Host command and writes it here
-        // before the command goes out, so a reply lost to a refresh is replayed
-        // against the same ids instead of creating a second candidate.
-        candidateRequestId: start.candidateRequestId || null, candidateId: start.candidateId || null,
-        prepared: Boolean(start.prepared),
-        unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),
-        error: start.error || "",
-      } : null,
+      // Preparation mints one identity per Host command and writes it here
+      // before the command goes out, so a reply lost to a refresh is replayed
+      // against the same ids instead of creating a second candidate. Its
+      // bounded failure fact also survives so a settled refusal remains
+      // correctable while an unknown effect remains locked.
+      start: serializeHomePreparationMarker(start),
     }));
   } catch { /* A blocked browser store must not block composing. */ }
 }
@@ -392,8 +392,9 @@ function restoreHomeDraft() {
     state.homeProjectId = typeof saved.projectId === "string" ? saved.projectId : null;
     state.homeRepositoryPath = typeof saved.repositoryPath === "string" && saved.repositoryPath ? saved.repositoryPath : null;
     if (Object.hasOwn(permissionLabels, saved.permissionMode)) state.homePermissionMode = saved.permissionMode;
-    if (saved.start && (saved.start.projectId === null || typeof saved.start.projectId === "string") && typeof saved.start.commandId === "string") {
-      state.homeStart = { ...saved.start, pending: false, restored: true };
+    const restoredStart = restoreHomePreparationMarker(saved.start);
+    if (restoredStart) {
+      state.homeStart = restoredStart;
       if (saved.start.unconfirmed)
         state.homeStart.error = "Creating the chat is unconfirmed. Check its status to recover the same chat. Your instruction is kept.";
     }
