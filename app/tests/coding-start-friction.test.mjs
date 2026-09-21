@@ -23,7 +23,7 @@ import {
 } from "../web/workspace-card.mjs";
 import { createAgentProfilesController } from "../web/agent-profiles.mjs";
 import { createAgentProfilesView } from "../web/agent-profiles-view.mjs";
-import { withTinyDom, flush, deferred } from "./tiny-dom.mjs";
+import { withTinyDom, flush, deferred, TinyNode } from "./tiny-dom.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
 const field = (body, key) =>
@@ -253,7 +253,8 @@ test("leaving the change-folder path keeps the binding and the typed draft", () 
 
 /* ── 4 · the profile list that showed what you had just changed ────────── */
 
-function profilesFixture() {
+function profilesFixture(options = {}) {
+  const note = Object.hasOwn(options, "note") ? options.note : "Synthetic.";
   const rows = (name) => [{
     id: "agent-1", name, responsibility: "Reads and drafts.", roleName: "General work",
     kitNames: ["Praxis"], runtimeName: "Pi", runtimeAvailability: "available", revision: 1,
@@ -273,7 +274,7 @@ function profilesFixture() {
       return {
         profile: { id: "agent-1", name: state.name, revision: 1, savedAt: "2026-09-20T12:00:00.000Z", roleId: "role-work", kitIds: [], runtimeId: "rt-pi", activeRun: null },
         roles: [{ id: "role-work", name: "General work", purpose: "Drafts." }],
-        kits: [], runtimes: [{ id: "rt-pi", name: "Pi", location: "This computer", availability: "available", unavailableReason: "", modelOwner: "courtwork", model: { effective: "Synthetic model", source: "Models", requested: null, note: "Synthetic." }, supportedActions: [], grants: {} }],
+        kits: [], runtimes: [{ id: "rt-pi", name: "Pi", location: "This computer", availability: "available", unavailableReason: "", modelOwner: "courtwork", model: { effective: "Synthetic model", source: "Models", requested: null, note }, supportedActions: [], grants: {} }],
       };
     },
     async save() { throw new Error("not used"); },
@@ -331,3 +332,46 @@ test("a list reply that arrives after you have opened a profile does not land", 
   assert.equal(after.list.status, "loading", "and it is not adopted as the confirmed list either");
   assert.doesNotMatch(mount.textContent, /Stale/);
 }));
+
+/* ── 06d · an absent model note, measured the way a browser appends ────── */
+
+/* tiny-dom's `append` skips null, which is exactly what hid this: a browser's
+ * `ParentNode.append(null)` converts the argument to the string "null" and
+ * prints it. Within this test `append` follows the platform, so the regression
+ * cannot inherit tiny-dom's filtering. */
+function withNativeAppend(fn) {
+  const proto = TinyNode.prototype;
+  const tinyAppend = proto.append;
+  proto.append = function append(...children) {
+    return tinyAppend.apply(this, children.map((child) => (typeof child === "object" && child !== null ? child : String(child))));
+  };
+  return Promise.resolve().then(fn).finally(() => { proto.append = tinyAppend; });
+}
+
+for (const note of [null, undefined, ""]) {
+  test(`a runtime whose model note is ${JSON.stringify(note) ?? "absent"} reads its facts and nothing else`, () => withTinyDom((mount) => withNativeAppend(async () => {
+    globalThis.document.body = mount.ownerDocument.createElement("body");
+    const adapter = profilesFixture({ note });
+    const controller = createAgentProfilesController({ adapter });
+    createAgentProfilesView(mount, controller);
+    void controller.openProfile("agent-1");
+    await settle();
+    const facts = mount.querySelector('[data-testid="model-facts"]');
+    assert.ok(facts, "the model reading is drawn");
+    assert.match(facts.textContent, /Synthetic model/, "identity and model readings are kept");
+    const block = facts.parentNode;
+    assert.doesNotMatch(block.textContent, /null|undefined/, "no placeholder text is printed for the absent note");
+    assert.equal(block.querySelectorAll("p.form-help").length, 0, "and no empty help paragraph stands in for it");
+    assert.ok(mount.querySelector('[data-testid="open-runtime-detail"]'), "Runtime detail stays reachable");
+    assert.ok(mount.querySelector('[data-testid="permission-none"]'), "the permission reading is unchanged");
+  })));
+}
+
+test("a runtime with a model note still shows it", () => withTinyDom((mount) => withNativeAppend(async () => {
+  globalThis.document.body = mount.ownerDocument.createElement("body");
+  const controller = createAgentProfilesController({ adapter: profilesFixture({ note: "Hermes chooses its own model." }) });
+  createAgentProfilesView(mount, controller);
+  void controller.openProfile("agent-1");
+  await settle();
+  assert.match(mount.querySelector('[data-testid="model-facts"]').parentNode.textContent, /Hermes chooses its own model\./);
+})));

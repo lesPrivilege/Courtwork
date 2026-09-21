@@ -345,9 +345,11 @@ export function createAgentProfilesView(mount, controller) {
       /* Requested and effective never collapse into one line. Nothing requested
          is said as nothing requested, not as a repeat of the effective value. */
       line("Requested by this agent", runtime.model.requested ?? "Nothing — this agent makes no model request.");
+      /* `note` is optional in the contract. Native `append` prints a null
+         argument as the text "null", so an absent note adds nothing at all. */
       block.append(
         facts,
-        runtime.model.note ? el("p", { className: "form-help", text: runtime.model.note }) : null,
+        ...(runtime.model.note ? [el("p", { className: "form-help", text: runtime.model.note })] : []),
         el("div", { className: "runtime-row-actions" }, detailLink),
       );
     }
