@@ -64,3 +64,8 @@ Deliver exact source SHA, artifact/version decision, wire captures, completed/un
 ## Later Host consumer: reserved boundary, not this order's source permission
 
 The current Store accepts Pi's `{id,path}` hostSession; a remote locator must not be disguised as a path. The next contract needs explicit adapter/native session/root-turn/configuration identity plus durable command and call/result receipts, while preserving existing Pi schema/history and migration backups. It must bind pending actions to the admitted CW Run, reuse the existing governed repository reader, persist the bounded result before submission, and reuse that result on an uncertain ACK. One allowed read, denied/unknown/out-of-scope calls, duplicate pending action and same-session continuation form the first vertical fixture. Fault cases cannot be postponed if they would allow duplicate execution in that first consumer. Full restart/recovery remains original D; unknown must already be safe in C.
+
+
+## Host-consumer preflight disposition — 2026-09-21
+
+The user authorized the next round after Composer acceptance. [Bounded Luna source map and Astra decisions](evidence/p03c-host-preflight-20260921/README.md) consume this accepted transport and Pi port. The next consumer keeps a separate remote Session binding and Run snapshot, persists a call claim before governed execution and exact result bytes before remote submission, and fences unknown creation/result/restart outcomes. These decisions do not yet define all strict validators, native tool declaration/confirmation or result bounds; complete that finite contract under Store/RD-001 before Fable changes production source. No implementation or paid trial was started. Frontend 06c is independently ready for pickup.
