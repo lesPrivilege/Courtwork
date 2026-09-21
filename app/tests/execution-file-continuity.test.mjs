@@ -130,7 +130,7 @@ test('steering, failed coverage persistence, and Stop racing immutable capture c
    const id=await run(h,session,[{name:'ws_write',arguments:{path:'out/memo.txt',text:'A😀\n'}},{name:'se_submit_candidate',arguments:proposal(source)}]);
    await reading;
    if(mode==='steer'){
-    await h.runtime.service.active.get(id).session.steer('Additional user direction during capture');releaseRead();
+    await h.runtime.service.active.get(id).steer('Additional user direction during capture');releaseRead();
    }else if(mode==='marker-failure'){
     const core=h.runtime.service.workCore;const originalCall=core.call.bind(core);
     const markerGate=new Promise((_resolve,reject)=>{rejectMarker=reject;});
