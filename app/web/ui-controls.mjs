@@ -343,9 +343,19 @@ export function markdown(text, { key = "markdown" } = {}) {
 // One tooltip adapter. Floating UI owns positioning; native controls own actions.
 /** Keep a fixed-position popover beside its anchor while it is open. Returns
  * the autoUpdate cleanup; the caller runs it when the popover closes. */
-export function anchorPopover(anchor, popover, { placement = "bottom-end" } = {}) {
+/* `fit` · a panel whose content can be taller than the room beside its
+ * anchor is limited to the larger of the two rooms (less the 8 offset and an 8
+ * margin), so `flip` always has a side it fits on and the panel scrolls inside
+ * itself instead of running off the viewport. Opt-in: popovers that are always
+ * short keep their own CSS limits. */
+export function anchorPopover(anchor, popover, { placement = "bottom-end", fit = false } = {}) {
   return autoUpdate(anchor, popover, () => {
     if (!anchor.isConnected || !popover.matches(":popover-open")) return;
+    if (fit) {
+      const box = anchor.getBoundingClientRect();
+      const room = Math.max(box.top, window.innerHeight - box.bottom) - 16;
+      popover.style.maxHeight = `${Math.max(160, Math.floor(room))}px`;
+    }
     computePosition(anchor, popover, {
       strategy: "fixed",
       placement,

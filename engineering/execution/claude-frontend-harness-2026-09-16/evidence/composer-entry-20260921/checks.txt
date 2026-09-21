@@ -1,0 +1,24 @@
+Work location entry · author checks · 2026-09-21 · Node v25.9.0 · tree claude-work-location-20260921 over 3bf1e0b
+
+1. Owner and adjacent suites (15 files: workspace-card, prepare-lifecycle, prepare-and-approval,
+   coding-start-friction, candidate-ui, entry-audit, composer-access-placement, static-web-manifest,
+   product-semantics, semantic-guards, home-presentation, shell-layout, chat-work-shell,
+   command-surface, home-scope):
+   ℹ tests 115 ℹ pass 115 ℹ fail 0
+
+2. Lints: lint-interaction ok · lint-colors ok · lint-materials ok · lint-shapes ok · lint-spacing ok · contrast-report exit 0
+   git diff --check: see final line. tools/check-doc-links.mjs: run after staging (untracked files
+   are "not a repository source path" to it).
+
+3. npm --prefix app test (concurrency 4), before the home-scope pin was updated:
+   ℹ tests 1333 ℹ pass 1332 ℹ fail 1
+   single failure: tests/home-scope.test.mjs "Home invalidates the Attention scope when its project
+   disappears or changes" — a source pin on the removed composer project-popover handler. The
+   invariant (choosing a project invalidates the Home Attention scope) holds in the new onChoose;
+   the pin was rewritten to it and the file rerun alone: 5/5. The full suite was not repeated for
+   that one pin text.
+
+4. Browser captures: harness/run-capture.sh, same script for both trees; before = git archive of
+   3bf1e0b app/ + brand/, after = this tree. Numbers in before/measurements.json and
+   after/measurements.json; summary in README.md.
+   git diff --check: clean

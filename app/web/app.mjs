@@ -67,7 +67,7 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
-import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, repositoryName, PREPARE_BUSY, PREPARE_UNCERTAIN } from "./workspace-card.mjs";
+import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, workLocationEntry, PREPARE_BUSY, PREPARE_UNCERTAIN, SEND_BUSY } from "./workspace-card.mjs";
 import {
   createHomePreparation,
   preparationState,
@@ -3581,7 +3581,6 @@ function renderChatHeader() {
     if (date.textContent !== state.greeting.dateLine) date.textContent = state.greeting.dateLine ?? "";
   }
   $("home-composer-context").hidden = !home;
-  $("home-project-button").hidden = !home;
   if (homeAttachments) homeAttachments.trigger.hidden = !home;
   if (!home) $("home-start-status").hidden = true;
   $("materials-button").hidden = home || !session;
@@ -3629,7 +3628,10 @@ function renderChatHeader() {
    * The word is visible, the sentence is the accessible name and the tooltip. */
   const projectLine = $("composer-project");
   projectLine.textContent = project?.name || "";
-  projectLine.hidden = home || !session || !project?.name;
+  // While the Work location band is up it already names the project; the line
+  // below takes over only once work has started and the band has left.
+  const bandUp = Boolean(session) && !state.runs.length && !state.attentionOpen;
+  projectLine.hidden = home || !session || !project?.name || bandUp;
   /* WK-94 · `File writes  Ask` 收成一个控件：可见文字就是后果本身，后面一个
    * disclosure 记号说明它可以打开。同一事实不再分成一个标签加一个单词。 */
   const permission = $("permission-settings-button"),
@@ -5386,17 +5388,12 @@ function previewStatsRequestOptions() {
     : {};
 }
 function renderHomeComposerContext() {
-  const project = $("home-project-button");
+  // The project is chosen in the Work location panel now; this line only
+  // decides whether the chat's other Home settings can still change.
   const locked = Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId);
-  const chosen = state.projects.find(p => p.id === homeProjectId());
-  project.textContent = chosen?.name || "Project";
-  project.title = chosen?.name || "Project";
-  project.setAttribute("aria-label", chosen ? `Project: ${chosen.name}` : "Project");
-  project.disabled = locked;
   homeAttachments?.render();
   $("home-permission-input").value = state.homePermissionMode;
   $("home-permission-input").disabled = locked;
-  $("home-create-project").disabled = locked;
   const status = $("home-start-status");
   /* A Chat prepared on purpose is not a send that half failed, and must not
    * borrow that banner's words or its error styling. It says what exists, and
@@ -6239,6 +6236,9 @@ function renderWorkspaceCard() {
    * command in flight or mints identities beside ones already in use. */
   const phase = preparationState(state.homeStart);
   const owned = phase.session && session && phase.session.id === session.id;
+  /* A plain Home send (not a preparation) that is creating its chat holds the
+   * same location. The entry stays openable so it can say so. */
+  const sending = home && !session && !state.homeStart?.prepared && (state.homeStart?.pending || state.homeStart?.unconfirmed);
   return workspaceCard.render($("workspace-popover"), {
     session,
     active: Boolean(currentRun()),
@@ -6246,13 +6246,37 @@ function renderWorkspaceCard() {
     // The event list belongs to the Session that is loaded; a prepared Chat is
     // not that one, and its candidate reading must not borrow another's writes.
     events: session && session.id === state.activeSessionId ? state.events : [],
-    project: session ? state.projects.find((item) => item.id === session.projectId) || null : null,
+    project: session
+      ? state.projects.find((item) => item.id === session.projectId) || null
+      : home ? state.projects.find((item) => item.id === homeProjectId()) || null : null,
+    /* Home, before any chat exists, is the only place a project is chosen; a
+     * chat that exists keeps the one it was made in (the Host renames chats,
+     * it does not move them). */
+    projectChoice: home && !session ? {
+      options: state.projects.filter((item) => !item.preview).map(({ id, name }) => ({ id, name })),
+      selectedId: homeProjectId(),
+      onChoose: (id) => {
+        state.homeProjectId = id;
+        storeHomeDraft();
+        invalidateHomeAttentionScope();
+        renderComposer();
+        renderChatHeader();
+        paintWorkspaceCard();
+      },
+      onCreate: () => {
+        $("workspace-popover").hidePopover();
+        state.homeProjectRequest = true;
+        state.startAfterProject = false;
+        openDialog("project-dialog", "project-name-input");
+      },
+    } : null,
     permissionLabel: session ? permissionLabels[session.permissionMode] || null : null,
     /* PA-R2 · a command in flight and an outcome nobody knows yet are both
      * reasons nothing of this chat's folder may change, and they are not the
      * same sentence: one is still running, the other already happened and its
      * result was lost. */
-    busyReason: !(owned || (home && !session)) ? null
+    busyReason: sending ? (state.homeStart.unconfirmed ? PREPARE_UNCERTAIN : SEND_BUSY)
+      : !(owned || (home && !session)) ? null
       : phase.status === "preparing" ? PREPARE_BUSY
       : phase.uncertain ? PREPARE_UNCERTAIN
       : null,
@@ -6310,7 +6334,11 @@ function openWorkspaceCard(anchor) {
   state.workspaceCardAnchor = anchor;
   const header = renderWorkspaceCard();
   popover.showPopover();
-  const field = popover.querySelector('[data-repository-field="open"], [data-repository-field="path"], [data-repository-field="disconnect"], [data-repository-field="remove"]');
+  /* The keyboard starts at the first decision still open: the project while
+   * Home has no folder yet, otherwise the folder's own command. */
+  const project = !state.homeRepositoryPath && state.view === "home" && !currentSession() && !preparedHomeChat()
+    ? popover.querySelector('[data-repository-field^="project:"][aria-pressed="true"]') : null;
+  const field = project || popover.querySelector('[data-repository-field="open"], [data-repository-field="path"], [data-repository-field="disconnect"], [data-repository-field="remove"]');
   (field || header.querySelector("button")).focus();
   // The card states Host facts (binding, candidate, write count) that a run
   // may have advanced since the Session was last read; read it back now. A
@@ -6337,22 +6365,38 @@ function inspectWorkspace(rootPath) {
     .then((result) => { workspaceInspections.set(rootPath, result || null); renderChatHeader(); })
     .catch(() => { workspaceInspections.set(rootPath, { git: null }); });
 }
+/* One entry node for the life of the page. The band is repainted on every
+ * render; a new button each time would drop the keyboard from it and leave the
+ * open panel anchored to a node no longer in the document. */
+let workLocationButton = null;
+function workLocationChip() {
+  if (workLocationButton) return workLocationButton;
+  workLocationButton = element("button", { className: "context-chip work-location-entry", attrs: { type: "button", id: "workspace-chip", "aria-haspopup": "dialog", "aria-controls": "workspace-popover", "aria-expanded": "false" } });
+  workLocationButton.addEventListener("click", (event) => openWorkspaceCard(event.currentTarget));
+  return workLocationButton;
+}
 function renderContextStrip(session, home) {
   const strip = $("composer-context-strip");
   const visible = home || (Boolean(session) && !state.runs.length && !state.attentionOpen);
   strip.hidden = !visible;
   if (!visible) { strip.replaceChildren(); return; }
-  const rootPath = home ? state.homeRepositoryPath : activeRepositoryBinding(session)?.rootPath;
-  const locked = home && Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.connectionLost);
-  const chip = element("button", { className: "context-chip", attrs: { type: "button", id: "workspace-chip", "aria-haspopup": "dialog", "aria-controls": "workspace-popover", "aria-expanded": String($("workspace-popover").matches(":popover-open") && state.workspaceCardAnchor?.id === "workspace-chip") } },
-    // Text only, like the Local and Branch chips: the strip reads as one line
-    // of facts; the folder glyph lives in the card's rows at control size.
-    element("span", { className: "button-label", text: rootPath ? repositoryName(rootPath) : "Connect folder" }),
-  );
-  chip.disabled = locked;
-  chip.setAttribute("aria-label", rootPath ? `Workspace: ${rootPath} · Read only` : "Connect folder");
-  chip.dataset.tooltip = rootPath ? `${rootPath} · Read only` : "Connect a folder for read-only access";
-  chip.addEventListener("click", (event) => openWorkspaceCard(event.currentTarget));
+  const prepared = home ? preparedHomeChat() : null;
+  const rootPath = prepared ? activeRepositoryBinding(prepared)?.rootPath
+    : home ? state.homeRepositoryPath : activeRepositoryBinding(session)?.rootPath;
+  const projectId = prepared ? prepared.projectId : home ? homeProjectId() : session?.projectId;
+  const project = state.projects.find((item) => item.id === projectId && !item.preview) || null;
+  const entry = workLocationEntry({ projectName: project?.name || null, rootPath: rootPath || null });
+  const chip = workLocationChip();
+  /* Never disabled: when the location cannot change, the panel is where the
+   * reason is said, and reading it must stay possible (UX-02). */
+  chip.replaceChildren(semanticIcon("workspace.object", { size: 16 }),
+    ...(entry.parts.length
+      ? entry.parts.map((part) => element("span", { className: "button-label", text: part }))
+      : [element("span", { className: "button-label", text: entry.label })]));
+  chip.setAttribute("aria-label", entry.ariaLabel);
+  chip.dataset.tooltip = entry.tooltip;
+  chip.dataset.empty = String(!entry.parts.length);
+  chip.setAttribute("aria-expanded", String($("workspace-popover").matches(":popover-open") && state.workspaceCardAnchor === chip));
   // "Local" is the visible word and the accessible name; the tooltip only
   // adds the sentence (IC-3 secondary text), it does not rename the fact.
   const local = element("span", { className: "context-chip context-chip-fact", text: "Local" });
@@ -6363,7 +6407,9 @@ function renderContextStrip(session, home) {
     const branch = workspaceInspections.get(rootPath)?.git?.branch;
     if (branch) children.push(element("span", { className: "context-chip context-chip-fact", text: `Branch · ${branch}`, attrs: { "aria-label": `Git branch: ${branch}` } }));
   }
-  strip.replaceChildren(element("div", { className: "context-tab" }, ...children));
+  const tab = strip.querySelector(":scope > .context-tab") || element("div", { className: "context-tab" });
+  tab.replaceChildren(...children);
+  if (tab.parentNode !== strip) strip.replaceChildren(tab);
 }
 function applySessionUpdate(session, id) {
   if (session?.id !== id) return;
@@ -7296,6 +7342,7 @@ async function admitCreatedEntity(kind, entity, attempt) {
         state.homeProjectId = entity.id;
         storeHomeDraft();
         await goHome();
+        $("workspace-chip")?.focus();
       } else if (startNext) startNewSession();
     } else await selectProject(projectId, { sessionId: entity.id });
   } else renderProjectList();
@@ -7337,7 +7384,6 @@ function wireEvents() {
   setSemanticControl($("attention-button"), "attention.agent", { visible: true });
   setSemanticControl($("spark-button"), "spark.surface", { visible: true });
   setAction($("new-session-button"), "square-pen", "New chat");
-  setAction($("home-create-project"), "plus", "New project", { visible: true });
   setAction($("send-button"), "arrow-up", "Send");
   setAction($("cancel-run-button"), "square", "Stop working");
   $("search-icon").append(icon("search"));
@@ -7400,8 +7446,17 @@ function wireEvents() {
       stopFollowing?.();
       stopFollowing = null;
       const anchor = state.workspaceCardAnchor;
-      if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start" });
+      if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start", fit: true });
       $("workspace-chip")?.setAttribute("aria-expanded", String(open && anchor === $("workspace-chip")));
+      /* Escape and light dismissal close the panel without saying where the
+       * keyboard goes, and it was left on the page. It goes back to what opened
+       * the panel — unless it has already moved on to something else, such as
+       * the diff or New project dialog a panel command opened. */
+      if (!open) {
+        const now = document.activeElement;
+        if (!now || now === document.body || popover.contains(now))
+          (anchor?.isConnected ? anchor : $("workspace-chip"))?.focus();
+      }
     });
   }
   $("materials-button").addEventListener("click", () => {
@@ -7460,7 +7515,14 @@ function wireEvents() {
     state.startAfterProject = false;
     openDialog("project-dialog", "project-name-input");
   });
-  $("project-dialog").addEventListener("close", () => { state.homeProjectRequest = false; });
+  $("project-dialog").addEventListener("close", () => {
+    // New project opened from the Work location panel: a cancelled dialog
+    // returns to the entry it came from (a created project does the same,
+    // after Home has repainted with it chosen).
+    const fromLocation = state.homeProjectRequest;
+    state.homeProjectRequest = false;
+    if (fromLocation) $("workspace-chip")?.focus();
+  });
   $("new-session-button").addEventListener("click", startNewSession);
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") void workReviewSummaryView?.refresh();
@@ -7649,36 +7711,9 @@ function wireEvents() {
     event.preventDefault();
     $("composer-form").requestSubmit();
   });
-  const workspaceButton = $("home-project-button"), workspacePopover = $("home-project-popover");
-  let stopWorkspaceAnchor = null;
-  workspaceButton.addEventListener("click", () => {
-    if (workspaceButton.disabled) return;
-    const choices = $("home-project-choices"); choices.replaceChildren();
-    for (const project of [{id:null,name:"No project"}, ...state.projects.filter(p=>!p.preview)]) {
-      const button = element("button", {className:"quiet-button workspace-option", text:project.name,
-        attrs:{type:"button","aria-pressed":String(project.id===homeProjectId())}});
-      if (project.id === homeProjectId()) button.append(el("span", { className: "workspace-choice-state", text: "Selected", attrs: { "aria-hidden": "true" } }));
-      button.addEventListener("click",()=>{
-        state.homeProjectId=project.id;storeHomeDraft();renderComposer();invalidateHomeAttentionScope();workspacePopover.hidePopover();workspaceButton.focus();
-      }); choices.append(button);
-    }
-    workspacePopover.showPopover();choices.querySelector('button[aria-pressed="true"]')?.focus();
-  });
-  workspacePopover.addEventListener("toggle",event=>{
-    stopWorkspaceAnchor?.();stopWorkspaceAnchor=null;
-    workspaceButton.setAttribute("aria-expanded",String(event.newState==="open"));
-    if(event.newState==="open")stopWorkspaceAnchor=anchorPopover(workspaceButton,workspacePopover,{placement:"top-start"});
-  });
-  workspacePopover.addEventListener("keydown",event=>{if(event.key==="Escape"){event.preventDefault();event.stopPropagation();workspacePopover.hidePopover();workspaceButton.focus();}});
   $("home-permission-input").addEventListener("change", (event) => {
     state.homePermissionMode = event.target.value;
     storeHomeDraft();
-  });
-  $("home-create-project").addEventListener("click", () => {
-    $("home-project-popover").hidePopover();
-    state.homeProjectRequest = true;
-    state.startAfterProject = false;
-    openDialog("project-dialog", "project-name-input");
   });
   $("project-form").addEventListener("submit", createProject);
   $("session-form").addEventListener("submit", createSession);

@@ -70,7 +70,7 @@ test("Home invalidates the Attention scope when its project disappears or change
   assert.match(app, /invalidateHomeAttentionScope\(valid\);/, "loadProjects drops a scope whose project is gone");
   assert.match(app, /function homeAttentionScope\(\)/, "one owner decides which project Home reads");
   assert.match(app, /async function loadHomeAttention\(projectId = homeAttentionScope\(\)/, "the read takes that scope, not a stale cached id");
-  assert.match(app, /state\.homeProjectId=project\.id;storeHomeDraft\(\);renderComposer\(\);invalidateHomeAttentionScope\(\);/, "choosing a workspace moves the Attention scope with it");
+  assert.match(app, /state\.homeProjectId = id;\s*storeHomeDraft\(\);\s*invalidateHomeAttentionScope\(\);/, "choosing a project in the Work location panel moves the Attention scope with it");
 });
 
 /* Luna F-04 · an expanded set is a view of this visit, and the way back never

@@ -1,0 +1,3192 @@
+{
+  "wide-01-band": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Project",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 62.1,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "wide-02-project-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": null,
+    "label": "No projectSelected"
+  },
+  "wide-02-band-after-project": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 166.3,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "wide-03-panel-empty": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 236.3,
+      "x": 460,
+      "y": 201.8
+    },
+    "overflowY": false,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18,
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 28,
+        "w": 28,
+        "disabled": false
+      },
+      {
+        "text": "Open a folder to connect",
+        "h": 32,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Enter a path instead",
+        "h": 29.3,
+        "w": 308,
+        "disabled": false
+      },
+      {
+        "text": "Repository folder path",
+        "h": 39,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Connect",
+        "h": 30,
+        "w": 69.7,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Connect folder…",
+      "Read only. The next run can read files under the folder you connect. The folder is never written, and what a run reads is sent to the model this chat is configured with.",
+      "Enter a path instead"
+    ]
+  },
+  "wide-04-panel-staged": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 705.3,
+      "x": 460,
+      "y": 69.5
+    },
+    "overflowY": false,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 28,
+        "w": 28,
+        "disabled": false
+      },
+      {
+        "text": "Remove",
+        "h": 30,
+        "w": 67,
+        "disabled": false
+      },
+      {
+        "text": "Start private candidate",
+        "h": 30,
+        "w": 151.1,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "Connected when you send. Until then the Host reads the folder's path and Git details only, to show them here.",
+      "Remove",
+      "EDITS",
+      "Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.",
+      "This makes the chat and connects the folder now. Nothing is sent and no model is called until you send.",
+      "Start private candidate"
+    ]
+  },
+  "wide-04-band-staged": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(42, 44, 44)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 22.7
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 166.3,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "wide-05-panel-prepared": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 790,
+      "x": 460,
+      "y": 69.5
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 28,
+        "w": 28,
+        "disabled": false
+      },
+      {
+        "text": "Which is which",
+        "h": 29.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Disconnect",
+        "h": 30,
+        "w": 85.8,
+        "disabled": false
+      },
+      {
+        "text": "Review changes",
+        "h": 32,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Stop edits",
+        "h": 30,
+        "w": 79.4,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Project",
+      "Quarterly reconciliation of the northern district ledgers",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "File access",
+      "Ask before editing",
+      "Which is which",
+      "Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists.",
+      "Disconnect",
+      "EDITS",
+      "Private candidate",
+      "from 1faf0fe319b5",
+      "Writes",
+      "0",
+      "Review changes",
+      "Stopping keeps the candidate's files; later edits need a new candidate.",
+      "Stop edits"
+    ]
+  },
+  "wide-05-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": "review",
+    "label": "Review changes"
+  },
+  "wide-05b-escape-focus": {
+    "tag": "BODY",
+    "id": null,
+    "field": null,
+    "label": "CourtWork\n          Close navigation\n        \n        \n     "
+  },
+  "wide-05b-panel-open-after-escape": false,
+  "wide-06-band-prepared": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 166.3,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "wide-07-recent-row": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+  "wide-07-chat-band": {
+    "stripHidden": false,
+    "tab": {
+      "x": 494,
+      "y": 701.1,
+      "w": 708,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 500,
+          "y": 704.1,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 508,
+          "y": 707.1,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 738,
+          "y": 704.1,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 738,
+          "y": 704.1,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 784.9,
+          "y": 704.1,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 784.9,
+          "y": 704.1,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 478,
+      "y": 729.8,
+      "w": 740,
+      "h": 120.2
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": null,
+    "composerControls": [
+      "materials-button",
+      "permission-settings-button"
+    ],
+    "docOverflowX": 0
+  },
+  "wide-08-chat-panel": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 790,
+      "x": 500,
+      "y": -93.9
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 28,
+        "w": 28,
+        "disabled": false
+      },
+      {
+        "text": "Which is which",
+        "h": 29.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Disconnect",
+        "h": 30,
+        "w": 85.8,
+        "disabled": false
+      },
+      {
+        "text": "Review changes",
+        "h": 32,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Stop edits",
+        "h": 30,
+        "w": 79.4,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Project",
+      "Quarterly reconciliation of the northern district ledgers",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "File access",
+      "Ask before editing",
+      "Which is which",
+      "Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists.",
+      "Disconnect",
+      "EDITS",
+      "Private candidate",
+      "from 1faf0fe319b5",
+      "Writes",
+      "0",
+      "Review changes",
+      "Stopping keeps the candidate's files; later edits need a new candidate.",
+      "Stop edits"
+    ]
+  },
+  "wide-09-enter-opens": true,
+  "wide-09-enter-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": "disconnect",
+    "label": "Disconnect"
+  },
+  "wide-09-escape-focus": {
+    "tag": "BUTTON",
+    "id": "workspace-chip",
+    "field": null,
+    "label": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only"
+  },
+  "wide-10-send-calls": [
+    "PUT /api/v5/sessions/:id/draft",
+    "PUT /api/v5/sessions/:id/draft",
+    "POST /api/v5/sessions/:id/runs",
+    "POST /api/v5/attention/query"
+  ],
+  "wide-10-after-send": {
+    "view": "chat",
+    "stripHidden": true,
+    "homeStatus": null
+  },
+  "narrow-01-band": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 649.3,
+      "w": 326,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 38,
+          "y": 652.3,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 655.3,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 137.1,
+          "y": 652.3,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 137.1,
+          "y": 652.3,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 678,
+      "w": 358,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Project",
+      "box": {
+        "x": 71,
+        "y": 791,
+        "w": 44.2,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "narrow-02-project-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": null,
+    "label": "No projectSelected"
+  },
+  "narrow-02-band-after-project": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 649.3,
+      "w": 326,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 38,
+          "y": 652.3,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 655.3,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 137.1,
+          "y": 652.3,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 137.1,
+          "y": 652.3,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 678,
+      "w": 358,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 71,
+        "y": 791,
+        "w": 102.7,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "narrow-03-panel-empty": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 395.3,
+      "x": 38,
+      "y": 249.1
+    },
+    "overflowY": false,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Connected before",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18,
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 44,
+        "w": 44,
+        "disabled": false
+      },
+      {
+        "text": "Open a folder to connect",
+        "h": 44,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Connect: /private/tmp/claude-501/-Users-",
+        "h": 69.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Enter a path instead",
+        "h": 29.3,
+        "w": 308,
+        "disabled": false
+      },
+      {
+        "text": "Repository folder path",
+        "h": 39,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Connect",
+        "h": 44,
+        "w": 69.7,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Connect folder…",
+      "Read only. The next run can read files under the folder you connect. The folder is never written, and what a run reads is sent to the model this chat is configured with.",
+      "CONNECTED BEFORE",
+      "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Enter a path instead"
+    ]
+  },
+  "narrow-04-panel-staged": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 734,
+      "x": 38,
+      "y": 102.8
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 44,
+        "w": 44,
+        "disabled": false
+      },
+      {
+        "text": "Remove",
+        "h": 44,
+        "w": 67,
+        "disabled": false
+      },
+      {
+        "text": "Start private candidate",
+        "h": 44,
+        "w": 151.1,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "Connected when you send. Until then the Host reads the folder's path and Git details only, to show them here.",
+      "Remove",
+      "EDITS",
+      "Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.",
+      "This makes the chat and connects the folder now. Nothing is sent and no model is called until you send.",
+      "Start private candidate"
+    ]
+  },
+  "narrow-04-band-staged": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 624.7,
+      "w": 326,
+      "h": 65.3
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 38,
+          "y": 627.7,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(42, 44, 44)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 630.7,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 276,
+          "y": 627.7,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 276,
+          "y": 627.7,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 38,
+          "y": 652.3,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 38,
+          "y": 652.3,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 678,
+      "w": 358,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 22.7
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 71,
+        "y": 791,
+        "w": 102.7,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "narrow-05-panel-prepared": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 734,
+      "x": 38,
+      "y": 102.8
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 44,
+        "w": 44,
+        "disabled": false
+      },
+      {
+        "text": "Which is which",
+        "h": 29.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Disconnect",
+        "h": 44,
+        "w": 85.8,
+        "disabled": false
+      },
+      {
+        "text": "Review changes",
+        "h": 44,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Stop edits",
+        "h": 44,
+        "w": 79.4,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Project",
+      "Quarterly reconciliation of the northern district ledgers",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "File access",
+      "Ask before editing",
+      "Which is which",
+      "Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists.",
+      "Disconnect",
+      "EDITS",
+      "Private candidate",
+      "from 1faf0fe319b5",
+      "Writes",
+      "0",
+      "Review changes",
+      "Stopping keeps the candidate's files; later edits need a new candidate.",
+      "Stop edits"
+    ]
+  },
+  "narrow-05-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": "review",
+    "label": "Review changes"
+  },
+  "narrow-05b-escape-focus": {
+    "tag": "BODY",
+    "id": null,
+    "field": null,
+    "label": "CourtWork\n          Close navigation\n        \n        \n     "
+  },
+  "narrow-05b-panel-open-after-escape": false,
+  "narrow-06-band-prepared": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 582.2,
+      "w": 326,
+      "h": 65.3
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 38,
+          "y": 585.2,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 588.2,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 276,
+          "y": 585.2,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 276,
+          "y": 585.2,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 38,
+          "y": 609.8,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 38,
+          "y": 609.8,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 635.5,
+      "w": 358,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 71,
+        "y": 748.5,
+        "w": 102.7,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "zoom200-01-band": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 255.3,
+      "w": 656,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 38,
+          "y": 258.3,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 261.3,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 137.1,
+          "y": 258.3,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 137.1,
+          "y": 258.3,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 284,
+      "w": 688,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Project",
+      "box": {
+        "x": 71,
+        "y": 397,
+        "w": 62.1,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "zoom200-02-project-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": null,
+    "label": "No projectSelected"
+  },
+  "zoom200-02-band-after-project": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 255.3,
+      "w": 656,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 38,
+          "y": 258.3,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 261.3,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 137.1,
+          "y": 258.3,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 137.1,
+          "y": 258.3,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 284,
+      "w": 688,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 71,
+        "y": 397,
+        "w": 166.3,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "zoom200-03-panel-empty": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 340,
+      "x": 38,
+      "y": -89.7
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Connected before",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18,
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 44,
+        "w": 44,
+        "disabled": false
+      },
+      {
+        "text": "Open a folder to connect",
+        "h": 44,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Connect: /private/tmp/claude-501/-Users-",
+        "h": 69.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Enter a path instead",
+        "h": 29.3,
+        "w": 308,
+        "disabled": false
+      },
+      {
+        "text": "Repository folder path",
+        "h": 39,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Connect",
+        "h": 44,
+        "w": 69.7,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Connect folder…",
+      "Read only. The next run can read files under the folder you connect. The folder is never written, and what a run reads is sent to the model this chat is configured with.",
+      "CONNECTED BEFORE",
+      "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Enter a path instead"
+    ]
+  },
+  "zoom200-04-panel-staged": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 340,
+      "x": 38,
+      "y": -89.7
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 44,
+        "w": 44,
+        "disabled": false
+      },
+      {
+        "text": "Remove",
+        "h": 44,
+        "w": 67,
+        "disabled": false
+      },
+      {
+        "text": "Start private candidate",
+        "h": 44,
+        "w": 151.1,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "Connected when you send. Until then the Host reads the folder's path and Git details only, to show them here.",
+      "Remove",
+      "EDITS",
+      "Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.",
+      "This makes the chat and connects the folder now. Nothing is sent and no model is called until you send.",
+      "Start private candidate"
+    ]
+  },
+  "zoom200-04-band-staged": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 255.3,
+      "w": 656,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 38,
+          "y": 258.3,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(42, 44, 44)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 261.3,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 276,
+          "y": 258.3,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 276,
+          "y": 258.3,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 322.9,
+          "y": 258.3,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 322.9,
+          "y": 258.3,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 284,
+      "w": 688,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 71,
+        "y": 397,
+        "w": 166.3,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "zoom200-05-panel-prepared": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 340,
+      "x": 38,
+      "y": -89.7
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(244, 245, 246)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 44,
+        "w": 44,
+        "disabled": false
+      },
+      {
+        "text": "Which is which",
+        "h": 29.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Disconnect",
+        "h": 44,
+        "w": 85.8,
+        "disabled": false
+      },
+      {
+        "text": "Review changes",
+        "h": 44,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Stop edits",
+        "h": 44,
+        "w": 79.4,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Project",
+      "Quarterly reconciliation of the northern district ledgers",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "File access",
+      "Ask before editing",
+      "Which is which",
+      "Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists.",
+      "Disconnect",
+      "EDITS",
+      "Private candidate",
+      "from 1faf0fe319b5",
+      "Writes",
+      "0",
+      "Review changes",
+      "Stopping keeps the candidate's files; later edits need a new candidate.",
+      "Stop edits"
+    ]
+  },
+  "zoom200-05-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": "review",
+    "label": "Review changes"
+  },
+  "zoom200-05b-escape-focus": {
+    "tag": "BODY",
+    "id": null,
+    "field": null,
+    "label": "CourtWork\n          Close navigation\n        \n        \n     "
+  },
+  "zoom200-05b-panel-open-after-escape": false,
+  "zoom200-06-band-prepared": {
+    "stripHidden": false,
+    "tab": {
+      "x": 32,
+      "y": 230.1,
+      "w": 656,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(233, 237, 239)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 38,
+          "y": 233.1,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 46,
+          "y": 236.1,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 276,
+          "y": 233.1,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 276,
+          "y": 233.1,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 322.9,
+          "y": 233.1,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(97, 100, 102)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 322.9,
+          "y": 233.1,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 16,
+      "y": 258.8,
+      "w": 688,
+      "h": 166
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 71,
+        "y": 371.8,
+        "w": 166.3,
+        "h": 44
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "dark-01-band": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(28, 32, 33)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Project",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 62.1,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "dark-02-project-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": null,
+    "label": "No projectSelected"
+  },
+  "dark-02-band-after-project": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(28, 32, 33)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "Connect folder",
+        "aria": "Connect folder",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 97.1,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 81.1,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 559.1,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 166.3,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "dark-03-panel-empty": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 367.3,
+      "x": 460,
+      "y": 70.8
+    },
+    "overflowY": false,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Connected before",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(34, 38, 39)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(34, 38, 39)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(34, 38, 39)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18,
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 28,
+        "w": 28,
+        "disabled": false
+      },
+      {
+        "text": "Open a folder to connect",
+        "h": 32,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Connect: /private/tmp/claude-501/-Users-",
+        "h": 69.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Enter a path instead",
+        "h": 29.3,
+        "w": 308,
+        "disabled": false
+      },
+      {
+        "text": "Repository folder path",
+        "h": 39,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Connect",
+        "h": 30,
+        "w": 69.7,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Connect folder…",
+      "Read only. The next run can read files under the folder you connect. The folder is never written, and what a run reads is sent to the model this chat is configured with.",
+      "CONNECTED BEFORE",
+      "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Enter a path instead"
+    ]
+  },
+  "dark-04-panel-staged": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 705.3,
+      "x": 460,
+      "y": -61.5
+    },
+    "overflowY": false,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(34, 38, 39)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(34, 38, 39)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 28,
+        "w": 28,
+        "disabled": false
+      },
+      {
+        "text": "Remove",
+        "h": 30,
+        "w": 67,
+        "disabled": false
+      },
+      {
+        "text": "Start private candidate",
+        "h": 30,
+        "w": 151.1,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "Connected when you send. Until then the Host reads the folder's path and Git details only, to show them here.",
+      "Remove",
+      "EDITS",
+      "Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.",
+      "This makes the chat and connects the folder now. Nothing is sent and no model is called until you send.",
+      "Start private candidate"
+    ]
+  },
+  "dark-04-band-staged": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(28, 32, 33)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(244, 245, 246)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 22.7
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 166.3,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  },
+  "dark-05-panel-prepared": {
+    "aria": "Workspace",
+    "box": {
+      "w": 340,
+      "h": 790,
+      "x": 460,
+      "y": -61.5
+    },
+    "overflowY": true,
+    "heads": [
+      {
+        "tag": "H3",
+        "text": "Workspace",
+        "fontSize": "13px",
+        "weight": "600",
+        "transform": "none"
+      },
+      {
+        "tag": "H4",
+        "text": "Edits",
+        "fontSize": "10.5px",
+        "weight": "500",
+        "transform": "uppercase"
+      }
+    ],
+    "cards": [
+      {
+        "border": "1px solid",
+        "background": "rgb(34, 38, 39)",
+        "padding": "12px",
+        "radius": "12px"
+      },
+      {
+        "border": "1px solid",
+        "background": "rgb(34, 38, 39)",
+        "padding": "12px",
+        "radius": "12px"
+      }
+    ],
+    "glyphs": [
+      18
+    ],
+    "targets": [
+      {
+        "text": "Close workspace card",
+        "h": 28,
+        "w": 28,
+        "disabled": false
+      },
+      {
+        "text": "Which is which",
+        "h": 29.3,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Disconnect",
+        "h": 30,
+        "w": 85.8,
+        "disabled": false
+      },
+      {
+        "text": "Review changes",
+        "h": 32,
+        "w": 282,
+        "disabled": false
+      },
+      {
+        "text": "Stop edits",
+        "h": 30,
+        "w": 79.4,
+        "disabled": false
+      }
+    ],
+    "text": [
+      "Workspace",
+      "Close workspace card",
+      "Project",
+      "Quarterly reconciliation of the northern district ledgers",
+      "Folder",
+      "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "Access",
+      "Read only",
+      "File access",
+      "Ask before editing",
+      "Which is which",
+      "Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists.",
+      "Disconnect",
+      "EDITS",
+      "Private candidate",
+      "from 1faf0fe319b5",
+      "Writes",
+      "0",
+      "Review changes",
+      "Stopping keeps the candidate's files; later edits need a new candidate.",
+      "Stop edits"
+    ]
+  },
+  "dark-05-focus": {
+    "tag": "BUTTON",
+    "id": null,
+    "field": "review",
+    "label": "Review changes"
+  },
+  "dark-05b-escape-focus": {
+    "tag": "BODY",
+    "id": null,
+    "field": null,
+    "label": "CourtWork\n          Close navigation\n        \n        \n     "
+  },
+  "dark-05b-panel-open-after-escape": false,
+  "dark-06-band-prepared": {
+    "stripHidden": false,
+    "tab": {
+      "x": 454,
+      "y": 443,
+      "w": 788,
+      "h": 40.7
+    },
+    "tabStyle": {
+      "paddingTop": "3px",
+      "paddingBottom": "15px",
+      "paddingLeft": "6px",
+      "gap": "2px",
+      "backgroundColor": "rgb(28, 32, 33)",
+      "borderTopLeftRadius": "16px"
+    },
+    "chips": [
+      {
+        "text": "synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "aria": "Workspace: /private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name · Read only",
+        "box": {
+          "x": 460,
+          "y": 446,
+          "w": 236,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 468,
+          "y": 449,
+          "w": 220,
+          "h": 16.7
+        }
+      },
+      {
+        "text": "Local",
+        "aria": null,
+        "box": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 698,
+          "y": 446,
+          "w": 44.9,
+          "h": 22.7
+        }
+      },
+      {
+        "text": "Branch · main",
+        "aria": "Git branch: main",
+        "box": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        },
+        "style": {
+          "fontSize": "11.5px",
+          "lineHeight": "16.675px",
+          "fontWeight": "400",
+          "paddingTop": "3px",
+          "paddingLeft": "8px",
+          "gap": "6px",
+          "color": "rgb(182, 190, 194)"
+        },
+        "glyph": null,
+        "label": {
+          "x": 744.9,
+          "y": 446,
+          "w": 90.4,
+          "h": 22.7
+        }
+      }
+    ],
+    "composer": {
+      "x": 438,
+      "y": 471.7,
+      "w": 820,
+      "h": 160
+    },
+    "entryHit": {
+      "visual": 22.7,
+      "clickable": 23.2
+    },
+    "projectButton": {
+      "text": "Quarterly reconciliation of the northern district ledgers",
+      "box": {
+        "x": 483,
+        "y": 588.7,
+        "w": 166.3,
+        "h": 30
+      },
+      "style": {
+        "fontSize": "12px",
+        "fontWeight": "400"
+      }
+    },
+    "composerControls": [
+      "quiet-button icon-only",
+      "home-project-button",
+      "home-composer-context"
+    ],
+    "docOverflowX": 0
+  }
+}
