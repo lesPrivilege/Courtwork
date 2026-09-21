@@ -189,6 +189,9 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
   // The field a command was started from, kept for exactly as long as the
   // command is out: the control it names is about to be replaced or disabled.
   let commandField = null;
+  // What the last render drew from, so the panel's opener can ask where the
+  // keyboard starts without restating the card's states.
+  let drawn = null;
 
   function bindRequestId(rootPath) {
     // The same path retried after a failure reuses its requestId so the Host
@@ -206,8 +209,9 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     if (!owned && !unclaimed) commandField = null;
     const focus = owned || (unclaimed ? commandField : null);
     const selection = owned && typeof document.activeElement?.selectionStart === "number" ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
+    drawn = { draft, projectChoice };
     const header = el("div", { className: "section-heading" }, el("h3", { text: WORK_LOCATION_TITLE }),
-      semanticAction("surface.close", onClose, { values: { target: "work location" } }));
+      semanticAction("surface.close", onClose, { values: { target: "work location" }, attrs: { "data-repository-field": "close" } }));
     const binding = draft ? (draft.path ? { rootPath: draft.path, status: "draft" } : null) : activeRepositoryBinding(session);
     /* PA-R1 · an unfinished preparation owns this chat's folder and candidate
      * identities, whichever of them landed. Its own command is the only way
@@ -335,8 +339,11 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       };
       let target = null;
       for (const key of FOCUS_CHAIN[focus] || [focus]) { target = usable(key); if (target) break; }
-      if (!target && owned && !container.querySelector(`[data-repository-field="${focus}"]`))
-        target = [...container.querySelectorAll("[data-repository-field]")].find(node => !node.disabled) || null;
+      if (!target && owned && !container.querySelector(`[data-repository-field="${focus}"]`)) {
+        const fields = [...container.querySelectorAll("[data-repository-field]")];
+        target = fields.find(node => !node.disabled && node.getAttribute("data-repository-field") !== "close")
+          || container.querySelector('[data-repository-field="close"]');
+      }
       if (target) {
         target.focus({ preventScroll: true });
         commandField = null;
@@ -581,5 +588,25 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     }
   }
 
-  return { render, get pending() { return pending; } };
+  /* CE-F2 · where the keyboard starts when the panel opens. The panel first
+   * has to be read — its title, the location it names and how to close it —
+   * so the start is the first decision still open only when that decision is
+   * enabled and in view beside the title: the project on a fresh Home, the
+   * folder chooser of a chat with no folder. A bound folder has no open
+   * decision; its Disconnect is a removal, and focusing it scrolled the title
+   * away. A locked command is never the start either: its reason sits beside
+   * it, and a disabled control cannot hold the keyboard. In every other case
+   * the start is Close, the same place a dialog's keyboard starts
+   * (openDialog), and Tab walks down through the card from there.
+   * `inView(node)` is the opener's geometry; without it nothing is in view. */
+  function initialFocus(container, { inView = () => false } = {}) {
+    const field = key => container.querySelector(`[data-repository-field="${key}"]`);
+    const decisions = [];
+    if (drawn?.draft && !drawn.draft.path && drawn.projectChoice)
+      decisions.push(container.querySelector('[data-repository-field^="project:"][aria-pressed="true"]'));
+    decisions.push(field("open") || field("path"));
+    return decisions.find(node => node && !node.disabled && inView(node)) || field("close");
+  }
+
+  return { render, initialFocus, get pending() { return pending; } };
 }
