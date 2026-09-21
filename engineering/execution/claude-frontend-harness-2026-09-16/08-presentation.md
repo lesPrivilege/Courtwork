@@ -40,3 +40,8 @@ Exceptions: 只有 facts v1；chart/flow、组合（composition）、本地 sort
 - 未知 renderer 版本、多 payload、跨 Session 拒绝、重复/迟到调用有 Host 测试或治理先例，但取消后迟到 cw_present 的专项测试未写（governTools 的 isOpen 门槛沿用）。
 - chart / flow、组合 pattern、本地 sort/filter/expand、Review 语法、Gateway 渐进披露与外部 adapter 均未做（按验证节点顺序后置）。
 - 非作者复核、真实 provider、390/暗色/200% 未做；未 push、未部署。
+
+
+## Tabbed Preview follow-through — 2026-09-21
+
+The user's latest direction replaces the right-side card-row → expanded-pane launcher with a tabbed Preview work surface. [06d](06d-surface-continuity-20260921.md) owns this next frontend change: retain current presentation/file/work facts and renderer provenance, introduce stable scoped object tabs and close/switch/restore semantics, and remove the superseded launcher path. This changes presentation navigation, not Host/Core authority. Real Browser, personal profiles, automation and native embedding remain later contracts under the [source-based selection](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md). Current source is not claimed to implement the new tabs yet.

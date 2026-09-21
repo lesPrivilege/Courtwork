@@ -1,0 +1,19 @@
+{
+  "root": ".worktrees/courtwork-runtime-management-20260921",
+  "head": "5f892137850229cd920f29ecc8dfcc895ccb4b48",
+  "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-runtime-management-20260921",
+  "archive": ".archives/courtwork-transport-composer-20260921/courtwork-runtime-management-20260921/files.tar.gz",
+  "archiveSha256": "4daa9bc4514b3e95d108b5e0f12c10bd0444d847ae0f3689a1a7f6d900e1d61f",
+  "manifestSha256": "e4cf4a8e84f633a169a9579db410502139b3e036f4dd2e014b2e0acbe191dccd",
+  "entryCount": 42062,
+  "fileBytes": 1007672436,
+  "physicalRestoreVerified": true,
+  "sourceRecheckPassed": true,
+  "bundle": "runtime-management.bundle",
+  "bundleSha256": "9a5c17478df11b510c9c3a85e79b59bb9655732aa287357a6668fb25472f1aed",
+  "bundleCompleteHistory": true,
+  "bundlePhysicalFetchAndFsckVerified": true,
+  "finalSourceUnchanged": true,
+  "allSourceCommitsIntegrated": true,
+  "noActiveCwdBeforeRemoval": true
+}

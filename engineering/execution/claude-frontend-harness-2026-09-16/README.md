@@ -426,3 +426,6 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 
 
 2026-09-21 · After [Composer CE-R1 acceptance and cleanup](evidence/composer-ce-r1-final-20260921/completion.md), the user authorizes the next round. [06c Runtime management](06c-runtime-management-20260921.md) is ready for Opus, with a bounded optional Sonnet preflight and explicit synthetic interface. The accepted P03-C transport is not repeated; Luna is exploring the smallest Host remote-binding/receipt/read-tool seam before Astra freezes Fable's next consumer contract. No new author process or production capability is claimed.
+
+
+2026-09-21 · [06c Runtime-management frontend accepted](evidence/runtime-management-final-20260921/README.md), merged and preserved/cleaned. The user-selected next package is [06d tabbed Preview](06d-surface-continuity-20260921.md), consuming [verified browser/shell references](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md). It replaces the card-launcher presentation with tabs over existing real object readers, closes the small 06a/CE-F2 gaps, and defers actual browser runtime/native embedding. Existing core P03-C work stays separate.

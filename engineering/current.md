@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-21 · Runtime management accepted; tabbed Preview next
+
+[06c final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/runtime-management-final-20260921/README.md) accepts `5f89213`, merged at `4a3ac9e`: Luna34/34, actual-main75/75, OpenAI browser confirms stale read-back remains locked until a fresh reading and submitted/unknown/new-draft readings stay distinct. Its tree is restore-verified and removed; production runtime-management API and native credentials remain unimplemented by this synthetic frontend slice.
+
+The user's [Browser/Preview reference intake and Astra selection](research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md) consumes ZCode/VS Code/Playwright/Browser Use/OpenHands primary sources. Latest clarification makes [06d tabbed Preview](execution/claude-frontend-harness-2026-09-16/06d-surface-continuity-20260921.md) the ready next Opus handoff: existing 06a optional-note/CE-F2 focus fixes, then replace right-card launchers with object tabs over current real readers. Browser execution and left-rail redesign are deferred; no fake production Browser tab or Electron migration. Core P03-C Host contract and Role-first Composer retain their separate owners. No next author process, paid call, push/deploy, user-service restart or heartbeat activation.
+
+
 ## 2026-09-21 · Runtime management reviewed; bounded 06c return
 
 [Independent review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-management-review-20260921/README.md) holds `84faff9` for RM-R1 unknown-state wording, RM-R2 stale read-back consistency and RM-C1's proposed definitive-not-applied contract. Luna passes 26/26 new and 67/67 adjacent tests; Astra OpenAI browser verifies the main synthetic journey, frozen bound Run, lost-reply status recovery with newer draft retention, disconnect history, Escape, refusal focus and 390px dark layout. Author full 1378/1378 remains separately attributed.

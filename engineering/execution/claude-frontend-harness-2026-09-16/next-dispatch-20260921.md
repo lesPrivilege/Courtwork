@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## Current after 06c and Preview-first clarification — 2026-09-21
+
+Runtime management `5f89213` is independently accepted and merged at `4a3ac9e`; its ended tree is restored-verified and removed. The user now prioritizes [06d tabbed Preview](06d-surface-continuity-20260921.md): close the two existing 06a/CE-F2 gaps, then replace right-card launchers with tabs over current real object readers. Real Browser integration and left-rail changes are later work. [Browser/shell source selection](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md) is consumed, not copied as a new framework. Opus can pick up this finite order in one fresh isolated tree; Sonnet exploration stays bounded. No worker was launched by this registration. P03-C Host contract remains the core lane; Role-first Composer stays in the Agent-consumer queue.
+
+
 ## Current dispatch after Composer acceptance — 2026-09-21
 
 User authorizes the next round at main `77e87ac`. [06c Runtime management](06c-runtime-management-20260921.md) is **ready for Opus pickup now**: the first explicit synthetic Settings → Agents → Runtimes journey. The footer, working-location entry, Pi port and P03-C transport named as pending in historical sections below are accepted; do not restart them. No author worktree/process is launched by this document, and none exists at registration.

@@ -54,3 +54,8 @@ Deliver exact source SHA, owner/precedent change record, minimum proposed adapte
 ## Author pickup — 2026-09-21 (Claude, Opus)
 
 Picked up from actual main `ff553e89ba26ba5e3db6b8ee6071bb3f7cc5bd93` (this order's planning source `77e87ac` plus two documentation commits). Isolated tree `/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921`, branch `claude-runtime-management-20260921`; `app/node_modules` cloned copy-on-write from the persistent checkout. The persistent checkout, user 8787/8899 and every other tree are untouched. Sonnet's preflight stayed within its bound (9 of 10 calls). The pre-edit record — owned files, affected UX rules, nearest behavior and proposed backend fields — is in the [author packet](evidence/runtime-management-20260921/README.md#pre-edit-record). Delivery status is kept there, not here.
+
+
+## Final independent acceptance — 2026-09-21
+
+[Source `5f89213` accepted](evidence/runtime-management-final-20260921/README.md): RM-R1/R2/C1 closed for the explicit synthetic frontend scope; Luna34/34, actual-main75/75, OpenAI browser stale-read recovery and submitted/unknown/new-draft checks. Local merge `4a3ac9e` and restore-verified cleanup complete. Production Runtime-management backend remains proposed. The next user-authorized frontend package is [06d tabbed Preview](06d-surface-continuity-20260921.md), not real browser execution.

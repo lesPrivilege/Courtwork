@@ -1,0 +1,43 @@
+✔ each runtime is one row with its state, its configuration owner and one next action (6.493167ms)
+✔ empty, loading, failed and refreshing lists are four different readings (3.859709ms)
+✔ opening a runtime moves the keyboard to its way back, and Back returns to the same row (17.650542ms)
+✔ protocol and process facts are disclosed on demand and a re-render does not close them (4.832625ms)
+✔ native-owned sign-in describes the step in the runtime itself and offers no credential field (3.227041ms)
+✔ CourtWork-managed sign-in chooses a synthetic Models reference and never takes a key (5.936791ms)
+✔ connect shows what it writes before the command, then reads back the exact revision and connection (3.896083ms)
+✔ a refused connect keeps the typed name and puts the keyboard back on Connect (2.934459ms)
+✔ disabling says what changes on the next admission and leaves the bound run on its recorded revision (2.546791ms)
+✔ disconnect is unavailable while a run is bound, with its reason beside it (1.603708ms)
+✔ Escape closes the disconnect confirmation and returns the keyboard to Disconnect (3.547125ms)
+✔ disconnect removes only this connection; identity, history and unsaved input survive (7.162583ms)
+✔ an unavailable engine is not a permission decision and offers no connect (1.480625ms)
+✔ a host that cannot change runtimes gives each action its reason and sends nothing (1.874583ms)
+✔ a committed command whose reply is lost stays unknown, blocks every mutation, and Check status settles it without resending (4.240667ms)
+✔ an unknown outcome the owner never received settles as not applied and keeps the draft (4.167375ms)
+✔ an error without a listed code is never read as a refusal (0.115542ms)
+✔ a double press sends one command, and the owner treats a repeated operation id as the same one (2.180958ms)
+✔ a revision changed elsewhere is refused, the draft is kept, and Reload shows the owner's values beside it (4.352833ms)
+✔ a draft survives leaving for the list and coming back (2.699708ms)
+✔ a late list reply after opening a runtime does not navigate or land (0.527584ms)
+✔ a late detail reply for one runtime does not overwrite another runtime's page (1.344709ms)
+✔ a command reply that arrives after leaving lands on its own runtime only, and was never cancelled (4.676875ms)
+✔ a command confirmed while the list is on screen refreshes the list and keeps its rows (3.529625ms)
+✔ every receipt, pending line and entry point carries the preview identity (2.626125ms)
+✔ the preview host serves the fixture page and product assets, and accepts no mutation (22.011625ms)
+✔ RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it (6.01975ms)
+✔ RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied' (2.952458ms)
+✔ RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives (6.104209ms)
+✔ RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer (3.278417ms)
+✔ RM-R2 · a reading for another runtime id is never taken as this command's read-back (2.973208ms)
+✔ RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked (6.05075ms)
+✔ RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later (0.254333ms)
+✔ RM-R2 · the preview's stale-read-back scenario reaches the same lock through the fixture itself (3.110542ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 287.665959
+TEST_EXIT=0

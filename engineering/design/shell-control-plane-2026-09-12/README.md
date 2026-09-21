@@ -28,3 +28,8 @@
 [backend requests](../../mvp/execution/work-surface-kit/backend-requests.md)仅链接本合同的Notification ledger/关联、维度归因与小时聚合缺口，沿现有Host、Core和metrics owner，不建第二份Attention或遥测store。全局location/deep-link首先是前端合同；对象不存在/权限变化仍由真实reader决定。
 
 本轮为Astra作者源码/合同核对；没有非作者实现接受、真实provider或浏览器行为验证。检查记录见[verification](verification.md)。之后各片按固定实现SHA补行为/宽窄明暗/键盘与历史恢复证据。
+
+
+## Preview-first shell intake — 2026-09-21
+
+[Primary-source selection](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md) supplies native-host, pane-identity and browser-control references without importing another shell. Per the user's latest clarification, [06d](../../execution/claude-frontend-harness-2026-09-16/06d-surface-continuity-20260921.md) first replaces right-card launchers with scoped object tabs over existing readers. Left rail/context-sidebar evolution and actual Browser hosting remain later; current left/right ownership and location/focus contracts must survive. No new navigation destination or native browser implementation is adopted by this entry.
