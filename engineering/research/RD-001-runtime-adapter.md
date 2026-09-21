@@ -95,3 +95,7 @@ Astra's [local-runtime ruling](architecture-node-2026-09-13/local-agent-runtimes
 ## 2026-09-20 · Multica adapter reference
 
 The [Multica consumption ruling](architecture-node-2026-09-13/multica-consumption-20260920.md) fixes upstream `8c4f4328` as a behavior/compatibility reference for native CLI adapters, session/config injection and process observations. Map its machine-plus-tool Runtime into CW Environment and executor binding separately; its agent-provider registry is not CW's model Provider plane. Reuse failure cases through the existing Runtime contract, not a copied daemon or broad CLI support claim. The upstream license has additional conditions, so this registration imports no source. The P03/DRT-03 order and installed-version evidence requirements remain unchanged.
+
+## 2026-09-21 · P03-B implementation dispatch
+
+The [bounded next assignment](../execution/claude-frontend-harness-2026-09-16/next-dispatch-20260921.md) names Sonnet for the actual-source map and Fable for extracting the current Pi execution/session port, with Codex architectural and independent acceptance ownership. Existing agents-api-adapter/contract protocol fixtures are consumed as delivered; no new live support is claimed. Host admission, tool governance, effect settlement and persistence authority remain unchanged. This disjoint backend lane may proceed alongside the current frontend author; no competing service writer or SDK upgrade is admitted by the scheduling change.
