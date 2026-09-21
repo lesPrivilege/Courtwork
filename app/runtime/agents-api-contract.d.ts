@@ -156,16 +156,27 @@ export interface NativeSession {
 
 /** Injected native transport. The Host (or an SDK-backed implementation) owns
  * credentials, base URL and retries; this adapter only sees results. */
+/** Caller-owned metadata for one transport call. `requestId` identifies one
+ * operation and is reused unchanged when the caller retries that operation;
+ * neither the adapter nor a transport generates one. `signal` abandons the
+ * local request only: it is not a native cancel and settles nothing. */
+export interface AgentsApiCallOptions {
+  requestId?: string;
+  signal?: AbortSignal;
+}
+
 export interface AgentsApiTransport {
+  /** Carries no `requestId`: the verified SDK artifact has no creation
+   * identity on the wire, so a lost reply is an unresolved creation. */
   createSession(request: {
     agent: { model?: string; id?: string; instructions?: string };
     environment: { type: AgentsApiEnvironmentType };
     input: string;
-  }): Promise<NativeSession>;
-  sendEvents(sessionId: string, events: Array<Record<string, unknown>>): Promise<{ accepted?: boolean }>;
+  }, options?: Pick<AgentsApiCallOptions, 'signal'>): Promise<NativeSession>;
+  sendEvents(sessionId: string, events: Array<Record<string, unknown>>, options?: AgentsApiCallOptions): Promise<{ accepted?: boolean }>;
   streamEvents(sessionId: string): { events: AsyncIterable<unknown>; abort(): void };
-  getSession(sessionId: string): Promise<NativeSession>;
-  listItems(sessionId: string, params?: { order?: 'asc' | 'desc'; limit?: number; after?: string | null }): Promise<NativeItemPage>;
+  getSession(sessionId: string, options?: Pick<AgentsApiCallOptions, 'signal'>): Promise<NativeSession>;
+  listItems(sessionId: string, params?: { order?: 'asc' | 'desc'; limit?: number; after?: string | null }, options?: Pick<AgentsApiCallOptions, 'signal'>): Promise<NativeItemPage>;
 }
 
 export interface AgentsApiObservationSubscription {
@@ -192,16 +203,17 @@ export interface AgentsApiRuntimeAdapter {
     environment: { type: AgentsApiEnvironmentType };
     input: string;
     commandId: string;
+    signal?: AbortSignal;
   }): Promise<{ binding: AgentsApiBinding; native: NativeSession }>;
-  submitInput(binding: AgentsApiBinding, input: { text: string }): Promise<void>;
-  cancelTurn(binding: AgentsApiBinding): Promise<{ intent: 'sent' }>;
+  submitInput(binding: AgentsApiBinding, input: { text: string } & AgentsApiCallOptions): Promise<void>;
+  cancelTurn(binding: AgentsApiBinding, options?: AgentsApiCallOptions): Promise<{ intent: 'sent' }>;
   submitToolResult(binding: AgentsApiBinding, result: {
     turnId: string;
     callId: string;
     success: boolean;
     output?: string;
     error?: string;
-  }): Promise<{ clearedPendingCall: boolean }>;
+  } & AgentsApiCallOptions): Promise<{ clearedPendingCall: boolean }>;
   observe(binding: AgentsApiBinding, options: {
     onObservation: (observation: AgentsApiObservation) => void | Promise<void>;
   }): AgentsApiObservationSubscription;

@@ -519,6 +519,14 @@ export function mergeRecoveredItems({ items = [], buffered = [], disconnected = 
  * Runtime adapter
  * ------------------------------------------------------------------------ */
 
+/** Forward only what the caller supplied; an absent key stays absent. */
+function callerOptions({ requestId, signal } = {}) {
+  if (requestId !== undefined && (typeof requestId !== 'string' || !requestId)) {
+    throw fail('request_id_invalid', 'requestId must be a non-empty string when supplied');
+  }
+  return { ...(requestId !== undefined ? { requestId } : {}), ...(signal ? { signal } : {}) };
+}
+
 function requireString(value, code) {
   if (typeof value !== 'string' || !value) throw fail(code, `${code} is required`);
   return value;
@@ -530,7 +538,12 @@ function requireString(value, code) {
  * - `environment.type` other than `none` is unavailable;
  * - `environment:none` requires initial input (official requirement);
  * - a duplicate `commandId` never reaches the transport twice; the adapter
- *   makes no remote idempotency claim for session creation. */
+ *   makes no remote idempotency claim for session creation.
+ *
+ * Request identity and cancellation metadata are the caller's: an optional
+ * `requestId` and `signal` are passed to the transport unchanged. The adapter
+ * never invents a `requestId`, and `commandId` is not sent to the transport,
+ * because the verified SDK artifact has no creation identity on the wire. */
 export function createAgentsApiRuntimeAdapter({ transport } = {}) {
   if (!transport || typeof transport.createSession !== 'function') {
     throw fail('transport_required', 'an AgentsApiTransport is required');
@@ -591,7 +604,7 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
   }
 
   return {
-    async createSession({ identity, agent, environment, input, commandId } = {}) {
+    async createSession({ identity, agent, environment, input, commandId, signal } = {}) {
       if (!identity || typeof identity.sessionId !== 'string' || !identity.sessionId
         || typeof identity.runId !== 'string' || !identity.runId) {
         throw fail('identity_required', 'CW sessionId and runId are required');
@@ -612,7 +625,7 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
 
       const native = await transport.createSession({
         agent, environment: { type: 'none' }, input,
-      });
+      }, callerOptions({ signal }));
       if (!native || typeof native.id !== 'string' || !native.id) {
         throw fail('native_session_missing', 'the transport did not return a native session id');
       }
@@ -638,22 +651,22 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
       return { binding, native };
     },
 
-    async submitInput(binding, { text } = {}) {
+    async submitInput(binding, { text, requestId, signal } = {}) {
       const state = stateOf(binding);
       requireString(text, 'input_required');
       await transport.sendEvents(state.binding.native.sessionId, [{
         type: 'agent.session.input.message',
         input: [{ role: 'user', content: [{ type: 'input_text', text }] }],
-      }]);
+      }], callerOptions({ requestId, signal }));
     },
 
-    async cancelTurn(binding) {
+    async cancelTurn(binding, { requestId, signal } = {}) {
       const state = stateOf(binding);
       // Request only. Closing a stream or returning from this call is not a
       // cancellation; the Host settles from turn.cancelled or stays unknown.
       await transport.sendEvents(state.binding.native.sessionId, [
         { type: 'agent.session.input.cancel' },
-      ]);
+      ], callerOptions({ requestId, signal }));
       return { intent: 'sent' };
     },
 
@@ -672,7 +685,7 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
       } else {
         payload.error = typeof result.error === 'string' && result.error ? result.error : 'function failed';
       }
-      await transport.sendEvents(state.binding.native.sessionId, [payload]);
+      await transport.sendEvents(state.binding.native.sessionId, [payload], callerOptions(result));
       return { clearedPendingCall: state.tracker.noteToolResult(result.callId) };
     },
 
