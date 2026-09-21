@@ -1,0 +1,6 @@
+backgrounded · 1e0858d6 · Courtwork core loop C-D-E
+  claude agents             list sessions
+  claude attach 1e0858d6    open in this terminal
+  claude logs 1e0858d6      show recent output
+  claude stop 1e0858d6      stop this session
+Starting background service…

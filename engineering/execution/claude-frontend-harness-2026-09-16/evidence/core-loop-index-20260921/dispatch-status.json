@@ -1,0 +1,25 @@
+{
+  "observedAt": "2026-09-21T15:16:03.471140+00:00",
+  "cliVersion": "2.1.278",
+  "requestedModel": "fable",
+  "permissionMode": "auto",
+  "skipPermissions": false,
+  "chrome": false,
+  "mcpServers": {},
+  "worktreeBase": "3022b5c",
+  "sessions": [
+    {
+      "pid": 49204,
+      "id": "1e0858d6",
+      "cwd": "/Users/lesprivilege/Projects/.worktrees/courtwork-core-runtime-loop-20260921",
+      "kind": "background",
+      "startedAt": 1790003647456,
+      "sessionId": "1e0858d6-58e6-4721-92a6-26831f49c3e4",
+      "name": "Courtwork core loop C-D-E",
+      "status": "idle",
+      "state": "blocked"
+    }
+  ],
+  "blocker": "CLI reported Not logged in; no model work started.",
+  "userAction": "Attach 1e0858d6 and complete /login, then continue from the committed loop order."
+}
