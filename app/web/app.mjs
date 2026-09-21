@@ -4011,6 +4011,7 @@ function closePreviewTab(key) {
   }
   const { closed, active } = previewTabs.close(key);
   if (!closed) return;
+  if (closed.kind === "workspace") retireWorkspaceReads();
   if (!active) {
     closeSurface({ fromFile: closed.kind === "file" });
     return;
@@ -4018,6 +4019,19 @@ function closePreviewTab(key) {
   renderSurfaceVisibility();
   surfaceTabButton()?.focus();
   if (wasActive) loadPreviewPane();
+}
+/* PV-R1 · a closed Workspace tab accepts none of its outstanding reads, whether
+ * it was selected or not: the surface fetch is aborted and its request id moves
+ * on (disposeSurfaceRenderer → invalidateSurfaceFetches), the renderer context
+ * is cleared so a late import or mount fails guardForSurface, and the tree
+ * read's generation moves on. Reopening starts new reads. Hiding Preview is not
+ * closing: a retained, hidden Workspace tab keeps its reads and cache. */
+function retireWorkspaceReads() {
+  state.surface.requestId += 1;
+  state.surface.workspaceGeneration++;
+  state.surface.workspace = null;
+  void disposeSurfaceRenderer();
+  $("surface-content").replaceChildren();
 }
 function selectPreviewTab(key) {
   if (previewTabs.active()?.key === key) { surfaceTabButton()?.focus(); return; }

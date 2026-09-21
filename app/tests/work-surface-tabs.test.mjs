@@ -253,3 +253,24 @@ test("CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不�
   // 颜色沿 run-badge 的三档，没有新色。
   assert.match(styles, /\.tab-activity\.waiting_user \{[\s\S]{0,60}color: var\(--accent-ink\);/);
 });
+
+/* PV-R1 (06d review 2026-09-22) · closing a Workspace tab, selected or not,
+ * retires its reads through the existing owners; the page-route regression is
+ * the 06d packet's `workspace-close` browser part. */
+test("PV-R1 · a closed Workspace tab accepts none of its outstanding reads", () => {
+  const close = appSource.slice(
+    appSource.indexOf("function closePreviewTab"),
+    appSource.indexOf("function selectPreviewTab"),
+  );
+  // Before choosing a neighbour or hiding the pane, whichever tab was selected.
+  assert.ok(close.indexOf('if (closed.kind === "workspace") retireWorkspaceReads();') < close.indexOf("if (!active)"));
+  const retire = close.slice(close.indexOf("function retireWorkspaceReads"));
+  for (const step of ["state.surface.requestId += 1", "state.surface.workspaceGeneration++", "disposeSurfaceRenderer()"])
+    assert.ok(retire.includes(step), step);
+  // disposeSurfaceRenderer aborts the surface fetch and clears the renderer context.
+  const dispose = appSource.slice(appSource.indexOf("async function disposeSurfaceRenderer"), appSource.indexOf("async function invalidateSurfaceForExtensionChange"));
+  assert.ok(dispose.includes("invalidateSurfaceFetches()") && dispose.includes("state.surface.context = null"));
+  // Hiding is not closing: closeSurface keeps the tab and its reads.
+  const hide = appSource.slice(appSource.indexOf("function closeSurface("), appSource.indexOf("function closeNavigation"));
+  assert.ok(!hide.includes("retireWorkspaceReads") && !hide.includes("disposeSurfaceRenderer"));
+});
