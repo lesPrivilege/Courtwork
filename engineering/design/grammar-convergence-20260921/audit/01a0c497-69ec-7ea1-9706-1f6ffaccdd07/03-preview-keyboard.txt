@@ -1,0 +1,4 @@
+Tab from active object tab -> Close out/project-cedar-review.md; Return -> last tab closed, Chat visible, focus restored to recorded file opener.
+Browser tab: 2, Title: "CourtWork", URL: "http://127.0.0.1:51927/".
+There has been no change in the accessibility tree.
+The focused UI element is 127 button out/project-cedar-review.md Recorded version

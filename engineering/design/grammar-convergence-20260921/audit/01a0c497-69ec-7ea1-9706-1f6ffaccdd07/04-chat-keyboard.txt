@@ -1,0 +1,4 @@
+Escape from Work judgment returns focus to Open judgment preview. Synthetic read-only judgment wrapper; not a live Core acceptance test.
+Browser tab: 3, Title: "Chat continuity · synthetic specimen", URL: "http://127.0.0.1:51979/".
+There has been no change in the accessibility tree.
+The focused UI element is 73 button Open judgment preview

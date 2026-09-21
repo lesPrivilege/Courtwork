@@ -1,0 +1,4 @@
+Document close returns focus to recorded-file opener. Composer Tab -> Chat files; Shift+Tab -> Message.
+Browser tab: 5, Title: "CourtWork", URL: "http://127.0.0.1:52340/".
+There has been no change in the accessibility tree.
+The focused UI element is 148 text entry area (settable) Message, ID: composer-input

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "completedAt": "2026-09-21T23:44:45+08:00",
+  "scope": "only preview processes owned by /root/inventory_preview",
+  "processes": [
+    { "pid": 43155, "execSession": 24656, "port": 52340, "lane": "main-full-product-host", "status": "stopped", "portStatus": "closed" },
+    { "pid": 42672, "execSession": 96538, "port": 51896, "lane": "main-settings-detail", "status": "stopped", "portStatus": "closed" },
+    { "pid": 42756, "execSession": 26738, "port": 51979, "lane": "main-chat-continuity", "status": "stopped", "portStatus": "closed" },
+    { "pid": 42711, "execSession": 15188, "port": 51927, "lane": "06d-tab-document-toolbar-candidate", "status": "stopped", "portStatus": "closed" }
+  ],
+  "verification": {
+    "pidProbe": "kill -0 returned false for each recorded PID",
+    "portProbe": "lsof found no listener on each recorded port",
+    "otherProcessesTouched": false,
+    "temporaryArtifactsPreserved": [
+      "/tmp/cw-sol-grammar-main",
+      "/tmp/cw-sol-grammar-main-data",
+      "/tmp/cw-sol-grammar-06d",
+      "/tmp/cw-sol-grammar-06d-data"
+    ]
+  }
+}

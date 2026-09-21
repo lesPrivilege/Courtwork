@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-21T23:37:08+08:00",
+  "dataClass": "synthetic-only; no paid provider, credentials, or user data",
+  "previews": [
+    {
+      "lane": "main-full-product-host",
+      "sourceSha": "ef73d276bf892a73a818ca5abf94f10c1a106c1d",
+      "url": "http://127.0.0.1:52340/",
+      "pid": 43155,
+      "execSession": 24656,
+      "command": "node server/index.mjs --data-dir /tmp/cw-sol-grammar-main-data --port 0",
+      "cwd": "/tmp/cw-sol-grammar-main/app",
+      "fixture": "full product Host from committed git-archive bytes; fresh empty synthetic data; initial example workspace provides the main recorded-file reader baseline",
+      "lifecycle": "owned by /root/inventory_preview; stop only this PID/session"
+    },
+    {
+      "lane": "main-settings-detail",
+      "sourceSha": "ef73d276bf892a73a818ca5abf94f10c1a106c1d",
+      "url": "http://127.0.0.1:51896/",
+      "pid": 42672,
+      "execSession": 96538,
+      "command": "CW_SPECIMEN_PORT=0 node app/scripts/runtime-management-preview.mjs",
+      "cwd": "/tmp/cw-sol-grammar-main",
+      "fixture": "read-only Runtime Management production-module specimen",
+      "lifecycle": "owned by /root/inventory_preview; stop only this PID/session"
+    },
+    {
+      "lane": "main-chat-continuity",
+      "sourceSha": "ef73d276bf892a73a818ca5abf94f10c1a106c1d",
+      "url": "http://127.0.0.1:51979/",
+      "pid": 42756,
+      "execSession": 26738,
+      "command": "CW_SPECIMEN_PORT=0 node app/scripts/chat-continuity-preview.mjs",
+      "cwd": "/tmp/cw-sol-grammar-main",
+      "fixture": "read-only Chat continuity production-module specimen",
+      "lifecycle": "owned by /root/inventory_preview; stop only this PID/session"
+    },
+    {
+      "lane": "06d-tab-document-toolbar-candidate",
+      "sourceSha": "9860c6ce4c6084dc2385f41ad500d40c06fa050f",
+      "url": "http://127.0.0.1:51927/",
+      "pid": 42711,
+      "execSession": 15188,
+      "command": "node server/index.mjs --data-dir /tmp/cw-sol-grammar-06d-data --port 0",
+      "cwd": "/tmp/cw-sol-grammar-06d/app",
+      "fixture": "full product Host from committed git-archive bytes; fresh empty synthetic data; initial example workspace",
+      "lifecycle": "owned by /root/inventory_preview; stop only this PID/session"
+    }
+  ],
+  "reservedPortsUntouched": [8787, 8899],
+  "renderedMeasurementOwner": "parent Astra via computer use"
+}
