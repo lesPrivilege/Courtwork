@@ -1,0 +1,99 @@
+Browser tab: 13, Title: "CourtWork", URL: "http://127.0.0.1:8924/#home".
+1 AXWebArea CourtWork, URL: 127.0.0.1:8924/#home
+	2 container app-shell
+		3 container Description: Projects and chats, ID: navigation-panel
+			4 link Description: Record forms CourtWork, Value: 127.0.0.1:8924/#home, ID: workspace-home-link
+			5 container Recent places
+				6 button (disabled) Description: Back, ID: nav-back-button
+				7 button (disabled) Description: Forward, ID: nav-forward-button
+			8 button Description: Home, ID: home-button
+			9 button Description: New chat, ID: new-session-button
+			10 button Description: Chat, ID: chat-button
+			11 button Description: Attention, ID: attention-button
+			12 button Description: Spark, ID: spark-button
+			13 text Find a project or chat
+			14 container
+				15 search text field (settable) Find a project or chat, ID: nav-filter-input
+			16 container PROJECTS
+				17 heading PROJECTS, Value: 2, ID: projects-heading
+					18 text PROJECTS
+				19 text 0
+				20 button Description: New project, ID: new-project-button
+				21 container Description: Project chats, ID: project-list
+					22 text No projects yet.
+			23 container RECENT
+				24 heading RECENT, Value: 2, ID: recent-heading
+					25 text RECENT
+				26 container Description: Recent chats, ID: recent-list
+					27 button Final invalid folder recovery
+					28 pop up button More chat actions
+					29 button Final preparation recovery
+					30 pop up button More chat actions
+			31 container Account
+				32 pop up button (collapsed) Description: Account · You · Max, ID: account-button, Secondary Actions: Expand
+					33 text You
+					34 text Max
+		35 container Agent workspace
+			36 button (expanded) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Collapse
+			37 container conversation-body
+				38 container composer-area
+					39 container home-composer-intro
+						40 heading A new day. Monday, September 21, Value: 2
+							41 text A new day. Monday, September 21
+						42 container Description: Example workspace, ID: preview-banner
+							43 container preview-banner-offer
+								44 text Explore an example workspace. It creates nothing.
+								45 button See the example workspace, ID: preview-offer-button
+					46 container Description: Where this chat works, ID: composer-context-strip
+						47 pop up button (expanded) Description: Workspace: /tmp/cw-prepare-final-astra-20260921/missing · Read only, ID: workspace-chip, Secondary Actions: Collapse
+						48 text Local
+					49 container composer-form
+						50 text Message
+						51 text entry area (settable) Message, Value: Final invalid folder recovery, ID: composer-input
+						52 pop up button (collapsed) Description: Attachments, Secondary Actions: Expand
+						53 pop up button (disabled, collapsed) Description: Project, ID: home-project-button, Secondary Actions: Expand
+						54 pop up button (disabled, collapsed, settable) Description: File access for this chat, Value: Ask before editing, ID: home-permission-input, Secondary Actions: Expand
+							55 menu
+								56 (disabled) Ask before editing
+								57 (disabled) Allow edits
+								58 (disabled) Read only
+						59 pop up button (collapsed) Description: Model and effort · Local test · Provider default, ID: model-settings-button, Secondary Actions: Expand
+						60 button Description: Send, ID: send-button
+					61 container home-start-status
+						62 text Could not prepare: repository root could not be validated. Your instruction is kept.
+						63 button Continue preparing this chat
+				64 container
+					65 heading Continue, Value: 3
+						66 text Continue
+					67 text 2
+					68 content list
+						69 button Final invalid folder recovery No project No run recorded
+							70 text Final invalid folder recovery
+							71 text No project
+							72 text No run recorded
+						73 button Final preparation recovery No project No run recorded
+							74 text Final preparation recovery
+							75 text No project
+							76 text No run recorded
+	77 container Description: Workspace, ID: workspace-popover
+		78 heading Workspace, Value: 3
+			79 text Workspace
+		80 button Close workspace card
+		81 definition list
+			82 container Project
+				83 text Project
+			84 text No project
+			85 container Folder
+				86 text Folder
+			87 text Not connected yet
+			88 container File access
+				89 text File access
+			90 text Ask before editing
+		91 container
+			92 heading EDITS, Value: 4
+				93 text EDITS
+			94 text This chat was prepared but not finished. Continuing uses the same request it already sent, so nothing is created twice.
+			95 button Finish preparing this chat
+			96 text Could not prepare: repository root could not be validated. Your instruction is kept.
+
+The focused UI element is 1 AXWebArea CourtWork, URL: 127.0.0.1:8924/#home

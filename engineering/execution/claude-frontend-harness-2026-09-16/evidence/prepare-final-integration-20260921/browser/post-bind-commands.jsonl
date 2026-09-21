@@ -1,0 +1,2 @@
+{"method":"PUT","path":"/api/v5/sessions/0339ac0e-5894-4049-b2c4-1dc43211bfd4/repository-binding","body":{"operation":"bind","requestId":"816ae5bc-3134-4585-b614-c107f37104ff","expectedRevision":0,"rootPath":"/private/tmp/cw-prepare-final-astra-20260921/source"},"status":200}
+{"method":"GET","path":"/api/v5/sessions/0339ac0e-5894-4049-b2c4-1dc43211bfd4","status":500,"injectedCode":"internal_error","afterBindCommit":true}

@@ -1,0 +1,263 @@
+[
+  {
+    "id": "0339ac0e-5894-4049-b2c4-1dc43211bfd4",
+    "title": "Final post-bind read failure",
+    "detail": {
+      "session": {
+        "id": "0339ac0e-5894-4049-b2c4-1dc43211bfd4",
+        "scope": "unassigned",
+        "projectId": null,
+        "title": "Final post-bind read failure",
+        "draft": "",
+        "extensionBinding": null,
+        "createdAt": "2026-09-21T01:36:15.810Z",
+        "workspaceDir": "/tmp/cw-prepare-final-astra-20260921/runtime-data/workspaces/0339ac0e-5894-4049-b2c4-1dc43211bfd4",
+        "permissionMode": "ask",
+        "hostSession": null,
+        "repositoryBinding": {
+          "id": "3b739a83-644f-4f5e-8c14-41de7add5c36",
+          "rootPath": "/private/tmp/cw-prepare-final-astra-20260921/source",
+          "device": "16777233",
+          "inode": "172896711",
+          "revision": 1,
+          "status": "active"
+        },
+        "repositoryBindingRevision": 1,
+        "repositoryBindingCommands": [
+          {
+            "requestId": "816ae5bc-3134-4585-b614-c107f37104ff",
+            "requestHash": "bf7d40de39b7d9cd086a14fff4bc466c1b5f8b9b8483ddfd9774be3f55f357ea",
+            "operation": "bind",
+            "expectedRevision": 0,
+            "receipt": {
+              "requestId": "816ae5bc-3134-4585-b614-c107f37104ff",
+              "operation": "bind",
+              "bindingId": "3b739a83-644f-4f5e-8c14-41de7add5c36",
+              "revision": 1,
+              "status": "active",
+              "rootPath": "/private/tmp/cw-prepare-final-astra-20260921/source",
+              "at": "2026-09-21T01:36:15.861Z"
+            }
+          }
+        ],
+        "repositoryCandidate": {
+          "id": "7089a492-cb55-4932-b5e5-a9b3be04e004",
+          "status": "active",
+          "revision": 1,
+          "sourceBindingId": "3b739a83-644f-4f5e-8c14-41de7add5c36",
+          "sourceBindingRevision": 1,
+          "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+          "objectFormat": "sha1",
+          "writeRevision": 0,
+          "createdAt": "2026-09-21T01:36:35.371Z"
+        },
+        "repositoryCandidateRevision": 1,
+        "repositoryCandidateCommands": [
+          {
+            "requestId": "8ee65aa0-0c91-49d5-b1da-2e74e32e99df",
+            "requestHash": "50e4d416739fe8072a341e8b43afca2357180f3e2c76a4fb0723d87040358977",
+            "operation": "create",
+            "expectedRevision": 0,
+            "expectedBindingRevision": 1,
+            "sourceBindingId": "3b739a83-644f-4f5e-8c14-41de7add5c36",
+            "candidateId": "7089a492-cb55-4932-b5e5-a9b3be04e004",
+            "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+            "receipt": {
+              "requestId": "8ee65aa0-0c91-49d5-b1da-2e74e32e99df",
+              "operation": "create",
+              "candidateId": "7089a492-cb55-4932-b5e5-a9b3be04e004",
+              "revision": 1,
+              "status": "active",
+              "sourceBindingId": "3b739a83-644f-4f5e-8c14-41de7add5c36",
+              "sourceBindingRevision": 1,
+              "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+              "failureCode": null
+            }
+          }
+        ],
+        "repositoryWriteEffects": []
+      },
+      "events": [],
+      "runs": [],
+      "lastSeq": 0
+    },
+    "events": {
+      "events": [],
+      "nextSeq": 0
+    }
+  },
+  {
+    "id": "5d07ed57-2908-483c-818d-abc0bd1bd432",
+    "title": "Final invalid folder recovery",
+    "detail": {
+      "session": {
+        "id": "5d07ed57-2908-483c-818d-abc0bd1bd432",
+        "scope": "unassigned",
+        "projectId": null,
+        "title": "Final invalid folder recovery",
+        "draft": "",
+        "extensionBinding": null,
+        "createdAt": "2026-09-21T01:27:13.568Z",
+        "workspaceDir": "/tmp/cw-prepare-final-astra-20260921/runtime-data/workspaces/5d07ed57-2908-483c-818d-abc0bd1bd432",
+        "permissionMode": "ask",
+        "hostSession": null,
+        "repositoryBinding": {
+          "id": "418a8053-f67a-46d1-8719-f10b8cbc2c3d",
+          "rootPath": "/private/tmp/cw-prepare-final-astra-20260921/source",
+          "device": "16777233",
+          "inode": "172896711",
+          "revision": 1,
+          "status": "active"
+        },
+        "repositoryBindingRevision": 1,
+        "repositoryBindingCommands": [
+          {
+            "requestId": "6f0ef8d5-5de6-4e43-80b8-1ff89b4cd1c4",
+            "requestHash": "bf7d40de39b7d9cd086a14fff4bc466c1b5f8b9b8483ddfd9774be3f55f357ea",
+            "operation": "bind",
+            "expectedRevision": 0,
+            "receipt": {
+              "requestId": "6f0ef8d5-5de6-4e43-80b8-1ff89b4cd1c4",
+              "operation": "bind",
+              "bindingId": "418a8053-f67a-46d1-8719-f10b8cbc2c3d",
+              "revision": 1,
+              "status": "active",
+              "rootPath": "/private/tmp/cw-prepare-final-astra-20260921/source",
+              "at": "2026-09-21T01:35:51.332Z"
+            }
+          }
+        ],
+        "repositoryCandidate": {
+          "id": "d7d3ac63-22d5-4f91-8af4-d3c2bb812961",
+          "status": "active",
+          "revision": 1,
+          "sourceBindingId": "418a8053-f67a-46d1-8719-f10b8cbc2c3d",
+          "sourceBindingRevision": 1,
+          "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+          "objectFormat": "sha1",
+          "writeRevision": 0,
+          "createdAt": "2026-09-21T01:35:53.129Z"
+        },
+        "repositoryCandidateRevision": 1,
+        "repositoryCandidateCommands": [
+          {
+            "requestId": "e5f3f286-9b7a-47f2-94b0-61c54a552599",
+            "requestHash": "27d3f5400c416c60ae2398483e5272745b5035d10d0114baa8873358d917d03a",
+            "operation": "create",
+            "expectedRevision": 0,
+            "expectedBindingRevision": 1,
+            "sourceBindingId": "418a8053-f67a-46d1-8719-f10b8cbc2c3d",
+            "candidateId": "d7d3ac63-22d5-4f91-8af4-d3c2bb812961",
+            "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+            "receipt": {
+              "requestId": "e5f3f286-9b7a-47f2-94b0-61c54a552599",
+              "operation": "create",
+              "candidateId": "d7d3ac63-22d5-4f91-8af4-d3c2bb812961",
+              "revision": 1,
+              "status": "active",
+              "sourceBindingId": "418a8053-f67a-46d1-8719-f10b8cbc2c3d",
+              "sourceBindingRevision": 1,
+              "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+              "failureCode": null
+            }
+          }
+        ],
+        "repositoryWriteEffects": []
+      },
+      "events": [],
+      "runs": [],
+      "lastSeq": 0
+    },
+    "events": {
+      "events": [],
+      "nextSeq": 0
+    }
+  },
+  {
+    "id": "c586e674-644f-4a77-ae59-d7e2ba9b3e4a",
+    "title": "Final preparation recovery",
+    "detail": {
+      "session": {
+        "id": "c586e674-644f-4a77-ae59-d7e2ba9b3e4a",
+        "scope": "unassigned",
+        "projectId": null,
+        "title": "Final preparation recovery",
+        "draft": "",
+        "extensionBinding": null,
+        "createdAt": "2026-09-21T01:24:39.788Z",
+        "workspaceDir": "/tmp/cw-prepare-final-astra-20260921/runtime-data/workspaces/c586e674-644f-4a77-ae59-d7e2ba9b3e4a",
+        "permissionMode": "ask",
+        "hostSession": null,
+        "repositoryBinding": {
+          "id": "e208c26f-ab4e-4ca9-b713-e4e9c12ebed7",
+          "rootPath": "/private/tmp/cw-prepare-final-astra-20260921/source",
+          "device": "16777233",
+          "inode": "172896711",
+          "revision": 1,
+          "status": "active"
+        },
+        "repositoryBindingRevision": 1,
+        "repositoryBindingCommands": [
+          {
+            "requestId": "7c7a45e5-6387-4e52-bc11-62a0629effa1",
+            "requestHash": "f6d6a7cca9b8a7e75abd70ed5a06c364fedcb0604428ff32055b9183331c7bd2",
+            "operation": "bind",
+            "expectedRevision": 0,
+            "receipt": {
+              "requestId": "7c7a45e5-6387-4e52-bc11-62a0629effa1",
+              "operation": "bind",
+              "bindingId": "e208c26f-ab4e-4ca9-b713-e4e9c12ebed7",
+              "revision": 1,
+              "status": "active",
+              "rootPath": "/private/tmp/cw-prepare-final-astra-20260921/source",
+              "at": "2026-09-21T01:24:57.342Z"
+            }
+          }
+        ],
+        "repositoryCandidate": {
+          "id": "3e8ce57d-a5aa-497f-b926-f7b2cc643d59",
+          "status": "active",
+          "revision": 1,
+          "sourceBindingId": "e208c26f-ab4e-4ca9-b713-e4e9c12ebed7",
+          "sourceBindingRevision": 1,
+          "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+          "objectFormat": "sha1",
+          "writeRevision": 0,
+          "createdAt": "2026-09-21T01:24:59.208Z"
+        },
+        "repositoryCandidateRevision": 1,
+        "repositoryCandidateCommands": [
+          {
+            "requestId": "420cc6c4-0631-4b7d-bc47-ba47d2ad4ea5",
+            "requestHash": "8810f3f066276eb6a74fed3d3f800971b2c2b903ab0cd5744aa29fce790c04e5",
+            "operation": "create",
+            "expectedRevision": 0,
+            "expectedBindingRevision": 1,
+            "sourceBindingId": "e208c26f-ab4e-4ca9-b713-e4e9c12ebed7",
+            "candidateId": "3e8ce57d-a5aa-497f-b926-f7b2cc643d59",
+            "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+            "receipt": {
+              "requestId": "420cc6c4-0631-4b7d-bc47-ba47d2ad4ea5",
+              "operation": "create",
+              "candidateId": "3e8ce57d-a5aa-497f-b926-f7b2cc643d59",
+              "revision": 1,
+              "status": "active",
+              "sourceBindingId": "e208c26f-ab4e-4ca9-b713-e4e9c12ebed7",
+              "sourceBindingRevision": 1,
+              "baseCommit": "a3fa5c811e7c16df05eef2e8153f7593de92438a",
+              "failureCode": null
+            }
+          }
+        ],
+        "repositoryWriteEffects": []
+      },
+      "events": [],
+      "runs": [],
+      "lastSeq": 0
+    },
+    "events": {
+      "events": [],
+      "nextSeq": 0
+    }
+  }
+]

@@ -1,0 +1,27 @@
+# Preparation and approval: final independent acceptance
+
+Astra accepts the bounded PA-R1–R3 preparation/approval delivery for local integration at source `b3f3fd75b7f2f2b5c3084d4be5d83c614eca3854` (2026-09-21). Claude's released source `4b7b98ebce4819b94a42337ed87c1b6a58a166e4` and earlier reviewed commits remain ancestors. Sol adds only the two final corrections; Claude's tree remains untouched. Merge and restoration-verified cleanup are recorded separately in completion.md once performed.
+
+## Disposition in the original owner
+
+- **PA-R1 — adopt with adjustment.** Production `createHomePreparation` reconciles existing effects before retry; definite invalid-folder rejection offers correction on the same Chat. Only `repository_validation_failed` during the bind mutation certifies this refusal. Generic coded failures and all read/read-back errors remain uncertain. The author's statement that any Host error envelope certifies no effect is superseded: a committed bind followed by `internal_error` during read-back is a counterexample.
+- **PA-R2 — adopt with adjustment.** In-flight and unconfirmed effects lock folder mutations while recovery stays available. The production Home serializer/restorer now retains the bounded failure fact, so the correction/uncertainty state survives reload. Malformed failure data fails closed; full error objects are not persisted.
+- **PA-R3 — retain accepted.** Matching Run, Session detail and restored-marker reconciliation retire the preparation marker without clearing the Home draft. This was accepted in the [previous independent review](../prepare-round2-review-20260921/README.md); the final delta does not reopen it.
+- Historical approval identity remains a projection of the recorded request in both open and decided records, including after candidate replacement. The [first review](../prepare-and-approval-review-20260920/README.md) accepted that scope and the deliberate prepared-title behavior. Ordinary non-approval tool arguments remain with the existing Runtime/Host contract; this delivery adds none.
+
+## Independent evidence
+
+[Luna's author-candidate review](luna-author-candidate-review.md) ran 68/68 at `4b7b98e` and identified the two final blockers. [Luna's final review](luna-final-review.md) accepts the `4b7b98e..b3f3fd7` delta with **70 passed, 0 failed**, production wiring, conservative classification, persistence and malformed-state probes. [Raw final tests](luna-final-tests.log). Sol's [author checks](sol-author-tests.log) separately pass 70 affected tests and 4 entry-audit checks; these are not independent evidence. Claude's full 1318/0 applies only to `4b7b98e`; a full suite was not repeated on the final delta.
+
+Astra used OpenAI computer use in the Codex in-app browser, separate synthetic Host/data and ports 8924/8925/8926, with Local test selected. No Send or paid provider was invoked. Final source was served from the integration tree. The user Host 8787 and preview 8899 were preserved without restart.
+
+| Browser case | Source and observation | Evidence |
+| --- | --- | --- |
+| Lost create reply | `4b7b98e`: one POST actually commits; Remove and Start locked, Check status recovers and Continue completes the same Chat | [unknown state](browser/01-unknown-locked.ax.txt), [recovered](browser/02-recovered.ax.txt), [command](browser/lost-reply-commands.jsonl) |
+| Refusal lost on reload, before correction | `4b7b98e`: chooser exists after rejection, disappears after reload | [before](browser/03-before-reload.ax.txt), [after](browser/04-after-reload-baseline.ax.txt) |
+| Refusal retained on reload | `b3f3fd7`: retry records failure through production persistence, full reload retains correction chooser; selecting the existing valid fixture folder completes the original Chat | [reload AX](browser/05-fixed-after-reload.ax.txt), [reload PNG](browser/05-fixed-after-reload.png), [ready AX](browser/06-corrected-ready.ax.txt), [ready PNG](browser/06-corrected-ready.png) |
+| Bind commits, read-back errors | `b3f3fd7`: proxy returns coded internal_error only after a successful bind; UI remains uncertain, no chooser. Reload retains lock and error; Finish reconciles and creates the candidate without repeating bind | [command/fault log](browser/post-bind-commands.jsonl), [unknown](browser/07-readback-uncertain.ax.txt), [reload](browser/08-readback-reload.ax.txt), [ready](browser/09-readback-recovered.ax.txt), [PNG](browser/09-readback-recovered.png) |
+
+[Host receipts](browser/host-receipts.json) contain exactly three deliberate synthetic Chats, each with a binding and candidate, **0 Runs and 0 events**. The fixture source remains clean at `a3fa5c811e7c`; no model inference occurred. The fault proxy scripts are preserved for reproducibility and do not change product code. Bootstrap authentication remains transient and is not recorded.
+
+The [live observation notes](browser/observations.md) distinguish displayed tool observations from saved incremental AX files; several saved AX files contain only unchanged-state notices and are not standalone evidence. The PNGs document these recovery states at the existing review viewport; they do not establish responsive or accessibility acceptance. Native 200% zoom, screen reader, forced colors, material-upload recovery and broader G4 residuals remain unexecuted/open under their existing owners. This does not claim whole-product or backend capability acceptance. No next journey is started by this receipt.

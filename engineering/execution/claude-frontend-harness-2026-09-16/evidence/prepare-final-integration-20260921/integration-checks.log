@@ -1,0 +1,29 @@
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (62 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+
+
+exit=0
+$ node tools/lint-colors.mjs
+lint-colors: ok (67 files · 字面量与高度层两项)
+
+
+exit=0
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+
+
+exit=0
+$ node tools/check-doc-links.mjs
+{
+  "pass": true,
+  "documents": 1486,
+  "checked": 8465,
+  "problems": []
+}
+
+
+exit=0
+$ git diff --check
+
+
+exit=0

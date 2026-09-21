@@ -239,3 +239,11 @@ source-pinned assertions moved with the code they pin; the invariants are
 unchanged. The 2026-09-20 packet README's 1312 is corrected to the recorded
 1313 without a rerun. Checks, the browser passes and the unexecuted list:
 [prepare-round2-returns-20260921](evidence/prepare-round2-returns-20260921/README.md).
+
+## Astra final integration correction boundary — 2026-09-21
+
+Claude released `4b7b98e`. Luna's 68/68 plus sequence probe reveals two remaining local gaps: a coded read-back error after a committed bind is misclassified as settled, and app.mjs omits marker.failure from Home persistence. Astra adopts both under the existing PA-R1/PA-R2 owner and assigns Sol only the preparation controller, its app persistence projection and targeted tests in this separate integration tree. Keep Claude's source/evidence immutable. Classify failure by operation phase and documented refusal meaning; generic internal_error and read failures remain uncertain. Persist/restore the small failure fact through the actual Home serializer and verify reload correction/unknown lock. No new Host route/schema, permission policy, layout, dependency or next journey. Luna independently verifies the delta; Astra runs real OpenAI browser recovery against the final source before local acceptance/merge.
+
+## Preparation final disposition — 2026-09-21
+
+Astra accepts PA-R1/PA-R2 with the two minimal Sol adjustments at `b3f3fd7`, retains previously accepted PA-R3 and historical approval identity, and authorizes the already agreed local merge. [Final independent packet](evidence/prepare-final-integration-20260921/README.md): Luna 70/70, OpenAI browser refusal/reload/correction and committed-bind/read-error/reconcile, all fixture Chats 0 Runs/0 events. The broad coded-error assertion in the author record above is superseded by phase-specific refusal classification. Failure persistence belongs to the production Home projection. No new backend schema, tool-argument capture, next journey or G4 acceptance. Source authors are released; integration/cleanup remain Astra-owned.
