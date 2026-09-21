@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-21 · Transport accepted; Composer receives one bounded return
+
+[Transport final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/p03c-transport-acceptance-20260921/README.md) accepts `32f4f8b` and integrates at main `10b2d52`: Luna 22/22 plus independent header/pagination probes; actual-main 22/22. This is the SDK transport only; Host selection, durable remote binding/receipts and live Agents access remain unimplemented by this slice. No next core implementation starts. [Restore-verified transport cleanup is complete](execution/claude-frontend-harness-2026-09-16/evidence/p03c-transport-acceptance-20260921/completion.md); its archive ref remains and only the ended transport tree/branch were removed.
+
+[Composer review](execution/claude-frontend-harness-2026-09-16/evidence/composer-entry-acceptance-20260921/README.md) retains the unified entry and visual direction, with independent 115/115 and an OpenAI-browser project → folder → prepare → reload → synthetic Send journey. Candidate `ac6049b` is held for CE-R1: plain Home Send loses its location mutation lock after Chat creation while work is still pending. The original frontend owner keeps this finite correction; shared initial focus/scroll is separately recorded, and full accessibility acceptance is not claimed. Its source tree is preserved. User 8787/8899 remain on the original processes; no real provider, push, deployment or heartbeat restart.
+
+
 ## 2026-09-21 · P03-C transport reviewed; two bounded Fable returns
 
 [Independent review](execution/claude-frontend-harness-2026-09-16/evidence/p03c-transport-review-20260921/README.md) holds source `b69a4b5` for ambient header provenance and incomplete pagination. Luna's 22/22 pass is retained; Astra reproduces the probes, corrects the event-key diagnosis and rejects the unsupported 204-only ACK restriction. Dependency-ledger regeneration is independently confirmed and accepted within scope. Fable owns only those transport-local returns and packet corrections in the preserved tree; no Host consumer or new lane starts. No product merge, cleanup deletion, user Host restart, paid call or deployment.

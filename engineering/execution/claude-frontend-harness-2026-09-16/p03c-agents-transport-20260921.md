@@ -1,5 +1,8 @@
 # Fable next core order — Agents API transport
 
+2026-09-21 · **Final transport accepted and integrated.** Source `32f4f8b` closes R1/R3 under independent 22/22 plus synthetic probes; integrated main `10b2d52` passes 22/22. [Final disposition and evidence](evidence/p03c-transport-acceptance-20260921/README.md). R2 remains rejected; D2–D4 packet corrections retain unknown-outcome obligations. This supersedes the hold below for this finite transport only. No Host consumer or next slice starts.
+
+
 ## 2026-09-21 · Independent review: two finite returns
 
 Source `b69a4b5` is delivered and writer-released. [Independent disposition](evidence/p03c-transport-review-20260921/README.md) holds integration for P03C-R1 ambient header provenance and P03C-R3 incomplete-page rejection, both assigned back to Fable in the same tree. Luna 22/22 passed; Astra independently accepts mechanical dependency-ledger regeneration and rejects a 204-only ACK restriction as unsupported. Packet recovery claims must follow D2–D4. No next Host consumer starts; historical ready-to-start wording below is superseded by this review status.

@@ -1,0 +1,58 @@
+- main "Agent workspace":
+  - button "Toggle navigation":
+    - generic: Toggle navigation
+  - generic: ·
+  - heading "Wrap up, or open something new? Monday, September 21" [level=2]
+  - log:
+    - heading "Continue" [level=3]
+    - generic: "0"
+    - paragraph: Your chats will appear here.
+  - group "Where this chat works":
+    - 'button "Work location: project Independent location review; folder /tmp/cw-composer-acceptance-folder, read only" [expanded]':
+      - generic: Independent location review
+      - generic: ·cw-composer-acceptance-folder
+    - generic: Local
+    - 'generic "Git branch: main"': Branch · main
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: Describe the work you want to do…
+  - button "Attachments":
+    - generic: Attachments
+  - combobox "File access for this chat" [disabled]:
+    - option "Ask before editing" [selected]
+    - option "Allow edits"
+    - option "Read only"
+  - button "Model and effort · scripted-model · Provider default": scripted-model · Provider default
+  - button "Send" [disabled]:
+    - generic: Send
+  - status: Chat and private candidate are ready. Nothing was sent; send to start work in them.
+- dialog "Work location":
+  - heading "Work location" [level=3]
+  - button "Close work location":
+    - generic: Close work location
+  - region "Project":
+    - heading "Project" [level=4]
+    - paragraph: Independent location review
+    - paragraph: Set when this chat was made. A chat keeps its project.
+  - region "Folder":
+    - heading "Folder" [level=4]
+    - paragraph: cw-composer-acceptance-folder
+    - paragraph:
+      - code: /private/tmp/cw-composer-acceptance-folder
+    - term: Access
+    - definition: Read only
+    - term: File access
+    - definition: Ask before editing
+    - generic "Which is which"
+    - paragraph: "Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists."
+    - button "Disconnect"
+  - heading "Edits" [level=4]
+  - term: Private candidate
+  - definition:
+    - code: from cdeff9ad775d
+  - term: Writes
+  - definition: "0"
+  - button "Review changes" [active]
+  - paragraph: Stopping keeps the candidate's files; later edits need a new candidate.
+  - button "Stop edits"
+- status

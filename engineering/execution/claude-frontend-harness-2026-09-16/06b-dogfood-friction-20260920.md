@@ -308,3 +308,8 @@ The ask_user observation stays deferred as ordered.
 Answer-footer candidate `17f57c0` is independently accepted and merged at `2c23272`; [review and policy dispositions](evidence/answer-footer-review-20260921/README.md) supersede author-only status. Luna 64/64 plus Astra OpenAI browser waiting/completion/failed/cancelled and Copy/reload evidence; full-suite and accessibility limits retained.
 
 **Next serial frontend assignment: Composer working-location entry.** Consume [the screenshot-grounded ruling and finite acceptance cases](evidence/composer-entry-review-20260921/README.md). Opus owns implementation, Sonnet may explore the existing entry/controller/Design precedents; Codex owns independent acceptance. Start a fresh isolated tree from actual integrated main after footer cleanup. This is a UI consolidation with unchanged Project/Folder/permission owners; it precedes the Runtime-management preview. No author process has been launched by this registration. The active disjoint Fable Pi Runtime Port extraction continues unchanged.
+
+
+## Working-location review disposition — 2026-09-21
+
+Candidate `ac6049b` is held for **CE-R1**, the plain Home Send location-lock gap after Chat creation. [Independent review, browser journey and exact bounded return](evidence/composer-entry-acceptance-20260921/README.md): Luna 115/115; Astra confirms unified entry, project creation, preparation, Escape, reload and synthetic completion. Keep the original frontend writer/tree and accepted design; correct only the pending-send mutation seam and its regression. Shared bound-panel initial focus/scroll is CE-F2 deferred, with the author light-dismiss claim narrowed. No Runtime-management/Role-first next journey.
