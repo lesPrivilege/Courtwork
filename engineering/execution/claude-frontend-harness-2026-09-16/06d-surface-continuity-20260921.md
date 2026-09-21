@@ -47,3 +47,13 @@ Use a checked-free preview port and independent synthetic data. Preserve user 87
 Deliver production A and tabbed Preview B as separate commits in one handoff, exact source SHA, owner/change record, source consumption, complete test logs and fixture launch command. Tests must cover real controller/view transitions, crossed-work identity, duplicate open, recorded versions, close active/last tab, delayed reads after close/switch, expand/restore, and draft/reading/focus retention. Capture desktop/narrow, long identities, keyboard/Escape, light/dark; label unexecuted native zoom/reader/forced-colors. No paid model or real site is needed.
 
 Stop after the bounded handoff. Left-rail adoption, a real Browser adapter, streaming/pop-out host, Role-first Composer and P03-C/D/E remain separately accepted increments. No push/deployment or author deletion of evidence/worktrees.
+
+
+## Independent disposition — 2026-09-22
+
+[Review of source736e0f7 / packet9860c6c](evidence/tabbed-preview-review-20260922/README.md) independently accepts A1 `90be9af` and A2 `dfc90b7`, locally merged at `cd6856f` with87/87 main checks. Preserve these commits. B's normal tab/version/scope/draft/reading behavior is verified, but B remains held for **PV-R1**: closing an active or inactive Workspace tab must invalidate its pending surface fetch/late renderer continuation. The public-page gate confirms the closed tab's fetch currently stays live; no tab resurrection is claimed. Original author retains the same tree for this one correction. Spark rail/polling removal, Preview terminology and replacing the single-document-tab rule are within B scope; native Back/Forward and density convergence remain separate follow-ups. No source-tree cleanup until B is accepted or explicitly otherwise disposed.
+
+
+## Read-only grammar audit follow-up — 2026-09-22
+
+[Parent disposition of the separate audit](../../design/grammar-convergence-20260921/disposition-20260922.md) records identical sampled main/candidate reader stack geometry; do not relabel inherited chrome as a new06d height regression. At390px/fine pointer, close24×24 and Find27.25px did not inherit root44. This is a scoped target-map/coarse-verification follow-up for06d/reader, not by itself an AA failure or an addedPV-R1 blocker. Record any compact fine-pointer exception and separately preserve/verify the coarse target path; no global44 change or global density rewrite. The Runtime M1 lease edits only its own view module, excludes styles.css and all06d files, and does not take this writer's scope.

@@ -1,0 +1,180 @@
+{
+  "sourceTaskId": "01a0c497-69ec-7ea1-9706-1f6ffaccdd07",
+  "sourceHead": "ef73d276bf892a73a818ca5abf94f10c1a106c1d",
+  "parentHeadAtConsumption": "6da93477a71f81726744a968bc24ca6fd148e52e",
+  "sourceHashesVerified": true,
+  "eightScreenshotHashesVerified": true,
+  "copiedBytesExactly": true,
+  "fileCount": 32,
+  "files": [
+    {
+      "path": "01-settings-desktop.json",
+      "bytes": 20040,
+      "sha256": "2858912f94c2748299a02dc800f342addd92f57142470833f20cafe3684eec57"
+    },
+    {
+      "path": "02-preview-desktop.json",
+      "bytes": 20138,
+      "sha256": "fa55f96ff73fec4afea7d1ebc7e12bbf098626a83d773e4bb4d37443a0dd2c51"
+    },
+    {
+      "path": "03-preview-keyboard.txt",
+      "bytes": 347,
+      "sha256": "727c8b576a870c90cbc36e2d51d5a36174bcc66cb06e140840b9f4782c17188f"
+    },
+    {
+      "path": "03-preview-narrow.json",
+      "bytes": 19857,
+      "sha256": "9c531cd430d6569c642faeb273cc58c0aeb2baaf0b67efcd503d53ad8e9faee7"
+    },
+    {
+      "path": "04-chat-judgment.json",
+      "bytes": 8992,
+      "sha256": "378c3a491c2483b1555b2c49f93bc70adca5f9c97ea2a781f605012b09507d7f"
+    },
+    {
+      "path": "04-chat-keyboard.txt",
+      "bytes": 342,
+      "sha256": "e22bc94e7e37f237cd040e011ce9499f446bbb70531e65890a95976d9d0f5f1a"
+    },
+    {
+      "path": "05-settings-narrow-dark.json",
+      "bytes": 19207,
+      "sha256": "2c379f602dd9c751b088d208a752cdbc1c16c2540fc50553be2690089cfa89b6"
+    },
+    {
+      "path": "06-main-chat-keyboard.txt",
+      "bytes": 308,
+      "sha256": "060774853808c03b85f59bc47b083b4e9a71dcfb10aa19ff82ab361bdbe2e4ec"
+    },
+    {
+      "path": "06-main-chat.json",
+      "bytes": 39533,
+      "sha256": "9f6cc9c5ecfa48947a20e45a4321b2205c2a266b3928fcd715d89d5399a5d349"
+    },
+    {
+      "path": "07-main-reader.json",
+      "bytes": 22387,
+      "sha256": "3ef53d77ffca30a03f07c788ed6a96f0925d9cab3ea0efcdce4f6b97c1e2daa2"
+    },
+    {
+      "path": "08-main-attention-ax.txt",
+      "bytes": 169,
+      "sha256": "8a08d46204be16faa598cabf70cf5e1b2c4461bded66b7c66f7e8de6246cf212"
+    },
+    {
+      "path": "08-main-attention.json",
+      "bytes": 17398,
+      "sha256": "fd79b5ec4ff0e8f7a9b37beeb2efeba7147f56f65b3f57d4dc135d8a5c6db594"
+    },
+    {
+      "path": "README.md",
+      "bytes": 15757,
+      "sha256": "2488b3de8b9fedd1c943235bfcf910652804db2e25bfd003a513969e55a21359"
+    },
+    {
+      "path": "baseline.json",
+      "bytes": 1076,
+      "sha256": "e64249af5c65b71f0b76ff7f3425d62999b867bd51b71d577f555c587062b1e6"
+    },
+    {
+      "path": "luna/source-map.md",
+      "bytes": 15243,
+      "sha256": "ddd67d549bb609ef25c8fec966ef537591292d351b7b4758c223c22356738213"
+    },
+    {
+      "path": "measure-cua-reference.js",
+      "bytes": 1385,
+      "sha256": "09b717659d0f03e18119d7b20d26180de8a2365b80b4b98317c4b27305df540b"
+    },
+    {
+      "path": "scope.md",
+      "bytes": 2914,
+      "sha256": "770a4394192e993d6c57d1592fe935025c724e94fc9c284851fd259b530ebcfb"
+    },
+    {
+      "path": "screenshots/01-settings-desktop.jpg",
+      "bytes": 74100,
+      "sha256": "7c40d4c6696c51f9f4d4ea9e41002df28e677d8956dc43821145fa80542d3a88"
+    },
+    {
+      "path": "screenshots/02-preview-desktop.jpg",
+      "bytes": 52101,
+      "sha256": "9f2aea605311421ff4e7afeb58d202481322f3c105be4ce3539e3788468a88ad"
+    },
+    {
+      "path": "screenshots/03-preview-narrow.jpg",
+      "bytes": 30030,
+      "sha256": "dbcaecd90c9ec61171803c0b3561f3b0bf774d42e73515ce7f59a657cbefb0f1"
+    },
+    {
+      "path": "screenshots/04-chat-judgment.jpg",
+      "bytes": 79976,
+      "sha256": "9d339b065405ae8baf7abe6694b7d01f0aeaa462e371585baa5bb60e0ffc25e2"
+    },
+    {
+      "path": "screenshots/05-settings-narrow-dark.jpg",
+      "bytes": 49831,
+      "sha256": "9dead22ac8ebe64a001754ecc48ac80b04e81909c0939d86d5cbb2de2de1aa53"
+    },
+    {
+      "path": "screenshots/06-main-chat.jpg",
+      "bytes": 52420,
+      "sha256": "210baa0a847e645506082b43d4510d7eaed4066a123e655258b17cda78a6321c"
+    },
+    {
+      "path": "screenshots/07-main-reader.jpg",
+      "bytes": 52733,
+      "sha256": "c02d57286dfbed43ce3f9be922f40ed716086eb754ed52d3152908e1de34a7ef"
+    },
+    {
+      "path": "screenshots/08-main-attention.jpg",
+      "bytes": 63311,
+      "sha256": "b0b6ed61069b3944ad996d374b9a403a2b1a631a80a25f014889065bedfd562b"
+    },
+    {
+      "path": "sol/chat-specimen-boundary.json",
+      "bytes": 2699,
+      "sha256": "8f6e5670b1471e423df86511c08b115b62c7a16b13a899fae8a54d5daba11c5a"
+    },
+    {
+      "path": "sol/cleanup.json",
+      "bytes": 1098,
+      "sha256": "e2dcfb49ab341b6b7e20ad1f20b3f58fe5538e443ae59b459243f3ea2324c012"
+    },
+    {
+      "path": "sol/inventory-main.json",
+      "bytes": 986331,
+      "sha256": "59a1631e5447ab2ca51a0f6d6f516fcfb67ca9e849c861f753153e0d89c803e4"
+    },
+    {
+      "path": "sol/inventory.mjs",
+      "bytes": 6950,
+      "sha256": "fead89bc4c4a6d4300525385b32b0c444d3a9b631b5c665c428441ebf23010bb"
+    },
+    {
+      "path": "sol/preview-processes.json",
+      "bytes": 2399,
+      "sha256": "24fda8ddc65c611d6817e091b3e54bad8273fa658571b54b501c03b0e13d1ae3"
+    },
+    {
+      "path": "sol/reproduce-previews.sh",
+      "bytes": 1624,
+      "sha256": "08f2f08f305b8d89710688f32792a34df5132e9480a91f11008e44c26a5a6761"
+    },
+    {
+      "path": "validation.json",
+      "bytes": 3566,
+      "sha256": "ab78e3a041dc721da08eaf53532449b550e99bb1f9a1456bc50d655e3355be4d"
+    }
+  ],
+  "retainedWhitespaceNotices": {
+    "path": "luna/source-map.md",
+    "lines": [
+      3,
+      4,
+      5
+    ],
+    "reason": "Original Markdown hard breaks; preserve audit bytes, not a product exception."
+  }
+}

@@ -384,3 +384,6 @@ deferred, and the light-dismiss claim is narrowed. Record:
 ## Working-location final acceptance — 2026-09-21
 
 [Final independent acceptance](evidence/composer-ce-r1-final-20260921/README.md) accepts source `4695426` and integrates at `d52f44f`: Luna 122/122; Astra OpenAI browser gated ordinary Send at bind/draft/admission, completed active binding revision 1, normal unlock and reload; actual main 40/40. The extra navigation-window hypothesis was withdrawn after actual reachability verification, not returned to the author. CE-R1 is closed for this scope. CE-F2 remains deferred under shared focus; post-create bind/read-back lost replies stay explicitly unexecuted with the existing Send recovery owner. Author source/evidence identities and unexecuted accessibility cells remain intact. Runtime management remains the next serial frontend direction; this acceptance starts no worker or next journey.
+
+
+2026-09-22 · CE-F2 initial-focus follow-up is **closed for the tested Work location scope** by 06d A2 `dfc90b7`, merged at `cd6856f`. [OpenAI browser long-path desktop/narrow and independent owner checks](evidence/tabbed-preview-review-20260922/README.md) confirm title/Close at scrollTop0 without changing preparation/Send locks. Broader density/native-accessibility work remains separate; tabbed Preview B's Workspace-read return is not a reopening of CE-F2.

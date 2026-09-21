@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { createWorkspaceCard, repositoryName, activeRepositoryBinding, workLocationEntry, REPOSITORY_ACTIVE_RUN, REPOSITORY_DIALOG_OPEN, SEND_BUSY, WORK_LOCATION_EMPTY } from "../web/workspace-card.mjs";
+import { createWorkspaceCard, repositoryName, activeRepositoryBinding, workLocationEntry, REPOSITORY_ACTIVE_RUN, REPOSITORY_DIALOG_OPEN, SEND_BUSY, PREPARE_UNCERTAIN, WORK_LOCATION_EMPTY } from "../web/workspace-card.mjs";
 import { withTinyDom, flush } from "./tiny-dom.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
@@ -234,3 +234,105 @@ test("A Home send in flight locks the project and folder, and says why", () => w
   assert.equal(chosen, 0, "a disabled choice does nothing");
   assert.match(body.textContent, new RegExp(SEND_BUSY.slice(0, 40)));
 }));
+
+/* ── CE-F2 · where the keyboard starts when the panel opens ───────────────
+ * Counterexample (evidence/composer-entry-acceptance-20260921/browser/04-reopened.png):
+ * the opener focused the first of open/path/disconnect/remove, so a bound
+ * panel started on Disconnect and scrolled its title and Close out of view.
+ * `inView` stands for the opener's geometry (app.mjs toggle handler); the
+ * browser capture in the 06d packet measures the real one. */
+const everything = () => true, nothing = () => false;
+const LONG = "/private/tmp/synthetic/" + "a-very-long-folder-name-that-keeps-going/".repeat(6) + "parcel";
+const key = node => node?.getAttribute("data-repository-field");
+
+test("CE-F2 · a bound panel starts on Close, never on Disconnect, even when Disconnect is in view", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {} });
+  for (const session of [bound, { ...bound, repositoryBinding: { ...bound.repositoryBinding, rootPath: LONG } }]) {
+    card.render(body, { session, active: false });
+    const start = card.initialFocus(body, { inView: everything });
+    assert.equal(key(start), "close");
+    assert.ok(field(body, "disconnect") && !field(body, "disconnect").disabled, "Disconnect is still there, one Tab stop away");
+    assert.ok(body.textContent.includes(session.repositoryBinding.rootPath), "the whole location is drawn for reading");
+  }
+}));
+
+test("CE-F2 · an unbound chat starts on Connect folder when it is in view, and on Close when it is not", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {} });
+  card.render(body, { session: unbound, active: false });
+  await settle();
+  assert.equal(key(card.initialFocus(body, { inView: everything })), "open");
+  assert.equal(key(card.initialFocus(body, { inView: nothing })), "close", "a decision below the fold is not scrolled to");
+  assert.equal(key(card.initialFocus(body)), "close", "without geometry nothing counts as in view");
+}));
+
+test("CE-F2 · a fresh Home starts on the chosen project; a staged folder starts on Close", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {} });
+  let path = null;
+  const draft = { get path() { return path; }, onChange: next => { path = next; } };
+  const projectChoice = { options: [{ id: "p1", name: "Parcel maintenance" }], selectedId: null, onChoose: () => {}, onCreate: () => {} };
+  card.render(body, { session: null, active: false, draft, projectChoice });
+  await settle();
+  assert.equal(key(card.initialFocus(body, { inView: everything })), "project:none");
+  path = LONG;
+  card.render(body, { session: null, active: false, draft, projectChoice });
+  assert.equal(key(card.initialFocus(body, { inView: everything })), "close", "Remove is not a decision still open");
+}));
+
+test("CE-F2 · a locked panel starts on Close and its reason stays beside the locked control", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {} });
+  for (const [session, busyReason] of [[unbound, SEND_BUSY], [bound, SEND_BUSY], [unbound, PREPARE_UNCERTAIN], [bound, PREPARE_UNCERTAIN]]) {
+    card.render(body, { session, active: false, busyReason });
+    await settle();
+    assert.equal(key(card.initialFocus(body, { inView: everything })), "close", `${busyReason.slice(0, 20)}… on ${session.repositoryBinding ? "bound" : "unbound"}`);
+    const locked = field(body, "open") || field(body, "disconnect");
+    assert.equal(locked.disabled, true);
+    assert.ok(locked.parentNode.textContent.includes(busyReason), "the reason is in the same section as the control it locks");
+  }
+}));
+
+test("CE-F2 · an unfinished preparation starts on Close; its way out stays enabled with its reason", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {} });
+  card.render(body, { session: bound, active: false, busyReason: PREPARE_UNCERTAIN, preparation: { onResume: () => {} } });
+  await settle();
+  assert.equal(key(card.initialFocus(body, { inView: everything })), "close");
+  const resume = field(body, "start-edits");
+  assert.equal(resume.disabled, false, "Finish preparing is how the unknown is settled");
+  assert.ok(resume.parentNode.textContent.includes(PREPARE_UNCERTAIN));
+}));
+
+test("CE-F2 · a read-back re-render keeps the keyboard on Close instead of dropping it", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {} });
+  card.render(body, { session: bound, active: false });
+  card.initialFocus(body, { inView: everything }).focus();
+  card.render(body, { session: { ...bound, repositoryBindingRevision: 2, repositoryBinding: { ...bound.repositoryBinding, revision: 2 } }, active: false });
+  assert.equal(key(document.activeElement), "close");
+  assert.ok(body.contains(document.activeElement), "the focused Close is the one now drawn");
+}));
+
+test("CE-F2 · a command that loses its control still falls back inside the card, not to Close", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: async () => {}, onClose: () => {} });
+  card.render(body, { session: unbound, active: false });
+  await settle();
+  field(body, "open").focus();
+  card.render(body, { session: bound, active: false });
+  assert.equal(key(document.activeElement), "disconnect", "Connect became Disconnect: the command's own chain still decides");
+}));
+
+test("CE-F2 · the panel's opener decides the start after it is sized, from its top, without scrolling", () => {
+  const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
+  const toggle = app.slice(app.indexOf('const popover = $("workspace-popover");\n    let stopFollowing'));
+  const open = toggle.slice(0, toggle.indexOf("if (!open)"));
+  assert.ok(open.indexOf("anchorPopover(") < open.indexOf("workspaceCard.initialFocus("), "sized first");
+  assert.match(open, /popover\.scrollTop = 0/);
+  assert.match(open, /\.focus\(\{ preventScroll: true \}\)/);
+  const opener = app.slice(app.indexOf("function openWorkspaceCard("), app.indexOf("RD-006 · the strip above the composer"));
+  assert.doesNotMatch(opener, /\.focus\(/, "showing the panel no longer moves the keyboard by itself");
+  assert.doesNotMatch(opener, /data-repository-field="disconnect"/);
+});

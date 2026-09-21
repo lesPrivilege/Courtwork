@@ -33,3 +33,8 @@
 ## Preview-first shell intake — 2026-09-21
 
 [Primary-source selection](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md) supplies native-host, pane-identity and browser-control references without importing another shell. Per the user's latest clarification, [06d](../../execution/claude-frontend-harness-2026-09-16/06d-surface-continuity-20260921.md) first replaces right-card launchers with scoped object tabs over existing readers. Left rail/context-sidebar evolution and actual Browser hosting remain later; current left/right ownership and location/focus contracts must survive. No new navigation destination or native browser implementation is adopted by this entry.
+
+
+## Native Back/Forward placement follow-up — 2026-09-22
+
+The 06d author reports the requested direction of Back/Forward beside macOS window controls. [Parent disposition](../../execution/claude-frontend-harness-2026-09-16/evidence/tabbed-preview-review-20260922/README.md) retains this as a later shell/navigation candidate, outside 06d. `shell-layout.mjs` supplies inset/toolbar geometry, not complete native integration. Before implementation, verify actual host geometry, draggable/non-draggable regions, fullscreen, focus and keyboard behavior; no new native capability or live-host evidence is inferred from these CSS hooks.

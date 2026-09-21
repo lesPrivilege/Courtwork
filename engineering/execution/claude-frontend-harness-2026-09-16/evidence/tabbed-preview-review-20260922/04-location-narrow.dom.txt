@@ -1,0 +1,55 @@
+- main "Agent workspace":
+  - button "Toggle navigation":
+    - generic: Toggle navigation
+  - heading "Parcel review · Bound location check" [level=1]
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open preview":
+    - generic: Open preview
+  - log:
+    - heading "No messages yet" [level=3]
+    - paragraph: Send a message to create the first run.
+  - group "Where this chat works":
+    - 'button "Work location: project Parcel review; folder /private/tmp/cw-06d-review-20260922-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel, read only" [expanded]':
+      - generic: Parcel review
+      - generic: ·synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel
+    - generic: Local
+    - 'generic "Git branch: main"': Branch · main
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Allow edits"':
+    - generic: Allow edits
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - button "Context details, capacity usage unknown":
+  - button "Send":
+    - generic: Send
+- dialog "Work location":
+  - heading "Work location" [level=3]
+  - button "Close work location" [active]:
+    - generic: Close work location
+  - region "Project":
+    - heading "Project" [level=4]
+    - paragraph: Parcel review
+    - paragraph: Set when this chat was made. A chat keeps its project.
+  - region "Folder":
+    - heading "Folder" [level=4]
+    - paragraph: synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel
+    - paragraph:
+      - code: /private/tmp/cw-06d-review-20260922-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel
+    - term: Access
+    - definition: Read only
+    - term: File access
+    - definition: Allow edits
+    - generic "Which is which"
+    - button "Change the connected folder":
+      - generic: Change folder…
+    - paragraph: Disconnecting stops further reads. Files the model already read stay in this chat.
+    - button "Disconnect"
+  - heading "Edits" [level=4]
+  - paragraph: Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.
+  - button "Start private candidate"
+- status
+- tooltip "Parcel review · synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel · Read only"

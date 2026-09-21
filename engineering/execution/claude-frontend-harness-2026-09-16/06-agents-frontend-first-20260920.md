@@ -91,3 +91,6 @@ Missing backend fields remain assigned to the existing owners; configuration-wid
 ## 06a owner follow-up from 06c review — 2026-09-21
 
 The [06c review](evidence/runtime-management-review-20260921/README.md) source-confirms the author's observation in `agent-profiles-view.mjs`: an absent model note is passed as `null` to native `append`, which can render literal text although the contract permits an absent note. **Adopt as a separate existing-06a-owner correction; deferred from 06c.** Preserve the original accepted scope/evidence; fix optional-child rendering when this small follow-up is picked up, with a real DOM or equivalent native-append counterexample. No product edit or new broad Agent profiles review occurred here.
+
+
+2026-09-22 · The optional-model-note follow-up above is **closed** by 06d A1 `90be9af`, independently accepted and merged with A2 at `cd6856f`. [Independent disposition and integrated87/87 checks](evidence/tabbed-preview-review-20260922/README.md). This does not change the profile backend/proposed-contract boundary.

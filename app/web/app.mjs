@@ -6335,14 +6335,10 @@ function openWorkspaceCard(anchor) {
     return;
   }
   state.workspaceCardAnchor = anchor;
-  const header = renderWorkspaceCard();
+  renderWorkspaceCard();
+  // Where the keyboard starts is decided once the panel has its size (the
+  // popover's toggle handler, after anchorPopover fits it).
   popover.showPopover();
-  /* The keyboard starts at the first decision still open: the project while
-   * Home has no folder yet, otherwise the folder's own command. */
-  const project = !state.homeRepositoryPath && state.view === "home" && !currentSession() && !preparedHomeChat()
-    ? popover.querySelector('[data-repository-field^="project:"][aria-pressed="true"]') : null;
-  const field = project || popover.querySelector('[data-repository-field="open"], [data-repository-field="path"], [data-repository-field="disconnect"], [data-repository-field="remove"]');
-  (field || header.querySelector("button")).focus();
   // The card states Host facts (binding, candidate, write count) that a run
   // may have advanced since the Session was last read; read it back now. A
   // Chat prepared from Home is read back the same way, by its own id.
@@ -7451,6 +7447,15 @@ function wireEvents() {
       const anchor = state.workspaceCardAnchor;
       if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start", fit: true });
       $("workspace-chip")?.setAttribute("aria-expanded", String(open && anchor === $("workspace-chip")));
+      /* CE-F2 · the panel opens at its top — title, location, Close — and the
+       * card says where the keyboard starts; a decision below the fold is
+       * reached by Tab from there rather than scrolled to. */
+      if (open) {
+        popover.scrollTop = 0;
+        const frame = popover.getBoundingClientRect();
+        const inView = (node) => { const box = node.getBoundingClientRect(); return box.top >= frame.top && box.bottom <= frame.top + popover.clientHeight; };
+        workspaceCard.initialFocus(popover, { inView })?.focus({ preventScroll: true });
+      }
       /* Escape and light dismissal close the panel without saying where the
        * keyboard goes, and it was left on the page. It goes back to what opened
        * the panel — unless it has already moved on to something else, such as

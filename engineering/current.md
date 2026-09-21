@@ -1,10 +1,24 @@
 # 当前工程状态
 
+## 2026-09-22 · Grammar audit consumed; Runtime-only M1 lease granted
+
+[Parent disposition and M1 lease](design/grammar-convergence-20260921/disposition-20260922.md) consume the completed fresh Astra [read-only audit](design/grammar-convergence-20260921/audit/01a0c497-69ec-7ea1-9706-1f6ffaccdd07/README.md). Its32 files and8 screenshot hashes were preserved/verified. Reader stack weight is inherited, fine-pointer narrow target differences require scoped owner mapping rather than an automaticAA failure, and Chat/Attention need no appearance migration from this sample.
+
+Task **GUI Grammar Convergence · 只读审计**, `01a0c497-69ec-7ea1-9706-1f6ffaccdd07`, receives one usable M1 lease: Sol may modify runtime-management-view.mjs and necessary focused tests to scope existing block-gap tokens to Runtime detail only, with Astra visual checks and Luna verification. Global styles.css, Preview/reader, app.mjs, controllers and canonical rules remain excluded. Parent Arch keeps final selection/acceptance/merge;06d keeps PV-R1 and its own target follow-up. M1 is authorized, not implemented or accepted by this entry.
+
+
+## 2026-09-22 · 06d A accepted; tabbed Preview B has one lifecycle return
+
+[Independent review](execution/claude-frontend-harness-2026-09-16/evidence/tabbed-preview-review-20260922/README.md) accepts A1/A2 and integrates them at `cd6856f` (actual-main87/87). Luna's B-focused58/58 and Astra's real OpenAI browser verify recorded-version tabs, reading-position restoration, cross-Chat isolation, last-tab close/draft retention and the latest Run entry. B source `736e0f7` remains held for PV-R1: close must invalidate the Workspace fetch and reject its late continuation. The original `claude-tabbed-preview-20260921@9860c6c` tree is preserved for that bounded correction; no deletion or full B acceptance.
+
+Parent Astra retains Design/integration authority; density and native Back/Forward remain their separate owners. User services were not restarted. The backend loop tree is now observed at `37a14a5` with C/D author commits, so it is protected as claimed work pending its own report; this observation supersedes treating the tree as untouched, but does not establish live capability, independent acceptance or how the earlier CLI authentication condition was resolved. The isolated grammar-audit tree is also preserved.
+
+
 ## 2026-09-21 · Visual grammar consumed; fresh Astra read-only audit authorized
 
 [Visual / Spatial Grammar](design/visual-spatial-grammar.md) now places compact workbench chrome, readable review/body and explicit action/decision roles on the normal AGENTS → UX → frontend-contract → composition path. [Luna's primary-source index and parent Astra disposition](design/grammar-convergence-20260921/README.md) distinguish WCAG/APG facts from CW size choices and correct old universal32/44 wording without changing product CSS. Change records must state role/token/target/type/viewport assumptions and actual composition evidence; this is not a transcript-only registration or a new design system.
 
-The user explicitly chose a [new Astra task with read-only audit first](design/grammar-convergence-20260921/astra-loop.md). It may delegate bounded source exploration to Luna and inventory artifacts to Sol, with OpenAI computer use for rendered checks. This parent session retains final grammar, exception, architecture and integration authority. 06d remains the Preview writer; no overlapping CSS/app.mjs lease is granted. Task creation identity will follow in the handoff record. Core loop authentication status is unchanged by this Design work.
+The user explicitly chose a [new Astra task with read-only audit first](design/grammar-convergence-20260921/astra-loop.md). It may delegate bounded source exploration to Luna and inventory artifacts to Sol, with OpenAI computer use for rendered checks. This parent session retains final grammar, exception, architecture and integration authority. 06d remains the Preview writer; no overlapping CSS/app.mjs lease is granted. [Task creation receipt](design/grammar-convergence-20260921/task-start.md) records the requested Astra task and its isolated audit checkout at `ef73d27`; creation is asynchronous and does not imply audit completion. Core loop authentication status is unchanged by this Design work.
 
 
 ## 2026-09-21 · Core author loop authorized and contracted
