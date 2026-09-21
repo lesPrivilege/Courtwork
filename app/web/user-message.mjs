@@ -52,6 +52,22 @@ export function renderMessageTime(value, label = "Started") {
   el("span", { text: time.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }), attrs: { "aria-hidden": "true" } }));
 }
 
+/* 04 · the one footer an assistant reply gets: the Run's recorded start and
+ * its message actions, drawn only under the row the projection names as the
+ * Run's final answer. Narration before a tool, text still arriving, and the
+ * last words of a failed, cancelled or unknown Run are read without it. The
+ * actions are built only when the footer is drawn, so nothing hidden carries
+ * a second Copy for the accessibility tree. Chat and Attention both call this,
+ * so the two surfaces cannot disagree about which reply is the answer. */
+export function renderAnswerFooter(row, createActions) {
+  if (!row?.final) return null;
+  const footer = el("footer", { className: "assistant-message-actions" });
+  const time = renderMessageTime(row.startedAt, "Run started");
+  if (time) footer.append(time);
+  footer.append(createActions());
+  return footer;
+}
+
 // A view of an immutable input record. Edits prepare a new composer draft.
 export function renderUserMessage(row, { onCopy, onEdit, viewState = null, key = row.id, editDisabled = false, actions = null }) {
   const message = el("article", {

@@ -1,6 +1,6 @@
 import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";
 import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";
-import { renderUserMessage, renderMessageTime } from "./user-message.mjs";
+import { renderUserMessage, renderAnswerFooter } from "./user-message.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createRunActivity } from "./run-activity.mjs";
 import { el, action, flowRow, markdown } from './ui-controls.mjs';
@@ -256,12 +256,8 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
           }));
         } else if (row.kind === 'assistant') {
           block.append(markdown(row.text, { key: `attention:${state.session?.id}:${row.id}` }));
-          if (!row.pending) {
-            const footer = el('footer', { className: 'assistant-message-actions' });
-            const time = renderMessageTime(row.startedAt, 'Run started');
-            if (time) footer.append(time);
-            footer.append(messageActionRow(row, state)); block.append(footer);
-          }
+          const footer = renderAnswerFooter(row, () => messageActionRow(row, state));
+          if (footer) block.append(footer);
         } else if (row.kind === 'tool') {
           const word = toolStateWord(row, runStatuses.get(row.runId) || state.runs.find(run => run.id === row.runId)?.status);
           const detail = renderToolRow(row, { toolState: word, open: expanded.has(row.id), onToggle: () => {} });

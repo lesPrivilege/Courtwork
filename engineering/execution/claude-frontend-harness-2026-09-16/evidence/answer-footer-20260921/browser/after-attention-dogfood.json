@@ -1,0 +1,15 @@
+{
+  "tree": "candidate (this branch), data directory copied from the before pass",
+  "surface": "Attention",
+  "script": "replay dogfood — the same persisted Attention Run as before-attention-dogfood.json, reopened after restart",
+  "assistantMessages": 5,
+  "footers": 1,
+  "footerElementsOfAnyKind": 1,
+  "copyButtons": 1,
+  "finalFooterTime": "2026-09-21T04:36:49.692Z",
+  "copy": {
+    "method": "focus the one Copy response button, click; navigator.clipboard.writeText wrapped to observe its argument",
+    "copiedLength": 1353, "recordedFinalTextLength": 1353, "copiedStartsWith": "Done. Summary of the dogfood run:\\n",
+    "labelAfterClick": "Copied", "labelAfter2s": "Copy response", "focusStayedOnButton": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "tree": "candidate (this branch), data directory copied from the before pass",
+  "surface": "Chat",
+  "script": "replay dogfood — the same persisted Run as before-chat-dogfood.json, reopened after the Host restart (reload continuity)",
+  "runStatus": "Completed",
+  "assistantMessages": 5,
+  "footers": 1,
+  "copyButtons": 1,
+  "footerElementsOfAnyKind": 1,
+  "perMessage": [
+    {"first": "I'll start by inspecting the workspace materials a", "footer": false, "time": null},
+    {"first": "Diagnosis is clear. Let me confirm the plan with y", "footer": false, "time": null},
+    {"first": "Understood — I'll submit the actual tool calls and", "footer": false, "time": null},
+    {"first": "Write applied — exactly one line changed, test/par", "footer": false, "time": null},
+    {"first": "Done. Summary of the dogfood run:", "footer": true, "time": "2026-09-21T04:35:41.788Z"}
+  ],
+  "servedModuleCheck": "fetch('/web/user-message.mjs', no-store) contains renderAnswerFooter; thread-projection.mjs and user-message.mjs re-transferred after reload",
+  "note": "All five bodies and the Execution disclosure are unchanged; only four footers are gone. No hidden footer or second Copy exists in the DOM."
+}

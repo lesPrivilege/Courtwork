@@ -114,14 +114,48 @@ test('a later busy Chat action cancels Copied feedback without its timer clearin
   read.resolve({state:'playing'});await drain();assert.equal(status.hidden,true);
 })));
 
-test('Chat and Attention omit pending assistant footers, including their timestamps',()=>{
+test('Chat and Attention draw the assistant footer only through the shared final-answer gate',()=>{
   const root=new URL('../../',import.meta.url).pathname;
   const app=readFileSync(`${root}app/web/app.mjs`,'utf8'),attention=readFileSync(`${root}app/web/attention-agent-view.mjs`,'utf8');
-  assert.match(app,/if \(!row\.pending\) \{\s*const footer = element\("footer", \{ className: "assistant-message-actions" \}\);\s*const time = renderMessageTime/);
-  assert.match(attention,/if \(!row\.pending\) \{\s*const footer = el\('footer', \{ className: 'assistant-message-actions' \}\);\s*const time = renderMessageTime/);
+  assert.match(app,/const footer = renderAnswerFooter\(row, \(\) => messageActionRow\(row, session\)\);\s*if \(footer\) wrapper\.append\(footer\);/);
+  assert.match(attention,/const footer = renderAnswerFooter\(row, \(\) => messageActionRow\(row, state\)\);\s*if \(footer\) block\.append\(footer\);/);
+  // Neither surface keeps a second, local footer rule of its own.
+  for (const source of [app, attention]) {
+    assert.doesNotMatch(source,/assistant-message-actions/);
+    assert.doesNotMatch(source,/renderMessageTime/);
+  }
 });
 
- test('new error after copy success survives expiry and detached Chat is not repainted',()=>withTinyDom(container=>withFakeClock(async clock=>{
+test('Copy on the one footer of a multi-segment Run copies exactly the final answer',()=>withTinyDom(container=>withFakeClock(async clock=>{
+  const {projectThread}=await import('../web/thread-projection.mjs');
+  const {renderAnswerFooter}=await import('../web/user-message.mjs');
+  const answer='Final answer\n\n```js\nexact();\n```\n';
+  const ev=(seq,type,data)=>({seq,runId:'r',sessionId:'s',type,data});
+  const {rows}=projectThread([
+    ev(1,'assistant.message',{text:'Narration before a tool.',stopReason:'toolUse'}),
+    ev(2,'tool.start',{callId:'c',name:'ws_list'}),ev(3,'tool.result',{callId:'c',name:'ws_list',text:'[]'}),
+    ev(4,'assistant.delta',{text:'Final'}),ev(5,'assistant.message',{text:answer,stopReason:'stop'}),
+  ],[{id:'r',sessionId:'s',status:'completed',startedAt:'2026-09-21T04:35:41.788Z'}],'s');
+  let copied=null;
+  // The same target shape both surfaces' messageActionRow builds.
+  const footers=rows.filter(row=>row.kind==='assistant').map(row=>renderAnswerFooter(row,()=>{
+    const captured={key:JSON.stringify(['s',0,row.kind,row.id]),role:row.kind,sessionId:'s',runId:row.runId,projectionId:row.id,text:row.text,pending:Boolean(row.pending)};
+    const actions=createChatActions({target:captured,getTarget:()=>captured,adapter:createProductionActionAdapter({copy:({text})=>{copied=text;}})});
+    Object.defineProperty(actions,'isConnected',{get:()=>container.contains(actions)});
+    return actions;
+  })).filter(Boolean);
+  assert.equal(footers.length,1);
+  container.append(...footers);
+  const copy=container.querySelectorAll('button').filter(b=>b.getAttribute('data-chat-action')==='copy');
+  assert.equal(copy.length,1,'one Copy control in the whole Run');
+  copy[0].click();await drain();
+  assert.equal(copied,answer);
+  assert.equal(copy[0].getAttribute('aria-label'),'Copied');
+  clock.tick(1600);
+  assert.equal(copy[0].getAttribute('aria-label'),'Copy response');
+})));
+
+test('new error after copy success survives expiry and detached Chat is not repainted',()=>withTinyDom(container=>withFakeClock(async clock=>{
  const root=mount(container,{adapter:{availability:()=>({available:true}),invoke:async intent=>{if(intent!=='copy')throw new Error('keep error');return {state:'success'};}}});
  const copy=button(root,'copy'),status=root.querySelector('.chat-action-status');
  copy.click();await drain();assert.equal(copy.getAttribute('aria-label'),'Copied');

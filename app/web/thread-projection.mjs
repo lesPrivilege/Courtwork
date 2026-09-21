@@ -13,7 +13,11 @@ export function projectThread(events, runs, sessionId) {
     assistants = new Map(),
     segments = new Map(),
     tools = new Map(),
-    questions = new Map();
+    questions = new Map(),
+    // 04 · the assistant row that currently stands as each Run's answer: the
+    // last settled message with nothing after it but more of the same. Any
+    // later output, tool, check or question takes the place away again.
+    answers = new Map();
   const statuses = new Map(
     runs.filter((r) => r.sessionId === sessionId).map((r) => [r.id, r.status]),
   );
@@ -44,11 +48,17 @@ export function projectThread(events, runs, sessionId) {
       }
       row.text = data.text ?? data.delta ?? data.message ?? row.text;
       row.pending = type === "assistant/delta";
+      // A message that ends in a tool call is narration on the way to work,
+      // not the answer. An empty message shows nothing, so it neither is the
+      // answer nor displaces the one before it.
+      if (row.pending || data.stopReason === "toolUse") answers.delete(runId);
+      else if (row.text.trim()) answers.set(runId, row);
       // A final closes this message. Later cumulative deltas/finals belong to
       // a new message even when no tool or question separates the outputs.
       if (type === "assistant/final") nextSegment(runId);
     } else if (["tool/start", "tool/update", "tool/result"].includes(type)) {
       nextSegment(runId);
+      answers.delete(runId);
       const callId = data.callId || data.id || data.name || event.seq,
         key = `${runId}:${callId}`;
       let row = tools.get(key);
@@ -80,6 +90,7 @@ export function projectThread(events, runs, sessionId) {
       let row = tools.get(key);
       if (!row) {
         nextSegment(runId);
+        answers.delete(runId);
         row = { kind: "tool", runId, callId, name: "check_run", id: key };
         tools.set(key, row);
         rows.push(row);
@@ -95,6 +106,7 @@ export function projectThread(events, runs, sessionId) {
       }
     } else if (type === "question/open" || type === "permission/open") {
       nextSegment(runId);
+      answers.delete(runId);
       const id = data.id || data.questionId || event.seq,
         key = `${runId}:${id}`;
       const row = {
@@ -146,6 +158,13 @@ export function projectThread(events, runs, sessionId) {
       rows.push({ kind: "notice", runId, data, id: `notice:${event.seq}` });
     }
   }
+  // 04 / UX-05 · only a Run that completed has a final answer. While it is
+  // still running, waiting or stopping the standing row may yet be followed by
+  // a tool; after failure, cancellation or an unknown end, the last text is
+  // what arrived, not an answer the Run settled on. Those rows keep their body
+  // and simply carry no final-answer footer; the run-status row says the rest.
+  for (const [runId, row] of answers)
+    if (statuses.get(runId) === "completed") row.final = true;
   const ordered = [],
     seen = new Set();
   for (let i = 0; i < rows.length; i++) {

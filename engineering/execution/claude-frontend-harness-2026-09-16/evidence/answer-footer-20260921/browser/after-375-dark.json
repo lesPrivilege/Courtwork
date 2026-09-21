@@ -1,0 +1,3 @@
+{"tree": "candidate (this branch)", "viewport": "375x812 emulated, prefers-color-scheme dark, after reload", "chat": "/replay dogfood",
+ "footers": 1, "footerRight": 359, "viewportWidth": 375, "documentHorizontalOverflow": 0,
+ "observed": "the one footer (time, Copy, Read aloud, Like, Dislike, Retry, More) sits under the final answer's last paragraph, above the Completed status row; no horizontal overflow"}

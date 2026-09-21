@@ -1,0 +1,14 @@
+{
+  "tree": "candidate (this branch)",
+  "surface": "Chat",
+  "script": "replay controlled (250 ms per 24-character chunk)",
+  "method": "setInterval every 120 ms in the page; a sample is kept whenever [count, pending[], footers[]] changes. t = ms since sampling started, just before Send.",
+  "samples": [
+    {"t": 1081, "n": 1, "pending": [true], "footers": [false], "phase": "narration streaming"},
+    {"t": 2041, "n": 1, "pending": [false], "footers": [false], "phase": "narration settled; ask_user open, Run waiting for the person (screenshot shows 'Waiting for you', no time under the narration)"},
+    {"t": 21241, "n": 2, "pending": [false, false], "footers": [false, false], "phase": "answered; second narration settled, ws_list running"},
+    {"t": 22202, "n": 3, "pending": [false, false, true], "footers": [false, false, false], "phase": "final answer streaming"},
+    {"t": 23041, "n": 3, "pending": [false, false, false], "footers": [false, false, true], "phase": "Run Completed; the one footer is under the final answer"}
+  ],
+  "excludedField": "The sampler also read a run-status text via a loose selector that matched another node; that field was wrong and is not reported. The final state's Completed is taken from the page after the run (screenshot) and from the projection rule itself (final requires status completed)."
+}

@@ -1,0 +1,14 @@
+{
+  "tree": "candidate (this branch)",
+  "method": "location.reload(), then open each Recent row in turn and read the DOM; Runs created under the unchanged tree and under the candidate alike",
+  "chats": [
+    {"chat": "replay cancel", "terminal": "Cancelled", "assistant": 2, "footers": [false, false], "copy": 0},
+    {"chat": "replay fail", "terminal": "Failed", "assistant": 1, "footers": [false], "copy": 0},
+    {"chat": "replay controlled", "terminal": "Completed", "assistant": 3, "footers": [false, false, true], "copy": 1},
+    {"chat": "replay cancel", "terminal": "Cancelled", "assistant": 2, "footers": [false, false], "copy": 0},
+    {"chat": "replay cancel (pace 1500, finished before Stop)", "terminal": "Completed", "assistant": 2, "footers": [false, true], "copy": 1},
+    {"chat": "replay fail", "terminal": "Failed", "assistant": 1, "footers": [false], "copy": 0},
+    {"chat": "replay controlled", "terminal": "Completed", "assistant": 3, "footers": [false, false, true], "copy": 1},
+    {"chat": "/replay dogfood", "terminal": "Completed", "assistant": 5, "footers": [false, false, false, false, true], "copy": 1}
+  ]
+}
