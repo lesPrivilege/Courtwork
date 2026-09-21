@@ -109,4 +109,3 @@ The original sequence remains P03-C Host binding/read first, then D recovery, th
 Adopt the official none-mode function envelope, required-action fields, turn/result event vocabulary, and the 202 acceptance warning as the next contract inputs. Reuse CW's RuntimeStore repository-write and check-receipt patterns rather than importing an external receipt framework. Keep all unverified hosted/self-hosted capabilities unavailable.
 
 The next implementation is ready only after the narrow C contract adds allowlisted repo_read declaration forwarding and the RuntimeStore call/result receipt/migration fields. No claim is made that the current SDK transport or adapter can already execute a governed repo_read end to end.
-
