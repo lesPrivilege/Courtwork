@@ -5,4 +5,3 @@ detached
 worktree /Users/lesprivilege/Projects/Courtwork
 HEAD a3503fb2530a384d3a756de7cb0ccc246f97d3e0
 branch refs/heads/main
-
