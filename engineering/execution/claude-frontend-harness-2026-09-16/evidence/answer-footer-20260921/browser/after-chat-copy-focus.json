@@ -1,0 +1,10 @@
+{
+  "tree": "candidate (this branch)",
+  "surface": "Chat, /replay dogfood after reload",
+  "method": "focus the one Copy response button (the action row is at opacity 1 while focused), click; navigator.clipboard.writeText wrapped to observe its argument",
+  "copiedLength": 1353, "recordedFinalTextLength": 1353,
+  "copiedStartsWith": "Done. Summary of the dogfood run:\\n",
+  "labelAfterClick": "Copied", "labelAfter2s": "Copy response",
+  "focusStayedOnButton": true, "focusAfter2s": true,
+  "footerTime": "2026-09-21T04:35:41.788Z"
+}

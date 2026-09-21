@@ -1,0 +1,11 @@
+{
+  "tree": "af1cfad (unchanged main)",
+  "surface": "Attention",
+  "script": "replay dogfood",
+  "runStatus": "completed",
+  "assistantMessages": 5,
+  "footers": 5,
+  "copyButtons": 5,
+  "perMessageTime": "all five 2026-09-21T04:36:49.692Z (the one Run start)",
+  "firstTexts": ["I'll start by inspecting the workspace materials a", "Diagnosis is clear. Let me confirm the plan with y", "Understood — I'll submit the actual tool calls and", "Write applied — exactly one line changed, test/par", "Done. Summary of the dogfood run:"]
+}

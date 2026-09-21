@@ -259,3 +259,46 @@ Astra accepts PA-R1/PA-R2 with the two minimal Sol adjustments at `b3f3fd7`, ret
 **Acceptance.** Reproduce the current multi-segment counterexample before editing. Actual production rendering must show one footer for pre-tool narration → tool use → final answer, zero completion footers during streaming/tool waiting, and no successful-final implication after failure/cancellation. Preserve event order, Copy's exact final-message target, focus/feedback and reload continuity. Cover both Chat and Attention, using output-message-boundary and chat-actions owners, plus an OpenAI browser pass that compares the existing dogfood transcript and one controlled streaming sequence. A CSS-only hidden footer with duplicate accessible actions does not satisfy the requirement. Record any unclear terminal semantics before inventing them. No full-suite repeat solely for documentation; choose checks through verification.md.
 
 The extra ask_user before Host permission is a separate observation, **deferred to existing Runtime instruction/tool-discovery owner** for a bounded prompt/control-flow assessment. The initial dogfood prompt may have induced it; do not remove ask_user, weaken Host approvals or label it a proven backend defect. The real model repair succeeded after one explicit direction to the actual permission mechanism.
+
+## Completed-answer footer · author delivery, 2026-09-21 (Claude)
+
+One commit on `claude-answer-footer-20260921`, from integrated main `af1cfad`,
+in its own worktree. **Not accepted.** Released for Luna's non-author delta
+review and Astra's integration decision.
+
+**Owner record before the change.** The responsibility is the Run-surface
+footer decision (04 / UX-05, UX-08). Its owner seam is Host events →
+`thread-projection` → the Chat and Attention renderers. The nearest precedents
+are `messageActionRow`/`createChatActions`, and `renderMessageTime` plus the
+user footer in `user-message.mjs`, which already serve both surfaces. No
+cross-layer change was needed: the persisted segment boundaries, stopReason
+and Run status were enough.
+
+**Reproduced first.** The dogfood Run's texts were replayed on the unchanged
+tree through an evidence-only loopback provider. Chat drew 5 footers and
+Attention drew 5, matching the real capture's five `Copy response` controls.
+A footer was already present while the Run waited on ask_user, while a tool
+was outstanding, and under the narration of a failed or cancelled Run.
+
+**The change.** `projectThread` marks one `final` row per Run. That row is the
+last settled, non-empty assistant message with no tool, check, question or
+later output after it, and only when the Run is `completed`. The one footer
+rule is `renderAnswerFooter` in `user-message.mjs`. Both surfaces call it, and
+it builds the actions only when it draws the footer. Every body, row identity,
+tool/permission/check row and the event order are unchanged. Nothing is hidden
+with CSS.
+
+**Measured.** On the same persisted Runs after restart, Chat and Attention each
+show 1 footer, on `Done.`. Across the controlled sequence, there were 0 footers
+at every sampled transition until Completed, then 1. Failed and cancelled Runs
+show 0, and their text is still readable. After reload, every Completed Run has
+exactly one footer. Copy on both surfaces writes exactly the recorded 1,353
+characters, focus stays on the button and the `Copied` feedback expires. The
+real persisted `events.json` is now a projection test.
+
+**Recorded, not invented.** A completed Run that ends in a tool has no footer.
+A `length` stop is treated as final. The last text of a failed or cancelled Run
+loses Copy, which Astra may want back without the timestamp. Packet, checks
+and the list of what was not executed:
+[answer-footer-20260921](evidence/answer-footer-20260921/README.md).
+The ask_user observation stays deferred as ordered.

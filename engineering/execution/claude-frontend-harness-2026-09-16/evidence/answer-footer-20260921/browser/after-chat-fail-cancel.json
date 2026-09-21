@@ -1,0 +1,14 @@
+{
+  "tree": "candidate (this branch)",
+  "surface": "Chat",
+  "cases": [
+    {"script": "replay fail", "page": "error row '400: {\"message\":\"scripted provider refusal\"}' and run status Failed, both unchanged",
+     "assistantMessages": 1, "texts": ["Narration before a tool in a Run that will fail."], "footers": [false], "footerElementsOfAnyKind": 0},
+    {"script": "replay cancel (Stop pressed while the answer was arriving)",
+     "samples": [
+       {"phase": "streaming", "pending": [false, true], "footers": [false, false]},
+       {"phase": "after Stop, page says Cancelled", "pending": [false, true], "texts": ["Narration before a tool in a Run that will be cancelled.", "A partial answer that streams slowly enough to b"], "footers": [false, false], "footerElementsOfAnyKind": 0}
+     ]}
+  ],
+  "note": "Both texts stay readable; neither is presented as a final answer. The partial keeps its existing pending styling; the terminal word comes from the run-status row, not from the message."
+}

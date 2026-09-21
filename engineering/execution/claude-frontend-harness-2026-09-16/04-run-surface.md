@@ -43,3 +43,9 @@ Exceptions: 无
 - 无法从测试导入 app.mjs，footer 门槛与 Stop 三态只有投影级与源码断言，无 DOM 级测试。
 - 问题/批准卡的两面一致性只抽了工具行；question/permission 卡仍各自绘制（Attention 手写版），留 10 片。
 - 用户时间对齐的 390/200%/明暗人目验未做；SSE/long-poll 按原 PR 继续 defer。
+
+## Completed-answer footer correction — 2026-09-21
+
+This record's comparison above said that intermediate narration without a footer, and reply actions only on a real final, had already shipped. **That was wrong.** Both renderers gated the footer on `!row.pending`, so every settled segment got the Run start time and the full action row. The [prepared real dogfood](evidence/prepared-real-dogfood-20260921/README.md) shows five in one Run, and the [open review item in 00](00-intake.md) had already named the defect. The output-message-boundary tests it relied on covered segment boundaries, not the footer.
+
+The owner seam is unchanged: Host events → `thread-projection` → the Chat/Attention renderer. `projectThread` now marks one `final` row per completed Run. `renderAnswerFooter` in `user-message.mjs` is the only footer rule, and both surfaces call it. No row is merged or moved, and no event, schema or action capability changes. Evidence, the terminal semantics that were decided, and the ones left open are in [answer-footer-20260921](evidence/answer-footer-20260921/README.md). Status: author candidate. Luna's delta review and Astra's integration are pending.

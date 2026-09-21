@@ -108,7 +108,7 @@ import {
   decisionWords,
   shortRef,
 } from "./surface-modules.mjs";
-import { renderUserMessage, renderMessageTime } from "./user-message.mjs";
+import { renderUserMessage, renderAnswerFooter } from "./user-message.mjs";
 import { createChatActions, createProductionActionAdapter, restoreChatActionFocus } from "./chat-actions.mjs";
 import { installComposerGrowth, unsupportedPasteNotice } from "./composer-field.mjs";
 import { renderToolRow, toolGlyph, safeText } from "./run-rows.mjs";
@@ -3106,13 +3106,8 @@ function renderMessageStream() {
         row.text,
         sessionScopeKey("assistant", row.id),
       );
-      if (!row.pending) {
-        const footer = element("footer", { className: "assistant-message-actions" });
-        const time = renderMessageTime(row.startedAt, "Run started");
-        if (time) footer.append(time);
-        footer.append(messageActionRow(row, session));
-        wrapper.append(footer);
-      }
+      const footer = renderAnswerFooter(row, () => messageActionRow(row, session));
+      if (footer) wrapper.append(footer);
       appendFlowRow(wrapper);
     } else if (row.kind === "tool") {
       /* WK-47 ablation · the whole row no longer turns red. A failed tool is

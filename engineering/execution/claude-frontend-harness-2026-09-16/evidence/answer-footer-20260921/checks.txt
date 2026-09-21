@@ -1,0 +1,23 @@
+Answer footer · author checks · 2026-09-21 · Node v25.9.0 · tree claude-answer-footer-20260921 over af1cfad
+
+1. New tests against the UNCHANGED product files (app/web reverted to af1cfad, tests kept):
+   node --test tests/output-message-boundary.test.mjs → pass 9, fail 6
+   failing: narration → tool → answer…; persisted real dogfood Run…; no row is final while…;
+            whatever follows the answer…; each Run has its own final answer; the shared footer draws…
+   (the failed/cancelled guard passes on both trees: nothing was marked final before either)
+
+2. Affected owner suites on the candidate:
+   node --test tests/output-message-boundary.test.mjs tests/chat-actions.test.mjs tests/thread-projection.test.mjs \
+     tests/execution-disclosure.test.mjs tests/run-rows.test.mjs tests/attention-agent.test.mjs tests/check-ui.test.mjs \
+     tests/inspector-presentation.test.mjs tests/static-web-manifest.test.mjs tests/entry-audit.test.mjs
+   ℹ tests 64 ℹ pass 64 ℹ fail 0 
+
+3. Lints (repo root): lint-interaction ok · lint-colors ok · lint-materials ok · lint-shapes ok · lint-spacing ok
+   git diff --check ok · tools/check-doc-links.mjs (see final line below)
+
+4. npm --prefix app test (concurrency 4):
+   ℹ tests 1328 ℹ pass 1327 ℹ fail 1 
+   single failure: tests/review-core-client-lifecycle.test.mjs "a request with no response times out, clears pending,
+   and reaps the transport" (2003 ms) — the Core bridge timing flake already recorded under slice 01 in verification.md.
+   File untouched by this change; rerun alone: node --test tests/review-core-client-lifecycle.test.mjs → 13/13.
+   doc links: pass ("documents":1492"checked":8519)

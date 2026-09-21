@@ -1,0 +1,11 @@
+{
+  "tree": "af1cfad (unchanged main)",
+  "surface": "Chat",
+  "script": "replay controlled",
+  "samples": [
+    {"phase": "run waiting_user on ask_user (status 'Waiting for you')", "assistantMessages": 1, "footers": 1},
+    {"phase": "1 s after answering, second narration settled, ws_list pending", "assistantMessages": 2, "footers": [true, true]},
+    {"phase": "Completed", "assistantMessages": 3, "texts": ["Planning: I will list the workspace firs", "Thanks. Listing the workspace now so the", "Final answer: the workspace listing came"], "footers": [true, true, true]}
+  ],
+  "note": "A completion footer (Run start time + Copy/actions) is drawn on narration while the Run is still waiting for the person and while its next tool is outstanding."
+}

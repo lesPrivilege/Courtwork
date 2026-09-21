@@ -1,0 +1,59 @@
+{
+  "tree": "af1cfad (unchanged main)",
+  "surface": "Chat",
+  "cases": [
+    {
+      "script": "replay fail",
+      "runStatus": "Failed",
+      "assistantMessages": 1,
+      "texts": [
+        "Narration before a tool in a Run that wi"
+      ],
+      "footers": [
+        true
+      ],
+      "note": "The only assistant text of a failed Run carries the completed-answer footer."
+    },
+    {
+      "script": "replay cancel (first attempt, answer finished before Stop)",
+      "sample": "mid-stream",
+      "pending": [
+        false,
+        true
+      ],
+      "footers": [
+        true,
+        false
+      ],
+      "note": "While the partial answer is still arriving, the preceding narration already carries a completion footer."
+    },
+    {
+      "script": "replay cancel (pace 3000 ms, Stop pressed mid-answer)",
+      "samples": [
+        {
+          "phase": "streaming",
+          "pending": [
+            false,
+            true
+          ],
+          "footers": [
+            true,
+            false
+          ]
+        },
+        {
+          "phase": "after Stop, status Cancelled",
+          "pending": [
+            false,
+            true
+          ],
+          "footers": [
+            true,
+            false
+          ],
+          "note": "The cancelled Run's narration keeps the completion footer; the partial answer stays readable with no footer."
+        }
+      ]
+    }
+  ]
+}

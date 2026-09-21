@@ -1,0 +1,18 @@
+{
+  "tree": "af1cfad (unchanged main)",
+  "surface": "Chat",
+  "script": "replay dogfood",
+  "runStatus": "completed",
+  "assistantMessages": 5,
+  "footers": 5,
+  "copyButtons": 5,
+  "times": 5,
+  "perMessage": [
+    {"first": "I'll start by inspecting the workspace materials a", "stopReason": "toolUse", "footer": true, "time": "2026-09-21T04:35:41.788Z"},
+    {"first": "Diagnosis is clear. Let me confirm the plan with y", "stopReason": "toolUse", "footer": true, "time": "2026-09-21T04:35:41.788Z"},
+    {"first": "Understood — I'll submit the actual tool calls and", "stopReason": "toolUse", "footer": true, "time": "2026-09-21T04:35:41.788Z"},
+    {"first": "Write applied — exactly one line changed, test/par", "stopReason": "toolUse", "footer": true, "time": "2026-09-21T04:35:41.788Z"},
+    {"first": "Done. Summary of the dogfood run:", "stopReason": "stop", "footer": true, "time": "2026-09-21T04:35:41.788Z"}
+  ],
+  "note": "Same count as the real transcript's 05-completed.ax.txt (six Copy controls = five assistant footers + the user message). Every footer repeats the single Run start time."
+}
