@@ -393,3 +393,17 @@ test('DRT03 recovery: a root terminal or required action buffered during recover
   assert.equal(seen.filter((o) => o.kind === 'run.settlement').length, 1);
   fixture.closeStream(FIXTURE_SESSION_ID);
 });
+
+test('DRT03 continuation: attachSession re-opens a Host-persisted native session locally and never reaches the transport', async () => {
+  const fixture = createNativeFixture();
+  const adapter = createAgentsApiRuntimeAdapter({ transport: fixture.transport });
+  const identity = { sessionId: 'cw-sess-attach', runId: 'cw-run-2' };
+  assert.throws(() => adapter.attachSession({ identity, nativeSessionId: '' }), { code: 'native_session_required' });
+  assert.throws(() => adapter.attachSession({ nativeSessionId: FIXTURE_SESSION_ID }), { code: 'identity_required' });
+  const { binding } = adapter.attachSession({ identity, nativeSessionId: FIXTURE_SESSION_ID });
+  assert.deepEqual([binding.runtimeId, binding.native, binding.internal], ['agents-api', { sessionId: FIXTURE_SESSION_ID }, identity]);
+  assert.equal(adapter.attachSession({ identity: { ...identity, runId: 'cw-run-3' }, nativeSessionId: FIXTURE_SESSION_ID }).binding, binding, 'an open state is returned as it is');
+  assert.deepEqual(fixture.calls, [], 'attaching sends nothing and looks nothing up');
+  adapter.close(binding);
+  assert.throws(() => adapter.settle(binding), { code: 'unknown_binding' });
+});

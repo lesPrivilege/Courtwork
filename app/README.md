@@ -90,7 +90,7 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 18 store (see below)
+  runtime-state.json        # schemaVersion 19 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
@@ -115,10 +115,15 @@ task.
 <a id="store-schema-v13-validated-v3v4v5v6v7v8v9v10v11v12-upgrade"></a>
 <a id="store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade"></a>
 <a id="store-schema-v18-validated-v3-v17-upgrade"></a>
-## Store schema (v18, validated v3–v17 upgrade)
+## Store schema (v19, validated v3–v18 upgrade)
 
-`schemaVersion` is `18`. A valid v3 … v17 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v18. Runtime18 adds the
+`schemaVersion` is `19`. A valid v3 … v18 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v19. Runtime19 adds remote
+runtime records beside Pi's unchanged `hostSession={id,path}`: a Session's optional
+`remoteBinding` and bounded `remoteActions` (command intents and native tool-call
+claims), and the `remoteBinding` each Run was admitted against; a v18 store gains them
+null/empty and nothing else changes in that step (`tests/schema19-upgrade.test.mjs`).
+No remote runtime is selectable or exposed by this schema. Runtime18 adds the
 `operations` ledger (manual compaction as an operation that excludes Runs while it
 runs and is recorded `unknown` after a restart); a v17 store gains it empty and
 nothing else changes in that step (`tests/schema18-upgrade.test.mjs`). Runtime17 adds per-Session private Git candidate state, candidate command receipts and durable write-effect records; Runs freeze the candidate identity/revision. Runtime16 adds per-Session external repository binding state and per-Run source binding snapshots; historical Sessions migrate to no external binding while managed workspaces remain intact. Runtime15 adds stable Spark assignment, attempt and mount state. Runtime14 adds ordinary `unassigned` Chat scope, distinct from global Attention; v13→v14 preserves existing scope, model capabilities, verification receipts and configuration epoch exactly. See [optional workspace chats](docs/projectless-chat.md). Runtime13 adds exact `reasoningEfforts: null | string[]` to connection models; legacy booleans remain unchanged and never create a ladder. A v12 upgrade increments `providerConfigVersion` and retains historical verification receipts, making those receipts stale through their existing binding. New Runs freeze `reasoningBinding` (capability source, adapter and config version); new verification receipts record their single-turn, no-tools, omitted-parameter coverage. `GET /provider-config` and `/provider-models` expose `version`; `PUT /provider-config` requires top-level `expectedVersion` and returns `409 config_conflict` for stale saves. Provider default omits reasoning parameters; explicit values are validated by the Host. Runtime12 (WO-PV-BE03) adds two top-level fields and one connection-model field: `providerConfigVersion` (a monotonic counter, bumped by any `providerConfig` or `providerConnections` write) and `providerVerifications` (one BE-39 verify receipt per connection id, bound to `{providerConfigVersion, credentialGeneration}` — either changing invalidates it); each connection model entry gains `reasoning: true | false | null` (PV-61), defaulting to `null` (never declared) on upgrade. Runtime11 adds durable pending configuration markers; v10 connections and v9 lineage are preserved. Older schemas receive the Provider Connections ledger; v3–8 runs receive a null predecessor. [Run attempts and lineage](docs/run-attempts.md) adds one immutable `supersedes` link per Run. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with

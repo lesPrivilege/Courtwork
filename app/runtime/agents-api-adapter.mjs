@@ -651,6 +651,31 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
       return { binding, native };
     },
 
+    /** Re-open adapter state for a native session the Host already bound
+     * durably (a later Run, or the same Run after a Host restart). Local
+     * only: nothing is sent, nothing is looked up, and the id is the Host's
+     * persisted one — never a guess. An open state is returned as it is. */
+    attachSession({ identity, nativeSessionId } = {}) {
+      if (!identity || typeof identity.sessionId !== 'string' || !identity.sessionId
+        || typeof identity.runId !== 'string' || !identity.runId) {
+        throw fail('identity_required', 'CW sessionId and runId are required');
+      }
+      requireString(nativeSessionId, 'native_session_required');
+      const open = states.get(nativeSessionId);
+      if (open && !open.closed) return { binding: open.binding };
+      const binding = {
+        runtimeId: 'agents-api',
+        internal: { sessionId: identity.sessionId, runId: identity.runId },
+        native: { sessionId: nativeSessionId },
+        protocol: { betaHeader: 'agents=v1', docsRevision: AGENTS_API_PROTOCOL.docsRevision },
+      };
+      states.set(nativeSessionId, {
+        binding, ledger: createEventLedger(), tracker: createSettlementTracker(),
+        handle: null, closed: false, buffering: false,
+      });
+      return { binding };
+    },
+
     async submitInput(binding, { text, requestId, signal } = {}) {
       const state = stateOf(binding);
       requireString(text, 'input_required');

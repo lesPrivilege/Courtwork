@@ -261,8 +261,8 @@ function routeService(service, req, url) {
   return undefined;
 }
 
-export async function startServer({ dataDir, host = "127.0.0.1", port = 0, extensionCatalog = catalog, fakeResponder = null, responder = null, budget, compaction, asyncTaskAdapters = [], logger = (line) => console.log(line) } = {}) {
-  const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, asyncTaskAdapters, logger });
+export async function startServer({ dataDir, host = "127.0.0.1", port = 0, extensionCatalog = catalog, fakeResponder = null, responder = null, budget, compaction, asyncTaskAdapters = [], runtimePort, logger = (line) => console.log(line) } = {}) {
+  const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, asyncTaskAdapters, runtimePort, logger });
   const { service } = runtime;
   let server;
   let closing = false;

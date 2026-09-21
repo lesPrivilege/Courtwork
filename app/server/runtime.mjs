@@ -29,9 +29,12 @@ function stripInheritedProviderEnv(logger) {
 /** One local runtime owner, independent of HTTP and the frontend. Future
  * orchestration calls service commands; it does not become a store/JSONL writer.
  * extensionCatalog is the composition seam for trusted domain adapters.
+ * runtimePort is the one Runtime Port this Host serves Runs with: Pi unless a
+ * caller injects another factory. Nothing selects a runtime from a model name,
+ * and an injected runtime is never replaced by Pi when it cannot do something.
  */
 export async function createRuntime({ dataDir, extensionCatalog = [], fakeResponder = null, responder = null,
-  budget, compaction, asyncTaskAdapters = [], logger = () => {} } = {}) {
+  budget, compaction, asyncTaskAdapters = [], runtimePort = createPiRuntimePort, logger = () => {} } = {}) {
   if (typeof dataDir !== "string" || !dataDir.trim()) throw new TypeError("dataDir is required");
   dataDir = path.resolve(dataDir);
   const removedEnvVars = stripInheritedProviderEnv(logger);
@@ -44,7 +47,7 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
     const modelRuntime = await createIsolatedModelRuntime();
     registry = new ExtensionRegistry({ catalog: extensionCatalog, dataDir, store, workCore: workCore.client });
     await registry.initialize();
-    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, runtimePort: createPiRuntimePort({ dataDir, modelRuntime }), budget, compaction, asyncTaskAdapters, logger });
+    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, runtimePort: runtimePort({ dataDir, modelRuntime }), budget, compaction, asyncTaskAdapters, logger });
     await service.initialize();
     let closePromise;
     return {

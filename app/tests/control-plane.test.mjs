@@ -186,13 +186,13 @@ test('compatibility: valid schema 3 upgrades with exact backup and schema 6 fenc
   const session = await h.createSession();
   await h.runtime.close();
   const file = path.join(h.dataDir, 'runtime-state.json');
-  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3; delete old.operations; delete old.subagents; delete old.asyncTasks; delete old.coordination; delete old.providerConnections; delete old.providerConfigurationPending; delete old.providerConfigVersion; delete old.providerVerifications; old.sessions.forEach(session => { delete session.scope; delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); old.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; });
+  const old = JSON.parse(await readFile(file, 'utf8')); old.schemaVersion = 3; delete old.operations; old.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; }); old.runs.forEach(run => { delete run.remoteBinding; }); delete old.subagents; delete old.asyncTasks; delete old.coordination; delete old.providerConnections; delete old.providerConfigurationPending; delete old.providerConfigVersion; delete old.providerVerifications; old.sessions.forEach(session => { delete session.scope; delete session.repositoryBinding; delete session.repositoryBindingRevision; delete session.repositoryBindingCommands; delete session.repositoryCandidate; delete session.repositoryCandidateRevision; delete session.repositoryCandidateCommands; delete session.repositoryWriteEffects; }); old.runs.forEach(run => { delete run.repositoryBindingSnapshot; delete run.repositoryCandidateSnapshot; });
   const original = JSON.stringify(old);
   await writeFile(file, original);
   const next = await reopen(h.dataDir);
   try {
     const state = JSON.parse(await readFile(file, 'utf8'));
-    assert.equal(state.schemaVersion, 18);
+    assert.equal(state.schemaVersion, 19);
     assert.equal(next.runtime.store.getSession(session.id).id, session.id);
     const backups = (await readdir(h.dataDir)).filter(name => name.startsWith('runtime-state.schema3.'));
     assert.equal(backups.length, 1);

@@ -25,7 +25,7 @@ test("schema13 upgrade preserves every schema11 pending operation, including mis
     const statePath = path.join(dataDir, "runtime-state.json");
     await writeFile(statePath, original);
     store = await new RuntimeStore({ dataDir }).open();
-    assert.equal(store.snapshot().schemaVersion, 18);
+    assert.equal(store.snapshot().schemaVersion, 19);
     assert.deepEqual(store.getProviderConfigurationPending(), pending, "upgrade cannot waive recovery obligations");
     assert.equal(store.getProviderConfigVersion(), 0);
     assert.deepEqual(store.snapshot().providerVerifications, []);

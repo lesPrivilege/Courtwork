@@ -353,3 +353,24 @@ test('a mutation is attempted once: refusal, timeout and a lost reply never beco
     await wire.close();
   }
 });
+
+test('an allowlisted function declaration reaches the wire with exactly four keys; every other tool is refused before the wire', async () => {
+  const { wire, transport } = await harness();
+  try {
+    wire.respond(() => wire.json(200, native()));
+    const parameters = { type: 'object', required: ['path'], additionalProperties: false, properties: { path: { type: 'string', minLength: 1, maxLength: 1000 } } };
+    const declaration = { type: 'function', name: 'repo_read', description: 'Read a file.', parameters, defer_loading: true, strict: true, execute: 'never serialized' };
+    await transport.createSession({ agent: { model: 'gpt-synthetic', tools: [declaration] }, environment: { type: 'none' }, input: 'go' });
+    assert.deepEqual(posts(wire)[0].body.agent, { model: 'gpt-synthetic', tools: [{ type: 'function', name: 'repo_read', description: 'Read a file.', parameters }] });
+
+    const refused = [
+      [{ type: 'tool_search' }], [{ ...declaration, name: 'shell' }], [{ ...declaration, type: 'mcp' }], [declaration, declaration],
+      [{ ...declaration, parameters: { type: 'string' } }], [{ ...declaration, description: '' }], [], 'repo_read',
+    ];
+    for (const tools of refused) {
+      await assert.rejects(transport.createSession({ agent: { model: 'gpt-synthetic', tools }, environment: { type: 'none' }, input: 'go' }),
+        error => error instanceof AgentsTransportError && error.code === 'invalid_request' && error.delivery === 'not_sent');
+    }
+    assert.equal(posts(wire).length, 1, 'no refused declaration produced a request');
+  } finally { await wire.close(); }
+});

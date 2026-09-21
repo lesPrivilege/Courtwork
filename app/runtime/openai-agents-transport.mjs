@@ -20,7 +20,13 @@ import { AGENTS_API_PROTOCOL } from "./agents-api-adapter.mjs";
  *   tool results and cancel too, with no guarantee claimed for them.
  * - The SDK retries POSTs by default (HTTP 408/409/429/5xx and connection
  *   failures). Every call here is made with `maxRetries: 0`.
+ * - `sessions.create` carries application function tools as `agent.tools`
+ *   entries of `{type:"function",name,description,parameters}`. Only the
+ *   names in AGENTS_TRANSPORT_FUNCTION_TOOLS are forwarded, and only those
+ *   four keys; `defer_loading`, `tool_search` and every other tool type stay
+ *   off the wire.
  */
+export const AGENTS_TRANSPORT_FUNCTION_TOOLS = Object.freeze(["repo_read"]);
 export const AGENTS_TRANSPORT_REQUEST_IDENTITY = Object.freeze({
   create: Object.freeze({ wire: null, guarantee: "none" }),
   message: Object.freeze({ wire: "Idempotency-Key", guarantee: "documented by the SDK for submitted messages" }),
@@ -94,6 +100,23 @@ function invalid(operation, message) {
   return new AgentsTransportError("invalid_request", operation, message, { delivery: "not_sent" });
 }
 
+/** The allowlisted function declarations of a creation request, rebuilt key
+ * by key so nothing the caller attached rides along. */
+function functionTools(tools) {
+  if (tools === undefined || tools === null) return null;
+  if (!Array.isArray(tools) || !tools.length) throw invalid("createSession", "agent.tools must be a non-empty array when supplied");
+  const names = new Set();
+  return tools.map((tool) => {
+    const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+    if (!isRecord(tool) || tool.type !== "function" || !AGENTS_TRANSPORT_FUNCTION_TOOLS.includes(tool.name) || names.has(tool.name)
+      || typeof tool.description !== "string" || !tool.description || !isRecord(tool.parameters) || tool.parameters.type !== "object") {
+      throw invalid("createSession", "agent.tools may only declare the allowlisted application functions");
+    }
+    names.add(tool.name);
+    return { type: "function", name: tool.name, description: tool.description, parameters: structuredClone(tool.parameters) };
+  });
+}
+
 function requireSessionId(operation, sessionId) {
   if (typeof sessionId !== "string" || !SAFE_TOKEN.test(sessionId)) throw invalid(operation, "a native session id is required");
 }
@@ -151,7 +174,8 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
       const hasModel = typeof agent?.model === "string" && agent.model;
       const hasAgentId = typeof agent?.id === "string" && agent.id;
       if (!hasModel && !hasAgentId) throw invalid("createSession", "agent.model or agent.id is required");
-      const inline = { ...(hasModel ? { model: agent.model } : {}), ...(typeof agent.instructions === "string" ? { instructions: agent.instructions } : {}) };
+      const tools = functionTools(agent.tools);
+      const inline = { ...(hasModel ? { model: agent.model } : {}), ...(typeof agent.instructions === "string" ? { instructions: agent.instructions } : {}), ...(tools ? { tools } : {}) };
       const body = {
         environment: { type: "none" }, input, stream: false,
         ...(hasAgentId ? { agent_id: agent.id } : {}),
