@@ -4,7 +4,7 @@
 
 [Parent disposition and M1 lease](design/grammar-convergence-20260921/disposition-20260922.md) consume the completed fresh Astra [read-only audit](design/grammar-convergence-20260921/audit/01a0c497-69ec-7ea1-9706-1f6ffaccdd07/README.md). Its32 files and8 screenshot hashes were preserved/verified. Reader stack weight is inherited, fine-pointer narrow target differences require scoped owner mapping rather than an automaticAA failure, and Chat/Attention need no appearance migration from this sample.
 
-Task **GUI Grammar Convergence · 只读审计**, `01a0c497-69ec-7ea1-9706-1f6ffaccdd07`, receives one usable M1 lease: Sol may modify runtime-management-view.mjs and necessary focused tests to scope existing block-gap tokens to Runtime detail only, with Astra visual checks and Luna verification. Global styles.css, Preview/reader, app.mjs, controllers and canonical rules remain excluded. Parent Arch keeps final selection/acceptance/merge;06d keeps PV-R1 and its own target follow-up. M1 is authorized, not implemented or accepted by this entry.
+Task **GUI Grammar Convergence · 只读审计**, `01a0c497-69ec-7ea1-9706-1f6ffaccdd07`, receives one usable M1 lease: Sol may modify runtime-management-view.mjs and necessary focused tests to scope existing block-gap tokens to Runtime detail only, with Astra visual checks and Luna verification. Global styles.css, Preview/reader, app.mjs, controllers and canonical rules remain excluded. Parent Arch keeps final selection/acceptance/merge;06d keeps PV-R1 and its own target follow-up. The same task has received the M1 follow-up and reports active/inProgress; this is dispatch evidence, not completed implementation or acceptance.
 
 
 ## 2026-09-22 · 06d A accepted; tabbed Preview B has one lifecycle return
