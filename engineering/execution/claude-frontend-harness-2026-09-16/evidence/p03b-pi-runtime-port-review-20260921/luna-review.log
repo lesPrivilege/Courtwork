@@ -1,0 +1,85 @@
+✔ answer admission race: ask_user queued behind cancel returns 409 (700.949042ms)
+✔ answer admission race: permission queued behind cancel returns 409 (303.785ms)
+✔ normal ask_user answer still resolves and completes the run (672.331458ms)
+✔ double permission answer records one decision and rejects the other (1030.047208ms)
+✔ independent recovery: SIGKILL at async_intent keeps one original task/run and never relaunches (1521.454792ms)
+✔ independent recovery: SIGKILL at async_dispatch keeps one original task/run and never relaunches (1330.878292ms)
+✔ independent recovery: SIGKILL at async_result keeps one original task/run and never relaunches (1765.580458ms)
+✔ independent recovery: SIGKILL at async_delivery keeps one original task/run and never relaunches (2428.619833ms)
+✔ fixed old main schema4 RuntimeStore rejects a schema17 state without changing bytes (1389.155334ms)
+✔ schema3 and schema4 migrate with an exact independent backup and reopen (1176.956958ms)
+✔ invalid UTF-8 schema4 input is refused before migration and its bytes remain untouched (133.200208ms)
+✔ T-CANCEL-2: cancelling while waiting for the first token yields stopping then cancelled (398.677417ms)
+✔ T-CANCEL-3: cancelling during ask_user closes the question and refuses a late answer (322.597333ms)
+✔ T-CANCEL-4: a late allow after cancelling a permission is refused and writes nothing (492.821667ms)
+✔ T-CANCEL-5: cancelling a run that is not in this process reports unknown, not cancelled (189.140375ms)
+✔ T-PERM-6: concurrent allow and deny on one permission — first wins, second is 409 (617.80725ms)
+✔ T-PERM-7: read_only makes ws_write absent, not present-and-refused (193.987041ms)
+✔ native compaction cancel settles with no persisted partial summary (372.538708ms)
+✔ native compaction deadline settles with no persisted partial summary (551.321875ms)
+✔ native overflow recovery persists a summary and a restarted host uses it (763.913375ms)
+✔ automatic threshold persists a summary and sends it in the next request (654.460541ms)
+✔ provider-default omits SDK-generated reasoning controls on ordinary and compaction requests (284.638625ms)
+✔ failed summary leaves the journal unchanged and marks run usage missing (1001.891875ms)
+✔ native summary retry succeeds but usage stays missing and counts only reported values (2268.3375ms)
+✔ maxCompactions disables later automatic summaries while the ordinary turn completes (501.305875ms)
+✔ real service/Pi recorded write, permission CAS, save, human accept, deletion and producer-absent exact reads (1177.149542ms)
+✔ extra workspace reads and continued history yield unknown; an unrecorded selector never imports (848.833708ms)
+✔ actual list/grep/ask/load inputs, continued history and compaction-enabled admission remain unknown (5767.262583ms)
+✔ steering, failed coverage persistence, and Stop racing immutable capture cannot publish a complete candidate (3133.771125ms)
+✔ missing or corrupt history rejects recorded import even though current workspace bytes still exist (1086.152292ms)
+✔ a real loopback MCP tool executes only after its extra-input marker is durable (1006.026375ms)
+✔ SIGKILL after history or rename leaves an orphan version that no later Run may import (4520.916333ms)
+✔ extension restart: loaded binding continues; invalidation and unload keep their generations (1396.30225ms)
+✔ extension restart: changed version requires reload; empty composition preserves dormant records (258.818291ms)
+✔ CMP-01 · a manual compaction on an idle chat writes one summary through the SDK, records estimate and usage apart, and the next Run reads the compacted journal (1618.452541ms)
+✔ CMP-01 · refusals are explicit: active Run (not queued, not aborted), a second compaction, no history, unknown keys; and a compaction freezes configuration (1507.613667ms)
+✔ CMP-01 · cancel and deadline settle without a partial summary; a restart marks an in-flight compaction unknown and the same requestId reads it back (1017.030542ms)
+✔ the production Host runs Pi through the port and continues one native session (633.816375ms)
+✔ a journal written before the port existed is opened in place and continued (178.117292ms)
+✔ retrying a command never opens a second native session (331.92525ms)
+✔ observations that arrive after cancellation are not recorded (417.868167ms)
+✔ an operation the runtime does not support is refused, not rerouted (326.386959ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.09825ms)
+✔ PV-59 · 目录连接 PUT 只接受 models；api/baseUrl/apiKey 出现即 400 (152.214833ms)
+✔ PV-59 · 追加的模型 id 不得与已装目录冲突 (156.528416ms)
+✔ PV-59 · 目录连接加一个不在已装目录的模型：可保存、可选为生效、run 发起门放行；删掉后 run 发起门 503；原生模型仍可解析 (598.512584ms)
+✔ reasoning capability · legacy 与显式声明保留，但不越过 fixture 无 reasoning 协议 (126.079792ms)
+✔ PV-62/PV-84 · verify 四类 fixture 结果：成功 ok、401→authentication_failed、未知模型→http_error、不可达→unreachable，且不冒充精度 (250.690167ms)
+✔ PV-62 · verify 的三道门：模型不可准入 400、连接无凭据 400、活动 run 期间 409 (1342.408958ms)
+✔ PV-42 · 回执绑定失配返回 null；重启后额外模型与回执可用 (563.16575ms)
+✔ T-CRED-VERIFY · fixture 除外：fake 连接的 verify 不要求预先配置凭据；兼容连接仍要求，且不读 HOME/.pi 与环境变量 (194.234625ms)
+✔ same Matter in new Session, project isolation, detach to chat, producer absent restart history (1369.366583ms)
+✔ provider provenance is host-derived and preserves prior simulation records (real-route protocol uses loopback fixture) (992.950167ms)
+✔ concurrent Session admission is serialized before either execution starts (1009.957ms)
+✔ Core SIGKILL before commit / after commit before ACK, followed by HTTP receipt reconciliation and continuation (1871.235917ms)
+ℹ {"stage":"before_commit","signal":"SIGKILL","receiptBeforeRetry":null,"artifactBeforeRetry":null,"afterRetry":{"candidate_hash":"9aeb06f9d841b76d81b601c3d5b07f48c2e97cb995840d9d49913b2e2d31fcbf","candidate_id":"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d-1"},"durable":{"work":{"id":"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f","version":1,"contract_version":"se-contract-v5.0","source_version":1,"active_artifact":"artifact-candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d-1","obligations_json":"[{\"blocking\":false,\"evidence_refs\":[],\"id\":\"follow-up\",\"status\":\"open\",\"text\":\"Confirm the owner\"}]"},"artifact":{"id":"artifact-candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d-1","candidate_id":"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d","candidate_hash":"9aeb06f9d841b76d81b601c3d5b07f48c2e97cb995840d9d49913b2e2d31fcbf","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca"},"decisions":[{"request_id":"crash-request","matter_id":"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f","candidate_id":"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d","action":"accept","reason":"Synthetic review","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d\",\"matter_id\":\"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f\",\"run_id\":\"ba4339fd-ad5d-471f-a3c2-25a957a52f6f\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d-1\",\"candidate_id\":\"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d\",\"matter_id\":\"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f\",\"request_id\":\"crash-request\",\"version\":1}"}],"audits":[{"id":1,"request_id":"crash-request","matter_id":"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f","candidate_id":"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d","action":"accept","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d\",\"matter_id\":\"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f\",\"run_id\":\"ba4339fd-ad5d-471f-a3c2-25a957a52f6f\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d-1\",\"candidate_id\":\"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d\",\"matter_id\":\"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f\",\"request_id\":\"crash-request\",\"version\":1}"}],"receipts":[{"request_id":"crash-request","request_hash":"c599fb77e711414401a17f4f2a9ae018ad613c6859b85ad6f9b044f4d8076ed0","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d-1\",\"candidate_id\":\"candidate-4c14b90f7e39e327fb9024eec4e86c2ffe2acd06eca1b1b49b8cb9a98857e07d\",\"matter_id\":\"matter-9fec58a7-5fb5-40fc-85f4-a61eea82460f\",\"request_id\":\"crash-request\",\"version\":1}"}]},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"34382992bf0cf92d2eddad38aefae99d67ced9b05ab632db10177ef95e2bebd7","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+ℹ {"stage":"after_commit_before_ack","signal":"SIGKILL","receiptBeforeRetry":{"action":"accept","active_artifact":"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1","candidate_id":"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd","matter_id":"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44","request_id":"crash-request","version":1},"artifactBeforeRetry":{"candidate_hash":"d24dde26b4a6bfdb658ec9a644fca30e4becd6fe1b878ffccde6a726306beae0","candidate_id":"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1"},"afterRetry":{"candidate_hash":"d24dde26b4a6bfdb658ec9a644fca30e4becd6fe1b878ffccde6a726306beae0","candidate_id":"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca","id":"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1"},"durable":{"work":{"id":"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44","version":1,"contract_version":"se-contract-v5.0","source_version":1,"active_artifact":"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1","obligations_json":"[{\"blocking\":false,\"evidence_refs\":[],\"id\":\"follow-up\",\"status\":\"open\",\"text\":\"Confirm the owner\"}]"},"artifact":{"id":"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1","candidate_id":"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd","candidate_hash":"d24dde26b4a6bfdb658ec9a644fca30e4becd6fe1b878ffccde6a726306beae0","content":"Synthetic artifact","content_digest":"39e1e275ef10883426ac72410d1124562e9810a8938310b9db3608b7385515ca"},"decisions":[{"request_id":"crash-request","matter_id":"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44","candidate_id":"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd","action":"accept","reason":"Synthetic review","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd\",\"matter_id\":\"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44\",\"run_id\":\"201bae7d-39e9-4554-9c8a-b66bfa30765f\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1\",\"candidate_id\":\"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd\",\"matter_id\":\"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44\",\"request_id\":\"crash-request\",\"version\":1}"}],"audits":[{"id":1,"request_id":"crash-request","matter_id":"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44","candidate_id":"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd","action":"accept","actor_json":"{\"id\":\"reviewer-1\",\"kind\":\"local_reviewer\"}","scope_json":"{\"base_version\":0,\"candidate_id\":\"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd\",\"matter_id\":\"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44\",\"run_id\":\"201bae7d-39e9-4554-9c8a-b66bfa30765f\"}","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1\",\"candidate_id\":\"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd\",\"matter_id\":\"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44\",\"request_id\":\"crash-request\",\"version\":1}"}],"receipts":[{"request_id":"crash-request","request_hash":"ad2dd090f31d60b0cb40f870d50d995a992de65b5a5cddbdd0a1b879e2aede9b","result_json":"{\"action\":\"accept\",\"active_artifact\":\"artifact-candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd-1\",\"candidate_id\":\"candidate-9de9842bbd92d530720397a01cd422a6b204a5ae3b31c60f5a9e4974795e1ecd\",\"matter_id\":\"matter-84dc5d23-80b2-46a8-b31a-0c3b00a68c44\",\"request_id\":\"crash-request\",\"version\":1}"}]},"obligations":[{"blocking":false,"evidence_refs":[],"id":"follow-up","status":"open","text":"Confirm the owner"}],"continued":{"candidate_hash":"9afb98ea011f2a8a09472a13bb184f8282f5c537a81923eceb68350a6c6ce693","candidate_id":"continued","content":"Continued after recovery","content_digest":"424b1590fcf0bdf9e2bf2b4b6617e165c9f4e12885c7839198500fefaf5faeae","id":"artifact-continued-2"}}
+✔ HTTP stale source refusal, producer unload/read-only/reload and legal revised completion (655.897583ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 37784.408959
+
+--- Independent verification rerun ---
+Tree: /Users/lesprivilege/Projects/.worktrees/courtwork-pi-runtime-port-20260921
+HEAD: c2be5945b2a8eecd3e5213c0a345b7b1d00e2943
+Base: 172118a
+
+Command 1:
+node --test tests/pi-runtime-port.test.mjs
+Exit: 0
+Result: 6 tests, 6 pass, 0 fail.
+
+Command 2:
+node --test tests/pi-runtime-port.test.mjs tests/answer-admission-race.test.mjs tests/provider-open-admission.test.mjs tests/cancel.test.mjs tests/execution-file-continuity.test.mjs tests/work-continuity.test.mjs tests/work-http-recovery.test.mjs tests/async-recovery-independent.test.mjs tests/extension-restart.test.mjs tests/compaction-runtime.test.mjs tests/compaction-lifecycle.test.mjs tests/manual-compaction.test.mjs
+Exit: 0
+Result: 56 tests, 56 pass, 0 fail, duration 36.084s.
+
+Source checks:
+git diff --check 172118a..HEAD -> exit 0
+worktree status -> clean

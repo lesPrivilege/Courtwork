@@ -84,3 +84,7 @@ Check for the exit sentence, from `app/`: `grep -n 'SessionManager\|pi-coding-ag
 ## Writer release
 
 One commit on `claude-pi-runtime-port-20260921`; tree clean after it. The writer is released: `app/server/service.mjs`, `app/server/runtime.mjs`, `app/runtime/pi-runtime-port.mjs` and the two test files are free for Codex's verification and integration. Not pushed, not merged; `engineering/current.md` and shared acceptance summaries not edited.
+
+## Astra disposition — 2026-09-21
+
+**Adopt P03-B.** Source `c2be594` is independently verified and merged as `e2eaf6d`. [Acceptance/evidence](evidence/p03b-pi-runtime-port-review-20260921/README.md) records Luna 6/6 and 56/56 (overlapping), Astra full 1326/1326 exit 0 and actual-main runtime smoke exit 0. [D1–D5 decisions](evidence/p03b-pi-runtime-port-review-20260921/architecture-disposition.md): adopt all within this finite slice; internal steering is not public route support, observation unification belongs to C, and Provider coupling remains explicit. Sonnet's budget overrun is recorded as a deviation. Author failure history is retained, not retrospectively explained by later green runs. No second runtime or P03-C–F acceptance.

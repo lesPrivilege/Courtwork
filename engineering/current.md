@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-21 · P03-B Pi Runtime Port independently accepted
+
+[Independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md) integrates source `c2be594` as main `e2eaf6d`: Luna 56/56 including the six new port tests, Astra full suite 1326/1326 exit 0, actual-main runtime smoke exit 0. Host admission/status/governance remain authoritative; Pi journal/execution is behind an explicitly injected port. D1–D5 are disposed of within this slice; Provider coupling and P03-C–F remain with their original owners. The writer is released; preservation cleanup is integration work. Composer working-location remains the next frontend assignment, not started here. User 8787/8899 remain on their original processes; no real provider, browser pass, push/deploy or heartbeat activation.
+
 ## 2026-09-21 · Answer footer accepted; working-location entry next
 
 [Independent footer acceptance](execution/claude-frontend-harness-2026-09-16/evidence/answer-footer-review-20260921/README.md) integrates `17f57c0` as main `2c23272`: Luna 64/64, OpenAI browser Chat/Attention final-only footers, cancellation/failure retention, exact Copy and reload. Author full-suite 1327/1328 and accessibility limits stay explicit. [Next finite 06b task](execution/claude-frontend-harness-2026-09-16/evidence/composer-entry-review-20260921/README.md) consolidates the visible working-location entry and adjusts context-band proportions, preserving Project/Folder/permission contracts. It precedes Runtime management; registration is not implementation. The ended footer tree is archived with physical file/Git restoration checks and removed; archive refs/frozen Git dependency remain. The Pi Runtime Port tree is active and preserved. User 8787/8899 untouched; no paid call, push/deploy or heartbeat activation.

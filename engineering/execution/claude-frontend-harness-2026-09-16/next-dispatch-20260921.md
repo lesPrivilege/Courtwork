@@ -69,3 +69,7 @@ Sonnet may prepare a bounded schema proposal for the first read-only repository 
 ## Kept out of this batch
 
 OS-backed key storage/native config migration, executable hooks, additional hosted transport, local Pi/Hermes child workers, swarm and browser/computer-use product support remain with Provider / RD-009 / P03-C–F / RD-005. Their declarations and existing implementations must be consumed when their turn arrives; no green preview or port refactor claims them. Current computer-use testing remains on an OpenAI provider, and new real provider trials need their own bounded test scope rather than automatically sharing this offline author budget.
+
+## 2026-09-21 · Core lane disposition
+
+P03-B source `c2be594` is [independently accepted](evidence/p03b-pi-runtime-port-review-20260921/README.md), merged `e2eaf6d`; the original extraction assignment is complete and must not be dispatched again. The existing C consumer is next in the core plan, with its own transport/access/permission contract and finite assignment before code. No C–F or third service writer starts automatically. Composer working-location remains the next frontend task.
