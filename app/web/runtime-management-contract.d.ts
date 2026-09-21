@@ -174,6 +174,12 @@ export interface CommandRequest {
   configuration?: ConnectionConfiguration;
 }
 
+/** A later `open()` counts as this receipt's read-back only when it agrees
+ * with it: the same runtime id, and either the receipt's revision with the
+ * receipt's connection id, or a later revision (which may legitimately
+ * describe a later connection; the receipt is kept beside it). A reading at
+ * an older revision, or one that disagrees at the same revision, is not a
+ * read-back, however successfully it was transported. */
 export interface CommandReceipt {
   operationId: string;
   runtimeId: string;
@@ -184,13 +190,31 @@ export interface CommandReceipt {
 }
 
 /** The answer to "did my command land?" after a reply was lost. **Proposed**:
- * no command-status lookup exists today. `not-applied` means the owner has no
- * record of the operation id, so nothing changed. */
+ * no command-status lookup exists today.
+ *
+ * - `confirmed`: the operation was applied; its receipt.
+ * - `refused`: the owner refused it; nothing changed.
+ * - `not-applied`: the owner **authoritatively establishes that this
+ *   operation was not applied and can never apply** — for example because it
+ *   closes the operation id, so a request that is only delayed is refused
+ *   when it arrives. Mere absence from a lookup is *not* this answer: lag,
+ *   queueing, expiry, a different replica or an unresolved request cannot
+ *   support "nothing changed", and an adapter must not translate a not-found
+ *   into `not-applied`.
+ * - `pending`: the owner has the operation and it is still being carried out.
+ * - `inconclusive`: the owner cannot say yet (lookup unavailable, record not
+ *   found without a closed id, or any other unresolved case).
+ *
+ * The consumer treats `pending`, `inconclusive` and any unrecognised status
+ * as still unknown: the operation stays unresolved and every conflicting
+ * mutation stays locked. Only `confirmed`, `refused` and `not-applied`
+ * settle it. */
 export type OperationStatus =
   | { status: 'confirmed'; receipt: CommandReceipt }
   | { status: 'not-applied' }
   | { status: 'refused'; code: string; message: string }
-  | { status: 'pending' };
+  | { status: 'pending' }
+  | { status: 'inconclusive' };
 
 /** Settled refusals. A thrown error carrying one of these codes means the
  * owner answered and nothing changed. Any other error — a lost reply, a
@@ -199,7 +223,9 @@ export type SettledRefusalCode =
   | 'runtime_conflict'
   | 'action_unsupported'
   | 'connect_refused'
-  | 'runtime_missing';
+  | 'runtime_missing'
+  /** A command whose id the owner already reported as `not-applied`. */
+  | 'operation_closed';
 
 /** The whole seam. */
 export interface RuntimeManagementAdapter {

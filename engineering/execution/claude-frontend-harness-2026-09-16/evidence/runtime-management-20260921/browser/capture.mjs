@@ -138,6 +138,38 @@ try {
   await step("Check status settles the same operation", { traceAfter: await page.eval(`return globalThis.__runtimeManagementPreview.trace()`) });
   await shot("10-lost-reply-reconciled.png");
 
+  /* ── Return RM-R1: submitted, unknown, newer draft ────────────────── */
+  await scenario("lost-reply");
+  await openRow("rt-hermes");
+  await page.eval(`const i = document.querySelector('[data-testid="connection-label"]'); i.focus(); i.select(); return true;`);
+  await page.send("Input.insertText", { text: "Independent Hermes" });
+  await press("action:connect");
+  await until(`document.querySelector('[data-testid="command-status"]')?.dataset.status === "unknown"`, "rm-r1 unknown");
+  await step("RM-R1 submitted draft, reply lost", { summary: await text("draft-summary"), status: await text("command-status") });
+  await shot("23-rm-r1-submitted-unknown.png");
+  await page.eval(`const i = document.querySelector('[data-testid="connection-label"]'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); return true;`);
+  await page.send("Input.insertText", { text: ", desk" });
+  await page.wait(80);
+  await step("RM-R1 newer input while unknown", { summary: await text("draft-summary") });
+  await shot("24-rm-r1-newer-draft.png");
+  await press("check-status");
+  await until(`/Read back/.test(document.querySelector('[data-testid="command-status"]')?.innerText || "")`, "rm-r1 reconciled");
+  await step("RM-R1 reconciled", { summary: await text("draft-summary"), trace: await page.eval(`return globalThis.__runtimeManagementPreview.trace().filter(t => t.call === "command" || t.call === "status" || t.effect)`) });
+
+  /* ── Return RM-R2: stale read-back, then a current one ────────────── */
+  await scenario("stale-read-back");
+  await openRow("rt-pi");
+  await press("action:disable");
+  await until(`document.querySelector('[data-testid="read-again"]')`, "rm-r2 stale");
+  await step("RM-R2 stale read-back locks changes", {
+    status: await text("command-status"),
+    disabled: await page.eval(`return [...document.querySelectorAll('[data-testid^="action:"]')].map(n => n.dataset.testid + "=" + n.disabled)`),
+  });
+  await shot("25-rm-r2-stale-read-back.png");
+  await press("read-again");
+  await until(`/Read back: revision 4/.test(document.querySelector('[data-testid="command-status"]')?.innerText || "")`, "rm-r2 current");
+  await step("RM-R2 current reading settles it", { status: await text("command-status"), trace: await page.eval(`return globalThis.__runtimeManagementPreview.trace().filter(t => t.call === "command" || t.effect)`) });
+
   await scenario("stale-revision");
   await openRow("rt-pi");
   await page.eval(`const i = document.querySelector('[data-testid="connection-label"]'); i.focus(); i.select(); return true;`);

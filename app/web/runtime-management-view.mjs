@@ -94,6 +94,7 @@ export function createRuntimeManagementView(mount, controller) {
     disable: ["disable", "command-status"],
     enable: ["enable", "command-status"],
     "disconnect-confirm": ["disconnect", "command-status"],
+    "read-again": ["read-again", "command-status"],
     "disconnect-cancel": ["disconnect"],
     "check-status": ["check-status", "command-status"],
     /* Reload settles a conflict: the conflict's region goes, and the notice
@@ -326,7 +327,7 @@ export function createRuntimeManagementView(mount, controller) {
         "status",
         true,
         el("p", {
-          text: "Checked: the host has no record of that command, so nothing changed. Your draft is kept, and you can send it again.",
+          text: "Checked: the host reports that command was not applied and can no longer apply, so it changed nothing. Your draft is kept, and you can send it again as a new command.",
         }),
       );
     /* confirmed */
@@ -339,10 +340,35 @@ export function createRuntimeManagementView(mount, controller) {
         }.`,
       }),
     ];
+    /* A reading is the command's read-back only when it agrees with the
+       receipt (controller `readBackOf`). Until then the receipt stands, the
+       reading on screen is named for what it is, and changes stay locked. */
+    const LOCKED = "It is not taken as this command's result, and changes stay locked until a current reading arrives.";
+    const unsettled = ["stale", "inconsistent", "failed", "deferred"].includes(operation.readBack);
     if (operation.readBack === "reading") lines.push(el("p", { text: "Reading it back…" }));
-    else if (operation.readBack === "failed")
-      lines.push(el("p", { text: "It could not be read back yet. The receipt above stands; reopen this runtime to read it again." }));
-    else if (operation.readBack === "done" && detail) {
+    else if (operation.readBack === "stale" && detail)
+      lines.push(el("p", { text: `The latest reading is revision ${detail.revision}, older than this command's revision ${receipt.revision}. ${LOCKED}` }));
+    else if (operation.readBack === "inconsistent" && detail)
+      lines.push(
+        el("p", {
+          text: `The latest reading (revision ${detail.revision}) does not match this command's receipt: ${
+            detail.id !== receipt.runtimeId
+              ? `it describes ${detail.id}, not ${receipt.runtimeId}`
+              : `it names connection ${detail.connection.connectionId ?? "none"}, not ${receipt.connectionId ?? "none"}`
+          }. ${LOCKED}`,
+        }),
+      );
+    else if (unsettled)
+      lines.push(el("p", { text: `It could not be read back yet. The receipt above stands. ${LOCKED}` }));
+    else if (operation.readBack === "newer" && detail) {
+      const facts = [`Now at revision ${detail.revision}, newer than this command's revision ${receipt.revision}`];
+      if (detail.connection.connectionId) facts.push(`connection ${detail.connection.connectionId}`);
+      lines.push(
+        el("p", {
+          text: `${facts.join(" · ")}. Later changes may have happened since; the receipt above is still this command's. ${detail.admission.effectiveReason}`,
+        }),
+      );
+    } else if (operation.readBack === "done" && detail) {
       const facts = [`Read back: revision ${detail.revision}`];
       if (detail.connection.connectionId) facts.push(`connection ${detail.connection.connectionId}`);
       if (detail.facts.protocol && (kind === "connect" || kind === "reconnect")) facts.push(detail.facts.protocol);
@@ -354,7 +380,17 @@ export function createRuntimeManagementView(mount, controller) {
           }),
         );
     }
-    return region("form-help", "status", true, ...lines);
+    if (unsettled) {
+      const again = el("button", {
+        className: "quiet-button",
+        text: "Read again",
+        attrs: { type: "button", "data-focus-key": "read-again", "data-testid": "read-again" },
+      });
+      again.disabled = page.status === "loading";
+      again.addEventListener("click", () => void controller.readAgain());
+      lines.push(el("div", { className: "runtime-row-actions" }, again));
+    }
+    return region(unsettled ? "runtime-banner" : "form-help", "status", true, ...lines);
   }
 
   function commandButton(kind, { primary = false } = {}) {
@@ -537,18 +573,32 @@ export function createRuntimeManagementView(mount, controller) {
           }),
         );
     } else put(block, ...savedAuthentication(detail));
-    if (page.dirty) {
-      const parts = [`name “${draft.label}”`];
-      const ref = detail.authentication.references.find((entry) => entry.id === draft.credentialRefId);
+    /* Three things that must not be confused: what the owner last confirmed,
+       what was sent and has not been answered, and what has been typed since.
+       Only a draft nobody sent — or one the owner answered — is "not
+       applied"; a submitted one with no answer may already be in effect. */
+    const describe = (config) => {
+      const parts = [`name “${config.label}”`];
+      const ref = detail.authentication.references.find((entry) => entry.id === config.credentialRefId);
       if (detail.authentication.owner === "courtwork") parts.push(ref ? `reference ${ref.label}` : "no reference chosen");
-      put(block,
-        el("p", {
-          className: "runtime-draft-summary",
-          attrs: { "data-testid": "draft-summary" },
-          text: `Requested: ${parts.join("; ")}. Not applied; saved is revision ${detail.revision}.`,
-        }),
-      );
-    }
+      return parts.join("; ");
+    };
+    const operation = state.operations[page.id];
+    const outstanding =
+      operation?.configuration && ["pending", "unknown", "checking"].includes(operation.status) ? operation : null;
+    let summary = null;
+    if (outstanding) {
+      const sent = outstanding.configuration;
+      summary = `Submitted: ${describe(sent)}. ${
+        outstanding.status === "pending"
+          ? "Waiting for the answer."
+          : "It may or may not have been applied; Check status settles it."
+      } Last confirmed: revision ${detail.revision}.`;
+      if (draft.label !== sent.label || draft.credentialRefId !== sent.credentialRefId)
+        summary += ` Your newer edits, not sent: ${describe(draft)}.`;
+    } else if (page.dirty) summary = `Requested: ${describe(draft)}. Not applied; saved is revision ${detail.revision}.`;
+    if (summary)
+      put(block, el("p", { className: "runtime-draft-summary", attrs: { "data-testid": "draft-summary" }, text: summary }));
     const { button, reason } = commandButton(kind, { primary: true });
     const actions = el("div", { className: "runtime-row-actions" }, button);
     if (page.dirty) {

@@ -36,6 +36,7 @@ export const SETTLED_REFUSALS = new Set([
   "action_unsupported",
   "connect_refused",
   "runtime_missing",
+  "operation_closed",
 ]);
 
 export function isSettledRefusal(error) {
@@ -43,6 +44,22 @@ export function isSettledRefusal(error) {
 }
 
 const CONFIGURING = new Set(["connect", "reconnect"]);
+
+/* Read-back states that settle a confirmed command. `done`: the owner's
+ * reading is at the receipt's revision and agrees with it. `newer`: the
+ * reading is at a later revision, which may legitimately describe a later
+ * connection; the receipt is kept beside it. Anything else — `reading`,
+ * `stale` (older than the receipt), `inconsistent` (another runtime, or the
+ * receipt's revision with other connection facts), `failed`, `deferred` —
+ * keeps changes locked. */
+const SETTLED_READ_BACK = new Set(["done", "newer"]);
+
+export function readBackOf(receipt, detail) {
+  if (detail.id !== receipt.runtimeId) return "inconsistent";
+  if (detail.revision < receipt.revision) return "stale";
+  if (detail.revision > receipt.revision) return "newer";
+  return detail.connection.connectionId === receipt.connectionId ? "done" : "inconsistent";
+}
 
 const KIND_WORDS = {
   connect: "connect",
@@ -111,11 +128,14 @@ export function createRuntimeManagementController({
       return `Locked while the command to ${KIND_WORDS[operation.kind]} is in progress.`;
     if (operation.status === "unknown" || operation.status === "checking") return UNKNOWN_OUTCOME_REASON;
     if (operation.status === "conflict") return "Locked until this runtime is reloaded.";
-    /* Between a confirmed reply and its read-back the page still shows the
-       values from before the command; a command composed against them would
-       only be refused as stale. */
+    /* Between a confirmed reply and an adequate owner reading the page still
+       shows values from before the command; a command composed against them
+       would only be refused as stale, or worse, act on a picture that is no
+       longer true. */
     if (operation.status === "confirmed" && operation.readBack === "reading")
       return "Locked while the last result is read back.";
+    if (operation.status === "confirmed" && !SETTLED_READ_BACK.has(operation.readBack))
+      return "Locked until a current reading confirms the last command.";
     return null;
   }
 
@@ -138,10 +158,11 @@ export function createRuntimeManagementController({
     page.dirty = !sameDraft(page.draft, seed);
     if (page.dirty) drafts.set(page.id, clone(page.draft));
     else drafts.delete(page.id);
-    /* A read that is at least as new as a confirmed command is its read-back. */
+    /* Every reading of a runtime with an unsettled confirmed command is
+       measured against that command's receipt; none is taken on trust. */
     const operation = operations.get(page.id);
-    if (operation?.status === "confirmed" && operation.readBack !== "done" && detail.revision >= operation.receipt.revision)
-      operation.readBack = "done";
+    if (operation?.status === "confirmed" && !SETTLED_READ_BACK.has(operation.readBack))
+      operation.readBack = readBackOf(operation.receipt, detail);
   }
 
   async function readPage(id) {
@@ -167,9 +188,11 @@ export function createRuntimeManagementController({
     if (page?.id === id && view === "runtime") {
       operation.readBack = "reading";
       emit();
-      const read = await readPage(id);
+      await readPage(id);
+      /* A successful read has already been measured by `adopt`; only a read
+         that produced nothing leaves "reading" behind. */
       const current = operations.get(id);
-      if (current === operation && current.readBack === "reading") current.readBack = read ? "done" : "failed";
+      if (current === operation && current.readBack === "reading") current.readBack = "failed";
       emit();
       return;
     }
@@ -365,6 +388,11 @@ export function createRuntimeManagementController({
           await settleConfirmed(id, operation, answer.receipt);
           return;
         }
+        /* Only two answers settle the operation without a receipt: the owner
+           refused it, or the owner states it was not applied *and can no
+           longer apply* (the contract's `not-applied`). Still in progress,
+           inconclusive, or anything this page does not recognise leaves it
+           unknown and locked. */
         if (answer.status === "not-applied") {
           operation.status = "not-applied";
           operation.message = "";
@@ -373,13 +401,32 @@ export function createRuntimeManagementController({
           operation.message = answer.message;
         } else {
           operation.status = "unknown";
-          operation.message = "The host reports this command is still being carried out.";
+          operation.message =
+            answer.status === "pending"
+              ? "The host reports this command is still being carried out."
+              : "The host could not yet say whether this command was applied.";
         }
       } catch (error) {
         if (operations.get(id) !== operation) return;
         operation.status = "unknown";
         operation.message = `Could not check yet: ${error.message}`;
       }
+      emit();
+    },
+
+    /** After a confirmed command whose read-back is not yet adequate: read
+     * the owner again. It never resends the command. */
+    async readAgain() {
+      if (!page || page.status === "loading") return;
+      const id = page.id;
+      const operation = operations.get(id);
+      if (operation?.status !== "confirmed" || SETTLED_READ_BACK.has(operation.readBack)) return;
+      operation.readBack = "reading";
+      page.status = "loading";
+      emit();
+      await readPage(id);
+      const current = operations.get(id);
+      if (current === operation && current.readBack === "reading") current.readBack = "failed";
       emit();
     },
 

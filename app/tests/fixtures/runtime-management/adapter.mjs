@@ -18,6 +18,10 @@ export const VARIANTS = [
   "connect-refused",
   "lost-reply",
   "stale-revision",
+  /* The next command lands, and the next reading of that runtime is still the
+     one from before it — a lagging read. Only the reading after that is
+     current. */
+  "stale-read-back",
   "read-only",
 ];
 
@@ -143,6 +147,8 @@ export function createRuntimeManagementFixture({ pause = wait, readDelay = 160, 
   const trace = [];
   let otherWriterPending = false;
   let loseNextReply = false;
+  let staleNextRead = false;
+  let staleSnapshot = null;
 
   const nextInstant = () => INSTANTS[Math.min(instant++, INSTANTS.length - 1)];
   const recordOf = (id) => {
@@ -363,6 +369,8 @@ export function createRuntimeManagementFixture({ pause = wait, readDelay = 160, 
       variant = next;
       otherWriterPending = next === "stale-revision";
       loseNextReply = next === "lost-reply";
+      staleNextRead = next === "stale-read-back";
+      staleSnapshot = null;
     },
     reset() {
       records = SEED.map(copy);
@@ -372,6 +380,8 @@ export function createRuntimeManagementFixture({ pause = wait, readDelay = 160, 
       variant = "normal";
       otherWriterPending = false;
       loseNextReply = false;
+      staleNextRead = false;
+      staleSnapshot = null;
     },
 
     capabilities() {
@@ -391,6 +401,12 @@ export function createRuntimeManagementFixture({ pause = wait, readDelay = 160, 
     async open(id) {
       trace.push({ call: "open", id });
       await pause(readDelay);
+      if (staleSnapshot?.id === id) {
+        const stale = staleSnapshot;
+        staleSnapshot = null;
+        trace.push({ effect: "stale-read", id, revision: stale.revision });
+        return stale;
+      }
       return detailFor(recordOf(id));
     },
 
@@ -437,6 +453,10 @@ export function createRuntimeManagementFixture({ pause = wait, readDelay = 160, 
         if (record.configurationOwner === "courtwork" && ref?.status !== "configured")
           settle("connect_refused", "That credential reference has no key in Models, so nothing was connected.");
       }
+      if (staleNextRead) {
+        staleNextRead = false;
+        staleSnapshot = detailFor(record);
+      }
       apply(record, request);
       const receipt = {
         operationId: request.operationId,
@@ -460,7 +480,20 @@ export function createRuntimeManagementFixture({ pause = wait, readDelay = 160, 
       trace.push({ call: "status", id, operationId });
       await pause(readDelay);
       const known = ledger.get(operationId);
-      if (!known) return { status: "not-applied" };
+      /* `not-applied` is a promise that the operation can never apply, not
+         "no record found". This owner can keep that promise, because every
+         command passes through this ledger: it closes the id here, so a
+         request that was only delayed and arrives later is refused. An owner
+         that cannot close an id must answer `pending` or `inconclusive`. */
+      if (!known) {
+        ledger.set(operationId, {
+          status: "refused",
+          code: "operation_closed",
+          message: "This command was reported as not applied and can no longer apply. Nothing was changed.",
+        });
+        trace.push({ effect: "operation-closed", operationId });
+        return { status: "not-applied" };
+      }
       if (known.status === "confirmed") return { status: "confirmed", receipt: copy(known.receipt) };
       return { status: "refused", code: known.code, message: known.message };
     },

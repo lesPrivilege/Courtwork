@@ -38,7 +38,7 @@ function gated() {
   return { adapter, gates, next: () => gates.shift().resolve() };
 }
 const commands = (adapter) => adapter.trace().filter((entry) => entry.call === "command");
-const effects = (adapter) => adapter.trace().filter((entry) => entry.effect && !["replayed", "reply-lost"].includes(entry.effect));
+const effects = (adapter) => adapter.trace().filter((entry) => entry.effect && !["replayed", "reply-lost", "operation-closed", "stale-read"].includes(entry.effect));
 
 function page(mount) {
   if (!mount.focusModelled) {
@@ -394,9 +394,11 @@ test("an unknown outcome the owner never received settles as not applied and kee
   adapter.command = command;
   await activate("check-status");
   assert.equal($("command-status").getAttribute("data-status"), "not-applied");
-  assert.match($("command-status").textContent, /no record of that command, so nothing changed/);
+  assert.match($("command-status").textContent, /not applied and can no longer apply, so it changed nothing/);
   assert.equal($("connection-label").value, "Hermes, desk");
   assert.equal($("action:connect").disabled, false, "now it can be sent again, as a new operation");
+  await assert.rejects(command.call(adapter, "rt-hermes", { operationId: "op-1", kind: "connect", expectedRevision: 6, configuration: { label: "Hermes, desk", credentialRefId: null } }),
+    (error) => error.code === "operation_closed", "the closed id cannot apply if the lost request turns up later");
   await activate("action:connect");
   assert.equal(controller.getState().operations["rt-hermes"].operationId, "op-2");
   assert.equal(effects(adapter).length, 1);
@@ -598,3 +600,180 @@ test("the preview host serves the fixture page and product assets, and accepts n
     await preview.close();
   }
 });
+
+/* ── Return RM-R1 / RM-R2 / RM-C1 (Astra, 2026-09-21) ─────────────────── */
+
+/* The owner's reading as it was before any command: what a lagging replica or
+   cache could still answer after the command has landed. */
+async function staleOpen(adapter, id) {
+  const snapshot = await adapter.open(id);
+  const open = adapter.open.bind(adapter);
+  const control = { stale: true };
+  adapter.open = async (runtimeId) => (control.stale && runtimeId === id ? structuredClone(snapshot) : open(runtimeId));
+  return control;
+}
+
+test("RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it", () => withTinyDom(async (mount) => {
+  const adapter = fast();
+  const { $, activate, type, settle } = await mounted(mount, adapter, { open: "rt-hermes" });
+  type("connection-label", "Independent Hermes");
+  await settle();
+  adapter.configure("lost-reply");
+  await activate("action:connect");
+  assert.equal($("command-status").getAttribute("data-status"), "unknown");
+  const summary = () => $("draft-summary").textContent;
+  assert.doesNotMatch(summary(), /Not applied/, "the page must not contradict the unknown outcome");
+  assert.match(summary(), /^Submitted: name “Independent Hermes”\. It may or may not have been applied; Check status settles it\. Last confirmed: revision 6\./);
+
+  // Newer input typed while the outcome is still unknown.
+  type("connection-label", "Independent Hermes, desk");
+  await settle();
+  assert.match(summary(), /Submitted: name “Independent Hermes”\. It may or may not have been applied/);
+  assert.match(summary(), /Your newer edits, not sent: name “Independent Hermes, desk”\./);
+  assert.doesNotMatch(summary(), /Not applied/);
+  assert.equal(commands(adapter).length, 1, "nothing was resent");
+
+  await activate("check-status");
+  // The command did land: saved is now the submitted name, and the newer edit is an ordinary local draft.
+  assert.match($("command-status").textContent, /^Preview receipt · Connected\. .*revision 7/);
+  assert.match(summary(), /^Requested: name “Independent Hermes, desk”\. Not applied; saved is revision 7\./);
+  assert.equal(commands(adapter).length, 1);
+}));
+
+test("RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied'", () => withTinyDom(async (mount) => {
+  const { adapter, gates, next } = gated();
+  const ui = await mounted(mount, adapter);
+  next();
+  await ui.settle();
+  await ui.activate("row-action:rt-hermes");
+  next();
+  await ui.settle();
+  ui.type("connection-label", "Hermes, desk");
+  await ui.settle();
+  await ui.activate("action:connect");
+  assert.match(ui.$("draft-summary").textContent, /^Submitted: name “Hermes, desk”\. Waiting for the answer\. Last confirmed: revision 6\./);
+  while (gates.length) { next(); await ui.settle(); }
+}));
+
+test("RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives", () => withTinyDom(async (mount) => {
+  const adapter = fast();
+  const control = await staleOpen(adapter, "rt-hermes");
+  const { $, activate, type, settle, controller, focused } = await mounted(mount, adapter, { open: "rt-hermes" });
+  type("connection-label", "Hermes, desk");
+  await settle();
+  await activate("action:connect");
+  const operation = () => controller.getState().operations["rt-hermes"];
+  assert.equal(operation().status, "confirmed");
+  assert.equal(operation().readBack, "stale", "a successful transport read is not a consistent read-back");
+  assert.equal(controller.getState().page.detail.revision, 6);
+  assert.match($("command-status").textContent, /^Preview receipt · Connected\. The preview confirmed Hermes at revision 7/, "the receipt stands");
+  assert.match($("command-status").textContent, /The latest reading is revision 6, older than this command's revision 7/);
+  assert.equal($("action:connect").disabled, true, "no command against the stale reading");
+  assert.match($("reason:connect").textContent, /Locked until a current reading/);
+  assert.equal(focused(), "command-status", "the keyboard lands on the receipt that holds Read again");
+  assert.equal($("read-again").disabled, false);
+
+  // Reopening through navigation reads again; still stale, still locked.
+  await activate("back");
+  await activate("row-action:rt-hermes");
+  assert.equal(operation().readBack, "stale");
+  assert.equal($("action:connect").disabled, true);
+
+  // A fresh answer settles it. Nothing was resent to get there.
+  control.stale = false;
+  await activate("read-again");
+  assert.equal(operation().readBack, "done");
+  assert.match($("command-status").textContent, /Read back: revision 7 · connection syn-hermes-conn-2/);
+  assert.equal($("action:reconnect").disabled, false);
+  assert.equal(commands(adapter).length, 1);
+}));
+
+test("RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer", () => withTinyDom(async (mount) => {
+  const adapter = fast();
+  const open = adapter.open.bind(adapter);
+  let shape = null;
+  adapter.open = async (id) => { const detail = await open(id); return shape ? shape(detail) : detail; };
+  const { $, activate, type, settle, controller } = await mounted(mount, adapter, { open: "rt-hermes" });
+  type("connection-label", "Hermes, desk");
+  await settle();
+  // Same revision, different connection: not this command's result.
+  shape = (detail) => (detail.revision === 7 ? { ...detail, connection: { ...detail.connection, connectionId: "syn-hermes-conn-9" } } : detail);
+  await activate("action:connect");
+  const operation = () => controller.getState().operations["rt-hermes"];
+  assert.equal(operation().readBack, "inconsistent");
+  assert.match($("command-status").textContent, /does not match this command's receipt/);
+  assert.equal($("action:reconnect").disabled, true);
+
+  // A later, legitimately newer state: another writer reconnected it as a new connection.
+  shape = (detail) => ({ ...detail, revision: 9, connection: { ...detail.connection, connectionId: "syn-hermes-conn-3" } });
+  await activate("read-again");
+  assert.equal(operation().readBack, "newer");
+  assert.equal(operation().receipt.connectionId, "syn-hermes-conn-2", "the original receipt is kept");
+  assert.match($("command-status").textContent, /^Preview receipt · Connected\. The preview confirmed Hermes at revision 7 · connection syn-hermes-conn-2\./);
+  assert.match($("command-status").textContent, /Now at revision 9, newer than this command's revision 7 · connection syn-hermes-conn-3/);
+  assert.equal($("action:reconnect").disabled, false, "a newer owner reading is adequate");
+}));
+
+test("RM-R2 · a reading for another runtime id is never taken as this command's read-back", () => withTinyDom(async (mount) => {
+  const adapter = fast();
+  const open = adapter.open.bind(adapter);
+  let swap = false;
+  adapter.open = async (id) => (swap ? { ...(await open(id)), id: "rt-pi", revision: 99 } : open(id));
+  const { activate, type, settle, controller, $ } = await mounted(mount, adapter, { open: "rt-hermes" });
+  type("connection-label", "Hermes, desk");
+  await settle();
+  swap = true;
+  await activate("action:connect");
+  assert.equal(controller.getState().operations["rt-hermes"].readBack, "inconsistent");
+  assert.equal($("action:reconnect")?.disabled ?? $("action:connect").disabled, true);
+}));
+
+test("RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked", () => withTinyDom(async (mount) => {
+  const adapter = fast();
+  const { $, activate, controller } = await mounted(mount, adapter, { open: "rt-pi" });
+  adapter.configure("lost-reply");
+  const status = adapter.operationStatus.bind(adapter);
+  adapter.operationStatus = async () => ({ status: "inconclusive" });
+  await activate("action:disable");
+  await activate("check-status");
+  const operation = controller.getState().operations["rt-pi"];
+  assert.equal(operation.status, "unknown");
+  assert.equal(operation.operationId, "op-1");
+  assert.match($("command-status").textContent, /could not yet say whether this command was applied/);
+  assert.equal($("action:disable").disabled, true);
+  assert.equal($("check-status").disabled, false);
+  // An answer the controller does not recognise is not a settlement either.
+  adapter.operationStatus = async () => ({ status: "not-found" });
+  await activate("check-status");
+  assert.equal(controller.getState().operations["rt-pi"].status, "unknown");
+  adapter.operationStatus = status;
+  await activate("check-status");
+  assert.equal(controller.getState().operations["rt-pi"].status, "confirmed");
+  assert.equal(commands(adapter).length, 1);
+}));
+
+test("RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later", async () => {
+  const adapter = fast();
+  assert.deepEqual(await adapter.operationStatus("rt-pi", "op-late"), { status: "not-applied" });
+  // The request that was thought lost arrives afterwards: it is refused, not applied.
+  await assert.rejects(
+    adapter.command("rt-pi", { operationId: "op-late", kind: "disable", expectedRevision: 3 }),
+    (error) => error.code === "operation_closed",
+  );
+  assert.equal(effects(adapter).length, 0);
+  assert.equal((await adapter.open("rt-pi")).admission.saved, "enabled");
+});
+
+test("RM-R2 · the preview's stale-read-back scenario reaches the same lock through the fixture itself", () => withTinyDom(async (mount) => {
+  const adapter = fast();
+  const { $, activate, controller } = await mounted(mount, adapter, { open: "rt-pi" });
+  adapter.configure("stale-read-back");
+  await activate("action:disable");
+  assert.equal(controller.getState().operations["rt-pi"].readBack, "stale");
+  assert.equal(controller.getState().page.detail.admission.saved, "enabled", "the stale reading is shown as what it is");
+  assert.equal($("action:disable").disabled, true);
+  await activate("read-again");
+  assert.equal(controller.getState().operations["rt-pi"].readBack, "done");
+  assert.equal(controller.getState().page.detail.admission.saved, "disabled");
+  assert.deepEqual(effects(adapter).map((entry) => entry.effect), ["disable"]);
+}));

@@ -1,0 +1,17 @@
+✔ RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it (23.391625ms)
+✔ RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied' (3.047416ms)
+✔ RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives (5.258625ms)
+✔ RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer (5.025083ms)
+✔ RM-R2 · a reading for another runtime id is never taken as this command's read-back (2.725916ms)
+✔ RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked (4.412667ms)
+✔ RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later (1.04525ms)
+✔ RM-R2 · the preview's stale-read-back scenario reaches the same lock through the fixture itself (3.162875ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 182.512291
+exit 0

@@ -1,0 +1,134 @@
+✖ RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it (23.845458ms)
+✖ RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied' (3.74775ms)
+✖ RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives (5.107709ms)
+✖ RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer (3.034ms)
+✖ RM-R2 · a reading for another runtime id is never taken as this command's read-back (2.64775ms)
+✖ RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked (3.194958ms)
+✖ RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later (0.931042ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 0
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 183.922709
+
+✖ failing tests:
+
+test at tests/runtime-management.test.mjs:614:1
+✖ RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it (23.845458ms)
+  AssertionError [ERR_ASSERTION]: the page must not contradict the unknown outcome
+      at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921/app/tests/runtime-management.test.mjs:623:10
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'Requested: name “Independent Hermes”. Not applied; saved is revision 6.',
+    expected: /Not applied/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }
+
+test at tests/runtime-management.test.mjs:641:1
+✖ RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied' (3.74775ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /^Submitted: name “Hermes, desk”\. Waiting for the answer\. Last confirmed: revision 6\./. Input:
+
+  'Requested: name “Hermes, desk”. Not applied; saved is revision 6.'
+
+      at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921/app/tests/runtime-management.test.mjs:652:10
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'Requested: name “Hermes, desk”. Not applied; saved is revision 6.',
+    expected: /^Submitted: name “Hermes, desk”\. Waiting for the answer\. Last confirmed: revision 6\./,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/runtime-management.test.mjs:656:1
+✖ RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives (5.107709ms)
+  AssertionError [ERR_ASSERTION]: a successful transport read is not a consistent read-back
+
+  'done' !== 'stale'
+
+      at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921/app/tests/runtime-management.test.mjs:665:10
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'done',
+    expected: 'stale',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-management.test.mjs:688:1
+✖ RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer (3.034ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'done'
+  - 'inconsistent'
+
+      at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921/app/tests/runtime-management.test.mjs:700:10
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'done',
+    expected: 'inconsistent',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-management.test.mjs:714:1
+✖ RM-R2 · a reading for another runtime id is never taken as this command's read-back (2.64775ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'done'
+  - 'inconsistent'
+
+      at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921/app/tests/runtime-management.test.mjs:724:10
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'done',
+    expected: 'inconsistent',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-management.test.mjs:728:1
+✖ RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked (3.194958ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /could not yet say whether this command was applied/. Input:
+
+  'The host reports this command is still being carried out. The command to disable for new work may or may not have taken effect.Nothing else can change this runtime until Check status settles it. Checking asks about this exact command; it does not send it again. Your draft is kept.Check status'
+
+      at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921/app/tests/runtime-management.test.mjs:739:10
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'The host reports this command is still being carried out. The command to disable for new work may or may not have taken effect.Nothing else can change this runtime until Check status settles it. Checking asks about this exact command; it does not send it again. Your draft is kept.Check status',
+    expected: /could not yet say whether this command was applied/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/runtime-management.test.mjs:752:1
+✖ RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later (0.931042ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-management-20260921/app/tests/runtime-management.test.mjs:756:3)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+exit 1
