@@ -14,3 +14,5 @@
 Native 200% zoom, screen reader and forced colors remain unexecuted. This review adds no paid provider trial, no G4 blanket acceptance and no new backend capability. User Host 8787 and preview 8899 were untouched; independent review service stopped and its tab closed. The active Pi Runtime Port writer remains separate.
 
 Actual integrated main affected suites report 40/40 (output boundary, actions, static manifest, entry audit); [complete output](integrated-tests.log). The shell tail wrapper did not preserve the test process exit status, so no exit-code claim is made from it. Documentation links: 1,497 documents / 8,544 targets, no problems. Current working-diff whitespace check passes; historical author log whitespace remains as recorded above.
+
+[Integration and preservation cleanup completed](completion.md); the active Core writer is retained.
