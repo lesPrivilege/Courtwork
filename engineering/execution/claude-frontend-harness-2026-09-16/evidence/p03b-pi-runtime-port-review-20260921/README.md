@@ -18,3 +18,5 @@ This accepts the **minimal Pi extraction**, not a fully runtime-neutral Host or 
 Author historical failures remain recorded. Our clean independent run does not identify the two missing author failure messages or prove their cause. Sonnet's 26 calls over a 20-call preflight budget are a recorded process deviation; future explorations stop at the bound.
 
 All verification used isolated synthetic fixtures and loopback providers. No personal key/config reads, paid provider or browser/computer-use trial. User 8787/8899 retain their existing processes; this acceptance does not assert that the user's already-running Host has reloaded the new backend. Existing visual/accessibility residuals remain with their owners. No push, deployment or next core slice was started.
+
+[Local merge and preservation cleanup completed](completion.md).
