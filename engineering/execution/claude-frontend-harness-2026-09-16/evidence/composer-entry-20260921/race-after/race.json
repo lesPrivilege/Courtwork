@@ -1,0 +1,151 @@
+{
+  "steps": [
+    {
+      "name": "1-after-create-before-bind",
+      "gate": {
+        "bind": {
+          "used": true,
+          "waiting": true
+        },
+        "draft": {
+          "used": false,
+          "waiting": false
+        },
+        "run": {
+          "used": false,
+          "waiting": false
+        }
+      },
+      "busyText": [
+        "Your chat is being started with this location, so it cannot change until that finishes."
+      ],
+      "controls": [
+        {
+          "field": "open",
+          "text": "Connect folder…",
+          "disabled": true
+        },
+        {
+          "field": "path-summary",
+          "text": "Enter a path instead",
+          "disabled": false
+        },
+        {
+          "field": "path",
+          "text": "",
+          "disabled": true
+        },
+        {
+          "field": "connect",
+          "text": "Connect",
+          "disabled": true
+        }
+      ],
+      "pressedEnabled": [
+        "path-summary"
+      ],
+      "after": {
+        "homeRepositoryPath": "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "homeProjectId": null
+      }
+    },
+    {
+      "name": "2-bound-before-admission",
+      "gate": {
+        "bind": {
+          "used": true,
+          "waiting": false
+        },
+        "draft": {
+          "used": true,
+          "waiting": true
+        },
+        "run": {
+          "used": false,
+          "waiting": false
+        }
+      },
+      "busyText": [
+        "Your chat is being started with this location, so it cannot change until that finishes."
+      ],
+      "controls": [
+        {
+          "field": "roles-summary",
+          "text": "Which is which",
+          "disabled": false
+        },
+        {
+          "field": "disconnect",
+          "text": "Disconnect",
+          "disabled": true
+        },
+        {
+          "field": "start-edits",
+          "text": "Start private candidate",
+          "disabled": true
+        }
+      ],
+      "pressedEnabled": [],
+      "after": {
+        "homeRepositoryPath": "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+        "homeProjectId": null
+      }
+    },
+    {
+      "name": "3-run-admission-in-flight",
+      "gate": {
+        "bind": {
+          "used": true,
+          "waiting": false
+        },
+        "draft": {
+          "used": true,
+          "waiting": false
+        },
+        "run": {
+          "used": true,
+          "waiting": true
+        }
+      },
+      "busyText": [
+        "Your message is being sent with this location, so it cannot change until the run starts."
+      ],
+      "controls": [
+        {
+          "field": "roles-summary",
+          "text": "Which is which",
+          "disabled": false
+        },
+        {
+          "field": "disconnect",
+          "text": "Disconnect",
+          "disabled": true
+        },
+        {
+          "field": "start-edits",
+          "text": "Start private candidate",
+          "disabled": true
+        }
+      ],
+      "pressedEnabled": [],
+      "after": {
+        "homeRepositoryPath": null,
+        "homeProjectId": null
+      }
+    }
+  ],
+  "final": {
+    "view": "chat",
+    "stripHidden": true,
+    "host": {
+      "bindingStatus": "active",
+      "bindingRevision": 1,
+      "rootPath": "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "candidateRevision": 0,
+      "candidate": null,
+      "runs": [
+        "completed"
+      ]
+    }
+  }
+}

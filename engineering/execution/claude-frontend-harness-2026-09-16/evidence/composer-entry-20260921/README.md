@@ -37,7 +37,11 @@ visual and source acceptance.
   (`SEND_BUSY`, or `PREPARE_UNCERTAIN` while unconfirmed) instead of a
   disabled chip that said nothing.
 - **Focus.**
-  - Escape, Close and light dismissal return focus to the entry.
+  - Escape and Close return focus to the entry. *Narrowed after review
+    (CE-F2):* a light dismissal returns focus only when it would otherwise be
+    left on the page or inside the closed panel. A click onto another
+    focusable control keeps that control's focus on purpose, and that case was
+    not driven in the browser.
   - A project choice keeps focus on the option chosen.
   - New project returns to the entry.
   - On an empty Home the panel opens on the selected project option.

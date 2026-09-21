@@ -1,0 +1,68 @@
+{
+  "steps": [
+    {
+      "name": "1-after-refusal",
+      "busyText": [],
+      "controls": [
+        {
+          "field": "open",
+          "text": "Connect folder…",
+          "disabled": false
+        },
+        {
+          "field": "path-summary",
+          "text": "Enter a path instead",
+          "disabled": false
+        },
+        {
+          "field": "path",
+          "text": "",
+          "disabled": false
+        },
+        {
+          "field": "connect",
+          "text": "Connect",
+          "disabled": false
+        }
+      ]
+    },
+    {
+      "name": "2-after-correction",
+      "busyText": [],
+      "controls": [
+        {
+          "field": "roles-summary",
+          "text": "Which is which",
+          "disabled": false
+        },
+        {
+          "field": "change-folder",
+          "text": "Change folder…",
+          "disabled": false
+        },
+        {
+          "field": "disconnect",
+          "text": "Disconnect",
+          "disabled": false
+        },
+        {
+          "field": "start-edits",
+          "text": "Start private candidate",
+          "disabled": false
+        }
+      ]
+    }
+  ],
+  "refusal": "Could not start: repository root could not be validated. Your instruction is kept.",
+  "final": {
+    "view": "chat",
+    "host": {
+      "bindingStatus": "active",
+      "bindingRevision": 1,
+      "rootPath": "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/bdab9a2f-f9b7-4002-a21e-ceb9a96a83e3/scratchpad/work-location/src/synthetic-parcel-repository-with-a-deliberately-long-folder-name",
+      "runs": [
+        "completed"
+      ]
+    }
+  }
+}

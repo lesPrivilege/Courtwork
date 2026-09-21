@@ -353,3 +353,29 @@ since rewritten. Evidence, screenshots and the list of what was not executed:
 ## Working-location review disposition — 2026-09-21
 
 Candidate `ac6049b` is held for **CE-R1**, the plain Home Send location-lock gap after Chat creation. [Independent review, browser journey and exact bounded return](evidence/composer-entry-acceptance-20260921/README.md): Luna 115/115; Astra confirms unified entry, project creation, preparation, Escape, reload and synthetic completion. Keep the original frontend writer/tree and accepted design; correct only the pending-send mutation seam and its regression. Shared bound-panel initial focus/scroll is CE-F2 deferred, with the author light-dismiss claim narrowed. No Runtime-management/Role-first next journey.
+
+## CE-R1 return · author delivery, 2026-09-21 (Claude)
+
+This return is on the same branch, over held `ac6049b` with main `6de5a84`
+merged in. **Not accepted.** Released for Luna's delta review and Astra's
+integration decision.
+
+**Reproduced first.** A gate proxy held one plain Home Send at its bind, its
+draft save and its Run admission, and the panel was opened at each point.
+Disconnect landed mid-Send (binding revoked, revision 2) and the Run completed
+against the revoked folder; Start private candidate got a 409.
+
+**The fix.** The lock decision now lives in the owner, as `workLocationLock()`
+in `home-preparation.mjs`, and `app.mjs` only asks for it. It covers the whole
+plain-Send operation, the Run admission it ends in (in flight is said as in
+flight, even though the Run owner has already recorded it as unconfirmed),
+and preparation, as before. A settled Send holds nothing.
+
+**Measured after.** With the same gates, only disclosures stay operable; there
+is one bind, no revoke and no 409, and the Run completes. In the browser, a
+refused folder is corrected on the same Chat and the second Send completes.
+
+**Tests.** A new 7-test regression over the production decision and the real
+card; 122/122 across the owner suites; full suite 1352/1352. CE-F2 stays
+deferred, and the light-dismiss claim is narrowed. Record:
+[ce-r1-return](evidence/composer-entry-20260921/ce-r1-return.md).

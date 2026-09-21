@@ -28,6 +28,7 @@ import {
   preparationState,
   restoreHomePreparationMarker,
   serializeHomePreparationMarker,
+  workLocationLock,
 } from "../web/home-preparation.mjs";
 import {
   createWorkspaceCard,
@@ -208,10 +209,8 @@ function createHome(host, { stagedPath = ROOT_PATH } = {}) {
         onCreate: () => { home.createRequested += 1; },
       },
       permissionLabel: "Ask before editing",
-      busyReason: !(owned || !prepared) ? null
-        : phase.status === "preparing" ? PREPARE_BUSY
-        : phase.uncertain ? PREPARE_UNCERTAIN
-        : null,
+      // The production decision, not a copy of it (CE-R1).
+      busyReason: workLocationLock({ marker: home.marker, home: true, session }),
       preparation: owned && phase.status === "unfinished"
         ? {
           status: phase.status, error: phase.error,
@@ -709,7 +708,9 @@ test("the production seam: what the controller owns, and what app.mjs wires", as
   // What app.mjs still owns: the persisted marker, the DOM, and rendering.
   assert.match(app, /data-home-field": "resume-preparation"/, "the recovery is reachable from the status");
   assert.match(app, /onCorrectFolder: phase\.correctable \? \(path\) => homePreparation\.correctFolder\(path\) : null,/);
-  assert.match(app, /: phase\.uncertain \? PREPARE_UNCERTAIN/, "an unknown outcome locks the folder, and says so");
+  // CE-R1 · the lock is the owner's decision now; app.mjs only asks for it.
+  assert.match(owner, /if \(phase\.uncertain\) return PREPARE_UNCERTAIN;/, "an unknown outcome locks the folder, and says so");
+  assert.match(app, /busyReason: workLocationLock\(\{\s*marker: state\.homeStart, home, session,/);
   assert.match(app, /function retirePreparedChat\(sessionId\) \{/);
   const submit = app.slice(app.indexOf("async function submitSessionRun"));
   assert.match(submit.slice(0, submit.indexOf("} catch")), /retirePreparedChat\(sessionId\);/,

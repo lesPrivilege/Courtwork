@@ -1,0 +1,16 @@
+{"t":1802,"method":"POST","path":"/attention/query","status":200}
+{"t":1802,"method":"POST","path":"/attention/query","status":200}
+{"t":3153,"method":"POST","path":"/attention/query","status":200}
+{"t":3160,"method":"POST","path":"/attention/query","status":200}
+{"t":6118,"method":"POST","path":"/sessions","status":200}
+{"t":6121,"held":"bind","method":"PUT","path":"/sessions/ca3cb823-e768-42b3-8edd-6fce7d2321b9/repository-binding"}
+{"t":7615,"released":"bind"}
+{"t":7671,"method":"PUT","path":"/sessions/:id/repository-binding","status":200}
+{"t":7675,"held":"draft","method":"PUT","path":"/sessions/ca3cb823-e768-42b3-8edd-6fce7d2321b9/draft"}
+{"t":9076,"released":"draft"}
+{"t":9080,"method":"PUT","path":"/sessions/:id/draft","status":200}
+{"t":9112,"method":"PUT","path":"/sessions/:id/draft","status":200}
+{"t":9113,"held":"run","method":"POST","path":"/sessions/ca3cb823-e768-42b3-8edd-6fce7d2321b9/runs"}
+{"t":10549,"released":"run"}
+{"t":10565,"method":"POST","path":"/sessions/:id/runs","status":200}
+{"t":10619,"method":"POST","path":"/attention/query","status":200}

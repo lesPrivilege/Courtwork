@@ -89,6 +89,8 @@ export const PROJECT_FIXED = "Set when this chat was made. A chat keeps its proj
 /* A Home send in flight is creating a chat with exactly this location. The
  * location is locked for that — not hidden — and says why. */
 export const SEND_BUSY = "Your chat is being started with this location, so it cannot change until that finishes.";
+/* The last step of a Send: the Host is admitting its Run with this location. */
+export const RUN_SENDING = "Your message is being sent with this location, so it cannot change until the run starts.";
 export const WORK_LOCATION_TITLE = "Work location";
 const CHOOSE_PROMPT = "Connect a repository";
 
@@ -394,7 +396,9 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         open.addEventListener("click", () => { commandField = "open"; chooseFolder(session, connectPath); });
         primary.append(open);
       }
-      primary.append(el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : choosing ? REPOSITORY_DIALOG_OPEN : `${REPOSITORY_SCOPE_LABEL}. ${REPOSITORY_HELP}` }));
+      // CE-R1 · a lock held by another owner is said here too: this is the only
+      // sentence an unbound chat's chooser has.
+      primary.append(el("p", { className: "context-meta", text: busyReason || (active ? REPOSITORY_ACTIVE_RUN : choosing ? REPOSITORY_DIALOG_OPEN : `${REPOSITORY_SCOPE_LABEL}. ${REPOSITORY_HELP}`) }));
       sections.push(primary);
       if (recent?.length) {
         const list = el("ul", { className: "repository-recent", attrs: { "aria-label": "Folders connected before" } });
@@ -480,7 +484,10 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         else startCandidate();
       });
       section.append(
-        el("p", { className: "context-meta", text: busyReason || (active ? REPOSITORY_ACTIVE_RUN : resuming ? PREPARE_RESUME_SCOPE : CANDIDATE_HELP) }),
+        /* One reason, said once: a bound chat's folder section already says
+         * why it is locked, so here the section says what it is. An unfinished
+         * preparation's folder section is silent, so its reason stays here. */
+        el("p", { className: "context-meta", text: (busyReason && !resuming ? null : busyReason) || (active ? REPOSITORY_ACTIVE_RUN : resuming ? PREPARE_RESUME_SCOPE : CANDIDATE_HELP) }),
         start,
       );
       if (resuming?.error) section.append(el("p", { className: "inline-error", text: resuming.error, attrs: { role: "alert" } }));

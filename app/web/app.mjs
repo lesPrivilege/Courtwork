@@ -67,12 +67,13 @@ import {
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
-import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, workLocationEntry, PREPARE_BUSY, PREPARE_UNCERTAIN, SEND_BUSY } from "./workspace-card.mjs";
+import { createWorkspaceCard, activeRepositoryBinding, activeRepositoryCandidate, candidateWriteRevision, workLocationEntry } from "./workspace-card.mjs";
 import {
   createHomePreparation,
   preparationState,
   restoreHomePreparationMarker,
   serializeHomePreparationMarker,
+  workLocationLock,
 } from "./home-preparation.mjs";
 import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
 import {
@@ -3796,6 +3797,9 @@ function renderComposer() {
   /* The floating layer stops at the composer's top edge, so the composer's own
    * height is one of its two measurements (WK-72). */
   measureSurfaceLayout();
+  // CE-R1 · a Send's phases change what the open Work location panel may
+  // offer; it is repainted with the composer, and costs nothing when closed.
+  paintWorkspaceCard();
 }
 
 /* CI-B · set by wireEvents; a no-op where the stylesheet sizes the field itself. */
@@ -5469,6 +5473,7 @@ async function submitHomeRun() {
         throw new Error("Creating the chat returned no matching receipt.");
       operation.session = result.session;
       storeHomeDraft();
+      paintWorkspaceCard();
     }
     const session = operation.session;
     // A folder chosen on Home is an intent until this exact command binds it;
@@ -5483,6 +5488,7 @@ async function submitHomeRun() {
       const detail = await request(`/sessions/${encodeURIComponent(session.id)}`);
       operation.session = detail.session;
       storeHomeDraft();
+      paintWorkspaceCard();
     }
     await homeAttachments.flush(request, session.id);
     const items = state.sessionsByProject.get(operation.projectId) || [];
@@ -6236,9 +6242,6 @@ function renderWorkspaceCard() {
    * command in flight or mints identities beside ones already in use. */
   const phase = preparationState(state.homeStart);
   const owned = phase.session && session && phase.session.id === session.id;
-  /* A plain Home send (not a preparation) that is creating its chat holds the
-   * same location. The entry stays openable so it can say so. */
-  const sending = home && !session && !state.homeStart?.prepared && (state.homeStart?.pending || state.homeStart?.unconfirmed);
   return workspaceCard.render($("workspace-popover"), {
     session,
     active: Boolean(currentRun()),
@@ -6271,15 +6274,15 @@ function renderWorkspaceCard() {
       },
     } : null,
     permissionLabel: session ? permissionLabels[session.permissionMode] || null : null,
-    /* PA-R2 · a command in flight and an outcome nobody knows yet are both
-     * reasons nothing of this chat's folder may change, and they are not the
-     * same sentence: one is still running, the other already happened and its
-     * result was lost. */
-    busyReason: sending ? (state.homeStart.unconfirmed ? PREPARE_UNCERTAIN : SEND_BUSY)
-      : !(owned || (home && !session)) ? null
-      : phase.status === "preparing" ? PREPARE_BUSY
-      : phase.uncertain ? PREPARE_UNCERTAIN
-      : null,
+    /* PA-R2 / CE-R1 · every start that holds this chat's location — a Send
+     * for its whole operation, the Run admission it ends in, a preparation —
+     * locks the card's mutations and says why; the decision is
+     * home-preparation.mjs's `workLocationLock`. */
+    busyReason: workLocationLock({
+      marker: state.homeStart, home, session,
+      runPending: Boolean(session && state.pendingRuns.has(session.id)),
+      runUnconfirmed: Boolean(session && state.unconfirmedRuns.has(session.id)),
+    }),
     preparation: owned && phase.status === "unfinished"
       ? {
         status: phase.status,

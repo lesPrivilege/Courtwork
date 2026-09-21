@@ -22,7 +22,7 @@
  * discipline for the Chat and the binding; the candidate is the third step it
  * never had a reason to take.
  */
-import { activeRepositoryBinding, activeRepositoryCandidate } from "./workspace-card.mjs";
+import { activeRepositoryBinding, activeRepositoryCandidate, PREPARE_BUSY, PREPARE_UNCERTAIN, RUN_SENDING, SEND_BUSY } from "./workspace-card.mjs";
 
 export const PREPARE_NO_FOLDER = "Connect a folder before preparing a chat for it.";
 export const PREPARE_NO_RECEIPT = "Creating the chat returned no matching receipt.";
@@ -125,6 +125,47 @@ export function preparationState(marker) {
      * the thing to correct, and correcting it cannot collide with anything. */
     correctable: !complete && !bound && !uncertain && Boolean(marker.failure),
   };
+}
+
+/* CE-R1 · why, if at all, the Work location panel must not change this
+ * chat's location right now. One answer for every way a start holds it:
+ *
+ *   · a plain Home Send, for the whole of its operation. It creates the Chat,
+ *     then binds the folder, reads it back, flushes materials and saves the
+ *     draft before it admits a Run — and from the moment the Chat exists the
+ *     panel is reading that Chat, not a draft. A folder changed or
+ *     disconnected in that window lands under the Send that chose it (the
+ *     2026-09-21 review reproduced a Disconnect landing and the Run then
+ *     working against a revoked folder). The marker is not a preparation, so
+ *     `preparationState` says "none"; this is where it is covered.
+ *   · the Run admission that Send ends in, and any Send from a Chat: until the
+ *     Host has admitted the Run (or said it did not), the location it was sent
+ *     with is the one it runs in. An admission whose outcome is unknown stays
+ *     locked until it is reconciled. Once admitted, the card's own `active`
+ *     takes over.
+ *   · a preparation, as before: in flight, or left with an unknown effect.
+ *
+ * Reading stays available in every case; only mutations are refused, and the
+ * reason is said. A start that settled — sent, refused, or failed — holds
+ * nothing, so correcting the folder afterwards is possible again. */
+export function workLocationLock({ marker = null, home = false, session = null, runPending = false, runUnconfirmed = false } = {}) {
+  const markerSession = marker?.session?.id ?? marker?.sessionId ?? null;
+  const markerHolds = home && (!session || session.id === markerSession);
+  if (marker && !marker.prepared && markerHolds) {
+    if (marker.unconfirmed) return PREPARE_UNCERTAIN;
+    if (marker.pending) return SEND_BUSY;
+  }
+  // The Run owner records an admission as unconfirmed *before* it posts it,
+  // so while one is in flight both are true; in flight is what is happening.
+  // Unconfirmed alone is a lost or unread reply, and that is the other sentence.
+  if (session && runPending) return RUN_SENDING;
+  if (session && runUnconfirmed) return PREPARE_UNCERTAIN;
+  const phase = preparationState(marker);
+  const owned = phase.session && session && phase.session.id === session.id;
+  if (!(owned || (home && !session))) return null;
+  if (phase.status === "preparing") return PREPARE_BUSY;
+  if (phase.uncertain) return PREPARE_UNCERTAIN;
+  return null;
 }
 
 /**
