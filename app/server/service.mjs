@@ -20,15 +20,12 @@ import { randomUUID, createHash } from "node:crypto";
 import { StringDecoder } from "node:string_decoder";
 import { describeReasoning, MODEL_ADAPTER_VERSION } from "../runtime/model-capabilities.mjs";
 import { PROVIDER_DEFINITIONS, providerRouteError } from "../runtime/provider-definitions.mjs";
-import { SessionManager } from "@earendil-works/pi-coding-agent";
 
 import {
   classifyRuntimeError,
   classifyVerifyOutcome,
-  mapSessionEvent,
   assistantMessageText,
   registerFakeProvider,
-  createSessionRun,
   createReasoningPayloadHook,
   resolveCompactionPolicy,
   FAKE_API_ID,
@@ -41,7 +38,6 @@ import {
   unregisterConnectionProvider,
   registerCatalogExtraModels,
   nativeCatalogModelIds,
-  compactSessionJournal,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
@@ -202,7 +198,7 @@ function redact(message, secrets) {
 }
 
 export class RuntimeService {
-  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, adapterId = "pi-coding-agent@0.85.1/agent-session", budget = {}, compaction = {}, asyncTaskAdapters = [], logger = () => {} }) {
+  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, runtimePort, budget = {}, compaction = {}, asyncTaskAdapters = [], logger = () => {} }) {
     this.store = store;
     this.coordination = new Coordination(store);
     this.subagents = new Subagents(this);
@@ -218,7 +214,9 @@ export class RuntimeService {
     this.intake = new IntakeStore(dataDir);
     this.materialQueues = new Map();
     this.modelRuntime = modelRuntime;
-    this.adapterId = adapterId;
+    if (!runtimePort) throw new TypeError("runtimePort is required");
+    this.runtimePort = runtimePort;
+    this.adapterId = runtimePort.id;
     this.compaction = structuredClone(compaction);
     this.logger = logger;
     this.active = new Map();
@@ -546,7 +544,8 @@ export class RuntimeService {
     const model = this.#resolveModel(this.providerConfig);
     const capability = this.#reasoningCapability(this.providerConfig);
     let compaction;
-    if (!session.hostSession) compaction = { available: false, reason: "This chat has no recorded conversation to compact." };
+    if (!this.#runtimeCapability("compact").supported) compaction = { available: false, reason: "The bound runtime does not support compaction." };
+    else if (!session.hostSession) compaction = { available: false, reason: "This chat has no recorded conversation to compact." };
     else if (!model) compaction = { available: false, reason: "The configured model could not be resolved." };
     else if (!this.#compactionPolicy(model).enabled) compaction = { available: false, reason: "Compaction needs a known context window on the configured model." };
     else compaction = { available: true, reason: null };
@@ -627,6 +626,15 @@ export class RuntimeService {
 
   /* ── CMP-01 · manual compaction as a Host operation ───────────────────── */
   #busy() { return this.store.hasActiveRun() || this.store.hasActiveOperation(); }
+  /** What the bound runtime declares it can do. An undeclared or unsupported
+   * operation is refused here; the Host never routes it to another runtime. */
+  #runtimeCapability(operation) {
+    return this.runtimePort.describe().capabilities[operation] ?? { supported: false, reason: "not declared by this runtime" };
+  }
+  #requireRuntimeCapability(operation) {
+    const capability = this.#runtimeCapability(operation);
+    if (!capability.supported) throw new ServiceError(409, "runtime_capability_unsupported", `${this.adapterId} does not support ${operation}: ${capability.reason}`);
+  }
   listCompactions(sessionId) {
     if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
     return { operations: this.store.listOperations(sessionId).filter(op => op.kind === "compaction") };
@@ -652,6 +660,7 @@ export class RuntimeService {
       if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
       const replay = this.store.listOperations(sessionId).find(op => op.requestId === requestId);
       if (replay) return { operation: replay, idempotent: true };
+      this.#requireRuntimeCapability("compact");
       if (!session.hostSession) throw new ServiceError(409, "nothing_to_compact", "This chat has no recorded conversation to compact");
       const connection = this.#connectionByIdentity(this.providerConfig.provider);
       this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
@@ -687,10 +696,9 @@ export class RuntimeService {
     let settlement;
     try {
       if (this.providerConfig.provider === FAKE_PROVIDER_ID) await this.modelRuntime.setRuntimeApiKey(FAKE_PROVIDER_ID, FAKE_CREDENTIAL_KEY);
-      const manager = SessionManager.open(session.hostSession.path);
-      const outcome = await compactSessionJournal({
-        cwd: session.workspaceDir, agentDir: path.join(this.dataDir, "pi-agent"), modelRuntime: this.modelRuntime, model,
-        sessionManager: manager, focus: operation.focus, compaction: this.#compactionOptions(model),
+      const outcome = await this.runtimePort.compact({
+        nativeRef: session.hostSession, workspaceDir: session.workspaceDir, model,
+        focus: operation.focus, compaction: this.#compactionOptions(model),
         reasoningEffort: this.providerConfig.reasoningEffort, signal: entry.controller.signal,
       });
       const journal = { summariesBefore: outcome.entriesBefore, summariesAfter: outcome.entriesAfter };
@@ -2435,17 +2443,6 @@ export class RuntimeService {
     return { ...model, api: provider.api, ...(provider.baseUrl ? { baseUrl: provider.baseUrl } : {}) };
   }
 
-  #ensureHostSession(session) {
-    if (session.hostSession) {
-      const manager = SessionManager.open(session.hostSession.path);
-      return { manager, locator: session.hostSession };
-    }
-    const sessionDir = path.join(this.dataDir, "pi-sessions", session.id);
-    const manager = SessionManager.create(session.workspaceDir, sessionDir);
-    const locator = { id: manager.getSessionId(), path: manager.getSessionFile() };
-    return { manager, locator };
-  }
-
   createRun(sessionId, input) {
     if (this.closing) return Promise.reject(new ServiceError(503, "runtime_closing", "runtime is stopping"));
     const admission = this.#withConfiguration(() => this.#createRun(sessionId, input));
@@ -2488,6 +2485,8 @@ export class RuntimeService {
       if (error?.code === "COMMAND_CONFLICT") throw new ServiceError(409, "command_conflict", "commandId was already used with a different input");
       throw error;
     }
+
+    this.#requireRuntimeCapability(session.hostSession ? "continue" : "start");
 
     // Which connection this run used, and where its key came from, are frozen
     // into the run record here: this is the traceable half of PV-24.
@@ -2541,9 +2540,9 @@ export class RuntimeService {
     // inside store.createRun's serialized mutation queue, so this is the only
     // safe point to decide whether this HTTP request truly owns a new run.
     // Host session creation is deliberately deferred until AFTER that check:
-    // creating (or reopening) the AgentSession's SessionManager here, before
+    // opening (or creating) the runtime's native session here, before
     // knowing we are the sole winner, would let two concurrent requests for
-    // the same commandId each construct their own SessionManager and race to
+    // the same commandId each open their own journal writer and race to
     // attach it — this ordering keeps run creation the only race-sensitive
     // step, exactly where store._mutate can serialize it.
     const runtimeBinding = this.control.bind(this.getRuntimeControl(sessionId));
@@ -2587,13 +2586,12 @@ export class RuntimeService {
     const run = created.run;
     const credentialConfigured = provider.provider === FAKE_PROVIDER_ID || this.credentialsConfigured.has(connection.id);
     const entry = {
-      session: null,
       getUsage: null,
       task: null,
       cancelRequested: false,
       closeError: null,
       budget: { remainingMs: this.subagents.forSession(session.id) ? this.subagents.remainingBudget(this.subagents.forSession(session.id)).deadlineMs : this.budget.deadlineMs, timer: null, armedAt: null, reason: null },
-      sessionManager: null,
+      nativeSession: null,
       workspaceDir: session.workspaceDir,
       permissionMode: session.permissionMode,
       runtimeBinding,
@@ -2634,8 +2632,8 @@ export class RuntimeService {
     };
     try {
       this.#armDeadline(entry, run.id);
-      const { manager, locator } = this.#ensureHostSession(session);
-      entry.sessionManager = manager;
+      entry.nativeSession = this.runtimePort.openSession({ sessionId: session.id, workspaceDir: entry.workspaceDir, nativeRef: session.hostSession ?? null });
+      const locator = entry.nativeSession.nativeRef;
       if (!session.hostSession) await this.store.setHostSession(session.id, locator);
       await this.store.updateRun(run.id, { hostSession: locator });
       if (!credentialConfigured) {
@@ -2768,7 +2766,7 @@ export class RuntimeService {
       const currentContext = sparkAssignment ? "" : [extensionContext, compileControlContext(entry.runtimeBinding), asyncContext, !session.extensionBinding ? this.subagents.library.context(session.id) : ""].filter(Boolean).join("\n\n");
       let initializeFileInput;
       if (entry.extensionRun?.fileMemo) {
-        const cleanSession = entry.sessionManager.getEntries().length === 0
+        const cleanSession = entry.nativeSession.historyIsEmpty()
           && this.store.listRuns().filter(r => r.sessionId === session.id).length === 1;
         const reasons = cleanSession ? [] : ['session_history'];
         // An enabled compactor may inject a summary before an awaited hook.
@@ -2801,16 +2799,12 @@ export class RuntimeService {
           },
         });
       }
-      const started = await createSessionRun({
-        cwd: entry.workspaceDir,
-        agentDir: path.join(this.dataDir, "pi-agent"),
-        modelRuntime: this.modelRuntime,
+      const started = await entry.nativeSession.start({
         model,
         reasoningEffort: provider.reasoningEffort,
         reasoningCapability: provider.reasoningBinding,
         onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data }),
-        sessionManager: entry.sessionManager,
-        customTools: governTools(sparkAssignment ? this.subagents.childTools(sparkAssignment,run.id) : [...(!session.extensionBinding ? this.subagents.parentTools(session.id,run.id, () => {entry.sparkYield=true;setImmediate(() => entry.abort?.());}) : []), askUserTool, ...selectedWorkspaceTools, ...repositoryTools, ...repositoryCandidateTools, ...checkTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
+        tools: governTools(sparkAssignment ? this.subagents.childTools(sparkAssignment,run.id) : [...(!session.extensionBinding ? this.subagents.parentTools(session.id,run.id, () => {entry.sparkYield=true;setImmediate(() => entry.abort?.());}) : []), askUserTool, ...selectedWorkspaceTools, ...repositoryTools, ...repositoryCandidateTools, ...checkTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
           entry.externalUnknownDetail = detail;
           // This is an effect settlement receipt, not a best-effort UI notice.
@@ -2857,11 +2851,11 @@ export class RuntimeService {
           if (['async_get', 'async_wait'].includes(name)) await this.asyncTasks.requestConsumption(run.id, callId, name.slice(6), args);
         },
         beforeExtraInput: reason => entry.extensionRun?.fileMemo?.markUnknown(reason),
-        onEvent: (event) => this.#onSessionEvent(run.id, event, entry),
+        onObservation: (observation) => this.#onObservation(run.id, observation, entry),
         onNotice: (notice) => this.#appendNotice(run.id, notice),
       });
-      entry.session = started.session;
       entry.abort = started.abort;
+      entry.steer = started.steer;
       entry.getUsage = started.getUsage;
       if (entry.cancelRequested || entry.budget.reason || !this.store.getRun(run.id)?.admissionOpen) await started.abort();
 
@@ -2983,11 +2977,9 @@ export class RuntimeService {
     });
   }
 
-  async #onSessionEvent(runId, event, entry) {
+  async #onObservation(runId, mapped, entry) {
     const run = this.store.getRun(runId);
     if (!run) return;
-    const mapped = mapSessionEvent(event);
-    if (!mapped) return;
     if (mapped.data?.errorMessage) mapped.data.errorMessage = redact(mapped.data.errorMessage, this.knownSecrets);
     const settledMcpResult = mapped.type === 'tool.result' && !terminal(run.status)
       && this.active.get(runId) === entry && mapped.data.mcpResult
