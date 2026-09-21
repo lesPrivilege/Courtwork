@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-21 · Next round authorized: Runtime management frontend and Host-consumer preflight
+
+The user authorizes continuation from `77e87ac`. [06c Runtime management](execution/claude-frontend-harness-2026-09-16/06c-runtime-management-20260921.md) is ready for Opus pickup: one complete explicit synthetic Settings → Agents → Runtimes connection/disable/recovery journey, using accepted profiles and Design primitives. No real secret/native configuration writes or production Runtime exposure. No author tree/process has been launched; this task has no callable Opus/Sonnet/Fable route.
+
+Luna has started a bounded source preflight for the original P03-C Host remote-binding/receipt plus governed-read consumer. Astra will consume the result under Store/RD-001 before freezing the next Fable implementation; accepted Pi/transport work is not duplicated. Role-first Composer, executable hooks, local children and original D/E remain subsequent. User 8787/8899 and all data are untouched; no paid service, push/deploy, empty future worktrees or heartbeat restart.
+
+
 ## 2026-09-21 · Composer working-location and CE-R1 accepted
 
 [Final independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/composer-ce-r1-final-20260921/README.md) accepts `4695426`, integrated at main `d52f44f`: Luna 122/122, actual-main 40/40, OpenAI browser ordinary Send held at bind/draft/admission → completed active binding revision 1 → unlock/reload. The proposed additional navigation window was withdrawn after source and actual browser reachability checks. Single working-location entry and modest context-band treatment are integrated; Project, Folder and permission facts retain their existing owners.

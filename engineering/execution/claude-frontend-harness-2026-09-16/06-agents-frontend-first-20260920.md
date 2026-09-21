@@ -1,5 +1,8 @@
 # 06 · Agents frontend first, with a replaceable backend adapter
 
+2026-09-21 · **Current:** Agent profiles, intervening dogfood friction and Composer working-location entry are independently accepted. The user has authorized [06c Runtime management](06c-runtime-management-20260921.md) as the next complete frontend journey. The original delivery/return records below remain historical. Production backend exposure is still separate from synthetic frontend acceptance.
+
+
 2026-09-20 · **First journey delivered at `0f76407`; bounded author correction pending before frontend acceptance and integration.** User-authorized frontend-first development. Claude: serial frontend author. Astra: architecture and integration. Luna: bounded precedent exploration and non-author verification. Backend remains with the existing Provider / Runtime Control / RD-001 / RD-005 / RD-009 owners.
 
 ## Outcome before components

@@ -423,3 +423,6 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 2026-09-21 · [P03-B accepted](evidence/p03b-pi-runtime-port-review-20260921/README.md): `c2be594` merged `e2eaf6d`, independent full 1326/1326 and integrated runtime smoke pass. Composer entry remains the next frontend handoff; C–F unstarted.
 
 2026-09-21 · [Next Fable core order](p03c-agents-transport-20260921.md) is ready after accepted B: production Agents SDK transport, synthetic wire/abort/identity evidence, then independent acceptance. Composer remains with its existing writer; Host migration/read gateway is the following finite C consumer.
+
+
+2026-09-21 · After [Composer CE-R1 acceptance and cleanup](evidence/composer-ce-r1-final-20260921/completion.md), the user authorizes the next round. [06c Runtime management](06c-runtime-management-20260921.md) is ready for Opus, with a bounded optional Sonnet preflight and explicit synthetic interface. The accepted P03-C transport is not repeated; Luna is exploring the smallest Host remote-binding/receipt/read-tool seam before Astra freezes Fable's next consumer contract. No new author process or production capability is claimed.
