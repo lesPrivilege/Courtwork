@@ -1,0 +1,24 @@
+{
+  "cards": [
+    "Work summary",
+    "Files · 1",
+    "Run information",
+    "Workspace",
+    "Files",
+    "Spark",
+    "More surfaces",
+    "More"
+  ],
+  "expanded": {
+    "tabs": [
+      "Workspace",
+      "brief.md"
+    ]
+  },
+  "secondVersion": {
+    "tabs": [
+      "Workspace",
+      "out/brief.md"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+✔ a confirmed write moves the candidate reading even though the cached Session still says zero (1.361208ms)
+✔ the reading belongs to one candidate: another candidate's writes and unconfirmed effects are not counted (0.071792ms)
+✔ the Workspace card's Writes line reads the confirmed write, not the cached Session field (1.176458ms)
+✔ the changes dialog takes its count from the diff receipt it is already reading (1.723167ms)
+✔ Start private candidate leaves the keyboard on the control that now answers it (6.509375ms)
+✔ Stop edits puts the keyboard back on the control that can start another candidate (1.554416ms)
+✔ the folder card does not claim the Host reads nothing or sends nothing (0.301167ms)
+✔ the card names the four things a coding task depends on and keeps them apart (0.199875ms)
+✔ File access explains all three Host modes and the disclosure survives event renders (0.6665ms)
+✔ a bound folder can be changed without first disconnecting, and the Host's own precondition is stated (2.09425ms)
+✔ leaving the change-folder path keeps the binding and the typed draft (1.351792ms)
+✔ rows from the previous reading are not presented as the confirmed list while a read is out (1.362875ms)
+✔ a list reply that arrives after you have opened a profile does not land (34.237083ms)
+✔ a runtime whose model note is null reads its facts and nothing else (0.88125ms)
+✔ a runtime whose model note is absent reads its facts and nothing else (0.638958ms)
+✔ a runtime whose model note is "" reads its facts and nothing else (0.593125ms)
+✔ a runtime with a model note still shows it (0.690625ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 160.425917

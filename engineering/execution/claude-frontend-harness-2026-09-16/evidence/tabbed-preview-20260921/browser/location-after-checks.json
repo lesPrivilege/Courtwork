@@ -1,0 +1,425 @@
+[
+  {
+    "name": "L1 1440 fresh Home starts on the chosen project",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 423,
+      "scrollHeight": 520,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [],
+      "focus": {
+        "field": "project:none",
+        "label": "No projectSelected",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L2 1440 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 423,
+      "scrollHeight": 800,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L3 1440 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 423,
+      "scrollHeight": 740,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": [
+        "project:none",
+        "project:eb39795f-da19-4589-a3a5-e5e1c6ee1180",
+        "project-new",
+        "remove",
+        "start-edits"
+      ]
+    }
+  },
+  {
+    "name": "L4 1440 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 423,
+      "scrollHeight": 792,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "No project",
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L5 1440 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 423,
+      "scrollHeight": 757,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": [
+        "project:none",
+        "project:eb39795f-da19-4589-a3a5-e5e1c6ee1180",
+        "project-new",
+        "remove",
+        "start-edits"
+      ]
+    }
+  },
+  {
+    "name": "L6 1440 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 722,
+      "scrollHeight": 734,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "Parcel review",
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L3 1440 preparing: location mutations locked",
+    "pass": true,
+    "detail": [
+      "project:none",
+      "project:eb39795f-da19-4589-a3a5-e5e1c6ee1180",
+      "project-new",
+      "remove",
+      "start-edits"
+    ]
+  },
+  {
+    "name": "L7 1440 unbound chat starts on Connect folder when it is in view, else Close",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 428,
+      "scrollHeight": 428,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "Parcel review"
+      ],
+      "focus": {
+        "field": "open",
+        "label": "Open a folder to connect",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L2 1440 Escape returns to the Work location entry",
+    "pass": true,
+    "detail": {
+      "tag": "BUTTON",
+      "id": "workspace-chip",
+      "field": null,
+      "label": "Work location: no project; folder /private/tmp/claude-501/-Users-lesprivilege-Projects-Cou",
+      "focusKey": null,
+      "visible": true
+    }
+  },
+  {
+    "name": "L2 1440 a deliberate click elsewhere keeps its own focus",
+    "pass": true,
+    "detail": {
+      "focus": {
+        "tag": "TEXTAREA",
+        "id": "composer-input",
+        "field": null,
+        "label": "",
+        "focusKey": null,
+        "visible": true
+      },
+      "open": false
+    }
+  },
+  {
+    "name": "L1 390 fresh Home starts on the chosen project",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 584,
+      "scrollHeight": 584,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [],
+      "focus": {
+        "field": "project:none",
+        "label": "No projectSelected",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L2 390 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 614,
+      "scrollHeight": 880,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L3 390 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 589,
+      "scrollHeight": 820,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": [
+        "project:none",
+        "project:eb39795f-da19-4589-a3a5-e5e1c6ee1180",
+        "project-new",
+        "remove",
+        "start-edits"
+      ]
+    }
+  },
+  {
+    "name": "L4 390 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 572,
+      "scrollHeight": 848,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "No project",
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L5 390 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 545,
+      "scrollHeight": 837,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": [
+        "project:none",
+        "project:eb39795f-da19-4589-a3a5-e5e1c6ee1180",
+        "project-new",
+        "remove",
+        "start-edits"
+      ]
+    }
+  },
+  {
+    "name": "L6 390 starts at the top: Close focused, title and Close in view, not scrolled",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 624,
+      "scrollHeight": 790,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "Parcel review",
+        "synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel",
+        "/private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/f3536233-d6a7-49ad-a8ba-ae0f8ad489e9/scratchpad/run/after-location-folders/synthetic-parcel-repository-with-a-deliberately-long-folder-name-for-the-work-location-panel"
+      ],
+      "focus": {
+        "field": "close",
+        "label": "Close work location",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L3 390 preparing: location mutations locked",
+    "pass": true,
+    "detail": [
+      "project:none",
+      "project:eb39795f-da19-4589-a3a5-e5e1c6ee1180",
+      "project-new",
+      "remove",
+      "start-edits"
+    ]
+  },
+  {
+    "name": "L7 390 unbound chat starts on Connect folder when it is in view, else Close",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "scrollTop": 0,
+      "clientHeight": 456,
+      "scrollHeight": 456,
+      "titleInView": true,
+      "closeInView": true,
+      "identity": [
+        "Parcel review"
+      ],
+      "focus": {
+        "field": "open",
+        "label": "Open a folder to connect",
+        "inView": true,
+        "disabled": false
+      },
+      "locked": []
+    }
+  },
+  {
+    "name": "L2 390 Escape returns to the Work location entry",
+    "pass": true,
+    "detail": {
+      "tag": "BUTTON",
+      "id": "workspace-chip",
+      "field": null,
+      "label": "Work location: no project; folder /private/tmp/claude-501/-Users-lesprivilege-Projects-Cou",
+      "focusKey": null,
+      "visible": true
+    }
+  },
+  {
+    "name": "L2 390 a deliberate click elsewhere keeps its own focus",
+    "pass": true,
+    "detail": {
+      "focus": {
+        "tag": "TEXTAREA",
+        "id": "composer-input",
+        "field": null,
+        "label": "",
+        "focusKey": null,
+        "visible": true
+      },
+      "open": false
+    }
+  },
+  {
+    "name": "no uncaught page errors",
+    "pass": true,
+    "detail": null
+  }
+]
