@@ -1,0 +1,79 @@
+{
+  "session": {
+    "id": "a4c11001-2c23-4121-9a0d-ed51759575e7",
+    "scope": "unassigned",
+    "projectId": null,
+    "title": "Prepared coding dogfood: inspect this synthetic repository and its tests, diagnose the failing behav",
+    "draft": "",
+    "extensionBinding": null,
+    "createdAt": "2026-09-21T04:15:20.883Z",
+    "workspaceDir": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data/workspaces/a4c11001-2c23-4121-9a0d-ed51759575e7",
+    "permissionMode": "ask",
+    "hostSession": null,
+    "repositoryBinding": {
+      "id": "d400be89-99df-43eb-b91b-d7bf80180633",
+      "rootPath": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepared-real-dogfood-20260921-instance/source",
+      "device": "16777233",
+      "inode": "172968172",
+      "revision": 1,
+      "status": "active"
+    },
+    "repositoryBindingRevision": 1,
+    "repositoryBindingCommands": [
+      {
+        "requestId": "8405f192-02d3-492c-a8ec-26be292b825f",
+        "requestHash": "69fdbbead836494d96277d8780953de2ef71ffb54f4d7349eea16a6858796ba6",
+        "operation": "bind",
+        "expectedRevision": 0,
+        "receipt": {
+          "requestId": "8405f192-02d3-492c-a8ec-26be292b825f",
+          "operation": "bind",
+          "bindingId": "d400be89-99df-43eb-b91b-d7bf80180633",
+          "revision": 1,
+          "status": "active",
+          "rootPath": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepared-real-dogfood-20260921-instance/source",
+          "at": "2026-09-21T04:15:21.001Z"
+        }
+      }
+    ],
+    "repositoryCandidate": {
+      "id": "089ea7e2-7896-4e33-b43f-e69c389a850e",
+      "status": "active",
+      "revision": 1,
+      "sourceBindingId": "d400be89-99df-43eb-b91b-d7bf80180633",
+      "sourceBindingRevision": 1,
+      "baseCommit": "023783af1d76902ad5b00972804961fc1b42f060",
+      "objectFormat": "sha1",
+      "writeRevision": 0,
+      "createdAt": "2026-09-21T04:15:22.810Z"
+    },
+    "repositoryCandidateRevision": 1,
+    "repositoryCandidateCommands": [
+      {
+        "requestId": "ffb7e731-97e0-48c0-85ee-13591546c662",
+        "requestHash": "1a4e07bb3de721f8ee007443e34213e2fc3aa7cb4a9cd1f9eb42778d31130058",
+        "operation": "create",
+        "expectedRevision": 0,
+        "expectedBindingRevision": 1,
+        "sourceBindingId": "d400be89-99df-43eb-b91b-d7bf80180633",
+        "candidateId": "089ea7e2-7896-4e33-b43f-e69c389a850e",
+        "baseCommit": "023783af1d76902ad5b00972804961fc1b42f060",
+        "receipt": {
+          "requestId": "ffb7e731-97e0-48c0-85ee-13591546c662",
+          "operation": "create",
+          "candidateId": "089ea7e2-7896-4e33-b43f-e69c389a850e",
+          "revision": 1,
+          "status": "active",
+          "sourceBindingId": "d400be89-99df-43eb-b91b-d7bf80180633",
+          "sourceBindingRevision": 1,
+          "baseCommit": "023783af1d76902ad5b00972804961fc1b42f060",
+          "failureCode": null
+        }
+      }
+    ],
+    "repositoryWriteEffects": []
+  },
+  "events": [],
+  "runs": [],
+  "lastSeq": 0
+}

@@ -1,0 +1,10 @@
+{
+  "sourceHead": "023783af1d76902ad5b00972804961fc1b42f060",
+  "sourceClean": true,
+  "changedFiles": [
+    "src/parcel.mjs"
+  ],
+  "testBytesUnchanged": true,
+  "candidateFileSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+  "candidatePath": "/Users/lesprivilege/Projects/.worktrees/courtwork-coding-dogfood-20260920-instance/runtime-data/repository-candidates/c6180f0035e73642d6c877224a37d5d8d4bc4604feba845392769306590fb500/candidate-089ea7e2-7896-4e33-b43f-e69c389a850e/worktree"
+}

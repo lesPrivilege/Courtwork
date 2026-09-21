@@ -413,3 +413,5 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 2026-09-21 · [Preparation round-2 review](evidence/prepare-round2-review-20260921/README.md): PA-R3 accepted at `6b39ecc`; two original PA-R1/PA-R2 recovery cases remain with Claude. Hold integration and next journey.
 
 2026-09-21 · Astra accepts preparation/approval at `b3f3fd7` after Luna 70/70 and real OpenAI browser recovery checks. [Final packet](evidence/prepare-final-integration-20260921/README.md) closes PA-R1–R3 within 06b; broader G4 and tool-argument contracts remain open. Local merge/archival cleanup are integration work; no next journey started.
+
+2026-09-21 · Prepared real dogfood completed (one Run, fixed check 2/2); the user-observed repeated assistant footers return to the existing Run-surface owner. [Finite 06b Chat/Attention correction](06b-dogfood-friction-20260920.md) is ready for Claude pickup before Runtime management. No author process started; final-answer presentation and persisted evidence boundaries remain separate.

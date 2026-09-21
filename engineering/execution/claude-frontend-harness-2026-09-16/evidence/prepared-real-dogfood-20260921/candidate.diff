@@ -1,0 +1,11 @@
+--- source/src/parcel.mjs
++++ candidate/src/parcel.mjs
+@@ -2,7 +2,7 @@
+ export function pageCount(count, perPage) {
+   if (!Number.isInteger(count) || count < 0) throw new RangeError("count must be a non-negative integer");
+   if (!Number.isInteger(perPage) || perPage <= 0) throw new RangeError("perPage must be a positive integer");
+-  return Math.floor(count / perPage);
++  return Math.ceil(count / perPage);
+ }
+ 
+ export function pageOf(index, perPage) {

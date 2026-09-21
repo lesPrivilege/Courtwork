@@ -1,0 +1,45 @@
+Browser tab: 4, Title: "CourtWork", URL: "http://127.0.0.1:8787/#".
+1 AXWebArea CourtWork, URL: 127.0.0.1:8787/#
+	2 container app-shell
+		3 container Description: Projects and chats, ID: navigation-panel
+			4 link Description: Record forms CourtWork, Value: 127.0.0.1:8787/#home, ID: workspace-home-link
+			5 container Recent places
+				6 button (disabled) Description: Back, ID: nav-back-button
+				7 button (disabled) Description: Forward, ID: nav-forward-button
+			8 button Description: Home, ID: home-button
+			9 button Description: New chat, ID: new-session-button
+			10 button Description: Chat, ID: chat-button
+			11 button Description: Attention, ID: attention-button
+			12 button Description: Spark, ID: spark-button
+			13 text Find a project or chat
+			14 container
+				15 search text field (settable) Find a project or chat, ID: nav-filter-input
+			16 container PROJECTS
+				17 heading PROJECTS, Value: 2, ID: projects-heading
+					18 text PROJECTS
+				19 text 0
+				20 button Description: New project, ID: new-project-button
+				21 container Description: Project chats, ID: project-list
+			22 container RECENT
+				23 heading RECENT, Value: 2, ID: recent-heading
+					24 text RECENT
+				25 container Description: Recent chats, ID: recent-list
+					26 button Prepared coding dogfood: inspect this synthetic repository and its tests, diagnose the failing behav
+					27 pop up button More chat actions
+					28 button This is a fresh synthetic-parcel test repository. Read its source and tests through the repository t
+					29 pop up button More chat actions
+					30 button This chat is connected to the synthetic-parcel test repository. Inspect its source and tests using t
+					31 pop up button More chat actions
+			32 container Account
+				33 pop up button (collapsed) Description: Account · You · Max, ID: account-button, Secondary Actions: Expand
+					34 text You
+					35 text Max
+		36 container Agent workspace
+			37 container
+				38 button (expanded) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Collapse
+				39 heading Loading chat…, Value: 1, ID: session-title
+					40 text Loading chat…
+			41 container message-stream
+				42 heading No chat selected, Value: 3
+
+The focused UI element is 39 heading Loading chat…, Value: 1, ID: session-title

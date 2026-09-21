@@ -1,0 +1,212 @@
+Browser tab: 4, Title: "CourtWork", URL: "http://127.0.0.1:8787/#".
+0 AXWebArea CourtWork, URL: 127.0.0.1:8787/#
+	137 container app-shell
+		138 container Description: Projects and chats, ID: navigation-panel
+			139 link Description: Record forms CourtWork, Value: 127.0.0.1:8787/#home, ID: workspace-home-link
+			140 container Recent places
+				141 button ID: nav-back-button, Description: Back to This is a fresh synthetic-parcel test repository. Read its source and tests through the repository t
+				142 button (disabled) Description: Forward, ID: nav-forward-button
+			143 button Description: Home, ID: home-button
+			144 button Description: New chat, ID: new-session-button
+			145 button Description: Chat, ID: chat-button
+			146 button Description: Attention, ID: attention-button
+			147 button Description: Spark, ID: spark-button
+			148 text Find a project or chat
+			149 container
+				150 search text field (settable) Find a project or chat, ID: nav-filter-input
+			151 container PROJECTS
+				152 heading PROJECTS, Value: 2, ID: projects-heading
+					153 text PROJECTS
+				154 text 0
+				155 button Description: New project, ID: new-project-button
+				156 container Description: Project chats, ID: project-list
+					157 text No projects yet.
+			158 container RECENT
+				159 heading RECENT, Value: 2, ID: recent-heading
+					160 text RECENT
+				161 container Description: Recent chats, ID: recent-list
+					308 button Prepared coding dogfood: inspect this synthetic repository and its tests, diagnose the failing behav
+					309 pop up button More chat actions
+					310 button This is a fresh synthetic-parcel test repository. Read its source and tests through the repository t
+					311 pop up button More chat actions
+					312 button This chat is connected to the synthetic-parcel test repository. Inspect its source and tests using t
+					313 pop up button More chat actions
+			166 container Account
+				167 pop up button (collapsed) Description: Account · You · Max, ID: account-button, Secondary Actions: Expand
+					168 text You
+					169 text Max
+		170 container Agent workspace
+			171 button (expanded) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Collapse
+			172 container conversation-body
+				173 container composer-area
+					174 container home-composer-intro
+						175 heading Continue where you left off? Monday, September 21, Value: 2
+							176 text Continue where you left off? Monday, September 21
+						177 container Description: Example workspace, ID: preview-banner
+							178 container preview-banner-offer
+								179 text Explore an example workspace. It creates nothing.
+								180 button See the example workspace, ID: preview-offer-button
+					181 container Description: Where this chat works, ID: composer-context-strip
+						349 pop up button (expanded) ID: workspace-chip, Secondary Actions: Collapse, Description: Workspace: /Users/lesprivilege/Projects/.worktrees/courtwork-prepared-real-dogfood-20260921-instance/source · Read only
+						350 text Local
+						351 container Git branch: main
+							352 text Branch · main
+					186 container composer-form
+						187 text Message
+						188 text entry area (settable) Message, ID: composer-input, Value: Prepared coding dogfood: inspect this synthetic repository and its tests, diagnose the failing behavior, make the smallest repair in the private candidate, and run the fixed node-test check on that candidate. Keep the tests unchanged. Use the repository/candidate tools and their returned file hash; do not guess hashes. Ask for each required write/check approval and finish with the actual check result.
+						189 pop up button (collapsed) Description: Attachments, Secondary Actions: Expand
+						190 pop up button (disabled, collapsed) Description: Project, ID: home-project-button, Secondary Actions: Expand
+						191 pop up button (disabled, collapsed, settable) Description: File access for this chat, Value: Ask before editing, ID: home-permission-input, Secondary Actions: Expand
+							192 menu
+								193 (disabled) Ask before editing
+								194 (disabled) Allow edits
+								195 (disabled) Read only
+						196 pop up button (collapsed) Description: Model and effort · deepseek-v4-flash · high, ID: model-settings-button, Secondary Actions: Expand
+						197 button Description: Send, ID: send-button
+					353 text Chat and private candidate are ready. Nothing was sent; send to start work in them.
+				199 container message-stream
+					200 container
+						201 heading Continue, Value: 3
+							202 text Continue
+						203 text 2
+						204 content list
+							205 button This is a fresh synthetic-parcel test repository. Read its source and tests through the repository t No project Completed
+								206 text This is a fresh synthetic-parcel test repository. Read its source and tests through the repository t
+								207 text No project
+								208 text Completed
+							209 button This chat is connected to the synthetic-parcel test repository. Inspect its source and tests using t No project Completed
+								210 text This chat is connected to the synthetic-parcel test repository. Inspect its source and tests using t
+								211 text No project
+								212 text Completed
+					213 container
+						214 button (expanded) Activity 5 recorded runs · 84 days, Secondary Actions: Collapse
+							215 heading Activity, Value: 3
+								216 text Activity
+							217 text 5 recorded runs · 84 days
+						218 container Activity period
+							219 checkbox 28d, Value: 0
+							220 checkbox 84d, Value: 1
+						221 button Open Usage
+						222 container Daily retained runs, UTC. Arrow keys move between days.
+							223 button 2026-06-30 · 0 retained runs (UTC)
+							224 button 2026-07-01 · 0 retained runs (UTC)
+							225 button 2026-07-02 · 0 retained runs (UTC)
+							226 button 2026-07-03 · 0 retained runs (UTC)
+							227 button 2026-07-04 · 0 retained runs (UTC)
+							228 button 2026-07-05 · 0 retained runs (UTC)
+							229 button 2026-07-06 · 0 retained runs (UTC)
+							230 button 2026-07-07 · 0 retained runs (UTC)
+							231 button 2026-07-08 · 0 retained runs (UTC)
+							232 button 2026-07-09 · 0 retained runs (UTC)
+							233 button 2026-07-10 · 0 retained runs (UTC)
+							234 button 2026-07-11 · 0 retained runs (UTC)
+							235 button 2026-07-12 · 0 retained runs (UTC)
+							236 button 2026-07-13 · 0 retained runs (UTC)
+							237 button 2026-07-14 · 0 retained runs (UTC)
+							238 button 2026-07-15 · 0 retained runs (UTC)
+							239 button 2026-07-16 · 0 retained runs (UTC)
+							240 button 2026-07-17 · 0 retained runs (UTC)
+							241 button 2026-07-18 · 0 retained runs (UTC)
+							242 button 2026-07-19 · 0 retained runs (UTC)
+							243 button 2026-07-20 · 0 retained runs (UTC)
+							244 button 2026-07-21 · 0 retained runs (UTC)
+							245 button 2026-07-22 · 0 retained runs (UTC)
+							246 button 2026-07-23 · 0 retained runs (UTC)
+							247 button 2026-07-24 · 0 retained runs (UTC)
+							248 button 2026-07-25 · 0 retained runs (UTC)
+							249 button 2026-07-26 · 0 retained runs (UTC)
+							250 button 2026-07-27 · 0 retained runs (UTC)
+							251 button 2026-07-28 · 0 retained runs (UTC)
+							252 button 2026-07-29 · 0 retained runs (UTC)
+							253 button 2026-07-30 · 0 retained runs (UTC)
+							254 button 2026-07-31 · 0 retained runs (UTC)
+							255 button 2026-08-01 · 0 retained runs (UTC)
+							256 button 2026-08-02 · 0 retained runs (UTC)
+							257 button 2026-08-03 · 0 retained runs (UTC)
+							258 button 2026-08-04 · 0 retained runs (UTC)
+							259 button 2026-08-05 · 0 retained runs (UTC)
+							260 button 2026-08-06 · 0 retained runs (UTC)
+							261 button 2026-08-07 · 0 retained runs (UTC)
+							262 button 2026-08-08 · 0 retained runs (UTC)
+							263 button 2026-08-09 · 0 retained runs (UTC)
+							264 button 2026-08-10 · 0 retained runs (UTC)
+							265 button 2026-08-11 · 0 retained runs (UTC)
+							266 button 2026-08-12 · 0 retained runs (UTC)
+							267 button 2026-08-13 · 0 retained runs (UTC)
+							268 button 2026-08-14 · 0 retained runs (UTC)
+							269 button 2026-08-15 · 0 retained runs (UTC)
+							270 button 2026-08-16 · 0 retained runs (UTC)
+							271 button 2026-08-17 · 0 retained runs (UTC)
+							272 button 2026-08-18 · 0 retained runs (UTC)
+							273 button 2026-08-19 · 0 retained runs (UTC)
+							274 button 2026-08-20 · 0 retained runs (UTC)
+							275 button 2026-08-21 · 0 retained runs (UTC)
+							276 button 2026-08-22 · 0 retained runs (UTC)
+							277 button 2026-08-23 · 0 retained runs (UTC)
+							278 button 2026-08-24 · 0 retained runs (UTC)
+							279 button 2026-08-25 · 0 retained runs (UTC)
+							280 button 2026-08-26 · 0 retained runs (UTC)
+							281 button 2026-08-27 · 0 retained runs (UTC)
+							282 button 2026-08-28 · 0 retained runs (UTC)
+							283 button 2026-08-29 · 0 retained runs (UTC)
+							284 button 2026-08-30 · 0 retained runs (UTC)
+							285 button 2026-08-31 · 0 retained runs (UTC)
+							286 button 2026-09-01 · 0 retained runs (UTC)
+							287 button 2026-09-02 · 0 retained runs (UTC)
+							288 button 2026-09-03 · 0 retained runs (UTC)
+							289 button 2026-09-04 · 0 retained runs (UTC)
+							290 button 2026-09-05 · 0 retained runs (UTC)
+							291 button 2026-09-06 · 0 retained runs (UTC)
+							292 button 2026-09-07 · 0 retained runs (UTC)
+							293 button 2026-09-08 · 0 retained runs (UTC)
+							294 button 2026-09-09 · 0 retained runs (UTC)
+							295 button 2026-09-10 · 0 retained runs (UTC)
+							296 button 2026-09-11 · 0 retained runs (UTC)
+							297 button 2026-09-12 · 0 retained runs (UTC)
+							298 button 2026-09-13 · 0 retained runs (UTC)
+							299 button 2026-09-14 · 0 retained runs (UTC)
+							300 button 2026-09-15 · 0 retained runs (UTC)
+							301 button 2026-09-16 · 0 retained runs (UTC)
+							302 button 2026-09-17 · 0 retained runs (UTC)
+							303 button 2026-09-18 · 0 retained runs (UTC)
+							304 button 2026-09-19 · 0 retained runs (UTC)
+							305 button 2026-09-20 · 5 retained runs (UTC)
+							306 button 2026-09-21 · 0 retained runs (UTC)
+						307 text 2026-06-30 — 2026-09-21 UTC · Retained runs only. Deleted-chat history is unknown.
+	136 container Description: Workspace, ID: workspace-popover
+		315 heading Workspace, Value: 3
+			316 text Workspace
+		317 button Close workspace card
+		318 container
+			319 definition list
+				320 container Project
+					321 text Project
+				322 text No project
+				323 container Folder
+					324 text Folder
+				325 text /Users/lesprivilege/Projects/.worktrees/courtwork-prepared-real-dogfood-20260921-instance/source
+				326 container Access
+					327 text Access
+				328 text Read only
+				329 container File access
+					330 text File access
+				331 text Ask before editing
+			332 button (collapsed) Which is which, Secondary Actions: Expand
+				333 text Which is which
+			334 text Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists.
+			335 button Disconnect
+		336 container
+			337 heading EDITS, Value: 4
+				338 text EDITS
+			339 definition list
+				340 container Private candidate
+					341 text Private candidate
+				342 text from 023783af1d76
+				343 container Writes
+					344 text Writes
+				345 text 0
+			346 button Review changes
+			347 text Stopping keeps the candidate's files; later edits need a new candidate.
+			348 button Stop edits
+
+The focused UI element is 346 button Review changes
