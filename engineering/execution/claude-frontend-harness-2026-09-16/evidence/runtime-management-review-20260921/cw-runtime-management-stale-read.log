@@ -1,0 +1,3 @@
+COMMAND: public controller with adapter.open returning stale revision after confirmed connect
+RESULT: {"openCount":2,"detailRevision":6,"receiptRevision":7,"readBack":"done","connectAllowedAgainstStaleDetail":true,"reconnectAllowedAgainstStaleDetail":false}
+EXIT: 0

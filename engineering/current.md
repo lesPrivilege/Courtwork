@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-21 · Runtime management reviewed; bounded 06c return
+
+[Independent review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-management-review-20260921/README.md) holds `84faff9` for RM-R1 unknown-state wording, RM-R2 stale read-back consistency and RM-C1's proposed definitive-not-applied contract. Luna passes 26/26 new and 67/67 adjacent tests; Astra OpenAI browser verifies the main synthetic journey, frozen bound Run, lost-reply status recovery with newer draft retention, disconnect history, Escape, refusal focus and 390px dark layout. Author full 1378/1378 remains separately attributed.
+
+Original Opus owner keeps the same clean runtime-management tree for this finite return; accepted design and fixture isolation remain. The 06a optional-note null child is recorded with its original owner, outside this return. No product merge, cleanup deletion, next journey, provider/credential access, push/deploy or heartbeat activation. Temporary review preview/tab were stopped; user services were not modified. Core P03-C Host contract remains its previously registered work, not folded into frontend fixes.
+
+
 ## 2026-09-21 · Next round authorized: Runtime management frontend and Host-consumer preflight
 
 The user authorizes continuation from `77e87ac`. [06c Runtime management](execution/claude-frontend-harness-2026-09-16/06c-runtime-management-20260921.md) is ready for Opus pickup: one complete explicit synthetic Settings → Agents → Runtimes connection/disable/recovery journey, using accepted profiles and Design primitives. No real secret/native configuration writes or production Runtime exposure. No author tree/process has been launched; this task has no callable Opus/Sonnet/Fable route.

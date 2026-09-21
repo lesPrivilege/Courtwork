@@ -86,3 +86,8 @@ Missing backend fields remain assigned to the existing owners; configuration-wid
 ## 06a accepted; next serial frontend priority — 2026-09-20
 
 [Round-2 acceptance](evidence/agents-profile-round2-20260920/README.md) adopts the corrected synthetic journey at `aca21c8`, integrated in `b98e8ae`. The separate order-11 prepared handoff and basic real coding loop are now independently accepted, without rewriting the earlier sequence deviation. Per the user's request to batch frontend friction after dogfood, [Claude's finite next order](06b-dogfood-friction-20260920.md) covers coding-entry clarity, accurate boundary copy, candidate result/focus continuity and 06a list refresh. Runtime management and Role-first Composer follow this reviewable batch; backend fields remain proposed. No worker was started by this registration.
+
+
+## 06a owner follow-up from 06c review — 2026-09-21
+
+The [06c review](evidence/runtime-management-review-20260921/README.md) source-confirms the author's observation in `agent-profiles-view.mjs`: an absent model note is passed as `null` to native `append`, which can render literal text although the contract permits an absent note. **Adopt as a separate existing-06a-owner correction; deferred from 06c.** Preserve the original accepted scope/evidence; fix optional-child rendering when this small follow-up is picked up, with a real DOM or equivalent native-append counterexample. No product edit or new broad Agent profiles review occurred here.

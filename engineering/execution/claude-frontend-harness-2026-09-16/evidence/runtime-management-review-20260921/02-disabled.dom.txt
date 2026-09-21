@@ -1,0 +1,81 @@
+- banner:
+  - paragraph: Interactive synthetic preview
+  - heading "Settings › Agents › Runtimes" [level=1]
+  - paragraph: Every runtime, version, connection, credential reference, run and receipt on this page is synthetic. Pi, Hermes and Codex are labelled examples, not a search of this device. Nothing here starts a process, reads or writes native settings, handles a key, contacts a provider or saves outside this tab. A confirmed revision is confirmed by the preview only.
+- region "Preview state":
+  - text: Scenario
+  - combobox "Scenario":
+    - option "Normal" [selected]
+    - option "No runtimes reported"
+    - option "List cannot be read"
+    - option "Connect refused"
+    - option "Next reply lost after it lands"
+    - option "Changed elsewhere first"
+    - option "Host cannot change runtimes"
+  - checkbox "Slow replies"
+  - text: Slow replies
+  - text: Appearance
+  - combobox "Appearance":
+    - option "Light" [selected]
+    - option "Dark"
+  - button "Reset preview"
+- tablist "Settings groups":
+  - tab "Agents" [selected]:
+    - generic: Agents
+  - button "Models" [disabled]:
+    - generic: Models
+  - button "Tools & Integrations" [disabled]:
+    - generic: Tools & Integrations
+  - button "Permissions" [disabled]:
+    - generic: Permissions
+  - button "Developer" [disabled]:
+    - generic: Developer
+- generic: Settings group
+- paragraph: Only Agents › Runtimes is built in this preview. The other groups are the product's real ones and are not reachable from here.
+- tabpanel "Agents":
+  - heading "Agents" [level=3]
+  - button "Back to runtimes":
+    - generic: Runtimes
+  - heading "Pi · example" [level=4]:
+    - text: Pi · example
+  - paragraph: Local process · Connected · not taking new work
+  - paragraph: Used by Work and Coding.
+  - paragraph: Saved revision 4 · 9/21/2026, 5:10:00 PM
+  - status [active]:
+    - paragraph: Preview receipt · Disabled for new work. The preview confirmed Pi at revision 4 · connection syn-pi-conn-1.
+    - paragraph: "Read back: revision 4 · connection syn-pi-conn-1. Not taking new work: disabled for new work at revision 4."
+    - paragraph: synthetic-run-311 keeps revision 3; it was not stopped, moved or queued.
+  - heading "Who configures it" [level=4]
+  - term: Configuration
+  - definition: Configured by CourtWork. Pi's own settings files are not written.
+  - term: Sign-in
+  - definition: Uses a credential reference from Models. The key stays with its Models connection and is never shown here.
+  - term: Model
+  - definition: Model choice belongs to Models.
+  - heading "Connection" [level=4]
+  - paragraph: Connected as “Pi on this Mac” · connection syn-pi-conn-1 · since 9/19/2026, 10:05:00 PM.
+  - generic: Connection name
+  - generic: Your name for this connection. It is how it appears in lists.
+  - textbox "Connection name": Pi on this Mac
+  - generic: Credential reference
+  - generic: Keys are added and replaced in Models. This only chooses which reference the runtime uses; no key is shown or typed here.
+  - combobox "Credential reference":
+    - option "Choose a reference"
+    - option "Synthetic reference · Models › Synthetic connection A" [selected]
+    - option "Synthetic reference · Models › Synthetic connection B — no key in Models"
+  - paragraph: Reconnecting keeps connection syn-pi-conn-1 and its history, and applies the name and sign-in above.
+  - button "Reconnect"
+  - heading "New work" [level=4]
+  - term: Saved setting
+  - definition: Disabled for new work
+  - term: Next admission
+  - definition: "Not taking new work: disabled for new work at revision 4."
+  - term: Bound · synthetic-run-311
+  - definition: Coding is running on revision 3. It keeps that binding whatever changes here.
+  - paragraph: Enabling applies from the next admission. It starts nothing now.
+  - button "Enable for new work"
+  - heading "End this connection" [level=4]
+  - paragraph: Disconnecting removes connection syn-pi-conn-1 only. Pi's installation, its own settings and every run recorded under this connection stay.
+  - button "Disconnect…" [disabled]
+  - paragraph: A run is bound to this connection, so it cannot be disconnected now. Disconnecting never stops a run; this becomes available when synthetic-run-311 ends.
+  - generic "Technical detail"

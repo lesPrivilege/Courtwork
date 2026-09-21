@@ -1,0 +1,74 @@
+- banner:
+  - paragraph: Interactive synthetic preview
+  - heading "Settings › Agents › Runtimes" [level=1]
+  - paragraph: Every runtime, version, connection, credential reference, run and receipt on this page is synthetic. Pi, Hermes and Codex are labelled examples, not a search of this device. Nothing here starts a process, reads or writes native settings, handles a key, contacts a provider or saves outside this tab. A confirmed revision is confirmed by the preview only.
+- region "Preview state":
+  - text: Scenario
+  - combobox "Scenario":
+    - option "Normal"
+    - option "No runtimes reported"
+    - option "List cannot be read"
+    - option "Connect refused" [selected]
+    - option "Next reply lost after it lands"
+    - option "Changed elsewhere first"
+    - option "Host cannot change runtimes"
+  - checkbox "Slow replies"
+  - text: Slow replies
+  - text: Appearance
+  - combobox "Appearance":
+    - option "Light"
+    - option "Dark" [selected]
+  - button "Reset preview"
+- tablist "Settings groups":
+  - tab "Agents" [selected]:
+    - generic: Agents
+  - button "Models" [disabled]:
+    - generic: Models
+  - button "Tools & Integrations" [disabled]:
+    - generic: Tools & Integrations
+  - button "Permissions" [disabled]:
+    - generic: Permissions
+  - button "Developer" [disabled]:
+    - generic: Developer
+- generic: Settings group
+- paragraph: Only Agents › Runtimes is built in this preview. The other groups are the product's real ones and are not reachable from here.
+- tabpanel "Agents":
+  - heading "Agents" [level=3]
+  - button "Back to runtimes":
+    - generic: Runtimes
+  - heading "Hermes · example" [level=4]:
+    - text: Hermes · example
+  - paragraph: Local process · Disconnected · not taking new work
+  - paragraph: Used by Attention.
+  - paragraph: Saved revision 8 · 9/21/2026, 5:41:00 PM
+  - alert:
+    - paragraph: Hermes did not report a signed-in session, so nothing was connected. Your connection name is kept.
+  - heading "Who configures it" [level=4]
+  - term: Configuration
+  - definition: Configured in Hermes itself. CourtWork keeps only its own connection record.
+  - term: Sign-in
+  - definition: Hermes holds its own sign-in. CourtWork reads whether it reports one.
+  - term: Model
+  - definition: Hermes chooses its own model; CourtWork reads that choice.
+  - heading "Connection" [level=4]
+  - paragraph: Not connected now. Earlier connections and their runs are kept under History.
+  - generic: Connection name
+  - generic: Your name for this connection. It is how it appears in lists.
+  - textbox "Connection name": Refused draft retained
+  - paragraph: "Sign-in: Hermes has not reported a signed-in session yet."
+  - paragraph: "Next step, in Hermes: Sign in inside Hermes, with its own setup. CourtWork does not read, copy or store that sign-in; connecting only asks Hermes whether it reports one."
+  - generic "What connecting writes, and what it leaves alone"
+  - paragraph: "Requested: name “Refused draft retained”. Not applied; saved is revision 8."
+  - button "Connect" [active]
+  - button "Discard changes"
+  - heading "New work" [level=4]
+  - term: Saved setting
+  - definition: Enabled for new work
+  - term: Next admission
+  - definition: "Not taking new work: it is not connected."
+  - heading "History" [level=4]
+  - term: Hermes on this Mac · syn-hermes-conn-1
+  - definition: 9/12/2026, 4:00:00 PM to 9/19/2026, 1:40:00 AM · 4 runs recorded; their history is kept.
+  - term: Independent Hermes · syn-hermes-conn-2
+  - definition: 9/21/2026, 5:24:00 PM to 9/21/2026, 5:41:00 PM · 2 runs recorded; their history is kept.
+  - generic "Technical detail"

@@ -86,3 +86,6 @@
 
 
 2026-09-21 · [Composer CE-R1 final independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/composer-ce-r1-final-20260921/README.md), source `4695426`: Luna 122/122, actual main `d52f44f` 40/40, Astra OpenAI browser at 1195×772 holds the real bind/draft/admission requests and confirms continuous lock, normal unlock, active binding revision 1, one completed Run and reload. Navigation-window hypothesis withdrawn after a surface-only browser gate remained unused and source confirmed immediate-return paths. Author full 1352/1352 remains separately attributed. No full unknown-bind/read-back recovery, native zoom/reader/forced-colors or CE-F2 acceptance.
+
+
+2026-09-21 · [06c independent review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-management-review-20260921/README.md), candidate `84faff9`: Luna 26/26 and 67/67, public-controller stale read-back counterexample (receipt 7/detail 6/readBack done), Astra OpenAI browser desktop1195×772 and emulated390×844 dark with unknown/reconciliation/retained draft/bound Run/disconnect/Escape/refused-focus cases. Hold for RM-R1/R2 and proposed contract correction RM-C1. No full-suite rerun, production adapter, native zoom/reader/forced-colors, real provider or capability acceptance.
