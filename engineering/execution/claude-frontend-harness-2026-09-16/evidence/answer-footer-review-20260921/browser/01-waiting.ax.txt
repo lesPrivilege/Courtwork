@@ -1,0 +1,78 @@
+Browser tab: 15, Title: "CourtWork", URL: "http://127.0.0.1:8951/".
+0 AXWebArea CourtWork, URL: 127.0.0.1:8951/
+	1 container app-shell
+		2 container Description: Projects and chats, ID: navigation-panel
+			3 link Description: Record forms CourtWork, Value: 127.0.0.1:8951/#home, ID: workspace-home-link
+			4 container Recent places
+				5 button (disabled) Description: Back, ID: nav-back-button
+				6 button (disabled) Description: Forward, ID: nav-forward-button
+			7 button Description: Home, ID: home-button
+			8 button Description: New chat, ID: new-session-button
+			9 button Description: Chat, ID: chat-button
+			10 button Description: Attention, ID: attention-button
+			11 button Description: Spark, ID: spark-button
+			12 text Find a project or chat
+			13 container
+				14 search text field (settable) Find a project or chat, ID: nav-filter-input
+			15 container PROJECTS
+				16 heading PROJECTS, Value: 2, ID: projects-heading
+					17 text PROJECTS
+				53 text 1
+				19 button Description: New project, ID: new-project-button
+				20 container Description: Project chats, ID: project-list
+					54 button (expanded) Footer harness, Secondary Actions: Collapse
+					55 button New chat in Footer harness
+					56 text No chats yet.
+			24 container RECENT
+				25 heading RECENT, Value: 2, ID: recent-heading
+					26 text RECENT
+				27 container Description: Recent chats, ID: recent-list
+					57 button replay controlled
+					58 pop up button More chat actions
+			29 container Account
+				30 pop up button (collapsed) Description: Account · You · Max, ID: account-button, Secondary Actions: Expand
+					31 text You
+					32 text Max
+		33 container Agent workspace
+			59 container
+				60 button (expanded) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Collapse
+				61 heading replay controlled, Value: 1, ID: session-title
+					75 text replay controlled
+				76 text Waiting for you
+				64 button Description: Chat overview, ID: show-run-button
+				65 button Description: Open work surface, ID: show-surface-button
+			35 container conversation-body
+				66 container message-stream
+					77 container Your message
+						78 text replay controlled
+						79 button (collapsed) Source, Secondary Actions: Expand
+							80 text Source
+						81 container
+							82 container Message actions
+								83 button Copy message
+								84 button Edit as new message
+								85 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+							86 text Started 9/21/2026, 1:02:52 PM
+					87 container Agent run
+						88 text Planning: I will list the workspace first, then ask you one question before I answer.
+						89 button (collapsed) ask_user Waiting for you, Secondary Actions: Expand
+							90 text ask_user
+							91 text Waiting for you
+						92 content list
+							93 container
+								94 text Controlled sequence: reply with any word to continue.
+								95 text field (settable) Answer
+								96 button Answer
+					74 pop up button (collapsed) Description: Measurement details, Secondary Actions: Expand
+					97 text Waiting for you
+				98 container composer-form
+					99 text Message
+					100 text entry area (settable) Message, ID: composer-input
+					107 text Waiting for you · 20s · your input will not be sent automatically.
+					102 pop up button Description: Chat files, ID: materials-button
+					103 pop up button (collapsed) Description: File access: Ask before editing, ID: permission-settings-button, Secondary Actions: Expand
+					104 pop up button (collapsed) Description: Model and effort · scripted-model · Provider default, ID: model-settings-button, Secondary Actions: Expand
+					105 pop up button (collapsed) Description: Context: 1 of 1,000,000 tokens, <0.1%, default window, latest completed request input, Secondary Actions: Expand
+					106 button Description: Stop working, ID: cancel-run-button
+
+The focused UI element is 100 text entry area (settable) Message, ID: composer-input

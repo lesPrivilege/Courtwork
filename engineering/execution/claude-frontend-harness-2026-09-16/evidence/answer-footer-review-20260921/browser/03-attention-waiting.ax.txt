@@ -1,0 +1,49 @@
+Browser tab: 15, Title: "CourtWork", URL: "http://127.0.0.1:8951/".
+0 AXWebArea CourtWork, URL: 127.0.0.1:8951/
+	1 container Attention, ID: attention-agent-dialog
+		2 container
+			3 heading Attention, Value: 2, ID: attention-agent-title
+				4 text Attention
+			5 text Your global assistant
+			6 button Close Attention
+		7 pop up button (collapsed, settable) Description: Attention conversation, Value: Attention · 9/21/2026, 1:03:37 PM, Secondary Actions: Expand
+			8 menu
+				23 New conversation
+				24 (selected) Attention · 9/21/2026, 1:03:37 PM
+		10 button Refresh Attention
+		11 button (collapsed) Conversations, Secondary Actions: Expand
+		12 button Attention items
+		25 button Open conversation
+		13 button Configure Attention Runtime
+		14 button (collapsed) Threads & messages, Secondary Actions: Expand
+			15 text Threads & messages
+		16 container Attention conversation messages
+			40 container Your message
+				41 text replay controlled
+				42 button (collapsed) Source, Secondary Actions: Expand
+					43 text Source
+				44 container
+					45 container Message actions
+						46 button Copy message
+						47 button Edit as new message
+						48 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+					49 text Started 9/21/2026, 1:03:37 PM
+			50 container Agent run
+				51 text Planning: I will list the workspace first, then ask you one question before I answer.
+				52 button (collapsed) ask_user Waiting for you, Secondary Actions: Expand
+					53 text ask_user
+					54 text Waiting for you
+				55 container
+					56 text Question Controlled sequence: reply with any word to continue.
+					57 text entry area (settable) Answer Attention
+					58 button (disabled) Send answer
+				59 text Waiting for you
+		60 text Waiting for you
+		18 button (collapsed) Runtime & memory, Secondary Actions: Expand
+			19 text Runtime & memory
+		20 text field (settable) Message Attention
+		21 pop up button (collapsed) Description: Attachments, Secondary Actions: Expand
+		22 button Description: Choose model and effort, Help: scripted-model · default effort
+		39 button Cancel Attention run
+
+The focused UI element is 0 AXWebArea CourtWork, URL: 127.0.0.1:8951/

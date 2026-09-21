@@ -302,3 +302,9 @@ loses Copy, which Astra may want back without the timestamp. Packet, checks
 and the list of what was not executed:
 [answer-footer-20260921](evidence/answer-footer-20260921/README.md).
 The ask_user observation stays deferred as ordered.
+
+## Astra acceptance and next bounded return — 2026-09-21
+
+Answer-footer candidate `17f57c0` is independently accepted and merged at `2c23272`; [review and policy dispositions](evidence/answer-footer-review-20260921/README.md) supersede author-only status. Luna 64/64 plus Astra OpenAI browser waiting/completion/failed/cancelled and Copy/reload evidence; full-suite and accessibility limits retained.
+
+**Next serial frontend assignment: Composer working-location entry.** Consume [the screenshot-grounded ruling and finite acceptance cases](evidence/composer-entry-review-20260921/README.md). Opus owns implementation, Sonnet may explore the existing entry/controller/Design precedents; Codex owns independent acceptance. Start a fresh isolated tree from actual integrated main after footer cleanup. This is a UI consolidation with unchanged Project/Folder/permission owners; it precedes the Runtime-management preview. No author process has been launched by this registration. The active disjoint Fable Pi Runtime Port extraction continues unchanged.

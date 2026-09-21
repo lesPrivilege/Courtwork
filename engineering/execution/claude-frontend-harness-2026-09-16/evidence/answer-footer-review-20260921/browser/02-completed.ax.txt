@@ -1,0 +1,85 @@
+Browser tab: 15, Title: "CourtWork", URL: "http://127.0.0.1:8951/".
+0 AXWebArea CourtWork, URL: 127.0.0.1:8951/
+	1 container app-shell
+		2 container Description: Projects and chats, ID: navigation-panel
+			3 link Description: Record forms CourtWork, Value: 127.0.0.1:8951/#home, ID: workspace-home-link
+			4 container Recent places
+				5 button (disabled) Description: Back, ID: nav-back-button
+				6 button (disabled) Description: Forward, ID: nav-forward-button
+			7 button Description: Home, ID: home-button
+			8 button Description: New chat, ID: new-session-button
+			9 button Description: Chat, ID: chat-button
+			10 button Description: Attention, ID: attention-button
+			11 button Description: Spark, ID: spark-button
+			12 text Find a project or chat
+			13 container
+				14 search text field (settable) Find a project or chat, ID: nav-filter-input
+			15 container PROJECTS
+				16 heading PROJECTS, Value: 2, ID: projects-heading
+					17 text PROJECTS
+				53 text 1
+				19 button Description: New project, ID: new-project-button
+				20 container Description: Project chats, ID: project-list
+					54 button (expanded) Footer harness, Secondary Actions: Collapse
+					55 button New chat in Footer harness
+					56 text No chats yet.
+			24 container RECENT
+				25 heading RECENT, Value: 2, ID: recent-heading
+					26 text RECENT
+				27 container Description: Recent chats, ID: recent-list
+					57 button replay controlled
+					58 pop up button More chat actions
+			29 container Account
+				30 pop up button (collapsed) Description: Account · You · Max, ID: account-button, Secondary Actions: Expand
+					31 text You
+					32 text Max
+		33 container Agent workspace
+			59 container
+				60 button (expanded) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Collapse
+				61 heading replay controlled, Value: 1, ID: session-title
+					106 text replay controlled
+				64 button Description: Chat overview, ID: show-run-button
+				65 button Description: Open work surface, ID: show-surface-button
+			35 container conversation-body
+				66 container message-stream
+					107 container Your message
+						108 text replay controlled
+						109 button (collapsed) Source, Secondary Actions: Expand
+							110 text Source
+						111 container
+							112 container Message actions
+								113 button Copy message
+								114 button Edit as new message
+								115 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+							116 text Started 9/21/2026, 1:02:52 PM
+					117 container Agent run
+						118 text Planning: I will list the workspace first, then ask you one question before I answer.
+						119 button (collapsed) Execution 2 successful tool actions, Secondary Actions: Expand
+							120 text Execution
+							121 text 2 successful tool actions
+						122 button (collapsed) Controlled sequence: reply with any word to continue. Answered, Secondary Actions: Expand
+							123 text Controlled sequence: reply with any word to continue.
+							124 text Answered
+						125 text Thanks. Listing the workspace now so the answer can cite it.
+						126 container
+							127 text Final answer: the workspace listing came back and the controlled sequence is complete.
+							128 text Run started 9/21/2026, 1:02:52 PM
+							129 container Response actions
+								130 button Copy response
+								131 button (disabled) Read aloud
+								132 checkbox (disabled) Description: Like response, Value: 0
+								133 checkbox (disabled) Description: Dislike response, Value: 0
+								134 button (disabled) Regenerate response
+								135 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+					74 pop up button (collapsed) Description: Measurement details, Secondary Actions: Expand
+					136 text Completed
+				98 container composer-form
+					99 text Message
+					100 text entry area (settable) Message, ID: composer-input
+					102 pop up button Description: Chat files, ID: materials-button
+					103 pop up button (collapsed) Description: File access: Ask before editing, ID: permission-settings-button, Secondary Actions: Expand
+					104 pop up button (collapsed) Description: Model and effort · scripted-model · Provider default, ID: model-settings-button, Secondary Actions: Expand
+					105 pop up button (collapsed) Description: Context: 1 of 1,000,000 tokens, <0.1%, default window, latest completed request input, Secondary Actions: Expand
+					137 button Description: Send, ID: send-button
+
+The focused UI element is 0 AXWebArea CourtWork, URL: 127.0.0.1:8951/

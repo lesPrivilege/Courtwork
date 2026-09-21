@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-21 · Answer footer accepted; working-location entry next
+
+[Independent footer acceptance](execution/claude-frontend-harness-2026-09-16/evidence/answer-footer-review-20260921/README.md) integrates `17f57c0` as main `2c23272`: Luna 64/64, OpenAI browser Chat/Attention final-only footers, cancellation/failure retention, exact Copy and reload. Author full-suite 1327/1328 and accessibility limits stay explicit. [Next finite 06b task](execution/claude-frontend-harness-2026-09-16/evidence/composer-entry-review-20260921/README.md) consolidates the visible working-location entry and adjusts context-band proportions, preserving Project/Folder/permission contracts. It precedes Runtime management; registration is not implementation. The Pi Runtime Port tree is active and preserved. User 8787/8899 untouched; no paid call, push/deploy or heartbeat activation.
+
 ## 2026-09-21 · Updated author routing and next dispatch
 
 [Next bounded assignments](execution/claude-frontend-harness-2026-09-16/next-dispatch-20260921.md) apply the user's Opus implementation / Sonnet exploration / Fable core / Codex architecture-and-independent-acceptance routing. The existing `claude-answer-footer-20260921` tree is now observed at `af1cfad` and treated as claimed; no duplicate writer. Frontend continues serially to the explicit Runtime-management preview, then Role-first Composer. A disjoint core lane may begin Sonnet's P03-B source map followed by Fable's minimal Pi Runtime Port extraction; existing offline Agents API protocol code must be consumed, not rebuilt. Request-detail backend work awaits its narrow existing-owner contract and an available service writer. These are ready/queued handoffs, not a claim that Codex launched unavailable Opus/Sonnet/Fable tools. User 8787/8899 preserved; no new paid call, push/deploy or heartbeat activation.

@@ -1,0 +1,86 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (237.426458ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (390.83925ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (145.984541ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.66725ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.157458ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.150709ms)
+✔ conversation rename persists metadata without changing history, scope or draft (68.461375ms)
+✔ production only admits explicit handlers and preserves exact captured bytes (1.985708ms)
+✔ synthetic feedback is mutually exclusive and reversible; failure preserves selection (34.065ms)
+✔ feedback lock suppresses duplicate/inverse requests and detached results cannot update a new target (3.656667ms)
+✔ pending assistant messages expose no Chat action chrome (0.367042ms)
+✔ regeneration requires explicit confirmation and retains original scope (4.100167ms)
+✔ synthetic playback can be paused, resumed and stopped without a speech service (6.454667ms)
+✔ production rejects undeclared lifecycle handlers even when supplied (0.443083ms)
+✔ same bytes and key from a replacement record cannot accept an async result (4.544292ms)
+✔ copyAction shares the 1.6s feedback lifecycle and the latest async copy owns its label (0.642209ms)
+✔ Chat copy shows Copied only on its button for 1.6s, then restores its action label (1.146375ms)
+✔ a later Chat error survives an old pending copy result and a later action cancels the copy timer (1.205417ms)
+✔ a later busy Chat action cancels Copied feedback without its timer clearing the busy notice (2.120958ms)
+✔ Chat and Attention draw the assistant footer only through the shared final-answer gate (1.305875ms)
+✔ Copy on the one footer of a multi-segment Run copies exactly the final answer (19.5565ms)
+✔ new error after copy success survives expiry and detached Chat is not repainted (4.175875ms)
+✔ check.started and check.settled project onto one tool row and outrank Pi's tool events (1.107875ms)
+✔ A cancelled or unknown settlement stands on its own without a Pi tool/result (0.204834ms)
+✔ A check approval names the recipe, what runs, where, and the limits (0.536459ms)
+✔ Activity word and glyph wiring for checks (0.832583ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (127.278208ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (3.394542ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (1.673ms)
+✔ 00 · the folder entry says Connect folder; Project stays Project (1.919833ms)
+✔ completed Run disclosure groups successful tools and exact allowed history in timeline order (2.422834ms)
+✔ incomplete, failed, pending, denied, malformed, and cross-call rows stay outside the summary (0.223708ms)
+✔ a running Run collapses the calls it has finished while the current call stays visible (0.076125ms)
+✔ a completed Run with only errors or unfinished calls gets no empty summary (0.062709ms)
+✔ member IDs and disclosure state keys remain stable and surface-scoped (0.116542ms)
+✔ Inspector separates recorded/current targets and folds version/cache details without losing unknown accounting (39.005291ms)
+✔ Inspector tool activity reuses thread projection and never turns an unfinished tool into success (1.072959ms)
+✔ cumulative assistant deltas and their final stay one non-pending row (4.377ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (1.973542ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.44725ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.386709ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.412625ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.202667ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (0.219042ms)
+✔ message time has readable provenance content without naming the native time role (34.710125ms)
+✔ narration → tool → answer keeps every row and marks only the answer final (0.4275ms)
+✔ the persisted real dogfood Run yields its five texts and exactly one final answer (5.3105ms)
+✔ no row is final while the Run is still working, waiting or stopping (0.374667ms)
+✔ failed, cancelled and unknown Runs keep their text readable with no final answer (0.373125ms)
+✔ whatever follows the answer takes the final mark away or passes it on (0.381709ms)
+✔ each Run has its own final answer (0.407459ms)
+✔ the shared footer draws time and actions only under the final answer (0.923458ms)
+✔ a successful ws_read row renders the shared anatomy: title, meta, glyph, closed by default (1.72775ms)
+✔ an error row is open by default and carries the is-failed class (0.271542ms)
+✔ a settled check_run row shows the facts list (Recipe/Outcome) and stdout, not the request/result JSON dump (0.985834ms)
+✔ toggling the details element calls onToggle with the new open state (0.135458ms)
+✔ toolGlyph, appendToolDetails and appendCheckDetails cover the moved cases (0.157833ms)
+✔ parity: Chat and Attention share renderToolRow, and the old duplicate tool-row anatomy is gone (1.121875ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (15.709458ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (1.628375ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (0.962916ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (1.631292ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (147.05075ms)
+✔ skin-policy.js is an exact synchronous static route (60.450834ms)
+ℹ tests 64
+ℹ suites 0
+ℹ pass 64
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1678.091625
+
+--- Luna independent probes (candidate 17f57c0680017a2fb18110160af5b35371879a9b) ---
+Command: node --input-type=module (from app/, importing ./web/thread-projection.mjs)
+telemetry-after-final [{"text":"Done","final":true,"pending":false}]
+terminal-tool [{"text":"Before","pending":false}]
+length [{"text":"Cut","final":true,"pending":false}]
+error-stop-completed [{"text":"Err","final":true,"pending":false}]
+status-transitions [{"text":"Done","pending":false}]
+status-completes-late [{"text":"Done","pending":false}] (initial status remained running; no terminal event)
+empty-after-final [{"text":"Done","pending":false},{"text":"","pending":false}]
+duplicate-final [{"text":"A","pending":false},{"text":"B","final":true,"pending":false}]
+evidence-after-final [{"text":"Done","final":true,"pending":false}]
+Command: ten owner suites from report. exit 0; 64 tests, 64 pass, 0 fail.
+Command: git diff --check af1cfad..HEAD. exit 2 due evidence checks.txt trailing whitespace at lines 13 and 19; production files unaffected.

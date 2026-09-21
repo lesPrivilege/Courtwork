@@ -1,0 +1,57 @@
+Browser tab: 15, Title: "CourtWork", URL: "http://127.0.0.1:8951/".
+0 AXWebArea CourtWork, URL: 127.0.0.1:8951/
+	1 container Attention, ID: attention-agent-dialog
+		2 container
+			3 heading Attention, Value: 2, ID: attention-agent-title
+				4 text Attention
+			5 text Your global assistant
+			6 button Close Attention
+		7 pop up button (collapsed, settable) Description: Attention conversation, Value: Attention · 9/21/2026, 1:03:37 PM, Secondary Actions: Expand
+			8 menu
+				23 New conversation
+				24 (selected) Attention · 9/21/2026, 1:03:37 PM
+		10 button Refresh Attention
+		11 button (collapsed) Conversations, Secondary Actions: Expand
+		12 button Attention items
+		25 button Open conversation
+		13 button Configure Attention Runtime
+		14 button (collapsed) Threads & messages, Secondary Actions: Expand
+			15 text Threads & messages
+		16 container Attention conversation messages
+			26 container Your message
+				27 text replay controlled
+				28 button (collapsed) Source, Secondary Actions: Expand
+					29 text Source
+				30 container
+					31 container Message actions
+						32 button Copy message
+						33 button Edit as new message
+						34 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+					35 text Started 9/21/2026, 1:03:37 PM
+			36 container Agent run
+				37 text Planning: I will list the workspace first, then ask you one question before I answer.
+				38 button (collapsed) Execution 2 successful tool actions, Secondary Actions: Expand
+					39 text Execution
+					40 text 2 successful tool actions
+				41 container
+					42 text Question Controlled sequence: reply with any word to continue. Request resolved
+				43 text Thanks. Listing the workspace now so the answer can cite it.
+				44 container
+					45 text Final answer: the workspace listing came back and the controlled sequence is complete.
+					46 text Run started 9/21/2026, 1:03:37 PM
+					47 container Response actions
+						48 button Copy response
+						49 button (disabled) Read aloud
+						50 checkbox (disabled) Description: Like response, Value: 0
+						51 checkbox (disabled) Description: Dislike response, Value: 0
+						52 button (disabled) Regenerate response
+						53 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+				54 text Completed
+		18 button (collapsed) Runtime & memory, Secondary Actions: Expand
+			19 text Runtime & memory
+		20 text field (settable) Message Attention
+		21 pop up button (collapsed) Description: Attachments, Secondary Actions: Expand
+		22 button Description: Choose model and effort, Help: scripted-model · default effort
+		55 button (disabled) Send to Attention
+
+The focused UI element is 20 text field (settable) Message Attention

@@ -1,0 +1,52 @@
+Browser tab: 15, Title: "CourtWork", URL: "http://127.0.0.1:8951/".
+1 AXWebArea CourtWork, URL: 127.0.0.1:8951/
+	2 container Agent workspace
+		3 container
+			4 button (collapsed) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Expand
+			5 heading replay controlled, Value: 1, ID: session-title
+				6 text replay controlled
+			7 button Description: Chat overview, ID: show-run-button
+			8 button Description: Open work surface, ID: show-surface-button
+		9 container conversation-body
+			10 container message-stream
+				11 container Your message
+					12 text replay controlled
+					13 button (collapsed) Source, Secondary Actions: Expand
+						14 text Source
+					15 container
+						16 container Message actions
+							17 button Copy message
+							18 button Edit as new message
+							19 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+						20 text Started 9/21/2026, 1:02:52 PM
+				21 container Agent run
+					22 text Planning: I will list the workspace first, then ask you one question before I answer.
+					23 button (collapsed) Execution 2 successful tool actions, Secondary Actions: Expand
+						24 text Execution
+						25 text 2 successful tool actions
+					26 button (collapsed) Controlled sequence: reply with any word to continue. Answered, Secondary Actions: Expand
+						27 text Controlled sequence: reply with any word to continue.
+						28 text Answered
+					29 text Thanks. Listing the workspace now so the answer can cite it.
+					30 container
+						31 text Final answer: the workspace listing came back and the controlled sequence is complete.
+						32 text Run started 9/21/2026, 1:02:52 PM
+						33 container Response actions
+							34 button Copy response
+							35 button (disabled) Read aloud
+							36 checkbox (disabled) Description: Like response, Value: 0
+							37 checkbox (disabled) Description: Dislike response, Value: 0
+							38 button (disabled) Regenerate response
+							39 pop up button (collapsed) Description: More message actions, Secondary Actions: Expand
+				40 pop up button (collapsed) Description: Measurement details, Secondary Actions: Expand
+				41 text Completed
+			42 container composer-form
+				43 text Message
+				44 text entry area (settable) Message, ID: composer-input
+				45 pop up button Description: Chat files, ID: materials-button
+				46 pop up button (collapsed) Description: File access: Ask before editing, ID: permission-settings-button, Secondary Actions: Expand
+				47 pop up button (collapsed) Description: Model and effort · scripted-model · Provider default, ID: model-settings-button, Secondary Actions: Expand
+				48 pop up button (collapsed) Description: Context: 1 of 1,000,000 tokens, <0.1%, default window, latest completed request input, Secondary Actions: Expand
+				49 button Description: Send, ID: send-button
+
+The focused UI element is 5 heading replay controlled, Value: 1, ID: session-title

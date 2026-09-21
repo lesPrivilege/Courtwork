@@ -1,0 +1,143 @@
+Browser tab: 15, Title: "CourtWork", URL: "http://127.0.0.1:8951/".
+1 AXWebArea CourtWork, URL: 127.0.0.1:8951/
+	2 container Agent workspace
+		3 button (collapsed) Description: Toggle navigation, ID: toggle-nav-button, Secondary Actions: Expand
+		4 container conversation-body
+			5 heading Continue where you left off? Monday, September 21, Value: 2
+				6 text Continue where you left off? Monday, September 21
+			7 container message-stream
+				8 container
+					9 heading Needs a look, Value: 3
+						10 text Needs a look
+					11 text 1
+					12 content list
+						13 button Attention Global Attention Failed
+							14 text Attention
+							15 text Global Attention
+							16 text Failed
+				17 container
+					18 heading Continue, Value: 3
+						19 text Continue
+					20 text 2
+					21 content list
+						22 button Attention Global Attention Failed
+							23 text Attention
+							24 text Global Attention
+							25 text Failed
+						26 button replay controlled No project Completed
+							27 text replay controlled
+							28 text No project
+							29 text Completed
+				30 container
+					31 button (expanded) Activity 4 recorded runs · 84 days, Secondary Actions: Collapse
+						32 heading Activity, Value: 3
+							33 text Activity
+						34 text 4 recorded runs · 84 days
+					35 container Activity period
+						36 checkbox 28d, Value: 0
+						37 checkbox 84d, Value: 1
+					38 button Open Usage
+					39 container Daily retained runs, UTC. Arrow keys move between days.
+						40 button 2026-06-30 · 0 retained runs (UTC)
+						41 button 2026-07-01 · 0 retained runs (UTC)
+						42 button 2026-07-02 · 0 retained runs (UTC)
+						43 button 2026-07-03 · 0 retained runs (UTC)
+						44 button 2026-07-04 · 0 retained runs (UTC)
+						45 button 2026-07-05 · 0 retained runs (UTC)
+						46 button 2026-07-06 · 0 retained runs (UTC)
+						47 button 2026-07-07 · 0 retained runs (UTC)
+						48 button 2026-07-08 · 0 retained runs (UTC)
+						49 button 2026-07-09 · 0 retained runs (UTC)
+						50 button 2026-07-10 · 0 retained runs (UTC)
+						51 button 2026-07-11 · 0 retained runs (UTC)
+						52 button 2026-07-12 · 0 retained runs (UTC)
+						53 button 2026-07-13 · 0 retained runs (UTC)
+						54 button 2026-07-14 · 0 retained runs (UTC)
+						55 button 2026-07-15 · 0 retained runs (UTC)
+						56 button 2026-07-16 · 0 retained runs (UTC)
+						57 button 2026-07-17 · 0 retained runs (UTC)
+						58 button 2026-07-18 · 0 retained runs (UTC)
+						59 button 2026-07-19 · 0 retained runs (UTC)
+						60 button 2026-07-20 · 0 retained runs (UTC)
+						61 button 2026-07-21 · 0 retained runs (UTC)
+						62 button 2026-07-22 · 0 retained runs (UTC)
+						63 button 2026-07-23 · 0 retained runs (UTC)
+						64 button 2026-07-24 · 0 retained runs (UTC)
+						65 button 2026-07-25 · 0 retained runs (UTC)
+						66 button 2026-07-26 · 0 retained runs (UTC)
+						67 button 2026-07-27 · 0 retained runs (UTC)
+						68 button 2026-07-28 · 0 retained runs (UTC)
+						69 button 2026-07-29 · 0 retained runs (UTC)
+						70 button 2026-07-30 · 0 retained runs (UTC)
+						71 button 2026-07-31 · 0 retained runs (UTC)
+						72 button 2026-08-01 · 0 retained runs (UTC)
+						73 button 2026-08-02 · 0 retained runs (UTC)
+						74 button 2026-08-03 · 0 retained runs (UTC)
+						75 button 2026-08-04 · 0 retained runs (UTC)
+						76 button 2026-08-05 · 0 retained runs (UTC)
+						77 button 2026-08-06 · 0 retained runs (UTC)
+						78 button 2026-08-07 · 0 retained runs (UTC)
+						79 button 2026-08-08 · 0 retained runs (UTC)
+						80 button 2026-08-09 · 0 retained runs (UTC)
+						81 button 2026-08-10 · 0 retained runs (UTC)
+						82 button 2026-08-11 · 0 retained runs (UTC)
+						83 button 2026-08-12 · 0 retained runs (UTC)
+						84 button 2026-08-13 · 0 retained runs (UTC)
+						85 button 2026-08-14 · 0 retained runs (UTC)
+						86 button 2026-08-15 · 0 retained runs (UTC)
+						87 button 2026-08-16 · 0 retained runs (UTC)
+						88 button 2026-08-17 · 0 retained runs (UTC)
+						89 button 2026-08-18 · 0 retained runs (UTC)
+						90 button 2026-08-19 · 0 retained runs (UTC)
+						91 button 2026-08-20 · 0 retained runs (UTC)
+						92 button 2026-08-21 · 0 retained runs (UTC)
+						93 button 2026-08-22 · 0 retained runs (UTC)
+						94 button 2026-08-23 · 0 retained runs (UTC)
+						95 button 2026-08-24 · 0 retained runs (UTC)
+						96 button 2026-08-25 · 0 retained runs (UTC)
+						97 button 2026-08-26 · 0 retained runs (UTC)
+						98 button 2026-08-27 · 0 retained runs (UTC)
+						99 button 2026-08-28 · 0 retained runs (UTC)
+						100 button 2026-08-29 · 0 retained runs (UTC)
+						101 button 2026-08-30 · 0 retained runs (UTC)
+						102 button 2026-08-31 · 0 retained runs (UTC)
+						103 button 2026-09-01 · 0 retained runs (UTC)
+						104 button 2026-09-02 · 0 retained runs (UTC)
+						105 button 2026-09-03 · 0 retained runs (UTC)
+						106 button 2026-09-04 · 0 retained runs (UTC)
+						107 button 2026-09-05 · 0 retained runs (UTC)
+						108 button 2026-09-06 · 0 retained runs (UTC)
+						109 button 2026-09-07 · 0 retained runs (UTC)
+						110 button 2026-09-08 · 0 retained runs (UTC)
+						111 button 2026-09-09 · 0 retained runs (UTC)
+						112 button 2026-09-10 · 0 retained runs (UTC)
+						113 button 2026-09-11 · 0 retained runs (UTC)
+						114 button 2026-09-12 · 0 retained runs (UTC)
+						115 button 2026-09-13 · 0 retained runs (UTC)
+						116 button 2026-09-14 · 0 retained runs (UTC)
+						117 button 2026-09-15 · 0 retained runs (UTC)
+						118 button 2026-09-16 · 0 retained runs (UTC)
+						119 button 2026-09-17 · 0 retained runs (UTC)
+						120 button 2026-09-18 · 0 retained runs (UTC)
+						121 button 2026-09-19 · 0 retained runs (UTC)
+						122 button 2026-09-20 · 0 retained runs (UTC)
+						123 button 2026-09-21 · 4 retained runs (UTC)
+					124 text 2026-06-30 — 2026-09-21 UTC · Retained runs only. Deleted-chat history is unknown.
+			125 container composer-area
+				126 container Description: Where this chat works, ID: composer-context-strip
+					127 pop up button (collapsed) Description: Connect folder, ID: workspace-chip, Secondary Actions: Expand
+					128 text Local
+				129 container composer-form
+					130 text Message
+					131 text entry area (settable) Message, ID: composer-input
+					132 pop up button (collapsed) Description: Attachments, Secondary Actions: Expand
+					133 pop up button (collapsed) Description: Project, ID: home-project-button, Secondary Actions: Expand
+					134 pop up button (collapsed, settable) Description: File access for this chat, Value: Ask before editing, ID: home-permission-input, Secondary Actions: Expand
+						135 menu
+							136 (selected) Ask before editing
+							137 Allow edits
+							138 Read only
+					139 pop up button (collapsed) Description: Model and effort · scripted-model · Provider default, ID: model-settings-button, Secondary Actions: Expand
+					140 button (disabled) Description: Send, ID: send-button
+
+The focused UI element is 131 text entry area (settable) Message, ID: composer-input

@@ -1,0 +1,48 @@
+✔ production only admits explicit handlers and preserves exact captured bytes (2.188666ms)
+✔ synthetic feedback is mutually exclusive and reversible; failure preserves selection (27.486417ms)
+✔ feedback lock suppresses duplicate/inverse requests and detached results cannot update a new target (3.286334ms)
+✔ pending assistant messages expose no Chat action chrome (0.174875ms)
+✔ regeneration requires explicit confirmation and retains original scope (1.5805ms)
+✔ synthetic playback can be paused, resumed and stopped without a speech service (4.252083ms)
+✔ production rejects undeclared lifecycle handlers even when supplied (0.239584ms)
+✔ same bytes and key from a replacement record cannot accept an async result (3.930375ms)
+✔ copyAction shares the 1.6s feedback lifecycle and the latest async copy owns its label (1.262083ms)
+✔ Chat copy shows Copied only on its button for 1.6s, then restores its action label (2.622291ms)
+✔ a later Chat error survives an old pending copy result and a later action cancels the copy timer (1.453083ms)
+✔ a later busy Chat action cancels Copied feedback without its timer clearing the busy notice (1.986917ms)
+✔ Chat and Attention draw the assistant footer only through the shared final-answer gate (1.405667ms)
+✔ Copy on the one footer of a multi-segment Run copies exactly the final answer (17.664417ms)
+✔ new error after copy success survives expiry and detached Chat is not repainted (2.710917ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (142.399834ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (4.595459ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (2.01125ms)
+✔ 00 · the folder entry says Connect folder; Project stays Project (1.227417ms)
+✔ cumulative assistant deltas and their final stay one non-pending row (1.623875ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (1.504125ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.424ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.356542ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.180625ms)
+✔ terminal run keeps an incomplete delta pending but a terminal final is settled (0.089042ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (0.095416ms)
+✔ message time has readable provenance content without naming the native time role (32.635542ms)
+✔ narration → tool → answer keeps every row and marks only the answer final (0.257584ms)
+✔ the persisted real dogfood Run yields its five texts and exactly one final answer (4.160667ms)
+✔ no row is final while the Run is still working, waiting or stopping (0.155959ms)
+✔ failed, cancelled and unknown Runs keep their text readable with no final answer (0.161542ms)
+✔ whatever follows the answer takes the final mark away or passes it on (0.157959ms)
+✔ each Run has its own final answer (0.149208ms)
+✔ the shared footer draws time and actions only under the final answer (0.710375ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (10.060334ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (3.621416ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (1.65425ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (2.601083ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (168.6915ms)
+✔ skin-policy.js is an exact synchronous static route (63.214417ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1407.757917

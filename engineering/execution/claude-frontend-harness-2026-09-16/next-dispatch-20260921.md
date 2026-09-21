@@ -21,7 +21,7 @@ The current Pi coding loop, controlled candidate write, fixed check runner and p
 
 Two independently owned lanes are allowed by this update:
 
-1. Frontend: current footer → Runtime-management journey → Role-first Composer, with independent disposition between journeys.
+1. Frontend: accepted footer → Composer working-location entry → Runtime-management journey → Role-first Composer, with independent disposition between journeys.
 2. Core: Sonnet's bounded P03-B source map → Fable's Pi Runtime Port extraction → Codex independent acceptance. This lane may run alongside the current frontend because it owns separate files. It does not start P03-C–F, local CLI delegation and hooks together.
 
 No two writers own `app/web/app.mjs`, `app/server/service.mjs`, a shared store or an active fixture. Codex alone updates `engineering/current.md` and shared acceptance summaries at integration. Each author owns its assignment/evidence subsection and exact source files. Authors may deliver a patch for a shared static allowlist; Codex integrates that hunk rather than sharing an index. Keep 8787, 8899 and all user data untouched. Separate preview ports/data; verify the port is free instead of assuming a fixed number.
@@ -30,7 +30,7 @@ Create a fresh `claude-*` worktree only when its writer starts, from the actual 
 
 ## Opus next frontend: Runtime connection and local management
 
-**Owner:** existing [06 subsequent frontend consumer](06-agents-frontend-first-20260920.md), RD-001 Runtime control, Provider credentials and RD-009 hooks. **Entry condition:** current footer correction independently accepted; 06a is already accepted. **Ready to pick up then.**
+**Owner:** existing [06 subsequent frontend consumer](06-agents-frontend-first-20260920.md), RD-001 Runtime control, Provider credentials and RD-009 hooks. **Entry condition:** current footer correction and the next [06b working-location entry](evidence/composer-entry-review-20260921/README.md) independently accepted; 06a is already accepted. **Queued behind that finite entry correction.**
 
 **User outcome:** Settings → Agents → Runtimes lets an experienced agent user identify which execution engine is available, inspect its connection/capabilities, connect or disable it, and understand what changes for future work. Agent profiles choose a runtime; Models manages provider/model connections; Tools owns extension/hook configuration. Keep Role, Kit, Runtime, Provider and Model distinct. Pi remains the upstream name and existing IDs remain unchanged.
 
