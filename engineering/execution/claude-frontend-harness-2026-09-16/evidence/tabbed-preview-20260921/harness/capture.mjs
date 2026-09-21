@@ -345,8 +345,53 @@ async function launcherBefore() {
   await page.shot(out("launcher-before-03-second-version-replaces-1440.png"));
 }
 
+/* `workspace-close` · PV-R1: a closed Workspace tab accepts none of its
+ * outstanding reads. The page's own fetch is wrapped so the Workspace reads
+ * (/surface and /workspace) are held; each records whether its signal was
+ * aborted when it is let go, and the real fetch then runs with that signal. */
+async function workspaceClose() {
+  const hold = () => js(`window.__held = []; if (!window.__origFetch) window.__origFetch = window.fetch; const orig = window.__origFetch; window.fetch = (u, o) => { const s = String(u); const bare = s.split("?")[0]; if (!window.__allow && bare.includes("/sessions/") && (bare.endsWith("/surface") || bare.endsWith("/workspace"))) return new Promise((resolve, reject) => { window.__held.push({ url: s.replace(location.origin, ""), go: () => { const aborted = Boolean(o?.signal?.aborted); window.__released.push({ url: s.replace(location.origin, "").split("?")[0].split("/").pop(), aborted }); return orig(u, o).then(resolve, reject); } }); }); return orig(u, o); }; window.__released = window.__released || []; window.__allow = false; return true;`);
+  const release = () => js(`const n = window.__held.length; window.__allow = true; window.__held.splice(0).forEach((h) => h.go()); return n;`);
+  const surfaceState = () => js(`const s = window.__V5_UI__.state.surface; return { info: s.info !== null, workspace: s.workspace !== null, context: s.context !== null, surfaceContent: document.querySelector("#surface-content").innerText.slice(0, 400) };`);
+  await fresh({ width: 1440, height: 900 });
+  await openWork("Parcel brief review");
+
+  // R1 · open Workspace with its reads held, close it, then let the reads go.
+  await hold();
+  await click("#show-surface-button"); await wait(700);
+  log.r1 = { opened: { tabs: await tabs(), held: await js(`return window.__held.map((h) => h.url.split("/sessions/")[1]?.split("/")[1]);`) } };
+  await clickAt(`document.querySelector("#surface-tabs .surface-tab-close")`, "close Workspace"); await wait(500);
+  log.r1.closed = { pane: await pane(), tabs: await tabs() };
+  const n1 = await release(); await wait(1500);
+  log.r1.after = { released: n1, reads: await js(`return window.__released.splice(0);`), state: await surfaceState(), pane: await pane(), tabs: await tabs() };
+  check("R1 Workspace reads were outstanding when its tab closed", log.r1.opened.held.length >= 1 && !log.r1.closed.pane.open && log.r1.closed.tabs.length === 0, log.r1.opened);
+  check("R1 the closed tab's surface read was aborted, not left live", log.r1.after.reads.some((r) => r.url === "surface") && log.r1.after.reads.filter((r) => r.url === "surface").every((r) => r.aborted), log.r1.after.reads);
+  check("R1 its late answers left no Workspace state and no tab", !log.r1.after.state.info && !log.r1.after.state.workspace && !log.r1.after.state.context && !log.r1.after.pane.open && log.r1.after.tabs.length === 0, log.r1.after);
+
+  // R2 · open Workspace (held), switch to a file, close the inactive Workspace tab.
+  await hold();
+  await click("#show-surface-button"); await wait(700);
+  await click("#surface-back-button"); await wait(400);
+  await clickAt(briefRow(0), "row v1"); await wait(1200);
+  log.r2 = { opened: { tabs: await tabs(), held: await js(`return window.__held.length;`) } };
+  await clickAt(`[...document.querySelectorAll("#surface-tabs [data-preview-tab]")].find((w) => w.textContent.includes("Workspace")).querySelector(".surface-tab-close")`, "close inactive Workspace"); await wait(500);
+  const n2 = await release(); await wait(1500);
+  log.r2.after = { released: n2, reads: await js(`return window.__released.splice(0);`), state: await surfaceState(), tabs: await tabs(), file: await text("#file-content", 2000), focus: await focused() };
+  check("R2 closing the inactive Workspace leaves the selected file tab selected and readable", log.r2.after.tabs.length === 1 && log.r2.after.tabs[0].selected && /version 1/.test(log.r2.after.file), log.r2.after.tabs);
+  check("R2 the inactive closed tab's surface read was aborted and left no state", log.r2.after.reads.some((r) => r.url === "surface") && log.r2.after.reads.filter((r) => r.url === "surface").every((r) => r.aborted) && !log.r2.after.state.info && !log.r2.after.state.workspace && !log.r2.after.state.context, log.r2.after);
+
+  // R3 · reopening admits a new read and works.
+  await key("Delete"); await wait(600);   // close the file tab too: Preview hides
+  await click("#show-surface-button"); await wait(1500);
+  log.r3 = { tabs: await tabs(), state: await surfaceState(), reads: await js(`return window.__released.splice(0);`) };
+  check("R3 reopening Workspace reads again and shows its files", log.r3.tabs.length === 1 && log.r3.tabs[0].name === "Workspace" && log.r3.state.info && /brief\.md/.test(log.r3.state.surfaceContent), log.r3);
+  await page.shot(out("workspace-close-r3-reopened-1440.png"));
+  await pageErrors("workspace-close");
+}
+
 try {
-  if (values.part === "tabs") await tabsJourney();
+  if (values.part === "workspace-close") await workspaceClose();
+  else if (values.part === "tabs") await tabsJourney();
   else if (values.part === "launcher") await launcherBefore();
   else await locationJourney();
 } catch (error) {

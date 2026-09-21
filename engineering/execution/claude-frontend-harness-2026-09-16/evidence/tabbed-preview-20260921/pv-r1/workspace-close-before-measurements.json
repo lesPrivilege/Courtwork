@@ -1,0 +1,144 @@
+{
+  "r1": {
+    "opened": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": true,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        }
+      ],
+      "held": [
+        "workspace",
+        "surface"
+      ]
+    },
+    "closed": {
+      "pane": {
+        "open": false,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": false,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": false,
+        "title": "Preview"
+      },
+      "tabs": []
+    },
+    "after": {
+      "released": 2,
+      "reads": [
+        {
+          "url": "workspace",
+          "aborted": false
+        },
+        {
+          "url": "surface",
+          "aborted": false
+        }
+      ],
+      "state": {
+        "info": true,
+        "workspace": true,
+        "context": false,
+        "surfaceContent": ""
+      },
+      "pane": {
+        "open": false,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": false,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": false,
+        "title": "Preview"
+      },
+      "tabs": []
+    }
+  },
+  "r2": {
+    "opened": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": false,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        },
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        }
+      ],
+      "held": 2
+    },
+    "after": {
+      "released": 2,
+      "reads": [
+        {
+          "url": "workspace",
+          "aborted": false
+        },
+        {
+          "url": "surface",
+          "aborted": false
+        }
+      ],
+      "state": {
+        "info": true,
+        "workspace": true,
+        "context": false,
+        "surfaceContent": ""
+      },
+      "tabs": [
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        }
+      ],
+      "file": "Recorded version\n\nout/brief.md\n14.9 KB\nCopy displayed file text\nQuote into draft\nVersion details\n\nSaved by this run. Review acceptance is not recorded here.\n\nRaw source\nFind\nOutline\nParcel brief · version 1\nSection 1 · parcel boundary reading\nSection 2 · parcel boundary reading\nSection 3 · parcel boundary reading\nSection 4 · parcel boundary reading\nSection 5 · parcel boundary reading\nSection 6 · parcel boundary reading\nSection 7 · parcel boundary reading\nSection 8 · parcel boundary reading\nSection 9 · parcel boundary reading\nSection 10 · parcel boundary reading\nSection 11 · parcel boundary reading\nSection 12 · parcel boundary reading\nParcel brief · version 1\nSection 1 · parcel boundary reading\n\nParagraph 1.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.\n\nSection 2 · parcel boundary reading\n\nParagraph 2.1. The synthetic parce",
+      "focus": {
+        "tag": "BUTTON",
+        "id": "preview-tab-3",
+        "field": null,
+        "label": "out/brief.md · Recorded 4bba247a",
+        "focusKey": null,
+        "visible": true
+      }
+    }
+  },
+  "r3": {
+    "tabs": [
+      {
+        "label": "Workspace · Parcel brief review",
+        "selected": true,
+        "name": "Workspace",
+        "meta": null,
+        "clipped": false
+      }
+    ],
+    "state": {
+      "info": true,
+      "workspace": true,
+      "context": false,
+      "surfaceContent": "Workspace files\nRefresh workspace files\nout\n2\na-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md\nbrief.md\nAdd material"
+    },
+    "reads": []
+  }
+}

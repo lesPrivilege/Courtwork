@@ -1,0 +1,794 @@
+[
+  {
+    "name": "fixture: Work A has two recorded versions of out/brief.md in Chat",
+    "pass": true,
+    "detail": 3
+  },
+  {
+    "name": "T0 header entry opens the Workspace of this Work",
+    "pass": true,
+    "detail": [
+      {
+        "label": "Workspace · Parcel brief review",
+        "selected": true,
+        "name": "Workspace",
+        "meta": null,
+        "clipped": false
+      }
+    ]
+  },
+  {
+    "name": "T0 keyboard lands on the selected tab",
+    "pass": true,
+    "detail": {
+      "tag": "BUTTON",
+      "id": "preview-tab-1",
+      "field": null,
+      "label": "Workspace · Parcel brief review",
+      "focusKey": null,
+      "visible": true
+    }
+  },
+  {
+    "name": "T0 pane is named Preview; B is a view switch with the chat hidden+inert",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "modal": false,
+      "threePane": false,
+      "viewSwitch": true,
+      "maximized": false,
+      "expandHidden": true,
+      "expandLabel": "Expand preview",
+      "chatHidden": true,
+      "chatInert": true,
+      "showButtonHidden": true,
+      "title": "Preview"
+    }
+  },
+  {
+    "name": "T0b a long current-file identity: name truncated on the tab, full path in its accessible name, reading word 'Current'",
+    "pass": true,
+    "detail": {
+      "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+      "selected": true,
+      "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+      "meta": "Current",
+      "clipped": true
+    }
+  },
+  {
+    "name": "T0c ← Chat hides the pane and returns the keyboard to what opened it",
+    "pass": true,
+    "detail": {
+      "pane": {
+        "open": false,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": false,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": false,
+        "title": "Preview"
+      },
+      "focus": {
+        "tag": "BUTTON",
+        "id": "show-surface-button",
+        "field": null,
+        "label": "Open preview",
+        "focusKey": null,
+        "visible": true
+      }
+    }
+  },
+  {
+    "name": "T1 opening a recorded file activates its own tab directly (no card layer)",
+    "pass": true,
+    "detail": [
+      {
+        "label": "Workspace · Parcel brief review",
+        "selected": false,
+        "name": "Workspace",
+        "meta": null,
+        "clipped": false
+      },
+      {
+        "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+        "selected": false,
+        "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+        "meta": "Current",
+        "clipped": true
+      },
+      {
+        "label": "out/brief.md · Recorded 4bba247a",
+        "selected": true,
+        "name": "brief.md",
+        "meta": "Recorded 4bba247a",
+        "clipped": false
+      }
+    ]
+  },
+  {
+    "name": "T1 the reader states its reading and version (provenance kept)",
+    "pass": true,
+    "detail": "Recorded version\n\nout/brief.md\n14.9 KB\nCopy displayed file text\nQuote into draft"
+  },
+  {
+    "name": "T2 ← Chat returns the keyboard to the Chat row that opened Preview",
+    "pass": true,
+    "detail": {
+      "tag": "BUTTON",
+      "id": null,
+      "field": null,
+      "label": "out/brief.mdRecorded version",
+      "focusKey": "artifact:9",
+      "visible": true
+    }
+  },
+  {
+    "name": "T3 the presentation opens as a second tab with its revision",
+    "pass": true,
+    "detail": [
+      {
+        "label": "Workspace · Parcel brief review",
+        "selected": false,
+        "name": "Workspace",
+        "meta": null,
+        "clipped": false
+      },
+      {
+        "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+        "selected": false,
+        "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+        "meta": "Current",
+        "clipped": true
+      },
+      {
+        "label": "out/brief.md · Recorded 4bba247a",
+        "selected": false,
+        "name": "brief.md",
+        "meta": "Recorded 4bba247a",
+        "clipped": false
+      },
+      {
+        "label": "Parcel facts · revision 1",
+        "selected": true,
+        "name": "Parcel facts",
+        "meta": "revision 1",
+        "clipped": false
+      }
+    ]
+  },
+  {
+    "name": "T4 ArrowLeft selects the file tab and keeps the keyboard on the strip",
+    "pass": true,
+    "detail": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": false,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        },
+        {
+          "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+          "selected": false,
+          "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+          "meta": "Current",
+          "clipped": true
+        },
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        },
+        {
+          "label": "Parcel facts · revision 1",
+          "selected": false,
+          "name": "Parcel facts",
+          "meta": "revision 1",
+          "clipped": false
+        }
+      ],
+      "focus": {
+        "tag": "BUTTON",
+        "id": "preview-tab-3",
+        "field": null,
+        "label": "out/brief.md · Recorded 4bba247a",
+        "focusKey": null,
+        "visible": true
+      },
+      "reading": 1200
+    }
+  },
+  {
+    "name": "T4 the file's reading position comes back",
+    "pass": true,
+    "detail": {
+      "before": 1200,
+      "after": 1200
+    }
+  },
+  {
+    "name": "T5 closing an unselected tab removes only it and keeps the selection",
+    "pass": true,
+    "detail": [
+      {
+        "label": "Workspace · Parcel brief review",
+        "selected": false,
+        "name": "Workspace",
+        "meta": null,
+        "clipped": false
+      },
+      {
+        "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+        "selected": false,
+        "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+        "meta": "Current",
+        "clipped": true
+      },
+      {
+        "label": "out/brief.md · Recorded 4bba247a",
+        "selected": true,
+        "name": "brief.md",
+        "meta": "Recorded 4bba247a",
+        "clipped": false
+      }
+    ]
+  },
+  {
+    "name": "T6 Escape hides Preview",
+    "pass": true,
+    "detail": {
+      "open": false,
+      "modal": false,
+      "threePane": false,
+      "viewSwitch": false,
+      "maximized": false,
+      "expandHidden": false,
+      "expandLabel": "Expand preview",
+      "chatHidden": false,
+      "chatInert": false,
+      "showButtonHidden": false,
+      "title": "Preview"
+    }
+  },
+  {
+    "name": "T6 the composer draft is untouched",
+    "pass": true,
+    "detail": {
+      "was": "Draft kept while Preview works",
+      "now": "Draft kept while Preview works"
+    }
+  },
+  {
+    "name": "T6 the thread reading position comes back",
+    "pass": true,
+    "detail": {
+      "was": 279,
+      "now": 279
+    }
+  },
+  {
+    "name": "T7 reopening the same object reselects its tab (no duplicate)",
+    "pass": true,
+    "detail": [
+      {
+        "label": "Workspace · Parcel brief review",
+        "selected": false,
+        "name": "Workspace",
+        "meta": null,
+        "clipped": false
+      },
+      {
+        "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+        "selected": false,
+        "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+        "meta": "Current",
+        "clipped": true
+      },
+      {
+        "label": "out/brief.md · Recorded 4bba247a",
+        "selected": true,
+        "name": "brief.md",
+        "meta": "Recorded 4bba247a",
+        "clipped": false
+      }
+    ]
+  },
+  {
+    "name": "T7 and it opens where it was being read",
+    "pass": true,
+    "detail": 1200
+  },
+  {
+    "name": "T8 version 2 opens as its own tab and is still reading",
+    "pass": true,
+    "detail": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": false,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        },
+        {
+          "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+          "selected": false,
+          "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+          "meta": "Current",
+          "clipped": true
+        },
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": false,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        },
+        {
+          "label": "out/brief.md · Recorded 37e2801b",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 37e2801b",
+          "clipped": false
+        }
+      ],
+      "file": "Loading file…",
+      "held": [
+        "path=out%2Fbrief.md&runId=20253f83-a813-42ca-bdb9-cc270921730b&sha256=37e2801bec88aa68c018d9f30a4d4f047d3716fd9349e6ac8266d1c3b8fc5e11"
+      ]
+    }
+  },
+  {
+    "name": "T8 a late answer for the tab switched away from does not paint over the selected one",
+    "pass": true,
+    "detail": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": false,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        },
+        {
+          "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+          "selected": false,
+          "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+          "meta": "Current",
+          "clipped": true
+        },
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        },
+        {
+          "label": "out/brief.md · Recorded 37e2801b",
+          "selected": false,
+          "name": "brief.md",
+          "meta": "Recorded 37e2801b",
+          "clipped": false
+        }
+      ],
+      "file": "Recorded version\n\nout/brief.md\n14.9 KB\nCopy displayed file text\nQuote into draft\nVersion details\n\nSaved by this run. Review acceptance is not recorded here.\n\nRaw source\nFind\nOutline\nParcel brief · version 1\nSection 1 · parcel boundary reading\nSection 2 · parcel boundary reading\nSection 3 · parcel boundary reading\nSection 4 · parcel boundary reading\nSection 5 · parcel boundary reading\nSection 6 · parcel boundary reading\nSection 7 · parcel boundary reading\nSection 8 · parcel boundary reading\nSection 9 · parcel boundary reading\nSection 10 · parcel boundary reading\nSection 11 · parcel boundary reading\nSection 12 · parcel boundary reading\nParcel brief · version 1\nSection 1 · parcel boundary reading\n\nParagraph 1.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.\n\nSection 2 · parcel boundary reading\n\nParagraph 2.1. The synthetic parce"
+    }
+  },
+  {
+    "name": "T9 Delete closes the selected tab; its left neighbour takes over",
+    "pass": true,
+    "detail": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": false,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        },
+        {
+          "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+          "selected": false,
+          "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+          "meta": "Current",
+          "clipped": true
+        },
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        }
+      ],
+      "focus": {
+        "tag": "BUTTON",
+        "id": "preview-tab-3",
+        "field": null,
+        "label": "out/brief.md · Recorded 4bba247a",
+        "focusKey": null,
+        "visible": true
+      }
+    }
+  },
+  {
+    "name": "T9 the closed tab's late answer does not recreate it or paint",
+    "pass": true,
+    "detail": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": false,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        },
+        {
+          "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+          "selected": false,
+          "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+          "meta": "Current",
+          "clipped": true
+        },
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        }
+      ],
+      "file": "Recorded version\n\nout/brief.md\n14.9 KB\nCopy displayed file text\nQuote into draft\nVersion details\n\nSaved by this run. Review acceptance is not recorded here.\n\nRaw source\nFind\nOutline\nParcel brief · version 1\nSection 1 · parcel boundary reading\nSection 2 · parcel boundary reading\nSection 3 · parcel boundary reading\nSection 4 · parcel boundary reading\nSection 5 · parcel boundary reading\nSection 6 · parcel boundary reading\nSection 7 · parcel boundary reading\nSection 8 · parcel boundary reading\nSection 9 · parcel boundary reading\nSection 10 · parcel boundary reading\nSection 11 · parcel boundary reading\nSection 12 · parcel boundary reading\nParcel brief · version 1\nSection 1 · parcel boundary reading\n\nParagraph 1.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.\n\nSection 2 · parcel boundary reading\n\nParagraph 2.1. The synthetic parce",
+      "focus": {
+        "tag": "BUTTON",
+        "id": "preview-tab-3",
+        "field": null,
+        "label": "out/brief.md · Recorded 4bba247a",
+        "focusKey": null,
+        "visible": true
+      }
+    }
+  },
+  {
+    "name": "T10 entering Work B shows no Preview and none of A's tabs",
+    "pass": true,
+    "detail": {
+      "pane": {
+        "open": false,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": false,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": false,
+        "title": "Preview"
+      },
+      "tabsDom": [],
+      "b": {
+        "tabs": [
+          {
+            "label": "Workspace · Quarterly ledger check",
+            "selected": true,
+            "name": "Workspace",
+            "meta": null,
+            "clipped": false
+          }
+        ]
+      },
+      "aDraft": "Draft kept while Preview works",
+      "a": {
+        "tabs": [
+          {
+            "label": "Workspace · Parcel brief review",
+            "selected": false,
+            "name": "Workspace",
+            "meta": null,
+            "clipped": false
+          },
+          {
+            "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+            "selected": false,
+            "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+            "meta": "Current",
+            "clipped": true
+          },
+          {
+            "label": "out/brief.md · Recorded 4bba247a",
+            "selected": true,
+            "name": "brief.md",
+            "meta": "Recorded 4bba247a",
+            "clipped": false
+          }
+        ],
+        "reading": 1200
+      }
+    }
+  },
+  {
+    "name": "T10 B's Preview opens on B's own Workspace only",
+    "pass": true,
+    "detail": [
+      {
+        "label": "Workspace · Quarterly ledger check",
+        "selected": true,
+        "name": "Workspace",
+        "meta": null,
+        "clipped": false
+      }
+    ]
+  },
+  {
+    "name": "T10 back in A, its tabs, selection and reading position are A's",
+    "pass": true,
+    "detail": {
+      "tabs": [
+        {
+          "label": "Workspace · Parcel brief review",
+          "selected": false,
+          "name": "Workspace",
+          "meta": null,
+          "clipped": false
+        },
+        {
+          "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+          "selected": false,
+          "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+          "meta": "Current",
+          "clipped": true
+        },
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        }
+      ],
+      "reading": 1200
+    }
+  },
+  {
+    "name": "T10 A's draft is still A's",
+    "pass": true,
+    "detail": "Draft kept while Preview works"
+  },
+  {
+    "name": "T11 Settings hides Preview; back in the chat its tabs are intact",
+    "pass": true,
+    "detail": {
+      "settings": {
+        "open": false,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": false,
+        "expandLabel": "Expand preview",
+        "chatHidden": true,
+        "chatInert": false,
+        "showButtonHidden": true,
+        "title": "Preview"
+      },
+      "back": {
+        "pane": {
+          "open": false,
+          "modal": false,
+          "threePane": false,
+          "viewSwitch": false,
+          "maximized": false,
+          "expandHidden": false,
+          "expandLabel": "Expand preview",
+          "chatHidden": false,
+          "chatInert": false,
+          "showButtonHidden": false,
+          "title": "Preview"
+        }
+      },
+      "reopen": {
+        "tabs": [
+          {
+            "label": "Workspace · Parcel brief review",
+            "selected": false,
+            "name": "Workspace",
+            "meta": null,
+            "clipped": false
+          },
+          {
+            "label": "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md · Current",
+            "selected": false,
+            "name": "a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md",
+            "meta": "Current",
+            "clipped": true
+          },
+          {
+            "label": "out/brief.md · Recorded 4bba247a",
+            "selected": true,
+            "name": "brief.md",
+            "meta": "Recorded 4bba247a",
+            "clipped": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "W1 at 1920 Preview is a third column beside the chat",
+    "pass": true,
+    "detail": {
+      "open": true,
+      "modal": false,
+      "threePane": true,
+      "viewSwitch": false,
+      "maximized": false,
+      "expandHidden": false,
+      "expandLabel": "Expand preview",
+      "chatHidden": false,
+      "chatInert": false,
+      "showButtonHidden": true,
+      "title": "Preview"
+    }
+  },
+  {
+    "name": "W2 Expand gives Preview the main area; the button says Restore",
+    "pass": true,
+    "detail": {
+      "pane": {
+        "open": true,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": true,
+        "maximized": true,
+        "expandHidden": false,
+        "expandLabel": "Restore preview",
+        "chatHidden": true,
+        "chatInert": true,
+        "showButtonHidden": true,
+        "title": "Preview"
+      },
+      "focus": {
+        "tag": "BUTTON",
+        "id": "surface-expand-button",
+        "field": null,
+        "label": "Restore preview",
+        "focusKey": null,
+        "visible": true
+      }
+    }
+  },
+  {
+    "name": "W3 the first Escape restores the layout and keeps the same tab",
+    "pass": true,
+    "detail": {
+      "pane": {
+        "open": true,
+        "modal": false,
+        "threePane": true,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": false,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": true,
+        "title": "Preview"
+      },
+      "tabs": [
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "W4 the next Escape hides Preview",
+    "pass": true,
+    "detail": {
+      "pane": {
+        "open": false,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": false,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": false,
+        "title": "Preview"
+      },
+      "focus": {
+        "tag": "BUTTON",
+        "id": null,
+        "field": null,
+        "label": "out/brief.mdRecorded version",
+        "focusKey": "artifact:9",
+        "visible": true
+      }
+    }
+  },
+  {
+    "name": "N1 at 390 Preview is a modal sheet with its tab strip",
+    "pass": true,
+    "detail": {
+      "pane": {
+        "open": true,
+        "modal": true,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": true,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": true,
+        "title": "Preview"
+      },
+      "tabs": [
+        {
+          "label": "out/brief.md · Recorded 4bba247a",
+          "selected": true,
+          "name": "brief.md",
+          "meta": "Recorded 4bba247a",
+          "clipped": false
+        }
+      ],
+      "focus": {
+        "tag": "BUTTON",
+        "id": "preview-tab-1",
+        "field": null,
+        "label": "out/brief.md · Recorded 4bba247a",
+        "focusKey": null,
+        "visible": true
+      }
+    }
+  },
+  {
+    "name": "N2 Escape closes the sheet and returns the keyboard to the Chat row",
+    "pass": true,
+    "detail": {
+      "pane": {
+        "open": false,
+        "modal": false,
+        "threePane": false,
+        "viewSwitch": false,
+        "maximized": false,
+        "expandHidden": true,
+        "expandLabel": "Expand preview",
+        "chatHidden": false,
+        "chatInert": false,
+        "showButtonHidden": false,
+        "title": "Preview"
+      },
+      "focus": {
+        "tag": "BUTTON",
+        "id": null,
+        "field": null,
+        "label": "out/brief.mdRecorded version",
+        "focusKey": "artifact:9",
+        "visible": true
+      }
+    }
+  },
+  {
+    "name": "no uncaught page errors",
+    "pass": true,
+    "detail": null
+  }
+]

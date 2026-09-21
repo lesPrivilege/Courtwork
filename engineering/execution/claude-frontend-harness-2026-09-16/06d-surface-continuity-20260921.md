@@ -78,3 +78,7 @@ Deviations from the pre-code record: none in behaviour. Consequences recorded:
 - `writeUiState` no longer writes the unread `surfaceOpen` marker.
 
 Writer released. No push, no deploy, no evidence or worktree deletion.
+
+## PV-R1 return — 2026-09-22 (Opus)
+
+The review on main `6da9347` accepted A1/A2 and held B for PV-R1. Answered at **`4698d8b`** on the same branch: closing a Workspace tab, selected or not, now retires its reads through the existing owners, and reopening starts new ones. Page-route regression, before 4/7 → after 7/7; B journey 34/34; full suite 1389/1389. See the [PV-R1 packet](evidence/tabbed-preview-20260921/pv-r1/README.md). Only the correction delta changed. The Back/Forward-after-native-controls candidate stays registered for the shell/navigation increment; the review's point that geometry hooks are not native completeness is noted.
