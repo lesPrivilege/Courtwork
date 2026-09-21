@@ -1,6 +1,6 @@
 # Design · Work Agent GUI
 
-**UI开工先读：** [UX Grammar](ux-grammar.md) → [前端连续性规范](agent-interface-2026-09-10/frontend-contract.md) → 工单相关owner合同与实现先例。文字去留沿[文案体例](copy-convention.md)，布局沿[编排标准](ui-composition-standard.md)，组件沿[Atlas](atlas/README.md)。
+**UI开工先读：** [UX Grammar](ux-grammar.md) → [前端连续性规范](agent-interface-2026-09-10/frontend-contract.md) → [Visual / Spatial Grammar](visual-spatial-grammar.md) → 工单相关owner合同与实现先例。文字去留沿[文案体例](copy-convention.md)，布局沿[编排标准](ui-composition-standard.md)，组件沿[Atlas](atlas/README.md)。
 
 [2026-09-16 Claude串行施工单](../execution/claude-frontend-harness-2026-09-16/README.md)：统一grammar与文字收敛；Harness前后端真实合流、隔离Prototype和Pages设计分别验收。接续原owner与工单，不建立另一套语义或状态账。
 
@@ -14,6 +14,7 @@
 
 | 文档 | 责任 |
 |---|---|
+| [visual-spatial-grammar.md](visual-spatial-grammar.md) | UI施工必读：chrome / reading-review / action 三类角色、密度映射、跨维度grammar归属、实测与迁移边界；Astra裁决权保留 |
 | [principles.md](principles.md) | 设计目标、成熟行为底线与陌生化边界 |
 | [completion-surface.md](completion-surface.md) | 成熟 GUI 的状态—动作—恢复覆盖；明确首版和后置范围 |
 | [directions.md](directions.md) | 三个有实质差异的设计语言候选与比较任务 |

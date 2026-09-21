@@ -1,5 +1,10 @@
 # UI 文本与编排体例 · 2026-09-08
 
+## Current role-based density interpretation — 2026-09-21
+
+[Visual / Spatial Grammar](visual-spatial-grammar.md) is mandatory for new UI construction and scoped migrations. It selects compact workbench chrome, reading/review or action/decision geometry before component styling. This current interpretation supersedes older universal desktop 32px/hit-area and tab-strip measurements below **as universal rules**, while preserving their dated implementation evidence. Current source already has a 28px base control and 44px coarse/narrow overrides. Choose a pattern role, reuse existing tokens, measure actual target/text/stacked chrome and preserve reflow; do not globally scale the UI or overwrite component-specific accepted baselines without a scoped change record.
+
+
 本轮由 Astra 收敛现有 fresh UI；这是当前实现的施工标准，和 `ux-conventions.md`、`surface-hierarchy.md` 一起使用。Court Work 品牌语义注入由用户在 merge 后首轮工单交 Claude，本轮只交付独立品牌包，不把品牌样板当作已接入产品。
 
 ## 文本与动作
@@ -44,16 +49,16 @@
 |---|---|---|---|
 | 侧栏宽 | 256（区间 256–280 的下沿） | `--nav` | 项目与 Chat 名读得完，主区仍是主角 |
 | app / title chrome 高 | 48；desktop shell 取 max(48, 宿主实测 toolbar 高)，原生宿主未验证（WO-CS-01） | `--band-top` | 三列共用一条带；标题单行 |
-| 导航行高 | 32；项距 4，分组 16（WO-CS-01） | `--control` 32 | 一行是一个对象，不是一张卡 |
+| 导航行高 | WO-CS-01历史值32；当前全局control为28，具体导航selector须实测；新/迁移compact角色基线28–32 | 当前 `--control` 与组件映射 | 一行是一个对象；不得从全局token反推所有实际行高 |
 | 行 / 控件 / 导航 glyph | 16 / 18 / 16（导航原 20，WO-CS-01） | `icon()` 的 `size` | IC-1；命中区另计 |
-| 命中区 | 桌面 ≥32，触屏与窄屏 ≥44 | — | FN-27 的可用性下限 |
+| 命中区 | compact fine-pointer roles按[角色映射](visual-spatial-grammar.md)取24–32；coarse/touch保留≥44，现有窄屏fallback先保留 | 现有control或有scope的semantic alias | 量实际target而非glyph；WCAG例外与产品选择分记（FN-27） |
 | 阅读 / Work measure | 740（上限，不是最小值） | `--column` | 正文一行的长度；Work 的 composer 与它同宽 |
 | Chat 内容列内距 | 40；受限 32；<768 16 | `--content-inset` / `--content-inset-tight` / `--page-gutter`，解析为 `--chat-inset` | 正文与 composer 共用一对边界，不叠加外壳 gutter（WO-CS-01） |
 | 右摘要保留下限 | 阅读列 ≥640 + 两侧紧内距 + 288 + `--col-gap`，不足即收成 strip | `app.mjs` 按实测列宽计算 | 暂定下限；不为常驻卡片压窄正文（WO-CS-01） |
 | 工作面文档列下限 | 688 | `--doc-min` | ≥1680 时工作面是真正的第三栏；256 + chat ≥640 + 688 在 1680 上刚好成立（WK-113 / CC-W） |
 | 工作面正文行宽上限 | 740 | `--doc-measure` | 面板宽 ≠ 正文行宽：文档面 1136 或 688 都不是一行的长度，正文沿阅读列的 740；宽表与代码按内容自己横向滚动（WK-117 (b)） |
 | 三栏断点 | ≥1680 | 媒体查询，无 token | 工作面从覆盖 / 切换变成第三栏的那一档；1024–1679 是主次切换 + tab strip，<1024 全屏 sheet（WK-113 ①） |
-| tab strip 高 | 展开态 44；≥1680 三栏态沿 `--band-top` 48 | — | B 态 strip 是文档面自己的一条 chrome；C 态它必须与 chat header 同一基线，所以取带高 |
+| tab strip 高 | 既有展开44/三栏带高48为历史实现；06d新compact strip基线32–36，须结合tab28–32及完整文本实测 | 角色映射到现有token，非固定裁切height | 内嵌object tabs不复制宿主browser视觉重量；共享基线不得靠重复厚header维持 |
 | Settings 导航列宽 | 240（区间 240–256 的下沿） | `--settings-nav` | 九个组名读得完；**不复用 `--nav`**，settings-active 时全局侧栏不渲染，两者不再是同一条列轨 |
 | Settings 页左右 gutter | 48；≥1680 为 64；<1024 为 20；<768 为 16 | `--settings-gutter` | 桌面 ≥48、宽屏 56–80、窄屏 16–20（shell-refinement §呼吸感） |
 | Settings 内容列上限 | 820 | `--settings-measure` | 760–960 的中位；控件不拉满整个屏幕 |

@@ -1,5 +1,10 @@
 # 06d · Existing UI gaps and a tabbed Preview work surface
 
+### Mandatory density/composition consumption — 2026-09-21
+
+Read [Visual / Spatial Grammar](../../design/visual-spatial-grammar.md) before the remaining tab/header/toolbar design pass. It is now on the AGENTS/UX/continuity path: compact workbench chrome, independently readable document body and explicit decision state. The tab strip, document identity/provenance and reader toolbar are one measured vertical composition; do not make each a separate prominent header or derive CSS dimensions from the user's screenshot. Use current tokens and record role/target/glyph/type/zoom assumptions. This is a design refinement inside 06d, not ownership of whole-site grammar migration. A separate fresh Astra task starts **read-only** and must not modify your product files; parent Astra retains final rules and integration. Existing scope/behavior/identity tests remain.
+
+
 2026-09-21 · Astra. User requests the browser/shell research to be consumed after Claude's report, with remaining gaps reviewed together. **Ready for Opus pickup after the 06c merge/cleanup receipt is committed.** Read actual main, current, worktrees and this order; create one isolated tree when the writer starts. No author process is launched by this file. This is a continuation of orders 06/08 and the existing shell/focus owners, not a new roadmap.
 
 Consume [Astra's source-based selection](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md), its exact local source map and primary-source report; UX Grammar → frontend contract → relevant Design Scout/precedent entries. Reuse CW's tokens, glyphs, controls, Settings and surface lifecycle. ZCode/VS Code are reference code, not permission to migrate the frontend or desktop platform. Sonnet may answer at most four unresolved local implementation questions in 10 tool calls, stopping when the missing seam is located. Do not repeat the external scan.

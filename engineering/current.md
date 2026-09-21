@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-21 · Visual grammar consumed; fresh Astra read-only audit authorized
+
+[Visual / Spatial Grammar](design/visual-spatial-grammar.md) now places compact workbench chrome, readable review/body and explicit action/decision roles on the normal AGENTS → UX → frontend-contract → composition path. [Luna's primary-source index and parent Astra disposition](design/grammar-convergence-20260921/README.md) distinguish WCAG/APG facts from CW size choices and correct old universal32/44 wording without changing product CSS. Change records must state role/token/target/type/viewport assumptions and actual composition evidence; this is not a transcript-only registration or a new design system.
+
+The user explicitly chose a [new Astra task with read-only audit first](design/grammar-convergence-20260921/astra-loop.md). It may delegate bounded source exploration to Luna and inventory artifacts to Sol, with OpenAI computer use for rendered checks. This parent session retains final grammar, exception, architecture and integration authority. 06d remains the Preview writer; no overlapping CSS/app.mjs lease is granted. Task creation identity will follow in the handoff record. Core loop authentication status is unchanged by this Design work.
+
+
 ## 2026-09-21 · Core author loop authorized and contracted
 
 The user authorizes a long-running Claude/Fable backend loop with autonomous serial/asynchronous pacing. [Luna index and source-version correction](execution/claude-frontend-harness-2026-09-16/evidence/core-loop-index-20260921/README.md), [minimum P03-C Host contract](execution/claude-frontend-harness-2026-09-16/p03c-host-consumer-contract-20260921.md) and [C/D/E loop order](execution/claude-frontend-harness-2026-09-16/core-runtime-loop-20260921.md) release offline implementation: governed read, durable unknown/recovery, then exact write/check parity. Pi/transport are reused; live API exposure remains separate. Codex retains architecture, independent acceptance and main merge.

@@ -19,7 +19,7 @@
 | 项目/任务名、路径、版本、错误、不确定性、用量、run/question状态 | **文字优先** | SVG最多辅助类型/定位，状态不是仅靠颜色/图形；id/hash可收进二级详情并提供明确复制入口 |
 | 成功工具记录、事件 trace | **平行文本行 + 必要类型图标** | 不为每个事件创造装饰图标，不把事件投影提升为接受状态 |
 
-图标尺寸与点击尺寸分开：小图形不意味着小 hit area。图形槽建议 16/20，命中区域沿既有 32/44 控件档映射；触屏主要操作至少 44×44，紧凑桌面例外须有实测，不以 SVG 的 viewBox 当命中区域。 32 / 44 是本产品约定，高于 WCAG 2.2 2.5.8 的 24 × 24 CSS px 最低值；验收时两者分记，不以"用了 44"或截图目视代替命中区实测（frontend-layering-spec FN-27）。
+图标尺寸与点击尺寸分开：小图形不意味着小 hit area。2026-09-21起，新/明确迁移的控件按 [Visual / Spatial Grammar](visual-spatial-grammar.md) 选择micro/compact/standard角色：fine-pointer微操作通常24–28 target，compact通常28–32；glyph通常14–16，按既有图标族与光学例外处理。coarse/touch保留至少44×44产品目标，现有窄屏fallback未实测前保留。该角色映射取代旧的desktop统一32下限，不代表批量缩小已交付控件。WCAG 2.5.8的24×24及其明确例外，与CW更大目标分别验收；不得以SVG viewBox、截图像素或“用了44”代替实际CSS target测量（FN-27）。
 
 ## IC-2 · 采用成熟 SVG，交互仍是原生 HTML
 

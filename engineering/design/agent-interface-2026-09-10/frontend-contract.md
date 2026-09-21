@@ -5,7 +5,7 @@
 ## 每次局部施工
 
 1. 读取 AGENTS/current、[UX Grammar](../ux-grammar.md)与工单，确定具体 owner fact、修改面和单 writer；需要定位问题时查[导航表](precedent-map.md)，再从[实现先例](precedents.md)只加载有关行、对应合同与源码。
-2. 填[变更记录](change-template.md)：至少一个最近先例、实际符号/路径、基线 SHA、需要保持的关系、改变的关系。先例只是已实现结构，是否已独立接受要看相应证据。
+2. 先消费 [Visual / Spatial Grammar](../visual-spatial-grammar.md)，为构造选定 surface role、token映射及pointer/text-scale假设，再填[变更记录](change-template.md)：至少一个最近先例、实际符号/路径、基线 SHA、需要保持的关系、改变的关系。先例只是已实现结构，是否已独立接受要看相应证据。
 3. 先查语义与既有 control/pattern，再判断复用、增加变体或确有 grammar gap。不因外部组件库有某控件就引入领域字段或依赖。
 4. 按变更运行静态/行为/浏览器检查，保留固定合成数据与相邻完整场景。作者可以生成候选截图与 diff，不能仅通过替换已接受 baseline 宣称回归通过。
 5. 交付记录明确作者检查、非作者复核、未跑项与待裁视觉变化。已存在的用户授权不重复申请；新 baseline 的接受由既有 review 流程记录。

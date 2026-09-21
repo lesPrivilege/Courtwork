@@ -117,3 +117,8 @@ Design Scout remains a problem-addressed discovery index, not a second design au
 ## Browser / Preview implementation references — 2026-09-21
 
 [Verified source index and Astra disposition](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md): ZCode `872ad960` for draft/task pane ownership; VS Code for native browser/main/renderer/automation boundaries; Playwright for context/control lifecycle; Browser Use for attach versus stop; OpenHands for UI/backend separation. Consume the pinned or dated primary sources and listed limits before further search. Current task is tabbed Preview over real CW readers, not a native browser transplant or public-site navigation redesign.
+
+
+## Density / spatial / interaction grammar — 2026-09-21
+
+[Consumed source index and Astra disposition](../grammar-convergence-20260921/README.md) maps W3C target/resize/reflow/spacing and APG tab behavior, Carbon size anatomy and Radix token/scaling references to [mandatory role-based construction guidance](../visual-spatial-grammar.md). Primer pixel values and Apple sidebar tiers remain unverified in this bounded pass. Use current CW tokens and pattern owners; no all-site shrink or library migration. The read-only convergence task inventories and proposes; this parent Astra session retains final rule decisions.

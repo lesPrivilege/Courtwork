@@ -4,7 +4,7 @@
 
 ## 开工先读
 
-先确认实际分支、HEAD和[当前状态](../current.md)，再读[架构](../architecture.md)及工单对应的owner合同。UI工作从本页进入[前端连续性规范](agent-interface-2026-09-10/frontend-contract.md)，只加载相关[实现先例](agent-interface-2026-09-10/precedents.md)。不要把历史候选索引或外部规范当作当前实现。
+先确认实际分支、HEAD和[当前状态](../current.md)，再读[架构](../architecture.md)及工单对应的owner合同。UI构造与密度/编排变更必须消费 [Visual / Spatial Grammar](visual-spatial-grammar.md)，先确定 chrome、reading/review 或 action/decision 角色及token映射，再选组件尺度。UI工作从本页进入[前端连续性规范](agent-interface-2026-09-10/frontend-contract.md)，只加载相关[实现先例](agent-interface-2026-09-10/precedents.md)。不要把历史候选索引或外部规范当作当前实现。
 
 先写清“对哪个对象做什么，什么条件下可做，成功与失败留下什么，如何恢复”，再选组件和文案。相同意图复用相同规则；新页面不获得重新解释Save、Approval或Unknown的权利。
 
@@ -43,3 +43,8 @@
 现有lint只覆盖各自登记规则；本轮建立人工可执行的检查合同，尚无自动判定文案承重、信息层级或交互语义的全库lint。不得把构建绿灯当作UX接受。
 
 合流前定向任务入口：[Frontend Attention Audit 输入与 Luna 委派范围](../research/frontend-attention-audit-2026-09-14/README.md)；此登记不增加 UX-01…08 规则或全站接受结论。
+
+
+## Visual / spatial consumption — 2026-09-21
+
+[The role map](visual-spatial-grammar.md) extends UX-01/02/07/09 under their existing owners; it does not introduce a second rule registry. Every new UI construction or scoped migration records the surface role, token/target/text mapping and full-composition evidence in the existing change template. The earlier blanket desktop 32px wording is superseded for explicitly migrated compact roles; coarse/narrow behavior and text integrity remain independently tested. [Source disposition and read-only audit handoff](grammar-convergence-20260921/README.md) preserve this parent Astra session's final authority. No global CSS migration is implied.

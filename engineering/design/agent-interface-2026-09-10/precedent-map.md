@@ -346,3 +346,17 @@
 ## 8. 覆盖与缺口
 
 本表当前 23 个条目 / 23 个 status 行，覆盖 24 个 problem_key（两种 material 合并）。canonical仅限各行明确的合同/已接受范围，不将整行代码、工单、specimen统称为已接受；`contextual.actions`本条为deferred；其PropertyRow前置已实现但不授予toolbar能力。`iconography`的canonical限Lucide，EX-IC1已完成且裁定保留Lucide，MingCute/Phosphor仅外部reference。仍属 `deferred`、未在表内展开的方向：`identity / brand`（GI 轨道，见 [identity-specimen](../identity-specimen/README.md)）、`motion`（[Atlas](../atlas/README.md) Motion 段，尚无本地已裁 specimen）、`empty / error state` 的统一先例。落在这些区域的任务按 [README.md §6](README.md) 登记 gap，不即兴发挥。
+
+
+### `composition.density`
+
+| Field | Entry |
+|---|---|
+| trigger | new UI construction; oversized rows/tabs/icons; stacked headers; density/type/spacing changes |
+| grammar entry | [Visual / Spatial Grammar](../visual-spatial-grammar.md), [UI composition](../ui-composition-standard.md), IC-1/FN-27 |
+| owner | Existing pattern and source owner; parent Astra retains cross-surface rule and exception decisions |
+| nearest local source | `app/web/styles.css` text/space/control roles; existing controls and the affected surface; read actual source SHA and media overrides |
+| external source | [Verified source index and corrections](../grammar-convergence-20260921/README.md) |
+| status | canonical role mapping; exact source measurements and migration acceptance remain per task |
+| do_not_infer | global shrink, universal 44px desktop controls, full-site rewrite, React/library adoption, or AA conformance from a screenshot |
+| next_if_missing | record one scoped grammar gap and candidate under the existing owner; [read-only audit task](../grammar-convergence-20260921/astra-loop.md) may supply evidence |

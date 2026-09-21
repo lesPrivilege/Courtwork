@@ -9,6 +9,11 @@ Writer / reviewer:
 
 Owner fact + contract:
 Semantic / projection / control / placement:
+Surface role: workbench chrome / reading-review / action-decision
+Pattern + canonical grammar owner / base-to-semantic token mapping:
+Pointer mode / CSS viewport / actual zoom + DPR / text scale:
+Measured visible control + hit target + glyph / type-leading / stacked chrome + content start:
+Density exception / long-text-reflow / preserved focus-scroll owner:
 Affected UX rule IDs / persistent text purpose / disclosure level:
 Action result / feedback / recovery / draft and scope identity:
 Nearest precedent: repository path + symbol + evidence + fixed SHA
