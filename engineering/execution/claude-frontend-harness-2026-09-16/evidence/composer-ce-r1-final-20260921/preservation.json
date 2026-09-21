@@ -1,0 +1,19 @@
+{
+  "root": ".worktrees/courtwork-work-location-20260921",
+  "head": "4695426be6cd1ea9f7aca2cc8ed1521e6a521af7",
+  "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-work-location-20260921",
+  "archive": ".archives/courtwork-transport-composer-20260921/courtwork-work-location-20260921/files.tar.gz",
+  "archiveSha256": "0d0aaf85552f2cf1c1816d7ad7033dd8c58830229fd649648f5e76743854126b",
+  "manifestSha256": "984588a8e4a689e8b538c18843768f38265f2dd58b2d1fea00bc370bf06ff881",
+  "entryCount": 41968,
+  "fileBytes": 1002762744,
+  "physicalRestoreVerified": true,
+  "sourceRecheckPassed": true,
+  "bundle": "composer.bundle",
+  "bundleSha256": "71ee234ca9c5d6e7052a59fcec6614d22690c3b2d0aa62fb9b93d6ce5004af07",
+  "bundleCompleteHistory": true,
+  "bundlePhysicalFetchAndFsckVerified": true,
+  "sourceFinalRecheckPassed": true,
+  "allSourceCommitsIntegrated": true,
+  "noActiveCwdBeforeDeletion": true
+}

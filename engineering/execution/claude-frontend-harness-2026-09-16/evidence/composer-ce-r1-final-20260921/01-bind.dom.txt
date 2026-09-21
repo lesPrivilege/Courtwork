@@ -1,0 +1,93 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "2"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Parcel maintenance" [expanded]:
+        - generic: Parcel maintenance
+      - button "New chat in Parcel maintenance":
+        - generic: New chat in Parcel maintenance
+      - paragraph: No chats yet.
+      - button "Quarterly reconciliation of the northern district ledgers" [expanded]:
+        - generic: Quarterly reconciliation of the northern district ledgers
+      - button "New chat in Quarterly reconciliation of the northern district ledgers":
+        - generic: New chat in Quarterly reconciliation of the northern district ledgers
+      - paragraph: No chats yet.
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - paragraph: No chats yet.
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - generic: ·
+  - heading "Wrap up, or open something new? Monday, September 21" [level=2]
+  - group "Where this chat works":
+    - 'button "Work location: no project; folder /tmp/cw-composer-acceptance-folder, read only" [expanded] [active]':
+      - generic: cw-composer-acceptance-folder
+    - generic: Local
+    - 'generic "Git branch: main"': Branch · main
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: Describe the work you want to do…
+    - text: Independent CE-R1 plain Send race check.
+  - button "Attachments" [disabled]:
+    - generic: Attachments
+  - combobox "File access for this chat" [disabled]:
+    - option "Ask before editing" [selected]
+    - option "Allow edits"
+    - option "Read only"
+  - button "Model and effort · scripted-model · Provider default": scripted-model · Provider default
+  - button "Sending…" [disabled]:
+    - generic: Sending…
+  - status: Starting your chat…
+  - log:
+    - heading "Continue" [level=3]
+    - generic: "0"
+    - paragraph: Your chats will appear here.
+- dialog "Work location":
+  - heading "Work location" [level=3]
+  - button "Close work location":
+    - generic: Close work location
+  - region "Project":
+    - heading "Project" [level=4]
+    - paragraph: No project
+    - paragraph: Set when this chat was made. A chat keeps its project.
+  - region "Folder":
+    - heading "Folder" [level=4]
+    - button "Open a folder to connect" [disabled]:
+      - generic: Connect folder…
+    - paragraph: Your chat is being started with this location, so it cannot change until that finishes.
+    - generic "Enter a path instead"
+    - generic: Folder path on this computer
+    - textbox "Repository folder path" [disabled]:
+      - /placeholder: /absolute/path/to/repository
+    - button "Connect" [disabled]
+- status

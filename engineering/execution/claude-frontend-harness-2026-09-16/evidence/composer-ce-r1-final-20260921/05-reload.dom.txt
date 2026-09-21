@@ -1,0 +1,105 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "2"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Parcel maintenance" [expanded]:
+        - generic: Parcel maintenance
+      - button "New chat in Parcel maintenance":
+        - generic: New chat in Parcel maintenance
+      - paragraph: No chats yet.
+      - button "Quarterly reconciliation of the northern district ledgers" [expanded]:
+        - generic: Quarterly reconciliation of the northern district ledgers
+      - button "New chat in Quarterly reconciliation of the northern district ledgers":
+        - generic: New chat in Quarterly reconciliation of the northern district ledgers
+      - paragraph: No chats yet.
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "Independent CE-R1 plain Send race check.":
+        - generic: Independent CE-R1 plain Send race check.
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "Independent CE-R1 plain Send race check." [active] [level=1]: · Independent CE-R1 plain Send race check.
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open work surface":
+    - generic: Open work surface
+  - log:
+    - article "Your message":
+      - paragraph: Independent CE-R1 plain Send race check.
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/21/2026, 7:23:38 PM
+        - text: 7:23 PM
+    - region "Agent run":
+      - article:
+        - paragraph: "Unscripted reply to: Independent CE-R1 plain Send race check."
+        - time:
+          - generic: Run started 9/21/2026, 7:23:38 PM
+          - text: 7:23 PM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+    - button "Measurement details"
+    - generic: Completed
+    - status: Completed
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Ask before editing"':
+    - generic: Ask before editing
+  - button "Model and effort · scripted-model · Provider default": scripted-model · Provider default
+  - 'button "Context: 1 of 1,000,000 tokens, <0.1%, default window, latest completed request input"':
+  - button "Send":
+    - generic: Send
+- status

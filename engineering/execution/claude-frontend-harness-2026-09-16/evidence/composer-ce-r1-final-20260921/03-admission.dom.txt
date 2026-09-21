@@ -1,0 +1,101 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "2"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Parcel maintenance" [expanded]:
+        - generic: Parcel maintenance
+      - button "New chat in Parcel maintenance":
+        - generic: New chat in Parcel maintenance
+      - paragraph: No chats yet.
+      - button "Quarterly reconciliation of the northern district ledgers" [expanded]:
+        - generic: Quarterly reconciliation of the northern district ledgers
+      - button "New chat in Quarterly reconciliation of the northern district ledgers":
+        - generic: New chat in Quarterly reconciliation of the northern district ledgers
+      - paragraph: No chats yet.
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "Independent CE-R1 plain Send race check.":
+        - generic: Independent CE-R1 plain Send race check.
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "Independent CE-R1 plain Send race check." [level=1]: · Independent CE-R1 plain Send race check.
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open work surface":
+    - generic: Open work surface
+  - log:
+    - heading "No messages yet" [level=3]
+    - paragraph: Send a message to create the first run.
+  - group "Where this chat works":
+    - 'button "Work location: no project; folder /private/tmp/cw-composer-acceptance-folder, read only" [expanded]':
+      - generic: cw-composer-acceptance-folder
+    - generic: Local
+    - 'generic "Git branch: main"': Branch · main
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+    - text: Independent CE-R1 plain Send race check.
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Ask before editing"':
+    - generic: Ask before editing
+  - button "Model and effort · scripted-model · Provider default": scripted-model · Provider default
+  - button "Context details, capacity usage unknown":
+  - button "Sending…" [disabled]:
+    - generic: Sending…
+- dialog "Work location":
+  - heading "Work location" [level=3]
+  - button "Close work location":
+    - generic: Close work location
+  - region "Project":
+    - heading "Project" [level=4]
+    - paragraph: No project
+    - paragraph: Set when this chat was made. A chat keeps its project.
+  - region "Folder":
+    - heading "Folder" [level=4]
+    - paragraph: cw-composer-acceptance-folder
+    - paragraph:
+      - code: /private/tmp/cw-composer-acceptance-folder
+    - term: Access
+    - definition: Read only
+    - term: File access
+    - definition: Ask before editing
+    - generic "Which is which"
+    - paragraph: Your message is being sent with this location, so it cannot change until the run starts.
+    - button "Disconnect" [disabled]
+  - heading "Edits" [level=4]
+  - paragraph: Edits go to a private candidate the Host creates from the folder's current commit. The folder itself is never written.
+  - button "Start private candidate" [disabled]
+- status

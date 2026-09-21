@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-21 · Composer working-location and CE-R1 accepted
+
+[Final independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/composer-ce-r1-final-20260921/README.md) accepts `4695426`, integrated at main `d52f44f`: Luna 122/122, actual-main 40/40, OpenAI browser ordinary Send held at bind/draft/admission → completed active binding revision 1 → unlock/reload. The proposed additional navigation window was withdrawn after source and actual browser reachability checks. Single working-location entry and modest context-band treatment are integrated; Project, Folder and permission facts retain their existing owners.
+
+CE-F2 initial focus/scroll and native accessibility remain deferred; lost post-create bind/read-back replies are explicitly unexecuted, not accepted as complete recovery. User 8787/8899 remain on their existing processes, with no restart, paid call, push or deployment. No next worker or journey was started. [Restore-verified preservation and cleanup are complete](execution/claude-frontend-harness-2026-09-16/evidence/composer-ce-r1-final-20260921/completion.md). Only persistent Courtwork and its frozen shared-Git dependency remain registered.
+
+
 ## 2026-09-21 · Transport accepted; Composer receives one bounded return
 
 [Transport final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/p03c-transport-acceptance-20260921/README.md) accepts `32f4f8b` and integrates at main `10b2d52`: Luna 22/22 plus independent header/pagination probes; actual-main 22/22. This is the SDK transport only; Host selection, durable remote binding/receipts and live Agents access remain unimplemented by this slice. No next core implementation starts. [Restore-verified transport cleanup is complete](execution/claude-frontend-harness-2026-09-16/evidence/p03c-transport-acceptance-20260921/completion.md); its archive ref remains and only the ended transport tree/branch were removed.

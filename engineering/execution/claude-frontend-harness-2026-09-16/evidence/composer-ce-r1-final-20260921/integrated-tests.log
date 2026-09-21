@@ -1,0 +1,48 @@
+✔ CE-R1 · creating the Chat: every location mutation is locked and says why (5.853583ms)
+✔ CE-R1 · Chat created, bind not landed: every location mutation is locked and says why (2.186208ms)
+✔ CE-R1 · bound and read back, not yet admitted: every location mutation is locked and says why (1.479125ms)
+✔ CE-R1 · the counterexample: after the Chat exists, the old condition left the panel unlocked (0.182375ms)
+✔ CE-R1 · the Run admission the Send ends in keeps the lock; an unknown admission too (3.513167ms)
+✔ CE-R1 · an unknown create stays locked; Check status is not the card's to lock (0.108667ms)
+✔ CE-R1 · a settled Send holds nothing: after a refused bind the folder can be corrected on the same chat (5.785709ms)
+✔ PA-R1 · after a lost candidate reply the visible command finishes the same preparation (10.90125ms)
+✔ PA-R1 · the counterexample: the ordinary create would have been refused (0.501834ms)
+✔ PA-R1 · a reply lost at any step is finished by the same visible command (6.328041ms)
+✔ PA-R1 · preparation continues against the folder the Host really bound (1.861208ms)
+✔ PA-R2 · nothing mutating is actionable while preparation is in flight (1.609834ms)
+✔ PA-R2 · a locked card is locked for the same reasons whichever surface it shows (0.620084ms)
+✔ PA-R2 · an unconfirmed create locks every folder mutation, and Check status stays reachable (3.247291ms)
+✔ PA-R2 · a create that never landed keeps its identity for the retry (0.494792ms)
+✔ only a documented pre-effect mutation refusal is settled (0.414708ms)
+✔ a coded bind read-back failure stays unknown after the bind committed (0.743541ms)
+✔ PA-R1 · a refused folder can be corrected, and the correction is a new binding intent (3.827875ms)
+✔ a definitive folder refusal survives the production Home marker reload (1.813541ms)
+✔ PA-R1 · retrying the same folder keeps its identity; correcting is refused while anything is unknown (2.330958ms)
+✔ PA-R3 · a first send from anywhere retires the preparation, keeping the unsent Home text (1.624792ms)
+✔ PA-R3 · a send that was never admitted leaves the preparation recoverable (1.685167ms)
+✔ PA-R3 · retiring is scoped to the prepared chat and to real work (0.064584ms)
+✔ PA-R3 · a marker restored from storage reconciles against the Host once (0.15825ms)
+✔ the production seam: what the controller owns, and what app.mjs wires (2.519666ms)
+✔ work location · project and folder are chosen in one panel, and a project choice stages no folder (1.809333ms)
+✔ work location · while a create's outcome is unknown the project is locked too, and Check status still settles it (2.107041ms)
+✔ work location · a refused folder is corrected on the same chat, whose project stays fixed (1.929333ms)
+✔ repositoryName shows the folder word; activeRepositoryBinding ignores revoked bindings (0.901541ms)
+✔ An unbound chat offers Open folder first, lists folders connected before, and keeps the path behind a disclosure (4.681125ms)
+✔ Choosing a folder connected before sends one bind command and reads the Session back (6.755208ms)
+✔ Open folder asks the Host for a native dialog, binds the chosen path, and does nothing when cancelled (3.964041ms)
+✔ A Host without a folder dialog falls back to the typed path as the primary form (0.995916ms)
+✔ A rejected typed path keeps the text, shows the Host message and reuses the requestId on retry (1.579459ms)
+✔ A bound chat shows the folder and scope; Disconnect sends revoke with the current revision (0.973625ms)
+✔ On Home the card edits a draft: choosing writes the intent, nothing is bound, Remove clears it (2.107792ms)
+✔ While a run is active the card explains the wait and disables the commands (0.65525ms)
+✔ Band placement and shell wiring for the Work location entry (3.376667ms)
+✔ the Work location entry names only the facts it opens, and says which are absent (0.274667ms)
+✔ A Home send in flight locks the project and folder, and says why (1.363209ms)
+ℹ tests 40
+ℹ suites 0
+ℹ pass 40
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 164.005333

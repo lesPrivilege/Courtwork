@@ -1,0 +1,23 @@
+{
+  "sessions": [
+    {
+      "id": "92e9ce9a-7c5c-4eea-893d-d30078716c4c",
+      "binding": {
+        "id": "73925f33-262f-46a8-a313-89ba90dce4ca",
+        "rootPath": "/private/tmp/cw-composer-acceptance-folder",
+        "device": "16777233",
+        "inode": "173673029",
+        "revision": 1,
+        "status": "active"
+      },
+      "bindingRevision": 1
+    }
+  ],
+  "runs": [
+    {
+      "id": "39546bb7-7486-498e-b820-7cfefdb934c6",
+      "sessionId": "92e9ce9a-7c5c-4eea-893d-d30078716c4c",
+      "status": "completed"
+    }
+  ]
+}
