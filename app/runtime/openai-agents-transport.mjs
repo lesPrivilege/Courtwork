@@ -26,7 +26,10 @@ import { AGENTS_API_PROTOCOL } from "./agents-api-adapter.mjs";
  *   four keys; `defer_loading`, `tool_search` and every other tool type stay
  *   off the wire.
  */
-export const AGENTS_TRANSPORT_FUNCTION_TOOLS = Object.freeze(["repo_read"]);
+// P03-C forwards the governed reader; P03-E adds the existing candidate write
+// and fixed-check tools. Their approval, scope and revision guards live in the
+// Host's tool closures, not in the declaration.
+export const AGENTS_TRANSPORT_FUNCTION_TOOLS = Object.freeze(["repo_read", "repo_write", "check_run"]);
 export const AGENTS_TRANSPORT_REQUEST_IDENTITY = Object.freeze({
   create: Object.freeze({ wire: null, guarantee: "none" }),
   message: Object.freeze({ wire: "Idempotency-Key", guarantee: "documented by the SDK for submitted messages" }),

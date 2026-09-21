@@ -7,14 +7,14 @@ Author record for [the dispatch](../../core-runtime-loop-20260921.md). Author ev
 | Branch / worktree | `codex/core-runtime-loop-20260921` · `Projects/.worktrees/courtwork-core-runtime-loop-20260921` |
 | Base | `3022b5c` (observed main at pickup `ef6b267`; not merged in) |
 | Writer | one authenticated Claude/Fable desktop session (the dispatched background session `1e0858d6` was stopped before any model work; see the [C0 note](c0-implementation-note.md)) |
-| Current stage | C `eec2244` and **D complete (offline)** → E next |
+| Current stage | **C, D and E complete (offline). Author loop stopped; writer released.** See [final handoff](#e--checks-and-final-handoff) |
 | Running jobs | none owned between milestones; tests use OS-assigned loopback ports and `mkdtemp` data only |
 
 ## Claimed files
 
 Product: `app/server/store.mjs`, `app/server/remote-action-state.mjs` (new), `app/server/service.mjs`, `app/server/runtime.mjs`, `app/runtime/agents-host-gateway.mjs` (new), `app/runtime/openai-agents-transport.mjs`, `app/runtime/agents-api-adapter.mjs`. Isolated cross-layer hunks: `app/server/index.mjs` (threads `runtimePort` to `createRuntime`), `app/tests/helpers.mjs` (`boot({ runtimePort })`).
 
-Tests/fixtures: `app/tests/p03c-host-consumer.test.mjs`, `app/tests/p03d-host-recovery.test.mjs`, `app/tests/schema19-upgrade.test.mjs`, `app/tests/fixtures/agents-api-loopback.mjs`, `app/tests/fixtures/agents-host-harness.mjs` (new); `spawnWorker({ prelude, serverOptions })` in `app/tests/helpers.mjs` so a killable child Host can take an injected runtime port; additions to `drt03-agents-transport.test.mjs` and `drt03-agents-api-protocol.test.mjs`; current-pointer schema pins (18 → 19) and old-state fabrications in 18 existing test files. No historical fixture bytes changed.
+Tests/fixtures: `app/tests/p03c-host-consumer.test.mjs`, `app/tests/p03d-host-recovery.test.mjs`, `app/tests/p03e-write-check-parity.test.mjs`, `app/tests/schema19-upgrade.test.mjs`, `app/tests/fixtures/agents-api-loopback.mjs`, `app/tests/fixtures/agents-host-harness.mjs` (new); `spawnWorker({ prelude, serverOptions })` in `app/tests/helpers.mjs` so a killable child Host can take an injected runtime port; additions to `drt03-agents-transport.test.mjs` and `drt03-agents-api-protocol.test.mjs`; current-pointer schema pins (18 → 19) and old-state fabrications in 18 existing test files. No historical fixture bytes changed.
 
 Current entry points synchronized for schema 19: `app/README.md`, `AGENTS.md`, `engineering/architecture.md`, `app/docs/repository-binding.md`. Root `README.md` / `README.zh-CN.md` carry no RuntimeStore schema pointer — not applicable. Support lists, media manifest, install source, paper pin, release state — not applicable (no capability is exposed).
 
@@ -54,6 +54,32 @@ Source `eec2244` + D. Additions and the 19-row fault matrix are in [the D record
 
 Not executed: live/paid provider, browser, runtime smoke, product check, independent review.
 
+## E · checks and final handoff
+
+E's only product change is the transport allowlist (`repo_read`, `repo_write`, `check_run`); see [the parity evidence](e-parity-evidence.md).
+
+| Check | Result |
+|---|---|
+| `tests/p03e-write-check-parity.test.mjs` | 3/3, 22 s, clean exit: write → approval → fixed check, diff/effects/reopen, deny, stale, cancel, unknown, revoked — normalized Host transcripts `deepEqual` between the unchanged Pi baseline and the remote consumer; plus the remote-only receipts and the 16 KiB argument ceiling |
+| `npm --prefix app test` (Node 25.9.0, concurrency 4) | **1421/1421, exit 0, 265 s, on the final tree, unchanged during the run** |
+| `node tools/check-doc-links.mjs` | 0 problems |
+| Harness defect found and fixed in E | the shared test `closeAll` called `.catch` on a non-promise when a Host had no loopback, aborting cleanup and leaving Hosts open; it never occurred in C/D (every Host there has a loopback). Test-only; no product effect |
+
+### Final handoff
+
+| | |
+|---|---|
+| Commits on `codex/core-runtime-loop-20260921` (base `3022b5c`) | **C** `eec2244` · **D** `37a14a5` · **E** the commit that adds this section; its SHA is recorded by the docs-only commit that follows it |
+| Production paths exercised | `startServer` → `/api/v5` routes → `RuntimeService` (`#createRun`, `#executeRun`, `cancelRun`, `answerQuestion`, `changeRepositoryBinding`, `changeRepositoryCandidate`, `reconcileRemoteSession`) → `RuntimeStore` 19 (+ 18→19 migration, restart fences) → `agents-host-gateway` → `agents-api-adapter` → `openai-agents-transport` → unmodified `openai@7.15.0` over loopback sockets; existing governed `repo_read`, `repo_write`, `check_run` via `governTools`; `ArtifactHistory`; real child-process `SIGKILL` + reopen |
+| Author evidence | everything in this directory. **Independent evidence: none.** Codex reviews each fixed milestone and alone merges main |
+| Not claimed | the account-authorized live C milestone; any live Agents API behaviour; formal Work acceptance; product browser support; capability exposure (every Agents capability row still resolves `unavailable`) |
+| Retained unknowns | listed in [C](c-evidence.md#retained-unknowns), [D](d-fault-matrix.md#retained-unknowns-and-limits) and [E](e-parity-evidence.md#parity-gap-returned-to-astra) |
+| Migration | 18 → 19 is additive, validated before and after, with the exact original bytes kept as `runtime-state.schema18.<sha256>.json`. The `rootTurn.terminal` field arrived in D: a state file written by commit C that holds an associated root turn does not validate under D/E (test temp data only) |
+| Rollback limits | a schema-19 data directory cannot be opened by a schema-18 Host (it refuses without writing — tested against `3022b5c`). Roll back by restoring the exact backup file; remote records written since are lost with it, and native sessions created meanwhile are orphaned on the service. No user data was migrated by this work |
+| Owned processes / ports / data | none running. Every test used OS-assigned loopback ports and `mkdtemp` directories; no paid call, no credential lookup, no user Host touched |
+| Preserved for integration | branch, worktree, and all untracked/ignored content (`app/node_modules`, etc.) left as they are. No push, deployment, cleanup deletion or Host restart |
+| Writer | released. Returns are incorporated on this same branch without rewriting the three milestone commits |
+
 ## Frontend / route contract gaps (owner proposals, no 06d edit)
 
 1. `RuntimeService.reconcileRemoteSession(sessionId)` has no HTTP route. Proposal: `POST /api/v5/sessions/:id/remote-reconciliation` returning `{ resolved, settledRuns, unresolved, unsettledRuns }`; the surface shows why a chat is fenced (`remote_unreconciled`) and offers this one read-only action.
@@ -68,3 +94,4 @@ Not executed: live/paid provider, browser, runtime smoke, product check, indepen
 4. **Ending a native turn the Host will never answer.** After a restart or a refused/lost delivery the native turn waits in `requires_action` and the chat stays fenced until that turn ends by other means (D rows 15, 17, 18). Options: (a) an explicit, human-triggered cancel of a known root turn outside any Run, confirmed by `turns.retrieve`; (b) delivering a `host_restarted` error result for a call that is still listed as required; (c) leave as is. Both (a) and (b) are new remote mutations in recovery, so neither was implemented.
 5. **A `create` that was lost fences its chat for good** (contract). An explicit "abandon this chat's remote runtime" is a product decision, not taken here.
 6. The decisive read `turns.retrieve` was added to the accepted transport/adapter as a read-only extension and the capability row moved to `supported`/`fixture`. If Astra prefers recovery limited to subscribe/buffer/read/merge, rows 2, 5, 13 and 15 degrade to "unknown until a stream happens to replay the terminal".
+7. **16 KiB argument ceiling vs `repo_write`.** The contract's bound refuses a remote write larger than 16 KiB of JSON arguments before approval; Pi accepts 4 MiB. See [E](e-parity-evidence.md#parity-gap-returned-to-astra).

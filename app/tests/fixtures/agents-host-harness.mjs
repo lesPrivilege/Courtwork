@@ -18,7 +18,7 @@ export const sha256 = (value) => createHash("sha256").update(value).digest("hex"
 
 /** Every resource a test opens is closed by `closeAll`, newest first. */
 export const cleanup = [];
-export async function closeAll() { for (const close of cleanup.splice(0).reverse()) await close().catch(() => {}); }
+export async function closeAll() { for (const close of cleanup.splice(0).reverse()) await Promise.resolve().then(close).catch(() => {}); }
 
 export const agentsPort = (loopback, port = {}) => () => createAgentsRuntimePort({
   transport: createOpenAiAgentsTransport({ apiKey: "synthetic-loopback-key", baseURL: loopback.baseURL, timeoutMs: 2000 }), ...port,
