@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## Current long-running backend handoff — 2026-09-21
+
+The user authorizes [Claude/Fable's finite C/D/E loop](core-runtime-loop-20260921.md) after [Luna's traceable index](evidence/core-loop-index-20260921/README.md), under the [released Host contract](p03c-host-consumer-contract-20260921.md). An installed Claude Code 2.1.278 CLI exposes background sessions and the `fable` alias; earlier “no callable route” statements below describe the then-known tool surface, not current dispatch availability. The backend loop may progress serial author stages without repeated continuation questions, while Codex independently accepts/integrates. 06d is already claimed in `courtwork-tabbed-preview-20260921`; preserve that separate frontend writer. CLI dispatch identity/status will be recorded after actual start; this paragraph alone is not launch evidence.
+
+
 ## Current after 06c and Preview-first clarification — 2026-09-21
 
 Runtime management `5f89213` is independently accepted and merged at `4a3ac9e`; its ended tree is restored-verified and removed. The user now prioritizes [06d tabbed Preview](06d-surface-continuity-20260921.md): close the two existing 06a/CE-F2 gaps, then replace right-card launchers with tabs over current real object readers. Real Browser integration and left-rail changes are later work. [Browser/shell source selection](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md) is consumed, not copied as a new framework. Opus can pick up this finite order in one fresh isolated tree; Sonnet exploration stays bounded. No worker was launched by this registration. P03-C Host contract remains the core lane; Role-first Composer stays in the Agent-consumer queue.

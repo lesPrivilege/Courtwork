@@ -69,3 +69,8 @@ The current Store accepts Pi's `{id,path}` hostSession; a remote locator must no
 ## Host-consumer preflight disposition — 2026-09-21
 
 The user authorized the next round after Composer acceptance. [Bounded Luna source map and Astra decisions](evidence/p03c-host-preflight-20260921/README.md) consume this accepted transport and Pi port. The next consumer keeps a separate remote Session binding and Run snapshot, persists a call claim before governed execution and exact result bytes before remote submission, and fences unknown creation/result/restart outcomes. These decisions do not yet define all strict validators, native tool declaration/confirmation or result bounds; complete that finite contract under Store/RD-001 before Fable changes production source. No implementation or paid trial was started. Frontend 06c is independently ready for pickup.
+
+
+## Autonomous C/D/E author loop — 2026-09-21
+
+The user authorizes a long-running Claude loop with its own serial/asynchronous pacing. [Traceable index](evidence/core-loop-index-20260921/README.md) and [Astra’s minimum Host contract](p03c-host-consumer-contract-20260921.md) now release the next consumer for implementation. [Loop order](core-runtime-loop-20260921.md) permits bounded C→D→E author commits in one isolated backend branch without waiting for routine continuation prompts; Codex retains independent acceptance and main integration. This supersedes the earlier not-released preflight status only within the explicit new contract. No SDK upgrade, live API test, frontend takeover or repeated transport project follows.

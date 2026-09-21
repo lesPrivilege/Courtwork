@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-21 · Core author loop authorized and contracted
+
+The user authorizes a long-running Claude/Fable backend loop with autonomous serial/asynchronous pacing. [Luna index and source-version correction](execution/claude-frontend-harness-2026-09-16/evidence/core-loop-index-20260921/README.md), [minimum P03-C Host contract](execution/claude-frontend-harness-2026-09-16/p03c-host-consumer-contract-20260921.md) and [C/D/E loop order](execution/claude-frontend-harness-2026-09-16/core-runtime-loop-20260921.md) release offline implementation: governed read, durable unknown/recovery, then exact write/check parity. Pi/transport are reused; live API exposure remains separate. Codex retains architecture, independent acceptance and main merge.
+
+The local Claude CLI supports background dispatch and Fable; launch status follows in its receipt. Existing `courtwork-tabbed-preview-20260921@dfc90b7` is treated as the active 06d frontend writer. No duplicate frontend, browser backend, local-child or Runtime-management backend lane is started. User services/data and paused heartbeat remain unchanged.
+
+
 ## 2026-09-21 · Runtime management accepted; tabbed Preview next
 
 [06c final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/runtime-management-final-20260921/README.md) accepts `5f89213`, merged at `4a3ac9e`: Luna34/34, actual-main75/75, OpenAI browser confirms stale read-back remains locked until a fresh reading and submitted/unknown/new-draft readings stay distinct. Its tree is restore-verified and removed; production runtime-management API and native credentials remain unimplemented by this synthetic frontend slice.

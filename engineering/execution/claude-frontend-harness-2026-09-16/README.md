@@ -429,3 +429,6 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 
 
 2026-09-21 · [06c Runtime-management frontend accepted](evidence/runtime-management-final-20260921/README.md), merged and preserved/cleaned. The user-selected next package is [06d tabbed Preview](06d-surface-continuity-20260921.md), consuming [verified browser/shell references](../../research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md). It replaces the card-launcher presentation with tabs over existing real object readers, closes the small 06a/CE-F2 gaps, and defers actual browser runtime/native embedding. Existing core P03-C work stays separate.
+
+
+2026-09-21 · The user authorizes [the finite Claude/Fable C/D/E backend loop](core-runtime-loop-20260921.md), consuming [Luna's traceable index](evidence/core-loop-index-20260921/README.md) and [Astra's Host contract](p03c-host-consumer-contract-20260921.md). Author pacing is autonomous within this one backend lane; main integration and independent acceptance remain Codex-owned. The active 06d frontend tree is separate.
