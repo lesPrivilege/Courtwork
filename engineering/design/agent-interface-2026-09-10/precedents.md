@@ -26,6 +26,8 @@ Provider connection已有专用原生number input（`settings-view.mjs`，`name=
 
 ## 检查入口
 
+2026-09-21 external-reference intake: [local agent control planes](../../research/architecture-node-2026-09-13/control-plane-precedents-20260921.md) records verified OpenHands/AgentTeams management boundaries and their limits. Consume for the queued Runtime-management journey alongside the implemented Settings/profile primitives; it is not a new visual baseline or adopted library. Existing work/permission readers remain authoritative for what can be displayed or acted on.
+
 `node tools/lint-colors.mjs`、`node tools/lint-materials.mjs`、`node tools/lint-interaction.mjs`、`node tools/contrast-report.mjs`均为已有工具；`npm --prefix app test`是现有全量入口。单测可用`node --test <精确文件>`，browser/smoke按对应交付中的fixture和端口运行，不使用个人数据。Shape/type/raw-duration的全库机械gate尚未在此基线发货，不写不存在的lint命令。
 
 有意视觉变化使用[变更记录](change-template.md)，并按[规范](frontend-contract.md)补相邻场景。检查通过的范围与未执行项必须明确，不用一次静态通过替代视觉或产品接受。

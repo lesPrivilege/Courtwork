@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-21 · Control-plane reference intake; current writers preserved
+
+[Source consumption and disposition](research/architecture-node-2026-09-13/control-plane-precedents-20260921.md) registers OpenHands/AgentTeams management references, corrects ACP/MCP/A2A assumptions and maps them to existing Runtime/child/Settings owners. No new framework, ledger, runtime capability or parallel implementation lane. Composer remains active. P03-C is now observed claimed in `claude-agents-transport-20260921` at `2b57d7b`, with dependency edits and the user's bounded-preflight preparation report; transport delivery and independent acceptance remain outstanding. User 8787/8899 and both author trees are untouched; documentation/source checks only.
+
 ## 2026-09-21 · Next Fable order ready: P03-C transport
 
 [Finite transport order](execution/claude-frontend-harness-2026-09-16/p03c-agents-transport-20260921.md) consumes the existing Agents protocol adapter and accepted Pi seam. Fable may implement the production SDK transport with synthetic wire tests; Sonnet artifact preflight is limited to 12 calls. No Store/service/UI writes or live runtime exposure in this first increment. Current official-doc versus pinned-SDK request-key drift is explicitly assigned for artifact verification. The next Host read-tool consumer requires its narrow remote-binding/receipt migration before code, followed by original D/E. Composer writer remains separate. This is a ready handoff, not a launched Fable process; no credentials or paid calls.

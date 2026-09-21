@@ -40,6 +40,8 @@ Create a fresh `claude-*` worktree only when its writer starts, from the actual 
 
 **Contract evidence:** source/requested/effective/bound, stable runtime identity, configuration owner, supported actions/reasons, pending operation, revision/precondition, retained current-Run binding, next-Run availability, and explicit unknown effect. Proposals remain proposed until the backend owner accepts them. Do not build a second provider/permission registry.
 
+**External reference intake (2026-09-21):** consume the [control-plane disposition](../../research/architecture-node-2026-09-13/control-plane-precedents-20260921.md) before this journey: OpenHands offers a useful configured-versus-bound runtime precedent; AgentTeams offers responsibility and artifact visibility references. Preserve CW's own binding granularity and authority. This adds reference material, not a new pane, schema, dependency or change to the active Composer/P03-C assignments.
+
 **Acceptance cases:** empty/unavailable runtime; failed connect; reply lost/unknown; duplicate click; stale revision; late reply after navigation; disable while a Run is bound; disconnect cannot erase history; draft/focus retention; native versus CW-managed credentials. Test production controller+view, not a substitute controller. Codex visually verifies desktop/narrow, keyboard/Escape and recorded limits; synthetic UI acceptance is distinct from working local runtime integration.
 
 ## Fable core: P03-B, extract the current Pi execution port

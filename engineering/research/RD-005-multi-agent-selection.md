@@ -57,3 +57,7 @@ The user further authorizes Pi as a Codex subordinate-worker candidate. The [two
 ## 2026-09-20 · Multica lifecycle reference
 
 The [Multica ruling](architecture-node-2026-09-13/multica-consumption-20260920.md) consumes claim/wakeup/recovery and work-versus-run distinctions as inputs to the existing child contract. CW retains exact attempt/native identity, source/grant bindings and unknown-effect handling; heartbeat loss and retry eligibility do not prove that a previous effectful process stopped. Multica Issue transitions do not become CW formal work acceptance. Its broad Squad/Autopilot and daemon-fleet topology are deferred; the next child sample remains bounded and follows the authorized integration sequence.
+
+## 2026-09-21 · Control-plane and communication references
+
+The [control-plane disposition](architecture-node-2026-09-13/control-plane-precedents-20260921.md) consumes OpenHands and AgentTeams as bounded design references under this RD's existing assignment/attempt/result owners. MCP may expose a bounded worker tool; A2A permits Message answers; neither supplies CW acceptance or recovery merely by protocol choice. No duplicate Task registry, shared transcript, fleet stack or ACP implementation is dispatched. P03-C and the current frontend sequence retain their scope; Magentic-UI's historical internals are not presumed current after its MagenticLite transition.
