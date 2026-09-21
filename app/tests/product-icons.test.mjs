@@ -108,7 +108,7 @@ test("Spark, Attention and Chat seats and the Settings groups carry their regist
   assert.match(app, /setSemanticControl\(\$\("attention-button"\), "attention\.agent", \{ visible: true \}\)/);
   assert.match(app, /setSemanticControl\(\$\("spark-button"\), "spark\.surface", \{ visible: true \}\)/);
   assert.match(app, /"show-run-button": \["text-align-start", "Chat overview"\]/);
-  assert.match(app, /"show-surface-button": \["panel-right", "Open work surface"\]/, "work-surface entry keeps panel-right");
+  assert.match(app, /"show-surface-button": \["panel-right", "Open preview"\]/, "the Preview entry keeps panel-right");
   const settings = read("app/web/settings-view.mjs");
   assert.match(settings, /semanticIcon\(group\.id === "plugins" \? "plugin\.object" : `settings\.\$\{group\.id\}`, \{ size: 18 \}\)/);
   for (const id of ["general", "appearance", "models", "tools", "skills", "memory", "permissions", "keyboard", "developer"])

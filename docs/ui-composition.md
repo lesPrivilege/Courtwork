@@ -11,14 +11,14 @@
 | Thread | 用户输入的轻背景块、直接可读的助手正文、运行结果摘要 | 连续工具过程收成活动行；工具失败初次展开，用户收起选择保留；原始请求/结果继续内收 |
 | 待处理决定 | 唯一具有明显边界的授权 / 回答卡 | 服务端确认后收成已处理历史行；允许一次精确写入不等于接受成果 |
 | 会话概览 | 顶栏图标打开独立摘要卡：Workspace、Latest run、File permissions | 点条目进入文件对话框或完整检查栏；点击外部 / Escape 收起 |
-| 检查栏 | Workspace / Run / File，共用一个宿主 | Workspace 保留扩展 renderer；Run 内含 Results、Usage，诊断再收进 details；File 明确 Current file / Recorded version |
-| 放大工作面 | 原检查栏在覆盖层内扩大 | 第一次 Escape 还原布局，下一次关闭；关闭后回原入口，异步读取不抢焦点 |
+| Preview（2026-09-21 起替代检查栏的卡片层，06d） | 每个被打开的对象一个 tab：Workspace、Work（一次 Run）、文件版本、presentation 实例，共用一个宿主；按对象自身身份去重，同一路径的两个记录版本是两个 tab | Workspace 保留扩展 renderer；Run 内含 Results、Usage，诊断再收进 details；File 明确 Current file / Recorded version。关闭 tab 只是视图动作：右邻接任，否则左邻；关最后一个即收起 Preview。tab 集合、选中与阅读位置按 Chat 记在本页内存里 |
+| 放大工作面 | Preview 在 ≥1680 的三栏里可放大到主区 | 第一次 Escape 还原布局，下一次收起；收起后回原入口，异步读取不抢焦点 |
 
 导航开合、检查栏开合、内容种类与 renderer 身份分别表达。面板关闭不取消 Run，不提交输入，不卸载同一 renderer。切换会话才隔离旧读取与旧 renderer。新建请求使用目标与导航身份；普通创建接口无幂等协议，回执不明时先要求刷新核对，不自动重发。
 
 ## 响应式与焦点
 
-- `>=1024px`（WK-72）：侧栏 + 主区。主区只有一个 L1 面（Chat Flow 或 Home 三带）与一条 header 带；工作面不是第三列，收敛态是锚在主区右侧 gutter 的 L2 悬浮模块卡（无 rail header、无自有标题），展开态是主列之上的 L3 覆盖层（一条 tab 条 + 返回），侧栏保持可操作。主区宽不足以并置 740 正文列与 360 悬浮层时，卡收成右缘的模块 glyph 竖条。导航可收起。正文与 composer 同一 `--column:740px` 对齐。
+- `>=1024px`：侧栏 + 主区。主区只有一个 L1 面（Chat Flow 或 Home 三带）与一条 header 带。Preview 打开时，1024–1679 是主区内的视图切换（一条对象 tab 条 + 返回），≥1680 是第三栏；侧栏保持可操作。2026-09-21（06d）起不再有锚在右侧 gutter 的悬浮模块卡与 glyph 竖条。导航可收起。正文与 composer 同一 `--column:740px` 对齐。
 - `768–1023px`：主区独占画面；导航为抽屉，工作面为右侧覆盖层。底层 `inert + aria-hidden`，键盘焦点受约束。
 - `<768px`：工作面为 `inset:0;width:100%` 的整幅覆盖；导航仍为独立抽屉。不能同时露出可操作的两套主区。Home 的 composer 在此档沉底，三带读作上带、下带、composer（WK-58）。
 - 普通桌面动作目标 32px，窄屏 / coarse pointer 44px。原生 dialog 优先于检查层；工具提示不吞掉上层 Escape；选择 tab 用箭头 / Home / End。

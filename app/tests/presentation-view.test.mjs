@@ -50,22 +50,25 @@ test("08 · the Chat row and the surface pane draw the same instance and version
   });
 });
 
-test("08 · the surface knows the presentation kind: a tab of its own, a card and a pane, opened only for an object", () => {
+test("08 / 06d · Preview knows the presentation kind: a pane, and a tab per recorded instance and revision", () => {
   const module = surfaceModule("presentation");
   assert.ok(module);
-  assert.equal(module.tabId, "surface-presentation-tab");
+  assert.equal(module.tabId, undefined, "no fixed kind tab: a tab is an object");
   assert.equal(module.contentId, "presentation-content");
-  assert.deepEqual(surfaceModules.map((m) => m.kind), ["run", "file", "preview", "presentation"]);
+  assert.deepEqual(surfaceModules.map((m) => m.kind), ["run", "file", "workspace", "presentation"]);
   assert.equal(module.adapter({ sessionId: "s1", presentationRef: null, events: [] }), null);
   const ref = { sessionId: "s1", instanceId: INSTANCE.instanceId, revision: 1 };
   const schema = module.adapter({ sessionId: "s1", presentationRef: ref, events: [{ type: "presentation.created", data: INSTANCE }] });
   assert.equal(schema.instance.specSha256, INSTANCE.specSha256);
   assert.equal(module.adapter({ sessionId: "s2", presentationRef: ref, events: [] }), null, "another session's ref opens nothing here");
+  const words = module.describe(ref, { events: [{ type: "presentation.created", data: INSTANCE }] });
+  assert.equal(words.name, INSTANCE.spec.title, "the tab is named by the instance's own title");
+  assert.equal(words.meta, "revision 1", "and says which recorded revision it reads");
   const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
   const html = readFileSync(`${root}app/web/index.html`, "utf8");
   assert.match(app, /function openPresentation\(ref, opener = document\.activeElement\)/);
-  assert.match(app, /module\.kind === "presentation"\s*\? Boolean\(state\.surface\.presentationRef\)/);
+  assert.match(app, /openPreviewObject\("presentation", ref, opener\)/);
   assert.match(app, /request\(`\/sessions\/\$\{encodeURIComponent\(ref\.sessionId\)\}\/presentations\/\$\{encodeURIComponent\(ref\.instanceId\)\}`\)/, "a missing instance is read back by id");
-  assert.match(html, /id="surface-presentation-tab"/);
+  assert.doesNotMatch(html, /id="surface-presentation-tab"/);
   assert.match(html, /id="presentation-content"/);
 });

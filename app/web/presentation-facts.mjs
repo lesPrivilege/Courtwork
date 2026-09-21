@@ -49,7 +49,7 @@ export function renderPresentationInline(instance, { onOpen } = {}) {
   card.append(body(instance));
   const foot = el("p", { className: "context-meta presentation-identity", text: identityLine(instance) });
   card.append(foot);
-  if (onOpen) card.append(action("panel-right", "Open in work surface", () => onOpen(instance), { visible: true, className: "context-row presentation-open" }));
+  if (onOpen) card.append(action("panel-right", "Open in Preview", () => onOpen(instance), { visible: true, className: "context-row presentation-open" }));
   return card;
 }
 

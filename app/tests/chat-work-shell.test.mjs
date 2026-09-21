@@ -63,11 +63,11 @@ test("WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是�
   // 它现在由工作面标题带画，只在 Work 会话、只在这条带真的在屏幕上时。
   const scopeFn = appSource.slice(
     appSource.indexOf("function renderSurfaceScope"),
-    appSource.indexOf("function surfaceKindTitle"),
+    appSource.indexOf("/* WK-41 · the host's facts."),
   );
   assert(scopeFn.includes('sessionMode(session) === "work"'), "只在 Work 上");
   assert(scopeFn.includes("MEMORY_SCOPE_OFF"), "仍然只有一个值");
-  assert(scopeFn.includes("expanded"), "带不在屏幕上时不画");
+  assert(scopeFn.includes("shown"), "带不在屏幕上时不画");
   // 没有 popover、没有按钮、没有 caret 挂在它身上。
   for (const affordance of [
     "popover",

@@ -6,7 +6,6 @@
     <meta name="description" content="A local work agent workspace" />
     <title>CourtWork</title>
     <link rel="stylesheet" href="/web/styles.css" />
-    <link rel="stylesheet" href="/web/summary-disclosure.css" />
     <link rel="stylesheet" href="/web/surface-layout.css" />
     <link rel="stylesheet" href="/web/markdown-reader.css" />
     <!-- The same policy validates stored appearance before paint and editor changes. -->
@@ -240,7 +239,7 @@
               id="show-surface-button"
               class="quiet-button"
               type="button"
-              aria-label="Open workspace preview"
+              aria-label="Open preview"
               hidden
             ></button>
           </div>
@@ -673,81 +672,17 @@
             hidden
           ></button>
           <div class="surface-heading">
-            <h2 id="surface-title">Work surface</h2>
+            <h2 id="surface-title">Preview</h2>
           </div>
+          <!-- 06d · one tab per object Preview is reading (preview-tabs.mjs):
+               a select target and its own close target, keyed by the object's
+               identity. Drawn by app.mjs from the selected Session's set. -->
           <div
             id="surface-tabs"
             class="surface-tabs"
             role="tablist"
-            aria-label="Work surface views"
-          >
-            <button
-              id="surface-preview-tab"
-              class="surface-tab"
-              role="tab"
-              aria-controls="surface-content"
-              aria-selected="true"
-              type="button"
-            >
-              Workspace
-            </button>
-            <button
-              id="surface-run-tab"
-              class="surface-tab"
-              role="tab"
-              aria-controls="run-content"
-              aria-selected="false"
-              type="button"
-              hidden
-            >
-              Work
-            </button>
-            <button
-              id="surface-file-tab"
-              class="surface-tab"
-              role="tab"
-              aria-controls="file-content"
-              aria-selected="false"
-              type="button"
-              hidden
-            >
-              File
-            </button>
-            <button
-              id="surface-presentation-tab"
-              class="surface-tab"
-              role="tab"
-              aria-controls="presentation-content"
-              aria-selected="false"
-              type="button"
-              hidden
-            >
-              Presentation
-            </button>
-            <!-- WK-113 ④ ⑥ · 至多一个可关闭的文档实例 tab。BE-2 未交付，所以只有
-                 一份受信活动文档，没有多实例 map、没有伪多实例。选中区与关闭区是
-                 两个命中区；类型 tab 没有关闭区。 -->
-            <span
-              id="surface-document-tab"
-              class="surface-tab surface-document-tab"
-              role="presentation"
-              hidden
-            >
-              <button
-                id="surface-document-select"
-                class="surface-tab-select"
-                role="tab"
-                aria-controls="file-content"
-                aria-selected="false"
-                type="button"
-              ></button>
-              <button
-                id="surface-document-close"
-                class="surface-tab-close"
-                type="button"
-              ></button>
-            </span>
-          </div>
+            aria-label="Open in Preview"
+          ></div>
           <!-- M-2 / WK-113 ③ · scope 位属于工作面的标题带，不属于会话 meta 行；
                BE-19 之前它仍然是一句陈述，没有控件。 -->
           <p id="surface-scope" class="session-scope surface-scope" hidden></p>
@@ -758,29 +693,26 @@
               type="button"
               aria-controls="surface-panel"
               aria-expanded="false"
-              aria-label="Expand work surface"
+              aria-label="Expand preview"
             ></button>
             <button
               id="close-surface-button"
               class="quiet-button"
               type="button"
-              aria-label="Hide work surface"
+              aria-label="Hide preview"
             ></button>
           </div>
         </header>
-        <div id="surface-rail" class="surface-rail"></div>
         <div
           id="surface-content"
           class="surface-content"
           role="tabpanel"
-          aria-labelledby="surface-preview-tab"
           tabindex="0"
         ></div>
         <div
           id="run-content"
           class="surface-content"
           role="tabpanel"
-          aria-labelledby="surface-run-tab"
           tabindex="0"
           hidden
         ></div>
@@ -788,7 +720,6 @@
           id="file-content"
           class="surface-content"
           role="tabpanel"
-          aria-labelledby="surface-file-tab"
           tabindex="0"
           hidden
         ></div>
@@ -797,7 +728,6 @@
           id="presentation-content"
           class="surface-content"
           role="tabpanel"
-          aria-labelledby="surface-presentation-tab"
           tabindex="0"
           hidden
         ></div>

@@ -194,88 +194,11 @@
     "semanticKeys": []
   },
   {
-    "file": "app/web/summary-disclosure.mjs",
-    "source": "icon(\"file-text\", { size: 16 }),",
-    "disposition": "mapped-raw",
-    "reason": "The Work summary lists a recorded file; file-text is the registered file.object representation.",
-    "semanticKeys": [
-      "file.object"
-    ]
-  },
-  {
-    "file": "app/web/summary-disclosure.mjs",
-    "source": "\"file-text\",",
-    "disposition": "mapped-raw",
-    "reason": "The action opens a recorded file by exact path and hash; file-text maps to file.object while the accessible name supplies the verb and target.",
-    "semanticKeys": [
-      "file.object"
-    ]
-  },
-  {
-    "file": "app/web/summary-disclosure.mjs",
-    "source": "icon(\"file-text\", { size: 16 }),",
-    "disposition": "mapped-raw",
-    "reason": "The static recorded-file row names a file and its bytes; file-text is the registered file.object representation.",
-    "semanticKeys": [
-      "file.object"
-    ]
-  },
-  {
-    "file": "app/web/summary-disclosure.mjs",
-    "source": "\"refresh-cw\",",
-    "disposition": "named-read",
-    "reason": "This is retry recovery for a failed Work summary read; the visible Retry text distinguishes it from rerunning work.",
-    "semanticKeys": []
-  },
-  {
-    "file": "app/web/summary-disclosure.mjs",
-    "source": "['activity', 'Activity', 'Work'],",
-    "disposition": "data-identifier",
-    "reason": "activity is a presentation slot id and label tuple, not a glyph call.",
-    "semanticKeys": []
-  },
-  {
     "file": "app/web/surface-modules.mjs",
     "source": "return action(\"refresh-cw\", fullName, onClick, {",
     "disposition": "named-read",
     "reason": "The shared retry helper performs a named read recovery with the supplied full target name.",
     "semanticKeys": []
-  },
-  {
-    "file": "app/web/surface-modules.mjs",
-    "source": "return el(\"p\", { className: \"rail-file\" }, icon(\"file-text\"), name, meta);",
-    "disposition": "mapped-raw",
-    "reason": "The non-actionable rail row displays a named current or recorded file; file-text is the registered file.object representation.",
-    "semanticKeys": [
-      "file.object"
-    ]
-  },
-  {
-    "file": "app/web/surface-modules.mjs",
-    "source": "icon(\"file-text\"),",
-    "disposition": "mapped-raw",
-    "reason": "The actionable rail row displays a named current or recorded file; file-text is the registered file.object representation.",
-    "semanticKeys": [
-      "file.object"
-    ]
-  },
-  {
-    "file": "app/web/surface-modules.mjs",
-    "source": "icon: \"file-text\",",
-    "disposition": "mapped-raw",
-    "reason": "The File module identity is a named file surface; file-text is the registered file.object representation.",
-    "semanticKeys": [
-      "file.object"
-    ]
-  },
-  {
-    "file": "app/web/surface-modules.mjs",
-    "source": "icon: \"folder\",",
-    "disposition": "mapped-raw",
-    "reason": "The Workspace module identity is the session folder binding and files, matching the registered workspace.object representation.",
-    "semanticKeys": [
-      "workspace.object"
-    ]
   },
   {
     "file": "app/web/workspace-view.mjs",
@@ -373,12 +296,6 @@
     "disposition": "named-read",
     "reason": "Named read of the existing Core work-review projection; no accept/reject action is implied.",
     "semanticKeys": []
-  },
-  {
-    "file": "app/web/app.mjs",
-    "source": "action(module.kind === \"run\" ? \"activity\" : module.icon, module.kind === \"run\" ? \"Run details\" : module.title, () => {",
-    "disposition": "mapped-raw",
-    "reason": "Compact Chat Run entry uses the existing activity glyph; panel-right remains the shell panel toggle."
   },
   {
     "file": "app/web/subagent-view.mjs",

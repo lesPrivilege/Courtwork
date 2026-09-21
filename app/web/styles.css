@@ -377,8 +377,6 @@
      代码按内容自己横向滚动（WK-117 (b)）。登记见 ui-composition-standard 的尺寸表。 */
   --doc-min: 688px;
   --doc-measure: 740px;
-  --rail-width: 360px; /* WK-72 · 悬浮模块卡的宽度，不再是一条列轨 */
-  --strip-width: 44px; /* 收成 glyph 竖条时的宽度 */
   --control: 28px;
   --radius-small: 4px;
   --radius-control: 8px;
@@ -1072,11 +1070,11 @@ button {
 }
 /* WO-CS-01 · one content column. Prose and composer resolve the same inset
    against the same width (the conversation body), so their edges cannot drift
-   apart; the cards' reservation is subtracted before the inset is chosen. */
+   apart. */
 .conversation-body {
   --chat-inset: clamp(
     var(--content-inset-tight),
-    (100% - var(--cards-inset, 0px) - var(--column)) / 2,
+    (100% - var(--column)) / 2,
     var(--content-inset)
   );
 }
@@ -1176,13 +1174,11 @@ button {
    but is not a failure that was established, so it keeps the grey of every
    other state word. Only a run waiting on a person and a run that failed take
    ink, which is what holds the screen to three accents (WK-36). */
-.home-row-status.is-waiting,
-.rail-card-state.is-waiting {
+.home-row-status.is-waiting {
   color: var(--accent-ink);
   font-weight: 600;
 }
-.home-row-status.is-failed,
-.rail-card-state.is-failed {
+.home-row-status.is-failed {
   color: var(--danger);
   font-weight: 600;
 }
@@ -1728,8 +1724,8 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
   flex-direction: column;
   overflow: hidden;
 }
-/* WK-42 · the rail band. Collapsed it names the rail; expanded the tab strip is
-   its content and the heading keeps only the accessible name. */
+/* WK-42 / 06d · the Preview band: the object tab strip is its content and the
+   heading keeps only the accessible name. */
 .surface-header {
   display: flex;
   align-items: stretch;
@@ -1817,9 +1813,27 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
   min-width: 0;
   font-size: var(--text-body);
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+/* 06d · the name gives way first; the short version word that tells two
+   versions of one object apart stays whole. */
+.surface-tab-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.surface-tab-meta {
+  flex: none;
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--muted-strong);
+  font-variant-numeric: tabular-nums;
+}
+.surface-tab-select .tab-activity {
+  margin-left: 0;
 }
 .surface-tab-select[aria-selected="true"] {
   color: var(--ink);
@@ -4595,103 +4609,6 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
   html[data-shell="desktop"] .chat-header { padding-left: max(var(--space-6), var(--native-controls-inset, env(titlebar-area-x, 80px))); }
 }
 
-/* WK-41 / WK-72 · the collapsed rail: one card per module, no header and no
-   layout of its own. Below 768 it is the content of the full-width sheet and
-   keeps the sheet's gutter; from 768 up it is the floating layer positioned by
-   the rules further down, and the gutter comes from the panel. */
-.surface-rail {
-  flex: 1;
-  min-height: 0;
-  min-width: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  padding: var(--col-gap);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  scrollbar-gutter: stable;
-}
-
-/* =====================================================================   WK-72 · The work surface is an L2 floating layer over the main column, not a
-   third column. Collapsed it is a stack of module cards anchored at the main
-   column's right gutter, between the band and the composer's top edge; when the
-   main column is narrower than 740 + 2·gap + 360 the cards collapse to a glyph
-   strip at the same edge; expanded it is an L3 overlay over the same area, with
-   the sidebar left operable (WK-74 (1)). Below 768 nothing here applies and the
-   existing full-width sheet stands.
-   ========================================================================== */
-@media (min-width: 768px) {
-  .surface-panel.is-open:not(.is-expanded) {
-    position: absolute;
-    grid-area: -2 / -2 / -1 / -1;
-    top: calc(var(--band-top) + var(--col-gap));
-    bottom: calc(var(--composer-h, 0px) + var(--col-gap));
-    right: var(--col-gap);
-    left: auto;
-    width: var(--rail-width);
-    background: transparent;
-    border: 0;
-    box-shadow: none;
-    z-index: 5;
-    pointer-events: none;
-  }
-  /* The layer is a frame, not a surface: only the cards themselves take the
-     pointer, so the thread underneath still scrolls where the layer is empty. */
-  .surface-panel.is-open:not(.is-expanded) .surface-rail {
-    padding: 0;
-    pointer-events: none;
-    scrollbar-gutter: auto;
-  }
-  .surface-panel.is-open:not(.is-expanded) .rail-card,
-  .surface-panel.is-open:not(.is-expanded) .rail-strip {
-    pointer-events: auto;
-  }
-  /* WK-72 · no rail header and no rail title while the cards are showing. */
-  .surface-panel:not(.is-expanded) .surface-header {
-    display: none;
-  }
-  .surface-panel.is-open.is-strip:not(.is-expanded) {
-    width: var(--strip-width);
-  }
-  /* The reading column steps aside for the layer instead of sliding under it:
-     at 1440 the 740 column and the 360 cards coexist with one gutter between. */
-  .app-shell.surface-cards {
-    --cards-inset: calc(var(--rail-width) + var(--col-gap));
-  }
-  .app-shell.surface-cards.surface-strip {
-    --cards-inset: calc(var(--strip-width) + var(--col-gap));
-  }
-  .app-shell.surface-cards .chat-header {
-    padding-right: calc(var(--col-gap) + var(--cards-inset));
-  }
-  .app-shell.surface-cards .message-stream,
-  .app-shell.surface-cards .composer-area {
-    padding-right: calc(var(--chat-inset) + var(--cards-inset));
-  }
-}
-
-/* WK-69 / WK-72 · the glyph strip: one icon per module, the module title as the
-   accessible name, and opening one opens the overlay on it. */
-.rail-strip {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-1);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-}
-.rail-strip > button {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  color: var(--muted-strong);
-}
-.rail-strip > button:hover {
-  color: var(--ink);
-}
-
 /* WK-69 L3 · expanded is an overlay over the main column: float material over
    the scrim. The sidebar is outside the scrim and stays operable, so no
    aria-modal is claimed here (WK-74 (1)); below 1024 the sheet is a real modal
@@ -4715,7 +4632,6 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
     box-shadow: none;
     z-index: 29;
   }
-  /* The sheet grows out of the cards: same top edge, same right gutter. */
   .surface-panel.is-expanded .surface-header {
     padding: 0 var(--col-gap);
   }
@@ -4768,126 +4684,6 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
     min-height: var(--band-top);
   }
 }
-/* SH-1 · a module is an object you can open as a whole, so it is a card; its
-   rows are rows. SH-2: one boundary treatment — surface, 1px line and the
-   floating shadow together mark the module, and nothing inside repeats them. */
-.rail-card {
-  background: var(--float);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-card);
-  box-shadow: var(--shadow-float);
-  padding: var(--card-padding);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-.rail-card-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-width: 0;
-}
-.rail-card-head > .ui-icon {
-  color: var(--muted-strong);
-}
-.rail-card-title {
-  font-size: var(--text-section);
-  font-weight: 600;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.rail-card-state {
-  font-size: var(--text-meta);
-  color: var(--muted-strong);
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.rail-open {
-  margin-left: auto;
-  flex: none;
-  font-size: var(--text-meta);
-  color: var(--muted-strong);
-  padding: var(--space-1) 6px;
-}
-.rail-open:hover {
-  color: var(--ink);
-}
-.rail-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  font-size: var(--text-meta);
-}
-.rail-row-label {
-  color: var(--muted-strong);
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.rail-row-value {
-  flex: none;
-  font-variant-numeric: tabular-nums;
-}
-.rail-row-value.is-mono {
-  font-family: var(--font-mono);
-}
-.rail-note {
-  font-size: var(--text-meta);
-  color: var(--muted-strong);
-  line-height: 1.5;
-}
-.rail-group {
-  font-size: var(--text-caption);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-caps);
-  color: var(--muted-strong);
-  padding-top: var(--space-2);
-}
-.rail-file {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  min-height: 0;
-  padding: var(--space-1) 0;
-  margin: 0;
-  border: 0;
-  border-radius: var(--radius-small);
-  background: transparent;
-  font-size: var(--text-label);
-  color: var(--ink);
-  text-align: left;
-}
-.rail-file + .rail-file {
-  border-top: 1px solid var(--line);
-}
-.rail-file .ui-icon {
-  color: var(--muted);
-}
-.rail-file-name {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.rail-file-side {
-  font-size: var(--text-meta);
-  color: var(--muted-strong);
-  font-variant-numeric: tabular-nums;
-}
-.rail-file-open:hover {
-  background: var(--hover);
-}
-.rail-file-open:active {
-  background: var(--pressed);
-}
-
 /* WK-46 (4) · prose keeps the 740 column; a file tree, a version table or a
    diff may widen to 960 in the expanded pane, and only there.
    WK-117 (b) / CC-W · 文档面**不再**整体跟着变宽。面板宽 1136（B）或 688（C）都不是
@@ -4917,8 +4713,6 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
 
 /* WK-13 · icon tiers. Row 16, control 18 (the base rule above). WO-CS-01 · the
    former nav 20 tier joins row 16; hit areas stay on the 32 / 44 step. */
-.rail-card-head > .ui-icon,
-.rail-file .ui-icon,
 .project-chevron .ui-icon,
 .user-message-actions .ui-icon,
 .run-status-card .ui-icon,
@@ -6578,10 +6372,7 @@ html[data-theme="dark"] {
 .nav-collections .project-section, .nav-collections .recent-section { flex: none; display: flex; flex-direction: column; gap: var(--space-2); }
 .nav-collections .project-list { overflow: visible; }
 
-/* Spark Explore reuses the chat rail and existing dialog/material grammar. */
-/* Spark is another card in the existing right-side surface rail. Its strip,
-   narrow-screen overlay, content inset and scroll owner remain shared. */
-.subagent-card > button { display: block; text-align: left; max-width: 100%; overflow-wrap: anywhere; margin: 0; }
+/* Spark Explore reuses the existing dialog/material grammar. */
 .subagent-result { white-space: pre-wrap; overflow-wrap: anywhere; font-family: inherit; font-size: var(--text-body); }
 .spark-dialog fieldset label { display: flex; gap: var(--space-2); align-items: center; overflow-wrap: anywhere; }
 .spark-dialog textarea { width: 100%; margin-block: var(--space-3); }

@@ -66,7 +66,7 @@ test("00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary 
   assert.doesNotMatch(modules, /runtimeModule|Runtime details have not been read/);
   assert.doesNotMatch(modules, /Not accepted by a review/);
   assert.doesNotMatch(inspector, /have not been accepted by a review/);
-  assert.match(modules, /if \(!extension && !Array\.isArray\(workspace\?\.files\) && !workspace\?\.error\) return null;/, "an unread workspace card is absent, not blank");
+  assert.doesNotMatch(modules, /\bcard\(schema|railCard/, "06d · no module draws a card: an object opens as a tab");
   assert.doesNotMatch(app, /openRuntimeSettings|module\.kind === "runtime"/);
   assert.match(app, /if \(state\.view !== "session"\) state\.surface\.open = false;/, "entering a chat does not open the rail");
   assert.match(app, /state\.surface\.open = false;\s*renderAll\(\);\s*await loadSurface\(epoch\);/);

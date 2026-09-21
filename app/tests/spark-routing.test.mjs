@@ -22,7 +22,8 @@ function harness({sessions=[bound('s-b'),bound('s-a')], lookup, selection}={}) {
       if(selection) await selection.promise;
       current=bound(sessionId);
     },
-    activateSurface:kind=>opened.push(kind),
+    // 06d · the route opens the bound Work's Workspace tab in Preview.
+    openWorkspace:()=>opened.push('workspace'),
     showToast:text=>notices.push(text),
   };
   const route=vm.runInNewContext(routeSource+'; openMatterSurface',env);
@@ -30,7 +31,7 @@ function harness({sessions=[bound('s-b'),bound('s-a')], lookup, selection}={}) {
 }
 test('Spark route selects a stable bound owner and opens the existing Work preview',async()=>{
   const h=harness(); await h.route('m-1','p-1');
-  assert.deepEqual(h.selected,[['p-1','s-a']]); assert.deepEqual(h.opened,['preview']);
+  assert.deepEqual(h.selected,[['p-1','s-a']]); assert.deepEqual(h.opened,['workspace']);
 });
 test('Spark route cannot manufacture a Work session for an unbound Matter',async()=>{
   const h=harness({sessions:[bound('s-a','other')]}); await h.route('m-1','p-1');

@@ -8,7 +8,8 @@ test('copy guard rejects default record nouns and allows verbs, user values and 
   for(const text of ['Run tests','Run commands','Run locally','Run from source','Work','Run the example'])assert.equal(prohibitedDefaultCopy(text),false,text);
   assert.equal(copyLiterals('el("p", {text: userInput}); const runId = run.id;').length,0);
   assert.equal(copyLiterals('el("h3", {text: "Run"}); el("button", {text: "Run tests"});').length,1);
-  assert.equal((await checkCopy()).diagnosticExceptions,3);
+  // 06d · the Run summary card's "Run information" left with the card layer.
+  assert.equal((await checkCopy()).diagnosticExceptions,2);
 });
 test('raw consumer guard rejects new, duplicated and stale literal consumers',()=>{
   const a={file:'app/web/example.mjs',...guardedLines('icon("message-square");')[0]};

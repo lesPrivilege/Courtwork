@@ -148,7 +148,7 @@ CW 已有 `renderRun`、`projectRunSummary`、`createWorkReviewSummary` 和共�
 |---|---|
 | [surface-modules.mjs](../../../app/web/surface-modules.mjs) · `runtimeModule`、`runModule`、`workspaceModule`、`surfaceModules` | 1–540 行；Runtime 为资源/配置摘要，静态模块 peers 前提与空卡分支 |
 | [inspector.mjs](../../../app/web/inspector.mjs) · `renderRun` | 1–310 行；已有 Results/Usage/Tool activity/metadata/raw trace 与最后100条限制 |
-| [summary-disclosure-projection.mjs](../../../app/web/summary-disclosure-projection.mjs) · `projectRunSummary` | 精确对象/版本和纯投影先例；非法身份不显示、部分文件不假装完整 |
+| `app/web/summary-disclosure-projection.mjs` at `b714c08` (removed with the card layer by 06d) · `projectRunSummary` | 精确对象/版本和纯投影先例；非法身份不显示、部分文件不假装完整 |
 | [work-review-summary.mjs](../../../app/web/work-review-summary.mjs) · `createWorkReviewSummary` | Core 投影/版本/待审事实与真正 Review 入口 |
 
 上述相对链接导航当前工作树；固定来源用本节 SHA 与路径组合。实际开工用最新 HEAD 对账，不能把本轮 source review 算作本地产品完整验收。

@@ -10,7 +10,7 @@
 
 ## 可消费接缝
 
-生产[summary-disclosure.mjs](../../../app/web/summary-disclosure.mjs)导出`surfaceEntryDefinitions`与`createSurfaceEntryDirectory({getSnapshot})`，已由[app.mjs](../../../app/web/app.mjs)使用，无动态代码加载、后端注册或新依赖。
+生产`app/web/summary-disclosure.mjs`（至 `b714c08`；2026-09-21 随卡片层由 06d 移除）导出`surfaceEntryDefinitions`与`createSurfaceEntryDirectory({getSnapshot})`，已由[app.mjs](../../../app/web/app.mjs)使用，无动态代码加载、后端注册或新依赖。
 
 `getSnapshot()`返回`{schemaVersion:1, scope, entries}`；scope由host给当前Session与读代际。`entries[id]`仅限已登记展示槽：`state`为ready/loading/empty/error/unavailable/unsupported，`detail`为安全纯文本，`identity`为owner对象身份，`revision`为实际已提供版本（没有则不补），`open`为host注入的阅读函数。缺槽使用兜底行；未知schema/state不能执行；ready无身份/reader也不生成按钮。未知id不自动冒出导航项。
 
