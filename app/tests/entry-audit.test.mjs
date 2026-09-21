@@ -72,12 +72,14 @@ test("00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary 
   assert.match(app, /state\.surface\.open = false;\s*renderAll\(\);\s*await loadSurface\(epoch\);/);
 });
 
-test("00 · the folder entry says Connect folder; Project stays Project", () => {
+test("00 · one Work location entry; Connect folder stays the command inside it", () => {
   const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
   const card = readFileSync(`${root}app/web/workspace-card.mjs`, "utf8");
   const html = readFileSync(`${root}app/web/index.html`, "utf8");
-  assert.match(app, /: "Connect folder" \}\),/);
+  assert.match(card, /export const WORK_LOCATION_EMPTY = "Choose work location";/);
+  assert.match(card, /export const WORK_LOCATION_TITLE = "Work location";/);
+  assert.match(app, /workLocationEntry\(\{ projectName:/);
   assert.doesNotMatch(app, /"Choose workspace"/);
   assert.match(card, /text: "Connect folder…"/);
-  assert.match(html, /id="home-project-button"[^>]*>Project</s);
+  assert.doesNotMatch(html, /id="home-project-button"/);
 });

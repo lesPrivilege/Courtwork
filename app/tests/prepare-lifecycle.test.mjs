@@ -28,6 +28,7 @@ import {
   preparationState,
   restoreHomePreparationMarker,
   serializeHomePreparationMarker,
+  workLocationLock,
 } from "../web/home-preparation.mjs";
 import {
   createWorkspaceCard,
@@ -37,6 +38,7 @@ import {
   PREPARE_CORRECT_SCOPE,
   PREPARE_RESUME_SCOPE,
   PREPARE_UNCERTAIN,
+  PROJECT_FIXED,
 } from "../web/workspace-card.mjs";
 import { withTinyDom, flush, deferred } from "./tiny-dom.mjs";
 
@@ -137,6 +139,16 @@ function createHome(host, { stagedPath = ROOT_PATH } = {}) {
     renders: 0,
     card: null,
     container: null,
+    // 06b work location · the Home project choice, and the projects to choose from.
+    projectId: null,
+    projects: [{ id: "p-parcel", name: "Parcel maintenance" }],
+    createRequested: 0,
+  };
+  /* app.mjs `homeProjectId`: once a start is under way its own project is the
+     one in force, whatever the Home choice later says. */
+  home.homeProjectId = () => {
+    const m = home.marker;
+    return m && (m.pending || m.unconfirmed || m.session || m.sessionId) ? m.projectId ?? null : home.projectId;
   };
   home.preparedChat = () => (home.marker?.session?.id ? home.marker.session : null);
 
@@ -146,7 +158,7 @@ function createHome(host, { stagedPath = ROOT_PATH } = {}) {
     request: host.request,
     read: () => ({
       marker: home.marker, rootPath: home.stagedPath, draftText: home.draftText,
-      permissionMode: "ask", projectId: null, connectionLost: Boolean(home.connectionLost),
+      permissionMode: "ask", projectId: home.projectId, connectionLost: Boolean(home.connectionLost),
     }),
     write: ({ marker, rootPath }) => {
       if (marker !== undefined) home.marker = marker;
@@ -187,12 +199,18 @@ function createHome(host, { stagedPath = ROOT_PATH } = {}) {
       active: false,
       draft: prepared ? null : { path: home.stagedPath, onChange: (p) => { home.stagedPath = p || null; home.render(); }, onPrepare: () => home.prepare() },
       events: [],
-      project: null,
+      // app.mjs `renderWorkspaceCard`: the chat's own project once it exists;
+      // on Home the one chosen, which only Home, before any chat, may change.
+      project: home.projects.find((p) => p.id === (session ? session.projectId : home.homeProjectId())) || null,
+      projectChoice: session ? null : {
+        options: home.projects,
+        selectedId: home.homeProjectId(),
+        onChoose: (id) => { home.projectId = id; home.render(); },
+        onCreate: () => { home.createRequested += 1; },
+      },
       permissionLabel: "Ask before editing",
-      busyReason: !(owned || !prepared) ? null
-        : phase.status === "preparing" ? PREPARE_BUSY
-        : phase.uncertain ? PREPARE_UNCERTAIN
-        : null,
+      // The production decision, not a copy of it (CE-R1).
+      busyReason: workLocationLock({ marker: home.marker, home: true, session }),
       preparation: owned && phase.status === "unfinished"
         ? {
           status: phase.status, error: phase.error,
@@ -690,7 +708,9 @@ test("the production seam: what the controller owns, and what app.mjs wires", as
   // What app.mjs still owns: the persisted marker, the DOM, and rendering.
   assert.match(app, /data-home-field": "resume-preparation"/, "the recovery is reachable from the status");
   assert.match(app, /onCorrectFolder: phase\.correctable \? \(path\) => homePreparation\.correctFolder\(path\) : null,/);
-  assert.match(app, /: phase\.uncertain \? PREPARE_UNCERTAIN/, "an unknown outcome locks the folder, and says so");
+  // CE-R1 · the lock is the owner's decision now; app.mjs only asks for it.
+  assert.match(owner, /if \(phase\.uncertain\) return PREPARE_UNCERTAIN;/, "an unknown outcome locks the folder, and says so");
+  assert.match(app, /busyReason: workLocationLock\(\{\s*marker: state\.homeStart, home, session,/);
   assert.match(app, /function retirePreparedChat\(sessionId\) \{/);
   const submit = app.slice(app.indexOf("async function submitSessionRun"));
   assert.match(submit.slice(0, submit.indexOf("} catch")), /retirePreparedChat\(sessionId\);/,
@@ -701,3 +721,86 @@ test("the production seam: what the controller owns, and what app.mjs wires", as
   const retire = app.slice(app.indexOf("function retirePreparedChat"), app.indexOf("function retirePreparedChat") + 400);
   assert.doesNotMatch(retire, /homeDraft|homeAttachments|homeRepositoryPath/, "retiring never spends the person's unsent input");
 });
+
+/* ── 06b work location · the project is chosen beside the folder ─────────── */
+
+const projectField = (body, id) => field(body, `project:${id ?? "none"}`);
+
+test("work location · project and folder are chosen in one panel, and a project choice stages no folder", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host, { stagedPath: null });
+  home.mount(body);
+  await settle();
+
+  const heads = body.querySelectorAll("h3,h4").map((h) => h.textContent);
+  assert.deepEqual(heads.slice(0, 3), ["Work location", "Project", "Folder"], "one panel, the two facts named apart, project first");
+  assert.equal(projectField(body, null).getAttribute("aria-pressed"), "true", "No project is a choice, selected by default");
+  assert.ok(field(body, "open") || field(body, "path-summary"), "the folder chooser is in the same panel");
+
+  projectField(body, "p-parcel").click();
+  await settle();
+  assert.equal(home.projectId, "p-parcel");
+  assert.equal(projectField(body, "p-parcel").getAttribute("aria-pressed"), "true");
+  assert.equal(document.activeElement, projectField(body, "p-parcel"), "the keyboard stays on the choice it made");
+  assert.equal(home.stagedPath, null, "choosing a project does not connect a folder");
+  assert.equal(host.commands.length, 0, "and asks the Host for nothing");
+
+  field(body, "project-new").click();
+  assert.equal(home.createRequested, 1, "New project is offered from the same place, through its own owner");
+}));
+
+test("work location · while a create's outcome is unknown the project is locked too, and Check status still settles it", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host);
+  home.mount(body);
+  projectField(body, "p-parcel").click();
+  await settle();
+  host.loseRepliesTo((path, method) => path === "/sessions" && method === "POST");
+  field(body, "start-edits").click();
+  await settle();
+
+  assert.equal(home.phase().status, "unconfirmed");
+  assert.equal(projectField(body, null).disabled, true, "a project cannot be chosen beside an outstanding create");
+  assert.equal(projectField(body, "p-parcel").disabled, true);
+  assert.equal(field(body, "project-new").disabled, true);
+  assert.equal(field(body, "remove").disabled, true, "nor can the folder be cleared (PA-R2)");
+  assert.match(body.textContent, new RegExp(PREPARE_UNCERTAIN.slice(0, 40)), "and the panel says why");
+
+  host.keepReplies();
+  await home.checkStatus();
+  home.render();
+  await settle();
+  assert.equal(home.preparedChat().projectId, "p-parcel", "the chat was made in the project chosen before the loss");
+  assert.equal(projectField(body, null), undefined, "once the chat exists its project is a fact, not a choice");
+  assert.match(body.textContent, new RegExp(PROJECT_FIXED.slice(0, 30)), "and the panel says why it stays");
+  assert.match(body.textContent, /Parcel maintenance/);
+
+  field(body, "start-edits").click();
+  await settle();
+  assert.equal(home.phase().status, "ready");
+  assert.equal(host.chatCommands().length, 1, "one create, whichever route settled it");
+  assert.equal(host.session.repositoryCandidateRevision, 1);
+}));
+
+test("work location · a refused folder is corrected on the same chat, whose project stays fixed", () => withTinyDom(async (body) => {
+  const host = fakeHost();
+  const home = createHome(host, { stagedPath: INVALID_PATH });
+  home.mount(body);
+  projectField(body, "p-parcel").click();
+  await settle();
+  field(body, "start-edits").click();
+  await settle();
+
+  assert.equal(home.phase().correctable, true);
+  assert.equal(projectField(body, "p-parcel"), undefined, "the project is not offered again");
+  assert.match(body.textContent, new RegExp(PROJECT_FIXED.slice(0, 30)));
+  assert.match(body.textContent, new RegExp(PREPARE_CORRECT_SCOPE.slice(0, 40)), "the folder correction is beside the folder");
+  const input = field(body, "path");
+  input.value = ROOT_PATH;
+  input.dispatchEvent({ type: "input", target: input });
+  field(body, "connect").click();
+  await settle();
+  assert.equal(home.phase().status, "ready");
+  assert.equal(host.session.projectId, "p-parcel", "the corrected chat keeps the project it was made in");
+  assert.equal(host.chatCommands().length, 1);
+}));

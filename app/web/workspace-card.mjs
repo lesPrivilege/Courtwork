@@ -1,4 +1,16 @@
-/* Workspace card · the secondary card behind the context strip's Workspace chip.
+/* Work location · the panel behind the context band's one entry.
+ *
+ * 2026-09-21 · the composer used to offer two distant starts — a Project button
+ * inside it and a Connect folder chip above it — and this card was titled
+ * Workspace, a third name for neither. There is now one entry and one panel,
+ * titled Work location. "Work location" is a label for the place a task is
+ * decided, not a new object: inside it Project (organisation, including No
+ * project) and Folder (the files a run can read) stay two separately named
+ * facts with their own commands, and choosing one never sets the other. The
+ * ruling is evidence/composer-entry-review-20260921; the change record is
+ * evidence/composer-entry-20260921/change-record.md.
+ *
+ * Earlier notes on the same card follow.
  *
  * One Chat may connect one external directory for read-only source tools
  * (RD-006 / app/docs/repository-binding.md). Unbound: open a folder through
@@ -66,6 +78,20 @@ export const PREPARE_CORRECT_SCOPE = "This chat was made, but that folder could 
  * ACTIVE_CANDIDATE). Say that where the control would have been rather than
  * offering a button whose command is already known to fail. */
 export const CHANGE_FOLDER_BLOCKED = "Stop edits first: the private candidate is built from this folder's commit, so the folder cannot change while it exists.";
+/* The project line needs one sentence to be chosen correctly, because the
+ * mistake it prevents is real: picking a project does not give the chat any
+ * files. */
+export const PROJECT_HELP = "Organises this chat. Choosing one does not connect a folder or give access to one.";
+/* The Host can rename a chat but has no command that moves it between
+ * projects, so once a chat exists its project is a fact, and the panel says so
+ * instead of offering a choice it cannot carry out. */
+export const PROJECT_FIXED = "Set when this chat was made. A chat keeps its project.";
+/* A Home send in flight is creating a chat with exactly this location. The
+ * location is locked for that — not hidden — and says why. */
+export const SEND_BUSY = "Your chat is being started with this location, so it cannot change until that finishes.";
+/* The last step of a Send: the Host is admitting its Run with this location. */
+export const RUN_SENDING = "Your message is being sent with this location, so it cannot change until the run starts.";
+export const WORK_LOCATION_TITLE = "Work location";
 const CHOOSE_PROMPT = "Connect a repository";
 
 /* Where the keyboard goes when the control it was on cannot take it back. A
@@ -82,12 +108,45 @@ const FOCUS_CHAIN = {
   connect: ["connect", "disconnect", "change-folder"],
   "change-folder": ["change-folder", "open", "path", "keep-folder"],
   "keep-folder": ["keep-folder", "change-folder", "disconnect"],
+  "project-new": ["project-new"],
 };
 
 export function repositoryName(rootPath) {
   const text = String(rootPath || "");
   const trimmed = text.replace(/\/+$/, "");
   return trimmed.slice(trimmed.lastIndexOf("/") + 1) || trimmed || text;
+}
+
+/* A folder is recognised by its name and identified by its path. The name
+ * carries the line; the whole path follows it at full length, wrapping where
+ * it must, because the panel is where the complete path is meant to be read. */
+function folderIdentity(rootPath) {
+  return [
+    el("p", { className: "location-value", text: repositoryName(rootPath) }),
+    el("p", { className: "location-path" }, el("code", { text: rootPath })),
+  ];
+}
+
+/* The band's one entry reads the two facts it opens, and only those. Empty,
+ * it says what it is for. With a project or a folder it names them — project
+ * first, the order they are decided in — and the accessible name says both
+ * facts in full, including the one that is absent, and that the folder is
+ * read only. It never names the private candidate or file access: those have
+ * their own places, and the entry is not a permission. */
+export const WORK_LOCATION_EMPTY = "Choose work location";
+export function workLocationEntry({ projectName = null, rootPath = null } = {}) {
+  const parts = [projectName, rootPath ? repositoryName(rootPath) : null].filter(Boolean);
+  if (!parts.length) return { parts: [], label: WORK_LOCATION_EMPTY, ariaLabel: WORK_LOCATION_EMPTY, tooltip: "Choose a project and a folder for this chat" };
+  const projectText = projectName ? `project ${projectName}` : "no project";
+  const folderText = rootPath ? `folder ${rootPath}, ${REPOSITORY_SCOPE_LABEL.toLowerCase()}` : "no folder";
+  return {
+    parts,
+    label: parts.join(" · "),
+    ariaLabel: `${WORK_LOCATION_TITLE}: ${projectText}; ${folderText}`,
+    // Names, untruncated; the complete path is read in the panel (UX-02), and
+    // a path-long tooltip would cover the composer it sits on.
+    tooltip: `${projectName || "No project"} · ${rootPath ? `${repositoryName(rootPath)} · ${REPOSITORY_SCOPE_LABEL}` : "No folder"}`,
+  };
 }
 
 export function activeRepositoryBinding(session) {
@@ -138,7 +197,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     return requestId;
   }
 
-  function render(container, { session, active, draft = null, events = null, project = null, permissionLabel = null, busyReason = null, preparation = null }) {
+  function render(container, { session, active, draft = null, events = null, project = null, projectChoice = null, permissionLabel = null, busyReason = null, preparation = null }) {
     const owned = container.contains(document.activeElement) ? document.activeElement?.getAttribute("data-repository-field") : null;
     /* Only resume a remembered destination while nobody else has taken the
        keyboard; if focus moved outside this card the wait is over and the card
@@ -147,8 +206,8 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     if (!owned && !unclaimed) commandField = null;
     const focus = owned || (unclaimed ? commandField : null);
     const selection = owned && typeof document.activeElement?.selectionStart === "number" ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
-    const header = el("div", { className: "section-heading" }, el("h3", { text: "Workspace" }),
-      semanticAction("surface.close", onClose, { values: { target: "workspace card" } }));
+    const header = el("div", { className: "section-heading" }, el("h3", { text: WORK_LOCATION_TITLE }),
+      semanticAction("surface.close", onClose, { values: { target: "work location" } }));
     const binding = draft ? (draft.path ? { rootPath: draft.path, status: "draft" } : null) : activeRepositoryBinding(session);
     /* PA-R1 · an unfinished preparation owns this chat's folder and candidate
      * identities, whichever of them landed. Its own command is the only way
@@ -162,14 +221,17 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
      * mutating commands exactly as this card's own in-flight command does, and
      * says why; reading and navigation stay available. */
     const busy = pending || choosing || active || Boolean(busyReason);
-    const children = [header];
+    const children = [header, renderProjectSection()];
+    // Folder facts and commands, then the Edits section; each state below fills
+    // them, and they are placed after the project in that order.
+    const folder = [], edits = [];
     if (binding && draft) {
       const remove = el("button", { className: "quiet-button", text: "Remove", attrs: { type: "button", "data-repository-field": "remove" } });
       remove.disabled = busy;
       remove.addEventListener("click", () => { commandField = "remove"; draft.onChange(null); rerender(); });
-      children.push(el("section", { className: "context-card" },
+      folder.push(el("section", { className: "context-card" },
+        ...folderIdentity(binding.rootPath),
         el("dl", { className: "data-list" },
-          el("dt", { text: "Folder" }), el("dd", {}, el("code", { text: binding.rootPath })),
           el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL })),
         el("p", { className: "context-meta", text: busyReason || REPOSITORY_DRAFT_SCOPE }),
         remove));
@@ -182,7 +244,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         const prepare = el("button", { className: "quiet-button", text: pending || draft.preparing ? SENDING_LABEL : "Start private candidate", attrs: { type: "button", "data-repository-field": "start-edits" } });
         prepare.disabled = busy || draft.locked === true;
         prepare.addEventListener("click", () => { commandField = "start-edits"; void draft.onPrepare(); });
-        children.push(el("section", { className: "context-card" }, el("h4", { text: "Edits" }),
+        edits.push(el("section", { className: "context-card location-section" }, el("h4", { text: "Edits" }),
           el("p", { className: "context-meta", text: CANDIDATE_HELP }),
           /* One reason, said once. While an owner holds this card the card has
            * already said why at the top; repeating it here would be the same
@@ -191,22 +253,20 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
           prepare));
       }
     } else if (resuming) {
-      const facts = el("dl", { className: "data-list" },
-        el("dt", { text: "Project" }), el("dd", { text: project?.name || "No project" }));
-      if (binding) facts.append(
-        el("dt", { text: "Folder" }), el("dd", {}, el("code", { text: binding.rootPath })),
-        el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL }));
-      else facts.append(el("dt", { text: "Folder" }), el("dd", { text: "Not connected yet" }));
+      const facts = el("dl", { className: "data-list" });
+      if (binding) facts.append(el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL }));
       if (permissionLabel) facts.append(el("dt", { text: "File access" }), el("dd", { text: permissionLabel }));
-      children.push(el("section", { className: "context-card" }, facts), renderCandidateSection());
+      folder.push(el("section", { className: "context-card" },
+        ...(binding ? folderIdentity(binding.rootPath) : [el("p", { className: "location-value", text: "Not connected yet" })]), facts));
+      edits.push(renderCandidateSection());
       /* PA-R1 · the Host refused this folder and nothing landed, so the folder
        * is what there is to correct. The same chooser the unbound card uses,
        * over the same chat: picking one is a new binding intent and the
        * preparation mints a new identity for it. Offered only when the owner
        * says correcting is safe — never while an effect is outstanding. */
       if (resuming.onCorrectFolder) {
-        children.push(el("p", { className: "context-meta", text: PREPARE_CORRECT_SCOPE }));
-        children.push(...chooserSections((rootPath) => { commandField = "open"; void resuming.onCorrectFolder(rootPath); }, busy));
+        folder.push(el("p", { className: "context-meta", text: PREPARE_CORRECT_SCOPE }));
+        folder.push(...chooserSections((rootPath) => { commandField = "open"; void resuming.onCorrectFolder(rootPath); }, busy));
       }
     } else if (binding) {
       const candidate = activeRepositoryCandidate(session);
@@ -219,11 +279,9 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
          done to it, and what will be shown before a write happens. A missing
          one is said as missing rather than filled in from another. */
       const facts = el("dl", { className: "data-list" },
-        el("dt", { text: "Project" }), el("dd", { text: project?.name || "No project" }),
-        el("dt", { text: "Folder" }), el("dd", {}, el("code", { text: binding.rootPath })),
         el("dt", { text: "Access" }), el("dd", { text: REPOSITORY_SCOPE_LABEL }));
       if (permissionLabel) facts.append(el("dt", { text: "File access" }), el("dd", { text: permissionLabel }));
-      const primary = el("section", { className: "context-card" }, facts);
+      const primary = el("section", { className: "context-card" }, ...folderIdentity(binding.rootPath), facts);
       // UX-02 · the sentence each reading needs to be acted on stays at the
       // control; the longer definitions are one disclosure away.
       const roles = el("details", { className: "repository-path-details" },
@@ -241,24 +299,26 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         keep.disabled = busy;
         keep.addEventListener("click", () => { commandField = "keep-folder"; changing = false; error = ""; rerender(); });
         primary.append(el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : "Connecting another folder replaces this one for this chat. Files the model already read stay in this chat." }), keep);
-        children.push(primary, ...chooserSections(connectPath, busy));
+        folder.push(primary, ...chooserSections(connectPath, busy));
       } else {
         if (!candidate && !busyReason && !preparation) {
           const change = el("button", { className: "context-row", attrs: { type: "button", "data-repository-field": "change-folder", "aria-label": "Change the connected folder" } },
-            semanticIcon("workspace.object", { size: 18 }), el("span", { text: "Change folder…" }));
+            semanticIcon("workspace.object", { size: 16 }), el("span", { text: "Change folder…" }));
           change.disabled = busy;
           change.addEventListener("click", () => { commandField = "change-folder"; changing = true; error = ""; rerender(); });
           primary.append(change);
         }
         primary.append(el("p", { className: "context-meta", text: busyReason || (active ? REPOSITORY_ACTIVE_RUN : candidate ? CHANGE_FOLDER_BLOCKED : "Disconnecting stops further reads. Files the model already read stay in this chat.") }), disconnect);
-        children.push(primary, renderCandidateSection());
+        folder.push(primary);
+        edits.push(renderCandidateSection());
       }
     } else {
       const connectPath = rootPath => draft
         ? (draft.onChange(rootPath), directory = "", rerender())
         : submit({ operation: "bind", requestId: bindRequestId(rootPath), expectedRevision: revision, rootPath }, session);
-      children.push(...chooserSections(connectPath, busy));
+      folder.push(...chooserSections(connectPath, busy));
     }
+    children.push(el("section", { className: "location-section", attrs: { "aria-label": "Folder" } }, el("h4", { text: "Folder" }), ...folder), ...edits);
     if (error) children.push(el("p", { className: "inline-error", text: error, attrs: { role: "alert" } }));
     container.replaceChildren(...children);
     if (focus) {
@@ -285,7 +345,39 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     }
     return header;
 
-    function rerender() { render(container, { session, active, draft, events, project, permissionLabel, busyReason, preparation }); }
+    function rerender() { render(container, { session, active, draft, events, project, projectChoice, permissionLabel, busyReason, preparation }); }
+
+    /* Project first: it is the first of the two decisions and the cheaper one to
+     * change. On Home, before any chat exists, it is a choice; once a chat
+     * exists it is that chat's fact and the sentence says why it stays. A
+     * choice never touches the folder below it. */
+    function renderProjectSection() {
+      const section = el("section", { className: "location-section", attrs: { "aria-label": "Project" } }, el("h4", { text: "Project" }));
+      if (projectChoice) {
+        const list = el("div", { className: "workspace-options", attrs: { role: "group", "aria-label": "Project for this chat" } });
+        for (const option of [{ id: null, name: "No project" }, ...projectChoice.options]) {
+          const selected = option.id === (projectChoice.selectedId ?? null);
+          const key = `project:${option.id ?? "none"}`;
+          const button = el("button", { className: "quiet-button workspace-option", text: option.name,
+            attrs: { type: "button", "aria-pressed": String(selected), "data-repository-field": key, title: option.name } });
+          if (selected) button.append(el("span", { className: "workspace-choice-state", text: "Selected", attrs: { "aria-hidden": "true" } }));
+          button.disabled = busy;
+          // Focus first: not every browser focuses a button it clicks, and the
+          // re-render that follows keeps the keyboard on the focused choice.
+          button.addEventListener("click", () => { commandField = key; button.focus(); projectChoice.onChoose(option.id); });
+          list.append(button);
+        }
+        const create = el("button", { className: "context-row", attrs: { type: "button", "data-repository-field": "project-new" } },
+          semanticIcon("project.create", { size: 16 }), el("span", { text: "New project…" }));
+        create.disabled = busy;
+        create.addEventListener("click", () => projectChoice.onCreate());
+        section.append(list, create, el("p", { className: "context-meta", text: PROJECT_HELP }));
+      } else {
+        section.append(el("p", { className: "location-value", text: project?.name || "No project" }));
+        if (session) section.append(el("p", { className: "context-meta", text: PROJECT_FIXED }));
+      }
+      return section;
+    }
 
     /* The chooser is the same list of ways to name a folder whether this chat
      * has none yet or is replacing the one it has; only the command behind
@@ -299,12 +391,14 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         // the card is a list of things this chat can do, and the folder glyph
         // names the object the row opens.
         const open = el("button", { className: "context-row", attrs: { type: "button", "data-repository-field": "open", "aria-label": "Open a folder to connect" } },
-          semanticIcon("workspace.object", { size: 18 }), el("span", { text: "Connect folder…" }));
+          semanticIcon("workspace.object", { size: 16 }), el("span", { text: "Connect folder…" }));
         open.disabled = disabled;
         open.addEventListener("click", () => { commandField = "open"; chooseFolder(session, connectPath); });
         primary.append(open);
       }
-      primary.append(el("p", { className: "context-meta", text: active ? REPOSITORY_ACTIVE_RUN : choosing ? REPOSITORY_DIALOG_OPEN : `${REPOSITORY_SCOPE_LABEL}. ${REPOSITORY_HELP}` }));
+      // CE-R1 · a lock held by another owner is said here too: this is the only
+      // sentence an unbound chat's chooser has.
+      primary.append(el("p", { className: "context-meta", text: busyReason || (active ? REPOSITORY_ACTIVE_RUN : choosing ? REPOSITORY_DIALOG_OPEN : `${REPOSITORY_SCOPE_LABEL}. ${REPOSITORY_HELP}`) }));
       sections.push(primary);
       if (recent?.length) {
         const list = el("ul", { className: "repository-recent", attrs: { "aria-label": "Folders connected before" } });
@@ -351,7 +445,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     function renderCandidateSection() {
       const candidate = !resuming ? activeRepositoryCandidate(session) : null;
       const candidateRevision = session?.repositoryCandidateRevision ?? 0;
-      const section = el("section", { className: "context-card" }, el("h4", { text: "Edits" }));
+      const section = el("section", { className: "context-card location-section" }, el("h4", { text: "Edits" }));
       if (candidate) {
         const review = el("button", { className: "context-row", text: "Review changes", attrs: { type: "button", "data-repository-field": "review" } });
         review.disabled = pending || !onReviewChanges;
@@ -390,7 +484,10 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         else startCandidate();
       });
       section.append(
-        el("p", { className: "context-meta", text: busyReason || (active ? REPOSITORY_ACTIVE_RUN : resuming ? PREPARE_RESUME_SCOPE : CANDIDATE_HELP) }),
+        /* One reason, said once: a bound chat's folder section already says
+         * why it is locked, so here the section says what it is. An unfinished
+         * preparation's folder section is silent, so its reason stays here. */
+        el("p", { className: "context-meta", text: (busyReason && !resuming ? null : busyReason) || (active ? REPOSITORY_ACTIVE_RUN : resuming ? PREPARE_RESUME_SCOPE : CANDIDATE_HELP) }),
         start,
       );
       if (resuming?.error) section.append(el("p", { className: "inline-error", text: resuming.error, attrs: { role: "alert" } }));

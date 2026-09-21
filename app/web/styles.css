@@ -641,7 +641,8 @@ button {
 .eyebrow,
 .section-heading h2,
 .message-role,
-.context-card h4 {
+.context-card h4,
+.location-section > h4 {
   font-size: var(--text-caption);
   line-height: 1.5;
   font-weight: 500;
@@ -1562,6 +1563,26 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
   white-space: nowrap;
 }
 .context-chip-fact { cursor: default; }
+/* 06b · the band's one Work location entry. The glyph takes the 16 slot
+ * (icon-controls.md) and sits on the text's own centre line; the words keep the
+ * band's meta size, so the band stays one shallow line. The visible chip is
+ * small, the target is not: an invisible extension gives it the 32 desktop
+ * height without deepening the band, and the narrow/touch rule below gives it
+ * a real 44. Each name truncates on its own, so a long project cannot push the
+ * folder out of sight. */
+.work-location-entry { position: relative; }
+/* Mostly upward: the composer sits over the band's lower edge, so only 3px
+ * below the chip are reachable (measured by hit-testing: −5px each way gave
+ * 30.2, not 32). */
+.work-location-entry::after { content: ""; position: absolute; inset: -7px 0 -3px; }
+.work-location-entry > .ui-icon { flex: 0 0 auto; width: 16px; height: 16px; }
+.work-location-entry > .button-label { max-width: min(200px, 28vw); }
+.work-location-entry > .button-label + .button-label::before { content: "·"; margin-right: var(--space-1); color: var(--muted); }
+.work-location-entry[data-empty="false"] { color: var(--ink); }
+@media (max-width: 767px), (pointer: coarse) {
+  .context-tab .work-location-entry { min-height: 44px; }
+  .work-location-entry::after { content: none; }
+}
 /* WK-128 ① · 融入型文本域：它没有自己的边框与底色，此前却从通用的
    `input, textarea, select` 那里继承到一个 `control.default` 的 8px —— 一个不属于
    它语境的角色，眼下不可见，材质或密度一变就会显形。按公理派生：外壳 16、内缩 12。 */
@@ -3151,6 +3172,25 @@ button[aria-disabled="true"] {
 .context-card h4 {
   margin-bottom: var(--space-2);
 }
+/* 06b · Work location panel. Project, Folder and Edits are one panel's
+ * sections, not three cards inside a card: they are told apart by a line and
+ * the space around it (UX-07), on the panel's own surface. The existing card
+ * builders keep their structure; here they simply stop drawing a box. */
+.work-location .context-card { margin-top: var(--space-2); padding: 0; border: 0; border-radius: 0; background: none; }
+.work-location .location-section { margin-top: var(--space-3); }
+.work-location .location-section + .location-section { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--line); }
+.location-section > h4 { margin: 0 var(--space-1) var(--space-1); }
+.location-value { padding: 2px var(--space-1) 0; color: var(--ink); overflow-wrap: anywhere; }
+/* The complete path, read here and nowhere else: full length, wrapping only
+ * where it must, secondary to the name above it. */
+.location-path { padding: 0 var(--space-1); }
+.location-path code { font-size: var(--text-meta); color: var(--muted-strong); background: none; padding: 0; white-space: normal; overflow-wrap: anywhere; }
+.work-location .workspace-options { display: grid; gap: 2px; }
+.work-location .workspace-option { display: flex; align-items: center; justify-content: flex-start; gap: var(--space-2); width: 100%; min-height: 32px; padding: var(--space-1); }
+@media (max-width: 767px), (pointer: coarse) {
+  .work-location .workspace-option,
+  .work-location .context-row { min-height: 44px; }
+}
 .run-history-inner {
   width: min(560px, calc(100vw - 34px));
   padding: var(--space-5);
@@ -3835,7 +3875,6 @@ dialog[open]::backdrop {
 
 @media (max-width: 600px) {
   .home-composer-context { gap: 0; }
-  .composer-context > .composer-workspace { max-width: min(22ch, 30vw); }
   .home-composer-context .home-choice-select { max-width: min(150px, 37vw); }
 }
 
@@ -6372,7 +6411,7 @@ html[data-theme="dark"] {
 .chat-action-confirm p { margin: 0 0 var(--space-2); font-size: var(--text-meta); }
 .chat-action-confirm button + button { margin-left: var(--space-2); }
 .chat-actions-menu { position: fixed; inset: auto; margin: 0; width: min(260px, calc(100vw - 32px)); max-height: min(420px, 70dvh); overflow: auto; padding: var(--space-2); border: 1px solid var(--line-strong); border-radius: var(--radius-container); background: var(--float); color: var(--ink); box-shadow: var(--rim), var(--shadow-float); }
-.chat-actions-menu > button, .chat-actions-menu > .workspace-options > button { display: flex; align-items: center; justify-content: flex-start; gap: var(--space-2); width: 100%; min-height: 36px; padding: var(--space-2); white-space: normal; text-align: left; }
+.chat-actions-menu > button { display: flex; align-items: center; justify-content: flex-start; gap: var(--space-2); width: 100%; min-height: 36px; padding: var(--space-2); white-space: normal; text-align: left; }
 .assistant-message-actions .chat-action-row,
 .user-message-actions .chat-action-row { opacity: 1; }
 .user-message-actions .chat-action-row { justify-content: flex-end; }
@@ -6400,7 +6439,7 @@ html[data-theme="dark"] {
 }
 @media (hover: none), (pointer: coarse), (max-width: 767px) {
   .chat-action-row > .icon-only { width: 44px; min-width: 44px; height: 44px; }
-  .chat-actions-menu > button, .chat-actions-menu > .workspace-options > button { min-height: 44px; }
+  .chat-actions-menu > button { min-height: 44px; }
 }
 @media (forced-colors: active) {
   .chat-actions [aria-pressed="true"], .chat-actions [aria-checked="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
@@ -6520,7 +6559,6 @@ html[data-theme="dark"] {
 .runtime-local-trust input { flex: 0 0 auto; }
 #local-extension-intake code { overflow-wrap: anywhere; }
 /* DWB-05: independent draft materials and optional organization context. */
-.composer-workspace { min-width: 0; max-width: min(22ch, 30vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .draft-attachments-popover {
   box-sizing: border-box; width: min(360px, calc(100vw - 24px)); max-height: min(440px, 70vh); overflow: auto;
   padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-container);
@@ -6529,8 +6567,6 @@ html[data-theme="dark"] {
 }
 .draft-attachment-list { display: flex; flex-direction: column; gap: var(--space-2); }
 .workspace-options { display: flex; flex-direction: column; }
-.workspace-popover > #home-create-project { margin-top: var(--space-2); }
-.workspace-popover .workspace-options { padding-bottom: var(--space-2); border-bottom: 1px solid var(--line); }
 .workspace-choice-state { margin-left: auto; padding-left: var(--space-2); flex: 0 0 auto; font-size: var(--text-meta); color: var(--muted-strong); }
 .workspace-option { text-align: left; overflow-wrap: anywhere; }
 .workspace-option[aria-pressed="true"] { background: var(--selected); }

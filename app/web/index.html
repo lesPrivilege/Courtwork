@@ -298,11 +298,11 @@
             <div class="home-greeting-block"><h2 class="home-greeting"><span class="home-greeting-text" data-greeting></span> <span class="home-greeting-date" data-greeting-date></span></h2></div>
           </div>
           <div id="draft-status" class="draft-status" aria-live="polite"></div>
-          <!-- RD-006 · where this chat works: the connected folder (Workspace),
-               the execution location and the Git branch when known. A tab card
-               that rises from the composer's top edge, shown while the chat has
-               no run yet; afterwards the facts live in the chat overview and
-               only the composer remains. -->
+          <!-- RD-006 · where this chat works: one Work location entry (project
+               and folder, chosen in its panel), the execution location and the
+               Git branch when known. A shallow band attached to the composer's
+               top edge, shown while the chat has no run yet; afterwards the
+               facts live in the chat overview and only the composer remains. -->
           <div id="composer-context-strip" class="composer-context-strip" role="group" aria-label="Where this chat works" hidden></div>
           <form id="composer-form" class="composer-form">
             <label class="sr-only" for="composer-input">Message</label>
@@ -330,7 +330,6 @@
                   aria-haspopup="dialog"
                   aria-label="Chat files"
                 ></button>
-                <button id="home-project-button" class="quiet-button composer-workspace" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="home-project-popover" hidden>Project</button>
                 <div id="home-composer-context" class="home-composer-context" hidden>
                   <!-- WK-94 · `File writes  Ask` 收成一个说全话的控件：可见文字就是
                        后果本身（Ask before editing），标签不再重复一次。 -->
@@ -907,9 +906,10 @@
     </dialog>
     <div
       id="workspace-popover"
-      class="context-popover connection-popover"
+      class="context-popover connection-popover work-location"
       popover="auto"
-      aria-label="Workspace"
+      role="dialog"
+      aria-label="Work location"
     ></div>
     <div
       id="toast-region"
@@ -1091,9 +1091,5 @@
     <dialog id="attention-agent-dialog" class="attention-agent-dialog" aria-labelledby="attention-agent-title"></dialog>
     <script type="module" src="/brand/src/court-symbol.mjs"></script>
     <script type="module" src="/web/app.mjs"></script>
-    <div id="home-project-popover" class="chat-actions-menu workspace-popover" popover="auto" role="dialog" aria-label="Project">
-      <div id="home-project-choices" class="workspace-options"></div>
-      <button id="home-create-project" class="quiet-button" type="button">New project</button>
-    </div>
   </body>
 </html>

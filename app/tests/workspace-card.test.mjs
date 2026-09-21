@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { createWorkspaceCard, repositoryName, activeRepositoryBinding, REPOSITORY_ACTIVE_RUN, REPOSITORY_DIALOG_OPEN } from "../web/workspace-card.mjs";
+import { createWorkspaceCard, repositoryName, activeRepositoryBinding, workLocationEntry, REPOSITORY_ACTIVE_RUN, REPOSITORY_DIALOG_OPEN, SEND_BUSY, WORK_LOCATION_EMPTY } from "../web/workspace-card.mjs";
 import { withTinyDom, flush } from "./tiny-dom.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
@@ -174,7 +174,7 @@ test("While a run is active the card explains the wait and disables the commands
   assert.equal(field(body, "disconnect").disabled, true);
 }));
 
-test("Strip placement and shell wiring for the Workspace control", () => {
+test("Band placement and shell wiring for the Work location entry", () => {
   const html = readFileSync(`${root}app/web/index.html`, "utf8");
   const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
   const css = readFileSync(`${root}app/web/styles.css`, "utf8");
@@ -183,15 +183,15 @@ test("Strip placement and shell wiring for the Workspace control", () => {
   const areaStart = html.indexOf('<footer id="composer-area"');
   const stripStart = html.indexOf('id="composer-context-strip"');
   assert.ok(stripStart > areaStart && stripStart < formStart, "the strip is its own card above the composer, inside the composer area");
-  assert.match(app, /strip\.replaceChildren\(element\("div", \{ className: "context-tab" \}/);
+  assert.match(app, /const tab = strip\.querySelector\(":scope > \.context-tab"\) \|\| element\("div", \{ className: "context-tab" \}\);/);
   assert.doesNotMatch(css.slice(css.indexOf(".context-tab {"), css.indexOf(".composer-form { position: relative; }")), /border(?!-radius)/, "the tab is separated by tone, not by a line");
   assert.match(app, /const greeting = home && state\.greeting\?\.text;/, "the composer intro hosts the greeting on every Home layout (GUI grammar G1)");
   assert.doesNotMatch(css.slice(css.indexOf(".composer-context-strip {"), css.indexOf(".context-chip {")), /backdrop-filter/, "no blur on the strip");
   assert.doesNotMatch(html, /id="repository-button"/, "no standing control in the composer row");
-  assert.match(html, /id="workspace-popover"[^>]*popover="auto"[^>]*aria-label="Workspace"/);
-  assert.match(html, /id="home-project-button"[^>]*>Project<\/button>/);
+  assert.match(html, /id="workspace-popover"[^>]*popover="auto"[^>]*role="dialog"[^>]*aria-label="Work location"/);
+  assert.doesNotMatch(html, /home-project-button|home-project-popover/, "the project is chosen in the Work location panel, not from a second composer control");
   assert.match(app, /const visible = home \|\| \(Boolean\(session\) && !state\.runs\.length && !state\.attentionOpen\)/, "the strip leaves once work has started");
-  assert.match(app, /text: rootPath \? repositoryName\(rootPath\) : "Connect folder"/);
+  assert.match(app, /const entry = workLocationEntry\(\{ projectName: project\?\.name \|\| null, rootPath: rootPath \|\| null \}\);/);
   assert.match(app, /if \(branch\) children\.push/, "an unknown branch is never drawn");
   assert.match(app, /onRepository: go\(\(\) => openWorkspaceCard\(\$\("show-run-button"\)\)\)/, "after work starts the overview reaches the same card");
   assert.match(app, /if \(state\.homeRepositoryPath && session\.repositoryBinding\?\.status !== "active"\) \{\s*operation\.bindRequestId \|\|= crypto\.randomUUID\(\);/, "Home binds the draft before the first run with a stable requestId");
@@ -208,3 +208,29 @@ test("Strip placement and shell wiring for the Workspace control", () => {
   assert.match(css, /\.context-chip\[aria-expanded="true"\]/);
   assert.match(server, /"workspace-card\.mjs"/, "the Host serves the card module");
 });
+
+test("the Work location entry names only the facts it opens, and says which are absent", () => {
+  assert.deepEqual(workLocationEntry({}), { parts: [], label: WORK_LOCATION_EMPTY, ariaLabel: WORK_LOCATION_EMPTY, tooltip: "Choose a project and a folder for this chat" });
+  const both = workLocationEntry({ projectName: "Parcel maintenance", rootPath: "/synthetic/parcel/" });
+  assert.deepEqual(both.parts, ["Parcel maintenance", "parcel"], "project first, then the folder's own name");
+  assert.equal(both.ariaLabel, "Work location: project Parcel maintenance; folder /synthetic/parcel/, read only");
+  assert.equal(workLocationEntry({ rootPath: "/synthetic/parcel" }).ariaLabel, "Work location: no project; folder /synthetic/parcel, read only");
+  assert.equal(workLocationEntry({ projectName: "Parcel maintenance" }).ariaLabel, "Work location: project Parcel maintenance; no folder");
+  for (const entry of [both, workLocationEntry({ rootPath: "/x" })])
+    assert.doesNotMatch(entry.ariaLabel + entry.tooltip, /candidate|edit|write|Local/i, "the entry is not a permission and does not name one");
+});
+
+test("A Home send in flight locks the project and folder, and says why", () => withTinyDom(async body => {
+  const { request } = fakeRequest();
+  const card = createWorkspaceCard({ request, onSession: () => {}, onClose: () => {} });
+  let chosen = 0;
+  card.render(body, { session: null, active: false, draft: { path: "/synthetic/parcel", onChange: () => {} }, busyReason: SEND_BUSY,
+    projectChoice: { options: [{ id: "p1", name: "Parcel maintenance" }], selectedId: null, onChoose: () => { chosen++; }, onCreate: () => {} } });
+  await settle();
+  assert.equal(field(body, "project:p1").disabled, true);
+  assert.equal(field(body, "project-new").disabled, true);
+  assert.equal(field(body, "remove").disabled, true);
+  field(body, "project:p1").click();
+  assert.equal(chosen, 0, "a disabled choice does nothing");
+  assert.match(body.textContent, new RegExp(SEND_BUSY.slice(0, 40)));
+}));

@@ -1,0 +1,17 @@
+CE-R1 return · author checks · 2026-09-21 · Node v25.9.0 · tree claude-work-location-20260921 (ac6049b + merge of main 6de5a84 + this return)
+
+1. Owner and adjacent suites (16 files: the 15 of checks.txt + new home-send-location-lock):
+   ℹ fail 0 ℹ pass 122 ℹ tests 122
+
+2. New tests before the fix: tests/home-send-location-lock.test.mjs includes the counterexample
+   (the ac6049b condition returns no lock once the Chat exists; asserted as reproduced).
+
+3. Lints: lint-interaction ok · lint-colors ok · lint-materials ok · lint-shapes ok · lint-spacing ok ·
+   contrast-report ok · git diff --check clean.
+
+4. npm --prefix app test (concurrency 4), on the merged tree:
+   ℹ tests 1352 ℹ pass 1352 ℹ fail 0
+
+5. Browser race (harness/run-race.sh: real Host 8951 + scripted provider 8952 + gate proxy 8953,
+   headless Chrome over CDP, throwaway profile): race-before/ on the unchanged card logic,
+   race-after/ on this return; recovery journey race-after/recovery.json.

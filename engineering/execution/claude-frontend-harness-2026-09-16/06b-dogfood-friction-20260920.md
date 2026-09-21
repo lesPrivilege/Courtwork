@@ -309,7 +309,73 @@ Answer-footer candidate `17f57c0` is independently accepted and merged at `2c232
 
 **Next serial frontend assignment: Composer working-location entry.** Consume [the screenshot-grounded ruling and finite acceptance cases](evidence/composer-entry-review-20260921/README.md). Opus owns implementation, Sonnet may explore the existing entry/controller/Design precedents; Codex owns independent acceptance. Start a fresh isolated tree from actual integrated main after footer cleanup. This is a UI consolidation with unchanged Project/Folder/permission owners; it precedes the Runtime-management preview. No author process has been launched by this registration. The active disjoint Fable Pi Runtime Port extraction continues unchanged.
 
+## Work location entry · author delivery, 2026-09-21 (Claude)
+
+One commit on `claude-work-location-20260921`, from integrated main `3bf1e0b`,
+in its own worktree. **Not accepted.** Released for Codex's independent visual
+and source acceptance.
+
+The composer's Project button and the band's separate Connect folder chip are
+now one entry. Its label is *Choose work location*, or the chosen project and
+folder names. Its panel is titled *Work location* and holds Project, Folder and
+Edits as separately labelled sections. Project is a choice on Home before any
+chat exists and a stated fact afterwards, because the Host renames chats but
+cannot move them between projects. Every Host command, preparation identity and
+recovery route is unchanged. The [change record](evidence/composer-entry-20260921/change-record.md)
+was written before any product file changed.
+
+Before and after were measured by one headless-Chrome script run on both
+trees:
+- The entry's clickable height went from 23.2 px to 32.2 px on desktop and
+  44.5 px on narrow.
+- Escape used to leave focus on `<body>`; it now returns to the entry.
+- The prepared panel used to run off the screen at 200% and in dark wide; it
+  now stays inside the viewport and scrolls.
+- The panel's inner cards are gone.
+- After preparation, Send still issues only the Run.
+
+Three things came to light along the way:
+- **The anchor was always detached.** On main the band chip was rebuilt on
+  every render, so the panel was never anchored to it. The entry is now one
+  stable node, and `anchorPopover` has an opt-in `fit`.
+- **Missing glyphs.** Device and branch glyphs are not admissible today, so
+  Local and Branch stay text-only.
+- **Tests cannot see a dead page.** A leftover `setAction` on the removed
+  button stopped the page from starting, and no test could see it, because
+  none imports `app.mjs`.
+
+Tests: 115/115 across 15 owner suites, including three new work-location
+tests over the production preparation controller and the real card. The
+lints pass. The full suite was 1332/1333; the one failure was an outdated pin,
+since rewritten. Evidence, screenshots and the list of what was not executed:
+[composer-entry-20260921](evidence/composer-entry-20260921/README.md).
 
 ## Working-location review disposition — 2026-09-21
 
 Candidate `ac6049b` is held for **CE-R1**, the plain Home Send location-lock gap after Chat creation. [Independent review, browser journey and exact bounded return](evidence/composer-entry-acceptance-20260921/README.md): Luna 115/115; Astra confirms unified entry, project creation, preparation, Escape, reload and synthetic completion. Keep the original frontend writer/tree and accepted design; correct only the pending-send mutation seam and its regression. Shared bound-panel initial focus/scroll is CE-F2 deferred, with the author light-dismiss claim narrowed. No Runtime-management/Role-first next journey.
+
+## CE-R1 return · author delivery, 2026-09-21 (Claude)
+
+This return is on the same branch, over held `ac6049b` with main `6de5a84`
+merged in. **Not accepted.** Released for Luna's delta review and Astra's
+integration decision.
+
+**Reproduced first.** A gate proxy held one plain Home Send at its bind, its
+draft save and its Run admission, and the panel was opened at each point.
+Disconnect landed mid-Send (binding revoked, revision 2) and the Run completed
+against the revoked folder; Start private candidate got a 409.
+
+**The fix.** The lock decision now lives in the owner, as `workLocationLock()`
+in `home-preparation.mjs`, and `app.mjs` only asks for it. It covers the whole
+plain-Send operation, the Run admission it ends in (in flight is said as in
+flight, even though the Run owner has already recorded it as unconfirmed),
+and preparation, as before. A settled Send holds nothing.
+
+**Measured after.** With the same gates, only disclosures stay operable; there
+is one bind, no revoke and no 409, and the Run completes. In the browser, a
+refused folder is corrected on the same Chat and the second Send completes.
+
+**Tests.** A new 7-test regression over the production decision and the real
+card; 122/122 across the owner suites; full suite 1352/1352. CE-F2 stays
+deferred, and the light-dismiss claim is narrowed. Record:
+[ce-r1-return](evidence/composer-entry-20260921/ce-r1-return.md).
