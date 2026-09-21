@@ -47,7 +47,7 @@ const EVENT_KINDS = Object.freeze({
 // from the connection the caller supplied and the call being made; none is
 // copied from what the SDK assembled.
 const USER_AGENT = `OpenAI/JS ${SDK_VERSION}`;
-const ACCEPT = Object.freeze({ createSession: "application/json", getSession: "application/json", listItems: "application/json", sendEvents: "*/*", streamEvents: "text/event-stream" });
+const ACCEPT = Object.freeze({ createSession: "application/json", getSession: "application/json", getTurn: "application/json", listItems: "application/json", sendEvents: "*/*", streamEvents: "text/event-stream" });
 const SAFE_TOKEN = /^[\w.:-]{1,64}$/;
 const REQUEST_ID = /^[\x21-\x7e]{1,255}$/;
 
@@ -225,6 +225,18 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
       requireSessionId("getSession", sessionId);
       const native = await call("getSession", false, signal, () => sessions.retrieve(sessionId, options(signal)));
       return nativeSession("getSession", native, false, sessionId);
+    },
+
+    /** One turn's current status, read from the service (P03-D). A read: it
+     * changes nothing, and a turn that is not the one asked for is an error. */
+    async getTurn(sessionId, turnId, { signal } = {}) {
+      requireSessionId("getTurn", sessionId);
+      if (typeof turnId !== "string" || !SAFE_TOKEN.test(turnId)) throw invalid("getTurn", "a native turn id is required");
+      const turn = await call("getTurn", false, signal, () => sessions.turns.retrieve(turnId, { session_id: sessionId }, options(signal)));
+      if (!turn || typeof turn !== "object" || turn.id !== turnId || turn.session_id !== sessionId || typeof turn.status !== "string") {
+        throw new AgentsTransportError("malformed_response", "getTurn", "the response is not the requested native turn");
+      }
+      return turn;
     },
 
     /** Returns the service's page body itself, so `last_id` and `first_id`

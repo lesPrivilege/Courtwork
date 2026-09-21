@@ -2644,6 +2644,8 @@ export class RuntimeService {
       bind: (intentId, native) => this.store.bindRemoteSession(run.id, intentId, native),
       associateRootTurn: (evidence) => this.store.associateRemoteRootTurn(run.id, evidence),
       rootTurn: () => this.store.getRun(run.id)?.remoteBinding?.rootTurn ?? null,
+      recordRootTerminal: (evidence) => this.store.recordRemoteRootTerminal(run.id, evidence),
+      isOpen: () => this.store.getRun(run.id)?.admissionOpen === true,
       claimCall: (input) => this.store.claimRemoteCall(run.id, input),
       retainResult: async (callId, bytes, outcome) => {
         await this.artifactHistory.save(run.sessionId, bytes, outcome.result.sha256);
@@ -2652,6 +2654,53 @@ export class RuntimeService {
       beginDelivery: (callId) => this.store.beginRemoteCallDelivery(run.id, callId),
       unresolved: () => this.store.hasUnresolvedRemoteAction(run.sessionId, run.id),
     };
+  }
+
+  /**
+   * P03-D · explicit reconciliation of a chat fenced by an unknown remote
+   * action. Observation only: the runtime reads the bound native session and
+   * nothing is sent to it. Evidence is appended to the unknown records it
+   * decides; the rest stay unknown and keep the chat fenced. The Run that
+   * ended unknown stays unknown — a later Run may continue it.
+   */
+  async reconcileRemoteSession(sessionId) {
+    const session = this.store.getSession(sessionId);
+    if (!session) throw new ServiceError(404, "not_found", "session not found");
+    this.#requireRuntimeCapability("recover");
+    if (this.store.hasActiveRun(sessionId)) throw new ServiceError(409, "active_run", "reconciliation waits for the active run to end");
+    const report = () => ({
+      unresolved: this.store.listUnresolvedRemoteActions(sessionId).map(action => ({ id: action.id, kind: action.kind, runId: action.runId, reason: action.kind === "create" ? "no_native_locator" : "no_decisive_evidence" })),
+      unsettledRuns: this.store.listUnsettledRemoteRuns(sessionId).map(run => ({ runId: run.id, rootTurnId: run.remoteBinding.rootTurn?.turnId ?? null, reason: run.remoteBinding.rootTurn ? "turn_not_ended" : "no_root_turn" })),
+    });
+    const unresolved = this.store.listUnresolvedRemoteActions(sessionId);
+    const unsettled = this.store.listUnsettledRemoteRuns(sessionId);
+    // A lost creation left no native id: there is nothing to observe.
+    if (!session.remoteBinding || (!unresolved.length && !unsettled.length)) return { resolved: [], settledRuns: [], ...report() };
+    const rootTurnOf = (runId) => this.store.getRun(runId)?.remoteBinding?.rootTurn ?? null;
+    const turnIds = [...new Set([...unsettled.map(run => run.id), ...unresolved.map(action => action.runId)].map(runId => rootTurnOf(runId)?.turnId).filter(Boolean))];
+    let seen;
+    try { seen = await this.runtimePort.inspectSession({ sessionId, nativeSessionId: session.remoteBinding.nativeSessionId, turnIds }); }
+    catch { throw new ServiceError(503, "remote_observation_failed", "the remote session could not be read completely; nothing was changed"); }
+    const ended = new Map(seen.turns.filter(turn => turn.root && turn.terminal).map(turn => [turn.turnId, turn.terminal]));
+
+    const settledRuns = [];
+    for (const run of unsettled) {
+      const turnId = run.remoteBinding.rootTurn?.turnId;
+      if (!turnId || !ended.has(turnId)) continue;
+      const recorded = await this.store.recordRemoteRootTerminal(run.id, { turnId, status: ended.get(turnId), evidence: "turn.read", nativeRef: turnId });
+      if (recorded.recorded) settledRuns.push({ runId: run.id, rootTurnId: turnId, status: recorded.terminal.status });
+    }
+    const resolutions = [];
+    for (const action of unresolved) {
+      if (action.kind === "create") continue;
+      const rootTurn = rootTurnOf(action.runId);
+      if (rootTurn?.terminal || (rootTurn && ended.has(rootTurn.turnId))) { resolutions.push({ actionId: action.id, evidence: "root_terminal", nativeRef: rootTurn.turnId }); continue; }
+      const awaitsDelivery = action.kind === "tool_result" || (action.kind === "call" && action.delivery.state === "unknown");
+      const output = awaitsDelivery ? seen.functionOutputs.find(item => item.callId === action.native.callId && item.turnId === action.native.turnId) : null;
+      if (output) resolutions.push({ actionId: action.id, evidence: "native_item", nativeRef: output.itemId });
+    }
+    const resolved = resolutions.length ? await this.store.resolveRemoteActions(sessionId, resolutions) : [];
+    return { resolved, settledRuns, ...report() };
   }
 
   #armDeadline(entry, runId) {

@@ -21,7 +21,7 @@ Cross-layer hunks, each isolated: `app/server/index.mjs` threads the optional `r
 
 `Session.remoteBinding: null | { runtimeId:"agents-api", bindingId, revision≥1, nativeSessionId, environment:"none", nativeEnvironmentId:null|id, protocol:{betaHeader,docsRevision,sdk}, connection, origin:{sessionId,runId}, createdAt }`
 
-`Run.remoteBinding: null | { bindingId, bindingRevision, nativeSessionId:null|id, connection, scope, rootTurn:null|{turnId, attribution:"turn.created", eventId, associatedAt} }`
+`Run.remoteBinding: null | { bindingId, bindingRevision, nativeSessionId:null|id, connection, scope, rootTurn:null|{turnId, attribution:"turn.created", eventId, associatedAt, terminal} }` — `terminal: null | { status, evidence:"turn.event"|"turn.read", nativeRef, observedAt }` was added in D; see the [fault matrix](d-fault-matrix.md#what-d-adds).
 
 `connection = { connectionId, configHash, configVersion, credentialGeneration }` — `configHash` is SHA-256 over `[provider, api, model, baseUrl, reasoningEffort]`; reuse requires equal `connectionId`, `configHash` and `credentialGeneration`. `scope = { repositoryBindingId, repositoryBindingRevision, repositoryCandidateId, repositoryCandidateRevision }` (each pair null together).
 

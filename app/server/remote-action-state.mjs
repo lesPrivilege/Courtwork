@@ -29,6 +29,9 @@ const INTENT_PHASES = new Set(["pending", "accepted", "rejected", "unknown"]);
 const EXECUTION_STATES = new Set(["claimed", "succeeded", "failed", "rejected", "unknown"]);
 const DELIVERY_STATES = new Set(["none", "pending", "accepted", "rejected", "unknown"]);
 const ROOT_TURN_ATTRIBUTIONS = new Set(["turn.created"]);
+const ROOT_TERMINALS = new Set(["completed", "failed", "cancelled"]);
+// How the Host learned the root turn ended: its terminal event, or a read of the turn.
+const ROOT_TERMINAL_EVIDENCE = new Set(["turn.event", "turn.read"]);
 // What may close an unknown without guessing: the Run's root turn is over, or
 // the service's own saved history shows the function output it was given.
 const RESOLUTION_EVIDENCE = new Set(["root_terminal", "native_item"]);
@@ -108,7 +111,13 @@ export function validateRunRemoteBinding(value, run) {
   validateConnection(value.connection, v, "connection");
   validateScope(value.scope, v, "scope");
   if (value.rootTurn !== null) {
-    v.exact(value.rootTurn, ["turnId", "attribution", "eventId", "associatedAt"], "rootTurn");
+    v.exact(value.rootTurn, ["turnId", "attribution", "eventId", "associatedAt", "terminal"], "rootTurn");
+    if (value.rootTurn.terminal !== null) {
+      v.exact(value.rootTurn.terminal, ["status", "evidence", "nativeRef", "observedAt"], "rootTurn.terminal");
+      v.check(ROOT_TERMINALS.has(value.rootTurn.terminal.status), "rootTurn.terminal.status is invalid");
+      v.check(ROOT_TERMINAL_EVIDENCE.has(value.rootTurn.terminal.evidence), "rootTurn.terminal.evidence is invalid");
+      v.native(value.rootTurn.terminal.nativeRef, "rootTurn.terminal.nativeRef"); v.time(value.rootTurn.terminal.observedAt, "rootTurn.terminal.observedAt");
+    }
     v.native(value.rootTurn.turnId, "rootTurn.turnId");
     v.check(ROOT_TURN_ATTRIBUTIONS.has(value.rootTurn.attribution), "rootTurn.attribution is invalid");
     v.native(value.rootTurn.eventId, "rootTurn.eventId"); v.time(value.rootTurn.associatedAt, "rootTurn.associatedAt");
@@ -218,6 +227,15 @@ export function remoteActionUnresolved(action) {
     || ((action.execution === "unknown" || action.delivery.state === "unknown") && action.resolution === null);
 }
 
+/** A Run whose native turn may still be running: its root turn is known and
+ * no terminal was observed, or it ended unknown on a native session before any
+ * root turn could be attributed. New input must not be sent into that. */
+export function remoteRunUnsettled(run) {
+  const remote = run.remoteBinding;
+  if (!remote || remote.nativeSessionId === null) return false;
+  return remote.rootTurn ? remote.rootTurn.terminal === null : run.status === "unknown";
+}
+
 export function sessionUsesRemoteRuntime(session) {
   return session.remoteBinding !== null || session.remoteActions.length > 0;
 }
@@ -226,12 +244,15 @@ function retainedBytes(session) {
   return session.remoteActions.reduce((total, action) => total + (action.kind === "call" && action.result ? action.result.bytes : 0), 0);
 }
 
-function requireOpenRun(state, runId, activeStatuses) {
+/** `stopping` admits no new work, but the Run is still the Host's to drive:
+ * a cancel intent and the delivery of a result it already retained are the
+ * two things a stopping Run may still record. */
+function requireOpenRun(state, runId, activeStatuses, { whileStopping = false } = {}) {
   const run = state.runs.find(item => item.id === runId);
   if (!run) throw new Error("run not found");
   if (!run.remoteBinding) throw remoteError("REMOTE_BINDING_MISSING", "run was not admitted against a remote binding");
   const session = state.sessions.find(item => item.id === run.sessionId);
-  if (!run.admissionOpen || !activeStatuses.has(run.status)) throw remoteError("RUN_CLOSED", "run admission is closed");
+  if (!activeStatuses.has(run.status) || (!run.admissionOpen && !whileStopping)) throw remoteError("RUN_CLOSED", "run admission is closed");
   return { run, session };
 }
 
@@ -240,13 +261,14 @@ function requireOpenRun(state, runId, activeStatuses) {
  * ------------------------------------------------------------------------ */
 
 /** Admission: the binding a new Run would be frozen against. */
-export function admitRemoteRun(session, remote) {
+export function admitRemoteRun(session, remote, runs = []) {
   if (remote === null) {
     if (sessionUsesRemoteRuntime(session)) throw remoteError("RUNTIME_MISMATCH", "this session belongs to a remote runtime");
     return null;
   }
   if (session.hostSession !== null) throw remoteError("RUNTIME_MISMATCH", "this session belongs to the Pi runtime");
   if (session.remoteActions.some(remoteActionUnresolved)) throw remoteError("REMOTE_UNRECONCILED", "a remote action of this session is unresolved");
+  if (runs.some(run => run.sessionId === session.id && remoteRunUnsettled(run))) throw remoteError("REMOTE_UNRECONCILED", "an earlier run's native turn was never observed to end");
   // A Run needs room for its own input and cancel intents before it starts.
   if (session.remoteActions.length + 2 > REMOTE_ACTION_LIMIT) throw remoteError("REMOTE_ACTION_LIMIT", "remote action history is full");
   const bound = session.remoteBinding;
@@ -264,7 +286,7 @@ export function admitRemoteRun(session, remote) {
 }
 
 export function recordRemoteIntent(state, runId, { kind, requestHash, native = {} }, { now, activeStatuses }) {
-  const { run, session } = requireOpenRun(state, runId, activeStatuses);
+  const { run, session } = requireOpenRun(state, runId, activeStatuses, { whileStopping: kind === "cancel" || kind === "tool_result" });
   const tuple = { sessionId: kind === "create" ? null : run.remoteBinding.nativeSessionId, turnId: native.turnId ?? null, callId: native.callId ?? null };
   const id = remoteOperationId(kind, runId, tuple);
   const existing = session.remoteActions.find(item => item.id === id);
@@ -315,8 +337,18 @@ export function associateRemoteRootTurn(state, runId, { turnId, attribution, eve
   if (run.remoteBinding.rootTurn) return { rootTurn: structuredClone(run.remoteBinding.rootTurn), associated: run.remoteBinding.rootTurn.turnId === turnId };
   // A turn another Run of this Session already owns is history, not this Run.
   if (state.runs.some(item => item.sessionId === session.id && item.remoteBinding?.rootTurn?.turnId === turnId)) return { rootTurn: null, associated: false };
-  run.remoteBinding.rootTurn = { turnId, attribution, eventId, associatedAt: now };
+  run.remoteBinding.rootTurn = { turnId, attribution, eventId, associatedAt: now, terminal: null };
   return { rootTurn: structuredClone(run.remoteBinding.rootTurn), associated: true };
+}
+
+/** The root turn ended, by its own terminal event or by a read of the turn.
+ * The first observation stands; a different later one is reported, not stored. */
+export function recordRemoteRootTerminal(state, runId, { turnId, status, evidence, nativeRef }, { now }) {
+  const rootTurn = state.runs.find(item => item.id === runId)?.remoteBinding?.rootTurn;
+  if (!rootTurn || rootTurn.turnId !== turnId) throw remoteError("REMOTE_BINDING_MISMATCH", "the terminal does not belong to this run's root turn");
+  if (rootTurn.terminal) return { terminal: structuredClone(rootTurn.terminal), recorded: false, contradicts: rootTurn.terminal.status !== status };
+  rootTurn.terminal = { status, evidence, nativeRef, observedAt: now };
+  return { terminal: structuredClone(rootTurn.terminal), recorded: true, contradicts: false };
 }
 
 /** Claim a native call before anything runs. One native tuple has one claim:
@@ -357,7 +389,7 @@ export function retainRemoteCallResult(state, runId, callId, { execution, result
 
 /** The submission intent and the claim's delivery state are one write. */
 export function beginRemoteCallDelivery(state, runId, callId, { now, activeStatuses }) {
-  const { session } = requireOpenRun(state, runId, activeStatuses);
+  const { session } = requireOpenRun(state, runId, activeStatuses, { whileStopping: true });
   const call = session.remoteActions.find(item => item.id === callId && item.kind === "call" && item.runId === runId);
   if (!call?.result) throw remoteError("REMOTE_CALL_NOT_FOUND", "no retained result to deliver");
   if (call.delivery.state !== "none") return { call: structuredClone(call), idempotent: true };
@@ -365,6 +397,40 @@ export function beginRemoteCallDelivery(state, runId, callId, { now, activeStatu
   const { intent } = recordRemoteIntent(state, runId, { kind: "tool_result", requestHash, native: call.native }, { now, activeStatuses });
   call.delivery = { intentId: intent.id, state: "pending" };
   return { call: structuredClone(call), intent, idempotent: false };
+}
+
+/**
+ * D · append observed evidence to unknown records. Nothing is inferred here:
+ * the caller observed either the Run's root turn reaching a terminal (whatever
+ * that Run still owed the turn can no longer be owed) or a saved
+ * function_call_output item for the call (its result did arrive). A lost
+ * creation has no native locator and can never be resolved this way.
+ */
+export function resolveRemoteActions(state, sessionId, resolutions, { now }) {
+  const session = state.sessions.find(item => item.id === sessionId);
+  if (!session) throw new Error("session not found");
+  const resolved = [];
+  const append = (action, evidence, nativeRef) => {
+    const unknown = action.kind === "call" ? action.execution === "unknown" || action.delivery.state === "unknown" : action.phase === "unknown";
+    if (!unknown || action.resolution !== null || action.kind === "create") return;
+    action.resolution = { evidence, nativeRef, resolvedAt: now }; resolved.push(action.id);
+  };
+  for (const { actionId, evidence, nativeRef } of resolutions) {
+    const action = session.remoteActions.find(item => item.id === actionId);
+    if (!action) continue;
+    // "The root turn ended" is only evidence once that ending is itself on record.
+    const rootTurn = state.runs.find(run => run.id === action.runId)?.remoteBinding?.rootTurn ?? null;
+    if (evidence === "root_terminal" ? !rootTurn?.terminal || nativeRef !== rootTurn.turnId
+      : evidence !== "native_item" || (action.kind !== "call" && action.kind !== "tool_result")) {
+      throw remoteError("REMOTE_RESOLUTION_INVALID", "this evidence cannot resolve that record");
+    }
+    append(action, evidence, nativeRef);
+    // A claim and the intent that delivers its result are one fact.
+    const partner = action.kind === "call" ? session.remoteActions.find(item => item.id === action.delivery.intentId)
+      : session.remoteActions.find(item => item.kind === "call" && item.delivery.intentId === action.id);
+    if (partner) append(partner, evidence, nativeRef);
+  }
+  return resolved;
 }
 
 /** Startup fence: what was in flight when the Host stopped is unknown. Nothing

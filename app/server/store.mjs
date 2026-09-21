@@ -11,7 +11,7 @@ import { emptyCoordination, validateCoordination } from '../harness/coordination
 import { validateAsyncTasks } from './async-task-state.mjs';
 import {
   admitRemoteRun, associateRemoteRootTurn, beginRemoteCallDelivery, bindRemoteSession, claimRemoteCall,
-  fenceRemoteActionsForRestart, recordRemoteIntent, remoteActionUnresolved, retainRemoteCallResult, settleRemoteIntent,
+  fenceRemoteActionsForRestart, recordRemoteIntent, recordRemoteRootTerminal, remoteActionUnresolved, remoteRunUnsettled, resolveRemoteActions, retainRemoteCallResult, settleRemoteIntent,
   validateRemoteActions, validateRunRemoteBinding, validateSessionRemoteBinding,
 } from './remote-action-state.mjs';
 import {
@@ -1542,7 +1542,7 @@ export class RuntimeStore {
       if (supersedes !== null) assertSupersedable(state, sessionId, supersedes);
       if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       if (state.operations.some((op) => OPERATION_ACTIVE.has(op.status))) throw new Error("operation in progress");
-      const remoteBinding = admitRemoteRun(session, remote);
+      const remoteBinding = admitRemoteRun(session, remote, state.runs);
       const timestamp = now();
       const repositoryBindingSnapshot = session.repositoryBinding?.status === "active" ? structuredClone(session.repositoryBinding) : null;
       const repositoryCandidateSnapshot = session.repositoryCandidate?.status === "active" ? structuredClone(session.repositoryCandidate) : null;
@@ -1572,6 +1572,7 @@ export class RuntimeStore {
     const session = this.state.sessions.find(item => item.id === sessionId);
     return structuredClone((session?.remoteActions ?? []).filter(action => runId === null || action.runId === runId));
   }
+  listUnresolvedRemoteActions(sessionId) { return this.listRemoteActions(sessionId).filter(remoteActionUnresolved); }
   hasUnresolvedRemoteAction(sessionId, runId = null) {
     const session = this.state.sessions.find(item => item.id === sessionId);
     return Boolean(session?.remoteActions.some(action => (runId === null || action.runId === runId) && remoteActionUnresolved(action)));
@@ -1580,8 +1581,11 @@ export class RuntimeStore {
   async settleRemoteIntent(runId, intentId, outcome) { return this._mutate(state => settleRemoteIntent(state, runId, intentId, structuredClone(outcome), { now: now() })); }
   async bindRemoteSession(runId, intentId, native) { return this._mutate(state => bindRemoteSession(state, runId, intentId, structuredClone(native), { now: now(), activeStatuses: ACTIVE_STATUSES })); }
   async associateRemoteRootTurn(runId, evidence) { return this._mutate(state => associateRemoteRootTurn(state, runId, structuredClone(evidence), { now: now(), activeStatuses: ACTIVE_STATUSES })); }
+  async recordRemoteRootTerminal(runId, evidence) { return this._mutate(state => recordRemoteRootTerminal(state, runId, structuredClone(evidence), { now: now() })); }
+  listUnsettledRemoteRuns(sessionId) { return structuredClone(this.state.runs.filter(run => run.sessionId === sessionId && remoteRunUnsettled(run))); }
   async claimRemoteCall(runId, input) { return this._mutate(state => claimRemoteCall(state, runId, structuredClone(input), { now: now(), activeStatuses: ACTIVE_STATUSES })); }
   async retainRemoteCallResult(runId, callId, outcome) { return this._mutate(state => retainRemoteCallResult(state, runId, callId, structuredClone(outcome), { now: now() })); }
+  async resolveRemoteActions(sessionId, resolutions) { return this._mutate(state => resolveRemoteActions(state, sessionId, structuredClone(resolutions), { now: now() })); }
   async beginRemoteCallDelivery(runId, callId) { return this._mutate(state => beginRemoteCallDelivery(state, runId, callId, { now: now(), activeStatuses: ACTIVE_STATUSES })); }
 
   async updateRun(id, patch) {

@@ -7,77 +7,14 @@
  * live Agents API fact and no capability becomes available because of it.
  */
 import assert from "node:assert/strict";
-import { createHash } from "node:crypto";
-import { cp, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { after, describe, test } from "node:test";
 import { ArtifactHistory } from "../runtime/artifact-history.mjs";
-import { createAgentsRuntimePort } from "../runtime/agents-host-gateway.mjs";
-import { createOpenAiAgentsTransport } from "../runtime/openai-agents-transport.mjs";
 import { boot, reopen } from "./helpers.mjs";
-import { createAgentsLoopback } from "./fixtures/agents-api-loopback.mjs";
-import { createSyntheticRepository } from "./fixtures/synthetic-repo/create-synthetic-repo.mjs";
+import { agentsPort, cleanup, closeAll, crashCopy, readCall, remoteHost, sha256, waitFor } from "./fixtures/agents-host-harness.mjs";
 
-const sha256 = (value) => createHash("sha256").update(value).digest("hex");
-const cleanup = [];
-after(async () => { for (const close of cleanup.reverse()) await close().catch(() => {}); });
-
-const agentsPort = (loopback, options = {}) => () => createAgentsRuntimePort({
-  transport: createOpenAiAgentsTransport({ apiKey: "synthetic-loopback-key", baseURL: loopback.baseURL, timeoutMs: 2000, ...options }),
-});
-
-async function remoteHost({ plan, replay, announceTurns, permissionMode = "draft", bind = true } = {}) {
-  const loopback = await createAgentsLoopback({ plan, replay, announceTurns });
-  const h = await boot({ runtimePort: agentsPort(loopback) });
-  cleanup.push(() => h.runtime.close(), () => loopback.close());
-  const session = await h.createSession({ permissionMode });
-  let sourceDir = null;
-  if (bind) {
-    sourceDir = await mkdtemp(path.join(tmpdir(), "cw-p03c-source-"));
-    cleanup.push(() => rm(sourceDir, { recursive: true, force: true }));
-    await createSyntheticRepository(sourceDir);
-    const bound = await h.api("PUT", `/sessions/${session.id}/repository-binding`, { operation: "bind", requestId: "p03c-bind", expectedRevision: 0, rootPath: sourceDir });
-    assert.equal(bound.status, 200, JSON.stringify(bound.json));
-  }
-  const store = h.runtime.service.store;
-  const run = async (input, commandId) => {
-    const created = await h.api("POST", `/sessions/${session.id}/runs`, { input, commandId });
-    assert.equal(created.status, 200, JSON.stringify(created.json));
-    return h.pollRun(created.json.run.id);
-  };
-  const events = async (runId) => (await h.api("GET", `/sessions/${session.id}/events`)).json.events.filter(event => event.runId === runId);
-  const start = async (input, commandId) => (await h.api("POST", `/sessions/${session.id}/runs`, { input, commandId }));
-  const policy = async (rules) => {
-    const control = (await h.api("GET", `/runtime-control?sessionId=${session.id}`)).json;
-    const saved = await h.api("PUT", `/runtime-control?sessionId=${session.id}`, { revision: control.revision, operation: "policy", scope: { type: "session", id: session.id }, rules });
-    assert.equal(saved.status, 200, JSON.stringify(saved.json));
-  };
-  const results = () => loopback.posts("/events").map(attempt => attempt.body.events[0]).filter(event => event.type === "agent.session.input.tool_result");
-  return { h, loopback, session, sourceDir, store, run, start, policy, results, events, actions: (runId = null) => store.listRemoteActions(session.id, runId) };
-}
-
-async function waitFor(probe, label, timeoutMs = 5000) {
-  const started = Date.now();
-  for (;;) {
-    const value = await probe();
-    if (value) return value;
-    if (Date.now() - started > timeoutMs) throw new Error(`timed out waiting for ${label}`);
-    await new Promise(resolve => setTimeout(resolve, 20));
-  }
-}
-
-/** What a Host killed at this instant leaves behind: the last complete state
- * file and the retained objects, in a directory no process holds a lock on. */
-async function crashCopy(h) {
-  const copy = await mkdtemp(path.join(tmpdir(), "cw-p03c-crash-"));
-  cleanup.push(() => rm(copy, { recursive: true, force: true }));
-  await cp(path.join(h.dataDir, "runtime-state.json"), path.join(copy, "runtime-state.json"));
-  await cp(path.join(h.dataDir, "artifact-history"), path.join(copy, "artifact-history"), { recursive: true }).catch(() => mkdir(path.join(copy, "artifact-history")));
-  return copy;
-}
-
-const readCall = (args = { path: "README.md" }, extra = {}) => ({ call: { name: "repo_read", arguments: args, ...extra } });
+after(closeAll);
 
 describe("P03-C Host consumer · governed read on the production service path", () => {
   test("admission → create intent → binding → root turn → claim → governed repo_read → retained bytes → one submission → root terminal → later input on the same binding", async () => {
@@ -172,11 +109,12 @@ describe("P03-C Host consumer · governed read on the production service path", 
     assert.deepEqual(events.filter(event => event.type === "tool.start").map(event => event.data.name), ["repo_read"], "only the out-of-scope path reached the governed reader, which refused it");
   });
 
-  test("policy deny and a user's deny never read; after the binding is revoked a later run has no reader to call", async () => {
+  test("policy deny and a user's deny never read; a scope revoked while approval is pending cancels the run unread, and a later run has no reader", async () => {
     const t = await remoteHost({ plan: ({ turnIndex }) => turnIndex === 1 ? [readCall({ path: "package.json" }), readCall({ path: "README.md" })] : [readCall({ path: "README.md" })] });
     await t.policy([{ action: "repo_read", resource: "package.json", effect: "deny" }, { action: "repo_read", resource: "README.md", effect: "ask" }]);
+    const pending = (runId) => waitFor(() => t.store.snapshot().questions.find(item => item.runId === runId && item.status === "pending"), "the approval");
     const runId = (await t.start("read under policy", "c-policy")).json.run.id;
-    const question = await waitFor(() => t.store.snapshot().questions.find(item => item.runId === runId && item.status === "pending"), "the approval");
+    const question = await pending(runId);
     assert.deepEqual([question.payload.tool, question.payload.path], ["repo_read", "README.md"]);
     const denied = await t.h.api("POST", `/runs/${runId}/questions/${question.id}`, { decision: "deny", expectedToolCallId: question.payload.toolCallId, expectedContentSha256: question.payload.contentSha256 });
     assert.equal(denied.status, 200, JSON.stringify(denied.json));
@@ -187,14 +125,21 @@ describe("P03-C Host consumer · governed read on the production service path", 
     assert.deepEqual(t.actions(runId).filter(action => action.kind === "call").map(call => call.execution), ["failed", "failed"]);
     assert.equal((await t.events(runId)).some(event => event.type === "repository.read"), false);
 
-    // The Host refuses to change a binding during a Run, so revocation is a
-    // between-Runs fact: the next Run is admitted without that scope.
+    // Revocation through the existing owner cancels the waiting Run; the read never happens.
+    const waitingId = (await t.start("read, then lose the scope", "c-revoked-waiting")).json.run.id;
+    await pending(waitingId);
     const revoked = await t.h.api("PUT", `/sessions/${t.session.id}/repository-binding`, { operation: "revoke", requestId: "p03c-revoke", expectedRevision: 1 });
     assert.equal(revoked.status, 200, JSON.stringify(revoked.json));
+    assert.equal((await t.h.pollRun(waitingId)).status, "cancelled");
+    const waitingCall = t.actions(waitingId).find(action => action.kind === "call");
+    assert.deepEqual([waitingCall.execution, waitingCall.delivery.state], ["failed", "none"]);
+    assert.equal((await t.events(waitingId)).some(event => event.type === "repository.read"), false);
+
+    // A later Run is admitted without that scope and has no reader to call.
     const later = await t.run("read after revoke", "c-revoked");
     assert.equal(later.status, "completed", JSON.stringify(later.error));
     assert.equal(later.remoteBinding.scope.repositoryBindingId, null);
-    assert.match(t.results()[2].error, /^tool_unavailable:/);
+    assert.match(t.results().at(-1).error, /^tool_unavailable:/);
     assert.equal((await t.events(later.id)).some(event => event.type === "repository.read" || event.type === "tool.start"), false);
   });
 
@@ -220,7 +165,7 @@ describe("P03-C Host consumer · governed read on the production service path", 
   });
 
   test("without attributable root identity nothing is read and nothing settles the run; a required action is not root evidence", async () => {
-    const t = await remoteHost({ announceTurns: false, plan: () => [readCall()] });
+    const t = await remoteHost({ announceTurns: false, port: { recoveryAttempts: 0 }, plan: () => [readCall()] });
     const started = (await t.start("no root", "c-noroot")).json.run;
     await waitFor(() => t.results().length === 1, "the refusal");
     assert.match(t.results()[0].error, /^root_turn_unknown:/);

@@ -374,3 +374,29 @@ test('an allowlisted function declaration reaches the wire with exactly four key
     assert.equal(posts(wire).length, 1, 'no refused declaration produced a request');
   } finally { await wire.close(); }
 });
+
+test('a turn read is one GET for the turn asked for; another turn, another session or a statusless answer is an error', async () => {
+  const { wire, transport, adapter } = await harness();
+  try {
+    const turn = (overrides = {}) => ({ id: 'turn_wire_1', object: 'agent.session.turn', session_id: SESSION, subagent_id: null, status: 'completed', error: null, ...overrides });
+    let answer = turn();
+    wire.respond(attempt => attempt.method === 'POST' ? wire.json(200, native()) : wire.json(200, answer));
+    assert.equal((await transport.getTurn(SESSION, 'turn_wire_1')).status, 'completed');
+    const [read] = wire.attempts;
+    assert.deepEqual([read.method, read.path, read.headers.accept, 'idempotency-key' in read.headers, read.body], ['GET', `/v1/agents/sessions/${SESSION}/turns/turn_wire_1`, 'application/json', false, null]);
+    for (const wrong of [turn({ id: 'turn_other' }), turn({ session_id: 'agsess_other' }), turn({ status: undefined }), null]) {
+      answer = wrong;
+      await assert.rejects(transport.getTurn(SESSION, 'turn_wire_1'), error => error instanceof AgentsTransportError && error.code === 'malformed_response' && error.delivery === undefined);
+    }
+    await assert.rejects(transport.getTurn(SESSION, 'not a token'), { code: 'invalid_request' });
+
+    const { binding } = await adapter.createSession(creation);
+    answer = turn({ status: 'failed', error: { code: 'server_error', message: 'x'.repeat(2000) } });
+    const failed = await adapter.readTurn(binding, 'turn_wire_1');
+    assert.deepEqual([failed.root, failed.terminal, failed.error.code, failed.error.message.length], [true, 'failed', 'server_error', 501]);
+    answer = turn({ status: 'waiting' });
+    assert.deepEqual([(await adapter.readTurn(binding, 'turn_wire_1')).terminal], [null], 'a turn that has not ended settles nothing');
+    answer = turn({ subagent_id: 'sub_1' });
+    assert.equal((await adapter.readTurn(binding, 'turn_wire_1')).root, false, 'a child turn is never the root');
+  } finally { await wire.close(); }
+});

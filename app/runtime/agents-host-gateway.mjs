@@ -14,10 +14,20 @@ import { AGENTS_TRANSPORT_FUNCTION_TOOLS } from "./openai-agents-transport.mjs";
  * Run: intent before dispatch, claim before execution, retained bytes before
  * submission — and an honest outcome when any of those cannot be established.
  *
- * Nothing is retried, re-run or re-sent. A native call is executed at most
- * once per claim; a repeated observation meets the receipt. HTTP acceptance of
- * a tool result is recorded as accepted delivery and nothing stronger. Only a
+ * A native call is executed at most once per claim; a repeated observation
+ * meets the receipt. Creation, function results and cancel are sent once. The
+ * one retry here is an unanswered input message, re-sent once under the same
+ * request key, because that is the one operation the pinned SDK documents the
+ * key for (AGENTS_TRANSPORT_REQUEST_IDENTITY.message). HTTP acceptance of a
+ * tool result is recorded as accepted delivery and nothing stronger. Only a
  * root-turn terminal attributable to this Run settles it.
+ *
+ * P03-D adds what a Run may do when the stream, a reply or the Host is lost:
+ * a cancel intent confirmed only by the root turn ending cancelled; bounded
+ * observation recovery through the adapter's subscribe/buffer/read/merge, then
+ * a read of the root turn itself; and `inspectSession`, a read-only look at a
+ * bound session for the Host's explicit reconciliation. When the service
+ * offers nothing decisive the outcome stays unknown.
  */
 export const AGENTS_RUNTIME_ID = "agents-api";
 const MAX_ARGUMENTS_BYTES = 16 * 1024;
@@ -29,9 +39,9 @@ const CAPABILITIES = Object.freeze({
   start: Object.freeze({ supported: true }),
   continue: Object.freeze({ supported: true }),
   steer: Object.freeze({ supported: false, reason: "input during an active remote turn is not part of this consumer" }),
-  cancel: Object.freeze({ supported: false, reason: "remote cancellation needs a confirmed turn.cancelled; stopping locally leaves the Run unknown" }),
+  cancel: Object.freeze({ supported: true }),
   compact: Object.freeze({ supported: false, reason: "the remote session has no Host-side journal to compact" }),
-  recover: Object.freeze({ supported: false, reason: "observation recovery is not part of this consumer" }),
+  recover: Object.freeze({ supported: true }),
   submitToolResult: Object.freeze({ supported: true }),
 });
 
@@ -71,7 +81,11 @@ function canonicalArguments(raw) {
   return Buffer.byteLength(json) <= MAX_ARGUMENTS_BYTES ? { value, json, hash: sha256(json) } : { value: null, json: null, hash: sha256(json) };
 }
 
-export function createAgentsRuntimePort({ transport } = {}) {
+/**
+ * @param cancelConfirmMs how long a sent cancel waits for the root turn to end cancelled.
+ * @param recoveryAttempts how many times one Run re-subscribes after losing its stream.
+ */
+export function createAgentsRuntimePort({ transport, cancelConfirmMs = 10_000, recoveryAttempts = 2 } = {}) {
   const adapter = createAgentsApiRuntimeAdapter({ transport });
   const id = AGENTS_RUNTIME_ID;
   const protocol = Object.freeze({ betaHeader: AGENTS_API_PROTOCOL.betaHeader, docsRevision: AGENTS_API_PROTOCOL.docsRevision,
@@ -95,24 +109,34 @@ export function createAgentsRuntimePort({ transport } = {}) {
           const advertised = tools.filter(tool => AGENTS_TRANSPORT_FUNCTION_TOOLS.includes(tool.name));
           const controller = new AbortController();
           const tracker = createSettlementTracker();
-          let observer = null;
-          let halted = null; // an outcome the gateway itself decided
+          const timers = new Set();
+          let stream = null;          // the event stream being observed now
+          let activeBinding = null;
+          let halted = null;          // an outcome the gateway itself decided
+          let decided = null;         // an outcome the settlement rules decided
+          let recovering = false;     // decisions wait until a recovery batch is whole
+          let contradiction = false;
+          let cancelStarted = false, cancelExpired = false;
 
-          const halt = (outcome) => { halted ??= outcome; observer?.stop(); };
+          const halt = (outcome) => { halted ??= outcome; stream?.stop(); };
+          const later = (ms, action) => { const timer = setTimeout(() => { timers.delete(timer); action(); }, ms); timers.add(timer); };
           const unresolvedDelivery = (error) => error?.delivery === "not_sent" || error?.delivery === "rejected" ? "rejected" : "unknown";
           const failure = (error) => ({ code: typeof error?.code === "string" ? error.code : "remote_request_failed", message: boundedError(error?.message) });
 
-          async function dispatchIntent(kind, request, native, send) {
+          async function dispatchIntent(kind, request, native, send, { retries = 0 } = {}) {
             const { intent, idempotent } = await ledger.recordIntent({ kind, requestHash: sha256(JSON.stringify(request)), native });
             // A receipt answers a repeat; the request is never sent twice.
             if (idempotent) return { intent, refused: intent.phase === "rejected" ? "rejected" : "unknown" };
-            try {
-              const answer = await send(intent);
-              return { intent, answer };
-            } catch (error) {
-              const phase = unresolvedDelivery(error);
-              await ledger.settleIntent(intent.id, { phase, error: failure(error) });
-              return { intent, refused: phase, error };
+            for (let attempt = 0; ; attempt += 1) {
+              try {
+                const answer = await send(intent);
+                return { intent, answer };
+              } catch (error) {
+                const phase = unresolvedDelivery(error);
+                if (phase === "unknown" && attempt < retries) continue; // same request key
+                await ledger.settleIntent(intent.id, { phase, error: failure(error) });
+                return { intent, refused: phase, error };
+              }
             }
           }
 
@@ -125,7 +149,7 @@ export function createAgentsRuntimePort({ transport } = {}) {
             const agent = { model: model?.id, instructions: [systemPrompt, currentContext].filter(Boolean).join("\n\n"), tools: advertised.map(functionDeclaration) };
             if (!agent.tools.length) delete agent.tools;
             const created = await dispatchIntent("create", { agent, input }, {}, () => adapter.createSession({
-              identity: { sessionId, runId }, agent, environment: { type: "none" }, input, commandId: runId, signal: controller.signal,
+              identity: { sessionId, runId }, agent, environment: { type: "none" }, input, commandId: runId,
             }));
             if (created.refused) {
               halt(created.refused === "rejected"
@@ -201,13 +225,14 @@ export function createAgentsRuntimePort({ transport } = {}) {
             await onObservation(outcome.execution === "rejected"
               ? { type: "run.notice", data: { code: "remote_call_rejected", message: outcome.bytes.toString("utf8") } }
               : { type: "tool.result", data: { callId: call.callId, name: call.name, text: outcome.bytes.toString("utf8"), isError: !outcome.success } });
-            if (controller.signal.aborted) return false;
+            // A Run the Host is stopping answers with a cancel, not a result.
+            if (controller.signal.aborted || !ledger.isOpen()) return false;
             const delivery = await ledger.beginDelivery(claim.call.id);
             if (delivery.idempotent) return false;
             const text = outcome.bytes.toString("utf8");
             try {
               await adapter.submitToolResult(binding, { turnId: call.turnId, callId: call.callId, success: outcome.success,
-                ...(outcome.success ? { output: text } : { error: text }), requestId: delivery.intent.requestId, signal: controller.signal });
+                ...(outcome.success ? { output: text } : { error: text }), requestId: delivery.intent.requestId });
               await ledger.settleIntent(delivery.intent.id, { phase: "accepted" });
               return true;
             } catch (error) {
@@ -247,7 +272,13 @@ export function createAgentsRuntimePort({ transport } = {}) {
               return;
             }
             if (kind === "run.settlement") {
-              if (data.source === "native-terminal" && (native.turnId === null || native.turnId !== rootTurnId)) return;
+              if (data.source === "native-terminal") {
+                if (native.turnId === null || native.turnId !== rootTurnId) return;
+                const recorded = await ledger.recordRootTerminal({ turnId: rootTurnId, status: data.candidate, evidence: data.reason === "native_turn_read" ? "turn.read" : "turn.event", nativeRef: native.eventId ?? rootTurnId });
+                if (recorded.contradicts) contradiction = true;
+                // A confirmed cancellation voids what this Run still owed the turn.
+                if (data.candidate === "cancelled" && controller.signal.aborted) for (const callId of tracker.pendingCallIds()) tracker.noteToolResult(callId);
+              }
               tracker.observe(observation);
               return;
             }
@@ -256,46 +287,143 @@ export function createAgentsRuntimePort({ transport } = {}) {
 
           const deltas = new Map();
 
+          const settleIfDecided = () => {
+            if (contradiction) return halt({ status: "unknown", errorCode: "remote_contradictory_terminal", errorMessage: "The root turn was observed ending in two different ways" });
+            decided ??= tracker.decide({ cancelRequested: controller.signal.aborted, effectsUnknown: ledger.unresolved() });
+            if (decided) stream?.stop();
+          };
+          const onNative = async (observation) => {
+            if (halted || decided) return;
+            await observe(activeBinding, observation);
+            if (!halted && !recovering) settleIfDecided();
+          };
+
+          /** Cancel is a request. Only the root turn.cancelled confirms it, and
+           * only for a bounded time; otherwise the Run stays unknown. */
+          async function cancelRemote() {
+            if (cancelStarted || !activeBinding || halted || decided) return;
+            cancelStarted = true;
+            const sent = await dispatchIntent("cancel", { cancel: true }, { turnId: ledger.rootTurn()?.turnId ?? null },
+              (intent) => adapter.cancelTurn(activeBinding, { requestId: intent.requestId }));
+            if (sent.refused) {
+              return halt({ status: "unknown", errorCode: sent.refused === "rejected" ? "remote_cancel_rejected" : "remote_cancel_unknown",
+                errorMessage: sent.refused === "rejected" ? "The remote runtime refused the cancel request; the turn may still be running" : "The cancel request was not answered; it is not re-sent" });
+            }
+            await ledger.settleIntent(sent.intent.id, { phase: "accepted" });
+            later(cancelConfirmMs, () => { cancelExpired = true; stream?.stop(); });
+          }
+
+          /** Whether a new stream replays what was missed is not known. The root
+           * turn itself is the decisive read: ended, or still running. */
+          async function readRootTurn() {
+            const rootTurn = ledger.rootTurn();
+            if (!rootTurn || rootTurn.terminal) return;
+            try {
+              const turn = await adapter.readTurn(activeBinding, rootTurn.turnId);
+              if (!turn.root || !turn.terminal) return;
+              await observe(activeBinding, { kind: "run.settlement", native: { eventId: null, sessionId: nativeSessionId, turnId: rootTurn.turnId, itemId: null, subagentId: null },
+                data: { candidate: turn.terminal, source: "native-terminal", reason: "native_turn_read", ...(turn.error ? { error: turn.error } : {}) } });
+            } catch (error) {
+              halt({ status: "unknown", errorCode: "remote_recovery_failed", errorMessage: `The root turn could not be read (${failure(error).code})` });
+            }
+          }
+
+          /** The stream ended without a decision: subscribe again, buffer, read
+           * saved items and the session, merge. Current required actions come
+           * from the session snapshot and meet their claims like any other. */
+          async function recover() {
+            await onObservation({ type: "run.notice", data: { code: "remote_stream_recovering", message: "The event stream ended before a root terminal; observing the session again" } });
+            recovering = true;
+            let recovered;
+            try { recovered = await adapter.reconcile(activeBinding, { onObservation: onNative }); }
+            catch (error) {
+              recovering = false;
+              return halt({ status: "unknown", errorCode: "remote_recovery_failed", errorMessage: `Saved history could not be read completely (${failure(error).code})` });
+            }
+            stream = recovered.stream;
+            const calls = recovered.pendingActions.filter(action => action?.type === "function_call")
+              .map(action => ({ turnId: action.turn_id, callId: action.call_id, name: action.name, arguments: action.arguments ?? null }));
+            if (calls.length && !halted) {
+              await observe(activeBinding, { kind: "runtime.function_call.pending", native: { eventId: null, sessionId: nativeSessionId, turnId: null, itemId: null, subagentId: null }, data: { calls, environmentConnections: [] } });
+            }
+            if (!halted) await readRootTurn();
+            recovering = false;
+            if (!halted) settleIfDecided();
+            if (halted || decided) stream.stop();
+          }
+
           return {
-            abort: async () => { controller.abort(); observer?.stop(); },
+            // The Host calls abort without awaiting it on some paths; it must never reject.
+            abort: async () => {
+              if (controller.signal.aborted) return;
+              controller.abort();
+              try { await cancelRemote(); }
+              catch { halt({ status: "unknown", errorCode: "remote_cancel_unrecorded", errorMessage: "The cancel could not be recorded, so it was not sent" }); }
+            },
             steer: () => { throw Object.assign(new Error(`${id} does not support steer: ${CAPABILITIES.steer.reason}`), { code: "runtime_capability_unsupported" }); },
             getUsage: () => null,
             async run() {
-              const continuing = nativeSessionId !== null;
-              const binding = await open();
-              if (!binding) return halted;
-              let decided = null;
-              const settleIfDecided = () => {
-                decided ??= tracker.decide({ cancelRequested: controller.signal.aborted, effectsUnknown: ledger.unresolved() });
-                if (decided) observer?.stop();
-              };
-              observer = adapter.observe(binding, { onObservation: async (observation) => {
-                if (halted || decided) return;
-                await observe(binding, observation);
-                if (!halted) settleIfDecided();
-              } });
-              if (continuing && !controller.signal.aborted) {
-                const sent = await dispatchIntent("input", { input }, {}, (intent) => adapter.submitInput(binding, { text: input, requestId: intent.requestId, signal: controller.signal }));
-                if (sent.refused) {
-                  halt(sent.refused === "rejected"
-                    ? { status: "error", errorCode: "remote_input_rejected", errorMessage: "The remote runtime refused the input" }
-                    : { status: "unknown", errorCode: "remote_input_unknown", errorMessage: "The input was sent but not acknowledged; it is not re-sent" });
-                } else await ledger.settleIntent(sent.intent.id, { phase: "accepted" });
+              try {
+                const continuing = nativeSessionId !== null;
+                activeBinding = await open();
+                if (!activeBinding) return halted;
+                stream = adapter.observe(activeBinding, { onObservation: onNative });
+                if (continuing && !controller.signal.aborted) {
+                  const sent = await dispatchIntent("input", { input }, {}, (intent) => adapter.submitInput(activeBinding, { text: input, requestId: intent.requestId }), { retries: 1 });
+                  if (sent.refused) {
+                    halt(sent.refused === "rejected"
+                      ? { status: "error", errorCode: "remote_input_rejected", errorMessage: "The remote runtime refused the input" }
+                      : { status: "unknown", errorCode: "remote_input_unknown", errorMessage: "The input was not acknowledged, twice under one request key" });
+                  } else await ledger.settleIntent(sent.intent.id, { phase: "accepted" });
+                }
+                if (controller.signal.aborted) {
+                  try { await cancelRemote(); }
+                  catch { halt({ status: "unknown", errorCode: "remote_cancel_unrecorded", errorMessage: "The cancel could not be recorded, so it was not sent" }); }
+                }
+                let streamError = null;
+                for (let recoveries = 0; ; recoveries += 1) {
+                  try { await stream.done; streamError = null; } catch (error) { streamError = error; }
+                  if (halted || decided || cancelExpired || recoveries >= recoveryAttempts) break;
+                  await recover();
+                }
+                // A cancel that was not confirmed in time gets one last read.
+                if (!halted && !decided && cancelExpired) { await readRootTurn(); if (!halted) settleIfDecided(); }
+                if (halted) return halted;
+                if (!decided) { tracker.endStream(); settleIfDecided(); }
+                if (halted) return halted;
+                if (!decided || decided.status === "unknown") {
+                  return { status: "unknown", errorCode: `remote_${decided?.reason ?? "stream_closed_before_terminal"}`,
+                    errorMessage: streamError ? "The event stream failed before a root terminal was observed" : "No attributable root terminal settled this run" };
+                }
+                if (decided.status === "completed") return { status: "completed" };
+                if (decided.status === "cancelled") return { status: "aborted" };
+                return { status: "error", errorCode: "remote_turn_failed", errorMessage: boundedError(decided.error?.message ?? decided.reason) };
+              } finally {
+                for (const timer of timers) clearTimeout(timer);
+                stream?.stop();
               }
-              let streamError = null;
-              try { await observer.done; } catch (error) { streamError = error; }
-              if (halted) return halted;
-              if (!decided) { tracker.endStream(); settleIfDecided(); }
-              if (!decided || decided.status === "unknown") {
-                return { status: "unknown", errorCode: `remote_${decided?.reason ?? "stream_closed_before_terminal"}`,
-                  errorMessage: streamError ? "The event stream failed before a root terminal was observed" : "No attributable root terminal settled this run" };
-              }
-              if (decided.status === "completed") return { status: "completed" };
-              if (decided.status === "cancelled") return { status: "aborted" };
-              return { status: "error", errorCode: "remote_turn_failed", errorMessage: boundedError(decided.error?.message ?? decided.reason) };
             },
           };
         },
+      };
+    },
+
+    /**
+     * Read-only look at a bound native session for the Host's explicit
+     * reconciliation: the current status of the root turns it names, and the
+     * saved function outputs by call. Two reads; no stream, input, result or
+     * cancel.
+     */
+    async inspectSession({ sessionId, nativeSessionId, turnIds = [] }) {
+      const { binding } = adapter.attachSession({ identity: { sessionId, runId: "inspect" }, nativeSessionId });
+      bindings.set(nativeSessionId, binding);
+      const turns = [];
+      for (const turnId of turnIds) turns.push(await adapter.readTurn(binding, turnId));
+      const items = await adapter.readSavedItems(binding);
+      return {
+        turns,
+        functionOutputs: items.filter(item => item.type === "function_call_output" && item.callId && item.turnId && NATIVE_ID.test(item.id))
+          .map(item => ({ itemId: item.id, callId: item.callId, turnId: item.turnId })),
       };
     },
 
