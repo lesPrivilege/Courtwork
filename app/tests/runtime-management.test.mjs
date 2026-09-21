@@ -164,6 +164,20 @@ test("opening a runtime moves the keyboard to its way back, and Back returns to 
   assert.equal(focused(), "row:rt-hermes");
 }));
 
+test("only a runtime detail scopes the compact settings-block rhythm", () => withTinyDom(async (mount) => {
+  const { $, activate } = await mounted(mount, fast());
+  assert.equal($("runtime-detail-rhythm"), null, "the Runtime list keeps the root Settings group gap");
+  await activate("row-action:rt-pi");
+  const detail = $("runtime-detail-rhythm");
+  assert.ok(detail, "the detail owns one local inheritance boundary");
+  assert.equal(detail.tagName.toLowerCase(), "div");
+  assert.equal(detail.className, "", "the boundary adds no visual component class");
+  assert.equal(detail.getAttribute("style"), "--settings-group-gap: var(--space-4)");
+  assert.ok(detail.contains($("connection-block")), "existing detail blocks inherit through the boundary");
+  await activate("back");
+  assert.equal($("runtime-detail-rhythm"), null, "returning to the list removes the local mapping");
+}));
+
 test("protocol and process facts are disclosed on demand and a re-render does not close them", () => withTinyDom(async (mount) => {
   const { $, controller, settle } = await mounted(mount, fast(), { open: "rt-pi" });
   const details = $("disclosure:technical");
