@@ -69,7 +69,7 @@ E's only product change is the transport allowlist (`repo_read`, `repo_write`, `
 
 | | |
 |---|---|
-| Commits on `codex/core-runtime-loop-20260921` (base `3022b5c`) | **C** `eec2244` · **D** `37a14a5` · **E** the commit that adds this section; its SHA is recorded by the docs-only commit that follows it |
+| Commits on `codex/core-runtime-loop-20260921` (base `3022b5c`) | **C** `eec2244` · **D** `37a14a5` · **E** `2978f5a` (this line was added by the docs-only commit after it) |
 | Production paths exercised | `startServer` → `/api/v5` routes → `RuntimeService` (`#createRun`, `#executeRun`, `cancelRun`, `answerQuestion`, `changeRepositoryBinding`, `changeRepositoryCandidate`, `reconcileRemoteSession`) → `RuntimeStore` 19 (+ 18→19 migration, restart fences) → `agents-host-gateway` → `agents-api-adapter` → `openai-agents-transport` → unmodified `openai@7.15.0` over loopback sockets; existing governed `repo_read`, `repo_write`, `check_run` via `governTools`; `ArtifactHistory`; real child-process `SIGKILL` + reopen |
 | Author evidence | everything in this directory. **Independent evidence: none.** Codex reviews each fixed milestone and alone merges main |
 | Not claimed | the account-authorized live C milestone; any live Agents API behaviour; formal Work acceptance; product browser support; capability exposure (every Agents capability row still resolves `unavailable`) |
