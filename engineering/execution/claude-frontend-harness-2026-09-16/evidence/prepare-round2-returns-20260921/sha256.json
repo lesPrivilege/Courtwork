@@ -1,0 +1,26 @@
+{
+  "note": "sha256 of this packet's files and of the source files changed while answering the round-2 returns.",
+  "packet": {
+    "README.md": "6d3b6e0a9add5e83f7f3697b783444ee2495e91ad1c2b30c6ed5bca6069d8751",
+    "browser/create-commands.jsonl": "951639d3888ebec155be66637ae9dc397049bf49eaba09011f4463cd22c1998e",
+    "browser/create-loss-proxy.mjs": "da675f1f338c309b03fafcf09df35d43f09459bb1521681918da3cf033766998",
+    "browser/host-receipts.json": "8bb54798eab2feead577968a008c09f8485801290128bcaafe693878824a6ee8",
+    "browser/journey.md": "01d5eafe67bca41d5360a530fc40b74f7ada98a2ad66dd171c8e6b534de205fb",
+    "checks.txt": "d43975d26905e2d62bf1f0c103a660ed014674528c17311d652d29fa405bfc6c"
+  },
+  "previousCandidate": "6b39ecc920500ecac63903b3085f3c3d6b35f824",
+  "reviewDocumentation": "4a7ebfac889e426a8e01069c65b58ae47a99f14c",
+  "source": {
+    "app/tests/entry-audit.test.mjs": "88b9237ac92fc81dd6a285f21ab50e0f4cd6a9b4d48a5ab4ec2991b19046533a",
+    "app/tests/prepare-and-approval.test.mjs": "21255149994878ad6104c05d1af1d0709cc2d9591443ecc07aa7e05605743929",
+    "app/tests/prepare-lifecycle.test.mjs": "1c9804a3826d2674b448ad9de940023e0730673e9b6e2afe6dcb3287fd603cce",
+    "app/web/app.mjs": "6101e2ad75458a571f83947511face8070a317ceff949f4acd7fc91bac4df01a",
+    "app/web/home-preparation.mjs": "0f9b1e96a6fdcfd789badbb428756711ee547634ae558970e7de84b503149169",
+    "app/web/workspace-card.mjs": "25ee97770d6a794b91bb8060f17b825370a63643ef3f438180387512cd94b07c",
+    "engineering/current.md": "85d341bdeef0e35188941837655c404eb07440a9638a0e9cd4699069e7673535",
+    "engineering/execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md": "771925a3f4ea6605bd9546597ab6474200a94380f5ced4a30a5025eb9ef51884",
+    "engineering/execution/claude-frontend-harness-2026-09-16/README.md": "b3c4dbdffd532e5417947075b0010f7d7e657c1042cf8b9d328b1dd10b9ab7e2",
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/prepare-lifecycle-returns-20260921/README.md": "b864c7d132ac3f8b3d2674959d142d422f47ff33479130d323d15c16a7f3c28b",
+    "engineering/verification.md": "ea1c4bf75d8c2a6357d26032cbafb3bf757668477b5362f71460c9ab714ca34e"
+  }
+}

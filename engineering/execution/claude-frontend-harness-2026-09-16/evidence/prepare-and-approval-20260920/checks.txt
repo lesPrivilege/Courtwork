@@ -1,0 +1,92 @@
+# Checks · prepare before inference, and approval identity
+
+Author: Claude (Opus 5). Isolated worktree
+  /Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920
+  branch claude-prepare-and-approval-20260920, from accepted main 962046d.
+Nothing was run inside /Users/lesprivilege/Projects/Courtwork (the persistent main
+checkout that serves preview 8899); no push, no deploy, nothing deleted.
+
+$ node --test tests/prepare-and-approval.test.mjs   (from app/)
+✔ preparing makes a chat, a binding and a candidate, and asks for no run (1.940208ms)
+✔ a reply lost at any step is replayed against the same identities, never repeated (0.862ms)
+✔ preparing again over a finished preparation is a no-op, and a half-done one finishes (0.272208ms)
+✔ preparing refuses without a folder, without a commit, and without a matching receipt (0.238167ms)
+✔ the Home card offers preparation only with a folder and an owner, and says what it makes (2.399667ms)
+✔ Home wiring: the prepared chat is the card's session, keeps its own events, and starts no run (2.060292ms)
+✔ a real Host prepares a chat, a binding and a candidate with no run and no events (2140.359083ms)
+✔ a write approval reports the candidate and the revision it was bound to (0.239708ms)
+✔ a check approval reports the write revision it will run against, and no revision it was never given (0.075041ms)
+✔ an approval with no recorded candidate has no candidate reading, and zero is not absent (0.086083ms)
+✔ the reading is the recorded payload's, never the candidate as it is now (0.190417ms)
+✔ the recorded identity is drawn on the open request and on the record the transcript keeps (0.914417ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3385.324083
+
+$ node --test <the owners this touches>
+✔ While a run is active the card explains the wait and disables the commands (0.569ms)
+✔ Strip placement and shell wiring for the Workspace control (3.264042ms)
+ℹ tests 69
+ℹ suites 0
+ℹ pass 69
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 988.873417
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (62 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+$ node tools/lint-colors.mjs
+lint-colors: ok (67 files · 字面量与高度层两项)
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+
+$ node tools/check-doc-links.mjs
+{
+  "pass": true,
+  "documents": 1473,
+  "checked": 8361,
+  "problems": []
+}
+
+$ npm --prefix app test   (the full suite)
+✔ getWorkspaceFile truncates on a UTF-8 boundary and keeps the whole-file digest (69.710125ms)
+✔ a second run in a continued session revises the first run's file (1042.760375ms)
+ℹ tests 1302
+ℹ suites 0
+ℹ pass 1302
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 245090.731667
+
+Browser pass (see browser/journey.md)
+    Host   node app/server/index.mjs --data-dir <instance>/runtime-data --port 8916
+    Built from this candidate, on a port the user's 8787 Host and 8899 preview
+    do not use. Provider: Local test (bootstrap reports realProvider:false,
+    mode:local-fake). No credential configured, read, copied or exported; no
+    paid inference. Viewports 1280x900 light and 375x812 dark.
+
+NOT RUN, and why
+    PNG screenshots. This author's browser tooling reads the live DOM, focus,
+      console and network but cannot write image files, and OpenAI computer use
+      is not available to it. The packet carries verbatim DOM and network
+      captures instead. No visual baseline is offered or claimed.
+    200% native zoom, screen-reader verification, forced-colors. Not run; the
+      existing G4 residuals stay exactly as open as they were.
+    Real provider / real-model execution. Not run and not needed for this
+      frontend batch.
+    Independent (non-author) review. Not run by definition — that is Luna's,
+      which this delivery is released for.
+    Retitling a prepared chat from a later first message. Deliberately not
+      built; see README, "Bounds this delivery kept".
+    Non-approval tool arguments. Untouched, by the order: no request capture,
+      no new event or schema, and nothing was persisted or displayed by
+      analogy with the approval preview.

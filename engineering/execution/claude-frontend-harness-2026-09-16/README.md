@@ -411,3 +411,5 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 2026-09-20 · [Preparation/approval independent review](evidence/prepare-and-approval-review-20260920/README.md): candidate `afc9f31` held for Claude PA-R1–R3 UI recovery/lifecycle corrections; successful preparation and historical approval projection retained. No next journey or product merge yet.
 
 2026-09-21 · [Preparation round-2 review](evidence/prepare-round2-review-20260921/README.md): PA-R3 accepted at `6b39ecc`; two original PA-R1/PA-R2 recovery cases remain with Claude. Hold integration and next journey.
+
+2026-09-21 · Astra accepts preparation/approval at `b3f3fd7` after Luna 70/70 and real OpenAI browser recovery checks. [Final packet](evidence/prepare-final-integration-20260921/README.md) closes PA-R1–R3 within 06b; broader G4 and tool-argument contracts remain open. Local merge/archival cleanup are integration work; no next journey started.

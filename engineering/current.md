@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-21 · Preparation and approval accepted
+
+[Final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/prepare-final-integration-20260921/README.md) fixes source `b3f3fd7`: Claude's production controller and recovery paths plus Sol's conservative failure classification and Home failure persistence. Luna independently passes 70/70; Astra's OpenAI browser confirms correction after reload and reconciliation after a committed bind/read-back error, with zero Runs/events. PA-R1–R3 are closed for this scope; historical approval identity remains accepted. Local merge and preservation cleanup follow in the same node; G4/material-upload and ordinary-tool-argument residuals stay with existing owners. User 8787/8899 preserved, no provider call or next journey; heartbeat stays paused.
+
 ## 2026-09-21 · Preparation round 2: lifecycle accepted, two recovery cases remain
 
 [Review of `6b39ecc`](execution/claude-frontend-harness-2026-09-16/evidence/prepare-round2-review-20260921/README.md) passes Luna 52/52; Astra's OpenAI browser confirms PA-R3 Recent first-send retirement and draft continuity. The original lost-candidate reconciliation and in-flight lock are retained. Integration remains held for PA-R2's unconfirmed Remove path and PA-R1's missing correction path after a definite invalid-folder rejection, both reproduced. Claude keeps these two finite corrections in the existing tree; no next journey begins. Main product bytes remain unchanged, author source/evidence retained, review services stopped, user 8787/8899 preserved; no real provider, push/deploy or cleanup deletion, heartbeat paused.

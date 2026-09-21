@@ -1,0 +1,89 @@
+# Checks · PA-R1 / PA-R2 / PA-R3
+
+Author: Claude (Opus 5). Isolated worktree
+  /Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920
+  branch claude-prepare-and-approval-20260920, over held candidate afc9f31
+  with the review documentation merged in at caffdc2.
+Nothing was run inside /Users/lesprivilege/Projects/Courtwork; no push, no deploy,
+nothing deleted.
+
+$ node --test tests/prepare-lifecycle.test.mjs   (from app/)
+✔ PA-R1 · after a lost candidate reply the visible command finishes the same preparation (5.596458ms)
+✔ PA-R1 · the counterexample: the ordinary create would have been refused (0.371209ms)
+✔ PA-R1 · a reply lost at any step is finished by the same visible command (2.555875ms)
+✔ PA-R1 · preparation continues against the folder the Host really bound (1.143833ms)
+✔ PA-R2 · nothing mutating is actionable while preparation is in flight (1.008959ms)
+✔ PA-R2 · a locked card is locked for the same reasons whichever surface it shows (0.538709ms)
+✔ PA-R3 · a first send from anywhere retires the preparation, keeping the unsent Home text (0.912417ms)
+✔ PA-R3 · a send that was never admitted leaves the preparation recoverable (0.966208ms)
+✔ PA-R3 · retiring is scoped to the prepared chat and to real work (0.150209ms)
+✔ PA-R3 · a marker restored from storage reconciles against the Host once (0.232875ms)
+✔ Home wiring for the three returns (2.252416ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 114.124042
+
+$ node --test tests/prepare-and-approval.test.mjs tests/workspace-card.test.mjs tests/coding-start-friction.test.mjs tests/candidate-ui.test.mjs
+✔ Strip placement and shell wiring for the Workspace control (2.564417ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 41
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2980.405334
+
+$ node tools/lint-interaction.mjs
+lint-interaction: ok (62 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+$ node tools/lint-colors.mjs
+lint-colors: ok (67 files · 字面量与高度层两项)
+$ node tools/lint-materials.mjs
+lint-materials: ok (5 files · 登记类名与 reduced-transparency 回退两项)
+
+$ node tools/check-doc-links.mjs
+{
+  "pass": true,
+  "documents": 1479,
+  "checked": 8410,
+  "problems": []
+}
+
+$ npm --prefix app test
+✔ a second run in a continued session revises the first run's file (891.936375ms)
+ℹ tests 1313
+ℹ suites 0
+ℹ pass 1313
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 244321.933458
+
+Browser passes (see browser/journey.md)
+    Host   node app/server/index.mjs --data-dir <instance>/runtime-data --port 8920
+    Proxy  node browser/lost-reply-proxy.mjs <log>   (8921 → 8920), the method
+           carried over from the review packet; it touches no product code.
+    Local test provider (bootstrap realProvider:false, mode:local-fake). No
+    credential configured, read, copied or exported. The user's 8787 Host and
+    8899 preview were not used and are still running. Viewport 1280x900 light.
+
+NOT RUN, and why
+    PNG screenshots. This author's browser tooling reads live DOM, focus,
+      console and network but cannot write image files, and OpenAI computer use
+      is not available to it. Verbatim DOM and network captures instead; no
+      visual baseline is claimed.
+    200% native zoom, screen reader, forced-colors. Not run; earlier residuals
+      stay exactly as open as they were.
+    Real provider / real-model execution. Not run and not needed.
+    Independent (non-author) review. Not run by definition.
+    Attachment-upload recovery during preparation. Not run: preparing does not
+      flush materials, and the marker carries no attachment identity, so there
+      is nothing this batch changed there. Named because the review listed it
+      among its own limits.
+    Non-approval tool arguments. Untouched, as ordered.

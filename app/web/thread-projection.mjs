@@ -217,6 +217,32 @@ export function validPermission(payload) {
   );
 }
 
+/* RD-006 / 02 · the private candidate this approval was actually asked about,
+ * read only from the payload the Host recorded with the request.
+ *
+ * These are the exact values the Host will re-check before it acts: both
+ * governed tools compare the whole approved context against the candidate at
+ * execution time and refuse with `candidate_changed` if any of it has moved
+ * (repository-candidate-tools.mjs, check-tools.mjs approvedCandidate). So this
+ * is not decoration — it is the fence, shown to the person it protects.
+ *
+ * The transcript keeps a decided request, and reading it back is the question
+ * the live candidate cannot answer: by then it may have taken further writes,
+ * been stopped, or been replaced by one built from a different commit. The
+ * current Session, the current binding and the current candidate are therefore
+ * all wrong answers to "what did I approve?", and none of them is substituted
+ * here. A field the Host did not record stays absent rather than becoming a
+ * zero: `check_run` carries no candidateRevision and must not be shown one. */
+export function approvalCandidate(payload) {
+  const id = typeof payload?.candidateId === "string" && payload.candidateId ? payload.candidateId : null;
+  if (!id) return null;
+  return {
+    id,
+    revision: Number.isSafeInteger(payload.candidateRevision) ? payload.candidateRevision : null,
+    writeRevision: Number.isSafeInteger(payload.candidateWriteRevision) ? payload.candidateWriteRevision : null,
+  };
+}
+
 // Names are display facts from the permission and this Run's recorded binding.
 // Never infer a file write from the shared path/hash envelope, or relabel an
 // old request using the current (possibly replaced) runtime catalog.
@@ -243,6 +269,7 @@ export function permissionPresentation(payload, binding) {
       target: payload.recipeId ? `${payload.recipeId}${payload.recipeVersion ? ` v${payload.recipeVersion}` : ""}` : "Recorded recipe identity unavailable",
       source: null,
       details: "Check details",
+      candidate: approvalCandidate(payload),
       hashLabel: "Copy proposed arguments hash",
       scope: [`${command} ${argv}`.trim(), "in the private candidate", seconds ? `${seconds} s` : null, kib ? `${kib} KiB per stream` : null, "minimal environment"].filter(Boolean).join(" · "),
     };
@@ -265,6 +292,7 @@ export function permissionPresentation(payload, binding) {
       : payload?.tool || "Recorded tool identity unavailable",
     source: remote ? resource.source?.uri || "Recorded remote source unavailable" : null,
     details: write ? "Write details" : "Action details",
+    candidate: approvalCandidate(payload),
     hashLabel: write ? "Copy proposed content hash" : "Copy proposed arguments hash",
     scope: candidate
       ? (priorHash ? `Private candidate · replaces the file whose hash starts ${priorHash.slice(0, 12)}` : "Private candidate · new file")

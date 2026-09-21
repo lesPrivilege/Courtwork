@@ -1,0 +1,93 @@
+✔ parseUnifiedPatch splits a git patch into files with numbered rows the diff view understands (3.141875ms)
+✔ A repo_write approval names the private candidate and the exact prior state (0.280833ms)
+✔ Start private candidate reads the folder's HEAD from the Host and creates the candidate from that commit (27.441083ms)
+✔ A folder without a commit cannot start a candidate; nothing is sent (2.617666ms)
+✔ Stop edits revokes with both revisions; Review changes hands off to the dialog (4.561625ms)
+✔ Shell wiring for the candidate changes dialog (1.8165ms)
+✔ a confirmed write moves the candidate reading even though the cached Session still says zero (1.075625ms)
+✔ the reading belongs to one candidate: another candidate's writes and unconfirmed effects are not counted (0.087666ms)
+✔ the Workspace card's Writes line reads the confirmed write, not the cached Session field (1.691083ms)
+✔ the changes dialog takes its count from the diff receipt it is already reading (1.737541ms)
+✔ Start private candidate leaves the keyboard on the control that now answers it (14.859084ms)
+✔ Stop edits puts the keyboard back on the control that can start another candidate (2.768291ms)
+✔ the folder card does not claim the Host reads nothing or sends nothing (0.712334ms)
+✔ the card names the four things a coding task depends on and keeps them apart (0.280666ms)
+✔ File access explains all three Host modes and the disclosure survives event renders (2.847625ms)
+✔ a bound folder can be changed without first disconnecting, and the Host's own precondition is stated (3.167584ms)
+✔ leaving the change-folder path keeps the binding and the typed draft (2.099625ms)
+✔ rows from the previous reading are not presented as the confirmed list while a read is out (1.564667ms)
+✔ a list reply that arrives after you have opened a profile does not land (43.154792ms)
+✔ preparing makes a chat, a binding and a candidate, and asks for no run (2.490875ms)
+✔ a reply lost at any step is replayed against the same identities, never repeated (0.772458ms)
+✔ preparing again over a finished preparation is a no-op, and a half-done one finishes (0.7385ms)
+✔ preparing refuses without a folder, without a commit, and without a matching receipt (2.30975ms)
+✔ the Home card offers preparation only with a folder and an owner, and says what it makes (4.467333ms)
+✔ Home wiring: the prepared chat is the card's session, keeps its own events, and starts no run (1.639333ms)
+✔ a real Host prepares a chat, a binding and a candidate with no run and no events (2212.018083ms)
+✔ a write approval reports the candidate and the revision it was bound to (0.242167ms)
+✔ a check approval reports the write revision it will run against, and no revision it was never given (0.07375ms)
+✔ an approval with no recorded candidate has no candidate reading, and zero is not absent (0.088083ms)
+✔ the reading is the recorded payload's, never the candidate as it is now (0.350958ms)
+✔ the recorded identity is drawn on the open request and on the record the transcript keeps (0.920416ms)
+✔ PA-R1 · after a lost candidate reply the visible command finishes the same preparation (25.729041ms)
+✔ PA-R1 · the counterexample: the ordinary create would have been refused (0.476709ms)
+✔ PA-R1 · a reply lost at any step is finished by the same visible command (12.594917ms)
+✔ PA-R1 · preparation continues against the folder the Host really bound (1.995125ms)
+✔ PA-R2 · nothing mutating is actionable while preparation is in flight (1.79425ms)
+✔ PA-R2 · a locked card is locked for the same reasons whichever surface it shows (0.5975ms)
+✔ PA-R2 · an unconfirmed create locks every folder mutation, and Check status stays reachable (3.710792ms)
+✔ PA-R2 · a create that never landed keeps its identity for the retry (0.469416ms)
+✔ what counts as settled is whether the Host answered, not the status number (0.254375ms)
+✔ PA-R1 · a refused folder can be corrected, and the correction is a new binding intent (3.070167ms)
+✔ PA-R1 · retrying the same folder keeps its identity; correcting is refused while anything is unknown (21.264375ms)
+✔ PA-R3 · a first send from anywhere retires the preparation, keeping the unsent Home text (11.552084ms)
+✔ PA-R3 · a send that was never admitted leaves the preparation recoverable (3.152417ms)
+✔ PA-R3 · retiring is scoped to the prepared chat and to real work (0.20175ms)
+✔ PA-R3 · a marker restored from storage reconciles against the Host once (0.396416ms)
+✔ the production seam: what the controller owns, and what app.mjs wires (4.501125ms)
+✔ RuntimeStore schema15 gains empty external bindings with an exact backup and old-host fence (727.58425ms)
+✔ repository tools use bounded relative paths, record source hashes, and recheck the root before disclosure (789.187959ms)
+✔ binding revisions, idempotency, Run snapshots, and revocation are serialized by RuntimeStore (86.2305ms)
+✔ HTTP binding API exposes only bound tools, records read provenance, and revoke cancels active Runs (757.668083ms)
+✔ repository path deny rules block case aliases on case-insensitive Host volumes (323.506667ms)
+✔ repo_grep excludes a repo_read-denied file, counts it, and keeps only allowed sources in provenance (505.351666ms)
+✔ repo_grep excludes an ask-gated file without opening a permission question (500.02975ms)
+✔ choose-directory uses the SE_TEST_MODE picker script, reports a cancel, and requires the work token (1960.043375ms)
+✔ choose-directory rejects a second concurrent picker with 409 while the first is still open (2676.297584ms)
+✔ recent repositories are derived from bind receipts, deduped by exact path, ordered, and report live availability (529.335834ms)
+✔ repositories/inspect reports live availability and Git branch/HEAD without persisting or granting access (183.147708ms)
+✔ repositoryName shows the folder word; activeRepositoryBinding ignores revoked bindings (2.331ms)
+✔ An unbound chat offers Open folder first, lists folders connected before, and keeps the path behind a disclosure (34.809792ms)
+✔ Choosing a folder connected before sends one bind command and reads the Session back (16.063042ms)
+✔ Open folder asks the Host for a native dialog, binds the chosen path, and does nothing when cancelled (13.704375ms)
+✔ A Host without a folder dialog falls back to the typed path as the primary form (10.30975ms)
+✔ A rejected typed path keeps the text, shows the Host message and reuses the requestId on retry (15.650084ms)
+✔ A bound chat shows the folder and scope; Disconnect sends revoke with the current revision (1.775917ms)
+✔ On Home the card edits a draft: choosing writes the intent, nothing is bound, Remove clears it (4.447333ms)
+✔ While a run is active the card explains the wait and disables the commands (1.399208ms)
+✔ Strip placement and shell wiring for the Workspace control (3.430208ms)
+ℹ tests 68
+ℹ suites 0
+ℹ pass 68
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11922.699666
+
+--- final review metadata ---
+HEAD 4b7b98ebce4819b94a42337ed87c1b6a58a166e4
+DIFF_CHECK: git diff --check 27aa6ac..4b7b98e (pass)
+SHA256 app/web/app.mjs 6101e2ad75458a571f83947511face8070a317ceff949f4acd7fc91bac4df01a
+SHA256 app/web/home-preparation.mjs 0f9b1e96a6fdcfd789badbb428756711ee547634ae558970e7de84b503149169
+SHA256 app/web/workspace-card.mjs 25ee97770d6a794b91bb8060f17b825370a63643ef3f438180387512cd94b07c
+SHA256 app/tests/prepare-lifecycle.test.mjs 1c9804a3826d2674b448ad9de940023e0730673e9b6e2afe6dcb3287fd603cce
+--- focused tests ---
+node --test tests/prepare-lifecycle.test.mjs tests/prepare-and-approval.test.mjs tests/workspace-card.test.mjs tests/coding-start-friction.test.mjs tests/candidate-ui.test.mjs tests/repository-binding.test.mjs
+68 passed, 0 failed, exit 0
+--- adversarial sequence-boundary probe ---
+POST /sessions -> success; PUT /repository-binding -> commits binding revision 1; subsequent GET /sessions/:id -> coded {status:500, body:{error:{code:"internal_error"}}}
+phase={status:"unfinished",uncertain:false,correctable:true,session.repositoryBinding:null}
+Host binding={revision:1, status:"active"}
+--- persistence trace ---
+storeHomeDraft serializes start fields through app.mjs:372-382 but omits marker.failure; restoreHomeDraft restores saved.start without failure.

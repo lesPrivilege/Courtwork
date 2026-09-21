@@ -48,8 +48,14 @@ test("00 · entry audit: the global Refresh and the passive Expert seat are gone
   assert.match(app, /Creation could not be confirmed\. Check its status before creating/);
   assert.match(app, /async function checkHomeStart\(\)/);
   assert.match(app, /"aria-label": "Check chat creation status"/);
-  assert.match(app, /Creating the chat is unconfirmed\. Check its status to recover the same chat\. Your instruction is kept\./);
-  assert.match(app, /request\(`\/sessions\/\$\{encodeURIComponent\(start\.sessionId\)\}`\)/, "the Home chat is read back by its own id");
+  /* The recovery itself is the Home preparation owner's (home-preparation.mjs,
+     2026-09-21): same invariant, asked in the module that decides whether an
+     outcome is settled. Nothing is created by asking — the id was minted
+     client-side, so the read is by that id and a 404 is an answer. */
+  const preparation = readFileSync(`${root}app/web/home-preparation.mjs`, "utf8");
+  assert.match(preparation, /Creating the chat is unconfirmed\. Check its status to recover the same chat\. Your instruction is kept\./);
+  assert.match(preparation, /request\(`\/sessions\/\$\{encodeURIComponent\(marker\.sessionId\)\}`\)/, "the Home chat is read back by its own id");
+  assert.match(preparation, /if \(error\?\.status !== 404\) throw error;/, "and a missing chat is an answer, not a failure");
   assert.match(app, /nextAction === "retry-run"/, "the unconfirmed Run keeps its own Recover action");
 });
 

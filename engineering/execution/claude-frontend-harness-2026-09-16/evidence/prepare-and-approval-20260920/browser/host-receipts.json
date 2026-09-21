@@ -1,0 +1,225 @@
+{
+  "note": "Host receipts from the isolated evidence Host on 127.0.0.1:8916, built from this candidate branch. Its data directory and synthetic source are outside the product repository; the provider is the deterministic Local test one and no credential was configured, read or exported. The user's 8787 Host and 8899 preview were not used.",
+  "sessions": [
+    {
+      "checks": [],
+      "eventCount": 0,
+      "eventTypes": [],
+      "id": "56613092-377b-4df2-9b03-d9c3f8808ce9",
+      "permissionMode": "ask",
+      "permissionOpens": [],
+      "permissionResolved": [],
+      "projectId": null,
+      "repositoryBinding": {
+        "device": "16777233",
+        "id": "36e5506d-10b1-4d01-b4a9-c3ff7ac1eadd",
+        "inode": "172519692",
+        "revision": 1,
+        "rootPath": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920-instance/source",
+        "status": "active"
+      },
+      "repositoryBindingRevision": 1,
+      "repositoryCandidate": {
+        "baseCommit": "2729e71414be3a0534be6a5e1cd1d743b091c064",
+        "createdAt": "2026-09-20T14:57:49.353Z",
+        "id": "0e785408-9eb3-4b64-a19e-230aaa01ba76",
+        "objectFormat": "sha1",
+        "revision": 1,
+        "sourceBindingId": "36e5506d-10b1-4d01-b4a9-c3ff7ac1eadd",
+        "sourceBindingRevision": 1,
+        "status": "active",
+        "writeRevision": 0
+      },
+      "repositoryCandidateRevision": 1,
+      "title": "Second task, prepared only.",
+      "writeEffects": []
+    },
+    {
+      "checks": [
+        {
+          "callId": "fake-script-3-1",
+          "candidateId": "9a8ab169-0c42-48c8-80fa-6c853349c92c",
+          "candidateWriteRevision": 1,
+          "recipeId": "node-test",
+          "recipeVersion": 1,
+          "startedAt": "2026-09-20T14:44:46.993Z",
+          "t": "check.started"
+        },
+        {
+          "callId": "fake-script-3-1",
+          "durationMs": 195,
+          "endedAt": "2026-09-20T14:44:47.191Z",
+          "exitCode": 0,
+          "failure": null,
+          "signal": null,
+          "startedAt": "2026-09-20T14:44:46.996Z",
+          "status": "completed",
+          "t": "check.settled",
+          "truncated": {
+            "stderr": false,
+            "stdout": false
+          }
+        }
+      ],
+      "eventCount": 77,
+      "eventTypes": [
+        "user.message",
+        "run.status",
+        "runtime.bound",
+        "repository.bound",
+        "repository.candidate.bound",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "run.usage",
+        "run.status",
+        "user.message",
+        "run.status",
+        "runtime.bound",
+        "repository.bound",
+        "repository.candidate.bound",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "tool.start",
+        "permission.open",
+        "run.status",
+        "permission.resolved",
+        "run.status",
+        "repository.write.confirmed",
+        "tool.result",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "tool.start",
+        "permission.open",
+        "run.status",
+        "permission.resolved",
+        "run.status",
+        "check.started",
+        "check.settled",
+        "tool.result",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "run.usage",
+        "run.status",
+        "user.message",
+        "run.status",
+        "runtime.bound",
+        "repository.bound",
+        "repository.candidate.bound",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "tool.start",
+        "permission.open",
+        "run.status",
+        "permission.resolved",
+        "run.status",
+        "tool.result",
+        "runtime.request.telemetry",
+        "runtime.request.telemetry",
+        "assistant.delta",
+        "assistant.delta",
+        "assistant.delta",
+        "runtime.request.telemetry",
+        "assistant.message",
+        "run.usage",
+        "run.status"
+      ],
+      "id": "18424fea-6ac9-4b0d-a054-ee9a557d1d56",
+      "permissionMode": "ask",
+      "permissionOpens": [
+        {
+          "candidateId": "9a8ab169-0c42-48c8-80fa-6c853349c92c",
+          "candidateRevision": 1,
+          "candidateWriteRevision": 0,
+          "path": "src/parcel.mjs",
+          "recipeId": null,
+          "seq": 27,
+          "tool": "repo_write"
+        },
+        {
+          "candidateId": "9a8ab169-0c42-48c8-80fa-6c853349c92c",
+          "candidateRevision": null,
+          "candidateWriteRevision": 1,
+          "path": "*",
+          "recipeId": "node-test",
+          "seq": 38,
+          "tool": "check_run"
+        },
+        {
+          "candidateId": "3c956cac-c2fa-4316-ae1a-46dc668c1add",
+          "candidateRevision": 3,
+          "candidateWriteRevision": 0,
+          "path": "NOTES.md",
+          "recipeId": null,
+          "seq": 64,
+          "tool": "repo_write"
+        }
+      ],
+      "permissionResolved": [
+        {
+          "decision": "allow",
+          "seq": 29
+        },
+        {
+          "decision": "allow",
+          "seq": 40
+        },
+        {
+          "decision": "deny",
+          "seq": 66
+        }
+      ],
+      "projectId": null,
+      "repositoryBinding": {
+        "device": "16777233",
+        "id": "3f4729b6-7638-4b32-8f31-cb644a59e03f",
+        "inode": "172519692",
+        "revision": 1,
+        "rootPath": "/Users/lesprivilege/Projects/.worktrees/courtwork-prepare-approval-20260920-instance/source",
+        "status": "active"
+      },
+      "repositoryBindingRevision": 1,
+      "repositoryCandidate": {
+        "baseCommit": "2729e71414be3a0534be6a5e1cd1d743b091c064",
+        "createdAt": "2026-09-20T14:44:58.640Z",
+        "id": "3c956cac-c2fa-4316-ae1a-46dc668c1add",
+        "objectFormat": "sha1",
+        "revision": 3,
+        "sourceBindingId": "3f4729b6-7638-4b32-8f31-cb644a59e03f",
+        "sourceBindingRevision": 1,
+        "status": "active",
+        "writeRevision": 0
+      },
+      "repositoryCandidateRevision": 3,
+      "title": "Fix the pagination defect in src/parcel.mjs so the test passes.",
+      "writeEffects": [
+        {
+          "bytes": 445,
+          "candidateId": "9a8ab169-0c42-48c8-80fa-6c853349c92c",
+          "contentSha256": "8561b3ab75fe80603092e14c3228abfbf74a6ff588389eccf71ff2241ebcba51",
+          "effectId": "2e11a55ce35aba36b6760ab3e9460ce925dbc301b3284f33e0f6a691848a0ad8",
+          "path": "src/parcel.mjs",
+          "requestId": "fake-script-2-0",
+          "writeRevision": 1
+        }
+      ]
+    }
+  ]
+}

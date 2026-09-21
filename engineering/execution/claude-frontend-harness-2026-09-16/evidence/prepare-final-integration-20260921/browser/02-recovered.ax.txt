@@ -1,0 +1,10 @@
+Browser tab: 12, Title: "CourtWork", URL: "http://127.0.0.1:8925/#home".
+The following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 46, 208
++						208 button Final preparation recovery
++						209 pop up button More chat actions
+~						70 text entry area (settable) Message, Value: Final preparation recovery, ID: composer-input
+~						71 pop up button (collapsed) Description: Attachments, Secondary Actions: Expand
+~						79 button Description: Send, ID: send-button
++					210 text Chat and private candidate are ready. Nothing was sent; send to start work in them.
+The focused UI element is 0 AXWebArea CourtWork, URL: 127.0.0.1:8925/#home
