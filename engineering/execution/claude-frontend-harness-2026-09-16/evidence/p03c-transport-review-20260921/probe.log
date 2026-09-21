@@ -1,0 +1,201 @@
+{"label":"ambient-allowlisted-json","constructorError":{"name":"TypeError","message":"Header name must be a valid HTTP token [\"{\"Authorization\"\"]"}}
+{
+  "label": "ambient-allowlisted-header-format",
+  "error": {
+    "name": "AgentsTransportError",
+    "code": "timeout",
+    "delivery": "unresolved",
+    "message": "sendEvents: no response within the timeout"
+  },
+  "attempts": [
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "idempotency-key": "ambient-key",
+        "openai-beta": "agents=v1",
+        "user-agent": "ambient-agent"
+      },
+      "body": {
+        "environment": {
+          "type": "none"
+        },
+        "input": "x",
+        "stream": false,
+        "agent": {
+          "model": "m"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions/sess_probe/events",
+      "headers": {
+        "accept": "*/*",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "idempotency-key": "req_probe",
+        "openai-beta": "agents=v1",
+        "user-agent": "ambient-agent"
+      },
+      "body": {
+        "events": [
+          {
+            "type": "agent.session.input.message",
+            "text": "x"
+          }
+        ]
+      }
+    }
+  ]
+}
+{
+  "label": "event-200-json-empty",
+  "result": {
+    "accepted": true
+  },
+  "attempts": [
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": {
+        "environment": {
+          "type": "none"
+        },
+        "input": "x",
+        "stream": false,
+        "agent": {
+          "model": "m"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions/sess_probe/events",
+      "headers": {
+        "accept": "*/*",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "idempotency-key": "req_probe",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": {
+        "events": [
+          {
+            "type": "agent.session.input.message",
+            "text": "x"
+          }
+        ]
+      }
+    }
+  ]
+}
+{
+  "label": "event-204",
+  "result": {
+    "accepted": true
+  },
+  "attempts": [
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": {
+        "environment": {
+          "type": "none"
+        },
+        "input": "x",
+        "stream": false,
+        "agent": {
+          "model": "m"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions/sess_probe/events",
+      "headers": {
+        "accept": "*/*",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "idempotency-key": "req_probe",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": {
+        "events": [
+          {
+            "type": "agent.session.input.message",
+            "text": "x"
+          }
+        ]
+      }
+    }
+  ]
+}
+{
+  "label": "event-200-empty",
+  "result": {
+    "accepted": true
+  },
+  "attempts": [
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": {
+        "environment": {
+          "type": "none"
+        },
+        "input": "x",
+        "stream": false,
+        "agent": {
+          "model": "m"
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/agents/sessions/sess_probe/events",
+      "headers": {
+        "accept": "*/*",
+        "authorization": "Bearer <synthetic>",
+        "content-type": "application/json",
+        "idempotency-key": "req_probe",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": {
+        "events": [
+          {
+            "type": "agent.session.input.message",
+            "text": "x"
+          }
+        ]
+      }
+    }
+  ]
+}

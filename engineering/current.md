@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-21 · P03-C transport reviewed; two bounded Fable returns
+
+[Independent review](execution/claude-frontend-harness-2026-09-16/evidence/p03c-transport-review-20260921/README.md) holds source `b69a4b5` for ambient header provenance and incomplete pagination. Luna's 22/22 pass is retained; Astra reproduces the probes, corrects the event-key diagnosis and rejects the unsupported 204-only ACK restriction. Dependency-ledger regeneration is independently confirmed and accepted within scope. Fable owns only those transport-local returns and packet corrections in the preserved tree; no Host consumer or new lane starts. No product merge, cleanup deletion, user Host restart, paid call or deployment.
+
 ## 2026-09-21 · Control-plane reference intake; current writers preserved
 
 [Source consumption and disposition](research/architecture-node-2026-09-13/control-plane-precedents-20260921.md) registers OpenHands/AgentTeams management references, corrects ACP/MCP/A2A assumptions and maps them to existing Runtime/child/Settings owners. No new framework, ledger, runtime capability or parallel implementation lane. Composer remains active. P03-C is now observed claimed in `claude-agents-transport-20260921` at `2b57d7b`, with dependency edits and the user's bounded-preflight preparation report; transport delivery and independent acceptance remain outstanding. User 8787/8899 and both author trees are untouched; documentation/source checks only.
