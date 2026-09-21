@@ -1,0 +1,107 @@
+[
+  {
+    "method": "POST",
+    "path": "/v1/agents/sessions",
+    "headers": {
+      "accept": "application/json",
+      "authorization": "Bearer <synthetic>",
+      "content-type": "application/json",
+      "openai-beta": "agents=v1",
+      "user-agent": "OpenAI/JS 7.15.0"
+    },
+    "body": {
+      "environment": {
+        "type": "none"
+      },
+      "input": "Summarize the source.",
+      "stream": false,
+      "agent": {
+        "model": "gpt-synthetic",
+        "instructions": "Read only."
+      }
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/v1/agents/sessions/agsess_wire_1/events",
+    "headers": {
+      "accept": "text/event-stream",
+      "authorization": "Bearer <synthetic>",
+      "openai-beta": "agents=v1",
+      "user-agent": "OpenAI/JS 7.15.0"
+    },
+    "body": null
+  },
+  {
+    "method": "POST",
+    "path": "/v1/agents/sessions/agsess_wire_1/events",
+    "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer <synthetic>",
+      "content-type": "application/json",
+      "idempotency-key": "cw-cmd-input-2",
+      "openai-beta": "agents=v1",
+      "user-agent": "OpenAI/JS 7.15.0"
+    },
+    "body": {
+      "events": [
+        {
+          "type": "agent.session.input.message",
+          "input": [
+            {
+              "role": "user",
+              "content": [
+                {
+                  "type": "input_text",
+                  "text": "Also list the tests."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/agents/sessions/agsess_wire_1/events",
+    "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer <synthetic>",
+      "content-type": "application/json",
+      "idempotency-key": "cw-cmd-cancel-3",
+      "openai-beta": "agents=v1",
+      "user-agent": "OpenAI/JS 7.15.0"
+    },
+    "body": {
+      "events": [
+        {
+          "type": "agent.session.input.cancel"
+        }
+      ]
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/v1/agents/sessions/agsess_wire_1/events",
+    "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer <synthetic>",
+      "content-type": "application/json",
+      "idempotency-key": "cw-effect-result-4",
+      "openai-beta": "agents=v1",
+      "user-agent": "OpenAI/JS 7.15.0"
+    },
+    "body": {
+      "events": [
+        {
+          "type": "agent.session.input.tool_result",
+          "turn_id": "turn_wire_1",
+          "call_id": "call_wire_1",
+          "success": true,
+          "output": "# Readme"
+        }
+      ]
+    }
+  }
+]

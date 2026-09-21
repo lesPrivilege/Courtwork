@@ -2,6 +2,7 @@ import path from "node:path";
 import { WorkCoreOwner } from "../core/owner.mjs";
 import { createFakeOpenAiProvider } from "../runtime/fake-provider.mjs";
 import { createIsolatedModelRuntime } from "../runtime/pi-session-runtime.mjs";
+import { createPiRuntimePort } from "../runtime/pi-runtime-port.mjs";
 import { describeTestHooks } from "../runtime/test-hooks.mjs";
 import { ExtensionRegistry } from "../runtime/extension-registry.mjs";
 import { RuntimeStore } from "./store.mjs";
@@ -43,7 +44,7 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
     const modelRuntime = await createIsolatedModelRuntime();
     registry = new ExtensionRegistry({ catalog: extensionCatalog, dataDir, store, workCore: workCore.client });
     await registry.initialize();
-    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, budget, compaction, asyncTaskAdapters, logger });
+    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, runtimePort: createPiRuntimePort({ dataDir, modelRuntime }), budget, compaction, asyncTaskAdapters, logger });
     await service.initialize();
     let closePromise;
     return {

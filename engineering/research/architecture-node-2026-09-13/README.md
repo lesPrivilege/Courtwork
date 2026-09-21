@@ -14,6 +14,7 @@ Astra裁决与集成；Luna登记实际实现、复核既往论断，并独立�
 - [UI源入口清单](ui/source-inventory.md)：完整现有入口家族与返回/焦点代码映射，独立于浏览器覆盖。
 - [UI修复与后续裁决](ui/fixes.md)：滚动退出、页面语义和待Review可发现性。
 - [Runtime替换验收](runtime-replacement.md)：Codex公开接缝作为能力参照，逐项证明，不按品牌宣称可替换。
+- [Local control-plane references](control-plane-precedents-20260921.md): verified OpenHands/AgentTeams references, protocol corrections and consumption under existing owners; no new runtime or registry adoption.
 
 当前状态统一见[engineering/current](../../current.md)。本目录中的公式定义合同与可证伪条件，不代表新API、scheduler、Expert市场或第二runtime已实现。
 

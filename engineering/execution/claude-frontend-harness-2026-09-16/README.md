@@ -419,3 +419,7 @@ Its first journey is delivered: [Agent profile → Kits → execution summary](0
 2026-09-21 · [Updated dispatch and worker routing](next-dispatch-20260921.md): preserve the claimed answer-footer tree; frontend Opus journeys remain serial, Sonnet exploration and Fable P03-B core extraction may use a disjoint backend tree. Codex owns integration and independent acceptance. This supersedes the earlier global single-writer scheduling only for these separate file owners; all domain contracts and capability evidence boundaries remain.
 
 2026-09-21 · [Answer footer accepted](evidence/answer-footer-review-20260921/README.md), merged at `2c23272`. [Composer working-location entry](evidence/composer-entry-review-20260921/README.md) is the next finite 06b frontend assignment before Runtime management; active Pi Runtime Port extraction retains separate ownership.
+
+2026-09-21 · [P03-B accepted](evidence/p03b-pi-runtime-port-review-20260921/README.md): `c2be594` merged `e2eaf6d`, independent full 1326/1326 and integrated runtime smoke pass. Composer entry remains the next frontend handoff; C–F unstarted.
+
+2026-09-21 · [Next Fable core order](p03c-agents-transport-20260921.md) is ready after accepted B: production Agents SDK transport, synthetic wire/abort/identity evidence, then independent acceptance. Composer remains with its existing writer; Host migration/read gateway is the following finite C consumer.

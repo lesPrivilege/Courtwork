@@ -1,0 +1,19 @@
+{
+  "root": ".worktrees/courtwork-agents-transport-20260921",
+  "head": "32f4f8bb754db20b8c0c5c3e44ab4acbc994ca24",
+  "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-agents-transport-20260921",
+  "archive": ".archives/courtwork-transport-composer-20260921/courtwork-agents-transport-20260921/files.tar.gz",
+  "archiveSha256": "dce6f680132a4c2b3d6692f137d67e8c9e7aeb76e5d2e4d6fb41a63af0bc47d0",
+  "manifestSha256": "15b9a9361eeb35f136754274676c42ca24639fb68f03be2a125b244fbb1b311b",
+  "entryCount": 41823,
+  "fileBytes": 995452067,
+  "physicalRestoreVerified": true,
+  "sourceRecheckPassed": true,
+  "bundle": "transport.bundle",
+  "bundleSha256": "837d902cc884203e6bea2537566bf19a6ede7c6b92fb937525fc8c045c8a4778",
+  "bundleCompleteHistory": true,
+  "bundlePhysicalFetchAndFsckVerified": true,
+  "sourceFinalRecheckPassed": true,
+  "allSourceCommitsIntegrated": true,
+  "noActiveCwdBeforeDeletion": true
+}

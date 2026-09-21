@@ -308,3 +308,11 @@ UI 沿主单核 Home/Chat/Settings/Files/Review 相邻面、明暗、1440/1280/3
 | CW02 | [主施工单](../../execution/claude-frontend-harness-2026-09-16/README.md) · [入口清理](../../execution/claude-frontend-harness-2026-09-16/frontend-entry-audit.md) · [右栏/Trace](../../execution/claude-frontend-harness-2026-09-16/sidebar-trace-review.md) | 共享语法、实用入口、对象阅读、按需过程与隔离 Prototype |
 
 SDK blob 定位：events.ts `3ddfbda67d65185a7035060a63ce1e3608e95e5f`；sessions.ts `0c2752c5124120121e1528927b7224a3a12f9344`（本轮读 1–160 行）；package.json `5d567857f1eb759e20001117c125c9b2ea58d848`（读 1–90 行）。CW 原 Agents 登记 blob `f883e4d4700b790c682363b453952a5e09d2ef2d`。源码定位不代替已发布 SDK integrity 或服务行为证据。
+
+## 2026-09-21 · Slice B acceptance
+
+[Pi port independent acceptance](../../execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md) closes B at source `c2be594`, local merge `e2eaf6d`. Native journal/identity and Host governance remain unchanged; provider helpers and Pi-shaped options/outcomes await the actual C consumer. No hosted transport, CLI execution or C–F implementation is claimed or started by this acceptance.
+
+## 2026-09-21 · C transport dispatch
+
+[Ready Fable order](../../execution/claude-frontend-harness-2026-09-16/p03c-agents-transport-20260921.md) breaks C into serial reviewable increments: SDK transport/identity first, then Host remote binding and one governed read function. The first adds no schema/UI/live capability. Exact SDK artifact and request-key drift are verified before implementation; historical pins remain. C is not accepted until its original live read milestone is demonstrated. D/E/F retain their scope and ordering.

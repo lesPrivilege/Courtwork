@@ -99,3 +99,11 @@ The [Multica consumption ruling](architecture-node-2026-09-13/multica-consumptio
 ## 2026-09-21 · P03-B implementation dispatch
 
 The [bounded next assignment](../execution/claude-frontend-harness-2026-09-16/next-dispatch-20260921.md) names Sonnet for the actual-source map and Fable for extracting the current Pi execution/session port, with Codex architectural and independent acceptance ownership. Existing agents-api-adapter/contract protocol fixtures are consumed as delivered; no new live support is claimed. Host admission, tool governance, effect settlement and persistence authority remain unchanged. This disjoint backend lane may proceed alongside the current frontend author; no competing service writer or SDK upgrade is admitted by the scheduling change.
+
+## 2026-09-21 · P03-B accepted
+
+[Independent evidence](../execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md) accepts `c2be594`, merged `e2eaf6d`. Pi executes through the explicit port; Host status/governance and journal/schema identity remain unchanged. This consumes the bounded dispatch, not a second-runtime support claim. D1–D5 and remaining Provider/observation coupling are recorded for the existing P03-C consumer.
+
+## 2026-09-21 · P03-C first increment ready
+
+[The finite Fable transport order](../execution/claude-frontend-harness-2026-09-16/p03c-agents-transport-20260921.md) consumes the existing Agents protocol adapter. First increment adds the actual SDK transport and synthetic wire evidence, with no live exposure or Host/schema mutation. Remote binding and one governed read-tool consumer follow under this RD and the original Store owner; current Pi `{id,path}` must not be reused as a remote locator.

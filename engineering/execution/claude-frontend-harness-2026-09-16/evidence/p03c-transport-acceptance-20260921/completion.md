@@ -1,0 +1,7 @@
+# Local integration and preservation completion
+
+2026-09-21. Accepted source `32f4f8bb754db20b8c0c5c3e44ab4acbc994ca24`; product merge `10b2d5229861762976417271713e3ece5ca3e978`. Actual-main transport/protocol/boundary checks pass 22/22, exit 0; [runtime smoke](cw-transport-main-smoke.log) exits 0. No user Host restart or deployment.
+
+The ended transport tree was archived in `Projects/.archives/courtwork-transport-composer-20260921` under the operator home: 41,823 entries / 995,452,067 file bytes, including ignored/untracked files, patches, refs, modes and symlink targets. Physical extraction matched the complete inventory. A final source inventory comparison found no changed bytes; the tree was clean, had no unique commits outside main, and no active process cwd was found in it. The complete-history Git bundle was fetched into an independent empty repository and `git fsck --full` passed. [Hash manifest and verification receipt](preservation.json).
+
+Only `courtwork-agents-transport-20260921` and its merged task branch were removed. Its archive ref remains. Composer `courtwork-work-location-20260921@ac6049b` is preserved for CE-R1. Persistent Courtwork and the frozen shared Git database dependency remain. The independent visual-review Host 8971/provider 8972 and browser tab were stopped; user 8787/8899 remain on PIDs 65142/44598. No next core slice, real provider call, push, deployment or heartbeat activation.

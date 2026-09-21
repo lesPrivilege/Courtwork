@@ -349,3 +349,7 @@ tests over the production preparation controller and the real card. The
 lints pass. The full suite was 1332/1333; the one failure was an outdated pin,
 since rewritten. Evidence, screenshots and the list of what was not executed:
 [composer-entry-20260921](evidence/composer-entry-20260921/README.md).
+
+## Working-location review disposition — 2026-09-21
+
+Candidate `ac6049b` is held for **CE-R1**, the plain Home Send location-lock gap after Chat creation. [Independent review, browser journey and exact bounded return](evidence/composer-entry-acceptance-20260921/README.md): Luna 115/115; Astra confirms unified entry, project creation, preparation, Escape, reload and synthetic completion. Keep the original frontend writer/tree and accepted design; correct only the pending-send mutation seam and its regression. Shared bound-panel initial focus/scroll is CE-F2 deferred, with the author light-dismiss claim narrowed. No Runtime-management/Role-first next journey.

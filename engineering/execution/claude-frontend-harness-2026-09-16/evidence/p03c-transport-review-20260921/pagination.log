@@ -1,0 +1,19 @@
+{
+  "result": {
+    "data": [],
+    "has_more": true
+  },
+  "attempts": [
+    {
+      "method": "GET",
+      "path": "/v1/agents/sessions/s/items",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer <synthetic>",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": null
+    }
+  ]
+}

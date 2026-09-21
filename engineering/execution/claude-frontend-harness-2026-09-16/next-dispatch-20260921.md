@@ -40,6 +40,8 @@ Create a fresh `claude-*` worktree only when its writer starts, from the actual 
 
 **Contract evidence:** source/requested/effective/bound, stable runtime identity, configuration owner, supported actions/reasons, pending operation, revision/precondition, retained current-Run binding, next-Run availability, and explicit unknown effect. Proposals remain proposed until the backend owner accepts them. Do not build a second provider/permission registry.
 
+**External reference intake (2026-09-21):** consume the [control-plane disposition](../../research/architecture-node-2026-09-13/control-plane-precedents-20260921.md) before this journey: OpenHands offers a useful configured-versus-bound runtime precedent; AgentTeams offers responsibility and artifact visibility references. Preserve CW's own binding granularity and authority. This adds reference material, not a new pane, schema, dependency or change to the active Composer/P03-C assignments.
+
 **Acceptance cases:** empty/unavailable runtime; failed connect; reply lost/unknown; duplicate click; stale revision; late reply after navigation; disable while a Run is bound; disconnect cannot erase history; draft/focus retention; native versus CW-managed credentials. Test production controller+view, not a substitute controller. Codex visually verifies desktop/narrow, keyboard/Escape and recorded limits; synthetic UI acceptance is distinct from working local runtime integration.
 
 ## Fable core: P03-B, extract the current Pi execution port
@@ -69,3 +71,11 @@ Sonnet may prepare a bounded schema proposal for the first read-only repository 
 ## Kept out of this batch
 
 OS-backed key storage/native config migration, executable hooks, additional hosted transport, local Pi/Hermes child workers, swarm and browser/computer-use product support remain with Provider / RD-009 / P03-C–F / RD-005. Their declarations and existing implementations must be consumed when their turn arrives; no green preview or port refactor claims them. Current computer-use testing remains on an OpenAI provider, and new real provider trials need their own bounded test scope rather than automatically sharing this offline author budget.
+
+## 2026-09-21 · Core lane disposition
+
+P03-B source `c2be594` is [independently accepted](evidence/p03b-pi-runtime-port-review-20260921/README.md), merged `e2eaf6d`; the original extraction assignment is complete and must not be dispatched again. The existing C consumer is next in the core plan, with its own transport/access/permission contract and finite assignment before code. No C–F or third service writer starts automatically. Composer working-location remains the next frontend task.
+
+## 2026-09-21 · Fable continuation after B
+
+The user requests another important serial Fable assignment. [P03-C transport](p03c-agents-transport-20260921.md) is now ready: exact SDK/wire implementation over the existing adapter, offline verification, no Host/schema/UI changes. After independent acceptance comes the separately contracted Host binding/one-read-tool consumer, then original D/E. This supersedes the earlier “C needs a finite assignment” placeholder; it does not dispatch every increment at once.

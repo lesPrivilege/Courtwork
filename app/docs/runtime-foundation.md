@@ -46,6 +46,12 @@ try {
 }
 ```
 
+## Pi execution port (P03-B)
+
+The composition root constructs `createPiRuntimePort` from `runtime/pi-runtime-port.mjs` and supplies it explicitly to RuntimeService. The port owns native journal open/create/history, execution/steering, compaction and translation into the existing Host observation vocabulary. Host still governs tools and owns Run admission/settlement; native outcomes do not set status directly. Per-Run disposal remains in `pi-session-runtime.mjs`. The native journal path, locator and format are unchanged.
+
+The current port refuses `recover` and `submitToolResult`; new start/continue/compaction capability checks occur before their records are created, while retries still return existing receipts. `steer` is an internal execution handle, not an HTTP feature. ModelRuntime/provider helpers remain Pi-coupled. This does not provide another runtime or alter public capability scope. See [independent acceptance](../../engineering/execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md).
+
 ## One Run
 
 Service admission records the command before creating its native session. Setup

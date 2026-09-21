@@ -1,0 +1,44 @@
+{
+  "reviewer": "Astra",
+  "base": "2b57d7bdcd03d5497dc30d200730c5588be356d1",
+  "candidate": "b69a4b58b0fd12f271f1b8409bf8a99a628fcc68",
+  "candidateLockHashMatches": true,
+  "baseLockHashMatches": false,
+  "derivedEntriesEqual": true,
+  "baseMissingPackages": [
+    "node_modules/@modelcontextprotocol/client",
+    "node_modules/@modelcontextprotocol/core",
+    "node_modules/cross-spawn",
+    "node_modules/eventsource",
+    "node_modules/eventsource-parser",
+    "node_modules/isexe",
+    "node_modules/jose",
+    "node_modules/path-key",
+    "node_modules/pkce-challenge",
+    "node_modules/shebang-command",
+    "node_modules/shebang-regex",
+    "node_modules/which",
+    "node_modules/zod"
+  ],
+  "added": [
+    "node_modules/@earendil-works/pi-ai/node_modules/openai",
+    "node_modules/@modelcontextprotocol/client",
+    "node_modules/@modelcontextprotocol/core",
+    "node_modules/cross-spawn",
+    "node_modules/eventsource",
+    "node_modules/eventsource-parser",
+    "node_modules/isexe",
+    "node_modules/jose",
+    "node_modules/path-key",
+    "node_modules/pkce-challenge",
+    "node_modules/shebang-command",
+    "node_modules/shebang-regex",
+    "node_modules/which",
+    "node_modules/zod"
+  ],
+  "changed": [
+    "node_modules/openai"
+  ],
+  "unchanged": 288,
+  "relocatedPiEntryIdentical": true
+}

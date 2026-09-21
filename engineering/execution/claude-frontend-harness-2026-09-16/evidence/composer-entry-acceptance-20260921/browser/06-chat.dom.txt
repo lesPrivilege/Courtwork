@@ -1,0 +1,57 @@
+- main "Agent workspace":
+  - button "Toggle navigation":
+    - generic: Toggle navigation
+  - heading "Independent location review · cw-composer-acceptance-folder" [level=1]
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open work surface":
+    - generic: Open work surface
+  - log:
+    - article "Your message":
+      - paragraph: "Synthetic working-location review: start the prepared chat."
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/21/2026, 5:22:48 PM
+        - text: 5:22 PM
+    - region "Agent run":
+      - article:
+        - paragraph: "Unscripted reply to: Synthetic working-location review: start the prepared chat."
+        - time:
+          - generic: Run started 9/21/2026, 5:22:48 PM
+          - text: 5:22 PM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+    - button "Measurement details"
+    - generic: Completed
+    - status: Completed
+  - generic: Message
+  - textbox "Message" [active]:
+    - /placeholder: What would you like to work on?
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Ask before editing"':
+    - generic: Ask before editing
+  - button "Model and effort · scripted-model · Provider default": scripted-model · Provider default
+  - 'button "Context: 1 of 1,000,000 tokens, <0.1%, default window, latest completed request input"':
+  - button "Send":
+    - generic: Send
+  - paragraph: Independent location review
+- status

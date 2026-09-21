@@ -1,0 +1,20 @@
+{
+  "error": {
+    "code": "malformed_response",
+    "message": "listItems: the page reports more items but gives no cursor to continue from"
+  },
+  "attempts": [
+    {
+      "method": "GET",
+      "path": "/v1/agents/sessions/s/items",
+      "headers": {
+        "accept": "application/json",
+        "authorization": "Bearer <synthetic>",
+        "openai-beta": "agents=v1",
+        "user-agent": "OpenAI/JS 7.15.0"
+      },
+      "body": null
+    }
+  ]
+}
+pagination exit=0
