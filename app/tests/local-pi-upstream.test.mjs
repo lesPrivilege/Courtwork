@@ -83,6 +83,16 @@ test('actual upstream provider failure does not become success on JSON print exi
   finally { await provider.close(); }
 });
 
+test('actual upstream model tool request is an explicit no-tool adapter refusal after owned process closes', async () => {
+  const provider = await localPiLoopback(() => ({ tool: { name: 'bash', args: { command: 'echo synthetic-denied' } } }));
+  try {
+    const result = await invoke(provider);
+    assert.equal(result.status, 'refused', JSON.stringify(result));
+    assert.equal(result.reason, 'local_pi_tool_request'); assert.equal(result.result, null);
+    assert.throws(() => process.kill(result.process.pid, 0), { code: 'ESRCH' });
+  } finally { await provider.close(); }
+});
+
 test('actual upstream pending request cancellation waits for process close and rejects late provider reply', async () => {
   let ready; const requested = new Promise(resolve => { ready = resolve; }); let release;
   const held = new Promise(resolve => { release = resolve; });

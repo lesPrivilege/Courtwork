@@ -137,6 +137,7 @@ export async function executeLocalPi({ binding, executionId, brief, sources = []
   } catch (error) { return { status: 'refused', reason: error.code ?? 'local_pi_input', executionId, process: null, result: null }; }
   if (signal?.aborted) return { status: 'cancelled', reason: 'before_dispatch', executionId, packet, process: null, result: null };
   let root;
+  let transcriptFault = null;
   const transcript = createLocalPiTranscript();
   try {
     root = await mkdtemp(path.join(tmpdir(), 'cw-local-pi-'));
@@ -145,11 +146,22 @@ export async function executeLocalPi({ binding, executionId, brief, sources = []
     const processResult = await runLocalPiProcess({
       ...launch,
       input: packet.input, signal, limits: { timeoutMs }, onSpawn,
-      async onEvent(event) { const native = transcript.observe(event); if (native) await onNative?.(native); },
+      async onEvent(event) {
+        let native;
+        try { native = transcript.observe(event); }
+        catch (error) { transcriptFault = error.code ?? 'local_pi_protocol'; throw error; }
+        if (native) await onNative?.(native);
+      },
     });
     const observed = transcript.result();
-    let status = 'unknown', reason = processResult.fault ?? 'missing_completion';
-    if (processResult.fault) { status = processResult.spawned ? 'unknown' : 'refused'; }
+    let status = 'unknown', reason = transcriptFault ?? processResult.fault ?? 'missing_completion';
+    if (transcriptFault === 'local_pi_tool_request' && processResult.fault === 'callback_failed') {
+      // The pinned empty tool allow-set is verified against hostile upstream
+      // requests. Once this owned process closes, this is a capability refusal,
+      // not evidence of an unknown filesystem/shell effect.
+      status = 'refused';
+    }
+    else if (processResult.fault) { status = processResult.spawned ? 'unknown' : 'refused'; }
     else if (observed.complete && processResult.exitCode === 0 && !processResult.signal) { status = 'completed'; reason = null; }
     else if (processResult.cancelled || processResult.timedOut) { status = 'cancelled'; reason = processResult.timedOut ? 'deadline' : 'caller_cancelled'; }
     else if (observed.nativeFailure) { status = 'failed'; reason = 'native_' + observed.nativeFailure; }
