@@ -90,3 +90,9 @@ Main678d71c was pushed and independently matched by ls-remote before creating **
 ## User-authorized frontend consumer seam — 2026-09-22
 
 [Implementation lanes](frontend-backend-live-integration-20260922.md) permit the minimum existing-owner profile read/selection/draft/admission projection needed by Claude E1, plus necessary pure-validator extraction without semantic changes. Publish the concrete shared contract early; whole-config revision/source identity must not be misrepresented as per-profile CAS. K3 keeps the backend/Store/server writer, Claude keeps app/web. This expands the internal-helper stopping boundary while retaining the ordinary-Chat/Pi scope, schema21 discipline, real request evidence and parent acceptance. Pages remains excluded.
+
+## K3-B/C author completion and writer release
+
+[Author packet](evidence/kit-run-binding-20260922/README.md), full source `b999007`, records actual authenticated import/select→Host→in-process Pi→deterministic HTTP request, exact242-byte context/hash, delayed body loading, zero-call failures, replay/configuration races, permission denial, failed payload and SIGKILL/reopen evidence. Author full1565/1565 and smoke pass. Luna's bounded non-author23 Host+4 Store+51 K1+4 independent probes pass on the same seven product hashes; this is not parent final acceptance. Existing legacy schema fixtures pass147/147 after explicit21 adaptation; actual pushed schema20 reader refuses21 without writing.
+
+**Adopt** the final non-author no-blocker result within that scope and preserve all raw logs/probes. No review finding remains undisposed. K1/package pins/Core4/bridge5, local-worker implementation and web remain unchanged. The E1 contract and optional selection expectation are implemented; UI integration, page draft preservation/reload/G1, real-model ability and final main acceptance remain with their named owners. Source/packet are delivered and finite backend writer released; no automatic new work is opened.

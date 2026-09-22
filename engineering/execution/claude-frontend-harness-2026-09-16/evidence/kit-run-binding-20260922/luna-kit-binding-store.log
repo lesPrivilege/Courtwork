@@ -1,0 +1,12 @@
+✔ schema 21 records one immutable Kit summary and equal typed runtime.bound projection across reopen (139.553291ms)
+✔ schema 21 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes (124.310292ms)
+✔ schema 20 upgrades with an exact backup, unchanged historical events, and null legacy Run bindings (122.920916ms)
+✔ the pinned schema-20 Host refuses schema 21 byte-for-byte (661.277875ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1167.737583

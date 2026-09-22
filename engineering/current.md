@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-22 · K3 backend author delivery; parent acceptance pending
+
+[K3 author packet](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md), source `b999007`, connects authenticated profile-v2 import/Session selection to actual ordinary-Chat Host→in-process Pi requests. Run-owned schema21 summaries and exact ArtifactHistory plan/context bytes survive edits/restart; no-Kit keeps prior context behavior. Optional `runtimeSelection` protects E1 Send intent with whole-config revision/profile ID/source hash; original-command replay still returns the prior Run. The [E1 contract](execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md#e1-frontend-consumer-contract--current-implemented-owner-facts) exposes existing owners, not a new profile registry.
+
+Author full regression passes1565/1565; bounded non-author Luna passes23 Host,4 Store,51 K1 and4 independent probes, with unchanged reviewed product hashes. Schema20 exact backup/old-reader refusal is tested. Core4/bridge5 and package pins remain unchanged. This is an isolated backend candidate, not parent/main acceptance, a real-model capability claim or completed E1 UI. Page-local draft intent does not implement Host-persisted/reload-restored G1 draft semantics. No user-service/data migration, credentials, paid provider, deployment or other-tree cleanup occurred; parent owns final integration and combined frontend acceptance.
+
 ## 2026-09-22 · Claude E1 and Codex K3 implementation boundaries expanded
 
 User confirms continued parallel [frontend/backend implementation lanes](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md). Claude keeps06e-R1, then may implement selectedA in actual frontend modules/Composer/Settings consumers; Codex K3 owns the minimum real profile/selection/admission projection and exact Kit→Run path, including related owner changes. Existing facts/authority and concrete DTOs govern integration; no fixture becomes a production fallback, and no overlapping writer is granted. Parent retains architecture/independent acceptance/merge.

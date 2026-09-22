@@ -1,0 +1,32 @@
+✔ K3 authenticated import/select → actual Pi request consumes exact retained bytes once; loader stays deferred (1080.521917ms)
+ℹ {"requestCount":3,"firstRequestCount":1,"context":{"sha256":"b0b64043f010e5a89e57542659eb445f81cd6160fecd20038ccce6e06ad66158","bytes":242,"characters":240},"planSha256":"f13373d2bec6501cf01d6623de06d5760b67ef0d8a82a23c45dd96f3e2b450f7","planPayload":{"sha256":"196abdcca51f3e1ec484c1d4512cc424e0d0c11ce38c6419aabff1b3dfd4f60c","bytes":5157},"resultStatus":"completed","compatibility":"unchecked"}
+✔ K3 old context and lost-reply replay survive changed invalid Kit configuration and restart (764.283708ms)
+✔ K3 active Run blocks edits and concurrent receipt replay creates one request (830.461042ms)
+✔ E1 submitted selection expectation refuses stale chooser intent but original command replay remains authoritative (479.366667ms)
+✔ K3 config queue orders a racing edit after payload retention and frozen admission (325.772166ms)
+✔ K3 outside profile allowlist refuses before inference with zero calls (77.972042ms)
+✔ K3 required unavailable Extension tool refuses before inference with zero calls (76.034459ms)
+✔ K3 mismatched descriptor refuses before inference with zero calls (87.35825ms)
+✔ K3 body changed refuses before inference with zero calls (78.983625ms)
+✔ K3 unsupported selection scope refuses before inference with zero calls (75.734917ms)
+✔ K3 runtime missing revision refuses before inference with zero calls (84.145333ms)
+✔ K3 malformed descriptor refuses before inference with zero calls (73.172167ms)
+✔ K3 matching unsupported evidence refuses before inference with zero calls (76.905042ms)
+✔ K3 conflicting owner evidence refuses before inference with zero calls (87.478916ms)
+✔ K3 exact Host character ceiling admitted; one over refuses without truncation (574.6525ms)
+✔ Kit projection preserves the bound available Extension tool; v1 keeps its prior catalog (85.479458ms)
+✔ K3 multiple declarations preserve K1 sorted and deduplicated pins at real admission (401.293417ms)
+✔ K3 persistence failure leaves no Run; retained read failure produces zero calls and no fallback (431.078875ms)
+✔ K3 actual corrupted retained object refuses historical read; no re-execution (424.677541ms)
+✔ K3 requirements retain denied tool readings and cannot grant the actual write (655.230667ms)
+✔ K3 payload read returning mismatched bytes fails before provider dispatch with precise failure identity (664.022834ms)
+✔ v1 and v2 empty Kit profiles use unchanged compiler bytes with null Kit authority (676.412417ms)
+✔ K3 crash/reopen preserves frozen facts and changes unresolved Run to unknown without inference (1591.644416ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10760.0835

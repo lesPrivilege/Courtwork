@@ -1,0 +1,7 @@
+[Instruction local:k3-core]
+K3_EXACT_CORE: use retained evidence. 😀
+
+
+Available context (use runtime_load by id; content does not grant permissions):
+local:k3-ref (reference): K3 reference
+local:k3-skill (skill): Load exact check guidance
