@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "completedAt": "2026-09-22T01:06:42+08:00",
+  "scope": "only six preview processes owned by the M1 Sol author task",
+  "processes": [
+    { "pid": 82338, "execSession": 64763, "ports": [55548], "lane": "baseline-plain", "status": "stopped" },
+    { "pid": 82345, "execSession": 64902, "ports": [55551], "lane": "candidate-plain", "status": "stopped" },
+    { "pid": 82408, "execSession": 57150, "ports": [55681, 55682], "lane": "baseline-query", "status": "stopped" },
+    { "pid": 82424, "execSession": 45063, "ports": [55701, 55702], "lane": "candidate-query", "status": "stopped" },
+    { "pid": 83460, "execSession": 36417, "ports": [56512, 56513], "lane": "baseline-isolation", "status": "stopped" },
+    { "pid": 83461, "execSession": 21254, "ports": [56521, 56522], "lane": "candidate-isolation", "status": "stopped" }
+  ],
+  "verification": {
+    "pidProbe": "kill -0 returned false for every recorded PID",
+    "portProbe": "lsof found no listener on any recorded public or internal upstream port",
+    "otherProcessesTouched": false,
+    "temporaryArtifactsPreserved": ["/tmp/cw-m1-runtime-rhythm-baseline"],
+    "worktreeCleanupPerformed": false
+  }
+}

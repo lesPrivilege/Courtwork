@@ -84,3 +84,8 @@ Lease includes the minimal service/runtime/Store, subagent validator/settlement/
 ## Parent final review return LP-R5 — 2026-09-22
 
 [Parent review and exact crash/HTTP evidence](evidence/local-pi-parent-review-20260922/README.md) hold delivered packet6b45fd8/product6c87b7d: deleting an unknown local child returns200, removes its Run/fence receipts but leaves a dangling assignment, and full state validation then fails. Original fresh Astra owns a finite existing deletion-owner guard and real API/Store/reopen regression, plus the stale schema example comment. No second process is claimed by the probe. All earlier work/evidence remains; final Luna checks do not substitute for this demonstrated defect. Main remains schema19; no merge, tree cleanup or user Host change.
+
+
+## Final finite-loop adoption — 2026-09-22
+
+[Parent acceptance and cleanup receipt](evidence/local-pi-final-20260922/README.md) accept dadbfdd/product7ab46d0, integrated56133b3. Prior56/56, final independent18/18 plus exact DELETE probe409, actual-main65/65 support this bounded offline subprocess/Host path. LP-R5 closed; source bytes and complete Git history restored/verified before removing the released task tree/branch. RuntimeStore20 adopted; user8787/data untouched. Real-provider/user-selectable runtime/profile binding and usable unknown-recovery UI remain separate unfinished outcomes; safe fences and fixture success do not close them.

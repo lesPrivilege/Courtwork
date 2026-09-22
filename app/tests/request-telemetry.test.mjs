@@ -328,7 +328,7 @@ test('schema6 migration preserves both global and project sessions',async()=>{
     const b=await store.createSession({projectId:null,scope:'global',title:'global',workspaceDir:path.join(dataDir,'b')});
     await store.close();const file=path.join(dataDir,'runtime-state.json');const state=JSON.parse(await readFile(file,'utf8'));
     state.schemaVersion=6; delete state.operations; state.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; }); state.runs.forEach(run => { delete run.remoteBinding; }); delete state.subagents;delete state.coordination; delete state.providerConnections; delete state.providerConfigurationPending; delete state.providerConfigVersion; delete state.providerVerifications;state.sessions.forEach(session=>{delete session.repositoryBinding;delete session.repositoryBindingRevision;delete session.repositoryBindingCommands;delete session.repositoryCandidate;delete session.repositoryCandidateRevision;delete session.repositoryCandidateCommands;delete session.repositoryWriteEffects;});state.runs.forEach(run=>{delete run.repositoryBindingSnapshot;delete run.repositoryCandidateSnapshot;});await writeFile(file,JSON.stringify(state));
-    store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,19);
+    store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,20);
     assert.equal(store.getSession(a.id).scope,'project');assert.equal(store.getSession(b.id).scope,'global');assert.equal(store.getSession(b.id).projectId,null);
   } finally{await store?.close();await rm(dataDir,{recursive:true,force:true});}
 });

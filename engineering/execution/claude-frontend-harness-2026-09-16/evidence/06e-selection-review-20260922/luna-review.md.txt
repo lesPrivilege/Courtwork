@@ -1,0 +1,44 @@
+# 06e independent bounded review
+
+日期：2026-09-22
+候选：`69f39a70242b317128e00d1154602600e6354823`
+树：`/Users/lesprivilege/Projects/.worktrees/courtwork-role-composer-20260922`
+范围：仅 `engineering/design/role-composer-20260922/` specimen/evidence；未修改作者树或产品代码。
+
+## 验证
+
+运行：
+
+```text
+node --test engineering/design/role-composer-20260922/specimen/composer-agent.test.mjs
+```
+
+结果：**9/9 通过，exit 0**。原始日志：`/tmp/cw-06e-independent.log`。
+
+另做一次合成反例 probe（仅读取 specimen adapter/controller）：结果显示 Attention 的正常 reading scope 为 “This chat and its Work location. It does not open or change another inbox.”；`kit-incompatible` 场景的 Send 为 disabled，阻断文字为 “Praxis 0.5 does not declare support for Hermes.”。原始 probe 输出：`/tmp/cw-06e-probe.log`。
+
+## 通过的语义
+
+- Alternative A 的 active/highlight 与 selected 分离：箭头/悬停只 preview reading，Enter/click 才 `select`；Send 与外部 Composer reading 仍看 selected Agent。
+- 同 Agent 的旧回复由 per-profile token 丢弃；不同 Agent 的延迟回复不能落入当前 Agent。9 个 seam tests 覆盖了这两个顺序边界。
+- Settings 返回保留 selected Agent，并在重新读取后报告 revision 变化；specimen 的 draft/caret/materials 由页面外壳保留，焦点通过 opener 返回。
+- active Run 的 profile/revision 保持 bound；换选项只影响后续 Run，Send 冻结且不制造 queue/hot-swap。
+- Attention 只是普通 Agent/profile responsibility；reading 明确写作当前 Chat 与其 Work location，不改变 Session/inbox scope，也没有 Attention 专属 scope 注入。
+- runtime unavailable、read error/loading、runtime-native model 与 permission readings 保持 owner distinctions；这里的 adapter、profile DTO、Settings 与 K0 都是 specimen/ proposed seam，不是真实后端能力或生产绑定。
+
+## 需要返回的一个明确问题：K0 三态尚未真正接入
+
+README 声称“只有 verified unsupported blocking Send”，并已记录 K0 的 `supported / unsupported / unchecked` 与 G6 gap。但实际 controller 仍直接复用 06a 的 declaration-only `supportedRuntimeIds`：
+
+- `app/web/agent-profiles.mjs:47-50` 将 Kit 未列出当前 runtime 直接放入 `incompatibleKitIds`；
+- `specimen/composer-agent.mjs:57-60` 将该列表变成 `kit.incompatible`；
+- `specimen/composer-agent.mjs:84-86` 把它加入 `blockers`，并因此在 `:102-109` 禁止 Send；
+- `composer-adapter.mjs:70-75` 的 `kit-incompatible` 只把 Praxis 的 `supportedRuntimeIds` 改成 `['rt-pi']`，没有提供 K0 的 owner evidence、三态或 attribution。
+
+因此当前 specimen 的可达反例是：仅有“Kit 没声明 Hermes”这一声明不匹配，就让 Send disabled；它并非 verified `unsupported`。这与 README/consumer contract 的“unchecked 不阻断、只有 verified unsupported 阻断”不一致。最小处理是把场景和 reading 明确标为 declaration-only / unchecked 并允许 Send，或在后续 E1/K0 seam 注入真正带 attribution 的三态 compatibility，再保留阻断。不能把当前 declaration mismatch 当成已验证后端语义。
+
+## 结论
+
+在“这是选择用的 synthetic specimen、不是 production backend”的边界内，A/B 交互、selected/highlight、late replies、Settings return、activeRun freeze 与 Attention scope 可接受。对“只有 verified unsupported blocking Send”的断言应 **return/adjust**，直到 K0 三态契约真正接入；现阶段不能把该场景计作 verified unsupported。
+
+未做视觉替代父 CU、全量测试、产品修改、服务/凭据/Provider 操作。

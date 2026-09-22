@@ -1,5 +1,17 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-22 · Pushed checkpoint and active K3
+
+The [clean-node receipt](evidence/clean-node-20260922/README.md) records main678d71c pushed and K3 freshly dispatched in task01a0c9a7-6aca-79b2-a578-da1414a73404 /bf41. [K3](kit-run-binding-20260922.md) owns only its finite ordinary-Chat/Pi Kit admission/frozen-context integration. M1 and K1/K2 are accepted/cleaned;06e-R1 remains with original Claude. A Pages generation-source parity correction follows the first push; it changes no Host code and does not authorize deployment.
+
+## 2026-09-22 · K0 decision consumed
+
+[Selected reference-only Kit contract and K1/K2 lease](evidence/kit-k0-parent-20260922/README.md) supersede the prepared/awaiting-K0 status below. Continue the verified original Kit task and checkout; do not create a duplicate writer. LP-R5 was independently accepted and merged; M1 and06e retain separate scopes.
+
+## 2026-09-22 · Closure audit consumed
+
+[Parent disposition](evidence/work-closure-audit-20260922/README.md) prioritizes outcomes rather than green tests. Basic real-browser dogfood is accepted; historical RuntimeLock/robustness/G4 are separate. Local Pi's finite correction is accepted but does not deliver real-provider selection or operable unknown recovery. M1 remains delivered awaiting parent acceptance. K0 now has an observed protected checkout with contract evidence;06e has a protected clean checkout only. These observations supersede treating the handoffs as nonexistent, but do not establish dispatched process identity or product delivery. Preserve original owners and avoid duplicate assignments.
+
 ## 2026-09-22 · Prepared disjoint next work
 
 [Consumed local owner map and source index](evidence/parallel-work-index-20260922/README.md) identify two useful next handoffs: [Astra Kit context K0→K2](kit-context-core-20260922.md), beginning with a concrete existing-owner contract before pure-module code; and [Claude06e Role-first Composer](06e-role-composer-selection-20260922.md), first two comparable runnable specimens and a parent design choice. These are prepared, not dispatched. Host/Store/child code stays with Pi LP-R5; no second core runtime writer. Runtime M1 has delivered/released its candidate and awaits parent acceptance. The older orders below are history, not directions to repeat accepted Pi port, C/D/E or Runtime-management work.

@@ -1,0 +1,48 @@
+{
+  "baseline": "58e26da267b309a6cad8c7cff3a1791350cab95b",
+  "productSource": "966dfdb26111f23145f3edeaef19de180193e98a",
+  "files": [
+    {
+      "path": "app/runtime/kit-context.mjs",
+      "sha256": "c37e811ea5cd7081c6f92527f1d6985f586a95db2d5dd86ac480138757696a07",
+      "bytes": 31048
+    },
+    {
+      "path": "app/tests/kit-context.test.mjs",
+      "sha256": "09fccd5be84cd32386280c646c3f74880d7be854c7df375713bb50cb94d091e7",
+      "bytes": 22226
+    },
+    {
+      "path": "app/tests/fixtures/kit-context.mjs",
+      "sha256": "0ef11e65f3d017904c5c552c5cb918960161b0437e1a371d37aff7d19a18712d",
+      "bytes": 7665
+    },
+    {
+      "path": "app/tests/kit-context-independent.test.mjs",
+      "sha256": "7ea32b8c35b97d22a28a2ce0539e4871692210c12c6b07fbafffddbcf2a5ac62",
+      "bytes": 12102
+    }
+  ],
+  "sharedOwnerPathsCheckedUnchanged": [
+    "app/runtime/control-plane.mjs",
+    "app/runtime/source-resolver.mjs",
+    "app/runtime/control-contract.d.ts",
+    "app/runtime/control-tools.mjs",
+    "app/server",
+    "app/harness",
+    "app/core",
+    "app/web",
+    "app/package.json",
+    "app/package-lock.json",
+    "engineering/current.md"
+  ],
+  "historicalK0Source": "bacd64ea4d59b35a19fdd9b69fa46bfbab3267f3",
+  "historicalK0FilesCheckedUnchanged": [
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/README.md",
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/contract.md",
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/source-map.md",
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/consumer-and-verification.md",
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/verification.md",
+    "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/luna-review.md.txt"
+  ]
+}

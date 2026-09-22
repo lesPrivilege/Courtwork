@@ -1,0 +1,58 @@
+{
+  "root": "40px",
+  "sections": [
+    {
+      "blocks": [
+        {
+          "gap": "40px",
+          "margin": "40px"
+        },
+        {
+          "gap": "40px",
+          "margin": "0px"
+        }
+      ],
+      "id": "sibling-mount",
+      "mountGap": "40px"
+    },
+    {
+      "blocks": [],
+      "id": "list-mount",
+      "mountGap": "40px"
+    },
+    {
+      "blocks": [
+        {
+          "gap": "16px",
+          "margin": "16px"
+        },
+        {
+          "gap": "16px",
+          "margin": "16px"
+        },
+        {
+          "gap": "16px",
+          "margin": "16px"
+        },
+        {
+          "gap": "16px",
+          "margin": "16px"
+        },
+        {
+          "gap": "16px",
+          "margin": "16px"
+        },
+        {
+          "gap": "16px",
+          "margin": "0px"
+        }
+      ],
+      "id": "detail-mount",
+      "mountGap": "40px"
+    }
+  ],
+  "viewport": {
+    "height": 900,
+    "width": 1440
+  }
+}

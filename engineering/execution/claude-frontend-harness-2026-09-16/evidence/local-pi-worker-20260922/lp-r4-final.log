@@ -1,0 +1,31 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (3311.107709ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (819.616959ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (984.986917ms)
+  ✔ spawn (1257.267834ms)
+  ✔ result (1577.886125ms)
+  ✔ terminal (1489.824708ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5310.557584ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (252.244042ms)
+  ✔ before publication (1052.955292ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (1305.836041ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (560.739792ms)
+✔ new source revision during actual process consultation prevents stale publication (1068.475875ms)
+✔ result retention failure cannot publish or rerun a completed native response (848.342458ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (968.716417ms)
+✔ a CW parent tool delegates to actual local Pi only after releasing the existing serial lane (972.972917ms)
+✔ a forged Run status cannot erase its Host status evidence (833.504083ms)
+✔ late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty (1576.166208ms)
+✔ schema 19 upgrades to 20 exactly once and preserves remote authority and every existing event (142.238625ms)
+✔ schema-20 migration fails closed for an occupied backup, malformed schema 19, and schema 21 (171.0005ms)
+✔ the pinned schema-19 Host rejects schema 20 byte-for-byte and opens the exact backup separately (512.341459ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (47.343583ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19507.897167

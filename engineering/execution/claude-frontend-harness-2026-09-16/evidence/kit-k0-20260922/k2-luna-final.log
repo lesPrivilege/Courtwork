@@ -1,0 +1,10 @@
+Review source: 966dfdb26111f23145f3edeaef19de180193e98a
+Planner SHA-256: c37e811ea5cd7081c6f92527f1d6985f586a95db2d5dd86ac480138757696a07
+Diff from 1ec92e2: app/runtime/kit-context.mjs, 5 insertions and 2 deletions; strict runtime/evidence validation only.
+Command: node --test app/tests/kit-context-independent.test.mjs app/tests/kit-context.test.mjs
+
+ℹ tests 51
+ℹ pass 51
+ℹ fail 0
+ℹ cancelled 0
+ℹ duration_ms 730.144584

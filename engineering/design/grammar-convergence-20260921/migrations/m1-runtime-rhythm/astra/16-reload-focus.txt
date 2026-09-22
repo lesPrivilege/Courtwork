@@ -1,0 +1,10 @@
+M1 browser observation record
+Source: b8cd54f4d2e3d142ed367d49e08297170394495d; OpenAI IAB, existing synthetic adapter.
+
+Manual observation transcribed from the fresh tool-displayed accessibility state during this run (not a full saved AX tree):
+Keyboard Return on Reload runtime reads saved revision5, Pi (renamed in another window). Reconnect/Disable enabled. Focus on notice Reloaded revision 5, changed elsewhere. Bound Run still revision3.
+
+Raw subsequent saved AX response (diffing was enabled; it may report no change):
+Browser tab: 7, Title: "Runtimes · synthetic preview", URL: "http://127.0.0.1:55551/".
+There has been no change in the accessibility tree.
+The focused UI element is 45 container

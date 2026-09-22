@@ -1,0 +1,17 @@
+✔ context: skill metadata is progressive, installed content grants no plugin/tool authority (389.640584ms)
+✔ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (126.744958ms)
+✔ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (80.806416ms)
+✔ R2: six inline kinds resolve without changing config, then explicit imports preserve exact bytes (22.845209ms)
+✔ R2: hashes bind bytes and interpretation; origin is only a caller assertion and outputs own their data (0.26575ms)
+✔ R2: skill/profile declarations remain unverified requirements without new capabilities (0.35175ms)
+✔ R2: MCP and locators never fetch, connect or read their declared target (0.128041ms)
+✔ R2: malformed, executable and ambiguous sources cannot be silently reinterpreted (0.347084ms)
+✔ R2: invalid YAML and cyclic projected metadata fail before config persistence (16.173958ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1433.123958

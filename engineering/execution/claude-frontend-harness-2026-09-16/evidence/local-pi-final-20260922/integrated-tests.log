@@ -1,0 +1,87 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (1409.82125ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (957.931958ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (1062.139291ms)
+  ✔ spawn (1447.627125ms)
+  ✔ result (1569.296625ms)
+  ✔ terminal (1554.234792ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5634.038167ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (232.003792ms)
+  ✔ before publication (960.067709ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (1192.458375ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (564.581583ms)
+✔ new source revision during actual process consultation prevents stale publication (1077.254375ms)
+✔ result retention failure cannot publish or rerun a completed native response (1358.171792ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (948.769417ms)
+✔ a CW parent tool delegates to actual local Pi only after releasing the existing serial lane (1367.030708ms)
+✔ a forged Run status cannot erase its Host status evidence (933.918375ms)
+✔ late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty (1703.733ms)
+✔ schema 19 upgrades to 20 exactly once and preserves remote authority and every existing event (157.187958ms)
+✔ schema-20 migration fails closed for an occupied backup, malformed schema 19, and schema 21 (189.738334ms)
+✔ the pinned schema-19 Host rejects schema 20 byte-for-byte and opens the exact backup separately (792.999333ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (53.890583ms)
+✔ unknown local child and its parent cannot be deleted through HTTP or Store; bytes and recovery fence survive reopen (1280.896541ms)
+✔ completed archived local findings retain child, parent and source/result references across rejected deletion and reopen (1450.407833ms)
+✔ Spark references prevent deletion before any local process records exist; an ordinary Store deletion still works (78.970583ms)
+✔ a Spark reference queued after the Service snapshot is still protected by the atomic Store deletion guard (89.009167ms)
+✔ an ordinary unreferenced Chat with a completed non-child Run remains deletable (123.924375ms)
+▶ P03-C Host consumer · governed read on the production service path
+  ✔ admission → create intent → binding → root turn → claim → governed repo_read → retained bytes → one submission → root terminal → later input on the same binding (1093.552625ms)
+  ✔ unadvertised, wrong-turn, malformed and out-of-scope calls read nothing; each refusal is retained and delivered once as an error (1499.523375ms)
+  ✔ policy deny and a user's deny never read; a scope revoked while approval is pending cancels the run unread, and a later run has no reader (1498.508667ms)
+  ✔ a native call observed twice is claimed once, executed once and submitted once; racing claims share one receipt (1062.233ms)
+  ✔ without attributable root identity nothing is read and nothing settles the run; a required action is not root evidence (435.470667ms)
+  ✔ a lost creation reply stays unknown: no binding, no guessed id, no replacement session, and the chat is fenced (1120.743417ms)
+  ✔ a lost submission reply keeps the retained result and its identity: unknown delivery, no re-read, no re-send, chat fenced (976.683167ms)
+  ✔ restart fences: an interrupted execution and an unanswered submission become unknown; nothing is re-read, re-run or re-sent (1409.917ms)
+  ✔ an earlier stream replayed to a later run cannot re-execute, re-associate or settle it (605.315417ms)
+  ✔ a chat stays with its runtime: Pi refuses a remote-bound chat, the remote runtime refuses a Pi chat, and a changed configuration cannot reuse the binding (984.693583ms)
+✔ P03-C Host consumer · governed read on the production service path (10688.333792ms)
+▶ P03-D · cancellation
+  ✔ cancel is an intent; the root turn ending cancelled confirms it, the retained result is not delivered, and the chat continues (1082.877791ms)
+  ✔ an accepted cancel that is never confirmed gets one last turn read, then stays unknown and fences the chat until the turn is seen to end (1003.182333ms)
+  ✔ a cancel whose reply is lost, or that is refused, is sent once and leaves the run unknown (1626.51125ms)
+✔ P03-D · cancellation (3714.020625ms)
+▶ P03-D · observation recovery
+  ✔ a stream lost mid-turn is re-subscribed; undelivered events arrive, the call is not repeated, the run completes (481.911375ms)
+  ✔ events missed for good: the session's current required action is executed once from the snapshot, and a terminal nobody streamed is read from the turn (859.6915ms)
+  ✔ a required action seen on the stream and again in the recovery snapshot is one claim (707.986125ms)
+  ✔ contradictory root terminals, a root turn that cannot be read and an unusable item cursor each end unknown (1625.168042ms)
+  ✔ recovery is bounded: a stream that never holds is re-subscribed twice, then the run is unknown (388.268041ms)
+✔ P03-D · observation recovery (4063.55125ms)
+▶ P03-D · lost replies and explicit reconciliation
+  ✔ an unanswered input is re-sent once under the same request key — the one operation the SDK documents the key for (386.916833ms)
+  ✔ a lost submission reply is never re-sent; reconciliation appends what the service's own history and turn show, and the chat continues (598.428833ms)
+  ✔ a delivery the saved history shows is resolved by that item even while the turn is still running (473.179959ms)
+  ✔ after a Host restart mid-submission the fenced chat is reconciled by reads alone and then continues on the same native session (537.619958ms)
+  ✔ CDE-R1: a repo_write whose execution was interrupted without a retained result stays fenced after its root turn ends; nothing is written or checked again (2186.342458ms)
+  ✔ a lost creation has no native locator: reconciliation can observe nothing and says so; Pi declares no recover capability (272.630292ms)
+✔ P03-D · lost replies and explicit reconciliation (4455.399375ms)
+▶ P03-D · process evidence
+  ✔ SIGKILL while the claimed read waits for approval: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1068.551709ms)
+  ✔ SIGKILL while the result submission is in flight: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1239.920541ms)
+✔ P03-D · process evidence (2308.577458ms)
+✔ Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt (680.64625ms)
+✔ Spark refuses forged source, actor and recursive delegation; stale actions do not mutate (491.009584ms)
+✔ two exact Intake versions → local note → project mount → main progressive reads and machine consumption (1663.405708ms)
+✔ omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads (656.983667ms)
+✔ runtime delegation yields the single lane and does not replay or silently resume the parent (644.099042ms)
+✔ source discovery paginates exact versions, respects source and target policy, and rejects malformed queries (89.083125ms)
+✔ cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work (59.119292ms)
+✔ failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result (644.337916ms)
+✔ a changed provider route blocks old queue item without stranding later valid work (560.162458ms)
+✔ schema rejects corrupt derived relationships and forged read receipts (299.736667ms)
+✔ active cancellation closes late source/note admission and never publishes a result (78.591542ms)
+✔ SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation (797.332333ms)
+✔ revoking source policy after a tool read blocks the next provider request (567.366042ms)
+ℹ tests 65
+ℹ suites 5
+ℹ pass 65
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59019.868959
+
+EXIT: 0

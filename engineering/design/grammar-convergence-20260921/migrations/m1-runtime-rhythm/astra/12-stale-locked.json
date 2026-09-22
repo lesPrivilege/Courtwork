@@ -1,0 +1,444 @@
+{
+  "blocks": [
+    {
+      "previousBoundaryToTitle": null,
+      "rect": {
+        "bottom": 901.7734375,
+        "height": 367.8359375,
+        "left": 33,
+        "right": 357,
+        "top": 533.9375,
+        "width": 324,
+        "x": 33,
+        "y": 533.9375
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": " Pi · example",
+      "titleRect": {
+        "bottom": 577.7265625,
+        "height": 23.7890625,
+        "left": 33,
+        "right": 357,
+        "top": 553.9375,
+        "width": 324,
+        "x": 33,
+        "y": 553.9375
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 1198.4609375,
+        "height": 280.6875,
+        "left": 33,
+        "right": 357,
+        "top": 917.7734375,
+        "width": 324,
+        "x": 33,
+        "y": 917.7734375
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Who configures it",
+      "titleRect": {
+        "bottom": 960.0625,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 937.7734375,
+        "width": 324,
+        "x": 33,
+        "y": 937.7734375
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 1745.125,
+        "height": 530.6640625,
+        "left": 33,
+        "right": 357,
+        "top": 1214.4609375,
+        "width": 324,
+        "x": 33,
+        "y": 1214.4609375
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Connection",
+      "titleRect": {
+        "bottom": 1256.75,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 1234.4609375,
+        "width": 324,
+        "x": 33,
+        "y": 1234.4609375
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 2192.2421875,
+        "height": 431.1171875,
+        "left": 33,
+        "right": 357,
+        "top": 1761.125,
+        "width": 324,
+        "x": 33,
+        "y": 1761.125
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "New work",
+      "titleRect": {
+        "bottom": 1803.4140625,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 1781.125,
+        "width": 324,
+        "x": 33,
+        "y": 1781.125
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 2466.6953125,
+        "height": 258.453125,
+        "left": 33,
+        "right": 357,
+        "top": 2208.2421875,
+        "width": 324,
+        "x": 33,
+        "y": 2208.2421875
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "End this connection",
+      "titleRect": {
+        "bottom": 2250.53125,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 2228.2421875,
+        "width": 324,
+        "x": 33,
+        "y": 2228.2421875
+      }
+    },
+    {
+      "previousBoundaryToTitle": null,
+      "rect": {
+        "bottom": 2554.40625,
+        "height": 71.7109375,
+        "left": 33,
+        "right": 357,
+        "top": 2482.6953125,
+        "width": 324,
+        "x": 33,
+        "y": 2482.6953125
+      },
+      "style": {
+        "border": "0px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Technical detail",
+      "titleRect": null
+    }
+  ],
+  "controls": [
+    {
+      "disabled": false,
+      "label": "Back to runtimes",
+      "rect": {
+        "bottom": 533.9375,
+        "height": 44,
+        "left": 33,
+        "right": 126.0703125,
+        "top": 489.9375,
+        "width": 93.0703125,
+        "x": 33,
+        "y": 489.9375
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.1445px",
+        "gapToken": "40px",
+        "line": "19.7167px",
+        "margin": "0px",
+        "padding": "3px 4px"
+      },
+      "tag": "BUTTON",
+      "text": "Runtimes",
+      "value": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 867.7734375,
+        "height": 44,
+        "left": 46,
+        "right": 138.046875,
+        "top": 823.7734375,
+        "width": 92.046875,
+        "x": 46,
+        "y": 823.7734375
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "16px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Read again",
+      "value": ""
+    },
+    {
+      "disabled": false,
+      "label": "Connection name",
+      "rect": {
+        "bottom": 1426.890625,
+        "height": 44,
+        "left": 33,
+        "right": 357,
+        "top": 1382.890625,
+        "width": 324,
+        "x": 33,
+        "y": 1382.890625
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px",
+        "padding": "0px 10px"
+      },
+      "tag": "INPUT",
+      "text": "",
+      "value": "Pi on this Mac"
+    },
+    {
+      "disabled": false,
+      "label": "Credential reference",
+      "rect": {
+        "bottom": 1583.03125,
+        "height": 44,
+        "left": 33,
+        "right": 357,
+        "top": 1539.03125,
+        "width": 324,
+        "x": 33,
+        "y": 1539.03125
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "normal",
+        "margin": "0px",
+        "padding": "0px 10px"
+      },
+      "tag": "SELECT",
+      "text": "Choose a reference\nSynthetic reference · Models › Synthetic connection A\nSynthetic reference · Models › Synthetic connection B — no key in Models",
+      "value": "syn-ref-a"
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 1682.078125,
+        "height": 44,
+        "left": 33,
+        "right": 124.2890625,
+        "top": 1638.078125,
+        "width": 91.2890625,
+        "x": 33,
+        "y": 1638.078125
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "16px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Reconnect",
+      "value": ""
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 2129.1953125,
+        "height": 44,
+        "left": 33,
+        "right": 187.4140625,
+        "top": 2085.1953125,
+        "width": 154.4140625,
+        "x": 33,
+        "y": 2085.1953125
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "16px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Disable for new work",
+      "value": ""
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 2361.6015625,
+        "height": 44,
+        "left": 33,
+        "right": 137.5703125,
+        "top": 2317.6015625,
+        "width": 104.5703125,
+        "x": 33,
+        "y": 2317.6015625
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "16px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Disconnect…",
+      "value": ""
+    }
+  ],
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "rect": {
+      "bottom": 880.7734375,
+      "height": 223.9765625,
+      "left": 33,
+      "right": 357,
+      "top": 656.796875,
+      "width": 324,
+      "x": 33,
+      "y": 656.796875
+    },
+    "tag": "DIV",
+    "text": "Preview receipt · Reconnected. The preview confirmed Pi at revision 4 · connection syn-pi-conn-1.\n\nThe latest reading is revision 3, older than this command's revision 4. It is not taken as this command's result, and changes stay locked until a current reading arrives.\n\nRead again",
+    "value": ""
+  },
+  "mount": {
+    "rect": {
+      "bottom": 2554.40625,
+      "height": 2064.46875,
+      "left": 33,
+      "right": 357,
+      "top": 489.9375,
+      "width": 324,
+      "x": 33,
+      "y": 489.9375
+    },
+    "style": {
+      "border": "0px",
+      "control": "44px",
+      "font": "16.002px",
+      "gapToken": "40px",
+      "line": "24.003px",
+      "margin": "0px",
+      "padding": "0px"
+    }
+  },
+  "pointer": {
+    "anyCoarse": false,
+    "coarse": false,
+    "fine": true
+  },
+  "rootGap": "40px",
+  "scroll": {
+    "client": 337,
+    "height": 2148,
+    "rect": {
+      "bottom": 820,
+      "height": 339.4140625,
+      "left": 16,
+      "right": 374,
+      "top": 480.5859375,
+      "width": 358,
+      "x": 16,
+      "y": 480.5859375
+    },
+    "top": 59.5
+  },
+  "textScale": "1.143",
+  "textSize": "large",
+  "theme": "dark",
+  "viewport": {
+    "height": 844,
+    "width": 390
+  },
+  "visualScale": 1
+}

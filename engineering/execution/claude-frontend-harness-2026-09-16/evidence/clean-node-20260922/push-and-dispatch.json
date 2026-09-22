@@ -1,0 +1,29 @@
+{
+  "pushedCheckpoint": "678d71c58acc6968569a8850d39be404b19d4dfd",
+  "remote": "https://github.com/lesPrivilege/Courtwork.git",
+  "remoteRef": "refs/heads/main",
+  "lsRemoteMatched": true,
+  "newTask": {
+    "threadId": "01a0c9a7-6aca-79b2-a578-da1414a73404",
+    "title": "Kit to Run \u00b7 Host integration",
+    "base": "678d71c58acc6968569a8850d39be404b19d4dfd",
+    "worktree": "codex-managed bf41/Courtwork",
+    "branch": "codex/kit-run-binding-20260922",
+    "firstReport": "K3-A contract committed; finite Host/Store work in progress"
+  },
+  "initialCi": {
+    "Runtime": "completed success, run35744901028 at678d71c",
+    "Pages": "failed at README generation equality; no deploy"
+  },
+  "followUp": {
+    "changedSource": "site/src/readme.mjs",
+    "reason": "copy the already accepted offline Pi paragraph from aligned bilingual README into its English generation source",
+    "publicReadmeBytesChanged": false,
+    "localPagesBuild": "pass",
+    "deterministicBuildFiles": 188,
+    "publicDataAndCaptureTests": "5/5",
+    "links": "188 files /296 references /0 problems",
+    "manualDeployment": false,
+    "pagesScope": "User says no Pages revision/follow-up; only already-completed README generator parity correction retained"
+  }
+}

@@ -1,0 +1,44 @@
+# Kit to Run admission/context preflight
+
+Date: 2026-09-22. Observed main: fdbbead5c3a512ac876a4715a00f22717594dce0. Scope is read-only K3 contract preparation after the accepted K1/K2 Kit plan. No source, UI, profile data, credentials, provider or test process was changed or run.
+
+## Owner map and current seams
+
+| Contract fact | Existing owner / exact seam | What it proves | Remaining unknown |
+|---|---|---|---|
+| Profile source/schema/CAS | app/runtime/control-plane.mjs:68-115,121-169; parseProfile accepts schemaVersion, version, resourceIds, rules, uiSlots; RuntimeControlPlane.change persists resources/profile selection under revision CAS | Runtime Control owns profile resource content, selection, exposure, policy ceilings and configuration revision | A Kit selection field is not in the current profile source schema. Adding it needs a backward-compatible profile-source version/validator decision; an independent Kit catalog would create a second registry and is rejected |
+| Composition and context snapshot | app/runtime/control-plane.mjs:232-275,279-300; RuntimeComposition, bind, compileControlContext | Existing binding freezes composition/resources/policies/context; instructions and skill/reference catalog descriptions serialize deterministically; bodies remain deferred to runtime_load | Current compiler has no Kit descriptor, plan, dependency/conflict, compatibility evidence or per-Kit attribution |
+| Run admission | app/server/service.mjs:2473-2626 | command idempotency, runtime/provider validation, profile compatibility, context budget, local-Pi binding, then store.createRun atomically with runtimeSnapshot | K3 must decide the exact Kit-plan field inside this frozen snapshot; do not persist a mutable current plan beside it |
+| Run binding/terminal facts | app/server/store.mjs:1532-1619 (createRun and event mutation); service.mjs:802-808 reads runtime.bound and runtime.context.loaded for recorded runs | runtime.bound is emitted in the same durable Run creation; later reads use the recorded binding, not current settings | Exact strict validation/migration shape for an added Kit-plan field must be confirmed by the Store owner before coding; no separate Kit ledger |
+| Execution context | app/server/service.mjs:2897-2958 | non-Spark execution feeds compileControlContext(entry.runtimeBinding) and the existing subagent library context into the native session; runtime_load appends runtime.context.loaded | K3 must consume the frozen binding and never recompile an old Run from current profile/Kit state |
+| Result bytes/references | app/runtime/artifact-history.mjs:6-9,66-177; service reads at 1624-1660 and saves tool result bytes before receipt at 2946-2952 | ArtifactHistory is content-addressed storage, not a second domain ledger; references carry digest/bytes and are integrity checked | Kit plan/text is configuration/context evidence, not automatically a Work artifact. Store exact hashes/refs in the Run binding; use ArtifactHistory only if a future owner needs large immutable payloads |
+| Child/assignment lifecycle | app/harness/subagents.mjs and app/harness/subagent-state.mjs:18-79 | Spark assignment, attempt/run identity, source reads, result hashes and consumption already have an owner | Kit compilation must not add assignment/attempt/result state or a scheduler |
+
+## Minimal persisted representation
+
+The fewest-owner choice is not an independent Kit catalog. Keep Kit definitions/descriptors with the Harness/RD-009 contract, and extend the existing agent_profile source through a backward-compatible profile-source version with explicit immutable Kit references, for example {id, version, sha256}. Do not overload resourceIds with undeclared kit strings: that field is currently an admitted resource allowlist and Runtime Control uses it for exposure ceilings.
+
+At Run admission, the Harness K3 compiler should consume the validated profile binding plus explicit Kit descriptors and produce a deterministic kitPlan containing:
+
+- selected Kit references and descriptor digests;
+- ordered existing instruction/resource references;
+- required, missing, unsupported, unchecked and deferred states;
+- compatibility evidence supplied by the selected Runtime adapter;
+- exact serialized context hash, UTF-16 character count and byte count; and
+- compiler/plan version.
+
+Persist that plan only inside the frozen Run runtime snapshot/binding in the same store.createRun mutation that emits runtime.bound. Keep the current profile/Kit selection as mutable configuration; never use it to reinterpret a recorded Run. The existing bound content/context references and hashes remain the source of exact material. If the strict Run schema requires a new field, RuntimeStore’s existing migration/backup owner handles the next schema increment; do not create kit-state.json, a second registry or a parallel CAS.
+
+The execution path should read the frozen entry.runtimeBinding and invoke the existing compiler view. A profile/Kit edit during an active Run remains blocked by the current configuration/active-Run rules; a later Run creates a new binding. A lost/unknown Run keeps its original plan and result/effect fences; retry/reconcile never recompiles it from current configuration.
+
+## Five K3 questions for parent disposition
+
+1. Profile selection: Should agent_profile source v2 add kitRefs: [{id, version, sha256}] while preserving v1, with Runtime Control validating/CAS-saving only references? Owner: Runtime Control + Harness/RD-009. Unknown: exact version/migration envelope and whether Kit refs are allowed at profile scope now.
+2. Plan persistence: Is kitPlan a field of the existing runtimeSnapshot/runtime.bound payload, or should the current binding composition object be extended? Owner: RuntimeStore + Runtime Control. Minimum is one atomically frozen field; no standalone plan store. Unknown: current strict validator’s exact accepted snapshot keys at fdbbead.
+3. Text timing: Does K3 persist only descriptor/resource hashes and admitted character counts, relying on frozen binding content, or must it persist the full rendered Kit context bytes? Owner: Harness compiler + Runtime Control. The current compiler serializes instruction/catalog sections and defers body loading; K3 must prove exact bytes/hash and avoid recompile drift.
+4. Capability/permission truth: Which Runtime Adapter supplies compatibility evidence, and which Host policy owner decides grants? Owner: RD-001 adapter and Host/Runtime Control. A Kit may request capabilities; it cannot grant them. Unknown compatibility must stay unchecked, distinct from unsupported and denied.
+5. Actual Host request proof: app/tests/local-pi-upstream.test.mjs:15-31 proves an actual locked Pi process plus fake loopback provider receives the supplied source text in provider.requests[0].body.messages, with zero tools and exact result/terminal/exit evidence. service.#createRun and execution seams are separately visible at service.mjs:2473-2626,2897-2958. This read did not establish one single test that runs Host #createRun with localPiBinding and then inspects the fake-Pi request. K3 must add that bounded fixture proof, including runtime.bound, frozen plan/hash, request text, result bytes and later mutation non-effect.
+
+## Completion boundary
+
+K3 can proceed as a contract and persistence-owner decision followed by a pure deterministic compiler/validator. It must not change profile UI, 06e, Settings, Runtime registration, permissions, Pi process lifecycle, ArtifactHistory ownership or child scheduling in the first increment. The Kit compiled proves only a plan/context projection; Run admission, native execution, source coverage, result consumption and formal Work acceptance remain separate facts.

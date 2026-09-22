@@ -1,0 +1,57 @@
+{
+  "main": "7dc852a25643505dc41a109476fc6800e9f643fa",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/.codex/worktrees/c626/Courtwork",
+      "head": "ffd4e392c7be8b18cdbcbbb295636ad4be60adff",
+      "archive_ref": "refs/archive/m1-20260922/Courtwork",
+      "entries": 9264,
+      "file_bytes": 463105080,
+      "archive_sha256": "dbeb713f70f26c50e0b34e76dd4cbcfd6f7f5cb0c7de22d8f4b0802a135685bc",
+      "manifest_sha256": "28d79565d9ce0a544a7edba5ffd75b8c4e60bb38250ccfaec87918834457ac17",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "783a4790508d4c846ec51441a104c9f915150f2a370254f5c18a3b0064cc3296",
+  "bundle_restored_and_verified": true,
+  "removed": true,
+  "noTaskOrTestWriter": true,
+  "applicationInfrastructureCwdHolders": [
+    {
+      "pid": 28937,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA infrastructure; not stopped"
+    },
+    {
+      "pid": 28939,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "classification": "application-owned CUA infrastructure; not stopped"
+    },
+    {
+      "pid": 28941,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "classification": "application-owned CUA infrastructure; not stopped"
+    },
+    {
+      "pid": 28942,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA infrastructure; not stopped"
+    },
+    {
+      "pid": 28943,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA infrastructure; not stopped"
+    },
+    {
+      "pid": 82256,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA infrastructure; not stopped"
+    }
+  ],
+  "processesStopped": [],
+  "integratedMain": "7dc852a25643505dc41a109476fc6800e9f643fa",
+  "archiveLocation": "Projects/.archives/courtwork-m1-20260922 relative to operator home",
+  "finalSourceUnchanged": true,
+  "noUnintegratedCommits": true
+}

@@ -1,0 +1,74 @@
+- banner:
+  - paragraph: 06e · synthetic selection specimen
+  - heading "Role-first Composer · A · Anchored chooser" [level=1]
+  - paragraph: Every agent, Kit, runtime, model, permission effect, chat and run here is synthetic (the accepted 06a cast). Nothing reads your host or saves outside this tab. The Agent choice is a draft of this page; no product owner stores it yet.
+- region "Specimen state":
+  - text: Alternative
+  - combobox "Alternative":
+    - option "A · Anchored chooser" [selected]
+    - option "B · Agent line"
+  - text: Scenario
+  - combobox "Scenario":
+    - option "Normal" [selected]
+    - option "Run in progress (Coding · rev 7)"
+    - option "Pi unavailable"
+    - option "Kit no longer declares Hermes"
+    - option "Long names"
+    - option "Agent list read fails once"
+  - checkbox "Slow replies"
+  - text: Slow replies
+  - text: Appearance
+  - combobox "Appearance":
+    - option "Light" [selected]
+    - option "Dark"
+  - button "Reset"
+- main "Checkout retries twice after a timeout":
+  - heading "Checkout retries twice after a timeout" [level=2]
+  - paragraph: Checkout retries the payment twice when the gateway times out. Find out why.
+  - paragraph: The retry wrapper and the gateway client both retry on timeout, so one timeout becomes two retries. The test log you attached shows it.
+  - group "Where this chat works":
+    - 'generic "Work location: project Checkout service; folder /synthetic/checkout-service, read only"':
+      - generic: Checkout service
+      - generic: ·checkout-service
+    - generic: Local
+  - generic "Attached to this draft":
+    - generic: retry-wrapper.ts
+    - generic: gateway-timeout-test.log
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+    - text: Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.
+  - 'button "Agent: Work" [expanded]':
+    - generic: Work
+  - 'button "Model: Synthetic model"': Synthetic model
+  - button "Send"
+- dialog "Choose agent":
+  - heading "Agent" [level=3]
+  - button "Close"
+  - listbox "Agents" [active]:
+    - 'option "Work · chosen Ordinary work: read what you connect, draft it, revise it." [selected]':
+      - generic: Work · chosen
+      - generic: "Ordinary work: read what you connect, draft it, revise it."
+    - option "Coding Fix a defect in a connected repository, with approval before each edit.":
+      - generic: Coding
+      - generic: Fix a defect in a connected repository, with approval before each edit.
+    - option "Attention Triage what is waiting on you and prepare the material for the decision.":
+      - generic: Attention
+      - generic: Triage what is waiting on you and prepare the material for the decision.
+  - paragraph: Fix a defect in a connected repository, with approval before each edit.
+  - term: Runs on
+  - definition: Pi · Local process
+  - term: Model
+  - definition: Synthetic model, from Models · All chats · future runs. This agent has no model of its own.
+  - term: Kits
+  - definition: Coding review 0.2
+  - term: Asks before
+  - definition: Write a private candidate edit
+  - term: Allowed
+  - definition: Read the connected repository; Run the project's fixed check
+  - term: Works in
+  - definition: This chat and its Work location. It does not open or change another inbox.
+  - term: When
+  - definition: Applies to the next run you start in this chat.
+  - button "Edit Coding in Settings"
+  - status

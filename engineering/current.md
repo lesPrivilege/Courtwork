@@ -1,5 +1,43 @@
 # 当前工程状态
 
+## 2026-09-22 · Claude E1 and Codex K3 implementation boundaries expanded
+
+User confirms continued parallel [frontend/backend implementation lanes](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md). Claude keeps06e-R1, then may implement selectedA in actual frontend modules/Composer/Settings consumers; Codex K3 owns the minimum real profile/selection/admission projection and exact Kit→Run path, including related owner changes. Existing facts/authority and concrete DTOs govern integration; no fixture becomes a production fallback, and no overlapping writer is granted. Parent retains architecture/independent acceptance/merge.
+
+Pages design/capture/deployment is explicitly out of scope. The already completed two-line README generation-source synchronization preserves existing bilingual content; no further Pages work or deployment is scheduled. K3 remains active from pushed678d71c, with the parent follow-up being source/documentation-only for that baseline.
+
+## 2026-09-22 · Main pushed; fresh K3 active; Pages parity correction
+
+[Push and dispatch receipt](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md#push-dispatch-and-generator-correction) records origin/main678d71c independently verified before fresh Astra task **Kit to Run · Host integration** (01a0c9a7-6aca-79b2-a578-da1414a73404) began in bf41/codex/kit-run-binding-20260922. It has reported K3-A contract and started leased Host/Store implementation. Product baseline remains7dc852a/schema20; proposed21 is isolated, not adopted in main.
+
+Remote Pages build exposed a previously omitted source update: the bilingual READMEs already contained the offline Pi paragraph, but site/src/readme.mjs did not. Parent synchronizes that generator exactly, leaving both public README texts unchanged. Local full build/rebuild188-file equality, material/figures,5/5 publication tests and site links pass. This is a corrective follow-up to push, not a deployment or a product change. Initial Runtime CI completed successfully for678d71c; the separate Pages failure and local correction remain explicitly recorded.06e's unaccepted return tree and local metadata remain protected/unpushed.
+
+## 2026-09-22 · Clean checkpoint prepared for authorized push; K3 next
+
+[Checkpoint receipt](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md) accounts for accepted main product7dc852a and protected carry-forward06e-R1. [M1](execution/claude-frontend-harness-2026-09-16/evidence/m1-final-20260922/README.md) is now independently accepted/integrated and its ended tree restore/bundle verified and removed. Full synthetic1538/1538 and deterministic smoke pass; schemas20/4/5 unchanged. Only06e remains outside main for its named return; local metadata/frozen Git dependency are preserved.
+
+User has authorized push. The [next K3 order](execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md) connects existing Kit plans to actual ordinary-Chat/Pi Run admission/frozen context using current owners; it must start in a fresh isolated task only after the push is verified. No new K3 writer, user-service operation or manual deployment has occurred in this preparation record.
+
+## 2026-09-22 · Kit K1/K2 accepted and integrated within pure-planner scope
+
+[Parent final adoption](execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md) accepts product966dfdb/handoff9a09f8e at main70a2268: parent Luna51/51, adjacent9/9 and2 adversarial probes; actual-main51/51. Exact source pins, budget/refusal/deferred semantics, no-Kit legacy behavior and non-mutating output are accepted for the pure reference-only planner/synthetic consumer. RuntimeStore20/Core4/bridge5, shared Host/control/UI and package pins remain unchanged; production Kit selection/profile→Run binding is still open.
+
+The released Kit tree/branch was fully archived, physically restored and Git-bundle verified, then removed; archive ref remains. M1 and06e-R1 source trees are preserved. No automatic next slice, user service/data operation, provider call, push or deployment. Historical author/K0 pending wording is superseded by the final receipt, not rewritten.
+
+## 2026-09-22 · 06e direction A selected; compatibility state/control return
+
+[Parent selection and browser evidence](execution/claude-frontend-harness-2026-09-16/evidence/06e-selection-review-20260922/README.md) choose the anchored Agent chooserA from69f39a7. Luna9/9 plus OpenAI browser verify pre-selection reading, Escape/Settings return and frozen bound Run; desktop B costs37px in the form and Details moves the input143.5px. Hold specimen acceptance/E1 for06E-R1: declaration-only missing support still becomes a false incompatibility Send blocker. Original Claude retains the bounded synthetic tri-state correction; no main product/Host integration, source cleanup or new shared-file writer. K1/K2 continues separately.
+
+## 2026-09-22 · Kit K0 selected; original task released for K1/K2
+
+[Parent K0 disposition](execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-parent-20260922/README.md) accepts bacd64e as a reference-only descriptor/context-plan contract, merged as documents at ecf2d6a. All four review corrections were checked against actual owner/compiler/source code; K1/K2 are not yet implementation acceptance. Verified original task Define bounded Kit context contract (01a0c8bb-0f08-7113-938f-f8bf3be42ad9) receives new pure kit modules/tests and synthetic consumer proof in its same worktree. Host/control/store/schema/UI remain excluded; production profile/Kit→Run binding remains open. RuntimeStore20/Core4/bridge5 and user services/data are unchanged. LP-R5 is already accepted under the preceding final receipt, not pending re-review.
+
+## 2026-09-22 · Promise-to-user-path audit consumed; Local Pi finite slice accepted
+
+[First-principles closure audit](execution/claude-frontend-harness-2026-09-16/evidence/work-closure-audit-20260922/README.md) separates mechanism tests from actual user outcomes. Role/Kit selection→production Run binding and safe unknown fence→usable recovery remain real deferred owner gaps; M1 is delivered pending parent acceptance. Order11's stale opening status is corrected: basic real-browser dogfood and the prepared real write/check/reload path were already accepted, while historical RuntimeLock/robustness/G4 remain open. K0 has an observed protected contract branch (advanced to bacd64e);06e has a reserved clean checkout, with process dispatch identities not inferred. Original execution/dispatch/owner entries consume this audit; historical evidence is preserved.
+
+[Local Pi final acceptance and cleanup](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-final-20260922/README.md) accept dadbfdd/product7ab46d0 at integrated main56133b3: prior56/56, LP-R5 independent18/18 and exact DELETE409/no-loss probe, actual-main65/65. RuntimeStore20/Core4/bridge5 are aligned. This accepts an explicitly injected offline/no-tool subprocess path, not real provider selection or user-operable recovery. The ended c89d tree/branch were restore/bundle verified and removed; nine identified app CUA cwd holders were not stopped, no task/test writer remained. M1/K0/06e/frozen Git dependency remain protected. No user Host start/restart/migration, credential operation, push or deployment.
+
 ## 2026-09-22 · Disjoint next work prepared: Kit core and Role-first Composer
 
 [Parallel work index and parent selection](execution/claude-frontend-harness-2026-09-16/evidence/parallel-work-index-20260922/README.md) consume Luna's actual owner/gap map. Kit context K0 contract/pure-compiler work can be isolated from Pi LP-R5; existing Runtime Control, source resolver, permissions and child state remain authoritative. Claude06e may consume Design Scout and produce two runnable Role-first Composer alternatives in an isolated specimen before selection. Both handoffs are prepared; no additional Astra task/Claude process has been launched. M1 ffd4e39 is delivered with writer release, still pending parent acceptance; LP-R5 is actively correcting in its original tree. No product or user service changes.

@@ -43,3 +43,8 @@ Deliver one finite M1 source candidate and before/after evidence, exact base/sou
 ## Ingestion verification note
 
 The original Luna source map uses Markdown hard breaks (two trailing spaces) on lines3–5. These three `git diff --check` notices are retained intentionally to preserve the received packet byte-for-byte; parent-edited documents and other additions pass the check. No product-code whitespace exception is introduced. Local document links pass, and the sidecar manifest records the exact incoming bytes.
+
+
+## Parent M1 final selection — 2026-09-22
+
+[Final receipt](../../execution/claude-frontend-harness-2026-09-16/evidence/m1-final-20260922/README.md) adopts the candidate16px detail-local mapping at b8cd54f/ffd4e39, integrated7dc852a. Parent actual-browser comparison and final Luna35+7 checks support the scoped change; global scales and unexecuted accessibility/native cases are unchanged. Source tree was restore/bundle verified and removed after writer release. This closes M1 only; no next visual family is automatically assigned.

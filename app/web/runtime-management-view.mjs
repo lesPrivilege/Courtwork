@@ -748,18 +748,33 @@ export function createRuntimeManagementView(mount, controller) {
       nodes.push(el("p", { className: "form-help", attrs: { role: "status", "data-testid": "runtime-refreshing" }, text: "Reading this runtime again… the values below are the previous reading." }));
     if (page.status === "error")
       nodes.push(el("p", { className: "inline-error", attrs: { role: "alert", "data-testid": "runtime-error" }, text: `${page.error} The values below are the last reading that succeeded.` }));
-    nodes.push(identityBlock(page));
+    const detailNodes = [identityBlock(page)];
     if (page.notice)
-      nodes.push(el("p", { className: "runtime-banner", attrs: { role: "status", tabindex: "-1", "data-focus-key": "reload-notice", "data-testid": "reload-notice" }, text: page.notice }));
+      detailNodes.push(el("p", { className: "runtime-banner", attrs: { role: "status", tabindex: "-1", "data-focus-key": "reload-notice", "data-testid": "reload-notice" }, text: page.notice }));
     if (!state.capabilities.canManage && state.capabilities.reason)
-      nodes.push(el("p", { className: "form-help", attrs: { "data-testid": "capability-reason" }, text: state.capabilities.reason }));
-    nodes.push(
+      detailNodes.push(el("p", { className: "form-help", attrs: { "data-testid": "capability-reason" }, text: state.capabilities.reason }));
+    detailNodes.push(
       ownershipBlock(detail),
       connectionBlock(page),
       admissionBlock(page),
       disconnectBlock(page),
       historyBlock(detail),
       technicalBlock(detail),
+    );
+    /* M1 · Runtime detail is the only Settings consumer with this compact
+       block rhythm. The plain container contributes no visual box or semantic
+       landmark; it only scopes the existing inherited spacing property. */
+    nodes.push(
+      el(
+        "div",
+        {
+          attrs: {
+            style: "--settings-group-gap: var(--space-4)",
+            "data-testid": "runtime-detail-rhythm",
+          },
+        },
+        ...detailNodes.filter(Boolean),
+      ),
     );
     return nodes;
   }

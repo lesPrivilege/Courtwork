@@ -1,0 +1,27 @@
+✔ the production Host runs Pi through the port and continues one native session (595.7445ms)
+✔ a journal written before the port existed is opened in place and continued (497.58975ms)
+✔ retrying a command never opens a second native session (236.023708ms)
+✔ observations that arrive after cancellation are not recorded (271.409917ms)
+✔ an operation the runtime does not support is refused, not rerouted (177.828666ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.181125ms)
+✔ Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt (390.129958ms)
+✔ Spark refuses forged source, actor and recursive delegation; stale actions do not mutate (265.968291ms)
+✔ two exact Intake versions → local note → project mount → main progressive reads and machine consumption (1497.207875ms)
+✔ omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads (518.868458ms)
+✔ runtime delegation yields the single lane and does not replay or silently resume the parent (947.838333ms)
+✔ source discovery paginates exact versions, respects source and target policy, and rejects malformed queries (101.690875ms)
+✔ cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work (58.519417ms)
+✔ failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result (1071.858291ms)
+✔ a changed provider route blocks old queue item without stranding later valid work (357.8995ms)
+✔ schema rejects corrupt derived relationships and forged read receipts (465.264125ms)
+✔ active cancellation closes late source/note admission and never publishes a result (93.928917ms)
+✔ SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation (793.330292ms)
+✔ revoking source policy after a tool read blocks the next provider request (566.9195ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7923.309291

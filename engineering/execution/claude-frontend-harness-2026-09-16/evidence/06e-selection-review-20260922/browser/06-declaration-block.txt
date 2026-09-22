@@ -1,0 +1,46 @@
+- banner:
+  - paragraph: 06e · synthetic selection specimen
+  - heading "Role-first Composer · A · Anchored chooser" [level=1]
+  - paragraph: Every agent, Kit, runtime, model, permission effect, chat and run here is synthetic (the accepted 06a cast). Nothing reads your host or saves outside this tab. The Agent choice is a draft of this page; no product owner stores it yet.
+- region "Specimen state":
+  - text: Alternative
+  - combobox "Alternative":
+    - option "A · Anchored chooser" [selected]
+    - option "B · Agent line"
+  - text: Scenario
+  - combobox "Scenario":
+    - option "Normal"
+    - option "Run in progress (Coding · rev 7)"
+    - option "Pi unavailable"
+    - option "Kit no longer declares Hermes" [selected]
+    - option "Long names"
+    - option "Agent list read fails once"
+  - checkbox "Slow replies"
+  - text: Slow replies
+  - text: Appearance
+  - combobox "Appearance":
+    - option "Light" [selected]
+    - option "Dark"
+  - button "Reset"
+- main "Checkout retries twice after a timeout":
+  - heading "Checkout retries twice after a timeout" [level=2]
+  - paragraph: Checkout retries the payment twice when the gateway times out. Find out why.
+  - paragraph: The retry wrapper and the gateway client both retry on timeout, so one timeout becomes two retries. The test log you attached shows it.
+  - group "Where this chat works":
+    - 'generic "Work location: project Checkout service; folder /synthetic/checkout-service, read only"':
+      - generic: Checkout service
+      - generic: ·checkout-service
+    - generic: Local
+  - generic "Attached to this draft":
+    - generic: retry-wrapper.ts
+    - generic: gateway-timeout-test.log
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+    - text: Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.
+  - status: "Attention cannot start a run: Praxis 0.5 does not declare support for Hermes."
+  - 'button "Agent: Attention" [active]':
+    - generic: Attention
+  - 'button "Model: Model · Hermes"': Model · Hermes
+  - button "Send" [disabled]
+- text: · chosen

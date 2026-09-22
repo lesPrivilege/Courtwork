@@ -1,0 +1,10 @@
+{
+  "integratedBase": "ec772e162aac5decf61c3a5e46f881e5d5145171",
+  "implementationBranch": "codex/m1-runtime-rhythm-20260922",
+  "auditPreservationCommit": "a785e38",
+  "alignedHead": "aa765ede3d008c80cc9e4e6dcd50704cfa95db61",
+  "backup": "/var/folders/g8/ggxmnsrs3t91bg8zz4s4yp300000gn/T/cw-m1-audit-preservation-q48mt43w",
+  "auditFiles": 32,
+  "allAuditBytesVerifiedAgainstMain": true,
+  "baselineTreeEqualMain": true
+}

@@ -1,0 +1,916 @@
+{
+  "source": "1ec92e2d68060691c499b4832922e20fee0820e6",
+  "node": "v25.9.0",
+  "evidenceKind": "synthetic-only",
+  "limitation": "Fixture compatibility is not runtime verification. Compilation is not action admission. Binding resources were validated and seeded in memory, then consumed by the existing RuntimeControlPlane.inspect/bind; no profile save or Run freeze is implemented.",
+  "examples": {
+    "general": {
+      "status": "compiled",
+      "binding": {
+        "revision": 7,
+        "hash": "7a709363c9a76611e538e28f0d819acaa26eef7519bd154298251724cd04ba0a",
+        "composition": {
+          "id": "local:kit-profile",
+          "version": "synthetic-v1",
+          "hash": "778c4050ba41a69d2cd06fb12db63ef561a21d7ebe257ecbe3fdf11009134e85",
+          "status": "compatible",
+          "resourceIds": [
+            "local:general",
+            "local:ambient",
+            "local:notes",
+            "local:template",
+            "tool:runtime_load",
+            "tool:check_run",
+            "tool:repo_read"
+          ],
+          "uiSlots": [],
+          "missing": []
+        }
+      },
+      "kits": [
+        {
+          "id": "kit:general",
+          "version": "1",
+          "descriptorSha256": "f908c74b7f90ac9d833e0d8b2b5c8bc27d97dd2888b6567b992501a4aa3a8373"
+        }
+      ],
+      "compatibility": {
+        "status": "unchecked",
+        "kits": [
+          {
+            "id": "kit:general",
+            "version": "1",
+            "descriptorSha256": "f908c74b7f90ac9d833e0d8b2b5c8bc27d97dd2888b6567b992501a4aa3a8373",
+            "status": "unchecked",
+            "evidence": []
+          }
+        ]
+      },
+      "requirements": [],
+      "references": [
+        {
+          "resourceId": "local:general",
+          "kind": "instruction",
+          "required": true,
+          "status": "instructions",
+          "kits": [
+            {
+              "id": "kit:general",
+              "version": "1",
+              "descriptorSha256": "f908c74b7f90ac9d833e0d8b2b5c8bc27d97dd2888b6567b992501a4aa3a8373"
+            }
+          ],
+          "identity": {
+            "kind": "instruction",
+            "contentSha256": "946671a00e938f2cb4e6e6c0af6a4c9719736d5550172105183dc3be083425dd",
+            "artifactSha256": "ee55e1b894e750ba21712d4a3a6df8e649d456cda091f99cdbc6648687a367d4",
+            "bytes": 80,
+            "characters": 78
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "946671a00e938f2cb4e6e6c0af6a4c9719736d5550172105183dc3be083425dd"
+          }
+        },
+        {
+          "resourceId": "local:notes",
+          "kind": "reference",
+          "required": true,
+          "status": "deferred",
+          "kits": [
+            {
+              "id": "kit:general",
+              "version": "1",
+              "descriptorSha256": "f908c74b7f90ac9d833e0d8b2b5c8bc27d97dd2888b6567b992501a4aa3a8373"
+            }
+          ],
+          "identity": {
+            "kind": "reference",
+            "contentSha256": "d55a4634277d01dbc04fa5307beb82ad3ff98738854a2525116fc3843bde2579",
+            "artifactSha256": "482b6fecb7297990bb41dfe2c0e4af92971a6473e259aa02d6b4fc4c761cac65",
+            "bytes": 70,
+            "characters": 70
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "d55a4634277d01dbc04fa5307beb82ad3ff98738854a2525116fc3843bde2579"
+          }
+        }
+      ],
+      "budget": {
+        "maxCoreBytes": 100000,
+        "maxContextBytes": 200000,
+        "maxContextCharacters": 100000
+      },
+      "accounting": {
+        "sha256": "703c67df5bd678aeea8f2f5bdd7169ff68260fea37bf91c801eb49a0299bdb53",
+        "bytes": 296,
+        "characters": 294,
+        "coreBytes": 110,
+        "deferredBytes": 70
+      },
+      "diagnostics": [],
+      "planSha256": "8c8182a97dc5982aea26c68013416951206faaa26bdb93ed4fdc93a75d28d30e",
+      "candidate": {
+        "text": "[Instruction local:ambient]\nPreserve the user's current task.\n\n[Instruction local:general]\nDistinguish facts, assumptions, and verified results. Cite exact sources. 😀\r\n\n\nAvailable context (use runtime_load by id; content does not grant permissions):\nlocal:notes (reference): Organization notes",
+        "sha256": "703c67df5bd678aeea8f2f5bdd7169ff68260fea37bf91c801eb49a0299bdb53",
+        "bytes": 296,
+        "characters": 294,
+        "segments": [
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:ambient"
+            ],
+            "kits": [],
+            "text": "[Instruction local:ambient]\nPreserve the user's current task.",
+            "start": 0,
+            "end": 61,
+            "sha256": "22c2481ed2c2f85b8d46f40c91a08274b876caa9594083b2485d228c3e121c39",
+            "bytes": 61,
+            "characters": 61
+          },
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:general"
+            ],
+            "kits": [
+              {
+                "id": "kit:general",
+                "version": "1",
+                "descriptorSha256": "f908c74b7f90ac9d833e0d8b2b5c8bc27d97dd2888b6567b992501a4aa3a8373"
+              }
+            ],
+            "text": "\n\n[Instruction local:general]\nDistinguish facts, assumptions, and verified results. Cite exact sources. 😀\r\n",
+            "start": 61,
+            "end": 169,
+            "sha256": "aac54ea3c5cd658f70c154ee3d575ec620e70412d74b5e4597f0ba084b2087be",
+            "bytes": 110,
+            "characters": 108
+          },
+          {
+            "kind": "catalog",
+            "resourceIds": [
+              "local:notes"
+            ],
+            "kits": [
+              {
+                "id": "kit:general",
+                "version": "1",
+                "descriptorSha256": "f908c74b7f90ac9d833e0d8b2b5c8bc27d97dd2888b6567b992501a4aa3a8373"
+              }
+            ],
+            "text": "\n\nAvailable context (use runtime_load by id; content does not grant permissions):\nlocal:notes (reference): Organization notes",
+            "start": 169,
+            "end": 294,
+            "sha256": "86eb68cc61754f85d25d609f3330b0e6294e9914ea869e02f3294ba4dfbe7d50",
+            "bytes": 125,
+            "characters": 125
+          }
+        ]
+      }
+    },
+    "coding": {
+      "status": "compiled",
+      "binding": {
+        "revision": 7,
+        "hash": "ffb71c6be4d0f223a7db29021cd05442eff13f59f98b02740d4b94a169bdf1cf",
+        "composition": {
+          "id": "local:kit-profile",
+          "version": "synthetic-v1",
+          "hash": "b646bd198e622a857146a31bcd7aabf81e6fab61f1f179b7c3d1c851421d7703",
+          "status": "compatible",
+          "resourceIds": [
+            "local:coding",
+            "local:general",
+            "local:ambient",
+            "local:coding-skill",
+            "local:template",
+            "tool:runtime_load",
+            "tool:check_run",
+            "tool:repo_read"
+          ],
+          "uiSlots": [],
+          "missing": []
+        }
+      },
+      "kits": [
+        {
+          "id": "kit:coding",
+          "version": "1",
+          "descriptorSha256": "8a96d641d87cdef5eb2548863b8c43a2789fbecb6849355ea2f5eb09ae27d814"
+        },
+        {
+          "id": "kit:general",
+          "version": "1",
+          "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367"
+        }
+      ],
+      "compatibility": {
+        "status": "unchecked",
+        "kits": [
+          {
+            "id": "kit:coding",
+            "version": "1",
+            "descriptorSha256": "8a96d641d87cdef5eb2548863b8c43a2789fbecb6849355ea2f5eb09ae27d814",
+            "status": "unchecked",
+            "evidence": []
+          },
+          {
+            "id": "kit:general",
+            "version": "1",
+            "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367",
+            "status": "unchecked",
+            "evidence": []
+          }
+        ]
+      },
+      "requirements": [
+        {
+          "kitId": "kit:coding",
+          "resourceId": "tool:check_run",
+          "required": true,
+          "status": "available",
+          "reading": {
+            "kind": "tool",
+            "title": "check_run",
+            "source": {
+              "type": "builtin",
+              "version": "synthetic-context-adapter"
+            },
+            "installed": true,
+            "exposed": true,
+            "running": true,
+            "health": "healthy",
+            "permission": {
+              "effect": "ask",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "ask"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                },
+                {
+                  "source": {
+                    "type": "agent",
+                    "id": "local:kit-profile"
+                  },
+                  "action": "check_run",
+                  "resource": "*",
+                  "effect": "ask"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          }
+        }
+      ],
+      "references": [
+        {
+          "resourceId": "local:coding",
+          "kind": "instruction",
+          "required": true,
+          "status": "instructions",
+          "kits": [
+            {
+              "id": "kit:coding",
+              "version": "1",
+              "descriptorSha256": "8a96d641d87cdef5eb2548863b8c43a2789fbecb6849355ea2f5eb09ae27d814"
+            }
+          ],
+          "identity": {
+            "kind": "instruction",
+            "contentSha256": "9f2c599277164e71691245a5f3f1fdbee82605052cb9a392c28ebb555a2288a0",
+            "artifactSha256": "8fbe0d947ce0f3440ca227961dd059dc3670a2755151704254a20193796a3a05",
+            "bytes": 54,
+            "characters": 54
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "9f2c599277164e71691245a5f3f1fdbee82605052cb9a392c28ebb555a2288a0"
+          }
+        },
+        {
+          "resourceId": "local:coding-skill",
+          "kind": "skill",
+          "required": true,
+          "status": "deferred",
+          "kits": [
+            {
+              "id": "kit:coding",
+              "version": "1",
+              "descriptorSha256": "8a96d641d87cdef5eb2548863b8c43a2789fbecb6849355ea2f5eb09ae27d814"
+            }
+          ],
+          "identity": {
+            "kind": "skill",
+            "contentSha256": "a2708787caff8c418c5fbc98d8b455b86da9d335e2017f9d8fcb34f600fb1d33",
+            "artifactSha256": "129167141d48548d9ac4c731fea057a402d240731a440868f4dc1c3f0892abeb",
+            "bytes": 185,
+            "characters": 185
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "a2708787caff8c418c5fbc98d8b455b86da9d335e2017f9d8fcb34f600fb1d33"
+          }
+        },
+        {
+          "resourceId": "local:general",
+          "kind": "instruction",
+          "required": true,
+          "status": "instructions",
+          "kits": [
+            {
+              "id": "kit:general",
+              "version": "1",
+              "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367"
+            }
+          ],
+          "identity": {
+            "kind": "instruction",
+            "contentSha256": "946671a00e938f2cb4e6e6c0af6a4c9719736d5550172105183dc3be083425dd",
+            "artifactSha256": "ee55e1b894e750ba21712d4a3a6df8e649d456cda091f99cdbc6648687a367d4",
+            "bytes": 80,
+            "characters": 78
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "946671a00e938f2cb4e6e6c0af6a4c9719736d5550172105183dc3be083425dd"
+          }
+        }
+      ],
+      "budget": {
+        "maxCoreBytes": 100000,
+        "maxContextBytes": 200000,
+        "maxContextCharacters": 100000
+      },
+      "accounting": {
+        "sha256": "eead785c30167681b7e53afcdfb5bb5cbb9028ca5c57a57cb1241c93dc2db4ca",
+        "bytes": 394,
+        "characters": 392,
+        "coreBytes": 193,
+        "deferredBytes": 185
+      },
+      "diagnostics": [],
+      "planSha256": "a264b64a6b5b90f74b0880faa54f1c83fe910a03e199c58a1c7ff748088549d2",
+      "candidate": {
+        "text": "[Instruction local:ambient]\nPreserve the user's current task.\n\n[Instruction local:general]\nDistinguish facts, assumptions, and verified results. Cite exact sources. 😀\r\n\n\n[Instruction local:coding]\nReturn an exact diff and retained Host check receipts.\n\nAvailable context (use runtime_load by id; content does not grant permissions):\nlocal:coding-skill (skill): Check recorded source versions",
+        "sha256": "eead785c30167681b7e53afcdfb5bb5cbb9028ca5c57a57cb1241c93dc2db4ca",
+        "bytes": 394,
+        "characters": 392,
+        "segments": [
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:ambient"
+            ],
+            "kits": [],
+            "text": "[Instruction local:ambient]\nPreserve the user's current task.",
+            "start": 0,
+            "end": 61,
+            "sha256": "22c2481ed2c2f85b8d46f40c91a08274b876caa9594083b2485d228c3e121c39",
+            "bytes": 61,
+            "characters": 61
+          },
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:general"
+            ],
+            "kits": [
+              {
+                "id": "kit:general",
+                "version": "1",
+                "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367"
+              }
+            ],
+            "text": "\n\n[Instruction local:general]\nDistinguish facts, assumptions, and verified results. Cite exact sources. 😀\r\n",
+            "start": 61,
+            "end": 169,
+            "sha256": "aac54ea3c5cd658f70c154ee3d575ec620e70412d74b5e4597f0ba084b2087be",
+            "bytes": 110,
+            "characters": 108
+          },
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:coding"
+            ],
+            "kits": [
+              {
+                "id": "kit:coding",
+                "version": "1",
+                "descriptorSha256": "8a96d641d87cdef5eb2548863b8c43a2789fbecb6849355ea2f5eb09ae27d814"
+              }
+            ],
+            "text": "\n\n[Instruction local:coding]\nReturn an exact diff and retained Host check receipts.",
+            "start": 169,
+            "end": 252,
+            "sha256": "2be534f23e918aecbeb294102cd70873b9538dea6be7ce4dff8a1e9ddac4d521",
+            "bytes": 83,
+            "characters": 83
+          },
+          {
+            "kind": "catalog",
+            "resourceIds": [
+              "local:coding-skill"
+            ],
+            "kits": [
+              {
+                "id": "kit:coding",
+                "version": "1",
+                "descriptorSha256": "8a96d641d87cdef5eb2548863b8c43a2789fbecb6849355ea2f5eb09ae27d814"
+              }
+            ],
+            "text": "\n\nAvailable context (use runtime_load by id; content does not grant permissions):\nlocal:coding-skill (skill): Check recorded source versions",
+            "start": 252,
+            "end": 392,
+            "sha256": "1fc7708a4bc0442ccf2034ae6b131245fce6f61fad08cb34fa9e32a6a7bb3fd1",
+            "bytes": 140,
+            "characters": 140
+          }
+        ]
+      }
+    },
+    "praxis": {
+      "status": "compiled",
+      "binding": {
+        "revision": 7,
+        "hash": "4e1a27972fabe94f641a17bdf95657fda52715c37dd62db89d23a0ff3344e2a1",
+        "composition": {
+          "id": "local:kit-profile",
+          "version": "synthetic-v1",
+          "hash": "4b8b4e766e2b1a34ba146c7130e2c96fd5e4b61db91dc44ef84f56713c7199f0",
+          "status": "compatible",
+          "resourceIds": [
+            "local:praxis",
+            "local:general",
+            "local:ambient",
+            "local:notes",
+            "local:template",
+            "tool:runtime_load",
+            "tool:check_run",
+            "tool:repo_read"
+          ],
+          "uiSlots": [],
+          "missing": []
+        }
+      },
+      "kits": [
+        {
+          "id": "kit:general",
+          "version": "1",
+          "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367"
+        },
+        {
+          "id": "kit:praxis",
+          "version": "1",
+          "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+        }
+      ],
+      "compatibility": {
+        "status": "unchecked",
+        "kits": [
+          {
+            "id": "kit:general",
+            "version": "1",
+            "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367",
+            "status": "unchecked",
+            "evidence": []
+          },
+          {
+            "id": "kit:praxis",
+            "version": "1",
+            "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b",
+            "status": "unchecked",
+            "evidence": []
+          }
+        ]
+      },
+      "requirements": [],
+      "references": [
+        {
+          "resourceId": "local:general",
+          "kind": "instruction",
+          "required": true,
+          "status": "instructions",
+          "kits": [
+            {
+              "id": "kit:general",
+              "version": "1",
+              "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367"
+            },
+            {
+              "id": "kit:praxis",
+              "version": "1",
+              "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+            }
+          ],
+          "identity": {
+            "kind": "instruction",
+            "contentSha256": "946671a00e938f2cb4e6e6c0af6a4c9719736d5550172105183dc3be083425dd",
+            "artifactSha256": "ee55e1b894e750ba21712d4a3a6df8e649d456cda091f99cdbc6648687a367d4",
+            "bytes": 80,
+            "characters": 78
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "946671a00e938f2cb4e6e6c0af6a4c9719736d5550172105183dc3be083425dd"
+          }
+        },
+        {
+          "resourceId": "local:notes",
+          "kind": "reference",
+          "required": true,
+          "status": "deferred",
+          "kits": [
+            {
+              "id": "kit:praxis",
+              "version": "1",
+              "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+            }
+          ],
+          "identity": {
+            "kind": "reference",
+            "contentSha256": "d55a4634277d01dbc04fa5307beb82ad3ff98738854a2525116fc3843bde2579",
+            "artifactSha256": "482b6fecb7297990bb41dfe2c0e4af92971a6473e259aa02d6b4fc4c761cac65",
+            "bytes": 70,
+            "characters": 70
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "d55a4634277d01dbc04fa5307beb82ad3ff98738854a2525116fc3843bde2579"
+          }
+        },
+        {
+          "resourceId": "local:praxis",
+          "kind": "instruction",
+          "required": true,
+          "status": "instructions",
+          "kits": [
+            {
+              "id": "kit:praxis",
+              "version": "1",
+              "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+            }
+          ],
+          "identity": {
+            "kind": "instruction",
+            "contentSha256": "978356d6ac9060cf503ba0ba6dd228024300727da1b1233aef4d57c63b4732fb",
+            "artifactSha256": "db2600edbd6d720a2733763f7c677664a783ae698eed0f863d4aace604974fe9",
+            "bytes": 87,
+            "characters": 87
+          },
+          "source": {
+            "type": "local-config",
+            "hash": "978356d6ac9060cf503ba0ba6dd228024300727da1b1233aef4d57c63b4732fb"
+          }
+        }
+      ],
+      "budget": {
+        "maxCoreBytes": 100000,
+        "maxContextBytes": 200000,
+        "maxContextCharacters": 100000
+      },
+      "accounting": {
+        "sha256": "bf0934ec6af5d65574c192b8952eda7fb106015d7422a524d0bfba846737f794",
+        "bytes": 412,
+        "characters": 410,
+        "coreBytes": 226,
+        "deferredBytes": 70
+      },
+      "diagnostics": [],
+      "planSha256": "b09030f179e27c97414903d9d2ec70c0a38fe10642d1183b698e2ed666adabd4",
+      "candidate": {
+        "text": "[Instruction local:ambient]\nPreserve the user's current task.\n\n[Instruction local:general]\nDistinguish facts, assumptions, and verified results. Cite exact sources. 😀\r\n\n\n[Instruction local:praxis]\nRecord audience, expectation, requested decision, stage, evidence posture, and tension.\n\nAvailable context (use runtime_load by id; content does not grant permissions):\nlocal:notes (reference): Organization notes",
+        "sha256": "bf0934ec6af5d65574c192b8952eda7fb106015d7422a524d0bfba846737f794",
+        "bytes": 412,
+        "characters": 410,
+        "segments": [
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:ambient"
+            ],
+            "kits": [],
+            "text": "[Instruction local:ambient]\nPreserve the user's current task.",
+            "start": 0,
+            "end": 61,
+            "sha256": "22c2481ed2c2f85b8d46f40c91a08274b876caa9594083b2485d228c3e121c39",
+            "bytes": 61,
+            "characters": 61
+          },
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:general"
+            ],
+            "kits": [
+              {
+                "id": "kit:general",
+                "version": "1",
+                "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367"
+              },
+              {
+                "id": "kit:praxis",
+                "version": "1",
+                "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+              }
+            ],
+            "text": "\n\n[Instruction local:general]\nDistinguish facts, assumptions, and verified results. Cite exact sources. 😀\r\n",
+            "start": 61,
+            "end": 169,
+            "sha256": "aac54ea3c5cd658f70c154ee3d575ec620e70412d74b5e4597f0ba084b2087be",
+            "bytes": 110,
+            "characters": 108
+          },
+          {
+            "kind": "instruction",
+            "resourceIds": [
+              "local:praxis"
+            ],
+            "kits": [
+              {
+                "id": "kit:praxis",
+                "version": "1",
+                "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+              }
+            ],
+            "text": "\n\n[Instruction local:praxis]\nRecord audience, expectation, requested decision, stage, evidence posture, and tension.",
+            "start": 169,
+            "end": 285,
+            "sha256": "12a3d641e1f84463261be8954bed16cbe37cacbe3a57ac842542e6a3add7a7d0",
+            "bytes": 116,
+            "characters": 116
+          },
+          {
+            "kind": "catalog",
+            "resourceIds": [
+              "local:notes"
+            ],
+            "kits": [
+              {
+                "id": "kit:praxis",
+                "version": "1",
+                "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+              }
+            ],
+            "text": "\n\nAvailable context (use runtime_load by id; content does not grant permissions):\nlocal:notes (reference): Organization notes",
+            "start": 285,
+            "end": 410,
+            "sha256": "86eb68cc61754f85d25d609f3330b0e6294e9914ea869e02f3294ba4dfbe7d50",
+            "bytes": 125,
+            "characters": 125
+          }
+        ]
+      }
+    }
+  },
+  "invariants": {
+    "historical": {
+      "status": "compiled",
+      "compatibility": "unchecked",
+      "planSha256": "98bf49db32896575c8a9128bee058d188e7240c7f27a747920e00ffab8da193b",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 255
+      },
+      "diagnostics": []
+    },
+    "kitDeselectedInstructionsRemain": {
+      "status": "compiled",
+      "compatibility": "unchecked",
+      "planSha256": "6309af8f2e797eca7a323bff7a62c46f156f5894692a53c2e2262a66200dce7d",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 110,
+        "deferredBytes": 0
+      },
+      "diagnostics": []
+    },
+    "noKits": {
+      "status": "passthrough",
+      "compatibility": "not-applicable",
+      "planSha256": "f624f96db4731e0e9fbc92252a194e88c7528bdc8186468045b5ed5d86f8f9ca",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 0,
+        "deferredBytes": 0
+      },
+      "diagnostics": []
+    },
+    "versionChanged": {
+      "status": "compiled",
+      "compatibility": "unchecked",
+      "planSha256": "f22109e3052b50a6209bab99bb29a2ed5df16294348daa5adddbd0cdfee9820b",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 255
+      },
+      "diagnostics": []
+    },
+    "deferredBodyChanged": {
+      "status": "compiled",
+      "compatibility": "unchecked",
+      "planSha256": "38511e72054b4ff782e2e885fa94368302d3034f3974e07f3ee326a6b7e5784c",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 283
+      },
+      "diagnostics": []
+    },
+    "historicalRecompiled": {
+      "status": "compiled",
+      "compatibility": "unchecked",
+      "planSha256": "98bf49db32896575c8a9128bee058d188e7240c7f27a747920e00ffab8da193b",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 255
+      },
+      "diagnostics": []
+    },
+    "requiredSourceMissing": {
+      "status": "refused",
+      "compatibility": "unchecked",
+      "planSha256": "50787c63ce96e3c5005d18da9a4b894e49f8177d3417976b69ff4cc30dd686a1",
+      "candidateSha256": null,
+      "accounting": null,
+      "diagnostics": [
+        {
+          "code": "source-missing",
+          "kitId": "kit:general",
+          "resourceId": "local:general",
+          "required": true
+        }
+      ]
+    },
+    "oneByteUnder": {
+      "status": "refused",
+      "compatibility": "unchecked",
+      "planSha256": "b94927453d3eedf3d8d0ee07226ae95a644471a27f6354b0291b7ce3a6272dea",
+      "candidateSha256": null,
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 255
+      },
+      "diagnostics": [
+        {
+          "code": "context-byte-budget-exceeded",
+          "kitId": null,
+          "resourceId": null,
+          "required": null,
+          "actual": 554,
+          "limit": 553
+        }
+      ]
+    },
+    "syntheticSupported": {
+      "status": "compiled",
+      "compatibility": "supported",
+      "planSha256": "9a8c11e66273b644a85632269878ba574dbb424e8ca66b32174351a33606e93a",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 255
+      },
+      "diagnostics": []
+    },
+    "syntheticUnsupported": {
+      "status": "refused",
+      "compatibility": "unsupported",
+      "planSha256": "85d3d207881f7b65fb57e9a614ee5c41e9a1fe2e0cf50cfe667c571ae1604b28",
+      "candidateSha256": null,
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 255
+      },
+      "diagnostics": [
+        {
+          "code": "runtime-unsupported",
+          "kitId": "kit:praxis",
+          "resourceId": null,
+          "required": null
+        }
+      ]
+    },
+    "evidenceWrongRevision": {
+      "status": "compiled",
+      "compatibility": "unchecked",
+      "planSha256": "a1678b9110e343829cc99cf840b0f373d26819e39922ed5b7d7d71e1bcef4f99",
+      "candidateSha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+      "accounting": {
+        "sha256": "48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba",
+        "bytes": 554,
+        "characters": 552,
+        "coreBytes": 309,
+        "deferredBytes": 255
+      },
+      "diagnostics": [
+        {
+          "code": "evidence-not-applicable",
+          "kitId": "kit:coding",
+          "resourceId": null,
+          "required": null,
+          "evidence": {
+            "kit": {
+              "id": "kit:coding",
+              "version": "1",
+              "descriptorSha256": "8a96d641d87cdef5eb2548863b8c43a2789fbecb6849355ea2f5eb09ae27d814"
+            },
+            "bindingHash": "8177c76dbe2938cb177ee37e31f7a26e9636354bae4daf0145d54699d355640c",
+            "runtime": {
+              "adapterId": "synthetic-context-adapter",
+              "revision": "fixture-v1"
+            },
+            "result": "supported",
+            "evidence": {
+              "ref": "synthetic:kit-context-fixture",
+              "sha256": "5ae7a7141a8c49a127ee38483e4ef38484de7725c7387aa146d5422b64e60003"
+            }
+          }
+        },
+        {
+          "code": "evidence-not-applicable",
+          "kitId": "kit:general",
+          "resourceId": null,
+          "required": null,
+          "evidence": {
+            "kit": {
+              "id": "kit:general",
+              "version": "1",
+              "descriptorSha256": "8d5c79034900aec0fdeedfd11ad27aee90a6681cfb56662fde87806d8a4cb367"
+            },
+            "bindingHash": "8177c76dbe2938cb177ee37e31f7a26e9636354bae4daf0145d54699d355640c",
+            "runtime": {
+              "adapterId": "synthetic-context-adapter",
+              "revision": "fixture-v1"
+            },
+            "result": "supported",
+            "evidence": {
+              "ref": "synthetic:kit-context-fixture",
+              "sha256": "5ae7a7141a8c49a127ee38483e4ef38484de7725c7387aa146d5422b64e60003"
+            }
+          }
+        },
+        {
+          "code": "evidence-not-applicable",
+          "kitId": "kit:praxis",
+          "resourceId": null,
+          "required": null,
+          "evidence": {
+            "kit": {
+              "id": "kit:praxis",
+              "version": "1",
+              "descriptorSha256": "53e7f151b68730aba9a2e098648a3cfea402d498435adc02e275c3afad43f07b"
+            },
+            "bindingHash": "8177c76dbe2938cb177ee37e31f7a26e9636354bae4daf0145d54699d355640c",
+            "runtime": {
+              "adapterId": "synthetic-context-adapter",
+              "revision": "fixture-v1"
+            },
+            "result": "supported",
+            "evidence": {
+              "ref": "synthetic:kit-context-fixture",
+              "sha256": "5ae7a7141a8c49a127ee38483e4ef38484de7725c7387aa146d5422b64e60003"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

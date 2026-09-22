@@ -1,0 +1,70 @@
+{
+  "blocks": [],
+  "controls": [],
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "rect": {
+      "bottom": 900,
+      "height": 900,
+      "left": 0,
+      "right": 1280,
+      "top": 0,
+      "width": 1280,
+      "x": 0,
+      "y": 0
+    },
+    "tag": "BODY",
+    "text": "INTERACTIVE SYNTHETIC PREVIEW\n\nSettings › Agents › Runtimes\n\nEvery runtime, version, connection, credential reference, run and receipt on this page is synthetic. Pi, Hermes and Codex are labelled examples, not a search of this device. Nothing here starts a process, reads or writes native settings, handles a key, contacts a provider or saves outside this tab. A confirmed revision is confirmed by the preview only.\n\nScenario\nNormal\nNo runtimes reported\nList cannot be read\nConnect refused\nNext reply lost after it lands\nChanged elsewhere first\nNext read-back is stale\nHost cannot change runtimes\nSlow replies\nAppearance\nLight\nDark\nReset preview\nAgents\nModels\nTools & Integrations\nPermissions\nDeveloper\nSettings group\n\nOnly Agents › Runtimes is built in this preview. The other groups are the product's real ones and are not reachable from here.\n\nAgents\nRuntimes\n\nA runtime is the engine an agent runs on. Models keeps provider and model connections; Tools keeps extensions and hooks.\n\nNo runtime is reported on this host. A runtime appears here once its owner reports it; nothing is searched for.",
+    "value": ""
+  },
+  "mount": {
+    "rect": {
+      "bottom": 370.796875,
+      "height": 60.296875,
+      "left": 341,
+      "right": 1119,
+      "top": 310.5,
+      "width": 778,
+      "x": 341,
+      "y": 310.5
+    },
+    "style": {
+      "border": "0px",
+      "control": "28px",
+      "font": "14px",
+      "gapToken": "40px",
+      "line": "21px",
+      "margin": "0px",
+      "padding": "0px"
+    }
+  },
+  "pointer": {
+    "anyCoarse": false,
+    "coarse": false,
+    "fine": true
+  },
+  "rootGap": "40px",
+  "scroll": {
+    "client": 641,
+    "height": 641,
+    "rect": {
+      "bottom": 876,
+      "height": 642.5,
+      "left": 320,
+      "right": 1140,
+      "top": 233.5,
+      "width": 820,
+      "x": 320,
+      "y": 233.5
+    },
+    "top": 0
+  },
+  "textScale": "1",
+  "theme": "light",
+  "viewport": {
+    "height": 900,
+    "width": 1280
+  },
+  "visualScale": 1
+}

@@ -1,0 +1,58 @@
+# Luna final non-author review — Kit K1/K2
+
+Date: 2026-09-22
+
+## Fixed source and scope
+
+- Candidate checkout: `/Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork`
+- Branch: `codex/kit-k0-contract-20260922`
+- Reviewed HEAD: `9a09f8ef06f1b3b46189e6bba73a2dfd3e8f7a44`
+- Parent contract/disposition: `engineering/execution/claude-frontend-harness-2026-09-16/kit-context-core-20260922.md` and `engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-parent-20260922/README.md`
+- K1/K2 record: `engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/k1-k2.md`
+- Product source pin recorded by the K1/K2 packet: `966dfdb26111f23145f3edeaef19de180193e98a`
+
+This is a bounded source/test review of the pure planner and synthetic consumer proof. It does not accept production Kit selection, persistence, Run binding, live runtime compatibility, provider behavior, UI mounting, or the broader application.
+
+## Source checks
+
+`app/runtime/kit-context.mjs` was unchanged at the reviewed HEAD and has SHA-256 `c37e811ea5cd7081c6f92527f1d6985f586a95db2d5dd86ac480138757696a07`.
+
+Relevant source coordinates:
+
+- K1 input validation and explicit Kit-present runtime/evidence requirements: lines 153–202.
+- Exact no-Kit passthrough, before reading new Kit fields: lines 270–275; passthrough construction and copied result: lines 245–263.
+- Descriptor/reference pin sorting, duplicate handling, and selected conflict refusal: lines 290–345.
+- Resource/body kind, scope, activation, exposure, content/artifact hash checks; required mismatch/missing paths refuse: lines 376–433.
+- Requirement readings copy the existing owner permission observation only; no grant/evaluator is created: lines 436–457.
+- Runtime compatibility evidence matches Kit pin, binding hash, adapter and revision; wrong scope is diagnosed as not applicable, while unsupported is fatal only for an exact match: lines 459–501.
+- Deterministic scope/ID ordering, segment offsets, UTF-8/UTF-16 accounting and byte/character/core budgets: lines 529–560.
+- Refusal returns `candidate: null`; successful output is copied and plan identity is calculated from the normalized result: lines 239–243 and 564–582.
+
+The four new source/test files were byte-pinned as follows:
+
+```text
+c37e811ea5cd7081c6f92527f1d6985f586a95db2d5dd86ac480138757696a07  app/runtime/kit-context.mjs
+09fccd5be84cd32386280c646c3f74880d7be854c7df375713bb50cb94d091e7  app/tests/kit-context.test.mjs
+7ea32b8c35b97d22a28a2ce0539e4871692210c12c6b07fbafffddbcf2a5ac62  app/tests/kit-context-independent.test.mjs
+0ef11e65f3d017904c5c552c5cb918960161b0437e1a371d37aff7d19a18712d  app/tests/fixtures/kit-context.mjs
+```
+
+## Reproduction
+
+The candidate had no `app/node_modules`; I temporarily symlinked it to the already-installed main application dependency directory for read-only resolution and removed that symlink after each run. No package or product file changed.
+
+1. `node --test app/tests/kit-context.test.mjs app/tests/kit-context-independent.test.mjs`
+   - **51/51 passed, exit 0**; 44 author tests and 7 separately authored independent tests.
+   - Full output and explicit exit: `/tmp/cw-kit-final-review-20260922.log`.
+2. `node --test --test-name-pattern='R2:|context:|composition:' app/tests/source-resolver.test.mjs app/tests/control-plane.test.mjs`
+   - **9/9 passed, exit 0**.
+   - Output: `/tmp/cw-kit-adjacent-20260922.log`.
+3. Two additional independent synthetic counterexamples, both exit 0 (`/tmp/cw-kit-counterexamples-20260922.log`):
+   - Tampering an optional deferred body without updating its admitted source pin produced `refused`, `source-mismatch`, and `candidate:null`.
+   - Supplying `unsupported` compatibility evidence at the wrong runtime revision produced a compiled plan with `unchecked`/`evidence-not-applicable`, no `runtime-unsupported`, and no `granted` or `permission` field.
+
+## Findings and decision
+
+No concrete blocker was found in this bounded review. The candidate satisfies the checked K1/K2 obligations: exact source/deferred pin failure, optional missing handling, strict compatibility scope, permission observation without permission forgery, byte/character/core budget boundaries, deterministic ordering and identity, no-Kit passthrough, and input/output alias isolation.
+
+This is a **bounded pass for the reviewed pure-module and synthetic evidence scope only**. The parent should retain the K0/K1/K2 boundary: the implementation does not establish a production Kit catalog, profile/Run binding, persistence/schema ownership, live runtime support, or formal product acceptance.

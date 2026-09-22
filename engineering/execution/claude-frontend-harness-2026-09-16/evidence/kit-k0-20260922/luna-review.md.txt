@@ -1,0 +1,17 @@
+Read-only non-author review complete.
+
+Review basis: K0 packet at `2c874cfe6c3a4d6f4f529c48229e713dac7871c5`, plus the declared unstaged author delta in `contract.md` and `source-map.md`. I made no edits or test/provider calls.
+
+Findings:
+
+- **K0-REQ-01 · medium · independent:** `ResourceRequirement` has only `{resourceId, required}` (`contract.md:21-40`), while requirements are checked only for presence/exposure (`:78`). Because content resource IDs are legal in the existing binding (`control-plane.mjs:259-267`), a requirement could silently accept a changed instruction/Skill body without a source digest. Fix by restricting requirements to non-content resources, or adding exact source/artifact digests to requirements.
+
+- **K0-REV-01 · high contract clarification · independent:** The actual `RuntimeBinding` type has `revision` and `hash` but no adapter identity (`app/runtime/control-contract.d.ts:129-137`). `RuntimeSnapshot.adapterId` exists (`:106-120`), yet the persisted `runtime.bound` payload omits it (`app/server/service.mjs:2563-2568`); the Run stores `adapterId` separately. The proposed `runtime.revision` (`contract.md:11,88-100`) is therefore future owner evidence, not an existing binding fact. Fix the wording to call it explicit adapter evidence, and state that future Host persistence must freeze adapter ID/revision with the Kit plan. Do not imply the planner can derive it from `RuntimeBinding`.
+
+- **K0-SEG-01 · medium · independent:** Rendering says to join compiler pieces with `\n\n` (`contract.md:110-112`), while segment text also includes its allocated separator and segment sums must reproduce the candidate (`:116-118`). Define one assembly rule before K1: either prefix non-first segment text and concatenate segments directly, or keep raw segment text and account for separators separately. Otherwise byte/unit totals can be double-counted.
+
+- **K0-CON-01 · low · independent:** The conflict wording says a conflict with a selected Kit refuses “even when the other declaration is absent” (`contract.md:59`), which can read as unconditional refusal for any listed conflict. Clarify that refusal occurs only when the target Kit is selected; self-conflict remains invalid.
+
+Author-known corrections in the unstaged delta: `inspect` method naming, no-Kit omission/ignore behavior, and scalar validation for all rendered strings. Those now align with source and are not independent findings.
+
+The existing no-Kit compatibility claim is sound: direct `compileControlContext(binding)` preserves the historical path (`control-plane.mjs:298-300`), while the Kit path avoids `localeCompare` through singleton instruction views. Unexecuted checks remain product tests, K1/K2 implementation, and independent adversarial fixtures.

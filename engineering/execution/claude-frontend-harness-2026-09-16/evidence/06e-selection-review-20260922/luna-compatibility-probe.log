@@ -1,0 +1,1 @@
+{"attentionScope":"This chat and its Work location. It does not open or change another inbox.","normalBlockers":[],"incompatibleBlockers":["Praxis 0.5 does not declare support for Hermes."],"incompatibleSend":{"enabled":false,"reason":"Attention cannot start a run: Praxis 0.5 does not declare support for Hermes."}}

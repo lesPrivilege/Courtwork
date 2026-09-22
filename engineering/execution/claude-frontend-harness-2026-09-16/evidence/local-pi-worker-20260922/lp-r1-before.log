@@ -1,0 +1,1 @@
+{"source":"316a2ea","expectation":"old wrapper misclassifies explicit no-tool refusal as unknown","observed":{"status":"unknown","reason":"callback_failed","fault":"callback_failed","result":null,"exitCode":143}}

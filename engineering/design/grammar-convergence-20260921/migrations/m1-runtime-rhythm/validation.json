@@ -1,0 +1,108 @@
+{
+  "capturedAt": "2026-09-21T17:10:01.051341+00:00",
+  "productCandidate": "b8cd54f4d2e3d142ed367d49e08297170394495d",
+  "integratedBase": "ec772e162aac5decf61c3a5e46f881e5d5145171",
+  "parentMainAtStop": "e1170cfb2131a13668300ed5c56cc1a0152cff9e",
+  "reviewedProductPaths": [
+    "app/web/runtime-management-view.mjs",
+    "app/tests/runtime-management.test.mjs"
+  ],
+  "nativeAccessibilityAcceptance": false,
+  "parentAcceptance": "pending",
+  "browserTabs": "six owned tabs closed; viewport override reset",
+  "scriptChecks": "existing scoped author and non-author results; no full suite rerun",
+  "sourceSha256": {
+    "app/web/runtime-management-view.mjs": "a9a86c855b086e8c1f3b7ae417e9b65c1990f21ff4fcd44b9ce9f968755e7c61",
+    "app/tests/runtime-management.test.mjs": "69d2bfa919d1d804c2208481f3659626cd330ce3dda83886b48cbffea773ac0d"
+  },
+  "auditPreserved": {
+    "files": 32,
+    "allBytesEqualIngestedMain": true
+  },
+  "screenshots": {
+    "astra/01-base-1280-normal.jpg": {
+      "sha256": "7c40d4c6696c51f9f4d4ea9e41002df28e677d8956dc43821145fa80542d3a88",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/02-candidate-1280-normal.jpg": {
+      "sha256": "ef19c18ccf4fe19ad17340b65e3cb2db5143f2f3bf94654edbd488c05c9250aa",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/03-base-1440-large-dark.jpg": {
+      "sha256": "a6d0b134713e6a15699b8a910d0309505ef6093cda342ecc78f9a6ca52b72aaa",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/04-candidate-1440-large-dark.jpg": {
+      "sha256": "beb92e330272f962cc42a181d0d5771d28510f2a6d5d712f433c709f7ec37be4",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/05-base-390-normal.jpg": {
+      "sha256": "b0fadd2b491c2b8967455757264a97b00af297cd83528f31a5a3e3ef9da70117",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/06-candidate-390-normal.jpg": {
+      "sha256": "6dac32ffafa095b8dcf442f7e27c7798d869d4290ab22438257db44f1eab4c5f",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/07-base-390-large-dark.jpg": {
+      "sha256": "5b00b144f15f4b440805ec4bd5a7ad94abf50cd582ce6d2c96237167e0100bde",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/08-candidate-390-large-dark.jpg": {
+      "sha256": "1d89ba184c97f1c624e1d7709a3aa509e85433f371b60e3286d6711977952b06",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/09-unknown-draft.jpg": {
+      "sha256": "2a7cc09f8bf0a0d22863846293cb17331f9459fbe54a6d3e2ca494a31e13c1f8",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/11-large-narrow-keyboard.jpg": {
+      "sha256": "894324e7f1c03b5c032750a9389b6d52d2f753ef9e6b11960d3644d0f16ecaa4",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/12-stale-keyboard.jpg": {
+      "sha256": "37210805d55efa1c231c1b1b8bb1fa8e60a36ec1b3bdcadebfa9c71c2a9813fe",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/14-refused-focus.jpg": {
+      "sha256": "ce7e7699ad15924ba4ec5d3583dc47ab183451ff10c4dd1b4c3988c9d42c0bf7",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/19-candidate-320-reflow-probe.jpg": {
+      "sha256": "f6bc87cbe35bc49e22fbb8158eba92a633995ab20890e1dbb24dd22e223b7c6e",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/20-candidate-isolation.jpg": {
+      "sha256": "2b13066e4238e02d98722da34cbf6af80e73b60fc520348bcd767b91c2bae49e",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    },
+    "astra/21-baseline-isolation.jpg": {
+      "sha256": "791b0ff38065ae608d57fd2332f1dfbd862fd41d93a4c53bb13b8c645d689cf8",
+      "mime": "image/jpeg",
+      "savedBytesVisuallyInspected": true
+    }
+  },
+  "jsonFilesParsed": 27,
+  "localMarkdownLinkErrors": [],
+  "rootSourceScopeDiff": [
+    "app/tests/runtime-management.test.mjs",
+    "app/web/runtime-management-view.mjs"
+  ],
+  "stagedDiffCheck": "pass",
+  "allOwnedPreviewProcessesStopped": true,
+  "originalAuditModified": false
+}

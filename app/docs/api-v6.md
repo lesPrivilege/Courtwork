@@ -64,7 +64,10 @@ record: every list and the chat header read it back. Allowed during a run.
 `DELETE /api/v5/sessions/:id` — removes the execution catalog record (the
 session, its runs, events and questions). Returns
 `{ deleted: true, sessionId, workspaceRetained: true }`: workspace and journal
-bytes on disk are kept, this is not secure erasure. Refused with `409 active_run`
+bytes on disk are kept, this is not secure erasure. Spark-referenced Sessions
+(including parent, child and retained source/result history) are refused with
+`409 spark_session_referenced`; deletion does not cascade through that history.
+Refused with `409 active_run`
 while a run is active anywhere; `404 not_found` afterwards, so a second delete is
 not an idempotent success. The sidebar's Chat rows offer both through one command
 set (right-click, the row's More button, the Menu key); see

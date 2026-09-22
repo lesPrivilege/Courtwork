@@ -1,0 +1,55 @@
+# Luna final non-author review — M1 Runtime detail rhythm
+
+Date: 2026-09-22
+
+## Fixed source and scope
+
+- Candidate checkout: `/Users/lesprivilege/.codex/worktrees/c626/Courtwork`
+- Branch: `codex/m1-runtime-rhythm-20260922`
+- Review HEAD: `ffd4e392c7be8b18cdbcbbb295636ad4be60adff`
+- Product pin under review: `b8cd54f4d2e3d142ed367d49e08297170394495d`
+- Lease/current: `engineering/current.md` M1 entry and `engineering/design/grammar-convergence-20260921/disposition-20260922.md` § “Finite write lease M1”.
+- Migration record: `engineering/design/grammar-convergence-20260921/migrations/m1-runtime-rhythm/README.md`
+- Prior independent source review: `engineering/design/grammar-convergence-20260921/migrations/m1-runtime-rhythm/luna/review.md`
+
+The product delta is limited to `app/web/runtime-management-view.mjs` (23 changed lines) and the focused `app/tests/runtime-management.test.mjs` regression (14 added lines). The later `ffd4e39` commit adds evidence only. No product file was changed by this review.
+
+## Structural and CSS-scope review
+
+At `app/web/runtime-management-view.mjs:751–778`, the detail path collects the existing detail nodes and places them in one plain `div` with only:
+
+```text
+style="--settings-group-gap: var(--space-4)"
+data-testid="runtime-detail-rhythm"
+```
+
+The wrapper has no class, role, tabindex, padding, border, visible text or new landmark. It is created only after `page.detail` exists. The list, loading and detail-error-without-data returns at lines 738–744 return before the wrapper is constructed. The existing `#settings-runtime-environment.settings-block` mount in `app/web/index.html:502–506` remains the owner mount.
+
+The existing inner blocks remain direct children of the new wrapper. `technicalBlock` remains the last rendered block after `detailNodes.filter(Boolean)`, so `.settings-block:last-child` still removes the final margin. The CSS has no selector depending on the inner blocks being direct children of the outer Settings section. The relevant unchanged rules are `app/web/styles.css:5337–5360`: the inherited `--settings-group-gap`, `.settings-block:last-child`, `.settings-block > .section-heading`, and `.settings-block > .settings-row:last-child`. The only root declaration remains `app/web/styles.css:373`; `styles.css`, `index.html`, controller, adapter and sibling Settings modules are outside the product diff and unchanged.
+
+The new test at `app/tests/runtime-management.test.mjs:167–179` checks list isolation, plain element/class/style shape, detail containment and removal on Back. The existing production-controller/view tests continue to exercise focus, draft, disclosure, unknown, stale-read-back, refusal, reload and late-response behavior through the same view.
+
+## Independent reproduction
+
+The candidate had no `app/node_modules`; I temporarily symlinked it to the already-installed main application dependency directory for read-only resolution and removed the symlink after the run. No package or product file changed.
+
+1. `node --test app/tests/runtime-management.test.mjs`
+   - **35/35 passed, exit 0**.
+2. `node --test app/tests/settings-navigation.test.mjs`
+   - **7/7 passed, exit 0**.
+3. `node tools/lint-spacing.mjs`
+   - **exit 0**.
+4. `node tools/lint-interaction.mjs app/web/runtime-management-view.mjs`
+   - **exit 0**.
+5. `git diff --check b8cd54f4d2e3d142ed367d49e08297170394495d^ b8cd54f4d2e3d142ed367d49e08297170394495d -- app/web/runtime-management-view.mjs app/tests/runtime-management.test.mjs`
+   - **exit 0**.
+
+Full command output: `/tmp/cw-m1-final-review-20260922.log`.
+Exit summary: `/tmp/cw-m1-final-review-20260922.exit`.
+Source hashes: `/tmp/cw-m1-final-review-20260922.sha256`.
+
+## Findings and decision
+
+No concrete blocker was found in this bounded source, focused-test, and selector-scope review. The candidate preserves the existing Runtime controller/view semantics, list/detail boundary, focus keys, inner block relationships, last-child behavior, and unrelated Settings token geometry while applying the local inherited 16px mapping only to Runtime detail.
+
+This is a **bounded non-author pass for the fixed source and focused checks only**. Parent Arch still owns visual/browser evidence, final design acceptance and merge. Native zoom, actual 200% text reflow, text-spacing overrides, forced colors, coarse/hybrid input, screen-reader behavior and the full application suite were not run here.

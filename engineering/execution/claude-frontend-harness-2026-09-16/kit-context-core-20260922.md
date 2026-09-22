@@ -27,3 +27,21 @@ K0 owns only its new task evidence/contract. K1/K2 may own new `app/runtime/kit-
 Use one isolated checkout. No background service, runtime registration, hooks execution, shell tool, new framework, dependency upgrade, package installation or user8787 operation. A trusted executable extension does not become portable declarative Kit content. A new capability cannot be advertised merely because compilation succeeds.
 
 Tests address actual compiler/consumer invariants rather than mirroring implementation. Keep author and Luna non-author evidence separately pinned; no model calls or full stress campaign for a pure module. Stop at finite K2 delivery or a demonstrated existing-owner blocker with a concrete alternative. Parent owns final architecture, acceptance and merge; no push/deploy/cleanup of others.
+
+
+## Observed checkout status — closure audit2026-09-22
+
+K0 branch codex/kit-k0-contract-20260922 is registered in kit-k0-20260922/Courtwork and has untracked contract evidence at the audit snapshot. This establishes contract work in a protected checkout, not K1/K2 or accepted Kit support. Parent has not consumed a process/author dispatch identity; no inference from the branch name is made. See the [parent audit](evidence/work-closure-audit-20260922/README.md).
+
+
+Post-audit observation: the same protected K0 branch advanced to bacd64e with contract/review documentation and a clean tree. Parent contract disposition is still required; no compiler or production binding acceptance is recorded by this metadata observation.
+
+
+## K0 selected; K1/K2 authorized — 2026-09-22
+
+[Parent decision and finite lease](evidence/kit-k0-parent-20260922/README.md) accept bacd64e's reference-only contract, consume all four corrected non-author findings and release the original task for new pure Kit modules/tests plus K2 synthetic consumer proof. No shared Host/control/schema/UI writer is granted. The original packet is merged at ecf2d6a with exact bytes preserved; current main is schema20, while the K0 baseline was19. Parent retains architecture and final product acceptance. Task identity is now verified as Define bounded Kit context contract /01a0c8bb-0f08-7113-938f-f8bf3be42ad9; keep the same protected branch/worktree and merge this parent main before proceeding.
+
+
+## K1/K2 final adoption — 2026-09-22
+
+[Parent final receipt](evidence/kit-final-20260922/README.md) accepts product966dfdb/handoff9a09f8e and integrates70a2268. Parent Luna51/51 +9/9 +2 adversarial probes and actual-main51/51 pass. The reference-only pure planner and synthetic consumer are delivered; production catalog/selection/profile/Run freezing remain open. Source was archive/bundle restored and verified, then ended branch/worktree removed; historical K0/author bytes preserved. No new Host/schema/UI/runtime capability is implied, and no automatic next slice starts.

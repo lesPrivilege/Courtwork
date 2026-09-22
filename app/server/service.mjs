@@ -1,5 +1,7 @@
+import { createLocalPiBinding, LOCAL_PI_ADAPTER } from '../runtime/local-pi-process.mjs';
+import { executeLocalPiChild } from '../runtime/local-pi-host.mjs';
 import { Subagents } from '../harness/subagents.mjs';
-import { SPARK_DEFINITION } from '../harness/subagent-state.mjs';
+import { SPARK_DEFINITION, assertSessionNotReferencedBySubagents } from '../harness/subagent-state.mjs';
 import { compareSourceText } from '../intake/compare.mjs';
 import { IntakeStore, IntakeError } from '../intake/store.mjs';
 import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl } from './provider-fields.mjs';
@@ -198,11 +200,13 @@ function redact(message, secrets) {
 }
 
 export class RuntimeService {
-  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, runtimePort, budget = {}, compaction = {}, asyncTaskAdapters = [], logger = () => {} }) {
+  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, runtimePort, budget = {}, compaction = {}, asyncTaskAdapters = [], localPiWorker = false, logger = () => {} }) {
     this.store = store;
     this.coordination = new Coordination(store);
     this.subagents = new Subagents(this);
     this.fakeProvider = fakeProvider;
+    if (typeof localPiWorker !== "boolean") throw new TypeError("localPiWorker must be an explicit boolean");
+    this.localPiBinding = localPiWorker ? createLocalPiBinding({ baseUrl: fakeProvider.baseUrl }) : null;
     this.extensionRegistry = extensionRegistry;
     this.workCore = workCore;
     this.dataDir = dataDir;
@@ -2251,6 +2255,7 @@ export class RuntimeService {
       if (this.store.hasActiveRun()) throw new ServiceError(409,'active_run','session deletion is unavailable during a run');
       const session = this.store.getSession(sessionId);
       if (!session) throw new ServiceError(404,'not_found','session not found');
+      assertSessionNotReferencedBySubagents(this.store.snapshot(), sessionId);
       const binding = session.extensionBinding;
       if (binding && ['evidence-memo','inbound-nda'].includes(binding.extensionId)) await this.workCore.call('claim_work',{matter_id:binding.binding.matterId,project_id:session.projectId,extension_id:binding.extensionId});
       // Only execution catalog records are removed. Core history and private
@@ -2489,7 +2494,10 @@ export class RuntimeService {
 
     // A Session stays with the runtime that first served it. The Host never
     // moves it to another runtime, and never falls back to one.
-    const remoteRuntime = this.runtimePort.remote === true;
+    const sparkChild = this.subagents.forSession(sessionId);
+    const localPiChild = Boolean(this.localPiBinding && sparkChild);
+    if (sparkChild && this.store.listRuns().some(r => r.sessionId === sessionId)) throw new ServiceError(409, "spark_closed", "child attempts cannot be continued or relaunched");
+    const remoteRuntime = !localPiChild && this.runtimePort.remote === true;
     if (remoteRuntime ? session.hostSession !== null : session.remoteBinding !== null) throw new ServiceError(409, "runtime_mismatch", "this chat belongs to another runtime");
     if (remoteRuntime && session.extensionBinding) throw new ServiceError(409, "runtime_capability_unsupported", `${this.adapterId} does not support extension-bound chats`);
     this.#requireRuntimeCapability((remoteRuntime ? session.remoteBinding : session.hostSession) ? "continue" : "start");
@@ -2542,6 +2550,11 @@ export class RuntimeService {
       extension = bindingSnapshot(record);
     }
 
+    if (localPiChild) {
+      if (provider.provider !== this.localPiBinding.provider || provider.model !== this.localPiBinding.model || (provider.baseUrl && provider.baseUrl !== this.fakeProvider.baseUrl)) throw new ServiceError(409, "local_pi_provider_binding", "local Pi requires this Host's exact deterministic provider binding");
+      provider.baseUrl = this.localPiBinding.baseUrl;
+    }
+
     // The commandId uniqueness check (and the single-active-run gate) happens
     // inside store.createRun's serialized mutation queue, so this is the only
     // safe point to decide whether this HTTP request truly owns a new run.
@@ -2560,7 +2573,7 @@ export class RuntimeService {
         singleActiveRun: true,
         sessionId,
         input: instruction,
-        adapterId: this.adapterId,
+        adapterId: localPiChild ? LOCAL_PI_ADAPTER.id : this.adapterId,
         provider,
         extension,
         commandId,
@@ -2573,6 +2586,7 @@ export class RuntimeService {
         remote: remoteRuntime ? this.#remoteAdmission(session, provider, connection) : null,
       });
     } catch (error) {
+      if (error?.code === "LOCAL_PI_UNRECONCILED") throw new ServiceError(409, "local_pi_unreconciled", "a local Pi process attempt needs conclusive recovery evidence");
       if (error?.code === "COMMAND_CONFLICT") throw new ServiceError(409, "command_conflict", "commandId was already used with a different input");
       if (error?.code === "RUNTIME_MISMATCH") throw new ServiceError(409, "runtime_mismatch", "this chat belongs to another runtime");
       if (error?.code === "REMOTE_UNRECONCILED") throw new ServiceError(409, "remote_unreconciled", "a remote action of this chat is unresolved; nothing is re-sent or re-created");
@@ -2736,6 +2750,12 @@ export class RuntimeService {
       await this.#appendError(run.id, code, message);
     };
     try {
+      if (run.adapterId === LOCAL_PI_ADAPTER.id) {
+        const outcome = await executeLocalPiChild(this, run, entry);
+        extensionOutcome = outcome.status === "completed" ? "completed" : outcome.status === "cancelled" ? "canceled" : outcome.status === "unknown" ? "unknown" : "failed";
+        if (outcome.reason && !["completed", "cancelled"].includes(outcome.status)) await appendError(outcome.reason, "Local Pi findings were not published; inspect the retained process receipt");
+        return;
+      }
       this.#armDeadline(entry, run.id);
       if (this.runtimePort.remote === true) {
         // No locator to persist: the gateway records the remote binding

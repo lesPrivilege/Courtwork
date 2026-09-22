@@ -1,0 +1,34 @@
+✔ local Pi input packet verifies exact UTF-8 source bytes and binds CW identity (1.3855ms)
+✔ local Pi completion requires matching terminal and settled, not prose or agent_end (0.326417ms)
+✔ local Pi refuses missing/conflicting identity, terminal mismatch and retries (0.193541ms)
+✔ local Pi rejects tool requests and oversized results without accepting partial text (0.153542ms)
+✔ local Pi native error remains failure even when print process can exit zero (0.104666ms)
+✔ local Pi binding admits explicit loopback only; locked executable includes bundle chunks (24.796875ms)
+✔ runLocalPiProcess decodes JSONL split through UTF-8 code points (123.965458ms)
+✔ runLocalPiProcess reports malformed_json (66.380208ms)
+✔ runLocalPiProcess reports non_object_event (62.882458ms)
+✔ runLocalPiProcess reports partial_frame (64.496292ms)
+✔ runLocalPiProcess reports invalid_utf8 (63.674541ms)
+✔ runLocalPiProcess enforces frame and total stdout byte limits (125.830416ms)
+✔ runLocalPiProcess bounds stderr separately and keeps draining it (64.817125ms)
+✔ runLocalPiProcess streams bounded input with pipe backpressure (221.89675ms)
+✔ runLocalPiProcess waits for onSpawn before delivering input (126.621417ms)
+✔ runLocalPiProcess applies async onEvent backpressure in order (176.892417ms)
+✔ callback rejection is a bounded fault and terminates the owned child (64.795792ms)
+✔ a hung onSpawn callback cannot defeat the total deadline or a full pipe (123.686167ms)
+✔ an early process exit never leaves an unhandled stdin error (64.16975ms)
+✔ a pre-aborted signal starts no process (0.128584ms)
+✔ abort immediately after invocation cannot escape the pre-spawn race (0.725959ms)
+✔ caller cancellation resolves only after the owned process closes (64.644458ms)
+✔ timeout escalates a ready TERM-resistant process group and removes its descendant (265.569042ms)
+✔ the child receives only the explicit environment (85.550083ms)
+✔ invalid limits and input are rejected before spawn (0.402084ms)
+✔ spawn failure is returned as a bounded transport fault (0.563ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1854.960417

@@ -1,6 +1,6 @@
 # 11 · Coding dogfood readiness and WebUI handoff
 
-2026-09-20 · **Status: independently accepted for WebUI readiness at `3618947`; real-model/browser dogfood remains open.** Architecture/integration: Astra. Implementation: Claude, serial product writer after accepting this order. Independent verification: Luna. Human/operator: the user starts the WebUI after the readiness handoff; subsequent computer use stays on an OpenAI provider.
+2026-09-22 · **Current status: readiness accepted at `3618947`; the bounded basic real-browser journey is accepted at `95080e4`, followed by the prepared-Chat read/write/check/reload journey at `13e06cc`. Historical RuntimeLock reproduction, broader robustness and G4 remain open.** Architecture/integration: Astra. Implementation: Claude, serial product writer after accepting this order. Independent verification: Luna. Human/operator: the user starts the WebUI after the readiness handoff; subsequent computer use stays on an OpenAI provider.
 
 **Luna exploration consumed:** at `e687762`, the existing runtime smoke is in-process `ws_*` execution and explicitly excludes HTTP/UI; the current check regression reopens Store records but does not hand the user a clean restartable HTTP/WebUI scenario. Astra adopts a fresh-process public-HTTP rehearsal plus preparation packet as this order's concrete remaining seam. This is a scope review, not implementation acceptance.
 
@@ -111,3 +111,8 @@ Author source SHA-256 before commit: `app/runtime/repository-candidate-tools.mjs
 ## Real browser basic journey accepted — 2026-09-20
 
 Astra accepts the bounded synthetic-parcel real-model journey on integrated `95080e4`, after Luna independently accepts the model-visible hash correction (25/25). [Completion and exact identities](evidence/real-dogfood-20260920/completion.md) separate the earlier assisted run from the new unassisted write/check at candidate revision 1 and exit 0 (2/2), unchanged source, reload, previous process-restart comparison and restoration-verified repair-tree cleanup. N-02's historical RuntimeLock reproduction and broader robustness remain open; no G4 or arbitrary coding acceptance is inferred. Claude's queued frontend friction and 06a correction review retain their owners.
+
+
+## Prepared real journey consumed — 2026-09-22
+
+The [actual13e06cc browser/provider packet](evidence/prepared-real-dogfood-20260921/README.md) closes this bounded prepared-Chat path: zero-Run preparation, real diagnosis, exact write/check approvals, fixed check result and browser reload, with one recorded workflow-direction intervention. It does not prove an unassisted universal agent, process restart in that round, historical RuntimeLock robustness, upload recovery or fullG4. The [closure audit](evidence/work-closure-audit-20260922/README.md) corrects this order's stale opening summary; do not re-dispatch the already accepted basic task merely because the historical readiness paragraphs below once left it open.

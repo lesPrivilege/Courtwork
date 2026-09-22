@@ -42,3 +42,18 @@ After selection, a separate finite E1 scope can reuse the chosen view/controller
 Record compact-workbench versus decision/reading roles, existing token mappings, typography/glyph/target sizes, viewport/pointer/text-scale assumptions and full composed height. Preserve stable input geometry, draft/caret, materials, keyboard navigation, Escape and focus return. Test narrow/desktop, light/dark, long labels, error and bound-Run states; no screenshot-only accessibility claim. Use OpenAI computer use for independent rendered acceptance where available; author screenshots and unexecuted native zoom/reader/coarse cases remain separately attributed. No full product suite is needed for a specimen-only change.
 
 Deliver exact source and reference pins, preview command/port, the two comparable alternatives, recommendation, owner/adapter gap table and writer release. Parent selects; no main merge, push, deployment, native credential operation or additional journey is authorized by this handoff.
+
+
+## Observed checkout status — closure audit2026-09-22
+
+A protected courtwork-role-composer-20260922 checkout/claude-role-composer-20260922 branch is observed at f74ae1e, clean with no implementation/evidence at the audit snapshot. This is a reserved handoff, not proof that a Claude process has started or a specimen exists. Preserve it; do not dispatch a duplicate based on the earlier no-process observation. See the [parent audit](evidence/work-closure-audit-20260922/README.md).
+
+
+## Parent selection and finite return — 2026-09-22
+
+[A selected,06E-R1 returned](evidence/06e-selection-review-20260922/README.md): source69f39a7, Luna9/9 and parent OpenAI-browser comparison/Settings/keyboard/narrow evidence. A supports comparison before committing while B adds permanent height and shifts the input; B is preserved only as comparison. Declaration-only absence still disables Send despite the proposed unchecked reading: correct actual synthetic state/control semantics with attributed supported/unsupported/unchecked cases before acceptance. Original Claude owns that finite specimen return; no E1 shared-product lease or backend gap is silently granted. The source tree remains; parent-generated review evidence is in main.
+
+
+## User-authorized E1 implementation expansion — 2026-09-22
+
+The user now permits [parallel real frontend/backend implementation](frontend-backend-live-integration-20260922.md). Original Claude should first close06E-R1, then continue selectedA into E1 reusable frontend modules, scoped Composer/Settings wiring and required profile compatibility projection changes with regression evidence. This supersedes the specimen-directory-only/no-E1 lease, not the semantic return. Backend/API/schema remains the active Codex K3 owner; fixtures stay explicit until actual capabilities exist. No further routine permission is needed; parent still independently accepts the combined journey.

@@ -1,0 +1,17 @@
+Review source: 1ec92e2d68060691c499b4832922e20fee0820e6
+Planner SHA-256: 854b32470921f6918e46bbdb72cf96346c2ca156fe9e0ff9664c69b29080db06
+Node: v25.9.0
+Command: node --test app/tests/kit-context-independent.test.mjs
+
+✔ independent literal oracle covers source bytes, UTF-16 accounting, and segment joins (4.489166ms)
+✔ no-Kit passthrough keeps historical bytes and does not retain or alias new inputs (1.343ms)
+✔ required and optional source readings refuse or omit at the exact boundaries (1.278ms)
+✔ permission readings remain separate from supported compatibility evidence (0.579542ms)
+✔ object and collection permutation is deterministic while catalog order remains meaningful (1.164583ms)
+✔ plain-JSON and bounds checks reject malformed independent inputs (0.676209ms)
+✔ full source envelope changes are observable through the binding hash or a refusal (0.879875ms)
+ℹ tests 7
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ duration_ms 898.771875

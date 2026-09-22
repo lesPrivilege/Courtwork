@@ -26,6 +26,10 @@ The [personal credentials and hooks ruling](research/architecture-node-2026-09-1
 
 [Browser/Preview selection](research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md) separates real artifact/dev-target Preview, human-visible Browser projection and Host-governed browser control. CW retains Node/Web and existing surface owners; Playwright-controlled isolated Chromium is the first later control candidate, while WebContentsView is conditional on a separately chosen native host. No package/runtime capability is adopted by research. The first authorized UI increment is tabbed Preview over existing readers, replacing card launchers; real browser execution and left-rail changes follow later contracts. Browser resources are not automatically Work Core Matter state, and closing/hiding a view is not execution cancellation or profile deletion.
 
+## 2026-09-22 · Kit context planning seam
+
+[Accepted reference-only K1/K2](execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md) adds [`planKitContext`](../app/runtime/kit-context.mjs) as a pure Harness contribution over existing Runtime Control bindings and source identities. It verifies and attributes already-admitted content; it does not admit resources, grant permissions or own profile/Run persistence. No-Kit preserves the existing compiler. Kit catalog/selection/import and production Kit→Run freezing remain separate missing consumers under Runtime Control/Host/Adapter.
+
 ## 变更边界
 
 动产品代码前，在原任务合同注明本次改变的责任、事实owner、最近实现先例及必要的跨层修改理由。普通Provider、执行能力或垂类增量应沿对应合同接入；评审检查是否复制权威状态、使领域差异侵入主loop，或增加另一套UI语义。需要跨层修改时说明真实接缝与不变量，不能仅按目录数量判断解耦。
@@ -45,6 +49,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 | [`app/web/`](../app/web/) | Chat、文件、Review、Settings 与运行资源的浏览器呈现 | [界面组件](../docs/interface-components.md) |
 | [`server/runtime.mjs`](../app/server/runtime.mjs)、[`service.mjs`](../app/server/service.mjs) | Host 生命周期、Session/Run、权限、上下文、受认证的人类动作与查询 | [HTTP API](../app/docs/api-v6.md) |
 | [`runtime/pi-runtime-port.mjs`](../app/runtime/pi-runtime-port.mjs)、[`pi-session-runtime.mjs`](../app/runtime/pi-session-runtime.mjs) | Explicit Pi execution port; native session loop and ModelRuntime integration | [运行基础](../app/docs/runtime-foundation.md) |
+| [`runtime/local-pi-process.mjs`](../app/runtime/local-pi-process.mjs)、[`local-pi-host.mjs`](../app/runtime/local-pi-host.mjs) | Explicit offline Spark process consumer; Host/Store retain child admission, typed Run receipts and unknown fences | [Tool-less consultation](../app/docs/spark-agent.md#local-pi-process-consultation) |
 | [`runtime/control-plane.mjs`](../app/runtime/control-plane.mjs)、[`mcp-manager.mjs`](../app/runtime/mcp-manager.mjs) | 声明式资源、作用域、调用策略与 MCP 生命周期 | [Runtime Control](../docs/runtime-control/INDEX.md) |
 | [`harness/`](../app/harness/) | CW Thread交互成员关系与本地通信；child执行合同的有界入口，非第二个模型loop | [Thread / messaging](../app/docs/coordination.md) |
 | [`server/async-tasks.mjs`](../app/server/async-tasks.mjs) | 可选的不可变异步读取任务、取消、恢复与消费记录 | [异步读取契约](../app/docs/async-tasks.md) |
@@ -55,7 +60,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 
 ### 数据归属
 
-Host 的 runtime JSON（schema 19）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 19 分别演进。
+Host 的 runtime JSON（schema 20）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 20 分别演进。
 
 UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 

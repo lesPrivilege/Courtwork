@@ -1,5 +1,7 @@
 # Claude 串行施工单 · 统一前端与真实 Harness 合流
 
+**Current consumption check (2026-09-22):** read [current](../../current.md) and the [promise-to-user-path audit](evidence/work-closure-audit-20260922/README.md) before dispatching any historical slice below. A source/fixture/merge proves only its recorded scope; accepted basic dogfood is not to be repeated because an old dispatch paragraph said pending. Role/Kit-to-Run binding and user-operable recovery remain distinct future owner work.
+
 2026-09-16 · Courtwork。研究基线：`main@f76dd7ec9f6cef845f67360cc0a22768ae309ca6`。本文登记施工顺序、跨面约束与验收；产品代码由 Claude 后续串行交付。实际产品状态仍由 [current](../../current.md) 持有。
 
 **v4 · 首个新增 Runtime：** [OpenAI Agents API 技术方案与 A–F 施工片](../../research/agents-api-first-2026-09-14/implementation-plan-20260916.md)接原 P03/P04/DRT-03。先采用无环境会话＋CW 受控函数工具；托管环境与自托管 executor 后置。Pi 保留，DWB→DF 共同后端顺序保留；前端沿同一 Chat/授权/文件检查面合流，不恢复右栏 Runtime 统计卡。

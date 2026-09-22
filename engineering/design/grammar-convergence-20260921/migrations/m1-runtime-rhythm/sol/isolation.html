@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>M1 spacing isolation · synthetic evidence</title>
+    <link rel="stylesheet" href="/web/styles.css">
+    <style>
+      body { display: block; padding: var(--space-6); background: var(--frame); color: var(--ink); overflow: auto; }
+      .evidence-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6); align-items: start; }
+      .evidence-plane { min-width: 0; padding: var(--space-4); background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-container); }
+      .evidence-readout { font-family: var(--font-mono); font-size: var(--text-meta); color: var(--muted-strong); }
+      @media (max-width: 900px) { .evidence-grid { grid-template-columns: minmax(0, 1fr); } }
+    </style>
+  </head>
+  <body>
+    <h1 class="page-title">M1 · inherited spacing isolation</h1>
+    <p class="form-help">Evidence-only scene. It uses production Settings and Runtime view functions with the existing synthetic Runtime adapter.</p>
+    <div class="evidence-grid">
+      <section class="evidence-plane" aria-labelledby="sibling-title">
+        <h2 id="sibling-title" class="settings-section-title">Sibling Settings consumer</h2>
+        <p id="sibling-readout" class="evidence-readout" data-testid="sibling-readout"></p>
+        <div id="sibling-mount"></div>
+      </section>
+      <section class="evidence-plane" aria-labelledby="list-title">
+        <h2 id="list-title" class="settings-section-title">Runtime list</h2>
+        <p id="list-readout" class="evidence-readout" data-testid="list-readout"></p>
+        <div id="list-mount"></div>
+      </section>
+      <section class="evidence-plane" aria-labelledby="detail-title">
+        <h2 id="detail-title" class="settings-section-title">Runtime detail</h2>
+        <p id="detail-readout" class="evidence-readout" data-testid="detail-readout"></p>
+        <div id="detail-mount"></div>
+      </section>
+    </div>
+    <script type="module" src="/isolation.mjs"></script>
+  </body>
+</html>

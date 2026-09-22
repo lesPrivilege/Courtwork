@@ -1,0 +1,126 @@
+[
+  {
+    "baseline": "01-base-1280-normal",
+    "candidate": "02-candidate-1280-normal",
+    "viewport": {
+      "height": 900,
+      "width": 1280
+    },
+    "sameViewport": true,
+    "baselineTextScale": "1",
+    "candidateTextScale": "1",
+    "before": {
+      "gap": 60,
+      "firstInputY": 778.9296875,
+      "inputHeight": 28,
+      "inputFont": "14px",
+      "reconnectY": 958.8515625,
+      "scrollHeight": 1353,
+      "innerWidth": 778,
+      "lastMargin": "0px"
+    },
+    "after": {
+      "gap": 36,
+      "firstInputY": 730.9296875,
+      "inputHeight": 28,
+      "inputFont": "14px",
+      "reconnectY": 910.8515625,
+      "scrollHeight": 1233,
+      "innerWidth": 778,
+      "lastMargin": "0px"
+    }
+  },
+  {
+    "baseline": "03-base-1440-large-dark",
+    "candidate": "04-candidate-1440-large-dark",
+    "viewport": {
+      "height": 900,
+      "width": 1440
+    },
+    "sameViewport": true,
+    "baselineTextScale": "1.143",
+    "candidateTextScale": "1.143",
+    "before": {
+      "gap": 60,
+      "firstInputY": 826.9453125,
+      "inputHeight": 28,
+      "inputFont": "16.002px",
+      "reconnectY": 1043.7265625,
+      "scrollHeight": 1500,
+      "innerWidth": 778,
+      "lastMargin": "0px"
+    },
+    "after": {
+      "gap": 36,
+      "firstInputY": 778.9453125,
+      "inputHeight": 28,
+      "inputFont": "16.002px",
+      "reconnectY": 995.7265625,
+      "scrollHeight": 1380,
+      "innerWidth": 778,
+      "lastMargin": "0px"
+    }
+  },
+  {
+    "baseline": "05-base-390-normal",
+    "candidate": "06-candidate-390-normal",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "sameViewport": true,
+    "baselineTextScale": "1",
+    "candidateTextScale": "1",
+    "before": {
+      "gap": 60,
+      "firstInputY": 1117.2109375,
+      "inputHeight": 44,
+      "inputFont": "14px",
+      "reconnectY": 1357.0234375,
+      "scrollHeight": 1771,
+      "innerWidth": 324,
+      "lastMargin": "0px"
+    },
+    "after": {
+      "gap": 36,
+      "firstInputY": 1069.2109375,
+      "inputHeight": 44,
+      "inputFont": "14px",
+      "reconnectY": 1309.0234375,
+      "scrollHeight": 1651,
+      "innerWidth": 324,
+      "lastMargin": "0px"
+    }
+  },
+  {
+    "baseline": "07-base-390-large-dark",
+    "candidate": "08-candidate-390-large-dark",
+    "viewport": {
+      "height": 844,
+      "width": 390
+    },
+    "sameViewport": true,
+    "baselineTextScale": "1.143",
+    "candidateTextScale": "1.143",
+    "before": {
+      "gap": 60,
+      "firstInputY": 1254.4140625,
+      "inputHeight": 44,
+      "inputFont": "16.002px",
+      "reconnectY": 1509.6015625,
+      "scrollHeight": 1948,
+      "innerWidth": 324,
+      "lastMargin": "0px"
+    },
+    "after": {
+      "gap": 36,
+      "firstInputY": 1206.4140625,
+      "inputHeight": 44,
+      "inputFont": "16.002px",
+      "reconnectY": 1461.6015625,
+      "scrollHeight": 1828,
+      "innerWidth": 324,
+      "lastMargin": "0px"
+    }
+  }
+]

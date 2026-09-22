@@ -1,0 +1,29 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (3322.404916ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (842.6375ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (958.865375ms)
+  ✔ spawn (1231.71375ms)
+  ✔ result (1464.948458ms)
+  ✔ terminal (1452.861375ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5108.949ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (229.017417ms)
+  ✔ before publication (567.819916ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (797.217834ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (540.478167ms)
+✔ new source revision during actual process consultation prevents stale publication (693.272125ms)
+✔ result retention failure cannot publish or rerun a completed native response (1045.801583ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (854.559ms)
+✔ a CW parent tool delegates to actual local Pi only after releasing the existing serial lane (1317.611ms)
+✔ schema 19 upgrades to 20 exactly once and preserves remote authority and every existing event (134.890791ms)
+✔ schema-20 migration fails closed for an occupied backup, malformed schema 19, and schema 21 (164.378709ms)
+✔ the pinned schema-19 Host rejects schema 20 byte-for-byte and opens the exact backup separately (599.543917ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (45.546209ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16692.956459

@@ -1,0 +1,13 @@
+✔ unknown local child and its parent cannot be deleted through HTTP or Store; bytes and recovery fence survive reopen (1378.999958ms)
+✔ completed archived local findings retain child, parent and source/result references across rejected deletion and reopen (3111.956917ms)
+✔ Spark references prevent deletion before any local process records exist; an ordinary Store deletion still works (59.896834ms)
+✔ a Spark reference queued after the Service snapshot is still protected by the atomic Store deletion guard (85.017666ms)
+✔ an ordinary unreferenced Chat with a completed non-child Run remains deletable (135.393417ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6065.73525

@@ -1,0 +1,5 @@
+HEAD=ffd4e392c7be8b18cdbcbbb295636ad4be60adff
+PRODUCT_PIN=b8cd54f4d2e3d142ed367d49e08297170394495d
+VIEW_SHA256=a9a86c855b086e8c1f3b7ae417e9b65c1990f21ff4fcd44b9ce9f968755e7c61  app/web/runtime-management-view.mjs
+TEST_SHA256=69d2bfa919d1d804c2208481f3659626cd330ce3dda83886b48cbffea773ac0d  app/tests/runtime-management.test.mjs
+STYLES_DIFF=unchanged-from-product-pin

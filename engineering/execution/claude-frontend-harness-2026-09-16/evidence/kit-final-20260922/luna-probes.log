@@ -1,0 +1,2 @@
+PROBE-1 optional deferred body tamper => refused/source-mismatch/candidate-null: PASS
+PROBE-2 unsupported evidence at wrong runtime revision => unchecked/not-applicable/no-grant: PASS

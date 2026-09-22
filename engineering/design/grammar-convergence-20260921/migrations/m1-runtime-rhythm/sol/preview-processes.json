@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-22T00:58:44+08:00",
+  "dataClass": "synthetic Runtime Management preview; no provider, credentials, user data, or product persistence",
+  "baselineSha": "aa765ede3d008c80cc9e4e6dcd50704cfa95db61",
+  "previews": [
+    {
+      "lane": "baseline-plain",
+      "url": "http://127.0.0.1:55548/",
+      "pid": 82338,
+      "execSession": 64763,
+      "cwd": "/tmp/cw-m1-runtime-rhythm-baseline",
+      "command": "CW_SPECIMEN_PORT=0 node app/scripts/runtime-management-preview.mjs"
+    },
+    {
+      "lane": "candidate-plain",
+      "url": "http://127.0.0.1:55551/",
+      "pid": 82345,
+      "execSession": 64902,
+      "cwd": "repository root",
+      "command": "CW_SPECIMEN_PORT=0 node app/scripts/runtime-management-preview.mjs"
+    },
+    {
+      "lane": "baseline-query",
+      "url": "http://127.0.0.1:55682/",
+      "internalUpstreamPort": 55681,
+      "pid": 82408,
+      "execSession": 57150,
+      "query": "?text=normal|large&theme=light|dark",
+      "command": "node sol/serve-preview.mjs --app /tmp/cw-m1-runtime-rhythm-baseline/app --port 0"
+    },
+    {
+      "lane": "candidate-query",
+      "url": "http://127.0.0.1:55702/",
+      "internalUpstreamPort": 55701,
+      "pid": 82424,
+      "execSession": 45063,
+      "query": "?text=normal|large&theme=light|dark",
+      "command": "node sol/serve-preview.mjs --app <repo>/app --port 0"
+    },
+    {
+      "lane": "baseline-isolation",
+      "url": "http://127.0.0.1:56513/isolation.html",
+      "internalUpstreamPort": 56512,
+      "pid": 83460,
+      "execSession": 36417,
+      "command": "node sol/serve-preview.mjs --app <baseline>/app --port 0"
+    },
+    {
+      "lane": "candidate-isolation",
+      "url": "http://127.0.0.1:56522/isolation.html",
+      "internalUpstreamPort": 56521,
+      "pid": 83461,
+      "execSession": 21254,
+      "command": "node sol/serve-preview.mjs --app <repo>/app --port 0"
+    }
+  ],
+  "ownership": "Sol author task; stop only these six PIDs/sessions after parent browser work"
+}
