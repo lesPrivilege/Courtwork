@@ -80,13 +80,20 @@ test('actual Host crashes across intent/spawn/retention/publication reopen fence
         await localPiWait(() => { try { process.kill(pid, 0); return false; } catch { return true; } }, 5000);
       }
       h = await localPiHost({ dataDir, parentId: originalAssignment.parentSessionId });
+      let repeatedSpawns = 0;
+      const record = h.runtime.store.recordLocalPiEvent.bind(h.runtime.store);
+      h.runtime.store.recordLocalPiEvent = (...args) => { if (args[1] === 'local_pi.spawn') repeatedSpawns++; return record(...args); };
       const a = h.assignment(originalAssignment.id);
       assert.equal(a.status, 'blocked'); assert.equal(a.attempts[0].status, 'unknown');
       const reconcile = await action(h, a, 'reconcile'); assert.equal(reconcile.status, 409, JSON.stringify(reconcile));
       assert.equal(reconcile.json.error.code, 'local_pi_unreconciled');
       assert.equal((await action(h, h.assignment(a.id), 'retry')).status, 409);
+      const persisted = h.runtime.store.snapshot();
+      await assert.rejects(h.runtime.store.updateRunWithEvent(runId, { status: 'cancelled' }, { type: 'run.status', data: { status: 'cancelled' } }), /terminal transition/);
+      assert.deepEqual(h.runtime.store.snapshot(), persisted, 'changing both fields cannot remove a recorded unknown');
       const next = await h.api('POST', `/sessions/${a.attempts[0].sessionId}/runs`, { commandId: randomUUID(), input: 'Must not relaunch.' }); assert.equal(next.status, 409);
       assert.equal(h.assignment(a.id).attempts.length, 1); assert.equal(h.requests.length, 0);
+      assert.equal(repeatedSpawns, 0, 'no owned-process spawn callback follows any recovery/retry request');
       if (['result', 'terminal'].includes(stage)) {
         const retained = await h.runtime.service.artifactHistory.read(a.attempts[0].sessionId, receiptBefore.result.sha256, receiptBefore.result.bytes);
         assert.equal(retained.toString(), 'Retained before publication.'); assert.equal(a.result, null);
@@ -183,4 +190,64 @@ test('source revision changed during final retention cannot pass the atomic publ
     assert.equal(h.runtime.store.getRun(a.attempts[0].runId).status, 'completed', 'native completion remains known');
     assert.equal(h.requests.length, 1);
   } finally { await h.close(); }
+});
+
+test('a CW parent tool delegates to actual local Pi only after releasing the existing serial lane', async () => {
+  const h = await localPiHost({ respond: ({ mode }) => mode.startsWith('/fixture') ? null : { kind: 'text', id: 'fixture', created: 1, text: 'Bounded child consultation.' } });
+  try {
+    const parent = (await h.api('POST', '/sessions', { title: 'Agent parent', permissionMode: 'ask' })).json.session;
+    const input = '/fixture script ' + JSON.stringify([{ name: 'spark_explore', arguments: { brief: 'Explain missing evidence.', sources: [] } }]);
+    const started = await h.api('POST', `/sessions/${parent.id}/runs`, { commandId: randomUUID(), input });
+    assert.equal(started.status, 200);
+    const question = await localPiWait(() => h.runtime.store.snapshot().questions.find(q => q.runId === started.json.run.id && q.status === 'pending'));
+    const allowed = await h.api('POST', `/runs/${started.json.run.id}/questions/${question.id}`, { decision: 'allow' }); assert.equal(allowed.status, 200);
+    const assignment = await localPiWait(() => h.runtime.store.snapshot().subagents.assignments.find(a => a.origin.runId === started.json.run.id));
+    const a = await settled(h, assignment.id);
+    const parentRun = h.runtime.store.getRun(started.json.run.id), childRun = h.runtime.store.getRun(a.attempts[0].runId);
+    assert.equal(childRun.adapterId, 'pi-local-print'); assert.equal(childRun.status, 'completed', JSON.stringify(a));
+    assert.notEqual(parentRun.adapterId, 'pi-local-print'); assert.ok(Date.parse(childRun.startedAt) >= Date.parse(parentRun.endedAt));
+    assert.equal(h.runtime.store.listRuns(parent.id).length, 1, 'no automatic parent resume');
+    assert.equal(a.origin.actor, 'runtime'); assert.equal(a.result.runId, childRun.id);
+  } finally { await h.close(); }
+});
+
+test('a forged Run status cannot erase its Host status evidence', async () => {
+  const h = await localPiHost();
+  try {
+    const input = await h.create(), a = await settled(h, input.id);
+    const state = h.runtime.store.snapshot(), run = state.runs.find(r => r.id === a.attempts[0].runId);
+    assert.equal(localPiReceipt(state, run.id).terminal.status, 'completed');
+    run.status = 'cancelled';
+    assert.throws(() => validateState(state), /Host status evidence/);
+    await assert.rejects(h.runtime.store.updateRunWithEvent(run.id, { status: 'cancelled' }, { type: 'run.status', data: { status: 'cancelled' } }), /terminal transition/);
+    assert.equal(h.runtime.store.getRun(run.id).status, 'completed');
+  } finally { await h.close(); }
+});
+
+test('late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty', async () => {
+  const h = await localPiHost(); let ready, release;
+  const published = new Promise(r => { ready = r; }), gate = new Promise(r => { release = r; });
+  try {
+    const append = h.runtime.store.appendEvent.bind(h.runtime.store); let gated = false;
+    h.runtime.store.appendEvent = async event => {
+      const result = await append(event);
+      if (event.type === 'assistant.message' && !gated) { gated = true; ready(); await gate; }
+      return result;
+    };
+    const input = await h.create(); await published;
+    const a = h.assignment(input.id), runId = a.attempts[0].runId;
+    const cancellation = action(h, a, 'cancel');
+    await localPiWait(() => h.runtime.store.getRun(runId).status === 'stopping'); release();
+    assert.equal((await cancellation).status, 200);
+    const done = await settled(h, input.id), receipt = localPiReceipt(h.runtime.store.snapshot(), runId);
+    assert.equal(receipt.terminal.status, 'completed'); assert.equal(h.runtime.store.getRun(runId).status, 'cancelled');
+    assert.equal(done.status, 'cancelled'); assert.equal(done.result, null);
+    assert.throws(() => process.kill(receipt.spawn.pid, 0), { code: 'ESRCH' });
+    const retained = await h.runtime.service.artifactHistory.read(done.attempts[0].sessionId, receipt.result.sha256, receipt.result.bytes);
+    assert.match(retained.toString(), /Retained finding/);
+    assert.notEqual((await action(h, done, 'retry')).status, 200); assert.equal(h.requests.length, 1);
+    validateState(h.runtime.store.snapshot());
+    const next = await h.create(); assert.equal((await settled(h, next.id)).status, 'resolved');
+    assert.equal(h.requests.length, 2, 'the second process follows explicit new work after known close');
+  } finally { release(); await h.close(); }
 });

@@ -21,7 +21,8 @@ export function localPiRunUnresolved(state, runId) {
   const run = state.runs.find(r => r.id === runId);
   if (run?.adapterId !== LOCAL_PI_ADAPTER.id) return false;
   const receipt = localPiReceipt(state, runId);
-  return run.status === 'unknown' || !receipt.terminal || receipt.terminal.status === 'unknown';
+  const unknownRecorded = state.events.some(e => e.runId === runId && e.type === 'run.status' && e.data.status === 'unknown');
+  return unknownRecorded || run.status === 'unknown' || !receipt.terminal || receipt.terminal.status === 'unknown';
 }
 
 function identity(state, event) {
@@ -36,10 +37,12 @@ function identity(state, event) {
 
 export function validateLocalPiEvents(state, schema = state.schemaVersion) {
   const localEvents = state.events.filter(e => e.type.startsWith('local_pi'));
+  const localRuns = state.runs.filter(r => r.adapterId === LOCAL_PI_ADAPTER.id);
   if (schema < 20) {
-    assert(!localEvents.length && !state.runs.some(r => r.adapterId === LOCAL_PI_ADAPTER.id), 'schema20 required');
+    assert(!localEvents.length && !localRuns.length, 'schema20 required');
     return;
   }
+  if (!localEvents.length && !localRuns.length) return;
   const seen = new Map();
   for (const event of localEvents) {
     assert(TYPES.has(event.type), 'event type');
@@ -116,12 +119,28 @@ export function validateLocalPiEvents(state, schema = state.schemaVersion) {
     const receipt = seen.get(run.id);
     assert(receipt?.terminal?.status === 'completed' && receipt.result?.sha256 === r.sha256 && receipt.result?.bytes === r.bytes, 'published result receipt');
   }
-  for (const run of state.runs.filter(r => r.adapterId === LOCAL_PI_ADAPTER.id)) {
+  for (const run of localRuns) {
     const owners = state.subagents.assignments.filter(a => a.attempts.some(t => t.runId === run.id && t.sessionId === run.sessionId));
     assert(owners.length === 1, 'local Run must belong to one child attempt');
     assert(run.hostSession === null && run.remoteBinding === null, 'local native ownership');
     assert(!owners[0].sourceReads.some(r => r.actor === 'runtime' && r.runId === run.id), 'packet inclusion is not a source read');
-    if (run.status === 'completed') assert(seen.get(run.id)?.terminal?.status === 'completed', 'completed Run without process completion');
+    const statuses = state.events.filter(e => e.runId === run.id && e.type === 'run.status').map(e => e.data.status);
+    assert(statuses.at(-1) === run.status, 'Host status evidence mismatch');
+    let hostTerminal = null;
+    for (const status of statuses) {
+      if (hostTerminal) assert(status === hostTerminal, 'Host terminal transition is immutable');
+      else if (['completed', 'failed', 'cancelled', 'unknown'].includes(status)) hostTerminal = status;
+    }
+    const terminal = seen.get(run.id)?.terminal;
+    if (run.status === 'completed') assert(terminal?.status === 'completed', 'completed Run without process completion');
+    if (run.status === 'failed') assert(['failed', 'refused'].includes(terminal?.status), 'failed Run without failure evidence');
+    if (run.status === 'cancelled') {
+      assert(terminal && terminal.status !== 'unknown', 'cancelled Run without known process outcome');
+      assert(terminal.status === 'cancelled' || statuses.includes('stopping'), 'late cancellation requires Host intent');
+    }
+    // Native completion and Host publication are independent: a crash after
+    // retained completion can still leave the Host unknown. No receipt here
+    // authorizes rewriting that final unknown state or replaying its process.
   }
 }
 

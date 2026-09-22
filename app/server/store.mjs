@@ -950,7 +950,11 @@ export class RuntimeStore {
     if (this.lockLost) throw this.lockError ?? new Error("runtime store lock is unavailable");
     const operation = this._queue.then(async () => {
       if (this.lockLost) throw this.lockError ?? new Error("runtime store lock is unavailable");
-      const working = structuredClone(this.state); const result = await mutator(working); await this._persist(working); this.state = working; return structuredClone(result);
+      const working = structuredClone(this.state); const result = await mutator(working);
+      // Local process recovery authority also depends on Host Run/status and
+      // assignment mutations, not only on the named local receipt writer.
+      validateLocalPiEvents(working);
+      await this._persist(working); this.state = working; return structuredClone(result);
     });
     this._queue = operation.catch(() => {}); return operation;
   }

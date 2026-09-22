@@ -35,3 +35,9 @@ Source reads use existing `readSource(...,{record:false})` to assemble the appro
 ## Verification
 
 Real service/HTTP, exact loopback subprocess and isolated reopen tests must cover retained result/hash/consumption, request replay, cancel, revoked source before dispatch/publication, dispatch/spawn crash windows, retained-before-publication and old reconcile/retry attempts. Strict state tests cover malformed/wrong-attempt/wrong-native/duplicate/out-of-order/mismatched-result receipts. Migration tests cover exact19 backup, repeat/occupied backup/malformed/newer refusal, remote/Pi records preserved and actual pinned19 Host rejecting20 without changing bytes. Process failure claims use real children, not only helper transitions. No paid provider, personal config/data, UI service restart, push or deployment.
+
+## LP-R4 parent adjustment
+
+Native terminal and final CW Run status are independent facts, not equal-state aliases. A confirmed closed/completed Pi with retained bytes can coexist with a Host `unknown` after publication interruption, or a Host `cancelled` after an actual late cancellation. The former remains fenced; the latter needs Host cancellation intent and known process closure.
+
+For local/schema20 Runs only, the Run status must match its last **Host-owned** `run.status` event. The first recorded Host terminal status is immutable; changing the field and appending a different terminal event together cannot clear unknown. The existing Store mutation validates this family before persistence, so status and event changes commit or refuse atomically. Historical in-process Pi/remote events are not rewritten. This local consistency check does not substitute for native process/result evidence: completed Runs still require the retained completion receipt, failed Runs require a failed/refused receipt, and cancellation requires a known outcome plus native cancellation or recorded Host stopping intent. No recovery transition is newly authorized.

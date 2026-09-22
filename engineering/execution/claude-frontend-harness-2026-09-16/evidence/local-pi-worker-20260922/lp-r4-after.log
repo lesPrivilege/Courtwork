@@ -1,0 +1,111 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (1406.601792ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (869.777708ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✖ dispatch (1022.188208ms)
+  ✖ spawn (1362.754375ms)
+  ✖ result (1475.15825ms)
+  ✖ terminal (1486.18275ms)
+✖ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5347.025208ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (228.295666ms)
+  ✔ before publication (1077.94075ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (1306.882292ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (660.602041ms)
+✔ new source revision during actual process consultation prevents stale publication (622.354417ms)
+✔ result retention failure cannot publish or rerun a completed native response (875.52625ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (1007.501083ms)
+✔ a CW parent tool delegates to actual local Pi only after releasing the existing serial lane (993.73425ms)
+✖ a forged Run status cannot erase its Host status evidence (879.675375ms)
+✔ late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty (1651.181833ms)
+✔ schema 19 upgrades to 20 exactly once and preserves remote authority and every existing event (142.653583ms)
+✔ schema-20 migration fails closed for an occupied backup, malformed schema 19, and schema 21 (170.539959ms)
+✔ the pinned schema-19 Host rejects schema 20 byte-for-byte and opens the exact backup separately (770.801833ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (49.059166ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 15
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 17853.844
+
+✖ failing tests:
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ dispatch (1022.188208ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:89:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /terminal transition/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ spawn (1362.754375ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:89:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /terminal transition/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ result (1475.15825ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:89:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /terminal transition/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ terminal (1486.18275ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:89:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /terminal transition/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:210:1
+✖ a forged Run status cannot erase its Host status evidence (879.675375ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:218:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /terminal transition/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
