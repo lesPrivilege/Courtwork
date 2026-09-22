@@ -132,3 +132,12 @@ test('actual ready upstream frozen after provider dispatch requires bounded SIGK
     assert.throws(() => process.kill(childPid, 0), { code: 'ESRCH' });
   } finally { await provider.close(); }
 });
+
+test('interrupted Host native-receipt callback remains unknown rather than confirmed cancellation', async () => {
+  const provider = await localPiLoopback();
+  try {
+    const result = await invoke(provider, { timeoutMs: 1000, onNative: () => new Promise(() => {}) });
+    assert.equal(result.status, 'unknown', JSON.stringify(result));
+    assert.equal(result.process.fault, 'callback_interrupted'); assert.equal(result.result, null);
+  } finally { await provider.close(); }
+});

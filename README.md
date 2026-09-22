@@ -69,6 +69,8 @@ The implementation sequence follows the existing work records:
 
 Kits declare requirements; Host policy and current grants determine executable permissions. Formal work decisions remain with Work Core. Portable Kit content and runtime-specific integrations are versioned separately. The current source preview still uses the pinned Pi stack; the Agents API lane remains unavailable pending its integration and runtime checks. The compositions above guide development.
 
+An offline, explicitly injected Pi process consumer now exercises bounded Spark consultation against the Host-owned deterministic provider. Supplied sources remain distinct from verified reading; interrupted dispatch stays fenced. It is not a selectable live runtime. See the [Spark contract](app/docs/spark-agent.md#local-pi-process-consultation).
+
 [Architecture ruling and owner mapping](engineering/research/architecture-node-2026-09-13/orchestra-direction-20260919.md) · [Praxis Kit direction](engineering/research/architecture-node-2026-09-13/praxis-kit-20260919.md)
 
 ## Connecting capabilities

@@ -128,7 +128,7 @@ export async function prepareLocalPiInvocation({ binding, root }) {
   };
 }
 
-export async function executeLocalPi({ binding, executionId, brief, sources = [], signal, timeoutMs = 60000, onNative, onSpawn, beforeSpawn }) {
+export async function executeLocalPi({ binding, executionId, brief, sources = [], signal, timeoutMs = 60000, onNative, onSpawn, beforeSpawn, scratchDir = tmpdir() }) {
   let packet;
   try {
     if (JSON.stringify(binding) !== JSON.stringify(createLocalPiBinding(binding))) fail('local_pi_binding');
@@ -140,7 +140,9 @@ export async function executeLocalPi({ binding, executionId, brief, sources = []
   let transcriptFault = null;
   const transcript = createLocalPiTranscript();
   try {
-    root = await mkdtemp(path.join(tmpdir(), 'cw-local-pi-'));
+    if (typeof scratchDir !== 'string' || !path.isAbsolute(scratchDir)) fail('local_pi_scratch');
+    await mkdir(scratchDir, { recursive: true, mode: 0o700 });
+    root = await mkdtemp(path.join(scratchDir, 'cw-local-pi-'));
     const launch = await prepareLocalPiInvocation({ binding, root });
     await beforeSpawn?.({ packet: { sha256: packet.sha256, bytes: packet.bytes, sourceCount: packet.sourceCount } });
     const processResult = await runLocalPiProcess({

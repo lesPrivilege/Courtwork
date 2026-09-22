@@ -275,22 +275,31 @@ export async function runLocalPiProcess(options) {
 
   async function invoke(callback, value) {
     if (!callback) return true;
+    let completed;
     // Attach both branches immediately so a callback abandoned at the total
     // deadline can never produce an unhandled rejection later.
     const callbackResult = Promise.resolve().then(() => callback(value)).then(
-      () => ({ kind: "done" }),
-      () => ({ kind: "failed" }),
+      () => (completed = { kind: "done" }),
+      () => (completed = { kind: "failed" }),
     );
     const outcome = await Promise.race([
       callbackResult,
       callbacksReleased.then(() => ({ kind: "released" })),
     ]);
-    if (outcome.kind === "failed") {
+    if (outcome.kind === "released") {
+      // A callback may itself synchronously request cancellation and then
+      // return. Let that fulfilled microtask settle; an actually abandoned
+      // Host receipt is an uncertainty, not a confirmed cancellation.
+      await Promise.resolve();
+      if (!completed) { setFault("callback_interrupted"); return false; }
+    }
+    const final = completed ?? outcome;
+    if (final.kind === "failed") {
       setFault("callback_failed");
       terminate();
       return false;
     }
-    return outcome.kind === "done";
+    return final.kind === "done";
   }
 
   async function writeInput() {

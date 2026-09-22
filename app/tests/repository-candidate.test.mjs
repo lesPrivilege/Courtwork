@@ -1245,7 +1245,7 @@ test("schema16 migrates into schema17 without losing source binding snapshots", 
     const bytes = Buffer.from(JSON.stringify(schema16, null, 2));
     await writeFile(path.join(legacyDir, "runtime-state.json"), bytes, { mode: 0o600 });
     upgraded = await new RuntimeStore({ dataDir: legacyDir }).open();
-    assert.equal(upgraded.snapshot().schemaVersion, 19);
+    assert.equal(upgraded.snapshot().schemaVersion, 20);
     assert.equal(upgraded.getSession(session.id).repositoryBinding.id, bound.binding.id);
     assert.equal(upgraded.getSession(session.id).repositoryCandidate, null);
     assert.equal(upgraded.getSession(session.id).repositoryCandidateRevision, 0);

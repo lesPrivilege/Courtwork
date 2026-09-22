@@ -1,0 +1,124 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (1402.440542ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (842.434791ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✖ dispatch (958.118084ms)
+  ✖ spawn (1216.764292ms)
+  ✖ result (1388.638542ms)
+  ✖ terminal (1391.1425ms)
+✖ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (4955.336125ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (214.8425ms)
+  ✖ before publication (532.07225ms)
+✖ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (747.377667ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (523.744083ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 4
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9444.461
+
+✖ failing tests:
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ dispatch (958.118084ms)
+  AssertionError [ERR_ASSERTION]: {"status":400,"json":{"error":{"code":"local_pi_unreconciled","message":"Local process outcome remains unknown; no repeat dispatch"}}}
+  
+  400 !== 409
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:85:65)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ spawn (1216.764292ms)
+  AssertionError [ERR_ASSERTION]: {"status":400,"json":{"error":{"code":"local_pi_unreconciled","message":"Local process outcome remains unknown; no repeat dispatch"}}}
+  
+  400 !== 409
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:85:65)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ result (1388.638542ms)
+  AssertionError [ERR_ASSERTION]: {"status":400,"json":{"error":{"code":"local_pi_unreconciled","message":"Local process outcome remains unknown; no repeat dispatch"}}}
+  
+  400 !== 409
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:85:65)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:65:76
+✖ terminal (1391.1425ms)
+  AssertionError [ERR_ASSERTION]: {"status":400,"json":{"error":{"code":"local_pi_unreconciled","message":"Local process outcome remains unknown; no repeat dispatch"}}}
+  
+  400 !== 409
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:85:65)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:65:68)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 400,
+    expected: 409,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/local-pi-host.test.mjs:117:11
+✖ before publication (532.07225ms)
+  AssertionError [ERR_ASSERTION]: {"status":409,"json":{"error":{"code":"active_run","message":"Runtime configuration is frozen while a run is active"}}}
+  
+  409 !== 200
+  
+      at deny (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:103:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:121:74)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:117:3)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 409,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

@@ -1,0 +1,30 @@
+✖ interrupted Host native-receipt callback remains unknown rather than confirmed cancellation (1039.915583ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1158.757625
+
+✖ failing tests:
+
+test at app/tests/local-pi-upstream.test.mjs:136:1
+✖ interrupted Host native-receipt callback remains unknown rather than confirmed cancellation (1039.915583ms)
+  AssertionError [ERR_ASSERTION]: {"status":"cancelled","reason":"deadline","executionId":"attempt-1","adapter":{"id":"pi-local-print","version":"0.85.1","protocol":"pi-0.85.1/print-jsonl-v1","source":"d981de1229ef899957bbe968bc8dcda02a21f477","integrity":"sha512-FGRN+OHbWaefBPGaTggAdLjrIHW+s2PzLyglz/5dfLzb9of7uuXMXYC0fJIeZTw+shS32o2cuQ9jF7YSDuL/oQ==","bundleSha256":"d7a98e9de03d1b33c863d36d146779c617b49645579827440fea08d32b2d9f5c","tools":"none","extensions":"none","resume":false,"steer":false},"packet":{"sha256":"e500363404093c9618981ac4ee804f67126feea36e032af60835963001d94551","bytes":321,"sourceCount":1},"native":{"sessionId":"01a0c872-43cc-7267-93d9-1b1c7404ec01"},"terminal":{"settled":false,"turns":0},"process":{"pid":85469,"exitCode":0,"signal":null,"spawned":true,"inputComplete":true,"timedOut":true,"cancelled":false,"escalated":false,"fault":null,"stderr":"","stderrTruncated":false,"stdoutBytes":4545,"eventCount":1},"result":null}
+  + actual - expected
+  
+  + 'cancelled'
+  - 'unknown'
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-upstream.test.mjs:140:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'cancelled',
+    expected: 'unknown',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

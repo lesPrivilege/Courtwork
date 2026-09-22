@@ -1,3 +1,5 @@
+import { LOCAL_PI_ADAPTER } from '../runtime/local-pi-process.mjs';
+import { localPiReceipt, localPiRunUnresolved } from '../runtime/local-pi-state.mjs';
 import { SubagentLibrary } from './subagent-library.mjs';
 import { randomUUID, createHash } from 'node:crypto';
 import { Type } from '@earendil-works/pi-ai';
@@ -143,6 +145,8 @@ export class Subagents {
   }
   async dispatch() {
     if(this.store.listRuns().some(r=>!terminal(r.status)))return;
+    const processState=this.store.snapshot();
+    if(processState.runs.some(r=>localPiRunUnresolved(processState,r.id)))return;
     const pending=this.store.snapshot().subagents.assignments.find(a=>a.status==='queued'&&!a.cancelRequested);
     if(!pending)return;
     let a;
@@ -158,23 +162,42 @@ export class Subagents {
       // crash here is blocked on restart, never guessed as permission to retry.
       a=await this.mutate(state=>{const a=this.find(state,pending.id);check(a.status==='queued'&&!a.cancelRequested,'Queue changed','spark_conflict');check(a.attempts.length<8,'Attempt limit','spark_capacity');a.attempts.push({number:a.attempts.length+1,sessionId,runId:null,status:'prepared'});a.status='active';a.revision++;return a;});
       await this.service.createSession({sessionId,projectId:parent.projectId,title:`Spark · ${a.brief.slice(0,100)}`,permissionMode:'read_only'});
-      const instruction=['Explore this bounded assignment. Return findings, coverage and unknowns. Cite assigned source indices and distinguish inference. Use spark_note for local intermediate indexes. You cannot modify sources, send messages, browse, delegate, or grant approval.',a.brief,`Assigned exact sources: ${JSON.stringify(a.sources.map((s,index)=>({index,...s})))}`].join('\n\n');
+      const guidance=this.service.localPiBinding?'Consult the supplied exact source packet without tools. Return findings with source indices and disclose unverified reading/coverage. Findings do not grant approval.':'Explore this bounded assignment. Return findings, coverage and unknowns. Cite assigned source indices and distinguish inference. Use spark_note for local intermediate indexes. You cannot modify sources, send messages, browse, delegate, or grant approval.';
+      const instruction=[guidance,a.brief,`Assigned exact sources: ${JSON.stringify(a.sources.map((s,index)=>({index,...s})))}`].join('\n\n');
       await this.service.createRun(sessionId,{input:instruction,commandId:`spark:${a.id}:${a.attempts.length}`});
     } catch(error) {await this.mutate(state=>{const item=this.find(state,pending.id);if(item.status==='active'||item.status==='queued'){item.status=item.cancelRequested?'cancelled':'blocked';item.reason=String(error.code??'spark_admission_failed');item.revision++;if(item.attempts.at(-1)?.status==='prepared')item.attempts.at(-1).status='failed';}});}
   }
   async settle(runId) {
     const state=this.store.snapshot(),a=state.subagents.assignments.find(a=>a.attempts.some(t=>t.runId===runId));if(!a)return;
     const run=this.store.getRun(runId);if(!terminal(run?.status))return;
+    const local = run.adapterId === LOCAL_PI_ADAPTER.id ? localPiReceipt(state,runId) : null;
     let result=null,publicationFailed=false;
     if(run.status==='completed'&&!a.cancelRequested) {
       const texts=state.events.filter(e=>e.runId===runId&&e.type==='assistant.message').map(e=>e.data.text).filter(t=>typeof t==='string');
       const bytes=Buffer.from(texts.at(-1)??'');
-      if(bytes.length>0&&bytes.length<=SPARK_DEFINITION.maxOutputBytes) {
+      if(local) {
+        try {
+          check(local.terminal?.status==='completed'&&local.result?.sha256===createHash('sha256').update(bytes).digest('hex')&&local.result?.bytes===bytes.length,'Retained process result mismatch','local_pi_result');
+          await this.service.artifactHistory.read(run.sessionId,local.result.sha256,local.result.bytes);
+          this.authorized(this.store.snapshot(),a);for(const source of a.sources)this.checkSourcePolicy(this.store.snapshot(),a,source);
+          const revisions=a.sources.map(source=>source.kind==='material'?this.service.intake.versions(a.parentSessionId,source.sourceId).latestRevision:null);
+          check(same(revisions,local.dispatch.packet.sourceRevisions),'Source changed before publication','local_pi_source_changed');
+        } catch {publicationFailed=true;}
+      }
+      if(!publicationFailed&&bytes.length>0&&bytes.length<=SPARK_DEFINITION.maxOutputBytes) {
         const sha256=createHash('sha256').update(bytes).digest('hex');try{await this.service.artifactHistory.save(run.sessionId,bytes,sha256);}catch{publicationFailed=true;}
-        if(!publicationFailed)result={revision:a.results.length+1,attempt:a.attempts.length,sessionId:run.sessionId,runId,sha256,bytes:bytes.length,coverage:`${a.sources.filter((_s,i)=>a.sourceReads.some(r=>r.runId===runId&&r.index===i)).length}/${a.sources.length} assigned source versions read; interpretation is model-reported`,unknown:'No independent acceptance or external-source coverage is implied'};
+        if(!publicationFailed)result={revision:a.results.length+1,attempt:a.attempts.length,sessionId:run.sessionId,runId,sha256,bytes:bytes.length,coverage:local?`${a.sources.length} exact source versions provided; model reading and coverage unverified`:`${a.sources.filter((_s,i)=>a.sourceReads.some(r=>r.runId===runId&&r.index===i)).length}/${a.sources.length} assigned source versions read; interpretation is model-reported`,unknown:'No independent acceptance or external-source coverage is implied'};
       }
     }
     await this.mutate(state=>{const current=this.find(state,a.id),attempt=current.attempts.at(-1);if(attempt?.runId!==runId||current.status!=='active')return;
+      if(local&&result) {
+        try {
+          this.authorized(state,current);for(const source of current.sources)this.checkSourcePolicy(state,current,source);
+          const revisions=current.sources.map(source=>source.kind==='material'?this.service.intake.versions(current.parentSessionId,source.sourceId).latestRevision:null);
+          check(same(revisions,local.dispatch.packet.sourceRevisions),'Source changed at publication','local_pi_source_changed');
+        }
+        catch {result=null;publicationFailed=true;}
+      }
       attempt.status=run.status;current.revision++;
       if(current.cancelRequested&&run.status!=='unknown'){current.status='cancelled';current.reason=null;}
       else if(result&&!current.cancelRequested){current.results.push(result);current.result=result;const covered=current.sources.every((_s,i)=>current.sourceReads.some(r=>r.runId===runId&&r.index===i));current.status=covered?'resolved':'blocked';current.reason=covered?null:'assigned_source_coverage_incomplete';}
@@ -197,6 +220,7 @@ export class Subagents {
     const result=await this.mutate(state=>{const a=this.find(state,id);this.authorized(state,a);
       const old=a.commands.find(c=>c.commandId===input.commandId);if(old){check(same(old,input),'Command conflict','spark_conflict');return a;}
       check(a.revision===input.expectedRevision,'Assignment changed; refresh','spark_stale');
+      if(['reconcile','retry'].includes(input.action))check(!a.attempts.some(t=>t.runId&&localPiRunUnresolved(state,t.runId)),'Local process outcome remains unknown; no repeat dispatch','local_pi_unreconciled',409);
       if(input.action==='cancel'){check(['queued','active','blocked'].includes(a.status),'Assignment already settled','spark_conflict');a.cancelRequested=true;if(a.status!=='active'&&!a.attempts.some(t=>t.status==='unknown'))a.status='cancelled';}
       else if(input.action==='archive'){check(!['queued','active'].includes(a.status)&&!a.attempts.some(t=>t.status==='unknown'),'Settle task before archive','spark_conflict');a.archived=true;}
       else if(input.action==='reconcile'){check(a.status==='blocked'&&a.attempts.at(-1)?.status==='unknown','No unknown attempt','spark_conflict');const attempt=a.attempts.at(-1),run=state.runs.find(r=>r.id===attempt.runId);check(!run||terminal(run.status),'Run still active','spark_unknown');attempt.status='failed';a.reason='Read-only attempt reviewed; explicit retry allowed';}

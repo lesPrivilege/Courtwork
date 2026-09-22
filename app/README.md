@@ -115,10 +115,16 @@ task.
 <a id="store-schema-v13-validated-v3v4v5v6v7v8v9v10v11v12-upgrade"></a>
 <a id="store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade"></a>
 <a id="store-schema-v18-validated-v3-v17-upgrade"></a>
-## Store schema (v19, validated v3–v18 upgrade)
+<a id="store-schema-v19-validated-v3v18-upgrade"></a>
+## Store schema (v20, validated v3–v19 upgrade)
 
-`schemaVersion` is `19`. A valid v3 … v18 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v19. Runtime19 adds remote
+`schemaVersion` is `20`. A valid v3 … v19 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v20. Runtime20 strictly validates
+Run-owned local Pi dispatch, process and retained-result events, including child/source
+identity and unresolved-process fences. It adds no second ledger; valid schema19
+records retain their existing fields and event bytes. The actual schema19 reader
+refuses20 without writing (`tests/local-pi-schema20.test.mjs`). The explicitly injected
+local Pi consumer is tool-less and deterministic-provider-only; see the [Spark contract](docs/spark-agent.md#local-pi-process-consultation). Runtime19 adds remote
 runtime records beside Pi's unchanged `hostSession={id,path}`: a Session's optional
 `remoteBinding` and bounded `remoteActions` (command intents and native tool-call
 claims), and the `remoteBinding` each Run was admitted against; a v18 store gains them

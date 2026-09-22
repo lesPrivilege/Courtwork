@@ -1,4 +1,4 @@
-/* Schema 18 → 19 (remote runtime records, P03-C): a validated 18 store
+/* Schema 18 → current (remote runtime records, P03-C): a validated 18 store
  * upgrades once with an exact backup and gains only null/empty remote fields;
  * an occupied backup path, a malformed remote ledger and a newer schema each
  * fail closed without changing bytes; the actual schema-18 Host refuses the
@@ -25,7 +25,7 @@ async function schema18State(dir) {
   await store.close();
   const file = path.join(dir, "runtime-state.json");
   const fresh = JSON.parse(await readFile(file, "utf8"));
-  assert.equal(fresh.schemaVersion, 19);
+  assert.equal(fresh.schemaVersion, 20);
   const aged = { ...fresh, schemaVersion: 18,
     sessions: fresh.sessions.map(({ remoteBinding, remoteActions, ...rest }) => { assert.deepEqual([remoteBinding, remoteActions], [null, []]); return rest; }),
     runs: fresh.runs.map(({ remoteBinding, ...rest }) => rest) };
@@ -34,22 +34,22 @@ async function schema18State(dir) {
   return { file, raw, aged, session };
 }
 
-test("schema 18 upgrades to 19 once: remote fields added null/empty, Pi locator kept, exact backup, nothing else rewritten", async () => {
+test("schema 18 upgrades to current once: remote fields added null/empty, Pi locator kept, exact backup, nothing else rewritten", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-schema19-"));
   let store;
   try {
     const { file, raw, aged, session } = await schema18State(dir);
     const logs = [];
     store = await new RuntimeStore({ dataDir: dir, logger: line => logs.push(line) }).open();
-    assert.equal(store.state.schemaVersion, 19);
+    assert.equal(store.state.schemaVersion, 20);
     assert.deepEqual(store.getSession(session.id).hostSession, aged.sessions[0].hostSession, "Pi's {id,path} locator is untouched");
     assert.equal(store.getSession(session.id).remoteBinding, null);
     assert.deepEqual(store.listRemoteActions(session.id), []);
     await store.close();
-    assert.ok(logs.some(line => /upgraded schema 18 to 19/.test(line)));
+    assert.ok(logs.some(line => /upgraded schema 18 to 20/.test(line)));
     assert.deepEqual(await readFile(path.join(dir, `runtime-state.schema18.${sha256(raw)}.json`)), raw, "the pre-upgrade bytes are kept exactly");
     const upgraded = JSON.parse(await readFile(file, "utf8"));
-    assert.deepEqual(upgraded, { ...aged, schemaVersion: 19,
+    assert.deepEqual(upgraded, { ...aged, schemaVersion: 20,
       sessions: aged.sessions.map(item => ({ ...item, remoteBinding: null, remoteActions: [] })),
       runs: aged.runs.map(item => ({ ...item, remoteBinding: null })) }, "no other field changes in the step");
     store = await new RuntimeStore({ dataDir: dir }).open();
@@ -61,7 +61,7 @@ test("schema 18 upgrades to 19 once: remote fields added null/empty, Pi locator 
   }
 });
 
-test("an interrupted or blocked 18 → 19 upgrade changes nothing: occupied backup path, malformed legacy input, unsupported newer schema", async () => {
+test("an interrupted or blocked 18 → current upgrade changes nothing: occupied backup path, malformed legacy input, unsupported newer schema", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-schema19-blocked-"));
   try {
     const { file, raw, aged } = await schema18State(dir);
@@ -74,7 +74,7 @@ test("an interrupted or blocked 18 → 19 upgrade changes nothing: occupied back
     await rm(backup);
 
     // A half-written state from a crash between write and rename is swept, not read.
-    await writeFile(`${file}.${randomUUID()}.tmp`, '{"schemaVersion":19,"sessions":[');
+    await writeFile(`${file}.${randomUUID()}.tmp`, '{"schemaVersion":20,"sessions":[');
     // Legacy input is validated as 18 before any backup or write.
     const malformed = Buffer.from(JSON.stringify({ ...aged, sessions: aged.sessions.map(item => ({ ...item, remoteBinding: null })) }));
     await writeFile(file, malformed);
@@ -82,16 +82,16 @@ test("an interrupted or blocked 18 → 19 upgrade changes nothing: occupied back
     assert.deepEqual(await readFile(file), malformed);
     assert.deepEqual((await readdir(dir)).filter(name => name.includes("schema18") || name.endsWith(".tmp")), []);
 
-    const newer = Buffer.from(JSON.stringify({ ...aged, schemaVersion: 20 }));
+    const newer = Buffer.from(JSON.stringify({ ...aged, schemaVersion: 21 }));
     await writeFile(file, newer);
-    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), /schemaVersion 20 is not supported/);
+    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), /schemaVersion 21 is not supported/);
     assert.deepEqual(await readFile(file), newer);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
 });
 
-test("a malformed schema-19 remote ledger fails closed", async () => {
+test("a malformed current remote ledger fails closed", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-schema19-malformed-"));
   try {
     const { file } = await schema18State(dir);
@@ -113,7 +113,7 @@ test("a malformed schema-19 remote ledger fails closed", async () => {
   }
 });
 
-test("the actual schema-18 Host refuses a schema-19 file without writing, and opens the exact backup independently", async () => {
+test("the actual schema-18 Host refuses the current file without writing, and opens the exact backup independently", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "cw-schema19-oldhost-"));
   let old;
   try {
@@ -126,7 +126,7 @@ test("the actual schema-18 Host refuses a schema-19 file without writing, and op
     const { file, raw } = await schema18State(dir);
     await (await new RuntimeStore({ dataDir: dir }).open()).close();
     const upgraded = await readFile(file);
-    await assert.rejects(new Schema18Store({ dataDir: dir }).open(), /schemaVersion 19 is not supported/);
+    await assert.rejects(new Schema18Store({ dataDir: dir }).open(), /schemaVersion 20 is not supported/);
     assert.deepEqual(await readFile(file), upgraded, "the old Host changed nothing");
 
     const restored = path.join(root, "restored"); await mkdir(restored);
