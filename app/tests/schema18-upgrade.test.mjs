@@ -20,16 +20,16 @@ test("schema 17 upgrades once: operations added empty, exact backup kept, nothin
     await store.close();
     const file = path.join(dir, "runtime-state.json");
     const fresh = JSON.parse(await readFile(file, "utf8"));
-    assert.equal(fresh.schemaVersion, 20);
+    assert.equal(fresh.schemaVersion, 21);
     assert.deepEqual(fresh.operations, []);
     const aged = { ...fresh, schemaVersion: 17,
       sessions: fresh.sessions.map(({ remoteBinding, remoteActions, ...session }) => session),
-      runs: fresh.runs.map(({ remoteBinding, ...run }) => run) };
+      runs: fresh.runs.map(({ remoteBinding, kitBinding, ...run }) => run) };
     delete aged.operations;
     const raw = Buffer.from(JSON.stringify(aged, null, 1) + "\n");
     await writeFile(file, raw);
     store = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(store.state.schemaVersion, 20);
+    assert.equal(store.state.schemaVersion, 21);
     assert.deepEqual(store.state.operations, []);
     assert.equal(store.getSession(session.id).title, "Kept");
     assert.equal(store.listProjects().length, 1);
@@ -37,12 +37,12 @@ test("schema 17 upgrades once: operations added empty, exact backup kept, nothin
     const hash = createHash("sha256").update(raw).digest("hex");
     assert.deepEqual(await readFile(path.join(dir, `runtime-state.schema17.${hash}.json`)), raw, "the pre-upgrade bytes are kept exactly");
     const upgraded = JSON.parse(await readFile(file, "utf8"));
-    assert.equal(upgraded.schemaVersion, 20);
+    assert.equal(upgraded.schemaVersion, 21);
     const { operations, ...rest } = upgraded;
     assert.deepEqual(operations, []);
-    assert.deepEqual(rest, { ...aged, schemaVersion: 20,
+    assert.deepEqual(rest, { ...aged, schemaVersion: 21,
       sessions: aged.sessions.map(session => ({ ...session, remoteBinding: null, remoteActions: [] })),
-      runs: aged.runs.map(run => ({ ...run, remoteBinding: null })) }, "no other field changes beyond the later empty remote fields");
+      runs: aged.runs.map(run => ({ ...run, remoteBinding: null, kitBinding: null })) }, "no other field changes beyond the later empty remote and Kit fields");
     store = await new RuntimeStore({ dataDir: dir }).open();
     await store.close();
     assert.equal((await readdir(dir)).filter((name) => name.includes("schema17")).length, 1, "a second open is not a second upgrade");
