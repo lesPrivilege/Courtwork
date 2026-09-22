@@ -58,5 +58,4 @@ No additional concrete violation was reproduced. Cross-record validator complete
 
 Final E/R1 is the adoption candidate. The direct schema18-to-final-schema19 tests pass. The intermediate C schema19 shape with a non-null rootTurn lacking D’s terminal field is not independently deployable; it remains test-temp-only per the author handoff. No standalone C migration or extra schema version is required for final adoption, provided only the final tree is integrated and any non-temporary C-created data would stop adoption for an explicit compatibility decision.
 
-No full suite, live API, provider, credential, UI, merge, checkout or source edit was performed. 
-
+No full suite, live API, provider, credential, UI, merge, checkout or source edit was performed.
