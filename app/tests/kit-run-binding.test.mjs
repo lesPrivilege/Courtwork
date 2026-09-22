@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { boot, reopen, spawnWorker } from './helpers.mjs';
 import { seal, sha256, pin } from './fixtures/kit-context.mjs';
@@ -65,6 +65,16 @@ test('K3 authenticated import/select → actual Pi request consumes exact retain
     assert.equal(recorded.json.kitContext.text, EXPECTED);
     assert.deepEqual(recorded.json.binding.kitBinding, summary);
     assert.equal(recorded.json.kitContext.plan.candidate.sha256, summary.contextPayload.sha256);
+    // Optional author evidence captures the actual HTTP request body only,
+    // never its authorization header. All source/provider data here is synthetic.
+    if (process.env.CW_K3_EVIDENCE_DIR) {
+      const dir = process.env.CW_K3_EVIDENCE_DIR;
+      await mkdir(dir, { recursive: true });
+      await writeFile(path.join(dir, 'actual-provider-request.json'), JSON.stringify(h.runtime.fakeProvider.requests[0].body, null, 2) + '\n');
+      await writeFile(path.join(dir, 'recorded-context.json'), JSON.stringify(recorded.json, null, 2) + '\n');
+      await writeFile(path.join(dir, 'context.txt'), recorded.json.kitContext.text);
+      await writeFile(path.join(dir, 'source-inputs.json'), JSON.stringify({ profile: f.profile, resources: f.sources }, null, 2) + '\n');
+    }
     const input = h.scriptInput([{ name: 'runtime_load', arguments: { id: 'local:k3-ref' } }]);
     const loaded = await f.start(input, 'k3-load');
     assert.equal((await h.pollRun(loaded.json.run.id)).status, 'completed');
