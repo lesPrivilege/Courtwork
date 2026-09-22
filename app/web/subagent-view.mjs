@@ -2,9 +2,8 @@ import { el, action, icon } from './ui-controls.mjs';
 const reasons={restart_requires_explicit_review:'The host restarted. Inspect the interrupted attempt before retrying.',spark_provider_changed:'The model configuration changed. Start a new task to use it.',spark_source_policy:'Source access changed. Check the current permissions.',assigned_source_coverage_incomplete:'Some assigned source versions were not read. The findings show partial coverage.',findings_publication_failed:'The run ended, but its findings could not be retained. Retry after storage is available.',missing_or_oversized_findings:'The run did not return findings within the output limit.',run_unknown:'The attempt ended without a confirmed outcome. Inspect it before retrying.',run_failed:'The exploration failed. Inspect the attempt details before retrying.',spark_budget:'This task has used its execution budget.',agent_disabled:'Spark is disabled.'};
 const labels={queued:'Queued',active:'Exploring',blocked:'Needs attention',resolved:'Findings ready',cancelled:'Stopped'};
 export function createSubagentView({request,getSession,onMaintenance,onOpenSession}) {
- const aside=el('section',{className:'rail-card subagent-card',attrs:{'aria-label':'Spark',hidden:true}});
  const dialog=el('dialog',{className:'spark-dialog',attrs:{'aria-label':'Spark Explore'}});document.body.append(dialog);
- let owner=null,data=null,epoch=0,opener=null,timer=null,selected=null,expanded=new Set(),busy=false,pendingCreate=null,pendingSessionId=null,railSignature=null,detailEpoch=0,selectedSignature=null;
+ let owner=null,data=null,epoch=0,opener=null,timer=null,selected=null,expanded=new Set(),busy=false,pendingCreate=null,pendingSessionId=null,detailEpoch=0,selectedSignature=null;
  const pendingCommands=new Map(),pendingMounts=new Map();
  const pendingKey='courtwork.spark.pending-create.v1';
  try{const saved=JSON.parse(sessionStorage.getItem(pendingKey)||'null');pendingCreate=saved?.create??null;pendingSessionId=saved?.sessionId??null;}catch{/* An invalid local draft never changes Host state. */}
@@ -20,16 +19,11 @@ export function createSubagentView({request,getSession,onMaintenance,onOpenSessi
  const notice=el('p',{className:'form-help',attrs:{role:'status'}});
  const content=el('div',{className:'observation-dialog-body'});
  dialog.append(el('header',{className:'spark-header'},el('h2',{text:'Spark · Explore'}),action('x','Close Spark',()=>dialog.close())),notice,content);
- dialog.addEventListener('close',()=>{epoch++;detailEpoch++;selected=null;expanded.clear();if(opener?.isConnected)opener.focus();else if(aside.isConnected)aside.querySelector('button')?.focus();});
+ dialog.addEventListener('close',()=>{epoch++;detailEpoch++;selected=null;expanded.clear();if(opener?.isConnected)opener.focus();});
  async function guarded(fn){if(busy)return;busy=true;notice.textContent='';try{await fn();}catch(e){notice.textContent=e.message||'Spark unavailable. Refresh to retry.';}finally{busy=false;}}
- function renderRail(){const signature=JSON.stringify([owner?.id,data?.agents?.[0]?.status,(data?.assignments??[]).filter(a=>a.parentSessionId===owner?.id&&!a.archived).map(a=>[a.id,a.status,a.brief,a.available])]);if(signature===railSignature)return;railSignature=signature;aside.replaceChildren(el('div',{className:'rail-card-head'},icon('spark'),el('h3',{text:'Spark',className:'rail-card-title'}),el('span',{text:'Explore',className:'rail-card-state'}),action('chevron-right','Ask Spark',()=>void open(owner),{className:'quiet-button rail-open'})));
-  const tasks=(data?.assignments??[]).filter(a=>a.parentSessionId===owner?.id&&!a.archived);
-  for(const a of tasks.slice(-3).reverse())aside.append(taskButton({...a,brief:a.brief?.slice(0,60)},async()=>{await open(owner);await guarded(()=>detail(a.id));}));
- }
  const taskSignature=a=>JSON.stringify(a&&[a.id,a.status,a.cancelRequested,a.reason,a.result?.revision,a.available,a.attempts?.map(t=>[t.number,t.status,t.sessionId,t.runId]),a.consumption]);
- async function refresh(){const mine=++epoch;const d=await request('/subagents');if(mine!==epoch)return;data=d;renderRail();if(dialog.open&&selected&&!busy&&taskSignature(data.assignments.find(a=>a.id===selected))!==selectedSignature){const scroll=content.scrollTop,focus=document.activeElement,text=focus?.getAttribute('aria-label')||focus?.textContent;await detail(selected);content.scrollTop=scroll;if(focus&&content.contains(focus)===false&&dialog.open)[...content.querySelectorAll('button')].find(b=>(b.getAttribute('aria-label')||b.textContent)===text)?.focus({preventScroll:true});}}
- function schedule(){clearTimeout(timer);if(aside.hidden&&!dialog.open)return;timer=setTimeout(async()=>{try{await refresh();}catch{/* Next explicit open reports transport failure. */}schedule();},2000);}
- function sync(session,visible){const hidden=!visible||!session||Boolean(session.extensionBinding);if(owner?.id===session?.id&&aside.hidden===hidden)return;owner=session;aside.hidden=hidden;if(!aside.hidden){renderRail();void refresh().catch(()=>{});}schedule();}
+ async function refresh(){const mine=++epoch;const d=await request('/subagents');if(mine!==epoch)return;data=d;if(dialog.open&&selected&&!busy&&taskSignature(data.assignments.find(a=>a.id===selected))!==selectedSignature){const scroll=content.scrollTop,focus=document.activeElement,text=focus?.getAttribute('aria-label')||focus?.textContent;await detail(selected);content.scrollTop=scroll;if(focus&&content.contains(focus)===false&&dialog.open)[...content.querySelectorAll('button')].find(b=>(b.getAttribute('aria-label')||b.textContent)===text)?.focus({preventScroll:true});}}
+ function schedule(){clearTimeout(timer);if(!dialog.open)return;timer=setTimeout(async()=>{try{await refresh();}catch{/* Next explicit open reports transport failure. */}schedule();},2000);}
  async function directory(){
   detailEpoch++;content.replaceChildren();selected=null;expanded.clear();
   const sessions=await request('/sessions');
@@ -112,5 +106,5 @@ export function createSubagentView({request,getSession,onMaintenance,onOpenSessi
   content.append(el('details',{},el('summary',{text:'Assignment and execution'}),info));
  }
  async function open(session=getSession()){owner=session;opener=document.activeElement;selected=null;if(!dialog.open)dialog.showModal();await guarded(async()=>{await refresh();await directory();});schedule();}
- return {sync,open,element:aside};
+ return {open};
 }

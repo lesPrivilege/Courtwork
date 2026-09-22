@@ -60,11 +60,12 @@ test("content column · prose and composer share one inset resolved against one 
   assert.match(styles, /--content-inset-tight: var\(--space-8\);/);
   assert.match(
     rule(styles, ".conversation-body"),
-    /--chat-inset: clamp\(\s*var\(--content-inset-tight\),\s*\(100% - var\(--cards-inset, 0px\) - var\(--column\)\) \/ 2,\s*var\(--content-inset\)\s*\);/,
+    /--chat-inset: clamp\(\s*var\(--content-inset-tight\),\s*\(100% - var\(--column\)\) \/ 2,\s*var\(--content-inset\)\s*\);/,
   );
   assert.match(rule(styles, ".message-stream"), /padding: var\(--space-8\) var\(--chat-inset\) var\(--space-6\);/);
   assert.match(rule(styles, ".composer-area"), /padding: var\(--space-2\) var\(--chat-inset\) var\(--space-4\);/);
-  assert.match(styles, /\.app-shell\.surface-cards \.composer-area \{\n    padding-right: calc\(var\(--chat-inset\) \+ var\(--cards-inset\)\);/);
+  // 06d · no card layer reserves room beside the column any more.
+  assert.doesNotMatch(styles, /--cards-inset|surface-cards/);
   // Phone: 16, the page gutter, for both.
   assert.match(styles, /\.conversation-body \{ --chat-inset: var\(--page-gutter\); \}/);
   // Both boxes keep the 740 reading column.
@@ -72,13 +73,11 @@ test("content column · prose and composer share one inset resolved against one 
   assert.match(styles, /\.composer-form,\n\.draft-status \{\n  max-width: var\(--column\);/);
 });
 
-test("summary · cards fold to the strip before the reading column drops under 640 + two tight insets", () => {
-  assert.match(appSource, /const READING_FLOOR = 640;/);
-  assert.match(
-    appSource,
-    /READING_FLOOR \+ 2 \* px\("--content-inset-tight", 32\) \+ 288 \+ px\("--col-gap", 24\)/,
-  );
-  assert.match(layout, /\.app-shell\.surface-cards \{ --rail-width: 288px; \}/);
+/* 06d · the collapsed card layer and its glyph strip are gone: Preview opens
+ * on an object, so nothing floats beside the reading column to be measured. */
+test("summary · no card layer or strip measurement remains beside the reading column", () => {
+  assert.doesNotMatch(appSource, /READING_FLOOR|measureSurfaceLayout|surface\.strip/);
+  assert.doesNotMatch(layout, /surface-cards|rail-width|surface-rail/);
 });
 
 test("composer · content-driven and bounded; growth never writes value", () => {

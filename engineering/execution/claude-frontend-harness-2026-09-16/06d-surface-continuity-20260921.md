@@ -57,3 +57,43 @@ Stop after the bounded handoff. Left-rail adoption, a real Browser adapter, stre
 ## Read-only grammar audit follow-up — 2026-09-22
 
 [Parent disposition of the separate audit](../../design/grammar-convergence-20260921/disposition-20260922.md) records identical sampled main/candidate reader stack geometry; do not relabel inherited chrome as a new06d height regression. At390px/fine pointer, close24×24 and Find27.25px did not inherit root44. This is a scoped target-map/coarse-verification follow-up for06d/reader, not by itself an AA failure or an addedPV-R1 blocker. Record any compact fine-pointer exception and separately preserve/verify the coarse target path; no global44 change or global density rewrite. The Runtime M1 lease edits only its own view module, excludes styles.css and all06d files, and does not take this writer's scope.
+
+## Author change record — written before B's code (2026-09-21, Opus)
+
+Base `b714c08` (main), branch `claude-tabbed-preview-20260921`, worktree `.worktrees/courtwork-tabbed-preview-20260921`. A's two corrections are committed separately first (A1 `90be9af`; CE-F2 follows). Filled per [change template](../../design/agent-interface-2026-09-10/change-template.md).
+
+**Owner facts consumed, unchanged.** Run (`GET /runs/:id`, `renderRun`), file readers (`createFileView`: current / content-version / core-file / retained-source, each with its own provenance note and generation guard), presentation instance (`presentation.created` event or `GET …/presentations/:id`), Workspace / extension Work surface (`loadSurface`, renderer mount/update/dispose, `sameSurfaceIdentity`). No Host route, schema or renderer ABI changes.
+
+**Existing primitives reused.** `surface-modules.mjs` (per-kind adapter + pane; the host keeps order, selection, Escape and renderer lifecycle — WK-41), the object-tab anatomy `.surface-document-tab` / `.surface-tab-select` / `.surface-tab-close` (WK-113 ④⑥: separate select and close hit areas, truncated name with full name on `title` and accessible name), `.tab-activity` run marks (WK-118 ⑤), the tablist keyboard (arrows / Home / End, Delete/Backspace closes), `surface-back-button` (← Chat, outside the tablist), `surface-expand-button` maximize/restore, the three geometry modes (≥1680 three-pane C, 1024–1679 view switch B, <1024 modal sheet), `rememberSurfaceFocus` / `surfaceReturnFocus` / `restoreLayerFocus`, R4D-3 chat reading memory, Materials file return.
+
+**Concrete gap.** The strip holds at most one object tab (CC-W 1: "no array, no map" while one trusted active document existed); a second file replaces the first, and run/presentation/workspace are *kind* tabs, not objects. Nothing remembers reading position per object or scopes the set to a Session. No external tab primitive is needed for that; the missing mechanic is a small list model.
+
+**Target anatomy.** One pane named **Preview**: header = [← Chat, B only] [object tablist] [Work memory-scope statement, unchanged] [toolbar: Expand/Restore where the geometry offers it · Hide preview]; body = the selected object's existing renderer and its own provenance/version lines. No URL bar, back/forward, pop-out, download, Browser or Terminal tab. No toolbar Reload: the objects whose reading can change already carry their reload in-pane (Run refresh, Workspace refresh, file Retry), and recorded versions/presentations are immutable. The collapsed right-card rail (Run summary card, File/Workspace/Presentation cards, glyph strip, entry directory) is removed with its projection code; Spark keeps its own header entry.
+
+**Tab identity.** A tab is keyed by scope + kind + the owner's existing identity: Workspace `sessionId`; Run `sessionId, runId`; File `sessionId, kind, path, sha256, runId` (+ core-file `matterId, candidateId, artifactId, candidateDigest, bundleDigest`; retained-source `sourceId, revision`) — the existing `surfaceDocumentKey` fields; Presentation `sessionId, instanceId, revision`. Opening an object whose key is present reactivates that tab; two recorded versions of one path are two tabs, labelled with their short version. Title, full name, version word and run activity come from those facts; no dirty/unsaved state is invented for read-only objects.
+
+**Open / close / restore.** Opening appends to the end of the strip and selects the tab. Closing is a view action only: the right neighbour becomes active, else the left; focus goes to the new active tab; closing an inactive tab leaves selection alone. Closing the last tab closes the pane and returns focus to what opened it (else the header Preview button). Nothing a tab close does cancels a Run, revokes a binding, discards the composer, deletes an artifact or decides work; an in-flight read for the closed tab is aborted and its late answer is ignored. The header entry reopens the Session's remembered set; with none, it opens that Session's Workspace. Escape: a maximized pane restores first, otherwise the pane hides.
+
+**Scope and restoration policy (smallest).** The tab list, selected tab and each tab's reading position (content scroll) belong to the existing Session surface owner in `app.mjs`, held in memory keyed by `sessionId` for the page's lifetime; leaving Work A and entering Work B shows B's set (initially empty) and never A's objects, and returning to A restores A's set closed until reopened. Nothing is written to storage and no registry is created, so a reload starts with no tabs (the pre-existing `surfaceOpen` marker no longer opens anything by itself). `state.surface.kind / runId / fileRef / presentationRef` become read-only projections of the selected tab, so there is one selection fact.
+
+**Delayed reads.** Reads keep their owners' guards (file generation + abort, run read generation, surface fetch id, presentation ref identity). A response can only paint the tab that is still selected in the same Session; no response creates or reselects a tab.
+
+**Future Browser boundary.** A later Browser surface is one more module kind (adapter + pane + tab identity) that projects an owned page; nothing here implements it.
+
+**Affected rules / grammar.** UX-03 (Tab switches peer views; tabs here are objects, per tab-view grammar "Preview / document chrome"), UX-02 (full name/version on the tab's accessible name), UX-09 (no empty rail cards), `docs/ui-composition.md` 检查栏/放大工作面 rows and WK-41/42/72 (card layer), CC-W 1 (single document tab) — superseded here for multiple object tabs; recorded in the owner test with this record as the pointer. Intentional change: no collapsed card layer; the pane opens directly on an object.
+
+## Author delivery — 2026-09-21 (Opus)
+
+A1 `90be9af`, A2 `dfc90b7`, B `736e0f7` (review this SHA) on `claude-tabbed-preview-20260921`. Evidence, logs, fixture command and unexecuted items: [evidence/tabbed-preview-20260921](evidence/tabbed-preview-20260921/README.md). Full suite 1388/1388; B browser journey 34/34; CE-F2 before/after 21/21.
+
+Deviations from the pre-code record: none in behaviour. Consequences recorded:
+- Spark's rail card had no host left, so `subagent-view.mjs` lost its rail hook and background poll. Spark is still on its own nav entry.
+- The copy row "Open in work surface" became "Open in Preview".
+- Stale semantics-registry entries for the removed modules were dropped.
+- `writeUiState` no longer writes the unread `surfaceOpen` marker.
+
+Writer released. No push, no deploy, no evidence or worktree deletion.
+
+## PV-R1 return — 2026-09-22 (Opus)
+
+The review on main `6da9347` accepted A1/A2 and held B for PV-R1. Answered at **`4698d8b`** on the same branch: closing a Workspace tab, selected or not, now retires its reads through the existing owners, and reopening starts new ones. Page-route regression, before 4/7 → after 7/7; B journey 34/34; full suite 1389/1389. See the [PV-R1 packet](evidence/tabbed-preview-20260921/pv-r1/README.md). Only the correction delta changed. The Back/Forward-after-native-controls candidate stays registered for the shell/navigation increment; the review's point that geometry hooks are not native completeness is noted.

@@ -125,18 +125,23 @@ test("CC-W 第 0 项 · M-10 tooltip 共享延迟：首个 400，窗口内相邻
 const appSource = read("app/web/app.mjs");
 const markup = read("app/web/index.html");
 
-test("CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新增 scope 字段", () => {
-  // 至多一个文档 tab：没有数组、没有 map、没有位置表。
-  assert.equal((markup.match(/id="surface-document-tab"/g) || []).length, 1);
-  assert.doesNotMatch(appSource, /openDocuments|documentTabs\s*=|surfaceDocuments\s*=/);
-  // 显示 key 由 sessionId / path / kind / sha256 / runId 拼出；没有 scope 字段。
-  const key = appSource.slice(
-    appSource.indexOf("function surfaceDocumentKey"),
-    appSource.indexOf("function documentTabTitle"),
+/* 06d supersedes CC-W 1's "at most one document tab": Preview now holds one tab
+ * per object, keyed by the owner's identity fields (engineering/execution/
+ * claude-frontend-harness-2026-09-16/06d-surface-continuity-20260921.md). What
+ * CC-W 1 fixed about each tab — identity from existing fields, a separate
+ * close target, a truncated name with the full one kept — still holds. */
+const tabsSource = read("app/web/preview-tabs.mjs");
+
+test("CC-W 1 / 06d · 对象 tab 的身份由既有字段拼出，不新增字段，也不写进存储", () => {
+  assert.equal((markup.match(/id="surface-tabs"/g) || []).length, 1);
+  assert.doesNotMatch(markup, /id="surface-document-tab"|id="surface-(preview|run|file|presentation)-tab"/, "no fixed kind tab is left");
+  const key = tabsSource.slice(
+    tabsSource.indexOf("export function previewTabKey"),
+    tabsSource.indexOf("export function createPreviewTabs"),
   );
-  for (const field of ["sessionId", "path", "kind", "sha256", "runId"])
+  for (const field of ["sessionId", "path", "kind", "sha256", "runId", "instanceId", "revision", "matterId", "candidateId", "artifactId", "candidateDigest", "bundleDigest", "sourceId"])
     assert.ok(key.includes(`ref.${field}`), field);
-  assert.ok(!key.includes("scope"), "tab key 里不该有 scope 字段");
+  assert.doesNotMatch(tabsSource, /localStorage|sessionStorage|request\(/, "tabs are a view: nothing stored, nothing fetched");
   // renderer 失效判定仍然是 sameSurfaceIdentity，含 status / modulePath（R4D-4）。
   const identity = appSource.slice(
     appSource.indexOf("function sameSurfaceIdentity"),
@@ -146,31 +151,24 @@ test("CC-W 1 · 文档 tab 只有一个，身份由既有字段拼出，不新�
     assert.ok(identity.includes(field), field);
 });
 
-test("CC-W 1 · 选中区与关闭区分开；类型 tab 没有关闭区；关闭是明确动作", () => {
-  assert.match(markup, /id="surface-document-select"[\s\S]{0,200}role="tab"/);
-  assert.match(markup, /id="surface-document-close"/);
-  // 类型 tab 是三个 role=tab 的按钮，它们里面没有关闭钮。
-  assert.doesNotMatch(
-    markup,
-    /id="surface-(preview|run|file)-tab"[\s\S]{0,200}surface-tab-close/,
-  );
-  // 关闭：关闭钮，或焦点在文档 tab 上时的 Delete / Backspace。
-  assert.match(appSource, /event\.key === "Delete" \|\| event\.key === "Backspace"/);
-  assert.match(appSource, /\$\("surface-document-close"\)\.addEventListener\("click", closeDocumentTab\)/);
-  // 关闭活跃文档 tab 回紧凑目录并归还焦点。
+test("CC-W 1 / 06d · 选中区与关闭区分开；关闭是明确动作；截断只在看的那一层", () => {
+  assert.match(tabsSource, /className: "surface-tab-select"/);
+  assert.match(tabsSource, /className: "surface-tab-close"/);
+  assert.match(tabsSource, /role: "tab"/);
+  // 关闭：关闭钮，或焦点在 tab 上时的 Delete / Backspace。
+  assert.match(tabsSource, /event\.key === "Delete" \|\| event\.key === "Backspace"/);
+  assert.match(appSource, /installPreviewTabKeys\(\$\("surface-tabs"\), \{ onSelect: selectPreviewTab, onClose: closePreviewTab \}\)/);
+  // 关闭最后一个 tab 收起 Preview 并归还焦点。
   const close = appSource.slice(
-    appSource.indexOf("function closeDocumentTab"),
-    appSource.indexOf("const TAB_ACTIVITY"),
+    appSource.indexOf("function closePreviewTab"),
+    appSource.indexOf("function selectPreviewTab"),
   );
-  assert.ok(close.includes("setSurfaceExpanded(false"), "回紧凑目录");
-  assert.ok(close.includes("restoreLayerFocus"), "归还焦点");
-  // 截断只发生在看的那一层：完整名字留在 title 与可访问名上。
-  const tab = appSource.slice(
-    appSource.indexOf("function renderDocumentTab"),
-    appSource.indexOf("function renderSurfaceScope"),
-  );
-  assert.ok(tab.includes("select.title = full"));
-  assert.ok(tab.includes('select.setAttribute("aria-label", full)'));
+  assert.ok(close.includes("closeSurface("), "the last close hides the pane");
+  assert.ok(close.includes("surfaceTabButton()?.focus()"), "otherwise the keyboard goes to the tab that took over");
+  assert.doesNotMatch(close, /request\(|cancel|revoke|delete|decide/i, "closing a tab reaches no owner command");
+  // 完整名字留在可访问名与 title 上。
+  assert.match(tabsSource, /"aria-label": words\.meta \? `\$\{words\.full\} · \$\{words\.meta\}` : words\.full/);
+  assert.match(tabsSource, /title: words\.meta \?/);
 });
 
 test("CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质", () => {
@@ -225,8 +223,8 @@ test("CC-W 2 / 3 · 返回控件不在 tablist 里，也不占顶带那个槽位
   // 顶带左端槽位仍然只有侧栏开合钮与 Back to app 两种离开动作。
   assert.match(appSource, /\$\("toggle-nav-button"\)\.hidden = settingsOpen;/);
   assert.doesNotMatch(appSource, /chat-header[\s\S]{0,80}surface-back-button/);
-  // Escape 两步序不变。
-  assert.match(appSource, /if \(state\.surface\.expanded\) setSurfaceExpanded\(false\);/);
+  // Escape：放大的面先还原，再收起（06d 之后没有收起成卡片的那一步）。
+  assert.match(appSource, /if \(state\.surface\.maximized && !surfaceOverlayQuery\.matches\) toggleSurfaceMaximized\(\);\s*else closeSurface\(\);/);
 });
 
 test("CC-W 4 / 5 · 面板宽 ≠ 正文行宽；滚动位置在没有布局盒时不被抹成 0", () => {
@@ -244,9 +242,9 @@ test("CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不�
   );
   for (const status of ["running", "waiting_user", "failed"])
     assert.ok(activity.includes(status), status);
-  // 每一档都带一句话，不是只有颜色。
-  assert.match(activity, /className: "sr-only", text: word/);
-  assert.ok(!activity.includes("banner"), "不造 banner");
+  // 06d · 记号画在那个 Run 自己的 tab 上；每一档都带一句话，不是只有颜色。
+  assert.match(tabsSource, /className: "sr-only", text: words\.activity\.word/);
+  assert.ok(!activity.includes("banner") && !tabsSource.includes("banner"), "不造 banner");
   // 形状分档：实心 / 空心环 / 方块。
   // WK-128 ③（FE-05a）· 满弧改写 --radius-pill，`50%` 不再使用；断言跟着契约走，
   // 量的仍是"这一档是圆"，不是放宽（正方形上 999px 与 50% 渲染同值）。
@@ -254,4 +252,25 @@ test("CC-W 1 · agent activity 是 tab 上的一个记号，不是 banner，不�
   assert.match(styles, /\.tab-activity\.failed,[\s\S]{0,120}border-radius: 0;/);
   // 颜色沿 run-badge 的三档，没有新色。
   assert.match(styles, /\.tab-activity\.waiting_user \{[\s\S]{0,60}color: var\(--accent-ink\);/);
+});
+
+/* PV-R1 (06d review 2026-09-22) · closing a Workspace tab, selected or not,
+ * retires its reads through the existing owners; the page-route regression is
+ * the 06d packet's `workspace-close` browser part. */
+test("PV-R1 · a closed Workspace tab accepts none of its outstanding reads", () => {
+  const close = appSource.slice(
+    appSource.indexOf("function closePreviewTab"),
+    appSource.indexOf("function selectPreviewTab"),
+  );
+  // Before choosing a neighbour or hiding the pane, whichever tab was selected.
+  assert.ok(close.indexOf('if (closed.kind === "workspace") retireWorkspaceReads();') < close.indexOf("if (!active)"));
+  const retire = close.slice(close.indexOf("function retireWorkspaceReads"));
+  for (const step of ["state.surface.requestId += 1", "state.surface.workspaceGeneration++", "disposeSurfaceRenderer()"])
+    assert.ok(retire.includes(step), step);
+  // disposeSurfaceRenderer aborts the surface fetch and clears the renderer context.
+  const dispose = appSource.slice(appSource.indexOf("async function disposeSurfaceRenderer"), appSource.indexOf("async function invalidateSurfaceForExtensionChange"));
+  assert.ok(dispose.includes("invalidateSurfaceFetches()") && dispose.includes("state.surface.context = null"));
+  // Hiding is not closing: closeSurface keeps the tab and its reads.
+  const hide = appSource.slice(appSource.indexOf("function closeSurface("), appSource.indexOf("function closeNavigation"));
+  assert.ok(!hide.includes("retireWorkspaceReads") && !hide.includes("disposeSurfaceRenderer"));
 });

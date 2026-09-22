@@ -1,0 +1,28 @@
+✔ repositoryName shows the folder word; activeRepositoryBinding ignores revoked bindings (0.859625ms)
+✔ An unbound chat offers Open folder first, lists folders connected before, and keeps the path behind a disclosure (4.726ms)
+✔ Choosing a folder connected before sends one bind command and reads the Session back (5.357292ms)
+✔ Open folder asks the Host for a native dialog, binds the chosen path, and does nothing when cancelled (2.223875ms)
+✔ A Host without a folder dialog falls back to the typed path as the primary form (0.8065ms)
+✔ A rejected typed path keeps the text, shows the Host message and reuses the requestId on retry (1.170083ms)
+✔ A bound chat shows the folder and scope; Disconnect sends revoke with the current revision (1.1005ms)
+✔ On Home the card edits a draft: choosing writes the intent, nothing is bound, Remove clears it (1.119375ms)
+✔ While a run is active the card explains the wait and disables the commands (0.524417ms)
+✔ Band placement and shell wiring for the Work location entry (4.76125ms)
+✔ the Work location entry names only the facts it opens, and says which are absent (0.209959ms)
+✔ A Home send in flight locks the project and folder, and says why (0.737458ms)
+✔ CE-F2 · a bound panel starts on Close, never on Disconnect, even when Disconnect is in view (0.711458ms)
+✔ CE-F2 · an unbound chat starts on Connect folder when it is in view, and on Close when it is not (0.817167ms)
+✔ CE-F2 · a fresh Home starts on the chosen project; a staged folder starts on Close (0.577333ms)
+✔ CE-F2 · a locked panel starts on Close and its reason stays beside the locked control (1.196291ms)
+✔ CE-F2 · an unfinished preparation starts on Close; its way out stays enabled with its reason (0.382542ms)
+✔ CE-F2 · a read-back re-render keeps the keyboard on Close instead of dropping it (0.328542ms)
+✔ CE-F2 · a command that loses its control still falls back inside the card, not to Close (0.760666ms)
+✔ CE-F2 · the panel's opener decides the start after it is sized, from its top, without scrolling (0.792334ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 135.559709

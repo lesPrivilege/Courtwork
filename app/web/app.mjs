@@ -26,8 +26,7 @@ import {
   MEMORY_SCOPE_OFF,
 } from "./ui-controls.mjs";
 
-import { projectRunSummary } from "./summary-disclosure-projection.mjs";
-import { createRunSummaryCard, createCardDisclosureMemory, createSurfaceEntryDirectory } from "./summary-disclosure.mjs";
+import { createPreviewTabs, renderPreviewTabs, installPreviewTabKeys } from "./preview-tabs.mjs";
 
 import { installShellLayout } from "./shell-layout.mjs";
 installShellLayout({ window, document, navigator });
@@ -131,6 +130,8 @@ const narrowQuery = window.matchMedia("(max-width: 767px)");
  * 切换（B），<1024 仍是全屏 sheet。断点写在这里一次，CSS 里同一个数字。 */
 const surfaceThreePaneQuery = window.matchMedia("(min-width: 1680px)");
 
+/* 06d · Preview's object tabs, one set per Session (see preview-tabs.mjs). */
+const previewTabs = createPreviewTabs();
 const state = {
   token: null,
   editMessageCandidate: null,
@@ -218,26 +219,24 @@ const state = {
   recoveryProbeTimer: null,
   recoveryProbeController: null,
   surface: {
+    /* Whether the Preview pane is on screen. Which object it shows is the
+     * selected tab (preview-tabs.mjs); the four fields below read it, so there
+     * is one selection fact and nothing else to keep in step. */
     open: false,
-    kind: "preview",
-    runId: null,
-    fileRef: null,
+    get kind() { return previewTabs.active()?.kind ?? null; },
+    get runId() { const tab = previewTabs.active(); return tab?.kind === "run" ? tab.ref.runId : null; },
+    get fileRef() { const tab = previewTabs.active(); return tab?.kind === "file" ? tab.ref : null; },
     /* 08 · the recorded presentation instance the person opened. */
-    presentationRef: null,
+    get presentationRef() { const tab = previewTabs.active(); return tab?.kind === "presentation" ? tab.ref : null; },
     returnFocus: null,
     returnFocusEpoch: null,
     runReadGeneration: 0,
     runReadController: null,
     workspaceGeneration: 0,
-    // WK-41 · the workspace tree is fetched once by the host and handed to both
-    // rail states, so collapsing and expanding never re-reads the same tree.
+    // WK-41 · the workspace tree is fetched once by the host, so hiding and
+    // showing the pane never re-reads the same tree.
     workspace: null,
-    expanded: false,
     maximized: false,
-    /* WK-72 ·两个量测结果（非形式状态，不入 localStorage）：悬浮层收成 glyph 竖条
-     * 与否，以及 composer 当前占去的高度。 */
-    strip: false,
-    composerHeight: 0,
     requestId: 0,
     fetchRequestId: 0,
     fetchController: null,
@@ -289,8 +288,10 @@ function storeUnconfirmedRuns() {
     /* receipt remains in memory */
   }
 }
-function setWorkspaceTitle(title) {
-  if (state.surface.kind === "preview") $("surface-title").textContent = title;
+/* The Workspace tab is named by what renders it; the name comes from the
+ * surface read, so the strip repaints when it lands. */
+function setWorkspaceTitle() {
+  if (state.surface.open) renderPreviewTabStrip();
 }
 function restoreLayerFocus(preferred, fallback = $("session-title")) {
   const target =
@@ -357,7 +358,6 @@ function writeUiState() {
         openProjectIds: [...state.openProjectIds].filter(
           (id) => typeof id === "string",
         ),
-        surfaceOpen: state.surface.open !== false,
       }),
     );
   } catch {
@@ -1426,7 +1426,7 @@ async function invalidateSurfaceForExtensionChange(previousExtensions = null) {
     return;
   state.surface.info = null;
   state.surface.projection = null;
-  setWorkspaceTitle("Files");
+  setWorkspaceTitle();
   renderSurfaceFallback();
 }
 
@@ -1529,6 +1529,7 @@ async function selectSession(
   const navigationEpoch = suppliedNavigationEpoch ?? state.navigationEpoch + 1;
   if (suppliedNavigationEpoch === null) state.navigationEpoch = navigationEpoch;
   if (navigationEpoch !== state.navigationEpoch) return;
+  rememberPreviewReading();
   leaveLocation();
   await persistCurrentDraft();
   if (navigationEpoch !== state.navigationEpoch) return;
@@ -1540,9 +1541,7 @@ async function selectSession(
   state.activeSessionId = sessionId;
   state.view = "session";
   state.surface.open = false;
-  state.surface.kind = "preview";
-  state.surface.runId = null;
-  state.surface.fileRef = null;
+  previewTabs.setScope(sessionId);
   state.surface.workspace = null;
   state.surface.workspaceGeneration++;
   state.surface.runReadController?.abort();
@@ -1556,7 +1555,6 @@ async function selectSession(
   state.runs = [];
   state.lastSeq = 0;
   state.bindingExtensionId = null;
-  state.surface.expanded = false;
   state.surface.maximized = false;
   state.recordedContext.clear();
   runtimeView?.pause();
@@ -1611,6 +1609,7 @@ async function selectSession(
 }
 
 function clearActiveSession() {
+  rememberPreviewReading();
   state.attentionOpen = false;
   state.chatOpen = false;
   attentionWorkspace?.deactivate();
@@ -1620,11 +1619,9 @@ function clearActiveSession() {
   state.activeSessionId = null;
   state.view = "home";
   state.surface.open = false;
-  state.surface.kind = "preview";
-  state.surface.fileRef = null;
+  previewTabs.setScope(null);
   state.surface.workspace = null;
   state.surface.workspaceGeneration++;
-  state.surface.runId = null;
   state.surface.runReadController?.abort();
   state.surface.runReadGeneration++;
   fileView?.dispose();
@@ -1634,7 +1631,6 @@ function clearActiveSession() {
   state.runs = [];
   state.lastSeq = 0;
   state.bindingExtensionId = null;
-  state.surface.expanded = false;
   state.surface.maximized = false;
   state.recordedContext.clear();
   runtimeView?.pause();
@@ -1997,7 +1993,7 @@ async function openMatterSurface(matterId, projectId) {
       showToast("No open Work chat is bound to this Matter yet.", "error");
       return;
     }
-    activateSurface("preview");
+    openWorkspace();
     return;
   }
   showToast("No open Work chat is bound to this Matter yet.", "error");
@@ -2869,7 +2865,7 @@ function workReviewSummaryFor(session) {
       session, request,
       isCurrent: () => state.activeSessionId === session.id && state.sessionEpoch === ownEpoch
         && JSON.stringify(currentSession()?.extensionBinding ?? null) === binding,
-      onOpenWork: opener => activateSurface("preview", opener),
+      onOpenWork: opener => openWorkspace(opener),
     });
   }
   return workReviewSummaryView;
@@ -2969,7 +2965,7 @@ function renderMessageStream() {
     const ownEpoch = state.sessionEpoch;
     chatSourcesView = createChatSources({session, request,
       isCurrent: () => state.activeSessionId === session.id && state.sessionEpoch === ownEpoch && JSON.stringify(currentSession()?.extensionBinding ?? null) === sourcesBinding,
-      onOpenFile: openFile, onOpenWork: opener => activateSurface("preview", opener),
+      onOpenFile: openFile, onOpenWork: opener => openWorkspace(opener),
     });
   }
   chatSourcesView.update(rows);
@@ -3512,7 +3508,6 @@ function renderMessageStream() {
 // header carries the run state word instead of an animated mark.
 
 function renderChatHeader() {
-  subagentView?.sync(currentSession(),state.view !== "home" && !state.settings.open && !state.attentionOpen && !state.chatOpen);
   const session = currentSession(),
     project = currentProject();
   /* WK-78 · Settings 在场时顶带说的是这一页，而不是它盖住的那个会话；进入设置的入口
@@ -3794,9 +3789,6 @@ function renderComposer() {
   }
   syncComposerNotice(session?.id ?? null);
   fitComposer();
-  /* The floating layer stops at the composer's top edge, so the composer's own
-   * height is one of its two measurements (WK-72). */
-  measureSurfaceLayout();
   // CE-R1 · a Send's phases change what the open Work location panel may
   // offer; it is repainted with the composer, and costs nothing when closed.
   paintWorkspaceCard();
@@ -3877,42 +3869,42 @@ function renderChat() {
   renderInspector();
 }
 
-/* WK-33 / WK-56 · the rail has two states and no third: collapsed is one card
- * per module, expanded is one tab pane. Expanding on the desktop hands the
- * chat column to the pane inside the shell (WK-54) instead of floating a modal
- * over it, so the tab strip lands in the same band as the other two columns. */
-function setSurfaceExpanded(expanded, { focus = true } = {}) {
-  const next = Boolean(expanded && state.surface.open && currentSession());
-  const was = state.surface.expanded;
-  /* R4D-3 · B 态展开会把聊天列从屏幕上拿走（`hidden` + `inert`）。一个没有布局盒的
+/* 06d · Preview is one pane over the selected object; there is no collapsed
+ * card layer. Showing it on the desktop hands the chat column to the pane
+ * inside the shell (WK-54) instead of floating a modal over it, so the tab
+ * strip lands in the same band as the other two columns. */
+function showPreview({ focus = true } = {}) {
+  if (!currentSession() || !previewTabs.active()) return;
+  const was = state.surface.open;
+  /* R4D-3 · 视图切换会把聊天列从屏幕上拿走（`hidden` + `inert`）。一个没有布局盒的
    * 元素的 scrollTop 是 0，所以阅读位置必须在它离开屏幕**之前**记下来，回来时由
    * `renderMessageStream()` 从同一个 Map 还原。草稿本来就在 `state.draftCache` 与
    * textarea 的 value 里，不受显隐影响。 */
-  if (next && !was && $("message-stream").clientHeight)
+  if (!was && $("message-stream").clientHeight)
     rememberMessageReading($("message-stream"));
-  state.surface.expanded = next;
-  if (!next) state.surface.maximized = false;
-  if (next && !was) {
-    if (!visibleSurfaceKinds().includes(state.surface.kind))
-      state.surface.kind = "preview";
-    loadSurfaceKind(state.surface.kind);
-  }
+  state.navigationOpen = false;
+  state.surface.open = true;
+  state.surface.runReadController?.abort();
+  state.surface.runReadGeneration++;
+  fileView?.pause();
   writeUiState();
   renderSurfaceVisibility();
-  /* 回到聊天：DOM 一直在，位置由 `state.messageReading` 还原。 */
-  if (!next && was) renderMessageStream();
-  if (!next && was && focus && state.surface.kind === "file" && restoreMaterialsFileReturn()) return;
-  /* Returning lands on the cards, because the cards are what the overlay came
-   * from; there is no rail header to return to (WK-72). */
-  if (focus)
-    next
-      ? (surfaceTabButton(state.surface.kind) ?? $("surface-expand-button"))?.focus()
-      : restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
+  if (focus) surfaceTabButton()?.focus();
+  loadPreviewPane();
+}
+/* The header entry: the Session's remembered objects, or its Workspace when it
+ * has none open. */
+function openPreviewPane(opener = document.activeElement) {
+  const session = currentSession();
+  if (!session) return;
+  if (!state.surface.open) rememberSurfaceFocus(opener);
+  if (!previewTabs.active()) previewTabs.open("workspace", { sessionId: session.id });
+  showPreview();
 }
 
 /* Geometry-only transition: keep the active tab and renderer instance mounted. */
 function toggleSurfaceMaximized() {
-  if (!state.surface.expanded || surfaceOverlayQuery.matches) return;
+  if (!state.surface.open || surfaceOverlayQuery.matches) return;
   const next = !state.surface.maximized;
   if (next && $("message-stream").clientHeight) rememberMessageReading($("message-stream"));
   state.surface.maximized = next;
@@ -3922,17 +3914,14 @@ function toggleSurfaceMaximized() {
 }
 
 /* The panel is a modal only where it really covers the work: below 1024 the
- * expanded pane is an overlay, and below 768 so is the collapsed sheet
- * (docs/ui-composition.md §responsive). From 768 up the collapsed state is a
- * floating card layer that disables nothing, and from 1024 up the expanded
- * sheet leaves the sidebar operable (WK-74 (1)); claiming aria-modal in either
- * case would describe a trap that does not exist. */
+ * pane is an overlay sheet (docs/ui-composition.md §responsive); from 1024 up
+ * it leaves the sidebar operable (WK-74 (1)), and claiming aria-modal there
+ * would describe a trap that does not exist. */
 /* B 态判定的单一出处：展开、桌面、且没到三栏那一档。`renderChatHeader` 与
  * `renderSurfaceVisibility` 都从这里读，免得两处各写一遍同一个条件、又互相覆盖。 */
 function surfaceViewSwitch() {
   return Boolean(
     !state.attentionOpen && state.surface.open &&
-      state.surface.expanded &&
       currentSession() &&
       !surfaceOverlayQuery.matches &&
       (state.surface.maximized || !surfaceThreePaneQuery.matches),
@@ -3947,68 +3936,38 @@ function renderConversationBodyVisibility() {
 function surfaceIsModal() {
   return (
     !state.attentionOpen && state.surface.open &&
-    surfaceOverlayQuery.matches &&
-    (state.surface.expanded || narrowQuery.matches)
+    surfaceOverlayQuery.matches
   );
 }
 
-/* A module without a tab has no pane of its own: it is a rail card that opens
- * somewhere else (the Runtime card opens Settings › Runtime). */
-function surfacePaneModules() {
-  return surfaceModules.filter((module) => module.tabId);
+/* 06d · the words a tab says, from the owner's facts only. The run mark is
+ * the run's own status (WK-118 ⑤); a read-only object has no unsaved state. */
+function previewTabWords(tab) {
+  const words = surfaceModule(tab.kind).describe(tab.ref, surfaceFacts());
+  if (tab.kind !== "run") return words;
+  const status = state.runs.find((run) => run.id === tab.ref.runId)?.status ?? null;
+  const word = status ? TAB_ACTIVITY[status] : null;
+  return word ? { ...words, activity: { status, word } } : words;
 }
-function visibleSurfaceKinds() {
-  return surfacePaneModules()
-    .filter((module) =>
-      module.kind === "run"
-        ? Boolean(state.surface.runId)
-        : module.kind === "file"
-          ? Boolean(state.surface.fileRef)
-          : module.kind === "presentation"
-            ? Boolean(state.surface.presentationRef)
-            : true,
-    )
-    .map((module) => module.kind);
+/* The selected tab's own button: where the keyboard goes when the pane opens,
+ * a tab is chosen or a neighbour takes over from a closed one. */
+function surfaceTabButton() {
+  const tab = previewTabs.active();
+  return tab ? document.getElementById(tab.id) : null;
 }
-
-/* WK-113 ④ ⑥ · 文档实例 tab 与类型 tab 是两种东西。类型 tab 是档位，没有关闭区；
- * 文档 tab 说的是**哪一份**文档，选中区与关闭区分开。第一段只有一份受信活动文档
- * （BE-2 未交付），所以这里没有数组、没有 map、没有位置表：文档 tab 在不在，就是
- * `state.surface.fileRef` 在不在。 */
-function surfaceDocumentRef() {
-  const ref = state.surface.fileRef;
-  return ref && ref.sessionId === state.activeSessionId ? ref : null;
+function previewContent(tab) {
+  return tab ? $(surfaceModule(tab.kind).contentId) : null;
 }
-/* FN-22 · 显示 key 由已有身份字段拼出，不新增 `scope` 字段：scope 由 sessionId 推出。
- * 这个字符串只用来判断"tab 说的还是不是同一个对象"，renderer 的失效判定仍然是
- * `sameSurfaceIdentity`（含 status / modulePath，R4D-4），两者不共用一个值。 */
-function surfaceDocumentKey(ref) {
-  if (!ref) return "";
-  return [
-    ref.sessionId,
-    ref.path,
-    ref.kind,
-    ref.sha256 || "",
-    ref.runId || "",
-    ...(ref.kind === "core-file" ? [ref.matterId,ref.candidateId,ref.artifactId || "",ref.candidateDigest,ref.bundleDigest] : []),
-    ...(ref.kind === "retained-source" ? [ref.sourceId,ref.revision] : []),
-  ].join("\u0000");
-}
-function documentTabTitle(ref) {
-  const name = ref.path.split("/").filter(Boolean).at(-1) || ref.path;
-  return { name, full: ref.path };
-}
-/* 选中一个 kind 时该聚焦哪个按钮：file 档在有文档 tab 时由文档 tab 承担，类型 tab
- * 此刻不画（同一个面画两个 tab 是多余的一格）。 */
-function surfaceTabButton(kind) {
-  if (kind === "file" && surfaceDocumentRef()) return $("surface-document-select");
-  const module = surfaceModule(kind);
-  return module?.tabId ? $(module.tabId) : null;
-}
-function surfaceTabButtons() {
-  return [...$("surface-tabs").querySelectorAll('[role="tab"]')].filter(
-    (tab) => !tab.hidden && tab.closest("[hidden]") === null,
-  );
+/* Reading position is the selected tab's content scroll, recorded only while
+ * that tab's own reading is what the content shows: panes of one kind share a
+ * container, so between a switch and the new paint the scroll is someone
+ * else's. A pane without a layout box reads 0, so nothing is recorded then. */
+let paintedPreviewKey = null;
+function rememberPreviewReading() {
+  const tab = previewTabs.active();
+  const content = previewContent(tab);
+  if (!tab || tab.key !== paintedPreviewKey || !content || content.hidden || !content.clientHeight) return;
+  previewTabs.remember(tab.key, content.scrollTop);
 }
 function rememberSurfaceFocus(opener) {
   state.surface.returnFocus = opener;
@@ -4040,15 +3999,46 @@ function restoreMaterialsFileReturn() {
   materialsView?.discardFileReturn?.();
   return false;
 }
-/* Closing a document returns through the same scoped focus resolver as Escape. */
-function closeDocumentTab() {
-  if (!surfaceDocumentRef()) return;
-  state.surface.fileRef = null;
-  if (state.surface.kind === "file") state.surface.kind = "preview";
-  fileView?.dispose();
-  setSurfaceExpanded(false, { focus: false });
+/* 06d · closing a tab is a view action: the object, its Run, binding, draft
+ * and artifacts are untouched; only this tab's pending read is dropped. The
+ * right neighbour takes over, else the left; the last close hides the pane. */
+function closePreviewTab(key) {
+  const wasActive = previewTabs.active()?.key === key;
+  if (wasActive) {
+    state.surface.runReadController?.abort();
+    state.surface.runReadGeneration++;
+    fileView?.pause();
+  }
+  const { closed, active } = previewTabs.close(key);
+  if (!closed) return;
+  if (closed.kind === "workspace") retireWorkspaceReads();
+  if (!active) {
+    closeSurface({ fromFile: closed.kind === "file" });
+    return;
+  }
   renderSurfaceVisibility();
-  if (!restoreMaterialsFileReturn()) restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
+  surfaceTabButton()?.focus();
+  if (wasActive) loadPreviewPane();
+}
+/* PV-R1 · a closed Workspace tab accepts none of its outstanding reads, whether
+ * it was selected or not: the surface fetch is aborted and its request id moves
+ * on (disposeSurfaceRenderer → invalidateSurfaceFetches), the renderer context
+ * is cleared so a late import or mount fails guardForSurface, and the tree
+ * read's generation moves on. Reopening starts new reads. Hiding Preview is not
+ * closing: a retained, hidden Workspace tab keeps its reads and cache. */
+function retireWorkspaceReads() {
+  state.surface.requestId += 1;
+  state.surface.workspaceGeneration++;
+  state.surface.workspace = null;
+  void disposeSurfaceRenderer();
+  $("surface-content").replaceChildren();
+}
+function selectPreviewTab(key) {
+  if (previewTabs.active()?.key === key) { surfaceTabButton()?.focus(); return; }
+  rememberPreviewReading();
+  if (!previewTabs.select(key)) return;
+  if (previewTabs.active().kind !== "file") discardMaterialsFileReturn();
+  showPreview();
 }
 /* WK-118 ⑤ · agent activity 以微型 indicator 入对应类型 tab，不造 banner。形状与
  * 文字各说一遍，不只靠颜色（FN-28）：running 实心、waiting_user 空心环、failed 方块，
@@ -4062,26 +4052,25 @@ const TAB_ACTIVITY = {
   unknown: "Unknown",
 };
 /* run 的状态在每一次 render 里都可能变，而 `renderSurfaceVisibility` 只在布局变化时
- * 跑；记号因此从 `renderInspector` 一起画，那是 rail 与 pane 的同一次重绘。 */
-function renderSurfaceTabActivity() {
-  const tab = $("surface-run-tab");
-  renderTabActivity(tab, tab.hidden ? null : (currentRun()?.status ?? null));
-}
-function renderTabActivity(tab, status) {
-  const word = status ? TAB_ACTIVITY[status] : null;
-  const existing = tab.querySelector(".tab-activity");
-  if (!word) {
-    existing?.remove();
-    return;
-  }
-  const mark = existing ?? element("span", { className: "tab-activity" });
-  mark.className = `tab-activity ${status}`;
-  mark.replaceChildren(element("span", { className: "sr-only", text: word }));
-  if (!existing) tab.append(mark);
+ * 跑；run tab 的记号因此从 `renderInspector` 一起重画，那是 tab 与 pane 的同一次重绘。 */
+function renderPreviewTabStrip() {
+  const active = previewTabs.active();
+  renderPreviewTabs($("surface-tabs"), {
+    tabs: previewTabs.tabs(),
+    activeKey: active?.key ?? null,
+    describe: previewTabWords,
+    controls: (tab) => surfaceModule(tab.kind).contentId,
+    onSelect: selectPreviewTab,
+    onClose: closePreviewTab,
+  });
 }
 
-function closeSurface({ restoreFocus = true } = {}) {
-  state.surface.expanded = false;
+/* Hiding the pane keeps its tabs, their order, selection and reading
+ * positions; the header entry brings the same set back. */
+function closeSurface({ restoreFocus = true, fromFile = false } = {}) {
+  rememberPreviewReading();
+  const wasSwitched = surfaceViewSwitch();
+  const file = fromFile || state.surface.kind === "file";
   state.surface.maximized = false;
   state.surface.open = false;
   state.surface.runReadController?.abort();
@@ -4089,62 +4078,14 @@ function closeSurface({ restoreFocus = true } = {}) {
   fileView?.pause();
   writeUiState();
   renderSurfaceVisibility();
+  /* 回到聊天：DOM 一直在，位置由 `state.messageReading` 还原。 */
+  if (wasSwitched) renderMessageStream();
   /* 收起时通常把焦点还给开它的控件；被别的东西接管（进 Settings 页）时不还，
      由接管者决定焦点落在哪里，否则焦点会先跳到一个马上要被藏起来的按钮上。 */
-  if (restoreFocus && state.surface.kind === "file" && restoreMaterialsFileReturn()) return;
+  if (restoreFocus && file && restoreMaterialsFileReturn()) return;
   discardMaterialsFileReturn();
   if (restoreFocus)
     restoreLayerFocus(surfaceReturnFocus(), $("show-surface-button"));
-}
-/* The rail entry point: it opens the collapsed cards without choosing a kind,
- * because choosing one is what the cards are for. */
-function openSurfaceRail() {
-  if (!currentSession()) return;
-  if (!state.surface.open) rememberSurfaceFocus(document.activeElement);
-  state.navigationOpen = false;
-  state.surface.open = true;
-  state.surface.expanded = false;
-  state.surface.maximized = false;
-  writeUiState();
-  loadRailFacts();
-  renderSurfaceVisibility();
-  /* WK-72 · there is no rail header to land on any more: the first card's own
-   * action is the first thing in the layer. */
-  focusSurfaceRail();
-}
-function focusSurfaceRail() {
-  const rail = $("surface-rail");
-  const first = [...rail.querySelectorAll("summary, button:not([hidden])")].find(node => node.getClientRects().length);
-  (first ?? $("surface-expand-button"))?.focus();
-}
-/* WK-72 · the layer's two measurements: how much room the composer leaves it,
- * and whether the main column can still hold the reading column and the 288
- * card side by side. Both are read from the live box, never assumed. */
-const READING_FLOOR = 640;
-function measureSurfaceLayout({ render = true } = {}) {
-  const chat = document.querySelector(".chat-panel");
-  const composer = $("composer-area");
-  if (!chat) return;
-  const style = getComputedStyle(document.documentElement);
-  const px = (name, fallback) =>
-    parseFloat(style.getPropertyValue(name)) || fallback;
-  const height = composer.hidden
-    ? 0
-    : Math.round(composer.getBoundingClientRect().height);
-  if (state.surface.composerHeight !== height) {
-    state.surface.composerHeight = height;
-    document.documentElement.style.setProperty("--composer-h", `${height}px`);
-  }
-  /* WO-CS-01 · the cards stay only while the reading column keeps its 640 floor
-   * (the C-state chat minimum and the WORK-4 check) with the tight content inset
-   * on both sides; below that they fold to the strip instead of narrowing prose. */
-  const strip =
-    chat.getBoundingClientRect().width <
-    READING_FLOOR + 2 * px("--content-inset-tight", 32) + 288 + px("--col-gap", 24);
-  if (strip !== state.surface.strip) {
-    state.surface.strip = strip;
-    if (render) renderSurfaceVisibility();
-  }
 }
 function closeNavigation({ restoreFocus = true } = {}) {
   state.navigationOpen = false;
@@ -4159,44 +4100,40 @@ function toggleNavigation() {
   renderSurfaceVisibility();
   if (state.navigationOpen) $("close-nav-button").focus();
 }
-/* One predicate says whether the work surface (panel, cards and rail) belongs
- * on screen at all: only a session view shows it, never Home, the Chat list,
- * Attention or Settings. Collapsing (state.surface.open / expanded) is a
- * separate question that only applies once this is true. */
+/* One predicate says whether Preview belongs on screen at all: only a session
+ * view shows it, never Home, the Chat list, Attention or Settings. Whether it
+ * is shown (state.surface.open) is a separate question that only applies once
+ * this is true. */
 function surfaceAllowed() {
   return state.view === "session" && Boolean(currentSession()) && !state.attentionOpen && !state.chatOpen && !state.settings.open;
 }
 function renderSurfaceVisibility() {
-  measureSurfaceLayout({ render: false });
   const shell = $("app-shell"),
     panel = $("surface-panel"),
     nav = $("navigation-panel"),
     chat = shell.querySelector(".chat-panel");
-  const open = Boolean(surfaceAllowed() && state.surface.open),
-    expanded = open && state.surface.expanded;
+  const active = previewTabs.active();
+  const open = Boolean(surfaceAllowed() && state.surface.open && active);
+  // Whatever hides the pane — Settings, Attention, another chat — hides it
+  // after its tab's reading position is kept.
+  if (!open && !panel.hidden) rememberPreviewReading();
   const overlay = surfaceOverlayQuery.matches;
-  /* WK-113 ① · 展开态有两种，不是一种：≥1680 三栏并列（C），1024–1679 主区内的
-   * 视图切换（B）。<1024 仍是那张全屏 sheet。 */
-  const threePane = expanded && surfaceThreePaneQuery.matches && !overlay && !state.surface.maximized;
-  const viewSwitch = expanded && !overlay && !threePane;
+  /* WK-113 ① · 打开的 Preview 有三种几何：≥1680 三栏并列（C），1024–1679 主区内的
+   * 视图切换（B），<1024 全屏 sheet。 */
+  const threePane = open && surfaceThreePaneQuery.matches && !overlay && !state.surface.maximized;
+  const viewSwitch = open && !overlay && !threePane;
   const modal = surfaceIsModal(),
     navModal = overlay && state.navigationOpen && !open;
   const wasModal = panel.getAttribute("aria-modal") === "true";
-  /* WK-72 · the collapsed state is a floating layer inside the main column, so
-   * the shell says whether the reading column must step aside for it. */
-  const cards = open && !expanded && !narrowQuery.matches;
-  shell.classList.toggle("surface-cards", cards);
-  shell.classList.toggle("surface-strip", cards && state.surface.strip);
-  shell.classList.toggle("surface-expanded", expanded);
+  shell.classList.toggle("surface-expanded", open);
   shell.classList.toggle("surface-three-pane", threePane);
   shell.classList.toggle("surface-view-switch", viewSwitch);
   shell.classList.toggle("nav-open", navModal);
   shell.classList.toggle("nav-collapsed", state.sidebarCollapsed);
   panel.classList.toggle("is-open", open);
-  panel.classList.toggle("is-expanded", expanded);
+  panel.classList.toggle("is-expanded", open);
   panel.classList.toggle("is-three-pane", threePane);
   panel.classList.toggle("is-view-switch", viewSwitch);
-  panel.classList.toggle("is-strip", cards && state.surface.strip);
   panel.hidden = !open;
   panel.inert = !open;
   panel.setAttribute("aria-hidden", String(!open));
@@ -4217,7 +4154,7 @@ function renderSurfaceVisibility() {
     nav.removeAttribute("role");
     nav.removeAttribute("aria-modal");
   }
-  /* B（1024–1679）· 展开是**主区内的视图切换**：文档面占主区，聊天列的 DOM 一直在
+  /* B（1024–1679）· 打开是**主区内的视图切换**：Preview 占主区，聊天列的 DOM 一直在
    * （滚动位置与草稿因此不丢，R4D-3），但它不在屏幕上，所以也不能留在焦点顺序与无障碍
    * 树里 —— `hidden` + `inert` 一起给。顶带那一行不属于聊天列的内容，它是这一屏的
    * chrome（侧栏开合钮、会话名），所以留在原地可用。C（≥1680）三面同时在场，什么都
@@ -4225,8 +4162,6 @@ function renderSurfaceVisibility() {
   renderConversationBodyVisibility();
   chat.inert = Boolean(modal || navModal);
   chat.setAttribute("aria-hidden", String(chat.inert));
-  /* WK-69 · an L3 overlay sits over the scrim; the collapsed cards are L2 and
-   * disable nothing, so the ground stays clear under them. */
   /* 遮罩只画在它真的挡住工作的地方：<1024 的那张 sheet。B 的视图切换不压暗任何
    * 东西（被切走的那一面根本不在屏幕上），C 三栏并列更没有可压暗的对象。 */
   $("surface-backdrop").hidden = !modal;
@@ -4235,23 +4170,19 @@ function renderSurfaceVisibility() {
     "aria-expanded",
     String(overlay ? navModal : !state.sidebarCollapsed),
   );
-  setAction(
-    $("show-surface-button"),
-    "panel-right",
-    expanded ? "Collapse work surface" : open ? "Hide work surface" : "Open work surface",
-  );
-  /* C 态两面并列，"回到聊天"这句话没有对象可指：那里的同一个控件说的是把文档面收回
-   * 紧凑目录。B 态由 strip 左端的 ← Chat 承担返回，展开钮此刻不画，免得一行里出现
-   * 两个说同一件事的控件。 */
+  setAction($("show-surface-button"), "panel-right", "Open preview");
+  /* Expand/Restore is the one geometry change a pane beside the chat can make
+   * (C); B already has the whole main area, and the sheet has the whole
+   * screen. A maximized pane that lands in B still offers Restore. */
   setAction(
     $("surface-expand-button"),
     state.surface.maximized ? "minimize-2" : "maximize-2",
-    state.surface.maximized ? "Restore preview" : expanded ? "Expand preview" : "Expand work surface",
+    state.surface.maximized ? "Restore preview" : "Expand preview",
   );
   $("surface-expand-button").setAttribute("aria-expanded", String(state.surface.maximized));
   $("surface-expand-button").hidden =
     (viewSwitch && !state.surface.maximized) || overlay;
-  $("show-surface-button").hidden = expanded || !surfaceAllowed();
+  $("show-surface-button").hidden = open || !surfaceAllowed();
   const back = $("surface-back-button");
   back.hidden = !viewSwitch;
   if (viewSwitch) {
@@ -4264,30 +4195,17 @@ function renderSurfaceVisibility() {
     back.setAttribute("aria-label", "Back to chat");
     back.dataset.tooltip = "Back to chat";
   }
-  const kinds = visibleSurfaceKinds();
-  const documentRef = surfaceDocumentRef();
-  for (const module of surfacePaneModules()) {
-    const tab = $(module.tabId),
-      selected = state.surface.kind === module.kind;
-    /* file 档在有文档 tab 的时候由那个 tab 承担：同一个面不画两个 tab。 */
-    tab.hidden =
-      !kinds.includes(module.kind) ||
-      (module.kind === "file" && Boolean(documentRef));
-    tab.setAttribute("aria-selected", String(selected && !tab.hidden));
-    tab.tabIndex = selected && !tab.hidden ? 0 : -1;
-    $(module.contentId).hidden = !(expanded && selected);
+  /* One panel per kind; the selected tab names it. */
+  for (const module of surfaceModules) {
+    const content = $(module.contentId);
+    const selected = open && active.kind === module.kind;
+    content.hidden = !selected;
+    if (selected) content.setAttribute("aria-labelledby", active.id);
+    else content.removeAttribute("aria-labelledby");
   }
-  renderSurfaceTabActivity();
-  renderDocumentTab(documentRef);
-  /* WK-42 · the band names the whole rail while the cards are showing, and the
-   * open kind once a pane is showing; the tab strip is the band's content then,
-   * so the heading steps back to the accessible name only. */
-  $("surface-tabs").hidden = !expanded;
-  $("surface-title").textContent = expanded
-    ? surfaceKindTitle(state.surface.kind)
-    : "Work surface";
-  renderSurfaceScope(expanded);
-  renderSurfaceRail();
+  $("surface-tabs").hidden = !open;
+  renderPreviewTabStrip();
+  renderSurfaceScope(open);
   if (
     modal &&
     (!wasModal || !document.activeElement?.getClientRects().length) &&
@@ -4295,46 +4213,16 @@ function renderSurfaceVisibility() {
     (!panel.contains(document.activeElement) ||
       !document.activeElement?.getClientRects().length)
   )
-    (expanded && surfaceTabButton(state.surface.kind)
-      ? surfaceTabButton(state.surface.kind).focus()
-      : focusSurfaceRail());
-}
-function renderDocumentTab(ref) {
-  const wrap = $("surface-document-tab"),
-    select = $("surface-document-select"),
-    close = $("surface-document-close");
-  wrap.hidden = !ref;
-  if (!ref) {
-    // 文档 tab 不在时，file 面的可访问名回到类型 tab 上。
-    $("file-content").setAttribute("aria-labelledby", "surface-file-tab");
-    return;
-  }
-  const { name, full } = documentTabTitle(ref);
-  const selected = state.surface.kind === "file";
-  select.textContent = name;
-  /* 截断只发生在看的那一层：完整名字仍在可访问名与 title 上（通行做法，EX-CC1 §4）。 */
-  select.title = full;
-  select.setAttribute("aria-label", full);
-  select.setAttribute("aria-selected", String(selected));
-  select.tabIndex = selected ? 0 : -1;
-  select.dataset.documentKey = surfaceDocumentKey(ref);
-  setAction(close, "x", `Close ${full}`);
-  $("file-content").setAttribute("aria-labelledby", "surface-document-select");
+    (surfaceTabButton() ?? $("close-surface-button")).focus();
 }
 /* M-2 · scope 位现在是工作面标题带上的一句陈述。只在 Work 会话上，只在这条带真的
  * 在屏幕上时（展开态）；BE-19 之前它仍然没有控件、仍然只有一个值。 */
-function renderSurfaceScope(expanded) {
+function renderSurfaceScope(shown) {
   const scope = $("surface-scope"),
     session = currentSession();
-  const show = Boolean(expanded && session && sessionMode(session) === "work");
+  const show = Boolean(shown && session && sessionMode(session) === "work");
   scope.hidden = !show;
   scope.textContent = show ? MEMORY_SCOPE_OFF : "";
-}
-function surfaceKindTitle(kind) {
-  if (kind === "run") return "Run details";
-  if (kind === "preview")
-    return state.surface.info?.extension?.title || "Workspace";
-  return surfaceModule(kind)?.title || "Work surface";
 }
 /* WK-41 · the host's facts. Every module reads this object and nothing else;
  * none of them reaches into `state`. */
@@ -4363,9 +4251,8 @@ function slotDeclaration() {
 }
 
 /* WK-43 / 45 · the host's own reading of the `work.surface` slot for this
- * session. Both the collapsed card and the expanded pane read this one
- * resolution, so a card and its pane can never disagree about whether a
- * renderer is mounted. */
+ * session. The Workspace pane and its fallback read this one resolution, so
+ * they can never disagree about whether a renderer is mounted. */
 function workSurfaceSlot() {
   return resolveSurfaceSlot("work.surface", {
     declaration: slotDeclaration(),
@@ -4399,20 +4286,19 @@ function surfaceFacts() {
 }
 /* The intents a module may reach for. All of them navigate or re-read; none of
  * them writes, which is why a module can never create formal state. */
-const railHost = {
+/* The intents a pane may reach for. All of them navigate or re-read; none of
+ * them writes, which is why a module can never create formal state. */
+const previewHost = {
   sessionId: () => state.activeSessionId,
   container: (kind) => $(surfaceModule(kind).contentId),
-  open: (kind) => activateSurface(kind),
   openFile: (ref, opener) => openFile(ref, opener),
   openRun: (id, opener) => openRun(id, opener),
   refreshRun: () => readRunDetails(),
   refreshWorkspace: () => void loadWorkspaceTree(),
-  loadFile: (ref) => {
-    if (ref) void fileView.load(ref);
-  },
-  loadRuntime: () => void runtimeView.load(),
+  loadFile: (ref) => (ref ? fileView.load(ref) : null),
   /* 08 · the pane draws the recorded instance; when the loaded event window
-   * does not hold it, it is read back by id from the Host, never re-derived. */
+   * does not hold it, it is read back by id from the Host, never re-derived.
+   * The answer paints only while this instance's tab is the selected one. */
   renderPresentation: (schema) => {
     const container = $("presentation-content");
     if (schema?.instance) { renderPresentationPane(container, schema.instance); return; }
@@ -4423,178 +4309,78 @@ const railHost = {
       .then((result) => { if (state.surface.presentationRef === ref) renderPresentationPane(container, result.presentation); })
       .catch((error) => { if (state.surface.presentationRef === ref) container.replaceChildren(element("p", { className: "inline-error", text: error.message, attrs: { role: "alert" } })); });
   },
-  /* WK-66 / WK-90 · the coarse card opens the fine reading, which is now the
-   * Runtime block of Settings › Developer. One entry, one controller, one
-   * admission (FN-05); only the path changed. */
   openMaterials: () => {
     $("material-add").open = true;
     openDialog("materials-dialog", "material-name");
     materialsView.open();
   },
 };
-function runSummarySnapshot() {
-  if (state.view !== "session" || state.settings.open || !currentSession()) return null;
-  const facts = surfaceFacts();
-  const selected = facts.runs.find(run => run.id === facts.runId) || facts.runs.at(-1);
-  return projectRunSummary({...facts, runId: selected?.id}, {generation: state.sessionEpoch});
-}
-const runSummaryCard = createRunSummaryCard({
-  getSnapshot: runSummarySnapshot,
-  onOpen: (snapshot, opener) => railHost.openRun(snapshot.identity.runId, opener),
-  onOpenFile: (ref, opener) => railHost.openFile(ref, opener),
-});
-const surfaceEntryDirectory = createSurfaceEntryDirectory({getSnapshot: () => {
-  if (state.view !== "session" || state.settings.open || !currentSession()) return null;
-  const summary = runSummarySnapshot();
-  const runReader = detail => summary ? {
-    state: "ready", identity: summary.identity.runId, detail,
-    open: opener => railHost.openRun(summary.identity.runId, opener),
-  } : {state: "empty", detail: "No run recorded in this chat."};
-  return {schemaVersion: 1, scope: `${state.activeSessionId}:${state.sessionEpoch}`, entries: {
-    activity: runReader("Read this run’s recorded activity."),
-    context: runReader("Read recorded context in Run details."),
-  }};
-}});
-const cardDisclosures = createCardDisclosureMemory();
-function renderSurfaceRail() {
-  cardDisclosures.resetScope(`${state.activeSessionId}:${state.sessionEpoch}`);
-  const rail = $("surface-rail");
-  const visible = Boolean(surfaceAllowed() && state.surface.open && !state.surface.expanded);
-  rail.hidden = !visible;
-  const summarySnapshot = runSummarySnapshot();
-  runSummaryCard.update(summarySnapshot);
-  surfaceEntryDirectory.update();
-  if (!visible) return;
-  const focusKey = document.activeElement?.dataset?.focusKey;
-  const focusModule = document.activeElement?.closest("[data-module]")?.dataset?.module;
-  const scroll = rail.scrollTop;
-  const facts = surfaceFacts();
-  /* WK-72 · below the width where a 740 column and a 360 card can stand side by
-   * side, the same modules read as one glyph each; the icon carries the module
-   * and its title is the accessible name (IC-1: a stable object, not a state). */
-  if (state.surface.strip && !narrowQuery.matches) {
-    const glyphs = surfaceModules
-      .filter((module) => module.kind === "run" ? summarySnapshot : module.adapter(facts))
-      .map((module) =>
-        action(module.kind === "run" ? "activity" : module.icon, module.kind === "run" ? "Run details" : module.title, () => {
-          if (module.kind !== "run") return activateSurface(module.kind);
-          const latest = runSummarySnapshot();
-          if (latest && summarySnapshot && latest.generation === summarySnapshot.generation &&
-              latest.identity.sessionId === summarySnapshot.identity.sessionId &&
-              latest.identity.runId === summarySnapshot.identity.runId)
-            openRun(latest.identity.runId);
-        }, {
-          attrs: {
-            "data-module": module.kind,
-            "data-focus-key": `strip:${module.kind}`,
-          },
-        }),
-      );
-    if(subagentView&&!subagentView.element.hidden)glyphs.push(action("spark","Spark",()=>subagentView.open(currentSession()),{attrs:{"data-module":"subagents","data-focus-key":"strip:subagents"}}));
-    rail.replaceChildren(el("div", { className: "rail-strip", attrs: {role:"group","aria-label":"Chat tools"} }, ...glyphs));
-    if (focusKey && document.activeElement === document.body) {
-      const key = focusKey.startsWith("strip:") ? focusKey : `strip:${["run-summary", "more"].includes(focusModule) ? "run" : focusModule}`;
-      rail.querySelector(`[data-focus-key="${CSS.escape(key)}"]`)?.focus();
-    }
-    return;
-  }
-  const cards = [];
-  for (const module of surfaceModules) {
-    if (module.kind === "run") {
-      if (!runSummaryCard.element.hidden) cards.push(runSummaryCard.element);
-      continue;
-    }
-    const schema = module.adapter(facts);
-    /* WK-45 / WK-47 · a module with no facts is absent, not empty. */
-    if (schema) {
-      const identity = JSON.stringify(module.kind === "file" ? schema.ref :
-        [facts.sessionId, module.kind, schema.extension?.id || null,
-          schema.extension?.generation ?? null, schema.projection?.stateVersion ?? null, schema.revision ?? null]);
-      const label = module.kind === "file" ? "File information" : schema.extension ? "Work information" : "Files";
-      cards.push(cardDisclosures.wrap(module.card(schema, railHost), module.kind, identity, label));
-    }
-  }
-  if(subagentView&&!subagentView.element.hidden)cards.push(subagentView.element);
-  cards.push(surfaceEntryDirectory.element);
-  rail.replaceChildren(...cards);
-  rail.scrollTop = scroll;
-  if (focusKey && document.activeElement === document.body) {
-    const direct = rail.querySelector(`[data-focus-key="${CSS.escape(focusKey)}"]`);
-    const fromStrip = focusKey === "strip:run" ? runSummaryCard.element.querySelector("summary") :
-      focusKey.startsWith("strip:") ? rail.querySelector(`[data-module="${CSS.escape(focusKey.slice(6))}"] button`) : null;
-    (direct || fromStrip)?.focus();
-  }
-}
 /* Panes that draw from facts repaint whenever the facts move; panes that own a
- * fetch or a renderer instance are entered once, on activation. */
+ * fetch or a renderer instance are entered once, on selection. */
 function renderSurfacePanes() {
-  if (!state.surface.open || !state.surface.expanded) return;
-  const module = surfaceModule(state.surface.kind);
-  if (!module?.repaint) return;
-  module.pane(module.adapter(surfaceFacts()), railHost);
+  const tab = previewTabs.active();
+  if (!state.surface.open || !tab) return;
+  const module = surfaceModule(tab.kind);
+  if (!module.repaint) return;
+  module.pane(module.adapter(surfaceFacts()), previewHost);
 }
-function loadSurfaceKind(kind) {
-  const module = surfaceModule(kind);
-  if (!module?.pane) return;
-  if (kind === "preview") {
-    void loadSurface(state.sessionEpoch);
-    return;
+/* Enter the selected tab's pane, then put its reading position back once the
+ * pane has painted — and only if that tab is still the one selected. */
+function loadPreviewPane() {
+  const tab = previewTabs.active();
+  if (!state.surface.open || !tab) return;
+  const module = surfaceModule(tab.kind);
+  paintedPreviewKey = null;
+  let painted = null;
+  if (tab.kind === "workspace") {
+    if (!state.surface.info?.extension) void loadWorkspaceTree();
+    painted = loadSurface(state.sessionEpoch);
+  } else {
+    painted = module.pane(module.adapter(surfaceFacts()), previewHost);
+    if (tab.kind === "run") void readRunDetails();
   }
-  module.pane(module.adapter(surfaceFacts()), railHost);
-  if (kind === "run") void readRunDetails();
+  const scope = previewTabs.scope();
+  void Promise.resolve(painted).catch(() => {}).then(() => {
+    if (previewTabs.scope() !== scope || previewTabs.active() !== tab || !state.surface.open) return;
+    const content = previewContent(tab);
+    if (content) content.scrollTop = tab.scrollTop;
+    paintedPreviewKey = tab.key;
+  });
 }
-/* The rail's own reads: the two facts a card states that no other view has
- * already fetched. Both are guarded by the same generation counters the panes
- * use, so a session switch discards them. */
-function loadRailFacts() {
-  if (!state.surface.info?.extension) void loadWorkspaceTree();
-}
-function activateSurface(kind, opener = document.activeElement) {
-  if (!currentSession() || !surfaceModule(kind)?.tabId) return;
+/* 06d · every way into Preview opens an object's tab directly. The opener is
+ * remembered only when the pane was closed: it is where the keyboard returns
+ * when the pane is hidden again. */
+function openPreviewObject(kind, ref, opener = document.activeElement) {
+  if (!currentSession() || ref.sessionId !== state.activeSessionId) return;
   if (kind !== "file") discardMaterialsFileReturn();
-  if (!state.surface.expanded) rememberSurfaceFocus(opener);
-  state.navigationOpen = false;
-  state.surface.kind = kind;
-  state.surface.open = true;
-  state.surface.expanded = true;
-  state.surface.runReadController?.abort();
-  state.surface.runReadGeneration++;
-  fileView?.pause();
-  renderSurfaceVisibility();
-  writeUiState();
-  surfaceTabButton(kind)?.focus();
-  loadRailFacts();
-  loadSurfaceKind(kind);
+  if (!state.surface.open && opener && opener !== document.body && opener.isConnected)
+    rememberSurfaceFocus(opener);
+  rememberPreviewReading();
+  previewTabs.open(kind, ref);
+  showPreview();
+}
+function openWorkspace(opener = document.activeElement) {
+  openPreviewObject("workspace", { sessionId: state.activeSessionId }, opener);
 }
 function openRun(runId, opener = document.activeElement) {
-  state.surface.runId = runId;
-  activateSurface("run", opener);
+  openPreviewObject("run", { sessionId: state.activeSessionId, runId }, opener);
 }
 /* 08 · open the same recorded instance the Chat row drew; identity and version
  * travel with the ref, the pane reads the event, nothing is re-derived. */
 function openPresentation(ref, opener = document.activeElement) {
-  if (ref.sessionId !== state.activeSessionId) return;
-  if (opener && opener !== document.body && opener.isConnected) rememberSurfaceFocus(opener);
-  state.surface.presentationRef = ref;
-  activateSurface("presentation", opener);
+  openPreviewObject("presentation", ref, opener);
 }
 function openFile(ref, opener = document.activeElement, fromMaterials = false) {
   if (ref.sessionId !== state.activeSessionId) return;
   if (!fromMaterials) discardMaterialsFileReturn();
   materialsFileReturnEpoch = fromMaterials ? state.sessionEpoch : null;
-  /* 关闭这份文档时焦点要回到**打开它的那个控件**，所以在这里记下来。沿用既有的
-     `returnFocus` 字段，不新增状态。 */
-  if (opener && opener !== document.body && opener.isConnected)
-    rememberSurfaceFocus(opener);
-  state.surface.fileRef = ref;
-  activateSurface("file", opener);
+  openPreviewObject("file", ref, opener);
 }
-/* The rail and its open pane are one render: a run that moves changes the Run
- * card and the Run pane at the same moment, from the same facts. */
+/* The tabs and the open pane are one render: a run that moves changes its tab
+ * mark and the Run pane at the same moment, from the same facts. */
 function renderInspector() {
-  renderSurfaceRail();
   renderSurfacePanes();
-  renderSurfaceTabActivity();
+  renderPreviewTabStrip();
 }
 /** The binding a Run was created with is a property of that Run, so it is read
  * once per Run id and never re-derived from the current configuration. */
@@ -4744,9 +4530,9 @@ function renderSurfaceFallback() {
     return;
   }
   if (!info?.extension) {
-    const module = surfaceModule("preview");
+    const module = surfaceModule("workspace");
     if (state.surface.workspace)
-      module.pane(module.adapter(surfaceFacts()), railHost);
+      module.pane(module.adapter(surfaceFacts()), previewHost);
     else void loadWorkspaceTree();
     return;
   }
@@ -5127,7 +4913,7 @@ async function dispatchSurfaceAction(
 async function loadSurface(epoch) {
   if (
     !state.surface.open ||
-    state.surface.kind !== "preview" ||
+    state.surface.kind !== "workspace" ||
     !state.activeSessionId ||
     epoch !== state.sessionEpoch
   )
@@ -5187,7 +4973,7 @@ async function loadSurface(epoch) {
       const previousProjection = state.surface.projection;
       state.surface.info = { ...result, extension };
       state.surface.projection = result.projection ?? null;
-      setWorkspaceTitle(extension?.title || "Files");
+      setWorkspaceTitle();
       if (!projectionsEqual(previousProjection, state.surface.projection)) {
         if (
           !guardForSurfaceFetch({
@@ -5255,7 +5041,7 @@ async function loadSurface(epoch) {
     state.surface.context = context;
     state.surface.info = { ...result, extension };
     state.surface.projection = result.projection ?? null;
-    setWorkspaceTitle(extension?.title || "Files");
+    setWorkspaceTitle();
     renderSurfaceFallback();
     /* FN-20 / WK-43 · one mount rule, and the collapsed card reads the same
      * one: the host mounts only when its own slot resolution says a loaded
@@ -6443,7 +6229,7 @@ function openContextSummary() {
       openDialog("materials-dialog", "close-materials-button");
       materialsView.open();
     }),
-    onWorkspace: go(() => activateSurface("preview")),
+    onWorkspace: go(() => openWorkspace()),
     onRun: (id) => go(() => openRun(id))(),
     onHistory: go(openRunHistory),
     onPermissions: go(() => openSettings("permissions")),
@@ -7171,9 +6957,11 @@ function handleSurfaceEscape(event) {
       closeNavigation();
       return;
     }
+    /* A maximized pane restores first; then Escape hides it (放大工作面：第一次
+     * 还原布局，下一次关闭). */
     if (state.surface.open) {
       event.preventDefault();
-      if (state.surface.expanded) setSurfaceExpanded(false);
+      if (state.surface.maximized && !surfaceOverlayQuery.matches) toggleSurfaceMaximized();
       else closeSurface();
       return;
     }
@@ -7362,8 +7150,8 @@ function wireEvents() {
     "toggle-nav-button": ["panel-left", "Toggle navigation"],
     "clear-nav-filter-button": ["x", "Clear filter"],
     "show-run-button": ["text-align-start", "Chat overview"],
-    "show-surface-button": ["panel-right", "Open work surface"],
-    "close-surface-button": ["panel-right", "Hide work surface"],
+    "show-surface-button": ["panel-right", "Open preview"],
+    "close-surface-button": ["panel-right", "Hide preview"],
     "close-materials-button": ["x", "Close files"],
     "close-candidate-button": ["x", "Close changes"],
     "materials-button": ["paperclip", "Chat files"],
@@ -7476,44 +7264,11 @@ function wireEvents() {
     closeDialog("materials-dialog"),
   );
   $("materials-dialog").addEventListener("close", () => materialsView.close());
-  for (const module of surfacePaneModules())
-    $(module.tabId).addEventListener("click", () => activateSurface(module.kind));
-  $("surface-document-select").addEventListener("click", () =>
-    activateSurface("file"),
-  );
-  $("surface-document-close").addEventListener("click", closeDocumentTab);
-  $("surface-back-button").addEventListener("click", () =>
-    setSurfaceExpanded(false),
-  );
-  $("surface-tabs").addEventListener("keydown", (event) => {
-    /* 关闭是一个明确的动作：关闭钮，或焦点在文档 tab 上时的 Delete / Backspace。
-       类型 tab 上按它什么也不发生 —— 档位不可关闭。 */
-    if (
-      (event.key === "Delete" || event.key === "Backspace") &&
-      document.activeElement === $("surface-document-select")
-    ) {
-      event.preventDefault();
-      closeDocumentTab();
-      return;
-    }
-    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-    // 只在 role="tab" 之间走：关闭钮不是这条 tablist 的一站。
-    const tabs = surfaceTabButtons();
-    const index = tabs.indexOf(document.activeElement);
-    if (index < 0) return;
-    event.preventDefault();
-    const next =
-      event.key === "Home"
-        ? tabs[0]
-        : event.key === "End"
-          ? tabs.at(-1)
-          : tabs[
-              (index + (event.key === "ArrowRight" ? 1 : tabs.length - 1)) %
-                tabs.length
-            ];
-    next.click();
-    next.focus();
-  });
+  /* ← Chat hides the pane; its tabs stay for the header entry to bring back. */
+  $("surface-back-button").addEventListener("click", () => closeSurface());
+  /* 关闭是一个明确的动作：关闭钮，或焦点在 tab 上时的 Delete / Backspace。箭头 /
+     Home / End 只在 role="tab" 之间走，关闭钮不是这条 tablist 的一站。 */
+  installPreviewTabKeys($("surface-tabs"), { onSelect: selectPreviewTab, onClose: closePreviewTab });
   tooltips = installTooltips();
   // WS-12: the recovery probe (see scheduleRecoveryProbe above) must stop
   // when the page goes away, not just on recovery.
@@ -7602,9 +7357,7 @@ function wireEvents() {
       void loadExtensions().catch((error) => showToast(error.message, "error")),
   );
   $("close-surface-button").addEventListener("click", closeSurface);
-  $("surface-backdrop").addEventListener("click", () =>
-    state.surface.expanded ? setSurfaceExpanded(false) : closeSurface(),
-  );
+  $("surface-backdrop").addEventListener("click", () => closeSurface());
   surfaceOverlayQuery.addEventListener("change", renderSurfaceVisibility);
   /* 断点跨越（1679 ↔ 1680）只改布局：不卸载 renderer、不重发命令、不重读，
    * 所以这里只是一次重绘。R4D-3 的位置与草稿因此也不动。 */
@@ -7617,32 +7370,18 @@ function wireEvents() {
     renderComposer();
     renderSurfaceVisibility();
   });
-  /* WK-72 · the layer follows the main column and the composer, not the
-   * viewport: a collapsing sidebar changes the same numbers a resize does. */
-  const surfaceMetrics = new ResizeObserver(() => {
-    measureSurfaceLayout();
-    measureHomeLead();
-  });
-  surfaceMetrics.observe(document.querySelector(".chat-panel"));
-  surfaceMetrics.observe($("composer-area"));
   /* GUI grammar G1 · the Home anchor is measured against the body, and the
    * identity above it grows upward: either changing size re-measures. */
-  surfaceMetrics.observe($("conversation-body"));
-  surfaceMetrics.observe($("home-composer-intro"));
-  window.addEventListener("resize", () => {
-    measureSurfaceLayout();
-    measureHomeLead();
-  });
-  /* WK-72 · with the rail header gone, the header control is the way in and the
-   * way out of the collapsed layer; Escape still walks the same two steps. */
-  $("show-surface-button").addEventListener("click", () =>
-    state.surface.open && !state.surface.expanded
-      ? closeSurface()
-      : openSurfaceRail(),
-  );
-  $("surface-expand-button").addEventListener("click", () =>
-    state.surface.expanded ? toggleSurfaceMaximized() : setSurfaceExpanded(true),
-  );
+  const homeMetrics = new ResizeObserver(() => measureHomeLead());
+  homeMetrics.observe(document.querySelector(".chat-panel"));
+  homeMetrics.observe($("composer-area"));
+  homeMetrics.observe($("conversation-body"));
+  homeMetrics.observe($("home-composer-intro"));
+  window.addEventListener("resize", () => measureHomeLead());
+  /* 06d · the header entry opens Preview on this chat's remembered objects;
+   * the pane's own Hide, ← Chat and Escape put it away. */
+  $("show-surface-button").addEventListener("click", (event) => openPreviewPane(event.currentTarget));
+  $("surface-expand-button").addEventListener("click", toggleSurfaceMaximized);
   $("nav-filter-input").addEventListener("input", (event) => {
     state.navigationFilter = event.currentTarget.value;
     renderProjectList();
@@ -7857,10 +7596,10 @@ async function init() {
         $("provider-panel").querySelector("select,input,button")?.focus();
       },
       /* The Workbench rebuilds its own blocks; the page re-applies its one
-       * search filter afterwards, and the rail card re-reads the summary. */
+       * search filter afterwards, and the Workspace tab re-reads its title. */
       onRendered: () => {
         settingsPage.refilter();
-        if (state.surface.open) renderSurfaceRail();
+        if (state.surface.open) renderPreviewTabStrip();
       },
     },
   );

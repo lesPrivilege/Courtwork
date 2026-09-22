@@ -1,0 +1,17 @@
+[
+  {
+    "name": "before: a second recorded version replaces the first in the single document tab",
+    "pass": true,
+    "detail": {
+      "tabs": [
+        "Workspace",
+        "out/brief.md"
+      ]
+    }
+  },
+  {
+    "name": "no uncaught page errors",
+    "pass": true,
+    "detail": null
+  }
+]
