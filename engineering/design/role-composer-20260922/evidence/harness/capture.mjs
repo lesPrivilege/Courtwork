@@ -212,11 +212,11 @@ async function journey(alt) {
   await step("14 Pi unavailable: Work is blocked");
   await shot(`${p}12-runtime-unavailable.png`);
 
-  await visit(alt, { scenario: "kit-incompatible" });
+  await visit(alt, { scenario: "kit-undeclared" });
   await readyNext();
   await ev(`window.__specimen.controller.select("ap-attention"); return true;`);
   await page.wait(300);
-  await step("15 Praxis 0.5 no longer declares Hermes: Attention is blocked");
+  await step("15 Praxis 0.5 undeclared for Hermes: unchecked (pre-R1 this was blocked)");
   await shot(`${p}13-kit-incompatible.png`);
 
   await visit(alt, { scenario: "long-names" });

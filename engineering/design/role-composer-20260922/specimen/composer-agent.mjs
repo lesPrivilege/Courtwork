@@ -41,6 +41,7 @@ export function projectNextRun({ row, reading, activeRun }) {
     runtime: null,
     model: null,
     kits: [],
+    unchecked: [],
     permissions: { allowed: [], asks: [], denied: [], unreported: [], unsupported: [] },
     blockers: [],
     when: "",
@@ -51,11 +52,13 @@ export function projectNextRun({ row, reading, activeRun }) {
     const projection = projectProfile(detail, draft);
     const runtime = projection.runtime;
     out.role = projection.role?.name ?? null;
+    /* Each Kit carries its attributed compatibility reading from the shared
+       06a projection: supported / unsupported / unchecked (06E-R1). */
     out.kits = projection.selectedKits.map((kit) => ({
       id: kit.id,
       name: kit.name,
       version: kit.version,
-      incompatible: projection.incompatibleKitIds.includes(kit.id),
+      compatibility: projection.compatibility[kit.id] ?? null,
     }));
     if (runtime) {
       out.runtime = {
@@ -87,8 +90,11 @@ export function projectNextRun({ row, reading, activeRun }) {
     }
     if (runtime && runtime.availability !== "available")
       out.blockers.push(`${runtime.name} is unavailable: ${runtime.unavailableReason}`);
-    for (const kit of out.kits.filter((entry) => entry.incompatible))
-      out.blockers.push(`${kit.name} ${kit.version} does not declare support for ${runtime.name}.`);
+    /* Only verified-unsupported owner evidence blocks. `unchecked` is said in
+       the reading and leaves every other blocker exactly as it was. */
+    for (const kit of out.kits.filter((entry) => entry.compatibility?.result === "unsupported"))
+      out.blockers.push(`${kit.name} ${kit.version} is not supported on ${runtime.name} (${kit.compatibility.evidenceRef}).`);
+    out.unchecked = out.kits.filter((entry) => entry.compatibility?.result === "unchecked").map((entry) => entry.id);
   } else if (row.runtimeAvailability === "unavailable") {
     /* The row already says so; the detail read is still needed for the rest. */
     out.blockers.push(`${row.runtimeName} is unavailable.`);

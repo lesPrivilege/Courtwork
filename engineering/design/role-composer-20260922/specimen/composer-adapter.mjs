@@ -22,7 +22,9 @@ export const SCENARIOS = [
   ["normal", "Normal"],
   ["bound-run", "Run in progress (Coding · rev 7)"],
   ["runtime-unavailable", "Pi unavailable"],
-  ["kit-incompatible", "Kit no longer declares Hermes"],
+  ["kit-undeclared", "Kit 0.5 undeclared for Hermes · unchecked"],
+  ["kit-stale-evidence", "Kit 0.5 with 0.4 evidence · unchecked"],
+  ["kit-unsupported", "Kit verified unsupported on Hermes"],
   ["long-names", "Long names"],
   ["list-error", "Agent list read fails once"],
 ];
@@ -67,11 +69,19 @@ export function createComposerFixture({ pause = wait } = {}) {
     out.profile = rename(out.profile.id, out.profile);
     if (scenario === "long-names")
       out.kits = out.kits.map((kit) => kit.id === "kit-praxis" ? { ...kit, name: "Praxis field-work collaboration and decision material" } : kit);
-    if (scenario === "kit-incompatible")
-      /* Praxis 0.5 declares Pi only. Nothing in the Attention profile changed;
-         the Kit's own contract did, so the saved composition is now a pair the
-         runtime cannot run. */
-      out.kits = out.kits.map((kit) => kit.id === "kit-praxis" ? { ...kit, version: "0.5", supportedRuntimeIds: ["rt-pi"] } : kit);
+    /* Three compatibility cases on the same pair, each with one cause
+       (06E-R1). Evidence records are explicitly synthetic owner records. */
+    const praxis = (patch) => { out.kits = out.kits.map((kit) => kit.id === "kit-praxis" ? { ...kit, ...patch(kit) } : kit); };
+    if (scenario === "kit-undeclared")
+      /* Praxis 0.5 declares Pi only and no owner has checked it on Hermes:
+         unchecked, not unsupported. */
+      praxis((kit) => ({ version: "0.5", supportedRuntimeIds: ["rt-pi"], compatibility: kit.compatibility.filter((r) => r.runtimeId !== "rt-hermes").map((r) => ({ ...r, kitVersion: "0.5" })) }));
+    if (scenario === "kit-stale-evidence")
+      /* The only Hermes record was made for 0.4; it does not speak for 0.5. */
+      praxis(() => ({ version: "0.5" }));
+    if (scenario === "kit-unsupported")
+      /* An owner record for exactly this Kit version and runtime revision. */
+      praxis((kit) => ({ compatibility: kit.compatibility.map((r) => r.runtimeId === "rt-hermes" ? { ...r, result: "unsupported", evidenceRef: "synthetic check · Praxis 0.4 on Hermes · refused" } : r) }));
     return out;
   }
 

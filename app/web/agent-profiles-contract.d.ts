@@ -64,9 +64,32 @@ export interface AgentKit {
   version: string;
   purpose: string;
   requests: KitRequest[];
-  /** Runtime ids this Kit's own contract declares support for. A runtime absent
-   * from this list is an incompatibility to explain, not a disabled control. */
+  /** Runtime ids this Kit's own contract *declares* support for. A declaration
+   * is not evidence: its absence reads as `unchecked`, never as unsupported
+   * (06E-R1, K0). */
   supportedRuntimeIds: string[];
+  /** Owner-attributed compatibility records. Only a record matching this Kit's
+   * `version` and the runtime's `id` + `revision` decides the reading. */
+  compatibility?: KitCompatibilityEvidence[];
+}
+
+export interface KitCompatibilityEvidence {
+  runtimeId: string;
+  /** Must equal `AgentRuntime.revision` (both null counts as equal). */
+  runtimeRevision: string | null;
+  kitVersion: string;
+  result: 'supported' | 'unsupported';
+  /** Human-readable attribution of the record's owner and scope. */
+  evidenceRef: string;
+}
+
+/** `projectProfile(...).compatibility[kitId]`. Only `unsupported` blocks. */
+export interface KitCompatibilityReading {
+  result: 'supported' | 'unsupported' | 'unchecked';
+  reason: 'evidence' | 'no-evidence' | 'evidence-not-applicable' | 'evidence-conflict';
+  evidenceRef: string | null;
+  /** The Kit's own declaration, shown beside the reading; never decisive. */
+  declared: boolean | null;
 }
 
 export type RuntimeAvailability = 'available' | 'unavailable';
@@ -80,6 +103,9 @@ export interface AgentRuntime {
   name: string;
   /** Where it runs, in one short phrase ("Local process", "Local service"). */
   location: string;
+  /** Adapter-owned revision compatibility evidence must match; null when the
+   * owner states none (then only revision-less records can match). */
+  revision?: string | null;
   availability: RuntimeAvailability;
   /** Required when `availability` is `unavailable`; the user-facing reason. */
   unavailableReason: string | null;

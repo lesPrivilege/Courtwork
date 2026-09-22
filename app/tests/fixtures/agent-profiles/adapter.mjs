@@ -59,6 +59,10 @@ const KITS = [
       { action: "check.run", label: "Run the project's fixed check" },
     ],
     supportedRuntimeIds: ["rt-pi"],
+    compatibility: [
+      { runtimeId: "rt-pi", runtimeRevision: "synthetic-pi-r1", kitVersion: "0.2", result: "supported", evidenceRef: "synthetic check · Coding review 0.2 on Pi" },
+      { runtimeId: "rt-hermes", runtimeRevision: "synthetic-hermes-r1", kitVersion: "0.2", result: "unsupported", evidenceRef: "synthetic check · Coding review 0.2 on Hermes" },
+    ],
   },
   {
     id: "kit-praxis",
@@ -70,6 +74,10 @@ const KITS = [
       { action: "artifact.write", label: "Produce a decision material" },
     ],
     supportedRuntimeIds: ["rt-pi", "rt-hermes"],
+    compatibility: [
+      { runtimeId: "rt-pi", runtimeRevision: "synthetic-pi-r1", kitVersion: "0.4", result: "supported", evidenceRef: "synthetic check · Praxis 0.4 on Pi" },
+      { runtimeId: "rt-hermes", runtimeRevision: "synthetic-hermes-r1", kitVersion: "0.4", result: "supported", evidenceRef: "synthetic check · Praxis 0.4 on Hermes" },
+    ],
   },
   {
     id: "kit-attention",
@@ -78,15 +86,25 @@ const KITS = [
     purpose: "Group what is waiting on a person and propose the next follow-up.",
     requests: [{ action: "attention.read", label: "Read the Attention queue" }],
     supportedRuntimeIds: ["rt-pi", "rt-hermes"],
+    compatibility: [
+      { runtimeId: "rt-pi", runtimeRevision: "synthetic-pi-r1", kitVersion: "0.9", result: "supported", evidenceRef: "synthetic check · Attention triage 0.9 on Pi" },
+      { runtimeId: "rt-hermes", runtimeRevision: "synthetic-hermes-r1", kitVersion: "0.9", result: "supported", evidenceRef: "synthetic check · Attention triage 0.9 on Hermes" },
+    ],
   },
 ];
 
-/* The three execution choices differ in exactly the ways this journey has to
+/* Kit compatibility records above are explicitly synthetic owner evidence
+ * (06E-R1): a Kit's `supportedRuntimeIds` is only its declaration, and the
+ * projection reads it as such. Each runtime states the revision a record must
+ * match; a runtime with no stated revision can match only records without one.
+ *
+ * The three execution choices differ in exactly the ways this journey has to
  * explain: who owns the model, what the executor can do at all, and whether it
  * can take new work right now. */
 const RUNTIMES = [
   {
     id: "rt-pi",
+    revision: "synthetic-pi-r1",
     name: "Pi",
     location: "Local process",
     availability: "available",
@@ -117,6 +135,7 @@ const RUNTIMES = [
   },
   {
     id: "rt-hermes",
+    revision: "synthetic-hermes-r1",
     name: "Hermes",
     location: "Local process",
     availability: "available",
@@ -137,6 +156,7 @@ const RUNTIMES = [
   },
   {
     id: "rt-codex",
+    revision: null,
     name: "Codex",
     location: "Local process",
     availability: "unavailable",

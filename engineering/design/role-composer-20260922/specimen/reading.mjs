@@ -19,6 +19,18 @@ export function modelWords(next, modelSnapshot) {
   return { short: name, line: name, long: `${name}, from Models · All chats · future runs. This agent has no model of its own.` };
 }
 
+/** The attributed compatibility reading for one Kit, in words. Supported is
+ * attributed; unsupported names its evidence; unchecked says why and what the
+ * Kit itself declares. */
+export function compatibilityWords(kit, runtimeName) {
+  const c = kit.compatibility;
+  if (!c || !runtimeName) return "";
+  if (c.result === "supported") return ` (checked on ${runtimeName}: ${c.evidenceRef})`;
+  if (c.result === "unsupported") return ` (not supported on ${runtimeName}: ${c.evidenceRef})`;
+  const why = c.reason === "evidence-not-applicable" ? " for this version" : c.reason === "evidence-conflict" ? "; the records disagree" : "";
+  return ` (compatibility with ${runtimeName} not checked${why}; ${c.declared ? "declared by the Kit" : "not declared by the Kit"})`;
+}
+
 export function permissionSummary(next) {
   if (!next || next.readingStatus !== "ready") return null;
   const p = next.permissions;
@@ -52,7 +64,7 @@ export function renderReading(next, { modelSnapshot, idPrefix }) {
   if (next.runtime)
     add("Runs on", next.runtime.available ? `${next.runtime.name} · ${next.runtime.location}` : `${next.runtime.name} · unavailable: ${next.runtime.unavailableReason}`, "runtime");
   add("Model", modelWords(next, modelSnapshot)?.long, "model");
-  add("Kits", next.kits.length ? next.kits.map((kit) => `${kit.name} ${kit.version}${kit.incompatible ? ` (does not declare support for ${next.runtime?.name})` : ""}`).join(", ") : "None", "kits");
+  add("Kits", next.kits.length ? next.kits.map((kit) => `${kit.name} ${kit.version}${compatibilityWords(kit, next.runtime?.name)}`).join("; ") : "None", "kits");
   const p = next.permissions;
   add("Asks before", p.asks.length ? list(p.asks) : null, "asks");
   add("Allowed", p.allowed.length ? list(p.allowed) : null, "allowed");

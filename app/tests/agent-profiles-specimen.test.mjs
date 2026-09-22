@@ -82,12 +82,68 @@ test('an incompatible Kit and runtime pair is explained and blocks the save', as
   const { profile } = c.getState();
   assert.equal(profile.dirty, true);
   assert.deepEqual(profile.projection.incompatibleKitIds, ['kit-coding']);
-  assert.match(profile.projection.blockers.join(' '), /Coding review is not supported on Hermes/);
+  assert.match(profile.projection.blockers.join(' '), /Coding review 0\.2 is not supported on Hermes \(synthetic check · Coding review 0\.2 on Hermes\)/);
+  assert.deepEqual(profile.projection.compatibility['kit-coding'], {
+    result: 'unsupported', reason: 'evidence', evidenceRef: 'synthetic check · Coding review 0.2 on Hermes', declared: false,
+  });
   assert.equal(c.canSave(), false);
   // The same pair becomes savable by changing the other half of it.
   c.setRuntime('rt-pi');
   assert.deepEqual(c.getState().profile.projection.blockers, []);
   assert.equal(c.canSave(), true);
+});
+
+/* 06E-R1 · a declaration is not evidence. The detail replies below are edited
+ * in the test so each reading has exactly one cause. */
+function withKit(detail, kitId, patch) {
+  const copy = structuredClone(detail);
+  copy.kits = copy.kits.map((kit) => (kit.id === kitId ? { ...kit, ...patch } : kit));
+  return copy;
+}
+async function praxisOnHermes() {
+  const c = await openedProfile('ap-attention');
+  return c.getState().profile.detail;
+}
+
+test('an undeclared runtime with no owner record is unchecked and does not block', async () => {
+  const detail = withKit(await praxisOnHermes(), 'kit-praxis', { supportedRuntimeIds: ['rt-pi'], compatibility: [] });
+  const projection = projectProfile(detail, { roleId: 'role-attention', kitIds: ['kit-praxis'], runtimeId: 'rt-hermes' });
+  assert.deepEqual(projection.compatibility['kit-praxis'], { result: 'unchecked', reason: 'no-evidence', evidenceRef: null, declared: false });
+  assert.deepEqual(projection.incompatibleKitIds, []);
+  assert.deepEqual(projection.blockers, []);
+});
+
+test('evidence for another Kit version or runtime revision is not applicable', async () => {
+  const base = await praxisOnHermes();
+  const record = { runtimeId: 'rt-hermes', runtimeRevision: 'synthetic-hermes-r1', kitVersion: '0.4', result: 'unsupported', evidenceRef: 'old' };
+  const olderKit = withKit(base, 'kit-praxis', { version: '0.5', compatibility: [record] });
+  const draft = { roleId: 'role-attention', kitIds: ['kit-praxis'], runtimeId: 'rt-hermes' };
+  assert.equal(projectProfile(olderKit, draft).compatibility['kit-praxis'].reason, 'evidence-not-applicable');
+  const otherRevision = withKit(base, 'kit-praxis', { compatibility: [{ ...record, runtimeRevision: 'synthetic-hermes-r0' }] });
+  const reading = projectProfile(otherRevision, draft).compatibility['kit-praxis'];
+  assert.deepEqual([reading.result, reading.reason], ['unchecked', 'evidence-not-applicable']);
+  assert.deepEqual(projectProfile(otherRevision, draft).blockers, []);
+});
+
+test('matching owner evidence decides; contradictory records stay unchecked', async () => {
+  const base = await praxisOnHermes();
+  const draft = { roleId: 'role-attention', kitIds: ['kit-praxis'], runtimeId: 'rt-hermes' };
+  const unsupported = { runtimeId: 'rt-hermes', runtimeRevision: 'synthetic-hermes-r1', kitVersion: '0.4', result: 'unsupported', evidenceRef: 'owner check' };
+  const blocked = projectProfile(withKit(base, 'kit-praxis', { compatibility: [unsupported] }), draft);
+  assert.deepEqual(blocked.incompatibleKitIds, ['kit-praxis']);
+  assert.equal(blocked.compatibility['kit-praxis'].declared, true, 'a declaration does not outweigh owner evidence');
+  const conflict = projectProfile(withKit(base, 'kit-praxis', { compatibility: [unsupported, { ...unsupported, result: 'supported' }] }), draft);
+  assert.deepEqual([conflict.compatibility['kit-praxis'].reason, conflict.blockers.length], ['evidence-conflict', 0]);
+});
+
+test('an unchecked Kit never erases a different blocker', async () => {
+  const adapter = fast();
+  adapter.configure('runtime-unavailable');
+  const c = await openedProfile('ap-attention', adapter);
+  const detail = withKit(c.getState().profile.detail, 'kit-praxis', { compatibility: [] });
+  const projection = projectProfile(detail, { roleId: 'role-attention', kitIds: ['kit-praxis'], runtimeId: 'rt-pi' });
+  assert.equal(projection.compatibility['kit-praxis'].result, 'unchecked');
+  assert.match(projection.blockers.join(' '), /Pi is unavailable/);
 });
 
 test('an unavailable runtime cannot be saved as an execution choice', async () => {

@@ -255,18 +255,30 @@ export function createAgentProfilesView(mount, controller) {
       /* The incompatibility is a property of this pair, so it is stated on the
          row that makes the pair — not by removing the Kit from the list and not
          by a disabled control whose reason you have to guess. */
-      if (projection.incompatibleKitIds.includes(kit.id) && projection.runtime)
-        row.append(
-          el("span", {
+      const reading = projection.compatibility?.[kit.id];
+      if (reading && projection.runtime) {
+        const missing = kit.requests
+          .filter((request) => !projection.runtime.supportedActions.includes(request.action))
+          .map((request) => request.label.toLowerCase());
+        const actions = missing.length ? ` ${projection.runtime.name} does not offer: ${sentenceList(missing)}.` : "";
+        /* Three readings, each attributed; only the verified one blocks. An
+           unchecked pair says why it is unchecked and what the Kit itself
+           declares, without turning either into a refusal (06E-R1). */
+        if (reading.result === "unsupported")
+          row.append(el("span", {
             className: "settings-row-help",
             attrs: { "data-testid": `kit-incompatible:${kit.id}` },
-            text: `Not supported on ${projection.runtime.name}. It needs to ${sentenceList(
-              kit.requests
-                .filter((request) => !projection.runtime.supportedActions.includes(request.action))
-                .map((request) => request.label.toLowerCase()),
-            )}.`,
-          }),
-        );
+            text: `Not supported on ${projection.runtime.name} (${reading.evidenceRef}).${actions}`,
+          }));
+        else if (reading.result === "unchecked")
+          row.append(el("span", {
+            className: "settings-row-help",
+            attrs: { "data-testid": `kit-unchecked:${kit.id}` },
+            text: `Compatibility with ${projection.runtime.name} not checked${
+              reading.reason === "evidence-not-applicable" ? " for this version" : reading.reason === "evidence-conflict" ? ": the records disagree" : ""
+            }. ${reading.declared ? "The Kit declares support." : "The Kit does not declare support."}${actions}`,
+          }));
+      }
       return row;
     });
     return el(

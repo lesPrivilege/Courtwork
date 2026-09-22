@@ -1,0 +1,35 @@
+# after: this tree, scenario kit-undeclared (same facts: Praxis 0.5 declares Pi only, no owner record)
+{
+  "tree": "courtwork-role-composer-20260922",
+  "scenario": "kit-undeclared",
+  "kits": [
+    {
+      "id": "kit-attention",
+      "name": "Attention triage",
+      "version": "0.9",
+      "compatibility": {
+        "result": "supported",
+        "reason": "evidence",
+        "evidenceRef": "synthetic check · Attention triage 0.9 on Hermes",
+        "declared": true
+      }
+    },
+    {
+      "id": "kit-praxis",
+      "name": "Praxis",
+      "version": "0.5",
+      "compatibility": {
+        "result": "unchecked",
+        "reason": "no-evidence",
+        "evidenceRef": null,
+        "declared": false
+      }
+    }
+  ],
+  "blockers": [],
+  "send": {
+    "enabled": true,
+    "reason": ""
+  }
+}
+exit 0

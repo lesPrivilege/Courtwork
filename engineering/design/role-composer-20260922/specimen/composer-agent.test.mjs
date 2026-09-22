@@ -49,20 +49,59 @@ test("runtime-owned model is read from the runtime, not from Models", async () =
   assert.match(model.effective, /Hermes/);
 });
 
-test("an incompatible Kit and an unavailable runtime block Send with the owner's words", async () => {
-  const kit = setup("kit-incompatible");
-  await kit.controller.load();
-  kit.controller.select("ap-attention");
+async function attention(scenario) {
+  const { controller } = setup(scenario);
+  await controller.load();
+  controller.select("ap-attention");
   await new Promise((resolve) => setTimeout(resolve, 0));
-  const blocked = kit.controller.getState().next;
-  assert.equal(blocked.send.enabled, false);
-  assert.match(blocked.blockers.join(" "), /Praxis 0\.5 does not declare support for Hermes/);
+  return controller.getState().next;
+}
 
+test("06E-R1: a Kit that does not declare the runtime, with no owner record, is unchecked and does not block", async () => {
+  const next = await attention("kit-undeclared");
+  const praxis = next.kits.find((kit) => kit.id === "kit-praxis");
+  assert.deepEqual(praxis.compatibility, { result: "unchecked", reason: "no-evidence", evidenceRef: null, declared: false });
+  assert.deepEqual(next.blockers, []);
+  assert.deepEqual(next.send, { enabled: true, reason: "" });
+  assert.deepEqual(next.unchecked, ["kit-praxis"]);
+});
+
+test("evidence for an older Kit version is not applicable: unchecked, not blocked", async () => {
+  const next = await attention("kit-stale-evidence");
+  const praxis = next.kits.find((kit) => kit.id === "kit-praxis");
+  assert.deepEqual([praxis.compatibility.result, praxis.compatibility.reason, praxis.compatibility.declared], ["unchecked", "evidence-not-applicable", true]);
+  assert.equal(next.send.enabled, true);
+});
+
+test("verified-unsupported owner evidence blocks, and says whose evidence", async () => {
+  const next = await attention("kit-unsupported");
+  assert.equal(next.send.enabled, false);
+  assert.match(next.blockers.join(" "), /Praxis 0\.4 is not supported on Hermes \(synthetic check · Praxis 0\.4 on Hermes · refused\)/);
+});
+
+test("supported evidence is attributed; permissions stay the permission owner's", async () => {
+  const next = await attention("normal");
+  assert.ok(next.kits.every((kit) => kit.compatibility.result === "supported" && kit.compatibility.evidenceRef));
+  assert.deepEqual(next.permissions.asks.map((line) => line.action), ["artifact.write"], "supported compatibility grants nothing");
+});
+
+test("unchecked never erases another blocker: unavailable runtime, Run in flight", async () => {
   const down = setup("runtime-unavailable");
   await down.controller.load();
   const work = down.controller.getState().next;
   assert.equal(work.send.enabled, false);
   assert.match(work.blockers[0], /Pi is unavailable/);
+  const { fixture, controller } = setup("kit-undeclared");
+  fixture.configure("kit-undeclared");
+  // Same unchecked pair while this chat has a Run in flight (bound-run chat facts).
+  const chat = fixture.adapter.chat;
+  fixture.adapter.chat = () => ({ ...chat(), activeRun: { runId: "synthetic-run-311", profileId: "ap-coding", profileRevision: 7 } });
+  await controller.load();
+  controller.select("ap-attention");
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const next = controller.getState().next;
+  assert.deepEqual(next.unchecked, ["kit-praxis"]);
+  assert.deepEqual(next.send, { enabled: false, reason: "Available after this run ends." });
 });
 
 test("a run in flight keeps its binding; another choice applies to a later run, with no queue", async () => {
