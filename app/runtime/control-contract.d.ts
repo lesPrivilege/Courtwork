@@ -152,7 +152,7 @@ export interface RuntimeSnapshot {
   context: ContextItem[];
   audit: Array<{ revision: number; at: string; actor: 'local-user'; operation: string; id: string | null; scope: ConfigurableScope | null }>;
   kinds: Array<{ kind: ResourceKind; support: 'available' | 'adapter-required' }>;
-  compatibility: Record<string, unknown>;
+  compatibility: Record<string, unknown> & { runtimeSelection: 'expectation-v1' };
 }
 export type RuntimeChange = { revision: number } & (
   | { operation: 'put'; resource: ImportedResource; exposed?: boolean }

@@ -130,14 +130,19 @@ test('E1 submitted selection expectation refuses stale chooser intent but origin
   try {
     const f = await setup(h);
     const snapshot = await f.snapshot();
+    assert.equal(snapshot.compatibility.runtimeSelection, 'expectation-v1', 'the authenticated Runtime Control snapshot explicitly advertises the implemented guard');
+    assert.deepEqual(snapshot.sessionScope, { kind: 'project', projectId: h.projectId }, 'the capability addition does not relabel the Session scope');
     const runtimeSelection = { revision: snapshot.revision, profileId: snapshot.composition.id, sourceHash: snapshot.composition.hash };
     const send = commandId => h.api('POST', `/sessions/${f.session.id}/runs`, { input: 'guarded intent', commandId, runtimeSelection });
     const admitted = await send('guarded');
     assert.equal((await h.pollRun(admitted.json.run.id)).status, 'completed');
     f.profile.version = 'k3-profile-v2';
     await f.putProfile();
+    const beforeStale = { requests: h.runtime.fakeProvider.requests.length, runs: h.runtime.store.listRuns().length };
     const stale = await send('stale');
     assert.equal(stale.status, 409); assert.equal(stale.json.error.code, 'runtime_selection_conflict');
+    assert.deepEqual({ requests: h.runtime.fakeProvider.requests.length, runs: h.runtime.store.listRuns().length }, beforeStale,
+      'a stale advertised expectation creates neither a Run nor a provider request');
     const replay = await send('guarded');
     assert.equal(replay.json.run.id, admitted.json.run.id);
     assert.equal(h.runtime.fakeProvider.requests.length, 1);
