@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-22 · Pushed checkpoint and active K3
+
+The [clean-node receipt](evidence/clean-node-20260922/README.md) records main678d71c pushed and K3 freshly dispatched in task01a0c9a7-6aca-79b2-a578-da1414a73404 /bf41. [K3](kit-run-binding-20260922.md) owns only its finite ordinary-Chat/Pi Kit admission/frozen-context integration. M1 and K1/K2 are accepted/cleaned;06e-R1 remains with original Claude. A Pages generation-source parity correction follows the first push; it changes no Host code and does not authorize deployment.
+
 ## 2026-09-22 · K0 decision consumed
 
 [Selected reference-only Kit contract and K1/K2 lease](evidence/kit-k0-parent-20260922/README.md) supersede the prepared/awaiting-K0 status below. Continue the verified original Kit task and checkout; do not create a duplicate writer. LP-R5 was independently accepted and merged; M1 and06e retain separate scopes.

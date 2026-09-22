@@ -52,3 +52,8 @@ A protected courtwork-role-composer-20260922 checkout/claude-role-composer-20260
 ## Parent selection and finite return — 2026-09-22
 
 [A selected,06E-R1 returned](evidence/06e-selection-review-20260922/README.md): source69f39a7, Luna9/9 and parent OpenAI-browser comparison/Settings/keyboard/narrow evidence. A supports comparison before committing while B adds permanent height and shifts the input; B is preserved only as comparison. Declaration-only absence still disables Send despite the proposed unchecked reading: correct actual synthetic state/control semantics with attributed supported/unsupported/unchecked cases before acceptance. Original Claude owns that finite specimen return; no E1 shared-product lease or backend gap is silently granted. The source tree remains; parent-generated review evidence is in main.
+
+
+## User-authorized E1 implementation expansion — 2026-09-22
+
+The user now permits [parallel real frontend/backend implementation](frontend-backend-live-integration-20260922.md). Original Claude should first close06E-R1, then continue selectedA into E1 reusable frontend modules, scoped Composer/Settings wiring and required profile compatibility projection changes with regression evidence. This supersedes the specimen-directory-only/no-E1 lease, not the semantic return. Backend/API/schema remains the active Codex K3 owner; fixtures stay explicit until actual capabilities exist. No further routine permission is needed; parent still independently accepts the combined journey.

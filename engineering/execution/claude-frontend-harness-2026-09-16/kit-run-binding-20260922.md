@@ -81,3 +81,12 @@ The live lane uses authenticated `/api/v5` endpoints, not06a's synthetic per-pro
 These endpoint shapes are implemented in current K3 source; combined E1 UI wiring/visual acceptance is still Claude/parent work. No synthetic preview adapter is a fallback for these live calls. Frontend static module names, if needed, are supplied to this backend writer for the existing server allowlist.
 
 E1 admission intent addition: `POST .../runs` also accepts optional `runtimeSelection:{revision,profileId,sourceHash}` (`sourceHash:null` only for builtin General). This is a submitted expectation of the actual effective snapshot, not new persisted draft/configuration authority. After original-command receipt lookup and within the existing configuration queue, compare all three with the binding being admitted.409 `runtime_selection_conflict` preserves the draft and requires readback; no Run/provider call occurs. Without the field legacy clients retain existing behavior. Replay intentionally returns its old Run before checking a newer expectation. This closes the chooser-read→Send race without inventing per-profile revisions or a second draft owner.
+
+## Actual clean-node dispatch — 2026-09-22
+
+Main678d71c was pushed and independently matched by ls-remote before creating **Kit to Run · Host integration** (01a0c9a7-6aca-79b2-a578-da1414a73404) as a fresh Astra worktree task. It confirmed bf41/Courtwork, branchcodex/kit-run-binding-20260922 and exact678d71c base; K3-A contract is now reported committed and leased implementation active. Read the [push/checkpoint receipt](evidence/clean-node-20260922/README.md) for the subsequent README-generator-only Pages correction; it does not change the Host product base. Parent still owns acceptance/main merge, and06e retains its separate correction.
+
+
+## User-authorized frontend consumer seam — 2026-09-22
+
+[Implementation lanes](frontend-backend-live-integration-20260922.md) permit the minimum existing-owner profile read/selection/draft/admission projection needed by Claude E1, plus necessary pure-validator extraction without semantic changes. Publish the concrete shared contract early; whole-config revision/source identity must not be misrepresented as per-profile CAS. K3 keeps the backend/Store/server writer, Claude keeps app/web. This expands the internal-helper stopping boundary while retaining the ordinary-Chat/Pi scope, schema21 discipline, real request evidence and parent acceptance. Pages remains excluded.

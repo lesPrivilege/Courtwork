@@ -19,3 +19,6 @@ Missing production outcomes remain explicit: user-selectable local runtime/profi
 Raw review/log bytes remain unchanged, including any final blank line; whitespace exceptions are evidence-only.
 
 Two harmless trailing-blank-line notices in the inherited process fixture and transport test are retained with their pinned source bytes; no behavioral or acceptance claim is based on whitespace cleanliness. Parent-authored documentation and local links pass their checks.
+
+
+2026-09-22 publication consistency follow-up: [the first push receipt](../clean-node-20260922/README.md#push-dispatch-and-generator-correction) identifies a missing generator-source copy of the already aligned bilingual README paragraph from the author L3 commit. Parent corrected site/src/readme.mjs and verified site build/reproducibility/checks; accepted product bytes and scope are unchanged. This closes that source-synchronization omission, not N-13 redesign or deployment.

@@ -1,0 +1,13 @@
+build	Build the site	﻿2026-09-22T15:06:06.1505335Z ##[group]Run node site/build.mjs
+build	Build the site	2026-09-22T15:06:06.1505674Z ^[[36;1mnode site/build.mjs^[[0m
+build	Build the site	2026-09-22T15:06:06.1544076Z shell: /usr/bin/bash -e {0}
+build	Build the site	2026-09-22T15:06:06.1544402Z ##[endgroup]
+build	Build the site	2026-09-22T15:06:06.5348744Z file:///home/runner/work/Courtwork/Courtwork/site/build.mjs:184
+build	Build the site	2026-09-22T15:06:06.5349952Z     throw new Error("README.md is out of step with site/src/readme.mjs; run: node site/build.mjs --write-readme");
+build	Build the site	2026-09-22T15:06:06.5351110Z           ^
+build	Build the site	2026-09-22T15:06:06.5351300Z 
+build	Build the site	2026-09-22T15:06:06.5351969Z Error: README.md is out of step with site/src/readme.mjs; run: node site/build.mjs --write-readme
+build	Build the site	2026-09-22T15:06:06.5352988Z     at file:///home/runner/work/Courtwork/Courtwork/site/build.mjs:184:11
+build	Build the site	2026-09-22T15:06:06.5353463Z 
+build	Build the site	2026-09-22T15:06:06.5353611Z Node.js v22.19.0
+build	Build the site	2026-09-22T15:06:06.5400881Z ##[error]Process completed with exit code 1.

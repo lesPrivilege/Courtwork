@@ -125,3 +125,6 @@
 
 
 2026-09-22 · [M1 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/m1-final-20260922/README.md): fixed b8cd54f/ffd4e39, independent35/35+7/7 and lints; parent in-app-browser1280×900 before/after40→16px detail margin, unchanged28px/14px input, no document overflow. Main product7dc852a passes [one full1538/1538 and smoke](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md), no real provider. Earlier409 remains unexplained. Restored/bundle-verified M1 tree removed;06e held. Push/new K3 are user-authorized subsequent operations, not product capability or deployment acceptance.
+
+
+2026-09-22 · [Post-push Pages parity correction](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md#push-dispatch-and-generator-correction): initial remote build failed README/source equality; added the exact accepted offline Pi paragraph to site/src/readme.mjs, leaving both bilingual README byte sequences unchanged. Local site build, two-run188-file equality, material/figure checks,5/5 public-data/capture tests and188-file296-reference link check pass. Backend1538/1538 remains the product baseline result, not a rerun for this generator-only change; deployment not triggered.

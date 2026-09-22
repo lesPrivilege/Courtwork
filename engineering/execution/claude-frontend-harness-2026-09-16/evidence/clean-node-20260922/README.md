@@ -21,3 +21,16 @@ Push is ordinary fast-forward `origin/main` only, after fresh origin fetch showe
 [Kit→Run K3](../../kit-run-binding-20260922.md) is prepared from [Luna source intake and parent corrections](../kit-run-index-20260922/README.md). Only after push/remote SHA verification, start a new isolated Astra task from this node. The first integration is ordinary Chat/current in-process Pi via existing profile/CAS and Run owners, with exact retained context and real Host request proof using a deterministic provider. Schema21 is reserved for the proposed new persistence interpretation but is not implemented/adopted here.06e stays with its own frontend owner.
 
 The push and new-task receipt will be recorded after those actions complete. This checkpoint does not claim real Kit UI selection, arbitrary-agent support, fullG4, production release or user data migration.
+
+
+## Push, dispatch and generator correction
+
+[Push log](push-checkpoint.log) records origin/main ea56db8→**678d71c58acc6968569a8850d39be404b19d4dfd**; a separate git ls-remote returned exactly that SHA. [Dispatch/CI receipt](push-and-dispatch.json) identifies the fresh task **Kit to Run · Host integration**,01a0c9a7-6aca-79b2-a578-da1414a73404, its same bf41 checkout/branch and verified base. The task reported K3-A complete and started its leased Host/Store work. No second checkout, source/schema adoption or live capability is implied by that progress.
+
+The first push's [Pages build failed](pages-initial-failure.log): a863067 had updated both public README languages with the accepted offline Pi consumer paragraph, but omitted the English generation source. Parent's pre-push checks had verified links/capture readiness rather than a full site build, so they did not catch this consistency gap. It is not a screenshot gap or a need to weaken the build check.
+
+**Correction:** add that exact existing English paragraph to site/src/readme.mjs. English README and its Chinese counterpart were already semantically aligned and remain byte-unchanged. No public capability claim or product source changes. [Fixed site build](pages-fixed-build.log) passes; [two builds match188 files](pages-determinism.json); material/figure checks,5/5 public-data/capture tests and188-file/296-reference link check pass. The corrective source and this receipt are committed/pushed as a follow-up, without rewriting history or rerunning unrelated backend tests. Remote CI remains separately observed; no deployment workflow was triggered.
+
+Runtime CI run35744901028 subsequently completed successfully on678d71c. The user then explicitly excluded further Pages work; only the already completed README generator parity fix is retained, with no page redesign or deployment. [Claude/Codex implementation lanes](../../frontend-backend-live-integration-20260922.md) now permit the minimum actual frontend/backend integration in their separate owners.
+
+The raw initial CI failure log preserves two whitespace-only timestamped lines; these are the sole intended staged whitespace exceptions in this follow-up. Source and authored prose checks pass.
