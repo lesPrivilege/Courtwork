@@ -1,0 +1,56 @@
+# Agent composition / Kit context compilation: bounded core map
+
+Date: 2026-09-22. Observed checkout: `main@81d966f2f6b93d4b46bec29d144eaad8d4266a67`, with only pre-existing untracked workspace metadata. This is read-only local mapping; no product, test, frontend, model, provider or external source was changed or run.
+
+## Verdict
+
+This is a real backend/contract gap, but not an empty subsystem. A narrow pure-module slice is independently possible after the parent freezes its input/output contract. It must project existing Runtime Control state and Harness-owned Kit metadata; it must not become a second profile store, resource resolver, permission owner, scheduler or frontend truth.
+
+The existing 06a record is precise about the gap: profile composition belongs to Runtime Control, Role semantics to the product/Host admission contract, Kit admission/context to Harness Extension/RD-009, and Runtime lifecycle to RD-001 (`engineering/execution/claude-frontend-harness-2026-09-16/06a-agents-profile-journey-20260920.md:71-85`). Its synthetic Agent profile → Kits journey explicitly says Role-as-object, Kit identity/version/`supportedRuntimeIds`, runtime registry, per-profile revision/binding and per-agent model binding are not exposed (`:79-85`); this is a backend fact gap, not a frontend implementation defect.
+
+## Existing owners and mechanisms to reuse
+
+- **Runtime Control owns declarative composition and policy.** `app/runtime/control-plane.mjs:68-99` validates `agent_profile` as versioned `resourceIds`, policy `rules` and non-executable `uiSlots`; `:118-169` owns CAS/configuration persistence and profile selection. `:232-270` derives composition status, missing resource IDs, profile policy ceilings and exposed resources. A profile cannot raise Host permission; the existing `control-plane.test.mjs:155-171` covers that boundary.
+- **Runtime Control already has a deterministic context compiler, but it is intentionally small.** `app/runtime/control-plane.mjs:279-300` serializes always-admitted instructions plus skill/reference catalog descriptions. Skill/reference bodies remain deferred to `runtime_load`; the catalog explicitly says content does not grant permissions. `control-plane.test.mjs:132-152,345-373` proves skill bodies are not auto-injected, prompt templates stay draft-only, compiled bytes are stable, and historical bindings remain unchanged.
+- **Source inspection owns syntax/identity, not acquisition or compilation.** `app/runtime/source-resolver.mjs:18-20,42-88` is inspect-only: it hashes inline content, reports profile `resourceIds` as unchecked requirements, leaves skill scripts/assets unresolved and grants nothing. It must be reused for source identity and diagnostics; it must not be expanded into an installer or Kit runtime.
+- **Work context is a different owner.** `app/core/owner.mjs:104-128` compiles Matter/artifact/obligation/source-reference context with source and contract applicability and a byte budget. It should not absorb Agent/Kit configuration or become a second Runtime Control compiler.
+- **Child lifecycle remains RD-005/Harness-owned.** `app/harness/subagents.mjs` and `subagent-state.mjs` own assignment, attempt/session/run identity, source freezes, result hashes, source-read receipts and consumption; the state validator rejects shared child context and enforces result/source bindings (`app/harness/subagent-state.mjs:31-59,67-79`). No composition module should duplicate those records.
+- **User profile is unrelated.** `app/server/profile-store.mjs:5-12,30-37` is Home identity/account state, not Agent Role or Kit composition.
+
+## The actual missing seam
+
+The current profile schema has no first-class Role, Kit identity/version, Kit dependency or runtime compatibility object. `resourceIds` is an allowlist, not a Kit compiler. `compileControlContext` emits instructions and catalog descriptions; it does not resolve a Kit's ordered methods, requirements, supported runtimes, context sources, deferred body, or result contract. `source-resolver` reports these requirements as unchecked rather than selecting or loading them. The missing facts match the 06a consumer contract and the local-orchestra index; the gap is real.
+
+The gap does not justify a broad “Agent composition framework.” Existing `RuntimeComposition`/`AgentCompositionSource` are the closest contract seam (`app/runtime/control-contract.d.ts:68-104`): they already separate declarative profile source, status, missing IDs, admission, character counts and deferred content. Extend or wrap this seam only after an owner-approved Kit schema; do not invent a parallel object vocabulary.
+
+## Small independent slice
+
+A new pure module can be independently built if its contract is recorded first. Its input should be an immutable, already-validated Runtime Control binding plus explicit Kit descriptors supplied by the Harness/RD-009 owner. Its output should be a deterministic `compositionPlan`/`contextPlan` containing:
+
+1. Role identity and revision, selected Kit IDs/versions and Runtime binding reference;
+2. ordered declared requirements and source/resource IDs, with `missing`, `unchecked` and `deferred` states kept distinct;
+3. the exact instruction/catalog sections admitted to `compileControlContext`, plus a stable content/hash/character accounting record;
+4. compatibility diagnostics and requested capabilities, without grants;
+5. no filesystem/network/provider calls, installation, persistence, permission mutation, native Runtime launch or result acceptance.
+
+Meaningful tests can use synthetic descriptors to prove deterministic ordering/deduplication, version/hash changes, missing-resource diagnostics, deferred Skill/reference bodies, character limits, profile policy ceilings, active-Run binding separation and unchanged historical snapshots. The module may call existing pure validators/projections or be a thin extension of `compileControlContext`; it must not write `runtime-control.json` or `subagents` state.
+
+If the parent does not first freeze the Kit descriptor and owner, the safer alternative is to add only contract/fixture tests around the existing Runtime Control projection and leave implementation deferred. A new pure module with an invented Kit schema would create the second truth this task is meant to avoid.
+
+## Parallelism and exclusions
+
+This core slice can run disjointly from the 06 Role-first frontend and M1 Runtime Settings work because it needs no `app/web`, CSS, Settings route, browser preview or native configuration. The frontend should consume only the recorded projection contract and continue showing missing facts as missing. The M1 lease and running user services remain protected by the local-Pi order (`local-pi-worker-loop-20260922.md:45-49`).
+
+The local-Pi order already selects one-shot/no-native-tool consultation first and defers persistent RPC, toolful coding and another runtime (`evidence/local-pi-worker-index-20260922/README.md:11-23`). Its L3 proposal keeps existing Host/child owners and forbids a new scheduler/store (`local-pi-worker-loop-20260922.md:7-10,28-41`). Agent composition work should therefore remain a pure configuration/context seam and not be folded into LP-R5 process integration.
+
+## Recommended disposition
+
+**Adopt:** existing Runtime Control profile/resource/policy/context projection as the base; existing source identity, Harness Kit owner and Work context remain separate.
+
+**Adjust:** define a small versioned Kit descriptor and pure composition/context plan only after Astra records owner, effective/bound semantics and missing/deferred rules. Reuse `AgentCompositionSource`/`RuntimeComposition` and `compileControlContext` rather than creating a new ledger.
+
+**Reject:** a new Agent/Kit store, generic orchestrator, automatic resolver/installer, profile-as-Expert promotion, permission grants from Kit metadata, or frontend-driven authority.
+
+**Defer:** Role-first production binding, per-agent model binding, runtime compatibility discovery, toolful Kit execution, native extension loading and cross-runtime child scheduling until their existing owners provide a concrete consumer and evidence.
+
+The result supports opening a bounded Astra pure-module lane, but only for the contract/projection slice above. It does not support starting a parallel product implementation or claiming Agent composition/Kit support today.

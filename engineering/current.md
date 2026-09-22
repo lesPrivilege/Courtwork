@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-22 · Disjoint next work prepared: Kit core and Role-first Composer
+
+[Parallel work index and parent selection](execution/claude-frontend-harness-2026-09-16/evidence/parallel-work-index-20260922/README.md) consume Luna's actual owner/gap map. Kit context K0 contract/pure-compiler work can be isolated from Pi LP-R5; existing Runtime Control, source resolver, permissions and child state remain authoritative. Claude06e may consume Design Scout and produce two runnable Role-first Composer alternatives in an isolated specimen before selection. Both handoffs are prepared; no additional Astra task/Claude process has been launched. M1 ffd4e39 is delivered with writer release, still pending parent acceptance; LP-R5 is actively correcting in its original tree. No product or user service changes.
+
 ## 2026-09-22 · Local Pi delivery held for deletion/recovery boundary
 
 [Parent final review](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-parent-review-20260922/README.md) holds packet6b45fd8/product6c87b7d for LP-R5: actual crash→reopen→DELETE unknown child returns200, drops recovery receipts and leaves invalid assignment references. Original fresh Astra retains the bounded fix in c89d; no schema20 merge/cleanup. One independent candidate-API diagnostic passes1/1, but earlier409 failures remain undiagnosed. Luna final56/56 passes, retaining LP-R5 as the reproduced blocker. Current product/test baseline f88f61b remains unchanged; main stillschema19 and user8787 is untouched.

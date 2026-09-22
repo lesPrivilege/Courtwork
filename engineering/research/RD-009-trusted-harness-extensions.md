@@ -73,3 +73,8 @@ The [personal Settings ruling](architecture-node-2026-09-13/local-agent-runtimes
 ## Browser consumer intake — 2026-09-21
 
 [Verified precedent selection and lifecycle boundary](architecture-node-2026-09-13/browser-preview-ruling-20260921.md) register the user-requested Browser consumer under RD-009/RD-001. Host must own scoped page/context identity, authorization, human control handoff, effect/unknown receipts and trace/download policy; automation dispose, page close and browser stop are distinct. Current source capabilities stay false. [06d](../execution/claude-frontend-harness-2026-09-16/06d-surface-continuity-20260921.md) implements Preview tabs over current objects only; no browser tool, profile access or execution is enabled. Real Browser remains a later finite vertical slice, separate from the active P03-C Host contract.
+
+
+## 2026-09-22 · Prepared Kit context contract/compiler candidate
+
+The [parallel Kit K0→K2 handoff](../execution/claude-frontend-harness-2026-09-16/kit-context-core-20260922.md) consumes the existing Runtime Control/source/compiler owners through a bounded Luna source map. It first defines the missing minimal descriptor/context-plan contract under this RD, then permits disjoint pure-module implementation after parent disposition. It does not replace profile CAS, resource loading, permission decisions, Work context or child state, and does not claim a production Kit registry/mount. [Claude06e](../execution/claude-frontend-harness-2026-09-16/06e-role-composer-selection-20260922.md) separately explores the Role-first consumer as an explicit specimen. No new task/process or Host writer was dispatched by this registration.

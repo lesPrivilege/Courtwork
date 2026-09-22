@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-22 · Prepared disjoint next work
+
+[Consumed local owner map and source index](evidence/parallel-work-index-20260922/README.md) identify two useful next handoffs: [Astra Kit context K0→K2](kit-context-core-20260922.md), beginning with a concrete existing-owner contract before pure-module code; and [Claude06e Role-first Composer](06e-role-composer-selection-20260922.md), first two comparable runnable specimens and a parent design choice. These are prepared, not dispatched. Host/Store/child code stays with Pi LP-R5; no second core runtime writer. Runtime M1 has delivered/released its candidate and awaits parent acceptance. The older orders below are history, not directions to repeat accepted Pi port, C/D/E or Runtime-management work.
+
 ## Current long-running backend handoff — 2026-09-21
 
 The user authorizes [Claude/Fable's finite C/D/E loop](core-runtime-loop-20260921.md) after [Luna's traceable index](evidence/core-loop-index-20260921/README.md), under the [released Host contract](p03c-host-consumer-contract-20260921.md). An installed Claude Code 2.1.278 CLI exposes background sessions and the `fable` alias; earlier “no callable route” statements below describe the then-known tool surface, not current dispatch availability. The backend loop may progress serial author stages without repeated continuation questions, while Codex independently accepts/integrates. 06d is already claimed in `courtwork-tabbed-preview-20260921`; preserve that separate frontend writer. [Actual dispatch](evidence/core-loop-index-20260921/dispatch.md) created session `1e0858d6` and the isolated backend tree, but it is idle/blocked for missing CLI login. Preserve that reservation and resume the same task after user login; do not dispatch a duplicate. No implementation has started.
