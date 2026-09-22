@@ -1,0 +1,45 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (3410.969667ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (857.131792ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (1012.206583ms)
+  ✔ spawn (1721.992291ms)
+  ✔ result (1435.065667ms)
+  ✔ terminal (1462.68275ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5632.5145ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (202.483666ms)
+  ✔ before publication (789.816209ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (992.792917ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (527.813709ms)
+✔ new source revision during actual process consultation prevents stale publication (1037.056125ms)
+✔ result retention failure cannot publish or rerun a completed native response (542.432458ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (821.610625ms)
+✔ a CW parent tool delegates to actual local Pi only after releasing the existing serial lane (1291.698ms)
+✔ a forged Run status cannot erase its Host status evidence (817.587625ms)
+✔ late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty (1468.538042ms)
+✔ unknown local child and its parent cannot be deleted through HTTP or Store; bytes and recovery fence survive reopen (1052.519458ms)
+✔ completed archived local findings retain child, parent and source/result references across rejected deletion and reopen (3120.746375ms)
+✔ Spark references prevent deletion before any local process records exist; an ordinary Store deletion still works (53.598125ms)
+✔ a Spark reference queued after the Service snapshot is still protected by the atomic Store deletion guard (74.127084ms)
+✔ 09 · the two real Chat commands: rename through PATCH and delete through DELETE, each with its refusals (96.851125ms)
+✔ Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt (660.889083ms)
+✔ Spark refuses forged source, actor and recursive delegation; stale actions do not mutate (493.827167ms)
+✔ two exact Intake versions → local note → project mount → main progressive reads and machine consumption (946.530125ms)
+✔ omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads (569.3005ms)
+✔ runtime delegation yields the single lane and does not replay or silently resume the parent (932.861916ms)
+✔ source discovery paginates exact versions, respects source and target policy, and rejects malformed queries (99.812917ms)
+✔ cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work (55.151708ms)
+✔ failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result (986.228042ms)
+✔ a changed provider route blocks old queue item without stranding later valid work (263.398208ms)
+✔ schema rejects corrupt derived relationships and forged read receipts (616.608667ms)
+✔ active cancellation closes late source/note admission and never publishes a result (87.400208ms)
+✔ SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation (789.638458ms)
+✔ revoking source policy after a tool read blocks the next provider request (563.524083ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 31993.49975

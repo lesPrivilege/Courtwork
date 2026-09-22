@@ -1,4 +1,4 @@
-import { emptySubagents, validateSubagents, bindSubagentRun } from '../harness/subagent-state.mjs';
+import { emptySubagents, validateSubagents, bindSubagentRun, assertSessionNotReferencedBySubagents } from '../harness/subagent-state.mjs';
 import { deriveUsageDetails } from "./usage-details.mjs";
 import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node:fs/promises";
 import path from "node:path";
@@ -21,6 +21,7 @@ import {
   PROVIDER_API_FORMATS,
   validateProviderModels,
 } from './provider-fields.mjs';
+import { appendLocalPiEvent, localPiRunUnresolved, validateLocalPiEvents } from '../runtime/local-pi-state.mjs';
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
 const TERMINAL_STATUSES = new Set(["completed", "cancelled", "failed", "unknown"]);
@@ -33,7 +34,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 19;
+const SCHEMA_VERSION = 20;
 // check.settled status: "unknown" is fenced in by the Host on restart for a
 // check.started event that never got a matching settlement (RD-009 durable
 // settlement rule); it is never produced by the runner itself.
@@ -420,7 +421,7 @@ function validateOperations(value, sessions) {
 
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 18 can be upgraded)`);
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 19 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')) && (schema >= 18 || k !== 'operations'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -604,6 +605,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     nonNegativeInt(parsed.providerConfigVersion, "state.providerConfigVersion");
     validateVerifications(parsed.providerVerifications, schema);
   }
+  validateLocalPiEvents(parsed, schema);
   return structuredClone(parsed);
 }
 
@@ -815,7 +817,7 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
@@ -841,15 +843,18 @@ export class RuntimeStore {
               repositoryCandidateRevision: parsed.schemaVersion >= 17 ? session.repositoryCandidateRevision : 0,
               repositoryCandidateCommands: parsed.schemaVersion >= 17 ? session.repositoryCandidateCommands : [],
               repositoryWriteEffects: parsed.schemaVersion >= 17 ? session.repositoryWriteEffects : [],
-              // Schema 19 · no earlier Host could bind a remote runtime.
-              remoteBinding: null, remoteActions: [],
+              // Schema 19 · preserve existing remote-runtime authority while
+              // older stores gain only the version's null/empty defaults.
+              remoteBinding: parsed.schemaVersion >= 19 ? session.remoteBinding : null,
+              remoteActions: parsed.schemaVersion >= 19 ? session.remoteActions : [],
             })),
             // Schema 18 · Host operations (manual compaction). None can be in
             // flight across an upgrade; an old file simply has none.
             operations: parsed.schemaVersion >= 18 ? parsed.operations : [],
             runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null,
               repositoryBindingSnapshot: parsed.schemaVersion >= 16 ? run.repositoryBindingSnapshot : null,
-              repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null, remoteBinding: null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
+              repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null,
+              remoteBinding: parsed.schemaVersion >= 19 ? run.remoteBinding : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -945,7 +950,11 @@ export class RuntimeStore {
     if (this.lockLost) throw this.lockError ?? new Error("runtime store lock is unavailable");
     const operation = this._queue.then(async () => {
       if (this.lockLost) throw this.lockError ?? new Error("runtime store lock is unavailable");
-      const working = structuredClone(this.state); const result = await mutator(working); await this._persist(working); this.state = working; return structuredClone(result);
+      const working = structuredClone(this.state); const result = await mutator(working);
+      // Local process recovery authority also depends on Host Run/status and
+      // assignment mutations, not only on the named local receipt writer.
+      validateLocalPiEvents(working);
+      await this._persist(working); this.state = working; return structuredClone(result);
     });
     this._queue = operation.catch(() => {}); return operation;
   }
@@ -1455,6 +1464,7 @@ export class RuntimeStore {
   async deleteSession(sessionId) {
     return this._mutate((state) => {
       if (!state.sessions.some(s => s.id === sessionId)) throw new Error("session not found");
+      assertSessionNotReferencedBySubagents(state, sessionId);
       const runs = state.runs.filter(r => r.sessionId === sessionId);
       if (runs.some(r => ACTIVE_STATUSES.has(r.status))) throw new Error("active run exists");
       const ids = new Set(runs.map(r => r.id));
@@ -1530,6 +1540,12 @@ export class RuntimeStore {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input, supersedes);
       if (receipt) return receipt;
+      const unresolvedLocalRuns = state.runs.filter(run => localPiRunUnresolved(state, run.id));
+      if (unresolvedLocalRuns.length > 0 && (adapterId === "pi-local-print" || unresolvedLocalRuns.some(run => run.sessionId === sessionId))) {
+        const error = new Error("a local Pi dispatch requires reconciliation before another Run");
+        error.code = "LOCAL_PI_UNRECONCILED";
+        throw error;
+      }
       if (expectedRepositoryBindingRevision !== null && expectedRepositoryBindingRevision !== session.repositoryBindingRevision) {
         throw repositoryBindingError("BINDING_CHANGED", "repository binding changed during run admission");
       }
@@ -1593,11 +1609,22 @@ export class RuntimeStore {
   }
 
   async updateRunWithEvent(id, patch, event) {
+    if (typeof event?.type === "string" && event.type.startsWith("local_pi")) {
+      const error = new Error("local Pi events require the named Store API"); error.code = "LOCAL_PI_EVENT_RESERVED"; throw error;
+    }
     return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now(); if (event) appendEventToState(state, { runId: id, sessionId: run.sessionId, ...event }); return run; });
   }
 
   async appendEvent({ runId, type, data }) {
+    if (typeof type === "string" && type.startsWith("local_pi")) {
+      const error = new Error("local Pi events require the named Store API"); error.code = "LOCAL_PI_EVENT_RESERVED"; throw error;
+    }
     return this._mutate((state) => { const run = state.runs.find((item) => item.id === runId); if (!run) throw new Error("run not found"); return appendEventToState(state, { runId, sessionId: run.sessionId, type, data }); });
+  }
+
+  async recordLocalPiEvent(runId, type, data) {
+    const copy = structuredClone(data);
+    return this._mutate(state => appendLocalPiEvent(state, { runId, type, data: copy }, appendEventToState));
   }
 
   async appendAsyncToolResult({ runId, type, data }) {

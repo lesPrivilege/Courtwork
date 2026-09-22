@@ -31,7 +31,7 @@ rejected. A source bind/rebind is also rejected with
 current binding; revoke the candidate first, or revoke the source binding
 (which also revokes its candidate), before connecting a new source. A
 historical Session migrates to an empty binding without changing
-its managed workspace or old Run records. RuntimeStore schema 19 (the binding
+its managed workspace or old Run records. RuntimeStore schema 20 (the binding
 arrived in 16, the private candidate in 17) is separate
 from Core user schema 4 and bridge app schema 5; the schema 15 exact-byte
 backup and old-Host refusal boundary are covered by

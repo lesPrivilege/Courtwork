@@ -34,7 +34,7 @@ function stripInheritedProviderEnv(logger) {
  * and an injected runtime is never replaced by Pi when it cannot do something.
  */
 export async function createRuntime({ dataDir, extensionCatalog = [], fakeResponder = null, responder = null,
-  budget, compaction, asyncTaskAdapters = [], runtimePort = createPiRuntimePort, logger = () => {} } = {}) {
+  budget, compaction, asyncTaskAdapters = [], runtimePort = createPiRuntimePort, localPiWorker = false, logger = () => {} } = {}) {
   if (typeof dataDir !== "string" || !dataDir.trim()) throw new TypeError("dataDir is required");
   dataDir = path.resolve(dataDir);
   const removedEnvVars = stripInheritedProviderEnv(logger);
@@ -47,7 +47,7 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
     const modelRuntime = await createIsolatedModelRuntime();
     registry = new ExtensionRegistry({ catalog: extensionCatalog, dataDir, store, workCore: workCore.client });
     await registry.initialize();
-    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, runtimePort: runtimePort({ dataDir, modelRuntime }), budget, compaction, asyncTaskAdapters, logger });
+    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, runtimePort: runtimePort({ dataDir, modelRuntime }), budget, compaction, asyncTaskAdapters, localPiWorker, logger });
     await service.initialize();
     let closePromise;
     return {

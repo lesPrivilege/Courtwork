@@ -1,0 +1,26 @@
+import {spawn} from 'node:child_process';
+import {mkdtemp,readFile,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import {localPiHost} from '/Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/fixtures/local-pi-host-harness.mjs';
+import {validateState} from '/Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/server/store.mjs';
+import {localPiRunUnresolved} from '/Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/runtime/local-pi-state.mjs';
+const root='/Users/lesprivilege/.codex/worktrees/c89d/Courtwork';
+const dataDir=await mkdtemp(path.join(tmpdir(),'cw-parent-delete-probe-'));
+let h;
+try {
+ const child=spawn(process.execPath,[path.join(root,'app/tests/fixtures/local-pi-crash-host.mjs'),dataDir,'dispatch'],{stdio:['ignore','ignore','pipe']});
+ let error='';child.stderr.on('data',b=>error+=b);
+ const code=await new Promise(resolve=>child.once('close',resolve));assert.equal(code,71,error);
+ const before=JSON.parse(await readFile(path.join(dataDir,'runtime-state.json'),'utf8'));
+ const a=before.subagents.assignments[0],attempt=a.attempts[0];
+ h=await localPiHost({dataDir,parentId:a.parentSessionId});
+ const pre=h.runtime.store.snapshot();
+ console.log('before',JSON.stringify({runStatus:h.runtime.store.getRun(attempt.runId).status,fenced:localPiRunUnresolved(pre,attempt.runId)}));
+ const del=await h.api('DELETE',`/sessions/${attempt.sessionId}`);
+ const post=h.runtime.store.snapshot();
+ let validationError=null;try{validateState(post)}catch(e){validationError=e.message}
+ console.log('after',JSON.stringify({delete:del,runPresent:!!h.runtime.store.getRun(attempt.runId),fenced:localPiRunUnresolved(post,attempt.runId),assignmentStillPresent:!!h.assignment(a.id),validationError,providerRequests:h.requests.length}));
+ assert.notEqual(del.status,200,'unknown local child deletion must not discard its durable fence');
+}finally{if(h)await h.close();else await rm(dataDir,{recursive:true,force:true});}

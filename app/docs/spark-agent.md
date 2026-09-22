@@ -42,6 +42,8 @@ Cancellation records requested state before stopping the Run. A prepared/cancell
 
 Restart never replays queued or active assignments. They become blocked; an interrupted Run retains `unknown`. Explicit read-only reconciliation is required before retrying an unknown attempt. A known finished Run whose result publication was interrupted remains a known Run outcome with a blocked assignment. Archive is non-destructive and only allowed after execution settles; immutable findings remain discoverable by permitted consumers.
 
+Session deletion refuses while Spark still references that Session or its Runs as a parent, child attempt, source, retained result/note, reader/consumer or mount target. The check also applies to archived/completed work and runs atomically in Store; deleting a Chat cannot discard recovery authority or cascade away historical references. Unreferenced Chats retain their ordinary deletion behavior.
+
 ## Local control API
 
 All endpoints inherit the existing local Host token boundary.
@@ -69,3 +71,14 @@ The creation form retains the same assignment and optional standalone Session id
 Schema15 migration validates prior state and retains an exact schema14 backup. [The migration test](../tests/subagent-migration.test.mjs) extracts the actual pre-change Host at fixed commit `2d1ab6816e3dedcd613fee80a35bc61b2067d106`, creates a schema14 state, verifies byte-identical backup, confirms that old Host refuses schema15 without changing it, and restores the backup in an independent directory. Never run an old Host against upgraded mutable data.
 
 [Delivery evidence](../../evidence/spark-agent-20260913/README.md) separates author tests/visual candidates, untested areas and any later independent acceptance. This slice does not claim real-provider coding dogfooding, external exploration, private-data redaction, multi-user IAM, parallel/recursive teams, S4 coding completion or G1–G5 release acceptance.
+
+
+## Local Pi process consultation
+
+An internal `createRuntime({localPiWorker:true})` injection sends Spark child Runs to the locked upstream Pi0.85.1 one-shot process. Only this Host's exact owned deterministic provider/default model binding is admitted. Normal Runs retain the in-process Pi port; no Settings selection, live credentials or automatic runtime fallback is exposed.
+
+The child receives a hashed packet of approved source versions, with no model-reachable tools, extension/context discovery or persistent native session. This is a trusted local process with explicit private configuration, **not an OS sandbox**. Protocol completion, process close, result retention and formal acceptance are separate. RuntimeStore20 strictly owns dispatch-before-spawn, native observations and exact result references through typed Run events. ArtifactHistory holds packet/result bytes; the existing queue and Session/Run remain authoritative.
+
+Packet inclusion is `provided`, not an actual source-read receipt. Findings remain readable and explicitly consumable, but an assignment with provided-only sources stays blocked for unverified coverage. Human adoption still requires expanding the assigned sources. An empty-source assignment retains the existing empty coverage criterion. Neither result consumption nor native completion changes formal Work acceptance.
+
+After an interrupted local dispatch, existing reconcile/retry cannot clear unknown merely from a terminal Run, process exit or persisted PID. No PID is killed on restart; no automatic process is recreated. Retained output whose publication was interrupted remains evidence, while the assignment is blocked. A separate recovery contract would be needed to advance that state safely. See the [implementation contract and evidence](../../engineering/execution/claude-frontend-harness-2026-09-16/evidence/local-pi-worker-20260922/author-status.md).

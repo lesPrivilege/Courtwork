@@ -1,0 +1,37 @@
+✔ runLocalPiProcess decodes JSONL split through UTF-8 code points (128.435292ms)
+✔ runLocalPiProcess reports malformed_json (72.854625ms)
+✔ runLocalPiProcess reports non_object_event (69.053291ms)
+✔ runLocalPiProcess reports partial_frame (75.913417ms)
+✔ runLocalPiProcess reports invalid_utf8 (82.16025ms)
+✔ runLocalPiProcess enforces frame and total stdout byte limits (138.309167ms)
+✔ runLocalPiProcess bounds stderr separately and keeps draining it (71.096709ms)
+✔ runLocalPiProcess streams bounded input with pipe backpressure (229.272375ms)
+✔ runLocalPiProcess waits for onSpawn before delivering input (127.818125ms)
+✔ runLocalPiProcess applies async onEvent backpressure in order (186.678417ms)
+✔ callback rejection is a bounded fault and terminates the owned child (78.861459ms)
+✔ a hung onSpawn callback cannot defeat the total deadline or a full pipe (123.253083ms)
+✔ an early process exit never leaves an unhandled stdin error (72.106459ms)
+✔ a pre-aborted signal starts no process (0.174208ms)
+✔ abort immediately after invocation cannot escape the pre-spawn race (1.317417ms)
+✔ caller cancellation resolves only after the owned process closes (72.5725ms)
+✔ timeout escalates a ready TERM-resistant process group and removes its descendant (264.121125ms)
+✔ the child receives only the explicit environment (69.688791ms)
+✔ invalid limits and input are rejected before spawn (0.383292ms)
+✔ spawn failure is returned as a bounded transport fault (0.546666ms)
+✔ actual upstream Pi print process yields attributable exact bytes with complete terminal and exit (366.782833ms)
+✔ actual upstream excludes ambient instructions, executable extensions, skills, templates and project settings (342.559167ms)
+✔ actual upstream no-tools rejects a model-issued bash call at native tool registry (400.759084ms)
+✔ actual upstream provider failure does not become success on JSON print exit zero (365.34425ms)
+✔ actual upstream model tool request is an explicit no-tool adapter refusal after owned process closes (326.126667ms)
+✔ actual upstream pending request cancellation waits for process close and rejects late provider reply (301.282417ms)
+✔ actual upstream crash without terminal stays unknown; oversized result is never truncated into success (591.184041ms)
+✔ actual ready upstream frozen after provider dispatch requires bounded SIGKILL escalation (809.350792ms)
+✔ interrupted Host native-receipt callback remains unknown rather than confirmed cancellation (1029.396833ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4767.154042

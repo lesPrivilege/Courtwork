@@ -1,0 +1,27 @@
+✔ the production Host runs Pi through the port and continues one native session (782.478625ms)
+✔ a journal written before the port existed is opened in place and continued (314.655875ms)
+✔ retrying a command never opens a second native session (506.011333ms)
+✔ observations that arrive after cancellation are not recorded (184.660583ms)
+✔ an operation the runtime does not support is refused, not rerouted (118.111667ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.125542ms)
+✔ Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt (666.65975ms)
+✔ Spark refuses forged source, actor and recursive delegation; stale actions do not mutate (497.165041ms)
+✔ two exact Intake versions → local note → project mount → main progressive reads and machine consumption (1483.037125ms)
+✔ omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads (543.214125ms)
+✔ runtime delegation yields the single lane and does not replay or silently resume the parent (938.748416ms)
+✔ source discovery paginates exact versions, respects source and target policy, and rejects malformed queries (80.888209ms)
+✔ cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work (67.024ms)
+✔ failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result (851.834292ms)
+✔ a changed provider route blocks old queue item without stranding later valid work (543.090542ms)
+✔ schema rejects corrupt derived relationships and forged read receipts (451.347334ms)
+✔ active cancellation closes late source/note admission and never publishes a result (98.020083ms)
+✔ SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation (829.652417ms)
+✔ revoking source policy after a tool read blocks the next provider request (581.4475ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8591.203166

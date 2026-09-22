@@ -1,0 +1,39 @@
+✖ source revision changed during final retention cannot pass the atomic publication fence (944.066917ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1952.1445
+
+✖ failing tests:
+
+test at app/tests/local-pi-host.test.mjs:169:1
+✖ source revision changed during final retention cannot pass the atomic publication fence (944.066917ms)
+  AssertionError [ERR_ASSERTION]: stale finding must not gain a public result pointer
+  + actual - expected
+  
+  + {
+  +   attempt: 1,
+  +   bytes: 61,
+  +   coverage: '1 exact source versions provided; model reading and coverage unverified',
+  +   revision: 1,
+  +   runId: '8c0d12df-da89-4a71-b2ce-fa0af8e4dee1',
+  +   sessionId: '31b01745-8d95-464b-937a-7359244d2ecc',
+  +   sha256: 'bd0bc24dfe4729274eb425c23d5d5b5a2c7ed67aa59c86f339b7ff84106c05d8',
+  +   unknown: 'No independent acceptance or external-source coverage is implied'
+  + }
+  - null
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/c89d/Courtwork/app/tests/local-pi-host.test.mjs:181:42)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { revision: 1, attempt: 1, sessionId: '31b01745-8d95-464b-937a-7359244d2ecc', runId: '8c0d12df-da89-4a71-b2ce-fa0af8e4dee1', sha256: 'bd0bc24dfe4729274eb425c23d5d5b5a2c7ed67aa59c86f339b7ff84106c05d8', bytes: 61, coverage: '1 exact source versions provided; model reading and coverage unverified', unknown: 'No independent acceptance or external-source coverage is implied' },
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

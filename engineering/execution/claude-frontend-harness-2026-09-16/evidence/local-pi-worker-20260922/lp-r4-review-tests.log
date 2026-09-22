@@ -1,0 +1,16 @@
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (1021.39575ms)
+  ✔ spawn (1280.556834ms)
+  ✔ result (1573.388584ms)
+  ✔ terminal (1474.800292ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5354.02725ms)
+✔ a forged Run status cannot erase its Host status evidence (874.902375ms)
+✔ late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty (1567.035ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8439.930084

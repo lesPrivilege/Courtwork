@@ -1,0 +1,21 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (3300.882334ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (824.91375ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (969.559708ms)
+  ✔ spawn (1210.925708ms)
+  ✔ result (1445.926375ms)
+  ✔ terminal (1436.381042ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5063.421375ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (228.41075ms)
+  ✔ before publication (626.375791ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (855.160208ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (523.612917ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11195.820625

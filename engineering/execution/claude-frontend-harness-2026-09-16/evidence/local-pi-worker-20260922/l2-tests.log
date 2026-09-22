@@ -1,0 +1,15 @@
+✔ actual upstream Pi print process yields attributable exact bytes with complete terminal and exit (311.1205ms)
+✔ actual upstream excludes ambient instructions, executable extensions, skills, templates and project settings (303.0375ms)
+✔ actual upstream no-tools rejects a model-issued bash call at native tool registry (323.784958ms)
+✔ actual upstream provider failure does not become success on JSON print exit zero (298.324291ms)
+✔ actual upstream pending request cancellation waits for process close and rejects late provider reply (301.717333ms)
+✔ actual upstream crash without terminal stays unknown; oversized result is never truncated into success (586.036459ms)
+✔ actual ready upstream frozen after provider dispatch requires bounded SIGKILL escalation (805.357958ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3045.589042

@@ -1,0 +1,47 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (1559.002083ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (843.554792ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (1064.509ms)
+  ✔ spawn (1259.767292ms)
+  ✔ result (1485.3875ms)
+  ✔ terminal (1501.992584ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5312.267792ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (229.732917ms)
+  ✔ before publication (1055.578833ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (1285.930333ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (569.230583ms)
+✔ new source revision during actual process consultation prevents stale publication (784.975416ms)
+✔ result retention failure cannot publish or rerun a completed native response (758.067791ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (891.000084ms)
+✔ schema 19 upgrades to 20 exactly once and preserves remote authority and every existing event (137.667792ms)
+✔ schema-20 migration fails closed for an occupied backup, malformed schema 19, and schema 21 (169.41225ms)
+✔ the pinned schema-19 Host rejects schema 20 byte-for-byte and opens the exact backup separately (627.281ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (46.427708ms)
+✔ the production Host runs Pi through the port and continues one native session (1083.075917ms)
+✔ a journal written before the port existed is opened in place and continued (545.501917ms)
+✔ retrying a command never opens a second native session (610.745375ms)
+✔ observations that arrive after cancellation are not recorded (197.320708ms)
+✔ an operation the runtime does not support is refused, not rerouted (189.20975ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.168666ms)
+✔ Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt (668.335291ms)
+✔ Spark refuses forged source, actor and recursive delegation; stale actions do not mutate (491.4525ms)
+✔ two exact Intake versions → local note → project mount → main progressive reads and machine consumption (1617.312375ms)
+✔ omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads (534.878166ms)
+✔ runtime delegation yields the single lane and does not replay or silently resume the parent (820.294083ms)
+✔ source discovery paginates exact versions, respects source and target policy, and rejects malformed queries (84.255917ms)
+✔ cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work (66.383958ms)
+✔ failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result (850.504166ms)
+✔ a changed provider route blocks old queue item without stranding later valid work (544.24175ms)
+✔ schema rejects corrupt derived relationships and forged read receipts (418.004291ms)
+✔ active cancellation closes late source/note admission and never publishes a result (90.994333ms)
+✔ SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation (825.82475ms)
+✔ revoking source policy after a tool read blocks the next provider request (560.887542ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 25921.899916

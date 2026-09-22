@@ -69,6 +69,8 @@ CW 保持个人工作站定位。计划中的 Settings 改进把凭据引用放�
 
 Kit 声明需求，Host 策略与当前授权决定实际可执行权限；正式工作决定继续由 Work Core 持有。可移植 Kit 内容与 Runtime 专属接入分别版本化。当前源码预览仍使用固定 Pi 组合，Agents API 路径在完成接线与 Runtime 验证前保持不可用；上述组合用于指引研发。
 
+离线显式注入的 Pi 进程消费者已接入 Spark 有界咨询，使用 Host 自有的确定性 provider。提供来源与核实阅读保持分离，中断派发保留未知栅栏；这不是可选的真实 Runtime。见 [Spark 契约](app/docs/spark-agent.md#local-pi-process-consultation)。
+
 [架构裁决与责任映射](engineering/research/architecture-node-2026-09-13/orchestra-direction-20260919.md) · [Praxis Kit 方向](engineering/research/architecture-node-2026-09-13/praxis-kit-20260919.md)
 
 ## 能力如何接入
