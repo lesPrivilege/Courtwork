@@ -2458,6 +2458,7 @@ export class RuntimeService {
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");
+    this.runtimePort.close?.();
     await this.asyncTasks.close();
     await this.mcp.close();
     this.intake.close();
@@ -2486,7 +2487,12 @@ export class RuntimeService {
       throw error;
     }
 
-    this.#requireRuntimeCapability(session.hostSession ? "continue" : "start");
+    // A Session stays with the runtime that first served it. The Host never
+    // moves it to another runtime, and never falls back to one.
+    const remoteRuntime = this.runtimePort.remote === true;
+    if (remoteRuntime ? session.hostSession !== null : session.remoteBinding !== null) throw new ServiceError(409, "runtime_mismatch", "this chat belongs to another runtime");
+    if (remoteRuntime && session.extensionBinding) throw new ServiceError(409, "runtime_capability_unsupported", `${this.adapterId} does not support extension-bound chats`);
+    this.#requireRuntimeCapability((remoteRuntime ? session.remoteBinding : session.hostSession) ? "continue" : "start");
 
     // Which connection this run used, and where its key came from, are frozen
     // into the run record here: this is the traceable half of PV-24.
@@ -2564,9 +2570,15 @@ export class RuntimeService {
         credentialGeneration: this.credentialGeneration,
         expectedRepositoryBindingRevision: session.repositoryBindingRevision,
         expectedRepositoryCandidateRevision: session.repositoryCandidateRevision,
+        remote: remoteRuntime ? this.#remoteAdmission(session, provider, connection) : null,
       });
     } catch (error) {
       if (error?.code === "COMMAND_CONFLICT") throw new ServiceError(409, "command_conflict", "commandId was already used with a different input");
+      if (error?.code === "RUNTIME_MISMATCH") throw new ServiceError(409, "runtime_mismatch", "this chat belongs to another runtime");
+      if (error?.code === "REMOTE_UNRECONCILED") throw new ServiceError(409, "remote_unreconciled", "a remote action of this chat is unresolved; nothing is re-sent or re-created");
+      if (error?.code === "REMOTE_BINDING_CHANGED") throw new ServiceError(409, "remote_binding_changed", "the remote binding changed during Run admission; retry with a new commandId");
+      if (error?.code === "REMOTE_BINDING_MISMATCH") throw new ServiceError(409, "remote_binding_mismatch", "this chat's remote session was created under another connection, configuration or credential");
+      if (error?.code === "REMOTE_ACTION_LIMIT") throw new ServiceError(409, "remote_action_history_full", "this chat's remote action history is full");
       // Lineage refusals carry no caller data: a Run of another Session is
       // indistinguishable from a Run that does not exist.
       if (error?.code === "SUPERSEDE_NOT_FOUND") throw new ServiceError(404, "not_found", "run not found");
@@ -2601,6 +2613,99 @@ export class RuntimeService {
     return { run };
   }
 
+  /** What a remote Run is admitted against. The store compares it with the
+   * Session's binding inside the same write that creates the Run. */
+  #remoteAdmission(session, provider, connection) {
+    const active = (record) => record?.status === "active" ? record : null;
+    const binding = active(session.repositoryBinding), candidate = active(session.repositoryCandidate);
+    return {
+      expectedBindingId: session.remoteBinding?.bindingId ?? null,
+      expectedBindingRevision: session.remoteBinding?.revision ?? null,
+      newBindingId: randomUUID(),
+      connection: {
+        connectionId: connection.id,
+        configHash: createHash("sha256").update(JSON.stringify([provider.provider, provider.api, provider.model, provider.baseUrl ?? null, provider.reasoningEffort ?? null])).digest("hex"),
+        configVersion: this.store.getProviderConfigVersion(), credentialGeneration: this.credentialGeneration,
+      },
+      scope: {
+        repositoryBindingId: binding?.id ?? null, repositoryBindingRevision: binding?.revision ?? null,
+        repositoryCandidateId: candidate?.id ?? null, repositoryCandidateRevision: candidate?.revision ?? null,
+      },
+    };
+  }
+
+  /** The remote gateway's only way to the store: every record it needs, bound
+   * to one Run. Result bytes go to ArtifactHistory first; the claim then binds
+   * them by digest and length, as a repository write binds its payload. */
+  #remoteLedger(run) {
+    return {
+      recordIntent: (input) => this.store.recordRemoteIntent(run.id, input),
+      settleIntent: (intentId, outcome) => this.store.settleRemoteIntent(run.id, intentId, outcome),
+      bind: (intentId, native) => this.store.bindRemoteSession(run.id, intentId, native),
+      associateRootTurn: (evidence) => this.store.associateRemoteRootTurn(run.id, evidence),
+      rootTurn: () => this.store.getRun(run.id)?.remoteBinding?.rootTurn ?? null,
+      recordRootTerminal: (evidence) => this.store.recordRemoteRootTerminal(run.id, evidence),
+      isOpen: () => this.store.getRun(run.id)?.admissionOpen === true,
+      claimCall: (input) => this.store.claimRemoteCall(run.id, input),
+      retainResult: async (callId, bytes, outcome) => {
+        await this.artifactHistory.save(run.sessionId, bytes, outcome.result.sha256);
+        return this.store.retainRemoteCallResult(run.id, callId, outcome);
+      },
+      beginDelivery: (callId) => this.store.beginRemoteCallDelivery(run.id, callId),
+      unresolved: () => this.store.hasUnresolvedRemoteAction(run.sessionId, run.id),
+    };
+  }
+
+  /**
+   * P03-D · explicit reconciliation of a chat fenced by an unknown remote
+   * action. Observation only: the runtime reads the bound native session and
+   * nothing is sent to it. Evidence is appended to the unknown records it
+   * decides; the rest stay unknown and keep the chat fenced. The Run that
+   * ended unknown stays unknown — a later Run may continue it.
+   */
+  async reconcileRemoteSession(sessionId) {
+    const session = this.store.getSession(sessionId);
+    if (!session) throw new ServiceError(404, "not_found", "session not found");
+    this.#requireRuntimeCapability("recover");
+    if (this.store.hasActiveRun(sessionId)) throw new ServiceError(409, "active_run", "reconciliation waits for the active run to end");
+    const report = () => ({
+      unresolved: this.store.listUnresolvedRemoteActions(sessionId).map(action => ({ id: action.id, kind: action.kind, runId: action.runId,
+        reason: action.kind === "create" ? "no_native_locator" : action.kind === "call" && action.result === null ? "local_effect_unknown" : "no_decisive_evidence" })),
+      unsettledRuns: this.store.listUnsettledRemoteRuns(sessionId).map(run => ({ runId: run.id, rootTurnId: run.remoteBinding.rootTurn?.turnId ?? null, reason: run.remoteBinding.rootTurn ? "turn_not_ended" : "no_root_turn" })),
+    });
+    const unresolved = this.store.listUnresolvedRemoteActions(sessionId);
+    const unsettled = this.store.listUnsettledRemoteRuns(sessionId);
+    // A lost creation left no native id: there is nothing to observe.
+    if (!session.remoteBinding || (!unresolved.length && !unsettled.length)) return { resolved: [], settledRuns: [], ...report() };
+    const rootTurnOf = (runId) => this.store.getRun(runId)?.remoteBinding?.rootTurn ?? null;
+    const turnIds = [...new Set([...unsettled.map(run => run.id), ...unresolved.map(action => action.runId)].map(runId => rootTurnOf(runId)?.turnId).filter(Boolean))];
+    let seen;
+    try { seen = await this.runtimePort.inspectSession({ sessionId, nativeSessionId: session.remoteBinding.nativeSessionId, turnIds }); }
+    catch { throw new ServiceError(503, "remote_observation_failed", "the remote session could not be read completely; nothing was changed"); }
+    const ended = new Map(seen.turns.filter(turn => turn.root && turn.terminal).map(turn => [turn.turnId, turn.terminal]));
+
+    const settledRuns = [];
+    for (const run of unsettled) {
+      const turnId = run.remoteBinding.rootTurn?.turnId;
+      if (!turnId || !ended.has(turnId)) continue;
+      const recorded = await this.store.recordRemoteRootTerminal(run.id, { turnId, status: ended.get(turnId), evidence: "turn.read", nativeRef: turnId });
+      if (recorded.recorded) settledRuns.push({ runId: run.id, rootTurnId: turnId, status: recorded.terminal.status });
+    }
+    const resolutions = [];
+    for (const action of unresolved) {
+      // A lost creation has nothing to observe; a call with no retained result
+      // has a local effect no remote observation can decide (CDE-R1).
+      if (action.kind === "create" || (action.kind === "call" && action.result === null)) continue;
+      const rootTurn = rootTurnOf(action.runId);
+      if (rootTurn?.terminal || (rootTurn && ended.has(rootTurn.turnId))) { resolutions.push({ actionId: action.id, evidence: "root_terminal", nativeRef: rootTurn.turnId }); continue; }
+      const awaitsDelivery = action.kind === "tool_result" || (action.kind === "call" && action.delivery.state === "unknown");
+      const output = awaitsDelivery ? seen.functionOutputs.find(item => item.callId === action.native.callId && item.turnId === action.native.turnId) : null;
+      if (output) resolutions.push({ actionId: action.id, evidence: "native_item", nativeRef: output.itemId });
+    }
+    const resolved = resolutions.length ? await this.store.resolveRemoteActions(sessionId, resolutions) : [];
+    return { resolved, settledRuns, ...report() };
+  }
+
   #armDeadline(entry, runId) {
     if (entry.budget.reason) return;
     entry.budget.armedAt = Date.now();
@@ -2632,10 +2737,16 @@ export class RuntimeService {
     };
     try {
       this.#armDeadline(entry, run.id);
-      entry.nativeSession = this.runtimePort.openSession({ sessionId: session.id, workspaceDir: entry.workspaceDir, nativeRef: session.hostSession ?? null });
-      const locator = entry.nativeSession.nativeRef;
-      if (!session.hostSession) await this.store.setHostSession(session.id, locator);
-      await this.store.updateRun(run.id, { hostSession: locator });
+      if (this.runtimePort.remote === true) {
+        // No locator to persist: the gateway records the remote binding
+        // through the ledger once the service has answered the creation.
+        entry.nativeSession = this.runtimePort.openSession({ sessionId: session.id, runId: run.id, nativeSessionId: session.remoteBinding?.nativeSessionId ?? null, ledger: this.#remoteLedger(run) });
+      } else {
+        entry.nativeSession = this.runtimePort.openSession({ sessionId: session.id, workspaceDir: entry.workspaceDir, nativeRef: session.hostSession ?? null });
+        const locator = entry.nativeSession.nativeRef;
+        if (!session.hostSession) await this.store.setHostSession(session.id, locator);
+        await this.store.updateRun(run.id, { hostSession: locator });
+      }
       if (!credentialConfigured) {
         await appendError("credential_missing", "no credential is configured for this provider");
         extensionOutcome = "failed";
@@ -2861,15 +2972,16 @@ export class RuntimeService {
 
       const outcome = await started.run();
       usageComplete = outcome.status === "completed" && !outcome.turnBudgetExceeded && !entry.budget.reason;
-      extensionOutcome = outcome.status === "completed" ? "completed" : outcome.status === "aborted" ? "canceled" : "failed";
+      // "unknown" is a remote runtime's own answer: the Run settles unknown.
+      extensionOutcome = outcome.status === "completed" ? "completed" : outcome.status === "aborted" ? "canceled" : outcome.status === "unknown" ? "unknown" : "failed";
       if (outcome.status === 'completed' && this.asyncTasks.unresolved(run.id).length) {
         extensionOutcome = 'unknown'; usageComplete = false;
         await appendError('async_dependencies_unresolved', 'Requested async evidence is pending, historical, or not consumed');
       }
 
-      if (outcome.status === "error") {
+      if (outcome.status === "error" || outcome.status === "unknown") {
         const rawMessage = outcome.errorMessage || "runtime failed";
-        const code = classifyRuntimeError(rawMessage);
+        const code = outcome.errorCode ?? classifyRuntimeError(rawMessage);
         await appendError(code, redact(rawMessage, this.knownSecrets));
       }
       if (entry.budget.reason || outcome.turnBudgetExceeded) {

@@ -10,6 +10,11 @@ import { maybeCrash } from "../runtime/test-hooks.mjs";
 import { emptyCoordination, validateCoordination } from '../harness/coordination-state.mjs';
 import { validateAsyncTasks } from './async-task-state.mjs';
 import {
+  admitRemoteRun, associateRemoteRootTurn, beginRemoteCallDelivery, bindRemoteSession, claimRemoteCall,
+  fenceRemoteActionsForRestart, recordRemoteIntent, recordRemoteRootTerminal, remoteActionUnresolved, remoteRunUnsettled, resolveRemoteActions, retainRemoteCallResult, settleRemoteIntent,
+  validateRemoteActions, validateRunRemoteBinding, validateSessionRemoteBinding,
+} from './remote-action-state.mjs';
+import {
   assertProviderApi,
   assertProviderBaseUrl,
   assertProviderModelId,
@@ -28,7 +33,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 18;
+const SCHEMA_VERSION = 19;
 // check.settled status: "unknown" is fenced in by the Host on restart for a
 // check.started event that never got a matching settlement (RD-009 durable
 // settlement rule); it is never produced by the runner itself.
@@ -415,7 +420,7 @@ function validateOperations(value, sessions) {
 
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 17 can be upgraded)`);
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 18 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')) && (schema >= 18 || k !== 'operations'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -429,7 +434,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
   }
   const sessionIds = new Set();
   for (const session of parsed.sessions) {
-    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession", ...(schema >= 6 ? ['scope'] : []), ...(schema >= 16 ? ["repositoryBinding", "repositoryBindingRevision", "repositoryBindingCommands"] : []), ...(schema >= 17 ? ["repositoryCandidate", "repositoryCandidateRevision", "repositoryCandidateCommands", "repositoryWriteEffects"] : [])]), "session");
+    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession", ...(schema >= 6 ? ['scope'] : []), ...(schema >= 16 ? ["repositoryBinding", "repositoryBindingRevision", "repositoryBindingCommands"] : []), ...(schema >= 17 ? ["repositoryCandidate", "repositoryCandidateRevision", "repositoryCandidateCommands", "repositoryWriteEffects"] : []), ...(schema >= 19 ? ["remoteBinding", "remoteActions"] : [])]), "session");
     id(session.id, "session.id"); assert(!sessionIds.has(session.id), "duplicate session id"); sessionIds.add(session.id);
     if ((schema >= 6 && session.scope === 'global') || (schema >= 14 && session.scope === 'unassigned')) {
       assert(session.projectId === null && session.extensionBinding === null, 'unassigned/global session cannot own a project or Matter binding');
@@ -466,7 +471,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     exactKeys(run, new Set([
       "id", "sessionId", "status", "admissionOpen", "adapterId", "provider", "extension",
       "startedAt", "endedAt", "error", "commandId", "artifacts", "usage", "hostSession", "credentialGeneration",
-      ...(schema >= 9 ? ["supersedes"] : []), ...(schema >= 16 ? ["repositoryBindingSnapshot"] : []), ...(schema >= 17 ? ["repositoryCandidateSnapshot"] : []),
+      ...(schema >= 9 ? ["supersedes"] : []), ...(schema >= 16 ? ["repositoryBindingSnapshot"] : []), ...(schema >= 17 ? ["repositoryCandidateSnapshot"] : []), ...(schema >= 19 ? ["remoteBinding"] : []),
     ]), "run");
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
@@ -493,6 +498,15 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     nonNegativeInt(run.credentialGeneration, "run.credentialGeneration");
     if (schema >= 16 && run.repositoryBindingSnapshot !== null) validateRepositoryBinding(run.repositoryBindingSnapshot, "run.repositoryBindingSnapshot", { activeOnly: true });
     if (schema >= 17 && run.repositoryCandidateSnapshot !== null) validateRepositoryCandidate(run.repositoryCandidateSnapshot, "run.repositoryCandidateSnapshot", { activeOnly: true });
+    if (schema >= 19) validateRunRemoteBinding(run.remoteBinding, run);
+  }
+  // Schema 19 · remote runtime records sit beside Pi's hostSession, never in it.
+  if (schema >= 19) {
+    const runsById = new Map(parsed.runs.map(run => [run.id, run]));
+    for (const session of parsed.sessions) {
+      validateSessionRemoteBinding(session.remoteBinding, session, runsById);
+      validateRemoteActions(session.remoteActions, session, runsById);
+    }
   }
   // Lineage is validated after every Run is known, because a superseding Run
   // may be stored before its target. A stored link must still name a
@@ -657,7 +671,8 @@ function validateConnections(value, { historical = false, schema = SCHEMA_VERSIO
 
 function publicSession(session) {
   if (!session) return null;
-  const { _nextSeq, ...result } = session;
+  // remoteActions is a Host ledger read through its own accessors.
+  const { _nextSeq, remoteActions, ...result } = session;
   return structuredClone(result);
 }
 function publicRun(run) { return run ? structuredClone(run) : null; }
@@ -800,7 +815,7 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
@@ -826,13 +841,15 @@ export class RuntimeStore {
               repositoryCandidateRevision: parsed.schemaVersion >= 17 ? session.repositoryCandidateRevision : 0,
               repositoryCandidateCommands: parsed.schemaVersion >= 17 ? session.repositoryCandidateCommands : [],
               repositoryWriteEffects: parsed.schemaVersion >= 17 ? session.repositoryWriteEffects : [],
+              // Schema 19 · no earlier Host could bind a remote runtime.
+              remoteBinding: null, remoteActions: [],
             })),
             // Schema 18 · Host operations (manual compaction). None can be in
             // flight across an upgrade; an old file simply has none.
             operations: parsed.schemaVersion >= 18 ? parsed.operations : [],
             runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null,
               repositoryBindingSnapshot: parsed.schemaVersion >= 16 ? run.repositoryBindingSnapshot : null,
-              repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
+              repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null, remoteBinding: null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -893,6 +910,11 @@ export class RuntimeStore {
             this.state = validateState(this.state);
             await this._persist(this.state);
             this.logger("store: unresolved check runs were fenced as unknown; no check was re-executed");
+          }
+          if (fenceRemoteActionsForRestart(this.state, { now: now() })) {
+            this.state = validateState(this.state);
+            await this._persist(this.state);
+            this.logger("store: in-flight remote actions were fenced as unknown; nothing was re-read, re-run or re-sent");
           }
         }
       }
@@ -976,6 +998,7 @@ export class RuntimeStore {
         id: sessionId, scope, projectId, title, draft: "", extensionBinding: null, createdAt: now(), _nextSeq: 0,
         workspaceDir, permissionMode, hostSession: null, repositoryBinding: null, repositoryBindingRevision: 0, repositoryBindingCommands: [],
         repositoryCandidate: null, repositoryCandidateRevision: 0, repositoryCandidateCommands: [], repositoryWriteEffects: [],
+        remoteBinding: null, remoteActions: [],
       };
       state.sessions.push(session); return publicSession(session);
     });
@@ -1496,7 +1519,7 @@ export class RuntimeStore {
     });
   }
 
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null, remote = null }) {
     // Validate and detach the descriptor before it enters the mutation queue.
     // A caller must not be able to mutate a checked object while an earlier
     // queued write is still pending, and an invalid descriptor must never
@@ -1519,6 +1542,7 @@ export class RuntimeStore {
       if (supersedes !== null) assertSupersedable(state, sessionId, supersedes);
       if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       if (state.operations.some((op) => OPERATION_ACTIVE.has(op.status))) throw new Error("operation in progress");
+      const remoteBinding = admitRemoteRun(session, remote, state.runs);
       const timestamp = now();
       const repositoryBindingSnapshot = session.repositoryBinding?.status === "active" ? structuredClone(session.repositoryBinding) : null;
       const repositoryCandidateSnapshot = session.repositoryCandidate?.status === "active" ? structuredClone(session.repositoryCandidate) : null;
@@ -1528,7 +1552,7 @@ export class RuntimeStore {
         startedAt: timestamp, endedAt: null, error: null,
         commandId, supersedes, artifacts: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, turns: 0, missing: true },
         hostSession: workspaceHostSession ? structuredClone(workspaceHostSession) : null,
-        credentialGeneration, repositoryBindingSnapshot, repositoryCandidateSnapshot,
+        credentialGeneration, repositoryBindingSnapshot, repositoryCandidateSnapshot, remoteBinding,
       };
       bindSubagentRun(state, sessionId, run.id, commandId);
       state.runs.push(run);
@@ -1541,6 +1565,28 @@ export class RuntimeStore {
       return { run: publicRun(run), idempotent: false };
     });
   }
+
+  /* Schema 19 · remote runtime records. The rules live in remote-action-state.mjs;
+   * these are its entry points into the one serialized mutation queue. */
+  listRemoteActions(sessionId, runId = null) {
+    const session = this.state.sessions.find(item => item.id === sessionId);
+    return structuredClone((session?.remoteActions ?? []).filter(action => runId === null || action.runId === runId));
+  }
+  listUnresolvedRemoteActions(sessionId) { return this.listRemoteActions(sessionId).filter(remoteActionUnresolved); }
+  hasUnresolvedRemoteAction(sessionId, runId = null) {
+    const session = this.state.sessions.find(item => item.id === sessionId);
+    return Boolean(session?.remoteActions.some(action => (runId === null || action.runId === runId) && remoteActionUnresolved(action)));
+  }
+  async recordRemoteIntent(runId, input) { return this._mutate(state => recordRemoteIntent(state, runId, structuredClone(input), { now: now(), activeStatuses: ACTIVE_STATUSES })); }
+  async settleRemoteIntent(runId, intentId, outcome) { return this._mutate(state => settleRemoteIntent(state, runId, intentId, structuredClone(outcome), { now: now() })); }
+  async bindRemoteSession(runId, intentId, native) { return this._mutate(state => bindRemoteSession(state, runId, intentId, structuredClone(native), { now: now(), activeStatuses: ACTIVE_STATUSES })); }
+  async associateRemoteRootTurn(runId, evidence) { return this._mutate(state => associateRemoteRootTurn(state, runId, structuredClone(evidence), { now: now(), activeStatuses: ACTIVE_STATUSES })); }
+  async recordRemoteRootTerminal(runId, evidence) { return this._mutate(state => recordRemoteRootTerminal(state, runId, structuredClone(evidence), { now: now() })); }
+  listUnsettledRemoteRuns(sessionId) { return structuredClone(this.state.runs.filter(run => run.sessionId === sessionId && remoteRunUnsettled(run))); }
+  async claimRemoteCall(runId, input) { return this._mutate(state => claimRemoteCall(state, runId, structuredClone(input), { now: now(), activeStatuses: ACTIVE_STATUSES })); }
+  async retainRemoteCallResult(runId, callId, outcome) { return this._mutate(state => retainRemoteCallResult(state, runId, callId, structuredClone(outcome), { now: now() })); }
+  async resolveRemoteActions(sessionId, resolutions) { return this._mutate(state => resolveRemoteActions(state, sessionId, structuredClone(resolutions), { now: now() })); }
+  async beginRemoteCallDelivery(runId, callId) { return this._mutate(state => beginRemoteCallDelivery(state, runId, callId, { now: now(), activeStatuses: ACTIVE_STATUSES })); }
 
   async updateRun(id, patch) {
     return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now(); return run; });

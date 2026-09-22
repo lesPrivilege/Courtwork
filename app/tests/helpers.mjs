@@ -8,10 +8,10 @@ import { FAKE_CREDENTIAL_KEY } from "../runtime/pi-session-runtime.mjs";
 
 const TERMINAL = new Set(["completed", "failed", "cancelled", "unknown"]);
 
-export async function boot({ budget, compaction, fakeResponder, configureFakeCredential = true, logger } = {}) {
+export async function boot({ budget, compaction, fakeResponder, configureFakeCredential = true, logger, runtimePort } = {}) {
   const dataDir = await mkdtemp(path.join(tmpdir(), "se-c1-test-"));
   const logs = [];
-  const runtime = await startServer({ dataDir, port: 0, budget, compaction, fakeResponder, logger: logger ?? ((line) => logs.push(line)) });
+  const runtime = await startServer({ dataDir, port: 0, budget, compaction, fakeResponder, runtimePort, logger: logger ?? ((line) => logs.push(line)) });
   const headers = { "content-type": "application/json", "x-work-token": runtime.token };
 
   async function api(method, p, bodyObj, { rawConfig = false } = {}) {
@@ -68,17 +68,22 @@ export { TERMINAL };
  * clock (short real budgets) and the crash point (SE_TEST_CRASH_POINT, armed
  * only with SE_TEST_MODE=1) are substituted.
  *
+ * `prelude` is module source placed before the server starts (imports) and
+ * `serverOptions` an expression spread into startServer's options, for a
+ * worker that needs an injected seam such as `runtimePort`.
+ *
  * `body` is module source evaluated with `dataDir`, `runtime`, `api`, `emit`
  * and `waitRun` already in scope. `emit(value)` prints one `WORKER <json>`
  * line the parent can await with `waitForLine`.
  */
-export function spawnWorker({ dataDir, body, env = {} }) {
+export function spawnWorker({ dataDir, body, env = {}, prelude = "", serverOptions = "{}" }) {
   const appRoot = path.resolve(fileURLToPath(new URL("../", import.meta.url)));
   const source = `
     import { startServer } from ${JSON.stringify(path.join(appRoot, "server/index.mjs"))};
     import { FAKE_CREDENTIAL_KEY } from ${JSON.stringify(path.join(appRoot, "runtime/pi-session-runtime.mjs"))};
+    ${prelude}
     const dataDir = ${JSON.stringify(dataDir)};
-    const runtime = await startServer({ dataDir, port: 0, logger: (line) => console.log("LOG " + line) });
+    const runtime = await startServer({ dataDir, port: 0, logger: (line) => console.log("LOG " + line), ...(${serverOptions}) });
     const headers = { "content-type": "application/json", "x-work-token": runtime.token };
     async function api(method, p, bodyObj, { rawConfig = false } = {}) {
     if (method === "PUT" && p === "/provider-config" && bodyObj && !rawConfig && !Object.hasOwn(bodyObj, "expectedVersion")) {

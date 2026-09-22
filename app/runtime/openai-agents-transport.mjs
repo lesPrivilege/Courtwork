@@ -20,7 +20,16 @@ import { AGENTS_API_PROTOCOL } from "./agents-api-adapter.mjs";
  *   tool results and cancel too, with no guarantee claimed for them.
  * - The SDK retries POSTs by default (HTTP 408/409/429/5xx and connection
  *   failures). Every call here is made with `maxRetries: 0`.
+ * - `sessions.create` carries application function tools as `agent.tools`
+ *   entries of `{type:"function",name,description,parameters}`. Only the
+ *   names in AGENTS_TRANSPORT_FUNCTION_TOOLS are forwarded, and only those
+ *   four keys; `defer_loading`, `tool_search` and every other tool type stay
+ *   off the wire.
  */
+// P03-C forwards the governed reader; P03-E adds the existing candidate write
+// and fixed-check tools. Their approval, scope and revision guards live in the
+// Host's tool closures, not in the declaration.
+export const AGENTS_TRANSPORT_FUNCTION_TOOLS = Object.freeze(["repo_read", "repo_write", "check_run"]);
 export const AGENTS_TRANSPORT_REQUEST_IDENTITY = Object.freeze({
   create: Object.freeze({ wire: null, guarantee: "none" }),
   message: Object.freeze({ wire: "Idempotency-Key", guarantee: "documented by the SDK for submitted messages" }),
@@ -41,7 +50,7 @@ const EVENT_KINDS = Object.freeze({
 // from the connection the caller supplied and the call being made; none is
 // copied from what the SDK assembled.
 const USER_AGENT = `OpenAI/JS ${SDK_VERSION}`;
-const ACCEPT = Object.freeze({ createSession: "application/json", getSession: "application/json", listItems: "application/json", sendEvents: "*/*", streamEvents: "text/event-stream" });
+const ACCEPT = Object.freeze({ createSession: "application/json", getSession: "application/json", getTurn: "application/json", listItems: "application/json", sendEvents: "*/*", streamEvents: "text/event-stream" });
 const SAFE_TOKEN = /^[\w.:-]{1,64}$/;
 const REQUEST_ID = /^[\x21-\x7e]{1,255}$/;
 
@@ -92,6 +101,23 @@ function translate(error, operation, mutation, signal) {
 
 function invalid(operation, message) {
   return new AgentsTransportError("invalid_request", operation, message, { delivery: "not_sent" });
+}
+
+/** The allowlisted function declarations of a creation request, rebuilt key
+ * by key so nothing the caller attached rides along. */
+function functionTools(tools) {
+  if (tools === undefined || tools === null) return null;
+  if (!Array.isArray(tools) || !tools.length) throw invalid("createSession", "agent.tools must be a non-empty array when supplied");
+  const names = new Set();
+  return tools.map((tool) => {
+    const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+    if (!isRecord(tool) || tool.type !== "function" || !AGENTS_TRANSPORT_FUNCTION_TOOLS.includes(tool.name) || names.has(tool.name)
+      || typeof tool.description !== "string" || !tool.description || !isRecord(tool.parameters) || tool.parameters.type !== "object") {
+      throw invalid("createSession", "agent.tools may only declare the allowlisted application functions");
+    }
+    names.add(tool.name);
+    return { type: "function", name: tool.name, description: tool.description, parameters: structuredClone(tool.parameters) };
+  });
 }
 
 function requireSessionId(operation, sessionId) {
@@ -151,7 +177,8 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
       const hasModel = typeof agent?.model === "string" && agent.model;
       const hasAgentId = typeof agent?.id === "string" && agent.id;
       if (!hasModel && !hasAgentId) throw invalid("createSession", "agent.model or agent.id is required");
-      const inline = { ...(hasModel ? { model: agent.model } : {}), ...(typeof agent.instructions === "string" ? { instructions: agent.instructions } : {}) };
+      const tools = functionTools(agent.tools);
+      const inline = { ...(hasModel ? { model: agent.model } : {}), ...(typeof agent.instructions === "string" ? { instructions: agent.instructions } : {}), ...(tools ? { tools } : {}) };
       const body = {
         environment: { type: "none" }, input, stream: false,
         ...(hasAgentId ? { agent_id: agent.id } : {}),
@@ -201,6 +228,18 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
       requireSessionId("getSession", sessionId);
       const native = await call("getSession", false, signal, () => sessions.retrieve(sessionId, options(signal)));
       return nativeSession("getSession", native, false, sessionId);
+    },
+
+    /** One turn's current status, read from the service (P03-D). A read: it
+     * changes nothing, and a turn that is not the one asked for is an error. */
+    async getTurn(sessionId, turnId, { signal } = {}) {
+      requireSessionId("getTurn", sessionId);
+      if (typeof turnId !== "string" || !SAFE_TOKEN.test(turnId)) throw invalid("getTurn", "a native turn id is required");
+      const turn = await call("getTurn", false, signal, () => sessions.turns.retrieve(turnId, { session_id: sessionId }, options(signal)));
+      if (!turn || typeof turn !== "object" || turn.id !== turnId || turn.session_id !== sessionId || typeof turn.status !== "string") {
+        throw new AgentsTransportError("malformed_response", "getTurn", "the response is not the requested native turn");
+      }
+      return turn;
     },
 
     /** Returns the service's page body itself, so `last_id` and `first_id`

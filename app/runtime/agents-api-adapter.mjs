@@ -101,8 +101,8 @@ const CAPABILITY_ROWS = Object.freeze([
     note: 'echoes turn_id and call_id' },
   { id: 'session.delete', environment: 'none', support: 'unsupported', verification: 'none', documented: ['S04'],
     note: 'destructive; not in the first slice and never implicit' },
-  { id: 'session.turns.read', environment: 'none', support: 'unsupported', verification: 'none', documented: ['S05'],
-    note: 'turn list/retrieve not implemented in this slice' },
+  { id: 'session.turns.read', environment: 'none', support: 'supported', verification: 'fixture', documented: ['S05'],
+    note: 'retrieve of one known turn only; turn list is not implemented' },
   { id: 'session.webhooks', environment: 'none', support: 'unsupported', verification: 'none', documented: ['S04'],
     note: 'streaming only in this slice' },
   { id: 'builtin.bash', environment: 'none', support: 'unsupported', verification: 'none', documented: ['S03'],
@@ -464,6 +464,9 @@ export function mergeRecoveredItems({ items = [], buffered = [], disconnected = 
       role: typeof item.role === 'string' ? item.role : null,
       status,
       turnId: typeof item.turn_id === 'string' ? item.turn_id : null,
+      // A function_call_output item names the call it answered: the saved
+      // history's own record that a function result reached the session.
+      callId: typeof item.call_id === 'string' ? item.call_id : null,
       text: itemText(item),
       final: status === 'completed' || status === 'incomplete',
     });
@@ -490,7 +493,7 @@ export function mergeRecoveredItems({ items = [], buffered = [], disconnected = 
       continue;
     }
     const entry = current ?? {
-      id: itemId, type: 'message', role: 'assistant', status: null, turnId: null, text: '', final: false,
+      id: itemId, type: 'message', role: 'assistant', status: null, turnId: null, callId: null, text: '', final: false,
     };
     if (type === 'agent.session.turn.output_text.done') {
       entry.text = typeof event.text === 'string' ? event.text : entry.text ?? '';
@@ -651,6 +654,31 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
       return { binding, native };
     },
 
+    /** Re-open adapter state for a native session the Host already bound
+     * durably (a later Run, or the same Run after a Host restart). Local
+     * only: nothing is sent, nothing is looked up, and the id is the Host's
+     * persisted one — never a guess. An open state is returned as it is. */
+    attachSession({ identity, nativeSessionId } = {}) {
+      if (!identity || typeof identity.sessionId !== 'string' || !identity.sessionId
+        || typeof identity.runId !== 'string' || !identity.runId) {
+        throw fail('identity_required', 'CW sessionId and runId are required');
+      }
+      requireString(nativeSessionId, 'native_session_required');
+      const open = states.get(nativeSessionId);
+      if (open && !open.closed) return { binding: open.binding };
+      const binding = {
+        runtimeId: 'agents-api',
+        internal: { sessionId: identity.sessionId, runId: identity.runId },
+        native: { sessionId: nativeSessionId },
+        protocol: { betaHeader: 'agents=v1', docsRevision: AGENTS_API_PROTOCOL.docsRevision },
+      };
+      states.set(nativeSessionId, {
+        binding, ledger: createEventLedger(), tracker: createSettlementTracker(),
+        handle: null, closed: false, buffering: false,
+      });
+      return { binding };
+    },
+
     async submitInput(binding, { text, requestId, signal } = {}) {
       const state = stateOf(binding);
       requireString(text, 'input_required');
@@ -703,8 +731,9 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
       const buffered = [];
       state.buffering = true;
       // The pump keeps running after recovery resumes live; a pump failure is
-      // recorded rather than replacing the recovery result.
-      pump(state, onObservation, buffered).catch((error) => { state.pumpError = error; });
+      // recorded rather than replacing the recovery result. The caller is
+      // handed the stream so it can await its end or release it.
+      const live = pump(state, onObservation, buffered).catch((error) => { state.pumpError = error; });
 
       // Documented order: the stream stays connected while saved items are
       // retrieved, so events arriving during the fetch are buffered, not lost.
@@ -745,12 +774,34 @@ export function createAgentsApiRuntimeAdapter({ transport } = {}) {
       return {
         items: merged.items,
         pendingActions: Array.isArray(session?.required_actions) ? session.required_actions : [],
+        sessionStatus: typeof session?.status === 'string' ? boundedText(session.status, 40) : null,
+        stream: { stop: () => { state.handle?.abort?.(); }, done: live },
         applied: merged.applied,
         discarded: merged.discarded,
         malformed: merged.malformed,
         unclaimed: merged.unclaimed,
         gap: merged.gap,
       };
+    },
+
+    /** P03-D · read one known turn. `terminal` is the turn's own status when it
+     * has ended, else null; a child turn is reported as not root and settles
+     * nothing. Reads only. */
+    async readTurn(binding, turnId, { signal } = {}) {
+      const state = stateOf(binding);
+      requireString(turnId, 'turn_required');
+      const turn = await transport.getTurn(state.binding.native.sessionId, turnId, callerOptions({ signal }));
+      const status = boundedText(turn?.status, 40);
+      return {
+        turnId, status, root: turn?.subagent_id === null || turn?.subagent_id === undefined,
+        terminal: ['completed', 'failed', 'cancelled'].includes(status) ? status : null,
+        error: status === 'failed' ? boundedError(turn?.error) : null,
+      };
+    },
+
+    /** P03-D · the saved items alone, paged and keyed as recovery keys them. */
+    async readSavedItems(binding) {
+      return mergeRecoveredItems({ items: await listAllItems(stateOf(binding)) }).items;
     },
 
     settle(binding, conditions = {}) {
