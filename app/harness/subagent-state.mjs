@@ -87,6 +87,24 @@ export function validateSource(s) {
 }
 
 export function assignmentForSession(state,id) { return state.subagents.assignments.find(a=>a.attempts.some(t=>t.sessionId===id)); }
+
+// Session deletion removes its Runs/events too. Keep all still-referenced
+// Spark history, regardless of runtime, outcome or archive state. This check
+// runs before deletion; it cannot lose its evidence by scanning after removal.
+export function assertSessionNotReferencedBySubagents(state, sessionId) {
+  const runIds = new Set(state.runs.filter(run => run.sessionId === sessionId).map(run => run.id));
+  const referenced = state.subagents.assignments.some(a =>
+    a.parentSessionId === sessionId
+    || runIds.has(a.origin.runId)
+    || a.attempts.some(t => t.sessionId === sessionId || runIds.has(t.runId))
+    || a.sources.some(source => source.kind === 'artifact' && runIds.has(source.runId))
+    || [a.result, ...a.results, ...a.notes].some(ref => ref && (ref.sessionId === sessionId || runIds.has(ref.runId)))
+    || a.sourceReads.some(read => runIds.has(read.runId))
+    || a.consumption.some(receipt => receipt.consumer.startsWith(`${sessionId}/`)))
+    || state.subagents.mounts.some(mount => mount.target.kind === 'session' && mount.target.id === sessionId);
+  check(!referenced, 'Session is retained by Spark work history and cannot be deleted', 'spark_session_referenced', 409);
+}
+
 export function bindSubagentRun(state,sessionId,runId,commandId) {
   const a=assignmentForSession(state,sessionId); if(!a)return;
   const attempt=a.attempts.at(-1);

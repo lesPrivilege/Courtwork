@@ -1,4 +1,4 @@
-import { emptySubagents, validateSubagents, bindSubagentRun } from '../harness/subagent-state.mjs';
+import { emptySubagents, validateSubagents, bindSubagentRun, assertSessionNotReferencedBySubagents } from '../harness/subagent-state.mjs';
 import { deriveUsageDetails } from "./usage-details.mjs";
 import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node:fs/promises";
 import path from "node:path";
@@ -1464,6 +1464,7 @@ export class RuntimeStore {
   async deleteSession(sessionId) {
     return this._mutate((state) => {
       if (!state.sessions.some(s => s.id === sessionId)) throw new Error("session not found");
+      assertSessionNotReferencedBySubagents(state, sessionId);
       const runs = state.runs.filter(r => r.sessionId === sessionId);
       if (runs.some(r => ACTIVE_STATUSES.has(r.status))) throw new Error("active run exists");
       const ids = new Set(runs.map(r => r.id));

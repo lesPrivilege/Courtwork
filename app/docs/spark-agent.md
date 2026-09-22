@@ -42,6 +42,8 @@ Cancellation records requested state before stopping the Run. A prepared/cancell
 
 Restart never replays queued or active assignments. They become blocked; an interrupted Run retains `unknown`. Explicit read-only reconciliation is required before retrying an unknown attempt. A known finished Run whose result publication was interrupted remains a known Run outcome with a blocked assignment. Archive is non-destructive and only allowed after execution settles; immutable findings remain discoverable by permitted consumers.
 
+Session deletion refuses while Spark still references that Session or its Runs as a parent, child attempt, source, retained result/note, reader/consumer or mount target. The check also applies to archived/completed work and runs atomically in Store; deleting a Chat cannot discard recovery authority or cascade away historical references. Unreferenced Chats retain their ordinary deletion behavior.
+
 ## Local control API
 
 All endpoints inherit the existing local Host token boundary.

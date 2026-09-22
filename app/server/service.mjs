@@ -1,7 +1,7 @@
 import { createLocalPiBinding, LOCAL_PI_ADAPTER } from '../runtime/local-pi-process.mjs';
 import { executeLocalPiChild } from '../runtime/local-pi-host.mjs';
 import { Subagents } from '../harness/subagents.mjs';
-import { SPARK_DEFINITION } from '../harness/subagent-state.mjs';
+import { SPARK_DEFINITION, assertSessionNotReferencedBySubagents } from '../harness/subagent-state.mjs';
 import { compareSourceText } from '../intake/compare.mjs';
 import { IntakeStore, IntakeError } from '../intake/store.mjs';
 import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl } from './provider-fields.mjs';
@@ -2255,6 +2255,7 @@ export class RuntimeService {
       if (this.store.hasActiveRun()) throw new ServiceError(409,'active_run','session deletion is unavailable during a run');
       const session = this.store.getSession(sessionId);
       if (!session) throw new ServiceError(404,'not_found','session not found');
+      assertSessionNotReferencedBySubagents(this.store.snapshot(), sessionId);
       const binding = session.extensionBinding;
       if (binding && ['evidence-memo','inbound-nda'].includes(binding.extensionId)) await this.workCore.call('claim_work',{matter_id:binding.binding.matterId,project_id:session.projectId,extension_id:binding.extensionId});
       // Only execution catalog records are removed. Core history and private

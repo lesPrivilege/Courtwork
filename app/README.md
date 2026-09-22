@@ -90,7 +90,7 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 19 store (see below)
+  runtime-state.json        # schemaVersion 20 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
