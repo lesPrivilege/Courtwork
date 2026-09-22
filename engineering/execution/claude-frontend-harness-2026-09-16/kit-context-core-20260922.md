@@ -27,3 +27,11 @@ K0 owns only its new task evidence/contract. K1/K2 may own new `app/runtime/kit-
 Use one isolated checkout. No background service, runtime registration, hooks execution, shell tool, new framework, dependency upgrade, package installation or user8787 operation. A trusted executable extension does not become portable declarative Kit content. A new capability cannot be advertised merely because compilation succeeds.
 
 Tests address actual compiler/consumer invariants rather than mirroring implementation. Keep author and Luna non-author evidence separately pinned; no model calls or full stress campaign for a pure module. Stop at finite K2 delivery or a demonstrated existing-owner blocker with a concrete alternative. Parent owns final architecture, acceptance and merge; no push/deploy/cleanup of others.
+
+
+## Observed checkout status — closure audit2026-09-22
+
+K0 branch codex/kit-k0-contract-20260922 is registered in kit-k0-20260922/Courtwork and has untracked contract evidence at the audit snapshot. This establishes contract work in a protected checkout, not K1/K2 or accepted Kit support. Parent has not consumed a process/author dispatch identity; no inference from the branch name is made. See the [parent audit](evidence/work-closure-audit-20260922/README.md).
+
+
+Post-audit observation: the same protected K0 branch advanced to bacd64e with contract/review documentation and a clean tree. Parent contract disposition is still required; no compiler or production binding acceptance is recorded by this metadata observation.

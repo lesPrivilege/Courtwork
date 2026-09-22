@@ -42,3 +42,8 @@ After selection, a separate finite E1 scope can reuse the chosen view/controller
 Record compact-workbench versus decision/reading roles, existing token mappings, typography/glyph/target sizes, viewport/pointer/text-scale assumptions and full composed height. Preserve stable input geometry, draft/caret, materials, keyboard navigation, Escape and focus return. Test narrow/desktop, light/dark, long labels, error and bound-Run states; no screenshot-only accessibility claim. Use OpenAI computer use for independent rendered acceptance where available; author screenshots and unexecuted native zoom/reader/coarse cases remain separately attributed. No full product suite is needed for a specimen-only change.
 
 Deliver exact source and reference pins, preview command/port, the two comparable alternatives, recommendation, owner/adapter gap table and writer release. Parent selects; no main merge, push, deployment, native credential operation or additional journey is authorized by this handoff.
+
+
+## Observed checkout status — closure audit2026-09-22
+
+A protected courtwork-role-composer-20260922 checkout/claude-role-composer-20260922 branch is observed at f74ae1e, clean with no implementation/evidence at the audit snapshot. This is a reserved handoff, not proof that a Claude process has started or a specimen exists. Preserve it; do not dispatch a duplicate based on the earlier no-process observation. See the [parent audit](evidence/work-closure-audit-20260922/README.md).

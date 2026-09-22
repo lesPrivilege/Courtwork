@@ -1,0 +1,28 @@
+COMMAND: LP-R5 deletion + subagents focused tests
+✔ unknown local child and its parent cannot be deleted through HTTP or Store; bytes and recovery fence survive reopen (1393.36ms)
+✔ completed archived local findings retain child, parent and source/result references across rejected deletion and reopen (1400.977542ms)
+✔ Spark references prevent deletion before any local process records exist; an ordinary Store deletion still works (67.704625ms)
+✔ a Spark reference queued after the Service snapshot is still protected by the atomic Store deletion guard (85.710333ms)
+✔ an ordinary unreferenced Chat with a completed non-child Run remains deletable (205.327459ms)
+✔ Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt (678.323209ms)
+✔ Spark refuses forged source, actor and recursive delegation; stale actions do not mutate (485.672875ms)
+✔ two exact Intake versions → local note → project mount → main progressive reads and machine consumption (1563.044042ms)
+✔ omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads (657.51ms)
+✔ runtime delegation yields the single lane and does not replay or silently resume the parent (752.843333ms)
+✔ source discovery paginates exact versions, respects source and target policy, and rejects malformed queries (104.285417ms)
+✔ cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work (72.99125ms)
+✔ failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result (832.6185ms)
+✔ a changed provider route blocks old queue item without stranding later valid work (542.250417ms)
+✔ schema rejects corrupt derived relationships and forged read receipts (410.721542ms)
+✔ active cancellation closes late source/note admission and never publishes a result (92.735583ms)
+✔ SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation (895.796125ms)
+✔ revoking source policy after a tool read blocks the next provider request (571.39125ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12890.647125
+EXIT: 0

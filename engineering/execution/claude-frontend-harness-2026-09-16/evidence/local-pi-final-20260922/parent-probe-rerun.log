@@ -1,0 +1,4 @@
+COMMAND: parent LP-R5 DELETE probe
+before {"runStatus":"unknown","fenced":true}
+after {"delete":{"status":409,"json":{"error":{"code":"spark_session_referenced","message":"Session is retained by Spark work history and cannot be deleted"}}},"runPresent":true,"fenced":true,"assignmentStillPresent":true,"validationError":null,"providerRequests":0}
+EXIT: 0

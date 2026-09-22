@@ -1,0 +1,92 @@
+# Unconsumed work audit — 2026-09-22
+
+## Audit basis
+
+Observed main is `f74ae1e5c010e5b35997d4a8bfbaff2d1053b951` (`main`). The only main-tree dirt is the pre-existing untracked `.agents/`, `.obsidian/`, and `skills-lock.json`. Active protected worktrees are:
+
+- M1 Runtime rhythm: `codex/m1-runtime-rhythm-20260922@ffd4e39`, clean.
+- Local Pi LP-R5: `codex/local-pi-worker-20260922@dadbfdd`, clean and writer-released.
+- Kit K0: `codex/kit-k0-contract-20260922@f74ae1e`, with untracked `evidence/kit-k0-20260922/`.
+- Role-first Composer: `claude-role-composer-20260922@f74ae1e`, clean with no implementation commit.
+
+I read `engineering/current.md`, the current dispatch/order records, the relevant delivery receipts and the four real worktree states. I did not run product tests, inspect credentials, start services, alter worktrees or clear any registration. “Green tests,” a merge, a synthetic fixture or a raw transcript is treated as evidence only for its stated scope.
+
+The bounded search found no orphaned source-only conversation that current records mark as mandatory but leave without an owner. The current indexes consume the Pi primary-source intake and Kit owner map. Older raw transcripts remain historical evidence and were not promoted into work.
+
+## Findings
+
+### 1. M1 Runtime-detail rhythm — feature gap with an explicit owner and pending acceptance
+
+**Promised user result.** The grammar disposition promises one runtime-detail-local spacing mapping, measured before/after at desktop, narrow, dark and keyboard states, while preserving state text, controls, recovery, focus and Run binding (`engineering/design/grammar-convergence-20260921/disposition-20260922.md:11,16-40`).
+
+**Facts/owner/lifecycle.** The owner is the M1 grammar task under Parent Arch; the candidate is `ffd4e39`, with the source/evidence packet at `engineering/design/grammar-convergence-20260921/migrations/m1-runtime-rhythm/`. The worktree is clean and the commit records writer release. The change is a local presentation mapping; it does not own Runtime state, persistence, or recovery authority.
+
+**Reachable path and evidence.** The packet contains Sol checks, Luna review, Astra measurements and 21 comparison probes. This proves the bounded candidate and evidence packet exist. It does not prove parent acceptance, merge, or that the integrated main surface uses the candidate.
+
+**Missing/label.** `current.md:5,32-36` explicitly says M1 is delivered/released but pending parent acceptance; no false completion is present. Classification: **defer with named owner**, then parent accept/integrate or return the finite correction. Do not reopen 06d or global density. No conflict with LP-R5 or K0.
+
+### 2. LP-R5 local Pi worker — implementation delivered, parent acceptance blocked by a real recovery/deletion gap
+
+**Promised user result.** The order promises a bounded upstream Pi source-reading child that returns attributable retained findings and distinguishes success, refusal, cancellation and unknown after failure (`local-pi-worker-loop-20260922.md:5-11`). It must preserve Spark assignment coverage and existing Host/Store/subagent ownership.
+
+**Facts/owner/lifecycle.** `dadbfdd` releases the author after L0–L3, with existing Spark attempts, RuntimeStore20 proposal/receipts, ArtifactHistory and source-read rules. Parent Arch and Store/RD-005 own acceptance/integration; this tree is not abandoned.
+
+**Reachable path and evidence.** The author packet records L1 26/26, L2 7/7 and prior bounded reviews, plus the deletion-return evidence. The parent review at `evidence/local-pi-parent-review-20260922/README.md:3-22` reproduces crash → reopen → DELETE of an unknown child: the path returns 200, drops recovery references and leaves invalid assignment references. The review explicitly holds integration and retains the original correction tree.
+
+**Missing/label.** The actual local worker can run, but the deletion/recovery user path cannot safely finish. Classification: **feature gap with an explicit owner延期**, not an unconsumed worktree. Parent must consume the final deletion guard and independently accept/integrate it; no new scheduler or parallel worker is needed. K0 and 06e are explicitly disjoint from this Host/Store/subagent lane.
+
+### 3. Kit K0 — contract in flight, with a registration/status drift rather than a delivered feature
+
+**Promised user result.** K0 promises a deterministic, attributable Kit context plan over already admitted Runtime Control resources, with missing/unsupported/unchecked/deferred readings and exact content identity; K1/K2 are explicitly after parent contract disposition (`kit-context-core-20260922.md:1-38`).
+
+**Facts/owner/lifecycle.** The claimed worktree has branch `codex/kit-k0-contract-20260922@f74ae1e` and untracked `evidence/kit-k0-20260922/`. Its packet says “Contract candidate; K1/K2 not started,” parent Arch retains contract selection, and K0 owns only the new evidence/contract directory. Existing Runtime Control, source resolver, permissions, and child state remain authoritative.
+
+**Reachable path and evidence.** `evidence/kit-k0-20260922/README.md` and `source-map.md` provide a concrete owner map and K0 proposal. They prove source/contract exploration, not a compiler, product capability, or parent disposition.
+
+**Missing/label.** `current.md:5` and the parallel index say both handoffs are prepared with no task/process dispatched, while a claimed K0 worktree already contains untracked contract evidence. This is **status drift requiring owner reconciliation**, not proof of implementation. Adopt the packet as a pending parent contract decision; adjust current/dispatch status when the owner records whether K0 is formally started or only protected. Do not commit/merge/clean it from this audit.
+
+### 4. 06e Role-first Composer — protected tree exists, but no author work or delivery evidence
+
+**Promised user result.** 06e promises at most two runnable synthetic alternatives: choose Agent/Role, read effective model and permission scope, visit Settings/Kits, return to unchanged draft/materials/focus, then present a selection table (`06e-role-composer-selection-20260922.md:1-15`).
+
+**Facts/owner/lifecycle.** The record says existing Claude frontend worker/Opus owns implementation, Sonnet may do bounded exploration, and parent Astra selects/accepts. The actual worktree `claude-role-composer-20260922@f74ae1e` is clean and has no feature commit or evidence directory.
+
+**Reachable path and evidence.** There is no runnable specimen, preview command, screenshot, test receipt or author release in the worktree. The order itself says no Claude process has been dispatched (`:1-3`). Therefore no user path, result, or failure recovery is currently reachable.
+
+**Missing/label.** This is **a prepared handoff/status drift, not an incorrectly completed feature**. The branch registration protects a future writer but does not prove kickoff. Owner Claude/Astra should either dispatch from current main and create the evidence packet, or explicitly release/archive the claimed tree later. It does not conflict with LP-R5; it consumes K0 semantics only after K0 is selected.
+
+### 5. Role/Kit/profile selection → actual Run binding — real capability gap with explicit existing owners
+
+**Promised user result.** The 06a/06e contract promises that a user can choose an Agent by responsibility, understand Kit requests versus Runtime support versus permission grants, inspect the effective model, visit Settings, return to the same draft, and know whether a change affects a current or next Run (`06a-agents-profile-journey-20260920.md:24-29,71-85`; `06e:5-13`).
+
+**Facts/owner/lifecycle.** Runtime Control owns profile composition/revision; Role semantics belong to Host/product admission; Kit admission/context belongs to Harness/RD-009; Runtime capability/lifecycle belongs to RD-001; model/auth and permissions retain existing owners. A real Run must freeze the admitted binding, retain active-Run identity and expose result/unknown/recovery facts.
+
+**Reachable path and evidence.** 06a’s synthetic adapter exercises saved/draft/conflict/unavailable/active-Run UI states. Its own contract says Role-as-object, Kit identity/version/compatibility, runtime registry, per-profile revision/binding and per-agent model binding are not exposed. Current Runtime Control has declarative profiles and context serialization, but no production Role/Kit/Runtime save-to-Run path. Thus the fixture proves presentation semantics only; it does not create a production binding or result.
+
+**Missing/label.** This is a **feature gap with explicit owner延期**, not an abandoned contract. K0 may supply a pure Kit plan, but it cannot close profile persistence, Host admission or Run binding. 06e must keep synthetic claims marked synthetic until those owners provide a real consumer.
+
+### 6. Prepared dogfood → user WebUI / real-model browser loop — explicit handoff remains open
+
+**Promised user result.** Order 11 promises a user-launchable WebUI task around read → governed write → fixed check → reopen/continue; the final readiness receipt accepts preparation, not real-model/browser acceptance (`current.md:149,165`; `evidence/coding-dogfood-final-20260920/README.md:3`).
+
+**Facts/owner/lifecycle.** The prepared synthetic instance and checklist are accepted; the operator/user starts the WebUI. The real dogfood receipt records one fresh DeepSeek diagnosis → exact candidate-write approval → same-Run Host check → reload, but explicitly leaves real-model N-02 robustness and browser acceptance open (`current.md:145`).
+
+**Reachable path and evidence.** Preparation, approvals, candidate identity and one real Run are evidenced. The full user WebUI task, broader N-02/browser path and all G4 limits are not evidenced. The reserved instance is ready and no cleanup was lost.
+
+**Missing/label.** Classification: **feature/evidence gap with an explicit user/operator and existing packet owner**, not a forgotten Claude delivery. Do not label “WebUI readiness” as complete real dogfood. The first required next action is the user’s bounded browser task; Claude/Astra own any demonstrated frontend/integration correction.
+
+### 7. Preview/browser and G4 accessibility matrix — explicit deferred owner work, not a hidden acceptance failure
+
+**Promised user result.** 06d’s accepted scope provides tabbed Preview over existing object readers, continuity, focus and synthetic states. Browser/native embedding, left-rail changes, real browser execution and full G4/accessibility matrix are separate outcomes.
+
+**Facts/owner/lifecycle.** The current entries state Preview B/PV-R1 acceptance and retain native browser/full-matrix residuals with their 06d/G4/UI owners. `current.md:64,85,125,145,173-199` explicitly preserves these boundaries; the grammar disposition says fine-pointer measurements do not automatically fail AA and keeps coarse/native checks scoped.
+
+**Reachable path and evidence.** Accepted receipts prove synthetic tab/object-reader behavior and bounded browser checks. They do not prove native browser integration, screen-reader use, all zoom/pointer cells, or real coding dogfood.
+
+**Missing/label.** Classification: **defer with named owner**, not unconsumed and not a reason to reopen accepted Preview work. Do not turn unexecuted G4 cells into a product blocker beyond their recorded owner/exit condition. Pages/README parity and later page narrative are registered as later work, not an orphaned current task (`current.md:237`; `README.md:261`).
+
+## Closure check and recommendations
+
+Consumed/closed within the bounded period: 06a, 06b, 06c, 06d accepted portions, P03-B, C/D/E final acceptance, and coding-dogfood readiness each have explicit evidence and integration/preservation receipts. The current `next-dispatch-20260921.md:3-5,39-50,98-102` also says accepted Pi/P03-B/C/D/E work is historical and must not be re-dispatched.
+
+The only true current status breaks found are the K0/06e “prepared/no dispatch” text versus protected K0/Role worktrees, plus the normal pending parent acceptance of M1 and LP-R5. Record those statuses in their original owner records when the parent consumes them; do not infer implementation from a claimed branch, untracked evidence folder or existing class name. Keep M1, LP-R5, K0 and Role Composer bytes protected; this audit performs no cleanup.

@@ -1,0 +1,73 @@
+{
+  "main": "f74ae1e5c010e5b35997d4a8bfbaff2d1053b951",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/.codex/worktrees/c89d/Courtwork",
+      "head": "dadbfdd47ae807d3d145b09b3bd1c28c52430a50",
+      "archive_ref": "refs/archive/local-pi-20260922/Courtwork",
+      "entries": 42338,
+      "file_bytes": 995482272,
+      "archive_sha256": "9d7dab296696292f4cf2a44be3761adbd67240bfb7559d6ce7b6f07b609f2cb9",
+      "manifest_sha256": "12d113d8e683cc3687138fbbd7f002bfc5cb6e8b2d7bddce94662264bbc8bebe",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "fdb5e7bad075fa14b9f7dd6735b84cc21bbf261835595e4c3b95c0207b266f5c",
+  "bundle_restored_and_verified": true,
+  "integratedMain": "56133b34ec03880633382db72bbad8bb95460fd2",
+  "archiveLocation": "Projects/.archives/courtwork-local-pi-20260922 relative to operator home",
+  "finalSourceUnchanged": true,
+  "noUnintegratedCommits": true,
+  "endedTreeAndMergedBranchRemoved": true,
+  "removed": true,
+  "noTaskOrTestWriter": true,
+  "applicationInfrastructureCwdHolders": [
+    {
+      "pid": 54012,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 54013,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 54015,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 65413,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 65414,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 65415,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 84735,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 84737,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    },
+    {
+      "pid": 84738,
+      "comm": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node_repl",
+      "classification": "application-owned CUA tool infrastructure; not stopped"
+    }
+  ],
+  "processesStopped": []
+}

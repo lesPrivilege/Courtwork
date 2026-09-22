@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-22 · Closure audit consumed
+
+[Parent disposition](evidence/work-closure-audit-20260922/README.md) prioritizes outcomes rather than green tests. Basic real-browser dogfood is accepted; historical RuntimeLock/robustness/G4 are separate. Local Pi's finite correction is accepted but does not deliver real-provider selection or operable unknown recovery. M1 remains delivered awaiting parent acceptance. K0 now has an observed protected checkout with contract evidence;06e has a protected clean checkout only. These observations supersede treating the handoffs as nonexistent, but do not establish dispatched process identity or product delivery. Preserve original owners and avoid duplicate assignments.
+
 ## 2026-09-22 · Prepared disjoint next work
 
 [Consumed local owner map and source index](evidence/parallel-work-index-20260922/README.md) identify two useful next handoffs: [Astra Kit context K0→K2](kit-context-core-20260922.md), beginning with a concrete existing-owner contract before pure-module code; and [Claude06e Role-first Composer](06e-role-composer-selection-20260922.md), first two comparable runnable specimens and a parent design choice. These are prepared, not dispatched. Host/Store/child code stays with Pi LP-R5; no second core runtime writer. Runtime M1 has delivered/released its candidate and awaits parent acceptance. The older orders below are history, not directions to repeat accepted Pi port, C/D/E or Runtime-management work.

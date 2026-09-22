@@ -1,0 +1,56 @@
+
+# Local Pi LP-R5 final non-author review
+
+Date: 2026-09-22
+Final candidate: dadbfdd47ae807d3d145b09b3bd1c28c52430a50
+Product source: 7ab46d04b07bf4e924985274ac788143da9622a0
+Tree: /Users/lesprivilege/.codex/worktrees/c89d/Courtwork
+Previous reviewed source: 6b45fd8e5dd288982df7f28ee981a15676ae4e11
+
+## Verification
+
+Focused command:
+
+    node --test --test-concurrency=1 app/tests/local-pi-session-deletion.test.mjs app/tests/subagents.test.mjs
+
+Result: 18/18, exit 0.
+Raw log: /tmp/cw-local-pi-r5-tests.log
+
+The authorized parent DELETE probe was run once against the final candidate:
+
+    before {"runStatus":"unknown","fenced":true}
+    after {"delete":{"status":409,"json":{"error":{"code":"spark_session_referenced","message":"Session is retained by Spark work history and cannot be deleted"}}},"runPresent":true,"fenced":true,"assignmentStillPresent":true,"validationError":null,"providerRequests":0}
+    EXIT: 0
+
+Raw log: /tmp/cw-local-pi-r5-parent-probe.log
+
+Final source hashes:
+
+    app/runtime/local-pi-state.mjs       1a9f8b1da98567b42969c203b11737b668d55c490821eaaf30665cd4e05dfd6b
+    app/harness/subagent-state.mjs       2049ed9d265c5358f845ec147476f0583cde051e743994960906bbdfb62b9e49
+    app/server/store.mjs                 625c6cdce166642518fc92f40a66711d3549901a3de078ac69ba52b268b53786
+    app/server/service.mjs               5b388fbb1f348b4dc39053bd9cf0ab31b88024d39668eabfefe7d6ad6c81a2a8
+    app/tests/local-pi-session-deletion.test.mjs
+                                          855f71bf5c1934f675cabc72ff204fce4ab935c61a9db620df62af3563ee7616
+
+## LP-R5 disposition
+
+Accepted within the bounded deletion correction.
+
+The guard is applied at both boundaries:
+
+- RuntimeService.deleteSession checks existing Spark references before extension/Core side effects.
+- RuntimeStore.deleteSession repeats the check inside the serialized mutation, covering a reference queued after the Service snapshot.
+- subagent-state.mjs preserves references from parent/origin, attempts, source/result/note, reader/consumer and mounted Sessions, including archived/completed work.
+- Unknown child deletion now preserves the Run, events, assignment and recovery fence; memory and persisted bytes remain unchanged.
+- Reopen, reconcile and retry remain fenced with zero repeated spawn/provider requests.
+- Ordinary unreferenced empty/completed non-child Chats remain deletable.
+- The schema20 local event validator no longer loses authority after referenced Session deletion because the deletion is refused first.
+- app/README.md schema pointer is synchronized to schema20.
+
+No concrete violation remained in this delta. The prior LP-R5 failure was reproduced by the parent probe and is closed at the final candidate.
+
+## Scope limits
+
+This review does not re-run the prior 56-test L1/L2/Host suite or full suite. It does not establish live providers, native credentials, UI/Settings integration, OS sandboxing, managed RPC/resume, Windows support, or formal Work acceptance. The prior unexplained 111/112 adjacent candidate-create result remains preserved and is not relabelled green. Main and user services/data remain untouched.
+
