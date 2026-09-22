@@ -47,3 +47,21 @@ Astra authored `local-pi-process.mjs` and six input/terminal tests. Sol authored
 Public consumer remains absent. Binding is explicit synthetic loopback only; default model/provider are the existing fake-provider identities. Completion requires agreeing assistant/turn/agent terminal messages, agent_settled and clean process exit. Tool requests, malformed/oversized output, duplicate/late terminal and conflicting native identity cannot yield a result. Process transport and native failure/cancellation facts remain separate. No managed RPC, native resume, credential or coding capability.
 
 Parent disposition at main `578d77d` was merged without rewriting L0 history. It reserves schema20 for L3, requires typed Run events and recovery fences, and retains Spark's existing source-read criterion. L1 changes no schema/Host/UI and does not consume that lease yet. Preliminary upstream feasibility tests run during wrapper development are recorded under L2 below; they are not independent acceptance.
+
+## L2 actual upstream process delivery
+
+Source adapter `92df65b`; test packet in this milestone. `node --test app/tests/local-pi-upstream.test.mjs`: **7/7 exit 0**, [raw log](l2-tests.log). Every inference request uses a throwaway loopback server and deterministic SSE; no real-model quality/capability or external account claim. Seven tests launch unchanged locked Pi with the production launch flags/environment. Processes close before owned temporary homes/providers are removed.
+
+| Fault / control | Actual evidence |
+|---|---|
+| Exact source and reply | UTF-8 packet on provider wire, zero tools, native identity, matching result hash/bytes and settled + exit0. |
+| Ambient loading | Global/ancestor/project AGENTS, SYSTEM/APPEND_SYSTEM, executable extension markers, skills/templates and project settings planted inside synthetic fixture roots. None enters the provider request; no marker executes; no native session directory is written. |
+| Hostile model tool call | Raw upstream process receives synthetic bash tool call despite zero declared tools, returns native tool-not-found error, creates no marker, then answers a second deterministic turn. Wrapper independently rejects any tool request rather than accepting that sequence as supported work. |
+| Provider error | HTTP400 cannot produce a successful result even when JSON print may exit0. |
+| Cancel / late reply | Cancel only after an actual provider request; process close observed, PID gone, late reply cannot publish. |
+| Crash / size | SIGKILL after actual request without terminal stays unknown. 32769-byte output cannot be truncated into a success. |
+| Hard termination | Actual Pi reaches provider request, then test SIGSTOP freezes its already-ready handler. Cancellation escalates to SIGKILL after grace, observes process close/PID gone. This is deliberately injected unresponsiveness, not a claim that ordinary Pi ignores TERM. L1 separately proves owned descendant-group escalation with readiness. |
+
+Initial development run was 5/6 exit1: the test decoded the provider's content array as a JSON string (`SyntaxError: "[object Object]" is not valid JSON`, local-pi-upstream.test.mjs:28). Product result had completed; corrected assertion reads text parts without weakening the exact packet check. Subsequent six-test run passed; the readiness-confirmed actual-Pi escalation case was then added, yielding the final7/7. This test-harness failure is retained here rather than as a product lifecycle defect. Malformed/UTF8/duplicate/conflicting/partial JSONL are process-fixture evidence in L1; unchanged upstream cannot be asked to emit an arbitrary malformed protocol frame without a different executable or trusted extension.
+
+Luna is performing a bounded non-author review of L1/L2; no independent acceptance is claimed yet. L3 now proceeds under the recorded parent schema20/coverage/unknown-fence disposition, with exact records and transitions written before shared code edits.
