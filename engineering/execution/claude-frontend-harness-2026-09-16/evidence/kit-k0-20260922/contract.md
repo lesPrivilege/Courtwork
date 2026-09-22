@@ -6,13 +6,13 @@ Status: K0 author proposal, pending Parent Arch disposition. Names in this docum
 
 Proposed entry: `planKitContext({ binding, kits, runtime, compatibilityEvidence, budget })`.
 
-- `binding`: immutable, already-validated `RuntimeControlPlane.bind` result. It is an owner-supplied snapshot, not arbitrary frontend JSON. Its composition must be compatible for Kit-present planning. The function never calls `snapshot`, `bind`, policies, a factory, a loader or an importer.
+- `binding`: immutable, already-validated `RuntimeControlPlane.bind` result. It is an owner-supplied snapshot, not arbitrary frontend JSON. Its composition must be compatible for Kit-present planning. The function never calls `inspect`, `bind`, policies, a factory, a loader or an importer.
 - `kits`: explicit Harness/RD-009 supplied array of `{ descriptor, descriptorSha256 }`. The caller has admitted the descriptors as declarations; hashing is an integrity check, not authentication. No current registry supplies these in production.
 - `runtime`: `{ adapterId, revision, bindingHash }`, or `null` when the owner has no exact runtime revision. `bindingHash` must equal the input binding hash. These are supplied owner facts, since the actual binding has no adapter ID or runtime version. The planner cannot derive a revision from `adapterId`, a model name or a profile title.
 - `compatibilityEvidence`: explicit owner-supplied records described below; empty means unverified. No queries or tests occur inside this function.
 - `budget`: `{ maxCoreBytes, maxContextBytes, maxContextCharacters }`, all explicit nonnegative safe integers. `maxContextCharacters` must be at most the existing Host limit of 100000. No token estimate, truncation ratio, platform context capacity or default core allowance is invented.
 
-All new inputs are JSON data with exact supported keys, dense arrays and finite safe integers. Reject unknown fields, functions, cycles, undefined values and malformed hashes. Descriptor strings must be valid Unicode scalar text (reject lone surrogates); no normalization of Unicode, whitespace, CRLF or Markdown. Existing no-Kit bindings retain their legacy behavior. Kit-present source text must also be scalar text so UTF-8 identity cannot alias distinct lone-surrogate strings.
+All new inputs are JSON data with exact supported keys, dense arrays and finite safe integers. Reject unknown fields, functions, cycles, undefined values and malformed hashes. Descriptor strings must be valid Unicode scalar text (reject lone surrogates); no normalization of Unicode, whitespace, CRLF or Markdown. Existing no-Kit bindings retain their legacy behavior. In the Kit-present branch, validate every string entering rendered instruction/catalog text, including non-Kit content, as scalar text so UTF-8 identity cannot alias distinct lone-surrogate strings. Runtime adapter/revision strings are nonempty and at most 200 units; all supplied SHA-256 fields use lower-case 64-hex.
 
 Operational caps for this proposed bounded API: at most 32 Kits; each descriptor at most 100 core/deferred/requirement/conflict entries per array and 64 KiB canonical UTF-8; at most 64 compatibility records; resource IDs at most 200 UTF-16 units. These are proposed implementation limits for review, not claims about model capacity. Existing Runtime Control resource/content limits still apply. Caller budgets can be smaller. Reject excessive input before rendering; diagnostic count is bounded by input entries. Do not traverse arbitrary nested metadata because no such field is admitted.
 
@@ -103,7 +103,7 @@ Aggregate compatibility is `unsupported` if any matched unsupported record, else
 
 ## Rendering and budget contract
 
-No-Kit is an explicit passthrough: `compileControlContext(binding)` with no transformation. Preserve bytes, instruction/catalog order, template omission, historical missing accounting fields and the original binding. New Kit budgets/evidence are not a new refusal gate for this legacy path. Report its measured total separately from any budget declaration. Existing Host admission remains authoritative. Historical locale-dependent ordering is deliberately untouched in this branch.
+No-Kit is an explicit early passthrough: `planKitContext({ binding, kits:[] })` calls `compileControlContext(binding)` with no transformation. Runtime/evidence/budget inputs may be omitted; if supplied they are ignored in this branch, with output runtime/budget set to null and no compatibility evidence retained. Preserve bytes, instruction/catalog order, template omission, historical missing accounting fields and the original binding. New Kit budgets/evidence are not a new validation or refusal gate for this legacy path. Measure the original output as one legacy segment. Existing Host admission remains authoritative. Historical locale-dependent ordering is deliberately untouched in this branch.
 
 For nonempty Kits, after validation:
 
