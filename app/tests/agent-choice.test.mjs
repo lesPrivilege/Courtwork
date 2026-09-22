@@ -1,0 +1,150 @@
+/* E1 seam tests: the Agent choice controller against a synthetic owner shaped
+ * on the candidate K3 Runtime Control contract. DOM-free. */
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createAgentChoiceController, projectProfileSource, liveAgentChoiceAdapter } from "../web/agent-choice.mjs";
+import { createAgentChoiceFixture } from "./fixtures/agent-choice/adapter.mjs";
+
+const instant = () => Promise.resolve();
+const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+async function setup(scenario = "normal") {
+  const fixture = createAgentChoiceFixture({ pause: instant });
+  fixture.configure(scenario);
+  const controller = createAgentChoiceController({ adapter: fixture.adapter, getSessionId: () => "session-synthetic" });
+  await controller.load();
+  return { fixture, controller };
+}
+
+test("the chat inherits General; Send carries the fresh effective selection", async () => {
+  const { controller } = await setup();
+  const state = controller.getState();
+  assert.equal(state.snapshot.sessionSelection, null, "nothing selected at session scope");
+  assert.deepEqual(state.next.send, { enabled: true, reason: "", runtimeSelection: { revision: 12, profileId: "agent:general", sourceHash: null } });
+  assert.deepEqual(state.snapshot.profiles.map((p) => p.id), ["agent:general", "local:coding", "local:notes"]);
+});
+
+test("choosing applies one CAS write and adopts the reply as the effective reading", async () => {
+  const { fixture, controller } = await setup();
+  await controller.choose("local:coding");
+  const state = controller.getState();
+  assert.deepEqual(fixture.calls().filter((c) => c.kind === "select"), [{ kind: "select", revision: 12, id: "local:coding" }]);
+  assert.equal(state.draft, null);
+  assert.equal(state.snapshot.sessionSelection, "local:coding");
+  assert.deepEqual(state.next.send.runtimeSelection, { revision: 13, profileId: "local:coding", sourceHash: "3".repeat(64) });
+});
+
+test("a configuration change elsewhere keeps the draft, re-reads, and never resends", async () => {
+  const { fixture, controller } = await setup("conflict");
+  await controller.choose("local:coding");
+  const state = controller.getState();
+  assert.equal(state.apply.status, "conflict");
+  assert.equal(state.draft.profileId, "local:coding");
+  assert.equal(state.next.send.enabled, false);
+  assert.match(state.next.send.reason, /Coding was not selected: the configuration changed elsewhere/);
+  assert.equal(fixture.calls().filter((c) => c.kind === "select").length, 1);
+  // The explicit recovery submits once against the fresh revision.
+  fixture.configure("normal");
+  await controller.apply();
+  assert.equal(controller.getState().snapshot.sessionSelection, "local:coding");
+});
+
+test("an active run freezes the selection: the draft is kept, not queued", async () => {
+  const { fixture, controller } = await setup("active-run");
+  await controller.choose("local:notes");
+  const state = controller.getState();
+  assert.equal(state.apply.status, "frozen");
+  assert.equal(state.snapshot.sessionSelection, null, "the Host selection did not change");
+  assert.match(state.next.send.reason, /will not change by itself/);
+  fixture.configure("normal");
+  await controller.refresh();
+  assert.equal(controller.getState().draft.profileId, "local:notes", "a re-read does not apply it either");
+  assert.equal(fixture.calls().filter((c) => c.kind === "select").length, 1);
+});
+
+test("a lost reply is settled by reading back, not by resending", async () => {
+  const { fixture, controller } = await setup("lost-reply");
+  await controller.choose("local:coding");
+  const state = controller.getState();
+  assert.equal(state.apply.status, "idle", "the read-back shows the write landed");
+  assert.equal(state.snapshot.sessionSelection, "local:coding");
+  assert.equal(fixture.calls().filter((c) => c.kind === "select").length, 1);
+});
+
+test("a lost reply whose write did not land stays unknown until the person acts", async () => {
+  const fixture = createAgentChoiceFixture({ pause: instant });
+  const adapter = { ...fixture.adapter, select: async () => { throw new Error("Network connection lost."); } };
+  const controller = createAgentChoiceController({ adapter, getSessionId: () => "session-synthetic" });
+  await controller.load();
+  await controller.choose("local:coding");
+  const state = controller.getState();
+  assert.equal(state.apply.status, "unknown");
+  assert.equal(state.next.send.enabled, false);
+  assert.match(state.next.send.reason, /Whether Coding was selected is not known/);
+  controller.keepCurrent();
+  assert.equal(controller.getState().next.send.enabled, true);
+});
+
+test("an effective composition that is not compatible holds Send with the owner's reason", async () => {
+  const { controller } = await setup("missing-resource");
+  await controller.choose("local:notes");
+  const { next } = controller.getState();
+  assert.equal(next.effective.status, "unavailable");
+  assert.equal(next.send.enabled, false);
+  assert.match(next.send.reason, /Notes is unavailable: missing local:notes-style/);
+});
+
+test("a settled refusal keeps the draft and says the owner's message", async () => {
+  const { controller } = await setup("refused");
+  await controller.choose("local:notes");
+  const state = controller.getState();
+  assert.equal(state.apply.status, "failed");
+  assert.match(state.next.send.reason, /Profile is unavailable in this scope/);
+});
+
+test("a read failure blocks Send until a re-read succeeds", async () => {
+  const { controller } = await setup("read-error");
+  assert.equal(controller.getState().read.status, "error");
+  assert.equal(controller.getState().next, null);
+  await controller.load();
+  assert.equal(controller.getState().next.send.enabled, true);
+});
+
+test("Kit declarations are read from the profile's exact source; builtin has none", async () => {
+  const { controller } = await setup();
+  controller.preview("local:coding");
+  controller.preview("agent:general");
+  await tick();
+  const { sources } = controller.getState();
+  assert.deepEqual(sources["local:coding"].reading.kits, [{ id: "coding-review", version: "0.2.0" }]);
+  assert.equal(sources["local:coding"].reading.schemaVersion, 2);
+  assert.deepEqual(sources["agent:general"].reading, { status: "none", kits: [], resourceIds: [] });
+  assert.equal(projectProfileSource("{not json").status, "unreadable");
+});
+
+test("a late source reply for an old chat never lands in the new one", async () => {
+  let release;
+  const fixture = createAgentChoiceFixture({ pause: instant });
+  let session = "session-synthetic";
+  const adapter = { ...fixture.adapter, source: () => new Promise((resolve) => { release = resolve; }) };
+  const controller = createAgentChoiceController({ adapter, getSessionId: () => session });
+  await controller.load();
+  controller.preview("local:coding");
+  session = "session-other";
+  await controller.load();
+  release({ content: "{}" });
+  await tick();
+  assert.deepEqual(controller.getState().sources, {});
+});
+
+test("the live adapter speaks the existing endpoints", async () => {
+  const seen = [];
+  const adapter = liveAgentChoiceAdapter(async (path, options = {}) => { seen.push([path, options.method ?? "GET", options.body ?? null]); return {}; });
+  await adapter.read("s 1");
+  await adapter.source("s 1", "local:coding");
+  await adapter.select("s 1", { revision: 4, id: null });
+  assert.deepEqual(seen, [
+    ["/runtime-control?sessionId=s%201", "GET", null],
+    ["/runtime-resources/local%3Acoding?sessionId=s%201", "GET", null],
+    ["/runtime-control?sessionId=s%201", "PUT", { revision: 4, operation: "profile", scope: { type: "session", id: "s 1" }, id: null }],
+  ]);
+});
