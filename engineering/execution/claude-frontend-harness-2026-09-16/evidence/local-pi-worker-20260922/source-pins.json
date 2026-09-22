@@ -1,0 +1,34 @@
+{
+  "branch": "codex/local-pi-worker-20260922",
+  "base": "df74df3a5449d3d6771319e7e97a7cdc2009cb73",
+  "parentPrerequisite": "578d77d9cc031be817220e412a1f6b8924dd39fc",
+  "milestones": {
+    "L0": "7ba5557fd2543d3d1ef93d6be9d559c88dfd0e5e",
+    "L1": "92df65b70755eeecb2636ef2a1fc3d80e168d096",
+    "L2": "316a2eafa7fba864fe121bc8c066770291a89e0c",
+    "LP-R1": "1f349f54351c37a01571cf9c0ea997e8c9d33f81",
+    "L3": "a863067703a2de6f9fedc749ec85d4db2ef04e3e",
+    "LP-R4": "6c87b7d17242ac2f67bb7dacb69f37af48a65e36"
+  },
+  "upstream": {
+    "package": "@earendil-works/pi-coding-agent",
+    "version": "0.85.1",
+    "source": "d981de1229ef899957bbe968bc8dcda02a21f477",
+    "license": "MIT",
+    "integrity": "sha512-FGRN+OHbWaefBPGaTggAdLjrIHW+s2PzLyglz/5dfLzb9of7uuXMXYC0fJIeZTw+shS32o2cuQ9jF7YSDuL/oQ==",
+    "bundleJsFiles": 51,
+    "bundleSha256": "d7a98e9de03d1b33c863d36d146779c617b49645579827440fea08d32b2d9f5c",
+    "cliSha256": "e6d7fcf36a239cf3746e67ddf4222081ac01a601b85a3ee688bdfe9c161d754c",
+    "node": "v25.9.0"
+  },
+  "schema": {
+    "runtime": 20,
+    "core": 4,
+    "bridge": 5
+  },
+  "providerEvidence": "Host-owned deterministic loopback only",
+  "liveModelCapability": false,
+  "mainIntegrated": false,
+  "independentAcceptanceOwner": "parent Arch",
+  "productSource": "6c87b7d17242ac2f67bb7dacb69f37af48a65e36"
+}

@@ -121,3 +121,9 @@ The first corrected validator run returned15/21, exit1 ([intermediate log](lp-r4
 An additional actual parent `spark_explore` → lane release → upstream Pi child check passed1/1 ([log](l3-parent-delegation.log)); Luna's19/19 included it. Parent Arch has not yet accepted the complete L3 product.
 
 After the LP-R4 mutation hook, unchanged Pi port/Spark adjacent checks passed19/19 exit0 ([log](lp-r4-adjacent.log)). This is the final author regression run for that shared mutation change; no unrelated full suite was repeated.
+
+## Final writer release
+
+Final product source: **6c87b7d17242ac2f67bb7dacb69f37af48a65e36** (see source-pins.json for the exact Git-derived identity if displaying shortened refs). Luna's [LP-R4 correction-only review](lp-r4-review.md) at6c87b7d passes7/7 exit0 ([raw log](lp-r4-review-tests.log)); no blocking finding remains within that bounded scope. It explicitly preserves unknown after publication interruption, rejects both-field terminal rewrites atomically, and verifies legitimate late cancellation after actual process close. Parent final acceptance remains pending.
+
+L0–L3 is reviewably delivered; **Astra/Sol writer released**, no further implementation or next runtime lane is running. Branch/worktree and ignored locked dependencies remain available for parent review. No main integration, user-service restart, user-data migration, push/deploy or tree deletion was performed. The [handoff entry](README.md) and source pins/checksums are the durable return; retained earlier failures and unsupported modes remain part of the delivery.
