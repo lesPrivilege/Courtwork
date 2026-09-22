@@ -57,3 +57,8 @@ A protected courtwork-role-composer-20260922 checkout/claude-role-composer-20260
 ## User-authorized E1 implementation expansion — 2026-09-22
 
 The user now permits [parallel real frontend/backend implementation](frontend-backend-live-integration-20260922.md). Original Claude should first close06E-R1, then continue selectedA into E1 reusable frontend modules, scoped Composer/Settings wiring and required profile compatibility projection changes with regression evidence. This supersedes the specimen-directory-only/no-E1 lease, not the semantic return. Backend/API/schema remains the active Codex K3 owner; fixtures stay explicit until actual capabilities exist. No further routine permission is needed; parent still independently accepts the combined journey.
+
+
+## Stable K3 candidate contract for E1 — 2026-09-22
+
+[Live-adapter handoff](evidence/e1-backend-contract-20260922/README.md) fixes the actual K3 endpoint/whole-config CAS/source-hash contract at76d91d6, including optional runtimeSelection preconditions for Send. Consume it before implementing E1's live adapter; no synthetic per-profile revision/API fallback. K3 is still an unaccepted candidate; local draft does not claim server save or reload recovery. Keep06E-R1 and the selectedA/source ownership from the prior disposition.
