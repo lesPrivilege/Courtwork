@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Role-first Composer · synthetic specimen</title>
+    <script src="../../../../app/web/skin-policy.js"></script>
+    <link rel="stylesheet" href="../../../../app/web/styles.css" />
+    <link rel="stylesheet" href="./specimen.css" />
+  </head>
+  <body data-role-composer-specimen>
+    <div class="preview-app">
+      <header class="preview-topbar">
+        <div>
+          <p class="eyebrow">06e · synthetic selection specimen</p>
+          <h1 id="specimen-title">Role-first Composer</h1>
+        </div>
+        <p class="preview-disclosure">
+          Every agent, Kit, runtime, model, permission effect, chat and run here is synthetic
+          (the accepted 06a cast). Nothing reads your host or saves outside this tab. The Agent
+          choice is a draft of this page; no product owner stores it yet.
+        </p>
+      </header>
+
+      <section class="preview-controls" aria-label="Specimen state">
+        <label
+          >Alternative
+          <select id="alt-select" data-testid="alt-select">
+            <option value="a">A · Anchored chooser</option>
+            <option value="b">B · Agent line</option>
+          </select>
+        </label>
+        <label
+          >Scenario
+          <select id="scenario-select" data-testid="scenario-select"></select>
+        </label>
+        <label class="preview-slow"
+          ><input id="slow-toggle" type="checkbox" data-testid="slow-toggle" /> Slow replies</label
+        >
+        <label
+          >Appearance
+          <select id="theme-select" data-testid="theme-select">
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <button id="reset-preview" type="button" class="quiet-button" data-testid="reset">
+          Reset
+        </button>
+      </section>
+
+      <!-- Chat: the product's composer anatomy (composer-area → context strip →
+           composer-form → field → controls), with the product's classes. -->
+      <main id="chat-view" class="specimen-chat" aria-labelledby="chat-title">
+        <div class="specimen-thread">
+          <h2 id="chat-title" tabindex="-1"></h2>
+          <div class="specimen-message">
+            <p>Checkout retries the payment twice when the gateway times out. Find out why.</p>
+          </div>
+          <div class="specimen-reply">
+            <p>
+              The retry wrapper and the gateway client both retry on timeout, so one timeout
+              becomes two retries. The test log you attached shows it.
+            </p>
+          </div>
+          <p id="run-row" class="specimen-run" role="status" hidden></p>
+        </div>
+        <footer id="composer-area" class="composer-area">
+          <div id="composer-context-strip" class="composer-context-strip" role="group" aria-label="Where this chat works">
+            <div class="context-tab" id="work-location"></div>
+          </div>
+          <form id="composer-form" class="composer-form">
+            <div id="draft-materials" class="specimen-materials" aria-label="Attached to this draft"></div>
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" maxlength="100000" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-notice" class="composer-notice" role="status" hidden></p>
+            <div id="agent-line-slot"></div>
+            <div class="composer-controls">
+              <div class="composer-context" id="controls-left"></div>
+              <div class="composer-buttons" id="controls-right"></div>
+            </div>
+          </form>
+        </footer>
+      </main>
+
+      <!-- Settings: the product's Settings page composition hosting the accepted
+           Agent profiles view, driven by the same synthetic owners. -->
+      <div id="settings-view" class="settings-page" hidden>
+        <div class="specimen-settings-bar">
+          <button id="settings-back" type="button" class="quiet-button" data-testid="settings-back">Back to chat</button>
+          <span class="form-help">Settings · Agents</span>
+        </div>
+        <div class="settings-page-body">
+          <div class="settings-nav-column">
+            <div class="settings-nav" role="tablist" aria-orientation="vertical" aria-label="Settings groups">
+              <button type="button" role="tab" class="settings-tab is-current" aria-selected="true" aria-controls="agents-panel" id="agents-tab">
+                <span class="settings-tab-label">Agents</span>
+              </button>
+            </div>
+            <p class="form-help">Only Agents is part of this specimen.</p>
+          </div>
+          <div class="settings-sections">
+            <section id="agents-panel" class="settings-section" role="tabpanel" tabindex="-1" aria-labelledby="agents-panel-title">
+              <h3 id="agents-panel-title" class="settings-section-title">Agents</h3>
+              <div id="agent-profiles-mount"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="agent-popover" class="context-popover agent-popover" popover="auto"></div>
+    <div id="model-popover" class="context-popover connection-popover model-popover" popover="auto" aria-label="Model and effort"></div>
+
+    <script type="module" src="./main.mjs"></script>
+  </body>
+</html>

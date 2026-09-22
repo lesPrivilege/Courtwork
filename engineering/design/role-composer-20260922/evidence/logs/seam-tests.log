@@ -1,0 +1,18 @@
+✔ initial choice is the chat's default Agent, read before Send is offered (1.839709ms)
+✔ requested, supported and granted stay four separate readings (4.076167ms)
+✔ runtime-owned model is read from the runtime, not from Models (2.155458ms)
+✔ an incompatible Kit and an unavailable runtime block Send with the owner's words (1.58125ms)
+✔ a run in flight keeps its binding; another choice applies to a later run, with no queue (1.983292ms)
+✔ a late reply for one Agent never lands on another (1.851625ms)
+✔ after a Settings save the selection is kept and the new revision is said (2.383916ms)
+✔ a failed list read is recoverable and does not invent a selection (0.316583ms)
+✔ an older reply for the same Agent cannot replace a newer one (1.733959ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 111.148459
+exit 0

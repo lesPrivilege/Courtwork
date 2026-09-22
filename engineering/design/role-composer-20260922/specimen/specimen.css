@@ -1,0 +1,97 @@
+/* Specimen only. The composer, chips, popover, card, Settings page and profile
+ * view use the product's own classes from styles.css; this file gives them a
+ * page and adds the few Agent-specific parts, using existing tokens only
+ * (space 1–4, text-meta, radius-small/card, line/muted/ink/hover/panel). */
+
+/* ── Page frame (as the 06a/06c previews) ─────────────────────────────── */
+body[data-role-composer-specimen] { display:block; overflow:hidden; background:var(--frame); color:var(--ink); }
+.preview-app { height:100dvh; display:grid; grid-template-rows:auto auto minmax(0,1fr); }
+.preview-topbar { display:flex; align-items:center; justify-content:space-between; gap:var(--space-6); padding:var(--space-3) var(--space-6); border-bottom:1px solid var(--line); }
+.preview-topbar h1 { font-size:var(--text-title); margin:0; }
+.preview-topbar .eyebrow { margin:0 0 var(--space-1); }
+.preview-disclosure { max-width:60ch; margin:0; color:var(--muted-strong); font-size:var(--text-meta); line-height:1.5; }
+.preview-controls { display:flex; gap:var(--space-4); align-items:end; overflow-x:auto; padding:var(--space-2) var(--space-6); border-bottom:1px solid var(--line); background:var(--panel-muted); }
+.preview-controls label { display:grid; gap:var(--space-1); flex:0 0 auto; font-size:var(--text-meta); color:var(--muted-strong); }
+.preview-controls select { min-width:10rem; max-width:16rem; }
+.preview-controls .preview-slow { display:flex; align-items:center; align-self:center; white-space:nowrap; }
+.preview-app .settings-page { min-height:0; background:var(--panel); display:grid; grid-template-rows:auto minmax(0,1fr); }
+.preview-app .settings-sections { min-width:0; overflow:auto; }
+.specimen-settings-bar { display:flex; align-items:center; gap:var(--space-3); padding:var(--space-2) var(--space-4); border-bottom:1px solid var(--line); }
+
+/* ── Chat frame: a short thread over the product composer ─────────────── */
+.specimen-chat { min-height:0; display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto; background:var(--panel); }
+.specimen-chat[hidden] { display:none; }
+.specimen-thread { overflow:auto; padding:var(--space-6) var(--chat-inset) var(--space-4); }
+.specimen-thread > * { max-width:var(--column); margin-left:auto; margin-right:auto; }
+.specimen-thread h2 { font-size:var(--text-title); margin-bottom:var(--space-4); }
+.specimen-message p { margin:0 0 var(--space-4) auto; max-width:70%; padding:var(--space-2) var(--space-3); border-radius:var(--radius-card); background:var(--panel-muted); }
+.specimen-reply p { margin:0 0 var(--space-4); line-height:1.65; }
+.specimen-run { color:var(--muted-strong); font-size:var(--text-meta); }
+.specimen-materials { display:flex; flex-wrap:wrap; gap:var(--space-1); margin-bottom:var(--space-1); }
+.specimen-material > .ui-icon { flex:none; width:16px; height:16px; }
+
+/* ── The Agent control (both alternatives) ───────────────────────────── */
+/* Compact workbench role: the product's context-chip (meta text, 16 glyph),
+ * in ink because it names the chat's primary choice; the model control
+ * beside Send keeps the muted secondary treatment. Same 32 invisible target
+ * extension as the Work location entry; 44 on narrow/coarse. */
+.agent-chip { position:relative; color:var(--ink); }
+.agent-chip::after { content:""; position:absolute; inset:-3px 0; }
+.agent-chip > .ui-icon { flex:none; width:16px; height:16px; }
+.agent-chip > .button-label { max-width:min(200px, 34vw); font-weight:500; }
+.agent-chip[aria-expanded="true"] { background:var(--hover); }
+@media (max-width: 767px), (pointer: coarse) {
+  .agent-chip { min-height:44px; }
+  .agent-chip::after { content:none; }
+}
+
+/* ── A · anchored chooser: listbox beside the active option's reading ── */
+.agent-popover { width:min(560px, calc(100vw - 24px)); }
+.agent-popover .section-heading { margin-bottom:var(--space-2); }
+.agent-popover-body { display:grid; grid-template-columns:minmax(0, 13rem) minmax(0,1fr); gap:var(--space-3); }
+.agent-listbox { display:flex; flex-direction:column; gap:2px; align-self:start; border-radius:var(--radius-small); }
+.agent-option { display:grid; gap:2px; min-height:32px; padding:var(--space-2); border-radius:var(--radius-small); cursor:pointer; text-align:left; }
+.agent-option.is-active { background:var(--hover); }
+.agent-option[aria-selected="true"] .agent-option-name::after,
+.agent-option[aria-checked="true"] .agent-option-name::after { content:" · chosen"; color:var(--muted-strong); font-weight:400; }
+.agent-option-name { font-weight:500; overflow-wrap:anywhere; }
+.agent-option-purpose { color:var(--muted-strong); font-size:var(--text-meta); line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.agent-option-state { color:var(--muted-strong); font-size:var(--text-meta); }
+.agent-detail { min-width:0; padding-left:var(--space-3); border-left:1px solid var(--line); }
+@media (max-width: 560px) {
+  .agent-popover-body { grid-template-columns:minmax(0,1fr); }
+  .agent-detail { padding-left:0; padding-top:var(--space-3); border-left:0; border-top:1px solid var(--line); }
+}
+#composer-notice + .text-button { margin-left:var(--space-1); }
+
+/* ── Shared reading ──────────────────────────────────────────────────── */
+.agent-reading { font-size:var(--text-meta); line-height:1.5; }
+.agent-reading-purpose { margin:0 0 var(--space-2); color:var(--ink); }
+.agent-reading-facts { display:grid; grid-template-columns:max-content minmax(0,1fr); gap:var(--space-1) var(--space-3); margin:0 0 var(--space-2); }
+.agent-reading-facts dt { color:var(--muted-strong); }
+.agent-reading-facts dd { margin:0; overflow-wrap:anywhere; }
+.agent-reading-blocker { margin:0 0 var(--space-2); color:var(--danger-11); }
+@media (max-width: 420px) {
+  .agent-reading-facts { grid-template-columns:minmax(0,1fr); }
+  .agent-reading-facts dd { margin-bottom:var(--space-1); }
+}
+
+/* ── B · Agent line under the field ──────────────────────────────────── */
+.agent-line { display:flex; align-items:center; gap:var(--space-2); min-width:0; margin-top:var(--space-1); padding-top:var(--space-1); border-top:1px solid var(--line); }
+.agent-line > .agent-chip { flex:none; }
+.agent-line-summary { flex:1 1 0; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted-strong); font-size:var(--text-meta); }
+.agent-line-summary[data-tone="blocked"] { color:var(--danger-11); }
+/* A blocker or a run in flight is the reading that decides the send: it wraps
+ * rather than being cut to an ellipsis. The ordinary reading stays one line. */
+.agent-line-summary[data-tone="blocked"],
+.agent-line-summary[data-tone="run"] { white-space:normal; }
+.agent-line > .text-button { flex:none; font-size:var(--text-meta); }
+.agent-line-details { margin-top:var(--space-2); padding:var(--space-2) var(--space-1) 0; }
+/* Narrow: the reading takes its own row and wraps instead of truncating, so
+ * nothing needed for the decision is cut off (UX-02); the cost is height. */
+@media (max-width: 560px) {
+  .agent-line { flex-wrap:wrap; }
+  .agent-line-summary { order:5; flex-basis:100%; white-space:normal; }
+}
+.agent-menu { width:min(360px, calc(100vw - 24px)); padding:var(--space-2); }
+.agent-menu .agent-option { width:100%; height:auto; justify-items:start; }

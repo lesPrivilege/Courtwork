@@ -1,0 +1,2212 @@
+{
+  "a": {
+    "alt": "a",
+    "url": "http://127.0.0.1:8965/engineering/design/role-composer-20260922/specimen/index.html",
+    "steps": [
+      {
+        "name": "1 initial choice (chat default)",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "2 chooser opened with Enter on the Agent control",
+        "focus": "agent-listbox",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "3 ArrowDown to Coding (A shows its reading before commit)",
+        "focus": "agent-listbox",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "4 Escape closes without change",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "5 End + Enter commits Attention; focus back on the Agent control",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "6 model reading opened from the model control (runtime-owned)",
+        "focus": "BUTTON",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "7 Escape returns to the model control",
+        "focus": "model-button",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "8 chooser reopened; Attention reading is the permission reading",
+        "focus": "agent-listbox",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "9 Tab from the list reaches Edit in Settings",
+        "focus": "edit-in-settings",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "10 Settings open on Attention; focus on Back to chat",
+        "focus": "settings-back",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "11 saved revision 3 in Settings",
+        "focus": "save-receipt",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        },
+        "receipt": "Saved. This host confirmed revision 3; it applies to the next run."
+      },
+      {
+        "name": "12 Escape returns to the chat",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": "Attention changed: revision 2 → 3.",
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "composer-notice"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        },
+        "draft": {
+          "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+          "start": 35,
+          "end": 35,
+          "materials": [
+            "retry-wrapper.ts",
+            "gateway-timeout-test.log"
+          ]
+        }
+      },
+      {
+        "name": "13 run in flight on Coding r7; Attention proposed for a later run",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": "Running now on Coding · revision 7, which it keeps. Attention applies to a run you start after it ends.",
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": true,
+            "describedBy": "composer-notice"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "14 Pi unavailable: Work is blocked",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": "Work cannot start a run: Pi is unavailable: The Pi process is not running on this device.",
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": true,
+            "describedBy": "composer-notice"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "15 Praxis 0.5 no longer declares Hermes: Attention is blocked",
+        "focus": "body",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": "Attention cannot start a run: Praxis 0.5 does not declare support for Hermes.",
+          "line": null,
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": true,
+            "describedBy": "composer-notice"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "16 long names",
+        "focus": "body",
+        "composer": {
+          "chip": "General work for drafting, revising and summarising connected materials",
+          "chipLabel": "Agent: General work for drafting, revising and summarising connected materials",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "17 agent list read failed",
+        "focus": "body",
+        "composer": {
+          "chip": "Agent unknown",
+          "chipLabel": "Agent: Agent unknown",
+          "notice": "Could not read the agents: The host did not answer the agent list.",
+          "line": null,
+          "model": "Model",
+          "send": {
+            "disabled": true,
+            "describedBy": "composer-notice"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "18 Retry recovers the list and the default",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "19 loading (slow replies)",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Model",
+          "send": {
+            "disabled": true,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "20 narrow 390 light",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "21 narrow chooser",
+        "focus": "agent-listbox",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": null
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "22 narrow 390 dark, run in flight",
+        "focus": "body",
+        "composer": {
+          "chip": "Coding",
+          "chipLabel": "Agent: Coding",
+          "notice": "Running now on Coding · revision 7. A run you start after it ends uses the same agent.",
+          "line": null,
+          "model": "Synthetic model",
+          "send": {
+            "disabled": true,
+            "describedBy": "composer-notice"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      }
+    ],
+    "geometry": {
+      "initialDesktop": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 726,
+          "w": 1440,
+          "h": 174
+        },
+        "form": {
+          "x": 350,
+          "y": 755,
+          "w": 740,
+          "h": 145
+        },
+        "field": {
+          "x": 363,
+          "y": 797,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 561
+        },
+        "chip": {
+          "x": 363,
+          "y": 859,
+          "w": 89,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 865,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "chooserDesktop": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 726,
+          "w": 1440,
+          "h": 174
+        },
+        "form": {
+          "x": 350,
+          "y": 755,
+          "w": 740,
+          "h": 145
+        },
+        "field": {
+          "x": 363,
+          "y": 797,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 561
+        },
+        "chip": {
+          "x": 363,
+          "y": 859,
+          "w": 89,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 865,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": {
+          "x": 363,
+          "y": 552,
+          "w": 560,
+          "h": 299
+        }
+      },
+      "afterAttention": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 726,
+          "w": 1440,
+          "h": 174
+        },
+        "form": {
+          "x": 350,
+          "y": 755,
+          "w": 740,
+          "h": 145
+        },
+        "field": {
+          "x": 363,
+          "y": 797,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 561
+        },
+        "chip": {
+          "x": 363,
+          "y": 859,
+          "w": 111,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 111,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 865,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 942,
+          "y": 859,
+          "w": 100,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "boundRun": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 701,
+          "w": 1440,
+          "h": 199
+        },
+        "form": {
+          "x": 350,
+          "y": 730,
+          "w": 740,
+          "h": 170
+        },
+        "field": {
+          "x": 363,
+          "y": 772,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 536
+        },
+        "chip": {
+          "x": 363,
+          "y": 859,
+          "w": 111,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 111,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 865,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 942,
+          "y": 859,
+          "w": 100,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "unavailable": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 701,
+          "w": 1440,
+          "h": 199
+        },
+        "form": {
+          "x": 350,
+          "y": 730,
+          "w": 740,
+          "h": 170
+        },
+        "field": {
+          "x": 363,
+          "y": 772,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 536
+        },
+        "chip": {
+          "x": 363,
+          "y": 859,
+          "w": 89,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 865,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "longNames": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 726,
+          "w": 1440,
+          "h": 174
+        },
+        "form": {
+          "x": 350,
+          "y": 755,
+          "w": 740,
+          "h": 145
+        },
+        "field": {
+          "x": 363,
+          "y": 797,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 561
+        },
+        "chip": {
+          "x": 363,
+          "y": 859,
+          "w": 260,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 260,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 865,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "initialNarrow": {
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 641,
+          "w": 390,
+          "h": 203
+        },
+        "form": {
+          "x": 0,
+          "y": 691,
+          "w": 390,
+          "h": 153
+        },
+        "field": {
+          "x": 9,
+          "y": 729,
+          "w": 372,
+          "h": 54
+        },
+        "controls": {
+          "x": 9,
+          "y": 791,
+          "w": 372,
+          "h": 44
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 285,
+          "w": 390,
+          "h": 356
+        },
+        "chip": {
+          "x": 9,
+          "y": 791,
+          "w": 89,
+          "h": 44
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 44
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 17,
+          "y": 805,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 243,
+          "y": 791,
+          "w": 102,
+          "h": 44
+        },
+        "send": {
+          "x": 350,
+          "y": 791,
+          "w": 31,
+          "h": 44
+        },
+        "popover": null
+      },
+      "chooserNarrow": {
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 641,
+          "w": 390,
+          "h": 203
+        },
+        "form": {
+          "x": 0,
+          "y": 691,
+          "w": 390,
+          "h": 153
+        },
+        "field": {
+          "x": 9,
+          "y": 729,
+          "w": 372,
+          "h": 54
+        },
+        "controls": {
+          "x": 9,
+          "y": 791,
+          "w": 372,
+          "h": 44
+        },
+        "line": null,
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 285,
+          "w": 390,
+          "h": 356
+        },
+        "chip": {
+          "x": 9,
+          "y": 791,
+          "w": 89,
+          "h": 44
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 44
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 17,
+          "y": 805,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 243,
+          "y": 791,
+          "w": 102,
+          "h": 44
+        },
+        "send": {
+          "x": 350,
+          "y": 791,
+          "w": 31,
+          "h": 44
+        },
+        "popover": {
+          "x": 9,
+          "y": 121,
+          "w": 366,
+          "h": 662
+        }
+      }
+    },
+    "draftAtStart": {
+      "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+      "start": 35,
+      "end": 35,
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ]
+    },
+    "draftUnchanged": true
+  },
+  "b": {
+    "alt": "b",
+    "url": "http://127.0.0.1:8965/engineering/design/role-composer-20260922/specimen/index.html",
+    "steps": [
+      {
+        "name": "1 initial choice (chat default)",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "2 chooser opened with Enter on the Agent control",
+        "focus": "agent-option:ap-work",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "3 ArrowDown to Coding (A shows its reading before commit)",
+        "focus": "agent-option:ap-coding",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "4 Escape closes without change",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "5 End + Enter commits Attention; focus back on the Agent control",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Hermes · model set in Hermes · asks before 1",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "6 model reading opened from the model control (runtime-owned)",
+        "focus": "BUTTON",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Hermes · model set in Hermes · asks before 1",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "7 Escape returns to the model control",
+        "focus": "model-button",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Hermes · model set in Hermes · asks before 1",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "8 Details disclosure opened (permission reading in place)",
+        "focus": "agent-details-toggle",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Hermes · model set in Hermes · asks before 1",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "10 Settings open on Attention; focus on Back to chat",
+        "focus": "settings-back",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Hermes · model set in Hermes · asks before 1",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "11 saved revision 3 in Settings",
+        "focus": "save-receipt",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Hermes · model set in Hermes · asks before 1",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        },
+        "receipt": "Saved. This host confirmed revision 3; it applies to the next run."
+      },
+      {
+        "name": "12 Escape returns to the chat",
+        "focus": "edit-in-settings",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Attention changed: revision 2 → 3. Pi · Synthetic model · asks before 1",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        },
+        "draft": {
+          "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+          "start": 35,
+          "end": 35,
+          "materials": [
+            "retry-wrapper.ts",
+            "gateway-timeout-test.log"
+          ]
+        }
+      },
+      {
+        "name": "13 run in flight on Coding r7; Attention proposed for a later run",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Running now on Coding · revision 7, which it keeps. Attention applies to a run you start after it ends.",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": true,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "14 Pi unavailable: Work is blocked",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Cannot start: Pi is unavailable: The Pi process is not running on this device.",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": true,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "15 Praxis 0.5 no longer declares Hermes: Attention is blocked",
+        "focus": "body",
+        "composer": {
+          "chip": "Attention",
+          "chipLabel": "Agent: Attention",
+          "notice": null,
+          "line": "Cannot start: Praxis 0.5 does not declare support for Hermes.",
+          "model": "Model · Hermes",
+          "send": {
+            "disabled": true,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "16 long names",
+        "focus": "body",
+        "composer": {
+          "chip": "General work for drafting, revising and summarising connected materials",
+          "chipLabel": "Agent: General work for drafting, revising and summarising connected materials",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "17 agent list read failed",
+        "focus": "body",
+        "composer": {
+          "chip": "Agent unknown",
+          "chipLabel": "Agent: Agent unknown",
+          "notice": null,
+          "line": "Could not read the agents: The host did not answer the agent list.",
+          "model": "Model",
+          "send": {
+            "disabled": true,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "18 Retry recovers the list and the default",
+        "focus": "agent-chip",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "19 loading (slow replies)",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Reading Work…",
+          "model": "Model",
+          "send": {
+            "disabled": true,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "20 narrow 390 light",
+        "focus": "body",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "21 narrow chooser",
+        "focus": "agent-option:ap-work",
+        "composer": {
+          "chip": "Work",
+          "chipLabel": "Agent: Work",
+          "notice": null,
+          "line": "Pi · Synthetic model · no Kit requests",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": false,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": true
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      },
+      {
+        "name": "22 narrow 390 dark, run in flight",
+        "focus": "body",
+        "composer": {
+          "chip": "Coding",
+          "chipLabel": "Agent: Coding",
+          "notice": null,
+          "line": "Running now on Coding · revision 7. A run you start after it ends uses the same agent.",
+          "model": "Synthetic model",
+          "send": {
+            "disabled": true,
+            "describedBy": "agent-line-summary"
+          },
+          "popoverOpen": false
+        },
+        "checks": {
+          "horizontalOverflow": 0,
+          "nullText": false
+        }
+      }
+    ],
+    "geometry": {
+      "initialDesktop": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 689,
+          "w": 1440,
+          "h": 211
+        },
+        "form": {
+          "x": 350,
+          "y": 718,
+          "w": 740,
+          "h": 182
+        },
+        "field": {
+          "x": 363,
+          "y": 760,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": {
+          "x": 363,
+          "y": 818,
+          "w": 714,
+          "h": 33
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 524
+        },
+        "chip": {
+          "x": 363,
+          "y": 823,
+          "w": 89,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 829,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "chooserDesktop": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 689,
+          "w": 1440,
+          "h": 211
+        },
+        "form": {
+          "x": 350,
+          "y": 718,
+          "w": 740,
+          "h": 182
+        },
+        "field": {
+          "x": 363,
+          "y": 760,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": {
+          "x": 363,
+          "y": 818,
+          "w": 714,
+          "h": 33
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 524
+        },
+        "chip": {
+          "x": 363,
+          "y": 823,
+          "w": 89,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 829,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": {
+          "x": 363,
+          "y": 602,
+          "w": 360,
+          "h": 213
+        }
+      },
+      "afterAttention": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 689,
+          "w": 1440,
+          "h": 211
+        },
+        "form": {
+          "x": 350,
+          "y": 718,
+          "w": 740,
+          "h": 182
+        },
+        "field": {
+          "x": 363,
+          "y": 760,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": {
+          "x": 363,
+          "y": 818,
+          "w": 714,
+          "h": 33
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 524
+        },
+        "chip": {
+          "x": 363,
+          "y": 823,
+          "w": 111,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 111,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 829,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 942,
+          "y": 859,
+          "w": 100,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "detailsOpen": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 486,
+          "w": 1440,
+          "h": 414
+        },
+        "form": {
+          "x": 350,
+          "y": 515,
+          "w": 740,
+          "h": 385
+        },
+        "field": {
+          "x": 363,
+          "y": 557,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": {
+          "x": 363,
+          "y": 615,
+          "w": 714,
+          "h": 33
+        },
+        "details": {
+          "x": 363,
+          "y": 656,
+          "w": 714,
+          "h": 195
+        },
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 321
+        },
+        "chip": {
+          "x": 363,
+          "y": 620,
+          "w": 111,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 111,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 626,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 942,
+          "y": 859,
+          "w": 100,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "boundRun": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 683,
+          "w": 1440,
+          "h": 217
+        },
+        "form": {
+          "x": 350,
+          "y": 712,
+          "w": 740,
+          "h": 188
+        },
+        "field": {
+          "x": 363,
+          "y": 753,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": {
+          "x": 363,
+          "y": 812,
+          "w": 714,
+          "h": 40
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 518
+        },
+        "chip": {
+          "x": 363,
+          "y": 820,
+          "w": 111,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 111,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 826,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 942,
+          "y": 859,
+          "w": 100,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "unavailable": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 689,
+          "w": 1440,
+          "h": 211
+        },
+        "form": {
+          "x": 350,
+          "y": 718,
+          "w": 740,
+          "h": 182
+        },
+        "field": {
+          "x": 363,
+          "y": 760,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": {
+          "x": 363,
+          "y": 818,
+          "w": 714,
+          "h": 33
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 524
+        },
+        "chip": {
+          "x": 363,
+          "y": 823,
+          "w": 89,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 829,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "longNames": {
+        "viewport": {
+          "w": 1440,
+          "h": 900
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 689,
+          "w": 1440,
+          "h": 211
+        },
+        "form": {
+          "x": 350,
+          "y": 718,
+          "w": 740,
+          "h": 182
+        },
+        "field": {
+          "x": 363,
+          "y": 760,
+          "w": 714,
+          "h": 54
+        },
+        "controls": {
+          "x": 363,
+          "y": 859,
+          "w": 714,
+          "h": 28
+        },
+        "line": {
+          "x": 363,
+          "y": 818,
+          "w": 714,
+          "h": 33
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 165,
+          "w": 1440,
+          "h": 524
+        },
+        "chip": {
+          "x": 363,
+          "y": 823,
+          "w": 260,
+          "h": 28
+        },
+        "chipTarget": {
+          "w": 260,
+          "h": 34
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 371,
+          "y": 829,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 939,
+          "y": 859,
+          "w": 102,
+          "h": 28
+        },
+        "send": {
+          "x": 1046,
+          "y": 859,
+          "w": 31,
+          "h": 28
+        },
+        "popover": null
+      },
+      "initialNarrow": {
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 563,
+          "w": 390,
+          "h": 281
+        },
+        "form": {
+          "x": 0,
+          "y": 613,
+          "w": 390,
+          "h": 231
+        },
+        "field": {
+          "x": 9,
+          "y": 651,
+          "w": 372,
+          "h": 54
+        },
+        "controls": {
+          "x": 9,
+          "y": 791,
+          "w": 372,
+          "h": 44
+        },
+        "line": {
+          "x": 9,
+          "y": 709,
+          "w": 372,
+          "h": 74
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 260,
+          "w": 390,
+          "h": 302
+        },
+        "chip": {
+          "x": 9,
+          "y": 714,
+          "w": 89,
+          "h": 44
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 44
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 17,
+          "y": 728,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 243,
+          "y": 791,
+          "w": 102,
+          "h": 44
+        },
+        "send": {
+          "x": 350,
+          "y": 791,
+          "w": 31,
+          "h": 44
+        },
+        "popover": null
+      },
+      "chooserNarrow": {
+        "viewport": {
+          "w": 390,
+          "h": 844
+        },
+        "composerArea": {
+          "x": 0,
+          "y": 563,
+          "w": 390,
+          "h": 281
+        },
+        "form": {
+          "x": 0,
+          "y": 613,
+          "w": 390,
+          "h": 231
+        },
+        "field": {
+          "x": 9,
+          "y": 651,
+          "w": 372,
+          "h": 54
+        },
+        "controls": {
+          "x": 9,
+          "y": 791,
+          "w": 372,
+          "h": 44
+        },
+        "line": {
+          "x": 9,
+          "y": 709,
+          "w": 372,
+          "h": 74
+        },
+        "details": null,
+        "thread": {
+          "x": 0,
+          "y": 260,
+          "w": 390,
+          "h": 302
+        },
+        "chip": {
+          "x": 9,
+          "y": 714,
+          "w": 89,
+          "h": 44
+        },
+        "chipTarget": {
+          "w": 89,
+          "h": 44
+        },
+        "chipText": {
+          "size": "11.5px",
+          "weight": "500",
+          "lineHeight": "16.675px"
+        },
+        "chipGlyph": {
+          "x": 17,
+          "y": 728,
+          "w": 16,
+          "h": 16
+        },
+        "model": {
+          "x": 243,
+          "y": 791,
+          "w": 102,
+          "h": 44
+        },
+        "send": {
+          "x": 350,
+          "y": 791,
+          "w": 31,
+          "h": 44
+        },
+        "popover": {
+          "x": 9,
+          "y": 492,
+          "w": 360,
+          "h": 213
+        }
+      }
+    },
+    "draftAtStart": {
+      "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+      "start": 35,
+      "end": 35,
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ]
+    },
+    "draftUnchanged": true
+  }
+}
