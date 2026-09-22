@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {readFile,writeFile,rm} from 'node:fs/promises';
+import path from 'node:path';
+import {boot,reopen} from '/Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/tests/helpers.mjs';
+import {seal,sha256} from '/Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/tests/fixtures/kit-context.mjs';
+import {validateState} from '/Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/server/store.mjs';
+const h=await boot();let again;
+try{
+ const session=await h.createSession(); const scope={type:'session',id:session.id};
+ const snapshot=async()=>(await h.api('GET',`/runtime-control?sessionId=${session.id}`)).json;
+ const change=async body=>h.api('PUT',`/runtime-control?sessionId=${session.id}`,{revision:(await snapshot()).revision,...body});
+ const source={id:'local:probe-guide',kind:'instruction',title:'Synthetic review guide',scope,content:'Use exact retained evidence.'};
+ assert.equal((await change({operation:'put',resource:source})).status,200);
+ const kit=seal({schemaVersion:1,id:'kit:probe',version:'1',core:[{resourceId:source.id,contentSha256:sha256(source.content),artifactSha256:sha256(JSON.stringify({kind:source.kind,title:source.title,content:source.content}))}],deferred:[],requirements:[],conflicts:[]});
+ const profile={schemaVersion:2,version:'1',resourceIds:[source.id],rules:[],uiSlots:[],kits:[kit]};
+ assert.equal((await change({operation:'put',resource:{id:'local:probe-profile',kind:'agent_profile',title:'Synthetic review profile',scope,content:JSON.stringify(profile)}})).status,200);
+ assert.equal((await change({operation:'profile',scope,id:'local:probe-profile'})).status,200);
+ const started=await h.api('POST',`/sessions/${session.id}/runs`,{input:'Bounded synthetic probe',commandId:'probe-command'});assert.equal(started.status,200,JSON.stringify(started));
+ const run=await h.pollRun(started.json.run.id);assert.equal(run.status,'completed');assert.ok(run.kitBinding);
+ await h.runtime.close();
+ const file=path.join(h.dataDir,'runtime-state.json');const saved=JSON.parse(await readFile(file,'utf8'));validateState(saved);
+ const row=saved.runs.find(r=>r.id===run.id);const bound=saved.events.find(e=>e.runId===run.id&&e.type==='runtime.bound');
+ const count=bound.data.composition.kits.length;row.kitBinding=null;delete bound.data.kitBinding;
+ let validationError=null;try{validateState(saved)}catch(e){validationError=e.message}
+ console.log(JSON.stringify({stage:'remove-summary-only',declaredKitCount:count,runKitBinding:row.kitBinding,validationError}));
+ if(!validationError){await writeFile(file,JSON.stringify(saved));again=await reopen(h.dataDir);const response=await again.api('GET',`/runtime-context?sessionId=${session.id}&runId=${run.id}`);console.log(JSON.stringify({stage:'actual-reopen-readback',httpStatus:response.status,declaredKitCount:response.json.binding?.composition?.kits?.length,hasKitContext:Object.hasOwn(response.json,'kitContext'),runBinding:again.runtime.store.getRun(run.id).kitBinding}));}
+ assert.ok(validationError,'nonempty admitted v2 Kit declaration must not silently become a no-Kit historical Run');
+}finally{await again?.runtime.close();await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}

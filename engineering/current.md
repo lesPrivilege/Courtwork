@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · K3-R1 missing-summary correction delivered; parent delta acceptance pending
+
+[K3-R1 return](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/r1/README.md), source `8e7171c`, adopts the parent's persisted-load counterexample. A nonempty v2 Kit declaration now requires its frozen Run/event summaries even when both projections were stripped; invalid history cannot silently reopen as no-Kit. The exact parent probe changes exit1→0, and32/32 targeted Host/Store/legacy migration checks pass, including five actual corrupted-reopen variants and valid v1/empty-v2 historical reads. Luna non-author28/28 and the unchanged parent probe also pass. Original1565/1565 evidence remains prior-source evidence. Schema21/Core4/bridge5 are unchanged; no reader reconstruction, UI/main/user-service change or new work lane. Parent retains delta acceptance/integration.
+
 ## 2026-09-22 · K3 backend author delivery; parent acceptance pending
 
 [K3 author packet](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md), source `b999007`, connects authenticated profile-v2 import/Session selection to actual ordinary-Chat Host→in-process Pi requests. Run-owned schema21 summaries and exact ArtifactHistory plan/context bytes survive edits/restart; no-Kit keeps prior context behavior. Optional `runtimeSelection` protects E1 Send intent with whole-config revision/profile ID/source hash; original-command replay still returns the prior Run. The [E1 contract](execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md#e1-frontend-consumer-contract--current-implemented-owner-facts) exposes existing owners, not a new profile registry.

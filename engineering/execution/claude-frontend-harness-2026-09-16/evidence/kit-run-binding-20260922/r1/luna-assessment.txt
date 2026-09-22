@@ -1,0 +1,19 @@
+K3-R1 bounded non-author verification
+
+Target product commit: 8e7171c5a8f42be00e5800e3699568e6bb161fab
+Base: cb26d20
+
+Results:
+- parent persisted-corruption probe: PASS; null Run summary plus removed event summary with nonempty v2 Kits is rejected before reopen/readback with `a Kit-bearing runtime.bound composition requires a Run Kit binding`.
+- app/tests/kit-run-binding.test.mjs: 24 passed, 0 failed.
+- app/tests/kit-binding-store.test.mjs: 4 passed, 0 failed.
+- total requested tests: 28 passed, 0 failed.
+
+R1 conclusion: no blocker found in this bounded delta. Legitimate v1, empty-v2 and schema20 histories remain covered by the passing suites; forged schema20 upgrade is covered by the new regression.
+
+Logs:
+- /tmp/cw-k3-r1-parent-probe.log
+- /tmp/cw-k3-r1-kit-run-binding.log
+- /tmp/cw-k3-r1-kit-binding-store.log
+- /tmp/cw-k3-r1-luna-source-sha256.txt
+- /tmp/cw-k3-r1-luna-status.txt

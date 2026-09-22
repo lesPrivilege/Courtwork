@@ -1,0 +1,1 @@
+{"stage":"remove-summary-only","declaredKitCount":1,"runKitBinding":null,"validationError":"invalid runtime state: a Kit-bearing runtime.bound composition requires a Run Kit binding"}
