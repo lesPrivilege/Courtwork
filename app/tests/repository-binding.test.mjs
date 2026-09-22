@@ -48,7 +48,7 @@ test("RuntimeStore schema15 gains empty external bindings with an exact backup a
     const original = await readFile(file);
     assert.equal(JSON.parse(original).schemaVersion, 15);
     current = await new RuntimeStore({ dataDir }).open();
-    assert.equal(current.snapshot().schemaVersion, 20);
+    assert.equal(current.snapshot().schemaVersion, 21);
     assert.equal(current.getSession(session.id).draft, "Preserve this draft");
     assert.equal(current.getSession(session.id).workspaceDir, path.join(scratch, "managed", "session"));
     assert.equal(current.getSession(session.id).repositoryBinding, null);
@@ -61,7 +61,7 @@ test("RuntimeStore schema15 gains empty external bindings with an exact backup a
     const digest = sha256(original);
     assert.deepEqual(await readFile(path.join(dataDir, `runtime-state.schema15.${digest}.json`)), original);
     const upgraded = await readFile(file);
-    await assert.rejects(new Schema15Store({ dataDir }).open(), /schemaVersion 20 is not supported/);
+    await assert.rejects(new Schema15Store({ dataDir }).open(), /schemaVersion 21 is not supported/);
     assert.deepEqual(await readFile(file), upgraded, "the schema15 host must refuse upgraded bytes without changing them");
 
     const restoreDir = path.join(scratch, "restore");

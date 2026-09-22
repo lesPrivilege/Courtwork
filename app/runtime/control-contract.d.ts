@@ -65,13 +65,45 @@ export interface ImportedResource {
    * Kind-specific validation runs before persistence. */
   content: string;
 }
-export interface AgentCompositionSource {
-  schemaVersion: 1;
+interface AgentCompositionFields {
   version: string;
   resourceIds: string[];
   rules: PolicyRule[];
   /** Declarations for future frontend composition; never executable code. */
   uiSlots: Array<'runtime.inspector' | 'work.surface'>;
+}
+export interface KitContentRef { resourceId: string; contentSha256: string; artifactSha256: string }
+export interface KitDeclaration {
+  descriptor: { schemaVersion: 1; id: string; version: string; core: KitContentRef[];
+    deferred: Array<KitContentRef & { required: boolean }>;
+    requirements: Array<{ resourceId: string; required: boolean }>; conflicts: string[] };
+  descriptorSha256: string;
+}
+export type AgentCompositionSource = AgentCompositionFields & (
+  | { schemaVersion: 1; kits?: never }
+  | { schemaVersion: 2; kits: KitDeclaration[] }
+);
+export interface KitPin { id: string; version: string; descriptorSha256: string }
+/** Optional Run POST expectation; never a persisted draft or profile revision. */
+export interface RuntimeSelectionExpectation { revision: number; profileId: string; sourceHash: string | null }
+export interface KitBinding {
+  version: 1;
+  profile: { id: string; version: string; sourceSha256: string };
+  controlRevision: number;
+  bindingHash: string;
+  kits: KitPin[];
+  planVersion: 1;
+  compiler: 'kit-context-v1';
+  adapter: { id: string; revision: string };
+  compatibility: { status: 'supported' | 'unchecked'; kits: Array<KitPin & {
+    status: 'supported' | 'unchecked'; evidence: Array<{ ref: string; sha256: string; result: 'supported' }>
+  }> };
+  policy: 'reference-only-pi-unchecked-v1';
+  limits: { maxCoreBytes: 400000; maxContextBytes: 400000; maxContextCharacters: 100000;
+    maxPlanBytes: 2097152; maxPayloadBytes: 2497152; payloadCount: 2 };
+  planSha256: string;
+  planPayload: { sha256: string; bytes: number };
+  contextPayload: { sha256: string; bytes: number; characters: number };
 }
 export interface McpSource {
   transport: 'streamable-http';
@@ -86,6 +118,9 @@ export interface RuntimeComposition {
   resourceIds: string[] | null;
   uiSlots: string[];
   missing: string[];
+  schemaVersion?: 2;
+  kits?: KitDeclaration[];
+  selectionScope?: Scope;
 }
 export interface ContextItem {
   id: string;
@@ -117,7 +152,7 @@ export interface RuntimeSnapshot {
   context: ContextItem[];
   audit: Array<{ revision: number; at: string; actor: 'local-user'; operation: string; id: string | null; scope: ConfigurableScope | null }>;
   kinds: Array<{ kind: ResourceKind; support: 'available' | 'adapter-required' }>;
-  compatibility: Record<string, unknown>;
+  compatibility: Record<string, unknown> & { runtimeSelection: 'expectation-v1' };
 }
 export type RuntimeChange = { revision: number } & (
   | { operation: 'put'; resource: ImportedResource; exposed?: boolean }
@@ -134,6 +169,7 @@ export interface RuntimeBinding {
   content: ImportedResource[];
   policies: ScopedPolicy[];
   context: ContextItem[];
+  kitBinding?: KitBinding;
 }
 /** Implementable by an HTTP client or an in-process host adapter. Mutations
  * return authoritative snapshots; the frontend must not synthesize authority. */
@@ -142,7 +178,7 @@ export interface RuntimeControlClient {
   listResources(kind?: ResourceKind, sessionId?: string): Promise<{ protocolVersion: 1; revision: number; resources: RuntimeResource[] }>;
   getContext(sessionId: string, runId?: string): Promise<
     | { mode: 'effective-next-run'; revision: number; composition: RuntimeComposition; context: ContextItem[]; tokenUsage: null }
-    | { mode: 'recorded-run'; runId: string; binding: RuntimeBinding | null; loaded: Array<{ id: string; kind: ResourceKind; source: ResourceSource; characters: number; seq: number }>; tokenUsage: unknown; legacyWithoutControlSnapshot: boolean }
+    | { mode: 'recorded-run'; runId: string; binding: RuntimeBinding | null; kitBinding?: KitBinding; kitContext?: { text: string; plan: Record<string, unknown> }; loaded: Array<{ id: string; kind: ResourceKind; source: ResourceSource; characters: number; seq: number }>; tokenUsage: unknown; legacyWithoutControlSnapshot: boolean }
   >;
   configure(change: RuntimeChange, sessionId?: string): Promise<RuntimeSnapshot>;
   getResource(id: string, sessionId?: string): Promise<{ revision: number; resource: RuntimeResource; content: string | null }>;

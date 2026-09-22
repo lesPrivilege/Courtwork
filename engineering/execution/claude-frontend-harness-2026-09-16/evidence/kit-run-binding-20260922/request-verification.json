@@ -1,0 +1,19 @@
+{
+  "source": "b99900771db008da505b2450bf382bf378dd3be3",
+  "provider": "Host-owned deterministic loopback; real locked in-process Pi",
+  "requestArtifact": "actual-provider-request.json",
+  "requestArtifactSha256": "49bc07cca4aac6d2ba3b5105072a142b6df26dcbd35cbd42fef5d7e076020c73",
+  "requestArtifactIs": "parsed received HTTP request body; authorization header omitted",
+  "exactContributionOccurrences": 1,
+  "contextSha256": "b0b64043f010e5a89e57542659eb445f81cd6160fecd20038ccce6e06ad66158",
+  "bytes": 242,
+  "utf16Characters": 240,
+  "planSha256": "11671f0ebe2c382286498a01ebefc0b045d5d43d1c3ce2287a6b0fc23b14bfd3",
+  "planPayload": {
+    "sha256": "e54e069eed6b60c1e85e50546439c59b2ea7ada96dd78561bda4c1dbd688a030",
+    "bytes": 5157
+  },
+  "compatibility": "unchecked",
+  "policy": "reference-only-pi-unchecked-v1",
+  "deferredBodiesAbsent": true
+}

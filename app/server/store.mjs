@@ -3,6 +3,7 @@ import { deriveUsageDetails } from "./usage-details.mjs";
 import { mkdir, readFile, readdir, rename, unlink, writeFile, chmod } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID, createHash } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import { acquireRuntimeLock } from "./runtime-lock.mjs";
 import { deriveWorkMetrics } from "./work-metrics.mjs";
 import { deriveWorkSummary } from "./work-summary.mjs";
@@ -22,6 +23,7 @@ import {
   validateProviderModels,
 } from './provider-fields.mjs';
 import { appendLocalPiEvent, localPiRunUnresolved, validateLocalPiEvents } from '../runtime/local-pi-state.mjs';
+import { validateKitBinding, validateKitBindings } from '../runtime/kit-binding-state.mjs';
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
 const TERMINAL_STATUSES = new Set(["completed", "cancelled", "failed", "unknown"]);
@@ -34,7 +36,10 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 20;
+const SCHEMA_VERSION = 21;
+// Schema 20 introduced the current strict provider descriptor domain. Keep
+// that boundary stable when later Store schemas add unrelated records.
+const STRICT_PROVIDER_DESCRIPTOR_SCHEMA = 20;
 // check.settled status: "unknown" is fenced in by the Host on restart for a
 // check.started event that never got a matching settlement (RD-009 durable
 // settlement rule); it is never produced by the runner itself.
@@ -90,7 +95,7 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
   const allowed = new Set(["provider", "model", "api", ...(allowRealProvider ? ["realProvider"] : []), "baseUrl", ...(schema >= 7 ? ["reasoningEffort"] : []), ...provenance, ...(allowRealProvider && schema >= 13 ? ["reasoningBinding"] : [])]);
   assert(Object.keys(value).every((key) => allowed.has(key)), label + " has unsupported fields");
   id(value.provider, label + ".provider");
-  if (schema >= SCHEMA_VERSION && !legacy) {
+  if (schema >= STRICT_PROVIDER_DESCRIPTOR_SCHEMA && !legacy) {
     try { assertProviderModelId(value.model); }
     catch { throw invalidState(label + ".model is invalid"); }
     try { assertProviderApi(value.api, PROVIDER_API_FORMATS); }
@@ -104,7 +109,7 @@ function validateDescriptor(value, label, { allowRealProvider = false, schema = 
     id(value.api, label + ".api");
   }
   if (value.baseUrl !== undefined) {
-    if (schema >= SCHEMA_VERSION && !legacy) {
+    if (schema >= STRICT_PROVIDER_DESCRIPTOR_SCHEMA && !legacy) {
       try { assertProviderBaseUrl(value.baseUrl); }
       catch { throw invalidState(label + ".baseUrl is invalid"); }
     } else {
@@ -421,7 +426,7 @@ function validateOperations(value, sessions) {
 
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 19 can be upgraded)`);
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 20 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')) && (schema >= 18 || k !== 'operations'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -472,7 +477,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     exactKeys(run, new Set([
       "id", "sessionId", "status", "admissionOpen", "adapterId", "provider", "extension",
       "startedAt", "endedAt", "error", "commandId", "artifacts", "usage", "hostSession", "credentialGeneration",
-      ...(schema >= 9 ? ["supersedes"] : []), ...(schema >= 16 ? ["repositoryBindingSnapshot"] : []), ...(schema >= 17 ? ["repositoryCandidateSnapshot"] : []), ...(schema >= 19 ? ["remoteBinding"] : []),
+      ...(schema >= 9 ? ["supersedes"] : []), ...(schema >= 16 ? ["repositoryBindingSnapshot"] : []), ...(schema >= 17 ? ["repositoryCandidateSnapshot"] : []), ...(schema >= 19 ? ["remoteBinding"] : []), ...(schema >= 21 ? ["kitBinding"] : []),
     ]), "run");
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
@@ -500,6 +505,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     if (schema >= 16 && run.repositoryBindingSnapshot !== null) validateRepositoryBinding(run.repositoryBindingSnapshot, "run.repositoryBindingSnapshot", { activeOnly: true });
     if (schema >= 17 && run.repositoryCandidateSnapshot !== null) validateRepositoryCandidate(run.repositoryCandidateSnapshot, "run.repositoryCandidateSnapshot", { activeOnly: true });
     if (schema >= 19) validateRunRemoteBinding(run.remoteBinding, run);
+    if (schema >= 21 && run.kitBinding !== null) validateKitBinding(run.kitBinding);
   }
   // Schema 19 · remote runtime records sit beside Pi's hostSession, never in it.
   if (schema >= 19) {
@@ -606,6 +612,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     validateVerifications(parsed.providerVerifications, schema);
   }
   validateLocalPiEvents(parsed, schema);
+  if (schema >= 21) validateKitBindings(parsed);
   return structuredClone(parsed);
 }
 
@@ -817,7 +824,7 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
@@ -854,7 +861,8 @@ export class RuntimeStore {
             runs: parsed.runs.map(run => ({ ...run, supersedes: parsed.schemaVersion >= 9 ? run.supersedes : null,
               repositoryBindingSnapshot: parsed.schemaVersion >= 16 ? run.repositoryBindingSnapshot : null,
               repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null,
-              remoteBinding: parsed.schemaVersion >= 19 ? run.remoteBinding : null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
+              remoteBinding: parsed.schemaVersion >= 19 ? run.remoteBinding : null,
+              kitBinding: null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -954,6 +962,7 @@ export class RuntimeStore {
       // Local process recovery authority also depends on Host Run/status and
       // assignment mutations, not only on the named local receipt writer.
       validateLocalPiEvents(working);
+      validateKitBindings(working, this.state);
       await this._persist(working); this.state = working; return structuredClone(result);
     });
     this._queue = operation.catch(() => {}); return operation;
@@ -1529,13 +1538,20 @@ export class RuntimeStore {
     });
   }
 
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null, remote = null }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, kitBinding = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null, remote = null }) {
     // Validate and detach the descriptor before it enters the mutation queue.
     // A caller must not be able to mutate a checked object while an earlier
     // queued write is still pending, and an invalid descriptor must never
     // reach the durable state closure.
     const checkedProvider = structuredClone(provider);
     validateDescriptor(checkedProvider, "run.provider", { allowRealProvider: true, schema: SCHEMA_VERSION });
+    const checkedKitBinding = kitBinding === null ? null : validateKitBinding(structuredClone(kitBinding));
+    const checkedRuntimeSnapshot = runtimeSnapshot === null ? null : structuredClone(runtimeSnapshot);
+    if (checkedRuntimeSnapshot !== null) {
+      if (typeof checkedRuntimeSnapshot !== "object" || Array.isArray(checkedRuntimeSnapshot)) throw invalidState("runtimeSnapshot must be an object");
+      if (Object.hasOwn(checkedRuntimeSnapshot, "kitBinding") && !isDeepStrictEqual(checkedRuntimeSnapshot.kitBinding, checkedKitBinding)) throw invalidState("runtimeSnapshot.kitBinding does not match the Run summary");
+      if (checkedKitBinding !== null) checkedRuntimeSnapshot.kitBinding = structuredClone(checkedKitBinding);
+    } else if (checkedKitBinding !== null) throw invalidState("a Kit binding requires a runtimeSnapshot");
     return this._mutate((state) => {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input, supersedes);
@@ -1568,13 +1584,13 @@ export class RuntimeStore {
         startedAt: timestamp, endedAt: null, error: null,
         commandId, supersedes, artifacts: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, turns: 0, missing: true },
         hostSession: workspaceHostSession ? structuredClone(workspaceHostSession) : null,
-        credentialGeneration, repositoryBindingSnapshot, repositoryCandidateSnapshot, remoteBinding,
+        credentialGeneration, repositoryBindingSnapshot, repositoryCandidateSnapshot, remoteBinding, kitBinding: checkedKitBinding,
       };
       bindSubagentRun(state, sessionId, run.id, commandId);
       state.runs.push(run);
       appendEventToState(state, { runId: run.id, sessionId, type: "user.message", data: { text: input } });
       appendEventToState(state, { runId: run.id, sessionId, type: "run.status", data: { status: "running" } });
-      if (runtimeSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "runtime.bound", data: runtimeSnapshot });
+      if (checkedRuntimeSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "runtime.bound", data: checkedRuntimeSnapshot });
       if (repositoryBindingSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "repository.bound", data: { bindingId: repositoryBindingSnapshot.id, revision: repositoryBindingSnapshot.revision } });
       if (repositoryCandidateSnapshot) appendEventToState(state, { runId: run.id, sessionId, type: "repository.candidate.bound", data: { candidateId: repositoryCandidateSnapshot.id, revision: repositoryCandidateSnapshot.revision, baseCommit: repositoryCandidateSnapshot.baseCommit } });
       session.draft = "";

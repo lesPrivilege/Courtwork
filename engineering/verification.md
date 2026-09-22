@@ -1,5 +1,9 @@
 # 验证选择与证据边界
 
+2026-09-23 · [K3-R1 return](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/r1/README.md), source `8e7171c`: unchanged parent persisted-load probe exit1→0; author32/32 Host/Store/local-schema tests; non-author Luna28/28 and the same probe pass. Actual closed-Host reopen rejects missing/null Kit projections and forged legacy upgrade without rewriting bytes, while legitimate v1/empty-v2/schema20 histories remain. A test-only in-memory-vs-serialized undefined-property assertion was corrected with its initial31/32 log retained. Prior full1565 and smoke are not rerun or relabelled for this narrow guard. Parent delta acceptance remains pending.
+
+2026-09-22 · [K3 backend author delivery](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md), full source `b999007`: authenticated Runtime Control→Host→actual in-process Pi→deterministic provider proves exact single context contribution, deferred loading, zero-call refusals, selection race/replay, failed payload and SIGKILL/reopen boundaries. Author full1565/1565; non-author Luna23 Host+4 Store+51 planner+4 independent probes on fixed unchanged product. Schema21 owns Kit summary/event agreement and immutable payload refs; actual20 reader refuses without writing, backup restores separately. Core4/bridge5 unchanged. Parent acceptance/main integration, combined E1 UI, G1 persistent draft/reload behavior and real-model capability remain separate; no user services/data/credentials or deployment are involved.
+
 2026-09-14 · Astra裁决。适用于当前工单的验证选择；不替代Core/Host合同、既有Release门或具体测试命令。输入与核源另见[消费记录](research/ux-grammar-2026-09-14/README.md)。
 
 用户登记的[前端测试技术栈与企业 Agent 讨论](research/frontend-testing-stack-2026-09-14/README.md)只作为历史输入索引；其中外部技术主张未在登记时复核，也不改变本页当前验证选择或采用栈。
@@ -128,3 +132,9 @@
 
 
 2026-09-22 · [Post-push Pages parity correction](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md#push-dispatch-and-generator-correction): initial remote build failed README/source equality; added the exact accepted offline Pi paragraph to site/src/readme.mjs, leaving both bilingual README byte sequences unchanged. Local site build, two-run188-file equality, material/figure checks,5/5 public-data/capture tests and188-file296-reference link check pass. Backend1538/1538 remains the product baseline result, not a rerun for this generator-only change; deployment not triggered.
+
+
+2026-09-23 · [K3 parent final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md): fixed8e7171c/84d6dfa merged65c3b30, exact persisted-history probe now refuses, actual integrated32/32 and deterministic smoke pass. Earlier independent78 tests/2 probes and author1565 full suite keep their original pins. Current schema21 entry points aligned (including parent correction of app/README directory example); Core4/bridge5 unchanged. E1/UI/G1/real-model claims remain separate. Raw CRLF context and original failing-log whitespace intentionally preserved.
+
+
+2026-09-23 · [E1 combined parent review](execution/claude-frontend-harness-2026-09-16/evidence/e1-parent-review-20260923/README.md): Claude8fd2b86 +K3 +capability2b6f2e4 in isolated4091b8b; independent57/57 frontend seam, combined20/20 and30/30 pass. OpenAI in-app browser proves real v2 Kit Run/history and stale rejection/draft retention, but terminal Composer refresh and first Settings destination fail; frontend held. Backend flag only is accepted atmaina59d188, with no schema/UI exposure change; exact static entries stay with atomic frontend delivery. Native accessibility matrix and real model unexecuted. Original screenshots/raw logs and corrected Luna scope recommendation retained.

@@ -1,0 +1,34 @@
+{
+  "runs": [
+    {
+      "id": "627830e7-2f6b-493a-b74b-46a5efd6285b",
+      "status": "completed",
+      "profile": {
+        "id": "local:e1-kit-reviewer",
+        "version": "1",
+        "sourceSha256": "da5d0fbb653100c908527a9c629b9479e25872424053778c839fd50f87d4cc62"
+      },
+      "kits": [
+        {
+          "id": "kit:e1-review",
+          "version": "1",
+          "descriptorSha256": "2f5131ddc9e0d944e2140087e17b9ac84d1b4dae01e6fe280813ca8e1aea752a"
+        }
+      ],
+      "compatibility": {
+        "status": "unchecked",
+        "kits": [
+          {
+            "id": "kit:e1-review",
+            "version": "1",
+            "descriptorSha256": "2f5131ddc9e0d944e2140087e17b9ac84d1b4dae01e6fe280813ca8e1aea752a",
+            "status": "unchecked",
+            "evidence": []
+          }
+        ]
+      }
+    }
+  ],
+  "contextStatus": 200,
+  "contextText": "[Instruction local:e1-review-guide]\nE1_KIT_PARENT_CORE: explain findings concisely."
+}

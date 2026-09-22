@@ -1,5 +1,31 @@
 # 当前工程状态
 
+## 2026-09-23 · E1 real Kit path reached; frontend lifecycle return issued
+
+[Parent E1 combined review](execution/claude-frontend-harness-2026-09-16/evidence/e1-parent-review-20260923/README.md) consumes Claude8fd2b86. Actual OpenAI browser→Composer→Host/Pi admits one v2 Kit Run and keeps its history; stale selection refuses with no extra Run/provider request and preserves draft. Frontend acceptance is held: active→terminal refresh re-enters rendering, leaving Stop working/reconnect despite Host completion; first Settings deep-link misses its row. Current-session/readiness projection and View/Inspect wording also return to original Claude. Luna57/57 and combined20/20+30/30 remain bounded evidence. Sol backend capability2b6f2e4 is independently accepted/merged; exact static routes are validated in the retained combined candidate and narrowly leased to Claude with the real modules. No user data/service or Pages operation.
+
+## 2026-09-23 · Main Astra coordination loop enabled
+
+User requests main Astra to manage asynchronous execution and consume registered docs/index. The existing parent heartbeat `courtwork-claude` is updated in place, active hourly under the [coordination boundary](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md#main-astra-asynchronous-loop--2026-09-23); obsolete G1/first-core sequencing is replaced, unrelated loops remain paused. K3 is accepted/cleaned; Claude E1 continues, with fixed delivery/independent combined-path acceptance next. Quiet on unchanged state; no automatic Pages work, user-service migration or new task duplication.
+
+## 2026-09-23 · K3 backend accepted and integrated; E1 continues
+
+[Parent K3 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md) accepts8e7171c/84d6dfa at main65c3b30. Actual Host→Pi Kit context, immutable Run history and schema21 migration/refusal are accepted within deterministic-provider scope. K3-R1 load-integrity return is closed: exact parent probe, source delta review, integrated32/32 and smoke pass. Main is RuntimeStore21/Core4/bridge5. Claude E1 remains active and unmerged; combined UI, real-model ability and persisted G1 draft are not claimed. User service/data and Pages remain untouched. Preservation cleanup/push status is recorded in the final receipt.
+
+## 2026-09-23 · K3-R1 missing-summary correction delivered; parent delta acceptance pending
+
+[K3-R1 return](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/r1/README.md), source `8e7171c`, adopts the parent's persisted-load counterexample. A nonempty v2 Kit declaration now requires its frozen Run/event summaries even when both projections were stripped; invalid history cannot silently reopen as no-Kit. The exact parent probe changes exit1→0, and32/32 targeted Host/Store/legacy migration checks pass, including five actual corrupted-reopen variants and valid v1/empty-v2 historical reads. Luna non-author28/28 and the unchanged parent probe also pass. Original1565/1565 evidence remains prior-source evidence. Schema21/Core4/bridge5 are unchanged; no reader reconstruction, UI/main/user-service change or new work lane. Parent retains delta acceptance/integration.
+
+## 2026-09-22 · K3 backend author delivery; parent acceptance pending
+
+[K3 author packet](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md), source `b999007`, connects authenticated profile-v2 import/Session selection to actual ordinary-Chat Host→in-process Pi requests. Run-owned schema21 summaries and exact ArtifactHistory plan/context bytes survive edits/restart; no-Kit keeps prior context behavior. Optional `runtimeSelection` protects E1 Send intent with whole-config revision/profile ID/source hash; original-command replay still returns the prior Run. The [E1 contract](execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md#e1-frontend-consumer-contract--current-implemented-owner-facts) exposes existing owners, not a new profile registry.
+
+Author full regression passes1565/1565; bounded non-author Luna passes23 Host,4 Store,51 K1 and4 independent probes, with unchanged reviewed product hashes. Schema20 exact backup/old-reader refusal is tested. Core4/bridge5 and package pins remain unchanged. This is an isolated backend candidate, not parent/main acceptance, a real-model capability claim or completed E1 UI. Page-local draft intent does not implement Host-persisted/reload-restored G1 draft semantics. No user-service/data migration, credentials, paid provider, deployment or other-tree cleanup occurred; parent owns final integration and combined frontend acceptance.
+
+## 2026-09-22 · K3 held for one persisted-history invariant; E1 continues
+
+[Parent K3 review](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-parent-review-20260922/README.md) holds cb26d20 for K3-R1. Actual synthetic Host→Pi completion, then removal of both Kit summaries while retaining a nonempty v2 declaration, passes schema21 load and returns historical context200 without Kit context. Original backend owner retains the finite validator/reopen correction; no normal-admission corruption or wrong inference is claimed. Independent23+4+51 tests and2 other probes pass. Main remains RuntimeStore20/Core4/bridge5; no merge, user service/data operation or cleanup. Claude E1 is actively implementing in its preserved disjoint tree; Pages remains excluded.
+
 ## 2026-09-22 · Claude E1 and Codex K3 implementation boundaries expanded
 
 User confirms continued parallel [frontend/backend implementation lanes](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md). Claude keeps06e-R1, then may implement selectedA in actual frontend modules/Composer/Settings consumers; Codex K3 owns the minimum real profile/selection/admission projection and exact Kit→Run path, including related owner changes. Existing facts/authority and concrete DTOs govern integration; no fixture becomes a production fallback, and no overlapping writer is granted. Parent retains architecture/independent acceptance/merge.

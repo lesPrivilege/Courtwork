@@ -1,0 +1,46 @@
+# E1 independent frontend review
+
+Date: 2026-09-23
+Candidate: `8fd2b867d8ced369974f053d2ece44b36dae1995` (`8fd2b86`)
+Earlier compatibility fix: `cd5e586`
+Worktree: `/Users/lesprivilege/Projects/.worktrees/courtwork-role-composer-20260922`
+
+## Scope and verification
+
+Reviewed the original 06e order, `e1/backend-requests.md`, the E1 delivery record, `app/web/agent-choice.mjs`, `app/web/agent-chooser-view.mjs`, the `app.mjs` wiring, and the synthetic adapter/tests. Backend K3, R-1 allowlist and R-2 snapshot capability are treated as coordination dependencies per the record, not frontend defects.
+
+Targeted command, exit 0:
+
+```text
+caffeinate -is node --test app/tests/agent-choice.test.mjs app/tests/agent-profiles-specimen.test.mjs app/tests/coding-start-friction.test.mjs
+```
+
+Result: **57/57 passed**. Raw log: `/tmp/cw-e1-independent-review-20260923.log`.
+
+## Accepted bounded behavior
+
+The controller correctly keeps draft/effective/bound readings separate; applies one CAS selection; handles `runtime_conflict`, `active_run`, settled refusal and lost-reply read-back without blind resend; keeps same-profile source tokens and cross-session replies from landing; and carries `runtimeSelection` only when the snapshot advertises `expectation-v1`. Settings refresh keeps the composer choice/draft contract. The view's effective label, recovery actions and ordinary Chat/Attention scope wording match the stated seam. All of this remains synthetic until K3 is available and R-1/R-2 are integrated; the author record explicitly says no combined K3 run exists.
+
+## Concrete return: stale chooser can remain visible during Chat/Attention navigation
+
+`syncAgentChoice` captures `choice` before starting a new session read (`app/web/app.mjs:3812-3821`). When navigation changes from an ordinary Chat to another Session, it calls `agentChoice.load()`, but the `shown` predicate is based only on the captured/possibly stale snapshot's `sessionKind`:
+
+```text
+const shown = Boolean(session) && !state.attentionOpen && choice.snapshot?.sessionKind !== "global";
+```
+
+It does not require `choice.sessionId === session.id` or a ready snapshot. During the new read, `readSnapshot` clears the controller snapshot and emits loading (`agent-choice.mjs:167-179`), but `renderComposer` can still set the chooser visible for the new Session because `shown` treats `null` session kind as non-global. The same route can briefly expose the prior Chat's effective Agent while opening the global Attention Session, or expose the prior Chat label while the new Chat's snapshot is loading. The Send path also computes `current` separately and may be waiting on a different state, so the visible control and send guard are not one projection.
+
+Smallest correction: visibility must require a matching session and an explicitly ready snapshot whose `sessionKind` is `chat`; while loading or mismatched, hide the chooser and keep Send disabled until the new session's reading is ready. Add a navigation regression for ordinary Chat → ordinary Chat and ordinary Chat → global Attention during a delayed `runtime-control` read.
+
+## Limits / dependencies
+
+No browser, paid provider, credentials, user service, source edit or full suite was used. The reported issue is a reachable app lifecycle race; the existing controller tests do not import `app.mjs` and therefore do not exercise it. The remaining production authority and request-shape questions belong to K3/R-1/R-2; the specimen and frontend cannot claim those backend capabilities.
+
+Disposition: accept the controller/read-back and false-authority boundaries within tested scope, but **return E1 wiring for the stale navigation visibility/send gate** before frontend acceptance.
+
+## Additional concrete return: first Settings deep link loses the selected source row
+
+The chooser's Settings callback calls `openSettings("developer", { trigger })` and immediately calls `runtimeView?.openResource(id)` (`app/web/app.mjs:7623-7628`). On a first Settings visit, `openSettings` starts `refreshSettingsReads()` asynchronously (`:6808`, `:6816-6819`); `runtimeView.openResource` returns `false` when `resourceById(id)` is not yet present (`app/web/runtime-view.mjs:2799-2813`). It does not retain a pending resource id. Consequently the page opens at Developer overview and the requested Kit/source row is not expanded after the snapshot arrives, matching the parent browser observation.
+
+Smallest correction: queue the requested resource id until the Runtime Workbench's first read has rendered, then call `openResource` against that loaded snapshot; preserve the existing focus return and source-read generation guards. Add a first-visit deep-link regression, separately from the already-loaded Settings case.

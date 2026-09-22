@@ -1,0 +1,18 @@
+{"stage":"remove-summary-only","declaredKitCount":1,"runKitBinding":null,"validationError":null}
+{"stage":"actual-reopen-readback","httpStatus":200,"declaredKitCount":1,"hasKitContext":false,"runBinding":null}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: nonempty admitted v2 Kit declaration must not silently become a no-Kit historical Run
+    at file:///private/tmp/cw-k3-missing-binding-probe-20260922.mjs:27:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v25.9.0

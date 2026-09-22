@@ -1,0 +1,91 @@
+import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { isDeepStrictEqual } from 'node:util';
+import { fixture } from '/Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/tests/fixtures/kit-context.mjs';
+import { planKitContext } from '/Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/runtime/kit-context.mjs';
+import { retainKitContext, readKitContext } from '/Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/runtime/kit-run-context.mjs';
+import { validateKitBindings } from '/Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/runtime/kit-binding-state.mjs';
+
+const sha256 = value => createHash('sha256').update(value, 'utf8').digest('hex');
+const PI = { id: 'pi-coding-agent@0.85.1/agent-session', revision: 'pi-agent-session-context-v1', kitContext: { format: 'reference-only-v1', compatibilityEvidence: [] } };
+const clone = value => structuredClone(value);
+const results = [];
+function pass(name, detail) { results.push({ name, status: 'PASS', detail }); }
+
+// Probe 1: cross-record ghost/orphan/immutable mutations must fail through the typed validator.
+{
+  const session = { id: 'session-1', scope: 'project', projectId: 'project-1' };
+  const input = fixture('combined');
+  const binding = clone(input.binding);
+  binding.composition = { ...binding.composition, id: 'agent:store-test', version: '2.0.0', hash: 'b'.repeat(64), status: 'compatible', schemaVersion: 2, kits: clone(input.kits), selectionScope: { type: 'session', id: session.id } };
+  binding.hash = sha256(JSON.stringify({ revision: binding.revision, sessionScope: binding.sessionScope, resources: binding.resources, composition: binding.composition, policies: binding.policies }));
+  const summary = {
+    version: 1,
+    profile: { id: binding.composition.id, version: binding.composition.version, sourceSha256: binding.composition.hash },
+    controlRevision: binding.revision, bindingHash: binding.hash,
+    kits: input.kits.map(({ descriptor, descriptorSha256 }) => ({ id: descriptor.id, version: descriptor.version, descriptorSha256 })).sort((a, b) => a.id.localeCompare(b.id)),
+    planVersion: 1, compiler: 'kit-context-v1', adapter: { id: PI.id, revision: PI.revision },
+    compatibility: { status: 'unchecked', kits: input.kits.map(({ descriptor, descriptorSha256 }) => ({ id: descriptor.id, version: descriptor.version, descriptorSha256, status: 'unchecked', evidence: [] })).sort((a, b) => a.id.localeCompare(b.id)) },
+    policy: 'reference-only-pi-unchecked-v1', limits: { maxCoreBytes: 400000, maxContextBytes: 400000, maxContextCharacters: 100000, maxPlanBytes: 2097152, maxPayloadBytes: 2497152, payloadCount: 2 },
+    planSha256: 'c'.repeat(64), planPayload: { sha256: 'd'.repeat(64), bytes: 2048 }, contextPayload: { sha256: 'e'.repeat(64), bytes: 2, characters: 2 },
+  };
+  const data = { revision: binding.revision, hash: binding.hash, sessionScope: binding.sessionScope, composition: binding.composition, resources: binding.resources, content: binding.content, policies: binding.policies, context: binding.context, kitBinding: summary };
+  const run = { id: 'run-1', sessionId: session.id, adapterId: PI.id, commandId: 'ordinary', extension: null, remoteBinding: null, kitBinding: summary };
+  const state = { runs: [run], events: [{ runId: run.id, sessionId: session.id, type: 'runtime.bound', data }] };
+  // The synthetic summary uses arbitrary payload refs; cross-record checks do not read ArtifactHistory.
+  validateKitBindings(state);
+  const ghost = clone(state); ghost.runs[0].kitBinding = null;
+  assert.throws(() => validateKitBindings(ghost), /non-Kit Run cannot have runtime.bound Kit authority/);
+  const orphan = clone(state); orphan.events = [];
+  assert.throws(() => validateKitBindings(orphan), /exactly one runtime.bound/);
+  const changed = clone(state); changed.events[0].data.kitBinding = clone(changed.events[0].data.kitBinding); changed.events[0].data.kitBinding.planSha256 = 'f'.repeat(64);
+  assert.throws(() => validateKitBindings(changed), /does not equal its Run summary/);
+  pass('cross-record/orphan/immutable', 'ghost kit authority, orphan bound projection, and changed summary all rejected');
+}
+
+// Probe 2: multi-Kit declaration/evidence permutations normalize to one plan identity.
+{
+  const input = fixture('combined');
+  const base = { binding: clone(input.binding), kits: clone(input.kits), runtime: clone(input.runtime), compatibilityEvidence: [], budget: clone(input.budget) };
+  const forward = planKitContext(base);
+  const reversed = planKitContext({ ...clone(base), kits: clone(base.kits).reverse() });
+  assert.equal(forward.status, 'compiled'); assert.equal(reversed.status, 'compiled');
+  assert.equal(forward.planSha256, reversed.planSha256);
+  assert.equal(forward.candidate.sha256, reversed.candidate.sha256);
+  assert.deepEqual(forward.kits, reversed.kits);
+  pass('multi-kit permutation', `plan=${forward.planSha256} candidate=${forward.candidate.sha256}`);
+}
+
+// Probe 3: selection/scope gate is checked before any retention write; accepted Session scope writes exactly two blobs.
+{
+  const input = fixture('combined');
+  const session = { id: 'selected-session', scope: 'project', extensionBinding: null };
+  const binding = clone(input.binding);
+  binding.composition = { ...binding.composition, id: 'agent:k3', version: 'v2', hash: 'a'.repeat(64), status: 'compatible', schemaVersion: 2, kits: clone(input.kits), selectionScope: { type: 'user', id: 'local' } };
+  let writes = 0;
+  const history = { save: async () => { writes++; }, read: async () => { throw new Error('not used'); } };
+  await assert.rejects(() => retainKitContext({ binding, session, spark: false, adapter: PI, history }), error => error.code === 'kit_scope_unsupported');
+  assert.equal(writes, 0);
+  binding.composition.selectionScope = { type: 'session', id: session.id };
+  const summary = await retainKitContext({ binding, session, spark: false, adapter: PI, history });
+  assert.equal(writes, 2); assert.equal(summary.adapter.id, PI.id);
+  pass('selection guard', 'user scope refused with zero saves; selected Session scope retained exactly two payloads');
+}
+
+// Probe 4: retained plan/context disagreement fails closed and never falls back to mutable binding text.
+{
+  const input = fixture('combined');
+  const session = { id: 'read-session', scope: 'project', extensionBinding: null };
+  const binding = clone(input.binding);
+  binding.composition = { ...binding.composition, id: 'agent:k3', version: 'v2', hash: 'a'.repeat(64), status: 'compatible', schemaVersion: 2, kits: clone(input.kits), selectionScope: { type: 'session', id: session.id } };
+  const saved = new Map();
+  const history = { save: async (_id, bytes, digest) => saved.set(digest, Buffer.from(bytes)), read: async (_id, digest) => Buffer.from(saved.get(digest)) };
+  const summary = await retainKitContext({ binding, session, spark: false, adapter: PI, history });
+  const good = await readKitContext(history, session.id, summary);
+  assert.equal(good.text, good.plan.candidate.text);
+  saved.set(summary.contextPayload.sha256, Buffer.from('mutable-current-context'));
+  await assert.rejects(() => readKitContext(history, session.id, summary), error => error.code === 'kit_payload_invalid');
+  pass('retention consistency', 'tampered retained context rejected with kit_payload_invalid and no fallback read');
+}
+
+console.log(JSON.stringify({ status: 'passed', probes: results }, null, 2));

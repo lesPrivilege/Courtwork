@@ -1,0 +1,75 @@
+✔ schema 21 records one immutable Kit summary and equal typed runtime.bound projection across reopen (132.9745ms)
+✔ schema 21 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes (135.324333ms)
+✔ schema 20 upgrades with an exact backup, unchanged historical events, and null legacy Run bindings (109.110041ms)
+✔ the pinned schema-20 Host refuses schema 21 byte-for-byte (780.734541ms)
+✔ K3 authenticated import/select → actual Pi request consumes exact retained bytes once; loader stays deferred (1099.735208ms)
+ℹ {"requestCount":3,"firstRequestCount":1,"context":{"sha256":"b0b64043f010e5a89e57542659eb445f81cd6160fecd20038ccce6e06ad66158","bytes":242,"characters":240},"planSha256":"3181d92a346f4c207f5500a7f0d8bc4ebab29a021a9dfda37ce04b9d81e7cbba","planPayload":{"sha256":"5dd0fa34481422c40100bdae7fb9b5cd89e1f8db001fc22fe6c6b997b7b7e747","bytes":5157},"resultStatus":"completed","compatibility":"unchecked"}
+✔ K3 old context and lost-reply replay survive changed invalid Kit configuration and restart (786.297917ms)
+✔ K3 active Run blocks edits and concurrent receipt replay creates one request (814.252584ms)
+✔ E1 submitted selection expectation refuses stale chooser intent but original command replay remains authoritative (490.100625ms)
+✔ K3 config queue orders a racing edit after payload retention and frozen admission (374.805875ms)
+✔ K3 outside profile allowlist refuses before inference with zero calls (85.632542ms)
+✔ K3 required unavailable Extension tool refuses before inference with zero calls (93.774083ms)
+✔ K3 mismatched descriptor refuses before inference with zero calls (77.623917ms)
+✔ K3 body changed refuses before inference with zero calls (81.596125ms)
+✔ K3 unsupported selection scope refuses before inference with zero calls (110.247041ms)
+✔ K3 runtime missing revision refuses before inference with zero calls (73.503791ms)
+✔ K3 malformed descriptor refuses before inference with zero calls (72.495209ms)
+✔ K3 matching unsupported evidence refuses before inference with zero calls (73.950458ms)
+✔ K3 conflicting owner evidence refuses before inference with zero calls (84.111459ms)
+✔ K3 exact Host character ceiling admitted; one over refuses without truncation (474.943833ms)
+✔ Kit projection preserves the bound available Extension tool; v1 keeps its prior catalog (72.270584ms)
+✔ K3 multiple declarations preserve K1 sorted and deduplicated pins at real admission (859.2455ms)
+✔ K3 persistence failure leaves no Run; retained read failure produces zero calls and no fallback (496.501166ms)
+✔ K3 actual corrupted retained object refuses historical read; no re-execution (543.456583ms)
+✔ K3 requirements retain denied tool readings and cannot grant the actual write (526.456208ms)
+✔ K3 payload read returning mismatched bytes fails before provider dispatch with precise failure identity (415.577917ms)
+✖ v1 and v2 empty Kit profiles use unchanged compiler bytes with null Kit authority (181.994542ms)
+✔ K3-R1 persisted Kit declarations require summaries on load, including forged legacy upgrade (939.850416ms)
+✔ K3 crash/reopen preserves frozen facts and changes unresolved Run to unknown without inference (1642.939ms)
+✔ schema 19 upgrades to current exactly once and preserves schema-20 remote authority and every existing event (203.994375ms)
+✔ the schema-20 fixture migration fails closed for an occupied backup, malformed schema 19, and schema 22 (223.455ms)
+✔ the pinned schema-19 Host rejects current schema 21 byte-for-byte and opens the exact backup separately (845.294291ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (53.151041ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 31
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11325.475042
+
+✖ failing tests:
+
+test at app/tests/kit-run-binding.test.mjs:320:1
+✖ v1 and v2 empty Kit profiles use unchanged compiler bytes with null Kit authority (181.994542ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    [
+      {
+        data: {
+          text: 'K3 ordinary Chat'
+        },
+  ...
+        data: {
+  -       errorMessage: undefined,
+          stopReason: 'stop',
+          text: 'SIMULATED fake response: K3 ordinary Chat'
+        },
+        runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1',
+        seq: 10,
+  
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/bf41/Courtwork/app/tests/kit-run-binding.test.mjs:336:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ { seq: 1, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'user.message', data: [Object] }, { seq: 2, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'run.status', data: [Object] }, { seq: 3, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.bound', data: [Object] }, { seq: 4, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.request.telemetry', data: [Object] }, { seq: 5, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.request.telemetry', data: [Object] }, { seq: 6, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.delta', data: [Object] }, { seq: 7, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.delta', data: [Object] }, { seq: 8, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.delta', data: [Object] }, { seq: 9, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.request.telemetry', data: [Object] }, { seq: 10, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.message', data: [Object] }, { seq: 11, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'run.usage', data: [Object] }, { seq: 12, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'run.status', data: [Object] } ],
+    expected: [ { seq: 1, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'user.message', data: [Object] }, { seq: 2, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'run.status', data: [Object] }, { seq: 3, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.bound', data: [Object] }, { seq: 4, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.request.telemetry', data: [Object] }, { seq: 5, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.request.telemetry', data: [Object] }, { seq: 6, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.delta', data: [Object] }, { seq: 7, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.delta', data: [Object] }, { seq: 8, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.delta', data: [Object] }, { seq: 9, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'runtime.request.telemetry', data: [Object] }, { seq: 10, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'assistant.message', data: [Object] }, { seq: 11, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'run.usage', data: [Object] }, { seq: 12, runId: '1d9ecb26-34ba-4bfd-aa51-729e44836dc1', sessionId: '01ecb295-3fa1-4326-a9bf-d4206a99f392', type: 'run.status', data: [Object] } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

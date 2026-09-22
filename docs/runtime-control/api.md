@@ -52,6 +52,45 @@ Import a skill with YAML frontmatter `name` and `description`, followed by Markd
 
 Select it with `operation:"profile"`, its `local:` ID and a scope; select `agent:general` explicitly or `null` to inherit. Selection is separate from exposure.
 
+Profile source v2 retains these fields and requires `kits`, an array of0–8 exact
+`{descriptor,descriptorSha256}` declarations from the [reference-only Kit contract](../../engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md).
+The descriptor references already-imported resources by exact body/envelope hashes;
+it cannot acquire sources or widen `resourceIds`. Its full shape and pins are checked
+by the accepted compiler at admission. The whole profile retains the100000-character
+source limit, each descriptor is capped at64KiB, and profile JSON cannot provide
+Adapter compatibility evidence or Host limits. v1 and empty-Kit v2 retain the old path.
+
+For a Kit-bearing profile, select its ID at `{type:"session",id:SESSION_ID}` for
+ordinary Chat. Global Attention, Spark, extension-bound Chat and other Runtimes are
+not supported. The current in-process Pi Adapter explicitly declares its revision;
+unchecked per-Kit compatibility remains unchecked, while verified unsupported or
+conflicting evidence refuses. The default frontend has no dedicated Kit selection
+flow; this slice uses these authenticated import/selection APIs.
+
+A newly admitted Run freezes `kitBinding` and one equal `runtime.bound` projection,
+with exact immutable plan/context refs. GET `/runtime-context?sessionId=...&runId=...`
+returns the recorded `kitBinding` and verified `kitContext:{text,plan}` without
+consulting current profile configuration. Same-command replay returns the original
+Run even after configuration changes. Missing/corrupt history fails closed; it never
+falls back to current content. The contribution limit is100000 UTF-16 units and
+400000 UTF-8 bytes (also the core limit); plan payload is at most2MiB and the two
+payloads total at most2497152 bytes. These are Host contribution limits, not a model
+token allowance. Retained binding payloads are not Work artifacts.
+
+Send can guard a chooser's readback by including optional
+`runtimeSelection:{revision,profileId,sourceHash}` in the existing Run POST body.
+Use the effective snapshot's whole-config revision, composition ID and source hash
+(`null` for builtin General). A changed expectation refuses with409
+`runtime_selection_conflict` before Run admission; retain the draft and reread.
+Original-command replay still returns its recorded Run before inspecting current
+selection. Omitting this field preserves legacy Run clients.
+
+The current snapshot explicitly advertises this Host contract as
+`compatibility.runtimeSelection: "expectation-v1"`. Clients may send the optional
+expectation only when this capability is reported; do not guess from a model label
+or schema version. The flag does not grant tools, assert Kit compatibility, or
+change `sessionScope.kind` (for example, `project` is an ordinary project Chat).
+
 Import an `mcp_server` with this JSON source text:
 
 ```json

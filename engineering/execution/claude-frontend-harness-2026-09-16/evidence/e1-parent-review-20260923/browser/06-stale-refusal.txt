@@ -1,0 +1,109 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "test-project" [expanded]:
+        - generic: test-project
+      - button "New chat in test-project":
+        - generic: New chat in test-project
+      - button "E1 parent review — Kit path":
+        - generic: E1 parent review — Kit path
+      - button "More chat actions":
+        - generic: More chat actions
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "E1 parent review — Kit path":
+        - generic: E1 parent review — Kit path
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "E1 parent review — Kit path" [level=1]: · E1 parent review — Kit path
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open preview":
+    - generic: Open preview
+  - log:
+    - article "Your message":
+      - paragraph: Review the Kit handoff.
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/23/2026, 12:30:44 AM
+        - text: 12:30 AM
+    - region "Agent run":
+      - article:
+        - paragraph: "SIMULATED fake response: Review the Kit handoff."
+        - time:
+          - generic: Run started 9/23/2026, 12:30:44 AM
+          - text: 12:30 AM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+    - button "Measurement details"
+    - generic: Completed
+    - status: Completed
+  - generic: "Run was not started: The selected Agent configuration changed; refresh before sending"
+  - generic: Message
+  - textbox "Message" [active]:
+    - /placeholder: What would you like to work on?
+    - text: Keep this draft after a stale selection.
+  - 'button "Agent: Notes"':
+    - generic: Notes
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Allow edits"':
+    - generic: Allow edits
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - 'button "Context: 1 of 4,096 tokens, <0.1%, latest completed request input"':
+  - button "Send":
+    - generic: Send
+  - paragraph: test-project
+- status
+- tooltip "Send"

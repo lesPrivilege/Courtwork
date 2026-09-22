@@ -1,0 +1,41 @@
+✔ schema 21 records one immutable Kit summary and equal typed runtime.bound projection across reopen (115.922416ms)
+✔ schema 21 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes (102.050208ms)
+✔ schema 20 upgrades with an exact backup, unchanged historical events, and null legacy Run bindings (102.13775ms)
+✔ the pinned schema-20 Host refuses schema 21 byte-for-byte (541.607416ms)
+✔ K3 authenticated import/select → actual Pi request consumes exact retained bytes once; loader stays deferred (1147.575416ms)
+ℹ {"requestCount":3,"firstRequestCount":1,"context":{"sha256":"b0b64043f010e5a89e57542659eb445f81cd6160fecd20038ccce6e06ad66158","bytes":242,"characters":240},"planSha256":"cd0df36a68df176305b6ec57ad4482da3772f8330ce5d28fcf7caf83ab08f6d7","planPayload":{"sha256":"a04ecf5ac5e1f2fe5a427445815eb3d5ecd53e49c0bdba8ec7656b7c7ea57f50","bytes":5157},"resultStatus":"completed","compatibility":"unchecked"}
+✔ K3 old context and lost-reply replay survive changed invalid Kit configuration and restart (705.461042ms)
+✔ K3 active Run blocks edits and concurrent receipt replay creates one request (813.235292ms)
+✔ E1 submitted selection expectation refuses stale chooser intent but original command replay remains authoritative (492.3715ms)
+✔ K3 config queue orders a racing edit after payload retention and frozen admission (312.343417ms)
+✔ K3 outside profile allowlist refuses before inference with zero calls (75.971334ms)
+✔ K3 required unavailable Extension tool refuses before inference with zero calls (109.834375ms)
+✔ K3 mismatched descriptor refuses before inference with zero calls (76.582125ms)
+✔ K3 body changed refuses before inference with zero calls (81.527292ms)
+✔ K3 unsupported selection scope refuses before inference with zero calls (84.543417ms)
+✔ K3 runtime missing revision refuses before inference with zero calls (72.002417ms)
+✔ K3 malformed descriptor refuses before inference with zero calls (71.202542ms)
+✔ K3 matching unsupported evidence refuses before inference with zero calls (77.825583ms)
+✔ K3 conflicting owner evidence refuses before inference with zero calls (86.166ms)
+✔ K3 exact Host character ceiling admitted; one over refuses without truncation (568.71425ms)
+✔ Kit projection preserves the bound available Extension tool; v1 keeps its prior catalog (72.678416ms)
+✔ K3 multiple declarations preserve K1 sorted and deduplicated pins at real admission (847.242667ms)
+✔ K3 persistence failure leaves no Run; retained read failure produces zero calls and no fallback (449.505083ms)
+✔ K3 actual corrupted retained object refuses historical read; no re-execution (610.294625ms)
+✔ K3 requirements retain denied tool readings and cannot grant the actual write (436.309083ms)
+✔ K3 payload read returning mismatched bytes fails before provider dispatch with precise failure identity (481.374542ms)
+✔ v1 and v2 empty Kit profiles use unchanged compiler bytes with null Kit authority (637.749416ms)
+✔ K3-R1 persisted Kit declarations require summaries on load, including forged legacy upgrade (660.175041ms)
+✔ K3 crash/reopen preserves frozen facts and changes unresolved Run to unknown without inference (1781.854959ms)
+✔ schema 19 upgrades to current exactly once and preserves schema-20 remote authority and every existing event (204.318166ms)
+✔ the schema-20 fixture migration fails closed for an occupied backup, malformed schema 19, and schema 22 (198.971917ms)
+✔ the pinned schema-19 Host rejects current schema 21 byte-for-byte and opens the exact backup separately (398.104792ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (51.425375ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11904.495459

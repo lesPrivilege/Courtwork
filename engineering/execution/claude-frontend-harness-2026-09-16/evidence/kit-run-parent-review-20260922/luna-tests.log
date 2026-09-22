@@ -1,0 +1,114 @@
+
+=== k3-host ===
+✔ K3 authenticated import/select → actual Pi request consumes exact retained bytes once; loader stays deferred (1070.739ms)
+ℹ {"requestCount":3,"firstRequestCount":1,"context":{"sha256":"b0b64043f010e5a89e57542659eb445f81cd6160fecd20038ccce6e06ad66158","bytes":242,"characters":240},"planSha256":"a12c8fb30c1d0aa05485652bede7663bbb1958ebcbef05916b8d7fd5f1a9b301","planPayload":{"sha256":"badfadb0ac12859ec62bdc8b19a7e9eba3bfe9bb64fc0b9e6c8a41d9b6e53919","bytes":5157},"resultStatus":"completed","compatibility":"unchecked"}
+✔ K3 old context and lost-reply replay survive changed invalid Kit configuration and restart (786.199458ms)
+✔ K3 active Run blocks edits and concurrent receipt replay creates one request (817.887209ms)
+✔ E1 submitted selection expectation refuses stale chooser intent but original command replay remains authoritative (481.959666ms)
+✔ K3 config queue orders a racing edit after payload retention and frozen admission (317.214ms)
+✔ K3 outside profile allowlist refuses before inference with zero calls (72.125ms)
+✔ K3 required unavailable Extension tool refuses before inference with zero calls (72.939917ms)
+✔ K3 mismatched descriptor refuses before inference with zero calls (82.63675ms)
+✔ K3 body changed refuses before inference with zero calls (75.3655ms)
+✔ K3 unsupported selection scope refuses before inference with zero calls (72.558875ms)
+✔ K3 runtime missing revision refuses before inference with zero calls (81.994541ms)
+✔ K3 malformed descriptor refuses before inference with zero calls (70.875291ms)
+✔ K3 matching unsupported evidence refuses before inference with zero calls (72.638208ms)
+✔ K3 conflicting owner evidence refuses before inference with zero calls (86.252333ms)
+✔ K3 exact Host character ceiling admitted; one over refuses without truncation (648.135959ms)
+✔ Kit projection preserves the bound available Extension tool; v1 keeps its prior catalog (85.416125ms)
+✔ K3 multiple declarations preserve K1 sorted and deduplicated pins at real admission (838.526375ms)
+✔ K3 persistence failure leaves no Run; retained read failure produces zero calls and no fallback (453.841708ms)
+✔ K3 actual corrupted retained object refuses historical read; no re-execution (602.650916ms)
+✔ K3 requirements retain denied tool readings and cannot grant the actual write (451.310625ms)
+✔ K3 payload read returning mismatched bytes fails before provider dispatch with precise failure identity (438.896209ms)
+✔ v1 and v2 empty Kit profiles use unchanged compiler bytes with null Kit authority (802.733292ms)
+✔ K3 crash/reopen preserves frozen facts and changes unresolved Run to unknown without inference (1742.845375ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11260.098375
+EXIT=0
+
+=== k3-store ===
+✔ schema 21 records one immutable Kit summary and equal typed runtime.bound projection across reopen (114.337708ms)
+✔ schema 21 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes (101.462292ms)
+✔ schema 20 upgrades with an exact backup, unchanged historical events, and null legacy Run bindings (93.161959ms)
+✔ the pinned schema-20 Host refuses schema 21 byte-for-byte (474.577375ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 887.454083
+EXIT=0
+
+=== k1-kit-context ===
+✔ independent literal oracle covers source bytes, UTF-16 accounting, and segment joins (6.9495ms)
+✔ no-Kit passthrough keeps historical bytes and does not retain or alias new inputs (1.209042ms)
+✔ required and optional source readings refuse or omit at the exact boundaries (1.452209ms)
+✔ permission readings remain separate from supported compatibility evidence (0.71475ms)
+✔ object and collection permutation is deterministic while catalog order remains meaningful (1.338833ms)
+✔ plain-JSON and bounds checks reject malformed independent inputs before planning (0.727625ms)
+✔ full source envelope changes are observable through the binding hash or a refusal (0.703625ms)
+✔ Kit literal oracle: actual binding → plan → exact existing context, independent hashes and accounting (10.681458ms)
+✔ General/Coding/Praxis preserve shared attribution and defer bodies/templates (3.05875ms)
+✔ No-Kit is exact historical passthrough and ignores new inputs without inspecting them (3.336166ms)
+✔ Changing/deselecting Kits never removes already-admitted instructions from a binding (2.251917ms)
+✔ Frozen input and returned data have no aliases in either direction (3.761792ms)
+✔ Object/Kit/evidence permutations are deterministic; catalog order is meaningful (4.240709ms)
+✔ Exact duplicate Kits, references and evidence deduplicate without extra text or core budget (4.33825ms)
+✔ Exact maxCoreBytes boundary passes; one-under refuses without partial text (2.256125ms)
+✔ Exact maxContextBytes boundary passes; one-under refuses without partial text (2.018042ms)
+✔ Exact maxContextCharacters boundary passes; one-under refuses without partial text (1.9ms)
+✔ Required fragment/envelope failure input => { input.binding.content = input.binding.content.filter(r => r.id !== 'local:general'); } (1.131291ms)
+✔ Required fragment/envelope failure input => { input.binding.resources = input.binding.resources.filter(r => r.id !== 'local:general'); } (1.041792ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').exposed = false; } (1.389459ms)
+✔ Required fragment/envelope failure input => { body(input, 'local:general').content += 'changed'; } (3.191875ms)
+✔ Required fragment/envelope failure input => { body(input, 'local:general').title = 'changed'; } (1.6835ms)
+✔ Required fragment/envelope failure input => { body(input, 'local:general').scope.id = 'changed'; } (0.942ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').activation = 'manual'; } (0.913833ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').kind = 'skill'; } (0.774208ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').source.hash = 'a'.repeat(64); } (0.764958ms)
+✔ Required fragment/envelope failure input => { input.binding.composition.status = 'incompatible'; } (0.763875ms)
+✔ Optional missing/deactivated deferred sources are reported; digest mismatch still refuses (1.605625ms)
+✔ Missing/disabled runtime_load is not exposure or permission, and required wins duplicate optional (3.035375ms)
+✔ Non-content requirements copy owner permission readings without grants/evaluation (3.331958ms)
+✔ Unpinned content requirement cannot bypass source pins: local:general (0.989084ms)
+✔ Unpinned content requirement cannot bypass source pins: local:notes (0.842166ms)
+✔ Unpinned content requirement cannot bypass source pins: local:coding-skill (0.768625ms)
+✔ Unpinned content requirement cannot bypass source pins: local:template (1.059ms)
+✔ Missing/not-exposed requirements distinguish required refusal from optional omission (2.122583ms)
+✔ Version/source/deferred-only changes have separate plan and output identities; history remains frozen (4.821833ms)
+✔ Exact runtime evidence: supported/unsupported/unchecked and conflicts remain independent of permissions (5.48575ms)
+✔ Selected conflicts and contradictory pins refuse; absent targets do not (2.770209ms)
+✔ Code-unit ordering is explicit for punctuation; scope order still wins (1.867708ms)
+✔ Empty catalog and exact Unicode/CRLF sources keep complete instruction bytes (0.669709ms)
+✔ Descriptor integrity, exact schema, dependencies/native contributions and bounds reject before compilation (11.084541ms)
+✔ Duplicate binding IDs and core/deferred role contradictions refuse deterministically (2.183917ms)
+✔ Lone surrogates in Kit metadata and all rendered text are rejected rather than normalized (3.266709ms)
+✔ Optional missing counterpart cannot hide a known source pin mismatch (0.842584ms)
+✔ New descriptor accessors are rejected without executing caller code (0.517709ms)
+✔ Strict Kit-present input: compatibilityEvidence null is not an implicit unknown (0.515208ms)
+✔ Strict Kit-present input: compatibilityEvidence undefined is not an implicit unknown (0.5205ms)
+✔ Strict Kit-present input: compatibilityEvidence absent is not an implicit unknown (0.502125ms)
+✔ Strict Kit-present input: runtime undefined is not an implicit unknown (0.565375ms)
+✔ Strict Kit-present input: runtime absent is not an implicit unknown (0.50925ms)
+✔ Explicit runtime null and empty evidence remain valid unchecked inputs (0.792167ms)
+ℹ tests 51
+ℹ suites 0
+ℹ pass 51
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 698.098791
+EXIT=0
+
+ALL_EXIT=0
