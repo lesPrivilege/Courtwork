@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-22T00:58:44+08:00",
+  "baseSha": "aa765ede3d008c80cc9e4e6dcd50704cfa95db61",
+  "branch": "codex/m1-runtime-rhythm-20260922",
+  "candidateCommit": "b8cd54f4d2e3d142ed367d49e08297170394495d",
+  "ownedProductPaths": [
+    "app/web/runtime-management-view.mjs",
+    "app/tests/runtime-management.test.mjs"
+  ],
+  "implementation": {
+    "viewSha256": "a9a86c855b086e8c1f3b7ae417e9b65c1990f21ff4fcd44b9ce9f968755e7c61",
+    "testSha256": "69d2bfa919d1d804c2208481f3659626cd330ce3dda83886b48cbffea773ac0d",
+    "binaryDiffSha256": "d4ab4a38e4b236fff963a0e2229379e384ad80e9d3e024ed4b31038983dcb26e",
+    "mapping": "runtime-detail plain div: --settings-group-gap: var(--space-4)",
+    "rootSettingsGroupGap": "40px",
+    "localRuntimeDetailGap": "var(--space-4) = 16px"
+  },
+  "scope": {
+    "changed": "Runtime detail block-to-block inherited margin only",
+    "unchanged": [
+      "Runtime list",
+      "other Settings consumers",
+      "strings and block order",
+      "control, glyph, type, inner padding and separator geometry",
+      "controller and adapter semantics",
+      "focus, caret, scroll and disclosure ownership"
+    ],
+    "newTokens": [],
+    "newDependencies": [],
+    "newVisualComponents": []
+  },
+  "writerStatus": "product and test bytes frozen in candidate commit; product write lease released to parent for independent review and final acceptance"
+}

@@ -1,0 +1,10 @@
+M1 browser observation record
+Source: b8cd54f4d2e3d142ed367d49e08297170394495d; OpenAI IAB, existing synthetic adapter.
+
+Manual observation transcribed from the fresh tool-displayed accessibility state during this run (not a full saved AX tree):
+Observed after lost reconnect reply: submitted label M1 submitted connection — long synthetic label for continued work; last confirmed revision3; newer unsent field M1 newer unsent draft survives unknown. Check status is available; Reconnect with changes and Disable for new work are disabled. Focus remains Connection name. Screenshot09 and its JSON preserve draft/disabled-control evidence.
+
+Raw subsequent saved AX response (diffing was enabled; it may report no change):
+Browser tab: 7, Title: "Runtimes · synthetic preview", URL: "http://127.0.0.1:55551/".
+There has been no change in the accessibility tree.
+The focused UI element is 66 text field (settable) Description: Connection name, Value: M1 newer unsent draft survives unknown, ID: settings-1f653o

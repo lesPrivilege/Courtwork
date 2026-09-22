@@ -1,0 +1,366 @@
+{
+  "blocks": [
+    {
+      "previousBoundaryToTitle": null,
+      "rect": {
+        "bottom": -77.46875,
+        "height": 193.59375,
+        "left": 33,
+        "right": 357,
+        "top": -271.0625,
+        "width": 324,
+        "x": 33,
+        "y": -271.0625
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": " Hermes · example",
+      "titleRect": {
+        "bottom": -227.2734375,
+        "height": 23.7890625,
+        "left": 33,
+        "right": 357,
+        "top": -251.0625,
+        "width": 324,
+        "x": 33,
+        "y": -251.0625
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 219.21875,
+        "height": 280.6875,
+        "left": 33,
+        "right": 357,
+        "top": -61.46875,
+        "width": 324,
+        "x": 33,
+        "y": -61.46875
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Who configures it",
+      "titleRect": {
+        "bottom": -19.1796875,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": -41.46875,
+        "width": 324,
+        "x": 33,
+        "y": -41.46875
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 791.5,
+        "height": 556.28125,
+        "left": 33,
+        "right": 357,
+        "top": 235.21875,
+        "width": 324,
+        "x": 33,
+        "y": 235.21875
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Connection",
+      "titleRect": {
+        "bottom": 277.5078125,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 255.21875,
+        "width": 324,
+        "x": 33,
+        "y": 255.21875
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 961.921875,
+        "height": 154.421875,
+        "left": 33,
+        "right": 357,
+        "top": 807.5,
+        "width": 324,
+        "x": 33,
+        "y": 807.5
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "New work",
+      "titleRect": {
+        "bottom": 849.7890625,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 827.5,
+        "width": 324,
+        "x": 33,
+        "y": 827.5
+      }
+    },
+    {
+      "previousBoundaryToTitle": 36,
+      "rect": {
+        "bottom": 1144.0546875,
+        "height": 166.1328125,
+        "left": 33,
+        "right": 357,
+        "top": 977.921875,
+        "width": 324,
+        "x": 33,
+        "y": 977.921875
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px 0px 16px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "History",
+      "titleRect": {
+        "bottom": 1020.2109375,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 997.921875,
+        "width": 324,
+        "x": 33,
+        "y": 997.921875
+      }
+    },
+    {
+      "previousBoundaryToTitle": null,
+      "rect": {
+        "bottom": 1231.765625,
+        "height": 71.7109375,
+        "left": 33,
+        "right": 357,
+        "top": 1160.0546875,
+        "width": 324,
+        "x": 33,
+        "y": 1160.0546875
+      },
+      "style": {
+        "border": "0px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Technical detail",
+      "titleRect": null
+    }
+  ],
+  "controls": [
+    {
+      "disabled": false,
+      "label": "Back to runtimes",
+      "rect": {
+        "bottom": -271.0625,
+        "height": 44,
+        "left": 33,
+        "right": 126.0703125,
+        "top": -315.0625,
+        "width": 93.0703125,
+        "x": 33,
+        "y": -315.0625
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.1445px",
+        "gapToken": "40px",
+        "line": "19.7167px",
+        "margin": "0px",
+        "padding": "3px 4px"
+      },
+      "tag": "BUTTON",
+      "text": "Runtimes",
+      "value": ""
+    },
+    {
+      "disabled": false,
+      "label": "Connection name",
+      "rect": {
+        "bottom": 447.6484375,
+        "height": 44,
+        "left": 33,
+        "right": 357,
+        "top": 403.6484375,
+        "width": 324,
+        "x": 33,
+        "y": 403.6484375
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "16px",
+        "line": "24.003px",
+        "margin": "0px",
+        "padding": "0px 10px"
+      },
+      "tag": "INPUT",
+      "text": "",
+      "value": "M1 Hermes long retained connection name after refusal"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 770.5,
+        "height": 44,
+        "left": 33,
+        "right": 109.7734375,
+        "top": 726.5,
+        "width": 76.7734375,
+        "x": 33,
+        "y": 726.5
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "16px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Connect",
+      "value": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 770.5,
+        "height": 44,
+        "left": 117.7734375,
+        "right": 229.7265625,
+        "top": 726.5,
+        "width": 111.953125,
+        "x": 117.7734375,
+        "y": 726.5
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.1445px",
+        "gapToken": "16px",
+        "line": "19.7167px",
+        "margin": "0px",
+        "padding": "3px 4px"
+      },
+      "tag": "BUTTON",
+      "text": "Discard changes",
+      "value": ""
+    }
+  ],
+  "dpr": 1,
+  "focus": {
+    "label": null,
+    "rect": {
+      "bottom": 770.5,
+      "height": 44,
+      "left": 33,
+      "right": 109.7734375,
+      "top": 726.5,
+      "width": 76.7734375,
+      "x": 33,
+      "y": 726.5
+    },
+    "tag": "BUTTON",
+    "text": "Connect",
+    "value": ""
+  },
+  "mount": {
+    "rect": {
+      "bottom": 1231.765625,
+      "height": 1546.828125,
+      "left": 33,
+      "right": 357,
+      "top": -315.0625,
+      "width": 324,
+      "x": 33,
+      "y": -315.0625
+    },
+    "style": {
+      "border": "0px",
+      "control": "44px",
+      "font": "16.002px",
+      "gapToken": "40px",
+      "line": "24.003px",
+      "margin": "0px",
+      "padding": "0px"
+    }
+  },
+  "pointer": {
+    "anyCoarse": false,
+    "coarse": false,
+    "fine": true
+  },
+  "rootGap": "40px",
+  "scroll": {
+    "client": 337,
+    "height": 1631,
+    "rect": {
+      "bottom": 820,
+      "height": 339.4140625,
+      "left": 16,
+      "right": 374,
+      "top": 480.5859375,
+      "width": 358,
+      "x": 16,
+      "y": 480.5859375
+    },
+    "top": 864.5
+  },
+  "textScale": "1.143",
+  "textSize": "large",
+  "theme": "dark",
+  "viewport": {
+    "height": 844,
+    "width": 390
+  },
+  "visualScale": 1
+}

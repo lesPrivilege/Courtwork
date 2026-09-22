@@ -1,0 +1,418 @@
+{
+  "blocks": [
+    {
+      "previousBoundaryToTitle": null,
+      "rect": {
+        "bottom": 725.296875,
+        "height": 131.859375,
+        "left": 33,
+        "right": 357,
+        "top": 593.4375,
+        "width": 324,
+        "x": 33,
+        "y": 593.4375
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "24.003px",
+        "margin": "0px 0px 40px",
+        "padding": "8px 0px 20px"
+      },
+      "title": " Pi · example",
+      "titleRect": {
+        "bottom": 637.2265625,
+        "height": 23.7890625,
+        "left": 33,
+        "right": 357,
+        "top": 613.4375,
+        "width": 324,
+        "x": 33,
+        "y": 613.4375
+      }
+    },
+    {
+      "previousBoundaryToTitle": 60,
+      "rect": {
+        "bottom": 1045.984375,
+        "height": 280.6875,
+        "left": 33,
+        "right": 357,
+        "top": 765.296875,
+        "width": 324,
+        "x": 33,
+        "y": 765.296875
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "24.003px",
+        "margin": "0px 0px 40px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Who configures it",
+      "titleRect": {
+        "bottom": 807.5859375,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 785.296875,
+        "width": 324,
+        "x": 33,
+        "y": 785.296875
+      }
+    },
+    {
+      "previousBoundaryToTitle": 60,
+      "rect": {
+        "bottom": 1574.6015625,
+        "height": 488.6171875,
+        "left": 33,
+        "right": 357,
+        "top": 1085.984375,
+        "width": 324,
+        "x": 33,
+        "y": 1085.984375
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "24.003px",
+        "margin": "0px 0px 40px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Connection",
+      "titleRect": {
+        "bottom": 1128.2734375,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 1105.984375,
+        "width": 324,
+        "x": 33,
+        "y": 1105.984375
+      }
+    },
+    {
+      "previousBoundaryToTitle": 60,
+      "rect": {
+        "bottom": 2003.671875,
+        "height": 389.0703125,
+        "left": 33,
+        "right": 357,
+        "top": 1614.6015625,
+        "width": 324,
+        "x": 33,
+        "y": 1614.6015625
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "24.003px",
+        "margin": "0px 0px 40px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "New work",
+      "titleRect": {
+        "bottom": 1656.890625,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 1634.6015625,
+        "width": 324,
+        "x": 33,
+        "y": 1634.6015625
+      }
+    },
+    {
+      "previousBoundaryToTitle": 60,
+      "rect": {
+        "bottom": 2302.125,
+        "height": 258.453125,
+        "left": 33,
+        "right": 357,
+        "top": 2043.671875,
+        "width": 324,
+        "x": 33,
+        "y": 2043.671875
+      },
+      "style": {
+        "border": "0px 0px 1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "24.003px",
+        "margin": "0px 0px 40px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "End this connection",
+      "titleRect": {
+        "bottom": 2085.9609375,
+        "height": 22.2890625,
+        "left": 33,
+        "right": 357,
+        "top": 2063.671875,
+        "width": 324,
+        "x": 33,
+        "y": 2063.671875
+      }
+    },
+    {
+      "previousBoundaryToTitle": null,
+      "rect": {
+        "bottom": 2413.8359375,
+        "height": 71.7109375,
+        "left": 33,
+        "right": 357,
+        "top": 2342.125,
+        "width": 324,
+        "x": 33,
+        "y": 2342.125
+      },
+      "style": {
+        "border": "0px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "24.003px",
+        "margin": "0px",
+        "padding": "8px 0px 20px"
+      },
+      "title": "Technical detail",
+      "titleRect": null
+    }
+  ],
+  "controls": [
+    {
+      "disabled": false,
+      "label": "Back to runtimes",
+      "rect": {
+        "bottom": 593.4375,
+        "height": 44,
+        "left": 33,
+        "right": 126.0703125,
+        "top": 549.4375,
+        "width": 93.0703125,
+        "x": 33,
+        "y": 549.4375
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.1445px",
+        "gapToken": "40px",
+        "line": "19.7167px",
+        "margin": "0px",
+        "padding": "3px 4px"
+      },
+      "tag": "BUTTON",
+      "text": "Runtimes",
+      "value": ""
+    },
+    {
+      "disabled": false,
+      "label": "Connection name",
+      "rect": {
+        "bottom": 1298.4140625,
+        "height": 44,
+        "left": 33,
+        "right": 357,
+        "top": 1254.4140625,
+        "width": 324,
+        "x": 33,
+        "y": 1254.4140625
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "24.003px",
+        "margin": "0px",
+        "padding": "0px 10px"
+      },
+      "tag": "INPUT",
+      "text": "",
+      "value": "Pi on this Mac"
+    },
+    {
+      "disabled": false,
+      "label": "Credential reference",
+      "rect": {
+        "bottom": 1454.5546875,
+        "height": 44,
+        "left": 33,
+        "right": 357,
+        "top": 1410.5546875,
+        "width": 324,
+        "x": 33,
+        "y": 1410.5546875
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "16.002px",
+        "gapToken": "40px",
+        "line": "normal",
+        "margin": "0px",
+        "padding": "0px 10px"
+      },
+      "tag": "SELECT",
+      "text": "Choose a reference\nSynthetic reference · Models › Synthetic connection A\nSynthetic reference · Models › Synthetic connection B — no key in Models",
+      "value": "syn-ref-a"
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 1553.6015625,
+        "height": 44,
+        "left": 33,
+        "right": 124.2890625,
+        "top": 1509.6015625,
+        "width": 91.2890625,
+        "x": 33,
+        "y": 1509.6015625
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "40px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Reconnect",
+      "value": ""
+    },
+    {
+      "disabled": false,
+      "label": null,
+      "rect": {
+        "bottom": 1982.671875,
+        "height": 44,
+        "left": 33,
+        "right": 187.4140625,
+        "top": 1938.671875,
+        "width": 154.4140625,
+        "x": 33,
+        "y": 1938.671875
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "40px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Disable for new work",
+      "value": ""
+    },
+    {
+      "disabled": true,
+      "label": null,
+      "rect": {
+        "bottom": 2197.03125,
+        "height": 44,
+        "left": 33,
+        "right": 137.5703125,
+        "top": 2153.03125,
+        "width": 104.5703125,
+        "x": 33,
+        "y": 2153.03125
+      },
+      "style": {
+        "border": "1px",
+        "control": "44px",
+        "font": "13.716px",
+        "gapToken": "40px",
+        "line": "20.574px",
+        "margin": "0px",
+        "padding": "5px 10px"
+      },
+      "tag": "BUTTON",
+      "text": "Disconnect…",
+      "value": ""
+    }
+  ],
+  "dpr": 1,
+  "focus": {
+    "label": "Back to runtimes",
+    "rect": {
+      "bottom": 593.4375,
+      "height": 44,
+      "left": 33,
+      "right": 126.0703125,
+      "top": 549.4375,
+      "width": 93.0703125,
+      "x": 33,
+      "y": 549.4375
+    },
+    "tag": "BUTTON",
+    "text": "Runtimes",
+    "value": ""
+  },
+  "mount": {
+    "rect": {
+      "bottom": 2413.8359375,
+      "height": 1864.3984375,
+      "left": 33,
+      "right": 357,
+      "top": 549.4375,
+      "width": 324,
+      "x": 33,
+      "y": 549.4375
+    },
+    "style": {
+      "border": "0px",
+      "control": "44px",
+      "font": "16.002px",
+      "gapToken": "40px",
+      "line": "24.003px",
+      "margin": "0px",
+      "padding": "0px"
+    }
+  },
+  "pointer": {
+    "anyCoarse": false,
+    "coarse": false,
+    "fine": true
+  },
+  "rootGap": "40px",
+  "scroll": {
+    "client": 337,
+    "height": 1948,
+    "rect": {
+      "bottom": 820,
+      "height": 339.4140625,
+      "left": 16,
+      "right": 374,
+      "top": 480.5859375,
+      "width": 358,
+      "x": 16,
+      "y": 480.5859375
+    },
+    "top": 0
+  },
+  "textScale": "1.143",
+  "textSize": "large",
+  "theme": "dark",
+  "viewport": {
+    "height": 844,
+    "width": 390
+  },
+  "visualScale": 1
+}

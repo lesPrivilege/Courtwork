@@ -1,0 +1,10 @@
+M1 browser observation record
+Source: b8cd54f4d2e3d142ed367d49e08297170394495d; OpenAI IAB, existing synthetic adapter.
+
+Manual observation transcribed from the fresh tool-displayed accessibility state during this run (not a full saved AX tree):
+Hermes connect refusal: Hermes did not report a signed-in session, so nothing was connected. Your connection name is kept. Field remains M1 Hermes long retained connection name after refusal; saved revision6. Focus returns to enabled Connect; screenshot14 shows retained requested label and action.
+
+Raw subsequent saved AX response (diffing was enabled; it may report no change):
+Browser tab: 10, Title: "Runtimes · synthetic preview", URL: "http://127.0.0.1:55702/?text=large&theme=dark".
+There has been no change in the accessibility tree.
+The focused UI element is 71 button Connect
