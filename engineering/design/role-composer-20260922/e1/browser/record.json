@@ -1,0 +1,516 @@
+{
+  "host": {
+    "url": "http://127.0.0.1:8969",
+    "sessionId": "c18bb141-644e-4bad-8a66-bb770201f2dc",
+    "revision": 5,
+    "profiles": [
+      "local:e1-reviewer",
+      "local:e1-drafter",
+      "local:e1-kit-reviewer",
+      "agent:general"
+    ],
+    "capability": "expectation-v1"
+  },
+  "steps": [
+    {
+      "name": "A0 Home: no Session, no Agent control",
+      "focus": "body",
+      "chip": "(hidden)",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": true,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "",
+        "start": 0,
+        "end": 0
+      },
+      "overflow": 0,
+      "nullText": false
+    },
+    {
+      "name": "A1 project Chat inherits General; draft typed, caret 7",
+      "focus": "composer-input",
+      "chip": "General",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false,
+      "capability": "expectation-v1"
+    },
+    {
+      "name": "A2 Enter opens the chooser; listbox focused",
+      "focus": "agent-listbox",
+      "chip": "General",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": true,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false
+    },
+    {
+      "name": "A3 previews Kit reviewer before commit",
+      "focus": "agent-listbox",
+      "chip": "General",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": true,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false,
+      "reading": [
+        "runtime: Pi (pi-coding-agent@0.85.1/agent-session), the Host's runtime for this chat",
+        "model: Local test, from Models · All chats · future runs. This agent has no model of its own.",
+        "kits: kit:e1-review 1 (compatibility with Pi not checked)",
+        "resources: Review guidance",
+        "scope: This chat and its Work location. It does not change either, or open another inbox.",
+        "when: Selecting applies to runs started after it in this chat. A running run keeps the agent it started with."
+      ]
+    },
+    {
+      "name": "A4 Escape: no write, focus back on the control",
+      "focus": "agent-chip",
+      "chip": "General",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false,
+      "revisionBefore": 5,
+      "revisionAfter": 5
+    },
+    {
+      "name": "A5 Enter commits Kit reviewer: one session-scope write",
+      "focus": "agent-chip",
+      "chip": "Kit reviewer",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false,
+      "revision": 6,
+      "sessionSelection": "local:e1-kit-reviewer",
+      "composition": {
+        "id": "local:e1-kit-reviewer",
+        "schemaVersion": 2,
+        "kits": [
+          "kit:e1-review"
+        ]
+      }
+    },
+    {
+      "name": "A6 Tab reaches View Kit reviewer source in Settings",
+      "focus": "agent-view-in-settings",
+      "chip": "Kit reviewer",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": true,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false,
+      "label": "View Kit reviewer source in Settings"
+    },
+    {
+      "name": "A7 first Settings visit: the profile row is the destination",
+      "focus": "rc-detail-local%3Ae1-kit-reviewer-title",
+      "chip": "Kit reviewer",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false,
+      "hash": "#settings/developer",
+      "focusResource": "local:e1-kit-reviewer",
+      "sourceShown": true
+    },
+    {
+      "name": "A8 Escape back: focus on the control, draft and caret unchanged",
+      "focus": "agent-chip",
+      "chip": "Kit reviewer",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
+      },
+      "overflow": 0,
+      "nullText": false
+    },
+    {
+      "name": "A9 Send → terminal: Send restored once, no recursion, no reconnect, clean console",
+      "focus": "composer-input",
+      "chip": "Kit reviewer",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "",
+        "start": 0,
+        "end": 0
+      },
+      "overflow": 0,
+      "nullText": false,
+      "run": {
+        "id": "e610510f-1826-4d42-941d-2a92c0642833",
+        "status": "completed"
+      },
+      "runs": 1,
+      "bound": {
+        "id": "local:e1-kit-reviewer",
+        "revision": 6,
+        "kits": [
+          "kit:e1-review"
+        ],
+        "compatibility": "unchecked",
+        "policy": "reference-only-pi-unchecked-v1"
+      },
+      "controlReadsAfterSend": 2,
+      "reconnectBanner": false,
+      "errors": [],
+      "working": false
+    },
+    {
+      "name": "A10 stale Send refused by the Host; effective agent re-read; draft kept; no new Run",
+      "focus": "composer-input",
+      "chip": "Drafter",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Second draft after an outside change.",
+        "start": 37,
+        "end": 37
+      },
+      "overflow": 0,
+      "nullText": false,
+      "externalStatus": 200,
+      "runs": 1,
+      "feedback": "Run was not started: The selected Agent configuration changed; refresh before sending"
+    },
+    {
+      "name": "A11 390 dark: chooser",
+      "focus": "agent-listbox",
+      "chip": "Drafter",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": true,
+      "draft": {
+        "value": "Second draft after an outside change.",
+        "start": 37,
+        "end": 37
+      },
+      "overflow": 0,
+      "nullText": false
+    },
+    {
+      "name": "A12 Attention agent sheet open: the Agent control is not part of it",
+      "focus": "INPUT",
+      "chip": "Drafter",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Second draft after an outside change.",
+        "start": 37,
+        "end": 37
+      },
+      "overflow": 0,
+      "nullText": false,
+      "insideAttentionSurface": false
+    }
+  ],
+  "preview": [
+    {
+      "scenario": "active-run",
+      "focus": "agent-chip",
+      "chip": "General",
+      "notice": "Notes is kept as your choice. A run is active, so the selection is not changed now and will not change by itself.",
+      "actions": [
+        "Keep current agent"
+      ],
+      "send": {
+        "disabled": true,
+        "describedBy": "agent-notice"
+      },
+      "popover": false,
+      "draft": {
+        "value": "Remove the duplicate retry and add a test that fails before the fix.",
+        "start": 11,
+        "end": 11
+      },
+      "overflow": 0,
+      "nullText": false,
+      "trace": [
+        "GET /runtime-control?sessionId=session-synthetic",
+        "GET /runtime-resources/local:notes",
+        "PUT /runtime-control {\"revision\":12,\"operation\":\"profile\",\"id\":\"local:notes\"}",
+        "→ active_run · A run is active; configuration is frozen until it ends.",
+        "GET /runtime-control?sessionId=session-synthetic"
+      ]
+    },
+    {
+      "scenario": "lost-reply",
+      "focus": "agent-chip",
+      "chip": "Notes",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Remove the duplicate retry and add a test that fails before the fix.",
+        "start": 11,
+        "end": 11
+      },
+      "overflow": 0,
+      "nullText": false,
+      "trace": [
+        "GET /runtime-control?sessionId=session-synthetic",
+        "GET /runtime-resources/local:notes",
+        "PUT /runtime-control {\"revision\":12,\"operation\":\"profile\",\"id\":\"local:notes\"}",
+        "→ no reply · Network connection lost.",
+        "GET /runtime-control?sessionId=session-synthetic"
+      ]
+    },
+    {
+      "scenario": "refused",
+      "focus": "agent-chip",
+      "chip": "General",
+      "notice": "Notes was not selected: Profile is unavailable in this scope",
+      "actions": [
+        "Keep current agent"
+      ],
+      "send": {
+        "disabled": true,
+        "describedBy": "agent-notice"
+      },
+      "popover": false,
+      "draft": {
+        "value": "Remove the duplicate retry and add a test that fails before the fix.",
+        "start": 11,
+        "end": 11
+      },
+      "overflow": 0,
+      "nullText": false,
+      "trace": [
+        "GET /runtime-control?sessionId=session-synthetic",
+        "GET /runtime-resources/local:notes",
+        "PUT /runtime-control {\"revision\":12,\"operation\":\"profile\",\"id\":\"local:notes\"}",
+        "→ invalid_runtime_change · Profile is unavailable in this scope",
+        "GET /runtime-control?sessionId=session-synthetic"
+      ]
+    },
+    {
+      "scenario": "missing-resource",
+      "focus": "agent-chip",
+      "chip": "Notes",
+      "notice": "Notes is unavailable: missing local:notes-style.",
+      "actions": [
+        "Choose another agent"
+      ],
+      "send": {
+        "disabled": true,
+        "describedBy": "agent-notice"
+      },
+      "popover": false,
+      "draft": {
+        "value": "Remove the duplicate retry and add a test that fails before the fix.",
+        "start": 11,
+        "end": 11
+      },
+      "overflow": 0,
+      "nullText": false,
+      "trace": [
+        "GET /runtime-control?sessionId=session-synthetic",
+        "GET /runtime-resources/local:notes",
+        "PUT /runtime-control {\"revision\":12,\"operation\":\"profile\",\"id\":\"local:notes\"}",
+        "→ 200 · revision 13"
+      ]
+    },
+    {
+      "scenario": "read-error",
+      "focus": "body",
+      "chip": "Agent unknown",
+      "notice": "Could not read this chat's agent: The Host did not answer.",
+      "actions": [
+        "Retry"
+      ],
+      "send": {
+        "disabled": true,
+        "describedBy": "agent-notice"
+      },
+      "popover": false,
+      "draft": {
+        "value": "Remove the duplicate retry and add a test that fails before the fix.",
+        "start": 11,
+        "end": 11
+      },
+      "overflow": 0,
+      "nullText": false,
+      "trace": [
+        "GET /runtime-control?sessionId=session-synthetic"
+      ]
+    },
+    {
+      "scenario": "conflict",
+      "held": {
+        "focus": "agent-chip",
+        "chip": "Notes",
+        "notice": "Coding was not selected: the configuration changed elsewhere. Select it again or keep the current agent.",
+        "actions": [
+          "Select again",
+          "Keep current agent"
+        ],
+        "send": {
+          "disabled": true,
+          "describedBy": "agent-notice"
+        },
+        "popover": false,
+        "draft": {
+          "value": "Remove the duplicate retry and add a test that fails before the fix.",
+          "start": 11,
+          "end": 11
+        },
+        "overflow": 0,
+        "nullText": false
+      },
+      "afterSelectAgain": {
+        "focus": "agent-chip",
+        "chip": "Coding",
+        "notice": null,
+        "actions": [],
+        "send": {
+          "disabled": false,
+          "describedBy": null
+        },
+        "popover": false,
+        "draft": {
+          "value": "Remove the duplicate retry and add a test that fails before the fix.",
+          "start": 11,
+          "end": 11
+        },
+        "overflow": 0,
+        "nullText": false
+      },
+      "trace": [
+        "GET /runtime-control?sessionId=session-synthetic",
+        "GET /runtime-resources/local:coding",
+        "PUT /runtime-control {\"revision\":12,\"operation\":\"profile\",\"id\":\"local:coding\"}",
+        "→ runtime_conflict · Runtime configuration changed; reload and retry.",
+        "GET /runtime-control?sessionId=session-synthetic",
+        "PUT /runtime-control {\"revision\":13,\"operation\":\"profile\",\"id\":\"local:coding\"}",
+        "→ 200 · revision 14"
+      ]
+    },
+    {
+      "scenario": "loading",
+      "focus": "body",
+      "chip": "General",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Remove the duplicate retry and add a test that fails before the fix.",
+        "start": 11,
+        "end": 11
+      },
+      "overflow": 0,
+      "nullText": false
+    }
+  ],
+  "draftUnchanged": true,
+  "errors": []
+}

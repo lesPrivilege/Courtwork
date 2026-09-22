@@ -1,0 +1,27 @@
+# before: candidate 69f39a7, scenario kit-incompatible (Praxis 0.5 declares Pi only)
+{
+  "tree": "before-69f39a7",
+  "scenario": "kit-incompatible",
+  "kits": [
+    {
+      "id": "kit-attention",
+      "name": "Attention triage",
+      "version": "0.9",
+      "incompatible": false
+    },
+    {
+      "id": "kit-praxis",
+      "name": "Praxis",
+      "version": "0.5",
+      "incompatible": true
+    }
+  ],
+  "blockers": [
+    "Praxis 0.5 does not declare support for Hermes."
+  ],
+  "send": {
+    "enabled": false,
+    "reason": "Attention cannot start a run: Praxis 0.5 does not declare support for Hermes."
+  }
+}
+exit 0

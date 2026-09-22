@@ -29,6 +29,40 @@ const clone = (value) => structuredClone(value);
  * not an edit. Keyed by profile id; a save that lands clears its entry. */
 const emptySave = () => ({ status: "idle", message: "", revision: null });
 
+/** One Kit on one runtime. Pure; reads only supplied facts.
+ *   `supported` / `unsupported` — an owner record matches this Kit version and
+ *     this runtime (and its revision, when either side states one);
+ *   `unchecked` — no matching record. `reason` says which: `no-evidence`, or
+ *     `evidence-not-applicable` when records exist for another Kit version or
+ *     runtime revision. Contradictory matching records are `unchecked` with
+ *     `evidence-conflict`: the frontend does not pick a winner.
+ * `declared` repeats the Kit's own declaration beside the reading; it never
+ * decides it. */
+export function kitCompatibility(kit, runtime) {
+  const declared = Array.isArray(kit.supportedRuntimeIds) ? kit.supportedRuntimeIds.includes(runtime.id) : null;
+  const records = Array.isArray(kit.compatibility) ? kit.compatibility : [];
+  const forRuntime = records.filter(
+    (record) => record.runtimeId === runtime.id && (record.result === "supported" || record.result === "unsupported"),
+  );
+  const matching = forRuntime.filter(
+    (record) =>
+      record.kitVersion === kit.version &&
+      (record.runtimeRevision ?? null) === (runtime.revision ?? null),
+  );
+  const results = new Set(matching.map((record) => record.result));
+  if (results.size === 1) {
+    const [result] = results;
+    return { result, reason: "evidence", evidenceRef: matching[0].evidenceRef, declared };
+  }
+  if (results.size > 1) return { result: "unchecked", reason: "evidence-conflict", evidenceRef: null, declared };
+  return {
+    result: "unchecked",
+    reason: forRuntime.length ? "evidence-not-applicable" : "no-evidence",
+    evidenceRef: null,
+    declared,
+  };
+}
+
 /** Pure projection over one adapter reply plus the current draft. It creates no
  * fact: every branch below reads a field the adapter supplied, and an absent
  * field becomes an explicit unknown rather than a default. */
@@ -41,11 +75,15 @@ export function projectProfile(detail, draft) {
   const selectedKits = draft.kitIds
     .map((id) => kits.find((kit) => kit.id === id))
     .filter(Boolean);
-  /* An incompatibility is a pair, so it is reported on the pair — not as a
-     property of the Kit and not as a disabled runtime option. */
-  const incompatible = runtime
-    ? selectedKits.filter((kit) => !kit.supportedRuntimeIds.includes(runtime.id))
-    : [];
+  /* Compatibility is a reading of the pair, attributed to owner evidence
+     (06E-R1, K0). A Kit's own `supportedRuntimeIds` is a declaration: its
+     absence is `unchecked`, never a synthesized negative proof. Only a matching
+     owner record says `supported` or `unsupported`, and only `unsupported`
+     blocks. `incompatibleKitIds` keeps its name for existing consumers and now
+     means exactly the verified-unsupported pairs. */
+  const compatibility = {};
+  if (runtime) for (const kit of selectedKits) compatibility[kit.id] = kitCompatibility(kit, runtime);
+  const incompatible = selectedKits.filter((kit) => compatibility[kit.id]?.result === "unsupported");
   /* Requests are unioned in selection order; the first Kit that asks for an
      action owns the line, and a second asking Kit is named beside it. */
   const requests = [];
@@ -76,12 +114,13 @@ export function projectProfile(detail, draft) {
     );
   for (const kit of incompatible)
     blockers.push(
-      `${kit.name} is not supported on ${runtime.name}. Remove the Kit or choose a runtime that supports it.`,
+      `${kit.name} ${kit.version} is not supported on ${runtime.name} (${compatibility[kit.id].evidenceRef}). Remove the Kit or choose a runtime that supports it.`,
     );
   return {
     role,
     runtime,
     selectedKits,
+    compatibility,
     incompatibleKitIds: incompatible.map((kit) => kit.id),
     requests,
     frozen,

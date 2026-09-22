@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent choice · synthetic preview</title>
+    <script src="/web/skin-policy.js"></script>
+    <link rel="stylesheet" href="/web/styles.css" />
+    <link rel="stylesheet" href="./preview.css" />
+  </head>
+  <body data-agent-choice-preview>
+    <div class="preview-app">
+      <header class="preview-topbar">
+        <div>
+          <p class="eyebrow">Interactive synthetic preview · E1</p>
+          <h1>Composer › Agent</h1>
+        </div>
+        <p class="preview-disclosure">
+          The chooser and its controller are the product's own modules. The Runtime Control owner
+          behind them is synthetic: every profile, hash, revision and reply here is invented, nothing
+          contacts a Host, and Send only records the request it would make.
+        </p>
+      </header>
+      <section class="preview-controls" aria-label="Preview state">
+        <label>Scenario <select id="scenario-select" data-testid="scenario-select"></select></label>
+        <label class="preview-slow"><input id="slow-toggle" type="checkbox" data-testid="slow-toggle" /> Slow replies</label>
+        <label>Appearance
+          <select id="theme-select" data-testid="theme-select"><option value="light">Light</option><option value="dark">Dark</option></select>
+        </label>
+        <button id="reset-preview" type="button" class="quiet-button" data-testid="reset">Reset</button>
+      </section>
+      <main class="preview-chat" aria-label="Synthetic chat">
+        <div class="preview-thread">
+          <h2 id="chat-title">Synthetic chat</h2>
+          <section class="preview-trace" aria-label="Requests this page would make">
+            <h3>Request trace</h3>
+            <ol id="trace" data-testid="trace"></ol>
+          </section>
+        </div>
+        <footer id="composer-area" class="composer-area">
+          <form id="composer-form" class="composer-form">
+            <label class="sr-only" for="composer-input">Message</label>
+            <textarea id="composer-input" rows="2" placeholder="What would you like to work on?"></textarea>
+            <p id="composer-notice" class="composer-notice" role="status" hidden></p>
+            <div class="composer-controls">
+              <div class="composer-context"></div>
+              <div class="composer-buttons">
+                <span class="composer-model">Synthetic model</span>
+                <button id="send-button" class="primary-button" type="submit" data-testid="send">Send</button>
+              </div>
+            </div>
+          </form>
+        </footer>
+      </main>
+    </div>
+    <dialog id="source-dialog" class="runtime-dialog" aria-labelledby="source-title" data-testid="source-dialog">
+      <div class="runtime-dialog-inner">
+        <header class="runtime-dialog-header">
+          <h2 id="source-title">Profile source</h2>
+          <button id="source-close" type="button" class="quiet-button" data-testid="source-close">Back to chat</button>
+        </header>
+        <div class="runtime-dialog-body">
+          <p class="form-help">In the product this opens Settings › Developer › Runtime composition, where the source is edited. Here it shows the synthetic source only.</p>
+          <pre id="source-body" data-testid="source-body"></pre>
+        </div>
+      </div>
+    </dialog>
+    <script type="module" src="./preview.mjs"></script>
+  </body>
+</html>

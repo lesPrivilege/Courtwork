@@ -1,0 +1,22 @@
+✔ initial choice is the chat's default Agent, read before Send is offered (2.883167ms)
+✔ requested, supported and granted stay four separate readings (3.804042ms)
+✔ runtime-owned model is read from the runtime, not from Models (1.779375ms)
+✔ 06E-R1: a Kit that does not declare the runtime, with no owner record, is unchecked and does not block (1.992333ms)
+✔ evidence for an older Kit version is not applicable: unchecked, not blocked (1.93425ms)
+✔ verified-unsupported owner evidence blocks, and says whose evidence (1.856417ms)
+✔ supported evidence is attributed; permissions stay the permission owner's (1.949833ms)
+✔ unchecked never erases another blocker: unavailable runtime, Run in flight (1.161667ms)
+✔ a run in flight keeps its binding; another choice applies to a later run, with no queue (2.090667ms)
+✔ a late reply for one Agent never lands on another (3.106167ms)
+✔ after a Settings save the selection is kept and the new revision is said (1.254125ms)
+✔ a failed list read is recoverable and does not invent a selection (0.367166ms)
+✔ an older reply for the same Agent cannot replace a newer one (1.7665ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 115.128917
+exit 0

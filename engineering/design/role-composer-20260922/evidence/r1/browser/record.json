@@ -1,0 +1,247 @@
+{
+  "url": "http://127.0.0.1:8966/engineering/design/role-composer-20260922/specimen/index.html",
+  "steps": [
+    {
+      "name": "normal: Attention previewed in chooser",
+      "focus": "agent-listbox",
+      "chip": "Work",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.4 (checked on Hermes: synthetic check · Praxis 0.4 on Hermes)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "normal: Attention selected",
+      "focus": "agent-chip",
+      "chip": "Attention",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.4 (checked on Hermes: synthetic check · Praxis 0.4 on Hermes)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "kit-undeclared: Attention previewed in chooser",
+      "focus": "agent-listbox",
+      "chip": "Work",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.5 (compatibility with Hermes not checked; not declared by the Kit)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "kit-undeclared: Attention selected",
+      "focus": "agent-chip",
+      "chip": "Attention",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.5 (compatibility with Hermes not checked; not declared by the Kit)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "kit-undeclared: Settings on Attention",
+      "focus": "settings-back",
+      "chip": "Attention",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.5 (compatibility with Hermes not checked; not declared by the Kit)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0,
+      "settingsKit": "Compatibility with Hermes not checked. The Kit does not declare support.",
+      "settingsBlocker": null
+    },
+    {
+      "name": "kit-undeclared: Escape back to the chat",
+      "focus": "agent-chip",
+      "chip": "Attention",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.5 (compatibility with Hermes not checked; not declared by the Kit)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "kit-stale-evidence: Attention previewed in chooser",
+      "focus": "agent-listbox",
+      "chip": "Work",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.5 (compatibility with Hermes not checked for this version; declared by the Kit)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "kit-stale-evidence: Attention selected",
+      "focus": "agent-chip",
+      "chip": "Attention",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.5 (compatibility with Hermes not checked for this version; declared by the Kit)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "kit-unsupported: Attention previewed in chooser",
+      "focus": "agent-listbox",
+      "chip": "Work",
+      "notice": null,
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.4 (not supported on Hermes: synthetic check · Praxis 0.4 on Hermes · refused)",
+      "send": {
+        "disabled": false
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "kit-unsupported: Attention selected",
+      "focus": "agent-chip",
+      "chip": "Attention",
+      "notice": "Attention cannot start a run: Praxis 0.4 is not supported on Hermes (synthetic check · Praxis 0.4 on Hermes · refused).",
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.4 (not supported on Hermes: synthetic check · Praxis 0.4 on Hermes · refused)",
+      "send": {
+        "disabled": true
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "bound-run: Attention previewed in chooser",
+      "focus": "agent-listbox",
+      "chip": "Coding",
+      "notice": "Running now on Coding · revision 7. A run you start after it ends uses the same agent.",
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.4 (checked on Hermes: synthetic check · Praxis 0.4 on Hermes)",
+      "send": {
+        "disabled": true
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    },
+    {
+      "name": "bound-run: Attention selected",
+      "focus": "agent-chip",
+      "chip": "Attention",
+      "notice": "Running now on Coding · revision 7, which it keeps. Attention applies to a run you start after it ends.",
+      "kits": "Attention triage 0.9 (checked on Hermes: synthetic check · Attention triage 0.9 on Hermes); Praxis 0.4 (checked on Hermes: synthetic check · Praxis 0.4 on Hermes)",
+      "send": {
+        "disabled": true
+      },
+      "draft": {
+        "value": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix.",
+        "start": 35,
+        "end": 35
+      },
+      "materials": [
+        "retry-wrapper.ts",
+        "gateway-timeout-test.log"
+      ],
+      "overflow": 0
+    }
+  ]
+}

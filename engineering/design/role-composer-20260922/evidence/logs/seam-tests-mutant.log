@@ -1,0 +1,38 @@
+# mutant: same-id token guard removed from the error branch of read()
+✔ initial choice is the chat's default Agent, read before Send is offered (3.254ms)
+✔ requested, supported and granted stay four separate readings (3.882209ms)
+✔ runtime-owned model is read from the runtime, not from Models (2.156ms)
+✔ an incompatible Kit and an unavailable runtime block Send with the owner's words (1.768584ms)
+✔ a run in flight keeps its binding; another choice applies to a later run, with no queue (6.956ms)
+✔ a late reply for one Agent never lands on another (3.512917ms)
+✔ after a Settings save the selection is kept and the new revision is said (1.453125ms)
+✔ a failed list read is recoverable and does not invent a selection (0.349ms)
+✖ an older reply for the same Agent cannot replace a newer one (3.0795ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 126.224208
+
+✖ failing tests:
+
+test at engineering/design/role-composer-20260922/specimen/composer-agent.test.mjs:133:1
+✖ an older reply for the same Agent cannot replace a newer one (3.0795ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  'error' !== 'ready'
+
+      at TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-role-composer-20260922/engineering/design/role-composer-20260922/specimen/composer-agent.test.mjs:153:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'error',
+    expected: 'ready',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+exit 1

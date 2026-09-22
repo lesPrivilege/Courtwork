@@ -1,0 +1,17 @@
+/* Preview-page frame only; the composer, chooser and dialog use the product's classes. */
+body[data-agent-choice-preview] { display:block; overflow:hidden; background:var(--frame); color:var(--ink); }
+.preview-app { height:100dvh; display:grid; grid-template-rows:auto auto minmax(0,1fr); }
+.preview-topbar { display:flex; align-items:center; justify-content:space-between; gap:var(--space-6); padding:var(--space-3) var(--space-6); border-bottom:1px solid var(--line); }
+.preview-topbar h1 { font-size:var(--text-title); margin:0; }
+.preview-topbar .eyebrow { margin:0 0 var(--space-1); }
+.preview-disclosure { max-width:60ch; margin:0; color:var(--muted-strong); font-size:var(--text-meta); line-height:1.5; }
+.preview-controls { display:flex; gap:var(--space-4); align-items:end; overflow-x:auto; padding:var(--space-2) var(--space-6); border-bottom:1px solid var(--line); background:var(--panel-muted); }
+.preview-controls label { display:grid; gap:var(--space-1); flex:0 0 auto; font-size:var(--text-meta); color:var(--muted-strong); }
+.preview-controls .preview-slow { display:flex; align-items:center; align-self:center; white-space:nowrap; }
+.preview-chat { min-height:0; display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto; background:var(--panel); }
+.preview-thread { overflow:auto; padding:var(--space-6) var(--chat-inset) var(--space-4); }
+.preview-thread > * { max-width:var(--column); margin-left:auto; margin-right:auto; }
+.preview-trace { font-size:var(--text-meta); color:var(--muted-strong); }
+.preview-trace ol { padding-left:var(--space-4); }
+.preview-trace li { overflow-wrap:anywhere; margin-bottom:var(--space-1); }
+#source-body { white-space:pre-wrap; overflow-wrap:anywhere; font-size:var(--text-meta); }
