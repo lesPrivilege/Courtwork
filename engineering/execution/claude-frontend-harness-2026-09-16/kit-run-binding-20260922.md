@@ -53,3 +53,8 @@ Main678d71c was pushed and independently matched by ls-remote before creating **
 ## User-authorized frontend consumer seam — 2026-09-22
 
 [Implementation lanes](frontend-backend-live-integration-20260922.md) permit the minimum existing-owner profile read/selection/draft/admission projection needed by Claude E1, plus necessary pure-validator extraction without semantic changes. Publish the concrete shared contract early; whole-config revision/source identity must not be misrepresented as per-profile CAS. K3 keeps the backend/Store/server writer, Claude keeps app/web. This expands the internal-helper stopping boundary while retaining the ordinary-Chat/Pi scope, schema21 discipline, real request evidence and parent acceptance. Pages remains excluded.
+
+
+## Parent final review — K3-R1, 2026-09-22
+
+[Parent return and exact evidence](evidence/kit-run-parent-review-20260922/README.md) hold packetcb26d20 for one load/history invariant: after both Kit summaries are removed from a synthetic persisted Kit-bearing Run, schema21 accepts the retained nonempty v2 declaration and historical context returns200 without the Kit context. Original task01a0c9a7-6aca-79b2-a578-da1414a73404 resumes only the existing-owner guard plus actual load/reopen regression and legacy compatibility checks. No reconstruction from mutable config or broad repair framework. Luna78 tests plus2 probes otherwise pass within scope; main remains20, E1's disjoint frontend work continues, Pages stays excluded.

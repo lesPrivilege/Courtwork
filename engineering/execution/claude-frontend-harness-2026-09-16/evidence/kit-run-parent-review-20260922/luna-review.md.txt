@@ -1,0 +1,58 @@
+# Luna final non-author review — K3 Kit to Run binding
+
+Date: 2026-09-22
+
+## Fixed source and scope
+
+- Candidate checkout: `/Users/lesprivilege/.codex/worktrees/bf41/Courtwork`
+- Branch: `codex/kit-run-binding-20260922`
+- Reviewed HEAD: `cb26d2060d0882607bab12e37ba76cdb141392ce`
+- Main comparison point: `dbe9493a04f7a1bbe6bb761a99d17ace3bce0416`, schema 20.
+- K3 product sources: Runtime Control/Host at `76d91d6fe8938ddd1cbb1e2b14fc29d5e4231ddd`; Store/schema 21 at `eb32011`; later request-evidence/tests/docs are retained at the reviewed HEAD.
+- Contract: `engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md`.
+- Delivery/evidence: `engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md`.
+
+The review is limited to the K3 Host/Pi request path, Run selection/replay and retained-payload behavior, Store/schema 21 cross-record validation/migration, the requested K1 regression set, and the v2 control-owner filtering. No full suite, provider credentials, browser, user service, paid call, or other worktree was used.
+
+## Source inspection
+
+The relevant fixed boundaries are:
+
+- `app/runtime/control-plane.mjs:90–110` parses bounded profile v2 declarations while preserving v1 shape; `:248–260` removes unavailable unbound Extension tool descriptors only for a Kit-bearing v2 composition, while retaining bound tools and the v1 catalog behavior.
+- `app/runtime/kit-run-context.mjs:14–46` enforces explicit Session scope, ordinary Chat exclusions, the exact in-process Pi adapter declaration, K1 compilation, Host limits and two content-addressed payload saves. `:49–79` reads only the frozen plan/context payloads and verifies their hashes, plan identity, profile/binding/runtime/Kit/compatibility/limits and exact text before returning.
+- `app/server/service.mjs:2485–2515` resolves the original command receipt before mutable runtime/provider checks; `:2581–2624` binds the checked runtime selection, retains Kit payloads, and creates the Run with one frozen snapshot/summary under the existing configuration queue.
+- `app/runtime/kit-binding-state.mjs:113–188` validates the exact bounded summary; `:195–251` validates profile/Kit declarations, content/source identity and snapshot hash; `:253–287` enforces equal Run and `runtime.bound` Kit authority and immutable transitions.
+- `app/server/store.mjs:427–616` validates schema 21 and event cross-record references; `:827–872` validates old state, writes an exact schema backup, upgrades legacy Runs with `kitBinding: null`, and persists atomically; `:957–968` repeats Local Pi and Kit cross-record validation on every mutation.
+
+Current relevant source/test hashes are recorded in `/tmp/cw-k3-final-review-20260922.sha256`.
+
+## Independent reproduction
+
+The candidate had no `app/node_modules`; I temporarily symlinked it to the already-installed main application dependencies for read-only module resolution, then removed the symlink. No package or product file changed.
+
+1. `node --test app/tests/kit-run-binding.test.mjs`
+   - **23/23 passed, exit 0**. This includes the real authenticated HTTP → in-process Pi → deterministic loopback request, selection expectation race, concurrent command replay, payload retention/read failure, active edit race, refusal matrix, extension filtering, v1/empty-Kit path and crash/reopen.
+2. `node --test app/tests/kit-binding-store.test.mjs`
+   - **4/4 passed, exit 0**. This covers exact schema 21 projection, malformed/corrupt cross-record refusal, schema 20 backup/upgrade and the pinned schema-20 reader refusing schema 21 without rewriting.
+3. `node --test app/tests/kit-context.test.mjs app/tests/kit-context-independent.test.mjs`
+   - **51/51 passed, exit 0**. This rechecks the accepted K1 planner/refusal/immutability boundary used by K3.
+4. Independent synthetic probes in `/tmp/cw-k3-independent-probes-20260922.mjs`
+   - **2/2 passed, exit 0**. Probe 1 used independently cloned Run and `runtime.bound` summaries and rejected ghost Kit authority, a missing bound projection, and a changed projection. Probe 2 retained exactly two payloads and rejected tampered context with `kit_payload_invalid` without fallback.
+5. `git diff --check dbe9493..HEAD -- app/runtime app/server app/tests/kit-run-binding.test.mjs app/tests/kit-binding-store.test.mjs`
+   - **exit 0**.
+
+Combined test output is `/tmp/cw-k3-final-review-20260922.log`; probe output is `/tmp/cw-k3-independent-probes-20260922.log`; exit details are `/tmp/cw-k3-final-review-20260922.exit`.
+
+## Evidence-specific findings
+
+The retained request artifact `actual-provider-request.json` is a parsed received HTTP body from the synthetic loopback provider. It contains the Runtime Control contribution exactly once, with the K3 core and catalog headings, while both deferred body sentinels are absent. The retained context is 242 UTF-8 bytes, 240 JavaScript UTF-16 units and SHA-256 `b0b64043f010e5a89e57542659eb445f81cd6160fecd20038ccce6e06ad66158`; the plan payload is 5,157 bytes. The first ordinary Chat request produced one provider request; the explicit `runtime_load` follow-up produced the two additional requests expected by the test. Compatibility remains explicitly `unchecked` under `reference-only-pi-unchecked-v1`; no Kit requirement becomes a grant.
+
+The Host cases verified that a profile-selected Session scope reaches the real Pi request once, stale `{revision, profileId, sourceHash}` intent returns `runtime_selection_conflict`, the original command replay returns its original Run after configuration changes, and concurrent same-command admission yields one Run/request. Refusal cases make zero provider calls and no Run. Retained payload corruption/read failure refuses or fails with the recorded identity and does not use current mutable context. Active configuration edits, payload-retention races, cancellation, crash/reopen and historical readback preserve the frozen Run summary.
+
+The control-plane cases preserve v1 and empty-v2 compiler bytes with `run.kitBinding: null`; a bound available Extension tool remains in the Kit projection, while v1 continues to expose its prior catalog. An unavailable unbound Extension requirement is explicitly missing/refused rather than silently substituted.
+
+## Findings and decision
+
+No concrete blocker was found in this bounded non-author review. The fixed candidate meets the checked K3 source and test boundaries for actual Host/Pi consumption, Session scope, receipt-first replay, selection expectation, retained payload identity, fail-closed historical reads, Run/`runtime.bound` equality, schema 20→21 backup and old-reader refusal, K1 compatibility, and v1/control-owner isolation.
+
+This is a **bounded non-author pass for the reviewed K3 backend and synthetic provider scope only**. It does not establish real-model/provider capability, E1 chooser UI acceptance, production Kit catalog/registry behavior, browser/native Runtime switching, or full application acceptance. Parent Arch retains final integration and merge authority.

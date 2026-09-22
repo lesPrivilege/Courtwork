@@ -1,0 +1,21 @@
+# K3 narrow follow-up — missing Run Kit binding
+
+The reproduced probe is a concrete schema-21 cross-record integrity gap.
+
+`/tmp/cw-k3-missing-binding-probe-20260922.log` shows:
+
+- a completed Run originally admitted from a profile with one Kit declaration;
+- `run.kitBinding` removed;
+- `runtime.bound.data.kitBinding` removed while `runtime.bound.data.composition.schemaVersion === 2` and `composition.kits.length === 1` remain;
+- `validateState(saved)` returned no error;
+- after reopen, `GET /runtime-context` returned 200 with the v2 Kit declaration visible in `binding.composition.kits`, but with no `kitContext` and `run.kitBinding === null`.
+
+This violates the K3 order's authority rule: `run.kitBinding` is null only for legacy/no-Kit or empty-Kit Runs; otherwise the Run summary and `runtime.bound` projection must be equal and immutable. It also permits a recorded Kit selection to be presented as a no-Kit historical Run, bypassing the retained plan/context identity.
+
+The source cause is bounded to `app/runtime/kit-binding-state.mjs:256–260`: the `run.kitBinding === null` branch checks only whether an event carries a non-null `data.kitBinding`; it does not inspect the bound snapshot's v2 `composition.kits`. The non-null branch correctly validates the summary and snapshot at `:262–269`.
+
+The minimum owner correction is a Store/Kit validator invariant: when a `runtime.bound` snapshot has `composition.schemaVersion === 2` and a nonempty `composition.kits` array, a null Run summary or missing/null event Kit projection must fail closed. Keep `schemaVersion:2` with `kits:[]` valid because the existing K3 Host test explicitly accepts an empty-Kit v2 profile with `run.kitBinding:null`. The public read route at `app/server/service.mjs:802–820` then remains truthful because invalid durable state cannot load.
+
+Legacy schema-20 migration remains compatible: `app/server/store.mjs:854–857` adds `kitBinding:null` to old Runs, and legitimate schema-20 runtime snapshots have no K3 v2 nonempty Kit declaration. Such historical no-Kit events remain unchanged. A schema-20 file carrying a nonempty K3 v2 declaration is not a valid legacy state and should fail closed during the post-upgrade schema-21 validation rather than be silently downgraded.
+
+This is a narrow load/mutation validation blocker for K3 persistence integrity. It does not show that ordinary authenticated admission creates this state; the supplied probe deliberately corrupts the durable representation after a valid Run. No product files were changed and no broader tests were run in this follow-up.

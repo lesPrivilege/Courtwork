@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-22 · K3 held for one persisted-history invariant; E1 continues
+
+[Parent K3 review](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-parent-review-20260922/README.md) holds cb26d20 for K3-R1. Actual synthetic Host→Pi completion, then removal of both Kit summaries while retaining a nonempty v2 declaration, passes schema21 load and returns historical context200 without Kit context. Original backend owner retains the finite validator/reopen correction; no normal-admission corruption or wrong inference is claimed. Independent23+4+51 tests and2 other probes pass. Main remains RuntimeStore20/Core4/bridge5; no merge, user service/data operation or cleanup. Claude E1 is actively implementing in its preserved disjoint tree; Pages remains excluded.
+
 ## 2026-09-22 · Claude E1 and Codex K3 implementation boundaries expanded
 
 User confirms continued parallel [frontend/backend implementation lanes](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md). Claude keeps06e-R1, then may implement selectedA in actual frontend modules/Composer/Settings consumers; Codex K3 owns the minimum real profile/selection/admission projection and exact Kit→Run path, including related owner changes. Existing facts/authority and concrete DTOs govern integration; no fixture becomes a production fallback, and no overlapping writer is granted. Parent retains architecture/independent acceptance/merge.

@@ -1,0 +1,4 @@
+PROBE-1 PASS: two retained payloads; ghost, missing runtime.bound, and changed bound summary rejected
+PROBE-2 PASS: tampered retained context fails kit_payload_invalid without fallback
+
+PROBES_EXIT=0
