@@ -35,3 +35,8 @@ K0 branch codex/kit-k0-contract-20260922 is registered in kit-k0-20260922/Courtw
 
 
 Post-audit observation: the same protected K0 branch advanced to bacd64e with contract/review documentation and a clean tree. Parent contract disposition is still required; no compiler or production binding acceptance is recorded by this metadata observation.
+
+
+## K0 selected; K1/K2 authorized — 2026-09-22
+
+[Parent decision and finite lease](evidence/kit-k0-parent-20260922/README.md) accept bacd64e's reference-only contract, consume all four corrected non-author findings and release the original task for new pure Kit modules/tests plus K2 synthetic consumer proof. No shared Host/control/schema/UI writer is granted. The original packet is merged at ecf2d6a with exact bytes preserved; current main is schema20, while the K0 baseline was19. Parent retains architecture and final product acceptance. Task identity is now verified as Define bounded Kit context contract /01a0c8bb-0f08-7113-938f-f8bf3be42ad9; keep the same protected branch/worktree and merge this parent main before proceeding.

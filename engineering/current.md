@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-22 · Kit K0 selected; original task released for K1/K2
+
+[Parent K0 disposition](execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-parent-20260922/README.md) accepts bacd64e as a reference-only descriptor/context-plan contract, merged as documents at ecf2d6a. All four review corrections were checked against actual owner/compiler/source code; K1/K2 are not yet implementation acceptance. Verified original task Define bounded Kit context contract (01a0c8bb-0f08-7113-938f-f8bf3be42ad9) receives new pure kit modules/tests and synthetic consumer proof in its same worktree. Host/control/store/schema/UI remain excluded; production profile/Kit→Run binding remains open. RuntimeStore20/Core4/bridge5 and user services/data are unchanged. LP-R5 is already accepted under the preceding final receipt, not pending re-review.
+
 ## 2026-09-22 · Promise-to-user-path audit consumed; Local Pi finite slice accepted
 
 [First-principles closure audit](execution/claude-frontend-harness-2026-09-16/evidence/work-closure-audit-20260922/README.md) separates mechanism tests from actual user outcomes. Role/Kit selection→production Run binding and safe unknown fence→usable recovery remain real deferred owner gaps; M1 is delivered pending parent acceptance. Order11's stale opening status is corrected: basic real-browser dogfood and the prepared real write/check/reload path were already accepted, while historical RuntimeLock/robustness/G4 remain open. K0 has an observed protected contract branch (advanced to bacd64e);06e has a reserved clean checkout, with process dispatch identities not inferred. Original execution/dispatch/owner entries consume this audit; historical evidence is preserved.

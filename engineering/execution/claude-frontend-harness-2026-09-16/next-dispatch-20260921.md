@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-22 · K0 decision consumed
+
+[Selected reference-only Kit contract and K1/K2 lease](evidence/kit-k0-parent-20260922/README.md) supersede the prepared/awaiting-K0 status below. Continue the verified original Kit task and checkout; do not create a duplicate writer. LP-R5 was independently accepted and merged; M1 and06e retain separate scopes.
+
 ## 2026-09-22 · Closure audit consumed
 
 [Parent disposition](evidence/work-closure-audit-20260922/README.md) prioritizes outcomes rather than green tests. Basic real-browser dogfood is accepted; historical RuntimeLock/robustness/G4 are separate. Local Pi's finite correction is accepted but does not deliver real-provider selection or operable unknown recovery. M1 remains delivered awaiting parent acceptance. K0 now has an observed protected checkout with contract evidence;06e has a protected clean checkout only. These observations supersede treating the handoffs as nonexistent, but do not establish dispatched process identity or product delivery. Preserve original owners and avoid duplicate assignments.

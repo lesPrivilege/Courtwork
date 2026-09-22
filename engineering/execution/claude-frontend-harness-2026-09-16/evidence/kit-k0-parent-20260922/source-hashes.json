@@ -1,0 +1,30 @@
+{
+  "source": "bacd64ea4d59b35a19fdd9b69fa46bfbab3267f3",
+  "packetMerge": "ecf2d6ab496b265a1c5e4a169b7ccaa4e98badd0",
+  "files": [
+    {
+      "path": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/README.md",
+      "sha256": "ce53e3502f02610b7288b24a93715862d0bb53c754e0363e44ea5ab1866db797"
+    },
+    {
+      "path": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/consumer-and-verification.md",
+      "sha256": "ce37c7d1f05eb3d8efc9845c7489fdf75a89fce8ff386213643c0a20f4de85d7"
+    },
+    {
+      "path": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/contract.md",
+      "sha256": "6dd9bc30b0c19081a065df608ac7e8ce732c7081e8226f458d1df8f05970ad8d"
+    },
+    {
+      "path": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/luna-review.md.txt",
+      "sha256": "3424bd753846ab19107e22a47b3fe66a67ce9a21d30496ebc9f72dd1f3b20474"
+    },
+    {
+      "path": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/source-map.md",
+      "sha256": "46374b61e519805dfe8e17d58ea99d09605f262dc3bf7b487ea0be77a83df15a"
+    },
+    {
+      "path": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-20260922/verification.md",
+      "sha256": "b38b62da8ee5cf66fa81b684f330abc4120b3972a2e8deb67914e1d148dd1171"
+    }
+  ]
+}
