@@ -1,0 +1,96 @@
+{
+  "baseline": "fdbbead",
+  "candidate": "b8cd54f",
+  "before": {
+    "blocks": [
+      {
+        "gap": "40px",
+        "marginBottom": "40px",
+        "title": " Pi · example"
+      },
+      {
+        "gap": "40px",
+        "marginBottom": "40px",
+        "title": "Who configures it"
+      },
+      {
+        "gap": "40px",
+        "marginBottom": "40px",
+        "title": "Connection"
+      },
+      {
+        "gap": "40px",
+        "marginBottom": "40px",
+        "title": "New work"
+      },
+      {
+        "gap": "40px",
+        "marginBottom": "40px",
+        "title": "End this connection"
+      },
+      {
+        "gap": "40px",
+        "marginBottom": "0px"
+      }
+    ],
+    "input": [
+      {
+        "font": "14px",
+        "height": 28,
+        "label": "Connection name",
+        "top": 778.9296875
+      }
+    ],
+    "overflow": 0,
+    "viewport": [
+      1280,
+      900
+    ]
+  },
+  "after": {
+    "blocks": [
+      {
+        "gap": "16px",
+        "marginBottom": "16px",
+        "title": " Pi · example"
+      },
+      {
+        "gap": "16px",
+        "marginBottom": "16px",
+        "title": "Who configures it"
+      },
+      {
+        "gap": "16px",
+        "marginBottom": "16px",
+        "title": "Connection"
+      },
+      {
+        "gap": "16px",
+        "marginBottom": "16px",
+        "title": "New work"
+      },
+      {
+        "gap": "16px",
+        "marginBottom": "16px",
+        "title": "End this connection"
+      },
+      {
+        "gap": "16px",
+        "marginBottom": "0px"
+      }
+    ],
+    "input": [
+      {
+        "font": "14px",
+        "height": 28,
+        "label": "Connection name",
+        "top": 730.9296875
+      }
+    ],
+    "overflow": 0,
+    "viewport": [
+      1280,
+      900
+    ]
+  }
+}

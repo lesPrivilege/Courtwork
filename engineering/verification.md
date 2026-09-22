@@ -122,3 +122,6 @@
 
 
 2026-09-22 · [Kit K1/K2 final adoption](execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md): product966dfdb/handoff9a09f8e, parent Luna51/51 (44 author+7 independent-authored), adjacent9/9 and2 extra adversarial probes, all exit0; actual-main70a2268 51/51. Exact module/source hashes match; unchanged existing owner files and schemas. Accept pure compiler/synthetic binding→plan→context only, no live Kit/Run/UI capability.9,423 entries restored/verified and complete Git bundle cloned/fsck-verified before ended tree/branch cleanup.
+
+
+2026-09-22 · [M1 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/m1-final-20260922/README.md): fixed b8cd54f/ffd4e39, independent35/35+7/7 and lints; parent in-app-browser1280×900 before/after40→16px detail margin, unchanged28px/14px input, no document overflow. Main product7dc852a passes [one full1538/1538 and smoke](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md), no real provider. Earlier409 remains unexplained. Restored/bundle-verified M1 tree removed;06e held. Push/new K3 are user-authorized subsequent operations, not product capability or deployment acceptance.

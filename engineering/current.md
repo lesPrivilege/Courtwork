@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-22 · Clean checkpoint prepared for authorized push; K3 next
+
+[Checkpoint receipt](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md) accounts for accepted main product7dc852a and protected carry-forward06e-R1. [M1](execution/claude-frontend-harness-2026-09-16/evidence/m1-final-20260922/README.md) is now independently accepted/integrated and its ended tree restore/bundle verified and removed. Full synthetic1538/1538 and deterministic smoke pass; schemas20/4/5 unchanged. Only06e remains outside main for its named return; local metadata/frozen Git dependency are preserved.
+
+User has authorized push. The [next K3 order](execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md) connects existing Kit plans to actual ordinary-Chat/Pi Run admission/frozen context using current owners; it must start in a fresh isolated task only after the push is verified. No new K3 writer, user-service operation or manual deployment has occurred in this preparation record.
+
 ## 2026-09-22 · Kit K1/K2 accepted and integrated within pure-planner scope
 
 [Parent final adoption](execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md) accepts product966dfdb/handoff9a09f8e at main70a2268: parent Luna51/51, adjacent9/9 and2 adversarial probes; actual-main51/51. Exact source pins, budget/refusal/deferred semantics, no-Kit legacy behavior and non-mutating output are accepted for the pure reference-only planner/synthetic consumer. RuntimeStore20/Core4/bridge5, shared Host/control/UI and package pins remain unchanged; production Kit selection/profile→Run binding is still open.

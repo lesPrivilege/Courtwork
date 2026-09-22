@@ -1,0 +1,78 @@
+
+=== runtime-management ===
+✔ each runtime is one row with its state, its configuration owner and one next action (7.105291ms)
+✔ empty, loading, failed and refreshing lists are four different readings (4.025834ms)
+✔ opening a runtime moves the keyboard to its way back, and Back returns to the same row (42.0575ms)
+✔ only a runtime detail scopes the compact settings-block rhythm (2.460625ms)
+✔ protocol and process facts are disclosed on demand and a re-render does not close them (1.795625ms)
+✔ native-owned sign-in describes the step in the runtime itself and offers no credential field (2.3225ms)
+✔ CourtWork-managed sign-in chooses a synthetic Models reference and never takes a key (5.841459ms)
+✔ connect shows what it writes before the command, then reads back the exact revision and connection (3.501417ms)
+✔ a refused connect keeps the typed name and puts the keyboard back on Connect (2.835042ms)
+✔ disabling says what changes on the next admission and leaves the bound run on its recorded revision (2.925958ms)
+✔ disconnect is unavailable while a run is bound, with its reason beside it (1.525333ms)
+✔ Escape closes the disconnect confirmation and returns the keyboard to Disconnect (6.733167ms)
+✔ disconnect removes only this connection; identity, history and unsaved input survive (7.05025ms)
+✔ an unavailable engine is not a permission decision and offers no connect (1.839541ms)
+✔ a host that cannot change runtimes gives each action its reason and sends nothing (1.562125ms)
+✔ a committed command whose reply is lost stays unknown, blocks every mutation, and Check status settles it without resending (3.55375ms)
+✔ an unknown outcome the owner never received settles as not applied and keeps the draft (3.974416ms)
+✔ an error without a listed code is never read as a refusal (0.101625ms)
+✔ a double press sends one command, and the owner treats a repeated operation id as the same one (2.440459ms)
+✔ a revision changed elsewhere is refused, the draft is kept, and Reload shows the owner's values beside it (4.447334ms)
+✔ a draft survives leaving for the list and coming back (2.760625ms)
+✔ a late list reply after opening a runtime does not navigate or land (0.554458ms)
+✔ a late detail reply for one runtime does not overwrite another runtime's page (1.296208ms)
+✔ a command reply that arrives after leaving lands on its own runtime only, and was never cancelled (4.5735ms)
+✔ a command confirmed while the list is on screen refreshes the list and keeps its rows (3.574708ms)
+✔ every receipt, pending line and entry point carries the preview identity (2.404417ms)
+✔ the preview host serves the fixture page and product assets, and accepts no mutation (24.537333ms)
+✔ RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it (6.3035ms)
+✔ RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied' (4.21575ms)
+✔ RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives (5.725334ms)
+✔ RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer (3.055917ms)
+✔ RM-R2 · a reading for another runtime id is never taken as this command's read-back (1.943417ms)
+✔ RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked (3.941167ms)
+✔ RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later (0.495625ms)
+✔ RM-R2 · the preview's stale-read-back scenario reaches the same lock through the fixture itself (2.9475ms)
+ℹ tests 35
+ℹ suites 0
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 326.004708
+EXIT=0
+
+=== settings-navigation ===
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (0.946208ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.197042ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.391041ms)
+✔ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (0.3625ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.333875ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.227292ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.062792ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 96.403333
+EXIT=0
+
+=== spacing-lint ===
+lint-spacing: ok (4 files · 间距 var(--space-*)/0/auto/派生式/登记表 · 字号 var(--text-*)/inherit/em/登记表；1–3px 全局放行）
+lint-spacing: 登记表 60 条间距 + 16 条字号
+EXIT=0
+
+=== interaction-lint ===
+lint-interaction: ok (1 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+EXIT=0
+
+=== diff-check ===
+EXIT=0
+
+ALL_EXIT=0

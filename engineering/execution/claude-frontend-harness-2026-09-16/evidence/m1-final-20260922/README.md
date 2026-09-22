@@ -1,0 +1,11 @@
+# M1 Runtime detail rhythm — parent acceptance
+
+2026-09-22. Parent Astra accepts source b8cd54f4d2e3d142ed367d49e08297170394495d / packet ffd4e392c7be8b18cdbcbbb295636ad4be60adff, integrated main **7dc852a25643505dc41a109476fc6800e9f643fa**. Scope is the local16px mapping on the plain Runtime-detail container, not a new global density rule or production Runtime-management backend.
+
+[Luna final review](luna-review.md.txt), [full log](luna-checks.log):35/35 Runtime plus7/7 Settings navigation, spacing/interaction lints and scoped diff check pass. Parent inspected the existing-owner wrapper and actual rendering through the OpenAI in-app browser at1280×900: [current-main before](browser/02-baseline-desktop.png), [candidate after](browser/01-candidate-desktop.png), [measurements](browser/measurements.json). Existing block margin40→16px; Connection name moves778.93→730.93px while input height28px/font14px stay the same. Both readings have0 document horizontal overflow.16 retains readable group separation;24 was unnecessary in this bounded comparison.
+
+The earlier fixed-source [M1 packet](../../../../design/grammar-convergence-20260921/migrations/m1-runtime-rhythm/README.md) retains additional desktop/narrow/large/dark/focus/recovery/isolation evidence and its author/non-author distinctions. Parent's current run does not relabel those as newly executed tests. Native zoom/200% text, text spacing, forced colors, reader and physical coarse input remain unexecuted.
+
+The [clean-node full1538/1538 and smoke](../clean-node-20260922/README.md) provide integrated regression evidence, not broader visual or product capability acceptance. Parent stopped its own8971/8972 read-only preview servers, closed only its review tab and reset the viewport. User services/data were untouched.
+
+[Preservation](preservation.json):9,264 entries /463,105,080 file bytes, exact archive extraction/manifest comparison and Git bundle clone/fsck verification. Before removal the tree was unchanged/clean and all commits integrated. Six remaining cwd holders were bundled application CUA infrastructure, not source/test writers; none was stopped. Only the ended M1 tree/merged branch were removed; archive ref refs/archive/m1-20260922/Courtwork remains.06e's returned tree, persistent Courtwork and frozen shared Git database remain. No publication follows from this acceptance.
