@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-22 · Local Pi delivery held for deletion/recovery boundary
+
+[Parent final review](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-parent-review-20260922/README.md) holds packet6b45fd8/product6c87b7d for LP-R5: actual crash→reopen→DELETE unknown child returns200, drops recovery receipts and leaves invalid assignment references. Original fresh Astra retains the bounded fix in c89d; no schema20 merge/cleanup. One independent candidate-API diagnostic passes1/1, but earlier409 failures remain undiagnosed. Luna final56/56 passes, retaining LP-R5 as the reproduced blocker. Current product/test baseline f88f61b remains unchanged; main stillschema19 and user8787 is untouched.
+
 ## 2026-09-22 · Local Pi L3 contract adjusted; product baseline unchanged
 
 The [L3 parent disposition](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md#l3-proposal-disposition--2026-09-22) adopts existing Run-event/ArtifactHistory ownership with strict Host-only receipts, but reserves schema20 for this future recovery-sensitive integration so an old19 Host cannot silently ignore its fences. Main remains schema19 and the f88f61b WebUI test baseline is unchanged in product bytes. Inline source inclusion cannot satisfy Spark read coverage; retained results remain consumable with a blocked assignment. Existing reconcile/retry must not clear local-process unknown solely because its Run ended. The new task received the finite correction; L1/L2 continue, no L3 delivery/acceptance or user Host operation is claimed.

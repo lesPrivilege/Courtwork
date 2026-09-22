@@ -1,0 +1,68 @@
+COMMAND: Local Pi L1/L2/Host/schema20 targeted suites
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (3324.693583ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (864.377ms)
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (988.268333ms)
+  ✔ spawn (1337.940292ms)
+  ✔ result (1474.534958ms)
+  ✔ terminal (1588.274083ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (5389.584042ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (257.237041ms)
+  ✔ before publication (1084.310916ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (1342.227666ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (642.181375ms)
+✔ new source revision during actual process consultation prevents stale publication (962.527541ms)
+✔ result retention failure cannot publish or rerun a completed native response (1390.769917ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (873.635292ms)
+✔ a CW parent tool delegates to actual local Pi only after releasing the existing serial lane (921.779208ms)
+✔ a forged Run status cannot erase its Host status evidence (927.753416ms)
+✔ late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty (1536.701375ms)
+✔ local Pi input packet verifies exact UTF-8 source bytes and binds CW identity (1.2985ms)
+✔ local Pi completion requires matching terminal and settled, not prose or agent_end (0.2585ms)
+✔ local Pi refuses missing/conflicting identity, terminal mismatch and retries (0.195292ms)
+✔ local Pi rejects tool requests and oversized results without accepting partial text (0.1445ms)
+✔ local Pi native error remains failure even when print process can exit zero (0.083084ms)
+✔ local Pi binding admits explicit loopback only; locked executable includes bundle chunks (15.362708ms)
+✔ schema 19 upgrades to 20 exactly once and preserves remote authority and every existing event (141.447166ms)
+✔ schema-20 migration fails closed for an occupied backup, malformed schema 19, and schema 21 (170.597666ms)
+✔ the pinned schema-19 Host rejects schema 20 byte-for-byte and opens the exact backup separately (588.65025ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (47.199125ms)
+✔ runLocalPiProcess decodes JSONL split through UTF-8 code points (123.070958ms)
+✔ runLocalPiProcess reports malformed_json (67.079334ms)
+✔ runLocalPiProcess reports non_object_event (65.799208ms)
+✔ runLocalPiProcess reports partial_frame (65.806875ms)
+✔ runLocalPiProcess reports invalid_utf8 (66.114666ms)
+✔ runLocalPiProcess enforces frame and total stdout byte limits (131.979333ms)
+✔ runLocalPiProcess bounds stderr separately and keeps draining it (66.059291ms)
+✔ runLocalPiProcess streams bounded input with pipe backpressure (228.788917ms)
+✔ runLocalPiProcess waits for onSpawn before delivering input (127.3675ms)
+✔ runLocalPiProcess applies async onEvent backpressure in order (176.157625ms)
+✔ callback rejection is a bounded fault and terminates the owned child (79.726167ms)
+✔ a hung onSpawn callback cannot defeat the total deadline or a full pipe (123.540833ms)
+✔ an early process exit never leaves an unhandled stdin error (66.579625ms)
+✔ a pre-aborted signal starts no process (0.158916ms)
+✔ abort immediately after invocation cannot escape the pre-spawn race (0.864375ms)
+✔ caller cancellation resolves only after the owned process closes (65.964792ms)
+✔ timeout escalates a ready TERM-resistant process group and removes its descendant (264.7685ms)
+✔ the child receives only the explicit environment (137.933166ms)
+✔ invalid limits and input are rejected before spawn (0.4065ms)
+✔ spawn failure is returned as a bounded transport fault (0.608459ms)
+✔ actual upstream Pi print process yields attributable exact bytes with complete terminal and exit (323.020584ms)
+✔ actual upstream excludes ambient instructions, executable extensions, skills, templates and project settings (315.640291ms)
+✔ actual upstream no-tools rejects a model-issued bash call at native tool registry (335.931042ms)
+✔ actual upstream provider failure does not become success on JSON print exit zero (308.994334ms)
+✔ actual upstream model tool request is an explicit no-tool adapter refusal after owned process closes (314.687791ms)
+✔ actual upstream pending request cancellation waits for process close and rejects late provider reply (303.296ms)
+✔ actual upstream crash without terminal stays unknown; oversized result is never truncated into success (607.044375ms)
+✔ actual ready upstream frozen after provider dispatch requires bounded SIGKILL escalation (817.382666ms)
+✔ interrupted Host native-receipt callback remains unknown rather than confirmed cancellation (1031.27825ms)
+ℹ tests 56
+ℹ suites 0
+ℹ pass 56
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 26722.974125
+EXIT: 0

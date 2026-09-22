@@ -1,0 +1,11 @@
+✔ schema17 candidate API keeps source reads separate, asks before writes, records receipts, and revokes Run access (7154.583791ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8141.467417
+
+EXIT: 0

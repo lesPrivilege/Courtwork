@@ -1,0 +1,63 @@
+
+# Local Pi final independent review
+
+Date: 2026-09-22
+Candidate: 6b45fd8e5dd288982df7f28ee981a15676ae4e11
+Product source: 6c87b7d17242ac2f67bb7dacb69f37af48a65e36
+Tree: /Users/lesprivilege/.codex/worktrees/c89d/Courtwork
+Scope: final Local Pi L1/L2/Host/schema20 review. No code edits, merge, full suite, paid provider, personal credentials, or user services.
+
+## Verification
+
+Independent command:
+
+    node --test --test-concurrency=1 app/tests/local-pi-process.test.mjs app/tests/local-pi-transport.test.mjs app/tests/local-pi-upstream.test.mjs app/tests/local-pi-host.test.mjs app/tests/local-pi-schema20.test.mjs
+
+Result: 56/56, exit 0, 26.7 seconds.
+Raw log: /tmp/cw-local-pi-final-tests.log
+
+Passed coverage includes:
+
+- split UTF-8/JSONL, malformed/oversized frames, bounded stderr, backpressure and async callback handling;
+- dispatch-before-spawn, abort/timeout/escalation, explicit environment and spawn failure;
+- actual upstream Pi no-tool process behavior, ambient discovery exclusion, native identity, model tool refusal, provider failure, late cancellation and crash/unknown outcomes;
+- Host retained result, provided-only coverage blocking, typed receipt validation, dispatch/spawn/result/terminal crash fences, source revocation/freshness, cancellation, result retention and serial-lane release;
+- schema19 to schema20 migration, exact backup, malformed/occupied/newer refusal, schema19 Host refusal of schema20, and generic event-forge rejection.
+
+## LP-R5 — Session deletion discards an unknown local-process fence
+
+Severity: release blocker for the Host delete boundary.
+
+The parent’s independent public DELETE probe is retained at /tmp/cw-local-pi-delete-probe-20260922.log. It reports:
+
+    before {"runStatus":"unknown","fenced":true}
+    after {"delete":{"status":200,...},"runPresent":false,"fenced":false,"assignmentStillPresent":true,"validationError":"Execution binding mismatch","providerRequests":0}
+
+This was not rerun in this review, per the parent instruction.
+
+Source cause:
+
+- app/server/service.mjs:2253-2263 permits Session deletion when there is no active Run.
+- app/server/store.mjs:1464-1474 removes the Session, its Runs, events and questions, but does not remove or settle the Subagents assignment/attempt that points to the deleted Run.
+- app/runtime/local-pi-state.mjs:38-46 returns early when no local events or local Runs remain, so the local-process fence no longer validates.
+- The retained assignment still references the deleted Run, and full validation reports Execution binding mismatch.
+
+This violates the durable unknown rule: deleting a Session can erase the Run/event evidence while leaving the child attempt, allowing the unresolved local process identity to lose its fence. The final tree is therefore held for LP-R5. The correction belongs at the existing Host/Store deletion boundary: reject deletion for an unresolved local attempt, or preserve a durable tombstone/settled fence with the attempt. Do not silently delete the attempt or rely on the local validator after its Run is gone.
+
+## Accepted bounded review areas
+
+- Typed local_pi event order and cross-record identity are strict in local-pi-state.mjs:38-145.
+- Dispatch, spawn, native identity, retained result and terminal evidence are validated on mutations/load.
+- Unknown Run status remains fenced after publication interruption; native completion and Host publication remain separate.
+- Provided-only packets do not become source-read receipts; coverage remains blocked until actual reads.
+- Unknown reconcile/retry paths and process restart tests preserve no-second-spawn behavior.
+- Native process close and Host cancellation are kept separate; LP-R4 focused checks are inherited and the final selected suites pass.
+
+## Documentation observation
+
+app/README.md:93 still labels runtime-state.json as schemaVersion 19 while the same file’s schema section identifies schema20 at line 121. This is a low-severity documentation synchronization issue; it does not alter the product source review result but should be corrected with the parent’s integration record.
+
+## Decision
+
+Return LP-R5 to the Local Pi owner before final acceptance/integration. Within the tested live-process and schema20 paths, 56/56 pass and no other concrete defect was reproduced. The candidate remains unreleased; no merge or cleanup was performed.
+

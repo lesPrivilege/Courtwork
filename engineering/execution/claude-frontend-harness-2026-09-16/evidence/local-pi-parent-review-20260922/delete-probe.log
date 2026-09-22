@@ -1,0 +1,20 @@
+before {"runStatus":"unknown","fenced":true}
+after {"delete":{"status":200,"json":{"deleted":true,"sessionId":"39577730-2d59-47f3-9b02-4c68bef586d5","workspaceRetained":true}},"runPresent":false,"fenced":false,"assignmentStillPresent":true,"validationError":"Execution binding mismatch","providerRequests":0}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: unknown local child deletion must not discard its durable fence
+    at file:///private/tmp/cw-local-pi-delete-probe-20260922.mjs:25:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 200,
+  expected: 200,
+  operator: 'notStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v25.9.0
+
+EXIT: 1
