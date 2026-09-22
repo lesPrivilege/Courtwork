@@ -2669,7 +2669,8 @@ export class RuntimeService {
     this.#requireRuntimeCapability("recover");
     if (this.store.hasActiveRun(sessionId)) throw new ServiceError(409, "active_run", "reconciliation waits for the active run to end");
     const report = () => ({
-      unresolved: this.store.listUnresolvedRemoteActions(sessionId).map(action => ({ id: action.id, kind: action.kind, runId: action.runId, reason: action.kind === "create" ? "no_native_locator" : "no_decisive_evidence" })),
+      unresolved: this.store.listUnresolvedRemoteActions(sessionId).map(action => ({ id: action.id, kind: action.kind, runId: action.runId,
+        reason: action.kind === "create" ? "no_native_locator" : action.kind === "call" && action.result === null ? "local_effect_unknown" : "no_decisive_evidence" })),
       unsettledRuns: this.store.listUnsettledRemoteRuns(sessionId).map(run => ({ runId: run.id, rootTurnId: run.remoteBinding.rootTurn?.turnId ?? null, reason: run.remoteBinding.rootTurn ? "turn_not_ended" : "no_root_turn" })),
     });
     const unresolved = this.store.listUnresolvedRemoteActions(sessionId);
@@ -2692,7 +2693,9 @@ export class RuntimeService {
     }
     const resolutions = [];
     for (const action of unresolved) {
-      if (action.kind === "create") continue;
+      // A lost creation has nothing to observe; a call with no retained result
+      // has a local effect no remote observation can decide (CDE-R1).
+      if (action.kind === "create" || (action.kind === "call" && action.result === null)) continue;
       const rootTurn = rootTurnOf(action.runId);
       if (rootTurn?.terminal || (rootTurn && ended.has(rootTurn.turnId))) { resolutions.push({ actionId: action.id, evidence: "root_terminal", nativeRef: rootTurn.turnId }); continue; }
       const awaitsDelivery = action.kind === "tool_result" || (action.kind === "call" && action.delivery.state === "unknown");

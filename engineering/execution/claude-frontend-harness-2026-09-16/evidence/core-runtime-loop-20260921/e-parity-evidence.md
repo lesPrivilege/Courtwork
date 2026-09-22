@@ -30,7 +30,7 @@ An unknown **write** outcome (a `prepared` effect at restart) is decided entirel
 
 ## Parity gap returned to Astra
 
-The contract bounds native function arguments to **16 KiB**. Pi's `repo_write` accepts up to 4 MiB of text. On the remote consumer a larger write is refused as `invalid_arguments` before any approval. This is the contract's ceiling, not a defect, but it is the one place the two runtimes differ for the same tool; raising it is Astra's decision ("material increases return to Astra").
+E is **bounded scenario parity** — the same Host record for the same driven scenarios — not equal maximum write capability. The contract bounds native function arguments to **16 KiB**. Pi's `repo_write` accepts up to 4 MiB of text. On the remote consumer a larger write is refused as `invalid_arguments` before any approval. This is the contract's ceiling, not a defect, but it is the one place the two runtimes differ for the same tool; raising it is Astra's decision ("material increases return to Astra"). *Parent disposition 2026-09-22: keep the ceiling; declare the effective bound at later real exposure.*
 
 ## Frontend contract gaps (proposals; 06d untouched)
 

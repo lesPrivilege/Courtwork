@@ -236,6 +236,38 @@ describe("P03-D · lost replies and explicit reconciliation", () => {
     assert.equal(t.loopback.posts("/v1/agents/sessions").length, 1, "the same native session, never a replacement");
   });
 
+  test("CDE-R1: a repo_write whose execution was interrupted without a retained result stays fenced after its root turn ends; nothing is written or checked again", async () => {
+    const t = await remoteHost({ permissionMode: "ask", plan: () => [{ call: { name: "repo_write", arguments: { path: "note.txt", text: "written under an unknown fence\n" } } }] });
+    const candidate = await t.h.api("PUT", `/sessions/${t.session.id}/repository-candidate`, { operation: "create", requestId: "r1-candidate", expectedRevision: 0, expectedBindingRevision: 1, candidateId: "f23e4567-e89b-42d3-a456-426614174000", baseCommit: t.repository.head });
+    assert.equal(candidate.status, 200, JSON.stringify(candidate.json));
+    const runId = (await t.start("write", "r1-write")).json.run.id;
+    await waitFor(() => t.store.snapshot().questions.some(question => question.runId === runId && question.status === "pending"), "the write approval");
+    const claimed = t.actions(runId).find(action => action.kind === "call");
+    assert.deepEqual([claimed.tool, claimed.execution, claimed.result], ["repo_write", "claimed", null]);
+    const reopened = await reopen(await crashCopy(t.h), { runtimePort: agentsPort(t.loopback) });
+    cleanup.push(() => reopened.runtime.close());
+    const service = reopened.runtime.service;
+    const fenced = () => service.store.listRemoteActions(t.session.id, runId).find(action => action.kind === "call");
+    assert.deepEqual([service.store.getRun(runId).status, fenced().execution, fenced().delivery.state], ["unknown", "unknown", "none"]);
+
+    // The native root turn ends from outside this Host: remote liveness is over, the local effect is still not known.
+    const native = t.loopback.sessions.values().next().value;
+    native.turnStatus.set(service.store.getRun(runId).remoteBinding.rootTurn.turnId, "cancelled");
+    Object.assign(native, { turn: null, status: "idle", required: [] });
+    const posts = t.loopback.attempts.filter(attempt => attempt.method === "POST").length;
+    const report = await service.reconcileRemoteSession(t.session.id);
+    assert.deepEqual([report.settledRuns.map(item => item.status), report.resolved, report.unsettledRuns, report.unresolved.map(item => [item.kind, item.reason])],
+      [["cancelled"], [], [], [["call", "local_effect_unknown"]]]);
+    assert.equal(fenced().resolution, null, "native evidence attached nothing to the unknown execution");
+    await assert.rejects(service.store.resolveRemoteActions(t.session.id, [{ actionId: fenced().id, evidence: "root_terminal", nativeRef: service.store.getRun(runId).remoteBinding.rootTurn.turnId }]), { code: "REMOTE_RESOLUTION_INVALID" });
+    const refused = await reopened.api("POST", `/sessions/${t.session.id}/runs`, { input: "again", commandId: "r1-again" });
+    assert.deepEqual([refused.status, refused.json.error.code], [409, "remote_unreconciled"]);
+    assert.equal(service.store.getSession(t.session.id).repositoryWriteEffects.length, 0, "no write effect was ever prepared");
+    assert.equal(service.store.listEvents({ sessionId: t.session.id }).some(event => event.type.startsWith("repository.write") || event.type.startsWith("check.")), false);
+    assert.equal(t.loopback.attempts.filter(attempt => attempt.method === "POST").length, posts, "reconciliation and the refusal sent nothing");
+    await assert.rejects(readFile(path.join(service.store.getSession(t.session.id).repositoryCandidate.candidatePath, "note.txt")), { code: "ENOENT" });
+  });
+
   test("a lost creation has no native locator: reconciliation can observe nothing and says so; Pi declares no recover capability", async () => {
     const t = await remoteHost({ plan: () => [{ text: "orphan" }] });
     t.loopback.fault(attempt => attempt.method === "POST" && attempt.path === "/v1/agents/sessions", "lose_reply");

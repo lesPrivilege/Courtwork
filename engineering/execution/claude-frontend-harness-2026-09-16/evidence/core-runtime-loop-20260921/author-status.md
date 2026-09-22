@@ -69,7 +69,7 @@ E's only product change is the transport allowlist (`repo_read`, `repo_write`, `
 
 | | |
 |---|---|
-| Commits on `codex/core-runtime-loop-20260921` (base `3022b5c`) | **C** `eec2244` · **D** `37a14a5` · **E** `2978f5a` (this line was added by the docs-only commit after it) |
+| Commits on `codex/core-runtime-loop-20260921` (base `3022b5c`) | **C** `eec2244` · **D** `37a14a5` · **E** `2978f5a` (this line was added by the docs-only commit after it) · **CDE-R1 return**: the commit after `45ae12e` |
 | Production paths exercised | `startServer` → `/api/v5` routes → `RuntimeService` (`#createRun`, `#executeRun`, `cancelRun`, `answerQuestion`, `changeRepositoryBinding`, `changeRepositoryCandidate`, `reconcileRemoteSession`) → `RuntimeStore` 19 (+ 18→19 migration, restart fences) → `agents-host-gateway` → `agents-api-adapter` → `openai-agents-transport` → unmodified `openai@7.15.0` over loopback sockets; existing governed `repo_read`, `repo_write`, `check_run` via `governTools`; `ArtifactHistory`; real child-process `SIGKILL` + reopen |
 | Author evidence | everything in this directory. **Independent evidence: none.** Codex reviews each fixed milestone and alone merges main |
 | Not claimed | the account-authorized live C milestone; any live Agents API behaviour; formal Work acceptance; product browser support; capability exposure (every Agents capability row still resolves `unavailable`) |
@@ -79,6 +79,22 @@ E's only product change is the transport allowlist (`repo_read`, `repo_write`, `
 | Owned processes / ports / data | none running. Every test used OS-assigned loopback ports and `mkdtemp` directories; no paid call, no credential lookup, no user Host touched |
 | Preserved for integration | branch, worktree, and all untracked/ignored content (`app/node_modules`, etc.) left as they are. No push, deployment, cleanup deletion or Host restart |
 | Writer | released. Returns are incorporated on this same branch without rewriting the three milestone commits |
+
+## Return CDE-R1 (parent review 2026-09-22) — adopted
+
+Finding: a call with `execution:"unknown"`, `result:null` could receive a `root_terminal` resolution through `resolveRemoteActions`, after which `remoteActionUnresolved` was false and the chat's next Run was admitted while the local effect was still uncertain; `reconcileRemoteSession` queued exactly that resolution for every unresolved record of an ended root. Disposition: **adopt**, root cause confirmed in `remote-action-state.mjs` (the predicate treated execution-unknown and delivery-unknown alike) and `service.mjs` (resolution selection did not distinguish them).
+
+Correction, on this branch after `45ae12e`, reviewed ancestors untouched:
+
+- `remoteActionUnresolved`: a call with no retained result is unresolved, whatever else is on it. A call with a retained result is unresolved only while delivery is `pending`, or `unknown` without a resolution.
+- `resolveRemoteActions` refuses `root_terminal`/`native_item` for a call with no retained result (`REMOTE_RESOLUTION_INVALID`); paired propagation cannot reach such a call because it never has a delivery intent, and `append` now requires a retained result as well.
+- Validator: a `resolution` is valid only on a delivery-unknown call **with** a retained result (or an unknown intent).
+- `reconcileRemoteSession` skips such calls and reports them `local_effect_unknown`; it still records the root ending (remote liveness) and still resolves retained-result/delivery-unknown records, which stay historical `unknown` receipts.
+- No fabricated result, no eviction, no new mutating endpoint.
+
+Evidence: fault-matrix row 20 / test *CDE-R1: a repo_write whose execution was interrupted without a retained result…* drives the production path — candidate bound, `repo_write` claimed and waiting for approval, Host reopened from the crash state, native root turn ended outside the Host, `reconcileRemoteSession` → root ending recorded, call `local_effect_unknown`, `resolution` null, store refuses the native resolution directly, next Run `409 remote_unreconciled`, zero write effects / write or check events / requests, candidate file absent. The positive case (*a lost submission reply is never re-sent…*) still resolves both the claim and its intent by `root_terminal`. Targeted: `p03c` 10, `p03d` 16, `p03e` 3, `schema19-upgrade` 4 → 33/33. `npm --prefix app test` (Node 25.9.0, concurrency 4): the first run on this tree ended 1419/1422 exit 1 in 749 s — three `run-lineage` tests (Pi-only, fake provider, no remote code) failed on `ECONNRESET` against the test's own loopback fetch and one 446 s `pollRun`; the suite alone then passed 9/9 in 148 s and a second full run on the byte-identical tree passed **1422/1422, exit 0, 262 s**. Both runs are stated; the first is read as host contention, not a defect, and no test was changed to make it pass. `node tools/check-doc-links.mjs` 0 problems.
+
+Seven-question dispositions received and reflected: 1, 2, 6 adopted as built; 3, 5 accepted as explicit limits; 4 registered as a later finite action (human-requested cancel of the exact known root), not widened here; 7 kept, E reworded as bounded scenario parity.
 
 ## Frontend / route contract gaps (owner proposals, no 06d edit)
 

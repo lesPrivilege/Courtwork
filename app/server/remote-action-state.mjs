@@ -179,7 +179,9 @@ export function validateRemoteActions(value, session, runsById) {
       v.check(action.result === null || (action.execution === "succeeded") === action.result.success, "call.result.success disagrees with its execution");
       v.check(action.delivery.state === "none" || executed, "a result is delivered only after it is retained");
       validateResolution(action.resolution, v, "call.resolution");
-      v.check(action.resolution === null || action.execution === "unknown" || action.delivery.state === "unknown", "only an unknown call carries a resolution");
+      // CDE-R1: native evidence speaks to delivery, never to a local execution
+      // that has no retained result. Such a call carries no resolution at all.
+      v.check(action.resolution === null || (action.result !== null && action.delivery.state === "unknown"), "only a delivery-unknown call with a retained result carries a resolution");
       callsPerRun.set(action.runId, (callsPerRun.get(action.runId) ?? 0) + 1);
       continue;
     }
@@ -223,8 +225,12 @@ export function validateRemoteActions(value, session, runsById) {
  * new remote work on the Session; nothing here ever resolves it by guessing. */
 export function remoteActionUnresolved(action) {
   if (action.kind !== "call") return action.phase === "pending" || (action.phase === "unknown" && action.resolution === null);
-  return action.execution === "claimed" || action.delivery.state === "pending"
-    || ((action.execution === "unknown" || action.delivery.state === "unknown") && action.resolution === null);
+  // No retained result: whether the local tool ran, and what it did, is not
+  // known. A remote root ending says the remote side stopped waiting; it says
+  // nothing about that local effect (CDE-R1). Fenced until Host-effect
+  // evidence exists, which this slice does not collect.
+  if (action.result === null) return true;
+  return action.delivery.state === "pending" || (action.delivery.state === "unknown" && action.resolution === null);
 }
 
 /** A Run whose native turn may still be running: its root turn is known and
@@ -411,7 +417,7 @@ export function resolveRemoteActions(state, sessionId, resolutions, { now }) {
   if (!session) throw new Error("session not found");
   const resolved = [];
   const append = (action, evidence, nativeRef) => {
-    const unknown = action.kind === "call" ? action.execution === "unknown" || action.delivery.state === "unknown" : action.phase === "unknown";
+    const unknown = action.kind === "call" ? action.result !== null && action.delivery.state === "unknown" : action.phase === "unknown";
     if (!unknown || action.resolution !== null || action.kind === "create") return;
     action.resolution = { evidence, nativeRef, resolvedAt: now }; resolved.push(action.id);
   };
@@ -424,6 +430,7 @@ export function resolveRemoteActions(state, sessionId, resolutions, { now }) {
       : evidence !== "native_item" || (action.kind !== "call" && action.kind !== "tool_result")) {
       throw remoteError("REMOTE_RESOLUTION_INVALID", "this evidence cannot resolve that record");
     }
+    if (action.kind === "call" && action.result === null) throw remoteError("REMOTE_RESOLUTION_INVALID", "native evidence cannot resolve a call whose local execution has no retained result");
     append(action, evidence, nativeRef);
     // A claim and the intent that delivers its result are one fact.
     const partner = action.kind === "call" ? session.remoteActions.find(item => item.id === action.delivery.intentId)
