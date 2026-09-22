@@ -17,6 +17,9 @@ import { createSessionRun, compactSessionJournal, mapSessionEvent } from "./pi-s
  * cannot perform is refused by name; nothing falls back to another runtime.
  */
 export const PI_RUNTIME_ADAPTER_ID = "pi-coding-agent@0.85.1/agent-session";
+// Interface identity is declared by this Adapter, independent of its display
+// label, provider/model and Kit-specific compatibility evidence.
+export const PI_RUNTIME_ADAPTER_REVISION = "pi-agent-session-context-v1";
 
 export class RuntimePortError extends Error {
   constructor(adapterId, operation, reason) {
@@ -47,7 +50,8 @@ export function createPiRuntimePort({ dataDir, modelRuntime }) {
 
   return Object.freeze({
     id,
-    describe: () => ({ id, capabilities: CAPABILITIES }),
+    describe: () => ({ id, revision: PI_RUNTIME_ADAPTER_REVISION, capabilities: CAPABILITIES,
+      kitContext: { format: 'reference-only-v1', compatibilityEvidence: [] } }),
 
     /**
      * Open the native session a CW Session is bound to, or create its journal

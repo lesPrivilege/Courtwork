@@ -90,8 +90,19 @@ export function validateRuntimeSource(item) {
 function parseProfile(content) {
   let profile;
   try { profile = JSON.parse(content); } catch { check(false, 'Profile content must be JSON'); }
-  keys(profile, ['schemaVersion', 'version', 'resourceIds', 'rules', 'uiSlots']);
-  check(profile.schemaVersion === 1 && string(profile.version, 80), 'Unsupported profile version');
+  keys(profile, ['schemaVersion', 'version', 'resourceIds', 'rules', 'uiSlots', ...(profile?.schemaVersion === 2 ? ['kits'] : [])]);
+  check([1, 2].includes(profile.schemaVersion) && string(profile.version, 80), 'Unsupported profile version');
+  if (profile.schemaVersion === 2) {
+    check(Array.isArray(profile.kits) && profile.kits.length <= 8, 'Profile kits must be a bounded explicit declaration array');
+    for (const kit of profile.kits) {
+      keys(kit, ['descriptor', 'descriptorSha256']);
+      check(kit.descriptor && typeof kit.descriptor === 'object' && !Array.isArray(kit.descriptor)
+        && Buffer.byteLength(JSON.stringify(kit.descriptor), 'utf8') <= 65536
+        && typeof kit.descriptorSha256 === 'string' && /^[0-9a-f]{64}$/.test(kit.descriptorSha256), 'Invalid Kit declaration');
+    }
+    // The accepted K1 compiler validates complete descriptor semantics and
+    // exact admitted source pins at Run admission, before any inference.
+  }
   check(Array.isArray(profile.resourceIds) && profile.resourceIds.length <= 100 && profile.resourceIds.every(id => string(id)), 'Profile resourceIds must be an explicit allowlist');
   check(Array.isArray(profile.rules) && profile.rules.length <= 100, 'Profile rules must be an array');
   for (const rule of profile.rules) { keys(rule, ['action', 'resource', 'effect']); check(string(rule.action) && string(rule.resource, 4000) && Object.hasOwn(weights, rule.effect), 'Invalid profile policy'); }
@@ -229,12 +240,24 @@ export class RuntimeControlPlane {
       }
     }
 
-    const profileId = scopes.flatMap(s => this.config.profileSelections.filter(p => sameScope(s, p.scope))).at(-1)?.id ?? 'agent:general';
+    const profileSelection = scopes.flatMap(s => this.config.profileSelections.filter(p => sameScope(s, p.scope))).at(-1);
+    const profileId = profileSelection?.id ?? 'agent:general';
     const profileResource = this.config.resources.find(r => r.id === profileId && r.kind === 'agent_profile' && applies(r.scope));
     let composition = { id: profileId, version: 'builtin', status: 'compatible', resourceIds: null, uiSlots: ['runtime.inspector', 'work.surface'], missing: [] };
     if (profileId !== 'agent:general') {
       const profile = profileResource ? parseProfile(profileResource.content) : null;
+      // Distinct unbound Extensions may declare the same native tool names.
+      // They are not ordinary-Chat capabilities. A Kit binding omits those
+      // unavailable declarations instead of inventing one ambiguous identity.
+      if (profile?.schemaVersion === 2 && profile.kits.length) {
+        for (let index = resources.length - 1; index >= 0; index--) {
+          const resource = resources[index];
+          if (resource.kind === 'tool' && resource.parent?.startsWith('plugin:') && !resource.exposed
+            && resource.parent !== `plugin:${session?.extensionBinding?.extensionId}`) resources.splice(index, 1);
+        }
+      }
       composition = { id: profileId, version: profile?.version ?? null, hash: profileResource ? hash(profileResource.content) : null, status: profile ? 'compatible' : 'unavailable', resourceIds: profile?.resourceIds ?? [], uiSlots: profile?.uiSlots ?? [], missing: profile?.resourceIds.filter(id => !resources.some(r => r.id === id)) ?? [profileId] };
+      if (profile?.schemaVersion === 2) Object.assign(composition, { schemaVersion: 2, kits: clone(profile.kits), selectionScope: clone(profileSelection.scope) });
       if (composition.missing.length) composition.status = 'incompatible';
       if (profile) policies.push({ scope: { type: 'agent', id: profileId }, rules: profile.rules });
       for (const resource of resources) {
