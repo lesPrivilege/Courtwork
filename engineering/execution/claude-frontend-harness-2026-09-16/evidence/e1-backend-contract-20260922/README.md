@@ -1,5 +1,9 @@
 # E1 live adapter contract handoff
 
+## E1 integration follow-up — 2026-09-23
+
+Backend source2b6f2e4 is accepted at maina59d188: the snapshot now advertises `compatibility.runtimeSelection: "expectation-v1"`, matching the frontend's explicit gate. [Parent combined review/return](../e1-parent-review-20260923/README.md) records successful real Kit admission/history and stale-Send refusal, with frontend lifecycle returns. Claude may add exactly the two new static-module names to server/index.mjs together with its files; no empty routes land alone in main. Session scope values are retained verbatim (`project` is a valid ordinary Chat), not normalized to a guessed `chat/global` pair.
+
 ## Current adoption — 2026-09-23
 
 [K3 parent final acceptance](../kit-run-final-20260923/README.md) integrates source8e7171c/packet84d6dfa at main65c3b30 with RuntimeStore21. The concrete backend interface below is now available in main. E1 UI/combined journey remains the original Claude and parent acceptance scope; no client draft is reclassified as Host persistence. The original handoff snapshot below preserves its then-candidate status and source pin.

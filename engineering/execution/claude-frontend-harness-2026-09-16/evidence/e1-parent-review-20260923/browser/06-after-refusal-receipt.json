@@ -1,0 +1,10 @@
+{
+  "runCount": 1,
+  "runStatus": "completed",
+  "currentProfile": "local:e1-notes",
+  "currentRevision": 5,
+  "capability": "expectation-v1",
+  "retainedProfile": "local:e1-kit-reviewer",
+  "retainedKitContext": "[Instruction local:e1-review-guide]\nE1_KIT_PARENT_CORE: explain findings concisely.",
+  "draft": "Keep this draft after a stale selection."
+}

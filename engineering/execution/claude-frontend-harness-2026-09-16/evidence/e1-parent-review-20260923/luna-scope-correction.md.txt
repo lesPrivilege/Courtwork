@@ -1,0 +1,21 @@
+# E1 corrected scope assessment
+
+This note supplements `/tmp/cw-e1-independent-review-20260923.md`; the original raw report is preserved.
+
+## Correction to the stale-scope finding
+
+The real K3 snapshot uses `sessionScope.kind: "project"` for the ordinary Chat created by the Host fixture. Therefore the frontend must not require `sessionScope.kind === "chat"`; both ordinary `project` Chat scope and any other explicitly ordinary non-global scope remain valid. The safe condition is:
+
+```text
+choice.sessionId === currentSession.id
+&& choice.snapshot exists and is ready
+&& choice.snapshot.sessionKind !== "global"
+```
+
+The previous report's phrase “ready snapshot whose `sessionKind` is `chat`” was too restrictive and should be disregarded.
+
+The source does establish a narrower race: `syncAgentChoice` reads `choice` before calling `agentChoice.load()` and computes `shown` without checking `choice.sessionId === session.id` or read readiness (`app/web/app.mjs:3812-3821`). On a Session transition, `readSnapshot` clears the controller snapshot and emits loading before the new read answers (`app/web/agent-choice.mjs:167-179`). Thus the chooser's visibility and Send projection can be computed from a mismatched or not-yet-ready state during that transition. The source review does **not** prove that the old Agent label remains: the controller clears `snapshot`, and the view recomputes its label from the emitted state. The concrete requirement is to keep the chooser hidden and its Send contribution non-authoritative until the current Session's snapshot is ready, while preserving ordinary `project` scope.
+
+## Separate Settings note
+
+The first-visit Settings deep-link finding remains unchanged: `openSettings` starts the Runtime Workbench load asynchronously, then `openResource` immediately returns false when the resource index is not loaded (`app/web/app.mjs:7625-7628`; `app/web/runtime-view.mjs:2801-2813`). Parent browser evidence independently confirms the first visit lands at the overview. A separate parent observation says the visible “Edit … in Settings” wording may overpromise a direct source-row destination; that is a parent/browser copy disposition, not independently re-tested here.

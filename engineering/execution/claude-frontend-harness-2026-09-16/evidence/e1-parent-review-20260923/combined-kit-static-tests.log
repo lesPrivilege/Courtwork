@@ -1,0 +1,39 @@
+✔ K3 authenticated import/select → actual Pi request consumes exact retained bytes once; loader stays deferred (1118.436417ms)
+ℹ {"requestCount":3,"firstRequestCount":1,"context":{"sha256":"b0b64043f010e5a89e57542659eb445f81cd6160fecd20038ccce6e06ad66158","bytes":242,"characters":240},"planSha256":"00189cca36058c6f1ba56fe9e524a75da195087b15ac7ac03403aa51b5295105","planPayload":{"sha256":"c92dae0b551299af3f3288340ba7e3d4839f9705527f1a9164b9a6a14540e8ea","bytes":5157},"resultStatus":"completed","compatibility":"unchecked"}
+✔ K3 old context and lost-reply replay survive changed invalid Kit configuration and restart (682.93625ms)
+✔ K3 active Run blocks edits and concurrent receipt replay creates one request (844.927167ms)
+✔ E1 submitted selection expectation refuses stale chooser intent but original command replay remains authoritative (491.7745ms)
+✔ K3 config queue orders a racing edit after payload retention and frozen admission (287.215208ms)
+✔ K3 outside profile allowlist refuses before inference with zero calls (69.831083ms)
+✔ K3 required unavailable Extension tool refuses before inference with zero calls (80.619833ms)
+✔ K3 mismatched descriptor refuses before inference with zero calls (69.866917ms)
+✔ K3 body changed refuses before inference with zero calls (75.746334ms)
+✔ K3 unsupported selection scope refuses before inference with zero calls (81.416292ms)
+✔ K3 runtime missing revision refuses before inference with zero calls (68.069958ms)
+✔ K3 malformed descriptor refuses before inference with zero calls (68.031958ms)
+✔ K3 matching unsupported evidence refuses before inference with zero calls (70.805166ms)
+✔ K3 conflicting owner evidence refuses before inference with zero calls (79.596042ms)
+✔ K3 exact Host character ceiling admitted; one over refuses without truncation (456.743833ms)
+✔ Kit projection preserves the bound available Extension tool; v1 keeps its prior catalog (68.28ms)
+✔ K3 multiple declarations preserve K1 sorted and deduplicated pins at real admission (401.416209ms)
+✔ K3 persistence failure leaves no Run; retained read failure produces zero calls and no fallback (654.992917ms)
+✔ K3 actual corrupted retained object refuses historical read; no re-execution (480.296042ms)
+✔ K3 requirements retain denied tool readings and cannot grant the actual write (618.96625ms)
+✔ K3 payload read returning mismatched bytes fails before provider dispatch with precise failure identity (433.375208ms)
+✔ v1 and v2 empty Kit profiles use unchanged compiler bytes with null Kit authority (970.054084ms)
+✔ K3-R1 persisted Kit declarations require summaries on load, including forged legacy upgrade (624.317042ms)
+✔ K3 crash/reopen preserves frozen facts and changes unresolved Run to unknown without inference (1475.12075ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (13.153541ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (2.854583ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (1.732125ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (3.892375ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (162.61475ms)
+✔ skin-policy.js is an exact synchronous static route (65.708208ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11333.230792

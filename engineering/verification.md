@@ -135,3 +135,6 @@
 
 
 2026-09-23 · [K3 parent final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md): fixed8e7171c/84d6dfa merged65c3b30, exact persisted-history probe now refuses, actual integrated32/32 and deterministic smoke pass. Earlier independent78 tests/2 probes and author1565 full suite keep their original pins. Current schema21 entry points aligned (including parent correction of app/README directory example); Core4/bridge5 unchanged. E1/UI/G1/real-model claims remain separate. Raw CRLF context and original failing-log whitespace intentionally preserved.
+
+
+2026-09-23 · [E1 combined parent review](execution/claude-frontend-harness-2026-09-16/evidence/e1-parent-review-20260923/README.md): Claude8fd2b86 +K3 +capability2b6f2e4 in isolated4091b8b; independent57/57 frontend seam, combined20/20 and30/30 pass. OpenAI in-app browser proves real v2 Kit Run/history and stale rejection/draft retention, but terminal Composer refresh and first Settings destination fail; frontend held. Backend flag only is accepted atmaina59d188, with no schema/UI exposure change; exact static entries stay with atomic frontend delivery. Native accessibility matrix and real model unexecuted. Original screenshots/raw logs and corrected Luna scope recommendation retained.

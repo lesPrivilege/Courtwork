@@ -1,0 +1,28 @@
+✔ the chat inherits General; Send carries the fresh effective selection (2.153375ms)
+✔ without the Host's expectation capability Send omits runtimeSelection (0.221292ms)
+✔ Check again settles an unknown outcome by read-back (2.528792ms)
+✔ choosing applies one CAS write and adopts the reply as the effective reading (0.397083ms)
+✔ a configuration change elsewhere keeps the draft, re-reads, and never resends (0.508416ms)
+✔ an active run freezes the selection: the draft is kept, not queued (0.343959ms)
+✔ a lost reply is settled by reading back, not by resending (0.304958ms)
+✔ a lost reply whose write did not land stays unknown until the person acts (0.286625ms)
+✔ an effective composition that is not compatible holds Send with the owner's reason (0.259459ms)
+✔ a settled refusal keeps the draft and says the owner's message (0.255292ms)
+✔ a read failure blocks Send until a re-read succeeds (0.152417ms)
+✔ Kit declarations are read from the profile's exact source; builtin has none (3.892708ms)
+✔ a late source reply for an old chat never lands in the new one (0.625625ms)
+✔ the live adapter speaks the existing endpoints (0.155875ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (6.282292ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (1.819584ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (4.46725ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (2.578542ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (179.176875ms)
+✔ skin-policy.js is an exact synchronous static route (60.458041ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1322.756083

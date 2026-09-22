@@ -1,0 +1,19 @@
+import {writeFile,rm} from 'node:fs/promises';
+import {boot} from '/Users/lesprivilege/Projects/.worktrees/courtwork-e1-review-20260923/app/tests/helpers.mjs';
+import {seal,sha256} from '/Users/lesprivilege/Projects/.worktrees/courtwork-e1-review-20260923/app/tests/fixtures/kit-context.mjs';
+const h=await boot();
+const session=await h.createSession({title:'E1 parent review — Kit path'});
+const scope={type:'session',id:session.id};
+const snap=async()=>(await h.api('GET',`/runtime-control?sessionId=${session.id}`)).json;
+const put=async resource=>{const r=await h.api('PUT',`/runtime-control?sessionId=${session.id}`,{revision:(await snap()).revision,operation:'put',resource});if(r.status!==200)throw Error(JSON.stringify(r));};
+const src={id:'local:e1-review-guide',kind:'instruction',title:'Review guidance',scope,content:'E1_KIT_PARENT_CORE: explain findings concisely.'};
+await put(src);
+const kit=seal({schemaVersion:1,id:'kit:e1-review',version:'1',core:[{resourceId:src.id,contentSha256:sha256(src.content),artifactSha256:sha256(JSON.stringify({kind:src.kind,title:src.title,content:src.content}))}],deferred:[],requirements:[],conflicts:[]});
+await put({id:'local:e1-kit-reviewer',kind:'agent_profile',title:'Kit reviewer',scope,content:JSON.stringify({schemaVersion:2,version:'1',resourceIds:[src.id],rules:[],uiSlots:[],kits:[kit]})});
+await put({id:'local:e1-notes',kind:'agent_profile',title:'Notes',scope,content:JSON.stringify({schemaVersion:1,version:'1',resourceIds:[],rules:[],uiSlots:[]})});
+const publicInfo={url:h.runtime.url,sessionId:session.id,revision:(await snap()).revision,capability:(await snap()).compatibility.runtimeSelection??null,pid:process.pid};
+await writeFile('/tmp/cw-e1-review-host-control.json',JSON.stringify({...publicInfo,token:h.runtime.token,dataDir:h.dataDir}));
+console.log(JSON.stringify(publicInfo));
+let closing=false;
+async function close(){if(closing)return;closing=true;await writeFile('/tmp/cw-e1-review-host-results.json',JSON.stringify({publicInfo,requests:h.runtime.fakeProvider.requests,state:h.runtime.store.snapshot?.()??null},null,2));await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});process.exit(0);}
+process.on('SIGTERM',close);process.on('SIGINT',close);

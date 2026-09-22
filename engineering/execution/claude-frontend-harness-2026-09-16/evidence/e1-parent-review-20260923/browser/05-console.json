@@ -1,0 +1,122 @@
+[
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.361Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  },
+  {
+    "level": "error",
+    "message": "TypeError: Cannot read properties of null (reading 'next')\n    at renderNotice (http://127.0.0.1:53697/web/agent-chooser-view.mjs:224:24)\n    at Object.setVisible (http://127.0.0.1:53697/web/agent-chooser-view.mjs:262:7)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3818:16)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)\n    at http://127.0.0.1:53697/web/app.mjs:7633:93\n    at emit (http://127.0.0.1:53697/web/agent-choice.mjs:165:84)\n    at readSnapshot (http://127.0.0.1:53697/web/agent-choice.mjs:173:5)\n    at Object.refresh (http://127.0.0.1:53697/web/agent-choice.mjs:291:13)\n    at syncAgentChoice (http://127.0.0.1:53697/web/app.mjs:3815:73)\n    at renderComposer (http://127.0.0.1:53697/web/app.mjs:3763:17)",
+    "timestamp": "2026-09-22T16:30:46.362Z",
+    "url": "http://127.0.0.1:53697/web/agent-chooser-view.mjs"
+  }
+]

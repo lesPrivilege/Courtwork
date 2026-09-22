@@ -1,0 +1,33 @@
+{"refreshCalls":20,"renders":20,"maxDepth":20,"stoppedBySentinel":true,"activeFlagAfter":false}
+  3808	 * ordinary Chat with a Session only (never Home without a Session, never the
+  3809	 * global Attention Session), re-read when the chat changes and when a run
+  3810	 * ends, and it holds Send only for its own stated reasons. */
+  3811	function syncAgentChoice(session, active) {
+  3812	  if (!agentChoice || !agentChooser) return { holdsSend: false, describedBy: null };
+  3813	  const choice = agentChoice.getState();
+  3814	  if (session && choice.sessionId !== session.id) void agentChoice.load();
+  3815	  else if (session && agentChoiceRunActive && !active) void agentChoice.refresh();
+  3816	  agentChoiceRunActive = Boolean(active);
+  3817	  const shown = Boolean(session) && !state.attentionOpen && choice.snapshot?.sessionKind !== "global";
+  3818	  agentChooser.setVisible(shown);
+  3819	  if (!shown) return { holdsSend: false, describedBy: null };
+  3820	  const current = choice.sessionId === session.id ? choice : null;
+  3821	  return { holdsSend: !current?.next?.send.enabled, describedBy: agentChooser.describedBy() };
+  3822	}
+  3823	
+  3824	/* CI-B · set by wireEvents; a no-op where the stylesheet sizes the field itself. */
+  3825	let fitComposer = () => {};
+   167	  async function readSnapshot() {
+   168	    const own = ++readEpoch;
+   169	    const id = getSessionId();
+   170	    if (id !== sessionId) { sessionId = id; draft = null; apply = { status: "idle", message: "" }; sources.clear(); snapshot = null; }
+   171	    if (!id) { read = { status: "idle", error: "" }; emit(); return null; }
+   172	    read = { status: "loading", error: "" };
+   173	    emit();
+   174	    try {
+   175	      const result = await adapter.read(id);
+   176	      if (own !== readEpoch || id !== sessionId) return null;
+   177	      snapshot = projectSnapshot(result);
+   178	      read = { status: "ready", error: "" };
+   179	      emit();
+   180	      return snapshot;

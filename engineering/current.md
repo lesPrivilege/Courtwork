@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · E1 real Kit path reached; frontend lifecycle return issued
+
+[Parent E1 combined review](execution/claude-frontend-harness-2026-09-16/evidence/e1-parent-review-20260923/README.md) consumes Claude8fd2b86. Actual OpenAI browser→Composer→Host/Pi admits one v2 Kit Run and keeps its history; stale selection refuses with no extra Run/provider request and preserves draft. Frontend acceptance is held: active→terminal refresh re-enters rendering, leaving Stop working/reconnect despite Host completion; first Settings deep-link misses its row. Current-session/readiness projection and View/Inspect wording also return to original Claude. Luna57/57 and combined20/20+30/30 remain bounded evidence. Sol backend capability2b6f2e4 is independently accepted/merged; exact static routes are validated in the retained combined candidate and narrowly leased to Claude with the real modules. No user data/service or Pages operation.
+
 ## 2026-09-23 · Main Astra coordination loop enabled
 
 User requests main Astra to manage asynchronous execution and consume registered docs/index. The existing parent heartbeat `courtwork-claude` is updated in place, active hourly under the [coordination boundary](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md#main-astra-asynchronous-loop--2026-09-23); obsolete G1/first-core sequencing is replaced, unrelated loops remain paused. K3 is accepted/cleaned; Claude E1 continues, with fixed delivery/independent combined-path acceptance next. Quiet on unchanged state; no automatic Pages work, user-service migration or new task duplication.

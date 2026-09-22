@@ -85,6 +85,12 @@ Use the effective snapshot's whole-config revision, composition ID and source ha
 Original-command replay still returns its recorded Run before inspecting current
 selection. Omitting this field preserves legacy Run clients.
 
+The current snapshot explicitly advertises this Host contract as
+`compatibility.runtimeSelection: "expectation-v1"`. Clients may send the optional
+expectation only when this capability is reported; do not guess from a model label
+or schema version. The flag does not grant tools, assert Kit compatibility, or
+change `sessionScope.kind` (for example, `project` is an ordinary project Chat).
+
 Import an `mcp_server` with this JSON source text:
 
 ```json

@@ -1,0 +1,30 @@
+# E1 run-terminal transition assessment
+
+Date: 2026-09-23
+Source: `8fd2b867d8ced369974f053d2ece44b36dae1995`
+Worktree: `/Users/lesprivilege/Projects/.worktrees/courtwork-role-composer-20260922`
+
+## Finding: terminal transition recursively refreshes Agent choice
+
+The production browser symptom is consistent with a deterministic synchronous re-entry in `app/web/app.mjs:3813-3817`:
+
+```js
+const choice = agentChoice.getState();
+if (session && choice.sessionId !== session.id) void agentChoice.load();
+else if (session && agentChoiceRunActive && !active) void agentChoice.refresh();
+agentChoiceRunActive = Boolean(active);
+```
+
+When a Run was active, `agentChoiceRunActive` is `true`. On the first render after the Run becomes terminal, `active` is `false`, so `refresh()` is called. The Agent controller's `readSnapshot()` emits its loading state synchronously before awaiting the adapter read (`app/web/agent-choice.mjs:167-175`). The app subscription immediately calls `renderComposer()`, which re-enters `syncAgentChoice` while `agentChoiceRunActive` is still `true`, because the assignment on line 3816 has not run yet. That invocation calls `refresh()` again, and so on.
+
+A minimal ordering probe with the same synchronous emit boundary reached 20 refresh calls/20 nested renders before a sentinel stopped it (`/tmp/cw-e1-run-terminal-probe.log`). The probe is not a fake provider or browser; it isolates the exact production control-flow ordering and uses the real source line numbers alongside the result.
+
+## Expected and smallest owner correction
+
+The active-transition marker must be updated before invoking a refresh that can synchronously emit, or the refresh must be scheduled/guarded so the same terminal transition can only trigger once. The intended behavior is one Agent snapshot refresh after active → terminal, followed by a normal render; it must not recursively issue reads or leave the completed Run UI in a stale “working/connection lost” state.
+
+Add a regression around the actual app wiring or a controller subscription harness that makes `refresh()` emit synchronously, and assert exactly one refresh call for active → terminal.
+
+## Limits
+
+No browser/provider/credentials/full suite/source edits were used. Parent browser captures already demonstrate the user-visible symptom; this report establishes the source-level cause and bounded counterexample.
