@@ -1,0 +1,26 @@
+K3 bounded non-author review
+Review target: d29697cb66fae712b8d5d8ee361db6f31a983f13
+Implementation pin: 76d91d6fe8938ddd1cbb1e2b14fc29d5e4231ddd
+Store pin: eb32011
+Docs pin: 294ebb5 (merged into review target)
+
+Commands:
+node --test app/tests/kit-run-binding.test.mjs
+  log: /tmp/cw-k3-luna-kit-run-binding.log
+  result: 23 passed, 0 failed, exit 0
+node --test app/tests/kit-binding-store.test.mjs
+  log: /tmp/cw-k3-luna-kit-binding-store.log
+  result: 4 passed, 0 failed, exit 0
+node --test app/tests/kit-context.test.mjs app/tests/kit-context-independent.test.mjs
+  log: /tmp/cw-k3-luna-kit-context.log
+  result: 51 passed, 0 failed, exit 0
+node /tmp/cw-k3-luna-adversarial.mjs
+  script: /tmp/cw-k3-luna-adversarial.mjs
+  log: /tmp/cw-k3-luna-adversarial.log
+  result: 4 independent probes passed, exit 0
+git diff --check
+  log: /tmp/cw-k3-luna-diff-check.txt
+  result: empty
+
+Source hashes: /tmp/cw-k3-luna-source-sha256.txt
+Workspace snapshots: /tmp/cw-k3-luna-git-status.txt

@@ -90,7 +90,7 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 20 store (see below)
+  runtime-state.json        # schemaVersion 21 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
@@ -116,10 +116,20 @@ task.
 <a id="store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade"></a>
 <a id="store-schema-v18-validated-v3-v17-upgrade"></a>
 <a id="store-schema-v19-validated-v3v18-upgrade"></a>
-## Store schema (v20, validated v3–v19 upgrade)
+## Store schema (v21, validated v3–v20 upgrade)
 
-`schemaVersion` is `20`. A valid v3 … v19 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v20. Runtime20 strictly validates
+`schemaVersion` is `21`. A valid v3 … v20 store upgrades with an exact SHA-256-named
+backup before atomic replacement. Older hosts reject v21. Runtime21 adds immutable
+Run-owned `kitBinding` (null for older/no-Kit Runs), atomically projected by
+`runtime.bound`; exact plan/context bytes remain in ArtifactHistory and are verified
+before inference and recorded-context reads. Only explicit Session-selected ordinary
+Chat on in-process Pi admits reference-only Kits. Profile-v2 declarations do not
+grant permissions or prove compatibility; absent evidence remains unchecked under
+the bounded Host policy. Current configuration cannot reinterpret a recorded Run.
+See the [K3 contract](../engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md)
+and [Runtime Control API](../docs/runtime-control/api.md). Restore a backup only in a
+separate directory with its matching Host; never open upgraded data with an old Host.
+Runtime20 strictly validates
 Run-owned local Pi dispatch, process and retained-result events, including child/source
 identity and unresolved-process fences. It adds no second ledger; valid schema19
 records retain their existing fields and event bytes. The actual schema19 reader

@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "probes": [
+    {
+      "name": "cross-record/orphan/immutable",
+      "status": "PASS",
+      "detail": "ghost kit authority, orphan bound projection, and changed summary all rejected"
+    },
+    {
+      "name": "multi-kit permutation",
+      "status": "PASS",
+      "detail": "plan=98bf49db32896575c8a9128bee058d188e7240c7f27a747920e00ffab8da193b candidate=48a0f0b2c527769ffbe1343487fb540a727d720926f8e75f86805ced8e0987ba"
+    },
+    {
+      "name": "selection guard",
+      "status": "PASS",
+      "detail": "user scope refused with zero saves; selected Session scope retained exactly two payloads"
+    },
+    {
+      "name": "retention consistency",
+      "status": "PASS",
+      "detail": "tampered retained context rejected with kit_payload_invalid and no fallback read"
+    }
+  ]
+}

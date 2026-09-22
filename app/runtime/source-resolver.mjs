@@ -54,6 +54,10 @@ export function resolveRuntimeSource(input) {
   if (metadata.profile) {
     declared.resourceIds = [...metadata.profile.resourceIds];
     declared.uiSlots = [...metadata.profile.uiSlots];
+    if (metadata.profile.schemaVersion === 2) {
+      declared.kits = structuredClone(metadata.profile.kits);
+      diagnostics.push('Kit descriptors are declarations; exact pins, admitted resources and runtime compatibility are checked at Run admission.');
+    }
     requirements.push(...metadata.profile.resourceIds.map(id => ({ kind: 'resource', id, status: 'unchecked' })));
     diagnostics.push('Referenced resources are not looked up; profile requirements and permissions must be checked against the target runtime.');
   }

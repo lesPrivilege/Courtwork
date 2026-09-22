@@ -1,4 +1,4 @@
-import type { ImportedResource } from './control-contract.js';
+import type { ImportedResource, KitDeclaration } from './control-contract.js';
 
 /** Runtime R2 local slice, not Roadmap R2 completion or an R3 adapter registry. */
 export type InlineRuntimeSource = Pick<ImportedResource, 'kind' | 'title' | 'content'> & {
@@ -22,6 +22,7 @@ export interface ResolvedRuntimeArtifact {
   capabilities: { declared: {
     name?: string; description?: string; requestedTools?: unknown; compatibility?: unknown;
     resourceIds?: string[]; uiSlots?: string[]; transport?: 'streamable-http'; protocol?: '2026-07-28' | 'legacy-2025';
+    kits?: KitDeclaration[];
   }; granted: [] };
   requirements: Array<{ kind: 'resource'; id: string; status: 'unchecked' } | { kind: 'mcp-connection'; status: 'unchecked' }>;
   trust: 'unverified';

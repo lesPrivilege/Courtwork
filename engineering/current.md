@@ -1,5 +1,15 @@
 # 当前工程状态
 
+## 2026-09-23 · K3-R1 missing-summary correction delivered; parent delta acceptance pending
+
+[K3-R1 return](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/r1/README.md), source `8e7171c`, adopts the parent's persisted-load counterexample. A nonempty v2 Kit declaration now requires its frozen Run/event summaries even when both projections were stripped; invalid history cannot silently reopen as no-Kit. The exact parent probe changes exit1→0, and32/32 targeted Host/Store/legacy migration checks pass, including five actual corrupted-reopen variants and valid v1/empty-v2 historical reads. Luna non-author28/28 and the unchanged parent probe also pass. Original1565/1565 evidence remains prior-source evidence. Schema21/Core4/bridge5 are unchanged; no reader reconstruction, UI/main/user-service change or new work lane. Parent retains delta acceptance/integration.
+
+## 2026-09-22 · K3 backend author delivery; parent acceptance pending
+
+[K3 author packet](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md), source `b999007`, connects authenticated profile-v2 import/Session selection to actual ordinary-Chat Host→in-process Pi requests. Run-owned schema21 summaries and exact ArtifactHistory plan/context bytes survive edits/restart; no-Kit keeps prior context behavior. Optional `runtimeSelection` protects E1 Send intent with whole-config revision/profile ID/source hash; original-command replay still returns the prior Run. The [E1 contract](execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md#e1-frontend-consumer-contract--current-implemented-owner-facts) exposes existing owners, not a new profile registry.
+
+Author full regression passes1565/1565; bounded non-author Luna passes23 Host,4 Store,51 K1 and4 independent probes, with unchanged reviewed product hashes. Schema20 exact backup/old-reader refusal is tested. Core4/bridge5 and package pins remain unchanged. This is an isolated backend candidate, not parent/main acceptance, a real-model capability claim or completed E1 UI. Page-local draft intent does not implement Host-persisted/reload-restored G1 draft semantics. No user-service/data migration, credentials, paid provider, deployment or other-tree cleanup occurred; parent owns final integration and combined frontend acceptance.
+
 ## 2026-09-22 · K3 held for one persisted-history invariant; E1 continues
 
 [Parent K3 review](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-parent-review-20260922/README.md) holds cb26d20 for K3-R1. Actual synthetic Host→Pi completion, then removal of both Kit summaries while retaining a nonempty v2 declaration, passes schema21 load and returns historical context200 without Kit context. Original backend owner retains the finite validator/reopen correction; no normal-admission corruption or wrong inference is claimed. Independent23+4+51 tests and2 other probes pass. Main remains RuntimeStore20/Core4/bridge5; no merge, user service/data operation or cleanup. Claude E1 is actively implementing in its preserved disjoint tree; Pages remains excluded.

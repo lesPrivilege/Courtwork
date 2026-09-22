@@ -1,0 +1,23 @@
+## codex/kit-run-binding-20260922
+M  app/tests/async-recovery-independent.test.mjs
+M  app/tests/async-tasks.test.mjs
+M  app/tests/attention-agent.test.mjs
+M  app/tests/control-plane.test.mjs
+M  app/tests/coordination.test.mjs
+M  app/tests/durability.test.mjs
+ M app/tests/kit-run-binding.test.mjs
+M  app/tests/local-pi-schema20.test.mjs
+M  app/tests/model-capability-adaptation.test.mjs
+M  app/tests/projectless-chat.test.mjs
+M  app/tests/provider-schema12-pending.test.mjs
+M  app/tests/repository-binding.test.mjs
+M  app/tests/repository-candidate.test.mjs
+M  app/tests/request-telemetry.test.mjs
+M  app/tests/review-provider-publication-migration.test.mjs
+M  app/tests/run-lineage.test.mjs
+M  app/tests/runtime.test.mjs
+M  app/tests/schema18-upgrade.test.mjs
+M  app/tests/schema19-upgrade.test.mjs
+M  app/tests/subagent-migration.test.mjs
+?? app/node_modules
+ef60383e854ebbf182d6dc186f4f54cf2a103cb8

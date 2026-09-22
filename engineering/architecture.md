@@ -60,7 +60,7 @@ BG-01补充：[Governed directory / Matter disclosure](../docs/work-core/governa
 
 ### 数据归属
 
-Host 的 runtime JSON（schema 20）、会话日志、文件历史与 Core 数据都放在显式指定的运行数据目录内。Core 使用该目录下既有的 `extensions/evidence-memo/state.db` 坐标，由 `WorkCoreOwner` 创建唯一客户端；这个路径是兼容坐标，NDA 不另建数据库。Core user schema 4 / bridge app schema 5 与 Host schema 20 分别演进。
+Host runtime JSON (schema21), session journals, ArtifactHistory and Core data live under an explicitly selected data directory. Core retains `extensions/evidence-memo/state.db`, created through the single WorkCoreOwner client; NDA does not create another database. Core user schema4 / bridge app schema5 evolve independently from Host schema21. The [K3 contract](execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md) adds Run-owned Kit summaries with immutable plan/context payloads through ArtifactHistory. Profile source v2 uses existing Runtime Control/CAS; the first consumer is explicitly Session-selected ordinary Chat through in-process Pi. Author construction is separate from parent acceptance and a user-facing Kit selection UI.
 
 UI 通过 Host 读取投影和提交动作；Pi 执行模型与工具；领域适配器校验候选并经 Core 提交。Run 事件与已接受成果各有自己的持久化 owner。完整迁移要求见 [运行文档](../app/README.md#store-schema-v5-validated-v3v4-upgrade)。
 

@@ -43,6 +43,7 @@ import {
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
+import { retainKitContext, readKitContext } from "../runtime/kit-run-context.mjs";
 import { createRuntimeLoadTool, createRuntimeProposeTool, createPresentTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
 import { validatePresentationSpec, PresentationError } from "../runtime/presentation.mjs";
 import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposals.mjs";
@@ -798,14 +799,25 @@ export class RuntimeService {
     return { protocolVersion: snapshot.protocolVersion, revision: snapshot.revision, resources: snapshot.resources.filter(r => !kind || r.kind === kind) };
   }
 
-  getRuntimeContext(sessionId, runId = null) {
-    const snapshot = this.getRuntimeControl(sessionId);
-    if (!runId) return { mode: 'effective-next-run', revision: snapshot.revision, composition: snapshot.composition, context: snapshot.context, tokenUsage: null };
+  async getRuntimeContext(sessionId, runId = null) {
+    if (!runId) {
+      const snapshot = this.getRuntimeControl(sessionId);
+      return { mode: 'effective-next-run', revision: snapshot.revision, composition: snapshot.composition, context: snapshot.context, tokenUsage: null };
+    }
     const run = this.store.getRun(runId);
     if (!run || run.sessionId !== sessionId) throw new ServiceError(404, 'not_found', 'run not found in this session');
     const events = this.store.listEvents({ sessionId, runId });
     const binding = events.find(e => e.type === 'runtime.bound');
-    return { mode: 'recorded-run', runId, binding: binding?.data ?? null, loaded: events.filter(e => e.type === 'runtime.context.loaded').map(e => ({ ...e.data, seq: e.seq })), tokenUsage: run.usage, legacyWithoutControlSnapshot: !binding };
+    let retained = null;
+    if (run.kitBinding) {
+      try { retained = await readKitContext(this.artifactHistory, sessionId, run.kitBinding); }
+      catch (error) {
+        if (error.code === 'kit_payload_invalid') throw new ServiceError(409, error.code, error.message);
+        if (error instanceof ArtifactHistoryError) throw new ServiceError(error.code === 'history_unavailable' ? 410 : error.code === 'artifact_integrity_failed' ? 500 : 503, error.code, error.message);
+        throw error;
+      }
+    }
+    return { mode: 'recorded-run', runId, binding: binding?.data ?? null, ...(retained ? { kitBinding: run.kitBinding, kitContext: retained } : {}), loaded: events.filter(e => e.type === 'runtime.context.loaded').map(e => ({ ...e.data, seq: e.seq })), tokenUsage: run.usage, legacyWithoutControlSnapshot: !binding };
   }
 
   evaluateRuntimePermission(sessionId, input) {
@@ -2472,9 +2484,20 @@ export class RuntimeService {
 
   async #createRun(sessionId, input) {
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["input", "commandId", "supersedes"]));
+    assertKeys(value, new Set(["input", "commandId", "supersedes", "runtimeSelection"]));
     const instruction = text(value.input, "input", { max: 100000 });
     const commandId = text(value.commandId, "commandId", { max: 200 });
+    let runtimeSelection = null;
+    if (value.runtimeSelection !== undefined) {
+      runtimeSelection = requireObject(value.runtimeSelection, 'runtimeSelection');
+      assertKeys(runtimeSelection, new Set(['revision', 'profileId', 'sourceHash']));
+      if (!Number.isSafeInteger(runtimeSelection.revision) || runtimeSelection.revision < 0
+        || typeof runtimeSelection.profileId !== 'string' || !runtimeSelection.profileId.length || runtimeSelection.profileId.length > 200
+        || !(runtimeSelection.sourceHash === null || typeof runtimeSelection.sourceHash === 'string' && /^[0-9a-f]{64}$/.test(runtimeSelection.sourceHash))) {
+        throw new ServiceError(400, 'invalid_input', 'Invalid runtime selection expectation');
+      }
+      runtimeSelection = structuredClone(runtimeSelection);
+    }
     // A continuation names the Run it takes over. It is set here, at creation,
     // and never afterwards; the prior Run's prompt is not copied or replayed.
     const supersedes = value.supersedes === undefined ? null : text(value.supersedes, "supersedes", { max: 200 });
@@ -2565,8 +2588,21 @@ export class RuntimeService {
     // attach it — this ordering keeps run creation the only race-sensitive
     // step, exactly where store._mutate can serialize it.
     const runtimeBinding = this.control.bind(this.getRuntimeControl(sessionId));
+    if (runtimeSelection && (runtimeSelection.revision !== runtimeBinding.revision
+      || runtimeSelection.profileId !== runtimeBinding.composition.id
+      || runtimeSelection.sourceHash !== (runtimeBinding.composition.hash ?? null))) {
+      throw new ServiceError(409, 'runtime_selection_conflict', 'The selected Agent configuration changed; refresh before sending');
+    }
     if (runtimeBinding.composition.status !== 'compatible') throw new ServiceError(409, 'profile_incompatible', 'Selected profile has missing or incompatible resources');
-    if (compileControlContext(runtimeBinding).length > 100000) throw new ServiceError(400, 'context_budget', 'Runtime instructions and catalog exceed the host context admission limit');
+    let kitBinding;
+    try {
+      kitBinding = await retainKitContext({ binding: runtimeBinding, session, spark: sparkChild,
+        adapter: this.runtimePort.describe(), history: this.artifactHistory });
+    } catch (error) {
+      if (error.status) throw new ServiceError(error.status, error.code, error.message);
+      throw error;
+    }
+    if (!kitBinding && compileControlContext(runtimeBinding).length > 100000) throw new ServiceError(400, 'context_budget', 'Runtime instructions and catalog exceed the host context admission limit');
     let created;
     try {
       created = await this.store.createRun({
@@ -2578,7 +2614,8 @@ export class RuntimeService {
         extension,
         commandId,
         supersedes,
-        runtimeSnapshot: { revision: runtimeBinding.revision, hash: runtimeBinding.hash, sessionScope: {kind:session.scope, projectId:session.projectId}, composition: runtimeBinding.composition, resources: runtimeBinding.resources, content: runtimeBinding.content, policies: runtimeBinding.policies, context: runtimeBinding.context },
+        runtimeSnapshot: { revision: runtimeBinding.revision, hash: runtimeBinding.hash, sessionScope: {kind:session.scope, projectId:session.projectId}, composition: runtimeBinding.composition, resources: runtimeBinding.resources, content: runtimeBinding.content, policies: runtimeBinding.policies, context: runtimeBinding.context, ...(kitBinding ? { kitBinding } : {}) },
+        kitBinding,
         workspaceHostSession: null,
         credentialGeneration: this.credentialGeneration,
         expectedRepositoryBindingRevision: session.repositoryBindingRevision,
@@ -2894,7 +2931,8 @@ export class RuntimeService {
       const asyncTools = this.asyncTasks.enabled && session.scope === 'project' && !session.extensionBinding ? this.asyncTasks.tools(run.id) : [];
       const asyncContext = asyncTools.length ? 'Host-catalogued immutable async read sources: ' + JSON.stringify(this.asyncTasks.catalog())
         + '\nLaunch returns only a handle. Get/wait for each requested task before finalizing; continue independent steps while other tasks run. A pending task or tool error is not source evidence.' : '';
-      const currentContext = sparkAssignment ? "" : [extensionContext, compileControlContext(entry.runtimeBinding), asyncContext, !session.extensionBinding ? this.subagents.library.context(session.id) : ""].filter(Boolean).join("\n\n");
+      const controlContext = sparkAssignment ? '' : run.kitBinding ? (await readKitContext(this.artifactHistory, session.id, run.kitBinding)).text : compileControlContext(entry.runtimeBinding);
+      const currentContext = sparkAssignment ? "" : [extensionContext, controlContext, asyncContext, !session.extensionBinding ? this.subagents.library.context(session.id) : ""].filter(Boolean).join("\n\n");
       let initializeFileInput;
       if (entry.extensionRun?.fileMemo) {
         const cleanSession = entry.nativeSession.historyIsEmpty()
@@ -3012,7 +3050,7 @@ export class RuntimeService {
     } catch (error) {
       extensionOutcome = entry.closeError || entry.budget.reason || entry.externalUnknown ? "unknown" : entry.cancelRequested ? "canceled" : "failed";
       await appendError(
-        entry.closeError ? "extension_close_failed" : entry.budget.reason ? "budget_exceeded" : error?.code === "runtime_projection_failed" ? "runtime_projection_failed" : classifyRuntimeError(error?.message),
+        entry.closeError ? "extension_close_failed" : entry.budget.reason ? "budget_exceeded" : ['runtime_projection_failed', 'kit_payload_invalid', ...(run.kitBinding ? ['history_unavailable', 'artifact_integrity_failed', 'artifact_store_unavailable'] : [])].includes(error?.code) ? error.code : classifyRuntimeError(error?.message),
         entry.budget.reason === "deadline" ? "run deadline exceeded" : entry.budget.reason === "max_turns" ? "run turn budget exceeded" : redact(safeMessage(error, "runtime failed"), this.knownSecrets),
       );
     } finally {

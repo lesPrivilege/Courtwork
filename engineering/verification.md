@@ -1,5 +1,9 @@
 # 验证选择与证据边界
 
+2026-09-23 · [K3-R1 return](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/r1/README.md), source `8e7171c`: unchanged parent persisted-load probe exit1→0; author32/32 Host/Store/local-schema tests; non-author Luna28/28 and the same probe pass. Actual closed-Host reopen rejects missing/null Kit projections and forged legacy upgrade without rewriting bytes, while legitimate v1/empty-v2/schema20 histories remain. A test-only in-memory-vs-serialized undefined-property assertion was corrected with its initial31/32 log retained. Prior full1565 and smoke are not rerun or relabelled for this narrow guard. Parent delta acceptance remains pending.
+
+2026-09-22 · [K3 backend author delivery](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md), full source `b999007`: authenticated Runtime Control→Host→actual in-process Pi→deterministic provider proves exact single context contribution, deferred loading, zero-call refusals, selection race/replay, failed payload and SIGKILL/reopen boundaries. Author full1565/1565; non-author Luna23 Host+4 Store+51 planner+4 independent probes on fixed unchanged product. Schema21 owns Kit summary/event agreement and immutable payload refs; actual20 reader refuses without writing, backup restores separately. Core4/bridge5 unchanged. Parent acceptance/main integration, combined E1 UI, G1 persistent draft/reload behavior and real-model capability remain separate; no user services/data/credentials or deployment are involved.
+
 2026-09-14 · Astra裁决。适用于当前工单的验证选择；不替代Core/Host合同、既有Release门或具体测试命令。输入与核源另见[消费记录](research/ux-grammar-2026-09-14/README.md)。
 
 用户登记的[前端测试技术栈与企业 Agent 讨论](research/frontend-testing-stack-2026-09-14/README.md)只作为历史输入索引；其中外部技术主张未在登记时复核，也不改变本页当前验证选择或采用栈。
