@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-22 · Local Pi L3 contract adjusted; product baseline unchanged
+
+The [L3 parent disposition](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md#l3-proposal-disposition--2026-09-22) adopts existing Run-event/ArtifactHistory ownership with strict Host-only receipts, but reserves schema20 for this future recovery-sensitive integration so an old19 Host cannot silently ignore its fences. Main remains schema19 and the f88f61b WebUI test baseline is unchanged in product bytes. Inline source inclusion cannot satisfy Spark read coverage; retained results remain consumable with a blocked assignment. Existing reconcile/retry must not clear local-process unknown solely because its Run ended. The new task received the finite correction; L1/L2 continue, no L3 delivery/acceptance or user Host operation is claimed.
+
 ## 2026-09-22 · Core C/D/E accepted; fresh Astra Pi loop started
 
 [Final C/D/E acceptance](execution/claude-frontend-harness-2026-09-16/evidence/core-cde-final-20260922/README.md) integrates e49232e at main `ca859a5`: Luna33/33, actual-main39/39, no-result local execution uncertainty remains fenced. Final RuntimeStore19 is adopted, Core4/bridge5 unchanged; injectable offline parity is accepted, no remote runtime selection/live API capability claim. The ended source tree was fully archived, physically restored/Git-bundle verified and removed; M1, frozen shared Git database and user8787 remain untouched.
