@@ -1,0 +1,152 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Parcel review" [expanded]:
+        - generic: Parcel review
+      - button "New chat in Parcel review":
+        - generic: New chat in Parcel review
+      - paragraph: Loading chats…
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "Unbound location check":
+        - generic: Unbound location check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Bound location check":
+        - generic: Bound location check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Quarterly ledger check":
+        - generic: Quarterly ledger check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Parcel brief review":
+        - generic: Parcel brief review
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace"
+- complementary "Preview":
+  - button "Back to chat":
+    - generic: Chat
+  - heading "Preview" [level=2]
+  - tablist "Open in Preview":
+    - tab "out/brief.md · Recorded 4bba247a" [active] [selected]:
+      - generic: brief.md
+      - generic: Recorded 4bba247a
+    - button "Close out/brief.md":
+      - generic: Close out/brief.md
+  - button "Hide preview":
+    - generic: Hide preview
+  - tabpanel "out/brief.md · Recorded 4bba247a":
+    - paragraph: Recorded version
+    - heading "out/brief.md" [level=3]
+    - generic: 14.9 KB
+    - button "Copy displayed file text":
+      - generic: Copy displayed file text
+    - button "Quote into draft"
+    - generic "Version details"
+    - complementary "File provenance":
+      - paragraph: Saved by this run. Review acceptance is not recorded here.
+    - region "Read-only Markdown document":
+      - button "Raw source"
+      - generic: Find
+      - searchbox "Find"
+      - status
+      - navigation "Document outline":
+        - generic: Outline
+        - list:
+          - button "Parcel brief · version 1"
+          - button "Section 1 · parcel boundary reading"
+          - button "Section 2 · parcel boundary reading"
+          - button "Section 3 · parcel boundary reading"
+          - button "Section 4 · parcel boundary reading"
+          - button "Section 5 · parcel boundary reading"
+          - button "Section 6 · parcel boundary reading"
+          - button "Section 7 · parcel boundary reading"
+          - button "Section 8 · parcel boundary reading"
+          - button "Section 9 · parcel boundary reading"
+          - button "Section 10 · parcel boundary reading"
+          - button "Section 11 · parcel boundary reading"
+          - button "Section 12 · parcel boundary reading"
+      - article "Rendered Markdown":
+        - region "Markdown heading, code points 0 to 26":
+          - heading "Parcel brief · version 1" [level=1]
+        - region "Markdown heading, code points 28 to 66":
+          - heading "Section 1 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 68 to 1291":
+          - paragraph: Paragraph 1.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 1.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 1293 to 1331":
+          - heading "Section 2 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 1333 to 2556":
+          - paragraph: Paragraph 2.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 2.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 2.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 2.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 2.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 2.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 2558 to 2596":
+          - heading "Section 3 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 2598 to 3821":
+          - paragraph: Paragraph 3.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 3.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 3.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 3.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 3.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 3.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 3823 to 3861":
+          - heading "Section 4 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 3863 to 5086":
+          - paragraph: Paragraph 4.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 4.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 4.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 4.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 4.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 4.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 5088 to 5126":
+          - heading "Section 5 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 5128 to 6351":
+          - paragraph: Paragraph 5.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 5.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 5.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 5.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 5.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 5.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 6353 to 6391":
+          - heading "Section 6 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 6393 to 7616":
+          - paragraph: Paragraph 6.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 6.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 6.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 6.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 6.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 6.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 7618 to 7656":
+          - heading "Section 7 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 7658 to 8881":
+          - paragraph: Paragraph 7.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 7.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 7.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 7.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 7.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 7.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 8883 to 8921":
+          - heading "Section 8 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 8923 to 10146":
+          - paragraph: Paragraph 8.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 8.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 8.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 8.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 8.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 8.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 10148 to 10186":
+          - heading "Section 9 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 10188 to 11411":
+          - paragraph: Paragraph 9.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 9.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 9.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 9.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 9.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 9.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 11413 to 11452":
+          - heading "Section 10 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 11454 to 12683":
+          - paragraph: Paragraph 10.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 10.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 10.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 10.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 10.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 10.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 12685 to 12724":
+          - heading "Section 11 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 12726 to 13955":
+          - paragraph: Paragraph 11.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 11.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 11.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 11.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 11.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 11.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+        - region "Markdown heading, code points 13957 to 13996":
+          - heading "Section 12 · parcel boundary reading" [level=2]
+        - region "Markdown paragraph, code points 13998 to 15227":
+          - paragraph: Paragraph 12.1. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 12.2. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 12.3. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 12.4. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 12.5. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured. Paragraph 12.6. The synthetic parcel record lists a boundary, a survey date and an owner of record. Nothing here describes a real place or person; it exists so a reading position can be kept and measured.
+- status

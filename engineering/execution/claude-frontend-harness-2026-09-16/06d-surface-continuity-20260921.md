@@ -97,3 +97,8 @@ Writer released. No push, no deploy, no evidence or worktree deletion.
 ## PV-R1 return — 2026-09-22 (Opus)
 
 The review on main `6da9347` accepted A1/A2 and held B for PV-R1. Answered at **`4698d8b`** on the same branch: closing a Workspace tab, selected or not, now retires its reads through the existing owners, and reopening starts new ones. Page-route regression, before 4/7 → after 7/7; B journey 34/34; full suite 1389/1389. See the [PV-R1 packet](evidence/tabbed-preview-20260921/pv-r1/README.md). Only the correction delta changed. The Back/Forward-after-native-controls candidate stays registered for the shell/navigation increment; the review's point that geometry hooks are not native completeness is noted.
+
+
+## PV-R1 final acceptance — 2026-09-22
+
+[Final independent acceptance](evidence/tabbed-preview-final-20260922/README.md) closes PV-R1 at `4698d8b` and integrates complete B/packet31c09e5 as main `6c0bd32`: Luna50/50, OpenAI browser active/inactive close aborts before delayed response release and reopening works, integrated65/65. The ended tree is restore-verified and removed. A1/A2 stay accepted. Density/coarse-target/native-shell follow-ups retain their original scope and unexecuted cells. Idle8787 was updated solely for the new static route with exact Session data equality; no schema migration/provider call.

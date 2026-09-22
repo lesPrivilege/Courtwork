@@ -101,3 +101,6 @@
 
 
 2026-09-22 · [First grammar audit ingestion](design/grammar-convergence-20260921/disposition-20260922.md): parent verifies6 pinned source hashes,8 screenshot hashes and32 byte-identical artifact copies. It consumes existing OpenAI browser/DOM evidence without rerunning the product or claiming global accessibility acceptance. A Runtime-detail-only M1 lease is granted; candidate16px mapping is a measurement hypothesis, not a frozen global value. Existing product suites were not rerun for this documentation/evidence-only consumption.
+
+
+2026-09-22 · [PV-R1 final/06d B](execution/claude-frontend-harness-2026-09-16/evidence/tabbed-preview-final-20260922/README.md): Luna50/50, actual-main65/65, OpenAI browser response proxy shows both active/inactive close abort before release and fresh reopen. Late contributed renderer mount remains source/guard evidence. Idle8787 restart preserved complete3 Session replies/6 terminal Runs; route200/source equality, no migration/provider. [C/D/E review](execution/claude-frontend-harness-2026-09-16/evidence/core-cde-review-20260922/README.md):32/32 targets plus failing invariant counterexample (execution unknown/result null becomes remotely resolved); hold for CDE-R1. No independent full suite or live API claim.

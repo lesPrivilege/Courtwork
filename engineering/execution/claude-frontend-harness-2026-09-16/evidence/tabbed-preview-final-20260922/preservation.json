@@ -1,0 +1,19 @@
+{
+  "root": ".worktrees/courtwork-tabbed-preview-20260921",
+  "head": "31c09e54d83e34137b9e6467d84233460ef47e4f",
+  "archiveRef": "refs/archive/dogfood-ready-20260920/courtwork-tabbed-preview-20260921",
+  "archive": ".archives/courtwork-transport-composer-20260921/courtwork-tabbed-preview-20260921/files.tar.gz",
+  "archiveSha256": "f1c74ec17eaa7a0db7df0259f38b06ae99eb20218e34162ddd053d4408913b24",
+  "manifestSha256": "8fbdab5115a5842e2a8727322d7de712b5dc467f8c643ec84fcb3852ccc167d5",
+  "entryCount": 42166,
+  "fileBytes": 1014027059,
+  "physicalRestoreVerified": true,
+  "sourceRecheckPassed": true,
+  "bundle": "tabbed-preview.bundle",
+  "bundleSha256": "9e7c82570affb1409f7e61dd063cd35aaf623f10831f3466f2a39d0c2ba36d88",
+  "completeHistory": true,
+  "bundlePhysicalFetchAndFsckVerified": true,
+  "finalInventoryUnchanged": true,
+  "noActiveCwdBeforeRemoval": true,
+  "allCommitsIntegrated": true
+}

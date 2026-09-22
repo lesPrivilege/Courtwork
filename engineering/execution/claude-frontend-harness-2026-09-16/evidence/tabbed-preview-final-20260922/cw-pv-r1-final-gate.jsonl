@@ -1,0 +1,6 @@
+{"at":"2026-09-22T04:02:19.710Z","stage":"active","held":true,"path":"/api/v5/sessions/63a1babf-273e-4942-b79b-c6f7acb0e050/surface","status":200}
+{"at":"2026-09-22T04:02:30.315Z","stage":"active","clientClosed":true,"beforeRelease":true,"ended":false}
+{"at":"2026-09-22T04:02:42.491Z","stage":"active","released":true,"clientDestroyed":true}
+{"at":"2026-09-22T04:03:14.575Z","stage":"inactive","held":true,"path":"/api/v5/sessions/63a1babf-273e-4942-b79b-c6f7acb0e050/surface","status":200}
+{"at":"2026-09-22T04:03:28.610Z","stage":"inactive","clientClosed":true,"beforeRelease":true,"ended":false}
+{"at":"2026-09-22T04:03:36.411Z","stage":"inactive","released":true,"clientDestroyed":true}

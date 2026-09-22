@@ -1,0 +1,54 @@
+COMMAND: timed selected P03C/D/E/schema19 suites
+▶ P03-C Host consumer · governed read on the production service path
+  ✔ admission → create intent → binding → root turn → claim → governed repo_read → retained bytes → one submission → root terminal → later input on the same binding (1601.115291ms)
+  ✔ unadvertised, wrong-turn, malformed and out-of-scope calls read nothing; each refusal is retained and delivered once as an error (998.443083ms)
+  ✔ policy deny and a user's deny never read; a scope revoked while approval is pending cancels the run unread, and a later run has no reader (2000.994625ms)
+  ✔ a native call observed twice is claimed once, executed once and submitted once; racing claims share one receipt (915.035291ms)
+  ✔ without attributable root identity nothing is read and nothing settles the run; a required action is not root evidence (516.265292ms)
+  ✔ a lost creation reply stays unknown: no binding, no guessed id, no replacement session, and the chat is fenced (1312.542792ms)
+  ✔ a lost submission reply keeps the retained result and its identity: unknown delivery, no re-read, no re-send, chat fenced (688.712ms)
+  ✔ restart fences: an interrupted execution and an unanswered submission become unknown; nothing is re-read, re-run or re-sent (1413.459167ms)
+  ✔ an earlier stream replayed to a later run cannot re-execute, re-associate or settle it (1001.695125ms)
+  ✔ a chat stays with its runtime: Pi refuses a remote-bound chat, the remote runtime refuses a Pi chat, and a changed configuration cannot reuse the binding (776.62575ms)
+✔ P03-C Host consumer · governed read on the production service path (11226.0425ms)
+▶ P03-D · cancellation
+  ✔ cancel is an intent; the root turn ending cancelled confirms it, the retained result is not delivered, and the chat continues (1031.049125ms)
+  ✔ an accepted cancel that is never confirmed gets one last turn read, then stays unknown and fences the chat until the turn is seen to end (1000.697ms)
+  ✔ a cancel whose reply is lost, or that is refused, is sent once and leaves the run unknown (1105.363958ms)
+✔ P03-D · cancellation (3137.907625ms)
+▶ P03-D · observation recovery
+  ✔ a stream lost mid-turn is re-subscribed; undelivered events arrive, the call is not repeated, the run completes (624.39775ms)
+  ✔ events missed for good: the session's current required action is executed once from the snapshot, and a terminal nobody streamed is read from the turn (1163.837209ms)
+  ✔ a required action seen on the stream and again in the recovery snapshot is one claim (501.2425ms)
+  ✔ contradictory root terminals, a root turn that cannot be read and an unusable item cursor each end unknown (1552.627166ms)
+  ✔ recovery is bounded: a stream that never holds is re-subscribed twice, then the run is unknown (384.269583ms)
+✔ P03-D · observation recovery (4226.692584ms)
+▶ P03-D · lost replies and explicit reconciliation
+  ✔ an unanswered input is re-sent once under the same request key — the one operation the SDK documents the key for (747.817791ms)
+  ✔ a lost submission reply is never re-sent; reconciliation appends what the service's own history and turn show, and the chat continues (654.851041ms)
+  ✔ a delivery the saved history shows is resolved by that item even while the turn is still running (641.290416ms)
+  ✔ after a Host restart mid-submission the fenced chat is reconciled by reads alone and then continues on the same native session (653.404083ms)
+  ✔ a lost creation has no native locator: reconciliation can observe nothing and says so; Pi declares no recover capability (302.994042ms)
+✔ P03-D · lost replies and explicit reconciliation (3000.608125ms)
+▶ P03-D · process evidence
+  ✔ SIGKILL while the claimed read waits for approval: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1524.375458ms)
+  ✔ SIGKILL while the result submission is in flight: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1264.609458ms)
+✔ P03-D · process evidence (2789.08625ms)
+▶ P03-E · write → approval → fixed check parity
+  ✔ check fails before the fix; an approved exact write then the fixed check pass; result, diff and a reopened Host match on both runtimes (8396.123917ms)
+  ✔ deny, a stale approval, a revoked candidate and a cancelled running check leave the same Host record on both runtimes (7694.1845ms)
+  ✔ the remote consumer adds its own receipts to the same effects, exposes nothing it was not admitted with, and keeps its argument ceiling (2902.681458ms)
+✔ P03-E · write → approval → fixed check parity (18993.853667ms)
+✔ schema 18 upgrades to 19 once: remote fields added null/empty, Pi locator kept, exact backup, nothing else rewritten (186.568125ms)
+✔ an interrupted or blocked 18 → 19 upgrade changes nothing: occupied backup path, malformed legacy input, unsupported newer schema (213.280375ms)
+✔ a malformed schema-19 remote ledger fails closed (313.260917ms)
+✔ the actual schema-18 Host refuses a schema-19 file without writing, and opens the exact backup independently (937.797208ms)
+ℹ tests 32
+ℹ suites 6
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20365.064375
+EXIT: 0

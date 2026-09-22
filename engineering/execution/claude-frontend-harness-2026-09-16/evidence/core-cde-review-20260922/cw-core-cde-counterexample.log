@@ -1,0 +1,5 @@
+
+COMMAND: direct remote-action-state counterexample
+claim execution unknown with no result; record root terminal; resolve root_terminal
+RESULT: {"execution":"unknown","result":null,"resolution":{"evidence":"root_terminal","nativeRef":"turn-1","resolvedAt":"2026-09-22T00:00:00.000Z"},"unresolved":false}
+EXIT: 0

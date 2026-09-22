@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-22 · Preview integrated; Core C/D/E has one recovery return
+
+[Preview final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/tabbed-preview-final-20260922/README.md) integrates complete06d B through31c09e5/PV-R1 source4698d8b at main `6c0bd32`: Luna50/50, real OpenAI browser cancellation-before-release for active/inactive Workspace closes, integrated65/65. Its ended tree was archived, physically restored/bundle verified and removed. A1/A2 remain accepted; density/coarse/native follow-ups remain separate. Idle8787 was gracefully updated for the new static module, with all3 Session detail replies and6 terminal Runs unchanged; module200/exact bytes. No schema migration or provider call.
+
+[Core independent review and Astra decisions](execution/claude-frontend-harness-2026-09-16/evidence/core-cde-review-20260922/README.md) retain32/32 targeted tests but hold final C/D/E45ae12e for CDE-R1: native root terminal currently clears a local execution-unknown claim without a retained result. Original core owner keeps the branch/tree for the bounded fix and actual reconciliation/admission regression. ArtifactHistory placement/getTurn are adopted;16KiB remains an explicit parity limit, and future recovery mutations are not implemented here. Main stays RuntimeStore18; final19 is only a candidate. The author reports stopping the unauthenticated background1e0858d6 and implementing through one authenticated desktop session; no claim is made that the original CLI login was repaired. M1's task and tree remain protected under its separate lease.
+
+
 ## 2026-09-22 · Grammar audit consumed; Runtime-only M1 lease granted
 
 [Parent disposition and M1 lease](design/grammar-convergence-20260921/disposition-20260922.md) consume the completed fresh Astra [read-only audit](design/grammar-convergence-20260921/audit/01a0c497-69ec-7ea1-9706-1f6ffaccdd07/README.md). Its32 files and8 screenshot hashes were preserved/verified. Reader stack weight is inherited, fine-pointer narrow target differences require scoped owner mapping rather than an automaticAA failure, and Chat/Attention need no appearance migration from this sample.

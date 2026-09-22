@@ -1,0 +1,17 @@
+{
+  "integratedMain": "6c0bd32aba284d097315fb969c16380efd35be11",
+  "oldPid": 65142,
+  "newPid": 95960,
+  "sessionCount": 3,
+  "runCount": 6,
+  "allRunsTerminal": true,
+  "activeRuns": 0,
+  "runningCompactions": 0,
+  "completeSessionDetailsEqual": true,
+  "moduleStatus": 200,
+  "servedModuleSha256": "3969bdfdf645771d2a2b7efd4c278942a3aeae2873e04a94323805c419411c16",
+  "servedModuleEqualsSource": true,
+  "providerCalls": 0,
+  "credentialStoresInspectedOrCopied": false,
+  "schemaMigration": false
+}

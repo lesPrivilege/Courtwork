@@ -1,0 +1,86 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "Parcel review" [expanded]:
+        - generic: Parcel review
+      - button "New chat in Parcel review":
+        - generic: New chat in Parcel review
+      - paragraph: Loading chats…
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "Unbound location check":
+        - generic: Unbound location check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Bound location check":
+        - generic: Bound location check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Quarterly ledger check":
+        - generic: Quarterly ledger check
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "Parcel brief review":
+        - generic: Parcel brief review
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace"
+- complementary "Preview":
+  - button "Back to chat":
+    - generic: Chat
+  - heading "Preview" [level=2]
+  - tablist "Open in Preview":
+    - tab "out/brief.md · Recorded 4bba247a":
+      - generic: brief.md
+      - generic: Recorded 4bba247a
+    - button "Close out/brief.md":
+      - generic: Close out/brief.md
+    - tab "Workspace · Parcel brief review" [active] [selected]:
+      - generic: Workspace
+    - button "Close Workspace · Parcel brief review":
+      - generic: Close Workspace · Parcel brief review
+  - button "Hide preview":
+    - generic: Hide preview
+  - tabpanel "Workspace · Parcel brief review":
+    - heading "Workspace files" [level=3]
+    - button "Refresh workspace files":
+      - generic: Refresh workspace files
+    - heading "out" [level=4]
+    - generic: "2"
+    - button "out/a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md":
+      - generic: a-deliberately-long-file-name-that-has-to-be-truncated-in-its-preview-tab.md
+    - button "out/brief.md":
+      - generic: brief.md
+    - button "Add material":
+      - generic: Add material
+- status

@@ -46,3 +46,8 @@ E may expose only the existing candidate-write and fixed-check tools after their
 ## Exit evidence
 
 C: one real production-service admission, SDK/adapter loopback required action, governed repo_read, exact retained result, native root terminal and a later input on the same binding; Pi regression/migration intact. Include denied/unknown/out-of-scope, duplicate concurrent call, revoked scope, missing root identity, creation loss, interrupted execution/result persistence, submission loss and restart fences. D/E expand those same fixtures with faults and exact write/check parity. Transport-only or helper-only success cannot substitute for the service path. Live-provider and frontend/browser claims remain separate and explicit.
+
+
+## Reconciliation clarification — 2026-09-22
+
+[Independent CDE-R1 return](evidence/core-cde-review-20260922/README.md) makes the existing local/native evidence boundary explicit: root-terminal or native-item observations cannot discharge execution-unknown without a decisive matching Host-effect/result receipt. A retained result with unknown delivery is different and can retain its weaker delivery evidence beside known local execution. Never propagate a remote-only resolution through a paired intent/claim to clear a missing-result local execution fence. The approved bounds and original owners remain unchanged.

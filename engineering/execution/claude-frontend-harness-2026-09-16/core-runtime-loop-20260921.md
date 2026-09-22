@@ -36,3 +36,8 @@ Keep `engineering/execution/claude-frontend-harness-2026-09-16/evidence/core-run
 Final handoff names exact C/D/E commits, production paths exercised, author versus independent evidence, retained unknowns, migration/rollback limitations and writer release. Stop owned test processes. Preserve branch, worktree, untracked and non-regenerable ignored content for Codex's integration and restore-verified cleanup. Do not claim complete live C, formal Work acceptance or product browser support from this offline author loop.
 
 Core bridge reliability, local Pi workers and Runtime-management backend remain follow-on scopes, not additional parallel product writers. If a reproducible bridge defect blocks the chosen tests, record and repair only the smallest necessary existing-owner defect; no unrelated soak campaign or blanket timeout increase.
+
+
+## C/D/E author handoff reviewed — 2026-09-22
+
+Author C eec2244, D37a14a5, E2978f5a, packet45ae12e complete offline and released. [Parent review and seven decisions](evidence/core-cde-review-20260922/README.md) hold integration for **CDE-R1**: native terminal must not resolve execution-unknown local calls without Host-effect evidence. Luna32/32 is retained with an executable counterexample; author1421/1421 is not independent acceptance. Return only the scoped correction/service-path proof in the same branch. ArtifactHistory retention and read-only turns.retrieve are adopted;16KiB argument ceiling remains, so E is bounded parity. Future human cancellation/abandonment and HTTP/UI reconciliation are registered but not added to this return. Do not integrate the unreleased intermediate C schema19 separately.
