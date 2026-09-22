@@ -1,0 +1,103 @@
+✖ Strict Kit-present input: compatibilityEvidence null is not an implicit unknown (13.416792ms)
+✖ Strict Kit-present input: compatibilityEvidence undefined is not an implicit unknown (1.796125ms)
+✖ Strict Kit-present input: compatibilityEvidence absent is not an implicit unknown (1.446125ms)
+✖ Strict Kit-present input: runtime undefined is not an implicit unknown (1.384125ms)
+✖ Strict Kit-present input: runtime absent is not an implicit unknown (1.216834ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 908.273625
+
+✖ failing tests:
+
+test at app/tests/kit-context.test.mjs:343:3
+✖ Strict Kit-present input: compatibilityEvidence null is not an implicit unknown (13.416792ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at invalid (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:18:33)
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:347:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at app/tests/kit-context.test.mjs:343:3
+✖ Strict Kit-present input: compatibilityEvidence undefined is not an implicit unknown (1.796125ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at invalid (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:18:33)
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:347:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at app/tests/kit-context.test.mjs:343:3
+✖ Strict Kit-present input: compatibilityEvidence absent is not an implicit unknown (1.446125ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at invalid (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:18:33)
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:347:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at app/tests/kit-context.test.mjs:343:3
+✖ Strict Kit-present input: runtime undefined is not an implicit unknown (1.384125ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at invalid (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:18:33)
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:347:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at app/tests/kit-context.test.mjs:343:3
+✖ Strict Kit-present input: runtime absent is not an implicit unknown (1.216834ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at invalid (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:18:33)
+      at TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork/app/tests/kit-context.test.mjs:347:5)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
