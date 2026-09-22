@@ -147,12 +147,12 @@ B and the 42-image matrix were not redone (as instructed). `a-13`/`b-13` above r
 - Real Host (scratch copy of this tree; **only** R-1 patched into its `server/index.mjs`; Local test provider; no key/paid call; main's pre-K3 backend, so no `runtimeSelection` capability), [capture](e1/harness/capture.mjs) with real CDP keys, [record](e1/browser/record.json):
   - Home offers no control.
   - The Chat inherits General.
-  - Enter opens; Home previews Reviewer before commit ([shot](e1/browser/a3-chooser-reviewer-preview.png)).
+  - Enter opens; Home previews Reviewer before commit (shot `e1/browser/a3-chooser-reviewer-preview.png` at `8fd2b86`, superseded by the return capture).
   - Escape: **config revision 3→3**, no write.
   - Enter commits: session selection `local:e1-reviewer` at revision 4.
-  - Tab reaches *Edit Reviewer in Settings*; Settings › Developer, focus on Back ([shot](e1/browser/a7-settings-profile.png)); Escape returns focus to the control with draft and caret 9/9 **unchanged**.
+  - Tab reaches *Edit Reviewer in Settings*; Settings › Developer, focus on Back (shot `e1/browser/a7-settings-profile.png` at `8fd2b86`, superseded by the return capture); Escape returns focus to the control with draft and caret 9/9 **unchanged**.
   - Send: the real Run completed, and `GET /runtime-context?runId=` reports the binding `local:e1-reviewer` @ revision 4.
-  - 390 dark chooser ([shot](e1/browser/a10-narrow-dark-chooser.png)).
+  - 390 dark chooser (shot `e1/browser/a10-narrow-dark-chooser.png` at `8fd2b86`, superseded by the return capture).
   - The Attention agent sheet does not contain the control.
   - Overflow 0 and no stray `null` text throughout.
 - Preview held states (same harness): active run → kept and "will not change by itself"; lost reply → settled by read-back, one PUT; refused → the owner's message; unavailable composition → "Choose another agent"; read error → Retry; conflict → the effective agent stays named, then Select again applies (screenshots `e1/browser/b-*.png`). The "loading" capture landed after the read settled, so it does not show loading.
