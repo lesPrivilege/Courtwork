@@ -257,6 +257,12 @@ export function validateKitBindings(state, previousState = null) {
     const bound = runtimeBoundEvents(state, run.id);
     if (run.kitBinding === null) {
       if (bound.some(event => event.data?.kitBinding !== undefined && event.data.kitBinding !== null)) invalid("a non-Kit Run cannot have runtime.bound Kit authority");
+      // On load there is no previous state to compare. Removing both summary
+      // projections must not turn retained Kit declarations into legacy history.
+      if (bound.some(event => event.data?.composition?.schemaVersion === 2
+        && Array.isArray(event.data.composition.kits) && event.data.composition.kits.length > 0)) {
+        invalid("a Kit-bearing runtime.bound composition requires a Run Kit binding");
+      }
       continue;
     }
     const summary = validateKitBinding(run.kitBinding);

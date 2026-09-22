@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { boot, reopen, spawnWorker } from './helpers.mjs';
 import { seal, sha256, pin } from './fixtures/kit-context.mjs';
 import { compileControlContext } from '../runtime/control-plane.mjs';
 import { PI_RUNTIME_ADAPTER_REVISION } from '../runtime/pi-runtime-port.mjs';
+import { validateState } from '../server/store.mjs';
 
 const CORE = 'K3_EXACT_CORE: use retained evidence. 😀\r\n';
 const DEFERRED = 'K3_DEFERRED_REFERENCE_BODY_DO_NOT_INLINE';
@@ -318,15 +319,60 @@ test('K3 payload read returning mismatched bytes fails before provider dispatch 
 
 test('v1 and v2 empty Kit profiles use unchanged compiler bytes with null Kit authority', async () => {
   for (const schemaVersion of [1, 2]) {
-    const h = await boot();
+    const h = await boot(); let resumed;
     try {
       const f = await setup(h, { schemaVersion, mutateProfile: profile => { if (schemaVersion === 2) profile.kits = []; } });
       const expected = compileControlContext(h.runtime.service.control.bind(await f.snapshot()));
       const created = await f.start(); const run = await h.pollRun(created.json.run.id);
       assert.equal(run.status, 'completed'); assert.equal(run.kitBinding, null);
       assert.equal(wireText(h)[0].split(expected).length - 1, 1);
-    } finally { await h.runtime.close(); }
+      await h.runtime.close();
+      const events = JSON.parse(await readFile(path.join(h.dataDir, 'runtime-state.json'), 'utf8')).events.filter(event => event.runId === run.id);
+      resumed = await reopen(h.dataDir);
+      const historical = await resumed.api('GET', `/runtime-context?sessionId=${f.session.id}&runId=${run.id}`);
+      assert.equal(historical.status, 200);
+      assert.equal(Object.hasOwn(historical.json, 'kitContext'), false);
+      assert.equal(resumed.runtime.store.getRun(run.id).kitBinding, null);
+      assert.deepEqual(resumed.runtime.store.listEvents({ sessionId: f.session.id, runId: run.id }), events);
+      assert.equal(resumed.runtime.fakeProvider.requests.length, 0);
+    } finally { await h.runtime.close(); await resumed?.runtime.close(); }
   }
+});
+
+test('K3-R1 persisted Kit declarations require summaries on load, including forged legacy upgrade', async () => {
+  const h = await boot();
+  try {
+    const f = await setup(h);
+    const admitted = await f.start(); const run = await h.pollRun(admitted.json.run.id);
+    assert.equal(run.status, 'completed'); assert.ok(run.kitBinding);
+    assert.equal(h.runtime.fakeProvider.requests.length, 1);
+    await h.runtime.close();
+    const file = path.join(h.dataDir, 'runtime-state.json');
+    const valid = JSON.parse(await readFile(file, 'utf8'));
+    validateState(valid);
+    for (const variant of ['missing-event', 'null-event', 'missing-event-only', 'null-event-only', 'forged-schema20']) {
+      const corrupt = structuredClone(valid);
+      const row = corrupt.runs.find(item => item.id === run.id);
+      const bound = corrupt.events.find(event => event.runId === run.id && event.type === 'runtime.bound');
+      assert.ok(bound.data.composition.kits.length > 0);
+      if (!variant.endsWith('-only')) row.kitBinding = null;
+      if (variant.startsWith('null')) bound.data.kitBinding = null;
+      else delete bound.data.kitBinding;
+      if (variant === 'forged-schema20') {
+        corrupt.schemaVersion = 20;
+        delete row.kitBinding;
+      } else assert.throws(() => validateState(corrupt), /Kit-bearing.*requires|Kit binding does not equal/, variant);
+      const bytes = Buffer.from(JSON.stringify(corrupt, null, 2) + '\n');
+      await writeFile(file, bytes);
+      await assert.rejects(async () => {
+        // If an invalid Host unexpectedly opens, always close it before failing.
+        const opened = await reopen(h.dataDir);
+        await opened.runtime.close();
+      }, /Kit-bearing.*requires|Kit binding does not equal/, variant);
+      assert.deepEqual(await readFile(file), bytes, `${variant}: rejected load must not rewrite bytes`);
+      assert.equal((await readdir(h.dataDir)).some(name => name.startsWith('runtime-state.schema20.')), false);
+    }
+  } finally { await h.runtime.close(); }
 });
 
 test('K3 crash/reopen preserves frozen facts and changes unresolved Run to unknown without inference', async () => {
