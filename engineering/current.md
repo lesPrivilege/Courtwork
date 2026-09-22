@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-22 · 06e direction A selected; compatibility state/control return
+
+[Parent selection and browser evidence](execution/claude-frontend-harness-2026-09-16/evidence/06e-selection-review-20260922/README.md) choose the anchored Agent chooserA from69f39a7. Luna9/9 plus OpenAI browser verify pre-selection reading, Escape/Settings return and frozen bound Run; desktop B costs37px in the form and Details moves the input143.5px. Hold specimen acceptance/E1 for06E-R1: declaration-only missing support still becomes a false incompatibility Send blocker. Original Claude retains the bounded synthetic tri-state correction; no main product/Host integration, source cleanup or new shared-file writer. K1/K2 continues separately.
+
 ## 2026-09-22 · Kit K0 selected; original task released for K1/K2
 
 [Parent K0 disposition](execution/claude-frontend-harness-2026-09-16/evidence/kit-k0-parent-20260922/README.md) accepts bacd64e as a reference-only descriptor/context-plan contract, merged as documents at ecf2d6a. All four review corrections were checked against actual owner/compiler/source code; K1/K2 are not yet implementation acceptance. Verified original task Define bounded Kit context contract (01a0c8bb-0f08-7113-938f-f8bf3be42ad9) receives new pure kit modules/tests and synthetic consumer proof in its same worktree. Host/control/store/schema/UI remain excluded; production profile/Kit→Run binding remains open. RuntimeStore20/Core4/bridge5 and user services/data are unchanged. LP-R5 is already accepted under the preceding final receipt, not pending re-review.

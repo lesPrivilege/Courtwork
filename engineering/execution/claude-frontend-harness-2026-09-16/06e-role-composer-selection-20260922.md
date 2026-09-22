@@ -47,3 +47,8 @@ Deliver exact source and reference pins, preview command/port, the two comparabl
 ## Observed checkout status — closure audit2026-09-22
 
 A protected courtwork-role-composer-20260922 checkout/claude-role-composer-20260922 branch is observed at f74ae1e, clean with no implementation/evidence at the audit snapshot. This is a reserved handoff, not proof that a Claude process has started or a specimen exists. Preserve it; do not dispatch a duplicate based on the earlier no-process observation. See the [parent audit](evidence/work-closure-audit-20260922/README.md).
+
+
+## Parent selection and finite return — 2026-09-22
+
+[A selected,06E-R1 returned](evidence/06e-selection-review-20260922/README.md): source69f39a7, Luna9/9 and parent OpenAI-browser comparison/Settings/keyboard/narrow evidence. A supports comparison before committing while B adds permanent height and shifts the input; B is preserved only as comparison. Declaration-only absence still disables Send despite the proposed unchecked reading: correct actual synthetic state/control semantics with attributed supported/unsupported/unchecked cases before acceptance. Original Claude owns that finite specimen return; no E1 shared-product lease or backend gap is silently granted. The source tree remains; parent-generated review evidence is in main.

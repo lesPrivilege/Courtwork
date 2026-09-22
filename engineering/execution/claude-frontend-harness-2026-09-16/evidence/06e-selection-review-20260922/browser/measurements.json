@@ -1,0 +1,36 @@
+{
+  "source": "69f39a7",
+  "a": {
+    "composerHeight": 144.859375,
+    "inputTop": 796.8125,
+    "overflow": 0,
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  "b": {
+    "composerHeight": 181.859375,
+    "inputTop": 759.8125,
+    "overflow": 0,
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  "bDetails": {
+    "height": 325.359375,
+    "inputTop": 616.3125
+  },
+  "draftBefore": {
+    "end": 35,
+    "start": 35,
+    "text": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix."
+  },
+  "draftAfter": {
+    "end": 35,
+    "start": 35,
+    "text": "Remove the duplicate retry so one gateway timeout causes one retry, and add a test that fails before the fix."
+  },
+  "draftEqual": true
+}
