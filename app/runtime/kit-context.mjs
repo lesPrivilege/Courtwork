@@ -161,8 +161,11 @@ function validateKitInputs(input) {
     return { descriptor: parsed, descriptorSha256: record.descriptorSha256 };
   });
 
+  // Kit-present unknown readings are explicit owner inputs. Only the legacy
+  // passthrough may omit/ignore these fields; malformed input is not evidence.
+  if (!Object.hasOwn(input, 'runtime')) invalid('$.runtime', 'required');
   let runtime = null;
-  if (input.runtime !== undefined && input.runtime !== null) {
+  if (input.runtime !== null) {
     object(input.runtime, ['adapterId', 'revision', 'bindingHash'], '$.runtime');
     scalarText(input.runtime.adapterId, '$.runtime.adapterId', { max: 200 });
     scalarText(input.runtime.revision, '$.runtime.revision', { max: 200 });
@@ -170,7 +173,7 @@ function validateKitInputs(input) {
     runtime = { adapterId: input.runtime.adapterId, revision: input.runtime.revision, bindingHash: input.runtime.bindingHash };
   }
 
-  const suppliedEvidence = input.compatibilityEvidence ?? [];
+  const suppliedEvidence = input.compatibilityEvidence;
   array(suppliedEvidence, '$.compatibilityEvidence', MAX_EVIDENCE);
   const compatibilityEvidence = suppliedEvidence.map((record, index) => {
     const path = `$.compatibilityEvidence[${index}]`;

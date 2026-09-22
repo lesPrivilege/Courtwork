@@ -338,3 +338,19 @@ test('New descriptor accessors are rejected without executing caller code', () =
   invalid(input);
   assert.equal(invoked, false);
 });
+
+for (const [field, variant] of [['compatibilityEvidence', 'null'], ['compatibilityEvidence', 'undefined'], ['compatibilityEvidence', 'absent'], ['runtime', 'undefined'], ['runtime', 'absent']]) {
+  test(`Strict Kit-present input: ${field} ${variant} is not an implicit unknown`, () => {
+    const input = fixture();
+    if (variant === 'absent') delete input[field];
+    else input[field] = variant === 'null' ? null : undefined;
+    invalid(input);
+  });
+}
+
+test('Explicit runtime null and empty evidence remain valid unchecked inputs', () => {
+  const input = fixture(); input.runtime = null; input.compatibilityEvidence = [];
+  const plan = planKitContext(input);
+  assert.equal(plan.status, 'compiled');
+  assert.equal(plan.compatibility.status, 'unchecked');
+});
