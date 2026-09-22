@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-22 · Core C/D/E accepted; fresh Astra Pi loop started
+
+[Final C/D/E acceptance](execution/claude-frontend-harness-2026-09-16/evidence/core-cde-final-20260922/README.md) integrates e49232e at main `ca859a5`: Luna33/33, actual-main39/39, no-result local execution uncertainty remains fenced. Final RuntimeStore19 is adopted, Core4/bridge5 unchanged; injectable offline parity is accepted, no remote runtime selection/live API capability claim. The ended source tree was fully archived, physically restored/Git-bundle verified and removed; M1, frozen shared Git database and user8787 remain untouched.
+
+[Fresh Astra local Pi loop](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md) task `01a0c77b-b19c-7e33-9f82-4721b0a09ed7` is started in c89d / codex/local-pi-worker-20260922 from df74df3, with L0 confirmed. [Luna primary-source intake and parent selection](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-worker-index-20260922/README.md) choose one-shot/no-native-tool Pi first, then actual upstream process conformance and the existing child consumer. The task must merge accepted main before L3. Parent Arch keeps architecture and final acceptance; bounded Luna/Sol work is allowed, no second scheduler or simultaneous runtime expansion.
+
 ## 2026-09-22 · Fresh Astra local Pi core loop prepared
 
 The [local Pi worker order](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md) gives the next core task one bounded direction: upstream process adapter → actual-process deterministic conformance → existing Host/child consumer. It consumes RD-001/RD-005 and the first-party local-runtime indices, preserves Spark ownership, and excludes a new scheduler, uncontrolled coding tools, UI rewrites and personal credentials. CDE-R1 source e49232e has been delivered with writer release; independent return review is in progress. L0–L2 can proceed independently, while L3 waits for accepted integrated C/D/E and its Host writer release. This entry records preparation, not task creation or implementation.

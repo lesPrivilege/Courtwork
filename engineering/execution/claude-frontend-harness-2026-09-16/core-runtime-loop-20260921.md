@@ -41,3 +41,8 @@ Core bridge reliability, local Pi workers and Runtime-management backend remain 
 ## C/D/E author handoff reviewed — 2026-09-22
 
 Author C eec2244, D37a14a5, E2978f5a, packet45ae12e complete offline and released. [Parent review and seven decisions](evidence/core-cde-review-20260922/README.md) hold integration for **CDE-R1**: native terminal must not resolve execution-unknown local calls without Host-effect evidence. Luna32/32 is retained with an executable counterexample; author1421/1421 is not independent acceptance. Return only the scoped correction/service-path proof in the same branch. ArtifactHistory retention and read-only turns.retrieve are adopted;16KiB argument ceiling remains, so E is bounded parity. Future human cancellation/abandonment and HTTP/UI reconciliation are registered but not added to this return. Do not integrate the unreleased intermediate C schema19 separately.
+
+
+## Final adoption and writer release — 2026-09-22
+
+[Final parent receipt](evidence/core-cde-final-20260922/README.md) accepts e49232e/CDE-R1 and integrates final C/D/E at main ca859a5. Luna33/33 and actual-main39/39 pass; author1422/1422 stays separately attributed with its earlier failures. Final RuntimeStore19 is adopted; no live runtime exposure or user-data migration. The ended core tree/merged branch were removed only after exact full-byte restoration and Git-bundle verification; the archive ref remains. Original deferred recovery operations and cross-record validation limit remain explicit. This C/D/E writer is released; the [new local Pi loop](local-pi-worker-loop-20260922.md) receives only its bounded later Host/child integration scope.

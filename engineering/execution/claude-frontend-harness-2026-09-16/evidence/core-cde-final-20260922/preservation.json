@@ -1,0 +1,24 @@
+{
+  "main": "b1e9baab9fd67a2eec352f94d0b4d691164a9e99",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-core-runtime-loop-20260921",
+      "head": "e49232e77b6b797f256a345d951b0d36b23b416f",
+      "archive_ref": "refs/archive/core-cde-20260922/courtwork-core-runtime-loop-20260921",
+      "entries": 42114,
+      "file_bytes": 1008376908,
+      "archive_sha256": "a384be4b4d1eebebebc0d9f43672a1f3218dddb6d193a8320f9e3cb01fed5fb7",
+      "manifest_sha256": "8d0481d13fffadcd8917208ee864f8049bfdf738cbde47c9112c671ffcd6bd91",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "6a78cd839873eb95841941615e14b25b3f932e98587d33d9b6a28f4a2ba796cf",
+  "bundle_restored_and_verified": true,
+  "integratedMain": "ca859a517a22a29b9b8b4c7810f7488cbdc63edf",
+  "archiveLocation": "Projects/.archives/courtwork-core-cde-20260922 (relative to operator home)",
+  "finalSourceUnchanged": true,
+  "noUnintegratedCommits": true,
+  "noActiveProcessCwd": true,
+  "endedTreeAndMergedBranchRemoved": true
+}
