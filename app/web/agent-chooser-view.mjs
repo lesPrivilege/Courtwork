@@ -230,6 +230,10 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
       if (state.apply.status === "conflict") buttons.push(action("Select again", "agent-apply-again", () => controller.apply()));
       if (state.apply.status === "unknown") buttons.push(action("Check again", "agent-check", () => controller.check()));
       if (["conflict", "frozen", "unknown", "failed"].includes(state.apply.status)) buttons.push(action("Keep current agent", "agent-keep-current", () => controller.keepCurrent()));
+      /* The chat's own agent cannot run as composed: the way out is another
+         agent now, or the profile's source in Settings (from the chooser). */
+      if (state.apply.status === "idle" && next.effective && next.effective.status !== "compatible")
+        buttons.push(action("Choose another agent", "agent-choose-other", () => openChooser()));
     }
     notice.textContent = lines.join(" ");
     actions.replaceChildren(...buttons);
@@ -240,9 +244,9 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
   controller.subscribe((next) => {
     state = next;
     const effective = state.snapshot?.effective;
-    const title = state.draft && state.apply.status !== "idle"
-      ? profiles().find((entry) => entry.id === state.draft.profileId)?.title
-      : effective ? state.snapshot.titles[effective.id] ?? effective.id : null;
+    /* The control names the agent in effect, never an unapplied draft; the
+       draft is described beside Send until the Host accepts it. */
+    const title = effective ? state.snapshot.titles[effective.id] ?? effective.id : null;
     label.textContent = title ?? (state.read.status === "error" ? "Agent unknown" : "Agent");
     chip.setAttribute("aria-label", `Agent: ${label.textContent}`);
     renderNotice();

@@ -120,3 +120,41 @@ The selection stage is complete. This tree holds one uncommitted author director
 - A-only browser recheck, real CDP keys ([capture](evidence/r1/capture.mjs), [record](evidence/r1/browser/record.json)): normal ([chooser](evidence/r1/browser/01-normal-chooser.png)); undeclared ([chooser](evidence/r1/browser/02-undeclared-chooser.png), Send enabled); Settings stating "not checked … does not declare support" with no save blocker ([Settings](evidence/r1/browser/03-undeclared-settings.png)), then Escape back with draft/caret 35/materials equal ([return](evidence/r1/browser/04-undeclared-return.png)); stale evidence ([selected](evidence/r1/browser/05-stale-evidence-selected.png)); verified unsupported ([selected](evidence/r1/browser/06-unsupported-selected.png), the only blocked case); Run in flight ([selected](evidence/r1/browser/07-bound-run-selected.png), Send held by the Run, not by compatibility). Overflow 0 throughout.
 
 B and the 42-image matrix were not redone (as instructed). `a-13`/`b-13` above remain as the pre-R1 counterexample. The main harness now drives `kit-undeclared` in place of the removed `kit-incompatible` scenario.
+
+## E1 — anchored chooser A in the product Composer (author stage)
+
+2026-09-23 · Under the [implementation lanes](../../execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md), against the [pinned E1 backend contract](../../execution/claude-frontend-harness-2026-09-16/evidence/e1-backend-contract-20260922/README.md) (K3 candidate `76d91d6`; not yet accepted). B is not carried forward.
+
+**Modules (frontend-owned).**
+- `app/web/agent-choice.mjs` is a DOM-free controller over the real owner. It reads `GET /runtime-control?sessionId`, reads the exact profile source from `GET /runtime-resources/:id`, and applies a pick with one `PUT /runtime-control` (`operation:'profile'`, session scope, whole-config `revision`).
+  - The draft `{profileId, sourceHash, observedConfigRevision}`, the effective `composition`, and a Run's bound record stay apart. `revision` is never shown as a per-profile revision.
+  - `runtime_conflict` and `active_run` keep the draft and never resend or queue. A lost reply is settled by read-back and comparison, and "Check again" repeats that.
+  - Send gets `runtimeSelection {revision, profileId, sourceHash: composition.hash}` only from a fresh effective reading, and only when the Host advertises the check (R-2).
+- `app/web/agent-chooser-view.mjs` is design A. The control sits first in the composer controls and always names the **effective** agent. The anchored dialog pairs a listbox with the highlighted profile's reading: runtime (Pi + exact adapter id), the global model with its scope, Kits from the profile source with compatibility **not checked**, included resources, scope and when. Held states appear in one status line beside Send, with their real actions: Select again, Check again, Keep current agent, Retry, Choose another agent. Focus returns to the control synchronously.
+- `app.mjs` wiring:
+  - The chooser appears only for an ordinary Chat with a Session: not on Home without a Session, not in the workspace Attention path, and not inside the Attention agent sheet.
+  - It re-reads on chat change, after Settings and when a run ends. It holds Send only for its own reasons, and sends `runtimeSelection` (also on unconfirmed-receipt recovery).
+  - `runtime_selection_conflict` triggers a re-read; text and materials stay as they are.
+  - Edit in Settings opens Settings › Developer at the profile's composition row (`runtimeView.openResource`), the existing source owner, and returns focus there.
+- Scoped CSS appended to `styles.css`, using existing tokens.
+
+**Synthetic, opt-in only.** The owner in `app/tests/fixtures/agent-choice/adapter.mjs` is shaped on the real contract, not on 06a. `CW_SPECIMEN_PORT=8968 node app/scripts/agent-choice-preview.mjs` serves the product modules over it, with a request trace; the product never loads it.
+
+**Backend requests** (not edited here): [e1/backend-requests.md](e1/backend-requests.md). R-1 adds the two modules to the `server/index.mjs` static allowlist; `static-web-manifest.test.mjs` fails its two allowlist cases on this branch until then. R-2 is an explicit snapshot capability for the `runtimeSelection` check.
+
+**Evidence (author).**
+- Seam tests: `app/tests/agent-choice.test.mjs` (14/14); 06a + friction regression 43/43; lint-colors, lint-interaction and lint-materials ok.
+- Real Host (scratch copy of this tree; **only** R-1 patched into its `server/index.mjs`; Local test provider; no key/paid call; main's pre-K3 backend, so no `runtimeSelection` capability), [capture](e1/harness/capture.mjs) with real CDP keys, [record](e1/browser/record.json):
+  - Home offers no control.
+  - The Chat inherits General.
+  - Enter opens; Home previews Reviewer before commit ([shot](e1/browser/a3-chooser-reviewer-preview.png)).
+  - Escape: **config revision 3→3**, no write.
+  - Enter commits: session selection `local:e1-reviewer` at revision 4.
+  - Tab reaches *Edit Reviewer in Settings*; Settings › Developer, focus on Back ([shot](e1/browser/a7-settings-profile.png)); Escape returns focus to the control with draft and caret 9/9 **unchanged**.
+  - Send: the real Run completed, and `GET /runtime-context?runId=` reports the binding `local:e1-reviewer` @ revision 4.
+  - 390 dark chooser ([shot](e1/browser/a10-narrow-dark-chooser.png)).
+  - The Attention agent sheet does not contain the control.
+  - Overflow 0 and no stray `null` text throughout.
+- Preview held states (same harness): active run → kept and "will not change by itself"; lost reply → settled by read-back, one PUT; refused → the owner's message; unavailable composition → "Choose another agent"; read error → Retry; conflict → the effective agent stays named, then Select again applies (screenshots `e1/browser/b-*.png`). The "loading" capture landed after the read settled, so it does not show loading.
+
+**Not done / limits.** No combined K3 run yet: it waits for R-1/R-2 and a combined candidate, and Kit-bearing v2 profiles and `runtimeSelection` refusals are therefore unproven on a real Host. A recorded Run's binding is not surfaced in the UI beyond existing readers. Home cannot choose before a Session exists. No independent/OpenAI computer-use acceptance; no screen reader, native zoom, forced colors or real touch.

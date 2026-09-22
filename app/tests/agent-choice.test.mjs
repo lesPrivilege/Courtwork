@@ -23,6 +23,33 @@ test("the chat inherits General; Send carries the fresh effective selection", as
   assert.deepEqual(state.snapshot.profiles.map((p) => p.id), ["agent:general", "local:coding", "local:notes"]);
 });
 
+test("without the Host's expectation capability Send omits runtimeSelection", async () => {
+  const fixture = createAgentChoiceFixture({ pause: instant, checks: false });
+  const controller = createAgentChoiceController({ adapter: fixture.adapter, getSessionId: () => "session-synthetic" });
+  await controller.load();
+  assert.deepEqual(controller.getState().next.send, { enabled: true, reason: "", runtimeSelection: null });
+  assert.equal(controller.getState().snapshot.sessionKind, "chat");
+});
+
+test("Check again settles an unknown outcome by read-back", async () => {
+  const fixture = createAgentChoiceFixture({ pause: instant });
+  let lose = true;
+  const adapter = { ...fixture.adapter, select: async (id, body) => { const r = await fixture.adapter.select(id, body); if (lose) { lose = false; throw new Error("lost"); } return r; } };
+  // First reply is lost but the write landed; make the automatic read-back fail too.
+  let failRead = false;
+  const read = adapter.read; adapter.read = async (...a) => { if (failRead) { failRead = false; throw new Error("no answer"); } return read(...a); };
+  const controller = createAgentChoiceController({ adapter, getSessionId: () => "session-synthetic" });
+  await controller.load();
+  failRead = true;
+  // choose → lost reply → read-back fails → status stays unknown
+  const choosing = controller.choose("local:notes");
+  await choosing;
+  assert.equal(controller.getState().apply.status, "unknown");
+  await controller.check();
+  assert.equal(controller.getState().apply.status, "idle");
+  assert.equal(controller.getState().snapshot.sessionSelection, "local:notes");
+});
+
 test("choosing applies one CAS write and adopts the reply as the effective reading", async () => {
   const { fixture, controller } = await setup();
   await controller.choose("local:coding");
