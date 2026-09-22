@@ -1,5 +1,7 @@
 # 06e · Role-first Composer — two alternatives for selection
 
+**Current parent disposition (2026-09-23):** [E1 accepted at main e525a3a](../../execution/claude-frontend-harness-2026-09-16/evidence/e1-final-20260923/README.md) after independent return verification. The earlier selection-stage boundaries and pending wording below are historical stage records; they do not describe the current product implementation. Open follow-ups remain as stated in the E1 return.
+
 2026-09-22 · Claude (Opus) author; one bounded Sonnet read. Answers [06e](../../execution/claude-frontend-harness-2026-09-16/06e-role-composer-selection-20260922.md). **Selection checkpoint:** the specimen, evidence and the recommendation below are handed to parent Astra, who makes the selection. Nothing here is product code, and neither alternative has been applied to the product.
 
 ## Pins, isolation, how to run

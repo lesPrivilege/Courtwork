@@ -1,0 +1,48 @@
+✔ the chat inherits General; Send carries the fresh effective selection (2.900959ms)
+✔ without the Host's expectation capability Send omits runtimeSelection (0.321ms)
+✔ Check again settles an unknown outcome by read-back (2.02375ms)
+✔ choosing applies one CAS write and adopts the reply as the effective reading (0.396416ms)
+✔ a configuration change elsewhere keeps the draft, re-reads, and never resends (0.506584ms)
+✔ an active run freezes the selection: the draft is kept, not queued (1.369542ms)
+✔ a lost reply is settled by reading back, not by resending (0.456458ms)
+✔ a lost reply whose write did not land stays unknown until the person acts (0.327417ms)
+✔ an effective composition that is not compatible holds Send with the owner's reason (0.9235ms)
+✔ a settled refusal keeps the draft and says the owner's message (0.258541ms)
+✔ a read failure blocks Send until a re-read succeeds (0.133958ms)
+✔ Kit declarations are read from the profile's exact source; builtin has none (5.015334ms)
+✔ a late source reply for an old chat never lands in the new one (1.073625ms)
+✔ the live adapter speaks the existing endpoints (0.220041ms)
+✔ E1-R1: a run ending refreshes exactly once, with a synchronously re-rendering page (6.288709ms)
+✔ E1-R3: a project-scope Session is an ordinary Chat; global and no Session keep their behaviour (0.257584ms)
+✔ E1-R3: navigating to another Chat while its read is delayed never uses the old Chat's reading (5.840584ms)
+✔ E1-R3: a failed read for the current Chat keeps the control, the hold and Retry (0.342625ms)
+✔ Runtime detail retains each object reading position and focus through a snapshot refresh (33.3335ms)
+✔ Late recorded-source completion preserves the currently read object position (16.763416ms)
+✔ Changing Session does not carry an old object reading position into the new context (11.41175ms)
+✔ Permission explanation remains before an already opened long recorded source (13.333083ms)
+✔ Distinct legal resource IDs keep independent DOM relationships and reading positions (19.632834ms)
+✔ A pending source read and permission explanation settle independently (13.536458ms)
+✔ A failed source response from a prior Session cannot replace the new read (16.610791ms)
+✔ first visit: a destination asked for during the first read opens when it lands (19.503916ms)
+✔ already loaded: the destination opens at once (6.532625ms)
+✔ leaving before a slow read settles forgets the destination (3.137834ms)
+✔ a Session change before the read settles never opens it in the other chat (2.089958ms)
+✔ attention: a healthy snapshot produces an empty list, not a hidden one (2.847833ms)
+✔ attention: health, diagnostics, ask permissions, trust and missing ids each raise one entry (1.617291ms)
+✔ contrast: the ratio is WCAG 2.x and the extremes are exact (0.36275ms)
+✔ contrast: the browser warning checks exactly the build report pairs (0.57975ms)
+✔ 每个 app/web 模块都在静态白名单里，且每条白名单路由都指向磁盘上存在的文件 (18.289459ms)
+✔ ui-controls 白名单、icons.svg 的 symbol id、manifest 的 lucide.files 三者一致 (2.054416ms)
+✔ manifest.lucide 与 tools/ui-vendor/lucide/sources.json 逐字相同（生成源=已记录来源） (1.254167ms)
+✔ manifest.outputs 里记的每个文件哈希都等于该文件此刻在磁盘上的真实 sha256 (1.542375ms)
+✔ 白名单决定 /web 的可取性：模块 200，未列入的仓内材料 404 (139.05375ms)
+✔ skin-policy.js is an exact synchronous static route (60.335375ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1401.473833
+TEST_EXIT=0

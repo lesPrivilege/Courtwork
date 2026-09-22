@@ -1,0 +1,28 @@
+{
+  "main": "e525a3a375c2c6016fa4e10beb009ade3f6f58b3",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-role-composer-20260922",
+      "head": "9514d4b9eb4e82d85d17521874dbf10f4dd42c23",
+      "archive_ref": "refs/archive/e1-final-20260923/courtwork-role-composer-20260922",
+      "entries": 42757,
+      "file_bytes": 1027086066,
+      "archive_sha256": "4b1a4387de315bfe2610d1a54058f2474d773db1e594d9c705598cf8c044bf66",
+      "manifest_sha256": "5e1e15b7290f74810d6d7a0f80ed9af2dc59d9fc75ffee51fe51b08fd1e26c0d",
+      "restored_and_verified": true
+    },
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-e1-review-20260923",
+      "head": "6a0dc656c2aad4ab230ce01c60ac9c214e7c9583",
+      "archive_ref": "refs/archive/e1-final-20260923/courtwork-e1-review-20260923",
+      "entries": 9793,
+      "file_bytes": 479029435,
+      "archive_sha256": "d34d0502172d90ce42d1f349974ca32828da72d47fd6657f3269161f2eb21d3b",
+      "manifest_sha256": "d1568cf5333c677762f53e8d44bad9c41b52f3540f0b1420cc525fecc75add6d",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "14089347f53aaa41c77b7ee0cf2b9ab32356576bcb08c003766cc0ca610dcda2",
+  "bundle_restored_and_verified": true
+}

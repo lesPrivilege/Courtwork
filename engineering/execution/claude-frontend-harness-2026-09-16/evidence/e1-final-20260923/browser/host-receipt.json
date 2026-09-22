@@ -1,0 +1,30 @@
+{
+  "runCount": 1,
+  "status": "completed",
+  "profile": {
+    "id": "local:e1-kit-reviewer",
+    "version": "1",
+    "sourceSha256": "da5d0fbb653100c908527a9c629b9479e25872424053778c839fd50f87d4cc62"
+  },
+  "kits": [
+    {
+      "id": "kit:e1-review",
+      "version": "1",
+      "descriptorSha256": "2f5131ddc9e0d944e2140087e17b9ac84d1b4dae01e6fe280813ca8e1aea752a"
+    }
+  ],
+  "compatibility": {
+    "status": "unchecked",
+    "kits": [
+      {
+        "id": "kit:e1-review",
+        "version": "1",
+        "descriptorSha256": "2f5131ddc9e0d944e2140087e17b9ac84d1b4dae01e6fe280813ca8e1aea752a",
+        "status": "unchecked",
+        "evidence": []
+      }
+    ]
+  },
+  "context": "[Instruction local:e1-review-guide]\nE1_KIT_PARENT_CORE: explain findings concisely.",
+  "draft": "Preserve this draft after conflict."
+}

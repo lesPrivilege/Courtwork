@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · E1 accepted: real ordinary-Chat Agent selection
+
+[Parent final E1 acceptance](execution/claude-frontend-harness-2026-09-16/evidence/e1-final-20260923/README.md) integrates9514d4b/source9b2cc53 atmain e525a3a. Luna39/39 and parent actual-browser first-Settings destination, terminal return to Send and stale-refusal/draft-retention pass; integrated28/28. All four returns close within existing ordinary-Chat scope. Home-first choice, chooser bound-run reading, profile/Kit editing and native accessibility remain open. Full author handoff confirms stopped new work awaiting review; this is a writer handoff, not an inference from a clean tree. Schema21/Core4/bridge5 unchanged; no user-service/data or Pages change. Preservation and next bounded owner work are recorded in the final receipt.
+
 ## 2026-09-23 · E1 real Kit path reached; frontend lifecycle return issued
 
 [Parent E1 combined review](execution/claude-frontend-harness-2026-09-16/evidence/e1-parent-review-20260923/README.md) consumes Claude8fd2b86. Actual OpenAI browser→Composer→Host/Pi admits one v2 Kit Run and keeps its history; stale selection refuses with no extra Run/provider request and preserves draft. Frontend acceptance is held: active→terminal refresh re-enters rendering, leaving Stop working/reconnect despite Host completion; first Settings deep-link misses its row. Current-session/readiness projection and View/Inspect wording also return to original Claude. Luna57/57 and combined20/20+30/30 remain bounded evidence. Sol backend capability2b6f2e4 is independently accepted/merged; exact static routes are validated in the retained combined candidate and narrowly leased to Claude with the real modules. No user data/service or Pages operation.

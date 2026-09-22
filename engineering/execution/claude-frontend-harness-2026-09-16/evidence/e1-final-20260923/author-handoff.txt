@@ -1,0 +1,74 @@
+All four issues are fixed and the full suite passes 1592/1592. Now I'll correct the wording flagged in review, write the return record, and commit.
+
+The commit was blocked by trailing whitespace in raw test logs. I'm stripping it from the logs and committing.
+
+Found two issues to clean up: the doc-link check failed (though the commit still went through since my grep matched either way), and a Host from an earlier smoke test is still running. I'll stop the Host now and check the link errors.
+
+The earlier E1 section still links three screenshots that the return capture replaced. They remain in history at `8fd2b86`, so I'm citing them by path and SHA instead of as live links:
+
+All four items from your review are fixed and committed on `claude-role-composer-20260922` (fix `9b2cc53`, record correction `9514d4b`, after merging main `3a5348a`). The full product suite passes 1592/1592, the doc-link check passes, and the tree is clean. Nothing is merged or pushed.
+
+- **Settings first visit (E1-R2):** the Runtime view now keeps the destination when the chat's configuration read hasn't finished, and opens it once that same chat's read lands. Leaving Settings, switching chats or a failed read drops it. New tests cover first visit, already loaded, leaving before a slow read finishes, and switching chats mid-read; the first-visit test fails on the old code.
+- **Run finishing (E1-R1):** the cause was the one you found. The page asked the chooser to refresh before recording that the Run had ended, and the refresh re-rendered the page immediately, so it looped. The fix records the end first, so a finished Run triggers exactly one refresh, and chooser updates repaint the composer once per tick rather than inside a render. The regression test drives the real controller with a page that re-renders immediately on every change (stricter than the product); the old ordering fails it with "render recursion".
+- **Visibility and Send (E1-R3):** they now come only from the current chat's own configuration read. A `project` chat counts as an ordinary Chat. The chooser is hidden only with no Session, in the Attention surface, or for the `global` Session. One of the new tests found that a failed first read held Send without giving a reason; that's fixed.
+- **Copy (E1-F1):** the action is now "View ⟨profile⟩ source in Settings", since that panel is read-only. The record's earlier "edits sources" wording is corrected.
+- **Static entries:** the two granted module names are in `server/index.mjs`, in the same commit as their files.
+
+**Combined run on a real Host** from this tree (the no-key Local test provider, so no key and no paid call):
+- **Selecting:** the Kit reviewer preview shows its Kit with compatibility "not checked". Escape leaves the config revision at 5→5. Committing writes one selection at revision 6.
+- **Settings first visit:** Settings opens on the Kit reviewer's row the first time. Escape returns with the draft and caret (7/7) unchanged.
+- **Run finishing:** the Run completes with the Kit recorded as "unchecked", and the Composer returns to Send. There is no "Working" state, no reconnect banner and no page errors, with two configuration reads after Send (not a nested flood).
+- **Stale selection:** after an outside change to Drafter, Send is refused with the Host's message. The control re-reads to Drafter, the new draft and caret (37/37) stay, and there's still only one Run.
+
+**Not claimed:**
+- Choosing on Home before a Session exists.
+- Showing a Run's bound profile in the chooser.
+- Profile or Kit editing.
+- Screen reader, native zoom, forced colours and real touch.
+- Independent acceptance of this return.
+
+The full record is the "E1 return" section of `engineering/design/role-composer-20260922/README.md`.
+
+The loop continues self-paced with no Monitor; I'll check back in about 30 minutes for your review of this return.
+
+The next check is at about 01:35, to see whether the review of this return has landed.
+
+Checking whether the review of my E1 return has landed:
+
+No new review yet — main is unchanged at `3a5348a`, and my return (`9514d4b`) is still the latest on the frontend branch. The parent's instruction is that no next frontend journey starts during this return, so there's nothing to advance until the review lands.
+
+State on hold: branch clean, full suite 1592/1592, no servers running, tree preserved for review.
+
+Holding with no Monitor (the signal is a human review, not an observable event); next check in about 30 minutes.
+
+Quiet hold. Next check around 02:07.
+
+Still no review — main is unchanged at `3a5348a` and my return `9514d4b` is untouched. Nothing to do and no new frontend work is authorized during the return.
+
+Holding again; next check in about 30 minutes.
+
+Still holding — no review yet. Next check around 02:38.
+
+Unchanged: main still `3a5348a`, my return still `9514d4b`, no new review. Holding; next check in about 30 minutes.
+
+Quiet hold — nothing changed. Next check around 03:09.
+
+Still unchanged — main `3a5348a`, return `9514d4b`, no review. Given the hour and no movement across four checks, I'm stretching the interval to an hour.
+
+Quiet hold, now on an hourly cadence. Next check around 04:10.
+
+Still no change: main `3a5348a`, return `9514d4b` awaiting review. Holding hourly; next check around 05:10.
+
+Quiet hold. Next check around 05:11.
+
+No change — main `3a5348a`, return `9514d4b` still awaiting review. Holding hourly; next check around 06:11.
+
+Quiet hold. Next check around 06:12.
+
+Unchanged again. Holding hourly; next check around 07:12.
+
+Quiet hold. Next check around 07:13.
+
+Unchanged. Holding hourly; next check around 08:13.
+
+Quiet hold. Next check around 08:14.

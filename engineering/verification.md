@@ -138,3 +138,6 @@
 
 
 2026-09-23 · [E1 combined parent review](execution/claude-frontend-harness-2026-09-16/evidence/e1-parent-review-20260923/README.md): Claude8fd2b86 +K3 +capability2b6f2e4 in isolated4091b8b; independent57/57 frontend seam, combined20/20 and30/30 pass. OpenAI in-app browser proves real v2 Kit Run/history and stale rejection/draft retention, but terminal Composer refresh and first Settings destination fail; frontend held. Backend flag only is accepted atmaina59d188, with no schema/UI exposure change; exact static entries stay with atomic frontend delivery. Native accessibility matrix and real model unexecuted. Original screenshots/raw logs and corrected Luna scope recommendation retained.
+
+
+2026-09-23 · [E1 final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/e1-final-20260923/README.md): source9b2cc53/packet9514d4b, maine525a3a, independent39/39 and actual-main28/28. OpenAI in-app browser verifies first Settings source destination, unchanged draft/caret, completed Kit Run returns Send without errors/reload, stale refusal preserves draft and keeps1Run/1provider request. Author1592 remains author evidence; native accessibility/Home/editor/bound-chooser scope stays open. Schema21/Core4/bridge5 unchanged.

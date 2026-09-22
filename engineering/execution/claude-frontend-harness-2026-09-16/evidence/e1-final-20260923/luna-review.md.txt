@@ -1,0 +1,39 @@
+# E1 final delta independent review
+
+Date: 2026-09-23
+Candidate: `9514d4b9eb4e82d85d17521874dbf10f4dd42c23`
+Source/product frontend fix: `9b2cc539ab11a26d1a3012cb0bbcae4ca7829f62`
+Previous reviewed source: `8fd2b867d8ced369974f053d2ece44b36dae1995`
+Worktree: `/Users/lesprivilege/Projects/.worktrees/courtwork-role-composer-20260922`
+
+## Verification
+
+Bounded targeted command under `caffeinate -is`:
+
+```text
+node --test app/tests/agent-choice.test.mjs app/tests/runtime-view-pending-open.test.mjs app/tests/static-web-manifest.test.mjs app/tests/runtime-detail-reading.test.mjs app/tests/runtime-workbench.test.mjs
+```
+
+Result: **39/39 passed, exit 0**. Raw log: `/tmp/cw-e1-final-review-20260923.log`.
+
+No source edits, browser, provider, credentials, user service, or full-suite run.
+
+## R1 — accept
+
+The new `createAgentChoiceLifecycle` records `seenSession` and `wasActive` before calling any emitting controller method. Its terminal transition invokes one refresh only. The app subscription repaints through one microtask, so a synchronous controller emit cannot re-enter refresh. The regression exercises the real controller with a synchronously re-rendering page and passes; the old ordering mutant is recorded as failing.
+
+## R2 — accept
+
+`runtime-view.mjs` now stores a pending `{id, sessionId}` destination when the target is absent during an unsettled read. The settling snapshot opens it only for the same Session and only if the resource exists. Session changes, read failures, `pause()`, and `closeSettings()` clear the pending request. The four pending-open tests pass, including first visit, already loaded, departure before settle, and Session change before settle. Existing runtime detail/source generation tests also pass.
+
+## R3 — accept
+
+`agentChoiceGate` now requires the current Session id and keeps ordinary scopes such as `project` visible; only no Session, Attention surface, or `global` scope hides it. Loading/mismatched/current read failures hold Send with a reason, and the current Chat’s own read controls the gate. Tests cover project scope, global/no Session/Attention, delayed Chat A → Chat B navigation, and current-read failure. The prior stale-scope recommendation to require `sessionScope.kind === "chat"` is superseded by this correction.
+
+## F1 — accept
+
+The chooser action now says “View … source in Settings”; the destination is explicitly read-only, matching the actual Runtime composition/source owner. This removes the earlier Edit wording overclaim.
+
+## Bounded limits and disposition
+
+The targeted frontend seams pass. K3 backend capability, real runtime-selection refusal behavior, and parent browser evidence remain separate integration evidence; this review does not re-accept those layers. Within the requested frontend delta, I found no remaining concrete regression. **Accept R1/R2/R3/F1 for independent frontend review.**

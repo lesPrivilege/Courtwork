@@ -67,3 +67,8 @@ The user now permits [parallel real frontend/backend implementation](frontend-ba
 ## Parent E1 combined review and return — 2026-09-23
 
 [Fixed candidate, actual browser evidence and dispositions](evidence/e1-parent-review-20260923/README.md) hold frontend8fd2b86. K3/backend2b6f2e4 now supplies the advertised expectation; actual v2 Kit Send/history and stale refusal succeed in a combined Host. E1-R1 terminal refresh recursion, E1-R2 first-visit Settings destination, E1-R3 current-session/readiness projection and E1-F1 truthful View/Inspect copy return to original Claude. It may change existing Runtime view's pending-destination seam and add exactly `agent-choice.mjs` / `agent-chooser-view.mjs` to server/index.mjs as an atomic exception with its real files. All other backend ownership stays parent/Codex. Merge accepted main preserving history, fix these paths and provide fixed source/evidence/released writer; do not claim Home selection, profile editing or bound-Run chooser display already implemented.
+
+
+## Parent E1 acceptance — 2026-09-23
+
+[Final acceptance](evidence/e1-final-20260923/README.md) closes06E-R1 and E1-R1/R2/R3/F1 at source9b2cc53/packet9514d4b, integrated e525a3a. Luna39/39, actual OpenAI browser first-Settings/terminal/stale-Send paths and integrated28/28 pass. The supplied final author report explicitly stops new work awaiting review and serves as finite writer handoff. Existing ordinary Chat selection is accepted; Home-first choice, chooser bound reading and profile/Kit editing remain original-owner follow-ups, not part of this acceptance.
