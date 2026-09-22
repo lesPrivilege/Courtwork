@@ -43,3 +43,13 @@ Exclude app/web/global CSS,06e/M1, Work Core/bridge, provider auth/key storage, 
 ## Handoff and stop
 
 Deliver exact source/packet SHA, the concrete contract, profile import/select and real request evidence, migration/rollback boundaries, failure matrix and zero-call/refusal/replay proofs; distinguish source/tests, real Host integration, real-model capability and user-facing availability. Have a non-author inspect fixed committed bytes and use independent counterexamples. Stop after this finite K3 delivery and release the writer; parent accepts/merges and performs preservation cleanup. No automatic next runtime/UI slice, push/deploy, personal credential reading, user-service restart or cleanup of other worktrees.
+
+
+## Actual clean-node dispatch — 2026-09-22
+
+Main678d71c was pushed and independently matched by ls-remote before creating **Kit to Run · Host integration** (01a0c9a7-6aca-79b2-a578-da1414a73404) as a fresh Astra worktree task. It confirmed bf41/Courtwork, branchcodex/kit-run-binding-20260922 and exact678d71c base; K3-A contract is now reported committed and leased implementation active. Read the [push/checkpoint receipt](evidence/clean-node-20260922/README.md) for the subsequent README-generator-only Pages correction; it does not change the Host product base. Parent still owns acceptance/main merge, and06e retains its separate correction.
+
+
+## User-authorized frontend consumer seam — 2026-09-22
+
+[Implementation lanes](frontend-backend-live-integration-20260922.md) permit the minimum existing-owner profile read/selection/draft/admission projection needed by Claude E1, plus necessary pure-validator extraction without semantic changes. Publish the concrete shared contract early; whole-config revision/source identity must not be misrepresented as per-profile CAS. K3 keeps the backend/Store/server writer, Claude keeps app/web. This expands the internal-helper stopping boundary while retaining the ordinary-Chat/Pi scope, schema21 discipline, real request evidence and parent acceptance. Pages remains excluded.

@@ -1,5 +1,17 @@
 # 当前工程状态
 
+## 2026-09-22 · Claude E1 and Codex K3 implementation boundaries expanded
+
+User confirms continued parallel [frontend/backend implementation lanes](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md). Claude keeps06e-R1, then may implement selectedA in actual frontend modules/Composer/Settings consumers; Codex K3 owns the minimum real profile/selection/admission projection and exact Kit→Run path, including related owner changes. Existing facts/authority and concrete DTOs govern integration; no fixture becomes a production fallback, and no overlapping writer is granted. Parent retains architecture/independent acceptance/merge.
+
+Pages design/capture/deployment is explicitly out of scope. The already completed two-line README generation-source synchronization preserves existing bilingual content; no further Pages work or deployment is scheduled. K3 remains active from pushed678d71c, with the parent follow-up being source/documentation-only for that baseline.
+
+## 2026-09-22 · Main pushed; fresh K3 active; Pages parity correction
+
+[Push and dispatch receipt](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md#push-dispatch-and-generator-correction) records origin/main678d71c independently verified before fresh Astra task **Kit to Run · Host integration** (01a0c9a7-6aca-79b2-a578-da1414a73404) began in bf41/codex/kit-run-binding-20260922. It has reported K3-A contract and started leased Host/Store implementation. Product baseline remains7dc852a/schema20; proposed21 is isolated, not adopted in main.
+
+Remote Pages build exposed a previously omitted source update: the bilingual READMEs already contained the offline Pi paragraph, but site/src/readme.mjs did not. Parent synchronizes that generator exactly, leaving both public README texts unchanged. Local full build/rebuild188-file equality, material/figures,5/5 publication tests and site links pass. This is a corrective follow-up to push, not a deployment or a product change. Initial Runtime CI completed successfully for678d71c; the separate Pages failure and local correction remain explicitly recorded.06e's unaccepted return tree and local metadata remain protected/unpushed.
+
 ## 2026-09-22 · Clean checkpoint prepared for authorized push; K3 next
 
 [Checkpoint receipt](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md) accounts for accepted main product7dc852a and protected carry-forward06e-R1. [M1](execution/claude-frontend-harness-2026-09-16/evidence/m1-final-20260922/README.md) is now independently accepted/integrated and its ended tree restore/bundle verified and removed. Full synthetic1538/1538 and deterministic smoke pass; schemas20/4/5 unchanged. Only06e remains outside main for its named return; local metadata/frozen Git dependency are preserved.
