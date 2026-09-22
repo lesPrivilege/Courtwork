@@ -132,3 +132,6 @@
 
 
 2026-09-22 · [Post-push Pages parity correction](execution/claude-frontend-harness-2026-09-16/evidence/clean-node-20260922/README.md#push-dispatch-and-generator-correction): initial remote build failed README/source equality; added the exact accepted offline Pi paragraph to site/src/readme.mjs, leaving both bilingual README byte sequences unchanged. Local site build, two-run188-file equality, material/figure checks,5/5 public-data/capture tests and188-file296-reference link check pass. Backend1538/1538 remains the product baseline result, not a rerun for this generator-only change; deployment not triggered.
+
+
+2026-09-23 · [K3 parent final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md): fixed8e7171c/84d6dfa merged65c3b30, exact persisted-history probe now refuses, actual integrated32/32 and deterministic smoke pass. Earlier independent78 tests/2 probes and author1565 full suite keep their original pins. Current schema21 entry points aligned (including parent correction of app/README directory example); Core4/bridge5 unchanged. E1/UI/G1/real-model claims remain separate. Raw CRLF context and original failing-log whitespace intentionally preserved.

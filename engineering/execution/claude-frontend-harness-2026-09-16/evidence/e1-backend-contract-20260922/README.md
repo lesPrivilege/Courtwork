@@ -1,5 +1,11 @@
 # E1 live adapter contract handoff
 
+## Current adoption — 2026-09-23
+
+[K3 parent final acceptance](../kit-run-final-20260923/README.md) integrates source8e7171c/packet84d6dfa at main65c3b30 with RuntimeStore21. The concrete backend interface below is now available in main. E1 UI/combined journey remains the original Claude and parent acceptance scope; no client draft is reclassified as Host persistence. The original handoff snapshot below preserves its then-candidate status and source pin.
+
+## Original parallel handoff
+
 2026-09-22 · Parent Arch consumes the K3 author's stable [contract snapshot](contract-at-76d91d6.md), [source pin](source.json), from76d91d6 with Store candidate eb32011. These are **candidate implementation facts for parallel frontend work**, not a claim that K3/schema21 is accepted or available in main. The backend still owns final fixed-byte evidence and its release.
 
 Claude should adapt selectedA to this actual Runtime Control interface rather than porting the synthetic06a per-profile store shape. Profile identity/source hash and whole-configuration revision are distinct facts. Builtin General has no imported source hash; null/inherit and explicit General remain distinct commands. Model scope stays global future Runs.

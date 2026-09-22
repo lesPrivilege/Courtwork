@@ -1,5 +1,13 @@
 # 当前工程状态
 
+## 2026-09-23 · Main Astra coordination loop enabled
+
+User requests main Astra to manage asynchronous execution and consume registered docs/index. The existing parent heartbeat `courtwork-claude` is updated in place, active hourly under the [coordination boundary](execution/claude-frontend-harness-2026-09-16/frontend-backend-live-integration-20260922.md#main-astra-asynchronous-loop--2026-09-23); obsolete G1/first-core sequencing is replaced, unrelated loops remain paused. K3 is accepted/cleaned; Claude E1 continues, with fixed delivery/independent combined-path acceptance next. Quiet on unchanged state; no automatic Pages work, user-service migration or new task duplication.
+
+## 2026-09-23 · K3 backend accepted and integrated; E1 continues
+
+[Parent K3 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md) accepts8e7171c/84d6dfa at main65c3b30. Actual Host→Pi Kit context, immutable Run history and schema21 migration/refusal are accepted within deterministic-provider scope. K3-R1 load-integrity return is closed: exact parent probe, source delta review, integrated32/32 and smoke pass. Main is RuntimeStore21/Core4/bridge5. Claude E1 remains active and unmerged; combined UI, real-model ability and persisted G1 draft are not claimed. User service/data and Pages remain untouched. Preservation cleanup/push status is recorded in the final receipt.
+
 ## 2026-09-23 · K3-R1 missing-summary correction delivered; parent delta acceptance pending
 
 [K3-R1 return](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/r1/README.md), source `8e7171c`, adopts the parent's persisted-load counterexample. A nonempty v2 Kit declaration now requires its frozen Run/event summaries even when both projections were stripped; invalid history cannot silently reopen as no-Kit. The exact parent probe changes exit1→0, and32/32 targeted Host/Store/legacy migration checks pass, including five actual corrupted-reopen variants and valid v1/empty-v2 historical reads. Luna non-author28/28 and the unchanged parent probe also pass. Original1565/1565 evidence remains prior-source evidence. Schema21/Core4/bridge5 are unchanged; no reader reconstruction, UI/main/user-service change or new work lane. Parent retains delta acceptance/integration.
