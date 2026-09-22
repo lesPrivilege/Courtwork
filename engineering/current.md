@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-22 · Fresh Astra local Pi core loop prepared
+
+The [local Pi worker order](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md) gives the next core task one bounded direction: upstream process adapter → actual-process deterministic conformance → existing Host/child consumer. It consumes RD-001/RD-005 and the first-party local-runtime indices, preserves Spark ownership, and excludes a new scheduler, uncontrolled coding tools, UI rewrites and personal credentials. CDE-R1 source e49232e has been delivered with writer release; independent return review is in progress. L0–L2 can proceed independently, while L3 waits for accepted integrated C/D/E and its Host writer release. This entry records preparation, not task creation or implementation.
+
 ## 2026-09-22 · Preview integrated; Core C/D/E has one recovery return
 
 [Preview final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/tabbed-preview-final-20260922/README.md) integrates complete06d B through31c09e5/PV-R1 source4698d8b at main `6c0bd32`: Luna50/50, real OpenAI browser cancellation-before-release for active/inactive Workspace closes, integrated65/65. Its ended tree was archived, physically restored/bundle verified and removed. A1/A2 remain accepted; density/coarse/native follow-ups remain separate. Idle8787 was gracefully updated for the new static module, with all3 Session detail replies and6 terminal Runs unchanged; module200/exact bytes. No schema migration or provider call.

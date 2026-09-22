@@ -61,3 +61,8 @@ The [Multica ruling](architecture-node-2026-09-13/multica-consumption-20260920.m
 ## 2026-09-21 · Control-plane and communication references
 
 The [control-plane disposition](architecture-node-2026-09-13/control-plane-precedents-20260921.md) consumes OpenHands and AgentTeams as bounded design references under this RD's existing assignment/attempt/result owners. MCP may expose a bounded worker tool; A2A permits Message answers; neither supplies CW acceptance or recovery merely by protocol choice. No duplicate Task registry, shared transcript, fleet stack or ACP implementation is dispatched. P03-C and the current frontend sequence retain their scope; Magentic-UI's historical internals are not presumed current after its MagenticLite transition.
+
+
+## 2026-09-22 · Local Pi worker implementation order
+
+The user requests a fresh Astra core task grounded in mature upstream practice. The [serial local Pi worker order](../execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md) extends this owner: versioned process adapter, actual upstream process conformance, then an existing Host/assignment consumer. Existing Spark admission/attempt/source/result/consumption remains authoritative. Tool-less consultation is the fallback if model-reachable tools cannot be governed; process/configuration separation is not an OS sandbox. No production local-worker capability, native configuration access, or new scheduler is claimed by dispatch. Parent Arch retains final architecture and integration; C/D/E acceptance and writer release precede the Host integration milestone.
