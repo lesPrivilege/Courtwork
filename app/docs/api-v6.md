@@ -226,7 +226,15 @@ model validated against the installed catalog) and `fake-openai-loopback` (tests
 
 ## Runs
 
-`POST /api/v5/sessions/:id/runs` — `{ input, commandId }` → `{ run }`
+`POST /api/v5/sessions/:id/runs` — `{ input, commandId, runtimeSelection? }` → `{ run }`
+
+`runtimeSelection`, when supplied, is `{revision,profileId,sourceHash}` from the
+effective Runtime Control snapshot. It protects chooser intent with whole-config
+CAS and source identity (`null` for builtin General). A stale selection returns409
+`runtime_selection_conflict` before new Run admission. Original-command replay is
+resolved first, without consulting current selection. No server draft or per-profile
+revision is created. See the [Kit/Profile API](../../docs/runtime-control/api.md)
+for profile-v2 scope, exact frozen context, compatibility and permission boundaries.
 
 - `commandId` is a client-generated UUID and is required. Re-sending the same
   `commandId` with the same `input` returns the same run (200) — the safe retry
@@ -274,7 +282,10 @@ Refusals: `409 active_run`, `409 operation_active`, `409 nothing_to_compact`,
 See [commands-and-compaction](commands-and-compaction.md) for semantics.
 
 `GET /api/v5/runs/:id` → `{ run }`, where a run carries
-`{ id, sessionId, status, admissionOpen, adapterId, provider, extension, startedAt, endedAt, error, commandId, artifacts[], usage, hostSession, credentialGeneration }`.
+`{ id, sessionId, status, admissionOpen, adapterId, provider, extension, startedAt, endedAt, error, commandId, artifacts[], usage, hostSession, credentialGeneration, kitBinding }`.
+`kitBinding` is null for no-Kit/historical Runs and otherwise the immutable schema21
+Kit summary. Exact plan/context payload refs are binding evidence in ArtifactHistory,
+not Work artifacts; the recorded Runtime Context endpoint verifies their bytes.
 
 `POST /api/v5/runs/:id/cancel` — `{}` → `{ run }`. Cancel requests a stop
 (`stopping`), waits for the host to settle, and only then reports `cancelled`;
@@ -423,7 +434,7 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
   the flock on the data directory in its own process, which is what makes an owner
   SIGKILL release the lock. If it is missing the server refuses to start
   (`LOCK_NO_PYTHON`); there is no unlocked fallback.
-- The `schemaVersion` 5 migration in [async task persistence](async-tasks.md) is historical: Runtime schema 5 introduced the `asyncTasks` collection, with validated schema 3/4 upgrades and that version's old-Host refusal boundary. The current Host RuntimeStore is `schemaVersion` 17; see the [current store schema](../README.md#store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade) for the validated migration and refusal boundary from schemas 3–16.
+- The `schemaVersion` 5 migration in [async task persistence](async-tasks.md) is historical: Runtime schema 5 introduced the `asyncTasks` collection, with validated schema 3/4 upgrades and that version's old-Host refusal boundary. The current Host RuntimeStore is `schemaVersion` 21; see the [current store schema](../README.md#store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade) for validated migration from schemas 3–20, exact backups and old-Host refusal.
 
 ## What is not here
 

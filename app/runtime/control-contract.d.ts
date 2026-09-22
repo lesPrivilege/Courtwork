@@ -84,6 +84,8 @@ export type AgentCompositionSource = AgentCompositionFields & (
   | { schemaVersion: 2; kits: KitDeclaration[] }
 );
 export interface KitPin { id: string; version: string; descriptorSha256: string }
+/** Optional Run POST expectation; never a persisted draft or profile revision. */
+export interface RuntimeSelectionExpectation { revision: number; profileId: string; sourceHash: string | null }
 export interface KitBinding {
   version: 1;
   profile: { id: string; version: string; sourceSha256: string };

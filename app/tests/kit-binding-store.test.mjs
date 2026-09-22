@@ -9,7 +9,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { RuntimeStore, SCHEMA_VERSION } from "../server/store.mjs";
 import { KIT_BINDING_LIMITS, validateKitBinding } from "../runtime/kit-binding-state.mjs";
 
-const SCHEMA20_HOST = "a1d0998ba72cd6763b8987196d9e4c6687676e42";
+const SCHEMA20_HOST = "678d71c58acc6968569a8850d39be404b19d4dfd";
 const ADAPTER_ID = "pi-coding-agent@0.85.1/agent-session";
 const sha256 = value => createHash("sha256").update(value, "utf8").digest("hex");
 const canonical = value => Array.isArray(value) ? value.map(canonical)
