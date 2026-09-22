@@ -1,14 +1,15 @@
 {
   "host": {
     "url": "http://127.0.0.1:8969",
-    "sessionId": "ac1b4bbe-1fce-4bf3-9d19-386d43362f77",
-    "revision": 3,
+    "sessionId": "c18bb141-644e-4bad-8a66-bb770201f2dc",
+    "revision": 5,
     "profiles": [
       "local:e1-reviewer",
       "local:e1-drafter",
+      "local:e1-kit-reviewer",
       "agent:general"
     ],
-    "capability": null
+    "capability": "expectation-v1"
   },
   "steps": [
     {
@@ -31,7 +32,7 @@
       "nullText": false
     },
     {
-      "name": "A1 ordinary Chat inherits General; draft typed, caret 9",
+      "name": "A1 project Chat inherits General; draft typed, caret 7",
       "focus": "composer-input",
       "chip": "General",
       "notice": null,
@@ -42,12 +43,13 @@
       },
       "popover": false,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
-      "nullText": false
+      "nullText": false,
+      "capability": "expectation-v1"
     },
     {
       "name": "A2 Enter opens the chooser; listbox focused",
@@ -61,15 +63,15 @@
       },
       "popover": true,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
       "nullText": false
     },
     {
-      "name": "A3 Home previews Reviewer (reading before commit)",
+      "name": "A3 previews Kit reviewer before commit",
       "focus": "agent-listbox",
       "chip": "General",
       "notice": null,
@@ -80,17 +82,17 @@
       },
       "popover": true,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
       "nullText": false,
       "reading": [
         "runtime: Pi (pi-coding-agent@0.85.1/agent-session), the Host's runtime for this chat",
         "model: Local test, from Models · All chats · future runs. This agent has no model of its own.",
-        "kits: None",
-        "resources: Review notes style",
+        "kits: kit:e1-review 1 (compatibility with Pi not checked)",
+        "resources: Review guidance",
         "scope: This chat and its Work location. It does not change either, or open another inbox.",
         "when: Selecting applies to runs started after it in this chat. A running run keeps the agent it started with."
       ]
@@ -107,19 +109,19 @@
       },
       "popover": false,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
       "nullText": false,
-      "revisionBefore": 3,
-      "revisionAfter": 3
+      "revisionBefore": 5,
+      "revisionAfter": 5
     },
     {
-      "name": "A5 Enter commits Reviewer: one session-scope write",
+      "name": "A5 Enter commits Kit reviewer: one session-scope write",
       "focus": "agent-chip",
-      "chip": "Reviewer",
+      "chip": "Kit reviewer",
       "notice": null,
       "actions": [],
       "send": {
@@ -128,20 +130,26 @@
       },
       "popover": false,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
       "nullText": false,
-      "revision": 4,
-      "sessionSelection": "local:e1-reviewer",
-      "composition": "local:e1-reviewer"
+      "revision": 6,
+      "sessionSelection": "local:e1-kit-reviewer",
+      "composition": {
+        "id": "local:e1-kit-reviewer",
+        "schemaVersion": 2,
+        "kits": [
+          "kit:e1-review"
+        ]
+      }
     },
     {
-      "name": "A6 Tab reaches Edit Reviewer in Settings",
-      "focus": "agent-edit-in-settings",
-      "chip": "Reviewer",
+      "name": "A6 Tab reaches View Kit reviewer source in Settings",
+      "focus": "agent-view-in-settings",
+      "chip": "Kit reviewer",
       "notice": null,
       "actions": [],
       "send": {
@@ -150,17 +158,18 @@
       },
       "popover": true,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
-      "nullText": false
+      "nullText": false,
+      "label": "View Kit reviewer source in Settings"
     },
     {
-      "name": "A7 Settings › Developer with the profile row opened; focus on Back",
-      "focus": "settings-back-button",
-      "chip": "Reviewer",
+      "name": "A7 first Settings visit: the profile row is the destination",
+      "focus": "rc-detail-local%3Ae1-kit-reviewer-title",
+      "chip": "Kit reviewer",
       "notice": null,
       "actions": [],
       "send": {
@@ -169,18 +178,20 @@
       },
       "popover": false,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
       "nullText": false,
-      "hash": "#settings/developer"
+      "hash": "#settings/developer",
+      "focusResource": "local:e1-kit-reviewer",
+      "sourceShown": true
     },
     {
       "name": "A8 Escape back: focus on the control, draft and caret unchanged",
       "focus": "agent-chip",
-      "chip": "Reviewer",
+      "chip": "Kit reviewer",
       "notice": null,
       "actions": [],
       "send": {
@@ -189,21 +200,21 @@
       },
       "popover": false,
       "draft": {
-        "value": "Summarise the review style in one line.",
-        "start": 9,
-        "end": 9
+        "value": "Review the Kit handoff.",
+        "start": 7,
+        "end": 7
       },
       "overflow": 0,
       "nullText": false
     },
     {
-      "name": "A9 Send: real Run bound to the chosen profile",
+      "name": "A9 Send → terminal: Send restored once, no recursion, no reconnect, clean console",
       "focus": "composer-input",
-      "chip": "Reviewer",
+      "chip": "Kit reviewer",
       "notice": null,
       "actions": [],
       "send": {
-        "disabled": true,
+        "disabled": false,
         "describedBy": null
       },
       "popover": false,
@@ -215,53 +226,84 @@
       "overflow": 0,
       "nullText": false,
       "run": {
-        "id": "db1f638a-2340-42f7-9aea-a11a9dbb5f7b",
+        "id": "e610510f-1826-4d42-941d-2a92c0642833",
         "status": "completed"
       },
+      "runs": 1,
       "bound": {
-        "id": "local:e1-reviewer",
-        "revision": 4
-      }
+        "id": "local:e1-kit-reviewer",
+        "revision": 6,
+        "kits": [
+          "kit:e1-review"
+        ],
+        "compatibility": "unchecked",
+        "policy": "reference-only-pi-unchecked-v1"
+      },
+      "controlReadsAfterSend": 2,
+      "reconnectBanner": false,
+      "errors": [],
+      "working": false
     },
     {
-      "name": "A10 390 dark: chooser",
-      "focus": "agent-listbox",
-      "chip": "Reviewer",
+      "name": "A10 stale Send refused by the Host; effective agent re-read; draft kept; no new Run",
+      "focus": "composer-input",
+      "chip": "Drafter",
       "notice": null,
       "actions": [],
       "send": {
-        "disabled": true,
+        "disabled": false,
+        "describedBy": null
+      },
+      "popover": false,
+      "draft": {
+        "value": "Second draft after an outside change.",
+        "start": 37,
+        "end": 37
+      },
+      "overflow": 0,
+      "nullText": false,
+      "externalStatus": 200,
+      "runs": 1,
+      "feedback": "Run was not started: The selected Agent configuration changed; refresh before sending"
+    },
+    {
+      "name": "A11 390 dark: chooser",
+      "focus": "agent-listbox",
+      "chip": "Drafter",
+      "notice": null,
+      "actions": [],
+      "send": {
+        "disabled": false,
         "describedBy": null
       },
       "popover": true,
       "draft": {
-        "value": "",
-        "start": 0,
-        "end": 0
+        "value": "Second draft after an outside change.",
+        "start": 37,
+        "end": 37
       },
       "overflow": 0,
       "nullText": false
     },
     {
-      "name": "A11 Attention agent sheet open: the Agent control is not part of it",
+      "name": "A12 Attention agent sheet open: the Agent control is not part of it",
       "focus": "INPUT",
-      "chip": "Reviewer",
+      "chip": "Drafter",
       "notice": null,
       "actions": [],
       "send": {
-        "disabled": true,
+        "disabled": false,
         "describedBy": null
       },
       "popover": false,
       "draft": {
-        "value": "",
-        "start": 0,
-        "end": 0
+        "value": "Second draft after an outside change.",
+        "start": 37,
+        "end": 37
       },
       "overflow": 0,
       "nullText": false,
-      "insideAttentionSurface": false,
-      "attentionSurface": "attention-agent-dialog"
+      "insideAttentionSurface": false
     }
   ],
   "preview": [
@@ -469,5 +511,6 @@
       "nullText": false
     }
   ],
-  "draftUnchanged": true
+  "draftUnchanged": true,
+  "errors": []
 }

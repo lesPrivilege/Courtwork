@@ -13,6 +13,7 @@ const { values } = parseArgs({ options: { app: { type: "string" }, data: { type:
 const app = path.resolve(values.app);
 const { startServer } = await import(pathToFileURL(path.join(app, "server/index.mjs")).href);
 const { FAKE_CREDENTIAL_KEY } = await import(pathToFileURL(path.join(app, "runtime/pi-session-runtime.mjs")).href);
+const { seal, sha256 } = await import(pathToFileURL(path.join(app, "tests/fixtures/kit-context.mjs")).href);
 const runtime = await startServer({ dataDir: path.resolve(values.data), port: Number(values.port), logger: () => {} });
 const api = async (method, p, body) => {
   const res = await fetch(`${runtime.url}/api/v5${p}`, { method, headers: { "content-type": "application/json", "x-work-token": runtime.token }, body: body === undefined ? undefined : JSON.stringify(body) });
@@ -24,9 +25,15 @@ await api("PUT", "/provider-credential", { connectionId: "catalog-fake-openai-lo
 const { session } = await api("POST", "/sessions", { title: "Agent choice check" });
 const q = `?sessionId=${encodeURIComponent(session.id)}`;
 let snap = await api("GET", `/runtime-control${q}`);
-const scope = snap.scopes.find((s) => s.type === "user") || snap.scopes[0];
+const scope = { type: "session", id: session.id };
 const put = async (resource) => { snap = await api("PUT", `/runtime-control${q}`, { revision: snap.revision, operation: "put", resource }); };
 await put({ id: "local:e1-review-notes", kind: "instruction", title: "Review notes style", scope, content: "Write review notes as short numbered findings. (synthetic)" });
 await put({ id: "local:e1-reviewer", kind: "agent_profile", title: "Reviewer", scope, content: JSON.stringify({ schemaVersion: 1, version: "1.0.0", resourceIds: ["local:e1-review-notes"], rules: [], uiSlots: [] }) });
 await put({ id: "local:e1-drafter", kind: "agent_profile", title: "Drafter", scope, content: JSON.stringify({ schemaVersion: 1, version: "1.0.0", resourceIds: [], rules: [], uiSlots: [] }) });
+/* A Kit-bearing v2 profile, sealed exactly as the K3 tests and the parent's
+   review fixture do: its one core reference is the instruction above. */
+const guide = { id: "local:e1-review-guide", kind: "instruction", title: "Review guidance", scope, content: "E1_KIT_CORE: explain findings concisely. (synthetic)" };
+await put(guide);
+const kit = seal({ schemaVersion: 1, id: "kit:e1-review", version: "1", core: [{ resourceId: guide.id, contentSha256: sha256(guide.content), artifactSha256: sha256(JSON.stringify({ kind: guide.kind, title: guide.title, content: guide.content })) }], deferred: [], requirements: [], conflicts: [] });
+await put({ id: "local:e1-kit-reviewer", kind: "agent_profile", title: "Kit reviewer", scope, content: JSON.stringify({ schemaVersion: 2, version: "1", resourceIds: [guide.id], rules: [], uiSlots: [], kits: [kit] }) });
 console.log(JSON.stringify({ url: runtime.url, sessionId: session.id, revision: snap.revision, profiles: snap.resources.filter((r) => r.kind === "agent_profile").map((r) => r.id), capability: snap.compatibility?.runtimeSelection ?? null }));

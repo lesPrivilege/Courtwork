@@ -18,6 +18,8 @@ const { values } = parseArgs({ options: { "host-app": { type: "string" }, app: {
 await mkdir(values.out, { recursive: true });
 const out = (n) => path.join(values.out, n);
 const record = { host: null, steps: [], preview: [] };
+/* The Host runs from --host-app, now the frontend tree itself (K3 merged, the
+   two static entries present). */
 
 /* ── Start the real Host (child) and the preview (in process) ───────── */
 const child = spawn(process.execPath, [path.join(here, "start-host.mjs"), "--app", values["host-app"], "--data", values.data, "--port", values.port], { stdio: ["ignore", "pipe", "inherit"] });
@@ -55,40 +57,43 @@ const sid = hostInfo.sessionId;
 const hostSnapshot = async () => (await api("GET", `/runtime-control?sessionId=${sid}`)).body;
 
 try {
-  /* ── A. Real Host ─────────────────────────────────────────────────── */
+  /* ── A. Real Host (this tree: K3 + the two static entries) ───────── */
   await page.viewport({ width: 1440, height: 900 });
   await page.goto(hostInfo.url + "/");
   await until(`[...document.querySelectorAll("button")].some((n) => n.textContent.includes("Agent choice check") && n.getClientRects().length)`, "recent chat");
+  /* Page-side error log from here on (console.error, errors, rejections). */
+  await ev(`window.__errors = []; const e = console.error.bind(console); console.error = (...a) => { window.__errors.push(a.map(String).join(" ")); e(...a); }; addEventListener("error", (x) => window.__errors.push("error: " + x.message)); addEventListener("unhandledrejection", (x) => window.__errors.push("rejection: " + (x.reason?.message || x.reason))); return 1;`);
+  const reads = () => ev(`return performance.getEntriesByType("resource").filter((r) => r.name.includes("/api/v5/runtime-control?")).length`);
   await step("A0 Home: no Session, no Agent control");
   await ev(`[...document.querySelectorAll("button")].find((n) => n.textContent.includes("Agent choice check") && n.getClientRects().length).click(); return 1;`);
   await until(`document.querySelector("#agent-chip") && !document.querySelector("#agent-chip").hidden && document.querySelector("#agent-chip").innerText.trim() === "General"`, "chip General");
-  await ev(`const t = document.querySelector("#composer-input"); t.focus(); t.value = "Summarise the review style in one line."; t.dispatchEvent(new Event("input", { bubbles: true })); t.setSelectionRange(9, 9); return 1;`);
+  await ev(`const t = document.querySelector("#composer-input"); t.focus(); t.value = "Review the Kit handoff."; t.dispatchEvent(new Event("input", { bubbles: true })); t.setSelectionRange(7, 7); return 1;`);
   const draftAtStart = (await facts()).draft;
-  await step("A1 ordinary Chat inherits General; draft typed, caret 9");
+  await step("A1 project Chat inherits General; draft typed, caret 7", { capability: hostInfo.capability });
   await shot("a1-chat-general.png");
 
   const before = await hostSnapshot();
   await focusOn("#agent-chip"); await key("Enter"); await page.wait(400);
   await step("A2 Enter opens the chooser; listbox focused");
-  await key("Home"); await page.wait(500);
-  await step("A3 Home previews Reviewer (reading before commit)", { reading: await ev(`return [...document.querySelectorAll("[data-reading]")].map((n) => n.dataset.reading + ": " + n.textContent)`) });
-  await shot("a3-chooser-reviewer-preview.png");
+  await key("Home"); await key("ArrowDown"); await key("ArrowDown"); await page.wait(600);
+  await step("A3 previews Kit reviewer before commit", { reading: await ev(`return [...document.querySelectorAll("[data-reading]")].map((n) => n.dataset.reading + ": " + n.textContent)`) });
+  await shot("a3-chooser-kit-preview.png");
   await key("Escape"); await page.wait(300);
   const afterEscape = await hostSnapshot();
   await step("A4 Escape: no write, focus back on the control", { revisionBefore: before.revision, revisionAfter: afterEscape.revision });
 
-  await key("Enter"); await page.wait(300); await key("Home"); await page.wait(300); await key("Enter");
-  await until(`document.querySelector("#agent-chip").innerText.trim() === "Reviewer" && !document.querySelector("#agent-notice").textContent`, "Reviewer applied");
+  await key("Enter"); await page.wait(300); await key("Home"); await key("ArrowDown"); await key("ArrowDown"); await page.wait(300); await key("Enter");
+  await until(`document.querySelector("#agent-chip").innerText.trim() === "Kit reviewer" && !document.querySelector("#agent-notice").textContent`, "Kit reviewer applied");
   const applied = await hostSnapshot();
-  await step("A5 Enter commits Reviewer: one session-scope write", { revision: applied.revision, sessionSelection: applied.profileSelections.find((p) => p.scope.type === "session")?.id, composition: applied.composition.id });
+  await step("A5 Enter commits Kit reviewer: one session-scope write", { revision: applied.revision, sessionSelection: applied.profileSelections.find((p) => p.scope.type === "session")?.id, composition: { id: applied.composition.id, schemaVersion: applied.composition.schemaVersion, kits: (applied.composition.kits || []).map((k) => k.descriptor.id) } });
 
   await key("Enter"); await page.wait(400); await key("Tab"); await page.wait(100);
-  await step("A6 Tab reaches Edit Reviewer in Settings");
+  await step("A6 Tab reaches View Kit reviewer source in Settings", { label: await ev(`return document.activeElement.textContent`) });
   await key("Enter");
   await until(`!document.querySelector("#settings-page").hidden`, "settings open");
-  await page.wait(800);
-  await step("A7 Settings › Developer with the profile row opened; focus on Back", { hash: await ev(`return location.hash`) });
-  await shot("a7-settings-profile.png");
+  await until(`document.activeElement?.closest?.("[data-resource]")?.dataset.resource === "local:e1-kit-reviewer"`, "first visit lands on the profile row", 8000).catch(() => {});
+  await step("A7 first Settings visit: the profile row is the destination", { hash: await ev(`return location.hash`), focusResource: await ev(`return document.activeElement?.closest?.("[data-resource]")?.dataset.resource ?? null`), sourceShown: await ev(`return document.querySelector("#settings-page").innerText.includes("kit:e1-review")`) });
+  await shot("a7-settings-first-visit.png");
   await key("Escape");
   await until(`document.querySelector("#settings-page").hidden`, "settings closed");
   await page.wait(500);
@@ -96,26 +101,47 @@ try {
   record.draftUnchanged = JSON.stringify(back.draft) === JSON.stringify(draftAtStart);
   await shot("a8-returned.png");
 
+  const readsBeforeSend = await reads();
   await focusOn("#send-button"); await key("Enter");
   await until(`[...document.querySelectorAll("#message-stream *")].some((n) => /SIMULATED/.test(n.textContent))`, "reply");
+  await until(`!document.querySelector("#send-button").hidden && document.querySelector("#cancel-run-button").hidden`, "terminal UI: Send back, Stop gone", 15000);
+  await page.wait(3000);
   const session = (await api("GET", `/sessions/${sid}`)).body;
   const run = (session.runs || []).at(-1);
   const context = (await api("GET", `/runtime-context?sessionId=${sid}&runId=${run.id}`)).body;
-  await step("A9 Send: real Run bound to the chosen profile", { run: { id: run.id, status: run.status }, bound: { id: context.binding?.composition?.id, revision: context.binding?.revision } });
-  await shot("a9-run-bound.png");
+  await step("A9 Send → terminal: Send restored once, no recursion, no reconnect, clean console", {
+    run: { id: run.id, status: run.status }, runs: (session.runs || []).length,
+    bound: { id: context.binding?.composition?.id, revision: context.binding?.revision, kits: context.kitBinding?.kits?.map((k) => k.id), compatibility: context.kitBinding?.compatibility?.status, policy: context.kitBinding?.policy },
+    controlReadsAfterSend: (await reads()) - readsBeforeSend,
+    reconnectBanner: await ev(`return /Connection lost|Reconnecting/.test(document.body.innerText)`),
+    errors: await ev(`return window.__errors`),
+    working: await ev(`return /Working for/.test(document.querySelector("#composer-area").innerText)`),
+  });
+  await shot("a9-run-terminal.png");
+
+  /* Stale selection: another writer changes this chat's selection. */
+  const snap = await hostSnapshot();
+  const external = await api("PUT", `/runtime-control?sessionId=${sid}`, { revision: snap.revision, operation: "profile", scope: { type: "session", id: sid }, id: "local:e1-drafter" });
+  await ev(`const t = document.querySelector("#composer-input"); t.focus(); t.value = "Second draft after an outside change."; t.dispatchEvent(new Event("input", { bubbles: true })); return 1;`);
+  await focusOn("#send-button"); await key("Enter");
+  await until(`document.querySelector("#agent-chip").innerText.trim() === "Drafter"`, "effective agent re-read after refusal", 10000);
+  await page.wait(800);
+  const after = (await api("GET", `/sessions/${sid}`)).body;
+  await step("A10 stale Send refused by the Host; effective agent re-read; draft kept; no new Run", { externalStatus: external.status, runs: (after.runs || []).length, feedback: await ev(`return document.querySelector("#composer-area").innerText.split(String.fromCharCode(10)).find((l) => /changed|selection|conflict|not sent/i.test(l)) ?? null`) });
+  await shot("a10-stale-refused.png");
 
   await page.viewport({ width: 390, height: 844, dark: true });
   await ev(`document.documentElement.dataset.theme = "dark"; return 1;`);
   await page.wait(300);
   await focusOn("#agent-chip"); await key("Enter"); await page.wait(500);
-  await step("A10 390 dark: chooser");
-  await shot("a10-narrow-dark-chooser.png");
+  await step("A11 390 dark: chooser");
+  await shot("a11-narrow-dark-chooser.png");
   await key("Escape");
   await page.viewport({ width: 1440, height: 900 });
   await ev(`document.documentElement.dataset.theme = "light"; document.querySelector("#attention-button")?.click(); return 1;`);
   await page.wait(1200);
-  await step("A11 Attention agent sheet open: the Agent control is not part of it", { insideAttentionSurface: await ev(`const chip = document.querySelector("#agent-chip"); const surface = document.querySelector("dialog[open], [aria-modal='true']"); return surface ? surface.contains(chip) : null;`), attentionSurface: await ev(`const s = document.querySelector("dialog[open], [aria-modal='true']"); return s ? (s.id || s.className) : null;`) });
-  await shot("a11-attention-sheet.png");
+  await step("A12 Attention agent sheet open: the Agent control is not part of it", { insideAttentionSurface: await ev(`const chip = document.querySelector("#agent-chip"); const surface = document.querySelector("dialog[open], [aria-modal='true']"); return surface ? surface.contains(chip) : null;`) });
+  record.errors = await ev(`return window.__errors`);
 
   /* ── B. Preview held states ───────────────────────────────────────── */
   for (const scenario of ["active-run", "lost-reply", "refused", "missing-resource", "read-error"]) {

@@ -9,3 +9,7 @@
 | R-3 (confirm, no change expected) | `sessionScope.kind` (`chat` / `global`) stays in the snapshot. | The chooser is offered for ordinary Chats only; it hides for the global Attention Session so a Role label cannot move a Chat. | Hidden when `sessionScope.kind === "global"` or Attention is open. |
 
 Unresolved UI obligations the frontend keeps (not asking backend to fabricate): Home before a Session exists shows no chooser (the contract requires a real Session before selection is persisted); a recorded Run's binding (`GET /runs/:id` `kitBinding`, `GET /runtime-context?runId=`) is not yet surfaced by the chooser.
+
+## Disposition — 2026-09-23 (parent E1 review)
+
+R-1 adopted: the two exact entries are added to `app/server/index.mjs` **by the frontend owner**, atomically with their files, under the parent's narrow exception. R-2 adopted and on main (`a59d188`): `compatibility.runtimeSelection: "expectation-v1"`. R-3 corrected: Session scope values are kept verbatim; `project` is an ordinary Chat. Only `global` (and the Attention surface, and no Session) excludes the chooser, via `session.scope` and the current Session's own read.

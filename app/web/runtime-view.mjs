@@ -317,6 +317,8 @@ export function createRuntimeView(
     drafts.set(key, { key, at: new Date(), ...entry });
   }
 
+  let settledGeneration = -1;
+  let pendingOpen = null;
   async function read({ quiet = false, polling = false } = {}) {
     const own = ++generation;
     const id = getSessionId();
@@ -332,13 +334,20 @@ export function createRuntimeView(
       if (own !== generation) return;
       snapshot = result;
       error = null;
+      settledGeneration = own;
       if (!snapshot.activeRuns) frozenByServer = false;
       render({ polling });
+      if (pendingOpen) {
+        const target = pendingOpen;
+        pendingOpen = null;
+        if (target.sessionId === id && resourceById(target.id)) openResource(target.id);
+      }
       await readContext(own, polling);
       await readProposals(own, polling);
     } catch (err) {
       if (own !== generation || err.name === "AbortError") return;
       error = err;
+      pendingOpen = null;
       render({ polling });
     }
   }
@@ -2798,8 +2807,18 @@ export function createRuntimeView(
 
   /** The `/` finder's open action. It expands one resource and reads its
    * recorded source; it installs nothing and applies nothing. */
+  /* E1-R2 · a destination asked for before this Session's snapshot has the
+     resource (the first Settings visit) is kept — for this Session only — and
+     opened by the read that settles it. Leaving, a Session change or a failed
+     read forgets it; it is never opened into another chat's snapshot.
+     (`pendingOpen` is declared beside `read`, which settles it.) */
   function openResource(id) {
-    if (!resourceById(id)) return false;
+    if (!resourceById(id)) {
+      if (snapshot && generation === settledGeneration) return false;
+      pendingOpen = { id, sessionId: getSessionId() };
+      return "pending";
+    }
+    pendingOpen = null;
     open.add(id);
     if (capabilitiesTab === "inventory" && ["tool", "mcp_server"].includes(resourceById(id).kind))
       capabilitiesTab = "configurable";
@@ -2847,9 +2866,12 @@ export function createRuntimeView(
       if (snapshot) render({ polling: true });
     },
     openResource,
+    /** Leaving Settings: a destination not yet reached is not reached later. */
+    forgetPendingOpen() { pendingOpen = null; },
     load() {
       if (getSessionId() !== sessionId) {
         sessionEpoch++;
+        pendingOpen = null;
         intake.reset();
         snapshot = null;
         context = null;
@@ -2874,6 +2896,7 @@ export function createRuntimeView(
       return Promise.resolve();
     },
     pause() {
+      pendingOpen = null;
       generation++;
       inspected = null;
       explanation = null;

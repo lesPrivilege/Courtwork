@@ -136,7 +136,10 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     const activeProfile = profiles().find((entry) => entry.id === activeId);
     const children = [readingFor(activeId)];
     if (activeProfile && !activeProfile.builtin) {
-      const edit = el("button", { className: "text-button", text: `Edit ${activeProfile.title} in Settings`, attrs: { type: "button", "data-testid": "agent-edit-in-settings" } });
+      /* E1-F1 · the destination is the read-only source inspection in
+         Settings › Developer; no editable profile/Kit path exists yet, so the
+         action says View, not Edit. */
+      const edit = el("button", { className: "text-button", text: `View ${activeProfile.title} source in Settings`, attrs: { type: "button", "data-testid": "agent-view-in-settings" } });
       edit.addEventListener("click", () => { popover.hidePopover(); openSettings(activeProfile.id, chip); });
       children.push(edit);
     }

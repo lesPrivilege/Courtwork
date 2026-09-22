@@ -175,3 +175,80 @@ test("the live adapter speaks the existing endpoints", async () => {
     ["/runtime-control?sessionId=s%201", "PUT", { revision: 4, operation: "profile", scope: { type: "session", id: "s 1" }, id: null }],
   ]);
 });
+
+/* ── E1-R1 / E1-R3 · the host page's coordination seam ─────────────── */
+import { agentChoiceGate, createAgentChoiceLifecycle } from "../web/agent-choice.mjs";
+
+/* A page render that does what app.mjs's syncAgentChoice does, subscribed
+ * *synchronously* — the worst case, stricter than the product's microtask
+ * repaint — so any re-entrant load/refresh shows up as extra reads. */
+function page(fixture, controller, view) {
+  const lifecycle = createAgentChoiceLifecycle(controller);
+  let renders = 0;
+  const render = () => {
+    renders += 1;
+    if (renders > 50) throw new Error("render recursion");
+    lifecycle.sync({ session: view.session, active: view.active });
+    return agentChoiceGate({ session: view.session, choice: controller.getState() });
+  };
+  controller.subscribe(() => render());
+  return { render, renders: () => renders, reads: () => fixture.calls().filter((c) => c.kind === "read").length };
+}
+
+test("E1-R1: a run ending refreshes exactly once, with a synchronously re-rendering page", async () => {
+  const fixture = createAgentChoiceFixture({ pause: instant });
+  const view = { session: { id: "session-synthetic", scope: "project" }, active: false };
+  const controller = createAgentChoiceController({ adapter: fixture.adapter, getSessionId: () => view.session?.id ?? null });
+  const p = page(fixture, controller, view);
+  p.render();
+  await tick(); await tick();
+  assert.equal(p.reads(), 1, "one load for the Session");
+  view.active = true; p.render(); p.render();
+  assert.equal(p.reads(), 1, "an active run causes no read");
+  view.active = false; p.render(); p.render(); p.render();
+  await tick(); await tick();
+  assert.equal(p.reads(), 2, "one refresh for the one terminal transition");
+  assert.ok(p.renders() < 50);
+  const gate = agentChoiceGate({ session: view.session, choice: controller.getState() });
+  assert.deepEqual([gate.shown, gate.holdsSend], [true, false], "Send is restored after the refresh");
+});
+
+test("E1-R3: a project-scope Session is an ordinary Chat; global and no Session keep their behaviour", async () => {
+  const { controller } = await setup();
+  const choice = controller.getState();
+  assert.equal(agentChoiceGate({ session: { id: "session-synthetic", scope: "project" }, choice }).shown, true);
+  assert.deepEqual(agentChoiceGate({ session: { id: "session-synthetic", scope: "global" }, choice }), { shown: false, holdsSend: false, reason: "" });
+  assert.deepEqual(agentChoiceGate({ session: null, choice }), { shown: false, holdsSend: false, reason: "" });
+  assert.equal(agentChoiceGate({ session: { id: "session-synthetic", scope: "project" }, attentionOpen: true, choice }).shown, false);
+});
+
+test("E1-R3: navigating to another Chat while its read is delayed never uses the old Chat's reading", async () => {
+  const fixtureA = createAgentChoiceFixture({ pause: instant, sessionId: "chat-a" });
+  let release;
+  const view = { session: { id: "chat-a", scope: "project" }, active: false };
+  const adapter = {
+    ...fixtureA.adapter,
+    read: (id) => (id === "chat-b" ? new Promise((resolve) => { release = () => resolve(createAgentChoiceFixture({ pause: instant, sessionId: "chat-b" }).adapter.read("chat-b")); }) : fixtureA.adapter.read(id)),
+  };
+  const controller = createAgentChoiceController({ adapter, getSessionId: () => view.session.id });
+  const lifecycle = createAgentChoiceLifecycle(controller);
+  lifecycle.sync(view); await tick(); await tick();
+  await controller.choose("local:coding");
+  assert.equal(controller.getState().snapshot.sessionSelection, "local:coding");
+  view.session = { id: "chat-b", scope: "project" };
+  lifecycle.sync(view);
+  const during = agentChoiceGate({ session: view.session, choice: controller.getState() });
+  assert.deepEqual([during.shown, during.holdsSend], [true, true], "B shows the control and holds Send while its own read is out");
+  assert.equal(controller.getState().snapshot, null, "A's reading is not carried into B");
+  release(); await tick(); await tick(); await tick();
+  const after = agentChoiceGate({ session: view.session, choice: controller.getState() });
+  assert.deepEqual([after.shown, after.holdsSend], [true, false]);
+  assert.equal(controller.getState().snapshot.sessionSelection, null, "B inherits; A's selection did not follow");
+});
+
+test("E1-R3: a failed read for the current Chat keeps the control, the hold and Retry", async () => {
+  const { controller } = await setup("read-error");
+  const gate = agentChoiceGate({ session: { id: "session-synthetic", scope: "project" }, choice: controller.getState() });
+  assert.deepEqual([gate.shown, gate.holdsSend], [true, true]);
+  assert.match(gate.reason, /The agent reading failed/);
+});

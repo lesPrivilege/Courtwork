@@ -135,7 +135,7 @@ B and the 42-image matrix were not redone (as instructed). `a-13`/`b-13` above r
   - The chooser appears only for an ordinary Chat with a Session: not on Home without a Session, not in the workspace Attention path, and not inside the Attention agent sheet.
   - It re-reads on chat change, after Settings and when a run ends. It holds Send only for its own reasons, and sends `runtimeSelection` (also on unconfirmed-receipt recovery).
   - `runtime_selection_conflict` triggers a re-read; text and materials stay as they are.
-  - Edit in Settings opens Settings › Developer at the profile's composition row (`runtimeView.openResource`), the existing source owner, and returns focus there.
+  - *View … source in Settings* opens Settings › Developer at the profile's composition row (`runtimeView.openResource`), a **read-only** source inspection (corrected by E1-F1: this row does not edit sources), and Back/Escape returns focus to the control.
 - Scoped CSS appended to `styles.css`, using existing tokens.
 
 **Synthetic, opt-in only.** The owner in `app/tests/fixtures/agent-choice/adapter.mjs` is shaped on the real contract, not on 06a. `CW_SPECIMEN_PORT=8968 node app/scripts/agent-choice-preview.mjs` serves the product modules over it, with a request trace; the product never loads it.
@@ -158,3 +158,27 @@ B and the 42-image matrix were not redone (as instructed). `a-13`/`b-13` above r
 - Preview held states (same harness): active run → kept and "will not change by itself"; lost reply → settled by read-back, one PUT; refused → the owner's message; unavailable composition → "Choose another agent"; read error → Retry; conflict → the effective agent stays named, then Select again applies (screenshots `e1/browser/b-*.png`). The "loading" capture landed after the read settled, so it does not show loading.
 
 **Not done / limits.** No combined K3 run yet: it waits for R-1/R-2 and a combined candidate, and Kit-bearing v2 profiles and `runtimeSelection` refusals are therefore unproven on a real Host. A recorded Run's binding is not surfaced in the UI beyond existing readers. Home cannot choose before a Session exists. No independent/OpenAI computer-use acceptance; no screen reader, native zoom, forced colors or real touch.
+
+## E1 return — E1-R1/R2/R3 and E1-F1 fixed (2026-09-23)
+
+Answers the [parent E1 review](../../execution/claude-frontend-harness-2026-09-16/evidence/e1-parent-review-20260923/README.md) of `8fd2b86`. Main `3a5348a` merged first (`bf85363`); reviewed commits stay ancestors.
+
+- **E1-R1 terminal refresh re-entry.** Cause as reviewed: `syncAgentChoice` called `refresh()` (which emits synchronously and re-renders) before recording the run's end. The coordination is now the production seam `createAgentChoiceLifecycle` in `agent-choice.mjs`. It records Session and active state *before* any emitting call: one load per Session, one refresh per real active→terminal transition. The app subscription also repaints once per microtask, never inside the render that caused it. Regression: `agent-choice.test.mjs` runs the real controller and lifecycle under a *synchronously* re-rendering page, giving 1 load + 1 refresh. The same test on the old ordering fails with "render recursion" ([mutant log](e1/logs/e1-r1-mutant.log)).
+- **E1-R2 first-visit destination.** `runtime-view.mjs` (the existing owner, narrow change) keeps an `openResource` request as `{id, sessionId}` pending when the target is not yet in a settled snapshot. The read that settles for that Session opens it with the existing focus path. A Session change, a failed read, `pause()` or leaving Settings (`forgetPendingOpen`, called from `closeSettings`) drops it. [runtime-view-pending-open.test.mjs](../../../app/tests/runtime-view-pending-open.test.mjs) covers first visit, already loaded, leaving before a slow read settles, and a Session change mid-read (4/4). First visit fails on the pre-fix view ([log](e1/logs/e1-r2-before.log)).
+- **E1-R3 current-read gate.** `agentChoiceGate` (pure, exported) decides visibility and the Send hold from the **current** Session's own read only. No Session, the Attention surface and `session.scope === "global"` keep their behaviour. Any other scope (`project`, …) is an ordinary Chat. While the current Chat is loading or its read failed, the control stays with the hold and its reason/Retry. Tests: project scope; global / no Session / Attention; Chat A → Chat B with B's read delayed (B holds Send, A's reading and selection do not carry over); read failure keeps hold + reason. The last test found and fixed an empty reason on a first-read failure.
+- **E1-F1 copy.** The action is *View ⟨profile⟩ source in Settings*; the destination is read-only. Kit/profile editing remains a named follow-up.
+- **R-1.** The two exact entries are added to `app/server/index.mjs`, atomically with the files (static manifest 6/6).
+
+**Combined real Host** (this tree: main with K3 + capability + the two entries; Local test provider; no key/paid call), [capture](e1/harness/capture.mjs) with real CDP keys, [record](e1/browser/record.json):
+- The project Chat inherits General; `expectation-v1` is advertised.
+- Keyboard preview of Kit reviewer: Kits `kit:e1-review 1 (compatibility with Pi not checked)` ([shot](e1/browser/a3-chooser-kit-preview.png)). Escape: revision 5→5. Enter commits: session selection `local:e1-kit-reviewer`, v2 composition with `kit:e1-review`, revision 6.
+- **First** Settings visit: focus on the `local:e1-kit-reviewer` row, source shown ([shot](e1/browser/a7-settings-first-visit.png)). Escape returns with draft and caret 7/7 unchanged.
+- Send → Run completed. Recorded binding: `local:e1-kit-reviewer` @6, Kit `kit:e1-review`, compatibility `unchecked`, policy `reference-only-pi-unchecked-v1`.
+- The UI returned to Send with no "Working" and no reconnect banner. **Page errors: none.** There were 2 `/runtime-control` reads after Send, which I did not attribute individually ([shot](e1/browser/a9-run-terminal.png)).
+- Outside change to Drafter (200), then Send with a new draft → "Run was not started: The selected Agent configuration changed; refresh before sending". The control re-read to Drafter, the draft and caret 37/37 were kept, and Runs stayed at 1 ([shot](e1/browser/a10-stale-refused.png)).
+- 390 dark chooser; the Attention sheet does not contain the control. Overflow 0, no stray `null`.
+- Preview held states unchanged from the previous stage.
+
+**Tests.** Full product suite `npm --prefix app test`: **1592/1592** ([log](e1/logs/full-suite.log)). The targeted suites are included in that run.
+
+**Still open (not claimed):** Home cannot choose before a Session exists; a Run's bound profile is not shown in the chooser; profile/Kit editing; no independent acceptance of this return; no screen reader, native zoom, forced colours or real touch.

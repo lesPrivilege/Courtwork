@@ -37,8 +37,9 @@ export function projectSnapshot(snapshot) {
     revision: snapshot?.revision ?? null,
     sessionId: snapshot?.sessionId ?? null,
     activeRuns: Number.isSafeInteger(snapshot?.activeRuns) ? snapshot.activeRuns : null,
-    /* `chat` = an ordinary Chat; `global` = the Attention Session. The chooser
-       is offered for ordinary Chats only; a Role label never moves a Chat. */
+    /* The Session's own scope kind, kept verbatim (`project`, `chat`, …).
+       Only `global` — the Attention Session — excludes the chooser; a Role
+       label never moves a Chat. */
     sessionKind: snapshot?.sessionScope?.kind ?? null,
     /* Whether the Host checks a Send's `runtimeSelection` expectation. Until it
        advertises that, Send omits the field (legacy behaviour) — see
@@ -315,4 +316,43 @@ export function createAgentChoiceController({ adapter, getSessionId }) {
   }
 
   return api;
+}
+
+/** E1-R3 · Pure: whether the chat on screen offers the Agent control and
+ * whether its read holds Send. Only the *current* Session's own read decides;
+ * a reading left over from another chat, or a read not yet answered, never
+ * chooses visibility. No Session, the Attention surface and a global Session
+ * keep their existing behaviour (no control, nothing held). Any other scope —
+ * `project`, `chat`, … — is an ordinary Chat. */
+export function agentChoiceGate({ session, attentionOpen = false, choice }) {
+  if (!session || attentionOpen || session.scope === "global") return { shown: false, holdsSend: false, reason: "" };
+  const current = choice?.sessionId === session.id ? choice : null;
+  if (!current || current.read.status === "idle" || (current.read.status === "loading" && !current.snapshot))
+    return { shown: true, holdsSend: true, reason: "Reading this chat's agent…" };
+  if (current.read.status === "ready" && current.snapshot?.sessionKind === "global") return { shown: false, holdsSend: false, reason: "" };
+  if (current.read.status === "error") return { shown: true, holdsSend: true, reason: `The agent reading failed: ${current.read.error}` };
+  return { shown: true, holdsSend: !current.next?.send.enabled, reason: current.next?.send.reason ?? "" };
+}
+
+/** E1-R1 · The host page's lifecycle seam. `sync` is called from rendering; it
+ * records what it has seen *before* calling anything that emits, so a
+ * controller that emits synchronously (and re-renders the page) cannot make it
+ * start a second load or refresh. Exactly one refresh per real
+ * active → not-active transition of the same Session; one load per Session. */
+export function createAgentChoiceLifecycle(controller) {
+  let seenSession = null;
+  let wasActive = false;
+  return {
+    sync({ session, active, attentionOpen = false }) {
+      const id = session && session.scope !== "global" && !attentionOpen ? session.id : null;
+      const sessionChanged = id !== seenSession;
+      const ended = !sessionChanged && wasActive && !active;
+      seenSession = id;
+      wasActive = Boolean(active);
+      if (!id) return { load: false, refresh: false };
+      if (sessionChanged && controller.getState().sessionId !== id) { void controller.load(); return { load: true, refresh: false }; }
+      if (ended) { void controller.refresh(); return { load: false, refresh: true }; }
+      return { load: false, refresh: false };
+    },
+  };
 }

@@ -44,7 +44,7 @@ import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { renderModelEffortCard, visibleModelName } from "./model-effort.mjs";
-import { createAgentChoiceController, liveAgentChoiceAdapter } from "./agent-choice.mjs";
+import { createAgentChoiceController, liveAgentChoiceAdapter, agentChoiceGate, createAgentChoiceLifecycle } from "./agent-choice.mjs";
 import { createAgentChooser } from "./agent-chooser-view.mjs";
 import { renderCommandResult } from "./command-result.mjs";
 import { renderPresentationInline, renderPresentationPane } from "./presentation-facts.mjs";
@@ -278,7 +278,7 @@ function previewBannerNode() {
 }
 let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView, localExtensionView;
 /* E1 · the Composer's Agent choice (06e design A) over Runtime Control. */
-let agentChoice = null, agentChooser = null, agentChoiceRunActive = false;
+let agentChoice = null, agentChooser = null, agentChoiceLifecycle = null;
 let materialsFileReturnEpoch = null;
 const dialogReturns = new Map();
 const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";
@@ -3810,15 +3810,12 @@ function renderComposer() {
  * ends, and it holds Send only for its own stated reasons. */
 function syncAgentChoice(session, active) {
   if (!agentChoice || !agentChooser) return { holdsSend: false, describedBy: null };
-  const choice = agentChoice.getState();
-  if (session && choice.sessionId !== session.id) void agentChoice.load();
-  else if (session && agentChoiceRunActive && !active) void agentChoice.refresh();
-  agentChoiceRunActive = Boolean(active);
-  const shown = Boolean(session) && !state.attentionOpen && choice.snapshot?.sessionKind !== "global";
-  agentChooser.setVisible(shown);
-  if (!shown) return { holdsSend: false, describedBy: null };
-  const current = choice.sessionId === session.id ? choice : null;
-  return { holdsSend: !current?.next?.send.enabled, describedBy: agentChooser.describedBy() };
+  /* E1-R1 · the lifecycle marks what it saw before any call that emits. */
+  agentChoiceLifecycle.sync({ session, active, attentionOpen: state.attentionOpen });
+  /* E1-R3 · visibility and the Send hold come from this Session's own read. */
+  const gate = agentChoiceGate({ session, attentionOpen: state.attentionOpen, choice: agentChoice.getState() });
+  agentChooser.setVisible(gate.shown);
+  return { holdsSend: gate.holdsSend, describedBy: gate.shown ? agentChooser.describedBy() : null };
 }
 
 /* CI-B · set by wireEvents; a no-op where the stylesheet sizes the field itself. */
@@ -5426,8 +5423,9 @@ async function submitSessionRun({ commandId = null } = {}) {
    * reading. The Host checks it after its replay lookup (409
    * runtime_selection_conflict); a held choice sends nothing at all. */
   const agentReading = agentChoice?.getState();
-  if (agentChooser && agentReading?.sessionId === sessionId && !state.attentionOpen && agentReading.snapshot?.sessionKind !== "global" && !agentReading.next?.send.enabled) {
-    setTransientFeedback(sessionId, nextOperationId("run-blocked"), "run", agentReading.next?.send.reason || "The agent for this chat is not read yet — not sent");
+  const agentGate = agentChoice ? agentChoiceGate({ session, attentionOpen: state.attentionOpen, choice: agentReading }) : { holdsSend: false };
+  if (agentGate.holdsSend) {
+    setTransientFeedback(sessionId, nextOperationId("run-blocked"), "run", `${agentGate.reason || "The agent for this chat is not read yet."} Not sent.`);
     return;
   }
   const runtimeSelection = agentReading?.sessionId === sessionId ? agentReading.next?.send.runtimeSelection ?? null : null;
@@ -6822,6 +6820,7 @@ function closeSettings({ restoreFocus = true, hash = true } = {}) {
   /* A profile may have been edited there: the Agent choice re-reads, and its
    * own draft (if any) is kept. */
   void agentChoice?.refresh();
+  runtimeView?.forgetPendingOpen();
   const trigger = state.settings.returnFocus;
   state.settings.open = false;
   state.settings.returnFocus = null;
@@ -7620,17 +7619,26 @@ async function init() {
     mount: $("composer-form").querySelector(".composer-context"),
     noticeAfter: $("composer-notice"),
     modelReading: () => (state.providerConfig?.config ? visibleModelName(state.providerConfig.config) : null),
-    /* Profile sources are edited where they live: Settings → Developer →
-     * Runtime composition. Back returns to this control; the draft stays. */
+    /* The profile's recorded source is inspected where it lives: Settings →
+     * Developer → Runtime composition (read-only there). Back returns to this
+     * control; the draft stays. */
     openSettings: (id, trigger) => {
       openSettings("developer", { trigger });
       runtimeView?.openResource(id);
     },
   });
   agentChooser.setVisible(false);
-  /* `subscribe` calls back at once; the composer is painted by init itself. */
-  let agentChoiceFirst = true;
-  agentChoice.subscribe(() => { if (agentChoiceFirst) { agentChoiceFirst = false; return; } renderComposer(); });
+  agentChoiceLifecycle = createAgentChoiceLifecycle(agentChoice);
+  /* E1-R1 · controller changes repaint the composer once, after the current
+     task — never from inside a render that caused them. `subscribe` calls
+     back at once; the composer is painted by init itself. */
+  let agentChoiceFirst = true, agentChoicePaint = false;
+  agentChoice.subscribe(() => {
+    if (agentChoiceFirst) { agentChoiceFirst = false; return; }
+    if (agentChoicePaint) return;
+    agentChoicePaint = true;
+    queueMicrotask(() => { agentChoicePaint = false; renderComposer(); });
+  });
   runtimeView = createRuntimeView(
     {
       overview: $("settings-runtime-overview"),
