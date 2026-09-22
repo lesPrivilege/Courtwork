@@ -19,9 +19,9 @@ const CODING_SOURCE = {
   uiSlots: [],
   kits: [{ descriptor: { schemaVersion: 1, id: "coding-review", version: "0.2.0", core: [], deferred: [], requirements: [], conflicts: [] }, descriptorSha256: hash(7) }],
 };
-const NOTES_SOURCE = { version: "1.0.0", resourceIds: ["local:notes-style"], rules: [], uiSlots: [] };
+const NOTES_SOURCE = { schemaVersion: 1, version: "1.0.0", resourceIds: ["local:notes-style"], rules: [], uiSlots: [] };
 
-export function createAgentChoiceFixture({ pause = wait, delay = 120, sessionId = "session-synthetic" } = {}) {
+export function createAgentChoiceFixture({ pause = wait, delay = 120, sessionId = "session-synthetic", checks = true } = {}) {
   let scenario = "normal";
   let revision = 12;
   let selections = [];
@@ -46,7 +46,8 @@ export function createAgentChoiceFixture({ pause = wait, delay = 120, sessionId 
   const snapshot = () => ({
     protocolVersion: 1, revision, sessionId, scopes: [{ type: "user", id: "local" }, { type: "session", id: sessionId }],
     activeRuns: scenario === "active-run" ? 1 : 0, adapterId: "pi", resources: resources(), composition: composition(),
-    profileSelections: copy(selections), policies: [], context: [], audit: [], kinds: [], compatibility: { hotSwap: "between-runs" },
+    profileSelections: copy(selections), policies: [], context: [], audit: [], kinds: [], sessionScope: { kind: "chat", projectId: null },
+    compatibility: { hotSwap: "between-runs", ...(checks ? { runtimeSelection: "expectation-v1" } : {}) },
   });
   const apply = (id) => {
     selections = selections.filter((entry) => !(entry.scope.type === "session" && entry.scope.id === sessionId));

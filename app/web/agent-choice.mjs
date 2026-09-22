@@ -37,6 +37,13 @@ export function projectSnapshot(snapshot) {
     revision: snapshot?.revision ?? null,
     sessionId: snapshot?.sessionId ?? null,
     activeRuns: Number.isSafeInteger(snapshot?.activeRuns) ? snapshot.activeRuns : null,
+    /* `chat` = an ordinary Chat; `global` = the Attention Session. The chooser
+       is offered for ordinary Chats only; a Role label never moves a Chat. */
+    sessionKind: snapshot?.sessionScope?.kind ?? null,
+    /* Whether the Host checks a Send's `runtimeSelection` expectation. Until it
+       advertises that, Send omits the field (legacy behaviour) — see
+       engineering/design/role-composer-20260922/e1/backend-requests.md. */
+    checksSelection: snapshot?.compatibility?.runtimeSelection === "expectation-v1",
     adapterId: snapshot?.adapterId ?? null,
     profiles: resources
       .filter((resource) => resource.kind === "agent_profile")
@@ -122,7 +129,7 @@ export function createAgentChoiceController({ adapter, getSessionId }) {
       sourceHash: effective.hash ?? null,
     };
     const pendingDraft = draft && !(draft.profileId === effective?.id && (draft.sourceHash ?? null) === (effective?.hash ?? null));
-    let send = { enabled: true, reason: "", runtimeSelection: selection };
+    let send = { enabled: true, reason: "", runtimeSelection: snapshot.checksSelection ? selection : null };
     if (read.status !== "ready") send = { enabled: false, reason: read.status === "error" ? `The agent reading failed: ${read.error}` : "Reading the agent…", runtimeSelection: null };
     else if (apply.status === "applying") send = { enabled: false, reason: `Selecting ${profileOf(draft?.profileId)?.title ?? "the agent"}…`, runtimeSelection: null };
     else if (pendingDraft) send = { enabled: false, reason: pendingReason(), runtimeSelection: null };
@@ -261,6 +268,14 @@ export function createAgentChoiceController({ adapter, getSessionId }) {
         emit();
         await readSnapshot();
       }
+    },
+
+    /** "Check again" after an unknown outcome: read back and compare. */
+    async check() {
+      const own = applyEpoch;
+      const submitted = draft && clone(draft);
+      const fresh = await readSnapshot();
+      if (fresh && submitted && own === applyEpoch && draft) settle(submitted, { afterUnknown: true });
     },
 
     /** Drop the unapplied draft and keep the chat's current agent. */

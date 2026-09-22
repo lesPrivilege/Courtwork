@@ -6557,3 +6557,44 @@ html[data-theme="dark"] {
 .object-command.is-disabled { color: var(--muted-strong); cursor: default; }
 .object-command.is-disabled:hover, .object-command.is-disabled:active { background: transparent; }
 .object-command.is-destructive:not(.is-disabled) { color: var(--danger-11); }
+
+/* E1 · Role-first Composer · the Agent control and its anchored chooser
+ * (06e design A). Compact workbench chrome for the control; decision/reading
+ * role inside the chooser. Existing tokens only; scoped to these classes. */
+.agent-chip { position: relative; color: var(--ink); }
+.agent-chip::after { content: ""; position: absolute; inset: -3px 0; }
+.agent-chip > .ui-icon { flex: none; width: 16px; height: 16px; }
+.agent-chip > .button-label { max-width: min(200px, 34vw); font-weight: 500; }
+.agent-chip[aria-expanded="true"] { background: var(--hover); }
+@media (max-width: 767px), (pointer: coarse) {
+  .agent-chip { min-height: 44px; }
+  .agent-chip::after { content: none; }
+}
+.agent-popover { width: min(560px, calc(100vw - 24px)); }
+.agent-popover .section-heading { margin-bottom: var(--space-2); }
+.agent-popover-body { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: var(--space-3); }
+.agent-listbox { display: flex; flex-direction: column; gap: 2px; align-self: start; border-radius: var(--radius-small); }
+.agent-option { display: grid; gap: 2px; min-height: 32px; padding: var(--space-2); border-radius: var(--radius-small); cursor: pointer; text-align: left; }
+.agent-option.is-active { background: var(--hover); }
+.agent-option-name { font-weight: 500; overflow-wrap: anywhere; }
+.agent-option-purpose { color: var(--muted-strong); font-size: var(--text-meta); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.agent-option-state { color: var(--muted-strong); font-size: var(--text-meta); }
+.agent-detail { min-width: 0; padding-left: var(--space-3); border-left: 1px solid var(--line); }
+@media (max-width: 560px) {
+  .agent-popover-body { grid-template-columns: minmax(0, 1fr); }
+  .agent-detail { padding-left: 0; padding-top: var(--space-3); border-left: 0; border-top: 1px solid var(--line); }
+}
+.agent-reading { font-size: var(--text-meta); line-height: 1.5; }
+.agent-reading-purpose { margin: 0 0 var(--space-2); color: var(--ink); }
+.agent-reading-facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--space-1) var(--space-3); margin: 0 0 var(--space-2); }
+.agent-reading-facts dt { color: var(--muted-strong); }
+.agent-reading-facts dd { margin: 0; overflow-wrap: anywhere; }
+@media (max-width: 420px) {
+  .agent-reading-facts { grid-template-columns: minmax(0, 1fr); }
+  .agent-reading-facts dd { margin-bottom: var(--space-1); }
+}
+.agent-notice-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-1) var(--space-2); }
+.agent-notice-row[hidden] { display: none; }
+.agent-notice-row > .agent-notice { flex: 1 1 16rem; min-width: 0; }
+.agent-notice-actions { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); }
+.agent-notice-actions > .text-button { font-size: var(--text-meta); }
