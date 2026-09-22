@@ -119,3 +119,6 @@
 
 
 2026-09-22 · [Local Pi final adoption](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-final-20260922/README.md): LP-R5 dadbfdd/product7ab46d0 independent18/18 plus unchanged parent DELETE probe409/state+fence retained; integrated main56133b3 local/deletion/schema/Spark/C/D65/65 exit0. Prior56/56 remains prior-source evidence; no full-suite/live-provider/product-selection claim. Exact archive/bundle restoration verified before ended tree removal; app CUA infrastructure not stopped. [Closure audit](execution/claude-frontend-harness-2026-09-16/evidence/work-closure-audit-20260922/README.md) is documentation/owner reasoning and fixes stale basic-dogfood status; it does not accept M1, K0,06e or unexecuted G4.
+
+
+2026-09-22 · [Kit K1/K2 final adoption](execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md): product966dfdb/handoff9a09f8e, parent Luna51/51 (44 author+7 independent-authored), adjacent9/9 and2 extra adversarial probes, all exit0; actual-main70a2268 51/51. Exact module/source hashes match; unchanged existing owner files and schemas. Accept pure compiler/synthetic binding→plan→context only, no live Kit/Run/UI capability.9,423 entries restored/verified and complete Git bundle cloned/fsck-verified before ended tree/branch cleanup.

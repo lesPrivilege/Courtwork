@@ -78,3 +78,8 @@ The [personal Settings ruling](architecture-node-2026-09-13/local-agent-runtimes
 ## 2026-09-22 · Prepared Kit context contract/compiler candidate
 
 The [parallel Kit K0→K2 handoff](../execution/claude-frontend-harness-2026-09-16/kit-context-core-20260922.md) consumes the existing Runtime Control/source/compiler owners through a bounded Luna source map. It first defines the missing minimal descriptor/context-plan contract under this RD, then permits disjoint pure-module implementation after parent disposition. It does not replace profile CAS, resource loading, permission decisions, Work context or child state, and does not claim a production Kit registry/mount. [Claude06e](../execution/claude-frontend-harness-2026-09-16/06e-role-composer-selection-20260922.md) separately explores the Role-first consumer as an explicit specimen. No new task/process or Host writer was dispatched by this registration.
+
+
+## 2026-09-22 · Reference-only Kit context planner accepted
+
+[K1/K2 final adoption](../execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md) adds `app/runtime/kit-context.mjs` over already-admitted Runtime Control resources, reusing `compileControlContext` and `resolveRuntimeSource`. Exact pins, deterministic budgeted context, deferred bodies, evidence-qualified compatibility and copied permission readings are checked independently. This is a pure compiler plus synthetic consumer, not a new Kit runtime/catalog or a saved selection→Run transaction. Resource import/removal, profile CAS and frozen Host/Adapter identity remain with their existing owners; native contributions and permissions cannot be created by a compiled plan.

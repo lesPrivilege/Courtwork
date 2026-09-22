@@ -26,6 +26,10 @@ The [personal credentials and hooks ruling](research/architecture-node-2026-09-1
 
 [Browser/Preview selection](research/architecture-node-2026-09-13/browser-preview-ruling-20260921.md) separates real artifact/dev-target Preview, human-visible Browser projection and Host-governed browser control. CW retains Node/Web and existing surface owners; Playwright-controlled isolated Chromium is the first later control candidate, while WebContentsView is conditional on a separately chosen native host. No package/runtime capability is adopted by research. The first authorized UI increment is tabbed Preview over existing readers, replacing card launchers; real browser execution and left-rail changes follow later contracts. Browser resources are not automatically Work Core Matter state, and closing/hiding a view is not execution cancellation or profile deletion.
 
+## 2026-09-22 · Kit context planning seam
+
+[Accepted reference-only K1/K2](execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md) adds [`planKitContext`](../app/runtime/kit-context.mjs) as a pure Harness contribution over existing Runtime Control bindings and source identities. It verifies and attributes already-admitted content; it does not admit resources, grant permissions or own profile/Run persistence. No-Kit preserves the existing compiler. Kit catalog/selection/import and production Kit→Run freezing remain separate missing consumers under Runtime Control/Host/Adapter.
+
 ## 变更边界
 
 动产品代码前，在原任务合同注明本次改变的责任、事实owner、最近实现先例及必要的跨层修改理由。普通Provider、执行能力或垂类增量应沿对应合同接入；评审检查是否复制权威状态、使领域差异侵入主loop，或增加另一套UI语义。需要跨层修改时说明真实接缝与不变量，不能仅按目录数量判断解耦。

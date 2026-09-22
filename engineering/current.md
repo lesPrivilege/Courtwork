@@ -1,5 +1,11 @@
 # 当前工程状态
 
+## 2026-09-22 · Kit K1/K2 accepted and integrated within pure-planner scope
+
+[Parent final adoption](execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md) accepts product966dfdb/handoff9a09f8e at main70a2268: parent Luna51/51, adjacent9/9 and2 adversarial probes; actual-main51/51. Exact source pins, budget/refusal/deferred semantics, no-Kit legacy behavior and non-mutating output are accepted for the pure reference-only planner/synthetic consumer. RuntimeStore20/Core4/bridge5, shared Host/control/UI and package pins remain unchanged; production Kit selection/profile→Run binding is still open.
+
+The released Kit tree/branch was fully archived, physically restored and Git-bundle verified, then removed; archive ref remains. M1 and06e-R1 source trees are preserved. No automatic next slice, user service/data operation, provider call, push or deployment. Historical author/K0 pending wording is superseded by the final receipt, not rewritten.
+
 ## 2026-09-22 · 06e direction A selected; compatibility state/control return
 
 [Parent selection and browser evidence](execution/claude-frontend-harness-2026-09-16/evidence/06e-selection-review-20260922/README.md) choose the anchored Agent chooserA from69f39a7. Luna9/9 plus OpenAI browser verify pre-selection reading, Escape/Settings return and frozen bound Run; desktop B costs37px in the form and Details moves the input143.5px. Hold specimen acceptance/E1 for06E-R1: declaration-only missing support still becomes a false incompatibility Send blocker. Original Claude retains the bounded synthetic tri-state correction; no main product/Host integration, source cleanup or new shared-file writer. K1/K2 continues separately.

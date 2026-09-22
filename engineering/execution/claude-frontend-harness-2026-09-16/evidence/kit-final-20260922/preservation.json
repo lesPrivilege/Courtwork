@@ -1,0 +1,26 @@
+{
+  "main": "393d315478ed1970f03dac9ecaac003cafe040be",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/.codex/worktrees/kit-k0-20260922/Courtwork",
+      "head": "9a09f8ef06f1b3b46189e6bba73a2dfd3e8f7a44",
+      "archive_ref": "refs/archive/kit-compiler-20260922/Courtwork",
+      "entries": 9423,
+      "file_bytes": 468756629,
+      "archive_sha256": "90a9715848c1d4a1e984aa3fd1ce37ee60b28be0a93eb05a72223313a70b465e",
+      "manifest_sha256": "f4a01db6f08893e393581df078ecd649bf4ad15e49c1b15ccf111e2a9c6cb04a",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "f600c7f8d7c497cec724a1437332544832a1d0e8316919cbaea547c6c12cefe2",
+  "bundle_restored_and_verified": true,
+  "removed": true,
+  "noTaskOrTestWriter": true,
+  "applicationInfrastructureCwdHolders": [],
+  "processesStopped": [],
+  "integratedMain": "70a2268d25a4cb4baf96cda2ca2ab30326f86df8",
+  "archiveLocation": "Projects/.archives/courtwork-kit-compiler-20260922 relative to operator home",
+  "finalSourceUnchanged": true,
+  "noUnintegratedCommits": true
+}
