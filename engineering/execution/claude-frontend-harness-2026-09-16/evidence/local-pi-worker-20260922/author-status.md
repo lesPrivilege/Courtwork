@@ -139,3 +139,9 @@ Verification: rerun the parent's exact probe before/after; actual HTTP and direc
 LP-R5 implementation/evidence: [bounded return](lp-r5/README.md). The unmodified parent probe changed from exit1/DELETE200/lost fence/invalid state to exit0/DELETE409/retained fence/valid state, with0 provider requests both times. New dedicated checks5/5 and selected deletion/Spark/local Host35/35 exit0. They prove HTTP and Store refusal preserves memory and exact persisted bytes, legal reopen, retained completed/archived findings, no retry/reconcile redispatch, and ordinary unreferenced Chat deletion. A queued-reference race proves Store catches a reference that the Service snapshot could not yet see. The shared guard's exact Spark-only reference scope is documented; no generic deletion framework, tombstone, cascade or schema bump was introduced. app README's stale schema19 layout comment is corrected to20.
 
 The parent review at main81d966f was consumed read-only; its fixed6b45fd8 independent56/56 and separate candidate diagnostic1/1 remain prior-source evidence. This return does not repeat or supersede the unexplained earlier adjacent candidate-create failures. Parent acceptance is still pending.
+
+### LP-R5 final return and writer release
+
+Product correction **7ab46d04b07bf4e924985274ac788143da9622a0** preserves the previously delivered history. Exact parent probe before/after, dedicated5/5, selected35/35 and documentation links are retained in `lp-r5/`. No further blocking failure occurred in this return. These are author proofs; the parent's prior56/56 remains pinned to6b45fd8 and final acceptance belongs to the parent.
+
+The limited deletion writer is **released again**. No new slice, task service, model trial or cleanup operation is running; original worktree/dependencies remain preserved. Main,8787/M1 and credentials are untouched. Only parent integration/review may advance this candidate.

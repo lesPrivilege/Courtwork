@@ -1,6 +1,6 @@
 # Local Pi worker — finite author handoff
 
-2026-09-22. Branch `codex/local-pi-worker-20260922`; isolated checkout reused. Product source **`6c87b7d`**. Author implementation is complete; **parent Arch retains final acceptance and main integration**. No main merge, push or deployment was performed by this task.
+2026-09-22. Branch `codex/local-pi-worker-20260922`; isolated checkout reused. Product source **`7ab46d0`**, including the bounded LP-R5 return. Author implementation is complete; **parent Arch retains final acceptance and main integration**. No main merge, push or deployment was performed by this task.
 
 ## Delivered path
 
@@ -20,6 +20,7 @@ Provided sources are not model-read receipts. With provided-only sources, the Ru
 | LP-R1 verified no-tool refusal | `1f349f5` |
 | L3 Host/Store/Spark integration | `a863067` |
 | LP-R4 Host status/mutation correction | `6c87b7d` |
+| LP-R5 Session deletion reference protection | `7ab46d0` |
 
 [Exact source/package pins](source-pins.json), [responsibility/transition contract](l3-contract.md), [full author record and review dispositions](author-status.md). Upstream is the unchanged locked MIT package, source `d981de1229ef899957bbe968bc8dcda02a21f477`; the adapter verifies all51 bundle JS files. No global launcher or dependency upgrade was substituted.
 
@@ -27,6 +28,7 @@ Provided sources are not model-read receipts. With provided-only sources, the Ru
 - Author initial L3 + existing Pi/Spark:37/37; parent-tool path1/1. After LP-R4: Host/schema21/21 and Pi/Spark19/19.
 - Luna before LP-R1:33/33 plus a reproduced defect; corrected wrapper review34/34. Initial L3 review19/19 returned LP-R4; parent selected the adjusted independent Host/native-status interpretation. These are separately attributed bounded reviews, not parent acceptance.
 - [Final bounded LP-R4 review](lp-r4-review.md) at6c87b7d:7/7 exit0, no blocking finding within the correction/crash/late-cancellation scope; [raw log](lp-r4-review-tests.log).
+- Parent's later fixed6b45fd8 review passed56/56 but held LP-R5 deletion. [LP-R5 return](lp-r5/README.md): same parent probe changes from exit1 to exit0; author deletion checks5/5 and selected regression35/35. Referenced parent/child and historical source/result Sessions now refuse deletion atomically, retaining bytes and unknown fences; ordinary unreferenced Chats still delete. Parent acceptance of the correction is pending.
 
 Failure logs and subsequent checks remain in this packet. They include actual process/Host fault injection, the abandoned Host callback, the final source-publication race, and the original/adjusted LP-R4 counterexamples. Raw logs/patch context retain their whitespace; product/prose diff checks pass separately.
 

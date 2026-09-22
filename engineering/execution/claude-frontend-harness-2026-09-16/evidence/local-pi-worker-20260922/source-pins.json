@@ -8,7 +8,8 @@
     "L2": "316a2eafa7fba864fe121bc8c066770291a89e0c",
     "LP-R1": "1f349f54351c37a01571cf9c0ea997e8c9d33f81",
     "L3": "a863067703a2de6f9fedc749ec85d4db2ef04e3e",
-    "LP-R4": "6c87b7d17242ac2f67bb7dacb69f37af48a65e36"
+    "LP-R4": "6c87b7d17242ac2f67bb7dacb69f37af48a65e36",
+    "LP-R5": "7ab46d04b07bf4e924985274ac788143da9622a0"
   },
   "upstream": {
     "package": "@earendil-works/pi-coding-agent",
@@ -30,5 +31,6 @@
   "liveModelCapability": false,
   "mainIntegrated": false,
   "independentAcceptanceOwner": "parent Arch",
-  "productSource": "6c87b7d17242ac2f67bb7dacb69f37af48a65e36"
+  "productSource": "7ab46d04b07bf4e924985274ac788143da9622a0",
+  "parentReviewLP-R5": "81d966f2f6b93d4b46bec29d144eaad8d4266a67"
 }
