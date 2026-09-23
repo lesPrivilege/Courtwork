@@ -1,0 +1,42 @@
+{
+  "checks": [
+    {
+      "name": "while the first reply is held: fresh read records the Host state; no reconciliation action; Save held; newer typing kept",
+      "pass": true
+    },
+    {
+      "name": "repeated Save during the wait: still exactly one PUT",
+      "pass": true,
+      "puts": 1
+    },
+    {
+      "name": "the delayed 200 settles as saved; its own revision's reading is cleared; newer typing remains unsaved",
+      "pass": true
+    },
+    {
+      "name": "a deliberate second Save after settlement: one more PUT at the next revision; saved hash equals the newer text",
+      "pass": true,
+      "puts": [
+        {
+          "revision": 7,
+          "status": 200
+        },
+        {
+          "revision": 8,
+          "status": 200
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "puts": [
+    {
+      "revision": 7,
+      "status": 200
+    },
+    {
+      "revision": 8,
+      "status": 200
+    }
+  ]
+}

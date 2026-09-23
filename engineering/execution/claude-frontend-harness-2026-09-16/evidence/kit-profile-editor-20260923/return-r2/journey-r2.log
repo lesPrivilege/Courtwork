@@ -1,0 +1,6 @@
+PASS while the first reply is held: fresh read records the Host state; no reconciliation action; Save held; newer typing kept
+PASS repeated Save during the wait: still exactly one PUT
+PASS the delayed 200 settles as saved; its own revision's reading is cleared; newer typing remains unsaved
+PASS a deliberate second Save after settlement: one more PUT at the next revision; saved hash equals the newer text
+JOURNEY R2 OK
+exit 0

@@ -196,3 +196,43 @@ Construction has stopped again. The finite writer is released for parent Astra's
 | Finding | Disposition | Owner / symbols | Planned change |
 |---|---|---|---|
 | K5-R2 (remaining: pending save released by reconciliation) | adopt | `profile-editor.mjs` `readBase`, `keepMine`, `useCurrent`, `save` success settle; `profile-editor-view.mjs` fresh block | While a save is outstanding (`saving`), a fresh read may only record `fresh`. It never replaces base or text and never touches the save state. **Keep my text** and **Use the current source** refuse, and the view shows a waiting note in their place. On a successful reply, a `fresh` reading at or below the reply revision (our own write) is cleared. A newer one is kept for a deliberate choice. Typing stays separate, and the unknown/read-back semantics are unchanged. |
+
+## Return R2 · delivery (author)
+
+**Fixed correction source: `136f1d60b1acd73472bb7dd8f2ec168ac26b1397`.** Its parent is the pickup record `0e577c2`, which sits on the R1 evidence `dd0947d`. The R1 source `991a0c6` and all earlier evidence are unchanged. Changed paths: `app/web/profile-editor.mjs`, `app/web/profile-editor-view.mjs`, `app/tests/profile-editor.test.mjs`. There are no runtime-view, CSS, Host, API or schema changes.
+
+### K5-R2 remaining path (adopt, fixed)
+
+- **Fresh reads.** While `save.status === "saving"`, `readBase` only records `fresh` when the Host's revision or hash differs from the base. It never replaces base or text and never changes the save state. The slot's outstanding save therefore keeps ownership through Workbench refreshes and explicit **Read the current source**.
+- **Reconciliation.** `keepMine` and `useCurrent` refuse while saving. The view shows "A save is still waiting for the Host's answer. Choose how to continue once it settles." in place of both buttons. The fresh line is worded neutrally: the new Host reading *may include* the waiting save.
+- **Settlement.** On a successful reply the base becomes the reply's revision and the submitted text. A `fresh` reading at or below that revision is this write, or older, and is cleared. A newer one is another writer's change and stays for a deliberate choice, with Save held. Newer typing remains unsaved and dirty. A lost reply still settles only through its own hash read-back. The synchronous double-submit guard from R1 is unchanged.
+
+### Verification (all on `136f1d6`)
+
+1. **Controller:** `app/tests/profile-editor.test.mjs` **26/26**, three of them new.
+   - A held successful reply combined with newer typing, a known revision, an explicit read, both reconciliation actions and two repeated Saves: one outstanding PUT; settlement at revision 8 clears the own-write reading and keeps the newer text; a deliberate next Save sends one PUT at revision 8.
+   - A newer foreign write read during the wait survives settlement and needs a choice.
+   - A lost reply during the wait keeps its read-back settlement.
+2. **Targeted six-file suite:** 74/74 ([log](return-r2/targeted-tests.log), [exit](return-r2/targeted-tests.exit)). **Full suite:** 1669/1669 ([log](return-r2/full-tests.log), [exit](return-r2/full-tests.exit)).
+3. **Parent reconciliation probe:**
+   - *Unchanged*, it now waits indefinitely for a second PUT that is never sent. It was stopped by a 3s alarm with no output ([log](return-r2/reconciliation-probe-unchanged.log)).
+   - An *adapted copy* ([diff](return-r2/probe-adaptation.diff), [script](return-r2/reconciliation-probe-adapted.mjs.txt)) only bounds that wait and inverts its final assertion. It reports: before `saving`/fresh 8; after Keep my text still `saving` with Save disabled; **1** request before any response; final `saved` ([log](return-r2/reconciliation-probe-adapted.log), exit 0).
+4. **Real UI and real Host CAS** ([script](return-r2/journey-r2.mjs.txt), [log](return-r2/journey-r2.log), [checks](return-r2/browser/checks.json)): **4/4 PASS**, no page errors. Scenes:
+   - The first Save's 200 reply is held by Playwright after the Host wrote revision 8.
+   - Newer typing, then **Refresh the runtime snapshot** and **Read the current source**: the waiting note appears, no reconciliation buttons are shown, and Save is disabled with "Saving…" ([r2-01](return-r2/browser/r2-01-pending-fresh-light-1440.png)).
+   - Double-click plus Enter: still one PUT.
+   - Release: saved, with the newer text kept ([r2-02](return-r2/browser/r2-02-settled-light-1440.png)).
+   - A deliberate Save sends a PUT at revision 8 and the saved hash equals the newer text ([r2-03](return-r2/browser/r2-03-second-save-light-1440.png)).
+   - [Host receipt](return-r2/host-results.json): revision 9, provider requests 1 (the fixture's old Run only), managed posts 0, no new Run.
+5. **Regression:** the R1 scenes rerun 6/6 and the original journey 16/16 on `136f1d6` ([logs and receipts](return-r2/regression/)), with the same Host receipts as before. All eight lints exit 0.
+
+### Not executed or limited
+
+- Parent OpenAI computer-use acceptance of this delta is not done.
+- The held reply is Playwright response interception in a disposable headless tab; the Host writes are real.
+- Not executed: native zoom/200%, a screen reader, forced colours and real touch input. These are unchanged from the earlier limits.
+- No user service, data, credential or paid provider was touched; every fixture Host is stopped.
+
+### Handoff
+
+Construction has stopped. The finite writer is released for parent Astra's review of this delta. Nothing is merged, pushed, deployed or cleaned; the tree and branch are kept as they are.
