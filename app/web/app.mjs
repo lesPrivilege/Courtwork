@@ -85,6 +85,8 @@ import {
   formatBytes,
 } from "./inspector.mjs";
 import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";
+import { createProfileEditor, liveProfileEditorAdapter } from "./profile-editor.mjs";
+import { createProfileEditorView } from "./profile-editor-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
 import { renderHome, homeSets, HOME_ROWS } from "./home-view.mjs";
 import {
@@ -7622,9 +7624,9 @@ async function init() {
     /* The profile's recorded source is inspected where it lives: Settings →
      * Developer → Runtime composition (read-only there). Back returns to this
      * control; the draft stays. */
-    openSettings: (id, trigger) => {
+    openSettings: (id, trigger, { edit = false } = {}) => {
       openSettings("developer", { trigger });
-      runtimeView?.openResource(id);
+      runtimeView?.openResource(id, { edit });
     },
   });
   agentChooser.setVisible(false);
@@ -7638,6 +7640,16 @@ async function init() {
     if (agentChoicePaint) return;
     agentChoicePaint = true;
     queueMicrotask(() => { agentChoicePaint = false; renderComposer(); });
+  });
+  /* K5 · the selected profile's source editor. Its drafts live here, beside
+     the page, so they survive Settings ↔ Chat navigation and Session
+     switches (not a reload). A confirmed save re-reads the Agent choice (the
+     next Send's expectation) and the Workbench snapshot. */
+  const profileEditorView = createProfileEditorView({
+    controller: createProfileEditor({
+      adapter: liveProfileEditorAdapter(request),
+      onSaved: () => { void agentChoice?.refresh(); void runtimeView?.refresh(); },
+    }),
   });
   runtimeView = createRuntimeView(
     {
@@ -7660,6 +7672,7 @@ async function init() {
           done: `Draft from "${title}" is ready. Nothing has been sent.`,
         }),
       getRuns: () => state.runs,
+      profileEditor: profileEditorView,
       getBinding: (runId) => state.recordedContext.get(runId) || null,
       loadBinding: (runId) => readRecordedContext(runId, state.activeSessionId),
       onEditConnection: () => {

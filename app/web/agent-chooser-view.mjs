@@ -136,11 +136,13 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     const activeProfile = profiles().find((entry) => entry.id === activeId);
     const children = [readingFor(activeId)];
     if (activeProfile && !activeProfile.builtin) {
-      /* E1-F1 · the destination is the read-only source inspection in
-         Settings › Developer; no editable profile/Kit path exists yet, so the
-         action says View, not Edit. */
-      const edit = el("button", { className: "text-button", text: `View ${activeProfile.title} source in Settings`, attrs: { type: "button", "data-testid": "agent-view-in-settings" } });
-      edit.addEventListener("click", () => { popover.hidePopover(); openSettings(activeProfile.id, chip); });
+      /* E1-F1 → K5 · Settings › Developer is the destination either way. Only
+         the profile this chat selects for itself opens its source editor
+         (Preview, then an explicit Save); any other profile is inspected
+         read-only there, so its action says View. */
+      const editable = state.snapshot.sessionSelection === activeProfile.id;
+      const edit = el("button", { className: "text-button", text: `${editable ? "Edit" : "View"} ${activeProfile.title} source in Settings`, attrs: { type: "button", "data-testid": "agent-view-in-settings" } });
+      edit.addEventListener("click", () => { popover.hidePopover(); openSettings(activeProfile.id, chip, { edit: editable }); });
       children.push(edit);
     }
     detail.replaceChildren(...children);

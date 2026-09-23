@@ -6346,6 +6346,19 @@ html[data-theme="dark"] {
 .runtime-intake[data-intake="skill"] textarea { font-family: var(--font-mono); }
 .runtime-intake-preview { display: grid; gap: var(--space-2); }
 .runtime-intake-preview h5 { margin: 0; font-size: var(--text-meta); }
+/* K5 · the selected profile's source editor: the same flat editor anatomy,
+   beside (not inside) the row's bounded reader. Source is reading role in
+   monospace; the preview readings use the Settings data list. */
+.profile-editor { margin-top: var(--space-3); border-block-end: 0; }
+.profile-editor > h5, .profile-editor-preview h5 { margin: 0; font-size: var(--text-meta); }
+.profile-editor textarea { width: 100%; min-width: 0; resize: vertical; font-family: var(--font-mono); font-size: var(--text-meta); line-height: 1.5; }
+.profile-editor > .form-help, .profile-editor-status > p, .profile-editor-decision > p { margin: 0; }
+.profile-editor-status, .profile-editor-decision, .profile-editor-preview { display: grid; gap: var(--space-2); min-width: 0; }
+.profile-editor-status:empty, .profile-editor-preview:empty { display: none; }
+.profile-editor-status > button, .profile-editor-decision > button { justify-self: start; }
+.profile-editor-list { margin: 0; padding-inline-start: var(--space-4); font-size: var(--text-meta); overflow-wrap: anywhere; }
+.profile-editor-details code { overflow-wrap: anywhere; }
+.profile-editor-candidate { margin: 0; max-height: 320px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: var(--text-meta)/1.6 var(--font-mono); }
 
 .runtime-local-heading { display: flex; align-items: center; gap: var(--space-2); }
 .runtime-local-manifest { max-height: 280px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: var(--text-meta); }
