@@ -1,0 +1,18 @@
+PASS chooser Edit opens the selected profile's source editor with focus in the field and the shared scope near Save
+PASS preview shows compiled candidate equal to the Host's expected context; no write, Run or revision change
+PASS a late preview reply for an earlier text lands after the newer one and does not replace it
+PASS refused Kit shows typed diagnostics, no candidate, and the explicit save consequence
+PASS malformed JSON keeps the owner's typed error beside the source
+PASS stale revision: preview refused, draft kept, fresh reading held apart for a deliberate choice
+PASS active Run: preview reports the freeze; Save gets the Host's active_run refusal and keeps the draft
+PASS after the Run ends nothing was applied; a fresh read (Check again) unlocks Save, which still needs an explicit press
+PASS dropped Save reply and failed read-back stay unknown; no automatic resend
+PASS Check again reads back: matching hash confirms saved bytes; newer typing remains unsaved
+PASS saved user-scope source reaches the other Chat that selects it
+PASS Escape returns to the same Chat: focus on the Agent control, draft/caret/material unchanged
+PASS new Run's recorded context equals the previewed candidate; old Run context unchanged; 3 Runs total
+PASS managed-executor Chat: preview shows the Host's kit_runtime_unsupported refusal
+PASS keyboard: chooser → Tab → Enter lands focus in the editor field
+PASS an unsaved editor draft survives Escape to the Chat and the return through the chooser
+JOURNEY OK
+exit 0

@@ -127,7 +127,7 @@ Construction has stopped. The finite writer is released for parent Astra's indep
 
 ## Return R1 · pickup (before product edits)
 
-2026-09-23 · This return consumes [Parent review](../kit-profile-editor-review-20260923/README.md) at main `86847b2` (the file lives on main, not in this tree) and the correction lease in the original order. The same tree and branch are used; the candidate was clean at `756ec6d`. There are no other writers here. The ended E1/K4 trees are untouched.
+2026-09-23 · This return consumes the parent review `engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-review-20260923/README.md` at main `86847b2` (not in this branch; cited by SHA and path) and the correction lease in the original order. The same tree and branch are used; the candidate was clean at `756ec6d`. There are no other writers here. The ended E1/K4 trees are untouched.
 
 | Finding | Disposition | Owner / symbols | Planned change |
 |---|---|---|---|
@@ -136,3 +136,55 @@ Construction has stopped. The finite writer is released for parent Astra's indep
 | K5-F1 | adjust | `styles.css` `.profile-editor textarea`, `.profile-editor-candidate` | Source becomes `--text-body` at 1.5 leading; candidate becomes `--text-reading` at 1.6 leading. Both stay monospace. The scoped class is kept, as adopted. |
 
 The Host remains the authority. CAS already prevented stale commits; these are decision-reading and scope fixes.
+
+## Return R1 · delivery (author)
+
+**Fixed correction source: `991a0c600d5abc6a8fdd6d13adc1ac0a1b137da1`.** Its parent is the pickup record `e489add`, which sits on `756ec6d`. Earlier source `a0bed5a` and its evidence above are kept unchanged. Changed paths: `app/web/profile-editor.mjs`, `app/web/profile-editor-view.mjs`, `app/web/runtime-view.mjs`, `app/web/styles.css`, `app/tests/profile-editor.test.mjs`. No other product file, Host, API or schema changed.
+
+### Dispositions as implemented
+
+- **K5-R1 (adopt, fixed).**
+  - *Owner facts.* The controller keeps each Session's latest Workbench facts. `observe()` receives `activeRuns`, a monotonic `revision`, and `editableId`, the single profile for which the existing `editEligibility` holds, or `null`. `runtime-view.mjs` `shareFacts` supplies them after every snapshot read or mutation. No new token or registry.
+  - *Preview freshness.* `preview.current` now also requires that no known revision is newer than the submission, and that the slot is not suspended. A reply that arrives after such a change, late or not, is only a previous reading. The panel titles it **Previous preview · not current**, says which revision it checked, and omits the "Save now" gate row.
+  - *Holding actions.* A newer known revision holds Preview and Save, both in the controller gates and in the buttons. The only action offered is **Read the current source**. A dirty draft is never replaced: the fresh reading is held apart for **Continue with my text** or **Use the current source**.
+  - *Suspension.* An open editor whose profile is no longer this Chat's own selection is suspended. The field becomes read-only but can still be selected and copied. Preview, Save, Revert, `setText` and the reconciliation actions all refuse, and the notice names the change.
+  - *Return.* Selecting the profile again does not resume the editor on its own. Only an explicit read while eligible resumes it; a read while still ineligible leaves it suspended.
+- **K5-R2 (adopt, fixed).** `save()` checks the gate, captures text, base revision and original metadata, and sets `saving` in one synchronous step before `sha256Hex`. Repeated or simultaneous calls send nothing. Other slots are independent. The unknown and read-back gate is unchanged.
+- **K5-F1 (adjust, done).** The source field uses `--text-body` (14px/21px) and the candidate `--text-reading` (15px/24px), both monospace. Help and readings stay at `--text-meta`, hashes at the existing 12px `code`. Control geometry is unchanged: 30px on desktop with the 28px `--control` minimum, and 44px at 390. The scoped class is kept. The precedent index is left for Astra after acceptance.
+
+### Verification (all on `991a0c6`)
+
+1. **Controller regressions:** `app/tests/profile-editor.test.mjs` 23/23, which adds six regressions for this return.
+   - Save: simultaneous plus repeated calls send one PUT, and typing during hashing stays separate; slots are independent.
+   - Revision-only change: the preview is a previous reading, actions are held, and read plus Continue resumes.
+   - An older snapshot never marks the base stale.
+   - Switching profile with a dirty draft: the late reply is not current, the slot is suspended with no calls, return needs an explicit read, and one PUT follows.
+   - A read while ineligible does not resume.
+2. **Targeted six-file suite:** 71/71 ([log](return-r1/targeted-tests.log), [exit](return-r1/targeted-tests.exit)). **Full suite:** `npm --prefix app test` 1666/1666 ([log](return-r1/full-tests.log), [exit](return-r1/full-tests.exit)).
+3. **Luna's probe:** rerun unchanged except for its import path, which already pointed at this tree ([log](return-r1/luna-probes-rerun.log)). Both probes now report `NOT_REPRODUCED`: 1 PUT before any reply, and `previewCurrent:false` at observed revision 8. The probe's `sourceSha` field is a hard-coded label from the review and still prints `756ec6d`.
+4. **Lints:** `lint-colors`, `lint-interaction`, `lint-materials`, `lint-spacing`, `lint-shapes`, `check-product-copy`, `check-semantic-consumers` and `contrast-report` all exit 0.
+5. **Return browser scenes:** [script](return-r1/journey-r1.mjs.txt) with the same [host fixture](host.mjs.txt), temporary data, installed Pi, loopback provider and headless Chrome. [Checks](return-r1/browser/checks.json): **6/6 PASS**, no page errors.
+
+   | Scene | Evidence |
+   |---|---|
+   | Revision-only change seen by Settings: previous reading with no save gate, Preview/Save held, draft kept | [r1-01](return-r1/browser/r1-01-revision-moved-light-1440.png) |
+   | Read + Continue with my text: current preview again | checks.json |
+   | Late preview + Settings › Selected profile → Notes: suspended, read-only draft kept, previous reading, 0 PUT on a forced Save click | [r1-02](return-r1/browser/r1-02-suspended-light-1440.png) |
+   | Kit reviewer selected again: still held until **Read the current source**, then Continue resumes with the draft intact | [r1-03](return-r1/browser/r1-03-eligible-again-light-1440.png) |
+   | Double-click Save: exactly 1 PUT; saved hash equals the draft | [r1-04](return-r1/browser/r1-04-saved-light-1440.png) |
+   | K5-F1 geometry at 1440/390, light and dark, and `--text-scale` 1.5 | [geometry](return-r1/browser/geometry.json), [f1-01](return-r1/browser/f1-01-candidate-light-1440.png)…[f1-07](return-r1/browser/f1-07-text-scale-1.5-1440.png) |
+   | Escape keeps the Composer draft; only the fixture's old Run exists | checks.json |
+
+6. **Original journey rerun** on `991a0c6` with a fresh Host: still **16/16** ([log](return-r1/original-journey/journey.log), [checks](return-r1/original-journey/checks.json)). [Host receipt](return-r1/original-journey/host-results.json): provider requests 3, managed posts 0, 3 Runs. The earlier screenshots at `a0bed5a` were not recaptured; the K5-F1 captures above supersede their type sizes.
+
+### Not executed or limited
+
+- Parent OpenAI computer-use acceptance of this delta is not done.
+- Not executed: native browser zoom/200%, a screen reader, forced colours, real touch/coarse input, and reload persistence (not in scope).
+- Text scale was exercised only through the product's `--text-scale` token (1.5), not native zoom. At that scale the existing data-list `code` hashes stay 12px, because that is an existing fixed size and not in this lease.
+- Late replies and double clicks were driven by Playwright request delay and `dblclick`; the Host behaviour is real.
+- No user service, data, credential or paid provider was touched; all fixture Hosts are stopped.
+
+### Handoff
+
+Construction has stopped again. The finite writer is released for parent Astra's review of this delta. Nothing is merged, pushed, deployed or cleaned; the tree and branch are kept as they are.

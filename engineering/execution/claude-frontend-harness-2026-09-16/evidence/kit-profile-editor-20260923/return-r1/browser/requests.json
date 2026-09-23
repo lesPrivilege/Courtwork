@@ -1,0 +1,226 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/v5/account"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/bootstrap"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/bootstrap"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/projects"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/extensions"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/provider-config"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/account"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v5/attention/query"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/sessions"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/sessions"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/profile"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/account"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/sessions"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/work-activity"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v5/attention/query"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/work-summary"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/sessions/cbff82d2-968d-46ac-8e00-f28ac6a2a769"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/sessions"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-resources/local%3Ak5-reviewer"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/provider-config"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/provider-models"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-info"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/provider-connections"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-resources/local%3Ak5-reviewer"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-context"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-proposals"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v5/runtime-control/preview-profile"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-resources/local%3Ak5-reviewer"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/provider-config"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/provider-models"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-info"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/provider-connections"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v5/sessions/cbff82d2-968d-46ac-8e00-f28ac6a2a769/draft"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-context"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-proposals"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-resources/local%3Ak5-reviewer"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v5/runtime-control/preview-profile"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v5/runtime-control/preview-profile"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-context"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-context"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-resources/local%3Ak5-reviewer"
+  },
+  {
+    "method": "POST",
+    "path": "/api/v5/runtime-control/preview-profile"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-resources/local%3Ak5-reviewer"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-context"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-proposals"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-control"
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-resources/local%3Ak5-reviewer"
+  }
+]

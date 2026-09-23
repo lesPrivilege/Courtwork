@@ -1,0 +1,205 @@
+// K5 return R1 · browser scenes for K5-R1 / K5-R2 / K5-F1 against the same
+// synthetic Host fixture (host.mjs). Headless Chrome via installed Playwright.
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import assert from "node:assert/strict";
+const { chromium } = await import(pathToFileURL(path.join(execFileSync("npm", ["root", "-g"], { encoding: "utf8" }).trim(), "playwright/index.mjs")).href);
+
+const OUT = process.env.K5_OUT;
+const SHOTS = path.join(OUT, "browser-r1");
+await mkdir(SHOTS, { recursive: true });
+const info = JSON.parse(await readFile(path.join(OUT, "host-info.json"), "utf8"));
+const origin = info.url;
+const sha = (text) => createHash("sha256").update(text, "utf8").digest("hex");
+const token = (await (await fetch(origin + "/api/v5/bootstrap")).json()).sessionToken;
+async function api(method, p, body) {
+  const r = await fetch(origin + "/api/v5" + p, { method, headers: { "x-work-token": token, "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  return { status: r.status, json: await r.json() };
+}
+const main = info.sessions.main;
+const control = async () => (await api("GET", `/runtime-control?sessionId=${main}`)).json;
+const runsOf = async () => (await api("GET", `/sessions/${main}`)).json.runs ?? [];
+
+const checks = [], errors = [], requests = [];
+const record = (name, detail = {}) => { checks.push({ name, pass: true, ...detail }); console.log("PASS " + name); };
+const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
+const page = await (await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light" })).newPage();
+page.on("pageerror", (e) => errors.push(e.message));
+page.on("request", (r) => { const u = new URL(r.url()); if (u.pathname.startsWith("/api/v5/")) requests.push({ method: r.method(), path: u.pathname, at: Date.now() }); });
+const shot = async (name) => { await page.waitForTimeout(250); await page.screenshot({ path: path.join(SHOTS, name + ".png") }); };
+const editor = () => page.locator('[data-testid="profile-editor"]');
+const field = () => page.locator('[data-testid="profile-editor-text"]');
+const previewButton = () => page.locator('[data-testid="profile-editor-preview-button"]');
+const saveButton = () => page.locator('[data-testid="profile-editor-save"]');
+const since = (mark, pred) => requests.filter((r) => r.at >= mark && pred(r));
+const text = () => editor().innerText();
+async function openEditorFromChooser() {
+  await page.locator("#agent-chip").click();
+  await page.locator('[data-testid="agent-view-in-settings"]').click();
+  await page.waitForFunction(() => { const f = document.querySelector('[data-testid="profile-editor-text"]'); return f && !f.readOnly; });
+}
+async function preview() {
+  await previewButton().click();
+  await page.waitForFunction(() => document.querySelector('[data-testid="profile-editor-preview-button"]')?.textContent === "Preview");
+  await page.waitForTimeout(100);
+}
+async function selectProfile(id) {
+  const before = (await control()).revision;
+  await page.locator("#runtime-profile-select").selectOption(id);
+  for (let i = 0; i < 50 && (await control()).revision === before; i++) await page.waitForTimeout(100);
+  await page.waitForTimeout(300);
+}
+async function geometry(label) {
+  return page.evaluate((label) => {
+    const q = (s) => document.querySelector(s);
+    const box = (n) => { if (!n) return null; const r = n.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; };
+    const cs = (n) => n && getComputedStyle(n);
+    const f = q('[data-testid="profile-editor-text"]'), c = q('[data-testid="profile-editor-candidate"]');
+    const pv = q('[data-testid="profile-editor-preview-button"]'), sv = q('[data-testid="profile-editor-save"]');
+    const hash = q(".profile-editor-details code"), help = q('[data-testid="profile-editor-scope"]');
+    return {
+      label, viewport: { w: innerWidth, h: innerHeight }, textScale: getComputedStyle(document.documentElement).getPropertyValue("--text-scale").trim() || null,
+      editor: box(q('[data-testid="profile-editor"]')),
+      field: { ...box(f), font: cs(f).fontSize, lineHeight: cs(f).lineHeight, family: cs(f).fontFamily.split(",")[0], wrapsLongLine: f.scrollWidth <= f.clientWidth + 1, scrolls: f.scrollHeight > f.clientHeight },
+      candidate: c && { ...box(c), font: cs(c).fontSize, lineHeight: cs(c).lineHeight, family: cs(c).fontFamily.split(",")[0] },
+      hash: hash && { font: cs(hash).fontSize }, help: help && { font: cs(help).fontSize, lineHeight: cs(help).lineHeight },
+      preview: { ...box(pv), font: cs(pv).fontSize }, save: { ...box(sv), font: cs(sv).fontSize },
+      overflowX: document.documentElement.scrollWidth > innerWidth,
+    };
+  }, label);
+}
+const geometries = [];
+
+try {
+  await page.goto(origin);
+  await page.locator("#composer-input:not([disabled])").waitFor();
+  const closeExample = page.getByRole("button", { name: "Close the example", exact: true });
+  if (await closeExample.isVisible().catch(() => false)) await closeExample.click();
+  await page.locator("#navigation-panel, nav, aside").getByText("K5 editor chat", { exact: true }).first().click();
+  await page.locator("#agent-chip:not([hidden])").waitFor();
+  const draftText = "K5 R1: composer draft kept.";
+  await page.locator("#composer-input").fill(draftText);
+  await openEditorFromChooser();
+  await field().fill(info.drafts.valid);
+  await preview();
+  assert.match(await text(), /Preview · not saved, not run/);
+
+  // K5-R1 (a) · a revision-only change the Workbench learns about.
+  const c0 = await control();
+  assert.equal((await api("PUT", `/runtime-control?sessionId=${main}`, { revision: c0.revision, operation: "put",
+    resource: { id: "local:k5-unrelated", kind: "instruction", title: "Unrelated", scope: { type: "user", id: "local" }, content: "Unrelated change." } })).status, 200);
+  await page.keyboard.press("Escape");
+  await openEditorFromChooser().catch(async () => { await page.waitForSelector('[data-testid="profile-editor-config-moved"]'); });
+  await page.locator('[data-testid="profile-editor-config-moved"]').waitFor();
+  let t = await text();
+  assert.match(t, /Previous preview · not current/);
+  assert.match(t, /Previous reading, checked at configuration revision 7/);
+  assert.doesNotMatch(t, /Save now/);
+  assert.equal(await previewButton().isDisabled(), true);
+  assert.equal(await saveButton().isDisabled(), true);
+  assert.equal(await field().inputValue(), info.drafts.valid);
+  record("revision-only change: prior preview becomes a previous reading without a save gate; Preview/Save held; draft kept");
+  await shot("r1-01-revision-moved-light-1440");
+  await page.getByRole("button", { name: "Read the current source" }).click();
+  await page.getByRole("button", { name: "Continue with my text" }).click();
+  assert.equal(await previewButton().isDisabled(), false);
+  await preview();
+  assert.match(await text(), /Preview · not saved, not run/);
+  record("explicit read + Continue with my text restores a current preview on the new revision");
+
+  // K5-R1 (b) · late preview reply + switching this Chat to another profile with a dirty editor.
+  await page.route("**/api/v5/runtime-control/preview-profile**", async (route) => {
+    const response = await route.fetch(); await new Promise((r) => setTimeout(r, 1500)); await route.fulfill({ response });
+  });
+  await field().fill(info.drafts.valid + " ");
+  await previewButton().click();
+  await selectProfile("local:k5-notes");
+  await page.waitForTimeout(1800);
+  await page.unrouteAll({ behavior: "wait" });
+  assert.equal((await control()).composition.id, "local:k5-notes");
+  await page.locator('[data-testid="profile-editor-suspended"]').waitFor();
+  t = await text();
+  assert.match(t, /Kit reviewer is no longer this chat's own selection/);
+  assert.match(t, /Previous preview · not current/);
+  assert.doesNotMatch(t, /Save now/);
+  assert.doesNotMatch(t, /Revert to saved/);
+  assert.equal(await field().inputValue(), info.drafts.valid + " ", "draft kept");
+  assert.equal(await field().evaluate((n) => n.readOnly), true);
+  assert.equal(await previewButton().isDisabled(), true);
+  assert.equal(await saveButton().isDisabled(), true);
+  const sMark = Date.now();
+  await saveButton().click({ force: true }).catch(() => {});
+  assert.equal(since(sMark, (r) => r.method === "PUT").length, 0);
+  record("switching Selected profile to Notes suspends the open dirty editor: late reply is a previous reading, text kept read-only, no Preview/Save/Revert");
+  await shot("r1-02-suspended-light-1440");
+
+  // Explicit return and reconciliation without draft loss.
+  await selectProfile("local:k5-reviewer");
+  await page.waitForFunction(() => /this chat's own selection again/.test(document.querySelector('[data-testid="profile-editor-suspended"]')?.textContent ?? ""));
+  assert.equal(await saveButton().isDisabled(), true, "eligible again but still held until an explicit read");
+  await shot("r1-03-eligible-again-light-1440");
+  await page.getByRole("button", { name: "Read the current source" }).click();
+  await page.getByRole("button", { name: "Continue with my text" }).click();
+  assert.equal(await field().evaluate((n) => n.readOnly), false);
+  assert.equal(await field().inputValue(), info.drafts.valid + " ");
+  await preview();
+  assert.match(await text(), /Preview · not saved, not run/);
+  record("returning the selection needs an explicit read; Continue with my text resumes with the draft intact");
+
+  // K5-R2 · double-click Save sends exactly one PUT.
+  const dMark = Date.now();
+  await saveButton().dblclick();
+  await page.locator('[data-save-status="saved"]').waitFor();
+  const puts = since(dMark, (r) => r.method === "PUT");
+  assert.equal(puts.length, 1);
+  assert.equal((await control()).composition.hash, sha(info.drafts.valid + " "));
+  record("double-click Save: exactly one PUT; saved hash equals the draft", { puts: puts.length });
+  await shot("r1-04-saved-light-1440");
+
+  // K5-F1 · geometry: source body role, candidate reading role.
+  await page.locator(".profile-editor-details summary").click();
+  await page.locator('[data-testid="profile-editor-candidate"]').scrollIntoViewIfNeeded();
+  geometries.push(await geometry("candidate light 1440"));
+  await shot("f1-01-candidate-light-1440");
+  await field().scrollIntoViewIfNeeded();
+  geometries.push(await geometry("source light 1440"));
+  await shot("f1-02-source-light-1440");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(300);
+  await field().scrollIntoViewIfNeeded();
+  geometries.push(await geometry("source light 390"));
+  await shot("f1-03-source-light-390");
+  await saveButton().scrollIntoViewIfNeeded();
+  await shot("f1-04-actions-light-390");
+  await page.locator('[data-testid="profile-editor-candidate"]').scrollIntoViewIfNeeded();
+  await shot("f1-05-candidate-light-390");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await field().scrollIntoViewIfNeeded();
+  await shot("f1-06-source-dark-390");
+  await page.emulateMedia({ colorScheme: "light" });
+  // Token-level text scale (the product's --text-scale), not native browser zoom.
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.evaluate(() => document.documentElement.style.setProperty("--text-scale", "1.5"));
+  await page.waitForTimeout(300);
+  await field().scrollIntoViewIfNeeded();
+  geometries.push(await geometry("source light 1440 --text-scale 1.5"));
+  await shot("f1-07-text-scale-1.5-1440");
+  await page.evaluate(() => document.documentElement.style.removeProperty("--text-scale"));
+  for (const g of geometries) assert.equal(g.overflowX, false, g.label);
+
+  // The Composer draft and Chat survive; no Run was created by any of this.
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator("#composer-input").inputValue(), draftText);
+  assert.equal((await runsOf()).length, 1, "only the fixture's old Run exists");
+  record("Escape returns to the same Chat with the Composer draft; no Run from preview/save/selection changes");
+} finally {
+  await writeFile(path.join(SHOTS, "checks.json"), JSON.stringify({ checks, errors }, null, 2));
+  await writeFile(path.join(SHOTS, "geometry.json"), JSON.stringify(geometries, null, 2));
+  await writeFile(path.join(SHOTS, "requests.json"), JSON.stringify(requests.map(({ at, ...r }) => r), null, 2));
+  await browser.close();
+}
+assert.deepEqual(errors, []);
+console.log("JOURNEY R1 OK");
