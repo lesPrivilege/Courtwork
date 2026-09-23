@@ -24,3 +24,8 @@ Write only a new `evidence/runtime-selection-r0-20260923/` packet in an isolated
 ## Sequence
 
 LP-R6 acceptance/cleanup → R0 concrete contract → GPT-6 Luna bounded review and parent field/authority decision → one GPT-6 Sol R1 implementation slice → real service/independent browser evidence → merge and preservation cleanup. Parent will not call runtime selection completed from a document, a registry list or a disabled option. Claude Kit/Profile management remains its own future frontend assignment.
+
+
+## Actual R0 dispatch
+
+Parent verified local/origin mainabcd30e4965fe3d1fd5258a362718ba2835315e9 after LP-R6 cleanup, created isolated `courtwork-runtime-selection-r0-20260923` / `codex/runtime-selection-r0-20260923`, and dispatched `/root/sol6_runtime_binding` (gpt-6-sol, high) for the contract packet only. `/root/luna6_runtime_selection` (gpt-6-luna, high) is the designated non-author reviewer. No product implementation or new sidebar task is started by this dispatch.
