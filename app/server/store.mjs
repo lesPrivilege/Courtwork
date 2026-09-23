@@ -24,6 +24,11 @@ import {
 } from './provider-fields.mjs';
 import { appendLocalPiEvent, localPiRunUnresolved, validateLocalPiEvents } from '../runtime/local-pi-state.mjs';
 import { validateKitBinding, validateKitBindings } from '../runtime/kit-binding-state.mjs';
+import {
+  hasExecutorHistory, historicalExecutor, isSparkChildRun, migrateExecutorState,
+  sparkAssignmentForSession, validateExecutorChoice, validateExecutorDescriptor,
+  validateExecutorState,
+} from './executor-choice-state.mjs';
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
 const TERMINAL_STATUSES = new Set(["completed", "cancelled", "failed", "unknown"]);
@@ -36,7 +41,7 @@ const QUESTION_STATUSES = new Set(["pending", "resolved", "expired_restart", "ca
 const QUESTION_KINDS = new Set(["ask_user", "permission"]);
 const DECISIONS = new Set(["allow", "deny"]);
 const ARTIFACT_KIND = "content-version";
-const SCHEMA_VERSION = 21;
+const SCHEMA_VERSION = 22;
 // Schema 20 introduced the current strict provider descriptor domain. Keep
 // that boundary stable when later Store schemas add unrelated records.
 const STRICT_PROVIDER_DESCRIPTOR_SCHEMA = 20;
@@ -426,7 +431,7 @@ function validateOperations(value, sessions) {
 
 function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
   assert(isRecord(parsed), "state must be an object");
-  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 20 can be upgraded)`);
+  assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 21 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')) && (schema >= 18 || k !== 'operations'))), "state");
   for (const key of ["projects", "sessions", "runs", "events", "questions", "extensionRecords"]) {
     assert(Array.isArray(parsed[key]), key + " must be an array");
@@ -440,7 +445,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
   }
   const sessionIds = new Set();
   for (const session of parsed.sessions) {
-    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession", ...(schema >= 6 ? ['scope'] : []), ...(schema >= 16 ? ["repositoryBinding", "repositoryBindingRevision", "repositoryBindingCommands"] : []), ...(schema >= 17 ? ["repositoryCandidate", "repositoryCandidateRevision", "repositoryCandidateCommands", "repositoryWriteEffects"] : []), ...(schema >= 19 ? ["remoteBinding", "remoteActions"] : [])]), "session");
+    exactKeys(session, new Set(["id", "projectId", "title", "draft", "extensionBinding", "createdAt", "_nextSeq", "workspaceDir", "permissionMode", "hostSession", ...(schema >= 6 ? ['scope'] : []), ...(schema >= 16 ? ["repositoryBinding", "repositoryBindingRevision", "repositoryBindingCommands"] : []), ...(schema >= 17 ? ["repositoryCandidate", "repositoryCandidateRevision", "repositoryCandidateCommands", "repositoryWriteEffects"] : []), ...(schema >= 19 ? ["remoteBinding", "remoteActions"] : []), ...(schema >= 22 ? ["executorChoice"] : [])]), "session");
     id(session.id, "session.id"); assert(!sessionIds.has(session.id), "duplicate session id"); sessionIds.add(session.id);
     if ((schema >= 6 && session.scope === 'global') || (schema >= 14 && session.scope === 'unassigned')) {
       assert(session.projectId === null && session.extensionBinding === null, 'unassigned/global session cannot own a project or Matter binding');
@@ -453,6 +458,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     text(session.workspaceDir, "session.workspaceDir", 4000);
     assert(PERMISSION_MODES.has(session.permissionMode), "session.permissionMode is invalid");
     validateHostSession(session.hostSession, "session.hostSession");
+    if (schema >= 22) validateExecutorChoice(session.executorChoice);
     if (schema >= 16) {
       nonNegativeInt(session.repositoryBindingRevision, "session.repositoryBindingRevision");
       validateRepositoryBinding(session.repositoryBinding, "session.repositoryBinding");
@@ -477,7 +483,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     exactKeys(run, new Set([
       "id", "sessionId", "status", "admissionOpen", "adapterId", "provider", "extension",
       "startedAt", "endedAt", "error", "commandId", "artifacts", "usage", "hostSession", "credentialGeneration",
-      ...(schema >= 9 ? ["supersedes"] : []), ...(schema >= 16 ? ["repositoryBindingSnapshot"] : []), ...(schema >= 17 ? ["repositoryCandidateSnapshot"] : []), ...(schema >= 19 ? ["remoteBinding"] : []), ...(schema >= 21 ? ["kitBinding"] : []),
+      ...(schema >= 9 ? ["supersedes"] : []), ...(schema >= 16 ? ["repositoryBindingSnapshot"] : []), ...(schema >= 17 ? ["repositoryCandidateSnapshot"] : []), ...(schema >= 19 ? ["remoteBinding"] : []), ...(schema >= 21 ? ["kitBinding"] : []), ...(schema >= 22 ? ["executorBinding"] : []),
     ]), "run");
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
@@ -613,6 +619,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
   }
   validateLocalPiEvents(parsed, schema);
   if (schema >= 21) validateKitBindings(parsed);
+  if (schema >= 22) validateExecutorState(parsed);
   return structuredClone(parsed);
 }
 
@@ -713,6 +720,7 @@ function commandReceipt(state, sessionId, commandId, input, supersedes = null) {
 }
 
 function lineageError(code, message) { const error = new Error(message); error.code = code; return error; }
+function executorError(code, message) { const error = new Error(message); error.code = code; return error; }
 
 function repositoryBindingRequestHash({ operation, rootPath, expectedRevision }) {
   return createHash("sha256").update(JSON.stringify({
@@ -824,12 +832,12 @@ export class RuntimeStore {
         const textValue = rawState.toString("utf8");
         if (!Buffer.from(textValue, "utf8").equals(rawState)) throw invalidState("file is not valid UTF-8");
         let parsed; try { parsed = JSON.parse(textValue); } catch { throw invalidState("file is not valid JSON"); }
-        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].includes(parsed?.schemaVersion)) {
+        if ([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21].includes(parsed?.schemaVersion)) {
           // Validate the old shape before writing any backup or new data.
           // Existing backup paths are never followed or overwritten, including
           // symlinks. Recovery after an interrupted upgrade is explicit.
           validateState(parsed, parsed.schemaVersion);
-          const upgraded = validateState({ ...parsed, subagents: parsed.schemaVersion >= 15 ? parsed.subagents : emptySubagents(), schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
+          const candidate = { ...parsed, subagents: parsed.schemaVersion >= 15 ? parsed.subagents : emptySubagents(), schemaVersion: SCHEMA_VERSION, asyncTasks: parsed.asyncTasks ?? [],
             coordination: parsed.schemaVersion >= 8 ? parsed.coordination : emptyCoordination(),
             // A pre-12 connection's models never reported reasoning; `null`
             // (never declared, PV-61) is the only honest default, not a guess.
@@ -862,7 +870,8 @@ export class RuntimeStore {
               repositoryBindingSnapshot: parsed.schemaVersion >= 16 ? run.repositoryBindingSnapshot : null,
               repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null,
               remoteBinding: parsed.schemaVersion >= 19 ? run.remoteBinding : null,
-              kitBinding: null })) }, SCHEMA_VERSION, { legacyDescriptors: true });
+              kitBinding: parsed.schemaVersion >= 21 ? run.kitBinding : null })) };
+          const upgraded = validateState(migrateExecutorState(candidate), SCHEMA_VERSION, { legacyDescriptors: true });
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -963,6 +972,7 @@ export class RuntimeStore {
       // assignment mutations, not only on the named local receipt writer.
       validateLocalPiEvents(working);
       validateKitBindings(working, this.state);
+      validateExecutorState(working, this.state);
       await this._persist(working); this.state = working; return structuredClone(result);
     });
     this._queue = operation.catch(() => {}); return operation;
@@ -996,7 +1006,7 @@ export class RuntimeStore {
 
   listProjects() { return structuredClone(this.state.projects); }
 
-  async createSession({ id: sessionId = randomUUID(), projectId, title, workspaceDir, permissionMode = "draft", scope = 'project' }) {
+  async createSession({ id: sessionId = randomUUID(), projectId, title, workspaceDir, permissionMode = "draft", scope = 'project', executorDescriptor }) {
     return this._mutate((state) => {
       assert(scope === 'project' || scope === 'global' || scope === 'unassigned', 'session scope is invalid');
       if (scope === 'project' && !state.projects.some((project) => project.id === projectId)) throw new Error("project not found");
@@ -1012,17 +1022,42 @@ export class RuntimeStore {
         return publicSession(existing);
       }
       assert(PERMISSION_MODES.has(permissionMode), "permissionMode is invalid");
+      validateExecutorDescriptor(executorDescriptor);
       const session = {
         id: sessionId, scope, projectId, title, draft: "", extensionBinding: null, createdAt: now(), _nextSeq: 0,
         workspaceDir, permissionMode, hostSession: null, repositoryBinding: null, repositoryBindingRevision: 0, repositoryBindingCommands: [],
         repositoryCandidate: null, repositoryCandidateRevision: 0, repositoryCandidateCommands: [], repositoryWriteEffects: [],
         remoteBinding: null, remoteActions: [],
+        executorChoice: { revision: 0, adapterId: executorDescriptor.adapterId, configurationRef: executorDescriptor.configurationRef },
       };
       state.sessions.push(session); return publicSession(session);
     });
   }
 
   getSession(id) { return publicSession(this.state.sessions.find((session) => session.id === id)); }
+  async changeExecutorChoice(sessionId, { expectedRevision, executorDescriptor }) {
+    const checked = structuredClone(executorDescriptor);
+    validateExecutorDescriptor(checked);
+    return this._mutate(state => {
+      const session = state.sessions.find(item => item.id === sessionId);
+      if (!session) throw executorError("SESSION_NOT_FOUND", "session not found");
+      if (session.scope === "global" || session.extensionBinding || sparkAssignmentForSession(state, sessionId)) {
+        throw executorError("EXECUTOR_INELIGIBLE", "executor selection is unavailable for this session");
+      }
+      if (session.executorChoice.revision !== expectedRevision) {
+        throw executorError("EXECUTOR_SELECTION_CONFLICT", "executor choice changed");
+      }
+      if (hasExecutorHistory(state, session)) {
+        throw executorError("EXECUTOR_LINEAGE_LOCKED", "session has Run or native history");
+      }
+      session.executorChoice = {
+        revision: expectedRevision + 1,
+        adapterId: checked.adapterId,
+        configurationRef: checked.configurationRef,
+      };
+      return publicSession(session);
+    });
+  }
   listSessions(projectId) {
     // Recorded activity is creation or a Run boundary, never a guessed UI timestamp.
     const activity = new Map(this.state.sessions.map(s => [s.id, s.createdAt]));
@@ -1538,7 +1573,7 @@ export class RuntimeStore {
     });
   }
 
-  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, kitBinding = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null, remote = null }) {
+  async createRun({ sessionId, input, adapterId, provider, extension, commandId, workspaceHostSession, credentialGeneration, runtimeSnapshot = null, kitBinding = null, singleActiveRun = false, supersedes = null, expectedRepositoryBindingRevision = null, expectedRepositoryCandidateRevision = null, remote = null, executorDescriptor = null, expectedExecutorChoice = null }) {
     // Validate and detach the descriptor before it enters the mutation queue.
     // A caller must not be able to mutate a checked object while an earlier
     // queued write is still pending, and an invalid descriptor must never
@@ -1547,6 +1582,7 @@ export class RuntimeStore {
     validateDescriptor(checkedProvider, "run.provider", { allowRealProvider: true, schema: SCHEMA_VERSION });
     const checkedKitBinding = kitBinding === null ? null : validateKitBinding(structuredClone(kitBinding));
     const checkedRuntimeSnapshot = runtimeSnapshot === null ? null : structuredClone(runtimeSnapshot);
+    const checkedExecutor = executorDescriptor === null ? null : structuredClone(executorDescriptor);
     if (checkedRuntimeSnapshot !== null) {
       if (typeof checkedRuntimeSnapshot !== "object" || Array.isArray(checkedRuntimeSnapshot)) throw invalidState("runtimeSnapshot must be an object");
       if (Object.hasOwn(checkedRuntimeSnapshot, "kitBinding") && !isDeepStrictEqual(checkedRuntimeSnapshot.kitBinding, checkedKitBinding)) throw invalidState("runtimeSnapshot.kitBinding does not match the Run summary");
@@ -1556,6 +1592,23 @@ export class RuntimeStore {
       const session = state.sessions.find((item) => item.id === sessionId); if (!session) throw new Error("session not found");
       const receipt = commandReceipt(state, sessionId, commandId, input, supersedes);
       if (receipt) return receipt;
+      const child = Boolean(sparkAssignmentForSession(state, sessionId));
+      if (!child) {
+        validateExecutorDescriptor(checkedExecutor);
+        if (!expectedExecutorChoice || session.executorChoice.revision !== expectedExecutorChoice.revision ||
+          session.executorChoice.adapterId !== expectedExecutorChoice.adapterId ||
+          session.executorChoice.adapterId !== checkedExecutor.adapterId) {
+          throw executorError("EXECUTOR_SELECTION_CONFLICT", "session executor choice changed");
+        }
+        const historical = historicalExecutor(state, session);
+        if (historical === null || historical !== undefined && historical !== checkedExecutor.adapterId) {
+          throw executorError("RUNTIME_MISMATCH", "session native history belongs to another executor");
+        }
+        if (session.executorChoice.configurationRef !== null &&
+          session.executorChoice.configurationRef !== checkedExecutor.configurationRef) {
+          throw executorError("EXECUTOR_CONFIGURATION_CHANGED", "session executor configuration changed");
+        }
+      }
       const unresolvedLocalRuns = state.runs.filter(run => localPiRunUnresolved(state, run.id));
       if (unresolvedLocalRuns.length > 0 && (adapterId === "pi-local-print" || unresolvedLocalRuns.some(run => run.sessionId === sessionId))) {
         const error = new Error("a local Pi dispatch requires reconciliation before another Run");
@@ -1575,6 +1628,18 @@ export class RuntimeStore {
       if (state.runs.some((run) => (singleActiveRun || run.sessionId === sessionId) && ACTIVE_STATUSES.has(run.status))) throw new Error("active run exists");
       if (state.operations.some((op) => OPERATION_ACTIVE.has(op.status))) throw new Error("operation in progress");
       const remoteBinding = admitRemoteRun(session, remote, state.runs);
+      // A schema-21 Session has no factory ref. The first schema-22 Run pins
+      // it only after every admission fence above passed, in the same write.
+      if (!child && session.executorChoice.configurationRef === null) {
+        session.executorChoice.configurationRef = checkedExecutor.configurationRef;
+        session.executorChoice.revision += 1;
+      }
+      const executorBinding = child ? null : {
+        recording: "bound", revision: checkedExecutor.revision,
+        configurationRef: checkedExecutor.configurationRef,
+        capabilities: structuredClone(checkedExecutor.capabilities),
+        choiceRevision: session.executorChoice.revision,
+      };
       const timestamp = now();
       const repositoryBindingSnapshot = session.repositoryBinding?.status === "active" ? structuredClone(session.repositoryBinding) : null;
       const repositoryCandidateSnapshot = session.repositoryCandidate?.status === "active" ? structuredClone(session.repositoryCandidate) : null;
@@ -1585,6 +1650,7 @@ export class RuntimeStore {
         commandId, supersedes, artifacts: [], usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, turns: 0, missing: true },
         hostSession: workspaceHostSession ? structuredClone(workspaceHostSession) : null,
         credentialGeneration, repositoryBindingSnapshot, repositoryCandidateSnapshot, remoteBinding, kitBinding: checkedKitBinding,
+        executorBinding,
       };
       bindSubagentRun(state, sessionId, run.id, commandId);
       state.runs.push(run);
