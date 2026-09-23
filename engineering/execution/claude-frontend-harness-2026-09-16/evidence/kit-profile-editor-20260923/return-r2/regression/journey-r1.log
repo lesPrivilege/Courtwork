@@ -1,0 +1,8 @@
+PASS revision-only change: prior preview becomes a previous reading without a save gate; Preview/Save held; draft kept
+PASS explicit read + Continue with my text restores a current preview on the new revision
+PASS switching Selected profile to Notes suspends the open dirty editor: late reply is a previous reading, text kept read-only, no Preview/Save/Revert
+PASS returning the selection needs an explicit read; Continue with my text resumes with the draft intact
+PASS double-click Save: exactly one PUT; saved hash equals the draft
+PASS Escape returns to the same Chat with the Composer draft; no Run from preview/save/selection changes
+JOURNEY R1 OK
+exit 0

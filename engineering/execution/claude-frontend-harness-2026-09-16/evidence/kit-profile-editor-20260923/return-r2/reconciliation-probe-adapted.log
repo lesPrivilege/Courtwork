@@ -1,0 +1,15 @@
+{
+  "sourceTree": "<tree>",
+  "before": {
+    "status": "saving",
+    "freshRevision": 8
+  },
+  "after": {
+    "status": "saving",
+    "saveEnabled": false
+  },
+  "requestsBeforeAnyResponse": 1,
+  "hostRevision": 8,
+  "content": "{\"version\":\"2\"}"
+}
+PASS at most one outstanding save; final status saved

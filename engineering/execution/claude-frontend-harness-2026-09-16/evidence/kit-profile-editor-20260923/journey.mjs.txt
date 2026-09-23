@@ -1,0 +1,325 @@
+// K5 author browser journey against the synthetic Host (host.mjs). Headless
+// Chrome through the globally installed Playwright; no personal profile.
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import assert from "node:assert/strict";
+const { chromium } = await import(pathToFileURL(path.join(execFileSync("npm", ["root", "-g"], { encoding: "utf8" }).trim(), "playwright/index.mjs")).href);
+
+const OUT = process.env.K5_OUT;
+const SHOTS = path.join(OUT, "browser");
+await mkdir(SHOTS, { recursive: true });
+const info = JSON.parse(await readFile(path.join(OUT, "host-info.json"), "utf8"));
+const origin = info.url;
+const sha = (text) => createHash("sha256").update(text, "utf8").digest("hex");
+const token = (await (await fetch(origin + "/api/v5/bootstrap")).json()).sessionToken;
+async function api(method, p, body) {
+  const r = await fetch(origin + "/api/v5" + p, { method, headers: { "x-work-token": token, "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  return { status: r.status, json: await r.json() };
+}
+const main = info.sessions.main;
+const control = async (id = main) => (await api("GET", `/runtime-control?sessionId=${id}`)).json;
+const runsOf = async (id = main) => (await api("GET", `/sessions/${id}`)).json.runs ?? [];
+
+const checks = [], errors = [], requests = [];
+const record = (name, detail = {}) => { checks.push({ name, pass: true, ...detail }); console.log("PASS " + name); };
+const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
+const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, colorScheme: "light" });
+const page = await context.newPage();
+page.on("pageerror", (e) => errors.push(e.message));
+page.on("request", (r) => { const u = new URL(r.url()); if (u.pathname.startsWith("/api/v5/")) requests.push({ method: r.method(), path: u.pathname, at: Date.now() }); });
+const shot = async (name) => { await page.waitForTimeout(250); await page.screenshot({ path: path.join(SHOTS, name + ".png") }); };
+const editor = () => page.locator('[data-testid="profile-editor"]');
+const field = () => page.locator('[data-testid="profile-editor-text"]');
+const since = (mark, pred) => requests.filter((r) => r.at >= mark && pred(r));
+async function openSession(title) {
+  await page.locator("#navigation-panel, nav, aside").getByText(title, { exact: true }).first().click();
+  await page.locator("#session-title-text").filter({ hasText: title }).waitFor({ timeout: 15000 });
+  await page.locator("#agent-chip:not([hidden])").waitFor();
+}
+async function openEditorFromChooser() {
+  await page.locator("#agent-chip").click();
+  await page.locator('[data-testid="agent-view-in-settings"]').click();
+  await field().waitFor();
+  await page.waitForFunction(() => { const f = document.querySelector('[data-testid="profile-editor-text"]'); return f && !f.readOnly; });
+}
+async function preview() {
+  await page.locator('[data-testid="profile-editor-preview-button"]').click();
+  await page.waitForFunction(() => document.querySelector('[data-testid="profile-editor-preview-button"]')?.textContent === "Preview");
+  await page.waitForTimeout(100);
+}
+const editorText = async () => editor().innerText();
+async function measure(label) {
+  return page.evaluate((label) => {
+    const q = (s) => document.querySelector(s);
+    const box = (n) => { if (!n) return null; const r = n.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; };
+    const cs = (n) => n && getComputedStyle(n);
+    const root = q('[data-testid="profile-editor"]');
+    const f = q('[data-testid="profile-editor-text"]');
+    const pv = q('[data-testid="profile-editor-preview-button"]');
+    const sv = q('[data-testid="profile-editor-save"]');
+    const help = q('[data-testid="profile-editor-scope"]');
+    return {
+      label, viewport: { w: innerWidth, h: innerHeight }, coarse: matchMedia("(pointer: coarse)").matches,
+      settingsHeader: box(q(".settings-page-header, #settings-page header")), editor: box(root), editorGap: cs(root)?.rowGap,
+      field: { ...box(f), font: cs(f)?.fontSize, family: cs(f)?.fontFamily.split(",")[0], lineHeight: cs(f)?.lineHeight },
+      preview: { ...box(pv), font: cs(pv)?.fontSize, minHeight: cs(pv)?.minHeight },
+      save: { ...box(sv), font: cs(sv)?.fontSize, minHeight: cs(sv)?.minHeight },
+      help: { font: cs(help)?.fontSize, lineHeight: cs(help)?.lineHeight },
+      overflowX: document.documentElement.scrollWidth > innerWidth,
+    };
+  }, label);
+}
+const measurements = [];
+
+try {
+  await page.goto(origin);
+  await page.locator("#composer-input:not([disabled])").waitFor();
+  const closeExample = page.getByRole("button", { name: "Close the example", exact: true });
+  if (await closeExample.isVisible().catch(() => false)) await closeExample.click();
+  await openSession("K5 editor chat");
+  const oldContext = (await api("GET", `/runtime-context?sessionId=${main}&runId=${info.oldRun.id}`)).json;
+  assert.equal(info.oldRun.status, "completed");
+
+  // Composer draft, caret and material before visiting Settings.
+  const draftText = "K5 new run: review with the edited Kit.";
+  await page.locator("#composer-input").fill(draftText);
+  await page.locator("#composer-input").evaluate((n) => n.setSelectionRange(7, 7));
+  await page.locator("#materials-button").click();
+  await page.locator("#material-add summary").click();
+  await page.locator("#material-name").fill("k5-notes.md");
+  await page.locator("#material-text").fill("Synthetic K5 note.");
+  await page.locator("#material-submit").click();
+  await page.locator("#workspace-files").getByText("k5-notes.md").first().waitFor();
+  await page.keyboard.press("Escape");
+  await page.locator("#materials-dialog").waitFor({ state: "hidden" });
+  await page.locator("#composer-input").focus();
+  await page.locator("#composer-input").evaluate((n) => n.setSelectionRange(7, 7));
+
+  // 1 · Chat → chooser → Edit in Settings.
+  const openMark = Date.now();
+  await openEditorFromChooser();
+  assert.equal(await page.evaluate(() => document.activeElement?.dataset.testid), "profile-editor-text");
+  assert.equal(await field().inputValue(), info.initial);
+  assert.match(await editorText(), /Saves the user-scope source \(local\)\. Other chats that select this profile/);
+  record("chooser Edit opens the selected profile's source editor with focus in the field and the shared scope near Save", { reads: since(openMark, () => true).map((r) => `${r.method} ${r.path}`) });
+  await shot("01-editor-open-light-1440");
+  measurements.push(await measure("editor-open light 1440"));
+
+  // 2 · Preview the edited text: zero writes, zero Runs, zero provider calls.
+  const runsBefore = (await runsOf()).length;
+  const revisionBefore = (await control()).revision;
+  await field().fill(info.drafts.valid);
+  const pMark = Date.now();
+  await preview();
+  const t = await editorText();
+  assert.match(t, /Compiled\./);
+  assert.match(t, /kit:k5-review 2/);
+  assert.match(t, /Kit compatibility: Not checked for this runtime/);
+  await page.locator(".profile-editor-details summary").click();
+  assert.equal(await page.locator('[data-testid="profile-editor-candidate"]').textContent(), info.expectedNewContext);
+  const writes = since(pMark, (r) => r.method !== "GET" && !r.path.endsWith("/preview-profile"));
+  assert.deepEqual(writes, []);
+  assert.equal((await runsOf()).length, runsBefore);
+  assert.equal((await control()).revision, revisionBefore);
+  record("preview shows compiled candidate equal to the Host's expected context; no write, Run or revision change", { writes: writes.length });
+  await shot("02-preview-compiled-light-1440");
+  measurements.push(await measure("preview light 1440"));
+
+  // 3 · Late preview reply cannot overwrite a newer one.
+  let first = true;
+  await page.route("**/api/v5/runtime-control/preview-profile**", async (route) => {
+    if (first) { first = false; const response = await route.fetch(); await new Promise((r) => setTimeout(r, 1500)); await route.fulfill({ response }); }
+    else await route.continue();
+  });
+  const earlier = info.drafts.valid.replace('"version": "2"', '"version": "2-earlier"');
+  await field().fill(earlier);
+  await page.locator('[data-testid="profile-editor-preview-button"]').click();
+  await page.waitForTimeout(100);
+  await field().fill(info.drafts.valid);
+  await page.locator('[data-testid="profile-editor-preview-button"]').click();
+  await page.waitForTimeout(2200); // the held earlier reply lands after the newer one
+  await page.unroute("**/api/v5/runtime-control/preview-profile**");
+  const shown = await page.locator(".profile-editor-details code").first().textContent();
+  const outdated = await page.locator('[data-testid="profile-editor-outdated"]').count();
+  assert.equal(shown, sha(info.drafts.valid));
+  assert.equal(outdated, 0);
+  record("a late preview reply for an earlier text lands after the newer one and does not replace it", { shownDraftSha: shown, earlierSha: sha(earlier), outdatedMarkers: outdated });
+
+  // 4 · Refused Kit and malformed source.
+  await field().fill(info.drafts.refused);
+  await preview();
+  const refused = await editorText();
+  assert.match(refused, /Refused\. No candidate context/);
+  assert.match(refused, /source-missing · kit:k5-review · local:k5-not-imported · required/);
+  assert.match(refused, /The preview refused this text\. The Host can still save valid JSON/);
+  record("refused Kit shows typed diagnostics, no candidate, and the explicit save consequence");
+  await shot("03-refused-kit-light-1440");
+  await field().fill('{\n  "schemaVersion": 2,\n');
+  await preview();
+  const malformed = await page.locator('[data-testid="profile-editor-preview-error"]').textContent();
+  assert.match(malformed, /^Preview refused \(invalid_runtime_config\)/);
+  record("malformed JSON keeps the owner's typed error beside the source", { message: malformed });
+  await shot("04-malformed-light-1440");
+
+  // 5 · Stale config: an independent CAS change, then Preview refuses and offers reconciliation.
+  await field().fill(info.drafts.valid);
+  const external = await control();
+  const bump = await api("PUT", `/runtime-control?sessionId=${main}`, { revision: external.revision, operation: "put",
+    resource: { id: "local:k5-unrelated", kind: "instruction", title: "Unrelated", scope: { type: "user", id: "local" }, content: "Unrelated change." } });
+  assert.equal(bump.status, 200);
+  await preview();
+  await page.locator('[data-testid="profile-editor-fresh"]').waitFor();
+  const stale = await editorText();
+  assert.match(stale, /Preview refused \(runtime_conflict\)/);
+  assert.match(stale, /but the saved source is still the one you started from/);
+  assert.equal(await field().inputValue(), info.drafts.valid);
+  record("stale revision: preview refused, draft kept, fresh reading held apart for a deliberate choice");
+  await shot("05-stale-config-light-1440");
+  await page.getByRole("button", { name: "Continue with my text" }).click();
+  await preview();
+  assert.match(await editorText(), /Compiled\./);
+
+  // 6 · Active Run: preview allowed, Save refused by the Host freeze, nothing queued.
+  const held = await api("POST", `/sessions/${main}/runs`, { input: "K5 hold: keep this run active", commandId: "k5-hold" });
+  assert.equal(held.status, 200);
+  await preview();
+  assert.match(await editorText(), /Runtime configuration is frozen while a run is active/);
+  const sMark = Date.now();
+  await page.locator('[data-testid="profile-editor-save"]').click();
+  await page.locator('[data-save-status="frozen"]').waitFor();
+  record("active Run: preview reports the freeze; Save gets the Host's active_run refusal and keeps the draft", { puts: since(sMark, (r) => r.method === "PUT").length });
+  await shot("06-active-run-light-1440");
+  await writeFile(path.join(OUT, "release-hold"), "");
+  for (let i = 0; i < 100 && (await runsOf()).some((r) => !["completed", "failed", "cancelled", "unknown"].includes(r.status)); i++) await page.waitForTimeout(100);
+  assert.equal((await control()).revision, bump.json.revision, "nothing applied itself after the run");
+  assert.equal(await page.locator('[data-testid="profile-editor-save"]').isDisabled(), true, "Save stays held after the refusal");
+  await page.locator('[data-focus-key^="profile-editor:check-freeze:"]').click();
+  await page.waitForFunction(() => !document.querySelector('[data-testid="profile-editor-save"]').disabled);
+  assert.match(await editorText(), /No run is active now\. Nothing was saved meanwhile/);
+  record("after the Run ends nothing was applied; a fresh read (Check again) unlocks Save, which still needs an explicit press");
+
+  // 7 · Lost Save reply + newer typing; first read-back also lost → unknown; Check again confirms.
+  let dropPut = true, dropRead = false;
+  await page.route((url) => url.pathname === "/api/v5/runtime-control", async (route) => {
+    if (route.request().method() === "PUT" && dropPut) {
+      dropPut = false; await new Promise((r) => setTimeout(r, 700)); await route.fetch(); dropRead = true; await route.abort("failed"); return;
+    }
+    await route.continue();
+  });
+  await page.route("**/api/v5/runtime-resources/**", async (route) => {
+    if (dropRead) { dropRead = false; await route.abort("failed"); return; }
+    await route.continue();
+  });
+  const uMark = Date.now();
+  await page.locator('[data-testid="profile-editor-save"]').click();
+  await field().focus();
+  await page.keyboard.press("Control+End");
+  await page.keyboard.press("Meta+ArrowDown");
+  await page.keyboard.type("\n");
+  await page.locator('[data-save-status="unknown"]').waitFor();
+  await page.waitForFunction(() => /could not be read/.test(document.querySelector('[data-save-status="unknown"]')?.textContent ?? ""));
+  assert.equal(await field().inputValue(), info.drafts.valid + "\n", "newer typing kept separate from the submitted body");
+  record("dropped Save reply and failed read-back stay unknown; no automatic resend", { puts: since(uMark, (r) => r.method === "PUT").length });
+  await shot("07-unknown-light-1440");
+  await page.getByRole("button", { name: "Check again" }).click();
+  await page.locator('[data-save-status="saved"]').waitFor();
+  const confirmed = await editorText();
+  assert.match(confirmed, /confirms the current saved bytes, not which request wrote them/);
+  assert.match(confirmed, /You changed the text after that save/);
+  assert.equal(since(uMark, (r) => r.method === "PUT").length, 1);
+  await page.unrouteAll({ behavior: "wait" });
+  record("Check again reads back: matching hash confirms saved bytes; newer typing remains unsaved");
+  await shot("08-readback-confirmed-light-1440");
+  await page.getByRole("button", { name: "Revert to saved" }).click();
+  assert.equal(await field().inputValue(), info.drafts.valid);
+  const after = await control();
+  assert.equal(after.composition.hash, sha(info.drafts.valid));
+  assert.equal((await control(info.sessions.sibling)).composition.hash, sha(info.drafts.valid));
+  record("saved user-scope source reaches the other Chat that selects it", { revision: after.revision });
+
+  // 8 · Escape returns to the Chat with draft, caret and material intact.
+  await page.keyboard.press("Escape");
+  await page.locator("#settings-page").waitFor({ state: "hidden" }).catch(() => {});
+  const back = await page.evaluate(() => ({ focus: document.activeElement?.id, value: document.querySelector("#composer-input").value,
+    caret: [document.querySelector("#composer-input").selectionStart, document.querySelector("#composer-input").selectionEnd],
+    title: document.querySelector("#session-title-text")?.textContent, notice: document.querySelector("#agent-notice")?.hidden }));
+  assert.equal(back.value, draftText);
+  assert.deepEqual(back.caret, [7, 7]);
+  assert.equal(back.title, "K5 editor chat");
+  const materials = (await api("GET", `/sessions/${main}/materials`)).json;
+  assert.ok(JSON.stringify(materials).includes("k5-notes.md"));
+  record("Escape returns to the same Chat: focus on the Agent control, draft/caret/material unchanged", back);
+  await shot("09-return-chat-light-1440");
+
+  // 9 · Send: new Run records the edited context; old Run unchanged.
+  const runIds = new Set((await runsOf()).map((r) => r.id));
+  await page.locator("#composer-input").focus();
+  await page.locator("#send-button").click();
+  let fresh;
+  for (let i = 0; i < 150; i++) { fresh = (await runsOf()).find((r) => !runIds.has(r.id)); if (fresh && fresh.status === "completed") break; await page.waitForTimeout(100); }
+  assert.equal(fresh?.status, "completed");
+  const newContext = (await api("GET", `/runtime-context?sessionId=${main}&runId=${fresh.id}`)).json;
+  assert.equal(newContext.kitContext.text, info.expectedNewContext);
+  assert.equal(newContext.kitBinding.profile.sourceSha256, sha(info.drafts.valid));
+  assert.deepEqual((await api("GET", `/runtime-context?sessionId=${main}&runId=${info.oldRun.id}`)).json, oldContext);
+  const allRuns = await runsOf();
+  assert.equal(allRuns.length, 3, "old + held + new; preview and save created none");
+  record("new Run's recorded context equals the previewed candidate; old Run context unchanged; 3 Runs total", { newRun: fresh.id, runs: allRuns.map((r) => r.status) });
+  await shot("10-new-run-light-1440");
+
+  // 10 · Unavailable executor: managed Chat preview refused by the Host.
+  await openSession("K5 managed runtime chat");
+  await openEditorFromChooser();
+  await preview();
+  const managedError = await page.locator('[data-testid="profile-editor-preview-error"]').textContent();
+  assert.match(managedError, /kit_runtime_unsupported/);
+  record("managed-executor Chat: preview shows the Host's kit_runtime_unsupported refusal", { message: managedError });
+  await shot("11-managed-refused-light-1440");
+  await page.keyboard.press("Escape");
+
+  // 11 · Dark/narrow/long scenes on the main Chat.
+  await openSession("K5 editor chat");
+  // Keyboard only: chip → ArrowDown opens the chooser → Tab to the Edit action → Enter.
+  await page.locator("#agent-chip").focus();
+  await page.keyboard.press("ArrowDown");
+  await page.locator('[data-testid="agent-listbox"]').waitFor();
+  for (let i = 0; i < 6 && (await page.evaluate(() => document.activeElement?.dataset.testid)) !== "agent-view-in-settings"; i++) await page.keyboard.press("Tab");
+  assert.equal(await page.evaluate(() => document.activeElement?.textContent), "Edit Kit reviewer source in Settings");
+  await page.keyboard.press("Enter");
+  await page.waitForFunction(() => document.activeElement?.dataset.testid === "profile-editor-text" && !document.activeElement.readOnly);
+  record("keyboard: chooser → Tab → Enter lands focus in the editor field");
+  const long = info.drafts.valid.replace('"version": "2"', `"version": "2-${"long-label-".repeat(40)}"`);
+  await field().fill(long);
+  await preview();
+  // The unsaved draft survives leaving Settings and coming back.
+  await field().focus();
+  await page.keyboard.press("Escape");
+  await page.waitForFunction(() => document.activeElement?.id === "agent-chip");
+  await openEditorFromChooser();
+  assert.equal(await field().inputValue(), long);
+  assert.match(await editorText(), /unsaved changes/);
+  record("an unsaved editor draft survives Escape to the Chat and the return through the chooser");
+  await page.emulateMedia({ colorScheme: "dark" });
+  await shot("12-long-error-dark-1440");
+  measurements.push(await measure("long dark 1440"));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForTimeout(300);
+  await field().scrollIntoViewIfNeeded();
+  await shot("13-narrow-dark-390");
+  measurements.push(await measure("narrow dark 390"));
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.locator('[data-testid="profile-editor-save"]').scrollIntoViewIfNeeded();
+  await shot("14-narrow-light-390-actions");
+  measurements.push(await measure("narrow light 390"));
+  await page.getByRole("button", { name: "Revert to saved" }).click();
+} finally {
+  await writeFile(path.join(SHOTS, "checks.json"), JSON.stringify({ checks, errors }, null, 2));
+  await writeFile(path.join(SHOTS, "measurements.json"), JSON.stringify(measurements, null, 2));
+  await writeFile(path.join(SHOTS, "requests.json"), JSON.stringify(requests.map(({ at, ...r }) => r), null, 2));
+  await browser.close();
+}
+assert.deepEqual(errors, []);
+console.log("JOURNEY OK");

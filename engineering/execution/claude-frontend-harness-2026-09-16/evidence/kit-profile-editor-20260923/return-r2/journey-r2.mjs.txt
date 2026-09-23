@@ -1,0 +1,107 @@
+// K5 return R2 · real UI + real Host CAS: a Save whose 200 reply is held keeps
+// its ownership through newer typing, a Workbench refresh, an explicit fresh
+// read, reconciliation attempts and repeated Save. Same Host fixture.
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import assert from "node:assert/strict";
+const { chromium } = await import(pathToFileURL(path.join(execFileSync("npm", ["root", "-g"], { encoding: "utf8" }).trim(), "playwright/index.mjs")).href);
+
+const OUT = process.env.K5_OUT;
+const SHOTS = path.join(OUT, "browser-r2");
+await mkdir(SHOTS, { recursive: true });
+const info = JSON.parse(await readFile(path.join(OUT, "host-info.json"), "utf8"));
+const origin = info.url;
+const sha = (text) => createHash("sha256").update(text, "utf8").digest("hex");
+const token = (await (await fetch(origin + "/api/v5/bootstrap")).json()).sessionToken;
+const control = async () => (await (await fetch(`${origin}/api/v5/runtime-control?sessionId=${info.sessions.main}`, { headers: { "x-work-token": token } })).json());
+
+const checks = [], errors = [], puts = [];
+const record = (name, detail = {}) => { checks.push({ name, pass: true, ...detail }); console.log("PASS " + name); };
+const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
+const page = await (await browser.newContext({ viewport: { width: 1440, height: 1000 } })).newPage();
+page.on("pageerror", (e) => errors.push(e.message));
+const shot = async (name) => { await page.waitForTimeout(250); await page.screenshot({ path: path.join(SHOTS, name + ".png") }); };
+const editor = () => page.locator('[data-testid="profile-editor"]');
+const field = () => page.locator('[data-testid="profile-editor-text"]');
+const saveButton = () => page.locator('[data-testid="profile-editor-save"]');
+
+const V2 = info.drafts.valid;
+const V3 = info.drafts.valid.replace('"version": "2"', '"version": "2b"');
+const held = [];
+try {
+  await page.goto(origin);
+  await page.locator("#composer-input:not([disabled])").waitFor();
+  const closeExample = page.getByRole("button", { name: "Close the example", exact: true });
+  if (await closeExample.isVisible().catch(() => false)) await closeExample.click();
+  await page.locator("#navigation-panel, nav, aside").getByText("K5 editor chat", { exact: true }).first().click();
+  await page.locator("#agent-chip:not([hidden])").waitFor();
+  await page.locator("#agent-chip").click();
+  await page.locator('[data-testid="agent-view-in-settings"]').click();
+  await page.waitForFunction(() => { const f = document.querySelector('[data-testid="profile-editor-text"]'); return f && !f.readOnly; });
+  const start = (await control()).revision;
+
+  // Every runtime-control PUT reaches the Host; its reply is held until released.
+  await page.route((url) => url.pathname === "/api/v5/runtime-control", async (route) => {
+    if (route.request().method() !== "PUT") return route.continue();
+    const response = await route.fetch();
+    puts.push({ revision: JSON.parse(route.request().postData()).revision, status: response.status() });
+    await new Promise((resolve) => held.push(resolve));
+    await route.fulfill({ response });
+  });
+
+  await field().fill(V2);
+  await saveButton().click();
+  for (let i = 0; i < 50 && !puts.length; i++) await page.waitForTimeout(100);
+  assert.equal(puts.length, 1);
+  assert.equal((await control()).revision, start + 1, "the first write landed; only its reply is held");
+
+  await field().fill(V3); // newer typing while waiting
+  await page.getByRole("button", { name: "Refresh the runtime snapshot" }).first().click();
+  await page.locator('[data-testid="profile-editor-config-moved"]').waitFor();
+  await page.getByRole("button", { name: "Read the current source" }).click();
+  await page.locator('[data-testid="profile-editor-fresh-waiting"]').waitFor();
+  const t = await editor().innerText();
+  assert.match(t, /may include the save that is still waiting for its answer/);
+  assert.doesNotMatch(t, /Keep my text over the current source|Use the current source|Continue with my text/);
+  assert.equal(await saveButton().textContent(), "Saving…");
+  assert.equal(await saveButton().isDisabled(), true);
+  assert.equal(await field().inputValue(), V3);
+  record("while the first reply is held: fresh read records the Host state; no reconciliation action; Save held; newer typing kept");
+  await shot("r2-01-pending-fresh-light-1440");
+
+  await saveButton().dblclick({ force: true }).catch(() => {});
+  await page.keyboard.press("Enter").catch(() => {});
+  await page.waitForTimeout(500);
+  assert.equal(puts.length, 1, "repeated Save sends nothing while one is outstanding");
+  record("repeated Save during the wait: still exactly one PUT", { puts: puts.length });
+
+  held.shift()();
+  await page.locator('[data-save-status="saved"]').waitFor();
+  const settled = await editor().innerText();
+  assert.match(settled, /You changed the text after that save/);
+  assert.doesNotMatch(settled, /Keep my text over the current source/);
+  assert.equal(await field().inputValue(), V3);
+  record("the delayed 200 settles as saved; its own revision's reading is cleared; newer typing remains unsaved");
+  await shot("r2-02-settled-light-1440");
+
+  await saveButton().click();
+  for (let i = 0; i < 50 && puts.length < 2; i++) await page.waitForTimeout(100);
+  held.shift()();
+  await page.locator('[data-save-status="saved"]').waitFor();
+  await page.waitForFunction(() => /same as the saved source/.test(document.querySelector('[data-testid="profile-editor-measure"]')?.textContent ?? ""));
+  const final = await control();
+  assert.deepEqual(puts.map((p) => [p.revision, p.status]), [[start, 200], [start + 1, 200]]);
+  assert.equal(final.composition.hash, sha(V3));
+  record("a deliberate second Save after settlement: one more PUT at the next revision; saved hash equals the newer text", { puts });
+  await shot("r2-03-second-save-light-1440");
+} finally {
+  for (const release of held) release();
+  await page.unrouteAll({ behavior: "ignoreErrors" }).catch(() => {});
+  await writeFile(path.join(SHOTS, "checks.json"), JSON.stringify({ checks, errors, puts }, null, 2));
+  await browser.close();
+}
+assert.deepEqual(errors, []);
+console.log("JOURNEY R2 OK");

@@ -1,0 +1,10 @@
+29,32c29,32
+< while(pending.length<2) await new Promise(r=>setTimeout(r,1));
+< console.log(JSON.stringify({sourceSha:'991a0c600d5abc6a8fdd6d13adc1ac0a1b137da1',before:{status:before.save.status,freshRevision:before.fresh?.revision},after:{status:after.save.status,saveEnabled:after.save.gate.enabled},requestsBeforeAnyResponse:pending.length,hostRevision:revision,content},null,2));
+< for(const resolve of pending)resolve(); await Promise.all([first,second]);
+< assert.equal(pending.length,2,'reproduced overlapping saves after reconciliation');
+---
+> for(let i=0;i<500&&pending.length<2;i++) await new Promise(r=>setTimeout(r,1)); // adapted: bounded wait
+> console.log(JSON.stringify({sourceTree:process.argv[2],before:{status:before.save.status,freshRevision:before.fresh?.revision},after:{status:after.save.status,saveEnabled:after.save.gate.enabled},requestsBeforeAnyResponse:pending.length,hostRevision:revision,content},null,2));
+> for(const resolve of pending)resolve(); await first; await second;
+> assert.equal(pending.length,1,'at most one outstanding save through fresh read, reconciliation and repeated Save'); console.log('PASS at most one outstanding save; final status '+editor.reading(S,P).save.status);

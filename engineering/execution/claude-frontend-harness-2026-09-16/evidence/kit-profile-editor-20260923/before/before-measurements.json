@@ -1,0 +1,85 @@
+{
+  "baseline": "c91ff759bd6ed315c9f3e2eef709d6c792420b71",
+  "scenes": [
+    {
+      "viewport": [
+        1440,
+        1000,
+        "light"
+      ],
+      "chooserAction": "View Kit reviewer source in Settings",
+      "focus": "runtime-row-title",
+      "row": {
+        "x": 341,
+        "y": 414,
+        "w": 778,
+        "h": 472
+      },
+      "detail": {
+        "x": 341,
+        "y": 552,
+        "w": 778,
+        "h": 320,
+        "maxHeight": "320px"
+      },
+      "source": {
+        "x": 358,
+        "y": 710,
+        "w": 744,
+        "h": 591,
+        "font": "12px / 20.4px ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, \"Liberation Mono\", monospace"
+      },
+      "actions": [
+        {
+          "text": "Hide source",
+          "x": 358,
+          "y": 569,
+          "w": 75,
+          "h": 28,
+          "font": "11.5px"
+        }
+      ],
+      "overflowX": false
+    },
+    {
+      "viewport": [
+        390,
+        844,
+        "light"
+      ],
+      "chooserAction": "View Kit reviewer source in Settings",
+      "focus": "runtime-row-title",
+      "row": {
+        "x": 33,
+        "y": 389,
+        "w": 324,
+        "h": 546
+      },
+      "detail": {
+        "x": 33,
+        "y": 602,
+        "w": 324,
+        "h": 320,
+        "maxHeight": "320px"
+      },
+      "source": {
+        "x": 50,
+        "y": 817,
+        "w": 290,
+        "h": 734,
+        "font": "12px / 20.4px ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, \"Liberation Mono\", monospace"
+      },
+      "actions": [
+        {
+          "text": "Hide source",
+          "x": 50,
+          "y": 619,
+          "w": 75,
+          "h": 44,
+          "font": "11.5px"
+        }
+      ],
+      "overflowX": false
+    }
+  ]
+}

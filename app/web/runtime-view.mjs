@@ -2,6 +2,7 @@ import { el, icon, action, copyAction } from "./ui-controls.mjs";
 import { createRuntimeIntake } from "./runtime-intake.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
 import { parseUnifiedPatch, renderDiff } from "./diff-view.mjs";
+import { editEligibility } from "./profile-editor.mjs";
 const RESOURCE_ICONS = {tool: "tool.object", mcp_server: "mcp.server", skill: "skill.object", plugin: "plugin.object", hook: "hook.object", registry: "registry.object", agent_profile: "agent.profile"};
 
 /* WO-WK11 · the Runtime Workbench. One controller owns the authoritative
@@ -254,7 +255,7 @@ function sameRules(a, b) {
  * inside those blocks. */
 export function createRuntimeView(
   mounts,
-  { request, getSessionId, notify, onDraft, getRuns, getBinding, loadBinding, onEditConnection, onRendered },
+  { request, getSessionId, notify, onDraft, getRuns, getBinding, loadBinding, onEditConnection, onRendered, profileEditor },
 ) {
   let snapshot = null,
     context = null,
@@ -283,6 +284,9 @@ export function createRuntimeView(
   const drafts = new Map();
   const packageDrafts = new Map();
   const open = new Set();
+  /* K5 · profiles whose source editor is shown in this Chat. The drafts
+     themselves live in the page-level editor, keyed by Session and profile. */
+  const editing = new Set();
   const filters = new Map();
   /* BE-6/BE-7 · one opened proposal's loaded review, keyed by proposal id:
      { loading, error, review, requestId, applying, rejecting, message }. Never
@@ -313,6 +317,13 @@ export function createRuntimeView(
   function draftFor(key) {
     return drafts.get(key) || null;
   }
+  /* K5-R1 · the editor's owner facts come from this same snapshot: freeze,
+     whole-config revision, and which profile (if any) this Chat may edit. */
+  function shareFacts() {
+    if (!snapshot) return;
+    const editable = (snapshot.resources || []).find((resource) => editEligibility(snapshot, resource).editable);
+    profileEditor?.setFacts({ sessionId, activeRuns: snapshot.activeRuns ?? 0, revision: snapshot.revision ?? null, editableId: editable?.id ?? null });
+  }
   function rememberDraft(key, entry) {
     drafts.set(key, { key, at: new Date(), ...entry });
   }
@@ -336,11 +347,12 @@ export function createRuntimeView(
       error = null;
       settledGeneration = own;
       if (!snapshot.activeRuns) frozenByServer = false;
+      shareFacts();
       render({ polling });
       if (pendingOpen) {
         const target = pendingOpen;
         pendingOpen = null;
-        if (target.sessionId === id && resourceById(target.id)) openResource(target.id);
+        if (target.sessionId === id && resourceById(target.id)) openResource(target.id, { edit: target.edit });
       }
       await readContext(own, polling);
       await readProposals(own, polling);
@@ -420,6 +432,7 @@ export function createRuntimeView(
       if (ownEpoch !== sessionEpoch) return false;
       snapshot = result;
       error = null;
+      shareFacts();
       if (key) drafts.delete(key);
       frozenByServer = Boolean(result.activeRuns);
       try {
@@ -1060,6 +1073,23 @@ export function createRuntimeView(
       button.addEventListener("click", () => void inspectSource(resource));
       bar.append(button);
     }
+    if (profileEditor && editEligibility(snapshot, resource).editable) {
+      const editingNow = editing.has(resource.id);
+      /* A changed draft keeps its editor open until it is saved or reverted. */
+      if (!(editingNow && profileEditor.dirty(sessionId, resource.id))) {
+        const button = el("button", {
+          className: "text-button",
+          text: editingNow ? "Close editor" : "Edit source",
+          attrs: { type: "button", "data-focus-key": `edit-profile:${resource.id}`, "data-testid": "profile-edit-source" },
+        });
+        button.addEventListener("click", () => {
+          if (editing.has(resource.id)) editing.delete(resource.id);
+          else { editing.add(resource.id); pendingFocus = `profile-editor:text:${resource.id}`; }
+          render();
+        });
+        bar.append(button);
+      }
+    }
     if (resource.action) {
       const button = el("button", {
         className: "text-button",
@@ -1200,6 +1230,12 @@ export function createRuntimeView(
         );
     }
     row.append(detail);
+    /* K5 · the editor sits beside the bounded reader, not inside it: the
+       source field and its preview need the row's full measure. */
+    if (resource.kind === "agent_profile" && profileEditor && sessionId) {
+      if (profileEditor.dirty(sessionId, resource.id)) editing.add(resource.id);
+      if (editing.has(resource.id)) row.append(profileEditor.panel(sessionId, resource));
+    }
     return row;
   }
 
@@ -2777,6 +2813,14 @@ export function createRuntimeView(
       const input = Object.values(mounts).map(mount => mount?.querySelector(`[data-focus-key="${CSS.escape(pendingFocus)}"]`)).find(Boolean);
       if (input) { pendingFocus = null; input.focus(); }
     }
+    if (pendingFocus?.startsWith('profile-editor:')) {
+      const field = Object.values(mounts).map(mount => mount?.querySelector(`[data-focus-key="${CSS.escape(pendingFocus)}"]`)).find(Boolean);
+      if (field) {
+        pendingFocus = null;
+        field.scrollIntoView({ block: "center", behavior: "auto" });
+        field.focus({ preventScroll: true });
+      }
+    }
     if (pendingFocus?.startsWith('proposal:')) {
       // A decided row swaps its actions for a decision line, so the Apply/Reject
       // button just clicked may no longer exist; the row's own summary always does.
@@ -2812,14 +2856,23 @@ export function createRuntimeView(
      opened by the read that settles it. Leaving, a Session change or a failed
      read forgets it; it is never opened into another chat's snapshot.
      (`pendingOpen` is declared beside `read`, which settles it.) */
-  function openResource(id) {
+  function openResource(id, { edit = false } = {}) {
     if (!resourceById(id)) {
       if (snapshot && generation === settledGeneration) return false;
-      pendingOpen = { id, sessionId: getSessionId() };
+      pendingOpen = { id, sessionId: getSessionId(), edit };
       return "pending";
     }
     pendingOpen = null;
     open.add(id);
+    /* K5 · the chooser's Edit destination opens the editor on the field; the
+       Host still decides whether this profile can be previewed or saved. */
+    if (edit && profileEditor && editEligibility(snapshot, resourceById(id)).editable) {
+      editing.add(id);
+      for (const section of filters.keys()) filters.set(section, "all");
+      pendingFocus = `profile-editor:text:${id}`;
+      render();
+      return true;
+    }
     if (capabilitiesTab === "inventory" && ["tool", "mcp_server"].includes(resourceById(id).kind))
       capabilitiesTab = "configurable";
     for (const section of filters.keys()) filters.set(section, "all");
@@ -2883,6 +2936,7 @@ export function createRuntimeView(
         inspected = null;
         boundRunId = null;
         open.clear();
+        editing.clear();
         filters.clear();
         scopeType = null;
         proposals = null;

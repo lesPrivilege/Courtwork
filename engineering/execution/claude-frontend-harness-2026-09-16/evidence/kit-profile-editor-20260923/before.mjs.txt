@@ -1,0 +1,37 @@
+// Baseline (c91ff75) capture of the same Chat → chooser → Settings destination.
+import { execFileSync } from "node:child_process";
+import { readFile, writeFile } from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+const { chromium } = await import(pathToFileURL(path.join(execFileSync("npm", ["root", "-g"], { encoding: "utf8" }).trim(), "playwright/index.mjs")).href);
+const OUT = process.env.K5_OUT;
+const info = JSON.parse(await readFile(path.join(OUT, "host-info.json"), "utf8"));
+const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
+const out = [];
+for (const [w, h, scheme] of [[1440, 1000, "light"], [390, 844, "light"]]) {
+  const page = await browser.newPage({ viewport: { width: w, height: h }, colorScheme: scheme });
+  await page.goto(info.url);
+  await page.locator("#composer-input:not([disabled])").waitFor();
+  await page.locator("#navigation-panel, nav, aside").getByText("K5 editor chat", { exact: true }).first().click().catch(async () => {
+    await page.getByRole("button", { name: /navigation|menu/i }).first().click(); await page.getByText("K5 editor chat", { exact: true }).first().click(); });
+  await page.locator("#agent-chip:not([hidden])").waitFor();
+  await page.locator("#agent-chip").click();
+  const label = await page.locator('[data-testid="agent-view-in-settings"]').textContent();
+  await page.locator('[data-testid="agent-view-in-settings"]').click();
+  await page.locator(".runtime-source .file-text").first().waitFor();
+  await page.waitForTimeout(400);
+  const m = await page.evaluate(() => {
+    const box = (n) => { const r = n.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }; };
+    const row = document.querySelector('.runtime-row[data-resource="local:k5-reviewer"]');
+    const src = row.querySelector(".runtime-source .file-text");
+    const detail = row.querySelector(".runtime-detail");
+    const act = [...row.querySelectorAll(".runtime-row-actions button")].map((b) => ({ text: b.textContent, ...box(b), font: getComputedStyle(b).fontSize }));
+    return { focus: document.activeElement?.className, row: box(row), detail: { ...box(detail), maxHeight: getComputedStyle(detail).maxHeight }, source: { ...box(src), font: getComputedStyle(src).font }, actions: act, overflowX: document.documentElement.scrollWidth > innerWidth };
+  });
+  out.push({ viewport: [w, h, scheme], chooserAction: label, ...m });
+  await page.screenshot({ path: path.join(OUT, "before", `before-settings-${scheme}-${w}.png`) });
+  await page.close();
+}
+await writeFile(path.join(OUT, "before", "before-measurements.json"), JSON.stringify({ baseline: "c91ff759bd6ed315c9f3e2eef709d6c792420b71", scenes: out }, null, 2));
+await browser.close();
+console.log(JSON.stringify(out, null, 1).slice(0, 1500));

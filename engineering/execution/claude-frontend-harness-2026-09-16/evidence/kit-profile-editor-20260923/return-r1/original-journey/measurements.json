@@ -1,0 +1,232 @@
+[
+  {
+    "label": "editor-open light 1440",
+    "viewport": {
+      "w": 1440,
+      "h": 1000
+    },
+    "coarse": false,
+    "settingsHeader": null,
+    "editor": {
+      "x": 341,
+      "y": 422,
+      "w": 778,
+      "h": 494
+    },
+    "editorGap": "12px",
+    "field": {
+      "x": 341,
+      "y": 494,
+      "w": 778,
+      "h": 312,
+      "font": "14px",
+      "family": "ui-monospace",
+      "lineHeight": "21px"
+    },
+    "preview": {
+      "x": 341,
+      "y": 848,
+      "w": 66,
+      "h": 30,
+      "font": "12px",
+      "minHeight": "28px"
+    },
+    "save": {
+      "x": 415,
+      "y": 848,
+      "w": 92,
+      "h": 30,
+      "font": "12px",
+      "minHeight": "28px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "overflowX": false
+  },
+  {
+    "label": "preview light 1440",
+    "viewport": {
+      "w": 1440,
+      "h": 1000
+    },
+    "coarse": false,
+    "settingsHeader": null,
+    "editor": {
+      "x": 341,
+      "y": -276,
+      "w": 778,
+      "h": 1111
+    },
+    "editorGap": "12px",
+    "field": {
+      "x": 341,
+      "y": -204,
+      "w": 778,
+      "h": 312,
+      "font": "14px",
+      "family": "ui-monospace",
+      "lineHeight": "21px"
+    },
+    "preview": {
+      "x": 341,
+      "y": 150,
+      "w": 66,
+      "h": 30,
+      "font": "12px",
+      "minHeight": "28px"
+    },
+    "save": {
+      "x": 415,
+      "y": 150,
+      "w": 92,
+      "h": 30,
+      "font": "12px",
+      "minHeight": "28px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "overflowX": false
+  },
+  {
+    "label": "long dark 1440",
+    "viewport": {
+      "w": 1440,
+      "h": 1000
+    },
+    "coarse": false,
+    "settingsHeader": null,
+    "editor": {
+      "x": 341,
+      "y": 331,
+      "w": 778,
+      "h": 551
+    },
+    "editorGap": "12px",
+    "field": {
+      "x": 341,
+      "y": 402,
+      "w": 778,
+      "h": 312,
+      "font": "14px",
+      "family": "ui-monospace",
+      "lineHeight": "21px"
+    },
+    "preview": {
+      "x": 341,
+      "y": 787,
+      "w": 66,
+      "h": 30,
+      "font": "12px",
+      "minHeight": "28px"
+    },
+    "save": {
+      "x": 415,
+      "y": 787,
+      "w": 92,
+      "h": 30,
+      "font": "12px",
+      "minHeight": "28px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "overflowX": false
+  },
+  {
+    "label": "narrow dark 390",
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "coarse": false,
+    "settingsHeader": null,
+    "editor": {
+      "x": 33,
+      "y": 306,
+      "w": 324,
+      "h": 656
+    },
+    "editorGap": "12px",
+    "field": {
+      "x": 33,
+      "y": 378,
+      "w": 324,
+      "h": 312,
+      "font": "14px",
+      "family": "ui-monospace",
+      "lineHeight": "21px"
+    },
+    "preview": {
+      "x": 33,
+      "y": 817,
+      "w": 66,
+      "h": 44,
+      "font": "12px",
+      "minHeight": "44px"
+    },
+    "save": {
+      "x": 107,
+      "y": 817,
+      "w": 92,
+      "h": 44,
+      "font": "12px",
+      "minHeight": "44px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "overflowX": false
+  },
+  {
+    "label": "narrow light 390",
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "coarse": false,
+    "settingsHeader": null,
+    "editor": {
+      "x": 33,
+      "y": 264,
+      "w": 324,
+      "h": 656
+    },
+    "editorGap": "12px",
+    "field": {
+      "x": 33,
+      "y": 336,
+      "w": 324,
+      "h": 312,
+      "font": "14px",
+      "family": "ui-monospace",
+      "lineHeight": "21px"
+    },
+    "preview": {
+      "x": 33,
+      "y": 775,
+      "w": 66,
+      "h": 44,
+      "font": "12px",
+      "minHeight": "44px"
+    },
+    "save": {
+      "x": 107,
+      "y": 775,
+      "w": 92,
+      "h": 44,
+      "font": "12px",
+      "minHeight": "44px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "overflowX": false
+  }
+]

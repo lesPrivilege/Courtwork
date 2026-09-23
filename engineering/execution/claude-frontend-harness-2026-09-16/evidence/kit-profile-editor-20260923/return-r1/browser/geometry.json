@@ -1,0 +1,226 @@
+[
+  {
+    "label": "candidate light 1440",
+    "viewport": {
+      "w": 1440,
+      "h": 1000
+    },
+    "textScale": "1",
+    "editor": {
+      "x": 341,
+      "y": -300,
+      "w": 778,
+      "h": 1136
+    },
+    "field": {
+      "x": 341,
+      "y": -229,
+      "w": 778,
+      "h": 312,
+      "font": "14px",
+      "lineHeight": "21px",
+      "family": "ui-monospace",
+      "wrapsLongLine": true,
+      "scrolls": true
+    },
+    "candidate": {
+      "x": 341,
+      "y": 775,
+      "w": 778,
+      "h": 48,
+      "font": "15px",
+      "lineHeight": "24px",
+      "family": "ui-monospace"
+    },
+    "hash": {
+      "font": "12px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "preview": {
+      "x": 341,
+      "y": 126,
+      "w": 66,
+      "h": 30,
+      "font": "12px"
+    },
+    "save": {
+      "x": 415,
+      "y": 126,
+      "w": 92,
+      "h": 30,
+      "font": "12px"
+    },
+    "overflowX": false
+  },
+  {
+    "label": "source light 1440",
+    "viewport": {
+      "w": 1440,
+      "h": 1000
+    },
+    "textScale": "1",
+    "editor": {
+      "x": 341,
+      "y": 331,
+      "w": 778,
+      "h": 1136
+    },
+    "field": {
+      "x": 341,
+      "y": 402,
+      "w": 778,
+      "h": 312,
+      "font": "14px",
+      "lineHeight": "21px",
+      "family": "ui-monospace",
+      "wrapsLongLine": true,
+      "scrolls": true
+    },
+    "candidate": {
+      "x": 341,
+      "y": 1406,
+      "w": 778,
+      "h": 48,
+      "font": "15px",
+      "lineHeight": "24px",
+      "family": "ui-monospace"
+    },
+    "hash": {
+      "font": "12px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "preview": {
+      "x": 341,
+      "y": 757,
+      "w": 66,
+      "h": 30,
+      "font": "12px"
+    },
+    "save": {
+      "x": 415,
+      "y": 757,
+      "w": 92,
+      "h": 30,
+      "font": "12px"
+    },
+    "overflowX": false
+  },
+  {
+    "label": "source light 390",
+    "viewport": {
+      "w": 390,
+      "h": 844
+    },
+    "textScale": "1",
+    "editor": {
+      "x": 33,
+      "y": 306,
+      "w": 324,
+      "h": 1462
+    },
+    "field": {
+      "x": 33,
+      "y": 378,
+      "w": 324,
+      "h": 312,
+      "font": "14px",
+      "lineHeight": "21px",
+      "family": "ui-monospace",
+      "wrapsLongLine": true,
+      "scrolls": true
+    },
+    "candidate": {
+      "x": 33,
+      "y": 1685,
+      "w": 324,
+      "h": 72,
+      "font": "15px",
+      "lineHeight": "24px",
+      "family": "ui-monospace"
+    },
+    "hash": {
+      "font": "12px"
+    },
+    "help": {
+      "font": "11.5px",
+      "lineHeight": "18.4px"
+    },
+    "preview": {
+      "x": 33,
+      "y": 769,
+      "w": 66,
+      "h": 44,
+      "font": "12px"
+    },
+    "save": {
+      "x": 107,
+      "y": 769,
+      "w": 92,
+      "h": 44,
+      "font": "12px"
+    },
+    "overflowX": false
+  },
+  {
+    "label": "source light 1440 --text-scale 1.5",
+    "viewport": {
+      "w": 1440,
+      "h": 1000
+    },
+    "textScale": "1.5",
+    "editor": {
+      "x": 341,
+      "y": 249,
+      "w": 778,
+      "h": 1617
+    },
+    "field": {
+      "x": 341,
+      "y": 338,
+      "w": 778,
+      "h": 459,
+      "font": "21px",
+      "lineHeight": "31.5px",
+      "family": "ui-monospace",
+      "wrapsLongLine": true,
+      "scrolls": true
+    },
+    "candidate": {
+      "x": 341,
+      "y": 1782,
+      "w": 778,
+      "h": 72,
+      "font": "22.5px",
+      "lineHeight": "36px",
+      "family": "ui-monospace"
+    },
+    "hash": {
+      "font": "12px"
+    },
+    "help": {
+      "font": "17.25px",
+      "lineHeight": "27.6px"
+    },
+    "preview": {
+      "x": 341,
+      "y": 876,
+      "w": 85,
+      "h": 39,
+      "font": "18px"
+    },
+    "save": {
+      "x": 434,
+      "y": 876,
+      "w": 122,
+      "h": 39,
+      "font": "18px"
+    },
+    "overflowX": false
+  }
+]
