@@ -1,0 +1,29 @@
+✔ schema 22 records one immutable Kit summary and equal typed runtime.bound projection across reopen (128.130708ms)
+✔ schema 22 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes (115.727708ms)
+✔ schema 20 upgrades with an exact backup, unchanged historical events, and null legacy Run bindings (117.7445ms)
+✔ the pinned schema-20 Host refuses schema 22 byte-for-byte (997.248417ms)
+✔ K4 actual preview → existing CAS save → new Pi Run retains new context and old Run/replay (1770.226ms)
+✔ K4 v1 and v2 empty-Kit drafts preserve exact legacy context without Run or write (91.5965ms)
+▶ K4 K1 reference, requirement, kind and conflict diagnostics refuse without a partial candidate
+  ✔ missing source (2.112ms)
+  ✔ changed digest (1.975625ms)
+  ✔ wrong kind (3.745458ms)
+  ✔ missing required tool (2.8395ms)
+  ✔ conflicting Kit pins (2.516792ms)
+✔ K4 K1 reference, requirement, kind and conflict diagnostics refuse without a partial candidate (102.868458ms)
+✔ K4 exposure and budget refusals keep owner facts; permission readings remain advisory (114.306084ms)
+✔ K4 explicit unsupported evidence refuses; absent evidence stays Pi unchecked (91.689417ms)
+✔ K4 stale revision and invalid source refuse without saving the caller's draft (108.07675ms)
+✔ K4 preview during an active Run is read-only and reports the existing save freeze (453.461667ms)
+✔ K4 only an existing imported profile explicitly selected for an ordinary Session can preview (96.494834ms)
+✔ K4 managed and unavailable executors cannot obtain a Pi Kit preview (201.085666ms)
+✔ K4 a racing configuration save yields one pinned old preview or a typed conflict (95.151541ms)
+✔ K4 a proved Spark child Session refuses ordinary profile preview without a second process effect (1512.243041ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5531.925333

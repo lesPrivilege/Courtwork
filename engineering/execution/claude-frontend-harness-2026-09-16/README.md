@@ -1,5 +1,7 @@
 # Claude 串行施工单 · 统一前端与真实 Harness 合流
 
+Current continuation (2026-09-23): [K4 backend accepted](evidence/kit-profile-preview-final-20260923/README.md); [K5 selected-profile editor](kit-profile-editor-20260923.md) is prepared for Claude. No active editor process is claimed; earlier lane snapshots below retain their historical dates.
+
 **Current consumption check (2026-09-22):** read [current](../../current.md) and the [promise-to-user-path audit](evidence/work-closure-audit-20260922/README.md) before dispatching any historical slice below. A source/fixture/merge proves only its recorded scope; accepted basic dogfood is not to be repeated because an old dispatch paragraph said pending. Role/Kit-to-Run binding and user-operable recovery remain distinct future owner work.
 
 **Current gap/dispatch map (2026-09-23):** [Core and Extensions remaining outcomes](evidence/harness-gap-map-20260923/README.md) supersedes historical pending claims for accepted K3/E1/M1 and preserves original owner/contract boundaries. This is a readiness map, not a parallel author lease.

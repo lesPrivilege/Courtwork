@@ -50,3 +50,9 @@ The parent may merge accepted releases and normally push main under existing aut
 ## E1 handoff consumed — 2026-09-23
 
 [Final acceptance](evidence/e1-final-20260923/README.md) closes the finite existing-Chat E1 lane atmaine525a3a. The supplied author report explicitly stops new work, preserves the fixed source/evidence and waits for parent review; this is the writer handoff. Do not require the literal words “writer released” when these facts are explicit, and do not infer them from a quiet process or clean tree alone. Both completed source/review trees are restore-verified and removed; retained archive refs carry historical stages. Further Claude work needs a new bounded original-owner continuation from integrated main; no stale worktree path should be reused.
+
+## K4 closure and K5 handoff — 2026-09-23
+
+[Accepted K4](evidence/kit-profile-preview-final-20260923/README.md) supplies the missing read-only semantic draft preview at45ba815 without new authority or schema. [K5](kit-profile-editor-20260923.md) is the next finite original-Claude frontend consumer: existing selected profile body edit/preview/CAS save/Chat return/recorded context. No callable Claude route exists in this parent session, so the consumable order is prepared without claiming dispatch, substituting another frontend author or starting unrelated queue items.
+
+After actual-main20/20 and complete restore/bundle verification, the ended K4 tree is removed. Parent pauses the existing coordination heartbeat at the user's no-dispatchable-successor boundary. Resume from actual main when Claude has a callable route or fixed delivery; the remaining roadmap is not declared complete.

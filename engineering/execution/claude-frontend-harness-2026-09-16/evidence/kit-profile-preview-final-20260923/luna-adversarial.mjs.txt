@@ -1,0 +1,53 @@
+import assert from 'node:assert/strict';
+import { boot } from '/Users/lesprivilege/Projects/.worktrees/courtwork-kit-profile-preview-20260923/app/tests/helpers.mjs';
+import { seal, sha256 } from '/Users/lesprivilege/Projects/.worktrees/courtwork-kit-profile-preview-20260923/app/tests/fixtures/kit-context.mjs';
+
+const h = await boot();
+try {
+  const session = await h.createSession();
+  const scope = { type: 'session', id: session.id };
+  const item = { id: 'local:k4-adversarial', kind: 'instruction', title: 'Adversarial core', content: 'Exact preview body.' };
+  const ref = { resourceId: item.id, contentSha256: sha256(item.content), artifactSha256: sha256(JSON.stringify({kind:item.kind,title:item.title,content:item.content})) };
+  const kit = seal({ schemaVersion: 1, id: 'kit:k4-adversarial', version: '1', core: [ref], deferred: [], requirements: [], conflicts: [] });
+  const save = async input => {
+    const current = (await h.api('GET', `/runtime-control?sessionId=${session.id}`)).json;
+    return h.api('PUT', `/runtime-control?sessionId=${session.id}`, { revision: current.revision, ...input });
+  };
+  assert.equal((await save({operation:'put',resource:{...item,scope:{type:'user',id:'local'}}})).status,200);
+  const profileId = 'local:k4-adversarial-profile';
+  const original = { schemaVersion:2, version:'1', resourceIds:[item.id,'tool:ws_write'], rules:[{action:'ws_write',resource:'*',effect:'deny'}], uiSlots:[], kits:[kit] };
+  assert.equal((await save({operation:'put',resource:{id:profileId,kind:'agent_profile',title:'Adversarial profile',scope:{type:'user',id:'local'},content:JSON.stringify(original)}})).status,200);
+  assert.equal((await save({operation:'profile',scope,id:profileId})).status,200);
+  const snapshot = (await h.api('GET',`/runtime-control?sessionId=${session.id}`)).json;
+  const preview = async draft => h.api('POST',`/runtime-control/preview-profile?sessionId=${session.id}`,{expectedRevision:snapshot.revision,profileId,content:JSON.stringify(draft)});
+  const proposedAllow = {...original, rules:[{action:'ws_write',resource:'*',effect:'allow'}]};
+  const persistedSnapshot = (await h.api('GET',`/runtime-control?sessionId=${session.id}`)).json;
+  const persistedPermission = persistedSnapshot.resources.find(row=>row.id==='tool:ws_write').permission;
+  const permitted = await preview(proposedAllow);
+  assert.equal(permitted.status,200,JSON.stringify(permitted.json));
+  const permission = permitted.json.permissions.find(row=>row.resourceId==='tool:ws_write');
+  const savedPolicyCount = h.runtime.service.control.config.policies.length;
+  const issue = {...original, resourceIds:[item.id,'tool:ws_write','tool:missing-adversarial']};
+  const incompatible = await preview(issue);
+  assert.equal(incompatible.status,200,JSON.stringify(incompatible.json));
+  console.log(JSON.stringify({
+    compatibleComposition: permitted.json.composition.status,
+    kitStatusWithAllowedWriteDeclaration: permitted.json.kit.status,
+    permissionReading: permission,
+    persistedPermissionBeforeSave: persistedPermission,
+    incompatibleComposition: incompatible.json.composition.status,
+    incompatibleKitStatus: incompatible.json.kit.status,
+    incompatibleCandidate: incompatible.json.kit.candidate,
+    incompatibleDiagnostics: incompatible.json.kit.diagnostics,
+    savedPolicyCountBeforeAfter: [savedPolicyCount,h.runtime.service.control.config.policies.length],
+    providerCalls: h.runtime.fakeProvider.requests.length,
+  },null,2));
+  assert.equal(permission.advisory,true);
+  assert.equal(permission.effect,'allow');
+  assert.equal(persistedPermission.effect,'deny','the unsaved proposed allow rule does not alter the owner snapshot');
+  assert.equal(h.runtime.service.control.config.policies.length,savedPolicyCount);
+  assert.equal(incompatible.json.composition.status,'incompatible');
+  assert.equal(incompatible.json.kit.status,'refused');
+  assert.equal(incompatible.json.kit.candidate,null);
+  assert.equal(h.runtime.fakeProvider.requests.length,0);
+} finally { await h.runtime.close(); await (await import('node:fs/promises')).rm(h.dataDir,{recursive:true,force:true}); }

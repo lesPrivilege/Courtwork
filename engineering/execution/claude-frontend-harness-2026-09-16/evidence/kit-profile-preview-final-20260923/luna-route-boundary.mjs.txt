@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { boot } from '/Users/lesprivilege/Projects/.worktrees/courtwork-kit-profile-preview-20260923/app/tests/helpers.mjs';
+const h = await boot();
+try {
+  const session = await h.createSession();
+  const body = { expectedRevision: 0, profileId: 'local:never', content: '{}' };
+  const duplicate = await h.api('POST', `/runtime-control/preview-profile?sessionId=${session.id}&sessionId=${session.id}`, body);
+  const extra = await h.api('POST', `/runtime-control/preview-profile?sessionId=${session.id}&debug=1`, body);
+  assert.equal(duplicate.status,400,JSON.stringify(duplicate));
+  assert.equal(duplicate.json.error.code,'invalid_input');
+  assert.equal(extra.status,400,JSON.stringify(extra));
+  assert.equal(extra.json.error.code,'invalid_input');
+  assert.equal(h.runtime.fakeProvider.requests.length,0);
+  console.log(JSON.stringify({duplicateQuery:[duplicate.status,duplicate.json.error.code],extraQuery:[extra.status,extra.json.error.code],providerCalls:h.runtime.fakeProvider.requests.length}));
+} finally { await h.runtime.close(); await (await import('node:fs/promises')).rm(h.dataDir,{recursive:true,force:true}); }

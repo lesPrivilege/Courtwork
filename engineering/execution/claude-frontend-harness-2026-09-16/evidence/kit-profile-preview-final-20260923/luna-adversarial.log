@@ -1,0 +1,69 @@
+{
+  "compatibleComposition": "compatible",
+  "kitStatusWithAllowedWriteDeclaration": "compiled",
+  "permissionReading": {
+    "resourceId": "tool:ws_write",
+    "action": "ws_write",
+    "exposed": true,
+    "effect": "allow",
+    "trace": [
+      {
+        "source": "host-ceiling",
+        "effect": "allow"
+      },
+      {
+        "source": "host-default",
+        "effect": "allow"
+      },
+      {
+        "source": {
+          "type": "agent",
+          "id": "local:k4-adversarial-profile"
+        },
+        "action": "ws_write",
+        "resource": "*",
+        "effect": "allow"
+      }
+    ],
+    "advisory": true
+  },
+  "persistedPermissionBeforeSave": {
+    "effect": "deny",
+    "trace": [
+      {
+        "source": "host-ceiling",
+        "effect": "allow"
+      },
+      {
+        "source": "host-default",
+        "effect": "allow"
+      },
+      {
+        "source": {
+          "type": "agent",
+          "id": "local:k4-adversarial-profile"
+        },
+        "action": "ws_write",
+        "resource": "*",
+        "effect": "deny"
+      }
+    ],
+    "resourceSpecific": false
+  },
+  "incompatibleComposition": "incompatible",
+  "incompatibleKitStatus": "refused",
+  "incompatibleCandidate": null,
+  "incompatibleDiagnostics": [
+    {
+      "code": "binding-composition-incompatible",
+      "kitId": null,
+      "resourceId": null,
+      "required": null
+    }
+  ],
+  "savedPolicyCountBeforeAfter": [
+    0,
+    0
+  ],
+  "providerCalls": 0
+}

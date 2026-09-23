@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · K4 read-only profile preview accepted; editor handoff prepared
+
+[Parent K4 acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-preview-final-20260923/README.md) accepts98a3d69/ac5252b atmain45ba815. Parent57/57 and Luna's independent HTTP probes verify isolated preview, advisory permissions, scope/CAS, exact later Pi context and old history. No frontend editor, live managed support or schema change is claimed. [K5](execution/claude-frontend-harness-2026-09-16/kit-profile-editor-20260923.md) is the next finite original-Claude handoff; no callable Claude route/process is present. Actual-main20/20 passes; complete archive/physical restore/bundle verification precede ended-tree removal. The existing coordination heartbeat is paused at the no-dispatchable-successor boundary; resume with a real Claude route/delivery.
+
 ## 2026-09-23 · Next finite slice selected: Kit profile draft preview
 
 [Consumed preflight](execution/claude-frontend-harness-2026-09-16/evidence/kit-authoring-preflight-20260923/README.md) identifies one missing Host seam after R1 acceptance: semantic preview of an unsaved existing selected Kit-profile edit. [K4 backend order](execution/claude-frontend-harness-2026-09-16/kit-profile-preview-20260923.md) reuses Runtime Control CAS/resolution and K1/K3 without any store or inference effect. GPT-6 Sol `/root/sol6_runtime_binding` has been dispatched in isolated `courtwork-kit-profile-preview-20260923` from pushed695820a; GPT-6 Luna independently reviews its fixed delivery. Claude's later editor is a separate handoff, not an active process. No new registry, schema, provider/native configuration or frontend lane follows from this selection.

@@ -34,3 +34,7 @@ Run targeted meaningful checks first; broader tests only for the actual shared h
 ## Actual K4 dispatch
 
 Parent verified local/origin main695820a29e1589bd3ded12f70f72807a5802db66 after R1 acceptance and restoration-verified cleanup, then created isolated `courtwork-kit-profile-preview-20260923` / `codex/kit-profile-preview-20260923` and dispatched `/root/sol6_runtime_binding` (gpt-6-sol, high). This is the sole current backend writer; `/root/luna6_runtime_selection` is the non-author reviewer. Claude has no active editor lease/process in this dispatch. No new sidebar task or frontend capability is claimed.
+
+## Parent disposition · 2026-09-23
+
+**Adopted**: fixed98a3d69 / released author packetac5252b, integrated45ba815. [Final receipt](evidence/kit-profile-preview-final-20260923/README.md) records parent57/57, Luna independent no-effect/refusal probes, exact integration and preservation. No source correction was required. The source lease is closed; [K5](kit-profile-editor-20260923.md) is a separate prepared Claude consumer handoff, not an active writer or frontend acceptance.
