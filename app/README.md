@@ -90,8 +90,9 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 21 store (see below)
+  runtime-state.json        # schemaVersion 22 store (see below)
   runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
+  runtime-state.schema21.<sha256>.json # exact pre-upgrade backup from schema 21
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
   credentials.json          # {connectionId: apiKey}, 0600, never in the store
@@ -116,10 +117,21 @@ task.
 <a id="store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade"></a>
 <a id="store-schema-v18-validated-v3-v17-upgrade"></a>
 <a id="store-schema-v19-validated-v3v18-upgrade"></a>
-## Store schema (v21, validated v3–v20 upgrade)
+## Store schema (v22, validated v3–v21 upgrade)
 
-`schemaVersion` is `21`. A valid v3 … v20 store upgrades with an exact SHA-256-named
-backup before atomic replacement. Older hosts reject v21. Runtime21 adds immutable
+`schemaVersion` is `22`. A valid v3 … v21 store upgrades with an exact SHA-256-named
+backup before atomic replacement. The pinned schema21 Host refuses v22 without
+rewriting it. Runtime22 adds a typed Session `executorChoice` and Run
+`executorBinding` for the actual Runtime Port. Pure migration gives every old
+Session a null executor factory reference and old nonchild Runs a legacy binding;
+the first new Run pins an explicitly configured matching port and increments the
+Session choice revision once in the same Store transaction. Spark child Runs keep
+their separate owner and a null ordinary executor binding. Pi remains the default;
+the managed Agents option requires an explicitly configured trusted factory and
+does not gain live availability from the offline fixture. Core user schema4 and
+bridge app schema5 are unchanged.
+
+Runtime21 adds immutable
 Run-owned `kitBinding` (null for older/no-Kit Runs), atomically projected by
 `runtime.bound`; exact plan/context bytes remain in ArtifactHistory and are verified
 before inference and recorded-context reads. Only explicit Session-selected ordinary

@@ -10,7 +10,7 @@ import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } 
 import { runRepositoryCandidateFs } from "../runtime/repository-candidate-fs.mjs";
 import { createRepositoryCandidateTools } from "../runtime/repository-candidate-tools.mjs";
 import { governTools } from "../runtime/control-tools.mjs";
-import { RuntimeStore } from "../server/store.mjs";
+import { RuntimeStore } from "./fixtures/executor-store.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
 import { boot } from "./helpers.mjs";
 
@@ -1239,13 +1239,13 @@ test("schema16 migrates into schema17 without losing source binding snapshots", 
     schema16.schemaVersion = 16;
     for (const row of schema16.sessions) for (const key of ["repositoryCandidate", "repositoryCandidateRevision", "repositoryCandidateCommands", "repositoryWriteEffects"]) delete row[key];
     for (const row of schema16.runs) { delete row.repositoryCandidateSnapshot; delete row.kitBinding; }
-    delete schema16.operations; schema16.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; }); schema16.runs.forEach(run => { delete run.remoteBinding; }); // schema 18 · not part of a true schema-16 file
+    delete schema16.operations; schema16.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; delete session.executorChoice; }); schema16.runs.forEach(run => { delete run.remoteBinding; delete run.executorBinding; }); // schema 18 · not part of a true schema-16 file
     await store.close(); store = null;
     const { writeFile, readFile } = await import("node:fs/promises");
     const bytes = Buffer.from(JSON.stringify(schema16, null, 2));
     await writeFile(path.join(legacyDir, "runtime-state.json"), bytes, { mode: 0o600 });
     upgraded = await new RuntimeStore({ dataDir: legacyDir }).open();
-    assert.equal(upgraded.snapshot().schemaVersion, 21);
+    assert.equal(upgraded.snapshot().schemaVersion, 22);
     assert.equal(upgraded.getSession(session.id).repositoryBinding.id, bound.binding.id);
     assert.equal(upgraded.getSession(session.id).repositoryCandidate, null);
     assert.equal(upgraded.getSession(session.id).repositoryCandidateRevision, 0);

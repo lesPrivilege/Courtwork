@@ -185,6 +185,8 @@ function routeService(service, req, url) {
   if (tail.length === 2 && tail[0] === "sessions" && method === "PATCH") return async () => service.renameSession(tail[1], await body(req));
   if (tail.length === 2 && tail[0] === "sessions" && method === "DELETE") return () => service.deleteSession(tail[1]);
   if (tail.length === 2 && tail[0] === "sessions" && method === "GET") return () => service.getSession(tail[1]);
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "executor-choice" && method === "GET") return () => service.getExecutorChoice(tail[1]);
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "executor-choice" && method === "PUT") return async () => service.changeExecutorChoice(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "events" && method === "GET") return () => service.getEvents(tail[1], url.searchParams.get("afterSeq") ?? 0);
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "draft" && method === "PUT") return async () => service.updateDraft(tail[1], await body(req));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "permission-mode" && method === "PUT") return async () => service.setPermissionMode(tail[1], await body(req));
@@ -239,7 +241,7 @@ function routeService(service, req, url) {
   if (tail.length === 1 && tail[0] === "runtime-control" && method === "GET") return () => service.getRuntimeControl(url.searchParams.get("sessionId"));
   if (tail.length === 1 && tail[0] === "runtime-control" && method === "PUT") return async () => service.changeRuntimeControl(url.searchParams.get("sessionId"), await body(req));
   if (tail.length === 2 && tail[0] === "runtime-resources" && method === "GET") return () => service.getRuntimeResource(url.searchParams.get("sessionId"), tail[1]);
-  if (method === "GET" && tail.length === 1 && tail[0] === "runtime-info") return () => service.getRuntimeInfo();
+  if (method === "GET" && tail.length === 1 && tail[0] === "runtime-info") return () => service.getRuntimeInfo(url.searchParams.get("sessionId"));
   if (method === "POST" && tail.length === 2 && tail[0] === "runtime-sources" && tail[1] === "resolve") return async () => service.resolveRuntimeSource(await body(req));
   if (method === "POST" && tail.length === 2 && tail[0] === "provider-models" && tail[1] === "discover") return async () => service.previewProvider(await body(req), 'discover');
   if (method === "POST" && tail.length === 2 && tail[0] === "provider-connection" && tail[1] === "test") return async () => service.previewProvider(await body(req), 'test');
@@ -260,8 +262,8 @@ function routeService(service, req, url) {
   return undefined;
 }
 
-export async function startServer({ dataDir, host = "127.0.0.1", port = 0, extensionCatalog = catalog, fakeResponder = null, responder = null, budget, compaction, asyncTaskAdapters = [], runtimePort, localPiWorker = false, logger = (line) => console.log(line) } = {}) {
-  const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, asyncTaskAdapters, runtimePort, localPiWorker, logger });
+export async function startServer({ dataDir, host = "127.0.0.1", port = 0, extensionCatalog = catalog, fakeResponder = null, responder = null, budget, compaction, asyncTaskAdapters = [], runtimePort, managedRuntimePort, localPiWorker = false, logger = (line) => console.log(line) } = {}) {
+  const runtime = await createRuntime({ dataDir, extensionCatalog, fakeResponder, responder, budget, compaction, asyncTaskAdapters, runtimePort, managedRuntimePort, localPiWorker, logger });
   const { service } = runtime;
   let server;
   let closing = false;

@@ -20,6 +20,9 @@ test('Host Spark actual Pi process retains exact findings, keeps provided-only c
     const run = h.runtime.store.getRun(a.attempts[0].runId);
     assert.equal(run.status, 'completed', JSON.stringify({ a, run, events: h.runtime.store.snapshot().events }));
     assert.equal(run.adapterId, 'pi-local-print'); assert.equal(run.hostSession, null);
+    assert.equal(run.executorBinding, null, 'a proved Spark child has no ordinary executor binding');
+    const choice = await h.api('GET', `/sessions/${run.sessionId}/executor-choice`);
+    assert.deepEqual([choice.status, choice.json.locked, choice.json.lockReason], [200, true, 'not_ordinary_chat']);
     assert.equal(run.provider.baseUrl, h.runtime.fakeProvider.baseUrl);
     assert.equal(a.status, 'blocked'); assert.equal(a.reason, 'assigned_source_coverage_incomplete'); assert.deepEqual(a.sourceReads, []);
     assert.match(a.result.coverage, /provided.*unverified/);

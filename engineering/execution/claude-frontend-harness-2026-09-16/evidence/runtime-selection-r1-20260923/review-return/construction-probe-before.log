@@ -1,0 +1,20 @@
+{"rejected":true,"managedCloseCalls":0}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: every constructed port should be disposed on rejected construction
+
+0 !== 1
+
+    at file:///private/tmp/cw-r1-construction-probe-20260923.mjs:9:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 0,
+  expected: 1,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v25.9.0

@@ -7,6 +7,10 @@ import { describeTestHooks } from "../runtime/test-hooks.mjs";
 import { ExtensionRegistry } from "../runtime/extension-registry.mjs";
 import { RuntimeStore } from "./store.mjs";
 import { RuntimeService } from "./service.mjs";
+import {
+  MANAGED_EXECUTOR_ID, PI_EXECUTOR_ID, executorConfigurationRef,
+  validateExecutorDescriptor,
+} from "./executor-choice-state.mjs";
 
 /**
  * If the host process inherited DEEPSEEK_API_KEY from its environment,
@@ -29,25 +33,51 @@ function stripInheritedProviderEnv(logger) {
 /** One local runtime owner, independent of HTTP and the frontend. Future
  * orchestration calls service commands; it does not become a store/JSONL writer.
  * extensionCatalog is the composition seam for trusted domain adapters.
- * runtimePort is the one Runtime Port this Host serves Runs with: Pi unless a
- * caller injects another factory. Nothing selects a runtime from a model name,
- * and an injected runtime is never replaced by Pi when it cannot do something.
+ * Pi is the product default; a trusted caller may inject the one reviewed
+ * managed factory for offline conformance. The singular runtimePort argument
+ * remains the historical single-port test seam. No model name selects a port.
  */
 export async function createRuntime({ dataDir, extensionCatalog = [], fakeResponder = null, responder = null,
-  budget, compaction, asyncTaskAdapters = [], runtimePort = createPiRuntimePort, localPiWorker = false, logger = () => {} } = {}) {
+  budget, compaction, asyncTaskAdapters = [], runtimePort = createPiRuntimePort, managedRuntimePort = null,
+  localPiWorker = false, logger = () => {} } = {}) {
   if (typeof dataDir !== "string" || !dataDir.trim()) throw new TypeError("dataDir is required");
   dataDir = path.resolve(dataDir);
   const removedEnvVars = stripInheritedProviderEnv(logger);
   for (const line of describeTestHooks()) logger(line);
   const store = await new RuntimeStore({ dataDir, logger }).open();
-  let fakeProvider, registry, service;
+  let fakeProvider, registry, service, configuredPorts = [];
   const workCore = new WorkCoreOwner(dataDir);
   try {
     fakeProvider = await createFakeOpenAiProvider({ host: "127.0.0.1", port: 0, responder, fakeResponder });
     const modelRuntime = await createIsolatedModelRuntime();
+    const primary = runtimePort({ dataDir, modelRuntime });
+    const ports = [primary];
+    configuredPorts = ports;
+    if (managedRuntimePort !== null) {
+      if (primary.id !== PI_EXECUTOR_ID || typeof managedRuntimePort !== "function") {
+        throw new TypeError("a managed alternate requires the production Pi default and a trusted factory");
+      }
+      const managed = managedRuntimePort({ dataDir, modelRuntime });
+      ports.push(managed);
+      if (managed.id !== MANAGED_EXECUTOR_ID) throw new TypeError("only the reviewed managed Agents adapter is eligible");
+    }
+    const configuredExecutors = ports.map(port => {
+      const info = port.describe();
+      const descriptor = {
+        adapterId: port.id, revision: info.revision,
+        configurationRef: executorConfigurationRef({
+          adapterId: port.id, revision: info.revision, protocol: info.protocol,
+          endpointIdentity: info.configurationIdentity ?? null,
+        }),
+        capabilities: structuredClone(info.capabilities),
+      };
+      validateExecutorDescriptor(descriptor);
+      return { port, descriptor };
+    });
     registry = new ExtensionRegistry({ catalog: extensionCatalog, dataDir, store, workCore: workCore.client });
     await registry.initialize();
-    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client, dataDir, modelRuntime, runtimePort: runtimePort({ dataDir, modelRuntime }), budget, compaction, asyncTaskAdapters, localPiWorker, logger });
+    service = new RuntimeService({ store, fakeProvider, extensionRegistry: registry, workCore: workCore.client,
+      dataDir, modelRuntime, configuredExecutors, budget, compaction, asyncTaskAdapters, localPiWorker, logger });
     await service.initialize();
     let closePromise;
     return {
@@ -68,6 +98,7 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
     };
   } catch (error) {
     await service?.close().catch(() => {});
+    if (!service) await Promise.allSettled(configuredPorts.map(port => Promise.resolve().then(() => port.close?.())));
     await registry?.dispose().catch(() => {});
     await fakeProvider?.close().catch(() => {});
     await workCore.close().catch(() => {});

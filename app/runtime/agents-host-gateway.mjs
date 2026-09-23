@@ -30,6 +30,7 @@ import { AGENTS_TRANSPORT_FUNCTION_TOOLS } from "./openai-agents-transport.mjs";
  * offers nothing decisive the outcome stays unknown.
  */
 export const AGENTS_RUNTIME_ID = "agents-api";
+export const AGENTS_RUNTIME_REVISION = "agents-api-host-v1";
 const MAX_ARGUMENTS_BYTES = 16 * 1024;
 const MAX_RESULT_BYTES = 4 * 1024 * 1024;
 const MAX_ERROR_BYTES = 4 * 1024;
@@ -96,7 +97,10 @@ export function createAgentsRuntimePort({ transport, cancelConfirmMs = 10_000, r
     id,
     /** The Host persists a remote binding for this runtime, never a Pi locator. */
     remote: true,
-    describe: () => ({ id, capabilities: CAPABILITIES }),
+    describe: () => ({ id, revision: AGENTS_RUNTIME_REVISION,
+      protocol: `agents-api:${AGENTS_API_PROTOCOL.docsRevision}`,
+      configurationIdentity: transport.endpointIdentity ?? null,
+      capabilities: CAPABILITIES }),
 
     /**
      * @param ledger the Host's durable record of this Run's remote actions.

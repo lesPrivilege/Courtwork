@@ -275,7 +275,8 @@ describe("P03-C Host consumer · governed read on the production service path", 
     const pi = await reopen(copy);
     cleanup.push(() => pi.runtime.close());
     const refused = await pi.api("POST", `/sessions/${t.session.id}/runs`, { input: "on Pi", commandId: "c-own-pi" });
-    assert.deepEqual([refused.status, refused.json.error.code], [409, "runtime_mismatch"]);
+    assert.deepEqual([refused.status, refused.json.error.code], [409, "executor_unavailable"],
+      "a saved remote executor cannot fall back when only Pi is configured");
 
     // The other direction: a chat Pi served is never handed to the remote runtime.
     const piHost = await boot();
@@ -287,7 +288,8 @@ describe("P03-C Host consumer · governed read on the production service path", 
     const remote = await reopen(await crashCopy(piHost), { runtimePort: agentsPort(t.loopback) });
     cleanup.push(() => remote.runtime.close());
     const handed = await remote.api("POST", `/sessions/${piSession.id}/runs`, { input: "on the remote runtime", commandId: "c-own-remote" });
-    assert.deepEqual([handed.status, handed.json.error.code], [409, "runtime_mismatch"]);
+    assert.deepEqual([handed.status, handed.json.error.code], [409, "executor_unavailable"],
+      "a saved Pi executor cannot fall back when only the managed port is injected");
     assert.equal(t.loopback.posts("/v1/agents/sessions").length, 1, "nothing was created for the Pi chat");
 
     await t.store.bumpCredentialGeneration();

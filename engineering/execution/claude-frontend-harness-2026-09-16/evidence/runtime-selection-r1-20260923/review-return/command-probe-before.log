@@ -1,0 +1,17 @@
+{"adapter":"agents-api","nativeCompaction":false,"compact":{"available":false,"reason":"This chat has no recorded conversation to compact."},"statusCompaction":{"available":false,"reason":"This chat has no recorded conversation to compact."}}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: commands must derive the bound executor capability, not the default Pi journal test
+    at file:///private/tmp/cw-r1-command-probe-20260923.mjs:18:9
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: 'This chat has no recorded conversation to compact.',
+  expected: /runtime.*not support compaction/i,
+  operator: 'match',
+  diff: 'simple'
+}
+
+Node.js v25.9.0

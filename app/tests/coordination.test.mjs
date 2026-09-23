@@ -9,7 +9,7 @@ import { promisify } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { RuntimeStore } from '../server/store.mjs';
+import { RuntimeStore } from './fixtures/executor-store.mjs';
 import { Coordination } from '../harness/coordination.mjs';
 import { executeChild, narrowGrant, reduceFindings } from '../harness/child-execution.mjs';
 import { boot, spawnWorker, reopen } from './helpers.mjs';
@@ -155,9 +155,9 @@ test('RuntimeStore6 migration preserves global scope and exact backup; corrupt l
   try{
     store=await new RuntimeStore({dataDir:dir}).open();
     const global=await store.createSession({id:randomUUID(),scope:'global',projectId:null,title:'Attention',workspaceDir:path.join(dir,'global'),permissionMode:'ask'});
-    await store.close();const file=path.join(dir,'runtime-state.json');const old=JSON.parse(await readFile(file,'utf8'));old.schemaVersion=6; delete old.operations; old.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; }); old.runs.forEach(run => { delete run.remoteBinding; }); delete old.subagents;delete old.coordination; delete old.providerConnections;delete old.providerConfigurationPending;delete old.providerConfigVersion;delete old.providerVerifications;old.sessions.forEach(session=>{delete session.repositoryBinding;delete session.repositoryBindingRevision;delete session.repositoryBindingCommands;delete session.repositoryCandidate;delete session.repositoryCandidateRevision;delete session.repositoryCandidateCommands;delete session.repositoryWriteEffects;});old.runs.forEach(run=>{delete run.repositoryBindingSnapshot;delete run.repositoryCandidateSnapshot;delete run.kitBinding;});
+    await store.close();const file=path.join(dir,'runtime-state.json');const old=JSON.parse(await readFile(file,'utf8'));old.schemaVersion=6; delete old.operations; old.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; delete session.executorChoice; }); old.runs.forEach(run => { delete run.remoteBinding; delete run.executorBinding; }); delete old.subagents;delete old.coordination; delete old.providerConnections;delete old.providerConfigurationPending;delete old.providerConfigVersion;delete old.providerVerifications;old.sessions.forEach(session=>{delete session.repositoryBinding;delete session.repositoryBindingRevision;delete session.repositoryBindingCommands;delete session.repositoryCandidate;delete session.repositoryCandidateRevision;delete session.repositoryCandidateCommands;delete session.repositoryWriteEffects;});old.runs.forEach(run=>{delete run.repositoryBindingSnapshot;delete run.repositoryCandidateSnapshot;delete run.kitBinding;});
     const raw=Buffer.from(JSON.stringify(old,null,1)+'\n');await writeFile(file,raw);
-    store=await new RuntimeStore({dataDir:dir}).open();assert.equal(store.getSession(global.id).scope,'global');assert.equal(store.state.schemaVersion,21);await store.close();
+    store=await new RuntimeStore({dataDir:dir}).open();assert.equal(store.getSession(global.id).scope,'global');assert.equal(store.state.schemaVersion,22);await store.close();
     const hash=createHash('sha256').update(raw).digest('hex');assert.deepEqual(await readFile(path.join(dir,`runtime-state.schema6.${hash}.json`)),raw);
     const bad=JSON.parse(await readFile(file,'utf8'));bad.coordination.messages.push({id:'forged'});await writeFile(file,JSON.stringify(bad));
     await assert.rejects(new RuntimeStore({dataDir:dir}).open());
@@ -261,7 +261,7 @@ async function reopenAfterCrash(dir) {
     'no half-written tmp file: the crash did not land between write and rename');
   const logs=[];
   const store=await new RuntimeStore({dataDir:dir,logger:line=>logs.push(line)}).open();
-  assert.equal(store.state.schemaVersion,21);
+  assert.equal(store.state.schemaVersion,22);
   assert(logs.some(line=>/discarded 1 incomplete state write/.test(line)),`crash was not disclosed: ${JSON.stringify(logs)}`);
   return {store,c:new Coordination(store),logs};
 }
@@ -456,9 +456,9 @@ test('schema7 effort survives upgrade; fixed old host refuses schema9 and restor
     await oldStore.createSession({id:randomUUID(),scope:'global',projectId:null,title:'Synthetic global',workspaceDir:path.join(dir,'ws'),permissionMode:'ask'});
     await oldStore.setProviderConfig({provider:'fake-openai-loopback',model:'fake-local-model',api:'openai-completions',reasoningEffort:'off'});
     await oldStore.close();const raw=await readFile(path.join(data,'runtime-state.json'));
-    store=await new RuntimeStore({dataDir:data}).open();assert.equal(store.state.schemaVersion,21);assert.equal(store.getProviderConfig().reasoningEffort,'off');assert.equal(store.listSessions()[0].scope,'global');await store.close();
+    store=await new RuntimeStore({dataDir:data}).open();assert.equal(store.state.schemaVersion,22);assert.equal(store.getProviderConfig().reasoningEffort,'off');assert.equal(store.listSessions()[0].scope,'global');await store.close();
     const upgraded=await readFile(path.join(data,'runtime-state.json'));
-    await assert.rejects(new Old({dataDir:data}).open(),/schemaVersion 21 is not supported/);assert.deepEqual(await readFile(path.join(data,'runtime-state.json')),upgraded);
+    await assert.rejects(new Old({dataDir:data}).open(),/schemaVersion 22 is not supported/);assert.deepEqual(await readFile(path.join(data,'runtime-state.json')),upgraded);
     const digest=createHash('sha256').update(raw).digest('hex'),backup=await readFile(path.join(data,`runtime-state.schema7.${digest}.json`));assert.deepEqual(backup,raw);
     await mkdir(restore);await writeFile(path.join(restore,'runtime-state.json'),backup);
     oldStore=await new Old({dataDir:restore}).open();assert.equal(oldStore.state.schemaVersion,7);await oldStore.close();

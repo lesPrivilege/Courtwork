@@ -57,6 +57,22 @@ document's revision of the contract, not a new route namespace.
 `PUT /api/v5/sessions/:id/permission-mode` — `{ permissionMode }`. Refused with
 `409 active_run` while a run is active.
 
+`GET /api/v5/sessions/:id/executor-choice` returns
+`{ sessionId, choice:{revision,adapterId,configurationRef}, locked, lockReason, options[] }`.
+Each option reports its known adapter/revision/configuration/capability facts and
+`availability:{status,reason}`. An unavailable managed option is readable but
+cannot be selected. `PUT /api/v5/sessions/:id/executor-choice` accepts only
+`{expectedRevision,adapterId}`; the Host derives the non-secret factory ref.
+Only an ordinary Chat without any Run/native history can change choice. Stale
+revision is `409 executor_selection_conflict`; historical choice is
+`409 executor_lineage_locked`; global Attention, extension and Spark child
+Sessions are read-only and return `409 executor_ineligible` on PUT. A missing
+or changed selected factory refuses new work without switching the Chat to Pi.
+Contradictory migrated Run/native history remains readable with
+`choice.adapterId:null`; it cannot be used to start another Run.
+This is a backend contract; managed Agents has no production live availability
+from the synthetic transport fixture.
+
 `PATCH /api/v5/sessions/:id` — `{ title }` (1–200 characters, no other fields).
 Returns `{ session }`; `404 not_found` for an unknown session. The title is the
 record: every list and the chat header read it back. Allowed during a run.
@@ -226,7 +242,7 @@ model validated against the installed catalog) and `fake-openai-loopback` (tests
 
 ## Runs
 
-`POST /api/v5/sessions/:id/runs` — `{ input, commandId, runtimeSelection? }` → `{ run }`
+`POST /api/v5/sessions/:id/runs` — `{ input, commandId, runtimeSelection?, executorExpectation? }` → `{ run }`
 
 `runtimeSelection`, when supplied, is `{revision,profileId,sourceHash}` from the
 effective Runtime Control snapshot. It protects chooser intent with whole-config
@@ -235,6 +251,13 @@ CAS and source identity (`null` for builtin General). A stale selection returns4
 resolved first, without consulting current selection. No server draft or per-profile
 revision is created. See the [Kit/Profile API](../../docs/runtime-control/api.md)
 for profile-v2 scope, exact frozen context, compatibility and permission boundaries.
+
+`executorExpectation` is separately `{revision,adapterId}` from the Session
+choice reader. A stale value returns `409 executor_selection_conflict` before
+new execution; an original `commandId` replay returns its recorded Run first.
+The Session choice is locked after first Run admission. A selected managed port
+must still pass its own Provider/Model and native binding checks; the factory
+fingerprint contains no credential, Provider or model facts.
 
 - `commandId` is a client-generated UUID and is required. Re-sending the same
   `commandId` with the same `input` returns the same run (200) — the safe retry
@@ -282,7 +305,11 @@ Refusals: `409 active_run`, `409 operation_active`, `409 nothing_to_compact`,
 See [commands-and-compaction](commands-and-compaction.md) for semantics.
 
 `GET /api/v5/runs/:id` → `{ run }`, where a run carries
-`{ id, sessionId, status, admissionOpen, adapterId, provider, extension, startedAt, endedAt, error, commandId, artifacts[], usage, hostSession, credentialGeneration, kitBinding }`.
+`{ id, sessionId, status, admissionOpen, adapterId, executorBinding, provider, extension, startedAt, endedAt, error, commandId, artifacts[], usage, hostSession, credentialGeneration, kitBinding }`.
+`executorBinding` freezes the actual port revision, non-secret executor-specific
+configuration ref, capability description and consumed Session choice revision.
+Migrated nonchild Runs say `recording:"legacy"` with unknown fields; a proven Spark
+child Run has `executorBinding:null` and keeps its existing child receipts.
 `kitBinding` is null for no-Kit/historical Runs and otherwise the immutable schema21
 Kit summary. Exact plan/context payload refs are binding evidence in ArtifactHistory,
 not Work artifacts; the recorded Runtime Context endpoint verifies their bytes.

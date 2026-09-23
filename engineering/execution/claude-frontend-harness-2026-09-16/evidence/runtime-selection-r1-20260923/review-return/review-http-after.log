@@ -1,0 +1,42 @@
+✔ CMD-01 · the slash reader is fixed: escape, command, and every other leading slash stays text (5.627125ms)
+✔ CMD-01 · discovery is built from Host facts: availability carries a reason and nothing is advertised without a target (0.796417ms)
+✔ CMD-01 · Host dispatch: reads make no Run and no model request; unknown, stale, unavailable and bad arguments are refused with a reason (165.501667ms)
+✔ CMD-01 · /effort saves the Host configuration under CAS and the next Run binds it; unsupported values never reach the provider (242.460625ms)
+✔ CMD-01 · /compact through the dispatcher is the same idle-only operation, and a running Run makes it unavailable rather than queued (705.435333ms)
+▶ P03-C Host consumer · governed read on the production service path
+  ✔ admission → create intent → binding → root turn → claim → governed repo_read → retained bytes → one submission → root terminal → later input on the same binding (1473.131875ms)
+  ✔ unadvertised, wrong-turn, malformed and out-of-scope calls read nothing; each refusal is retained and delivered once as an error (1999.219542ms)
+  ✔ policy deny and a user's deny never read; a scope revoked while approval is pending cancels the run unread, and a later run has no reader (1999.242292ms)
+  ✔ a native call observed twice is claimed once, executed once and submitted once; racing claims share one receipt (1106.890958ms)
+  ✔ without attributable root identity nothing is read and nothing settles the run; a required action is not root evidence (530.592125ms)
+  ✔ a lost creation reply stays unknown: no binding, no guessed id, no replacement session, and the chat is fenced (998.624917ms)
+  ✔ a lost submission reply keeps the retained result and its identity: unknown delivery, no re-read, no re-send, chat fenced (876.412125ms)
+  ✔ restart fences: an interrupted execution and an unanswered submission become unknown; nothing is re-read, re-run or re-sent (1171.752625ms)
+  ✔ an earlier stream replayed to a later run cannot re-execute, re-associate or settle it (838.435833ms)
+  ✔ a chat stays with its runtime: Pi refuses a remote-bound chat, the remote runtime refuses a Pi chat, and a changed configuration cannot reuse the binding (651.840917ms)
+✔ P03-C Host consumer · governed read on the production service path (11649.977334ms)
+✔ the production Host runs Pi through the port and continues one native session (815.760709ms)
+✔ a journal written before the port existed is opened in place and continued (270.26875ms)
+✔ retrying a command never opens a second native session (509.497208ms)
+✔ observations that arrive after cancellation are not recorded (228.320666ms)
+✔ an operation the runtime does not support is refused, not rerouted (158.056ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.163959ms)
+✔ R1 public choice defaults to Pi; an unconfigured managed option cannot be enabled by a client flag (473.720166ms)
+✔ R1 one Host serves separate Pi and managed Sessions with frozen native shapes (1513.798833ms)
+✔ R1 stale choice and stale Run expectation refuse before provider/native requests (81.361791ms)
+✔ R1 first-choice PUT and first Run serialize; the loser cannot switch native lineage (66.521333ms)
+✔ R1 a saved managed Run replays after restart without its factory; new work refuses without Pi fallback (269.178625ms)
+✔ R1 changed managed endpoint after restart leaves the saved choice readable and refuses execution (242.465458ms)
+✔ R1 a selected managed lost-create stays unknown across reopen and cannot dispatch through Pi (484.220333ms)
+✔ R1 a v2 Kit remains Pi-only and refuses managed execution before provider/native requests (95.493042ms)
+✔ R1 Pi credential rotation does not change executor identity; managed credential fences stay separate (334.195542ms)
+✔ R1 global Attention choice is read-only and its Run keeps the default Pi port (500.578083ms)
+✔ R1 contradictory legacy native history stays readable with null identity and refuses new execution (484.010583ms)
+ℹ tests 32
+ℹ suites 1
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 23434.716666
