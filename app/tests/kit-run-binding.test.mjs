@@ -366,6 +366,8 @@ test('K3-R1 persisted Kit declarations require summaries on load, including forg
       if (variant === 'forged-schema20') {
         corrupt.schemaVersion = 20;
         delete row.kitBinding;
+        delete row.executorBinding;
+        for (const session of corrupt.sessions) delete session.executorChoice;
       } else assert.throws(() => validateState(corrupt), /Kit-bearing.*requires|Kit binding does not equal/, variant);
       const bytes = Buffer.from(JSON.stringify(corrupt, null, 2) + '\n');
       await writeFile(file, bytes);

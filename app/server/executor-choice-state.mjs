@@ -77,7 +77,7 @@ export function isSparkChildRun(state, run) {
 
 export function hasExecutorHistory(state, session) {
   return state.runs.some(run => run.sessionId === session.id) || session.hostSession !== null ||
-    session.remoteBinding !== null || session.remoteActions.length > 0 ||
+    session.remoteBinding !== null || (session.remoteActions?.length ?? 0) > 0 ||
     Boolean(sparkAssignmentForSession(state, session.id));
 }
 

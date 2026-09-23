@@ -60,6 +60,10 @@ import { inspectRepositoryGitStatus } from "../runtime/repository-git-status.mjs
 import { resolveRuntimeSource as resolveDeclarativeSource } from "../runtime/source-resolver.mjs";
 import { ArtifactHistory, ArtifactHistoryError } from "../runtime/artifact-history.mjs";
 import { ACTIVE_STATUSES, PERMISSION_MODES } from "./store.mjs";
+import {
+  MANAGED_EXECUTOR_ID, PI_EXECUTOR_ID, hasExecutorHistory,
+  validateExecutorDescriptor,
+} from "./executor-choice-state.mjs";
 import { readCredentialFile, setCredential, deleteCredential, replaceCredentialFile } from "./credential-file.mjs";
 import {
   ConnectionInputError,
@@ -201,7 +205,7 @@ function redact(message, secrets) {
 }
 
 export class RuntimeService {
-  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, runtimePort, budget = {}, compaction = {}, asyncTaskAdapters = [], localPiWorker = false, logger = () => {} }) {
+  constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, configuredExecutors, budget = {}, compaction = {}, asyncTaskAdapters = [], localPiWorker = false, logger = () => {} }) {
     this.store = store;
     this.coordination = new Coordination(store);
     this.subagents = new Subagents(this);
@@ -219,9 +223,13 @@ export class RuntimeService {
     this.intake = new IntakeStore(dataDir);
     this.materialQueues = new Map();
     this.modelRuntime = modelRuntime;
-    if (!runtimePort) throw new TypeError("runtimePort is required");
-    this.runtimePort = runtimePort;
-    this.adapterId = runtimePort.id;
+    if (!Array.isArray(configuredExecutors) || !configuredExecutors.length) throw new TypeError("configuredExecutors is required");
+    this.runtimePorts = new Map(configuredExecutors.map(entry => [entry.descriptor.adapterId, entry]));
+    if (this.runtimePorts.size !== configuredExecutors.length) throw new TypeError("duplicate executor ID");
+    for (const entry of configuredExecutors) validateExecutorDescriptor(entry.descriptor);
+    // Kept as the single-port test seam. In the product composition this is Pi.
+    this.runtimePort = configuredExecutors[0].port;
+    this.adapterId = configuredExecutors[0].descriptor.adapterId;
     this.compaction = structuredClone(compaction);
     this.logger = logger;
     this.active = new Map();
@@ -459,7 +467,7 @@ export class RuntimeService {
   getRuntimeControl(sessionId = null) {
     const session = sessionId ? this.store.getSession(sessionId) : null;
     if (sessionId && !session) throw new ServiceError(404, "not_found", "session not found");
-    const inspection = this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
+    const inspection = this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: session?.executorChoice.adapterId ?? this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
       additionalTools: [...(this.subagents.forSession(sessionId) ? ['spark_source','spark_note'] : session && !session.extensionBinding ? ['spark_sources','spark_explore','spark_directory','spark_findings','spark_read','spark_read_source','spark_consume'] : []), ...(session?.scope === 'global' ? ATTENTION_TOOL_NAMES : this.asyncTasks?.enabled && session?.scope === 'project' && !session?.extensionBinding ? ASYNC_TOOL_NAMES : []), ...(!session?.extensionBinding && session && this.coordination.list(session.id).currentThreadId ? COORDINATION_TOOLS : [])] });
     const spark=this.subagents.forSession(sessionId);
     if(spark) {
@@ -633,12 +641,70 @@ export class RuntimeService {
   #busy() { return this.store.hasActiveRun() || this.store.hasActiveOperation(); }
   /** What the bound runtime declares it can do. An undeclared or unsupported
    * operation is refused here; the Host never routes it to another runtime. */
-  #runtimeCapability(operation) {
-    return this.runtimePort.describe().capabilities[operation] ?? { supported: false, reason: "not declared by this runtime" };
+  #executorForSession(session, { deferRevision = false } = {}) {
+    const adapterId = this.subagents.forSession(session.id) ? this.adapterId : session.executorChoice.adapterId;
+    if (adapterId === null) throw new ServiceError(409, "runtime_mismatch", "this chat has contradictory executor history");
+    const configured = this.runtimePorts.get(adapterId);
+    if (!configured) throw new ServiceError(409, "executor_unavailable", `${adapterId} is not configured on this Host`);
+    const port = adapterId === this.adapterId ? this.runtimePort : configured.port;
+    const live = port.describe();
+    if (live.id !== adapterId || !deferRevision && live.revision !== configured.descriptor.revision) {
+      throw new ServiceError(409, "executor_configuration_changed", "the configured executor revision changed");
+    }
+    const descriptor = { ...configured.descriptor, capabilities: structuredClone(live.capabilities) };
+    try { validateExecutorDescriptor(descriptor); }
+    catch { throw new ServiceError(409, "executor_unavailable", "the configured executor has an invalid capability description"); }
+    if (!this.subagents.forSession(session.id) && session.executorChoice.configurationRef !== null &&
+      session.executorChoice.configurationRef !== descriptor.configurationRef) {
+      throw new ServiceError(409, "executor_configuration_changed", "this chat was selected under another executor configuration");
+    }
+    return { port, descriptor };
   }
-  #requireRuntimeCapability(operation) {
-    const capability = this.#runtimeCapability(operation);
-    if (!capability.supported) throw new ServiceError(409, "runtime_capability_unsupported", `${this.adapterId} does not support ${operation}: ${capability.reason}`);
+  getExecutorChoice(sessionId) {
+    const session = this.store.getSession(sessionId);
+    if (!session) throw new ServiceError(404, "not_found", "session not found");
+    const child = Boolean(this.subagents.forSession(sessionId));
+    const nonordinary = session.scope === "global" || Boolean(session.extensionBinding) || child;
+    const locked = nonordinary || hasExecutorHistory(this.store.snapshot(), session);
+    const options = [PI_EXECUTOR_ID, MANAGED_EXECUTOR_ID].map(adapterId => {
+      const configured = this.runtimePorts.get(adapterId);
+      return configured ? { ...structuredClone(configured.descriptor), availability: { status: "available", reason: null } }
+        : { adapterId, revision: null, configurationRef: null, capabilities: null,
+          availability: { status: "unavailable", reason: adapterId === MANAGED_EXECUTOR_ID
+            ? "Managed Agents has no configured and verified service on this Host" : "Pi is not configured on this test Host" } };
+    });
+    return { sessionId, choice: session.executorChoice, locked,
+      lockReason: nonordinary ? "not_ordinary_chat" : locked ? "executor_lineage_locked" : null, options };
+  }
+  changeExecutorChoice(sessionId, input) {
+    return this.#withConfiguration(async () => {
+      const value = requireObject(input, "body");
+      assertKeys(value, new Set(["expectedRevision", "adapterId"]));
+      if (!Number.isSafeInteger(value.expectedRevision) || value.expectedRevision < 0 ||
+        typeof value.adapterId !== "string" || ![PI_EXECUTOR_ID, MANAGED_EXECUTOR_ID].includes(value.adapterId)) {
+        throw new ServiceError(400, "invalid_input", "invalid executor choice");
+      }
+      const configured = this.runtimePorts.get(value.adapterId);
+      if (!configured) throw new ServiceError(409, "executor_unavailable", "this executor has no configured and verified service");
+      try {
+        await this.store.changeExecutorChoice(sessionId, { expectedRevision: value.expectedRevision,
+          executorDescriptor: configured.descriptor });
+      } catch (error) {
+        const codes = { SESSION_NOT_FOUND: [404, "not_found"], EXECUTOR_INELIGIBLE: [409, "executor_ineligible"],
+          EXECUTOR_SELECTION_CONFLICT: [409, "executor_selection_conflict"],
+          EXECUTOR_LINEAGE_LOCKED: [409, "executor_lineage_locked"] };
+        if (codes[error.code]) throw new ServiceError(...codes[error.code], error.message);
+        throw error;
+      }
+      return this.getExecutorChoice(sessionId);
+    });
+  }
+  #runtimeCapability(operation, port = this.runtimePort) {
+    return port.describe().capabilities[operation] ?? { supported: false, reason: "not declared by this runtime" };
+  }
+  #requireRuntimeCapability(operation, port = this.runtimePort) {
+    const capability = this.#runtimeCapability(operation, port);
+    if (!capability.supported) throw new ServiceError(409, "runtime_capability_unsupported", `${port.id} does not support ${operation}: ${capability.reason}`);
   }
   listCompactions(sessionId) {
     if (!this.store.getSession(sessionId)) throw new ServiceError(404, "not_found", "session not found");
@@ -665,7 +731,8 @@ export class RuntimeService {
       if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
       const replay = this.store.listOperations(sessionId).find(op => op.requestId === requestId);
       if (replay) return { operation: replay, idempotent: true };
-      this.#requireRuntimeCapability("compact");
+      const executor = this.#executorForSession(session);
+      this.#requireRuntimeCapability("compact", executor.port);
       if (!session.hostSession) throw new ServiceError(409, "nothing_to_compact", "This chat has no recorded conversation to compact");
       const connection = this.#connectionByIdentity(this.providerConfig.provider);
       this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
@@ -690,7 +757,7 @@ export class RuntimeService {
         throw error;
       }
       if (created.idempotent) return { operation: created.operation, idempotent: true };
-      const entry = { controller: new AbortController(), reason: null, timer: null };
+      const entry = { controller: new AbortController(), reason: null, timer: null, runtimePort: executor.port };
       entry.timer = setTimeout(() => { entry.reason = "deadline"; entry.controller.abort(); }, this.budget.deadlineMs);
       this.operations.set(created.operation.id, entry);
       entry.task = this.#executeCompaction(created.operation, session, model, entry).catch(error => this.logger?.(`compaction ${created.operation.id} settlement failed: ${error?.message ?? error}`));
@@ -701,7 +768,7 @@ export class RuntimeService {
     let settlement;
     try {
       if (this.providerConfig.provider === FAKE_PROVIDER_ID) await this.modelRuntime.setRuntimeApiKey(FAKE_PROVIDER_ID, FAKE_CREDENTIAL_KEY);
-      const outcome = await this.runtimePort.compact({
+      const outcome = await entry.runtimePort.compact({
         nativeRef: session.hostSession, workspaceDir: session.workspaceDir, model,
         focus: operation.focus, compaction: this.#compactionOptions(model),
         reasoningEffort: this.providerConfig.reasoningEffort, signal: entry.controller.signal,
@@ -847,11 +914,15 @@ export class RuntimeService {
     return { revision: snapshot.revision, resource, content: this.control.config.resources.find(r => r.id === id)?.content ?? null };
   }
 
-  getRuntimeInfo() {
+  getRuntimeInfo(sessionId = null) {
+    const session = sessionId === null ? null : this.store.getSession(sessionId);
+    if (sessionId !== null && !session) throw new ServiceError(404, "not_found", "session not found");
+    const adapterId = session?.executorChoice.adapterId ?? this.adapterId;
+    const configured = this.runtimePorts.get(adapterId);
     const model = this.#resolveModel(this.providerConfig);
     return {
       apiVersion: "v5",
-      adapterId: this.adapterId,
+      adapterId,
       state: this.closing ? "closing" : "ready",
       provider: this.getProviderConfig(),
       capabilities: {
@@ -859,7 +930,7 @@ export class RuntimeService {
         permissionModes: [...PERMISSION_MODES],
         historicalArtifacts: true,
         sessionContinuation: true,
-        nativeCompaction: true,
+        nativeCompaction: configured?.descriptor.capabilities.compact.supported ?? false,
         shell: false, browser: false, fork: false, subagents: false, scheduler: false,
         asyncReadTasks: { mode: this.asyncTasks.enabled ? 'adapted' : 'unavailable', native: false, retainedRead: true },
       },
@@ -1001,7 +1072,8 @@ export class RuntimeService {
     await mkdir(path.join(workspaceDir, 'materials'), { recursive: true });
     await mkdir(path.join(workspaceDir, 'out'), { recursive: true });
     return { schemaVersion: 1, session: await this.store.createSession({ id: sessionId, scope: 'global', projectId: null,
-      title: 'Attention', workspaceDir, permissionMode: 'ask' }) };
+      title: 'Attention', workspaceDir, permissionMode: 'ask',
+      executorDescriptor: this.runtimePorts.get(this.adapterId).descriptor }) };
   }
 
   async createSession(input) {
@@ -1026,6 +1098,7 @@ export class RuntimeService {
         title: value.title === undefined ? "New session" : text(value.title, "title", { max: 200 }),
         workspaceDir,
         permissionMode,
+        executorDescriptor: this.runtimePorts.get(this.adapterId).descriptor,
       }).catch(error => {
         if(error.code === 'SESSION_IDENTITY_CONFLICT') throw new ServiceError(409, 'scope_conflict', 'Conversation identity is unavailable');
         throw error;
@@ -2475,7 +2548,7 @@ export class RuntimeService {
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");
-    this.runtimePort.close?.();
+    for (const port of new Set([...this.runtimePorts.values()].map(entry => entry.port))) port.close?.();
     await this.asyncTasks.close();
     await this.mcp.close();
     this.intake.close();
@@ -2484,7 +2557,7 @@ export class RuntimeService {
 
   async #createRun(sessionId, input) {
     const value = requireObject(input, "body");
-    assertKeys(value, new Set(["input", "commandId", "supersedes", "runtimeSelection"]));
+    assertKeys(value, new Set(["input", "commandId", "supersedes", "runtimeSelection", "executorExpectation"]));
     const instruction = text(value.input, "input", { max: 100000 });
     const commandId = text(value.commandId, "commandId", { max: 200 });
     let runtimeSelection = null;
@@ -2497,6 +2570,14 @@ export class RuntimeService {
         throw new ServiceError(400, 'invalid_input', 'Invalid runtime selection expectation');
       }
       runtimeSelection = structuredClone(runtimeSelection);
+    }
+    let executorExpectation = null;
+    if (value.executorExpectation !== undefined) {
+      executorExpectation = requireObject(value.executorExpectation, "executorExpectation");
+      assertKeys(executorExpectation, new Set(["revision", "adapterId"]));
+      if (!Number.isSafeInteger(executorExpectation.revision) || executorExpectation.revision < 0 ||
+        typeof executorExpectation.adapterId !== "string" || executorExpectation.adapterId.length > 200 ||
+        !executorExpectation.adapterId) throw new ServiceError(400, "invalid_input", "invalid executor expectation");
     }
     // A continuation names the Run it takes over. It is set here, at creation,
     // and never afterwards; the prior Run's prompt is not copied or replayed.
@@ -2520,10 +2601,16 @@ export class RuntimeService {
     const sparkChild = this.subagents.forSession(sessionId);
     const localPiChild = Boolean(this.localPiBinding && sparkChild);
     if (sparkChild && this.store.listRuns().some(r => r.sessionId === sessionId)) throw new ServiceError(409, "spark_closed", "child attempts cannot be continued or relaunched");
-    const remoteRuntime = !localPiChild && this.runtimePort.remote === true;
+    if (sparkChild && executorExpectation) throw new ServiceError(409, "executor_ineligible", "Spark child execution has its own owner");
+    if (executorExpectation && (executorExpectation.revision !== session.executorChoice.revision ||
+      executorExpectation.adapterId !== session.executorChoice.adapterId)) {
+      throw new ServiceError(409, "executor_selection_conflict", "The selected executor changed; refresh before sending");
+    }
+    const executor = this.#executorForSession(session, { deferRevision: true });
+    const remoteRuntime = !localPiChild && executor.port.remote === true;
     if (remoteRuntime ? session.hostSession !== null : session.remoteBinding !== null) throw new ServiceError(409, "runtime_mismatch", "this chat belongs to another runtime");
-    if (remoteRuntime && session.extensionBinding) throw new ServiceError(409, "runtime_capability_unsupported", `${this.adapterId} does not support extension-bound chats`);
-    this.#requireRuntimeCapability((remoteRuntime ? session.remoteBinding : session.hostSession) ? "continue" : "start");
+    if (remoteRuntime && session.extensionBinding) throw new ServiceError(409, "runtime_capability_unsupported", `${executor.port.id} does not support extension-bound chats`);
+    this.#requireRuntimeCapability((remoteRuntime ? session.remoteBinding : session.hostSession) ? "continue" : "start", executor.port);
 
     // Which connection this run used, and where its key came from, are frozen
     // into the run record here: this is the traceable half of PV-24.
@@ -2565,6 +2652,11 @@ export class RuntimeService {
     }
 
     if (provider.reasoningEffort !== undefined && !this.#reasoningCapability(provider).values.includes(provider.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
+    // The managed alternate is currently a deterministic offline consumer.
+    // A configured factory does not promote arbitrary Provider/Model routes.
+    if (remoteRuntime && provider.provider !== FAKE_PROVIDER_ID) {
+      throw new ServiceError(409, "executor_provider_unsupported", "this managed executor has no verified provider/model route");
+    }
 
     let extension = null;
     if (session.extensionBinding) {
@@ -2597,10 +2689,13 @@ export class RuntimeService {
     let kitBinding;
     try {
       kitBinding = await retainKitContext({ binding: runtimeBinding, session, spark: sparkChild,
-        adapter: this.runtimePort.describe(), history: this.artifactHistory });
+        adapter: executor.port.describe(), history: this.artifactHistory });
     } catch (error) {
       if (error.status) throw new ServiceError(error.status, error.code, error.message);
       throw error;
+    }
+    if (executor.port.describe().revision !== executor.descriptor.revision) {
+      throw new ServiceError(409, "executor_configuration_changed", "the configured executor revision changed");
     }
     if (!kitBinding && compileControlContext(runtimeBinding).length > 100000) throw new ServiceError(400, 'context_budget', 'Runtime instructions and catalog exceed the host context admission limit');
     let created;
@@ -2609,7 +2704,7 @@ export class RuntimeService {
         singleActiveRun: true,
         sessionId,
         input: instruction,
-        adapterId: localPiChild ? LOCAL_PI_ADAPTER.id : this.adapterId,
+        adapterId: localPiChild ? LOCAL_PI_ADAPTER.id : executor.port.id,
         provider,
         extension,
         commandId,
@@ -2621,11 +2716,16 @@ export class RuntimeService {
         expectedRepositoryBindingRevision: session.repositoryBindingRevision,
         expectedRepositoryCandidateRevision: session.repositoryCandidateRevision,
         remote: remoteRuntime ? this.#remoteAdmission(session, provider, connection) : null,
+        executorDescriptor: sparkChild ? null : executor.descriptor,
+        expectedExecutorChoice: sparkChild ? null : { revision: session.executorChoice.revision,
+          adapterId: session.executorChoice.adapterId },
       });
     } catch (error) {
       if (error?.code === "LOCAL_PI_UNRECONCILED") throw new ServiceError(409, "local_pi_unreconciled", "a local Pi process attempt needs conclusive recovery evidence");
       if (error?.code === "COMMAND_CONFLICT") throw new ServiceError(409, "command_conflict", "commandId was already used with a different input");
       if (error?.code === "RUNTIME_MISMATCH") throw new ServiceError(409, "runtime_mismatch", "this chat belongs to another runtime");
+      if (error?.code === "EXECUTOR_SELECTION_CONFLICT") throw new ServiceError(409, "executor_selection_conflict", "The selected executor changed; refresh before sending");
+      if (error?.code === "EXECUTOR_CONFIGURATION_CHANGED") throw new ServiceError(409, "executor_configuration_changed", "The configured executor changed; this chat cannot switch automatically");
       if (error?.code === "REMOTE_UNRECONCILED") throw new ServiceError(409, "remote_unreconciled", "a remote action of this chat is unresolved; nothing is re-sent or re-created");
       if (error?.code === "REMOTE_BINDING_CHANGED") throw new ServiceError(409, "remote_binding_changed", "the remote binding changed during Run admission; retry with a new commandId");
       if (error?.code === "REMOTE_BINDING_MISMATCH") throw new ServiceError(409, "remote_binding_mismatch", "this chat's remote session was created under another connection, configuration or credential");
@@ -2658,6 +2758,7 @@ export class RuntimeService {
       workspaceDir: session.workspaceDir,
       permissionMode: session.permissionMode,
       runtimeBinding,
+      runtimePort: executor.port,
     };
     this.active.set(run.id, entry);
     entry.task = this.#executeRun(run, instruction, session, entry, provider, extension, credentialConfigured);
@@ -2717,7 +2818,8 @@ export class RuntimeService {
   async reconcileRemoteSession(sessionId) {
     const session = this.store.getSession(sessionId);
     if (!session) throw new ServiceError(404, "not_found", "session not found");
-    this.#requireRuntimeCapability("recover");
+    const executor = this.#executorForSession(session);
+    this.#requireRuntimeCapability("recover", executor.port);
     if (this.store.hasActiveRun(sessionId)) throw new ServiceError(409, "active_run", "reconciliation waits for the active run to end");
     const report = () => ({
       unresolved: this.store.listUnresolvedRemoteActions(sessionId).map(action => ({ id: action.id, kind: action.kind, runId: action.runId,
@@ -2731,7 +2833,7 @@ export class RuntimeService {
     const rootTurnOf = (runId) => this.store.getRun(runId)?.remoteBinding?.rootTurn ?? null;
     const turnIds = [...new Set([...unsettled.map(run => run.id), ...unresolved.map(action => action.runId)].map(runId => rootTurnOf(runId)?.turnId).filter(Boolean))];
     let seen;
-    try { seen = await this.runtimePort.inspectSession({ sessionId, nativeSessionId: session.remoteBinding.nativeSessionId, turnIds }); }
+    try { seen = await executor.port.inspectSession({ sessionId, nativeSessionId: session.remoteBinding.nativeSessionId, turnIds }); }
     catch { throw new ServiceError(503, "remote_observation_failed", "the remote session could not be read completely; nothing was changed"); }
     const ended = new Map(seen.turns.filter(turn => turn.root && turn.terminal).map(turn => [turn.turnId, turn.terminal]));
 
@@ -2794,12 +2896,12 @@ export class RuntimeService {
         return;
       }
       this.#armDeadline(entry, run.id);
-      if (this.runtimePort.remote === true) {
+      if (entry.runtimePort.remote === true) {
         // No locator to persist: the gateway records the remote binding
         // through the ledger once the service has answered the creation.
-        entry.nativeSession = this.runtimePort.openSession({ sessionId: session.id, runId: run.id, nativeSessionId: session.remoteBinding?.nativeSessionId ?? null, ledger: this.#remoteLedger(run) });
+        entry.nativeSession = entry.runtimePort.openSession({ sessionId: session.id, runId: run.id, nativeSessionId: session.remoteBinding?.nativeSessionId ?? null, ledger: this.#remoteLedger(run) });
       } else {
-        entry.nativeSession = this.runtimePort.openSession({ sessionId: session.id, workspaceDir: entry.workspaceDir, nativeRef: session.hostSession ?? null });
+        entry.nativeSession = entry.runtimePort.openSession({ sessionId: session.id, workspaceDir: entry.workspaceDir, nativeRef: session.hostSession ?? null });
         const locator = entry.nativeSession.nativeRef;
         if (!session.hostSession) await this.store.setHostSession(session.id, locator);
         await this.store.updateRun(run.id, { hostSession: locator });

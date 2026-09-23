@@ -50,7 +50,8 @@ export function createPiRuntimePort({ dataDir, modelRuntime }) {
 
   return Object.freeze({
     id,
-    describe: () => ({ id, revision: PI_RUNTIME_ADAPTER_REVISION, capabilities: CAPABILITIES,
+    describe: () => ({ id, revision: PI_RUNTIME_ADAPTER_REVISION, protocol: "pi-session-manager",
+      configurationIdentity: null, capabilities: CAPABILITIES,
       kitContext: { format: 'reference-only-v1', compatibilityEvidence: [] } }),
 
     /**

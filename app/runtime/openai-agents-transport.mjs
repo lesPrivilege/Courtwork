@@ -170,6 +170,9 @@ export function createOpenAiAgentsTransport({ apiKey, baseURL, fetch: fetchImpl 
   }
 
   return Object.freeze({
+    // Non-secret endpoint identity for the Host's executor factory fingerprint.
+    // The API key and model/provider configuration remain in their own owners.
+    endpointIdentity: new URL(baseURL).origin + new URL(baseURL).pathname,
     async createSession(request, { signal } = {}) {
       const { agent, environment, input } = request ?? {};
       if (environment?.type !== "none") throw invalid("createSession", "only environment:none is available");
