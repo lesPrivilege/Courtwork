@@ -10,10 +10,11 @@ const canonical = value => Array.isArray(value) ? value.map(canonical)
 function refuse(code, message, status = 400) { throw Object.assign(new Error(message), { code, status }); }
 const budget = () => Object.fromEntries(['maxCoreBytes', 'maxContextBytes', 'maxContextCharacters'].map(key => [key, KIT_BINDING_LIMITS[key]]));
 
-/** Host admission consumes the existing compiler; storage precedes Run authority. */
-export async function retainKitContext({ binding, session, spark, adapter, history }) {
+/** Pure Host-shaped planning shared by an unsaved preview and Run admission.
+ * This does not retain payloads, inspect providers or grant capabilities. */
+export function planKitRunContext({ binding, session, spark, adapter }) {
   const kits = binding.composition.kits ?? [];
-  if (!kits.length) return null;
+  if (!kits.length) return { plan: planKitContext({ binding, kits: [] }), planBytes: null, contextBytes: null, payload: null };
   const scope = binding.composition.selectionScope;
   if (scope?.type !== 'session' || scope.id !== session.id || session.scope === 'global' || session.extensionBinding || spark) {
     refuse('kit_scope_unsupported', 'Kits require an explicit Session selection for ordinary Chat', 409);
@@ -24,10 +25,22 @@ export async function retainKitContext({ binding, session, spark, adapter, histo
   }
   const plan = planKitContext({ binding, kits, runtime: { adapterId: adapter.id, revision: adapter.revision, bindingHash: binding.hash },
     compatibilityEvidence: adapter.kitContext.compatibilityEvidence, budget: budget() });
-  if (plan.status !== 'compiled') refuse('kit_context_refused', `Kit context refused: ${[...new Set(plan.diagnostics.map(item => item.code))].join(', ')}`);
+  if (plan.status !== 'compiled') return { plan, planBytes: null, contextBytes: null, payload: null };
   const planBytes = Buffer.from(JSON.stringify(plan), 'utf8');
   const contextBytes = Buffer.from(plan.candidate.text, 'utf8');
-  if (planBytes.length > KIT_BINDING_LIMITS.maxPlanBytes || planBytes.length + contextBytes.length > KIT_BINDING_LIMITS.maxPayloadBytes) {
+  const payload = {
+    planBytes: planBytes.length, contextBytes: contextBytes.length, totalBytes: planBytes.length + contextBytes.length,
+    maxPlanBytes: KIT_BINDING_LIMITS.maxPlanBytes, maxPayloadBytes: KIT_BINDING_LIMITS.maxPayloadBytes,
+  };
+  return { plan, planBytes, contextBytes, payload };
+}
+
+/** Host admission consumes the existing compiler; storage precedes Run authority. */
+export async function retainKitContext({ binding, session, spark, adapter, history }) {
+  if (!(binding.composition.kits ?? []).length) return null;
+  const { plan, planBytes, contextBytes, payload } = planKitRunContext({ binding, session, spark, adapter });
+  if (plan.status !== 'compiled') refuse('kit_context_refused', `Kit context refused: ${[...new Set(plan.diagnostics.map(item => item.code))].join(', ')}`);
+  if (payload.planBytes > payload.maxPlanBytes || payload.totalBytes > payload.maxPayloadBytes) {
     refuse('kit_payload_budget', 'Kit binding payload exceeds the Host retention limit');
   }
   const summary = {

@@ -6,6 +6,7 @@ Use the existing `/api/v5` base, loopback/origin protections and `x-work-token` 
 |---|---|
 | GET `/runtime-control` | Authoritative snapshot, revision, scopes, kinds, resources, profile, policies, audit |
 | PUT `/runtime-control` | CAS mutation, returns authoritative snapshot |
+| POST `/runtime-control/preview-profile?sessionId=...` | Read-only semantic preview of unsaved content for the existing imported profile explicitly selected by that ordinary Pi Chat |
 | GET `/runtime-resources?kind=skill` | Filtered descriptor catalog |
 | GET `/runtime-resources/:id` | Local-user source inspector: descriptor and imported content if any |
 | POST `/runtime-resources/:id/invoke` with `{}` | Exposed prompt template as `draft-only`; creates no Run |
@@ -66,6 +67,49 @@ not supported. The current in-process Pi Adapter explicitly declares its revisio
 unchecked per-Kit compatibility remains unchecked, while verified unsupported or
 conflicting evidence refuses. The default frontend has no dedicated Kit selection
 flow; this slice uses these authenticated import/selection APIs.
+
+### Unsaved selected-profile preview (K4 backend)
+
+`POST /api/v5/runtime-control/preview-profile?sessionId=SESSION_ID` accepts exactly
+`{expectedRevision,profileId,content}`: the whole Runtime Control revision, the
+existing imported `agent_profile` ID explicitly selected at **Session** scope,
+and proposed JSON source text (1–100000 UTF-16 code units). The Host retains the
+resource's kind, title and original owning scope; editing a shared user/workspace
+profile does not make it Session-only. The caller cannot supply scope, Kit evidence,
+budget, Runtime binding, Provider/Model, permission or exposure facts.
+
+The response is `{preview:true,applied:false,revision,session,profile,composition,
+executor,kit,permissions,save}`. `profile` includes ID/title/owning scope, source
+schema/version and the SHA-256 of exact UTF-8 draft text. `executor` identifies
+the selected Pi adapter/revision and its reference-only Kit interface. `kit`
+reports `status:passthrough|compiled|refused`, the pure plan hash, normalized
+pins, compatibility, reference/requirement readings, diagnostics, budget and
+byte/UTF-16 accounting. A successful candidate has exact `text,sha256,bytes,
+characters`; refused plans and Host payload-budget failures return
+`candidate:null`. `payload` reports plan/context/total bytes against the Host
+retention limits when K1 produced a compiled candidate. v1 and empty-Kit v2
+retain the legacy passthrough text. `permissions[]` are current Host advisory
+tool effects/traces, never a grant or proof of a concrete action's approval.
+`save:{available,reason}` reports the current global configuration freeze;
+it is neither a save token nor a guarantee that a syntactically valid but
+Kit-refused draft can run.
+
+Preview uses an in-memory overlay of only that profile's content through the
+same Runtime Control inspection/binding and K1/K3 limits as Run admission.
+It writes no Store/config/audit/ArtifactHistory bytes, opens no Run, and makes
+no Provider/native/MCP request. It may be read during an active Run, while
+`save.available:false` explains that the existing PUT is frozen. A stale
+`expectedRevision` returns `409 runtime_conflict`; wrong Session, nonselected,
+builtin or unavailable targets and managed/unknown Kit executors return typed
+refusals; malformed source and Kit declarations retain their owner errors.
+
+To save, use the existing `PUT /runtime-control` `operation:"put"` with the
+preview's **original** resource ID/kind/title/scope, proposed content and a
+fresh whole-config CAS revision. No extra save route, per-profile revision or
+idempotency receipt is created. Read the authoritative snapshot after save;
+the next Run independently revalidates and freezes its own Kit binding.
+Earlier Run context and original-command replay continue to read their exact
+recorded identity.
 
 A newly admitted Run freezes `kitBinding` and one equal `runtime.bound` projection,
 with exact immutable plan/context refs. GET `/runtime-context?sessionId=...&runId=...`

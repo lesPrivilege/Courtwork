@@ -240,6 +240,12 @@ function routeService(service, req, url) {
   if (tail.length === 3 && tail[0] === "runtime-proposals" && tail[2] === "apply" && method === "POST") return async () => service.applyRuntimeProposal(tail[1], await body(req));
   if (tail.length === 1 && tail[0] === "runtime-control" && method === "GET") return () => service.getRuntimeControl(url.searchParams.get("sessionId"));
   if (tail.length === 1 && tail[0] === "runtime-control" && method === "PUT") return async () => service.changeRuntimeControl(url.searchParams.get("sessionId"), await body(req));
+  if (tail.length === 2 && tail[0] === "runtime-control" && tail[1] === "preview-profile" && method === "POST") {
+    if (url.searchParams.size !== 1 || url.searchParams.getAll("sessionId").length !== 1) {
+      return () => { throw new ServiceError(400, "invalid_input", "Preview requires one sessionId"); };
+    }
+    return async () => service.previewRuntimeProfile(url.searchParams.get("sessionId"), await body(req));
+  }
   if (tail.length === 2 && tail[0] === "runtime-resources" && method === "GET") return () => service.getRuntimeResource(url.searchParams.get("sessionId"), tail[1]);
   if (method === "GET" && tail.length === 1 && tail[0] === "runtime-info") return () => service.getRuntimeInfo(url.searchParams.get("sessionId"));
   if (method === "POST" && tail.length === 2 && tail[0] === "runtime-sources" && tail[1] === "resolve") return async () => service.resolveRuntimeSource(await body(req));
