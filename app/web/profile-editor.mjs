@@ -20,6 +20,12 @@
  *     base or a late reply never inherits it.
  *   - **save**: the frozen submitted text. Typing during a save stays in
  *     `text`; a lost reply stays unknown until a read-back compares hashes.
+ *   - **owner facts** (K5-R1): the latest Workbench snapshot per Session —
+ *     whole-config revision, active runs and the one profile this Chat may edit
+ *     here. A newer known revision turns any preview into a previous reading
+ *     and holds Preview/Save until a fresh read; a profile that stops being
+ *     this Chat's own selection suspends its slot (text kept, read-only) until
+ *     an explicit fresh read while it is eligible again.
  * Nothing is retried, queued, selected or saved on close.
  */
 
@@ -63,21 +69,35 @@ export function editEligibility(snapshot, resource) {
 }
 
 /** Pure: the reading the view draws for one slot. `facts` are the latest
- * owner facts the page holds (`activeRuns`, snapshot `revision`). */
+ * owner facts for its Session: `activeRuns`, snapshot `revision` and
+ * `editableId` (the profile this Chat may edit here; `null` = none). A fact
+ * that is not known is absent and never assumed. */
 export function editorReading(slot, facts = {}) {
   if (!slot) return null;
   const base = slot.base;
   const text = slot.text ?? "";
   const dirty = Boolean(base) && text !== base.content;
+  const known = Number.isSafeInteger(facts.revision) ? facts.revision : null;
+  /* Revisions only grow, so an older snapshot (one read before our own save)
+     never marks the base stale. */
+  const configMoved = Boolean(base && known !== null && known > base.revision);
+  const eligible = facts.editableId === undefined ? true : facts.editableId === slot.profileId;
+  const suspended = Boolean(slot.suspended);
   const submitted = slot.preview.submitted;
-  const previewCurrent = Boolean(base && submitted && submitted.text === text && submitted.revision === base.revision);
-  const configMoved = Boolean(base && Number.isSafeInteger(facts.revision) && facts.revision !== base.revision);
+  const previewCurrent = Boolean(base && submitted && !suspended && submitted.text === text
+    && submitted.revision === base.revision && !(known !== null && known > submitted.revision));
+  let preview = { enabled: true, reason: "" };
+  if (!base) preview = { enabled: false, reason: "Reading the source…" };
+  else if (suspended) preview = { enabled: false, reason: "This profile is not this chat's own selection now." };
+  else if (configMoved && !slot.fresh) preview = { enabled: false, reason: "Read the current source first." };
   let save = { enabled: true, reason: "" };
   if (!base) save = { enabled: false, reason: slot.read.status === "error" ? "The source could not be read." : "Reading the source…" };
+  else if (suspended) save = { enabled: false, reason: "This profile is not this chat's own selection now, so it is not saved from here." };
   else if (slot.save.status === "saving") save = { enabled: false, reason: "Saving…" };
   else if (slot.save.status === "unknown") save = { enabled: false, reason: "Whether the last save landed is not known. Check again before saving again." };
   else if (slot.save.status === "frozen") save = { enabled: false, reason: "Saving stays held until a fresh reading shows no active run." };
   else if (slot.fresh) save = { enabled: false, reason: "The saved source changed. Choose how to continue before saving." };
+  else if (configMoved) save = { enabled: false, reason: "The configuration changed after this source was read. Read the current source first." };
   else if ((facts.activeRuns || 0) > 0) save = { enabled: false, reason: "A run is active, so saving is frozen. Your text stays here; nothing is queued." };
   else if (!dirty) save = { enabled: false, reason: "No unsaved changes." };
   return {
@@ -90,14 +110,18 @@ export function editorReading(slot, facts = {}) {
     dirty,
     measure: measureText(text),
     fresh: slot.fresh && clone(slot.fresh),
+    facts: { revision: known, activeRuns: facts.activeRuns ?? null, editableId: facts.editableId },
     configMoved,
-    preview: { ...clone(slot.preview), current: previewCurrent },
+    eligible,
+    suspended,
+    preview: { ...clone(slot.preview), current: previewCurrent, gate: preview },
     save: { ...clone(slot.save), gate: save },
   };
 }
 
 export function createProfileEditor({ adapter, onSaved }) {
   const slots = new Map();
+  const known = new Map(); // sessionId → latest owner facts
   const listeners = new Set();
   const emit = () => { for (const listener of listeners) listener(); };
 
@@ -111,6 +135,7 @@ export function createProfileEditor({ adapter, onSaved }) {
         preview: { status: "idle", submitted: null, result: null, error: null },
         save: { status: "idle", submitted: null, message: "", code: null },
         readToken: 0, previewEpoch: 0, saveEpoch: 0,
+        suspended: known.get(sessionId)?.editableId !== undefined && known.get(sessionId).editableId !== profileId,
       });
     return slots.get(key);
   }
@@ -122,7 +147,9 @@ export function createProfileEditor({ adapter, onSaved }) {
     content: result.content,
   });
 
-  async function readBase(slot) {
+  const factsOf = (sessionId, override) => ({ ...(known.get(sessionId) || {}), ...(override || {}) });
+
+  async function readBase(slot, { explicit = false } = {}) {
     const token = ++slot.readToken;
     slot.read = { status: "loading", error: "", code: null };
     emit();
@@ -142,6 +169,9 @@ export function createProfileEditor({ adapter, onSaved }) {
       return;
     }
     slot.read = { status: "ready", error: "", code: null };
+    /* A suspended slot resumes only through this explicit read, and only
+       while its profile is again this Chat's own selection. */
+    if (explicit && slot.suspended && editorReading(slot, factsOf(slot.sessionId)).eligible) slot.suspended = false;
     const reading = baseOf(result);
     const settling = ["unknown", "different"].includes(slot.save.status) && slot.save.submitted;
     if (settling) {
@@ -177,12 +207,21 @@ export function createProfileEditor({ adapter, onSaved }) {
   }
 
   const api = {
-    /** Owner facts from a fresh Runtime Control snapshot of `sessionId`. */
-    observe(sessionId, { activeRuns } = {}) {
-      if (activeRuns !== 0) return;
-      let changed = false;
-      for (const slot of slots.values())
-        if (slot.sessionId === sessionId && slot.save.status === "frozen") { unfreeze(slot); changed = true; }
+    /** Owner facts from a fresh Runtime Control snapshot of `sessionId`:
+     * `activeRuns`, `revision` and `editableId` (each only when known). */
+    observe(sessionId, facts = {}) {
+      const before = JSON.stringify(known.get(sessionId) ?? null);
+      const next = { ...(known.get(sessionId) || {}) };
+      if (Number.isSafeInteger(facts.activeRuns)) next.activeRuns = facts.activeRuns;
+      if (Number.isSafeInteger(facts.revision) && !(next.revision > facts.revision)) next.revision = facts.revision;
+      if (facts.editableId !== undefined) next.editableId = facts.editableId;
+      known.set(sessionId, next);
+      let changed = JSON.stringify(next) !== before;
+      for (const slot of slots.values()) {
+        if (slot.sessionId !== sessionId) continue;
+        if (facts.activeRuns === 0 && slot.save.status === "frozen") { unfreeze(slot); changed = true; }
+        if (next.editableId !== undefined && next.editableId !== slot.profileId && !slot.suspended) { slot.suspended = true; changed = true; }
+      }
       if (changed) emit();
     },
     /** "Check again" after a freeze: one fresh snapshot read. */
@@ -192,7 +231,7 @@ export function createProfileEditor({ adapter, onSaved }) {
     },
     subscribe(listener) { listeners.add(listener); return () => listeners.delete(listener); },
     reading(sessionId, profileId, facts) {
-      return editorReading(slots.get(editorKey(sessionId, profileId)) || null, facts);
+      return editorReading(slots.get(editorKey(sessionId, profileId)) || null, factsOf(sessionId, facts));
     },
     has(sessionId, profileId) { return slots.has(editorKey(sessionId, profileId)); },
 
@@ -205,7 +244,7 @@ export function createProfileEditor({ adapter, onSaved }) {
 
     setText(sessionId, profileId, text) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.base || slot.text === text) return;
+      if (!slot?.base || slot.suspended || slot.text === text) return;
       slot.text = text;
       emit();
     },
@@ -213,12 +252,12 @@ export function createProfileEditor({ adapter, onSaved }) {
     /** Explicit fresh read of the saved source (also "Check again"). */
     check(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      return slot ? readBase(slot) : Promise.resolve();
+      return slot ? readBase(slot, { explicit: true }) : Promise.resolve();
     },
 
     async preview(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.base) return;
+      if (!slot?.base || !editorReading(slot, factsOf(sessionId)).preview.gate.enabled) return;
       const own = ++slot.previewEpoch;
       const submitted = { revision: slot.base.revision, text: slot.text };
       slot.preview = { ...slot.preview, status: "loading", submitted };
@@ -246,13 +285,19 @@ export function createProfileEditor({ adapter, onSaved }) {
 
     async save(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.base || ["saving", "unknown"].includes(slot.save.status) || slot.fresh || slot.text === slot.base.content) return;
+      /* K5-R2 · the gate is checked and the slot marked saving in the same
+         synchronous step, before any await: a second call in the same turn
+         (double click, Enter + click) finds it saving and sends nothing. The
+         submission — text, base revision, original metadata — is captured
+         here too, so typing during hashing never changes it. */
+      if (!slot || ["saving", "unknown"].includes(slot.save.status) || !editorReading(slot, factsOf(sessionId)).save.gate.enabled) return;
       const own = ++slot.saveEpoch;
       const text = slot.text;
-      const submitted = { revision: slot.base.revision, text, sha256: await sha256Hex(text) };
       const { id, kind, title, scope } = slot.base.resource;
+      const submitted = { revision: slot.base.revision, text, sha256: null };
       slot.save = { status: "saving", submitted, message: "", code: null };
       emit();
+      submitted.sha256 = await sha256Hex(text);
       let reply;
       try {
         reply = await adapter.save(sessionId, { revision: submitted.revision, operation: "put", resource: { id, kind, title, scope: clone(scope), content: text } });
@@ -299,7 +344,7 @@ export function createProfileEditor({ adapter, onSaved }) {
     /** Replace the draft with the current saved source (discards the edit). */
     useCurrent(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.fresh) return;
+      if (!slot?.fresh || slot.suspended) return;
       slot.base = slot.fresh;
       slot.text = slot.fresh.content;
       slot.fresh = null;
@@ -310,7 +355,7 @@ export function createProfileEditor({ adapter, onSaved }) {
      * saved; the next Save is checked against the new revision. */
     keepMine(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.fresh) return;
+      if (!slot?.fresh || slot.suspended) return;
       slot.base = slot.fresh;
       slot.fresh = null;
       slot.save = { status: "idle", submitted: null, message: "", code: null };
@@ -319,7 +364,7 @@ export function createProfileEditor({ adapter, onSaved }) {
     /** Put the saved text back into the field. */
     revert(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.base || slot.save.status === "saving") return;
+      if (!slot?.base || slot.suspended || slot.save.status === "saving") return;
       slot.text = slot.base.content;
       if (slot.save.status !== "unknown") slot.save = { status: "idle", submitted: null, message: "", code: null };
       emit();

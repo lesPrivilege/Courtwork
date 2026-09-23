@@ -286,3 +286,119 @@ test("the live adapter speaks the existing endpoints", async () => {
     ["/runtime-control?sessionId=s%201", { method: "PUT", body: { revision: 1 } }],
   ]);
 });
+
+/* ── K5 return R1 · K5-R1 / K5-R2 regressions ─────────────────────────── */
+
+test("K5-R2: simultaneous and repeated Save send one PUT; typing during hashing stays separate", async () => {
+  const { host, editor, read } = await setup();
+  let release;
+  const real = host.adapter.save;
+  host.adapter.save = async (s, body) => { await new Promise((resolve) => { release = resolve; }); return real(s, body); };
+  editor.setText(S, P, EDITED);
+  const first = editor.save(S, P);
+  const second = editor.save(S, P); // same turn: e.g. Enter + click
+  editor.setText(S, P, EDITED + "\n"); // typed while the first is hashing
+  const third = editor.save(S, P);
+  await new Promise((resolve) => setTimeout(resolve, 10));
+  assert.equal(host.calls.filter((c) => c.kind === "save").length, 0, "the adapter hook records only after release");
+  release();
+  await Promise.all([first, second, third]);
+  const puts = host.calls.filter((c) => c.kind === "save");
+  assert.equal(puts.length, 1, "exactly one PUT");
+  assert.equal(puts[0].body.resource.content, EDITED, "the submission captured before the first await");
+  assert.deepEqual([read().save.status, read().text, read().dirty], ["saved", EDITED + "\n", true]);
+});
+
+test("K5-R2: an in-flight save in one Chat/profile slot does not hold another", async () => {
+  const { host, editor } = await setup();
+  let release;
+  const real = host.adapter.save;
+  host.adapter.save = async (s, body) => { host.calls.push({ kind: "held" }); await new Promise((resolve) => { release = resolve; }); return real(s, body); };
+  editor.setText(S, P, EDITED);
+  const first = editor.save(S, P);
+  editor.open("other-session", P);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(editor.reading("other-session", P).save.status, "idle");
+  release();
+  await first;
+});
+
+test("K5-R1: a newer known revision turns the preview into a previous reading and holds Preview/Save until a fresh read", async () => {
+  const { host, editor, read } = await setup();
+  editor.observe(S, { revision: 7, editableId: P, activeRuns: 0 });
+  editor.setText(S, P, EDITED);
+  await editor.preview(S, P);
+  assert.equal(read().preview.current, true);
+  host.revision = 8; // e.g. an exposure change elsewhere; the saved source is the same
+  editor.observe(S, { revision: 8 });
+  let r = read();
+  assert.deepEqual([r.preview.current, r.configMoved, r.preview.gate.enabled, r.save.gate.enabled], [false, true, false, false]);
+  const calls = host.calls.length;
+  await editor.preview(S, P);
+  await editor.save(S, P);
+  assert.equal(host.calls.length, calls, "held actions send nothing");
+  await editor.check(S, P);
+  r = read();
+  assert.equal(r.fresh.revision, 8, "the dirty draft is not replaced; the fresh reading is held apart");
+  editor.keepMine(S, P);
+  r = read();
+  assert.deepEqual([r.text, r.base.revision, r.configMoved, r.preview.gate.enabled, r.save.gate.enabled], [EDITED, 8, false, true, true]);
+});
+
+test("K5-R1: an older snapshot (read before our own save) never marks the base stale", async () => {
+  const { editor, read } = await setup();
+  editor.observe(S, { revision: 7, editableId: P });
+  editor.setText(S, P, EDITED);
+  await editor.save(S, P);
+  editor.observe(S, { revision: 7 });
+  assert.equal(read().configMoved, false);
+});
+
+test("K5-R1: switching this Chat to another profile suspends a dirty editor; a late preview is not current; return needs an explicit read", async () => {
+  const { host, editor, read } = await setup();
+  editor.observe(S, { revision: 7, editableId: P, activeRuns: 0 });
+  editor.setText(S, P, EDITED);
+  let release;
+  host.hold = () => new Promise((resolve) => { release = resolve; });
+  const late = editor.preview(S, P);
+  // Settings › Selected profile → Notes (revision 8): the Host confirms another profile.
+  host.revision = 8;
+  editor.observe(S, { revision: 8, editableId: "local:k5-notes" });
+  host.hold = null;
+  release();
+  await late;
+  let r = read();
+  assert.equal(r.suspended, true);
+  assert.equal(r.text, EDITED, "the draft is kept");
+  assert.equal(r.preview.current, false, "the late reply is a previous reading only");
+  assert.deepEqual([r.preview.gate.enabled, r.save.gate.enabled], [false, false]);
+  const calls = host.calls.length;
+  editor.setText(S, P, "typing into a suspended editor");
+  editor.revert(S, P);
+  await editor.preview(S, P);
+  await editor.save(S, P);
+  assert.equal(host.calls.length, calls, "no preview or save for an unselected profile");
+  assert.equal(read().text, EDITED);
+  // Back to this profile (revision 9): still suspended until an explicit read.
+  host.revision = 9;
+  editor.observe(S, { revision: 9, editableId: P });
+  r = read();
+  assert.deepEqual([r.suspended, r.eligible, r.save.gate.enabled], [true, true, false]);
+  await editor.check(S, P);
+  r = read();
+  assert.deepEqual([r.suspended, r.text, r.fresh?.revision], [false, EDITED, 9]);
+  editor.keepMine(S, P);
+  await editor.save(S, P);
+  assert.equal(read().save.status, "saved");
+  assert.equal(host.content, EDITED);
+  assert.equal(host.calls.filter((c) => c.kind === "save").length, 1);
+});
+
+test("K5-R1: an explicit read while still ineligible does not resume the slot", async () => {
+  const { editor, read } = await setup();
+  editor.observe(S, { revision: 7, editableId: P });
+  editor.setText(S, P, EDITED);
+  editor.observe(S, { revision: 8, editableId: null });
+  await editor.check(S, P);
+  assert.deepEqual([read().suspended, read().text], [true, EDITED]);
+});

@@ -317,8 +317,12 @@ export function createRuntimeView(
   function draftFor(key) {
     return drafts.get(key) || null;
   }
+  /* K5-R1 · the editor's owner facts come from this same snapshot: freeze,
+     whole-config revision, and which profile (if any) this Chat may edit. */
   function shareFacts() {
-    profileEditor?.setFacts({ sessionId, activeRuns: snapshot?.activeRuns ?? 0, revision: snapshot?.revision ?? null });
+    if (!snapshot) return;
+    const editable = (snapshot.resources || []).find((resource) => editEligibility(snapshot, resource).editable);
+    profileEditor?.setFacts({ sessionId, activeRuns: snapshot.activeRuns ?? 0, revision: snapshot.revision ?? null, editableId: editable?.id ?? null });
   }
   function rememberDraft(key, entry) {
     drafts.set(key, { key, at: new Date(), ...entry });
