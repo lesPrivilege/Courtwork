@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-24 · K5 correction reviewed; pending-save reconciliation remains open
+
+[Parent delta receipt](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-review-20260923/return-r1-review/README.md) consumes `991a0c6`/`dd0947d`. Original probes now pass and parent adjacent tests are48/48, but a fresh-source reconciliation clears an outstanding Save and permits a second PUT before either response. K5-R2 returns to original Claude in the preserved tree. Current-session OpenAI browser confirms R1/F1 and reproduces two successful real-Host PUTs with both responses held after reconciliation clears the guard. R2 alone remains open; no K5 product merge/cleanup or precedent promotion. Review evidence is documentation-only; user services are untouched.
+
 ## 2026-09-23 · K5 delivery independently reviewed; original-Claude returns issued
 
 [Parent K5 review](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-review-20260923/README.md) fixesa0bed5a/756ec6d. Luna65/65 and actual OpenAI-browser edit/preview/CAS save/Chat return/new Pi Run preserve old context and draft, but known config changes leave old preview current and concurrent Save calls can dispatch two PUTs. Original Claude receives K5-R1/R2 plus scoped typography adjustment K5-F1 under the [existing order](execution/claude-frontend-harness-2026-09-16/kit-profile-editor-20260923.md). Candidate tree preserved; no K5 product merge, cleanup or capability acceptance. User supplies the manual Claude relay; coordination heartbeat stays paused awaiting the next fixed delivery. Main product remains accepted K4/schema22/Core4/bridge5.

@@ -1,0 +1,16 @@
+{
+  "candidate": "991a0c6",
+  "responsesReleased": false,
+  "requests": [
+    {
+      "status": 200,
+      "revision": 9,
+      "version": "2"
+    },
+    {
+      "status": 200,
+      "revision": 10,
+      "version": "3"
+    }
+  ]
+}

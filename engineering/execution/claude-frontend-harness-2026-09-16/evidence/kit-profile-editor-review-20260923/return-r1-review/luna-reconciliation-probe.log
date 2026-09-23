@@ -1,0 +1,14 @@
+{
+  "sourceSha": "991a0c600d5abc6a8fdd6d13adc1ac0a1b137da1",
+  "before": {
+    "status": "saving",
+    "freshRevision": 8
+  },
+  "after": {
+    "status": "idle",
+    "saveEnabled": true
+  },
+  "requestsBeforeAnyResponse": 2,
+  "hostRevision": 9,
+  "content": "{\"version\":\"3\"}"
+}

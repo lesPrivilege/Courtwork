@@ -1,0 +1,29 @@
+{
+  "sourceSha": "991a0c600d5abc6a8fdd6d13adc1ac0a1b137da1",
+  "probes": [
+    {
+      "id": "K5-SAVE-DOUBLE-01",
+      "saveInvocations": 2,
+      "putRequestsBeforeAnyReply": 1,
+      "resultingState": "saved",
+      "outcome": "NOT_REPRODUCED"
+    },
+    {
+      "id": "K5-PREVIEW-REVISION-01",
+      "before": {
+        "previewStatus": "ready",
+        "previewCurrent": true,
+        "baseRevision": 7,
+        "observedRevision": 7
+      },
+      "after": {
+        "previewStatus": "ready",
+        "previewCurrent": false,
+        "configMoved": true,
+        "baseRevision": 7,
+        "observedRevision": 8
+      },
+      "outcome": "NOT_REPRODUCED"
+    }
+  ]
+}

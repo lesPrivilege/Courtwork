@@ -1,0 +1,31 @@
+✔ opening reads the saved source and its revision; the draft starts equal (4.8305ms)
+✔ Preview sends exactly {expectedRevision, profileId, content} and binds to the submitted text (3.327458ms)
+✔ a late preview reply never overwrites a newer preview (3.063666ms)
+✔ a preview reply for another text or revision is not shown (1.548708ms)
+✔ a stale revision refuses the preview, keeps the draft and holds the fresh source apart (2.325084ms)
+✔ Save is one PUT with original metadata/scope and the base revision; newer typing stays separate (1.796167ms)
+✔ a CAS conflict keeps the draft; the person chooses between their text and the current source (1.657833ms)
+✔ Use the current source replaces the draft only when asked (1.488ms)
+✔ an active run blocks Save; the draft is kept and not queued; Preview still works (12.740292ms)
+✔ a lost reply whose write landed is confirmed only by a hash read-back (0.680792ms)
+✔ a lost reply followed by a different saved source stays apart and is never overwritten (1.591209ms)
+✔ a lost reply with no read-back stays unknown until Check again (1.535667ms)
+✔ a typed refusal (malformed source) keeps the draft and says the owner's message (1.517541ms)
+✔ drafts are keyed by Session and profile (2.668ms)
+✔ edit eligibility: only the imported profile this chat selects at session scope (0.759291ms)
+✔ measurement separates UTF-16 code units from UTF-8 bytes (0.262334ms)
+✔ the live adapter speaks the existing endpoints (0.637041ms)
+✔ K5-R2: simultaneous and repeated Save send one PUT; typing during hashing stays separate (11.980417ms)
+✔ K5-R2: an in-flight save in one Chat/profile slot does not hold another (2.311959ms)
+✔ K5-R1: a newer known revision turns the preview into a previous reading and holds Preview/Save until a fresh read (2.017625ms)
+✔ K5-R1: an older snapshot (read before our own save) never marks the base stale (1.61175ms)
+✔ K5-R1: switching this Chat to another profile suspends a dirty editor; a late preview is not current; return needs an explicit read (0.692209ms)
+✔ K5-R1: an explicit read while still ineligible does not resume the slot (1.43125ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 183.952083
