@@ -124,3 +124,15 @@ Construction has stopped. The finite writer is released for parent Astra's indep
 
 - Astra: independent rendered and computer-use acceptance, a decision on the visual role choices above, the precedent-index sync and integration.
 - Scoped out by the order and still open: Kit creation/acquisition, runtime selection, scope changes and structured editing.
+
+## Return R1 · pickup (before product edits)
+
+2026-09-23 · This return consumes [Parent review](../kit-profile-editor-review-20260923/README.md) at main `86847b2` (the file lives on main, not in this tree) and the correction lease in the original order. The same tree and branch are used; the candidate was clean at `756ec6d`. There are no other writers here. The ended E1/K4 trees are untouched.
+
+| Finding | Disposition | Owner / symbols | Planned change |
+|---|---|---|---|
+| K5-R1 | adopt | `profile-editor.mjs` `editorReading`/`observe`/`preview`/`save`/`check`; `profile-editor-view.mjs` `update`/`renderPreview`/`setFacts`; `runtime-view.mjs` `shareFacts` | The controller keeps the latest owner facts per Session: revision, active runs, and the one editable profile id, derived with the existing `editEligibility` from the Workbench snapshot. A newer known revision makes any preview a *previous reading*; Preview/Save wait for an explicit fresh read. A slot whose profile stops being this Chat's selection is **suspended**: its text stays readable and recoverable, the field is read-only, and Preview/Save/Revert are unavailable. It resumes only through an explicit fresh read while eligible again. No new registry or token. |
+| K5-R2 | adopt | `profile-editor.mjs` `save` | Capture text, revision and metadata and set `saving` synchronously before `sha256Hex`. Every outcome settles it. Unknown keeps its read-back gate. |
+| K5-F1 | adjust | `styles.css` `.profile-editor textarea`, `.profile-editor-candidate` | Source becomes `--text-body` at 1.5 leading; candidate becomes `--text-reading` at 1.6 leading. Both stay monospace. The scoped class is kept, as adopted. |
+
+The Host remains the authority. CAS already prevented stale commits; these are decision-reading and scope fixes.
