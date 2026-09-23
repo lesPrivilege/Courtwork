@@ -1,0 +1,23 @@
+✔ schema 22 records one immutable Kit summary and equal typed runtime.bound projection across reopen (132.019125ms)
+✔ schema 22 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes (121.658417ms)
+✔ schema 20 upgrades with an exact backup, unchanged historical events, and null legacy Run bindings (117.016792ms)
+✔ the pinned schema-20 Host refuses schema 22 byte-for-byte (659.29225ms)
+✔ schema 19 upgrades to current exactly once and preserves schema-20 remote authority and every existing event (164.51625ms)
+✔ the schema-20 fixture migration fails closed for an occupied backup, malformed schema 19, and future schema 23 (187.301375ms)
+✔ the pinned schema-19 Host rejects current schema 22 byte-for-byte and opens the exact backup separately (405.147917ms)
+✔ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (55.00525ms)
+✔ R1 Store choice CAS, bound Run identity and historical lock survive reopen (119.99275ms)
+✔ R1 schema-21 empty Session migrates with null ref; first Run pins once after receipt lookup (108.201ms)
+✔ R1 bound executor identity rejects mutation and corrupt reopen without rewriting bytes (100.098916ms)
+✔ R1-R1 a reused factory ref cannot change bound adapter revision across Runs or on reopen (108.242833ms)
+✔ R1 contradictory schema-21 global Run/native history stays readable and fenced (101.284542ms)
+✔ R1 pinned schema-21 Host refuses schema 22 without changing durable bytes (363.992542ms)
+✔ actual schema14 Host backup restores independently and rejects the current schema without writing (398.378459ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3585.762709

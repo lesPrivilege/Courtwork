@@ -1,0 +1,12 @@
+file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/server/store.mjs:723
+function executorError(code, message) { const error = new Error(message); error.code = code; return error; }
+                                                      ^
+
+Error: bound executor revision differs from this Session's history
+    at executorError (file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/server/store.mjs:723:55)
+    at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/server/store.mjs:1614:17
+    at file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/server/store.mjs:970:73 {
+  code: 'EXECUTOR_CONFIGURATION_CHANGED'
+}
+
+Node.js v25.9.0

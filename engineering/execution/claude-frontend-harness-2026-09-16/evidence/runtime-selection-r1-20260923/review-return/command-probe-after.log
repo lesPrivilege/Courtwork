@@ -1,0 +1,1 @@
+{"adapter":"agents-api","nativeCompaction":false,"compact":{"available":false,"reason":"The bound runtime does not support compaction."},"statusCompaction":{"available":false,"reason":"The bound runtime does not support compaction."}}

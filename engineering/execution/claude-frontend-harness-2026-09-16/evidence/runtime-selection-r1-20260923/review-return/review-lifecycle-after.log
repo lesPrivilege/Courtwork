@@ -1,0 +1,35 @@
+▶ P03-D · cancellation
+  ✔ cancel is an intent; the root turn ending cancelled confirms it, the retained result is not delivered, and the chat continues (1092.557584ms)
+  ✔ an accepted cancel that is never confirmed gets one last turn read, then stays unknown and fences the chat until the turn is seen to end (1001.175834ms)
+  ✔ a cancel whose reply is lost, or that is refused, is sent once and leaves the run unknown (1009.181875ms)
+✔ P03-D · cancellation (3103.734083ms)
+▶ P03-D · observation recovery
+  ✔ a stream lost mid-turn is re-subscribed; undelivered events arrive, the call is not repeated, the run completes (659.451958ms)
+  ✔ events missed for good: the session's current required action is executed once from the snapshot, and a terminal nobody streamed is read from the turn (1022.935917ms)
+  ✔ a required action seen on the stream and again in the recovery snapshot is one claim (587.822875ms)
+  ✔ contradictory root terminals, a root turn that cannot be read and an unusable item cursor each end unknown (2238.813417ms)
+  ✔ recovery is bounded: a stream that never holds is re-subscribed twice, then the run is unknown (407.381625ms)
+✔ P03-D · observation recovery (4916.736291ms)
+▶ P03-D · lost replies and explicit reconciliation
+  ✔ an unanswered input is re-sent once under the same request key — the one operation the SDK documents the key for (846.364875ms)
+  ✔ a lost submission reply is never re-sent; reconciliation appends what the service's own history and turn show, and the chat continues (560.731708ms)
+  ✔ a delivery the saved history shows is resolved by that item even while the turn is still running (726.595125ms)
+  ✔ after a Host restart mid-submission the fenced chat is reconciled by reads alone and then continues on the same native session (597.450916ms)
+  ✔ CDE-R1: a repo_write whose execution was interrupted without a retained result stays fenced after its root turn ends; nothing is written or checked again (2256.027417ms)
+  ✔ a lost creation has no native locator: reconciliation can observe nothing and says so; Pi declares no recover capability (366.193541ms)
+✔ P03-D · lost replies and explicit reconciliation (5353.637542ms)
+▶ P03-D · process evidence
+  ✔ SIGKILL while the claimed read waits for approval: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1479.322792ms)
+  ✔ SIGKILL while the result submission is in flight: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1415.137458ms)
+✔ P03-D · process evidence (2894.580292ms)
+✔ R1-R3 a constructed wrong-ID managed port and the Pi port each dispose once on rejection (70.095916ms)
+✔ R1-R3 a factory throw before return closes only the port already constructed (56.914208ms)
+✔ R1-R3 a valid configured managed port closes once across repeated Host close (66.913333ms)
+ℹ tests 19
+ℹ suites 4
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18417.336
