@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-24 · K5 selected-profile editor accepted and integrated
+
+[Final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-final-20260924/README.md) accepts136f1d6/1228161 atmain928ba61. R1/R2/F1 close: independent26/26 and the bounded counterexample pass; actual OpenAI browser holds the real save response, preserves the pending lock/newer draft, then explicitly saves and sends with exact new context while old history remains. Existing CAS/scope/permission owners and schema22/Core4/bridge5 remain. Actual-main74/74 passes; full archive extraction/hash and Git bundle restoration are verified before ended-tree removal. No live managed/structured Kit-authoring or deployment claim. No active product writer or new lane follows; manual Claude coordination remains available.
+
 ## 2026-09-24 · K5 correction reviewed; pending-save reconciliation remains open
 
 [Parent delta receipt](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-review-20260923/return-r1-review/README.md) consumes `991a0c6`/`dd0947d`. Original probes now pass and parent adjacent tests are48/48, but a fresh-source reconciliation clears an outstanding Save and permits a second PUT before either response. K5-R2 returns to original Claude in the preserved tree. Current-session OpenAI browser confirms R1/F1 and reproduces two successful real-Host PUTs with both responses held after reconciliation clears the guard. R2 alone remains open; no K5 product merge/cleanup or precedent promotion. Review evidence is documentation-only; user services are untouched.

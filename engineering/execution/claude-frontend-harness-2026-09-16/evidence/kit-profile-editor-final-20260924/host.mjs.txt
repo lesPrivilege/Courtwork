@@ -1,0 +1,83 @@
+// K5 synthetic Host fixture. Temporary data dir, port 0, installed Pi 0.85.1,
+// loopback fake provider (no key, no paid provider). A managed-executor Chat is
+// wired to the synthetic Agents loopback only to show the preview refusal.
+import { writeFile, rm, access } from "node:fs/promises";
+import path from "node:path";
+const W = process.env.K5_TREE;
+const OUT = process.env.K5_OUT;
+const { boot } = await import(`${W}/app/tests/helpers.mjs`);
+const { seal, sha256 } = await import(`${W}/app/tests/fixtures/kit-context.mjs`);
+const { createAgentsLoopback } = await import(`${W}/app/tests/fixtures/agents-api-loopback.mjs`);
+const { agentsPort } = await import(`${W}/app/tests/fixtures/agents-host-harness.mjs`);
+
+const releaseFile = path.join(OUT, "release-hold");
+const hold = async ({ body }) => {
+  const text = JSON.stringify(body.messages?.at(-1) ?? "");
+  if (!text.includes("K5 hold")) return null;
+  for (;;) { try { await access(releaseFile); await rm(releaseFile); return null; } catch { await new Promise((r) => setTimeout(r, 100)); } }
+};
+const loopback = await createAgentsLoopback({ plan: () => [{ text: "Never reached." }] });
+const h = await boot({ fakeResponder: hold, managedRuntimePort: agentsPort(loopback) });
+const user = { type: "user", id: "local" };
+
+const main = await h.createSession({ title: "K5 editor chat" });
+const sibling = await h.createSession({ title: "K5 shared reader" });
+const managed = await h.createSession({ title: "K5 managed runtime chat" });
+const snap = async (id = main.id) => (await h.api("GET", `/runtime-control?sessionId=${id}`)).json;
+const change = async (body, id = main.id) => {
+  const r = await h.api("PUT", `/runtime-control?sessionId=${id}`, { revision: (await snap(id)).revision, ...body });
+  if (r.status !== 200) throw Error(JSON.stringify(r));
+  return r.json;
+};
+const src = (name, content) => ({ id: `local:k5-${name}`, kind: "instruction", title: `K5 ${name}`, scope: user, content });
+const oldSource = src("old", "K5_OLD_CORE: review with the first source.");
+const nextSource = src("next", "K5_NEW_CORE: review with the edited source. 😀");
+for (const item of [oldSource, nextSource]) await change({ operation: "put", resource: item });
+const ref = (item) => ({ resourceId: item.id, contentSha256: sha256(item.content),
+  artifactSha256: sha256(JSON.stringify({ kind: item.kind, title: item.title, content: item.content })) });
+const kit = (core, version) => seal({ schemaVersion: 1, id: "kit:k5-review", version, core, deferred: [], requirements: [], conflicts: [] });
+const profile = (item, version, kits) => JSON.stringify({ schemaVersion: 2, version, resourceIds: [item.id], rules: [], uiSlots: [], kits }, null, 2);
+const profileId = "local:k5-reviewer";
+const initial = profile(oldSource, "1", [kit([ref(oldSource)], "1")]);
+const profileResource = { id: profileId, kind: "agent_profile", title: "Kit reviewer", scope: user, content: initial };
+await change({ operation: "put", resource: profileResource });
+await change({ operation: "put", resource: { id: "local:k5-notes", kind: "agent_profile", title: "Notes", scope: user,
+  content: JSON.stringify({ schemaVersion: 1, version: "1", resourceIds: [], rules: [], uiSlots: [] }) } });
+for (const session of [main, sibling, managed])
+  await change({ operation: "profile", scope: { type: "session", id: session.id }, id: profileId }, session.id);
+const chosen = await h.api("PUT", `/sessions/${managed.id}/executor-choice`, { expectedRevision: 0, adapterId: "agents-api" });
+if (chosen.status !== 200) throw Error(JSON.stringify(chosen));
+
+// The existing old Run, admitted with the Send expectation.
+const before = await snap();
+const oldCreated = await h.api("POST", `/sessions/${main.id}/runs`, { input: "K5 old run", commandId: "k5-old",
+  runtimeSelection: { revision: before.revision, profileId, sourceHash: before.composition.hash } });
+if (oldCreated.status !== 200) throw Error(JSON.stringify(oldCreated));
+const oldRun = await h.pollRun(oldCreated.json.run.id);
+
+const drafts = {
+  valid: profile(nextSource, "2", [kit([ref(nextSource)], "2")]),
+  refused: profile(nextSource, "3", [kit([{ ...ref(nextSource), resourceId: "local:k5-not-imported" }], "3")]),
+};
+const info = { url: h.runtime.url, profileId, sessions: { main: main.id, sibling: sibling.id, managed: managed.id },
+  oldRun: { id: oldRun.id, status: oldRun.status }, initial, drafts, pid: process.pid,
+  expectedNewContext: `[Instruction ${nextSource.id}]\n${nextSource.content}` };
+await writeFile(path.join(OUT, "host-info.json"), JSON.stringify(info, null, 2));
+console.log("K5 HOST READY " + h.runtime.url);
+
+let closing = false;
+async function close() {
+  if (closing) return; closing = true;
+  const runs = Object.fromEntries(await Promise.all(Object.entries(info.sessions).map(async ([k, id]) =>
+    [k, (await h.api("GET", `/sessions/${id}`)).json?.runs?.map((r) => ({ id: r.id, status: r.status })) ?? null])));
+  await writeFile(path.join(OUT, "host-results.json"), JSON.stringify({
+    providerRequests: h.runtime.fakeProvider.requests.length,
+    managedSessionPosts: loopback.posts("/v1/agents/sessions").length,
+    runs,
+    control: { revision: h.runtime.service.control.config.revision },
+  }, null, 2));
+  await h.runtime.close(); await loopback.close();
+  await rm(h.dataDir, { recursive: true, force: true });
+  process.exit(0);
+}
+process.on("SIGTERM", close); process.on("SIGINT", close);

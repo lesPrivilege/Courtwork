@@ -1,0 +1,34 @@
+✔ opening reads the saved source and its revision; the draft starts equal (4.465083ms)
+✔ Preview sends exactly {expectedRevision, profileId, content} and binds to the submitted text (3.728083ms)
+✔ a late preview reply never overwrites a newer preview (0.474334ms)
+✔ a preview reply for another text or revision is not shown (1.60375ms)
+✔ a stale revision refuses the preview, keeps the draft and holds the fresh source apart (1.619459ms)
+✔ Save is one PUT with original metadata/scope and the base revision; newer typing stays separate (1.669042ms)
+✔ a CAS conflict keeps the draft; the person chooses between their text and the current source (1.598292ms)
+✔ Use the current source replaces the draft only when asked (0.25775ms)
+✔ an active run blocks Save; the draft is kept and not queued; Preview still works (12.898125ms)
+✔ a lost reply whose write landed is confirmed only by a hash read-back (1.57025ms)
+✔ a lost reply followed by a different saved source stays apart and is never overwritten (1.519333ms)
+✔ a lost reply with no read-back stays unknown until Check again (1.557417ms)
+✔ a typed refusal (malformed source) keeps the draft and says the owner's message (0.257542ms)
+✔ drafts are keyed by Session and profile (2.588417ms)
+✔ edit eligibility: only the imported profile this chat selects at session scope (0.111125ms)
+✔ measurement separates UTF-16 code units from UTF-8 bytes (0.086209ms)
+✔ the live adapter speaks the existing endpoints (0.143167ms)
+✔ K5-R2: simultaneous and repeated Save send one PUT; typing during hashing stays separate (12.818833ms)
+✔ K5-R2: an in-flight save in one Chat/profile slot does not hold another (1.582416ms)
+✔ K5-R1: a newer known revision turns the preview into a previous reading and holds Preview/Save until a fresh read (1.681625ms)
+✔ K5-R1: an older snapshot (read before our own save) never marks the base stale (1.447625ms)
+✔ K5-R1: switching this Chat to another profile suspends a dirty editor; a late preview is not current; return needs an explicit read (1.745167ms)
+✔ K5-R1: an explicit read while still ineligible does not resume the slot (1.382375ms)
+✔ K5-R2: fresh read, Keep my text, Use current and repeated Save never release a pending save (3.014458ms)
+✔ K5-R2: a newer foreign write seen during a pending save stays for a deliberate choice after it settles (1.519084ms)
+✔ K5-R2: a pending save whose reply is lost keeps its read-back semantics after a read during the wait (2.713834ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 158.11025

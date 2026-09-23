@@ -60,3 +60,7 @@ After actual-main20/20 and complete restore/bundle verification, the ended K4 tr
 ## Manual K5 delivery consumed — 2026-09-23
 
 User can paste Claude orders and has delivered the explicit stopped-writer packet756ec6d/producta0bed5a. [Parent independent review](evidence/kit-profile-editor-review-20260923/README.md) returns R1/R2/F1 to that original owner while preserving the candidate tree. No callable route is needed for the manual handoff, and no automated author process is inferred. Main product stays at accepted K4; the coordination heartbeat remains paused while the user relays the finite correction and subsequent fixed delivery.
+
+## K5 accepted — 2026-09-24
+
+[Final K5 receipt](evidence/kit-profile-editor-final-20260924/README.md) integrates136f1d6/1228161 at928ba61 after the original counterexamples close. The existing ordinary-Chat selected-profile edit/preview/save/return/new-Run path is accepted with original scope, permissions and historical context retained. Author explicitly stopped construction; its finite lease is closed. Further work consumes actual current/index facts and a new bounded original-owner handoff, not a stale writer or automatic restart of the paused heartbeat.

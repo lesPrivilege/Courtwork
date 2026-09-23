@@ -1,5 +1,7 @@
 # Runtime Control Plane Index
 
+Selected-profile editing (2026-09-24): [accepted K5](../../engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-final-20260924/README.md) connects an existing Chat's selected imported source to K4 preview and the existing CAS save in Settings. Source scope is retained; preview neither persists nor grants permission, and existing Run context stays unchanged. Structured creation/acquisition and live alternate runtime configuration remain separate.
+
 Runtime resources, permissions, context, model connections and MCP are composed by the local Host and presented in Settings and Work. This index links the current contracts; delivery history is recorded in [engineering/current](../../engineering/current.md). The original backend baseline was `b26670c`; historical reviews below retain that scope.
 
 - [Architecture and compatibility](architecture.md)

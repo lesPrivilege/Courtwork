@@ -53,3 +53,7 @@ User manually relayed the full Claude handoff: producta0bed5a, packet756ec6d, ex
 ## Correction delta disposition · 2026-09-24
 
 [Parent delta review](evidence/kit-profile-editor-review-20260923/return-r1-review/README.md) consumes source `991a0c6` / packet `dd0947d`. Current-session parent OpenAI browser now accepts the bounded K5-R1/F1 corrections and independently reproduces the remaining R2 seam through real Host CAS with two delayed200 responses. **K5-R2 stays open:** a fresh source reconciliation resets an outstanding Save to idle and enables a second PUT before its response. Original Claude owns the narrow pending-save/reconciliation correction and regression in the same preserved tree; no new product writer or expanded scope. Existing source/evidence remain unchanged, and the accepted precedent index waits.
+
+## Final parent disposition · 2026-09-24
+
+**Accepted** atmain928ba61: product136f1d6 / released packet1228161. [Final receipt](evidence/kit-profile-editor-final-20260924/README.md) closes R1/R2/F1 with independent26/26, bounded counterexample and actual OpenAI-browser delayed-save/explicit-next-save/new-Run evidence. This finite source lease is closed; further frontend work needs its own original-owner order. Existing scope/CAS/Run history and declared limits remain. No new writer is dispatched by acceptance.

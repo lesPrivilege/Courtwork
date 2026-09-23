@@ -1,0 +1,18 @@
+{
+  "main": "928ba61bef337be637a91ce580a41db83e229f62",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/courtwork-kit-profile-editor-20260923",
+      "head": "1228161cf7e4eb3cb7b449b035a12a6de61d1aaf",
+      "archive_ref": "refs/archive/k5-20260924/courtwork-kit-profile-editor-20260923",
+      "entries": 42999,
+      "file_bytes": 1032355405,
+      "archive_sha256": "ff18b5a702d991d2bbe9a707ebfdeda202739a13e3dcc54dcd1f0a26a46c9fc4",
+      "manifest_sha256": "e9284e1d87343c5b1c879e5d4985d0b6ec3ec5ff8bffc688dd363503ec200d87",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "3a4ba7077a3c7cf7be547b4e9c5617f3344ad71136e862fc090581118a774657",
+  "bundle_restored_and_verified": true
+}

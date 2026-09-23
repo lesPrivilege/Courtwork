@@ -1,0 +1,34 @@
+Edit Kit reviewer source
+Profile source (JSON)
+
+720 characters (UTF-16) · 720 bytes (UTF-8) · unsaved changes · saved source 03658237b500, configuration revision 8
+
+Preview
+Save source
+Revert to saved
+
+Saves the user-scope source (local). Other chats that select this profile use the saved text in their next runs.
+
+Not previewed. Save checks the source format; the context and Kit requirements are checked when a run starts.
+
+Saved. Runs started after this in chats that select this profile use it; earlier runs keep their recorded context.
+
+You changed the text after that save. The new changes are not saved.
+
+Previous preview · not current
+
+Previous reading, checked at configuration revision 7. The configuration or this chat's selection has changed since, so it is not the current composition, permission reading or save gate.
+
+Result
+Compiled. If this text is saved, a new run would carry the candidate context shown under Candidate context and hashes; that run checks again.
+Composition
+compatible
+Kits
+kit:k5-review 2
+Runtime
+pi-coding-agent@0.85.1/agent-session pi-agent-session-context-v1 · Kit compatibility: Not checked for this runtime
+Context
+76 bytes (UTF-8) · 74 characters (UTF-16) · limits 400,000 bytes, 100,000 characters
+Referenced sources
+local:k5-next · instructions · required
+Candidate context and hashes
