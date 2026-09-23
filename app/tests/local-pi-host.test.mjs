@@ -61,7 +61,7 @@ test('Host rejects malformed, duplicate/cross-attempt native receipts and generi
   } finally { await h.close(); }
 });
 
-test('actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch', async t => {
+test('actual Host crashes stay fenced; completed retained findings alone can publish without redispatch', async t => {
   for (const stage of ['dispatch', 'spawn', 'result', 'terminal']) await t.test(stage, async () => {
     const dataDir = await mkdtemp(path.join(tmpdir(), 'cw-local-pi-crash-'));
     let h;
@@ -85,8 +85,15 @@ test('actual Host crashes across intent/spawn/retention/publication reopen fence
       h.runtime.store.recordLocalPiEvent = (...args) => { if (args[1] === 'local_pi.spawn') repeatedSpawns++; return record(...args); };
       const a = h.assignment(originalAssignment.id);
       assert.equal(a.status, 'blocked'); assert.equal(a.attempts[0].status, 'unknown');
-      const reconcile = await action(h, a, 'reconcile'); assert.equal(reconcile.status, 409, JSON.stringify(reconcile));
-      assert.equal(reconcile.json.error.code, 'local_pi_unreconciled');
+      const reconcile = await action(h, a, 'reconcile');
+      if (stage === 'terminal') {
+        assert.equal(reconcile.status, 200, JSON.stringify(reconcile));
+        assert.equal(h.assignment(a.id).result?.revision, 1);
+        assert.equal((await h.api('GET', `/subagents/${a.id}/result`)).json.text, 'Retained before publication.');
+      } else {
+        assert.equal(reconcile.status, 409, JSON.stringify(reconcile));
+        assert.equal(reconcile.json.error.code, 'local_pi_unreconciled');
+      }
       assert.equal((await action(h, h.assignment(a.id), 'retry')).status, 409);
       const persisted = h.runtime.store.snapshot();
       await assert.rejects(h.runtime.store.updateRunWithEvent(runId, { status: 'cancelled' }, { type: 'run.status', data: { status: 'cancelled' } }), /terminal transition/);
@@ -96,7 +103,8 @@ test('actual Host crashes across intent/spawn/retention/publication reopen fence
       assert.equal(repeatedSpawns, 0, 'no owned-process spawn callback follows any recovery/retry request');
       if (['result', 'terminal'].includes(stage)) {
         const retained = await h.runtime.service.artifactHistory.read(a.attempts[0].sessionId, receiptBefore.result.sha256, receiptBefore.result.bytes);
-        assert.equal(retained.toString(), 'Retained before publication.'); assert.equal(a.result, null);
+        assert.equal(retained.toString(), 'Retained before publication.');
+        assert.equal(h.assignment(a.id).result === null, stage === 'result');
       }
       validateState(h.runtime.store.snapshot());
     } finally { if (h) await h.close(); else await rm(dataDir, { recursive: true, force: true }); }

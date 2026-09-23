@@ -1,0 +1,14 @@
+▶ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch
+  ✔ dispatch (970.840125ms)
+  ✔ spawn (1207.283542ms)
+  ✔ result (1410.096416ms)
+  ✔ terminal (1403.003209ms)
+✔ actual Host crashes across intent/spawn/retention/publication reopen fenced and old reconcile/retry cannot redispatch (4992.125625ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5951.28425
