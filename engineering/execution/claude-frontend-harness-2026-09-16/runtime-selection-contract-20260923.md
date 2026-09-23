@@ -29,3 +29,8 @@ LP-R6 acceptance/cleanup → R0 concrete contract → GPT-6 Luna bounded review 
 ## Actual R0 dispatch
 
 Parent verified local/origin mainabcd30e4965fe3d1fd5258a362718ba2835315e9 after LP-R6 cleanup, created isolated `courtwork-runtime-selection-r0-20260923` / `codex/runtime-selection-r0-20260923`, and dispatched `/root/sol6_runtime_binding` (gpt-6-sol, high) for the contract packet only. `/root/luna6_runtime_selection` (gpt-6-luna, high) is the designated non-author reviewer. No product implementation or new sidebar task is started by this dispatch.
+
+
+## R0 architecture review — 2026-09-23
+
+[Parent disposition and independent Luna review](evidence/runtime-selection-r0-review-20260923/README.md) adoptf1641f8 direction but return R0-R1 (credential-independent executor fingerprint) and R0-R2 (pure legacy migration plus one atomic first-pin/revision rule). Original Sol revises only the R0 packet; R1 implementation remains unstarted. No model/key rotation may accidentally change ordinary Pi executor identity, and migration may not manufacture a historical factory ref.

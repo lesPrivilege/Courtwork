@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · Runtime R0 proposal reviewed; two ownership clarifications
+
+[Parent R0 review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r0-review-20260923/README.md) consumes fixedf1641f8 and GPT-6 Luna contract review. Direction is adopted; Sol must separate executor fingerprint from credentials and define pure migration plus atomic first-pin/revision behavior. Parent fixes those semantics in the original order; R1 source/schema write lease is not issued. Main product remains accepted LP-R6/schema21; no user-service or live runtime operation.
+
 ## 2026-09-23 · Runtime selection R0 prepared after LP-R6 closure
 
 [Original-owner R0 contract order](execution/claude-frontend-harness-2026-09-16/runtime-selection-contract-20260923.md) fixes initial scope: ordinary no-history Session executor choice, Pi default, first managed alternate under original P03 gating, immutable native lineage and no fallback. GPT-6 Sol authors concrete DTO/CAS/migration/call-site proposal only; GPT-6 Luna independently reviews, parent Astra fixes architecture before an R1 product lease. LP-R6 is accepted and its ended tree restore-verified/removed. GPT-6 Sol `/root/sol6_runtime_binding` is dispatched in isolated `courtwork-runtime-selection-r0-20260923` from pushedabcd30e, for the contract packet only; GPT-6 Luna is its non-author reviewer. No runtime selector code, live alternate or new frontend writer is yet claimed.
