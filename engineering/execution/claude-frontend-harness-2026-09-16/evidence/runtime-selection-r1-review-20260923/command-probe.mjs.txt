@@ -1,0 +1,19 @@
+import assert from 'node:assert/strict';
+import {rm} from 'node:fs/promises';
+import {boot} from '/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/tests/helpers.mjs';
+import {createAgentsLoopback} from '/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/tests/fixtures/agents-api-loopback.mjs';
+import {agentsPort} from '/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/tests/fixtures/agents-host-harness.mjs';
+const loopback=await createAgentsLoopback({plan:()=>[{text:'Synthetic managed result.'}]});
+const h=await boot({managedRuntimePort:agentsPort(loopback)});
+try{
+ const session=await h.createSession();
+ assert.equal((await h.api('PUT',`/sessions/${session.id}/executor-choice`,{expectedRevision:0,adapterId:'agents-api'})).status,200);
+ const created=await h.api('POST',`/sessions/${session.id}/runs`,{input:'bounded command probe',commandId:'parent-command-probe'});
+ assert.equal(created.status,200);assert.equal((await h.pollRun(created.json.run.id)).status,'completed');
+ const info=await h.api('GET',`/runtime-info?sessionId=${session.id}`);
+ const catalog=await h.api('GET',`/sessions/${session.id}/commands`);
+ const status=await h.api('POST',`/sessions/${session.id}/commands/status`,{args:''});
+ const compact=catalog.json.commands.find(c=>c.name==='compact');
+ console.log(JSON.stringify({adapter:info.json.adapterId,nativeCompaction:info.json.capabilities.nativeCompaction,compact:compact.availability,statusCompaction:status.json.facts.compaction}));
+ assert.match(compact.availability.reason,/runtime.*not support compaction/i,'commands must derive the bound executor capability, not the default Pi journal test');
+}finally{await h.runtime.close();await loopback.close();await rm(h.dataDir,{recursive:true,force:true});}

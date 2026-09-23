@@ -1,0 +1,30 @@
+✔ the production Host runs Pi through the port and continues one native session (945.7335ms)
+✔ a journal written before the port existed is opened in place and continued (153.105209ms)
+✔ retrying a command never opens a second native session (531.924125ms)
+✔ observations that arrive after cancellation are not recorded (263.365834ms)
+✔ an operation the runtime does not support is refused, not rerouted (215.467709ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.125375ms)
+✔ R1 public choice defaults to Pi; an unconfigured managed option cannot be enabled by a client flag (608.782708ms)
+✔ R1 one Host serves separate Pi and managed Sessions with frozen native shapes (501.9365ms)
+✔ R1 stale choice and stale Run expectation refuse before provider/native requests (69.693209ms)
+✔ R1 first-choice PUT and first Run serialize; the loser cannot switch native lineage (76.274375ms)
+✔ R1 a saved managed Run replays after restart without its factory; new work refuses without Pi fallback (438.687125ms)
+✔ R1 changed managed endpoint after restart leaves the saved choice readable and refuses execution (122.740292ms)
+✔ R1 a selected managed lost-create stays unknown across reopen and cannot dispatch through Pi (157.669125ms)
+✔ R1 a v2 Kit remains Pi-only and refuses managed execution before provider/native requests (71.292708ms)
+✔ R1 Pi credential rotation does not change executor identity; managed credential fences stay separate (892.60375ms)
+✔ R1 global Attention choice is read-only and its Run keeps the default Pi port (170.341375ms)
+✔ R1 contradictory legacy native history stays readable with null identity and refuses new execution (579.766375ms)
+✔ R1 Store choice CAS, bound Run identity and historical lock survive reopen (117.468708ms)
+✔ R1 schema-21 empty Session migrates with null ref; first Run pins once after receipt lookup (101.0235ms)
+✔ R1 bound executor identity rejects mutation and corrupt reopen without rewriting bytes (100.976833ms)
+✔ R1 contradictory schema-21 global Run/native history stays readable and fenced (102.523583ms)
+✔ R1 pinned schema-21 Host refuses schema 22 without changing durable bytes (769.233042ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4803.012916

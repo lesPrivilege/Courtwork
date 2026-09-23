@@ -31,3 +31,8 @@ Use independent temporary data/ports and existing locked dependencies. Source/te
 ## Actual implementation dispatch
 
 Parent verified origin/main18e3af5 after contract acceptance and dispatched `/root/sol6_runtime_binding` (gpt-6-sol, high) to merge accepted main into its retained isolated `courtwork-runtime-selection-r0-20260923` / `codex/runtime-selection-r0-20260923` and execute this R1 lease. The tree retains its R0 name for continuity; this is now the single active R1 backend writer. `/root/luna6_runtime_selection` is the designated non-author reviewer after fixed milestones/handoff. No new sidebar task or frontend writer is created.
+
+
+## Parent fixed-candidate review — 2026-09-23
+
+[Parent findings and exact probes](evidence/runtime-selection-r1-review-20260923/README.md) hold packetb7426c1/product49e2c00. Adopt R1-R1 (bound revision agreement across Store lineage), R1-R2 (Session-scoped command capability facts), and R1-R3 (dispose rejected constructed managed port). Original GPT-6 Sol keeps the isolated writer for those corrections and relevant evidence only. Luna22/22 and author1623/1623 are retained at their exact pins, not a schema22 acceptance. Main remains21; no user-data or live operation.

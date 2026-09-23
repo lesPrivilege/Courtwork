@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · R1 candidate held for three reproduced owner seams
+
+[Parent R1 review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r1-review-20260923/README.md) fixesb7426c1/product49e2c00 and records independent22/22 plus concrete Store revision-drift/reopen, wrong command capability source and rejected-factory cleanup findings. Original GPT-6 Sol receives R1-R1/R2/R3; no other writer starts. Main remains schema21/Core4/bridge5, candidate22 unadopted; author1623/1623 does not close the reproduced gaps. Source/evidence tree preserved, no user-service/credential/live action.
+
 ## 2026-09-23 · Runtime R0 accepted; bounded R1 backend implementation dispatched
 
 [Parent R0 final adoption](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r0-final-20260923/README.md) acceptsc5efbc9 after GPT-6 Luna review, integrated as docs3685fc1. Fingerprint, legacy first-pin and child-owner returns close. [R1 source lease](execution/claude-frontend-harness-2026-09-16/runtime-selection-r1-20260923.md) releases the same GPT-6 Sol writer for one backend implementation in its retained isolated tree. Schema22 is reserved there; main remains21/Core4/bridge5 until candidate acceptance. GPT-6 Sol `/root/sol6_runtime_binding` has received the R1 implementation assignment from pushed18e3af5 in the retained isolated runtime-selection tree; GPT-6 Luna independently reviews the fixed delivery. No frontend/live runtime/provider rollout follows from contract acceptance.

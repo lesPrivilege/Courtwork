@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';import path from 'node:path';
+import {createRuntime} from '/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/server/runtime.mjs';
+const dir=await mkdtemp(path.join(tmpdir(),'cw-r1-construction-'));let closed=0;
+try{
+ await assert.rejects(createRuntime({dataDir:dir,managedRuntimePort:()=>({id:'wrong-executor',close(){closed++;}}),logger:()=>{}}),/only the reviewed managed/);
+ console.log(JSON.stringify({rejected:true,managedCloseCalls:closed}));
+ assert.equal(closed,1,'every constructed port should be disposed on rejected construction');
+}finally{await rm(dir,{recursive:true,force:true});}

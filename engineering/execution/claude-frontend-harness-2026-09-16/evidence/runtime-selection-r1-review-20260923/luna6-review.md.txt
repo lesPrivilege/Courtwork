@@ -1,0 +1,25 @@
+# Runtime selection R1 · Luna independent Store/factory review · 2026-09-23
+
+**Disposition: BLOCK Store acceptance on one persisted executor-lineage invariant.** Reviewed product source fixed at `49e2c00e2b3c9a3ea0df0fcf95fd0564d3f13fdb` (evidence commit `b7426c1f1ac8be0e3184b54b2320ff31787722e1`). The Store/HTTP/Pi focused suites pass, but the Store accepts and persists a conflicting adapter revision across Runs, then accepts it again after reopen.
+
+## Blocking finding: later bound Runs can change adapter revision under a reused ref
+
+`validateExecutorState()` in [executor-choice-state.mjs](/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/server/executor-choice-state.mjs:143) validates each Run binding against the Session's adapter ID, `configurationRef`, and `choiceRevision`, and freezes an existing Run's own binding. It never compares one Session's bound Run adapter revision with its other bound Runs. `RuntimeStore.createRun()` also checks the current Session ref but does not compare `checkedExecutor.revision` with an earlier bound Run.
+
+The Store API accepts a second completed-session Run carrying the same adapter ID and prior `configurationRef`, but a different descriptor revision (`pi-r1` then `pi-r2`). That violates the R0 contract's “later Runs require the same adapter ID, revision and executor configuration ref” invariant. The composition root ordinarily computes a new ref from revision, and service has a live-revision check, but Store is the durable authority and its own persisted-state validator must reject inconsistent lineages even if a stale/forged descriptor or corrupted state reaches it. Because the descriptor omits protocol/endpoint components, Store cannot recompute the fingerprint; it can compare each new bound Run's revision to the first/current bound nonchild Run for that Session, and compare all bound records on load. Legacy Runs have no known revision, so the first new bound Run remains the one-time pin.
+
+An independent scratch repro creates a real RuntimeStore, admits `pi-r1`, completes it, submits `pi-r2` while deliberately reusing the first ref, closes and reopens the store. Both Runs remain readable with distinct revisions under the same Session/ref. Exact rerun script: `/tmp/cw-runtime-r1-luna6-revision-drift-20260923.mjs`; captured output: `/tmp/cw-runtime-r1-luna6-revision-drift-reopen-20260923.log` (SHA-256 `44fbe11a111e6b0b4c426e627ad5418aaa5bde5c8460a2c402d73b29576f7db2`).
+
+Suggested bounded correction: enforce same adapter ID/revision/ref across every pair of bound nonchild Runs in `validateExecutorState()` (including `previousState` mutations and load validation), and compare a new descriptor revision against the existing bound lineage inside `createRun()` after command receipt lookup. Keep the schema-21 legacy → first bound Run pin exception; keep the child `executorBinding:null` proof exception unchanged. Add one Store regression for second Run revision drift plus persisted/reopen rejection of a two-Run conflicting lineage. No schema bump appears necessary.
+
+## Passing focused evidence
+
+Exact command `node --test tests/runtime-selection-store.test.mjs tests/runtime-selection-http.test.mjs tests/pi-runtime-port.test.mjs` passed **22/22, exit 0**: Store 5/5, HTTP 11/11, Pi port 6/6. Raw log `/tmp/cw-runtime-r1-luna6-targeted-20260923.log`, SHA-256 `66906585e9a5383d75243da96f3b7195243e1b3bac35426d71f82b66f37f6fab`.
+
+Two additional cross-record scratch checks passed: an ordinary Run cannot be forged as Spark child by setting `executorBinding:null`; and a persisted Session choice cannot contradict its retained Pi Run. Both failed opens leave the forged bytes unchanged. Log `/tmp/cw-runtime-r1-luna6-crossrecord-20260923.log`, SHA-256 `0a1a0a07cd044c22e66f262f59042488f5a7d2d13ab1405d8413ae366237243d`.
+
+The pure migration path validates the schema-21 source before making the exact backup, writes null legacy refs, and the targeted test proves pinned old-reader refusal without changing bytes. First-pin transaction order is sound in the examined Store code: command receipt precedes current-choice checks; all admission fences precede pinning; pin/ref/revision and Run binding are written in one mutation. The corrected credential-independent fingerprint and child proof shapes match the accepted R0 proposal. Factory ID allowlisting and production Pi-only default are explicit in `runtime.mjs`; I found no Store-side credential/config duplication in this bounded review.
+
+The parent independently owns two service/factory findings (command facts use default-port compact capability for a managed Session; a rejected managed factory object's close callback is not invoked). I did not duplicate their repros; see parent's retained probes. Those and this Store finding require separate bounded corrections before integration acceptance.
+
+No full suite, paid/key/user-Host action or product write was made. The candidate `app/node_modules` symlink points to the main checkout's locked dependencies and remains for the parent as requested.

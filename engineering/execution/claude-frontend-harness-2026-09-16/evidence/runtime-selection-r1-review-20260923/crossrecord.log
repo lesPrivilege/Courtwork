@@ -1,0 +1,2 @@
+PASS ordinary Run cannot be forged as Spark child with executorBinding:null; file preserved
+PASS persisted Session executor cannot contradict retained Pi Run; file preserved
