@@ -1,0 +1,4368 @@
+{
+  "schemaVersion": 21,
+  "subagents": {
+    "agents": [
+      {
+        "id": "spark",
+        "definition": {
+          "id": "builtin:explore",
+          "revision": 1,
+          "title": "Spark",
+          "role": "explore",
+          "tools": [
+            "spark_source",
+            "spark_note"
+          ],
+          "maxSources": 16,
+          "maxSourceBytes": 65536,
+          "maxOutputBytes": 32768,
+          "maxTurns": 8,
+          "deadlineMs": 60000
+        },
+        "manager": "local-user",
+        "status": "active"
+      }
+    ],
+    "assignments": [],
+    "mounts": []
+  },
+  "projects": [
+    {
+      "id": "fb34aa97-5b38-46df-8a70-ddc96594b653",
+      "name": "test-project",
+      "createdAt": "2026-09-23T01:00:04.448Z"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "scope": "project",
+      "projectId": "fb34aa97-5b38-46df-8a70-ddc96594b653",
+      "title": "test-session",
+      "draft": "",
+      "extensionBinding": null,
+      "createdAt": "2026-09-23T01:00:04.450Z",
+      "_nextSeq": 19,
+      "workspaceDir": "/tmp/cw-runtime-binding-sol6-20260923/test-tmp/se-c1-test-iOkSR3/workspaces/ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "permissionMode": "draft",
+      "hostSession": null,
+      "repositoryBinding": {
+        "id": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+        "rootPath": "/private/tmp/cw-runtime-binding-sol6-20260923/test-tmp/cw-agents-source-YKPzlC",
+        "device": "16777233",
+        "inode": "175660741",
+        "revision": 1,
+        "status": "active"
+      },
+      "repositoryBindingRevision": 1,
+      "repositoryBindingCommands": [
+        {
+          "requestId": "agents-bind",
+          "requestHash": "ce81cb98bf87a0393c96dc628c0fe5bb5325659061441ac70f9b68b3e8f759fd",
+          "operation": "bind",
+          "expectedRevision": 0,
+          "receipt": {
+            "requestId": "agents-bind",
+            "operation": "bind",
+            "bindingId": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+            "revision": 1,
+            "status": "active",
+            "rootPath": "/private/tmp/cw-runtime-binding-sol6-20260923/test-tmp/cw-agents-source-YKPzlC",
+            "at": "2026-09-23T01:00:04.815Z"
+          }
+        }
+      ],
+      "repositoryCandidate": null,
+      "repositoryCandidateRevision": 0,
+      "repositoryCandidateCommands": [],
+      "repositoryWriteEffects": [],
+      "remoteBinding": {
+        "runtimeId": "agents-api",
+        "bindingId": "7e36cd24-f9da-4e79-b082-d35ac9f98670",
+        "revision": 1,
+        "nativeSessionId": "sess_loopback_1",
+        "environment": "none",
+        "nativeEnvironmentId": null,
+        "protocol": {
+          "betaHeader": "agents=v1",
+          "docsRevision": "2026-09-15",
+          "sdk": "openai@7.15.0"
+        },
+        "connection": {
+          "connectionId": "catalog-fake-openai-loopback",
+          "configHash": "46010e11815f3deb1b2ceb31f8f4bcc4f759fc7b55126cf15a666d72b1dc9fef",
+          "configVersion": 2,
+          "credentialGeneration": 1
+        },
+        "origin": {
+          "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+          "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb"
+        },
+        "createdAt": "2026-09-23T01:00:04.831Z"
+      },
+      "remoteActions": [
+        {
+          "id": "2af858b2e8595a7d50b5ac1420f1c2bdd161c7e666e84a4da9068681ada234e2",
+          "kind": "create",
+          "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+          "requestId": null,
+          "requestHash": "3a2872324632f05fac1a04970f6e1d8ddae5354916f103077b9ffca2740da024",
+          "native": {
+            "sessionId": null,
+            "turnId": null,
+            "callId": null
+          },
+          "phase": "accepted",
+          "error": null,
+          "resolution": null,
+          "createdAt": "2026-09-23T01:00:04.824Z",
+          "settledAt": "2026-09-23T01:00:04.831Z"
+        },
+        {
+          "id": "810ada3271860ccd080bf40a52eed7d6ada12d3b496ff435c9f9b1843279e27e",
+          "kind": "call",
+          "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+          "native": {
+            "sessionId": "sess_loopback_1",
+            "turnId": "turn_sess_loopback_1_1",
+            "callId": "call_turn_sess_loopback_1_1_1"
+          },
+          "tool": "repo_read",
+          "argumentsJson": "{\"path\":\"README.md\"}",
+          "argumentsSha256": "7d6441497d2a000b8143602a7817c90abe7db88e139f89c062a1c36cfe0ad9d6",
+          "scope": {
+            "repositoryBindingId": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+            "repositoryBindingRevision": 1,
+            "repositoryCandidateId": null,
+            "repositoryCandidateRevision": null
+          },
+          "execution": "succeeded",
+          "result": {
+            "success": true,
+            "sha256": "c8b3af5ef3041289296178ba35a786683cda8d50b653197a15f462fc9ab02089",
+            "bytes": 88
+          },
+          "delivery": {
+            "intentId": "f9523d28f12e23c1b589d7762d22464627e118b32348442c867759bf696ef29b",
+            "state": "accepted"
+          },
+          "resolution": null,
+          "createdAt": "2026-09-23T01:00:04.835Z",
+          "executedAt": "2026-09-23T01:00:05.030Z"
+        },
+        {
+          "id": "f9523d28f12e23c1b589d7762d22464627e118b32348442c867759bf696ef29b",
+          "kind": "tool_result",
+          "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+          "requestId": "f9523d28f12e23c1b589d7762d22464627e118b32348442c867759bf696ef29b",
+          "requestHash": "8c2e935971422f2c6b2a7e4176d9b0d2fe50c62a9857f767c720759e06187c89",
+          "native": {
+            "sessionId": "sess_loopback_1",
+            "turnId": "turn_sess_loopback_1_1",
+            "callId": "call_turn_sess_loopback_1_1_1"
+          },
+          "phase": "accepted",
+          "error": null,
+          "resolution": null,
+          "createdAt": "2026-09-23T01:00:05.032Z",
+          "settledAt": "2026-09-23T01:00:05.035Z"
+        },
+        {
+          "id": "1ea994c743d6b68ec6578677eb4c9326b6280a8ba9af08106c9ae6f7bd9bbf17",
+          "kind": "input",
+          "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+          "requestId": "1ea994c743d6b68ec6578677eb4c9326b6280a8ba9af08106c9ae6f7bd9bbf17",
+          "requestHash": "d4fdff457c7e67d4f5962af9ba4f4cec2ae92fbb1022e64e49b31727f1aa0ddf",
+          "native": {
+            "sessionId": "sess_loopback_1",
+            "turnId": null,
+            "callId": null
+          },
+          "phase": "accepted",
+          "error": null,
+          "resolution": null,
+          "createdAt": "2026-09-23T01:00:05.528Z",
+          "settledAt": "2026-09-23T01:00:05.533Z"
+        }
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "id": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "status": "completed",
+      "admissionOpen": false,
+      "adapterId": "agents-api",
+      "provider": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "api": "openai-completions",
+        "realProvider": false,
+        "connectionId": "catalog-fake-openai-loopback",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 2
+        }
+      },
+      "extension": null,
+      "startedAt": "2026-09-23T01:00:04.820Z",
+      "endedAt": "2026-09-23T01:00:05.042Z",
+      "error": null,
+      "commandId": "c-first",
+      "supersedes": null,
+      "artifacts": [],
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "turns": 0,
+        "missing": true
+      },
+      "hostSession": null,
+      "credentialGeneration": 1,
+      "repositoryBindingSnapshot": {
+        "id": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+        "rootPath": "/private/tmp/cw-runtime-binding-sol6-20260923/test-tmp/cw-agents-source-YKPzlC",
+        "device": "16777233",
+        "inode": "175660741",
+        "revision": 1,
+        "status": "active"
+      },
+      "repositoryCandidateSnapshot": null,
+      "remoteBinding": {
+        "bindingId": "7e36cd24-f9da-4e79-b082-d35ac9f98670",
+        "bindingRevision": 1,
+        "nativeSessionId": "sess_loopback_1",
+        "connection": {
+          "connectionId": "catalog-fake-openai-loopback",
+          "configHash": "46010e11815f3deb1b2ceb31f8f4bcc4f759fc7b55126cf15a666d72b1dc9fef",
+          "configVersion": 2,
+          "credentialGeneration": 1
+        },
+        "scope": {
+          "repositoryBindingId": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+          "repositoryBindingRevision": 1,
+          "repositoryCandidateId": null,
+          "repositoryCandidateRevision": null
+        },
+        "rootTurn": {
+          "turnId": "turn_sess_loopback_1_1",
+          "attribution": "turn.created",
+          "eventId": "evt_sess_loopback_1_1",
+          "associatedAt": "2026-09-23T01:00:04.834Z",
+          "terminal": {
+            "status": "completed",
+            "evidence": "turn.event",
+            "nativeRef": "evt_sess_loopback_1_5",
+            "observedAt": "2026-09-23T01:00:05.037Z"
+          }
+        }
+      },
+      "kitBinding": null
+    },
+    {
+      "id": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "status": "completed",
+      "admissionOpen": false,
+      "adapterId": "agents-api",
+      "provider": {
+        "provider": "fake-openai-loopback",
+        "model": "fake-model",
+        "api": "openai-completions",
+        "realProvider": false,
+        "connectionId": "catalog-fake-openai-loopback",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "unsupported",
+          "source": "runtime-catalog",
+          "values": [],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 2
+        }
+      },
+      "extension": null,
+      "startedAt": "2026-09-23T01:00:05.524Z",
+      "endedAt": "2026-09-23T01:00:05.539Z",
+      "error": null,
+      "commandId": "c-second",
+      "supersedes": null,
+      "artifacts": [],
+      "usage": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "turns": 0,
+        "missing": true
+      },
+      "hostSession": null,
+      "credentialGeneration": 1,
+      "repositoryBindingSnapshot": {
+        "id": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+        "rootPath": "/private/tmp/cw-runtime-binding-sol6-20260923/test-tmp/cw-agents-source-YKPzlC",
+        "device": "16777233",
+        "inode": "175660741",
+        "revision": 1,
+        "status": "active"
+      },
+      "repositoryCandidateSnapshot": null,
+      "remoteBinding": {
+        "bindingId": "7e36cd24-f9da-4e79-b082-d35ac9f98670",
+        "bindingRevision": 1,
+        "nativeSessionId": "sess_loopback_1",
+        "connection": {
+          "connectionId": "catalog-fake-openai-loopback",
+          "configHash": "46010e11815f3deb1b2ceb31f8f4bcc4f759fc7b55126cf15a666d72b1dc9fef",
+          "configVersion": 2,
+          "credentialGeneration": 1
+        },
+        "scope": {
+          "repositoryBindingId": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+          "repositoryBindingRevision": 1,
+          "repositoryCandidateId": null,
+          "repositoryCandidateRevision": null
+        },
+        "rootTurn": {
+          "turnId": "turn_sess_loopback_1_2",
+          "attribution": "turn.created",
+          "eventId": "evt_sess_loopback_1_7",
+          "associatedAt": "2026-09-23T01:00:05.531Z",
+          "terminal": {
+            "status": "completed",
+            "evidence": "turn.event",
+            "nativeRef": "evt_sess_loopback_1_10",
+            "observedAt": "2026-09-23T01:00:05.536Z"
+          }
+        }
+      },
+      "kitBinding": null
+    }
+  ],
+  "events": [
+    {
+      "seq": 1,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "user.message",
+      "data": {
+        "text": "read the README"
+      }
+    },
+    {
+      "seq": 2,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "run.status",
+      "data": {
+        "status": "running"
+      }
+    },
+    {
+      "seq": 3,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "runtime.bound",
+      "data": {
+        "revision": 0,
+        "hash": "88bf37b4d16f34007f705ea438dd4699e880a37ca2475e8eb36c2aa2a3fa7a83",
+        "sessionScope": {
+          "kind": "project",
+          "projectId": "fb34aa97-5b38-46df-8a70-ddc96594b653"
+        },
+        "composition": {
+          "id": "agent:general",
+          "version": "builtin",
+          "status": "compatible",
+          "resourceIds": null,
+          "uiSlots": [
+            "runtime.inspector",
+            "work.surface"
+          ],
+          "missing": []
+        },
+        "resources": [
+          {
+            "id": "tool:ask_user",
+            "kind": "tool",
+            "title": "ask_user",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ask_user",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_list",
+            "kind": "tool",
+            "title": "ws_list",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_list",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_read",
+            "kind": "tool",
+            "title": "ws_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_read",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_write",
+            "kind": "tool",
+            "title": "ws_write",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_write",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_grep",
+            "kind": "tool",
+            "title": "ws_grep",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_grep",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_list",
+            "kind": "tool",
+            "title": "repo_list",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": true,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "repo_list",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_read",
+            "kind": "tool",
+            "title": "repo_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": true,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "repo_read",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_grep",
+            "kind": "tool",
+            "title": "repo_grep",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": true,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "repo_grep",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:candidate_list",
+            "kind": "tool",
+            "title": "candidate_list",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "candidate_list",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:candidate_read",
+            "kind": "tool",
+            "title": "candidate_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "candidate_read",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:candidate_grep",
+            "kind": "tool",
+            "title": "candidate_grep",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "candidate_grep",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_write",
+            "kind": "tool",
+            "title": "repo_write",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "repo_write",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_diff",
+            "kind": "tool",
+            "title": "repo_diff",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "repo_diff",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:check_run",
+            "kind": "tool",
+            "title": "check_run",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "check_run",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:runtime_load",
+            "kind": "tool",
+            "title": "runtime_load",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "runtime_load",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:runtime_propose",
+            "kind": "tool",
+            "title": "runtime_propose",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "runtime_propose",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:cw_present",
+            "kind": "tool",
+            "title": "cw_present",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "cw_present",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_sources",
+            "kind": "tool",
+            "title": "spark_sources",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_sources",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_explore",
+            "kind": "tool",
+            "title": "spark_explore",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_explore",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_directory",
+            "kind": "tool",
+            "title": "spark_directory",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_directory",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_findings",
+            "kind": "tool",
+            "title": "spark_findings",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_findings",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_read",
+            "kind": "tool",
+            "title": "spark_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_read",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_read_source",
+            "kind": "tool",
+            "title": "spark_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_read_source",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_consume",
+            "kind": "tool",
+            "title": "spark_consume",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_consume",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:evidence-memo",
+            "kind": "plugin",
+            "title": "Evidence Memo (development)",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "format": "cw-host-extension",
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "diagnostics": [],
+            "capabilities": [
+              "tool:se_read_source",
+              "tool:se_submit_candidate",
+              "tool:se_read_artifact",
+              "tool:se_read_candidate_file",
+              "tool:se_read_artifact_file"
+            ],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "tool:se_read_source",
+            "kind": "tool",
+            "title": "se_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_source",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_submit_candidate",
+            "kind": "tool",
+            "title": "se_submit_candidate",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_submit_candidate",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact",
+            "kind": "tool",
+            "title": "se_read_artifact",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_candidate_file",
+            "kind": "tool",
+            "title": "se_read_candidate_file",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_candidate_file",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact_file",
+            "kind": "tool",
+            "title": "se_read_artifact_file",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact_file",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:inbound-nda",
+            "kind": "plugin",
+            "title": "Inbound NDA Playbook Review",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "format": "cw-host-extension",
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "diagnostics": [],
+            "capabilities": [
+              "tool:se_read_source",
+              "tool:se_submit_candidate",
+              "tool:se_read_artifact"
+            ],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "tool:se_read_source",
+            "kind": "tool",
+            "title": "se_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_source",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:inbound-nda"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_submit_candidate",
+            "kind": "tool",
+            "title": "se_submit_candidate",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_submit_candidate",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:inbound-nda"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact",
+            "kind": "tool",
+            "title": "se_read_artifact",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:inbound-nda"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:probe",
+            "kind": "plugin",
+            "title": "Lifecycle Probe (development)",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "format": "cw-host-extension",
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "diagnostics": [],
+            "capabilities": [],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "agent:general",
+            "kind": "agent_profile",
+            "title": "General",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "composition": null,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "agent",
+                  "id": "agent:general"
+                },
+                "value": true,
+                "reason": "profile selection"
+              }
+            ]
+          },
+          {
+            "id": "provider:current",
+            "kind": "provider",
+            "title": "fake-openai-loopback",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "model:current",
+            "kind": "model",
+            "title": "fake-model",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "secret:provider",
+            "kind": "secret",
+            "title": "Provider credential",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "credentialStatus": "configured",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "sandbox:workspace",
+            "kind": "sandbox",
+            "title": "Session filesystem boundary",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "session",
+              "id": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "filesystem": "/tmp/cw-runtime-binding-sol6-20260923/test-tmp/se-c1-test-iOkSR3/workspaces/ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+            "shell": false,
+            "processIsolation": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "session",
+                  "id": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "policy:host",
+            "kind": "permission_policy",
+            "title": "draft",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "context:session",
+            "kind": "session_context",
+            "title": "Native session history",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "owner": "Pi AgentSession",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          }
+        ],
+        "content": [],
+        "policies": [],
+        "context": []
+      }
+    },
+    {
+      "seq": 4,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "repository.bound",
+      "data": {
+        "bindingId": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+        "revision": 1
+      }
+    },
+    {
+      "seq": 5,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "tool.start",
+      "data": {
+        "callId": "call_turn_sess_loopback_1_1_1",
+        "name": "repo_read"
+      }
+    },
+    {
+      "seq": 6,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "repository.read",
+      "data": {
+        "bindingId": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+        "revision": 1,
+        "operation": "read",
+        "path": "README.md",
+        "resultSha256": "c8b3af5ef3041289296178ba35a786683cda8d50b653197a15f462fc9ab02089",
+        "sources": [
+          {
+            "path": "README.md",
+            "bytes": 88,
+            "sha256": "c8b3af5ef3041289296178ba35a786683cda8d50b653197a15f462fc9ab02089"
+          }
+        ]
+      }
+    },
+    {
+      "seq": 7,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "tool.result",
+      "data": {
+        "callId": "call_turn_sess_loopback_1_1_1",
+        "name": "repo_read",
+        "text": "# synthetic-parcel\n\nPagination helpers used by the Courtwork synthetic coding scenario.\n",
+        "isError": false
+      }
+    },
+    {
+      "seq": 8,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "assistant.delta",
+      "data": {
+        "text": "read it"
+      }
+    },
+    {
+      "seq": 9,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "assistant.message",
+      "data": {
+        "text": "read it",
+        "stopReason": "stop"
+      }
+    },
+    {
+      "seq": 10,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "run.usage",
+      "data": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "turns": 0,
+        "missing": true
+      }
+    },
+    {
+      "seq": 11,
+      "runId": "c1a59380-0156-4d21-bb86-d1fbe1c256cb",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "run.status",
+      "data": {
+        "status": "completed"
+      }
+    },
+    {
+      "seq": 12,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "user.message",
+      "data": {
+        "text": "and again"
+      }
+    },
+    {
+      "seq": 13,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "run.status",
+      "data": {
+        "status": "running"
+      }
+    },
+    {
+      "seq": 14,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "runtime.bound",
+      "data": {
+        "revision": 0,
+        "hash": "88bf37b4d16f34007f705ea438dd4699e880a37ca2475e8eb36c2aa2a3fa7a83",
+        "sessionScope": {
+          "kind": "project",
+          "projectId": "fb34aa97-5b38-46df-8a70-ddc96594b653"
+        },
+        "composition": {
+          "id": "agent:general",
+          "version": "builtin",
+          "status": "compatible",
+          "resourceIds": null,
+          "uiSlots": [
+            "runtime.inspector",
+            "work.surface"
+          ],
+          "missing": []
+        },
+        "resources": [
+          {
+            "id": "tool:ask_user",
+            "kind": "tool",
+            "title": "ask_user",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ask_user",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_list",
+            "kind": "tool",
+            "title": "ws_list",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_list",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_read",
+            "kind": "tool",
+            "title": "ws_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_read",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_write",
+            "kind": "tool",
+            "title": "ws_write",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_write",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:ws_grep",
+            "kind": "tool",
+            "title": "ws_grep",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "ws_grep",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_list",
+            "kind": "tool",
+            "title": "repo_list",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": true,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "repo_list",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_read",
+            "kind": "tool",
+            "title": "repo_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": true,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "repo_read",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_grep",
+            "kind": "tool",
+            "title": "repo_grep",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": true,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "repo_grep",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:candidate_list",
+            "kind": "tool",
+            "title": "candidate_list",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "candidate_list",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:candidate_read",
+            "kind": "tool",
+            "title": "candidate_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "candidate_read",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:candidate_grep",
+            "kind": "tool",
+            "title": "candidate_grep",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "candidate_grep",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_write",
+            "kind": "tool",
+            "title": "repo_write",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "repo_write",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:repo_diff",
+            "kind": "tool",
+            "title": "repo_diff",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "repo_diff",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:check_run",
+            "kind": "tool",
+            "title": "check_run",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "unavailable",
+            "configurable": true,
+            "action": "check_run",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:runtime_load",
+            "kind": "tool",
+            "title": "runtime_load",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "runtime_load",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:runtime_propose",
+            "kind": "tool",
+            "title": "runtime_propose",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "runtime_propose",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:cw_present",
+            "kind": "tool",
+            "title": "cw_present",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "cw_present",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_sources",
+            "kind": "tool",
+            "title": "spark_sources",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_sources",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_explore",
+            "kind": "tool",
+            "title": "spark_explore",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_explore",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_directory",
+            "kind": "tool",
+            "title": "spark_directory",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_directory",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_findings",
+            "kind": "tool",
+            "title": "spark_findings",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_findings",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_read",
+            "kind": "tool",
+            "title": "spark_read",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_read",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_read_source",
+            "kind": "tool",
+            "title": "spark_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_read_source",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:spark_consume",
+            "kind": "tool",
+            "title": "spark_consume",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": true,
+            "action": "spark_consume",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ],
+            "permission": {
+              "effect": "allow",
+              "trace": [
+                {
+                  "source": "host-ceiling",
+                  "effect": "allow"
+                },
+                {
+                  "source": "host-default",
+                  "effect": "allow"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:evidence-memo",
+            "kind": "plugin",
+            "title": "Evidence Memo (development)",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "format": "cw-host-extension",
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "diagnostics": [],
+            "capabilities": [
+              "tool:se_read_source",
+              "tool:se_submit_candidate",
+              "tool:se_read_artifact",
+              "tool:se_read_candidate_file",
+              "tool:se_read_artifact_file"
+            ],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "tool:se_read_source",
+            "kind": "tool",
+            "title": "se_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_source",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_submit_candidate",
+            "kind": "tool",
+            "title": "se_submit_candidate",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_submit_candidate",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact",
+            "kind": "tool",
+            "title": "se_read_artifact",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_candidate_file",
+            "kind": "tool",
+            "title": "se_read_candidate_file",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_candidate_file",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact_file",
+            "kind": "tool",
+            "title": "se_read_artifact_file",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact_file",
+            "parent": "plugin:evidence-memo",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:evidence-memo"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:inbound-nda",
+            "kind": "plugin",
+            "title": "Inbound NDA Playbook Review",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "format": "cw-host-extension",
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "diagnostics": [],
+            "capabilities": [
+              "tool:se_read_source",
+              "tool:se_submit_candidate",
+              "tool:se_read_artifact"
+            ],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "tool:se_read_source",
+            "kind": "tool",
+            "title": "se_read_source",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_source",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:inbound-nda"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_submit_candidate",
+            "kind": "tool",
+            "title": "se_submit_candidate",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_submit_candidate",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:inbound-nda"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "tool:se_read_artifact",
+            "kind": "tool",
+            "title": "se_read_artifact",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": true,
+            "action": "se_read_artifact",
+            "parent": "plugin:inbound-nda",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "parent not running",
+                "parentId": "plugin:inbound-nda"
+              }
+            ],
+            "permission": {
+              "effect": "deny",
+              "trace": [
+                {
+                  "source": "exposure",
+                  "effect": "deny"
+                }
+              ],
+              "resourceSpecific": false
+            }
+          },
+          {
+            "id": "plugin:probe",
+            "kind": "plugin",
+            "title": "Lifecycle Probe (development)",
+            "source": {
+              "type": "builtin",
+              "version": "0.1.0"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": false,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "format": "cw-host-extension",
+            "trust": "host-trusted",
+            "isolation": "in-process",
+            "diagnostics": [],
+            "capabilities": [],
+            "generation": 0,
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "agent:general",
+            "kind": "agent_profile",
+            "title": "General",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "composition": null,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              },
+              {
+                "scope": {
+                  "type": "agent",
+                  "id": "agent:general"
+                },
+                "value": true,
+                "reason": "profile selection"
+              }
+            ]
+          },
+          {
+            "id": "provider:current",
+            "kind": "provider",
+            "title": "fake-openai-loopback",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "model:current",
+            "kind": "model",
+            "title": "fake-model",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "secret:provider",
+            "kind": "secret",
+            "title": "Provider credential",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": false,
+            "health": "healthy",
+            "configurable": false,
+            "credentialStatus": "configured",
+            "defaultExposed": false,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": false,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "sandbox:workspace",
+            "kind": "sandbox",
+            "title": "Session filesystem boundary",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "session",
+              "id": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "filesystem": "/tmp/cw-runtime-binding-sol6-20260923/test-tmp/se-c1-test-iOkSR3/workspaces/ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+            "shell": false,
+            "processIsolation": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "session",
+                  "id": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "policy:host",
+            "kind": "permission_policy",
+            "title": "draft",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          },
+          {
+            "id": "context:session",
+            "kind": "session_context",
+            "title": "Native session history",
+            "source": {
+              "type": "builtin",
+              "version": "agents-api"
+            },
+            "scope": {
+              "type": "user",
+              "id": "local"
+            },
+            "activation": "always",
+            "installed": true,
+            "running": null,
+            "exposed": true,
+            "health": "healthy",
+            "configurable": false,
+            "owner": "Pi AgentSession",
+            "defaultExposed": true,
+            "provenance": [
+              {
+                "scope": {
+                  "type": "user",
+                  "id": "local"
+                },
+                "value": true,
+                "reason": "source default"
+              }
+            ]
+          }
+        ],
+        "content": [],
+        "policies": [],
+        "context": []
+      }
+    },
+    {
+      "seq": 15,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "repository.bound",
+      "data": {
+        "bindingId": "08f3bb23-3f89-418f-ae49-9e10163cc46c",
+        "revision": 1
+      }
+    },
+    {
+      "seq": 16,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "assistant.delta",
+      "data": {
+        "text": "second turn"
+      }
+    },
+    {
+      "seq": 17,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "assistant.message",
+      "data": {
+        "text": "second turn",
+        "stopReason": "stop"
+      }
+    },
+    {
+      "seq": 18,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "run.usage",
+      "data": {
+        "input": 0,
+        "output": 0,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "turns": 0,
+        "missing": true
+      }
+    },
+    {
+      "seq": 19,
+      "runId": "4887810f-c648-43e9-a3c5-0ba5eaa746ed",
+      "sessionId": "ae97cada-c623-4f32-8a23-66eb3d3ff7c3",
+      "type": "run.status",
+      "data": {
+        "status": "completed"
+      }
+    }
+  ],
+  "questions": [],
+  "providerConfig": {
+    "provider": "fake-openai-loopback",
+    "model": "fake-model",
+    "api": "openai-completions"
+  },
+  "extensionRecords": [
+    {
+      "id": "evidence-memo",
+      "version": "0.1.0",
+      "generation": 0,
+      "status": "unloaded",
+      "kind": "development-extension",
+      "releaseStatus": "development",
+      "title": "Evidence Memo (development)",
+      "surface": {
+        "id": "evidence-memo",
+        "title": "Evidence Memo",
+        "module": "/extensions/evidence-memo/renderer.mjs"
+      },
+      "tools": [
+        "se_read_source",
+        "se_submit_candidate",
+        "se_read_artifact",
+        "se_read_candidate_file",
+        "se_read_artifact_file"
+      ],
+      "bindingFields": [
+        {
+          "name": "title",
+          "label": "Title",
+          "multiline": false,
+          "required": true,
+          "maxLength": 120
+        },
+        {
+          "name": "sourceText",
+          "label": "Source text",
+          "multiline": true,
+          "required": true,
+          "maxLength": 100000
+        }
+      ],
+      "format": "cw-host-extension",
+      "trust": "host-trusted",
+      "isolation": "in-process",
+      "source": {
+        "type": "builtin",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "id": "inbound-nda",
+      "version": "0.1.0",
+      "generation": 0,
+      "status": "unloaded",
+      "kind": "development-extension",
+      "releaseStatus": "development",
+      "title": "Inbound NDA Playbook Review",
+      "surface": {
+        "id": "inbound-nda",
+        "title": "Inbound NDA Review",
+        "module": "/extensions/inbound-nda/renderer.mjs"
+      },
+      "tools": [
+        "se_read_source",
+        "se_submit_candidate",
+        "se_read_artifact"
+      ],
+      "bindingFields": [
+        {
+          "name": "title",
+          "label": "Title",
+          "multiline": false,
+          "required": true,
+          "maxLength": 120
+        },
+        {
+          "name": "sourceText",
+          "label": "Source text",
+          "multiline": true,
+          "required": true,
+          "maxLength": 100000
+        },
+        {
+          "name": "facts",
+          "label": "Represented party and transaction facts (JSON)",
+          "multiline": true,
+          "required": true,
+          "maxLength": 20000
+        }
+      ],
+      "format": "cw-host-extension",
+      "trust": "host-trusted",
+      "isolation": "in-process",
+      "source": {
+        "type": "builtin",
+        "version": "0.1.0"
+      }
+    },
+    {
+      "id": "probe",
+      "version": "0.1.0",
+      "generation": 0,
+      "status": "unloaded",
+      "kind": "development-extension",
+      "releaseStatus": "development",
+      "title": "Lifecycle Probe (development)",
+      "surface": null,
+      "tools": [],
+      "bindingFields": [],
+      "format": "cw-host-extension",
+      "trust": "host-trusted",
+      "isolation": "in-process",
+      "source": {
+        "type": "builtin",
+        "version": "0.1.0"
+      }
+    }
+  ],
+  "credentialGeneration": 1,
+  "asyncTasks": [],
+  "coordination": {
+    "threads": [],
+    "messages": []
+  },
+  "providerConnections": [
+    {
+      "id": "catalog-openai",
+      "kind": "catalog",
+      "providerIdentity": "openai",
+      "api": "openai-completions",
+      "baseUrl": null,
+      "models": []
+    },
+    {
+      "id": "catalog-deepseek",
+      "kind": "catalog",
+      "providerIdentity": "deepseek",
+      "api": "openai-completions",
+      "baseUrl": null,
+      "models": []
+    },
+    {
+      "id": "catalog-fake-openai-loopback",
+      "kind": "catalog",
+      "providerIdentity": "fake-openai-loopback",
+      "api": "openai-completions",
+      "baseUrl": null,
+      "models": []
+    }
+  ],
+  "providerConfigurationPending": [],
+  "providerConfigVersion": 2,
+  "providerVerifications": [],
+  "operations": []
+}

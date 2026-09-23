@@ -1,0 +1,42 @@
+# LP-R6 independent recovery review
+
+Date: 2026-09-23
+Candidate: `afa6b1792b65b512f1634c8d1a241fc7b5b675aa`
+Baseline: `1ae7d945f05b85a1e967422a51f19b60fdb09ad`
+Worktree: `/Users/lesprivilege/Projects/.worktrees/courtwork-local-pi-recovery-20260923`
+
+## Source and scope
+
+Reviewed the LP-R6 order, author packet/evidence, and the delta in `app/harness/subagents.mjs`, `local-pi-retained-recovery.test.mjs`, and the adjacent Local Pi Host/session/subagent tests. The recovery path is an authenticated existing `reconcile` action, not a new route or scheduler.
+
+## Verification
+
+Targeted command under `caffeinate -is`:
+
+```text
+node --test tests/local-pi-retained-recovery.test.mjs tests/local-pi-host.test.mjs tests/local-pi-session-deletion.test.mjs tests/subagents.test.mjs
+```
+
+Result: **45/45 passed, exit 0**. The worktree had no dependency directory initially; I created a temporary symlink to the existing Courtwork `app/node_modules` only for this run and removed it afterward. Raw log: `/tmp/cw-lpr6-independent-tests.log`.
+
+Independent public-boundary probe: `/tmp/cw-lpr6-independent-probe.log`. It created the actual terminal crash fixture, reopened through `localPiHost`, posted one authenticated reconcile action using the current persisted assignment revision, read the result endpoint, inspected persisted `runtime-state.json`, closed/reopened the Host, and read the result again. It observed one result revision, one command, assignment `blocked`, Host Run/attempt `unknown`, unchanged provider request count, and result survival after reopen.
+
+## Findings
+
+### Retained completed result recovery — accept
+
+`recoverRetainedLocalResult` requires the blocked assignment, unknown latest attempt and Host Run, Local Pi adapter identity, `localPiRunUnresolved`, no cancellation/result history, and matching completed terminal plus retained result receipt before reading bytes. It rechecks authorization and source policy, source revisions, retained byte length/hash/UTF-8, and then repeats the relevant evidence and policy checks inside the atomic Store mutation. It publishes exactly one result while preserving assignment blocked state, historical unknown Run/attempt state, and the unresolved fence.
+
+The independent persisted-boundary probe confirmed the actual public sequence: POST reconcile → GET result → persisted state → Host reopen → GET result, with no additional provider request.
+
+### Replay and race fences — accept
+
+The delta preserves command CAS/replay behavior: same command replays the existing assignment/result, conflicting payloads return `spark_conflict`, stale revision returns `spark_stale`, and a second result is not appended. The mutation rechecks current receipt identity/terminal/result and source revision, so the payload-read/publication gap cannot publish after evidence changes.
+
+### Negative and corruption paths — accept
+
+Missing terminal, missing retained bytes, hash mismatch, invalid UTF-8, cancellation, source revision changes, policy revocation after payload read, and cross-attempt receipts are covered and passed. These paths leave persisted state unchanged and make no provider request. Retry, new Run admission, and child/parent deletion remain fenced.
+
+## Limits and disposition
+
+The focused suite includes the author’s actual Host crash fixture plus adjacent owner tests; no full suite, browser, user Host, credentials, paid provider or source edits were used. No new defect was found in the requested LP-R6 boundaries. **Accept the candidate for independent review within the stated retained-result recovery scope.** This does not resolve negative terminal outcomes, formal source coverage/acceptance, or broader Local Pi runtime exposure.

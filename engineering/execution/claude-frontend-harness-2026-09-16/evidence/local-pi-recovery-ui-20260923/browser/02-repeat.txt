@@ -1,0 +1,193 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back" [disabled]:
+      - generic: Back
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "0"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - paragraph: No projects yet.
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "Local Pi parent":
+        - generic: Local Pi parent
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - generic: ·
+  - heading "A new day. Wednesday, September 23" [level=2]
+  - region "Example workspace":
+    - paragraph: Explore an example workspace. It creates nothing.
+    - button "See the example workspace"
+  - group "Where this chat works":
+    - button "Choose work location":
+      - generic: Choose work location
+    - generic: Local
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: Describe the work you want to do…
+  - button "Attachments":
+    - generic: Attachments
+  - combobox "File access for this chat":
+    - option "Ask before editing" [selected]
+    - option "Allow edits"
+    - option "Read only"
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - button "Send" [disabled]:
+    - generic: Send
+  - log:
+    - heading "Needs a look" [level=3]
+    - generic: "1"
+    - list:
+      - button "Open chat No project Unknown":
+        - generic: Open chat
+        - generic: No project
+        - generic: Unknown
+    - heading "Continue" [level=3]
+    - generic: "1"
+    - list:
+      - button "Local Pi parent No project No run recorded":
+        - generic: Local Pi parent
+        - generic: No project
+        - generic: No run recorded
+    - generic "Activity 1 recorded run · 84 days":
+      - heading "Activity" [level=3]
+      - generic: 1 recorded run · 84 days
+    - group "Activity period":
+      - button "28d"
+      - button "84d" [pressed]
+    - button "Open Usage"
+    - group "Daily retained runs, UTC. Arrow keys move between days.":
+      - button "2026-07-02 · 0 retained runs (UTC)"
+      - button "2026-07-03 · 0 retained runs (UTC)"
+      - button "2026-07-04 · 0 retained runs (UTC)"
+      - button "2026-07-05 · 0 retained runs (UTC)"
+      - button "2026-07-06 · 0 retained runs (UTC)"
+      - button "2026-07-07 · 0 retained runs (UTC)"
+      - button "2026-07-08 · 0 retained runs (UTC)"
+      - button "2026-07-09 · 0 retained runs (UTC)"
+      - button "2026-07-10 · 0 retained runs (UTC)"
+      - button "2026-07-11 · 0 retained runs (UTC)"
+      - button "2026-07-12 · 0 retained runs (UTC)"
+      - button "2026-07-13 · 0 retained runs (UTC)"
+      - button "2026-07-14 · 0 retained runs (UTC)"
+      - button "2026-07-15 · 0 retained runs (UTC)"
+      - button "2026-07-16 · 0 retained runs (UTC)"
+      - button "2026-07-17 · 0 retained runs (UTC)"
+      - button "2026-07-18 · 0 retained runs (UTC)"
+      - button "2026-07-19 · 0 retained runs (UTC)"
+      - button "2026-07-20 · 0 retained runs (UTC)"
+      - button "2026-07-21 · 0 retained runs (UTC)"
+      - button "2026-07-22 · 0 retained runs (UTC)"
+      - button "2026-07-23 · 0 retained runs (UTC)"
+      - button "2026-07-24 · 0 retained runs (UTC)"
+      - button "2026-07-25 · 0 retained runs (UTC)"
+      - button "2026-07-26 · 0 retained runs (UTC)"
+      - button "2026-07-27 · 0 retained runs (UTC)"
+      - button "2026-07-28 · 0 retained runs (UTC)"
+      - button "2026-07-29 · 0 retained runs (UTC)"
+      - button "2026-07-30 · 0 retained runs (UTC)"
+      - button "2026-07-31 · 0 retained runs (UTC)"
+      - button "2026-08-01 · 0 retained runs (UTC)"
+      - button "2026-08-02 · 0 retained runs (UTC)"
+      - button "2026-08-03 · 0 retained runs (UTC)"
+      - button "2026-08-04 · 0 retained runs (UTC)"
+      - button "2026-08-05 · 0 retained runs (UTC)"
+      - button "2026-08-06 · 0 retained runs (UTC)"
+      - button "2026-08-07 · 0 retained runs (UTC)"
+      - button "2026-08-08 · 0 retained runs (UTC)"
+      - button "2026-08-09 · 0 retained runs (UTC)"
+      - button "2026-08-10 · 0 retained runs (UTC)"
+      - button "2026-08-11 · 0 retained runs (UTC)"
+      - button "2026-08-12 · 0 retained runs (UTC)"
+      - button "2026-08-13 · 0 retained runs (UTC)"
+      - button "2026-08-14 · 0 retained runs (UTC)"
+      - button "2026-08-15 · 0 retained runs (UTC)"
+      - button "2026-08-16 · 0 retained runs (UTC)"
+      - button "2026-08-17 · 0 retained runs (UTC)"
+      - button "2026-08-18 · 0 retained runs (UTC)"
+      - button "2026-08-19 · 0 retained runs (UTC)"
+      - button "2026-08-20 · 0 retained runs (UTC)"
+      - button "2026-08-21 · 0 retained runs (UTC)"
+      - button "2026-08-22 · 0 retained runs (UTC)"
+      - button "2026-08-23 · 0 retained runs (UTC)"
+      - button "2026-08-24 · 0 retained runs (UTC)"
+      - button "2026-08-25 · 0 retained runs (UTC)"
+      - button "2026-08-26 · 0 retained runs (UTC)"
+      - button "2026-08-27 · 0 retained runs (UTC)"
+      - button "2026-08-28 · 0 retained runs (UTC)"
+      - button "2026-08-29 · 0 retained runs (UTC)"
+      - button "2026-08-30 · 0 retained runs (UTC)"
+      - button "2026-08-31 · 0 retained runs (UTC)"
+      - button "2026-09-01 · 0 retained runs (UTC)"
+      - button "2026-09-02 · 0 retained runs (UTC)"
+      - button "2026-09-03 · 0 retained runs (UTC)"
+      - button "2026-09-04 · 0 retained runs (UTC)"
+      - button "2026-09-05 · 0 retained runs (UTC)"
+      - button "2026-09-06 · 0 retained runs (UTC)"
+      - button "2026-09-07 · 0 retained runs (UTC)"
+      - button "2026-09-08 · 0 retained runs (UTC)"
+      - button "2026-09-09 · 0 retained runs (UTC)"
+      - button "2026-09-10 · 0 retained runs (UTC)"
+      - button "2026-09-11 · 0 retained runs (UTC)"
+      - button "2026-09-12 · 0 retained runs (UTC)"
+      - button "2026-09-13 · 0 retained runs (UTC)"
+      - button "2026-09-14 · 0 retained runs (UTC)"
+      - button "2026-09-15 · 0 retained runs (UTC)"
+      - button "2026-09-16 · 0 retained runs (UTC)"
+      - button "2026-09-17 · 0 retained runs (UTC)"
+      - button "2026-09-18 · 0 retained runs (UTC)"
+      - button "2026-09-19 · 0 retained runs (UTC)"
+      - button "2026-09-20 · 0 retained runs (UTC)"
+      - button "2026-09-21 · 0 retained runs (UTC)"
+      - button "2026-09-22 · 0 retained runs (UTC)"
+      - button "2026-09-23 · 1 retained run (UTC)"
+    - paragraph: 2026-07-02 — 2026-09-23
+    - paragraph: UTC · Retained runs only. Deleted-chat history is unknown.
+- status
+- dialog "Spark Explore":
+  - banner:
+    - heading "Spark · Explore" [level=2]
+    - button "Close Spark":
+      - generic: Close Spark
+  - status: Local process outcome remains unknown; no retained findings can be published
+  - button "Back to tasks"
+  - heading "Consult the exact source packet and disclose gaps." [level=3]
+  - paragraph: Needs attention
+  - paragraph: The host restarted. Inspect the interrupted attempt before retrying.
+  - generic: Retained before publication.
+  - button "Read source 1 · materials/source.txt · v1 · latest retained version":
+    - generic: Read source 1 · materials/source.txt · v1 · latest retained version
+  - button "Stop"
+  - button "Reconcile interrupted read-only attempt" [active]
+  - button "Refresh task":
+    - generic: Refresh task
+  - button "Return to main chat"
+  - generic "Assignment and execution"

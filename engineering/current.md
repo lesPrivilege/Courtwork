@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · GPT-6 Sol/Luna dispatched; LP-R6 UI closure precedes runtime binding
+
+User-selected gpt-6-sol and gpt-6-luna subagents have completed the [Runtime selection preflight/baseline](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-preflight-20260923/README.md), including52 existing targeted tests. Parent rejects stale re-openings of accepted C/D/E/K3 facts; runtime selection remains contract-first. [LP-R6 actual UI return](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-ui-20260923/README.md) finds the consumed Reconcile action still offered after successful findings publication. GPT-6 Sol receives a narrow existing-view/test lease in the preserved recovery tree; GPT-6 Luna is the non-author reviewer. Backend unknown fences remain unchanged, final LP-R6 acceptance pending. No second backend implementation lane or live remote availability is started.
+
 ## 2026-09-23 · Harness gaps mapped to existing owners
 
 [Current Core/Extensions gap map](execution/claude-frontend-harness-2026-09-16/evidence/harness-gap-map-20260923/README.md) separates ready bounded authoring/reproduction orders from architecture-first runtime selection, exact-root recovery and extension lifecycle/hooks. It corrects stale DF-04/K3/E1 pending claims without rewriting historical evidence. LP-R6 sourceafa6b17 is delivered with writer release and now has bounded non-author45/45 plus persisted/reopen probe; parent UI/final acceptance remains pending. No extra product writer is started by this inventory.

@@ -109,3 +109,8 @@ Parent selection consumes the [existing-source index and narrowed disposition](e
 ### LP-R6 actual dispatch
 
 Parent verified local/origin main1ae7d945f05b85a1e967422a51f19b60fdb09ad6 after E1 acceptance/cleanup, created isolated `courtwork-local-pi-recovery-20260923` on `codex/local-pi-retained-recovery-20260923`, and dispatched existing Sol execution subagent `/root/sol_visible_hash`. This is a bounded subtask of the parent Arch loop, not a new sidebar task. Source changes and author evidence remain unaccepted until its fixed handoff and independent review. No frontend writer or additional core lane is started.
+
+
+### LP-R6-UI finite closure and model routing — 2026-09-23
+
+[Actual browser return](evidence/local-pi-recovery-ui-20260923/README.md) adopts the recovered-result action mismatch atafa6b17. The backend retains its independent45/45 pass; parent final acceptance waits for this small UI truthfulness closure. GPT-6 Sol may modify only existing `subagent-view.mjs`, directly relevant tests and original author evidence in the same preserved recovery tree, after its Runtime baseline preparation. Preserve all unknown/retry/admission/deletion semantics. GPT-6 Luna independently verifies the fixed delta; parent OpenAI computer use repeats recovery/reading. This narrow lease supersedes the prior no-web restriction for this consumer only and does not start Kit/Profile redesign or Runtime selection code.
