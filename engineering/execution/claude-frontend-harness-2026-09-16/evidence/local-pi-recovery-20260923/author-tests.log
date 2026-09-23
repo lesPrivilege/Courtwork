@@ -1,0 +1,57 @@
+✔ Host Spark actual Pi process retains exact findings, keeps provided-only coverage blocked and consumes explicitly (3376.984459ms)
+✔ Host rejects malformed, duplicate/cross-attempt native receipts and generic worker-forgeable event append (962.046625ms)
+▶ actual Host crashes stay fenced; completed retained findings alone can publish without redispatch
+  ✔ dispatch (1114.739125ms)
+  ✔ spawn (1392.485917ms)
+  ✔ result (1486.321709ms)
+  ✔ terminal (1612.5865ms)
+✔ actual Host crashes stay fenced; completed retained findings alone can publish without redispatch (5606.96925ms)
+▶ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings
+  ✔ before intent (232.063958ms)
+  ✔ before publication (744.548041ms)
+✔ source revocation before intent prevents provider dispatch; revocation before publication retains no readable findings (976.989125ms)
+✔ Host cancellation closes the actual owned Pi before releasing the serial lane (539.654459ms)
+✔ new source revision during actual process consultation prevents stale publication (1058.294125ms)
+✔ result retention failure cannot publish or rerun a completed native response (720.047625ms)
+✔ source revision changed during final retention cannot pass the atomic publication fence (866.388042ms)
+✔ a CW parent tool delegates to actual local Pi only after releasing the existing serial lane (1293.423875ms)
+✔ a forged Run status cannot erase its Host status evidence (798.632708ms)
+✔ late explicit cancellation can settle the Host Run cancelled after known native completion without inventing uncertainty (1485.928958ms)
+✔ LP-R6 actual terminal crash reopens, publishes retained findings once, and keeps every unknown fence (1954.6315ms)
+▶ LP-R6 missing terminal and missing retained bytes refuse without publication or replay
+  ✔ result without terminal (1489.210041ms)
+  ✔ retained object unavailable (1599.723375ms)
+  ✔ retained object bytes fail integrity (1601.101416ms)
+✔ LP-R6 missing terminal and missing retained bytes refuse without publication or replay (4690.566375ms)
+▶ LP-R6 cancellation, source changes, and publication-gap revocation preserve retained bytes and unknown state
+  ✔ cancelled assignment (1499.37425ms)
+  ✔ source revision changed (1462.34625ms)
+  ✔ policy revoked after payload read (1500.003125ms)
+✔ LP-R6 cancellation, source changes, and publication-gap revocation preserve retained bytes and unknown state (4462.263667ms)
+✔ LP-R6 cross-attempt retained receipt remains invalid state (1373.82375ms)
+✔ unknown local child and its parent cannot be deleted through HTTP or Store; bytes and recovery fence survive reopen (1325.928208ms)
+✔ completed archived local findings retain child, parent and source/result references across rejected deletion and reopen (3107.42275ms)
+✔ Spark references prevent deletion before any local process records exist; an ordinary Store deletion still works (70.543875ms)
+✔ a Spark reference queued after the Service snapshot is still protected by the atomic Store deletion guard (90.013958ms)
+✔ an ordinary unreferenced Chat with a completed non-child Run remains deletable (141.39225ms)
+✔ Spark executes in a fresh restricted Session, keeps stable identity and exact result receipt (779.509084ms)
+✔ Spark refuses forged source, actor and recursive delegation; stale actions do not mutate (461.783166ms)
+✔ two exact Intake versions → local note → project mount → main progressive reads and machine consumption (1474.056666ms)
+✔ omitted source remains explicit partial coverage; forged adoption cannot replace actual source reads (545.642208ms)
+✔ runtime delegation yields the single lane and does not replay or silently resume the parent (662.000958ms)
+✔ source discovery paginates exact versions, respects source and target policy, and rejects malformed queries (88.559625ms)
+✔ cancel before dispatch is idempotent, disabled Agent preserves results and rejects new work (78.597584ms)
+✔ failed publication is blocked, explicit retry keeps fresh context and late settlement cannot overwrite result (739.415958ms)
+✔ a changed provider route blocks old queue item without stranding later valid work (373.540958ms)
+✔ schema rejects corrupt derived relationships and forged read receipts (503.1355ms)
+✔ active cancellation closes late source/note admission and never publishes a result (95.441875ms)
+✔ SIGKILL during a child Run restarts blocked without replay and requires explicit unknown reconciliation (885.248792ms)
+✔ revoking source policy after a tool read blocks the next provider request (235.536833ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18774.480625

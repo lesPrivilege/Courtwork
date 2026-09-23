@@ -69,7 +69,10 @@ export function createSubagentView({request,getSession,onMaintenance,onOpenSessi
   content.append(button('Source maintenance',()=>{dialog.close();onMaintenance();}));
  }
  async function detail(id){const generation=++detailEpoch;selected=id;expanded.clear();const a=data?.assignments.find(a=>a.id===id);if(!a?.available)throw Error('Assignment unavailable.');selectedSignature=taskSignature(a);content.replaceChildren(button('Back to tasks',()=>guarded(directory)),el('h3',{text:a.brief}),el('p',{text:labels[a.status]??'Unknown'}));
-  if(a.reason)content.append(el('p',{text:reasons[a.reason]??'This task needs attention. Inspect its execution details.',className:'form-help'}));
+  const latestAttempt=a.attempts.at(-1);
+  const currentUnknownFindings=a.status==='blocked'&&latestAttempt?.status==='unknown'&&latestAttempt.runId&&a.result?.runId===latestAttempt.runId;
+  if(currentUnknownFindings)content.append(el('p',{text:'Findings from this attempt are available. Its execution outcome remains unknown, and retry remains blocked.',className:'form-help'}));
+  else if(a.reason)content.append(el('p',{text:reasons[a.reason]??'This task needs attention. Inspect its execution details.',className:'form-help'}));
   const resultArea=el('div');content.append(resultArea);
   async function act(action){
    const key=`${id}/${action}`;let command=pendingCommands.get(key);
@@ -78,7 +81,7 @@ export function createSubagentView({request,getSession,onMaintenance,onOpenSessi
    selected=null;await refresh();await detail(id);
   }
   if(['queued','active','blocked'].includes(a.status))content.append(button(a.cancelRequested?'Stop requested':'Stop',()=>guarded(()=>act('cancel'))));
-  if(a.status==='blocked'&&a.attempts.at(-1)?.status==='unknown')content.append(button('Reconcile interrupted read-only attempt',()=>guarded(()=>act('reconcile'))));
+  if(a.status==='blocked'&&latestAttempt?.status==='unknown'&&!currentUnknownFindings)content.append(button('Reconcile interrupted read-only attempt',()=>guarded(()=>act('reconcile'))));
   if(a.status==='blocked'&&!a.attempts.some(t=>t.status==='unknown'))content.append(button('Retry in a new context',()=>guarded(()=>act('retry'))));
   const controls=el('div',{className:'spark-controls'});content.append(controls);controls.append(action('refresh-cw','Refresh task',()=>void guarded(async()=>{selected=null;await refresh();await detail(id);})));
   if(a.result){const result=await request(`/subagents/${encodeURIComponent(id)}/result`);if(generation!==detailEpoch||selected!==id||!dialog.open)return;resultArea.append(el('pre',{className:'subagent-result',text:result.text}));

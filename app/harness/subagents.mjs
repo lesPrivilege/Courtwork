@@ -212,10 +212,48 @@ export class Subagents {
     this.authorized(this.store.snapshot(),a);for(const source of a.sources)this.checkSourcePolicy(this.store.snapshot(),a,source);
     return {assignmentId:id,result,sourceFreshness:this.freshness(a),sources:a.sources,notes:a.notes.filter(n=>n.attempt<=result.attempt),text:new TextDecoder('utf-8',{fatal:true}).decode(bytes),authority:'finding-only'};
   }
+  async recoverRetainedLocalResult(id,input) {
+    const observed=this.store.snapshot(),a=this.find(observed,id);this.authorized(observed,a);
+    check(a.revision===input.expectedRevision,'Assignment changed; refresh','spark_stale');
+    const attempt=a.attempts.at(-1),run=observed.runs.find(r=>r.id===attempt?.runId),receipt=run?localPiReceipt(observed,run.id):null;
+    check(a.status==='blocked'&&attempt?.status==='unknown'&&run?.status==='unknown'&&run.adapterId===LOCAL_PI_ADAPTER.id
+      && localPiRunUnresolved(observed,run.id)&&!a.cancelRequested&&!a.result&&a.results.length===0
+      && receipt?.terminal?.status==='completed'&&receipt.result,'Local process outcome remains unknown; no retained findings can be published','local_pi_unreconciled',409);
+    this.authorized(observed,a);for(const source of a.sources)this.checkSourcePolicy(observed,a,source);
+    const revisions=a.sources.map(source=>source.kind==='material'?this.service.intake.versions(a.parentSessionId,source.sourceId).latestRevision:null);
+    check(same(revisions,receipt.dispatch?.packet?.sourceRevisions),'Source changed before publication','local_pi_source_changed');
+    let bytes;
+    try {bytes=await this.service.artifactHistory.read(run.sessionId,receipt.result.sha256,receipt.result.bytes);}
+    catch {check(false,'Retained process result unavailable','local_pi_result');}
+    check(bytes.length>0&&bytes.length<=SPARK_DEFINITION.maxOutputBytes
+      && createHash('sha256').update(bytes).digest('hex')===receipt.result.sha256,'Retained process result mismatch','local_pi_result');
+    try {new TextDecoder('utf-8',{fatal:true}).decode(bytes);}catch {check(false,'Retained process result is not UTF-8','local_pi_result');}
+    const result={revision:1,attempt:attempt.number,sessionId:run.sessionId,runId:run.id,sha256:receipt.result.sha256,bytes:receipt.result.bytes,
+      coverage:`${a.sources.length} exact source versions provided; model reading and coverage unverified`,unknown:'No independent acceptance or external-source coverage is implied'};
+    return this.mutate(state=>{const current=this.find(state,id);this.authorized(state,current);
+      const old=current.commands.find(c=>c.commandId===input.commandId);if(old){check(same(old,input),'Command conflict','spark_conflict');return current;}
+      check(current.revision===input.expectedRevision,'Assignment changed; refresh','spark_stale');
+      const currentAttempt=current.attempts.at(-1),currentRun=state.runs.find(r=>r.id===currentAttempt?.runId),currentReceipt=currentRun?localPiReceipt(state,currentRun.id):null;
+      check(current.status==='blocked'&&currentAttempt?.status==='unknown'&&currentRun?.status==='unknown'&&currentRun.adapterId===LOCAL_PI_ADAPTER.id
+        && localPiRunUnresolved(state,currentRun.id)&&!current.cancelRequested&&!current.result&&current.results.length===0
+        && currentReceipt?.terminal?.status==='completed'&&same(currentReceipt.result,receipt.result)&&same(currentReceipt.terminal,receipt.terminal),
+      'Local process recovery evidence changed','local_pi_unreconciled',409);
+      for(const source of current.sources)this.checkSourcePolicy(state,current,source);
+      const currentRevisions=current.sources.map(source=>source.kind==='material'?this.service.intake.versions(current.parentSessionId,source.sourceId).latestRevision:null);
+      check(same(currentRevisions,currentReceipt.dispatch?.packet?.sourceRevisions),'Source changed at publication','local_pi_source_changed');
+      check(current.commands.length<128,'Command capacity','spark_capacity');
+      current.results.push(result);current.result=result;current.commands.push(structuredClone(input));current.revision++;
+      return current;
+    });
+  }
   async action(id,input) {
     keys(input,['action','expectedRevision','commandId','reason','expandedSources']);str(input.commandId);revision(input.expectedRevision);str(input.reason,2000);check(Array.isArray(input.expandedSources),'Invalid expanded refs');
     const before=this.find(this.store.snapshot(),id);
     const prior=before.commands.find(c=>c.commandId===input.commandId);if(prior){check(same(prior,input),'Command conflict','spark_conflict');return before;}
+    if(input.action==='reconcile') {
+      const state=this.store.snapshot(),attempt=before.attempts.at(-1),run=state.runs.find(r=>r.id===attempt?.runId),receipt=run?localPiReceipt(state,run.id):null;
+      if(localPiRunUnresolved(state,run?.id)&&receipt?.terminal?.status==='completed'&&receipt.result)return this.recoverRetainedLocalResult(id,input);
+    }
     if(['read','adopt','reject','defer'].includes(input.action))await this.readResult(id);
     const result=await this.mutate(state=>{const a=this.find(state,id);this.authorized(state,a);
       const old=a.commands.find(c=>c.commandId===input.commandId);if(old){check(same(old,input),'Command conflict','spark_conflict');return a;}
