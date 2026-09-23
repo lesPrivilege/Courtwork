@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · Next finite slice selected: Kit profile draft preview
+
+[Consumed preflight](execution/claude-frontend-harness-2026-09-16/evidence/kit-authoring-preflight-20260923/README.md) identifies one missing Host seam after R1 acceptance: semantic preview of an unsaved existing selected Kit-profile edit. [K4 backend order](execution/claude-frontend-harness-2026-09-16/kit-profile-preview-20260923.md) reuses Runtime Control CAS/resolution and K1/K3 without any store or inference effect. GPT-6 Sol is the intended finite backend writer; Claude's later editor is a separate handoff, not an active process. No new registry, schema, provider/native configuration or frontend lane follows from this selection.
+
 ## 2026-09-23 · Runtime R1 accepted; schema22 backend integrated
 
 [Parent R1 final adoption](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r1-final-20260923/README.md) accepts3454559/5bb2dc8 atmaine86a5a1. Three returns close; independent36/36, integrated36/36 and OpenAI browser Pi/managed-fixture Chats preserve distinct bound identities, completed results and history; post-history switching refuses. Host schema22/Core4/bridge5 is now accepted. Product startup remains Pi-only; no live managed availability or new frontend selector is claimed. User services/data/keys/Pages remain untouched; preservation cleanup is in the receipt.

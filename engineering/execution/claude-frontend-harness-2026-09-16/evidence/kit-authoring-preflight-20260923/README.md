@@ -1,0 +1,9 @@
+# Kit profile authoring — consumed next-owner preflight
+
+2026-09-23 · Parent Astra consumes [GPT-6 Luna source inventory](luna6-preflight.md.txt) after accepted R1/schema22. Existing Runtime Control source inspection, whole-config CAS put/select, inline syntax resolution, K1 compiler, K3 retained context and recorded Run reader are reused. No Kit catalog, role store, per-profile revision, proposed06a fields or permission authority is added.
+
+**Adopt one missing backend seam:** preview an unsaved edit of the profile already explicitly selected for one ordinary Pi Chat. Construct that draft binding in memory through the same Runtime Control resolution and K1/K3 eligibility/budget rules, with no persistence or inference. Save remains the existing CAS operation, and old Run history remains immutable. Raw read-only source inspection and syntactic inline resolution do not already provide this semantic draft preview.
+
+Parent narrows the request to existing imported selected profiles and body editing only: derive ID/kind/title/owning scope from the Host, never trust caller-built binding/capability/compatibility records. Preserve the original source's scope and explain it in the result (editing a shared user/workspace profile is not automatically Session-only). Only the target Session must be an ordinary explicit-profile Pi consumer. This does not yet implement new-profile creation, standalone Kit acquisition, role administration, executor editing or the frontend.
+
+The [K4 backend order](../../kit-profile-preview-20260923.md) fixes a small read-only DTO/acceptance matrix. Claude remains the intended author of the subsequent real editor consumer, but no callable Claude process or frontend writer is claimed here. This consumes the gap map; it is one serial backend slice, not a parallel launch of the whole Extensions roadmap.
