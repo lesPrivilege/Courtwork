@@ -2,7 +2,7 @@
 
 ## 2026-09-23 · Next finite Codex slice selected: retained Local Pi findings
 
-[LP-R6 original-owner continuation](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md#lp-r6--recover-already-retained-findings-2026-09-23) consumes the [existing-source index](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-index-20260923/README.md). Only explicit recovery of exact already-retained completed-process findings is leased. Historical Host/attempt unknown, source coverage and retry/admission/deletion fences remain; no schema/runtime/provider/permission expansion. E1 is accepted and both old trees are restored/verified and removed. The next worker starts isolated from this integrated baseline; no frontend implementation is started by this selection.
+[LP-R6 original-owner continuation](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md#lp-r6--recover-already-retained-findings-2026-09-23) consumes the [existing-source index](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-index-20260923/README.md). Only explicit recovery of exact already-retained completed-process findings is leased. Historical Host/attempt unknown, source coverage and retry/admission/deletion fences remain; no schema/runtime/provider/permission expansion. E1 is accepted and both old trees are restored/verified and removed. Sol execution subagent `/root/sol_visible_hash` has been dispatched in isolated `courtwork-local-pi-recovery-20260923` / `codex/local-pi-retained-recovery-20260923` from pushed1ae7d94; author delivery is pending. No frontend implementation or new sidebar task is started by this selection.
 
 ## 2026-09-23 · E1 accepted: real ordinary-Chat Agent selection
 
