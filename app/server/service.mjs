@@ -43,7 +43,8 @@ import {
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
 import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
-import { retainKitContext, readKitContext } from "../runtime/kit-run-context.mjs";
+import { planKitRunContext, retainKitContext, readKitContext } from "../runtime/kit-run-context.mjs";
+import { PI_RUNTIME_ADAPTER_ID, PI_RUNTIME_ADAPTER_REVISION } from "../runtime/pi-runtime-port.mjs";
 import { createRuntimeLoadTool, createRuntimeProposeTool, createPresentTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
 import { validatePresentationSpec, PresentationError } from "../runtime/presentation.mjs";
 import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposals.mjs";
@@ -464,10 +465,10 @@ export class RuntimeService {
     };
   }
 
-  getRuntimeControl(sessionId = null) {
+  getRuntimeControl(sessionId = null, config = this.control.config) {
     const session = sessionId ? this.store.getSession(sessionId) : null;
     if (sessionId && !session) throw new ServiceError(404, "not_found", "session not found");
-    const inspection = this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: session ? session.executorChoice.adapterId : this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
+    const inspection = this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: session ? session.executorChoice.adapterId : this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length, config,
       additionalTools: [...(this.subagents.forSession(sessionId) ? ['spark_source','spark_note'] : session && !session.extensionBinding ? ['spark_sources','spark_explore','spark_directory','spark_findings','spark_read','spark_read_source','spark_consume'] : []), ...(session?.scope === 'global' ? ATTENTION_TOOL_NAMES : this.asyncTasks?.enabled && session?.scope === 'project' && !session?.extensionBinding ? ASYNC_TOOL_NAMES : []), ...(!session?.extensionBinding && session && this.coordination.list(session.id).currentThreadId ? COORDINATION_TOOLS : [])] });
     const spark=this.subagents.forSession(sessionId);
     if(spark) {
@@ -478,6 +479,101 @@ export class RuntimeService {
       inspection.composition={...inspection.composition,id:'builtin:explore',version:'1',resourceIds:SPARK_DEFINITION.tools.map(n=>'tool:'+n)};
     }
     return inspection;
+  }
+
+  previewRuntimeProfile(sessionId, input) {
+    return this.#withConfiguration(() => {
+      const value = requireObject(input, "body");
+      assertKeys(value, new Set(["expectedRevision", "profileId", "content"]));
+      if (!Number.isSafeInteger(value.expectedRevision) || value.expectedRevision < 0) {
+        throw new ServiceError(400, "invalid_input", "expectedRevision must be a nonnegative integer");
+      }
+      const profileId = text(value.profileId, "profileId", { max: 86 });
+      const content = text(value.content, "content", { max: 100000 });
+      if (!sessionId) throw new ServiceError(400, "invalid_input", "sessionId is required");
+      const session = this.store.getSession(sessionId);
+      if (!session) throw new ServiceError(404, "not_found", "session not found");
+      if (session.scope === "global" || session.extensionBinding || this.subagents.forSession(sessionId)) {
+        throw new ServiceError(409, "profile_preview_ineligible", "Preview requires an ordinary Chat");
+      }
+      if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
+      const current = this.control.config;
+      if (value.expectedRevision !== current.revision) {
+        throw new ServiceError(409, "runtime_conflict", "Runtime changed; refresh before previewing");
+      }
+      const selected = current.profileSelections.findLast(row =>
+        row.scope.type === "session" && row.scope.id === sessionId);
+      if (selected?.id !== profileId) {
+        throw new ServiceError(409, "profile_not_selected", "Preview requires the profile explicitly selected for this Chat");
+      }
+      const original = current.resources.find(row => row.id === profileId);
+      if (!original || original.kind !== "agent_profile") {
+        throw new ServiceError(409, "profile_uneditable", "Selected imported profile is unavailable");
+      }
+      const currentSnapshot = this.getRuntimeControl(sessionId);
+      if (!currentSnapshot.scopes.some(scope => scope.type === original.scope.type && scope.id === original.scope.id)) {
+        throw new ServiceError(409, "profile_uneditable", "Profile source scope is unavailable in this Chat");
+      }
+      const executor = this.#executorForSession(session);
+      const adapter = executor.port.describe();
+      if (adapter.id !== PI_RUNTIME_ADAPTER_ID || adapter.revision !== PI_RUNTIME_ADAPTER_REVISION ||
+        adapter.kitContext?.format !== "reference-only-v1") {
+        throw new ServiceError(409, "kit_runtime_unsupported", "This Runtime has no verified reference-only Kit context interface");
+      }
+      let overlay, planResult;
+      try {
+        overlay = this.control.previewProfileConfig(profileId, content);
+        const snapshot = this.getRuntimeControl(sessionId, overlay);
+        const binding = this.control.bind(snapshot, overlay);
+        planResult = { snapshot, ...planKitRunContext({ binding, session, spark: null, adapter }) };
+      } catch (error) {
+        if (error?.status) throw new ServiceError(error.status, error.code, error.message);
+        throw error;
+      }
+      const { snapshot, plan, payload } = planResult;
+      const diagnostics = structuredClone(plan.diagnostics);
+      const payloadExceeded = payload && (payload.planBytes > payload.maxPlanBytes || payload.totalBytes > payload.maxPayloadBytes);
+      if (payloadExceeded) diagnostics.push({ code: "kit_payload_budget", kitId: null, resourceId: null, required: null,
+        actual: payload.totalBytes, limit: payload.maxPayloadBytes });
+      const legacyExceeded = plan.status === "passthrough" && plan.candidate.characters > 100000;
+      if (legacyExceeded) diagnostics.push({ code: "context_budget", kitId: null, resourceId: null, required: null,
+        actual: plan.candidate.characters, limit: 100000 });
+      if (snapshot.composition.status !== "compatible" && plan.status === "passthrough") {
+        diagnostics.push({ code: "profile_incompatible", kitId: null, resourceId: null, required: null,
+          missing: structuredClone(snapshot.composition.missing) });
+      }
+      const refused = plan.status === "refused" || payloadExceeded || legacyExceeded ||
+        snapshot.composition.status !== "compatible";
+      const requested = new Set(snapshot.composition.resourceIds ?? []);
+      const permissions = snapshot.resources.filter(resource => resource.kind === "tool" && requested.has(resource.id))
+        .map(resource => ({ resourceId: resource.id, action: resource.action, exposed: resource.exposed,
+          effect: resource.permission.effect, trace: structuredClone(resource.permission.trace), advisory: true }));
+      if (permissions.length > 100) throw new ServiceError(400, "profile_incompatible", "Preview permission readings exceed the profile limit");
+      const profile = JSON.parse(content);
+      const activeRun = this.store.hasActiveRun();
+      const activeOperation = this.store.hasActiveOperation();
+      const saveReason = activeRun ? "Runtime configuration is frozen while a run is active"
+        : activeOperation ? "Runtime configuration is frozen while an operation is active" : null;
+      return {
+        preview: true, applied: false, revision: current.revision,
+        session: { id: session.id, scope: session.scope, projectId: session.projectId },
+        profile: { id: original.id, title: original.title, scope: structuredClone(original.scope),
+          schemaVersion: profile.schemaVersion, version: profile.version,
+          draftSha256: createHash("sha256").update(content, "utf8").digest("hex") },
+        composition: structuredClone(snapshot.composition),
+        executor: { id: adapter.id, revision: adapter.revision, kitContextFormat: adapter.kitContext.format },
+        kit: { status: refused ? "refused" : plan.status, planVersion: plan.planVersion,
+          planSha256: plan.planSha256, pins: structuredClone(plan.kits),
+          compatibility: structuredClone(plan.compatibility), references: structuredClone(plan.references),
+          requirements: structuredClone(plan.requirements), diagnostics,
+          budget: structuredClone(plan.budget), accounting: structuredClone(plan.accounting),
+          candidate: refused ? null : { text: plan.candidate.text, sha256: plan.candidate.sha256,
+            bytes: plan.candidate.bytes, characters: plan.candidate.characters },
+          payload: payload ? structuredClone(payload) : null },
+        permissions,
+        save: { available: saveReason === null, reason: saveReason },
+      };
+    });
   }
 
   changeRuntimeControl(sessionId, input) {

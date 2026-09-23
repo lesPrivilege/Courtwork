@@ -242,6 +242,11 @@ model validated against the installed catalog) and `fake-openai-loopback` (tests
 
 ## Runs
 
+`POST /api/v5/runtime-control/preview-profile?sessionId=...` previews an unsaved
+edit to the existing imported profile explicitly selected for an ordinary Pi
+Chat. It is read-only; the exact request/response and existing CAS save sequence
+are in the [Runtime Control API](../../docs/runtime-control/api.md#unsaved-selected-profile-preview-k4-backend).
+
 `POST /api/v5/sessions/:id/runs` — `{ input, commandId, runtimeSelection?, executorExpectation? }` → `{ run }`
 
 `runtimeSelection`, when supplied, is `{revision,profileId,sourceHash}` from the

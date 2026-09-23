@@ -122,6 +122,36 @@ export interface RuntimeComposition {
   kits?: KitDeclaration[];
   selectionScope?: Scope;
 }
+/** Current, read-only draft facts. They are neither a saved profile revision
+ * nor a Run binding or permission grant. */
+export interface KitProfilePreview {
+  preview: true;
+  applied: false;
+  revision: number;
+  session: { id: string; scope: 'project' | 'unassigned'; projectId: string | null };
+  profile: { id: string; title: string; scope: Scope; schemaVersion: 1 | 2;
+    version: string; draftSha256: string };
+  composition: RuntimeComposition;
+  executor: { id: string; revision: string; kitContextFormat: 'reference-only-v1' };
+  kit: {
+    status: 'passthrough' | 'compiled' | 'refused';
+    planVersion: number;
+    planSha256: string;
+    pins: KitPin[];
+    compatibility: { status: 'not-applicable' | 'supported' | 'unsupported' | 'unchecked'; kits: unknown[] };
+    references: unknown[];
+    requirements: unknown[];
+    diagnostics: Array<{ code: string; [key: string]: unknown }>;
+    budget: { maxCoreBytes: number; maxContextBytes: number; maxContextCharacters: number } | null;
+    accounting: { sha256: string; bytes: number; characters: number; coreBytes: number; deferredBytes: number } | null;
+    candidate: { text: string; sha256: string; bytes: number; characters: number } | null;
+    payload: { planBytes: number; contextBytes: number; totalBytes: number;
+      maxPlanBytes: number; maxPayloadBytes: number } | null;
+  };
+  permissions: Array<{ resourceId: string; action: string; exposed: boolean;
+    effect: 'allow' | 'ask' | 'deny'; trace: unknown[]; advisory: true }>;
+  save: { available: boolean; reason: string | null };
+}
 export interface ContextItem {
   id: string;
   kind: ResourceKind;

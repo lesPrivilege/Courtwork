@@ -179,10 +179,19 @@ export class RuntimeControlPlane {
     finally { await unlink(temp).catch(() => {}); }
     this.config = next;
   }
-  inspect({ session, extensions, provider, adapterId, activeRuns = 0, mcp, additionalTools = [] }) {
+  /** Validate one unsaved replacement using the same source/config rules as
+   * change('put'), but return an isolated config for read-only resolution. */
+  previewProfileConfig(profileId, content) {
+    const existing = this.config.resources.find(item => item.id === profileId && item.kind === 'agent_profile');
+    check(existing, 'Selected imported profile is unavailable');
+    const overlay = clone(this.config);
+    overlay.resources = overlay.resources.map(item => item.id === profileId ? { ...item, content } : item);
+    return validateConfig(overlay);
+  }
+  inspect({ session, extensions, provider, adapterId, activeRuns = 0, mcp, additionalTools = [], config = this.config }) {
     const scopes = [{ type: 'user', id: 'local' }, ...(session ? [...(session.scope === 'global' ? [{ type: 'agent', id: 'attention' }] : session.scope === 'project' ? [{ type: 'workspace', id: session.projectId }] : []), { type: 'session', id: session.id }] : [])];
     const applies = value => scopes.some(s => sameScope(s, value));
-    const policies = scopes.flatMap(s => this.config.policies.filter(p => sameScope(s, p.scope)));
+    const policies = scopes.flatMap(s => config.policies.filter(p => sameScope(s, p.scope)));
     const descriptor = (id, kind, title, extra = {}) => ({ id, kind, title, source: { type: 'builtin', version: adapterId }, scope: { type: 'user', id: 'local' }, activation: 'always', installed: true, running: null, exposed: true, health: 'healthy', configurable: false, ...extra });
     const repositoryBound = session?.repositoryBinding?.status === 'active';
     const candidateBound = session?.repositoryCandidate?.status === 'active';
@@ -196,7 +205,7 @@ export class RuntimeControlPlane {
       resources.push(descriptor('plugin:' + ext.id, 'plugin', ext.title, { installed: true, running: ext.status === 'loaded', exposed: Boolean(bound && ext.status === 'loaded'), health: ext.status === 'invalidated' ? 'error' : 'healthy', source: ext.source ?? { type: 'builtin', version: ext.version }, format: 'cw-host-extension', trust: 'host-trusted', isolation: 'in-process', diagnostics: ext.diagnostics ?? [], capabilities: ext.tools.map(t => 'tool:' + t), generation: ext.generation }));
       for (const name of ext.tools) resources.push(descriptor('tool:' + name, 'tool', name, { configurable: true, action: name, exposed: Boolean(bound && ext.status === 'loaded'), parent: 'plugin:' + ext.id }));
     }
-    for (const item of this.config.resources.filter(r => applies(r.scope))) {
+    for (const item of config.resources.filter(r => applies(r.scope))) {
       if (item.kind === 'mcp_server') {
         const connection = mcp.inspect(item.id, item.content);
         resources.push(descriptor(item.id, item.kind, item.title, { scope: clone(item.scope), source: { type: 'remote', uri: parseMcpConfig(item.content).url, hash: hash(item.content) }, server: connection.server ?? null, configurable: true, running: connection.connected, exposed: false, health: connection.health, protocol: connection.protocol, transport: 'streamable-http', authentication: 'unauthenticated-only', diagnostics: connection.diagnostic ? [connection.diagnostic] : [], capabilities: { tools: connection.tools.length, resources: connection.resources.length, prompts: connection.prompts.length }, catalog: { resources: connection.resources, prompts: connection.prompts } }));
@@ -216,7 +225,7 @@ export class RuntimeControlPlane {
     for (const resource of resources) {
       resource.defaultExposed = resource.exposed;
       resource.provenance = [{ scope: resource.scope, value: resource.exposed, reason: 'source default' }];
-      for (const s of scopes) for (const override of this.config.overrides.filter(o => o.id === resource.id && sameScope(o.scope, s))) {
+      for (const s of scopes) for (const override of config.overrides.filter(o => o.id === resource.id && sameScope(o.scope, s))) {
         resource.exposed = override.exposed;
         resource.provenance.push({ scope: s, value: override.exposed, reason: 'explicit override' });
       }
@@ -240,9 +249,9 @@ export class RuntimeControlPlane {
       }
     }
 
-    const profileSelection = scopes.flatMap(s => this.config.profileSelections.filter(p => sameScope(s, p.scope))).at(-1);
+    const profileSelection = scopes.flatMap(s => config.profileSelections.filter(p => sameScope(s, p.scope))).at(-1);
     const profileId = profileSelection?.id ?? 'agent:general';
-    const profileResource = this.config.resources.find(r => r.id === profileId && r.kind === 'agent_profile' && applies(r.scope));
+    const profileResource = config.resources.find(r => r.id === profileId && r.kind === 'agent_profile' && applies(r.scope));
     let composition = { id: profileId, version: 'builtin', status: 'compatible', resourceIds: null, uiSlots: ['runtime.inspector', 'work.surface'], missing: [] };
     if (profileId !== 'agent:general') {
       const profile = profileResource ? parseProfile(profileResource.content) : null;
@@ -279,7 +288,7 @@ export class RuntimeControlPlane {
         resource.provenance.push({ scope: { type: 'agent', id: profileId }, value: false, reason: 'context loader is not exposed' });
       }
     }
-    const content = this.config.resources.filter(r => CONTENT_KINDS.has(r.kind) && resources.some(e => e.id === r.id && e.exposed));
+    const content = config.resources.filter(r => CONTENT_KINDS.has(r.kind) && resources.some(e => e.id === r.id && e.exposed));
     const compiled = controlContextParts({ content, resources });
     const context = resources.filter(r => r.exposed && CONTENT_KINDS.has(r.kind)).map(r => ({
       id: r.id, kind: r.kind, source: r.source, scope: r.scope,
@@ -290,11 +299,11 @@ export class RuntimeControlPlane {
     }));
     const supported = new Set(resources.map(r => r.kind));
     IMPORT_KINDS.forEach(k => supported.add(k));
-    return { protocolVersion: 1, revision: this.config.revision, sessionId: session?.id ?? null, sessionScope: session ? {kind:session.scope, projectId:session.projectId} : null, scopes, activeRuns, adapterId, resources, composition, profileSelections: clone(this.config.profileSelections.filter(p => applies(p.scope))), policies: clone(policies), context, audit: clone(this.config.audit), kinds: RESOURCE_KINDS.map(kind => ({ kind, support: supported.has(kind) ? 'available' : 'adapter-required' })), compatibility: { scopes: SCOPES, configurableScopes: [...new Set(scopes.map(scope => scope.type))], hotSwap: 'between-runs', runtimeSelection: 'expectation-v1', workStateOwner: 'extension/system-of-record', pluginCode: 'trusted catalog only', mcp: { sdk: '@modelcontextprotocol/client@2.0.0', transport: 'streamable-http', protocols: ['2026-07-28', 'legacy-2025'], authentication: 'unauthenticated-only', remoteResources: 'catalog-only', remotePrompts: 'catalog-only' } } };
+    return { protocolVersion: 1, revision: config.revision, sessionId: session?.id ?? null, sessionScope: session ? {kind:session.scope, projectId:session.projectId} : null, scopes, activeRuns, adapterId, resources, composition, profileSelections: clone(config.profileSelections.filter(p => applies(p.scope))), policies: clone(policies), context, audit: clone(config.audit), kinds: RESOURCE_KINDS.map(kind => ({ kind, support: supported.has(kind) ? 'available' : 'adapter-required' })), compatibility: { scopes: SCOPES, configurableScopes: [...new Set(scopes.map(scope => scope.type))], hotSwap: 'between-runs', runtimeSelection: 'expectation-v1', workStateOwner: 'extension/system-of-record', pluginCode: 'trusted catalog only', mcp: { sdk: '@modelcontextprotocol/client@2.0.0', transport: 'streamable-http', protocols: ['2026-07-28', 'legacy-2025'], authentication: 'unauthenticated-only', remoteResources: 'catalog-only', remotePrompts: 'catalog-only' } } };
   }
-  bind(snapshot) {
+  bind(snapshot, config = this.config) {
     const resources = clone(snapshot.resources);
-    const content = this.config.resources.filter(r => CONTENT_KINDS.has(r.kind) && resources.some(e => e.id === r.id && e.exposed));
+    const content = config.resources.filter(r => CONTENT_KINDS.has(r.kind) && resources.some(e => e.id === r.id && e.exposed));
     return { revision: snapshot.revision, sessionScope: clone(snapshot.sessionScope ?? null), resources, composition: clone(snapshot.composition), policies: clone(snapshot.policies), context: clone(snapshot.context), content: clone(content), hash: hash({ revision: snapshot.revision, sessionScope: snapshot.sessionScope ?? null, resources, composition: snapshot.composition, policies: snapshot.policies }) };
   }
 }
