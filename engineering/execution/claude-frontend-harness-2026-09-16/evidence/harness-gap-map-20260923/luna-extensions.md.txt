@@ -1,0 +1,45 @@
+# Harness Core / Extensions gap inventory — 2026-09-23
+
+Baseline: main `4ee479077831710f92b11375317c6f518521b1a6`. K3/profile→Run and E1 are accepted on the current main; older “K3/E1 pending” notes are not used.
+
+## Classification used
+
+- **Declarative Kit/profile**: admitted source/resource composition and context. `kit-context.mjs`, `control-plane.mjs`, `source-resolver.mjs`, `runtime-proposals.mjs` and K3 own this path. It cannot execute code, carry credentials, grant permissions or register a renderer.
+- **Trusted Host extension**: executable in-process code with a Host-validated manifest, explicit local trust, lifecycle generation and persisted source hash. `extension-registry.mjs`, `local-extensions.mjs`, `service.mjs` and the static extension allowlist own this path.
+- **MCP/native/provider runtime**: transport or runtime-owned execution. `mcp-manager.mjs`, `pi-runtime-port.mjs`, `agents-api-adapter.mjs` and existing provider/runtime owners own it. MCP/native behavior must not be smuggled into a Kit or ordinary extension.
+
+Existing inline source resolution, declarative Skill proposal/review/apply, local-folder extension preview/register/load/unload/reload/invalidate, MCP connect/disconnect/restart and K3 profile/Kit admission are implemented bounded paths. They are not repeated as missing features.
+
+## Concrete gaps
+
+### 1. Trusted extension package acquisition is local-only
+
+`local-extensions.mjs:49–123` supports an explicitly selected local folder, immutable byte snapshot, manifest/hash review and explicit `host-trusted` registration. `service.mjs` exposes `preview-local` and `register-local`; the UI is `local-extension-view.mjs:18–61`. The source resolver deliberately does not fetch locators, and the extension catalog/static routes are Host-owned.
+
+Missing user outcome: an operator cannot acquire a trusted extension from a URL/package reference or an approved package source with a durable provenance, digest, trust decision and offline replay. This is **contract-first**, not immediately dispatchable. Before code, freeze source acquisition/provenance, network and archive limits, signature or trust meaning, package replacement, dependency policy, rollback and credential isolation. The implementation must extend `LocalExtensions`/Host ownership only; it must not create a package marketplace or a second registry. A local-folder-only maintenance slice remains complete and should not be reopened.
+
+### 2. Trusted extension removal, upgrade and rollback are incomplete
+
+`ExtensionRegistry.lifecycle()` supports load/unload/reload/invalidate and generation persistence (`extension-registry.mjs:255–318`), but `LocalExtensions` has no unregister/remove or version replacement operation. `manifest.rollback` is validated metadata, not a rollback mechanism. Existing Session/Run bindings and Work Core history must survive a producer unload or invalidation.
+
+Missing user outcome: after registering executable code, a person cannot safely remove it or select a previously reviewed package version while preserving recorded Runs and projections. This is **contract-first**. The owner must define bound-session behavior, active-Run freeze, old-generation history/readability, package retention, atomic index update, rollback receipt and restart behavior before adding a route. A bounded disable/unload path can be dispatched independently only if it retains current history and does not imply removal.
+
+### 3. No first Host hook consumer exists
+
+RD-009 records the `hook` resource class and the observe/intercept/transform categories, but the current runtime code has no Host-owned hook invocation/settlement path comparable to `check.started`/`check.settled` or the existing extension lifecycle. Existing extension callbacks and UI “hooks” are extension-local behavior, not a portable Host hook contract.
+
+Missing user outcome: a trusted extension cannot subscribe to a bounded Run/resource lifecycle point and receive a typed, scoped payload with an auditable outcome. This is **contract-first**. Freeze one observer-only consumer first: event point/order, source and Run binding, payload hash/size, timeout, cancellation/disposal, reentrancy/derived-event deduplication, failure behavior and whether the hook can block admission. Default failure must not silently allow a permission gate; transformation requires fresh approval of changed inputs. Then implement one narrow Host consumer under `extension-registry`/service with independent late/duplicate/restart checks. Do not expose a general plugin SDK or event bus.
+
+### 4. Kit/profile editing and catalog authoring are not a product capability
+
+K3 accepts an imported v2 profile with explicit Kit declarations and E1 selects an available profile using existing Runtime Control CAS/source identity. K1/K3 intentionally add no Kit catalog, package importer or profile editor. `runtime-proposals.mjs` handles declarative Skill proposals, not Kit authoring or executable extension installation.
+
+Missing user outcome: an operator cannot author/edit a Kit-bearing profile through a governed product flow, inspect the exact source pins and compatibility readings, or save a changed composition with a clear effective/future/bound distinction. This is **contract-first**, with a possible later bounded implementation. Freeze the profile editor DTO around the existing whole-config CAS, source hash and K3 descriptor pins; define draft versus saved/effective versus frozen Run, required-resource refusal, permission readings, version/history and no silent scope migration. The editor must consume Runtime Control and K3 owners, not create a Kit registry or duplicate permission evaluator. A frontend writer is required for the user journey; a backend writer is only needed for a missing DTO/validation seam after the contract is fixed.
+
+## Dispatchability and owner routing
+
+The only immediately dispatchable extension work is a narrow offline acceptance/consumer pass against existing local registration/lifecycle, DF-04 receipts, and current MCP lifecycle; it should not be misreported as closing the four gaps above. The four gaps require contract-first decisions because each crosses executable trust, persisted identity, lifecycle or profile authority.
+
+DF-04 itself is already the first trusted Host consumer: the fixed `node-test` catalog, `check_run`, permission preview, `check.started`/`check.settled`, cancellation/restart fences and tool-row projection exist. Its recorded residuals are Settings/Runtime recipe entry, real-model GUI initiation and non-author review (`03-check-recipe.md:49–54`), which can be a separately scoped frontend/acceptance slice without changing recipe authority.
+
+No second registry is justified: declarative Kits remain Runtime Control/profile resources; executable extensions remain `ExtensionRegistry`/`LocalExtensions`; MCP/native providers remain their runtime managers/adapters. Any future work order should name one of those owners, one concrete consumer, one version/hash/trust boundary and an exit matrix before implementation.

@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · Harness gaps mapped to existing owners
+
+[Current Core/Extensions gap map](execution/claude-frontend-harness-2026-09-16/evidence/harness-gap-map-20260923/README.md) separates ready bounded authoring/reproduction orders from architecture-first runtime selection, exact-root recovery and extension lifecycle/hooks. It corrects stale DF-04/K3/E1 pending claims without rewriting historical evidence. LP-R6 sourceafa6b17 is delivered with writer release and now has bounded non-author45/45 plus persisted/reopen probe; parent UI/final acceptance remains pending. No extra product writer is started by this inventory.
+
 ## 2026-09-23 · Next finite Codex slice selected: retained Local Pi findings
 
 [LP-R6 original-owner continuation](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md#lp-r6--recover-already-retained-findings-2026-09-23) consumes the [existing-source index](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-index-20260923/README.md). Only explicit recovery of exact already-retained completed-process findings is leased. Historical Host/attempt unknown, source coverage and retry/admission/deletion fences remain; no schema/runtime/provider/permission expansion. E1 is accepted and both old trees are restored/verified and removed. Sol execution subagent `/root/sol_visible_hash` has been dispatched in isolated `courtwork-local-pi-recovery-20260923` / `codex/local-pi-retained-recovery-20260923` from pushed1ae7d94; author delivery is pending. No frontend implementation or new sidebar task is started by this selection.
