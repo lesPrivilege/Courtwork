@@ -5,7 +5,7 @@ import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { runCheckRecipe } from "../runtime/check-runner.mjs";
-import { RuntimeStore } from "../server/store.mjs";
+import { RuntimeStore } from "./fixtures/executor-store.mjs";
 import { inspectRepositoryRoot } from "../runtime/repository-fs.mjs";
 import { boot } from "./helpers.mjs";
 import { createSyntheticRepository, KNOWN_BUG } from "./fixtures/synthetic-repo/create-synthetic-repo.mjs";

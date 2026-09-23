@@ -10,7 +10,7 @@ import { boot } from './helpers.mjs';
 import { rm, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { RuntimeStore } from '../server/store.mjs';
+import { RuntimeStore } from './fixtures/executor-store.mjs';
 import { randomUUID } from 'node:crypto';
 
 test('host stream observation separates first output/text and preserves terminal identity without claiming TPS',async()=>{
@@ -327,8 +327,8 @@ test('schema6 migration preserves both global and project sessions',async()=>{
     const a=await store.createSession({projectId:project.id,title:'project',workspaceDir:path.join(dataDir,'a')});
     const b=await store.createSession({projectId:null,scope:'global',title:'global',workspaceDir:path.join(dataDir,'b')});
     await store.close();const file=path.join(dataDir,'runtime-state.json');const state=JSON.parse(await readFile(file,'utf8'));
-    state.schemaVersion=6; delete state.operations; state.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; }); state.runs.forEach(run => { delete run.remoteBinding; }); delete state.subagents;delete state.coordination; delete state.providerConnections; delete state.providerConfigurationPending; delete state.providerConfigVersion; delete state.providerVerifications;state.sessions.forEach(session=>{delete session.repositoryBinding;delete session.repositoryBindingRevision;delete session.repositoryBindingCommands;delete session.repositoryCandidate;delete session.repositoryCandidateRevision;delete session.repositoryCandidateCommands;delete session.repositoryWriteEffects;});state.runs.forEach(run=>{delete run.repositoryBindingSnapshot;delete run.repositoryCandidateSnapshot;delete run.kitBinding;});await writeFile(file,JSON.stringify(state));
-    store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,21);
+    state.schemaVersion=6; delete state.operations; state.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; delete session.executorChoice; }); state.runs.forEach(run => { delete run.remoteBinding; delete run.executorBinding; }); delete state.subagents;delete state.coordination; delete state.providerConnections; delete state.providerConfigurationPending; delete state.providerConfigVersion; delete state.providerVerifications;state.sessions.forEach(session=>{delete session.repositoryBinding;delete session.repositoryBindingRevision;delete session.repositoryBindingCommands;delete session.repositoryCandidate;delete session.repositoryCandidateRevision;delete session.repositoryCandidateCommands;delete session.repositoryWriteEffects;});state.runs.forEach(run=>{delete run.repositoryBindingSnapshot;delete run.repositoryCandidateSnapshot;delete run.kitBinding;});await writeFile(file,JSON.stringify(state));
+    store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,22);
     assert.equal(store.getSession(a.id).scope,'project');assert.equal(store.getSession(b.id).scope,'global');assert.equal(store.getSession(b.id).projectId,null);
   } finally{await store?.close();await rm(dataDir,{recursive:true,force:true});}
 });

@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { RuntimeStore, SCHEMA_VERSION } from "../server/store.mjs";
 import { EXECUTOR_OPERATIONS, PI_EXECUTOR_ID, executorConfigurationRef } from "../server/executor-choice-state.mjs";
 
@@ -67,6 +69,11 @@ test("R1 schema-21 empty Session migrates with null ref; first Run pins once aft
     assert.deepEqual(await readFile(backup), raw);
     assert.equal((await readdir(dir)).filter(name => name.startsWith("runtime-state.schema21.")).length, 1);
     const pi = descriptor();
+    await assert.rejects(store.createRun({
+      ...run(migrated, pi, "failed-pin"), expectedRepositoryBindingRevision: 1,
+    }), { code: "BINDING_CHANGED" });
+    assert.deepEqual(store.getSession(session.id).executorChoice, migrated.executorChoice,
+      "a rejected admission cannot materialize the legacy factory ref");
     const created = await store.createRun(run(migrated, pi));
     assert.equal(store.getSession(session.id).executorChoice.revision, 1);
     assert.equal(store.getSession(session.id).executorChoice.configurationRef, pi.configurationRef);
@@ -74,6 +81,31 @@ test("R1 schema-21 empty Session migrates with null ref; first Run pins once aft
     const replay = await store.createRun(run(migrated, pi));
     assert.equal(replay.run.id, created.run.id);
     assert.equal(store.getSession(session.id).executorChoice.revision, 1);
+  } finally { await store?.close(); await rm(dir, { recursive: true, force: true }); }
+});
+
+test("R1 bound executor identity rejects mutation and corrupt reopen without rewriting bytes", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "cw-executor-integrity-"));
+  let store;
+  try {
+    store = await new RuntimeStore({ dataDir: dir }).open();
+    const project = await store.createProject("Integrity");
+    const session = await store.createSession({ projectId: project.id, title: "Bound",
+      workspaceDir: path.join(dir, "workspace"), executorDescriptor: descriptor() });
+    const created = await store.createRun(run(session, descriptor()));
+    const before = await readFile(path.join(dir, "runtime-state.json"));
+    await assert.rejects(store.updateRun(created.run.id, { executorBinding: {
+      ...created.run.executorBinding, revision: "forged-revision",
+    } }), { code: "INVALID_STATE" });
+    assert.deepEqual(await readFile(path.join(dir, "runtime-state.json")), before);
+    await store.close(); store = null;
+    const file = path.join(dir, "runtime-state.json");
+    const state = JSON.parse(before);
+    state.runs[0].executorBinding.choiceRevision += 1;
+    const forged = Buffer.from(JSON.stringify(state));
+    await writeFile(file, forged);
+    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), { code: "INVALID_STATE" });
+    assert.deepEqual(await readFile(file), forged);
   } finally { await store?.close(); await rm(dir, { recursive: true, force: true }); }
 });
 
@@ -109,4 +141,29 @@ test("R1 contradictory schema-21 global Run/native history stays readable and fe
       expectedExecutorChoice: { revision: 0, adapterId: null },
     }), { code: "EXECUTOR_SELECTION_CONFLICT" });
   } finally { await store?.close(); await rm(dir, { recursive: true, force: true }); }
+});
+
+test("R1 pinned schema-21 Host refuses schema 22 without changing durable bytes", async () => {
+  const root = await mkdtemp(path.join(tmpdir(), "cw-executor-old-reader-"));
+  let current;
+  try {
+    const repo = fileURLToPath(new URL("../../", import.meta.url));
+    const oldSource = "db04448d821c56c20621c1a75161b768e19c0f1f";
+    const archive = execFileSync("git", ["archive", oldSource, "app"], { cwd: repo, maxBuffer: 64 * 1024 * 1024 });
+    execFileSync("tar", ["-x", "-C", root], { input: archive });
+    await symlink(path.join(repo, "app", "node_modules"), path.join(root, "app", "node_modules"));
+    const { RuntimeStore: OldStore, SCHEMA_VERSION: oldVersion } =
+      await import(pathToFileURL(path.join(root, "app/server/store.mjs")));
+    assert.equal(oldVersion, 21);
+    const dir = path.join(root, "data");
+    current = await new RuntimeStore({ dataDir: dir }).open();
+    const project = await current.createProject("new");
+    await current.createSession({ projectId: project.id, title: "new", workspaceDir: path.join(root, "workspace"),
+      executorDescriptor: descriptor() });
+    await current.close(); current = null;
+    const file = path.join(dir, "runtime-state.json");
+    const bytes = await readFile(file);
+    await assert.rejects(new OldStore({ dataDir: dir }).open(), /schemaVersion 22 is not supported/);
+    assert.deepEqual(await readFile(file), bytes);
+  } finally { await current?.close(); await rm(root, { recursive: true, force: true }); }
 });

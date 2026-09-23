@@ -5,7 +5,7 @@ import {mkdtemp, readFile, writeFile, rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {boot, reopen} from './helpers.mjs';
-import {RuntimeStore} from '../server/store.mjs';
+import {RuntimeStore} from './fixtures/executor-store.mjs';
 import {Coordination} from '../harness/coordination.mjs';
 import {projectSessionOptions,sameScope,projectDirectory} from '../web/coordination-projection.mjs';
 import {toWorkCards} from '../web/presentation-adapters.mjs';
@@ -72,10 +72,11 @@ test('schema13 upgrades byte-backed identities and configuration without resetti
  try{
   const p=await store.createProject('existing');const s=await store.createSession({projectId:p.id,title:'kept',workspaceDir:path.join(dataDir,'ws')});
   await store.setDraft(s.id,'kept');await store.close();
-  const file=path.join(dataDir,'runtime-state.json');const prior=JSON.parse(await readFile(file,'utf8'));prior.schemaVersion=13; delete prior.operations; prior.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; }); prior.runs.forEach(run => { delete run.remoteBinding; }); delete prior.subagents;prior.sessions.forEach(session=>{delete session.repositoryBinding;delete session.repositoryBindingRevision;delete session.repositoryBindingCommands;delete session.repositoryCandidate;delete session.repositoryCandidateRevision;delete session.repositoryCandidateCommands;delete session.repositoryWriteEffects;});prior.runs.forEach(run=>{delete run.repositoryBindingSnapshot;delete run.repositoryCandidateSnapshot;delete run.kitBinding;});prior.providerConfigVersion=17;
+  const file=path.join(dataDir,'runtime-state.json');const prior=JSON.parse(await readFile(file,'utf8'));prior.schemaVersion=13; delete prior.operations; prior.sessions.forEach(session => { delete session.remoteBinding; delete session.remoteActions; delete session.executorChoice; }); prior.runs.forEach(run => { delete run.remoteBinding; delete run.executorBinding; }); delete prior.subagents;prior.sessions.forEach(session=>{delete session.repositoryBinding;delete session.repositoryBindingRevision;delete session.repositoryBindingCommands;delete session.repositoryCandidate;delete session.repositoryCandidateRevision;delete session.repositoryCandidateCommands;delete session.repositoryWriteEffects;});prior.runs.forEach(run=>{delete run.repositoryBindingSnapshot;delete run.repositoryCandidateSnapshot;delete run.kitBinding;});prior.providerConfigVersion=17;
   const bytes=Buffer.from(JSON.stringify(prior)+'\n');await writeFile(file,bytes);
-  store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,21);assert.equal(store.state.providerConfigVersion,17);
-  assert.deepEqual(store.getSession(s.id),{...s,draft:'kept',repositoryCandidate:null,repositoryCandidateRevision:0,repositoryCandidateCommands:[],repositoryWriteEffects:[]});
+  store=await new RuntimeStore({dataDir}).open();assert.equal(store.state.schemaVersion,22);assert.equal(store.state.providerConfigVersion,17);
+  assert.deepEqual(store.getSession(s.id),{...s,draft:'kept',repositoryCandidate:null,repositoryCandidateRevision:0,repositoryCandidateCommands:[],repositoryWriteEffects:[],
+    executorChoice:{...s.executorChoice,configurationRef:null}});
   const backup=path.join(dataDir,`runtime-state.schema13.${createHash('sha256').update(bytes).digest('hex').slice(0,16)}.json`);
   // Locate the exact backup by its documented digest name, allowing the owner's full digest.
   const {readdir}=await import('node:fs/promises');const name=(await readdir(dataDir)).find(n=>n.startsWith('runtime-state.schema13.'));

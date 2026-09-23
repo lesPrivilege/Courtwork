@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { RuntimeStore, SCHEMA_VERSION } from "../server/store.mjs";
+import { RuntimeStore, SCHEMA_VERSION } from "./fixtures/executor-store.mjs";
 import { KIT_BINDING_LIMITS, validateKitBinding } from "../runtime/kit-binding-state.mjs";
 
 const SCHEMA20_HOST = "678d71c58acc6968569a8850d39be404b19d4dfd";
@@ -94,11 +94,11 @@ async function createKitRun(store, session) {
   return { ...result, ...fixture };
 }
 
-test("schema 21 records one immutable Kit summary and equal typed runtime.bound projection across reopen", async () => {
+test("schema 22 records one immutable Kit summary and equal typed runtime.bound projection across reopen", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-kit-store-"));
   let store;
   try {
-    assert.equal(SCHEMA_VERSION, 21);
+    assert.equal(SCHEMA_VERSION, 22);
     store = await new RuntimeStore({ dataDir: dir }).open();
     const session = await createSession(store, dir);
     const { run, kitBinding } = await createKitRun(store, session);
@@ -120,7 +120,7 @@ test("schema 21 records one immutable Kit summary and equal typed runtime.bound 
   }
 });
 
-test("schema 21 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes", async () => {
+test("schema 22 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-kit-corrupt-"));
   let store;
   try {
@@ -167,16 +167,18 @@ test("schema 20 upgrades with an exact backup, unchanged historical events, and 
     store = null;
 
     const file = path.join(dir, "runtime-state.json");
-    const schema21 = JSON.parse(await readFile(file, "utf8"));
-    const schema20 = structuredClone(schema21);
+    const schema22 = JSON.parse(await readFile(file, "utf8"));
+    const schema20 = structuredClone(schema22);
     schema20.schemaVersion = 20;
+    for (const session of schema20.sessions) delete session.executorChoice;
+    for (const run of schema20.runs) delete run.executorBinding;
     for (const run of schema20.runs) delete run.kitBinding;
     for (const event of schema20.events) if (event.type === "runtime.bound") delete event.data.kitBinding;
     const raw = Buffer.from(JSON.stringify(schema20, null, 1) + "\n");
     await writeFile(file, raw);
 
     store = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(store.snapshot().schemaVersion, 21);
+    assert.equal(store.snapshot().schemaVersion, 22);
     assert.equal(store.getRun(created.run.id).kitBinding, null);
     assert.deepEqual(store.snapshot().events, schema20.events);
     await store.close();
@@ -190,7 +192,7 @@ test("schema 20 upgrades with an exact backup, unchanged historical events, and 
   }
 });
 
-test("the pinned schema-20 Host refuses schema 21 byte-for-byte", async () => {
+test("the pinned schema-20 Host refuses schema 22 byte-for-byte", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "cw-kit-old-host-"));
   let current;
   try {
@@ -210,7 +212,7 @@ test("the pinned schema-20 Host refuses schema 21 byte-for-byte", async () => {
     current = null;
     const file = path.join(dataDir, "runtime-state.json");
     const newer = await readFile(file);
-    await assert.rejects(new Schema20Store({ dataDir }).open(), /schemaVersion 21 is not supported/);
+    await assert.rejects(new Schema20Store({ dataDir }).open(), /schemaVersion 22 is not supported/);
     assert.deepEqual(await readFile(file), newer, "the old Host did not rewrite the newer Store");
   } finally {
     await current?.close?.().catch(() => {});

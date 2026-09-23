@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { rm } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { test } from "node:test";
 import { boot } from "./helpers.mjs";
 import { createAgentsLoopback } from "./fixtures/agents-api-loopback.mjs";
@@ -77,6 +78,14 @@ test("R1 one Host serves separate Pi and managed Sessions with frozen native sha
   assert.ok(h.runtime.store.getSession(managed.id).remoteBinding);
   assert.equal(remoteRun.hostSession, null);
   assert.equal(piRun.remoteBinding, null);
+  const runtimeInfo = await h.api("GET", `/runtime-info?sessionId=${managed.id}`);
+  assert.deepEqual([runtimeInfo.json.adapterId, runtimeInfo.json.capabilities.nativeCompaction], ["agents-api", false]);
+  const scopedControl = await h.api("GET", `/runtime-control?sessionId=${managed.id}`);
+  assert.equal(scopedControl.json.adapterId, "agents-api");
+  const compact = await h.api("POST", `/sessions/${managed.id}/compactions`, { requestId: "r1-managed-compact" });
+  assert.deepEqual([compact.status, compact.json.error.code], [409, "runtime_capability_unsupported"]);
+  assert.deepEqual(await h.runtime.service.reconcileRemoteSession(managed.id),
+    { resolved: [], settledRuns: [], unresolved: [], unsettledRuns: [] });
 }));
 
 test("R1 stale choice and stale Run expectation refuse before provider/native requests", () => withDual(async (h, loopback) => {
@@ -148,6 +157,24 @@ test("R1 changed managed endpoint after restart leaves the saved choice readable
   } finally { await reopened.close(); await other.close(); }
 }));
 
+test("R1 a selected managed lost-create stays unknown across reopen and cannot dispatch through Pi", () => withDual(async (h, loopback) => {
+  const session = await h.createSession();
+  const chosen = (await h.api("PUT", `/sessions/${session.id}/executor-choice`, { expectedRevision: 0, adapterId: "agents-api" })).json.choice;
+  loopback.fault(attempt => attempt.method === "POST" && attempt.path === "/v1/agents/sessions", "lose_reply");
+  const created = await h.api("POST", `/sessions/${session.id}/runs`, runBody("lost create", "r1-lost-create", chosen));
+  assert.equal(created.status, 200, JSON.stringify(created.json));
+  assert.deepEqual([(await h.pollRun(created.json.run.id)).status, loopback.posts("/v1/agents/sessions").length], ["unknown", 1]);
+  await h.runtime.close();
+  const reopened = await startServer({ dataDir: h.dataDir, port: 0, managedRuntimePort: agentsPort(loopback), logger: () => {} });
+  try {
+    const report = await reopened.service.reconcileRemoteSession(session.id);
+    assert.deepEqual(report.unresolved.map(action => [action.kind, action.reason]), [["create", "no_native_locator"]]);
+    const refused = await client(reopened)("POST", `/sessions/${session.id}/runs`, runBody("cannot repeat", "r1-lost-next", chosen));
+    assert.deepEqual([refused.status, refused.json.error.code], [409, "remote_unreconciled"]);
+    assert.equal(loopback.posts("/v1/agents/sessions").length, 1);
+  } finally { await reopened.close(); }
+}));
+
 test("R1 a v2 Kit remains Pi-only and refuses managed execution before provider/native requests", () => withDual(async (h, loopback) => {
   const session = await h.createSession();
   const scope = { type: "session", id: session.id };
@@ -203,5 +230,35 @@ test("R1 global Attention choice is read-only and its Run keeps the default Pi p
     assert.deepEqual([refused.status, refused.json.error.code], [409, "executor_ineligible"]);
     const created = await h.api("POST", `/sessions/${id}/runs`, runBody("attention fixture", "r1-global"));
     assert.equal((await h.pollRun(created.json.run.id)).adapterId, PI_EXECUTOR_ID);
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+});
+
+test("R1 contradictory legacy native history stays readable with null identity and refuses new execution", async () => {
+  const h = await boot();
+  try {
+    const session = await h.createSession();
+    const created = await h.api("POST", `/sessions/${session.id}/runs`, runBody("old Pi run", "r1-legacy-contradiction"));
+    assert.equal((await h.pollRun(created.json.run.id)).status, "completed");
+    await h.runtime.close();
+    const file = path.join(h.dataDir, "runtime-state.json");
+    const old = JSON.parse(await readFile(file, "utf8"));
+    old.schemaVersion = 21;
+    for (const row of old.sessions) delete row.executorChoice;
+    for (const row of old.runs) {
+      delete row.executorBinding;
+      if (row.id === created.json.run.id) row.adapterId = "agents-api";
+    }
+    await writeFile(file, JSON.stringify(old, null, 2));
+    const reopened = await startServer({ dataDir: h.dataDir, port: 0, logger: () => {} });
+    try {
+      const api = client(reopened);
+      const choice = await api("GET", `/sessions/${session.id}/executor-choice`);
+      assert.deepEqual([choice.status, choice.json.choice.adapterId, choice.json.locked], [200, null, true]);
+      assert.equal((await api("GET", `/runtime-info?sessionId=${session.id}`)).json.adapterId, null);
+      assert.equal((await api("GET", `/runtime-control?sessionId=${session.id}`)).json.adapterId, null);
+      const refused = await api("POST", `/sessions/${session.id}/runs`, runBody("cannot guess", "r1-contradiction-next"));
+      assert.deepEqual([refused.status, refused.json.error.code], [409, "runtime_mismatch"]);
+      assert.equal(reopened.store.getRun(created.json.run.id).adapterId, "agents-api");
+    } finally { await reopened.close(); }
   } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
 });

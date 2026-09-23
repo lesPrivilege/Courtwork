@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { RuntimeStore } from "../server/store.mjs";
+import { RuntimeStore } from "./fixtures/executor-store.mjs";
 
 // The last Host whose RuntimeStore is schema 18 (base of the C/D/E author branch).
 const SCHEMA18_HOST = "3022b5c68f978c3a50561b47eb1de9e61ab0ea58";
@@ -25,10 +25,10 @@ async function schema18State(dir) {
   await store.close();
   const file = path.join(dir, "runtime-state.json");
   const fresh = JSON.parse(await readFile(file, "utf8"));
-  assert.equal(fresh.schemaVersion, 21);
+  assert.equal(fresh.schemaVersion, 22);
   const aged = { ...fresh, schemaVersion: 18,
-    sessions: fresh.sessions.map(({ remoteBinding, remoteActions, ...rest }) => { assert.deepEqual([remoteBinding, remoteActions], [null, []]); return rest; }),
-    runs: fresh.runs.map(({ remoteBinding, kitBinding, ...rest }) => rest) };
+    sessions: fresh.sessions.map(({ remoteBinding, remoteActions, executorChoice, ...rest }) => { assert.deepEqual([remoteBinding, remoteActions], [null, []]); return rest; }),
+    runs: fresh.runs.map(({ remoteBinding, kitBinding, executorBinding, ...rest }) => rest) };
   const raw = Buffer.from(JSON.stringify(aged, null, 1) + "\n");
   await writeFile(file, raw);
   return { file, raw, aged, session };
@@ -41,17 +41,20 @@ test("schema 18 upgrades to current once: remote fields added null/empty, Pi loc
     const { file, raw, aged, session } = await schema18State(dir);
     const logs = [];
     store = await new RuntimeStore({ dataDir: dir, logger: line => logs.push(line) }).open();
-    assert.equal(store.state.schemaVersion, 21);
+    assert.equal(store.state.schemaVersion, 22);
     assert.deepEqual(store.getSession(session.id).hostSession, aged.sessions[0].hostSession, "Pi's {id,path} locator is untouched");
     assert.equal(store.getSession(session.id).remoteBinding, null);
     assert.deepEqual(store.listRemoteActions(session.id), []);
     await store.close();
-    assert.ok(logs.some(line => /upgraded schema 18 to 21/.test(line)));
+    assert.ok(logs.some(line => /upgraded schema 18 to 22/.test(line)));
     assert.deepEqual(await readFile(path.join(dir, `runtime-state.schema18.${sha256(raw)}.json`)), raw, "the pre-upgrade bytes are kept exactly");
     const upgraded = JSON.parse(await readFile(file, "utf8"));
-    assert.deepEqual(upgraded, { ...aged, schemaVersion: 21,
-      sessions: aged.sessions.map(item => ({ ...item, remoteBinding: null, remoteActions: [] })),
-      runs: aged.runs.map(item => ({ ...item, remoteBinding: null, kitBinding: null })) }, "no other field changes in the step");
+    assert.deepEqual(upgraded, { ...aged, schemaVersion: 22,
+      sessions: aged.sessions.map(item => ({ ...item, remoteBinding: null, remoteActions: [],
+        executorChoice: { revision: 0, adapterId: session.executorChoice.adapterId, configurationRef: null } })),
+      runs: aged.runs.map(item => ({ ...item, remoteBinding: null, kitBinding: null,
+        executorBinding: { recording: "legacy", revision: null, configurationRef: null,
+          capabilities: null, choiceRevision: null } })) }, "only later required remote, Kit and executor fields change");
     store = await new RuntimeStore({ dataDir: dir }).open();
     await store.close();
     assert.equal((await readdir(dir)).filter(name => name.includes("schema18")).length, 1, "a second open is not a second upgrade");
@@ -74,7 +77,7 @@ test("an interrupted or blocked 18 → current upgrade changes nothing: occupied
     await rm(backup);
 
     // A half-written state from a crash between write and rename is swept, not read.
-    await writeFile(`${file}.${randomUUID()}.tmp`, '{"schemaVersion":21,"sessions":[');
+    await writeFile(`${file}.${randomUUID()}.tmp`, '{"schemaVersion":22,"sessions":[');
     // Legacy input is validated as 18 before any backup or write.
     const malformed = Buffer.from(JSON.stringify({ ...aged, sessions: aged.sessions.map(item => ({ ...item, remoteBinding: null })) }));
     await writeFile(file, malformed);
@@ -82,9 +85,9 @@ test("an interrupted or blocked 18 → current upgrade changes nothing: occupied
     assert.deepEqual(await readFile(file), malformed);
     assert.deepEqual((await readdir(dir)).filter(name => name.includes("schema18") || name.endsWith(".tmp")), []);
 
-    const newer = Buffer.from(JSON.stringify({ ...aged, schemaVersion: 22 }));
+    const newer = Buffer.from(JSON.stringify({ ...aged, schemaVersion: 23 }));
     await writeFile(file, newer);
-    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), /schemaVersion 22 is not supported/);
+    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), /schemaVersion 23 is not supported/);
     assert.deepEqual(await readFile(file), newer);
   } finally {
     await rm(dir, { recursive: true, force: true });
@@ -126,7 +129,7 @@ test("the actual schema-18 Host refuses the current file without writing, and op
     const { file, raw } = await schema18State(dir);
     await (await new RuntimeStore({ dataDir: dir }).open()).close();
     const upgraded = await readFile(file);
-    await assert.rejects(new Schema18Store({ dataDir: dir }).open(), /schemaVersion 21 is not supported/);
+    await assert.rejects(new Schema18Store({ dataDir: dir }).open(), /schemaVersion 22 is not supported/);
     assert.deepEqual(await readFile(file), upgraded, "the old Host changed nothing");
 
     const restored = path.join(root, "restored"); await mkdir(restored);

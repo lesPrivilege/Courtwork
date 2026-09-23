@@ -5,7 +5,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { RuntimeStore } from '../server/store.mjs';
+import { RuntimeStore } from './fixtures/executor-store.mjs';
 import { AsyncTasks } from '../server/async-tasks.mjs';
 import { digestText } from '../server/async-task-state.mjs';
 import { startServer } from '../server/index.mjs';

@@ -34,15 +34,19 @@ export function validateExecutorChoice(value) {
 export function validateExecutorDescriptor(value) {
   exact(value, ["adapterId", "revision", "configurationRef", "capabilities"], "executorDescriptor");
   requireTrue(boundedId(value.adapterId) && boundedId(value.revision) && REF.test(value.configurationRef), "executorDescriptor identity is invalid");
-  exact(value.capabilities, EXECUTOR_OPERATIONS, "executorDescriptor.capabilities");
+  validateCapabilities(value.capabilities);
+  return value;
+}
+
+function validateCapabilities(value) {
+  exact(value, EXECUTOR_OPERATIONS, "executor capabilities");
   for (const operation of EXECUTOR_OPERATIONS) {
-    const row = value.capabilities[operation];
+    const row = value[operation];
     requireTrue(record(row) && typeof row.supported === "boolean" &&
       Object.keys(row).every(key => key === "supported" || key === "reason") &&
       (row.supported ? row.reason === undefined : typeof row.reason === "string" && row.reason.length > 0 && row.reason.length <= 4000),
-    "executorDescriptor.capabilities." + operation + " is invalid");
+    "executor capabilities." + operation + " is invalid");
   }
-  return value;
 }
 
 export function validateExecutorBinding(value, { child = false } = {}) {
@@ -59,9 +63,9 @@ export function validateExecutorBinding(value, { child = false } = {}) {
     return value;
   }
   exact(value, ["recording", "revision", "configurationRef", "capabilities", "choiceRevision"], "bound executorBinding");
-  requireTrue(value.recording === "bound" && revisionNumber(value.choiceRevision), "bound executorBinding choiceRevision is invalid");
-  validateExecutorDescriptor({ adapterId: PI_EXECUTOR_ID, revision: value.revision,
-    configurationRef: value.configurationRef, capabilities: value.capabilities });
+  requireTrue(value.recording === "bound" && revisionNumber(value.choiceRevision) &&
+    boundedId(value.revision) && REF.test(value.configurationRef), "bound executorBinding identity is invalid");
+  validateCapabilities(value.capabilities);
   return value;
 }
 

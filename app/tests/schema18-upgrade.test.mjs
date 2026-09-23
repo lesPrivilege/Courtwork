@@ -8,7 +8,7 @@ import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { RuntimeStore } from "../server/store.mjs";
+import { RuntimeStore } from "./fixtures/executor-store.mjs";
 
 test("schema 17 upgrades once: operations added empty, exact backup kept, nothing else rewritten", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-schema18-"));
@@ -20,16 +20,16 @@ test("schema 17 upgrades once: operations added empty, exact backup kept, nothin
     await store.close();
     const file = path.join(dir, "runtime-state.json");
     const fresh = JSON.parse(await readFile(file, "utf8"));
-    assert.equal(fresh.schemaVersion, 21);
+    assert.equal(fresh.schemaVersion, 22);
     assert.deepEqual(fresh.operations, []);
     const aged = { ...fresh, schemaVersion: 17,
-      sessions: fresh.sessions.map(({ remoteBinding, remoteActions, ...session }) => session),
-      runs: fresh.runs.map(({ remoteBinding, kitBinding, ...run }) => run) };
+      sessions: fresh.sessions.map(({ remoteBinding, remoteActions, executorChoice, ...session }) => session),
+      runs: fresh.runs.map(({ remoteBinding, kitBinding, executorBinding, ...run }) => run) };
     delete aged.operations;
     const raw = Buffer.from(JSON.stringify(aged, null, 1) + "\n");
     await writeFile(file, raw);
     store = await new RuntimeStore({ dataDir: dir }).open();
-    assert.equal(store.state.schemaVersion, 21);
+    assert.equal(store.state.schemaVersion, 22);
     assert.deepEqual(store.state.operations, []);
     assert.equal(store.getSession(session.id).title, "Kept");
     assert.equal(store.listProjects().length, 1);
@@ -37,12 +37,15 @@ test("schema 17 upgrades once: operations added empty, exact backup kept, nothin
     const hash = createHash("sha256").update(raw).digest("hex");
     assert.deepEqual(await readFile(path.join(dir, `runtime-state.schema17.${hash}.json`)), raw, "the pre-upgrade bytes are kept exactly");
     const upgraded = JSON.parse(await readFile(file, "utf8"));
-    assert.equal(upgraded.schemaVersion, 21);
+    assert.equal(upgraded.schemaVersion, 22);
     const { operations, ...rest } = upgraded;
     assert.deepEqual(operations, []);
-    assert.deepEqual(rest, { ...aged, schemaVersion: 21,
-      sessions: aged.sessions.map(session => ({ ...session, remoteBinding: null, remoteActions: [] })),
-      runs: aged.runs.map(run => ({ ...run, remoteBinding: null, kitBinding: null })) }, "no other field changes beyond the later empty remote and Kit fields");
+    assert.deepEqual(rest, { ...aged, schemaVersion: 22,
+      sessions: aged.sessions.map(item => ({ ...item, remoteBinding: null, remoteActions: [],
+        executorChoice: { revision: 0, adapterId: session.executorChoice.adapterId, configurationRef: null } })),
+      runs: aged.runs.map(run => ({ ...run, remoteBinding: null, kitBinding: null,
+        executorBinding: { recording: "legacy", revision: null, configurationRef: null,
+          capabilities: null, choiceRevision: null } })) }, "only later required remote, Kit and executor fields change");
     store = await new RuntimeStore({ dataDir: dir }).open();
     await store.close();
     assert.equal((await readdir(dir)).filter((name) => name.includes("schema17")).length, 1, "a second open is not a second upgrade");

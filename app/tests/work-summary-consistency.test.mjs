@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { RuntimeStore } from "../server/store.mjs";
+import { RuntimeStore } from "./fixtures/executor-store.mjs";
 
 for (const operation of ["resolve", "cancel"]) {
   test(`summary sees one published view across paused ${operation} persistence`, async () => {

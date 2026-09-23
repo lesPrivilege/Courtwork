@@ -10,7 +10,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { RuntimeStore, SCHEMA_VERSION } from "../server/store.mjs";
+import { RuntimeStore, SCHEMA_VERSION } from "./fixtures/executor-store.mjs";
 import { SPARK_DEFINITION } from "../harness/subagent-state.mjs";
 
 const SCHEMA19_HOST = "578d77d9cc031be817220e412a1f6b8924dd39fc";
@@ -57,13 +57,14 @@ async function schema19RemoteState(dir) {
 
   const file = path.join(dir, "runtime-state.json");
   const current = JSON.parse(await readFile(file, "utf8"));
-  assert.equal(current.schemaVersion, 21);
+  assert.equal(current.schemaVersion, 22);
   assert.equal(current.sessions[0].remoteActions.length, 1);
   assert.ok(current.runs[0].remoteBinding);
   const aged = {
     ...current,
     schemaVersion: 19,
-    runs: current.runs.map(({ kitBinding, ...run }) => run),
+    sessions: current.sessions.map(({ executorChoice, ...session }) => session),
+    runs: current.runs.map(({ kitBinding, executorBinding, ...run }) => run),
   };
   const raw = Buffer.from(JSON.stringify(aged, null, 1) + "\n");
   await writeFile(file, raw);
@@ -74,25 +75,29 @@ test("schema 19 upgrades to current exactly once and preserves schema-20 remote 
   const dir = await mkdtemp(path.join(tmpdir(), "cw-local-pi-schema20-"));
   let store;
   try {
-    assert.equal(SCHEMA_VERSION, 21);
+    assert.equal(SCHEMA_VERSION, 22);
     const { file, raw, aged, sessionId, runId } = await schema19RemoteState(dir);
     const logs = [];
     store = await new RuntimeStore({ dataDir: dir, logger: line => logs.push(line) }).open();
-    assert.equal(store.snapshot().schemaVersion, 21);
+    assert.equal(store.snapshot().schemaVersion, 22);
     assert.deepEqual(store.getSession(sessionId).remoteBinding, aged.sessions[0].remoteBinding);
     assert.deepEqual(store.listRemoteActions(sessionId, runId), aged.sessions[0].remoteActions);
     await store.close();
     store = null;
 
-    assert.ok(logs.some(line => /upgraded schema 19 to 21/.test(line)));
+    assert.ok(logs.some(line => /upgraded schema 19 to 22/.test(line)));
     const backup = path.join(dir, `runtime-state.schema19.${sha256(raw)}.json`);
     assert.deepEqual(await readFile(backup), raw, "the exact schema-19 bytes are the recovery source");
     const upgraded = JSON.parse(await readFile(file, "utf8"));
     assert.deepEqual(upgraded, {
       ...aged,
-      schemaVersion: 21,
-      runs: aged.runs.map(run => ({ ...run, kitBinding: null })),
-    }, "only the current schema version and required null Kit binding change");
+      schemaVersion: 22,
+      sessions: aged.sessions.map(session => ({ ...session,
+        executorChoice: { revision: 0, adapterId: "agents-api", configurationRef: null } })),
+      runs: aged.runs.map(run => ({ ...run, kitBinding: null,
+        executorBinding: { recording: "legacy", revision: null, configurationRef: null,
+          capabilities: null, choiceRevision: null } })),
+    }, "historical remote records remain exact while required executor fields are added");
     assert.deepEqual(upgraded.events, aged.events, "all existing event records and data are byte-value identical");
 
     store = await new RuntimeStore({ dataDir: dir }).open();
@@ -105,7 +110,7 @@ test("schema 19 upgrades to current exactly once and preserves schema-20 remote 
   }
 });
 
-test("the schema-20 fixture migration fails closed for an occupied backup, malformed schema 19, and schema 22", async () => {
+test("the schema-20 fixture migration fails closed for an occupied backup, malformed schema 19, and future schema 23", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-local-pi-schema20-blocked-"));
   try {
     const { file, raw, aged } = await schema19RemoteState(dir);
@@ -124,16 +129,16 @@ test("the schema-20 fixture migration fails closed for an occupied backup, malfo
     assert.deepEqual(await readFile(file), malformed);
     assert.equal((await readdir(dir)).some(name => name.startsWith("runtime-state.schema19.")), false);
 
-    const newer = Buffer.from(JSON.stringify({ ...aged, schemaVersion: 22 }));
+    const newer = Buffer.from(JSON.stringify({ ...aged, schemaVersion: 23 }));
     await writeFile(file, newer);
-    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), /schemaVersion 22 is not supported/);
+    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(), /schemaVersion 23 is not supported/);
     assert.deepEqual(await readFile(file), newer);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
 });
 
-test("the pinned schema-19 Host rejects current schema 21 byte-for-byte and opens the exact backup separately", async () => {
+test("the pinned schema-19 Host rejects current schema 22 byte-for-byte and opens the exact backup separately", async () => {
   const root = await mkdtemp(path.join(tmpdir(), "cw-local-pi-schema19-host-"));
   let current;
   let old;
@@ -152,7 +157,7 @@ test("the pinned schema-19 Host rejects current schema 21 byte-for-byte and open
     await current.close();
     current = null;
     const upgraded = await readFile(file);
-    await assert.rejects(new Schema19Store({ dataDir }).open(), /schemaVersion 21 is not supported/);
+    await assert.rejects(new Schema19Store({ dataDir }).open(), /schemaVersion 22 is not supported/);
     assert.deepEqual(await readFile(file), upgraded, "the old Host did not rewrite the newer store");
 
     const restoredDir = path.join(root, "restored");

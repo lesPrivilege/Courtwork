@@ -191,15 +191,19 @@ test("summary excludes stale question states and paginates pending/inspection by
 
     const provider = { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions", realProvider: false };
     async function storedRun(session, commandId) {
+      const choice = runtime.store.getSession(session.id).executorChoice;
+      const executorDescriptor = runtime.service.runtimePorts.get(choice.adapterId).descriptor;
       const created = await runtime.store.createRun({
         sessionId: session.id,
         input: commandId,
-        adapterId: "summary-matrix",
+        adapterId: choice.adapterId,
         provider,
         extension: null,
         commandId,
         workspaceHostSession: null,
         credentialGeneration: runtime.store.getCredentialGeneration(),
+        executorDescriptor,
+        expectedExecutorChoice: { revision: choice.revision, adapterId: choice.adapterId },
       });
       syntheticRunIds.push(created.run.id);
       return created.run;

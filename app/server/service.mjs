@@ -467,7 +467,7 @@ export class RuntimeService {
   getRuntimeControl(sessionId = null) {
     const session = sessionId ? this.store.getSession(sessionId) : null;
     if (sessionId && !session) throw new ServiceError(404, "not_found", "session not found");
-    const inspection = this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: session?.executorChoice.adapterId ?? this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
+    const inspection = this.control.inspect({ mcp: this.mcp, session, extensions: this.extensionRegistry.list(), provider: this.getProviderConfig(), adapterId: session ? session.executorChoice.adapterId : this.adapterId, activeRuns: this.store.listRuns().filter(r => !terminal(r.status)).length,
       additionalTools: [...(this.subagents.forSession(sessionId) ? ['spark_source','spark_note'] : session && !session.extensionBinding ? ['spark_sources','spark_explore','spark_directory','spark_findings','spark_read','spark_read_source','spark_consume'] : []), ...(session?.scope === 'global' ? ATTENTION_TOOL_NAMES : this.asyncTasks?.enabled && session?.scope === 'project' && !session?.extensionBinding ? ASYNC_TOOL_NAMES : []), ...(!session?.extensionBinding && session && this.coordination.list(session.id).currentThreadId ? COORDINATION_TOOLS : [])] });
     const spark=this.subagents.forSession(sessionId);
     if(spark) {
@@ -668,7 +668,10 @@ export class RuntimeService {
     const locked = nonordinary || hasExecutorHistory(this.store.snapshot(), session);
     const options = [PI_EXECUTOR_ID, MANAGED_EXECUTOR_ID].map(adapterId => {
       const configured = this.runtimePorts.get(adapterId);
-      return configured ? { ...structuredClone(configured.descriptor), availability: { status: "available", reason: null } }
+      const providerUnsupported = configured?.port.remote === true && this.providerConfig.provider !== FAKE_PROVIDER_ID;
+      return configured ? { ...structuredClone(configured.descriptor), availability: providerUnsupported
+        ? { status: "unavailable", reason: "This managed executor has no verified route for the current Provider/Model" }
+        : { status: "available", reason: null } }
         : { adapterId, revision: null, configurationRef: null, capabilities: null,
           availability: { status: "unavailable", reason: adapterId === MANAGED_EXECUTOR_ID
             ? "Managed Agents has no configured and verified service on this Host" : "Pi is not configured on this test Host" } };
@@ -686,6 +689,9 @@ export class RuntimeService {
       }
       const configured = this.runtimePorts.get(value.adapterId);
       if (!configured) throw new ServiceError(409, "executor_unavailable", "this executor has no configured and verified service");
+      if (configured.port.remote === true && this.providerConfig.provider !== FAKE_PROVIDER_ID) {
+        throw new ServiceError(409, "executor_provider_unsupported", "this managed executor has no verified provider/model route");
+      }
       try {
         await this.store.changeExecutorChoice(sessionId, { expectedRevision: value.expectedRevision,
           executorDescriptor: configured.descriptor });
@@ -917,7 +923,7 @@ export class RuntimeService {
   getRuntimeInfo(sessionId = null) {
     const session = sessionId === null ? null : this.store.getSession(sessionId);
     if (sessionId !== null && !session) throw new ServiceError(404, "not_found", "session not found");
-    const adapterId = session?.executorChoice.adapterId ?? this.adapterId;
+    const adapterId = session ? session.executorChoice.adapterId : this.adapterId;
     const configured = this.runtimePorts.get(adapterId);
     const model = this.#resolveModel(this.providerConfig);
     return {

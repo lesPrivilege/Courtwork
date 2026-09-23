@@ -3,7 +3,7 @@ import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { RuntimeStore } from "../server/store.mjs";
+import { RuntimeStore } from "./fixtures/executor-store.mjs";
 
 async function fixture(t, prefix) {
   const dataDir = await mkdtemp(path.join(tmpdir(), prefix));
@@ -48,7 +48,7 @@ test("RuntimeStore persists schemaVersion 13 session/run fields and the canonica
   const { run, idempotent } = await store.createRun({
     sessionId: session.id,
     input: "first turn",
-    adapterId: "test-adapter",
+    adapterId: "pi-coding-agent@0.85.1/agent-session",
     provider: { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions", realProvider: false },
     extension: null,
     commandId: "cmd-1",
@@ -79,7 +79,7 @@ test("RuntimeStore persists schemaVersion 13 session/run fields and the canonica
   assert.equal(stored.artifacts[0].kind, "content-version");
   assert.ok(!Number.isNaN(Date.parse(stored.artifacts[0].writtenAt)));
   assert.equal(stored.usage.missing, false);
-  assert.equal(JSON.parse(await readFile(`${dataDir}/runtime-state.json`, "utf8")).schemaVersion, 21);
+  assert.equal(JSON.parse(await readFile(`${dataDir}/runtime-state.json`, "utf8")).schemaVersion, 22);
   await reopened.close();
 });
 
