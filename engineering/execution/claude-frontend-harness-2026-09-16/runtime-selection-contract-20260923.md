@@ -34,3 +34,8 @@ Parent verified local/origin mainabcd30e4965fe3d1fd5258a362718ba2835315e9 after 
 ## R0 architecture review — 2026-09-23
 
 [Parent disposition and independent Luna review](evidence/runtime-selection-r0-review-20260923/README.md) adoptf1641f8 direction but return R0-R1 (credential-independent executor fingerprint) and R0-R2 (pure legacy migration plus one atomic first-pin/revision rule). Original Sol revises only the R0 packet; R1 implementation remains unstarted. No model/key rotation may accidentally change ordinary Pi executor identity, and migration may not manufacture a historical factory ref.
+
+
+## R0 accepted; R1 implementation released — 2026-09-23
+
+[Final disposition](evidence/runtime-selection-r0-final-20260923/README.md) acceptsc5efbc9 after GPT-6 Luna delta review; R0-R1/R0-R2 close. [R1 finite backend lease](runtime-selection-r1-20260923.md) now authorizes the existing Sol writer in the same isolated runtime-selection tree to merge accepted main and implement the contract. R0 does not change main's schema21 or prove live availability.

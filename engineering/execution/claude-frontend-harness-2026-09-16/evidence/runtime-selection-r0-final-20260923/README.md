@@ -1,0 +1,9 @@
+# Runtime R0 final parent disposition
+
+2026-09-23 · Parent Astra accepts contractc5efbc9250702dd43f1a332eb5921c97be9d1eae, merged as documents at **3685fc15e538abc59b0ba63779f02f12803b8f28**. [GPT-6 Luna delta review](luna6-review.md.txt) passes the revised contract. No product code, schema or live runtime capability is adopted by R0.
+
+R0-R1/R0-R2 are adopted and closed: factory identity excludes credentials/Provider/Model; migration preserves unknown factory refs; first-pin and choice revision are atomic after receipt and precondition checks; new child Runs have null ordinary executor binding only with actual Spark ownership. Pi credential/model changes retain existing semantics; managed remote binding checks remain separately authoritative. Global/extension paths remain read-only selectors but retain their actual default/historical execution owner.
+
+Parent implementation clarification: contradictory adapter/native history stays readable and fenced for **any nonchild Session**, including excluded global/extension scope, rather than forcing a guessed adapter merely because the user cannot use its selector. Empty migration defaults to Pi without claiming a historical factory ref; explicit legacy single-port injection stays a bounded test seam. The child placeholder is never authority for its actual executor. Unknown/unavailable descriptors may report known facts without claiming a live service.
+
+The original Runtime selection tree is retained as the active R0→R1 work tree; no completed source is deleted while the same author continues under the [new R1 lease](../../runtime-selection-r1-20260923.md). This is one ongoing implementation line, not a separate product baseline. The product remains RuntimeStore21/Core4/bridge5 until the complete R1 candidate receives independent acceptance. A future22 implementation is authorized only inside that isolated task, with disposable data.

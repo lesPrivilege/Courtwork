@@ -1,0 +1,14 @@
+# Runtime selection R0 revised delta review — Luna — 2026-09-23
+
+**PASS; no remaining contract blocker for parent disposition/R1 scope.** Reviewed only `f1641f87451546e8f424610d0aa260201f2d518a..c5efbc9250702dd43f1a332eb5921c97be9d1eae` in the fixed clean R0 worktree. No source or tests were needed.
+
+The revision resolves both required decisions:
+
+- `configurationRef` now covers adapter revision/protocol and immutable executor-specific config only. It excludes credential generation, keys, Provider/Model selection, remote connection hashes and data paths. Existing per-Run Provider and remote-binding checks remain authoritative. The offline cases explicitly preserve Pi key rotation/model changes without changing executor identity and preserve managed remote-binding fences.
+- Pure schema-21 migration now sets `configurationRef:null` for all migrated Sessions, including empty Pi-default Sessions. New schema-22 Sessions receive the resolved default descriptor at creation. A migrated first Run compares `executorExpectation` to the pre-pin revision, pins descriptor/ref and increments Session choice revision once within the same Store transaction, then records the post-pin revision on the Run. Aborts do not pin; idempotent command replay returns the original Run before current checks and never pins twice.
+- Historical Run identity is retained only when Run adapter IDs agree with the existing Pi locator or Agents remote runtime/protocol facts; contradictory ordinary history stays readable and is fenced. Legacy runs get a legacy binding; child runs receive `executorBinding:null` only when the existing Spark assignment/session/run linkage proves child ownership.
+- New/existing global and extension Sessions have read-only executor choice projections; GET reports the exclusion, PUT refuses, and their actual fixed/history-derived routes remain authoritative. Spark child sessions also use a read-only/non-authoritative choice projection and bypass ordinary selection/first-pin rules, preserving their established child adapters and receipts. A child Pi placeholder cannot classify an ordinary Run as a child.
+
+The packet preserves E1's profile `runtimeSelection` expectation separately from `executorExpectation`, checks choice/admission CAS after duplicate receipt lookup, and retains K3's Pi-only Kit compatibility and CDE's existing remote/action/recovery owners. Managed Agents remains unavailable until its separate live gate. I found no new authority duplication or contradiction in this bounded delta.
+
+One nonblocking editorial issue: the paragraph beginning “Every old nonchild Run keeps its Run/event/native/remote-action/Kit/Provider bytes unchanged…” appears twice consecutively in the revised migration section. Remove the duplicate for clarity; it does not change the contract reading.

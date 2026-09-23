@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · Runtime R0 accepted; bounded R1 backend lease ready
+
+[Parent R0 final adoption](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r0-final-20260923/README.md) acceptsc5efbc9 after GPT-6 Luna review, integrated as docs3685fc1. Fingerprint, legacy first-pin and child-owner returns close. [R1 source lease](execution/claude-frontend-harness-2026-09-16/runtime-selection-r1-20260923.md) releases the same GPT-6 Sol writer for one backend implementation in its retained isolated tree. Schema22 is reserved there; main remains21/Core4/bridge5 until candidate acceptance. No frontend/live runtime/provider rollout follows from contract acceptance.
+
 ## 2026-09-23 · Runtime R0 proposal reviewed; two ownership clarifications
 
 [Parent R0 review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r0-review-20260923/README.md) consumes fixedf1641f8 and GPT-6 Luna contract review. Direction is adopted; Sol must separate executor fingerprint from credentials and define pure migration plus atomic first-pin/revision behavior. Parent fixes those semantics in the original order; R1 source/schema write lease is not issued. Main product remains accepted LP-R6/schema21; no user-service or live runtime operation.
