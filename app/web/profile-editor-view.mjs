@@ -131,10 +131,14 @@ export function createProfileEditorView({ controller }) {
     else if (reading.fresh) {
       const sameSource = reading.fresh.sourceHash === base?.sourceHash;
       status.push(
-        el("p", { className: "runtime-note", attrs: { role: "status", "data-testid": "profile-editor-fresh" }, text: sameSource
+        el("p", { className: "runtime-note", attrs: { role: "status", "data-testid": "profile-editor-fresh" }, text: reading.save.status === "saving"
+          ? `The Host now reports source ${short(reading.fresh.sourceHash)} at revision ${reading.fresh.revision}. It may include the save that is still waiting for its answer; your newer text is kept.`
+          : sameSource
           ? `The configuration changed (revision ${base.revision} → ${reading.fresh.revision}), but the saved source is still the one you started from.`
           : `The saved source changed since you started (now ${short(reading.fresh.sourceHash)}, revision ${reading.fresh.revision}). Your text is kept and was not saved.` }),
-        el("span", { className: "runtime-row-actions" },
+        reading.save.status === "saving"
+          ? el("p", { className: "form-help", attrs: { "data-testid": "profile-editor-fresh-waiting" }, text: "A save is still waiting for the Host's answer. Choose how to continue once it settles." })
+          : el("span", { className: "runtime-row-actions" },
           button("text-button", sameSource ? "Continue with my text" : "Keep my text over the current source", `profile-editor:keep:${profileId}`, () => controller.keepMine(sessionId, profileId)),
           sameSource ? null : button("text-button", "Use the current source (discard my text)", `profile-editor:use-current:${profileId}`, () => controller.useCurrent(sessionId, profileId))),
       );

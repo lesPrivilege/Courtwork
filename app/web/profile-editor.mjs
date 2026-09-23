@@ -173,6 +173,14 @@ export function createProfileEditor({ adapter, onSaved }) {
        while its profile is again this Chat's own selection. */
     if (explicit && slot.suspended && editorReading(slot, factsOf(slot.sessionId)).eligible) slot.suspended = false;
     const reading = baseOf(result);
+    /* K5-R2 · an outstanding save owns base, text and save state until its
+       reply settles. A read meanwhile only records what the Host now holds;
+       the reply (or its own read-back) decides what that reading means. */
+    if (slot.save.status === "saving") {
+      if (reading.revision !== slot.base.revision || reading.sourceHash !== slot.base.sourceHash) slot.fresh = reading;
+      emit();
+      return;
+    }
     const settling = ["unknown", "different"].includes(slot.save.status) && slot.save.submitted;
     if (settling) {
       /* A hash match confirms the saved bytes now equal the submitted text;
@@ -330,7 +338,10 @@ export function createProfileEditor({ adapter, onSaved }) {
       const resource = (reply?.resources || []).find((entry) => entry.id === id);
       if (resource?.source?.hash === submitted.sha256) {
         slot.base = { revision: reply.revision, resource: { id, kind, title, scope: clone(scope) }, sourceHash: submitted.sha256, content: text };
-        slot.fresh = null;
+        /* A reading taken while this save was outstanding at or before its
+           revision is this write (or older); a newer one is someone else's
+           change and stays for a deliberate choice. */
+        if (!(slot.fresh && slot.fresh.revision > reply.revision)) slot.fresh = null;
         slot.save = { status: "saved", submitted, message: "Saved. Runs started after this in chats that select this profile use it; earlier runs keep their recorded context.", code: null };
         emit();
         onSaved?.({ sessionId, profileId, snapshot: reply });
@@ -344,7 +355,7 @@ export function createProfileEditor({ adapter, onSaved }) {
     /** Replace the draft with the current saved source (discards the edit). */
     useCurrent(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.fresh || slot.suspended) return;
+      if (!slot?.fresh || slot.suspended || slot.save.status === "saving") return;
       slot.base = slot.fresh;
       slot.text = slot.fresh.content;
       slot.fresh = null;
@@ -355,7 +366,7 @@ export function createProfileEditor({ adapter, onSaved }) {
      * saved; the next Save is checked against the new revision. */
     keepMine(sessionId, profileId) {
       const slot = slots.get(editorKey(sessionId, profileId));
-      if (!slot?.fresh || slot.suspended) return;
+      if (!slot?.fresh || slot.suspended || slot.save.status === "saving") return;
       slot.base = slot.fresh;
       slot.fresh = null;
       slot.save = { status: "idle", submitted: null, message: "", code: null };

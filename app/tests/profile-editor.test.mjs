@@ -402,3 +402,89 @@ test("K5-R1: an explicit read while still ineligible does not resume the slot", 
   await editor.check(S, P);
   assert.deepEqual([read().suspended, read().text], [true, EDITED]);
 });
+
+/* ── K5 return R2 · an outstanding Save keeps its ownership ───────────── */
+
+/* The write lands at once; only its reply is held (like a slow response). */
+function holdReplies(host) {
+  const pending = [];
+  const real = host.adapter.save;
+  host.adapter.save = async (s, body) => {
+    const reply = await real(s, body);
+    await new Promise((resolve) => pending.push(resolve));
+    return reply;
+  };
+  return pending;
+}
+
+test("K5-R2: fresh read, Keep my text, Use current and repeated Save never release a pending save", async () => {
+  const { host, editor, read, saved } = await setup();
+  editor.observe(S, { revision: 7, editableId: P, activeRuns: 0 });
+  const pending = holdReplies(host);
+  const V2 = EDITED, V3 = EDITED.replace('"2"', '"3"');
+  editor.setText(S, P, V2);
+  const first = editor.save(S, P);
+  while (!pending.length) await new Promise((resolve) => setTimeout(resolve, 1));
+  editor.setText(S, P, V3); // newer typing while waiting
+  editor.observe(S, { revision: 8 }); // Settings re-read sees the first write
+  await editor.check(S, P); // explicit fresh read
+  let r = read();
+  assert.deepEqual([r.save.status, r.fresh?.revision, r.base.revision, r.text], ["saving", 8, 7, V3]);
+  editor.keepMine(S, P);
+  editor.useCurrent(S, P);
+  r = read();
+  assert.deepEqual([r.save.status, r.fresh?.revision, r.base.revision, r.text, r.save.gate.enabled], ["saving", 8, 7, V3, false]);
+  await editor.save(S, P);
+  await editor.save(S, P);
+  assert.equal(saves(host).length, 1, "one outstanding PUT");
+  assert.equal(pending.length, 1);
+  pending[0]();
+  await first;
+  r = read();
+  assert.deepEqual([r.save.status, r.base.revision, r.base.content, r.fresh, r.text, r.dirty], ["saved", 8, V2, null, V3, true],
+    "the delayed reply settles; its own revision's reading is cleared; newer typing kept");
+  assert.equal(saved.length, 1);
+  const next = editor.save(S, P); // a deliberate next save after settlement
+  while (pending.length < 2) await new Promise((resolve) => setTimeout(resolve, 1));
+  assert.equal(saves(host).length, 2);
+  assert.deepEqual(saves(host).map((call) => call.body.revision), [7, 8]);
+  pending[1]();
+  await next;
+  assert.deepEqual([host.content, read().save.status, read().dirty], [V3, "saved", false]);
+});
+
+test("K5-R2: a newer foreign write seen during a pending save stays for a deliberate choice after it settles", async () => {
+  const { host, editor, read } = await setup();
+  editor.observe(S, { revision: 7, editableId: P });
+  const pending = holdReplies(host);
+  editor.setText(S, P, EDITED);
+  const first = editor.save(S, P);
+  while (!pending.length) await new Promise((resolve) => setTimeout(resolve, 1));
+  host.content = "{\"someone\":\"else\"}"; // another client writes after ours
+  host.revision = 9;
+  await editor.check(S, P);
+  assert.equal(read().save.status, "saving");
+  pending[0]();
+  await first;
+  const r = read();
+  assert.deepEqual([r.save.status, r.base.revision, r.fresh?.revision, r.save.gate.enabled], ["saved", 8, 9, false]);
+  editor.keepMine(S, P); // now allowed: the save has settled
+  assert.deepEqual([read().fresh, read().base.revision], [null, 9]);
+});
+
+test("K5-R2: a pending save whose reply is lost keeps its read-back semantics after a read during the wait", async () => {
+  const { host, editor, read } = await setup();
+  const real = host.adapter.save;
+  let fail;
+  host.adapter.save = async (s, body) => { await real(s, body); await new Promise((resolve) => { fail = resolve; }); throw new Error("The local runtime could not be reached."); };
+  editor.setText(S, P, EDITED);
+  const first = editor.save(S, P);
+  while (!fail) await new Promise((resolve) => setTimeout(resolve, 1));
+  await editor.check(S, P);
+  editor.keepMine(S, P);
+  assert.equal(read().save.status, "saving");
+  fail();
+  await first;
+  assert.equal(read().save.status, "saved", "the unknown outcome is settled by its own hash read-back");
+  assert.equal(saves(host).length, 1);
+});
