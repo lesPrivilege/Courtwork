@@ -86,6 +86,22 @@ test("R1 one Host serves separate Pi and managed Sessions with frozen native sha
   assert.deepEqual([compact.status, compact.json.error.code], [409, "runtime_capability_unsupported"]);
   assert.deepEqual(await h.runtime.service.reconcileRemoteSession(managed.id),
     { resolved: [], settledRuns: [], unresolved: [], unsettledRuns: [] });
+  const requestsBeforeFacts = h.runtime.fakeProvider.requests.length;
+  const nativeCreatesBeforeFacts = h.runtime.store.listRemoteActions(managed.id).filter(action => action.kind === "create").length;
+  const managedCommands = await h.api("GET", `/sessions/${managed.id}/commands`);
+  const managedCompact = managedCommands.json.commands.find(command => command.name === "compact");
+  const managedStatus = await h.api("POST", `/sessions/${managed.id}/commands/status`, { args: "" });
+  assert.match(managedCompact.availability.reason, /runtime.*not support compaction/i);
+  assert.deepEqual(managedStatus.json.facts.compaction, managedCompact.availability);
+  const piCommands = await h.api("GET", `/sessions/${pi.id}/commands`);
+  const piCompact = piCommands.json.commands.find(command => command.name === "compact").availability;
+  assert.notEqual(piCompact.reason, managedCompact.availability.reason,
+    "Pi keeps its own model/policy compaction facts");
+  assert.notEqual(piCompact.reason, "This chat has no recorded conversation to compact.",
+    "Pi history is still recognized");
+  assert.equal(h.runtime.fakeProvider.requests.length, requestsBeforeFacts);
+  assert.equal(h.runtime.store.listRemoteActions(managed.id).filter(action => action.kind === "create").length,
+    nativeCreatesBeforeFacts, "command discovery and status have no native effect");
 }));
 
 test("R1 stale choice and stale Run expectation refuse before provider/native requests", () => withDual(async (h, loopback) => {
@@ -136,6 +152,12 @@ test("R1 a saved managed Run replays after restart without its factory; new work
     assert.deepEqual([replay.status, replay.json.run.id], [200, settled.id]);
     const refused = await api("POST", `/sessions/${session.id}/runs`, runBody("new work", "r1-new", chosen));
     assert.deepEqual([refused.status, refused.json.error.code], [409, "executor_unavailable"]);
+    const commands = await api("GET", `/sessions/${session.id}/commands`);
+    assert.equal(commands.status, 200);
+    assert.match(commands.json.commands.find(command => command.name === "compact").availability.reason,
+      /selected runtime is unavailable/i);
+    const status = await api("POST", `/sessions/${session.id}/commands/status`, { args: "" });
+    assert.match(status.json.facts.compaction.reason, /selected runtime is unavailable/i);
     assert.equal(loopback.posts("/v1/agents/sessions").length, attempts);
   } finally { await reopened.close(); }
 }));
@@ -256,6 +278,10 @@ test("R1 contradictory legacy native history stays readable with null identity a
       assert.deepEqual([choice.status, choice.json.choice.adapterId, choice.json.locked], [200, null, true]);
       assert.equal((await api("GET", `/runtime-info?sessionId=${session.id}`)).json.adapterId, null);
       assert.equal((await api("GET", `/runtime-control?sessionId=${session.id}`)).json.adapterId, null);
+      const commands = await api("GET", `/sessions/${session.id}/commands`);
+      assert.equal(commands.status, 200);
+      assert.match(commands.json.commands.find(command => command.name === "compact").availability.reason,
+        /selected runtime is unavailable/i);
       const refused = await api("POST", `/sessions/${session.id}/runs`, runBody("cannot guess", "r1-contradiction-next"));
       assert.deepEqual([refused.status, refused.json.error.code], [409, "runtime_mismatch"]);
       assert.equal(reopened.store.getRun(created.json.run.id).adapterId, "agents-api");

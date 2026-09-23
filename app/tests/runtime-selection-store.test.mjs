@@ -109,6 +109,43 @@ test("R1 bound executor identity rejects mutation and corrupt reopen without rew
   } finally { await store?.close(); await rm(dir, { recursive: true, force: true }); }
 });
 
+test("R1-R1 a reused factory ref cannot change bound adapter revision across Runs or on reopen", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "cw-executor-revision-lineage-"));
+  let store;
+  try {
+    store = await new RuntimeStore({ dataDir: dir }).open();
+    const project = await store.createProject("Revision lineage");
+    const original = descriptor();
+    const session = await store.createSession({ projectId: project.id, title: "Revision",
+      workspaceDir: path.join(dir, "workspace"), executorDescriptor: original });
+    const first = await store.createRun(run(session, original, "revision-1"));
+    await store.updateRun(first.run.id, { status: "completed", admissionOpen: false });
+    const file = path.join(dir, "runtime-state.json");
+    const before = await readFile(file);
+    const drifted = { ...original, revision: "fixture-revision-2" };
+    const secondRequest = run(store.getSession(session.id), drifted, "revision-2");
+    await assert.rejects(store.createRun(secondRequest), {
+      code: "EXECUTOR_CONFIGURATION_CHANGED", message: /bound executor revision differs/,
+    });
+    assert.deepEqual(await readFile(file), before, "rejected admission changes no durable bytes");
+    assert.equal(store.listRuns(session.id).length, 1);
+    const replay = await store.createRun(run(session, drifted, "revision-1"));
+    assert.equal(replay.run.id, first.run.id, "original command receipt precedes current revision checks");
+    assert.deepEqual(await readFile(file), before, "receipt replay changes no durable bytes");
+
+    const accepted = await store.createRun(run(store.getSession(session.id), original, "revision-2"));
+    await store.updateRun(accepted.run.id, { status: "completed", admissionOpen: false });
+    await store.close(); store = null;
+    const state = JSON.parse(await readFile(file, "utf8"));
+    state.runs.find(row => row.id === accepted.run.id).executorBinding.revision = "forged-revision-2";
+    const forged = Buffer.from(JSON.stringify(state));
+    await writeFile(file, forged);
+    await assert.rejects(new RuntimeStore({ dataDir: dir }).open(),
+      /bound Run executor revision differs across Session history/);
+    assert.deepEqual(await readFile(file), forged, "corrupt load refuses without rewriting bytes");
+  } finally { await store?.close(); await rm(dir, { recursive: true, force: true }); }
+});
+
 test("R1 contradictory schema-21 global Run/native history stays readable and fenced", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-executor-conflict-"));
   let store;

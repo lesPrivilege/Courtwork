@@ -116,6 +116,7 @@ export function migrateExecutorState(state) {
 export function validateExecutorState(state, previous = null) {
   const previousSessions = new Map(previous?.sessions?.map(session => [session.id, session]) ?? []);
   const previousRuns = new Map(previous?.runs?.map(run => [run.id, run]) ?? []);
+  const boundLineage = new Map();
   for (const session of state.sessions) {
     validateExecutorChoice(session.executorChoice);
     const child = Boolean(sparkAssignmentForSession(state, session.id));
@@ -152,6 +153,15 @@ export function validateExecutorState(state, previous = null) {
       requireTrue(choice?.adapterId === run.adapterId &&
         choice.configurationRef === run.executorBinding.configurationRef &&
         choice.revision === run.executorBinding.choiceRevision, "bound Run executor choice mismatch");
+      const earlier = boundLineage.get(run.sessionId);
+      if (earlier) requireTrue(earlier.adapterId === run.adapterId &&
+        earlier.revision === run.executorBinding.revision &&
+        earlier.configurationRef === run.executorBinding.configurationRef,
+      "bound Run executor revision differs across Session history");
+      else boundLineage.set(run.sessionId, {
+        adapterId: run.adapterId, revision: run.executorBinding.revision,
+        configurationRef: run.executorBinding.configurationRef,
+      });
     } else if (!prior && previous) fail("new nonchild Run lacks a bound executor");
   }
 }

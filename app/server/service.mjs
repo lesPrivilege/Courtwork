@@ -557,11 +557,19 @@ export class RuntimeService {
     const model = this.#resolveModel(this.providerConfig);
     const capability = this.#reasoningCapability(this.providerConfig);
     let compaction;
-    if (!this.#runtimeCapability("compact").supported) compaction = { available: false, reason: "The bound runtime does not support compaction." };
-    else if (!session.hostSession) compaction = { available: false, reason: "This chat has no recorded conversation to compact." };
-    else if (!model) compaction = { available: false, reason: "The configured model could not be resolved." };
-    else if (!this.#compactionPolicy(model).enabled) compaction = { available: false, reason: "Compaction needs a known context window on the configured model." };
-    else compaction = { available: true, reason: null };
+    let selectedPort = null;
+    try { selectedPort = this.#executorForSession(session).port; }
+    catch (error) {
+      if (!(error instanceof ServiceError) || !["executor_unavailable", "executor_configuration_changed", "runtime_mismatch"].includes(error.code)) throw error;
+      compaction = { available: false, reason: `The selected runtime is unavailable: ${error.message}` };
+    }
+    if (!compaction) {
+      if (!this.#runtimeCapability("compact", selectedPort).supported) compaction = { available: false, reason: "The bound runtime does not support compaction." };
+      else if (!session.hostSession) compaction = { available: false, reason: "This chat has no recorded conversation to compact." };
+      else if (!model) compaction = { available: false, reason: "The configured model could not be resolved." };
+      else if (!this.#compactionPolicy(model).enabled) compaction = { available: false, reason: "Compaction needs a known context window on the configured model." };
+      else compaction = { available: true, reason: null };
+    }
     return { session, runtime, facts: {
       sessionId, runtimeRevision: runtime.revision, providerConfigVersion: this.store.getProviderConfigVersion(),
       permissionMode: session.permissionMode, activeRun: this.store.hasActiveRun(), activeOperation: this.store.hasActiveOperation(),

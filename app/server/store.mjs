@@ -1608,6 +1608,11 @@ export class RuntimeStore {
           session.executorChoice.configurationRef !== checkedExecutor.configurationRef) {
           throw executorError("EXECUTOR_CONFIGURATION_CHANGED", "session executor configuration changed");
         }
+        const previousBound = state.runs.find(run => run.sessionId === sessionId &&
+          !isSparkChildRun(state, run) && run.executorBinding?.recording === "bound");
+        if (previousBound && previousBound.executorBinding.revision !== checkedExecutor.revision) {
+          throw executorError("EXECUTOR_CONFIGURATION_CHANGED", "bound executor revision differs from this Session's history");
+        }
       }
       const unresolvedLocalRuns = state.runs.filter(run => localPiRunUnresolved(state, run.id));
       if (unresolvedLocalRuns.length > 0 && (adapterId === "pi-local-print" || unresolvedLocalRuns.some(run => run.sessionId === sessionId))) {

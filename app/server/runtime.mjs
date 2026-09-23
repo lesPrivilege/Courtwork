@@ -58,8 +58,8 @@ export async function createRuntime({ dataDir, extensionCatalog = [], fakeRespon
         throw new TypeError("a managed alternate requires the production Pi default and a trusted factory");
       }
       const managed = managedRuntimePort({ dataDir, modelRuntime });
-      if (managed.id !== MANAGED_EXECUTOR_ID) throw new TypeError("only the reviewed managed Agents adapter is eligible");
       ports.push(managed);
+      if (managed.id !== MANAGED_EXECUTOR_ID) throw new TypeError("only the reviewed managed Agents adapter is eligible");
     }
     const configuredExecutors = ports.map(port => {
       const info = port.describe();
