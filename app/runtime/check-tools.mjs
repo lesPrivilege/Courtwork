@@ -88,14 +88,19 @@ export function createCheckTools({ candidate, resolveCandidate, runId: _runId, r
       }
 
       const status = result.cancelled ? "cancelled" : result.timedOut ? "timed_out" : "completed";
+      // Once Host cancellation wins, whether the child reports exit 1 after
+      // handling SIGTERM or closes from SIGTERM is process scheduling detail,
+      // not a different check settlement. Keep one stable Host/tool result.
+      const exitCode = status === "cancelled" ? null : result.exitCode;
+      const closeSignal = status === "cancelled" ? null : result.signal;
       await recordSettled({
-        callId, status, exitCode: result.exitCode, signal: result.signal, durationMs: result.durationMs,
+        callId, status, exitCode, signal: closeSignal, durationMs: result.durationMs,
         stdout: result.stdout, stderr: result.stderr, truncated: result.truncated,
         startedAt: result.startedAt, endedAt: result.endedAt,
       });
 
       const summary = {
-        recipeId: recipe.id, status, exitCode: result.exitCode, signal: result.signal,
+        recipeId: recipe.id, status, exitCode, signal: closeSignal,
         durationMs: result.durationMs, truncated: result.truncated, stdout: result.stdout, stderr: result.stderr,
       };
       const { stdout: _stdout, stderr: _stderr, ...details } = summary;

@@ -67,3 +67,8 @@ Astra implements the bounded [same-Run candidate approval correction](evidence/c
 F-01 is closed. [Final author 82/82 and independent Luna 27/27 evidence](evidence/core-check-revision-20260920/README.md#final-independent-acceptance-and-f-01-disposition) supports local integration of this correction, with exact final hashes. Astra accepts this bounded slice and retains N-02/real-model GUI and full G4 residuals with their existing owners.
 
 Accepted source commit: `8aef0bd41fe9426d775f86e47aec6435d46f9ac5`. The preserved failing-test stdout has two whitespace-only output lines; they remain raw evidence rather than rewritten output. Product source whitespace checks pass.
+
+
+## 2026-09-24 · P03-E cancellation parity correction
+
+The original owner contract recorded an in-flight child's raw exit code/signal after cancellation. P03-E reproduced two OS close tuples for the same cancelled check (handled `SIGTERM` → exit 1, and direct `SIGTERM` → signal). Per the user-directed canonical Host record, `check.settled` now stores `status:"cancelled"`, null `exitCode`/`signal`, and retains partial output and duration after the process group is confirmed closed. The child runner's raw close tuple remains available internally but is not persisted for cancelled checks; completed and timed-out facts are unchanged. This deliberately supersedes the in-flight raw exit/signal sentence in `app/docs/check-recipes.md` at the accepted 2026-09-16 baseline. The exact-one-settlement regression remains in the P03-E integration test. RuntimeStore schema is unchanged.

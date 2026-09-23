@@ -320,6 +320,8 @@ test("cancelling a Run whose check is still running still records check.settled 
 
     const settled = await waitForMatch(() => eventsFor(h, session, run.json.run.id), e => e.type === "check.settled");
     assert.equal(settled.data.status, "cancelled");
+    assert.deepEqual([settled.data.exitCode, settled.data.signal], [null, null], "Host cancellation has a stable process-outcome projection");
+    assert.deepEqual(eventsFor(h, session, run.json.run.id).filter(event => event.type === "check.settled").map(({ data }) => [data.status, data.exitCode, data.signal]), [["cancelled", null, null]], "one canonical settlement is recorded");
     assert.equal(typeof settled.data.stdout, "string");
     assert.equal(typeof settled.data.stderr, "string");
   } finally {

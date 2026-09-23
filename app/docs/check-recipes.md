@@ -85,8 +85,14 @@ no process and, if a start was already recorded, settles it as `failed` with
 `candidate_changed`. Cancellation/closed admission during preparation prevents
 spawn and settles an already recorded start as `cancelled`, with null exit
 code/signal/failure and empty output. In-flight cancellation still waits for
-the process group to exit. This is a start-boundary guarantee, not a filesystem
-snapshot or isolation guarantee for the duration of the process. This extends
+the process group to exit. Once it has exited, the Host also records
+`status:"cancelled"` with null `exitCode` and `signal`, while retaining the
+observed partial stdout/stderr and duration. The runner's child close tuple is
+not persisted for cancelled checks: runtimes can report a handled `SIGTERM` as
+exit code 1 or report `SIGTERM` directly, and that OS-level race does not change
+the Host outcome. Completed and timed-out checks retain their observed process
+facts. This is a start-boundary guarantee, not a filesystem snapshot or
+isolation guarantee for the duration of the process. This extends
 the same permission-question payload shape `repo_write` already uses
 (`app/server/store.mjs` validates a `check_run` question's payload with its
 own field set, the way it already does for `repo_write`); a permission for any
@@ -136,7 +142,10 @@ through the store, independent of Pi's own tool-result path:
   not be spawned), or `unknown` (below). Recorded unconditionally once a
   process has actually settled or the Host has confirmed its process group
   has exited — even after the Run's admission has already closed, so a
-  cancelled check's partial output and exit/signal are never lost.
+  cancelled check's partial output is never lost. For `cancelled`, Host
+  `exitCode` and `signal` are both null to provide one stable outcome; the
+  child runner's raw close tuple is deliberately excluded. `completed` and
+  `timed_out` retain observed process exit facts.
 
 **Unknown after restart.** If the Host stops between `check.started` and its
 matching `check.settled` (same Run id + call id), the outcome is genuinely

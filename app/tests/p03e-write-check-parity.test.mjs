@@ -173,7 +173,8 @@ describe("P03-E · write → approval → fixed check parity", () => {
       const crash = await crashCopy(t.h);
       assert.equal((await t.h.api("POST", `/runs/${cancelRun}/cancel`, {})).status, 200);
       out.cancel = { status: (await t.h.pollRun(cancelRun, { timeoutMs: 30000 })).status, facts: t.facts(cancelRun) };
-      assert.deepEqual(out.cancel.facts.filter(fact => fact.type === "check.settled").map(fact => fact.data.status), ["cancelled"]);
+      const cancelSettlements = out.cancel.facts.filter(fact => fact.type === "check.settled");
+      assert.deepEqual(cancelSettlements.map(({ data }) => [data.status, data.exitCode, data.signal]), [["cancelled", null, null]]);
 
       const restarted = await reopen(crash, t.loopback ? { runtimePort: agentsPort(t.loopback) } : {});
       cleanup.push(() => restarted.runtime.close());

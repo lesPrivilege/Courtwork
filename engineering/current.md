@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-24 · Runtime check cancellation parity correction integrated
+
+P03-E exposed two OS close tuples for the same cancelled check across supported Node/runtime paths. Host `check.settled` now records one canonical cancellation (`exitCode:null`, `signal:null`) after process-group closure, while retaining partial output and duration; completed and timed-out exits remain factual. RuntimeStore22/Core4/bridge5 are unchanged. Focused recipe/parity/UI checks pass 20/20 on Node22.19 and24.21; Luna independently passes20/20 on Node25.9. The original DF-04/RD-009 contract and P03-E owner evidence record the adjustment. No user service, data, credentials or deployment were involved.
+
 ## 2026-09-24 · K5 selected-profile editor accepted and integrated
 
 [Final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-final-20260924/README.md) accepts136f1d6/1228161 atmain928ba61. R1/R2/F1 close: independent26/26 and the bounded counterexample pass; actual OpenAI browser holds the real save response, preserves the pending lock/newer draft, then explicitly saves and sends with exact new context while old history remains. Existing CAS/scope/permission owners and schema22/Core4/bridge5 remain. Actual-main74/74 passes; full archive extraction/hash and Git bundle restoration are verified before ended-tree removal. No live managed/structured Kit-authoring or deployment claim. No active product writer or new lane follows; manual Claude coordination remains available.

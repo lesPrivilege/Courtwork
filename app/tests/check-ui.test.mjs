@@ -28,7 +28,7 @@ test("check.started and check.settled project onto one tool row and outrank Pi's
 });
 
 test("A cancelled or unknown settlement stands on its own without a Pi tool/result", () => {
-  const events = [ev(1, "check.started", { callId: "c9", recipeId: "node-test", recipeVersion: 1, startedAt: "x" }), ev(2, "check.settled", { callId: "c9", status: "cancelled", exitCode: null, signal: "SIGTERM", durationMs: 800, stdout: "partial", stderr: "", truncated: { stdout: false, stderr: false } })];
+  const events = [ev(1, "check.started", { callId: "c9", recipeId: "node-test", recipeVersion: 1, startedAt: "x" }), ev(2, "check.settled", { callId: "c9", status: "cancelled", exitCode: null, signal: null, durationMs: 800, stdout: "partial", stderr: "", truncated: { stdout: false, stderr: false } })];
   const rows = projectThread(events, [{ ...run, status: "cancelled" }], "s1").rows ?? projectThread(events, [{ ...run, status: "cancelled" }], "s1");
   const tool = rows.find(r => r.kind === "tool");
   assert.equal(tool.name, "check_run");
