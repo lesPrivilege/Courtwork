@@ -1,0 +1,15 @@
+✖ schema 21 records one immutable Kit summary and equal typed runtime.bound projection across reopen (3.603ms)
+✖ schema 21 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes (55.830916ms)
+✖ schema 20 upgrades with an exact backup, unchanged historical events, and null legacy Run bindings (47.216833ms)
+✖ the pinned schema-20 Host refuses schema 21 byte-for-byte (602.99975ms)
+✖ schema 19 upgrades to current exactly once and preserves schema-20 remote authority and every existing event (3.634459ms)
+✖ the schema-20 fixture migration fails closed for an occupied backup, malformed schema 19, and schema 22 (55.809791ms)
+✖ the pinned schema-19 Host rejects current schema 21 byte-for-byte and opens the exact backup separately (648.316666ms)
+✖ generic event APIs cannot forge local Pi receipts, and unresolved local dispatches fence admission (49.347417ms)
+
+Interrupted while running:
+
+⚠ tests/local-pi-schema20.test.mjs (tests/local-pi-schema20.test.mjs:1:1)
+⚠ tests/runtime.test.mjs (tests/runtime.test.mjs:1:1)
+⚠ tests/schema18-upgrade.test.mjs (tests/schema18-upgrade.test.mjs:1:1)
+⚠ tests/schema19-upgrade.test.mjs (tests/schema19-upgrade.test.mjs:1:1)

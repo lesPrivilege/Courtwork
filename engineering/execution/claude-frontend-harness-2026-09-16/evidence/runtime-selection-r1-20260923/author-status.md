@@ -24,14 +24,39 @@ Affected responsibility: Host RuntimeStore Session choice and Run identity, comp
 
 Author checks and fixed source will be appended as implementation proceeds. The previous 52/52 baseline belongs to source `159ca005`; it is not a test result for this R1 source.
 
-### M1 Store checkpoint (source commit pending)
+### M1 Store checkpoint · `78d088b`
 
 `app/server/executor-choice-state.mjs` now owns strict choice/descriptor/binding validation, pure legacy lineage inference and child proof; `app/server/store.mjs` proposes schema 22, exact old-schema backup, new Session descriptor input, public choice CAS and atomic first-pin Run admission. Direct `runtime-selection-store.test.mjs` currently passes **3/3**: choice lock/reopen, exact schema-21 empty migration + single first pin/replay, and contradictory global Run/native history read/fence. `node --check` of both Store modules and `git diff --check` passed before the third test was added. This is an intermediate isolated candidate; service still must supply descriptors and direct older Store tests must be adapted without relaxing product checks. No full-suite or smoke result is claimed here.
 
 M1 fixed commit: `78d088b`. Only the named Store module, new direct test and this packet were staged. The untracked temporary `app/node_modules` symlink points to the already locked main dependencies for isolated tests; it is outside Git and will be removed before final handoff.
 
-### M2 actual routing checkpoint (source commit pending)
+### M2 actual routing checkpoint · `91e13ef`
 
 `createRuntime` now constructs the fixed Pi product default and accepts one trusted managed factory only through Host composition, not through a client flag. Pi/Agents ports report immutable revision/protocol and the managed transport exposes only its non-secret endpoint identity for the factory hash. Service chooses the persisted Session port for Run admission, Kit, active execution, compact and explicit remote observation; the active Run holds the actual port. Authenticated GET/PUT choice routes and an optional distinct `executorExpectation` are present. Global/extension selection is read-only; child Runs retain Spark's separate path. The managed alternate remains absent from the production composition and its synthetic factory accepts only the local fake Provider/Model path in R1.
 
 Direct new public tests pass **9/9**: Pi-only unavailable option/client flag refusal; two executor Sessions in one Host; stale CAS/expectation and first-choice race; missing and changed factory after restart; managed Kit zero-request refusal; Pi credential rotation; global selector exclusion. Adjacent accepted K3 **24/24** and P03-C Host **10/10** pass after two scoped assertion/fixture adjustments: missing sole injected port now returns `executor_unavailable`, and a forged schema-20 Kit fixture removes schema-22 fields before asking the old validator to reject the Kit defect. The initial runs exposed those exact changes and are not counted as green. No live managed service, user data or paid provider was used.
+
+M2 fixed commit: `91e13ef`. Production startup constructs Pi only. The managed factory enters solely through the trusted `startServer` composition argument used by offline tests; neither an HTTP flag nor the 06c frontend fixture can enable it.
+
+### M3 final backend candidate · product/test/docs source `49e2c00e2b3c9a3ea0df0fcf95fd0564d3f13fdb`
+
+The final source adds a test-only explicit Store descriptor helper so older tests of unrelated owners can construct valid schema-22 Sessions/Runs without a production fallback. Their historical old-reader commit pins and exact backup bytes remain unchanged. Contradictory Pi locator versus managed Run identity is readable with null scoped executor identity and refuses new admission in project, global or extension scope. A selected managed Session routes scoped Runtime Control, Runtime Info, compaction refusal and explicit P03-D observation through its actual port. A lost managed create remains unknown after reopen and cannot dispatch through Pi. A proved Local Pi child Run has `executorBinding:null` and a read-only ordinary selector.
+
+Exact source SHA-256 samples at this fixed commit:
+
+| File | SHA-256 |
+| --- | --- |
+| `app/server/store.mjs` | `bc59dc07f5e0672b58cb6ac7d2e5cca450e42b840c318e5d673459cd0f57c54d` |
+| `app/server/service.mjs` | `b9f97ed939f39d022deb6b04c543d4ad0f15ae3ba934ca57eb599846b6969f7f` |
+| `app/server/runtime.mjs` | `ba42c5cbabff4065a0ec7dff280557493407027dc62457330929b370f6055e55` |
+| `app/server/executor-choice-state.mjs` | `ff1d86fe4a66c04cb8ff66e85987ae48a32067f11ea771c4d71f60cd7cb0a936` |
+
+Final author command, cwd `app/`: `env -u OPENAI_API_KEY -u DEEPSEEK_API_KEY TMPDIR=/tmp/cw-r1-test-final-20260923 npm test` exits **0, 1623/1623**. Its pretest verifies 45 pinned commit/path/hash historical inputs. [Full log](full-suite.log), SHA-256 `b0e42f1e170b69352968c89d54ef681b1b08210ec7d3dc3ee4777b5d9ed48533`. The earlier pre-final full run passed 1621/1621 but belongs to an earlier working source; it is not the final proof. `npm run smoke` under the same local-fake/no-key environment exits **0**, including material read, tool write, persisted Artifact, close/reopen, Session continuation and historical bytes; [smoke log](smoke.log), SHA-256 `126c063ab8d7ed70e6d957052aea3f4bfa40b4593a100eeaab12c9dba0195aea`. Real Provider is explicitly `not_run`.
+
+Additional author checks: new Store **5/5** (exact schema-21 backup and pinned `db04448d821c56c20621c1a75161b768e19c0f1f` old reader refusal, first-pin CAS/replay, load/mutation integrity, contradictory global history); new public HTTP **11/11**; Pi Runtime Port **6/6**; adjacent Kit **24/24**, P03-C **10/10**, Local Pi/Spark **40/40**, P03-D/E **19/19**, historical migration focus **15/15**. The later narrow capability-validator refactor was rechecked with Store/HTTP/Pi **20/20** and Kit/P03-C **34/34** before the final full run. `node tools/check-doc-links.mjs` passes 1631 documents / 9597 checked links after this packet; relevant `node --check` and `git diff --check` pass.
+
+Failed exploratory checks are retained exactly: [initial direct Store run](initial-direct-store-failures.log) exited 1 after schema-shape failures left test lock holders and the author terminated only that test process; [direct Store fixture round](direct-store-fixture-failures.log.gz) passed 5/17; [adjacent fixture round](adjacent-fixture-failures.log.gz) passed 100/118 with 17 schema-fixture failures and one 30-second lineage timeout under concurrent load; [legacy fixture round](legacy-fixture-round3.log.gz) passed 13/15 before two exact expected-shape fixes. The three `.gz` artifacts are lossless copies of the raw logs; `gzip -cd` restores their original bytes, including whitespace. The isolated lineage test then passed in 42.6 seconds and the final unbounded full suite passed it. These failures were from schema-22 fixture construction/assertions and the bounded concurrent timeout, not treated as independent acceptance or erased by the later green run.
+
+This backend candidate does **not** make managed Agents live or selectable in the product default, implement a frontend choice surface, enable native tools/hosted environments, change Provider/permission authority, settle unknown effects automatically or accept Work. Parent/Luna independent acceptance, actual browser journey and main merge remain outstanding. Main governance `AGENTS.md` and `engineering/current.md` still correctly describe accepted main schema21 until parent integration; they should be synchronized only if the schema22 candidate is adopted.
+
+Only the six named logs above were copied into this evidence packet. The temporary `app/node_modules` link to the locked dependencies was removed after verification, and both explicitly named external full-suite TMPDIR roots were removed after the logs were retained. No native fixture session, SQLite store, credential file or scratch directory was staged.
