@@ -1,0 +1,19 @@
+# Runtime selection R1 fixed-return review — Luna — 2026-09-23
+
+**PASS for the three bounded return findings.** Reviewed product source `3454559fe4a16c5d47262ba1e6cb64e28f38da9e` in evidence commit `5bb2dc883aab2f803349eb2ff93f9d2f52bc66d2`. The targeted tests below pass. This does not relabel the earlier author full-suite result as independent verification of the fixed return.
+
+## Parent probes and exit semantics
+
+- Revision drift: exit **1**, expected from the diagnostic script's unhandled `EXECUTOR_CONFIGURATION_CHANGED` rejection on the second Run. It no longer persists `pi-r1, pi-r2` under one Session/ref. Exact temporary script: `/tmp/cw-runtime-r1-final-revision-drift.mjs`; raw log: `/tmp/cw-runtime-r1-final-revision-drift.log` (SHA-256 `020c17d898817a252732df8553d636ee38bc7c6e7e034192d9087a89a122104a`).
+- Managed command facts: exit **0**; Runtime Info identifies `agents-api`, and both compact command availability and Status facts say the selected runtime does not support compaction. Raw log: `/tmp/cw-runtime-r1-final-command-probe.log` (SHA-256 `d8a185bceea895d7d03538273107f9a85eb4d92849b539acf23c61cb21278bf1`).
+- Construction cleanup: exit **0**; wrong-ID managed construction is rejected and its returned port close callback runs once. Raw log: `/tmp/cw-runtime-r1-final-construction-probe.log` (SHA-256 `157cae0ca1e93d2547fc5114a8b9966346dfcfdc4c680684dbb6d33c01af11db`).
+
+The Store invariant compares only bound nonchild Runs across a Session; schema-21 legacy bindings with unknown revisions and Spark child Runs proven through the assignment owner remain exempt. The createRun revision check occurs after command-receipt replay lookup. The command-facts path uses the selected Session port and keeps read-only status/catalog available when the selected executor is unsupported or missing. Runtime construction records a returned managed object for cleanup before validating its ID; throw-before-return and valid repeated-close behavior remain distinct.
+
+## Focused verification
+
+`node --test tests/runtime-selection-store.test.mjs tests/runtime-selection-http.test.mjs tests/runtime-selection-construction.test.mjs tests/pi-runtime-port.test.mjs tests/p03c-host-consumer.test.mjs` passed **36/36, exit 0**. The suites include schema-21 migration/old-reader boundaries, Store first-pin and cross-Run revision drift rejection, scoped managed/Pi command facts including missing factory, one-host two-runtime routing, and constructed-port disposal cases.
+
+Raw test log: `/tmp/cw-runtime-r1-final-targeted-luna6-20260923.log` (SHA-256 `ccfd337882dafc7d7fc9dfdc85ad6cf888bdc855af1bc2cbd7efaf8c63e4bdc3`). `git diff --check` passed.
+
+The parent-authored 1623/1623 full suite and smoke remain attributed to product source `49e2c00`; I did not rerun them. No live provider, key, user Host or full suite was used. The candidate `app/node_modules` symlink to main's locked dependencies remains for the parent browser run.

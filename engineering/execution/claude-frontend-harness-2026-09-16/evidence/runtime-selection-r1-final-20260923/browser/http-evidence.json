@@ -1,0 +1,264 @@
+{
+  "rows": [
+    {
+      "sessionId": "d388e52a-e365-4b8e-8f3e-186798f4eaa1",
+      "runs": [
+        {
+          "id": "dccc8163-89b7-4d0c-bc30-88ec326e287b",
+          "status": "completed",
+          "adapterId": "pi-coding-agent@0.85.1/agent-session",
+          "executorBinding": {
+            "recording": "bound",
+            "revision": "pi-agent-session-context-v1",
+            "configurationRef": "sha256:97b7dbd9f14ebc4e4f1ce0628a8536a9b4b5cffe00efedbed41bf2b018f64e6f",
+            "capabilities": {
+              "start": {
+                "supported": true
+              },
+              "continue": {
+                "supported": true
+              },
+              "steer": {
+                "supported": true
+              },
+              "cancel": {
+                "supported": true
+              },
+              "compact": {
+                "supported": true
+              },
+              "recover": {
+                "supported": false,
+                "reason": "Pi's loop runs inside the Host process; a Run this process is not driving cannot be re-attached"
+              },
+              "submitToolResult": {
+                "supported": false,
+                "reason": "Pi executes the governed tools inside its own loop; there is no pending call to answer"
+              }
+            },
+            "choiceRevision": 0
+          },
+          "hasPiLocator": true,
+          "hasRemoteBinding": false
+        }
+      ],
+      "choice": {
+        "sessionId": "d388e52a-e365-4b8e-8f3e-186798f4eaa1",
+        "choice": {
+          "revision": 0,
+          "adapterId": "pi-coding-agent@0.85.1/agent-session",
+          "configurationRef": "sha256:97b7dbd9f14ebc4e4f1ce0628a8536a9b4b5cffe00efedbed41bf2b018f64e6f"
+        },
+        "locked": true,
+        "lockReason": "executor_lineage_locked",
+        "options": [
+          {
+            "adapterId": "pi-coding-agent@0.85.1/agent-session",
+            "revision": "pi-agent-session-context-v1",
+            "configurationRef": "sha256:97b7dbd9f14ebc4e4f1ce0628a8536a9b4b5cffe00efedbed41bf2b018f64e6f",
+            "capabilities": {
+              "start": {
+                "supported": true
+              },
+              "continue": {
+                "supported": true
+              },
+              "steer": {
+                "supported": true
+              },
+              "cancel": {
+                "supported": true
+              },
+              "compact": {
+                "supported": true
+              },
+              "recover": {
+                "supported": false,
+                "reason": "Pi's loop runs inside the Host process; a Run this process is not driving cannot be re-attached"
+              },
+              "submitToolResult": {
+                "supported": false,
+                "reason": "Pi executes the governed tools inside its own loop; there is no pending call to answer"
+              }
+            },
+            "availability": {
+              "status": "available",
+              "reason": null
+            }
+          },
+          {
+            "adapterId": "agents-api",
+            "revision": "agents-api-host-v1",
+            "configurationRef": "sha256:805e1061f841dddf150c4c01bea5e0a72db1d874fc98bcf3c78c4a2ae4e2d54e",
+            "capabilities": {
+              "start": {
+                "supported": true
+              },
+              "continue": {
+                "supported": true
+              },
+              "steer": {
+                "supported": false,
+                "reason": "input during an active remote turn is not part of this consumer"
+              },
+              "cancel": {
+                "supported": true
+              },
+              "compact": {
+                "supported": false,
+                "reason": "the remote session has no Host-side journal to compact"
+              },
+              "recover": {
+                "supported": true
+              },
+              "submitToolResult": {
+                "supported": true
+              }
+            },
+            "availability": {
+              "status": "available",
+              "reason": null
+            }
+          }
+        ]
+      },
+      "infoAdapter": "pi-coding-agent@0.85.1/agent-session",
+      "compact": {
+        "available": false,
+        "reason": "Compaction needs a known context window on the configured model."
+      }
+    },
+    {
+      "sessionId": "8b3d7d7b-a562-462a-9c74-19515cc1ae67",
+      "runs": [
+        {
+          "id": "7c137608-abfe-4050-94aa-65d9662c8353",
+          "status": "completed",
+          "adapterId": "agents-api",
+          "executorBinding": {
+            "recording": "bound",
+            "revision": "agents-api-host-v1",
+            "configurationRef": "sha256:805e1061f841dddf150c4c01bea5e0a72db1d874fc98bcf3c78c4a2ae4e2d54e",
+            "capabilities": {
+              "start": {
+                "supported": true
+              },
+              "continue": {
+                "supported": true
+              },
+              "steer": {
+                "supported": false,
+                "reason": "input during an active remote turn is not part of this consumer"
+              },
+              "cancel": {
+                "supported": true
+              },
+              "compact": {
+                "supported": false,
+                "reason": "the remote session has no Host-side journal to compact"
+              },
+              "recover": {
+                "supported": true
+              },
+              "submitToolResult": {
+                "supported": true
+              }
+            },
+            "choiceRevision": 1
+          },
+          "hasPiLocator": false,
+          "hasRemoteBinding": true
+        }
+      ],
+      "choice": {
+        "sessionId": "8b3d7d7b-a562-462a-9c74-19515cc1ae67",
+        "choice": {
+          "revision": 1,
+          "adapterId": "agents-api",
+          "configurationRef": "sha256:805e1061f841dddf150c4c01bea5e0a72db1d874fc98bcf3c78c4a2ae4e2d54e"
+        },
+        "locked": true,
+        "lockReason": "executor_lineage_locked",
+        "options": [
+          {
+            "adapterId": "pi-coding-agent@0.85.1/agent-session",
+            "revision": "pi-agent-session-context-v1",
+            "configurationRef": "sha256:97b7dbd9f14ebc4e4f1ce0628a8536a9b4b5cffe00efedbed41bf2b018f64e6f",
+            "capabilities": {
+              "start": {
+                "supported": true
+              },
+              "continue": {
+                "supported": true
+              },
+              "steer": {
+                "supported": true
+              },
+              "cancel": {
+                "supported": true
+              },
+              "compact": {
+                "supported": true
+              },
+              "recover": {
+                "supported": false,
+                "reason": "Pi's loop runs inside the Host process; a Run this process is not driving cannot be re-attached"
+              },
+              "submitToolResult": {
+                "supported": false,
+                "reason": "Pi executes the governed tools inside its own loop; there is no pending call to answer"
+              }
+            },
+            "availability": {
+              "status": "available",
+              "reason": null
+            }
+          },
+          {
+            "adapterId": "agents-api",
+            "revision": "agents-api-host-v1",
+            "configurationRef": "sha256:805e1061f841dddf150c4c01bea5e0a72db1d874fc98bcf3c78c4a2ae4e2d54e",
+            "capabilities": {
+              "start": {
+                "supported": true
+              },
+              "continue": {
+                "supported": true
+              },
+              "steer": {
+                "supported": false,
+                "reason": "input during an active remote turn is not part of this consumer"
+              },
+              "cancel": {
+                "supported": true
+              },
+              "compact": {
+                "supported": false,
+                "reason": "the remote session has no Host-side journal to compact"
+              },
+              "recover": {
+                "supported": true
+              },
+              "submitToolResult": {
+                "supported": true
+              }
+            },
+            "availability": {
+              "status": "available",
+              "reason": null
+            }
+          }
+        ]
+      },
+      "infoAdapter": "agents-api",
+      "compact": {
+        "available": false,
+        "reason": "The bound runtime does not support compaction."
+      }
+    }
+  ],
+  "postHistorySwitch": {
+    "status": 409,
+    "code": "executor_lineage_locked"
+  }
+}

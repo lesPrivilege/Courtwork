@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · Runtime R1 accepted; schema22 backend integrated
+
+[Parent R1 final adoption](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r1-final-20260923/README.md) accepts3454559/5bb2dc8 atmaine86a5a1. Three returns close; independent36/36, integrated36/36 and OpenAI browser Pi/managed-fixture Chats preserve distinct bound identities, completed results and history; post-history switching refuses. Host schema22/Core4/bridge5 is now accepted. Product startup remains Pi-only; no live managed availability or new frontend selector is claimed. User services/data/keys/Pages remain untouched; preservation cleanup is in the receipt.
+
 ## 2026-09-23 · R1 candidate held for three reproduced owner seams
 
 [Parent R1 review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r1-review-20260923/README.md) fixesb7426c1/product49e2c00 and records independent22/22 plus concrete Store revision-drift/reopen, wrong command capability source and rejected-factory cleanup findings. Original GPT-6 Sol receives R1-R1/R2/R3; no other writer starts. Main remains schema21/Core4/bridge5, candidate22 unadopted; author1623/1623 does not close the reproduced gaps. Source/evidence tree preserved, no user-service/credential/live action.

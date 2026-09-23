@@ -1,0 +1,18 @@
+{
+  "main": "e86a5a1a1131b6b1474c4f9ab22c4e49fa3c0969",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923",
+      "head": "5bb2dc883aab2f803349eb2ff93f9d2f52bc66d2",
+      "archive_ref": "refs/archive/runtime-r1-20260923/courtwork-runtime-selection-r0-20260923",
+      "entries": 9894,
+      "file_bytes": 479986764,
+      "archive_sha256": "c766c4220da9ab5812cd91fc97e2d5da75f494a31ff7a2e634b2f3d94f457828",
+      "manifest_sha256": "0a3a8762fe6ae845f50da245e74e625ddd04a785839a6da1e2312a28ca1758e3",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "13a8a8e18fdbaf29f746ec835f6a2577340bfb5129edf4c80aebec1f0bbf8867",
+  "bundle_restored_and_verified": true
+}

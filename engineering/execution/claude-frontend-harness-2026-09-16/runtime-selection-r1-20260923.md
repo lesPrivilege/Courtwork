@@ -36,3 +36,8 @@ Parent verified origin/main18e3af5 after contract acceptance and dispatched `/ro
 ## Parent fixed-candidate review — 2026-09-23
 
 [Parent findings and exact probes](evidence/runtime-selection-r1-review-20260923/README.md) hold packetb7426c1/product49e2c00. Adopt R1-R1 (bound revision agreement across Store lineage), R1-R2 (Session-scoped command capability facts), and R1-R3 (dispose rejected constructed managed port). Original GPT-6 Sol keeps the isolated writer for those corrections and relevant evidence only. Luna22/22 and author1623/1623 are retained at their exact pins, not a schema22 acceptance. Main remains21; no user-data or live operation.
+
+
+## Final parent acceptance — 2026-09-23
+
+[Final receipt](evidence/runtime-selection-r1-final-20260923/README.md) accepts3454559/5bb2dc8, integrates e86a5a1 and closes R1-R1/R2/R3. GPT-6 Luna36/36, actual-main36/36 and parent real-browser two-Session consumption pass. RuntimeStore22/Core4/bridge5 is adopted. Pi remains the product default; managed runtime remains fixture-only/configuration-and-live-gated, frontend selection and broader recovery are not delivered. Named old evidence and author/full-suite attribution remain intact.

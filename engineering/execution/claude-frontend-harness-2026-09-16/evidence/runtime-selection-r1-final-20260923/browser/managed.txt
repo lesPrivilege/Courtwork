@@ -1,0 +1,115 @@
+- complementary "Projects and chats":
+  - link "CourtWork":
+    - /url: "#home"
+    - text: CourtWork
+  - group "Recent places":
+    - button "Back to R1 Pi boundary":
+      - generic: Back to R1 Pi boundary
+    - button "Forward" [disabled]:
+      - generic: Forward
+  - button "Home":
+    - generic: Home
+  - button "New chat":
+    - generic: New chat
+  - button "Chat":
+    - generic: Chat
+  - button "Attention":
+    - generic: Attention
+  - button "Spark":
+    - generic: Spark
+  - generic: Find a project or chat
+  - searchbox "Find a project or chat"
+  - region "Projects":
+    - heading "Projects" [level=2]
+    - generic: "1"
+    - button "New project":
+      - generic: New project
+    - navigation "Project chats":
+      - button "test-project" [expanded]:
+        - generic: test-project
+      - button "New chat in test-project":
+        - generic: New chat in test-project
+      - button "R1 managed boundary":
+        - generic: R1 managed boundary
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "R1 Pi boundary":
+        - generic: R1 Pi boundary
+      - button "More chat actions":
+        - generic: More chat actions
+  - region "Recent":
+    - heading "Recent" [level=2]
+    - navigation "Recent chats":
+      - button "R1 managed boundary":
+        - generic: R1 managed boundary
+      - button "More chat actions":
+        - generic: More chat actions
+      - button "R1 Pi boundary":
+        - generic: R1 Pi boundary
+      - button "More chat actions":
+        - generic: More chat actions
+  - generic "Account":
+    - button "Account · You · Max":
+      - generic: ·
+      - generic: You
+      - generic: Max
+- main "Agent workspace":
+  - button "Toggle navigation" [expanded]:
+    - generic: Toggle navigation
+  - heading "R1 managed boundary" [level=1]: · R1 managed boundary
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open preview":
+    - generic: Open preview
+  - log:
+    - article "Your message":
+      - paragraph: Verify managed Session boundary.
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/23/2026, 6:06:46 PM
+        - text: 6:06 PM
+    - region "Agent run":
+      - article:
+        - paragraph: "R1 managed fixture: correctly bound executor."
+        - time:
+          - generic: Run started 9/23/2026, 6:06:46 PM
+          - text: 6:06 PM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+    - button "Measurement details"
+    - generic: Completed
+    - status: Completed
+  - generic: Sent.
+  - generic: Message
+  - textbox "Message" [active]:
+    - /placeholder: What would you like to work on?
+  - 'button "Agent: General"':
+    - generic: General
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Allow edits"':
+    - generic: Allow edits
+  - button "Model and effort · Local test · Provider default": Local test · Provider default
+  - button "Context details, capacity usage unknown":
+  - button "Send":
+    - generic: Send
+  - paragraph: test-project
+- status

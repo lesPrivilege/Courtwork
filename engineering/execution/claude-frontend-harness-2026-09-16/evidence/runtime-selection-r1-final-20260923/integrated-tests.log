@@ -1,0 +1,46 @@
+✔ LP-R6 actual terminal crash reopens, publishes retained findings once, and keeps every unknown fence (2098.783042ms)
+▶ LP-R6 missing terminal and missing retained bytes refuse without publication or replay
+  ✔ result without terminal (2163.276333ms)
+  ✔ retained object unavailable (1913.706583ms)
+  ✔ retained object bytes fail integrity (2231.94275ms)
+✔ LP-R6 missing terminal and missing retained bytes refuse without publication or replay (6310.049917ms)
+▶ LP-R6 cancellation, source changes, and publication-gap revocation preserve retained bytes and unknown state
+  ✔ cancelled assignment (1999.040625ms)
+  ✔ source revision changed (1657.621916ms)
+  ✔ policy revoked after payload read (1616.897541ms)
+✔ LP-R6 cancellation, source changes, and publication-gap revocation preserve retained bytes and unknown state (5274.184292ms)
+✔ LP-R6 cross-attempt retained receipt remains invalid state (1491.012167ms)
+✔ the production Host runs Pi through the port and continues one native session (661.204667ms)
+✔ a journal written before the port existed is opened in place and continued (250.343542ms)
+✔ retrying a command never opens a second native session (256.031625ms)
+✔ observations that arrive after cancellation are not recorded (435.538917ms)
+✔ an operation the runtime does not support is refused, not rerouted (192.948042ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.280917ms)
+✔ R1-R3 a constructed wrong-ID managed port and the Pi port each dispose once on rejection (79.770042ms)
+✔ R1-R3 a factory throw before return closes only the port already constructed (60.946166ms)
+✔ R1-R3 a valid configured managed port closes once across repeated Host close (70.8165ms)
+✔ R1 public choice defaults to Pi; an unconfigured managed option cannot be enabled by a client flag (390.3485ms)
+✔ R1 one Host serves separate Pi and managed Sessions with frozen native shapes (728.292542ms)
+✔ R1 stale choice and stale Run expectation refuse before provider/native requests (135.115208ms)
+✔ R1 first-choice PUT and first Run serialize; the loser cannot switch native lineage (139.852583ms)
+✔ R1 a saved managed Run replays after restart without its factory; new work refuses without Pi fallback (306.682542ms)
+✔ R1 changed managed endpoint after restart leaves the saved choice readable and refuses execution (213.271333ms)
+✔ R1 a selected managed lost-create stays unknown across reopen and cannot dispatch through Pi (580.377875ms)
+✔ R1 a v2 Kit remains Pi-only and refuses managed execution before provider/native requests (115.608541ms)
+✔ R1 Pi credential rotation does not change executor identity; managed credential fences stay separate (778.674791ms)
+✔ R1 global Attention choice is read-only and its Run keeps the default Pi port (120.049333ms)
+✔ R1 contradictory legacy native history stays readable with null identity and refuses new execution (704.161583ms)
+✔ R1 Store choice CAS, bound Run identity and historical lock survive reopen (142.292917ms)
+✔ R1 schema-21 empty Session migrates with null ref; first Run pins once after receipt lookup (126.49975ms)
+✔ R1 bound executor identity rejects mutation and corrupt reopen without rewriting bytes (127.663875ms)
+✔ R1-R1 a reused factory ref cannot change bound adapter revision across Runs or on reopen (125.53675ms)
+✔ R1 contradictory schema-21 global Run/native history stays readable and fenced (116.643583ms)
+✔ R1 pinned schema-21 Host refuses schema 22 without changing durable bytes (738.847833ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16426.516

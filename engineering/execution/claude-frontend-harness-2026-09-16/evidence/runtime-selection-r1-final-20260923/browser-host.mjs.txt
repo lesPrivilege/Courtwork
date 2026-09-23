@@ -1,0 +1,10 @@
+import {writeFile,rm} from 'node:fs/promises';
+import {boot} from '/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/tests/helpers.mjs';
+import {createAgentsLoopback} from '/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/tests/fixtures/agents-api-loopback.mjs';
+import {agentsPort} from '/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-selection-r0-20260923/app/tests/fixtures/agents-host-harness.mjs';
+const loop=await createAgentsLoopback({plan:()=>[{text:'R1 managed fixture: correctly bound executor.'}]});
+const h=await boot({managedRuntimePort:agentsPort(loop)});
+const pi=await h.createSession({title:'R1 Pi boundary'}),managed=await h.createSession({title:'R1 managed boundary'});
+const choice=await h.api('PUT',`/sessions/${managed.id}/executor-choice`,{expectedRevision:0,adapterId:'agents-api'});if(choice.status!==200)throw Error(JSON.stringify(choice));
+const info={url:h.runtime.url,piId:pi.id,managedId:managed.id,pid:process.pid};await writeFile('/tmp/cw-r1-final-browser-control.json',JSON.stringify({...info,token:h.runtime.token}));console.log(JSON.stringify(info));
+let closing=false;const close=async()=>{if(closing)return;closing=true;const runs=h.runtime.store.listRuns().map(r=>({id:r.id,sessionId:r.sessionId,status:r.status,adapterId:r.adapterId,executorBinding:r.executorBinding,hostSession:r.hostSession,remoteBinding:r.remoteBinding}));await writeFile('/tmp/cw-r1-final-browser-receipt.json',JSON.stringify({runs,piRequests:h.runtime.fakeProvider.requests.length,managedCreates:loop.posts('/v1/agents/sessions').length},null,2));await h.runtime.close();await loop.close();await rm(h.dataDir,{recursive:true,force:true});process.exit(0);};process.on('SIGTERM',close);process.on('SIGINT',close);

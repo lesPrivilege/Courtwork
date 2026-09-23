@@ -1,0 +1,46 @@
+▶ P03-C Host consumer · governed read on the production service path
+  ✔ admission → create intent → binding → root turn → claim → governed repo_read → retained bytes → one submission → root terminal → later input on the same binding (1617.200375ms)
+  ✔ unadvertised, wrong-turn, malformed and out-of-scope calls read nothing; each refusal is retained and delivered once as an error (1557.855458ms)
+  ✔ policy deny and a user's deny never read; a scope revoked while approval is pending cancels the run unread, and a later run has no reader (2095.514917ms)
+  ✔ a native call observed twice is claimed once, executed once and submitted once; racing claims share one receipt (1097.298583ms)
+  ✔ without attributable root identity nothing is read and nothing settles the run; a required action is not root evidence (896.695292ms)
+  ✔ a lost creation reply stays unknown: no binding, no guessed id, no replacement session, and the chat is fenced (916.793292ms)
+  ✔ a lost submission reply keeps the retained result and its identity: unknown delivery, no re-read, no re-send, chat fenced (998.518542ms)
+  ✔ restart fences: an interrupted execution and an unanswered submission become unknown; nothing is re-read, re-run or re-sent (1415.05175ms)
+  ✔ an earlier stream replayed to a later run cannot re-execute, re-associate or settle it (703.90175ms)
+  ✔ a chat stays with its runtime: Pi refuses a remote-bound chat, the remote runtime refuses a Pi chat, and a changed configuration cannot reuse the binding (959.622333ms)
+✔ P03-C Host consumer · governed read on the production service path (12260.41575ms)
+✔ the production Host runs Pi through the port and continues one native session (1173.534042ms)
+✔ a journal written before the port existed is opened in place and continued (479.939042ms)
+✔ retrying a command never opens a second native session (618.097875ms)
+✔ observations that arrive after cancellation are not recorded (322.505833ms)
+✔ an operation the runtime does not support is refused, not rerouted (166.343583ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.13125ms)
+✔ R1-R3 a constructed wrong-ID managed port and the Pi port each dispose once on rejection (119.117542ms)
+✔ R1-R3 a factory throw before return closes only the port already constructed (112.002959ms)
+✔ R1-R3 a valid configured managed port closes once across repeated Host close (85.865917ms)
+✔ R1 public choice defaults to Pi; an unconfigured managed option cannot be enabled by a client flag (557.183542ms)
+✔ R1 one Host serves separate Pi and managed Sessions with frozen native shapes (1047.892042ms)
+✔ R1 stale choice and stale Run expectation refuse before provider/native requests (106.514667ms)
+✔ R1 first-choice PUT and first Run serialize; the loser cannot switch native lineage (74.454583ms)
+✔ R1 a saved managed Run replays after restart without its factory; new work refuses without Pi fallback (571.488625ms)
+✔ R1 changed managed endpoint after restart leaves the saved choice readable and refuses execution (153.577458ms)
+✔ R1 a selected managed lost-create stays unknown across reopen and cannot dispatch through Pi (241.373625ms)
+✔ R1 a v2 Kit remains Pi-only and refuses managed execution before provider/native requests (83.890125ms)
+✔ R1 Pi credential rotation does not change executor identity; managed credential fences stay separate (717.064625ms)
+✔ R1 global Attention choice is read-only and its Run keeps the default Pi port (138.773875ms)
+✔ R1 contradictory legacy native history stays readable with null identity and refuses new execution (586.135792ms)
+✔ R1 Store choice CAS, bound Run identity and historical lock survive reopen (192.322083ms)
+✔ R1 schema-21 empty Session migrates with null ref; first Run pins once after receipt lookup (138.246833ms)
+✔ R1 bound executor identity rejects mutation and corrupt reopen without rewriting bytes (152.30625ms)
+✔ R1-R1 a reused factory ref cannot change bound adapter revision across Runs or on reopen (174.674125ms)
+✔ R1 contradictory schema-21 global Run/native history stays readable and fenced (207.1545ms)
+✔ R1 pinned schema-21 Host refuses schema 22 without changing durable bytes (1039.402208ms)
+ℹ tests 36
+ℹ suites 1
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13451.427333

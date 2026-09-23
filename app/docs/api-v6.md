@@ -142,7 +142,7 @@ already have changed.
 
 Historical retrieval is now available; see [MX-R1 additions](api-runtime-mx-r1.md).
 
-## External repository and private candidate (current RuntimeStore17)
+## External repository and private candidate (introduced in RuntimeStore17; current Store22)
 
 The authenticated Host API separates the user-selected source directory from a
 Host-owned writable candidate. The binding routes and filesystem scope are

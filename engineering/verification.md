@@ -146,3 +146,6 @@
 
 
 2026-09-23 · [LP-R6 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-final-20260923/README.md): backendafa6b17 +UIa0a1c46 integrateddb04448; independent45+31, actual-main20/20 and parent OpenAI browser recover/read/reload with zero new provider requests. Unknown and deletion/admission/retry boundaries retained. Schema21/Core4/bridge5 unchanged; no live/native-runtime exposure or formal acceptance claim.
+
+
+2026-09-23 · [R1 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-r1-final-20260923/README.md): product3454559/packet5bb2dc8 integratede86a5a1; all three parent returns closed by exactprobes +Luna36/36; actualmain36/36 and actualOpenAIbrowser two-session Pi/managedfixture/reload proof. Schema22/Core4/bridge5 entry points aligned; author1623/fullsmoke stay at49e2c00. Managedlive/UIselector remain outside this scope; no user data upgraded.
