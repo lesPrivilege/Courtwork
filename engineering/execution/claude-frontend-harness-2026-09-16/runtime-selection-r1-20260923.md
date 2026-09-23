@@ -26,3 +26,8 @@ Schema22 is reserved for the isolated final R1 implementation, not adopted in ma
 4. **Final integration candidate.** Targeted tests first, then one appropriate full product suite and smoke after source stabilizes; preserve any failed runs honestly and investigate bounded counterexamples. Record source/packet hashes, explicit schema/DTO and limits. No live API/model/key test or user Host operation. Do not claim the frontend/runtime management or real managed availability passed from this backend candidate.
 
 Use independent temporary data/ports and existing locked dependencies. Source/temporary test stores, native sessions, SQLite, credential fixtures and scratch archives stay outside Git; copy only named evidence outputs. You are not alone in the repository: preserve all other writers and main metadata. Commit explicit source/evidence milestones without merge/push/history rewrite/other-tree cleanup. Stop after the finite R1 delivery and release the writer for independent review; no R2/UI/live rollout starts automatically. Material changes to this authority/migration topology return a concrete proposal to parent while independent work continues.
+
+
+## Actual implementation dispatch
+
+Parent verified origin/main18e3af5 after contract acceptance and dispatched `/root/sol6_runtime_binding` (gpt-6-sol, high) to merge accepted main into its retained isolated `courtwork-runtime-selection-r0-20260923` / `codex/runtime-selection-r0-20260923` and execute this R1 lease. The tree retains its R0 name for continuity; this is now the single active R1 backend writer. `/root/luna6_runtime_selection` is the designated non-author reviewer after fixed milestones/handoff. No new sidebar task or frontend writer is created.
