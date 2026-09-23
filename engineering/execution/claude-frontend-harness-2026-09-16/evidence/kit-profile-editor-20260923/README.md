@@ -188,3 +188,11 @@ The Host remains the authority. CAS already prevented stale commits; these are d
 ### Handoff
 
 Construction has stopped again. The finite writer is released for parent Astra's review of this delta. Nothing is merged, pushed, deployed or cleaned; the tree and branch are kept as they are.
+
+## Return R2 · pickup (before product edits)
+
+2026-09-24 · This return consumes the parent delta review `engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-review-20260923/return-r1-review/README.md` at main `78d57fa`. That file is not in this branch; it is cited by SHA and path. R1 and F1 are accepted and kept as they are. The same tree was clean at `dd0947d`.
+
+| Finding | Disposition | Owner / symbols | Planned change |
+|---|---|---|---|
+| K5-R2 (remaining: pending save released by reconciliation) | adopt | `profile-editor.mjs` `readBase`, `keepMine`, `useCurrent`, `save` success settle; `profile-editor-view.mjs` fresh block | While a save is outstanding (`saving`), a fresh read may only record `fresh`. It never replaces base or text and never touches the save state. **Keep my text** and **Use the current source** refuse, and the view shows a waiting note in their place. On a successful reply, a `fresh` reading at or below the reply revision (our own write) is cleared. A newer one is kept for a deliberate choice. Typing stays separate, and the unknown/read-back semantics are unchanged. |
