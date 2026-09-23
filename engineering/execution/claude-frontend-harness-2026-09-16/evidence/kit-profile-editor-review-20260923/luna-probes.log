@@ -1,0 +1,6 @@
+Independent synthetic controller probes against source 756ec6d4dc3d0ead464165b3af9244c824fba49f.
+Script: probes.mjs (copied unchanged from executed /tmp/courtwork-k5-independent-20260923.mjs).
+
+K5-SAVE-DOUBLE-01: REPRODUCED. Two same-tick save() calls produced 2 PUT requests before either reply. Both calls enter before await sha256Hex and only then set save.status=saving. Host whole-config CAS limits persistence to at most one winning write; the second request can still produce conflict/reconciliation noise.
+
+K5-PREVIEW-REVISION-01: REPRODUCED. Preview at base revision 7 is current when observed revision is 7. With observed revision 8, preview.status stays ready, preview.current stays true, and configMoved becomes true. This leaves stale preview/composition/save-gate language visible despite the known revision change.

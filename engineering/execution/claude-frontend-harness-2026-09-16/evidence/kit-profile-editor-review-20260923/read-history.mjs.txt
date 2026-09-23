@@ -1,0 +1,10 @@
+import {readFile,writeFile} from 'node:fs/promises';
+const root='/tmp/courtwork-k5-parent-20260923';
+const info=JSON.parse(await readFile(root+'/host-info.json','utf8'));
+const boot=await (await fetch(info.url+'/api/v5/bootstrap')).json();
+const api=async p=>await (await fetch(info.url+'/api/v5'+p,{headers:{'x-work-token':boot.sessionToken}})).json();
+const session=await api('/sessions/'+info.sessions.main);
+const contexts=[];
+for(const r of session.runs) contexts.push({id:r.id,status:r.status,context:await api('/runtime-context?sessionId='+info.sessions.main+'&runId='+r.id)});
+await writeFile(root+'/parent-contexts.json',JSON.stringify(contexts,null,2));
+console.log(JSON.stringify(contexts.map(r=>({id:r.id,status:r.status,kit:r.context.kitContext?.text})),null,2));

@@ -56,3 +56,7 @@ The parent may merge accepted releases and normally push main under existing aut
 [Accepted K4](evidence/kit-profile-preview-final-20260923/README.md) supplies the missing read-only semantic draft preview at45ba815 without new authority or schema. [K5](kit-profile-editor-20260923.md) is the next finite original-Claude frontend consumer: existing selected profile body edit/preview/CAS save/Chat return/recorded context. No callable Claude route exists in this parent session, so the consumable order is prepared without claiming dispatch, substituting another frontend author or starting unrelated queue items.
 
 After actual-main20/20 and complete restore/bundle verification, the ended K4 tree is removed. Parent pauses the existing coordination heartbeat at the user's no-dispatchable-successor boundary. Resume from actual main when Claude has a callable route or fixed delivery; the remaining roadmap is not declared complete.
+
+## Manual K5 delivery consumed — 2026-09-23
+
+User can paste Claude orders and has delivered the explicit stopped-writer packet756ec6d/producta0bed5a. [Parent independent review](evidence/kit-profile-editor-review-20260923/README.md) returns R1/R2/F1 to that original owner while preserving the candidate tree. No callable route is needed for the manual handoff, and no automated author process is inferred. Main product stays at accepted K4; the coordination heartbeat remains paused while the user relays the finite correction and subsequent fixed delivery.

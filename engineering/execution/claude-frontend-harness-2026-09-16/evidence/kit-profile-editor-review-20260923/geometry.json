@@ -1,0 +1,19 @@
+{
+  "buttons": [
+    {
+      "height": 44,
+      "text": "Preview"
+    },
+    {
+      "height": 44,
+      "text": "Save source"
+    }
+  ],
+  "candidateFont": "11.5px / 18.4px ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, \"Liberation Mono\", monospace",
+  "pageWidth": 390,
+  "sourceFont": "11.5px / 17.25px ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, \"Liberation Mono\", monospace",
+  "viewport": {
+    "height": 844,
+    "width": 390
+  }
+}

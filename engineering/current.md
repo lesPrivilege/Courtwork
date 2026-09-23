@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · K5 delivery independently reviewed; original-Claude returns issued
+
+[Parent K5 review](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-review-20260923/README.md) fixesa0bed5a/756ec6d. Luna65/65 and actual OpenAI-browser edit/preview/CAS save/Chat return/new Pi Run preserve old context and draft, but known config changes leave old preview current and concurrent Save calls can dispatch two PUTs. Original Claude receives K5-R1/R2 plus scoped typography adjustment K5-F1 under the [existing order](execution/claude-frontend-harness-2026-09-16/kit-profile-editor-20260923.md). Candidate tree preserved; no K5 product merge, cleanup or capability acceptance. User supplies the manual Claude relay; coordination heartbeat stays paused awaiting the next fixed delivery. Main product remains accepted K4/schema22/Core4/bridge5.
+
 ## 2026-09-23 · K4 read-only profile preview accepted; editor handoff prepared
 
 [Parent K4 acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-preview-final-20260923/README.md) accepts98a3d69/ac5252b atmain45ba815. Parent57/57 and Luna's independent HTTP probes verify isolated preview, advisory permissions, scope/CAS, exact later Pi context and old history. No frontend editor, live managed support or schema change is claimed. [K5](execution/claude-frontend-harness-2026-09-16/kit-profile-editor-20260923.md) is the next finite original-Claude handoff; no callable Claude route/process is present. Actual-main20/20 passes; complete archive/physical restore/bundle verification precede ended-tree removal. The existing coordination heartbeat is paused at the no-dispatchable-successor boundary; resume with a real Claude route/delivery.

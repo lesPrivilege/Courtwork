@@ -1,0 +1,57 @@
+import { createHash } from 'node:crypto';
+import { createProfileEditor, editorReading } from '/Users/lesprivilege/Projects/courtwork-kit-profile-editor-20260923/app/web/profile-editor.mjs';
+
+const sessionId = 'probe-session';
+const profileId = 'local:probe';
+const text = '{"schemaVersion":2,"version":"1","kits":[]}';
+const edited = '{"schemaVersion":2,"version":"2","kits":[]}';
+const hash = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
+const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+const resource = (content) => ({ id: profileId, kind: 'agent_profile', title: 'Probe', scope: {type:'session', id:sessionId}, source:{type:'local-config',hash:hash(content)} });
+
+// Probe 1: simultaneous Save invocations both pass the guard before awaiting SHA-256.
+const saveBodies = [];
+let savedContent = text;
+let rev = 1;
+let releaseSaves;
+const savesHeld = new Promise((resolve) => { releaseSaves = resolve; });
+const saveAdapter = {
+  source: async () => ({revision:rev, resource:resource(savedContent), content:savedContent}),
+  preview: async () => ({}),
+  save: async (_sid, body) => { saveBodies.push(body); await savesHeld; savedContent = body.resource.content; rev += 1; return {revision:rev, resources:[resource(savedContent)]}; },
+  control: async () => ({activeRuns:0}),
+};
+const editor = createProfileEditor({adapter:saveAdapter});
+editor.open(sessionId, profileId); await tick(); editor.setText(sessionId, profileId, edited);
+const first = editor.save(sessionId, profileId);
+const second = editor.save(sessionId, profileId);
+await new Promise((resolve) => setTimeout(resolve, 10));
+const saveCallsBeforeRelease = saveBodies.length;
+releaseSaves(); await Promise.all([first, second]);
+
+// Probe 2: a matching preview remains current after owner facts reveal a newer config revision.
+let currentRevision = 8;
+const previewAdapter = {
+  source: async () => ({revision:7, resource:resource(text), content:text}),
+  control: async () => ({activeRuns:0}),
+  save: async () => ({}),
+  preview: async (_sid, body) => ({preview:true, applied:false, revision:body.expectedRevision,
+    session:{id:sessionId}, profile:{id:profileId,draftSha256:hash(body.content)},
+    composition:{status:'compatible',missing:[]}, executor:{id:'pi',revision:'r'},
+    kit:{status:'passthrough',pins:[],diagnostics:[],requirements:[],references:[],compatibility:{status:'not-applicable'},budget:null,candidate:null,planSha256:'0'},
+    permissions:[], save:{available:true,reason:null}}),
+};
+const previewEditor = createProfileEditor({adapter:previewAdapter});
+previewEditor.open(sessionId, profileId); await tick(); previewEditor.setText(sessionId, profileId, edited);
+await previewEditor.preview(sessionId, profileId);
+const beforeRevisionChange = previewEditor.reading(sessionId, profileId, {revision:7});
+currentRevision = 8;
+const afterRevisionChange = previewEditor.reading(sessionId, profileId, {revision:currentRevision});
+
+console.log(JSON.stringify({
+  sourceSha:'756ec6d4dc3d0ead464165b3af9244c824fba49f',
+  probes:[
+    {id:'K5-SAVE-DOUBLE-01', saveInvocations:2, putRequestsBeforeAnyReply:saveCallsBeforeRelease, resultingState:editor.reading(sessionId,profileId).save.status, outcome:saveCallsBeforeRelease === 2 ? 'REPRODUCED' : 'NOT_REPRODUCED'},
+    {id:'K5-PREVIEW-REVISION-01', before:{previewStatus:beforeRevisionChange.preview.status,previewCurrent:beforeRevisionChange.preview.current,baseRevision:beforeRevisionChange.base.revision,observedRevision:7},after:{previewStatus:afterRevisionChange.preview.status,previewCurrent:afterRevisionChange.preview.current,configMoved:afterRevisionChange.configMoved,baseRevision:afterRevisionChange.base.revision,observedRevision:currentRevision}, outcome:afterRevisionChange.preview.current ? 'REPRODUCED' : 'NOT_REPRODUCED'}
+  ]
+}, null, 2));

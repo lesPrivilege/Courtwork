@@ -1,0 +1,5 @@
+Independent command (app/):
+node --test tests/profile-editor.test.mjs tests/agent-choice.test.mjs tests/runtime-view-pending-open.test.mjs tests/settings-navigation.test.mjs tests/semantic-guards.test.mjs tests/kit-profile-preview.test.mjs
+
+Result captured from this review run: 65 tests, 65 pass, 0 fail, exit 0.
+Candidate source reviewed: 756ec6d4dc3d0ead464165b3af9244c824fba49f.

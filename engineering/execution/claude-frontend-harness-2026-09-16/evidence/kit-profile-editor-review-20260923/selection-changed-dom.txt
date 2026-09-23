@@ -1,0 +1,292 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]: · Settings
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "Profile":
+        - generic: Profile
+      - tab "Preferences":
+        - generic: Preferences
+      - tab "Account":
+        - generic: Account
+      - tab "General":
+        - generic: General
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations":
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Plugins":
+        - generic: Plugins
+      - tab "Memory":
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer" [selected]:
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Developer":
+      - heading "Developer" [level=3]
+      - heading "Runtime" [level=4]
+      - paragraph: Configuration for future runs and records of what past runs used.
+      - paragraph: Only host-trusted extensions load; third-party code is not sandboxed.
+      - heading "Overview" [level=4]
+      - generic: The runtime the next run in this chat would be composed from.
+      - button "Refresh the runtime snapshot":
+        - generic: Refresh the runtime snapshot
+      - tablist "Configuration scope":
+        - tab "User"
+        - tab "Workspace"
+        - tab "Session" [selected]
+      - paragraph: Editing the session layer.
+      - paragraph: Narrower scopes cannot loosen a wider deny or ask.
+      - generic "Scope details"
+      - term: Profile
+      - definition:
+        - generic: local:k5-notes · compatible
+      - term: Adapter
+      - definition:
+        - generic: pi-coding-agent@0.85.1/agent-session
+      - term: Exposed
+      - definition:
+        - generic: 6 of 46 resources
+      - term: Active runs
+      - definition:
+        - generic: "0"
+      - heading "Attention · 9" [level=5]
+      - paragraph:
+        - generic: repo_list reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: repo_read reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: repo_grep reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: candidate_list reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: candidate_read reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: candidate_grep reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: repo_write reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: repo_diff reports health unavailable.
+        - button "Open"
+      - paragraph:
+        - generic: check_run reports health unavailable.
+        - button "Open"
+      - heading "Next run · context" [level=5]
+      - paragraph: Nothing is admitted into the next run beyond the chat's own history.
+      - heading "Recorded bindings" [level=5]
+      - paragraph: What a run actually froze. Later edits never change these records.
+      - group "Recorded runs":
+        - button "a8b71aac · completed"
+      - paragraph: Open one to fill the Bound layer of every item below.
+      - heading "Composition" [level=4]
+      - paragraph: Choose the profile for future runs; saving its configuration does not grant permissions or accept work.
+      - generic: Profile
+      - generic: Chosen in the session layer. Inherit removes this layer's choice; it does not select the built-in profile.
+      - combobox "Selected profile":
+        - option "Inherit the wider layer"
+        - option "Kit reviewer · local:k5-reviewer"
+        - option "Notes · local:k5-notes" [selected]
+        - option "General · agent:general"
+      - generic "Package Runtime configuration"
+      - heading "Source · Requested · Effective · Bound" [level=5]
+      - term: Source
+      - definition:
+        - generic: local config
+        - generic: hash 9121d9d4832d
+      - term: Requested
+      - definition:
+        - generic: Nothing requested in the session layer.
+      - term: Effective
+      - definition:
+        - generic: local:k5-notes · compatible
+        - generic: server revision 8
+      - term: Bound
+      - definition:
+        - generic: No recorded run is open.
+        - generic: choose one under Overview › Recorded bindings
+      - heading "Dependencies" [level=5]
+      - paragraph: This profile lists no resource, so it admits none.
+      - heading "Applicability" [level=5]
+      - term: Status
+      - definition:
+        - generic: compatible
+      - term: Version
+      - definition:
+        - generic: "1"
+      - term: UI slots
+      - definition:
+        - generic: none declared
+      - paragraph: A declared slot is saved configuration, not a registered renderer. Nothing mounts because a profile named it.
+      - heading "Agent profiles · 3" [level=5]
+      - paragraph: "Selecting a profile is a different act from exposing a resource: a profile filters and restricts, and it can never grant authority the host does not already hold. These rows are the profiles themselves — the selection is the control above, and none of them has a switch."
+      - button "Kit reviewer local config" [expanded]:
+        - generic: Kit reviewer
+        - generic: local config
+      - generic: Installed
+      - generic: "Yes"
+      - generic: Running
+      - generic: Not applicable
+      - generic: Exposed
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: n/a
+      - paragraph: "Exposure: determined by the selected profile."
+      - paragraph: Exposure is not configurable here; the service that owns this kind decides it.
+      - group "Kit reviewer local config":
+        - button "View source"
+        - heading "Source · Requested · Effective · Bound" [level=5]
+        - term: Source
+        - definition:
+          - generic: local config
+          - generic: hash 1d1249fcacf0
+        - term: Requested
+        - definition:
+          - generic: Nothing requested in the session layer.
+        - term: Effective
+        - definition:
+          - generic: Not exposed to the next run
+          - generic: server revision 8
+        - term: Bound
+        - definition:
+          - generic: No recorded run is open.
+          - generic: choose one under Recorded bindings
+        - paragraph: A later edit never changes a bound run. The hash identifies bytes only; it is not a second effective value.
+        - heading "Descriptor" [level=5]
+        - term: Kind
+        - definition:
+          - generic: Agent profile
+        - term: Owning scope
+        - definition:
+          - generic: user · local
+        - term: Activation
+        - definition:
+          - generic: manual
+        - term: Health
+        - definition:
+          - generic: healthy
+        - term: Default exposure
+        - definition:
+          - generic: not exposed
+        - term: Size
+        - definition:
+          - generic: 718 characters, not tokens
+        - term: Hash
+        - definition:
+          - code: 1d1249fcacf0
+          - button "Copy source hash":
+            - generic: Copy source hash
+      - region "Edit Kit reviewer source":
+        - heading "Edit Kit reviewer source" [level=5]
+        - generic: Profile source (JSON)
+        - textbox "Profile source (JSON)": "{ \"schemaVersion\": 2, \"version\": \"2\", \"resourceIds\": [ \"local:k5-next\" ], \"rules\": [], \"uiSlots\": [], \"kits\": [ { \"descriptor\": { \"schemaVersion\": 1, \"id\": \"kit:k5-review\", \"version\": \"2\", \"core\": [ { \"resourceId\": \"local:k5-next\", \"contentSha256\": \"3792e833d2e5785c14c0fb6c5a52cf068b481e4ffd07fc039c7ed74b7fff5214\", \"artifactSha256\": \"fa2339787533be452b6bc989af40cff5a0a7448ed109233f6566e3aed3a68bee\" } ], \"deferred\": [], \"requirements\": [], \"conflicts\": [] }, \"descriptorSha256\": \"a08a11b81cf703186f238e553a165cd74ac9575df123a89d2ee6ecf29ac82a2d\" } ] }"
+        - paragraph: 720 characters (UTF-16) · 720 bytes (UTF-8) · unsaved changes · saved source 1d1249fcacf0, configuration revision 7
+        - status: The configuration changed after this source was read (revision 7, now 8). Preview and Save check the revision you read; read the source again to continue.
+        - button "Read the current source"
+        - button "Preview"
+        - button "Save source"
+        - button "Revert to saved"
+        - paragraph: Saves the user-scope source (local). Other chats that select this profile use the saved text in their next runs.
+        - paragraph: Previewed as shown below. Saving does not start a run; the next run checks the source again.
+        - heading "Preview · not saved, not run" [level=5]
+        - term: Result
+        - definition:
+          - generic: Compiled. If this text is saved, a new run would carry the candidate context shown under Candidate context and hashes; that run checks again.
+        - term: Composition
+        - definition:
+          - generic: compatible
+        - term: Kits
+        - definition:
+          - generic: kit:k5-review 2
+        - term: Runtime
+        - definition:
+          - generic: "pi-coding-agent@0.85.1/agent-session pi-agent-session-context-v1 · Kit compatibility: Not checked for this runtime"
+        - term: Context
+        - definition:
+          - generic: 76 bytes (UTF-8) · 74 characters (UTF-16) · limits 400,000 bytes, 100,000 characters
+        - term: Save now
+        - definition:
+          - generic: Not frozen now. Save is checked again when you press it.
+        - heading "Referenced sources" [level=5]
+        - list:
+          - listitem: local:k5-next · instructions · required
+        - generic "Candidate context and hashes"
+      - button "Notes local config":
+        - generic: Notes
+        - generic: local config
+      - generic: Installed
+      - generic: "Yes"
+      - generic: Running
+      - generic: Not applicable
+      - generic: Exposed
+      - generic: Exposed
+      - generic: Permitted
+      - generic: n/a
+      - paragraph: "Exposure: determined by the selected profile."
+      - paragraph: Exposure is not configurable here; the service that owns this kind decides it.
+      - button "General builtin":
+        - generic: General
+        - generic: builtin
+      - generic: Installed
+      - generic: "Yes"
+      - generic: Running
+      - generic: Not applicable
+      - generic: Exposed
+      - generic: Not exposed
+      - generic: Permitted
+      - generic: n/a
+      - paragraph: "Exposure: determined by the selected profile."
+      - paragraph: Exposure is not configurable here; the service that owns this kind decides it.
+      - heading "Host Extensions" [level=4]
+      - button "Refresh extensions":
+        - generic: Refresh extensions
+      - paragraph:
+        - text: Trusted code running inside the host. Load, reload and invalidate extensions here; inspect their resources in
+        - link "Plugins":
+          - /url: "#settings/plugins"
+        - text: .
+      - button "Add local Plugin"
+      - generic: Evidence Memo (development)
+      - generic: unloaded
+      - paragraph: evidence-memo · v0.1.0 · gen 0
+      - paragraph: development-extension · development
+      - paragraph: Plugin · CW Host Extension · host-trusted · in-process
+      - button "Load"
+      - button "Invalidate"
+      - generic: Inbound NDA Playbook Review
+      - generic: unloaded
+      - paragraph: inbound-nda · v0.1.0 · gen 0
+      - paragraph: development-extension · development
+      - paragraph: Plugin · CW Host Extension · host-trusted · in-process
+      - button "Load"
+      - button "Invalidate"
+      - generic: Lifecycle Probe (development)
+      - generic: unloaded
+      - paragraph: probe · v0.1.0 · gen 0
+      - paragraph: development-extension · development
+      - paragraph: Plugin · CW Host Extension · host-trusted · in-process
+      - button "Load"
+      - button "Invalidate"
+      - heading "Runtime info" [level=4]
+      - term: Adapter
+      - definition: pi-coding-agent@0.85.1/agent-session
+      - term: Host
+      - definition: ready
+      - term: Tools
+      - definition: ask_user, ws_list, ws_read, ws_write, ws_grep, repo_list, repo_read, repo_grep, candidate_list, candidate_read, candidate_grep, repo_write, repo_diff
+      - generic "Unavailable capabilities"
+- status
