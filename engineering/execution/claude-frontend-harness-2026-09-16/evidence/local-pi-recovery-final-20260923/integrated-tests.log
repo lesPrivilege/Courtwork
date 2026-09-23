@@ -1,0 +1,30 @@
+✔ LP-R6 actual terminal crash reopens, publishes retained findings once, and keeps every unknown fence (1962.878ms)
+▶ LP-R6 missing terminal and missing retained bytes refuse without publication or replay
+  ✔ result without terminal (1503.3885ms)
+  ✔ retained object unavailable (1428.016583ms)
+  ✔ retained object bytes fail integrity (1457.057791ms)
+✔ LP-R6 missing terminal and missing retained bytes refuse without publication or replay (4388.949583ms)
+▶ LP-R6 cancellation, source changes, and publication-gap revocation preserve retained bytes and unknown state
+  ✔ cancelled assignment (1434.182333ms)
+  ✔ source revision changed (1429.366958ms)
+  ✔ policy revoked after payload read (1492.98175ms)
+✔ LP-R6 cancellation, source changes, and publication-gap revocation preserve retained bytes and unknown state (4356.981416ms)
+✔ LP-R6 cross-attempt retained receipt remains invalid state (1380.866708ms)
+✔ unknown local child and its parent cannot be deleted through HTTP or Store; bytes and recovery fence survive reopen (1304.043083ms)
+✔ completed archived local findings retain child, parent and source/result references across rejected deletion and reopen (1734.431708ms)
+✔ Spark references prevent deletion before any local process records exist; an ordinary Store deletion still works (65.62575ms)
+✔ a Spark reference queued after the Service snapshot is still protected by the atomic Store deletion guard (89.11325ms)
+✔ an ordinary unreferenced Chat with a completed non-child Run remains deletable (156.770917ms)
+✔ LP-R6-UI · unknown without findings keeps explicit Reconcile (5.963584ms)
+✔ LP-R6-UI · recovered current-attempt findings remain readable and consume Reconcile while retry stays blocked (1.375625ms)
+✔ LP-R6-UI · older findings do not consume the latest unknown attempt’s Reconcile (0.670833ms)
+✔ LP-R6-UI · completed findings retain the ordinary reading and archive controls (0.636833ms)
+✔ LP-R6-UI · a blocked non-local failed attempt retains Retry and no Reconcile (0.541083ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 13134.21925

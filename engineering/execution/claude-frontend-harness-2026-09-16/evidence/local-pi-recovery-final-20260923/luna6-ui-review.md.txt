@@ -1,0 +1,11 @@
+# LP-R6 UI delta review — Luna — 2026-09-23
+
+**Disposition: PASS for the assigned UI/test/copy delta.** Reviewed only `afa6b17..a0a1c46` at released candidate `a0a1c46b00d30b7dd53f061ee7f02176326159da`, on `codex/local-pi-retained-recovery-20260923`. The delta is limited to `app/web/subagent-view.mjs`, `app/tests/subagent-recovery-view.test.mjs`, and the LP-R6 evidence README. No backend implementation or the pre-accepted 45-test backend evidence was re-run.
+
+The production view now treats a blocked assignment's latest unknown attempt as having recovered findings only when `assignment.result.runId` equals that latest attempt's `runId`. In that exact case it keeps the findings readable, explains that execution remains unknown and retry remains blocked, and hides the now-consumed Reconcile action. Missing results and results from older attempts retain Reconcile. Completed and failed non-local attempt controls remain unchanged. This is a projection-only change; it does not settle attempt/Run state or relax recovery/retry fences.
+
+The direct production-view tests exercise the negative and positive distinctions: unknown/no result retains Reconcile; current-attempt unknown result hides Reconcile while retaining unknown/retry-blocked text and no retry/archive; older result retains Reconcile; completed retains normal findings/archive; failed non-local retains Retry without Reconcile. The tests assert the rendered view and result request, not a copied helper implementation.
+
+Verification: exact requested command `node --test tests/subagent-recovery-view.test.mjs tests/spark-view.test.mjs` passed **31/31, exit 0**. `git diff --check afa6b17..a0a1c46` passed. Raw test log: `/tmp/cw-lpr6-ui-targeted-luna6-20260923.log` (SHA-256 `48bb0404a8f5b521c9610c292e6410f29f4d326087ad9a193ab236fcaad2aed9`). Candidate UI source SHA-256: `app/web/subagent-view.mjs` `886b0afbd5e77b1579af1da191e4ea9da77203ed58981cfad22b550d6ff21c82`; test `app/tests/subagent-recovery-view.test.mjs` `015295bcef7394742b1b08022bdaf34f30b42ee57deafe7d413f67ea8730642b`.
+
+The parent-owned untracked `app/node_modules` link appeared after initial inspection; retained for the parent browser run and not removed. No product writes, keys, user Host, paid provider, full suite, or LP-R6 backend changes were made. Independent actual-browser acceptance remains with the parent as assigned.

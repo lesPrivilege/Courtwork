@@ -141,3 +141,6 @@
 
 
 2026-09-23 · [E1 final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/e1-final-20260923/README.md): source9b2cc53/packet9514d4b, maine525a3a, independent39/39 and actual-main28/28. OpenAI in-app browser verifies first Settings source destination, unchanged draft/caret, completed Kit Run returns Send without errors/reload, stale refusal preserves draft and keeps1Run/1provider request. Author1592 remains author evidence; native accessibility/Home/editor/bound-chooser scope stays open. Schema21/Core4/bridge5 unchanged.
+
+
+2026-09-23 · [LP-R6 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-final-20260923/README.md): backendafa6b17 +UIa0a1c46 integrateddb04448; independent45+31, actual-main20/20 and parent OpenAI browser recover/read/reload with zero new provider requests. Unknown and deletion/admission/retry boundaries retained. Schema21/Core4/bridge5 unchanged; no live/native-runtime exposure or formal acceptance claim.

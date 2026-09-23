@@ -1,0 +1,18 @@
+{
+  "main": "db04448d821c56c20621c1a75161b768e19c0f1f",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-local-pi-recovery-20260923",
+      "head": "a0a1c46b00d30b7dd53f061ee7f02176326159da",
+      "archive_ref": "refs/archive/lpr6-20260923/courtwork-local-pi-recovery-20260923",
+      "entries": 9817,
+      "file_bytes": 479114889,
+      "archive_sha256": "c85f8b416b444cae39c19404e663b60f7595fc0b17223fab23fd92375fd472ca",
+      "manifest_sha256": "bc59c6a50e0e8c20f2f1bc59723896639f60e2fb9786f05cef8d61f46ed690f0",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "528d5ea8b81ae40058dbd584b4cca30dd0fff167a533e033e9ee1f3a6a33845e",
+  "bundle_restored_and_verified": true
+}

@@ -114,3 +114,8 @@ Parent verified local/origin main1ae7d945f05b85a1e967422a51f19b60fdb09ad6 after 
 ### LP-R6-UI finite closure and model routing — 2026-09-23
 
 [Actual browser return](evidence/local-pi-recovery-ui-20260923/README.md) adopts the recovered-result action mismatch atafa6b17. The backend retains its independent45/45 pass; parent final acceptance waits for this small UI truthfulness closure. GPT-6 Sol may modify only existing `subagent-view.mjs`, directly relevant tests and original author evidence in the same preserved recovery tree, after its Runtime baseline preparation. Preserve all unknown/retry/admission/deletion semantics. GPT-6 Luna independently verifies the fixed delta; parent OpenAI computer use repeats recovery/reading. This narrow lease supersedes the prior no-web restriction for this consumer only and does not start Kit/Profile redesign or Runtime selection code.
+
+
+### LP-R6 final acceptance — 2026-09-23
+
+[Parent final receipt](evidence/local-pi-recovery-final-20260923/README.md) acceptsafa6b17 +a0a1c46 atmaindb04448. Backend independent45/45 plus persisted/reopen probe, GPT-6 Luna UI31/31, actual parent browser recover/read/reload and integrated20/20 pass. Findings publication does not clear unknown history or retry/admission/deletion fences. LP-R6-UI is closed; broader Runtime selection/recovery remains separate. No new frontend writer or next implementation follows implicitly.

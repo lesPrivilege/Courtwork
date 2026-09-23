@@ -1,5 +1,13 @@
 # 当前工程状态
 
+## 2026-09-23 · Runtime selection R0 prepared after LP-R6 closure
+
+[Original-owner R0 contract order](execution/claude-frontend-harness-2026-09-16/runtime-selection-contract-20260923.md) fixes initial scope: ordinary no-history Session executor choice, Pi default, first managed alternate under original P03 gating, immutable native lineage and no fallback. GPT-6 Sol authors concrete DTO/CAS/migration/call-site proposal only; GPT-6 Luna independently reviews, parent Astra fixes architecture before an R1 product lease. LP-R6 is accepted and its ended tree restore-verified/removed. No runtime selector code, live alternate or new frontend writer is yet claimed.
+
+## 2026-09-23 · LP-R6 accepted: readable findings with unknown fences retained
+
+[Parent final adoption](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-final-20260923/README.md) integratesafa6b17/a0a1c46 atdb04448. Independent backend45/45 and persisted-reopen proof, GPT-6 Luna UI31/31, actual OpenAI browser recovery/reload and integrated20/20 pass. Current result is readable once, assignment remains blocked, Host/attempt unknown and retry/admission/deletion fences remain. Consumed Reconcile is removed only for the matching latest attempt. Schema21/Core4/bridge5 unchanged. Preservation/cleanup is recorded in the receipt; Runtime R0 remains the next contract stage, not a live alternate runtime.
+
 ## 2026-09-23 · GPT-6 Sol/Luna dispatched; LP-R6 UI closure precedes runtime binding
 
 User-selected gpt-6-sol and gpt-6-luna subagents have completed the [Runtime selection preflight/baseline](execution/claude-frontend-harness-2026-09-16/evidence/runtime-selection-preflight-20260923/README.md), including52 existing targeted tests. Parent rejects stale re-openings of accepted C/D/E/K3 facts; runtime selection remains contract-first. [LP-R6 actual UI return](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-ui-20260923/README.md) finds the consumed Reconcile action still offered after successful findings publication. GPT-6 Sol receives a narrow existing-view/test lease in the preserved recovery tree; GPT-6 Luna is the non-author reviewer. Backend unknown fences remain unchanged, final LP-R6 acceptance pending. No second backend implementation lane or live remote availability is started.

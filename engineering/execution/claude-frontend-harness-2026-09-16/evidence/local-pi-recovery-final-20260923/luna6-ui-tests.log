@@ -1,0 +1,39 @@
+✔ SP1-FE · createSparkView keeps the frozen constructor signature (0.972ms)
+✔ SP1-FE · a projection module fetches nothing, writes nothing, reads no clock (0.661292ms)
+✔ SP1-FE · Spark makes no request path containing 'attention' — it resolves, creates or edits no Attention item (0.14625ms)
+✔ SP1-FE · Spark writes nothing: no POST/PUT/PATCH/DELETE method anywhere in the view (0.111875ms)
+✔ SP1-FE · no Spark-private persistence: no localStorage, sessionStorage or IndexedDB (0.290833ms)
+✔ SP1-FE · Spark introduces no new dependency: only relative app/web imports (0.191541ms)
+✔ SP1-FE · a 404 is read as unimplemented, never rendered as zero maintenance items (0.064583ms)
+✔ SP1-FE · Unavailable is stated in words, not shown as a bare number (0.055083ms)
+✔ SP1-FE · pagination carries the prior snapshotRef and can be rejected (0.069792ms)
+✔ SP1-FE · row navigation calls the host's onOpenMatter and opens no dialog/session of its own (0.14375ms)
+✔ SP1-FE · static allowlist: spark-view.mjs / spark-projection.mjs are registered (1.256083ms)
+✔ SP1-FE · app.mjs wires the sidebar entry without touching the static allowlist array itself (0.199ms)
+✔ SD-01 · createSparkView keeps the frozen constructor signature — sample introduces no new dependency, no new parameter (0.084791ms)
+✔ SD-01 · the sample fetch reads the static sample route, never /work-derivations (0.036584ms)
+✔ SD-01 · 'Show sample data' appears exactly once as code (comments stripped), inside the unimplemented branch, and nowhere else (0.112291ms)
+✔ SD-01 · the sample header label 'Sample data' appears exactly once in the source (one row, no per-card label, no colour class, no icon() call) (0.104666ms)
+✔ SD-01 · the scenario select is a single control offering exactly the five frozen fixtures, defaulting to stale (0.067459ms)
+✔ SD-01 · exit and re-probe copy match SD-17 exactly: 'Hide sample data', 'Check for a source again' (0.058708ms)
+✔ SD-01 · sample rows are read-only: matterRow and the Activity section heading both branch on readOnly before ever calling onOpenMatter (0.164959ms)
+✔ SD-01 · sample state is discarded on any valid live payload (including empty) and on any non-404 error, but survives a 404 (0.051667ms)
+✔ SD-01 · sample never issues its own /work-derivations request: only load() (via request()) reaches that endpoint (0.0505ms)
+✔ SD-01 · switching projects clears sample state before the live probe fires (0.041ms)
+✔ SD-01 · sample state is checked before every other render branch and returns before the pager can run (0.048125ms)
+✔ SD-01 · sample rendering reuses renderOverview/renderActivity — no second renderer for sample data (0.041792ms)
+✔ SD-01 · styles.css gained only additions for the sample row: one new class, --muted-strong, no new colour token (0.78075ms)
+✔ SD-01 · the static allowlist registers the five sample JSON files as one loop, with the JSON content type (0.037583ms)
+✔ LP-R6-UI · unknown without findings keeps explicit Reconcile (6.014708ms)
+✔ LP-R6-UI · recovered current-attempt findings remain readable and consume Reconcile while retry stays blocked (1.416208ms)
+✔ LP-R6-UI · older findings do not consume the latest unknown attempt’s Reconcile (0.72575ms)
+✔ LP-R6-UI · completed findings retain the ordinary reading and archive controls (0.860375ms)
+✔ LP-R6-UI · a blocked non-local failed attempt retains Retry and no Reconcile (0.6525ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2123.842291
