@@ -1,0 +1,104 @@
+{
+  "checks": [
+    {
+      "name": "chooser Edit opens the selected profile's source editor with focus in the field and the shared scope near Save",
+      "pass": true,
+      "reads": [
+        "GET /api/v5/runtime-resources/local%3Ak5-reviewer",
+        "GET /api/v5/provider-config",
+        "GET /api/v5/provider-models",
+        "GET /api/v5/runtime-info",
+        "GET /api/v5/provider-connections",
+        "GET /api/v5/runtime-control",
+        "PUT /api/v5/sessions/f9851148-5a07-4b2b-a6d4-c87fbb8a2fe4/draft",
+        "GET /api/v5/runtime-resources/local%3Ak5-reviewer",
+        "GET /api/v5/runtime-context",
+        "GET /api/v5/runtime-proposals"
+      ]
+    },
+    {
+      "name": "preview shows compiled candidate equal to the Host's expected context; no write, Run or revision change",
+      "pass": true,
+      "writes": 0
+    },
+    {
+      "name": "a late preview reply for an earlier text lands after the newer one and does not replace it",
+      "pass": true,
+      "shownDraftSha": "03658237b500326677404ef31a3f661e7724f6a3e8fdca6644e7f23aee3d1d16",
+      "earlierSha": "d48f4de53ad762760ea5dcf770f086b975b53b6843259353c0c880c0f200fb72",
+      "outdatedMarkers": 0
+    },
+    {
+      "name": "refused Kit shows typed diagnostics, no candidate, and the explicit save consequence",
+      "pass": true
+    },
+    {
+      "name": "malformed JSON keeps the owner's typed error beside the source",
+      "pass": true,
+      "message": "Preview refused (invalid_runtime_config): Profile content must be JSON"
+    },
+    {
+      "name": "stale revision: preview refused, draft kept, fresh reading held apart for a deliberate choice",
+      "pass": true
+    },
+    {
+      "name": "active Run: preview reports the freeze; Save gets the Host's active_run refusal and keeps the draft",
+      "pass": true,
+      "puts": 1
+    },
+    {
+      "name": "after the Run ends nothing was applied; a fresh read (Check again) unlocks Save, which still needs an explicit press",
+      "pass": true
+    },
+    {
+      "name": "dropped Save reply and failed read-back stay unknown; no automatic resend",
+      "pass": true,
+      "puts": 1
+    },
+    {
+      "name": "Check again reads back: matching hash confirms saved bytes; newer typing remains unsaved",
+      "pass": true
+    },
+    {
+      "name": "saved user-scope source reaches the other Chat that selects it",
+      "pass": true,
+      "revision": 9
+    },
+    {
+      "name": "Escape returns to the same Chat: focus on the Agent control, draft/caret/material unchanged",
+      "pass": true,
+      "focus": "agent-chip",
+      "value": "K5 new run: review with the edited Kit.",
+      "caret": [
+        7,
+        7
+      ],
+      "title": "K5 editor chat",
+      "notice": true
+    },
+    {
+      "name": "new Run's recorded context equals the previewed candidate; old Run context unchanged; 3 Runs total",
+      "pass": true,
+      "newRun": "a93291fe-4833-4ad3-a18c-d8ace29a78eb",
+      "runs": [
+        "completed",
+        "completed",
+        "completed"
+      ]
+    },
+    {
+      "name": "managed-executor Chat: preview shows the Host's kit_runtime_unsupported refusal",
+      "pass": true,
+      "message": "Preview refused (kit_runtime_unsupported): This Runtime has no verified reference-only Kit context interface"
+    },
+    {
+      "name": "keyboard: chooser → Tab → Enter lands focus in the editor field",
+      "pass": true
+    },
+    {
+      "name": "an unsaved editor draft survives Escape to the Chat and the return through the chooser",
+      "pass": true
+    }
+  ],
+  "errors": []
+}
