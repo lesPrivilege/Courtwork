@@ -29,3 +29,8 @@ Own the minimum existing service/API/control-plane or pure Kit-context helper, d
 Required proof: (1) valid v2 unchanged/edited source compiles exact expected text/hash, v1/no-Kit unchanged; (2) required/hash/kind/scope/exposure/conflict/budget cases remain correctly refused; (3) managed/unknown Kit refusal and unchecked Pi policy; (4) stale revision and active-Run preview/save distinction; (5) structural before/after equality and zero persistence/inference/network effects; (6) actual public preview→existing CAS save→new Run recorded-context matches, while an old Run/replayed command keeps its original binding and stale new Send refuses. Use real Host and installed Pi with deterministic local provider for the final path. No paid/live credentials.
 
 Run targeted meaningful checks first; broader tests only for the actual shared helper changes. Preserve failures and exact source/evidence pins. Release the finite writer after delivery for Luna/parent review. No main merge/push, other-tree cleanup, user Host/data migration, frontend authoring or next slice starts automatically. If scope needs a new authority/schema or new public mutation, return the concrete issue rather than silently widening this lease.
+
+
+## Actual K4 dispatch
+
+Parent verified local/origin main695820a29e1589bd3ded12f70f72807a5802db66 after R1 acceptance and restoration-verified cleanup, then created isolated `courtwork-kit-profile-preview-20260923` / `codex/kit-profile-preview-20260923` and dispatched `/root/sol6_runtime_binding` (gpt-6-sol, high). This is the sole current backend writer; `/root/luna6_runtime_selection` is the non-author reviewer. Claude has no active editor lease/process in this dispatch. No new sidebar task or frontend capability is claimed.
