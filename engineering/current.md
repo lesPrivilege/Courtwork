@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-23 · Next finite Codex slice selected: retained Local Pi findings
+
+[LP-R6 original-owner continuation](execution/claude-frontend-harness-2026-09-16/local-pi-worker-loop-20260922.md#lp-r6--recover-already-retained-findings-2026-09-23) consumes the [existing-source index](execution/claude-frontend-harness-2026-09-16/evidence/local-pi-recovery-index-20260923/README.md). Only explicit recovery of exact already-retained completed-process findings is leased. Historical Host/attempt unknown, source coverage and retry/admission/deletion fences remain; no schema/runtime/provider/permission expansion. E1 is accepted and both old trees are restored/verified and removed. The next worker starts isolated from this integrated baseline; no frontend implementation is started by this selection.
+
 ## 2026-09-23 · E1 accepted: real ordinary-Chat Agent selection
 
 [Parent final E1 acceptance](execution/claude-frontend-harness-2026-09-16/evidence/e1-final-20260923/README.md) integrates9514d4b/source9b2cc53 atmain e525a3a. Luna39/39 and parent actual-browser first-Settings destination, terminal return to Send and stale-refusal/draft-retention pass; integrated28/28. All four returns close within existing ordinary-Chat scope. Home-first choice, chooser bound-run reading, profile/Kit editing and native accessibility remain open. Full author handoff confirms stopped new work awaiting review; this is a writer handoff, not an inference from a clean tree. Schema21/Core4/bridge5 unchanged; no user-service/data or Pages change. Preservation and next bounded owner work are recorded in the final receipt.

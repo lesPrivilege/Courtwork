@@ -1,0 +1,45 @@
+# Next backend slice selection — 2026-09-23
+
+## Recommendation
+
+Select one finite **Spark local-Pi retained-result reconciliation** slice: make the existing `POST /api/v5/subagents/:id/actions` `reconcile` action consume a decisive, already-retained local-Pi terminal/result receipt after a crash or publication interruption, without spawning or calling a provider again.
+
+This is the smallest remaining user-facing gap after K3 and E1. A person can already see the Spark assignment and the existing “Reconcile interrupted read-only attempt” action in `app/web/subagent-view.mjs:71–84`; the backend currently rejects every local-Pi unresolved attempt at `app/harness/subagents.mjs:216–227`. The missing behavior is the safe path for a process that is known to have ended and whose exact result is already in `ArtifactHistory`. It lets the user recover readable findings after a known terminal/publication interruption while preserving blocked source coverage and formal acceptance.
+
+No frontend writer is needed for this finite backend slice. The action, result reader, source expansion controls and blocked/resolved projection already exist. Parent/OpenAI browser acceptance should verify the existing button/result flow after the backend change. A later UI copy adjustment can be a small follow-up if the returned status needs clearer wording; it is not a prerequisite for this slice.
+
+## Ready dependencies and owner boundaries
+
+- K3 is accepted on main65c3b30: profile/Kit selection, immutable Run context, ArtifactHistory payloads, schema21 validation and replay are available.
+- C/D/E is accepted: retained-result versus execution-unknown semantics, no blind retry and Host-owned receipts are established in `evidence/core-cde-final-20260922/README.md`.
+- Local Pi L0–L3 and LP-R5 are accepted as the deterministic, tool-less, explicitly injected process path in `evidence/local-pi-final-20260922/README.md`; no real provider, native credentials or runtime selector is implied.
+- Existing authoritative seams are sufficient: `app/runtime/local-pi-state.mjs:20–26,116–143`, `app/harness/subagents.mjs:208–233`, `app/server/service.mjs:2790–3110`, existing `ArtifactHistory`, and the current Spark routes/view. Do not add a ledger, scheduler, permission evaluator, schema version or recovery endpoint.
+- Current RuntimeStore is schema21. The old L3 schema20 wording must be refreshed to the already accepted schema21 baseline before implementation; do not create schema22 or replay the old migration work.
+
+## Minimal implementation contract
+
+The existing `reconcile` command may advance only when the Host can verify the current assignment/attempt, matching `local_pi.dispatch` identity, a non-unknown `local_pi.terminal` outcome, and any required retained result bytes/hash. It must revalidate assignment/source/provider authority and use the current immutable receipt/result references.
+
+For a terminal `completed` receipt with a valid retained result and no published assignment result, publish the exact existing bytes/reference once through the existing result owner. Keep the assignment `blocked` when assigned sources have only been provided and not human/runtime-read; do not turn delivery into source coverage or formal acceptance. For a known `failed`, `refused` or `cancelled` terminal with no result, settle the attempt using its recorded outcome without replaying it, preserving the existing retry rules. A duplicate command returns its prior outcome.
+
+A missing/unknown terminal, missing or corrupt retained result, source/provider revision change, unresolved dispatch, or lost native creation must remain blocked and return the current `local_pi_unreconciled`/integrity refusal without mutation. No action may spawn a second process, send a provider request or fabricate a source-read/acceptance receipt.
+
+## Acceptance matrix
+
+| Case | Required result |
+| --- | --- |
+| Crash after `local_pi.result`/terminal, exact result retained, assignment result pointer absent | Reconcile succeeds idempotently; exact result becomes readable; assignment remains blocked until actual source coverage is complete; zero new process/provider calls |
+| Crash after terminal with no result, or retained hash/bytes mismatch | Fail closed; preserve unknown/blocked state and bytes; no retry or second spawn |
+| Crash before dispatch, before spawn/native receipt, or lost native creation | Existing 409 fence remains; no reconciliation claim and no retry |
+| Terminal `cancelled`/`failed`/`refused` with valid process evidence | Reconcile records the known non-success outcome without inventing a result; retry remains governed by existing policy |
+| Source revocation or provider/config revision changed before reconciliation | Refuse without publication; keep the original result/attempt identity |
+| Duplicate/stale command or late native event | Existing command idempotency/CAS wins; no duplicate result, transition or spawn |
+| Reopen after the action | Store validates the same attempt/receipt/result; Spark view shows the existing blocked/readable state |
+
+## Why this slice now
+
+The closure audit identifies “safe refusal is not a user-operable recovery journey” as the remaining real outcome gap. The current system already has the action and UI, while all lower-level evidence, identity, retention and unknown fences are accepted. This slice converts one decisive retained outcome into a safe user-visible recovery without weakening the unresolved-execution fence.
+
+The other obvious gaps are less ready: selectable local runtime/profile binding would require a new Session/runtime authority and frontend chooser; known-root cancellation/lost-create recovery needs a new native-action contract; hosted/real-model runtime exposure needs live provider authorization. They should remain deferred until their owners supply those prerequisites.
+
+Original owners remain Spark/Subagents, Local-Pi Host/Store and ArtifactHistory. This recommendation does not transfer E1 frontend ownership, create a new roadmap item, or authorize provider/native credential work.
