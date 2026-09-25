@@ -171,3 +171,5 @@ Evidence: `example-audit.mjs` adds `7-away-and-back-does-not-send`, which repeat
 ## Parent acceptance and integration · 2026-09-25
 
 Parent accepts RP-6 at `25e824b`: leaving and returning with the reads released in the reported order submits zero runs, the draft stays editable, and only an explicit Send sends. Independent targeted 63/63 on the combined tree; Luna narrow review 52/52. RP-1–8 are integrated into main as one squash commit of `claude/ux-polish-20260924` (the intermediate commit with recorder temp paths does not enter main's history). Not pushed.
+
+Ended-tree preservation and cleanup: [receipt](evidence/ux-e1b-integration-20260925/README.md).

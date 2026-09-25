@@ -1,0 +1,28 @@
+{
+  "main": "78d9eb4ff4ef58ebb4c8155e28fd5f5612d55923",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-ux-polish-20260924",
+      "head": "25e824b6a1b3c32ea662f2dbead31f961b32ca1e",
+      "archive_ref": "refs/archive/ux-e1b-20260925/courtwork-ux-polish-20260924",
+      "entries": 10107,
+      "file_bytes": 485429312,
+      "archive_sha256": "9d7f62bb6b11848c1c45a05ac5d970f9afbbf4865aa74e5a5f442d0593ecef7c",
+      "manifest_sha256": "51543da886d890477321d89743f2ccfac919e0bfc6f78b3557c00efa53a8adc1",
+      "restored_and_verified": true
+    },
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-e1-bound-run-20260925",
+      "head": "31144d7e91141842d645e0515f48dbc65cb77bd3",
+      "archive_ref": "refs/archive/ux-e1b-20260925/courtwork-e1-bound-run-20260925",
+      "entries": 10107,
+      "file_bytes": 485446532,
+      "archive_sha256": "5b6d0d7175172329ca804e73a4a47a3c7dd6f8f76be115c0cf9c8f0eb54cea43",
+      "manifest_sha256": "8725cfba47fd9c72501b85eace51640ce500c8cd78a10e5f782865f080eee40d",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "0d4d49dd289c9ddf025e9a70e2e74767648c084ae705336174886139b1ffd5d7",
+  "bundle_restored_and_verified": true
+}
