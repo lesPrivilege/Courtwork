@@ -3830,6 +3830,8 @@ function syncAgentChoice(session, active) {
   /* E1-R3 · visibility and the Send hold come from this Session's own read. */
   const gate = agentChoiceGate({ session, attentionOpen: state.attentionOpen, choice: agentChoice.getState() });
   agentChooser.setVisible(gate.shown);
+  const latest = session ? state.runs.at(-1) : null;
+  agentChooser.syncRun(latest?.id ? `${latest.id}:${currentRun()?.id === latest.id}` : null);
   return { holdsSend: gate.holdsSend, describedBy: gate.shown ? agentChooser.describedBy() : null };
 }
 

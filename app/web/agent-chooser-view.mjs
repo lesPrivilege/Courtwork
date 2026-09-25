@@ -127,6 +127,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     return line;
   }
   let requestedRun = null;
+  let runKey = null;
   async function refreshBound() {
     await loadBound();
     renderPopover();
@@ -305,6 +306,14 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
       chip.hidden = !show;
       if (!show && popover.matches(":popover-open")) popover.hidePopover();
       renderNotice();
+    },
+    /** E1-B · the page reports this chat's latest run (`id:active`) on each
+     * render; an open chooser redraws when it changes, so a run that starts
+     * or ends while it is open is named without closing it. */
+    syncRun(key) {
+      if (key === runKey) return;
+      runKey = key;
+      renderPopover();
     },
     /** The id of the status line, for Send's aria-describedby. */
     describedBy: () => (noticeRow.hidden ? null : "agent-notice"),

@@ -112,3 +112,19 @@ Full app suite: 1673/1673 (Node 25.9).
 Sonnet non-author review of `267b635`: the naming rule is sound against Host code — a run's `composition.hash` and a profile's `source.hash` are the same `sha256(content)` in `runtime/control-plane.mjs`, and the built-in composition carries no hash; `sameAsNext` compares the same fields the Host's own `runtimeSelection` check compares. Close/session races, the failure map clearing and `state.runs.at(-1)` confirmed. 21/21 independently.
 
 - **Chooser open across a chat change could stick on "Reading…" — adjust.** Live check: switching chats closes the chooser, and reopening reads the new chat's run (`Last run used General.`), so the reported state is not reachable that way. The line now requests the binding itself once for any run it shows unread, which also covers a run that ends while the chooser is open. Focused files 345/345.
+
+### Parent review of `267b635`/`d690e6d` · open chooser not redrawn on a new run — adopt
+
+Parent review: completed-run Kit identity passes, but with Run A on Kit reviewer, then Drafter selected and the chooser opened while Run B was submitted, B ran and streamed while the chooser still read `Last run used Kit reviewer…`; for a first run the line was missing until reopen or run end. `d690e6d`'s self-request did not add a redraw trigger.
+
+Correction: the page reports this chat's latest run as `id:active` from `syncAgentChoice` on every composer render; `agentChooser.syncRun()` redraws an open chooser only when that key changes, and the line then reads the new run's binding once. The branch now sits on the RP-6 correction `25e824b` (commits rebased; earlier SHAs `267b635`/`d690e6d` superseded by `4c465f7`/`91c05fa`).
+
+Evidence: a scratch copy of the E1 harness whose synthetic provider streams slowly for `SLOW` messages (no paid call). Chooser kept open throughout:
+
+| Case | While running | After it ends |
+| --- | --- | --- |
+| First run, Kit reviewer | `This run uses Kit reviewer with kit:e1-review 1.` | `Last run used Kit reviewer with kit:e1-review 1.` |
+| Drafter selected, then Run B | `This run uses Drafter.` (was `… Runs from now use Drafter.` before Send) | `Last run used Drafter.` |
+| Counter-check, `91c05fa` files served, Run C on Kit reviewer | still `Last run used Drafter. Runs from now use Kit reviewer.` | — |
+
+Focused files 345/345; audit 21/21; full app suite 1673/1673 (Node 25.9).
