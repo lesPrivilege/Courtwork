@@ -708,6 +708,19 @@ export function assistantMessageText(message) {
   return textFromContent(message?.content);
 }
 
+/** Order 3 · the adapter's segment ordinal for one Run: every assistant
+ * message is one segment, numbered from 0 in the order Pi emits them. Its
+ * deltas and its final carry the same `segment`; the Host validates it. */
+export function assistantSegmentAssigner() {
+  let segment = 0;
+  return (observation) => {
+    if (!observation) return observation;
+    if (observation.type === "assistant.delta") return { ...observation, data: { ...observation.data, segment } };
+    if (observation.type === "assistant.message") { const assigned = { ...observation, data: { ...observation.data, segment } }; segment += 1; return assigned; }
+    return observation;
+  };
+}
+
 /**
  * Map a raw AgentSession event to the app's generic {type,data} event shape.
  * Extends the previous five-primitive mapping with turn/agent bookkeeping

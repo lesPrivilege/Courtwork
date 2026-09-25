@@ -210,3 +210,44 @@ Acceptance corrections:
 - C2 must use a real text + tool mixed message.
 
 Order: fixture and backend finite order → frontend consumes the fixed interface → independent acceptance. 06c stays deferred.
+
+### 2026-09-25 · Order 3 backend finite order · author delivery
+
+Branch `claude/stream-backend-20260925` from `main@51d0fbe`. Author: Claude (Opus 5.5). Independent acceptance pending.
+
+**Fixed interface (what the frontend consumes).** Event types and the `events?afterSeq=` route are unchanged; new fields only:
+
+- `assistant.delta` `data: { text, segment }`: `text` is a cumulative snapshot of segment `segment` (0-based ordinal of assistant messages in the Run). It never shrinks within a segment.
+- `assistant.message` `data: { text, segment, stopReason, errorMessage? , partial? }`: exactly one per segment that had text or a runtime final. `partial: true` only when the Host settled it at a non-completed terminal (`stopReason` `cancelled` / `error` / `unknown`), written in the same store mutation as `run.status` and immediately before it.
+- **Legacy rule** for events without `segment`: the segment equals the number of `assistant.message` events of the same Run before it in `seq` order (`segmentOf`). History is not rewritten.
+- Completed-message actions: only when the Run is `completed` **and** the segment's final is not `partial`.
+- A Run can hold several error segments. Pi retries a dropped provider stream, and each attempt is its own segment with its own `error` final (C5a: 4 attempts). The frontend decides how to present superseded attempts; the backend reports them as facts.
+
+**Change.**
+- `runtime/pi-session-runtime.mjs` `assistantSegmentAssigner` numbers assistant messages per Run; `pi-runtime-port.mjs` applies it.
+- `server/assistant-stream.mjs` has `createSegmentStream` and two pure helpers:
+  - the stream validates each segment: in order, no skip, no shrink; it assigns the next ordinal when an adapter supplied none;
+  - it writes a segment's first snapshot at once, then at most one per 250 ms, keeping only the newest pending snapshot;
+  - the runtime final cancels anything pending and stays authoritative;
+  - `settle(status)` returns the partial once, clears the timer and rejects later updates;
+  - `persistedPartial` settles from persisted text only (crash recovery or a Run not in this process) and never invents an empty partial;
+  - `segmentOf` implements the legacy rule.
+- `server/service.mjs` gives each Run entry a stream and routes `assistant.*` observations through it. All four terminal sites (task `finally`, cancel fallback, cancel not in this process, startup recovery) now append the partial and the terminal status in one `updateRunWithEvent`, which accepts an ordered event list (`server/store.mjs`). Terminal status is never delayed by the throttle.
+- `runtime/fake-provider.mjs` fixture: `mixed` kind (text, then a tool call in one assistant message), per-response `chunkMs`, and `failAfterChunks` (drops the provider connection mid-reply).
+
+**Evidence.** `app/scripts/stream-audit.mjs` boots real Hosts on throwaway data and uses only the public API. It passes 6/6:
+
+| Check | Result |
+| --- | --- |
+| C1 slow reply | first text at 220 ms, terminal at 3981 ms; snapshots grow; one final equal to the source text; all segment 0 |
+| C2 real mixed message | `Δ0… M0(toolUse) tool.start tool.result Δ1… M1(stop)`: segment 0 keeps its narration, segment 1 opens after the tool, no partial |
+| C4 cancel | exactly one `partial: true`, `stopReason: cancelled` final at seq 12, then `run.status cancelled` at seq 13 (one mutation). Its text (168 characters, the newest received) extends the newest persisted snapshot (120) |
+| C5a provider drop, Host alive | Run `failed`; 4 attempts as segments 0–3, each with exactly one runtime `error` final; nothing synthesized |
+| C5b process crash | child Host killed (SIGKILL) after 3 snapshots; the restarted Host marks the Run `unknown` and settles one partial equal to the newest **persisted** snapshot (192 = 192) |
+| C10 fixed 10,000 characters, 24-character chunks every 20 ms (417 chunks) | 37 delta events and 184,848 persisted snapshot characters (18.5× the text), against 2,091,664 characters (417 events) uncoalesced. Mitigated, not linear |
+
+- Unit `assistant-stream-segments` 9/9: coalescing with a fake clock, authoritative final, shrink/skip rejection, Host-assigned ordinal, settlement idempotence and late rejection, recovery-from-persisted-only, the legacy rule, the adapter ordinal.
+- Full app suite 1687/1687, smoke exit 0 (Node 25.9).
+- The existing client already renders a cancelled partial without `pending` and without completed actions, and a tool-then-text Run as before.
+
+Not covered: agents-API/remote adapters beyond the Host assigning ordinals (their events pass through the same stream, not exercised live); Node 22/24.

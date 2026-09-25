@@ -1,6 +1,6 @@
 import path from "node:path";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
-import { createSessionRun, compactSessionJournal, mapSessionEvent } from "./pi-session-runtime.mjs";
+import { createSessionRun, compactSessionJournal, mapSessionEvent, assistantSegmentAssigner } from "./pi-session-runtime.mjs";
 
 /**
  * P03-B · the Pi implementation of the Host's Runtime Port.
@@ -68,13 +68,14 @@ export function createPiRuntimePort({ dataDir, modelRuntime }) {
         historyIsEmpty: () => manager.getEntries().length === 0,
         /** Start or continue Pi's loop on this journal with one input. */
         async start({ tools, onObservation, ...options }) {
+          const assignSegment = assistantSegmentAssigner();
           const { session, abort, run, getUsage } = await createSessionRun({
             ...options,
             cwd: workspaceDir, agentDir, modelRuntime,
             sessionManager: manager,
             customTools: tools,
             onEvent: (event) => {
-              const observation = mapSessionEvent(event);
+              const observation = assignSegment(mapSessionEvent(event));
               return observation ? onObservation(observation) : undefined;
             },
           });

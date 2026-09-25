@@ -1699,7 +1699,13 @@ export class RuntimeStore {
     if (typeof event?.type === "string" && event.type.startsWith("local_pi")) {
       const error = new Error("local Pi events require the named Store API"); error.code = "LOCAL_PI_EVENT_RESERVED"; throw error;
     }
-    return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now(); if (event) appendEventToState(state, { runId: id, sessionId: run.sessionId, ...event }); return run; });
+    // `event` may be a list: e.g. a Run's partial assistant final and its
+    // terminal status land in one mutation (order 3), in the given order.
+    const events = (Array.isArray(event) ? event : [event]).filter(Boolean);
+    if (events.some((item) => typeof item.type === "string" && item.type.startsWith("local_pi"))) {
+      const error = new Error("local Pi events require the named Store API"); error.code = "LOCAL_PI_EVENT_RESERVED"; throw error;
+    }
+    return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now(); for (const item of events) appendEventToState(state, { runId: id, sessionId: run.sessionId, ...item }); return run; });
   }
 
   async appendEvent({ runId, type, data }) {
