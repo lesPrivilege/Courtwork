@@ -251,3 +251,18 @@ Branch `claude/stream-backend-20260925` from `main@51d0fbe`. Author: Claude (Opu
 - The existing client already renders a cancelled partial without `pending` and without completed actions, and a tool-then-text Run as before.
 
 Not covered: agents-API/remote adapters beyond the Host assigning ordinals (their events pass through the same stream, not exercised live); Node 22/24.
+
+#### Non-author review of `6da3bbc` and disposition
+
+Sonnet non-author review confirmed:
+- atomic ordered settlement at the three reachable sites, and `settle` idempotence;
+- crash recovery from persisted text only, including the legacy rule and an existing final;
+- final authority, with no coalesced write after it and tool-only finals accepted;
+- coalescing, and no timer leak on shutdown (`close()` cancels and awaits every Run).
+
+Independent 9/9 and audit 6/6. Two findings:
+
+- **Latent loss in the task `finally` when the Run was already terminal — adjust.** `settle()` computed the partial and discarded it; being one-shot, the text could never be written. No current path reaches it: every in-process terminal writer settles the stream itself, and the other writers run without an entry. It now appends that partial after the existing status rather than dropping it, and the comment says it is not atomic.
+- **Remote gateway had no segment identity — adjust within scope.** `runtime/agents-host-gateway.mjs` now numbers segments by first-seen native `itemId`, and `assistant.message` carries it when the item is known. Truly interleaved native items remain refused by the sequential-segment rule and are logged. That lane is not live (the Agents API lane is unavailable per README), so the backend record leaves the interleaving policy to that lane's own order rather than widening this contract.
+
+DRT-03 gateway and transport tests plus the stream unit tests: 46/46. Full app suite 1687/1687; stream audit 6/6.

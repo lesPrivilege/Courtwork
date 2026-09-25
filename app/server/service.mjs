@@ -3317,7 +3317,13 @@ export class RuntimeService {
           entry.stream?.settle(finalStatus),
           { type: "run.status", data: { status: finalStatus, ...(entry.externalUnknownDetail ? { externalUnknown: entry.externalUnknownDetail } : {}) } },
         ]);
-      } else entry.stream?.settle(current?.status);
+      } else {
+        // A terminal status written by another path without settling this
+        // Run's stream: keep the received text rather than lose it. It follows
+        // that status, so it is not atomic with it; no current path does this.
+        const orphan = entry.stream?.settle(current?.status);
+        if (orphan) await this.store.appendEvent({ runId: run.id, ...orphan }).catch(() => {});
+      }
       for (const [questionId, waiter] of this.questionWaiters) {
         if (waiter.runId === run.id) this.questionWaiters.delete(questionId);
       }
