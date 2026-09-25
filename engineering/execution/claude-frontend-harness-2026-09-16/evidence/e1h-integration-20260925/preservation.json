@@ -1,0 +1,18 @@
+{
+  "main": "6d375a59463aa6aff554cda863a398c7f0af62d8",
+  "git_common_dir": "/Users/lesprivilege/Projects/Courtwork-legacy-frozen/.git",
+  "trees": [
+    {
+      "path": "/Users/lesprivilege/Projects/.worktrees/courtwork-e1-home-agent-20260925",
+      "head": "6d375a59463aa6aff554cda863a398c7f0af62d8",
+      "archive_ref": "refs/archive/e1h-20260925/courtwork-e1-home-agent-20260925",
+      "entries": 10110,
+      "file_bytes": 485487181,
+      "archive_sha256": "38e9f6cc5ec25e43a16a198486f729e778582a89d78cc19e6e84ed4c4e1d28c5",
+      "manifest_sha256": "321569f417033ebfc3f855797ba69bf929e18b8d1a7411a2a1b41d6a2f4edafe",
+      "restored_and_verified": true
+    }
+  ],
+  "bundle_sha256": "67a6eabb4a4f939664a00804ba334e33c1a96a97447b2740e41bf44a349a14e8",
+  "bundle_restored_and_verified": true
+}

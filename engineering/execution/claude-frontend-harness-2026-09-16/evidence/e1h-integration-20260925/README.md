@@ -1,0 +1,5 @@
+# E1-H · integration and ended-tree preservation · 2026-09-25
+
+Parent accepted E1-H at `0ac0b4c`. Local main fast-forwards to `6d375a5` (E1-H plus acceptance and regression records); `app/` is byte-identical to `0ac0b4c`. Integration regression: example audit 23/23, full app suite 1678/1678, smoke exit 0 (Node 25.9). Not pushed.
+
+[Preservation receipt](preservation.json), same `preserve.py` procedure as the K5 and RP/E1-B receipts: the ended worktree `courtwork-e1-home-agent-20260925` (head `6d375a5`, fully contained in main) was inventoried with modes, symlinks and hashes (10,110 entries; the only untracked entry was the `app/node_modules` symlink to main's install), archived, physically extracted and matched to its manifest. The repository bundle was verified, mirror-cloned and connectivity-checked. Archive ref `refs/archive/e1h-20260925/courtwork-e1-home-agent-20260925`; archive directory `Projects/.archives/courtwork-e1h-20260925`. After verification the worktree and its merged branch were removed; main's `node_modules` is untouched.
