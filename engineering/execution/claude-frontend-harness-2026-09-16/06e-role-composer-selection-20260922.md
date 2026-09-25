@@ -134,3 +134,41 @@ Focused files 345/345; audit 21/21; full app suite 1673/1673 (Node 25.9).
 Parent accepts E1-B at `a171f4d`: with the chooser kept open, first and later runs update to `This run uses …` and switch to `Last run used …` when they end. Independent targeted 63/63 on the combined tree; Luna narrow review 52/52. After the RP squash (`aebcb8c`), the three E1-B commits were rebased onto main with `app/` byte-identical to `a171f4d`; the incremental regression is recorded below. Not pushed.
 
 Incremental regression on the integrated tree (main `aebcb8c` + E1-B): example audit 21/21, full app suite 1673/1673, `npm run smoke` exit 0 (real provider not run), Node 25.9. Not covered: dark mode, 200% text, Node 22/24.
+
+## E1-H · Home-first Agent choice — short contract (draft for parent decision) · 2026-09-25
+
+Serial order 2, after the RP-1–8 and E1-B integration (`main@d203fd1`). Contract only: no product edit until the parent fixes the two decisions below. No Host schema change; the existing Runtime Control CAS and Run pipeline remain the owners.
+
+**Outcome.** On Home, before any chat exists, the person can pick the Agent for the first run. The first Send creates the chat, applies that choice with the existing session-scope CAS, then admits the Run. A failure at any step keeps the chat, the draft and the choice, and says which step did not happen. It never silently runs with another Agent.
+
+**Owner facts (current code).**
+- `GET /runtime-control` without `sessionId` resolves scopes `[user]` only: user-scope profiles plus built-in General. Workspace-scoped (project) and session-scoped profiles resolve only once a chat exists (`control-plane.mjs` `scopes`).
+- Selection is `PUT /runtime-control?sessionId=` `{revision, operation:"profile", scope:{type:"session", id}, id}`. `revision` is the whole-configuration CAS value. Replies: 409 `runtime_conflict`, and 409 `active_run` (impossible for a brand-new chat).
+- A Send carries `runtimeSelection {revision, profileId, sourceHash}`, which the Host checks after replay lookup (409 `runtime_selection_conflict`). RP-6 already makes the first Send wait, under its pending lock, for the new chat's Agent read.
+- Home's start marker (`home-preparation.mjs`, `sessionStorage`) mints `sessionId`/`commandId` before each Host command and replays them after a reload. Lost chat creation is already recoverable (`Check its status`).
+
+**Sequence (one Send).**
+1. **Home.** The chooser reads the no-session snapshot. Picking P records `intent = {profileId, sourceHash, observedRevision}` in the start marker; not picking leaves `intent = null`, and the flow is today's.
+2. Create the chat (existing, same minted `sessionId`), then bind the repository if chosen (existing).
+3. **If `intent`:** read `/runtime-control?sessionId=`. P must resolve in the new chat's scopes with the same `sourceHash`, otherwise stop (see F2). If the chat's effective selection is already P (a replay after a lost reply), skip to 5.
+4. `PUT` the selection with the fresh `revision`. Record `intent.applied = true | unknown` in the marker before and after the call.
+5. Flush attachments and persist the draft (existing), `selectSession`, `submitSessionRun`. Send's expectation is the fresh reading, so the Host refuses if P changed in between.
+
+**Failure and recovery.** In every case the chat, draft and intent are kept and nothing is sent.
+
+| Case | Home says | Actions |
+| --- | --- | --- |
+| F1 chat creation lost | existing `Creating the chat is unconfirmed…` | existing Check status |
+| F2 P missing or its source changed in the new chat | `<P> is not available for this chat as chosen.` | Choose again (chooser on the created chat's reading) · Open the chat |
+| F3 CAS `runtime_conflict` | `<P> was not selected: the configuration changed.` | Select again (fresh read) · Choose another |
+| F4 selection reply lost | read back: equals P → continue; otherwise `Whether <P> was selected is not known.` | Check again |
+| F5 reload mid-flow | marker restores step and intent; no step repeats a settled command | as above |
+| F6 Run admission refused (e.g. `runtime_selection_conflict`) | existing Send refusal in the chat | existing |
+
+The Home location/permission/draft locks (CE-R1, RP-6) cover steps 2–5; the chooser is locked while `pending`.
+
+**Decisions for the parent.**
+- **D1 · project-scoped profiles on Home.** The no-session read cannot list workspace-scoped profiles of the chosen project. (a) First slice lists user-scope profiles and General only; project profiles stay reachable after the chat exists (existing chooser). (b) Add a read-only `GET /runtime-control?projectId=` resolving `[user, workspace]` without a session (Host API only, no schema change). Recommendation: (a) now, (b) as a separate backend order if project profiles matter before first run.
+- **D2 · conflict policy at step 4.** Stop and ask (E1 precedent, recommended) versus one automatic re-read-and-retry when P still resolves with the same hash.
+
+**Exit evidence.** Held and failed reads and PUTs at each step (page `fetch` hold, as in audit section 7); reload between 2/3/4/5; a lost PUT reply with read-back; P edited between pick and Send; `intent = null` behaving exactly as today; a live Kit profile first run showing `This run uses P …` (E1-B); 1440 and 375; non-author review.
