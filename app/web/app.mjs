@@ -5381,7 +5381,10 @@ async function submitHomeRun() {
     });
     // Only the existing Run pipeline admits execution, preserving its receipt,
     // draft revision, cancellation and recovery owners.
-    await submitSessionRun({ commandId: operation.commandId });
+    await submitSessionRun({
+      commandId: operation.commandId,
+      expectAgent: operation.agent?.state === "applied" ? { profileId: operation.agent.profileId, sourceHash: operation.agent.sourceHash } : null,
+    });
     void loadHome();
   } catch (error) {
     operation.unconfirmed = !operation.session && isUncertainCommandError(error);
@@ -5440,7 +5443,7 @@ async function submitRun(event) {
   if (state.view === "home" && !currentSession()) return submitHomeRun();
   return submitSessionRun();
 }
-async function submitSessionRun({ commandId = null } = {}) {
+async function submitSessionRun({ commandId = null, expectAgent = null } = {}) {
   const session = currentSession();
   if (
     !session ||
@@ -5546,6 +5549,18 @@ async function submitSessionRun({ commandId = null } = {}) {
       setTransientFeedback(sessionId, nextOperationId("run-blocked"), "run", `${agentGate.reason || "The agent for this chat is not read yet."} Not sent.`);
       return;
     }
+  }
+  /* E1-H · a first Send from Home runs only with the Agent chosen and applied
+   * there: this fresh reading must still have exactly that id + source hash in
+   * effect. A later change is refused by the Host through the expectation's
+   * configuration revision. Otherwise nothing is sent and the draft stays. */
+  if (expectAgent && !(agentReading?.sessionId === sessionId && selectionLanded(agentReading.snapshot, expectAgent))) {
+    state.pendingRuns.delete(sessionId);
+    renderComposer();
+    const title = agentReading?.snapshot?.titles?.[expectAgent.profileId] ?? expectAgent.profileId;
+    setPersistentFeedback(sessionId, nextOperationId("run-blocked"), "run",
+      `${title} changed after it was chosen for this chat, so nothing was sent. Check the agent, then send again.`);
+    return;
   }
   const runtimeSelection = agentReading?.sessionId === sessionId ? agentReading.next?.send.runtimeSelection ?? null : null;
   if (runtimeSelection) operation.runtimeSelection = runtimeSelection;

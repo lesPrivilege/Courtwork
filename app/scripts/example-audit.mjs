@@ -201,6 +201,43 @@ try {
   await evaluate("(async()=>{window.__hold=false;const held=window.__held.splice(0);for(const r of held.reverse()){r();await new Promise(x=>setTimeout(x,600));}await new Promise(x=>setTimeout(x,2500));return true;})()");
   after = await evaluate("({runs:window.__runs,seen:window.__seen,title:document.getElementById('session-title-text').textContent,composer:document.getElementById('composer-input').value,readOnly:document.getElementById('composer-input').readOnly})");
   record("7-away-and-back-does-not-send", after.runs.length === 0 && after.title.startsWith("A3 · away and back") && after.composer === "A3 · away and back while held" && !after.readOnly, after);
+  // ---- 8 · E1-H · an Agent picked on Home runs with exactly that identity, or
+  // not at all: a source change after the pick stops the first Send.
+  const hostApi = async (method, route, body) => {
+    const r = await fetch(`${withProvider.url}/api/v5${route}`, { method, headers: { "content-type": "application/json", "x-work-token": withProvider.token }, body: body === undefined ? undefined : JSON.stringify(body) });
+    const json = await r.json().catch(() => null);
+    if (!r.ok) throw new Error(`${method} ${route} ${r.status} ${JSON.stringify(json)}`);
+    return json;
+  };
+  const putProfile = async (version) => {
+    const snap = await hostApi("GET", "/runtime-control");
+    await hostApi("PUT", "/runtime-control", { revision: snap.revision, operation: "put", resource: { id: "local:audit-drafter", kind: "agent_profile", title: "Audit drafter", scope: { type: "user", id: "local" }, content: JSON.stringify({ schemaVersion: 1, version, resourceIds: [], rules: [], uiSlots: [] }) } });
+  };
+  await putProfile("1.0.0");
+  const PICK = `(async()=>{const w=(ms)=>new Promise(r=>setTimeout(r,ms));window.__afterPut=false;window.__held=[];window.__runs=[];
+    const orig=window.fetch;window.fetch=async(u,i)=>{const s=String(u);const m=(i?.method||'GET').toUpperCase();
+      if(s.includes('/runtime-control?sessionId=')&&m==='PUT'){const r=await orig(u,i);window.__afterPut=true;return r;}
+      if(window.__hold&&window.__afterPut&&s.includes('/runtime-control?sessionId=')&&m==='GET')await new Promise(r=>window.__held.push(r));
+      if(/\\/runs$/.test(s)&&m==='POST')window.__runs.push(JSON.parse(i.body).runtimeSelection?.sourceHash??null);
+      return orig(u,i);};
+    document.getElementById('agent-chip').click();await w(900);
+    document.querySelector('[data-testid="agent-option:local:audit-drafter"]')?.click();await w(500);
+    return JSON.parse(sessionStorage.getItem(Object.keys(sessionStorage).find(k=>/home/i.test(k)))||'null')?.agentIntent?.sourceHash??null;})()`;
+  await newTab(); await load(withProvider.url); await click("#home-button"); await sleep(1200);
+  await evaluate("window.__hold=false;true");
+  let picked = await evaluate(PICK);
+  await sendComposer("E1-H · picked agent, first run"); await sleep(2500);
+  after = await evaluate("({runs:window.__runs,title:document.getElementById('session-title-text').textContent})");
+  record("8-home-pick-runs-with-the-picked-identity", Boolean(picked) && after.runs.length === 1 && after.runs[0] === picked, { picked, ...after });
+  await newTab(); await load(withProvider.url); await click("#home-button"); await sleep(1200);
+  await evaluate("window.__hold=true;true");
+  picked = await evaluate(PICK);
+  await sendComposer("E1-H · source changes before the first run"); await sleep(1500);
+  await putProfile("2.0.0");
+  await evaluate("(async()=>{window.__afterPut=false;window.__hold=false;window.__held.splice(0).forEach(r=>r());await new Promise(r=>setTimeout(r,3000));return true;})()");
+  after = await evaluate("({runs:window.__runs,composer:document.getElementById('composer-input').value,said:document.body.innerText.split('\\n').filter(l=>/changed after it was chosen/.test(l))})");
+  record("8-home-pick-changed-before-send-does-not-run", after.runs.length === 0 && after.composer === "E1-H · source changes before the first run" && after.said.length > 0, { picked, ...after });
+  await shot("8-home-pick-changed");
   // ---- 6 · no runtime: the page against a closed port shows the runtime line, no example
   await newTab();
   const dead = withoutProvider.url; await withoutProvider.close?.();

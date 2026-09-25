@@ -216,3 +216,16 @@ Full app suite: 1677/1677 (Node 25.9).
 Sonnet non-author review of `781b6d6`: all five constraint checks confirmed with no defect (identity id + hash everywhere including skip and read-back; `pending` stored before the `PUT`; `applied` only on a match; restore maps pending→unknown; the only `PUT` path is a person's Send after a read-back; D1 filter; D2 stop; `use()` switching, no Home leak into chats, init ordering keeps the saved draft; pick cleared on success, kept on failure). Independent 24/24 and 22/22.
 
 - **Home chip names a pick whose source changed as the current profile (display only) — adopt.** The Home reading marks such a pick `stale` (via `intentResolves`) and the chip reads `<title> (changed since chosen)`; the pick keeps what was chosen, and Send still stops with F2. `agent-choice` 25/25; focused files 350/350.
+
+### Parent/Luna review of `77a5d0e` · first-Send Agent identity drift — adopt
+
+Parent and Luna final review holds E1-H for first-Send Agent identity drift; the unknown, lost-reply and CAS-conflict recoveries raised no new blockers. The author did not receive the reviewers' reproduction and reproduced the class independently. Home applied Kit reviewer at hash `776db0fd…`. While the new chat's Agent read was held, the profile's source changed. The first Run then went out with `runtimeSelection` hash `24773a8f…`: `submitSessionRun` trusted whatever the fresh read reported and never compared it with the pick.
+
+**Correction.** The Home hand-off passes the applied identity to `submitSessionRun` as `expectAgent {profileId, sourceHash}`. After its fresh read, and after RP-6's wait when there is one, the Send goes on only if `selectionLanded(fresh reading, expectAgent)`. Otherwise it releases the pending command, keeps the draft and leaves a persistent `<title> changed after it was chosen for this chat, so nothing was sent. Check the agent, then send again.` A change after that check is refused by the Host itself: the expectation carries the configuration revision (`409 runtime_selection_conflict`). A Send without a Home pick carries no expectation, as before.
+
+**Evidence.**
+- Live, change while the chat's read is held: no Run posted, the draft is kept, and the chat shows the message above.
+- Live, change while the in-chat draft save is held (after the client check): the Host answers `409 runtime_selection_conflict`, no Run, draft kept.
+- `example-audit.mjs` section 8 seeds a user-scope profile on its own Host. `8-home-pick-runs-with-the-picked-identity`: the Run's `runtimeSelection.sourceHash` equals the pick. `8-home-pick-changed-before-send-does-not-run`: with the source changed during the held read, no Run is posted and the draft and message are shown.
+- With `77a5d0e`'s `app.mjs`, the second check fails (the Run went out with a different hash); with the correction the audit passes 23/23.
+- Focused files 350/350; full app suite 1678/1678 (Node 25.9).
