@@ -229,3 +229,11 @@ Parent and Luna final review holds E1-H for first-Send Agent identity drift; the
 - `example-audit.mjs` section 8 seeds a user-scope profile on its own Host. `8-home-pick-runs-with-the-picked-identity`: the Run's `runtimeSelection.sourceHash` equals the pick. `8-home-pick-changed-before-send-does-not-run`: with the source changed during the held read, no Run is posted and the draft and message are shown.
 - With `77a5d0e`'s `app.mjs`, the second check fails (the Run went out with a different hash); with the correction the audit passes 23/23.
 - Focused files 350/350; full app suite 1678/1678 (Node 25.9).
+
+### E1-H parent acceptance · 2026-09-25
+
+Parent accepts `0ac0b4c`; the author's same-id, different-hash reproduction matches the root cause Luna identified. Independent re-checks:
+- Original P→Q counterexample: the successful P selection reply held while another client switched to Q, then released. The Send stops, the Host has zero Runs, and the draft is editable.
+- `applied` recovery: after a successful selection the hand-off was interrupted, the same profile's source changed, and the page reloaded. The old selection is refused on recovery, and only an explicit Send produces one Run.
+
+Targeted 68/68; Luna narrow review 71/71, no new regression. Integration regression is recorded below.
