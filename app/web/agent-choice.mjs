@@ -389,7 +389,11 @@ export function createHomeAgentChoice({ adapter }) {
   function view() {
     if (!snapshot) return null;
     const chosen = intent && snapshot.profiles.find((profile) => profile.id === intent.profileId);
-    return { ...snapshot, effective: chosen ? { id: chosen.id, hash: chosen.builtin ? null : chosen.sourceHash, version: null, status: "compatible", missing: [], schemaVersion: 1, kits: [], selectionScope: null } : null };
+    // A pick whose profile source changed since is named as such: the Send
+    // would stop on it (identity is id + source hash), so it is not presented
+    // as the current profile.
+    const stale = Boolean(chosen) && !intentResolves(snapshot, intent);
+    return { ...snapshot, effective: chosen ? { id: chosen.id, hash: chosen.builtin ? null : chosen.sourceHash, version: null, status: "compatible", missing: [], schemaVersion: 1, kits: [], selectionScope: null, stale } : null };
   }
   function getState() {
     return clone({

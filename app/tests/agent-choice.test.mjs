@@ -354,3 +354,19 @@ test("E1-H: Home records an intent from the no-session reading and never writes"
   assert.equal(home.intent(), null);
   assert.ok(!calls.some(([kind]) => kind === "select"));
 });
+
+test("E1-H: a Home pick whose source changed is shown as changed, not as the current profile", async () => {
+  let hash = "hash-a";
+  const adapter = { read: async () => ({ revision: 1, resources: [
+    { id: "agent:general", kind: "agent_profile", title: "General", source: { type: "builtin" }, scope: { type: "user", id: "local" } },
+    { id: "local:coding", kind: "agent_profile", title: "Coding", source: { type: "local-config", hash }, scope: { type: "user", id: "local" } },
+  ] }), source: async () => ({ content: null }) };
+  const home = createHomeAgentChoice({ adapter });
+  await home.load();
+  await home.choose("local:coding");
+  assert.equal(home.getState().snapshot.effective.stale, false);
+  hash = "hash-b";
+  await home.load();
+  assert.equal(home.getState().snapshot.effective.stale, true);
+  assert.equal(home.intent().sourceHash, "hash-a", "the pick keeps what was chosen");
+});

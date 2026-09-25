@@ -210,3 +210,9 @@ Unit: `agent-choice` 24/24 (identity always id + hash; Home reads once, filters 
 Not covered: a repository-bound Home start with a pick (binding precedes the agent step and was not exercised live); Node 22/24; dark mode.
 
 Full app suite: 1677/1677 (Node 25.9).
+
+### E1-H non-author review and disposition
+
+Sonnet non-author review of `781b6d6`: all five constraint checks confirmed with no defect (identity id + hash everywhere including skip and read-back; `pending` stored before the `PUT`; `applied` only on a match; restore maps pending→unknown; the only `PUT` path is a person's Send after a read-back; D1 filter; D2 stop; `use()` switching, no Home leak into chats, init ordering keeps the saved draft; pick cleared on success, kept on failure). Independent 24/24 and 22/22.
+
+- **Home chip names a pick whose source changed as the current profile (display only) — adopt.** The Home reading marks such a pick `stale` (via `intentResolves`) and the chip reads `<title> (changed since chosen)`; the pick keeps what was chosen, and Send still stops with F2. `agent-choice` 25/25; focused files 350/350.

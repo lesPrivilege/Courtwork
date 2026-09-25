@@ -310,7 +310,7 @@ export function createAgentChooser({ controller: initialController, mount, notic
     /* The control names the agent in effect, never an unapplied draft; the
        draft is described beside Send until the Host accepts it. On Home it
        names the pick for the new chat, or says that the chat's default applies. */
-    const title = effective ? state.snapshot.titles[effective.id] ?? effective.id : null;
+    const title = effective ? `${state.snapshot.titles[effective.id] ?? effective.id}${state.home && effective.stale ? " (changed since chosen)" : ""}` : null;
     label.textContent = title ?? (state.home ? "Default agent" : state.read.status === "error" ? "Agent unknown" : "Agent");
     chip.setAttribute("aria-label", `Agent: ${label.textContent}${state.home && !title ? " (the new chat's default)" : ""}`);
     chip.disabled = Boolean(state.locked);
