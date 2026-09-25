@@ -194,3 +194,19 @@ An audit script, sibling of `example-audit.mjs`, records provider→Host receipt
 3. **Independent acceptance.**
 
 Out of scope: transport replacement (SSE stays a candidate if C1 timings are later judged insufficient), hidden reasoning, typewriter motion, and 06c.
+
+### 2026-09-25 · Parent decisions and binding boundaries
+
+**D1 = (a)** coalesced writes this round; **D2 = (a)** freeze the segment's text while selected; no SSE now. Written into the contract:
+
+1. **D1(a) mitigates G1; it does not close it.** Cumulative snapshots saved every 250 ms still grow super-linearly at a fixed generation rate. A segment's first snapshot is written at once; between writes only the latest pending snapshot is kept; terminal events are never delayed by the throttle. C10 fixes text length and generation timing and reports event count and actual bytes; linear storage is not claimed.
+2. **Partial settlement is atomic and idempotent.** If a normal final exists, nothing is synthesized. On cancel or failure, the still-open segment is settled, its timer is cleared, and late updates are rejected. Crash recovery uses only the last persisted text and the Run keeps its real `unknown` status; with no persisted evidence no empty partial is invented. Completed-message actions require both a `completed` Run and a non-partial segment.
+3. **Segment identity is persisted with the events.** The adapter may assign the ordinal; the Host validates and records it. Chat and Attention never renumber on reconnect. Older events keep an explicit, stable compatibility rule, and historical records are not rewritten.
+4. **Selection freezes only the text painting.** Updates keep arriving and only the latest snapshot is kept; releasing the selection paints once. The hint says `Content updated`, not "more below". Terminal and partial state still update, and other rows are not rebuilt.
+
+Acceptance corrections:
+- The normal final is authoritative: settled text equals the final, never truncated to match an earlier snapshot.
+- C5 splits into **C5a** execution failure with the Host alive and **C5b** recovery after a process crash.
+- C2 must use a real text + tool mixed message.
+
+Order: fixture and backend finite order → frontend consumes the fixed interface → independent acceptance. 06c stays deferred.
