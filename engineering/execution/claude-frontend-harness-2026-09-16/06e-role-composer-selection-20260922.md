@@ -128,3 +128,9 @@ Evidence: a scratch copy of the E1 harness whose synthetic provider streams slow
 | Counter-check, `91c05fa` files served, Run C on Kit reviewer | still `Last run used Drafter. Runs from now use Kit reviewer.` | — |
 
 Focused files 345/345; audit 21/21; full app suite 1673/1673 (Node 25.9).
+
+### E1-B parent acceptance and integration · 2026-09-25
+
+Parent accepts E1-B at `a171f4d`: with the chooser kept open, first and later runs update to `This run uses …` and switch to `Last run used …` when they end. Independent targeted 63/63 on the combined tree; Luna narrow review 52/52. After the RP squash (`aebcb8c`), the three E1-B commits were rebased onto main with `app/` byte-identical to `a171f4d`; the incremental regression is recorded below. Not pushed.
+
+Incremental regression on the integrated tree (main `aebcb8c` + E1-B): example audit 21/21, full app suite 1673/1673, `npm run smoke` exit 0 (real provider not run), Node 25.9. Not covered: dark mode, 200% text, Node 22/24.
