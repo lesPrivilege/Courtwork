@@ -81,12 +81,31 @@ export function serializeHomePreparationMarker(start) {
     unconfirmed: Boolean(start.unconfirmed || (start.pending && !start.session)),
     error: start.error || "",
     failure: preparationFailureForStorage(start.failure),
+    agent: homeAgentIntentForStorage(start.agent),
+  };
+}
+
+/* E1-H · the Agent picked on Home travels with the start marker. `state` is
+ * `none` (not yet written), `pending` (a PUT may be out), `applied` (a reply
+ * or a read-back matched `profileId + sourceHash`) or `unknown` (a lost reply
+ * not yet read back). A reload restores it; it never sends or writes. */
+const AGENT_STATES = new Set(["none", "pending", "applied", "unknown"]);
+export function homeAgentIntentForStorage(agent) {
+  if (!agent || typeof agent.profileId !== "string") return null;
+  return {
+    profileId: agent.profileId,
+    sourceHash: typeof agent.sourceHash === "string" ? agent.sourceHash : null,
+    observedRevision: Number.isSafeInteger(agent.observedRevision) ? agent.observedRevision : null,
+    state: AGENT_STATES.has(agent.state) ? agent.state : "none",
   };
 }
 
 export function restoreHomePreparationMarker(saved) {
   if (!saved || (saved.projectId !== null && typeof saved.projectId !== "string") || typeof saved.commandId !== "string") return null;
-  return { ...saved, failure: preparationFailureForStorage(saved.failure), pending: false, restored: true };
+  const agent = homeAgentIntentForStorage(saved.agent);
+  // A PUT that may have gone out before the reload is not known to have landed.
+  if (agent?.state === "pending") agent.state = "unknown";
+  return { ...saved, failure: preparationFailureForStorage(saved.failure), agent, pending: false, restored: true };
 }
 
 /** Where a preparation has got to, as one word a surface can act on.

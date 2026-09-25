@@ -21,7 +21,7 @@ import { projectBoundRun } from "./agent-choice.mjs";
 const runtimeName = (adapterId) => (!adapterId ? "the Host runtime" : /^pi(-|$)/.test(adapterId) ? "Pi" : adapterId);
 const runtimeLine = (adapterId) => (adapterId && runtimeName(adapterId) !== adapterId ? `${runtimeName(adapterId)} (${adapterId})` : runtimeName(adapterId));
 
-export function createAgentChooser({ controller, mount, noticeAfter, modelReading, boundReading = () => null, loadBound = async () => {}, openSettings }) {
+export function createAgentChooser({ controller: initialController, mount, noticeAfter, modelReading, boundReading = () => null, loadBound = async () => {}, openSettings }) {
   const popover = el("div", {
     className: "context-popover agent-popover",
     attrs: { id: "agent-popover", popover: "auto", role: "dialog", "aria-label": "Choose agent", "data-testid": "agent-popover" },
@@ -42,6 +42,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
   const noticeRow = el("div", { className: "agent-notice-row", attrs: { hidden: "" } }, notice, actions);
   noticeAfter.after(noticeRow);
 
+  let controller = initialController;
   let state = controller.getState();
   let activeId = null;
   let typed = "", typedAt = 0;
@@ -60,6 +61,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
   function standing(id) {
     const snap = state.snapshot;
     if (!snap) return "";
+    if (state.home) return state.intent?.profileId === id ? "chosen for the new chat" : "";
     if (state.draft?.profileId === id && state.apply.status !== "idle") return state.apply.status === "applying" ? "selecting…" : "your choice · not applied";
     if (snap.effective?.id === id) return snap.sessionSelection === id ? "selected for this chat" : "in effect · inherited";
     return "";
@@ -88,9 +90,11 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
       add("Includes", source.reading.resourceIds.map((rid) => snap.titles[rid] ? snap.titles[rid] : `${rid} (not in this configuration)`).join(", "), "resources");
     if (profile.diagnostics?.length) add("Diagnostics", profile.diagnostics.join(" "), "diagnostics");
     add("Works in", "This chat and its Work location. It does not change either, or open another inbox.", "scope");
-    add("When", snap.activeRuns
-      ? "A run is active. The selection cannot change until it ends, and a running run keeps the agent it started with."
-      : "Selecting applies to runs started after it in this chat. A running run keeps the agent it started with.", "when");
+    add("When", state.home
+      ? "Choosing applies when your first message creates the chat: the chat selects this agent before its first run."
+      : snap.activeRuns
+        ? "A run is active. The selection cannot change until it ends, and a running run keeps the agent it started with."
+        : "Selecting applies to runs started after it in this chat. A running run keeps the agent it started with.", "when");
     box.append(facts);
     return box;
   }
@@ -128,6 +132,18 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
   }
   let requestedRun = null;
   let runKey = null;
+  /* E1-H · D1: Home offers what every chat can use; a project's own agents are
+     chosen in the chat once it exists. */
+  function homeLine() {
+    const line = el("p", { className: "context-meta agent-bound", attrs: { "data-testid": "agent-home-scope" } },
+      "Home offers the agents available to every chat. A project's own agents are chosen in the chat once it exists. ");
+    if (state.intent && !state.locked) {
+      const clear = el("button", { className: "text-button", text: "Use the chat's default agent", attrs: { type: "button", "data-testid": "agent-home-clear" } });
+      clear.addEventListener("click", () => { controller.clear(); dismiss(); });
+      line.append(clear);
+    }
+    return line;
+  }
   async function refreshBound() {
     await loadBound();
     renderPopover();
@@ -179,14 +195,14 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
          the profile this chat selects for itself opens its source editor
          (Preview, then an explicit Save); any other profile is inspected
          read-only there, so its action says View. */
-      const editable = state.snapshot.sessionSelection === activeProfile.id;
+      const editable = !state.home && state.snapshot.sessionSelection === activeProfile.id;
       const edit = el("button", { className: "text-button", text: `${editable ? "Edit" : "View"} ${activeProfile.title} source in Settings`, attrs: { type: "button", "data-testid": "agent-view-in-settings" } });
       edit.addEventListener("click", () => { popover.hidePopover(); openSettings(activeProfile.id, chip, { edit: editable }); });
       children.push(edit);
     }
     detail.replaceChildren(...children);
     status.textContent = state.read.status === "loading" ? "Refreshing agents…" : "";
-    popover.replaceChildren(header, boundLine() ?? "", el("div", { className: "agent-popover-body" }, listbox, detail), status);
+    popover.replaceChildren(header, (state.home ? homeLine() : boundLine()) ?? "", el("div", { className: "agent-popover-body" }, listbox, detail), status);
     restore();
   }
 
@@ -205,6 +221,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
   }
   function commit(id) {
     dismiss();
+    if (state.locked) return;
     void controller.choose(id);
   }
 
@@ -270,7 +287,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     const next = state.next;
     const lines = [];
     const buttons = [];
-    if (state.read.status === "error") { lines.push(`Could not read this chat's agent: ${state.read.error}`); buttons.push(action("Retry", "agent-retry", () => controller.load())); }
+    if (state.read.status === "error") { lines.push(state.home ? `Could not read the agents Home offers: ${state.read.error}. Sending still works with the chat's default agent.` : `Could not read this chat's agent: ${state.read.error}`); buttons.push(action("Retry", "agent-retry", () => controller.load())); }
     else if (next && !next.send.enabled && state.read.status === "ready") {
       lines.push(next.send.reason);
       if (state.apply.status === "conflict") buttons.push(action("Select again", "agent-apply-again", () => controller.apply()));
@@ -287,19 +304,32 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     notice.hidden = noticeRow.hidden;
   }
 
-  controller.subscribe((next) => {
+  function onState(next) {
     state = next;
     const effective = state.snapshot?.effective;
     /* The control names the agent in effect, never an unapplied draft; the
-       draft is described beside Send until the Host accepts it. */
+       draft is described beside Send until the Host accepts it. On Home it
+       names the pick for the new chat, or says that the chat's default applies. */
     const title = effective ? state.snapshot.titles[effective.id] ?? effective.id : null;
-    label.textContent = title ?? (state.read.status === "error" ? "Agent unknown" : "Agent");
-    chip.setAttribute("aria-label", `Agent: ${label.textContent}`);
+    label.textContent = title ?? (state.home ? "Default agent" : state.read.status === "error" ? "Agent unknown" : "Agent");
+    chip.setAttribute("aria-label", `Agent: ${label.textContent}${state.home && !title ? " (the new chat's default)" : ""}`);
+    chip.disabled = Boolean(state.locked);
     renderNotice();
     renderPopover();
-  });
+  }
+  let unsubscribe = controller.subscribe(onState);
 
   return {
+    /** E1-H · the chooser serves one owner at a time: the chat's controller, or
+     * Home's intent for a chat not yet created. Switching closes it. */
+    use(next) {
+      if (next === controller) return;
+      if (popover.matches(":popover-open")) popover.hidePopover();
+      unsubscribe?.();
+      controller = next;
+      activeId = null;
+      unsubscribe = controller.subscribe(onState);
+    },
     /** Shown only for an ordinary Chat with a Session; hidden elsewhere. */
     setVisible(show) {
       visible = show;

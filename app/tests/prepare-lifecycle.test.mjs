@@ -804,3 +804,17 @@ test("work location · a refused folder is corrected on the same chat, whose pro
   assert.equal(host.session.projectId, "p-parcel", "the corrected chat keeps the project it was made in");
   assert.equal(host.chatCommands().length, 1);
 }));
+
+import { serializeHomePreparationMarker as serializeMarkerE1H, restoreHomePreparationMarker as restoreMarkerE1H } from "../web/home-preparation.mjs";
+
+test("E1-H: the Home Agent pick travels with the start marker; a stored pending PUT comes back unknown", () => {
+  const base = { projectId: null, commandId: "c1", sessionId: "s1", session: null, pending: true };
+  const stored = serializeMarkerE1H({ ...base, agent: { profileId: "local:coding", sourceHash: "hash-a", observedRevision: 4, state: "pending" } });
+  assert.deepEqual(stored.agent, { profileId: "local:coding", sourceHash: "hash-a", observedRevision: 4, state: "pending" });
+  const restored = restoreMarkerE1H(JSON.parse(JSON.stringify(stored)));
+  assert.equal(restored.agent.state, "unknown", "a PUT that may have left before the reload is read back, not replayed");
+  assert.equal(restored.pending, false, "a reload sends nothing");
+  assert.equal(restoreMarkerE1H({ ...stored, agent: { profileId: "local:coding", sourceHash: "hash-a", state: "applied" } }).agent.state, "applied");
+  assert.equal(restoreMarkerE1H({ ...stored, agent: { profileId: 7 } }).agent, null, "a malformed pick is dropped");
+  assert.equal(serializeMarkerE1H({ ...base }).agent, null, "no pick: the chat's default");
+});

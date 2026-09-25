@@ -185,3 +185,28 @@ Constraints written into the sequence before implementation:
 3. **A reload restores state and sends nothing.** After creation or binding succeeded and selection did not, a retry reuses the same chat and `commandId`. RP-6's pending lock and navigation-epoch refusal stay in force for the whole hand-off.
 
 Parent: no further design round; E1-H finite implementation may start. Branch `claude/e1-home-agent-20260925` from `main@8b45e66`.
+
+### E1-H author delivery
+
+**Change.**
+- `agent-choice.mjs`: pure `selectionLanded` (session selection + effective id + hash; the chat controller's `settle` now uses it) and `intentResolves`. `createHomeAgentChoice` reads the no-session snapshot, keeps built-in and user-scope profiles (D1), records an intent and never writes. The live adapter reads without a chat.
+- `agent-chooser-view.mjs`: one view serves either owner via `use()`, with Home wording, the D1 note, `Use the chat's default agent`, and a disabled chip while locked.
+- `home-preparation.mjs`: the start marker carries `agent {profileId, sourceHash, observedRevision, state}`; a stored `pending` restores as `unknown`.
+- `app.mjs`: the pick is part of the Home draft. `submitHomeRun` reconciles it with the marker and calls `applyHomeAgent` after creation and binding, before attachments and the draft. `applyHomeAgent` always reads back first; if the selection has landed it goes on with no write; if the pick no longer resolves → F2; otherwise it stores `pending`, then `PUT`s; 409 `runtime_conflict` → stop (D2); another refusal → stop; a lost reply → `unknown`. A stop lists the created chat and re-reads Home's offer (read only). The Home chooser is locked while pending/unconfirmed and once the pick is applied. Success clears the pick. Host, schema and the E1 chat controller's authority are unchanged.
+
+**Live evidence.** A scratch harness (synthetic data, fake provider, user-scope Drafter and v2 Kit reviewer), 1440 and 375:
+
+| Case | Requests after Send | Result |
+| --- | --- | --- |
+| H1 pick Kit reviewer | `POST /sessions` → `GET` read-back → `PUT` selection → `POST …/runs` | chat chip `Kit reviewer`; run bound `Kit reviewer with kit:h-review 1`; Home pick cleared |
+| H2 no pick | `POST /sessions` → chat reads → `POST …/runs`; no `PUT` | unchanged behaviour |
+| H3 CAS conflict (409 once) | no run | `Drafter was not selected: the configuration changed…`; chat listed, draft kept, chooser open; explicit Send reuses the chat: read-back → `PUT` → run |
+| H4 lost `PUT` reply, then reload | none after reload | `unknown` restored with its message; the next Send reads back a match and runs without a second `PUT` |
+| H5 Drafter source changed after pick | no `PUT`, no run | `Drafter is not available for this chat as chosen…`; `Use the chat's default agent` then runs |
+| H6 `PUT` held, person navigates away | no run | chooser disabled, composer read-only and Send disabled while held; the existing `created; not sent` message; the next explicit Send runs with no second selection |
+
+Unit: `agent-choice` 24/24 (identity always id + hash; Home reads once, filters to user scope, never writes, respects the lock) and `prepare-lifecycle` 22/22 (marker round trip, pending→unknown, malformed pick dropped). Focused files 349/349; example audit 21/21. At 375px the popover is 351px with no page overflow.
+
+Not covered: a repository-bound Home start with a pick (binding precedes the agent step and was not exercised live); Node 22/24; dark mode.
+
+Full app suite: 1677/1677 (Node 25.9).

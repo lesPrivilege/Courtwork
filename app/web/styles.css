@@ -6598,6 +6598,8 @@ html[data-theme="dark"] {
 .agent-popover .section-heading { margin-bottom: var(--space-2); }
 /* E1-B · the latest run's recorded agent, read before the choice for the next. */
 .agent-popover .agent-bound { margin: 0 0 var(--space-3); overflow-wrap: anywhere; }
+/* E1-H · the way back to the chat's default sits under the Home note. */
+.agent-popover .agent-bound > .text-button { display: flex; margin-top: var(--space-1); }
 .agent-popover-body { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); gap: var(--space-3); }
 .agent-listbox { display: flex; flex-direction: column; gap: 2px; align-self: start; border-radius: var(--radius-small); }
 .agent-option { display: grid; gap: 2px; min-height: 32px; padding: var(--space-2); border-radius: var(--radius-small); cursor: pointer; text-align: left; }

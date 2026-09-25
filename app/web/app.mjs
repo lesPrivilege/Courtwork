@@ -44,7 +44,7 @@ import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelPicker } from "./model-picker.mjs";
 import { renderModelEffortCard, visibleModelName } from "./model-effort.mjs";
-import { createAgentChoiceController, liveAgentChoiceAdapter, agentChoiceGate, createAgentChoiceLifecycle } from "./agent-choice.mjs";
+import { createAgentChoiceController, createHomeAgentChoice, liveAgentChoiceAdapter, agentChoiceGate, createAgentChoiceLifecycle, projectSnapshot, selectionLanded, intentResolves } from "./agent-choice.mjs";
 import { createAgentChooser } from "./agent-chooser-view.mjs";
 import { renderCommandResult } from "./command-result.mjs";
 import { renderPresentationInline, renderPresentationPane } from "./presentation-facts.mjs";
@@ -284,6 +284,8 @@ function previewBannerNode() {
 let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView, localExtensionView;
 /* E1 · the Composer's Agent choice (06e design A) over Runtime Control. */
 let agentChoice = null, agentChooser = null, agentChoiceLifecycle = null;
+/* E1-H · the Agent picked on Home for a chat that does not exist yet. */
+let homeAgentChoice = null;
 let materialsFileReturnEpoch = null;
 const dialogReturns = new Map();
 const COMMAND_STORAGE_KEY = "schema-engineering.commands.v1";
@@ -384,6 +386,7 @@ function storeHomeDraft() {
       projectId: state.homeProjectId,
       permissionMode: state.homePermissionMode,
       repositoryPath: state.homeRepositoryPath,
+      agentIntent: homeAgentChoice?.intent() ?? null,
       // Preparation mints one identity per Host command and writes it here
       // before the command goes out, so a reply lost to a refresh is replayed
       // against the same ids instead of creating a second candidate. Its
@@ -403,6 +406,7 @@ function restoreHomeDraft() {
     state.homeRepositoryPath = typeof saved.repositoryPath === "string" && saved.repositoryPath ? saved.repositoryPath : null;
     if (Object.hasOwn(permissionLabels, saved.permissionMode)) state.homePermissionMode = saved.permissionMode;
     const restoredStart = restoreHomePreparationMarker(saved.start);
+    homeAgentChoice?.restore(restoredStart?.agent ?? saved.agentIntent ?? null);
     if (restoredStart) {
       state.homeStart = restoredStart;
       if (saved.start.unconfirmed)
@@ -3759,7 +3763,15 @@ function renderComposer() {
     if (runHint) runHint.hidden = true;
     stopWorkingClock();
     renderHomeComposerContext();
-    agentChooser?.setVisible(false);
+    /* E1-H · on Home the chooser records the Agent for the chat the first
+       Send creates. It is locked while that Send runs and once the choice is
+       applied; a settled failure leaves it open to choose again. */
+    if (agentChooser && homeAgentChoice) {
+      agentChooser.use(homeAgentChoice);
+      homeAgentChoice.setLocked(Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.agent?.state === "applied"));
+      if (homeAgentChoice.getState().read.status === "idle") void homeAgentChoice.load();
+      agentChooser.setVisible(true);
+    }
     syncComposerNotice("home");
     fitComposer();
     return;
@@ -3822,6 +3834,7 @@ function renderComposer() {
  * ends, and it holds Send only for its own stated reasons. */
 function syncAgentChoice(session, active) {
   if (!agentChoice || !agentChooser) return { holdsSend: false, describedBy: null };
+  agentChooser.use(agentChoice);
   /* RP-1 · an Example chat has no Host agent to read; like a global Session it
    * shows no chooser, and its Send stays refused by the Example guard. */
   if (session && preview.isExampleId(session.id)) session = null;
@@ -5284,6 +5297,14 @@ async function submitHomeRun() {
   const operation = state.homeStart?.session || state.homeStart?.sessionId ? state.homeStart : {
     projectId, commandId: crypto.randomUUID(), sessionId: crypto.randomUUID(), session: null,
   };
+  /* E1-H · the Agent picked on Home rides on the same marker. A retry keeps an
+     applied choice; a changed pick starts again from "none" (the next step
+     still reads the chat back before any write). */
+  if (operation.agent?.state !== "applied") {
+    const intent = homeAgentChoice?.intent() ?? null;
+    const same = intent && operation.agent && operation.agent.profileId === intent.profileId && operation.agent.sourceHash === intent.sourceHash;
+    operation.agent = intent ? { ...intent, state: same ? operation.agent.state : "none" } : null;
+  }
   operation.pending = true;
   operation.error = "";
   state.homeStart = operation;
@@ -5320,9 +5341,15 @@ async function submitHomeRun() {
       storeHomeDraft();
       paintWorkspaceCard();
     }
-    await homeAttachments.flush(request, session.id);
     const items = state.sessionsByProject.get(operation.projectId) || [];
     state.sessionsByProject.set(operation.projectId, [...items.filter((item) => item.id !== session.id), session]);
+    if (operation.agent && operation.agent.state !== "applied" && !(await applyHomeAgent(operation))) {
+      // The chat exists and is listed; the refusal is said on Home.
+      renderProjectList();
+      void loadRecentSessions();
+      return;
+    }
+    await homeAttachments.flush(request, session.id);
     const revision = draftRevision(session.id) + 1;
     state.draftCache.set(session.id, input);
     state.draftRevisions.set(session.id, revision);
@@ -5344,6 +5371,8 @@ async function submitHomeRun() {
     state.homeDraft = "";
     state.homeStart = null;
     state.homeRepositoryPath = null;
+    homeAgentChoice?.setLocked(false);
+    homeAgentChoice?.restore(null);
     storeHomeDraft();
     guardHandoffFocus(ticket, {
       isTargetActive: () => currentSession()?.id === session.id,
@@ -5365,6 +5394,45 @@ async function submitHomeRun() {
     storeHomeDraft();
     renderComposer();
   }
+}
+
+/* E1-H · apply the Agent picked on Home to the chat this Send just created,
+ * through the chat's own Runtime Control CAS. Identity is profileId +
+ * sourceHash throughout. It always reads the chat back first, so a replay after
+ * a lost reply or a reload never writes blindly; `pending` is stored before the
+ * PUT and becomes `applied` only on a matching reply or read-back. A refusal
+ * stops here (D2): the chat, the draft and the pick are kept, nothing is sent,
+ * and applying again needs the person's next Send. Returns whether to go on. */
+async function applyHomeAgent(operation) {
+  const agent = operation.agent;
+  const sessionId = operation.session.id;
+  const title = homeAgentChoice?.getState().snapshot?.titles?.[agent.profileId] ?? agent.profileId;
+  const kept = "The chat was made; nothing was sent. Your instruction is kept.";
+  const path = `/runtime-control?sessionId=${encodeURIComponent(sessionId)}`;
+  const settle = (next, error = "") => {
+    agent.state = next; operation.error = error; storeHomeDraft();
+    // A settled refusal re-reads what Home offers (a read, never a write), so
+    // choosing again uses current sources.
+    if (next === "none" && error) void homeAgentChoice?.load();
+    return next === "applied";
+  };
+  const unknown = `Whether ${title} was selected for this chat is not known. Send again to check it before anything runs. ${kept}`;
+  const chat = projectSnapshot(await request(path));
+  if (selectionLanded(chat, agent)) return settle("applied");
+  if (!intentResolves(chat, agent))
+    return settle("none", `${title} is not available for this chat as chosen. Choose another agent here, or open the chat to choose there. ${kept}`);
+  settle("pending");
+  let reply;
+  try {
+    reply = projectSnapshot(await request(path, { method: "PUT", body: { revision: chat.revision, operation: "profile", scope: { type: "session", id: sessionId }, id: agent.profileId } }));
+  } catch (error) {
+    const code = error?.body?.error?.code;
+    if (code === "runtime_conflict")
+      return settle("none", `${title} was not selected: the configuration changed. Send again to select it on a fresh reading, or choose another agent. ${kept}`);
+    if (code) return settle("none", `${title} was not selected: ${error.message} ${kept}`);
+    return settle("unknown", unknown);
+  }
+  return selectionLanded(reply, agent) ? settle("applied") : settle("unknown", unknown);
 }
 
 async function submitRun(event) {
@@ -7560,7 +7628,12 @@ async function init() {
   homeAttachments = createDraftAttachments({changed:storeHomeDraft, locked:()=>Boolean(state.homeStart?.pending || state.homeStart?.unconfirmed)});
   $("materials-button").after(homeAttachments.trigger);
   document.body.append(homeAttachments.popover);
+  homeAgentChoice = createHomeAgentChoice({ adapter: liveAgentChoiceAdapter(request) });
   restoreHomeDraft();
+  /* A pick on Home is part of the Home draft: it survives a reload, and a
+     reload only restores it (the first call is the subscription's own echo). */
+  let homeAgentFirst = true;
+  homeAgentChoice.subscribe(() => { if (homeAgentFirst) { homeAgentFirst = false; return; } storeHomeDraft(); });
   const savedUi = readUiState();
   state.activeProjectId =
     typeof savedUi.activeProjectId === "string"

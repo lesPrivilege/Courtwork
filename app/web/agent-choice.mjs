@@ -118,14 +118,32 @@ export function projectProfileSource(content) {
   };
 }
 
-/** The live adapter: existing authenticated endpoints only. */
+/** Pure: whether a chat's projected snapshot has exactly this selection in
+ * effect — selected at session scope, resolved, and from the same source.
+ * Identity is always `profileId + sourceHash`; an id alone never matches. */
+export function selectionLanded(snapshot, { profileId, sourceHash }) {
+  const effective = snapshot?.effective;
+  return Boolean(snapshot) && snapshot.sessionSelection === profileId
+    && effective?.id === profileId
+    && (effective?.hash ?? null) === (sourceHash ?? null);
+}
+
+/** Pure: whether `intent` still names an offered profile with the same source. */
+export function intentResolves(snapshot, { profileId, sourceHash }) {
+  const profile = snapshot?.profiles.find((entry) => entry.id === profileId);
+  if (!profile) return false;
+  return profile.builtin ? (sourceHash ?? null) === null : profile.sourceHash !== null && profile.sourceHash === (sourceHash ?? null);
+}
+
+/** The live adapter: existing authenticated endpoints only. Without a chat it
+ * reads the no-session snapshot (user scope and built-in General). */
 export function liveAgentChoiceAdapter(request) {
-  const q = (sessionId) => `sessionId=${encodeURIComponent(sessionId)}`;
+  const q = (sessionId) => (sessionId ? `?sessionId=${encodeURIComponent(sessionId)}` : "");
   return {
-    read: (sessionId, { signal } = {}) => request(`/runtime-control?${q(sessionId)}`, { signal }),
-    source: (sessionId, id) => request(`/runtime-resources/${encodeURIComponent(id)}?${q(sessionId)}`),
+    read: (sessionId, { signal } = {}) => request(`/runtime-control${q(sessionId)}`, { signal }),
+    source: (sessionId, id) => request(`/runtime-resources/${encodeURIComponent(id)}${q(sessionId)}`),
     select: (sessionId, { revision, id }) =>
-      request(`/runtime-control?${q(sessionId)}`, {
+      request(`/runtime-control${q(sessionId)}`, {
         method: "PUT",
         body: { revision, operation: "profile", scope: { type: "session", id: sessionId }, id },
       }),
@@ -329,10 +347,7 @@ export function createAgentChoiceController({ adapter, getSessionId }) {
   };
 
   function settle(submitted, { afterUnknown = false } = {}) {
-    const effective = snapshot.effective;
-    const landed = snapshot.sessionSelection === submitted.profileId
-      && effective?.id === submitted.profileId
-      && (effective?.hash ?? null) === (submitted.sourceHash ?? null);
+    const landed = selectionLanded(snapshot, submitted);
     if (landed) { draft = null; apply = { status: "idle", message: "" }; }
     else if (afterUnknown) apply = { status: "unknown", message: "The selection could not be confirmed." };
     else apply = { status: "failed", message: "The Host accepted the write but reports a different agent for this chat." };
@@ -350,6 +365,101 @@ export function createAgentChoiceController({ adapter, getSessionId }) {
  * chooses visibility. No Session, the Attention surface and a global Session
  * keep their existing behaviour (no control, nothing held). Any other scope —
  * `project`, `chat`, … — is an ordinary Chat. */
+/** E1-H · the Agent for a chat that does not exist yet. It reads the no-session
+ * snapshot (D1: user-scope profiles and built-in General only) and records the
+ * person's pick as an **intent** `{profileId, sourceHash, observedRevision}`.
+ * It never writes: the chat's own CAS selection is applied by the Home Send
+ * after the chat exists. Same state shape as the chat controller, so the one
+ * chooser view renders either; `home: true` tells them apart. */
+export function createHomeAgentChoice({ adapter }) {
+  const listeners = new Set();
+  let read = { status: "idle", error: "" };
+  let snapshot = null;
+  let intent = null;
+  let locked = false;
+  const sources = new Map();
+  let readEpoch = 0, tokens = 0;
+
+  const offered = (projected) => ({
+    ...projected,
+    profiles: projected.profiles.filter((profile) => profile.builtin || profile.scope?.type === "user"),
+    sessionSelection: null,
+    effective: null,
+  });
+  function view() {
+    if (!snapshot) return null;
+    const chosen = intent && snapshot.profiles.find((profile) => profile.id === intent.profileId);
+    return { ...snapshot, effective: chosen ? { id: chosen.id, hash: chosen.builtin ? null : chosen.sourceHash, version: null, status: "compatible", missing: [], schemaVersion: 1, kits: [], selectionScope: null } : null };
+  }
+  function getState() {
+    return clone({
+      home: true, locked, sessionId: null, read, snapshot: view(), intent, draft: null, apply: { status: "idle", message: "" },
+      sources: Object.fromEntries([...sources].map(([id, slot]) => [id, { status: slot.status, reading: slot.reading, error: slot.error }])),
+      next: { effective: null, send: { enabled: true, reason: "", runtimeSelection: null } },
+    });
+  }
+  const emit = () => { const state = getState(); for (const listener of listeners) listener(state); };
+  async function load() {
+    const own = ++readEpoch;
+    read = { status: "loading", error: "" };
+    emit();
+    try {
+      const result = offered(projectSnapshot(await adapter.read(null)));
+      if (own !== readEpoch) return null;
+      snapshot = result;
+      read = { status: "ready", error: "" };
+    } catch (error) {
+      if (own !== readEpoch) return null;
+      read = { status: "error", error: error.message };
+    }
+    emit();
+    return snapshot;
+  }
+  async function readSource(id) {
+    const profile = snapshot?.profiles.find((entry) => entry.id === id);
+    if (!profile || profile.builtin) { sources.set(id, { status: "ready", reading: projectProfileSource(null), error: "", token: ++tokens }); emit(); return; }
+    const token = ++tokens;
+    sources.set(id, { status: "loading", reading: null, error: "", token });
+    emit();
+    try {
+      const result = await adapter.source(null, id);
+      if (sources.get(id)?.token !== token) return;
+      sources.set(id, { status: "ready", reading: projectProfileSource(result?.content ?? null), error: "", token });
+    } catch (error) {
+      if (sources.get(id)?.token !== token) return;
+      sources.set(id, { status: "error", reading: null, error: error.message, token });
+    }
+    emit();
+  }
+  return {
+    getState,
+    subscribe(listener) { listeners.add(listener); listener(getState()); return () => listeners.delete(listener); },
+    load,
+    refresh: load,
+    preview(id) { const slot = sources.get(id); if (slot && slot.status !== "error") return; void readSource(id); },
+    /** Record the pick; nothing is written until the chat exists. */
+    async choose(id) {
+      if (locked || !snapshot) return;
+      const profile = snapshot.profiles.find((entry) => entry.id === id);
+      if (!profile) return;
+      intent = { profileId: id, sourceHash: profile.builtin ? null : profile.sourceHash, observedRevision: snapshot.revision };
+      emit();
+    },
+    /** Go back to the chat's default agent (no selection will be written). */
+    clear() { if (locked) return; intent = null; emit(); },
+    intent: () => (intent ? clone(intent) : null),
+    /** Restore a stored pick (reload) or adopt the hand-off's current one. */
+    restore(saved) {
+      intent = saved && typeof saved.profileId === "string" ? { profileId: saved.profileId, sourceHash: typeof saved.sourceHash === "string" ? saved.sourceHash : null, observedRevision: Number.isSafeInteger(saved.observedRevision) ? saved.observedRevision : null } : null;
+      emit();
+    },
+    setLocked(value) { if (locked === Boolean(value)) return; locked = Boolean(value); emit(); },
+    apply: async () => {},
+    check: async () => {},
+    keepCurrent() {},
+  };
+}
+
 export function agentChoiceGate({ session, attentionOpen = false, choice }) {
   if (!session || attentionOpen || session.scope === "global") return { shown: false, holdsSend: false, reason: "" };
   const current = choice?.sessionId === session.id ? choice : null;

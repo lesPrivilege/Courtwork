@@ -299,3 +299,58 @@ test("E1-B: a run without a recorded binding says so and is never filled from th
   assert.equal(projectBoundRun({ mode: "effective-next-run", composition: { id: "local:coding" } }, boundSnapshot), null, "the next-run reading is not a run record");
   assert.equal(projectBoundRun(boundPayload({ id: "local:coding", version: "2", hash: "hash-now" }), null).sameAsNext, null, "without a current reading, sameness is unknown");
 });
+
+import { selectionLanded, intentResolves, createHomeAgentChoice } from "../web/agent-choice.mjs";
+
+const chatReading = (over = {}) => ({
+  profiles: [
+    { id: "agent:general", title: "General", builtin: true, sourceHash: null },
+    { id: "local:coding", title: "Coding", builtin: false, sourceHash: "hash-a" },
+  ],
+  sessionSelection: "local:coding",
+  effective: { id: "local:coding", hash: "hash-a" },
+  ...over,
+});
+
+test("E1-H: a landed selection needs session scope, the resolved id and the same source hash", () => {
+  assert.equal(selectionLanded(chatReading(), { profileId: "local:coding", sourceHash: "hash-a" }), true);
+  assert.equal(selectionLanded(chatReading(), { profileId: "local:coding", sourceHash: "hash-b" }), false, "an id match with another source is not a match");
+  assert.equal(selectionLanded(chatReading({ sessionSelection: null }), { profileId: "local:coding", sourceHash: "hash-a" }), false, "inherited is not selected");
+  assert.equal(selectionLanded(chatReading({ sessionSelection: "agent:general", effective: { id: "agent:general" } }), { profileId: "agent:general", sourceHash: null }), true);
+});
+
+test("E1-H: an intent resolves only while the offered profile keeps its source", () => {
+  assert.equal(intentResolves(chatReading(), { profileId: "local:coding", sourceHash: "hash-a" }), true);
+  assert.equal(intentResolves(chatReading(), { profileId: "local:coding", sourceHash: "hash-old" }), false);
+  assert.equal(intentResolves(chatReading(), { profileId: "local:gone", sourceHash: "x" }), false);
+  assert.equal(intentResolves(chatReading(), { profileId: "agent:general", sourceHash: null }), true);
+});
+
+test("E1-H: Home records an intent from the no-session reading and never writes", async () => {
+  const calls = [];
+  const adapter = {
+    read: async (sessionId) => { calls.push(["read", sessionId]); return { revision: 4, sessionId: null, resources: [
+      { id: "agent:general", kind: "agent_profile", title: "General", source: { type: "builtin" }, scope: { type: "user", id: "local" } },
+      { id: "local:coding", kind: "agent_profile", title: "Coding", source: { type: "local-config", hash: "hash-a" }, scope: { type: "user", id: "local" } },
+      { id: "local:project", kind: "agent_profile", title: "Project only", source: { type: "local-config", hash: "hash-p" }, scope: { type: "workspace", id: "p1" } },
+    ] }; },
+    source: async () => ({ content: null }),
+    select: async () => { calls.push(["select"]); throw new Error("Home must not write"); },
+  };
+  const home = createHomeAgentChoice({ adapter });
+  await home.load();
+  assert.deepEqual(calls, [["read", null]], "one no-session read");
+  assert.deepEqual(home.getState().snapshot.profiles.map((p) => p.id), ["agent:general", "local:coding"], "D1: user scope and General only");
+  assert.equal(home.getState().snapshot.effective, null, "nothing chosen: the chat's default applies");
+  await home.choose("local:coding");
+  assert.deepEqual(home.intent(), { profileId: "local:coding", sourceHash: "hash-a", observedRevision: 4 });
+  assert.equal(home.getState().snapshot.effective.id, "local:coding");
+  home.setLocked(true);
+  await home.choose("agent:general");
+  home.clear();
+  assert.equal(home.intent().profileId, "local:coding", "locked: no change");
+  home.setLocked(false);
+  home.clear();
+  assert.equal(home.intent(), null);
+  assert.ok(!calls.some(([kind]) => kind === "select"));
+});
