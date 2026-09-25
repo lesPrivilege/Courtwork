@@ -104,7 +104,13 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     const line = el("p", { className: "context-meta agent-bound", attrs: { "data-testid": "agent-bound" } });
     const prefix = reading.active ? "This run" : "Last run";
     if (!reading.payload) {
-      if (!reading.error) { line.textContent = `Reading what the ${prefix.toLowerCase()} used…`; return line; }
+      if (!reading.error) {
+        /* A run this line has not asked about yet (the chooser was opened, or
+           the chat or its latest run changed while it stayed open) is read once. */
+        if (requestedRun !== reading.runId) { requestedRun = reading.runId; void refreshBound(); }
+        line.textContent = `Reading what the ${prefix.toLowerCase()} used…`;
+        return line;
+      }
       const retry = el("button", { className: "text-button", text: "Retry", attrs: { type: "button", "data-testid": "agent-bound-retry" } });
       retry.addEventListener("click", () => void refreshBound());
       line.append(`Could not read what the ${prefix.toLowerCase()} used: ${reading.error} `, retry);
@@ -120,6 +126,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     line.textContent = `${prefix} ${reading.active ? "uses" : "used"} ${name}${kits}.` + (bound.sameAsNext === false && nextName ? ` Runs from now use ${nextName}.` : "");
     return line;
   }
+  let requestedRun = null;
   async function refreshBound() {
     await loadBound();
     renderPopover();
@@ -241,6 +248,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     popover.showPopover();
     renderPopover();
     (profiles().length ? listbox : close).focus();
+    requestedRun = boundReading()?.runId ?? null;
     void refreshBound();
   }
   chip.addEventListener("click", openChooser);

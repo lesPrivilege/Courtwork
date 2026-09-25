@@ -106,3 +106,9 @@ Unit (`agent-choice` 21/21): the name comes from the current profile only when i
 Not covered live: `This run uses …` while a run is active (the synthetic provider completes at once), and a pre-binding legacy run (unit only). The line names profiles against the chooser's own latest read, like its list; an edit made outside this page shows after the next read of this chat (K5 saves already refresh it).
 
 Full app suite: 1673/1673 (Node 25.9).
+
+### E1-B non-author review and disposition
+
+Sonnet non-author review of `267b635`: the naming rule is sound against Host code — a run's `composition.hash` and a profile's `source.hash` are the same `sha256(content)` in `runtime/control-plane.mjs`, and the built-in composition carries no hash; `sameAsNext` compares the same fields the Host's own `runtimeSelection` check compares. Close/session races, the failure map clearing and `state.runs.at(-1)` confirmed. 21/21 independently.
+
+- **Chooser open across a chat change could stick on "Reading…" — adjust.** Live check: switching chats closes the chooser, and reopening reads the new chat's run (`Last run used General.`), so the reported state is not reachable that way. The line now requests the binding itself once for any run it shows unread, which also covers a run that ends while the chooser is open. Focused files 345/345.
