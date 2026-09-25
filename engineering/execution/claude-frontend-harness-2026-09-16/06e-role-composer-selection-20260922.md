@@ -172,3 +172,16 @@ The Home location/permission/draft locks (CE-R1, RP-6) cover steps 2–5; the ch
 - **D2 · conflict policy at step 4.** Stop and ask (E1 precedent, recommended) versus one automatic re-read-and-retry when P still resolves with the same hash.
 
 **Exit evidence.** Held and failed reads and PUTs at each step (page `fetch` hold, as in audit section 7); reload between 2/3/4/5; a lost PUT reply with read-back; P edited between pick and Send; `intent = null` behaving exactly as today; a live Kit profile first run showing `This run uses P …` (E1-B); 1440 and 375; non-author review.
+
+### E1-H parent decisions and binding constraints · 2026-09-25
+
+- **D1 = (a).** The first slice lists user-scope profiles and General only, and Home says so: this is what Home can offer now; project profiles are chosen in the chat's chooser once the chat exists. No `?projectId=` read.
+- **D2 = stop.** A CAS conflict keeps the draft, the chat and the choice. Nothing retries automatically or switches Agent. Reading again is allowed; applying again happens only on an explicit person action (Send again).
+
+Constraints written into the sequence before implementation:
+
+1. **Identity is `profileId + sourceHash` everywhere.** This includes step 3's "already selected, skip" check and F4's read-back after a lost reply; an id match with a different hash is not a match.
+2. **pending → applied | unknown.** `intent.state = "pending"` is persisted before the `PUT` goes out and becomes `applied` only on a confirmed reply or a matching read-back. A lost reply is `unknown`. Recovery always reads back first and never replays a `PUT` blindly; a `PUT` is sent again only after a read-back shows no match and the person acted.
+3. **A reload restores state and sends nothing.** After creation or binding succeeded and selection did not, a retry reuses the same chat and `commandId`. RP-6's pending lock and navigation-epoch refusal stay in force for the whole hand-off.
+
+Parent: no further design round; E1-H finite implementation may start. Branch `claude/e1-home-agent-20260925` from `main@8b45e66`.
