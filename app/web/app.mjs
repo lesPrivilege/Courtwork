@@ -190,6 +190,9 @@ const state = {
   pollController: null,
   pollTimer: null,
   recordedContext: new Map(),
+  /* E1-B · a run whose recorded binding could not be read, with the reason;
+   * kept beside the cache (never in it) so a retry reads again. */
+  recordedContextFailures: new Map(),
   draftCache: new Map(),
   draftDirty: new Set(),
   draftTimers: new Map(),
@@ -1563,6 +1566,7 @@ async function selectSession(
   state.bindingExtensionId = null;
   state.surface.maximized = false;
   state.recordedContext.clear();
+  state.recordedContextFailures.clear();
   runtimeView?.pause();
   renderAll();
   if (focus) restoreLayerFocus($("session-title"));
@@ -1639,6 +1643,7 @@ function clearActiveSession() {
   state.bindingExtensionId = null;
   state.surface.maximized = false;
   state.recordedContext.clear();
+  state.recordedContextFailures.clear();
   runtimeView?.pause();
   arriveLocation({ kind: "home" });
   writeUiState();
@@ -4426,9 +4431,12 @@ async function readRecordedContext(runId, sessionId) {
     );
     if (sessionId !== state.activeSessionId) return;
     state.recordedContext.set(runId, payload);
+    state.recordedContextFailures.delete(runId);
     renderInspector();
-  } catch {
-    // A run whose binding cannot be read keeps the rest of the inspector.
+  } catch (error) {
+    // A run whose binding cannot be read keeps the rest of the inspector; the
+    // reason is kept so the Agent chooser can say it and offer a retry.
+    if (sessionId === state.activeSessionId) state.recordedContextFailures.set(runId, error.message);
   }
 }
 async function refreshRunDetails(id) {
@@ -7651,6 +7659,22 @@ async function init() {
     mount: $("composer-form").querySelector(".composer-context"),
     noticeAfter: $("composer-notice"),
     modelReading: () => (state.providerConfig?.config ? visibleModelName(state.providerConfig.config) : null),
+    /* E1-B · what this chat's latest run actually bound, from the same per-run
+     * cache the Workbench's Bound layer reads; never the current config. */
+    boundReading: () => {
+      const run = state.runs.at(-1);
+      if (!run?.id) return null;
+      return {
+        runId: run.id,
+        active: currentRun()?.id === run.id,
+        payload: state.recordedContext.get(run.id) ?? null,
+        error: state.recordedContextFailures.get(run.id) ?? null,
+      };
+    },
+    loadBound: () => {
+      const run = state.runs.at(-1);
+      return run?.id ? readRecordedContext(run.id, state.activeSessionId) : Promise.resolve();
+    },
     /* The profile's recorded source is inspected where it lives: Settings →
      * Developer → Runtime composition (read-only there). Back returns to this
      * control; the draft stays. */

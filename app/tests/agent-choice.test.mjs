@@ -270,3 +270,32 @@ test("RP-6: a Send held only by an unsettled read is marked reading; the awaited
   releases[0](); await tick(); await tick();
   assert.equal(agentChoiceGate({ session: view.session, choice: controller.getState() }).holdsSend, false, "the page's late read does not reopen the hold");
 });
+
+import { projectBoundRun } from "../web/agent-choice.mjs";
+
+const boundPayload = (composition, extra = {}) => ({ mode: "recorded-run", runId: "run-1", binding: { revision: 7, composition }, loaded: [], tokenUsage: null, legacyWithoutControlSnapshot: false, ...extra });
+const boundSnapshot = {
+  profiles: [
+    { id: "agent:general", title: "General", builtin: true, sourceHash: null },
+    { id: "local:coding", title: "Coding", builtin: false, sourceHash: "hash-now" },
+  ],
+  effective: { id: "local:coding", hash: "hash-now" },
+};
+
+test("E1-B: a recorded run is named by the current title only when id and source hash still match", () => {
+  const same = projectBoundRun(boundPayload({ id: "local:coding", version: "2", hash: "hash-now", kits: [{ descriptor: { id: "kit.review", version: "1.0.0" } }] }, { kitBinding: { version: 1 } }), boundSnapshot);
+  assert.deepEqual([same.status, same.title, same.sameAsNext, same.kitContextFrozen], ["recorded", "Coding", true, true]);
+  assert.deepEqual(same.kits, [{ id: "kit.review", version: "1.0.0" }]);
+  const edited = projectBoundRun(boundPayload({ id: "local:coding", version: "1", hash: "hash-then" }), boundSnapshot);
+  assert.deepEqual([edited.title, edited.id, edited.version, edited.sameAsNext], [null, "local:coding", "1", false], "an earlier source keeps its recorded identity");
+  const builtin = projectBoundRun(boundPayload({ id: "agent:general", version: null, hash: null }), boundSnapshot);
+  assert.deepEqual([builtin.title, builtin.sameAsNext], ["General", false]);
+  const gone = projectBoundRun(boundPayload({ id: "local:removed", version: "3", hash: "h" }), boundSnapshot);
+  assert.deepEqual([gone.title, gone.id], [null, "local:removed"]);
+});
+
+test("E1-B: a run without a recorded binding says so and is never filled from the current selection", () => {
+  assert.deepEqual(projectBoundRun({ mode: "recorded-run", runId: "old", binding: null, legacyWithoutControlSnapshot: true }, boundSnapshot), { runId: "old", status: "unrecorded" });
+  assert.equal(projectBoundRun({ mode: "effective-next-run", composition: { id: "local:coding" } }, boundSnapshot), null, "the next-run reading is not a run record");
+  assert.equal(projectBoundRun(boundPayload({ id: "local:coding", version: "2", hash: "hash-now" }), null).sameAsNext, null, "without a current reading, sameness is unknown");
+});

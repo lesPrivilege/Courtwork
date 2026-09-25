@@ -74,6 +74,32 @@ export function projectSnapshot(snapshot) {
   };
 }
 
+/** Pure: what one recorded Run actually bound, for the chooser's reading (E1-B).
+ * `payload` is the `recorded-run` answer of `/runtime-context`; `snapshot` is
+ * the projected current snapshot, used only to *name* a bound profile whose id
+ * and source hash both still match. Nothing is filled in from the current
+ * configuration: an unmatched or unrecorded fact stays recorded-id or absent. */
+export function projectBoundRun(payload, snapshot = null) {
+  if (!payload || payload.mode !== "recorded-run") return null;
+  const composition = payload.binding?.composition;
+  if (payload.legacyWithoutControlSnapshot || !composition?.id) return { runId: payload.runId ?? null, status: "unrecorded" };
+  const hash = composition.hash ?? null;
+  const match = (snapshot?.profiles || []).find((profile) =>
+    profile.id === composition.id && (profile.builtin ? hash === null : profile.sourceHash !== null && profile.sourceHash === hash));
+  const effective = snapshot?.effective ?? null;
+  return {
+    runId: payload.runId ?? null,
+    status: "recorded",
+    id: composition.id,
+    version: composition.version ?? null,
+    hash,
+    title: match ? match.title : null,
+    kits: (composition.kits || []).map((kit) => ({ id: kit.descriptor?.id ?? null, version: kit.descriptor?.version ?? null })),
+    kitContextFrozen: Boolean(payload.kitBinding),
+    sameAsNext: effective ? effective.id === composition.id && (effective.hash ?? null) === hash : null,
+  };
+}
+
 /** Pure: a profile source's Kit declarations. v1/builtin carry none. Unknown
  * or unparsable content is reported as such, never guessed. */
 export function projectProfileSource(content) {

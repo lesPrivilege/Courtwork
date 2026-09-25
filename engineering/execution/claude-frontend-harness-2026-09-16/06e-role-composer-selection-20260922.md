@@ -72,3 +72,37 @@ The user now permits [parallel real frontend/backend implementation](frontend-ba
 ## Parent E1 acceptance — 2026-09-23
 
 [Final acceptance](evidence/e1-final-20260923/README.md) closes06E-R1 and E1-R1/R2/R3/F1 at source9b2cc53/packet9514d4b, integrated e525a3a. Luna39/39, actual OpenAI browser first-Settings/terminal/stale-Send paths and integrated28/28 pass. The supplied final author report explicitly stops new work awaiting review and serves as finite writer handoff. Existing ordinary Chat selection is accepted; Home-first choice, chooser bound reading and profile/Kit editing remain original-owner follow-ups, not part of this acceptance.
+
+## E1-B · Bound-Run reading in the chooser — 2026-09-25
+
+User-approved next serial slice (the parent's queue, order 1). Author: Claude (Opus 5.5). Baseline: stacked on the unaccepted RP-6 rework `76bdfb2` (`claude/ux-polish-20260924`) because both touch the chooser and `app.mjs`. Branch `claude/e1-bound-run-20260925`; its commits are moved onto main once the RP branch is squash-merged. Independent acceptance and integration stay with the parent.
+
+| Field | Record |
+| --- | --- |
+| Missing outcome | The chooser shows what the *next* run will use, but not what the chat's latest run actually used. After a selection change or profile edit, the two differ and nothing says so. Named open in the [E1 final acceptance](evidence/e1-final-20260923/README.md). |
+| Owner facts | `GET /runtime-context?sessionId=&runId=` → `recorded-run`: `binding` is the run's `runtime.bound` snapshot (`composition.id/version/hash/kits`, `revision`), plus `kitBinding` when Kit context was frozen; `legacyWithoutControlSnapshot` for runs recorded earlier. Host, store and schema unchanged. |
+| Nearest precedent | Settings › Developer › Runtime Workbench "Bound" layer (`runtime-view.mjs`, FN-14): the same per-run cache `state.recordedContext` via `getBinding`/`loadBinding`, never reconstructed from the current catalog. |
+| Change | A DOM-free `projectBoundRun()` in `agent-choice.mjs` (the controller itself still never reads bound facts). The chooser view gets `boundReading`/`loadBound` from the page, like `modelReading`, loads the latest run's binding when opened, and shows one line above the list: `This run uses …` (active) or `Last run used …`, with its Kits, and `Runs from now use …` when the next selection differs. Legacy: `Not recorded for this run.` A failed read: its reason and Retry (the page now remembers read failures beside the cache instead of swallowing them). Outside the popover nothing changes. |
+| Naming rule (user-approved 2026-09-25) | The current profile title is shown only when the bound `composition.id` and `hash` both match a current profile (built-in: id match with no hash). Otherwise the recorded id and version are shown, never a current title. |
+| Grammar | Reading role inside the existing popover; existing tokens and `context-meta` text; no new control height or glyph. Pointer: fine and coarse; widths 1440 and 375. |
+| Exit evidence | Live synthetic Host: a run, then a selection change, reads `Last run used General · Runs from now use …`; a v2 Kit run shows its Kits; a legacy run; a delayed and a failed read with Retry; a long name at 375. Unit tests for the projection and naming rule. Non-author review. |
+
+### E1-B author evidence
+
+Real Host from this branch, seeded by the existing E1 harness (`engineering/design/role-composer-20260922/e1/harness/start-host.mjs`: synthetic Local test provider, profiles Reviewer, Drafter, v2 Kit reviewer, General; `runtimeSelection` expectation-v1). Built-in browser, 1440×900 and 375×812.
+
+| Case | Chooser line |
+| --- | --- |
+| No run yet | no line |
+| Kit reviewer selected, one run | `Last run used Kit reviewer with kit:e1-review 1.` |
+| Next run switched to Drafter | `Last run used Kit reviewer with kit:e1-review 1. Runs from now use Drafter.` |
+| Kit reviewer source changed afterwards (Runtime Control PUT, then a fresh read) | `Last run used local:e1-kit-reviewer 1 (its source has changed since) with kit:e1-review 1. Runs from now use Drafter.` |
+| Binding read held | `Reading what the last run used…`, then the recorded line |
+| Binding read fails (503) | `Could not read what the last run used: Synthetic binding read failure` + Retry; Retry reads the recorded line and keeps focus in the chooser |
+| 80-character profile title, 375px | wraps inside the 351px popover, no overflow |
+
+Unit (`agent-choice` 21/21): the name comes from the current profile only when id and source hash match (built-in: no hash); an edited, removed or unmatched profile keeps its recorded id/version; a run without a recorded binding reads `unrecorded`; a next-run reading is never taken as a run record. Focused files 345/345.
+
+Not covered live: `This run uses …` while a run is active (the synthetic provider completes at once), and a pre-binding legacy run (unit only). The line names profiles against the chooser's own latest read, like its list; an edit made outside this page shows after the next read of this chat (K5 saves already refresh it).
+
+Full app suite: 1673/1673 (Node 25.9).

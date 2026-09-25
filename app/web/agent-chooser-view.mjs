@@ -14,13 +14,14 @@
 
 import { el, icon, anchorPopover } from "./ui-controls.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
+import { projectBoundRun } from "./agent-choice.mjs";
 
 /* The public name is Pi (naming ruling); the exact adapter identity stays
  * beside it. Display only: nothing is derived from this text. */
 const runtimeName = (adapterId) => (!adapterId ? "the Host runtime" : /^pi(-|$)/.test(adapterId) ? "Pi" : adapterId);
 const runtimeLine = (adapterId) => (adapterId && runtimeName(adapterId) !== adapterId ? `${runtimeName(adapterId)} (${adapterId})` : runtimeName(adapterId));
 
-export function createAgentChooser({ controller, mount, noticeAfter, modelReading, openSettings }) {
+export function createAgentChooser({ controller, mount, noticeAfter, modelReading, boundReading = () => null, loadBound = async () => {}, openSettings }) {
   const popover = el("div", {
     className: "context-popover agent-popover",
     attrs: { id: "agent-popover", popover: "auto", role: "dialog", "aria-label": "Choose agent", "data-testid": "agent-popover" },
@@ -94,6 +95,36 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     return box;
   }
 
+  /* E1-B · what the latest run of this chat actually used, beside what the next
+     run will use. The run's own record names it; the current configuration
+     only supplies a title when the recorded id and source hash still match. */
+  function boundLine() {
+    const reading = boundReading();
+    if (!reading) return null;
+    const line = el("p", { className: "context-meta agent-bound", attrs: { "data-testid": "agent-bound" } });
+    const prefix = reading.active ? "This run" : "Last run";
+    if (!reading.payload) {
+      if (!reading.error) { line.textContent = `Reading what the ${prefix.toLowerCase()} used…`; return line; }
+      const retry = el("button", { className: "text-button", text: "Retry", attrs: { type: "button", "data-testid": "agent-bound-retry" } });
+      retry.addEventListener("click", () => void refreshBound());
+      line.append(`Could not read what the ${prefix.toLowerCase()} used: ${reading.error} `, retry);
+      return line;
+    }
+    const bound = projectBoundRun(reading.payload, state.snapshot);
+    if (!bound || bound.status === "unrecorded") { line.textContent = `${prefix}: its agent was not recorded.`; return line; }
+    const changed = !bound.title && profiles().some((profile) => profile.id === bound.id);
+    const name = bound.title ?? `${bound.id}${bound.version ? ` ${bound.version}` : ""}${changed ? " (its source has changed since)" : ""}`;
+    const kits = bound.kits.length ? ` with ${bound.kits.map((kit) => `${kit.id} ${kit.version}`).join(", ")}` : "";
+    const next = state.snapshot?.effective;
+    const nextName = next ? state.snapshot.titles[next.id] ?? next.id : null;
+    line.textContent = `${prefix} ${reading.active ? "uses" : "used"} ${name}${kits}.` + (bound.sameAsNext === false && nextName ? ` Runs from now use ${nextName}.` : "");
+    return line;
+  }
+  async function refreshBound() {
+    await loadBound();
+    renderPopover();
+  }
+
   function renderPopover() {
     if (!popover.matches(":popover-open")) return;
     const keepKey = popover.contains(document.activeElement) ? document.activeElement.dataset.testid || "agent-close" : null;
@@ -147,7 +178,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     }
     detail.replaceChildren(...children);
     status.textContent = state.read.status === "loading" ? "Refreshing agents…" : "";
-    popover.replaceChildren(header, el("div", { className: "agent-popover-body" }, listbox, detail), status);
+    popover.replaceChildren(header, boundLine() ?? "", el("div", { className: "agent-popover-body" }, listbox, detail), status);
     restore();
   }
 
@@ -210,6 +241,7 @@ export function createAgentChooser({ controller, mount, noticeAfter, modelReadin
     popover.showPopover();
     renderPopover();
     (profiles().length ? listbox : close).focus();
+    void refreshBound();
   }
   chip.addEventListener("click", openChooser);
   chip.addEventListener("keydown", (event) => {
