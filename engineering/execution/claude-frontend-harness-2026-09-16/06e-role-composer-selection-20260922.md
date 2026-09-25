@@ -237,3 +237,5 @@ Parent accepts `0ac0b4c`; the author's same-id, different-hash reproduction matc
 - `applied` recovery: after a successful selection the hand-off was interrupted, the same profile's source changed, and the page reloaded. The old selection is refused on recovery, and only an explicit Send produces one Run.
 
 Targeted 68/68; Luna narrow review 71/71, no new regression. Integration regression is recorded below.
+
+Integration regression on the tree fast-forwarded onto main: example audit 23/23, full app suite 1678/1678, `npm run smoke` exit 0 (real provider not run), Node 25.9. Not covered: a repository-bound Home start with a pick, Node 22/24, dark mode.
