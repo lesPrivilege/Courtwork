@@ -5,8 +5,8 @@ Stage 4 of the [final Claude Design ONE-SHOT](../../engineering/release/ui-publi
 ## What it is
 
 - **A projection layer, not a runtime.** `app/web/preview-layer.mjs` sits under `request()` in `app.mjs`. While it is active it answers the work-data reads the surfaces make (`/projects`, `/sessions…`, `/runs…`, `/work-*`, `/attention…`, `/coordination…`) from one recorded sample file, and refuses any write aimed at an example object with one sentence. Host facts (`/bootstrap`, provider, runtime, extensions, usage) are never answered by it. Core, schema, the server and the data directory are untouched.
-- **One story.** `app/web/samples/preview/responses.json` is recorded by `app/scripts/record-preview.mjs` from the canonical capture fixture (`evidence/semantic-polish-merge-20260911/capture-fixture.mjs`, `--active none --seed-only --retain`): two projects, project chats and retained Attention conversations, one attention item, one Spark derivation set, a local deterministic answer. `manifest.json` beside it carries the sha256, entry count and the fixture's source commit. The same fixture is the one the Pages media are captured from.
-- **Marked, everywhere.** The title band carries the word *Example*; Home opens with one sentence and two ways out; the story's project rows carry an *Example* tag; the composer's project choice never lists an example project.
+- **One story.** `app/web/samples/preview/responses.json` is recorded by `app/scripts/record-preview.mjs` from the canonical seed `app/scripts/example-fixture.mjs` (`--active none --seed-only --retain`; it started as `evidence/semantic-polish-merge-20260911/capture-fixture.mjs`, which stays as that batch's record): two projects, project chats and retained Attention conversations, one attention item, one Spark derivation set, a local deterministic answer. `manifest.json` beside it carries the sha256, entry count and the fixture's source commit. The Pages media were captured from the historical evidence copy; this change does not recapture them.
+- **Marked, everywhere.** The title band carries the word *Example*; Home opens with one sentence and two ways out; the story's project rows carry an *Example* tag only when the person's own projects are listed beside them (otherwise the title-band word marks them, and the word stays in each row's accessible name); the composer's project choice never lists an example project.
 
 ## Entry, exit, reopening
 
@@ -31,9 +31,9 @@ Run, answer permissions, edit drafts (a draft typed in an example chat is kept i
 ## Regenerating and checking
 
 ```sh
-node evidence/semantic-polish-merge-20260911/capture-fixture.mjs --active none --seed-only --retain --manifest fixture.json
+node app/scripts/example-fixture.mjs --active none --seed-only --retain --manifest fixture.json
 node app/server/index.mjs --data-dir <data_dir from fixture.json> --port 8848
 node app/scripts/record-preview.mjs --origin http://127.0.0.1:8848 --fixture fixture.json
 node --test app/tests/preview-layer.test.mjs
-node evidence/publication-final-20260911/preview-audit.mjs --existing http://127.0.0.1:8848 --out <dir>   # headless Chrome: new user, leave/reopen, real handoff, existing data, start failure
+node app/scripts/example-audit.mjs --existing http://127.0.0.1:8848 --out <dir>   # headless Chrome: new user, leave/reopen, real handoff, existing data, start failure
 ```

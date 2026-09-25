@@ -2180,6 +2180,9 @@ function renderProjectList() {
     );
     return;
   }
+  /* RP-3 · the per-project Example word distinguishes a mixed list only; when
+   * every project is the example, the header chip already says so once. */
+  const mixedExample = state.projects.some((project) => project.preview) && state.projects.some((project) => !project.preview);
   for (const project of visibleProjects) {
     const open = state.openProjectIds.has(project.id);
     const row = element("div", { className: "project-row" });
@@ -2204,7 +2207,7 @@ function renderProjectList() {
         className: "project-name",
         text: project.name || "Unnamed project",
       }),
-      project.preview ? element("span", { className: "project-tag", text: "Example" }) : null,
+      project.preview ? (mixedExample ? element("span", { className: "project-tag", text: "Example" }) : element("span", { className: "sr-only", text: ", Example" })) : null,
     );
     button.addEventListener("click", () => {
       const wasOpen = state.openProjectIds.has(project.id);
@@ -3539,7 +3542,9 @@ function renderChatHeader() {
   // WK-40 · one title line: the project name is a prefix only when the sidebar
   // cannot show it (collapsed or narrow); Home carries no eyebrow at all.
   const projectTitle = $("project-title");
-  projectTitle.textContent = state.view === "home" ? "" : project?.name || "";
+  /* RP-4 · the name sits in its own span so it truncates while the separator
+   * after it stays whole, and both clip together when no room is left. */
+  projectTitle.replaceChildren(element("span", { className: "title-project-name", text: state.view === "home" ? "" : project?.name || "" }));
   projectTitle.hidden = settingsOpen || state.view === "home" || !project?.name;
   $("session-title-text").textContent = settingsOpen
     ? "Settings"
@@ -3812,6 +3817,9 @@ function renderComposer() {
  * ends, and it holds Send only for its own stated reasons. */
 function syncAgentChoice(session, active) {
   if (!agentChoice || !agentChooser) return { holdsSend: false, describedBy: null };
+  /* RP-1 · an Example chat has no Host agent to read; like a global Session it
+   * shows no chooser, and its Send stays refused by the Example guard. */
+  if (session && preview.isExampleId(session.id)) session = null;
   /* E1-R1 · the lifecycle marks what it saw before any call that emits. */
   agentChoiceLifecycle.sync({ session, active, attentionOpen: state.attentionOpen });
   /* E1-R3 · visibility and the Send hold come from this Session's own read. */
@@ -5424,25 +5432,45 @@ async function submitSessionRun({ commandId = null } = {}) {
   /* E1 · the Agent this run is expected to use, from the fresh effective
    * reading. The Host checks it after its replay lookup (409
    * runtime_selection_conflict); a held choice sends nothing at all. */
-  const agentReading = agentChoice?.getState();
-  const agentGate = agentChoice ? agentChoiceGate({ session, attentionOpen: state.attentionOpen, choice: agentReading }) : { holdsSend: false };
-  if (agentGate.holdsSend) {
+  let agentReading = agentChoice?.getState();
+  let agentGate = agentChoice ? agentChoiceGate({ session, attentionOpen: state.attentionOpen, choice: agentReading }) : { holdsSend: false };
+  if (agentGate.holdsSend && !agentGate.reading) {
     setTransientFeedback(sessionId, nextOperationId("run-blocked"), "run", `${agentGate.reason || "The agent for this chat is not read yet."} Not sent.`);
     return;
   }
-  const runtimeSelection = agentReading?.sessionId === sessionId ? agentReading.next?.send.runtimeSelection ?? null : null;
   const operation = {
     operationId: nextOperationId("run"),
     commandId: commandId || crypto.randomUUID(),
     sessionId,
     input,
     revision,
-    ...(runtimeSelection ? { runtimeSelection } : {}),
   };
   // This is the command fact. It must exist before draft persistence or POST
   // admission awaits so refreshes cannot create a second request.
   state.pendingRuns.set(sessionId, operation);
   renderComposer();
+  /* RP-6 · this chat's Agent read has not settled yet (a chat just started from
+   * Home, or Send pressed at once). The pending command above already holds the
+   * composer, File access and Work location, and the text sent is the text
+   * captured at Send; wait for the read, then apply the gate to its answer. */
+  if (agentGate.reading) {
+    await agentChoice.load();
+    if (state.pendingRuns.get(sessionId) !== operation) return;
+    agentReading = agentChoice.getState();
+    /* Any navigation while waiting — even away and back to this chat — ends
+     * the automatic send: the person was elsewhere when it would have gone. */
+    agentGate = guardAdmitNavigation(focusTicket) && state.activeSessionId === sessionId
+      ? agentChoiceGate({ session: currentSession(), attentionOpen: state.attentionOpen, choice: agentReading })
+      : { holdsSend: true, reason: "The chat was left before its agent was read." };
+    if (agentGate.holdsSend) {
+      state.pendingRuns.delete(sessionId);
+      renderComposer();
+      setTransientFeedback(sessionId, nextOperationId("run-blocked"), "run", `${agentGate.reason || "The agent for this chat is not read yet."} Not sent.`);
+      return;
+    }
+  }
+  const runtimeSelection = agentReading?.sessionId === sessionId ? agentReading.next?.send.runtimeSelection ?? null : null;
+  if (runtimeSelection) operation.runtimeSelection = runtimeSelection;
 
   const attemptFocusHandoff = () =>
     guardHandoffFocus(focusTicket, {
@@ -5663,7 +5691,7 @@ function openConnectionCard(anchor) {
     renderConnectionCard(popover, {
       config: state.providerConfig?.config || null,
       session: currentSession(),
-      active: Boolean(currentRun()),
+      active: Boolean(currentRun()) || state.pendingRuns.has(state.activeSessionId),
       onClose: () => {
         popover.hidePopover();
         state.connectionCardAnchor?.focus?.();
@@ -5677,6 +5705,8 @@ function openConnectionCard(anchor) {
       onPermission: async (mode) => {
         const session = currentSession();
         if (!session) return;
+        // A Run being sent keeps the File access it was sent with.
+        if (currentRun() || state.pendingRuns.has(session.id)) { render(); return; }
         try {
           const result = await request(
             `/sessions/${encodeURIComponent(session.id)}/permission-mode`,
@@ -7597,7 +7627,7 @@ async function init() {
     request,
     getSession: () => ({
       session: currentSession(),
-      active: Boolean(currentRun()),
+      active: Boolean(currentRun()) || state.pendingRuns.has(state.activeSessionId),
     }),
     onConfig: (config) => {
       state.providerConfig = config;
@@ -7614,7 +7644,7 @@ async function init() {
    * run's binding is still fetched once and held in one place. */
   agentChoice = createAgentChoiceController({
     adapter: liveAgentChoiceAdapter(request),
-    getSessionId: () => (currentSession() ? state.activeSessionId : null),
+    getSessionId: () => (currentSession() && !preview.isExampleId(state.activeSessionId) ? state.activeSessionId : null),
   });
   agentChooser = createAgentChooser({
     controller: agentChoice,

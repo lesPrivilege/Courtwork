@@ -4,7 +4,7 @@
 // work-data answer the surfaces asked for. The result is the single sample file
 // the preview layer reads (app/web/samples/preview/responses.json).
 //
-//   node evidence/semantic-polish-merge-20260911/capture-fixture.mjs --active none --seed-only --retain --manifest fixture.json
+//   node app/scripts/example-fixture.mjs --active none --seed-only --retain --manifest fixture.json
 //   node app/server/index.mjs --data-dir <data_dir from fixture.json> --port 8848
 //   node app/scripts/record-preview.mjs --origin http://127.0.0.1:8848 --fixture fixture.json
 //
@@ -83,14 +83,15 @@ try {
   // Home (summary, activity, attention module) and both projects' session lists.
   await go(`${ORIGIN}/`); await w(1500);
   await evaluate(`(async()=>{for(const p of document.querySelectorAll('[data-nav-key^="project:"]')){p.click();await new Promise(r=>setTimeout(r,700));}})()`); await w(1000);
-  await click('[data-focus-key^="attention-item-"]'); await w(800);
+  await click('[data-focus-key^="home:attention:"]'); await w(1200);
   await harvest();
   // Sessions of the story.
   for (const key of ["matter", "artifact", "continuity", "spark", "other"]) {
     const id = fixture.sessions?.[key]; if (!id) continue;
     await openSession(id);
-    // Work surface: open the surface, then each rail card that reads something.
-    await evaluate(`(async()=>{const w=(ms)=>new Promise(r=>setTimeout(r,ms));if(!/surface-cards|surface-open|surface-expanded/.test(document.getElementById('app-shell').className))document.getElementById('show-surface-button')?.click();await w(1200);for(const b of [...document.querySelectorAll('.surface-panel button')].filter(b=>/^Open (run details|workspace|recorded file|runtime)/i.test(b.getAttribute('aria-label')||''))){b.click();await w(1200);}document.getElementById('show-run-button')?.click();await w(800);})()`);
+    // Preview: the Workspace tab, each recorded file the chat shows, and the
+    // latest run's details (Inspect run from its measurements).
+    await evaluate(`(async()=>{const w=(ms)=>new Promise(r=>setTimeout(r,ms));const back=()=>{const b=document.getElementById('surface-back-button');if(b&&b.offsetParent)b.click();};document.getElementById('show-surface-button')?.click();await w(1500);back();await w(500);for(const row of [...document.querySelectorAll('#message-stream .artifact-thread-row')]){row.click();await w(1500);back();await w(500);}const glyph=[...document.querySelectorAll('#message-stream .run-activity-glyph')].pop();glyph?.click();await w(800);[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Inspect run')?.click();await w(1500);back();await w(500);})()`);
     await w(1500);
     await harvest();
   }
@@ -101,21 +102,28 @@ try {
   await w(1000); await harvest();
   // Spark for the primary project.
   await go(`${ORIGIN}/`); await click("#spark-button"); await w(1500);
-  await evaluate(`(async()=>{const w=(ms)=>new Promise(r=>setTimeout(r,ms));for(const b of [...document.querySelectorAll('dialog[open] button')].slice(0,6)){if(/rebuild|refresh|stale|all/i.test(b.textContent||'')){b.click();await w(600);}}})()`);
+  await evaluate(`(async()=>{const w=(ms)=>new Promise(r=>setTimeout(r,ms));[...document.querySelectorAll('dialog[open] button')].find(b=>/Source maintenance/.test(b.textContent))?.click();await w(1500);const select=[...document.querySelectorAll('dialog[open] select')].find(s=>/Spark project/i.test(s.getAttribute('aria-label')||s.labels?.[0]?.textContent||''));for(const option of [...(select?.options??[])]){select.value=option.value;select.dispatchEvent(new Event('change',{bubbles:true}));await w(1500);}})()`);
   await harvest();
   // Home usage details.
   await go(`${ORIGIN}/`); await click('[data-home-usage], .home-usage-open, button[aria-label*="usage" i]'); await w(1200); await harvest();
 
   const work = [...entries.values()].filter((e) => /^\/(projects|sessions|runs|work-|attention|coordination)/.test(e.path));
+  // RP-8 · only Host-generated object identifiers mark the story. Route words
+  // ("query", "conversations") and resource names ("local", "tool:…") also sit
+  // in id fields and paths; as Example IDs they would capture real requests.
+  const OBJECT_ID = /^(?:[a-z]+(?:-[a-z]+)*-)?[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$|^candidate-[0-9a-f]{64}$/;
   const ids = new Set();
   for (const e of work) {
-    const collect = (value) => { if (Array.isArray(value)) value.forEach(collect); else if (value && typeof value === "object") { for (const [k, v] of Object.entries(value)) { if (/^(id|sessionId|projectId|runId|attention_id|matterId|candidateId)$/.test(k) && typeof v === "string") ids.add(v); collect(v); } } };
+    const collect = (value) => { if (Array.isArray(value)) value.forEach(collect); else if (value && typeof value === "object") { for (const [k, v] of Object.entries(value)) { if (/^(id|sessionId|projectId|runId|attention_id|matterId|candidateId)$/.test(k) && typeof v === "string" && OBJECT_ID.test(v)) ids.add(v); collect(v); } } };
     collect(e.payload);
-    for (const m of e.path.matchAll(/\/(?:sessions|runs|attention)\/([^/?]+)/g)) ids.add(decodeURIComponent(m[1]));
+    for (const m of e.path.matchAll(/\/(?:sessions|runs|attention)\/([^/?]+)/g)) { const id = decodeURIComponent(m[1]); if (OBJECT_ID.test(id)) ids.add(id); }
   }
   const story = { source_sha: fixture.source_sha, fixture_manifest: path.basename(FIXTURE), projects: fixture.projects, sessions: fixture.sessions, attention: fixture.attention, matter: fixture.matter, recorded_at: new Date().toISOString(), note: "Example workspace: synthetic material and a local deterministic provider; no external model call; not the user's data." };
   const out = { schemaVersion: 1, story, ids: [...ids], entries: work.map((e) => ({ method: e.method, path: e.path, body: e.body, payload: e.payload })) };
-  const json = JSON.stringify(out);
+  // The recording is published with the app: the seed's local data directory
+  // (a temp path naming the recording machine) becomes a neutral root.
+  const json = JSON.stringify(out).split(fixture.data_dir).join("/example-data");
+  if (/\/(?:Users|home|private|tmp|var\/folders)\//.test(json)) throw new Error("the recording still carries a local absolute path");
   await writeFile(path.join(OUT, "responses.json"), json);
   const host = [...entries.values()].filter((e) => !work.includes(e)).map((e) => `${e.method} ${e.path}`);
   await writeFile(path.join(OUT, "manifest.json"), JSON.stringify({ file: "responses.json", bytes: Buffer.byteLength(json), sha256: createHash("sha256").update(json).digest("hex"), entries: out.entries.length, ids: out.ids.length, source_sha: fixture.source_sha, origin: ORIGIN, recorded_at: story.recorded_at, host_routes_seen_but_not_served: [...new Set(host)].sort() }, null, 2) + "\n");

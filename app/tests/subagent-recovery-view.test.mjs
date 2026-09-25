@@ -91,3 +91,9 @@ test('LP-R6-UI · a blocked non-local failed attempt retains Retry and no Reconc
   assert.equal(buttons().includes('Reconcile interrupted read-only attempt'), false);
   assert.doesNotMatch(body.textContent, /Findings from this attempt are available/);
 }));
+
+test('RP-7 · the Explore conversation list reads the Host sessions, never the Example story', () => renderedDetail(assignment(), ({ requests }) => {
+  const reads = requests.filter(request => request.path === '/sessions');
+  assert.ok(reads.length > 0, 'the directory reads the conversation list');
+  assert.ok(reads.every(request => request.options?.bypassPreview === true));
+}));

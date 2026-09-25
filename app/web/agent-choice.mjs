@@ -328,7 +328,7 @@ export function agentChoiceGate({ session, attentionOpen = false, choice }) {
   if (!session || attentionOpen || session.scope === "global") return { shown: false, holdsSend: false, reason: "" };
   const current = choice?.sessionId === session.id ? choice : null;
   if (!current || current.read.status === "idle" || (current.read.status === "loading" && !current.snapshot))
-    return { shown: true, holdsSend: true, reason: "Reading this chat's agent…" };
+    return { shown: true, holdsSend: true, reading: true, reason: "Reading this chat's agent…" };
   if (current.read.status === "ready" && current.snapshot?.sessionKind === "global") return { shown: false, holdsSend: false, reason: "" };
   if (current.read.status === "error") return { shown: true, holdsSend: true, reason: `The agent reading failed: ${current.read.error}` };
   return { shown: true, holdsSend: !current.next?.send.enabled, reason: current.next?.send.reason ?? "" };

@@ -26,7 +26,8 @@ export function createSubagentView({request,getSession,onMaintenance,onOpenSessi
  function schedule(){clearTimeout(timer);if(!dialog.open)return;timer=setTimeout(async()=>{try{await refresh();}catch{/* Next explicit open reports transport failure. */}schedule();},2000);}
  async function directory(){
   detailEpoch++;content.replaceChildren();selected=null;expanded.clear();
-  const sessions=await request('/sessions');
+  // RP-7 · Spark tasks run on the Host: only the person's own chats can be parents, even while the Example is open.
+  const sessions=await request('/sessions',{bypassPreview:true});
   const choices=(sessions.sessions??[]).filter(s=>!s.extensionBinding && !data?.assignments.some(a=>a.attempts?.some(t=>t.sessionId===s.id)));
   const select=el('select',{attrs:{'aria-label':'Task conversation'}});
   for(const s of choices){const option=el('option',{text:s.title||'Untitled chat',attrs:{value:s.id}});select.append(option);}

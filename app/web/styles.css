@@ -3934,9 +3934,19 @@ court-symbol {
 /* WK-40 · One title line. The project name is a muted prefix shown only when the
    sidebar cannot carry it (collapsed on desktop, drawer below 1024). */
 .title-project { color: var(--muted-strong); font-weight: 400; }
-.title-project::after { content: " · "; }
+/* RP-4 · when the line overflows, the prefix gives way first (twice the chat
+   title's shrink weight), so a long project name never clips the chat title.
+   With room, both stay whole. The name truncates inside the prefix while its
+   separator stays whole; with no room left, both clip away together. */
+#session-title { display: flex; align-items: baseline; }
+#session-title > .title-project,
+#session-title > #session-title-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+#session-title > .title-project:not([hidden]) { display: flex; flex: 0 2 auto; }
+#session-title > #session-title-text { flex: 0 1 auto; }
+.title-project-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.title-project::after { content: "·"; flex: none; padding: 0 0.35em; }
 @media (min-width: 1024px) {
-  .app-shell:not(.nav-collapsed) .title-project { display: none; }
+  .app-shell:not(.nav-collapsed) #session-title > .title-project { display: none; }
 }
 
 /* Runtime control module (WO-RC).

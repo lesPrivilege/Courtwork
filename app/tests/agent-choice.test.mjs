@@ -249,6 +249,24 @@ test("E1-R3: navigating to another Chat while its read is delayed never uses the
 test("E1-R3: a failed read for the current Chat keeps the control, the hold and Retry", async () => {
   const { controller } = await setup("read-error");
   const gate = agentChoiceGate({ session: { id: "session-synthetic", scope: "project" }, choice: controller.getState() });
-  assert.deepEqual([gate.shown, gate.holdsSend], [true, true]);
+  assert.deepEqual([gate.shown, gate.holdsSend, Boolean(gate.reading)], [true, true, false], "a failed read is a refusal, not a wait");
   assert.match(gate.reason, /The agent reading failed/);
+});
+
+test("RP-6: a Send held only by an unsettled read is marked reading; the awaited load() releases it and a late read does not reopen it", async () => {
+  const fixture = createAgentChoiceFixture({ pause: instant });
+  const releases = [];
+  const adapter = { ...fixture.adapter, read: (id) => new Promise((resolve) => releases.push(() => resolve(fixture.adapter.read(id)))) };
+  const view = { session: { id: "session-synthetic", scope: "project" }, active: false };
+  const controller = createAgentChoiceController({ adapter, getSessionId: () => view.session.id });
+  createAgentChoiceLifecycle(controller).sync(view); // selectSession's render starts the page's read
+  const before = agentChoiceGate({ session: view.session, choice: controller.getState() });
+  assert.deepEqual([before.holdsSend, before.reading, before.reason], [true, true, "Reading this chat's agent…"], "an immediate Send is held only for the read");
+  const handoff = controller.load(); // what submitSessionRun awaits under its pending-Run lock
+  await tick();
+  releases[1](); await handoff;
+  const at = agentChoiceGate({ session: view.session, choice: controller.getState() });
+  assert.equal(at.holdsSend, false, "the first Send is admitted");
+  releases[0](); await tick(); await tick();
+  assert.equal(agentChoiceGate({ session: view.session, choice: controller.getState() }).holdsSend, false, "the page's late read does not reopen the hold");
 });
