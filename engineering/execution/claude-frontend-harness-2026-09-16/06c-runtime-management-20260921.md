@@ -59,3 +59,66 @@ Picked up from actual main `ff553e89ba26ba5e3db6b8ee6071bb3f7cc5bd93` (this orde
 ## Final independent acceptance — 2026-09-21
 
 [Source `5f89213` accepted](evidence/runtime-management-final-20260921/README.md): RM-R1/R2/C1 closed for the explicit synthetic frontend scope; Luna34/34, actual-main75/75, OpenAI browser stale-read recovery and submitted/unknown/new-draft checks. Local merge `4a3ac9e` and restore-verified cleanup complete. Production Runtime-management backend remains proposed. The next user-authorized frontend package is [06d tabbed Preview](06d-surface-continuity-20260921.md), not real browser execution.
+
+## 2026-09-26 · Production continuation I1: truthful Host inventory
+
+User authorizes the next order after accepted Order3 at `main@0d06fb91d510398e2319da5d34aa9e485f7c7e84`. Updated routing: an independent bounded backend worker may be GPT-6 Sol; core architecture and frontend/backend integration remain Astra or Opus. This supersedes the earlier all-Claude-only routing for this released backend slice. Parent Astra selects the contract below; Sol implements it; Luna reviews fixed source; Opus consumes only the accepted backend in the subsequent frontend stage. No competing product writer or new roadmap is created.
+
+### Outcome, responsibility and precedent
+
+Before creating a Chat, Settings can read what execution runtimes this Host actually has configured, their declared operations and explicit unavailable reasons. This is the first production06c seam, not another synthetic connection journey. The existing06c controller/fixture remains a design/interaction reference; its successful connect/disable receipts must never be used as live facts.
+
+Luna's bounded next-slice preflight confirms: `RuntimeService.runtimePorts` and composition-root descriptors already own executor facts; `getExecutorChoice(sessionId)` exposes the R1 options but requires a Session; `getRuntimeInfo()` exposes only default/selected identity plus generic Host capabilities. Therefore extend **existing authenticated GET `/api/v5/runtime-info`** additively, rather than create a second endpoint or registry. Nearest precedents are R1 descriptor validation, configuration fingerprint and provider-compatibility refusals. Host configuration is the owner; UI is a projection. No schema, permission, credential, process-control or provider-selection change is needed.
+
+### Astra fixed read contract
+
+Keep every existing runtime-info field/meaning and Session-scoped behavior. Add `executionRuntimes`:
+
+```ts
+{
+  schemaVersion: 1,
+  defaultAdapterId: string, // Host default, not the selected Session's adapter
+  items: Array<{
+    adapterId: string,
+    configured: boolean,
+    configurationOwner: "host",
+    revision: string | null,          // configured descriptor revision
+    configurationRef: string | null, // existing non-secret fingerprint
+    capabilities: ExecutorCapabilities | null,
+    availability: {
+      status: "configured" | "unavailable",
+      reasonCode: null | "not_configured" | "descriptor_changed" |
+        "descriptor_unavailable" | "provider_unsupported",
+      reason: string | null
+    },
+    liveStatus: "not_checked"
+  }>
+}
+```
+
+`ExecutorCapabilities` is the existing closed R1 operation shape, not the generic Host `capabilities` object. Enumerate actual configured entries plus the existing Pi/managed candidate IDs once; preserve the trusted single-port test seam without discovering or constructing any new port. Place the Host default first and keep other ordering deterministic. Unconfigured candidates have null revision/ref/capabilities and a fixed unavailable reason. Do not invent Hermes or child-only executors.
+
+For each configured entry, read its existing port's synchronous `describe()` (use the current default `runtimePort` seam where appropriate). Validate identity, configured revision and capability shape through the existing descriptor validator. Identity/revision drift returns `descriptor_changed`; an exception or invalid capability description returns `descriptor_unavailable`; expose no raw exception, stack, environment, endpoint, configuration identity text, secret or native Session/root locator. Preserve the configured identity fields as explicitly configured readings; with drift/error capabilities are null rather than a stale effective claim. Read errors are isolated to their row.
+
+For a valid descriptor, clone the declared capabilities. Reuse the existing R1 managed/fake-provider compatibility condition to return `provider_unsupported` when applicable. Otherwise `status:"configured"` means a configured, locally describable port only. It does **not** mean connected, authenticated, reachable, healthy, admitted, or verified live; every row remains `liveStatus:"not_checked"`. No network request, subprocess, openSession, Run, control-plane write, revision bump or credential lookup occurs for this inventory. `configurationRef` is the already accepted hash, never a new persisted version or a mutation precondition. Admission and permissions stay authoritative in their current paths.
+
+No change to R1 choice PUT, frozen Run bindings, provider/model readiness, global single-active policy, native recovery, Core or bridge. The view will say configured/unavailable and explain ownership; it must not rename this readout as a completed runtime connection check.
+
+### Sol bounded backend lease
+
+Own only the additive service projection in `app/server/service.mjs`, a small pure helper under `app/server/` if justified, focused HTTP/descriptor tests and the I1 author evidence/subsection of this original record. Add a short API contract document under `app/docs/` if needed. Existing `/runtime-info` routing already supplies authentication; no new endpoint is expected. Do not edit `app/web/**`, global Settings, Store/schema, runtime constructors/factories, dependencies, README capability claims or shared `engineering/current.md`/dispatch/acceptance summaries. If the fixed DTO cannot be derived without new authority, report the concrete issue to parent before changing that boundary; routine implementation choices require no further user approval.
+
+Use an isolated checkout from actual main containing this contract. You are not alone: preserve other writers and all pre-existing main metadata; do not checkout/stash/reset shared or original Claude trees. No paid providers, personal credential stores, user8787/8899 processes, push/deploy or cleanup of others' trees.
+
+Meaningful exit evidence:
+1. Public authenticated runtime-info before any Session reports real default Pi and missing managed candidate; no Sessions/Runs/events/config changes or new native history are produced by repeated reads.
+2. Existing R1 trusted managed loopback fixture is describable/configured without any live-verification claim; incompatible Provider route is unavailable without executing it.
+3. Descriptor throw, invalid capabilities and identity/revision drift produce bounded row refusals; sentinel secret/error strings cannot escape. Other rows remain readable.
+4. Returned objects are copies; caller mutation cannot alter configured facts. Default-vs-selected Session semantics and existing runtime-info keys remain intact.
+5. Existing R1/Runtime foundation consumers pass; record actual commands and source SHA. Targeted checks first, then required broader verification once source stabilizes. Author tests are not independent acceptance.
+
+Commit explicit owned paths and return a fixed source plus writer stop/handoff. Do not advance into connect/enable/disable/disconnect, executor selection UI or production managed exposure. Parent independently disposes the delivery and integrates before releasing the Opus consumer.
+
+### Subsequent Opus consumer (queued, not a second writer)
+
+After I1 backend acceptance, use the existing Settings/Agents owner and accepted design grammar for a complete read-only list→detail→refresh→return path. Consume `executionRuntimes`, keep loading/failed-read/empty/unavailable distinct and preserve focus/position. Show actual declared operations with their reasons, Host configuration ownership, and explicitly unverified live status. Do not wire synthetic mutation controls or invent per-runtime CAS/command receipts. Astra owns any required cross-layer adjustment and final combined browser acceptance. This paragraph does not launch Opus before the backend handoff.

@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-26 · Next order selected: real Runtime inventory
+
+User authorizes the next slice and permits independent backend Sol, with Astra/Opus owning core and cross-layer integration. [Production06c I1](execution/claude-frontend-harness-2026-09-16/06c-runtime-management-20260921.md#2026-09-26--production-continuation-i1-truthful-host-inventory) consumes Luna's current-source preflight and Astra's fixed additive runtime-info DTO: configured execution runtimes, declared operations and bounded unavailability, all live status not_checked. Host descriptors retain authority; no Session creation, schema/control/credentials or live-provider action. A single isolated Sol implementation precedes non-author review and the queued Opus Settings reader. Order3 and older accepted K5/E1/R1 foundations are not reopened.
+
+
 ## 2026-09-26 · Order 3 frontend accepted and integrated
 
 [Final independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/stream-frontend-final-20260926/README.md) accepts4d0bd98/10bc6f3 over product88e3e7e. STR-FE1 closes: Parent production-browser reference scope/sanitizer/selection checks and both surfaces' blocked-cursor recovery pass; Luna58/58, isolated integrated28/28 and runtime smoke pass. Source merge preserves author and review histories. Stable segment rendering, selection freeze, partial labels, Attention cursor and restored1.8s activity recipe are accepted for the finite synthetic-Host/browser slice. Poll cadence, first/terminal row rebuilds, G1 super-linear mitigation and native/accessibility/provider limits remain. Host22/Core4/bridge5 unchanged; no push/deploy, user-service restart or next author launch.

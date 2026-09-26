@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-26 · Next authorized order: production06c inventory
+
+[Original06c I1 contract and writer lease](06c-runtime-management-20260921.md#2026-09-26--production-continuation-i1-truthful-host-inventory) is the next finite order after Order3. User permits Sol for independent backend work; Astra owns contract/integration and Opus the subsequent frontend consumer. I1 additively exposes a truthful, non-mutating Host runtime inventory on existing runtime-info, without creating a Chat or claiming connection/live verification. No connect/disable/schema/provider expansion. Sol is the sole backend writer once dispatched; Opus read-only Settings integration follows independent backend acceptance. Core recovery and broader management commands retain their original owners.
+
+
 ## 2026-09-26 · Order 3 complete within accepted scope
 
 [Final frontend/Host receipt](evidence/stream-frontend-final-20260926/README.md) accepts4d0bd98/10bc6f3 and closes STR-FE1; backend STR-R1/STR-R2 remain closed. Original Claude's bounded Order3 authoring and review are complete. Parent integrates from actual main with both histories retained. Do not repeat prior returns or automatically start SSE, live Runtime management or another frontend lane. Remaining limits are explicit in the receipt; a subsequent bounded assignment comes from existing owners and actual integrated main.
