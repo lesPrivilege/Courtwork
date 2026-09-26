@@ -2,7 +2,7 @@
  * settlement and the legacy segment rule. DOM-free, with a fake clock. */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createSegmentStream, persistedPartial, segmentOf, SNAPSHOT_INTERVAL_MS } from "../server/assistant-stream.mjs";
+import { createSegmentStream, persistedPartials, segmentOf, SNAPSHOT_INTERVAL_MS } from "../server/assistant-stream.mjs";
 import { assistantSegmentAssigner } from "../runtime/pi-session-runtime.mjs";
 
 function harness() {
@@ -95,17 +95,25 @@ test("no partial when the final exists or no text arrived", async () => {
   assert.deepEqual(harness().stream.settle("unknown"), []);
 });
 
-test("recovery settles only from persisted text and never invents an empty partial", () => {
+test("recovery settles each unsettled segment from persisted text and never invents an empty partial", () => {
   const events = [
     { seq: 1, runId: "r", type: "assistant.delta", data: { text: "Hi", segment: 0 } },
     { seq: 2, runId: "r", type: "assistant.message", data: { text: "Hi", segment: 0 } },
     { seq: 3, runId: "r", type: "tool.start", data: {} },
-    { seq: 4, runId: "r", type: "assistant.delta", data: { text: "Next par", segment: 1 } },
-    { seq: 5, runId: "r", type: "assistant.delta", data: { text: "Next partial", segment: 1 } },
+    { seq: 4, runId: "r", type: "assistant.delta", data: { text: "Retry par", segment: 1 } },
+    { seq: 5, runId: "r", type: "assistant.delta", data: { text: "Next", segment: 2 } },
+    { seq: 6, runId: "r", type: "assistant.delta", data: { text: "Retry partial", segment: 1 } },
+    { seq: 7, runId: "r", type: "assistant.delta", data: { text: "", segment: 3 } },
   ];
-  assert.deepEqual(persistedPartial(events, "unknown"), { type: "assistant.message", data: { text: "Next partial", segment: 1, stopReason: "unknown", partial: true } });
-  assert.equal(persistedPartial(events.slice(0, 3), "unknown"), null, "segment 0 already settled");
-  assert.equal(persistedPartial([{ seq: 1, runId: "r", type: "run.status", data: {} }], "unknown"), null, "no text, no partial");
+  const partials = persistedPartials(events, "unknown");
+  assert.deepEqual(partials, [
+    { type: "assistant.message", data: { text: "Retry partial", segment: 1, stopReason: "unknown", partial: true } },
+    { type: "assistant.message", data: { text: "Next", segment: 2, stopReason: "unknown", partial: true } },
+  ], "settled segment 0 and textless segment 3 skipped; each newest persisted snapshot, in segment order");
+  const after = [...events, ...partials.map((event, i) => ({ seq: 8 + i, runId: "r", ...event }))];
+  assert.deepEqual(persistedPartials(after, "unknown"), [], "idempotent once its partials are persisted");
+  assert.deepEqual(persistedPartials(events.slice(0, 3), "unknown"), [], "segment 0 already settled");
+  assert.deepEqual(persistedPartials([{ seq: 1, runId: "r", type: "run.status", data: {} }], "unknown"), [], "no text, no partial");
 });
 
 test("legacy events without a segment use the stable finals-before rule", () => {
@@ -115,7 +123,9 @@ test("legacy events without a segment use the stable finals-before rule", () => 
     { seq: 3, runId: "r", type: "assistant.delta", data: { text: "b" } },
   ];
   assert.deepEqual(events.map((e) => segmentOf(e, events)), [0, 0, 1]);
-  assert.deepEqual(persistedPartial(events, "unknown").data, { text: "b", segment: 1, stopReason: "unknown", partial: true });
+  assert.deepEqual(persistedPartials(events, "unknown").map((e) => e.data), [{ text: "b", segment: 1, stopReason: "unknown", partial: true }]);
+  const mixed = [...events, { seq: 4, runId: "r", type: "assistant.delta", data: { text: "c", segment: 2 } }];
+  assert.deepEqual(persistedPartials(mixed, "unknown").map((e) => [e.data.segment, e.data.text]), [[1, "b"], [2, "c"]], "legacy and recorded segments together");
 });
 
 test("the Pi adapter numbers assistant messages per Run", () => {

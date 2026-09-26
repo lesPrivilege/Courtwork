@@ -45,18 +45,25 @@ export function segmentOf(event, runEvents) {
   return finals;
 }
 
-/** Pure: the partial final to persist for a Run that ended without its open
- * segment's final, from persisted events only (crash recovery, or a Run this
- * process was not driving). `null` when nothing was persisted for an open
- * segment, or its final already exists. */
-export function persistedPartial(runEvents, stopReason) {
+/** Pure: the partial finals to persist for a Run that ended without some of
+ * its segments' finals, from persisted events only (crash recovery, or a Run
+ * this process was not driving). One per segment with persisted text and no
+ * persisted final, in segment order, carrying that segment's newest persisted
+ * snapshot; segments use `segmentOf`. Empty when there are none, so calling it
+ * again after its partials are persisted returns nothing. */
+export function persistedPartials(runEvents, stopReason) {
   const ordered = [...runEvents].sort((a, b) => a.seq - b.seq);
-  const lastDelta = [...ordered].reverse().find((event) => event.type === "assistant.delta");
-  if (!lastDelta || typeof lastDelta.data?.text !== "string" || !lastDelta.data.text) return null;
-  const segment = segmentOf(lastDelta, ordered);
-  const settled = ordered.some((event) => event.type === "assistant.message" && event.seq > lastDelta.seq && segmentOf(event, ordered) === segment);
-  if (settled) return null;
-  return { type: "assistant.message", data: { text: lastDelta.data.text, segment, stopReason, partial: true } };
+  const latest = new Map();
+  const settled = new Set();
+  let finals = 0; // `segmentOf` in one pass
+  for (const event of ordered) {
+    if (event.type !== "assistant.delta" && event.type !== "assistant.message") continue;
+    const segment = Number.isInteger(event.data?.segment) ? event.data.segment : finals;
+    if (event.type === "assistant.message") { settled.add(segment); finals += 1; }
+    else if (typeof event.data?.text === "string" && event.data.text) latest.set(segment, event.data.text);
+  }
+  return [...latest].filter(([segment]) => !settled.has(segment)).sort(([a], [b]) => a - b)
+    .map(([segment, text]) => ({ type: "assistant.message", data: { text, segment, stopReason, partial: true } }));
 }
 
 /** One Run's live assistant stream. `write(event)` persists one event. */

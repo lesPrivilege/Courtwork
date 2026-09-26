@@ -66,7 +66,7 @@ import {
   validateExecutorDescriptor,
 } from "./executor-choice-state.mjs";
 import { readCredentialFile, setCredential, deleteCredential, replaceCredentialFile } from "./credential-file.mjs";
-import { createSegmentStream, persistedPartial, PARTIAL_STOP_REASON } from "./assistant-stream.mjs";
+import { createSegmentStream, persistedPartials, PARTIAL_STOP_REASON } from "./assistant-stream.mjs";
 import {
   ConnectionInputError,
   UNKNOWN_WINDOW_NOTICE,
@@ -351,12 +351,13 @@ export class RuntimeService {
     for (const run of this.store.listRuns()) {
       if (ACTIVE_STATUSES.has(run.status)) {
         const unsettled = this.#unsettledMcpDispatches(run);
-        // Only persisted text can settle an open segment after a crash; the
-        // Run stays `unknown`, and nothing is written without such text.
+        // Only persisted text can settle open segments after a crash, one
+        // partial each; the Run stays `unknown`, and nothing is written for a
+        // segment without such text.
         await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || unsettled.length
           ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" }
           : { code: "restart_unknown", message: "run was in flight during restart" } }, [
-          persistedPartial(this.store.listEvents({ sessionId: run.sessionId, runId: run.id }), PARTIAL_STOP_REASON.unknown),
+          ...persistedPartials(this.store.listEvents({ sessionId: run.sessionId, runId: run.id }), PARTIAL_STOP_REASON.unknown),
           { type: "run.status", data: { status: "unknown", ...(unsettled.length ? { unsettledMcp: unsettled } : {}) } },
         ]);
         interrupted.push(run.id);
@@ -3488,7 +3489,7 @@ export class RuntimeService {
       // This process cannot abort what it is not driving, so it must not
       // claim the run stopped. `unknown` is the honest terminal state.
       const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || this.#unsettledMcpDispatches(run).length ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : { code: "not_in_process", message: "run is not active in this process" } }, [
-        persistedPartial(this.store.listEvents({ sessionId: run.sessionId, runId }), PARTIAL_STOP_REASON.unknown),
+        ...persistedPartials(this.store.listEvents({ sessionId: run.sessionId, runId }), PARTIAL_STOP_REASON.unknown),
         { type: "run.status", data: { status: "unknown" } },
       ]);
       await this.store.cancelQuestionsForRun(runId).catch(() => {});

@@ -4,7 +4,8 @@
  * one failing coalesced `assistant.delta` append into a real Host. */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { rm } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
+import path from "node:path";
 import { createSegmentStream, SNAPSHOT_INTERVAL_MS } from "../server/assistant-stream.mjs";
 import { boot, reopen } from "./helpers.mjs";
 
@@ -208,6 +209,65 @@ test("Host: a final waiting on a failing in-flight snapshot write still settles 
     assert.deepEqual(await read(reopened.api), events, "reload restores the same events");
   } finally {
     rejectHeld?.(new Error("test cleanup"));
+    await (reopened?.runtime ?? ctx.runtime).close();
+    await rm(ctx.dataDir, { recursive: true, force: true });
+  }
+});
+
+test("Host recovery: a Pi retry's two unsettled segments each get one unknown partial, stable across reopen and cancel", async () => {
+  // The supported Pi provider-retry schedule: segment 0's second snapshot
+  // append is held, the provider drops, and Pi's retry opens segment 1 while
+  // segment 0's error final still waits on that append. The Store image at
+  // that moment (both segments with text, no durable final) is what a crash
+  // leaves; it is captured as bytes and reopened, never synthesized.
+  const ctx = await boot({ fakeResponder: () => ({ kind: "text", id: "retry", created: 1, chunkMs: 30, failAfterChunks: 16, text: "Retry stream source. ".repeat(80) }) });
+  let release;
+  let reopened;
+  try {
+    let count = 0;
+    let secondSeen;
+    const reached = new Promise((resolve) => { secondSeen = resolve; });
+    const append = ctx.runtime.store.appendEvent.bind(ctx.runtime.store);
+    ctx.runtime.store.appendEvent = async (event) => {
+      if (event.type === "assistant.delta" && event.data.segment === 0 && ++count === 2) await new Promise((resolve) => { release = resolve; });
+      const result = await append(event);
+      if (event.type === "assistant.delta" && event.data.segment === 1) secondSeen();
+      return result;
+    };
+    const session = await ctx.createSession();
+    const made = await ctx.api("POST", `/sessions/${session.id}/runs`, { commandId: "retry-crash", input: "reply" });
+    const runId = made.json.run.id;
+    await Promise.race([reached, new Promise((_, reject) => setTimeout(() => reject(new Error("segment 1 not observed")), 10000))]);
+    const image = ctx.runtime.store.listEvents({ sessionId: session.id, runId });
+    const newestDelta = (segment) => image.filter((event) => event.type === "assistant.delta" && event.data.segment === segment).at(-1).data.text;
+    assert.deepEqual([...new Set(image.filter((event) => event.type === "assistant.delta").map((event) => event.data.segment))], [0, 1]);
+    assert.deepEqual(image.filter((event) => event.type === "assistant.message"), [], "no durable final in the image");
+    const stateFile = path.join(ctx.dataDir, "runtime-state.json");
+    const crashImage = await readFile(stateFile);
+    release();
+    await ctx.runtime.close();
+    await writeFile(stateFile, crashImage);
+
+    reopened = await reopen(ctx.dataDir);
+    const read = async (api) => (await api("GET", `/sessions/${session.id}/events`)).json.events.filter((event) => event.runId === runId);
+    const events = await read(reopened.api);
+    assert.equal((await reopened.api("GET", `/runs/${runId}`)).json.run.status, "unknown");
+    const finals = events.filter((event) => event.type === "assistant.message");
+    assert.deepEqual(finals.map((event) => event.data), [
+      { text: newestDelta(0), segment: 0, stopReason: "unknown", partial: true },
+      { text: newestDelta(1), segment: 1, stopReason: "unknown", partial: true },
+    ], "one partial per unsettled segment, from its newest persisted snapshot, in segment order");
+    const status = events.find((event) => event.type === "run.status" && event.data.status === "unknown");
+    assert.deepEqual([finals[0].seq, finals[1].seq, status.seq], [finals[0].seq, finals[0].seq + 1, finals[0].seq + 2], "the partials land with the unknown status");
+
+    await reopened.api("POST", `/runs/${runId}/cancel`, {});
+    assert.deepEqual(await read(reopened.api), events, "cancelling the settled Run adds nothing");
+    await reopened.runtime.close();
+    reopened = await reopen(ctx.dataDir);
+    assert.deepEqual(await read(reopened.api), events, "a second recovery adds nothing");
+    assert.equal((await reopened.api("GET", `/runs/${runId}`)).json.run.status, "unknown");
+  } finally {
+    release?.();
     await (reopened?.runtime ?? ctx.runtime).close();
     await rm(ctx.dataDir, { recursive: true, force: true });
   }
