@@ -3,8 +3,10 @@ import { createChatActions, createProductionActionAdapter, restoreChatActionFocu
 import { renderUserMessage, renderAnswerFooter } from "./user-message.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createRunActivity } from "./run-activity.mjs";
-import { el, action, flowRow, markdown } from './ui-controls.mjs';
-import { projectThread, toolStateWord, canAnswer, validPermission } from './thread-projection.mjs';
+import { el, action, flowRow } from './ui-controls.mjs';
+import { projectThread, toolStateWord, canAnswer, validPermission, unfinishedToolWord } from './thread-projection.mjs';
+import { growsTextOnly } from './session-events.mjs';
+import { createBodyRegistry } from './stream-body.mjs';
 import {
   executionDisclosureMemberId,
   executionDisclosureStateKey,
@@ -18,6 +20,10 @@ import { renderToolRow } from './run-rows.mjs';
 
 export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel }) {
   let visible = false, timer = null, opener = null, signature = '', openingEpoch = 0;
+  // Order 3 · bodies by segment key, the structure the thread was last built
+  // from, and the newest event it shows.
+  const assistantBodies = createBodyRegistry();
+  let renderedStructure = '', renderedSeq = 0;
   const answers = new Map(), messageViews = new Map(), measurementViews = new Map();
   const executionOpenByRun = new Map();
   let managing = false, recentSignature = "";
@@ -170,9 +176,15 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
       runtimeBody.append(renderRequestMeasurements(state.events, run.id, {compact:true,opened:measurementViews.get(key)}));
     }
     if (run?.usage) runtimeBody.append(el('p', { text: `Usage${run.usage.missing ? ' (incomplete; lower bounds)' : ''}: ${run.usage.input} input · ${run.usage.output} output. Cache accounting is separate; this is not billing.` }));
-    const nextSignature = JSON.stringify([state.events, state.runs, state.busy, state.readError]);
-    if (nextSignature !== signature) {
+    const structure = JSON.stringify([state.session?.id, state.runs, state.busy, state.readError]);
+    const nextSignature = `${structure}|${state.lastSeq}|${state.events.length}`;
+    // Order 3 · events that only grow assistant text update those bodies in
+    // place; anything else builds the thread from the projection again.
+    if (nextSignature !== signature && signature && structure === renderedStructure && patchGrowingBodies()) signature = nextSignature;
+    else if (nextSignature !== signature) {
       signature = nextSignature;
+      renderedStructure = structure;
+      renderedSeq = state.lastSeq;
       const readingSnapshot = captureChatReading(stream);
       const focusedReadingKey = document.activeElement?.closest?.('[data-reading-key]')?.dataset?.readingKey || null;
       const oldTop = stream.scrollTop, nearBottom = stream.scrollHeight - stream.scrollTop - stream.clientHeight < 80;
@@ -180,6 +192,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
       const focused = stream.contains(document.activeElement) ? document.activeElement?.getAttribute(focusAttribute) : null;
       const selection = focused ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
       const expanded = new Set([...stream.querySelectorAll('details[open]')].map(node => node.dataset.row));
+      assistantBodies.holdSelection(); // D2(a) across this rebuild
       stream.replaceChildren();
       const { rows, statuses: runStatuses } = projectThread(state.events, state.runs, state.session?.id);
       const executionDisclosures = projectExecutionDisclosures(rows, runStatuses);
@@ -255,7 +268,10 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
             onEdit: () => { controller.setDraft(row.text); input.value = row.text; updateControls(); input.focus(); }
           }));
         } else if (row.kind === 'assistant') {
-          block.append(markdown(row.text, { key: `attention:${state.session?.id}:${row.id}` }));
+          const body = assistantBodies.body(`attention:${state.session?.id}:${row.id}`, row.text, { settled: !row.pending });
+          block.append(body.root, body.hint);
+          // Text the Run stopped before finishing reads as such (WK-57 words).
+          if (row.partial) block.append(el('p', { className: 'form-help message-state', text: unfinishedToolWord(runStatuses.get(row.runId)) }));
           const footer = renderAnswerFooter(row, () => messageActionRow(row, state));
           if (footer) block.append(footer);
         } else if (row.kind === 'tool') {
@@ -299,6 +315,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
         else if (row.kind === 'notice') block.append(el('p', { className: 'form-help', text: row.data.message || row.data.code || 'Runtime notice' }));
         (responseGroup || stream).append(block);
       }
+      assistantBodies.sweep();
       if (focused?.startsWith('chat-action:')) restoreChatActionFocus(stream, focused);
       else if (focused) { let target = stream.querySelector(`[${focusAttribute}="${CSS.escape(focused)}"]`); if (target?.disabled) target = stream.querySelector(`[data-agent-focus="${CSS.escape(focused.replace(/:send$/, ''))}"]`); (target && !target.disabled ? target : input).focus(); if (target?.setSelectionRange && selection) target.setSelectionRange(...selection); }
       stream.scrollTop = nearBottom && !readingSnapshot.selection ? stream.scrollHeight : oldTop;
@@ -306,6 +323,20 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
     }
     clearTimeout(timer);
     if (!state.busy && !state.loading && (controller.active() || state.command)) timer = setTimeout(() => { if (visible) void controller.refresh(); }, 1500);
+  }
+  function patchGrowingBodies() {
+    const state = controller.state;
+    if (!growsTextOnly(state.events.filter(event => event.seq > renderedSeq))) return false;
+    const growing = projectThread(state.events, state.runs, state.session?.id).rows
+      .filter(row => row.kind === 'assistant' && row.pending && row.text?.trim());
+    const bodies = growing.map(row => assistantBodies.get(`attention:${state.session?.id}:${row.id}`));
+    if (!growing.length || bodies.some(body => !body?.root.isConnected)) return false;
+    const nearBottom = stream.scrollHeight - stream.scrollTop - stream.clientHeight < 80;
+    const selected = !document.getSelection?.()?.isCollapsed;
+    growing.forEach((row, index) => bodies[index].update(row.text));
+    if (nearBottom && !selected) stream.scrollTop = stream.scrollHeight;
+    renderedSeq = state.lastSeq;
+    return true;
   }
   return { controller, open() {
     opener = document.activeElement; visible = true; openingEpoch++; signature = '';

@@ -17,7 +17,6 @@ import {
   action,
   setAction,
   copyAction,
-  markdown,
   installTooltips,
   anchorPopover,
   sessionMode,
@@ -96,7 +95,10 @@ import {
   validPermission,
   permissionPresentation,
   checkStateWord,
+  unfinishedToolWord,
 } from "./thread-projection.mjs";
+import { admitSessionEvents, growsTextOnly } from "./session-events.mjs";
+import { createBodyRegistry } from "./stream-body.mjs";
 
 import {
   renderSessionOverview,
@@ -946,19 +948,16 @@ function invalidateSurfaceFetches() {
 }
 
 function mergeEvents(events) {
-  const bySeq = new Map(state.events.map((event) => [event.seq, event]));
   const priorSeq = state.lastSeq;
-  const fresh = [];
-  let changed = false;
+  // Order 3 · admission by seq is the shared cursor consumer (Chat and Attention).
+  const merged = admitSessionEvents(state.events, events, { sessionId: state.activeSessionId, sessionOf: sessionIdForEvent, lastSeq: state.lastSeq });
+  const admitted = new Set(merged.admitted);
+  const fresh = merged.admitted.filter((event) => Number(event.seq) > priorSeq);
+  let changed = merged.admitted.length > 0;
   for (const event of events || []) {
     const eventSessionId = sessionIdForEvent(event);
     if (eventSessionId && eventSessionId !== state.activeSessionId) continue;
-    if (Number.isFinite(event.seq)) {
-      if (bySeq.has(event.seq)) continue;
-      changed = true;
-      bySeq.set(event.seq, event);
-      if (Number(event.seq) > priorSeq) fresh.push(event);
-    }
+    if (Number.isFinite(event.seq) && !admitted.has(event)) continue;
     const type = normalizedType(event.type);
     if (type === "run/status" && event.runId && event.data?.status) {
       changed =
@@ -1016,11 +1015,8 @@ function mergeEvents(events) {
       }
     }
   }
-  state.events = [...bySeq.values()].sort((a, b) => a.seq - b.seq);
-  state.lastSeq = state.events.reduce(
-    (max, event) => Math.max(max, Number(event.seq) || 0),
-    state.lastSeq,
-  );
+  state.events = merged.events;
+  state.lastSeq = merged.lastSeq;
   if (changed) bumpSessionMutation(state.activeSessionId);
   if (fresh.some(event => {
     const type = normalizedType(event.type);
@@ -1028,7 +1024,7 @@ function mergeEvents(events) {
       || type === "run/status";
   })) void workReviewSummaryView?.refresh();
   if (fresh.some(event => ["run/status", "run/error"].includes(normalizedType(event.type)))) void loadRecentSessions();
-  return changed;
+  return { changed, admitted: merged.admitted };
 }
 
 function mergeRun(
@@ -1128,8 +1124,12 @@ async function pollEvents(epoch) {
       // by a newer one: a late success here must not touch a newer round's
       // connection state (or stop its probe) — just merge the page like an
       // ordinary successful poll.
-      const changed = mergeEvents(page.events || []);
-      if (changed) {
+      const { changed, admitted } = mergeEvents(page.events || []);
+      // Order 3 · a page that only grows assistant text updates the growing
+      // bodies in place; anything else renders the projection again.
+      if (changed && growsTextOnly(admitted) && patchGrowingBodies()) {
+        // The thread already shows these segments; nothing else changed.
+      } else if (changed) {
         renderChat();
         // The event poll does not pass through renderAll. Keep an already-open
         // card on the same confirmed writes and terminal Run state as Chat.
@@ -2798,10 +2798,34 @@ function appendRunBadge(container, status) {
   );
 }
 
-function appendAssistantBody(container, text, key) {
-  container.append(
-    element("div", { className: "message-body" }, markdown(text, { key })),
-  );
+/* Order 3 · assistant bodies are kept by segment key: a rebuild reuses a body
+ * whose text is unchanged, and a text-only poll grows the body in place. */
+const assistantBodies = createBodyRegistry();
+function appendAssistantBody(container, row, key) {
+  const body = assistantBodies.body(key, row.text, { settled: !row.pending });
+  container.append(element("div", { className: "message-body" }, body.root), body.hint);
+}
+
+/* Order 3 · a page that only grows assistant text updates those bodies where
+ * they are, without rebuilding the thread. It declines (and the caller renders
+ * the projection) when a growing segment is not on screen yet. */
+function patchGrowingBodies() {
+  const session = currentSession();
+  if (!session || state.view !== "session") return false;
+  const stream = $("message-stream");
+  const growing = projectThread(state.events, state.runs, session.id).rows
+    .filter((row) => row.kind === "assistant" && row.pending && row.text?.trim());
+  const bodies = growing.map((row) => assistantBodies.get(sessionScopeKey("assistant", row.id)));
+  if (!growing.length || bodies.some((body) => !body?.root.isConnected)) return false;
+  const reading = state.messageReading.get(session.id);
+  const selected = !document.getSelection?.()?.isCollapsed;
+  growing.forEach((row, index) => bodies[index].update(row.text));
+  if ((reading?.followLatest ?? true) && !selected && (stream.clientHeight || stream.scrollHeight)) {
+    stream.scrollTop = stream.scrollHeight;
+    state.messageReading.set(session.id, { followLatest: true, scrollTop: stream.scrollTop });
+  }
+  updateChatMeasurements();
+  return true;
 }
 
 /* A decision becomes visible in the conversation only when the server confirms
@@ -2922,6 +2946,9 @@ function renderMessageStream() {
   const previousReading = session && state.messageReading.get(session.id);
   const previousScrollTop = previousReading?.scrollTop ?? stream.scrollTop;
   const followLatest = previousReading?.followLatest ?? true;
+  // Order 3 · D2(a): a reply the reader is selecting in keeps its text
+  // through this rebuild; chat-reading restores the selection below.
+  assistantBodies.holdSelection();
   // Keep activity and the Work opener mounted across message refreshes:
   // streaming must not restart motion or detach the focused Review button.
   for (const child of [...stream.children]) {
@@ -2941,6 +2968,7 @@ function renderMessageStream() {
         }),
       ),
     );
+    assistantBodies.sweep();
     return;
   }
 
@@ -2970,6 +2998,7 @@ function renderMessageStream() {
         }),
       ),
     );
+    assistantBodies.sweep();
     return;
   }
 
@@ -3114,13 +3143,12 @@ function renderMessageStream() {
     } else if (row.kind === "assistant") {
       if (!row.text || !row.text.trim()) continue;
       const wrapper = element("article", {
-        className: `message assistant ${row.pending ? "pending" : ""}`,
+        className: `message assistant${row.pending ? " pending" : ""}${row.partial ? " partial" : ""}`,
       });
-      appendAssistantBody(
-        wrapper,
-        row.text,
-        sessionScopeKey("assistant", row.id),
-      );
+      appendAssistantBody(wrapper, row, sessionScopeKey("assistant", row.id));
+      // Order 3 · text the Run stopped before finishing reads as such, in the
+      // tool rows' vocabulary (WK-57); it never carries answer actions.
+      if (row.partial) wrapper.append(element("p", { className: "form-help message-state", text: unfinishedToolWord(status) }));
       const footer = renderAnswerFooter(row, () => messageActionRow(row, session));
       if (footer) wrapper.append(footer);
       appendFlowRow(wrapper);
@@ -3461,6 +3489,7 @@ function renderMessageStream() {
     );
   }
   stream.prepend(streamList);
+  assistantBodies.sweep();
   if (measurements.activity.parentNode !== stream) {
     stream.insertBefore(measurements.activity, reviewSummary?.root.parentNode === stream ? reviewSummary.root : null);
   }
@@ -3610,22 +3639,26 @@ function renderChatHeader() {
    * composer, so identity leads the reading column instead of riding in the
    * dock over the blocks; chats have no identity line. */
   const dockedHome = home && narrowQuery.matches;
+  /* The example line is one quiet sentence beside the greeting, not a card;
+   * in a chat it leads the column. Order 3 · nodes move only when out of
+   * place: moving the stream detaches it, which restarts the activity motion
+   * and drops the reader's selection, so banner-then-stream is left alone. */
+  const previewBanner = previewBannerNode();
+  const lead = !home ? previewBanner : null;
   if (home && !narrowQuery.matches) {
     if (body.firstElementChild !== composer) body.prepend(composer);
     if (composer.nextElementSibling !== stream) composer.after(stream);
   } else {
-    if (body.firstElementChild !== stream) body.prepend(stream);
+    if (lead) {
+      if (body.firstElementChild !== lead) body.prepend(lead);
+      if (lead.nextElementSibling !== stream) lead.after(stream);
+    } else if (body.firstElementChild !== stream) body.prepend(stream);
     if (body.lastElementChild !== composer) body.append(composer);
   }
   if (dockedHome) {
     if (stream.previousElementSibling !== intro) stream.before(intro);
   } else if (composer.firstElementChild !== intro) composer.prepend(intro);
-  /* The example line is one quiet sentence beside the greeting, not a card. */
-  const previewBanner = previewBannerNode();
-  if (previewBanner) {
-    if (home && previewBanner.parentElement !== intro) intro.append(previewBanner);
-    else if (!home && body.firstElementChild !== previewBanner) body.prepend(previewBanner);
-  }
+  if (previewBanner && home && previewBanner.parentElement !== intro) intro.append(previewBanner);
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
   measureHomeLead();
   const config = state.providerConfig?.config;
