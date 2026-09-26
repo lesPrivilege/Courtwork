@@ -1,0 +1,20 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "animations": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "moving": "run-activity",
+      "overflow": 1280,
+      "reduced": true,
+      "width": 1280
+    }
+  }
+}

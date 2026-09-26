@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-26 · Order 3 frontend reviewed; Markdown reference scope held
+
+[Independent frontend review](execution/claude-frontend-harness-2026-09-16/evidence/stream-frontend-review-20260926/README.md) fixes7944e12/product88e3e7e. Luna39/39 passes; Parent OpenAI browser verifies1280/390, light/dark, selection retained through final and released to newest text, emulated reduced-motion, Attention partial cancellation and Escape focus. Restored1.8s stagger is selected. STR-FE1 remains: separate block parsing loses document-wide reference definitions during growth; production-browser reproduction is retained. Original Claude receives the narrow correction in its preserved tree. Main product remains accepted backend0ec94c5; no frontend merge, paid provider, service restart or deployment.
+
+
 ## 2026-09-26 · Order 3 backend accepted and integrated; Claude frontend released
 
 [Final independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/stream-backend-final-20260926/README.md) accepts10f27aa/76dee98. Parent's historical failure and multi-segment recovery probes close; audit6/6, Luna76/76 and isolated integrated23/23 plus runtime smoke pass. Source merge preserves both appended histories. STR-R1/STR-R2 close for backend; Host22/Core4/bridge5 unchanged. Original Claude has an explicit frontend continuation in its preserved tree after fast-forwarding to integrated main: segment rendering, selection hold/partial state, shared Attention cursor, measured high-rate projection and existing-grammar activity motion. Frontend/browser and combined acceptance remain pending; G1 remains mitigated. No new author process, user service restart, provider call, push or deployment is claimed.

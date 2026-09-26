@@ -1,0 +1,49 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "during": {
+        "connected": true,
+        "hints": [
+          {
+            "display": "none",
+            "hidden": true,
+            "text": "Content updated"
+          },
+          {
+            "display": "none",
+            "hidden": true,
+            "text": "Content updated"
+          },
+          {
+            "display": "none",
+            "hidden": true,
+            "text": "Content updated"
+          },
+          {
+            "display": "none",
+            "hidden": true,
+            "text": "Content updated"
+          },
+          {
+            "display": "block",
+            "hidden": false,
+            "text": "Content updated"
+          }
+        ],
+        "initial": 781,
+        "length": 781,
+        "selected": "Paragraph 1 explains wha"
+      },
+      "final": {
+        "connected": true,
+        "hints": [
+          "Content updated"
+        ],
+        "length": 781,
+        "selected": "Paragraph 1 explains wha"
+      },
+      "released": 10912
+    }
+  }
+}

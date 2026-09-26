@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-26 · Frontend return: STR-FE1 reference scope
+
+[Independent7944e12 review and explicit action order](evidence/stream-frontend-review-20260926/README.md) returns only document-wide Markdown reference resolution in growing bodies. Luna39/39 and bounded OpenAI-browser checks support selection/cursor/partial/activity work; restored1.8s stagger is selected, varied-period candidate deferred. Original Claude corrects the shared renderer with failing-before/passing-after production DOM evidence, then returns fixed source. Backend stays accepted; no extra writer, Figma or routine confirmation.
+
+
 ## 2026-09-26 · Backend accepted; execute frontend continuation
 
 [Final independent receipt and explicit Claude action order](evidence/stream-backend-final-20260926/README.md) accepts10f27aa/76dee98 and closes STR-R1/STR-R2. Original Claude fast-forwards its preserved isolated tree to integrated main, then serially implements shared segment rendering, selection hold, partial state, Attention cursor, measured high-rate performance and a coherent existing-grammar activity-motion recipe. This supersedes all earlier frontend holds. No further routine approval, Figma setup or duplicate writer is needed; Parent retains independent combined acceptance.

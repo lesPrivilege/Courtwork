@@ -1,0 +1,63 @@
+✔ cumulative assistant deltas and their final stay one non-pending row (1.159792ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.789958ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.131667ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.150167ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.147959ms)
+✔ terminal run shows an incomplete delta as partial, not pending, and a terminal final is settled (0.083208ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (0.087291ms)
+✔ message time has readable provenance content without naming the native time role (26.156ms)
+✔ narration → tool → answer keeps every row and marks only the answer final (0.2035ms)
+✔ the persisted real dogfood Run yields its five texts and exactly one final answer (4.355666ms)
+✔ no row is final while the Run is still working, waiting or stopping (0.133208ms)
+✔ failed, cancelled and unknown Runs keep their text readable with no final answer (0.133375ms)
+✔ whatever follows the answer takes the final mark away or passes it on (0.151041ms)
+✔ each Run has its own final answer (0.068041ms)
+✔ the shared footer draws time and actions only under the final answer (0.331208ms)
+✔ the moving rule carries each mark's phase inside the animation shorthand (1.096708ms)
+✔ each of the seven marks has its own phase index (1.280667ms)
+✔ reduced motion still stops the marks (0.082625ms)
+✔ events are admitted once by seq, in order, and the cursor never moves back (1.516834ms)
+✔ only a page of assistant deltas may patch bodies in place (0.103625ms)
+✔ Markdown blocks keep their exact source; an unclosed fence stays one open tail block (10.710375ms)
+✔ rows follow the Host segment: text, tool, text keeps segment 0 and opens segment 1 (1.786417ms)
+✔ a growing segment replaces its text; a late delta never reopens a settled segment (0.173417ms)
+✔ a Host-settled partial is shown, never pending and never the answer (0.102125ms)
+✔ legacy events without a segment use the finals-before rule and get the same row ids (0.107ms)
+✔ legacy text still arriving when its Run ended reads as partial, not pending (0.077458ms)
+✔ recovery partials for two segments give two rows in segment order (0.089292ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 130.847458
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.327666ms)
+✔ WK-92 · Continue in Matter 只走既有的 extension 路由；不新增端点、不复制、不迁移 (1.200041ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.515709ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.1745ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.189708ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 105.790167
+✔ global Attention has replayable identity, shared configuration and a real governed Run (522.906084ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (592.438666ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (147.603458ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.676125ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.163167ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.147042ms)
+✔ conversation rename persists metadata without changing history, scope or draft (75.411709ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2334.264917

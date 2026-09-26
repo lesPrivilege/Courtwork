@@ -1,0 +1,11 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "expected": "<p>Read <a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">the link</a></p>\n",
+      "final": "<p>Read <a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">the link</a></p>\n",
+      "growing": "<p>Read [the link][ref]</p>\n",
+      "lateDefinition": "<p>Read [the link][ref]</p>\n<p>Next paragraph</p>\n"
+    }
+  }
+}
