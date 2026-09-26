@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-26 · Order 3 backend accepted and integrated; Claude frontend released
+
+[Final independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/stream-backend-final-20260926/README.md) accepts10f27aa/76dee98. Parent's historical failure and multi-segment recovery probes close; audit6/6, Luna76/76 and isolated integrated23/23 plus runtime smoke pass. Source merge preserves both appended histories. STR-R1/STR-R2 close for backend; Host22/Core4/bridge5 unchanged. Original Claude has an explicit frontend continuation in its preserved tree after fast-forwarding to integrated main: segment rendering, selection hold/partial state, shared Attention cursor, measured high-rate projection and existing-grammar activity motion. Frontend/browser and combined acceptance remain pending; G1 remains mitigated. No new author process, user service restart, provider call, push or deployment is claimed.
+
+
 ## 2026-09-26 · Streaming live settlement accepted; persisted recovery seam held
 
 [Independent review of7a1f3a6](execution/claude-frontend-harness-2026-09-16/evidence/stream-backend-review-20260926/settlement-review/README.md) confirms both historical failure probes now pass, Luna75/75 and Parent Host audit6/6. STR-R2 stays accepted; live STR-R1 settlement is adopted. A supported Pi retry produces two persisted text segments without finals; captured crash-image replay settles only the newest on reopen. Original Claude receives the remaining STR-R1 persisted-recovery parity correction for startup/no-active cancellation. No product merge or frontend release; original branch/tree preserved.

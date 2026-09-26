@@ -251,3 +251,167 @@ This is an explicit request for the original Claude to implement those two retur
 ### 2026-09-26 · Live settlement fixed; persisted retry recovery return
 
 [Independent settlement review](evidence/stream-backend-review-20260926/settlement-review/README.md) fixes `7a1f3a6`: Parent's two prior probes now pass, Luna75/75 and Host audit6/6 pass, and STR-R2 stays accepted. Live per-segment settlement is adopted. A supported Pi provider-retry probe produces persisted deltas for segments0/1 without finals; reopening the captured crash image marks the Run unknown but settles only segment1. Original STR-R1 now requires persisted per-segment recovery parity at startup and no-active-entry cancel. This is not the deferred native interleaving case. Original Claude receives the bounded correction; frontend remains queued, no merge.
+
+### 2026-09-25 · Order 3 backend finite order · author delivery
+
+Branch `claude/stream-backend-20260925` from `main@51d0fbe`. Author: Claude (Opus 5.5). Independent acceptance pending.
+
+**Fixed interface (what the frontend consumes).** Event types and the `events?afterSeq=` route are unchanged; new fields only:
+
+- `assistant.delta` `data: { text, segment }`: `text` is a cumulative snapshot of segment `segment` (0-based ordinal of assistant messages in the Run). It never shrinks within a segment.
+- `assistant.message` `data: { text, segment, stopReason, errorMessage? , partial? }`: exactly one per segment that had text or a runtime final. `partial: true` only when the Host settled it at a non-completed terminal (`stopReason` `cancelled` / `error` / `unknown`), written in the same store mutation as `run.status` and immediately before it.
+- **Legacy rule** for events without `segment`: the segment equals the number of `assistant.message` events of the same Run before it in `seq` order (`segmentOf`). History is not rewritten.
+- Completed-message actions: only when the Run is `completed` **and** the segment's final is not `partial`.
+- A Run can hold several error segments. Pi retries a dropped provider stream, and each attempt is its own segment with its own `error` final (C5a: 4 attempts). The frontend decides how to present superseded attempts; the backend reports them as facts.
+
+**Change.**
+- `runtime/pi-session-runtime.mjs` `assistantSegmentAssigner` numbers assistant messages per Run; `pi-runtime-port.mjs` applies it.
+- `server/assistant-stream.mjs` has `createSegmentStream` and two pure helpers:
+  - the stream validates each segment: in order, no skip, no shrink; it assigns the next ordinal when an adapter supplied none;
+  - it writes a segment's first snapshot at once, then at most one per 250 ms, keeping only the newest pending snapshot;
+  - the runtime final cancels anything pending and stays authoritative;
+  - `settle(status)` returns the partial once, clears the timer and rejects later updates;
+  - `persistedPartial` settles from persisted text only (crash recovery or a Run not in this process) and never invents an empty partial;
+  - `segmentOf` implements the legacy rule.
+- `server/service.mjs` gives each Run entry a stream and routes `assistant.*` observations through it. All four terminal sites (task `finally`, cancel fallback, cancel not in this process, startup recovery) now append the partial and the terminal status in one `updateRunWithEvent`, which accepts an ordered event list (`server/store.mjs`). Terminal status is never delayed by the throttle.
+- `runtime/fake-provider.mjs` fixture: `mixed` kind (text, then a tool call in one assistant message), per-response `chunkMs`, and `failAfterChunks` (drops the provider connection mid-reply).
+
+**Evidence.** `app/scripts/stream-audit.mjs` boots real Hosts on throwaway data and uses only the public API. It passes 6/6:
+
+| Check | Result |
+| --- | --- |
+| C1 slow reply | first text at 220 ms, terminal at 3981 ms; snapshots grow; one final equal to the source text; all segment 0 |
+| C2 real mixed message | `Δ0… M0(toolUse) tool.start tool.result Δ1… M1(stop)`: segment 0 keeps its narration, segment 1 opens after the tool, no partial |
+| C4 cancel | exactly one `partial: true`, `stopReason: cancelled` final at seq 12, then `run.status cancelled` at seq 13 (one mutation). Its text (168 characters, the newest received) extends the newest persisted snapshot (120) |
+| C5a provider drop, Host alive | Run `failed`; 4 attempts as segments 0–3, each with exactly one runtime `error` final; nothing synthesized |
+| C5b process crash | child Host killed (SIGKILL) after 3 snapshots; the restarted Host marks the Run `unknown` and settles one partial equal to the newest **persisted** snapshot (192 = 192) |
+| C10 fixed 10,000 characters, 24-character chunks every 20 ms (417 chunks) | 37 delta events and 184,848 persisted snapshot characters (18.5× the text), against 2,091,664 characters (417 events) uncoalesced. Mitigated, not linear |
+
+- Unit `assistant-stream-segments` 9/9: coalescing with a fake clock, authoritative final, shrink/skip rejection, Host-assigned ordinal, settlement idempotence and late rejection, recovery-from-persisted-only, the legacy rule, the adapter ordinal.
+- Full app suite 1687/1687, smoke exit 0 (Node 25.9).
+- The existing client already renders a cancelled partial without `pending` and without completed actions, and a tool-then-text Run as before.
+
+Not covered: agents-API/remote adapters beyond the Host assigning ordinals (their events pass through the same stream, not exercised live); Node 22/24.
+
+#### Non-author review of `6da3bbc` and disposition
+
+Sonnet non-author review confirmed:
+- atomic ordered settlement at the three reachable sites, and `settle` idempotence;
+- crash recovery from persisted text only, including the legacy rule and an existing final;
+- final authority, with no coalesced write after it and tool-only finals accepted;
+- coalescing, and no timer leak on shutdown (`close()` cancels and awaits every Run).
+
+Independent 9/9 and audit 6/6. Two findings:
+
+- **Latent loss in the task `finally` when the Run was already terminal — adjust.** `settle()` computed the partial and discarded it; being one-shot, the text could never be written. No current path reaches it: every in-process terminal writer settles the stream itself, and the other writers run without an entry. It now appends that partial after the existing status rather than dropping it, and the comment says it is not atomic.
+- **Remote gateway had no segment identity — adjust within scope.** `runtime/agents-host-gateway.mjs` now numbers segments by first-seen native `itemId`, and `assistant.message` carries it when the item is known. Truly interleaved native items remain refused by the sequential-segment rule and are logged. That lane is not live (the Agents API lane is unavailable per README), so the backend record leaves the interleaving policy to that lane's own order rather than widening this contract.
+
+DRT-03 gateway and transport tests plus the stream unit tests: 46/46. Full app suite 1687/1687; stream audit 6/6.
+
+#### 2026-09-26 · Author return for STR-R1 and STR-R2
+
+Author: Claude (Opus 5.5), the original backend author. Consumes the Parent review at main `10203c0` (`evidence/stream-backend-review-20260926/README.md`) without merging it into this branch; that record and this branch's history stay as written. Base `162fcce`. Fixed source: **`0bb5186`** (STR-R1) and **`0fa6eda`** (STR-R2). Author evidence: [stream-backend-return-20260926](evidence/stream-backend-return-20260926/). These are the author's reruns, **not** independent acceptance. The frontend has not started.
+
+**STR-R1 · a failed coalesced write reached only the log: adjusted.** Owner: the Host segment stream (`app/server/assistant-stream.mjs`). There is no new queue or service. The stream keeps the first failure of a timer-driven write:
+- the next `observe()` rejects with it, which is the runtime's existing persistence-failure path: Pi's `forward` → `projectionError` → abort → `runtime_projection_failed`; the gateway's awaited `onObservation` fails the same way `appendEvent` did on main;
+- a final waits for any coalesced write under way, so it is ordered after that write. After a failure the final is not written, and a later final never clears the failure;
+- new `persisted()` runs in `service.mjs` after `started.run()`. It stops the timer, waits for any write under way, and rejects with `runtime_projection_failed` when the failure had no later observation. The Run's existing catch records it as `failed`, usage `missing`. The open segment's text then settles as one `partial: true`, `stopReason: "error"` final together with the terminal status.
+
+| Evidence | `162fcce` | `0bb5186` |
+| --- | --- | --- |
+| Parent probe `persist-failure.mjs` (second `assistant.delta` append fails once) | `completed`, error null, usage complete (Parent's `persist-failure-candidate.json`) | `failed`, `runtime_projection_failed`, usage missing, same as the main control (`persist-failure-fixed.json`) |
+| `app/tests/assistant-stream-persistence.test.mjs` (5 tests: Host service case, next-observation rejection, failure without a later observation, final ordered after a write under way, timer cleanup) | 0/5. The Host case reads `completed` where `failed` is expected. The ordering case writes `assistant.message:abc` **before** the snapshot write under way. The other three fail on the missing `persisted()`. (`str-r1-tests-on-162fcce.log`) | 5/5 (`str-r1-tests-on-fix.log`) |
+
+**STR-R2 · C10 asserted only the final text: adjusted.** Owner: the audit (`app/scripts/stream-audit.mjs`). C10 now measures at-rest serialized bytes, with this scope:
+- on-disk growth of the Host data directory and of `runtime-state.json` (the RuntimeStore journal, written as pretty-printed JSON), before versus after the Run;
+- the Run's persisted events as compact UTF-8 JSON, split into `assistant.delta` events, their snapshot text alone, and all other events of the Run.
+
+It asserts `deltaEvents ≤ 266,000` and `stateFileGrowth ≤ 380,000` bytes. That is about 1.5× the measured baseline.
+
+| Fixed input: 10,000 characters, 417 chunks of 24 characters every 20 ms | Delta events | Delta event bytes | Snapshot text bytes | `runtime-state.json` growth | Data dir growth | C10 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Baseline, 3 runs before the bound was set | 35 / 35 / 35 | 177,120 / 177,120 / 177,144 | 171,384 / 171,384 / 171,408 | 253,584 / 253,585 / 253,608 | about 264.8 KB | — |
+| Fixed source with the bound (`audit.json`) | 35 | 177,168 | 171,432 | 253,633 | 264,873 | PASS, 6/6 |
+| **Failure control:** same source with `SNAPSHOT_INTERVAL_MS = 0`, i.e. coalescing removed (`control-no-coalescing.json`) | 418 | 2,170,536 | 2,101,664 | 2,276,880 | 2,288,120 | **FAIL**, 5/6 |
+
+Coalescing cuts at-rest growth by about 9×. Storage is still super-linear: snapshot text is 17.1× the output. **This mitigates G1 and does not close it.** Write amplification is not measured: every Store mutation rewrites the whole state file, so bytes written far exceed bytes at rest.
+
+**Other checks (author, Node 25.9.0):**
+- Luna's three command groups plus the two stream test files: 71/71.
+- Full app suite: 1692/1692, which is 1687 plus the 5 new tests (`full-suite-summary.log`).
+
+**Remaining limits:**
+- Native interleaved items stay deferred to the managed-runtime owner, as disposed.
+- The bound is tied to this fixture and machine. It is not a general budget.
+- Not run: the Node 22/24 matrix, live managed or paid providers, and anything in the frontend or browser.
+
+**Stop and handoff.** The author stops at `0fa6eda` plus this docs commit. Return to Parent/Luna for independent disposition of STR-R1 and STR-R2. The frontend continuation stays gated on that acceptance.
+
+#### 2026-09-26 · Author return for the STR-R1 settlement race
+
+Author: Claude (Opus 5.5). Consumes Parent's return review of `9bef03c` (main `evidence/stream-backend-review-20260926/return-review/`). STR-R2 stays accepted as disposed there; its bound is unchanged. Fixed source: **`befc592`**. Author evidence: [str-r1-settlement](evidence/stream-backend-return-20260926/str-r1-settlement/). These are the author's reruns, **not** independent acceptance.
+
+**Cause.** A final cleared its segment's open state before it awaited the write already under way. When that write rejected, the final was correctly refused, but `settle("failed")` had nothing open to settle. The Run ended `failed` with no final for segment 0.
+
+**Change.** Owner: the Host segment stream (`app/server/assistant-stream.mjs`). `service.mjs` changes only in how it consumes the result.
+- The stream keeps each segment's newest accepted text in `unsettled` until that segment's final is durably written.
+- A failing in-flight write, or a failing final write (the adjacent boundary), records the first failure. After that, later deltas and finals are rejected and are not admitted.
+- `settle()` now returns a list: one `partial: true` final per unsettled segment, in segment order, with the terminal stop reason. It returns `[]` when nothing is unsettled and stays idempotent. This also covers a newer segment that opens while an earlier final is waiting.
+- The three terminal sites spread that list into the same `updateRunWithEvent` as the terminal status; the orphan path appends each item.
+- Sequencing, authoritative finals and C1–C10 are unchanged.
+
+| Evidence | `9bef03c` | `befc592` |
+| --- | --- | --- |
+| Parent's `final-inflight-failure.mjs` | `failed`, `finals: []` (Parent's result) | `failed` / `runtime_projection_failed`, 3 persisted deltas, **one** final `{segment: 0, stopReason: "error", partial: true}` of 648 characters, the newest received snapshot (`final-inflight-failure-fixed.json`) |
+| New Host regression: the exact Parent sequence (held second delta append; the real sink begins the final; the held write rejects in a microtask) | fails: `exactly one final`, 0 ≠ 1 | passes: one error partial whose text equals the source, extends the newest persisted delta, and sits at seq one before the `failed` status; no new event after 300 ms; after closing and reopening the Host on the same data, identical events |
+| Unit: final waiting on a failing write; failing final write plus late delta; a segment opened while an earlier final waits | all fail. The late delta is admitted after a failed final write ("Missing expected rejection") | pass |
+| The two stream test files | 4/9 on the persistence file (`tests-on-9bef03c.log`). One of the base failures only reflects `settle`'s return shape changing from one object to a list | 18/18 (`tests-on-fix.log`) |
+
+**Verification (author, Node 25.9.0).**
+- Luna's three command groups plus both stream files: 75/75.
+- Stream audit: 6/6. C10 measured 177,360 delta-event bytes and 253,821 bytes of state-file growth, within the unchanged bound (`audit.json`).
+- Full app suite: 1696/1696 (`full-suite-summary.log`).
+
+**Semantic note for the reviewer.** After a failure, the partial carries the newest *accepted* snapshot. A delta that arrives after the failure is rejected and is not merged into it.
+
+**Remaining limits.** Same as the previous return: native interleaved items are deferred; the Node 22/24 matrix, live providers and the frontend were not run.
+
+**Stop and handoff.** The author stops at `befc592` plus this docs commit and returns to Parent/Luna for independent disposition of STR-R1. The frontend stays queued.
+
+#### 2026-09-26 · Author return for the STR-R1 recovery seam
+
+Author: Claude (Opus 5.5). Consumes Parent's settlement review of `7a1f3a6` (main `evidence/stream-backend-review-20260926/settlement-review/`). The live settlement fix `befc592` and STR-R2 stay as accepted. Fixed source: **`76dee98`**. Author evidence: [str-r1-recovery](evidence/stream-backend-return-20260926/str-r1-recovery/). These are the author's reruns, **not** independent acceptance.
+
+**Cause.** `persistedPartial` looked only at the Run's last delta. After a crash during a Pi provider retry, both segment 0 and segment 1 had persisted text and no final, but recovery settled only segment 1.
+
+**Change.** Owner: `app/server/assistant-stream.mjs`. The singleton helper is **replaced**, not kept alongside.
+- `persistedPartials(runEvents, stopReason)` returns one `partial: true` final per segment that has persisted text and no persisted final. It uses only persisted events, carries each segment's newest persisted snapshot, and goes in segment order.
+- Segments use the legacy finals-before rule, computed in one pass that is equivalent to `segmentOf`.
+- Settled segments and segments without text are skipped. Nothing unpersisted is invented and history is not rewritten.
+- Both existing consumers in `service.mjs`, startup recovery and cancel without an active entry, spread the list before the `unknown` status in the same `updateRunWithEvent`. The Run stays `unknown`.
+- Once those partials are persisted the helper returns `[]`. Recovery only visits active Runs, so a later reopen or cancel adds nothing.
+
+| Evidence | `7a1f3a6` | `76dee98` |
+| --- | --- | --- |
+| Parent `retry-crash-image.mjs` | segment 0 unsettled; only segment 1 partial (Parent's result) | adapted copy (below): durable segments `[0,1]`, no durable finals before; after reopen `unknown`, partials for segments 0 and 1 (`unknown`, `partial: true`), unsettled `[]` (`retry-crash-image-fixed.json`) |
+| New Host regression. Real Pi retry schedule: segment 0's second append held, `failAfterChunks: 16`; the captured `runtime-state.json` bytes are restored and reopened | fails: `one partial per unsettled segment…`, segment 0 missing | passes: two partials equal to each segment's newest persisted delta, in segment order, at consecutive seqs just before the `unknown` status; cancel on the recovered Run adds nothing; a second reopen adds nothing and the Run stays `unknown` |
+| Unit recovery test (settled, unsettled ×2 out of seq order, textless, idempotence after persisting) and legacy test (legacy plus recorded segments) | the file fails to import: `persistedPartials` does not exist | pass |
+| The two stream test files | 9 pass, 2 fail (`tests-on-7a1f3a6.log`) | 19/19 (`tests-on-fix.log`) |
+
+**Probe adaptation.** Parent's probe imports `persistedPartial`, which this fix removes. `retry-crash-image-adapted.mjs` differs from Parent's file by one line only, the import `{persistedPartials:persistedPartial}`; everything else is byte-identical. Its `before.recoveryPartials` is therefore now a list.
+
+**Verification (author, Node 25.9.0).**
+- Luna's three command groups plus both stream files: 76/76.
+- Stream audit: 6/6. C10 had 37 deltas this run: 190,744 delta-event bytes and 267,361 bytes of state-file growth, within the unchanged bound (`audit.json`). The delta count varies with timing jitter.
+- Full app suite: 1697/1697 (`full-suite-summary.log`).
+
+**Remaining limits.**
+- Cancel without an active entry has no separate service-level regression. In a running Host, startup recovery settles every active Run before that path can see it; it shares the helper and the atomic list write.
+- The legacy rule cannot tell apart two unsettled *legacy* segments with no final between them. They count as one segment, per the stable compatibility rule.
+- Unchanged from before: native interleaving, write amplification, the Node 22/24 matrix, live providers and the frontend.
+
+**Stop and handoff.** The author stops at `76dee98` plus this docs commit and returns to Parent/Luna for independent disposition. The frontend stays queued.
+
+### 2026-09-26 · Backend independently accepted; frontend explicitly released
+
+[Final backend acceptance and actionable frontend order](evidence/stream-backend-final-20260926/README.md) accepts `10f27aa`/`76dee98`: all historical probes close, Parent audit6/6, Luna76/76 and integrated23/23 plus smoke pass. STR-R1/STR-R2 close within backend scope; G1 remains a mitigation and broader limits remain explicit. The merge preserves both author and parent appended history. Original Claude now continues the frontend segment/cursor/partial/selection work, measured high-throughput rendering and existing-grammar activity motion from integrated main in its preserved tree. No frontend or combined acceptance, paid provider, user-service restart, push or deployment is claimed.

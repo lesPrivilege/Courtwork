@@ -1,0 +1,26 @@
+✔ a failed coalesced write rejects the next observation and the final is not written (7.347209ms)
+✔ with no later observation the Run end still reports the failure (0.489875ms)
+✔ the final waits for a coalesced write under way and follows it (0.39825ms)
+✔ a final waiting on a failing write keeps its segment open for one error partial (0.404459ms)
+✔ a failing final write keeps its segment open for one error partial and rejects late data (0.207208ms)
+✔ a segment opened while an earlier final waits still settles both (0.496625ms)
+✔ persisted() stops a pending timer so nothing is written after the Run (0.38675ms)
+✔ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (497.381834ms)
+✔ Host: a final waiting on a failing in-flight snapshot write still settles one error partial (1366.978ms)
+✔ the first snapshot is written at once, then at most one per interval keeping only the newest (4.096084ms)
+✔ the runtime final is authoritative: pending snapshots are dropped, never written after it (0.483333ms)
+✔ segments must follow in order; a shrinking snapshot and a skipped ordinal are rejected (0.209833ms)
+✔ without an adapter ordinal the Host assigns the next segment (0.154208ms)
+✔ settlement returns one partial for an open segment, clears the timer, is idempotent and rejects late updates (0.788875ms)
+✔ no partial when the final exists or no text arrived (0.132416ms)
+✔ recovery settles only from persisted text and never invents an empty partial (0.1475ms)
+✔ legacy events without a segment use the stable finals-before rule (0.084583ms)
+✔ the Pi adapter numbers assistant messages per Run (0.114458ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5729.599375

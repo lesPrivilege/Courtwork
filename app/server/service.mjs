@@ -66,6 +66,7 @@ import {
   validateExecutorDescriptor,
 } from "./executor-choice-state.mjs";
 import { readCredentialFile, setCredential, deleteCredential, replaceCredentialFile } from "./credential-file.mjs";
+import { createSegmentStream, persistedPartials, PARTIAL_STOP_REASON } from "./assistant-stream.mjs";
 import {
   ConnectionInputError,
   UNKNOWN_WINDOW_NOTICE,
@@ -350,12 +351,15 @@ export class RuntimeService {
     for (const run of this.store.listRuns()) {
       if (ACTIVE_STATUSES.has(run.status)) {
         const unsettled = this.#unsettledMcpDispatches(run);
+        // Only persisted text can settle open segments after a crash, one
+        // partial each; the Run stays `unknown`, and nothing is written for a
+        // segment without such text.
         await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || unsettled.length
           ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" }
-          : { code: "restart_unknown", message: "run was in flight during restart" } }, {
-          type: "run.status",
-          data: { status: "unknown", ...(unsettled.length ? { unsettledMcp: unsettled } : {}) },
-        });
+          : { code: "restart_unknown", message: "run was in flight during restart" } }, [
+          ...persistedPartials(this.store.listEvents({ sessionId: run.sessionId, runId: run.id }), PARTIAL_STOP_REASON.unknown),
+          { type: "run.status", data: { status: "unknown", ...(unsettled.length ? { unsettledMcp: unsettled } : {}) } },
+        ]);
         interrupted.push(run.id);
       }
     }
@@ -2870,6 +2874,12 @@ export class RuntimeService {
       runtimeBinding,
       runtimePort: executor.port,
     };
+    /* Order 3 · this Run's assistant segments: identity, coalesced snapshot
+       writes, and the partial final written with the terminal status. */
+    entry.stream = createSegmentStream({
+      write: (event) => this.store.appendEvent({ runId: run.id, ...event }),
+      log: (message) => this.logger?.(`assistant stream ${run.id}: ${message}`),
+    });
     this.active.set(run.id, entry);
     entry.task = this.#executeRun(run, instruction, session, entry, provider, extension, credentialConfigured);
     return { run };
@@ -3241,6 +3251,7 @@ export class RuntimeService {
       if (entry.cancelRequested || entry.budget.reason || !this.store.getRun(run.id)?.admissionOpen) await started.abort();
 
       const outcome = await started.run();
+      await entry.stream?.persisted();
       usageComplete = outcome.status === "completed" && !outcome.turnBudgetExceeded && !entry.budget.reason;
       // "unknown" is a remote runtime's own answer: the Run settles unknown.
       extensionOutcome = outcome.status === "completed" ? "completed" : outcome.status === "aborted" ? "canceled" : outcome.status === "unknown" ? "unknown" : "failed";
@@ -3304,10 +3315,15 @@ export class RuntimeService {
       if (current && !terminal(current.status)) {
         const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
           ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
-        await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, {
-          type: "run.status",
-          data: { status: finalStatus, ...(entry.externalUnknownDetail ? { externalUnknown: entry.externalUnknownDetail } : {}) },
-        });
+        await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, [
+          ...(entry.stream?.settle(finalStatus) ?? []),
+          { type: "run.status", data: { status: finalStatus, ...(entry.externalUnknownDetail ? { externalUnknown: entry.externalUnknownDetail } : {}) } },
+        ]);
+      } else {
+        // A terminal status written by another path without settling this
+        // Run's stream: keep the received text rather than lose it. It follows
+        // that status, so it is not atomic with it; no current path does this.
+        for (const orphan of entry.stream?.settle(current?.status) ?? []) await this.store.appendEvent({ runId: run.id, ...orphan }).catch(() => {});
       }
       for (const [questionId, waiter] of this.questionWaiters) {
         if (waiter.runId === run.id) this.questionWaiters.delete(questionId);
@@ -3373,6 +3389,7 @@ export class RuntimeService {
     // Only the current run's already-retained MCP receipt permits this event.
     if (!run.admissionOpen && !mapped.type.startsWith("run.") && !settledMcpResult) return;
     if (mapped.type === 'tool.result' && ['async_get','async_wait'].includes(mapped.data.name)) await this.store.appendAsyncToolResult({ runId, ...mapped });
+    else if ((mapped.type === 'assistant.delta' || mapped.type === 'assistant.message') && entry?.stream) await entry.stream.observe(mapped);
     else await this.store.appendEvent({ runId, ...mapped });
   }
 
@@ -3471,10 +3488,10 @@ export class RuntimeService {
     if (!entry) {
       // This process cannot abort what it is not driving, so it must not
       // claim the run stopped. `unknown` is the honest terminal state.
-      const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || this.#unsettledMcpDispatches(run).length ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : { code: "not_in_process", message: "run is not active in this process" } }, {
-        type: "run.status",
-        data: { status: "unknown" },
-      });
+      const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || this.#unsettledMcpDispatches(run).length ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : { code: "not_in_process", message: "run is not active in this process" } }, [
+        ...persistedPartials(this.store.listEvents({ sessionId: run.sessionId, runId }), PARTIAL_STOP_REASON.unknown),
+        { type: "run.status", data: { status: "unknown" } },
+      ]);
       await this.store.cancelQuestionsForRun(runId).catch(() => {});
       return { run: unknown };
     }
@@ -3496,7 +3513,7 @@ export class RuntimeService {
     const final = this.store.getRun(runId);
     if (final && !terminal(final.status)) {
       const status = entry.closeError ? "unknown" : "cancelled";
-      await this.store.updateRunWithEvent(runId, { status, admissionOpen: false }, { type: "run.status", data: { status } });
+      await this.store.updateRunWithEvent(runId, { status, admissionOpen: false }, [...(entry.stream?.settle(status) ?? []), { type: "run.status", data: { status } }]);
     }
     return { run: this.store.getRun(runId) };
   }

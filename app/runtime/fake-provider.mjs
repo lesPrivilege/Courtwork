@@ -154,6 +154,8 @@ async function makeResponse({ body, requestNumber, responder, spentErrorOnce }) 
 
 async function writeTextResponse(res, response, { slow = false } = {}) {
   const { id, created, text } = response;
+  // Order 3 · a response may fix its own chunk interval (ms) for streaming checks.
+  const chunkMs = Number.isFinite(response.chunkMs) ? response.chunkMs : slow ? 100 : 0;
   // `.` skips line terminators: without the s flag every newline in a reply is
   // dropped between chunks, so a multi-line answer reaches the UI as one run-on
   // line and no Markdown block after the first can be parsed.
@@ -162,8 +164,11 @@ async function writeTextResponse(res, response, { slow = false } = {}) {
   // has to mean no token has arrived yet.
   if (slow) await new Promise((resolve) => setTimeout(resolve, SLOW_FIRST_TOKEN_MS));
   writeSse(res, assistantChunk({ id, created, model: MODEL_ID, delta: { role: "assistant" } }));
-  for (const chunk of chunks) {
-    if (slow) await new Promise((resolve) => setTimeout(resolve, 100));
+  for (const [index, chunk] of chunks.entries()) {
+    // Order 3 · `failAfterChunks` drops the connection mid-reply: an execution
+    // failure after visible text, with the Host still alive.
+    if (Number.isInteger(response.failAfterChunks) && index === response.failAfterChunks) { res.destroy(); return; }
+    if (chunkMs) await new Promise((resolve) => setTimeout(resolve, chunkMs));
     writeSse(res, assistantChunk({ id, created, model: MODEL_ID, delta: { content: chunk } }));
   }
   writeSse(
@@ -177,6 +182,26 @@ async function writeTextResponse(res, response, { slow = false } = {}) {
       usage: { prompt_tokens: 1, completion_tokens: chunks.length, total_tokens: chunks.length + 1 },
     }),
   );
+  writeDone(res);
+}
+
+/* Order 3 · one assistant message with visible text and then a tool call, as
+ * real providers send narration before acting. */
+async function writeMixedResponse(res, response) {
+  const { id, created, text, toolCallId, name, arguments: toolArguments = {} } = response;
+  const chunkMs = Number.isFinite(response.chunkMs) ? response.chunkMs : 0;
+  writeSse(res, assistantChunk({ id, created, model: MODEL_ID, delta: { role: "assistant" } }));
+  for (const chunk of text.match(/.{1,24}/gsu) ?? [text]) {
+    if (chunkMs) await new Promise((resolve) => setTimeout(resolve, chunkMs));
+    writeSse(res, assistantChunk({ id, created, model: MODEL_ID, delta: { content: chunk } }));
+  }
+  writeSse(res, assistantChunk({ id, created, model: MODEL_ID, delta: { tool_calls: [{ index: 0, id: toolCallId, type: "function" }] } }));
+  writeSse(res, assistantChunk({
+    id, created, model: MODEL_ID,
+    delta: { tool_calls: [{ index: 0, function: { name, arguments: JSON.stringify(toolArguments) } }] },
+    finishReason: "tool_calls",
+    usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+  }));
   writeDone(res);
 }
 
@@ -274,6 +299,10 @@ export async function createFakeOpenAiProvider({ host = "127.0.0.1", port = 0, r
         });
         if (response.kind === "tool") {
           await writeToolResponse(res, response);
+          return;
+        }
+        if (response.kind === "mixed") {
+          await writeMixedResponse(res, response);
           return;
         }
         await writeTextResponse(res, response, { slow: response.slow === true || requestMode(body.messages).startsWith("/fixture slow") });

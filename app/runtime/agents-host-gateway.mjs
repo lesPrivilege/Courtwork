@@ -259,8 +259,8 @@ export function createAgentsRuntimePort({ transport, cancelConfirmMs = 10_000, r
             if (kind === "assistant.delta" || kind === "assistant.message") {
               // Text of another turn is this Session's history, not this Run.
               if (native.turnId === null || native.turnId !== rootTurnId) return;
-              if (kind === "assistant.message") await onObservation({ type: "assistant.message", data: { text: data.text, stopReason: "stop" } });
-              else { deltas.set(data.itemId, (deltas.get(data.itemId) ?? "") + data.text); await onObservation({ type: "assistant.delta", data: { text: deltas.get(data.itemId) } }); }
+              if (kind === "assistant.message") await onObservation({ type: "assistant.message", data: { text: data.text, stopReason: "stop", ...(data.itemId !== undefined ? { segment: segmentOf(data.itemId) } : {}) } });
+              else { deltas.set(data.itemId, (deltas.get(data.itemId) ?? "") + data.text); await onObservation({ type: "assistant.delta", data: { text: deltas.get(data.itemId), segment: segmentOf(data.itemId) } }); }
               return;
             }
             if (kind === "runtime.function_call.pending") {
@@ -290,6 +290,12 @@ export function createAgentsRuntimePort({ transport, cancelConfirmMs = 10_000, r
           }
 
           const deltas = new Map();
+
+          // Order 3 · one segment per native item, numbered in first-seen order.
+
+          const segments = new Map();
+
+          const segmentOf = (itemId) => { if (!segments.has(itemId)) segments.set(itemId, segments.size); return segments.get(itemId); };
 
           const settleIfDecided = () => {
             if (contradiction) return halt({ status: "unknown", errorCode: "remote_contradictory_terminal", errorMessage: "The root turn was observed ending in two different ways" });

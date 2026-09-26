@@ -1,0 +1,7 @@
+PASS  C1-text-before-terminal-and-final-authoritative  {"firstTextAt":223,"terminalAt":3974,"deltas":15,"finalEqualsSource":true}
+PASS  C2-mixed-message-keeps-segment-0-text-and-opens-segment-1  {"order":"Δ0… M0(toolUse) tool.start tool.result Δ1… M1(stop)"}
+PASS  C4-cancel-settles-one-partial-with-the-terminal-status  {"finals":[{"seq":12,"partial":true,"stopReason":"cancelled","len":192}],"terminalSeq":13,"lastPersistedDeltaLen":120}
+PASS  C5a-failure-after-text-is-settled-once-per-segment-and-never-completed  {"status":"failed","attempts":4,"segments":[0,1,2,3],"finals":[{"stopReason":"error","partial":false,"len":168,"error":"terminated"},{"stopReason":"error","partial":false,"len":168,"error":"terminated"},{"stopReason":"error","partial":false,"len":168,"error":"
+PASS  C10-durable-bytes-within-bound  {"textChars":10000,"chunks":417,"chunkMs":20,"intervalMs":250,"deltaEvents":35,"bytes":{"stateFileGrowth":253609,"dataDirGrowth":264849,"deltaEvents":177144,"deltaSnapshotText":171408,"otherRunEvents":39320},"bound":{"deltaEvents":266000,"stateFileGrowth":3800
+PASS  C5b-crash-recovery-settles-from-persisted-text-and-stays-unknown  {"status":"unknown","persistedDeltas":4,"partialLen":192,"lastPersistedLen":192}
+6/6 PASS

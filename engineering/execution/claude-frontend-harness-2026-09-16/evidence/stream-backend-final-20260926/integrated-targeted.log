@@ -1,0 +1,31 @@
+✔ a failed coalesced write rejects the next observation and the final is not written (9.16825ms)
+✔ with no later observation the Run end still reports the failure (0.486ms)
+✔ the final waits for a coalesced write under way and follows it (0.626458ms)
+✔ a final waiting on a failing write keeps its segment open for one error partial (0.741ms)
+✔ a failing final write keeps its segment open for one error partial and rejects late data (0.240834ms)
+✔ a segment opened while an earlier final waits still settles both (0.594375ms)
+✔ persisted() stops a pending timer so nothing is written after the Run (0.321584ms)
+✔ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (507.773125ms)
+✔ Host: a final waiting on a failing in-flight snapshot write still settles one error partial (1346.584ms)
+✔ Host recovery: a Pi retry's two unsettled segments each get one unknown partial, stable across reopen and cancel (2775.35075ms)
+✔ the first snapshot is written at once, then at most one per interval keeping only the newest (5.945917ms)
+✔ the runtime final is authoritative: pending snapshots are dropped, never written after it (0.738167ms)
+✔ segments must follow in order; a shrinking snapshot and a skipped ordinal are rejected (0.21925ms)
+✔ without an adapter ordinal the Host assigns the next segment (0.153625ms)
+✔ settlement returns one partial for an open segment, clears the timer, is idempotent and rejects late updates (0.7625ms)
+✔ no partial when the final exists or no text arrived (0.130541ms)
+✔ recovery settles each unsettled segment from persisted text and never invents an empty partial (0.234333ms)
+✔ legacy events without a segment use the stable finals-before rule (0.131959ms)
+✔ the Pi adapter numbers assistant messages per Run (0.116ms)
+✔ current host context reaches the model without changing user input; capabilities use the installed catalog (599.957833ms)
+✔ a Run waits for its final event to persist before publishing completion (592.37675ms)
+✔ event persistence failure is reported as runtime failure instead of completion (411.696958ms)
+✔ CLI SIGTERM settles a waiting Run and the same data directory reopens (1382.97075ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12637.655916

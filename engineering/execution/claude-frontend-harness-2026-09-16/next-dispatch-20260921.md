@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-26 · Backend accepted; execute frontend continuation
+
+[Final independent receipt and explicit Claude action order](evidence/stream-backend-final-20260926/README.md) accepts10f27aa/76dee98 and closes STR-R1/STR-R2. Original Claude fast-forwards its preserved isolated tree to integrated main, then serially implements shared segment rendering, selection hold, partial state, Attention cursor, measured high-rate performance and a coherent existing-grammar activity-motion recipe. This supersedes all earlier frontend holds. No further routine approval, Figma setup or duplicate writer is needed; Parent retains independent combined acceptance.
+
+
 ## 2026-09-26 · Latest return: persisted recovery parity
 
 [7a1f3a6 independent disposition and explicit order](evidence/stream-backend-review-20260926/settlement-review/README.md) adopts the live STR-R1 settlement fix and retains STR-R2. Parent's supported Pi retry/captured-crash-image probe finds two persisted open segments but recovery settles only the newest. Original Claude corrects both persisted-recovery consumers under the same STR-R1, then returns fixed source. Frontend remains queued. Do not repeat the resolved live failure fixes, byte-bound work or permission questions.

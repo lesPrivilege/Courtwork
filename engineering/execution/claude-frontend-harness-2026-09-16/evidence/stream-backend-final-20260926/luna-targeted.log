@@ -1,0 +1,120 @@
+✔ the first snapshot is written at once, then at most one per interval keeping only the newest (3.547041ms)
+✔ the runtime final is authoritative: pending snapshots are dropped, never written after it (0.443ms)
+✔ segments must follow in order; a shrinking snapshot and a skipped ordinal are rejected (0.203584ms)
+✔ without an adapter ordinal the Host assigns the next segment (0.142917ms)
+✔ settlement returns one partial for an open segment, clears the timer, is idempotent and rejects late updates (0.766666ms)
+✔ no partial when the final exists or no text arrived (0.12825ms)
+✔ recovery settles each unsettled segment from persisted text and never invents an empty partial (0.213959ms)
+✔ legacy events without a segment use the stable finals-before rule (0.130792ms)
+✔ the Pi adapter numbers assistant messages per Run (0.114458ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 598.098458
+✔ a failed coalesced write rejects the next observation and the final is not written (6.761666ms)
+✔ with no later observation the Run end still reports the failure (0.453292ms)
+✔ the final waits for a coalesced write under way and follows it (0.416416ms)
+✔ a final waiting on a failing write keeps its segment open for one error partial (0.392166ms)
+✔ a failing final write keeps its segment open for one error partial and rejects late data (0.194625ms)
+✔ a segment opened while an earlier final waits still settles both (0.472208ms)
+✔ persisted() stops a pending timer so nothing is written after the Run (0.30025ms)
+✔ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (492.350083ms)
+✔ Host: a final waiting on a failing in-flight snapshot write still settles one error partial (1377.1715ms)
+✔ Host recovery: a Pi retry's two unsettled segments each get one unknown partial, stable across reopen and cancel (2778.241917ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12598.947042
+▶ P03-C Host consumer · governed read on the production service path
+  ✔ admission → create intent → binding → root turn → claim → governed repo_read → retained bytes → one submission → root terminal → later input on the same binding (1099.765417ms)
+  ✔ unadvertised, wrong-turn, malformed and out-of-scope calls read nothing; each refusal is retained and delivered once as an error (1538.398ms)
+  ✔ policy deny and a user's deny never read; a scope revoked while approval is pending cancels the run unread, and a later run has no reader (1471.202334ms)
+  ✔ a native call observed twice is claimed once, executed once and submitted once; racing claims share one receipt (978.393666ms)
+  ✔ without attributable root identity nothing is read and nothing settles the run; a required action is not root evidence (551.023875ms)
+  ✔ a lost creation reply stays unknown: no binding, no guessed id, no replacement session, and the chat is fenced (1278.398625ms)
+  ✔ a lost submission reply keeps the retained result and its identity: unknown delivery, no re-read, no re-send, chat fenced (613.549917ms)
+  ✔ restart fences: an interrupted execution and an unanswered submission become unknown; nothing is re-read, re-run or re-sent (1043.41775ms)
+  ✔ an earlier stream replayed to a later run cannot re-execute, re-associate or settle it (995.340042ms)
+  ✔ a chat stays with its runtime: Pi refuses a remote-bound chat, the remote runtime refuses a Pi chat, and a changed configuration cannot reuse the binding (582.831167ms)
+✔ P03-C Host consumer · governed read on the production service path (10153.514125ms)
+▶ P03-D · cancellation
+  ✔ cancel is an intent; the root turn ending cancelled confirms it, the retained result is not delivered, and the chat continues (1088.102458ms)
+  ✔ an accepted cancel that is never confirmed gets one last turn read, then stays unknown and fences the chat until the turn is seen to end (1057.969292ms)
+  ✔ a cancel whose reply is lost, or that is refused, is sent once and leaves the run unknown (1056.790625ms)
+✔ P03-D · cancellation (3204.02ms)
+▶ P03-D · observation recovery
+  ✔ a stream lost mid-turn is re-subscribed; undelivered events arrive, the call is not repeated, the run completes (493.77225ms)
+  ✔ events missed for good: the session's current required action is executed once from the snapshot, and a terminal nobody streamed is read from the turn (1074.811042ms)
+  ✔ a required action seen on the stream and again in the recovery snapshot is one claim (923.138166ms)
+  ✔ contradictory root terminals, a root turn that cannot be read and an unusable item cursor each end unknown (2018.625084ms)
+  ✔ recovery is bounded: a stream that never holds is re-subscribed twice, then the run is unknown (560.182292ms)
+✔ P03-D · observation recovery (5070.856833ms)
+▶ P03-D · lost replies and explicit reconciliation
+  ✔ an unanswered input is re-sent once under the same request key — the one operation the SDK documents the key for (867.465292ms)
+  ✔ a lost submission reply is never re-sent; reconciliation appends what the service's own history and turn show, and the chat continues (631.932792ms)
+  ✔ a delivery the saved history shows is resolved by that item even while the turn is still running (704.720834ms)
+  ✔ after a Host restart mid-submission the fenced chat is reconciled by reads alone and then continues on the same native session (572.555ms)
+  ✔ CDE-R1: a repo_write whose execution was interrupted without a retained result stays fenced after its root turn ends; nothing is written or checked again (2129.454542ms)
+  ✔ a lost creation has no native locator: reconciliation can observe nothing and says so; Pi declares no recover capability (295.980791ms)
+✔ P03-D · lost replies and explicit reconciliation (5202.373458ms)
+▶ P03-D · process evidence
+  ✔ SIGKILL while the claimed read waits for approval: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1079.861791ms)
+  ✔ SIGKILL while the result submission is in flight: the next Host process fences it unknown, sends nothing, reads nothing again, and reconciles by reads (1250.32575ms)
+✔ P03-D · process evidence (2330.285041ms)
+▶ P03-E · write → approval → fixed check parity
+  ✔ check fails before the fix; an approved exact write then the fixed check pass; result, diff and a reopened Host match on both runtimes (8068.069958ms)
+  ✔ deny, a stale approval, a revoked candidate and a cancelled running check leave the same Host record on both runtimes (7588.062ms)
+  ✔ the remote consumer adds its own receipts to the same effects, exposes nothing it was not admitted with, and keeps its argument ceiling (2540.991542ms)
+✔ P03-E · write → approval → fixed check parity (18197.90775ms)
+ℹ tests 29
+ℹ suites 6
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18988.70325
+✔ DRT03 protocol: beta wire identity is pinned and every unverified capability stays unavailable (1.862083ms)
+✔ DRT03 creation: environment:none binds CW identity once and fails closed without touching the transport (0.697084ms)
+✔ DRT03 events: duplicates collapse by event id and diagnostics never settle (1.183583ms)
+✔ DRT03 settlement: root turn.completed settles completed; idle and subagent turns do not (0.361333ms)
+✔ DRT03 settlement: root turn.failed keeps a bounded error and is not masked by text (0.241458ms)
+✔ DRT03 cancel: input.cancel is intent only; only turn.cancelled confirms it (0.231875ms)
+✔ DRT03 cancel: closing the stream is never a cancellation (0.171917ms)
+✔ DRT03 settlement: unreconciled effects and session failure keep ambiguity unknown (0.27175ms)
+✔ DRT03 settlement: an unreconciled session failure cannot be reported as a plain failure (0.178417ms)
+✔ DRT03 functions: pending actions are observations and results echo turn_id and call_id (0.263542ms)
+✔ DRT03 settlement: the replay helper applies the same rules as the live tracker (0.1ms)
+✔ DRT03 recovery: saved items page by after cursor and merge by item id without fabricating gaps (0.592791ms)
+✔ DRT03 recovery: a root terminal or required action buffered during recovery is delivered, not swallowed (0.261333ms)
+✔ DRT03 continuation: attachSession re-opens a Host-persisted native session locally and never reaches the transport (0.275333ms)
+✔ create, later input, cancel intent and function result reach the wire exactly as the caller identified them (47.619584ms)
+✔ a request the caller did not identify, or identified wrongly, is refused before the wire (6.022416ms)
+✔ fragmented frames, done without deltas and a normal end keep every outcome distinct (94.855584ms)
+✔ abort and disposal release the connection and send nothing to the service (8.284292ms)
+✔ item pages keep the service cursors, and unusable answers are errors rather than empty results (18.527166ms)
+✔ a mutation is attempted once: refusal, timeout and a lost reply never become a second create or a second result (322.75175ms)
+✔ an allowlisted function declaration reaches the wire with exactly four keys; every other tool is refused before the wire (2.896334ms)
+✔ a turn read is one GET for the turn asked for; another turn, another session or a statusless answer is an error (7.592709ms)
+✔ the production Host runs Pi through the port and continues one native session (788.04375ms)
+✔ a journal written before the port existed is opened in place and continued (295.128958ms)
+✔ retrying a command never opens a second native session (525.453042ms)
+✔ observations that arrive after cancellation are not recorded (289.226166ms)
+✔ an operation the runtime does not support is refused, not rerouted (188.1395ms)
+✔ the port refuses to exist without its journal root or Pi's model runtime (0.144625ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3292.854875
