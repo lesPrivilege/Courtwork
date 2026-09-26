@@ -505,3 +505,36 @@ Author: Claude (Opus 5.5). Source: **`88e3e7e`** (product and tests) on the harn
 - Poll cadence bounds text cadence.
 
 **Stop and handoff.** The author stops here and returns `88e3e7e` plus the docs commit to Parent/Luna for independent frontend and combined acceptance.
+
+#### 2026-09-26 · Author return for STR-FE1 (streaming Markdown references)
+
+Author: Claude (Opus 5.5). Consumes Parent's frontend review of `7944e12`. Kept as they are: the shared cursor, partial semantics, the D2(a) freeze and the shipped 1.8 s recipe; the varied-period candidate stays deferred. Fixed source: **`10bc6f3`**. Evidence: [str-fe1](evidence/stream-frontend-20260926/str-fe1/). These are the author's checks, not independent acceptance.
+
+**Cause.** `paintGrowing` lexed each snapshot, but then rendered every block on its own through `markdown(raw)`. That dropped the document's reference definitions (`tokens.links`). Unchanged blocks were also kept on source equality alone, so a definition arriving later could not update a reference already drawn.
+
+**Change.** Owners are the shared body (`app/web/stream-body.mjs`) and the one sanitizing path (`app/web/ui-controls.mjs`).
+- `markdown(text)` now lexes and calls the new `markdownTokens(tokens)`. That function holds the unchanged sanitize and link/code/table post-processing. The full parse is unchanged: `marked.parse` equals `marked.parser(marked.lexer(...))`.
+- The growing body renders each changed block as `[token]` with the document's `links`.
+- A block may be kept only if its source is unchanged, and, when the definitions changed, only if it cannot use a reference (no `[…]`). Kept blocks keep their nodes; new nodes are inserted before the next kept block.
+- The settled path and the selection hold are unchanged. No parser, dependency or raw-HTML path is added.
+
+| Production `createAssistantBody` in headless Chrome (`app/tests/stream-body-browser.test.mjs`) | `7944e12` | `10bc6f3` |
+| --- | --- | --- |
+| Definition before use | literal text, no anchor, differs from `markdown()` | anchor `the link` → `https://example.com`, equal to `markdown()` |
+| Reference painted, definition arrives later | stays literal, differs | becomes the anchor, equal to `markdown()` |
+| Unrelated block (`# Heading`) across that change | node kept | node kept |
+| Final convergence | equal | equal |
+| `[x]: javascript:…` reference | literal, differs from `markdown()` | anchor without `href`, equal to `markdown()` (sanitizer unchanged) |
+| Test result | fail (`browser-test-on-7944e12.log`) | pass (`browser-test-on-fix.log`) |
+
+The test skips with a stated reason when no Chrome is found (`COURTWORK_CHROME` overrides the path).
+
+**Cost and regressions (author, Node 25.9.0).**
+- Full suite: 1710/1710, including the new browser test.
+- `lint-interaction` and `check-product-copy` clean.
+- One headless round on `10bc6f3` (`headless-after-fe1.json`): Chat receipt→DOM p50 4–5 ms on streaming polls, p95 11–25 ms, 0 long frames; Attention p50 6 / p95 20 ms. This is within the earlier after-range, so there is no measured cost increase. It is a single round, not a budget.
+- C8b still holds: text held at 187 characters with `Content updated`, final painted on release.
+
+**Limits.** A change in definitions re-renders every block that contains `[…]`, including code blocks, which is conservative. Other limits are unchanged from the frontend delivery entry.
+
+**Stop and handoff.** The author stops at `10bc6f3` plus this docs commit and returns to Parent/Luna for independent disposition of STR-FE1. There is no merge or push, and no combined-acceptance claim.
