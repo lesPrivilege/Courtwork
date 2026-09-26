@@ -1,0 +1,107 @@
+✖ a failed coalesced write rejects the next observation and the final is not written (8.654792ms)
+✔ with no later observation the Run end still reports the failure (0.821583ms)
+✔ the final waits for a coalesced write under way and follows it (0.381ms)
+✖ a final waiting on a failing write keeps its segment open for one error partial (0.501083ms)
+✖ a failing final write keeps its segment open for one error partial and rejects late data (0.265292ms)
+✖ a segment opened while an earlier final waits still settles both (0.636042ms)
+✔ persisted() stops a pending timer so nothing is written after the Run (0.391833ms)
+✔ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (490.560916ms)
+✖ Host: a final waiting on a failing in-flight snapshot write still settles one error partial (958.810708ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 4
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5575.686459
+
+✖ failing tests:
+
+test at app/tests/assistant-stream-persistence.test.mjs:33:1
+✖ a failed coalesced write rejects the next observation and the final is not written (8.654792ms)
+  AssertionError [ERR_ASSERTION]: the newest accepted text settles as partial; data after the failure is not admitted
+  + actual - expected
+  
+  + {
+  +   data: {
+  +     partial: true,
+  +     segment: 0,
+  +     stopReason: 'error',
+  +     text: 'ab'
+  - [
+  -   {
+  -     data: {
+  -       partial: true,
+  -       segment: 0,
+  -       stopReason: 'error',
+  -       text: 'ab'
+  -     },
+  -     type: 'assistant.message'
+      },
+  +   type: 'assistant.message'
+  + }
+  - ]
+  
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { type: 'assistant.message', data: { text: 'ab', segment: 0, stopReason: 'error', partial: true } },
+    expected: [ { type: 'assistant.message', data: [Object] } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/assistant-stream-persistence.test.mjs:78:1
+✖ a final waiting on a failing write keeps its segment open for one error partial (0.501083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + null
+  - [
+  -   {
+  -     data: {
+  -       partial: true,
+  -       segment: 0,
+  -       stopReason: 'error',
+  -       text: 'abc'
+  -     },
+  -     type: 'assistant.message'
+  -   }
+  - ]
+  
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: [ { type: 'assistant.message', data: [Object] } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/assistant-stream-persistence.test.mjs:98:1
+✖ a failing final write keeps its segment open for one error partial and rejects late data (0.265292ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /final write fails/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/assistant-stream-persistence.test.mjs:107:1
+✖ a segment opened while an earlier final waits still settles both (0.636042ms)
+  TypeError: stream.settle(...).map is not a function
+
+test at app/tests/assistant-stream-persistence.test.mjs:163:1
+✖ Host: a final waiting on a failing in-flight snapshot write still settles one error partial (958.810708ms)
+  AssertionError [ERR_ASSERTION]: exactly one final for the open segment
+  
+  0 !== 1
+  
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

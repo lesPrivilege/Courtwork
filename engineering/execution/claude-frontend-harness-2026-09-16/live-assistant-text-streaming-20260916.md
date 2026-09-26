@@ -305,3 +305,34 @@ Coalescing cuts at-rest growth by about 9×. Storage is still super-linear: snap
 - Not run: the Node 22/24 matrix, live managed or paid providers, and anything in the frontend or browser.
 
 **Stop and handoff.** The author stops at `0fa6eda` plus this docs commit. Return to Parent/Luna for independent disposition of STR-R1 and STR-R2. The frontend continuation stays gated on that acceptance.
+
+#### 2026-09-26 · Author return for the STR-R1 settlement race
+
+Author: Claude (Opus 5.5). Consumes Parent's return review of `9bef03c` (main `evidence/stream-backend-review-20260926/return-review/`). STR-R2 stays accepted as disposed there; its bound is unchanged. Fixed source: **`befc592`**. Author evidence: [str-r1-settlement](evidence/stream-backend-return-20260926/str-r1-settlement/). These are the author's reruns, **not** independent acceptance.
+
+**Cause.** A final cleared its segment's open state before it awaited the write already under way. When that write rejected, the final was correctly refused, but `settle("failed")` had nothing open to settle. The Run ended `failed` with no final for segment 0.
+
+**Change.** Owner: the Host segment stream (`app/server/assistant-stream.mjs`). `service.mjs` changes only in how it consumes the result.
+- The stream keeps each segment's newest accepted text in `unsettled` until that segment's final is durably written.
+- A failing in-flight write, or a failing final write (the adjacent boundary), records the first failure. After that, later deltas and finals are rejected and are not admitted.
+- `settle()` now returns a list: one `partial: true` final per unsettled segment, in segment order, with the terminal stop reason. It returns `[]` when nothing is unsettled and stays idempotent. This also covers a newer segment that opens while an earlier final is waiting.
+- The three terminal sites spread that list into the same `updateRunWithEvent` as the terminal status; the orphan path appends each item.
+- Sequencing, authoritative finals and C1–C10 are unchanged.
+
+| Evidence | `9bef03c` | `befc592` |
+| --- | --- | --- |
+| Parent's `final-inflight-failure.mjs` | `failed`, `finals: []` (Parent's result) | `failed` / `runtime_projection_failed`, 3 persisted deltas, **one** final `{segment: 0, stopReason: "error", partial: true}` of 648 characters, the newest received snapshot (`final-inflight-failure-fixed.json`) |
+| New Host regression: the exact Parent sequence (held second delta append; the real sink begins the final; the held write rejects in a microtask) | fails: `exactly one final`, 0 ≠ 1 | passes: one error partial whose text equals the source, extends the newest persisted delta, and sits at seq one before the `failed` status; no new event after 300 ms; after closing and reopening the Host on the same data, identical events |
+| Unit: final waiting on a failing write; failing final write plus late delta; a segment opened while an earlier final waits | all fail. The late delta is admitted after a failed final write ("Missing expected rejection") | pass |
+| The two stream test files | 4/9 on the persistence file (`tests-on-9bef03c.log`). One of the base failures only reflects `settle`'s return shape changing from one object to a list | 18/18 (`tests-on-fix.log`) |
+
+**Verification (author, Node 25.9.0).**
+- Luna's three command groups plus both stream files: 75/75.
+- Stream audit: 6/6. C10 measured 177,360 delta-event bytes and 253,821 bytes of state-file growth, within the unchanged bound (`audit.json`).
+- Full app suite: 1696/1696 (`full-suite-summary.log`).
+
+**Semantic note for the reviewer.** After a failure, the partial carries the newest *accepted* snapshot. A delta that arrives after the failure is rejected and is not merged into it.
+
+**Remaining limits.** Same as the previous return: native interleaved items are deferred; the Node 22/24 matrix, live providers and the frontend were not run.
+
+**Stop and handoff.** The author stops at `befc592` plus this docs commit and returns to Parent/Luna for independent disposition of STR-R1. The frontend stays queued.
