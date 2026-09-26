@@ -1,0 +1,59 @@
+✔ a failed coalesced write rejects the next observation and the final is not written (7.616541ms)
+✔ with no later observation the Run end still reports the failure (0.487625ms)
+✔ the final waits for a coalesced write under way and follows it (0.441666ms)
+✔ a final waiting on a failing write keeps its segment open for one error partial (0.431666ms)
+✔ a failing final write keeps its segment open for one error partial and rejects late data (0.24475ms)
+✔ a segment opened while an earlier final waits still settles both (0.532333ms)
+✔ persisted() stops a pending timer so nothing is written after the Run (0.326416ms)
+✔ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (489.470167ms)
+✔ Host: a final waiting on a failing in-flight snapshot write still settles one error partial (1339.758083ms)
+✖ Host recovery: a Pi retry's two unsettled segments each get one unknown partial, stable across reopen and cancel (2702.545083ms)
+file://<scratch>/base-7a1f3a6/app/tests/assistant-stream-segments.test.mjs:5
+import { createSegmentStream, persistedPartials, segmentOf, SNAPSHOT_INTERVAL_MS } from "../server/assistant-stream.mjs";
+                              ^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../server/assistant-stream.mjs' does not provide an export named 'persistedPartials'
+
+Node.js v25.9.0
+✖ app/tests/assistant-stream-segments.test.mjs (421.718458ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 9
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12572.314917
+
+✖ failing tests:
+
+test at app/tests/assistant-stream-persistence.test.mjs:217:1
+✖ Host recovery: a Pi retry's two unsettled segments each get one unknown partial, stable across reopen and cancel (2702.545083ms)
+  AssertionError [ERR_ASSERTION]: one partial per unsettled segment, from its newest persisted snapshot, in segment order
+  + actual - expected
+  
+    [
+      {
+        partial: true,
+  -     segment: 0,
+  -     stopReason: 'unknown',
+  -     text: 'Retry stream source. Ret'
+  -   },
+  -   {
+  -     partial: true,
+        segment: 1,
+        stopReason: 'unknown',
+        text: 'Retry stream source. Ret'
+      }
+    ]
+  
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { text: 'Retry stream source. Ret', segment: 1, stopReason: 'unknown', partial: true } ],
+    expected: [ { text: 'Retry stream source. Ret', segment: 0, stopReason: 'unknown', partial: true }, { text: 'Retry stream source. Ret', segment: 1, stopReason: 'unknown', partial: true } ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/assistant-stream-segments.test.mjs:1:1
+✖ app/tests/assistant-stream-segments.test.mjs (421.718458ms)
+  'test failed'

@@ -336,3 +336,37 @@ Author: Claude (Opus 5.5). Consumes Parent's return review of `9bef03c` (main `e
 **Remaining limits.** Same as the previous return: native interleaved items are deferred; the Node 22/24 matrix, live providers and the frontend were not run.
 
 **Stop and handoff.** The author stops at `befc592` plus this docs commit and returns to Parent/Luna for independent disposition of STR-R1. The frontend stays queued.
+
+#### 2026-09-26 · Author return for the STR-R1 recovery seam
+
+Author: Claude (Opus 5.5). Consumes Parent's settlement review of `7a1f3a6` (main `evidence/stream-backend-review-20260926/settlement-review/`). The live settlement fix `befc592` and STR-R2 stay as accepted. Fixed source: **`76dee98`**. Author evidence: [str-r1-recovery](evidence/stream-backend-return-20260926/str-r1-recovery/). These are the author's reruns, **not** independent acceptance.
+
+**Cause.** `persistedPartial` looked only at the Run's last delta. After a crash during a Pi provider retry, both segment 0 and segment 1 had persisted text and no final, but recovery settled only segment 1.
+
+**Change.** Owner: `app/server/assistant-stream.mjs`. The singleton helper is **replaced**, not kept alongside.
+- `persistedPartials(runEvents, stopReason)` returns one `partial: true` final per segment that has persisted text and no persisted final. It uses only persisted events, carries each segment's newest persisted snapshot, and goes in segment order.
+- Segments use the legacy finals-before rule, computed in one pass that is equivalent to `segmentOf`.
+- Settled segments and segments without text are skipped. Nothing unpersisted is invented and history is not rewritten.
+- Both existing consumers in `service.mjs`, startup recovery and cancel without an active entry, spread the list before the `unknown` status in the same `updateRunWithEvent`. The Run stays `unknown`.
+- Once those partials are persisted the helper returns `[]`. Recovery only visits active Runs, so a later reopen or cancel adds nothing.
+
+| Evidence | `7a1f3a6` | `76dee98` |
+| --- | --- | --- |
+| Parent `retry-crash-image.mjs` | segment 0 unsettled; only segment 1 partial (Parent's result) | adapted copy (below): durable segments `[0,1]`, no durable finals before; after reopen `unknown`, partials for segments 0 and 1 (`unknown`, `partial: true`), unsettled `[]` (`retry-crash-image-fixed.json`) |
+| New Host regression. Real Pi retry schedule: segment 0's second append held, `failAfterChunks: 16`; the captured `runtime-state.json` bytes are restored and reopened | fails: `one partial per unsettled segment…`, segment 0 missing | passes: two partials equal to each segment's newest persisted delta, in segment order, at consecutive seqs just before the `unknown` status; cancel on the recovered Run adds nothing; a second reopen adds nothing and the Run stays `unknown` |
+| Unit recovery test (settled, unsettled ×2 out of seq order, textless, idempotence after persisting) and legacy test (legacy plus recorded segments) | the file fails to import: `persistedPartials` does not exist | pass |
+| The two stream test files | 9 pass, 2 fail (`tests-on-7a1f3a6.log`) | 19/19 (`tests-on-fix.log`) |
+
+**Probe adaptation.** Parent's probe imports `persistedPartial`, which this fix removes. `retry-crash-image-adapted.mjs` differs from Parent's file by one line only, the import `{persistedPartials:persistedPartial}`; everything else is byte-identical. Its `before.recoveryPartials` is therefore now a list.
+
+**Verification (author, Node 25.9.0).**
+- Luna's three command groups plus both stream files: 76/76.
+- Stream audit: 6/6. C10 had 37 deltas this run: 190,744 delta-event bytes and 267,361 bytes of state-file growth, within the unchanged bound (`audit.json`). The delta count varies with timing jitter.
+- Full app suite: 1697/1697 (`full-suite-summary.log`).
+
+**Remaining limits.**
+- Cancel without an active entry has no separate service-level regression. In a running Host, startup recovery settles every active Run before that path can see it; it shares the helper and the atomic list write.
+- The legacy rule cannot tell apart two unsettled *legacy* segments with no final between them. They count as one segment, per the stable compatibility rule.
+- Unchanged from before: native interleaving, write amplification, the Node 22/24 matrix, live providers and the frontend.
+
+**Stop and handoff.** The author stops at `76dee98` plus this docs commit and returns to Parent/Luna for independent disposition. The frontend stays queued.
