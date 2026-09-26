@@ -77,10 +77,10 @@ test("settlement returns one partial for an open segment, clears the timer, is i
   await stream.observe(delta("par", 0));
   await advance(10); await stream.observe(delta("partial text", 0));
   assert.equal(timers.size, 1);
-  const partial = stream.settle("cancelled");
-  assert.deepEqual(partial, { type: "assistant.message", data: { text: "partial text", segment: 0, stopReason: "cancelled", partial: true } }, "the newest received snapshot, even if not yet written");
+  const partials = stream.settle("cancelled");
+  assert.deepEqual(partials, [{ type: "assistant.message", data: { text: "partial text", segment: 0, stopReason: "cancelled", partial: true } }], "the newest received snapshot, even if not yet written");
   assert.equal(timers.size, 0);
-  assert.equal(stream.settle("cancelled"), null, "idempotent");
+  assert.deepEqual(stream.settle("cancelled"), [], "idempotent");
   await stream.observe(delta("partial text and more", 0));
   await advance(1000);
   assert.deepEqual(written.map((e) => e.data.text), ["par"], "nothing written after settlement");
@@ -91,8 +91,8 @@ test("no partial when the final exists or no text arrived", async () => {
   const done = harness();
   await done.stream.observe(delta("x", 0));
   await done.stream.observe(final("x", 0));
-  assert.equal(done.stream.settle("failed"), null);
-  assert.equal(harness().stream.settle("unknown"), null);
+  assert.deepEqual(done.stream.settle("failed"), []);
+  assert.deepEqual(harness().stream.settle("unknown"), []);
 });
 
 test("recovery settles only from persisted text and never invents an empty partial", () => {

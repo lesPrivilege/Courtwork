@@ -3315,15 +3315,14 @@ export class RuntimeService {
         const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
           ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
         await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, [
-          entry.stream?.settle(finalStatus),
+          ...(entry.stream?.settle(finalStatus) ?? []),
           { type: "run.status", data: { status: finalStatus, ...(entry.externalUnknownDetail ? { externalUnknown: entry.externalUnknownDetail } : {}) } },
         ]);
       } else {
         // A terminal status written by another path without settling this
         // Run's stream: keep the received text rather than lose it. It follows
         // that status, so it is not atomic with it; no current path does this.
-        const orphan = entry.stream?.settle(current?.status);
-        if (orphan) await this.store.appendEvent({ runId: run.id, ...orphan }).catch(() => {});
+        for (const orphan of entry.stream?.settle(current?.status) ?? []) await this.store.appendEvent({ runId: run.id, ...orphan }).catch(() => {});
       }
       for (const [questionId, waiter] of this.questionWaiters) {
         if (waiter.runId === run.id) this.questionWaiters.delete(questionId);
@@ -3513,7 +3512,7 @@ export class RuntimeService {
     const final = this.store.getRun(runId);
     if (final && !terminal(final.status)) {
       const status = entry.closeError ? "unknown" : "cancelled";
-      await this.store.updateRunWithEvent(runId, { status, admissionOpen: false }, [entry.stream?.settle(status), { type: "run.status", data: { status } }]);
+      await this.store.updateRunWithEvent(runId, { status, admissionOpen: false }, [...(entry.stream?.settle(status) ?? []), { type: "run.status", data: { status } }]);
     }
     return { run: this.store.getRun(runId) };
   }

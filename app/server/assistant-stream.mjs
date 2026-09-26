@@ -14,7 +14,9 @@
  *
  * A Run that ends while a segment is still open gets exactly one partial final
  * for it, written in the same store mutation as the terminal status: from the
- * newest received snapshot while the Host is alive, or from the newest
+ * newest received snapshot while the Host is alive (a segment stays open until
+ * its runtime final is durably written, so a final that waits on a failing
+ * snapshot write, or fails itself, still leaves that partial), or from the newest
  * persisted snapshot when recovering after a crash. After settlement, late
  * updates are rejected. Nothing is synthesized for a segment that already has
  * a final or never had text.
@@ -67,8 +69,9 @@ export function createSegmentStream({
   log = () => {},
 }) {
   let current = -1; // newest segment seen
-  let open = false; // it has text and no final yet
+  let open = false; // it has text and no final observed yet
   let lastText = ""; // newest received snapshot of the open segment
+  const unsettled = new Map(); // segment -> newest received text, until its final is written
   let written = -1; // newest segment with a persisted snapshot
   let lastWriteAt = 0;
   let pending = null;
@@ -120,6 +123,7 @@ export function createSegmentStream({
         current = segment;
         open = true;
         lastText = text;
+        unsettled.set(segment, text);
         if (written !== segment) { stopTimer(); pending = null; await writeDelta(text); return; }
         const due = lastWriteAt + intervalMs - now();
         if (due <= 0 && timer === null) { pending = null; await writeDelta(text); return; }
@@ -133,10 +137,17 @@ export function createSegmentStream({
       current = segment;
       open = false;
       lastText = "";
-      // Order after, and fail with, a coalesced write already under way.
+      // Order after, and fail with, a coalesced write already under way. The
+      // segment stays unsettled until its final is written.
       await settleWrites();
       if (failure) throw failure;
-      await write({ type: "assistant.message", data: { ...observation.data, segment } });
+      try {
+        await write({ type: "assistant.message", data: { ...observation.data, segment } });
+      } catch (error) {
+        failure ??= error;
+        throw error;
+      }
+      unsettled.delete(segment);
     },
     /** After the runtime returns: stop the timer, wait for coalesced writes,
      * and reject if any failed. Pending text is not written; `settle` keeps
@@ -151,16 +162,20 @@ export function createSegmentStream({
         throw error;
       }
     },
-    /** End the stream with the Run. Returns the partial final to persist with
-     * the terminal status, or `null`. Idempotent. */
+    /** End the stream with the Run. Returns the partial finals to persist with
+     * the terminal status, one per segment with text and no written final, in
+     * segment order; empty when there are none. Idempotent. */
     settle(runStatus) {
-      if (closed) return null;
+      if (closed) return [];
       closed = true;
       stopTimer();
       pending = null;
-      if (!open || !lastText) return null;
       open = false;
-      return { type: "assistant.message", data: { text: lastText, segment: current, stopReason: PARTIAL_STOP_REASON[runStatus] ?? "unknown", partial: true } };
+      const stopReason = PARTIAL_STOP_REASON[runStatus] ?? "unknown";
+      const partials = [...unsettled].sort(([a], [b]) => a - b)
+        .map(([segment, text]) => ({ type: "assistant.message", data: { text, segment, stopReason, partial: true } }));
+      unsettled.clear();
+      return partials;
     },
     get closed() { return closed; },
   };
