@@ -3250,6 +3250,7 @@ export class RuntimeService {
       if (entry.cancelRequested || entry.budget.reason || !this.store.getRun(run.id)?.admissionOpen) await started.abort();
 
       const outcome = await started.run();
+      await entry.stream?.persisted();
       usageComplete = outcome.status === "completed" && !outcome.turnBudgetExceeded && !entry.budget.reason;
       // "unknown" is a remote runtime's own answer: the Run settles unknown.
       extensionOutcome = outcome.status === "completed" ? "completed" : outcome.status === "aborted" ? "canceled" : outcome.status === "unknown" ? "unknown" : "failed";
