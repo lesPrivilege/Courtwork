@@ -1,0 +1,36 @@
+✔ stream append restores selection onto replacement nodes and preserves viewport anchor (1.012875ms)
+✔ a different session or missing immutable row cannot inherit selection or anchor (0.719125ms)
+✔ changed selected source bytes are not silently selected as if unchanged (0.124458ms)
+✔ following latest does not restore an older viewport anchor (0.077125ms)
+✔ cumulative assistant deltas and their final stay one non-pending row (1.135916ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.7965ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.133375ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.148542ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.152375ms)
+✔ terminal run shows an incomplete delta as partial, not pending, and a terminal final is settled (0.0795ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (0.090791ms)
+✔ message time has readable provenance content without naming the native time role (26.333208ms)
+✔ narration → tool → answer keeps every row and marks only the answer final (0.202708ms)
+✔ the persisted real dogfood Run yields its five texts and exactly one final answer (4.183334ms)
+✔ no row is final while the Run is still working, waiting or stopping (0.130292ms)
+✔ failed, cancelled and unknown Runs keep their text readable with no final answer (0.129666ms)
+✔ whatever follows the answer takes the final mark away or passes it on (0.149416ms)
+✔ each Run has its own final answer (0.062292ms)
+✔ the shared footer draws time and actions only under the final answer (0.345042ms)
+✔ events are admitted once by seq, in order, and the cursor never moves back (1.562792ms)
+✔ only a page of assistant deltas may patch bodies in place (0.102291ms)
+✔ Markdown blocks keep their exact source; an unclosed fence stays one open tail block (10.206875ms)
+✔ rows follow the Host segment: text, tool, text keeps segment 0 and opens segment 1 (2.127792ms)
+✔ a growing segment replaces its text; a late delta never reopens a settled segment (0.175958ms)
+✔ a Host-settled partial is shown, never pending and never the answer (0.1065ms)
+✔ legacy events without a segment use the finals-before rule and get the same row ids (0.110333ms)
+✔ legacy text still arriving when its Run ended reads as partial, not pending (0.079708ms)
+✔ recovery partials for two segments give two rows in segment order (0.0955ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 129.504959

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity rhythm specimen</title>
+<!-- Order 3 frontend · local comparison of the request.activity bar recipe.
+     Decorative and non-numeric: neither row is a rate. "Before" reproduces the
+     effective computed style at 0ec94c5, where the animation shorthand reset
+     every bar's delay to 0; "After" is the product rule in app/web/styles.css
+     (the accepted staggered 1.8s recipe restored); "Candidate" varies period
+     and peak per mark and is proposed only, not in the product.
+     Token values copied from styles.css (--ease-out). -->
+<style>
+  :root { --ease-out: cubic-bezier(0.2, 0, 0, 1); --ink: #1d2126; --muted: #5b6470; --bg: #f5f6f8; color-scheme: light dark; }
+  @media (prefers-color-scheme: dark) { :root { --ink: #e7e9ec; --muted: #a3abb5; --bg: #15181c; } }
+  body { margin: 0; padding: 24px 16px; background: var(--bg); color: var(--ink); font: 14px/1.5 system-ui, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; display: grid; gap: 20px; }
+  h1 { font-size: 16px; margin: 0; }
+  p { margin: 0; color: var(--muted); }
+  .row { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+  .label { width: 12em; color: var(--muted); }
+  .bars { display: flex; align-items: center; gap: 2px; width: 28px; height: 18px; color: var(--muted); }
+  .bars i { display: block; flex: 1; height: 16px; background: currentColor; border-radius: 999px; transform: scaleY(.3); }
+  /* Before (effective): one period, no phase. */
+  .before i { animation: breath-before 1.8s var(--ease-out) 0s infinite alternate; }
+  @keyframes breath-before { from { opacity: .35; transform: scaleY(.2); } to { opacity: .85; transform: scaleY(.75); } }
+  /* After: the product recipe (accepted study: one period, -130ms phase steps). */
+  .after i { animation: breath-before 1.8s var(--ease-out) calc(var(--i) * -130ms) infinite alternate; }
+  .after i:nth-child(1) { --i: 0; } .after i:nth-child(2) { --i: 1; } .after i:nth-child(3) { --i: 2; } .after i:nth-child(4) { --i: 3; }
+  .after i:nth-child(5) { --i: 4; } .after i:nth-child(6) { --i: 5; } .after i:nth-child(7) { --i: 6; }
+  /* Candidate (proposed, not shipped): own period, phase and peak per mark. */
+  .candidate i { animation: breath-after var(--bar-period) var(--ease-out) var(--bar-delay) infinite alternate; }
+  .candidate i:nth-child(1) { --bar-period: 1.24s; --bar-delay: -.10s; --bar-peak: .6; }
+  .candidate i:nth-child(2) { --bar-period: 1.62s; --bar-delay: -.46s; --bar-peak: .85; }
+  .candidate i:nth-child(3) { --bar-period: 1.1s; --bar-delay: -.72s; --bar-peak: .7; }
+  .candidate i:nth-child(4) { --bar-period: 1.86s; --bar-delay: -.3s; --bar-peak: .95; }
+  .candidate i:nth-child(5) { --bar-period: 1.38s; --bar-delay: -.94s; --bar-peak: .75; }
+  .candidate i:nth-child(6) { --bar-period: 1.54s; --bar-delay: -.58s; --bar-peak: .88; }
+  .candidate i:nth-child(7) { --bar-period: 1.18s; --bar-delay: -.18s; --bar-peak: .62; }
+  @keyframes breath-after { from { opacity: .35; transform: scaleY(.2); } to { opacity: .85; transform: scaleY(var(--bar-peak)); } }
+  .still i { animation: none; }
+  @media (prefers-reduced-motion: reduce) { .bars i { animation: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Activity rhythm · before and after</h1>
+  <p>A decorative, non-numeric signal that a Run is working. It stops at waiting, cancel pending, disconnect, terminal status, hidden surfaces and reduced motion. It is not a token rate.</p>
+  <div class="row"><span class="label">Before (0ec94c5)</span><span class="bars before" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>Working…</span></div>
+  <div class="row"><span class="label">After (product)</span><span class="bars after" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>Composing response…</span></div>
+  <div class="row"><span class="label">Candidate (proposed)</span><span class="bars candidate" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>Composing response…</span></div>
+  <div class="row"><span class="label">Stopped / reduced motion</span><span class="bars still" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span>Completed</span></div>
+</main>
+</body>
+</html>

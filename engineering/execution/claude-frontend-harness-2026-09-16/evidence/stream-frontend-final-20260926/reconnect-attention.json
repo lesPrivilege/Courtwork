@@ -1,0 +1,22 @@
+{
+  "attLost": {
+    "result": {
+      "type": "object",
+      "value": {
+        "visible": "Attention\n\nYour global assistant\n\nClose Attention\nNew conversation\nAttention · 9/26/2026, 4:34:42 PM\nRefresh Attention\nConversations\nAttention items\nOpen conversation\nConfigure Attention Runtime\nThreads & messages\n\nstream sustained\n\nSource\nCopy message\nEdit as new message\nMore message actions\nStarted 9/26/2026, 4:34:42 PM\n4:34 PM\n\nRunning\n\nConnection lost\nConnection lost\n\nThe local runtime could not be reached.\n\nRuntime & memory\nAttachments\nLocal test\nCancel Attention run"
+      }
+    }
+  },
+  "attRecovered": {
+    "result": {
+      "type": "object",
+      "value": {
+        "bodies": 2,
+        "converged": false,
+        "finals": 1,
+        "run": "completed",
+        "tail": "需要在生成过程中逐步呈现，同\nCode\nCopy code\nfunction s\n\nRun started 9/26/2026, 4:34:42 PM\n4:34 PM\nCopy response\nRead aloud\nLike response\nDislike response\nRegenerate response\nMore message actions\n\nCompleted\n\nRuntime & memory\nAttachments\nLocal test\nSend to Attention"
+      }
+    }
+  }
+}

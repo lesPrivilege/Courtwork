@@ -127,14 +127,17 @@ test("assistant and tool rows stay scoped when runs reuse segment and call ident
   );
 });
 
-test("terminal run keeps an incomplete delta pending but a terminal final is settled", () => {
+// Order 3 (G3) · text still arriving when its Run ended is what arrived: partial,
+// never pending. Earlier this suite pinned it as pending.
+test("terminal run shows an incomplete delta as partial, not pending, and a terminal final is settled", () => {
   const cancelled = assistantRows(
     [event(1, "cancelled-run", "assistant.delta", { text: "partial" })],
     [run("cancelled-run", "cancelled")],
   );
   assert.equal(cancelled.length, 1);
   assert.equal(cancelled[0].text, "partial");
-  assert.equal(cancelled[0].pending, true);
+  assert.equal(cancelled[0].pending, false);
+  assert.equal(cancelled[0].partial, true);
 
   const completed = assistantRows(
     [event(1, "completed-run", "assistant.delta", { text: "done" }), event(2, "completed-run", "assistant.message", { text: "done", stopReason: "stop" })],
@@ -185,11 +188,13 @@ test("narration → tool → answer keeps every row and marks only the answer fi
     event(9, "run-1", "assistant.message", { text: "Here is the answer.", stopReason: "stop" }),
   ];
   const projected = rows(input, [run("run-1")]);
+  // Order 3 · assistant rows are the Host's segments; these events predate the
+  // recorded ordinal, so the legacy finals-before rule numbers them 0, 1, 2.
   assert.deepEqual(projected.map((row) => [row.kind, row.id]), [
-    ["assistant", "run-1:0"], ["tool", "run-1:c1"], ["assistant", "run-1:3"],
-    ["tool", "run-1:c2"], ["assistant", "run-1:6"], ["run-status", "status:run-1"],
+    ["assistant", "run-1:0"], ["tool", "run-1:c1"], ["assistant", "run-1:1"],
+    ["tool", "run-1:c2"], ["assistant", "run-1:2"], ["run-status", "status:run-1"],
   ]);
-  assert.deepEqual(finals(projected).map((row) => [row.id, row.text]), [["run-1:6", "Here is the answer."]]);
+  assert.deepEqual(finals(projected).map((row) => [row.id, row.text]), [["run-1:2", "Here is the answer."]]);
   // Nothing else is marked, and marking changes no identity or body.
   assert.deepEqual(projected.filter((row) => row.final).length, 1);
   assert.equal(projected[0].text, "Let me look first.");
@@ -226,10 +231,15 @@ test("no row is final while the Run is still working, waiting or stopping", () =
   const answered = [event(1, "run-1", "assistant.message", { text: "Answer.", stopReason: "stop" })];
   assert.equal(finals(rows(answered, [run("run-1", "running")])).length, 0);
   assert.equal(finals(rows([...answered, event(2, "run-1", "run.status", { status: "completed" })], [run("run-1", "running")])).length, 1);
-  // Streaming text is pending and never final.
-  const streaming = rows([event(1, "run-1", "assistant.delta", { text: "Part" })], [run("run-1", "completed")]);
+  // Streaming text is pending and never final; once its Run has ended without
+  // a final it is partial (Order 3 · G3).
+  const streaming = rows([event(1, "run-1", "assistant.delta", { text: "Part" })], [run("run-1", "running")]);
   assert.equal(finals(streaming).length, 0);
   assert.equal(streaming[0].pending, true);
+  const ended = rows([event(1, "run-1", "assistant.delta", { text: "Part" })], [run("run-1", "completed")]);
+  assert.equal(finals(ended).length, 0);
+  assert.equal(ended[0].pending, false);
+  assert.equal(ended[0].partial, true);
 });
 
 test("failed, cancelled and unknown Runs keep their text readable with no final answer", () => {
@@ -248,7 +258,8 @@ test("failed, cancelled and unknown Runs keep their text readable with no final 
     assert.equal(projected.at(-1).status, status ?? undefined);
   }
   const partial = rows([event(1, "run-1", "assistant.delta", { text: "partial" })], [run("run-1", "cancelled")]);
-  assert.equal(partial[0].pending, true);
+  assert.equal(partial[0].pending, false);
+  assert.equal(partial[0].partial, true);
   assert.equal(finals(partial).length, 0);
 });
 

@@ -1,0 +1,32 @@
+# Order 3 frontend independent acceptance — 2026-09-26
+
+Accepted source `4d0bd9893b8dc0a8903c3efc3106306a7ae9d5a7`, final correction `10bc6f3`, frontend product `88e3e7e`, fixture `9b96b06`, on accepted backend `0ec94c5`. Parent Astra/Codex accepts the finite Order3 frontend/Host integration below; original Claude authored it, Luna supplied bounded independent checks. **STR-FE1 closes.** Backend STR-R1/STR-R2 remain closed. This does not close broader product, accessibility, live-provider or storage-scaling gates.
+
+## Independent evidence
+
+- Luna **58/58** Node checks: previous projection/session/activity/output27, shell5, Attention7, and Markdown-focused19. [Raw log](luna-targeted.log) is authoritative; an initial oral60 count was corrected to27+5+7+19=58. No failed test was omitted and no headless test is claimed for Luna.
+- Parent used the OpenAI-controlled in-app Chromium browser against the exact fixed candidate, isolated loopback Host/data on checked-free18963/18964. [Production body test](fe1-browser.json) verifies definition-before-use, late definitions after earlier paint, unrelated heading node identity, final canonical convergence, stripped javascript href, and definition changes while selected: no text/link change while held, `Content updated` visible, canonical reference link after release, hint removed.
+- Both surfaces recovered after actual browser Network URL blocking of their event endpoints. [Chat raw result](reconnect-chat.json) has one Host final, one body and exact canonical DOM equality. Its broad body.textContent check retained a Connection-lost string; the subsequent [visible-state check](reconnect-visible.json) confirms no visible Connection lost and Completed. [Attention raw sequence](reconnect-attention.json) records visible Connection lost while blocked; an initial all-markdown selector counted the user body too. The corrected [assistant-only check](reconnect-attention-corrected.json) confirms one final/one assistant body, canonical DOM equality, completed Run and no visible loss message. These selector corrections are retained rather than relabelled as product failures.
+- [Prior independent browser evidence](../stream-frontend-review-20260926/README.md) remains applicable to unchanged layout/cursor/motion code:1280/390 light/dark, selected body held through terminal, reduced-motion emulation, Attention cancel partial and Escape focus. That evidence is attributed to7944e12, not relabelled as a new screenshot on this source. The current production-body selection test specifically covers the changed reference path.
+- Luna compared old marked.parse versus new lexer/parser output across7 representative input groups; exact HTML equality. Source review confirms unchanged DOMPurify policy, protocol filtering, external-link rel/target, code-copy toolbar and table wrappers. The browser unsafe-reference result above verifies the actual DOM sanitization path.
+- Isolated merge of main `be3e548` and accepted source preserves both task histories and byte-identical candidate app files. [Integrated28/28](integrated-targeted.log) covers projection/cursor/output/reading, and [runtime smoke](integrated-smoke.log) passes. Author full1710/1710, author browser-test execution and single-round timing remain separately attributed; no full suite or four-round performance campaign was repeated without a new concern.
+
+## Disposition and limits
+
+**STR-FE1 adopt:** lex the growing document once, retain its reference environment, invalidate affected bracket-bearing blocks when definitions change, reuse unrelated blocks and keep canonical final rendering. The conservative invalidation can redraw bracket-containing code blocks; this is an explicit bounded cost, not incorrect content or a new parser. Selection and sanitization remain intact.
+
+**Motion adopt:** restored1.8-second staggered decorative recipe and avoiding stream-container remount, as already selected. Varied-period specimen remains deferred. No measured decode TPS, new grammar authority or animation dependency is claimed.
+
+**Order3 finite outcome accepted:** stable persisted segment identity on both surfaces, incremental text-only updates, selection hold/release, truthful partial state, shared Attention event cursor, and tested connection/reload convergence. This is a synthetic Host plus actual-browser correctness/reading acceptance; no real-model capability claim. Existing Host single-active-Run policy still refuses concurrent Chat/Attention runs; it is not expanded here.
+
+Author timings support the narrower rendering/payload improvement, not universal latency or throughput guarantees. Chat900ms/Attention1500ms polling remains; initial/terminal structural renders still rebuild rows; cumulative backend snapshots remain super-linear and whole-file write amplification remains unmeasured. G1 is mitigated. The final author timing round is one round, not a budget; C8b selection correctness alone does not prove rendering cost.
+
+Not covered independently: native200% zoom/text spacing, forced colors, screen-reader hardware/full keyboard traversal, native OS motion setting, Node22/24, other-browser matrix or paid/live providers. Earlier author C2/C6/C7 and measurement results keep their source-specific attribution. These limitations remain; they are not represented as failures closed by green Node checks.
+
+Temporary Network blocking and viewport overrides were cleared; test tab and owned fixture stopped. No user service restart, credentials, push or deployment. Host22/Core4/bridge5 and dependency pins stay unchanged. Original author tree and integration tree are preserved, not active duplicate writers.
+
+## Handoff
+
+Order3's finite implementation and review are complete at this accepted source. No further original-Claude correction is requested for this slice, and no subsequent author task is automatically released. Any next finite work uses actual integrated main and the existing owner queue; live Runtime management, SSE, native interleaving and accessibility residuals do not start merely because this merge lands.
+
+Integration hygiene: the imported historical failing-test log `stream-frontend-20260926/str-fe1/browser-test-on-7944e12.log` has two whitespace-only lines (18/27) reported by `git diff --check`. Its source bytes are preserved as original evidence; all other staged paths pass the whitespace check. This is not a source-code exception.

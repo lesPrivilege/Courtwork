@@ -6304,10 +6304,19 @@ html[data-theme="dark"] {
 .run-activity-glyph:not(button) { width:28px; }
 .run-activity-bars { display:flex; align-items:center; gap:2px; width:28px; height:18px; }
 .run-activity-bars i { display:block; flex:1; height:16px; background:currentColor; border-radius:var(--radius-pill); transform:scaleY(.3); }
-.run-activity.is-moving .run-activity-bars i { animation:run-work-breath 1.8s var(--ease-out) infinite alternate; }
-.run-activity-bars i:nth-child(2n) { animation-delay:-260ms; }
-.run-activity-bars i:nth-child(3n) { animation-delay:-520ms; }
-.run-activity-bars i:nth-child(4n) { animation-delay:-780ms; }
+/* request.activity · the accepted recipe (context-tps-motion study): seven
+   marks breathe through staggered scale/opacity over 1.8s, each one phase
+   step (-130ms) behind the last. Decorative and non-numeric. Order 3 · the
+   animation shorthand used to reset every mark's delay to 0, so all seven
+   moved as one; the phase is now part of the shorthand itself. */
+.run-activity.is-moving .run-activity-bars i { animation:run-work-breath 1.8s var(--ease-out) calc(var(--bar-index) * -130ms) infinite alternate; }
+.run-activity-bars i:nth-child(1) { --bar-index:0; }
+.run-activity-bars i:nth-child(2) { --bar-index:1; }
+.run-activity-bars i:nth-child(3) { --bar-index:2; }
+.run-activity-bars i:nth-child(4) { --bar-index:3; }
+.run-activity-bars i:nth-child(5) { --bar-index:4; }
+.run-activity-bars i:nth-child(6) { --bar-index:5; }
+.run-activity-bars i:nth-child(7) { --bar-index:6; }
 @keyframes run-work-breath { from { opacity:.35; transform:scaleY(.2); } to { opacity:.85; transform:scaleY(.75); } }
 .run-activity-phrase { min-width:9em; }
 .context-capacity-button { margin-inline:var(--space-1); display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px; padding:0; flex:none; border:1px solid transparent; border-radius:var(--radius-pill); background:transparent; color:var(--muted-strong); }

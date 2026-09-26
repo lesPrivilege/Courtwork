@@ -1,0 +1,12 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "assistantBodies": 1,
+      "converged": true,
+      "finals": 1,
+      "run": "completed",
+      "visibleLost": false
+    }
+  }
+}

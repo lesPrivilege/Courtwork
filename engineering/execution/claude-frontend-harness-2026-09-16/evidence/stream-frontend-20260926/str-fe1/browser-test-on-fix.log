@@ -1,0 +1,10 @@
+✔ a growing reply resolves references like the full document, and converges (811.938958ms)
+ℹ report {"definitionBeforeUse":{"anchorText":"the link","href":"https://example.com","equalsCanonical":true},"beforeDefinition":{"literal":"Read [the link][ref]","anchors":0},"afterDefinition":{"anchorText":"the link","headingNodeKept":true,"equalsCanonical":true},"finalConverges":true,"unsafe":{"hrefs":[null],"equalsCanonical":true}}
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1518.694

@@ -8,20 +8,23 @@ const noticePairs = {
   compaction_end: "compaction_start",
   auto_retry_end: "auto_retry_start",
 };
+const TERMINAL = new Set(["completed", "failed", "cancelled", "unknown"]);
 export function projectThread(events, runs, sessionId) {
   const rows = [],
     assistants = new Map(),
-    segments = new Map(),
     tools = new Map(),
     questions = new Map(),
     // 04 · the assistant row that currently stands as each Run's answer: the
     // last settled message with nothing after it but more of the same. Any
     // later output, tool, check or question takes the place away again.
-    answers = new Map();
+    answers = new Map(),
+    // Order 3 · assistant segments are the Host's `(runId, segment)`. Events
+    // written before segments were recorded use the stable legacy rule: the
+    // number of this Run's assistant finals before the event.
+    finalsBefore = new Map();
   const statuses = new Map(
     runs.filter((r) => r.sessionId === sessionId).map((r) => [r.id, r.status]),
   );
-  const nextSegment = (id) => segments.set(id, (segments.get(id) || 0) + 1);
   for (const event of events) {
     if (event.sessionId && event.sessionId !== sessionId) continue;
     const type = normalizedType(event.type),
@@ -38,7 +41,9 @@ export function projectThread(events, runs, sessionId) {
         id: `user:${event.seq}`,
       });
     else if (type === "assistant/delta" || type === "assistant/final") {
-      const id = `${runId}:${segments.get(runId) || 0}`;
+      const segment = Number.isInteger(data.segment) ? data.segment : finalsBefore.get(runId) || 0;
+      if (type === "assistant/final") finalsBefore.set(runId, (finalsBefore.get(runId) || 0) + 1);
+      const id = `${runId}:${segment}`;
       let row = assistants.get(id);
       if (!row) {
         row = { kind: "assistant", text: "", runId, id,
@@ -46,18 +51,21 @@ export function projectThread(events, runs, sessionId) {
         assistants.set(id, row);
         rows.push(row);
       }
+      // A settled segment keeps its final; a late or repeated delta never
+      // reopens it.
+      if (row.settled && type === "assistant/delta") continue;
       row.text = data.text ?? data.delta ?? data.message ?? row.text;
       row.pending = type === "assistant/delta";
+      row.settled = type === "assistant/final";
+      // A Host-settled partial is what arrived before the Run stopped: shown,
+      // never an answer, never pending.
+      row.partial = type === "assistant/final" && data.partial === true;
       // A message that ends in a tool call is narration on the way to work,
       // not the answer. An empty message shows nothing, so it neither is the
       // answer nor displaces the one before it.
-      if (row.pending || data.stopReason === "toolUse") answers.delete(runId);
+      if (row.pending || row.partial || data.stopReason === "toolUse") answers.delete(runId);
       else if (row.text.trim()) answers.set(runId, row);
-      // A final closes this message. Later cumulative deltas/finals belong to
-      // a new message even when no tool or question separates the outputs.
-      if (type === "assistant/final") nextSegment(runId);
     } else if (["tool/start", "tool/update", "tool/result"].includes(type)) {
-      nextSegment(runId);
       answers.delete(runId);
       const callId = data.callId || data.id || data.name || event.seq,
         key = `${runId}:${callId}`;
@@ -89,7 +97,6 @@ export function projectThread(events, runs, sessionId) {
       const callId = data.callId, key = `${runId}:${callId}`;
       let row = tools.get(key);
       if (!row) {
-        nextSegment(runId);
         answers.delete(runId);
         row = { kind: "tool", runId, callId, name: "check_run", id: key };
         tools.set(key, row);
@@ -105,7 +112,6 @@ export function projectThread(events, runs, sessionId) {
         if (["failed", "unknown"].includes(data.status)) row.isError = true;
       }
     } else if (type === "question/open" || type === "permission/open") {
-      nextSegment(runId);
       answers.delete(runId);
       const id = data.id || data.questionId || event.seq,
         key = `${runId}:${id}`;
@@ -165,6 +171,10 @@ export function projectThread(events, runs, sessionId) {
   // and simply carry no final-answer footer; the run-status row says the rest.
   for (const [runId, row] of answers)
     if (statuses.get(runId) === "completed") row.final = true;
+  // Text still marked as arriving after its Run ended (a record from before
+  // the Host settled partials) is what arrived, not a reply in progress.
+  for (const row of assistants.values())
+    if (row.pending && TERMINAL.has(statuses.get(row.runId))) { row.pending = false; row.partial = true; }
   const ordered = [],
     seen = new Set();
   for (let i = 0; i < rows.length; i++) {

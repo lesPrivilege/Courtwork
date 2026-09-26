@@ -1,0 +1,90 @@
+✔ cumulative assistant deltas and their final stay one non-pending row (1.0935ms)
+✔ subsequent complete assistant messages get separate rows even with identical text (0.78775ms)
+✔ a later assistant message's deltas do not overwrite the first message (0.134416ms)
+✔ tool boundaries preserve assistant/tool/assistant order and tool result identity (0.148666ms)
+✔ assistant and tool rows stay scoped when runs reuse segment and call identities (0.152458ms)
+✔ terminal run shows an incomplete delta as partial, not pending, and a terminal final is settled (0.082083ms)
+✔ assistant time uses only its matching recorded Run start, never a redraw clock (0.089958ms)
+✔ message time has readable provenance content without naming the native time role (38.586875ms)
+✔ narration → tool → answer keeps every row and marks only the answer final (0.186958ms)
+✔ the persisted real dogfood Run yields its five texts and exactly one final answer (3.862667ms)
+✔ no row is final while the Run is still working, waiting or stopping (0.119417ms)
+✔ failed, cancelled and unknown Runs keep their text readable with no final answer (0.12575ms)
+✔ whatever follows the answer takes the final mark away or passes it on (0.137125ms)
+✔ each Run has its own final answer (0.06075ms)
+✔ the shared footer draws time and actions only under the final answer (0.328042ms)
+✔ the moving rule carries each mark's phase inside the animation shorthand (1.090292ms)
+✔ each of the seven marks has its own phase index (1.063958ms)
+✔ reduced motion still stops the marks (0.086417ms)
+✔ events are admitted once by seq, in order, and the cursor never moves back (1.466833ms)
+✔ only a page of assistant deltas may patch bodies in place (0.100083ms)
+✔ Markdown blocks keep their exact source; an unclosed fence stays one open tail block (10.649959ms)
+✔ rows follow the Host segment: text, tool, text keeps segment 0 and opens segment 1 (1.769417ms)
+✔ a growing segment replaces its text; a late delta never reopens a settled segment (0.188417ms)
+✔ a Host-settled partial is shown, never pending and never the answer (0.118291ms)
+✔ legacy events without a segment use the finals-before rule and get the same row ids (0.122542ms)
+✔ legacy text still arriving when its Run ended reads as partial, not pending (0.080625ms)
+✔ recovery partials for two segments give two rows in segment order (0.094667ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 140.450959
+✔ WK-92 · Chat 与 Work 由既有的 extensionBinding 分开，不由新状态分开 (1.30825ms)
+✔ WK-92 · Continue in Matter 只走既有的 extension 路由；不新增端点、不复制、不迁移 (1.021917ms)
+✔ WK-92 / M-2 · scope 位在工作面标题带上，仍是陈述而不是控件 (0.585583ms)
+✔ WK-92 / §4 · Memory 组：不用 Session Memory，Sources ≠ Memory，Temporary chat 零控件 (0.183125ms)
+✔ WK-92 · 导航只对 Work 加一个标记，Chat 是默认的那一种 (0.183375ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.426208
+✔ global Attention has replayable identity, shared configuration and a real governed Run (623.228916ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (494.258833ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (143.92925ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (0.660208ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.160708ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.144458ms)
+✔ conversation rename persists metadata without changing history, scope or draft (66.255791ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2033.540708
+✔ real HTTP candidate pages preserve Markdown bytes, and wrong Matter scope is refused (628.347ms)
+✔ accepted Artifact pages remain exact after producer deletion and extension unload (495.091375ms)
+✔ independent SHA-256 and code-point helpers agree with the browser source contract (3.793333ms)
+✔ readCoreManifest returns verified file refs and sends a bounded candidate query (1.014959ms)
+✔ readCoreManifest uses the explicit Artifact selector and preserves its identity (0.12775ms)
+✔ readCoreManifest rejects wrong identities, holes, duplicate paths and unsupported pages (0.462084ms)
+✔ readCoreFile assembles pages using server code-point cursors and an independent final hash (1.582875ms)
+✔ readCoreFile accepts an exact empty terminal page (0.254208ms)
+✔ readCoreFile rejects wrong IDs, hash swaps, path swaps and pagination holes (0.416542ms)
+✔ readCoreFile rejects a continuation replay or changed duplicate page (0.12775ms)
+✔ readCoreFile rejects a changed identity on any page and a wrong final digest (0.428417ms)
+✔ readCoreFile aborts before and after a delayed page, without returning partial source (0.267417ms)
+✔ coreFileSubjects exposes only supported, scoped Core file refs (0.1405ms)
+✔ projectMarkdown preserves BOM, CRLF, combining marks, duplicate block ranges and safe semantic nodes (9.6115ms)
+✔ projectMarkdown parses complete definitions, keeps unsafe links inert, and emits bounded warnings (2.652125ms)
+✔ projectMarkdown refuses malformed identity, source text, and size (0.435708ms)
+✔ projectMarkdown creates a revision-local key and never claims writable review state (1.970167ms)
+✔ sha256Text does not silently normalize source (0.5345ms)
+✔ readCoreFile propagates producer absence as an exact read, not a fallback (0.274459ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1755.232333

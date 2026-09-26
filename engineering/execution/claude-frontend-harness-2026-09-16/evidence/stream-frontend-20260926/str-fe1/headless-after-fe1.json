@@ -1,0 +1,894 @@
+{
+ "source": null,
+ "chrome": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+ "viewport": [
+  1440,
+  900,
+  1,
+  false
+ ],
+ "scenarios": {
+  "chat-sustained-1": {
+   "surface": "chat",
+   "input": "stream sustained",
+   "runId": "878a2c04-e290-4595-a1cd-971a515985e4",
+   "status": "completed",
+   "polls": 12,
+   "receiveToDom": {
+    "p50": 5,
+    "p95": 25,
+    "max": 25
+   },
+   "receiveToPaint": {
+    "p50": 14,
+    "p95": 26,
+    "max": 26
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 744
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 18,
+    "addedNodes": 491,
+    "removedNodes": 274
+   },
+   "samples": [
+    {
+     "t": 1790410007299,
+     "kind": "cursor",
+     "minSeq": 6,
+     "maxSeq": 9,
+     "lastChars": 840,
+     "bytes": 4832,
+     "domAt": 1790410007324,
+     "paintAt": 1790410007325
+    },
+    {
+     "t": 1790410008227,
+     "kind": "cursor",
+     "minSeq": 10,
+     "maxSeq": 13,
+     "lastChars": 1944,
+     "bytes": 7036,
+     "domAt": 1790410008231,
+     "paintAt": 1790410008239
+    },
+    {
+     "t": 1790410009135,
+     "kind": "cursor",
+     "minSeq": 14,
+     "maxSeq": 16,
+     "lastChars": 2784,
+     "bytes": 8291,
+     "domAt": 1790410009138,
+     "paintAt": 1790410009139
+    },
+    {
+     "t": 1790410010041,
+     "kind": "cursor",
+     "minSeq": 17,
+     "maxSeq": 20,
+     "lastChars": 3888,
+     "bytes": 15045,
+     "domAt": 1790410010045,
+     "paintAt": 1790410010055
+    },
+    {
+     "t": 1790410010949,
+     "kind": "cursor",
+     "minSeq": 21,
+     "maxSeq": 24,
+     "lastChars": 4992,
+     "bytes": 19617,
+     "domAt": 1790410010954,
+     "paintAt": 1790410010955
+    },
+    {
+     "t": 1790410011857,
+     "kind": "cursor",
+     "minSeq": 25,
+     "maxSeq": 27,
+     "lastChars": 5832,
+     "bytes": 17733,
+     "domAt": 1790410011862,
+     "paintAt": 1790410011872
+    },
+    {
+     "t": 1790410012765,
+     "kind": "cursor",
+     "minSeq": 28,
+     "maxSeq": 31,
+     "lastChars": 6936,
+     "bytes": 27670,
+     "domAt": 1790410012770,
+     "paintAt": 1790410012772
+    },
+    {
+     "t": 1790410013674,
+     "kind": "cursor",
+     "minSeq": 32,
+     "maxSeq": 34,
+     "lastChars": 7752,
+     "bytes": 23750,
+     "domAt": 1790410013679,
+     "paintAt": 1790410013689
+    },
+    {
+     "t": 1790410014582,
+     "kind": "cursor",
+     "minSeq": 35,
+     "maxSeq": 38,
+     "lastChars": 8856,
+     "bytes": 35666,
+     "domAt": 1790410014587,
+     "paintAt": 1790410014589
+    },
+    {
+     "t": 1790410015490,
+     "kind": "cursor",
+     "minSeq": 39,
+     "maxSeq": 42,
+     "lastChars": 9960,
+     "bytes": 40244,
+     "domAt": 1790410015494,
+     "paintAt": 1790410015505
+    },
+    {
+     "t": 1790410016398,
+     "kind": "cursor",
+     "minSeq": 43,
+     "maxSeq": 45,
+     "lastChars": 10800,
+     "bytes": 33192,
+     "domAt": 1790410016403,
+     "paintAt": 1790410016405
+    },
+    {
+     "t": 1790410017308,
+     "kind": "cursor",
+     "minSeq": 46,
+     "maxSeq": 49,
+     "lastChars": 11904,
+     "bytes": 49857,
+     "domAt": 1790410017319,
+     "paintAt": 1790410017322
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 119,
+    "p95": 217,
+    "max": 217
+   }
+  },
+  "chat-burst": {
+   "surface": "chat",
+   "input": "stream burst",
+   "runId": "d3c06112-71e1-4ca1-9f5d-772fe052cad1",
+   "status": "completed",
+   "polls": 6,
+   "receiveToDom": {
+    "p50": 5,
+    "p95": 11,
+    "max": 11
+   },
+   "receiveToPaint": {
+    "p50": 12,
+    "p95": 15,
+    "max": 15
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 428
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 10,
+    "addedNodes": 457,
+    "removedNodes": 259
+   },
+   "samples": [
+    {
+     "t": 1790410019713,
+     "kind": "cursor",
+     "minSeq": 59,
+     "maxSeq": 61,
+     "lastChars": 1488,
+     "bytes": 5994,
+     "domAt": 1790410019724,
+     "paintAt": 1790410019725
+    },
+    {
+     "t": 1790410020627,
+     "kind": "cursor",
+     "minSeq": 62,
+     "maxSeq": 64,
+     "lastChars": 4320,
+     "bytes": 11000,
+     "domAt": 1790410020631,
+     "paintAt": 1790410020639
+    },
+    {
+     "t": 1790410021535,
+     "kind": "cursor",
+     "minSeq": 65,
+     "maxSeq": 66,
+     "lastChars": 5760,
+     "bytes": 10836,
+     "domAt": 1790410021539,
+     "paintAt": 1790410021539
+    },
+    {
+     "t": 1790410022441,
+     "kind": "cursor",
+     "minSeq": 67,
+     "maxSeq": 69,
+     "lastChars": 7248,
+     "bytes": 21487,
+     "domAt": 1790410022445,
+     "paintAt": 1790410022455
+    },
+    {
+     "t": 1790410023347,
+     "kind": "cursor",
+     "minSeq": 70,
+     "maxSeq": 72,
+     "lastChars": 10080,
+     "bytes": 28902,
+     "domAt": 1790410023354,
+     "paintAt": 1790410023355
+    },
+    {
+     "t": 1790410024257,
+     "kind": "cursor",
+     "minSeq": 73,
+     "maxSeq": 74,
+     "lastChars": 11520,
+     "bytes": 22767,
+     "domAt": 1790410024262,
+     "paintAt": 1790410024272
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 201,
+    "p95": 370,
+    "max": 370
+   }
+  },
+  "chat-sustained-3": {
+   "surface": "chat",
+   "input": "stream sustained",
+   "runId": "e2bf6fc6-0855-4eb5-b024-855ebb3a6e5f",
+   "status": "completed",
+   "polls": 12,
+   "receiveToDom": {
+    "p50": 4,
+    "p95": 15,
+    "max": 15
+   },
+   "receiveToPaint": {
+    "p50": 10,
+    "p95": 15,
+    "max": 15
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 744
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 18,
+    "addedNodes": 489,
+    "removedNodes": 287
+   },
+   "samples": [
+    {
+     "t": 1790410026877,
+     "kind": "cursor",
+     "minSeq": 85,
+     "maxSeq": 88,
+     "lastChars": 840,
+     "bytes": 4816,
+     "domAt": 1790410026892,
+     "paintAt": 1790410026892
+    },
+    {
+     "t": 1790410027795,
+     "kind": "cursor",
+     "minSeq": 89,
+     "maxSeq": 92,
+     "lastChars": 1944,
+     "bytes": 7036,
+     "domAt": 1790410027798,
+     "paintAt": 1790410027805
+    },
+    {
+     "t": 1790410028701,
+     "kind": "cursor",
+     "minSeq": 93,
+     "maxSeq": 95,
+     "lastChars": 2784,
+     "bytes": 8291,
+     "domAt": 1790410028704,
+     "paintAt": 1790410028705
+    },
+    {
+     "t": 1790410029607,
+     "kind": "cursor",
+     "minSeq": 96,
+     "maxSeq": 99,
+     "lastChars": 3864,
+     "bytes": 14996,
+     "domAt": 1790410029610,
+     "paintAt": 1790410029622
+    },
+    {
+     "t": 1790410030517,
+     "kind": "cursor",
+     "minSeq": 100,
+     "maxSeq": 102,
+     "lastChars": 4680,
+     "bytes": 14237,
+     "domAt": 1790410030520,
+     "paintAt": 1790410030522
+    },
+    {
+     "t": 1790410031424,
+     "kind": "cursor",
+     "minSeq": 103,
+     "maxSeq": 106,
+     "lastChars": 5784,
+     "bytes": 22948,
+     "domAt": 1790410031428,
+     "paintAt": 1790410031439
+    },
+    {
+     "t": 1790410032331,
+     "kind": "cursor",
+     "minSeq": 107,
+     "maxSeq": 110,
+     "lastChars": 6888,
+     "bytes": 27523,
+     "domAt": 1790410032334,
+     "paintAt": 1790410032339
+    },
+    {
+     "t": 1790410033238,
+     "kind": "cursor",
+     "minSeq": 111,
+     "maxSeq": 113,
+     "lastChars": 7728,
+     "bytes": 23656,
+     "domAt": 1790410033242,
+     "paintAt": 1790410033242
+    },
+    {
+     "t": 1790410034144,
+     "kind": "cursor",
+     "minSeq": 114,
+     "maxSeq": 117,
+     "lastChars": 8808,
+     "bytes": 35495,
+     "domAt": 1790410034149,
+     "paintAt": 1790410034155
+    },
+    {
+     "t": 1790410035052,
+     "kind": "cursor",
+     "minSeq": 118,
+     "maxSeq": 121,
+     "lastChars": 9912,
+     "bytes": 40048,
+     "domAt": 1790410035056,
+     "paintAt": 1790410035056
+    },
+    {
+     "t": 1790410035958,
+     "kind": "cursor",
+     "minSeq": 122,
+     "maxSeq": 124,
+     "lastChars": 10728,
+     "bytes": 33003,
+     "domAt": 1790410035963,
+     "paintAt": 1790410035972
+    },
+    {
+     "t": 1790410036867,
+     "kind": "cursor",
+     "minSeq": 125,
+     "maxSeq": 128,
+     "lastChars": 11832,
+     "bytes": 47996,
+     "domAt": 1790410036871,
+     "paintAt": 1790410036872
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 127,
+    "p95": 250,
+    "max": 250
+   }
+  },
+  "chat-flood": {
+   "surface": "chat",
+   "input": "stream flood",
+   "runId": "1430ddec-ca41-49ce-adb3-988e2501b7f1",
+   "status": "completed",
+   "polls": 2,
+   "receiveToDom": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17
+   },
+   "receiveToPaint": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 230
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 5,
+    "addedNodes": 346,
+    "removedNodes": 208
+   },
+   "samples": [
+    {
+     "t": 1790410039317,
+     "kind": "cursor",
+     "minSeq": 138,
+     "maxSeq": 141,
+     "lastChars": 3672,
+     "bytes": 9581,
+     "domAt": 1790410039334,
+     "paintAt": 1790410039334
+    },
+    {
+     "t": 1790410040238,
+     "kind": "cursor",
+     "minSeq": 142,
+     "maxSeq": 145,
+     "lastChars": 8592,
+     "bytes": 28767,
+     "domAt": 1790410040244,
+     "paintAt": 1790410040254
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 151,
+    "p95": 151,
+    "max": 151
+   }
+  },
+  "chat-tools": {
+   "surface": "chat",
+   "input": "stream tools",
+   "runId": "d1fa9a0d-25a8-4211-b28a-6d6b637257a8",
+   "status": "completed",
+   "polls": 1,
+   "receiveToDom": {
+    "p50": 24,
+    "p95": 24,
+    "max": 24
+   },
+   "receiveToPaint": {
+    "p50": 25,
+    "p95": 25,
+    "max": 25
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 152
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 4,
+    "addedNodes": 18,
+    "removedNodes": 50
+   },
+   "samples": [
+    {
+     "t": 1790410043189,
+     "kind": "cursor",
+     "minSeq": 157,
+     "maxSeq": 166,
+     "lastChars": 312,
+     "bytes": 7096,
+     "domAt": 1790410043213,
+     "paintAt": 1790410043214
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 208,
+    "p95": 208,
+    "max": 208
+   }
+  },
+  "chat-reduced-motion": {
+   "surface": "chat",
+   "input": "stream markdown",
+   "runId": "c161a099-402a-4e15-b14c-7905dcc6f12a",
+   "status": "completed",
+   "polls": 1,
+   "receiveToDom": {
+    "p50": 30,
+    "p95": 30,
+    "max": 30
+   },
+   "receiveToPaint": {
+    "p50": 30,
+    "p95": 30,
+    "max": 30
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 408
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 4,
+    "addedNodes": 18,
+    "removedNodes": 72
+   },
+   "samples": [
+    {
+     "t": 1790410051976,
+     "kind": "cursor",
+     "minSeq": 201,
+     "maxSeq": 204,
+     "lastChars": 312,
+     "bytes": 2581,
+     "domAt": 1790410052006,
+     "paintAt": 1790410052006
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 96,
+    "p95": 96,
+    "max": 96
+   }
+  },
+  "attention-sustained": {
+   "surface": "attention",
+   "input": "stream sustained",
+   "runId": "c532bd52-f105-4829-b250-3ccdfb04a637",
+   "status": "completed",
+   "polls": 9,
+   "receiveToDom": {
+    "p50": 6,
+    "p95": 20,
+    "max": 20
+   },
+   "receiveToPaint": {
+    "p50": 11,
+    "p95": 20,
+    "max": 20
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 901
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 12,
+    "addedNodes": 456,
+    "removedNodes": 241
+   },
+   "samples": [
+    {
+     "t": 1790410060882,
+     "kind": "cursor",
+     "minSeq": 6,
+     "maxSeq": 11,
+     "lastChars": 1368,
+     "bytes": 7721,
+     "domAt": 1790410060888,
+     "paintAt": 1790410060888
+    },
+    {
+     "t": 1790410062391,
+     "kind": "cursor",
+     "minSeq": 12,
+     "maxSeq": 17,
+     "lastChars": 3000,
+     "bytes": 15491,
+     "domAt": 1790410062395,
+     "paintAt": 1790410062404
+    },
+    {
+     "t": 1790410063899,
+     "kind": "cursor",
+     "minSeq": 18,
+     "maxSeq": 23,
+     "lastChars": 4632,
+     "bytes": 25587,
+     "domAt": 1790410063903,
+     "paintAt": 1790410063904
+    },
+    {
+     "t": 1790410065407,
+     "kind": "cursor",
+     "minSeq": 24,
+     "maxSeq": 29,
+     "lastChars": 6264,
+     "bytes": 35766,
+     "domAt": 1790410065412,
+     "paintAt": 1790410065421
+    },
+    {
+     "t": 1790410066916,
+     "kind": "cursor",
+     "minSeq": 30,
+     "maxSeq": 35,
+     "lastChars": 7872,
+     "bytes": 45714,
+     "domAt": 1790410066921,
+     "paintAt": 1790410066921
+    },
+    {
+     "t": 1790410068425,
+     "kind": "cursor",
+     "minSeq": 36,
+     "maxSeq": 41,
+     "lastChars": 9504,
+     "bytes": 55805,
+     "domAt": 1790410068431,
+     "paintAt": 1790410068436
+    },
+    {
+     "t": 1790410069936,
+     "kind": "cursor",
+     "minSeq": 42,
+     "maxSeq": 47,
+     "lastChars": 11136,
+     "bytes": 65987,
+     "domAt": 1790410069942,
+     "paintAt": 1790410069942
+    },
+    {
+     "t": 1790410071446,
+     "kind": "cursor",
+     "minSeq": 48,
+     "maxSeq": 52,
+     "lastChars": 12000,
+     "bytes": 51352,
+     "domAt": 1790410071466,
+     "paintAt": 1790410071466
+    },
+    {
+     "t": 1790410071450,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 52,
+     "lastChars": 12000,
+     "bytes": 335825,
+     "domAt": 1790410071466,
+     "paintAt": 1790410071466
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 189,
+    "p95": 899,
+    "max": 899
+   }
+  }
+ },
+ "activity": {
+  "chat-sustained-1": {
+   "movingSamples": 40,
+   "samples": 40,
+   "restarts": 0,
+   "animationInstancesPerBar": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "touches": {
+    "childList:children:run-activity-phrase": 1
+   },
+   "spreadP50": 0.13,
+   "spreadMax": 0.461,
+   "perBarRange": [
+    0.55,
+    0.546,
+    0.547,
+    0.55,
+    0.549,
+    0.546,
+    0.549
+   ],
+   "computed": [
+    [
+     "1.8s",
+     "0s"
+    ],
+    [
+     "1.8s",
+     "-0.13s"
+    ],
+    [
+     "1.8s",
+     "-0.26s"
+    ],
+    [
+     "1.8s",
+     "-0.39s"
+    ],
+    [
+     "1.8s",
+     "-0.52s"
+    ],
+    [
+     "1.8s",
+     "-0.65s"
+    ],
+    [
+     "1.8s",
+     "-0.78s"
+    ]
+   ]
+  },
+  "chat-reduced-motion": {
+   "movingSamples": 0,
+   "samples": 40,
+   "restarts": 0,
+   "animationInstancesPerBar": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "touches": {
+    "childList:children:sr-only": 1,
+    "childList:children:run-activity-phrase": 1
+   },
+   "spreadP50": 0,
+   "spreadMax": 0,
+   "perBarRange": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "computed": [
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ]
+   ]
+  }
+ },
+ "startedAt": "2026-09-26T08:06:42.235Z",
+ "checks": {
+  "selectionAcrossFinal": {
+   "status": "completed",
+   "heldChars": 187,
+   "during": {
+    "selectionKept": true,
+    "chars": 187,
+    "hint": "Content updated",
+    "pending": false
+   },
+   "after": {
+    "chars": 861,
+    "hint": null
+   },
+   "finalChars": 889
+  }
+ }
+}

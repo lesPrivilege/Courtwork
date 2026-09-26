@@ -1,0 +1,9 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "completed": true,
+      "visibleLost": false
+    }
+  }
+}

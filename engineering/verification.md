@@ -1,5 +1,8 @@
 # 验证选择与证据边界
 
+2026-09-26 · [Order3 frontend independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/stream-frontend-final-20260926/README.md), source4d0bd98/10bc6f3: Parent OpenAI browser verifies reference semantics, sanitization, selection-held definition update and Chat/Attention event-connection recovery; Luna58/58, isolated integration28/28 and smoke pass. Prior7944e12 visual evidence is explicitly reused only for unchanged layout/motion. Author1710/1710 and performance rounds remain separately attributed; native accessibility, Node22/24 and live-provider coverage remain unexecuted. No schema/dependency or release-source change.
+
+
 2026-09-26 · [Order3 backend independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/stream-backend-final-20260926/README.md), source10f27aa/76dee98: Parent closes prior persistence/final/recovery probes, Host audit6/6 and Luna76/76 pass; isolated integration stream/foundation23/23 plus smoke pass. Author full1697/1697 remains separately attributed. Fixed-fixture C10 measured state253,609 bytes / delta events177,144 bytes within unchanged bounds; no whole-file write-amplification or frontend performance claim. Host22/Core4/bridge5, dependency pins and capability exposure unchanged. Frontend and browser acceptance follow separately.
 
 

@@ -1,0 +1,23 @@
+{
+  "disconnected": {
+    "result": {
+      "type": "object",
+      "value": {
+        "lost": true,
+        "pending": 1
+      }
+    }
+  },
+  "recovered": {
+    "result": {
+      "type": "object",
+      "value": {
+        "bodies": 1,
+        "converged": true,
+        "finals": 1,
+        "lost": true,
+        "run": "completed"
+      }
+    }
+  }
+}

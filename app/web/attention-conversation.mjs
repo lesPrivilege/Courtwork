@@ -1,5 +1,7 @@
 // A global conversation is still owned by Session/Run. This controller owns
 // only presentation, drafts and request receipts; it never runs an agent loop.
+import { admitSessionEvents, eventsAfterPath } from './session-events.mjs';
+
 export function createAttentionConversation({ request, changed = () => {}, beforeSend = async () => {}, uuid = () => crypto.randomUUID() }) {
   const state = { session: null, events: [], runs: [], lastSeq: 0, draft: '', conversations: [],
     busy: false, loading: false, error: '', readError: '', command: null, conversationId: null, generation: 0 };
@@ -9,6 +11,21 @@ export function createAttentionConversation({ request, changed = () => {}, befor
     const own = ++state.generation, id = state.conversationId;
     state.loading = true; state.readError = ''; emit();
     try {
+      // Order 3 · a loaded conversation follows the shared event cursor, as
+      // Chat does. The full detail is read again only when a Run record may
+      // have changed (a run.* event) or the cursor is ahead of the Host.
+      if (id && state.session?.id === id && state.lastSeq > 0) {
+        let page = null;
+        try { page = await request(eventsAfterPath(id, state.lastSeq)); }
+        catch (error) { if (error.body?.error?.code !== 'cursor_ahead') throw error; }
+        if (own !== state.generation || id !== state.conversationId) return;
+        if (page) {
+          if (!Array.isArray(page.events)) throw new Error('Unsupported Attention conversation events');
+          const merged = admitSessionEvents(state.events, page.events, { sessionId: id, lastSeq: state.lastSeq });
+          state.events = merged.events; state.lastSeq = merged.lastSeq;
+          if (!merged.admitted.some(event => event.type?.startsWith('run.'))) return;
+        }
+      }
       const list = await request('/attention/conversations');
       if (own !== state.generation) return;
       if (list.schemaVersion !== 1 || list.scope !== 'global' || !Array.isArray(list.sessions) || list.sessions.some(s => s.scope !== 'global' || s.projectId !== null)) throw new Error('Unsupported Attention conversations');

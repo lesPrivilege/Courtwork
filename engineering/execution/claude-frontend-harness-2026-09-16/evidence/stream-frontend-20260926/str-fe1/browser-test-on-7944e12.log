@@ -1,0 +1,34 @@
+✖ a growing reply resolves references like the full document, and converges (940.031292ms)
+ℹ report {"definitionBeforeUse":{"anchorText":null,"href":null,"equalsCanonical":false},"beforeDefinition":{"literal":"Read [the link][ref]","anchors":0},"afterDefinition":{"anchorText":null,"headingNodeKept":true,"equalsCanonical":false},"finalConverges":true,"unsafe":{"hrefs":[],"equalsCanonical":false}}
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1962.298708
+
+✖ failing tests:
+
+test at app/tests/stream-body-browser.test.mjs:54:1
+✖ a growing reply resolves references like the full document, and converges (940.031292ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   anchorText: null,
+  +   equalsCanonical: false,
+  +   href: null
+  -   anchorText: 'the link',
+  -   equalsCanonical: true,
+  -   href: 'https://example.com'
+    }
+  
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { anchorText: null, href: null, equalsCanonical: false },
+    expected: { anchorText: 'the link', href: 'https://example.com', equalsCanonical: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

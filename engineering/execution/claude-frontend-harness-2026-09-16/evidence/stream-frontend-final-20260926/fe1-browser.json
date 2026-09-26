@@ -1,0 +1,30 @@
+{
+  "result": {
+    "type": "object",
+    "value": {
+      "after": {
+        "anchor": "https://example.com",
+        "equal": true,
+        "headingKept": true
+      },
+      "before": {
+        "equal": true,
+        "html": "<p>Read <a href=\"https://example.com\" target=\"_blank\" rel=\"noopener noreferrer\">the link</a></p>\n<p>Tail</p>\n"
+      },
+      "converges": true,
+      "frozen": {
+        "anchor": null,
+        "hint": true,
+        "text": "Heading\nRead [the link][ref]\nNext\n"
+      },
+      "hrefs": [
+        null
+      ],
+      "released": {
+        "anchor": "https://example.com",
+        "equal": true,
+        "hint": false
+      }
+    }
+  }
+}

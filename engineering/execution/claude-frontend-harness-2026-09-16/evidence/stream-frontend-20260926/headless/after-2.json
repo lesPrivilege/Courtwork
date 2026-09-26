@@ -1,0 +1,877 @@
+{
+ "source": null,
+ "chrome": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.0.0 Safari/537.36",
+ "viewport": [
+  1440,
+  900,
+  1,
+  false
+ ],
+ "scenarios": {
+  "chat-sustained-1": {
+   "surface": "chat",
+   "input": "stream sustained",
+   "runId": "9d5a7299-4c7b-4e53-bfe0-cc8d15728d36",
+   "status": "completed",
+   "polls": 12,
+   "receiveToDom": {
+    "p50": 9,
+    "p95": 40,
+    "max": 40
+   },
+   "receiveToPaint": {
+    "p50": 14,
+    "p95": 41,
+    "max": 41
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 33,
+    "over50": 0,
+    "frames": 749
+   },
+   "longFrames": {
+    "count": 1,
+    "totalMs": 51,
+    "maxMs": 51,
+    "scriptMs": 39,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 18,
+    "addedNodes": 488,
+    "removedNodes": 269
+   },
+   "samples": [
+    {
+     "t": 1790406927759,
+     "kind": "cursor",
+     "minSeq": 6,
+     "maxSeq": 9,
+     "lastChars": 840,
+     "bytes": 4808,
+     "domAt": 1790406927799,
+     "paintAt": 1790406927800
+    },
+    {
+     "t": 1790406928704,
+     "kind": "cursor",
+     "minSeq": 10,
+     "maxSeq": 13,
+     "lastChars": 1944,
+     "bytes": 6988,
+     "domAt": 1790406928713,
+     "paintAt": 1790406928716
+    },
+    {
+     "t": 1790406929619,
+     "kind": "cursor",
+     "minSeq": 14,
+     "maxSeq": 16,
+     "lastChars": 2760,
+     "bytes": 8217,
+     "domAt": 1790406929628,
+     "paintAt": 1790406929633
+    },
+    {
+     "t": 1790406930535,
+     "kind": "cursor",
+     "minSeq": 17,
+     "maxSeq": 20,
+     "lastChars": 3840,
+     "bytes": 14894,
+     "domAt": 1790406930544,
+     "paintAt": 1790406930548
+    },
+    {
+     "t": 1790406931450,
+     "kind": "cursor",
+     "minSeq": 21,
+     "maxSeq": 24,
+     "lastChars": 4944,
+     "bytes": 19467,
+     "domAt": 1790406931460,
+     "paintAt": 1790406931466
+    },
+    {
+     "t": 1790406932368,
+     "kind": "cursor",
+     "minSeq": 25,
+     "maxSeq": 27,
+     "lastChars": 5784,
+     "bytes": 17611,
+     "domAt": 1790406932377,
+     "paintAt": 1790406932381
+    },
+    {
+     "t": 1790406933284,
+     "kind": "cursor",
+     "minSeq": 28,
+     "maxSeq": 31,
+     "lastChars": 6864,
+     "bytes": 27444,
+     "domAt": 1790406933294,
+     "paintAt": 1790406933300
+    },
+    {
+     "t": 1790406934201,
+     "kind": "cursor",
+     "minSeq": 32,
+     "maxSeq": 35,
+     "lastChars": 7968,
+     "bytes": 31968,
+     "domAt": 1790406934211,
+     "paintAt": 1790406934216
+    },
+    {
+     "t": 1790406935115,
+     "kind": "cursor",
+     "minSeq": 36,
+     "maxSeq": 38,
+     "lastChars": 8808,
+     "bytes": 27002,
+     "domAt": 1790406935121,
+     "paintAt": 1790406935121
+    },
+    {
+     "t": 1790406936027,
+     "kind": "cursor",
+     "minSeq": 39,
+     "maxSeq": 42,
+     "lastChars": 9888,
+     "bytes": 39967,
+     "domAt": 1790406936038,
+     "paintAt": 1790406936039
+    },
+    {
+     "t": 1790406936944,
+     "kind": "cursor",
+     "minSeq": 43,
+     "maxSeq": 46,
+     "lastChars": 10968,
+     "bytes": 44467,
+     "domAt": 1790406936952,
+     "paintAt": 1790406936953
+    },
+    {
+     "t": 1790406937866,
+     "kind": "cursor",
+     "minSeq": 47,
+     "maxSeq": 49,
+     "lastChars": 11808,
+     "bytes": 36350,
+     "domAt": 1790406937871,
+     "paintAt": 1790406937882
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": -47046,
+    "p95": -46948,
+    "max": -46948
+   }
+  },
+  "chat-burst": {
+   "surface": "chat",
+   "input": "stream burst",
+   "runId": "80ea3f18-b2d2-4558-978b-e5529327db0f",
+   "status": "completed",
+   "polls": 6,
+   "receiveToDom": {
+    "p50": 10,
+    "p95": 22,
+    "max": 22
+   },
+   "receiveToPaint": {
+    "p50": 15,
+    "p95": 23,
+    "max": 23
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 420
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 10,
+    "addedNodes": 457,
+    "removedNodes": 259
+   },
+   "samples": [
+    {
+     "t": 1790406940293,
+     "kind": "cursor",
+     "minSeq": 59,
+     "maxSeq": 61,
+     "lastChars": 1488,
+     "bytes": 5992,
+     "domAt": 1790406940315,
+     "paintAt": 1790406940316
+    },
+    {
+     "t": 1790406941218,
+     "kind": "cursor",
+     "minSeq": 62,
+     "maxSeq": 64,
+     "lastChars": 4320,
+     "bytes": 11000,
+     "domAt": 1790406941227,
+     "paintAt": 1790406941232
+    },
+    {
+     "t": 1790406942134,
+     "kind": "cursor",
+     "minSeq": 65,
+     "maxSeq": 66,
+     "lastChars": 5760,
+     "bytes": 10836,
+     "domAt": 1790406942144,
+     "paintAt": 1790406942149
+    },
+    {
+     "t": 1790406943049,
+     "kind": "cursor",
+     "minSeq": 67,
+     "maxSeq": 69,
+     "lastChars": 7248,
+     "bytes": 21487,
+     "domAt": 1790406943055,
+     "paintAt": 1790406943064
+    },
+    {
+     "t": 1790406943959,
+     "kind": "cursor",
+     "minSeq": 70,
+     "maxSeq": 72,
+     "lastChars": 10080,
+     "bytes": 28902,
+     "domAt": 1790406943969,
+     "paintAt": 1790406943969
+    },
+    {
+     "t": 1790406944872,
+     "kind": "cursor",
+     "minSeq": 73,
+     "maxSeq": 74,
+     "lastChars": 11520,
+     "bytes": 22767,
+     "domAt": 1790406944879,
+     "paintAt": 1790406944882
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 192,
+    "p95": 390,
+    "max": 390
+   }
+  },
+  "chat-sustained-3": {
+   "surface": "chat",
+   "input": "stream sustained",
+   "runId": "4d92760a-b06c-4015-9f75-7bab4397fdc4",
+   "status": "completed",
+   "polls": 12,
+   "receiveToDom": {
+    "p50": 7,
+    "p95": 27,
+    "max": 27
+   },
+   "receiveToPaint": {
+    "p50": 13,
+    "p95": 28,
+    "max": 28
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 760
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 18,
+    "addedNodes": 489,
+    "removedNodes": 287
+   },
+   "samples": [
+    {
+     "t": 1790406947320,
+     "kind": "cursor",
+     "minSeq": 85,
+     "maxSeq": 88,
+     "lastChars": 840,
+     "bytes": 3634,
+     "domAt": 1790406947347,
+     "paintAt": 1790406947348
+    },
+    {
+     "t": 1790406948251,
+     "kind": "cursor",
+     "minSeq": 89,
+     "maxSeq": 92,
+     "lastChars": 1944,
+     "bytes": 7036,
+     "domAt": 1790406948255,
+     "paintAt": 1790406948264
+    },
+    {
+     "t": 1790406949161,
+     "kind": "cursor",
+     "minSeq": 93,
+     "maxSeq": 95,
+     "lastChars": 2760,
+     "bytes": 8217,
+     "domAt": 1790406949168,
+     "paintAt": 1790406949169
+    },
+    {
+     "t": 1790406950071,
+     "kind": "cursor",
+     "minSeq": 96,
+     "maxSeq": 99,
+     "lastChars": 3840,
+     "bytes": 14919,
+     "domAt": 1790406950076,
+     "paintAt": 1790406950082
+    },
+    {
+     "t": 1790406950981,
+     "kind": "cursor",
+     "minSeq": 100,
+     "maxSeq": 103,
+     "lastChars": 4920,
+     "bytes": 19422,
+     "domAt": 1790406950987,
+     "paintAt": 1790406950999
+    },
+    {
+     "t": 1790406951892,
+     "kind": "cursor",
+     "minSeq": 104,
+     "maxSeq": 106,
+     "lastChars": 5736,
+     "bytes": 17514,
+     "domAt": 1790406951898,
+     "paintAt": 1790406951899
+    },
+    {
+     "t": 1790406952801,
+     "kind": "cursor",
+     "minSeq": 107,
+     "maxSeq": 110,
+     "lastChars": 6840,
+     "bytes": 27299,
+     "domAt": 1790406952808,
+     "paintAt": 1790406952815
+    },
+    {
+     "t": 1790406953716,
+     "kind": "cursor",
+     "minSeq": 111,
+     "maxSeq": 113,
+     "lastChars": 7656,
+     "bytes": 23435,
+     "domAt": 1790406953725,
+     "paintAt": 1790406953732
+    },
+    {
+     "t": 1790406954629,
+     "kind": "cursor",
+     "minSeq": 114,
+     "maxSeq": 117,
+     "lastChars": 8736,
+     "bytes": 35201,
+     "domAt": 1790406954634,
+     "paintAt": 1790406954634
+    },
+    {
+     "t": 1790406955537,
+     "kind": "cursor",
+     "minSeq": 118,
+     "maxSeq": 121,
+     "lastChars": 9816,
+     "bytes": 39670,
+     "domAt": 1790406955543,
+     "paintAt": 1790406955548
+    },
+    {
+     "t": 1790406956449,
+     "kind": "cursor",
+     "minSeq": 122,
+     "maxSeq": 124,
+     "lastChars": 10632,
+     "bytes": 32726,
+     "domAt": 1790406956456,
+     "paintAt": 1790406956465
+    },
+    {
+     "t": 1790406957361,
+     "kind": "cursor",
+     "minSeq": 125,
+     "maxSeq": 128,
+     "lastChars": 11712,
+     "bytes": 47553,
+     "domAt": 1790406957368,
+     "paintAt": 1790406957369
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 127,
+    "p95": 237,
+    "max": 237
+   }
+  },
+  "chat-flood": {
+   "surface": "chat",
+   "input": "stream flood",
+   "runId": "1a86df00-28cb-480f-a511-61fd8a3ad172",
+   "status": "completed",
+   "polls": 2,
+   "receiveToDom": {
+    "p50": 32,
+    "p95": 32,
+    "max": 32
+   },
+   "receiveToPaint": {
+    "p50": 32,
+    "p95": 32,
+    "max": 32
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 33,
+    "over50": 0,
+    "frames": 233
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 5,
+    "addedNodes": 344,
+    "removedNodes": 206
+   },
+   "samples": [
+    {
+     "t": 1790406960025,
+     "kind": "cursor",
+     "minSeq": 139,
+     "maxSeq": 142,
+     "lastChars": 3600,
+     "bytes": 9383,
+     "domAt": 1790406960057,
+     "paintAt": 1790406960057
+    },
+    {
+     "t": 1790406960961,
+     "kind": "cursor",
+     "minSeq": 143,
+     "maxSeq": 146,
+     "lastChars": 8448,
+     "bytes": 28318,
+     "domAt": 1790406960973,
+     "paintAt": 1790406960973
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 145,
+    "p95": 145,
+    "max": 145
+   }
+  },
+  "chat-tools": {
+   "surface": "chat",
+   "input": "stream tools",
+   "runId": "cea7ec3b-ff0f-4d8b-960d-fe870a5c8dcb",
+   "status": "completed",
+   "polls": 1,
+   "receiveToDom": {
+    "p50": 39,
+    "p95": 39,
+    "max": 39
+   },
+   "receiveToPaint": {
+    "p50": 39,
+    "p95": 39,
+    "max": 39
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 33,
+    "over50": 0,
+    "frames": 153
+   },
+   "longFrames": {
+    "count": 1,
+    "totalMs": 57,
+    "maxMs": 57,
+    "scriptMs": 41,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 4,
+    "addedNodes": 18,
+    "removedNodes": 50
+   },
+   "samples": [
+    {
+     "t": 1790406963968,
+     "kind": "cursor",
+     "minSeq": 158,
+     "maxSeq": 167,
+     "lastChars": 312,
+     "bytes": 7096,
+     "domAt": 1790406964007,
+     "paintAt": 1790406964007
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 198,
+    "p95": 198,
+    "max": 198
+   }
+  },
+  "chat-reduced-motion": {
+   "surface": "chat",
+   "input": "stream markdown",
+   "runId": "b7d8197f-6c4b-4133-965d-6dfd291ad59b",
+   "status": "completed",
+   "polls": 1,
+   "receiveToDom": {
+    "p50": 44,
+    "p95": 44,
+    "max": 44
+   },
+   "receiveToPaint": {
+    "p50": 44,
+    "p95": 44,
+    "max": 44
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 33,
+    "over50": 0,
+    "frames": 405
+   },
+   "longFrames": {
+    "count": 2,
+    "totalMs": 104,
+    "maxMs": 53,
+    "scriptMs": 89,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 4,
+    "addedNodes": 18,
+    "removedNodes": 64
+   },
+   "samples": [
+    {
+     "t": 1790406966562,
+     "kind": "cursor",
+     "minSeq": 178,
+     "maxSeq": 181,
+     "lastChars": 312,
+     "bytes": 2581,
+     "domAt": 1790406966606,
+     "paintAt": 1790406966606
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 87,
+    "p95": 87,
+    "max": 87
+   }
+  },
+  "attention-sustained": {
+   "surface": "attention",
+   "input": "stream sustained",
+   "runId": "b85c4d74-ad69-4fe2-8ad4-6a9cfcddeaab",
+   "status": "completed",
+   "polls": 9,
+   "receiveToDom": {
+    "p50": 11,
+    "p95": 29,
+    "max": 29
+   },
+   "receiveToPaint": {
+    "p50": 13,
+    "p95": 30,
+    "max": 30
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 17,
+    "max": 17,
+    "over50": 0,
+    "frames": 911
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 0,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 12,
+    "addedNodes": 454,
+    "removedNodes": 239
+   },
+   "samples": [
+    {
+     "t": 1790406975509,
+     "kind": "cursor",
+     "minSeq": 6,
+     "maxSeq": 11,
+     "lastChars": 1344,
+     "bytes": 7621,
+     "domAt": 1790406975523,
+     "paintAt": 1790406975523
+    },
+    {
+     "t": 1790406977030,
+     "kind": "cursor",
+     "minSeq": 12,
+     "maxSeq": 17,
+     "lastChars": 2952,
+     "bytes": 15142,
+     "domAt": 1790406977041,
+     "paintAt": 1790406977041
+    },
+    {
+     "t": 1790406978551,
+     "kind": "cursor",
+     "minSeq": 18,
+     "maxSeq": 23,
+     "lastChars": 4536,
+     "bytes": 25088,
+     "domAt": 1790406978563,
+     "paintAt": 1790406978564
+    },
+    {
+     "t": 1790406980086,
+     "kind": "cursor",
+     "minSeq": 24,
+     "maxSeq": 29,
+     "lastChars": 6120,
+     "bytes": 34931,
+     "domAt": 1790406980093,
+     "paintAt": 1790406980097
+    },
+    {
+     "t": 1790406981600,
+     "kind": "cursor",
+     "minSeq": 30,
+     "maxSeq": 36,
+     "lastChars": 7968,
+     "bytes": 53182,
+     "domAt": 1790406981606,
+     "paintAt": 1790406981614
+    },
+    {
+     "t": 1790406983111,
+     "kind": "cursor",
+     "minSeq": 37,
+     "maxSeq": 41,
+     "lastChars": 9288,
+     "bytes": 46192,
+     "domAt": 1790406983117,
+     "paintAt": 1790406983117
+    },
+    {
+     "t": 1790406984619,
+     "kind": "cursor",
+     "minSeq": 42,
+     "maxSeq": 48,
+     "lastChars": 11136,
+     "bytes": 76140,
+     "domAt": 1790406984624,
+     "paintAt": 1790406984631
+    },
+    {
+     "t": 1790406986136,
+     "kind": "cursor",
+     "minSeq": 49,
+     "maxSeq": 53,
+     "lastChars": 12000,
+     "bytes": 51301,
+     "domAt": 1790406986165,
+     "paintAt": 1790406986166
+    },
+    {
+     "t": 1790406986145,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 53,
+     "lastChars": 12000,
+     "bytes": 341999,
+     "domAt": 1790406986165,
+     "paintAt": 1790406986166
+    }
+   ],
+   "hostPersistToReceive": {
+    "p50": 231,
+    "p95": 690,
+    "max": 690
+   }
+  }
+ },
+ "activity": {
+  "chat-sustained-1": {
+   "movingSamples": 40,
+   "samples": 40,
+   "restarts": 0,
+   "animationInstancesPerBar": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ],
+   "touches": {
+    "childList:children:run-activity-phrase": 1
+   },
+   "spreadP50": 0.626,
+   "spreadMax": 0.742,
+   "perBarRange": [
+    0.399,
+    0.649,
+    0.494,
+    0.75,
+    0.546,
+    0.68,
+    0.42
+   ],
+   "computed": [
+    [
+     "1.24s",
+     "-0.1s"
+    ],
+    [
+     "1.62s",
+     "-0.46s"
+    ],
+    [
+     "1.1s",
+     "-0.72s"
+    ],
+    [
+     "1.86s",
+     "-0.3s"
+    ],
+    [
+     "1.38s",
+     "-0.94s"
+    ],
+    [
+     "1.54s",
+     "-0.58s"
+    ],
+    [
+     "1.18s",
+     "-0.18s"
+    ]
+   ]
+  },
+  "chat-reduced-motion": {
+   "movingSamples": 0,
+   "samples": 40,
+   "restarts": 0,
+   "animationInstancesPerBar": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "touches": {
+    "childList:children:sr-only": 1,
+    "childList:children:run-activity-phrase": 1
+   },
+   "spreadP50": 0,
+   "spreadMax": 0,
+   "perBarRange": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "computed": [
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ],
+    [
+     "0s",
+     "0s"
+    ]
+   ]
+  }
+ },
+ "startedAt": "2026-09-26T07:15:22.719Z"
+}

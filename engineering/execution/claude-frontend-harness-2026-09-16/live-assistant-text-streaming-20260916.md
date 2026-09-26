@@ -419,3 +419,130 @@ Author: Claude (Opus 5.5). Consumes Parent's settlement review of `7a1f3a6` (mai
 ### 2026-09-26 · Frontend independently reviewed; reference-scope correction returned
 
 [Parent/Luna review](evidence/stream-frontend-review-20260926/README.md) fixes7944e12/product88e3e7e. Luna39/39 and actual OpenAI browser1280/390, light/dark, selection-through-final, reduced-motion and Attention cancel/Escape checks support the bounded mechanisms. Parent selects the restored1.8s stagger recipe; varied-period candidate is deferred. STR-FE1 returns growing Markdown reference resolution: independently parsed blocks lose document-wide definitions, so already-resolvable links remain literal until final. The original Claude owns the narrow shared-renderer correction; candidate/tree preserved, no frontend merge/acceptance. Simultaneous Chat/Attention admission is refused by existing Host policy, not silently treated as tested or expanded.
+
+### 2026-09-26 · Order 3 frontend · change record (before product edits)
+
+Author: Claude (Opus 5.5), per the [frontend release](evidence/stream-backend-final-20260926/README.md). The isolated tree `.worktrees/courtwork-stream-backend-20260925` was fast-forwarded to integrated main `0ec94c5`. Read before editing:
+- [UX Grammar](../../design/ux-grammar.md) (UX-01/04/05/09/10);
+- the [frontend contract](../../design/agent-interface-2026-09-10/frontend-contract.md);
+- the [visual/spatial grammar](../../design/visual-spatial-grammar.md);
+- [Chat Reading CR-01](../../design/chat-reading-2026-09-11.md);
+- the precedent rows `projection.status` and `request.activity`;
+- the [activity production record](../../design/context-tps-motion-2026-09-13/production/README.md);
+- [request telemetry](../../../app/docs/request-telemetry.md).
+
+```text
+Task / scope: Order 3 frontend — segment-keyed projection and incremental rendering (Chat + Attention), truthful partial, Attention on the shared cursor, measured high-rate rendering, activity motion recipe.
+Base SHA / branch / isolated checkout: 0ec94c5 / claude/stream-backend-20260925 / .worktrees/courtwork-stream-backend-20260925
+Writer / reviewer: Claude (author) / Parent + Luna (independent combined acceptance)
+
+Owner fact + contract: Host events with persisted (runId, segment), assistant.message partial/stopReason, run.status (accepted backend 10f27aa). The legacy finals-before rule applies to events without a segment.
+Semantic / projection / control / placement: projection only; no new state, action or control. The one new visible text is the D2(a) hint `Content updated`, placed in the frozen reply.
+Surface role: reading-review (message bodies); workbench chrome (activity glyph, unchanged placement)
+Pattern + owner / token mapping: existing message row, markdown(), run-status row, WK-57 state word (`unfinishedToolWord`) for an interrupted reply; motion uses existing --duration/--ease-out plus the request.activity continuous recipe (its own explicit keyframes).
+Pointer / viewport / text scale: measured at the built-in browser's 1024×768 CSS px, DPR 2, fine pointer, 100% text; 1440/390/200% remain Parent's browser verification.
+Density exception / reflow / focus-scroll owner: none. Focus, scroll and selection stay with chat-reading.mjs and each surface's render.
+Affected UX IDs: UX-01 (no repeated status), UX-04, UX-05 (partial ≠ running; motion stops at terminal, hidden, reduced motion), UX-09, UX-10; CR-01 (no per-token or typewriter body motion, no replay).
+Nearest precedent: app/web/thread-projection.mjs projectThread; app/web/app.mjs renderMessageStream/appendAssistantBody/pollEvents/mergeEvents; app/web/attention-agent-view.mjs render; app/web/run-activity.mjs + styles.css run-work-breath @ 0ec94c5 (evidence: context-tps-motion production README).
+Evidence type / status: implemented precedent (reference); request.activity stays `reference`; real TPS stays deferred.
+Kept relationships: one row per (runId, segment); the Run's status row; final-answer footer only for a completed Run's non-partial standing answer; follow-latest and Back to latest; reading anchors; tool-open state; drafts; the activity glyph stays mounted.
+Intentional changes: (1) the projection uses the persisted segment identity; (2) settled bodies are reused rather than re-parsed, and a delta-only poll patches the growing body without rebuilding the list; (3) the growing body re-renders only its changed Markdown blocks and converges to one full render at settlement; (4) D2(a) freeze plus `Content updated`; (5) partial replies read `Interrupted` / `Unknown`, never pending; (6) Attention reads `events?afterSeq=` through the shared cursor merge and re-reads the full detail only at gaps and Run boundaries; (7) the activity bars get per-bar phase and period so the decorative rhythm is not uniform.
+New terms / tokens / primitives / dependencies: the visible hint `Content updated`; no new token or dependency (marked/DOMPurify already vendored).
+Cross-layer: none. Host/Core contracts, schemas and transport are unchanged, with no SSE.
+```
+
+Before-change browser baseline (author, built-in Chromium 152, 1024×768 DPR 2, fixture `app/scripts/stream-frontend-fixture.mjs`, probe `app/tests/fixtures/stream-frontend/measure.js`):
+- Chat `stream sustained` (12,000 characters, 24-character chunks every 20 ms) on an empty thread: poll receipt → DOM p50 14 / p95 19 ms.
+- The same reply as the third long reply in the thread: p50 41 / p95 46 ms. Cost grows with the whole thread, because every poll rebuilds every row and re-parses all Markdown.
+- Visible text advances in steps of about 1,000 characters every ~0.9 s: the poll cadence.
+- Attention re-fetches the full detail every ~1.5 s. For one 12,000-character reply that grew from 40 KB to 325 KB per tick.
+Raw data: `browser-before.json` and `host-before.json`, committed with the frontend evidence.
+
+### 2026-09-26 · Order 3 frontend · author delivery
+
+Author: Claude (Opus 5.5). Source: **`88e3e7e`** (product and tests) on the harness commit `9b96b06`, over integrated main `0ec94c5`. Evidence: [stream-frontend-20260926](evidence/stream-frontend-20260926/README.md). These are author checks; frontend and combined acceptance stay with Parent/Luna.
+
+**Delivered against the release order.**
+
+1. **Segment-keyed projection and incremental rendering, shared by Chat and Attention.**
+   - `thread-projection.mjs` uses the persisted `(runId, segment)` and the legacy finals-before rule.
+   - `stream-body.mjs` keeps bodies by segment key. A text-only poll (`growsTextOnly`) patches the growing body in place, re-rendering only its changed Markdown blocks. At settlement the body is rendered once from the final.
+   - D2(a): the growing reply's text is held while it is selected, with `Content updated`, and the hold carries across structural rebuilds. Receipt and state keep updating.
+2. **Truthful partial state, and Attention on the shared cursor.**
+   - Partial or legacy-terminal text is never pending. It reads `Interrupted` / `Unknown` (WK-57 words) and has no answer actions; the final-answer footer still requires a `completed` Run and a non-partial row.
+   - Attention uses the shared `session-events.mjs` cursor, which Chat's `mergeEvents` now also calls. It re-reads the full detail only on `run.*` events and `cursor_ahead`.
+   - Reconnect and reload converge without duplicates (C3, reload in the evidence).
+3. **High-rate lag: measured, not assumed.**
+   - Before (`0ec94c5`, same headless harness, 4 rounds): receipt→DOM grew with the thread, p50 19 → 44 ms by the third long reply, with 7 long frames.
+   - After: p50 7–9 ms; long frames 0 (range 0–1).
+   - Attention per-tick payload p50: 159,623 → 44,720 bytes.
+   - The remaining visible stepping is the transport's 0.9 s / 1.5 s poll plus Host coalescing (Host persist → receipt p50 about 120–220 ms). The transport is unchanged and SSE stays a candidate.
+   - No typewriter or per-token backlog was added.
+4. **Activity motion.** Measured cause of the weak fluctuation: the `animation` shorthand reset every mark's delay to 0, so all seven moved as one. Also, each Chat render re-inserted the message stream, restarting the motion about once per poll (6 Animation instances per mark in 4 s). The accepted staggered 1.8 s recipe is restored and nothing moves when already in place:
+   - 1 animation instance per mark;
+   - spread across marks p50 0.13;
+   - reduced motion still, and hidden documents paused.
+
+   The specimen adds a proposed varied-period candidate for Parent's selection. No text motion is added (CR-01).
+
+**Changed owners and files.**
+- Projection: `app/web/thread-projection.mjs`.
+- Bodies: `app/web/stream-body.mjs` (new).
+- Cursor: `app/web/session-events.mjs` (new; whitelisted in `app/server/index.mjs`).
+- Chat: `app/web/app.mjs` (`mergeEvents`, `pollEvents`, `appendAssistantBody`, `patchGrowingBodies`, `renderMessageStream`, composer layout ordering).
+- Attention: `app/web/attention-conversation.mjs`, `app/web/attention-agent-view.mjs`.
+- Motion: `app/web/styles.css` (request.activity).
+- Tests: `stream-thread-projection`, `stream-session-events`, `stream-activity-recipe`; `output-message-boundary`, updated to the accepted identity and partial rules.
+- Fixture and harness: `app/scripts/stream-frontend-fixture.mjs`, `app/scripts/stream-frontend-measure.mjs`, `app/tests/fixtures/stream-frontend/measure.js`, and the `burst` option in `app/runtime/fake-provider.mjs`.
+- No Host, Core, schema, transport, dependency or token changes.
+
+**Author checks.**
+- Full suite 1709/1709; `runtime-smoke` exit 0.
+- Frontend lints and `check-doc-links` clean.
+- Built-in browser: C2, C3 (Chat and Attention), C4 (Chat and Attention), C6, reload convergence, C7, C8.
+- Headless: C8b across the final, and the before/after timing and activity tables.
+
+**Pending and limits.**
+- Parent browser/visual verification: 1280/390 px, dark, native 200% zoom, keyboard, forced colors, screen reader, simultaneous surfaces.
+- Node 22/24; live providers.
+- The first render that creates a reply row and the terminal render still rebuild the list.
+- Poll cadence bounds text cadence.
+
+**Stop and handoff.** The author stops here and returns `88e3e7e` plus the docs commit to Parent/Luna for independent frontend and combined acceptance.
+
+#### 2026-09-26 · Author return for STR-FE1 (streaming Markdown references)
+
+Author: Claude (Opus 5.5). Consumes Parent's frontend review of `7944e12`. Kept as they are: the shared cursor, partial semantics, the D2(a) freeze and the shipped 1.8 s recipe; the varied-period candidate stays deferred. Fixed source: **`10bc6f3`**. Evidence: [str-fe1](evidence/stream-frontend-20260926/str-fe1/). These are the author's checks, not independent acceptance.
+
+**Cause.** `paintGrowing` lexed each snapshot, but then rendered every block on its own through `markdown(raw)`. That dropped the document's reference definitions (`tokens.links`). Unchanged blocks were also kept on source equality alone, so a definition arriving later could not update a reference already drawn.
+
+**Change.** Owners are the shared body (`app/web/stream-body.mjs`) and the one sanitizing path (`app/web/ui-controls.mjs`).
+- `markdown(text)` now lexes and calls the new `markdownTokens(tokens)`. That function holds the unchanged sanitize and link/code/table post-processing. The full parse is unchanged: `marked.parse` equals `marked.parser(marked.lexer(...))`.
+- The growing body renders each changed block as `[token]` with the document's `links`.
+- A block may be kept only if its source is unchanged, and, when the definitions changed, only if it cannot use a reference (no `[…]`). Kept blocks keep their nodes; new nodes are inserted before the next kept block.
+- The settled path and the selection hold are unchanged. No parser, dependency or raw-HTML path is added.
+
+| Production `createAssistantBody` in headless Chrome (`app/tests/stream-body-browser.test.mjs`) | `7944e12` | `10bc6f3` |
+| --- | --- | --- |
+| Definition before use | literal text, no anchor, differs from `markdown()` | anchor `the link` → `https://example.com`, equal to `markdown()` |
+| Reference painted, definition arrives later | stays literal, differs | becomes the anchor, equal to `markdown()` |
+| Unrelated block (`# Heading`) across that change | node kept | node kept |
+| Final convergence | equal | equal |
+| `[x]: javascript:…` reference | literal, differs from `markdown()` | anchor without `href`, equal to `markdown()` (sanitizer unchanged) |
+| Test result | fail (`browser-test-on-7944e12.log`) | pass (`browser-test-on-fix.log`) |
+
+The test skips with a stated reason when no Chrome is found (`COURTWORK_CHROME` overrides the path).
+
+**Cost and regressions (author, Node 25.9.0).**
+- Full suite: 1710/1710, including the new browser test.
+- `lint-interaction` and `check-product-copy` clean.
+- One headless round on `10bc6f3` (`headless-after-fe1.json`): Chat receipt→DOM p50 4–5 ms on streaming polls, p95 11–25 ms, 0 long frames; Attention p50 6 / p95 20 ms. This is within the earlier after-range, so there is no measured cost increase. It is a single round, not a budget.
+- C8b still holds: text held at 187 characters with `Content updated`, final painted on release.
+
+**Limits.** A change in definitions re-renders every block that contains `[…]`, including code blocks, which is conservative. Other limits are unchanged from the frontend delivery entry.
+
+**Stop and handoff.** The author stops at `10bc6f3` plus this docs commit and returns to Parent/Luna for independent disposition of STR-FE1. There is no merge or push, and no combined-acceptance claim.
+
+### 2026-09-26 · Frontend and finite Order 3 independently accepted
+
+[Final independent acceptance](evidence/stream-frontend-final-20260926/README.md) accepts4d0bd98/10bc6f3. STR-FE1 closes with Parent OpenAI-browser reference-before/after, sanitizer, retained-heading and selection-release proof; Chat and Attention blocked-cursor recovery each converge to one canonical Host final. Luna58/58 (raw-log total), integrated28/28 and smoke pass. Prior bounded1280/390 light/dark/motion/partial evidence remains explicitly attributed. Both author and parent appended histories are preserved in the merge. Poll cadence, structural-render cost, G1 mitigation and native/accessibility/provider limits remain; no blanket product acceptance, push or deployment. No next writer is released.
