@@ -1053,7 +1053,49 @@ export class RuntimeService {
       compaction: model ? this.#compactionPolicy(model) : null,
       recovery: { inFlightRun: "unknown", pendingQuestion: "expired_restart", continueWith: "new_command_id" },
       authority: { runOwner: "runtime", generatedResultIsAccepted: false, orchestration: "external_caller" },
+      executionRuntimes: this.#executionRuntimes(),
     };
+  }
+
+  /** Configured Host facts only. A readable descriptor is not a live check. */
+  #executionRuntimes() {
+    const ids = new Set([...this.runtimePorts.keys(), PI_EXECUTOR_ID, MANAGED_EXECUTOR_ID]);
+    const ordered = [this.adapterId, ...[...ids].filter(id => id !== this.adapterId).sort()];
+    const unavailable = (reasonCode, reason) => ({ status: "unavailable", reasonCode, reason });
+    const items = ordered.map(adapterId => {
+      const configured = this.runtimePorts.get(adapterId);
+      const row = {
+        adapterId, configured: Boolean(configured), configurationOwner: "host",
+        revision: configured?.descriptor.revision ?? null,
+        configurationRef: configured?.descriptor.configurationRef ?? null,
+        capabilities: null,
+        availability: unavailable("not_configured", "This execution runtime is not configured on this Host."),
+        liveStatus: "not_checked",
+      };
+      if (!configured) return row;
+      try {
+        const port = adapterId === this.adapterId ? this.runtimePort : configured.port;
+        const live = port.describe();
+        if (typeof live?.id !== "string" || typeof live.revision !== "string") {
+          row.availability = unavailable("descriptor_unavailable", "The configured execution runtime description is unavailable.");
+          return row;
+        }
+        if (live.id !== adapterId || live.revision !== configured.descriptor.revision) {
+          row.availability = unavailable("descriptor_changed", "The configured execution runtime identity or revision changed.");
+          return row;
+        }
+        const capabilities = structuredClone(live.capabilities);
+        validateExecutorDescriptor({ ...configured.descriptor, capabilities });
+        row.capabilities = capabilities;
+        row.availability = port.remote === true && this.providerConfig.provider !== FAKE_PROVIDER_ID
+          ? unavailable("provider_unsupported", "This managed executor has no verified route for the current Provider/Model.")
+          : { status: "configured", reasonCode: null, reason: null };
+      } catch {
+        row.availability = unavailable("descriptor_unavailable", "The configured execution runtime description is unavailable.");
+      }
+      return row;
+    });
+    return { schemaVersion: 1, defaultAdapterId: this.adapterId, items };
   }
 
   /** Inspect-only declarative source resolution over the authenticated HTTP
