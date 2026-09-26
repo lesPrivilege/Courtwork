@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-26 · Explicit Claude return before frontend
+
+[Independent backend receipt and action order](evidence/stream-backend-review-20260926/README.md) holds source `162fcce` for STR-R1 (coalesced persistence failure falsely completes a Run) and STR-R2 (C10 actual durable-byte bound). Parent real-Host fault injection proves the regression against main control despite audit6/6 and Luna66/66. Original Claude is requested to fix both in the preserved backend branch and return fixed source; frontend continuation is queued, not released. No repeated choice/permission prompt is needed. This receipt supersedes a passive reference-only reading of the earlier pasted record. Inventory docs are committed at `10203c0`; no Figma setup is required.
+
+
 ## 2026-09-26 · Harness/Core reconciliation and serial Claude routing
 
 User direction: reconcile existing frontend/backend Harness and self-built Core work; Luna explores and registers mature external practices; Claude implements serially. This supersedes the older parallel author routing below for subsequent work. It does not reopen accepted slices or release a second writer.

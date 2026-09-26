@@ -1,0 +1,12 @@
+{
+  "source": "main@10203c0 (product baseline 51d0fbe)",
+  "injected": true,
+  "attempts": 156,
+  "status": "failed",
+  "error": {
+    "code": "runtime_projection_failed",
+    "message": "runtime failed"
+  },
+  "usageMissing": true,
+  "logs": []
+}

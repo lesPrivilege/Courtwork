@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-26 · Order 3 backend held; explicit original-Claude correction order
+
+[Independent review](execution/claude-frontend-harness-2026-09-16/evidence/stream-backend-review-20260926/README.md) fixes `162fcce`: Parent Host audit6/6 and Luna66/66 pass, but a new transient snapshot-write failure probe ends the candidate Run `completed` while main correctly returns `runtime_projection_failed`. STR-R1 returns that timer failure propagation to original Claude; STR-R2 requires actual C10 durable-byte measurement and assertion. Backend interface selection stays; frontend performance/motion continuation waits for fixed-source disposition. Inventory docs committed as `10203c0`; no product merge or author launch is claimed. User's manual Claude relay can consume the explicit action order without Figma or a new approval.
+
+
 ## 2026-09-26 · Harness/Core inventory reconciled; Claude serial routing
 
 [Original dispatch ledger](execution/claude-frontend-harness-2026-09-16/next-dispatch-20260921.md#2026-09-26--harnesscore-reconciliation-and-serial-claude-routing) records the actual `main@51d0fbe`, Luna's primary-source practice intake and parent dispositions. Frontend projection, Host Harness governance and Work Core authority already exist; Pi execution and protocol SDKs are reused. No new generic Harness/Core project or parallel product writer is created. Current accepted schema identities remain Host22/Core4/bridge5.

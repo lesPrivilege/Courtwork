@@ -1,0 +1,11 @@
+{
+  "source": "claude/stream-backend-20260925@162fcce9893ce115c3bf0bba4606b9c055f76ca3",
+  "injected": true,
+  "attempts": 19,
+  "status": "completed",
+  "error": null,
+  "usageMissing": false,
+  "logs": [
+    "assistant stream 6dea6e30-6431-4acf-afa1-0fd118a2c93f: coalesced snapshot write failed: independent transient snapshot persistence failure"
+  ]
+}
