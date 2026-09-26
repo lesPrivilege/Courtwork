@@ -266,3 +266,42 @@ Independent 9/9 and audit 6/6. Two findings:
 - **Remote gateway had no segment identity — adjust within scope.** `runtime/agents-host-gateway.mjs` now numbers segments by first-seen native `itemId`, and `assistant.message` carries it when the item is known. Truly interleaved native items remain refused by the sequential-segment rule and are logged. That lane is not live (the Agents API lane is unavailable per README), so the backend record leaves the interleaving policy to that lane's own order rather than widening this contract.
 
 DRT-03 gateway and transport tests plus the stream unit tests: 46/46. Full app suite 1687/1687; stream audit 6/6.
+
+#### 2026-09-26 · Author return for STR-R1 and STR-R2
+
+Author: Claude (Opus 5.5), the original backend author. Consumes the Parent review at main `10203c0` (`evidence/stream-backend-review-20260926/README.md`) without merging it into this branch; that record and this branch's history stay as written. Base `162fcce`. Fixed source: **`0bb5186`** (STR-R1) and **`0fa6eda`** (STR-R2). Author evidence: [stream-backend-return-20260926](evidence/stream-backend-return-20260926/). These are the author's reruns, **not** independent acceptance. The frontend has not started.
+
+**STR-R1 · a failed coalesced write reached only the log: adjusted.** Owner: the Host segment stream (`app/server/assistant-stream.mjs`). There is no new queue or service. The stream keeps the first failure of a timer-driven write:
+- the next `observe()` rejects with it, which is the runtime's existing persistence-failure path: Pi's `forward` → `projectionError` → abort → `runtime_projection_failed`; the gateway's awaited `onObservation` fails the same way `appendEvent` did on main;
+- a final waits for any coalesced write under way, so it is ordered after that write. After a failure the final is not written, and a later final never clears the failure;
+- new `persisted()` runs in `service.mjs` after `started.run()`. It stops the timer, waits for any write under way, and rejects with `runtime_projection_failed` when the failure had no later observation. The Run's existing catch records it as `failed`, usage `missing`. The open segment's text then settles as one `partial: true`, `stopReason: "error"` final together with the terminal status.
+
+| Evidence | `162fcce` | `0bb5186` |
+| --- | --- | --- |
+| Parent probe `persist-failure.mjs` (second `assistant.delta` append fails once) | `completed`, error null, usage complete (Parent's `persist-failure-candidate.json`) | `failed`, `runtime_projection_failed`, usage missing, same as the main control (`persist-failure-fixed.json`) |
+| `app/tests/assistant-stream-persistence.test.mjs` (5 tests: Host service case, next-observation rejection, failure without a later observation, final ordered after a write under way, timer cleanup) | 0/5. The Host case reads `completed` where `failed` is expected. The ordering case writes `assistant.message:abc` **before** the snapshot write under way. The other three fail on the missing `persisted()`. (`str-r1-tests-on-162fcce.log`) | 5/5 (`str-r1-tests-on-fix.log`) |
+
+**STR-R2 · C10 asserted only the final text: adjusted.** Owner: the audit (`app/scripts/stream-audit.mjs`). C10 now measures at-rest serialized bytes, with this scope:
+- on-disk growth of the Host data directory and of `runtime-state.json` (the RuntimeStore journal, written as pretty-printed JSON), before versus after the Run;
+- the Run's persisted events as compact UTF-8 JSON, split into `assistant.delta` events, their snapshot text alone, and all other events of the Run.
+
+It asserts `deltaEvents ≤ 266,000` and `stateFileGrowth ≤ 380,000` bytes. That is about 1.5× the measured baseline.
+
+| Fixed input: 10,000 characters, 417 chunks of 24 characters every 20 ms | Delta events | Delta event bytes | Snapshot text bytes | `runtime-state.json` growth | Data dir growth | C10 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Baseline, 3 runs before the bound was set | 35 / 35 / 35 | 177,120 / 177,120 / 177,144 | 171,384 / 171,384 / 171,408 | 253,584 / 253,585 / 253,608 | about 264.8 KB | — |
+| Fixed source with the bound (`audit.json`) | 35 | 177,168 | 171,432 | 253,633 | 264,873 | PASS, 6/6 |
+| **Failure control:** same source with `SNAPSHOT_INTERVAL_MS = 0`, i.e. coalescing removed (`control-no-coalescing.json`) | 418 | 2,170,536 | 2,101,664 | 2,276,880 | 2,288,120 | **FAIL**, 5/6 |
+
+Coalescing cuts at-rest growth by about 9×. Storage is still super-linear: snapshot text is 17.1× the output. **This mitigates G1 and does not close it.** Write amplification is not measured: every Store mutation rewrites the whole state file, so bytes written far exceed bytes at rest.
+
+**Other checks (author, Node 25.9.0):**
+- Luna's three command groups plus the two stream test files: 71/71.
+- Full app suite: 1692/1692, which is 1687 plus the 5 new tests (`full-suite-summary.log`).
+
+**Remaining limits:**
+- Native interleaved items stay deferred to the managed-runtime owner, as disposed.
+- The bound is tied to this fixture and machine. It is not a general budget.
+- Not run: the Node 22/24 matrix, live managed or paid providers, and anything in the frontend or browser.
+
+**Stop and handoff.** The author stops at `0fa6eda` plus this docs commit. Return to Parent/Luna for independent disposition of STR-R1 and STR-R2. The frontend continuation stays gated on that acceptance.

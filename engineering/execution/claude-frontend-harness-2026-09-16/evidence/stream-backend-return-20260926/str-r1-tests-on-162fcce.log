@@ -1,0 +1,68 @@
+✖ a failed coalesced write rejects the next observation and the final is not written (6.492041ms)
+✖ with no later observation the Run end still reports the failure (0.863709ms)
+✖ the final waits for a coalesced write under way and follows it (4.189708ms)
+✖ persisted() stops a pending timer so nothing is written after the Run (0.32075ms)
+✖ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (5018.048875ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5686.083625
+
+✖ failing tests:
+
+test at app/tests/assistant-stream-persistence.test.mjs:33:1
+✖ a failed coalesced write rejects the next observation and the final is not written (6.492041ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /disk full/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/assistant-stream-persistence.test.mjs:51:1
+✖ with no later observation the Run end still reports the failure (0.863709ms)
+  TypeError: stream.persisted is not a function
+
+test at app/tests/assistant-stream-persistence.test.mjs:59:1
+✖ the final waits for a coalesced write under way and follows it (4.189708ms)
+  AssertionError [ERR_ASSERTION]: the final is held behind the write under way
+  + actual - expected
+  
+    [
+      'assistant.delta:a',
+  +   'assistant.message:abc'
+    ]
+  
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'assistant.delta:a', 'assistant.message:abc' ],
+    expected: [ 'assistant.delta:a' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at app/tests/assistant-stream-persistence.test.mjs:78:1
+✖ persisted() stops a pending timer so nothing is written after the Run (0.32075ms)
+  TypeError: stream.persisted is not a function
+
+test at app/tests/assistant-stream-persistence.test.mjs:90:1
+✖ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (5018.048875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'completed'
+  - 'failed'
+  
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'completed',
+    expected: 'failed',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

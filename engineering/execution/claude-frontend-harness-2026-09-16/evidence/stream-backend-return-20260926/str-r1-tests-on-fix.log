@@ -1,0 +1,13 @@
+✔ a failed coalesced write rejects the next observation and the final is not written (6.805292ms)
+✔ with no later observation the Run end still reports the failure (0.529208ms)
+✔ the final waits for a coalesced write under way and follows it (0.389709ms)
+✔ persisted() stops a pending timer so nothing is written after the Run (0.312833ms)
+✔ Host: one failed coalesced snapshot write fails the Run with runtime_projection_failed (492.772458ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5720.5555

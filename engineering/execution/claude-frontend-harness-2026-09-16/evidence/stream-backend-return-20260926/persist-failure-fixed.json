@@ -1,0 +1,1 @@
+{"source":"<checkout>","injected":true,"attempts":2,"status":"failed","error":{"code":"runtime_projection_failed","message":"runtime failed"},"usageMissing":true,"logs":["assistant stream aa2100c4-a5c7-4f5a-bde7-8a3f088a548a: coalesced snapshot write failed: independent transient snapshot persistence failure"]}
