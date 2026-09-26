@@ -10,16 +10,20 @@
 //
 // The `--serve <dataDir> <port>` form is this script's own child Host for C5b.
 import { spawn } from "node:child_process";
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { startServer } from "../server/index.mjs";
 import { FAKE_CREDENTIAL_KEY } from "../runtime/pi-session-runtime.mjs";
+import { SNAPSHOT_INTERVAL_MS } from "../server/assistant-stream.mjs";
 
 const here = fileURLToPath(import.meta.url);
 const arg = (name) => { const i = process.argv.indexOf(name); return i === -1 ? null : process.argv[i + 1]; };
 const LONG = "Streaming audit paragraph with steady content. ".repeat(213).slice(0, 10000); // C10: fixed 10,000 characters
+// C10 bound: about 1.5x the measured 2026-09-26 baseline (deltaEvents 177,120;
+// stateFileGrowth 253,584), far below uncoalesced (2,091,664 snapshot text bytes).
+const C10_BOUND = { deltaEvents: 266_000, stateFileGrowth: 380_000 };
 const SLOW = Array.from({ length: 30 }, (_, i) => `Synthetic slow paragraph ${i + 1}.`).join("\n\n");
 const toolCount = (body) => { const m = body?.messages ?? []; let start = 0; for (let i = m.length - 1; i >= 0; i--) if (m[i]?.role === "user") { start = i + 1; break; } return m.slice(start).filter((x) => x?.role === "tool").length; };
 function fakeResponder({ body, mode }) {
@@ -69,7 +73,8 @@ if (arg("--serve")) {
   const dirs = [];
   const tempDir = async () => { const d = await mkdtemp(path.join(tmpdir(), "cw-stream-audit-")); dirs.push(d); return d; };
   try {
-    const host = await startServer({ dataDir: await tempDir(), port: 0, fakeResponder, logger: () => {} });
+    const hostDir = await tempDir();
+    const host = await startServer({ dataDir: hostDir, port: 0, fakeResponder, logger: () => {} });
     await configure(host.url, host.token);
     const c = client(host.url, host.token);
 
@@ -111,14 +116,35 @@ if (arg("--serve")) {
       record("C5a-failure-after-text-is-settled-once-per-segment-and-never-completed", status === "failed" && finals.length >= 1 && onePerSegment && finals.every((f) => f.data.stopReason === "error" && !f.data.partial && f.data.text.length > 0),
         { status, attempts: finals.length, segments, finals: finals.map((f) => ({ stopReason: f.data.stopReason, partial: f.data.partial ?? false, len: f.data.text.length, error: f.data.errorMessage ?? null })) }); }
 
-    // C10 · durable size at a fixed 10,000 characters, 24-character chunks every 20 ms
-    { const { session } = await c.start("C10 fixed length");
+    // C10 · durable size at a fixed 10,000 characters, 24-character chunks every 20 ms.
+    // Scope: (1) on-disk growth of the Host's data directory, of which
+    // runtime-state.json (the RuntimeStore journal, written pretty-printed)
+    // is the event log; (2) this Run's events as compact UTF-8 JSON, split into
+    // assistant.delta events, their snapshot text alone, and everything else.
+    // At-rest bytes only: every Store mutation rewrites the whole state file,
+    // and that write amplification is not measured here.
+    { const stateFile = path.join(hostDir, "runtime-state.json");
+      const dirBytes = async (dir) => { let total = 0; for (const entry of await readdir(dir, { withFileTypes: true, recursive: true })) if (entry.isFile()) total += (await stat(path.join(entry.parentPath, entry.name))).size; return total; };
+      const before = { state: (await stat(stateFile)).size, dir: await dirBytes(hostDir) };
+      const { session, run } = await c.start("C10 fixed length");
       const { events } = await c.follow(session.id, { timeoutMs: 120000 });
-      const deltas = events.filter((e) => e.type === "assistant.delta"); const final = events.find((e) => e.type === "assistant.message");
+      const after = { state: (await stat(stateFile)).size, dir: await dirBytes(hostDir) };
+      const stored = JSON.parse(await readFile(stateFile, "utf8")).events.filter((e) => e.runId === run.id);
+      const utf8 = (value) => Buffer.byteLength(typeof value === "string" ? value : JSON.stringify(value));
+      const storedDeltas = stored.filter((e) => e.type === "assistant.delta");
+      const bytes = {
+        stateFileGrowth: after.state - before.state,
+        dataDirGrowth: after.dir - before.dir,
+        deltaEvents: storedDeltas.reduce((a, e) => a + utf8(e), 0),
+        deltaSnapshotText: storedDeltas.reduce((a, e) => a + utf8(e.data.text), 0),
+        otherRunEvents: stored.filter((e) => e.type !== "assistant.delta").reduce((a, e) => a + utf8(e), 0),
+      };
+      const final = events.find((e) => e.type === "assistant.message");
       const chunks = Math.ceil(LONG.length / 24);
-      const uncoalescedBytes = Array.from({ length: chunks }, (_, i) => Math.min(LONG.length, (i + 1) * 24)).reduce((a, b) => a + b, 0);
-      const persistedDeltaBytes = deltas.reduce((a, e) => a + e.data.text.length, 0);
-      record("C10-durable-size-reported", final?.data.text === LONG, { textChars: LONG.length, chunks, chunkMs: 20, deltaEvents: deltas.length, persistedDeltaChars: persistedDeltaBytes, uncoalescedDeltaChars: uncoalescedBytes, ratioToText: +(persistedDeltaBytes / LONG.length).toFixed(1) }); }
+      const uncoalescedSnapshotText = Array.from({ length: chunks }, (_, i) => Math.min(LONG.length, (i + 1) * 24)).reduce((a, b) => a + b, 0);
+      const withinBound = bytes.deltaEvents <= C10_BOUND.deltaEvents && bytes.stateFileGrowth <= C10_BOUND.stateFileGrowth;
+      record("C10-durable-bytes-within-bound", final?.data.text === LONG && withinBound,
+        { textChars: LONG.length, chunks, chunkMs: 20, intervalMs: SNAPSHOT_INTERVAL_MS, deltaEvents: storedDeltas.length, bytes, bound: C10_BOUND, uncoalescedSnapshotText, snapshotTextToOutput: +(bytes.deltaSnapshotText / LONG.length).toFixed(1) }); }
     await host.close?.();
 
     // C5b · the Host process dies mid-reply; the restarted Host settles from persisted text only
