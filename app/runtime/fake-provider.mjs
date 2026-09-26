@@ -169,6 +169,9 @@ async function writeTextResponse(res, response, { slow = false } = {}) {
     // failure after visible text, with the Host still alive.
     if (Number.isInteger(response.failAfterChunks) && index === response.failAfterChunks) { res.destroy(); return; }
     if (chunkMs) await new Promise((resolve) => setTimeout(resolve, chunkMs));
+    // Order 3 frontend · `burst: { every, pauseMs }` sends chunks back to back
+    // and pauses after every `every` chunks, for bursty arrival.
+    if (response.burst && index > 0 && index % response.burst.every === 0) await new Promise((resolve) => setTimeout(resolve, response.burst.pauseMs));
     writeSse(res, assistantChunk({ id, created, model: MODEL_ID, delta: { content: chunk } }));
   }
   writeSse(
