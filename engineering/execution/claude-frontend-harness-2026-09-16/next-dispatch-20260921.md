@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-26 · Latest return: STR-R2 accepted, STR-R1 settlement race
+
+[Fixed9bef03c return review and explicit order](evidence/stream-backend-review-20260926/return-review/README.md) supersedes the two-open-returns status below. Original timer failure propagation now passes, and actual C10 bounds close STR-R2. Parent's new real-Host final-versus-held-write rejection leaves failed Run text without any partial settlement. Original Claude fixes that remaining STR-R1 sequence in the preserved backend branch, then returns fixed evidence. Frontend remains queued; no new writer, Figma or routine approval question is required.
+
+
 ## 2026-09-26 · Explicit Claude return before frontend
 
 [Independent backend receipt and action order](evidence/stream-backend-review-20260926/README.md) holds source `162fcce` for STR-R1 (coalesced persistence failure falsely completes a Run) and STR-R2 (C10 actual durable-byte bound). Parent real-Host fault injection proves the regression against main control despite audit6/6 and Luna66/66. Original Claude is requested to fix both in the preserved backend branch and return fixed source; frontend continuation is queued, not released. No repeated choice/permission prompt is needed. This receipt supersedes a passive reference-only reading of the earlier pasted record. Inventory docs are committed at `10203c0`; no Figma setup is required.
