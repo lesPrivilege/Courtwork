@@ -1,0 +1,516 @@
+{
+ "source": "main@0ec94c5 + fixture only",
+ "viewport": [
+  1024,
+  768,
+  2
+ ],
+ "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Claude/2.9939.2 Chrome/152.0.7977.130 Safari/537.36",
+ "reports": {
+  "sustained1": {
+   "polls": 11,
+   "receiveToDom": {
+    "p50": 14,
+    "p95": 19,
+    "max": 19
+   },
+   "receiveToPaint": {
+    "p50": 17,
+    "p95": 20,
+    "max": 20
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 19,
+    "max": 1017,
+    "over50": 7,
+    "frames": 1080
+   },
+   "longFrames": {
+    "count": 0,
+    "totalMs": 0,
+    "maxMs": 0,
+    "scriptMs": 0,
+    "blockingMs": 0,
+    "idleEntries": 7,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 16,
+    "addedNodes": 21,
+    "removedNodes": 20
+   },
+   "samples": [
+    {
+     "t": 1790403183218,
+     "kind": "cursor",
+     "minSeq": 6,
+     "maxSeq": 9,
+     "lastChars": 816,
+     "bytes": 4781,
+     "domAt": 1790403183232,
+     "paintAt": 1790403183233
+    },
+    {
+     "t": 1790403184135,
+     "kind": "cursor",
+     "minSeq": 10,
+     "maxSeq": 13,
+     "lastChars": 1920,
+     "bytes": 6939,
+     "domAt": 1790403184142,
+     "paintAt": 1790403184150
+    },
+    {
+     "t": 1790403185048,
+     "kind": "cursor",
+     "minSeq": 14,
+     "maxSeq": 16,
+     "lastChars": 2760,
+     "bytes": 8217,
+     "domAt": 1790403185061,
+     "paintAt": 1790403185063
+    },
+    {
+     "t": 1790403185967,
+     "kind": "cursor",
+     "minSeq": 17,
+     "maxSeq": 20,
+     "lastChars": 3864,
+     "bytes": 14946,
+     "domAt": 1790403185977,
+     "paintAt": 1790403185984
+    },
+    {
+     "t": 1790403186882,
+     "kind": "cursor",
+     "minSeq": 21,
+     "maxSeq": 24,
+     "lastChars": 4968,
+     "bytes": 19564,
+     "domAt": 1790403186893,
+     "paintAt": 1790403186900
+    },
+    {
+     "t": 1790403187798,
+     "kind": "cursor",
+     "minSeq": 25,
+     "maxSeq": 27,
+     "lastChars": 5808,
+     "bytes": 17685,
+     "domAt": 1790403187812,
+     "paintAt": 1790403187813
+    },
+    {
+     "t": 1790403188717,
+     "kind": "cursor",
+     "minSeq": 28,
+     "maxSeq": 31,
+     "lastChars": 6912,
+     "bytes": 27570,
+     "domAt": 1790403188732,
+     "paintAt": 1790403188734
+    },
+    {
+     "t": 1790403189638,
+     "kind": "cursor",
+     "minSeq": 32,
+     "maxSeq": 34,
+     "lastChars": 7752,
+     "bytes": 23700,
+     "domAt": 1790403189652,
+     "paintAt": 1790403189653
+    },
+    {
+     "t": 1790403190557,
+     "kind": "cursor",
+     "minSeq": 35,
+     "maxSeq": 38,
+     "lastChars": 8856,
+     "bytes": 35616,
+     "domAt": 1790403190572,
+     "paintAt": 1790403190574
+    },
+    {
+     "t": 1790403191476,
+     "kind": "cursor",
+     "minSeq": 39,
+     "maxSeq": 42,
+     "lastChars": 9960,
+     "bytes": 40194,
+     "domAt": 1790403191495,
+     "paintAt": 1790403191496
+    },
+    {
+     "t": 1790403192400,
+     "kind": "cursor",
+     "minSeq": 43,
+     "maxSeq": 45,
+     "lastChars": 10800,
+     "bytes": 33168,
+     "domAt": 1790403192418,
+     "paintAt": 1790403192420
+    }
+   ]
+  },
+  "burst": {
+   "polls": 6,
+   "receiveToDom": {
+    "p50": 30,
+    "p95": 41,
+    "max": 41
+   },
+   "receiveToPaint": {
+    "p50": 32,
+    "p95": 42,
+    "max": 42
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 19,
+    "max": 1017,
+    "over50": 3,
+    "frames": 374
+   },
+   "longFrames": {
+    "count": 1,
+    "totalMs": 1004,
+    "maxMs": 1004,
+    "scriptMs": 30,
+    "blockingMs": 0,
+    "idleEntries": 3,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 10,
+    "addedNodes": 16,
+    "removedNodes": 16
+   },
+   "samples": [
+    {
+     "t": 1790403223688,
+     "kind": "cursor",
+     "minSeq": 59,
+     "maxSeq": 61,
+     "lastChars": 1488,
+     "bytes": 4809,
+     "domAt": 1790403223717,
+     "paintAt": 1790403223719
+    },
+    {
+     "t": 1790403224621,
+     "kind": "cursor",
+     "minSeq": 62,
+     "maxSeq": 64,
+     "lastChars": 4320,
+     "bytes": 11000,
+     "domAt": 1790403224649,
+     "paintAt": 1790403224650
+    },
+    {
+     "t": 1790403225553,
+     "kind": "cursor",
+     "minSeq": 65,
+     "maxSeq": 66,
+     "lastChars": 5760,
+     "bytes": 10836,
+     "domAt": 1790403225580,
+     "paintAt": 1790403225582
+    },
+    {
+     "t": 1790403226487,
+     "kind": "cursor",
+     "minSeq": 67,
+     "maxSeq": 69,
+     "lastChars": 7248,
+     "bytes": 21487,
+     "domAt": 1790403226528,
+     "paintAt": 1790403226529
+    },
+    {
+     "t": 1790403227432,
+     "kind": "cursor",
+     "minSeq": 70,
+     "maxSeq": 72,
+     "lastChars": 10080,
+     "bytes": 28902,
+     "domAt": 1790403227462,
+     "paintAt": 1790403227464
+    },
+    {
+     "t": 1790403228367,
+     "kind": "cursor",
+     "minSeq": 73,
+     "maxSeq": 74,
+     "lastChars": 11520,
+     "bytes": 22767,
+     "domAt": 1790403228406,
+     "paintAt": 1790403228408
+    }
+   ]
+  },
+  "sustained3": {
+   "polls": 11,
+   "receiveToDom": {
+    "p50": 41,
+    "p95": 46,
+    "max": 46
+   },
+   "receiveToPaint": {
+    "p50": 43,
+    "p95": 49,
+    "max": 49
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 19,
+    "max": 1017,
+    "over50": 6,
+    "frames": 635
+   },
+   "longFrames": {
+    "count": 5,
+    "totalMs": 1257,
+    "maxMs": 1019,
+    "scriptMs": 231,
+    "blockingMs": 0,
+    "idleEntries": 5,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 16,
+    "addedNodes": 22,
+    "removedNodes": 22
+   },
+   "samples": [
+    {
+     "t": 1790403262618,
+     "kind": "cursor",
+     "minSeq": 85,
+     "maxSeq": 88,
+     "lastChars": 840,
+     "bytes": 3658,
+     "domAt": 1790403262650,
+     "paintAt": 1790403262652
+    },
+    {
+     "t": 1790403263554,
+     "kind": "cursor",
+     "minSeq": 89,
+     "maxSeq": 92,
+     "lastChars": 1944,
+     "bytes": 7036,
+     "domAt": 1790403263595,
+     "paintAt": 1790403263597
+    },
+    {
+     "t": 1790403264499,
+     "kind": "cursor",
+     "minSeq": 93,
+     "maxSeq": 96,
+     "lastChars": 3048,
+     "bytes": 11564,
+     "domAt": 1790403264537,
+     "paintAt": 1790403264539
+    },
+    {
+     "t": 1790403265441,
+     "kind": "cursor",
+     "minSeq": 97,
+     "maxSeq": 99,
+     "lastChars": 3864,
+     "bytes": 11673,
+     "domAt": 1790403265482,
+     "paintAt": 1790403265484
+    },
+    {
+     "t": 1790403266385,
+     "kind": "cursor",
+     "minSeq": 100,
+     "maxSeq": 103,
+     "lastChars": 4968,
+     "bytes": 19545,
+     "domAt": 1790403266423,
+     "paintAt": 1790403266425
+    },
+    {
+     "t": 1790403267328,
+     "kind": "cursor",
+     "minSeq": 104,
+     "maxSeq": 107,
+     "lastChars": 6072,
+     "bytes": 24119,
+     "domAt": 1790403267367,
+     "paintAt": 1790403267371
+    },
+    {
+     "t": 1790403268270,
+     "kind": "cursor",
+     "minSeq": 108,
+     "maxSeq": 111,
+     "lastChars": 7176,
+     "bytes": 28690,
+     "domAt": 1790403268309,
+     "paintAt": 1790403268312
+    },
+    {
+     "t": 1790403269215,
+     "kind": "cursor",
+     "minSeq": 112,
+     "maxSeq": 114,
+     "lastChars": 7992,
+     "bytes": 24500,
+     "domAt": 1790403269260,
+     "paintAt": 1790403269263
+    },
+    {
+     "t": 1790403270166,
+     "kind": "cursor",
+     "minSeq": 115,
+     "maxSeq": 118,
+     "lastChars": 9096,
+     "bytes": 36639,
+     "domAt": 1790403270212,
+     "paintAt": 1790403270214
+    },
+    {
+     "t": 1790403271117,
+     "kind": "cursor",
+     "minSeq": 119,
+     "maxSeq": 122,
+     "lastChars": 10200,
+     "bytes": 41217,
+     "domAt": 1790403271163,
+     "paintAt": 1790403271166
+    },
+    {
+     "t": 1790403272066,
+     "kind": "cursor",
+     "minSeq": 123,
+     "maxSeq": 126,
+     "lastChars": 11304,
+     "bytes": 45811,
+     "domAt": 1790403272111,
+     "paintAt": 1790403272114
+    }
+   ]
+  },
+  "attention1": {
+   "polls": 8,
+   "receiveToDom": {
+    "p50": 12,
+    "p95": 16,
+    "max": 16
+   },
+   "receiveToPaint": {
+    "p50": 13,
+    "p95": 19,
+    "max": 19
+   },
+   "frameGapMs": {
+    "p50": 17,
+    "p95": 19,
+    "max": 1017,
+    "over50": 25,
+    "frames": 824
+   },
+   "longFrames": {
+    "count": 1,
+    "totalMs": 1022,
+    "maxMs": 1022,
+    "scriptMs": 14,
+    "blockingMs": 0,
+    "idleEntries": 24,
+    "unsupported": false
+   },
+   "domUpdates": {
+    "count": 12,
+    "addedNodes": 38,
+    "removedNodes": 19
+   },
+   "samples": [
+    {
+     "t": 1790403322423,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 11,
+     "lastChars": 1368,
+     "bytes": 40219,
+     "domAt": 1790403322432,
+     "paintAt": 1790403322433
+    },
+    {
+     "t": 1790403323939,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 17,
+     "lastChars": 3024,
+     "bytes": 55736,
+     "domAt": 1790403323948,
+     "paintAt": 1790403323950
+    },
+    {
+     "t": 1790403325458,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 23,
+     "lastChars": 4656,
+     "bytes": 81394,
+     "domAt": 1790403325469,
+     "paintAt": 1790403325470
+    },
+    {
+     "t": 1790403326977,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 29,
+     "lastChars": 6288,
+     "bytes": 117212,
+     "domAt": 1790403326989,
+     "paintAt": 1790403326989
+    },
+    {
+     "t": 1790403328496,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 36,
+     "lastChars": 8208,
+     "bytes": 171988,
+     "domAt": 1790403328508,
+     "paintAt": 1790403328509
+    },
+    {
+     "t": 1790403330016,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 42,
+     "lastChars": 9840,
+     "bytes": 229900,
+     "domAt": 1790403330032,
+     "paintAt": 1790403330035
+    },
+    {
+     "t": 1790403331540,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 48,
+     "lastChars": 11472,
+     "bytes": 298001,
+     "domAt": 1790403331556,
+     "paintAt": 1790403331557
+    },
+    {
+     "t": 1790403333062,
+     "kind": "detail",
+     "minSeq": 6,
+     "maxSeq": 51,
+     "lastChars": 12000,
+     "bytes": 324901,
+     "domAt": 1790403333077,
+     "paintAt": 1790403333078
+    }
+   ]
+  }
+ },
+ "savedAt": "2026-09-26T06:17:20.105Z"
+}
