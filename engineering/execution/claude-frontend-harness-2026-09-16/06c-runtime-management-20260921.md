@@ -122,3 +122,7 @@ Commit explicit owned paths and return a fixed source plus writer stop/handoff. 
 ### Subsequent Opus consumer (queued, not a second writer)
 
 After I1 backend acceptance, use the existing Settings/Agents owner and accepted design grammar for a complete read-only list→detail→refresh→return path. Consume `executionRuntimes`, keep loading/failed-read/empty/unavailable distinct and preserve focus/position. Show actual declared operations with their reasons, Host configuration ownership, and explicitly unverified live status. Do not wire synthetic mutation controls or invent per-runtime CAS/command receipts. Astra owns any required cross-layer adjustment and final combined browser acceptance. This paragraph does not launch Opus before the backend handoff.
+
+### Actual I1 dispatch — 2026-09-26
+
+Parent committed the fixed contract as `5c22c02`, created isolated `codex/runtime-inventory-i1-20260926` from that actual main, and dispatched `/root/sol_runtime_inventory_i1` (GPT-6 Sol, high) as the sole bounded backend author. Source checkout is `../.worktrees/courtwork-runtime-inventory-i1-20260926` relative to the persistent project parent arrangement; the only untracked addition is a dependency symlink. This is an actual subagent dispatch, not a new sidebar task or a claimed implementation result. Original Claude and completed integration trees remain preserved; Opus frontend is still queued. Parent owns current/dispatch updates and independent acceptance; the author records only its own delivery here.
