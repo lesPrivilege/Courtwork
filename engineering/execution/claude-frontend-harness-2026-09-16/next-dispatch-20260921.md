@@ -1,5 +1,46 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-26 · Harness/Core reconciliation and serial Claude routing
+
+User direction: reconcile existing frontend/backend Harness and self-built Core work; Luna explores and registers mature external practices; Claude implements serially. This supersedes the older parallel author routing below for subsequent work. It does not reopen accepted slices or release a second writer.
+
+**Observed baseline:** persistent `Courtwork`, `main@51d0fbe8ee34d65b3013cf56c9e57d7bcc9dec75`. Existing untracked `.agents/`, `.obsidian/` and `skills-lock.json` are unrelated and preserved. Registered stream candidate: `claude/stream-backend-20260925@162fcce`, based on this main; its untracked `app/node_modules` is preserved. The older check-cancellation tree is also preserved; no cleanup is inferred from acceptance. Frozen legacy remains read-only.
+
+### What exists and what remains
+
+| Responsibility | Existing implementation / original owner | Reconciled status |
+| --- | --- | --- |
+| Frontend Harness | `app/web/`, shared Chat/Attention projections; this execution package, 06b/06e and streaming contract | Real ordinary Chat, selected profile/Kit editor and E1-B/E1-H are accepted within their receipts. Streaming row continuity, selection hold and shared Attention cursor remain the next consumer work; synthetic Runtime-management acceptance is not live management. |
+| Backend Harness / runtime integration | `app/server/`, `app/runtime/`; RD-001, RD-006, RD-009, P03 and DF-04 | Host admission, permissions, bindings, effect receipts and recovery are CW-owned. Pi 0.85.1 executes the loop; MCP client 2.0.0 and OpenAI SDK 7.15.0 are reused. Accepted C/D/E, local Pi and Runtime/Kit slices are not new projects. Live managed-runtime proof, native configuration, hooks and browser execution retain their original deferred owners. |
+| Work Core | [Core contracts](../../core-contracts.md), [governance](../../../docs/work-core/governance.md), `app/core/` | CW-owned Matter/Candidate/Decision/version/evidence/disclosure semantics exist. Core schema 4 and bridge schema 5 are separate from Host schema 22. These are product authority responsibilities, not another model loop. No new Work Core implementation is dispatched by this inventory. |
+| Active candidate | [Order 3 streaming](live-assistant-text-streaming-20260916.md), original Claude | Backend source `6da3bbc` plus correction `162fcce` is present outside main. Author reports 1687/1687, audit 6/6 and Sonnet review; this turn did not rerun or independently accept them. Frontend consumption and combined acceptance remain open. |
+
+**Disposition:** retain CW authority and product projections; reuse upstream execution/protocol mechanics. Reject a new generic agent loop, duplicate registry/state ledger or framework replacement inferred solely from the label “Core”. Mature-practice intake informs original owner contracts; it does not authorize a migration.
+
+### Luna mature-practice intake and parent disposition
+
+Read-only exploration by Luna in task `/root/luna_harness_inventory`, checked 2026-09-26. These are external technique/boundary references, not adopted dependencies or evidence of CW acceptance. Mutable upstream documentation does not change the pinned local package versions.
+
+| Primary source | Parent disposition and original consumer |
+| --- | --- |
+| [Playwright page routing](https://playwright.dev/docs/api/class-page#page-route) | **Adopt test technique:** deterministic held/dropped responses for original streaming C3/C9 and existing recovery counterexamples. Reuse current browser evidence tooling; computer-use execution stays on an OpenAI provider. No new testing platform. |
+| [Node test runner](https://nodejs.org/api/test.html) | **Adopt existing technique:** mock timers for 250 ms coalescing, terminal timer cancellation and late updates; focused tests through existing verification policy. No runner replacement. |
+| [OpenAI Agents JS testing](https://openai.github.io/openai-agents-js/guides/testing/) | **Adjust:** scripted doubles/no-network tests are a precedent for existing adapter fixtures. This separate SDK is not the installed OpenAI SDK/Agents API transport and does not prove its wire contract or live support. Do not install it or replace the current adapter. |
+| [OpenAI Agents JS sessions](https://openai.github.io/openai-agents-js/guides/sessions/) | **Adjust boundary reference:** execution history/session management is separate from CW Run/effect authority and Work Core acceptance. Reject transferring those owners to an SDK session. |
+| [Pi extension documentation](https://github.com/badlogic/pi-mono/blob/main/packages/coding-agent/docs/extensions.md) | **Retain existing reuse:** use the pinned Pi execution/extension seams. The upstream main URL is discovery evidence, not a version upgrade. **Defer** new hook support to RD-009; reject a duplicate loop/event bus arising from this intake. |
+
+The older harness gap map is historical input: K4/K5 selected-profile preview/edit and E1-B/E1-H have later acceptance receipts. Do not revive those old gaps. Live alternate-runtime proof and recovery/extension/hook residuals remain individually scoped original obligations; this audit does not mark them complete or dispatch all of them.
+
+### One serial continuation
+
+1. Original Claude retains the existing streaming candidate and its delivery record. Parent/Luna inspect fixed `162fcce`; any returned defects go to that same author before frontend construction. The current record's D1(a)/D2(a) decisions are already settled; no repeated approval question is needed.
+2. After the backend interface is independently disposed of, the same Claude continues the original Order 3 frontend: persisted segment identity, selection-only paint hold, partial-state projection and shared Attention cursor. Read the UI grammar and record affected responsibility/precedent before edits. Keep coalescing explicitly a mitigation, not linear storage.
+   The frontend scope also includes the user-reported high-throughput projection lag/jank and weak activity fluctuation; see the [performance/motion intake](live-assistant-text-streaming-20260916.md#2026-09-26--frontend-high-throughput-and-motion-intake). Register baseline timings and a shared motion specimen before claiming a fix. Existing waveform is decorative and does not measure TPS.
+3. Parent performs independent combined acceptance and integration. Only then select a further finite item from existing owners. Runtime-management production exposure remains deferred; do not restart accepted synthetic 06c or create parallel frontend/backend/Core writers.
+
+**Dispatch evidence:** `claude agents --json` observes original Courtwork interactive task `4349cf50-12b0-40e5-a51b-943592f13a93` (“UX Design polish 和 agent harness GUI”) idle. `claude auth status` returns `loggedIn:false`, `authMethod:none`. Installed CLI availability does not establish usable author authentication. No Claude inference or new session was launched; the existing manual relay remains usable. Resume the original author via a working authenticated route, consuming this entry and the streaming contract. Do not copy credentials or substitute another implementation model. Luna exploration is dispatched in this Codex task; product authoring remains Claude-only.
+
+
 ## 2026-09-22 · Pushed checkpoint and active K3
 
 The [clean-node receipt](evidence/clean-node-20260922/README.md) records main678d71c pushed and K3 freshly dispatched in task01a0c9a7-6aca-79b2-a578-da1414a73404 /bf41. [K3](kit-run-binding-20260922.md) owns only its finite ordinary-Chat/Pi Kit admission/frozen-context integration. M1 and K1/K2 are accepted/cleaned;06e-R1 remains with original Claude. A Pages generation-source parity correction follows the first push; it changes no Host code and does not authorize deployment.
