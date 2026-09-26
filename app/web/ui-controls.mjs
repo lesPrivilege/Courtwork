@@ -297,8 +297,15 @@ const markdownTags = [
   "td",
 ];
 export function markdown(text, { key = "markdown" } = {}) {
+  return markdownTokens(marked.lexer(String(text), { gfm: true }), { key });
+}
+/** Render lexed Markdown tokens through the one sanitizing path. Order 3 · a
+ * growing reply renders some of its blocks this way; `tokens.links` carries the
+ * whole document's reference definitions so a block resolves `[text][ref]`
+ * exactly as the full document does. */
+export function markdownTokens(tokens, { key = "markdown" } = {}) {
   const root = el("div", { className: "markdown-body" });
-  const html = marked.parse(String(text), { gfm: true, async: false });
+  const html = marked.parser(tokens, { gfm: true, async: false });
   root.append(
     DOMPurify.sanitize(html, {
       ALLOWED_TAGS: markdownTags,

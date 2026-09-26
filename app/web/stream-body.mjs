@@ -1,8 +1,11 @@
 /* Order 3 · the body of one assistant segment, shared by Chat and Attention.
  *
- * While a segment grows, each snapshot is split into Markdown blocks. Blocks
- * whose source is unchanged keep their DOM nodes; only the changed tail is
- * rendered again, through the same sanitizing `markdown()` as everything else.
+ * While a segment grows, each snapshot is lexed once as a whole document and
+ * split into its top-level blocks. Every block is rendered with that
+ * document's reference definitions (`tokens.links`), through the same
+ * sanitizing path as `markdown()`. A block keeps its DOM nodes while its source
+ * is unchanged and, if it could use a reference (`[…]`), while the
+ * definitions are unchanged too; only the other blocks are rendered again.
  * The last block may be unfinished (an open fence, a half list), so it is always
  * re-rendered. When the segment settles, the body is rendered once from the
  * final text, so settled output is exactly one `markdown()` of the canonical
@@ -12,7 +15,7 @@
  * painted: the newest snapshot is kept and `Content updated` says so. When the
  * selection leaves, the newest text is painted once. Nothing else is frozen. */
 import { marked } from "./vendor/marked.mjs";
-import { el, markdown } from "./ui-controls.mjs";
+import { el, markdown, markdownTokens } from "./ui-controls.mjs";
 
 export const CONTENT_UPDATED = "Content updated";
 
@@ -40,33 +43,51 @@ export function createAssistantBody({ key }) {
   const root = el("div", { className: "markdown-body" });
   const hint = el("p", { className: "form-help stream-body-hint", text: CONTENT_UPDATED, attrs: { role: "status" } });
   hint.hidden = true;
-  let blocks = []; // [{ raw, nodes }]
+  let blocks = []; // [{ raw, refs, nodes }]
+  let definitions = ""; // the reference definitions the blocks were drawn with
   let painted = null; // text currently in the DOM
   let settled = false;
   let waiting = null; // { text, settled } held while the selection is inside
   let held = false; // the selection was inside when the surface began a rebuild
 
-  function renderBlock(raw, index) {
-    if (!raw.trim()) return [];
-    return [...markdown(raw, { key: `${key}:b${index}` }).childNodes];
+  function renderBlock(token, index, links) {
+    if (!token.raw.trim()) return [];
+    const one = [token];
+    one.links = links;
+    return [...markdownTokens(one, { key: `${key}:b${index}` }).childNodes];
   }
   function paintGrowing(text) {
-    const raws = markdownBlocks(text);
-    let keep = 0;
-    // Every block but the last is complete; keep those whose source is unchanged.
-    while (keep < blocks.length && keep < raws.length - 1 && blocks[keep].raw === raws[keep]) keep += 1;
-    for (const block of blocks.slice(keep)) for (const node of block.nodes) node.remove();
-    blocks = blocks.slice(0, keep);
-    for (let i = keep; i < raws.length; i += 1) {
-      const nodes = renderBlock(raws[i], i);
-      root.append(...nodes);
-      blocks.push({ raw: raws[i], nodes });
+    const tokens = marked.lexer(text, { gfm: true });
+    const links = tokens.links ?? {};
+    const nextDefinitions = JSON.stringify(links);
+    const definitionsChanged = nextDefinitions !== definitions;
+    // Every block but the last is complete. Keep one whose source is unchanged
+    // unless it could resolve a reference and the definitions have changed.
+    const plan = tokens.map((token, i) => {
+      const old = blocks[i];
+      const reuse = Boolean(old) && i < tokens.length - 1 && old.raw === token.raw && !(definitionsChanged && old.refs);
+      return { token, old, reuse };
+    });
+    blocks.forEach((block, i) => { if (!plan[i]?.reuse) for (const node of block.nodes) node.remove(); });
+    // Insert the new blocks before the next kept one, from the end.
+    const next = new Array(plan.length);
+    let anchor = null;
+    for (let i = plan.length - 1; i >= 0; i -= 1) {
+      const { token, old, reuse } = plan[i];
+      if (reuse) { next[i] = old; if (old.nodes.length) anchor = old.nodes[0]; continue; }
+      const nodes = renderBlock(token, i, links);
+      for (const node of nodes) root.insertBefore(node, anchor);
+      if (nodes.length) anchor = nodes[0];
+      next[i] = { raw: token.raw, refs: /\[[^\]]*\]/.test(token.raw), nodes };
     }
+    blocks = next;
+    definitions = nextDefinitions;
   }
   function paint(text, isSettled) {
     if (isSettled) {
       root.replaceChildren(...markdown(text, { key }).childNodes);
       blocks = [];
+      definitions = "";
       settled = true;
     } else paintGrowing(text);
     painted = text;
