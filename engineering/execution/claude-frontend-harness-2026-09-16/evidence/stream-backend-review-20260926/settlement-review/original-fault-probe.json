@@ -1,0 +1,14 @@
+{
+  "source": "claude/stream-backend-20260925@7a1f3a6bf701f968ff7881d783057b73af3e509c",
+  "injected": true,
+  "attempts": 2,
+  "status": "failed",
+  "error": {
+    "code": "runtime_projection_failed",
+    "message": "runtime failed"
+  },
+  "usageMissing": true,
+  "logs": [
+    "assistant stream a05f6fd3-3431-4e09-b6e3-8dc338020959: coalesced snapshot write failed: independent transient snapshot persistence failure"
+  ]
+}

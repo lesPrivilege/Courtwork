@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-26 · Streaming live settlement accepted; persisted recovery seam held
+
+[Independent review of7a1f3a6](execution/claude-frontend-harness-2026-09-16/evidence/stream-backend-review-20260926/settlement-review/README.md) confirms both historical failure probes now pass, Luna75/75 and Parent Host audit6/6. STR-R2 stays accepted; live STR-R1 settlement is adopted. A supported Pi retry produces two persisted text segments without finals; captured crash-image replay settles only the newest on reopen. Original Claude receives the remaining STR-R1 persisted-recovery parity correction for startup/no-active cancellation. No product merge or frontend release; original branch/tree preserved.
+
+
 ## 2026-09-26 · Streaming return reviewed: C10 accepted, settlement race held
 
 [Independent return review](execution/claude-frontend-harness-2026-09-16/evidence/stream-backend-review-20260926/return-review/README.md) fixes `9bef03c`: original timer-failure probe now fails the Run correctly; Host audit6/6 passes; actual state growth252,937 bytes and delta-event bytes176,472 meet C10 bounds. STR-R2 is accepted for the fixed fixture. A new real-Host counterexample rejects an in-flight snapshot after final starts awaiting it: the Run fails but persisted text has no final/partial because open state was cleared too early. Original Claude retains STR-R1 for this bounded correction; frontend performance/motion remains queued. No product merge, schema change or live-provider/browser claim.

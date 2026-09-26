@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-26 · Latest return: persisted recovery parity
+
+[7a1f3a6 independent disposition and explicit order](evidence/stream-backend-review-20260926/settlement-review/README.md) adopts the live STR-R1 settlement fix and retains STR-R2. Parent's supported Pi retry/captured-crash-image probe finds two persisted open segments but recovery settles only the newest. Original Claude corrects both persisted-recovery consumers under the same STR-R1, then returns fixed source. Frontend remains queued. Do not repeat the resolved live failure fixes, byte-bound work or permission questions.
+
+
 ## 2026-09-26 · Latest return: STR-R2 accepted, STR-R1 settlement race
 
 [Fixed9bef03c return review and explicit order](evidence/stream-backend-review-20260926/return-review/README.md) supersedes the two-open-returns status below. Original timer failure propagation now passes, and actual C10 bounds close STR-R2. Parent's new real-Host final-versus-held-write rejection leaves failed Run text without any partial settlement. Original Claude fixes that remaining STR-R1 sequence in the preserved backend branch, then returns fixed evidence. Frontend remains queued; no new writer, Figma or routine approval question is required.
