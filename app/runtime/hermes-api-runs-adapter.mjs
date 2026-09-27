@@ -111,8 +111,10 @@ function adapterLimits(limits) {
 const bounded = (value, limit) => (typeof value === "string" ? (value.length > limit ? `${value.slice(0, limit)}…` : value) : null);
 
 /** A native status record, validated against the run it must describe.
- * Returns null when it does not describe that run in the pinned shape. */
-export function readStatus(json, nativeRunId) {
+ * Returns null when it does not describe that run in the pinned shape.
+ * `maxErrorChars` bounds the error text; standalone callers get the
+ * documented default, and an adapter passes its configured limit. */
+export function readStatus(json, nativeRunId, { maxErrorChars = HERMES_ADAPTER_LIMITS.maxErrorChars } = {}) {
   if (!isRecord(json) || json.run_id !== nativeRunId || typeof json.status !== "string") return null;
   const status = STATUSES.has(json.status) ? json.status : null;
   if (!status) return null;
@@ -123,7 +125,7 @@ export function readStatus(json, nativeRunId) {
     terminal,
     nativeSessionId: typeof json.session_id === "string" && SESSION_ID.test(json.session_id) ? json.session_id : null,
     output: typeof json.output === "string" ? json.output : null,
-    error: bounded(json.error, HERMES_ADAPTER_LIMITS.maxErrorChars),
+    error: bounded(json.error, maxErrorChars),
   };
   if (terminal && !consistentTerminal(status, json)) return null;
   return record;
@@ -207,7 +209,7 @@ export function createHermesRunsAdapter(options = {}) {
   async function status(nativeRunId) {
     live();
     const answer = await transport.getRun(nativeRunId);
-    const record = readStatus(answer.json, nativeRunId);
+    const record = readStatus(answer.json, nativeRunId, bounds);
     if (!record) throw new HermesAdapterError("malformed_status", "The status did not describe this run in the pinned shape.");
     return observe({ ...record, endpointIdentity });
   }
@@ -231,7 +233,7 @@ export function createHermesRunsAdapter(options = {}) {
     }
     const terminal = /^run\.(completed|failed|cancelled|interrupted)$/.exec(json.event);
     if (terminal) {
-      const record = readStatus({ ...json, status: terminal[1] }, nativeRunId);
+      const record = readStatus({ ...json, status: terminal[1] }, nativeRunId, bounds);
       return record ? { kind: "terminal", ...record } : { diagnostic: "malformed_terminal", event: json.event };
     }
     if (UNSUPPORTED_ACTIVITY.has(json.event)) return { kind: "unsupported", event: json.event };
@@ -368,7 +370,7 @@ export function createHermesRunsAdapter(options = {}) {
       try {
         const answer = await transport.stopRun(nativeRunId);
         if (isRecord(answer.json) && answer.json.run_id === nativeRunId && answer.json.status === "stopping") return Object.freeze({ state: "stopping" });
-        const record = readStatus(answer.json, nativeRunId);
+        const record = readStatus(answer.json, nativeRunId, bounds);
         if (record?.terminal) return Object.freeze({ state: "already_terminal", status: observe({ ...record, endpointIdentity }) });
         return Object.freeze({ state: "unresolved" });
       } catch (error) {

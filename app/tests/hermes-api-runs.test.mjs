@@ -486,3 +486,26 @@ test("HPR-R2 · valid smaller limits and the documented ceilings are accepted an
     assert.doesNotThrow(() => createHermesRunsAdapter({ transport: h.transport, limits: { ...HERMES_ADAPTER_CEILINGS } }));
   } finally { await h.close(); }
 });
+
+test("HPR-R2 · the configured error limit bounds every terminal error: status, follow, reconcile and stop", async () => {
+  const long = "abcdefghij";
+  const failedStatus = (runId) => ({ status: 200, json: { run_id: runId, status: "failed", completed: false, partial: false, interrupted: false, error: long } });
+  const transport = (endpointIdentity) => ({
+    endpointIdentity,
+    async createRun() { throw new Error("not used"); },
+    async getRun(runId) { return failedStatus(runId); },
+    async stopRun(runId) { return failedStatus(runId); },
+    async *events(runId) { yield { type: "data", data: JSON.stringify({ event: "run.failed", run_id: runId, timestamp: 1, completed: false, partial: false, interrupted: false, error: long }) }; },
+    close() { return 0; },
+  });
+  const small = createHermesRunsAdapter({ transport: transport("http://127.0.0.1:1"), limits: { maxErrorChars: 1 } });
+  assert.equal(small.describe().limits.maxErrorChars, 1);
+  assert.equal((await small.status("r1")).error, "a…");
+  assert.equal((await small.follow("r1")).error, "a…");
+  assert.equal((await small.reconcile("r1")).error, "a…");
+  assert.equal((await small.stop("r1")).status.error, "a…");
+  // The ceiling and the default keep a short error whole; standalone readStatus keeps the documented default.
+  const ceiling = createHermesRunsAdapter({ transport: transport("http://127.0.0.1:2"), limits: { maxErrorChars: HERMES_ADAPTER_CEILINGS.maxErrorChars } });
+  assert.equal((await ceiling.status("r1")).error, long);
+  assert.equal(readStatus({ run_id: "r1", status: "failed", error: "x".repeat(600) }, "r1").error, `${"x".repeat(500)}…`);
+});
