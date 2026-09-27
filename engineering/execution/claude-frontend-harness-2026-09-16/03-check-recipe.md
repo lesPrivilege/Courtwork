@@ -90,3 +90,7 @@ Deliver committed source and evidence with exact SHAs; parent owns independent a
 ### Sol implementation boundary
 
 The affected responsibility is the Host-owned frozen recipe catalog. The nearest implemented precedent is `node-test` v1 in `app/runtime/check-recipes.mjs`; the existing check approval, candidate revision fence, runner and durable settlement remain the authority. This change adds one fixed Attention test descriptor and its documentation/tests. It needs no cross-layer change: Core, Runtime Port, service/store, and UI consume the existing `check_run` facts without modification. Sol owns the bounded author result; Astra retains integration and independent acceptance.
+
+### Sol delivery · author evidence
+
+Sol source `ee6afb5b08c86ec902b6176c913e4ce7c6116c03` plus focused test/probe correction `49417c6` deliver the fixed row and its direct Host contract coverage in the isolated `codex/attention-check-recipe-20260927` tree. [Author evidence](evidence/attention-check-recipe-20260927/README.md#sol-author-result--2026-09-27) records exact argv, synthetic pass/fail/missing-path outcomes, 32/32 governance/parity tests, the actual six Attention suites 25/25, local-fake smoke and a disposable private-candidate Host receipt. The preflight finding is adopted with the explicit `--test` correction; no new owner or approval mechanism was introduced. Independent review and integration remain with Astra/Luna; this author result does not close formal Attention, live-connector or real-model gates.

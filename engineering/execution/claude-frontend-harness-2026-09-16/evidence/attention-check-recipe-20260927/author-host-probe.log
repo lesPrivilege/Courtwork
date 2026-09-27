@@ -1,0 +1,50 @@
+{
+  "baseCommit": "49417c6276e9e947d9b98aa9ab543cb5f9b24c19",
+  "candidateId": "923e4567-e89b-42d3-a456-426614174099",
+  "permission": {
+    "recipeId": "node-test-attention-contract",
+    "recipeVersion": 1,
+    "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+    "argv": [
+      "--test",
+      "--test-concurrency=1",
+      "app/tests/attention-core.test.mjs",
+      "app/tests/attention-http.test.mjs",
+      "app/tests/attention-recovery.test.mjs",
+      "app/tests/attention-github-fixture.test.mjs",
+      "app/tests/attention-gmail-fixture.test.mjs",
+      "app/tests/attention-trace-fixture.test.mjs"
+    ],
+    "cwd": "private candidate",
+    "candidateId": "923e4567-e89b-42d3-a456-426614174099",
+    "candidateWriteRevision": 0,
+    "timeoutMs": 120000,
+    "outputLimitBytes": 65536,
+    "env": "minimal"
+  },
+  "checkStarted": {
+    "callId": "fake-script-1-0",
+    "recipeId": "node-test-attention-contract",
+    "recipeVersion": 1,
+    "candidateId": "923e4567-e89b-42d3-a456-426614174099",
+    "candidateWriteRevision": 0,
+    "startedAt": "2026-09-27T06:18:16.500Z"
+  },
+  "checkSettled": {
+    "callId": "fake-script-1-0",
+    "status": "completed",
+    "exitCode": 0,
+    "signal": null,
+    "durationMs": 5192,
+    "stdout": "✔ Attention CAS, full request identity, typed transitions and immutable receipt (120.30425ms)\n✔ scope applies before IDs, descriptors, counts, lookups, receipts and source queries (87.087125ms)\n✔ runtime registry-only grant hides detail, search predicates, event/receipt/source and signals (88.256583ms)\n✔ explicit signal policy records observations without status, seen or authorization changes (89.870417ms)\n✔ schema-aware exact/literal grep/relation filters are bounded and no regex executes (98.326ms)\n✔ source references bind exact retained Core bytes and scope; external locators stay unknown (88.845833ms)\n✔ unknown schema/action, stale mutation, corrupt state and hidden unknown schema fail closed (287.322042ms)\n✔ simultaneous actions serialize CAS, and needs_you is an explicit typed transition (93.198833ms)\n✔ missing audit/receipt or rewritten receipt is refused before a new state change (465.942792ms)\n✔ GitHub fixture preserves raw conditional values, pagination, snapshots on 304, and changing poll cadence (2.086792ms)\n✔ GitHub fixture retains notification semantics that are unsafe to collapse (0.158958ms)\n✔ GitHub fixture surfaces unsupported credentials, revoked authorization and rate limits (0.427125ms)\n✔ GitHub fixture rejects contradictory scripts (0.085875ms)\n✔ Gmail fixture supplies duplicate and out-of-order push/history pages without advancing a caller cursor (6.13525ms)\n✔ Gmail fixture presents interruption, gap, expired watch, mismatch, and revoked authorization as explicit provider outcomes (1.671083ms)\n✔ Gmail fixture rejects malformed and contradictory scripted responses (0.266667ms)\n✔ ATT-BE-01 HTTP round trip keeps multi-Matter/source/execution refs through typed CAS and producer loss (943.122833ms)\n✔ Attention scope, actor ownership, unknown fields and schema versions fail closed over every query kind (173.112ms)\n✔ Runtime Attention adapter captures host execution context, records signals only, and closes with the Run (651.5875ms)\n✔ generated Attention consumer packet records the HTTP/Pi/Core invariants (1.820916ms)\n✔ Attention SIGKILL at before_commit leaves zero or one complete request effect (205.782667ms)\n✔ Attention SIGKILL at after_commit_before_ack leaves zero or one complete request effect (189.707958ms)\n✔ synthetic trace vectors preserve edits, stale approval, unknown effect, duplicate surfacing and non-score samples (1.618625ms)\n✔ trace fixture validator rejects contradictions rather than turning missing evidence into a score (0.202583ms)\n✔ trace fixture validation runner is executable within the fixture directory (71.06275ms)\nℹ tests 25\nℹ suites 0\nℹ pass 25\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5110.3675\n",
+    "stderr": "",
+    "truncated": {
+      "stdout": false,
+      "stderr": false
+    },
+    "startedAt": "2026-09-27T06:18:16.502Z",
+    "endedAt": "2026-09-27T06:18:21.694Z",
+    "failure": null
+  },
+  "provider": "local-fake"
+}
