@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Actual author receipts
+
+Claude's original Opus conversation confirms CB-D1 pickup, idle-tree fast-forward to `d4a08d7`, and shared Markdown/reader/style inspection. Sol `/root/sol_attention_check_recipe` is actually dispatched from `6e983dc` in isolated `codex/attention-check-recipe-20260927`. Both source deliveries remain pending. Luna's preflights are consumed in the linked original contracts. Hermes protocol construction is ready but queued behind CB-D1 parent disposition; no second Claude/core writer starts.
+
 ## 2026-09-27 · Concrete next contracts
 
 [Hermes protocol slice](core-runtime-loop-20260921.md#2026-09-27--hermes-protocol-slice-next-claude-serial-core-assignment) is ready for Claude after CB-D1 parent disposition: pinned HTTP/SSE protocol + synthetic loopback, no Host/Store adoption. [Fixed Attention check recipe](03-check-recipe.md#2026-09-27--fixed-attention-contract-recipe-sol-assignment) is released for independent Sol authoring with no runner/authority/UI overlap. Luna source reports and Astra corrections are linked from each original owner.
