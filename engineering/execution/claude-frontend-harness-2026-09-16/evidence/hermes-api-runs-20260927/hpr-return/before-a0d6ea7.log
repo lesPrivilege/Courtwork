@@ -1,0 +1,91 @@
+✔ the adapter describes its pinned source, endpoint and capability ceiling (10.0795ms)
+✔ the first transport accepts only an explicit loopback origin, and never echoes the bearer (9.13175ms)
+✔ admission sends the exact bounded body with the Host's key, and returns a native run id, not completion (4.075583ms)
+✔ invalid input or key is refused locally, before anything is sent (1.063667ms)
+✔ the same intent replays the same run; a changed body under the same key conflicts and creates nothing (3.356542ms)
+✔ a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (1.909708ms)
+✔ fragmented Unicode arrives whole: pinned ASCII escapes split across writes, and raw UTF-8 split inside a character (13.275292ms)
+✔ repeated equal deltas are separate text: nothing on the wire makes them duplicates (2.356333ms)
+✔ terminal output is the native final response, kept apart from the text actually streamed (2.187333ms)
+✔ a stream that ends without a terminal is a gap; the status decides only whether the run is known to have ended (6.568416ms)
+✔ malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (2.105792ms)
+✔ status and terminal records must describe this run in the pinned shape (0.1105ms)
+✔ an approval or tool event is recorded, never answered or executed, and rules out a text-only success (2.20225ms)
+✔ stop is an intent: only the matching terminal cancelled settles the run as cancelled (55.371042ms)
+✔ a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (307.6905ms)
+✔ after an owner restart, status reports interrupted: unknown coverage, no text invented, and stop only reads that status (87.395708ms)
+✔ a stop for a run this gateway process does not drive is refused as not active, with no effect (3.013833ms)
+✔ the stream has one subscriber; a second follow finds no stream and does not claim replay (3.960958ms)
+✔ continuation uses only a native session id observed in a validated status, never a guess (4.053167ms)
+✔ byte, frame, idle and text limits end the stream as a bounded gap (211.099042ms)
+✔ keepalive comments hold an idle stream open and are not events (454.326125ms)
+✔ dispose closes only this transport's connections: no stop, no delete, and the native run is left as it was (135.225333ms)
+✖ HPR-R1 · a status observed through another adapter or endpoint cannot start a continuation (0.876625ms)
+✖ HPR-R1 · admit sends only an intent this adapter issued, with its exact validated body (0.235334ms)
+✖ HPR-R1 · after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted (4.225ms)
+✖ HPR-R2 · invalid limits and unknown configuration are refused before any request (1.386958ms)
+✔ HPR-R2 · valid smaller limits and the documented ceilings are accepted and enforced (3.478083ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 23
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1457.667791
+
+✖ failing tests:
+
+test at app/tests/hermes-api-runs.test.mjs:390:1
+✖ HPR-R1 · a status observed through another adapter or endpoint cannot start a continuation (0.876625ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception.
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/hpr/before/app/tests/hermes-api-runs.test.mjs:395:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }
+
+test at app/tests/hermes-api-runs.test.mjs:408:1
+✖ HPR-R1 · admit sends only an intent this adapter issued, with its exact validated body (0.235334ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/hpr/before/app/tests/hermes-api-runs.test.mjs:419:32)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/hermes-api-runs.test.mjs:427:1
+✖ HPR-R1 · after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted (4.225ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/hpr/before/app/tests/hermes-api-runs.test.mjs:438:7)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/hermes-api-runs.test.mjs:451:1
+✖ HPR-R2 · invalid limits and unknown configuration are refused before any request (1.386958ms)
+  AssertionError [ERR_ASSERTION]: Missing expected exception: {"maxFrameBytes":null}
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/hpr/before/app/tests/hermes-api-runs.test.mjs:461:14)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    operator: 'throws',
+    diff: 'simple'
+  }

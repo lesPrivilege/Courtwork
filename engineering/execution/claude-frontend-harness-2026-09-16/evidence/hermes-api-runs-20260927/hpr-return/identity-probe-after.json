@@ -1,0 +1,22 @@
+{
+  "crossContinuation": "refused:session_unknown",
+  "forgedAdmission": "refused:invalid_intent",
+  "legitimateContinuation": "accepted",
+  "limits": {
+    "transportNaNFrame": "refused:invalid_configuration",
+    "transportInfinityStream": "refused:invalid_configuration",
+    "transportNegativeIdle": "refused:invalid_configuration",
+    "adapterNaNDiagnostics": "refused:invalid_configuration",
+    "adapterInfinityText": "refused:invalid_configuration"
+  },
+  "requests": [
+    {
+      "endpoint": "http://127.0.0.1:1111",
+      "body": {
+        "input": "continue",
+        "session_id": "session-from-A"
+      },
+      "idempotencyKey": "key-a"
+    }
+  ]
+}

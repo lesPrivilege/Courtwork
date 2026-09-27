@@ -133,3 +133,21 @@ Writer stopped for parent review. No push, main merge or 8787 restart.
 **Subsequent consumer boundary, Astra · 2026-09-27:** [Host preflight disposition](evidence/hermes-protocol-preflight-20260927/README.md#host-consumer-preflight-consumed--2026-09-27) adopts the current Agents-specific durable-ledger and Pi-only global-role constraints. The active protocol slice remains unchanged. Text-only consultation is not the target Attention implementation; subsequent construction must establish actual Host-governed tool/results and native identity/recovery support, with schema impact decided from the concrete durable contract. Luna's pinned-source tool-seam exploration is preparation only.
 
 **Hermes protocol parent return · 2026-09-27:** [review](evidence/hermes-protocol-review-20260927/README.md) holds `fc7dec8` / `a0d6ea7` for HPR-R1 (frozen-object provenance permits cross-endpoint continuation and forged request bodies) and HPR-R2 (invalid/non-finite limits bypass declared bounds). Parent/Luna probes reproduce; existing51/51 pass independently. Adopt both findings in the original Claude lane, keeping the standalone protocol scope and all current Host/Store/Attention boundaries. No source merge or next consumer release.
+
+### Hermes protocol slice · HPR-R1/R2 author return — 2026-09-27 (Claude, Opus)
+
+This disposes the [parent review](evidence/hermes-protocol-review-20260927/README.md) (main `0dfb863`). The fix is `a5e3e96`, after which main was merged in. See the [return evidence](evidence/hermes-api-runs-20260927/hpr-return/README.md).
+
+- **HPR-R1 · adopted.** Provenance now uses private per-adapter registries of issued intents and validated records, not freezing.
+  - `admit` re-checks endpoint, revision and the exact `{input, session_id?}` body at dispatch, and sends a fresh copy.
+  - A continuation accepts only a record this adapter observed at its own endpoint.
+  - Cross-adapter and cross-endpoint records, copies, forgeries and extra body fields are refused before any request.
+  - Legitimate admission, continuation and same-intent lost-answer recovery are preserved. Recovery after a re-created adapter is documented: rebuild the same intent from the Host's key and input, re-reading the earlier run for a continuation. Nothing is substituted.
+- **HPR-R2 · adopted.** Options and limits are validated at construction. Only known names are allowed, each a positive safe integer within documented ceilings, with frame ≤ stream, and the transport must be complete with an endpoint identity. Defaults and smaller limits are kept.
+- **Evidence.**
+  - Four new tests fail on `a0d6ea7`; 27/27 pass after, stable over 3 runs.
+  - The parent/Luna counterexample probe shows all cases accepted before and refused after, with zero requests; the legitimate continuation is still sent.
+  - Adjacent tests 29/29; doc links clean.
+- **Unchanged.** The source pin and the first-slice scope.
+
+Writer stopped for parent review. The Attention consumer is not started. No push, main merge or 8787 restart.

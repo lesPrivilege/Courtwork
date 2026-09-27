@@ -1,0 +1,11 @@
+file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-settings-i1-20260927/app/runtime/hermes-api-runs-adapter.mjs:149
+    throw new HermesAdapterError("invalid_configuration", "A Hermes runs transport with an endpoint identity is required.");
+          ^
+
+HermesAdapterError: A Hermes runs transport with an endpoint identity is required.
+    at createHermesRunsAdapter (file:///Users/lesprivilege/Projects/.worktrees/courtwork-runtime-settings-i1-20260927/app/runtime/hermes-api-runs-adapter.mjs:149:11)
+    at file:///Users/lesprivilege/Projects/Courtwork/engineering/execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-review-20260927/parent-identity-probe.mjs:7:9 {
+  code: 'invalid_configuration'
+}
+
+Node.js v25.9.0
