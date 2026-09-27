@@ -175,3 +175,13 @@ For the parent:
 Not executed by the author: 1280 px, native zoom and text spacing, forced colours, screen reader, and the user's Host.
 
 Writer released at this delivery. No connect, disable or disconnect, no executor selection, no schema or backend change, and no push.
+
+### RFS return · author disposition — 2026-09-27 (Claude, Opus)
+
+This disposes the [parent review](evidence/runtime-settings-i1-review-20260927/README.md) (main `7b29ee7`) on the original branch. The fix is `6acad62`, with [return evidence](evidence/runtime-settings-i1-20260927/rfs-return/README.md).
+
+- **RFS-R1 · adopted.** Every inventory field the view consumes is validated before a reading is kept. A malformed supported-version report is now the failed read "could not be read": the last good reading, page and focus are kept, nothing throws, and the next Refresh reaches the Host. A missing or old version still reads "not reported". Unknown well-shaped ids and operations stay data. New cases: 18 fail on `36f8357`, 31/31 pass on `6acad62`. The browser malformed → failed-read → successful-refresh path passes with 0 page exceptions.
+- **RFS-R2 · adopted.** The detail's status and operation values, the reasons and the not-reported line use `--text-reading` (15px / 24px), scoped to this detail. Labels and technical ids stay 11.5px metadata. Controls stay 28px on a fine pointer and 44px narrow. There is no overflow at 1280 or 390 in either theme.
+- **RFS-D1 / D2.** Applied as ruled: the Agents group and glyph are kept, and the second read is kept.
+
+Targeted 124/124 and 8 lints exit 0. The full suite and smoke are reused from `a6e07f8` and not repeated. The writer is released again. No push or merge.

@@ -1,0 +1,550 @@
+{
+  "host": {
+    "sessionsBefore": 0,
+    "sessionsAfter": 0,
+    "stateUnchanged": true
+  },
+  "steps": [
+    {
+      "name": "list",
+      "tabSelected": "true",
+      "panelHidden": false,
+      "rows": [
+        "Pi · Host default Configured · live status not checked Details",
+        "Agents API Unavailable · live status not checked This execution runtime is not configured on this Host. Details"
+      ],
+      "status": "",
+      "error": null,
+      "buttons": [
+        "refresh",
+        "row-action:pi-coding-agent@0.85.1/agent-session",
+        "row-action:agents-api"
+      ],
+      "runtimeInfoRequests": [
+        {
+          "url": "/api/v5/runtime-info",
+          "token": true
+        },
+        {
+          "url": "/api/v5/runtime-info",
+          "token": true
+        }
+      ],
+      "geometry": {
+        "refresh": {
+          "w": 28,
+          "h": 28,
+          "top": 161
+        },
+        "details": {
+          "w": 87,
+          "h": 30,
+          "top": 226
+        },
+        "back": null,
+        "rowTitle": {
+          "size": "14px",
+          "line": "21px",
+          "weight": "500"
+        },
+        "rowHelp": {
+          "size": "11.5px",
+          "line": "16.675px",
+          "weight": "400"
+        },
+        "blockTitle": {
+          "size": "13px",
+          "line": "19.5px",
+          "weight": "500"
+        },
+        "term": null,
+        "statusValue": null,
+        "operationReason": null,
+        "absentOperations": null,
+        "technicalValue": null,
+        "firstContentTop": 209
+      }
+    },
+    {
+      "name": "detail-by-keyboard",
+      "focusOnRow": "row:pi-coding-agent@0.85.1/agent-session",
+      "focusAfterOpen": "back",
+      "runtime": "Pi",
+      "status": [
+        "Configuration",
+        "Configured on this Host",
+        "Owner",
+        "This Host's configuration. Settings reads it and cannot change it.",
+        "Availability",
+        "Described by this Host for the current provider",
+        "Live status",
+        "Not checked. Nothing here connects to it, signs in or runs anything.",
+        "Host default",
+        "Yes"
+      ],
+      "operations": [
+        "Start a run",
+        "Supported",
+        "Continue a chat",
+        "Supported",
+        "Steer a run in progress",
+        "Supported",
+        "Cancel a run",
+        "Supported",
+        "Compact the context",
+        "Supported",
+        "Recover a run after a restart",
+        "Not supported. Pi's loop runs inside the Host process; a Run this process is not driving cannot be re-attached",
+        "Answer a tool call",
+        "Not supported. Pi executes the governed tools inside its own loop; there is no pending call to answer"
+      ],
+      "buttons": [
+        "back",
+        "refresh"
+      ],
+      "geometry": {
+        "refresh": {
+          "w": 28,
+          "h": 28,
+          "top": 157
+        },
+        "details": null,
+        "back": {
+          "w": 87,
+          "h": 28,
+          "top": 157
+        },
+        "rowTitle": null,
+        "rowHelp": {
+          "size": "11.5px",
+          "line": "16.675px",
+          "weight": "400"
+        },
+        "blockTitle": {
+          "size": "13px",
+          "line": "19.5px",
+          "weight": "500"
+        },
+        "term": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "statusValue": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "operationReason": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "absentOperations": null,
+        "technicalValue": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "firstContentTop": 185
+      }
+    },
+    {
+      "name": "technical",
+      "overflow": {
+        "viewport": 1440,
+        "pageScrollWidth": 1440,
+        "panelRight": 1119,
+        "wide": []
+      }
+    },
+    {
+      "name": "back-by-keyboard",
+      "focusAfterBack": "row:pi-coding-agent@0.85.1/agent-session"
+    },
+    {
+      "name": "refresh-failed",
+      "tabSelected": "true",
+      "panelHidden": false,
+      "rows": [
+        "Pi · Host default Configured · live status not checked Details",
+        "Agents API Unavailable · live status not checked This execution runtime is not configured on this Host. Details"
+      ],
+      "status": "",
+      "error": "The local runtime could not be reached. The rows below are the last reading that succeeded.",
+      "buttons": [
+        "refresh",
+        "row-action:pi-coding-agent@0.85.1/agent-session",
+        "row-action:agents-api"
+      ],
+      "failedRequests": [
+        {
+          "path": "/api/v5/runtime-info",
+          "as": "fail"
+        }
+      ],
+      "focus": "refresh"
+    },
+    {
+      "name": "refresh-recovered",
+      "tabSelected": "true",
+      "panelHidden": false,
+      "rows": [
+        "Pi · Host default Configured · live status not checked Details",
+        "Agents API Unavailable · live status not checked This execution runtime is not configured on this Host. Details"
+      ],
+      "status": "",
+      "error": null,
+      "buttons": [
+        "refresh",
+        "row-action:pi-coding-agent@0.85.1/agent-session",
+        "row-action:agents-api"
+      ],
+      "focus": "refresh"
+    },
+    {
+      "name": "refresh-malformed",
+      "status": "error",
+      "error": "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+      "runtime": "Pi",
+      "focus": "refresh",
+      "newPageErrors": []
+    },
+    {
+      "name": "refresh-after-malformed",
+      "requestsSent": 2,
+      "runtime": "Pi",
+      "focus": "refresh",
+      "newPageErrors": []
+    },
+    {
+      "name": "detail-1280-light",
+      "overflow": {
+        "viewport": 1280,
+        "pageScrollWidth": 1280,
+        "panelRight": 1119,
+        "wide": []
+      },
+      "geometry": {
+        "refresh": {
+          "w": 28,
+          "h": 28,
+          "top": 157
+        },
+        "details": null,
+        "back": {
+          "w": 87,
+          "h": 28,
+          "top": 157
+        },
+        "rowTitle": null,
+        "rowHelp": {
+          "size": "11.5px",
+          "line": "16.675px",
+          "weight": "400"
+        },
+        "blockTitle": {
+          "size": "13px",
+          "line": "19.5px",
+          "weight": "500"
+        },
+        "term": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "statusValue": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "operationReason": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "absentOperations": null,
+        "technicalValue": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "firstContentTop": 185
+      }
+    },
+    {
+      "name": "unavailable-1280-dark",
+      "geometry": {
+        "refresh": {
+          "w": 28,
+          "h": 28,
+          "top": 157
+        },
+        "details": null,
+        "back": {
+          "w": 87,
+          "h": 28,
+          "top": 157
+        },
+        "rowTitle": null,
+        "rowHelp": null,
+        "blockTitle": {
+          "size": "13px",
+          "line": "19.5px",
+          "weight": "500"
+        },
+        "term": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "statusValue": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "operationReason": null,
+        "absentOperations": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "technicalValue": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "firstContentTop": 185
+      }
+    },
+    {
+      "name": "list-390-dark",
+      "overflow": {
+        "viewport": 390,
+        "pageScrollWidth": 390,
+        "panelRight": 357,
+        "wide": []
+      },
+      "tabSelected": "true",
+      "panelHidden": false,
+      "rows": [
+        "Pi · Host default Configured · live status not checked Details",
+        "Agents API Unavailable · live status not checked This execution runtime is not configured on this Host. Details"
+      ],
+      "status": "",
+      "error": null,
+      "buttons": [
+        "refresh",
+        "row-action:pi-coding-agent@0.85.1/agent-session",
+        "row-action:agents-api"
+      ],
+      "geometry": {
+        "refresh": {
+          "w": 44,
+          "h": 44,
+          "top": 265
+        },
+        "details": {
+          "w": 87,
+          "h": 44,
+          "top": 415
+        },
+        "back": null,
+        "rowTitle": {
+          "size": "14px",
+          "line": "21px",
+          "weight": "500"
+        },
+        "rowHelp": {
+          "size": "11.5px",
+          "line": "16.675px",
+          "weight": "400"
+        },
+        "blockTitle": {
+          "size": "13px",
+          "line": "19.5px",
+          "weight": "500"
+        },
+        "term": null,
+        "statusValue": null,
+        "operationReason": null,
+        "absentOperations": null,
+        "technicalValue": null,
+        "firstContentTop": 359
+      }
+    },
+    {
+      "name": "pi-390-dark",
+      "overflow": {
+        "viewport": 390,
+        "pageScrollWidth": 390,
+        "panelRight": 357,
+        "wide": []
+      },
+      "geometry": {
+        "refresh": {
+          "w": 44,
+          "h": 44,
+          "top": 265
+        },
+        "details": null,
+        "back": {
+          "w": 87,
+          "h": 44,
+          "top": 265
+        },
+        "rowTitle": null,
+        "rowHelp": {
+          "size": "11.5px",
+          "line": "16.675px",
+          "weight": "400"
+        },
+        "blockTitle": {
+          "size": "13px",
+          "line": "19.5px",
+          "weight": "500"
+        },
+        "term": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "statusValue": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "operationReason": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "absentOperations": null,
+        "technicalValue": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "firstContentTop": 309
+      }
+    },
+    {
+      "name": "detail-390-dark",
+      "overflow": {
+        "viewport": 390,
+        "pageScrollWidth": 390,
+        "panelRight": 357,
+        "wide": []
+      },
+      "focus": "back",
+      "geometry": {
+        "refresh": {
+          "w": 44,
+          "h": 44,
+          "top": 265
+        },
+        "details": null,
+        "back": {
+          "w": 87,
+          "h": 44,
+          "top": 265
+        },
+        "rowTitle": null,
+        "rowHelp": null,
+        "blockTitle": {
+          "size": "13px",
+          "line": "19.5px",
+          "weight": "500"
+        },
+        "term": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "statusValue": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "operationReason": null,
+        "absentOperations": {
+          "size": "15px",
+          "line": "24px",
+          "weight": "400"
+        },
+        "technicalValue": {
+          "size": "11.5px",
+          "line": "17.25px",
+          "weight": "400"
+        },
+        "firstContentTop": 309
+      }
+    },
+    {
+      "name": "detail-390-light",
+      "overflow": {
+        "viewport": 390,
+        "pageScrollWidth": 390,
+        "panelRight": 357,
+        "wide": []
+      }
+    },
+    {
+      "name": "escape-and-return",
+      "left": {
+        "hash": "",
+        "settingsHidden": true
+      },
+      "returned": {
+        "detailShown": true,
+        "runtime": "Agents API"
+      }
+    }
+  ],
+  "runtimeInfoRequests": [
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    },
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    },
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    },
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    },
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    },
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    },
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    },
+    {
+      "url": "/api/v5/runtime-info",
+      "token": true
+    }
+  ],
+  "interceptedReads": [
+    {
+      "path": "/api/v5/runtime-info",
+      "as": "fail"
+    },
+    {
+      "path": "/api/v5/runtime-info",
+      "as": "malformed"
+    }
+  ],
+  "pageErrors": [],
+  "browser": "Chrome/153.0.8010.53"
+}

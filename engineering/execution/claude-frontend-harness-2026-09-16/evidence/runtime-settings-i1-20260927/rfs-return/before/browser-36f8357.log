@@ -1,0 +1,10 @@
+file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/scripts/runtime-inventory-browser.mjs:73
+      throw new Error(`timed out waiting for ${label}`);
+            ^
+
+Error: timed out waiting for malformed read refused
+    at waitFor (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/scripts/runtime-inventory-browser.mjs:73:13)
+    at async runRuntimeInventoryBrowser (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/scripts/runtime-inventory-browser.mjs:193:5)
+    at async file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/scripts/runtime-inventory-browser.mjs:299:18
+
+Node.js v25.9.0

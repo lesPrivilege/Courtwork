@@ -1,0 +1,340 @@
+✔ each runtime is one row: its name, Host default, configured versus unavailable with the Host's reason, and live not checked (3.152084ms)
+✔ loading, empty, failed and refreshing are four different readings (0.904541ms)
+✔ a Host that does not report the inventory is a failed read, not an empty one (0.231958ms)
+✔ Details opens the runtime with the keyboard on Back; Back returns to the same row (3.843625ms)
+✔ a configured runtime's detail keeps configured, availability, live status and default apart, and lists its declared operations with their reasons (1.504709ms)
+✔ an unavailable runtime says why beside the fact, and reports no operations rather than inventing them (0.987083ms)
+✔ an unknown runtime id and an unnamed operation are shown as the Host reports them (0.801375ms)
+✔ Refresh from a runtime stays on it with the keyboard on Refresh, and keeps the technical detail open (2.024791ms)
+✔ only the newest read lands, and no reply navigates (0.882417ms)
+✔ a runtime the latest reading no longer includes says so, and Back lands on Refresh (1.019458ms)
+✔ the Settings search is re-applied after every render (0.18925ms)
+✔ a real Host before any Session: Pi configured and default, Agents API unavailable, nothing written (92.888583ms)
+✖ RFS-R1 · a null row is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.475917ms)
+✖ RFS-R1 · an empty row is a failed read that keeps the last good reading and lets Refresh reach the Host again (2.415666ms)
+✖ RFS-R1 · a row without availability is a failed read that keeps the last good reading and lets Refresh reach the Host again (2.013042ms)
+✖ RFS-R1 · a null availability is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.982917ms)
+✖ RFS-R1 · an unknown availability status is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.248584ms)
+✖ RFS-R1 · a numeric reason is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.99825ms)
+✖ RFS-R1 · a non-string id is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.889083ms)
+✖ RFS-R1 · a duplicate id is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.084167ms)
+✖ RFS-R1 · a string capabilities value is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.864334ms)
+✖ RFS-R1 · a null operation is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.772916ms)
+✖ RFS-R1 · a non-boolean supported is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.043583ms)
+✖ RFS-R1 · a numeric operation reason is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.111333ms)
+✖ RFS-R1 · a non-string revision is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.074125ms)
+✖ RFS-R1 · a non-boolean configured is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.287208ms)
+✖ RFS-R1 · another configuration owner is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.332167ms)
+✖ RFS-R1 · a live status other than not_checked is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.450125ms)
+✖ RFS-R1 · items that are not an array is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.73275ms)
+✖ RFS-R1 · a malformed first reading is a failed read, not an empty list, and a retry recovers (0.326667ms)
+✔ RFS-R1 · well-shaped unknown ids, operations and reason codes stay data (0.094084ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 13
+ℹ fail 18
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 798.118958
+
+✖ failing tests:
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a null row is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.475917ms)
+  TypeError: Cannot read properties of null (reading 'adapterId')
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:233:56
+      at Array.find (<anonymous>)
+      at renderRuntime (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:233:34)
+      at render (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:255:70)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:264:5
+      at emit (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:44:39)
+      at Object.refresh (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:71:7)
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · an empty row is a failed read that keeps the last good reading and lets Refresh reach the Host again (2.415666ms)
+  ReferenceError: document is not defined
+      at render (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:253:20)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:264:5
+      at emit (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:44:39)
+      at Object.refresh (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:59:7)
+      at action.className (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:74:75)
+      at TinyNode.dispatchEvent (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:91:68)
+      at TinyNode.click (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:98:38)
+      at TinyNode.dispatchEvent (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:95:81)
+      at press (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:177:48)
+      at Object.activate (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:78:5)
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a row without availability is a failed read that keeps the last good reading and lets Refresh reach the Host again (2.013042ms)
+  TypeError: Cannot read properties of undefined (reading 'status')
+      at detailBlocks (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:170:43)
+      at renderRuntime (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:247:10)
+      at render (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:255:70)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:264:5
+      at emit (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:44:39)
+      at Object.refresh (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:71:7)
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a null availability is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.982917ms)
+  ReferenceError: document is not defined
+      at render (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:253:20)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:264:5
+      at emit (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:44:39)
+      at Object.refresh (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:59:7)
+      at action.className (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:74:75)
+      at TinyNode.dispatchEvent (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:91:68)
+      at TinyNode.click (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:98:38)
+      at TinyNode.dispatchEvent (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:95:81)
+      at press (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:177:48)
+      at Object.activate (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:78:5)
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · an unknown availability status is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.248584ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a numeric reason is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.99825ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a non-string id is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.889083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a duplicate id is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.084167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a string capabilities value is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.864334ms)
+  TypeError: Cannot use 'in' operator to search for 'start' in all
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:47:71
+      at Array.filter (<anonymous>)
+      at operationRows (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:47:51)
+      at detailBlocks (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:194:29)
+      at renderRuntime (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:247:10)
+      at render (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:255:70)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:264:5
+      at emit (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:44:39)
+      at Object.refresh (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:71:7)
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a null operation is a failed read that keeps the last good reading and lets Refresh reach the Host again (0.772916ms)
+  ReferenceError: document is not defined
+      at render (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:253:20)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:264:5
+      at emit (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:44:39)
+      at Object.refresh (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:59:7)
+      at action.className (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:74:75)
+      at TinyNode.dispatchEvent (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:91:68)
+      at TinyNode.click (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:98:38)
+      at TinyNode.dispatchEvent (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:95:81)
+      at press (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/tiny-dom.mjs:177:48)
+      at Object.activate (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:78:5)
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a non-boolean supported is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.043583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a numeric operation reason is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.111333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a non-string revision is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.074125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a non-boolean configured is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.287208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · another configuration owner is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.332167ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · a live status other than not_checked is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.450125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:321:3
+✖ RFS-R1 · items that are not an array is a failed read that keeps the last good reading and lets Refresh reach the Host again (1.73275ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'This Host did not report its execution runtimes. The values below are the last reading that succeeded.'
+  - "This Host's runtime report could not be read. The values below are the last reading that succeeded."
+  
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:330:12
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'This Host did not report its execution runtimes. The values below are the last reading that succeeded.',
+    expected: "This Host's runtime report could not be read. The values below are the last reading that succeeded.",
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/runtime-inventory-settings.test.mjs:342:1
+✖ RFS-R1 · a malformed first reading is a failed read, not an empty list, and a retry recovers (0.326667ms)
+  TypeError: Cannot read properties of null (reading 'adapterId')
+      at listRow (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:105:35)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:135:67
+      at Array.map (<anonymous>)
+      at renderList (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:135:53)
+      at render (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:255:55)
+      at file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory-view.mjs:264:5
+      at emit (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:44:39)
+      at Object.refresh (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/web/runtime-inventory.mjs:71:7)
+      at async file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/before-rfs/app/tests/runtime-inventory-settings.test.mjs:347:3
+      at async Test.run (node:internal/test_runner/test:1208:7)
