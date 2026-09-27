@@ -1,0 +1,83 @@
+# Hermes Host consumer contract options
+
+Preflight against tracked Courtwork `54f0b0282960b9b3151de323be0396df19ed4fe2`. This is a source contract note; it chooses no architecture and changes no repository file.
+
+The current Agents consumer is structurally **Session-bound with Run root turns**. Courtwork owns `session.id` and `run.id`; Hermes/Agents supplies an observed `nativeSessionId`, and each CW Run records one `rootTurn.turnId`/event. `AgentsApiBinding` has no native Run ID (`app/runtime/agents-api-contract.d.ts:23-42,117-155`). `openSession()` either creates one native session or attaches the persisted native session, then sends later Run input into it (`app/runtime/agents-host-gateway.mjs:105-173,375-387`). This matches the existing store’s one `session.remoteBinding` plus one frozen `run.remoteBinding` per Run.
+
+The current store cannot honestly represent either a separate native profile/process for every CW Run or token rotation inside one native Session without a contract extension:
+
+- `validateSessionRemoteBinding` requires one exact record, including one `nativeSessionId`, connection tuple, protocol and first-run `origin`; `bindRemoteSession` rejects a second binding with `REMOTE_BINDING_CHANGED` (`app/server/remote-action-state.mjs:86-103,323-337`).
+- `validateRunRemoteBinding` has no native profile/process identity; its `rootTurn` is the only per-Run native locator (`:105-127`). `associateRemoteRootTurn` refuses a turn already owned by another Run of the Session (`:340-347`).
+- `admitRemoteRun` freezes the Session binding’s `bindingId`, revision and `{connectionId,configHash,configVersion,credentialGeneration}`. A changed connection is rejected before a new Run (`:269-291`). There is no rotation transition.
+- `executor-choice-state` locks historical Session lineage to one adapter/configuration reference and requires every later bound Run to keep the same adapter, binding revision and configuration ref (`app/server/executor-choice-state.mjs:116-167`).
+
+## Small candidate record shapes
+
+These are discriminated sketches for review, not an implementation proposal. `nativeProfileId` is intentionally marked as an observed field: current Agents/CourtWork sources do not provide one. A dedicated process/profile may only persist it after its own startup contract returns or records a stable opaque identity; it must never be derived from a port, URL or model name.
+
+```ts
+type NativeLease =
+  | {
+      scope: "session";
+      runtimeId: "agents-api";
+      bindingId: string;
+      revision: number;
+      nativeSessionId: string;
+      nativeProfileId: string | null; // null only for explicit legacy/unobserved state
+      connection: { connectionId: string; configHash: string; configVersion: number; credentialGeneration: number };
+      protocol: { betaHeader: string; docsRevision: string; sdk: string };
+      origin: { sessionId: string; runId: string };
+    }
+  | {
+      scope: "run";
+      runtimeId: "agents-api";
+      bindingId: string;
+      revision: number;
+      nativeSessionId: string;
+      nativeProfileId: string; // required only after an observed isolated profile
+      connection: { connectionId: string; configHash: string; configVersion: number; credentialGeneration: number };
+      protocol: { betaHeader: string; docsRevision: string; sdk: string };
+      origin: { sessionId: string; runId: string };
+    };
+```
+
+The `session` branch preserves one native Session and makes each Run a root turn. A token rotation would need a new binding revision/capability epoch between Runs; each Run and each remote call must retain the revision it was admitted against. The `run` branch gives each Run a separate native Session/profile and avoids in-session token rotation, but current `session.remoteBinding`/`remoteActions` are singular/session-owned and would need a per-Run lease index or equivalent. Neither branch can be installed by merely registering `agents-api` in the executor allowlist.
+
+If token rotation is selected, a small additional capability fact is needed beside the connection tuple, for example `{capabilityRevision, issuedAt, expiresAt}`. It must be Host-owned and checked before every Attention call. Existing `remoteCallId()` is `sha256(["call", native.sessionId, native.turnId, native.callId])` and has no binding revision (`app/server/remote-action-state.mjs:44-51`). Rotation therefore requires either a proven lifetime-unique native tuple or a persisted binding/capability revision in the call record; a reused native tuple after rotation must not collide with an old receipt.
+
+## Bridge and Attention invariants
+
+The Host bridge should carry hidden `{cwSessionId,cwRunId,adapterId,bindingRevision,capabilityRevision}`. The model supplies only the existing Attention query/action data; it cannot set actor, project, execution or grant context. `createAttentionAdapter` derives `{actor:"runtime",project_id,purpose:"attention-runtime",execution:{adapter_id,session_id,run_id}}` on every call and rejects closed admission (`app/extensions/attention-adapter.mjs:3-15`).
+
+Call identity and retries must preserve all of these facts:
+
+- Remote intents use `remoteOperationId(kind,runId,native tuple)`; a changed request hash for the same ID is a conflict. Native function claims use the `(nativeSessionId,turnId,callId)` tuple and a changed tool/arguments hash is `REMOTE_CALL_CONFLICT` (`remote-action-state.mjs:44-51,294-306,360-382`).
+- A `record_signal` request must use the exact Core action shape `{schema_version:1,request_id,attention_id,expected_revision,action:"record_signal",payload:{text,source_refs}}`. Core binds the request hash to the full runtime context and returns the original receipt for an identical retry; changed content/context is `IDEMPOTENCY_CONFLICT`. It advances freshness only and cannot resolve, change status or alter grants (`app/core/attention.py:241-322`; `docs/work-core/attention.md`, “Disclosure and Runtime seam”). A bridge must reuse the same request ID after a lost result, never issue a new signal as a retry.
+- Cancel is intent, not completion. The Agents gateway sends one cancel intent; only an attributable native root terminal `cancelled` confirms it. An unanswered cancel leaves the Run `unknown` (`app/runtime/agents-host-gateway.mjs:311-337,389-410`; `agents-api-adapter.mjs:357-424`).
+- On cancellation/terminal closure, new Attention calls fail closed as `CANDIDATE_CLOSED`. An in-flight call whose Core commit is unknown must remain unknown; if Core committed, the exact request receipt may be recovered. A late native result is never a new Core signal. Remote action code likewise fences claimed calls/intents on restart and does not infer a local effect from a native root terminal (`remote-action-state.mjs:224-243,408-459`).
+- Tool-result HTTP acceptance is only delivery evidence. The gateway retains exact result bytes before submission and does not resend an unacknowledged result (`agents-host-gateway.mjs:226-249`). The same distinction applies to a committed Core signal versus a lost model/native response.
+
+## Actual model-facing Attention surface
+
+Existing `createAttentionTools` exposes `attention_projects`, `attention_list`, and `attention_inspect` with closed schemas; their implementations already route through the Host adapter (`app/runtime/attention-tools.mjs:1-50`). Those schemas are the source for a native bridge; no replacement list/inspect schema should be invented. `attention_projects` is directory discovery, `attention_list` is disclosed registry paging, and `attention_inspect` is disclosed detail reads with optional expected revision.
+
+There is currently **no model-facing `record_signal` tool** in that file. A full governed Attention consumer therefore needs one Host-owned wrapper around the existing `attentionRuntimeAdapter.recordSignal`, with its model-visible shape derived from the exact Core request above. It must not expose human `resolve`, status, seen, grant or actor/context fields. This note does not invent that wrapper’s public schema; it records the missing seam and the authoritative request it must map. Memory and governance tools are separate existing surfaces, not a text-only substitute for Attention.
+
+## Persistence and old-reader rules
+
+RuntimeStore is schema 22. State and remote records use exact-key validation; schema 19 added `remoteBinding`/`remoteActions`, and current migrations add null/empty defaults to older states (`app/server/store.mjs:44-69,432-435,513-523,831-881`; `app/tests/schema19-upgrade.test.mjs:37-57`). A per-Run lease collection, native profile identity, capability epoch, or rotation history cannot be added in place while claiming compatibility.
+
+If either candidate changes persisted shape:
+
+1. Bump `SCHEMA_VERSION` to 23 and add a validated 22→23 migration. Do not reinterpret a schema-22 file as the new shape.
+2. Preserve the exact pre-upgrade bytes at `runtime-state.schema22.<sha256>.json` before writing. Refuse malformed input, occupied backup paths and partial upgrades without replacing bytes.
+3. Never fabricate `nativeProfileId`, capability epoch, native Run ID or a successful outcome for old records. Use an explicit legacy/unobserved discriminant that refuses new native operations until rebind, or refuse the record with an integrity/unsupported result; parent architecture must choose this policy.
+4. Update all exact validators, `executor-choice` lineage checks, remote action validators, current-store tests and migration fixtures together. An old schema-22 Host must reject schema 23 with `schemaVersion 23 is not supported` and leave the file unchanged, matching the pinned old-reader test (`app/tests/runtime-selection-store.test.mjs:183-205`).
+
+## Source index
+
+- Host/Agents identity and transport: `app/runtime/agents-api-contract.d.ts:23-42,157-225`; `app/runtime/agents-api-adapter.mjs:25-48,152-187,357-424`; `app/runtime/agents-host-gateway.mjs:89-173,192-249,311-410`.
+- Existing durable bindings and invariants: `app/server/executor-choice-state.mjs:52-70,82-101,116-167`; `app/server/remote-action-state.mjs:86-127,145-218,224-291,294-405,415-459`.
+- Attention authority and tools: `app/extensions/attention-adapter.mjs:3-15`; `app/core/attention.py:241-322`; `app/runtime/attention-tools.mjs:1-83`; `docs/work-core/attention.md` (“Disclosure and Runtime seam”).
+- Store migration/old-reader evidence: `app/server/store.mjs:44-69,432-435,831-881`; `app/tests/schema19-upgrade.test.mjs:37-57,67-143`; `app/tests/runtime-selection-store.test.mjs:183-205`.
+
