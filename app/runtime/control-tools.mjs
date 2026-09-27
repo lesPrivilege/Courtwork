@@ -3,14 +3,57 @@ import { Type } from '@earendil-works/pi-ai';
 import { evaluatePolicy, hostToolCeiling } from './control-plane.mjs';
 import { resolveWorkspacePath } from './workspace-tools.mjs';
 
+// RL-1 (RD-009): a missing runtime_load ID stays a model-visible recoverable
+// tool error (Pi maps a thrown Error to isError). The hint may name only
+// skills/references the Run's frozen binding already admits, and never a
+// resource body, source URI, title or the caller's own input.
+const MISSING_CONTEXT_SENTENCE = 'Context resource is not exposed to this run';
+const LOADABLE_KINDS = ['skill', 'reference'];
+const RECOVERY_HINT_MAX_IDS = 8;
+const RECOVERY_HINT_MAX_UNITS = 1200;
+const RECOVERY_HINT_BOUNDARY = ' This tool loads one admitted skill or reference by its exact ID; it cannot list resources or discover check recipes.';
+
+/** The loadable IDs of one frozen binding: a skill/reference content entry
+ * whose descriptor is exposed with the same kind. Pure, deduplicated and
+ * sorted deterministically; it never reads anything outside `binding`. */
+function loadableContextIds(binding) {
+  const exposed = new Set((binding?.resources ?? [])
+    .filter(r => r && r.exposed === true && LOADABLE_KINDS.includes(r.kind))
+    .map(r => r.id + '\u0000' + r.kind));
+  const ids = new Set();
+  for (const entry of binding?.content ?? []) {
+    if (!entry || !LOADABLE_KINDS.includes(entry.kind)) continue;
+    if (exposed.has(entry.id + '\u0000' + entry.kind)) ids.add(entry.id);
+  }
+  return [...ids].sort();
+}
+
+/** The existing missing-ID sentence, then bounded hints from this Run only.
+ * IDs stay whole (JSON-quoted) and the complete message never exceeds the
+ * code-unit limit, so the text is safe to surface to the model unchanged. */
+function missingContextMessage(binding) {
+  const ids = loadableContextIds(binding);
+  if (!ids.length) return MISSING_CONTEXT_SENTENCE + ' No admitted skill or reference is loadable in this Run.' + RECOVERY_HINT_BOUNDARY;
+  const quoted = ids.map(id => JSON.stringify(id));
+  for (let count = Math.min(RECOVERY_HINT_MAX_IDS, quoted.length); count >= 1; count--) {
+    const omitted = ids.length - count;
+    const message = MISSING_CONTEXT_SENTENCE + ' Admitted IDs in this Run: ' + quoted.slice(0, count).join(', ') + '.'
+      + (omitted ? ' ' + omitted + ' more admitted ID' + (omitted === 1 ? '' : 's') + ' omitted.' : '')
+      + RECOVERY_HINT_BOUNDARY;
+    if (message.length <= RECOVERY_HINT_MAX_UNITS) return message;
+  }
+  return MISSING_CONTEXT_SENTENCE + ' ' + ids.length + ' admitted ID' + (ids.length === 1 ? '' : 's')
+    + ' omitted because the complete list exceeds this tool\'s ' + RECOVERY_HINT_MAX_UNITS + '-code-unit recovery hint.' + RECOVERY_HINT_BOUNDARY;
+}
+
 export function createRuntimeLoadTool(binding, onLoad) {
   return {
     name: 'runtime_load', label: 'Load runtime context',
-    description: 'Load one catalogued skill or reference by id. Scripts are not executed and requested tools do not grant permissions.',
-    parameters: Type.Object({ id: Type.String({ maxLength: 200 }) }),
+    description: 'Load exactly one admitted skill or reference by its exact ID and return its body. The ID must be a skill or reference already admitted to this Run; this is not a catalog, list or check-recipe command and cannot discover IDs or recipes. Scripts are not executed and requested tools do not grant permissions.',
+    parameters: Type.Object({ id: Type.String({ maxLength: 200, description: 'Exact admitted skill or reference ID; not a catalog or check-recipe name.' }) }),
     async execute(_callId, params) {
-      const resource = binding.content.find(r => r.id === params.id && ['skill', 'reference'].includes(r.kind));
-      if (!resource) throw new Error('Context resource is not exposed to this run');
+      const resource = (binding?.content ?? []).find(r => r.id === params.id && LOADABLE_KINDS.includes(r.kind));
+      if (!resource) throw new Error(missingContextMessage(binding));
       await onLoad({ id: resource.id, kind: resource.kind, source: binding.resources.find(r => r.id === resource.id).source, characters: resource.content.length });
       return { content: [{ type: 'text', text: resource.content }], details: { resourceId: resource.id, revision: binding.revision } };
     },
