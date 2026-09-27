@@ -184,7 +184,14 @@ test("AM-C unchanged core wire golden and complete no-op remain stable with Expl
     assert.ok(present, 'cw_present is offered to the model');
     assert.deepEqual(Object.keys(present.function.parameters.properties), ['spec']);
     const added = new Set([...sparkNames, 'runtime_propose', 'cw_present']);
-    assert.deepEqual({...firstBody,tools:firstBody.tools.filter(t=>!added.has(t.function.name))}, baseline, "unchanged core request must match the retained golden");
+    // RL-1 intentionally changes only the loader's recovery guidance on the
+    // wire. Keep the historical golden intact and spell out that accepted
+    // delta; all other request fields still compare exactly.
+    const expectedCore = structuredClone(baseline);
+    const loader = expectedCore.tools.find(t => t.function.name === 'runtime_load').function;
+    loader.description = 'Load exactly one admitted skill or reference by its exact ID and return its body. The ID must be a skill or reference already admitted to this Run; this is not a catalog, list or check-recipe command and cannot discover IDs or recipes. Scripts are not executed and requested tools do not grant permissions.';
+    loader.parameters.properties.id.description = 'Exact admitted skill or reference ID; not a catalog or check-recipe name.';
+    assert.deepEqual({...firstBody,tools:firstBody.tools.filter(t=>!added.has(t.function.name))}, expectedCore, "core request must match the retained golden plus the explicit RL-1 description delta");
 
     const second = await h.run(await h.createSession(), "am-c-golden-two");
     const secondBody = canonicalRequest(h.requests.at(-1).body);
