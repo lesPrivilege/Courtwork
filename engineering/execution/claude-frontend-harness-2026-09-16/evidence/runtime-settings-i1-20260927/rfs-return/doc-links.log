@@ -1,17 +1,6 @@
 {
-  "pass": false,
-  "documents": 1670,
-  "checked": 10017,
-  "problems": [
-    {
-      "file": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-20260927/rfs-return/README.md",
-      "target": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-review-20260927/README.md",
-      "reason": "not a repository source path"
-    },
-    {
-      "file": "engineering/execution/claude-frontend-harness-2026-09-16/06c-runtime-management-20260921.md",
-      "target": "engineering/execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-review-20260927/README.md",
-      "reason": "not a repository source path"
-    }
-  ]
+  "pass": true,
+  "documents": 1672,
+  "checked": 10046,
+  "problems": []
 }
