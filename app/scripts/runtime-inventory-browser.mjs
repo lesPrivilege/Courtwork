@@ -97,6 +97,21 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
       return { viewport: width, pageScrollWidth: document.documentElement.scrollWidth, panelRight: Math.round(box.right), wide };
     })()`);
     const step = (name, value) => { record.steps.push({ name, ...value }); return value; };
+    /* Computed geometry of the controls and text roles on screen (visual-
+       spatial grammar: record target bounds and type, not screenshots only). */
+    const geometry = () => evaluate(`(() => {
+      const box = (n) => { if (!n) return null; const r = n.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), top: Math.round(r.top) }; };
+      const type = (n) => { if (!n) return null; const s = getComputedStyle(n); return { size: s.fontSize, line: s.lineHeight, weight: s.fontWeight }; };
+      const q = (sel) => ${panel}.querySelector(sel);
+      return {
+        refresh: box(${byTestId("refresh")}),
+        details: box(q('[data-testid^="row-action:"]')),
+        back: box(${byTestId("back")}),
+        rowTitle: type(q('.settings-row-title')), rowHelp: type(q('.settings-row-help')),
+        blockTitle: type(q('.settings-block-title')), term: type(q('dt')), value: type(q('dd')),
+        firstContentTop: box(q('[data-testid^="runtime-row:"]') ?? q('[data-testid="runtime-detail"]'))?.top ?? null,
+      };
+    })()`);
 
     const runtimeInfoRequests = [];
     handlers.set("Network.requestWillBeSent", (params) => {
@@ -115,7 +130,7 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
     // 1 · A deep link into the group before any Session exists.
     await send("Page.navigate", { url: `${host.url}/#settings/agents` });
     await waitFor(`${panel} && ${panel}.querySelectorAll('[data-testid^="runtime-row:"]').length >= 2`, "runtime rows");
-    step("list", { ...(await readPanel()), runtimeInfoRequests: [...runtimeInfoRequests] });
+    step("list", { ...(await readPanel()), runtimeInfoRequests: [...runtimeInfoRequests], geometry: await geometry() });
     await shot("list-1440-light");
 
     // 2 · Keyboard: Refresh → Tab → the first Details → Enter → Back → Enter.
@@ -131,7 +146,7 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
       operations: [...(${byTestId("operations")}?.children ?? [])].map(n => n.innerText),
       buttons: [...${panel}.querySelectorAll('button')].map(b => b.getAttribute('data-testid')),
     })`);
-    step("detail-by-keyboard", { focusOnRow: onRow, focusAfterOpen: afterOpen, ...detail });
+    step("detail-by-keyboard", { focusOnRow: onRow, focusAfterOpen: afterOpen, ...detail, geometry: await geometry() });
     await shot("detail-1440-light");
     await evaluate(`${byTestId("disclosure:technical")}.open = true`);
     step("technical", { overflow: await overflow() });
@@ -157,13 +172,13 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
     await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
     await sleep(300);
-    step("list-390-dark", { overflow: await overflow(), ...(await readPanel()) });
+    step("list-390-dark", { overflow: await overflow(), ...(await readPanel()), geometry: await geometry() });
     await shot("list-390-dark");
     await evaluate(`[...document.querySelectorAll('[data-testid^="row-action:"]')].at(-1).focus()`);
     await key("Enter");
     await waitFor(`!!${byTestId("runtime-detail")}`, "narrow detail");
     await evaluate(`${byTestId("disclosure:technical")}.open = true`);
-    step("detail-390-dark", { overflow: await overflow(), focus: await focused() });
+    step("detail-390-dark", { overflow: await overflow(), focus: await focused(), geometry: await geometry() });
     await shot("detail-390-dark");
     await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
     step("detail-390-light", { overflow: await overflow() });

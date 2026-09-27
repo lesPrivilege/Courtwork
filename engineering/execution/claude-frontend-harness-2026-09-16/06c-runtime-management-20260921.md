@@ -141,3 +141,37 @@ Author checks from branch base `5c22c027d14b463a90f6d2fb3d1483ed8f86bcdb`: `node
 Astra adopts existing Sol source `2a43269` after Luna fixed-source25/25 and integrates it as `766a4fb`, preserving both the actual-dispatch and author-record sections in the sole documentation conflict. Integrated-main4/4 and fake smoke pass. [Final receipt and concrete Claude handoff](evidence/runtime-inventory-i1-final-20260927/README.md) include live authenticated reads after an idle Host restart: Pi configured, managed candidate not_configured, all liveStatus not_checked, repeated response equality and no public Session changes. This accepts the additive backend contract only.
 
 The original Claude/Opus production Settings consumer is now ready under the existing read-only list/detail/refresh scope; do not reproduce the already accepted synthetic journey or enable mutation controls. Current CLI auth inspection reports loggedIn false and existing author session `4349cf50-12b0-40e5-a51b-943592f13a93` idle. No new Claude inference/session or substitute author is launched. New small bounded tasks use actual CW dogfooding under the user's latest routing; this does not rewrite Sol's completed authorship or Claude's pending ownership.
+
+## Production I1 reader · author pickup — 2026-09-27 (Claude, Opus)
+
+Picked up from actual main `12799ff0bd67bc1758f2c723d1c1438563f1001b` (integrated I1 backend `766a4fb` plus the acceptance handoff). Isolated tree `../.worktrees/courtwork-runtime-settings-i1-20260927`, branch `claude/runtime-settings-i1-20260927`; `app/node_modules` is an untracked symlink to the persistent checkout's. The persistent checkout, user 8787/8899, Sol's source tree and every other tree are untouched.
+
+Pre-edit record:
+
+- **Responsibility.** A read-only projection of the Host's `executionRuntimes`: list → detail → refresh → return. Host configuration owns every fact; the page adds none. `configured` / `availability` / `liveStatus` are shown as three separate facts, and `not_checked` is always said.
+- **Owner and placement.** The Settings page owner (`settings-view.mjs` `SETTINGS_GROUPS`, `createSettingsPage`; `app.mjs` `openSettings`/`refreshSettingsReads`). The ruled target IA (local-runtime ruling 2026-09-20) is **Settings → Agents** holding Agent profiles and Runtimes, with Developer keeping diagnostics. Production has no Agents group yet, so this adds one, holding only **Runtimes**. Agent profiles are not moved by this order. The group's glyph reuses the `agent.profile` object glyph, following the `plugins → plugin.object` precedent. The registry has no free, fitting glyph, and adding a vendor glyph is out of scope. Astra may overrule the placement or the glyph.
+- **Nearest precedent.** The accepted synthetic 06c controller/view (`runtime-management{,-view}.mjs`): list rows with one next action, a Back that returns focus to the row left from, whole-mount render with `data-focus-key` restore, the previous reading kept and named during a refresh, and a failed read kept apart from an empty one. Its connection, admission, command, receipt and draft machinery is **not** consumed, because the I1 read exposes none of those facts. The Host Extensions block supplies the refresh-button anatomy.
+- **New files.** `app/web/runtime-inventory.mjs` (controller: one read per refresh; the newest read wins; a payload without `executionRuntimes` schema 1 is a failed read, not an empty list) and `app/web/runtime-inventory-view.mjs`. Existing files touched: `index.html` (the Agents panel), `settings-view.mjs` (the group and its glyph), `app.mjs` (wiring, refresh with the page's reads), `server/index.mjs` (the static allowlist hunk), `docs/interface-components.md` (the group list), and pinned group/glyph tests.
+- **UX rules.** UX-01 (only load-bearing text; technical ids behind a disclosure), UX-02 (the unavailable reason beside the row and the fact), UX-03 (Button for Details/Refresh/Back; no switches or controls for read-only facts), UX-04/05 (a failed read stays in place; configured ≠ connected, and live is not checked), UX-09 (the list reads identity → state → action; loading and failure are shown in place).
+- **Visual role.** Workbench chrome for the list and Back/Refresh (existing 28px quiet/text buttons; 44px coarse override unchanged); reading for the detail facts (`.data-list`, `.settings-block`, the existing detail rhythm `--settings-group-gap: var(--space-4)`). No new token, colour, radius, shadow or glyph.
+- **Proposed backend fields.** None. Human names for the two known ids (Pi; Agents API) and operation words are presentation only; an unknown id is shown verbatim.
+- **Out of scope.** Connect, enable, disable and disconnect; executor selection; per-runtime CAS or receipts; synthetic mutation controls; a Session created in order to read; live checks.
+
+### Production I1 reader · author delivery — 2026-09-27 (Claude, Opus)
+
+The product change is `a6e07f8`; the harness and documentation commit follows it. [Author evidence](evidence/runtime-settings-i1-20260927/README.md) covers the following, all author checks rather than acceptance:
+
+- **Real browser, before any Session.** Authenticated Host-scoped reads in HeadlessChrome against a disposable Host. Pi shows as configured and the Host default; Agents API as unavailable with the Host's reason. Live status is "not checked" on every row. No Session is created and `runtime-state.json` is unchanged.
+- **Keyboard.** Details puts focus on Back; Back returns it to the row. Escape leaves Settings, and coming back finds the same detail.
+- **Failed refresh.** Rows and focus are kept, and the next refresh recovers.
+- **Narrow and dark.** 390 px dark and light without overflow.
+- **Tests.** Production controller and view 12/12; browser 1/1; targeted 105/105; full suite 1738/1738; smoke and eight lints exit 0.
+
+For the parent:
+1. The new Agents group and its glyph.
+2. Two `runtime-info` reads when Settings opens.
+3. `.data-list` at 11.5px for the detail values.
+
+Not executed by the author: 1280 px, native zoom and text spacing, forced colours, screen reader, and the user's Host.
+
+Writer released at this delivery. No connect, disable or disconnect, no executor selection, no schema or backend change, and no push.
