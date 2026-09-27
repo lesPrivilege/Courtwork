@@ -1,0 +1,4 @@
+fenced-parser-output: pre text ends with one parser LF; copied text is exact expected command
+raw-html-no-final: copied text is exact
+raw-html-authored-final-lf: pre text ends with authored LF; copied text loses that LF (exact=false)
+raw-html-authored-blank-line: pre text ends with two authored LFs; copied text loses one LF (exact=false)

@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · CB-R1 original-author correction active
+
+[CB-D1 review](evidence/code-block-density-20260927/parent-review/README.md) adopts the density/side-column design but returns code-copy whitespace fidelity on `c61557c`. Original Claude/Opus is actually responding to the narrow return; no Hermes release or second frontend author. Sol's delivered `c93391c` fixed check recipe remains independent and in review.
+
 ## 2026-09-27 · Actual author receipts
 
 Claude's original Opus conversation confirms CB-D1 pickup, idle-tree fast-forward to `d4a08d7`, and shared Markdown/reader/style inspection. Sol `/root/sol_attention_check_recipe` is actually dispatched from `6e983dc` in isolated `codex/attention-check-recipe-20260927`. Both source deliveries remain pending. Luna's preflights are consumed in the linked original contracts. Hermes protocol construction is ready but queued behind CB-D1 parent disposition; no second Claude/core writer starts.

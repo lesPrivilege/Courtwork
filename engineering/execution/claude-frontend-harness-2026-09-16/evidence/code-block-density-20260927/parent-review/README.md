@@ -24,3 +24,7 @@ Parent drove actual Chat and Attention fake-provider replies on a separate Host 
 **Adopt side-column trade-off:** 36–52px less code width is acceptable for the bounded design; do not switch to an overlay or change wrap rules in this return. The author's measured examples are shorter overall; do not generalize that to arbitrary code lengths, since wrapping can eventually outweigh the removed header. Labelled source/Settings rows remain unchanged. Author99/99 and native accessibility limits remain separately attributed. Parent has not independently re-tested shared-reader visual/native200%/spacing/forced-colours/screen reader or live user Host.
 
 Browser viewport/media/touch overrides and test tab were cleared. User8787, personal data and providers were untouched. No CB-D1 source merged, and Hermes remains queued behind this correction and parent disposition.
+
+## Independent review and return receipt
+
+[Luna review](luna-review.md.txt) agrees with CB-R1. [Targeted non-browser65/65](luna-tests.stdout.txt) pass at the reviewed source, exit0; [source-boundary counterexample](luna-boundary-probe.stdout.txt) confirms the missing whitespace distinction. These tests do not override the failing copy counterexample. Parent actually sent the narrow CB-R1 assignment to the original Claude/Opus conversation through OpenAI computer use; UI shows the submitted return and Running/Waiting response. No substitute author is launched.
