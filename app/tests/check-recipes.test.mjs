@@ -168,7 +168,7 @@ test("check_run is denied with zero process start under read_only", async () => 
     const { session } = await bindSyntheticCandidate(h, { permissionMode: "read_only" });
     const run = await h.api("POST", `/sessions/${session.id}/runs`, {
       commandId: "check-read-only",
-      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test" } }]),
+      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test-attention-contract" } }]),
     });
     const finished = await h.pollRun(run.json.run.id);
     assert.equal(finished.status, "completed");
@@ -208,16 +208,16 @@ test("ask mode shows the exact recipe in the permission payload and deny records
     const { session, candidateId } = await bindSyntheticCandidate(h, { permissionMode: "ask" });
     const run = await h.api("POST", `/sessions/${session.id}/runs`, {
       commandId: "check-deny",
-      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test" } }]),
+      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test-attention-contract" } }]),
     });
     await h.pollRun(run.json.run.id, { until: status => status === "waiting_user" });
     const openEvent = eventsFor(h, session, run.json.run.id).find(e => e.type === "permission.open");
     assert.ok(openEvent, "check_run must ask before running");
     assert.equal(openEvent.data.tool, "check_run");
-    assert.equal(openEvent.data.recipeId, "node-test");
+    assert.equal(openEvent.data.recipeId, "node-test-attention-contract");
     assert.equal(openEvent.data.recipeVersion, 1);
     assert.equal(openEvent.data.command, process.execPath);
-    assert.deepEqual(openEvent.data.argv, ["--test"]);
+    assert.deepEqual(openEvent.data.argv, ATTENTION_ARGV);
     assert.equal(openEvent.data.cwd, "private candidate");
     assert.equal(openEvent.data.candidateId, candidateId);
     assert.equal(openEvent.data.candidateWriteRevision, 0);

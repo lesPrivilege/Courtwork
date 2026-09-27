@@ -6,7 +6,7 @@ import { mkdtemp, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { boot } from "../../../../app/tests/helpers.mjs";
+import { boot } from "../../../../../app/tests/helpers.mjs";
 
 const run = promisify(execFile);
 const root = process.cwd();
@@ -60,5 +60,6 @@ try {
   }, checkStarted: started.data, checkSettled: settled.data, provider: "local-fake" }, null, 2));
 } finally {
   await host?.runtime.close();
+  if (host) await rm(host.dataDir, { recursive: true, force: true });
   await rm(scratch, { recursive: true, force: true });
 }
