@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-27 · Code-block density follow-up registered
+
+User screenshot shows disproportionate “Code”/Copy header and padding around a single-line command. [CB-D1 in the existing 06b record](execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md#2026-09-27--cb-d1-code-block-density-intake--queued-not-dispatched) adopts the finding and queues shared Markdown code-block density work with copy/readability/accessibility checks. Original screenshot bytes retained; CSS viewport/zoom unknown. No frontend implementation or author dispatch; current lanes remain unchanged.
+
+
 ## 2026-09-27 · First real backend CW task accepted; Magpie references consumed
 
 User authorizes real development after coding dogfood. [RL-1](execution/claude-frontend-harness-2026-09-16/evidence/runtime-load-recovery-20260927/README.md) completes through the live CW browser: DeepSeek authors context-load recovery diagnostics and a focused regression file; Luna passes 30/30 plus 3/3 AM-C and an independent permission probe, parent fake smoke passes, and reviewed product integrates into local main `3b274a4`. Parent preserves historical request-golden bytes with an explicit expected-description delta. One extra workspace write was denied and left no file; path/tool mistakes and 39-turn reading overhead remain explicit. The existing fixed check recipe cannot select this repository's narrow tests, so external targeted verification is explicit, not attributed to CW execution. [Magpie intake](research/architecture-node-2026-09-13/magpie-consumption-20260927.md) consumes the complete conversation and fixed upstream source as Provider/Runtime/Settings references, preserving existing I1 and frontend author lanes. No gateway/profile/schema adoption or live service restart.

@@ -387,3 +387,18 @@ deferred, and the light-dismiss claim is narrowed. Record:
 
 
 2026-09-22 · CE-F2 initial-focus follow-up is **closed for the tested Work location scope** by 06d A2 `dfc90b7`, merged at `cd6856f`. [OpenAI browser long-path desktop/narrow and independent owner checks](evidence/tabbed-preview-review-20260922/README.md) confirm title/Close at scrollTop0 without changing preparation/Send locks. Broader density/native-accessibility work remains separate; tabbed Preview B's Workspace-read return is not a reopening of CE-F2.
+
+
+## 2026-09-27 · CB-D1 code-block density intake — queued, not dispatched
+
+User reports that the code-card projection is too large and asks to register a later frontend consolidation task. **Adopt the density finding; defer implementation to the existing frontend writer's next appropriate batch.** [Original user screenshot](evidence/code-block-density-20260927/user-screenshot.png) and [byte identity/dimensions](evidence/code-block-density-20260927/source.json) are retained. Observed repository `main@dc33ff4`; the screenshot is from the existing live dogfood Host, whose loaded product remains `9fb8dbb`. No current writer is interrupted or started.
+
+The screenshot shows a single-line test command inside a bordered block with a separate, tall “Code”/Copy toolbar and substantial body padding. The header consumes roughly half the visible card height. This is a screenshot-relative observation, not a CSS-pixel measurement: viewport, device scale and zoom were not supplied. The crop cannot establish whether horizontal scrolling is broken; test it before claiming truncation.
+
+**Responsibility and precedent.** This is a reading surface with a secondary Copy action, not an approval/decision card. Existing owner: shared Markdown projection / 06b frontend (Claude lane); nearest implementation is `app/web/ui-controls.mjs`'s code-block rendering and `app/web/styles.css` `.code-block`, `.code-toolbar`, `.markdown-body pre`. Inspect the shared `app/web/markdown-reader.mjs` consumer before changing common styles. UX-01 (constant “Code” label must earn its space), UX-07 (spacing expresses relation) and the `markdown.reading` precedent apply. Host receipts, code bytes and formal review semantics stay with their existing owners; no backend change is proposed.
+
+**Later work order.** Reduce toolbar chrome and excess vertical padding for short/single-line blocks; consider an unobtrusive inline/corner Copy action rather than reserving a full header row. Do not set a universal compact height or shrink readable monospace text to achieve the result. Keep real language/file labels only where they aid recognition. Use shared component rules across Chat/Attention and check the Markdown reader for regressions instead of applying a page-specific CSS patch. Before implementation, consume `engineering/design/visual-spatial-grammar.md` and record the reading/secondary-action role, mapping to existing spacing/text/control tokens, pointer and text-scale assumptions, and measured before/after composition.
+
+**Exit evidence.** Show the attached one-line-command case plus multiline code at desktop and narrow widths, light/dark and 200% text/zoom; measure toolbar/body/total height at a known viewport. Preserve exact-copy output, visible copy feedback, text selection, keyboard focus and usable pointer/touch targets. Long lines must remain readable via the established horizontal-scroll behavior, without silent clipping or an invented wrap policy. Density acceptance does not grant execution or review authority.
+
+Registration only: no product CSS/JS, new design system, universal card restyle, implementation verification or worker dispatch in this turn.
