@@ -1,0 +1,38 @@
+Command: node --test --test-concurrency=1 app/tests/attention-core.test.mjs app/tests/attention-http.test.mjs app/tests/attention-recovery.test.mjs app/tests/attention-github-fixture.test.mjs app/tests/attention-gmail-fixture.test.mjs app/tests/attention-trace-fixture.test.mjs
+Worktree: /Users/lesprivilege/.codex/worktrees/attention-check-recipe/Courtwork
+Dependency setup: temporary symlink app/node_modules -> /Users/lesprivilege/Projects/Courtwork/app/node_modules; no install. Symlink removed after run.
+
+✔ Attention CAS, full request identity, typed transitions and immutable receipt (89.226417ms)
+✔ scope applies before IDs, descriptors, counts, lookups, receipts and source queries (79.3935ms)
+✔ runtime registry-only grant hides detail, search predicates, event/receipt/source and signals (78.584334ms)
+✔ explicit signal policy records observations without status, seen or authorization changes (77.8615ms)
+✔ schema-aware exact/literal grep/relation filters are bounded and no regex executes (79.249625ms)
+✔ source references bind exact retained Core bytes and scope; external locators stay unknown (78.933417ms)
+✔ unknown schema/action, stale mutation, corrupt state and hidden unknown schema fail closed (244.155958ms)
+✔ simultaneous actions serialize CAS, and needs_you is an explicit typed transition (77.733041ms)
+✔ missing audit/receipt or rewritten receipt is refused before a new state change (348.659167ms)
+✔ GitHub fixture preserves raw conditional values, pagination, snapshots on 304, and changing poll cadence (1.468458ms)
+✔ GitHub fixture retains notification semantics that are unsafe to collapse (0.12475ms)
+✔ GitHub fixture surfaces unsupported credentials, revoked authorization and rate limits (0.348291ms)
+✔ GitHub fixture rejects contradictory scripts (0.073333ms)
+✔ Gmail fixture supplies duplicate and out-of-order push/history pages without advancing a caller cursor (1.541875ms)
+✔ Gmail fixture presents interruption, gap, expired watch, mismatch, and revoked authorization as explicit provider outcomes (0.448375ms)
+✔ Gmail fixture rejects malformed and contradictory scripted responses (0.1565ms)
+✔ ATT-BE-01 HTTP round trip keeps multi-Matter/source/execution refs through typed CAS and producer loss (764.710916ms)
+✔ Attention scope, actor ownership, unknown fields and schema versions fail closed over every query kind (150.396542ms)
+✔ Runtime Attention adapter captures host execution context, records signals only, and closes with the Run (899.297542ms)
+✔ generated Attention consumer packet records the HTTP/Pi/Core invariants (1.8795ms)
+✔ Attention SIGKILL at before_commit leaves zero or one complete request effect (187.480959ms)
+✔ Attention SIGKILL at after_commit_before_ack leaves zero or one complete request effect (176.824625ms)
+✔ synthetic trace vectors preserve edits, stale approval, unknown effect, duplicate surfacing and non-score samples (1.520166ms)
+✔ trace fixture validator rejects contradictions rather than turning missing evidence into a score (0.194375ms)
+✔ trace fixture validation runner is executable within the fixture directory (65.255625ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4807.863042
+Exit: 0

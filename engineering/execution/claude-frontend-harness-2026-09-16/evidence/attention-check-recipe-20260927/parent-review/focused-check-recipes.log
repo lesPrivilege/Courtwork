@@ -1,0 +1,28 @@
+Command: node --test --test-concurrency=1 app/tests/check-recipes.test.mjs
+Worktree: /Users/lesprivilege/.codex/worktrees/attention-check-recipe/Courtwork
+Dependency setup: temporary symlink app/node_modules -> /Users/lesprivilege/Projects/Courtwork/app/node_modules; no install. Symlink removed after run.
+
+✔ Attention recipe is one frozen descriptor alongside the unchanged package recipe (1.521375ms)
+✔ runCheckRecipe reports a clean exit without truncation (68.439375ms)
+✔ runCheckRecipe reports a non-zero exit without throwing (68.298667ms)
+✔ runCheckRecipe caps captured stdout/stderr and marks truncated (64.878041ms)
+✔ runCheckRecipe timeout kills the whole process group, including a nested child (305.062416ms)
+✔ runCheckRecipe cancels on abort and resolves only after the group has exited (203.316625ms)
+✔ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (1.268833ms)
+✔ check_run is denied with zero process start under read_only (2603.451083ms)
+✔ an unknown recipe id returns a tool error without opening a permission or spawning anything (2245.50525ms)
+✔ ask mode shows the exact recipe in the permission payload and deny records nothing (2296.491917ms)
+✔ approved Attention recipe runs all six fixed targets and records ordinary test and missing-path failures (8922.433458ms)
+✔ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (3556.934417ms)
+✔ cancelling a Run whose check is still running still records check.settled as cancelled (3236.830334ms)
+✔ an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (187.646084ms)
+✔ same Run write then check approves and persists the current candidate revision (3871.423291ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 28626.802875
+Exit: 0
