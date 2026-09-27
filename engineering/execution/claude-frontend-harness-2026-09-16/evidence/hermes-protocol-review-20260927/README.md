@@ -26,3 +26,5 @@ The probe uses deterministic injected transports and records the exact outgoing 
 Original Claude owns both corrections in the preserved branch. Add focused failing-before/passing-after cases, retain source-specific evidence, commit the finite correction and return to Astra. Do not start the broader Attention consumer. No user Host restart, push, deployment or production capability claim.
 
 [Luna final review](luna-review.md.txt) independently confirms the same three defects, grouped above as identity/body and bounded-configuration returns. No additional source blocker was identified in its bounded scope.
+
+**Actual return receipt:** parent sent committed `0dfb863` HPR-R1/R2 instructions to the same original Claude/Opus Code conversation; UI shows submitted message and Running/Waiting. [Capture](return-dispatch.png). The original author is correcting, not a new parallel writer.

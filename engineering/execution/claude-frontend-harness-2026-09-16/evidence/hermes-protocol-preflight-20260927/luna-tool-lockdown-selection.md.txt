@@ -1,0 +1,123 @@
+# Hermes tool-lockdown selection — pinned source comparison
+
+Baseline: Hermes `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88` (the checkout reports version 0.21.3). Courtwork was inspected read-only at `c4cd4e77c2078d7503e86a34bee21d505851f911`; no Courtwork or Hermes files were changed. This is a source preflight only: no Hermes process, provider, MCP transport, private profile/config, credentials, installation, or protocol-author edits were used.
+
+## Narrow answer
+
+A dedicated Hermes API-server profile can express the required **tool-surface whitelist** without patching Hermes core:
+
+```yaml
+platform_toolsets:
+  api_server:
+    - cw_attention
+mcp_servers:
+  cw_attention:
+    enabled: true
+    tools:
+      include:
+        - attention_list
+        - attention_inspect
+        - attention_record_signal
+context:
+  engine: compressor
+```
+
+Here `cw_attention` is the one Host-owned MCP server name. The profile must contain only that enabled MCP server and must have no enabled plugin toolsets or non-default context engine. The `tools.include` list is an additional per-server whitelist. This is a **candidate configuration contract**, not a claim that a live instance has been started or that the bridge is accepted.
+
+The decisive distinction is process/profile scope. API startup discovery is unfiltered: it connects every configured enabled MCP server for the active Hermes home. Therefore a shared profile containing unrelated MCP entries is not locked down merely because `platform_toolsets.api_server` names `cw_attention`; an isolated API-server profile with exactly one configured server is required. The API server keeps its existing `/v1/runs` transport and passes the resolved list to the normal `AIAgent` factory.
+
+ACP has the opposite source behavior at the standard protocol boundary. A fresh ACP agent hard-codes `hermes-acp` and appends configured/session MCP names. `new_session`, `load_session`, and `resume_session` accept MCP descriptors but do not accept an enabled/disabled toolset allowlist. ACP therefore cannot currently prove “CW MCP only” without a custom factory/wrapper or a future native ACP capability. Do not select ACP on the assumption that attaching one MCP server suppresses its built-ins.
+
+## API-server construction and scope
+
+The request path is:
+
+1. `APIServerAdapter._create_agent` reads the effective active-home config with `_load_gateway_config`, resolves `enabled_toolsets = sorted(_get_platform_tools(user_config, "api_server"))`, and passes that list plus `platform="api_server"` to `AIAgent` (`gateway/platforms/api_server.py:2156-2210`; `gateway/run.py:2810-2822`).
+2. `_get_platform_tools` treats a list at `platform_toolsets.api_server` as explicit. It filters known configurable/plugin keys, runs the native-tool recovery pass, optionally keeps `context_engine`, merges MCP names, and applies `agent.disabled_toolsets` last (`hermes_cli/tools_config.py:551-607`).
+3. `AIAgent` builds definitions through `model_tools.get_tool_definitions`; when an enabled list exists, `_select_tool_names` expands only those names and then subtracts disabled names (`model_tools.py:213-252,314-335`). A missing enabled list means all toolsets, so this path must never rely on `None`.
+4. An MCP manifest is registered under canonical toolset `mcp-cw_attention` and the raw server name is registered as an alias (`tools/mcp_tool_registration.py:320-360`). `toolsets.get_toolset/resolve_toolset` resolves that alias when `_select_tool_names` receives `cw_attention`; the ordinary registry then returns only requested definitions whose checks pass.
+
+The API factory does not pass `disabled_toolsets` as a separate `AIAgent` argument. The profile-level `agent.disabled_toolsets` suppression is already folded into `_get_platform_tools` at lines 597-603. A clean explicit list is therefore the primary allowlist; a separately maintained global suppression list is not a substitute for testing the final resolved list.
+
+## Exact empty/default semantics
+
+The distinction matters for a fail-closed profile:
+
+| `platform_toolsets.api_server` value | Native result | MCP result with default API resolver | Meaning |
+|---|---|---|---|
+| missing, `null`, or a non-list such as the string `none` | Falls back to `hermes-api-server`, the full API native bundle | All globally enabled MCP names | Broad default; reject for the CW profile |
+| `[]` | No static native bundle from the explicit list | **All globally enabled MCP names**, because no explicit MCP name was supplied and `include_default_mcp_servers=True` | Not “no tools”; reject as the CW allowlist |
+| `["cw_attention"]` | No `hermes-*` bundle is selected; current recovery rules must still be checked by conformance | Only the explicit enabled MCP name when it is globally enabled; the list is an allowlist | Candidate form |
+| `["no_mcp"]` | No native bundle | Clears default MCP names by the sentinel | Empty MCP surface, not the CW bridge |
+| `["none"]` | No known native toolset; unknown passthrough has no registered definitions | No useful MCP tool unless a server is literally named `none` | Unsupported way to express “none” |
+
+This behavior is direct in `_merge_mcp_servers`: `explicit_passthrough` is intersected with enabled server names; if that intersection is empty, `include_default_mcp_servers` returns every enabled MCP name (`hermes_cli/tools_config.py:653-665`). `_get_platform_tools` calls it with the API default `include_default_mcp_servers=True` at lines 588-590. A dedicated profile should use the explicit `cw_attention` name and keep the profile's `mcp_servers` map to that one enabled entry.
+
+Two source-level additions must be covered by the conformance test. `_get_platform_tools` can add plugin toolsets that are not in the saved list when the plugin key is not recorded as known (`hermes_cli/tools_config.py:579-581`, `535-542`), and it adds `context_engine` for a non-default engine even after a non-empty explicit list (`:583-586`). A clean profile with no enabled plugins and `context.engine: compressor`, followed by an exact final-set assertion, is therefore part of the lockdown precondition. The native recovery loop can also add non-configurable toolsets when their static tools are wholly inside the API platform universe (`:579`, `:635-650`); the test must inspect the returned set rather than infer it from the YAML list.
+
+## MCP discovery and the process-global registry
+
+Gateway startup calls `_discover_gateway_mcp_tools` before `runner.start`; the single-profile path calls `discover_mcp_tools` with no allowlist (`gateway/run.py:1776-1803,5373-5381`). `discover_mcp_tools(None)` loads the active home’s entire `mcp_servers` map and connects every configured enabled server (`tools/mcp_tool_discovery.py:503-539`). The optional `allowed_mcp_names` argument is a CLI/one-shot optimization; API startup does not supply it.
+
+The registry is process-wide for built-ins and has profile overlays for scoped plugin/MCP entries. `ToolRegistry._merged_tools` combines the global map with the active profile overlay (`tools/registry.py:441-478`). MCP chooses no scope in a single-profile process, while a multiplexed/routed profile uses `registry.current_scope_key()` and scope-qualified server keys (`tools/mcp_tool.py:647-658`; `tools/mcp_tool_scope.py`). MCP connections can be adopted across scopes only when the route/credential identity matches, and the registry generation invalidates tool-definition caches on registration. The alias map itself is process-level, so a standalone dedicated profile is the clearest isolation boundary.
+
+This gives two independent requirements:
+
+- **Exposure gate:** the active API agent’s final `enabled_toolsets` must equal the one intended MCP server (plus no unexpected dynamic toolset), and its definitions must contain only the allowed CW names.
+- **Startup gate:** the dedicated profile’s effective `mcp_servers` map must contain exactly that server. Toolset selection alone cannot prevent startup discovery of another configured server.
+
+`mcp_servers.<name>.tools.include` is a true tool-manifest whitelist; an explicit empty include list registers nothing, and an absent include list registers all server tools (`tools/mcp_tool_registration.py:209-224`). It should be pinned to the CW read/signal names rather than relying on a server’s self-description.
+
+## Provider-free conformance test to freeze before a full consumer
+
+This should be a unit/conformance fixture, not a live API call. It must use a temporary in-memory config and fake registry/MCP manifest; patch discovery/registration so no subprocess or network transport is opened, and do not construct a provider-backed `AIAgent`.
+
+1. Resolve a config containing only the `cw_attention` MCP entry, with plugin discovery forced empty, `context.engine` forced to `compressor`, credential/check functions forced to deterministic false, and MCP server names supplied from the fixture. Assert:
+
+   ```text
+   sorted(_get_platform_tools(config, "api_server")) == ["cw_attention"]
+   ```
+
+   Fail if any `hermes-*`, built-in, plugin, or `context_engine` name appears. Run the same pure resolver cases for missing/`None`, `[]`, `["no_mcp"]`, and `["cw_attention"]`; record that missing/`None` is broad and `[]` still admits all globally enabled MCP names.
+
+2. Seed an isolated registry with synthetic entries under `mcp-cw_attention` and its alias, using no live `MCPServerTask`. Call the definition-selection layer with `enabled_toolsets=["cw_attention"]` and assert the result is exactly the three fixture names (or the exact `tools.include` subset). Assert representative forbidden built-ins such as `terminal`, `read_file`, `write_file`, `browser_navigate`, `execute_code`, `delegate_task`, `memory`, and `manage_connections` are absent.
+
+3. Stub `_config._load_mcp_config` with the dedicated profile’s one-entry map and stub `register_mcp_servers` to capture its input. Exercise the discovery coordinator without starting the SDK/transport. Assert the captured map has one enabled server and that a second configured server would be observed even if it were absent from `platform_toolsets.api_server`; this preserves the reason for requiring profile isolation.
+
+4. Add a negative fixture with a second globally enabled MCP name, and another with a non-default context engine or an unrecorded plugin toolset. The resolver must fail the exact-set assertion. This makes “only CW MCP” an observed contract rather than a comment about intended configuration.
+
+The test should not claim per-request API toolset overrides: `/v1/runs` requests select model/runtime fields, while the tool allowlist is assembled from the server’s active profile before `AIAgent` construction. The API candidate is therefore profile/instance-scoped, not a request-scoped capability.
+
+## ACP comparison
+
+ACP’s fresh `_make_agent` loads config only for model/provider data, takes configured MCP names, and sets:
+
+```text
+enabled_toolsets = ["hermes-acp", "mcp-<configured-name>" ...]
+```
+
+(`acp_adapter/session.py:383-444`). `hermes-acp` is the coding posture and includes file, terminal, search, web, skills, todo, memory, session search, code execution, delegation, vision, and browser tools (`toolsets.py:184-196`; `hermes_cli` source selection). ACP’s `new_session/load_session/resume_session` signatures expose `mcp_servers` but no enabled/disabled toolset fields (`acp_adapter/server.py:603-628`). The session MCP refresh explicitly preserves the existing `hermes-acp` list and appends MCP names (`:416-460`).
+
+An internal caller can pass `_make_agent(enabled_toolsets=..., disabled_toolsets=...)`, and a custom factory can own that call, but the standard ACP request surface cannot. Session cancellation also does not change tool exposure. Thus ACP has the same lockdown blocker identified earlier; attaching a single MCP descriptor is not evidence of a CW-only agent.
+
+## Selection disposition for Astra
+
+The pinned source supports investigating a **dedicated API-server profile** as the next transport/tool-surface conformance target, conditional on the exact-set and startup-isolation tests above. It does not support selecting ordinary shared API or standard ACP as already fail-closed. ACP should remain unselected until a locked-down factory/profile path is demonstrated. No adoption, product structure, Host allowlist, Store schema, or live transport decision is made by this preflight.
+
+## Source index (stable upstream URLs)
+
+All links below pin the Hermes repository to `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88`.
+
+- [API agent factory](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/gateway/platforms/api_server.py#L2156-L2210)
+- [Gateway effective config](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/gateway/run.py#L2810-L2822)
+- [API startup MCP discovery](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/gateway/run.py#L1776-L1803)
+- [Platform toolset resolver](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/hermes_cli/tools_config.py#L551-L665)
+- [MCP discovery allowlist semantics](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/tools/mcp_tool_discovery.py#L503-L539)
+- [MCP include/exclude and registration](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/tools/mcp_tool_registration.py#L209-L224)
+- [MCP canonical toolset and alias](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/tools/mcp_tool_registration.py#L320-L360)
+- [Definition selection](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/model_tools.py#L314-L335)
+- [Process/profile registry merge](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/tools/registry.py#L441-L478)
+- [ACP agent construction](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/acp_adapter/session.py#L383-L444)
+- [ACP session MCP attachment](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/acp_adapter/server.py#L416-L460)
+- [ACP session method surface](https://github.com/NousResearch/hermes-agent/blob/d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/acp_adapter/server.py#L603-L628)
+

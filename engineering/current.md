@@ -2,7 +2,7 @@
 
 ## 2026-09-27 · Hermes protocol reviewed; two bounded returns
 
-[Parent/Luna review](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-review-20260927/README.md) holds original Claude `fc7dec8` / product `a0d6ea7`. Independent51/51 pass, but executable probes expose HPR-R1 cross-endpoint/forged frozen-intent acceptance and HPR-R2 non-finite/invalid limit overrides. Both are adopted for original-author correction; source is not integrated. Full Attention tool/Host integration remains a separate consumer requiring native tool lockdown and Run-bound authority, not text-only consultation. No Host/schema/allowlist, native Hermes/provider, user-service or deployment change.
+[Parent/Luna review](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-review-20260927/README.md) holds original Claude `fc7dec8` / product `a0d6ea7`. Independent51/51 pass, but executable probes expose HPR-R1 cross-endpoint/forged frozen-intent acceptance and HPR-R2 non-finite/invalid limit overrides. Both are adopted and actually returned to original Claude/Opus, whose UI confirms Running/Waiting; source is not integrated. Full Attention tool/Host integration remains a separate consumer requiring native tool lockdown and Run-bound authority, not text-only consultation. No Host/schema/allowlist, native Hermes/provider, user-service or deployment change.
 
 ## 2026-09-27 · CB-D1 accepted and integrated; Hermes slot released
 
