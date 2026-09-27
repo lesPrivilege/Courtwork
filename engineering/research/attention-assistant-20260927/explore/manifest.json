@@ -1,0 +1,9 @@
+{
+  "baseline": "3bd850f2262ee0045196e99c4e2129094ae7a5ab",
+  "retrieved": "2026-09-27",
+  "sha256": {
+    "luna-runtime.md.txt": "fdf394b9a196d7e4a94cf64691d94b03680fb494319c4db84f6abafe6a1970c0",
+    "luna-dogfood.md.txt": "98cf59a1742842ca93c1b82c94ef2f94e3a7d8a091185b613aba870039528246"
+  },
+  "note": "Unmodified Luna handoffs; parent corrections are in ../decisions.md. Text suffix preserves historical coordinates without making them active navigation."
+}

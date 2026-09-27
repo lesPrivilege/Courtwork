@@ -1,0 +1,213 @@
+# Luna dogfooding / discoverability intake
+
+Date: 2026-09-27  
+Scope: Stream B, Dogfooding Kit and discoverability, for the thread “定义 Attention Assistant”  
+Repository checked: Courtwork, main at 3bd850f  
+Decision owner: Astra. This is bounded exploration and evidence, not an architecture decision or product acceptance.
+
+## L0 — the usable conclusion
+
+Courtwork already has the important pieces of a bounded development harness: a short repository-wide instruction entry, a current-status owner, task and contract records, thin semantic indexes, Runtime Control’s metadata-then-load context model, profile composition, a pure Kit context planner, and immutable Run-owned context evidence. The missing piece is a discoverability view that joins those existing owners for one task; it is not a missing generic plugin system.
+
+The four upstream practices support different mechanisms:
+
+| Practice | Primary mechanism verified | What it does not prove |
+|---|---|---|
+| Aider repository map | Generates a symbol/file map, ranks dependency-connected files into a token budget, and expands detail when needed | That Aider’s ranking or output shape should become a Courtwork contract |
+| Agent Skills | A portable SKILL.md directory with metadata, instructions, and optional references/scripts/assets loaded progressively | That a skill can grant permission, install code, or replace Courtwork’s Host/Runtime ownership |
+| OpenHands skills | Adds keyword and deterministic path-triggered loading to Agent Skills; path rules inject guidance when a matching file is touched | That path triggers are part of the base Agent Skills specification or are available in every client |
+| GitHub Spec Kit | Uses a specification → plan → tasks → implement → append-only converge loop | That Courtwork should create a second lifecycle, roadmap, or task ledger |
+
+The smallest useful Courtwork pattern is therefore:
+
+1. L0: read AGENTS.md, engineering/current.md, and the bounded assignment.
+2. L1: resolve the semantic owner, contract, nearest local precedent, and verification entry through existing indexes.
+3. L2: generate or inspect only the relevant structural map, read exact source/evidence, make the scoped change, and append findings to the existing owner/task record.
+
+The recommendation is to adopt that hierarchy as a documentation and workflow convention, adjust it to keep semantic authority separate from generated structure, and defer any new manifest, .cw/config, executable .agents skill, generic catalog, or plugin SDK.
+
+## <details><summary>L1 — current Courtwork shape and proposed hierarchy</summary>
+
+### Existing roots and owners
+
+Courtwork’s current reading order is already a progressive-disclosure protocol:
+
+| Layer | Existing source | Verified role at 3bd850f |
+|---|---|---|
+| L0 scope | AGENTS.md; engineering/current.md; the current assignment/contract | AGENTS.md says current status and owner records must be read before acting. engineering/README.md:14-23 makes current.md the product-status entry and routes architecture, Runtime Control, UI contracts, and verification by need. |
+| L1 architecture and facts | engineering/product-direction.md; engineering/architecture.md; docs/work-core/attention.md; app/docs/attention-agent.md | Product direction separates Role, Kit, Agent Instance, Runtime, Provider/Model, and Environment. architecture.md:29-35 records the accepted pure Kit planner and selected-profile preview; architecture.md:39-43 preserves owner and change-boundary rules. Work Core owns Attention state; RuntimeStore does not. |
+| L1 runtime/context index | docs/runtime-control/INDEX.md; docs/runtime-control/architecture.md; docs/runtime-control/api.md | The index describes resource kinds, remaining boundaries, and authority invariants. Runtime architecture separates metadata from explicit runtime_load body loading, keeps profiles restrictive, and keeps Host configuration, Pi execution, and Work Core state in different owners. |
+| L1 UI/design navigation | engineering/design/ux-grammar.md; engineering/design/agent-interface-2026-09-10/README.md; precedent-map.md; precedents.md; change-template.md | The design entry explicitly uses task-scoped recall: owner fact → contract → relevant grammar → nearest precedent → evidence → implementation. Its README:5-9 says there is no automatic loader or package-coupled rule system; README:107-143 specifies progressive recall and “hit then stop.” |
+| L2 exact implementation | app/runtime/control-plane.mjs; app/runtime/kit-context.mjs; app/runtime/kit-run-context.mjs; affected owner modules | These files contain the executable contract. They must be read only after the semantic owner and contract are known. |
+| L2 verification/evidence | engineering/verification.md; the relevant evidence README and logs | Existing evidence distinguishes author checks, non-author review, integrated tests, browser evidence, and capability limits. A green test run is not architecture or provider acceptance. |
+
+This is a semantic map, not a file tree. It answers “what owns this fact, what is the boundary, what evidence is valid, and where do I stop?” The existing design index has the same shape for UI work, including four governance states: canonical, reference, unverified, and deferred.
+
+### Proposed L0/L1/L2 summary shape for the parent’s later per-topic docs
+
+This intake does not create those files; it records the content that can be split into the parent’s chosen research convention.
+
+- L0 summary: one paragraph containing the decision-relevant conclusion, current acceptance boundary, and one “do not infer” sentence.
+- L1 summary: a table of owners, semantic contracts, nearest indexes, and current evidence status. It should be readable without source archaeology.
+- L2 expansion: exact source coordinates, external mechanism notes, structural-map output or command, counterexamples, and verification commands. L2 is evidence, not a duplicate contract.
+
+For the likely parent placement under engineering/research/attention-assistant-20260927, a short README can route to per-topic summaries and a source index. That placement is a parent decision; no repository file was created by this intake.
+
+### Semantic map versus generated structural map
+
+Keep two maps with different owners and lifecycles:
+
+| Map | Contents | Authority | Update rule |
+|---|---|---|---|
+| Semantic map | Task trigger, responsible owner, contract, scope, nearest precedent, verification entry, governance status, and explicit “do not infer” boundaries | Human-maintained existing owner/index documents | Change only through the existing task/owner record and architecture/design governance. Never infer authority from path existence. |
+| Structural map | File paths, exported symbols, imports/references, dependency edges, source SHA, and a bounded relevance ranking | Generated from the actual checkout for a given task | Regenerate for the actual HEAD and scope. Treat as a navigation aid or evidence artifact, never as a second contract. |
+
+Aider’s map is evidence that machine-generated structural navigation can be useful: its official documentation says it lists files and key symbols, uses dependency edges and graph ranking, and adapts the map to a token budget. Courtwork should borrow that separation of “where” from “why”; it should not copy Aider’s graph, token defaults, or output format without a bounded implementation contract.
+
+OpenHands path rules could eventually supply deterministic context for files under an owner boundary. The current Courtwork runtime does not expose path-triggered rule semantics. Runtime Control currently validates/imports Skills and loads bodies through explicit runtime_load; that is a different, owner-controlled mechanism. Path triggers should therefore remain an optional adapter capability until a specific client/runtime contract and evidence exist.
+
+### Smallest future workflow
+
+For one new Attention capability or a bounded front-end/backend change:
+
+1. Identify the affected responsibility and task owner in the existing record.
+2. Read AGENTS.md, engineering/current.md, and the assignment. Confirm branch, HEAD, and status.
+3. Use the existing index to resolve the semantic owner: for Attention, start at engineering/product-direction.md, engineering/architecture.md, docs/work-core/attention.md, and app/docs/attention-agent.md; for Runtime/Kit context, add docs/runtime-control/INDEX.md and its linked contract.
+4. Read only the nearest contract and one or two relevant precedents. Stop when the owner, scope, and accepted boundary are clear.
+5. Generate a bounded structural map for the touched files, if useful. Record its source SHA and scope; do not store it as a new authority.
+6. Implement or inspect against the existing owner. Keep Runtime configuration, Run binding, Work Core state, and UI projection in their current owners.
+7. Run the narrowest relevant checks, then the broader required check selected through engineering/verification.md.
+8. Record adopt/adjust/reject/defer with reason and evidence in the original owner/task record. A completed implementation or generated map does not become acceptance automatically.
+
+This workflow is a dogfood loop, not a second roadmap: the same owner/index/evidence chain is used to maintain the harness while it is used to develop Attention.
+
+</details>
+
+## <details><summary>L2 — Courtwork evidence and exact owner coordinates</summary>
+
+### Existing Kit, Profile, and runtime-owned context boundaries
+
+The current implementation is narrower and more useful than a generic “Kit catalog” claim:
+
+| Fact | Exact source | Evidence/status |
+|---|---|---|
+| Local Orchestra research keeps Kit as a separate vocabulary item and explicitly says the direction does not imply a Kit catalog/schema or closed product loop | engineering/architecture.md:11-19, especially the Local Agent Orchestra direction | Accepted architecture direction; no catalog/schema adoption. |
+| K1/K2 is a pure planner over an already-admitted Runtime Control binding; no resource importer, policy evaluator, profile store, or runtime factory | engineering/architecture.md:29-35; engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md:5-25 | Accepted reference-only planner. The evidence explicitly lists production catalog, importing/selecting/removing, and real runtime compatibility as unimplemented boundaries. |
+| Profile is an imported JSON resource with schema/version/resource IDs/restrictive rules/declarative UI slots; schema v2 carries bounded explicit Kit declarations | app/runtime/control-plane.mjs:68-110; docs/runtime-control/api.md:48-69 | Source-inspected. Profile selection filters capabilities/context; it cannot grant host permission or register renderer code. |
+| Runtime Control owns declarative configuration; Pi AgentSession owns execution/history; Work Core owns domain state | docs/runtime-control/architecture.md:3-25; app/runtime/control-plane.mjs:129-132 and 291-304 | Current contract. UI/HTTP project these facts and do not own them. |
+| Context is progressive but Host-owned: instructions are injected; skills/references expose metadata and load bodies through runtime_load; templates are user-invoked drafts | docs/runtime-control/architecture.md:19-25; docs/runtime-control/api.md:178-184; app/runtime/control-plane.mjs:311-331 | Current mechanism verified in source/docs. Character counts are not token counts. |
+| K1 planning does no discovery, persistence, loading, permission evaluation, filesystem, or network work | app/runtime/kit-context.mjs:265-270 | Direct source inspection. |
+| K3 Run admission allows Kit only for an explicit ordinary Chat Session and the verified in-process Pi reference interface; it freezes exact plan/context payloads | app/runtime/kit-run-context.mjs:13-59; docs/runtime-control/api.md:106-122 | Direct source inspection and accepted K3 evidence. |
+| A recorded Run is read from immutable retained payloads, without consulting mutable current profile configuration; corruption/refusal does not re-execute or fall back | app/runtime/kit-run-context.mjs:62-93; docs/runtime-control/api.md:114-122 | Direct source inspection; K3/R1 evidence retains this boundary. |
+| Existing Attention is a global role with Core-owned Attention state, Runtime-owned Session/Run context, and explicit progressive source tools; general connectors, scheduler, memory providers, and delegation are not delivered | docs/work-core/attention.md:1-3, 55-63; app/docs/attention-agent.md:1-35; engineering/design/attention-agent-2026-09-10/README.md:5-32 | Current contracts. Hermes is a future target composition in engineering/product-direction.md:5-9, not an installed capability. |
+
+The distinction matters for Dogfooding Kit: a development harness may document and navigate these boundaries, but it must not flatten them into one “Kit state” or let a skill/profile become an authority source.
+
+### Narrow verification run
+
+Command run from the Courtwork repository root:
+
+    node --test app/tests/kit-context-independent.test.mjs app/tests/kit-context.test.mjs app/tests/kit-run-binding.test.mjs app/tests/profile.test.mjs app/tests/profile-editor.test.mjs
+
+Result: 103 tests passed, 0 failed, exit 0, duration about 11.2 seconds. The cases cover exact source bytes and UTF-16 accounting, deterministic planning, deferred loading, no-Kit passthrough, malformed/pin/budget refusals, permission-versus-compatibility separation, actual K3 retained context, replay/restart/corruption boundaries, and K5 profile editing/CAS behavior. This verifies the current bounded implementation; it does not accept a future Dogfooding Kit, Hermes integration, real provider, path-trigger loader, or generic plugin system.
+
+The working tree was otherwise unchanged by this intake. Initial status was main at 3bd850f, ahead of origin/main by 62 commits, with pre-existing untracked .agents/, .obsidian/, and skills-lock.json. The user-owned .agents/ directory was not inspected or modified.
+
+</details>
+
+## <details><summary>Primary practice verification — mechanism versus consensus</summary>
+
+Sources below were checked as primary upstream documentation or source on 2026-09-27. A source being primary verifies what its project documents or implements; it does not establish Courtwork suitability or industry consensus. No popularity metric is used as an architectural signal.
+
+### Aider repository map
+
+- Primary docs: [Aider Repository map](https://aider.chat/docs/repomap.html), especially “Using a repo map to provide context” and “Optimizing the map.”
+- Primary source: [Aider repomap.py](https://github.com/Aider-AI/aider/blob/main/aider/repomap.py).
+- Verified mechanism: the map includes repository files and important classes/functions/signatures; Aider can use it to decide which files to load; a dependency graph and ranking select relevant map portions within an active token budget; the map may expand when the chat has little file context.
+- Courtwork input: separate generated structural navigation from human semantic ownership. A map should carry path/symbol/dependency/source-SHA pointers and route back to existing contracts.
+- Limits: the docs describe Aider behavior, not a portable repository-map standard. Ranking quality, token budgets, tree-sitter details, and output syntax remain Aider-specific. This is mechanism evidence, not a popularity or consensus claim.
+
+### OpenHands skills and path-triggered rules
+
+- Primary docs: [OpenHands Skills Overview](https://docs.openhands.dev/overview/skills) and [Path-Triggered Rules](https://docs.openhands.dev/overview/skills/path).
+- Verified mechanism: Skills advertise name/description first, load the full SKILL.md on invocation, and load references/scripts/assets only when needed. OpenHands path rules use paths frontmatter and inject guidance when the agent reads, edits, or creates a matching workspace-relative file; they are loaded once per conversation and are not model-invocable. The path page also documents POSIX/gitignore-style matching and a local-conversation limitation for ACP-backed execution.
+- Courtwork input: use the mechanism only as a future client-specific adapter pattern. An OpenHands path rule is not an Agent Skills base field and cannot be treated as a current Codex/Courtwork guarantee. Existing Runtime Control explicit runtime_load and host policy remain authoritative.
+- Limits: OpenHands itself says other Agent Skills clients may ignore its trigger/path extensions. The deterministic promise is therefore scoped to the OpenHands loader and its supported local execution path.
+
+### Agent Skills specification
+
+- Primary spec: [agentskills.io Specification](https://agentskills.io/specification) and its [governance repository copy](https://github.com/agentskills/agentskills/blob/main/docs/specification.mdx).
+- Verified mechanism: a skill directory contains SKILL.md plus optional scripts, references, and assets; SKILL.md requires YAML frontmatter with name and description; the body is loaded after activation; referenced resources are loaded as needed; the spec recommends keeping the body under 500 lines and using one-level-deep relative references; skills-ref validates the format.
+- Important boundary: the base spec defines the skill package shape, not a universal install root, permission model, trigger syntax, registry, sandbox, or executable authority. OpenHands recommends .agents/skills for its own project skills; that is a product convention, not a reason to inspect Courtwork’s user-owned untracked .agents directory or to create one.
+- Courtwork input: retain the current imported skill/resource path and Host validation. If a future adapter consumes SKILL.md, preserve resource identity, scope, hashes, exposure, policy, and Run binding through Runtime Control. Do not say Courtwork can be replaced wholesale by Agent Skills.
+- Limits: the spec and client showcase document an open format and compatible clients, but they do not prove a consensus standard in the sociological sense or prove equivalent loading/permission behavior across clients.
+
+### GitHub Spec Kit agentic SDD and converge
+
+- Primary docs: [current agentic-sdd.md on GitHub Spec Kit main](https://github.com/github/spec-kit/blob/main/docs/reference/agentic-sdd.md), especially the command overview and /speckit.converge section; [converge command template](https://github.com/github/spec-kit/blob/main/templates/commands/converge.md).
+- Verified mechanism: the documented loop is constitution → specify → clarify → plan → checklist → tasks → analyze → implement → converge. Converge compares the codebase with spec, plan, and tasks; it is append-only, does not edit/delete application code, and can only append tasks to tasks.md. A clean pass leaves tasks.md byte-for-byte unchanged; a gap pass appends a Convergence section and feeds the next implement/converge iteration. The docs also state that analyze is read-only and custom checklist approval is reviewer-owned.
+- Courtwork input: borrow the convergence idea as a final L2 check against the task contract and acceptance evidence, then record gaps in the original task/owner record. Preserve Astra’s architecture/review ownership and engineering/current.md as the status authority. Do not introduce a second spec/tasks ledger or self-acceptance loop.
+- Limits: Spec Kit’s commands, templates, integration modes, and current main branch are its own product behavior. A GitHub repository’s stars/forks, newsletter claims, or extension count would not establish engineering consensus and were not used here. Before any future adoption, pin a source commit and record the exact command/version.
+
+</details>
+
+## <details><summary>Adopt / adjust / defer inputs for Astra</summary>
+
+| Disposition | Input | Reason and boundary |
+|---|---|---|
+| Adopt | Keep the current L0/L1/L2 recall shape: scope → semantic owner/contract → nearest precedent → exact source/evidence → checks | It already exists in AGENTS/current, engineering README, Runtime Control INDEX, and the Design precedent index. This is a consolidation of existing practice, not a new roadmap. |
+| Adopt | Maintain a human semantic map and a separately generated structural map | Aider directly supports the “where” map; Courtwork’s owner/index rules supply the “why/authority” map. Keeping them separate avoids stale hand-authored trees and avoids generated output becoming authority. |
+| Adopt | Treat Agent Skills’ metadata → body → referenced resources as a packaging analogy for progressive disclosure | The current Runtime Control implementation already has metadata/deferred body semantics. Keep Host validation, policy, scope, hashes, and Run binding as Courtwork owners. |
+| Adjust | If path-triggered guidance is ever consumed, mark it OpenHands-specific or adapter-specific and record its exact loader support | OpenHands documents deterministic path injection, but the base spec does not. Current Courtwork does not expose this loader contract. |
+| Adjust | Use Spec Kit converge as a review heuristic against the existing task/owner contract | Its append-only behavior and reviewer boundaries fit CW, but a new .specify/specs/tasks ledger would duplicate current governance. |
+| Adjust | Generate structural maps on demand and pin them to source SHA/scope; retain only bounded evidence under the parent’s chosen research/evidence convention | Avoid a new .cw/config, generated manifest, permanent repo map authority, or stale directory tree. |
+| Defer | New Agent Skills package tree, executable skill, path-trigger implementation, generic Kit catalog/manifest, package installer, plugin SDK, or Hermes runtime implementation | Current architecture explicitly separates target compositions from installed capabilities and keeps structured Kit creation/acquisition and managed runtimes open. These require a separate bounded contract and Astra decision. |
+| Defer | Claims of “community consensus,” “standard ecosystem,” or cross-client equivalence | The primary sources verify mechanisms and documented promises only. No comparative adoption study was performed. |
+
+The first bounded dogfood case can be Hermes Attention discoverability: route an agent to the existing Attention owner contracts, Runtime Control boundaries, relevant structural symbols, and exact checks; then record what was missing in the same research/task record. That validates the development harness without claiming Hermes capability, provider access, or a new Attention ledger.
+
+</details>
+
+## Primary source / owner index
+
+### Courtwork authority and current facts
+
+| Owner or index | Exact path / anchor | Use |
+|---|---|---|
+| Product direction | engineering/product-direction.md:5-9, 17-23, 40-54 | Role/Kit/Runtime vocabulary, target Hermes + Kit composition, work-first and retention boundaries |
+| Current status | engineering/current.md:1-39 and the relevant dated Kit/runtime entries | Current integrated state, open gates, evidence attribution, no automatic acceptance |
+| Architecture/change boundary | engineering/architecture.md:11-19, 29-43, 65-69 | Five-layer/Orchestra direction, pure K1/K2 seam, selected-profile/K5 boundary, data ownership |
+| Attention domain owner | docs/work-core/attention.md:1-3, 13-23, 55-63 | Core state, persistence, relation/source provenance, runtime disclosure adapter and explicit non-scheduler boundary |
+| Attention runtime contract | app/docs/attention-agent.md:1-5, 19-35, 37-43 | Global role, Session/Run ownership, progressive source tools, unsupported generalized memory/connectors/delegation |
+| Attention design index | engineering/design/attention-agent-2026-09-10/README.md:1-10, 13-32, 46 | Role semantics, implementation slices, source/memory/connector/plugin boundaries, evidence limits |
+| Runtime Control index | docs/runtime-control/INDEX.md:1-16, 18-47 | Resource-kind map, remaining boundaries, installed/running/exposed/permitted invariants |
+| Runtime Control owner | docs/runtime-control/architecture.md:3-25 | Host/AgentSession/Core ownership, scopes, progressive context, profile restrictions |
+| Runtime API/evidence | docs/runtime-control/api.md:106-122, 146-152, 178-184 | CAS save, immutable Run context, proposal-not-registry, admission/deferred accounting |
+| Kit planner | app/runtime/kit-context.mjs:265-270, 311-331 | Pure planning and existing control-context bytes; no discovery/persistence/permission/network work |
+| Kit→Run binding | app/runtime/kit-run-context.mjs:13-24, 38-69 | Ordinary Chat + Pi scope, payload retention, frozen summary and historical read |
+| UI/design recall index | engineering/design/agent-interface-2026-09-10/README.md:5-9, 40-61, 107-143; engineering/design/agent-interface-2026-09-10/precedent-map.md:1-15 | Existing progressive recall, authority axes, governance states, nearest-precedent navigation |
+| Research governance | engineering/research/README.md:1-9, 35-53, 69-71 | Research is not product acceptance; source/evidence type, fixed inputs, logs, boundaries, and one-question cards |
+
+### Accepted Kit/Profile evidence
+
+| Evidence | Exact path / anchor | Bound claim |
+|---|---|---|
+| K1/K2 final | engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-final-20260922/README.md:1-25 | Pure reference-only planner accepted; production catalog/import/selection/runtime compatibility remain out of scope |
+| K3 Run binding | engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-run-binding-20260922/README.md:99-116 and engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md:1-25 | Exact admitted source pins and immutable Run-owned plan/context payloads under bounded Pi scope |
+| K5 profile editor | engineering/execution/claude-frontend-harness-2026-09-16/evidence/kit-profile-editor-final-20260924/README.md:1-32 | Existing selected imported profile editor/CAS path accepted; structured Kit authoring/acquisition and live managed execution remain separate |
+
+### External primary mechanisms
+
+| Source | Anchor/use | Verification status |
+|---|---|---|
+| Aider docs | aider.chat/docs/repomap.html, “Using a repo map to provide context” and “Optimizing the map” | Primary official docs checked 2026-09-27; behavior documented, not independently benchmarked here |
+| Aider source | github.com/Aider-AI/aider/blob/main/aider/repomap.py | Primary source pointer checked; floating main, so pin a commit before any adoption |
+| OpenHands overview | docs.openhands.dev/overview/skills, “Choose the Right Mechanism” and “How Progressive Disclosure Works” | Primary official docs checked 2026-09-27; product-specific behavior |
+| OpenHands path rules | docs.openhands.dev/overview/skills/path, “Usage” and “Glob Semantics” | Primary official docs checked 2026-09-27; deterministic only for supported OpenHands local loader, not base spec |
+| Agent Skills spec | agentskills.io/specification, “Directory structure,” “Body content,” “Progressive disclosure,” “Validation” | Primary spec checked 2026-09-27; package format only, no universal root/authority/permission guarantee |
+| GitHub Spec Kit | github.com/github/spec-kit/blob/main/docs/reference/agentic-sdd.md, “Command overview” and “/speckit.converge” | Primary current-main docs checked 2026-09-27; floating main, pin a commit/version before use |
+| Spec Kit template | github.com/github/spec-kit/blob/main/templates/commands/converge.md | Primary current-main implementation template pointer; append-only task write semantics are project-specific |
+
+## Handoff boundary
+
+This file is the Luna evidence packet for Stream B. It intentionally makes no repository edit, does not inspect or modify the user-owned untracked .agents directory, does not install a skill, does not create a manifest/config/executable skill, and does not call a provider or credential store. Astra can adopt, adjust, reject, or defer each row in the parent’s existing research/owner record.

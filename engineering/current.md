@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-27 · Attention Assistant / Dogfooding Kit research registered
+
+[Source intake and Astra ruling](research/attention-assistant-20260927/README.md) preserve four turns/eight messages/two inspected screenshots and two Luna explorations. Hermes is selected first for the next Attention-specific integration research, not accepted as a managed runtime; Pi execution and existing Core/Host authority remain. The developer Kit adopts task-oriented progressive documentation with existing Kit/Profile/immutable Run bindings, not a new plugin system or ledger. [Index](research/attention-assistant-20260927/INDEX.md) routes later consumers to current owners and fixtures. Luna's bounded existing Kit/Profile checks pass 103/103; documentation/source checks are recorded in the packet. No product code/schema, provider, scheduler, live connector or user Host change; current assignments and product gates remain.
+
 ## 2026-09-27 · Runtime Settings production reader accepted and integrated
 
 [Final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-final-20260927/README.md) accepts original Claude correction `6acad62` / head `d37320c`, fast-forwarding main from `7b29ee7`. RFS-R1/R2 close: independent80/80 plus original malformed-response browser reproduction now fails safely, retains rows/focus and recovers with a real retry; primary values/reasons15px, labels/technical11.5px and28/44px controls are verified at1280/390. Independent test Host retains identical Store bytes with0Sessions/0Runs. On an idle user8787 restart, all10 Session records remain equal and the actual new Settings → Agents reader is visible. No runtime connection/management mutations or live-check claim; every row still not_checked. Full-suite/native accessibility/managed-browser limits remain explicit, prior author evidence is not relabelled. No push/deployment or next author launched; CB-D1 remains queued.

@@ -1,5 +1,7 @@
 # Attention backend contract v1
 
+Future consumer research: [Attention Assistant reading route](../../engineering/research/attention-assistant-20260927/INDEX.md). Hermes is a selected research candidate, not a new actor or state owner; this contract remains authoritative for signals and human resolution.
+
 ATT-BE-01 extends the single WorkCoreOwner, private Core worker and existing `extensions/evidence-memo/state.db`. Its three domain tables hold current state, append-only audit events and immutable request receipts in the same SQLite transaction. RuntimeStore stores no Attention facts. Current Core4/app5 adds [Matter disclosure and governed directory reads](governance.md); Runtime8 is unchanged by that addition. A Session, Run, UI, cache, personal practice directory or missing producer cannot resolve or delete an Attention.
 
 ## Persistence and migration

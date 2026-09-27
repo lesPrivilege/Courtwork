@@ -1,5 +1,11 @@
 # 工程范围与模块边界
 
+## 2026-09-27 · Attention integration and development material
+
+[Attention / Dogfooding ruling](research/attention-assistant-20260927/decisions.md) selects Hermes as the first research candidate for the next Attention-specific consumer of the existing Runtime Port. Core retains Attention state and human formal actions; Host retains admission, captured identity, disclosure and effects; native runtime persistence is execution evidence. No gateway, watcher or Skill receives those authorities by installation. Notification delivery and Run completion do not resolve Attention.
+
+P03-B and bounded K1–K5 are already accepted. In particular, [K3 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/kit-run-final-20260923/README.md) supersedes the September22 paragraph's missing Run-freezing consumer: ordinary Chat/Pi Runs retain immutable admitted context. General catalog/acquisition and alternate-runtime compatibility remain separate. The [developer reading index](research/attention-assistant-20260927/INDEX.md) joins existing owners; generated structural maps and Skill packaging cannot replace them.
+
 本页提供当前模块入口与长期设计边界。技术候选见 [options](options.md)，交付记录见 [current](current.md)。
 
 全场景、交互与部署的长期设计见 [Long-life Roadmap](roadmap.md)。本页 M01–M14 保存逻辑责任与模块边界；下方“最小交付”限定首个 continuity 纵切。低后果探索可用普通工具，单次 consequential action 可仅实现 commitment boundary，不把完整 Matter 作为所有场景的前置。

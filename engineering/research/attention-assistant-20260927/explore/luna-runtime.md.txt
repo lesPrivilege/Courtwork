@@ -1,0 +1,186 @@
+# Luna runtime intake — “定义 Attention Assistant”
+
+**Scope.** Bounded stream A: current Courtwork Attention/Host/Core ownership and primary-source research on Hermes as a possible Attention runtime. This is exploration and non-author verification for Astra; it does not select a repository location, adopt Hermes, create a Runtime Adapter, edit Courtwork product files, install software, invoke a provider, or accept a capability.
+
+**Inputs.** Courtwork `main@3bd850f2262ee0045196e99c4e2129094ae7a5ab`; retrieved discussion `/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/thread.json` (4 turns, 8 messages, newest-first; SHA-256 `42deda2943411c41d1a5695b4fe4f0c1bcbd20606de65d34e512aed03a4f350d`). The JSON records two image attachments as “contents were not included”; this intake does not use their visual claims. The checkout already had unrelated untracked `.agents/`, `.obsidian/`, and `skills-lock.json`; none were changed.
+
+<details>
+<summary>Expandable finding for the parent</summary>
+
+The discussion’s useful direction is **Hermes as a candidate executor/gateway and CW as the owner of Attention semantics**, with a Dogfooding Kit as a development-harness idea. The evidence does not support the quantitative “Hermes has about 60%” claim, a complete Attention product pattern, or a current CW Hermes capability.
+
+Courtwork already owns the durable Attention state and human actions in Work Core. Host owns Session/Run identity, admission, disclosure context, effect/receipt/recovery handling and the narrow runtime adapter seam. The existing `attentionRuntimeAdapter` can query or record a signal for a live, admitted Run; it is not an ingress queue, scheduler, notification policy, or Hermes adapter.
+
+Primary sources show the following verified mechanisms:
+
+- Hermes documents a long-running gateway with platform adapters, normalized `MessageEvent`s, SQLite-backed sessions, busy-session queuing, interrupt/stop paths, authorization, hooks, cron and delivery. These are runtime mechanisms, not CW Matter state or formal acceptance.
+- Atlas demonstrates an event-driven inbox/wake/sleep shape in a small public project: external trigger → SQLite inbox → filesystem wake → agent → stop-hook check. This is a concrete reference implementation, not a standard or adoption signal.
+- AEGIS documents scheduled/event-triggered Temporal workflows, human decision cards, a daily notification budget and a watchdog over its own flows. It is explicitly a forkable personal project and a working example, not a generally adopted Attention contract.
+- LangGraph documents checkpoint-backed interrupts, human approval/edit/resume and replay/idempotency rules. Temporal documents durable workflows that resume after crashes, network timeouts or multi-day human waits. These are useful primitives; neither owns CW’s project/Matter/Attention authority.
+
+The bounded next evidence should therefore test the adapter and ownership mapping: pinned Hermes protocol handshake; synthetic ingress and deduplication; busy queue/interrupt; Host-to-Core `record_signal`; disclosure and cross-project refusal; cancellation with unknown outcomes; restart/recovery without duplicate effects; and explicit notification receipts. Astra should decide the final repo seam and adoption disposition after this intake.
+
+</details>
+
+## Discussion intake and evidence labels
+
+The first discussion response reports an Exa exploration and proposes Hermes gateway/session/tool substrate, CW-owned Attention semantics, and a Dogfooding Kit. It presents a “60% of runtime substrate” estimate, “mature” primitives, and community convergence. Those are **conversation claims**, not measurements or Courtwork acceptance evidence; no percentage or count is carried forward.
+
+The later user turn explicitly makes “taming Hermes as an Attention Assistant” a next-stage direction and proposes a Dogfooding Kit with map, grammar, tools, cases and gates. The response correctly separates runtime extensibility from development extensibility. This is a **product/research proposal**. It does not override the current RD-001/RD-005/RD-009 owners or establish a Kit registry, plugin SDK, scheduler, or source layout.
+
+The two image turns discuss a possible always-on/spare Codex identity (`"o"`, `-o` email suffix) and infer that a spare agent might be an Attention-like watch officer. In the supplied JSON the images are unavailable. The discussion itself labels the public account and launch details as uncertain. Treat all of that as **unresolved rumor plus design inference**, not OpenAI or CW source evidence. The useful conceptual separation is: `role` (why the agent exists) is independent from lifecycle (`event-driven`, `periodic`, `resident`), identity and permission. It does not establish a new product type or an always-on requirement for Attention.
+
+## Existing Courtwork ownership at `main@3bd850f`
+
+| Responsibility | Existing owner and evidence | Boundary that matters for Hermes |
+|---|---|---|
+| Durable Attention state | Work Core’s `WorkCoreOwner` starts the private Core worker at `app/core/owner.mjs:4-10`. `app/core/attention.py:1-23` defines `attention`, append-only `attention_event`, immutable `attention_request`, status values and limits. `docs/work-core/attention.md:3,13-23` states that RuntimeStore stores no Attention facts. | Hermes session rows, native memory, gateway events and delivery logs cannot become Matter/Attention authority. |
+| Core actions and queries | `app/core/attention.py:241-331` validates typed actions, disclosure actor, CAS, idempotency, event and receipt in one transaction; `:333-412` implements bounded queries and visibility filtering. | `record_signal` is an observation; it marks freshness unknown and cannot set status, seen, reason, grants or external authorization (`docs/work-core/attention.md:61-63`). |
+| Human HTTP boundary | `app/server/service.mjs:2508-2551` creates `human-attention` context, validates project/route, captures Session/Run provenance and calls Core. The browser cannot supply trusted actor/context or a Runtime signal (`docs/work-core/attention.md:25-53`). | An Hermes-originated event needs a Host-captured execution identity and explicit source/relation mapping; prompt text cannot grant it. |
+| Runtime disclosure seam | `app/server/service.mjs:2582-2591` constructs `createAttentionAdapter` only from trusted host code. `app/extensions/attention-adapter.mjs:1-16` derives `{actor:'runtime', project_id, purpose:'attention-runtime', execution:{adapter_id,session_id,run_id}}` on every call and exposes only `query`/`recordSignal`. | This is a ready seam for a scoped consumer, not a public constructor, scheduler, connector ingress or compatibility matrix. Late/closed calls fail closed. |
+| Global Attention role | `app/docs/attention-agent.md:1-15` keeps Session as conversation owner and Run as execution owner. Global Sessions use `projectId:null`, cannot bind a Matter extension, and share one-active-Run Host admission. | “Attention” is a role with global conversations, not a second loop or a runtime-owned work ledger. |
+| Model-facing tools | `app/runtime/attention-tools.mjs:27-83` admits Attention tools only for global Sessions: project discovery, disclosed list/inspect, retained conversation metadata/text, and governance tools. `app/server/service.mjs:3191-3195` wires them through `governTools` and the captured adapters. | There is no external event source, queue, cron, notification budget, watchdog or automatic resolve tool in this surface. |
+| Host Runtime Port | `app/runtime/pi-runtime-port.mjs:5-18` says Host retains admission, Run identity/status, tool governance, permissions, effects, credentials and settlement. `:34-42` declares Pi capabilities; recovery and submit-tool-result are explicitly unsupported. `:44-100` opens/creates native Pi sessions and translates observations. | Hermes should enter as a versioned adapter implementing the existing minimum Port vocabulary; native IDs remain observed references. Do not add a second scheduler or duplicate cancellation authority. |
+| Current direct runtime coupling | `app/server/service.mjs:3042-3263` runs the Host lifecycle, creates/opens the runtime session, builds governed tools and starts the Port. `engineering/research/architecture-node-2026-09-13/orchestra-direction-20260919.md:113-120` records that service still creates Pi sessions directly and extraction is triggered by a real second Runtime consumer. | A Hermes consumer can justify a narrow extraction; this intake does not choose a refactor or claim runtime independence. |
+| Runtime/configuration scope | `app/runtime/control-plane.mjs:192-302` resolves user → workspace/Attention → session scopes, profile ceilings and runtime resources; `app/server/runtime.mjs:47-80` creates RuntimeStore, Work Core and configured Ports. | Configuration and capability descriptors remain Host facts. A Kit or Hermes profile cannot grant authority, credentials or formal acceptance. |
+
+### Existing synthetic Attention seams (verified; not live connectors)
+
+The current checkout already contains meaningful synthetic ingress/provider/trace and recovery fixtures. “No general connector ingress” below means no accepted live GitHub/Gmail/Hermes connector path; it does not mean the repository lacks ingress-shaped evidence.
+
+- `app/tests/attention-http.test.mjs:248-318` runs a real Host/Pi-loopback/Core synthetic Runtime Attention consumer. It grants all six Runtime disclosure fields, verifies inspect excludes human policy/actions, records an idempotent signal, rejects forged status and runtime resolve, confirms Run completion does not resolve the item, and rejects late adapter calls with `CANDIDATE_CLOSED`. The generated packet at `:320-333` labels itself synthetic.
+- `app/tests/attention-github-fixture.test.mjs:5-40` and `app/tests/fixtures/attention-ingest/github/scripted-notifications.mjs` model conditional polling, pagination, 304 snapshot retention, changing notification reason/head, unsupported/revoked/rate-limited authorization and contradictory scripts. They are deterministic provider fixtures; they do not open GitHub or register a live source.
+- `app/tests/attention-gmail-fixture.test.mjs:5-42` and `app/tests/fixtures/attention-ingest/gmail/scripted-gmail.mjs` model duplicate/out-of-order pushes, paginated history, interruption, gaps, expired watch/renewal failure, account mismatch, revocation and malformed responses. They do not implement a production Gmail watch or scheduler.
+- `app/tests/attention-trace-fixture.test.mjs:10-37` validates synthetic trace vectors for edits, stale approval, unknown effects, duplicate surfacing and explicit no-score samples. It is an evidence/trace validator, not a runtime.
+- `app/tests/attention-triage-recovery.test.mjs:118-276` exercises Core-backed CAS, lost responses, same-identity retry, idempotency conflict and receipt recovery; `:278-330` confirms a due time is recorded but no timer/Run/provider starts. `app/tests/attention-recovery.test.mjs:91-135` kills a Core helper at transaction boundaries and verifies zero-or-one complete effect after reopen.
+
+These seams make the next Hermes work more bounded: reuse the existing synthetic source/provider vectors and Core recovery contracts as fixtures for an adapter, then add live protocol evidence only as a separate lane. They do not establish live connector authentication, external polling, Hermes wake/queue behavior, scheduling, notification delivery or cross-runtime recovery.
+
+## Primary-source mechanism review
+
+### Hermes Agent — verified mechanism, candidate maturity
+
+Primary documentation:
+
+- [Hermes architecture](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) (retrieved 2026-09-27) lists CLI, Gateway and ACP entry points; an `AIAgent` core; tool dispatch; SQLite + FTS5 session storage; and multiple tool backends.
+- [Gateway internals](https://hermes-agent.nousresearch.com/docs/developer-guide/gateway-internals) describes the long-running GatewayRunner, `SessionStore`, platform adapters and the message path. The documented path normalizes raw platform events to `MessageEvent`; a busy session queues a message and sets an interrupt; the runner resolves a session key, checks authorization and either dispatches a command or runs an `AIAgent` (`Message Flow` section). The same page describes allowlists/DM pairing/default deny, hooks, platform adapter lifecycle, and delivery. It explicitly says cron deliveries are not mirrored into gateway session history.
+- The current public docs are not the same thing as the locally exercised binary. Courtwork’s existing `engineering/research/architecture-node-2026-09-13/explore/local-cli-inventory-20260920.md` records installed Hermes `v0.21.3 / 2026.9.14`, source `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88`; the pinned upstream source report records a different source pin, `345cd2b057a452236de401d3534b8502a7465e8d`. Keep those identities separate.
+
+**Verified mechanism:** Hermes has a plausible ingress/session/runtime substrate: platform adapter → normalized event → session resolution → queue/interrupt or agent run, with native authorization and persistence. This is a source claim supported by the official docs, not a CW integration result.
+
+**Current evidence and maturity:** CW has one bounded Hermes/Praxis consultation receipt, installed Hermes `v0.21.3`, native session/result references, exit 0 and zero tool events. The receipt says it did not test tools, enforced permissions, resume, cancellation, CW child management, Kit admission, formal acceptance or interoperability (`engineering/research/architecture-node-2026-09-13/evidence/hermes-praxis-20260920/README.md`). Therefore classify Hermes as a **candidate runtime with broad documented primitives and an unverified CW adapter**, not as a shipped Attention runtime. No percentage is justified.
+
+### Atlas — event-driven wake/sleep reference
+
+- [Pinned README at `ced95138d0b4e70bdb07b6d7233dea6caec9a24e`](https://raw.githubusercontent.com/unclutter-pro/atlas/ced95138d0b4e70bdb07b6d7233dea6caec9a24e/README.md) says: external event → SQLite inbox → `.wake` file → `inotifywait` → Claude resumes; after processing, a stop hook checks whether more messages exist and otherwise sleeps. It lists cron, webhook and manual triggers.
+- The public repository describes itself as a containerized autonomous agent system and gives a concrete implementation layout. The repository page currently describes a small public project; no adoption or reliability claim is inferred from stars, commits or forks.
+
+**Verified mechanism:** durable-ish inbox plus explicit wake and sleep can avoid a resident model process. **Inference for CW:** this is compatible with “always-addressable, not necessarily always-computing.” Atlas does not prove idempotent ingestion, crash recovery, authorization, notification correctness or CW Core mapping.
+
+### AEGIS — scheduled flows, human decisions, budget/watchdog reference
+
+- [Pinned README at `a4b11b36cf2a148270603bdf9a1e2878d929b8ae`](https://raw.githubusercontent.com/hikmahtech/aegis/a4b11b36cf2a148270603bdf9a1e2878d929b8ae/README.md) describes a self-hosted personal project, not a multi-tenant SaaS. It documents named agents, roughly 40 Temporal workflows on schedules or triggers, a watchdog for wedged flows, decision cards with Approve/Edit/Reject, and a daily notification budget.
+- The same source names Postgres/pgvector, Temporal and a LiteLLM proxy, plus an admin panel and optional Slack channel. These are AEGIS design facts; they are not Courtwork requirements.
+
+**Verified mechanism:** scheduled/event-driven flow execution, a human decision surface, bounded proactive notifications and health monitoring can coexist. **Maturity:** source-level project reference only; its own README calls it a personal forkable working example, so it is not a standard or an independent adoption signal. It does not prove a general Attention contract.
+
+### LangGraph interrupts — checkpoint/replay reference
+
+- [Official interrupt docs](https://docs.langchain.com/oss/python/langgraph/interrupts) state that `interrupt()` saves graph state and waits for external input when a checkpointer is configured; `thread_id` selects the persistent cursor. The examples cover approval/rejection, human edit and resume, including interrupts inside tools.
+- The same page warns that resuming restarts the node from its beginning. Side effects before an interrupt should be idempotent or moved after the interrupt; changing interrupt order can break replay. This is a concrete mechanism-level constraint for any Attention obligation wait/resume design.
+
+**Verified mechanism:** persisted pause plus explicit resume value and replay rules. **CW mapping inference:** use these as acceptance cases for idempotent observation and human handoff. LangGraph state is not CW Attention state, disclosure, permission or formal resolution.
+
+### Temporal Durable AI — long-lived workflow reference
+
+- [Official Durable AI docs](https://docs.temporal.io/ai) state that Temporal Workflows resume after a crash, network timeout or multi-day human approval wait. The page positions the primitives for long-running agent loops, pipelines and internal agent platforms and links approval, entity-workflow, priority/fairness and integration patterns.
+
+**Verified mechanism:** durable execution, timers/signals/updates/retries and explicit Worker/Task Queue primitives are available in the Temporal ecosystem. **Adoption maturity for CW:** this is a substantial platform reference, but the current Courtwork contract does not require adding Temporal. Treat it as a future option for multi-day durable work, not a dependency or an immediate architecture decision.
+
+## Capability-to-Courtwork mapping
+
+| Donor capability | What the source verifies | Existing CW equivalent | Gap / safe interpretation |
+|---|---|---|---|
+| Platform event ingress | Hermes adapters normalize raw platform events into `MessageEvent`; Atlas uses webhook/cron/manual triggers. CW also has deterministic scripted GitHub/Gmail fixtures (`app/tests/attention-*-fixture.test.mjs`) but no accepted live connector path. | Core accepts typed `record_signal` only through a captured Runtime adapter; synthetic provider fixtures stop at the test seam. | Need a Host-owned, source-versioned live ingress adapter with authorization, dedupe and project/Matter mapping. A donor event must not write Core directly. |
+| Session identity and persistence | Hermes uses native session keys and SQLite/FTS5; Atlas has SQLite inbox and mounted workspace. | CW Session/Run and RuntimeStore own local execution; Work Core owns Attention. Native IDs are references. | Need an adapter binding native session/activation IDs to CW Session/Run and explicit restart/recovery evidence. Native persistence is not the CW ledger. |
+| Busy queue and interrupt | Hermes documents queue-on-busy, interrupt event and inline `/stop`/approval handling. | Host has one-active-Run admission, cancellation request/terminal settlement and unknown semantics; Pi Port exposes cancel but not `recover`/`submitToolResult`. | Need queue/interrupt mapping with accepted-vs-dropped receipts and no duplicate Run/effect. Do not let a gateway command silently cancel another CW Run. |
+| Authorization | Hermes documents allowlists, DM pairing and default deny. | CW Host token/origin checks, `governTools`, disclosure grants, scoped actor/execution context. | Native authorization can be observed as a capability fact, not substituted for CW grants. Test intersection and denial at the Host boundary. |
+| Hooks/plugins | Hermes documents lifecycle hooks and plugin platform adapters. | RD-009 owns trusted Extensions; local extensions are host-trusted/in-process, not a portable ABI or sandbox. | Runtime-native hooks and CW hooks remain separate. Imported manifests cannot grant data/effect permission or bypass Host admission. |
+| Cron/timers | Hermes has cron; AEGIS uses scheduled Temporal workflows; Temporal has timers/signals. | Attention `next_action.due_at` is recorded state, explicitly not a scheduler (`docs/work-core/attention.md:17`). Global scheduler is deferred (`app/docs/attention-agent.md:35`). | Do not treat a due time or donor cron as current CW scheduling. A future scheduler requires its own owner, receipts and cancellation contract. |
+| Notification and delivery | Hermes has direct/home/explicit/cross-platform delivery; AEGIS has decision cards and notification budget. | Core actions resolve/reopen Attention only through typed human actions; no general outbound notifier is in this slice. | Model notification as an explicit Host effect with destination, authorization, receipt and unknown outcome. Delivery success must not resolve an Attention. |
+| Obligation wait/resume | LangGraph checkpointed `interrupt()` and resume; Temporal multi-day human waits. | Core statuses (`investigating`, `needs_you`, `waiting`, `later`, `resolved`), CAS actions, grants and append-only events. | Map only the lifecycle facts needed by CW; never copy a private graph/transcript into formal state. Human `resolve` remains Core-owned. |
+| Wake/sleep | Atlas’s inbox + wake file + stop hook; Hermes gateway stays addressable while agents are created per message. | Global Attention is a persistent role with Sessions; no external wake source or resident process is required. | “Always-addressable” is a useful role/runtime inference. It does not require Hermes to be always-on or change the Attention taxonomy. |
+| Recovery | Temporal documents durable execution; Hermes/Atlas document native persistence/wake mechanisms. | Host must retain effects, receipts, native references, pending cancellation and unknown outcomes; Core state survives runtime absence. | Need a controlled adapter recovery fixture. Donor persistence alone cannot prove exact continuation or no duplicate effects. |
+
+## Missing seams before any Hermes adoption claim
+
+1. **Pinned transport/identity.** Choose and pin the actual Hermes surface (ACP, gateway session API, API server, or another documented protocol) and executable/source revision. The local one-shot consultation is not a managed session adapter. Capture native session, activation/turn, request and approval IDs.
+2. **Host adapter boundary.** Implement only the existing Runtime Port obligations needed by a bounded consumer: describe/admit, start/continue, observe/recover where actually supported, reply/tool-result where actually supported, interrupt/cancel, dispose. Preserve unsupported operations as typed refusals.
+3. **Live ingress normalization and dedupe.** Reuse the existing scripted GitHub/Gmail scenarios and their contradictory/error cases as transport fixtures, then convert platform/provider events to a Host-owned typed receipt before any Core signal. Define source identity/version/digest, event idempotency, stale/late event behavior, queue-cap drops and cross-project refusal. The missing seam is live connector registration and Hermes transport mapping, not all ingress-shaped test coverage.
+4. **Attention policy.** Core currently stores an observation and human status/action contract. A Hermes runtime does not supply CW’s “new information → matter → obligation → notify → owner” semantics. Those remain a CW domain decision and must not be inferred from a tool, prompt, cron or delivery.
+5. **Effect and notification settlement.** Any outbound delivery, tool call, connector write or work dispatch needs Host admission, destination scope, receipt, cancellation and unknown handling. Hermes delivery/session history is not a substitute for the existing Host/Core receipts.
+6. **Recovery boundary.** Decide what “resume” means for a native Hermes session versus a CW Run. If native load or event replay is unavailable, report unsupported/unknown and preserve CW state; never silently replay a private transcript or retry an effect.
+7. **Security/ownership.** Hermes profiles, credentials, native hooks, memory and platform configuration remain upstream-owned unless a separately accepted adapter contract says otherwise. A Kit, prompt, cwd or tool name is not a sandbox.
+8. **Dogfooding Kit boundary.** The Kit proposal can register maps, contracts, fixtures and gates as development material. Current CW’s Kit context planner is reference-only and the Orchestra ruling says there is no Kit runtime/catalog/schema today. The parent should decide whether/where to record it; this intake does not create that structure.
+
+## Proposed bounded acceptance cases
+
+These are proposed evidence cases for Astra’s disposition, not a new roadmap or acceptance claim. They use synthetic transport/data first and avoid paid providers by default.
+
+| ID | Case and pass evidence | Responsible boundary |
+|---|---|---|
+| HERMES-A0 | **Descriptor/admission.** A pinned Hermes revision reports protocol, native identity and capabilities. Host records a binding and rejects an unsupported operation before side effects. Version/configuration mismatch is explicit. | Runtime Adapter + Host; RD-001. |
+| HERMES-A1 | **Ingress and dedupe.** Feed two identical synthetic external events and one distinct event. The adapter records one accepted source receipt per unique event, exposes an explicit duplicate outcome, and creates no Core Attention row/event without the Host’s typed action. | Adapter + Host + Core. |
+| HERMES-A2 | **Project/Matter scope.** A mapped project/Attention target succeeds only when the captured Session/Run and disclosure grant permit it. Cross-project, unknown-target and malformed-hidden cases return the existing unavailable/refusal semantics with no state mutation. | Host adapter + Work Core disclosure. |
+| HERMES-A3 | **Signal-only semantics.** A runtime `record_signal` changes freshness/append-only evidence but cannot set `status`, `seen`, `reason`, `next_action`, grant or resolution. Human resolve/reopen still uses the Core CAS action. | Work Core + adapter contract. |
+| HERMES-A4 | **Busy queue/interrupt.** While a synthetic Attention Run is active, a second event is queued with a distinct receipt; `/stop`/interrupt is mapped to the Host cancellation request. Queue-cap drop, late output and duplicate terminal are observable and do not create duplicate effects. | Hermes adapter + Host lifecycle. |
+| HERMES-A5 | **Cancellation/unknown.** Test interruption during model turn, tool admission and after a remote effect request. Host closes new admission, persists partial observations, and reports confirmed cancellation only with terminal evidence; lost acknowledgement remains unknown and is not silently retried. | Host effect/recovery owner; RD-001/RD-009. |
+| HERMES-A6 | **Restart/recovery.** Stop the adapter/gateway fixture at idle, while queued, and after a request is sent but before acknowledgement. Reopen with the same native/CW identities where supported. Core Attention rows/events survive; effects are exactly once or explicitly unknown; no private transcript is treated as authority. | Host + Adapter + Core. |
+| HERMES-A7 | **Human wait/resume.** A `needs_you` or `waiting` item produces a typed human handoff; resume with a changed revision fails CAS; resume with the exact request succeeds once. A LangGraph-style replay fixture must prove pre-wait side effects are idempotent. | Core actions + Host reconciliation. |
+| HERMES-A8 | **Notification effect.** A destination and notification budget/policy are explicit Host input. Delivery receipt, timeout and unknown outcome are retained separately from Attention status; delivery never implies `resolve`. | Future Host effect owner; no current scheduler claim. |
+| HERMES-A9 | **Native-vs-CW ownership.** Hermes native session reset/profile/hook/configuration is shown as upstream-owned and does not alter CW Core rows, grants or active Run binding. CW disconnect preserves historical references and does not uninstall or delete native data. | Runtime Settings/Host boundary; local-runtime ruling. |
+
+## Source index
+
+### Courtwork sources at `main@3bd850f2262ee0045196e99c4e2129094ae7a5ab`
+
+- `docs/work-core/attention.md:3,13-23,25-63,65-82` — Attention persistence, identity, typed human actions, disclosure grants, runtime seam, signal semantics, query/recovery errors.
+- `app/docs/attention-agent.md:1-35` — global Attention Session/Run ownership, scopes, model-facing tools, non-delivered generalized scheduler/connectors.
+- `app/core/owner.mjs:4-10` — WorkCoreOwner and private Core worker coordinate.
+- `app/core/attention.py:1-23,241-331,333-412` — table schema, status/action sets, atomic action/receipt, bounded queries and disclosure visibility.
+- `app/server/service.mjs:2508-2591,3042-3263` — Host human route, provenance capture, `attentionRuntimeAdapter`, Run admission, runtime Port/tool wiring.
+- `app/extensions/attention-adapter.mjs:1-16` — host-created runtime context and query/signal methods.
+- `app/runtime/attention-tools.mjs:27-83` — global Attention tool catalog and memory source boundaries.
+- `app/runtime/pi-runtime-port.mjs:5-18,19-42,44-100` — Host/Port ownership, Pi adapter identity/capabilities and native session translation.
+- `app/runtime/control-plane.mjs:192-302` — scope chain, capability/profile ceilings and runtime resource projection.
+- `app/server/runtime.mjs:47-80` — RuntimeStore, Work Core and configured Port construction.
+- `app/tests/attention-http.test.mjs:248-333` — synthetic Host/Pi/Core Runtime Attention adapter consumer and generated packet.
+- `app/tests/attention-github-fixture.test.mjs:5-40` plus `app/tests/fixtures/attention-ingest/github/scripted-notifications.mjs` — deterministic GitHub polling/notification/provider-error scenarios.
+- `app/tests/attention-gmail-fixture.test.mjs:5-42` plus `app/tests/fixtures/attention-ingest/gmail/scripted-gmail.mjs` — deterministic Gmail push/history/watch/provider-error scenarios.
+- `app/tests/attention-trace-fixture.test.mjs:10-37` plus `app/tests/fixtures/attention-trace/*` — synthetic trace vectors and validator.
+- `app/tests/attention-triage-recovery.test.mjs:118-330` and `app/tests/attention-recovery.test.mjs:91-135` — Core CAS/receipt/UI recovery, no-timer boundary and transaction-crash recovery.
+- `engineering/research/RD-001-runtime-adapter.md` — candidate lifecycle and experiment obligations; current status remains non-final.
+- `engineering/research/RD-005-multi-agent-selection.md` — Host/Core/child ownership, Hermes/Praxis consultation boundary, local delegation direction.
+- `engineering/research/RD-009-trusted-harness-extensions.md` — trusted Extensions, effect/cancellation/unknown rules and no portable plugin ABI.
+- `engineering/research/architecture-node-2026-09-13/orchestra-direction-20260919.md:1-18,35-81,83-109,113-141` — five-layer direction, Runtime Port, Hermes/Praxis as target composition, no Orchestra Core/second ledger, staged dogfooding.
+- `engineering/research/architecture-node-2026-09-13/local-agent-runtimes-20260920.md:1-14,28-48,64-120,122-151,164-200` — installed-versus-source boundary, Hermes candidate disposition, adapter requirements and credential/hook ownership.
+- `engineering/research/architecture-node-2026-09-13/evidence/hermes-praxis-20260920/README.md` — bounded installed Hermes consultation; no adapter, permission, recovery or product acceptance.
+- `engineering/research/architecture-node-2026-09-13/explore/local-cli-inventory-20260920.md` — installed Hermes `v0.21.3`/`d7b836ab…`, structured surface and explicit limits.
+- `engineering/research/architecture-node-2026-09-13/explore/local-cli-precedents-20260920.md` — Hermes ACP/gateway source pin `345cd2b…`, session/approval/restart distinctions and adapter recommendations.
+- `/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/thread.json` — discussion snapshot; SHA-256 recorded at top of this file.
+
+### Primary upstream sources
+
+- [Hermes Agent architecture](https://hermes-agent.nousresearch.com/docs/developer-guide/architecture) — official architecture map, entry points, agent core, SQLite/FTS5 sessions and tool backends.
+- [Hermes Gateway Internals](https://hermes-agent.nousresearch.com/docs/developer-guide/gateway-internals) — official MessageEvent normalization, session resolution, busy queue/interrupt, authorization, hooks, adapters and delivery.
+- [Hermes documentation index](https://hermes-agent.nousresearch.com/docs/) — official feature/index context; current web docs are not a substitute for the installed revision pin.
+- [Atlas README at `ced95138d0b4e70bdb07b6d7233dea6caec9a24e`](https://raw.githubusercontent.com/unclutter-pro/atlas/ced95138d0b4e70bdb07b6d7233dea6caec9a24e/README.md) — source-grounded inbox/wake/sleep, triggers and native persistence description.
+- [Atlas repository](https://github.com/mxzinke/atlas) — public repository identity; GitHub redirects to `unclutter-pro/atlas`.
+- [AEGIS README at `a4b11b36cf2a148270603bdf9a1e2878d929b8ae`](https://raw.githubusercontent.com/hikmahtech/aegis/a4b11b36cf2a148270603bdf9a1e2878d929b8ae/README.md) — source-grounded Temporal flows, watchdog, decision cards, notification budget and self-hosted/personal-project status.
+- [AEGIS repository](https://github.com/hikmahtech/aegis) — public repository identity.
+- [LangGraph interrupts](https://docs.langchain.com/oss/python/langgraph/interrupts) — official checkpointed interrupt/resume, approval/edit and replay/idempotency rules.
+- [Temporal Durable AI](https://docs.temporal.io/ai) — official durable execution, crash/network/multi-day wait and AI workflow primitives.
+
+## Work performed and limits
+
+Read-only local inspection covered the current branch/HEAD/status, AGENTS instructions, `engineering/current.md`, Attention contracts, RD-001/005/009, local-runtime and Orchestra rulings, the Hermes/Praxis evidence, relevant Host/Core/Port source, and the complete supplied JSON. Public-source verification used the official Hermes, LangGraph and Temporal docs plus pinned raw GitHub READMEs for Atlas and AEGIS. `git ls-remote` was used only to record the Atlas and AEGIS branch SHAs; no repository was cloned, installed or executed. No Courtwork tests, providers, native runtimes, credentials, personal stores, browser sessions, migrations, product edits, pushes or deployments were performed.

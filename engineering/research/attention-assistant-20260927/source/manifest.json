@@ -1,0 +1,123 @@
+{
+  "conversationId": "6ab7bf9d-bba8-83ec-9cb1-2bbb7c9d843d",
+  "title": "定义 Attention Assistant",
+  "retrieved": "2026-09-27",
+  "repoBaseline": "3bd850f2262ee0045196e99c4e2129094ae7a5ab",
+  "page": {
+    "order": "newest_first",
+    "limit": 10,
+    "nextCursor": null,
+    "hasMore": false
+  },
+  "turnCount": 4,
+  "messageCount": 8,
+  "rawEncoding": "UTF-8 API JSON text plus terminal newline; duplicate preview retained",
+  "rawSha256": "42deda2943411c41d1a5695b4fe4f0c1bcbd20606de65d34e512aed03a4f350d",
+  "turns": [
+    {
+      "turn": "T1",
+      "id": "bbb21783-c73e-423b-bd70-ef12449d1e75",
+      "file": "turn-01.md",
+      "messages": [
+        {
+          "id": "bbb21783-c73e-423b-bd70-ef12449d1e75",
+          "role": "user",
+          "characters": 88,
+          "sha256Utf8": "b3cf13b3ed799eb7da5cb3d513f69a8f26621544c72030e7fb89cb1fe88fde6a"
+        },
+        {
+          "id": "f046fcf9-f9a7-492e-a5e5-864b33fc267e",
+          "role": "assistant",
+          "characters": 1307,
+          "sha256Utf8": "7036bb065aaf83f2d58f0a663c2ac498abc86a0d746ad875694981b7102c39f6"
+        }
+      ]
+    },
+    {
+      "turn": "T2",
+      "id": "bbb21efa-19b6-4d7d-86ab-8819b558bf56",
+      "file": "turn-02.md",
+      "messages": [
+        {
+          "id": "bbb21efa-19b6-4d7d-86ab-8819b558bf56",
+          "role": "user",
+          "characters": 57,
+          "sha256Utf8": "83081f1e9917ef99636f4e33defe7638e29fe51dd6e4d501ebaaf5e57125a358"
+        },
+        {
+          "id": "2a6493c8-f7fc-46e5-aaef-802120e4efff",
+          "role": "assistant",
+          "characters": 2220,
+          "sha256Utf8": "79c9469c78451a6f68cea9f1b2dc15bec8623c9c9c8fb3b431ea7f6347c15bb1"
+        }
+      ]
+    },
+    {
+      "turn": "T3",
+      "id": "bbb21ef8-dc08-4ee3-8d47-f424a15bc2fd",
+      "file": "turn-03.md",
+      "messages": [
+        {
+          "id": "bbb21ef8-dc08-4ee3-8d47-f424a15bc2fd",
+          "role": "user",
+          "characters": 274,
+          "sha256Utf8": "1e9d71e39699e4e85d8b53aad6ad0911b1c1691fc09ad4d56de17d39078d2eb4"
+        },
+        {
+          "id": "2f499a98-ca06-4229-819f-2aa4b90f091e",
+          "role": "assistant",
+          "characters": 5100,
+          "sha256Utf8": "9e45186bd63bc537681f5f081b4b30cd0dc205bbb844365543b5ba7f323a912b"
+        }
+      ]
+    },
+    {
+      "turn": "T4",
+      "id": "bbb21567-24ea-4f82-b4fd-204b1ee3ec9f",
+      "file": "turn-04.md",
+      "messages": [
+        {
+          "id": "bbb21567-24ea-4f82-b4fd-204b1ee3ec9f",
+          "role": "user",
+          "characters": 36,
+          "sha256Utf8": "c989c1924be7201b0c0acafcdca425a7b99baaa327d229f0955f1ceb049d2da9"
+        },
+        {
+          "id": "c90fe739-f114-4f4b-9a2c-5c71cdf1a72b",
+          "role": "assistant",
+          "characters": 9129,
+          "sha256Utf8": "5bcda21672e9057af25eaeb4bf23409c90ab6c110ac5e1bd9ce7af474d0e2ee9"
+        }
+      ]
+    }
+  ],
+  "attachments": [
+    {
+      "name": "1000009190.jpg",
+      "sha256": "fcd8ce27465852cdcaa297506e0f707bc0bd5cb9496857831082a38d8ccacba2",
+      "bytes": 111073,
+      "availability": "retrieved-and-visually-inspected"
+    },
+    {
+      "name": "1000000377.jpg",
+      "sha256": "04fab9639ffa18322066cfc8453768761666d7b099bfaf54c7d6aa68d9ff042b",
+      "bytes": 118288,
+      "availability": "retrieved-and-visually-inspected"
+    }
+  ],
+  "attachmentTurnLink": "Exporter supplied an attachment list but no explicit message-to-file mapping; topic captions use observed image contents only.",
+  "externalUrls": [
+    "https://agentskills.io/specification",
+    "https://aider.chat/docs/repomap.html",
+    "https://docs.langchain.com/oss/python/langgraph/interrupts",
+    "https://docs.openhands.dev/overview/skills",
+    "https://docs.temporal.io/ai",
+    "https://github.com/github/spec-kit",
+    "https://github.com/github/spec-kit/blob/main/docs/reference/agentic-sdd.md",
+    "https://github.com/hikmahtech/aegis",
+    "https://github.com/mxzinke/atlas",
+    "https://hermes-agent.nousresearch.com/docs/developer-guide/architecture",
+    "https://hermes-agent.nousresearch.com/docs/developer-guide/gateway-internals"
+  ],
+  "authorSearchCounts": "Source author claims 122 results /16 query groups /10 sources; underlying search log not returned or reproduced."
+}

@@ -1,5 +1,11 @@
 # 产品方向 · 可接续的工作场
 
+## Attention and developer Kit direction · 2026-09-27
+
+Attention is a role independent of lifecycle, identity and permissions. Always-addressable service can use event or periodic activation; it does not require continuous model computation. Select Hermes first for the next Attention-specific integration research while retaining the accepted Pi execution path and existing Core/Host authority. This refines the earlier Agents API-first research ordering for this use case only. Spark retains its distinct bounded preparation/comparison role.
+
+The development Dogfooding Kit follows existing Map → Grammar → Tools → Gates owners, with task-oriented summaries and exact-source disclosure. It complements existing Kit/Profile/Run contracts; it creates no second work ledger, executable Skill, scheduler or runtime capability. [Astra decisions and reading structure](research/attention-assistant-20260927/decisions.md).
+
 2026-09-15 · Astra裁定；原稿与处置见[消费记录](release/product-node-2026-09-15/README.md)。本文规定下一实现节点的产品合同与稳定语义，承接[五层架构](research/architecture-node-2026-09-13/architecture.md)与[Workspace Substrate](research/architecture-node-2026-09-13/workspace-substrate.md)。
 
 ## 2026-09-19 · Orchestra composition direction

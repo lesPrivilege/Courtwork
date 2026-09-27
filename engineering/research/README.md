@@ -1,5 +1,7 @@
 # RD：研究与开发验证
 
+[Attention Assistant and Dogfooding Kit](attention-assistant-20260927/README.md): four-turn source intake, Luna primary-source exploration, Astra Hermes research selection and task-oriented expandable summaries. Read the [index](attention-assistant-20260927/INDEX.md) for owner contracts and evidence; no runtime implementation or parallel roadmap.
+
 [Multica source consumption](architecture-node-2026-09-13/multica-consumption-20260920.md): pinned 2026-09-20 Luna exploration and Astra ruling for local CLI adapters, work/run identity, recovery and context injection. Reference under RD-001/005/009; source-only, no imported code or runtime acceptance.
 
 [UX、仓库治理与验证选择输入](ux-grammar-2026-09-14/README.md)：分版本会话、来源核查及Astra裁决。原始输入按需召回；日常入口是[UX Grammar](../design/ux-grammar.md)、[验证选择](../verification.md)与[材料归属](../../docs/repository-layout.md)。
