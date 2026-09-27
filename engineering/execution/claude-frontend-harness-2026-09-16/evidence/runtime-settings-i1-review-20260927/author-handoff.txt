@@ -1,0 +1,94 @@
+Now the contract and the existing 06c frontend.
+
+I'm reviewing the handoff contract and existing Settings code in the new worktree `claude/runtime-settings-i1-20260927`. Next, I'll locate where Settings/Agents lives in production before making any changes.
+
+Production Settings lacks an Agents group, and the synthetic 06c controller relies on connection/mutation data the real API doesn't expose—so I'll build a small read-only controller and view against `executionRuntimes`, reusing 06c's structure. Next I'll check how executor IDs are named elsewhere in the UI.
+
+I've finished the grammar and contract reading. Now I'm tracing how the Settings page routes sections and fetches data, so the Runtimes block can plug into the existing owner.
+
+Now the app-side wiring: how `onSection` and Settings open/close/Escape and hash routes are handled in app.mjs.
+
+I'll add an Agents Settings group with a read-only Runtimes list → detail view. Now checking the icon registry and tests that pin the Settings groups.
+
+I've finished reading. I'm writing the required pre-edit record into the 06c owner record next, then the controller, view and tests.
+
+Now the controller.
+
+Writing the view.
+
+Now app.mjs wiring.
+
+Now the pinned tests. Running the Settings-related suites to see what breaks.
+
+Settings suites pass (53/53). Next I'm writing the journey tests: the production controller and view under tiny-dom, plus a real Host read.
+
+I spotted a grammar bug in the view ("the values below is"). Fixing it and the test line.
+
+I'll switch to attribute-equality lookups instead of ID selectors to avoid tiny-dom's issue with parsing dots as class selectors, updating both the view and the test helper.
+
+Tiny-dom journey: 12/12. The handoff asks for a real authenticated browser read before any Session, so next I'm writing a headless-Chrome script that drives the full app against a disposable Host.
+
+The browser run passes end to end. Checking the head of the record and looking at the screenshots.
+
+Layout checks out fine at 1440 and 390 in both themes with no overflow issues. I did spot that "Availability: Configured" duplicates the Configuration row, so I'll reword it to reflect what the Host actually reports.
+
+The detail's `name` field overwrote the step's own name in the record. Renaming the field.
+
+Both files pass (13/13). Next: the component doc, then lints and the full suite.
+
+Registering the refresh as a named read in the consumer ledger, following the same pattern as the other refresh controls.
+
+Lints are clean. Running the full suite.
+
+Full suite 1738/1738. Running the fake-provider smoke, then committing source and producing the evidence.
+
+Source committed as `a6e07f8`. Now the evidence: rerunning the browser script from the committed source into the evidence folder, and capturing the targeted test and lint logs.
+
+The visual-spatial grammar also asks for computed geometry (control and target bounds, type sizes). I'm adding a geometry step to the browser script.
+
+Recorded control sizes (28px at 1440, 44px at 390) and flagged the `.data-list` 11.5px detail text as a residual issue. Next I'll update the logs, README, and record entry.
+
+The exit codes didn't record, because zsh has no `PIPESTATUS`. Rerunning without the pipe.
+
+All 8 lints exit 0. Writing the evidence README and the delivery entry in the 06c record.
+
+Updating memory, then handing back.
+
+06c-I1 的 Settings 只读前端已经交付，停在这里等 Parent 处置。没有合流、没有推送，也不算验收。改动在分支 `claude/runtime-settings-i1-20260927` 上，从 main `12799ff` 拉出，放在独立 worktree `../.worktrees/courtwork-runtime-settings-i1-20260927`：
+- `a6e07f8`：产品代码和测试
+- `36f8357`：验收脚本增补、证据和原 06c 记录的条目
+
+**做了什么**
+- **位置：** 新增 Settings → Agents 分组，下面只有 Runtimes 一块。原来生产里没有 Agents 组，打开 `#settings/agents` 会回到 General。
+- **数据来源：** 读已鉴权的 `GET /runtime-info` 里的 `executionRuntimes`，不带 sessionId，不需要先有 Session。
+- **列表：** 每行一个 Runtime：名称、是否 Host 默认、已配置还是不可用（带 Host 给的原因），实时状态一律写"未检查"。每行只有一个 Details 按钮。
+- **详情：** 配置、归属（Host 配置，这里只读）、可用性、实时状态（始终未检查）、是否 Host 默认，五项分开显示。另列出 Runtime 声明的操作及不支持的原因；Host 没报告操作时就写"未报告"，不补任何内容。技术 id 和指纹收在"Technical detail"里。
+- **按钮：** 全页只有 Back 和 Refresh，没有任何修改 Runtime 的控件。
+- **读取状态：** 加载中、读取失败、空列表分开显示。刷新时保留上一次的结果并标明；只有最新一次读取生效，任何回复都不会改变页面位置。
+
+**证据**
+- **真实浏览器：** 用 headless Chrome 对一个临时 Host 跑完整路径，全程没有 Session：
+  - Pi 显示为已配置、Host 默认；Agents API 显示为不可用并带原因。
+  - 键盘：进详情后焦点在 Back，返回后焦点回到原来那一行。
+  - 故意让一次刷新失败：已有的行和焦点都保留，下一次刷新恢复正常。
+  - 390px 下深色、浅色都没有横向溢出。
+  - 按 Escape 离开 Settings，再回来还是同一个详情页。
+  - Session 数前后都是 0，`runtime-state.json` 没有变化。
+- **测试：** 新测试 12/12，浏览器测试 1/1，相关测试 105/105，完整测试集 1738/1738；smoke 和 8 个 lint 都通过。
+
+**需要 Parent 决定**
+1. **新分组：** 新增 Agents 组的位置，以及图标沿用 `agent.profile`（照 Plugins 用对象图标的先例）。
+2. **重复读取：** 打开 Settings 时 `runtime-info` 会被读两次，Models 一次、这里一次。分开读是为了让失败只影响自己这一块。
+3. **字号：** 详情的值沿用现有 `.data-list` 的 11.5px，没有用 15px 的阅读字号。
+
+**没有覆盖**
+- 1280px 宽度
+- 浏览器原生 200% 缩放和文字间距覆盖
+- 强制配色
+- 读屏
+- 用户自己的 8787
+- 浏览器里已配置的托管 Runtime
+
+目视验收仍走 OpenAI 那条线。
+
+证据和说明在 [evidence README](engineering/execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-20260927/README.md)，路径相对于上面那个 worktree。

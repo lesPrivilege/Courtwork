@@ -1,0 +1,14 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-info",
+    "query": "",
+    "authenticated": true
+  },
+  {
+    "method": "GET",
+    "path": "/api/v5/runtime-info",
+    "query": "",
+    "authenticated": true
+  }
+]

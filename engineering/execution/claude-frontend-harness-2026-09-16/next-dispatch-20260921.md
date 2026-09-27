@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Original Claude correction order: Runtime Settings I1
+
+The delivered `36f8357` frontend is [reviewed, not accepted](evidence/runtime-settings-i1-review-20260927/README.md). Preserve the original `claude/runtime-settings-i1-20260927` branch/tree and the selected design. Correct only RFS-R1 malformed-inventory admission/retry and RFS-R2 scoped reading typography, with the failing-before/passing-after browser/controller evidence named in the original06c record. Group placement and glyph are adopted; two GETs need no refactor in this return. Do not assign these same leased files to CW small-task workers or a second frontend author. Parent reviews the fixed delta before integration; CB-D1 and future production actions are not bundled into the return.
+
+
 ## 2026-09-27 · Routing executed: DS-1 complete, I1 accepted
 
 [DS-1](evidence/schema-doc-dogfood-20260927/README.md) completed through a real CW Run with one exact write and zero tool errors; parent verifies only the two current Host-version substitutions and integrates `bf09f10`. [I1](evidence/runtime-inventory-i1-final-20260927/README.md) independently accepts prior Sol `2a43269`, integrates `766a4fb`, and passes real idle-Host inventory reads. Parent preserves both appended histories. The existing Claude/Opus read-only Settings consumer is ready with a concrete handoff; CLI loggedIn false and author idle are observed, so no new writer/inference is claimed. Important architecture/integration stays Astra/Claude; future small tasks remain bounded CW dogfood with independent acceptance.

@@ -1,0 +1,26 @@
+{
+  "payload": {
+    "executionRuntimes": {
+      "schemaVersion": 1,
+      "defaultAdapterId": "pi-coding-agent@0.85.1/agent-session",
+      "items": [
+        null
+      ]
+    }
+  },
+  "retryReads": 0,
+  "errors": [
+    {
+      "level": "error",
+      "message": "TypeError: Cannot read properties of null (reading 'adapterId')\n    at listRow (http://127.0.0.1:55604/web/runtime-inventory-view.mjs:105:35)\n    at http://127.0.0.1:55604/web/runtime-inventory-view.mjs:135:67\n    at Array.map (<anonymous>)\n    at renderList (http://127.0.0.1:55604/web/runtime-inventory-view.mjs:135:53)\n    at render (http://127.0.0.1:55604/web/runtime-inventory-view.mjs:255:55)\n    at http://127.0.0.1:55604/web/runtime-inventory-view.mjs:264:5\n    at emit (http://127.0.0.1:55604/web/runtime-inventory.mjs:44:39)\n    at Object.refresh (http://127.0.0.1:55604/web/runtime-inventory.mjs:71:7)",
+      "timestamp": "2026-09-27T04:18:33.870Z",
+      "url": "http://127.0.0.1:55604/web/runtime-inventory-view.mjs"
+    },
+    {
+      "level": "error",
+      "message": "TypeError: Cannot read properties of null (reading 'adapterId')\n    at listRow (http://127.0.0.1:55604/web/runtime-inventory-view.mjs:105:35)\n    at http://127.0.0.1:55604/web/runtime-inventory-view.mjs:135:67\n    at Array.map (<anonymous>)\n    at renderList (http://127.0.0.1:55604/web/runtime-inventory-view.mjs:135:53)\n    at render (http://127.0.0.1:55604/web/runtime-inventory-view.mjs:255:55)\n    at http://127.0.0.1:55604/web/runtime-inventory-view.mjs:264:5\n    at emit (http://127.0.0.1:55604/web/runtime-inventory.mjs:44:39)\n    at Object.refresh (http://127.0.0.1:55604/web/runtime-inventory.mjs:59:7)\n    at action.className (http://127.0.0.1:55604/web/runtime-inventory-view.mjs:74:75)",
+      "timestamp": "2026-09-27T04:19:15.624Z",
+      "url": "http://127.0.0.1:55604/web/runtime-inventory-view.mjs"
+    }
+  ]
+}

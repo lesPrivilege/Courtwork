@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-27 · Runtime Settings frontend reviewed; two corrections held
+
+[Production06c parent review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-review-20260927/README.md) receives Claude product `a6e07f8` / evidence `36f8357` on original `claude/runtime-settings-i1-20260927`. Luna61/61 and OpenAI browser valid-data/keyboard/refresh/reentry checks pass; malformed version1 `items:[null]` causes an uncaught render error and then zero-HTTP Refresh retries. RFS-R1 returns a view-safe fail-closed shape guard with last-good-reading recovery; RFS-R2 scopes primary detail values/reasons to the existing15px reading role, preserving compact controls and technical metadata. Parent accepts Agents group/glyph and allows independent duplicate GETs in this slice. Original Claude retains both corrections; no frontend source merged or substitute author launched. I1 backend remains accepted; user8787 and other writers are unchanged.
+
+
 ## 2026-09-27 · Small-task routing executed; production runtime inventory accepted
 
 User assigns small bounded work to actual CW dogfooding and keeps important self-developed mechanisms/decisions with Astra/Claude. [DS-1](execution/claude-frontend-harness-2026-09-16/evidence/schema-doc-dogfood-20260927/README.md) fixes the Work Core contract's stale current Host schema13/upgrade3–12 reference to22/3–21; one approved candidate write, ten successful tool calls, exact all-other-byte preservation, integrated `bf09f10`.

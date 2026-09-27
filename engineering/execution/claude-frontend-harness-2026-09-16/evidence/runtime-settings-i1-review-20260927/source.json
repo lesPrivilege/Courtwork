@@ -1,0 +1,10 @@
+{
+  "main": "12799ff0bd67bc1758f2c723d1c1438563f1001b",
+  "authorProduct": "a6e07f81a8f376cf1ad718cc23c7f7f06e8d7e0e",
+  "authorHead": "36f8357e46bbb3581b5a83dd251a67205c0472a6",
+  "branch": "claude/runtime-settings-i1-20260927",
+  "handoffSha256": "4e35ab061e1d89b0fa2680c5b94961aae06289775a78e1182431c88f5ee34d63",
+  "browser": "OpenAI in-app browser through CUA",
+  "host": "isolated no-Session local Host; fake provider unused",
+  "productEdits": false
+}

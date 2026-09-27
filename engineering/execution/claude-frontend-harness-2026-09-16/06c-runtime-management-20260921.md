@@ -176,6 +176,12 @@ Not executed by the author: 1280 px, native zoom and text spacing, forced colour
 
 Writer released at this delivery. No connect, disable or disconnect, no executor selection, no schema or backend change, and no push.
 
+## 2026-09-27 · Production I1 frontend received; finite original-Claude return
+
+User supplied Claude's completed handoff. Parent observes product `a6e07f8`, evidence `36f8357`, branch `claude/runtime-settings-i1-20260927` from `12799ff`, with only the pre-existing dependency symlink untracked. [Independent review, current-run screenshots and exact return](evidence/runtime-settings-i1-review-20260927/README.md) hold integration for **RFS-R1** (malformed version1 inventory poisons the reading; Refresh then throws before HTTP) and **RFS-R2** (primary detail values/reasons inherit11.5px metadata instead of the declared reading role). Parent adopts the new Agents group/object glyph and permits the two read-only GETs for this slice without declaring duplication architecturally necessary.
+
+Luna61/61 passes on valid-payload/adjacent cases; its malformed-data probe is adopted and Parent OpenAI browser confirms `items:[null]`, stuck reading state and zero retry requests. Parent also checks1280 list/detail, network failure/recovery, keyboard return,390 light/dark technical wrapping and Escape/reentry; Host remains0Sessions/0Runs/0events. No author1738 test or older screenshot is relabelled independent. The original Claude owns both corrections in the preserved tree; no substitute writer, source merge, user8787 restart or broader UI/CB-D1 work is launched. The previously accepted I1 backend stays accepted. Native200%/spacing/forced-colour/reader and configured-managed browser limits remain explicit.
+
 ### RFS return · author disposition — 2026-09-27 (Claude, Opus)
 
 This disposes the [parent review](evidence/runtime-settings-i1-review-20260927/README.md) (main `7b29ee7`) on the original branch. The fix is `6acad62`, with [return evidence](evidence/runtime-settings-i1-20260927/rfs-return/README.md).
