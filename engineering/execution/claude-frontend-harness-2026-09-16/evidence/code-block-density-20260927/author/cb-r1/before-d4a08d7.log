@@ -1,0 +1,58 @@
+✖ Copy code requests the code's own text from every Markdown entry point (1089.972542ms)
+ℹ results {"fenced":{"complete":["abc\n"],"growing":["abc\n"],"settled":["abc\n"],"titlesLeft":0},"fenced with a retained blank line":{"complete":["abc\n"],"growing":["abc\n"],"settled":["abc\n"],"titlesLeft":0},"fenced with trailing spaces":{"complete":["abc  \n"],"growing":["abc  \n"],"settled":["abc  \n"],"titlesLeft":0},"raw pre":{"complete":["abc\n"],"growing":["abc\n"],"settled":["abc\n"],"titlesLeft":0},"raw pre code":{"complete":["abc\n"],"growing":["abc\n"],"settled":["abc\n"],"titlesLeft":0},"raw pre then the same fenced text":{"complete":["abc\n","abc\n"],"growing":["abc\n","abc\n"],"settled":["abc\n","abc\n"],"titlesLeft":0},"multiple blocks and a nested list":{"complete":["one\ntwo\n","three\n","four\n"],"growing":["one\ntwo\n","three\n","four\n"],"settled":["one\ntwo\n","three\n","four\n"],"titlesLeft":0},"indented":{"complete":["x = 1\n\ny = 2\n"],"growing":["x = 1\n\ny = 2\n"],"settled":["x = 1\n\ny = 2\n"],"titlesLeft":0},"Unicode and entities":{"complete":["é 😀 &amp; <b>not bold</b> \\u00e9\n"],"growing":["é 😀 &amp; <b>not bold</b> \\u00e9\n"],"settled":["é 😀 &amp; <b>not bold</b> \\u00e9\n"],"titlesLeft":0},"blockquote":{"complete":["quoted\n"],"growing":["quoted\n"],"settled":["quoted\n"],"titlesLeft":0}}
+✖ source HTML cannot claim a code block's copy text through a title (911.732042ms)
+✔ reader comparison: the shared reader's copy text for the same inputs (recorded) (932.319584ms)
+ℹ reader {"fenced":["abc"],"fenced with a retained blank line":["abc\n"],"fenced with trailing spaces":["abc  "],"raw pre":[],"raw pre code":[],"raw pre then the same fenced text":["abc"],"multiple blocks and a nested list":["one\ntwo","three","four"],"indented":["x = 1\n\ny = 2"],"Unicode and entities":["é 😀 &amp; <b>not bold</b> \\u00e9"],"blockquote":["quoted"]}
+ℹ tests 3
+ℹ suites 0
+ℹ pass 1
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3674.258042
+
+✖ failing tests:
+
+test at tests/code-copy-fidelity-browser.test.mjs:110:1
+✖ Copy code requests the code's own text from every Markdown entry point (1089.972542ms)
+  AssertionError [ERR_ASSERTION]: fenced: complete markdown()
+  + actual - expected
+  
+    [
+  +   'abc\n'
+  -   'abc'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/cbr1-d4a08d7/app/tests/code-copy-fidelity-browser.test.mjs:115:12)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'abc\n' ],
+    expected: [ 'abc' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/code-copy-fidelity-browser.test.mjs:122:1
+✖ source HTML cannot claim a code block's copy text through a title (911.732042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'raw\n',
+  +   'real\n'
+  -   'real'
+    ]
+  
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/cbr1-d4a08d7/app/tests/code-copy-fidelity-browser.test.mjs:127:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'raw\n', 'real\n' ],
+    expected: [ 'raw\n', 'real' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

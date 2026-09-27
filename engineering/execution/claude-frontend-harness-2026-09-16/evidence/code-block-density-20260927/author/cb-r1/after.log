@@ -1,0 +1,13 @@
+✔ Copy code requests the code's own text from every Markdown entry point (1104.95375ms)
+ℹ results {"fenced":{"complete":["abc"],"growing":["abc"],"settled":["abc"],"titlesLeft":0},"fenced with a retained blank line":{"complete":["abc\n"],"growing":["abc\n"],"settled":["abc\n"],"titlesLeft":0},"fenced with trailing spaces":{"complete":["abc  "],"growing":["abc  "],"settled":["abc  "],"titlesLeft":0},"raw pre":{"complete":["abc\n"],"growing":["abc\n"],"settled":["abc\n"],"titlesLeft":0},"raw pre code":{"complete":["abc\n"],"growing":["abc\n"],"settled":["abc\n"],"titlesLeft":0},"raw pre then the same fenced text":{"complete":["abc\n","abc"],"growing":["abc\n","abc"],"settled":["abc\n","abc"],"titlesLeft":0},"multiple blocks and a nested list":{"complete":["one\ntwo","three","four"],"growing":["one\ntwo","three","four"],"settled":["one\ntwo","three","four"],"titlesLeft":0},"indented":{"complete":["x = 1\n\ny = 2"],"growing":["x = 1\n\ny = 2"],"settled":["x = 1\n\ny = 2"],"titlesLeft":0},"Unicode and entities":{"complete":["é 😀 &amp; <b>not bold</b> \\u00e9"],"growing":["é 😀 &amp; <b>not bold</b> \\u00e9"],"settled":["é 😀 &amp; <b>not bold</b> \\u00e9"],"titlesLeft":0},"blockquote":{"complete":["quoted"],"growing":["quoted"],"settled":["quoted"],"titlesLeft":0}}
+✔ source HTML cannot claim a code block's copy text through a title (964.973084ms)
+✔ reader comparison: the shared reader's copy text for the same inputs (recorded) (934.477042ms)
+ℹ reader {"fenced":["abc"],"fenced with a retained blank line":["abc\n"],"fenced with trailing spaces":["abc  "],"raw pre":[],"raw pre code":[],"raw pre then the same fenced text":["abc"],"multiple blocks and a nested list":["one\ntwo","three","four"],"indented":["x = 1\n\ny = 2"],"Unicode and entities":["é 😀 &amp; <b>not bold</b> \\u00e9"],"blockquote":["quoted"]}
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3749.044583

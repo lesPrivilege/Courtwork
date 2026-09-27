@@ -417,6 +417,8 @@ User authorizes continued construction with Astra selecting/dispatching, Claude 
 
 **Workspace/handoff:** the completed original runtime-settings tree at `d37320c` has only its existing dependency symlink untracked and is reusable after author checks it is idle. Fast-forward it to actual main; preserve its branch/history and never reset/stash or switch the shared main checkout. Deliver committed source and evidence in that tree, report exact SHAs and remaining limits, and stop for parent review before the next core/frontend slice. No push, deploy or user8787 restart.
 
+**Dispatch receipt:** Astra sent the committed `d4a08d7` assignment through OpenAI computer use to the original Claude Code conversation “Live assistant text streaming” (Opus5.5), whose latest delivery was the accepted Runtime Settings return. The UI shows the submitted message and Running/Waiting for Claude state; [dispatch capture](evidence/code-block-density-20260927/claude-dispatch.png). This proves submission, not implementation progress or completion. No second Claude session was launched.
+
 ## CB-D1 · author pickup and pre-edit record — 2026-09-27 (Claude, Opus)
 
 Picked up on the original serial tree `../.worktrees/courtwork-runtime-settings-i1-20260927`, branch `claude/runtime-settings-i1-20260927`. Its history is preserved; it was fast-forwarded from `d37320c` to main `d4a08d7`, and only the dependency symlink is untracked. The shared main checkout, user 8787 and all other trees are untouched.
@@ -433,7 +435,7 @@ Picked up on the original serial tree `../.worktrees/courtwork-runtime-settings-
   - Touch/coarse at 390 (mobile and touch emulation).
   - Text scale ×2 via the product's `--text-scale`. This is emulation, not OS text size or native zoom.
 - **Before (`d4a08d7`, measured).** At 1440, the one-line command block is 89px, of which the constant "Code" header is 37px (42%). At 390 touch it is 105px, of which the header is 53px (50%). The multiline block is 191 / 207px. The header label is the constant word "Code": the sanitizer drops fence language classes, so the label identifies nothing.
-- **Found while measuring.** Chat and Attention **Copy code writes a trailing newline the author did not write**: 70 bytes for the 69-byte command. marked appends `\n` inside `<pre><code>`, so a copied one-line shell command runs as soon as it is pasted into a terminal. The reader already copies the exact 69 bytes. This is corrected in the same shared builder and recorded as an intentional change.
+- **Found while measuring.** Chat and Attention **Copy code writes a trailing newline the author did not write**: 70 bytes for the 69-byte command. marked appends `\n` inside `<pre><code>`, so a copied one-line shell command can run as soon as it is pasted into a terminal; whether it does depends on the terminal. The reader already copies the exact 69 bytes. This is corrected in the same shared builder and recorded as an intentional change. *(Corrected by CB-R1: the first fix trimmed every `pre`; see the CB-R1 return below.)*
 - **Plan.** Drop the unconditional "Code" header from unlabelled blocks. Copy moves into its own column at the block's top-right: a grid column beside the `pre`, never over it, so selected or horizontally scrolled code is never covered. Copy keeps its existing behaviour, label, feedback and focus. Labelled headers keep `.code-toolbar`. The parser, sanitizer, streaming, fonts and wrap policies are unchanged.
 
 ## CB-D1 · author delivery — 2026-09-27 (Claude, Opus)
@@ -448,15 +450,29 @@ The product change is `43aa69e`; the evidence and this entry follow in the next 
   - Attention one-line: 83 → 46px; reader one-line: 79 → 46px.
 
   The code keeps 15px (Chat and reader) and 11.5px (Attention), and each surface's wrap policy is unchanged.
-- **Intentional change.** Copy now writes the authored bytes. Chat and Attention used to add the trailing newline marked puts in (70 bytes, not 69), which ran a pasted command immediately.
+- **Intentional change.** Chat and Attention used to add the trailing newline marked puts in (70 bytes, not 69); in some terminals that runs a pasted command at once. *(Corrected by CB-R1: `43aa69e` trimmed a final LF from every `pre`, losing authored LFs; the claim of exact authored bytes held only for these fenced examples.)*
 - **Trade-off for the parent.** The Copy column costs 36–52px of code width. At 390, the reader and Attention wrap more lines, though every block is still no taller overall.
 - **Checks.** Targeted tests 99/99, the CB-D1 browser run asserted, eight lints and `contrast-report` exit 0.
 - **Not covered.** Native zoom and OS text size (only emulated), text spacing, forced colours, screen reader, touch hardware, the live Host.
 
 Writer stopped for parent review. Hermes core is not started. No push, merge or service restart.
 
-**Dispatch receipt:** Astra sent the committed `d4a08d7` assignment through OpenAI computer use to the original Claude Code conversation “Live assistant text streaming” (Opus5.5), whose latest delivery was the accepted Runtime Settings return. The UI shows the submitted message and Running/Waiting for Claude state; [dispatch capture](evidence/code-block-density-20260927/claude-dispatch.png). This proves submission, not implementation progress or completion. No second Claude session was launched.
-
 ## 2026-09-27 · CB-D1 parent disposition: layout adopted, CB-R1 returned
 
 [Parent review](evidence/code-block-density-20260927/parent-review/README.md) fixes `c61557c` / product `43aa69e`. Side-column Copy and removal of the generic header are adopted after OpenAI browser1440/390 Chat/Attention checks, with original wrap rules and narrow44px targets. **CB-R1 adopt:** generic terminal-LF stripping loses authored raw-pre and retained fenced whitespace; production browser Copy-handler counterexamples are retained. Original Claude corrects only copy fidelity and focused tests/evidence in the preserved branch. No source integration or Hermes release until the correction is independently reviewed.
+
+## CB-R1 · author return — 2026-09-27 (Claude, Opus)
+
+The fix is `f660251` on the original branch; main `c550395` is merged in afterwards. See the [return evidence](evidence/code-block-density-20260927/author/cb-r1/README.md).
+
+- **What changed.** The generic DOM trim is gone. Fenced and indented blocks copy their parsed code-token text. A `marked.Renderer` subclass records it and tags the block's `pre` with a per-render nonce in the already-allowed `title`; the tag is removed once read, and source HTML cannot forge it. Raw HTML `pre` keeps its own text.
+  - Fenced text is used as parsed, so retained blank lines and trailing spaces are kept.
+  - Indented text drops only its final line terminator.
+- **Coverage.** Complete, growing and settled replies agree across ten cases plus a forgery case.
+- **Before and after.** The new test fails on both `d4a08d7` and `c61557c`, and passes 3/3 on `f660251`.
+- **Reader.** It copies the same text for every Markdown code case.
+- **Checks.** Targeted 102/102; six lints exit 0. The full suite and the CB-D1 layout evidence are not repeated.
+- **Unchanged.** Layout, sanitizer, reference parsing, streaming and the reader.
+- **Claims.** My earlier "runs on paste" and "authored bytes" wording is qualified in place: the effect depends on the terminal, and the exactness held for the measured fenced examples only.
+
+Writer stopped for parent review. Hermes is not started. No push, main merge or 8787 restart.

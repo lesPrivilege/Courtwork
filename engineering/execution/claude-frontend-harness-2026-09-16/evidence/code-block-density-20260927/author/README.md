@@ -10,7 +10,7 @@ Author: Claude (Opus 5.5), original frontend owner, serial lane. Branch `claude/
   - Chat: `pre`, horizontal scroll;
   - Attention and the reader: their existing wrapping.
 - **Labelled headers keep their rows.** The reader's source inspector ("Source · code points…") and the appearance preview (a file name) still use `.code-toolbar`.
-- **Exact copy.** Copy in Chat and Attention no longer includes the `\n` that marked appends inside every `<pre><code>`. Before, the 69-byte command copied as 70 bytes, so pasting it into a terminal ran it at once. It now copies the authored bytes, matching the reader. This is an intentional change, found during measurement.
+- **Exact copy.** Copy in Chat and Attention no longer includes the `\n` that marked appends inside every `<pre><code>`. Before, the 69-byte command copied as 70 bytes; in some terminals a pasted trailing LF runs the command at once, depending on the terminal's paste handling. This is an intentional change, found during measurement. **Corrected by CB-R1 ([return](cb-r1/README.md)):** this commit trimmed a final LF from every `pre`, which lost authored LFs in raw HTML `pre` and fenced blocks with a kept blank line. The exact-bytes results below hold for the two fenced examples measured, not in general.
 
 Token mapping: existing `--space-2` padding on the copy column, the existing `--control` / `quiet-button` target, and no new token, colour, radius, shadow or glyph. Lints and `contrast-report` pass.
 
@@ -47,7 +47,7 @@ An overlay corner button would keep the width, but the ruling allows one only if
 
 | Check | Result |
 | --- | --- |
-| Keyboard: focus Copy, Enter (Chat 1440, both blocks; Chat 390; Attention; reader) | Focused and `:focus-visible`. The clipboard holds exactly the authored bytes: 69 / 264. Before, Chat and Attention held 70 / 265. Feedback "Copied"; focus stays on Copy |
+| Keyboard: focus Copy, Enter (Chat 1440, both blocks; Chat 390; Attention; reader) | Focused and `:focus-visible`. For the two fenced examples, the clipboard holds exactly their code: 69 / 264. Before, Chat and Attention held 70 / 265. Feedback "Copied"; focus stays on Copy |
 | Selection of the code (Chat 1440 and 390) | Exactly the code; no "Copy"/"Code" chrome in the selection (before and after) |
 | Long line scrolled to its end (Chat) | End reachable; Copy does not overlap the code box after scrolling |
 | Copy over code, any case | Never (`copyOverPre: false` in every measured block) |
