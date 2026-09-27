@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Original Hermes author correction only
+
+[HPR-R1/R2 review](evidence/hermes-protocol-review-20260927/README.md) returns identity/body validation and finite configuration bounds on `fc7dec8`. Preserve the same Claude branch and scope; do not dispatch another protocol writer or enable the broader Host/Attention consumer. Current51/51 is bounded positive evidence, not acceptance over failing counterexamples.
+
+
 ## 2026-09-27 · Hermes original-author dispatch observed
 
 Original Claude/Opus has actually received the frozen standalone Hermes protocol assignment from `67cc742`, following CB-R1 final acceptance. UI shows Running/Waiting; [receipt](core-runtime-loop-20260921.md). Core/frontend remains one serial lane. Wait for a concrete fixed-source delivery or actionable author boundary question; do not launch another author from an observation timeout.

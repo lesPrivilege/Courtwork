@@ -1,0 +1,163 @@
+{
+  "crossContinuation": "accepted",
+  "forgedAdmission": "accepted",
+  "requests": [
+    {
+      "endpoint": "http://127.0.0.1:2222",
+      "body": {
+        "input": "continue",
+        "session_id": "session-A"
+      },
+      "idempotencyKey": "key-b"
+    },
+    {
+      "endpoint": "http://127.0.0.1:2222",
+      "body": {
+        "input": "x",
+        "session_id": "arbitrary",
+        "toolsets": [
+          "all"
+        ]
+      },
+      "idempotencyKey": "forged"
+    }
+  ],
+  "limits": {
+    "transportNaNFrame": {
+      "accepted": true,
+      "describe": null
+    },
+    "transportInfinityStream": {
+      "accepted": true,
+      "describe": null
+    },
+    "transportNegativeIdle": {
+      "accepted": true,
+      "describe": null
+    },
+    "adapterNaNDiagnostics": {
+      "accepted": true,
+      "describe": {
+        "adapterId": "hermes-api-runs",
+        "revision": "hermes-agent@d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/api-runs-v1",
+        "protocol": "hermes-api-server-runs",
+        "source": {
+          "repository": "NousResearch/hermes-agent",
+          "revision": "d7b836ab1c0cddaafc109ed24c9a83b6191cdc88",
+          "version": "v0.21.3",
+          "files": [
+            "gateway/platforms/api_server_runs.py",
+            "gateway/platforms/api_server.py",
+            "gateway/platforms/api_server_run_idempotency.py"
+          ]
+        },
+        "verification": "synthetic-loopback-fixture",
+        "endpointIdentity": "http://127.0.0.1:3333",
+        "capabilities": {
+          "start": {
+            "supported": true,
+            "note": "admission receipt only; the Host keeps its own intent"
+          },
+          "continue": {
+            "supported": true,
+            "note": "only with a native session_id observed in a prior status"
+          },
+          "observe": {
+            "supported": true,
+            "note": "live stream; no event id, sequence or replay"
+          },
+          "cancel": {
+            "supported": true,
+            "note": "stop is an intent; only a matching terminal cancelled settles it"
+          },
+          "recover": {
+            "supported": true,
+            "note": "status only; missed text and effects are not recovered"
+          },
+          "steer": {
+            "supported": false,
+            "reason": "Steering is outside the first slice."
+          },
+          "approval": {
+            "supported": false,
+            "reason": "Native approvals are not granted or answered by this adapter."
+          },
+          "submitToolResult": {
+            "supported": false,
+            "reason": "Hermes runs its own tool loop; there is no Host tool-result call."
+          },
+          "compact": {
+            "supported": false,
+            "reason": "Compaction is not part of the run surface consumed here."
+          },
+          "replay": {
+            "supported": false,
+            "reason": "The pinned stream has no replay cursor."
+          }
+        }
+      }
+    },
+    "adapterInfinityDiagnostics": {
+      "accepted": true,
+      "describe": {
+        "adapterId": "hermes-api-runs",
+        "revision": "hermes-agent@d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/api-runs-v1",
+        "protocol": "hermes-api-server-runs",
+        "source": {
+          "repository": "NousResearch/hermes-agent",
+          "revision": "d7b836ab1c0cddaafc109ed24c9a83b6191cdc88",
+          "version": "v0.21.3",
+          "files": [
+            "gateway/platforms/api_server_runs.py",
+            "gateway/platforms/api_server.py",
+            "gateway/platforms/api_server_run_idempotency.py"
+          ]
+        },
+        "verification": "synthetic-loopback-fixture",
+        "endpointIdentity": "http://127.0.0.1:3333",
+        "capabilities": {
+          "start": {
+            "supported": true,
+            "note": "admission receipt only; the Host keeps its own intent"
+          },
+          "continue": {
+            "supported": true,
+            "note": "only with a native session_id observed in a prior status"
+          },
+          "observe": {
+            "supported": true,
+            "note": "live stream; no event id, sequence or replay"
+          },
+          "cancel": {
+            "supported": true,
+            "note": "stop is an intent; only a matching terminal cancelled settles it"
+          },
+          "recover": {
+            "supported": true,
+            "note": "status only; missed text and effects are not recovered"
+          },
+          "steer": {
+            "supported": false,
+            "reason": "Steering is outside the first slice."
+          },
+          "approval": {
+            "supported": false,
+            "reason": "Native approvals are not granted or answered by this adapter."
+          },
+          "submitToolResult": {
+            "supported": false,
+            "reason": "Hermes runs its own tool loop; there is no Host tool-result call."
+          },
+          "compact": {
+            "supported": false,
+            "reason": "Compaction is not part of the run surface consumed here."
+          },
+          "replay": {
+            "supported": false,
+            "reason": "The pinned stream has no replay cursor."
+          }
+        }
+      }
+    }
+  }
+}
