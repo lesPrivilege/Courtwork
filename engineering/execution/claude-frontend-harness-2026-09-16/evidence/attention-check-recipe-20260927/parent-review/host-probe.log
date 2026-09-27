@@ -1,0 +1,51 @@
+Command: CW_TEST_NODE_MODULES=/Users/lesprivilege/Projects/Courtwork/app/node_modules node engineering/execution/claude-frontend-harness-2026-09-16/evidence/attention-check-recipe-20260927/author-host-probe.mjs
+Worktree: /Users/lesprivilege/.codex/worktrees/attention-check-recipe/Courtwork
+Dependency setup: probe explicitly symlinked the existing dependency directory into its disposable candidate; no install. Probe closed and removed temporary source/data.
+
+{
+  "baseCommit": "c93391cc8a7d2a9356c0326be96ba7f276192e5b",
+  "candidateId": "923e4567-e89b-42d3-a456-426614174099",
+  "permission": {
+    "recipeId": "node-test-attention-contract",
+    "recipeVersion": 1,
+    "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+    "argv": [
+      "--test",
+      "--test-concurrency=1",
+      "app/tests/attention-core.test.mjs",
+      "app/tests/attention-http.test.mjs",
+      "app/tests/attention-recovery.test.mjs",
+      "app/tests/attention-github-fixture.test.mjs",
+      "app/tests/attention-gmail-fixture.test.mjs",
+      "app/tests/attention-trace-fixture.test.mjs"
+    ],
+    "cwd": "private candidate",
+    "candidateId": "923e4567-e89b-42d3-a456-426614174099",
+    "candidateWriteRevision": 0,
+    "timeoutMs": 120000,
+    "outputLimitBytes": 65536,
+    "env": "minimal"
+  },
+  "checkStarted": {
+    "callId": "fake-script-1-0",
+    "recipeId": "node-test-attention-contract",
+    "recipeVersion": 1,
+    "candidateId": "923e4567-e89b-42d3-a456-426614174099",
+    "candidateWriteRevision": 0
+  },
+  "checkSettled": {
+    "status": "completed",
+    "exitCode": 0,
+    "signal": null,
+    "durationMs": 4672,
+    "truncated": {
+      "stdout": false,
+      "stderr": false
+    },
+    "failure": null,
+    "tests": 25,
+    "passed": 25
+  },
+  "provider": "local-fake"
+}
+Exit: 0

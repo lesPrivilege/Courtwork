@@ -1,0 +1,10 @@
+✔ check_run is denied with zero process start under read_only (2954.014709ms)
+✔ ask mode shows the exact recipe in the permission payload and deny records nothing (3144.560584ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6822.26725

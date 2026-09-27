@@ -1,0 +1,31 @@
+{
+  "result": {
+    "type": "object",
+    "value": [
+      {
+        "copied": "abc",
+        "input": "```\nabc\n```",
+        "name": "fenced",
+        "rendered": "abc\n"
+      },
+      {
+        "copied": "abc",
+        "input": "```\nabc\n\n```",
+        "name": "fenced blank",
+        "rendered": "abc\n"
+      },
+      {
+        "copied": "abc",
+        "input": "<pre>abc\n</pre>",
+        "name": "raw pre",
+        "rendered": "abc\n"
+      },
+      {
+        "copied": "abc",
+        "input": "<pre><code>abc\n</code></pre>",
+        "name": "raw pre code",
+        "rendered": "abc\n"
+      }
+    ]
+  }
+}

@@ -87,6 +87,8 @@ User authorizes independent Sol work alongside the single Claude core/frontend l
 
 Deliver committed source and evidence with exact SHAs; parent owns independent acceptance/integration. No push, deployment, paid provider, unrelated refactor or main mutation. If success requires a new Host authority/dependency contract, report the concrete blocker instead of expanding this slice.
 
+**Actual dispatch:** parent created the managed isolated `attention-check-recipe` checkout from committed contract `6e983dc`, branch `codex/attention-check-recipe-20260927`, and dispatched `/root/sol_attention_check_recipe` (GPT-6 Sol, high). Only the bounded recipe/catalog/test/documentation scope is leased. Existing attached trees retain unrelated untracked evidence and were preserved rather than overwritten. Delivery and independent acceptance are pending.
+
 ### Sol implementation boundary
 
 The affected responsibility is the Host-owned frozen recipe catalog. The nearest implemented precedent is `node-test` v1 in `app/runtime/check-recipes.mjs`; the existing check approval, candidate revision fence, runner and durable settlement remain the authority. This change adds one fixed Attention test descriptor and its documentation/tests. It needs no cross-layer change: Core, Runtime Port, service/store, and UI consume the existing `check_run` facts without modification. Sol owns the bounded author result; Astra retains integration and independent acceptance.
@@ -98,3 +100,5 @@ Sol source `ee6afb5b08c86ec902b6176c913e4ce7c6116c03` plus focused test/probe co
 ### Independent review F-01 disposition · adjust
 
 Luna's independent F-01 review found a low-severity coverage regression: the existing read-only and ask/deny checks had been retargeted to the new recipe, so they no longer directly exercised `node-test`. Sol adjusts those two tests to run both frozen ids, retaining exact approval argv and zero-start assertions for each. There is no runtime defect or product change. The focused `check-recipes.test.mjs` command passes **15/15** on Node 25.9.0; [raw author correction log](evidence/attention-check-recipe-20260927/author-f01-check-recipes.log) is retained. Astra retains final independent acceptance and integration.
+
+**Parent acceptance:** [independent receipt](evidence/attention-check-recipe-20260927/parent-review/README.md) accepts `75027fc` and closes F-01. Luna15/15 plus25/25 and a fresh private-candidate fake-Host receipt pass; Parent changed-path2/2 passes on isolated merge with byte-identical app source. The fixed second recipe is accepted; real-model dogfood/native connectors/full product closure are not claimed. Both original task histories are retained.
