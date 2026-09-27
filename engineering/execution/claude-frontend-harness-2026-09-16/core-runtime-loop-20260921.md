@@ -150,4 +150,6 @@ This disposes the [parent review](evidence/hermes-protocol-review-20260927/READM
   - Adjacent tests 29/29; doc links clean.
 - **Unchanged.** The source pin and the first-slice scope.
 
+- **HPR-R2 residual (parent delta review) · adopted.** The configured `maxErrorChars` was not applied to terminal errors: `readStatus` used the module default. `b685e17` passes the adapter's limit through `status`, `follow`, `reconcile` and `stop`; standalone `readStatus` keeps the default. The new case fails on `a5e3e96` and passes 28/28 after. The probe and the adjacent 29/29 are unchanged.
+
 Writer stopped for parent review. The Attention consumer is not started. No push, main merge or 8787 restart.

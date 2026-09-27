@@ -1,0 +1,55 @@
+✔ the adapter describes its pinned source, endpoint and capability ceiling (11.314042ms)
+✔ the first transport accepts only an explicit loopback origin, and never echoes the bearer (9.081958ms)
+✔ admission sends the exact bounded body with the Host's key, and returns a native run id, not completion (5.249083ms)
+✔ invalid input or key is refused locally, before anything is sent (1.378917ms)
+✔ the same intent replays the same run; a changed body under the same key conflicts and creates nothing (3.153458ms)
+✔ a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (1.975084ms)
+✔ fragmented Unicode arrives whole: pinned ASCII escapes split across writes, and raw UTF-8 split inside a character (13.094583ms)
+✔ repeated equal deltas are separate text: nothing on the wire makes them duplicates (2.130125ms)
+✔ terminal output is the native final response, kept apart from the text actually streamed (2.692333ms)
+✔ a stream that ends without a terminal is a gap; the status decides only whether the run is known to have ended (5.181584ms)
+✔ malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (2.288375ms)
+✔ status and terminal records must describe this run in the pinned shape (0.146292ms)
+✔ an approval or tool event is recorded, never answered or executed, and rules out a text-only success (2.371166ms)
+✔ stop is an intent: only the matching terminal cancelled settles the run as cancelled (57.175042ms)
+✔ a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (306.001375ms)
+✔ after an owner restart, status reports interrupted: unknown coverage, no text invented, and stop only reads that status (88.017959ms)
+✔ a stop for a run this gateway process does not drive is refused as not active, with no effect (2.5785ms)
+✔ the stream has one subscriber; a second follow finds no stream and does not claim replay (2.67925ms)
+✔ continuation uses only a native session id observed in a validated status, never a guess (3.44425ms)
+✔ byte, frame, idle and text limits end the stream as a bounded gap (209.308791ms)
+✔ keepalive comments hold an idle stream open and are not events (454.258084ms)
+✔ dispose closes only this transport's connections: no stop, no delete, and the native run is left as it was (134.780875ms)
+✔ HPR-R1 · a status observed through another adapter or endpoint cannot start a continuation (0.481083ms)
+✔ HPR-R1 · admit sends only an intent this adapter issued, with its exact validated body (0.233458ms)
+✔ HPR-R1 · after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted (4.567792ms)
+✔ HPR-R2 · invalid limits and unknown configuration are refused before any request (1.390667ms)
+✔ HPR-R2 · valid smaller limits and the documented ceilings are accepted and enforced (3.311833ms)
+✖ HPR-R2 · the configured error limit bounds every terminal error: status, follow, reconcile and stop (0.985375ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 27
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1461.471209
+
+✖ failing tests:
+
+test at app/tests/hermes-api-runs.test.mjs:490:1
+✖ HPR-R2 · the configured error limit bounds every terminal error: status, follow, reconcile and stop (0.985375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'abcdefghij' !== 'a…'
+  
+      at TestContext.<anonymous> (file:///private/tmp/claude-501/-Users-lesprivilege-Projects-Courtwork/6cc148e1-36bd-49ed-b387-637390180669/scratchpad/hpr-err/app/tests/hermes-api-runs.test.mjs:503:10)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'abcdefghij',
+    expected: 'a…',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
