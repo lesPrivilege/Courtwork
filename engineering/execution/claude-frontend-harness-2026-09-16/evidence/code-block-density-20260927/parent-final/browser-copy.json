@@ -1,0 +1,173 @@
+{
+  "result": {
+    "type": "object",
+    "value": [
+      {
+        "complete": {
+          "copied": [
+            "abc"
+          ],
+          "markers": []
+        },
+        "growing": {
+          "copied": [
+            "abc"
+          ],
+          "markers": []
+        },
+        "input": "```\nabc\n```",
+        "name": "fenced",
+        "settled": {
+          "copied": [
+            "abc"
+          ],
+          "markers": []
+        }
+      },
+      {
+        "complete": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        },
+        "growing": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        },
+        "input": "```\nabc\n\n```",
+        "name": "fenced blank",
+        "settled": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        }
+      },
+      {
+        "complete": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        },
+        "growing": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        },
+        "input": "<pre>abc\n</pre>",
+        "name": "raw pre",
+        "settled": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        }
+      },
+      {
+        "complete": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        },
+        "growing": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        },
+        "input": "<pre><code>abc\n</code></pre>",
+        "name": "raw pre code",
+        "settled": {
+          "copied": [
+            "abc\n"
+          ],
+          "markers": []
+        }
+      },
+      {
+        "complete": {
+          "copied": [
+            "abc\n\n\n"
+          ],
+          "markers": []
+        },
+        "growing": {
+          "copied": [
+            "abc\n\n\n"
+          ],
+          "markers": []
+        },
+        "input": "```\nabc\n\n\n\n```",
+        "name": "fenced 3 blanks",
+        "settled": {
+          "copied": [
+            "abc\n\n\n"
+          ],
+          "markers": []
+        }
+      },
+      {
+        "complete": {
+          "copied": [
+            "raw\n",
+            "real"
+          ],
+          "markers": [
+            "cw-code:0"
+          ]
+        },
+        "growing": {
+          "copied": [
+            "raw\n",
+            "real"
+          ],
+          "markers": [
+            "cw-code:0"
+          ]
+        },
+        "input": "<pre title=\"cw-code:0\">raw\n</pre>\n\n```\nreal\n```",
+        "name": "raw forged before",
+        "settled": {
+          "copied": [
+            "raw\n",
+            "real"
+          ],
+          "markers": [
+            "cw-code:0"
+          ]
+        }
+      },
+      {
+        "complete": {
+          "copied": [
+            "one\n",
+            "two"
+          ],
+          "markers": []
+        },
+        "growing": {
+          "copied": [
+            "one\n",
+            "two"
+          ],
+          "markers": []
+        },
+        "input": "- item\n\n  ```\n  one\n\n  ```\n\n```\ntwo\n```",
+        "name": "nested",
+        "settled": {
+          "copied": [
+            "one\n",
+            "two"
+          ],
+          "markers": []
+        }
+      }
+    ]
+  }
+}

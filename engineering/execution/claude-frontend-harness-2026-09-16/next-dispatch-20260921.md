@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · CB-R1 closed; release Hermes protocol first slice
+
+[CB-D1 final receipt](evidence/code-block-density-20260927/parent-final/README.md) accepts `b57dad0` and closes CB-R1. Release the original Claude serial lane to [the already frozen Hermes protocol assignment](core-runtime-loop-20260921.md#2026-09-27--hermes-protocol-slice-next-claude-serial-core-assignment): standalone pinned HTTP/SSE adapter/transport with local fixture; no Host allowlist, Store or live native execution. Preserve the completed author tree/branch; fast-forward to actual main at pickup. No other core/frontend author is started.
+
 ## 2026-09-27 · Sol recipe accepted; Claude remains on CB-R1
 
 [Fixed recipe acceptance](evidence/attention-check-recipe-20260927/parent-review/README.md) closes Sol's finite task and F-01 at `75027fc`; no further Sol writer is released automatically. Original Claude corrects CB-R1 only. Hermes protocol contract remains ready behind that parent disposition; it is not started by accepting this independent recipe.

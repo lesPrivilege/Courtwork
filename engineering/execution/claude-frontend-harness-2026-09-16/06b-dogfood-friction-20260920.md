@@ -476,3 +476,7 @@ The fix is `f660251` on the original branch; main `c550395` is merged in afterwa
 - **Claims.** My earlier "runs on paste" and "authored bytes" wording is qualified in place: the effect depends on the terminal, and the exactness held for the measured fenced examples only.
 
 Writer stopped for parent review. Hermes is not started. No push, main merge or 8787 restart.
+
+## 2026-09-27 · CB-D1 accepted; CB-R1 closed
+
+[Final parent acceptance](evidence/code-block-density-20260927/parent-final/README.md) accepts `b57dad0` / `f660251`. Luna65/65 and parent production-browser7×3 copy cases close the authored-LF/blank-line defect. Prior1440/390 visual evidence applies to unchanged layout; side-column trade-off remains adopted. Main fast-forward preserves author/parent histories. Native accessibility/clipboard limits remain explicit. Claude's serial slot can now consume the frozen Hermes protocol contract; no user Host restart, push or deployment.

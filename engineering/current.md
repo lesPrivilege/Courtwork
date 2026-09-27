@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-27 · CB-D1 accepted and integrated; Hermes slot released
+
+[Final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/code-block-density-20260927/parent-final/README.md) accepts Claude `b57dad0` / correction `f660251`, fast-forwarding main from `7f4b05e`. CB-R1 closes with independent65/65 and parent OpenAI browser7×3 complete/growing/settled Copy cases. Side-column density/width trade-off stays adopted; earlier1440/390 visual evidence is explicitly reused for unchanged layout. Native accessibility/system clipboard limits remain, and author102/102 stays separately attributed. The existing Hermes protocol contract is released for the same serial Claude lane; actual dispatch receipt follows. No user Host restart, paid provider, push or deployment.
+
 ## 2026-09-27 · Fixed Attention contract check accepted
 
 [Parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/attention-check-recipe-20260927/parent-review/README.md) accepts Sol `75027fc`: `node-test-attention-contract` v1 adds a fixed six-file backend/synthetic test command through unchanged recipeId-only Host approval and private-candidate execution. Luna15/15, actual Attention25/25 and a fresh fake-Host start/settlement receipt pass. F-01 restores both old/new recipe refusal coverage; parent isolated-merge2/2 passes and application bytes match the fixed source. Dependency preparation remains explicit, with no install/fallback. No real-model dogfood or general test-selector claim. CB-D1 remains independently held for CB-R1 in the original Claude lane; Hermes is still queued. No user Host restart, schema/dependency/UI change, push or deployment.

@@ -1,0 +1,35 @@
+# CB-R1 Luna independent review
+
+Date: 2026-09-27
+
+Reviewed final head: b57dad0d70185555bb778ef1af7ea2d42695f99b
+
+Product correction: f660251
+
+Prior CB-D1: c61557c0e6c5d961603a58ffecd4b92743691839
+
+## Scope
+
+The CB-R1 product correction is f660251; the final head also contains the documented return evidence and an unrelated main merge. This review evaluates the code-copy correction only. No source, provider, browser, or main checkout was edited. No browser/headlessChrome was run in this lane.
+
+## Source review
+
+ui-controls.mjs now records each marked code token through CodeCopyRenderer, tags only that render's generated pre with a random nonce/index, and maps Copy back to the token text. Fenced and indented token paths are distinct; indented-only terminal line-ending removal is explicit. A raw or forged source title cannot know the nonce, so it falls back to the raw DOM text. The marker is removed after a matching read.
+
+The mapping is order-safe for nested/multiple code blocks because the token index is carried on each generated pre rather than inferred from DOM position. The sanitizer already allows title; no new allowed attribute or parser change was introduced. The new browser fidelity test covers nested list/top-level/indented blocks, multiple blocks, retained blank lines, raw pre and pre/code, Unicode/entities, blockquotes, growing and settled reply paths, and a forged title. Parent OpenAI CUA independently reports all seven production probe cases passing, with marker removal and raw forged title preserved correctly.
+
+markdown-reader.mjs remains unchanged and copies its AST element.textContent. The CB-R1 browser comparison records that reader behavior separately; the correction does not create a reader/parser change.
+
+## Streaming and focused verification
+
+The shared markdownTokens path is used by complete markdown and the growing assistant body. The bounded non-browser stream/message suites below pass, covering growing deltas, unclosed fences, segment replacement, late deltas, terminal partials, and final-answer boundaries.
+
+Command:
+
+node --test --test-concurrency=1 app/tests/chat-actions.test.mjs app/tests/attention-agent.test.mjs app/tests/markdown-core-read.test.mjs app/tests/markdown-source-independent.test.mjs app/tests/output-message-boundary.test.mjs app/tests/stream-thread-projection.test.mjs app/tests/stream-session-events.test.mjs
+
+Result: 65 passed, 0 failed, 0 cancelled, 0 skipped; exit code 0; duration 4.267s. Raw stdout is in luna-tests.stdout.txt.
+
+## Disposition
+
+Adopt CB-R1 for the bounded source scope. The prior exact-LF/raw-pre blocker is addressed through source-token mapping; nested/multiple mapping, raw HTML marker spoofing, reader comparison, and streaming behavior have direct test/evidence coverage. No remaining code-level blocker was found. Parent visual/browser acceptance remains separate, and the unrelated check-recipe delta in the final head is outside this review.
