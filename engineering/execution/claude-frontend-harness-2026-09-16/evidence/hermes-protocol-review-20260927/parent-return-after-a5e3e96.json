@@ -1,0 +1,46 @@
+[
+  {
+    "name": "cross-endpoint observed status refuses before dispatch",
+    "pass": true
+  },
+  {
+    "name": "forged outer-frozen body refuses before dispatch",
+    "pass": true
+  },
+  {
+    "name": "owned admission still sends exact bounded body",
+    "pass": true
+  },
+  {
+    "name": "transport rejects NaN-frame",
+    "pass": true
+  },
+  {
+    "name": "transport rejects infinite-stream",
+    "pass": true
+  },
+  {
+    "name": "transport rejects negative-idle",
+    "pass": true
+  },
+  {
+    "name": "transport rejects unknown",
+    "pass": true
+  },
+  {
+    "name": "adapter rejects NaN-input",
+    "pass": true
+  },
+  {
+    "name": "adapter rejects infinite-diagnostics",
+    "pass": true
+  },
+  {
+    "name": "adapter rejects negative-text",
+    "pass": true
+  },
+  {
+    "name": "adapter rejects unknown",
+    "pass": true
+  }
+]

@@ -1,0 +1,17 @@
+# Hermes standalone protocol: final parent acceptance
+
+2026-09-27 · Astra accepts original Claude `acf56946db9c47e2419309bbe5e2c8f30861c874`, base product `a0d6ea7`, provenance/config correction `a5e3e96` and error-limit correction `b685e17`. **HPR-R1 and HPR-R2 close.** This accepts a standalone loopback protocol/transport implementation, not native Hermes conformance, product executor selection or the full Attention consumer.
+
+## Independent evidence and disposition
+
+- [Initial review](../hermes-protocol-review-20260927/README.md) retained51/51 and the failing identity/bounds counterexamples. No green result was treated as overriding the failure.
+- [Luna return review](luna-review.md.txt) and [27/27](luna-hermes-tests.stdout.txt) verify owned-intent/observed-record provenance, exact endpoint/revision/body dispatch, cross-adapter/forged/copied refusal, explicit re-created-adapter same-key recovery, typed finite configuration and ceilings. It also retained the [remaining native error-bound failure](luna-error-limit-probe.stdout.txt).
+- [Final delta review](final-review.md.txt) and [focused1/1](luna-final-error-limit-test.stdout.txt) close that residual: status, event follow, reconcile and terminal stop use the instance maxErrorChars; standalone readStatus keeps its default. Truncation retains a bounded prefix with an ellipsis, not an unbounded native error. [Final product byte comparison](luna-final-sha.stdout.txt) binds this review to `acf5694`/`b685e17`.
+- Parent's [11-case final probe](parent-return-final.json), using the [portable probe from the return](../hermes-protocol-review-20260927/parent-return-probe.mjs), passes all identity/invalid-limit refusals plus legal exact-body admission. The same probe had10 failures/1 pass on exported `a0d6ea7`; its injected transport tests dispatch boundaries without network/effects. Real-socket coverage is in the independently run Hermes suite and separately attributed author28/28/adjacent29/29 evidence.
+- Isolated merge with main preserves both appended core-task histories; all app files exactly match `acf5694`. No additional full suite or unchanged adjacent suite is repeated because this integration changes only documentation relative to the reviewed source. Repository link checks pass.
+
+Astra adopts private per-instance provenance and explicit restart reconstruction as this slice's contract. Retained Host intent identity, endpoint and revision remain required; a future durable Host integration must define its own validation, not treat an in-memory registry as persistent authorization. Missing stream data remains a coverage gap, stop is only intent, and owner-loss interrupted remains unknown. The source pin and supported/unsupported operations are unchanged.
+
+## Limits and next consumer
+
+No real Hermes server/AIAgent/provider/MCP tool call is proved by these fixtures. There is no Host executor registration, Store migration, global Attention choice, native credential discovery, UI enablement or user Host restart. Author output and independent conformance are distinct evidence. The next [native profile/MCP tool-loop conformance](../../core-runtime-loop-20260921.md#2026-09-27--next-hermes-consumer-native-profile-and-mcp-tool-loop-conformance) is now released to the same original Claude serial lane. Its success must demonstrate real upstream tool request/result behavior before a full Host consumer is designed. No push or deployment.

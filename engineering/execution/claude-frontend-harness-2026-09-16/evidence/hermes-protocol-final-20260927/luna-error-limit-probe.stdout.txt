@@ -1,0 +1,6 @@
+{
+  "configured": 1,
+  "inputLength": 80,
+  "output": "EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE",
+  "outputLength": 80
+}

@@ -1,0 +1,57 @@
+# Hermes HPR-R2 final error-limit review · Luna
+
+Date: 2026-09-27
+
+Disposition: **accept the final HPR-R1/R2 product correction for this bounded
+slice**, subject to the parent’s integration decision. The residual error
+limit is now applied on every requested adapter path, the standalone default
+remains unchanged, and the final product bytes match the recorded product
+commit.
+
+## Exact final source
+
+- Final author/evidence SHA: `acf56946db9c47e2419309bbe5e2c8f30861c874`
+- Product correction SHA: `b685e171f5f13ba2caf58bb2551c3230e243b1ee`
+- Prior reviewed HPR-R1/R2 SHA: `a5e3e969d5cad92f4fa2b80c7c6f11714baaea2a`
+- Delta base: `fc7dec83eddc5d74e6622c1afef72ce8bf0ed8c9`
+- Pinned Hermes source: `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88` (v0.21.3)
+
+`git diff --quiet b685e17 acf5694 --` over the four Hermes product files
+returned exit 0, so the product source/test/doc bytes at the final SHA match
+the product correction. `git diff --check` over the error-limit delta is
+clean. Raw hash/byte-match output is in `luna-final-sha.stdout.txt`.
+
+## Focused verification
+
+Command:
+
+```text
+node --test --test-concurrency=1 \
+  --test-name-pattern='HPR-R2 · the configured error limit bounds every terminal error' \
+  app/tests/hermes-api-runs.test.mjs
+```
+
+Result: **1/1 pass, 0 fail**. Raw output: `luna-final-error-limit-test.stdout.txt`.
+
+The focused test constructs an adapter with `maxErrorChars: 1` and verifies
+the bounded error `a…` through all four paths:
+
+- `status()` status response;
+- `follow()` terminal `run.failed` event;
+- `reconcile()` status-only response;
+- `stop()` already-terminal response.
+
+It also verifies the maximum configured ceiling keeps a short error whole and
+that standalone `readStatus(json, runId)` still uses its documented default
+500-character bound. The correction at
+`app/runtime/hermes-api-runs-adapter.mjs` passes `bounds` into status,
+terminal-event and stop parsing; reconciliation delegates to `status()`.
+
+Earlier review evidence remains valid: HPR-R1 provenance/body tests and HPR-R2
+finite configuration tests passed 27/27 at `a5e3e96`, including same-key/body
+lost-admission replay and explicit adapter-recreation reconstruction. This
+supplement only rechecks the final error-limit delta and does not repeat that
+already-green suite.
+
+No product files were edited, no conflicts were resolved, and no provider,
+native Hermes process, browser, or credential was used.

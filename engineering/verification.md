@@ -1,5 +1,8 @@
 # 验证选择与证据边界
 
+2026-09-27 · [Hermes protocol acceptance](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-final-20260927/README.md), fixed `acf5694`: independent27 Hermes cases, final error-limit1 case and parent11 dispatch/config probes close HPR-R1/R2. Earlier51/51 and author28/28 +29/29 remain separately attributed. Synthetic protocol conformance only; no native Hermes/MCP/provider/Host integration or schema/executor exposure.
+
+
 2026-09-27 · [CB-D1 final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/code-block-density-20260927/parent-final/README.md), `b57dad0` / `f660251`: Luna65/65 plus parent in-app-browser7×3 copy boundary probes; prior fixed-source1440/390 layout evidence reused only for unchanged CSS. Author102/102 and headless/native-clipboard distinctions remain. No full-suite/native accessibility or live-user-Host claim.
 
 2026-09-27 · [Fixed Attention recipe acceptance](execution/claude-frontend-harness-2026-09-16/evidence/attention-check-recipe-20260927/parent-review/README.md), source `75027fc`: independent recipe15/15, actual six Attention suites25/25 and fresh private-candidate local-fake Host execution; parent changed-governance2/2 on isolated merge. The frozen catalog gains one recipe, not arbitrary args/commands. Full suite/live-model/native connector coverage is not inferred. No schema/dependency/release-source change.

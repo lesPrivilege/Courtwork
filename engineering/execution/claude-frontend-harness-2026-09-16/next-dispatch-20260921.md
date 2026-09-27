@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Protocol returns closed; release native Hermes tool-loop conformance
+
+[Protocol final acceptance](evidence/hermes-protocol-final-20260927/README.md) closes HPR-R1/R2 at `acf5694`. Release [native profile/MCP conformance](core-runtime-loop-20260921.md#2026-09-27--next-hermes-consumer-native-profile-and-mcp-tool-loop-conformance) to the original Claude serial lane. It proves real upstream tool feedback with fake local endpoints and strict disposable configuration before Host integration; no second core author or production enablement.
+
+
 ## 2026-09-27 · Original Hermes author correction only
 
 [HPR-R1/R2 review](evidence/hermes-protocol-review-20260927/README.md) returns identity/body validation and finite configuration bounds on `fc7dec8`. Preserve the same Claude branch and scope; do not dispatch another protocol writer or enable the broader Host/Attention consumer. Current51/51 is bounded positive evidence, not acceptance over failing counterexamples.

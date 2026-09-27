@@ -1,0 +1,56 @@
+[
+  {
+    "name": "cross-endpoint observed status refuses before dispatch",
+    "pass": false,
+    "message": "Expected values to be strictly equal:\n\nfalse !== true\n"
+  },
+  {
+    "name": "forged outer-frozen body refuses before dispatch",
+    "pass": false,
+    "message": "Missing expected rejection."
+  },
+  {
+    "name": "owned admission still sends exact bounded body",
+    "pass": true
+  },
+  {
+    "name": "transport rejects NaN-frame",
+    "pass": false,
+    "message": "Missing expected exception."
+  },
+  {
+    "name": "transport rejects infinite-stream",
+    "pass": false,
+    "message": "Missing expected exception."
+  },
+  {
+    "name": "transport rejects negative-idle",
+    "pass": false,
+    "message": "Missing expected exception."
+  },
+  {
+    "name": "transport rejects unknown",
+    "pass": false,
+    "message": "Missing expected exception."
+  },
+  {
+    "name": "adapter rejects NaN-input",
+    "pass": false,
+    "message": "Missing expected exception."
+  },
+  {
+    "name": "adapter rejects infinite-diagnostics",
+    "pass": false,
+    "message": "Missing expected exception."
+  },
+  {
+    "name": "adapter rejects negative-text",
+    "pass": false,
+    "message": "Missing expected exception."
+  },
+  {
+    "name": "adapter rejects unknown",
+    "pass": false,
+    "message": "Missing expected exception."
+  }
+]

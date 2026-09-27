@@ -1,0 +1,35 @@
+✔ the adapter describes its pinned source, endpoint and capability ceiling (10.660292ms)
+✔ the first transport accepts only an explicit loopback origin, and never echoes the bearer (9.538916ms)
+✔ admission sends the exact bounded body with the Host's key, and returns a native run id, not completion (4.416834ms)
+✔ invalid input or key is refused locally, before anything is sent (2.400959ms)
+✔ the same intent replays the same run; a changed body under the same key conflicts and creates nothing (4.169708ms)
+✔ a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (2.057417ms)
+✔ fragmented Unicode arrives whole: pinned ASCII escapes split across writes, and raw UTF-8 split inside a character (14.601667ms)
+✔ repeated equal deltas are separate text: nothing on the wire makes them duplicates (2.32575ms)
+✔ terminal output is the native final response, kept apart from the text actually streamed (2.22225ms)
+✔ a stream that ends without a terminal is a gap; the status decides only whether the run is known to have ended (5.341042ms)
+✔ malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (3.339875ms)
+✔ status and terminal records must describe this run in the pinned shape (0.148834ms)
+✔ an approval or tool event is recorded, never answered or executed, and rules out a text-only success (3.041209ms)
+✔ stop is an intent: only the matching terminal cancelled settles the run as cancelled (56.134291ms)
+✔ a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (307.904333ms)
+✔ after an owner restart, status reports interrupted: unknown coverage, no text invented, and stop only reads that status (89.466833ms)
+✔ a stop for a run this gateway process does not drive is refused as not active, with no effect (2.529125ms)
+✔ the stream has one subscriber; a second follow finds no stream and does not claim replay (4.156209ms)
+✔ continuation uses only a native session id observed in a validated status, never a guess (4.787292ms)
+✔ byte, frame, idle and text limits end the stream as a bounded gap (215.257166ms)
+✔ keepalive comments hold an idle stream open and are not events (457.842583ms)
+✔ dispose closes only this transport's connections: no stop, no delete, and the native run is left as it was (139.205ms)
+✔ HPR-R1 · a status observed through another adapter or endpoint cannot start a continuation (1.308667ms)
+✔ HPR-R1 · admit sends only an intent this adapter issued, with its exact validated body (1.459583ms)
+✔ HPR-R1 · after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted (9.909292ms)
+✔ HPR-R2 · invalid limits and unknown configuration are refused before any request (2.402125ms)
+✔ HPR-R2 · valid smaller limits and the documented ceilings are accepted and enforced (5.237875ms)
+ℹ tests 27
+ℹ suites 0
+ℹ pass 27
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1496.55375

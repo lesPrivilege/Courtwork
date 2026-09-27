@@ -1,0 +1,180 @@
+{
+  "cwd": "/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/run-cwd",
+  "hermes_home": "/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/run-home/hermes",
+  "home": "/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/run-home",
+  "not_called": [
+    "AIAgent",
+    "gateway",
+    "MCPServerTask",
+    "provider",
+    "socket",
+    "subprocess"
+  ],
+  "python": "3.14.2",
+  "results": [
+    {
+      "name": "missing platform list resolves broad API/native defaults",
+      "observed": [
+        "browser",
+        "code_execution",
+        "connections",
+        "cronjob",
+        "cw_attention",
+        "delegation",
+        "file",
+        "image_gen",
+        "memory",
+        "other_server",
+        "session_search",
+        "skills",
+        "terminal",
+        "todo",
+        "vision",
+        "web"
+      ]
+    },
+    {
+      "name": "missing default representative native toolsets",
+      "observed": [
+        "file",
+        "skills",
+        "terminal",
+        "web"
+      ]
+    },
+    {
+      "name": "null platform list",
+      "note": "Non-list values use the API default bundle and default MCP admission.",
+      "observed": [
+        "browser",
+        "code_execution",
+        "connections",
+        "cronjob",
+        "cw_attention",
+        "delegation",
+        "file",
+        "image_gen",
+        "memory",
+        "other_server",
+        "session_search",
+        "skills",
+        "terminal",
+        "todo",
+        "vision",
+        "web"
+      ]
+    },
+    {
+      "expected": [
+        "cw_attention",
+        "other_server"
+      ],
+      "name": "explicit [] admits all enabled MCP names",
+      "observed": [
+        "cw_attention",
+        "other_server"
+      ]
+    },
+    {
+      "expected": [
+        "cw_attention"
+      ],
+      "name": "explicit one-server allowlist",
+      "observed": [
+        "cw_attention"
+      ]
+    },
+    {
+      "name": "unrecorded plugin leakage negative",
+      "note": "Expected failure fixture: exact CW-only set is false.",
+      "observed": [
+        "cw_attention",
+        "rogue_plugin"
+      ]
+    },
+    {
+      "name": "non-default context leakage negative",
+      "note": "Expected failure fixture: exact CW-only set is false.",
+      "observed": [
+        "context_engine",
+        "cw_attention"
+      ]
+    },
+    {
+      "expected": [
+        true,
+        true,
+        true
+      ],
+      "name": "MCP include filter admits CW list",
+      "observed": [
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "expected": false,
+      "name": "MCP include filter rejects undeclared tool",
+      "observed": false
+    },
+    {
+      "expected": [
+        "mcp__cw_attention__attention_inspect",
+        "mcp__cw_attention__attention_list",
+        "mcp__cw_attention__attention_record_signal"
+      ],
+      "name": "exact CW MCP definition set",
+      "observed": [
+        "mcp__cw_attention__attention_inspect",
+        "mcp__cw_attention__attention_list",
+        "mcp__cw_attention__attention_record_signal"
+      ]
+    },
+    {
+      "expected": [],
+      "name": "representative eligible builtin exclusion",
+      "observed": []
+    },
+    {
+      "expected": [],
+      "name": "unfiltered API-style MCP discovery result",
+      "observed": []
+    },
+    {
+      "expected": [
+        "cw_attention",
+        "other_server"
+      ],
+      "name": "unfiltered discovery captured configured servers",
+      "observed": [
+        "cw_attention",
+        "other_server"
+      ]
+    },
+    {
+      "expected": [],
+      "name": "explicit discovery allowlist result",
+      "observed": []
+    },
+    {
+      "expected": [
+        "cw_attention"
+      ],
+      "name": "explicit discovery allowlist captured one server",
+      "observed": [
+        "cw_attention"
+      ]
+    }
+  ],
+  "side_effect_edges_stubbed": [
+    "tools.registry.discover_builtin_tools",
+    "hermes_cli.plugins.discover_plugins",
+    "tools.mcp_tool_discovery._config._load_mcp_config",
+    "tools.mcp_tool._ensure_mcp_sdk",
+    "tools.mcp_tool_discovery._acquire_discovery_lock_with_retry",
+    "tools.mcp_tool_discovery.register_mcp_servers",
+    "tools_config plugin/credential/context helper reads"
+  ],
+  "status": "pass"
+}

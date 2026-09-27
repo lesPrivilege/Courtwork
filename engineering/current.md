@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-27 · Hermes standalone protocol accepted; native loop next
+
+[Final parent receipt](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-final-20260927/README.md) accepts original Claude `acf5694`, closes HPR-R1/R2, and integrates standalone Hermes `/v1/runs` adapter/transport with synthetic loopback fixtures. Independent27/27, residual1/1 and parent11/11 confirm identity/body refusal, valid same-key recovery and finite configured bounds; earlier51/51 and author28/28/29/29 retain attribution. App bytes match reviewed source after isolated documentation merge. No production executor/Host/Store/schema/UI or native/live-provider capability is enabled. The same Claude serial slot is released to the existing isolated native profile/MCP tool-loop conformance contract; actual dispatch receipt follows. No user Host restart, push or deployment.
+
 ## 2026-09-27 · Hermes protocol reviewed; two bounded returns
 
 [Parent/Luna review](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-review-20260927/README.md) holds original Claude `fc7dec8` / product `a0d6ea7`. Independent51/51 pass, but executable probes expose HPR-R1 cross-endpoint/forged frozen-intent acceptance and HPR-R2 non-finite/invalid limit overrides. Both are adopted and actually returned to original Claude/Opus, whose UI confirms Running/Waiting; source is not integrated. Full Attention tool/Host integration remains a separate consumer requiring native tool lockdown and Run-bound authority, not text-only consultation. No Host/schema/allowlist, native Hermes/provider, user-service or deployment change.

@@ -28,3 +28,9 @@ Original Claude owns both corrections in the preserved branch. Add focused faili
 [Luna final review](luna-review.md.txt) independently confirms the same three defects, grouped above as identity/body and bounded-configuration returns. No additional source blocker was identified in its bounded scope.
 
 **Actual return receipt:** parent sent committed `0dfb863` HPR-R1/R2 instructions to the same original Claude/Opus Code conversation; UI shows submitted message and Running/Waiting. [Capture](return-dispatch.png). The original author is correcting, not a new parallel writer.
+
+## Intermediate return check · a5e3e96
+
+The original author's fixed product commit `a5e3e96` is under delta review while its evidence/main-document merge is finished. Parent's portable [11-case return probe](parent-return-probe.mjs) records [10 failures/1 pass before](parent-return-before.json) on exported `a0d6ea7`, and [11/11 after](parent-return-after-a5e3e96.json) on byte-matched `a5e3e96`. It tests cross-endpoint provenance, forged body rejection, valid owned admission and invalid bound values. These results do not constitute final acceptance.
+
+**Residual HPR-R2 adopted:** the instance accepts and describes `maxErrorChars:1`, but status of a matching failed run with `error:"abcdefghij"` returns all10 characters because readStatus still uses the default constant. Parent notified the original Claude in the same running return to enforce the chosen error bound consistently in status/event/reconcile/stop results and add a focused test. No broader scope, duplicate writer or full-suite rerun is requested. The actual message is visible in the same conversation; current work remains active.

@@ -1,0 +1,83 @@
+# Hermes HPR-R1/R2 return review · Luna
+
+Date: 2026-09-27
+
+Disposition: **HPR-R1 is accepted by this bounded review; HPR-R2 remains
+blocked by one narrow enforcement defect.** The product correction is
+otherwise source-consistent and the new recovery/provenance tests pass. This
+does not claim native Hermes conformance or Host exposure.
+
+## Reviewed snapshot
+
+- Worktree: `/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-settings-i1-20260927`
+- Fixed source commit: `a5e3e969d5cad92f4fa2b80c7c6f11714baaea2a`
+- Delta base: `fc7dec83eddc5d74e6622c1afef72ce8bf0ed8c9`
+- Pinned reference: `NousResearch/hermes-agent` `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88` (v0.21.3)
+- The author worktree had unrelated staged documentation changes and a
+  conflict in the owner record. I did not touch or resolve them. The four
+  product files in the reviewed commit had no working-tree diff.
+
+## Checks
+
+From the fixed source files at `a5e3e96`:
+
+```text
+node --test --test-concurrency=1 app/tests/hermes-api-runs.test.mjs
+```
+
+Result: **27/27 pass, 0 fail** (the original 22 plus five HPR-R1/R2 tests).
+Raw output: `luna-hermes-tests.stdout.txt`.
+
+The new cases verify that another adapter, another endpoint, same-endpoint
+adapter, frozen copies and forged status records cannot create continuation;
+only the original observed record can. They verify forged/frozen/copied
+admission objects and extra body keys are refused before the wire, while the
+issued intent remains frozen and sends exactly `{input}`. The explicit
+re-created-adapter case proves lost admission recovery rebuilds the same
+key/body and replays one native run, then re-reads status before continuation.
+The configuration cases verify unknown options/limits and non-finite,
+fractional, zero, negative, over-ceiling and cross-limit values are rejected
+before a request; valid smaller values and ceilings are accepted. `git diff
+--check` is clean for the four-file delta; raw stat/check output is in
+`luna-fixed-diff.stdout.txt`.
+
+## HPR-R1 result: fixed
+
+`app/runtime/hermes-api-runs-adapter.mjs:156-170` now brands intents in a
+closure-private `WeakSet` and records endpoint/revision. Dispatch requires
+the private brand, matching endpoint/revision, frozen body, and exact allowed
+keys at `:174-188`; it sends a fresh copy of only `input` and optional
+`session_id`. `:214-217` brands observations, and `:353-356` requires that
+brand plus endpoint identity for continuation. `settle`, `status`, terminal
+stop and reconciliation records are all passed through `observe`, so the
+legitimate continuation paths retain the brand. The restart test correctly
+rejects an old intent object and rebuilds the same intent from Host-held key
+and input.
+
+## HPR-R2 result: one residual blocker
+
+The constructors now validate option shapes, unknown names, positive safe
+integer values, ceilings and `maxFrameBytes <= maxStreamBytes`:
+
+- `app/runtime/hermes-api-runs-transport.mjs:72-100`
+- `app/runtime/hermes-api-runs-adapter.mjs:97-150`
+
+However, `readStatus()` still truncates native errors with the module default
+at `app/runtime/hermes-api-runs-adapter.mjs:126`:
+
+```js
+error: bounded(json.error, HERMES_ADAPTER_LIMITS.maxErrorChars),
+```
+
+It must use the configured `bounds.maxErrorChars` when called by an adapter
+instance. Reproduction (`luna-error-limit-probe.stdout.txt`): an adapter
+constructed with `{ limits: { maxErrorChars: 1 } }` reports
+`describe().limits.maxErrorChars === 1`, but a status error of 80 characters
+is returned at length 80 rather than being bounded to the configured limit.
+The same stale default affects terminal status/event observations. This is a
+small HPR-R2 correction, but leaving it means the advertised configured error
+bound is not enforced.
+
+No other HPR-R1/R2 blocker was found in this bounded pass. I did not run
+adjacent suites, full suite, browser, providers, native Hermes, or inspect
+credentials. No product files were edited.
