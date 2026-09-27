@@ -1,0 +1,72 @@
+# Hermes tool-lockdown probe evidence
+
+Run date: 2026-09-27. This probe exercised the pinned Hermes implementation at commit `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88` (checkout version 0.21.3). It wrote only this external scratch directory. Courtwork and Hermes worktrees remained clean.
+
+## Command and isolation
+
+The executable is [probe.py](./probe.py), and its JSON output is [result.json](./result.json).
+
+```sh
+cd /Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/run-cwd
+env -i \
+  HOME=/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/run-home \
+  HERMES_HOME=/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/run-home/hermes \
+  HERMES_IGNORE_USER_CONFIG=1 HERMES_SAFE_MODE=1 HERMES_ENABLE_PROJECT_PLUGINS=0 \
+  HERMES_BUNDLED_PLUGINS=/Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/empty-plugins \
+  PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1 \
+  PYTHONPATH=/Users/lesprivilege/Projects/hermes-agent LANG=C.UTF-8 TZ=UTC \
+  /Library/Frameworks/Python.framework/Versions/3.14/bin/python3 \
+  /Users/lesprivilege/Projects/courtwork-attention-intake-20260927/tool-lockdown-probe/probe.py
+```
+
+The actual run used Python 3.14.2, a temporary HOME/HERMES_HOME/cwd, and an empty plugin directory. The probe installed fail-fast guards before Hermes imports for `subprocess.Popen/run/check_call/check_output`, `os.system/popen`, `socket.socket`, and asyncio subprocess creation. The JSON result reports no calls and no `AIAgent`, gateway, `MCPServerTask`, provider, socket, or subprocess execution. The temporary Hermes home contained no files after the run.
+
+Import-side-effect inspection found that `model_tools` calls `discover_builtin_tools()` and `discover_plugins()` at module import (`model_tools.py:147-161`), while MCP discovery is deliberately not run there (`:150-152`). The probe replaced those two discovery edges before importing `model_tools`. This keeps the actual resolver/selection code under test while avoiding bundled/entry-point plugin imports and builtin tool-module imports. MCP SDK readiness, config loading, cross-process discovery locking, and registration were replaced only at their I/O edges; `discover_mcp_tools` itself was executed.
+
+## Observed results
+
+The JSON result is `status: pass`.
+
+- Missing or `null` `platform_toolsets.api_server` resolved the actual broad API set, including representative native toolsets `file`, `skills`, `terminal`, and `web`, plus both enabled MCP names.
+- Explicit `platform_toolsets.api_server: []` resolved exactly `cw_attention` and `other_server`: no native toolsets, but all globally enabled MCP names.
+- Explicit `platform_toolsets.api_server: ["cw_attention"]` resolved exactly `cw_attention` even when `other_server` was also configured.
+- The actual resolver exposed `rogue_plugin` when plugin keys were unrecorded, and exposed `context_engine` for a non-default context engine. Both are recorded as expected negative leakage fixtures.
+- The actual `_make_tool_filter` admitted all three CW names (`attention_list`, `attention_inspect`, `attention_record_signal`) and rejected undeclared `terminal`.
+- The actual `model_tools.get_tool_definitions(enabled_toolsets=["cw_attention"])` returned exactly:
+
+  ```text
+  mcp__cw_attention__attention_inspect
+  mcp__cw_attention__attention_list
+  mcp__cw_attention__attention_record_signal
+  ```
+
+  Eight synthetic forbidden builtins had `check_fn=always_true`; none appeared in the final definitions. Their absence therefore proves selection exclusion rather than an unavailable-provider check.
+- The actual unfiltered `discover_mcp_tools()` captured both configured servers, while the same function with `allowed_mcp_names=["cw_attention"]` captured only `cw_attention`. This confirms API-style unfiltered startup discovery versus explicit caller filtering.
+
+## Hashes
+
+Probe artifacts:
+
+```text
+aabf79a0effa20ff02efdaf3df49b2b37af45a1e402fc96bdb692035cb44fd23  probe.py
+aae56ebeca32e3038c34ecc31b05df5e6d9f066614c7940d81aa809dbe91899  result.json
+```
+
+Pinned source files used by the probe:
+
+```text
+ec5aec7137d6ce9f8301a6b60608d436214607f0622b952607af8be33cc94cc8  hermes_cli/tools_config.py
+432ab8bcf79bbac321e76385aaa15ad6056999cbf372917f0dbf0ab13e2679dc  model_tools.py
+1a7bf8a189daa14f9f1cca122b6cdf50a974e56c5c9010ce2581f5c31c903724  tools/mcp_tool_discovery.py
+4a35f71f174e1dd22ed1fa2f4ad48a73794c80be29cb4f0908974fed2a066448  tools/mcp_tool_registration.py
+5a3e232b8b0b6ec64a994efe1dc7309d9c733c813a3284d6df44f67cc1cb24a2  tools/registry.py
+7fa869260df75942a5b43d208a1c6bd39d880379652aecf03022b7c1856276c3  toolsets.py
+f63d9fdb5d823ee02ad8dff0f25bdfdb0ebf14211c46aec40f1a71dbdbe49186  acp_adapter/session.py
+4427a9eac875206401e5375201fd7623f9b2045e48c593032e383d464d29800c  acp_adapter/server.py
+```
+
+## Limitations
+
+This is a provider-free source conformance probe, not live transport acceptance. It does not import builtin tool modules, discover plugins, start an MCP process, perform an MCP handshake, call a provider, build an `AIAgent`, or exercise `/v1/runs`. The MCP `register_mcp_servers` edge is stubbed, while resolver, tool selection, MCP include filtering, registry definition retrieval, and `discover_mcp_tools` control flow are real pinned code.
+
+Hermes logged `Tool search assembly skipped: No module named 'snowballstemmer'`; the optional assembly failed closed and the exact three-definition assertion still passed. No dependency was installed. The result therefore supports the configuration/selection and startup-discovery claims only; it does not prove native profile startup, transport cancellation, or Host capability enforcement.

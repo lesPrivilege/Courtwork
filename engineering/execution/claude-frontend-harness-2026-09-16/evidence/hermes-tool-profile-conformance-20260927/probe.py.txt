@@ -1,0 +1,259 @@
+"""Provider-free Hermes tool-lockdown probe.
+
+This deliberately imports the pinned resolver/selection/discovery code while replacing only
+I/O edges: builtin/plugin discovery, MCP SDK readiness/registration, discovery locking and MCP
+config loading. It never constructs AIAgent, starts a gateway/MCP task, opens a socket, or calls a
+provider. Run from a sanitized temporary HERMES_HOME/HOME.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import asyncio
+import socket
+import subprocess
+import sys
+from pathlib import Path
+
+
+HERMES_ROOT = Path("/Users/lesprivilege/Projects/hermes-agent")
+sys.path.insert(0, str(HERMES_ROOT))
+
+
+# Prove that imports and the exercised paths do not start native processes or sockets. These
+# guards are installed before any Hermes module import; a violation fails the probe immediately.
+def _blocked_side_effect(*_args, **_kwargs):
+    raise AssertionError("forbidden subprocess/socket side effect in provider-free probe")
+
+
+subprocess.Popen = _blocked_side_effect
+subprocess.run = _blocked_side_effect
+subprocess.check_call = _blocked_side_effect
+subprocess.check_output = _blocked_side_effect
+os.system = _blocked_side_effect
+os.popen = _blocked_side_effect
+socket.socket = _blocked_side_effect
+asyncio.create_subprocess_exec = _blocked_side_effect
+asyncio.create_subprocess_shell = _blocked_side_effect
+
+
+def record(results: list[dict], name: str, observed, *, expected=None, note: str = "") -> None:
+    row = {"name": name, "observed": observed}
+    if expected is not None:
+        row["expected"] = expected
+    if note:
+        row["note"] = note
+    results.append(row)
+
+
+def assert_equal(results: list[dict], name: str, observed, expected, *, note: str = "") -> None:
+    record(results, name, observed, expected=expected, note=note)
+    if observed != expected:
+        raise AssertionError(f"{name}: observed={observed!r}, expected={expected!r}")
+
+
+def main() -> None:
+    results: list[dict] = []
+
+    # Import tools.registry only first: it is the safe seam needed to suppress model_tools'
+    # module-level builtin discovery before importing model_tools.
+    import tools.registry as registry_module
+
+    registry_module.discover_builtin_tools = lambda: []
+
+    # plugins.py is imported under the sanitized temporary home; replacing discovery prevents
+    # bundled/entry-point/user plugin loading while retaining the real module for imports.
+    import hermes_cli.plugins as plugins_module
+
+    plugins_module.discover_plugins = lambda *args, **kwargs: None
+
+    # These are the actual pinned implementation modules. Their imports do not run providers or
+    # MCP discovery after the two module-level discovery edges above are replaced.
+    import hermes_cli.tools_config as tools_config
+    import model_tools
+    import toolsets
+    from tools.registry import registry
+
+    # Keep the real resolver/recovery/selection code. Patch only environmental/config edges that
+    # could consult a profile, plugin manager, credential source, or external backend.
+    tools_config._get_plugin_toolset_keys = lambda: set()
+    tools_config._xai_credentials_present = lambda: False
+    tools_config._homeassistant_credentials_present = lambda: False
+    tools_config._context_engine_active = lambda cfg: bool(cfg.get("_probe_context_active", False))
+    tools_config.enabled_mcp_server_names = lambda cfg: {
+        str(name)
+        for name, value in (cfg.get("mcp_servers") or {}).items()
+        if isinstance(value, dict) and value.get("enabled", True) is not False
+    }
+    tools_config._warn_all_invalid_platform_toolsets = lambda *args, **kwargs: None
+
+    def config(*, platform_value="cw", extras=False, context_active=False) -> dict:
+        servers = {
+            "cw_attention": {
+                "enabled": True,
+                "tools": {"include": ["attention_list", "attention_inspect", "attention_record_signal"]},
+            }
+        }
+        if extras:
+            servers["other_server"] = {"enabled": True}
+        platform = {} if platform_value == "missing" else {"api_server": platform_value}
+        return {
+            "platform_toolsets": platform,
+            "mcp_servers": servers,
+            "context": {"engine": "custom" if context_active else "compressor"},
+            "_probe_context_active": context_active,
+        }
+
+    # The source resolver itself is under test. Missing/non-list falls back to the API bundle;
+    # [] remains an explicit empty native list but _merge_mcp_servers admits every enabled MCP.
+    missing = tools_config._get_platform_tools(config(platform_value="missing", extras=True), "api_server")
+    record(results, "missing platform list resolves broad API/native defaults", sorted(missing))
+    if not {"terminal", "file", "web", "skills"}.issubset(missing):
+        raise AssertionError(f"missing/default did not expose representative native toolsets: {sorted(missing)}")
+    record(results, "missing default representative native toolsets", sorted({"terminal", "file", "web", "skills"} & missing))
+    if not {"cw_attention", "other_server"}.issubset(missing):
+        raise AssertionError(f"missing/default did not admit enabled MCP names: {sorted(missing)}")
+
+    null_value = tools_config._get_platform_tools(config(platform_value=None, extras=True), "api_server")
+    if not {"terminal", "file", "web", "skills"}.issubset(null_value):
+        raise AssertionError(f"null API list did not fall back to native defaults: {sorted(null_value)}")
+    if not {"cw_attention", "other_server"}.issubset(null_value):
+        raise AssertionError(f"null API list did not admit enabled MCP names: {sorted(null_value)}")
+    record(results, "null platform list", sorted(null_value), note="Non-list values use the API default bundle and default MCP admission.")
+
+    empty = tools_config._get_platform_tools(config(platform_value=[], extras=True), "api_server")
+    assert_equal(results, "explicit [] admits all enabled MCP names", sorted(empty), ["cw_attention", "other_server"])
+    if {"terminal", "file", "web", "skills"} & empty:
+        raise AssertionError(f"explicit [] unexpectedly restored native toolsets: {sorted(empty)}")
+
+    allowlist = tools_config._get_platform_tools(config(platform_value=["cw_attention"], extras=True), "api_server")
+    assert_equal(results, "explicit one-server allowlist", sorted(allowlist), ["cw_attention"])
+
+    # Negative leakage fixtures use the same implementation. They must fail the exact-set
+    # condition, proving that the clean profile preconditions are real and not commentary.
+    tools_config._get_plugin_toolset_keys = lambda: {"rogue_plugin"}
+    plugin_leak = tools_config._get_platform_tools(config(platform_value=["cw_attention"]), "api_server")
+    if "rogue_plugin" not in plugin_leak:
+        raise AssertionError(f"plugin negative fixture did not expose the documented leakage: {sorted(plugin_leak)}")
+    record(results, "unrecorded plugin leakage negative", sorted(plugin_leak), note="Expected failure fixture: exact CW-only set is false.")
+    tools_config._get_plugin_toolset_keys = lambda: set()
+
+    context_leak = tools_config._get_platform_tools(config(platform_value=["cw_attention"], context_active=True), "api_server")
+    if "context_engine" not in context_leak:
+        raise AssertionError(f"non-default context negative fixture did not expose context_engine: {sorted(context_leak)}")
+    record(results, "non-default context leakage negative", sorted(context_leak), note="Expected failure fixture: exact CW-only set is false.")
+
+    # Seed representative builtins and synthetic CW MCP entries in the actual registry. Every
+    # fixture check is true, so absence in the final definition set proves toolset exclusion,
+    # rather than an unavailable-provider check_fn.
+    def always_true() -> bool:
+        return True
+
+    def fixture_handler(_args: dict, **_kwargs) -> str:
+        return "fixture-result"
+
+    builtin_fixtures = {
+        "terminal": "terminal",
+        "read_file": "file",
+        "write_file": "file",
+        "browser_navigate": "browser",
+        "execute_code": "code_execution",
+        "delegate_task": "delegation",
+        "memory": "memory",
+        "manage_connections": "connections",
+    }
+    for name, toolset_name in builtin_fixtures.items():
+        registry.register(
+            name=name,
+            toolset=toolset_name,
+            schema={"name": name, "description": f"eligible fixture {name}", "parameters": {"type": "object"}},
+            handler=fixture_handler,
+            check_fn=always_true,
+        )
+
+    expected_names = [
+        "mcp__cw_attention__attention_inspect",
+        "mcp__cw_attention__attention_list",
+        "mcp__cw_attention__attention_record_signal",
+    ]
+    for name in expected_names:
+        registry.register(
+            name=name,
+            toolset="mcp-cw_attention",
+            schema={"name": name, "description": "synthetic CW MCP fixture", "parameters": {"type": "object"}},
+            handler=fixture_handler,
+            check_fn=always_true,
+        )
+    registry.register_toolset_alias("cw_attention", "mcp-cw_attention")
+
+    # Exercise the actual MCP include whitelist predicate against a synthetic descriptor. This
+    # is pure registration policy; no transport or server process is involved.
+    from tools.mcp_tool_registration import _make_tool_filter
+
+    include_filter = _make_tool_filter(
+        "cw_attention",
+        config(platform_value=["cw_attention"])["mcp_servers"]["cw_attention"],
+    )
+    assert_equal(results, "MCP include filter admits CW list", [
+        include_filter("attention_list"),
+        include_filter("attention_inspect"),
+        include_filter("attention_record_signal"),
+    ], [True, True, True])
+    assert_equal(results, "MCP include filter rejects undeclared tool", include_filter("terminal"), False)
+
+    # Actual model_tools definition selection, with actual static toolset/registry expansion.
+    definitions = model_tools.get_tool_definitions(enabled_toolsets=["cw_attention"], quiet_mode=True)
+    definition_names = sorted(item["function"]["name"] for item in definitions)
+    assert_equal(results, "exact CW MCP definition set", definition_names, expected_names)
+    forbidden_present = sorted(set(builtin_fixtures) & set(definition_names))
+    assert_equal(results, "representative eligible builtin exclusion", forbidden_present, [])
+
+    # Actual discover_mcp_tools() with only I/O edges replaced: config load, SDK readiness,
+    # discovery lock, and register_mcp_servers. It must pass every configured server when called
+    # without allowed_mcp_names, as the API gateway does.
+    import tools.mcp_tool as mcp_origin
+    import tools.mcp_tool_discovery as discovery
+
+    captured: list[dict] = []
+    extra_config = {
+        "cw_attention": {"enabled": True, "tools": {"include": ["attention_list"]}},
+        "other_server": {"enabled": True},
+    }
+    discovery._config._load_mcp_config = lambda: dict(extra_config)
+    mcp_origin._ensure_mcp_sdk = lambda: True
+    discovery._acquire_discovery_lock_with_retry = lambda: None
+    discovery.register_mcp_servers = lambda servers: captured.append(dict(servers)) or []
+    discovery_result = discovery.discover_mcp_tools()
+    assert_equal(results, "unfiltered API-style MCP discovery result", discovery_result, [])
+    assert_equal(results, "unfiltered discovery captured configured servers", sorted(captured[0]), ["cw_attention", "other_server"])
+
+    # Verify that passing an explicit allowlist is a different code path, while keeping the same
+    # patched transport edge. This is the CLI/one-shot optimization, not API startup behavior.
+    captured.clear()
+    discovery_result = discovery.discover_mcp_tools(allowed_mcp_names=["cw_attention"])
+    assert_equal(results, "explicit discovery allowlist result", discovery_result, [])
+    assert_equal(results, "explicit discovery allowlist captured one server", sorted(captured[0]), ["cw_attention"])
+
+    print(json.dumps({
+        "status": "pass",
+        "python": sys.version.split()[0],
+        "cwd": os.getcwd(),
+        "home": os.environ.get("HOME"),
+        "hermes_home": os.environ.get("HERMES_HOME"),
+        "results": results,
+        "side_effect_edges_stubbed": [
+            "tools.registry.discover_builtin_tools",
+            "hermes_cli.plugins.discover_plugins",
+            "tools.mcp_tool_discovery._config._load_mcp_config",
+            "tools.mcp_tool._ensure_mcp_sdk",
+            "tools.mcp_tool_discovery._acquire_discovery_lock_with_retry",
+            "tools.mcp_tool_discovery.register_mcp_servers",
+            "tools_config plugin/credential/context helper reads",
+        ],
+        "not_called": ["AIAgent", "gateway", "MCPServerTask", "provider", "socket", "subprocess"],
+    }, sort_keys=True, indent=2))
+
+
+if __name__ == "__main__":
+    main()
