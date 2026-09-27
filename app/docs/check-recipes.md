@@ -1,7 +1,6 @@
 # Host check recipes (DF-04)
 
-DF-04 lets a Session run one Host-owned "check recipe" — today, the
-independent synthetic coding repository's own test command — against the
+DF-04 lets a Session run a Host-owned "check recipe" against the
 Session's active private Git candidate (see
 [`repository-binding.md`](repository-binding.md)). The contract is RD-009
 ["DF-04可施工合同"](../../engineering/research/RD-009-trusted-harness-extensions.md#df-04可施工合同).
@@ -12,7 +11,7 @@ precondition, and not a sandbox.
 
 `app/runtime/check-recipes.mjs` exports a frozen, code-defined catalog. It is
 not user-editable in this slice — there is no API to add, remove or change a
-recipe. The one recipe today:
+recipe. The fixed catalog has two recipes:
 
 | Field | Value |
 |---|---|
@@ -25,6 +24,30 @@ recipe. The one recipe today:
 | `timeoutMs` | `120000` |
 | `outputLimitBytes` | `65536` |
 | `env` | `minimal` (see below) |
+
+`node-test-attention-contract` v1 is titled **Run Attention backend contract
+tests**. It uses the same Host Node command, private candidate cwd, 120000 ms
+timeout, 65536 byte per-stream limit and minimal environment as `node-test`.
+Its exact argv is:
+
+```text
+--test
+--test-concurrency=1
+app/tests/attention-core.test.mjs
+app/tests/attention-http.test.mjs
+app/tests/attention-recovery.test.mjs
+app/tests/attention-github-fixture.test.mjs
+app/tests/attention-gmail-fixture.test.mjs
+app/tests/attention-trace-fixture.test.mjs
+```
+
+These fixed paths are expected in a Courtwork private candidate. They cover
+backend and synthetic fixture contracts; the recipe does not use a live
+connector or provider. A candidate without those paths produces an ordinary
+nonzero test-process result. The Host does not install candidate dependencies
+or substitute another command; preparing dependencies is an explicit
+candidate setup step. A passing result remains process evidence, not formal
+Attention or Work acceptance.
 
 `listCheckRecipes()` returns the catalog; `getCheckRecipe(id)` looks up one
 entry or returns `null`.
