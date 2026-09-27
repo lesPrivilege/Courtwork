@@ -39,7 +39,7 @@ HeadlessChrome 153. The before side is the same script against `git archive d4a0
 
 **Trade-off, for the parent.** The side column takes 36px of code width on a fine pointer and 52px at 390 on a coarse pointer.
 - Chat scrolls long lines, so it only shows less per line.
-- Attention and the reader wrap. At 390 their code gets taller: the reader's one-line command goes from 2 to 4 wrapped lines. Every block is still no taller overall, because the removed header outweighs it.
+- Attention and the reader wrap. At 390 their code gets taller: the reader's one-line command goes from 3 to 4 wrapped lines. Every block is still no taller overall, because the removed header outweighs it.
 
 An overlay corner button would keep the width, but the ruling allows one only if it never covers selected or scrolled text. A column guarantees that.
 
