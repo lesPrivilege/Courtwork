@@ -10,3 +10,7 @@
 Limits retained: native200% zoom/OS text size, text-spacing/forced-colours, screen reader, real touch hardware and native clipboard persistence were not independently verified. Copy means parsed code/semantic pre text, not source-file byte identity or a universal guarantee about terminal paste execution. No user8787 restart, credentials, provider inference, push or deployment. Test tab/Host were closed; browser overrides and argument recorder are absent.
 
 The original Claude serial slot is released to the already frozen [Hermes protocol assignment](../../../core-runtime-loop-20260921.md#2026-09-27--hermes-protocol-slice-next-claude-serial-core-assignment). This acceptance does not itself establish a Hermes adapter or enable production Runtime selection.
+
+## Post-acceptance live Host projection
+
+While the original Claude native-loop task was running, Parent opened a temporary read-only in-app-browser tab on existing user8787, leaving the original Settings tab unrefreshed. The retained RL-1 reply now renders the accepted code-block shape: [1280×720 capture](live-8787-1280.png) and [geometry](live-8787-1280.json) show51.5px block height, no generic toolbar,28×28 Copy and no overlap. This checks current static projection of retained content, not a new provider Run, clipboard persistence, new check-recipe availability or backend restart. No input was submitted, no settings were changed and the temporary tab was closed. No browser viewport override was used.

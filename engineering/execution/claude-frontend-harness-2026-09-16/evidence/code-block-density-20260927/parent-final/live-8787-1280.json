@@ -1,0 +1,19 @@
+{
+  "blocks": [
+    {
+      "copyTarget": [
+        28,
+        28
+      ],
+      "height": 51.5,
+      "overlap": false,
+      "renderedCharacters": 132,
+      "toolbar": false,
+      "width": 740
+    }
+  ],
+  "viewport": [
+    1280,
+    720
+  ]
+}

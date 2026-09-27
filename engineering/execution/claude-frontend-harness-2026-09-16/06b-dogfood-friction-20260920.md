@@ -480,3 +480,5 @@ Writer stopped for parent review. Hermes is not started. No push, main merge or 
 ## 2026-09-27 · CB-D1 accepted; CB-R1 closed
 
 [Final parent acceptance](evidence/code-block-density-20260927/parent-final/README.md) accepts `b57dad0` / `f660251`. Luna65/65 and parent production-browser7×3 copy cases close the authored-LF/blank-line defect. Prior1440/390 visual evidence applies to unchanged layout; side-column trade-off remains adopted. Main fast-forward preserves author/parent histories. Native accessibility/clipboard limits remain explicit. Claude's serial slot can now consume the frozen Hermes protocol contract; no user Host restart, push or deployment.
+
+**Post-acceptance user8787 read · 2026-09-27:** [live retained-RL1 capture](evidence/code-block-density-20260927/parent-final/README.md#post-acceptance-live-host-projection) confirms the accepted code-block projection on the existing Host in a temporary read-only tab at1280×720. No new Run/provider/settings change or Host restart; original user Settings tab remains open.
