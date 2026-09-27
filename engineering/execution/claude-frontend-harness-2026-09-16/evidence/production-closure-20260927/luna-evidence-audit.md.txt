@@ -1,0 +1,31 @@
+# Closure evidence audit — bounded G1/G2/G3
+
+Date: 2026-09-27. Read-only audit of the closure packet against `main@2af932a`. No tests or providers were run.
+
+## Established evidence
+
+- H0 NDA normal fixture is exact: [`nda-fixture.json`](nda-fixture.json) uses the repository source bytes and digest `64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d`; [`nda-gold-comparison.json`](nda-gold-comparison.json) reports all four expected rules `pass`, exact domain match, pending Candidate, and no Artifact before the Decision.
+- [`nda-before-decision.json`](nda-before-decision.json) records a completed real DeepSeek Run (`inbound-nda-playbook-v1`), pending Candidate, no Artifact, and advertised `decide` action. [`nda-after-decision.json`](nda-after-decision.json) records Candidate `accepted`, Matter version `1`, accepted Artifact, Decision receipt, and only revision remaining.
+- [`continuity-verification.json`](continuity-verification.json) records a new Session using `se_read_artifact`, exact accepted bytes, and unchanged Candidates/Decisions/Matter. [`formal-restart-comparison.json`](formal-restart-comparison.json) reports exact detail/surface equality for all three formal sessions before/after restart.
+- The post-EC1 fresh generic path is captured by [`freshmemo-before-decision.json`](freshmemo-before-decision.json), [`freshmemo-after-decision.json`](freshmemo-after-decision.json), and [`freshmemo-after-reload.json`](freshmemo-after-reload.json). Its real DeepSeek Run has successful `se_read_source` and `se_submit_candidate`, no operator answer, exact evidence, pending/no Artifact before review, then accepted Artifact v1. `freshmemo-after-decision.json` and `freshmemo-after-reload.json` are byte-identical (SHA-256 `58fd517c73120167dcb41359ff5720ac3cde8286e613b6718867472e6f85cf60`); [`freshmemo-verification.json`](freshmemo-verification.json) records `completeStateEqualAfterReload:true`. This is fresh browser reload continuity; it does not evidence a fresh process restart for this last memo.
+- [`cancelled-run.json`](cancelled-run.json) records a real-provider `ask_user` wait followed by cancellation, with zero write events.
+- The earlier coding sessions’ exact restart comparison remains in [`restart-comparison.json`](restart-comparison.json).
+
+## Boundaries and corrections
+
+- The acceptance actor is recorded as synthetic/local `reviewer-1`; the packet demonstrates an operator-authorized UI action, not proof that the end user personally reviewed the material.
+- `evidence-memo` and `inbound-nda` are development extensions. The records establish synthetic source-grounded Work state and Core transaction behavior, not legal/professional accuracy, customer adoption, deployment, or production release.
+- `memo-negative-replay.json` labels one case `stale`, but its actual `409` is `CANDIDATE_CLOSED` because the Candidate was already accepted. Report this as closed-Candidate refusal, not source-staleness evidence.
+- `nda-gold-comparison.pending:true/noArtifact:true` is the pre-decision capture; it is paired with the accepted state in `nda-after-decision.json` and continuity captures.
+- `ec1-before.log`/`ec1-after.log` document the separately reviewed model-visible evidence-schema correction (2/3 before, 11/11 after); this is compatibility evidence, not itself formal Work acceptance.
+
+## Gate classification
+
+- **G1: bounded evidence.** Existing Host has real DeepSeek Runs, successful model/tool paths, cancellation, and restart equality. A clean-clone startup with fresh GUI credential configuration is not evidenced in this packet.
+- **G2: bounded positive closure.** H0 NDA candidate/gold, human Decision, Artifact, receipts, and post-decision state are present. Fresh post-EC1 generic authoring is also successful and operator-reviewed.
+- **G3: bounded continuity.** NDA new-Session artifact read and formal restart equality pass; fresh generic browser reload equality now also passes. Full accessibility/platform coverage is outside this packet.
+- **G4 remains open.** No truthful 2–4 minute public demo packet was supplied.
+- **G5 remains open.** No new public README/Pages fact-mapping evidence is supplied.
+
+The closure supports bounded G1/G2/G3 statements only. It does not close G4/G5 or convert development/synthetic records into production claims.
+

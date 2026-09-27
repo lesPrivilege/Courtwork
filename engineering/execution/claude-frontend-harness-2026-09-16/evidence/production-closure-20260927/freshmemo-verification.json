@@ -1,0 +1,19 @@
+{
+  "runId": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+  "status": "completed",
+  "toolResults": [
+    {
+      "name": "se_read_source",
+      "isError": false
+    },
+    {
+      "name": "se_submit_candidate",
+      "isError": false
+    }
+  ],
+  "noOperatorAnswer": true,
+  "sourceEvidenceExact": true,
+  "candidatePending": true,
+  "artifactAbsent": true,
+  "completeStateEqualAfterReload": true
+}

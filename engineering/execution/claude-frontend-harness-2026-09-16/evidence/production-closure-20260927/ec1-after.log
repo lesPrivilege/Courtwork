@@ -1,0 +1,19 @@
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (596.781666ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (513.074542ms)
+✔ T-EXT-3: malformed evidence is refused without a partial candidate (494.847875ms)
+✔ same Matter in new Session, project isolation, detach to chat, producer absent restart history (719.225833ms)
+✔ provider provenance is host-derived and preserves prior simulation records (real-route protocol uses loopback fixture) (711.603458ms)
+✔ concurrent Session admission is serialized before either execution starts (992.748625ms)
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (143.577667ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (130.107417ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (709.522958ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (419.407666ms)
+✔ missing application metadata fails closed; terminal Run cannot change or claim another candidate (235.671834ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7061.29075

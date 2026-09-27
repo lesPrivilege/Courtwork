@@ -1,0 +1,87 @@
+{
+  "result": {
+    "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+    "status": "cancelled",
+    "toolStarts": [
+      "ask_user"
+    ],
+    "writeEvents": 0
+  },
+  "run": {
+    "id": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+    "status": "cancelled",
+    "startedAt": "2026-09-27T02:33:30.746Z",
+    "endedAt": "2026-09-27T02:34:03.394Z",
+    "error": null
+  },
+  "events": [
+    {
+      "seq": 2,
+      "runId": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+      "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+      "type": "run.status",
+      "data": {
+        "status": "running"
+      }
+    },
+    {
+      "seq": 8,
+      "runId": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+      "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+      "type": "tool.start",
+      "data": {
+        "callId": "call_00_a9saB2C9wCgFkMdaDSOF5457",
+        "name": "ask_user"
+      }
+    },
+    {
+      "seq": 9,
+      "runId": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+      "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+      "type": "question.open",
+      "data": {
+        "id": "01aaafc6-e22d-4b39-8c86-69b0400190bc",
+        "kind": "ask_user",
+        "prompt": "Pause for the cancellation check?"
+      }
+    },
+    {
+      "seq": 10,
+      "runId": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+      "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+      "type": "run.status",
+      "data": {
+        "status": "waiting_user"
+      }
+    },
+    {
+      "seq": 11,
+      "runId": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+      "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+      "type": "run.status",
+      "data": {
+        "status": "stopping"
+      }
+    },
+    {
+      "seq": 13,
+      "runId": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+      "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+      "type": "run.status",
+      "data": {
+        "status": "cancelled"
+      }
+    },
+    {
+      "seq": 14,
+      "runId": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+      "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+      "type": "question.resolved",
+      "data": {
+        "id": "01aaafc6-e22d-4b39-8c86-69b0400190bc",
+        "kind": "ask_user",
+        "status": "cancelled"
+      }
+    }
+  ]
+}

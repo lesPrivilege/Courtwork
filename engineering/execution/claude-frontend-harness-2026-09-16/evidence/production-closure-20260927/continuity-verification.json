@@ -1,0 +1,10 @@
+{
+  "newSessionId": "e7c2c849-753d-409b-9109-868e7b97aa4e",
+  "artifactId": "artifact-candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7-1",
+  "exactAcceptedBytesRead": true,
+  "contentDigest": "4287b2c7de331e6208c62346008cd4f55765c8aa58bbc4799aad32d5549c1771",
+  "toolCalls": [
+    "se_read_artifact"
+  ],
+  "candidatesDecisionsAndMatterUnchanged": true
+}

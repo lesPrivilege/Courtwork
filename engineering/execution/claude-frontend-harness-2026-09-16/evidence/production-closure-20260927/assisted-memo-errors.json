@@ -1,0 +1,74 @@
+[
+  {
+    "seq": 9,
+    "runId": "112bcbf9-d84a-4109-ac68-a020ae7dcd39",
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "type": "tool.result",
+    "data": {
+      "callId": "call_00_GKJhLm6NwPX0eW18nkJo6688",
+      "name": "runtime_load",
+      "text": "Context resource is not exposed to this run No admitted skill or reference is loadable in this Run. This tool loads one admitted skill or reference by its exact ID; it cannot list resources or discover check recipes.",
+      "isError": true
+    }
+  },
+  {
+    "seq": 31,
+    "runId": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "type": "tool.result",
+    "data": {
+      "callId": "call_00_r8krtnsY1dUmb5DxV6K47023",
+      "name": "se_submit_candidate",
+      "text": "evidence has unsupported fields",
+      "isError": true
+    }
+  },
+  {
+    "seq": 37,
+    "runId": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "type": "tool.result",
+    "data": {
+      "callId": "call_00_MoaczUmB7S7hfbhkHNlP9194",
+      "name": "se_submit_candidate",
+      "text": "evidence has unsupported fields",
+      "isError": true
+    }
+  },
+  {
+    "seq": 43,
+    "runId": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "type": "tool.result",
+    "data": {
+      "callId": "call_00_m6kKawnLhFrQGCw3NLgd6447",
+      "name": "se_submit_candidate",
+      "text": "evidence has unsupported fields",
+      "isError": true
+    }
+  },
+  {
+    "seq": 49,
+    "runId": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "type": "tool.result",
+    "data": {
+      "callId": "call_00_qN6nH1Cqu3rNzwWLR3J65039",
+      "name": "se_submit_candidate",
+      "text": "evidence has unsupported fields",
+      "isError": true
+    }
+  },
+  {
+    "seq": 69,
+    "runId": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "type": "tool.result",
+    "data": {
+      "callId": "call_00_DJYLzrAzYLcieX83iSsv4866",
+      "name": "se_submit_candidate",
+      "text": "evidence does not match the approved source",
+      "isError": true
+    }
+  }
+]

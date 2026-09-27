@@ -1,0 +1,23 @@
+{
+  "README.md": "596233527e20bf3a17346010f1ac026ee86fad141e170a46a4bcf370946c15c3",
+  "assisted-memo-errors.json": "62c9cbcdbd1fb3c02ef3893792abd6f944ed75457f51aa3f751bb55637783c6b",
+  "cancellation.json": "3097dc8d3dfa1d35eae971fa0d94342d3f0ab19c54df9377d928c9f961e40f86",
+  "continuity-verification.json": "c0702b59c1209f82f13bf2ef9dab328450199bd99e6c86bc475f4bfe328a6563",
+  "core-receipts.json": "744d07350bbcfab84e2f9867023f45dabca06add212ffef5b1bef8dfda5e8e19",
+  "doc-links.log": "74c62c8cf05110e1947a69d3c89e0e3b8c55410feb97b748b574bb8adbc6fe25",
+  "ec1-after.log": "7bdec7c697594b6928eb08f8ac59b2a2f3635df4a8bbb2b81ff6d6f9f504dd89",
+  "ec1-before.log": "aa59419ecbc2403ae8cba843d1d6ad8f260ae14e79d1fec2a5799fbd5aea2d4b",
+  "ec1-luna-review.md": "9f794a3537844a88fe2905d82e0c11196fb5e233c72072af3455cab9c04c0e74",
+  "ec1-luna-tests.stdout.txt": "9c2bc9a839e7e942e6f585f1c8fa481517fa5e1d3197054309ad5a5e578dd028",
+  "formal-restart-comparison.json": "29f0d6076e8a51a9ffd7b4e5e541b732ca3efbd27eac5b3be029f93dc1b9673c",
+  "freshmemo-accepted.png": "0f4b29e0e5e8496d50f3d1f7367f13988f2669c8fed1839e81d571251e6b6646",
+  "freshmemo-verification.json": "f9fc3f05cc12f7b6b59fa0f1d6d4275cdf3e7c7d1703a6558f19d05b084c76e8",
+  "luna-evidence-audit.md.txt": "78ec18edfc49ce41979f56018b1278b1e41e13d5dc0b00190f171706843ea399",
+  "memo-review-check.json": "f1ee82183a8d07c4effc07c8dee787cfc0091e72bbcedbd575e4c27b587f01c1",
+  "nda-accepted.png": "cdb667e863fc685adbd6f65b6caad1327f2ee636c84906e671ea274f9a3224a7",
+  "nda-fixture.json": "4c970081be3787f4ff7e2d95944e38da2b10982fb26f5e464fcab22bb0c6c487",
+  "nda-gold-comparison.json": "62a5bb0693085c277e00ed3032c28499251367902f6ce24e502b4ae0cafb38e1",
+  "restart-comparison.json": "44282ba4163926eece178749a899ba850cc70cfb2bdca21c96bffbff4f800d3d",
+  "run-inventory.json": "daae401b42c6ea2bb2622f0a8af54ad51e7ccff9d3385fc19a86a9d6c8f6f5ea",
+  "walkthrough.md": "9f200a48e1b8e275623804529f9d5a1dd71bdb5ef7c4e5fc576c89734e2f9155"
+}

@@ -1,0 +1,28 @@
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (603.480583ms)
+✖ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (505.183292ms)
+✔ T-EXT-3: malformed evidence is refused without a partial candidate (495.718875ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2602.276125
+
+✖ failing tests:
+
+test at app/tests/extension-run.test.mjs:53:1
+✖ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (505.183292ms)
+  AssertionError [ERR_ASSERTION]: model-visible evidence needs an item contract
+      at TestContext.<anonymous> (file://<EC1_WORKTREE>/app/tests/extension-run.test.mjs:93:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

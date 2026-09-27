@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-27 · Formal Work dogfood and schema correction accepted
+
+[Production-closure evidence](execution/claude-frontend-harness-2026-09-16/evidence/production-closure-20260927/README.md) adds bounded G1/G2/G3 results: exact coding-history restart; operator-reviewed generic memo; fixed H0 NDA real-model proposal matching all four gold findings → Decision/Artifact; new-Session exact accepted-Artifact read; three formal Sessions preserved across a second process restart; real cancellation with no writes; and fresh unassisted generic submission/review/reload. Both extensions remain development/synthetic, and operator action is distinct from end-user personal review. No whole-production acceptance is inferred.
+
+A real model's four failed evidence-shape guesses exposed EC-1: generic `se_submit_candidate` arrays lacked item schemas. Parent fixes only that declaration and regression coverage at reviewed `2dae6aa`, integrated `2af932a`; Luna38/38 and parent11/11 pass, then the updated live Host completes source-read + candidate-submit without tool error or operator field help. Domain/file-memo/Core/permissions/golden bytes stay unchanged. H0/NDA and generic receipts, assistance, replay/actor/closed-candidate refusals, cancellation and independent audit are separately retained. [G4/G5 handoff](execution/claude-frontend-harness-2026-09-16/evidence/production-closure-20260927/walkthrough.md) is prepared only: fresh-clone GUI configuration, timed public media and public claim mapping remain open under existing owners. User Host/browser stay available on the corrected source; no push/deploy or frontend dispatch.
+
+
 ## 2026-09-27 · Code-block density follow-up registered
 
 User screenshot shows disproportionate “Code”/Copy header and padding around a single-line command. [CB-D1 in the existing 06b record](execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md#2026-09-27--cb-d1-code-block-density-intake--queued-not-dispatched) adopts the finding and queues shared Markdown code-block density work with copy/readability/accessibility checks. Original screenshot bytes retained; CSS viewport/zoom unknown. No frontend implementation or author dispatch; current lanes remain unchanged.

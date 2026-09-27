@@ -1,0 +1,2784 @@
+{
+  "before-decision": {
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "projection": {
+      "schemaVersion": 1,
+      "contractVersion": "se-contract-v5.0",
+      "domain": null,
+      "extension": {
+        "id": "evidence-memo",
+        "version": "0.1.0",
+        "releaseStatus": "development"
+      },
+      "matter": {
+        "active_artifact": null,
+        "contract_version": "se-contract-v5.0",
+        "id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+        "obligations": [],
+        "source_version": 1,
+        "version": 0
+      },
+      "title": "Synthetic batch Q-17 evidence memo",
+      "sources": [
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "text": "Synthetic operations record.\nBatch Q-17 contained 120 jobs. 118 completed on the first attempt; 2 completed after one retry.\nNo jobs were lost. No customer data was used.\n",
+          "version": 1
+        }
+      ],
+      "candidates": [
+        {
+          "artifact_text": "# Operational Memo \u2014 Synthetic Batch Q-17 Processing Record\n\n**Matter:** matter-79bcbda3-8569-4881-9fba-4cb023ca6467\n**Source:** source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7, version 1\n**Basis:** Synthetic operations record (faithful record summary only)\n\n## 1. Scope\nThis memo summarizes the supplied synthetic operations record for batch Q-17. It is a faithful restatement of that record and introduces no figures, causes, or conclusions beyond it.\n\n## 2. Volume\nBatch Q-17 contained **120 jobs** in total.\n\n## 3. Outcomes\n- **118 jobs completed on the first attempt.**\n- **2 jobs completed after one retry.**\n- First-attempt plus retry outcomes account for all 120 jobs (118 + 2 = 120).\n\n## 4. Losses\n**No jobs were lost.** The record reports zero lost jobs for batch Q-17.\n\n## 5. Limitations\n- The record is explicitly **synthetic**: the material is described as a \"Synthetic operations record,\" and **no customer data was used**.\n- Accordingly, these figures describe a synthetic batch only. They are not evidence of performance on real production traffic, real customers, or any other batch, and no reliability, capacity, or customer-impact claim should be drawn from them.\n- The record supplies no timestamps, environment, failure causes, retry policy detail, or per-job identifiers; none are inferred here.\n\n## 6. Summary\nOf 120 synthetic jobs in batch Q-17, 118 succeeded on first attempt and 2 succeeded after a single retry, with no jobs lost. The record is synthetic and used no customer data.\n",
+          "base_version": 0,
+          "contract_version": "se-contract-v5.0",
+          "evidence": [
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 28,
+              "quote": "Synthetic operations record.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 0
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 59,
+              "quote": "Batch Q-17 contained 120 jobs.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 29
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 124,
+              "quote": "118 completed on the first attempt; 2 completed after one retry.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 60
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 143,
+              "quote": "No jobs were lost.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 125
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 170,
+              "quote": "No customer data was used.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 144
+            }
+          ],
+          "id": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+          "obligations": [],
+          "run_id": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+          "source_version": 1,
+          "status": "pending"
+        }
+      ],
+      "artifact": null,
+      "draft": "",
+      "decisions": [],
+      "runs": [
+        {
+          "admissionOpen": false,
+          "base_version": 0,
+          "candidateId": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "contract_version": "se-contract-v5.0",
+          "endedAt": "2026-09-27T02:19:29.196+00:00",
+          "error": null,
+          "id": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+          "instruction": "Continue this newly bound Evidence Memo Matter. Read the bound source using se_read_source, then submit exactly one candidate using se_submit_candidate. Write a short operational memo grounded only in the supplied synthetic batch Q-17 record: total jobs, first-attempt/retry outcomes, no lost jobs, and the synthetic-data limitation. Include exact source evidence with correct IDs/version/quote offsets; obligations may be empty because this is only a faithful record summary. Do not accept or otherwise decide the candidate. Do not create workspace files or use unrelated tools. Finish by identifying the pending candidate and state clearly that it awaits human review.",
+          "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+          "mode": "real",
+          "model": "deepseek-v4-flash",
+          "preset_version": "evidence-memo-development-1",
+          "provider": "deepseek",
+          "providerConfig": {
+            "api": "openai-completions",
+            "credentialStatus": "configured",
+            "executionMode": "real",
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek"
+          },
+          "session_ref": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+          "source_version": 1,
+          "startedAt": "2026-09-27T02:17:40.961+00:00",
+          "status": "completed",
+          "workContext": {
+            "provenance": {
+              "characters": 389,
+              "contractVersion": "se-contract-v5.0",
+              "limit": 24000,
+              "matterId": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+              "omitted": [
+                "artifact body available through se_read_artifact",
+                "source bodies available through scoped read tool",
+                "closed candidates and execution trace"
+              ],
+              "runtimeProfile": {
+                "composition": {
+                  "id": "agent:general",
+                  "missing": [],
+                  "resourceIds": null,
+                  "status": "compatible",
+                  "uiSlots": [
+                    "runtime.inspector",
+                    "work.surface"
+                  ],
+                  "version": "builtin"
+                },
+                "hash": "e92c8192e90f4a981af2753370689e2e527a23f809a197faeb54e1fe6dba6c33",
+                "revision": 0
+              },
+              "selected": [
+                "active artifact identity and input basis",
+                "obligations",
+                "pending candidates and input basis",
+                "source references"
+              ],
+              "sourceVersion": 1,
+              "stateVersion": 0
+            },
+            "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-contract-v5.0\",\"id\":\"matter-79bcbda3-8569-4881-9fba-4cb023ca6467\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7\",\"version\":1,\"digest\":\"8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4\"}],\"pending\":[]}"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 28,
+          "quote": "Synthetic operations record.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 0
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 59,
+          "quote": "Batch Q-17 contained 120 jobs.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 29
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 124,
+          "quote": "118 completed on the first attempt; 2 completed after one retry.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 60
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 143,
+          "quote": "No jobs were lost.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 125
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 170,
+          "quote": "No customer data was used.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 144
+        }
+      ],
+      "stateVersion": "4ca7258b9187751e35c7ee45eb41ab476e8784c3e74566c45def8528897cf4f6",
+      "readOnly": false,
+      "compatibility": "supported",
+      "humanActions": [
+        {
+          "schemaVersion": 1,
+          "action": "decide",
+          "label": "Review candidate candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "request_id",
+              "candidate_id",
+              "base_version",
+              "action",
+              "reason"
+            ],
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "candidate_id": {
+                "const": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975"
+              },
+              "base_version": {
+                "const": 0
+              },
+              "action": {
+                "enum": [
+                  "accept",
+                  "reject",
+                  "request_evidence"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "action": "revise_candidate",
+          "label": "Revise candidate candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "new_candidate_id",
+              "base_version",
+              "proposal"
+            ],
+            "properties": {
+              "candidate_id": {
+                "const": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975"
+              },
+              "new_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "base_version": {
+                "const": 0
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact_text",
+                  "evidence",
+                  "obligations"
+                ],
+                "properties": {
+                  "artifact_text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100000
+                  },
+                  "evidence": {
+                    "type": "array"
+                  },
+                  "obligations": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "after-decision": {
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "projection": {
+      "schemaVersion": 1,
+      "contractVersion": "se-contract-v5.0",
+      "domain": null,
+      "extension": {
+        "id": "evidence-memo",
+        "version": "0.1.0",
+        "releaseStatus": "development"
+      },
+      "matter": {
+        "active_artifact": "artifact-candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975-1",
+        "contract_version": "se-contract-v5.0",
+        "id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+        "obligations": [],
+        "source_version": 1,
+        "version": 1
+      },
+      "title": "Synthetic batch Q-17 evidence memo",
+      "sources": [
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "text": "Synthetic operations record.\nBatch Q-17 contained 120 jobs. 118 completed on the first attempt; 2 completed after one retry.\nNo jobs were lost. No customer data was used.\n",
+          "version": 1
+        }
+      ],
+      "candidates": [
+        {
+          "artifact_text": "# Operational Memo \u2014 Synthetic Batch Q-17 Processing Record\n\n**Matter:** matter-79bcbda3-8569-4881-9fba-4cb023ca6467\n**Source:** source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7, version 1\n**Basis:** Synthetic operations record (faithful record summary only)\n\n## 1. Scope\nThis memo summarizes the supplied synthetic operations record for batch Q-17. It is a faithful restatement of that record and introduces no figures, causes, or conclusions beyond it.\n\n## 2. Volume\nBatch Q-17 contained **120 jobs** in total.\n\n## 3. Outcomes\n- **118 jobs completed on the first attempt.**\n- **2 jobs completed after one retry.**\n- First-attempt plus retry outcomes account for all 120 jobs (118 + 2 = 120).\n\n## 4. Losses\n**No jobs were lost.** The record reports zero lost jobs for batch Q-17.\n\n## 5. Limitations\n- The record is explicitly **synthetic**: the material is described as a \"Synthetic operations record,\" and **no customer data was used**.\n- Accordingly, these figures describe a synthetic batch only. They are not evidence of performance on real production traffic, real customers, or any other batch, and no reliability, capacity, or customer-impact claim should be drawn from them.\n- The record supplies no timestamps, environment, failure causes, retry policy detail, or per-job identifiers; none are inferred here.\n\n## 6. Summary\nOf 120 synthetic jobs in batch Q-17, 118 succeeded on first attempt and 2 succeeded after a single retry, with no jobs lost. The record is synthetic and used no customer data.\n",
+          "base_version": 0,
+          "contract_version": "se-contract-v5.0",
+          "evidence": [
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 28,
+              "quote": "Synthetic operations record.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 0
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 59,
+              "quote": "Batch Q-17 contained 120 jobs.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 29
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 124,
+              "quote": "118 completed on the first attempt; 2 completed after one retry.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 60
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 143,
+              "quote": "No jobs were lost.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 125
+            },
+            {
+              "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+              "end": 170,
+              "quote": "No customer data was used.",
+              "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+              "source_version": 1,
+              "start": 144
+            }
+          ],
+          "id": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+          "obligations": [],
+          "run_id": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+          "source_version": 1,
+          "status": "accepted"
+        }
+      ],
+      "artifact": {
+        "candidate_hash": "5cc5b511a4b2e7005b644ec7ef69a1d4b06351ac00934a98af89f492621353b9",
+        "candidate_id": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+        "content": "# Operational Memo \u2014 Synthetic Batch Q-17 Processing Record\n\n**Matter:** matter-79bcbda3-8569-4881-9fba-4cb023ca6467\n**Source:** source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7, version 1\n**Basis:** Synthetic operations record (faithful record summary only)\n\n## 1. Scope\nThis memo summarizes the supplied synthetic operations record for batch Q-17. It is a faithful restatement of that record and introduces no figures, causes, or conclusions beyond it.\n\n## 2. Volume\nBatch Q-17 contained **120 jobs** in total.\n\n## 3. Outcomes\n- **118 jobs completed on the first attempt.**\n- **2 jobs completed after one retry.**\n- First-attempt plus retry outcomes account for all 120 jobs (118 + 2 = 120).\n\n## 4. Losses\n**No jobs were lost.** The record reports zero lost jobs for batch Q-17.\n\n## 5. Limitations\n- The record is explicitly **synthetic**: the material is described as a \"Synthetic operations record,\" and **no customer data was used**.\n- Accordingly, these figures describe a synthetic batch only. They are not evidence of performance on real production traffic, real customers, or any other batch, and no reliability, capacity, or customer-impact claim should be drawn from them.\n- The record supplies no timestamps, environment, failure causes, retry policy detail, or per-job identifiers; none are inferred here.\n\n## 6. Summary\nOf 120 synthetic jobs in batch Q-17, 118 succeeded on first attempt and 2 succeeded after a single retry, with no jobs lost. The record is synthetic and used no customer data.\n",
+        "content_digest": "30e86f4512cf7fe2c4486ba5c8d21638448b2a0c969445f9a28a5e5fa74a2e81",
+        "id": "artifact-candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975-1"
+      },
+      "draft": "",
+      "decisions": [
+        {
+          "action": "accept",
+          "actor": {
+            "id": "reviewer-1",
+            "kind": "local_reviewer"
+          },
+          "candidate_id": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+          "reason": "Synthetic dogfood review: checked all five source quotes, versions and digests; the 120/118/2/no-loss facts match the bound source. Accept this synthetic memo as a source-grounded record only, with no production-performance claim.",
+          "request_id": "review-candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975-accept",
+          "result": {
+            "action": "accept",
+            "active_artifact": "artifact-candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975-1",
+            "candidate_id": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+            "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+            "request_id": "review-candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975-accept",
+            "version": 1
+          },
+          "scope": {
+            "base_version": 0,
+            "candidate_id": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+            "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+            "run_id": "983327f4-1a50-44f6-a4bc-0ac1306ac532"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "admissionOpen": false,
+          "base_version": 0,
+          "candidateId": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "contract_version": "se-contract-v5.0",
+          "endedAt": "2026-09-27T02:19:29.196+00:00",
+          "error": null,
+          "id": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+          "instruction": "Continue this newly bound Evidence Memo Matter. Read the bound source using se_read_source, then submit exactly one candidate using se_submit_candidate. Write a short operational memo grounded only in the supplied synthetic batch Q-17 record: total jobs, first-attempt/retry outcomes, no lost jobs, and the synthetic-data limitation. Include exact source evidence with correct IDs/version/quote offsets; obligations may be empty because this is only a faithful record summary. Do not accept or otherwise decide the candidate. Do not create workspace files or use unrelated tools. Finish by identifying the pending candidate and state clearly that it awaits human review.",
+          "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+          "mode": "real",
+          "model": "deepseek-v4-flash",
+          "preset_version": "evidence-memo-development-1",
+          "provider": "deepseek",
+          "providerConfig": {
+            "api": "openai-completions",
+            "credentialStatus": "configured",
+            "executionMode": "real",
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek"
+          },
+          "session_ref": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+          "source_version": 1,
+          "startedAt": "2026-09-27T02:17:40.961+00:00",
+          "status": "completed",
+          "workContext": {
+            "provenance": {
+              "characters": 389,
+              "contractVersion": "se-contract-v5.0",
+              "limit": 24000,
+              "matterId": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+              "omitted": [
+                "artifact body available through se_read_artifact",
+                "source bodies available through scoped read tool",
+                "closed candidates and execution trace"
+              ],
+              "runtimeProfile": {
+                "composition": {
+                  "id": "agent:general",
+                  "missing": [],
+                  "resourceIds": null,
+                  "status": "compatible",
+                  "uiSlots": [
+                    "runtime.inspector",
+                    "work.surface"
+                  ],
+                  "version": "builtin"
+                },
+                "hash": "e92c8192e90f4a981af2753370689e2e527a23f809a197faeb54e1fe6dba6c33",
+                "revision": 0
+              },
+              "selected": [
+                "active artifact identity and input basis",
+                "obligations",
+                "pending candidates and input basis",
+                "source references"
+              ],
+              "sourceVersion": 1,
+              "stateVersion": 0
+            },
+            "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-contract-v5.0\",\"id\":\"matter-79bcbda3-8569-4881-9fba-4cb023ca6467\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7\",\"version\":1,\"digest\":\"8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4\"}],\"pending\":[]}"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 28,
+          "quote": "Synthetic operations record.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 0
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 59,
+          "quote": "Batch Q-17 contained 120 jobs.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 29
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 124,
+          "quote": "118 completed on the first attempt; 2 completed after one retry.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 60
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 143,
+          "quote": "No jobs were lost.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 125
+        },
+        {
+          "digest": "8b029d4a00a6ba0aa29adc4f82634e6cfb236809fdf10ff0444ce375b9300ac4",
+          "end": 170,
+          "quote": "No customer data was used.",
+          "source_id": "source-204bfd07-9d4a-4f44-a8d2-2956ca61dbe7",
+          "source_version": 1,
+          "start": 144
+        }
+      ],
+      "stateVersion": "b7b3a773d1c76b25f35617a7499547bd83efd76224cfe7658e9324d81b39c32b",
+      "readOnly": false,
+      "compatibility": "supported",
+      "humanActions": [
+        {
+          "schemaVersion": 1,
+          "action": "revise_candidate",
+          "label": "Revise candidate candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "new_candidate_id",
+              "base_version",
+              "proposal"
+            ],
+            "properties": {
+              "candidate_id": {
+                "const": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975"
+              },
+              "new_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "base_version": {
+                "const": 1
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact_text",
+                  "evidence",
+                  "obligations"
+                ],
+                "properties": {
+                  "artifact_text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100000
+                  },
+                  "evidence": {
+                    "type": "array"
+                  },
+                  "obligations": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "nda-before-decision": {
+    "sessionId": "b5d848b8-00ee-4cc8-9314-99106c1ac63c",
+    "projection": {
+      "schemaVersion": 1,
+      "contractVersion": "inbound-nda-v1",
+      "domain": {
+        "facts": {
+          "disclosingParty": "Northstar Bio, Inc.",
+          "matterId": "synthetic-nda-matter-001",
+          "recipients": [
+            {
+              "boundToConfidentiality": true,
+              "kind": "employees",
+              "name": "Courtwork deal team",
+              "needToKnow": true
+            },
+            {
+              "boundToConfidentiality": true,
+              "kind": "professional advisers",
+              "name": "Harrow LLP",
+              "needToKnow": true
+            }
+          ],
+          "representedParty": "Courtwork Holdings Pte. Ltd.",
+          "security": {
+            "noticeHours": 24,
+            "safeguards": "reasonable"
+          },
+          "term": {
+            "years": 3
+          },
+          "transaction": {
+            "id": "project-cedar",
+            "name": "Project Cedar acquisition",
+            "purpose": "evaluate Project Cedar acquisition"
+          },
+          "use": {
+            "purpose": "evaluate Project Cedar acquisition"
+          }
+        },
+        "kind": "inbound-nda",
+        "playbookVersion": "inbound-nda-playbook-v1",
+        "schemaVersion": 1
+      },
+      "extension": {
+        "id": "inbound-nda",
+        "version": "0.1.0",
+        "releaseStatus": "development"
+      },
+      "matter": {
+        "active_artifact": null,
+        "contract_version": "inbound-nda-v1",
+        "id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+        "obligations": [],
+        "source_version": 1,
+        "version": 0
+      },
+      "title": "H0 normal \u00b7 synthetic NDA closure",
+      "sources": [
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "text": "SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+          "version": 1
+        }
+      ],
+      "candidates": [
+        {
+          "artifact_text": "Inbound NDA Playbook Review (inbound-nda-playbook-v1)\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\npurpose-limitation: pass \u2014 the intended use matches the synthetic transaction purpose\nneed-to-know-recipients: pass \u2014 all listed synthetic recipients are need-to-know and bound\nsecurity-and-notice: pass \u2014 reasonable safeguards and a notice window of at most 24 hours are recorded\nterm-duration: pass \u2014 the term duration matches the synthetic three-year check",
+          "base_version": 0,
+          "contract_version": "inbound-nda-v1",
+          "domain": {
+            "contractVersion": "inbound-nda-v1",
+            "facts": {
+              "disclosingParty": "Northstar Bio, Inc.",
+              "matterId": "synthetic-nda-matter-001",
+              "recipients": [
+                {
+                  "boundToConfidentiality": true,
+                  "kind": "employees",
+                  "name": "Courtwork deal team",
+                  "needToKnow": true
+                },
+                {
+                  "boundToConfidentiality": true,
+                  "kind": "professional advisers",
+                  "name": "Harrow LLP",
+                  "needToKnow": true
+                }
+              ],
+              "representedParty": "Courtwork Holdings Pte. Ltd.",
+              "security": {
+                "noticeHours": 24,
+                "safeguards": "reasonable"
+              },
+              "term": {
+                "years": 3
+              },
+              "transaction": {
+                "id": "project-cedar",
+                "name": "Project Cedar acquisition",
+                "purpose": "evaluate Project Cedar acquisition"
+              },
+              "use": {
+                "purpose": "evaluate Project Cedar acquisition"
+              }
+            },
+            "findings": [
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 268,
+                    "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 168
+                  }
+                ],
+                "reason": "the intended use matches the synthetic transaction purpose",
+                "ruleId": "purpose-limitation",
+                "status": "pass"
+              },
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 482,
+                    "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 269
+                  }
+                ],
+                "reason": "all listed synthetic recipients are need-to-know and bound",
+                "ruleId": "need-to-know-recipients",
+                "status": "pass"
+              },
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 671,
+                    "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 483
+                  }
+                ],
+                "reason": "reasonable safeguards and a notice window of at most 24 hours are recorded",
+                "ruleId": "security-and-notice",
+                "status": "pass"
+              },
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 765,
+                    "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 672
+                  }
+                ],
+                "reason": "the term duration matches the synthetic three-year check",
+                "ruleId": "term-duration",
+                "status": "pass"
+              }
+            ],
+            "playbookVersion": "inbound-nda-playbook-v1",
+            "reconciliation": {
+              "complete": true,
+              "conflictRuleIds": [],
+              "coveredRuleIds": [
+                "purpose-limitation",
+                "need-to-know-recipients",
+                "security-and-notice",
+                "term-duration"
+              ],
+              "deviationRuleIds": [],
+              "missingRuleIds": [],
+              "sourceAnchors": [
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 268,
+                  "ruleId": "purpose-limitation",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 168
+                },
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 482,
+                  "ruleId": "need-to-know-recipients",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 269
+                },
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 671,
+                  "ruleId": "security-and-notice",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 483
+                },
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 765,
+                  "ruleId": "term-duration",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 672
+                }
+              ],
+              "status": "complete",
+              "unknownRuleIds": [],
+              "unresolvedRuleIds": []
+            },
+            "schemaVersion": 1
+          },
+          "evidence": [
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 268,
+              "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 168
+            },
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 482,
+              "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 269
+            },
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 671,
+              "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 483
+            },
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 765,
+              "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 672
+            }
+          ],
+          "id": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "matter_id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+          "obligations": [],
+          "run_id": "42f977e4-036e-4dfc-b9cb-02efeb483f40",
+          "source_version": 1,
+          "status": "pending"
+        }
+      ],
+      "artifact": null,
+      "draft": "",
+      "decisions": [],
+      "runs": [
+        {
+          "admissionOpen": false,
+          "base_version": 0,
+          "candidateId": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "contract_version": "inbound-nda-v1",
+          "endedAt": "2026-09-27T02:27:11.048+00:00",
+          "error": null,
+          "id": "42f977e4-036e-4dfc-b9cb-02efeb483f40",
+          "instruction": "Review this synthetic NDA using the bound playbook and producer contract. Read the approved source with se_read_source. Submit one complete domain proposal through se_submit_candidate. Preserve missing, conflicting or unknown findings. Do not accept the candidate. This is the repository\u2019s H0 synthetic validation, not advice or a real agreement. Do not create workspace files.",
+          "matter_id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+          "mode": "real",
+          "model": "deepseek-v4-flash",
+          "preset_version": "inbound-nda-playbook-v1",
+          "provider": "deepseek",
+          "providerConfig": {
+            "api": "openai-completions",
+            "credentialStatus": "configured",
+            "executionMode": "real",
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek"
+          },
+          "session_ref": "b5d848b8-00ee-4cc8-9314-99106c1ac63c",
+          "source_version": 1,
+          "startedAt": "2026-09-27T02:26:49.238+00:00",
+          "status": "completed",
+          "workContext": {
+            "provenance": {
+              "characters": 1068,
+              "contractVersion": "inbound-nda-v1",
+              "limit": 24000,
+              "matterId": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+              "omitted": [
+                "artifact body available through se_read_artifact",
+                "source bodies available through scoped read tool",
+                "closed candidates and execution trace"
+              ],
+              "runtimeProfile": {
+                "composition": {
+                  "id": "agent:general",
+                  "missing": [],
+                  "resourceIds": null,
+                  "status": "compatible",
+                  "uiSlots": [
+                    "runtime.inspector",
+                    "work.surface"
+                  ],
+                  "version": "builtin"
+                },
+                "hash": "bfecd58401ec849997d6c967261ce5b0e3db3802c8026bc1da03a786bb205a33",
+                "revision": 0
+              },
+              "selected": [
+                "active artifact identity and input basis",
+                "obligations",
+                "pending candidates and input basis",
+                "source references"
+              ],
+              "sourceVersion": 1,
+              "stateVersion": 0
+            },
+            "text": "{\"schemaVersion\":2,\"domain\":{\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"kind\":\"inbound-nda\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"schemaVersion\":1},\"matter\":{\"active_artifact\":null,\"contract_version\":\"inbound-nda-v1\",\"id\":\"matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-24f68707-03ac-495f-a1cc-83bf138c175f\",\"version\":1,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"pending\":[]}"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 268,
+          "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 168
+        },
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 482,
+          "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 269
+        },
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 671,
+          "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 483
+        },
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 765,
+          "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 672
+        }
+      ],
+      "stateVersion": "07a58542ab23cdad2b9af1e85ab44e611518f5498c9f3b5fae64937c80ea33f4",
+      "readOnly": false,
+      "compatibility": "supported",
+      "humanActions": [
+        {
+          "schemaVersion": 1,
+          "action": "decide",
+          "label": "Review candidate candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "request_id",
+              "candidate_id",
+              "base_version",
+              "action",
+              "reason"
+            ],
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "candidate_id": {
+                "const": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7"
+              },
+              "base_version": {
+                "const": 0
+              },
+              "action": {
+                "enum": [
+                  "accept",
+                  "reject",
+                  "request_evidence"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "action": "revise_candidate",
+          "label": "Revise candidate candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "new_candidate_id",
+              "base_version",
+              "proposal"
+            ],
+            "properties": {
+              "candidate_id": {
+                "const": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7"
+              },
+              "new_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "base_version": {
+                "const": 0
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "domain"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "object",
+                    "description": "A model-proposed synthetic NDA review. The domain verifies the full packet against the bound sources and facts; submission never accepts it.",
+                    "required": [
+                      "schemaVersion",
+                      "contractVersion",
+                      "playbookVersion",
+                      "facts",
+                      "findings",
+                      "reconciliation"
+                    ],
+                    "properties": {
+                      "schemaVersion": {
+                        "type": "integer",
+                        "const": 1
+                      },
+                      "contractVersion": {
+                        "type": "string",
+                        "const": "inbound-nda-v1"
+                      },
+                      "playbookVersion": {
+                        "type": "string",
+                        "const": "inbound-nda-playbook-v1"
+                      },
+                      "facts": {
+                        "type": "object",
+                        "description": "Copy the complete bound facts object without alteration."
+                      },
+                      "findings": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 4,
+                        "description": "One finding for every rule, in any order; reconciliation follows that submitted order. Choose status from the supplied rules and sources, and canonical reason text from the static producer contract.",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "ruleId",
+                            "status",
+                            "evidence",
+                            "reason"
+                          ],
+                          "properties": {
+                            "ruleId": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "pass",
+                                "deviation",
+                                "missing",
+                                "conflict",
+                                "unknown"
+                              ]
+                            },
+                            "evidence": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "source_id",
+                                  "source_version",
+                                  "start",
+                                  "end",
+                                  "quote",
+                                  "digest"
+                                ],
+                                "properties": {
+                                  "source_id": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "source_version": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "start": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "description": "Zero-based Unicode code points, inclusive start; not UTF-16 units or UTF-8 bytes."
+                                  },
+                                  "end": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "description": "Exclusive Unicode code point offset; greater than start."
+                                  },
+                                  "digest": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Copy the digest of the entire approved source revision. Do not hash the quote."
+                                  },
+                                  "quote": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Exact source substring at [start,end)."
+                                  }
+                                }
+                              }
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Exact text from producerContract.canonicalReasonTemplates. Substitute the one-based recipient number for {n}; do not paraphrase."
+                            }
+                          }
+                        }
+                      },
+                      "reconciliation": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "complete",
+                          "coveredRuleIds",
+                          "unresolvedRuleIds",
+                          "conflictRuleIds",
+                          "unknownRuleIds",
+                          "missingRuleIds",
+                          "deviationRuleIds",
+                          "sourceAnchors"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "conflict",
+                              "unknown",
+                              "needs_review",
+                              "complete"
+                            ]
+                          },
+                          "complete": {
+                            "type": "boolean"
+                          },
+                          "coveredRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "unresolvedRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "conflictRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "unknownRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "missingRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "deviationRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "sourceAnchors": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "ruleId",
+                                "source_id",
+                                "source_version",
+                                "start",
+                                "end",
+                                "digest"
+                              ],
+                              "properties": {
+                                "ruleId": {
+                                  "type": "string",
+                                  "enum": [
+                                    "purpose-limitation",
+                                    "need-to-know-recipients",
+                                    "security-and-notice",
+                                    "term-duration"
+                                  ]
+                                },
+                                "source_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "source_version": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "start": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Zero-based Unicode code points, inclusive start; not UTF-16 units or UTF-8 bytes."
+                                },
+                                "end": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "description": "Exclusive Unicode code point offset; greater than start."
+                                },
+                                "digest": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "description": "Copy the digest of the entire approved source revision. Do not hash the quote."
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "nda-after-decision": {
+    "sessionId": "b5d848b8-00ee-4cc8-9314-99106c1ac63c",
+    "projection": {
+      "schemaVersion": 1,
+      "contractVersion": "inbound-nda-v1",
+      "domain": {
+        "facts": {
+          "disclosingParty": "Northstar Bio, Inc.",
+          "matterId": "synthetic-nda-matter-001",
+          "recipients": [
+            {
+              "boundToConfidentiality": true,
+              "kind": "employees",
+              "name": "Courtwork deal team",
+              "needToKnow": true
+            },
+            {
+              "boundToConfidentiality": true,
+              "kind": "professional advisers",
+              "name": "Harrow LLP",
+              "needToKnow": true
+            }
+          ],
+          "representedParty": "Courtwork Holdings Pte. Ltd.",
+          "security": {
+            "noticeHours": 24,
+            "safeguards": "reasonable"
+          },
+          "term": {
+            "years": 3
+          },
+          "transaction": {
+            "id": "project-cedar",
+            "name": "Project Cedar acquisition",
+            "purpose": "evaluate Project Cedar acquisition"
+          },
+          "use": {
+            "purpose": "evaluate Project Cedar acquisition"
+          }
+        },
+        "kind": "inbound-nda",
+        "playbookVersion": "inbound-nda-playbook-v1",
+        "schemaVersion": 1
+      },
+      "extension": {
+        "id": "inbound-nda",
+        "version": "0.1.0",
+        "releaseStatus": "development"
+      },
+      "matter": {
+        "active_artifact": "artifact-candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7-1",
+        "contract_version": "inbound-nda-v1",
+        "id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+        "obligations": [],
+        "source_version": 1,
+        "version": 1
+      },
+      "title": "H0 normal \u00b7 synthetic NDA closure",
+      "sources": [
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "text": "SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+          "version": 1
+        }
+      ],
+      "candidates": [
+        {
+          "artifact_text": "Inbound NDA Playbook Review (inbound-nda-playbook-v1)\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\npurpose-limitation: pass \u2014 the intended use matches the synthetic transaction purpose\nneed-to-know-recipients: pass \u2014 all listed synthetic recipients are need-to-know and bound\nsecurity-and-notice: pass \u2014 reasonable safeguards and a notice window of at most 24 hours are recorded\nterm-duration: pass \u2014 the term duration matches the synthetic three-year check",
+          "base_version": 0,
+          "contract_version": "inbound-nda-v1",
+          "domain": {
+            "contractVersion": "inbound-nda-v1",
+            "facts": {
+              "disclosingParty": "Northstar Bio, Inc.",
+              "matterId": "synthetic-nda-matter-001",
+              "recipients": [
+                {
+                  "boundToConfidentiality": true,
+                  "kind": "employees",
+                  "name": "Courtwork deal team",
+                  "needToKnow": true
+                },
+                {
+                  "boundToConfidentiality": true,
+                  "kind": "professional advisers",
+                  "name": "Harrow LLP",
+                  "needToKnow": true
+                }
+              ],
+              "representedParty": "Courtwork Holdings Pte. Ltd.",
+              "security": {
+                "noticeHours": 24,
+                "safeguards": "reasonable"
+              },
+              "term": {
+                "years": 3
+              },
+              "transaction": {
+                "id": "project-cedar",
+                "name": "Project Cedar acquisition",
+                "purpose": "evaluate Project Cedar acquisition"
+              },
+              "use": {
+                "purpose": "evaluate Project Cedar acquisition"
+              }
+            },
+            "findings": [
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 268,
+                    "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 168
+                  }
+                ],
+                "reason": "the intended use matches the synthetic transaction purpose",
+                "ruleId": "purpose-limitation",
+                "status": "pass"
+              },
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 482,
+                    "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 269
+                  }
+                ],
+                "reason": "all listed synthetic recipients are need-to-know and bound",
+                "ruleId": "need-to-know-recipients",
+                "status": "pass"
+              },
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 671,
+                    "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 483
+                  }
+                ],
+                "reason": "reasonable safeguards and a notice window of at most 24 hours are recorded",
+                "ruleId": "security-and-notice",
+                "status": "pass"
+              },
+              {
+                "evidence": [
+                  {
+                    "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                    "end": 765,
+                    "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+                    "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                    "source_version": 1,
+                    "start": 672
+                  }
+                ],
+                "reason": "the term duration matches the synthetic three-year check",
+                "ruleId": "term-duration",
+                "status": "pass"
+              }
+            ],
+            "playbookVersion": "inbound-nda-playbook-v1",
+            "reconciliation": {
+              "complete": true,
+              "conflictRuleIds": [],
+              "coveredRuleIds": [
+                "purpose-limitation",
+                "need-to-know-recipients",
+                "security-and-notice",
+                "term-duration"
+              ],
+              "deviationRuleIds": [],
+              "missingRuleIds": [],
+              "sourceAnchors": [
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 268,
+                  "ruleId": "purpose-limitation",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 168
+                },
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 482,
+                  "ruleId": "need-to-know-recipients",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 269
+                },
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 671,
+                  "ruleId": "security-and-notice",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 483
+                },
+                {
+                  "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+                  "end": 765,
+                  "ruleId": "term-duration",
+                  "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+                  "source_version": 1,
+                  "start": 672
+                }
+              ],
+              "status": "complete",
+              "unknownRuleIds": [],
+              "unresolvedRuleIds": []
+            },
+            "schemaVersion": 1
+          },
+          "evidence": [
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 268,
+              "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 168
+            },
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 482,
+              "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 269
+            },
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 671,
+              "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 483
+            },
+            {
+              "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+              "end": 765,
+              "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+              "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+              "source_version": 1,
+              "start": 672
+            }
+          ],
+          "id": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "matter_id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+          "obligations": [],
+          "run_id": "42f977e4-036e-4dfc-b9cb-02efeb483f40",
+          "source_version": 1,
+          "status": "accepted"
+        }
+      ],
+      "artifact": {
+        "candidate_hash": "ae3628f2f5f0021c46d382f07e27098b184f82381ffbf5c94cd26915c015d108",
+        "candidate_id": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+        "content": "Inbound NDA Playbook Review (inbound-nda-playbook-v1)\nSynthetic fixture rules; formal acceptance is recorded separately by Work Core.\npurpose-limitation: pass \u2014 the intended use matches the synthetic transaction purpose\nneed-to-know-recipients: pass \u2014 all listed synthetic recipients are need-to-know and bound\nsecurity-and-notice: pass \u2014 reasonable safeguards and a notice window of at most 24 hours are recorded\nterm-duration: pass \u2014 the term duration matches the synthetic three-year check",
+        "content_digest": "4287b2c7de331e6208c62346008cd4f55765c8aa58bbc4799aad32d5549c1771",
+        "id": "artifact-candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7-1"
+      },
+      "draft": "",
+      "decisions": [
+        {
+          "action": "accept",
+          "actor": {
+            "id": "reviewer-1",
+            "kind": "local_reviewer"
+          },
+          "candidate_id": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "matter_id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+          "reason": "Synthetic H0 validation only: candidate exactly matches the fixed normal playbook gold for all four rules, source digest and code-point anchors. Accept this recorded test review; no real agreement or legal advice is being approved.",
+          "request_id": "decide-2cf09418-d9e7-4bfb-8769-7abb25f1bfd1",
+          "result": {
+            "action": "accept",
+            "active_artifact": "artifact-candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7-1",
+            "candidate_id": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+            "matter_id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+            "request_id": "decide-2cf09418-d9e7-4bfb-8769-7abb25f1bfd1",
+            "version": 1
+          },
+          "scope": {
+            "base_version": 0,
+            "candidate_id": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+            "matter_id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+            "run_id": "42f977e4-036e-4dfc-b9cb-02efeb483f40"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "admissionOpen": false,
+          "base_version": 0,
+          "candidateId": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "contract_version": "inbound-nda-v1",
+          "endedAt": "2026-09-27T02:27:11.048+00:00",
+          "error": null,
+          "id": "42f977e4-036e-4dfc-b9cb-02efeb483f40",
+          "instruction": "Review this synthetic NDA using the bound playbook and producer contract. Read the approved source with se_read_source. Submit one complete domain proposal through se_submit_candidate. Preserve missing, conflicting or unknown findings. Do not accept the candidate. This is the repository\u2019s H0 synthetic validation, not advice or a real agreement. Do not create workspace files.",
+          "matter_id": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+          "mode": "real",
+          "model": "deepseek-v4-flash",
+          "preset_version": "inbound-nda-playbook-v1",
+          "provider": "deepseek",
+          "providerConfig": {
+            "api": "openai-completions",
+            "credentialStatus": "configured",
+            "executionMode": "real",
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek"
+          },
+          "session_ref": "b5d848b8-00ee-4cc8-9314-99106c1ac63c",
+          "source_version": 1,
+          "startedAt": "2026-09-27T02:26:49.238+00:00",
+          "status": "completed",
+          "workContext": {
+            "provenance": {
+              "characters": 1068,
+              "contractVersion": "inbound-nda-v1",
+              "limit": 24000,
+              "matterId": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+              "omitted": [
+                "artifact body available through se_read_artifact",
+                "source bodies available through scoped read tool",
+                "closed candidates and execution trace"
+              ],
+              "runtimeProfile": {
+                "composition": {
+                  "id": "agent:general",
+                  "missing": [],
+                  "resourceIds": null,
+                  "status": "compatible",
+                  "uiSlots": [
+                    "runtime.inspector",
+                    "work.surface"
+                  ],
+                  "version": "builtin"
+                },
+                "hash": "bfecd58401ec849997d6c967261ce5b0e3db3802c8026bc1da03a786bb205a33",
+                "revision": 0
+              },
+              "selected": [
+                "active artifact identity and input basis",
+                "obligations",
+                "pending candidates and input basis",
+                "source references"
+              ],
+              "sourceVersion": 1,
+              "stateVersion": 0
+            },
+            "text": "{\"schemaVersion\":2,\"domain\":{\"facts\":{\"disclosingParty\":\"Northstar Bio, Inc.\",\"matterId\":\"synthetic-nda-matter-001\",\"recipients\":[{\"boundToConfidentiality\":true,\"kind\":\"employees\",\"name\":\"Courtwork deal team\",\"needToKnow\":true},{\"boundToConfidentiality\":true,\"kind\":\"professional advisers\",\"name\":\"Harrow LLP\",\"needToKnow\":true}],\"representedParty\":\"Courtwork Holdings Pte. Ltd.\",\"security\":{\"noticeHours\":24,\"safeguards\":\"reasonable\"},\"term\":{\"years\":3},\"transaction\":{\"id\":\"project-cedar\",\"name\":\"Project Cedar acquisition\",\"purpose\":\"evaluate Project Cedar acquisition\"},\"use\":{\"purpose\":\"evaluate Project Cedar acquisition\"}},\"kind\":\"inbound-nda\",\"playbookVersion\":\"inbound-nda-playbook-v1\",\"schemaVersion\":1},\"matter\":{\"active_artifact\":null,\"contract_version\":\"inbound-nda-v1\",\"id\":\"matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-24f68707-03ac-495f-a1cc-83bf138c175f\",\"version\":1,\"digest\":\"64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d\"}],\"pending\":[]}"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 268,
+          "quote": "1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 168
+        },
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 482,
+          "quote": "2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 269
+        },
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 671,
+          "quote": "3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 483
+        },
+        {
+          "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+          "end": 765,
+          "quote": "4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+          "source_id": "source-24f68707-03ac-495f-a1cc-83bf138c175f",
+          "source_version": 1,
+          "start": 672
+        }
+      ],
+      "stateVersion": "0f29d4a761c5e2f214487462bbd59ac06f72880e851ba64a9aac565b6faf947f",
+      "readOnly": false,
+      "compatibility": "supported",
+      "humanActions": [
+        {
+          "schemaVersion": 1,
+          "action": "revise_candidate",
+          "label": "Revise candidate candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "new_candidate_id",
+              "base_version",
+              "proposal"
+            ],
+            "properties": {
+              "candidate_id": {
+                "const": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7"
+              },
+              "new_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "base_version": {
+                "const": 1
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "domain"
+                ],
+                "properties": {
+                  "domain": {
+                    "type": "object",
+                    "description": "A model-proposed synthetic NDA review. The domain verifies the full packet against the bound sources and facts; submission never accepts it.",
+                    "required": [
+                      "schemaVersion",
+                      "contractVersion",
+                      "playbookVersion",
+                      "facts",
+                      "findings",
+                      "reconciliation"
+                    ],
+                    "properties": {
+                      "schemaVersion": {
+                        "type": "integer",
+                        "const": 1
+                      },
+                      "contractVersion": {
+                        "type": "string",
+                        "const": "inbound-nda-v1"
+                      },
+                      "playbookVersion": {
+                        "type": "string",
+                        "const": "inbound-nda-playbook-v1"
+                      },
+                      "facts": {
+                        "type": "object",
+                        "description": "Copy the complete bound facts object without alteration."
+                      },
+                      "findings": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 4,
+                        "description": "One finding for every rule, in any order; reconciliation follows that submitted order. Choose status from the supplied rules and sources, and canonical reason text from the static producer contract.",
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "ruleId",
+                            "status",
+                            "evidence",
+                            "reason"
+                          ],
+                          "properties": {
+                            "ruleId": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "pass",
+                                "deviation",
+                                "missing",
+                                "conflict",
+                                "unknown"
+                              ]
+                            },
+                            "evidence": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "source_id",
+                                  "source_version",
+                                  "start",
+                                  "end",
+                                  "quote",
+                                  "digest"
+                                ],
+                                "properties": {
+                                  "source_id": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "source_version": {
+                                    "type": "integer",
+                                    "minimum": 0
+                                  },
+                                  "start": {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "description": "Zero-based Unicode code points, inclusive start; not UTF-16 units or UTF-8 bytes."
+                                  },
+                                  "end": {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "description": "Exclusive Unicode code point offset; greater than start."
+                                  },
+                                  "digest": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Copy the digest of the entire approved source revision. Do not hash the quote."
+                                  },
+                                  "quote": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Exact source substring at [start,end)."
+                                  }
+                                }
+                              }
+                            },
+                            "reason": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Exact text from producerContract.canonicalReasonTemplates. Substitute the one-based recipient number for {n}; do not paraphrase."
+                            }
+                          }
+                        }
+                      },
+                      "reconciliation": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "complete",
+                          "coveredRuleIds",
+                          "unresolvedRuleIds",
+                          "conflictRuleIds",
+                          "unknownRuleIds",
+                          "missingRuleIds",
+                          "deviationRuleIds",
+                          "sourceAnchors"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "conflict",
+                              "unknown",
+                              "needs_review",
+                              "complete"
+                            ]
+                          },
+                          "complete": {
+                            "type": "boolean"
+                          },
+                          "coveredRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "unresolvedRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "conflictRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "unknownRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "missingRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "deviationRuleIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "enum": [
+                                "purpose-limitation",
+                                "need-to-know-recipients",
+                                "security-and-notice",
+                                "term-duration"
+                              ]
+                            }
+                          },
+                          "sourceAnchors": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "ruleId",
+                                "source_id",
+                                "source_version",
+                                "start",
+                                "end",
+                                "digest"
+                              ],
+                              "properties": {
+                                "ruleId": {
+                                  "type": "string",
+                                  "enum": [
+                                    "purpose-limitation",
+                                    "need-to-know-recipients",
+                                    "security-and-notice",
+                                    "term-duration"
+                                  ]
+                                },
+                                "source_id": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "source_version": {
+                                  "type": "integer",
+                                  "minimum": 0
+                                },
+                                "start": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "description": "Zero-based Unicode code points, inclusive start; not UTF-16 units or UTF-8 bytes."
+                                },
+                                "end": {
+                                  "type": "integer",
+                                  "minimum": 1,
+                                  "description": "Exclusive Unicode code point offset; greater than start."
+                                },
+                                "digest": {
+                                  "type": "string",
+                                  "minLength": 1,
+                                  "description": "Copy the digest of the entire approved source revision. Do not hash the quote."
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "freshmemo-before-decision": {
+    "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+    "projection": {
+      "schemaVersion": 1,
+      "contractVersion": "se-contract-v5.0",
+      "domain": null,
+      "extension": {
+        "id": "evidence-memo",
+        "version": "0.1.0",
+        "releaseStatus": "development"
+      },
+      "matter": {
+        "active_artifact": null,
+        "contract_version": "se-contract-v5.0",
+        "id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+        "obligations": [],
+        "source_version": 1,
+        "version": 0
+      },
+      "title": "EC-1 unassisted schema verification",
+      "sources": [
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "text": "Synthetic restart validation.\nBatch R-9 completed 8 jobs with no retry.\nNo customer data was used.\n",
+          "version": 1
+        }
+      ],
+      "candidates": [
+        {
+          "artifact_text": "# Evidence Memo (development) \u2014 synthetic restart validation\n\n## Batch outcome\nThe supplied source reports a completed batch with no retries: \"Batch R-9 completed 8 jobs with no retry.\" (source-0a8c5a2b-e221-46b7-b3ad-7937f684c675, v1, offsets 30\u201371). The reported outcome is limited to job count and absence of retry; the source states no throughput, latency, error-breakdown, or duration figures, and no verification method, timestamp, or operator identity.\n\n## Synthetic-data limitation\nThe source is explicitly labeled synthetic and states that no real customer data was involved: \"Synthetic restart validation.\" (offsets 0\u201329) and \"No customer data was used.\" (offsets 72\u201398). Accordingly, the batch result cannot be treated as evidence about production behavior, real workloads, or any actual customer data; it demonstrates at most that a synthetic restart validation exercise reported completion of 8 jobs without retry.\n\n## Status\nThis memo is a pending candidate for human Review. It does not accept, publish, or approve any artifact, and it asserts nothing beyond the quoted source text.",
+          "base_version": 0,
+          "contract_version": "se-contract-v5.0",
+          "evidence": [
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 29,
+              "quote": "Synthetic restart validation.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 0
+            },
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 71,
+              "quote": "Batch R-9 completed 8 jobs with no retry.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 30
+            },
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 98,
+              "quote": "No customer data was used.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 72
+            }
+          ],
+          "id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "obligations": [],
+          "run_id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+          "source_version": 1,
+          "status": "pending"
+        }
+      ],
+      "artifact": null,
+      "draft": "",
+      "decisions": [],
+      "runs": [
+        {
+          "admissionOpen": false,
+          "base_version": 0,
+          "candidateId": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "contract_version": "se-contract-v5.0",
+          "endedAt": "2026-09-27T02:35:14.361+00:00",
+          "error": null,
+          "id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+          "instruction": "The cancellation checkpoint is finished. For this newly bound Matter, read its source with se_read_source and submit exactly one short, source-grounded memo candidate with se_submit_candidate. Summarize the supplied batch outcome and synthetic-data limitation; attach exact source evidence and leave obligations empty. Use the tool contract provided by the Host. Do not accept the candidate, write workspace files, or ask for schema instructions. Report whether submission actually succeeded.",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "mode": "real",
+          "model": "deepseek-v4-flash",
+          "preset_version": "evidence-memo-development-1",
+          "provider": "deepseek",
+          "providerConfig": {
+            "api": "openai-completions",
+            "credentialStatus": "configured",
+            "executionMode": "real",
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek"
+          },
+          "session_ref": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+          "source_version": 1,
+          "startedAt": "2026-09-27T02:35:07.055+00:00",
+          "status": "completed",
+          "workContext": {
+            "provenance": {
+              "characters": 389,
+              "contractVersion": "se-contract-v5.0",
+              "limit": 24000,
+              "matterId": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+              "omitted": [
+                "artifact body available through se_read_artifact",
+                "source bodies available through scoped read tool",
+                "closed candidates and execution trace"
+              ],
+              "runtimeProfile": {
+                "composition": {
+                  "id": "agent:general",
+                  "missing": [],
+                  "resourceIds": null,
+                  "status": "compatible",
+                  "uiSlots": [
+                    "runtime.inspector",
+                    "work.surface"
+                  ],
+                  "version": "builtin"
+                },
+                "hash": "fa90b1660b0c8df6a157ef37eae760799bd181b45b7808bdbaaff47f414cbbf9",
+                "revision": 0
+              },
+              "selected": [
+                "active artifact identity and input basis",
+                "obligations",
+                "pending candidates and input basis",
+                "source references"
+              ],
+              "sourceVersion": 1,
+              "stateVersion": 0
+            },
+            "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-contract-v5.0\",\"id\":\"matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-0a8c5a2b-e221-46b7-b3ad-7937f684c675\",\"version\":1,\"digest\":\"e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63\"}],\"pending\":[]}"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 29,
+          "quote": "Synthetic restart validation.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 0
+        },
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 71,
+          "quote": "Batch R-9 completed 8 jobs with no retry.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 30
+        },
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 98,
+          "quote": "No customer data was used.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 72
+        }
+      ],
+      "stateVersion": "25579881fca01c550abd5a14bd39f49eaf81d59a326d6874879aaf1d50e05615",
+      "readOnly": false,
+      "compatibility": "supported",
+      "humanActions": [
+        {
+          "schemaVersion": 1,
+          "action": "decide",
+          "label": "Review candidate candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "request_id",
+              "candidate_id",
+              "base_version",
+              "action",
+              "reason"
+            ],
+            "properties": {
+              "request_id": {
+                "type": "string"
+              },
+              "candidate_id": {
+                "const": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf"
+              },
+              "base_version": {
+                "const": 0
+              },
+              "action": {
+                "enum": [
+                  "accept",
+                  "reject",
+                  "request_evidence"
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "action": "revise_candidate",
+          "label": "Revise candidate candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "new_candidate_id",
+              "base_version",
+              "proposal"
+            ],
+            "properties": {
+              "candidate_id": {
+                "const": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf"
+              },
+              "new_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "base_version": {
+                "const": 0
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact_text",
+                  "evidence",
+                  "obligations"
+                ],
+                "properties": {
+                  "artifact_text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100000
+                  },
+                  "evidence": {
+                    "type": "array"
+                  },
+                  "obligations": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "freshmemo-after-decision": {
+    "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+    "projection": {
+      "schemaVersion": 1,
+      "contractVersion": "se-contract-v5.0",
+      "domain": null,
+      "extension": {
+        "id": "evidence-memo",
+        "version": "0.1.0",
+        "releaseStatus": "development"
+      },
+      "matter": {
+        "active_artifact": "artifact-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-1",
+        "contract_version": "se-contract-v5.0",
+        "id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+        "obligations": [],
+        "source_version": 1,
+        "version": 1
+      },
+      "title": "EC-1 unassisted schema verification",
+      "sources": [
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "text": "Synthetic restart validation.\nBatch R-9 completed 8 jobs with no retry.\nNo customer data was used.\n",
+          "version": 1
+        }
+      ],
+      "candidates": [
+        {
+          "artifact_text": "# Evidence Memo (development) \u2014 synthetic restart validation\n\n## Batch outcome\nThe supplied source reports a completed batch with no retries: \"Batch R-9 completed 8 jobs with no retry.\" (source-0a8c5a2b-e221-46b7-b3ad-7937f684c675, v1, offsets 30\u201371). The reported outcome is limited to job count and absence of retry; the source states no throughput, latency, error-breakdown, or duration figures, and no verification method, timestamp, or operator identity.\n\n## Synthetic-data limitation\nThe source is explicitly labeled synthetic and states that no real customer data was involved: \"Synthetic restart validation.\" (offsets 0\u201329) and \"No customer data was used.\" (offsets 72\u201398). Accordingly, the batch result cannot be treated as evidence about production behavior, real workloads, or any actual customer data; it demonstrates at most that a synthetic restart validation exercise reported completion of 8 jobs without retry.\n\n## Status\nThis memo is a pending candidate for human Review. It does not accept, publish, or approve any artifact, and it asserts nothing beyond the quoted source text.",
+          "base_version": 0,
+          "contract_version": "se-contract-v5.0",
+          "evidence": [
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 29,
+              "quote": "Synthetic restart validation.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 0
+            },
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 71,
+              "quote": "Batch R-9 completed 8 jobs with no retry.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 30
+            },
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 98,
+              "quote": "No customer data was used.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 72
+            }
+          ],
+          "id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "obligations": [],
+          "run_id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+          "source_version": 1,
+          "status": "accepted"
+        }
+      ],
+      "artifact": {
+        "candidate_hash": "11e5af41c4613ac580380c4316420b5702c705fd9b4f96325658f5ce1fb2e157",
+        "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+        "content": "# Evidence Memo (development) \u2014 synthetic restart validation\n\n## Batch outcome\nThe supplied source reports a completed batch with no retries: \"Batch R-9 completed 8 jobs with no retry.\" (source-0a8c5a2b-e221-46b7-b3ad-7937f684c675, v1, offsets 30\u201371). The reported outcome is limited to job count and absence of retry; the source states no throughput, latency, error-breakdown, or duration figures, and no verification method, timestamp, or operator identity.\n\n## Synthetic-data limitation\nThe source is explicitly labeled synthetic and states that no real customer data was involved: \"Synthetic restart validation.\" (offsets 0\u201329) and \"No customer data was used.\" (offsets 72\u201398). Accordingly, the batch result cannot be treated as evidence about production behavior, real workloads, or any actual customer data; it demonstrates at most that a synthetic restart validation exercise reported completion of 8 jobs without retry.\n\n## Status\nThis memo is a pending candidate for human Review. It does not accept, publish, or approve any artifact, and it asserts nothing beyond the quoted source text.",
+        "content_digest": "76239192290336a7a0840854930a7f50e78fc12387d38f91dc77899c4369f1e8",
+        "id": "artifact-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-1"
+      },
+      "draft": "",
+      "decisions": [
+        {
+          "action": "accept",
+          "actor": {
+            "id": "reviewer-1",
+            "kind": "local_reviewer"
+          },
+          "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "reason": "Synthetic EC-1 review: the three quoted source slices, digest and stated 8-job/no-retry outcome match the source. Accept as a synthetic source summary only. The prose status describes its pre-review authorship stage; this recorded Core decision owns its accepted status.",
+          "request_id": "review-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-accept",
+          "result": {
+            "action": "accept",
+            "active_artifact": "artifact-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-1",
+            "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+            "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+            "request_id": "review-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-accept",
+            "version": 1
+          },
+          "scope": {
+            "base_version": 0,
+            "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+            "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+            "run_id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "admissionOpen": false,
+          "base_version": 0,
+          "candidateId": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "contract_version": "se-contract-v5.0",
+          "endedAt": "2026-09-27T02:35:14.361+00:00",
+          "error": null,
+          "id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+          "instruction": "The cancellation checkpoint is finished. For this newly bound Matter, read its source with se_read_source and submit exactly one short, source-grounded memo candidate with se_submit_candidate. Summarize the supplied batch outcome and synthetic-data limitation; attach exact source evidence and leave obligations empty. Use the tool contract provided by the Host. Do not accept the candidate, write workspace files, or ask for schema instructions. Report whether submission actually succeeded.",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "mode": "real",
+          "model": "deepseek-v4-flash",
+          "preset_version": "evidence-memo-development-1",
+          "provider": "deepseek",
+          "providerConfig": {
+            "api": "openai-completions",
+            "credentialStatus": "configured",
+            "executionMode": "real",
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek"
+          },
+          "session_ref": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+          "source_version": 1,
+          "startedAt": "2026-09-27T02:35:07.055+00:00",
+          "status": "completed",
+          "workContext": {
+            "provenance": {
+              "characters": 389,
+              "contractVersion": "se-contract-v5.0",
+              "limit": 24000,
+              "matterId": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+              "omitted": [
+                "artifact body available through se_read_artifact",
+                "source bodies available through scoped read tool",
+                "closed candidates and execution trace"
+              ],
+              "runtimeProfile": {
+                "composition": {
+                  "id": "agent:general",
+                  "missing": [],
+                  "resourceIds": null,
+                  "status": "compatible",
+                  "uiSlots": [
+                    "runtime.inspector",
+                    "work.surface"
+                  ],
+                  "version": "builtin"
+                },
+                "hash": "fa90b1660b0c8df6a157ef37eae760799bd181b45b7808bdbaaff47f414cbbf9",
+                "revision": 0
+              },
+              "selected": [
+                "active artifact identity and input basis",
+                "obligations",
+                "pending candidates and input basis",
+                "source references"
+              ],
+              "sourceVersion": 1,
+              "stateVersion": 0
+            },
+            "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-contract-v5.0\",\"id\":\"matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-0a8c5a2b-e221-46b7-b3ad-7937f684c675\",\"version\":1,\"digest\":\"e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63\"}],\"pending\":[]}"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 29,
+          "quote": "Synthetic restart validation.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 0
+        },
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 71,
+          "quote": "Batch R-9 completed 8 jobs with no retry.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 30
+        },
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 98,
+          "quote": "No customer data was used.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 72
+        }
+      ],
+      "stateVersion": "b2673f31e5ca028480e998fff6683181c0086946394d4a33725838db52dcafd3",
+      "readOnly": false,
+      "compatibility": "supported",
+      "humanActions": [
+        {
+          "schemaVersion": 1,
+          "action": "revise_candidate",
+          "label": "Revise candidate candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "new_candidate_id",
+              "base_version",
+              "proposal"
+            ],
+            "properties": {
+              "candidate_id": {
+                "const": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf"
+              },
+              "new_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "base_version": {
+                "const": 1
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact_text",
+                  "evidence",
+                  "obligations"
+                ],
+                "properties": {
+                  "artifact_text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100000
+                  },
+                  "evidence": {
+                    "type": "array"
+                  },
+                  "obligations": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "freshmemo-after-reload": {
+    "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+    "projection": {
+      "schemaVersion": 1,
+      "contractVersion": "se-contract-v5.0",
+      "domain": null,
+      "extension": {
+        "id": "evidence-memo",
+        "version": "0.1.0",
+        "releaseStatus": "development"
+      },
+      "matter": {
+        "active_artifact": "artifact-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-1",
+        "contract_version": "se-contract-v5.0",
+        "id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+        "obligations": [],
+        "source_version": 1,
+        "version": 1
+      },
+      "title": "EC-1 unassisted schema verification",
+      "sources": [
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "text": "Synthetic restart validation.\nBatch R-9 completed 8 jobs with no retry.\nNo customer data was used.\n",
+          "version": 1
+        }
+      ],
+      "candidates": [
+        {
+          "artifact_text": "# Evidence Memo (development) \u2014 synthetic restart validation\n\n## Batch outcome\nThe supplied source reports a completed batch with no retries: \"Batch R-9 completed 8 jobs with no retry.\" (source-0a8c5a2b-e221-46b7-b3ad-7937f684c675, v1, offsets 30\u201371). The reported outcome is limited to job count and absence of retry; the source states no throughput, latency, error-breakdown, or duration figures, and no verification method, timestamp, or operator identity.\n\n## Synthetic-data limitation\nThe source is explicitly labeled synthetic and states that no real customer data was involved: \"Synthetic restart validation.\" (offsets 0\u201329) and \"No customer data was used.\" (offsets 72\u201398). Accordingly, the batch result cannot be treated as evidence about production behavior, real workloads, or any actual customer data; it demonstrates at most that a synthetic restart validation exercise reported completion of 8 jobs without retry.\n\n## Status\nThis memo is a pending candidate for human Review. It does not accept, publish, or approve any artifact, and it asserts nothing beyond the quoted source text.",
+          "base_version": 0,
+          "contract_version": "se-contract-v5.0",
+          "evidence": [
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 29,
+              "quote": "Synthetic restart validation.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 0
+            },
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 71,
+              "quote": "Batch R-9 completed 8 jobs with no retry.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 30
+            },
+            {
+              "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+              "end": 98,
+              "quote": "No customer data was used.",
+              "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+              "source_version": 1,
+              "start": 72
+            }
+          ],
+          "id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "obligations": [],
+          "run_id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+          "source_version": 1,
+          "status": "accepted"
+        }
+      ],
+      "artifact": {
+        "candidate_hash": "11e5af41c4613ac580380c4316420b5702c705fd9b4f96325658f5ce1fb2e157",
+        "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+        "content": "# Evidence Memo (development) \u2014 synthetic restart validation\n\n## Batch outcome\nThe supplied source reports a completed batch with no retries: \"Batch R-9 completed 8 jobs with no retry.\" (source-0a8c5a2b-e221-46b7-b3ad-7937f684c675, v1, offsets 30\u201371). The reported outcome is limited to job count and absence of retry; the source states no throughput, latency, error-breakdown, or duration figures, and no verification method, timestamp, or operator identity.\n\n## Synthetic-data limitation\nThe source is explicitly labeled synthetic and states that no real customer data was involved: \"Synthetic restart validation.\" (offsets 0\u201329) and \"No customer data was used.\" (offsets 72\u201398). Accordingly, the batch result cannot be treated as evidence about production behavior, real workloads, or any actual customer data; it demonstrates at most that a synthetic restart validation exercise reported completion of 8 jobs without retry.\n\n## Status\nThis memo is a pending candidate for human Review. It does not accept, publish, or approve any artifact, and it asserts nothing beyond the quoted source text.",
+        "content_digest": "76239192290336a7a0840854930a7f50e78fc12387d38f91dc77899c4369f1e8",
+        "id": "artifact-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-1"
+      },
+      "draft": "",
+      "decisions": [
+        {
+          "action": "accept",
+          "actor": {
+            "id": "reviewer-1",
+            "kind": "local_reviewer"
+          },
+          "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "reason": "Synthetic EC-1 review: the three quoted source slices, digest and stated 8-job/no-retry outcome match the source. Accept as a synthetic source summary only. The prose status describes its pre-review authorship stage; this recorded Core decision owns its accepted status.",
+          "request_id": "review-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-accept",
+          "result": {
+            "action": "accept",
+            "active_artifact": "artifact-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-1",
+            "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+            "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+            "request_id": "review-candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf-accept",
+            "version": 1
+          },
+          "scope": {
+            "base_version": 0,
+            "candidate_id": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+            "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+            "run_id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f"
+          }
+        }
+      ],
+      "runs": [
+        {
+          "admissionOpen": false,
+          "base_version": 0,
+          "candidateId": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "contract_version": "se-contract-v5.0",
+          "endedAt": "2026-09-27T02:35:14.361+00:00",
+          "error": null,
+          "id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+          "instruction": "The cancellation checkpoint is finished. For this newly bound Matter, read its source with se_read_source and submit exactly one short, source-grounded memo candidate with se_submit_candidate. Summarize the supplied batch outcome and synthetic-data limitation; attach exact source evidence and leave obligations empty. Use the tool contract provided by the Host. Do not accept the candidate, write workspace files, or ask for schema instructions. Report whether submission actually succeeded.",
+          "matter_id": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+          "mode": "real",
+          "model": "deepseek-v4-flash",
+          "preset_version": "evidence-memo-development-1",
+          "provider": "deepseek",
+          "providerConfig": {
+            "api": "openai-completions",
+            "credentialStatus": "configured",
+            "executionMode": "real",
+            "model": "deepseek-v4-flash",
+            "provider": "deepseek"
+          },
+          "session_ref": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+          "source_version": 1,
+          "startedAt": "2026-09-27T02:35:07.055+00:00",
+          "status": "completed",
+          "workContext": {
+            "provenance": {
+              "characters": 389,
+              "contractVersion": "se-contract-v5.0",
+              "limit": 24000,
+              "matterId": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+              "omitted": [
+                "artifact body available through se_read_artifact",
+                "source bodies available through scoped read tool",
+                "closed candidates and execution trace"
+              ],
+              "runtimeProfile": {
+                "composition": {
+                  "id": "agent:general",
+                  "missing": [],
+                  "resourceIds": null,
+                  "status": "compatible",
+                  "uiSlots": [
+                    "runtime.inspector",
+                    "work.surface"
+                  ],
+                  "version": "builtin"
+                },
+                "hash": "fa90b1660b0c8df6a157ef37eae760799bd181b45b7808bdbaaff47f414cbbf9",
+                "revision": 0
+              },
+              "selected": [
+                "active artifact identity and input basis",
+                "obligations",
+                "pending candidates and input basis",
+                "source references"
+              ],
+              "sourceVersion": 1,
+              "stateVersion": 0
+            },
+            "text": "{\"schemaVersion\":2,\"domain\":null,\"matter\":{\"active_artifact\":null,\"contract_version\":\"se-contract-v5.0\",\"id\":\"matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878\",\"obligations\":[],\"source_version\":1,\"version\":0},\"artifact\":null,\"sourceRefs\":[{\"id\":\"source-0a8c5a2b-e221-46b7-b3ad-7937f684c675\",\"version\":1,\"digest\":\"e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63\"}],\"pending\":[]}"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 29,
+          "quote": "Synthetic restart validation.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 0
+        },
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 71,
+          "quote": "Batch R-9 completed 8 jobs with no retry.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 30
+        },
+        {
+          "digest": "e6b1d35bc3b7d035e487a3c9e4d82ed6e1b1049072ee58332f9d56ab9213bb63",
+          "end": 98,
+          "quote": "No customer data was used.",
+          "source_id": "source-0a8c5a2b-e221-46b7-b3ad-7937f684c675",
+          "source_version": 1,
+          "start": 72
+        }
+      ],
+      "stateVersion": "b2673f31e5ca028480e998fff6683181c0086946394d4a33725838db52dcafd3",
+      "readOnly": false,
+      "compatibility": "supported",
+      "humanActions": [
+        {
+          "schemaVersion": 1,
+          "action": "revise_candidate",
+          "label": "Revise candidate candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf",
+          "payloadSchema": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "candidate_id",
+              "new_candidate_id",
+              "base_version",
+              "proposal"
+            ],
+            "properties": {
+              "candidate_id": {
+                "const": "candidate-630a5d365815dc31131798ba0ffc75a829e189aa879a9c8a518da586393630cf"
+              },
+              "new_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "base_version": {
+                "const": 1
+              },
+              "proposal": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact_text",
+                  "evidence",
+                  "obligations"
+                ],
+                "properties": {
+                  "artifact_text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100000
+                  },
+                  "evidence": {
+                    "type": "array"
+                  },
+                  "obligations": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "memo-replay-and-refusals": {
+    "replay": {
+      "status": 200,
+      "result": {
+        "action": "accept",
+        "active_artifact": "artifact-candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975-1",
+        "candidate_id": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+        "matter_id": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+        "request_id": "review-candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975-accept",
+        "version": 1
+      }
+    },
+    "sameRequestDifferentPayload": {
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "IDEMPOTENCY_CONFLICT",
+          "message": "IDEMPOTENCY_CONFLICT: request id has different payload/actor/scope"
+        }
+      }
+    },
+    "forgedActor": {
+      "status": 400,
+      "body": {
+        "error": {
+          "code": "unknown_field",
+          "message": "actor is host-owned"
+        }
+      }
+    },
+    "closedCandidate": {
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "CANDIDATE_CLOSED",
+          "message": "CANDIDATE_CLOSED: accepted"
+        }
+      }
+    },
+    "projectionUnchanged": true
+  }
+}

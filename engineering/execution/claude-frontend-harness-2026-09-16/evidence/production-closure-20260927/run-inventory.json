@@ -1,0 +1,215 @@
+[
+  {
+    "sessionId": "f52fcecc-dcca-444f-84f8-3b4ceaab24f5",
+    "matterId": "matter-55e1f8ab-6137-48f7-80f9-bffde5b4b878",
+    "runs": [
+      {
+        "id": "8642923d-1b5c-4277-ae07-c5a315b30e48",
+        "status": "cancelled",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 2574,
+          "output": 80,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "turns": 2,
+          "missing": true
+        },
+        "tools": []
+      },
+      {
+        "id": "bb6c5ba3-00dc-4a29-b322-cae62c817f5f",
+        "status": "completed",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 2744,
+          "output": 1452,
+          "cacheRead": 7680,
+          "cacheWrite": 0,
+          "turns": 3,
+          "missing": false
+        },
+        "tools": [
+          {
+            "name": "se_read_source",
+            "isError": false
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sessionId": "e7c2c849-753d-409b-9109-868e7b97aa4e",
+    "matterId": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+    "runs": [
+      {
+        "id": "15edbf15-122d-4134-b4f8-90bc3a0afda1",
+        "status": "completed",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 2572,
+          "output": 7,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "turns": 1,
+          "missing": false
+        },
+        "tools": []
+      },
+      {
+        "id": "0d91ee87-334c-4549-9178-5125b7cb7add",
+        "status": "completed",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 5548,
+          "output": 421,
+          "cacheRead": 6656,
+          "cacheWrite": 0,
+          "turns": 2,
+          "missing": false
+        },
+        "tools": [
+          {
+            "name": "se_read_artifact",
+            "isError": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sessionId": "b5d848b8-00ee-4cc8-9314-99106c1ac63c",
+    "matterId": "matter-81e4b411-a869-4a94-aef1-6f98cf4bab0e",
+    "runs": [
+      {
+        "id": "30047e94-3c7e-4093-afd8-d6c533b6b1d7",
+        "status": "completed",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 2572,
+          "output": 54,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "turns": 1,
+          "missing": false
+        },
+        "tools": []
+      },
+      {
+        "id": "42f977e4-036e-4dfc-b9cb-02efeb483f40",
+        "status": "completed",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 5502,
+          "output": 6490,
+          "cacheRead": 18048,
+          "cacheWrite": 0,
+          "turns": 3,
+          "missing": false
+        },
+        "tools": [
+          {
+            "name": "se_read_source",
+            "isError": false
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "sessionId": "234ee5ae-d11e-4918-ad6c-d6dc693d4a39",
+    "matterId": "matter-79bcbda3-8569-4881-9fba-4cb023ca6467",
+    "runs": [
+      {
+        "id": "112bcbf9-d84a-4109-ac68-a020ae7dcd39",
+        "status": "completed",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 2779,
+          "output": 133,
+          "cacheRead": 2560,
+          "cacheWrite": 0,
+          "turns": 2,
+          "missing": false
+        },
+        "tools": [
+          {
+            "name": "runtime_load",
+            "isError": true
+          }
+        ]
+      },
+      {
+        "id": "983327f4-1a50-44f6-a4bc-0ac1306ac532",
+        "status": "completed",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "realProvider": true,
+        "usage": {
+          "input": 3551,
+          "output": 10351,
+          "cacheRead": 59904,
+          "cacheWrite": 0,
+          "turns": 9,
+          "missing": false
+        },
+        "tools": [
+          {
+            "name": "se_read_source",
+            "isError": false
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": true
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": true
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": true
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": true
+          },
+          {
+            "name": "ask_user",
+            "isError": false
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": true
+          },
+          {
+            "name": "se_submit_candidate",
+            "isError": false
+          }
+        ]
+      }
+    ]
+  }
+]

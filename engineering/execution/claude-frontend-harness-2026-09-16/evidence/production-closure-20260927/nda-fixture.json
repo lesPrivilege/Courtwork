@@ -1,0 +1,51 @@
+{
+  "id": "normal",
+  "sources": [
+    {
+      "id": "synthetic-inbound-nda-dev",
+      "version": 1,
+      "text": "SYNTHETIC INBOUND NON-DISCLOSURE AGREEMENT\nDisclosing Party: Northstar Bio, Inc.\nReceiving Party: Courtwork Holdings Pte. Ltd.\nTransaction: Project Cedar acquisition.\n\n1. Purpose. Recipient may use Confidential Information solely to evaluate Project Cedar acquisition.\n2. Recipients. Recipient may disclose Confidential Information only to employees and professional advisers with a need to know who are bound by confidentiality obligations at least as protective as this Agreement.\n3. Safeguards. Recipient shall maintain reasonable administrative, technical, and physical safeguards and notify Disclosing Party without undue delay after discovering unauthorized access.\n4. Term. These confidentiality obligations continue for three years after the Effective Date.",
+      "digest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d"
+    }
+  ],
+  "facts": {
+    "matterId": "synthetic-nda-matter-001",
+    "representedParty": "Courtwork Holdings Pte. Ltd.",
+    "disclosingParty": "Northstar Bio, Inc.",
+    "transaction": {
+      "id": "project-cedar",
+      "name": "Project Cedar acquisition",
+      "purpose": "evaluate Project Cedar acquisition"
+    },
+    "use": {
+      "purpose": "evaluate Project Cedar acquisition"
+    },
+    "recipients": [
+      {
+        "name": "Courtwork deal team",
+        "kind": "employees",
+        "needToKnow": true,
+        "boundToConfidentiality": true
+      },
+      {
+        "name": "Harrow LLP",
+        "kind": "professional advisers",
+        "needToKnow": true,
+        "boundToConfidentiality": true
+      }
+    ],
+    "security": {
+      "safeguards": "reasonable",
+      "noticeHours": 24
+    },
+    "term": {
+      "years": 3
+    }
+  },
+  "expectedStatuses": {
+    "purpose-limitation": "pass",
+    "need-to-know-recipients": "pass",
+    "security-and-notice": "pass",
+    "term-duration": "pass"
+  }
+}

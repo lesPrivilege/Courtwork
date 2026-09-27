@@ -1,0 +1,46 @@
+✔ AM-C unchanged core wire golden and complete no-op remain stable with Explore contribution (1077.452ms)
+✔ AM-C separates request shape, old prefix, and semantic tool diffs (561.926042ms)
+✔ AM-C records description, schema, and permission changes as expected diffs (1448.820417ms)
+✔ file candidate identity, exact replay, immutable pages, closed admission and atomic acceptance (93.525083ms)
+✔ coverage is monotone; frozen candidate precedes later unknown input; semantic failures stay diagnostic (81.095042ms)
+✔ failed deterministic checks cannot accept, and source membership changes invalidate file basis (80.231667ms)
+✔ illegal provenance, encoding, count, path and byte limits reject without candidate side effects (81.002334ms)
+✔ SIGKILL file save and accept commit boundaries leave zero or one complete durable effect (1144.288167ms)
+✔ metadata byte boundary, escaped wire envelope, file/path/count boundaries and empty files are exact (119.291916ms)
+✔ file diff binds only frozen base, uses linear replacement, preserves newlines and refuses oversized output (84.071042ms)
+✔ corrupt bytes, manifest, column bindings and a verification record copied from another identity refuse reads and acceptance (878.956833ms)
+✔ a changed trusted policy cannot accept an old PASS; empty evidence is diagnostic failed (187.394625ms)
+✔ unknown file schema exposes scoped bounded metadata but cannot decode or accept (189.721625ms)
+✔ verification outcome corruption is refused and acceptance rechecks required evidence (165.0915ms)
+✔ file runs require a concrete Session identity at the private bridge boundary (78.516042ms)
+✔ real service/Pi recorded write, permission CAS, save, human accept, deletion and producer-absent exact reads (2052.382583ms)
+✔ extra workspace reads and continued history yield unknown; an unrecorded selector never imports (985.742584ms)
+✔ actual list/grep/ask/load inputs, continued history and compaction-enabled admission remain unknown (3617.529875ms)
+✔ steering, failed coverage persistence, and Stop racing immutable capture cannot publish a complete candidate (1562.526083ms)
+✔ missing or corrupt history rejects recorded import even though current workspace bytes still exist (1174.445792ms)
+✔ a real loopback MCP tool executes only after its extra-input marker is durable (624.213834ms)
+✔ SIGKILL after history or rename leaves an orphan version that no later Run may import (3213.264625ms)
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (599.441083ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (295.742791ms)
+✔ T-EXT-3: malformed evidence is refused without a partial candidate (193.616042ms)
+✔ NDA producer receives the full submission schema and static reason contract on actual Pi wire (602.176291ms)
+✔ a reference producer can submit from advertised vocabulary and approved sources without buildReview (500.050209ms)
+✔ versioned revision action executes after acceptance, preserves history, and rejects stale or forged actions (458.975666ms)
+✔ unresolved and source-stale parents can be revised only with currently verified NDA input (664.951709ms)
+✔ host active Run, producer unload, incompatible packet, and stale generation offer no usable mutation (356.541958ms)
+✔ same Matter in new Session, project isolation, detach to chat, producer absent restart history (737.138542ms)
+✔ provider provenance is host-derived and preserves prior simulation records (real-route protocol uses loopback fixture) (554.635416ms)
+✔ concurrent Session admission is serialized before either execution starts (996.323334ms)
+✔ Core independent lifecycle: receipt/CAS/authority, revisions and immutable historical membership (149.327583ms)
+✔ Core worker is single writer; terminal and unknown runs cannot admit fresh model proposals (134.630459ms)
+✔ real transaction SIGKILL before commit and after commit before acknowledgement yields unique recoverable effect (726.467417ms)
+✔ v1 migration backs up original, retains current source membership; failed schema migration rolls back (430.4275ms)
+✔ missing application metadata fails closed; terminal Run cannot change or claim another candidate (245.358459ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50509.259125

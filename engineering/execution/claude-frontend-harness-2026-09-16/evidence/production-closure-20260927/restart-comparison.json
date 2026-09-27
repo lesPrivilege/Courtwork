@@ -1,0 +1,18 @@
+[
+  {
+    "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+    "exactDetailEqual": true,
+    "beforeEvents": 306,
+    "afterEvents": 306,
+    "beforeRuns": 2,
+    "afterRuns": 2
+  },
+  {
+    "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+    "exactDetailEqual": true,
+    "beforeEvents": 375,
+    "afterEvents": 375,
+    "beforeRuns": 1,
+    "afterRuns": 1
+  }
+]

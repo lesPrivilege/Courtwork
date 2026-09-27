@@ -1,0 +1,13 @@
+{
+  "candidateId": "candidate-52d3f64f455c9f5ea281f6377e1d87d956f3da03ab77da293a683eec947f8975",
+  "beforeVersion": 0,
+  "artifactAbsentBeforeDecision": true,
+  "exactEvidenceChecks": [
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "contentReview": "Parent compared 120/118/2/no-loss/synthetic-only statements against the bound source; no unsupported operational performance claim."
+}

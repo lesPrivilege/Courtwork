@@ -1,0 +1,26 @@
+{
+  "candidateId": "candidate-0a42ca4c8b4b29e0aaa3ed24fa0a1ffeb48b89b39197ca04f3874aafaa43f6f7",
+  "sourceDigest": "64076b0b818318de276b13a8789ac1ef6707df174858c1127500bbec548a6b1d",
+  "pending": true,
+  "noArtifact": true,
+  "exactDomainMatchesH0": true,
+  "statuses": [
+    {
+      "ruleId": "purpose-limitation",
+      "status": "pass"
+    },
+    {
+      "ruleId": "need-to-know-recipients",
+      "status": "pass"
+    },
+    {
+      "ruleId": "security-and-notice",
+      "status": "pass"
+    },
+    {
+      "ruleId": "term-duration",
+      "status": "pass"
+    }
+  ],
+  "toolErrors": []
+}

@@ -38,3 +38,10 @@ WK10b/WK11先做G2/G3所需部分。H4完整卸载/升级验证按失败和公�
 ## 收口与停点
 
 每张工单交付要说明关闭哪个门、只支持什么范围、剩余缺口。Astra更新current并提供可公开事实交接；存在阻塞G1–G5的缺口时本轮保持未完工，不以“已派单”结案。Opus执行会话/真实provider配置由实际接单与用户GUI输入建立，未发生前保持待接单/not_run，不模拟完成或擅自替代其写权。
+
+
+## 2026-09-27 · Bounded formal closure evidence update
+
+[The actual browser/provider/Host/Core packet](../claude-frontend-harness-2026-09-16/evidence/production-closure-20260927/README.md) now supports the fixed H0 normal NDA path through an independently matched proposal, operator UI decision, accepted Artifact and a new Session's exact artifact read. Source input/gold stays fixed; both development extensions remain synthetic. Process-restart equality, real cancellation and decision replay/actor/closed-candidate refusals are separately recorded. EC-1 corrects a demonstrated generic proposal-schema omission and passes independent38/38 plus a fresh unassisted real submission after restart.
+
+This adds bounded G1/G2/G3 evidence; it does not relabel operator review as end-user personal review, or close fresh-clone/GUI configuration, professional-quality, all accessibility, public media or claim-mapping requirements. [Prepared reproduction/media handoff](../claude-frontend-harness-2026-09-16/evidence/production-closure-20260927/walkthrough.md) is not a timed G4 recording or G5 publication. Existing frontend/media/publication assignments remain with their owners; no new release/deployment is authorized by this evidence update.
