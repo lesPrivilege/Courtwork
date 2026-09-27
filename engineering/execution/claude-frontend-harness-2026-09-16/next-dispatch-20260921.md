@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Runtime Settings I1 return accepted
+
+[Original Claude RFS delta accepted](evidence/runtime-settings-i1-final-20260927/README.md): `6acad62` / `d37320c`, independent80/80 and OpenAI browser recovery/role checks. Main fast-forward preserves all histories. Production06c I1's read-only frontend is complete within its recorded scope; do not re-dispatch RFS-R1/R2 or infer native connect/disable/selection support. CB-D1 remains the separately registered frontend density follow-up under the original owner; this acceptance itself starts no further writer. User routing still assigns bounded small tasks to CW dogfooding and important architecture/integration to Astra/Claude.
+
+
 ## 2026-09-27 · Original Claude correction order: Runtime Settings I1
 
 The delivered `36f8357` frontend is [reviewed, not accepted](evidence/runtime-settings-i1-review-20260927/README.md). Preserve the original `claude/runtime-settings-i1-20260927` branch/tree and the selected design. Correct only RFS-R1 malformed-inventory admission/retry and RFS-R2 scoped reading typography, with the failing-before/passing-after browser/controller evidence named in the original06c record. Group placement and glyph are adopted; two GETs need no refactor in this return. Do not assign these same leased files to CW small-task workers or a second frontend author. Parent reviews the fixed delta before integration; CB-D1 and future production actions are not bundled into the return.

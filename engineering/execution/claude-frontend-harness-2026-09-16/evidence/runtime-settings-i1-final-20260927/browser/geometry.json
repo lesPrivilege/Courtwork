@@ -1,0 +1,124 @@
+{
+  "desktop": {
+    "controls": [
+      {
+        "height": 28,
+        "name": "Back to runtimes"
+      },
+      {
+        "height": 28,
+        "name": "Refresh runtimes"
+      }
+    ],
+    "labels": [
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px"
+    ],
+    "scrollWidth": 1280,
+    "technical": [
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px"
+    ],
+    "values": [
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px",
+      "15px"
+    ],
+    "width": 1280
+  },
+  "narrow": {
+    "controls": [
+      {
+        "height": 44,
+        "name": "Back to runtimes"
+      },
+      {
+        "height": 44,
+        "name": "Refresh runtimes"
+      }
+    ],
+    "detailScrollWidth": 324,
+    "detailWidth": 324,
+    "height": 844,
+    "pointerFine": true,
+    "scrollWidth": 390,
+    "technical": [
+      "11.5px",
+      "11.5px",
+      "11.5px",
+      "11.5px"
+    ],
+    "values": [
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      },
+      {
+        "font": "15px",
+        "line": "24px"
+      }
+    ],
+    "width": 390
+  }
+}

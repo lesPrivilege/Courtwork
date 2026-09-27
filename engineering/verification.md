@@ -1,5 +1,8 @@
 # 验证选择与证据边界
 
+2026-09-27 · [Production06c I1 frontend final acceptance](execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-final-20260927/README.md), correction `6acad62` / accepted `d37320c`: independent80/80, OpenAI browser repeats the original malformed-response failure and confirms safe error → actual retry → recovery, plus1280/390 reading-role typography and zero no-Session Host state changes. Actual user8787 readout is checked after an idle restart, preserving10 Session records. Original author1738/full and smoke are reused only as earlier author evidence. Native200%/spacing/forced-colour/reader and configured-managed/long-id browser cases remain unexecuted; no connection/runtime mutation capability is inferred.
+
+
 2026-09-26 · [Order3 frontend independent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/stream-frontend-final-20260926/README.md), source4d0bd98/10bc6f3: Parent OpenAI browser verifies reference semantics, sanitization, selection-held definition update and Chat/Attention event-connection recovery; Luna58/58, isolated integration28/28 and smoke pass. Prior7944e12 visual evidence is explicitly reused only for unchanged layout/motion. Author1710/1710 and performance rounds remain separately attributed; native accessibility, Node22/24 and live-provider coverage remain unexecuted. No schema/dependency or release-source change.
 
 

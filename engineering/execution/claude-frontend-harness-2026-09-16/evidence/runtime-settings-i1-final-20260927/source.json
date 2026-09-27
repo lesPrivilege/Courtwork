@@ -1,0 +1,13 @@
+{
+  "productFix": "6acad62da80ab7f1984fb799dbca5072869db9ce",
+  "acceptedHead": "d37320c1906951b17e3256b6ee92d4cc4f174dff",
+  "priorReviewed": "36f8357e46bbb3581b5a83dd251a67205c0472a6",
+  "previousMain": "7b29ee72e67b79df9f088db590ea3ad481732607",
+  "integration": "fast-forward preserving author and review histories",
+  "browser": "OpenAI in-app browser through CUA",
+  "viewportModes": [
+    "1280x900",
+    "390x844 fine pointer"
+  ],
+  "nativeZoomAndScreenReader": "not_run"
+}

@@ -191,3 +191,10 @@ This disposes the [parent review](evidence/runtime-settings-i1-review-20260927/R
 - **RFS-D1 / D2.** Applied as ruled: the Agents group and glyph are kept, and the second read is kept.
 
 Targeted 124/124 and 8 lints exit 0. The full suite and smoke are reused from `a6e07f8` and not repeated. The writer is released again. No push or merge.
+
+
+## 2026-09-27 · Production I1 frontend final acceptance
+
+Astra accepts original Claude fix `6acad62` / final head `d37320c`; main fast-forwards from `7b29ee7` with author/review histories preserved. [Independent delta receipt](evidence/runtime-settings-i1-final-20260927/README.md) closes RFS-R1 and RFS-R2: Luna80/80; Parent OpenAI browser repeats the original null-row response, observes a recoverable failed read, one real retry request, retained focus and zero page errors;1280/390 role measurements confirm15px reading,11.5px labels/technical,28/44px controls. Independent no-Session Host state bytes remain equal. RFS-D1/D2 retain their prior accepted/adjusted scope.
+
+Only after zero active Runs, the user Host restarts onto accepted source; all10 Session records compare equal, and actual8787 Settings → Agents displays the backend inventory. No paid provider, full-suite rerun, push/deploy, native management or new frontend writer. Author1738/full and prior smoke are explicitly reused only as author evidence; native200%/spacing/forced-colour/reader and configured-managed/long-id browser limits remain open. This closes the read-only production inventory consumer, not all Runtime management or product-release gates.

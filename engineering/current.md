@@ -1,5 +1,10 @@
 # 当前工程状态
 
+## 2026-09-27 · Runtime Settings production reader accepted and integrated
+
+[Final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-final-20260927/README.md) accepts original Claude correction `6acad62` / head `d37320c`, fast-forwarding main from `7b29ee7`. RFS-R1/R2 close: independent80/80 plus original malformed-response browser reproduction now fails safely, retains rows/focus and recovers with a real retry; primary values/reasons15px, labels/technical11.5px and28/44px controls are verified at1280/390. Independent test Host retains identical Store bytes with0Sessions/0Runs. On an idle user8787 restart, all10 Session records remain equal and the actual new Settings → Agents reader is visible. No runtime connection/management mutations or live-check claim; every row still not_checked. Full-suite/native accessibility/managed-browser limits remain explicit, prior author evidence is not relabelled. No push/deployment or next author launched; CB-D1 remains queued.
+
+
 ## 2026-09-27 · Runtime Settings frontend reviewed; two corrections held
 
 [Production06c parent review](execution/claude-frontend-harness-2026-09-16/evidence/runtime-settings-i1-review-20260927/README.md) receives Claude product `a6e07f8` / evidence `36f8357` on original `claude/runtime-settings-i1-20260927`. Luna61/61 and OpenAI browser valid-data/keyboard/refresh/reentry checks pass; malformed version1 `items:[null]` causes an uncaught render error and then zero-HTTP Refresh retries. RFS-R1 returns a view-safe fail-closed shape guard with last-good-reading recovery; RFS-R2 scopes primary detail values/reasons to the existing15px reading role, preserving compact controls and technical metadata. Parent accepts Agents group/glyph and allows independent duplicate GETs in this slice. Original Claude retains both corrections; no frontend source merged or substitute author launched. I1 backend remains accepted; user8787 and other writers are unchanged.
