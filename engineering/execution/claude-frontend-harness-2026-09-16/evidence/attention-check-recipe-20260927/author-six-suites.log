@@ -1,0 +1,33 @@
+✔ Attention CAS, full request identity, typed transitions and immutable receipt (109.239459ms)
+✔ scope applies before IDs, descriptors, counts, lookups, receipts and source queries (86.176458ms)
+✔ runtime registry-only grant hides detail, search predicates, event/receipt/source and signals (83.50275ms)
+✔ explicit signal policy records observations without status, seen or authorization changes (80.109917ms)
+✔ schema-aware exact/literal grep/relation filters are bounded and no regex executes (80.759042ms)
+✔ source references bind exact retained Core bytes and scope; external locators stay unknown (79.448458ms)
+✔ unknown schema/action, stale mutation, corrupt state and hidden unknown schema fail closed (259.448875ms)
+✔ simultaneous actions serialize CAS, and needs_you is an explicit typed transition (80.430917ms)
+✔ missing audit/receipt or rewritten receipt is refused before a new state change (363.120708ms)
+✔ GitHub fixture preserves raw conditional values, pagination, snapshots on 304, and changing poll cadence (1.465792ms)
+✔ GitHub fixture retains notification semantics that are unsafe to collapse (0.133209ms)
+✔ GitHub fixture surfaces unsupported credentials, revoked authorization and rate limits (0.468625ms)
+✔ GitHub fixture rejects contradictory scripts (0.163125ms)
+✔ Gmail fixture supplies duplicate and out-of-order push/history pages without advancing a caller cursor (1.689834ms)
+✔ Gmail fixture presents interruption, gap, expired watch, mismatch, and revoked authorization as explicit provider outcomes (0.511042ms)
+✔ Gmail fixture rejects malformed and contradictory scripted responses (0.273625ms)
+✔ ATT-BE-01 HTTP round trip keeps multi-Matter/source/execution refs through typed CAS and producer loss (796.548167ms)
+✔ Attention scope, actor ownership, unknown fields and schema versions fail closed over every query kind (168.812416ms)
+✔ Runtime Attention adapter captures host execution context, records signals only, and closes with the Run (707.914333ms)
+✔ generated Attention consumer packet records the HTTP/Pi/Core invariants (1.171708ms)
+✔ Attention SIGKILL at before_commit leaves zero or one complete request effect (199.862875ms)
+✔ Attention SIGKILL at after_commit_before_ack leaves zero or one complete request effect (191.386917ms)
+✔ synthetic trace vectors preserve edits, stale approval, unknown effect, duplicate surfacing and non-score samples (1.623167ms)
+✔ trace fixture validator rejects contradictions rather than turning missing evidence into a score (0.206375ms)
+✔ trace fixture validation runner is executable within the fixture directory (65.102625ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4453.2995

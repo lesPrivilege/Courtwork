@@ -1,5 +1,21 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Sol recipe accepted; Claude remains on CB-R1
+
+[Fixed recipe acceptance](evidence/attention-check-recipe-20260927/parent-review/README.md) closes Sol's finite task and F-01 at `75027fc`; no further Sol writer is released automatically. Original Claude corrects CB-R1 only. Hermes protocol contract remains ready behind that parent disposition; it is not started by accepting this independent recipe.
+
+## 2026-09-27 · CB-R1 original-author correction active
+
+[CB-D1 review](evidence/code-block-density-20260927/parent-review/README.md) adopts the density/side-column design but returns code-copy whitespace fidelity on `c61557c`. Original Claude/Opus is actually responding to the narrow return; no Hermes release or second frontend author. Sol's delivered `c93391c` fixed check recipe remains independent and in review.
+
+## 2026-09-27 · Actual author receipts
+
+Claude's original Opus conversation confirms CB-D1 pickup, idle-tree fast-forward to `d4a08d7`, and shared Markdown/reader/style inspection. Sol `/root/sol_attention_check_recipe` is actually dispatched from `6e983dc` in isolated `codex/attention-check-recipe-20260927`. Both source deliveries remain pending. Luna's preflights are consumed in the linked original contracts. Hermes protocol construction is ready but queued behind CB-D1 parent disposition; no second Claude/core writer starts.
+
+## 2026-09-27 · Concrete next contracts
+
+[Hermes protocol slice](core-runtime-loop-20260921.md#2026-09-27--hermes-protocol-slice-next-claude-serial-core-assignment) is ready for Claude after CB-D1 parent disposition: pinned HTTP/SSE protocol + synthetic loopback, no Host/Store adoption. [Fixed Attention check recipe](03-check-recipe.md#2026-09-27--fixed-attention-contract-recipe-sol-assignment) is released for independent Sol authoring with no runner/authority/UI overlap. Luna source reports and Astra corrections are linked from each original owner.
+
 ## 2026-09-27 · Authorized serial construction: CB-D1 then Attention integration
 
 Astra releases [CB-D1](06b-dogfood-friction-20260920.md#2026-09-27--cb-d1-released-to-original-claude-serial-lane) to the original Claude/Opus lane first. Core Hermes transport selection is being bounded by Luna against accepted P03/Runtime contracts; its implementation is not yet dispatched. A separate Luna preflight identifies one independent small tools/backend task for Sol or actual CW dogfooding. Parent owns contracts, routing and independent disposition; no duplicate frontend/core author. Actual receipt follows after dispatch is observed.

@@ -1,0 +1,44 @@
+# CB-D1 Luna independent review
+
+Date: 2026-09-27
+
+Reviewed head: c61557c0e6c5d961603a58ffecd4b92743691839
+
+Product commit: 43aa69e0d5c7bd854b5a522a8e4e3cb2d407244d
+
+Base: d4a08d706247220d89640b59bc3d562d7d1ea75f
+
+## Scope
+
+Read-only delta review of the shared code-block projection, Markdown reader, copy semantics, reader-role styling, and streaming consumers. No source, provider, browser, or main checkout was edited. No browser/headlessChrome was run in this lane; parent OpenAI CUA separately supplied the production copy-boundary probe at /Users/lesprivilege/Projects/courtwork-cbd1-review-20260927/copy-boundary-probe.json.
+
+## Source findings
+
+The shared unlabelled block builders now place code and Copy in one side column. ui-controls.mjs:296-341 uses codeCopy for Chat/Attention/streaming Markdown and markedCodeText; markdown-reader.mjs:42-46 uses the same side-column shape but copies element.textContent directly. Labelled source-inspector/appearance blocks retain their toolbar rows.
+
+The shared role split is internally consistent for normal fenced/indented Markdown: labels/technical metadata remain on data-list, while code values/reasons use the reading token through the scoped runtime class. No streaming state or event projection code changed; the targeted stream suites pass.
+
+## Blocking exact-copy finding
+
+markedCodeText at app/web/ui-controls.mjs:308-310 unconditionally removes one final LF from pre.textContent. That is valid for the normal marked-generated case where marked appends a terminal LF to a code token with no authored trailing line ending. It is not valid for all authored code:
+
+- fenced Markdown with retained trailing blank lines: marked preserves the authored newline(s) in the code token; removing one loses a blank line;
+- raw HTML pre/code: marked preserves authored content without synthesizing the terminal LF. An authored printf "x" followed by LF becomes printf "x" after markedCodeText; an authored two-LF ending loses one newline.
+
+The focused source probe is in luna-boundary-probe.stdout.txt. Parent OpenAI CUA independently reproduced the same production handler behavior for fenced trailing blank and raw pre/code in copy-boundary-probe.json. This violates the author README's exact-authored-bytes claim and makes Chat/Attention's shared builder disagree with the reader's direct element.textContent path for affected content.
+
+The existing code-block browser test only exercises a one-line fenced command and a multiline block without trailing blank/code-HTML edge cases, so its exact-copy assertions do not close this counterexample. Request a narrow correction: carry the authored/token code text into the Copy action or otherwise remove only a parser-synthesized terminal LF with an explicit provenance rule. Do not trim arbitrary authored bytes.
+
+## Tests
+
+Command:
+
+node --test --test-concurrency=1 app/tests/chat-actions.test.mjs app/tests/attention-agent.test.mjs app/tests/markdown-core-read.test.mjs app/tests/markdown-source-independent.test.mjs app/tests/output-message-boundary.test.mjs app/tests/stream-thread-projection.test.mjs app/tests/stream-session-events.test.mjs
+
+Result: 65 passed, 0 failed, 0 cancelled, 0 skipped; exit code 0; duration 4.585s. Raw stdout is in luna-tests.stdout.txt.
+
+The targeted suites cover shared Copy lifecycle/focus, Chat/Attention final-answer projection, Markdown source identity and reader paging, output-message boundaries, stream sequencing, segment projection, and unclosed-fence streaming behavior. No streaming regression was observed in this scope.
+
+## Recommendation
+
+Hold CB-D1 acceptance for the exact-copy correction and add focused fenced trailing-blank plus raw pre/code tests. The density/side-column structure and scoped reader-role CSS are otherwise bounded; visual acceptance remains parent-owned.

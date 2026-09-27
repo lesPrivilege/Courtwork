@@ -107,3 +107,7 @@ The [bounded next assignment](../execution/claude-frontend-harness-2026-09-16/ne
 ## 2026-09-21 · P03-C first increment ready
 
 [The finite Fable transport order](../execution/claude-frontend-harness-2026-09-16/p03c-agents-transport-20260921.md) consumes the existing Agents protocol adapter. First increment adds the actual SDK transport and synthetic wire evidence, with no live exposure or Host/schema mutation. Remote binding and one governed read-tool consumer follow under this RD and the original Store owner; current Pi `{id,path}` must not be reused as a remote locator.
+
+## 2026-09-27 · Hermes Attention consumer: transport selection and first slice
+
+Astra selects the pinned Hermes API-server runs surface for the [next serial Claude protocol assignment](../execution/claude-frontend-harness-2026-09-16/core-runtime-loop-20260921.md#2026-09-27--hermes-protocol-slice-next-claude-serial-core-assignment). The first slice is standalone HTTP/SSE conformance with synthetic data, not new Host registration. [Luna preflight and parent wire corrections](../execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-preflight-20260927/README.md) distinguish native Run identity/status, cancellation intent, missing replay and owner-loss unknown. Current P03/Kit/Host authority remains; Hermes tools/approvals, live provider and product exposure are not adopted.

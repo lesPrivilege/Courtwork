@@ -1,0 +1,128 @@
+# Worker-slice preflight · fixed Attention contract check
+
+Date: 2026-09-27  
+Read-only baseline: Courtwork main at 800d591  
+Decision owner: Astra; proposed implementer: Sol; independent reviewer: Luna  
+Scope: one small DF-04/RD-009 backend/tools/documentation slice, plus a read-only CB-D1 reference inventory
+
+## Recommendation
+
+Dispatch one bounded Sol task to add a second frozen Host check recipe named `node-test-attention-contract`. Its command and test paths are fixed in the code-defined catalog. The model still supplies only `recipeId`; it cannot provide a command, arguments, working directory, environment, timeout, or test selector.
+
+The recipe would make the next Hermes/Attention dogfood case observable through the existing `check_run` seam: a private Courtwork candidate can run the existing backend and synthetic Attention contract tests, and the Host records the same `check.started` / `check.settled` facts already used by DF-04.
+
+This is the smallest useful slice because RL-1 reached a real CW candidate but explicitly could not invoke `check_run`: the only current recipe runs the whole repository with fixed `node --test`, while RL-1 needed a narrow test selection. DS-1 independently confirms that the current dogfood path can complete a small documentation task without `check_run`; it does not solve targeted verification.
+
+No Runtime Port, Core schema, provider adapter, UI, frontend, arbitrary command path, dynamic map generator, or general SDK is needed.
+
+## Evidence and nearest precedents
+
+| Evidence | Exact source | Finding used here |
+|---|---|---|
+| RL-1 real CW dogfood | engineering/execution/claude-frontend-harness-2026-09-16/evidence/runtime-load-recovery-20260927/README.md:7-16, 24-28 | The live CW author made a small backend/tool diagnostic change, encountered eight tool errors and substantial reading overhead, and invoked no check because fixed node-test could not select narrow tests. |
+| RL-1 contract record | engineering/research/RD-009-trusted-harness-extensions.md:93-115, especially 97 and 109 | The current problem is explicitly recorded: the fixed node-test recipe cannot run a narrow test selection; arbitrary bash or upstream patching is excluded. |
+| DS-1 small dogfood | engineering/execution/claude-frontend-harness-2026-09-16/evidence/schema-doc-dogfood-20260927/README.md:1-11 | A ten-call documentation correction succeeded through CW without code, tests, or check_run; this validates small-task routing but leaves targeted backend verification open. |
+| Current recipe contract | app/docs/check-recipes.md:1-38, 40-48, 50-99, 130-165; app/runtime/check-recipes.mjs:1-30 | The catalog is frozen and code-defined; only recipeId is model input; candidate/private-worktree, approval, minimal environment, limits and outcome semantics already exist. |
+| Current governance tests | app/tests/check-recipes.test.mjs:135-209, 211-283, 285-400, 402 onward | Existing tests already cover read_only zero spawn, unknown recipe, exact approval payload, non-zero/zero exits, cancellation, restart unknown and same-Run write/check revision binding. Extend these tests for the new fixed descriptor; do not create a new governance mechanism. |
+| Attention backend precedents | app/tests/attention-core.test.mjs; app/tests/attention-http.test.mjs; app/tests/attention-recovery.test.mjs; app/tests/attention-github-fixture.test.mjs; app/tests/attention-gmail-fixture.test.mjs; app/tests/attention-trace-fixture.test.mjs | Existing backend and synthetic source cases are independently addressable and do not require a live connector or provider. |
+| Existing Attention authority | docs/work-core/attention.md:1-3, 55-63; app/docs/attention-agent.md:19-35 | Core owns formal state and human resolution; Host owns captured identity, disclosure, tools and effects. A check recipe only reports a process outcome. |
+
+The nearest implementation precedent is the existing node-test v1 row in app/runtime/check-recipes.mjs. The nearest dogfood precedent is the accepted DF-04 same-Run write → fixed check → settlement/reopen flow in engineering/execution/claude-frontend-harness-2026-09-16/03-check-recipe.md:5-24, 27-43, 57-74. The proposed slice adds one fixed catalog row and its focused contract tests; it does not alter the runner or settlement authority.
+
+## Proposed exact assignment
+
+Dispatch from the actual current main at assignment time, with Sol in an isolated worker tree. Astra retains contract, integration and acceptance. Luna reviews the fixed descriptor, source diff, targeted checks and the resulting candidate receipt. The original Claude frontend lane, including CB-D1, remains untouched.
+
+### Product/tool files in scope
+
+1. app/runtime/check-recipes.mjs — add one frozen recipe descriptor:
+
+   - id: `node-test-attention-contract`
+   - version: 1
+   - title: `Run Attention backend contract tests`
+   - command: the Host’s own Node executable, exactly as node-test v1
+   - argv: exactly the fixed list below
+   - cwd: the existing private candidate
+   - timeout: retain the existing 120000 ms limit
+   - output limit: retain the existing 65536 bytes per stream
+   - environment: retain the existing minimal policy
+
+2. app/docs/check-recipes.md — add the catalog row and state that this recipe is a Courtwork candidate contract. The document must say that its fixed app/tests paths are expected to exist in a Courtwork candidate; on another candidate, a non-zero process result is an ordinary check outcome and does not become an acceptance or a Host failure.
+
+3. app/tests/check-recipes.test.mjs — extend the existing catalog/approval tests to assert the exact recipe id, version, argv, cwd, timeout, output limit and minimal environment. Keep the existing read_only, deny, stale candidate, cancellation and restart tests unchanged and passing. Add one bounded integration case proving the approved descriptor reaches the runner unchanged; do not add a general command/argument parameter.
+
+No app/runtime/check-tools.mjs, app/runtime/check-runner.mjs, RuntimeStore schema, server/runtime.mjs, Runtime Port, Core, provider configuration, UI module, or frontend test file should change in this slice.
+
+### Exact fixed command
+
+The recipe’s argv should be:
+
+    --test-concurrency=1
+    app/tests/attention-core.test.mjs
+    app/tests/attention-http.test.mjs
+    app/tests/attention-recovery.test.mjs
+    app/tests/attention-github-fixture.test.mjs
+    app/tests/attention-gmail-fixture.test.mjs
+    app/tests/attention-trace-fixture.test.mjs
+
+The bundle is intentionally backend and synthetic-source focused. It excludes attention-actions, attention-triage, attention-agent, attention-ui02 and other UI-oriented suites so the slice does not overlap Claude’s frontend lane. It also excludes live connectors and paid providers; the GitHub/Gmail files are deterministic fixtures.
+
+The fixed catalog remains the authority. Do not add a recipe argument such as testFiles, pattern, cwd, command, argv, scope, provider. Do not turn this into a generic target selector. If the current candidate model cannot safely distinguish a Courtwork candidate from an unrelated candidate, keep the row fixed and document the ordinary non-zero missing-path result; do not invent a registry or applicability protocol in this slice.
+
+## Failure cases and required evidence
+
+The worker must preserve existing DF-04 behavior and show these cases in the focused checks or evidence:
+
+| Case | Expected result | Why it matters |
+|---|---|---|
+| Unknown recipe id | Tool error before permission or process start | Preserves the existing catalog boundary. |
+| Read-only mode | Denied with zero process starts | A new recipe must inherit the Host ceiling. |
+| Ask mode | Permission payload contains exact id/version/command/argv/private-candidate/limits/environment | The person approves the real fixed action, not a label. |
+| Stale or revoked candidate after approval | candidate_changed / run-closed refusal with zero new process start | Prevents a fixed recipe from bypassing candidate identity or write-revision fencing. |
+| Target test failure | status: completed, non-zero exit, retained bounded output | A failing test is process evidence, not a Host failure or formal Work rejection. |
+| Target paths absent in an unrelated candidate | status: completed, non-zero exit with ordinary test output | The fixed recipe must not silently claim applicability or invent a new dynamic path check. |
+| Timeout or cancellation | Existing timed_out / canonical cancelled settlement, retained partial output, no duplicate settlement | Confirms the new row reuses the existing runner and Host settlement. |
+| Host restart after check.started | One unknown settlement and no replay | Keeps recovery semantics independent of Attention or Hermes. |
+| Current Courtwork candidate | Approved recipe records exact argv and exits 0 only when the six fixed suites pass | This is the live CW dogfood proof that resolves RL-1’s narrow-check friction. |
+
+The live CW dogfood should use a synthetic/private candidate based on the current reviewed source and the local fake provider only. It should capture the permission descriptor, check.started, check.settled, bounded output and candidate identity. It should make no provider request beyond whatever deterministic test fixtures create internally, inspect no credential store, restart no user Host, and touch no user data.
+
+## Checks and handoff
+
+Recommended worker checks, run from the app directory or equivalent candidate path:
+
+    node --test --test-concurrency=1 tests/check-recipes.test.mjs tests/control-plane.test.mjs tests/runtime.test.mjs
+
+    node --test --test-concurrency=1 tests/attention-core.test.mjs tests/attention-http.test.mjs tests/attention-recovery.test.mjs tests/attention-github-fixture.test.mjs tests/attention-gmail-fixture.test.mjs tests/attention-trace-fixture.test.mjs
+
+    npm run smoke
+
+The worker should report exact exit/results and any unrun check. Parent acceptance should run the existing document-link and applicable verification checks, then one live synthetic-candidate check_run using node-test-attention-contract. A passing exit code remains process evidence only; Attention formal state and human resolution stay with Core.
+
+Stop before any of the following:
+
+- changing the recipe runner, Host approval schema, store events or Runtime Port;
+- introducing candidate applicability metadata, a recipe registry, dynamic arguments or arbitrary shell;
+- modifying Attention Core state, event normalization, Hermes transport, connector authentication, scheduler or notification effects;
+- changing Claude’s UI lane or CB-D1 frontend files;
+- claiming real Hermes, live GitHub/Gmail, provider, credential, deployment or formal Work acceptance.
+
+## CB-D1 reference intake (read-only, no UI execution)
+
+CB-D1 is already registered and dispatched to the original Claude frontend lane. The references below are the material that the shared code-block-density task should consume; they do not authorize this Sol slice to touch frontend code.
+
+| Purpose | Existing reference | What it contributes |
+|---|---|---|
+| Intake and measured limits | engineering/execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md:392-404 | Registers the single-line screenshot as a screenshot-relative observation, identifies the shared code-block owners, preserves the unknown viewport/zoom, and requires short-block plus multiline/desktop/narrow/200% evidence. |
+| Canonical problem route | engineering/design/agent-interface-2026-09-10/precedent-map.md:318-331 | markdown.reading is the canonical reading/Markdown route; owner is docs/markdown-reader.md; nearest implementation is markdown-reader.mjs and markdown-source.mjs; Copy is a local action and does not confer review authority. |
+| Reader contract | docs/markdown-reader.md:1-9, 11-35, 37-40 | Fixed revision/source identity, complete byte/hash verification, closed semantic tags, read-only projection, complete-source rendering, and distinct Copy code versus Copy block source behavior. |
+| Rendering implementation | app/web/markdown-reader.mjs:41-47, 85-92 | Shared code-block and code-toolbar anatomy; code text and original block source have separate copy actions. |
+| Shared style owner | app/web/styles.css:2219-2243, 6013-6017 | markdown-body pre, code-block, code-toolbar and Chat/Attention shared overrides. The correction belongs in the shared rule family, not a page-local patch. |
+| Spatial/role grammar | engineering/design/visual-spatial-grammar.md:19-30, 58-64 | Treat it as a reading surface with a secondary action; use existing tokens; record role, pointer/viewport/text-scale assumptions, measured composition, focus/scroll and overflow evidence. |
+| Density constraints | engineering/design/type-density-constraints.md:24-35, 55-64 | Keep reading body roles and line rhythm stable, preserve 44px coarse targets/focus, change one dimension at a time, and do not invent a global compact mode or spacing scale. |
+
+No web lookup or UI execution was performed for CB-D1. The references are consumed only to keep the proposed Sol slice independent and to hand the Claude owner the exact existing grammar.
+
+## Dispatch boundary
+
+This is one proposed small worker slice, not a second roadmap. It reuses the existing DF-04 recipe catalog and existing Attention tests, and leaves architecture, Core state, Runtime Port, frontend ownership and formal acceptance with their current owners. This preflight itself changes no repository file, does not inspect .agents, and does not inspect credentials.

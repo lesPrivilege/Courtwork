@@ -454,3 +454,9 @@ The product change is `43aa69e`; the evidence and this entry follow in the next 
 - **Not covered.** Native zoom and OS text size (only emulated), text spacing, forced colours, screen reader, touch hardware, the live Host.
 
 Writer stopped for parent review. Hermes core is not started. No push, merge or service restart.
+
+**Dispatch receipt:** Astra sent the committed `d4a08d7` assignment through OpenAI computer use to the original Claude Code conversation “Live assistant text streaming” (Opus5.5), whose latest delivery was the accepted Runtime Settings return. The UI shows the submitted message and Running/Waiting for Claude state; [dispatch capture](evidence/code-block-density-20260927/claude-dispatch.png). This proves submission, not implementation progress or completion. No second Claude session was launched.
+
+## 2026-09-27 · CB-D1 parent disposition: layout adopted, CB-R1 returned
+
+[Parent review](evidence/code-block-density-20260927/parent-review/README.md) fixes `c61557c` / product `43aa69e`. Side-column Copy and removal of the generic header are adopted after OpenAI browser1440/390 Chat/Attention checks, with original wrap rules and narrow44px targets. **CB-R1 adopt:** generic terminal-LF stripping loses authored raw-pre and retained fenced whitespace; production browser Copy-handler counterexamples are retained. Original Claude corrects only copy fidelity and focused tests/evidence in the preserved branch. No source integration or Hermes release until the correction is independently reviewed.

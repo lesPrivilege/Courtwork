@@ -1,0 +1,157 @@
+# Hermes construction preflight — first synthetic transport
+
+**Baseline.** Courtwork main@800d59169954d0057c5dcacd4a711f49c295bea9, with P03-B Pi Port and K1–K5 Kit/Profile work already accepted. Hermes installed metadata identifies v0.21.3 (2026.9.14) from source checkout /Users/lesprivilege/Projects/hermes-agent at d7b836ab1c0cddaafc109ed24c9a83b6191cdc88; the checkout is clean on main. No Hermes process, provider, credential, personal configuration, or native session was started or read.
+
+## Recommendation to freeze
+
+**Use Hermes’ authenticated API-server run surface, POST /v1/runs plus GET /v1/runs/{run_id} and /events SSE, for the first provider-free synthetic adapter fixture.** Treat it as the Hermes API-server transport behind a new versioned Runtime Port adapter. Do not start the native Hermes server in this slice; use a deterministic HTTP/SSE loopback fixture that preserves the documented route, identity, status and fault shapes.
+
+This is the smallest transport with a native Run identity and direct mapping to the existing managed Port: create returns run_id immediately; status and SSE carry the same run_id; stop is explicit; approvals and steer are separate endpoints; and the source persists idempotency/status with owner PID/start metadata. The API-server source marks a non-terminal run as interrupted when its owner process is gone (gateway/platforms/api_server_runs.py:267-300). That gives the Host a reconciliation fact while preserving CW’s own Run/effect ledger.
+
+The first slice should expose only:
+
+| Port obligation | First Hermes API-server slice | Required interpretation |
+|---|---|---|
+| describe/admit | Supported in the synthetic adapter with pinned hermes-agent@d7b836… source revision and endpoint identity. | Configuration identity is the explicit fixture endpoint; no Hermes native config is imported. |
+| start | POST /v1/runs with nonempty input, deterministic Host Idempotency-Key, optional model only as opaque test data, then capture run_id and returned/session status. | Host command identity remains authoritative. The API server’s idempotency store is a native duplicate defense, not a replacement for CW receipts. |
+| continue | Supported only through an explicitly retained Hermes session_id in the next synthetic request. | Persist native run_id per attempt and session_id separately; never derive a native identity from a display title. |
+| observe | GET /v1/runs/{run_id}/events as SSE plus GET /v1/runs/{run_id} status. | SSE is a live stream. Missing stream frames are a coverage gap; status alone cannot reconstruct text or effects. |
+| interrupt/cancel | POST /v1/runs/{run_id}/stop, which returns stopping; wait for terminal run.cancelled/status before calling the CW Run cancelled. | A returned stop intent is not termination. If the fixture drops the terminal, preserve CW unknown. |
+| recover | Bounded status recovery only after synthetic owner restart: fetch durable status and map non-terminal owner-loss to unresolved/unknown. | Do not claim event replay or exact transcript recovery in the first slice; the API server’s SSE queue is process-local. |
+| reply/tool-result | Unsupported in slice 1. Hermes owns its internal tool loop; /v1/runs exposes approval resolution, not a generic CW function-result endpoint. | Do not advertise CW tool calls or let native tool output become a Host effect without a later contract. |
+| steer | Unsupported in slice 1, despite the documented endpoint. | Leave follow-up/steer out until the Host’s active-Run semantics and native turn identity are separately mapped. |
+| compact / dispose | Unsupported compaction; dispose closes the transport only. | Closing HTTP/SSE does not cancel or delete a Hermes run/session. |
+
+The first synthetic run should be text-only and provider-free. It can emit queued → running → message.delta/message.complete → completed, stopping → cancelled, failed, stream-drop, and owner-restart/interrupted outcomes. It must not claim model quality, Hermes provider reachability, native filesystem tools, approvals, or external notification behavior.
+
+## Why this transport wins the first slice
+
+The official Hermes Programmatic Integration (https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration) lists three external protocols: ACP (JSON-RPC/stdin), TUI Gateway (JSON-RPC/stdin/WebSocket) and API server (HTTP/SSE). It says all drive the same AIAgent core but expose different feature sets. The API server section documents /v1/runs, status, event SSE, approval, steer, stop and capabilities. The pinned source implements the route table and run state in gateway/platforms/api_server_runs.py:115-183,267-300,497-625,840-888,903-1009.
+
+That shape aligns with CW’s existing managed-Port obligations without reopening the accepted Pi extraction:
+
+- app/runtime/agents-host-gateway.mjs:7-47 already defines Host-owned admission, native binding, effect ledger, unknown outcomes and a separate managed Port capability table. Hermes should reuse those invariants and the Port vocabulary, while keeping its own adapter/transport module and identity.
+- app/server/runtime.mjs:40-63 admits exactly one reviewed managed executor ID today. A Hermes adapter would be a later architectural dispatch/integration decision; this preflight does not edit that allowlist or claim Hermes is configured.
+- The existing synthetic pattern in app/tests/fixtures/agents-host-harness.mjs:23-53 boots the real Host with an injected managed Port and a disposable loopback endpoint. app/tests/fixtures/agents-api-loopback.mjs:1-170 demonstrates the right evidence boundary: real sockets and adapter/Host code, deterministic scripted remote behavior, no provider or credential.
+- app/tests/runtime-selection-http.test.mjs:59-105,137-198 is the nearest Host-level precedent for separate Pi/managed sessions, frozen native identity, restart refusal, lost-create unknown and no Pi fallback. app/tests/runtime-selection-construction.test.mjs:11-53 covers descriptor admission and exactly-once disposal.
+
+The API server is preferable here to an editor protocol or a custom gateway stream because its first-class object is already a run and its source has an explicit durable idempotency/status path. This is a construction recommendation, not a claim that Hermes’ API server is currently connected to CW.
+
+## Protocol comparison
+
+| Hermes surface | Primary-source mechanism | Identity/cancel/recovery fit | First-slice disposition |
+|---|---|---|---|
+| API server /v1/runs | HTTP; POST /v1/runs returns 202 + run_id; GET status; event SSE; POST approval/steer/stop. Source route table at api_server_runs.py:138-144; admission/idempotency at :497-625; stop at :988-1009. | Native run ID maps directly to CW Run attempt. Stop is explicit and status is pollable. RunIdempotencyStore persists accepted status and owner PID/start; a missing owner turns a nonterminal record into interrupted (:267-300). SSE is live/process-local and can expire; no event replay contract is claimed. | **Select.** Synthetic HTTP/SSE fixture first; text-only, no provider, no generic tool-result. |
+| TUI Gateway JSON-RPC | Official docs describe prompt.submit, session.create/resume, session.interrupt, session.events.since, status/history and server-to-client approval requests. Source uses JSONL stdio and gateway.ready (tui_gateway/entry.py:260-330), event replay ring/epoch (methods_session.py:2221-2235). | Rich controls and replay within a gateway process, but session response has an ephemeral runtime session_id and a separate durable stored_session_id/session_key (methods_session.py:326-397,709-725). Official docs explicitly say replay/activation does not imply durable prompt admission across owner restart. | **Defer.** Good later custom-host surface; identity and restart mapping are larger than the first run fixture. |
+| ACP | Official docs: stdio JSON-RPC, new/load/resume/fork/list/cancel, prompt, streaming updates, permissions and auth. Source uses acp.run_agent(..., use_unstable_protocol=True) and optional agent-client-protocol==0.9.0 (acp_adapter/entry.py:185-218, pyproject.toml:291,415). SessionManager uses UUID ACP session IDs and persists SessionDB (acp_adapter/session.py:131-189,267-299). | Stable session identity and load/resume across process restarts; cancel sets an event and calls hard interrupt, but ACP is session/turn oriented rather than CW Run oriented. Tool/approval updates are editor-facing ACP semantics; a generic Host function-result mapping is not established by this review. | **Defer as a later standard-client adapter.** Viable, but not the smallest CW managed-run mapping. |
+| CLI chat stream-json | Installed hermes chat help exposes query/query-file, format stream-json, resume/continue, run-budget and max-turns; one-shot JSONL is process output. | A process stream has no explicit CW run-control protocol, no independent stop/terminal acknowledgement, and no event replay/owner-restart contract. Killing the process cannot prove cancellation or effect settlement. | **Reject for managed Port.** Keep for bounded-job consultation only. |
+
+## Exact synthetic contract
+
+This is the proposed worker contract for Astra/Claude to freeze before implementation. It is intentionally narrower than the full Hermes API server.
+
+### Transport identity
+
+    adapterId: hermes-api-runs
+    adapterRevision: hermes-agent@d7b836ab1c0cddaafc109ed24c9a83b6191cdc88/api-runs-v1
+    protocol: hermes-api-server-runs
+    endpointIdentity: synthetic-loopback URL or explicit configured endpoint reference
+
+The adapter records separately:
+
+    cwSessionId / cwRunId
+    nativeRunId       # API server run_id
+    nativeSessionId   # API server/Hermes session_id when returned or retained
+    idempotencyKey    # Host intent identity supplied to POST /v1/runs
+
+The Host remains the owner of CW Session/Run, command identity, admission, permissions, effects, receipts and final status. Hermes run_id, session_id, X-Hermes-Session-Key and provider/model strings are native observations/configuration facts. Do not copy Hermes’ state database, reuse RuntimeStore IDs as native IDs, or infer formal Attention/Matter state from a Hermes run.
+
+### Wire subset
+
+1. POST /v1/runs requires a nonempty input string. The fixture accepts only the bounded text subset; it rejects arbitrary tool/environment fields. The request carries Host-owned Idempotency-Key and may carry explicit synthetic session_id only where the test needs continuation.
+2. A successful admission returns 202 {run_id,status}. The first accepted response is a receipt of admission, not completion. A repeated idempotency key with identical body returns the same run; changed body conflicts. The Host still retains its own intent receipt and never retries an unresolved create with a replacement key.
+3. GET /v1/runs/{run_id} returns status and bounded terminal/error fields. GET /v1/runs/{run_id}/events is a live SSE stream. Normalize only run.started, message.delta, message.complete, approval.request as an unsupported notice, run.stopping, run.completed, run.failed, run.cancelled, run.interrupted, and transport/error frames. Unknown event names become diagnostics; missing run IDs are malformed, not empty success.
+4. POST /v1/runs/{run_id}/stop returns a stop intent (stopping). The adapter waits for terminal cancelled; a dropped stream or owner restart remains unresolved/unknown until the Host’s reconciliation rule has evidence. It never treats HTTP 200/202 alone as cancellation.
+5. GET after restart may return a durable status. If Hermes reports owner-loss interrupted without a terminal effect receipt, map it to CW unknown or an explicitly named native-interrupted observation; do not silently retry. Event text not observed before stream loss stays a coverage gap.
+6. POST /approval, POST /steer, native tool execution, browser control, cron, gateway delivery and session deletion are out of slice 1. The adapter must reject them before sending a request or report them unsupported in describe.
+
+### Synthetic pass/fail cases
+
+The first fixture should reuse the existing managed-Port test shape, without calling Hermes or a provider:
+
+| Case | Required evidence |
+|---|---|
+| Admission/binding | Correct adapter ID/revision and endpoint identity; unsupported capability is rejected before the Host creates a Run. Wrong revision/configuration refuses new execution without Pi fallback. |
+| Create identity | One POST /v1/runs carries exactly the caller’s Idempotency-Key and bounded body. Lost response + same request identity re-reads/reconciles; no replacement run is created. Changed body under the same key conflicts. |
+| Event ledger | Fragmented SSE frames, duplicate event IDs/sequence, unknown event types and missing run ID are handled without duplicate assistant projection or false terminal success. A normal run.completed settles only the matching native run. |
+| Continuation | A retained nativeSessionId is used for an explicitly requested second run; a different session/endpoint or missing native identity refuses before dispatch. Do not infer identity from title or current active session. |
+| Cancel | Stop request is sent once; stopping → run.cancelled settles cancelled. Stop response without terminal, stream drop, and a fixture that ignores stop all settle unknown, with no automatic second stop or new run. |
+| Owner restart | Persist a synthetic nonterminal run record, reopen the fixture/adapter and fetch status. Native interrupted is surfaced; no text/effect is invented, and new work is refused while a prior CW effect remains unreconciled. |
+| Tool/approval ceiling | Any synthetic approval.request or tool-shaped event is retained as unsupported/diagnostic and never executed. No reply/tool-result call exists in the first Port descriptor. |
+| Disposal | Closing the SSE subscription/transport sends no implicit stop/delete and leaves the native binding as historical evidence. Active cancellation is separate. |
+
+Nearest implementation/test precedents are the accepted Agents transport protocol tests: app/tests/drt03-agents-api-protocol.test.mjs:46-409 (identity, event dedupe, root terminal, cancel/unknown, function boundary and recovery) and app/tests/drt03-agents-transport.test.mjs:36-402 (wire identity, fragmented SSE, disposal, malformed pages, exactly-once mutation and strict tool declarations). Adapt assertions to Hermes API-run events; do not copy the Agents API DTO or claim protocol equivalence.
+
+## Evidence boundaries and unresolved points
+
+- Installed metadata was verified only through command -v hermes, hermes --version, hermes --help, hermes chat --help, hermes serve --help, hermes gateway run --help and hermes acp --version. It reports Hermes v0.21.3 (2026.9.14), upstream d7b836ab, Python 3.13.5, OpenAI SDK 2.24.0, and an update notice. No command started acp, serve, gateway, chat, provider inference, or a native session.
+- The source checkout pyproject.toml:3-15 pins package version 0.21.3; :291 pins ACP to agent-client-protocol==0.9.0; :415 exposes hermes-acp. This establishes installed/source identity, not ACP runtime conformance.
+- Hermes API-server docs/source describe configured API authentication and profile scopes. The synthetic fixture may use a test bearer value internally, but no personal key/configuration is read. A future live trial needs separate authorization and endpoint/version/auth/provider checks before capability exposure.
+- The API-server source persists run status/idempotency but does not expose a durable replay log for the SSE event queue. The first slice must preserve unknown/gap semantics. A later recovery slice can add Hermes-native history/session mapping only after exact source/Host evidence.
+- Hermes’ own session database and API-server idempotency store remain runtime evidence. They cannot become Work Core Attention state or a second CW ledger. Core signal/status/obligation semantics remain with docs/work-core/attention.md and app/extensions/attention-adapter.mjs.
+
+## Source index
+
+### Courtwork at main@800d59169954d0057c5dcacd4a711f49c295bea9
+
+- engineering/research/attention-assistant-20260927/decisions.md — A2 selects Hermes for the next Attention-specific integration research; P03-B is already accepted; Luna A0–A9 remain suggestions only.
+- engineering/research/RD-001-runtime-adapter.md — minimum Port vocabulary, version/fake-provider preflight, cancellation/recovery/permission obligations and no Pi extraction reopening.
+- app/docs/runtime-foundation.md:1-31,49-83,85-100,102-139 — Host/Pi ownership, Runtime Port boundary, one-active Run, unknown/restart semantics and no generic scheduler.
+- app/server/runtime.mjs:40-63 — existing primary/managed Port composition and reviewed managed-ID gate.
+- app/runtime/pi-runtime-port.mjs:5-18,34-42,44-100 — accepted P03-B Pi Port; this preflight does not modify or reopen it.
+- app/runtime/agents-host-gateway.mjs:7-47,89-114 — accepted managed Port shape, Host ledger/unknown semantics and current Agents capability boundary.
+- app/tests/fixtures/agents-host-harness.mjs:23-53 and app/tests/fixtures/agents-api-loopback.mjs:1-170 — synthetic provider-free managed-Port fixture precedent.
+- app/tests/runtime-selection-construction.test.mjs:11-53 and app/tests/runtime-selection-http.test.mjs:59-105,137-223 — executor binding, dual-runtime, restart, lost-create and no-fallback tests.
+- app/tests/drt03-agents-api-protocol.test.mjs:46-409 and app/tests/drt03-agents-transport.test.mjs:36-402 — identity, event, cancellation, recovery and transport fault test precedents.
+
+### Hermes source at d7b836ab1c0cddaafc109ed24c9a83b6191cdc88
+
+- /Users/lesprivilege/Projects/hermes-agent/pyproject.toml:3-15,291,415 — package version, ACP optional pin and entry point.
+- gateway/platforms/api_server_runs.py:80-183,267-300,497-625,840-888,903-1009 — API /v1/runs routes, idempotency/status persistence, restart interruption, SSE, approval/steer/stop.
+- gateway/platforms/api_server.py:64-96,1140-1200 — API capability flags, route registry and server/profile/auth setup.
+- acp_adapter/session.py:131-189,267-299 and acp_adapter/server.py:517-691 — ACP UUID sessions, SessionDB persistence, load/resume/cancel/fork/list.
+- acp_adapter/entry.py:185-218 — ACP stdio JSON-RPC boot and use_unstable_protocol=True.
+- tui_gateway/entry.py:260-330, tui_gateway/methods_session.py:326-397,709-725,2024-2053,2221-2235, tui_gateway/methods_prompt.py:564-697 — custom JSON-RPC startup/event replay, identity, prompt and interrupt.
+- hermes_cli/main.py plus installed hermes chat help — one-shot/query and stream-json process surface; no managed run-control claim.
+
+### Primary current Hermes documentation
+
+- Programmatic Integration: https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration — official protocol comparison and API /v1/runs surface.
+- ACP Internals: https://hermes-agent.nousresearch.com/docs/developer-guide/acp-internals — ACP stdio boot, session persistence, cancellation, auth, cwd and current limitations.
+- Gateway Internals: https://hermes-agent.nousresearch.com/docs/developer-guide/gateway-internals — native messaging gateway/event queue, session routing and delivery; this is separate from API /v1/runs.
+- Session Storage: https://hermes-agent.nousresearch.com/docs/developer-guide/session-storage — Hermes SQLite/profile state ownership and isolation.
+- Hermes CLI reference: https://hermes-agent.nousresearch.com/docs/reference/cli-commands — CLI/ACP entrypoint distinction.
+
+## Work performed
+
+Read-only inspection only: current Courtwork branch/HEAD/status, parent decisions and packet, RD-001, runtime foundation, accepted Pi/managed Port code and tests, installed Hermes metadata/help, and the clean Hermes source checkout at d7b836ab. Public primary docs were checked for programmatic protocol comparison, API run lifecycle, ACP lifecycle/auth/cancel/recovery, and gateway/TUI identity/replay semantics. No tests were executed, no native Hermes process/provider was started, no personal configuration or credentials were read, and no Courtwork repository file was edited.
+
+## Correction after pinned wire re-read — 2026-09-27
+
+The earlier sections used an illustrative event list and must be narrowed before a worker consumes this report. At Hermes source d7b836ab1c0cddaafc109ed24c9a83b6191cdc88, `api_server_runs.py:_run_event` returns exactly:
+
+    { event, run_id, timestamp, ...optional_fields }
+
+The source does not add `event_id`, `seq`, item IDs or a replay cursor to this envelope. `_execute_run` emits `message.delta` with `delta` only, then emits a terminal `run.<status>` event from `_finish`. There is **no confirmed `message.complete` emission** in this pinned API-run path. Final text is carried on terminal status/event as `output=result.get('final_response','')`; terminal fields also include `completed`, `partial`, `interrupted`, and optional `error`, `usage`, `turn_exit_reason` or `pending_steer`.
+
+The exact source-level event names are:
+
+- `approval.request` from the approval callback, with redacted approval fields and choices;
+- `message.delta` from the text callback;
+- `run.completed`, `run.failed`, `run.cancelled`, or `run.interrupted` from terminal/shutdown paths;
+- `approval.responded` and `run.steered` from their control endpoints;
+- `tool.started`, `tool.completed`, `reasoning.available`, `subagent.start` and `subagent.complete` from the generic tool-progress callback, which remain outside slice 1.
+
+There is no `run.started` SSE event in the pinned `_execute_run`; `queued`/`running` are pollable status values. Owner-loss recovery is exact: `_durable_run_status` changes a persisted non-terminal record to `status:'interrupted'`, `error:'The gateway restarted before this run settled.'`, `last_event:'run.interrupted'`, and updates the durable store (`api_server_runs.py:277-300`). This is status evidence, not event replay.
+
+Therefore the standalone provider-free fixture must parse only the exact envelope and names above. It must not invent `message.complete`, `run.started`, event IDs, sequence numbers, message IDs or replay cursors, and it must not claim protocol-level deduplication. A fixture may deliberately repeat an identical raw SSE frame to test parser behavior, but any duplicate handling must be labeled adapter/fixture behavior rather than a Hermes wire guarantee. The first fixture’s terminal text assertion belongs on `run.completed.output`; a missing terminal frame or missing output remains a transport/coverage gap. No Host executor allowlist, RuntimeStore schema, production exposure or Agents identity reuse is implied by this correction.

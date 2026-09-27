@@ -1,14 +1,43 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { execFile } from "node:child_process";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { promisify } from "node:util";
 import { runCheckRecipe } from "../runtime/check-runner.mjs";
+import { getCheckRecipe, listCheckRecipes } from "../runtime/check-recipes.mjs";
 import { RuntimeStore } from "./fixtures/executor-store.mjs";
 import { inspectRepositoryRoot } from "../runtime/repository-fs.mjs";
 import { boot } from "./helpers.mjs";
 import { createSyntheticRepository, KNOWN_BUG } from "./fixtures/synthetic-repo/create-synthetic-repo.mjs";
+
+const runFile = promisify(execFile);
+const ATTENTION_FILES = [
+  "app/tests/attention-core.test.mjs",
+  "app/tests/attention-http.test.mjs",
+  "app/tests/attention-recovery.test.mjs",
+  "app/tests/attention-github-fixture.test.mjs",
+  "app/tests/attention-gmail-fixture.test.mjs",
+  "app/tests/attention-trace-fixture.test.mjs",
+];
+const ATTENTION_ARGV = ["--test", "--test-concurrency=1", ...ATTENTION_FILES];
+
+test("Attention recipe is one frozen descriptor alongside the unchanged package recipe", () => {
+  const [packageRecipe, attentionRecipe] = listCheckRecipes();
+  assert.deepEqual([...packageRecipe.argv], ["--test"]);
+  assert.deepEqual([packageRecipe.id, packageRecipe.version, packageRecipe.title], ["node-test", 1, "Run the package tests"]);
+  assert.equal(getCheckRecipe("node-test-attention-contract"), attentionRecipe);
+  assert.deepEqual({ id: attentionRecipe.id, version: attentionRecipe.version, title: attentionRecipe.title,
+    command: attentionRecipe.command, argv: [...attentionRecipe.argv], cwd: attentionRecipe.cwd,
+    timeoutMs: attentionRecipe.timeoutMs, outputLimitBytes: attentionRecipe.outputLimitBytes, env: attentionRecipe.env }, {
+    id: "node-test-attention-contract", version: 1, title: "Run Attention backend contract tests",
+    command: process.execPath, argv: ATTENTION_ARGV, cwd: "candidate",
+    timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
+  });
+  assert.ok(Object.isFrozen(attentionRecipe) && Object.isFrozen(attentionRecipe.argv));
+});
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
@@ -102,9 +131,10 @@ test("runCheckRecipe throws spawn_failed only when the process cannot start, and
 // HTTP-level governance and settlement
 // ---------------------------------------------------------------------------
 
-async function bindSyntheticCandidate(h, { permissionMode = "ask", candidateId = "923e4567-e89b-42d3-a456-426614174000" } = {}) {
+async function bindSyntheticCandidate(h, { permissionMode = "ask", candidateId = "923e4567-e89b-42d3-a456-426614174000", prepareSource } = {}) {
   const sourceDir = await scratch("cw-check-source-");
-  const { head } = await createSyntheticRepository(sourceDir);
+  const source = await createSyntheticRepository(sourceDir);
+  const head = prepareSource ? await prepareSource(sourceDir) : source.head;
   const session = await h.createSession({ permissionMode });
   const bound = await h.api("PUT", `/sessions/${session.id}/repository-binding`, {
     operation: "bind", requestId: "check-bind", expectedRevision: 0, rootPath: sourceDir,
@@ -136,17 +166,19 @@ test("check_run is denied with zero process start under read_only", async () => 
   const h = await boot();
   try {
     const { session } = await bindSyntheticCandidate(h, { permissionMode: "read_only" });
-    const run = await h.api("POST", `/sessions/${session.id}/runs`, {
-      commandId: "check-read-only",
-      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test" } }]),
-    });
-    const finished = await h.pollRun(run.json.run.id);
-    assert.equal(finished.status, "completed");
-    const events = eventsFor(h, session, run.json.run.id);
-    assert.equal(events.some(e => e.type === "check.started"), false, "read_only must never spawn a process");
-    assert.equal(events.some(e => e.type === "permission.open"), false, "the ceiling denies before any permission question opens");
-    const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
-    assert.equal(toolResult.data.isError, true);
+    for (const recipeId of ["node-test", "node-test-attention-contract"]) {
+      const run = await h.api("POST", `/sessions/${session.id}/runs`, {
+        commandId: `check-read-only-${recipeId}`,
+        input: h.scriptInput([{ name: "check_run", arguments: { recipeId } }]),
+      });
+      const finished = await h.pollRun(run.json.run.id);
+      assert.equal(finished.status, "completed");
+      const events = eventsFor(h, session, run.json.run.id);
+      assert.equal(events.some(e => e.type === "check.started"), false, `${recipeId}: read_only must never spawn a process`);
+      assert.equal(events.some(e => e.type === "permission.open"), false, `${recipeId}: the ceiling denies before any permission question opens`);
+      const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
+      assert.equal(toolResult.data.isError, true);
+    }
   } finally {
     await h.runtime.close();
   }
@@ -176,33 +208,94 @@ test("ask mode shows the exact recipe in the permission payload and deny records
   const h = await boot();
   try {
     const { session, candidateId } = await bindSyntheticCandidate(h, { permissionMode: "ask" });
-    const run = await h.api("POST", `/sessions/${session.id}/runs`, {
-      commandId: "check-deny",
-      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test" } }]),
-    });
-    await h.pollRun(run.json.run.id, { until: status => status === "waiting_user" });
-    const openEvent = eventsFor(h, session, run.json.run.id).find(e => e.type === "permission.open");
-    assert.ok(openEvent, "check_run must ask before running");
-    assert.equal(openEvent.data.tool, "check_run");
-    assert.equal(openEvent.data.recipeId, "node-test");
-    assert.equal(openEvent.data.recipeVersion, 1);
-    assert.equal(openEvent.data.command, process.execPath);
-    assert.deepEqual(openEvent.data.argv, ["--test"]);
-    assert.equal(openEvent.data.cwd, "private candidate");
-    assert.equal(openEvent.data.candidateId, candidateId);
-    assert.equal(openEvent.data.candidateWriteRevision, 0);
-    assert.equal(openEvent.data.timeoutMs, 120000);
-    assert.equal(openEvent.data.outputLimitBytes, 65536);
-    assert.equal(openEvent.data.env, "minimal");
+    for (const [recipeId, argv] of [["node-test", ["--test"]], ["node-test-attention-contract", ATTENTION_ARGV]]) {
+      const run = await h.api("POST", `/sessions/${session.id}/runs`, {
+        commandId: `check-deny-${recipeId}`,
+        input: h.scriptInput([{ name: "check_run", arguments: { recipeId } }]),
+      });
+      await h.pollRun(run.json.run.id, { until: status => status === "waiting_user" });
+      const openEvent = eventsFor(h, session, run.json.run.id).find(e => e.type === "permission.open");
+      assert.ok(openEvent, `${recipeId}: check_run must ask before running`);
+      assert.equal(openEvent.data.tool, "check_run");
+      assert.equal(openEvent.data.recipeId, recipeId);
+      assert.equal(openEvent.data.recipeVersion, 1);
+      assert.equal(openEvent.data.command, process.execPath);
+      assert.deepEqual(openEvent.data.argv, argv);
+      assert.equal(openEvent.data.cwd, "private candidate");
+      assert.equal(openEvent.data.candidateId, candidateId);
+      assert.equal(openEvent.data.candidateWriteRevision, 0);
+      assert.equal(openEvent.data.timeoutMs, 120000);
+      assert.equal(openEvent.data.outputLimitBytes, 65536);
+      assert.equal(openEvent.data.env, "minimal");
 
-    const denied = await h.api("POST", `/runs/${run.json.run.id}/questions/${openEvent.data.id}`, { decision: "deny" });
-    assert.equal(denied.status, 200);
-    const finished = await h.pollRun(run.json.run.id);
-    assert.equal(finished.status, "completed", "the run keeps going after a denied check");
-    const events = eventsFor(h, session, run.json.run.id);
-    assert.equal(events.some(e => e.type === "check.started"), false, "a denied check must never record a start");
-    const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
-    assert.equal(toolResult.data.isError, true);
+      const denied = await h.api("POST", `/runs/${run.json.run.id}/questions/${openEvent.data.id}`, { decision: "deny" });
+      assert.equal(denied.status, 200);
+      const finished = await h.pollRun(run.json.run.id);
+      assert.equal(finished.status, "completed", "the run keeps going after a denied check");
+      const events = eventsFor(h, session, run.json.run.id);
+      assert.equal(events.some(e => e.type === "check.started"), false, `${recipeId}: a denied check must never record a start`);
+      const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
+      assert.equal(toolResult.data.isError, true);
+    }
+  } finally {
+    await h.runtime.close();
+  }
+});
+
+test("approved Attention recipe runs all six fixed targets and records ordinary test and missing-path failures", async () => {
+  const h = await boot();
+  try {
+    for (const [index, outcome] of ["pass", "fail", "missing"].entries()) {
+      const prepareSource = outcome === "missing" ? undefined : async sourceDir => {
+        for (const [fileIndex, relativePath] of ATTENTION_FILES.entries()) {
+          const target = path.join(sourceDir, relativePath);
+          await mkdir(path.dirname(target), { recursive: true });
+          const assertion = outcome === "fail" && fileIndex === 3 ? "assert.fail('attention fixture failure');" : "assert.ok(true);";
+          await writeFile(target, `import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('target-${fileIndex + 1}', () => { ${assertion} });\n`);
+        }
+        await runFile("git", ["add", ...ATTENTION_FILES], { cwd: sourceDir });
+        await runFile("git", ["-c", "user.name=Synthetic", "-c", "user.email=synthetic@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "add fixed attention targets"], { cwd: sourceDir });
+        return (await runFile("git", ["rev-parse", "HEAD"], { cwd: sourceDir })).stdout.trim();
+      };
+      const candidateId = `923e4567-e89b-42d3-a456-42661417410${index}`;
+      const { session } = await bindSyntheticCandidate(h, { candidateId, prepareSource });
+      const startedRun = await h.api("POST", `/sessions/${session.id}/runs`, {
+        commandId: `attention-${outcome}`,
+        input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test-attention-contract" } }]),
+      });
+      assert.equal(startedRun.status, 200);
+      const runId = startedRun.json.run.id;
+      await h.pollRun(runId, { until: status => status === "waiting_user" });
+      const permission = eventsFor(h, session, runId).find(event => event.type === "permission.open");
+      assert.ok(permission);
+      assert.deepEqual({ recipeId: permission.data.recipeId, recipeVersion: permission.data.recipeVersion,
+        command: permission.data.command, argv: permission.data.argv, cwd: permission.data.cwd,
+        candidateId: permission.data.candidateId, candidateWriteRevision: permission.data.candidateWriteRevision,
+        timeoutMs: permission.data.timeoutMs, outputLimitBytes: permission.data.outputLimitBytes, env: permission.data.env }, {
+        recipeId: "node-test-attention-contract", recipeVersion: 1, command: process.execPath,
+        argv: ATTENTION_ARGV, cwd: "private candidate", candidateId, candidateWriteRevision: 0,
+        timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
+      });
+      assert.equal((await h.api("POST", `/runs/${runId}/questions/${permission.data.id}`, { decision: "allow" })).status, 200);
+      assert.equal((await h.pollRun(runId, { timeoutMs: 20000 })).status, "completed");
+      const events = eventsFor(h, session, runId);
+      const started = events.find(event => event.type === "check.started");
+      const settled = events.find(event => event.type === "check.settled");
+      assert.deepEqual([started.data.recipeId, started.data.recipeVersion, started.data.candidateId, started.data.candidateWriteRevision],
+        ["node-test-attention-contract", 1, candidateId, 0]);
+      assert.equal(settled.data.callId, started.data.callId);
+      assert.equal(settled.data.status, "completed");
+      assert.equal(settled.data.failure, null);
+      assert.equal(settled.data.exitCode === 0, outcome === "pass");
+      if (outcome === "pass") {
+        for (let fileIndex = 1; fileIndex <= 6; fileIndex++) assert.match(settled.data.stdout, new RegExp(`target-${fileIndex}`));
+      } else if (outcome === "fail") {
+        assert.match(settled.data.stdout, /attention fixture failure/);
+      } else {
+        assert.match(settled.data.stderr + settled.data.stdout, /attention-core\.test\.mjs/);
+      }
+      assert.equal(events.filter(event => event.type === "check.settled").length, 1);
+    }
   } finally {
     await h.runtime.close();
   }

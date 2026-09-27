@@ -19,6 +19,26 @@ const RECIPES = Object.freeze([
     outputLimitBytes: 65536,
     env: "minimal",
   }),
+  Object.freeze({
+    id: "node-test-attention-contract",
+    version: 1,
+    title: "Run Attention backend contract tests",
+    command: process.execPath,
+    argv: Object.freeze([
+      "--test",
+      "--test-concurrency=1",
+      "app/tests/attention-core.test.mjs",
+      "app/tests/attention-http.test.mjs",
+      "app/tests/attention-recovery.test.mjs",
+      "app/tests/attention-github-fixture.test.mjs",
+      "app/tests/attention-gmail-fixture.test.mjs",
+      "app/tests/attention-trace-fixture.test.mjs",
+    ]),
+    cwd: "candidate",
+    timeoutMs: 120000,
+    outputLimitBytes: 65536,
+    env: "minimal",
+  }),
 ]);
 
 export function listCheckRecipes() {

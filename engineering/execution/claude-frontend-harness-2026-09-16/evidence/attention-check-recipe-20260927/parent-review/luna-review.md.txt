@@ -1,0 +1,60 @@
+# Luna independent review · Attention fixed check recipe
+
+Date: 2026-09-27  
+Reviewed tree: /Users/lesprivilege/.codex/worktrees/attention-check-recipe/Courtwork  
+Reviewed HEAD: c93391cc8a7d2a9356c0326be96ba7f276192e5b  
+Parent comparison: main at the review start, 880b663  
+Scope: DF-04 original recipe contract, worker preflight, exact six-file argv, old-recipe preservation, private-candidate approval/runner evidence, dependency/provider boundary.
+
+## Result
+
+The proposed recipe implementation is bounded and behaves correctly in the focused checks. The exact descriptor is:
+
+    node --test --test-concurrency=1
+      app/tests/attention-core.test.mjs
+      app/tests/attention-http.test.mjs
+      app/tests/attention-recovery.test.mjs
+      app/tests/attention-github-fixture.test.mjs
+      app/tests/attention-gmail-fixture.test.mjs
+      app/tests/attention-trace-fixture.test.mjs
+
+The original node-test descriptor remains unchanged in app/runtime/check-recipes.mjs:5-21. The new recipe is appended at lines 22-41 with the existing private-candidate cwd, 120000 ms timeout, 65536-byte output limit and minimal environment.
+
+Independent verification:
+
+- app/tests/check-recipes.test.mjs: 15/15 passed, exit 0. This covers the frozen descriptors, old package recipe descriptor, read-only/unknown/deny, exact approval, six fixed target execution with pass/fail/missing-path outcomes, cancellation, restart unknown, and same-Run write/check revision fencing. Raw output: focused-check-recipes.log.
+- The exact six Attention suites: 25/25 passed, exit 0. Raw output: focused-attention-suites.log.
+- Fresh Host probe: private candidate, explicit existing dependency symlink only, approval payload with exact argv/candidate identity/revision/limits, one check.started, one check.settled, completed exit 0, untruncated output, provider local-fake. Raw output: host-probe.log.
+- git diff --check main...HEAD passed. No package manifest/lockfile, Runtime Port, Core, service/store, UI, credential or provider source changes are present in the changed-file list.
+- The temporary app/node_modules symlink used for independent checks was removed. No dependency install occurred.
+
+The author’s 32 governance tests, 25 actual suites, and 25 Host-fake results remain author evidence. They are not relabeled as this independent review.
+
+## Actionable finding
+
+### F-01 · Preserve direct old-recipe governance coverage · low severity
+
+In app/tests/check-recipes.test.mjs, the existing read-only test around lines 135-153 and the existing ask/deny test around lines 175-209 were changed from recipeId node-test to node-test-attention-contract. The old node-test descriptor itself is unchanged and later tests still exercise it, so no runtime defect was reproduced. However, those two governance tests no longer directly cover the original fixed recipe’s read-only ceiling and deny-before-start path.
+
+Disposition: adjust before final acceptance by retaining one direct node-test case for each old path, or parameterizing the existing cases over both recipe IDs. Keep the new Attention cases as the explicit six-file coverage. This is a test-coverage correction only; it does not require changing the recipe runner, Host authority, Store, Runtime Port or UI.
+
+## Contract checks
+
+The implementation satisfies the reviewed boundaries:
+
+- model input remains recipeId only;
+- no dynamic command, argv, cwd, dependency installation or fallback was added;
+- the old node-test command/descriptor stays intact;
+- new target paths are fixed and documented as Courtwork-candidate paths;
+- missing target paths produce an ordinary non-zero completed process result;
+- approval and runner execute inside the private candidate and preserve candidate revision fencing;
+- test fixtures are synthetic; the Host probe uses an explicit existing dependency symlink and local-fake provider;
+- no live connector, paid provider, credential store, user Host or deployment was touched.
+
+No additional source blocker was found. Parent Astra retains integration and final acceptance.
+
+## Raw logs
+
+- [focused check-recipes log](focused-check-recipes.log)
+- [focused Attention suites log](focused-attention-suites.log)
+- [private-candidate Host probe log](host-probe.log)
