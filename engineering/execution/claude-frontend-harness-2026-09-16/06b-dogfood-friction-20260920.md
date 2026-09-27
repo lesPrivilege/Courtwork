@@ -416,3 +416,41 @@ User authorizes continued construction with Astra selecting/dispatching, Claude 
 **Checks:** reproduce the screenshot's one-line command and multiline/long-line cases at known desktop/narrow viewports, light/dark, Chat/Attention/shared reader; verify exact clipboard bytes, keyboard focus/activation/feedback, selection, horizontal scrolling, no action/text overlap and no clipping at200% text/zoom. Native zoom and text-size emulation must be distinguished. Run relevant Markdown/copy/reading tests and design lints through verification.md; no repeated full suite unless a concrete changed seam requires it. Author automation is separate from parent's later OpenAI computer-use inspection.
 
 **Workspace/handoff:** the completed original runtime-settings tree at `d37320c` has only its existing dependency symlink untracked and is reusable after author checks it is idle. Fast-forward it to actual main; preserve its branch/history and never reset/stash or switch the shared main checkout. Deliver committed source and evidence in that tree, report exact SHAs and remaining limits, and stop for parent review before the next core/frontend slice. No push, deploy or user8787 restart.
+
+## CB-D1 · author pickup and pre-edit record — 2026-09-27 (Claude, Opus)
+
+Picked up on the original serial tree `../.worktrees/courtwork-runtime-settings-i1-20260927`, branch `claude/runtime-settings-i1-20260927`. Its history is preserved; it was fast-forwarded from `d37320c` to main `d4a08d7`, and only the dependency symlink is untracked. The shared main checkout, user 8787 and all other trees are untouched.
+
+- **Responsibility.** The shared code-block projection. It has two builders: `ui-controls.mjs` `markdownTokens`, used by Chat, Attention, the Order 3 growing body and Settings text; and `markdown-reader.mjs` `appendSemantic`, used by the Inspector document reader. The scoped `.code-block` / `.code-toolbar` CSS is part of it too. The reader's labelled source inspector ("Source · code points…") and the Settings appearance preview (a file name) carry **real** labels, so they keep their header rows.
+- **Role and mapping.** Code is reading content, and its type is untouched:
+  - Chat: 15px / 25.5px monospace, `white-space: pre` with horizontal scroll;
+  - Attention: 11.5px, wrapping;
+  - reader: 15px / 24px, `pre-wrap`.
+
+  Each of these wrap policies stays as established. Copy is a secondary chrome micro-action on the existing `quiet-button` control: `--control` 28px on a fine pointer, and 44px through the existing narrow/coarse override. Spacing uses the existing `--space-*` tokens, and there is no new token.
+- **Assumptions.**
+  - Fine pointer at 1440 and at the emulated 200% zoom (720 CSS px, DPR 2).
+  - Touch/coarse at 390 (mobile and touch emulation).
+  - Text scale ×2 via the product's `--text-scale`. This is emulation, not OS text size or native zoom.
+- **Before (`d4a08d7`, measured).** At 1440, the one-line command block is 89px, of which the constant "Code" header is 37px (42%). At 390 touch it is 105px, of which the header is 53px (50%). The multiline block is 191 / 207px. The header label is the constant word "Code": the sanitizer drops fence language classes, so the label identifies nothing.
+- **Found while measuring.** Chat and Attention **Copy code writes a trailing newline the author did not write**: 70 bytes for the 69-byte command. marked appends `\n` inside `<pre><code>`, so a copied one-line shell command runs as soon as it is pasted into a terminal. The reader already copies the exact 69 bytes. This is corrected in the same shared builder and recorded as an intentional change.
+- **Plan.** Drop the unconditional "Code" header from unlabelled blocks. Copy moves into its own column at the block's top-right: a grid column beside the `pre`, never over it, so selected or horizontally scrolled code is never covered. Copy keeps its existing behaviour, label, feedback and focus. Labelled headers keep `.code-toolbar`. The parser, sanitizer, streaming, fonts and wrap policies are unchanged.
+
+## CB-D1 · author delivery — 2026-09-27 (Claude, Opus)
+
+The product change is `43aa69e`; the evidence and this entry follow in the next commit. See the [author evidence](evidence/code-block-density-20260927/author/README.md).
+
+- **The change.** Unlabelled code blocks, from both shared builders, drop the constant "Code" header row. Copy sits in a top-right column beside the code: never over selected or scrolled text, on the same 28px / 44px control, with the same name, feedback and focus. Labelled headers keep `.code-toolbar`.
+- **Measured result.**
+  - Screenshot command at 1440: 89 → 52px.
+  - Screenshot command at 390 touch: 105 → 62px.
+  - Multiline: 191 → 154px.
+  - Attention one-line: 83 → 46px; reader one-line: 79 → 46px.
+
+  The code keeps 15px (Chat and reader) and 11.5px (Attention), and each surface's wrap policy is unchanged.
+- **Intentional change.** Copy now writes the authored bytes. Chat and Attention used to add the trailing newline marked puts in (70 bytes, not 69), which ran a pasted command immediately.
+- **Trade-off for the parent.** The Copy column costs 36–52px of code width. At 390, the reader and Attention wrap more lines, though every block is still no taller overall.
+- **Checks.** Targeted tests 99/99, the CB-D1 browser run asserted, eight lints and `contrast-report` exit 0.
+- **Not covered.** Native zoom and OS text size (only emulated), text spacing, forced colours, screen reader, touch hardware, the live Host.
+
+Writer stopped for parent review. Hermes core is not started. No push, merge or service restart.

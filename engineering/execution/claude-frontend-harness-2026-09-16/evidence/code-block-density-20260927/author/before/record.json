@@ -1,0 +1,1212 @@
+{
+  "expected": {
+    "oneLine": "node --test --test-concurrency=1 tests/runtime-load-recovery.test.mjs",
+    "multi": "export function recover(store, runId) {\n  const run = store.getRun(runId);\n  if (!run) throw new Error(\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\" + \" — a deliberately long line that must scroll horizontally, never wrap or clip: \" + runId);\n  return run.status;\n}"
+  },
+  "cases": [
+    {
+      "surface": "chat",
+      "name": "desktop-1440-light",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 478,
+            "y": 265,
+            "w": 740,
+            "h": 89
+          },
+          "toolbar": {
+            "x": 479,
+            "y": 266,
+            "w": 738,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 479,
+            "y": 303,
+            "w": 738,
+            "h": 50
+          },
+          "copy": {
+            "x": 1181,
+            "y": 270,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 738,
+            "clientWidth": 738,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1186,
+            "y": 275,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 478,
+            "y": 403,
+            "w": 740,
+            "h": 191
+          },
+          "toolbar": {
+            "x": 479,
+            "y": 404,
+            "w": 738,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 479,
+            "y": 441,
+            "w": 738,
+            "h": 152
+          },
+          "copy": {
+            "x": 1181,
+            "y": 408,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 1505,
+            "clientWidth": 738,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1186,
+            "y": 413,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        }
+      ],
+      "copyOneLine": {
+        "focused": true,
+        "focusVisible": true,
+        "exact": false,
+        "bytes": 70,
+        "expectedBytes": 69,
+        "feedback": "Copied",
+        "stillFocused": true
+      },
+      "copyMulti": {
+        "focused": true,
+        "focusVisible": true,
+        "exact": false,
+        "bytes": 265,
+        "expectedBytes": 264,
+        "feedback": "Copied",
+        "stillFocused": true
+      },
+      "selectScroll": [
+        {
+          "selectedIsCode": true,
+          "selectedHasChrome": false,
+          "scrolledToEnd": true,
+          "overlapAfterScroll": false
+        },
+        {
+          "selectedIsCode": true,
+          "selectedHasChrome": false,
+          "scrolledToEnd": true,
+          "overlapAfterScroll": false
+        }
+      ]
+    },
+    {
+      "surface": "chat",
+      "name": "desktop-1440-dark",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 478,
+            "y": 269,
+            "w": 740,
+            "h": 89
+          },
+          "toolbar": {
+            "x": 479,
+            "y": 270,
+            "w": 738,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 479,
+            "y": 307,
+            "w": 738,
+            "h": 50
+          },
+          "copy": {
+            "x": 1181,
+            "y": 274,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 738,
+            "clientWidth": 738,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1186,
+            "y": 279,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 478,
+            "y": 407,
+            "w": 740,
+            "h": 191
+          },
+          "toolbar": {
+            "x": 479,
+            "y": 408,
+            "w": 738,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 479,
+            "y": 445,
+            "w": 738,
+            "h": 152
+          },
+          "copy": {
+            "x": 1181,
+            "y": 412,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 1505,
+            "clientWidth": 738,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1186,
+            "y": 417,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        }
+      ]
+    },
+    {
+      "surface": "chat",
+      "name": "narrow-390-touch-light",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 16,
+            "y": 273,
+            "w": 358,
+            "h": 105
+          },
+          "toolbar": {
+            "x": 17,
+            "y": 274,
+            "w": 356,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 17,
+            "y": 327,
+            "w": 356,
+            "h": 50
+          },
+          "copy": {
+            "x": 321,
+            "y": 278,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 647,
+            "clientWidth": 356,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 334,
+            "y": 291,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 16,
+            "y": 427,
+            "w": 358,
+            "h": 207
+          },
+          "toolbar": {
+            "x": 17,
+            "y": 428,
+            "w": 356,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 17,
+            "y": 481,
+            "w": 356,
+            "h": 152
+          },
+          "copy": {
+            "x": 321,
+            "y": 432,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 1505,
+            "clientWidth": 356,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 334,
+            "y": 445,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        }
+      ],
+      "copyOneLine": {
+        "focused": true,
+        "focusVisible": true,
+        "exact": false,
+        "bytes": 70,
+        "expectedBytes": 69,
+        "feedback": "Copied",
+        "stillFocused": true
+      },
+      "copyMulti": {
+        "focused": true,
+        "focusVisible": true,
+        "exact": false,
+        "bytes": 265,
+        "expectedBytes": 264,
+        "feedback": "Copied",
+        "stillFocused": true
+      },
+      "selectScroll": [
+        {
+          "selectedIsCode": true,
+          "selectedHasChrome": false,
+          "scrolledToEnd": true,
+          "overlapAfterScroll": false
+        },
+        {
+          "selectedIsCode": true,
+          "selectedHasChrome": false,
+          "scrolledToEnd": true,
+          "overlapAfterScroll": false
+        }
+      ]
+    },
+    {
+      "surface": "chat",
+      "name": "narrow-390-touch-dark",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 16,
+            "y": 196,
+            "w": 358,
+            "h": 105
+          },
+          "toolbar": {
+            "x": 17,
+            "y": 197,
+            "w": 356,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 17,
+            "y": 250,
+            "w": 356,
+            "h": 50
+          },
+          "copy": {
+            "x": 321,
+            "y": 201,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 647,
+            "clientWidth": 356,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 334,
+            "y": 214,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 16,
+            "y": 350,
+            "w": 358,
+            "h": 207
+          },
+          "toolbar": {
+            "x": 17,
+            "y": 351,
+            "w": 356,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 17,
+            "y": 404,
+            "w": 356,
+            "h": 152
+          },
+          "copy": {
+            "x": 321,
+            "y": 355,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 1505,
+            "clientWidth": 356,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 334,
+            "y": 368,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        }
+      ]
+    },
+    {
+      "surface": "chat",
+      "name": "zoom-200-emulated-720",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 16,
+            "y": 196,
+            "w": 688,
+            "h": 105
+          },
+          "toolbar": {
+            "x": 17,
+            "y": 197,
+            "w": 686,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 17,
+            "y": 250,
+            "w": 686,
+            "h": 50
+          },
+          "copy": {
+            "x": 651,
+            "y": 201,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 686,
+            "clientWidth": 686,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 664,
+            "y": 214,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 16,
+            "y": 350,
+            "w": 688,
+            "h": 207
+          },
+          "toolbar": {
+            "x": 17,
+            "y": 351,
+            "w": 686,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 17,
+            "y": 404,
+            "w": 686,
+            "h": 152
+          },
+          "copy": {
+            "x": 651,
+            "y": 355,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "25.5px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 1505,
+            "clientWidth": 686,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 664,
+            "y": 368,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        }
+      ]
+    },
+    {
+      "surface": "chat",
+      "name": "text-scale-2-emulated",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 478,
+            "y": 336,
+            "w": 740,
+            "h": 122
+          },
+          "toolbar": {
+            "x": 479,
+            "y": 337,
+            "w": 738,
+            "h": 45
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 479,
+            "y": 381,
+            "w": 738,
+            "h": 75
+          },
+          "copy": {
+            "x": 1181,
+            "y": 344,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "30px",
+            "line": "51px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 1270,
+            "clientWidth": 738,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1186,
+            "y": 349,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 45
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 478,
+            "y": 532,
+            "w": 740,
+            "h": 326
+          },
+          "toolbar": {
+            "x": 479,
+            "y": 533,
+            "w": 738,
+            "h": 45
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 479,
+            "y": 578,
+            "w": 738,
+            "h": 279
+          },
+          "copy": {
+            "x": 1181,
+            "y": 541,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "30px",
+            "line": "51px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre"
+          },
+          "scroll": {
+            "scrollWidth": 2986,
+            "clientWidth": 738,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1186,
+            "y": 546,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 46
+        }
+      ]
+    },
+    {
+      "surface": "attention",
+      "name": "desktop-1440-light",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 805,
+            "y": 253,
+            "w": 590,
+            "h": 83
+          },
+          "toolbar": {
+            "x": 806,
+            "y": 254,
+            "w": 588,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 806,
+            "y": 291,
+            "w": 588,
+            "h": 44
+          },
+          "copy": {
+            "x": 1358,
+            "y": 258,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "11.5px",
+            "line": "19.55px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 588,
+            "clientWidth": 588,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1363,
+            "y": 263,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 805,
+            "y": 385,
+            "w": 590,
+            "h": 200
+          },
+          "toolbar": {
+            "x": 806,
+            "y": 386,
+            "w": 588,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 806,
+            "y": 423,
+            "w": 588,
+            "h": 161
+          },
+          "copy": {
+            "x": 1358,
+            "y": 390,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "11.5px",
+            "line": "19.55px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 588,
+            "clientWidth": 588,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1363,
+            "y": 395,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        }
+      ],
+      "copyOneLine": {
+        "focused": true,
+        "focusVisible": true,
+        "exact": false,
+        "bytes": 70,
+        "expectedBytes": 69,
+        "feedback": "Copied",
+        "stillFocused": true
+      }
+    },
+    {
+      "surface": "attention",
+      "name": "narrow-390-touch-dark",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 25,
+            "y": 307,
+            "w": 340,
+            "h": 118
+          },
+          "toolbar": {
+            "x": 26,
+            "y": 308,
+            "w": 338,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 26,
+            "y": 361,
+            "w": 338,
+            "h": 63
+          },
+          "copy": {
+            "x": 312,
+            "y": 312,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "11.5px",
+            "line": "19.55px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 338,
+            "clientWidth": 338,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 325,
+            "y": 325,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 25,
+            "y": 475,
+            "w": 340,
+            "h": 255
+          },
+          "toolbar": {
+            "x": 26,
+            "y": 476,
+            "w": 338,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 26,
+            "y": 529,
+            "w": 338,
+            "h": 200
+          },
+          "copy": {
+            "x": 312,
+            "y": 480,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "11.5px",
+            "line": "19.55px",
+            "family": "monospace",
+            "padTop": "12px",
+            "padLeft": "12px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 338,
+            "clientWidth": 338,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 325,
+            "y": 493,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        }
+      ]
+    },
+    {
+      "surface": "reader",
+      "name": "desktop-1440-light",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 213,
+            "y": 156,
+            "w": 1154,
+            "h": 79
+          },
+          "toolbar": {
+            "x": 214,
+            "y": 157,
+            "w": 1152,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 214,
+            "y": 194,
+            "w": 1152,
+            "h": 40
+          },
+          "copy": {
+            "x": 1330,
+            "y": 161,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "24px",
+            "family": "ui-monospace",
+            "padTop": "8px",
+            "padLeft": "8px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 1152,
+            "clientWidth": 1152,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1335,
+            "y": 166,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 213,
+            "y": 287,
+            "w": 1154,
+            "h": 199
+          },
+          "toolbar": {
+            "x": 214,
+            "y": 288,
+            "w": 1152,
+            "h": 37
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 214,
+            "y": 325,
+            "w": 1152,
+            "h": 160
+          },
+          "copy": {
+            "x": 1330,
+            "y": 292,
+            "w": 28,
+            "h": 28
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "24px",
+            "family": "ui-monospace",
+            "padTop": "8px",
+            "padLeft": "8px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 1152,
+            "clientWidth": 1152,
+            "overflowX": "auto"
+          },
+          "copyTarget": 28,
+          "copyGlyph": {
+            "x": 1335,
+            "y": 297,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 38
+        }
+      ],
+      "copyOneLine": {
+        "focused": true,
+        "focusVisible": true,
+        "exact": true,
+        "bytes": 69,
+        "expectedBytes": 69,
+        "feedback": "Copied",
+        "stillFocused": true
+      }
+    },
+    {
+      "surface": "reader",
+      "name": "narrow-390-touch-dark",
+      "blocks": [
+        {
+          "lines": 1,
+          "block": {
+            "x": 57,
+            "y": 270,
+            "w": 276,
+            "h": 143
+          },
+          "toolbar": {
+            "x": 58,
+            "y": 271,
+            "w": 274,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 58,
+            "y": 324,
+            "w": 274,
+            "h": 88
+          },
+          "copy": {
+            "x": 280,
+            "y": 275,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copied",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "24px",
+            "family": "ui-monospace",
+            "padTop": "8px",
+            "padLeft": "8px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 274,
+            "clientWidth": 274,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 293,
+            "y": 288,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        },
+        {
+          "lines": 5,
+          "block": {
+            "x": 57,
+            "y": 465,
+            "w": 276,
+            "h": 359
+          },
+          "toolbar": {
+            "x": 58,
+            "y": 466,
+            "w": 274,
+            "h": 53
+          },
+          "toolbarLabel": [
+            "Code"
+          ],
+          "pre": {
+            "x": 58,
+            "y": 519,
+            "w": 274,
+            "h": 304
+          },
+          "copy": {
+            "x": 280,
+            "y": 470,
+            "w": 44,
+            "h": 44
+          },
+          "copyName": "Copy code",
+          "copyOverPre": false,
+          "code": {
+            "size": "15px",
+            "line": "24px",
+            "family": "ui-monospace",
+            "padTop": "8px",
+            "padLeft": "8px",
+            "whiteSpace": "pre-wrap"
+          },
+          "scroll": {
+            "scrollWidth": 449,
+            "clientWidth": 274,
+            "overflowX": "auto"
+          },
+          "copyTarget": 44,
+          "copyGlyph": {
+            "x": 293,
+            "y": 483,
+            "w": 18,
+            "h": 18
+          },
+          "codeBeforeTop": 54
+        }
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "browser": "Chrome/153.0.8010.53"
+}

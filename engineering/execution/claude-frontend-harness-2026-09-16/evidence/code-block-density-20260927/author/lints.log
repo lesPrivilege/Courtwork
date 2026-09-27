@@ -1,0 +1,26 @@
+== node tools/lint-colors.mjs
+lint-colors: ok (75 files · 字面量与高度层两项)
+exit 0
+== node tools/lint-interaction.mjs
+lint-interaction: ok (71 files · progress/meter、role 与 aria-valuenow、input[type=range]、ALLOWED_TAGS 闭集四项 · 登记例外 0 条)
+exit 0
+== node tools/lint-materials.mjs
+lint-materials: ok (4 files · 登记类名与 reduced-transparency 回退两项)
+exit 0
+== node tools/lint-shapes.mjs
+  app/web/styles.css:6444 .context-cache-bar
+  app/web/styles.css:6556 .avatar
+exit 0
+== node tools/lint-spacing.mjs
+lint-spacing: ok (3 files · 间距 var(--space-*)/0/auto/派生式/登记表 · 字号 var(--text-*)/inherit/em/登记表；1–3px 全局放行）
+lint-spacing: 登记表 60 条间距 + 16 条字号
+exit 0
+== node tools/check-product-copy.mjs
+{"scope":"app/web hard-coded text/title/aria-label fields plus index.html text nodes","diagnosticExceptions":2}
+exit 0
+== node tools/check-semantic-consumers.mjs
+{"guardedGlyphs":["message-square","activity","plug","folder","file-text","refresh-cw"],"entries":45,"scope":"app/web module literal lines; vendor, static allowlist and generated projection excluded"}
+exit 0
+== node tools/product-semantics.mjs
+{"entries":72,"generated":false}
+exit 0

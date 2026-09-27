@@ -1,0 +1,21 @@
+chat desktop-1440-light #0: block 52 toolbar - pre 50 copy 28×28 over false code 15px/25.5px scroll 702>702
+chat desktop-1440-light #1: block 154 toolbar - pre 152 copy 28×28 over false code 15px/25.5px scroll 1505>702
+chat desktop-1440-dark #0: block 52 toolbar - pre 50 copy 28×28 over false code 15px/25.5px scroll 702>702
+chat desktop-1440-dark #1: block 154 toolbar - pre 152 copy 28×28 over false code 15px/25.5px scroll 1505>702
+chat narrow-390-touch-light #0: block 62 toolbar - pre 50 copy 44×44 over false code 15px/25.5px scroll 647>304
+chat narrow-390-touch-light #1: block 154 toolbar - pre 152 copy 44×44 over false code 15px/25.5px scroll 1505>304
+chat narrow-390-touch-dark #0: block 62 toolbar - pre 50 copy 44×44 over false code 15px/25.5px scroll 647>304
+chat narrow-390-touch-dark #1: block 154 toolbar - pre 152 copy 44×44 over false code 15px/25.5px scroll 1505>304
+chat zoom-200-emulated-720 #0: block 62 toolbar - pre 50 copy 44×44 over false code 15px/25.5px scroll 647>634
+chat zoom-200-emulated-720 #1: block 154 toolbar - pre 152 copy 44×44 over false code 15px/25.5px scroll 1505>634
+chat text-scale-2-emulated #0: block 77 toolbar - pre 75 copy 28×28 over false code 30px/51px scroll 1270>702
+chat text-scale-2-emulated #1: block 281 toolbar - pre 279 copy 28×28 over false code 30px/51px scroll 2986>702
+attention desktop-1440-light #0: block 46 toolbar - pre 44 copy 28×28 over false code 11.5px/19.55px scroll 552>552
+attention desktop-1440-light #1: block 163 toolbar - pre 161 copy 28×28 over false code 11.5px/19.55px scroll 552>552
+attention narrow-390-touch-dark #0: block 65 toolbar - pre 63 copy 44×44 over false code 11.5px/19.55px scroll 286>286
+attention narrow-390-touch-dark #1: block 221 toolbar - pre 219 copy 44×44 over false code 11.5px/19.55px scroll 286>286
+reader desktop-1440-light #0: block 46 toolbar - pre 40 copy 28×28 over false code 15px/24px scroll 1116>1116
+reader desktop-1440-light #1: block 162 toolbar - pre 160 copy 28×28 over false code 15px/24px scroll 1116>1116
+reader narrow-390-touch-dark #0: block 114 toolbar - pre 112 copy 44×44 over false code 15px/24px scroll 222>222
+reader narrow-390-touch-dark #1: block 354 toolbar - pre 352 copy 44×44 over false code 15px/24px scroll 449>222
+{"pageErrors":[]}
