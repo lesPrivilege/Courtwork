@@ -1,5 +1,10 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Routing executed: DS-1 complete, I1 accepted
+
+[DS-1](evidence/schema-doc-dogfood-20260927/README.md) completed through a real CW Run with one exact write and zero tool errors; parent verifies only the two current Host-version substitutions and integrates `bf09f10`. [I1](evidence/runtime-inventory-i1-final-20260927/README.md) independently accepts prior Sol `2a43269`, integrates `766a4fb`, and passes real idle-Host inventory reads. Parent preserves both appended histories. The existing Claude/Opus read-only Settings consumer is ready with a concrete handoff; CLI loggedIn false and author idle are observed, so no new writer/inference is claimed. Important architecture/integration stays Astra/Claude; future small tasks remain bounded CW dogfood with independent acceptance.
+
+
 ## 2026-09-27 · User routing: small work through CW, important work Astra/Claude
 
 The user authorizes continued construction with bounded small tasks executed through actual CW dogfooding; important self-developed mechanisms, architecture and adjudication remain Astra/Claude. Parent selects a concrete scope and existing owner, freezes source, independently verifies the candidate and integrates. Luna remains bounded exploration/non-author verification. This does not retrospectively replace active authors: Sol's I1 source `2a43269` is now observed delivered and enters independent disposition; Claude remains the subsequent production06c frontend owner and CB-D1 owner. No competing service/UI writer or new roadmap is opened.

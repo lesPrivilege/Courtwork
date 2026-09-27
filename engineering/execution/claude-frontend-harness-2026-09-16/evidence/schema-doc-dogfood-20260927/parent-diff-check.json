@@ -1,0 +1,11 @@
+{
+  "candidatePath": "<HOST_PRIVATE_CANDIDATE>",
+  "base": "766a4fb496e07d9b0dab945ee97787bacf291117",
+  "changedFiles": [
+    "docs/work-core/contract.md"
+  ],
+  "onlyTwoCurrentFactSubstitutions": true,
+  "allOtherBytesIdentical": true,
+  "beforeSha256": "0eb73a3e55aff9ea57f75b80b1d6afe6196972ee819ee44fd10f989c42cf7aea",
+  "afterSha256": "13d321afbbf5d8a51a206cb6cf7abf83f7febe2961538989c52cb8b57bc77ced"
+}

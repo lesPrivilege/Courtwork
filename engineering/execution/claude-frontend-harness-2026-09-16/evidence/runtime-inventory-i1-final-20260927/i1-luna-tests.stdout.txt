@@ -1,0 +1,33 @@
+✔ current host context reaches the model without changing user input; capabilities use the installed catalog (854.027542ms)
+✔ a Run waits for its final event to persist before publishing completion (747.635666ms)
+✔ event persistence failure is reported as runtime failure instead of completion (239.056583ms)
+✔ CLI SIGTERM settles a waiting Run and the same data directory reopens (1147.477125ms)
+✔ I1 authenticated inventory before a Session is a read-only Host description (96.792084ms)
+✔ I1 managed fixture is describable without a live check and provider incompatibility stays row-local (67.934583ms)
+✔ I1 descriptor failures are bounded and do not hide another configured row (64.421834ms)
+✔ I1 returns detached capabilities and preserves selected Session runtime-info semantics (63.328416ms)
+✔ R1 public choice defaults to Pi; an unconfigured managed option cannot be enabled by a client flag (209.208791ms)
+✔ R1 one Host serves separate Pi and managed Sessions with frozen native shapes (918.407834ms)
+✔ R1 stale choice and stale Run expectation refuse before provider/native requests (73.132791ms)
+✔ R1 first-choice PUT and first Run serialize; the loser cannot switch native lineage (74.811042ms)
+✔ R1 a saved managed Run replays after restart without its factory; new work refuses without Pi fallback (391.235792ms)
+✔ R1 changed managed endpoint after restart leaves the saved choice readable and refuses execution (117.311875ms)
+✔ R1 a selected managed lost-create stays unknown across reopen and cannot dispatch through Pi (380.403375ms)
+✔ R1 a v2 Kit remains Pi-only and refuses managed execution before provider/native requests (67.1635ms)
+✔ R1 Pi credential rotation does not change executor identity; managed credential fences stay separate (860.197875ms)
+✔ R1 global Attention choice is read-only and its Run keeps the default Pi port (501.980458ms)
+✔ R1 contradictory legacy native history stays readable with null identity and refuses new execution (582.840541ms)
+✔ R1 Store choice CAS, bound Run identity and historical lock survive reopen (93.729916ms)
+✔ R1 schema-21 empty Session migrates with null ref; first Run pins once after receipt lookup (86.385625ms)
+✔ R1 bound executor identity rejects mutation and corrupt reopen without rewriting bytes (84.843458ms)
+✔ R1-R1 a reused factory ref cannot change bound adapter revision across Runs or on reopen (87.937708ms)
+✔ R1 contradictory schema-21 global Run/native history stays readable and fenced (85.205209ms)
+✔ R1 pinned schema-21 Host refuses schema 22 without changing durable bytes (499.8125ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10801.366625

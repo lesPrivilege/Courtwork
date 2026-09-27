@@ -1,0 +1,12 @@
+✔ I1 authenticated inventory before a Session is a read-only Host description (115.79625ms)
+✔ I1 managed fixture is describable without a live check and provider incompatibility stays row-local (71.051584ms)
+✔ I1 descriptor failures are bounded and do not hide another configured row (65.977084ms)
+✔ I1 returns detached capabilities and preserves selected Session runtime-info semantics (67.097583ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1397.2675

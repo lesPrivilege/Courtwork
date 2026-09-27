@@ -1,0 +1,115 @@
+{
+  "sourceBase": "766a4fb496e07d9b0dab945ee97787bacf291117",
+  "integratedDoc": "bf09f10",
+  "sessionId": "c652627c-f8e2-42c2-8182-012f7b5318e3",
+  "candidate": {
+    "id": "8e472d0e-ec6b-429b-9359-fb929c95c4ac",
+    "status": "active",
+    "revision": 1,
+    "sourceBindingId": "690bd9e2-d43a-4159-a001-72430f55e2df",
+    "sourceBindingRevision": 1,
+    "baseCommit": "766a4fb496e07d9b0dab945ee97787bacf291117",
+    "objectFormat": "sha1",
+    "writeRevision": 1,
+    "createdAt": "2026-09-27T02:59:05.666Z"
+  },
+  "runs": [
+    {
+      "id": "85b4a192-0c85-42fc-a4ce-1dee73fea436",
+      "status": "completed",
+      "adapterId": "pi-coding-agent@0.85.1/agent-session",
+      "provider": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "api": "openai-completions",
+        "reasoningEffort": "high",
+        "realProvider": true,
+        "connectionId": "catalog-deepseek",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "enum",
+          "source": "runtime-catalog",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 4
+        }
+      },
+      "startedAt": "2026-09-27T02:59:32.230Z",
+      "endedAt": "2026-09-27T03:00:37.092Z",
+      "usage": {
+        "input": 26559,
+        "output": 8413,
+        "cacheRead": 148224,
+        "cacheWrite": 0,
+        "turns": 8,
+        "missing": false
+      },
+      "error": null
+    }
+  ],
+  "toolCounts": {
+    "repo_read": 6,
+    "candidate_read": 2,
+    "repo_write": 1,
+    "repo_diff": 1
+  },
+  "errors": [],
+  "writeReceipts": [
+    {
+      "seq": 71,
+      "runId": "85b4a192-0c85-42fc-a4ce-1dee73fea436",
+      "sessionId": "c652627c-f8e2-42c2-8182-012f7b5318e3",
+      "type": "permission.open",
+      "data": {
+        "id": "757eedf7-4931-43bd-8185-673372547baa",
+        "kind": "permission",
+        "toolCallId": "call_00_Y5rYx0rTMgrZlHo1rQgo0337",
+        "tool": "repo_write",
+        "path": "docs/work-core/contract.md",
+        "bytes": 23985,
+        "contentSha256": "13d321afbbf5d8a51a206cb6cf7abf83f7febe2961538989c52cb8b57bc77ced",
+        "preview": "# Work Core v1 / frontend seam\n\nConstruction baseline: `43e3dc058b77cb38d295b261b977469accc18478`. This document freezes the backend semantics for Fable; implementation/independent evidence is recorded in `evidence/harness-core-20260908/`. No frontend completion is implied.\n\n## Ownership and compatibility\n\n`app/core/core.py` owns transactional Matter/Candidate/Decision/Artifact state (B0 SQLite st",
+        "candidateId": "8e472d0e-ec6b-429b-9359-fb929c95c4ac",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 0,
+        "sourceBindingId": "690bd9e2-d43a-4159-a001-72430f55e2df",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "0eb73a3e55aff9ea57f75b80b1d6afe6196972ee819ee44fd10f989c42cf7aea"
+      }
+    },
+    {
+      "seq": 73,
+      "runId": "85b4a192-0c85-42fc-a4ce-1dee73fea436",
+      "sessionId": "c652627c-f8e2-42c2-8182-012f7b5318e3",
+      "type": "permission.resolved",
+      "data": {
+        "id": "757eedf7-4931-43bd-8185-673372547baa",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 75,
+      "runId": "85b4a192-0c85-42fc-a4ce-1dee73fea436",
+      "sessionId": "c652627c-f8e2-42c2-8182-012f7b5318e3",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "88d90b3af91ac6fe8f0220d8dc2dfc266df6753c56ec677c653c0644cccbb5be",
+        "requestId": "call_00_Y5rYx0rTMgrZlHo1rQgo0337",
+        "candidateId": "8e472d0e-ec6b-429b-9359-fb929c95c4ac",
+        "path": "docs/work-core/contract.md",
+        "contentSha256": "13d321afbbf5d8a51a206cb6cf7abf83f7febe2961538989c52cb8b57bc77ced",
+        "bytes": 23985,
+        "writeRevision": 1
+      }
+    }
+  ]
+}

@@ -1,0 +1,152 @@
+- main "Agent workspace":
+  - button "Toggle navigation":
+    - generic: Toggle navigation
+  - heading "Production closure · synthetic · 2026-09-27 · Courtwork" [active] [level=1]:
+    - generic: Production closure · synthetic · 2026-09-27
+    - text: ·
+    - generic: Courtwork
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open preview":
+    - generic: Open preview
+  - log:
+    - article "Your message":
+      - paragraph: "DS-1 small documentation task. Use this connected CourtWork repository and its active private candidate. Edit ONLY the current persistence paragraph near line 9 of docs/work-core/contract.md: it still reports Host Runtime JSON 13 and schema 3–12 upgrades. Verify current facts fro…"
+      - generic "Read full message"
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/27/2026, 10:59:32 AM
+        - text: 10:59 AM
+    - region "Agent run":
+      - article:
+        - paragraph: I'll start by reading the authorized scope entry and the target file, then verify the facts.
+      - button "Execution 10 successful tool actions":
+        - generic: Execution
+        - generic: 10 successful tool actions
+      - article:
+        - paragraph: Now verifying the current facts from the specified source locations.
+      - article:
+        - paragraph: Facts confirmed so far. Let me check the upgrade list around line 835 in store.mjs to confirm the validated range.
+      - article:
+        - paragraph:
+          - text: "Facts fully confirmed: Host"
+          - code: SCHEMA_VERSION = 22
+          - text: ", upgrade accepts"
+          - code: "[3..21]"
+          - text: ", architecture says \"schema 3–21 ... persisted as schema 22\", and Core/bridge remain"
+          - code: CORE_SCHEMA_VERSION = 4
+          - text: /
+          - code: APP_SCHEMA_VERSION = 5
+          - text: . Now let me get the exact candidate file hash for a hash-preserving replacement.
+      - article:
+        - paragraph: Facts are fully verified. Let me re-read the full target file once to reproduce it exactly for the hash-preserving replacement.
+      - article:
+        - paragraph: Now I'll make the single-paragraph correction with a hash-preserving full-file replacement.
+      - article:
+        - paragraph: Write succeeded (byte count unchanged at 23985). Now confirming the exact diff.
+      - article:
+        - paragraph: Done. Exactly one line changed, in one file.
+        - heading "Factual correction" [level=2]
+        - paragraph:
+          - text: In the
+          - strong: current persistence
+          - text: paragraph of
+          - code: docs/work-core/contract.md
+          - text: "(line 9), the Host fact was stale:"
+        - list:
+          - text: "Before:"
+          - code: Runtime JSON is **13** (validated schema 3–12 upgrade; …)
+          - text: "After:"
+          - code: Runtime JSON is **22** (validated schema 3–21 upgrade; …)
+        - paragraph: "Rationale, verified from the specified bounded reads:"
+        - list:
+          - code: app/server/store.mjs
+          - text: "line 43:"
+          - code: const SCHEMA_VERSION = 22;
+          - code: app/server/store.mjs
+          - text: "line ~835: the upgrade list is"
+          - code: "[3, 4, …, 21]"
+          - text: ", i.e. validated schema 3–21."
+          - code: docs/runtime-control/architecture.md
+          - text: "lines 33–35: \"Runtime store schema 3–21 is fully validated before upgrade … atomically persisted as schema 22.\""
+          - code: app/core/bridge.py
+          - text: "lines 50–51:"
+          - code: APP_SCHEMA_VERSION = 5
+          - text: ","
+          - code: CORE_SCHEMA_VERSION = 4
+          - text: — unchanged, since the Host store version advances independently of Core/bridge.
+        - heading "Diff confirmation" [level=2]
+        - paragraph:
+          - code: repo_diff
+          - text: "reports a single modified file, one hunk, 2,975-byte patch:"
+        - list:
+          - code: docs/work-core/contract.md
+          - text: ":"
+          - code: 0eb73a3e…
+          - text: →
+          - code: 13d321af…
+          - text: ", 23,985 bytes (byte count unchanged)."
+          - text: "Only the Host clause changed:"
+          - code: "13"
+          - text: →
+          - code: "22"
+          - text: and
+          - code: 3–12
+          - text: →
+          - code: 3–21
+          - text: . The Core
+          - strong: "4"
+          - text: / bridge
+          - strong: "5"
+          - text: clause, the
+          - code: "[runtime persistence](../runtime-control/architecture.md#persistence-upgrade)"
+          - text: link, and every historical construction/migration paragraph are preserved verbatim. No other file touched; no code/schema change.
+        - paragraph:
+          - text: One
+          - code: repo_write
+          - text: approval was used (hash-preserving replacement). Per instruction, I did not run
+          - code: check_run
+          - text: or any other checks —
+          - strong: checks were not run
+          - text: ; the parent will run documentation checks.
+        - time:
+          - generic: Run started 9/27/2026, 10:59:32 AM
+          - text: 10:59 AM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+    - button "Measurement details"
+    - generic: Completed
+    - status: Completed
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+  - 'button "Agent: General"':
+    - generic: General
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Ask before editing"':
+    - generic: Ask before editing
+  - button "Model and effort · deepseek-v4-flash · high": deepseek-v4-flash · high
+  - 'button "Context: 34,252 of 1,000,000 tokens, 3.4%, latest completed request input"':
+  - button "Send":
+    - generic: Send
+  - paragraph: Production closure · synthetic · 2026-09-27
+- status

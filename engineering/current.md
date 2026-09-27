@@ -1,5 +1,12 @@
 # 当前工程状态
 
+## 2026-09-27 · Small-task routing executed; production runtime inventory accepted
+
+User assigns small bounded work to actual CW dogfooding and keeps important self-developed mechanisms/decisions with Astra/Claude. [DS-1](execution/claude-frontend-harness-2026-09-16/evidence/schema-doc-dogfood-20260927/README.md) fixes the Work Core contract's stale current Host schema13/upgrade3–12 reference to22/3–21; one approved candidate write, ten successful tool calls, exact all-other-byte preservation, integrated `bf09f10`.
+
+Astra independently accepts the already delivered Sol [I1 backend](execution/claude-frontend-harness-2026-09-16/evidence/runtime-inventory-i1-final-20260927/README.md): Luna25/25, integrated-main4/4 and fake smoke; product integrates `766a4fb`. Idle user Host restarted and authenticated runtime-info reports Pi configured, managed not_configured, every liveStatus not_checked, without Session changes; DS-1 detail survives restart. Existing Claude/Opus production06c frontend is ready, not dispatched; current CLI auth reports loggedIn false and original author idle. No replacement writer, native connection/permission/schema change, push or deployment. CB-D1 retains its existing frontend owner.
+
+
 ## 2026-09-27 · Formal Work dogfood and schema correction accepted
 
 [Production-closure evidence](execution/claude-frontend-harness-2026-09-16/evidence/production-closure-20260927/README.md) adds bounded G1/G2/G3 results: exact coding-history restart; operator-reviewed generic memo; fixed H0 NDA real-model proposal matching all four gold findings → Decision/Artifact; new-Session exact accepted-Artifact read; three formal Sessions preserved across a second process restart; real cancellation with no writes; and fresh unassisted generic submission/review/reload. Both extensions remain development/synthetic, and operator action is distinct from end-user personal review. No whole-production acceptance is inferred.

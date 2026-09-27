@@ -1,0 +1,11 @@
+# DS-1 small task through CW — 2026-09-27
+
+The user assigns small bounded work to actual CourtWork dogfooding and retains important self-developed mechanisms/decisions with Astra/Claude. Parent freezes [DS-1](../../next-dispatch-20260921.md#2026-09-27--user-routing-small-work-through-cw-important-work-astraclaude) on source `766a4fb`; configured DeepSeek V4 Flash/high authors one documentation correction in the Host-created private candidate. Parent independently verifies the bytes and integrates the unchanged output as `bf09f10`.
+
+The current Work Core paragraph incorrectly said Host Runtime JSON13 / schema3–12 upgrades. `store.mjs` and the Runtime persistence contract establish22 /3–21; Core4 and bridge5 are separate and unchanged. Only those two current-fact substitutions were made. All other target-file bytes, historical migration descriptions, links and evidence remain identical: [byte check](parent-diff-check.json), [exact diff](candidate.diff).
+
+Actual [receipts](receipts.json): Session `c652627c-f8e2-42c2-8182-012f7b5318e3`, Run `85b4a192-0c85-42fc-a4ce-1dee73fea436` completed, candidate `8e472d0e-ec6b-429b-9359-fb929c95c4ac` at write revision1. Ten tool calls (six repository reads, two candidate reads, one approved write, one diff), zero tool errors. No code, tests, `check_run`, extra workspace files or model-authored commits. The author explicitly states checks were not run; parent [documentation-link verification](doc-links.log) passes (1,669 documents / 9,999 references). [Browser delivery](author-completed.png).
+
+After the Run was terminal and the global active count was zero, parent restarted the user Host to load accepted I1; this completed Session's full detail remained equal across restart ([I1 live observation](../runtime-inventory-i1-final-20260927/live-api.json)). The source main checkout stayed read-only to the author; only parent copied the exact verified candidate file for integration.
+
+No product test was added for this one-paragraph factual correction. The full test suite and any new provider capability evaluation are not claimed. Existing I1/Claude assignments remain independent; this small-task result does not make dogfooding the owner of architecture, migration or acceptance decisions.
