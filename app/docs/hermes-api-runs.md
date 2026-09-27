@@ -71,6 +71,15 @@ Adapter identity is `hermes-api-runs`, revision `hermes-agent@d7b836ab…/api-ru
 - **Stop is an intent.** It returns `stopping`, `already_terminal` (with its status), `not_active`, `refused` or `unresolved`. It is sent once, and never again on its own.
 - **Recovery is status only.** `reconcile()` reports `evidence:"status_only"`, `textRecovered:false` and `activityKnown:false`. `interrupted` settles as `unknown`.
 - **Continuation needs an observed session id.** It uses only a `session_id` from a status this adapter validated for an earlier run. Absence refuses; nothing is guessed from titles or current state.
+- **Provenance, not freezing (HPR-R1).** `Object.isFrozen` proves nothing about origin, so each adapter keeps private registries of what it produced.
+  - **Intents.** An adapter admits only the intents it issued itself. At dispatch it re-checks the intent's endpoint and revision against its own, and requires a frozen body of exactly `input` plus an optional string `session_id`. It then sends a fresh copy of those two fields. Copies, forgeries, extra fields (such as `toolsets`) and intents from another adapter are refused with `invalid_intent` and `delivery: not_sent`. No request is made.
+  - **Continuations.** `continuationIntent` accepts only a status, settlement or reconciliation record this adapter validated itself, at its own endpoint. A record observed through another adapter or endpoint, copied or forged, is refused with `session_unknown`. This holds even for a second adapter at the same endpoint.
+- **Recovery after the adapter is re-created (restart).** The registries die with the adapter, so an old intent object cannot be admitted by a new one. Recovery is explicit:
+  1. The Host persists its own intent record: the idempotency key, the input and, for a continuation, the earlier native run id.
+  2. For a new run, it rebuilds with `admissionIntent({ input, idempotencyKey })` on the new adapter. The same key and body replay the one native run.
+  3. For a continuation, it first re-reads the earlier run through the new adapter (`status(runId)`), then calls `continuationIntent` from that record.
+
+  Nothing substitutes a new key, a native session, an endpoint or Pi execution. If the earlier run's status is gone, the continuation is refused.
 - **Unsupported operations refuse before any request.** These are steer, approval, tool results, compaction and replay. Tool, approval, reasoning and subagent events are recorded and never answered or executed.
 - **Dispose** closes only the transport's own connections. It sends no stop and no delete, and the native run is left as it was.
 
@@ -90,6 +99,22 @@ Adapter identity is `hermes-api-runs`, revision `hermes-agent@d7b836ab…/api-ru
   | Input | 64 Ki characters |
   | Diagnostics kept | 32 (the rest are counted) |
 
+- **Validation (HPR-R2).** Every limit is a positive safe integer no larger than its ceiling. Smaller values are allowed.
+
+  | Transport limit | Ceiling | Adapter limit | Ceiling |
+  | --- | --- | --- | --- |
+  | `requestTimeoutMs` | 120 s | `maxInputChars` | 256 Ki |
+  | `maxJsonBytes` | 1 MiB | `maxTextChars` | 16 Mi |
+  | `maxFrameBytes` | 1 MiB, and not above `maxStreamBytes` | `maxDiagnostics` | 1024 |
+  | `maxStreamBytes` | 64 MiB | `maxErrorChars` | 4000 |
+  | `streamIdleMs` | 300 s | | |
+
+  The following are refused at construction with `invalid_configuration` (`delivery: not_sent` on the transport), before any socket is opened:
+  - NaN, Infinity, zero, negative, fractional or string values;
+  - unknown limit names;
+  - unknown option names;
+  - non-object `limits`;
+  - a transport without its five operations or an endpoint identity.
 - **Stream decoding.** UTF-8 is decoded in streaming mode and fails on invalid bytes. `\r\n`, `\r` and `\n` are all handled across chunk boundaries.
 - **Failed mutations** carry `delivery`: `not_sent`, `rejected` or `unresolved`.
 

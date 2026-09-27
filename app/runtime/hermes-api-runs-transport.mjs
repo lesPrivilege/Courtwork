@@ -32,6 +32,17 @@ export const HERMES_TRANSPORT_LIMITS = Object.freeze({
   streamIdleMs: 60_000,
 });
 
+/* HPR-R2 · the largest value each limit may be configured to in this
+   bounded slice. A limit is a positive safe integer no larger than this;
+   smaller values are allowed, and nothing else is accepted. */
+export const HERMES_TRANSPORT_CEILINGS = Object.freeze({
+  requestTimeoutMs: 120_000,
+  maxJsonBytes: 1024 * 1024,
+  maxFrameBytes: 1024 * 1024,
+  maxStreamBytes: 64 * 1024 * 1024,
+  streamIdleMs: 300_000,
+});
+
 const LOOPBACK = new Set(["127.0.0.1", "localhost", "[::1]"]);
 const VISIBLE_ASCII = /^[\x21-\x7e]+$/;
 const SAFE_TOKEN = /^[\w.:-]{1,64}$/;
@@ -58,17 +69,39 @@ function loopbackOrigin(endpoint) {
   return { hostname: url.hostname.replace(/^\[|\]$/g, ""), port: Number(url.port), origin: url.origin };
 }
 
+const isPlainObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value)
+  && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+const configError = (message) => new HermesTransportError("invalid_configuration", "configure", message, { delivery: "not_sent" });
+
+/** Validate caller limits against HERMES_TRANSPORT_CEILINGS; returns the
+ * effective limits (defaults for anything not given). */
+export function transportLimits(limits = {}) {
+  if (!isPlainObject(limits)) throw configError("limits must be a plain object");
+  for (const [name, value] of Object.entries(limits)) {
+    if (!Object.hasOwn(HERMES_TRANSPORT_CEILINGS, name)) throw configError(`unknown limit: ${String(name).slice(0, 40)}`);
+    if (!Number.isSafeInteger(value) || value < 1 || value > HERMES_TRANSPORT_CEILINGS[name])
+      throw configError(`${name} must be an integer from 1 to ${HERMES_TRANSPORT_CEILINGS[name]}`);
+  }
+  const effective = { ...HERMES_TRANSPORT_LIMITS, ...limits };
+  if (effective.maxFrameBytes > effective.maxStreamBytes) throw configError("maxFrameBytes cannot exceed maxStreamBytes");
+  return Object.freeze(effective);
+}
+
 const runPath = (runId, suffix = "") => `/v1/runs/${encodeURIComponent(runId)}${suffix}`;
 
 /**
  * @param {{ endpoint: string, bearer?: string|null, limits?: Partial<typeof HERMES_TRANSPORT_LIMITS> }} options
  */
-export function createHermesRunsTransport({ endpoint, bearer = null, limits = {} } = {}) {
+export function createHermesRunsTransport(options = {}) {
+  if (!isPlainObject(options)) throw configError("options must be a plain object");
+  for (const name of Object.keys(options))
+    if (!["endpoint", "bearer", "limits"].includes(name)) throw configError(`unknown option: ${String(name).slice(0, 40)}`);
+  const { endpoint, bearer = null, limits = {} } = options;
+  const bounds = transportLimits(limits);
   const target = loopbackOrigin(endpoint);
   if (bearer !== null && (typeof bearer !== "string" || bearer.length > 512 || !VISIBLE_ASCII.test(bearer))) {
     throw new HermesTransportError("invalid_credential", "configure", "the bearer value must be visible ASCII", { delivery: "not_sent" });
   }
-  const bounds = { ...HERMES_TRANSPORT_LIMITS, ...limits };
   const owned = new Set();
   let closed = false;
 

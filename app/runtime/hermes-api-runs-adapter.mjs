@@ -68,6 +68,14 @@ export const HERMES_ADAPTER_LIMITS = Object.freeze({
   maxErrorChars: 500,
 });
 
+/* HPR-R2 · largest configurable value of each adapter limit. */
+export const HERMES_ADAPTER_CEILINGS = Object.freeze({
+  maxInputChars: 256 * 1024,
+  maxTextChars: 16 * 1024 * 1024,
+  maxDiagnostics: 1024,
+  maxErrorChars: 4000,
+});
+
 const STATUSES = new Set(["queued", "running", "stopping", "waiting_for_approval", "completed", "failed", "cancelled", "interrupted"]);
 const TERMINAL = new Set(["completed", "failed", "cancelled", "interrupted"]);
 /* Well-formed native events this slice does not act on. They are recorded,
@@ -87,6 +95,19 @@ export class HermesAdapterError extends Error {
 }
 
 const isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+const isPlainObject = (value) => isRecord(value) && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null);
+const TRANSPORT_OPERATIONS = ["createRun", "getRun", "stopRun", "events", "close"];
+
+function adapterLimits(limits) {
+  const invalid = (message) => new HermesAdapterError("invalid_configuration", message);
+  if (!isPlainObject(limits)) throw invalid("limits must be a plain object");
+  for (const [name, value] of Object.entries(limits)) {
+    if (!Object.hasOwn(HERMES_ADAPTER_CEILINGS, name)) throw invalid(`unknown limit: ${String(name).slice(0, 40)}`);
+    if (!Number.isSafeInteger(value) || value < 1 || value > HERMES_ADAPTER_CEILINGS[name])
+      throw invalid(`${name} must be an integer from 1 to ${HERMES_ADAPTER_CEILINGS[name]}`);
+  }
+  return Object.freeze({ ...HERMES_ADAPTER_LIMITS, ...limits });
+}
 const bounded = (value, limit) => (typeof value === "string" ? (value.length > limit ? `${value.slice(0, limit)}…` : value) : null);
 
 /** A native status record, validated against the run it must describe.
@@ -119,9 +140,21 @@ function consistentTerminal(status, json) {
 /**
  * @param {{ transport: ReturnType<import("./hermes-api-runs-transport.mjs").createHermesRunsTransport>, limits?: Partial<typeof HERMES_ADAPTER_LIMITS> }} options
  */
-export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
-  if (!transport || typeof transport.createRun !== "function") throw new HermesAdapterError("invalid_configuration", "A Hermes runs transport is required.");
-  const bounds = { ...HERMES_ADAPTER_LIMITS, ...limits };
+export function createHermesRunsAdapter(options = {}) {
+  if (!isPlainObject(options) || Object.keys(options).some((name) => !["transport", "limits"].includes(name)))
+    throw new HermesAdapterError("invalid_configuration", "Options are { transport, limits }.");
+  const { transport, limits = {} } = options;
+  if (!isRecord(transport) || TRANSPORT_OPERATIONS.some((name) => typeof transport[name] !== "function")
+    || typeof transport.endpointIdentity !== "string" || !transport.endpointIdentity)
+    throw new HermesAdapterError("invalid_configuration", "A Hermes runs transport with an endpoint identity is required.");
+  const bounds = adapterLimits(limits);
+  const endpointIdentity = transport.endpointIdentity;
+  /* HPR-R1 · provenance. Freezing proves nothing about origin: this adapter
+     keeps the intents it issued and the records it validated itself, and
+     accepts only those. A copy, a forgery, or an object from another
+     adapter (even at the same endpoint) is not in these sets. */
+  const issued = new WeakSet();
+  const observed = new WeakSet();
   let disposed = false;
   const live = () => { if (disposed) throw new HermesAdapterError("disposed", "This adapter was disposed."); };
 
@@ -133,16 +166,26 @@ export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
     if (nativeSessionId !== null && (typeof nativeSessionId !== "string" || !SESSION_ID.test(nativeSessionId)))
       throw new HermesAdapterError("invalid_session", "A native session id must be an observed, bounded string.");
     const body = nativeSessionId === null ? { input } : { input, session_id: nativeSessionId };
-    return Object.freeze({ idempotencyKey, body: Object.freeze(body) });
+    const made = Object.freeze({ idempotencyKey, body: Object.freeze(body), endpointIdentity, revision: HERMES_API_RUNS.revision });
+    issued.add(made);
+    return made;
   }
 
   async function admitWith(admission) {
     live();
-    if (!Object.isFrozen(admission) || !admission?.body || typeof admission.idempotencyKey !== "string")
-      throw new HermesAdapterError("invalid_intent", "Admit only an intent built by this adapter.");
+    if (!isRecord(admission) || !issued.has(admission))
+      throw new HermesAdapterError("invalid_intent", "Admit only an intent this adapter issued; rebuild it from the Host's key and input.", { delivery: "not_sent" });
+    // Re-check at dispatch what is sent: this endpoint, this revision, and a
+    // body of exactly `input` and an optional `session_id`.
+    const { body } = admission;
+    const fields = Object.keys(body);
+    if (admission.endpointIdentity !== endpointIdentity || admission.revision !== HERMES_API_RUNS.revision
+      || !Object.isFrozen(body) || fields.some((name) => name !== "input" && name !== "session_id")
+      || typeof body.input !== "string" || (fields.includes("session_id") && typeof body.session_id !== "string"))
+      throw new HermesAdapterError("invalid_intent", "The intent does not match this adapter's endpoint, revision or body shape.", { delivery: "not_sent" });
     let answer;
     try {
-      answer = await transport.createRun({ body: admission.body, idempotencyKey: admission.idempotencyKey });
+      answer = await transport.createRun({ body: fields.includes("session_id") ? { input: body.input, session_id: body.session_id } : { input: body.input }, idempotencyKey: admission.idempotencyKey });
     } catch (error) {
       const delivery = error.delivery ?? "unresolved";
       throw new HermesAdapterError(
@@ -166,7 +209,12 @@ export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
     const answer = await transport.getRun(nativeRunId);
     const record = readStatus(answer.json, nativeRunId);
     if (!record) throw new HermesAdapterError("malformed_status", "The status did not describe this run in the pinned shape.");
-    return Object.freeze(record);
+    return observe({ ...record, endpointIdentity });
+  }
+  function observe(record) {
+    const frozen = Object.freeze(record);
+    observed.add(frozen);
+    return frozen;
   }
 
   /** Validate one SSE data payload for `nativeRunId`. */
@@ -258,8 +306,9 @@ export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
       // unknown execution coverage. It is not completion and not cancellation.
       else outcome = "unknown";
     }
-    return Object.freeze({
+    return observe({
       nativeRunId: state.nativeRunId,
+      endpointIdentity,
       outcome,
       nativeStatus: terminal?.nativeStatus ?? state.pendingStatus ?? null,
       terminalSource: state.terminalSource,
@@ -290,7 +339,8 @@ export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
     describe() {
       return Object.freeze({
         ...HERMES_API_RUNS,
-        endpointIdentity: transport.endpointIdentity ?? null,
+        endpointIdentity,
+        limits: bounds,
         capabilities: HERMES_CAPABILITIES,
       });
     },
@@ -301,8 +351,8 @@ export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
     /** A continuation: only from a status this adapter validated for an
      * earlier run that reported its native session id. */
     continuationIntent({ input, idempotencyKey, from }) {
-      if (!Object.isFrozen(from) || typeof from?.nativeRunId !== "string" || !from.nativeSessionId)
-        throw new HermesAdapterError("session_unknown", "Continuation needs a native session id observed in an earlier status; none is guessed.");
+      if (!isRecord(from) || !observed.has(from) || from.endpointIdentity !== endpointIdentity || typeof from.nativeSessionId !== "string" || !from.nativeSessionId)
+        throw new HermesAdapterError("session_unknown", "Continuation needs a native session id this adapter observed at this endpoint; none is guessed or carried over.");
       return intent({ input, idempotencyKey, nativeSessionId: from.nativeSessionId });
     },
     /** Send the intent once. An unresolved admission is recovered only by
@@ -319,7 +369,7 @@ export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
         const answer = await transport.stopRun(nativeRunId);
         if (isRecord(answer.json) && answer.json.run_id === nativeRunId && answer.json.status === "stopping") return Object.freeze({ state: "stopping" });
         const record = readStatus(answer.json, nativeRunId);
-        if (record?.terminal) return Object.freeze({ state: "already_terminal", status: Object.freeze(record) });
+        if (record?.terminal) return Object.freeze({ state: "already_terminal", status: observe({ ...record, endpointIdentity }) });
         return Object.freeze({ state: "unresolved" });
       } catch (error) {
         if (error.nativeCode === "run_not_active") return Object.freeze({ state: "not_active" });
@@ -334,7 +384,7 @@ export function createHermesRunsAdapter({ transport, limits = {} } = {}) {
         : record.nativeStatus;
       // Status cannot show tool or approval activity, so a status-only
       // `completed` is not a text-only success claim either.
-      return Object.freeze({ ...record, outcome, evidence: "status_only", textRecovered: false, activityKnown: false });
+      return observe({ ...record, outcome, evidence: "status_only", textRecovered: false, activityKnown: false });
     },
     steer: refuse("steer"),
     approve: refuse("approval"),

@@ -11,8 +11,8 @@ import test from "node:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { createHermesRunsTransport, HermesTransportError } from "../runtime/hermes-api-runs-transport.mjs";
-import { createHermesRunsAdapter, HERMES_API_RUNS, HERMES_CAPABILITIES, readStatus } from "../runtime/hermes-api-runs-adapter.mjs";
+import { createHermesRunsTransport, HermesTransportError, HERMES_TRANSPORT_CEILINGS } from "../runtime/hermes-api-runs-transport.mjs";
+import { createHermesRunsAdapter, HERMES_API_RUNS, HERMES_CAPABILITIES, HERMES_ADAPTER_CEILINGS, readStatus } from "../runtime/hermes-api-runs-adapter.mjs";
 import { startHermesLoopback } from "./fixtures/hermes-api-runs-loopback.mjs";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -96,7 +96,7 @@ test("invalid input or key is refused locally, before anything is sent", async (
       { input: "x", idempotencyKey: "" }, { input: "x", idempotencyKey: "has space" }, { input: "x", idempotencyKey: "k".repeat(256) }]) {
       assert.throws(() => h.adapter.admissionIntent(bad), /Input must be|idempotency key/);
     }
-    await assert.rejects(h.adapter.admit({ idempotencyKey: "k", body: { input: "x" } }), /intent built by this adapter/);
+    await assert.rejects(h.adapter.admit({ idempotencyKey: "k", body: { input: "x" } }), (error) => error.code === "invalid_intent");
     assert.equal(h.fixture.trace.length, 0);
   } finally { await h.close(); }
 });
@@ -370,5 +370,119 @@ test("dispose closes only this transport's connections: no stop, no delete, and 
     assert.equal(h.fixture.status(runId).status, "running", "disposal is not cancellation");
     await assert.rejects(h.adapter.status(runId), (error) => error.code === "disposed");
     assert.equal(h.adapter.dispose(), 0);
+  } finally { await h.close(); }
+});
+
+/* ── HPR-R1 · intent and continuation provenance ─────────────────────── */
+
+/* A transport that records every call and never touches the network. */
+function recordingTransport(endpointIdentity, calls) {
+  return {
+    endpointIdentity,
+    async createRun(request) { calls.push({ endpointIdentity, call: "createRun", ...request }); return { status: 202, json: { run_id: "run_new", status: "started", replayed: false } }; },
+    async getRun(runId) { calls.push({ endpointIdentity, call: "getRun", runId }); return { status: 200, json: { run_id: runId, status: "completed", completed: true, session_id: `session-at-${endpointIdentity.slice(-4)}`, output: "ok" } }; },
+    async stopRun() { calls.push({ call: "stopRun" }); return { status: 200, json: {} }; },
+    async *events() {},
+    close() { return 0; },
+  };
+}
+
+test("HPR-R1 · a status observed through another adapter or endpoint cannot start a continuation", async () => {
+  const calls = [];
+  const a = createHermesRunsAdapter({ transport: recordingTransport("http://127.0.0.1:1111", calls) });
+  const b = createHermesRunsAdapter({ transport: recordingTransport("http://127.0.0.1:2222", calls) });
+  const fromA = await a.status("run_a");
+  assert.throws(() => b.continuationIntent({ input: "continue", idempotencyKey: "key-b", from: fromA }), (error) => error.code === "session_unknown");
+  // A same-endpoint adapter is still another adapter: it did not observe that record.
+  const a2 = createHermesRunsAdapter({ transport: recordingTransport("http://127.0.0.1:1111", calls) });
+  assert.throws(() => a2.continuationIntent({ input: "continue", idempotencyKey: "key-a2", from: fromA }), (error) => error.code === "session_unknown");
+  // A copied or forged record, frozen or not, is not an observation.
+  for (const from of [Object.freeze({ ...fromA }), Object.freeze({ nativeRunId: "run_a", nativeSessionId: "session-at-1111", terminal: true })])
+    assert.throws(() => a.continuationIntent({ input: "continue", idempotencyKey: "key-a", from }), (error) => error.code === "session_unknown");
+  assert.deepEqual(calls.filter((entry) => entry.call === "createRun"), [], "nothing was sent");
+  // The legitimate path still works: the record A itself observed.
+  await a.admit(a.continuationIntent({ input: "continue", idempotencyKey: "key-a", from: fromA }));
+  assert.deepEqual(calls.filter((entry) => entry.call === "createRun").map((entry) => [entry.endpointIdentity, entry.body]), [["http://127.0.0.1:1111", { input: "continue", session_id: "session-at-1111" }]]);
+});
+
+test("HPR-R1 · admit sends only an intent this adapter issued, with its exact validated body", async () => {
+  const calls = [];
+  const a = createHermesRunsAdapter({ transport: recordingTransport("http://127.0.0.1:1111", calls) });
+  const b = createHermesRunsAdapter({ transport: recordingTransport("http://127.0.0.1:2222", calls) });
+  const issuedByA = a.admissionIntent({ input: "x", idempotencyKey: "key-1" });
+  const forged = [
+    Object.freeze({ idempotencyKey: "forged", body: { input: "x", session_id: "arbitrary", toolsets: ["all"] } }),
+    Object.freeze({ idempotencyKey: "forged", body: Object.freeze({ input: "x" }) }),
+    Object.freeze({ ...issuedByA }),
+    Object.freeze({ ...issuedByA, body: Object.freeze({ ...issuedByA.body, toolsets: ["all"] }) }),
+  ];
+  for (const intent of forged) await assert.rejects(a.admit(intent), (error) => error.code === "invalid_intent" && error.delivery === "not_sent");
+  await assert.rejects(b.admit(issuedByA), (error) => error.code === "invalid_intent", "an intent issued for another endpoint is refused");
+  assert.throws(() => { issuedByA.body.session_id = "altered"; }, TypeError, "an issued body cannot be altered");
+  assert.deepEqual(calls, [], "nothing was sent");
+  assert.equal((await a.admit(issuedByA)).nativeRunId, "run_new");
+  assert.deepEqual(calls.map((entry) => [entry.endpointIdentity, entry.idempotencyKey, entry.body]), [["http://127.0.0.1:1111", "key-1", { input: "x" }]]);
+});
+
+test("HPR-R1 · after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted", async () => {
+  const h = await harness();
+  try {
+    h.fixture.loseNextAdmissionResponse();
+    const lost = h.adapter.admissionIntent({ input: "survive a restart", idempotencyKey: "k-restart" });
+    await assert.rejects(h.adapter.admit(lost), (error) => error.code === "admission_unresolved");
+    h.adapter.dispose();
+    // The Host kept (key, input) with its own intent record; a new adapter
+    // cannot admit the old object, but the same key and body replay the one run.
+    const again = createHermesRunsAdapter({ transport: createHermesRunsTransport({ endpoint: h.fixture.url, bearer: h.fixture.bearer }) });
+    try {
+      await assert.rejects(again.admit(lost), (error) => error.code === "invalid_intent");
+      const recovered = await again.admit(again.admissionIntent({ input: "survive a restart", idempotencyKey: "k-restart" }));
+      assert.deepEqual([recovered.replayed, h.fixture.admissions()], [true, 1]);
+      // A continuation re-reads the earlier run through the new adapter first.
+      const observed = await again.status(recovered.nativeRunId);
+      await again.admit(again.continuationIntent({ input: "next", idempotencyKey: "k-next", from: observed }));
+      assert.equal(calls(h.fixture, "createRun").at(-1).sessionId, recovered.nativeRunId);
+    } finally { again.dispose(); }
+  } finally { await h.close(); }
+});
+
+/* ── HPR-R2 · configuration and limits ───────────────────────────────── */
+
+test("HPR-R2 · invalid limits and unknown configuration are refused before any request", async () => {
+  const h = await harness();
+  try {
+    const endpoint = h.fixture.url;
+    const badTransport = [
+      { maxFrameBytes: Number.NaN }, { maxStreamBytes: Number.POSITIVE_INFINITY }, { streamIdleMs: -1 }, { requestTimeoutMs: 0 },
+      { maxJsonBytes: 1.5 }, { maxFrameBytes: "1024" }, { maxStreamBytes: 2 ** 40 }, { streamIdleMs: 3_600_000 }, { retries: 3 },
+      { maxFrameBytes: 4096, maxStreamBytes: 1024 },
+    ];
+    for (const limits of badTransport)
+      assert.throws(() => createHermesRunsTransport({ endpoint, bearer: h.fixture.bearer, limits }), (error) => error instanceof HermesTransportError && error.code === "invalid_configuration" && error.delivery === "not_sent", JSON.stringify(limits));
+    for (const options of [{ endpoint, limits: null }, { endpoint, limits: [] }, { endpoint, extra: true }])
+      assert.throws(() => createHermesRunsTransport(options), (error) => error.code === "invalid_configuration", JSON.stringify(options));
+    const badAdapter = [
+      { maxDiagnostics: Number.NaN }, { maxTextChars: Number.POSITIVE_INFINITY }, { maxInputChars: -5 }, { maxErrorChars: 0 },
+      { maxTextChars: 2 ** 40 }, { maxDiagnostics: 2.5 }, { anything: 1 },
+    ];
+    for (const limits of badAdapter)
+      assert.throws(() => createHermesRunsAdapter({ transport: h.transport, limits }), (error) => error.code === "invalid_configuration", JSON.stringify(limits));
+    for (const options of [{ transport: h.transport, extra: 1 }, { transport: { createRun() {} } }, { transport: { ...h.transport, endpointIdentity: 42 } }])
+      assert.throws(() => createHermesRunsAdapter(options), (error) => error.code === "invalid_configuration");
+    assert.equal(h.fixture.trace.length, 0, "no request was made");
+  } finally { await h.close(); }
+});
+
+test("HPR-R2 · valid smaller limits and the documented ceilings are accepted and enforced", async () => {
+  const h = await harness({
+    scripts: { big: { steps: [{ delta: "z".repeat(3000) }, { terminal: "completed", fields: { output: "done" } }] } },
+    limits: { maxFrameBytes: 1024, maxStreamBytes: 1024 * 1024, streamIdleMs: 1000, requestTimeoutMs: 2000, maxJsonBytes: 4096 },
+    adapterLimits: { maxTextChars: 10, maxDiagnostics: 1 },
+  });
+  try {
+    const settlement = await h.adapter.follow(await h.run("big"));
+    assert.equal(settlement.streamError, "frame_too_large", "the smaller frame limit is enforced on a real stream");
+    assert.doesNotThrow(() => createHermesRunsTransport({ endpoint: h.fixture.url, limits: { ...HERMES_TRANSPORT_CEILINGS } }));
+    assert.doesNotThrow(() => createHermesRunsAdapter({ transport: h.transport, limits: { ...HERMES_ADAPTER_CEILINGS } }));
   } finally { await h.close(); }
 });
