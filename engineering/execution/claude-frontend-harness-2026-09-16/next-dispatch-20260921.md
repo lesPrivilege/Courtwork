@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Authorized serial construction: CB-D1 then Attention integration
+
+Astra releases [CB-D1](06b-dogfood-friction-20260920.md#2026-09-27--cb-d1-released-to-original-claude-serial-lane) to the original Claude/Opus lane first. Core Hermes transport selection is being bounded by Luna against accepted P03/Runtime contracts; its implementation is not yet dispatched. A separate Luna preflight identifies one independent small tools/backend task for Sol or actual CW dogfooding. Parent owns contracts, routing and independent disposition; no duplicate frontend/core author. Actual receipt follows after dispatch is observed.
+
 ## 2026-09-27 · Runtime Settings I1 return accepted
 
 [Original Claude RFS delta accepted](evidence/runtime-settings-i1-final-20260927/README.md): `6acad62` / `d37320c`, independent80/80 and OpenAI browser recovery/role checks. Main fast-forward preserves all histories. Production06c I1's read-only frontend is complete within its recorded scope; do not re-dispatch RFS-R1/R2 or infer native connect/disable/selection support. CB-D1 remains the separately registered frontend density follow-up under the original owner; this acceptance itself starts no further writer. User routing still assigns bounded small tasks to CW dogfooding and important architecture/integration to Astra/Claude.
