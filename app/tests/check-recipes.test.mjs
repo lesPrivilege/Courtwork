@@ -166,17 +166,19 @@ test("check_run is denied with zero process start under read_only", async () => 
   const h = await boot();
   try {
     const { session } = await bindSyntheticCandidate(h, { permissionMode: "read_only" });
-    const run = await h.api("POST", `/sessions/${session.id}/runs`, {
-      commandId: "check-read-only",
-      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test-attention-contract" } }]),
-    });
-    const finished = await h.pollRun(run.json.run.id);
-    assert.equal(finished.status, "completed");
-    const events = eventsFor(h, session, run.json.run.id);
-    assert.equal(events.some(e => e.type === "check.started"), false, "read_only must never spawn a process");
-    assert.equal(events.some(e => e.type === "permission.open"), false, "the ceiling denies before any permission question opens");
-    const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
-    assert.equal(toolResult.data.isError, true);
+    for (const recipeId of ["node-test", "node-test-attention-contract"]) {
+      const run = await h.api("POST", `/sessions/${session.id}/runs`, {
+        commandId: `check-read-only-${recipeId}`,
+        input: h.scriptInput([{ name: "check_run", arguments: { recipeId } }]),
+      });
+      const finished = await h.pollRun(run.json.run.id);
+      assert.equal(finished.status, "completed");
+      const events = eventsFor(h, session, run.json.run.id);
+      assert.equal(events.some(e => e.type === "check.started"), false, `${recipeId}: read_only must never spawn a process`);
+      assert.equal(events.some(e => e.type === "permission.open"), false, `${recipeId}: the ceiling denies before any permission question opens`);
+      const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
+      assert.equal(toolResult.data.isError, true);
+    }
   } finally {
     await h.runtime.close();
   }
@@ -206,33 +208,35 @@ test("ask mode shows the exact recipe in the permission payload and deny records
   const h = await boot();
   try {
     const { session, candidateId } = await bindSyntheticCandidate(h, { permissionMode: "ask" });
-    const run = await h.api("POST", `/sessions/${session.id}/runs`, {
-      commandId: "check-deny",
-      input: h.scriptInput([{ name: "check_run", arguments: { recipeId: "node-test-attention-contract" } }]),
-    });
-    await h.pollRun(run.json.run.id, { until: status => status === "waiting_user" });
-    const openEvent = eventsFor(h, session, run.json.run.id).find(e => e.type === "permission.open");
-    assert.ok(openEvent, "check_run must ask before running");
-    assert.equal(openEvent.data.tool, "check_run");
-    assert.equal(openEvent.data.recipeId, "node-test-attention-contract");
-    assert.equal(openEvent.data.recipeVersion, 1);
-    assert.equal(openEvent.data.command, process.execPath);
-    assert.deepEqual(openEvent.data.argv, ATTENTION_ARGV);
-    assert.equal(openEvent.data.cwd, "private candidate");
-    assert.equal(openEvent.data.candidateId, candidateId);
-    assert.equal(openEvent.data.candidateWriteRevision, 0);
-    assert.equal(openEvent.data.timeoutMs, 120000);
-    assert.equal(openEvent.data.outputLimitBytes, 65536);
-    assert.equal(openEvent.data.env, "minimal");
+    for (const [recipeId, argv] of [["node-test", ["--test"]], ["node-test-attention-contract", ATTENTION_ARGV]]) {
+      const run = await h.api("POST", `/sessions/${session.id}/runs`, {
+        commandId: `check-deny-${recipeId}`,
+        input: h.scriptInput([{ name: "check_run", arguments: { recipeId } }]),
+      });
+      await h.pollRun(run.json.run.id, { until: status => status === "waiting_user" });
+      const openEvent = eventsFor(h, session, run.json.run.id).find(e => e.type === "permission.open");
+      assert.ok(openEvent, `${recipeId}: check_run must ask before running`);
+      assert.equal(openEvent.data.tool, "check_run");
+      assert.equal(openEvent.data.recipeId, recipeId);
+      assert.equal(openEvent.data.recipeVersion, 1);
+      assert.equal(openEvent.data.command, process.execPath);
+      assert.deepEqual(openEvent.data.argv, argv);
+      assert.equal(openEvent.data.cwd, "private candidate");
+      assert.equal(openEvent.data.candidateId, candidateId);
+      assert.equal(openEvent.data.candidateWriteRevision, 0);
+      assert.equal(openEvent.data.timeoutMs, 120000);
+      assert.equal(openEvent.data.outputLimitBytes, 65536);
+      assert.equal(openEvent.data.env, "minimal");
 
-    const denied = await h.api("POST", `/runs/${run.json.run.id}/questions/${openEvent.data.id}`, { decision: "deny" });
-    assert.equal(denied.status, 200);
-    const finished = await h.pollRun(run.json.run.id);
-    assert.equal(finished.status, "completed", "the run keeps going after a denied check");
-    const events = eventsFor(h, session, run.json.run.id);
-    assert.equal(events.some(e => e.type === "check.started"), false, "a denied check must never record a start");
-    const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
-    assert.equal(toolResult.data.isError, true);
+      const denied = await h.api("POST", `/runs/${run.json.run.id}/questions/${openEvent.data.id}`, { decision: "deny" });
+      assert.equal(denied.status, 200);
+      const finished = await h.pollRun(run.json.run.id);
+      assert.equal(finished.status, "completed", "the run keeps going after a denied check");
+      const events = eventsFor(h, session, run.json.run.id);
+      assert.equal(events.some(e => e.type === "check.started"), false, `${recipeId}: a denied check must never record a start`);
+      const toolResult = events.find(e => e.type === "tool.result" && e.data.name === "check_run");
+      assert.equal(toolResult.data.isError, true);
+    }
   } finally {
     await h.runtime.close();
   }

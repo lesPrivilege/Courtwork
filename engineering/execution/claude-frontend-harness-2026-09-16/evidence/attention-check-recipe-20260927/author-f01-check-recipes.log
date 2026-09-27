@@ -1,0 +1,23 @@
+✔ Attention recipe is one frozen descriptor alongside the unchanged package recipe (2.07125ms)
+✔ runCheckRecipe reports a clean exit without truncation (77.962292ms)
+✔ runCheckRecipe reports a non-zero exit without throwing (67.245958ms)
+✔ runCheckRecipe caps captured stdout/stderr and marks truncated (75.153458ms)
+✔ runCheckRecipe timeout kills the whole process group, including a nested child (307.843625ms)
+✔ runCheckRecipe cancels on abort and resolves only after the group has exited (204.548208ms)
+✔ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (1.020167ms)
+✔ check_run is denied with zero process start under read_only (3962.106083ms)
+✔ an unknown recipe id returns a tool error without opening a permission or spawning anything (2493.400084ms)
+✔ ask mode shows the exact recipe in the permission payload and deny records nothing (3310.849708ms)
+✔ approved Attention recipe runs all six fixed targets and records ordinary test and missing-path failures (9831.492083ms)
+✔ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (4957.180416ms)
+✔ cancelling a Run whose check is still running still records check.settled as cancelled (3511.535541ms)
+✔ an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (211.154583ms)
+✔ same Run write then check approves and persists the current candidate revision (3358.42525ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 33125.619
