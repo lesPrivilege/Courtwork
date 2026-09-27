@@ -1,4 +1,4 @@
-import { copyAction } from './ui-controls.mjs';
+import { copyAction, codeCopy } from './ui-controls.mjs';
 
 const PROFILE = 'cw-markdown-block-v1';
 const ALLOWED_TAGS = new Set(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong', 'em', 'del', 'code', 'pre', 'br', 'hr', 'blockquote', 'ol', 'ul', 'li', 'a', 'table', 'thead', 'tbody', 'tr', 'th', 'td']);
@@ -39,10 +39,9 @@ function appendSemantic(doc, parent, node) {
   if (node.tag === 'ol' && Number.isSafeInteger(node.start) && node.start > 0) element.start = node.start;
   for (const child of node.children ?? []) appendSemantic(doc, element, child);
   if (node.tag === 'pre') {
+    // CB-D1 · the same unlabelled shape as ui-controls.mjs `markdownTokens`.
     const wrap = make(doc, 'div', 'code-block');
-    const toolbar = make(doc, 'div', 'code-toolbar');
-    toolbar.append(make(doc, 'span', '', 'Code'), copyAction(element.textContent, 'Copy code'));
-    wrap.append(toolbar, element);
+    wrap.append(element, codeCopy(element.textContent));
     parent.append(wrap);
     return;
   }

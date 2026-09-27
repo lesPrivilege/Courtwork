@@ -296,6 +296,18 @@ const markdownTags = [
   "th",
   "td",
 ];
+/* CB-D1 · an unlabelled code block has no header row: the constant word
+ * "Code" identified nothing (fence languages are not kept by the sanitizer).
+ * Copy sits in its own column at the block's top-right, beside the code and
+ * never over it, so selected or horizontally scrolled code stays visible. */
+export function codeCopy(text, focusKey = "") {
+  return el("div", { className: "code-copy" }, copyAction(text, "Copy code", focusKey));
+}
+/* marked ends every <pre><code> with one "\n" the author did not write;
+ * copying it would run a pasted one-line command at once. */
+export function markedCodeText(pre) {
+  return pre.textContent.replace(/\n$/, "");
+}
 export function markdown(text, { key = "markdown" } = {}) {
   return markdownTokens(marked.lexer(String(text), { gfm: true }), { key });
 }
@@ -326,15 +338,7 @@ export function markdownTokens(tokens, { key = "markdown" } = {}) {
   for (const pre of [...root.querySelectorAll("pre")]) {
     const wrap = el("div", { className: "code-block" });
     pre.replaceWith(wrap);
-    wrap.append(
-      el(
-        "div",
-        { className: "code-toolbar" },
-        el("span", { text: "Code" }),
-        copyAction(pre.textContent, "Copy code", `${key}:code:${index++}`),
-      ),
-      pre,
-    );
+    wrap.append(pre, codeCopy(markedCodeText(pre), `${key}:code:${index++}`));
   }
   for (const table of [...root.querySelectorAll("table")]) {
     const wrap = el("div", {

@@ -2233,6 +2233,18 @@ code:not(pre code) {
   overflow: hidden;
   border: 1px solid var(--line);
 }
+/* CB-D1 · an unlabelled block is the code plus a Copy column: the action is
+   beside the code, never over it, and adds no header row. Labelled blocks
+   (the reader's source inspector, the appearance preview) keep .code-toolbar. */
+.code-block:has(> .code-copy) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+.code-copy {
+  display: flex;
+  padding: var(--space-2) var(--space-2) var(--space-2) 0;
+}
 .code-toolbar {
   display: flex;
   justify-content: space-between;
