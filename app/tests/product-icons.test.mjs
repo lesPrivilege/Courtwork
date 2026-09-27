@@ -110,7 +110,9 @@ test("Spark, Attention and Chat seats and the Settings groups carry their regist
   assert.match(app, /"show-run-button": \["text-align-start", "Chat overview"\]/);
   assert.match(app, /"show-surface-button": \["panel-right", "Open preview"\]/, "the Preview entry keeps panel-right");
   const settings = read("app/web/settings-view.mjs");
-  assert.match(settings, /semanticIcon\(group\.id === "plugins" \? "plugin\.object" : `settings\.\$\{group\.id\}`, \{ size: 18 \}\)/);
+  assert.match(settings, /semanticIcon\(GROUP_OBJECT_GLYPHS\[group\.id\] \?\? `settings\.\$\{group\.id\}`, \{ size: 18 \}\)/);
+  // A group named after one kind of object carries that object's glyph (06c I1: Agents → agent.profile).
+  assert.match(settings, /GROUP_OBJECT_GLYPHS = \{ plugins: "plugin\.object", agents: "agent\.profile" \}/);
   for (const id of ["general", "appearance", "models", "tools", "skills", "memory", "permissions", "keyboard", "developer"])
     assert.ok(productSemantics.entries.some((e) => e.semanticKey === `settings.${id}` && e.glyphRef), `settings.${id} registered with a glyph`);
 });

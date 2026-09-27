@@ -84,6 +84,8 @@ import {
   formatBytes,
 } from "./inspector.mjs";
 import { createRuntimeView, renderRecordedContext } from "./runtime-view.mjs";
+import { createRuntimeInventoryController } from "./runtime-inventory.mjs";
+import { createRuntimeInventoryView } from "./runtime-inventory-view.mjs";
 import { createProfileEditor, liveProfileEditorAdapter } from "./profile-editor.mjs";
 import { createProfileEditorView } from "./profile-editor-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
@@ -283,7 +285,7 @@ function previewBannerNode() {
   if (!previewBannerElement) previewBannerElement = document.getElementById("preview-banner");
   return previewBannerElement;
 }
-let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView, localExtensionView;
+let tooltips, settingsView, settingsPage, materialsView, fileView, runtimeView, localExtensionView, runtimeInventory;
 /* E1 · the Composer's Agent choice (06e design A) over Runtime Control. */
 let agentChoice = null, agentChooser = null, agentChoiceLifecycle = null;
 /* E1-H · the Agent picked on Home for a chat that does not exist yet. */
@@ -6972,6 +6974,7 @@ function openSettings(section = state.settings.section, { trigger, hash = true, 
 function refreshSettingsReads() {
   void settingsView.refresh();
   void runtimeView?.load();
+  void runtimeInventory?.refresh();
 }
 function closeSettings({ restoreFocus = true, hash = true } = {}) {
   if (!state.settings.open) return;
@@ -7768,6 +7771,12 @@ async function init() {
     notify: showToast,
     onRuntimeEnvironment: (next) => runtimeView?.setEnvironment(next),
   });
+  /* 06c production I1 · Settings → Agents → Runtimes reads the Host's own
+   * inventory. It is Host-scoped (no sessionId), needs no Session, and reads
+   * with the rest of the page; its list/detail position outlives leaving
+   * Settings, like every other group. */
+  runtimeInventory = createRuntimeInventoryController({ read: () => request("/runtime-info") });
+  createRuntimeInventoryView($("settings-runtimes"), runtimeInventory, { onRendered: () => settingsPage.refilter() });
   /* WO-WK11 · the Runtime Workbench lives in the five intent blocks of the
    * Settings page. One controller owns the control-plane snapshot; the rail
    * card and the host's slot resolution read its summary. The `Bound` layer

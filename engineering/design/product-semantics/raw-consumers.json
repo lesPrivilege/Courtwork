@@ -332,5 +332,12 @@
       "workspace.connect"
     ],
     "reason": "Chat overview row for the connected folder (Workspace); the folder glyph is the registered workspace.object representation and the row opens the same Workspace card as the composer strip."
+  },
+  {
+    "file": "app/web/runtime-inventory-view.mjs",
+    "source": "return action(\"refresh-cw\", \"Refresh runtimes\", () => void controller.refresh(), {",
+    "disposition": "named-read",
+    "reason": "Re-reads the Host's execution runtime inventory (runtime-info); the full name states the target. It connects to, checks or changes no runtime.",
+    "semanticKeys": []
   }
 ]

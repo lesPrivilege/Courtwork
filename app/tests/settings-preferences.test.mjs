@@ -214,11 +214,12 @@ test("Home 模块只安装有既定读取接缝的 Activity 与 Attention", () =
 
 /* WK-90 · 九个组按用户任务命名。`runtime` 不再是一个组：它是架构词，落在
    Developer 里，旧深链因此落回 General（不保留向后兼容）。 */
-test("页面的十二个组是闭集，未知的节名落回 General", () => {
+test("页面的十三个组是闭集，未知的节名落回 General", () => {
   // Home identity · the person's three entries lead; Appearance keeps its id
-  // under the title Preferences; product control faces follow.
+  // under the title Preferences; product control faces follow. 06c I1 adds
+  // Agents (target IA: Agent profiles and Runtimes) ahead of Models.
   assert.deepEqual(SETTINGS_GROUPS.map((group) => group.id), [
-    "profile", "appearance", "account", "general", "models", "tools", "skills", "plugins",
+    "profile", "appearance", "account", "general", "agents", "models", "tools", "skills", "plugins",
     "memory", "permissions", "keyboard", "developer",
   ]);
   assert.equal(isSettingsSection("appearance"), true);

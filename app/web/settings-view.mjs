@@ -1681,6 +1681,9 @@ export const SETTINGS_GROUPS = [
   { id: "appearance", title: "Preferences", panel: "settings-appearance" },
   { id: "account", title: "Account", panel: "settings-account" },
   { id: "general", title: "General", panel: "settings-general" },
+  /* Target IA (local-runtime ruling 2026-09-20): Agents holds Agent profiles
+   * and Runtimes. Only Runtimes is here so far (06c production I1). */
+  { id: "agents", title: "Agents", panel: "settings-agents" },
   { id: "models", title: "Models", panel: "settings-models" },
   { id: "tools", title: "Tools & Integrations", panel: "settings-tools" },
   { id: "skills", title: "Skills", panel: "settings-skills" },
@@ -1691,6 +1694,9 @@ export const SETTINGS_GROUPS = [
   { id: "developer", title: "Developer", panel: "settings-developer" },
 ];
 export const DEFAULT_SECTION = "general";
+/* A group named after one kind of object carries that object's glyph rather
+   than a second, category-only one. */
+const GROUP_OBJECT_GLYPHS = { plugins: "plugin.object", agents: "agent.profile" };
 export function isSettingsSection(id) {
   return SETTINGS_GROUPS.some((group) => group.id === id);
 }
@@ -2089,7 +2095,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         tabindex: "-1",
       },
     });
-    tab.append(semanticIcon(group.id === "plugins" ? "plugin.object" : `settings.${group.id}`, { size: 18 }), el("span", { className: "settings-tab-label", text: group.title }));
+    tab.append(semanticIcon(GROUP_OBJECT_GLYPHS[group.id] ?? `settings.${group.id}`, { size: 18 }), el("span", { className: "settings-tab-label", text: group.title }));
     tab.addEventListener("click", () => select(group.id, { focusPanel: false }));
     nav.append(tab);
     dropdown.append(el("option", { attrs: { value: group.id }, text: group.title }));
