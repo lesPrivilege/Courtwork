@@ -1,5 +1,15 @@
 # 当前工程状态
 
+## 2026-09-27 · First real backend CW task accepted; Magpie references consumed
+
+User authorizes real development after coding dogfood. [RL-1](execution/claude-frontend-harness-2026-09-16/evidence/runtime-load-recovery-20260927/README.md) completes through the live CW browser: DeepSeek authors context-load recovery diagnostics and a focused regression file; Luna passes 30/30 plus 3/3 AM-C and an independent permission probe, parent fake smoke passes, and reviewed product integrates into local main `3b274a4`. Parent preserves historical request-golden bytes with an explicit expected-description delta. One extra workspace write was denied and left no file; path/tool mistakes and 39-turn reading overhead remain explicit. The existing fixed check recipe cannot select this repository's narrow tests, so external targeted verification is explicit, not attributed to CW execution. [Magpie intake](research/architecture-node-2026-09-13/magpie-consumption-20260927.md) consumes the complete conversation and fixed upstream source as Provider/Runtime/Settings references, preserving existing I1 and frontend author lanes. No gateway/profile/schema adoption or live service restart.
+
+
+## 2026-09-27 · Lease queue real-provider dogfood completed
+
+[Bounded browser/provider evidence](execution/claude-frontend-harness-2026-09-16/evidence/lease-queue-dogfood-20260927/README.md) fixes product `9fb8dbb`: two configured DeepSeek Runs repair an independent lease queue through exact Host write/check approvals, browser reload and same-candidate review correction. Host checks progress 2/12 → 20/21 → 21/21, then independent JSON-key counterexample 21/22 → 22/22; parent verification passes 88 expiry/restore transitions plus boundary probes. Source and original tests remain unchanged. Runtime resource discovery and browser input friction are retained without speculative product attribution. This is coding harness evidence, not formal Work Core proposal/review/acceptance or whole-product acceptance. No product code, other author assignment, process restart, push or deployment change; user Host/browser remain available.
+
+
 ## 2026-09-26 · Next order selected: real Runtime inventory
 
 User authorizes the next slice and permits independent backend Sol, with Astra/Opus owning core and cross-layer integration. [Production06c I1](execution/claude-frontend-harness-2026-09-16/06c-runtime-management-20260921.md#2026-09-26--production-continuation-i1-truthful-host-inventory) consumes Luna's current-source preflight and Astra's fixed additive runtime-info DTO: configured execution runtimes, declared operations and bounded unavailability, all live status not_checked. Host descriptors retain authority; no Session creation, schema/control/credentials or live-provider action. Parent dispatched `/root/sol_runtime_inventory_i1` (GPT-6 Sol, high) from committed contract5c22c02 in isolated `codex/runtime-inventory-i1-20260926`; implementation results remain pending. Non-author review precedes the queued Opus Settings reader. Order3 and older accepted K5/E1/R1 foundations are not reopened.

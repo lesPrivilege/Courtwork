@@ -1,0 +1,49 @@
+✖ AM-C unchanged core wire golden and complete no-op remain stable with Explore contribution (592.888875ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1273.929041
+
+✖ failing tests:
+
+test at app/tests/architecture-maintenance.test.mjs:165:1
+✖ AM-C unchanged core wire golden and complete no-op remain stable with Explore contribution (592.888875ms)
+  AssertionError [ERR_ASSERTION]: unchanged core request must match the retained golden
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      max_completion_tokens: 1,
+      messages: [
+        {
+          content: 'You are a work assistant operating in one persistent session workspace.\n' +
+  ...
+          function: {
+  +         description: 'Load exactly one admitted skill or reference by its exact ID and return its body. The ID must be a skill or reference already admitted to this Run; this is not a catalog, list or check-recipe command and cannot discover IDs or recipes. Scripts are not executed and requested tools do not grant permissions.',
+  -         description: 'Load one catalogued skill or reference by id. Scripts are not executed and requested tools do not grant permissions.',
+            name: 'runtime_load',
+            parameters: {
+              properties: {
+                id: {
+  +               description: 'Exact admitted skill or reference ID; not a catalog or check-recipe name.',
+                  maxLength: 200,
+                  type: 'string'
+                }
+              },
+              required: [
+  
+      at TestContext.<anonymous> (file://<RL1_SOURCE>/app/tests/architecture-maintenance.test.mjs:187:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { model: 'fake-model', messages: [ [Object], [Object] ], stream: true, stream_options: { include_usage: true }, store: false, max_completion_tokens: 1, tools: [ [Object], [Object], [Object], [Object], [Object], [Object] ] },
+    expected: { model: 'fake-model', messages: [ [Object], [Object] ], stream: true, stream_options: { include_usage: true }, store: false, max_completion_tokens: 1, tools: [ [Object], [Object], [Object], [Object], [Object], [Object] ] },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

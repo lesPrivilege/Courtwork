@@ -116,3 +116,8 @@ Astra accepts the bounded synthetic-parcel real-model journey on integrated `950
 ## Prepared real journey consumed — 2026-09-22
 
 The [actual13e06cc browser/provider packet](evidence/prepared-real-dogfood-20260921/README.md) closes this bounded prepared-Chat path: zero-Run preparation, real diagnosis, exact write/check approvals, fixed check result and browser reload, with one recorded workflow-direction intervention. It does not prove an unassisted universal agent, process restart in that round, historical RuntimeLock robustness, upload recovery or fullG4. The [closure audit](evidence/work-closure-audit-20260922/README.md) corrects this order's stale opening summary; do not re-dispatch the already accepted basic task merely because the historical readiness paragraphs below once left it open.
+
+
+## 2026-09-27 · Moderately complex backend browser dogfood
+
+User-authorized computer use runs an independent lease-queue contract on product `9fb8dbb` through the existing live Host, with DeepSeek V4 Flash/high as candidate author and parent Astra as browser operator/non-author verifier. [Evidence and finding dispositions](evidence/lease-queue-dogfood-20260927/README.md) record two completed Runs, seven exact writes, five actual Host checks, final 22/22 and parent 88-transition probes. Independent JSON-key data loss is adopted and corrected in the same candidate after reload. Discovery and input friction are deferred with scope/reasons in that receipt. This extends the bounded coding journey; formal Core acceptance, crash/cancellation, arbitrary backend readiness and G4 remain separate. Existing production authors are unchanged.

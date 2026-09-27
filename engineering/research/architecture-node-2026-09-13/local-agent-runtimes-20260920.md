@@ -205,3 +205,8 @@ Record the actual CW runtime/provider/model, data fixture, source SHA, Run/call 
 ## Frontend-first execution authorization — 2026-09-20
 
 The user authorizes [Claude's frontend-first management consumer](../../execution/claude-frontend-harness-2026-09-16/06-agents-frontend-first-20260920.md) using existing CW Design and explicit synthetic adapters before these backend capabilities exist. First build the Agent profile/Kit/runtime-choice journey; then runtime/auth/hook management and Role-first Composer serially. The complete preview can be interactive; production controls still require actual capability/owner facts. This changes implementation order, not the ownership, key/hook permission or runtime-state contracts above. No native runtime, credential or hook integration is claimed.
+
+
+## 2026-09-27 · Magpie fixed-source reference intake
+
+The user-linked [Magpie analysis and source dispositions](magpie-consumption-20260927.md) is consumed at upstream `03a01a548df3d52fee86197fc2d0ff234b9fdfab`. Adopt field-level reversible configuration, qualified provider/model identity, exact native continuation and pre-content failover as bounded references for existing owners. Machine profiles do not become a new CW profile object; gateway/account pooling is not adopted. Two source corrections are retained: stash/provider metadata are not all atomic, and import icons are fetched before Add despite the documentation. No personal configuration, credentials, dependency, product implementation or current I1/06c author assignment changed.

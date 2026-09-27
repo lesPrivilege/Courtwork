@@ -1,0 +1,244 @@
+✖ enqueue is idempotent and retains original payload (2.757417ms)
+✔ FIFO and no double lease before expiry (0.151041ms)
+✖ expiry boundary reclaims with a larger fencing token (6.339208ms)
+✖ stale acknowledgements cannot complete a new lease (0.158708ms)
+✖ expired ack and fail reject without mutations (0.112625ms)
+✖ ack clears lease and terminal replay rejects (0.0885ms)
+✖ explicit failure retries then dead letters at the limit (0.092083ms)
+✖ expired exhausted job does not starve next queued job (0.073042ms)
+✖ enqueue and returned lease detach nested payloads (0.087125ms)
+✖ snapshot and restore are detached (0.11475ms)
+✖ JSON restore preserves IDs, idempotency and fencing (0.10625ms)
+✔ unknown IDs and wrong token fail without change (0.065958ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 2
+ℹ fail 10
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 105.610167
+
+✖ failing tests:
+
+test at test/queue.test.mjs:5:1
+✖ enqueue is idempotent and retains original payload (2.757417ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      attempts: 0,
+      expiresAt: null,
+  +   id: '2',
+  -   id: '1',
+      key: 'a',
+      payload: {
+  +     value: 2
+  -     value: 1
+      },
+      state: 'queued',
+      token: 0,
+      worker: null
+    }
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:5:108)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.start (node:internal/test_runner/test:1096:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { id: '2', key: 'a', payload: { value: 2 }, state: 'queued', attempts: 0, token: 0, worker: null, expiresAt: null },
+    expected: { id: '1', key: 'a', payload: { value: 1 }, state: 'queued', attempts: 0, token: 0, worker: null, expiresAt: null },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:7:1
+✖ expiry boundary reclaims with a larger fencing token (6.339208ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(b)
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:7:156)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:8:1
+✖ stale acknowledgements cannot complete a new lease (0.158708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:8:172)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:9:1
+✖ expired ack and fail reject without mutations (0.112625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:9:195)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:10:1
+✖ ack clears lease and terminal replay rejects (0.0885ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'w' !== null
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:10:224)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'w',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:11:1
+✖ explicit failure retries then dead letters at the limit (0.092083ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'w' !== null
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:11:188)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'w',
+    expected: null,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:12:1
+✖ expired exhausted job does not starve next queued job (0.073042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'leased' !== 'dead'
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:12:195)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'leased',
+    expected: 'dead',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:13:1
+✖ enqueue and returned lease detach nested payloads (0.087125ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  8 !== 1
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:13:229)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 8,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:14:1
+✖ snapshot and restore are detached (0.11475ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  9 !== 1
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:14:130)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 9,
+    expected: 1,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at test/queue.test.mjs:15:1
+✖ JSON restore preserves IDs, idempotency and fencing (0.10625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  '2' !== '1'
+  
+      at TestContext.<anonymous> (file://<DOGFOOD_ROOT>/source/test/queue.test.mjs:15:200)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '2',
+    expected: '1',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

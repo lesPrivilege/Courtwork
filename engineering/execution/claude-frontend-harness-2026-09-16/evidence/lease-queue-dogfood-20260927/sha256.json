@@ -1,0 +1,11 @@
+{
+  "README.md": "92e967d62b0242b63953c32cb8a8b3376584c5888218ff9c8e409a1fb157b809",
+  "baseline.log": "7dc090f111f0e6763b20a40a881e40c488fca228fdb882b4132db83064b8993f",
+  "final-reloaded.png": "e8598a3258493a992bf61d11570b12ad97efdf510ccb9abf02f30c6a8150f4f7",
+  "fixture.json": "5b80a38354b3e4c05adcaa82bf54986d9da063fcb52c0733b53039060d15654f",
+  "independent-final.log": "2aa282db3fe442d6791eccb2449ff360d52fecbfeafdf585809086769232bccc",
+  "independent-first.log": "32a84fcfabdae7e30d77c80a3c80e8935a76352c706ae4929936ff16c55572fd",
+  "integrity.json": "44022813a813eedf522f98cea24be512a235b7a4ee2619c0f29e8771098b4e1f",
+  "summary.json": "a6746e56fff2d5fd3c3e4d9dd4ad2c8d6fd1dfd4ed1c6541aadc3d0b0d218c87",
+  "verify.mjs": "4e379aa6f51064d6f5bbaacd8507cc0623d223f208530fbb3bed7a31098a55a6"
+}

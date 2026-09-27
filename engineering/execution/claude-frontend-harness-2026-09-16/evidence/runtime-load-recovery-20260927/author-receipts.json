@@ -1,0 +1,318 @@
+{
+  "productBase": "9fb8dbb02a677088a926cafd85ba4bebac3b23c6",
+  "contractBase": "a0dd5a7d389698ed5c92f708673ec3d54420cc5d",
+  "authorSource": "263ddcd",
+  "integrationSource": "df9340a",
+  "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+  "candidate": {
+    "id": "02dca17a-6e8f-4a8c-80c4-79c21b05a367",
+    "status": "active",
+    "revision": 1,
+    "sourceBindingId": "6aae3eef-3940-4127-9c65-51aadd41ff19",
+    "sourceBindingRevision": 1,
+    "baseCommit": "a0dd5a7d389698ed5c92f708673ec3d54420cc5d",
+    "objectFormat": "sha1",
+    "writeRevision": 2,
+    "createdAt": "2026-09-27T01:40:38.578Z"
+  },
+  "run": {
+    "id": "15bc2699-0eb5-470b-b068-3a673b363878",
+    "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+    "status": "completed",
+    "admissionOpen": false,
+    "adapterId": "pi-coding-agent@0.85.1/agent-session",
+    "provider": {
+      "provider": "deepseek",
+      "model": "deepseek-v4-flash",
+      "api": "openai-completions",
+      "reasoningEffort": "high",
+      "realProvider": true,
+      "connectionId": "catalog-deepseek",
+      "credentialSource": "runtime",
+      "contextWindowSource": "catalog",
+      "capabilityNotice": null,
+      "reasoningBinding": {
+        "kind": "enum",
+        "source": "runtime-catalog",
+        "values": [
+          "low",
+          "high",
+          "max"
+        ],
+        "defaultMode": "omit",
+        "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+        "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+        "configVersion": 4
+      }
+    },
+    "extension": null,
+    "startedAt": "2026-09-27T01:41:03.311Z",
+    "endedAt": "2026-09-27T01:45:20.441Z",
+    "error": null,
+    "commandId": "306ad1c6-bef9-4de8-a130-7a4ab5e02e45",
+    "supersedes": null,
+    "artifacts": [],
+    "usage": {
+      "input": 93619,
+      "output": 43053,
+      "cacheRead": 2715520,
+      "cacheWrite": 0,
+      "turns": 39,
+      "missing": false
+    },
+    "credentialGeneration": 1,
+    "repositoryBindingSnapshot": {
+      "id": "6aae3eef-3940-4127-9c65-51aadd41ff19",
+      "rootPath": "<RL1_SOURCE>",
+      "device": "16777233",
+      "inode": "178621880",
+      "revision": 1,
+      "status": "active"
+    },
+    "repositoryCandidateSnapshot": {
+      "id": "02dca17a-6e8f-4a8c-80c4-79c21b05a367",
+      "status": "active",
+      "revision": 1,
+      "sourceBindingId": "6aae3eef-3940-4127-9c65-51aadd41ff19",
+      "sourceBindingRevision": 1,
+      "baseCommit": "a0dd5a7d389698ed5c92f708673ec3d54420cc5d",
+      "objectFormat": "sha1",
+      "writeRevision": 0,
+      "createdAt": "2026-09-27T01:40:38.578Z"
+    },
+    "remoteBinding": null,
+    "kitBinding": null,
+    "executorBinding": {
+      "recording": "bound",
+      "revision": "pi-agent-session-context-v1",
+      "configurationRef": "sha256:97b7dbd9f14ebc4e4f1ce0628a8536a9b4b5cffe00efedbed41bf2b018f64e6f",
+      "capabilities": {
+        "start": {
+          "supported": true
+        },
+        "continue": {
+          "supported": true
+        },
+        "steer": {
+          "supported": true
+        },
+        "cancel": {
+          "supported": true
+        },
+        "compact": {
+          "supported": true
+        },
+        "recover": {
+          "supported": false,
+          "reason": "Pi's loop runs inside the Host process; a Run this process is not driving cannot be re-attached"
+        },
+        "submitToolResult": {
+          "supported": false,
+          "reason": "Pi executes the governed tools inside its own loop; there is no pending call to answer"
+        }
+      },
+      "choiceRevision": 0
+    }
+  },
+  "toolCounts": {
+    "ws_list": 1,
+    "repo_grep": 20,
+    "repo_list": 6,
+    "candidate_list": 2,
+    "repo_read": 20,
+    "ws_read": 1,
+    "candidate_read": 5,
+    "repo_write": 2,
+    "ws_write": 1,
+    "repo_diff": 1
+  },
+  "toolErrors": [
+    {
+      "seq": 15,
+      "callId": "call_01_R00FIBfda6wmJmMCx2dY4622",
+      "name": "repo_grep",
+      "text": "repository path is unavailable",
+      "isError": true
+    },
+    {
+      "seq": 69,
+      "callId": "call_01_Ffn9tC69LirjoSugHh8o4880",
+      "name": "ws_read",
+      "text": "absolute paths are not allowed",
+      "isError": true
+    },
+    {
+      "seq": 70,
+      "callId": "call_00_xwFhptGPMgoOb6acJHzm9272",
+      "name": "repo_grep",
+      "text": "repository path is unavailable",
+      "isError": true
+    },
+    {
+      "seq": 97,
+      "callId": "call_01_0K6Cc6gu4FP59he88atG4077",
+      "name": "repo_grep",
+      "text": "repository path is unavailable",
+      "isError": true
+    },
+    {
+      "seq": 164,
+      "callId": "call_01_mDuwCqNnlDIlH7igfNlk6582",
+      "name": "repo_grep",
+      "text": "repository path is unavailable",
+      "isError": true
+    },
+    {
+      "seq": 184,
+      "callId": "call_00_DT3bNekXrWMHtu1XsJuh1551",
+      "name": "candidate_list",
+      "text": "repository path is unavailable",
+      "isError": true
+    },
+    {
+      "seq": 347,
+      "callId": "call_00_crok4VPoeyDaE6RBQfar6796",
+      "name": "ws_write",
+      "text": "Runtime action was denied by the user",
+      "isError": true
+    },
+    {
+      "seq": 355,
+      "callId": "call_00_rYGMJurmqV4mEObbKqOA7504",
+      "name": "repo_diff",
+      "text": "symbolic links are not followed in candidate paths",
+      "isError": true
+    }
+  ],
+  "effectReceipts": [
+    {
+      "seq": 269,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "permission.open",
+      "data": {
+        "id": "0d467c2f-b975-471e-b300-b0051717201c",
+        "kind": "permission",
+        "toolCallId": "call_00_TpIcmlcMna8hD11ldKNw1410",
+        "tool": "repo_write",
+        "path": "app/runtime/control-tools.mjs",
+        "bytes": 9671,
+        "contentSha256": "20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43",
+        "preview": "import { createHash } from 'node:crypto';\nimport { Type } from '@earendil-works/pi-ai';\nimport { evaluatePolicy, hostToolCeiling } from './control-plane.mjs';\nimport { resolveWorkspacePath } from './workspace-tools.mjs';\n\n// RL-1 (RD-009): a missing runtime_load ID stays a model-visible recoverable\n// tool error (Pi maps a thrown Error to isError). The hint may name only\n// skills/references the R",
+        "candidateId": "02dca17a-6e8f-4a8c-80c4-79c21b05a367",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 0,
+        "sourceBindingId": "6aae3eef-3940-4127-9c65-51aadd41ff19",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "ec7afca02851b531bcb4ccc3084b2fef524ff0cc9a001e281a4275e32c0c0a20"
+      }
+    },
+    {
+      "seq": 271,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "permission.resolved",
+      "data": {
+        "id": "0d467c2f-b975-471e-b300-b0051717201c",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 273,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "471f57b2219a9a11032ef64d307e7e8a2cbefcb0f7f6c4a0440bf97720afb03b",
+        "requestId": "call_00_TpIcmlcMna8hD11ldKNw1410",
+        "candidateId": "02dca17a-6e8f-4a8c-80c4-79c21b05a367",
+        "path": "app/runtime/control-tools.mjs",
+        "contentSha256": "20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43",
+        "bytes": 9671,
+        "writeRevision": 1
+      }
+    },
+    {
+      "seq": 291,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "permission.open",
+      "data": {
+        "id": "12b6f08d-c668-4fda-8ced-ad65da1cb6f6",
+        "kind": "permission",
+        "toolCallId": "call_00_ptAkapU4jbLszIXc2GQP5696",
+        "tool": "repo_write",
+        "path": "app/tests/runtime-load-recovery.test.mjs",
+        "bytes": 11337,
+        "contentSha256": "862f0a89fab78389dfe7e2eaa810b00ca76c93652f6a11e0154161cd8eba56f4",
+        "preview": "// RL-1 (RD-009 2026-09-27): missing runtime_load IDs must recover with bounded,\n// truthful hints drawn only from the Run's frozen binding. These are\n// synthetic bindings and the existing loopback fake provider; no real\n// provider, network or credential is used.\nimport assert from \"node:assert/strict\";\nimport { test } from \"node:test\";\nimport { boot } from \"./helpers.mjs\";\nimport { createRuntim",
+        "candidateId": "02dca17a-6e8f-4a8c-80c4-79c21b05a367",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 1,
+        "sourceBindingId": "6aae3eef-3940-4127-9c65-51aadd41ff19",
+        "sourceBindingRevision": 1,
+        "expectedSha256": null
+      }
+    },
+    {
+      "seq": 293,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "permission.resolved",
+      "data": {
+        "id": "12b6f08d-c668-4fda-8ced-ad65da1cb6f6",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 295,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "ed2764e543bf560ba136263036bc44b610dac58ecd4de0bd2c4e2100bde690d5",
+        "requestId": "call_00_ptAkapU4jbLszIXc2GQP5696",
+        "candidateId": "02dca17a-6e8f-4a8c-80c4-79c21b05a367",
+        "path": "app/tests/runtime-load-recovery.test.mjs",
+        "contentSha256": "862f0a89fab78389dfe7e2eaa810b00ca76c93652f6a11e0154161cd8eba56f4",
+        "bytes": 11337,
+        "writeRevision": 2
+      }
+    },
+    {
+      "seq": 343,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "permission.open",
+      "data": {
+        "id": "c4cae209-22e4-43f2-8525-abf9b77feebe",
+        "kind": "permission",
+        "toolCallId": "call_00_crok4VPoeyDaE6RBQfar6796",
+        "tool": "ws_write",
+        "path": "out/runtime-load-recovery-notes.md",
+        "bytes": 4235,
+        "contentSha256": "a698c8c56f7549581ec074145a0eb1b612be355312d19f59a1c0d46c16358c81",
+        "preview": "# RL-1 \u00b7 runtime_load bounded recovery \u2014 inspection notes\n\nAuthor delivery for RD-009 \"2026-09-27 \u00b7 RL-1 bounded runtime_load recovery\".\nNo tests were run in this task (see \"Unrun checks\").\n\n## Files changed (private candidate)\n\n| Path | Action | sha256 |\n| --- | --- | --- |\n| `app/runtime/control-tools.mjs` | modified | `20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43` (9671 byte"
+      }
+    },
+    {
+      "seq": 345,
+      "runId": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+      "type": "permission.resolved",
+      "data": {
+        "id": "c4cae209-22e4-43f2-8525-abf9b77feebe",
+        "kind": "permission",
+        "decision": "deny"
+      }
+    }
+  ],
+  "rejectedWorkspaceFileAbsent": true,
+  "checkRunInvocations": 0,
+  "sourceHashes": {
+    "app/runtime/control-tools.mjs": "20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43",
+    "app/tests/runtime-load-recovery.test.mjs": "862f0a89fab78389dfe7e2eaa810b00ca76c93652f6a11e0154161cd8eba56f4"
+  }
+}

@@ -1,0 +1,9 @@
+Pre-comparator candidate 263ddcd:
+node --test --test-concurrency=1 tests/architecture-maintenance.test.mjs
+exit 1; 2/3 passed; retained golden expected the pre-RL-1 runtime_load description/schema.
+
+Comparator follow-up df9340a42e96356581cd0d472b04df871faeabf0:
+node --test --test-concurrency=1 tests/architecture-maintenance.test.mjs
+exit 0; 3/3 passed.
+
+request-baseline.json SHA-256 (df9340a and a0dd5a7): e4b29b2a04488b28674db4455df4dd03cf25415f98ac92b3a0cf0bfed355f691

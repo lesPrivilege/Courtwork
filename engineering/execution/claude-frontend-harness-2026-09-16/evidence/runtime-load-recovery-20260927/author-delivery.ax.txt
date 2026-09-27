@@ -1,0 +1,240 @@
+- main "Agent workspace":
+  - button "Toggle navigation":
+    - generic: Toggle navigation
+  - heading "Courtwork" [level=1]:
+    - text: ·
+    - generic: Courtwork
+  - button "Chat overview":
+    - generic: Chat overview
+  - button "Open preview":
+    - generic: Open preview
+  - log:
+    - article "Your message":
+      - paragraph: RL-1 real CourtWork backend work order. Read the final section "2026-09-27 · RL-1 bounded runtime_load recovery (real CW author)" in engineering/research/RD-009-trusted-harness-extensions.md (use repo_grep/ranged reads to avoid unrelated history), then relevant app/runtime/contro…
+      - generic "Read full message"
+      - generic "Source"
+      - group "Message actions":
+        - button "Copy message":
+          - generic: Copy message
+        - button "Edit as new message":
+          - generic: Edit as new message
+        - button "More message actions":
+          - generic: More message actions
+      - time:
+        - generic: Started 9/27/2026, 9:41:03 AM
+        - text: 9:41 AM
+    - region "Agent run":
+      - article:
+        - paragraph: I'll start by inspecting the workspace and the referenced engineering doc and runtime files.
+      - button "Execution 51 successful tool actions":
+        - generic: Execution
+        - generic: 51 successful tool actions
+      - generic "repo_grep Failed":
+        - generic: repo_grep
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: repository path is unavailable
+      - generic "repo_grep Failed":
+        - generic: repo_grep
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: repository path is unavailable
+      - generic "ws_read Failed":
+        - generic: ws_read
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: absolute paths are not allowed
+      - generic "repo_grep Failed":
+        - generic: repo_grep
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: repository path is unavailable
+      - generic "repo_grep Failed":
+        - generic: repo_grep
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: repository path is unavailable
+      - generic "candidate_list Failed":
+        - generic: candidate_list
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: repository path is unavailable
+      - article:
+        - paragraph:
+          - text: Now I'll write the implementation. Replacing
+          - code: createRuntimeLoadTool
+          - text: with a bounded, truthful recovery hint while keeping successful-load semantics byte-identical.
+      - article:
+        - paragraph: "Now the test file:"
+      - article:
+        - paragraph: Let me re-read both written files to verify correctness.
+      - article:
+        - paragraph: Now let me save concise inspection notes as a workspace deliverable.
+      - generic "ws_write Failed":
+        - generic: ws_write
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: Runtime action was denied by the user
+      - generic "out/runtime-load-recovery-notes.md Write denied" [active]:
+        - generic: out/runtime-load-recovery-notes.md
+        - generic: Write denied
+      - article:
+        - paragraph: The workspace notes write was denied by the user, so I'll deliver the notes inline. Let me confirm the candidate diff contains only my two owned paths.
+      - generic "repo_diff Failed":
+        - generic: repo_diff
+        - generic: Failed
+      - heading "Result" [level=4]
+      - generic: symbolic links are not followed in candidate paths
+      - article:
+        - paragraph:
+          - text: Done. Delivered the RL-1 implementation in the private candidate; no tests were executed and no
+          - code: check_run
+          - text: was invoked (per instruction).
+        - heading "Files written (only these two)" [level=2]
+        - generic "Scrollable table":
+          - table:
+            - rowgroup:
+              - row "Path Action sha256":
+                - columnheader "Path"
+                - columnheader "Action"
+                - columnheader "sha256"
+            - rowgroup:
+              - row "app/runtime/control-tools.mjs modified 20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43":
+                - cell "app/runtime/control-tools.mjs":
+                  - code: app/runtime/control-tools.mjs
+                - cell "modified"
+                - cell "20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43":
+                  - code: 20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43
+              - row "app/tests/runtime-load-recovery.test.mjs created 862f0a89fab78389dfe7e2eaa810b00ca76c93652f6a11e0154161cd8eba56f4":
+                - cell "app/tests/runtime-load-recovery.test.mjs":
+                  - code: app/tests/runtime-load-recovery.test.mjs
+                - cell "created"
+                - cell "862f0a89fab78389dfe7e2eaa810b00ca76c93652f6a11e0154161cd8eba56f4":
+                  - code: 862f0a89fab78389dfe7e2eaa810b00ca76c93652f6a11e0154161cd8eba56f4
+        - paragraph:
+          - code: governTools
+          - text: ","
+          - code: createPathAdmission
+          - text: ","
+          - code: createRuntimeProposeTool
+          - text: ","
+          - code: createPresentTool
+          - text: ","
+          - code: hostToolCeiling
+          - text: and the store/compiler are untouched. (The
+          - code: out/
+          - text: notes write was denied by you, so notes are here instead.)
+        - heading "Contract mapping" [level=2]
+        - list:
+          - strong:
+            - text: Truthful description /
+            - code: id
+          - text: —
+          - code: runtime_load
+          - text: now states it loads exactly one admitted skill/reference by its exact ID, is not a catalog/list/check-recipe command, and cannot discover IDs or recipes; the
+          - code: id
+          - text: param carries the same note. The lookup is still
+          - code: binding.content.find(id && skill|reference)
+          - text: ", so a literal admitted id"
+          - code: catalog
+          - text: stays loadable (tested).
+          - strong: Missing lookup
+          - text: — still throws an
+          - code: Error
+          - text: whose message
+          - emphasis: starts with
+          - code: Context resource is not exposed to this run
+          - text: . The hint comes only from the frozen
+          - code: binding
+          - text: handed to
+          - code: createRuntimeLoadTool
+          - text: ; an id is suggested only if a
+          - code: skill|reference
+          - text: content entry has an
+          - strong: exposed descriptor of the same kind
+          - text: . Bodies, titles, source URIs and the caller's input are never echoed.
+          - strong: Bounded/deterministic
+          - text: — ids deduped +
+          - code: .sort()
+          - text: ed, ≤8 complete JSON-quoted ids, whole message ≤1200 UTF-16 code units, slicing only between ids (no truncated id); omitting count stated, or an explicit "none is available in this Run / cannot discover check recipes" when empty. No
+          - code: onLoad
+          - text: and no binding mutation on failure.
+          - strong: Unchanged success semantics
+          - text: — payload bytes,
+          - code: details
+          - text: (
+          - code: "{resourceId, revision}"
+          - text: ),
+          - code: onLoad
+          - text: metadata and
+          - code: governTools
+          - text: permission/error behavior are byte-identical to before.
+          - strong: Tests
+          - text: "— new file covers: original sentence + useful hint; empty/non-loadable catalog; hidden/wrong-kind/body/URI/caller-input non-disclosure; sorted+deduped+8-capped+omitting hints; long and odd (quote/backslash/newline) ids whole and bounded; no mutation/no"
+          - code: onLoad
+          - text: ; unchanged successful load; literal
+          - code: catalog
+          - text: loadable; plus one public-HTTP + loopback fake-Pi integration (invalid-id error → admitted-id success → exactly one
+          - code: runtime.context.loaded
+          - text: ).
+        - heading "Unrun checks (NOT executed)" [level=2]
+        - paragraph:
+          - text: From candidate
+          - code: app/
+          - text: ":"
+        - generic: Code
+        - button "Copy code":
+          - generic: Copy code
+        - code: node --test --test-concurrency=1 tests/runtime-load-recovery.test.mjs tests/control-plane.test.mjs tests/runtime-proposals.test.mjs
+        - heading "Risk the parent must decide (outside my ownership)" [level=2]
+        - paragraph:
+          - code: app/tests/fixtures/architecture-maintenance/request-baseline.json
+          - text: embeds the
+          - emphasis: old
+          - code: runtime_load
+          - text: description/id schema, and
+          - code: architecture-maintenance.test.mjs
+          - text: deep-equals the unchanged core wire body against it. Contract item 1 unavoidably changes that wire definition, so that golden comparison will fail until the fixture is updated. I did not touch it (ownership + "no other files"). It is not in your stated targeted command, but it is in the full suite. Also note the
+          - code: id
+          - text: parameter
+          - code: description
+          - text: keyword relies on
+          - code: typebox
+          - text: 1.3.7 (confirmed as a direct
+          - code: "@earendil-works/pi-ai"
+          - text: dep in
+          - code: package-lock.json
+          - text: ) — unverified by execution here.
+        - time:
+          - generic: Run started 9/27/2026, 9:41:03 AM
+          - text: 9:41 AM
+        - group "Response actions":
+          - button "Copy response":
+            - generic: Copy response
+          - button "Read aloud" [disabled]:
+            - generic: Read aloud
+          - button "Like response" [disabled]:
+            - generic: Like response
+          - button "Dislike response" [disabled]:
+            - generic: Dislike response
+          - button "Regenerate response" [disabled]:
+            - generic: Regenerate response
+          - button "More message actions":
+            - generic: More message actions
+    - button "Measurement details"
+    - generic: Completed
+    - status: Completed
+  - generic: Message
+  - textbox "Message":
+    - /placeholder: What would you like to work on?
+  - 'button "Agent: General"':
+    - generic: General
+  - button "Chat files":
+    - generic: Chat files
+  - 'button "File access: Ask before editing"':
+    - generic: Ask before editing
+  - button "Model and effort · deepseek-v4-flash · high": deepseek-v4-flash · high
+  - 'button "Context: 133,086 of 1,000,000 tokens, 13.3%, latest completed request input"':
+  - button "Send":
+    - generic: Send
+- status

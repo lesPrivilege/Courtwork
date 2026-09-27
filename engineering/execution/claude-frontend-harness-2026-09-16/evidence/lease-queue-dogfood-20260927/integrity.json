@@ -1,0 +1,15 @@
+{
+  "sourceHead": "fd941934bf3cc861eda8ea72b8bb307aa64b2ece",
+  "sourceStatus": "",
+  "candidateStatus": "M src/queue.mjs\n M src/snapshot.mjs\n?? test/queue.regression.test.mjs",
+  "protectedFilesEqual": {
+    "README.md": true,
+    "package.json": true,
+    "test/queue.test.mjs": true
+  },
+  "candidateFiles": {
+    "src/queue.mjs": "8ac9a5c6683ba83985cc04af9d16135cdf99c948e499f586253d5fddc5362891",
+    "src/snapshot.mjs": "217ce4f0c9c55b4b301e31ac1794c07c05700d3a91a2836d6fe536a8cd774178",
+    "test/queue.regression.test.mjs": "7e47632aa17bc83c1878f78123519879c3c95ef8f8ebbea7d4768174983bfe98"
+  }
+}

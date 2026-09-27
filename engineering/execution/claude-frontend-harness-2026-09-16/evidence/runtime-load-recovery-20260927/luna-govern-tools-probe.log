@@ -1,0 +1,6 @@
+Command: node --input-type=module (bounded synthetic binding probe)
+Working directory: app/
+Result: exit 0
+Output:
+{"passed":true,"governedMissing":"recoverable-hint","hiddenExposed":0,"policyDenied":"no-load","asks":0}
+

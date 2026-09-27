@@ -1,0 +1,32 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
++ actual - expected
+
+  {
++   nested: {}
+-   ['__proto__']: {
+-     flag: true
+-   },
+-   nested: {
+-     ['__proto__']: {
+-       n: 2
+-     }
+-   }
+  }
+
+    at file://<DOGFOOD_ROOT>/verify.mjs:23:68 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: { nested: {} },
+  expected: {
+    ['__proto__']: { flag: true },
+    nested: { ['__proto__']: { n: 2 } }
+  },
+  operator: 'deepStrictEqual',
+  diff: 'simple'
+}
+
+Node.js v25.9.0

@@ -1,0 +1,911 @@
+{
+  "productHead": "9fb8dbb02a677088a926cafd85ba4bebac3b23c6",
+  "sourceHead": "fd941934bf3cc861eda8ea72b8bb307aa64b2ece",
+  "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+  "candidate": {
+    "id": "47117908-8dde-4573-9126-d13ac489e48f",
+    "status": "active",
+    "revision": 1,
+    "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+    "sourceBindingRevision": 1,
+    "baseCommit": "fd941934bf3cc861eda8ea72b8bb307aa64b2ece",
+    "objectFormat": "sha1",
+    "writeRevision": 7,
+    "createdAt": "2026-09-27T01:20:46.252Z"
+  },
+  "runs": [
+    {
+      "id": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "status": "completed",
+      "adapterId": "pi-coding-agent@0.85.1/agent-session",
+      "provider": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "api": "openai-completions",
+        "reasoningEffort": "high",
+        "realProvider": true,
+        "connectionId": "catalog-deepseek",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "enum",
+          "source": "runtime-catalog",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 4
+        }
+      },
+      "startedAt": "2026-09-27T01:21:02.295Z",
+      "endedAt": "2026-09-27T01:28:08.950Z",
+      "error": null,
+      "usage": {
+        "input": 20973,
+        "output": 24146,
+        "cacheRead": 319360,
+        "cacheWrite": 0,
+        "turns": 15,
+        "missing": false
+      },
+      "repositoryCandidateSnapshot": {
+        "id": "47117908-8dde-4573-9126-d13ac489e48f",
+        "status": "active",
+        "revision": 1,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "baseCommit": "fd941934bf3cc861eda8ea72b8bb307aa64b2ece",
+        "objectFormat": "sha1",
+        "writeRevision": 0,
+        "createdAt": "2026-09-27T01:20:46.252Z"
+      }
+    },
+    {
+      "id": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "status": "completed",
+      "adapterId": "pi-coding-agent@0.85.1/agent-session",
+      "provider": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "api": "openai-completions",
+        "reasoningEffort": "high",
+        "realProvider": true,
+        "connectionId": "catalog-deepseek",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "enum",
+          "source": "runtime-catalog",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 4
+        }
+      },
+      "startedAt": "2026-09-27T01:28:58.663Z",
+      "endedAt": "2026-09-27T01:31:29.612Z",
+      "error": null,
+      "usage": {
+        "input": 7972,
+        "output": 8318,
+        "cacheRead": 305024,
+        "cacheWrite": 0,
+        "turns": 6,
+        "missing": false
+      },
+      "repositoryCandidateSnapshot": {
+        "id": "47117908-8dde-4573-9126-d13ac489e48f",
+        "status": "active",
+        "revision": 1,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "baseCommit": "fd941934bf3cc861eda8ea72b8bb307aa64b2ece",
+        "objectFormat": "sha1",
+        "writeRevision": 5,
+        "createdAt": "2026-09-27T01:20:46.252Z"
+      }
+    }
+  ],
+  "eventCounts": {
+    "user.message": 2,
+    "run.status": 28,
+    "runtime.bound": 2,
+    "repository.bound": 2,
+    "repository.candidate.bound": 2,
+    "runtime.request.telemetry": 75,
+    "assistant.delta": 55,
+    "assistant.message": 21,
+    "tool.start": 30,
+    "tool.result": 30,
+    "repository.read": 8,
+    "repository.candidate.read": 8,
+    "permission.open": 12,
+    "permission.resolved": 12,
+    "check.started": 5,
+    "check.settled": 5,
+    "repository.write.confirmed": 7,
+    "run.usage": 2
+  },
+  "firstRunUnchangedAfterContinuation": true,
+  "checkSequence": [
+    {
+      "seq": 87,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "exitCode": 1,
+      "status": "completed",
+      "testSummary": [
+        "\u2139 tests 12",
+        "\u2139 pass 2",
+        "\u2139 fail 10"
+      ]
+    },
+    {
+      "seq": 157,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "exitCode": 1,
+      "status": "completed",
+      "testSummary": [
+        "\u2139 tests 21",
+        "\u2139 pass 20",
+        "\u2139 fail 1"
+      ]
+    },
+    {
+      "seq": 184,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "exitCode": 0,
+      "status": "completed",
+      "testSummary": [
+        "\u2139 tests 21",
+        "\u2139 pass 21",
+        "\u2139 fail 0"
+      ]
+    },
+    {
+      "seq": 248,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "exitCode": 1,
+      "status": "completed",
+      "testSummary": [
+        "\u2139 tests 22",
+        "\u2139 pass 21",
+        "\u2139 fail 1"
+      ]
+    },
+    {
+      "seq": 275,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "exitCode": 0,
+      "status": "completed",
+      "testSummary": [
+        "\u2139 tests 22",
+        "\u2139 pass 22",
+        "\u2139 fail 0"
+      ]
+    }
+  ],
+  "hostReceipts": [
+    {
+      "seq": 82,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "0d02a6f5-f182-415e-9872-d1c854267fd3",
+        "kind": "permission",
+        "toolCallId": "call_00_QTqQGAjPUePKd9Dzoh0B3547",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 0,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 84,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "0d02a6f5-f182-415e-9872-d1c854267fd3",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 86,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.started",
+      "data": {
+        "callId": "call_00_QTqQGAjPUePKd9Dzoh0B3547",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 0,
+        "startedAt": "2026-09-27T01:23:59.852Z"
+      }
+    },
+    {
+      "seq": 87,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.settled",
+      "data": {
+        "callId": "call_00_QTqQGAjPUePKd9Dzoh0B3547",
+        "status": "completed",
+        "exitCode": 1,
+        "signal": null,
+        "durationMs": 185,
+        "stdout": "\u2716 enqueue is idempotent and retains original payload (3.164375ms)\n\u2714 FIFO and no double lease before expiry (0.140709ms)\n\u2716 expiry boundary reclaims with a larger fencing token (4.591333ms)\n\u2716 stale acknowledgements cannot complete a new lease (0.16225ms)\n\u2716 expired ack and fail reject without mutations (0.107375ms)\n\u2716 ack clears lease and terminal replay rejects (0.074833ms)\n\u2716 explicit failure retries then dead letters at the limit (0.096583ms)\n\u2716 expired exhausted job does not starve next queued job (0.0695ms)\n\u2716 enqueue and returned lease detach nested payloads (0.09475ms)\n\u2716 snapshot and restore are detached (0.114958ms)\n\u2716 JSON restore preserves IDs, idempotency and fencing (0.1085ms)\n\u2714 unknown IDs and wrong token fail without change (0.062334ms)\n\u2139 tests 12\n\u2139 suites 0\n\u2139 pass 2\n\u2139 fail 10\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 106.436375\n\n\u2716 failing tests:\n\ntest at test/queue.test.mjs:5:1\n\u2716 enqueue is idempotent and retains original payload (3.164375ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    {\n      attempts: 0,\n      expiresAt: null,\n  +   id: '2',\n  -   id: '1',\n      key: 'a',\n      payload: {\n  +     value: 2\n  -     value: 1\n      },\n      state: 'queued',\n      token: 0,\n      worker: null\n    }\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:5:108)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.start (node:internal/test_runner/test:1096:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:385:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { id: '2', key: 'a', payload: { value: 2 }, state: 'queued', attempts: 0, token: 0, worker: null, expiresAt: null },\n    expected: { id: '1', key: 'a', payload: { value: 1 }, state: 'queued', attempts: 0, token: 0, worker: null, expiresAt: null },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:7:1\n\u2716 expiry boundary reclaims with a larger fencing token (4.591333ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(b)\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:7:156)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:8:1\n\u2716 stale acknowledgements cannot complete a new lease (0.16225ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  true !== false\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:8:172)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: true,\n    expected: false,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:9:1\n\u2716 expired ack and fail reject without mutations (0.107375ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  true !== false\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:9:195)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: true,\n    expected: false,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:10:1\n\u2716 ack clears lease and terminal replay rejects (0.074833ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  'w' !== null\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:10:224)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'w',\n    expected: null,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:11:1\n\u2716 explicit failure retries then dead letters at the limit (0.096583ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  'w' !== null\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:11:188)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'w',\n    expected: null,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:12:1\n\u2716 expired exhausted job does not starve next queued job (0.0695ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  'leased' !== 'dead'\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:12:195)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'leased',\n    expected: 'dead',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:13:1\n\u2716 enqueue and returned lease detach nested payloads (0.09475ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  8 !== 1\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:13:229)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 8,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:14:1\n\u2716 snapshot and restore are detached (0.114958ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  9 !== 1\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:14:130)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 9,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at test/queue.test.mjs:15:1\n\u2716 JSON restore preserves IDs, idempotency and fencing (0.1085ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  '2' !== '1'\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.test.mjs:15:200)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: '2',\n    expected: '1',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-27T01:23:59.919Z",
+        "endedAt": "2026-09-27T01:24:00.104Z",
+        "failure": null
+      }
+    },
+    {
+      "seq": 99,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "309fb83e-24b1-4bb6-9321-f7a7f9044440",
+        "kind": "permission",
+        "toolCallId": "call_00_CPnGBBPyyv8eqZ5SOrcE4568",
+        "tool": "repo_write",
+        "path": "src/snapshot.mjs",
+        "bytes": 2031,
+        "contentSha256": "359b2daee19810a1fc3341e6c7d00000ced5737d58c8ba8e92142e8df2e5b26c",
+        "preview": "// State (de)serialization helpers for the synthetic lease queue.\n//\n// Every value that crosses the public API boundary is deep-copied so that\n// callers, snapshots and queue internals never share mutable references.\n\n/** Deep copy of a JSON-shaped value (objects, arrays, primitives, null). */\nexport function clone(value) {\n  if (Array.isArray(value)) {\n    return value.map(clone);\n  }\n  if (valu",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 0,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "550a1b3e38b28dcd81d838b8d91a97cff6238db605c2fcd584ccae5fa094d700"
+      }
+    },
+    {
+      "seq": 101,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "309fb83e-24b1-4bb6-9321-f7a7f9044440",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 103,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "127e15d58ec5c3563aaaf85867d70085772871e491643751783583e8ab9ad507",
+        "requestId": "call_00_CPnGBBPyyv8eqZ5SOrcE4568",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "path": "src/snapshot.mjs",
+        "contentSha256": "359b2daee19810a1fc3341e6c7d00000ced5737d58c8ba8e92142e8df2e5b26c",
+        "bytes": 2031,
+        "writeRevision": 1
+      }
+    },
+    {
+      "seq": 110,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "0ea5451f-587c-4830-b961-c41f93f20624",
+        "kind": "permission",
+        "toolCallId": "call_00_01rSccl12pDb31Fi3mQ81600",
+        "tool": "repo_write",
+        "path": "src/queue.mjs",
+        "bytes": 2646,
+        "contentSha256": "8ac9a5c6683ba83985cc04af9d16135cdf99c948e499f586253d5fddc5362891",
+        "preview": "import { restore, capture, clone } from './snapshot.mjs';\n\nexport function createQueue({ maxAttempts = 3, snapshot } = {}) {\n  const state = restore(snapshot);\n  state.maxAttempts = maxAttempts;\n\n  const byId = (id) => state.jobs.find((job) => job.id === id);\n  const byKey = (key) => state.jobs.find((job) => job.key === key);\n  const exhausted = (job) => job.attempts >= state.maxAttempts;\n  const ",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 1,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "ca0c2d4c6986bb50c28aa2d51483249d429bcc16873ec72d59b9e227ead723c7"
+      }
+    },
+    {
+      "seq": 112,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "0ea5451f-587c-4830-b961-c41f93f20624",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 114,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "b8202e19b1b68148d988fe78089b4a0b6fa20bac5f9ca47d9898d410039f91b9",
+        "requestId": "call_00_01rSccl12pDb31Fi3mQ81600",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "path": "src/queue.mjs",
+        "contentSha256": "8ac9a5c6683ba83985cc04af9d16135cdf99c948e499f586253d5fddc5362891",
+        "bytes": 2646,
+        "writeRevision": 2
+      }
+    },
+    {
+      "seq": 125,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "fec2f7e7-d805-42ce-a4a5-d2560034372d",
+        "kind": "permission",
+        "toolCallId": "call_00_6X663xQBCK5Ledm47ETl1801",
+        "tool": "repo_write",
+        "path": "test/queue.regression.test.mjs",
+        "bytes": 5348,
+        "contentSha256": "0b4773dba213f361c1a12055f95cb75de2c6c234d9cebed4325f9ebd48a446ec",
+        "preview": "// Regression coverage for contract edges the smoke tests do not pin down:\n// idempotency across every job state, oldest-eligible selection, monotonic\n// fencing across repeated expiries, expiry-driven dead-lettering, deep\n// detachment, and JSON restore of order/tokens/nextId.\nimport {test} from 'node:test';\nimport assert from 'node:assert/strict';\nimport {createQueue} from '../src/queue.mjs';\n\nc",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 2,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "expectedSha256": null
+      }
+    },
+    {
+      "seq": 127,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "fec2f7e7-d805-42ce-a4a5-d2560034372d",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 129,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "d26a7789902719e3a44693376b9bbb5fcb4435dbdcd64350daa9ecb4d2f6f55d",
+        "requestId": "call_00_6X663xQBCK5Ledm47ETl1801",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "path": "test/queue.regression.test.mjs",
+        "contentSha256": "0b4773dba213f361c1a12055f95cb75de2c6c234d9cebed4325f9ebd48a446ec",
+        "bytes": 5348,
+        "writeRevision": 3
+      }
+    },
+    {
+      "seq": 140,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "687b2bd8-c04c-4e06-9a58-15eaad328b37",
+        "kind": "permission",
+        "toolCallId": "call_00_uLHVBXN9RK3qo8TB3myi2584",
+        "tool": "repo_write",
+        "path": "test/queue.regression.test.mjs",
+        "bytes": 5421,
+        "contentSha256": "045d42690ce01913a1061a31959aee18d8b9285fd35cea35bc1a431e56d8f167",
+        "preview": "// Regression coverage for contract edges the smoke tests do not pin down:\n// idempotency across every job state, oldest-eligible selection, monotonic\n// fencing across repeated expiries, expiry-driven dead-lettering, deep\n// detachment, and JSON restore of order/tokens/nextId.\nimport {test} from 'node:test';\nimport assert from 'node:assert/strict';\nimport {createQueue} from '../src/queue.mjs';\n\nc",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 3,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "0b4773dba213f361c1a12055f95cb75de2c6c234d9cebed4325f9ebd48a446ec"
+      }
+    },
+    {
+      "seq": 142,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "687b2bd8-c04c-4e06-9a58-15eaad328b37",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 144,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "e522a59aabcf0b6df0a22ef77538eb4e8ac2991532b00b6922ecbc458c93240e",
+        "requestId": "call_00_uLHVBXN9RK3qo8TB3myi2584",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "path": "test/queue.regression.test.mjs",
+        "contentSha256": "045d42690ce01913a1061a31959aee18d8b9285fd35cea35bc1a431e56d8f167",
+        "bytes": 5421,
+        "writeRevision": 4
+      }
+    },
+    {
+      "seq": 152,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "19319a25-208e-4fdf-8a67-c681be209089",
+        "kind": "permission",
+        "toolCallId": "call_00_ET_kYfj4nnyt6SVq6baAsMX8997",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 4,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 154,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "19319a25-208e-4fdf-8a67-c681be209089",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 156,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.started",
+      "data": {
+        "callId": "call_00_ET_kYfj4nnyt6SVq6baAsMX8997",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 4,
+        "startedAt": "2026-09-27T01:26:49.248Z"
+      }
+    },
+    {
+      "seq": 157,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.settled",
+      "data": {
+        "callId": "call_00_ET_kYfj4nnyt6SVq6baAsMX8997",
+        "status": "completed",
+        "exitCode": 1,
+        "signal": null,
+        "durationMs": 182,
+        "stdout": "\u2714 enqueue is idempotent across every job state and keeps the payload (1.689875ms)\n\u2714 claim picks the oldest eligible job, looking past an active lease (0.098708ms)\n\u2714 every reclaim raises the fencing token and invalidates older ones (0.133375ms)\n\u2714 expired exhaustion dead-letters and does not starve later jobs (0.109708ms)\n\u2714 fail retries then dead-letters, and a dead key stays idempotent (0.123375ms)\n\u2714 snapshot and restore deep-detach nested structures in both directions (0.154709ms)\n\u2716 JSON restore keeps order, nextId and tokens and continues fencing (1.4305ms)\n\u2714 lease boundary rejects acks and permits reclaim at now === expiresAt (0.492042ms)\n\u2714 ack and fail reject non-leased or unknown ids without mutation (0.115375ms)\n\u2714 enqueue is idempotent and retains original payload (1.603ms)\n\u2714 FIFO and no double lease before expiry (0.117625ms)\n\u2714 expiry boundary reclaims with a larger fencing token (0.09025ms)\n\u2714 stale acknowledgements cannot complete a new lease (0.116084ms)\n\u2714 expired ack and fail reject without mutations (0.120958ms)\n\u2714 ack clears lease and terminal replay rejects (0.078083ms)\n\u2714 explicit failure retries then dead letters at the limit (0.08575ms)\n\u2714 expired exhausted job does not starve next queued job (0.066292ms)\n\u2714 enqueue and returned lease detach nested payloads (0.09275ms)\n\u2714 snapshot and restore are detached (0.197166ms)\n\u2714 JSON restore preserves IDs, idempotency and fencing (0.121083ms)\n\u2714 unknown IDs and wrong token fail without change (0.059041ms)\n\u2139 tests 21\n\u2139 suites 0\n\u2139 pass 20\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 101.829792\n\n\u2716 failing tests:\n\ntest at test/queue.regression.test.mjs:108:1\n\u2716 JSON restore keeps order, nextId and tokens and continues fencing (1.4305ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    [\n  +   '1',\n  -   1,\n      2,\n      2\n    ]\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.regression.test.mjs:120:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: [ '1', 2, 2 ],\n    expected: [ 1, 2, 2 ],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-27T01:26:49.309Z",
+        "endedAt": "2026-09-27T01:26:49.491Z",
+        "failure": null
+      }
+    },
+    {
+      "seq": 168,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "45a2a3eb-0b42-4590-9561-ae40dda4b430",
+        "kind": "permission",
+        "toolCallId": "call_00_1ngso70HcMl03z5Yg2Es1133",
+        "tool": "repo_write",
+        "path": "test/queue.regression.test.mjs",
+        "bytes": 5423,
+        "contentSha256": "227f726bf47733a6e2774959d33cc97753aa99c586e8c6d7f21b7da1c8ef24d8",
+        "preview": "// Regression coverage for contract edges the smoke tests do not pin down:\n// idempotency across every job state, oldest-eligible selection, monotonic\n// fencing across repeated expiries, expiry-driven dead-lettering, deep\n// detachment, and JSON restore of order/tokens/nextId.\nimport {test} from 'node:test';\nimport assert from 'node:assert/strict';\nimport {createQueue} from '../src/queue.mjs';\n\nc",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 4,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "045d42690ce01913a1061a31959aee18d8b9285fd35cea35bc1a431e56d8f167"
+      }
+    },
+    {
+      "seq": 170,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "45a2a3eb-0b42-4590-9561-ae40dda4b430",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 172,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "3af74c0c2ffdcc95a15db678d90ecfc47b77d41750c5c1a4d658727922410bbc",
+        "requestId": "call_00_1ngso70HcMl03z5Yg2Es1133",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "path": "test/queue.regression.test.mjs",
+        "contentSha256": "227f726bf47733a6e2774959d33cc97753aa99c586e8c6d7f21b7da1c8ef24d8",
+        "bytes": 5423,
+        "writeRevision": 5
+      }
+    },
+    {
+      "seq": 179,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "e18cba2b-8328-45ab-b3ef-23009020b938",
+        "kind": "permission",
+        "toolCallId": "call_00_ET_IjxxzSXj6YCVQdHgn14M0925",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 5,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 181,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "e18cba2b-8328-45ab-b3ef-23009020b938",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 183,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.started",
+      "data": {
+        "callId": "call_00_ET_IjxxzSXj6YCVQdHgn14M0925",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 5,
+        "startedAt": "2026-09-27T01:27:59.003Z"
+      }
+    },
+    {
+      "seq": 184,
+      "runId": "bb8cbd3d-44db-42d1-affb-b68f06b05ba8",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.settled",
+      "data": {
+        "callId": "call_00_ET_IjxxzSXj6YCVQdHgn14M0925",
+        "status": "completed",
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 180,
+        "stdout": "\u2714 enqueue is idempotent across every job state and keeps the payload (1.687458ms)\n\u2714 claim picks the oldest eligible job, looking past an active lease (0.131791ms)\n\u2714 every reclaim raises the fencing token and invalidates older ones (0.2435ms)\n\u2714 expired exhaustion dead-letters and does not starve later jobs (0.137041ms)\n\u2714 fail retries then dead-letters, and a dead key stays idempotent (0.1385ms)\n\u2714 snapshot and restore deep-detach nested structures in both directions (0.175458ms)\n\u2714 JSON restore keeps order, nextId and tokens and continues fencing (0.179375ms)\n\u2714 lease boundary rejects acks and permits reclaim at now === expiresAt (0.116416ms)\n\u2714 ack and fail reject non-leased or unknown ids without mutation (0.08325ms)\n\u2714 enqueue is idempotent and retains original payload (1.614542ms)\n\u2714 FIFO and no double lease before expiry (0.160542ms)\n\u2714 expiry boundary reclaims with a larger fencing token (0.215ms)\n\u2714 stale acknowledgements cannot complete a new lease (0.192958ms)\n\u2714 expired ack and fail reject without mutations (0.171209ms)\n\u2714 ack clears lease and terminal replay rejects (0.084334ms)\n\u2714 explicit failure retries then dead letters at the limit (0.084292ms)\n\u2714 expired exhausted job does not starve next queued job (0.073708ms)\n\u2714 enqueue and returned lease detach nested payloads (0.091334ms)\n\u2714 snapshot and restore are detached (0.588084ms)\n\u2714 JSON restore preserves IDs, idempotency and fencing (0.147125ms)\n\u2714 unknown IDs and wrong token fail without change (0.063625ms)\n\u2139 tests 21\n\u2139 suites 0\n\u2139 pass 21\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 102.069542\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-27T01:27:59.062Z",
+        "endedAt": "2026-09-27T01:27:59.242Z",
+        "failure": null
+      }
+    },
+    {
+      "seq": 232,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "bb93fd3a-52c8-41c6-a435-bb397babd7dd",
+        "kind": "permission",
+        "toolCallId": "call_00_i5BrYIcHyjAqCRtZl3GG0852",
+        "tool": "repo_write",
+        "path": "test/queue.regression.test.mjs",
+        "bytes": 6945,
+        "contentSha256": "7e47632aa17bc83c1878f78123519879c3c95ef8f8ebbea7d4768174983bfe98",
+        "preview": "// Regression coverage for contract edges the smoke tests do not pin down:\n// idempotency across every job state, oldest-eligible selection, monotonic\n// fencing across repeated expiries, expiry-driven dead-lettering, deep\n// detachment, and JSON restore of order/tokens/nextId.\nimport {test} from 'node:test';\nimport assert from 'node:assert/strict';\nimport {createQueue} from '../src/queue.mjs';\n\nc",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 5,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "227f726bf47733a6e2774959d33cc97753aa99c586e8c6d7f21b7da1c8ef24d8"
+      }
+    },
+    {
+      "seq": 234,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "bb93fd3a-52c8-41c6-a435-bb397babd7dd",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 236,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "c3883364bb027940f767983f909858932ed0c864c3613ae89b3f03610add5a64",
+        "requestId": "call_00_i5BrYIcHyjAqCRtZl3GG0852",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "path": "test/queue.regression.test.mjs",
+        "contentSha256": "7e47632aa17bc83c1878f78123519879c3c95ef8f8ebbea7d4768174983bfe98",
+        "bytes": 6945,
+        "writeRevision": 6
+      }
+    },
+    {
+      "seq": 243,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "18c9659b-7d9c-40e1-853a-d56682575bc6",
+        "kind": "permission",
+        "toolCallId": "call_00_ET_sYgNhbVJ60zIjgfjVKDJ9699",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 6,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 245,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "18c9659b-7d9c-40e1-853a-d56682575bc6",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 247,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.started",
+      "data": {
+        "callId": "call_00_ET_sYgNhbVJ60zIjgfjVKDJ9699",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 6,
+        "startedAt": "2026-09-27T01:30:16.741Z"
+      }
+    },
+    {
+      "seq": 248,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.settled",
+      "data": {
+        "callId": "call_00_ET_sYgNhbVJ60zIjgfjVKDJ9699",
+        "status": "completed",
+        "exitCode": 1,
+        "signal": null,
+        "durationMs": 181,
+        "stdout": "\u2714 enqueue is idempotent across every job state and keeps the payload (1.624333ms)\n\u2714 claim picks the oldest eligible job, looking past an active lease (0.092417ms)\n\u2714 every reclaim raises the fencing token and invalidates older ones (0.131375ms)\n\u2714 expired exhaustion dead-letters and does not starve later jobs (0.106916ms)\n\u2714 fail retries then dead-letters, and a dead key stays idempotent (0.121542ms)\n\u2714 snapshot and restore deep-detach nested structures in both directions (0.152584ms)\n\u2714 JSON restore keeps order, nextId and tokens and continues fencing (0.156042ms)\n\u2714 lease boundary rejects acks and permits reclaim at now === expiresAt (0.074292ms)\n\u2714 ack and fail reject non-leased or unknown ids without mutation (0.588291ms)\n\u2716 JSON keys literally named __proto__ survive clone, snapshot and restore (5.262541ms)\n\u2714 enqueue is idempotent and retains original payload (1.563958ms)\n\u2714 FIFO and no double lease before expiry (0.110625ms)\n\u2714 expiry boundary reclaims with a larger fencing token (0.08625ms)\n\u2714 stale acknowledgements cannot complete a new lease (0.112667ms)\n\u2714 expired ack and fail reject without mutations (0.123917ms)\n\u2714 ack clears lease and terminal replay rejects (0.076917ms)\n\u2714 explicit failure retries then dead letters at the limit (0.079083ms)\n\u2714 expired exhausted job does not starve next queued job (0.070041ms)\n\u2714 enqueue and returned lease detach nested payloads (0.089958ms)\n\u2714 snapshot and restore are detached (0.80625ms)\n\u2714 JSON restore preserves IDs, idempotency and fencing (0.148333ms)\n\u2714 unknown IDs and wrong token fail without change (0.066083ms)\n\u2139 tests 22\n\u2139 suites 0\n\u2139 pass 21\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 103.486292\n\n\u2716 failing tests:\n\ntest at test/queue.regression.test.mjs:149:1\n\u2716 JSON keys literally named __proto__ survive clone, snapshot and restore (5.262541ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(Object.prototype.hasOwnProperty.call(stored,'__proto__'))\n  \n      at TestContext.<anonymous> (file://<HOST_DATA>/repository-candidates/82b23d4cad06f611c3980c74f90e9971293782630b0362cbfa5e3e9566cc4a43/candidate-47117908-8dde-4573-9126-d13ac489e48f/worktree/test/queue.regression.test.mjs:155:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: false,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-27T01:30:16.811Z",
+        "endedAt": "2026-09-27T01:30:16.992Z",
+        "failure": null
+      }
+    },
+    {
+      "seq": 259,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "18faa83b-ad1f-4370-bf35-4b2383a5ba8e",
+        "kind": "permission",
+        "toolCallId": "call_00_A3UhacpcZ9C3ghrDOqtZ1965",
+        "tool": "repo_write",
+        "path": "src/snapshot.mjs",
+        "bytes": 2522,
+        "contentSha256": "217ce4f0c9c55b4b301e31ac1794c07c05700d3a91a2836d6fe536a8cd774178",
+        "preview": "// State (de)serialization helpers for the synthetic lease queue.\n//\n// Every value that crosses the public API boundary is deep-copied so that\n// callers, snapshots and queue internals never share mutable references.\n\n/** Deep copy of a JSON-shaped value (objects, arrays, primitives, null). */\nexport function clone(value) {\n  if (Array.isArray(value)) {\n    return value.map(clone);\n  }\n  if (valu",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateRevision": 1,
+        "candidateWriteRevision": 6,
+        "sourceBindingId": "73e000b4-7205-4ea6-b997-a7474fabc24c",
+        "sourceBindingRevision": 1,
+        "expectedSha256": "359b2daee19810a1fc3341e6c7d00000ced5737d58c8ba8e92142e8df2e5b26c"
+      }
+    },
+    {
+      "seq": 261,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "18faa83b-ad1f-4370-bf35-4b2383a5ba8e",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 263,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "repository.write.confirmed",
+      "data": {
+        "effectId": "fe2f7556d9c237826d42e5708e56db610506203173936ba498bd22d6412dae83",
+        "requestId": "call_00_A3UhacpcZ9C3ghrDOqtZ1965",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "path": "src/snapshot.mjs",
+        "contentSha256": "217ce4f0c9c55b4b301e31ac1794c07c05700d3a91a2836d6fe536a8cd774178",
+        "bytes": 2522,
+        "writeRevision": 7
+      }
+    },
+    {
+      "seq": 270,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.open",
+      "data": {
+        "id": "4de9d6ea-db2b-4665-8014-59b0fd523431",
+        "kind": "permission",
+        "toolCallId": "call_00_ET_nmJcYTTr3hps7aJnvh6J7462",
+        "tool": "check_run",
+        "path": "*",
+        "bytes": 24,
+        "contentSha256": "ebdb0697ea80166c77f48b94b0a003a254a89530ef25b4e8a1e4d727c0bd605f",
+        "preview": "{\"recipeId\":\"node-test\"}",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "command": "/opt/homebrew/Cellar/node/25.9.0_2/bin/node",
+        "argv": [
+          "--test"
+        ],
+        "cwd": "private candidate",
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 7,
+        "timeoutMs": 120000,
+        "outputLimitBytes": 65536,
+        "env": "minimal"
+      }
+    },
+    {
+      "seq": 272,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "permission.resolved",
+      "data": {
+        "id": "4de9d6ea-db2b-4665-8014-59b0fd523431",
+        "kind": "permission",
+        "decision": "allow"
+      }
+    },
+    {
+      "seq": 274,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.started",
+      "data": {
+        "callId": "call_00_ET_nmJcYTTr3hps7aJnvh6J7462",
+        "recipeId": "node-test",
+        "recipeVersion": 1,
+        "candidateId": "47117908-8dde-4573-9126-d13ac489e48f",
+        "candidateWriteRevision": 7,
+        "startedAt": "2026-09-27T01:31:22.461Z"
+      }
+    },
+    {
+      "seq": 275,
+      "runId": "c97a84ce-f338-4f82-8776-05d1343edacf",
+      "sessionId": "5602d421-9596-48f0-b8e0-969c194e06d2",
+      "type": "check.settled",
+      "data": {
+        "callId": "call_00_ET_nmJcYTTr3hps7aJnvh6J7462",
+        "status": "completed",
+        "exitCode": 0,
+        "signal": null,
+        "durationMs": 179,
+        "stdout": "\u2714 enqueue is idempotent across every job state and keeps the payload (1.693958ms)\n\u2714 claim picks the oldest eligible job, looking past an active lease (0.106708ms)\n\u2714 every reclaim raises the fencing token and invalidates older ones (0.1395ms)\n\u2714 expired exhaustion dead-letters and does not starve later jobs (0.11725ms)\n\u2714 fail retries then dead-letters, and a dead key stays idempotent (0.128125ms)\n\u2714 snapshot and restore deep-detach nested structures in both directions (0.16825ms)\n\u2714 JSON restore keeps order, nextId and tokens and continues fencing (0.181125ms)\n\u2714 lease boundary rejects acks and permits reclaim at now === expiresAt (0.102625ms)\n\u2714 ack and fail reject non-leased or unknown ids without mutation (0.082583ms)\n\u2714 JSON keys literally named __proto__ survive clone, snapshot and restore (0.221708ms)\n\u2714 enqueue is idempotent and retains original payload (1.595583ms)\n\u2714 FIFO and no double lease before expiry (0.119167ms)\n\u2714 expiry boundary reclaims with a larger fencing token (0.09075ms)\n\u2714 stale acknowledgements cannot complete a new lease (0.120125ms)\n\u2714 expired ack and fail reject without mutations (0.139792ms)\n\u2714 ack clears lease and terminal replay rejects (0.083916ms)\n\u2714 explicit failure retries then dead letters at the limit (0.086167ms)\n\u2714 expired exhausted job does not starve next queued job (0.086167ms)\n\u2714 enqueue and returned lease detach nested payloads (0.633917ms)\n\u2714 snapshot and restore are detached (0.189166ms)\n\u2714 JSON restore preserves IDs, idempotency and fencing (0.1415ms)\n\u2714 unknown IDs and wrong token fail without change (0.063625ms)\n\u2139 tests 22\n\u2139 suites 0\n\u2139 pass 22\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 100.895042\n",
+        "stderr": "",
+        "truncated": {
+          "stdout": false,
+          "stderr": false
+        },
+        "startedAt": "2026-09-27T01:31:22.522Z",
+        "endedAt": "2026-09-27T01:31:22.701Z",
+        "failure": null
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "productHead": "9fb8dbb02a677088a926cafd85ba4bebac3b23c6",
+  "contractHead": "a0dd5a7d389698ed5c92f708673ec3d54420cc5d",
+  "sessionId": "5366734e-9305-4b73-b55b-1d1b4cd15289",
+  "candidate": {
+    "id": "02dca17a-6e8f-4a8c-80c4-79c21b05a367",
+    "status": "active",
+    "revision": 1,
+    "sourceBindingId": "6aae3eef-3940-4127-9c65-51aadd41ff19",
+    "sourceBindingRevision": 1,
+    "baseCommit": "a0dd5a7d389698ed5c92f708673ec3d54420cc5d",
+    "objectFormat": "sha1",
+    "writeRevision": 0,
+    "createdAt": "2026-09-27T01:40:38.578Z"
+  },
+  "runs": [
+    {
+      "id": "15bc2699-0eb5-470b-b068-3a673b363878",
+      "status": "running",
+      "provider": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "api": "openai-completions",
+        "reasoningEffort": "high",
+        "realProvider": true,
+        "connectionId": "catalog-deepseek",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "enum",
+          "source": "runtime-catalog",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 4
+        }
+      }
+    }
+  ]
+}
