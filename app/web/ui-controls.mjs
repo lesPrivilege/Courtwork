@@ -303,10 +303,33 @@ const markdownTags = [
 export function codeCopy(text, focusKey = "") {
   return el("div", { className: "code-copy" }, copyAction(text, "Copy code", focusKey));
 }
-/* marked ends every <pre><code> with one "\n" the author did not write;
- * copying it would run a pasted one-line command at once. */
-export function markedCodeText(pre) {
-  return pre.textContent.replace(/\n$/, "");
+/* CB-R1 · what Copy code copies. A fenced or indented block copies its parsed
+ * token text — marked's renderer adds a closing "\n" to every such <pre> and
+ * drops a retained final blank line, so the rendered text is not the code.
+ * The renderer records each code token's text and tags its <pre> with a
+ * nonce drawn for this render, in the already-allowed `title`; source HTML
+ * cannot know the nonce, so a raw <pre> never takes a token's text and keeps
+ * its own DOM text. The tag is removed once read. */
+class CodeCopyRenderer extends marked.Renderer {
+  constructor(nonce) {
+    super();
+    this.nonce = nonce;
+    this.texts = [];
+  }
+  code(token) {
+    /* An indented block's token keeps its last line's terminator only when the
+       document ends right there (marked trims it before blank lines); it is a
+       line ending, not code, and an indented block cannot hold a trailing
+       blank line. A fenced block's text is its content as written. */
+    this.texts.push(token.codeBlockStyle === "indented" ? token.text.replace(/\n$/, "") : token.text);
+    return super.code(token).replace(/^<pre>/, `<pre title="${this.nonce}:${this.texts.length - 1}">`);
+  }
+}
+function codeCopyText(pre, renderer) {
+  const match = pre.getAttribute("title")?.match(/^([^:]+):(\d+)$/);
+  if (match?.[1] !== renderer.nonce) return pre.textContent;
+  pre.removeAttribute("title");
+  return renderer.texts[Number(match[2])] ?? pre.textContent;
 }
 export function markdown(text, { key = "markdown" } = {}) {
   return markdownTokens(marked.lexer(String(text), { gfm: true }), { key });
@@ -317,7 +340,8 @@ export function markdown(text, { key = "markdown" } = {}) {
  * exactly as the full document does. */
 export function markdownTokens(tokens, { key = "markdown" } = {}) {
   const root = el("div", { className: "markdown-body" });
-  const html = marked.parser(tokens, { gfm: true, async: false });
+  const renderer = new CodeCopyRenderer(`cw-code-${globalThis.crypto.randomUUID()}`);
+  const html = marked.parser(tokens, { gfm: true, async: false, renderer });
   root.append(
     DOMPurify.sanitize(html, {
       ALLOWED_TAGS: markdownTags,
@@ -338,7 +362,7 @@ export function markdownTokens(tokens, { key = "markdown" } = {}) {
   for (const pre of [...root.querySelectorAll("pre")]) {
     const wrap = el("div", { className: "code-block" });
     pre.replaceWith(wrap);
-    wrap.append(pre, codeCopy(markedCodeText(pre), `${key}:code:${index++}`));
+    wrap.append(pre, codeCopy(codeCopyText(pre, renderer), `${key}:code:${index++}`));
   }
   for (const table of [...root.querySelectorAll("table")]) {
     const wrap = el("div", {
