@@ -1,0 +1,30 @@
+✔ the adapter describes its pinned source, endpoint and capability ceiling (10.158334ms)
+✔ the first transport accepts only an explicit loopback origin, and never echoes the bearer (8.56425ms)
+✔ admission sends the exact bounded body with the Host's key, and returns a native run id, not completion (4.538583ms)
+✔ invalid input or key is refused locally, before anything is sent (1.145167ms)
+✔ the same intent replays the same run; a changed body under the same key conflicts and creates nothing (2.927667ms)
+✔ a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (1.958333ms)
+✔ fragmented Unicode arrives whole: pinned ASCII escapes split across writes, and raw UTF-8 split inside a character (12.38975ms)
+✔ repeated equal deltas are separate text: nothing on the wire makes them duplicates (2.142ms)
+✔ terminal output is the native final response, kept apart from the text actually streamed (1.9165ms)
+✔ a stream that ends without a terminal is a gap; the status decides only whether the run is known to have ended (6.385375ms)
+✔ malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (2.450709ms)
+✔ status and terminal records must describe this run in the pinned shape (0.190917ms)
+✔ an approval or tool event is recorded, never answered or executed, and rules out a text-only success (2.273875ms)
+✔ stop is an intent: only the matching terminal cancelled settles the run as cancelled (56.287958ms)
+✔ a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (306.286792ms)
+✔ after an owner restart, status reports interrupted: unknown coverage, no text invented, and stop only reads that status (87.976ms)
+✔ a stop for a run this gateway process does not drive is refused as not active, with no effect (2.930791ms)
+✔ the stream has one subscriber; a second follow finds no stream and does not claim replay (3.22375ms)
+✔ continuation uses only a native session id observed in a validated status, never a guess (3.672041ms)
+✔ byte, frame, idle and text limits end the stream as a bounded gap (211.355833ms)
+✔ keepalive comments hold an idle stream open and are not events (455.109291ms)
+✔ dispose closes only this transport's connections: no stop, no delete, and the native run is left as it was (137.026375ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1450.819417

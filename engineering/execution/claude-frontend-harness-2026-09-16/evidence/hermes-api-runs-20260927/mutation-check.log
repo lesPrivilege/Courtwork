@@ -1,0 +1,10 @@
+== M1 collapse equal consecutive deltas: exit 1 ℹ pass 21 ℹ fail 1
+   ✖ repeated equal deltas are separate text: nothing on the wire makes them duplicates (5.05225ms)
+== M2 trust a foreign run_id: exit 1 ℹ pass 21 ℹ fail 1
+   ✖ malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (2.607625ms)
+== M3 stop intent settles as cancelled: exit 1 ℹ pass 21 ℹ fail 1
+   ✖ a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (307.970709ms)
+== M4 unsupported activity counted as success: exit 1 ℹ pass 21 ℹ fail 1
+   ✖ an approval or tool event is recorded, never answered or executed, and rules out a text-only success (2.666166ms)
+== M5 lost admission retried with a new key: exit 1 ℹ pass 21 ℹ fail 1
+   ✖ a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (2.537666ms)

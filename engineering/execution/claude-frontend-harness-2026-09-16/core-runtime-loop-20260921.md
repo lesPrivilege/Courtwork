@@ -68,3 +68,62 @@ Author C eec2244, D37a14a5, E2978f5a, packet45ae12e complete offline and release
 **Exit evidence:** exact pinned-wire fixtures for admission, identical-key replay/changed-body conflict, lost response without replacement intent, fragmented Unicode, repeated equal deltas, malformed/wrong-run events/status, unknown events, missing terminal, explicit terminal output, cancellation intent versus confirmed/unknown, owner restart interrupted, unsupported tool/approval behavior and dispose without mutation. Test resource cleanup/bounds with real local sockets. These are observable adapter/transport behaviors, not tests of copied constants. Record author source SHA and useful failing-before/final evidence; run narrow new tests plus directly affected adjacent protocol checks. Parent/Luna independently review the fixed candidate; no fixture-only result enables Host exposure or claims a working Hermes Attention Agent.
 
 **Serial handoff:** Claude consumes this only after parent releases the completed CB-D1 slot. Commit finite source/evidence in the preserved isolated lane and return for review. No push, deployment, user Host restart, native install or paid provider. Further Host schema/allowlist/integration work requires Astra's next concrete contract based on this result, not inference from this assignment.
+
+### Hermes protocol slice · author pickup and pre-edit record — 2026-09-27 (Claude, Opus)
+
+Picked up on the original serial tree `../.worktrees/courtwork-runtime-settings-i1-20260927`, branch `claude/runtime-settings-i1-20260927`. Its history is preserved; it was fast-forwarded from `b57dad0` to main `67cc742`, and only the dependency symlink is untracked. The shared main checkout, user 8787 and all other trees are untouched.
+
+I read the pinned Hermes source directly, read-only: `/Users/lesprivilege/Projects/hermes-agent` at `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88`. No process, provider, configuration or credential was read or started. The facts the fixture reproduces:
+
+- **Routes** (`api_server_runs.py`): `POST /v1/runs`, `GET /v1/runs/{id}`, `GET /v1/runs/{id}/events`, `POST /v1/runs/{id}/stop`. Approval and steer exist but stay out of scope.
+- **Auth.** `Authorization: Bearer`. Failure is 401 with `{error:{message,type:"gateway_auth_error",code:"gateway_auth_failed"}}`.
+- **Other errors** use the envelope `{error:{message,type,param,code}}`.
+- **Admission.**
+  - `Idempotency-Key` must be 1–255 visible ASCII characters, else 400 `invalid_idempotency_key`.
+  - A missing `input` gives 400 "Missing 'input' field".
+  - First admission is 202 `{run_id, status:"started", replayed:false}`.
+  - Same key and body gives 202 `{run_id: original, status: <current>, replayed:true}` plus `Idempotency-Replayed: true`.
+  - Same key with a changed body gives 409 `idempotency_key_conflict`.
+  - `session_id` comes only from the body, or falls back to `run_id`, and is visible in status, not in the admission response.
+- **Status** is `{object:"hermes.run", run_id, status, created_at, updated_at, session_id, model, last_event, …}`. Status values are `queued`, `running`, `stopping` and `waiting_for_approval`; terminal values are `completed`, `failed`, `cancelled` and `interrupted`. Terminal records carry `completed`, `partial` and `interrupted`, plus `output` and `usage`, or `error`.
+- **Owner loss.** A durable non-terminal record whose owner is gone reads as `interrupted`, with `error:"The gateway restarted before this run settled."` and `last_event:"run.interrupted"`.
+- **SSE.**
+  - Frames are `data: <json>\n\n` with `ensure_ascii`, so non-ASCII arrives as `\u` escapes.
+  - The envelope is `{event, run_id, timestamp, …}`, with no id, sequence or replay cursor.
+  - Keepalive is `: keepalive\n\n` every 10 s.
+  - The end is `: stream closed\n\n`. After it, the run's queue is removed, and a later subscriber gets 404: there is no replay.
+  - Text is `message.delta` `{delta}`.
+  - The terminal event is `run.<status>`, carrying the same fields as the terminal status.
+  - Tool, approval, reasoning and subagent events are outside this slice.
+- **Stop.** An active run returns 200 `{run_id, status:"stopping"}`. An already-terminal run returns the status body. A run not active in this process gives 409 `run_not_active`.
+
+**Responsibility, owner and precedent.** The adapter translates native facts and the transport owns bounded IO. The Host keeps admission, effects, persistence and settlement; Work Core keeps Attention and formal state. The nearest precedents are the accepted `agents-api-adapter.mjs` and `openai-agents-transport.mjs` (the delivery vocabulary and the no-retry rule) and the DRT03 tests. Their invariants are reused; their wire shapes and ids are not.
+
+**Owned files (all new).**
+- `app/runtime/hermes-api-runs-adapter.mjs` and `app/runtime/hermes-api-runs-transport.mjs`.
+- `app/tests/fixtures/hermes-api-runs-loopback.mjs` and `app/tests/hermes-api-runs.test.mjs`.
+- `app/docs/hermes-api-runs.md`.
+- The evidence folder and this record.
+
+No shared utility change is needed. No service, store, runtime composition, executor allowlist, UI, schema, dependency or Pi/Agents code is touched.
+
+### Hermes protocol slice · author delivery — 2026-09-27 (Claude, Opus)
+
+The source commit is `a0d6ea7`; the evidence follows in the next commit. See the [author evidence](evidence/hermes-api-runs-20260927/README.md).
+
+- **What was built.** A standalone `hermes-api-runs` adapter and a bounded loopback-only HTTP/SSE transport, pinned to hermes-agent `d7b836ab`, with a pinned-shape loopback fixture and the contract doc [`app/docs/hermes-api-runs.md`](../../../app/docs/hermes-api-runs.md).
+- **Behaviour.**
+  - The exact `{event, run_id, timestamp}` envelope is validated.
+  - Repeated equal deltas are kept, and streamed text stays apart from terminal `output`.
+  - A lost admission is recovered only with the same intent.
+  - Stop is an intent; a gap, a missing terminal and owner-loss `interrupted` settle as `unknown`.
+  - A tool or approval event rules out success, and unsupported controls refuse before any request.
+  - Dispose closes only its own connections.
+- **Checks.** 22/22 fault cases over real sockets, stable across 3 runs. The mutation check catches all 5 injected contract violations. Adjacent Agents, DRT03 and executor tests 29/29; doc links clean.
+- **Unchanged.** No service, store, runtime composition, allowlist, schema, UI, permission or dependency; no native Hermes or provider.
+- **For Astra.**
+  1. Host admission and identity (executor id, Store fields) need the next contract.
+  2. The fixture reproduces pinned shapes from a source read; there is no live conformance.
+  3. `run_not_active` can only be reached with the fixture's `forgetLive`. On the pinned server, a durable record reads as `interrupted` after an owner restart.
+
+Writer stopped for parent review. No push, main merge or 8787 restart.

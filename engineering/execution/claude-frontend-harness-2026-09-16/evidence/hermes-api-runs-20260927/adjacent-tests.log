@@ -1,0 +1,37 @@
+✔ DRT03 protocol: beta wire identity is pinned and every unverified capability stays unavailable (1.955209ms)
+✔ DRT03 creation: environment:none binds CW identity once and fails closed without touching the transport (1.0625ms)
+✔ DRT03 events: duplicates collapse by event id and diagnostics never settle (1.384791ms)
+✔ DRT03 settlement: root turn.completed settles completed; idle and subagent turns do not (0.538375ms)
+✔ DRT03 settlement: root turn.failed keeps a bounded error and is not masked by text (0.269ms)
+✔ DRT03 cancel: input.cancel is intent only; only turn.cancelled confirms it (0.364416ms)
+✔ DRT03 cancel: closing the stream is never a cancellation (0.473ms)
+✔ DRT03 settlement: unreconciled effects and session failure keep ambiguity unknown (0.378583ms)
+✔ DRT03 settlement: an unreconciled session failure cannot be reported as a plain failure (0.257958ms)
+✔ DRT03 functions: pending actions are observations and results echo turn_id and call_id (0.373875ms)
+✔ DRT03 settlement: the replay helper applies the same rules as the live tracker (0.200958ms)
+✔ DRT03 recovery: saved items page by after cursor and merge by item id without fabricating gaps (0.675792ms)
+✔ DRT03 recovery: a root terminal or required action buffered during recovery is delivered, not swallowed (0.313875ms)
+✔ DRT03 continuation: attachSession re-opens a Host-persisted native session locally and never reaches the transport (0.257417ms)
+✔ create, later input, cancel intent and function result reach the wire exactly as the caller identified them (61.565375ms)
+✔ a request the caller did not identify, or identified wrongly, is refused before the wire (9.35325ms)
+✔ fragmented frames, done without deltas and a normal end keep every outcome distinct (93.968959ms)
+✔ abort and disposal release the connection and send nothing to the service (10.95925ms)
+✔ item pages keep the service cursors, and unusable answers are errors rather than empty results (24.414458ms)
+✔ a mutation is attempted once: refusal, timeout and a lost reply never become a second create or a second result (322.725959ms)
+✔ an allowlisted function declaration reaches the wire with exactly four keys; every other tool is refused before the wire (2.256709ms)
+✔ a turn read is one GET for the turn asked for; another turn, another session or a statusless answer is an error (9.73175ms)
+✔ I1 authenticated inventory before a Session is a read-only Host description (135.395084ms)
+✔ I1 managed fixture is describable without a live check and provider incompatibility stays row-local (96.55725ms)
+✔ I1 descriptor failures are bounded and do not hide another configured row (79.574167ms)
+✔ I1 returns detached capabilities and preserves selected Session runtime-info semantics (80.122166ms)
+✔ R1-R3 a constructed wrong-ID managed port and the Pi port each dispose once on rejection (93.753833ms)
+✔ R1-R3 a factory throw before return closes only the port already constructed (67.473042ms)
+✔ R1-R3 a valid configured managed port closes once across repeated Host close (81.203084ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1576.489625
