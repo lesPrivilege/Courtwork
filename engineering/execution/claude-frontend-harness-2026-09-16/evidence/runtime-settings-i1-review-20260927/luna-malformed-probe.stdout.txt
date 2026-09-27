@@ -1,0 +1,4 @@
+view throw null Cannot read properties of null (reading 'adapterId')
+view throw {} Cannot read properties of undefined (reading 'status')
+view throw {"adapterId":"x"} Cannot read properties of undefined (reading 'status')
+view throw {"adapterId":"x","availability":null} Cannot read properties of null (reading 'status')

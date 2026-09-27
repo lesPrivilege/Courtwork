@@ -1,0 +1,56 @@
+- main "Agent workspace":
+  - button "Back to app"
+  - heading "Settings" [level=1]:
+    - text: ·
+    - generic: Settings
+  - generic "Settings":
+    - generic: Search settings
+    - searchbox "Search settings"
+    - tablist "Settings groups":
+      - tab "Profile":
+        - generic: Profile
+      - tab "Preferences":
+        - generic: Preferences
+      - tab "Account":
+        - generic: Account
+      - tab "General":
+        - generic: General
+      - tab "Agents" [selected]:
+        - generic: Agents
+      - tab "Models":
+        - generic: Models
+      - tab "Tools & Integrations":
+        - generic: Tools & Integrations
+      - tab "Skills":
+        - generic: Skills
+      - tab "Plugins":
+        - generic: Plugins
+      - tab "Memory":
+        - generic: Memory
+      - tab "Permissions":
+        - generic: Permissions
+      - tab "Keyboard":
+        - generic: Keyboard
+      - tab "Developer":
+        - generic: Developer
+    - generic: Settings group
+    - tabpanel "Agents":
+      - heading "Agents" [level=3]
+      - heading "Runtimes" [level=4]
+      - button "Refresh runtimes" [active]:
+        - generic: Refresh runtimes
+      - paragraph: The engines agents run on, as this Host's configuration reports them. Reading this list does not connect to them, sign in or run anything.
+      - region "Runtimes":
+        - status:
+          - paragraph: Reading again… the rows below are the previous reading.
+        - generic: Pi · Host default
+        - generic: Configured · live status not checked
+        - 'button "Details: Pi"':
+          - generic: Details
+        - generic: Agents API
+        - generic: Unavailable · live status not checked
+        - generic: This execution runtime is not configured on this Host.
+        - 'button "Details: Agents API"':
+          - generic: Details
+- status
+- tooltip "Refresh runtimes"

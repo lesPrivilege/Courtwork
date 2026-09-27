@@ -1,0 +1,46 @@
+{
+  "controls": [
+    {
+      "height": 44,
+      "label": "Back to runtimes",
+      "width": 86.8203125
+    },
+    {
+      "height": 44,
+      "label": "Refresh runtimes",
+      "width": 44
+    }
+  ],
+  "height": 844,
+  "pointerCoarse": false,
+  "pointerFine": true,
+  "readingValues": [
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "Configured on this Host"
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "This Host's configuration. Settings reads it and cannot change it."
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "Described by this Host for the current provider"
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "Not checked. Nothing here connects to it, signs in or runs anything."
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "Yes"
+    }
+  ],
+  "scrollWidth": 390,
+  "width": 390
+}
