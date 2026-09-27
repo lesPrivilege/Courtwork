@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Native tool-loop assignment dispatched
+
+Original Claude/Opus has actually received the native Hermes profile/MCP conformance contract from integrated `bd20092`; UI shows Running/Waiting. [Original owner receipt](core-runtime-loop-20260921.md) records the exact scope. Preserve this serial lane and wait for its fixed-source/native evidence or a concrete prerequisite failure; do not duplicate the author.
+
 ## 2026-09-27 · Protocol returns closed; release native Hermes tool-loop conformance
 
 [Protocol final acceptance](evidence/hermes-protocol-final-20260927/README.md) closes HPR-R1/R2 at `acf5694`. Release [native profile/MCP conformance](core-runtime-loop-20260921.md#2026-09-27--next-hermes-consumer-native-profile-and-mcp-tool-loop-conformance) to the original Claude serial lane. It proves real upstream tool feedback with fake local endpoints and strict disposable configuration before Host integration; no second core author or production enablement.
