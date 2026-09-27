@@ -2,7 +2,7 @@
 
 ## 2026-09-27 · CB-D1 accepted and integrated; Hermes slot released
 
-[Final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/code-block-density-20260927/parent-final/README.md) accepts Claude `b57dad0` / correction `f660251`, fast-forwarding main from `7f4b05e`. CB-R1 closes with independent65/65 and parent OpenAI browser7×3 complete/growing/settled Copy cases. Side-column density/width trade-off stays adopted; earlier1440/390 visual evidence is explicitly reused for unchanged layout. Native accessibility/system clipboard limits remain, and author102/102 stays separately attributed. The existing Hermes protocol contract is released for the same serial Claude lane; actual dispatch receipt follows. No user Host restart, paid provider, push or deployment.
+[Final parent acceptance](execution/claude-frontend-harness-2026-09-16/evidence/code-block-density-20260927/parent-final/README.md) accepts Claude `b57dad0` / correction `f660251`, fast-forwarding main from `7f4b05e`. CB-R1 closes with independent65/65 and parent OpenAI browser7×3 complete/growing/settled Copy cases. Side-column density/width trade-off stays adopted; earlier1440/390 visual evidence is explicitly reused for unchanged layout. Native accessibility/system clipboard limits remain, and author102/102 stays separately attributed. The existing Hermes protocol contract is now actually dispatched to the same original Claude/Opus conversation on `67cc742`; UI confirms submitted message and Running/Waiting. Implementation/independent acceptance remain pending. No user Host restart, paid provider, push or deployment.
 
 ## 2026-09-27 · Fixed Attention contract check accepted
 

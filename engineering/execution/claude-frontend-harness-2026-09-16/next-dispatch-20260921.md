@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Hermes original-author dispatch observed
+
+Original Claude/Opus has actually received the frozen standalone Hermes protocol assignment from `67cc742`, following CB-R1 final acceptance. UI shows Running/Waiting; [receipt](core-runtime-loop-20260921.md). Core/frontend remains one serial lane. Wait for a concrete fixed-source delivery or actionable author boundary question; do not launch another author from an observation timeout.
+
 ## 2026-09-27 · CB-R1 closed; release Hermes protocol first slice
 
 [CB-D1 final receipt](evidence/code-block-density-20260927/parent-final/README.md) accepts `b57dad0` and closes CB-R1. Release the original Claude serial lane to [the already frozen Hermes protocol assignment](core-runtime-loop-20260921.md#2026-09-27--hermes-protocol-slice-next-claude-serial-core-assignment): standalone pinned HTTP/SSE adapter/transport with local fixture; no Host allowlist, Store or live native execution. Preserve the completed author tree/branch; fast-forward to actual main at pickup. No other core/frontend author is started.
