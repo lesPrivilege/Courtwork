@@ -1,0 +1,10 @@
+import {pathToFileURL} from 'node:url';
+import path from 'node:path';
+if (!process.env.CW_REVIEW_SOURCE) throw new Error('Set CW_REVIEW_SOURCE to the fixed reviewed checkout');
+const {createHermesRunsAdapter}=await import(pathToFileURL(path.join(process.env.CW_REVIEW_SOURCE,'app/runtime/hermes-api-runs-adapter.mjs')));
+const requests=[];
+const transport=endpoint=>({endpointIdentity:endpoint,async createRun(input){requests.push({endpoint,...input});return{status:202,json:{run_id:'run-new',status:'started',replayed:false}}},async getRun(id){return{status:200,json:{run_id:id,status:'completed',completed:true,session_id:'session-from-A',output:'ok'}}},close(){return 0}});
+const a=createHermesRunsAdapter({transport:transport('http://127.0.0.1:1111')});const b=createHermesRunsAdapter({transport:transport('http://127.0.0.1:2222')});
+const from=await a.status('run-a');const foreign=b.continuationIntent({input:'continue',idempotencyKey:'key-b',from});await b.admit(foreign);
+const forged=Object.freeze({idempotencyKey:'forged',body:{input:'x',session_id:'arbitrary',toolsets:['all']}});await b.admit(forged);
+console.log(JSON.stringify({foreignStatus:from,requests},null,2));

@@ -69,6 +69,8 @@ Author C eec2244, D37a14a5, E2978f5a, packet45ae12e complete offline and release
 
 **Serial handoff:** Claude consumes this only after parent releases the completed CB-D1 slot. Commit finite source/evidence in the preserved isolated lane and return for review. No push, deployment, user Host restart, native install or paid provider. Further Host schema/allowlist/integration work requires Astra's next concrete contract based on this result, not inference from this assignment.
 
+**Actual Hermes dispatch · 2026-09-27:** after CB-D1/CB-R1 acceptance, Astra sent the committed `67cc742` handoff to the same original Claude Code conversation “Live assistant text streaming” (Opus5.5), instructing actual-main fast-forward in its preserved tree and the exact standalone protocol scope above. UI confirms submitted message and Running/Waiting; [capture](evidence/hermes-protocol-preflight-20260927/claude-dispatch.png). This is a live author dispatch, not delivered implementation or native Hermes execution. No parallel core/frontend writer is created.
+
 ### Hermes protocol slice · author pickup and pre-edit record — 2026-09-27 (Claude, Opus)
 
 Picked up on the original serial tree `../.worktrees/courtwork-runtime-settings-i1-20260927`, branch `claude/runtime-settings-i1-20260927`. Its history is preserved; it was fast-forwarded from `b57dad0` to main `67cc742`, and only the dependency symlink is untracked. The shared main checkout, user 8787 and all other trees are untouched.
@@ -127,3 +129,7 @@ The source commit is `a0d6ea7`; the evidence follows in the next commit. See the
   3. `run_not_active` can only be reached with the fixture's `forgetLive`. On the pinned server, a durable record reads as `interrupted` after an owner restart.
 
 Writer stopped for parent review. No push, main merge or 8787 restart.
+
+**Subsequent consumer boundary, Astra · 2026-09-27:** [Host preflight disposition](evidence/hermes-protocol-preflight-20260927/README.md#host-consumer-preflight-consumed--2026-09-27) adopts the current Agents-specific durable-ledger and Pi-only global-role constraints. The active protocol slice remains unchanged. Text-only consultation is not the target Attention implementation; subsequent construction must establish actual Host-governed tool/results and native identity/recovery support, with schema impact decided from the concrete durable contract. Luna's pinned-source tool-seam exploration is preparation only.
+
+**Hermes protocol parent return · 2026-09-27:** [review](evidence/hermes-protocol-review-20260927/README.md) holds `fc7dec8` / `a0d6ea7` for HPR-R1 (frozen-object provenance permits cross-endpoint continuation and forged request bodies) and HPR-R2 (invalid/non-finite limits bypass declared bounds). Parent/Luna probes reproduce; existing51/51 pass independently. Adopt both findings in the original Claude lane, keeping the standalone protocol scope and all current Host/Store/Attention boundaries. No source merge or next consumer release.

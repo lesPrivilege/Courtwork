@@ -1,0 +1,127 @@
+# Hermes standalone protocol · Luna independent review
+
+Date: 2026-09-27
+
+Disposition: **request changes before acceptance of this adapter/transport
+slice**. The synthetic protocol cases and adjacent regressions are green, but
+the adapter has two identity/body-boundary failures and the configurable
+limits are not themselves bounded. Nothing here supports Host exposure or a
+claim of native Hermes conformance.
+
+## Exact sources reviewed
+
+- Worktree: `/Users/lesprivilege/Projects/.worktrees/courtwork-runtime-settings-i1-20260927`
+- Branch: `claude/runtime-settings-i1-20260927`
+- Review tree HEAD: `fc7dec83eddc5d74e6622c1afef72ce8bf0ed8c9`
+- Product source commit: `a0d6ea735799472c98c42a48d3144795bdd174aa`
+- Review base: `67cc74273a7553b78d70d45ecefb1b1af06554df`
+- Pinned reference: `NousResearch/hermes-agent` `d7b836ab1c0cddaafc109ed24c9a83b6191cdc88` (v0.21.3)
+
+Reviewed the original contract in
+`engineering/execution/claude-frontend-harness-2026-09-16/core-runtime-loop-20260921.md`
+(wire/identity lines 60, streaming 62, recovery/continuation 64, capability
+ceiling 66, exit evidence 68), the bounded contract in
+`app/docs/hermes-api-runs.md`, and the five files added by `a0d6ea7`.
+
+## Verification
+
+Command (run from the review tree, `--test-concurrency=1`):
+
+```text
+node --test --test-concurrency=1 \
+  app/tests/hermes-api-runs.test.mjs \
+  app/tests/drt03-agents-transport.test.mjs \
+  app/tests/drt03-agents-api-protocol.test.mjs \
+  app/tests/runtime-inventory.test.mjs \
+  app/tests/runtime-selection-construction.test.mjs
+```
+
+Result: **51/51 pass, 0 fail** (22 Hermes, 29 adjacent). Raw output is in
+`luna-tests.stdout.txt`.
+
+The tests exercise malformed and foreign-run frames/status, repeated equal
+deltas without invented dedup/replay, same-key lost-admission recovery,
+terminal/cancel/owner-loss unknown outcomes, text/frame/stream/idle bounds,
+keepalive, owned-connection cleanup, unsupported tool/approval/control
+operations, explicit loopback endpoint and bearer refusal. The transport uses
+`http.request` directly (`app/runtime/hermes-api-runs-transport.mjs:89-92,164-167`)
+and has no redirect-following path; non-200 SSE responses are unavailable and
+non-202 admission answers are unresolved, so no redirect escape was found by
+source inspection.
+
+## Findings requiring correction
+
+### HPR-R1 · frozen objects are treated as provenance
+
+`app/runtime/hermes-api-runs-adapter.mjs:164-169` returns a frozen status
+record, but does not attach an adapter/endpoint provenance token. At
+`app/runtime/hermes-api-runs-adapter.mjs:303-306`, `continuationIntent()` only
+checks `Object.isFrozen(from)`, a string `nativeRunId`, and a truthy
+`nativeSessionId`. Consequently, a status validated by adapter A can be used
+to continue through adapter B at a different endpoint. The parent’s injected
+transport probe (raw result in `parent-identity-probe.json`) and my rerun
+(`luna-identity-probe.stdout.txt`) show `session-from-A` from
+`http://127.0.0.1:1111` sent in a continuation POST to
+`http://127.0.0.1:2222`.
+
+This violates the contract’s requirement that native run/session/endpoint/
+revision remain distinct and that continuation use a native identity observed
+and validated by this adapter. A frozen forged record with an arbitrary
+session ID is also accepted for the same reason. Small correction direction:
+keep a closure-private registry/token for status records produced by this
+adapter (and require it in `continuationIntent`), or carry and compare an
+equivalent non-forgeable adapter/endpoint identity. Do not infer provenance
+from `Object.isFrozen`.
+
+### HPR-R2 · `admit()` accepts a forged frozen intent and arbitrary body keys
+
+At `app/runtime/hermes-api-runs-adapter.mjs:139-145`, `admitWith()` accepts
+any top-level frozen object with a `body` and string `idempotencyKey`, then
+passes `admission.body` unchanged to `transport.createRun()`. It does not
+verify that the object came from this adapter or that the body is exactly the
+adapter’s `{input}` / `{input, session_id}` shape described by
+`app/docs/hermes-api-runs.md:31-37`.
+
+The deterministic injected transport accepted this frozen value and observed
+the following wire request:
+
+```json
+{
+  "idempotencyKey": "forged",
+  "body": {"input": "x", "session_id": "arbitrary", "toolsets": ["all"]}
+}
+```
+
+Raw result: `luna-identity-probe.stdout.txt`. This bypasses the documented
+“frozen intent it builds” and can smuggle unsupported fields into a future
+native request. A closure-private `WeakSet` (or equivalent private brand) of
+intents created by `intent()` is the smallest provenance fix; exact-key/body
+validation remains a useful defensive check before forwarding.
+
+### HPR-R3 · caller-supplied limit overrides can remove the bounds
+
+Both constructors spread overrides without validation:
+
+- `app/runtime/hermes-api-runs-transport.mjs:66-72`
+- `app/runtime/hermes-api-runs-adapter.mjs:122-125`
+
+The transport accepts `maxFrameBytes: NaN`, `maxStreamBytes: Infinity`, and
+`streamIdleMs: -1`; the adapter accepts `maxDiagnostics: NaN` and
+`maxDiagnostics: Infinity` (all shown as accepted in
+`luna-provenance-limits.stdout.txt`). NaN makes `>` checks false, Infinity
+removes a cap, and a negative idle timeout fires immediately. The same issue
+applies to adapter text/input/diagnostic/error overrides. This conflicts with
+the explicit bounded-IO contract (`core-runtime-loop-20260921.md:62,66` and
+`app/docs/hermes-api-runs.md:77-94`).
+
+The nearest local precedent validates unknown keys and positive safe integers
+against ceilings in `app/runtime/local-pi-transport.mjs:55-69`. The Hermes
+constructors need an equivalent finite, positive, ceiling-checked validation
+before exposing custom limits.
+
+## Review boundary
+
+No Courtwork source was edited, no provider/native Hermes process or credential
+was used, and no production registration was attempted. The review tree still
+has only the pre-existing untracked `app/node_modules` entry. The result is a
+bounded synthetic review of `a0d6ea7`; it is not native Hermes acceptance.

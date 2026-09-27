@@ -1,0 +1,122 @@
+# Hermes Host-consumer preflight — post-protocol seam
+
+Baseline: Courtwork main@58a37aae168b68339db8db2296918be0318a8f2f2. This is a read-only consumer preflight after the standalone Hermes protocol slice. The author’s uncommitted work is not inspected or duplicated. No product files, Store bytes, executor allowlists, providers, native runtimes, credentials or personal configuration were changed.
+
+## Answer for Astra
+
+A Hermes executor cannot be admitted to the current global Attention role through capability registration alone.
+
+Three independent boundaries must be respected:
+
+1. The current Host executor path admits only Pi and Agents API IDs. A Hermes ID needs a new adapter registration and identity/configuration decision.
+2. The current remote durable ledger is not runtime-generic: it hard-codes runtimeId agents-api, Agents protocol fields, and tool-result/call semantics. A Hermes remote binding cannot honestly be stored as agents-api or as Pi hostSession.
+3. Global Attention executor choice is deliberately ineligible/read-only today. A global Session’s Run keeps the default Pi executor, and the existing Attention tools require a model-reachable governed tool loop. A text-only Hermes Run can be a bounded consultation only after an explicit consumer contract; it cannot claim the delivered Attention assistant behavior.
+
+Whether a Store schema version bump is required is unresolved until the remote-record contract is chosen. Existing schema 22 has enough generic-shaped executor fields for a new descriptor/binding identity, but the schema-19 remoteBinding/remoteActions contract is semantically Agents-specific. A capability-only registration is therefore insufficient. A contract generalization could preserve schema 22 bytes if every existing field remains valid; introducing Hermes-specific durable fields or changing exact record shapes would require an explicit migration decision and byte-preservation evidence.
+
+## Current executor identity and registration seams
+
+| Responsibility | Current source | Consequence for Hermes |
+|---|---|---|
+| Public IDs and operations | app/server/executor-choice-state.mjs:3-9 declares only PI_EXECUTOR_ID and MANAGED_EXECUTOR_ID (agents-api); operations are start, continue, steer, cancel, compact, recover, submitToolResult. | A Hermes adapter needs a distinct ID and capability descriptor. Reusing agents-api hides runtime identity; reusing Pi hides remote ownership. |
+| Descriptor/choice validation | executor-choice-state.mjs:19-69 validates bounded adapter/revision/configurationRef and all seven capability rows; :82-113 derives historical executor identity and legacy migration; :116-166 locks historical Session/Run lineages. | The descriptor shape can represent a third ID, but current service/runtime allowlists still reject it. |
+| Runtime factory allowlist | app/server/runtime.mjs:40-80 constructs Pi first and accepts one managed factory only when primary is Pi and managed.id equals MANAGED_EXECUTOR_ID. | This is a capability/architecture registration seam, not Store migration. A future Hermes factory must have its own explicit admission rule and source/revision pin. |
+| Runtime service map | app/server/service.mjs:209-234 stores configuredExecutors and selects the first as product default; :752-769 validates live descriptor identity/revision and configurationRef before each Run. | No fallback is allowed. A missing/changed Hermes descriptor must refuse execution. |
+| Choice API | service.mjs:771-814 enumerates only the two IDs, marks remote executor unavailable for non-fake Provider at :778-802, and delegates CAS to Store. | Adding a Hermes ID requires API/catalog changes. A live/non-fake Hermes route is currently refused as executor_provider_unsupported. |
+| Runtime projection | service.mjs:1031-1095 reports selected adapter and configured executionRuntimes. Remote executors are provider_unsupported unless provider is the deterministic fake route (:1087-1092). | A standalone protocol fixture may use fake/synthetic data. This does not establish live Hermes provider reachability or production exposure. |
+| Run admission | service.mjs:2755-2877 freezes Session executor choice, refuses runtime mismatch/extension-bound remote chats, requires start/continue capability, validates provider route and rejects remote non-fake Provider at :2811-2815, then passes remote admission and executor descriptor into Store. | Hermes must enter through the remote path with its own descriptor and an explicitly accepted Provider/configuration policy. It must not be disguised as local Pi. |
+| Runtime execution | service.mjs:3042-3069 creates a remote Port with nativeSessionId and Host ledger; :2951-2969 exposes the only remote-to-Store ledger methods; :2980-3021 reconciles only through the Port recover/inspectSession contract. | A text-only Hermes port can run without tool claims only if its descriptor refuses submitToolResult and its reconciliation behavior is explicit. |
+| Remote action identity | app/server/remote-action-state.mjs:1-37 defines schema-19 remote intent/call budgets and runtime identity; :86-127 validates Session/Run remoteBinding; :145-218 validates remoteActions; :224-291 defines unresolved/frozen remote runs. | This is the actual semantic seam that needs broadening or a separate contract. It is not a free adapter-ID slot. |
+
+## Store schema and migration boundary
+
+Current Store schema is 22 at app/server/store.mjs:44.
+
+The durable shape already includes:
+
+- Session executorChoice at store.mjs:448-462 and executorChoice construction at :1009-1034.
+- Run executorBinding at store.mjs:482-514.
+- Schema 22 validation through validateExecutorState at :620-622 and executor-choice-state.mjs:116-166.
+- Remote Session/Run records at store.mjs:448,486,513-523 and schema-19 upgrade defaults at :861-873.
+- Startup fencing of unresolved remote actions at store.mjs:916-940, delegating to remote-action-state.mjs:443-459.
+
+The current migration evidence proves preservation of existing Agents/Pi history, not Hermes support:
+
+- app/tests/schema19-upgrade.test.mjs:1-117 upgrades remote fields to current schema while preserving exact bytes and rejects malformed/future schema.
+- app/tests/local-pi-schema20.test.mjs:1-130 preserves schema-19 remote authority and adds executor fields.
+- app/tests/runtime-selection-http.test.mjs:258-289 keeps contradictory historical native identity readable and refuses new execution rather than guessing.
+
+The remote contract is Agents-specific in these exact places:
+
+- remote-action-state.mjs:19 fixes REMOTE_RUNTIME_ID to agents-api.
+- remote-action-state.mjs:89-96 requires runtimeId agents-api and protocol exactly betaHeader/docsRevision/sdk.
+- remote-action-state.mjs:193-204 assumes the pinned Agents SDK’s request-identity behavior, including create having no requestId and non-create intents using requestId equal to the operation id.
+- remote-action-state.mjs:27-37,145-218 reserves call/tool_result actions, native session/turn/call tuples, retained result bytes, delivery state and resolution evidence.
+- remote-action-state.mjs:325-337 writes runtimeId agents-api and environment none into the Session binding.
+- service.mjs:2998-3018 expects inspectSession to return root turns and functionOutputs for reconciliation.
+- service.mjs:3061-3065 always supplies the remote ledger when a Port is remote.
+
+Therefore:
+
+| Question | Evidence-backed disposition |
+|---|---|
+| Is a new adapter ID alone enough? | No. runtime.mjs, service choice/catalog, and remote-action-state validation reject or misrepresent Hermes. |
+| Is a Store migration definitely required? | Not yet established. If Hermes reuses exactly the schema-22 fields and the remote contract is generalized without adding fields, old bytes could remain valid; this needs an explicit compatibility decision and regression evidence. |
+| Is a contract/validator change required? | Yes for a true remote Hermes consumer. Hard-coded agents-api identity/protocol and tool-result assumptions must not be bypassed. |
+| Can Hermes use hostSession? | No. hostSession is the Pi native locator path; service.mjs:2767 and remote validation preserve a strict Pi-versus-remote distinction. |
+| Can a text-only Hermes fixture use current production Store? | Only as a standalone transport/protocol fixture. Current managed production admission also rejects remote non-fake Provider and current global Attention executor choice. |
+
+## Global Attention and text-only Hermes
+
+The current global role remains explicit:
+
+- app/docs/attention-agent.md:1-25 says Attention is a global role; Session owns the conversation, Run owns execution, global scope is immutable, and global Sessions cannot bind Matter extensions.
+- app/docs/attention-agent.md:27-37 defines progressive Attention/memory/governance tools and says all executors pass governTools; no scheduler, generalized connectors or Expert delegation are delivered.
+- app/runtime/attention-tools.mjs:27-83 defines the model-facing tools: attention_projects, attention_list, attention_inspect, memory_list, memory_read and governance tools.
+- service.mjs:3188-3199 creates Attention tools only when session.scope is global and wires them through the captured attentionRuntimeAdapter/governance adapter.
+- app/tests/attention-agent.test.mjs:13-44 proves the delivered global Run using attention_projects is a real governed Run and records tool.result/runtime.bound events.
+- app/tests/attention-http.test.mjs:248-318 proves the Runtime Attention adapter can query/record a signal only under captured Host context; it rejects forged status/resolution and late calls.
+- app/tests/runtime-selection-http.test.mjs:243-256 proves global Attention executor choice is locked with lockReason not_ordinary_chat, a PUT is executor_ineligible, and a global Run keeps Pi.
+
+A text-only Hermes Port with submitToolResult=false can be honest only as a separately named, consultation-level consumer:
+
+**Permitted outcome**
+
+- Host starts a bounded Hermes text Run with no model-reachable CW tools.
+- Host records the normal CW Run/input/assistant text/status observations and native identity.
+- Text is an untrusted runtime observation/advisory. Run completion does not acknowledge, resolve, signal or formally accept an Attention item.
+- Human users can use existing Core HTTP/UI actions separately.
+
+**Mandatory refusals**
+
+- Do not pass attention_projects/list/inspect, memory_list/read, governance or MCP tools to the Hermes text-only Port. Those tools require a tool-result loop and governed runtime adapter calls.
+- If the native runtime emits a tool/approval/function-call request anyway, refuse before any local effect with a typed unsupported-capability outcome; do not execute, submit a result, or silently fall back to Pi.
+- Do not call attentionRuntimeAdapter.query or recordSignal from text output. There is no model-originated disclosure context or Host-approved signal action without a tool-result path.
+- Do not resolve/snooze/acknowledge/reopen an Attention from Hermes text, terminal output, run completion, cancellation, restart status or delivery.
+- Do not present the text-only lane as the full global Attention assistant. If the product surface cannot distinguish consultation from governed Attention, admission should refuse with runtime_capability_unsupported until the tool-result contract exists.
+- If a Hermes native run is unresolved after transport loss/restart, fence the CW Run and Session using existing remote_unreconciled/unknown semantics; never create another native Run automatically.
+
+The answer to “can text-only Hermes be admitted to global Attention?” is: **not as the current delivered global Attention executor.** It can be staged as a bounded text-only consultation fixture after a separate role/consumer contract, but it cannot honestly claim Attention discovery, memory, governance, signal recording or obligation handling.
+
+## Nearest tests and invariants for a later consumer
+
+Use these as evidence targets after the standalone protocol slice; they do not authorize implementation:
+
+- Executor identity/choice: app/tests/runtime-selection-construction.test.mjs:11-53; runtime-selection-http.test.mjs:40-198,243-256.
+- Remote Host admission and tool-result ledger: app/tests/p03c-host-consumer.test.mjs:20-86,88-144,146-199.
+- Remote cancellation, unknown, stream loss, restart and reconciliation: app/tests/p03d-host-recovery.test.mjs:1-90,91-156,158-237,239-269.
+- Remote schema preservation/fencing: app/tests/schema19-upgrade.test.mjs:1-117; app/tests/local-pi-schema20.test.mjs:1-130.
+- Global Attention tool admission and scope: app/tests/attention-agent.test.mjs:13-44; attention-http.test.mjs:248-318.
+- Port capability refusal and Host execution: app/runtime/agents-host-gateway.mjs:39-47,89-114; service.mjs:816-822,2980-3021,3042-3069.
+
+The later consumer must preserve these invariants: one frozen executor descriptor per Run; no runtime fallback; Pi hostSession and remoteBinding never coexist; command retries replay receipts without re-execution; remote actions are recorded before leaving Host; unknown effects remain fenced; restart replays no remote request; global Attention tools are exposed only when the bound adapter can complete their governed tool loop.
+
+## Risks and exact open decisions
+
+1. Remote ledger generality. Parameterizing runtimeId/protocol while retaining schema-22 bytes may be possible, but Agents-only request/call/result assumptions must be proven against Hermes’ no-tool text lane. A new field or altered exact record shape would make migration ownership explicit.
+2. Global role binding. Current global Sessions reject executor choice changes. Astra must decide whether global Attention remains Pi-only, gains a role-specific fixed Hermes binding, or admits a separate consultation surface. Do not silently relax executor_ineligible.
+3. Provider route. Current service rejects any remote executor under a non-fake Provider (service.mjs:2811-2815, getExecutorChoice :778-802). A synthetic fixture can stay fake/provider-free; live Hermes requires a separate provider/configuration contract.
+4. Tool-result absence. Without reply/tool-result, text-only Hermes cannot consume existing Attention/memory/governance tools. Treat unsupported calls as refused capability and keep formal Core state human/Host-owned.
+5. Native identity and restart. Native session IDs, API-run IDs and Hermes status must be bound in the remote ledger; status/restart evidence cannot be substituted for missing effect receipts or tool results.
+
+No schema migration, executor allowlist, production exposure, global Attention binding, provider route or test implementation was performed in this preflight.

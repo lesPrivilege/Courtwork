@@ -1,0 +1,110 @@
+# Hermes Attention tool seam — pinned source feasibility
+
+Baseline: Hermes source d7b836ab1c0cddaafc109ed24c9a83b6191cdc88, version 0.21.3. CourtWork main is 58a37aae168b68339db8db2296918be0318a8f2f2. This is read-only; no Hermes process, provider, credential, profile configuration, MCP server or product implementation was started or changed.
+
+## Recommendation
+
+The minimum supported bridge for actual CW-governed Attention reads/signals is:
+
+**ACP session plus a Host-owned MCP server, with an explicit Hermes tool-exposure policy and a short-lived Host capability bound to the CW Session/Run.**
+
+This uses Hermes’ supported ACP per-session MCP descriptor, returns actual MCP tool results to the Hermes turn, and keeps Core/Host authority in CourtWork. It has a hard prerequisite: a fresh ACP agent currently enables the hermes-acp coding toolset, and standard ACP does not provide a per-run toolset override. A dedicated locked-down Hermes profile or a custom wrapper must suppress unrelated built-in tools. Without that prerequisite, ACP plus MCP is not fail-closed for Attention.
+
+Do not use a native Hermes plugin or emitted tool events as the CW authority boundary. Do not infer per-run isolation from a toolset name, check function or request override.
+
+## Verified native contracts
+
+AIAgent accepts enabled_toolsets, disabled_toolsets, session_id, callbacks and request_overrides at run_agent.py:251-291. agent_init.py:2207-2318 builds the tool snapshot from enabled and disabled toolsets. model_tools.py:213-252 and :314-335 perform build-time selection; disabled toolsets are subtracted last. request_overrides is provider request-body data, not a tool-exposure grant.
+
+The ACP SessionManager hard-codes fresh sessions to enabled_toolsets=["hermes-acp"] plus configured MCP server names when no override is carried into a rebuild (acp_adapter/session.py:383-411). The hermes-acp toolset is the coding posture and includes file, terminal, search, web, skills, todo, memory, session search, code execution, delegation, vision and browser (toolsets.py:67-70,177-191).
+
+ACP new_session/load_session/resume_session accept MCP server descriptors but no enabled_toolsets or disabled_toolsets argument (acp_adapter/server.py:603-628). The descriptor is mapped to command/args/env for stdio or URL/headers for HTTP/SSE (acp_adapter/server.py:170-174), registered, then the agent tool snapshot is refreshed (acp_adapter/server.py:416-461).
+
+The official Toolsets Reference describes per-platform/session/task toolsets, but that does not create a standard ACP per-run allowlist. The official MCP documentation describes per-server include/exclude filtering; pinned source implements it in tools/mcp_tool_registration.py:209-224. That filtering controls the selected MCP server, not Hermes’ unrelated built-in toolsets.
+
+ACP cancellation is session-scoped: cancel sets cancel_event and calls request_hard_interrupt (acp_adapter/server.py:630-651). This does not prove an in-flight Host MCP call was cancelled or that a Core signal did not commit. An MCP bridge must preserve unknown outcomes after a lost response and retry only with the same Core request identity.
+
+## Minimal Host bridge
+
+Reuse existing CW methods:
+
+- app/extensions/attention-adapter.mjs:3-16 derives Host actor/execution context and exposes query plus recordSignal.
+- docs/work-core/attention.md:55-63 requires per-object grants, rechecks captured identity, and limits record_signal to observation/freshness changes.
+- app/runtime/attention-tools.mjs:27-83 is the nearest model-facing read catalog; it has list/inspect/memory/governance tools but no model-facing signal tool.
+- app/server/service.mjs:2582-2591 creates the trusted adapter; :3191-3193 wires Attention tools only for global Sessions.
+
+The smallest MCP tool set is:
+
+1. attention_list: project ID, offset and limit; Host calls the existing registry query.
+2. attention_inspect: project ID, Attention ID and optional expected revision; Host calls the existing inspect query.
+3. attention_record_signal: project ID, Attention ID, text, source refs and expected revision; Host builds the existing record_signal request and calls recordSignal.
+
+No new Core action is needed. The model cannot provide actor, project context, adapter ID, Session ID or Run ID. The MCP server must hold an opaque capability containing:
+
+    cw_session_id
+    cw_run_id
+    hermes_session_id
+    adapter_id
+    grant revision and expiry
+
+Every call must reject stale/closed identity, wrong project/object, revoked/expired grant and unsupported fields before Core. The server must return Core refusal/unavailable results unchanged enough for the model to recover, without exposing hidden existence.
+
+Because ACP attaches MCP servers at new/load/resume rather than each prompt, a single long-lived Hermes Session is not automatically a per-CW-Run authority. The first full consumer should use one ACP Session per CW Run, or prove a Host token-rotation/rebind mechanism with strict late-call rejection. Do not claim global conversation continuation until this binding is solved.
+
+## ACP versus custom wrapper
+
+| Surface | Verified strength | Blocking constraint | Disposition |
+|---|---|---|---|
+| ACP plus Host MCP | Supported session MCP descriptors, tool-result feedback, load/resume/cancel and no Hermes core patch. | Fresh agents include hermes-acp built-ins; no standard per-Run tool allowlist; MCP registration is session/profile scoped. | Minimum viable path after dedicated tool lockdown and Session-to-Run capability binding. |
+| Native plugin | ctx.register_tool adds custom tools; pre_tool_call receives tool, session and turn IDs and can block/modify. | Profile/global registry, no inherent CW Run grant, schemas remain visible, and tool hook errors are not a substitute for Host admission. | Reject as first authority bridge. |
+| API server request | API server constructs agents from api_server platform toolsets; hosted room policies can supply toolsets internally. | Ordinary /v1/runs has no per-request toolset/MCP descriptor; global profile tool config controls built-ins. | Reject unless a separate dedicated server/profile is accepted. |
+| Custom AIAgent wrapper | Can pass a strict enabled_toolsets whitelist and callbacks, then own the MCP tool bridge. | Internal Python API coupling plus wrapper-owned lifecycle/provider/profile/cancel behavior. | Fallback if ACP cannot deliver a truthful locked-down profile. |
+
+Pinned plugin evidence: ctx.register_tool is hermes_cli/plugins.py:459-502; pre_tool_call inputs and block/modify/approve directives are :1801-1912; agent/tool_executor.py:640-709 invokes the hook and dispatches after it. A plugin is not a per-run authority.
+
+## Permission, approval and isolation constraints
+
+Hermes’ own terminal approval is not CW disclosure or effect permission. The MCP server must perform Host admission itself. ACP cancellation only interrupts Hermes; it does not settle the Host call.
+
+The MCP endpoint should be an explicit Host-owned loopback/HTTP or stdio service with a per-consumer token. A unique server name is needed to avoid registry collisions. Do not put raw credentials into Hermes config, tool arguments, MCP env, transcripts or profile memory.
+
+If Hermes emits a tool call outside the allowed MCP names, the adapter must reject before any local effect. If an MCP call is cancelled or its response is lost after dispatch, preserve unknown; do not resend automatically. Core record_signal is idempotent only when the exact original request identity is retried.
+
+## Unresolved facts before full consumer work
+
+1. Verify whether a dedicated Hermes profile can disable every hermes-acp built-in tool while retaining only the Host MCP toolset, without relying on personal config or a native patch.
+2. Verify the cancellation signal observed by a Host MCP server when ACP cancel interrupts a pending call.
+3. Decide one ACP Session per CW Run versus a proven token rotation/rebind scheme for multiple Runs in one global conversation.
+4. Verify whether per-session MCP registration leaves shared registry/server state visible to other ACP Sessions in one Hermes process; use unique names/tokens until proven isolated.
+5. The existing Core adapter has no model-facing recordSignal tool; exposing a wrapper is a consumer/tool contract decision even though it needs no Core schema change.
+
+## Source index
+
+CourtWork:
+- docs/work-core/attention.md:55-63
+- app/extensions/attention-adapter.mjs:3-16
+- app/runtime/attention-tools.mjs:27-83
+- app/server/service.mjs:2582-2591,3188-3199
+- app/tests/attention-http.test.mjs:248-318
+- app/tests/attention-agent.test.mjs:13-44
+
+Hermes at d7b836ab1c0cddaafc109ed24c9a83b6191cdc88:
+- run_agent.py:251-291
+- agent/agent_init.py:1042-1061,2207-2318
+- model_tools.py:213-252,314-335,500-541
+- toolsets.py:11-40,67-70,184-196
+- acp_adapter/session.py:131-145,383-444
+- acp_adapter/server.py:170-174,416-461,603-628
+- hermes_cli/plugins.py:459-502,1801-1912
+- agent/tool_executor.py:640-709
+- tools/mcp_tool_registration.py:209-224,320-356,443-477
+- tools/mcp_tool_handlers.py:331-390,520-550
+
+Primary docs:
+- https://hermes-agent.nousresearch.com/docs/developer-guide/programmatic-integration
+- https://hermes-agent.nousresearch.com/docs/developer-guide/acp-internals
+- https://hermes-agent.nousresearch.com/docs/reference/toolsets-reference
+- https://hermes-agent.nousresearch.com/docs/user-guide/features/mcp/
+- https://hermes-agent.nousresearch.com/docs/user-guide/features/plugins
+
+No tests, native process, provider, configuration, credentials or product implementation were executed.
