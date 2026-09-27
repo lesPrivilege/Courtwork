@@ -108,7 +108,9 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
         details: box(q('[data-testid^="row-action:"]')),
         back: box(${byTestId("back")}),
         rowTitle: type(q('.settings-row-title')), rowHelp: type(q('.settings-row-help')),
-        blockTitle: type(q('.settings-block-title')), term: type(q('dt')), value: type(q('dd')),
+        blockTitle: type(q('.settings-block-title')), term: type(q('dt')),
+        statusValue: type(q('[data-testid="status"] dd')), operationReason: type(q('[data-testid="operations:recover"]')),
+        absentOperations: type(q('[data-testid="operations-absent"]')), technicalValue: type(q('[data-testid="technical"] dd')),
         firstContentTop: box(q('[data-testid^="runtime-row:"]') ?? q('[data-testid="runtime-detail"]'))?.top ?? null,
       };
     })()`);
@@ -117,12 +119,21 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
     handlers.set("Network.requestWillBeSent", (params) => {
       if (params.request.url.includes("/runtime-info")) runtimeInfoRequests.push({ url: new URL(params.request.url).pathname + new URL(params.request.url).search, token: Boolean(params.request.headers["X-Work-Token"]) });
     });
+    /* An intercepted inventory read either fails in transport or, for
+       RFS-R1, answers 200 with a supported-version inventory whose row is
+       null — the malformed shape the parent review injected. */
     const failed = [];
+    let interception = "fail";
+    const MALFORMED = { executionRuntimes: { schemaVersion: 1, defaultAdapterId: "pi-coding-agent@0.85.1/agent-session", items: [null] } };
     handlers.set("Fetch.requestPaused", (params) => {
-      failed.push(new URL(params.request.url).pathname);
-      void send("Fetch.failRequest", { requestId: params.requestId, errorReason: "ConnectionRefused" });
+      failed.push({ path: new URL(params.request.url).pathname, as: interception });
+      if (interception === "fail") void send("Fetch.failRequest", { requestId: params.requestId, errorReason: "ConnectionRefused" });
+      else void send("Fetch.fulfillRequest", { requestId: params.requestId, responseCode: 200, responseHeaders: [{ name: "Content-Type", value: "application/json" }], body: Buffer.from(JSON.stringify(MALFORMED)).toString("base64") });
     });
+    const pageErrors = [];
+    handlers.set("Runtime.exceptionThrown", (params) => pageErrors.push(params.exceptionDetails.exception?.description ?? params.exceptionDetails.text));
     await send("Page.enable");
+    await send("Runtime.enable");
     await send("Network.enable");
     await send("Emulation.setDeviceMetricsOverride", { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
     await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
@@ -168,12 +179,79 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
     await waitFor(`!${byTestId("reading-error")} && ${byTestId("reading-status")}?.dataset.status === 'ready'`, "recovered reading");
     step("refresh-recovered", { ...(await readPanel()), focus: await focused() });
 
+    // 3b · RFS-R1: a malformed inventory from a detail is a failed read; the
+    //      last good detail stays and the next Refresh reaches the Host.
+    await evaluate(`[...document.querySelectorAll('[data-testid^="row-action:"]')][0].focus()`);
+    await key("Enter");
+    await waitFor(`!!${byTestId("runtime-detail")}`, "detail before malformed read");
+    const requestsBefore = runtimeInfoRequests.length;
+    const errorsBefore = pageErrors.length;
+    interception = "malformed";
+    await send("Fetch.enable", { patterns: [{ urlPattern: "*runtime-info*" }] });
+    await evaluate(`${byTestId("refresh")}.focus()`);
+    await key("Enter");
+    await waitFor(`!!${byTestId("reading-error")}`, "malformed read refused");
+    step("refresh-malformed", {
+      status: await evaluate(`${byTestId("reading-status")}.dataset.status`),
+      error: await evaluate(`${byTestId("reading-error")}.innerText.trim()`),
+      runtime: await evaluate(`${byTestId("runtime-name")}?.innerText ?? null`),
+      focus: await focused(),
+      newPageErrors: pageErrors.slice(errorsBefore),
+    });
+    await shot("refresh-malformed-1440-light");
+    await send("Fetch.disable");
+    interception = "fail";
+    await key("Enter");
+    await waitFor(`!${byTestId("reading-error")} && ${byTestId("reading-status")}?.dataset.status === 'ready'`, "recovered after malformed");
+    step("refresh-after-malformed", {
+      requestsSent: runtimeInfoRequests.length - requestsBefore,
+      runtime: await evaluate(`${byTestId("runtime-name")}?.innerText ?? null`),
+      focus: await focused(),
+      newPageErrors: pageErrors.slice(errorsBefore),
+    });
+    await evaluate(`${byTestId("back")}.focus()`);
+    await key("Enter");
+    await waitFor(`!!${byTestId("runtime-list")}`, "list after malformed");
+
+    // 3c · RFS-R2 composition at 1280, both themes: the reading role for
+    //      values and reasons, metadata for labels and technical ids.
+    await send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
+    await evaluate(`[...document.querySelectorAll('[data-testid^="row-action:"]')][0].focus()`);
+    await key("Enter");
+    await waitFor(`!!${byTestId("runtime-detail")}`, "1280 detail");
+    await evaluate(`${byTestId("disclosure:technical")}.open = true`);
+    step("detail-1280-light", { overflow: await overflow(), geometry: await geometry() });
+    await shot("detail-1280-light");
+    await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+    await shot("detail-1280-dark");
+    await evaluate(`${byTestId("back")}.focus()`);
+    await key("Enter");
+    await evaluate(`[...document.querySelectorAll('[data-testid^="row-action:"]')].at(-1).focus()`);
+    await key("Enter");
+    await waitFor(`!!${byTestId("operations-absent")}`, "unavailable detail at 1280");
+    step("unavailable-1280-dark", { geometry: await geometry() });
+    await shot("unavailable-1280-dark");
+    await evaluate(`${byTestId("back")}.focus()`);
+    await key("Enter");
+    await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
+
     // 4 · Narrow and dark.
     await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
     await sleep(300);
     step("list-390-dark", { overflow: await overflow(), ...(await readPanel()), geometry: await geometry() });
     await shot("list-390-dark");
+    await evaluate(`[...document.querySelectorAll('[data-testid^="row-action:"]')][0].focus()`);
+    await key("Enter");
+    await waitFor(`!!${byTestId("runtime-detail")}`, "narrow Pi detail");
+    await evaluate(`${byTestId("disclosure:technical")}.open = true`);
+    step("pi-390-dark", { overflow: await overflow(), geometry: await geometry() });
+    await shot("pi-390-dark");
+    await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
+    await shot("pi-390-light");
+    await send("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+    await evaluate(`${byTestId("back")}.focus()`);
+    await key("Enter");
     await evaluate(`[...document.querySelectorAll('[data-testid^="row-action:"]')].at(-1).focus()`);
     await key("Enter");
     await waitFor(`!!${byTestId("runtime-detail")}`, "narrow detail");
@@ -197,6 +275,8 @@ export async function runRuntimeInventoryBrowser({ outDir, chromePath = DEFAULT_
     step("escape-and-return", { left, returned: { detailShown: await evaluate(`!!${byTestId("runtime-detail")}`), runtime: await evaluate(`${byTestId("runtime-name")}?.innerText ?? null`) } });
 
     record.runtimeInfoRequests = runtimeInfoRequests;
+    record.interceptedReads = failed;
+    record.pageErrors = pageErrors;
     record.host.sessionsAfter = await sessionsVia();
     record.host.stateUnchanged = (await digest()) === beforeDigest;
     record.browser = (await send("Browser.getVersion")).product;

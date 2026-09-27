@@ -10,7 +10,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { rm } from "node:fs/promises";
-import { createRuntimeInventoryController, inventoryOf, NOT_REPORTED } from "../web/runtime-inventory.mjs";
+import { createRuntimeInventoryController, inventoryOf, NOT_REPORTED, UNREADABLE } from "../web/runtime-inventory.mjs";
 import { createRuntimeInventoryView, runtimeName } from "../web/runtime-inventory-view.mjs";
 import { withTinyDom, flush, press, deferred } from "./tiny-dom.mjs";
 import { boot } from "./helpers.mjs";
@@ -292,4 +292,73 @@ test("a real Host before any Session: Pi configured and default, Agents API unav
     assert.deepEqual([h.runtime.store.listSessions().length, h.runtime.store.listRuns().length], [0, 0]);
     assert.equal(h.runtime.fakeProvider.requests.length, 0);
   } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+});
+
+/* RFS-R1 · a supported-version inventory whose rows the page cannot read is a
+   failed read: it never replaces the last good reading, nothing throws, and the
+   next Refresh really reaches the Host. */
+const MALFORMED = [
+  ["a null row", (items) => [null, ...items]],
+  ["an empty row", (items) => [{}, ...items]],
+  ["a row without availability", (items) => [{ ...items[0], availability: undefined }, items[1]]],
+  ["a null availability", (items) => [{ ...items[0], availability: null }, items[1]]],
+  ["an unknown availability status", (items) => [{ ...items[0], availability: { status: "maybe", reasonCode: null, reason: null } }, items[1]]],
+  ["a numeric reason", (items) => [items[0], { ...items[1], availability: { ...items[1].availability, reason: 7 } }]],
+  ["a non-string id", (items) => [{ ...items[0], adapterId: 42 }, items[1]]],
+  ["a duplicate id", (items) => [items[0], { ...items[1], adapterId: items[0].adapterId }]],
+  ["a string capabilities value", (items) => [{ ...items[0], capabilities: "all" }, items[1]]],
+  ["a null operation", (items) => [{ ...items[0], capabilities: { ...items[0].capabilities, start: null } }, items[1]]],
+  ["a non-boolean supported", (items) => [{ ...items[0], capabilities: { ...items[0].capabilities, start: { supported: "yes" } } }, items[1]]],
+  ["a numeric operation reason", (items) => [{ ...items[0], capabilities: { ...items[0].capabilities, recover: { supported: false, reason: 1 } } }, items[1]]],
+  ["a non-string revision", (items) => [{ ...items[0], revision: 3 }, items[1]]],
+  ["a non-boolean configured", (items) => [{ ...items[0], configured: "true" }, items[1]]],
+  ["another configuration owner", (items) => [{ ...items[0], configurationOwner: "user" }, items[1]]],
+  ["a live status other than not_checked", (items) => [{ ...items[0], liveStatus: "connected" }, items[1]]],
+  ["items that are not an array", () => ({ length: 0 })],
+];
+
+for (const [label, corrupt] of MALFORMED)
+  test(`RFS-R1 · ${label} is a failed read that keeps the last good reading and lets Refresh reach the Host again`, () => withTinyDom(async (mount) => {
+    const answers = [info(), { ...info(), executionRuntimes: { ...info().executionRuntimes, items: corrupt(structuredClone([PI, MANAGED])) } }, info()];
+    let reads = 0;
+    const { controller } = await mounted(mount, async () => answers[reads++]);
+    const p = page(mount);
+    await controller.refresh();
+    await p.activate(`row-action:${PI_EXECUTOR_ID}`);
+    await p.activate("refresh");
+    assert.equal(reads, 2);
+    assert.equal(p.text("reading-error"), `${UNREADABLE} The values below are the last reading that succeeded.`);
+    assert.equal(p.$("reading-status").getAttribute("data-status"), "error");
+    assert.equal(p.text("runtime-name"), "Pi", "the last good detail stays");
+    assert.equal(p.focused(), "refresh");
+    await p.activate("refresh");
+    assert.equal(reads, 3, "Refresh reached the Host again");
+    assert.equal(p.$("reading-error"), null);
+    assert.equal(p.$("reading-status").getAttribute("data-status"), "ready");
+    await p.activate("back");
+    assert.equal(p.focused(), `row:${PI_EXECUTOR_ID}`);
+  }));
+
+test("RFS-R1 · a malformed first reading is a failed read, not an empty list, and a retry recovers", () => withTinyDom(async (mount) => {
+  const answers = [{ executionRuntimes: { schemaVersion: 1, defaultAdapterId: PI_EXECUTOR_ID, items: [null] } }, { executionRuntimes: { schemaVersion: 1, defaultAdapterId: null, items: [] } }, info()];
+  let reads = 0;
+  const { controller } = await mounted(mount, async () => answers[reads++]);
+  const p = page(mount);
+  await controller.refresh();
+  assert.equal(p.text("reading-error"), UNREADABLE);
+  assert.equal(p.$("list-empty"), null);
+  await controller.refresh();
+  assert.equal(p.text("reading-error"), UNREADABLE, "a missing default is malformed too");
+  await p.activate("refresh");
+  assert.equal(reads, 3);
+  assert.equal(p.$("reading-error"), null);
+  assert.ok(p.$(`runtime-row:${MANAGED_EXECUTOR_ID}`));
+}));
+
+test("RFS-R1 · well-shaped unknown ids, operations and reason codes stay data", () => {
+  const other = { ...structuredClone(MANAGED), adapterId: "future-runtime", availability: { status: "unavailable", reasonCode: "future_code", reason: "Later." } };
+  const pi = { ...structuredClone(PI), capabilities: { ...PI.capabilities, pause: { supported: false } } };
+  const inventory = inventoryOf(info([pi, other]));
+  assert.deepEqual(inventory.items.map((item) => item.adapterId), [PI_EXECUTOR_ID, "future-runtime"]);
+  assert.equal(inventoryOf({ executionRuntimes: { schemaVersion: 2, defaultAdapterId: PI_EXECUTOR_ID, items: [] } }), null, "an unknown version is still refused");
 });

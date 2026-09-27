@@ -143,8 +143,11 @@ export function createRuntimeInventoryView(mount, controller, { onRendered } = {
 
   /* ── One runtime ────────────────────────────────────────────────────── */
 
-  function facts(testid, rows) {
-    const list = el("dl", { className: "data-list", attrs: { "data-testid": testid } });
+  /* RFS-R2 · the status and operation values are the reading this page exists
+     for, so they take the reading role; their labels and the technical ids
+     keep the metadata role of `.data-list`. */
+  function facts(testid, rows, { reading = false } = {}) {
+    const list = el("dl", { className: reading ? "data-list runtime-inventory-reading" : "data-list", attrs: { "data-testid": testid } });
     for (const [term, value, key] of rows)
       list.append(el("dt", { text: term }), el("dd", { text: value, attrs: key ? { "data-testid": `${testid}:${key}` } : undefined }));
     return list;
@@ -181,7 +184,7 @@ export function createRuntimeInventoryView(mount, controller, { onRendered } = {
         ["Availability", unavailable ? `Unavailable. ${item.availability.reason ?? ""}`.trim() : "Described by this Host for the current provider", "availability"],
         ["Live status", "Not checked. Nothing here connects to it, signs in or runs anything.", "live"],
         ["Host default", item.adapterId === defaultId ? "Yes" : "No", "default"],
-      ]),
+      ], { reading: true }),
     );
     const operations = el(
       "div",
@@ -191,11 +194,11 @@ export function createRuntimeInventoryView(mount, controller, { onRendered } = {
     if (item.capabilities)
       operations.append(
         el("p", { className: "settings-row-help", text: "What this runtime declares it supports. Declared, not checked live." }),
-        facts("operations", operationRows(item.capabilities)),
+        facts("operations", operationRows(item.capabilities), { reading: true }),
       );
     else
       operations.append(el("p", {
-        className: "form-help",
+        className: "runtime-inventory-reading-text",
         attrs: { "data-testid": "operations-absent" },
         text: "Not reported: the Host has no current description of this runtime.",
       }));

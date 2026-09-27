@@ -2005,6 +2005,13 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
   gap: var(--space-1);
   justify-content: space-between;
 }
+/* 06c I1 · RFS-R2 · Runtime detail values are a reading, not metadata: the
+   reading role for values and reasons (as .attention-reason), labels stay
+   metadata. Scoped to this detail; `.data-list` itself is unchanged. */
+.data-list.runtime-inventory-reading { align-items: baseline; }
+.data-list.runtime-inventory-reading dd,
+.runtime-inventory-reading-text { font-size: var(--text-reading); line-height: 1.6; }
+.runtime-inventory-reading-text { margin: var(--space-2) 0 0; }
 .data-list dd .icon-only {
   --control: 24px;
   flex: none;
