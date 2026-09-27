@@ -85,6 +85,22 @@ test("T-EXT-2: se_submit_candidate goes through once and Core rejects the late c
     assert.equal(result.data.isError, false);
     assert.match(result.data.text, /"status":"pending"/);
 
+    // The actual model request must describe how to form source evidence;
+    // an opaque array left the real model guessing camelCase field names.
+    const schema = runtime.fakeProvider.requests.at(-1).body.tools
+      .find(tool => tool.function.name === 'se_submit_candidate').function.parameters;
+    const evidence = schema.properties.evidence.items;
+    assert.ok(evidence, 'model-visible evidence needs an item contract');
+    assert.equal(evidence.additionalProperties, false);
+    assert.deepEqual(evidence.required, ['source_id', 'source_version', 'start', 'end', 'quote', 'digest']);
+    assert.match(evidence.properties.start.description, /inclusive.*Unicode code points/);
+    assert.match(evidence.properties.end.description, /exclusive.*Unicode code points/);
+    const obligation = schema.properties.obligations.items;
+    assert.equal(obligation.additionalProperties, false);
+    assert.deepEqual(obligation.required, ['id', 'text', 'status', 'blocking', 'evidence_refs']);
+    assert.deepEqual(obligation.properties.status.enum, ['open', 'resolved']);
+    assert.deepEqual(obligation.properties.evidence_refs.items, evidence);
+
     const projection = (await api("GET", `/sessions/${session.id}/surface`)).json.projection;
     assert.equal(projection.candidates.length, 1);
     assert.equal(projection.candidates[0].status, "pending");
@@ -97,4 +113,27 @@ test("T-EXT-2: se_submit_candidate goes through once and Core rejects the late c
   } finally {
     await runtime.close();
   }
+});
+
+test('T-EXT-3: malformed evidence is refused without a partial candidate', async () => {
+  const h = await boot();
+  try {
+    const { session, source } = await bindEvidenceMemo(h.api, h.createSession);
+    const created = await h.api('POST', `/sessions/${session.id}/runs`, {
+      commandId: 'ext-invalid-evidence',
+      input: h.scriptInput([{ name: 'se_submit_candidate', arguments: {
+        artifact_text: 'Alpha', obligations: [],
+        evidence: [{ source_id: source.id, source_version: source.version,
+          start: 0, end: 5, quote: 'Alpha', digest: source.digest, line: 1 }],
+      } }]),
+    });
+    await h.pollRun(created.json.run.id, { timeoutMs: 20_000 });
+    const events = (await h.api('GET', `/sessions/${session.id}/events`)).json.events;
+    const result = events.find(e => e.type === 'tool.result' && e.data.name === 'se_submit_candidate');
+    assert.equal(result.data.isError, true);
+    const { projection } = (await h.api('GET', `/sessions/${session.id}/surface`)).json;
+    assert.deepEqual(projection.candidates, []);
+    assert.equal(projection.artifact, null);
+    assert.equal(projection.matter.version, 0);
+  } finally { await h.runtime.close(); }
 });

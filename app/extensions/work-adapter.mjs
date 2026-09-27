@@ -12,6 +12,21 @@ const MAX_TITLE = 120;
 const MAX_SOURCE = 100_000;
 const MAX_ARTIFACT = 100_000;
 
+// Advertise the existing Core evidence shape to the model. Source membership,
+// digest/quote equality and range ordering remain runtime/Core validations.
+const MEMO_EVIDENCE_ITEM_SCHEMA = {
+  type: 'object', additionalProperties: false,
+  required: ['source_id', 'source_version', 'start', 'end', 'quote', 'digest'],
+  properties: {
+    source_id: { type: 'string', minLength: 1, maxLength: 256, description: 'Exact source id returned by se_read_source.' },
+    source_version: { type: 'integer', minimum: 0, description: 'Source version returned by se_read_source.' },
+    start: { type: 'integer', minimum: 0, description: 'Start inclusive, counted in Unicode code points of the original source text.' },
+    end: { type: 'integer', minimum: 0, description: 'End exclusive, counted in Unicode code points of the original source text.' },
+    quote: { type: 'string', minLength: 1, maxLength: MAX_SOURCE, description: 'Exact source slice from start through end (exclusive).' },
+    digest: { type: 'string', minLength: 1, maxLength: 256, description: 'Exact source digest returned by se_read_source.' },
+  },
+};
+
 function isRecord(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
@@ -531,8 +546,18 @@ export class WorkExtension {
             required: ['artifact_text', 'evidence', 'obligations'],
             properties: {
               artifact_text: { type: 'string', minLength: 1, maxLength: MAX_ARTIFACT },
-              evidence: { type: 'array' },
-              obligations: { type: 'array' },
+              evidence: { type: 'array', items: MEMO_EVIDENCE_ITEM_SCHEMA },
+              obligations: { type: 'array', items: {
+                type: 'object', additionalProperties: false,
+                required: ['id', 'text', 'status', 'blocking', 'evidence_refs'],
+                properties: {
+                  id: { type: 'string', minLength: 1, maxLength: 256 },
+                  text: { type: 'string', minLength: 1, maxLength: MAX_SOURCE },
+                  status: { type: 'string', enum: ['open', 'resolved'] },
+                  blocking: { type: 'boolean' },
+                  evidence_refs: { type: 'array', items: MEMO_EVIDENCE_ITEM_SCHEMA },
+                },
+              } },
             },
           },
           execute: submitCandidate,
