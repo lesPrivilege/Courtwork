@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-27 · Continued construction dispatched under serial ownership
+
+User authorizes Astra adjudication/dispatch, Claude core self-development and frontend integration serially, independent Sol/CW dogfood tasks, and Luna references. [CB-D1](execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md#2026-09-27--cb-d1-released-to-original-claude-serial-lane) is actually submitted to the original Claude/Opus conversation on committed contract `d4a08d7`; UI confirms Running/Waiting, not delivered source. Two Luna preflights cover a pinned Hermes transport contract and an independent developer-harness slice. Hermes implementation remains behind the current Claude serial slot and concrete contract; existing accepted P03/Kit/Settings work is not reopened. No product source merged or user Host restarted.
+
 ## 2026-09-27 · Attention Assistant / Dogfooding Kit research registered
 
 [Source intake and Astra ruling](research/attention-assistant-20260927/README.md) preserve four turns/eight messages/two inspected screenshots and two Luna explorations. Hermes is selected first for the next Attention-specific integration research, not accepted as a managed runtime; Pi execution and existing Core/Host authority remain. The developer Kit adopts task-oriented progressive documentation with existing Kit/Profile/immutable Run bindings, not a new plugin system or ledger. [Index](research/attention-assistant-20260927/INDEX.md) routes later consumers to current owners and fixtures. Luna's bounded existing Kit/Profile checks pass 103/103; documentation/source checks are recorded in the packet. No product code/schema, provider, scheduler, live connector or user Host change; current assignments and product gates remain.

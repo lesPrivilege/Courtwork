@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-27 · Concrete next contracts
+
+[Hermes protocol slice](core-runtime-loop-20260921.md#2026-09-27--hermes-protocol-slice-next-claude-serial-core-assignment) is ready for Claude after CB-D1 parent disposition: pinned HTTP/SSE protocol + synthetic loopback, no Host/Store adoption. [Fixed Attention check recipe](03-check-recipe.md#2026-09-27--fixed-attention-contract-recipe-sol-assignment) is released for independent Sol authoring with no runner/authority/UI overlap. Luna source reports and Astra corrections are linked from each original owner.
+
 ## 2026-09-27 · Authorized serial construction: CB-D1 then Attention integration
 
 Astra releases [CB-D1](06b-dogfood-friction-20260920.md#2026-09-27--cb-d1-released-to-original-claude-serial-lane) to the original Claude/Opus lane first. Core Hermes transport selection is being bounded by Luna against accepted P03/Runtime contracts; its implementation is not yet dispatched. A separate Luna preflight identifies one independent small tools/backend task for Sol or actual CW dogfooding. Parent owns contracts, routing and independent disposition; no duplicate frontend/core author. Actual receipt follows after dispatch is observed.
