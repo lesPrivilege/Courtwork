@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-28 · B2 Claude and G5 Sol actual dispatch
+
+The user prioritizes already registered construction: Claude core/frontend, Sol disjoint work, Luna/Sonnet exploration. Original Claude has received [B2's fixed contract](06b-dogfood-friction-20260920.md#2026-09-28--b2-bounded-repo_list-request-summary--implementation-contract) at `5769668`, with UI confirming Running. Its preserved Hermes `4402592` remains blocked specifically at real API-server execution; no permission workaround or duplicate native author. Sol `/root/sol_g5_fact_mapping` (GPT-6 Sol/high) has received G5 mapping lease `a9694d0` in the isolated registered-completion tree. B2 and G5 delivery/independent acceptance are pending. Sonnet B2 exploration is consumed in the contract; its historical Composer recommendation is rejected as superseded. Recent DS-1/RL-1/I1/recipe/CB-D1 tasks are not reopened. Parent retains current/dispatch and final integration.
+
 ## 2026-09-27 · Native tool-loop assignment dispatched
 
 Original Claude/Opus has actually received the native Hermes profile/MCP conformance contract from integrated `bd20092`; UI shows Running/Waiting. [Original owner receipt](core-runtime-loop-20260921.md) records the exact scope. Preserve this serial lane and wait for its fixed-source/native evidence or a concrete prerequisite failure; do not duplicate the author.
