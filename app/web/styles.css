@@ -6618,6 +6618,10 @@ html[data-theme="dark"] {
 .session-row > .object-more { --control: 32px; flex: none; opacity: 0; align-self: center; }
 .session-row:hover > .object-more, .session-row:focus-within > .object-more, .session-row > .object-more[aria-expanded="true"] { opacity: 1; }
 @media (hover: none) { .session-row > .object-more { opacity: 1; } }
+/* N07-R2 · the row's local 32px fine-pointer More must not survive a coarse
+   pointer: touch takes the 44×44 CW target (visual-spatial grammar), for the
+   sidebar's rows and the Chat page's alike. The glyph stays 16px. */
+@media (pointer: coarse) { .session-row > .object-more { --control: 44px; } }
 /* 09 N-07 · the Chat page row takes the sidebar's row + More anatomy. */
 .session-row > .chat-row { flex: 1; min-width: 0; }
 .object-menu { position: fixed; inset: auto; width: min(240px, calc(100vw - 32px)); padding: var(--space-2); }

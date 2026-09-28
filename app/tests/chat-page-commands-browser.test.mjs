@@ -25,4 +25,12 @@ test("Chat page Rename and Delete redraw the page and land focus on a live row",
   assert.equal(record.returnControlAfterOpenDelete, false, "no Return to a chat that no longer exists");
   assert.equal(at("deleted-final-row").focus, "page title");
   assert.equal(record.emptyState, "No chats yet.");
+
+  // N07-R2 · the rows' More target: 32px fine (revealed on hover/focus), 44px coarse (always shown).
+  const { fine, coarse } = record.targets;
+  assert.deepEqual([fine.coarse, coarse.coarse], [false, true]);
+  for (const [name, list] of [["Chat page", fine.chatPage], ["sidebar", fine.sidebar]])
+    assert.ok(list.length && list.every((box) => box.w === 32 && box.h === 32), `${name} fine More stays 32×32`);
+  for (const [name, list] of [["Chat page", coarse.chatPage], ["sidebar", coarse.sidebar]])
+    assert.ok(list.length && list.every((box) => box.w >= 44 && box.h >= 44 && box.opacity === "1"), `${name} coarse More is at least 44×44 and visible`);
 });

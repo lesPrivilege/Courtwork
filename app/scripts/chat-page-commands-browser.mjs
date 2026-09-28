@@ -82,6 +82,23 @@ export async function runChatPageCommandsBrowser({ chromePath = DEFAULT_CHROME }
 
     try {
     await step("opened");
+    /* N07-R2 · the rows' More target under a fine and a coarse pointer, on the
+       Chat page and the sidebar (the same `.session-row` primitive). */
+    const moreTargets = () => evaluate(`(() => {
+      const box = (n) => { if (!n) return null; const r = n.getBoundingClientRect(); return { w: Math.round(r.width), h: Math.round(r.height), opacity: getComputedStyle(n).opacity }; };
+      return {
+        coarse: matchMedia('(pointer: coarse)').matches,
+        chatPage: [...document.querySelectorAll('#chat-page .session-row > .object-more')].map(box),
+        sidebar: [...document.querySelectorAll('#recent-list .session-row > .object-more')].slice(0, 2).map(box),
+        chatRowHeight: box(document.querySelector('#chat-page .chat-row'))?.h ?? null,
+      };
+    })()`);
+    record.targets = { fine: await moreTargets() };
+    await send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 5 });
+    await sleep(200);
+    record.targets.coarse = await moreTargets();
+    await send("Emulation.setTouchEmulationEnabled", { enabled: false });
+    await sleep(200);
     await command(titles[2], "chat.rename");
     await waitFor(`document.getElementById('rename-dialog').open`, "the rename dialog");
     await evaluate(`(() => { const input = document.getElementById('rename-title-input'); input.value = 'UX batch — Renamed by page'; document.querySelector('#rename-form button[value="default"]').click(); return true; })()`);
