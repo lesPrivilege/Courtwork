@@ -1,0 +1,38 @@
+✔ Chat page Rename and Delete redraw the page and land focus on a live row (5094.126791ms)
+✔ N07-R3 · a project collapsed in the sidebar still names its chats on the Chat page; a projectless chat stays No project (1962.158084ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (200.124375ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (4.216083ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (1.408583ms)
+✔ 00 · one Work location entry; Connect folder stays the command inside it (1.691125ms)
+✔ Inspector separates recorded/current targets and folds version/cache details without losing unknown accounting (38.444209ms)
+✔ Inspector tool activity reuses thread projection and never turns an unfinished tool into success (0.745542ms)
+✔ a tab is keyed by the owner's own identity: same object same key, another version or Work another key (1.875291ms)
+✔ opening appends and selects; opening the same object again reselects its tab and keeps it once (1.724ms)
+✔ a tab can only be opened in its own Work (0.08075ms)
+✔ closing the active tab selects its right neighbour, else its left; closing another leaves the selection (0.17475ms)
+✔ each Work keeps its own tabs, selection and reading position; Work A's objects never appear in B (0.215042ms)
+✔ the strip draws each object as a tab with a separate close target and the full name kept (1.659125ms)
+✔ keyboard: arrows, Home and End select along the strip; Delete closes the focused tab; focus stays on the strip (2.157583ms)
+✔ a repaint keeps the keyboard on the same tab's select or close target (0.905833ms)
+✔ the observed case: first tab selected at 390px, ArrowRight selects and shows the second tab with its close target (1.359709ms)
+✔ Home/End, opening and closing reveal the selected tab; a repaint keeps the reader's own strip scroll (1.724459ms)
+✔ keyboard focus on an off-strip tab reveals it; a strip without a layout box owes the reveal to its next paint (0.695875ms)
+✔ a Work tab's mark is the run's own status word, said in words as well as shape (0.176959ms)
+✔ each kind says its object's own name, and which reading or version it is (16.363958ms)
+✔ a read answered after its tab was switched away never paints over the selected object (5.576459ms)
+✔ a read answered after its tab was closed paints nothing (0.674667ms)
+✔ reader targets: tab close 24 fine / 44 coarse; Version details a control-height target with its marker (1961.458875ms)
+✔ a successful ws_read row renders the shared anatomy: title, meta, glyph, closed by default (3.338416ms)
+✔ an error row is open by default and carries the is-failed class (0.650625ms)
+✔ a settled check_run row shows the facts list (Recipe/Outcome) and stdout, not the request/result JSON dump (1.202917ms)
+✔ toggling the details element calls onToggle with the new open state (0.170167ms)
+✔ toolGlyph, appendToolDetails and appendCheckDetails cover the moved cases (0.243792ms)
+✔ parity: Chat and Attention share renderToolRow, and the old duplicate tool-row anatomy is gone (3.230416ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7892.117375

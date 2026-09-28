@@ -141,3 +141,20 @@ Writer released pending acceptance. No browser, user-service restart, native Her
 
 
 **Active-tab visibility parent acceptance · 2026-09-28.** [Independent packet](evidence/ux-continuity-20260928/README.md) accepts0695b90/e318c7a. Original390px offscreen-active case now scrolls only its strip to234; selected tab/close fit the strip, reading/page position and exact return focus remain. Luna15/15 plus parent actual Arrow/open/inactive-close/last-close browser checks pass. Reject the helper-only close concern as a product blocker after checking actual app.mjs focus and repeating the actual path; do not add speculative auto-scrolling. Historical PV-R1 read-invalidation and untested accessibility matrices retain their earlier status.
+
+## 2026-09-29 · Reader coarse targets · tab close and Version details (Claude, UX owner)
+
+**Input.** Parent's measured reader targets ([packet](evidence/ux-batch-review-20260929/README.md), [measurements](evidence/ux-batch-review-20260929/reader-targets.json)): under actual `pointer: coarse` emulation, Back, Hide, Copy and code-copy go from 28 to 44, but the Preview **tab close stays 24×24**, and the visible **Version details** summary is **17.25px** tall under both pointers. The hash-copy inside the collapsed details isn't a visible target and is excluded. This continues grammar-convergence F2 (coarse verification) for these reader controls. Product commit `b4bfedb`.
+
+**Decisions:**
+- **Tab close:** under `pointer: coarse` it takes `var(--control)` (44×44). With a fine pointer it keeps 24×24, the grammar's micro target, and the 18px glyph doesn't grow. The coarse tab row is already 45 tall, so the strip's geometry holds.
+- **Version details summary:** a disclosure is a control, so its single line takes `line-height: var(--control)` (28 fine, 44 coarse). That fixes the fine case too, which was below the 24px minimum. `display` stays `list-item`, keeping the native marker; switching the summary to flex would drop it in Chrome and Safari. The change is in the shared `.version-details summary`, so all three consumers (file view, run artifacts, retained materials) change together.
+- **Selected by pointer capability, not viewport width** (visual-spatial grammar). No other size, token or layout change.
+
+**Checks:**
+- New `app/scripts/reader-targets-browser.mjs` and `app/tests/reader-targets-browser.test.mjs` run real headless Chrome against a disposable Host's own shipped `styles.css`/`surface-layout.css`. The tab strip is rendered by the shipped `preview-tabs.mjs`; the `.version-details` markup matches its consumers. Measured with a fine pointer, then touch emulation (restored). This is the shipped CSS on real markup, not the full reading flow; the full reader capture stays with Parent.
+  - **Before** (`13ad62b`, [record](evidence/reader-targets-20260929/reader-targets-before-13ad62b.json)): tab close 24×24 and summary 17.25 under both pointers, reproducing Parent's measurements.
+  - **After** ([record](evidence/reader-targets-20260929/reader-targets-after.json)): tab close 24 fine / 44 coarse with the glyph unchanged and its accessible name kept; summary 28 fine / 44 coarse with the marker kept.
+- Preview-tabs, inspector, run-row, Chat-page browser and entry-audit suites pass 30/30 with 0 skipped ([log](evidence/reader-targets-20260929/author-targeted-tests.log)). The spacing, interaction, shape, colour and material lints and `git diff --check` pass.
+
+**Capture needed from Parent:** the Preview reading flow at 1440 and 390 with coarse emulation (tab close and Version details, closed and open), plus a fine-pointer check that the strip and file header look unchanged.

@@ -1,0 +1,36 @@
+{
+  "fine": {
+    "coarse": false,
+    "tabClose": {
+      "w": 24,
+      "h": 24
+    },
+    "tabCloseName": "Close out/reader-measurements.md",
+    "glyph": {
+      "w": 18,
+      "h": 18
+    },
+    "versionSummary": {
+      "w": 1392,
+      "h": 17.25
+    },
+    "summaryMarker": "list-item"
+  },
+  "coarse": {
+    "coarse": true,
+    "tabClose": {
+      "w": 24,
+      "h": 24
+    },
+    "tabCloseName": "Close out/reader-measurements.md",
+    "glyph": {
+      "w": 18,
+      "h": 18
+    },
+    "versionSummary": {
+      "w": 1392,
+      "h": 17.25
+    },
+    "summaryMarker": "list-item"
+  }
+}
