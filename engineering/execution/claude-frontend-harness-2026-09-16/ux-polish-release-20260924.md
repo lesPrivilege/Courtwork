@@ -263,3 +263,30 @@ This is a read-only inventory at main `3898f31` (plus the candidate-diff scope-n
 **Cross-page candidate.** The chat connection card's "Connections" row is an action button that closes the popover and opens Settings → Models (`app.mjs:5829`, `settings-view.mjs:455`). It is navigation to an addressable page, not a second connection form. Per UX-03 (Link to an addressable context, Button for an action), consider giving it navigation semantics or wording ("Open Models settings") while keeping the row. It is low priority, and the row should stay.
 
 **Proposed order after screenshots:** (1) the unread `runtime-view` panels and the Models environment mount, where most remaining text density is likely; (2) the Developer "Runtime" naming overlap; (3) the connection-card navigation semantics. No REMOVE candidates have enough evidence yet. The Agents, candidate preparation and diff pages look disciplined in source and should be left alone unless a screenshot shows a concrete problem.
+
+## 2026-09-28 · First UX simplification · author result (Claude)
+
+Contract: [scope](evidence/ux-simplification-20260928/scope.md), Astra `ac98a07`, merged into this tree as `bd3f0c3`. Product commit `e7ffd04`. **Disposition of my source-only inventory above: adjust.** Astra ruled that a true statement is not therefore necessary default-page text. Necessity is judged against the page's task, and this slice implements that ruling. Grammar: UX-01/02/04/07/09, the reading/review role plus compact settings chrome. Existing tokens and controls only; no CSS or density change.
+
+**Adopted:**
+- **Models** (`runtime-view.mjs` `renderEnvironment`; precedent: the existing `runtime-environment-details` disclosure):
+  - The section is now only the existing, closed-by-default "Saved model and host details" disclosure.
+  - Inside it: the runtime adapter row and its explanation, the Tools/Permissions/Developer links, then the existing saved model and host facts.
+  - The separate "In force" heading is removed. The "not read yet" loading note moved inside the disclosure. Its open state still survives re-renders.
+  - Load errors keep their existing place in the runtime view.
+  - Model/key saving and the test call are unchanged.
+- **Runtimes** (`runtime-inventory-view.mjs`; precedent: the existing Technical detail disclosure and the list/detail reading grammar):
+  - The list intro is now "Configured runtimes. Live status is not checked."; rows keep "· live status not checked".
+  - Detail "Live status" is now "Not checked".
+  - The constant Owner note moved to Technical detail.
+  - The repeated "Declared, not checked live" paragraph under "Declared operations" is removed.
+  - Configuration, availability with unavailable reasons, default, operation values with unsupported reasons, "Not reported", error/last-good/retry, focus and read-only behaviour are unchanged.
+- **Developer:** deferred, per scope.
+
+Author checks:
+- `provider-registration.test.mjs` gains a behaviour test: one closed disclosure, the loading note inside, no "In force", adapter/links/facts present, open state kept across a re-render.
+- The runtime inventory tests now assert the shortened text, the Owner row in Technical detail, and no repeated paragraph. The existing headless-Chrome Runtimes check against a disposable Host also passes.
+- The Settings/Models/runtime/profile suites pass 155/155 ([log](evidence/ux-simplification-20260928/author-targeted-tests.log)).
+- The interaction, spacing, colour and material lints pass, as do `check-product-copy`, `check-semantic-consumers` and `git diff --check`.
+
+Parent does the current browser acceptance (compact and default-open states, disclosure contents, narrow/desktop views). This slice does not complete the wider UX pass.
