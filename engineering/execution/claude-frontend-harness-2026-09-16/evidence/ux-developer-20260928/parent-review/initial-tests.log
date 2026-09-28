@@ -1,0 +1,45 @@
+✔ Developer page: object order, the trust consequence beside the extensions, Host diagnostics closed by default (1.492208ms)
+✔ Chat runtime block: loading, failure with retry, the reading, and the last good reading after a failure (4.132708ms)
+✔ each runtime is one row with its state, its configuration owner and one next action (6.62075ms)
+✔ empty, loading, failed and refreshing lists are four different readings (3.430208ms)
+✔ opening a runtime moves the keyboard to its way back, and Back returns to the same row (32.454958ms)
+✔ only a runtime detail scopes the compact settings-block rhythm (2.213167ms)
+✔ protocol and process facts are disclosed on demand and a re-render does not close them (1.677042ms)
+✔ native-owned sign-in describes the step in the runtime itself and offers no credential field (1.458ms)
+✔ CourtWork-managed sign-in chooses a synthetic Models reference and never takes a key (7.197583ms)
+✔ connect shows what it writes before the command, then reads back the exact revision and connection (3.2415ms)
+✔ a refused connect keeps the typed name and puts the keyboard back on Connect (3.119083ms)
+✔ disabling says what changes on the next admission and leaves the bound run on its recorded revision (2.53225ms)
+✔ disconnect is unavailable while a run is bound, with its reason beside it (1.142375ms)
+✔ Escape closes the disconnect confirmation and returns the keyboard to Disconnect (6.247958ms)
+✔ disconnect removes only this connection; identity, history and unsaved input survive (6.411209ms)
+✔ an unavailable engine is not a permission decision and offers no connect (1.484166ms)
+✔ a host that cannot change runtimes gives each action its reason and sends nothing (1.408458ms)
+✔ a committed command whose reply is lost stays unknown, blocks every mutation, and Check status settles it without resending (3.449375ms)
+✔ an unknown outcome the owner never received settles as not applied and keeps the draft (4.785708ms)
+✔ an error without a listed code is never read as a refusal (0.101167ms)
+✔ a double press sends one command, and the owner treats a repeated operation id as the same one (1.936833ms)
+✔ a revision changed elsewhere is refused, the draft is kept, and Reload shows the owner's values beside it (3.788875ms)
+✔ a draft survives leaving for the list and coming back (2.474041ms)
+✔ a late list reply after opening a runtime does not navigate or land (0.590917ms)
+✔ a late detail reply for one runtime does not overwrite another runtime's page (1.321541ms)
+✔ a command reply that arrives after leaving lands on its own runtime only, and was never cancelled (4.760333ms)
+✔ a command confirmed while the list is on screen refreshes the list and keeps its rows (3.247542ms)
+✔ every receipt, pending line and entry point carries the preview identity (2.160875ms)
+✔ the preview host serves the fixture page and product assets, and accepts no mutation (24.223542ms)
+✔ RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it (7.811041ms)
+✔ RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied' (3.451959ms)
+✔ RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives (5.13ms)
+✔ RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer (3.387209ms)
+✔ RM-R2 · a reading for another runtime id is never taken as this command's read-back (2.549ms)
+✔ RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked (3.551084ms)
+✔ RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later (0.153417ms)
+✔ RM-R2 · the preview's stale-read-back scenario reaches the same lock through the fixture itself (2.294875ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 315.518458

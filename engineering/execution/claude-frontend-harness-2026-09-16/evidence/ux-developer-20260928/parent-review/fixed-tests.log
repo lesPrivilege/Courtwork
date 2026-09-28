@@ -1,0 +1,47 @@
+✔ Developer page: object order, the trust consequence beside the extensions, Host diagnostics closed by default (1.604917ms)
+✔ Chat runtime block: loading, failure with retry, the reading, and the last good reading after a failure (4.28525ms)
+✔ DEV-R1 · with no chat open, the block names the default runtime every new chat starts from, and no chat's runs (5.83575ms)
+✔ DEV-R1 · with a chat open, the same block is that chat's runtime and lists its recorded runs (1.3745ms)
+✔ each runtime is one row with its state, its configuration owner and one next action (7.528167ms)
+✔ empty, loading, failed and refreshing lists are four different readings (4.1445ms)
+✔ opening a runtime moves the keyboard to its way back, and Back returns to the same row (17.875125ms)
+✔ only a runtime detail scopes the compact settings-block rhythm (3.3985ms)
+✔ protocol and process facts are disclosed on demand and a re-render does not close them (1.80125ms)
+✔ native-owned sign-in describes the step in the runtime itself and offers no credential field (1.866417ms)
+✔ CourtWork-managed sign-in chooses a synthetic Models reference and never takes a key (6.545875ms)
+✔ connect shows what it writes before the command, then reads back the exact revision and connection (3.41975ms)
+✔ a refused connect keeps the typed name and puts the keyboard back on Connect (3.645417ms)
+✔ disabling says what changes on the next admission and leaves the bound run on its recorded revision (3.034916ms)
+✔ disconnect is unavailable while a run is bound, with its reason beside it (2.058125ms)
+✔ Escape closes the disconnect confirmation and returns the keyboard to Disconnect (3.731334ms)
+✔ disconnect removes only this connection; identity, history and unsaved input survive (7.509041ms)
+✔ an unavailable engine is not a permission decision and offers no connect (1.322542ms)
+✔ a host that cannot change runtimes gives each action its reason and sends nothing (1.431042ms)
+✔ a committed command whose reply is lost stays unknown, blocks every mutation, and Check status settles it without resending (4.998417ms)
+✔ an unknown outcome the owner never received settles as not applied and keeps the draft (4.265291ms)
+✔ an error without a listed code is never read as a refusal (0.103334ms)
+✔ a double press sends one command, and the owner treats a repeated operation id as the same one (4.031125ms)
+✔ a revision changed elsewhere is refused, the draft is kept, and Reload shows the owner's values beside it (4.236208ms)
+✔ a draft survives leaving for the list and coming back (3.238834ms)
+✔ a late list reply after opening a runtime does not navigate or land (0.573625ms)
+✔ a late detail reply for one runtime does not overwrite another runtime's page (1.241042ms)
+✔ a command reply that arrives after leaving lands on its own runtime only, and was never cancelled (5.459708ms)
+✔ a command confirmed while the list is on screen refreshes the list and keeps its rows (4.323125ms)
+✔ every receipt, pending line and entry point carries the preview identity (2.21275ms)
+✔ the preview host serves the fixture page and product assets, and accepts no mutation (25.839417ms)
+✔ RM-R1 · a submitted draft whose reply is lost is never called 'not applied', and newer input is told apart from it (7.46925ms)
+✔ RM-R1 · while the command is still out, the submitted draft is 'waiting', not 'not applied' (4.258875ms)
+✔ RM-R2 · a read older than the receipt is not a read-back: changes stay locked until a current reading arrives (7.858541ms)
+✔ RM-R2 · at the receipt's revision the connection must match it; a newer revision may differ and is shown as newer (4.506708ms)
+✔ RM-R2 · a reading for another runtime id is never taken as this command's read-back (3.234625ms)
+✔ RM-C1 · an inconclusive status lookup keeps the original operation unresolved and locked (5.078209ms)
+✔ RM-C1 · the fixture answers 'not applied' only by fencing the id, so that operation can never apply later (0.23375ms)
+✔ RM-R2 · the preview's stale-read-back scenario reaches the same lock through the fixture itself (5.491292ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 323.558458

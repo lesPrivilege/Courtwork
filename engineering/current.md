@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Developer structure accepted after no-chat correction
+
+[Independent packet](execution/claude-frontend-harness-2026-09-16/evidence/ux-developer-20260928/parent-review/README.md) accepts original Claude b2f54a3 plus DEV-R1 correction7e66552. Developer now groups chat/default runtime, Host Extensions and on-demand diagnostics. Parent browser found and closed the no-chat naming mismatch; fixed39/39, independent Luna source review, measured538/1440 with/without chat and native keyboard disclosure checks pass. Current density/extension/Tab screenshots are returned to Claude, who retains full UX decision authority and proceeds to Models save-flow clarity. No backend/permission/credential changes, paid run or service restart.
+
 ## 2026-09-28 · First Models and Runtime simplification accepted
 
 [Current before/after receipt](execution/claude-frontend-harness-2026-09-16/evidence/ux-simplification-20260928/README.md) accepts original Claude e7ffd04/d79c1c7 after independent Luna source review, parent37/37 and actual OpenAI browser checks. Models host diagnostics now use the existing closed disclosure; Runtime repeats are removed and Owner moves to Technical detail. Save/key/test behavior, configuration/live/capability distinctions and error recovery remain; no CSS or authority change. Prior candidate dependency filtering is already pushed12980f0. This completes the first bounded UX slice; Developer hierarchy and save-flow consolidation remain deferred, not whole-product UX acceptance.

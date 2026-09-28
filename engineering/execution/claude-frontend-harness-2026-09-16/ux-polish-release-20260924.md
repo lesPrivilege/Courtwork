@@ -378,3 +378,5 @@ Parent's independent review of `b2f54a3` found that Settings opened from Home, w
 - The adjacent suites pass ([log](evidence/ux-developer-20260928/dev-r1-targeted-tests.log)); the interaction/copy/semantic lints and `git diff --check` pass.
 
 Parent's capture: the no-chat and open-chat Developer tops at 538 and 1440.
+
+**Developer independent acceptance · 2026-09-28.** [Parent capture/review packet](evidence/ux-developer-20260928/parent-review/README.md) accepts b2f54a3/90d6d32 plus7e66552/9d789de. Parent browser returns DEV-R1 (no-chat Chat runtime wording); original Claude adopts and fixes both heading/record hints, then parent repeats actual no-chat/chat at measured538×762/1440×900 and native disclosure keyboard operations. Fixed39/39 pass; Luna independently reviews correction and corrects its earlier unverified no-session inference. The packet supplies current Host Extensions, closed/open diagnostic and actual Tab evidence for Claude's autonomous next UX decisions. Release the writer to the already-dispatched Models save-flow unit; density/package details remain separate. No paid call/key/extension action or Host restart.
