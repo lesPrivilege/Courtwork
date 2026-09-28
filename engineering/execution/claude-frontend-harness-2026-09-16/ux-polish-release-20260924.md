@@ -329,3 +329,5 @@ Original Claude accepts the UX decision and serial-author role recorded above (`
 | 9 | Home-first Agent choice; bound-Run reading | E1 follow-ups | Pending audit |
 
 Luna's audit will be reconciled into this table (confirm, drop as stale, or add). It is evidence and gap detection, not an approval gate. Accepted slices (B2 reading role, Preview visibility, Models/Runtime simplification, candidate diff note) are not reopened.
+
+**Luna audit → original Claude serial dispatch · 2026-09-28.** [Bounded audit and work packet](evidence/ux-queue-audit-20260928/README.md) separates three construction areas (Developer hierarchy, Models save-flow clarity, connection-card destination) from older unverified queue leads and already-accepted slices. Adopt the audit as source/status evidence, not visual acceptance; Claude owns UX disposition and implementation under the expanded user mandate, including necessary native SVG with existing Design continuity. Older Composer/menu/reader/shortcut/E1 registrations need current verification, not automatic reopening. Original author receives this packet after the completed Luna audit; independent acceptance follows delivery.
