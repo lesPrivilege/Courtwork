@@ -4,7 +4,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { runChatPageCommandsBrowser } from "../scripts/chat-page-commands-browser.mjs";
+import { runChatPageCommandsBrowser, runChatPageProjectNamesBrowser } from "../scripts/chat-page-commands-browser.mjs";
 
 const CHROME = process.env.COURTWORK_CHROME || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 
@@ -33,4 +33,13 @@ test("Chat page Rename and Delete redraw the page and land focus on a live row",
     assert.ok(list.length && list.every((box) => box.w === 32 && box.h === 32), `${name} fine More stays 32×32`);
   for (const [name, list] of [["Chat page", coarse.chatPage], ["sidebar", coarse.sidebar]])
     assert.ok(list.length && list.every((box) => box.w >= 44 && box.h >= 44 && box.opacity === "1"), `${name} coarse More is at least 44×44 and visible`);
+});
+
+test("N07-R3 · a project collapsed in the sidebar still names its chats on the Chat page; a projectless chat stays No project", { skip: existsSync(CHROME) ? false : `no Chrome at ${CHROME}` }, async () => {
+  const { sidebar, rows } = await runChatPageProjectNamesBrowser({ chromePath: CHROME });
+  assert.deepEqual([sidebar.projectExpanded, sidebar.projectChatsListed, sidebar.activeChat], ["false", 0, false], "reloaded with no open chat and the project collapsed");
+  const named = Object.fromEntries(rows.map((row) => [row.title, row.project]));
+  assert.equal(named["UX batch — In project A"], "UX batch synthetic project");
+  assert.equal(named["UX batch — In project B"], "UX batch synthetic project");
+  assert.equal(named["UX batch — Projectless"], "No project");
 });

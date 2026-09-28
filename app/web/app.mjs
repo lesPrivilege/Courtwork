@@ -6695,7 +6695,11 @@ async function openChatPage() {
 function refreshChatPage({ focusSession = undefined } = {}) {
   if (!state.chatOpen || !chatPage) return;
   chatPage.open({
-    projects: state.projects.filter((project) => state.openProjectIds.has(project.id) || project.id === state.activeProjectId),
+    /* N07-R3 · the page lists Recent chats and uses projects only to name each
+     * chat's project. A project collapsed in the sidebar is still that chat's
+     * project: expansion is navigation state, not ownership. A chat with no
+     * projectId still reads "No project". */
+    projects: state.projects,
     sessionsByProject: state.sessionsByProject,
     recentSessions: state.recentSessions,
     activeSessionId: state.activeSessionId,

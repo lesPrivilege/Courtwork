@@ -15,6 +15,80 @@ import { startServer } from "../server/index.mjs";
 const DEFAULT_CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+/* N07-R3 · after a reload with no open chat and the project collapsed in the
+ * sidebar: what project each Chat-page row names. */
+export async function runChatPageProjectNamesBrowser({ chromePath = DEFAULT_CHROME } = {}) {
+  const work = await mkdtemp(path.join(tmpdir(), "cw-chat-page-projects-"));
+  const host = await startServer({ dataDir: path.join(work, "data"), port: 0, logger: () => {} });
+  const api = async (method, route, body) => {
+    const response = await fetch(`${host.url}/api/v5${route}`, { method, headers: { "content-type": "application/json", "x-work-token": host.token }, body: body === undefined ? undefined : JSON.stringify(body) });
+    return response.json();
+  };
+  const project = (await api("POST", "/projects", { name: "UX batch synthetic project" })).project;
+  await api("POST", "/sessions", { projectId: project.id, title: "UX batch — In project A" }); await sleep(15);
+  await api("POST", "/sessions", { projectId: project.id, title: "UX batch — In project B" }); await sleep(15);
+  await api("POST", "/sessions", { projectId: null, title: "UX batch — Projectless" });
+  const chrome = spawn(chromePath, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${path.join(work, "profile")}`, "--no-first-run", "--no-default-browser-check", "--window-size=1440,900", "about:blank"], { stdio: ["ignore", "ignore", "pipe"] });
+  try {
+    const { evaluate, waitFor, send } = await devtools(chrome);
+    await send("Page.enable");
+    await send("Page.navigate", { url: `${host.url}/` });
+    await waitFor(`Boolean(document.getElementById('chat-button')) && document.querySelectorAll('#recent-list [data-recent-id]').length >= 3`, "the app and its Recent chats");
+    // Collapse the project in the sidebar if it is open, as a reader would.
+    const projectButton = `[...document.querySelectorAll('#project-list button')].find(n => n.querySelector('.project-name')?.textContent === 'UX batch synthetic project')`;
+    await waitFor(`Boolean(${projectButton}?.hasAttribute('aria-expanded'))`, "the project row");
+    await sleep(400); // let the sidebar settle on its restored or loaded expansion
+    if (await evaluate(`${projectButton}?.getAttribute('aria-expanded') === 'true'`)) {
+      await evaluate(`(${projectButton}.click(), true)`);
+      await waitFor(`${projectButton}?.getAttribute('aria-expanded') === 'false'`, "the project to collapse");
+    }
+    const sidebar = await evaluate(`({
+      projectExpanded: ${projectButton}?.getAttribute('aria-expanded') ?? null,
+      projectShown: [...document.querySelectorAll('#project-list *')].some(n => n.textContent.trim() === 'UX batch synthetic project'),
+      projectChatsListed: [...document.querySelectorAll('#project-list [data-nav-key]')].filter(n => /In project/.test(n.textContent)).length,
+      activeChat: Boolean(document.querySelector('#recent-list [aria-current="page"]')),
+    })`);
+    await evaluate(`(document.getElementById('chat-button').click(), true)`);
+    await waitFor(`document.querySelectorAll('#chat-page [data-chat-session]').length >= 3`, "the Chat page rows");
+    const rows = await evaluate(`[...document.querySelectorAll('#chat-page [data-chat-session]')].map(n => ({ title: n.querySelector('.chat-row-title')?.textContent, project: n.querySelector('.chat-row-meta > span')?.textContent }))`);
+    return { sidebar, rows };
+  } finally {
+    chrome.kill();
+    await host.close();
+    await rm(work, { recursive: true, force: true }).catch(() => {});
+  }
+}
+
+async function devtools(chrome) {
+  const browserWs = await new Promise((resolve, reject) => {
+    let buffer = "";
+    chrome.stderr.on("data", (data) => { buffer += data; const match = /DevTools listening on (ws:\S+)/.exec(buffer); if (match) resolve(match[1]); });
+    chrome.on("exit", () => reject(new Error("Chrome exited before DevTools was ready")));
+  });
+  const target = await (await fetch(`http://${new URL(browserWs).host}/json/new?about:blank`, { method: "PUT" })).json();
+  const ws = new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
+  let nextId = 1;
+  const pending = new Map();
+  ws.onmessage = (message) => { const data = JSON.parse(message.data); if (data.id && pending.has(data.id)) { pending.get(data.id)(data); pending.delete(data.id); } };
+  const send = (method, params = {}) => new Promise((resolve, reject) => {
+    const id = nextId++;
+    pending.set(id, (data) => (data.error ? reject(new Error(`${method}: ${data.error.message}`)) : resolve(data.result)));
+    ws.send(JSON.stringify({ id, method, params }));
+  });
+  const evaluate = async (expression) => {
+    const result = await send("Runtime.evaluate", { expression: `(async () => (${expression}))()`, awaitPromise: true, returnByValue: true });
+    if (result.exceptionDetails) throw new Error(result.exceptionDetails.exception?.description || result.exceptionDetails.text);
+    return result.result.value;
+  };
+  const waitFor = async (expression, label, timeout = 10_000) => {
+    const end = Date.now() + timeout;
+    while (Date.now() < end) { if (await evaluate(expression)) return; await sleep(80); }
+    throw new Error(`timed out waiting for ${label}`);
+  };
+  return { send, evaluate, waitFor };
+}
+
 export async function runChatPageCommandsBrowser({ chromePath = DEFAULT_CHROME } = {}) {
   const work = await mkdtemp(path.join(tmpdir(), "cw-chat-page-commands-"));
   const host = await startServer({ dataDir: path.join(work, "data"), port: 0, logger: () => {} });
@@ -157,5 +231,6 @@ export async function runChatPageCommandsBrowser({ chromePath = DEFAULT_CHROME }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const at = process.argv.indexOf("--chrome");
-  console.log(JSON.stringify(await runChatPageCommandsBrowser(at > 0 ? { chromePath: process.argv[at + 1] } : {}), null, 2));
+  const options = at > 0 ? { chromePath: process.argv[at + 1] } : {};
+  console.log(JSON.stringify(process.argv.includes("--project-names") ? await runChatPageProjectNamesBrowser(options) : await runChatPageCommandsBrowser(options), null, 2));
 }
