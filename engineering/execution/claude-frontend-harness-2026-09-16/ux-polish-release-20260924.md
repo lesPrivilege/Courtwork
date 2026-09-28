@@ -378,3 +378,5 @@ Parent's independent review of `b2f54a3` found that Settings opened from Home, w
 - The adjacent suites pass ([log](evidence/ux-developer-20260928/dev-r1-targeted-tests.log)); the interaction/copy/semantic lints and `git diff --check` pass.
 
 Parent's capture: the no-chat and open-chat Developer tops at 538 and 1440.
+
+**DEV-R1 check correction.** The first adjacent run ([log](evidence/ux-developer-20260928/dev-r1-targeted-tests.log)) was **73/74**. One failure, `K5-R2: an in-flight save in one Chat/profile slot does not hold another` in `profile-editor.test.mjs`, failed with `release is not a function`. That test doesn't import `runtime-view.mjs`. It waits a single `setTimeout(0)` for the held adapter save to start, and under `--test-concurrency=4` load that can be too short. I reran the suite alone three times (26/26 each) and the same concurrent set three times (74/74 each). The retained [rerun](evidence/ux-developer-20260928/dev-r1-targeted-tests-rerun.log) is 74/74. This is recorded as a pre-existing timing flake for the K5 owner, not a DEV-R1 result or a fix. I committed the first log before reading it; that's corrected here rather than rewritten.
