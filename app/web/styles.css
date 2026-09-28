@@ -2526,6 +2526,12 @@ select {
   gap: var(--space-2);
   justify-content: flex-end;
 }
+/* UX 2026-09-28 · the API key row holds its field and its own Save key /
+   Remove; when the row is narrow the actions wrap under the field. */
+.settings-row-control.credential-control {
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
 .form-dialog {
   width: 420px;
   padding: var(--panel-padding);

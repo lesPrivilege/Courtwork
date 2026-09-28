@@ -91,10 +91,9 @@ export function renderModelEffortCard(
   if (connection && path !== "local" && snapshot?.credentialStatus !== "configured")
     model.append(el("p", { className: "context-meta", text: "No API key on this connection." }));
   model.append(
-    action("settings-2", connection ? "Connections" : "Add provider", () => onConnections(connection?.id ?? null), {
-      visible: true,
-      className: "context-row",
-    }),
+    connection
+      ? action("chevron-right", "Open Models settings", () => onConnections(connection.id), { visible: true, trailing: true, className: "context-row" })
+      : action("settings-2", "Add provider", () => onConnections(null), { visible: true, className: "context-row" }),
   );
 
   const choices = effortChoices(snapshot?.reasoningCapability, config?.reasoningEffort);

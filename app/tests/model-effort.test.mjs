@@ -106,7 +106,10 @@ test("05 · the card names the connection, says when it has no key, and its row 
     const text = container.textContent;
     assert.ok(text.includes("api.example.test · openai-completions"), "the connection is named by its host, as in Settings");
     assert.ok(text.includes("No API key on this connection."));
-    const row = buttonNamed(container, "Connections");
+    // Named for its destination, with the rows' trailing "goes elsewhere" chevron.
+    const row = buttonNamed(container, "Open Models settings");
+    assert.equal(row.tagName, "button");
+    assert.equal(row.children.at(-1).tagName, "svg", "the chevron trails the label");
     await row.dispatchEvent({ type: "click", target: row });
     assert.deepEqual(landed, ["conn-1"]);
 

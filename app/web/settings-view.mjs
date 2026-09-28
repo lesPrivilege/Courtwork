@@ -453,8 +453,12 @@ export function renderConnectionCard(
         el("dd", { text: modelName }),
       ),
       onChooseModel ? action("settings-2", "Model & effort", onChooseModel, { visible:true, className:"context-row" }) : null,
-      action("settings-2", "Connections", onChangeConnection, {
+      /* Goes to Models settings (closing this card, focus returns here on
+         Back); named for the destination, with the rows' "goes elsewhere"
+         chevron. */
+      action("chevron-right", "Open Models settings", onChangeConnection, {
         visible: true,
+        trailing: true,
         className: "context-row",
       }),
     ),
@@ -882,21 +886,15 @@ export function createSettingsView(
     probeCatalogue,
     probeModels,
   );
-  /* PV-27 · 选中模型的能力读数。未知就写 unknown，不写一个宿主编的数。 */
-  const modelCapability = el("p", { className: "form-help" });
-  form.append(
-    addProvider,
-    row("Provider", "Where model requests are sent.", provider),
-    row("Model", "Used for future runs in all chats. Active runs keep their recorded model.", model),
-    modelCapability,
-    advanced,
-    status,
-    error,
-    el("div", { className: "credential-actions" }, save, saveOnly),
-    saveHelp,
-  );
-  const credential = el("form", { className: "credential-form" });
-  const credentialStatus = el("p", { className: "form-help" });
+  /* UX 2026-09-28 · the key sits where the task needs it, right after Provider
+   * and before Model. It still saves through its own form and receipt: the
+   * controls belong to `credential` by the `form` attribute, so Enter in the key
+   * saves the key, and the connection/model buttons never send it (except for a
+   * new endpoint, whose key travels with the connection, as before). */
+  const credentialId = `provider-credential-${++rowSeq}`;
+  const credential = el("form", { className: "credential-form", attrs: { id: credentialId } });
+  // Only a submission owner now: its controls live in the key row above.
+  credential.hidden = true;
   const key = el("input", {
     attrs: {
       type: "password",
@@ -904,11 +902,12 @@ export function createSettingsView(
       "aria-label": "API key",
       placeholder: "Enter an API key",
       spellcheck: "false",
+      form: credentialId,
     },
   });
   const keySave = el("button", {
     className: "secondary-button",
-    attrs: { type: "submit" },
+    attrs: { type: "submit", form: credentialId },
     text: "Save key",
   });
   const keyDelete = el("button", {
@@ -916,11 +915,28 @@ export function createSettingsView(
     attrs: { type: "button", "aria-label": "Remove saved key" },
     text: "Remove",
   });
-  credential.append(
-    el("h4", { text: "API key" }),
-    credentialStatus,
-    row("Key", "Stored on this device only.", key),
-    el("div", { className: "credential-actions" }, keyDelete, keySave),
+  const keyRow = row("API key", "", key);
+  const credentialStatus = keyRow.querySelector(".settings-row-help") ?? el("span", { className: "settings-row-help" });
+  if (!credentialStatus.parentNode) keyRow.querySelector(".settings-row-text").append(credentialStatus);
+  const keyActions = el("div", { className: "credential-actions" }, keyDelete, keySave);
+  // A key's own failure stays at the key (UX-04), not by the model buttons.
+  const keyError = el("p", { className: "inline-error", attrs: { role: "alert", hidden: true } });
+  keyRow.querySelector(".settings-row-control").classList.add("credential-control");
+  keyRow.querySelector(".settings-row-control").append(keyActions);
+  keyRow.querySelector(".settings-row-text").append(keyError);
+  /* PV-27 · 选中模型的能力读数。未知就写 unknown，不写一个宿主编的数。 */
+  const modelCapability = el("p", { className: "form-help" });
+  form.append(
+    addProvider,
+    row("Provider", "Where model requests are sent.", provider),
+    keyRow,
+    row("Model", "Used for future runs in all chats. Active runs keep their recorded model.", model),
+    modelCapability,
+    advanced,
+    status,
+    error,
+    el("div", { className: "credential-actions" }, save, saveOnly),
+    saveHelp,
   );
   container.replaceChildren(list, form, credential);
   renderFlow();
@@ -1223,17 +1239,23 @@ export function createSettingsView(
     keySave.disabled = busy || active || !key.value.trim();
     keyDelete.disabled = busy || active || target?.credentialStatus !== "configured";
     key.disabled = busy || active;
-    credential.hidden = pathId === "local";
+    keyRow.hidden = pathId === "local";
+    // A new endpoint has no saved connection to hold a key yet: the key goes
+    // with Save below, so there is no separate key action to offer.
+    keyActions.hidden = !target;
     credentialStatus.textContent = !target
-      ? "This endpoint is not saved yet. Its key travels with the connection when you save it."
+      ? "Sent with this connection when you save it."
       : target.credentialStatus === "configured"
-        ? "A key is saved on this device for this connection. It is never shown here."
-        : "No key is saved for this connection.";
+        ? "Saved on this device for this connection. It is never shown here."
+        : "No key saved for this connection. Keys stay on this device.";
+    /* Only states the reader must know before acting; the call consequence is
+       stated once, under the Save buttons. */
     status.textContent = active
       ? "A run is active. Connection and permission changes are available after it ends."
       : pathId === "local"
         ? "Uses a deterministic local test provider. No external model request."
-        : "Saved locally. A model call happens only when you send an instruction.";
+        : "";
+    status.hidden = !status.textContent;
     renderModelCapability();
   }
   function resetFields() {
@@ -1316,6 +1338,10 @@ export function createSettingsView(
   function fail(err) {
     error.hidden = false;
     error.textContent = connectionSaveError(err);
+  }
+  function keyFail(err) {
+    keyError.hidden = false;
+    keyError.textContent = connectionSaveError(err);
   }
   async function reloadConnections() {
     connections = (await request("/provider-connections")).connections || [];
@@ -1450,16 +1476,16 @@ export function createSettingsView(
     if (busy || !key.value.trim()) return;
     const target = selectedConnection();
     if (!target) {
-      fail(new Error("Save this connection first. The key for a new endpoint is sent with it."));
+      keyFail(new Error("Save this connection first. The key for a new endpoint is sent with it."));
       return;
     }
     if (dirty) {
-      fail(new Error("Save this connection before adding its key."));
+      keyFail(new Error("Save this connection before adding its key."));
       return;
     }
     busy = true;
     lock();
-    error.hidden = true;
+    keyError.hidden = true;
     const value = key.value;
     key.value = "";
     try {
@@ -1475,7 +1501,7 @@ export function createSettingsView(
       lock();
       notify("API key saved.");
     } catch (err) {
-      fail(err);
+      keyFail(err);
     } finally {
       busy = false;
       lock();
@@ -1487,7 +1513,7 @@ export function createSettingsView(
     if (!target) return;
     busy = true;
     lock();
-    error.hidden = true;
+    keyError.hidden = true;
     try {
       await request("/provider-credential", {
         method: "DELETE",
@@ -1500,7 +1526,7 @@ export function createSettingsView(
       renderConnections();
       notify("Saved key removed.");
     } catch (err) {
-      fail(err);
+      keyFail(err);
     } finally {
       busy = false;
       lock();
