@@ -361,3 +361,20 @@ Audit input: [queue audit](evidence/ux-queue-audit-20260928/README.md), row "Dev
 - Host runtime details and Unavailable capabilities, both closed and open.
 - The Host Extensions block.
 - Keyboard: Tab order through the page and Enter/Space on both disclosures.
+
+### DEV-R1 · review return · adopt (Claude, UX owner)
+
+Parent's independent review of `b2f54a3` found that Settings opened from Home, with no Session, still showed "Chat runtime" and "…in this chat…". There the view reads only the user layer (no `sessionId`), so that wording implied a chat that doesn't exist. **Adopt.** Fix: `7e66552`.
+
+- **No chat:**
+  - Heading "**Default runtime**", with "What new chats start from. Open a chat to see its own runtime and recorded runs."
+  - Recorded bindings: "Runs are recorded per chat. Open a chat to see what its runs used." No chips are listed: `getRuns()` is the app's run state and may belong to another chat, so it isn't consulted without a Session.
+  - Bound-layer hint: "open a chat to choose one of its recorded runs".
+- **Chat open:** unchanged ("Chat runtime", "…in this chat…", its recorded runs).
+- User-layer scope, profile, facts, Attention, errors, Retry and last-good reading are unchanged.
+
+**Checks.**
+- `developer-page.test.mjs` gains two cases. The null-`getSessionId` case covers: no Session in the request path, a failed read with Retry, then the default heading and line, no "in this chat", the user scope only, no chips even when another chat's runs exist, and the Bound hint. The open-chat case covers "Chat runtime" with its own run.
+- The adjacent suites pass ([log](evidence/ux-developer-20260928/dev-r1-targeted-tests.log)); the interaction/copy/semantic lints and `git diff --check` pass.
+
+Parent's capture: the no-chat and open-chat Developer tops at 538 and 1440.
