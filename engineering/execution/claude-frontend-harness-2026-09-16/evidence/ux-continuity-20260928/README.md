@@ -36,3 +36,6 @@ Astra adopts the two bounded fixes; initial source-only “no difference from pr
 ![B2 summary after the scoped reading correction](14-b2-1440-after.png)
 
 ![Current Preview tab revealed at390px](17-preview-second-390-after.png)
+
+
+**Cleanup confirmed.** Sol stopped final owned process64555; port64733 has no listener. Its handler removed only its disposable data/root/dependency link and retained seed scripts and before/candidate metadata in scratch. No user Host or author process was stopped. Parent compared all `app/` bytes with the fixed final author sourcee318c7a before main integration; the combined product is identical.

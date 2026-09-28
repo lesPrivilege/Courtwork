@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-28 · New core/UX routing consumed with bounded results
+
+User permits Astra critical core implementation and original Claude separate integration/frontend/UX work. External recall yields the [strict native/Host boundary](evidence/hermes-protocol-preflight-20260927/external-recall-20260928.md); no product-native code or alternate execution path is released by the reference report. [New-surface audit](evidence/ux-continuity-20260928/README.md) completes two measured Claude corrections (B2 reading values and offscreen active Preview tab) with parent browser and independent narrow checks. Sonnet exploration and Sol fixture support are complete; original Claude writer released. Do not reopen K5/Agents or historical accepted tasks from source-only suspicion. Next core implementation requires the actual strict native dispatch/allowed execution seam and concrete Host identity/receipt contract; preserved Hermes refusal remains. No speculative UI surface, global grammar migration or second state ledger is authorized.
+
 ## 2026-09-28 · Current bounded author batch complete
 
 Original Claude B2 and G5 C13/C14, and Sol G5 fact-map/current-support correction, are accepted in their original records. Both writers are released. Do not re-dispatch these or historical Composer/Settings/recipe work. Hermes remains preserved with server execution unexecuted after the original permission refusal; no retry/workaround has been launched. Remaining candidate/provider configuration, timed media and wider public consumption follow existing G1/G4/G5 responsibilities and their concrete prerequisites. User routing remains Claude core/frontend, Sol disjoint construction, Luna/Sonnet exploration; this receipt starts no speculative new implementation.
