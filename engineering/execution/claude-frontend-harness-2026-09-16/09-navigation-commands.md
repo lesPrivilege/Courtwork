@@ -136,3 +136,16 @@ Parent's touch evidence ([capture](/tmp/cw-ux-batch-review-20260928/chat-touch.p
 - Adjacent suites, including both real-Chrome page tests, pass ([log](evidence/ux-n07-20260928/n07-r2-targeted-tests.log)). The spacing, interaction, shape, colour, material and copy lints and `git diff --check` pass.
 
 Parent confirmed separately that Open is disabled on the current chat and that Shift+F10 and right-click open the same menu.
+
+### N07-R3 · Chat page project naming · adopt, separate commit (Claude, UX owner)
+
+Parent's acceptance replay of N07-R1/R2 passed: Rename showed the new title with focus on the live row; Delete removed the row with focus on a live neighbour; coarse 44×44 and fine 32. Parent also found a pre-existing truthfulness gap on the same page ([rename-fixed](/tmp/cw-ux-batch-review-20260928/rename-fixed.png), [delete-fixed](/tmp/cw-ux-batch-review-20260928/delete-fixed.png), outside the repository). After a reload with no active chat and the project collapsed in the sidebar, two real project chats read "No project", although the project exists and the API's `projectId` isn't empty. **Adopt.** Fix: `81dd965`.
+
+- **Cause:** `openChatPage`, and so `refreshChatPage`, passed only `openProjectIds` plus the active project. The app always passes `recentSessions`, so the page lists Recent chats and uses `projects` only to name each chat's project; a collapsed project was therefore "not found".
+- **Fix:** name from `state.projects`. Sidebar expansion is navigation state, not ownership. A chat whose `projectId` is null still reads "No project"; project-less semantics are unchanged.
+- **Separate commit** because this is an inherited naming bug on the page, independent of the R1/R2 lifecycle and target fixes. It stays reviewable and revertible on its own. I'm not claiming it correct in this delivery; Parent's review decides.
+- **Coverage:** `runChatPageProjectNamesBrowser` (real headless Chrome, disposable Host, one project with two chats plus one project-less chat). It reloads with no open chat, collapses the project in the sidebar (`aria-expanded="false"`, none of its chats listed), then reads each Chat-page row's project name.
+  - **Before** (`e8fbf26`, [record](evidence/ux-n07-20260928/n07-r3-project-names-before-e8fbf26.json)): all three rows read "No project".
+  - **After** ([record](evidence/ux-n07-20260928/n07-r3-project-names-after.json)): the two project chats read "UX batch synthetic project", and the project-less chat reads "No project".
+  - The asserting test is in `chat-page-commands-browser.test.mjs`, alongside the unchanged R1/R2 focus and target test. Adjacent suites, including real Chrome, pass 36/36 with 0 skipped ([log](evidence/ux-n07-20260928/n07-r3-targeted-tests.log)). Lints pass.
+- **Example row with no menu:** Parent reports that after opening the example and visiting an example chat, the Chat page's Continue still showed only the two real recent chats. So "example row has no menu" hasn't been observed on the Chat page in a browser. It stays covered only by the `chat-page.test.mjs` unit case (a target with no commands gets a plain row). No example Recent entry was forced for this.

@@ -1,0 +1,44 @@
+✔ Chat page Rename and Delete redraw the page and land focus on a live row (5408.68625ms)
+✔ N07-R3 · a project collapsed in the sidebar still names its chats on the Chat page; a projectless chat stays No project (1725.499625ms)
+✔ recent chats across open projects, newest first, marking Work and the current one (24.639083ms)
+✔ empty state and New chat stay primary while explanation and sibling entries are disclosed (1.325292ms)
+✔ app wiring: the Chat seat opens the page, the page closes like Attention, and it is served (1.767583ms)
+✔ 09 N-07 · a Chat-page row carries the Shell's object commands like a sidebar chat row; a target with none stays a plain row (1.471167ms)
+✔ 09 N-07 · without an owner the Chat page draws no commands; the app passes the shared attachObjectCommands (1.337708ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (203.884209ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (6.754667ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (1.692416ms)
+✔ 00 · one Work location entry; Connect folder stays the command inside it (1.779375ms)
+✔ Home Activity rejects malformed dates, totals, and requested periods (5.499083ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.50525ms)
+✔ Home Attention detail accepts only the display contract (0.229166ms)
+✔ standalone Attention ignores an older project query after a newer open (43.367125ms)
+✔ standalone Attention ignores a stale detail after project selection changes (5.7135ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.744125ms)
+✔ Back to items clears a pending detail and rejects its late response (4.826083ms)
+✔ Review belongs only to needs_you across Home and Attention states (2.19825ms)
+✔ text-only pending and failed Home rows render and retain their exact navigation scope (3.045959ms)
+✔ Home retains native targets for unchanged projections and uses current callbacks (0.599334ms)
+✔ Home immediately renders changed facts, removed targets, filters, and errors (0.713625ms)
+✔ Home remounts after the shared stream was used by a chat (0.9275ms)
+✔ 09 · one stack: the Shell trail is in memory, the hash stays the Settings deep link, nothing is pushed to the browser (3.971791ms)
+✔ 09 · leave before every departure, arrive only through the reader; traversal resolves through selectSession and restores the anchor after render (2.265666ms)
+✔ 09 · every row entry point goes through the one dispatcher; the native menu is taken only when a menu is offered (0.946791ms)
+✔ 09 · dogfooding fix: leaving the example keeps a project-less chat in place (0.173375ms)
+✔ 09 · `when` draws only commands with a real path; `enablement` keeps a real command in the menu with its reason (3.8325ms)
+✔ 09 · the dispatcher resolves the target again when a command runs: gone, disabled and unknown all stop before the handler (0.331625ms)
+✔ 09 · the menu primitive: groups with separators only between them, disabled rows reachable with their reason, roving keys, Escape home (3.87725ms)
+✔ unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID (580.898792ms)
+✔ unassigned coordination scope does not merge all null-project conversations (55.7005ms)
+✔ schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS (155.620542ms)
+✔ summary labels use explicit Session scope, never null project as Attention authority (0.334958ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (2.129959ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (0.39175ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8109.168125

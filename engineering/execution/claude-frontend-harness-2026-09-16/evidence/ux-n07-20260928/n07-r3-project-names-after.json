@@ -1,0 +1,22 @@
+{
+  "sidebar": {
+    "projectExpanded": "false",
+    "projectShown": true,
+    "projectChatsListed": 0,
+    "activeChat": false
+  },
+  "rows": [
+    {
+      "title": "UX batch — Projectless",
+      "project": "No project"
+    },
+    {
+      "title": "UX batch — In project B",
+      "project": "UX batch synthetic project"
+    },
+    {
+      "title": "UX batch — In project A",
+      "project": "UX batch synthetic project"
+    }
+  ]
+}
