@@ -116,7 +116,7 @@ function hero(fill, shot) {
 function currentHome(fill, shot) {
   return `        <section class="home-capture-slot current-home" data-capture-slot="home" aria-labelledby="current-home-title">
           <div class="home-capture-heading"><div><p class="index">INSIDE COURTWORK / LOCAL APPLICATION</p><h2 id="current-home-title">A place to return.</h2><p>打开工作、查看活动，或与 Attention 继续对话。</p></div><a href="./tour.html">Explore the product tour →</a></div>
-${shot("M1", { alt: "Courtwork 当前 Home：项目、活动与 Attention 入口。", caption: inline("回到项目，继续工作。", fill), eager: true })}
+${shot("M1", { alt: "Courtwork Home：项目、活动与 Attention 入口。", caption: inline("回到项目，继续工作。", fill), eager: true })}
 
         </section>`;
 }
