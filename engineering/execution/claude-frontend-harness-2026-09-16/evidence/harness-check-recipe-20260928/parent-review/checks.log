@@ -1,0 +1,45 @@
+✔ check approval rejects changed write revision before recording a start (2.38325ms)
+✔ check approval rejects changed candidate identity before recording a start (0.1125ms)
+✔ check approval rejects changed candidate revision before recording a start (0.082042ms)
+✔ check approval rejects changed candidate status before recording a start (0.087417ms)
+✔ check approval rejects changed binding identity before recording a start (0.084583ms)
+✔ check approval rejects changed binding revision before recording a start (0.078917ms)
+✔ check approval rejects changed execution path before recording a start (0.077625ms)
+✔ check approval rejects changed missing active binding before recording a start (0.077375ms)
+✔ check requires the exact approved recipe descriptor (0.234917ms)
+✔ candidate drift while persisting check.started settles failed without executing (5.764167ms)
+✔ runner's final synchronous Host fence prevents actual process side effects (2.968375ms)
+✔ runner cancellation before preparation never spawns (0.424792ms)
+✔ runner cancellation inside final fence never spawns (0.819625ms)
+✔ admission closing during start persistence settles once as cancelled without spawn (0.851667ms)
+✔ Attention recipe is one frozen descriptor alongside the unchanged package recipe (3.832709ms)
+✔ Harness recipe is the third frozen descriptor; the first two keep their meaning and order (0.284708ms)
+✔ runCheckRecipe reports a clean exit without truncation (73.717042ms)
+✔ runCheckRecipe reports a non-zero exit without throwing (62.458292ms)
+✔ runCheckRecipe caps captured stdout/stderr and marks truncated (69.298667ms)
+✔ runCheckRecipe timeout kills the whole process group, including a nested child (308.162625ms)
+✔ runCheckRecipe cancels on abort and resolves only after the group has exited (205.038458ms)
+✔ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (1.915125ms)
+✔ check_run is denied with zero process start under read_only (3122.454334ms)
+✔ an unknown recipe id returns a tool error without opening a permission or spawning anything (2740.606166ms)
+✔ ask mode shows the exact recipe in the permission payload and deny records nothing (3149.1265ms)
+✔ approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets (8869.781375ms)
+✔ approved Harness recipe runs its six fixed targets: pass, nonzero after an exact candidate write, pass after the correction (6180.616792ms)
+✔ Harness recipe stops before spawn on a missing fixed target and reports a missing dependency as a nonzero result, with no install or retry (7514.713292ms)
+✔ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (4196.734584ms)
+✔ cancelling a Run whose check is still running still records check.settled as cancelled (3535.980583ms)
+✔ an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (183.096667ms)
+✔ same Run write then check approves and persists the current candidate revision (3126.936375ms)
+▶ P03-E · write → approval → fixed check parity
+  ✔ check fails before the fix; an approved exact write then the fixed check pass; result, diff and a reopened Host match on both runtimes (9912.341417ms)
+  ✔ deny, a stale approval, a revoked candidate and a cancelled running check leave the same Host record on both runtimes (8340.300125ms)
+  ✔ the remote consumer adds its own receipts to the same effects, exposes nothing it was not admitted with, and keeps its argument ceiling (2993.417208ms)
+✔ P03-E · write → approval → fixed check parity (21246.972209ms)
+ℹ tests 35
+ℹ suites 1
+ℹ pass 35
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66818.506667

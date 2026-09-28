@@ -177,3 +177,6 @@ Source `c32c492`; [author evidence](evidence/harness-check-recipe-20260928/READM
 - **Checks:** the governance/adjacent suites pass 56/56. The real fake-provider Host `check_run` against a private candidate with candidate-local `npm ci --ignore-scripts` dependencies ran the six files 129/129, exit 0, in 59.5 s of 120 s.
 
 Writer released for independent review. The phase 2 real-provider task waits for Parent's environment and the user's key.
+
+
+**Phase-one independent acceptance · 2026-09-28.** [Parent receipt](evidence/harness-check-recipe-20260928/parent-review/README.md) accepts c32c492/bb35b86. Luna verifies source and actual candidate dependency/receipt hashes; parent35/35 passes. Author real fake-Host check_run129/129/59.525s fits unchanged limits and is not real-model authorship. Third recipe and missing_target refusal are complete; original Claude writer released. Phase-two recipe-discoverability work remains reserved for the real CW model after user configuration, with no key copied from another environment.
