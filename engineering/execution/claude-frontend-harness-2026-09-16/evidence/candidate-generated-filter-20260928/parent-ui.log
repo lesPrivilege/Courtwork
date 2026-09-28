@@ -1,0 +1,14 @@
+✔ diffWords marks only the changed tokens and never leading indentation (1.05725ms)
+✔ diffModel: word segments only for exactly one removed + one added line (0.914833ms)
+✔ renderDiff keeps ± and line numbers as text and puts blocks only on new words (1.33275ms)
+✔ renderDiff treats markup as text, renders the no-newline marker, and handles empty input (0.827958ms)
+✔ Settings preview and the static allowlist use the shared renderer and fixture (3.01975ms)
+✔ candidate diff scope: the Host's explicit untracked-directory exclusion is said once; an older reply implies nothing (0.13175ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 148.038084

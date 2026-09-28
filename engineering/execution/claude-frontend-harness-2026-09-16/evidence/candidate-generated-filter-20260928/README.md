@@ -9,3 +9,7 @@ Astra source, Sol bounded regression author, Luna independent source/test review
 - Original Claude68e2c08/c71fadb owns the required short human-diff scope note. Combined browser verification follows integration; broader UX simplification is a separate continuation.
 
 No key access, dependency upgrade, global ignore, raised limit, changed approval, native Hermes retry or whole-suite claim.
+
+## Combined independent acceptance
+
+Astra accepts combined e3a12698 (core1876791 and original Claude68e2c08/c71fadb). Parent diff-view6/6 passes; docs/interaction checks follow before publication. Only the owned idle acceptance Host was restarted at its existing loopback port using its existing data directory and a fast-forwarded clean clone. No credentials were inspected or transferred. Actual authenticated HTTP returns200 and exactly the3 retained model-authored files plus the explicit exclusion field. OpenAI browser navigates Chat overview → Review changes and shows all3 patches, preserved base/write count, the short Host-driven omission note, and patch hash [as captured](diff-fixed.png). Existing historical Unknown and completed Runs remain after restart. This is independent integration verification without a new paid model call. The empty/legacy/malformed variants have focused test evidence, not new browser captures; desktop/narrow/theme/accessibility full matrices were not rerun for this one text line.
