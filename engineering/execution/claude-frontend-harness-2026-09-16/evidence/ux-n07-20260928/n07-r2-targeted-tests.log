@@ -1,0 +1,28 @@
+✔ Chat page Rename and Delete redraw the page and land focus on a live row (5595.858875ms)
+✔ recent chats across open projects, newest first, marking Work and the current one (19.625125ms)
+✔ empty state and New chat stay primary while explanation and sibling entries are disclosed (1.170958ms)
+✔ app wiring: the Chat seat opens the page, the page closes like Attention, and it is served (1.831458ms)
+✔ 09 N-07 · a Chat-page row carries the Shell's object commands like a sidebar chat row; a target with none stays a plain row (0.625916ms)
+✔ 09 N-07 · without an owner the Chat page draws no commands; the app passes the shared attachObjectCommands (1.278375ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (162.376292ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (2.875333ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (1.274833ms)
+✔ 00 · one Work location entry; Connect folder stays the command inside it (1.167042ms)
+✔ 09 · one stack: the Shell trail is in memory, the hash stays the Settings deep link, nothing is pushed to the browser (3.241292ms)
+✔ 09 · leave before every departure, arrive only through the reader; traversal resolves through selectSession and restores the anchor after render (2.388708ms)
+✔ 09 · every row entry point goes through the one dispatcher; the native menu is taken only when a menu is offered (0.743041ms)
+✔ 09 · dogfooding fix: leaving the example keeps a project-less chat in place (0.219709ms)
+✔ 09 · `when` draws only commands with a real path; `enablement` keeps a real command in the menu with its reason (1.995334ms)
+✔ 09 · the dispatcher resolves the target again when a command runs: gone, disabled and unknown all stop before the handler (0.29575ms)
+✔ 09 · the menu primitive: groups with separators only between them, disabled rows reachable with their reason, roving keys, Escape home (3.651625ms)
+✔ Settings search and section switches never reveal what a view hid (3019.286417ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (2.88175ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (0.658375ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6534.007667

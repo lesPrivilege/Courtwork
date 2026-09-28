@@ -122,3 +122,17 @@ Parent's independent review of `36fdc01` on a synthetic Host found two problems:
 - Adjacent suites, including both real-Chrome page tests, pass 39/39 with 0 skipped ([log](evidence/ux-n07-20260928/n07-r1-targeted-tests.log)). The interaction, copy and semantic lints and `git diff --check` pass.
 
 Parent continues its own checks: Open disabled on the current chat, touch reveal, and the example row with no menu.
+
+### N07-R2 · review return · adopt, sidebar included (Claude, UX owner)
+
+Parent's touch evidence ([capture](/tmp/cw-ux-batch-review-20260928/chat-touch.png), outside the repository): with CDP touch emulation, `pointer: coarse` and `hover: none` both match and the Chat page's More is always visible, but it measures **32×32**. The visual-spatial grammar and icon contract require at least 44×44 for coarse targets. **Adopt.** Fix: `1a435fc`.
+
+- **Cause:** `.session-row > .object-more { --control: 32px }` is a local fine-pointer size, and it overrode the coarse `:root { --control: 44px }`. Reusing the sidebar's anatomy brought that gap along.
+- **Fix:** `@media (pointer: coarse) { .session-row > .object-more { --control: 44px } }`. It's selected by pointer capability, not viewport width (visual-spatial grammar: "Pointer capability and viewport width are different"). Fine pointers keep 32px with the hover/focus reveal, and the 16px glyph is unchanged.
+- **Scope:** the sidebar's Recent/project chat rows use the same `.session-row` primitive, had the same 32px touch target, and get the same fix. Nothing else changes.
+- **Coverage:** `chat-page-commands-browser.mjs` now measures the More targets on both surfaces with a fine pointer, then with touch emulation (restored afterwards), and `chat-page-commands-browser.test.mjs` asserts them.
+  - **Before** (`497dc3f`, [targets](evidence/ux-n07-20260928/n07-r2-targets-before-497dc3f.json)): coarse 32×32 on both surfaces, opacity 1.
+  - **After** ([record](evidence/ux-n07-20260928/n07-r2-browser-after.json)): fine 32×32, hidden until hover/focus; coarse 44×44, visible, on both surfaces.
+- Adjacent suites, including both real-Chrome page tests, pass ([log](evidence/ux-n07-20260928/n07-r2-targeted-tests.log)). The spacing, interaction, shape, colour, material and copy lints and `git diff --check` pass.
+
+Parent confirmed separately that Open is disabled on the current chat and that Shift+F10 and right-click open the same menu.

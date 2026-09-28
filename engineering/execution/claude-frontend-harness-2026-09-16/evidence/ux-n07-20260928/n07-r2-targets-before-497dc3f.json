@@ -1,0 +1,80 @@
+{
+ "targets": {
+  "fine": {
+   "coarse": false,
+   "chatPage": [
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "0"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "0"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "0"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "0"
+    }
+   ],
+   "sidebar": [
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "0"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "0"
+    }
+   ],
+   "chatRowHeight": 56
+  },
+  "coarse": {
+   "coarse": true,
+   "chatPage": [
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "1"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "1"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "1"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "1"
+    }
+   ],
+   "sidebar": [
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "1"
+    },
+    {
+     "w": 32,
+     "h": 32,
+     "opacity": "1"
+    }
+   ],
+   "chatRowHeight": 56
+  }
+ }
+}
