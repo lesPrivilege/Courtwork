@@ -182,6 +182,7 @@ export function createHermesRunsTransport(options = {}) {
   async function* events(runId, { signal } = {}) {
     const operation = "events";
     if (closed) throw new HermesTransportError("closed", operation, "the transport is closed");
+    if (signal?.aborted) throw new HermesTransportError("aborted", operation, "the caller stopped reading");
     const queue = [];
     let wake = null;
     let done = false;
@@ -243,12 +244,18 @@ export function createHermesRunsTransport(options = {}) {
         let text;
         try { text = decoder.decode(chunk, { stream: true }); } catch { fail("invalid_utf8", "the stream was not valid UTF-8"); return; }
         pending += text;
-        if (Buffer.byteLength(pending) > bounds.maxFrameBytes * 2) { fail("frame_too_large", "a line exceeded the frame limit"); return; }
         // A trailing "\r" may be the first half of "\r\n": hold it for the next chunk.
         const hold = pending.endsWith("\r") ? "\r" : "";
         const lines = (hold ? pending.slice(0, -1) : pending).split(/\r\n|\r|\n/);
         pending = lines.pop() + hold;
-        for (const line of lines) { if (done) return; dispatchLine(line); }
+        // HTTP chunk boundaries do not delimit SSE lines or events.
+        for (const line of lines) {
+          if (done) return;
+          if (Buffer.byteLength(line) > bounds.maxFrameBytes * 2) { fail("frame_too_large", "a line exceeded the frame limit"); return; }
+          dispatchLine(line);
+        }
+        const pendingLine = hold ? pending.slice(0, -1) : pending;
+        if (!done && Buffer.byteLength(pendingLine) > bounds.maxFrameBytes * 2) fail("frame_too_large", "a line exceeded the frame limit");
       });
       response.on("end", () => {
         if (done) return;

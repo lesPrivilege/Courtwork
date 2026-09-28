@@ -8,6 +8,7 @@
  * copied constants. */
 import assert from "node:assert/strict";
 import test from "node:test";
+import http from "node:http";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -38,6 +39,72 @@ async function harness({ scripts = {}, keepaliveMs = 0, limits = {}, adapterLimi
   };
 }
 const calls = (fixture, call) => fixture.trace.filter((entry) => entry.call === call);
+
+test("an already-aborted event read opens no HTTP request", async () => {
+  let requests = 0;
+  const server = http.createServer((_request, response) => {
+    requests += 1;
+    response.writeHead(200, { "Content-Type": "text/event-stream" });
+    response.end('data: {"n":1}\n\n');
+  });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  const transport = createHermesRunsTransport({ endpoint: `http://127.0.0.1:${server.address().port}` });
+  try {
+    const controller = new AbortController();
+    controller.abort();
+    await assert.rejects(async () => {
+      for await (const _frame of transport.events("run_cancelled", { signal: controller.signal })) {}
+    }, { code: "aborted" });
+    assert.equal(requests, 0);
+    assert.equal(transport.openConnections(), 0);
+  } finally {
+    transport.close();
+    await new Promise(resolve => server.close(resolve));
+  }
+});
+
+test("small SSE frames coalesced into one HTTP response retain per-frame bounds", async () => {
+  const values = Array.from({ length: 12 }, (_, n) => JSON.stringify({ n }));
+  const bodies = [
+    values.map(value => `data: ${value}\n\n`).join(""),
+    `data: ${"x".repeat(17)}\n\n`,
+    `event: ${"x".repeat(40)}\n\ndata: {}\n\n`,
+  ];
+  let finishSplit;
+  const server = http.createServer((request, response) => {
+    response.writeHead(200, { "Content-Type": "text/event-stream" });
+    if (request.url === "/v1/runs/3/events") {
+      response.write(`data: {}\n\nevent: ${"x".repeat(25)}\r`);
+      finishSplit = () => response.end('\ndata: {}\n\n');
+      return;
+    }
+    response.end(bodies[Number(request.url.split("/")[3])]);
+  });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  const transport = createHermesRunsTransport({
+    endpoint: `http://127.0.0.1:${server.address().port}`,
+    limits: { maxFrameBytes: 16, maxStreamBytes: 1024 },
+  });
+  try {
+    const frames = [];
+    for await (const frame of transport.events("0")) frames.push(frame.data);
+    assert.deepEqual(frames, values, "network chunk packing cannot lose valid events");
+    for (const id of ["1", "2"]) {
+      await assert.rejects(async () => {
+        for await (const _frame of transport.events(id)) {}
+      }, { code: "frame_too_large" }, "oversized data frames and complete metadata lines remain refused");
+    }
+    const split = transport.events("3");
+    assert.equal((await split.next()).value.data, "{}");
+    finishSplit();
+    assert.deepEqual((await split.next()).value, { type: "data", data: "{}", event: "x".repeat(25) }, "a split CRLF does not count its terminator against the line bound");
+    assert.equal((await split.next()).done, true);
+    assert.equal(transport.openConnections(), 0);
+  } finally {
+    transport.close();
+    await new Promise(resolve => server.close(resolve));
+  }
+});
 
 /* ── Identity and configuration ──────────────────────────────────────── */
 

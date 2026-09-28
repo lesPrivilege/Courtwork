@@ -85,6 +85,9 @@ Adapter identity is `hermes-api-runs`, revision `hermes-agent@d7b836ab…/api-ru
 
 ## Transport bounds (defaults; overridable per instance)
 
+Event reads with an already-aborted signal refuse before opening an HTTP request. Frame and line bounds apply independently of how the network combines or splits SSE frames, including split CRLF terminators; the whole-stream limit still counts received wire bytes.
+
+
 - **Endpoint.** Only an explicit `http://127.0.0.1|localhost|[::1]:<port>` origin. Nothing is read from the environment, and there is no endpoint discovery. The bearer value is never echoed in errors.
 - **Limits.**
 
