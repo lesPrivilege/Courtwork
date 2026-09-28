@@ -9,6 +9,16 @@ const noticePairs = {
   auto_retry_end: "auto_retry_start",
 };
 const TERMINAL = new Set(["completed", "failed", "cancelled", "unknown"]);
+const REQUEST_SUMMARY_OMISSIONS = new Set(["invalid_path", "unsafe_display", "run_limit"]);
+
+/** A recorded request summary, or undefined when the field is absent or not
+ * the version-1 shape (older events and other tools carry none). */
+function requestSummaryOf(value) {
+  if (!value || typeof value !== "object" || value.version !== 1 || typeof value.truncated !== "boolean") return undefined;
+  if (value.omittedReason === null) return typeof value.path === "string" && value.path ? { path: value.path, truncated: value.truncated, omittedReason: null } : undefined;
+  return REQUEST_SUMMARY_OMISSIONS.has(value.omittedReason) && value.path === null ? { path: null, truncated: false, omittedReason: value.omittedReason } : undefined;
+}
+
 export function projectThread(events, runs, sessionId) {
   const rows = [],
     assistants = new Map(),
@@ -87,6 +97,9 @@ export function projectThread(events, runs, sessionId) {
         data.arguments ??
         data.input ??
         row.request;
+      // 06b B2 · the Host-admitted request summary is its own fact, kept apart
+      // from legacy raw Request; only a start carries it and the first stays.
+      if (type === "tool/start" && !row.requestSummary) row.requestSummary = requestSummaryOf(data.requestSummary);
       row.result = data.result ?? data.text ?? data.error ?? row.result;
       row.isError = Boolean(data.isError || data.error);
       row.phase = type === "tool/result" ? "result" : "started";

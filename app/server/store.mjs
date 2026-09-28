@@ -23,6 +23,7 @@ import {
   validateProviderModels,
 } from './provider-fields.mjs';
 import { appendLocalPiEvent, localPiRunUnresolved, validateLocalPiEvents } from '../runtime/local-pi-state.mjs';
+import { admitRequestSummary, isLexicalRepositoryPath } from '../runtime/request-summary.mjs';
 import { validateKitBinding, validateKitBindings } from '../runtime/kit-binding-state.mjs';
 import {
   hasExecutorHistory, historicalExecutor, isSparkChildRun, migrateExecutorState,
@@ -697,7 +698,9 @@ function appendEventToState(state, { runId, sessionId, type, data }) {
   const session = state.sessions.find((item) => item.id === sessionId);
   if (!session) throw new Error("session not found");
   session._nextSeq += 1;
-  const event = { seq: session._nextSeq, runId, sessionId, type, data: structuredClone(data) };
+  // 06b B2 · request summaries are admitted here, inside the serialized
+  // mutation, so first-wins and the per-Run budget survive restart and races.
+  const event = { seq: session._nextSeq, runId, sessionId, type, data: structuredClone(admitRequestSummary(state.events, { runId, type, data })) };
   state.events.push(event);
   return event;
 }
@@ -1393,8 +1396,7 @@ export class RuntimeStore {
       }
       if (!["list", "read", "grep"].includes(operation)) throw repositoryBindingError("INVALID_OPERATION", "repository read operation is invalid");
       text(relativePath, "repository read path", 1000);
-      const validRelativePath = value => value === "." || (!path.isAbsolute(value) && !value.includes("\\")
-        && value.split("/").every(part => part && part !== "." && part !== ".."));
+      const validRelativePath = isLexicalRepositoryPath;
       assert(validRelativePath(relativePath), "repository read path is invalid");
       sha256Hex(resultSha256, "repository read resultSha256");
       assert(Array.isArray(sources) && sources.length <= 500, "repository read sources are invalid");
