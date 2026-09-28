@@ -452,3 +452,35 @@ Parent's independent browser review of `1beb385` found the API key row with Remo
 - The interaction, spacing, colour, material and shape lints pass, as do product copy, semantic consumers and `git diff --check`.
 
 Parent continues its separate synthetic checks (Enter saving only the key, key-local error, button Tab order, navigation rows).
+
+### MS-R2 · review return · adopt, with the adjacent typed-key fix (Claude, UX owner)
+
+Parent's direct evidence ([capture](/tmp/cw-models-review-20260928/stale-key-error-before.png), outside the repository):
+- A saved loopback-compatible connection with no key; an API-format change leaves an unsaved edit.
+- Enter in the key correctly shows "Save this connection before adding its key.".
+- After Configure moved to the saved DeepSeek connection, that error still showed, implying the new target was unsaved.
+
+Parent later clarified that its earlier "dirty reset" was an inference, not a read of internal state. This record doesn't treat it as verified, and dirty/connection-save semantics are left unchanged. **Adopt.** Fix: `84aaf85`.
+
+**Key-error lifecycle (target-scoped).**
+- The error belongs to the key's target, `path|provider`. `keyTargetChanged()` runs at the end of `applyPath` and in the provider change handler. It retires the error only when that target actually changed.
+- A background `refresh`/`resetFields` that re-aims the form at the same target keeps a current failure.
+- A successful connection save clears the error it resolves.
+- Key save and remove failures carry the target they were sent for, and a late reply for an earlier target is dropped. A new failure for the target on screen is always shown, including the unsaved-change error re-raised on the next submit.
+
+**Adjacent typed-key ownership: adopt.**
+- A provider change already cleared the typed key; Configure and the path choice did not. A key typed for one connection could therefore stay in the field after switching, and Enter would save it to the new target.
+- Both explicit target switches now clear it too.
+- The clear is deliberately not placed in `applyPath`, so a background reset doesn't wipe what the reader is typing.
+
+**Checks.** `models-save-flow.test.mjs` covers these with a real disposable Host and a synthetic loopback-compatible connection (the Host's fake provider), no external provider:
+- Parent's case: Configure DeepSeek retires the error and clears the typed key; a path change clears the typed key.
+- A provider change retires the error.
+- On the same unsaved target the error stays while typing and is re-raised on submit.
+- "Save only" resolves it, and the key then saves ("API key saved.", configured).
+- A held DeepSeek key failure that arrives after Configure OpenAI isn't shown, while a current unsaved-change failure still is.
+- With the loopback connection in force, a Host-refused key error and the retyped key both survive `view.refresh()`.
+
+The first two MS-R2 cases fail on `aebd712` and pass with the fix. The refresh case passes on both: it's a guard against over-clearing, which my first draft of this fix did.
+
+The Models, credential, settings and Developer suites, plus both real-Chrome page tests, pass 104/104 with 0 skipped ([log](evidence/ux-models-20260928/ms-r2-targeted-tests.log)). The interaction, copy and semantic lints and `git diff --check` pass.
