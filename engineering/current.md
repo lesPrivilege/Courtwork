@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · First Models and Runtime simplification accepted
+
+[Current before/after receipt](execution/claude-frontend-harness-2026-09-16/evidence/ux-simplification-20260928/README.md) accepts original Claude e7ffd04/d79c1c7 after independent Luna source review, parent37/37 and actual OpenAI browser checks. Models host diagnostics now use the existing closed disclosure; Runtime repeats are removed and Owner moves to Technical detail. Save/key/test behavior, configuration/live/capability distinctions and error recovery remain; no CSS or authority change. Prior candidate dependency filtering is already pushed12980f0. This completes the first bounded UX slice; Developer hierarchy and save-flow consolidation remain deferred, not whole-product UX acceptance.
+
 ## 2026-09-28 · Candidate dependency friction corrected; UX pass active
 
 [Combined receipt](execution/claude-frontend-harness-2026-09-16/evidence/candidate-generated-filter-20260928/README.md) accepts Astra1876791 plus original Claude68e2c08/c71fadb. Candidate grep skips generated node_modules traversal; untracked diff enumeration prunes those trees before the output cap, retaining tracked changes and ordinary ignored new files. Parent36/36 + human projection1/1 + diff UI6/6, Sol2/2 targeted regressions and Luna source/test review support the slice. The same real engineering candidate now returns HTTP200/three changed files; OpenAI browser displays the patches and explicit omission note after an owned Host restart. No new model call/native/runtime/schema change. Claude continues the authorized UX text/control inventory, grounded in current Models/Agents/Runtime/Developer captures; broader simplification is not yet accepted.

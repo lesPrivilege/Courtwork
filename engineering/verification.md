@@ -1,5 +1,7 @@
 # 验证选择与证据边界
 
+2026-09-28 · [First Models/Runtime simplification](execution/claude-frontend-harness-2026-09-16/evidence/ux-simplification-20260928/README.md): original Claude155/155 author checks; parent37/37, Luna independent source review, actual browser disclosure/retained-state checks at538/390/1440. Before/after screenshots and unexecuted dark/zoom/reader/error matrices stay explicit; no real model/key action or authority change.
+
 2026-09-28 · [Candidate dependency filtering](execution/claude-frontend-harness-2026-09-16/evidence/candidate-generated-filter-20260928/README.md): parent36/36 candidate/binding,1/1 HTTP omission projection and6/6 diff view; Sol2/2 concrete budget regressions and Luna source/test review. Actual prior candidate HTTP diff and browser scope disclosure pass after owned Host restart. Fixed generated exclusions are explicit; source budgets/permissions and tracked/ordinary-new-source visibility remain. No full-suite/native or new paid model run.
 
 2026-09-28 · [Real CW engineering closure](execution/claude-frontend-harness-2026-09-16/evidence/harness-real-engineering-20260928/README.md): actual Kit/Skill-bound real-model candidate authoring, expected129/130 failure →130/130 pass; parent17/17 and independent source review. Exact-path operator review and continuation after budget Unknown are explicit. New recipeId model description preserves frozen catalog/approval semantics. No full suite, native runtime or unaided discovery claim.

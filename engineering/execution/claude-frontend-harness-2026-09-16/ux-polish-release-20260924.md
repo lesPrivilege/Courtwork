@@ -290,3 +290,6 @@ Author checks:
 - The interaction, spacing, colour and material lints pass, as do `check-product-copy`, `check-semantic-consumers` and `git diff --check`.
 
 Parent does the current browser acceptance (compact and default-open states, disclosure contents, narrow/desktop views). This slice does not complete the wider UX pass.
+
+
+**First-slice independent acceptance · 2026-09-28.** [Current before/after receipt](evidence/ux-simplification-20260928/README.md) accepts original Claude e7ffd04/d79c1c7. Luna independently traces unchanged provider/key save/test semantics, moved facts and retained runtime status/error/capability behavior; no blocker, source-only review. Parent37/37 plus OpenAI actual browser confirms Models default collapse/keyboard expansion/open-state return and Runtime Owner relocation/refresh persistence; actual538 and390/1440 layouts retain content. Safe provider/model/credential-status/Run/candidate projections are unchanged. Adopt the two scoped simplifications, adjust the earlier source-only almost-all-keep assessment, defer Developer hierarchy and model/key save-flow redesign for their distinct contracts. No CSS/token/authority change, paid model call, user8787 restart or all-UX claim.
