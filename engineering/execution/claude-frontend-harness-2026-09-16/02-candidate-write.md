@@ -52,3 +52,23 @@ Independent review: 无
 - 冲突反例（批准后源文件改变 → 拒绝并保留意图）只有后端测试，GUI 未走。
 - Core 正式接受（Candidate→Decision→Artifact）与检查回执分列属 03/08。
 - 非作者复核、真实 provider、1440/1280/200%/读屏未做。
+
+## 2026-09-28 · Candidate diff scope note (frontend seam, Claude)
+
+**Owner and precedent.**
+- The backend field `untrackedExcludedDirectoryNames` on `GET /sessions/:id/repository-candidate/diff` belongs to Astra's core change.
+- This frontend consumer is the existing human diff dialog: `openCandidateDiff` in `app/web/app.mjs` and the shared `app/web/diff-view.mjs`.
+- The nearest precedent is the dialog's own `p.form-help` patch-hash line. Grammar: UX-02 (the scope stays beside the object it qualifies) and UX-04 (no new decision surface).
+- No new button, diagnostic table, density or CSS.
+
+**Behaviour.** Product commit `68e2c08`.
+- `omittedDirectoriesNote(result)` returns "Untracked node_modules files are omitted." only for an explicit, non-empty Host list of non-empty strings. An older reply without the field, or malformed values, return null, and nothing is inferred.
+- The dialog appends that one `form-help` line after "No changes yet." for an empty diff, or after the file list and before the patch hash for a non-empty diff. Tracked edits render unchanged.
+
+**Checks.**
+- `app/tests/diff-view.test.mjs` covers the explicit field with both empty and non-empty patches, and the absent, empty, non-array, empty-string and non-string cases.
+- diff-view, entry-audit and repository-candidate pass 33/33 ([log](evidence/candidate-diff-scope-note-20260928/targeted-tests.log)).
+- `check-product-copy`, `lint-interaction`, `check-semantic-consumers` and `git diff --check` pass.
+- The Host field isn't in this tree yet, so no browser run was done. Parent verifies once Astra's backend lands.
+
+Writer released for acceptance.

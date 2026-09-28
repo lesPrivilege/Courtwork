@@ -1,0 +1,41 @@
+✔ diffWords marks only the changed tokens and never leading indentation (1.596042ms)
+✔ diffModel: word segments only for exactly one removed + one added line (1.374375ms)
+✔ renderDiff keeps ± and line numbers as text and puts blocks only on new words (1.989958ms)
+✔ renderDiff treats markup as text, renders the no-newline marker, and handles empty input (0.467625ms)
+✔ Settings preview and the static allowlist use the shared renderer and fixture (1.966583ms)
+✔ candidate diff scope: the Host's explicit untracked-directory exclusion is said once; an older reply implies nothing (0.475917ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (162.434042ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (3.571333ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (1.206666ms)
+✔ 00 · one Work location entry; Connect folder stays the command inside it (0.927542ms)
+✔ candidate reads and writes serialize so provenance keeps the observed write revision (4.838584ms)
+✔ parallel ask-mode writes cannot spend approval after the candidate revision advances (1.790542ms)
+✔ private Git candidate uses the explicit commit, contains source execution config, and leaves the dirty source untouched (3011.1095ms)
+✔ private candidate dissociates source object alternates (2502.691916ms)
+✔ candidate diff stops collecting untracked patches at the aggregate Host limit (3767.251292ms)
+✔ Linux mountinfo parser detects escaped mountpoint descendants (41.89825ms)
+✔ candidate creation rejects a replaced bound source root (153.371667ms)
+✔ candidate FD write inspects expected hashes and replaces existing files with a new inode (2776.3345ms)
+✔ candidate FD write creates only absent targets and serializes the no-replace primitive (2499.616334ms)
+✔ candidate FD write rejects traversal, Git control paths, symlinks, and a replaced root (2568.6015ms)
+✔ candidate FD post-operation check catches root replacement after its descriptor is opened (2270.775541ms)
+✔ candidate API rejects UUID versions the private-worktree builder cannot create before recording a receipt (110.665584ms)
+✔ candidate command history rejects overflow without poisoning restart and source revoke remains available (232.990583ms)
+✔ candidate receipt budget preserves NO_ACTIVE_CANDIDATE and refuses a create that would strand revoke (212.88075ms)
+✔ repository write effect cap rejects before mutation and leaves an openable store (228.539584ms)
+✔ repository retained-payload cap rejects a write from a later candidate (196.504333ms)
+✔ schema17 candidate API keeps source reads separate, asks before writes, records receipts, and revokes Run access (7564.986917ms)
+✔ human candidate diff route requires an active candidate and the work token (72.46025ms)
+✔ candidate_grep and repo_diff exclude a candidate_read-denied file, counting it without naming it (3907.046417ms)
+✔ source binding replacement requires an active private candidate to be revoked first (2864.394375ms)
+✔ confirmed candidate write replay returns its stored receipt without reapplying stale expected state (3236.726209ms)
+✔ schema16 migrates into schema17 without losing source binding snapshots (150.434583ms)
+✔ prepared repository writes become unknown after restart and are never replayed (146.436667ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 39694.821375
