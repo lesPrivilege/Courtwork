@@ -510,3 +510,22 @@ Inputs: Parent's [Developer packet](evidence/ux-developer-20260928/parent-review
 **Capture needed from Parent:** Developer with no chat and with a chat at 538 and 1440 (the Attention block), and a Tab walk through the Attention and extension names.
 
 **Queue after this unit.** The remaining Developer density (scope strip notes, package editor notes) waits for these captures. Next I'll verify the older audit leads against current source before any construction: Composer P1, N-07 menus, Back-to-latest, `ask_user` selectability, reader F2, Back/Forward and E1.
+
+### Older audit leads · reconciled against current source (read-only, 2026-09-28)
+
+A real Sonnet Explore (`claude-sonnet-5`, 20 read-only calls) read the seven leads from the [queue audit](evidence/ux-queue-audit-20260928/README.md) against later records and current source at `79265f6`. The author settled lead 4 from source. **All source-state claims are source-inferred.** No visual defect is claimed.
+
+| Lead | Later record | Current source | Disposition |
+|---|---|---|---|
+| **P1 narrow Composer density** (`design/chat-flow-2026-09-10/polish-slices-20260914.md`) | Relocation delivered and independently verified (`composer-access-verification-luna.md`, 2026-09-14). The 375px label shrink (`A.` / `Local t…`) was recorded but not changed at line 22 of this record. | `index.html` nests both controls in `.composer-context`; the narrow query only truncates by `max-width`. | Relocation **accepted, closed**. Narrow label density: **open, needs a current 375/390 capture** before any decision. |
+| **09 N-07 row menus** (Chat page and Attention rows) | `node-acceptance-20260919.md` (2026-09-19): "still open". | `attachObjectCommands`/`createObjectMenu` are wired only for sidebar Recent/Project rows (`app.mjs`); no wiring in Chat-page or Attention row code. | **Open, confirmed.** Next construction unit (below). |
+| **Back to latest geometry** (`00-intake:151`) | None. | `.jump-latest-button` is still absolutely positioned and centred in the reading wrapper (`styles.css`). | **Open**, but the original report's root cause was rejected and no geometry was measured. **Needs a capture** of its position against the composer top across viewport heights before any change. |
+| **`ask_user` selectability** (`00-intake:152`) | None. | The live card renders the prompt as a plain flow-row title with no `user-select` restriction. A resolved question renders it as the `<summary>` title of a closed `<details>`, where a click toggles the disclosure, which makes selection awkward in browsers. | **Open, cause unconfirmed.** The resolved `<summary>` title is the leading hypothesis. **Needs a reproduction capture:** live versus resolved prompt, drag-select and copy. |
+| **Reader F2 fine/coarse targets** (`grammar-convergence-20260921`) | `disposition-20260922.md`: adopted as a scoped mapping/verification follow-up, with its original severity reduced. | Not re-measured. | Original finding **superseded**. Coarse-pointer verification **open; needs a touch/coarse capture**. |
+| **09 Back/Forward shortcuts** | `node-acceptance-20260919.md`: "09 has no shortcuts". | No global history-shortcut handler exists (only surface, list, row and composer keydown handlers). | **Open.** Under IC-3, shortcuts appear only when actually supported, so this is a product decision, not a label fix. **Deferred** behind N-07. |
+| **E1 Home-first Agent choice; bound-Run reading** | `06e-role-composer-selection-20260922.md`: "E1-H short contract (draft for parent decision)" with decisions D1 and D2, 2026-09-25, still unresolved. | Contract only; no product edit. | **Open, waiting on a cross-layer decision:** D1/D2 involve Host runtime-control scope. To be raised with the core owner when reached, not built from the UI side alone. |
+
+**Order.**
+1. **09 N-07:** give Chat-page and Attention rows the same object-command menu as sidebar rows. It's confirmed open, has an existing precedent (`attachObjectCommands`), and needs no new authority.
+2. The capture-gated items (P1 narrow labels, Back to latest, `ask_user` selection, reader F2), batched into one capture request to Parent.
+3. Back/Forward shortcuts, and E1 once D1/D2 are decided.
