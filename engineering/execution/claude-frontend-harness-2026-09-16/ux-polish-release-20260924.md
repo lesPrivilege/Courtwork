@@ -205,3 +205,19 @@ The user reopens original Claude's GUI governance/UX-polish lane under this reco
 **Open for Astra:** whether "prepare/Preview" means the tabbed file preview, the Example preview layer, or the preparation/approval surface.
 
 No product write, browser run, deployment, credential read or Hermes retry.
+
+### UX-B2-READ · author result · 2026-09-28 (Claude, Opus)
+
+Implements the leased correction from `0c79d7e`. Source commit `656d8a1`, in the existing isolated tree, which also carries this record's earlier pre-check (`dfb6cec`). `app/web` is identical between that tree and `0c79d7e`, so the only overlap is this record's end, and Parent keeps both sections when merging.
+
+- **`app/web/run-rows.mjs` `appendRequestSummary`:** the summary's `dl` gets `data-list request-summary-reading`. Terms, values, wording and the h4 are unchanged.
+- **`app/web/styles.css`:** a scoped rule after the `.runtime-inventory-reading` precedent: `.data-list.request-summary-reading { align-items: baseline; }` and `… dd { font-size: var(--text-reading); line-height: 1.6; }`. This covers the path value, the truncation note ("Shown") and the omission explanations. `dt` labels keep the `.data-list` metadata size, and existing `overflow-wrap: anywhere` wrapping is kept. Global `.data-list`, check details, Result, Inspector and controls are unchanged.
+- **Grammar applied:** UX-02/07/08/09 reading/review role and the nearest precedent, Runtime detail `.data-list.runtime-inventory-reading` (RFS-R2), with existing tokens only.
+
+Author checks:
+- `tools/lint-interaction`, `lint-colors`, `lint-materials`, `lint-shapes` and `lint-spacing` pass.
+- request-summary, run-rows, material-governance and check-ui pass 24/24 ([log](evidence/ux-b2-read-20260928/targeted-tests.txt)).
+- `git diff --check` passes.
+- No new CSS-literal test, full suite or browser run. Parent owns the fixed 1440/390 screenshot comparison and the accessibility matrix.
+
+No other current screenshot defect was reported, so the scope is not expanded. Writer released.
