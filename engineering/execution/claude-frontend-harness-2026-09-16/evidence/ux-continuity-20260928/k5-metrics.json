@@ -1,0 +1,37 @@
+{
+  "editor": [
+    {
+      "font": "14px",
+      "line": "21px"
+    }
+  ],
+  "overflow": false,
+  "preview": [
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "Compiled. If this text is saved, a new run would carry the candidate context shown under Candidate context and hashes; that run checks again."
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "compatible"
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "kit:k5-review 1"
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "pi-coding-agent@0.85.1/agent-session pi-agent-session-context-v1 · Kit compatibility: Not checked for this runtime"
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "69 bytes (UTF-8) · 69 characters (UTF-16) · limits 400,000 bytes, 100,000 characters"
+    }
+  ],
+  "width": 1440
+}
