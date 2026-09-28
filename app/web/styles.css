@@ -2012,6 +2012,11 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
 .data-list.runtime-inventory-reading dd,
 .runtime-inventory-reading-text { font-size: var(--text-reading); line-height: 1.6; }
 .runtime-inventory-reading-text { margin: var(--space-2) 0 0; }
+/* UX-B2-READ · the B2 request summary's path, truncation and omission
+   explanations are a reading, as Runtime detail above; labels stay metadata.
+   Scoped to the summary; `.data-list`, check details and Result unchanged. */
+.data-list.request-summary-reading { align-items: baseline; }
+.data-list.request-summary-reading dd { font-size: var(--text-reading); line-height: 1.6; }
 .data-list dd .icon-only {
   --control: 24px;
   flex: none;

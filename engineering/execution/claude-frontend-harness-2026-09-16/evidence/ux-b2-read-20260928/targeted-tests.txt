@@ -1,0 +1,35 @@
+✔ check.started and check.settled project onto one tool row and outrank Pi's tool events (1.558875ms)
+✔ A cancelled or unknown settlement stands on its own without a Pi tool/result (0.285458ms)
+✔ A check approval names the recipe, what runs, where, and the limits (0.386375ms)
+✔ Activity word and glyph wiring for checks (0.388625ms)
+lint-materials: 2 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+lint-materials: 1 处违反 WK-101 / WK-102
+✔ 产品样式表通过材质 lint 两项 (98.1505ms)
+✔ 未登记的类名上出现 backdrop-filter 会被拒绝 (81.649584ms)
+✔ 半透明表面缺少 reduced-transparency 回退会被拒绝 (80.706ms)
+✔ 私有 blur 取值会被拒绝 (81.353667ms)
+✔ summarizeRepoListArgs: only path, the tool's default, invalid vs display-unsafe (1.883958ms)
+✔ boundRequestSummary: 256 code points, 2048 bytes, closed shape (0.389375ms)
+✔ Pi mapper: repo_list start carries a candidate summary; other tools and updates/results carry none (0.2025ms)
+✔ Host eligibility: only the repository owner's own repo_list, and only when it is the sole one (0.096791ms)
+✔ Store: first summary per call wins, including changed-input and concurrent replay; the event itself is kept (77.602792ms)
+✔ Store: at most 32 non-omitted summaries per Run, counted across Host restart; omissions do not spend the budget (697.93275ms)
+✔ admitRequestSummary leaves events without the field byte-identical (0.379208ms)
+✔ Host: real Pi repo_list starts → redacted, bounded, persisted, reopened → shared Chat/Attention disclosure (1332.096208ms)
+✔ Host: a cancelled Run keeps its start summary; an untrusted port observation carries none (913.350291ms)
+✔ projection: old events show no summary, malformed ones are ignored, the first start's summary stays (0.805209ms)
+✔ a successful ws_read row renders the shared anatomy: title, meta, glyph, closed by default (2.141375ms)
+✔ an error row is open by default and carries the is-failed class (0.311458ms)
+✔ a settled check_run row shows the facts list (Recipe/Outcome) and stdout, not the request/result JSON dump (1.132917ms)
+✔ toggling the details element calls onToggle with the new open state (0.144166ms)
+✔ toolGlyph, appendToolDetails and appendCheckDetails cover the moved cases (0.168167ms)
+✔ parity: Chat and Attention share renderToolRow, and the old duplicate tool-row anatomy is gone (1.821291ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4183.259959

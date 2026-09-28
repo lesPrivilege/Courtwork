@@ -189,3 +189,51 @@ Astra captured current synthetic main78a1b43 in the in-app browser at1440×900 a
 **Adopt and release to original Claude:** keep the request summary in the existing shared disclosure; give only its primary values, truncation and omission explanation the established reading role (`--text-reading`,1.6), with baseline alignment and existing wrapping. Labels remain metadata; controls retain existing28px desktop/44px narrow/coarse conventions. Nearest precedent: `.data-list.runtime-inventory-reading` and `appendRequestSummary`; affected UX-02/07/08/09, reading/review role. Reuse current tokens and anatomy, with no new page, field, event, wording, permission or state. Lease only the summary's scoped class in `app/web/run-rows.mjs`, corresponding narrowly scoped rule in `app/web/styles.css`, and author evidence/subsection of this record. Do not change global `.data-list`, check details, Result text, Inspector, Host or other workers' files.
 
 Run existing request-summary/run-row checks and appropriate CSS/interaction checks; no new test that only mirrors a CSS declaration and no full application rerun for this isolated visual adjustment. Parent will independently compare current fixed screenshots at1440/390 and normal text scale, check long-value wrapping and unchanged adjacent detail, and record the remaining accessibility matrix. Product source stays isolated; no user Host restart, paid provider, native Hermes execution or deployment.
+
+## 2026-09-28 · GUI governance / UX polish lane reopened · read-only pre-check
+
+The user reopens original Claude's GUI governance/UX-polish lane under this record. Astra holds core Host/Runtime in its own tree, and the Hermes refusal stands. This round is read-only: no product, global CSS or design-rule writes, and no computer-use. Astra captures current screenshots with its own browser and then rules on construction. No second roadmap.
+
+**Exploration.** A real Sonnet Explore (`claude-sonnet-5`, 20/20 tool calls) read main `78a1b432ac7bd5c18aa7c580d1fd7cf3d27ae97a` in the order UX Grammar → frontend contract → visual-spatial grammar → `design/sources.md` → this record. It fetched no external page. The external precedents it recalled are only those already recorded in `design/sources.md` and `visual-spatial-grammar.md`: Design Scout S18/S19 (topology only), S20 interaction grammar (Base UI NumberField core-verified; the Braintrust three-view split recorded as not holding), S21 method-only, W3C APG Tabs, and WCAG 2.2 target size. It reported no versions beyond those records.
+
+**Four newest sub-surfaces.** Symbols were checked by the author at the same HEAD.
+
+| Surface | Current symbols | Acceptance on record | Real difference from accepted precedent |
+|---|---|---|---|
+| Settings → Agents / Runtimes reader | `runtime-inventory-view.mjs:createRuntimeInventoryView`; `agent-profiles-view.mjs:createAgentProfilesView`; `settings-view.mjs` | `evidence/runtime-settings-i1-final-20260927` (RFS-R1/R2 accepted) | None. It is the reading-role reference: 15px reading, 11.5px meta labels, 28/44px controls. |
+| K5 profile / Kit source editor | `profile-editor-view.mjs:createProfileEditorView`, `describeDiagnostic`; `styles.css:6392-6400` | `evidence/kit-profile-editor-final-20260924` | Source-inferred: none. The source textarea uses `--text-body` (14px, control/code editing), the candidate preview uses `--text-reading` (15px), and labels use `--text-meta` (11.5px) (`styles.css:399-404`), which matches the role split. Sonnet's "possible drift" was unresolved in its budget and is not supported by the source. |
+| B2 request disclosure | `run-rows.mjs:appendRequestSummary`, `appendToolDetails` | `evidence/request-details-b2-20260928/parent-review/README.md` (accepted) | None. Same `h4.tool-detail-heading` + `dl.data-list` anatomy as DF-04 `appendCheckDetails`. Sonnet's "author-only" doubt is answered by the parent-review record. |
+| Preview / prepare | `preview-tabs.mjs:createPreviewTabs`, `renderPreviewTabs`, `installPreviewTabKeys`; `preview-layer.mjs:createPreviewLayer` (Example preview) | `evidence/tabbed-preview-final-20260922` (PV-R1 accepted); preparation in `prepare-final-integration-20260921` | No source difference found. That acceptance itself leaves real zoom, reader, forced-colors, touch and native-shell checks open, and assigns density, narrow/coarse mapping and native Back/Forward to separate Design owners. These are recorded open items, not observed defects. |
+
+**Candidates for Astra, none assumed a defect before capture:**
+1. Preview/tabs: the open PV-R1 checks (200% zoom, forced colors, narrow/coarse). Owner: tabbed-preview record. Precedent: the visual-spatial grammar's normative floor.
+2. A cross-surface consistency pass after capture, on Save/modified/reset, Unknown/unavailable, retry and focus return, against UX-01–06 and the Properties anatomy. It should touch only the surfaces where a screenshot shows a concrete mismatch.
+
+**Synthetic capture paths**, all on an isolated Host with a temporary data directory and the loopback fake provider; 1440×900 and 390×844, light and dark:
+- Settings → Runtimes / Agents: the reader with one supported and one unreadable/unsupported report.
+- K5: import one synthetic profile at Session scope, open the source editor, make one long requirement wrap, cause a revision conflict, then Save using only the keyboard.
+- B2 (corrected from Sonnet's list):
+  - `repo_list` with `src`, with `../outside` (`invalid_path`), with `src/a\u0001b` (`unsafe_display`), and with a path over 256 code points (truncated).
+  - A path over 1000 characters produces `invalid_path`, not `run_limit`.
+  - `run_limit` needs more than 32 summaries in one Run, which the 32-call fixture script cannot reach through the GUI.
+- Preview: open two or more tabs, close the active tab and then an inactive one, reopen, use the keyboard tab keys, and at 200% zoom.
+
+**Open for Astra:** whether "prepare/Preview" means the tabbed file preview, the Example preview layer, or the preparation/approval surface.
+
+No product write, browser run, deployment, credential read or Hermes retry.
+
+### UX-B2-READ · author result · 2026-09-28 (Claude, Opus)
+
+Implements the leased correction from `0c79d7e`. Source commit `656d8a1`, in the existing isolated tree, which also carries this record's earlier pre-check (`dfb6cec`). `app/web` is identical between that tree and `0c79d7e`, so the only overlap is this record's end, and Parent keeps both sections when merging.
+
+- **`app/web/run-rows.mjs` `appendRequestSummary`:** the summary's `dl` gets `data-list request-summary-reading`. Terms, values, wording and the h4 are unchanged.
+- **`app/web/styles.css`:** a scoped rule after the `.runtime-inventory-reading` precedent: `.data-list.request-summary-reading { align-items: baseline; }` and `… dd { font-size: var(--text-reading); line-height: 1.6; }`. This covers the path value, the truncation note ("Shown") and the omission explanations. `dt` labels keep the `.data-list` metadata size, and existing `overflow-wrap: anywhere` wrapping is kept. Global `.data-list`, check details, Result, Inspector and controls are unchanged.
+- **Grammar applied:** UX-02/07/08/09 reading/review role and the nearest precedent, Runtime detail `.data-list.runtime-inventory-reading` (RFS-R2), with existing tokens only.
+
+Author checks:
+- `tools/lint-interaction`, `lint-colors`, `lint-materials`, `lint-shapes` and `lint-spacing` pass.
+- request-summary, run-rows, material-governance and check-ui pass 24/24 ([log](evidence/ux-b2-read-20260928/targeted-tests.txt)).
+- `git diff --check` passes.
+- No new CSS-literal test, full suite or browser run. Parent owns the fixed 1440/390 screenshot comparison and the accessibility matrix.
+
+No other current screenshot defect was reported, so the scope is not expanded. Writer released.

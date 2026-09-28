@@ -67,7 +67,7 @@ export function appendRequestSummary(container, summary) {
   const facts = summary.omittedReason === null
     ? [["Path", summary.path], ...(summary.truncated ? [["Shown", "Beginning only; the requested path is longer"]] : [])]
     : [["Path", REQUEST_SUMMARY_OMITTED[summary.omittedReason] ?? "Not shown."]];
-  const list = el("dl", { className: "data-list" });
+  const list = el("dl", { className: "data-list request-summary-reading" });
   for (const [term, value] of facts) list.append(el("dt", { text: term }), el("dd", { text: value }));
   container.append(el("h4", { className: "tool-detail-heading", text: "Request summary" }), list);
 }
