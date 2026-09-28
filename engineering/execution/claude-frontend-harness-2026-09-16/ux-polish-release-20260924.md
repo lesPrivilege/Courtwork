@@ -529,3 +529,8 @@ A real Sonnet Explore (`claude-sonnet-5`, 20 read-only calls) read the seven lea
 1. **09 N-07:** give Chat-page and Attention rows the same object-command menu as sidebar rows. It's confirmed open, has an existing precedent (`attachObjectCommands`), and needs no new authority.
 2. The capture-gated items (P1 narrow labels, Back to latest, `ask_user` selection, reader F2), batched into one capture request to Parent.
 3. Back/Forward shortcuts, and E1 once D1/D2 are decided.
+
+**Older leads · Parent capture evidence (2026-09-28, author dispositions).** Parent's independent synthetic captures (the full packet follows later) settle three rows of the reconciliation table above:
+- **`ask_user` selectability: adjust.** Both the live and the answered prompt can be drag-selected and copied, so the original "cannot select" is not a current defect. The remaining friction is that drag-selecting an **answered** prompt also toggles its `<summary>`, as hypothesised above. Candidate: keep the answered prompt's text selectable without toggling, for example by moving the full prompt into the disclosure body with the summary as a short title. It's queued, not built here.
+- **Back to latest: closed, no defect.** Stable 12px above the Composer at two viewport heights. The original misalignment is not reproduced.
+- **P1 narrow Composer labels: confirmed.** At 375 and 390 the model and permission labels read `A…` / `Local t…`. This is the next construction candidate after N-07's acceptance.
