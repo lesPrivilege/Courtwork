@@ -40,3 +40,8 @@ Astra accepts fixes830e328 and4935712/2487374 after the separate Sol delta revie
 The passed code is the combined candidate's app bytes; subsequent receipt/current updates are documentation only. These fixes improve already-registered standalone transport and current Attention metadata consumption without enabling native Hermes, changing schema, broadening permissions or changing public install/media pins. Initial134 pending commits retain their older bounded acceptance; this review adds cross-layer checks and fixes rather than relabelling all historical evidence as a new end-to-end production test.
 
 The user has authorized merge/push. Final origin verification is recorded after the operation; no force push or deployment is authorized by this acceptance.
+
+
+## Actual merge and push
+
+Main fast-forwarded from512f794 to4c42ffd33e11101cb7b29053d03fe52653a593aa with the accepted fixes/evidence. `git push origin main:main` exited0, advancing origin from1296b8d; independent `git ls-remote origin refs/heads/main` returned exactly4c42ffd33e11101cb7b29053d03fe52653a593aa and tracking comparison was0 ahead/0 behind. [Machine-readable receipt](publication.json). This receipt's own follow-up commit changes documentation only and is pushed under the same authorization. No remote CI success, manual Pages deployment or user-service restart is inferred. User-owned untracked metadata stays local.

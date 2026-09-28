@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Reviewed main pushed to origin
+
+[Verified push receipt](execution/claude-frontend-harness-2026-09-16/evidence/dogfood-review-20260928/publication.json) records successful normal push of reviewed4c42ffd to configured origin/main (previous1296b8d), exact remote SHA match and0 ahead/0 behind. Default1808/1808, smoke and Pages/docs checks support the fixed source; all three review findings are closed. This follow-up receipt changes only documentation. Remote CI completion is not claimed; no manual deployment, user Host restart, personal metadata staging, native Hermes retry or skill installation occurred.
+
 ## 2026-09-28 · Dogfooding-informed pre-push review accepted
 
 [Review and negative controls](execution/claude-frontend-harness-2026-09-16/evidence/dogfood-review-20260928/README.md) cover fetched origin/main1296b8d→512f794 and fix three confirmed regressions. Astra830e328 refuses pre-aborted event reads and decouples SSE line/frame bounds from HTTP chunk packing (including split CRLF); original Claude4935712/2487374 restores Attention Session/list metadata refresh while retaining incremental running polls. Independent Sol30/30+8 HTTP probes and18/18/actual-Host rename replay, Luna29/29 backend checks and prior scoped UI80/80 retain attribution. Combined default1808/1808, smoke, Pages and docs checks pass. No speculative Clean Code refactor, copied DSH framework rules or installed skill. User explicitly authorizes this merge/push; publication receipt follows actual origin verification. Native Hermes refusal and broader release gates remain unchanged; no user Host restart or deployment.
