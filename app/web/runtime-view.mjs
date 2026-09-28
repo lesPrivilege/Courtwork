@@ -1522,8 +1522,9 @@ export function createRuntimeView(
     const mount = mounts.overview;
     mount.replaceChildren();
     /* Named for its object: this chat's runtime, not the Host's runtime list
-       under Agents › Runtimes. */
-    mount.append(blockTitle("Chat runtime"));
+       under Agents › Runtimes. With no chat open (Settings from Home) the
+       reading is the user layer every new chat starts from (DEV-R1). */
+    mount.append(blockTitle(sessionId ? "Chat runtime" : "Default runtime"));
     if (!snapshot) {
       mount.append(
         error
@@ -1541,7 +1542,9 @@ export function createRuntimeView(
       el(
         "div",
         { className: "section-heading" },
-        el("span", { className: "settings-row-help", text: "What the next run in this chat would use, and what past runs recorded." }),
+        el("span", { className: "settings-row-help", text: sessionId
+          ? "What the next run in this chat would use, and what past runs recorded."
+          : "What new chats start from. Open a chat to see its own runtime and recorded runs." }),
         action("refresh-cw", "Refresh the runtime snapshot", () => void read()),
       ),
       ...scopeStrip({ primary: true }),
@@ -1617,7 +1620,8 @@ export function createRuntimeView(
      payload per run id; this list opens that cache rather than keeping a
      second one. */
   function recordedBindings() {
-    const runs = (getRuns?.() || []).slice(-6).reverse();
+    // Runs belong to a chat; with none open there is no chat's record to show.
+    const runs = sessionId ? (getRuns?.() || []).slice(-6).reverse() : [];
     const section = el(
       "section",
       { className: "runtime-bindings", attrs: { "data-bindings": String(runs.length) } },
@@ -1625,7 +1629,7 @@ export function createRuntimeView(
       note("What a run actually froze. Later edits never change these records."),
     );
     if (!runs.length) {
-      section.append(note("No run has been recorded in this chat yet."));
+      section.append(note(sessionId ? "No run has been recorded in this chat yet." : "Runs are recorded per chat. Open a chat to see what its runs used."));
       return section;
     }
     const bar = el("div", { className: "runtime-chips", attrs: { role: "group", "aria-label": "Recorded runs" } });
@@ -1826,7 +1830,7 @@ export function createRuntimeView(
             ? "Not recorded for this run."
             : "Reading the binding of this run…"
         : "No recorded run is open.",
-      boundRunId ? `run ${boundRunId.slice(0, 8)}` : "choose one under Chat runtime › Recorded bindings",
+      boundRunId ? `run ${boundRunId.slice(0, 8)}` : sessionId ? "choose one under Chat runtime › Recorded bindings" : "open a chat to choose one of its recorded runs",
     );
     mount.append(
       el(

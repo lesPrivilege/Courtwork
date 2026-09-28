@@ -47,3 +47,47 @@ test("Chat runtime block: loading, failure with retry, the reading, and the last
   assert.match(stale.textContent, /last snapshot the host confirmed, at revision 3/);
   assert.match(overview.textContent, /Adapter.*fixture-harness@1/, "the last good reading stays");
 }));
+
+test("DEV-R1 · with no chat open, the block names the default runtime every new chat starts from, and no chat's runs", () => withTinyDom(async body => {
+  document.body = body;
+  const overview = document.createElement("div"); body.append(overview);
+  const composition = document.createElement("div"); body.append(composition);
+  let reply = () => Promise.reject(new Error("The local runtime could not be reached."));
+  const view = createRuntimeView({ overview, composition }, {
+    getSessionId: () => null,
+    // Another chat's runs may still be in the app's state; they are not this page's.
+    getRuns: () => [{ id: "run-of-another-chat-0001", status: "completed" }],
+    request: (path) => { assert.equal(path, "/runtime-control", "no session is read"); return reply(); },
+  });
+  await view.load();
+  assert.equal(overview.querySelector(".inline-error").textContent, "The local runtime could not be reached.");
+  assert.ok(overview.querySelectorAll("button").some(node => (node.getAttribute("aria-label") || node.textContent).includes("Retry loading the runtime")), "retry is unchanged");
+  reply = async () => ({ revision: 1, adapterId: "fixture-harness@1", activeRuns: 0,
+    scopes: [{ type: "user", id: "local" }], resources: [{ id: "agent:general", kind: "agent_profile", title: "General", exposed: true }],
+    composition: { id: "agent:general", status: "compatible", resourceIds: null } });
+  await view.load();
+  const text = overview.textContent;
+  assert.equal(overview.querySelector("h4").textContent, "Default runtime");
+  assert.match(text, /What new chats start from\. Open a chat to see its own runtime and recorded runs\./);
+  assert.doesNotMatch(text, /in this chat/, "no chat is implied");
+  assert.match(text, /Profile.*agent:general · compatible/);
+  assert.match(text, /Runs are recorded per chat\. Open a chat to see what its runs used\./);
+  assert.equal(overview.querySelectorAll(".runtime-chip").length, 0, "another chat's runs are not listed");
+  assert.equal(overview.querySelectorAll(".runtime-scope-tab").map(node => node.textContent).join(","), "User", "the user layer is the only scope");
+  assert.match(composition.textContent, /open a chat to choose one of its recorded runs/);
+  assert.doesNotMatch(composition.textContent, /Chat runtime › Recorded bindings/);
+}));
+
+test("DEV-R1 · with a chat open, the same block is that chat's runtime and lists its recorded runs", () => withTinyDom(async body => {
+  document.body = body;
+  const overview = document.createElement("div"); body.append(overview);
+  const view = createRuntimeView({ overview }, {
+    getSessionId: () => "s1",
+    getRuns: () => [{ id: "run-of-this-chat-0001", status: "completed" }],
+    request: async () => ({ revision: 1, adapterId: "fixture-harness@1", activeRuns: 0, scopes: [], resources: [] }),
+  });
+  await view.load();
+  assert.equal(overview.querySelector("h4").textContent, "Chat runtime");
+  assert.match(overview.textContent, /What the next run in this chat would use, and what past runs recorded\./);
+  assert.equal(overview.querySelectorAll(".runtime-chip").length, 1);
+}));
