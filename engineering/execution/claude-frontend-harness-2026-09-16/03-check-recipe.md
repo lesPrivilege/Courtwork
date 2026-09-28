@@ -102,3 +102,35 @@ Sol source `ee6afb5b08c86ec902b6176c913e4ce7c6116c03` plus focused test/probe co
 Luna's independent F-01 review found a low-severity coverage regression: the existing read-only and ask/deny checks had been retargeted to the new recipe, so they no longer directly exercised `node-test`. Sol adjusts those two tests to run both frozen ids, retaining exact approval argv and zero-start assertions for each. There is no runtime defect or product change. The focused `check-recipes.test.mjs` command passes **15/15** on Node 25.9.0; [raw author correction log](evidence/attention-check-recipe-20260927/author-f01-check-recipes.log) is retained. Astra retains final independent acceptance and integration.
 
 **Parent acceptance:** [independent receipt](evidence/attention-check-recipe-20260927/parent-review/README.md) accepts `75027fc` and closes F-01. Luna15/15 plus25/25 and a fresh private-candidate fake-Host receipt pass; Parent changed-path2/2 passes on isolated merge with byte-identical app source. The fixed second recipe is accepted; real-model dogfood/native connectors/full product closure are not claimed. Both original task histories are retained.
+
+
+## 2026-09-28 · Serial Harness self-check closure — expanded Claude lease
+
+The user agrees to serial construction and explicitly broadens worker Claude's permissions. Original Claude may autonomously implement, locally commit, run relevant Node/Python tests and own/dispose independent synthetic Hosts/processes across this finite work order. Routine reversible implementation choices do not require renewed user confirmation. Astra retains architecture/integration and independent acceptance; the author cannot self-accept. This is task-local construction/execution authority, not a global permission-mode change or a bypass of the separately rejected native Hermes server execution.
+
+**Outcome and owner.** Close the RL-1 own-repository self-check gap under existing DF-04/RD-009. First deliver the third frozen Host recipe; after independent acceptance, run a bounded real CW development task against an isolated candidate using the engineering Kit/Skill, actual approved checks, independent review and continuation. Existing DF01–06/P05/P06 bounded acceptance is retained, not reopened. Planning baseline is inspected main d38a93ae64238828351aec17dd4f37ddd5a02363.
+
+**Fixed descriptor:** id `node-test-harness-contract`, version1, title `Run Harness Core and Extensions contract tests`, command `process.execPath`, cwd `candidate`, timeout120000ms, output65536bytes per stream, env `minimal`. Exact argv, from the private candidate root:
+
+```text
+--test
+--test-concurrency=1
+app/tests/hermes-api-runs.test.mjs
+app/tests/request-summary.test.mjs
+app/tests/runtime-load-recovery.test.mjs
+app/tests/kit-context.test.mjs
+app/tests/control-plane.test.mjs
+app/tests/check-recipes.test.mjs
+```
+
+Luna verified these existing paths and dependencies without executing the suite. The descriptor retains the current hard ceiling; author must measure the actual command under the minimal runner environment. If it does not fit, return measured timing for a deterministic smaller contract decision; do not silently increase limits or drop a target. The Hermes file is pure synthetic HTTP conformance, not the rejected native server. This recipe is a selected regression set, not all of Harness, Extensions or product acceptance.
+
+**Authority and predecessor:** extend `app/runtime/check-recipes.mjs` as the accepted Attention fixed-recipe precedent. The model supplies only recipeId; existing candidate identity/revision, exact Host approval, read_only denial, pre-spawn/cancel/unknown/restart and independent settlement continue unchanged. No generic command/argv, fallback command, install hook, policy relaxation or schema change.
+
+**Dependency preparation:** candidate-local `app/node_modules` must materialize the exact current app lockfile. No link to mutable user/global node_modules is evidence for this real engineering closure. Claude may provision existing dependencies with `npm ci --ignore-scripts --no-audit --no-fund` in its owned candidate/app using an isolated HOME/cache, empty user/global npm configuration and explicit public npm registry; preserve package/lock bytes and record inventory/identity. An already verified immutable dependency image may be copied with provenance instead. No upgrades, global install, interpreter download, personal credential/config reads or copied provider keys. This is explicit fixture/candidate preparation before check approval, never automatic check_run behavior. Missing dependencies/targets remain normal nonzero process results with no hidden install or retry.
+
+**Implementation latitude:** expected source is the frozen catalog, `app/docs/check-recipes.md`, focused recipe/governance tests and this original record/evidence. Claude may also correct a directly necessary existing check-runner/tool/Host projection seam and its exact consumer tests if a concrete reproduction establishes the need; record owner/precedent and cross-layer reason before the edit. New authority, persistence schema, native runtime/provider support and global UX rules still require Astra's concrete contract. Frontend changes, if needed, consume existing UX/frontend/spatial rules; OpenAI parent performs computer-use verification. Do not refactor unrelated code or rewrite historical captures/goldens.
+
+**First handoff evidence:** all three recipes retain original meaning/order; synthetic candidate fixed paths prove every new target runs, pass→nonzero→pass after an exact candidate write, missing file and missing dependency are truthful failures, deny/read_only/unknown-id start zero processes, and approved identity/argv/revision match the actual check. Run the actual current suite with candidate-local dependencies through a real fake-provider Host/check_run and retain check.started/settled/output/source hashes. Author/source and independent acceptance remain separate; meaningful existing adjacent check-revision/cancellation tests suffice, not repeated full suites. Commit explicit paths and release the writer for non-author review before real-provider execution.
+
+**Second phase:** parent prepares the accepted current source in an independent review environment, with user-entered provider key outside Git. Select one bounded real engineering task and record exact task/source, Kit/Skill/profile/Run/candidate/check/permission/effect identity; cap the initial exercise at two substantive Runs and existing per-Run limits, with further attempts based on a concrete failure. Skill text is working guidance, not authority. The model must actually invoke the frozen recipe and consume its failure/pass output; tests run by an outside reviewer cannot be attributed to CW. Independent review/merge, browser reload and safe continuation/unknown handling finish the stated scope. Do not claim fresh-user configuration or real model evidence until it actually occurs. No new release gate or automatic deployment is introduced.

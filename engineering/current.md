@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Serial own-repository dogfooding construction authorized
+
+The user expands original Claude's task-local implementation/test/fixture authority and authorizes serial completion of the existing DF-04/RD-009 self-check gap. [Fixed third-recipe contract](execution/claude-frontend-harness-2026-09-16/03-check-recipe.md#2026-09-28--serial-harness-self-check-closure--expanded-claude-lease) names six bounded Harness/Extensions suites, candidate-local locked dependency preparation and unchanged Host approval/settlement. Original Claude has received the expanded authorization and is preparing; exact-contract implementation dispatch is recorded when observed. Luna supplies a read-only preflight and later independent review, not a second product writer. The subsequent real CW task still needs actual isolated provider configuration/user key entry and a fixed task; no real execution is yet claimed. Global security settings and the earlier native Hermes refusal are unchanged.
+
 ## 2026-09-28 · Reviewed main pushed to origin
 
 [Verified push receipt](execution/claude-frontend-harness-2026-09-16/evidence/dogfood-review-20260928/publication.json) records successful normal push of reviewed4c42ffd to configured origin/main (previous1296b8d), exact remote SHA match and0 ahead/0 behind. Default1808/1808, smoke and Pages/docs checks support the fixed source; all three review findings are closed. This follow-up receipt changes only documentation. Remote CI completion is not claimed; no manual deployment, user Host restart, personal metadata staging, native Hermes retry or skill installation occurred.
