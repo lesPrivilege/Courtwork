@@ -322,7 +322,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
       restoreChatReading(stream, readingSnapshot, {followLatest: nearBottom && !readingSnapshot.selection});
     }
     clearTimeout(timer);
-    if (!state.busy && !state.loading && (controller.active() || state.command)) timer = setTimeout(() => { if (visible) void controller.refresh(); }, 1500);
+    if (!state.busy && !state.loading && (controller.active() || state.command)) timer = setTimeout(() => { if (visible) void controller.refresh({ follow: true }); }, 1500);
   }
   function patchGrowingBodies() {
     const state = controller.state;

@@ -7,14 +7,18 @@ export function createAttentionConversation({ request, changed = () => {}, befor
     busy: false, loading: false, error: '', readError: '', command: null, conversationId: null, generation: 0 };
   const active = () => state.runs.find(run => ['running','waiting_user','stopping'].includes(run.status));
   function emit() { changed(state); }
-  async function refresh() {
+  // `follow` is the running-conversation poll. Every other refresh — the
+  // Refresh control, after a rename, action or send, on opening — reconciles
+  // the Session and conversation list, whose metadata (e.g. a title) changes
+  // without any event on the cursor (AT-META-R1).
+  async function refresh({ follow = false } = {}) {
     const own = ++state.generation, id = state.conversationId;
     state.loading = true; state.readError = ''; emit();
     try {
-      // Order 3 · a loaded conversation follows the shared event cursor, as
+      // Order 3 · a followed conversation reads the shared event cursor, as
       // Chat does. The full detail is read again only when a Run record may
       // have changed (a run.* event) or the cursor is ahead of the Host.
-      if (id && state.session?.id === id && state.lastSeq > 0) {
+      if (follow && id && state.session?.id === id && state.lastSeq > 0) {
         let page = null;
         try { page = await request(eventsAfterPath(id, state.lastSeq)); }
         catch (error) { if (error.body?.error?.code !== 'cursor_ahead') throw error; }

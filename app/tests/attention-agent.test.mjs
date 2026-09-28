@@ -152,3 +152,58 @@ test('conversation rename persists metadata without changing history, scope or d
     assert.equal(h.runtime.store.getSession(id).title,'Research notes');
   } finally { await h.runtime.close(); await rm(h.dataDir,{recursive:true,force:true}); }
 });
+
+/* AT-META-R1 · Session/list metadata is not on the event cursor. A rename of a
+ * completed conversation, or a metadata-only change seen by explicit Refresh,
+ * reaches the selected Session and the list; only the running poll follows
+ * the cursor alone. Real fake Host + shipped controller. */
+async function completedConversation(h) {
+  const calls = [];
+  const request = async (route, options = {}) => {
+    calls.push(`${options.method ?? 'GET'} ${route.split('?')[0]}${route.includes('?') ? '?' : ''}`);
+    const r = await h.api(options.method ?? 'GET', route, options.body);
+    if (r.status !== 200) throw Object.assign(new Error(r.json?.error?.message ?? 'HTTP failure'), { status: r.status, body: r.json });
+    return r.json;
+  };
+  const id = randomUUID();
+  ok(await h.api('POST', '/attention/conversations', { conversationId: id }));
+  const made = ok(await h.api('POST', `/sessions/${id}/runs`, { commandId: randomUUID(), input: 'Synthetic recorded Attention history' }));
+  assert.equal((await h.pollRun(made.run.id)).status, 'completed');
+  const c = createAttentionConversation({ request });
+  await c.choose(id);
+  assert.ok(c.state.lastSeq > 0);
+  return { id, c, calls };
+}
+const listed = (c, id) => c.state.conversations.find(s => s.id === id).title;
+
+test('AT-META-R1 · renaming a completed Attention conversation updates the selected Session and the list, keeping cursor and draft', async () => {
+  const h = await boot();
+  try {
+    const { id, c } = await completedConversation(h);
+    c.setDraft('unsent words');
+    const seq = c.state.lastSeq;
+    assert.equal(await c.rename(id, 'Renamed after the Run'), true);
+    assert.equal(c.state.session.title, 'Renamed after the Run');
+    assert.equal(listed(c, id), 'Renamed after the Run');
+    assert.equal(c.state.lastSeq, seq, 'no events were invented; the cursor is unchanged');
+    assert.equal(c.state.draft, 'unsent words');
+    assert.equal(c.state.readError, '');
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+});
+
+test('AT-META-R1 · explicit Refresh reconciles a metadata-only change; the running poll still follows the cursor alone', async () => {
+  const h = await boot();
+  try {
+    const { id, c, calls } = await completedConversation(h);
+    ok(await h.api('PATCH', `/sessions/${id}`, { title: 'Renamed elsewhere' }));
+    calls.length = 0;
+    await c.refresh({ follow: true });
+    assert.deepEqual(calls, [`GET /sessions/${id}/events?`], 'the poll reads only the cursor when no run.* event arrived');
+    assert.notEqual(c.state.session.title, 'Renamed elsewhere', 'metadata is not inferred from the cursor');
+    calls.length = 0;
+    await c.refresh();
+    assert.equal(c.state.session.title, 'Renamed elsewhere');
+    assert.equal(listed(c, id), 'Renamed elsewhere');
+    assert.deepEqual(calls, ['GET /attention/conversations', `GET /sessions/${id}`]);
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+});
