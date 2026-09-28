@@ -619,13 +619,12 @@
                 <h3 id="settings-developer-title" class="settings-section-title">
                   Developer
                 </h3>
-                <div class="settings-block">
-                  <h4 class="settings-block-title">Runtime</h4>
-                  <p class="settings-row-help">
-                    Configuration for future runs and records of what past runs used.
-                  </p>
-                  <p class="settings-row-help">Only host-trusted extensions load; third-party code is not sandboxed.</p>
-                </div>
+                <!-- UX 2026-09-28 · Developer reads by object: this chat's runtime
+                     and profile first, then the Host's extensions, then Host
+                     diagnostics on demand. The page-level "Runtime" intro block
+                     was a heading with no object; its scope sentence is the
+                     Chat runtime line and its trust consequence sits with the
+                     extensions it describes. -->
                 <div
                   id="settings-runtime-overview"
                   class="settings-block"
@@ -646,14 +645,14 @@
                       aria-label="Refresh extensions"
                     ></button>
                   </div>
-                  <p class="settings-row-help">Trusted code running inside the host. Load, reload and invalidate extensions here; inspect their resources in <a href="#settings/plugins">Plugins</a>.</p>
+                  <p class="settings-row-help">Trusted code running inside the Host. Only host-trusted extensions load, and they are not sandboxed. Load, reload and invalidate them here; inspect their resources in <a href="#settings/plugins">Plugins</a>.</p>
                   <div id="local-extension-intake" class="runtime-intake"></div>
                   <div id="extension-list" class="extension-list"></div>
                 </div>
-                <div class="settings-block">
-                  <h4 class="settings-block-title">Runtime info</h4>
+                <details class="settings-block">
+                  <summary>Host runtime details</summary>
                   <div id="runtime-info" class="runtime-info"></div>
-                </div>
+                </details>
                 <details class="settings-block">
                   <summary>Unavailable capabilities</summary>
                   <div id="planned-capabilities" class="planned-list"></div>

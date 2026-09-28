@@ -1521,7 +1521,9 @@ export function createRuntimeView(
   function renderOverview() {
     const mount = mounts.overview;
     mount.replaceChildren();
-    mount.append(blockTitle("Overview"));
+    /* Named for its object: this chat's runtime, not the Host's runtime list
+       under Agents › Runtimes. */
+    mount.append(blockTitle("Chat runtime"));
     if (!snapshot) {
       mount.append(
         error
@@ -1539,7 +1541,7 @@ export function createRuntimeView(
       el(
         "div",
         { className: "section-heading" },
-        el("span", { className: "settings-row-help", text: "The runtime the next run in this chat would be composed from." }),
+        el("span", { className: "settings-row-help", text: "What the next run in this chat would use, and what past runs recorded." }),
         action("refresh-cw", "Refresh the runtime snapshot", () => void read()),
       ),
       ...scopeStrip({ primary: true }),
@@ -1824,7 +1826,7 @@ export function createRuntimeView(
             ? "Not recorded for this run."
             : "Reading the binding of this run…"
         : "No recorded run is open.",
-      boundRunId ? `run ${boundRunId.slice(0, 8)}` : "choose one under Overview › Recorded bindings",
+      boundRunId ? `run ${boundRunId.slice(0, 8)}` : "choose one under Chat runtime › Recorded bindings",
     );
     mount.append(
       el(
