@@ -1,0 +1,21 @@
+{
+  "overflow": false,
+  "values": [
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "src"
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "Not shown: the requested path is not a valid relative repository path."
+    },
+    {
+      "font": "11.5px",
+      "line": "17.25px",
+      "text": "Not shown in this summary: the path contains control characters. This does not mean the tool rejected it."
+    }
+  ],
+  "width": 1440
+}

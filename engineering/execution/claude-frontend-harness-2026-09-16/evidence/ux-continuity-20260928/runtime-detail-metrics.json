@@ -1,0 +1,22 @@
+{
+  "height": 900,
+  "overflow": false,
+  "values": [
+    {
+      "font": "15px",
+      "line": "24px",
+      "text": "Configured on this Host"
+    },
+    {
+      "font": "15px",
+      "line": "24px",
+      "text": "This Host's configuration. Settings reads it and cannot change it."
+    },
+    {
+      "font": "15px",
+      "line": "24px",
+      "text": "Described by this Host for the current provider"
+    }
+  ],
+  "width": 1440
+}
