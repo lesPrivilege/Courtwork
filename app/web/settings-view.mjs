@@ -2178,7 +2178,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
          still opens only when exactly one resource row is left standing. */
       const matches = [
         ...document.querySelectorAll(
-          ".settings-section:not([hidden]) .runtime-row:not([hidden])",
+          ".settings-section:not([hidden]) .runtime-row:not([hidden]):not([data-search-hidden])",
         ),
       ].filter((row) => !row.closest(".runtime-row.is-child[hidden]"));
       if (matches.length === 1) {
@@ -2207,29 +2207,34 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
      exactly what someone types looking for it. */
   const ROW_SELECTOR =
     ".settings-row, .planned-row, .settings-key-row, .runtime-row, .runtime-context-row, .runtime-inventory-row";
+  /* MS-R1 · search owns only its own mark, `data-search-hidden`. A row's or
+     block's `hidden` belongs to the view that renders it (a key row for a
+     local provider, a compatible-only field, a Session panel with no Session);
+     search never writes or clears it, and a row its owner hid is not a hit. */
+  const SEARCH_HIDDEN = "data-search-hidden";
+  const searchHide = (node, hide) => { if (hide) node.setAttribute(SEARCH_HIDDEN, ""); else node.removeAttribute(SEARCH_HIDDEN); };
+  const ownerHidden = (node, panel) => { for (let at = node; at && at !== panel; at = at.parentNode) if (at.hidden) return true; return false; };
   function applyFilter() {
     const rows = (panel) => [...panel.querySelectorAll(ROW_SELECTOR)];
     if (!query) {
       searchEmpty.hidden = true;
       for (const [id, panel] of panels) {
         panel.hidden = id !== section;
-        for (const row of rows(panel)) row.hidden = false;
-        for (const block of panel.querySelectorAll(".settings-block")) block.hidden = false;
+        for (const node of panel.querySelectorAll(`[${SEARCH_HIDDEN}]`)) searchHide(node, false);
       }
       return;
     }
     let matched = 0;
     for (const [, panel] of panels) {
+      const hit = (row) => !ownerHidden(row, panel) && rowText(row).includes(query);
       let hits = 0;
       for (const row of rows(panel)) {
-        const hit = rowText(row).includes(query);
-        row.hidden = !hit;
-        if (hit) hits += 1;
+        const found = hit(row);
+        searchHide(row, !found);
+        if (found) hits += 1;
       }
-      for (const block of panel.querySelectorAll(".settings-block")) {
-        const blockRows = [...block.querySelectorAll(ROW_SELECTOR)];
-        block.hidden = !blockRows.some((row) => rowText(row).includes(query));
-      }
+      for (const block of panel.querySelectorAll(".settings-block"))
+        searchHide(block, ![...block.querySelectorAll(ROW_SELECTOR)].some(hit));
       panel.hidden = hits === 0;
       matched += hits;
     }

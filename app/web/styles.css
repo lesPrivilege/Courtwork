@@ -470,6 +470,11 @@ select:disabled {
 [hidden] {
   display: none !important;
 }
+/* MS-R1 · the Settings search's own filter mark, separate from an owner's
+   `hidden` (settings-view.mjs applyFilter). */
+[data-search-hidden] {
+  display: none !important;
+}
 h1,
 h2,
 h3,
