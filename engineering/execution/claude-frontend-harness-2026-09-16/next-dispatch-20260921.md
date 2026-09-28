@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-28 · B2 and G5 finite author deliveries accepted
+
+[B2 acceptance](evidence/request-details-b2-20260928/parent-review/README.md) closes this repo_list summary slice at d1e9919/9b0fb91; original Claude has released the writer. Sol's G5 mapping/support correction remains accepted. Core/frontend routing stays with original Claude, disjoint work with Sol, and exploration with Luna/Sonnet. The concrete existing G5 C14 CLI replay identity correction and C13 dated capture wording are ready for the same Claude serial publication owner; broad public rewrite/repinning still follows original evidence requirements. No second author or automatic Hermes server retry is started by this receipt.
+
 ## 2026-09-28 · Sol G5 bounded delivery accepted; Claude B2 remains active
 
 [G5 parent disposition](../2026-09-08-main-round/public-readiness.md#astra-disposition-and-independent-receipt--2026-09-28) accepts fixed Sol52bcb5d/6ca2c96 with independent Luna review. The author is released; no further Sol code slice is implied. Original Claude remains sole B2 core/frontend writer in `claude/request-details-b2-20260928`. Later G5 public-source corrections stay queued with that same serial owner, including the concrete CLI replay identity mismatch; public source/media repinning still requires original candidate/media evidence. Hermes environment/source remain preserved and its server execution remains blocked, not silently resumed.

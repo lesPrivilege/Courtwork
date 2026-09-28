@@ -534,3 +534,6 @@ There is no new surface, CSS, density or action. The summary sits above Result u
 3. The inspector's "Arguments" section is unchanged and does not show summaries.
 
 Writer released for Luna/parent review. I have not started `repo_read`/`repo_grep` and have not reopened Composer/Settings.
+
+
+**B2 parent acceptance · 2026-09-28.** [Independent receipt](evidence/request-details-b2-20260928/parent-review/README.md) accepts product `d1e9919` / author evidence `9b0fb91`. Luna's fixed-byte source review has no blocker; parent isolated-integration tests10/10 and independent OpenAI browser normal/invalid/unsafe path plus reload checks pass. Author focused10/10, adjacent113/113 and full1801/1801 remain author evidence. Adopt the disclosed surrogate/redaction-expansion/Inspector choices within this bounded contract. Shared Chat/Attention summary support is accepted; no other tool capture, new schema, native Hermes execution, user-service restart or publication is inferred.
