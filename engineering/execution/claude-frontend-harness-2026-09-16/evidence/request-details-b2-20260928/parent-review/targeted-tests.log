@@ -1,0 +1,18 @@
+✔ summarizeRepoListArgs: only path, the tool's default, invalid vs display-unsafe (2.182ms)
+✔ boundRequestSummary: 256 code points, 2048 bytes, closed shape (0.313167ms)
+✔ Pi mapper: repo_list start carries a candidate summary; other tools and updates/results carry none (0.202459ms)
+✔ Host eligibility: only the repository owner's own repo_list, and only when it is the sole one (0.100583ms)
+✔ Store: first summary per call wins, including changed-input and concurrent replay; the event itself is kept (72.7105ms)
+✔ Store: at most 32 non-omitted summaries per Run, counted across Host restart; omissions do not spend the budget (742.328667ms)
+✔ admitRequestSummary leaves events without the field byte-identical (0.22175ms)
+✔ Host: real Pi repo_list starts → redacted, bounded, persisted, reopened → shared Chat/Attention disclosure (990.8615ms)
+✔ Host: a cancelled Run keeps its start summary; an untrusted port observation carries none (923.439291ms)
+✔ projection: old events show no summary, malformed ones are ignored, the first start's summary stays (1.2755ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3570.790625
