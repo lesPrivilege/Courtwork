@@ -7,13 +7,23 @@ import { lstatSync } from "node:fs";
 import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { Type } from "@earendil-works/pi-ai";
-import { getCheckRecipe } from "./check-recipes.mjs";
+import { getCheckRecipe, listCheckRecipes } from "./check-recipes.mjs";
 import { runCheckRecipe } from "./check-runner.mjs";
 
 function checkError(message, code = "check_failed") {
   const error = new Error(message);
   error.code = code;
   return error;
+}
+
+/* The model chooses only a recipe id, so the declaration has to offer the
+ * choices. The one authoritative catalog is rendered into the parameter's own
+ * description, derived from `listCheckRecipes()` so the ids and titles shown
+ * can never drift from the recipes that are actually accepted. This is
+ * presentation only: the same catalog still resolves the id on the way in. */
+function recipeIdDescription() {
+  const catalog = listCheckRecipes().map(recipe => `${recipe.id}: ${recipe.title}`).join("; ");
+  return `Fixed Host check recipe id. Catalog entries (id: title): ${catalog}.`;
 }
 
 /* A fixed recipe's path arguments must all be present in the candidate. Node's
@@ -59,7 +69,7 @@ export function createCheckTools({ candidate, resolveCandidate, runId: _runId, r
     name: "check_run",
     label: "Run a Host check recipe",
     description: "Run one Host-owned check recipe inside the private candidate worktree. The model selects a recipe id only; the Host fixes the exact command, arguments, working directory, environment, timeout and output limits. A completed run (including a non-zero exit code) is not Work acceptance.",
-    parameters: Type.Object({ recipeId: Type.String({ minLength: 1, maxLength: 200 }) }),
+    parameters: Type.Object({ recipeId: Type.String({ minLength: 1, maxLength: 200, description: recipeIdDescription() }) }),
     permissionContext(params) {
       // Thrown here (not returned as a partial context) so an unknown recipe
       // never reaches requestPermission at all: no question is opened and no

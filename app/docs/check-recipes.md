@@ -87,11 +87,14 @@ entry or returns `null`.
 
 ## What the model may pass
 
-The `check_run` tool's only parameter is `{recipeId}`. The model never
-supplies a command, argument list, working directory, environment or timeout;
-the Host resolves the id against the fixed catalog above and runs exactly
-that. An id absent from the catalog is rejected as `unknown_recipe` before
-anything is asked or spawned.
+The `check_run` tool's only parameter is `{recipeId}`: a string of 1–200
+characters. Its model-facing description is derived from `listCheckRecipes()`,
+so it offers every catalog entry as `id: title` (for example
+`node-test: Run the package tests`) without a second, hard-coded copy of the
+catalog. The model never supplies a command, argument list, working directory,
+environment or timeout; the Host resolves the id against the fixed catalog
+above and runs exactly that. An id absent from the catalog is rejected as
+`unknown_recipe` before anything is asked or spawned.
 
 ## Where it runs
 

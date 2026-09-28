@@ -1,0 +1,759 @@
+[
+  {
+    "seq": 2,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "running"
+    }
+  },
+  {
+    "seq": 11,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "I'll start by loading the required skill and orienting in the candidate.",
+      "stopReason": "toolUse",
+      "segment": 0
+    }
+  },
+  {
+    "seq": 14,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "runtime.context.loaded",
+    "data": {
+      "id": "local:cw-engineering-review",
+      "kind": "skill",
+      "source": {
+        "type": "local-config",
+        "hash": "52522494eb8733e875fee11071455629360f4d9589c9f71805fa2ca1ba5ec038"
+      },
+      "characters": 840
+    }
+  },
+  {
+    "seq": 21,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 1
+    }
+  },
+  {
+    "seq": 31,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 2
+    }
+  },
+  {
+    "seq": 44,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 3
+    }
+  },
+  {
+    "seq": 54,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 4
+    }
+  },
+  {
+    "seq": 64,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 5
+    }
+  },
+  {
+    "seq": 74,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 6
+    }
+  },
+  {
+    "seq": 81,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 7
+    }
+  },
+  {
+    "seq": 91,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 8
+    }
+  },
+  {
+    "seq": 101,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 9
+    }
+  },
+  {
+    "seq": 108,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 10
+    }
+  },
+  {
+    "seq": 115,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 11
+    }
+  },
+  {
+    "seq": 125,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 12
+    }
+  },
+  {
+    "seq": 135,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 13
+    }
+  },
+  {
+    "seq": 142,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 14
+    }
+  },
+  {
+    "seq": 152,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 15
+    }
+  },
+  {
+    "seq": 159,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 16
+    }
+  },
+  {
+    "seq": 166,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 17
+    }
+  },
+  {
+    "seq": 176,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 18
+    }
+  },
+  {
+    "seq": 186,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "toolUse",
+      "segment": 19
+    }
+  },
+  {
+    "seq": 192,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "",
+      "stopReason": "aborted",
+      "errorMessage": "Run cancelled",
+      "segment": 20
+    }
+  },
+  {
+    "seq": 193,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.error",
+    "data": {
+      "code": "budget_exceeded",
+      "message": "run turn budget exceeded"
+    }
+  },
+  {
+    "seq": 195,
+    "runId": "33535967-717b-4ac6-881a-114d0309f478",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "unknown"
+    }
+  },
+  {
+    "seq": 197,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "running"
+    }
+  },
+  {
+    "seq": 208,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "Proceeding directly to the test/fail/fix/pass loop. First, the regression into the existing test file (full-file replace, preserving all existing bytes, adding one import and one test).",
+      "stopReason": "toolUse",
+      "segment": 0
+    }
+  },
+  {
+    "seq": 210,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.open",
+    "data": {
+      "id": "ef69c9c0-ab54-4de3-a60c-7e60a8f1886b",
+      "kind": "permission",
+      "toolCallId": "call_00_TFGMeLkNlLDnLnuvvCgU0206",
+      "tool": "repo_write",
+      "path": "app/tests/check-recipes.test.mjs",
+      "bytes": 41088,
+      "contentSha256": "3b0e4bde48cf16ff871e837c71412fceefac15d5485d3ea19288eaf9dda1d874",
+      "preview": "import assert from \"node:assert/strict\";\nimport test from \"node:test\";\nimport { createHash } from \"node:crypto\";\nimport { execFile } from \"node:child_process\";\nimport { mkdir, mkdtemp, readFile, rm, writeFile } from \"node:fs/promises\";\nimport { tmpdir } from \"node:os\";\nimport path from \"node:path\";\nimport { promisify } from \"node:util\";\nimport { runCheckRecipe } from \"../runtime/check-runner.mjs\";",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "candidateRevision": 1,
+      "candidateWriteRevision": 0,
+      "sourceBindingId": "70316bb1-8a5a-43e3-9ea6-92e54b39e9f2",
+      "sourceBindingRevision": 1,
+      "expectedSha256": "7c97cfed7f041704f63ae61e7507054cf641f2e16aeb9b6f68fd0d847e53aef8"
+    }
+  },
+  {
+    "seq": 211,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "waiting_user"
+    }
+  },
+  {
+    "seq": 212,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.resolved",
+    "data": {
+      "id": "ef69c9c0-ab54-4de3-a60c-7e60a8f1886b",
+      "kind": "permission",
+      "decision": "allow"
+    }
+  },
+  {
+    "seq": 213,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "running"
+    }
+  },
+  {
+    "seq": 214,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "repository.write.confirmed",
+    "data": {
+      "effectId": "b2c0ce63da4d2fbb42b266f9468f6556fa0536dd6fe3207c8c1f5f832057566f",
+      "requestId": "call_00_TFGMeLkNlLDnLnuvvCgU0206",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "path": "app/tests/check-recipes.test.mjs",
+      "contentSha256": "3b0e4bde48cf16ff871e837c71412fceefac15d5485d3ea19288eaf9dda1d874",
+      "bytes": 41088,
+      "writeRevision": 1
+    }
+  },
+  {
+    "seq": 221,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "Regression written (bytes 39584 \u2192 41088). Now invoking the fixed recipe to observe the expected schema-description failure.",
+      "stopReason": "toolUse",
+      "segment": 1
+    }
+  },
+  {
+    "seq": 223,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.open",
+    "data": {
+      "id": "120eb03c-29c2-4d28-a479-596408d990c7",
+      "kind": "permission",
+      "toolCallId": "call_00_EG5uuMPhTwAhsPRIPF6S5922",
+      "tool": "check_run",
+      "path": "*",
+      "bytes": 41,
+      "contentSha256": "91a478dcefc5ff133f81faa3ed3d9fd656b63b3043404307d7c7891e33e5b701",
+      "preview": "{\"recipeId\":\"node-test-harness-contract\"}",
+      "recipeId": "node-test-harness-contract",
+      "recipeVersion": 1,
+      "command": "<host-node-25.9.0>",
+      "argv": [
+        "--test",
+        "--test-concurrency=1",
+        "app/tests/hermes-api-runs.test.mjs",
+        "app/tests/request-summary.test.mjs",
+        "app/tests/runtime-load-recovery.test.mjs",
+        "app/tests/kit-context.test.mjs",
+        "app/tests/control-plane.test.mjs",
+        "app/tests/check-recipes.test.mjs"
+      ],
+      "cwd": "private candidate",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "candidateWriteRevision": 1,
+      "timeoutMs": 120000,
+      "outputLimitBytes": 65536,
+      "env": "minimal"
+    }
+  },
+  {
+    "seq": 224,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "waiting_user"
+    }
+  },
+  {
+    "seq": 225,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.resolved",
+    "data": {
+      "id": "120eb03c-29c2-4d28-a479-596408d990c7",
+      "kind": "permission",
+      "decision": "allow"
+    }
+  },
+  {
+    "seq": 226,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "running"
+    }
+  },
+  {
+    "seq": 227,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "check.started",
+    "data": {
+      "callId": "call_00_EG5uuMPhTwAhsPRIPF6S5922",
+      "recipeId": "node-test-harness-contract",
+      "recipeVersion": 1,
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "candidateWriteRevision": 1,
+      "startedAt": "2026-09-28T07:45:04.474Z"
+    }
+  },
+  {
+    "seq": 228,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "check.settled",
+    "data": {
+      "callId": "call_00_EG5uuMPhTwAhsPRIPF6S5922",
+      "status": "completed",
+      "exitCode": 1,
+      "signal": null,
+      "durationMs": 54565,
+      "stdout": "\u2714 Attention recipe is one frozen descriptor alongside the unchanged package recipe (2.104875ms)\n\u2714 Harness recipe is the third frozen descriptor; the first two keep their meaning and order (0.133625ms)\n\u2716 check_run's model-facing recipeId parameter offers every catalog id and title (0.985916ms)\n\u2714 runCheckRecipe reports a clean exit without truncation (74.51075ms)\n\u2714 runCheckRecipe reports a non-zero exit without throwing (58.624542ms)\n\u2714 runCheckRecipe caps captured stdout/stderr and marks truncated (66.809708ms)\n\u2714 runCheckRecipe timeout kills the whole process group, including a nested child (309.342792ms)\n\u2714 runCheckRecipe cancels on abort and resolves only after the group has exited (204.180083ms)\n\u2714 runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (1.406542ms)\n\u2714 check_run is denied with zero process start under read_only (2853.653041ms)\n\u2714 an unknown recipe id returns a tool error without opening a permission or spawning anything (2152.943625ms)\n\u2714 ask mode shows the exact recipe in the permission payload and deny records nothing (3079.302125ms)\n\u2714 approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets (8421.102083ms)\n\u2714 approved Harness recipe runs its six fixed targets: pass, nonzero after an exact candidate write, pass after the correction (6001.270542ms)\n\u2714 Harness recipe stops before spawn on a missing fixed target and reports a missing dependency as a nonzero result, with no install or retry (5690.586208ms)\n\u2714 approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (4307.52725ms)\n\u2714 cancelling a Run whose check is still running still records check.settled as cancelled (3206.014791ms)\n\u2714 an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (168.773167ms)\n\u2714 same Run write then check approves and persists the current candidate revision (2923.524709ms)\n\u2714 control: scope provenance, reset, CAS, and cross-session isolation survive restart (174.480584ms)\n\u2714 control: active Run freezes config; retry preserves its original runtime binding (469.102709ms)\n\u2714 policy: last match within scope, outer ceilings and literal regex characters (3.140375ms)\n\u2714 repository path policy is case-insensitive to block Host-volume case aliases (0.195209ms)\n\u2714 control APIs: source content remains pinned after replacement; templates are human-invoked drafts (309.326708ms)\n\u2714 policy: path denial reaches the executor; exposed write does not imply allowed write (636.473875ms)\n\u2714 policy: domain tools use the same execution gate, including exact arguments across approval (1.144958ms)\n\u2714 context: skill metadata is progressive, installed content grants no plugin/tool authority (363.810208ms)\n\u2714 composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (149.306833ms)\n\u2714 control config: corrupt or future version fails closed without overwriting the file (104.118333ms)\n\u2714 compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (109.074041ms)\n\u2714 MCP modern: discovery is separate from exposure and execution consent (619.468ms)\n\u2714 MCP legacy: discovery is separate from exposure and execution consent (663.984916ms)\n\u2714 MCP: first unknown outcome closes subsequent tool admission in the same Run (491.513292ms)\n\u2714 MCP: a lost remote call result becomes an unknown Run, never an automatic replay (495.022375ms)\n\u2714 admission serializes permission changes and extension binding before runtime snapshots can diverge (503.787708ms)\n\u2714 context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (81.256458ms)\n\u2714 an already-aborted event read opens no HTTP request (7.298625ms)\n\u2714 small SSE frames coalesced into one HTTP response retain per-frame bounds (10.739083ms)\n\u2714 the adapter describes its pinned source, endpoint and capability ceiling (2.130708ms)\n\u2714 the first transport accepts only an explicit loopback origin, and never echoes the bearer (2.277209ms)\n\u2714 admission sends the exact bounded body with the Host's key, and returns a native run id, not completion (2.761417ms)\n\u2714 invalid input or key is refused locally, before anything is sent (0.819916ms)\n\u2714 the same intent replays the same run; a changed body under the same key conflicts and creates nothing (2.806917ms)\n\u2714 a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (2.577792ms)\n\u2714 fragmented Unicode arrives whole: pinned ASCII escapes split across writes, and raw UTF-8 split inside a character (11.16475ms)\n\u2714 repeated equal deltas are separate text: nothing on the wire makes them duplicates (3.100208ms)\n\u2714 terminal output is the native final response, kept apart from the text actually streamed (1.760917ms)\n\u2714 a stream that ends without a terminal is a gap; the status decides only whether the run is known to have ended (2.655542ms)\n\u2714 malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (1.529ms)\n\u2714 status and terminal records must describe this run in the pinned shape (0.0905ms)\n\u2714 an approval or tool event is recorded, never answered or executed, and rules out a text-only success (1.671459ms)\n\u2714 stop is an intent: only the matching terminal cancelled settles the run as cancelled (56.803208ms)\n\u2714 a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (311.263625ms)\n\u2714 after an owner restart, status reports interrupted: unknown coverage, no text invented, and stop only reads that status (95.780375ms)\n\u2714 a stop for a run this gateway process does not drive is refused as not active, with no effect (6.015042ms)\n\u2714 the stream has one subscriber; a second follow finds no stream and does not claim replay (6.88325ms)\n\u2714 continuation uses only a native session id observed in a validated status, never a guess (4.585959ms)\n\u2714 byte, frame, idle and text limits end the stream as a bounded gap (218.461ms)\n\u2714 keepalive comments hold an idle stream open and are not events (460.603458ms)\n\u2714 dispose closes only this transport's connections: no stop, no delete, and the native run is left as it was (140.726542ms)\n\u2714 HPR-R1 \u00b7 a status observed through another adapter or endpoint cannot start a continuation (1.3605ms)\n\u2714 HPR-R1 \u00b7 admit sends only an intent this adapter issued, with its exact validated body (0.622417ms)\n\u2714 HPR-R1 \u00b7 after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted (12.585833ms)\n\u2714 HPR-R2 \u00b7 invalid limits and unknown configuration are refused before any request (3.088083ms)\n\u2714 HPR-R2 \u00b7 valid smaller limits and the documented ceilings are accepted and enforced (4.960583ms)\n\u2714 HPR-R2 \u00b7 the configured error limit bounds every terminal error: status, follow, reconcile and stop (0.438ms)\n\u2714 Kit literal oracle: actual binding \u2192 plan \u2192 exact existing context, independent hashes and accounting (9.535041ms)\n\u2714 General/Coding/Praxis preserve shared attribution and defer bodies/templates (2.726083ms)\n\u2714 No-Kit is exact historical passthrough and ignores new inputs without inspecting them (1.8815ms)\n\u2714 Changing/deselecting Kits never removes already-admitted instructions from a binding (2.077417ms)\n\u2714 Frozen input and returned data have no aliases in either direction (3.43325ms)\n\u2714 Object/Kit/evidence permutations are deterministic; catalog order is meaningful (6.477959ms)\n\u2714 Exact duplicate Kits, references and evidence deduplicate without extra text or core budget (3.02825ms)\n\u2714 Exact maxCoreBytes boundary passes; one-under refuses without partial text (1.962875ms)\n\u2714 Exact maxContextBytes boundary passes; one-under refuses without partial text (1.679709ms)\n\u2714 Exact maxContextCharacters boundary passes; one-under refuses without partial text (1.721ms)\n\u2714 Required fragment/envelope failure input => { input.binding.content = input.binding.content.filter(r => r.id !== 'local:general'); } (0.950209ms)\n\u2714 Required fragment/envelope failure input => { input.binding.resources = input.binding.resources.filter(r => r.id !== 'local:general'); } (0.888834ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').exposed = false; } (0.852875ms)\n\u2714 Required fragment/envelope failure input => { body(input, 'local:general').content += 'changed'; } (0.83625ms)\n\u2714 Required fragment/envelope failure input => { body(input, 'local:general').title = 'changed'; } (0.887209ms)\n\u2714 Required fragment/envelope failure input => { body(input, 'local:general').scope.id = 'changed'; } (0.858625ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').activation = 'manual'; } (0.874958ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').kind = 'skill'; } (0.771125ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').source.hash = 'a'.repeat(64); } (1.014542ms)\n\u2714 Required fragment/envelope failure input => { input.binding.composition.status = 'incompatible'; } (0.901166ms)\n\u2714 Optional missing/deactivated deferred sources are reported; digest mismatch still refuses (1.753334ms)\n\u2714 Missing/disabled runtime_load is not exposure or permission, and required wins duplicate optional (3.308625ms)\n\u2714 Non-content requirements copy owner permission readings without grants/evaluation (3.411958ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:general (0.8775ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:notes (0.839625ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:coding-skill (0.768917ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:template (0.757833ms)\n\u2714 Missing/not-exposed requirements distinguish required refusal from optional omission (2.137583ms)\n\u2714 Version/source/deferred-only changes have separate plan and output identities; history remains frozen (5.266125ms)\n\u2714 Exact runtime evidence: supported/unsupported/unchecked and conflicts remain independent of permissions (6.148208ms)\n\u2714 Selected conflicts and contradictory pins refuse; absent targets do not (2.8145ms)\n\u2714 Code-unit ordering is explicit for punctuation; scope order still wins (0.950125ms)\n\u2714 Empty catalog and exact Unicode/CRLF sources keep complete instruction bytes (0.661125ms)\n\u2714 Descriptor integrity, exact schema, dependencies/native contributions and bounds reject before compilation (12.390291ms)\n\u2714 Duplicate binding IDs and core/deferred role contradictions refuse deterministically (2.308333ms)\n\u2714 Lone surrogates in Kit metadata and all rendered text are rejected rather than normalized (3.064ms)\n\u2714 Optional missing counterpart cannot hide a known source pin mismatch (1.026542ms)\n\u2714 New descriptor accessors are rejected without executing caller code (0.629666ms)\n\u2714 Strict Kit-present input: compatibilityEvidence null is not an implicit unknown (2.958042ms)\n\u2714 Strict Kit-present input: compatibilityEvidence undefined is not an implicit unknown (0.742625ms)\n\u2714 Strict Kit-present input: compatibilityEvidence absent is not an implicit unknown (0.663125ms)\n\u2714 Strict Kit-present input: runtime undefined is not an implicit unknown (0.643667ms)\n\u2714 Strict Kit-present input: runtime absent is not an implicit unknown (0.635792ms)\n\u2714 Explicit runtime null and empty evidence remain valid unchecked inputs (1.041083ms)\n\u2714 summarizeRepoListArgs: only path, the tool's default, invalid vs display-unsafe (1.76825ms)\n\u2714 boundRequestSummary: 256 code points, 2048 bytes, closed shape (0.328792ms)\n\u2714 Pi mapper: repo_list start carries a candidate summary; other tools and updates/results carry none (0.212167ms)\n\u2714 Host eligibility: only the repository owner's own repo_list, and only when it is the sole one (0.095167ms)\n\u2714 Store: first summary per call wins, including changed-input and concurrent replay; the event itself is kept (66.460125ms)\n\u2714 Store: at most 32 non-omitted summaries per Run, counted across Host restart; omissions do not spend the budget (666.460084ms)\n\u2714 admitRequestSummary leaves events without the field byte-identical (0.128916ms)\n\u2714 Host: real Pi repo_list starts \u2192 redacted, bounded, persisted, reopened \u2192 shared Chat/Attention disclosure (1004.550084ms)\n\u2714 Host: a cancelled Run keeps its start summary; an untrusted port observation carries none (917.375916ms)\n\u2714 projection: old events show no summary, malformed ones are ignored, the first start's summary stays (1.225583ms)\n\u2714 RL-1 runtime_load advertises exact-ID loading, not a catalog (0.907333ms)\n\u2714 RL-1 a missing ID keeps the original sentence and names admitted IDs (0.500167ms)\n\u2714 RL-1 an empty or non-loadable catalog says so and cannot discover check recipes (0.213208ms)\n\u2714 RL-1 hints never disclose hidden, wrong-kind or non-ID resource fields (0.168666ms)\n\u2714 RL-1 hints are sorted, deduplicated, capped at 8 and state omissions (0.902041ms)\n\u2714 RL-1 long or odd IDs stay whole and the complete hint stays bounded (0.304792ms)\n\u2714 RL-1 a failed lookup neither mutates the binding nor calls onLoad (0.156333ms)\n\u2714 RL-1 successful loading returns the exact body and receipt unchanged (0.11875ms)\n\u2714 RL-1 the literal id 'catalog' is not special and stays loadable when admitted (0.097709ms)\n\u2714 RL-1 integration: invalid ID errors, then an admitted ID loads with exactly one context.loaded event (446.473833ms)\n\u2139 tests 130\n\u2139 suites 0\n\u2139 pass 129\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 54484.632375\n\n\u2716 failing tests:\n\ntest at app/tests/check-recipes.test.mjs:74:1\n\u2716 check_run's model-facing recipeId parameter offers every catalog id and title (0.985916ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'undefined'\n  - 'string'\n  \n      at TestContext.<anonymous> (file://<acceptance-root>/data/repository-candidates/2aa5d872feef87c79f49f51ac6cb5a81a20d69b8a80a2885f4a6bfbd06ecd022/candidate-92dd70a6-73be-48b2-aaf3-de5f63faf97f/worktree/app/tests/check-recipes.test.mjs:84:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1201:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)\n      at Test.postRun (node:internal/test_runner/test:1330:19)\n      at Test.run (node:internal/test_runner/test:1258:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'undefined',\n    expected: 'string',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+      "stderr": "",
+      "truncated": {
+        "stdout": false,
+        "stderr": false
+      },
+      "startedAt": "2026-09-28T07:45:04.485Z",
+      "endedAt": "2026-09-28T07:45:59.050Z",
+      "failure": null
+    }
+  },
+  {
+    "seq": 237,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "The regression fails exactly as designed (`typeof recipeId.description` is `undefined`), 129 pass / 1 fail. Now the smallest fix: derive the description from the catalog in `check-tools.mjs`.",
+      "stopReason": "toolUse",
+      "segment": 2
+    }
+  },
+  {
+    "seq": 239,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.open",
+    "data": {
+      "id": "5442ff9e-687a-418b-8c1d-9ce7630e7c06",
+      "kind": "permission",
+      "toolCallId": "call_00_dmJT0DYMFH06cH5umJU97535",
+      "tool": "repo_write",
+      "path": "app/runtime/check-tools.mjs",
+      "bytes": 7235,
+      "contentSha256": "bed038c471362057298aa3351ede8d84a701cfd1d418f176298db45ea842be95",
+      "preview": "// DF-04 model tool (RD-009). The model chooses a recipe id only -- never a\n// command, argv, cwd or environment. Settlement is recorded by the Host\n// directly (recordStarted/recordSettled), independent of Pi's own\n// tool.result path, because a cancel closes Run admission before a late\n// tool.* event would otherwise arrive.\nimport { lstatSync } from \"node:fs\";\nimport path from \"node:path\";\nimpo",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "candidateRevision": 1,
+      "candidateWriteRevision": 1,
+      "sourceBindingId": "70316bb1-8a5a-43e3-9ea6-92e54b39e9f2",
+      "sourceBindingRevision": 1,
+      "expectedSha256": "4b13f7b8ab81a25325fbb8e88929d174a4b6a7011c4cc799198dd4359f1a5991"
+    }
+  },
+  {
+    "seq": 240,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "waiting_user"
+    }
+  },
+  {
+    "seq": 241,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.resolved",
+    "data": {
+      "id": "5442ff9e-687a-418b-8c1d-9ce7630e7c06",
+      "kind": "permission",
+      "decision": "allow"
+    }
+  },
+  {
+    "seq": 242,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "running"
+    }
+  },
+  {
+    "seq": 243,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "repository.write.confirmed",
+    "data": {
+      "effectId": "d5fc285e59b65dbe6edc9bda166907af775a1fbeded7dccbd1054559ddee82d0",
+      "requestId": "call_00_dmJT0DYMFH06cH5umJU97535",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "path": "app/runtime/check-tools.mjs",
+      "contentSha256": "bed038c471362057298aa3351ede8d84a701cfd1d418f176298db45ea842be95",
+      "bytes": 7235,
+      "writeRevision": 2
+    }
+  },
+  {
+    "seq": 252,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "Now the concise docs update.",
+      "stopReason": "toolUse",
+      "segment": 3
+    }
+  },
+  {
+    "seq": 254,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.open",
+    "data": {
+      "id": "1561d0dd-c5fd-47f4-8a91-9fb0b2dea924",
+      "kind": "permission",
+      "toolCallId": "call_00_o75947RfYngRCwIjlN2W5762",
+      "tool": "repo_write",
+      "path": "app/docs/check-recipes.md",
+      "bytes": 10831,
+      "contentSha256": "aef1b7f7d08e4b33533bada8d5849e0770848a42e5b054296ab8d9e2dcfb35ff",
+      "preview": "# Host check recipes (DF-04)\n\nDF-04 lets a Session run a Host-owned \"check recipe\" against the\nSession's active private Git candidate (see\n[`repository-binding.md`](repository-binding.md)). The contract is RD-009\n[\"DF-04\u53ef\u65bd\u5de5\u5408\u540c\"](../../engineering/research/RD-009-trusted-harness-extensions.md#df-04\u53ef\u65bd\u5de5\u5408\u540c).\nThis is a first Developer-consumer increment, not a general G1\u2013G5\nprecondition, and not a sandb",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "candidateRevision": 1,
+      "candidateWriteRevision": 2,
+      "sourceBindingId": "70316bb1-8a5a-43e3-9ea6-92e54b39e9f2",
+      "sourceBindingRevision": 1,
+      "expectedSha256": "f29554e9fdb385d8d84c262692414e29003de61302ab8675864b9b44dfb8a049"
+    }
+  },
+  {
+    "seq": 255,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "waiting_user"
+    }
+  },
+  {
+    "seq": 256,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.resolved",
+    "data": {
+      "id": "1561d0dd-c5fd-47f4-8a91-9fb0b2dea924",
+      "kind": "permission",
+      "decision": "allow"
+    }
+  },
+  {
+    "seq": 257,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "running"
+    }
+  },
+  {
+    "seq": 258,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "repository.write.confirmed",
+    "data": {
+      "effectId": "c8d476016b8dd6c683672cce8a06b7c8ef0ac25a033b694fa1dfadc0f7ec915b",
+      "requestId": "call_00_o75947RfYngRCwIjlN2W5762",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "path": "app/docs/check-recipes.md",
+      "contentSha256": "aef1b7f7d08e4b33533bada8d5849e0770848a42e5b054296ab8d9e2dcfb35ff",
+      "bytes": 10831,
+      "writeRevision": 3
+    }
+  },
+  {
+    "seq": 265,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "All three files updated. Re-running the same fixed recipe to verify the pass.",
+      "stopReason": "toolUse",
+      "segment": 4
+    }
+  },
+  {
+    "seq": 267,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.open",
+    "data": {
+      "id": "a13eecc1-1783-4f10-ad9e-b08f52f0c9fe",
+      "kind": "permission",
+      "toolCallId": "call_00_hEfXuANRJQxTHgGAkZld9354",
+      "tool": "check_run",
+      "path": "*",
+      "bytes": 41,
+      "contentSha256": "91a478dcefc5ff133f81faa3ed3d9fd656b63b3043404307d7c7891e33e5b701",
+      "preview": "{\"recipeId\":\"node-test-harness-contract\"}",
+      "recipeId": "node-test-harness-contract",
+      "recipeVersion": 1,
+      "command": "<host-node-25.9.0>",
+      "argv": [
+        "--test",
+        "--test-concurrency=1",
+        "app/tests/hermes-api-runs.test.mjs",
+        "app/tests/request-summary.test.mjs",
+        "app/tests/runtime-load-recovery.test.mjs",
+        "app/tests/kit-context.test.mjs",
+        "app/tests/control-plane.test.mjs",
+        "app/tests/check-recipes.test.mjs"
+      ],
+      "cwd": "private candidate",
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "candidateWriteRevision": 3,
+      "timeoutMs": 120000,
+      "outputLimitBytes": 65536,
+      "env": "minimal"
+    }
+  },
+  {
+    "seq": 268,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "waiting_user"
+    }
+  },
+  {
+    "seq": 269,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "permission.resolved",
+    "data": {
+      "id": "a13eecc1-1783-4f10-ad9e-b08f52f0c9fe",
+      "kind": "permission",
+      "decision": "allow"
+    }
+  },
+  {
+    "seq": 270,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "running"
+    }
+  },
+  {
+    "seq": 271,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "check.started",
+    "data": {
+      "callId": "call_00_hEfXuANRJQxTHgGAkZld9354",
+      "recipeId": "node-test-harness-contract",
+      "recipeVersion": 1,
+      "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+      "candidateWriteRevision": 3,
+      "startedAt": "2026-09-28T07:48:13.994Z"
+    }
+  },
+  {
+    "seq": 272,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "check.settled",
+    "data": {
+      "callId": "call_00_hEfXuANRJQxTHgGAkZld9354",
+      "status": "completed",
+      "exitCode": 0,
+      "signal": null,
+      "durationMs": 54023,
+      "stdout": "\u2714 Attention recipe is one frozen descriptor alongside the unchanged package recipe (1.564875ms)\n\u2714 Harness recipe is the third frozen descriptor; the first two keep their meaning and order (0.106625ms)\n\u2714 check_run's model-facing recipeId parameter offers every catalog id and title (0.17125ms)\n\u2714 runCheckRecipe reports a clean exit without truncation (90.753958ms)\n\u2714 runCheckRecipe reports a non-zero exit without throwing (62.476ms)\n\u2714 runCheckRecipe caps captured stdout/stderr and marks truncated (67.788375ms)\n\u2714 runCheckRecipe timeout kills the whole process group, including a nested child (304.03675ms)\n\u2714 runCheckRecipe cancels on abort and resolves only after the group has exited (204.367417ms)\n\u2714 runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (1.253209ms)\n\u2714 check_run is denied with zero process start under read_only (2802.999291ms)\n\u2714 an unknown recipe id returns a tool error without opening a permission or spawning anything (2499.165875ms)\n\u2714 ask mode shows the exact recipe in the permission payload and deny records nothing (4095.815709ms)\n\u2714 approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets (8866.595708ms)\n\u2714 approved Harness recipe runs its six fixed targets: pass, nonzero after an exact candidate write, pass after the correction (5814.372458ms)\n\u2714 Harness recipe stops before spawn on a missing fixed target and reports a missing dependency as a nonzero result, with no install or retry (5285.565666ms)\n\u2714 approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (4694.068125ms)\n\u2714 cancelling a Run whose check is still running still records check.settled as cancelled (3248.099834ms)\n\u2714 an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (168.611875ms)\n\u2714 same Run write then check approves and persists the current candidate revision (2940.50775ms)\n\u2714 control: scope provenance, reset, CAS, and cross-session isolation survive restart (173.666708ms)\n\u2714 control: active Run freezes config; retry preserves its original runtime binding (444.280833ms)\n\u2714 policy: last match within scope, outer ceilings and literal regex characters (0.570834ms)\n\u2714 repository path policy is case-insensitive to block Host-volume case aliases (0.160292ms)\n\u2714 control APIs: source content remains pinned after replacement; templates are human-invoked drafts (283.447833ms)\n\u2714 policy: path denial reaches the executor; exposed write does not imply allowed write (712.632209ms)\n\u2714 policy: domain tools use the same execution gate, including exact arguments across approval (1.448583ms)\n\u2714 context: skill metadata is progressive, installed content grants no plugin/tool authority (281.321375ms)\n\u2714 composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (241.008958ms)\n\u2714 control config: corrupt or future version fails closed without overwriting the file (106.898125ms)\n\u2714 compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (110.363166ms)\n\u2714 MCP modern: discovery is separate from exposure and execution consent (526.293792ms)\n\u2714 MCP legacy: discovery is separate from exposure and execution consent (772.677875ms)\n\u2714 MCP: first unknown outcome closes subsequent tool admission in the same Run (481.533ms)\n\u2714 MCP: a lost remote call result becomes an unknown Run, never an automatic replay (503.983541ms)\n\u2714 admission serializes permission changes and extension binding before runtime snapshots can diverge (371.068125ms)\n\u2714 context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (77.43075ms)\n\u2714 an already-aborted event read opens no HTTP request (7.046459ms)\n\u2714 small SSE frames coalesced into one HTTP response retain per-frame bounds (10.636458ms)\n\u2714 the adapter describes its pinned source, endpoint and capability ceiling (2.328791ms)\n\u2714 the first transport accepts only an explicit loopback origin, and never echoes the bearer (2.688583ms)\n\u2714 admission sends the exact bounded body with the Host's key, and returns a native run id, not completion (3.057917ms)\n\u2714 invalid input or key is refused locally, before anything is sent (0.834667ms)\n\u2714 the same intent replays the same run; a changed body under the same key conflicts and creates nothing (2.428542ms)\n\u2714 a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (2.574ms)\n\u2714 fragmented Unicode arrives whole: pinned ASCII escapes split across writes, and raw UTF-8 split inside a character (10.684708ms)\n\u2714 repeated equal deltas are separate text: nothing on the wire makes them duplicates (2.727459ms)\n\u2714 terminal output is the native final response, kept apart from the text actually streamed (1.754583ms)\n\u2714 a stream that ends without a terminal is a gap; the status decides only whether the run is known to have ended (2.820625ms)\n\u2714 malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (1.8065ms)\n\u2714 status and terminal records must describe this run in the pinned shape (0.088625ms)\n\u2714 an approval or tool event is recorded, never answered or executed, and rules out a text-only success (1.836125ms)\n\u2714 stop is an intent: only the matching terminal cancelled settles the run as cancelled (56.930292ms)\n\u2714 a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (304.662333ms)\n\u2714 after an owner restart, status reports interrupted: unknown coverage, no text invented, and stop only reads that status (86.480917ms)\n\u2714 a stop for a run this gateway process does not drive is refused as not active, with no effect (2.602916ms)\n\u2714 the stream has one subscriber; a second follow finds no stream and does not claim replay (4.038334ms)\n\u2714 continuation uses only a native session id observed in a validated status, never a guess (2.949834ms)\n\u2714 byte, frame, idle and text limits end the stream as a bounded gap (217.088541ms)\n\u2714 keepalive comments hold an idle stream open and are not events (457.83925ms)\n\u2714 dispose closes only this transport's connections: no stop, no delete, and the native run is left as it was (137.921834ms)\n\u2714 HPR-R1 \u00b7 a status observed through another adapter or endpoint cannot start a continuation (0.787291ms)\n\u2714 HPR-R1 \u00b7 admit sends only an intent this adapter issued, with its exact validated body (0.447667ms)\n\u2714 HPR-R1 \u00b7 after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted (7.346666ms)\n\u2714 HPR-R2 \u00b7 invalid limits and unknown configuration are refused before any request (1.932208ms)\n\u2714 HPR-R2 \u00b7 valid smaller limits and the documented ceilings are accepted and enforced (4.409583ms)\n\u2714 HPR-R2 \u00b7 the configured error limit bounds every terminal error: status, follow, reconcile and stop (0.416792ms)\n\u2714 Kit literal oracle: actual binding \u2192 plan \u2192 exact existing context, independent hashes and accounting (9.849125ms)\n\u2714 General/Coding/Praxis preserve shared attribution and defer bodies/templates (2.892833ms)\n\u2714 No-Kit is exact historical passthrough and ignores new inputs without inspecting them (1.791917ms)\n\u2714 Changing/deselecting Kits never removes already-admitted instructions from a binding (1.979167ms)\n\u2714 Frozen input and returned data have no aliases in either direction (6.588917ms)\n\u2714 Object/Kit/evidence permutations are deterministic; catalog order is meaningful (3.5455ms)\n\u2714 Exact duplicate Kits, references and evidence deduplicate without extra text or core budget (3.134417ms)\n\u2714 Exact maxCoreBytes boundary passes; one-under refuses without partial text (1.818917ms)\n\u2714 Exact maxContextBytes boundary passes; one-under refuses without partial text (1.671541ms)\n\u2714 Exact maxContextCharacters boundary passes; one-under refuses without partial text (1.702125ms)\n\u2714 Required fragment/envelope failure input => { input.binding.content = input.binding.content.filter(r => r.id !== 'local:general'); } (0.965083ms)\n\u2714 Required fragment/envelope failure input => { input.binding.resources = input.binding.resources.filter(r => r.id !== 'local:general'); } (0.879417ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').exposed = false; } (1.015083ms)\n\u2714 Required fragment/envelope failure input => { body(input, 'local:general').content += 'changed'; } (0.9365ms)\n\u2714 Required fragment/envelope failure input => { body(input, 'local:general').title = 'changed'; } (1.026625ms)\n\u2714 Required fragment/envelope failure input => { body(input, 'local:general').scope.id = 'changed'; } (1.054625ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').activation = 'manual'; } (1.080833ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').kind = 'skill'; } (0.856166ms)\n\u2714 Required fragment/envelope failure input => { row(input, 'local:general').source.hash = 'a'.repeat(64); } (0.782ms)\n\u2714 Required fragment/envelope failure input => { input.binding.composition.status = 'incompatible'; } (0.810375ms)\n\u2714 Optional missing/deactivated deferred sources are reported; digest mismatch still refuses (1.745541ms)\n\u2714 Missing/disabled runtime_load is not exposure or permission, and required wins duplicate optional (3.096417ms)\n\u2714 Non-content requirements copy owner permission readings without grants/evaluation (3.13375ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:general (0.922292ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:notes (1.089958ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:coding-skill (0.984791ms)\n\u2714 Unpinned content requirement cannot bypass source pins: local:template (0.975417ms)\n\u2714 Missing/not-exposed requirements distinguish required refusal from optional omission (2.55175ms)\n\u2714 Version/source/deferred-only changes have separate plan and output identities; history remains frozen (5.31125ms)\n\u2714 Exact runtime evidence: supported/unsupported/unchecked and conflicts remain independent of permissions (5.65ms)\n\u2714 Selected conflicts and contradictory pins refuse; absent targets do not (2.888167ms)\n\u2714 Code-unit ordering is explicit for punctuation; scope order still wins (1.187917ms)\n\u2714 Empty catalog and exact Unicode/CRLF sources keep complete instruction bytes (0.770833ms)\n\u2714 Descriptor integrity, exact schema, dependencies/native contributions and bounds reject before compilation (12.724416ms)\n\u2714 Duplicate binding IDs and core/deferred role contradictions refuse deterministically (2.603541ms)\n\u2714 Lone surrogates in Kit metadata and all rendered text are rejected rather than normalized (5.877292ms)\n\u2714 Optional missing counterpart cannot hide a known source pin mismatch (1.032125ms)\n\u2714 New descriptor accessors are rejected without executing caller code (0.669208ms)\n\u2714 Strict Kit-present input: compatibilityEvidence null is not an implicit unknown (0.697417ms)\n\u2714 Strict Kit-present input: compatibilityEvidence undefined is not an implicit unknown (0.6575ms)\n\u2714 Strict Kit-present input: compatibilityEvidence absent is not an implicit unknown (0.664459ms)\n\u2714 Strict Kit-present input: runtime undefined is not an implicit unknown (0.656333ms)\n\u2714 Strict Kit-present input: runtime absent is not an implicit unknown (0.658167ms)\n\u2714 Explicit runtime null and empty evidence remain valid unchecked inputs (3.616416ms)\n\u2714 summarizeRepoListArgs: only path, the tool's default, invalid vs display-unsafe (1.622ms)\n\u2714 boundRequestSummary: 256 code points, 2048 bytes, closed shape (0.282334ms)\n\u2714 Pi mapper: repo_list start carries a candidate summary; other tools and updates/results carry none (0.173916ms)\n\u2714 Host eligibility: only the repository owner's own repo_list, and only when it is the sole one (0.091875ms)\n\u2714 Store: first summary per call wins, including changed-input and concurrent replay; the event itself is kept (56.235833ms)\n\u2714 Store: at most 32 non-omitted summaries per Run, counted across Host restart; omissions do not spend the budget (204.743208ms)\n\u2714 admitRequestSummary leaves events without the field byte-identical (0.115958ms)\n\u2714 Host: real Pi repo_list starts \u2192 redacted, bounded, persisted, reopened \u2192 shared Chat/Attention disclosure (719.896334ms)\n\u2714 Host: a cancelled Run keeps its start summary; an untrusted port observation carries none (942.814375ms)\n\u2714 projection: old events show no summary, malformed ones are ignored, the first start's summary stays (1.044333ms)\n\u2714 RL-1 runtime_load advertises exact-ID loading, not a catalog (1.014667ms)\n\u2714 RL-1 a missing ID keeps the original sentence and names admitted IDs (0.565292ms)\n\u2714 RL-1 an empty or non-loadable catalog says so and cannot discover check recipes (0.253959ms)\n\u2714 RL-1 hints never disclose hidden, wrong-kind or non-ID resource fields (0.172958ms)\n\u2714 RL-1 hints are sorted, deduplicated, capped at 8 and state omissions (1.034166ms)\n\u2714 RL-1 long or odd IDs stay whole and the complete hint stays bounded (0.366791ms)\n\u2714 RL-1 a failed lookup neither mutates the binding nor calls onLoad (0.199208ms)\n\u2714 RL-1 successful loading returns the exact body and receipt unchanged (0.131083ms)\n\u2714 RL-1 the literal id 'catalog' is not special and stays loadable when admitted (0.107708ms)\n\u2714 RL-1 integration: invalid ID errors, then an admitted ID loads with exactly one context.loaded event (241.700208ms)\n\u2139 tests 130\n\u2139 suites 0\n\u2139 pass 130\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 53935.6455\n",
+      "stderr": "",
+      "truncated": {
+        "stdout": false,
+        "stderr": false
+      },
+      "startedAt": "2026-09-28T07:48:14.006Z",
+      "endedAt": "2026-09-28T07:49:08.029Z",
+      "failure": null
+    }
+  },
+  {
+    "seq": 291,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "assistant.message",
+    "data": {
+      "text": "Done. Both Host checks ran and I'm reporting actual outcomes only.\n\n## Changed files (exact, 3-file scope)\n\n| Path | Before SHA-256 | After SHA-256 | Bytes |\n|---|---|---|---|\n| `app/runtime/check-tools.mjs` | `4b13f7b8\u2026a5991` | `bed038c4\u20262be95` | 6585 \u2192 7235 |\n| `app/tests/check-recipes.test.mjs` | `7c97cfed\u20263aef8` | `3b0e4bde\u20261d874` | 39584 \u2192 41088 |\n| `app/docs/check-recipes.md` | `f29554e9\u2026b8a049` | `aef1b7f7\u2026fb35ff` | 10585 \u2192 10831 |\n\n**`check-tools.mjs`** (smallest fix, declaration only): added `listCheckRecipes` to the import and a `recipeIdDescription()` helper that renders the one authoritative catalog as `id: title` pairs (joined) into the `recipeId` parameter description:\n`params: Type.Object({ recipeId: Type.String({ minLength: 1, maxLength: 200, description: recipeIdDescription() }) })`.\n`minLength`/`maxLength`, the single-parameter shape, unknown-ID rejection (`permissionContext`/`execute` `unknown_recipe`), approval descriptor, candidate rechecks, spawn fence and settlement semantics are byte-for-byte unchanged.\n\n**`check-recipes.test.mjs`**: added `import { createCheckTools }` and one new test, `check_run's model-facing recipeId parameter offers every catalog id and title`, using `createCheckTools` directly with an `active` candidate. It observes the actual declaration and asserts exactly one `recipeId` property, `type:\"string\"`, `minLength:1`, `maxLength:200`, a string `description`, and that the description contains every catalog `id` and `title` from `listCheckRecipes()`. No existing test bytes were altered.\n\n**`check-recipes.md`**: the \"What the model may pass\" section now states the parameter is a 1\u2013200-character string whose model-facing description is derived from `listCheckRecipes()` and offers each entry as `id: title`, with no second hard-coded catalog.\n\n## Checks (fixed recipe `node-test-harness-contract`)\n\n- **Before fix** \u2014 status `completed`, **exitCode 1**; `\u2139 tests 130 / pass 129 / fail 1`. The single failure was the new test: `+ 'undefined' - 'string'` on `typeof recipeId.description` (the expected schema-description failure). All other 129, including every pre-existing check-recipes/governance/settlement test, passed.\n- **After fix** \u2014 status `completed`, **exitCode 0**; `\u2139 tests 130 / pass 130 / fail 0`, duration_ms \u2248 53936. The new test passed and no existing test regressed.\n\n## Preserved / limits\n\n- No new tool or endpoint; `CANDIDATE_TOOLS` exposure, `hostToolCeiling` (deny under read_only, ask otherwise), the store payload validation, the runner and the frozen catalog (`check-recipes.mjs`) are untouched. No dependency, credential or config change.\n- I ran **only** the assigned `node-test-harness-contract` recipe. I did not run `node-test` or `node-test-attention-contract`, and no consumer test asserting exact wire-body text for `check_run` was independently verified. `repo_diff` was not usable (untracked node_modules output limit) and I left that mechanism alone; the reviewer's own diff should confirm no unintended byte changes.\n- These are Host process receipts, not acceptance. Independent verification and formal acceptance remain with the reviewer.",
+      "stopReason": "stop",
+      "segment": 5
+    }
+  },
+  {
+    "seq": 293,
+    "runId": "fd808102-c174-44e7-983a-412fcf372a81",
+    "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+    "type": "run.status",
+    "data": {
+      "status": "completed"
+    }
+  }
+]

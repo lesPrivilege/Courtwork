@@ -1,0 +1,269 @@
+{
+  "sourceHead": "fafc62674955257ae84a67f3ba293c19b2a4d19c",
+  "sessionId": "661945cf-4802-4725-9b49-140fe0fb4c04",
+  "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+  "profile": {
+    "id": "local:cw-harness-maintainer",
+    "version": "1",
+    "hash": "d76e9b99b60eb6d6acd2f02d0ed4866713ffd3cdaac41eb8299aab6019e65aa4",
+    "status": "compatible",
+    "resourceIds": [
+      "local:cw-engineering-contract",
+      "local:cw-engineering-review",
+      "tool:ask_user",
+      "tool:repo_list",
+      "tool:repo_read",
+      "tool:repo_grep",
+      "tool:candidate_list",
+      "tool:candidate_read",
+      "tool:candidate_grep",
+      "tool:repo_write",
+      "tool:repo_diff",
+      "tool:check_run",
+      "tool:runtime_load"
+    ],
+    "uiSlots": [],
+    "missing": [],
+    "schemaVersion": 2,
+    "kits": [
+      {
+        "descriptor": {
+          "schemaVersion": 1,
+          "id": "kit:cw-engineering-closure",
+          "version": "1",
+          "core": [
+            {
+              "resourceId": "local:cw-engineering-contract",
+              "contentSha256": "1ae81134b5f3a6554e5d863417d339419fe128e86450314c36ebc72f68b25562",
+              "artifactSha256": "d651f6285a590dc8bf5ef5c67839d43343a39bb50f07291040c11e65a57e3db7"
+            }
+          ],
+          "deferred": [
+            {
+              "resourceId": "local:cw-engineering-review",
+              "contentSha256": "52522494eb8733e875fee11071455629360f4d9589c9f71805fa2ca1ba5ec038",
+              "artifactSha256": "8dcc80659b65081bfd66ab4fe34b4aa335edf3b52d4f256a53029b2b50a3436f",
+              "required": true
+            }
+          ],
+          "requirements": [],
+          "conflicts": []
+        },
+        "descriptorSha256": "17b15501b7d8f4a53ef922527dd57359c7935c58a797cb008d9b51041d4bd10b"
+      }
+    ],
+    "selectionScope": {
+      "type": "session",
+      "id": "661945cf-4802-4725-9b49-140fe0fb4c04"
+    }
+  },
+  "runs": [
+    {
+      "id": "33535967-717b-4ac6-881a-114d0309f478",
+      "status": "unknown",
+      "error": {
+        "code": "budget_exceeded",
+        "message": "run turn budget exceeded"
+      },
+      "provider": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "api": "openai-completions",
+        "reasoningEffort": "high",
+        "realProvider": true,
+        "connectionId": "catalog-deepseek",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "enum",
+          "source": "runtime-catalog",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 4
+        }
+      },
+      "kitBinding": {
+        "version": 1,
+        "profile": {
+          "id": "local:cw-harness-maintainer",
+          "version": "1",
+          "sourceSha256": "d76e9b99b60eb6d6acd2f02d0ed4866713ffd3cdaac41eb8299aab6019e65aa4"
+        },
+        "controlRevision": 4,
+        "bindingHash": "549be206864ec27132eec0c65d7b645da6472edc0a0f74900d902675e6df936c",
+        "kits": [
+          {
+            "id": "kit:cw-engineering-closure",
+            "version": "1",
+            "descriptorSha256": "17b15501b7d8f4a53ef922527dd57359c7935c58a797cb008d9b51041d4bd10b"
+          }
+        ],
+        "planVersion": 1,
+        "compiler": "kit-context-v1",
+        "adapter": {
+          "id": "pi-coding-agent@0.85.1/agent-session",
+          "revision": "pi-agent-session-context-v1"
+        },
+        "compatibility": {
+          "status": "unchecked",
+          "kits": [
+            {
+              "id": "kit:cw-engineering-closure",
+              "version": "1",
+              "descriptorSha256": "17b15501b7d8f4a53ef922527dd57359c7935c58a797cb008d9b51041d4bd10b",
+              "status": "unchecked",
+              "evidence": []
+            }
+          ]
+        },
+        "policy": "reference-only-pi-unchecked-v1",
+        "limits": {
+          "maxCoreBytes": 400000,
+          "maxContextBytes": 400000,
+          "maxContextCharacters": 100000,
+          "maxPlanBytes": 2097152,
+          "maxPayloadBytes": 2497152,
+          "payloadCount": 2
+        },
+        "planSha256": "b854e9da9eb2c00d8ad928f26e37dfc4f4bcf6b84c2f13901a7d2c1408d831bb",
+        "planPayload": {
+          "sha256": "64262fa32924c1d0ee8623cb31908d9c1ed00feb7d780b303d76e5bdb57e0ff1",
+          "bytes": 6068
+        },
+        "contextPayload": {
+          "sha256": "7bf463a26c607d1c8e1f1512ddc3ffa00f3ae75ba24e2a6d526c6d8299e8319f",
+          "bytes": 878,
+          "characters": 878
+        }
+      },
+      "usage": {
+        "input": 54998,
+        "output": 10633,
+        "cacheRead": 620544,
+        "cacheWrite": 0,
+        "turns": 21,
+        "missing": true
+      }
+    },
+    {
+      "id": "fd808102-c174-44e7-983a-412fcf372a81",
+      "status": "completed",
+      "error": null,
+      "provider": {
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "api": "openai-completions",
+        "reasoningEffort": "high",
+        "realProvider": true,
+        "connectionId": "catalog-deepseek",
+        "credentialSource": "runtime",
+        "contextWindowSource": "catalog",
+        "capabilityNotice": null,
+        "reasoningBinding": {
+          "kind": "enum",
+          "source": "runtime-catalog",
+          "values": [
+            "low",
+            "high",
+            "max"
+          ],
+          "defaultMode": "omit",
+          "adapterVersion": "courtwork-reasoning-1/pi-0.85.1",
+          "notice": "Settings from the installed runtime catalog; provider behavior has not been verified.",
+          "configVersion": 4
+        }
+      },
+      "kitBinding": {
+        "version": 1,
+        "profile": {
+          "id": "local:cw-harness-maintainer",
+          "version": "1",
+          "sourceSha256": "d76e9b99b60eb6d6acd2f02d0ed4866713ffd3cdaac41eb8299aab6019e65aa4"
+        },
+        "controlRevision": 4,
+        "bindingHash": "549be206864ec27132eec0c65d7b645da6472edc0a0f74900d902675e6df936c",
+        "kits": [
+          {
+            "id": "kit:cw-engineering-closure",
+            "version": "1",
+            "descriptorSha256": "17b15501b7d8f4a53ef922527dd57359c7935c58a797cb008d9b51041d4bd10b"
+          }
+        ],
+        "planVersion": 1,
+        "compiler": "kit-context-v1",
+        "adapter": {
+          "id": "pi-coding-agent@0.85.1/agent-session",
+          "revision": "pi-agent-session-context-v1"
+        },
+        "compatibility": {
+          "status": "unchecked",
+          "kits": [
+            {
+              "id": "kit:cw-engineering-closure",
+              "version": "1",
+              "descriptorSha256": "17b15501b7d8f4a53ef922527dd57359c7935c58a797cb008d9b51041d4bd10b",
+              "status": "unchecked",
+              "evidence": []
+            }
+          ]
+        },
+        "policy": "reference-only-pi-unchecked-v1",
+        "limits": {
+          "maxCoreBytes": 400000,
+          "maxContextBytes": 400000,
+          "maxContextCharacters": 100000,
+          "maxPlanBytes": 2097152,
+          "maxPayloadBytes": 2497152,
+          "payloadCount": 2
+        },
+        "planSha256": "b854e9da9eb2c00d8ad928f26e37dfc4f4bcf6b84c2f13901a7d2c1408d831bb",
+        "planPayload": {
+          "sha256": "64262fa32924c1d0ee8623cb31908d9c1ed00feb7d780b303d76e5bdb57e0ff1",
+          "bytes": 6068
+        },
+        "contextPayload": {
+          "sha256": "7bf463a26c607d1c8e1f1512ddc3ffa00f3ae75ba24e2a6d526c6d8299e8319f",
+          "bytes": 878,
+          "characters": 878
+        }
+      },
+      "usage": {
+        "input": 8976,
+        "output": 20126,
+        "cacheRead": 478976,
+        "cacheWrite": 0,
+        "turns": 6,
+        "missing": false
+      }
+    }
+  ],
+  "finalFileSha256": {
+    "app/runtime/check-tools.mjs": "bed038c471362057298aa3351ede8d84a701cfd1d418f176298db45ea842be95",
+    "app/tests/check-recipes.test.mjs": "3b0e4bde48cf16ff871e837c71412fceefac15d5485d3ea19288eaf9dda1d874",
+    "app/docs/check-recipes.md": "aef1b7f7d08e4b33533bada8d5849e0770848a42e5b054296ab8d9e2dcfb35ff"
+  },
+  "dependencyPreparation": {
+    "installExit": 0,
+    "command": "npm ci --ignore-scripts --no-audit --no-fund",
+    "hashes": {
+      "package.json": {
+        "source": "35821468c7d5ee33382d82917ff28ef2a8b3a23ce177c7a16ca133eacc1ef780",
+        "candidate": "35821468c7d5ee33382d82917ff28ef2a8b3a23ce177c7a16ca133eacc1ef780"
+      },
+      "package-lock.json": {
+        "source": "d858bd27f363fac01d54d0dbae0536c2158cd743e810842b4b682a716c2b8c49",
+        "candidate": "d858bd27f363fac01d54d0dbae0536c2158cd743e810842b4b682a716c2b8c49"
+      }
+    },
+    "trackedStatus": "",
+    "checkedAt": "2026-09-28T07:39:09.045Z"
+  },
+  "rawPublicSessionSha256": "51aa4d829665f12d1a8232125d24b5f77a0a0a1bdbccf30b0beecd6b1c046308"
+}

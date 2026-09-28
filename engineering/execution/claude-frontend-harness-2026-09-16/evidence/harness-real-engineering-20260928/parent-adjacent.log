@@ -1,0 +1,27 @@
+✔ check approval rejects changed write revision before recording a start (2.011375ms)
+✔ check approval rejects changed candidate identity before recording a start (0.105667ms)
+✔ check approval rejects changed candidate revision before recording a start (0.088208ms)
+✔ check approval rejects changed candidate status before recording a start (0.093125ms)
+✔ check approval rejects changed binding identity before recording a start (0.092416ms)
+✔ check approval rejects changed binding revision before recording a start (0.086708ms)
+✔ check approval rejects changed execution path before recording a start (0.087667ms)
+✔ check approval rejects changed missing active binding before recording a start (0.080208ms)
+✔ check requires the exact approved recipe descriptor (0.25525ms)
+✔ candidate drift while persisting check.started settles failed without executing (8.920375ms)
+✔ runner's final synchronous Host fence prevents actual process side effects (1.653125ms)
+✔ runner cancellation before preparation never spawns (0.649ms)
+✔ runner cancellation inside final fence never spawns (0.979166ms)
+✔ admission closing during start persistence settles once as cancelled without spawn (0.644333ms)
+▶ P03-E · write → approval → fixed check parity
+  ✔ check fails before the fix; an approved exact write then the fixed check pass; result, diff and a reopened Host match on both runtimes (7703.942958ms)
+  ✔ deny, a stale approval, a revoked candidate and a cancelled running check leave the same Host record on both runtimes (7609.398458ms)
+  ✔ the remote consumer adds its own receipts to the same effects, exposes nothing it was not admitted with, and keeps its argument ceiling (2889.242166ms)
+✔ P03-E · write → approval → fixed check parity (18203.414125ms)
+ℹ tests 17
+ℹ suites 1
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19093.475834

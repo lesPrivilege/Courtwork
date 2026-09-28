@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
 import { runCheckRecipe } from "../runtime/check-runner.mjs";
+import { createCheckTools } from "../runtime/check-tools.mjs";
 import { getCheckRecipe, listCheckRecipes } from "../runtime/check-recipes.mjs";
 import { RuntimeStore } from "./fixtures/executor-store.mjs";
 import { inspectRepositoryRoot } from "../runtime/repository-fs.mjs";
@@ -63,6 +64,28 @@ test("Harness recipe is the third frozen descriptor; the first two keep their me
     timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
   });
   assert.ok(Object.isFrozen(listCheckRecipes()) && Object.isFrozen(harness) && Object.isFrozen(harness.argv));
+});
+
+// DF-04 recipe discoverability: the model chooses only a recipe id, so the
+// tool declaration must offer the choices. The recipeId parameter's own
+// description has to name every catalog id and title, derived from
+// listCheckRecipes() so it cannot drift from the one authoritative catalog,
+// while the string bounds and the single-parameter shape stay unchanged.
+test("check_run's model-facing recipeId parameter offers every catalog id and title", () => {
+  const candidate = { id: "candidate-one", status: "active", revision: 1, writeRevision: 0,
+    sourceBindingId: "binding-one", sourceBindingRevision: 1, candidatePath: "/unused-check-candidate" };
+  const [tool] = createCheckTools({ candidate, resolveCandidate: () => candidate });
+  assert.equal(tool.name, "check_run");
+  assert.deepEqual(Object.keys(tool.parameters.properties), ["recipeId"], "check_run still takes exactly the recipeId parameter");
+  const recipeId = tool.parameters.properties.recipeId;
+  assert.equal(recipeId.type, "string");
+  assert.equal(recipeId.minLength, 1);
+  assert.equal(recipeId.maxLength, 200);
+  assert.equal(typeof recipeId.description, "string");
+  for (const recipe of listCheckRecipes()) {
+    assert.ok(recipeId.description.includes(recipe.id), `offers recipe id ${recipe.id}: ${recipeId.description}`);
+    assert.ok(recipeId.description.includes(recipe.title), `offers recipe title ${recipe.title}: ${recipeId.description}`);
+  }
 });
 
 function sha256(bytes) {
