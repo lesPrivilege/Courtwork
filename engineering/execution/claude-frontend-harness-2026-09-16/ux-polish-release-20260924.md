@@ -382,3 +382,45 @@ Parent's capture: the no-chat and open-chat Developer tops at 538 and 1440.
 **DEV-R1 check correction.** The first adjacent run ([log](evidence/ux-developer-20260928/dev-r1-targeted-tests.log)) was **73/74**. One failure, `K5-R2: an in-flight save in one Chat/profile slot does not hold another` in `profile-editor.test.mjs`, failed with `release is not a function`. That test doesn't import `runtime-view.mjs`. It waits a single `setTimeout(0)` for the held adapter save to start, and under `--test-concurrency=4` load that can be too short. I reran the suite alone three times (26/26 each) and the same concurrent set three times (74/74 each). The retained [rerun](evidence/ux-developer-20260928/dev-r1-targeted-tests-rerun.log) is 74/74. This is recorded as a pre-existing timing flake for the K5 owner, not a DEV-R1 result or a fix. I committed the first log before reading it; that's corrected here rather than rewritten.
 
 **Developer independent acceptance · 2026-09-28.** [Parent capture/review packet](evidence/ux-developer-20260928/parent-review/README.md) accepts b2f54a3/90d6d32 plus7e66552/9d789de. Parent browser returns DEV-R1 (no-chat Chat runtime wording); original Claude adopts and fixes both heading/record hints, then parent repeats actual no-chat/chat at measured538×762/1440×900 and native disclosure keyboard operations. Fixed39/39 pass; Luna independently reviews correction and corrects its earlier unverified no-session inference. The packet supplies current Host Extensions, closed/open diagnostic and actual Tab evidence for Claude's autonomous next UX decisions. Release the writer to the already-dispatched Models save-flow unit; density/package details remain separate. No paid call/key/extension action or Host restart.
+
+## 2026-09-28 · Models · save-flow clarity and the Models destination row (Claude, UX owner)
+
+Audit rows "Models connection/save clarity" and "Connection card destination": **adopt**. Grounding: the [Models captures](evidence/ux-simplification-20260928/02-models-desktop-before.png) and a trace of the current form. Product commit `1beb385`.
+
+**Page task.** Connect a provider and choose the model future runs use: choose provider → give its key → choose model → save, optionally testing once.
+
+**Decisions:**
+- **Move the API key** from a separate form below the save buttons (with its own "API key" heading) to a row right after Provider, before Model.
+  - Before, a user saved the model, scrolled down, entered the key, and hit "Save this connection before adding its key" after touching anything above.
+  - The key still **saves separately**: its input and Save key belong to the existing credential form through the HTML `form` attribute (the holder is hidden). Enter in the key saves the key, and the connection/model buttons never send it.
+  - Receipts and flows kept distinct: "API key saved." / "Saved key removed.", and `PUT`/`DELETE /provider-credential` against the selected connection.
+  - A new compatible endpoint's key still travels with the connection save, so that case shows "Sent with this connection when you save it." and no separate key action.
+- **Key feedback at the key (UX-04).** Key errors (unsaved change, no saved connection, Host refusal) now appear beside the key, not on the model/connection error line.
+- **Key row help replaces the status paragraph.** The three states are "No key saved for this connection. Keys stay on this device.", "Saved on this device for this connection. It is never shown here." and "Sent with this connection when you save it." These absorb "Stored on this device only."
+- **Remove the default status sentence** "Saved locally. A model call happens only when you send an instruction." It isn't a receipt, and the call consequence is already stated once under the buttons ("Save and ask once sends one short prompt…"). The active-run lock sentence and the local-test sentence remain when they apply.
+- **Keep** "Save and ask once" / "Save only" (explicit test-call intent), the saved-elsewhere conflict error, the active-run lock of every control, credential secrecy (never read back), Add provider/probe/Advanced, and every connection row.
+- **Connections rows → "Open Models settings"** in the chat connection card and the model/effort card, with the rows' existing trailing `chevron-right` for a destination. "Add provider" keeps its action wording.
+  - **Link semantics: rejected for now.** The row closes its popover and routes through `openSettings({trigger})`, which keeps focus return on Back. A bare hash link would lose that, and `.context-row` has no anchor styling.
+- **CSS:** one scoped rule, `.settings-row-control.credential-control { flex-wrap: wrap; gap: var(--space-2) }`, so Save key/Remove wrap under the field on narrow rows. No other density or token change.
+
+**Author checks:**
+- New `app/tests/models-save-flow.test.mjs` runs a real disposable Host through the shipped `createSettingsView`:
+  - Provider → API key → Model order, with no second API key heading;
+  - the key hidden for the in-force local test provider, and its status shown;
+  - after Configure DeepSeek, the key and Save key belong to the credential form, the help text is right, the status line is quiet, and exactly the two model save buttons remain;
+  - a real key save sends `PUT /provider-credential` and not `PUT /provider-config`, produces "API key saved.", flips the help and connection to configured, and never reads the key back;
+  - an unsaved change gives a key-local error, the form error line stays quiet, and no key is stored;
+  - a new endpoint shows its "sent with" help and no key actions;
+  - the connection card row is "Open Models settings" with a trailing chevron, no form, and its callback.
+- The `model-effort` row test is updated to the new name.
+- One tiny-dom gap is handled in the test only: input `value` attribute reflection is mirrored before the first read.
+- My first build declared the key row after `form.append`, and this test caught it (ReferenceError); fixed before commit.
+- The adjacent Models/provider/credential/settings/developer suites pass 105/105 twice ([log](evidence/ux-models-20260928/author-targeted-tests.log)).
+- The interaction, spacing, colour, material and shape lints pass, as do product copy, semantic consumers and `git diff --check`.
+
+**Capture needed from Parent:**
+- Models at 538×762 and 1440×900 in three states: local test in force, a catalog provider with no key, and one with a saved key (entered by the user or a synthetic key; never a real key in evidence).
+- Save key/Remove wrapping at 538.
+- The key-local error.
+- Keyboard: Tab order, Provider → key → Save key → Remove → Model, and Enter in the key.
+- The connection card and model/effort card rows.
