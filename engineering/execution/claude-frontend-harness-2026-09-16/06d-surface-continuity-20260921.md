@@ -102,3 +102,30 @@ The review on main `6da9347` accepted A1/A2 and held B for PV-R1. Answered at **
 ## PV-R1 final acceptance — 2026-09-22
 
 [Final independent acceptance](evidence/tabbed-preview-final-20260922/README.md) closes PV-R1 at `4698d8b` and integrates complete B/packet31c09e5 as main `6c0bd32`: Luna50/50, OpenAI browser active/inactive close aborts before delayed response release and reopening works, integrated65/65. The ended tree is restore-verified and removed. A1/A2 stay accepted. Density/coarse-target/native-shell follow-ups retain their original scope and unexecuted cells. Idle8787 was updated solely for the new static route with exact Session data equality; no schema migration/provider call.
+
+### Active Preview tab visibility · author result · 2026-09-28 (Claude, Opus)
+
+Implements the return from `9f80175`. Product commit `0695b90`, in the existing isolated tree. This tree is not based on `9f80175`, but the leased product files are identical, so Parent keeps both sides of this record when merging.
+
+**Source reading.** `.surface-header .surface-tabs` is the strip's own `overflow-x: auto` scroll container (`surface-layout.css`). `renderPreviewTabs` replaces all tabs on any changed repaint, and nothing moved the strip to the newly active tab. Emptying the strip clamps `scrollLeft` to 0, so a selection repaint also dropped the strip back to its start. This is source inference; I ran no browser, and Parent's metrics show the result: `scrollLeft 0`, with the second tab at x292–496.
+
+**Change, `app/web/preview-tabs.mjs` only:**
+- A new `revealPreviewTab(container, key)` sets only the strip's `scrollLeft`, by the smallest amount that shows the whole tab (select and close targets). A tab wider than the strip shows its start. It never scrolls the page, the body or the object's reading.
+- `renderPreviewTabs` keeps the strip's scroll across a repaint. It reveals only when the drawn active key changes: open, select, arrow keys, Home/End, or close handing over to a neighbour.
+- Unchanged polls still return early and touch nothing. A changed mark with the same selection keeps the reader's scroll.
+- A strip with no layout box owes the reveal to its next paint.
+- `installPreviewTabKeys` also reveals the tab when keyboard focus lands on its select or close target (`focusin`).
+- Unchanged: tab identity, order and labels, the roving tabindex and keys, close and return focus, and per-object reading positions. `app.mjs` is unchanged, because `renderSurfaceVisibility` shows the panel before it redraws the strip.
+
+**Grammar applied:** existing 06d `renderPreviewTabs`/`installPreviewTabKeys` and `showPreview`/`selectPreviewTab`; UX-03/07/09; the workbench-chrome role. No CSS change.
+
+Author checks:
+- `app/tests/preview-tabs.test.mjs` gains three behavioural regressions using a layout stand-in for the observed 390px strip (x16–306, client 290, 204px tabs, clamp when emptied):
+  1. The observed case: first tab selected, ArrowRight; the second tab, including its close target, lies inside the strip.
+  2. Home/End, open and close all reveal; unchanged and changed-mark repaints keep the reader's scroll.
+  3. Focus on an off-strip close target reveals its tab; a hidden strip's owed reveal lands on the next paint.
+- All three fail on the unfixed source and pass with the fix.
+- preview-tabs, preview-layer, kit-profile-preview and run-rows pass 46/46 ([log](evidence/preview-tab-reveal-20260928/targeted-tests.txt)). `tools/lint-interaction` and `git diff --check` pass.
+- Real 390/desktop geometry, body-scroll and return-focus checks remain with Parent.
+
+Writer released pending acceptance. No browser, user-service restart, native Hermes run, paid provider or deployment.
