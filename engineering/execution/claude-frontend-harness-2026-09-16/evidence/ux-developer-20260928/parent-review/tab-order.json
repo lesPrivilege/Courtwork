@@ -1,0 +1,192 @@
+[
+  {
+    "name": "Search settings…",
+    "role": null,
+    "tag": "INPUT"
+  },
+  {
+    "name": "Developer",
+    "role": "tab",
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Refresh the runtime snapshot",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Session",
+    "role": "tab",
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Scope details",
+    "role": null,
+    "tag": "SUMMARY"
+  },
+  {
+    "name": "Open",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Open",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Open",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "fd808102 · completed",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "33535967 · unknown",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Selected profile",
+    "role": null,
+    "tag": "SELECT"
+  },
+  {
+    "name": "Package Runtime configuration",
+    "role": null,
+    "tag": "SUMMARY"
+  },
+  {
+    "name": "Harness maintainerlocal config",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Generalbuiltin",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Refresh extensions",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Plugins",
+    "role": null,
+    "tag": "A"
+  },
+  {
+    "name": "Add local Plugin",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Load",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Invalidate",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Load",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Invalidate",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Load",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Invalidate",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Host runtime details",
+    "role": null,
+    "tag": "SUMMARY"
+  },
+  {
+    "name": "Unavailable capabilities",
+    "role": null,
+    "tag": "SUMMARY"
+  },
+  {
+    "name": "CourtWork\n          Close navigation\n        \n        \n        \n          \n            Back\n        ",
+    "role": null,
+    "tag": "BODY"
+  },
+  {
+    "name": "Back to app",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Search settings…",
+    "role": null,
+    "tag": "INPUT"
+  },
+  {
+    "name": "Developer",
+    "role": "tab",
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Refresh the runtime snapshot",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Session",
+    "role": "tab",
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Scope details",
+    "role": null,
+    "tag": "SUMMARY"
+  },
+  {
+    "name": "Open",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Open",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Open",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "fd808102 · completed",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "33535967 · unknown",
+    "role": null,
+    "tag": "BUTTON"
+  },
+  {
+    "name": "Selected profile",
+    "role": null,
+    "tag": "SELECT"
+  }
+]
