@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-29 · Reader touch targets accepted
+
+[Full-reader parent packet](execution/claude-frontend-harness-2026-09-16/evidence/reader-targets-20260929/parent-review/README.md) accepts original Claude b4bfedb/bb550dc. Actual Preview at1440/390 measures tab-close/Version details44px under coarse media, with mouse24/28, preserved native marker, open/close behavior and corner-click close/focus return. Parent real-Chrome1/1 has no skip; author30/30 remains distinct. Direct touch events/physical device/Safari/full accessibility matrices were not verified. Narrow Composer and answered-question selection/toggle are next in the original UX queue; no user key, paid provider or service restart.
+
 ## 2026-09-29 · Developer Attention and Chat menus independently accepted
 
 [Batch packet](execution/claude-frontend-harness-2026-09-16/evidence/ux-batch-review-20260929/README.md) accepts original Claude ebb8946 and Chat36fdc01 after N07-R1/R2/R3 fixes16d5b94/1a435fc/81dd965. Actual browser catches and closes stale Rename/Delete rows/focus, undersized coarse More and false No project for collapsed projects. Parent19/19 then13/13 and final14/14, Luna bounded source review and current screenshots support the slice. Older Composer/question/reader evidence returns to Claude; Back-to-latest stayed about12px above Composer in two heights. Example Chat rows remain unit/source-only in this fixture; Attention Delete, all-UX and physical-touch acceptance are not claimed.
