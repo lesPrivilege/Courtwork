@@ -578,6 +578,8 @@ export function createSettingsView(
     input.addEventListener("change", () => {
       if (!input.checked) return;
       dirty = true;
+      // A key typed for the previous target is not this one's (as a provider change).
+      key.value = "";
       applyPath(entry.id);
     });
     pathFieldset.append(
@@ -1026,6 +1028,8 @@ export function createSettingsView(
     // 项 8 · 恢复中/不可用的连接：这一行唯一的动作（选用它）不可用。
     button.disabled = entry.degraded;
     button.addEventListener("click", () => {
+      // MS-R2 · an explicit switch of target: the typed key was for the old one.
+      key.value = "";
       selectPath(entry.path);
       applyPath(entry.path, entry.path === "compatible" ? entry.connectionId : entry.providerIdentity);
       addProvider.open = entry.path === "compatible";
@@ -1102,6 +1106,7 @@ export function createSettingsView(
     renderFlow();
     fillModels(id === "compatible" ? undefined : snapshot?.config?.model);
     lock();
+    keyTargetChanged();
   }
   /* 兼容路径上"可选的模型"是两件事的并集：这条连接已经存下的模型，以及刚刚
      discover 报来的、保存时会随它一起存下的模型。窗口读数逐条来自后端的
@@ -1275,6 +1280,7 @@ export function createSettingsView(
   provider.addEventListener("change", () => {
     dirty = true;
     key.value = "";
+    keyTargetChanged();
     clearProbeResult();
     /* 兼容路径上换的是"哪条连接"，端点与格式随它走：上一条连接的地址不是关于
        这一条的陈述。 */
@@ -1339,7 +1345,27 @@ export function createSettingsView(
     error.hidden = false;
     error.textContent = connectionSaveError(err);
   }
-  function keyFail(err) {
+  /* MS-R2 · a key error belongs to the connection the key was for. Changing
+     that target (Configure, path, provider, a reset after save) retires it;
+     a reply for an earlier target never lands on the current one. */
+  let keyTarget = 0;
+  let keyTargetId = null;
+  function clearKeyError() {
+    keyError.hidden = true;
+    keyError.textContent = "";
+  }
+  // Called wherever the form may re-aim; only a real change of target (path +
+  // provider) retires the error, so a background reset of the same target
+  // keeps a current failure.
+  function keyTargetChanged() {
+    const next = `${activePath()}|${provider.value}`;
+    if (next === keyTargetId) return;
+    keyTargetId = next;
+    keyTarget += 1;
+    clearKeyError();
+  }
+  function keyFail(err, forTarget = keyTarget) {
+    if (forTarget !== keyTarget) return;
     keyError.hidden = false;
     keyError.textContent = connectionSaveError(err);
   }
@@ -1456,6 +1482,8 @@ export function createSettingsView(
       key.value = "";
       resetFields();
       renderConnections();
+      // The saved connection resolves "Save this connection before adding its key."
+      clearKeyError();
       notify("Connection saved.");
       // PV-63/64 · 保存已经成功；询问是它之后的独立一步，失败不回滚保存
       // （runVerify 自己的 catch 已经把这一点体现为回执块里的一句话，不是
@@ -1483,6 +1511,7 @@ export function createSettingsView(
       keyFail(new Error("Save this connection before adding its key."));
       return;
     }
+    const forTarget = keyTarget;
     busy = true;
     lock();
     keyError.hidden = true;
@@ -1501,7 +1530,7 @@ export function createSettingsView(
       lock();
       notify("API key saved.");
     } catch (err) {
-      keyFail(err);
+      keyFail(err, forTarget);
     } finally {
       busy = false;
       lock();
@@ -1511,6 +1540,7 @@ export function createSettingsView(
     if (busy) return;
     const target = selectedConnection();
     if (!target) return;
+    const forTarget = keyTarget;
     busy = true;
     lock();
     keyError.hidden = true;
@@ -1526,7 +1556,7 @@ export function createSettingsView(
       renderConnections();
       notify("Saved key removed.");
     } catch (err) {
-      keyFail(err);
+      keyFail(err, forTarget);
     } finally {
       busy = false;
       lock();
