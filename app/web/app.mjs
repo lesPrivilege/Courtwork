@@ -2400,6 +2400,9 @@ function renderExtensionList() {
     if (extension.source?.uri) row.append(element("p", {className: "extension-row-meta", text: extension.source.uri}));
     for (const diagnostic of extension.diagnostics || []) row.append(element("p", {className: "inline-error", text: diagnostic}));
     const actions = element("div", { className: "extension-actions" });
+    /* Several rows share these verbs; each button's name says which extension
+       it acts on (IC-1), the visible word stays short. */
+    const extensionName = extension.title || extension.id;
     const lifecycleAction =
       extension.status === "loaded"
         ? "unload"
@@ -2408,7 +2411,7 @@ function renderExtensionList() {
           : "load";
     const lifecycleButton = element("button", {
       className: "quiet-button",
-      attrs: { type: "button" },
+      attrs: { type: "button", "aria-label": `${lifecycleAction[0].toUpperCase() + lifecycleAction.slice(1)} ${extensionName}` },
       text: lifecycleAction[0].toUpperCase() + lifecycleAction.slice(1),
     });
     lifecycleButton.addEventListener(
@@ -2419,7 +2422,7 @@ function renderExtensionList() {
     if (extension.status !== "invalidated") {
       const invalidateButton = element("button", {
         className: "quiet-button danger-button",
-        attrs: { type: "button" },
+        attrs: { type: "button", "aria-label": `Invalidate ${extensionName}` },
         text: "Invalidate",
       });
       invalidateButton.addEventListener(
@@ -2431,7 +2434,7 @@ function renderExtensionList() {
     if (extension.status === "loaded") {
       const reloadButton = element("button", {
         className: "quiet-button",
-        attrs: { type: "button" },
+        attrs: { type: "button", "aria-label": `Reload ${extensionName}` },
         text: "Reload",
       });
       reloadButton.addEventListener(

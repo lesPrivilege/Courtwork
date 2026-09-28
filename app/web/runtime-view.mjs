@@ -164,16 +164,29 @@ export function attentionItems(snapshot) {
   const items = [];
   if (!snapshot) return items;
   const resources = snapshot.resources || [];
+  /* UX 2026-09-28 · a capability that is unavailable and not offered to the
+     model is a quiet fact of this context (e.g. repository tools with no
+     folder connected), not something to act on: one summary line names them.
+     Anything exposed yet unhealthy stays its own entry. */
+  const offline = [];
   for (const resource of resources) {
-    if (resource.health !== "healthy")
+    if (resource.health === "unavailable" && !resource.exposed) offline.push(resource);
+    else if (resource.health !== "healthy")
       items.push({
         id: `health:${resource.id}`,
         text: `${resource.title} reports health ${resource.health}.`,
         target: resource.id,
+        label: resource.title,
       });
     for (const line of resource.diagnostics || [])
-      items.push({ id: `diag:${resource.id}`, text: `${resource.title}: ${line}`, target: resource.id });
+      items.push({ id: `diag:${resource.id}`, text: `${resource.title}: ${line}`, target: resource.id, label: resource.title });
   }
+  if (offline.length)
+    items.push({
+      id: "unavailable:not-offered",
+      text: `${offline.length} ${offline.length === 1 ? "capability is" : "capabilities are"} unavailable here and not offered to the model: ${offline.map((r) => r.title).join(", ")}.`,
+      target: null,
+    });
   const asking = resources.filter(
     (resource) => resource.exposed && resource.permission?.effect === "ask",
   );
@@ -182,6 +195,7 @@ export function attentionItems(snapshot) {
       id: "permission:ask",
       text: `${asking.length} exposed ${asking.length === 1 ? "capability stops" : "capabilities stop"} and asks you before each call: ${asking.map((r) => r.title).join(", ")}.`,
       target: asking[0].id,
+      label: asking[0].title,
     });
   for (const plugin of resources.filter((resource) => resource.kind === "plugin")) {
     if (plugin.trust && plugin.trust !== "host-trusted")
@@ -189,6 +203,7 @@ export function attentionItems(snapshot) {
         id: `trust:${plugin.id}`,
         text: `${plugin.title} is not host-trusted (${plugin.trust}).`,
         target: plugin.id,
+        label: plugin.title,
       });
     const declared = Array.isArray(plugin.capabilities) ? plugin.capabilities : [];
     const absent = declared.filter(
@@ -199,6 +214,7 @@ export function attentionItems(snapshot) {
         id: `missing:${plugin.id}`,
         text: `${plugin.title} declares ${absent.join(", ")}, which this host does not report.`,
         target: plugin.id,
+        label: plugin.title,
       });
   }
   const composition = snapshot.composition;
@@ -1593,10 +1609,11 @@ export function createRuntimeView(
     for (const item of items) {
       const line = el("p", { className: "runtime-attention-row" }, el("span", { text: item.text }));
       if (item.target && resourceById(item.target)) {
+        /* The visible word stays short; the name says what opens (IC-1). */
         const link = el("button", {
           className: "text-button",
           text: "Open",
-          attrs: { type: "button", "data-focus-key": `attention:${item.id}` },
+          attrs: { type: "button", "data-focus-key": `attention:${item.id}`, "aria-label": `Open ${item.label || resourceById(item.target)?.title || item.target}` },
         });
         link.addEventListener("click", () => openResource(item.target));
         line.append(link);

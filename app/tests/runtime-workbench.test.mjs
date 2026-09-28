@@ -77,3 +77,25 @@ test('contrast: the browser warning checks exactly the build report pairs', () =
   assert.ok(fromTool.length > 10, 'the tool table was parsed');
   assert.deepEqual(fromPage, fromTool);
 });
+
+test('attention: capabilities unavailable in this context and not offered are one quiet summary, not one Open each', () => {
+  const snapshot = {
+    resources: [
+      healthy({ id: 'tool:repo_list', title: 'repo_list', health: 'unavailable', exposed: false }),
+      healthy({ id: 'tool:repo_read', title: 'repo_read', health: 'unavailable', exposed: false }),
+      healthy({ id: 'tool:candidate_list', title: 'candidate_list', health: 'unavailable', exposed: false }),
+      // Offered to the model yet unhealthy: still its own entry.
+      healthy({ id: 'local:mcp', kind: 'mcp_server', title: 'Docs server', health: 'unavailable', exposed: true }),
+      healthy({ id: 'local:slow', kind: 'mcp_server', title: 'Slow server', health: 'degraded', exposed: false }),
+    ],
+    composition: { id: 'agent:general', status: 'compatible', missing: [], uiSlots: [] },
+  };
+  const items = attentionItems(snapshot);
+  assert.deepEqual(items.map((item) => item.id), ['health:local:mcp', 'health:local:slow', 'unavailable:not-offered']);
+  const summary = items.at(-1);
+  assert.equal(summary.text, '3 capabilities are unavailable here and not offered to the model: repo_list, repo_read, candidate_list.');
+  assert.equal(summary.target, null, 'nothing to open for a context fact');
+  assert.equal(items[0].label, 'Docs server');
+  assert.deepEqual(attentionItems({ resources: [healthy({ id: 'tool:repo_list', title: 'repo_list', health: 'unavailable', exposed: false })], composition: null }).map((item) => item.text),
+    ['1 capability is unavailable here and not offered to the model: repo_list.']);
+});

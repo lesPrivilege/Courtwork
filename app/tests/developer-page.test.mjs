@@ -91,3 +91,30 @@ test("DEV-R1 · with a chat open, the same block is that chat's runtime and list
   assert.match(overview.textContent, /What the next run in this chat would use, and what past runs recorded\./);
   assert.equal(overview.querySelectorAll(".runtime-chip").length, 1);
 }));
+
+test("Attention: each Open is named for what it opens; a context fact has no Open", () => withTinyDom(async body => {
+  document.body = body;
+  const overview = document.createElement("div"); body.append(overview);
+  const resource = (id, title, over) => ({ id, kind: "tool", title, exposed: false, health: "healthy", permission: { effect: "allow", trace: [] }, ...over });
+  const view = createRuntimeView({ overview }, {
+    getSessionId: () => null,
+    request: async () => ({ revision: 1, adapterId: "fixture-harness@1", activeRuns: 0, scopes: [{ type: "user", id: "local" }],
+      resources: [
+        resource("tool:repo_list", "repo_list", { health: "unavailable" }),
+        resource("tool:repo_read", "repo_read", { health: "unavailable" }),
+        resource("local:docs", "Docs server", { kind: "mcp_server", exposed: true, health: "degraded" }),
+      ],
+      composition: { id: "agent:general", status: "compatible", resourceIds: null } }),
+  });
+  await view.load();
+  const attention = overview.querySelector(".runtime-attention");
+  assert.equal(attention.querySelector("h5").textContent, "Attention · 2");
+  const rows = attention.querySelectorAll(".runtime-attention-row");
+  assert.match(rows[0].textContent, /Docs server reports health degraded\./);
+  const open = rows[0].querySelector("button");
+  assert.equal(open.textContent, "Open");
+  assert.equal(open.getAttribute("aria-label"), "Open Docs server");
+  assert.match(rows[1].textContent, /^2 capabilities are unavailable here and not offered to the model: repo_list, repo_read\.$/);
+  assert.equal(rows[1].querySelector("button"), null);
+  assert.ok(attention.querySelectorAll("button").every(node => node.getAttribute("aria-label") !== "Open" && node.getAttribute("aria-label")?.startsWith("Open ")));
+}));
