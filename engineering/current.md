@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Registered B2/G5 batch complete
+
+[Original G5 record](execution/2026-09-08-main-round/public-readiness.md) accepts original Claude's C13/C14 correction `33db5d8` / `4f1768c` after Luna's source/generated-output review and parent isolated Pages build/output checks. CLI replay now names its actual9e5384f source; old Home capture alt no longer says current. Screenshot/install pins remainfd96f96 and no media/publication changed. This completes the finite G5 mapping/support/identity batch alongside accepted B2; Claude and Sol writers are released. The user's Claude core/frontend, Sol disjoint-work and Luna/Sonnet exploration routing persists. Hermes server execution remains specifically permission-blocked with preserved source/environment; fresh user configuration, timed media and whole-release acceptance remain open. No user Host restart, real provider/key access, push or deployment in this batch.
+
 ## 2026-09-28 · B2 request summaries accepted
 
 [Parent receipt](execution/claude-frontend-harness-2026-09-16/evidence/request-details-b2-20260928/parent-review/README.md) accepts original Claude `d1e9919` / `9b0fb91`. Trusted built-in repo_list now records a display-only, redacted and bounded start summary through existing Host/Store events; serialized first-start and per-Run limits survive reopening. Chat/Attention share the existing disclosure; raw legacy Request, tool results, permissions and execution stay separate. Luna reviews fixed source; parent independent10/10 and actual OpenAI browser success/invalid/unsafe/reload checks pass. Author full1801/1801 and adjacent113/113 retain attribution. Code/test bytes match reviewed product on integration; G5 support docs are separately accepted. No schema change, new runtime/tool authority, user Host restart, provider call, push or deployment. B2 writer released; existing Hermes server refusal and G1/G4/final publication work remain open.

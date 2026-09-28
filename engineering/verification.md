@@ -1,5 +1,7 @@
 # 验证选择与证据边界
 
+2026-09-28 · G5 current-support and public-source-identity corrections: Sol52bcb5d/6ca2c96 mapping/support facts and Claude33db5d8/4f1768c CLI/Home identity fixes receive Luna source/output review. Parent isolated Pages build confirms CLI9e5384f and unchanged screenshot/installfd96f96 pins; integrated documentation links/whitespace pass. No new public candidate, capture, runtime capability or deployment. See [original G5 acceptance](execution/2026-09-08-main-round/public-readiness.md).
+
 2026-09-28 · [B2 request-summary acceptance](execution/claude-frontend-harness-2026-09-16/evidence/request-details-b2-20260928/parent-review/README.md), source d1e9919: parent isolated-integration10/10 plus actual OpenAI in-app browser normal/invalid/unsafe request summaries, results and reload; Luna fixed-byte source review. Author focused10/10, adjacent113/113, full1801/1801 and its own truncated-path observation stay separately attributed. No Store schema, request permission, executor or tool capability change. Direct Attention/Inspector and full native accessibility matrices were not newly run.
 
 2026-09-27 · [Hermes protocol acceptance](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-final-20260927/README.md), fixed `acf5694`: independent27 Hermes cases, final error-limit1 case and parent11 dispatch/config probes close HPR-R1/R2. Earlier51/51 and author28/28 +29/29 remain separately attributed. Synthetic protocol conformance only; no native Hermes/MCP/provider/Host integration or schema/executor exposure.

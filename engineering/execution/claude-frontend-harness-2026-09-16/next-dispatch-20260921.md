@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-28 · Current bounded author batch complete
+
+Original Claude B2 and G5 C13/C14, and Sol G5 fact-map/current-support correction, are accepted in their original records. Both writers are released. Do not re-dispatch these or historical Composer/Settings/recipe work. Hermes remains preserved with server execution unexecuted after the original permission refusal; no retry/workaround has been launched. Remaining candidate/provider configuration, timed media and wider public consumption follow existing G1/G4/G5 responsibilities and their concrete prerequisites. User routing remains Claude core/frontend, Sol disjoint construction, Luna/Sonnet exploration; this receipt starts no speculative new implementation.
+
 ## 2026-09-28 · B2 and G5 finite author deliveries accepted
 
 [B2 acceptance](evidence/request-details-b2-20260928/parent-review/README.md) closes this repo_list summary slice at d1e9919/9b0fb91; original Claude has released the writer. Sol's G5 mapping/support correction remains accepted. Core/frontend routing stays with original Claude, disjoint work with Sol, and exploration with Luna/Sonnet. The concrete existing G5 C14 CLI replay identity correction and C13 dated capture wording are ready for the same Claude serial publication owner; broad public rewrite/repinning still follows original evidence requirements. No second author or automatic Hermes server retry is started by this receipt.

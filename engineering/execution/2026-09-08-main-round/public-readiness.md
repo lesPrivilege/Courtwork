@@ -105,3 +105,6 @@ Author checks:
 - Not run: a new unit test, the full product suite, the browser, deployment, user Host/provider use, or the Hermes server.
 
 Writer released for Astra/Luna review.
+
+
+**C13/C14 parent acceptance · 2026-09-28.** Accept original Claude product `33db5d8` / evidence `4f1768c`. Luna independently checked the exact source delta, `release.mjs` identity derivation, build's capture/release equality and actual generated CLI/Home output; no issue. Parent separately rebuilt Pages in the isolated combined tree and checked emitted CLI `sha == release.source_sha[:7] == 9e5384f`, neutral Home alt, and unchanged `fd96f96` screenshot/install manifests. Only the two intended source expressions and the obsolete local variable changed; public prose/README/media/replay/installation bytes and pins remain untouched. No new UI composition/interaction, live-site verification or deployment is claimed. The concrete C13 alt and C14 identity corrections are complete; broader new-candidate/media/public-claim consumption retains its original G1/G4/G5 prerequisites. Both author lanes are released, and no new task is automatically started.
