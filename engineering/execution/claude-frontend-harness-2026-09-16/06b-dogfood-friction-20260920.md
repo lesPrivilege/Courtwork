@@ -502,3 +502,35 @@ Astra releases this already registered B2 consumer under the user's instruction 
 
 
 **Luna contract review disposition · adopt (2026-09-28).** The current repository helper rejects NUL/backslash/traversal/absolute paths but may execute other control-character POSIX names. Add `unsafe_display` as a distinct omission reason and truthful display-only explanation; do not change repository execution. Luna found no other concrete Host/Store/shared-disclosure contradiction within its bounded read-only review. The author independently confirmed pinned Pi start events contain args; Luna did not inspect absent dependencies in its checkout. This is contract review, not product acceptance.
+
+## B2 · author delivery — 2026-09-28 (Claude, Opus)
+
+Source `d1e9919` on `claude/request-details-b2-20260928`, in an isolated worktree started from `2722c9c`. It implements the frozen contract with Luna's `unsafe_display` correction adopted. Evidence: [request-details-b2-20260928](evidence/request-details-b2-20260928/README.md).
+
+**Responsibility and owners.** I kept the owners the contract names:
+- Pi `mapSessionEvent` derives a candidate from `args` for `repo_list` only.
+- The Host's `#onObservation` decides trust (sole `createRepositoryTools` object plus exposed `tool:repo_list`) and redacts known secrets before the display bound.
+- `RuntimeStore.appendEventToState`, inside the serialized mutation, enforces the shape, first start per call and the 32-per-Run budget.
+- `projectThread` and `appendToolDetails` display the summary.
+
+A new helper, `app/runtime/request-summary.mjs`, holds these rules. The Store's recorded-read lexical rule moved into it without change. Nothing changed in repository execution, permission checks, tool parameters, schema, dependencies, Core or Hermes.
+
+**Frontend grammar and precedents consumed:**
+- UX grammar UX-03: a Disclosure expands in place.
+- Frontend contract, Projection/Control "工具/Run活动": the current vocabulary and trace structure.
+- `run-surface-pr-20260914`: the one shared Chat/Attention tool-row anatomy.
+- DF-04 `appendCheckDetails`: a `dl.data-list` of facts.
+
+There is no new surface, CSS, density or action. The summary sits above Result under the existing `tool-detail-heading`.
+
+**Author checks:**
+- Focused 10/10, adjacent regressions 113/113, full app suite 1801/1801.
+- One isolated-Host browser addendum for display truncation only.
+- Parent's separate browser matrix is cited as Parent evidence, not author evidence.
+
+**Decisions left for review:**
+1. Lone surrogates are treated as `unsafe_display`.
+2. If redaction pushes a valid path past 1000 characters, the summary is omitted completely.
+3. The inspector's "Arguments" section is unchanged and does not show summaries.
+
+Writer released for Luna/parent review. I have not started `repo_read`/`repo_grep` and have not reopened Composer/Settings.
