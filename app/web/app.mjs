@@ -75,7 +75,7 @@ import {
   serializeHomePreparationMarker,
   workLocationLock,
 } from "./home-preparation.mjs";
-import { renderDiff, parseUnifiedPatch } from "./diff-view.mjs";
+import { renderDiff, parseUnifiedPatch, omittedDirectoriesNote } from "./diff-view.mjs";
 import {
   renderRun,
   createFileView,
@@ -6112,9 +6112,14 @@ async function openCandidateDiff() {
     if (currentSession()?.id !== session.id) return;
     $("candidate-base").textContent = candidateHeading(result.baseCommit, result.writeRevision);
     const files = parseUnifiedPatch(result.patch);
+    /* The Host's own statement of what this diff leaves out, kept with both
+     * the empty and the listed diff. */
+    const omitted = omittedDirectoriesNote(result);
+    const scopeNote = omitted ? element("p", { className: "form-help", text: omitted }) : null;
     body.replaceChildren();
     if (!files.length) {
       body.append(element("p", { className: "empty-list", text: "No changes yet." }));
+      if (scopeNote) body.append(scopeNote);
       return;
     }
     for (const file of files) {
@@ -6124,6 +6129,7 @@ async function openCandidateDiff() {
         renderDiff(file.lines, { label: `Changes in ${file.path}` }));
       body.append(section);
     }
+    if (scopeNote) body.append(scopeNote);
     body.append(element("p", { className: "form-help" }, element("span", { text: "Patch " }), element("code", { text: result.patchSha256 }), copyAction(result.patchSha256, "Copy patch hash")));
   } catch (error) {
     body.replaceChildren(element("p", { className: "inline-error", text: error.message, attrs: { role: "alert" } }));

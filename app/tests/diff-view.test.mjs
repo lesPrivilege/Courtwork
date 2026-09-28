@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { withTinyDom } from "./tiny-dom.mjs";
-import { diffWords, diffModel, diffSummary, renderDiff } from "../web/diff-view.mjs";
+import { diffWords, diffModel, diffSummary, renderDiff, omittedDirectoriesNote } from "../web/diff-view.mjs";
 import { DIFF_PREVIEW } from "../web/diff-fixture.mjs";
 
 const here = new URL(".", import.meta.url).pathname;
@@ -78,4 +78,13 @@ test("Settings preview and the static allowlist use the shared renderer and fixt
   assert.match(css, /--diff-add: var\(--diff-change-foreground\)/);
   assert.doesNotMatch(css, /\.diff-line\[data-diff="add"\]\s*\{[^}]*--success/, "diff never borrows success");
   assert.doesNotMatch(css, /\.diff-line\[data-diff="del"\]\s*\{[^}]*--danger/, "diff never borrows danger");
+});
+
+test("candidate diff scope: the Host's explicit untracked-directory exclusion is said once; an older reply implies nothing", () => {
+  assert.equal(omittedDirectoriesNote({ untrackedExcludedDirectoryNames: ["node_modules"], patch: "" }), "Untracked node_modules files are omitted.");
+  assert.equal(omittedDirectoriesNote({ untrackedExcludedDirectoryNames: ["node_modules"], patch: "diff --git a/x b/x" }), "Untracked node_modules files are omitted.",
+    "kept with a non-empty diff: tracked edits still show beside it");
+  for (const reply of [{ patch: "" }, { untrackedExcludedDirectoryNames: [] }, { untrackedExcludedDirectoryNames: "node_modules" },
+    { untrackedExcludedDirectoryNames: [""] }, { untrackedExcludedDirectoryNames: [7] }, null])
+    assert.equal(omittedDirectoriesNote(reply), null, JSON.stringify(reply));
 });
