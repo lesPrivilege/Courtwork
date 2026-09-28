@@ -553,3 +553,25 @@ The test skips with a stated reason when no Chrome is found (`COURTWORK_CHROME` 
 Independent Sol review of origin/main1296b8d→512f794 reproduces AT-META-R1 through the shipped Attention controller and an isolated real fake Host. A completed global Chat with lastSeq10 successfully renames in the Host, but both selected/list UI titles remain old; another explicit Refresh remains stale. Base1296b8d updates both. The cursor-only early return treats absence of run events as evidence that Session/list metadata did not change, whereas renameSession changes metadata without emitting run events.
 
 **Adopt; original Claude frontend lease.** Correct the existing Attention refresh/rename consumer so a successful rename and explicit Refresh reconcile canonical Session/list metadata even when the event cursor is unchanged. Keep the incremental event/Run optimization where valid; do not infer metadata freshness from that cursor, reset drafts, weaken generation/late-reply fences, or add backend events/schema solely for this view. Own app/web/attention-conversation.mjs, necessary exact polling call site if justified, focused Attention controller tests and this original record/evidence. Reproduce failing-before/passing-after with actual shipped producer/controller; cover successful rename after completed Run, explicit metadata-only refresh and preserved cursor/draft. No new capability, public API, forced UI redraw, paid provider, user Host restart or native Hermes execution. Parent independently accepts before merge/push.
+
+### AT-META-R1 · author result · 2026-09-28 (Claude, Opus)
+
+Product commit `4935712`, in the isolated tree fast-forwarded to `830e328`. Evidence: [attention-meta-r1-20260928](evidence/attention-meta-r1-20260928/).
+
+**Cause.** `app/web/attention-conversation.mjs` `refresh()` used the Order 3 event cursor for every refresh of a loaded conversation. It returned early unless a `run.*` event had arrived. Session and conversation-list metadata, such as a title changed by `PATCH /sessions/:id`, is not on that cursor. So a rename after a completed Run, and an explicit Refresh, left both titles stale.
+
+**Change:**
+- `refresh({ follow = false })`: only a followed refresh uses the cursor-only increment, which still falls through to the full read on `run.*` events or `cursor_ahead`.
+- The single polling call site, `app/web/attention-agent-view.mjs`, which runs only while a Run or command is active, passes `{ follow: true }`.
+- Every other refresh reconciles `/attention/conversations` and `/sessions/:id` as before Order 3: the Refresh control, rename, actions, send, open, and provider-change reloads in `app.mjs`.
+- Unchanged: drafts, the `lastSeq` monotonic check, generation and late-reply fences, command/receipt recovery, and the backend (no new events, schema or API).
+
+Author checks:
+- `app/tests/attention-agent.test.mjs` gains two regressions with a real fake Host and the shipped controller:
+  1. Renaming a completed conversation updates the selected Session and the list, keeping `lastSeq` and the unsent draft.
+  2. After a metadata-only change, a followed poll reads only `/events?after` and leaves metadata alone, while explicit Refresh reads the list and Session and shows the new title.
+- Both fail on the unfixed source and pass with the fix.
+- Sol's probe, `/tmp/cw-dsh-ui-review-20260928/attention-rename.mjs`, was copied as [attention-rename-after.mjs](evidence/attention-meta-r1-20260928/attention-rename-after.mjs). The copy is repointed at this tree, with its stale-title assertions inverted. It now passes: selected, list and post-Refresh titles are all "Head renamed title", `lastSeq` is 10, and the base comparison is unchanged ([result](evidence/attention-meta-r1-20260928/attention-rename-after.json)).
+- attention-agent, stream session events and projection, chat-actions, attention-ui02 (including concurrency), coordination-view and settings-navigation pass 60/60 ([log](evidence/attention-meta-r1-20260928/targeted-tests.txt)). The interaction lint and `git diff --check` pass.
+
+The Hermes HTTP framing/cancel changes in `830e328` were not touched. No native Hermes/server run, paid provider, user Host restart, push or deploy. Writer stopped for Parent's independent acceptance and merge/push.

@@ -1,0 +1,56 @@
+{
+  "head": "fix-tree",
+  "base": "1296b8d",
+  "introducedRegression": false,
+  "first": {
+    "success": true,
+    "persistedTitle": "Head renamed title",
+    "controllerTitle": "Head renamed title",
+    "listTitle": "Head renamed title",
+    "lastSeq": 10,
+    "calls": [
+      {
+        "route": "/sessions/2fb58e75-f646-44fc-a970-125af8a9cdf6",
+        "method": "PATCH"
+      },
+      {
+        "route": "/attention/conversations",
+        "method": "GET"
+      },
+      {
+        "route": "/sessions/2fb58e75-f646-44fc-a970-125af8a9cdf6",
+        "method": "GET"
+      }
+    ],
+    "afterExplicitRefreshTitle": "Head renamed title",
+    "explicitRefreshCalls": [
+      {
+        "route": "/attention/conversations",
+        "method": "GET"
+      },
+      {
+        "route": "/sessions/2fb58e75-f646-44fc-a970-125af8a9cdf6",
+        "method": "GET"
+      }
+    ]
+  },
+  "baseline": {
+    "success": true,
+    "controllerTitle": "Base renamed title",
+    "listTitle": "Base renamed title",
+    "calls": [
+      {
+        "route": "/sessions/2fb58e75-f646-44fc-a970-125af8a9cdf6",
+        "method": "PATCH"
+      },
+      {
+        "route": "/attention/conversations",
+        "method": "GET"
+      },
+      {
+        "route": "/sessions/2fb58e75-f646-44fc-a970-125af8a9cdf6",
+        "method": "GET"
+      }
+    ]
+  }
+}
