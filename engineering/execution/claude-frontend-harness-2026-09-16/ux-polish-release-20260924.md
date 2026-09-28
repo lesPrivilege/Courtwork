@@ -331,3 +331,33 @@ Original Claude accepts the UX decision and serial-author role recorded above (`
 Luna's audit will be reconciled into this table (confirm, drop as stale, or add). It is evidence and gap detection, not an approval gate. Accepted slices (B2 reading role, Preview visibility, Models/Runtime simplification, candidate diff note) are not reopened.
 
 **Luna audit → original Claude serial dispatch · 2026-09-28.** [Bounded audit and work packet](evidence/ux-queue-audit-20260928/README.md) separates three construction areas (Developer hierarchy, Models save-flow clarity, connection-card destination) from older unverified queue leads and already-accepted slices. Adopt the audit as source/status evidence, not visual acceptance; Claude owns UX disposition and implementation under the expanded user mandate, including necessary native SVG with existing Design continuity. Older Composer/menu/reader/shortcut/E1 registrations need current verification, not automatic reopening. Original author receives this packet after the completed Luna audit; independent acceptance follows delivery.
+
+## 2026-09-28 · Developer · first unit: read by object (Claude, UX owner)
+
+Audit input: [queue audit](evidence/ux-queue-audit-20260928/README.md), row "Developer hierarchy", **adopted**. Grounding: the current [Developer capture](evidence/ux-simplification-20260928/05-developer-before.png) and the source. Product commit `b2f54a3`.
+
+**Page task.** See and set what this chat's next runs use (runtime and profile), manage the Host's trusted extensions, and read Host diagnostics when something is off.
+
+**Decisions:**
+- **Remove** the page-level "Runtime" intro block. It was a heading with no object, followed by two notes, above a second intro line.
+  - Its scope sentence **merges** into the chat runtime line, now "What the next run in this chat would use, and what past runs recorded."
+  - Its trust consequence **moves** to Host Extensions, the thing it describes: "Only host-trusted extensions load, and they are not sandboxed." The Plugins link stays.
+- **Rename** "Overview" to **"Chat runtime"**. It names its object and no longer collides with the Host runtime list under Agents → Runtimes. The Bound-layer hint now points to "Chat runtime › Recorded bindings".
+- **Move** "Runtime info" (Adapter, Host state, Tools) into a **closed "Host runtime details"** disclosure beside "Unavailable capabilities". These are Host diagnostics, and Adapter already appears in Chat runtime when a chat is open.
+- **Keep:** scope tabs and scope details, requested/effective/bound layers, profile selection and package editor, Attention and context summary, recorded bindings, extension intake/list and refresh, unavailable capabilities, and error/retry/last-good reading. Behaviour, geometry and CSS are unchanged.
+- **Next Developer units, after capture:** the Chat runtime block's internal density (scope strip, notes, Attention and context all default-open), and the package editor's long notes. They're left for a current capture so they aren't cut blind.
+
+**Precedents and grammar:** UX-01 (text that identifies an object), UX-02 (a consequence stays beside its action), UX-09 (zoning by object), the accepted Models/Runtime disclosure reduction (`e7ffd04`), and the Runtimes Technical-detail pattern. Existing primitives only (`settings-block`, `details`/`summary`, `blockTitle`).
+
+**Author checks:**
+- New `app/tests/developer-page.test.mjs`:
+  - on the shipped markup: object order, no object-less heading, the trust consequence with the Plugins link inside Host Extensions, Host runtime details closed with `#runtime-info`;
+  - on the real runtime view: the Chat runtime heading, loading, failure with Retry, the reading, and last-good at the stale revision after a later failure.
+- Adjacent Settings, runtime, extension, profile and inspector suites pass 130/130 ([log](evidence/ux-developer-20260928/author-targeted-tests.log)).
+- The interaction, spacing, colour, material and shape lints pass, as do product copy, semantic consumers, doc links and `git diff --check`.
+
+**Capture needed from Parent:**
+- Developer at 538×762 and 1440×900, with and without an open chat.
+- Host runtime details and Unavailable capabilities, both closed and open.
+- The Host Extensions block.
+- Keyboard: Tab order through the page and Enter/Space on both disclosures.
