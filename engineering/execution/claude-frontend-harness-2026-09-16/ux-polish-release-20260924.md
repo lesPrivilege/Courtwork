@@ -173,3 +173,35 @@ Evidence: `example-audit.mjs` adds `7-away-and-back-does-not-send`, which repeat
 Parent accepts RP-6 at `25e824b`: leaving and returning with the reads released in the reported order submits zero runs, the draft stays editable, and only an explicit Send sends. Independent targeted 63/63 on the combined tree; Luna narrow review 52/52. RP-1–8 are integrated into main as one squash commit of `claude/ux-polish-20260924` (the intermediate commit with recorder temp paths does not enter main's history). Not pushed.
 
 Ended-tree preservation and cleanup: [receipt](evidence/ux-e1b-integration-20260925/README.md).
+
+## 2026-09-28 · GUI governance / UX polish lane reopened · read-only pre-check
+
+The user reopens original Claude's GUI governance/UX-polish lane under this record. Astra holds core Host/Runtime in its own tree, and the Hermes refusal stands. This round is read-only: no product, global CSS or design-rule writes, and no computer-use. Astra captures current screenshots with its own browser and then rules on construction. No second roadmap.
+
+**Exploration.** A real Sonnet Explore (`claude-sonnet-5`, 20/20 tool calls) read main `78a1b432ac7bd5c18aa7c580d1fd7cf3d27ae97a` in the order UX Grammar → frontend contract → visual-spatial grammar → `design/sources.md` → this record. It fetched no external page. The external precedents it recalled are only those already recorded in `design/sources.md` and `visual-spatial-grammar.md`: Design Scout S18/S19 (topology only), S20 interaction grammar (Base UI NumberField core-verified; the Braintrust three-view split recorded as not holding), S21 method-only, W3C APG Tabs, and WCAG 2.2 target size. It reported no versions beyond those records.
+
+**Four newest sub-surfaces.** Symbols were checked by the author at the same HEAD.
+
+| Surface | Current symbols | Acceptance on record | Real difference from accepted precedent |
+|---|---|---|---|
+| Settings → Agents / Runtimes reader | `runtime-inventory-view.mjs:createRuntimeInventoryView`; `agent-profiles-view.mjs:createAgentProfilesView`; `settings-view.mjs` | `evidence/runtime-settings-i1-final-20260927` (RFS-R1/R2 accepted) | None. It is the reading-role reference: 15px reading, 11.5px meta labels, 28/44px controls. |
+| K5 profile / Kit source editor | `profile-editor-view.mjs:createProfileEditorView`, `describeDiagnostic`; `styles.css:6392-6400` | `evidence/kit-profile-editor-final-20260924` | Source-inferred: none. The source textarea uses `--text-body` (14px, control/code editing), the candidate preview uses `--text-reading` (15px), and labels use `--text-meta` (11.5px) (`styles.css:399-404`), which matches the role split. Sonnet's "possible drift" was unresolved in its budget and is not supported by the source. |
+| B2 request disclosure | `run-rows.mjs:appendRequestSummary`, `appendToolDetails` | `evidence/request-details-b2-20260928/parent-review/README.md` (accepted) | None. Same `h4.tool-detail-heading` + `dl.data-list` anatomy as DF-04 `appendCheckDetails`. Sonnet's "author-only" doubt is answered by the parent-review record. |
+| Preview / prepare | `preview-tabs.mjs:createPreviewTabs`, `renderPreviewTabs`, `installPreviewTabKeys`; `preview-layer.mjs:createPreviewLayer` (Example preview) | `evidence/tabbed-preview-final-20260922` (PV-R1 accepted); preparation in `prepare-final-integration-20260921` | No source difference found. That acceptance itself leaves real zoom, reader, forced-colors, touch and native-shell checks open, and assigns density, narrow/coarse mapping and native Back/Forward to separate Design owners. These are recorded open items, not observed defects. |
+
+**Candidates for Astra, none assumed a defect before capture:**
+1. Preview/tabs: the open PV-R1 checks (200% zoom, forced colors, narrow/coarse). Owner: tabbed-preview record. Precedent: the visual-spatial grammar's normative floor.
+2. A cross-surface consistency pass after capture, on Save/modified/reset, Unknown/unavailable, retry and focus return, against UX-01–06 and the Properties anatomy. It should touch only the surfaces where a screenshot shows a concrete mismatch.
+
+**Synthetic capture paths**, all on an isolated Host with a temporary data directory and the loopback fake provider; 1440×900 and 390×844, light and dark:
+- Settings → Runtimes / Agents: the reader with one supported and one unreadable/unsupported report.
+- K5: import one synthetic profile at Session scope, open the source editor, make one long requirement wrap, cause a revision conflict, then Save using only the keyboard.
+- B2 (corrected from Sonnet's list):
+  - `repo_list` with `src`, with `../outside` (`invalid_path`), with `src/a\u0001b` (`unsafe_display`), and with a path over 256 code points (truncated).
+  - A path over 1000 characters produces `invalid_path`, not `run_limit`.
+  - `run_limit` needs more than 32 summaries in one Run, which the 32-call fixture script cannot reach through the GUI.
+- Preview: open two or more tabs, close the active tab and then an inactive one, reopen, use the keyboard tab keys, and at 200% zoom.
+
+**Open for Astra:** whether "prepare/Preview" means the tabbed file preview, the Example preview layer, or the preparation/approval surface.
+
+No product write, browser run, deployment, credential read or Hermes retry.
