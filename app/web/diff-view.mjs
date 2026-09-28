@@ -153,6 +153,15 @@ function renderText(row) {
 /** Parse a unified patch (as `git diff` prints it) into one entry per file
  * with the row shape diffModel understands. Only what the Host's bounded
  * candidate diff can contain: text hunks, added and modified regular files. */
+/* The candidate diff's scope, as the Host states it: untracked directories it
+ * left out (e.g. `node_modules`). Only an explicit, well-formed Host list says
+ * anything; an older reply without the field implies nothing. */
+export function omittedDirectoriesNote(result) {
+  const names = result?.untrackedExcludedDirectoryNames;
+  if (!Array.isArray(names) || !names.length || names.some(name => typeof name !== "string" || !name)) return null;
+  return `Untracked ${names.join(", ")} files are omitted.`;
+}
+
 export function parseUnifiedPatch(patch) {
   const files = [];
   let file = null, oldNo = 0, newNo = 0;
