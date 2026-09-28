@@ -3,6 +3,8 @@
 // directly (recordStarted/recordSettled), independent of Pi's own
 // tool.result path, because a cancel closes Run admission before a late
 // tool.* event would otherwise arrive.
+import { lstatSync } from "node:fs";
+import path from "node:path";
 import { isDeepStrictEqual } from "node:util";
 import { Type } from "@earendil-works/pi-ai";
 import { getCheckRecipe } from "./check-recipes.mjs";
@@ -12,6 +14,17 @@ function checkError(message, code = "check_failed") {
   const error = new Error(message);
   error.code = code;
   return error;
+}
+
+/* A fixed recipe's path arguments must all be present in the candidate. Node's
+ * test runner reads each path as a glob and silently skips one that matches
+ * nothing while others run, which would settle a missing target as a pass. */
+function assertFixedTargets(recipe, candidatePath) {
+  for (const target of recipe.argv.filter(argument => !argument.startsWith("-"))) {
+    let file = null;
+    try { file = lstatSync(path.join(candidatePath, target)); } catch { /* reported below */ }
+    if (!file?.isFile()) throw checkError(`Fixed check target is missing from the candidate: ${target}`, "missing_target");
+  }
 }
 
 export function createCheckTools({ candidate, resolveCandidate, runId: _runId, recordStarted, recordSettled, isOpen } = {}) {
@@ -73,7 +86,7 @@ export function createCheckTools({ candidate, resolveCandidate, runId: _runId, r
           // after those awaits, at the actual synchronous spawn boundary.
           beforeSpawn: () => {
             if (signal?.aborted || !isOpen()) throw checkError("Run admission is closed", "run_closed");
-            approvedCandidate(recipe, approvedContext);
+            assertFixedTargets(recipe, approvedCandidate(recipe, approvedContext).candidatePath);
           },
         });
       } catch (error) {

@@ -148,3 +148,32 @@ The first actual CW-authored task after recipe acceptance is the existing check-
 In a fresh independent private candidate, the CW model may change only `app/runtime/check-tools.mjs`, focused `app/tests/check-recipes.test.mjs` coverage and the corresponding check-recipe documentation. Derive the recipeId parameter's human-readable choice guidance from the frozen Host catalog (IDs and titles only), preserving the string validation shape, unknown-ID refusal, candidate exposure and all approval semantics. No duplicated recipe list, new tool/endpoint/registry, imported execution authority or automatic install. The model first adds a meaningful regression observing the actual model-facing tool declaration for an active candidate, runs the new fixed recipe to see it fail, implements the smallest source change, and runs the same recipe to pass. Parent reviews proposed candidate writes/check approvals and tests that existing unknown-id/refusal behavior still holds. Native or personal credentials are never model arguments or recipe metadata.
 
 This work is reserved for the CW real-model phase, not original Claude's recipe implementation; original Claude prepares/reviews only the infrastructure first. Parent will verify exact code/test/Run/check/candidate identities, preserve original tests and failure evidence, and perform independent integration after model delivery. The first task may be explicitly told the new recipe ID; do not claim that this proves unaided discovery. Any later discovery claim must inspect the newly served model schema after an accepted Host restart. Real execution remains pending user configuration in the isolated acceptance environment.
+
+### Harness recipe · pre-edit seam record (Claude, 2026-09-28)
+
+**Concrete reproduction.** Node 25.9's `node --test` treats each positional path as a glob pattern. When one fixed target is missing but others exist, it skips that target silently and exits 0: two present files plus one missing gave `tests 2`, exit 0. A fixed recipe with one missing target would therefore settle as a passing `completed` check, so "missing target is a truthful failure" cannot rest on Node alone. The accepted Attention recipe shares this latent gap; its test covered only a candidate with no targets. A missing dependency is already a truthful nonzero result (`ERR_MODULE_NOT_FOUND`, exit 1).
+
+**Seam and owner.**
+- The fix goes in the existing check tool, `app/runtime/check-tools.mjs`, at the `beforeSpawn` fence.
+- The precedent is the approved-candidate recheck there, which already settles a pre-spawn Host refusal as `failed` with `{code}` and starts no process.
+- **Rule:** each fixed recipe path argument (argv entries not starting with `-`) must be a regular file inside the approved candidate. A missing one stops the check before spawn and settles it as `failed`, with `failure.code = "missing_target"`, empty output and no process.
+- **No new authority:**
+  - no schema change, since `failure.code` is an existing free identifier;
+  - no approval change;
+  - no fallback command, install or retry;
+  - `node-test` has no path arguments and is unaffected.
+- **Deviation from the contract wording:** the contract text says missing targets remain "normal nonzero process results". For a partially missing set, that is not what Node does, so this reports a Host pre-spawn failure instead. Astra should confirm or return a different rule.
+
+### Harness recipe · phase 1 author result (Claude, 2026-09-28)
+
+Source `c32c492`; [author evidence](evidence/harness-check-recipe-20260928/README.md).
+
+- **Recipe:** the third frozen recipe, `node-test-harness-contract` v1, exactly as contracted.
+- **Missing-target rule:** Parent independently reproduced Node 25's partial-missing false pass and adopted the guard.
+  - A missing **fixed target path** (Attention or Harness) starts no process. The check settles once as Host `failed` with `failure.code = "missing_target"`, after the cancel/admission and approved-candidate/revision fences.
+  - A missing **dependency** is still the real test process's nonzero result.
+  - `node-test`'s default discovery, approval fields and settlement are unchanged.
+  - A single-target-missing counterexample (5 of 6) is covered, not only all-missing.
+- **Checks:** the governance/adjacent suites pass 56/56. The real fake-provider Host `check_run` against a private candidate with candidate-local `npm ci --ignore-scripts` dependencies ran the six files 129/129, exit 0, in 59.5 s of 120 s.
+
+Writer released for independent review. The phase 2 real-provider task waits for Parent's environment and the user's key.
