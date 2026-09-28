@@ -301,3 +301,31 @@ The user now grants original Claude decision and implementation authority for al
 Use existing UI/icon primitives and canonical geometry first; user-authorized native SVG additions are allowed where needed, with accessible semantics, consistent optics and source/provenance recorded. Do not force every action into an icon or change families solely to restyle. Keep user-facing action, consequence, state and recovery understandable. Resolve routine UX tradeoffs autonomously and record the result in the original owner ticket; do not create a parallel roadmap.
 
 UX authority does not itself change Host permissions, provider credentials, data/schema authority or the earlier native Hermes execution refusal. For a UX decision requiring a cross-layer implementation, Claude states the concrete required behavior and coordinates with the existing core owner, without inventing repeated user confirmation gates. Preserve other writers and use the existing isolated author checkout. Each coherent delivery includes focused behavior checks, Design/precedent consumption, evidence and a review-ready commit; computer-use verification stays with OpenAI. Current main is b1d5023; the latest Models/Runtime and candidate aggregate slices are accepted, not reopened.
+
+### Claude acceptance of expanded UX ownership and prepared queue · 2026-09-28
+
+Original Claude accepts the UX decision and serial-author role recorded above (`0ff3682`, merged into the author tree on top of main `b1d5023`). There is no second frontend writer. Permissions, credentials, data/schema authority and the native Hermes refusal are unchanged.
+
+**Working method for each delivery:**
+- Start from the page's real task and existing grammar: UX Grammar → frontend contract → visual-spatial roles → implemented precedents.
+- Existing primitives first: `ui-controls.mjs` (`action`, `setAction`, `icon`, `flowRow`, `copyAction`) and the icon family and rules in `design/icon-controls.md` (IC-1–3).
+  - Text keeps objects, consequences, state and recovery. Icons only for high-frequency, universal, well-placed actions, with a native `<button>`/`<a>` and an accessible name.
+  - A new SVG only when no canonical glyph fits, with its source recorded.
+- Each delivery has one owner-record entry: disposition (adopt/adjust/reject/defer), nearest precedent, focused behavior tests, lints, and a review-ready commit.
+- Independent review and computer-use acceptance remain with Parent.
+
+**Prepared queue (existing registrations, before Luna's audit):**
+
+| # | Item | Source | Initial disposition |
+|---|---|---|---|
+| 1 | Developer page hierarchy, profile controls, package instructions | UX simplification scope item 3 (deferred) | First whole-page pass after the audit |
+| 2 | Runtime management panels (overview, composition, environment, capabilities, instructions, permissions, plugins) and the "Runtimes / Runtime / Runtime info" naming overlap | Inventory above; `runtime-view.mjs` not yet read | Read, then decide with item 1, since the pages share objects |
+| 3 | Chat connection card "Connections" row is navigation shown as an action button | Inventory above (UX-03) | Decide with item 1/2 wording |
+| 4 | Object-command menus on Chat list and Attention rows | 09 N-07 | Pending audit |
+| 5 | Back-to-latest geometry; `ask_user` prompt selectability | 00-intake:151/152 | Pending audit |
+| 6 | Fine/coarse target split for reader chrome | grammar-convergence F2 | Pending audit |
+| 7 | Back/Forward shortcuts | 09 | Only if a real supported behavior exists (IC-3) |
+| 8 | Preview accessibility items left open by PV-R1: 200% zoom, forced colors, screen reader, touch | tabbed-preview-final README | Pending audit; Parent's browser evidence is needed for acceptance |
+| 9 | Home-first Agent choice; bound-Run reading | E1 follow-ups | Pending audit |
+
+Luna's audit will be reconciled into this table (confirm, drop as stale, or add). It is evidence and gap detection, not an approval gate. Accepted slices (B2 reading role, Preview visibility, Models/Runtime simplification, candidate diff note) are not reopened.
