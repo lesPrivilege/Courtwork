@@ -53,7 +53,8 @@ test("09 · every row entry point goes through the one dispatcher; the native me
   assert.equal((app.match(/attachObjectCommands\((button|sessionButton),\s*\{\s*kind:\s*"(chat|project)",\s*id:/g) || []).length, 3, "Recent rows, project chat rows and project rows");
   assert.match(app, /runObjectCommand\("project\.new-chat", \{ kind: "project", id: project\.id \}\)/, "the inline New chat is the same command");
   assert.match(app, /method: "PATCH", body: \{ title \}/);
-  assert.match(app, /method: "DELETE" \}\);\n\s*state\.recentSessions = state\.recentSessions\.filter/);
+  // N07-R1 · the Chat page's neighbour is read between the DELETE and the list update.
+  assert.match(app, /method: "DELETE" \}\);\n\s*const neighbour = chatPageNeighbour\(target\.id\);\n\s*state\.recentSessions = state\.recentSessions\.filter/);
   assert.match(app, /state\.history\.forget\(target\.id\);/);
   assert.match(html, /<dialog\s+id="rename-dialog"/);
   assert.match(html, /<dialog\s+id="delete-dialog"/);

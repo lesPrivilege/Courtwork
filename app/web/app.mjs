@@ -1856,6 +1856,7 @@ async function submitRename(event) {
     const result = await request(`/sessions/${encodeURIComponent(target.id)}`, { method: "PATCH", body: { title } });
     applyRenamedSession(result.session ?? { id: target.id, title });
     closeDialog("rename-dialog");
+    refreshChatPage({ focusSession: state.chatOpen ? target.id : undefined });
   } catch (err) {
     error.textContent = err.status === 404 ? "This chat no longer exists." : err.message;
     error.hidden = false;
@@ -1886,11 +1887,22 @@ async function submitDelete(event) {
   submit.disabled = true;
   try {
     await request(`/sessions/${encodeURIComponent(target.id)}`, { method: "DELETE" });
+    const neighbour = chatPageNeighbour(target.id);
     state.recentSessions = state.recentSessions.filter((item) => item.id !== target.id);
     for (const [projectId, list] of state.sessionsByProject) state.sessionsByProject.set(projectId, list.filter((item) => item.id !== target.id));
     state.history.forget(target.id);
     closeDialog("delete-dialog");
-    if (state.activeSessionId === target.id) {
+    if (state.chatOpen) {
+      /* On the Chat page the reader stays on the page: the deleted row leaves
+       * it and focus moves to its neighbour (or the title). */
+      if (state.activeSessionId === target.id) {
+        // The place underneath becomes Home; the Chat page layer stays open.
+        clearActiveSession();
+        state.chatOpen = true;
+      }
+      renderAll();
+      refreshChatPage({ focusSession: neighbour ?? null });
+    } else if (state.activeSessionId === target.id) {
       clearActiveSession();
       void loadHome();
       restoreLayerFocus($("composer-input"));
@@ -6672,6 +6684,16 @@ async function openChatPage() {
   state.chatOpen = true;
   closeNavigation({ restoreFocus: false });
   renderAll();
+  refreshChatPage();
+  $("chat-page").querySelector('[data-chat-focus="title"]')?.focus();
+}
+/* N07-R1 · the page is drawn from the same session state the sidebar reads.
+ * Anything that changes a chat's title or existence while the page is open
+ * (the object commands on its own rows included) redraws it here, and names
+ * the row focus should land on: a renamed row keeps it; a deleted row hands it
+ * to its neighbour, or to the page title when none is left. */
+function refreshChatPage({ focusSession = undefined } = {}) {
+  if (!state.chatOpen || !chatPage) return;
   chatPage.open({
     projects: state.projects.filter((project) => state.openProjectIds.has(project.id) || project.id === state.activeProjectId),
     sessionsByProject: state.sessionsByProject,
@@ -6680,7 +6702,17 @@ async function openChatPage() {
     currentSession: currentSession(),
     example: preview.available && !preview.active ? { label: "See the example workspace" } : null,
   });
-  $("chat-page").querySelector('[data-chat-focus="title"]')?.focus();
+  if (focusSession === undefined) return;
+  const page = $("chat-page");
+  const row = focusSession && [...page.querySelectorAll("[data-chat-session]")].find((node) => node.getAttribute("data-chat-session") === focusSession);
+  (row || page.querySelector('[data-chat-focus="title"]'))?.focus();
+}
+/* The row after the target in the page's own order, else the one before. */
+function chatPageNeighbour(sessionId) {
+  if (!state.chatOpen) return undefined;
+  const ids = [...$("chat-page").querySelectorAll("[data-chat-session]")].map((node) => node.getAttribute("data-chat-session"));
+  const at = ids.indexOf(sessionId);
+  return at < 0 ? undefined : ids[at + 1] ?? ids[at - 1] ?? null;
 }
 async function startNewSession({ projectId = null } = {}) {
   if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId) {
