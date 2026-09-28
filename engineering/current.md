@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · G5 fact mapping and stale support statements accepted
+
+[Original G5 disposition](execution/2026-09-08-main-round/public-readiness.md#astra-disposition-and-independent-receipt--2026-09-28) accepts Sol `52bcb5d` / `6ca2c96` after Luna's fixed-source mapping and support-contract review. The [bounded delta](execution/2026-09-08-main-round/g5-fact-map-20260928.md) distinguishes current real-provider/synthetic evidence from historical public source, media and replay pins. Current supported-use documentation now describes existing GUI repository preparation, approved fixed checks and typed commands/manual compaction accurately; no product code or capability changed. Public README/Pages/media remain with original Claude after B2, and G1/G4/G5 are not declared closed. Original Claude B2 implementation remains active in its isolated tree; Hermes API-server execution remains unexecuted after permission refusal. No user-service restart, provider call, push or deployment.
+
 ## 2026-09-28 · Registered work resumed with separate author lanes
 
 User prioritizes other registered work while native Hermes API-server execution remains blocked by the original Claude permission review. Original Claude retains its Hermes source/evidence through `4402592`; reported native-loop9/9 and dependency provenance remain author evidence, with API-server run/stop unexecuted. The same conversation has actually received and started the [B2 bounded repo_list request-summary contract](execution/claude-frontend-harness-2026-09-16/06b-dogfood-friction-20260920.md#2026-09-28--b2-bounded-repo_list-request-summary--implementation-contract), fixed `5769668`; core/frontend remains one Claude lane in a separate checkout. Source delivery and acceptance are pending.

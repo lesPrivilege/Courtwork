@@ -1,5 +1,9 @@
 # Next bounded assignments — 2026-09-21
 
+## 2026-09-28 · Sol G5 bounded delivery accepted; Claude B2 remains active
+
+[G5 parent disposition](../2026-09-08-main-round/public-readiness.md#astra-disposition-and-independent-receipt--2026-09-28) accepts fixed Sol52bcb5d/6ca2c96 with independent Luna review. The author is released; no further Sol code slice is implied. Original Claude remains sole B2 core/frontend writer in `claude/request-details-b2-20260928`. Later G5 public-source corrections stay queued with that same serial owner, including the concrete CLI replay identity mismatch; public source/media repinning still requires original candidate/media evidence. Hermes environment/source remain preserved and its server execution remains blocked, not silently resumed.
+
 ## 2026-09-28 · B2 Claude and G5 Sol actual dispatch
 
 The user prioritizes already registered construction: Claude core/frontend, Sol disjoint work, Luna/Sonnet exploration. Original Claude has received [B2's fixed contract](06b-dogfood-friction-20260920.md#2026-09-28--b2-bounded-repo_list-request-summary--implementation-contract) at `5769668`, with UI confirming Running. Its preserved Hermes `4402592` remains blocked specifically at real API-server execution; no permission workaround or duplicate native author. Sol `/root/sol_g5_fact_mapping` (GPT-6 Sol/high) has received G5 mapping lease `a9694d0` in the isolated registered-completion tree. B2 and G5 delivery/independent acceptance are pending. Sonnet B2 exploration is consumed in the contract; its historical Composer recommendation is rejected as superseded. Recent DS-1/RL-1/I1/recipe/CB-D1 tasks are not reopened. Parent retains current/dispatch and final integration.
