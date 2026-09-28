@@ -1,0 +1,124 @@
+{
+  "steps": [
+    {
+      "name": "local-in-force",
+      "section": "settings-models",
+      "local": true,
+      "apiKey": true,
+      "contextWindow": true,
+      "effortValues": true,
+      "provider": true,
+      "model": true,
+      "sessionPanel": false,
+      "searchMarks": 0
+    },
+    {
+      "name": "search-key",
+      "section": "settings-appearance",
+      "local": true,
+      "apiKey": true,
+      "contextWindow": false,
+      "effortValues": false,
+      "provider": false,
+      "model": false,
+      "sessionPanel": true,
+      "searchMarks": 0
+    },
+    {
+      "name": "search-cleared",
+      "section": "settings-models",
+      "local": true,
+      "apiKey": true,
+      "contextWindow": true,
+      "effortValues": true,
+      "provider": true,
+      "model": true,
+      "sessionPanel": false,
+      "searchMarks": 0
+    },
+    {
+      "name": "general",
+      "section": "settings-general",
+      "local": true,
+      "apiKey": false,
+      "contextWindow": false,
+      "effortValues": false,
+      "provider": false,
+      "model": false,
+      "sessionPanel": false,
+      "searchMarks": 0
+    },
+    {
+      "name": "back-to-models",
+      "section": "settings-models",
+      "local": true,
+      "apiKey": true,
+      "contextWindow": true,
+      "effortValues": true,
+      "provider": true,
+      "model": true,
+      "sessionPanel": false,
+      "searchMarks": 0
+    },
+    {
+      "name": "deepseek-configured",
+      "section": "settings-models",
+      "local": false,
+      "apiKey": true,
+      "contextWindow": false,
+      "effortValues": false,
+      "provider": true,
+      "model": true,
+      "sessionPanel": false,
+      "searchMarks": 0
+    },
+    {
+      "name": "search-effort",
+      "section": "settings-models",
+      "local": false,
+      "apiKey": false,
+      "contextWindow": false,
+      "effortValues": true,
+      "provider": false,
+      "model": false,
+      "sessionPanel": true,
+      "searchMarks": 0
+    },
+    {
+      "name": "deepseek-search-cleared",
+      "section": "settings-models",
+      "local": false,
+      "apiKey": true,
+      "contextWindow": true,
+      "effortValues": true,
+      "provider": true,
+      "model": true,
+      "sessionPanel": false,
+      "searchMarks": 0
+    },
+    {
+      "name": "search-api-key",
+      "section": "settings-models",
+      "local": false,
+      "apiKey": true,
+      "contextWindow": false,
+      "effortValues": false,
+      "provider": false,
+      "model": false,
+      "sessionPanel": true,
+      "searchMarks": 0
+    },
+    {
+      "name": "deepseek-final",
+      "section": "settings-models",
+      "local": false,
+      "apiKey": true,
+      "contextWindow": true,
+      "effortValues": true,
+      "provider": true,
+      "model": true,
+      "sessionPanel": false,
+      "searchMarks": 0
+    }
+  ]
+}

@@ -424,3 +424,31 @@ Audit rows "Models connection/save clarity" and "Connection card destination": *
 - The key-local error.
 - Keyboard: Tab order, Provider → key → Remove → Save key → Model (the existing button order, primary last), and Enter in the key saving the key.
 - The connection card and model/effort card rows.
+
+### MS-R1 · review return · adopt (Claude, UX owner)
+
+Parent's independent browser review of `1beb385` found the API key row with Remove/Save key still showing while Local test was in force. The key row had `hidden=false` and computed `display: grid` ([capture](/tmp/cw-models-review-20260928/local-key-visible-before.png), outside the repository). Parent located the cause: the Settings page search/render reset `hidden = false` on every row and block when there was no query, overriding `lock()`. My form-only tiny-dom test didn't mount the page, so it missed this. **Adopt.** Fix: `aebd712`.
+
+**Root cause and scope.**
+- `createSettingsPage.applyFilter` used `hidden` as its own filter and cleared it wholesale. Page selection runs it, so it undid owner-hidden rows from the first paint.
+- The unfixed page in real Chrome ([before](evidence/ux-models-20260928/ms-r1-browser-before-1beb385.json)) shows the same class beyond the key row:
+  - Context window and Supported effort values (compatible-only) visible on local and catalog paths;
+  - the Session block un-hidden with no Session.
+- Collapsed runtime child rows (`.runtime-row.is-child[hidden]`) are un-hidden by the same code path.
+
+**Fix: separate the two states.**
+- Search owns only `data-search-hidden`, with one `[data-search-hidden] { display: none !important }` rule beside the global `[hidden]` rule. It never writes or clears an owner's `hidden`.
+- A row whose owner hid it (itself or an ancestor inside the panel) is not a match, so searching a hidden field's words doesn't reveal it.
+- Blocks use the same mark. Panels stay under the page's own tab `hidden`, which the page owns.
+- The single-match Enter shortcut also excludes search-hidden runtime rows.
+- `lock()` is unchanged. This isn't a per-row re-hide or a CSS-only patch.
+
+**Coverage:**
+- New `app/scripts/settings-conditional-browser.mjs` and `app/tests/settings-conditional-browser.test.mjs` run the whole Settings page in real headless Chrome against a disposable Host. The test skips without Chrome, like the Runtimes browser test.
+- Steps: local in force; search "key"; clear; switch to General and back; Configure DeepSeek; search "effort"; clear; search "api key"; clear.
+- **Before** (`1beb385`): the API key and compatible-only rows show for local, and the Session block shows with no Session.
+- **After** ([record](evidence/ux-models-20260928/ms-r1-browser-after.json)): every owner-hidden row and block stays hidden, the DeepSeek key row shows, search filters to the match, and no search mark is left behind after clearing.
+- Targeted suites including both real-Chrome page tests pass 123/123 with 0 skipped ([log](evidence/ux-models-20260928/ms-r1-targeted-tests.log)).
+- The interaction, spacing, colour, material and shape lints pass, as do product copy, semantic consumers and `git diff --check`.
+
+Parent continues its separate synthetic checks (Enter saving only the key, key-local error, button Tab order, navigation rows).
