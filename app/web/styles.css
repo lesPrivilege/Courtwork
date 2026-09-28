@@ -1864,6 +1864,11 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
   background: var(--hover);
   color: var(--ink);
 }
+/* Reader coarse targets (06d / F2, measured 2026-09-29): 24px is the fine
+   micro target; a coarse pointer takes the 44×44 CW target. Glyph unchanged. */
+@media (pointer: coarse) {
+  .surface-tab-close { width: var(--control); min-width: var(--control); height: var(--control); min-height: var(--control); }
+}
 /* WK-118 ⑤ · agent activity 的微型记号，进对应的类型 tab，不是一条 banner。形状与
    一句 sr-only 的话各说一遍：running 实心、waiting_user 空心环、failed 方块。颜色沿
    run-badge 的三档，没有新色。 */
@@ -2082,6 +2087,9 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
 }
 .version-details summary {
   cursor: pointer;
+  /* A disclosure is a control: its one line is a full control-height target
+     (28 fine, 44 coarse), keeping the native marker. */
+  line-height: var(--control);
 }
 .file-document {
   margin-top: var(--space-5);
