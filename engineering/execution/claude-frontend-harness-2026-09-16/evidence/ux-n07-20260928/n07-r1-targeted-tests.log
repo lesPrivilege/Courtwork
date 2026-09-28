@@ -1,0 +1,47 @@
+✔ Chat page Rename and Delete redraw the page and land focus on a live row (5897.952583ms)
+✔ recent chats across open projects, newest first, marking Work and the current one (20.797042ms)
+✔ empty state and New chat stay primary while explanation and sibling entries are disclosed (2.067125ms)
+✔ app wiring: the Chat seat opens the page, the page closes like Attention, and it is served (3.400875ms)
+✔ 09 N-07 · a Chat-page row carries the Shell's object commands like a sidebar chat row; a target with none stays a plain row (1.37325ms)
+✔ 09 N-07 · without an owner the Chat page draws no commands; the app passes the shared attachObjectCommands (1.335167ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (229.258792ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (11.321ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (2.153ms)
+✔ 00 · one Work location entry; Connect folder stays the command inside it (1.711625ms)
+✔ Home Activity rejects malformed dates, totals, and requested periods (8.500834ms)
+✔ Home Attention rejects invalid identity, revision, and pagination packets (0.517125ms)
+✔ Home Attention detail accepts only the display contract (0.227ms)
+✔ standalone Attention ignores an older project query after a newer open (19.994834ms)
+✔ standalone Attention ignores a stale detail after project selection changes (5.304375ms)
+✔ Attention registry opens the global agent explicitly without a model request (0.949083ms)
+✔ Back to items clears a pending detail and rejects its late response (2.687375ms)
+✔ Review belongs only to needs_you across Home and Attention states (2.421417ms)
+✔ text-only pending and failed Home rows render and retain their exact navigation scope (0.770791ms)
+✔ Home retains native targets for unchanged projections and uses current callbacks (0.543959ms)
+✔ Home immediately renders changed facts, removed targets, filters, and errors (0.713791ms)
+✔ Home remounts after the shared stream was used by a chat (0.639834ms)
+✔ 09 · the trail pushes only a different place, refreshes the same one, and cuts the forward trail on a new arrival (1.630125ms)
+✔ 09 · the trail is bounded, names its places, keeps restore references only, and marks what the reader refuses (0.770542ms)
+✔ 09 · one stack: the Shell trail is in memory, the hash stays the Settings deep link, nothing is pushed to the browser (4.625ms)
+✔ 09 · leave before every departure, arrive only through the reader; traversal resolves through selectSession and restores the anchor after render (1.513125ms)
+✔ 09 · every row entry point goes through the one dispatcher; the native menu is taken only when a menu is offered (2.733042ms)
+✔ 09 · dogfooding fix: leaving the example keeps a project-less chat in place (0.607833ms)
+✔ 09 · the two real Chat commands: rename through PATCH and delete through DELETE, each with its refusals (243.34175ms)
+✔ 09 · `when` draws only commands with a real path; `enablement` keeps a real command in the menu with its reason (3.741167ms)
+✔ 09 · the dispatcher resolves the target again when a command runs: gone, disabled and unknown all stop before the handler (0.321042ms)
+✔ 09 · the menu primitive: groups with separators only between them, disabled rows reachable with their reason, roving keys, Escape home (3.5885ms)
+✔ unassigned chats run with ordinary tools, isolated files/configuration, and restore by Session ID (791.730292ms)
+✔ unassigned coordination scope does not merge all null-project conversations (177.075125ms)
+✔ schema13 upgrades byte-backed identities and configuration without resetting declared capabilities or CAS (309.824708ms)
+✔ summary labels use explicit Session scope, never null project as Attention authority (0.422959ms)
+✔ Settings search and section switches never reveal what a view hid (3926.756417ms)
+✔ native chrome accepts bounded geometry and rejects arbitrary or invalid injection (3.896334ms)
+✔ host geometry updates and fullscreen/native nonoverlay remove reservations without adding a strip (0.328167ms)
+ℹ tests 39
+ℹ suites 0
+ℹ pass 39
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7157.051

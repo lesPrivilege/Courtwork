@@ -96,3 +96,29 @@ This record's open item "Chat 列表页（chat-page）与 Attention 里的 Chat 
 - Open disabled on the current chat.
 - Rename and Delete from the Chat page, with the list updating and focus returning to the row.
 - An example row with no menu.
+
+### N07-R1 · review return · adopt (Claude, UX owner)
+
+Parent's independent review of `36fdc01` on a synthetic Host found two problems:
+- **Rename** via Shift+F10 on the Chat page succeeded on the Host and in the sidebar/Recent, but the Chat page's Continue list kept the old title, and focus went back to the old row ([capture](/tmp/cw-ux-batch-review-20260928/rename-after.png), outside the repository).
+- **Delete**, retried after Parent stopped its own pending fake Run, succeeded the same way while the Chat page kept the deleted row and focus returned to it ([capture](/tmp/cw-ux-batch-review-20260928/delete-success-stale.png)). The earlier active-run refusal is correct Host behaviour and not part of this finding.
+
+**Adopt.** Fix: `16d5b94`.
+
+**Cause.** `chatPage.open(...)` ran only in `openChatPage()`; `renderAll()` never redraws the page. The shared `attachObjectCommands` owner was right; the new consumer just wasn't redrawn after the command finished.
+
+**Fix (`app.mjs`).**
+- `refreshChatPage({ focusSession })` draws the page from the current session state (the same state the sidebar reads) and is used by opening, Rename and Delete.
+- **Rename:** after the dialog closes, the page redraws and the renamed row takes focus.
+- **Delete:** the neighbour is read from the page's own row order before the list update (next row, else previous). After the dialog closes the page redraws and focus goes to that neighbour, or to the page title when no rows remain; the empty state shows "No chats yet.".
+- **Deleting the open chat** from the Chat page keeps the page open over Home: no jump away, and no "Return to" control for the deleted chat.
+- Menus re-resolve their target on pick, as before. Rows from the redraw are live, so no menu opens against a removed row.
+
+**Coverage.** New `app/scripts/chat-page-commands-browser.mjs` and `app/tests/chat-page-commands-browser.test.mjs` run the whole app in real headless Chrome against a disposable Host with four synthetic chats and no Runs. The test skips without Chrome.
+- Steps: Shift+F10 → Rename; Delete the middle row; Delete the last row; open a chat, return to the Chat page and Delete that open chat; Delete the final row.
+- **Before** (`cfa2f89`, [record](evidence/ux-n07-20260928/n07-r1-browser-before-cfa2f89.json)): the page keeps the old title and deleted rows while Recent updates; focus sits on stale rows; deleting the open chat leaves for Home; the next menu times out on a stale row.
+- **After** ([record](evidence/ux-n07-20260928/n07-r1-browser-after.json)): at every step the page equals Recent, the page stays open and focus is live. Rename keeps focus on the row, Delete moves it to the next or previous row, and the final Delete leaves "No chats yet." with focus on the title.
+- The existing source-pattern assertion in `navigation-history.test.mjs` (DELETE followed by the list update) now allows the neighbour read between them; its intent is unchanged.
+- Adjacent suites, including both real-Chrome page tests, pass 39/39 with 0 skipped ([log](evidence/ux-n07-20260928/n07-r1-targeted-tests.log)). The interaction, copy and semantic lints and `git diff --check` pass.
+
+Parent continues its own checks: Open disabled on the current chat, touch reveal, and the example row with no menu.

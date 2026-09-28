@@ -1,0 +1,88 @@
+{
+  "steps": [
+    {
+      "name": "opened",
+      "page": [
+        "UX batch — Keep last",
+        "UX batch — Rename target",
+        "UX batch — Delete target",
+        "UX batch — Keep first"
+      ],
+      "recent": [
+        "UX batch — Keep last",
+        "UX batch — Rename target",
+        "UX batch — Delete target",
+        "UX batch — Keep first"
+      ],
+      "focus": "page title",
+      "focusConnected": true,
+      "pageOpen": true
+    },
+    {
+      "name": "renamed",
+      "page": [
+        "UX batch — Keep last",
+        "UX batch — Rename target",
+        "UX batch — Delete target",
+        "UX batch — Keep first"
+      ],
+      "recent": [
+        "UX batch — Keep last",
+        "UX batch — Renamed by page",
+        "UX batch — Delete target",
+        "UX batch — Keep first"
+      ],
+      "focus": "UX batch — Rename target",
+      "focusConnected": true,
+      "pageOpen": true
+    },
+    {
+      "name": "deleted-middle",
+      "page": [
+        "UX batch — Keep last",
+        "UX batch — Rename target",
+        "UX batch — Delete target",
+        "UX batch — Keep first"
+      ],
+      "recent": [
+        "UX batch — Keep last",
+        "UX batch — Renamed by page",
+        "UX batch — Keep first"
+      ],
+      "focus": "UX batch — Delete target",
+      "focusConnected": true,
+      "pageOpen": true
+    },
+    {
+      "name": "deleted-last",
+      "page": [
+        "UX batch — Keep last",
+        "UX batch — Rename target",
+        "UX batch — Delete target",
+        "UX batch — Keep first"
+      ],
+      "recent": [
+        "UX batch — Keep last",
+        "UX batch — Renamed by page"
+      ],
+      "focus": "UX batch — Keep first",
+      "focusConnected": true,
+      "pageOpen": true
+    },
+    {
+      "name": "deleted-open-chat",
+      "page": [
+        "UX batch — Keep last",
+        "UX batch — Renamed by page"
+      ],
+      "recent": [
+        "UX batch — Renamed by page"
+      ],
+      "focus": "TEXTAREA",
+      "focusConnected": true,
+      "pageOpen": false
+    }
+  ],
+  "returnControlAfterOpenDelete": true,
+  "error": "timed out waiting for the object menu"
+}
