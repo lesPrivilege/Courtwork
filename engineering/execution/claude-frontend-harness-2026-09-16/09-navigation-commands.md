@@ -71,3 +71,28 @@ Independent checks: `node --test --test-timeout=10000 app/tests/location-history
 | 04/10 · 同一 Run 的中间 assistant 段各带 footer 与时间 | 采纳，归 10 片 | 未在本片改 |
 | 展开缺共同锚点流程；流式表述；Back to latest / ask_user 选择 / Copy 反馈 | 采纳，归 10/11 片；流式登记文本属另一会话，本树不改 | 未在本片改 |
 | 01–03 真实 coding 闭环未过 | 采纳，待办 | 需真实 provider 的 RuntimeLock 工单在固定 candidate 上重走读、改、测与回执；本会话无该凭据，留给 11 片与用户的 8805 环境 |
+
+## 2026-09-28 · N-07 · Chat page rows (Claude, UX owner)
+
+This record's open item "Chat 列表页（chat-page）与 Attention 里的 Chat 行未接同一菜单" was confirmed still open against current source during the [older-lead reconciliation](ux-polish-release-20260924.md). Product commit `36fdc01`.
+
+- **Chat page: adopt.**
+  - `createChatPage` takes an optional `attachCommands(row, ref)`, and `app.mjs` passes the same `attachObjectCommands` the sidebar uses. Each Continue row therefore gets the same right-click, Menu key / Shift+F10 and More control, with the same Open/Rename/Delete menu.
+  - The `when`/`enablement` rules are unchanged, and the target is resolved again when a command is picked (this record's rulings).
+  - A target with no command, such as an example chat, gets no menu and no inert More button.
+  - Rows reuse the sidebar's `.session-row` anatomy (More revealed on hover/focus, always shown on touch). One scoped rule makes `.chat-row` fill the row.
+- **Attention rows: adjust, not wired.**
+  - Attention's conversation manager already has an owner-controlled Rename (`attention-agent-view.mjs` → `controller.rename`, the path corrected in AT-META-R1).
+  - The shared menu's Rename goes through the app rename dialog, which would bypass the Attention controller's state. A second Rename path there would be inconsistent.
+  - There's no Delete surface for Attention conversations today, so adding one would be a new capability, not parity. **Deferred** until there's a concrete need.
+
+**Checks:**
+- `chat-page.test.mjs`: rows hand their button and `{kind:"chat", id}` to the owner; rows with commands take `.session-row` plus More; a no-command target stays a plain row; with no owner there are no commands; the app passes `attachObjectCommands` (source assertion, as in the existing app-wiring test).
+- The existing object-command, menu, dispatcher, navigation, shell, home and Attention suites pass 46/46 ([log](evidence/ux-n07-20260928/author-targeted-tests.log)). All lints and `git diff --check` pass.
+
+**Capture needed from Parent:**
+- Chat page with three or more chats at 538 and 1440: More reveal on hover/focus, and always visible under touch emulation.
+- Right-click and Shift+F10 on a row.
+- Open disabled on the current chat.
+- Rename and Delete from the Chat page, with the list updating and focus returning to the row.
+- An example row with no menu.
