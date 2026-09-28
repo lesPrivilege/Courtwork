@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Core research and new-surface governance run in parallel
+
+User authorizes Astra critical core implementation after external-reference recall, with original Claude free for separate integration/frontend/UX work. [Core owner](execution/claude-frontend-harness-2026-09-16/core-runtime-loop-20260921.md#2026-09-28--external-recall-and-astra-core-ownership) preserves the unresolved native exact-dispatch boundary and prior server refusal; no command is rerouted. Luna's bounded primary-source research is active. [UX owner](execution/claude-frontend-harness-2026-09-16/ux-polish-release-20260924.md#2026-09-28--new-surface-continuity-audit-opened) now receives Sonnet source/precedent exploration through original Claude and independent screenshot auditing by Astra; Sol prepares disposable fake-provider fixtures. No product correction is yet selected by these preliminary audits, and no real key, native service, user Host or release source is changed.
+
 ## 2026-09-28 · Registered B2/G5 batch complete
 
 [Original G5 record](execution/2026-09-08-main-round/public-readiness.md) accepts original Claude's C13/C14 correction `33db5d8` / `4f1768c` after Luna's source/generated-output review and parent isolated Pages build/output checks. CLI replay now names its actual9e5384f source; old Home capture alt no longer says current. Screenshot/install pins remainfd96f96 and no media/publication changed. This completes the finite G5 mapping/support/identity batch alongside accepted B2; Claude and Sol writers are released. The user's Claude core/frontend, Sol disjoint-work and Luna/Sonnet exploration routing persists. Hermes server execution remains specifically permission-blocked with preserved source/environment; fresh user configuration, timed media and whole-release acceptance remain open. No user Host restart, real provider/key access, push or deployment in this batch.
