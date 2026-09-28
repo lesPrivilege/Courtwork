@@ -1,0 +1,44 @@
+✔ RuntimeStore schema15 gains empty external bindings with an exact backup and old-host fence (674.664292ms)
+✔ repository tools use bounded relative paths, record source hashes, and recheck the root before disclosure (973.073292ms)
+✔ binding revisions, idempotency, Run snapshots, and revocation are serialized by RuntimeStore (109.857125ms)
+✔ HTTP binding API exposes only bound tools, records read provenance, and revoke cancels active Runs (1592.879583ms)
+✔ repository path deny rules block case aliases on case-insensitive Host volumes (220.393334ms)
+✔ repo_grep excludes a repo_read-denied file, counts it, and keeps only allowed sources in provenance (750.297792ms)
+✔ repo_grep excludes an ask-gated file without opening a permission question (491.965375ms)
+✔ choose-directory uses the SE_TEST_MODE picker script, reports a cancel, and requires the work token (1697.104333ms)
+✔ choose-directory rejects a second concurrent picker with 409 while the first is still open (2648.35125ms)
+✔ recent repositories are derived from bind receipts, deduped by exact path, ordered, and report live availability (566.63375ms)
+✔ repositories/inspect reports live availability and Git branch/HEAD without persisting or granting access (230.057791ms)
+✔ candidate reads and writes serialize so provenance keeps the observed write revision (4.792667ms)
+✔ parallel ask-mode writes cannot spend approval after the candidate revision advances (2.012084ms)
+✔ private Git candidate uses the explicit commit, contains source execution config, and leaves the dirty source untouched (3107.301708ms)
+✔ private candidate dissociates source object alternates (2652.360083ms)
+✔ generated dependencies: candidate grep prunes directory roots before its file budget while exact and source reads remain available (4534.767625ms)
+✔ generated dependencies: candidate diff excludes large mixed-case untracked trees before enumeration caps but retains tracked and ignored source edits (5241.841541ms)
+✔ candidate diff stops collecting untracked patches at the aggregate Host limit (3695.443ms)
+✔ Linux mountinfo parser detects escaped mountpoint descendants (50.954542ms)
+✔ candidate creation rejects a replaced bound source root (157.388042ms)
+✔ candidate FD write inspects expected hashes and replaces existing files with a new inode (3022.3165ms)
+✔ candidate FD write creates only absent targets and serializes the no-replace primitive (2602.067167ms)
+✔ candidate FD write rejects traversal, Git control paths, symlinks, and a replaced root (2621.372375ms)
+✔ candidate FD post-operation check catches root replacement after its descriptor is opened (2450.488875ms)
+✔ candidate API rejects UUID versions the private-worktree builder cannot create before recording a receipt (109.674667ms)
+✔ candidate command history rejects overflow without poisoning restart and source revoke remains available (220.894125ms)
+✔ candidate receipt budget preserves NO_ACTIVE_CANDIDATE and refuses a create that would strand revoke (204.177416ms)
+✔ repository write effect cap rejects before mutation and leaves an openable store (222.465666ms)
+✔ repository retained-payload cap rejects a write from a later candidate (197.048375ms)
+✔ schema17 candidate API keeps source reads separate, asks before writes, records receipts, and revokes Run access (7394.610667ms)
+✔ human candidate diff route requires an active candidate and the work token (75.9405ms)
+✔ candidate_grep and repo_diff exclude a candidate_read-denied file, counting it without naming it (4093.576042ms)
+✔ source binding replacement requires an active private candidate to be revoked first (3026.6625ms)
+✔ confirmed candidate write replay returns its stored receipt without reapplying stale expected state (3328.591667ms)
+✔ schema16 migrates into schema17 without losing source binding snapshots (148.057834ms)
+✔ prepared repository writes become unknown after restart and are never replayed (145.012542ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 63305.720833

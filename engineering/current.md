@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Candidate dependency friction corrected; UX pass active
+
+[Combined receipt](execution/claude-frontend-harness-2026-09-16/evidence/candidate-generated-filter-20260928/README.md) accepts Astra1876791 plus original Claude68e2c08/c71fadb. Candidate grep skips generated node_modules traversal; untracked diff enumeration prunes those trees before the output cap, retaining tracked changes and ordinary ignored new files. Parent36/36 + human projection1/1 + diff UI6/6, Sol2/2 targeted regressions and Luna source/test review support the slice. The same real engineering candidate now returns HTTP200/three changed files; OpenAI browser displays the patches and explicit omission note after an owned Host restart. No new model call/native/runtime/schema change. Claude continues the authorized UX text/control inventory, grounded in current Models/Agents/Runtime/Developer captures; broader simplification is not yet accepted.
+
 ## 2026-09-28 · Real CW engineering task accepted; UX simplification queued
 
 [Real engineering receipt](execution/claude-frontend-harness-2026-09-16/evidence/harness-real-engineering-20260928/README.md) accepts the real CW-model recipe-discoverability change on fafc626: scoped Kit/Skill, three approved candidate writes, actual failing129/130 then passing130/130 fixed checks; parent17/17 and independent Sol source review. First Run budget Unknown and parent continuation are explicit; browser reload preserves both outcomes. Candidate aggregate search/diff dependency-tree friction is adopted for the existing owner, not hidden by this acceptance. User requests later consolidated UX text/control simplification by each subpage's task; it is queued in the original UX record. No native Hermes, all-Extensions, unaided discovery, live new-schema or deployment claim.

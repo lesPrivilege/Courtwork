@@ -1333,6 +1333,7 @@ export class RuntimeService {
     return {
       schemaVersion: 1, candidateId: candidate.id, baseCommit: result.baseCommit, writeRevision: candidate.writeRevision,
       files: result.files, patch: result.patch, patchBytes: result.patchBytes, patchSha256: result.patchSha256, truncated: result.truncated,
+      untrackedExcludedDirectoryNames: result.untrackedExcludedDirectoryNames,
     };
   }
 

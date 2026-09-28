@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } from "../runtime/repository-candidate.mjs";
 import { runRepositoryCandidateFs } from "../runtime/repository-candidate-fs.mjs";
 import { createRepositoryCandidateTools } from "../runtime/repository-candidate-tools.mjs";
+import { createRepositoryTools } from "../runtime/repository-tools.mjs";
 import { governTools } from "../runtime/control-tools.mjs";
 import { RuntimeStore } from "./fixtures/executor-store.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
@@ -316,6 +317,128 @@ test("private candidate dissociates source object alternates", async () => {
     assert.equal(git(candidate.candidatePath, ["--git-dir", candidate.gitDirectory, "cat-file", "-e", `${baseCommit}^{commit}`]), "");
     const integrity = git(candidate.candidatePath, ["--git-dir", candidate.gitDirectory, "fsck", "--full", "--strict", "--no-reflogs", "--no-progress"]);
     assert.doesNotMatch(integrity, /missing|error/i);
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+
+test("generated dependencies: candidate grep prunes directory roots before its file budget while exact and source reads remain available", async () => {
+  const { mkdtemp } = await import("node:fs/promises");
+  const scratch = await mkdtemp(path.join(tmpdir(), "cw-candidate-generated-grep-"));
+  try {
+    const source = path.join(scratch, "source");
+    const { baseCommit } = await makeRepository(source);
+    const identity = await rootIdentity(source);
+    const candidate = await createPrivateRepositoryCandidate({
+      sourcePath: identity.path, sourceIdentity: identity,
+      candidateParent: path.join(scratch, "candidate-store"), baseCommit,
+    });
+    const generated = path.join(candidate.candidatePath, "node_modules", "pkg");
+    const nested = path.join(generated, "node_modules", "transitive");
+    const mixed = path.join(candidate.candidatePath, "packages", "lib", "NoDe_MoDuLeS", "pkg");
+    const lookalike = path.join(candidate.candidatePath, "node_modules-cache");
+    for (const directory of [generated, nested, mixed, lookalike]) await mkdir(directory, { recursive: true });
+    const seed = path.join(generated, "lookup.txt");
+    await writeFile(seed, "AGGREGATE_SENTINEL generated dependency\n", "utf8");
+    // More than the 500-file budget, ordered ahead of the ordinary source.
+    // Hard links keep the fixture cheap without changing directory traversal.
+    await Promise.all(Array.from({ length: 501 }, (_, index) =>
+      link(seed, path.join(generated, `generated-${String(index).padStart(3, "0")}.txt`))));
+    await writeFile(path.join(nested, "nested.txt"), "AGGREGATE_SENTINEL nested dependency\n", "utf8");
+    await writeFile(path.join(mixed, "lookup.txt"), "AGGREGATE_SENTINEL mixed-case dependency\n", "utf8");
+    await writeFile(path.join(lookalike, "source.txt"), "AGGREGATE_SENTINEL ordinary directory\n", "utf8");
+    await writeFile(path.join(candidate.candidatePath, "zz-source.txt"), "AGGREGATE_SENTINEL ordinary source\n", "utf8");
+
+    const tools = createRepositoryCandidateTools({
+      candidate: { ...candidate, id: candidate.candidateId, status: "active", revision: 1, writeRevision: 0,
+        device: candidate.candidateDevice, inode: candidate.candidateInode,
+        containerDevice: candidate.candidateContainerDevice, containerInode: candidate.candidateContainerInode },
+      runRepositoryFs, runCandidateFs: runRepositoryCandidateFs,
+      recordRead: async () => {}, assertActive: () => true,
+      writeCandidate: async () => { throw new Error("read-only fixture"); },
+    });
+    const grep = tools.find(tool => tool.name === "candidate_grep");
+    const result = JSON.parse((await grep.execute("generated-root", { pattern: "AGGREGATE_SENTINEL", path: "." })).content[0].text);
+    assert.deepEqual(result.matches.map(match => match.path).sort(), ["node_modules-cache/source.txt", "zz-source.txt"]);
+    assert.equal(result.truncated, false, "generated files consume neither the file budget nor match budget");
+    assert.deepEqual(result.excludedDirectoryNames, ["node_modules"]);
+    assert.equal(result.skippedGeneratedDirectories, 2, "counts the two pruned roots, not their files or an unvisited nested dependency");
+    for (const start of ["node_modules/pkg", "node_modules/pkg/node_modules/transitive", "packages/lib/NoDe_MoDuLeS/pkg"]) {
+      const inside = JSON.parse((await grep.execute(`generated-inside-${start}`, { pattern: "AGGREGATE_SENTINEL", path: start })).content[0].text);
+      assert.deepEqual(inside.matches, []);
+      assert.equal(inside.scannedFiles, 0);
+      assert.equal(inside.truncated, false);
+      assert.deepEqual(inside.excludedDirectoryNames, ["node_modules"]);
+      assert.equal(inside.skippedGeneratedDirectories, 1, "an explicit start inside a pruned subtree counts one root");
+    }
+    const exact = await tools.find(tool => tool.name === "candidate_read").execute("generated-exact-read", { path: "node_modules/pkg/lookup.txt" });
+    assert.equal(exact.content[0].text, "AGGREGATE_SENTINEL generated dependency\n");
+    const listed = JSON.parse((await tools.find(tool => tool.name === "candidate_list").execute("generated-exact-list", { path: "packages/lib/NoDe_MoDuLeS/pkg" })).content[0].text);
+    assert.deepEqual(listed.entries.map(entry => entry.name), ["lookup.txt"]);
+
+    await mkdir(path.join(source, "node_modules", "source"), { recursive: true });
+    await writeFile(path.join(source, "node_modules", "source", "probe.txt"), "AGGREGATE_SENTINEL source repository dependency\n", "utf8");
+    const sourceTools = createRepositoryTools({
+      binding: { id: "source-binding", status: "active", revision: 1, rootPath: identity.path, device: identity.device, inode: identity.inode },
+      runRepositoryFs, recordRead: async () => {}, assertActive: () => true,
+    });
+    const sourceResult = JSON.parse((await sourceTools.find(tool => tool.name === "repo_grep").execute("source-generated-read", {
+      pattern: "AGGREGATE_SENTINEL", path: "node_modules/source",
+    })).content[0].text);
+    assert.deepEqual(sourceResult.matches.map(match => match.path), ["node_modules/source/probe.txt"], "source repo_grep retains its existing explicit-directory behavior");
+  } finally {
+    await rm(scratch, { recursive: true, force: true });
+  }
+});
+
+test("generated dependencies: candidate diff excludes large mixed-case untracked trees before enumeration caps but retains tracked and ignored source edits", async () => {
+  const { mkdtemp } = await import("node:fs/promises");
+  const scratch = await mkdtemp(path.join(tmpdir(), "cw-candidate-generated-diff-"));
+  try {
+    const source = path.join(scratch, "source");
+    await makeRepository(source);
+    const trackedDependency = "packages/lib/Node_Modules/tracked.txt";
+    await mkdir(path.dirname(path.join(source, trackedDependency)), { recursive: true });
+    await writeFile(path.join(source, trackedDependency), "tracked dependency before\n", "utf8");
+    await writeFile(path.join(source, ".gitignore"), "", "utf8");
+    git(source, ["add", "-f", trackedDependency, ".gitignore"]);
+    git(source, ["commit", "--quiet", "-m", "tracked dependency fixture"]);
+    const baseCommit = git(source, ["rev-parse", "--verify", "HEAD"]);
+    const identity = await rootIdentity(source);
+    const candidate = await createPrivateRepositoryCandidate({
+      sourcePath: identity.path, sourceIdentity: identity,
+      candidateParent: path.join(scratch, "candidate-store"), baseCommit,
+    });
+    await writeFile(path.join(candidate.candidatePath, trackedDependency), "tracked dependency after\n", "utf8");
+    await writeFile(path.join(candidate.candidatePath, ".gitignore"), "zz-new-source.txt\nnode_modules-cache/\n", "utf8");
+    await writeFile(path.join(candidate.candidatePath, "zz-new-source.txt"), "ordinary new source remains reviewable\n", "utf8");
+    await mkdir(path.join(candidate.candidatePath, "node_modules-cache"));
+    await writeFile(path.join(candidate.candidatePath, "node_modules-cache", "source.txt"), "directory-name lookalike remains source\n", "utf8");
+    assert.equal(git(candidate.candidatePath, ["check-ignore", "--", "zz-new-source.txt"]), "zz-new-source.txt", "the mutable ignore rule really hides this ordinary file from standard Git discovery");
+
+    const generated = path.join(candidate.candidatePath, "packages", "p".repeat(160), "q".repeat(160), "nOdE_mOdUlEs");
+    await mkdir(generated, { recursive: true });
+    const seed = path.join(generated, "seed.txt");
+    await writeFile(seed, "generated dependency bytes\n", "utf8");
+    for (let batch = 0; batch < 16; batch++) {
+      const directory = path.join(generated, `batch-${String(batch).padStart(2, "0")}`);
+      await mkdir(directory);
+      await Promise.all(Array.from({ length: 250 }, (_, index) =>
+        link(seed, path.join(directory, `${String(index).padStart(3, "0")}-${"x".repeat(225)}.txt`))));
+    }
+    const allUntracked = execFileSync("git", ["-C", candidate.candidatePath, "ls-files", "--others", "-z"], {
+      maxBuffer: 4 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"],
+    });
+    assert.ok(allUntracked.length > 2 * 1024 * 1024, "the actual unfiltered Git enumeration crosses the production 2 MiB stdout cap");
+    const diff = await readPrivateRepositoryCandidateDiff({ candidate, baseCommit });
+    assert.deepEqual(diff.untrackedExcludedDirectoryNames, ["node_modules"]);
+    assert.deepEqual(diff.files.map(file => file.path).sort(), [".gitignore", "node_modules-cache/source.txt", trackedDependency, "zz-new-source.txt"].sort());
+    assert.equal(diff.files.find(file => file.path === trackedDependency).status, "modified");
+    assert.equal(diff.files.find(file => file.path === "zz-new-source.txt").status, "created");
+    assert.ok(diff.patch.includes("tracked dependency after"));
+    assert.ok(diff.patch.includes("ordinary new source remains reviewable"));
+    assert.equal(diff.patch.includes("generated dependency bytes"), false);
+    assert.equal(diff.truncated, false);
   } finally {
     await rm(scratch, { recursive: true, force: true });
   }
@@ -902,6 +1025,7 @@ test("schema17 candidate API keeps source reads separate, asks before writes, re
     assert.equal(diffResponse.json.patchSha256, sha256(Buffer.from(diffResponse.json.patch, "utf8")));
     assert.equal(diffResponse.json.patchBytes, Buffer.byteLength(diffResponse.json.patch, "utf8"));
     assert.equal(diffResponse.json.truncated, false);
+    assert.deepEqual(diffResponse.json.untrackedExcludedDirectoryNames, ["node_modules"], "human API discloses the fixed untracked exclusion");
 
     const effectsResponse = await h.api("GET", `/sessions/${session.id}/repository-candidate/effects`);
     assert.equal(effectsResponse.status, 200, JSON.stringify(effectsResponse.json));

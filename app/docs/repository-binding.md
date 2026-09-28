@@ -17,7 +17,7 @@ These routes use the existing authenticated `/api/v5` Host API:
 | `PUT /sessions/:sessionId/repository-binding` | Bind with exactly `{operation:"bind",requestId,expectedRevision,rootPath}` or revoke with exactly `{operation:"revoke",requestId,expectedRevision}`. Success returns `{receipt,binding,idempotent}`. |
 | `GET /sessions/:sessionId/repository-candidate` | `{schemaVersion:1,candidate,revision}`; public summary omits Host filesystem paths. |
 | `PUT /sessions/:sessionId/repository-candidate` | Create with `{operation:"create",requestId,expectedRevision,expectedBindingRevision,candidateId,baseCommit}` where `candidateId` is UUID v4; revoke with `{operation:"revoke",requestId,expectedRevision,expectedBindingRevision,candidateId}`. Success returns `{receipt,candidate,idempotent}`. |
-| `GET /sessions/:sessionId/repository-candidate/diff` | The same bounded Host patch `repo_diff` builds for the model, minus per-file policy exclusion (the folder is the human's own, so the model's `admitPath` policy does not apply to this read); `{schemaVersion:1,candidateId,baseCommit,writeRevision,files,patch,patchBytes,patchSha256,truncated}`, 409 `no_repository_candidate` without an active candidate, 413 `candidate_diff_too_large` over the aggregate patch limit. |
+| `GET /sessions/:sessionId/repository-candidate/diff` | The same bounded Host patch `repo_diff` builds for the model, minus per-file policy exclusion (the folder is the human's own, so the model's `admitPath` policy does not apply to this read); `{schemaVersion:1,candidateId,baseCommit,writeRevision,files,patch,patchBytes,patchSha256,truncated,untrackedExcludedDirectoryNames}`, 409 `no_repository_candidate` without an active candidate, 413 `candidate_diff_too_large` over the aggregate patch limit. |
 | `GET /sessions/:sessionId/repository-candidate/effects` | Lists the Session's `repo_write` history for the human, newest first, as `{schemaVersion:1,candidateId,effects:[{id,runId,candidateId,path,status,bytes,contentSha256,expectedSha256,writeRevision,createdAt,settledAt}]}`; never includes `contentRef` or any Host path. |
 
 `rootPath` is an absolute Host path accepted by the local service. Binding
@@ -140,6 +140,23 @@ the same summary.
 An active candidate adds `candidate_list`, `candidate_read`, `candidate_grep`,
 `repo_write` and `repo_diff` for the Run. Candidate reads have their own
 `repository.candidate.read` provenance events.
+
+Candidate aggregate search omits directory trees named `node_modules`
+(case-insensitive), before they consume traversal budgets. This also applies
+when the requested search starts inside such a tree. Results expose
+`excludedDirectoryNames: ["node_modules"]` and `skippedGeneratedDirectories`
+(the number of encountered omitted roots, not the number of hidden files).
+Exact `candidate_read` and direct `candidate_list` remain available under the
+same permissions. Source `repo_grep` is unchanged. Tracked files within these
+trees are omitted from candidate search but their modifications remain in diff.
+
+Diff excludes only **untracked** paths under those directory trees before
+capturing its bounded Git path listing; it reports
+`untrackedExcludedDirectoryNames: ["node_modules"]` as the fixed rule, not an
+observed file count. Tracked edits and ordinary new candidate files stay
+reviewable. Neither aggregate uses mutable `.gitignore` rules to hide source.
+An excluded generated tree is outside the aggregate view even when
+`truncated` is false; truncation still describes hitting the existing bounds.
 
 `repo_diff` returns a Host-generated text patch against the fixed creation
 commit, only when the complete patch fits the 2 MiB aggregate review limit. An

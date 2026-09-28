@@ -1,0 +1,57 @@
+{
+  "candidateId": "92dd70a6-73be-48b2-aaf3-de5f63faf97f",
+  "baseCommit": "fafc62674955257ae84a67f3ba293c19b2a4d19c",
+  "files": [
+    {
+      "path": "app/docs/check-recipes.md",
+      "status": "modified",
+      "beforeSha256": "f29554e9fdb385d8d84c262692414e29003de61302ab8675864b9b44dfb8a049",
+      "sha256": "aef1b7f7d08e4b33533bada8d5849e0770848a42e5b054296ab8d9e2dcfb35ff",
+      "bytes": 10831
+    },
+    {
+      "path": "app/runtime/check-tools.mjs",
+      "status": "modified",
+      "beforeSha256": "4b13f7b8ab81a25325fbb8e88929d174a4b6a7011c4cc799198dd4359f1a5991",
+      "sha256": "bed038c471362057298aa3351ede8d84a701cfd1d418f176298db45ea842be95",
+      "bytes": 7235
+    },
+    {
+      "path": "app/tests/check-recipes.test.mjs",
+      "status": "modified",
+      "beforeSha256": "7c97cfed7f041704f63ae61e7507054cf641f2e16aeb9b6f68fd0d847e53aef8",
+      "sha256": "3b0e4bde48cf16ff871e837c71412fceefac15d5485d3ea19288eaf9dda1d874",
+      "bytes": 41088
+    }
+  ],
+  "patchSha256": "6036fc77b3de35b7a25c5d1615ef70e780dd5cff7f6f080500c7a78a0a74c363",
+  "untrackedExcludedDirectoryNames": [
+    "node_modules"
+  ],
+  "grep": {
+    "matches": [
+      {
+        "path": "app/runtime/check-tools.mjs",
+        "line": 24,
+        "text": "function recipeIdDescription() {"
+      },
+      {
+        "path": "app/runtime/check-tools.mjs",
+        "line": 72,
+        "text": "    parameters: Type.Object({ recipeId: Type.String({ minLength: 1, maxLength: 200, description: recipeIdDescription() }) }),"
+      }
+    ],
+    "truncated": true,
+    "scannedFiles": 422,
+    "scannedBytes": 5209674,
+    "skippedBinary": 1,
+    "skippedLarge": 0,
+    "skippedSymlinks": 0,
+    "excludedDirectoryNames": [
+      "node_modules"
+    ],
+    "skippedGeneratedDirectories": 1,
+    "excludedByPolicy": 0,
+    "excludedPendingApproval": 0
+  }
+}

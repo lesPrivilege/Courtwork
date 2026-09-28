@@ -522,7 +522,11 @@ export async function readPrivateRepositoryCandidateDiff({
     if (status !== "M") fail("candidate_diff_unmanaged_change", "candidate contains a change outside repo_write create/update scope", candidate.candidatePath);
     tracked.push(relativePath);
   }
-  const untrackedText = await runGit(["-C", candidate.candidatePath, "ls-files", "--others", "-z"], {
+  // A fixed directory exclusion prunes dependency trees before the bounded
+  // listing is captured. Do not honor mutable ignore files: they could hide
+  // ordinary candidate writes. Tracked modifications above remain reviewable.
+  const untrackedText = await runGit(["-C", candidate.candidatePath, "ls-files", "--others", "-z",
+    "--exclude=[nN][oO][dD][eE]_[mM][oO][dD][uU][lL][eE][sS]/"], {
     ...runOptions, operation: "candidate untracked-path inspection", trimOutput: false, strictOutput: true,
   });
   const untracked = splitGitPaths(untrackedText, "untracked-path inspection", candidate.candidatePath);
@@ -607,6 +611,7 @@ export async function readPrivateRepositoryCandidateDiff({
     patch,
     patchBytes: patchBytes.length,
     patchSha256: sha256(patchBytes),
+    untrackedExcludedDirectoryNames: ["node_modules"],
     excludedByPolicy,
     excludedPendingApproval,
     truncated: false,
