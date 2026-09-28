@@ -7932,6 +7932,7 @@ async function init() {
     onOpenAttention: () => attentionAgent.open(),
     onOpenSpark: () => subagentView.open(currentSession()),
     onExample: () => void openPreview(),
+    attachCommands: (row, ref) => attachObjectCommands(row, ref, { attrs: { "data-chat-more": ref.id } }),
   });
   attentionWorkspace = createAttentionWorkspace($("attention-workspace"), { request, onOpenAssistant: () => attentionAgent.open(), onBack: () => {
     state.attentionOpen = false;

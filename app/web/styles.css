@@ -6618,6 +6618,8 @@ html[data-theme="dark"] {
 .session-row > .object-more { --control: 32px; flex: none; opacity: 0; align-self: center; }
 .session-row:hover > .object-more, .session-row:focus-within > .object-more, .session-row > .object-more[aria-expanded="true"] { opacity: 1; }
 @media (hover: none) { .session-row > .object-more { opacity: 1; } }
+/* 09 N-07 · the Chat page row takes the sidebar's row + More anatomy. */
+.session-row > .chat-row { flex: 1; min-width: 0; }
 .object-menu { position: fixed; inset: auto; width: min(240px, calc(100vw - 32px)); padding: var(--space-2); }
 .object-menu > .menu-separator { border: 0; border-top: 1px solid var(--line); margin: var(--space-1) 0; }
 .object-command { gap: var(--space-2); min-height: 36px; }

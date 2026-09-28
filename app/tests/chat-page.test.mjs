@@ -68,3 +68,38 @@ test("app wiring: the Chat seat opens the page, the page closes like Attention, 
   const openChatPage = app.slice(app.indexOf("async function openChatPage("), app.indexOf("\n}", app.indexOf("async function openChatPage(")));
   assert.doesNotMatch(openChatPage, /startNewSession|request\(|createProject/);
 });
+
+test("09 N-07 · a Chat-page row carries the Shell's object commands like a sidebar chat row; a target with none stays a plain row", () => withTinyDom(() => {
+  const attached = [];
+  const attachCommands = (row, ref) => {
+    attached.push([row.getAttribute("data-chat-session"), ref]);
+    row.addEventListener("contextmenu", () => {}); // the owner wires the row itself
+    if (ref.id === "s1") return null; // e.g. no command for this target
+    const more = document.createElement("button");
+    more.className = "quiet-button object-more";
+    more.setAttribute("aria-label", "More chat actions");
+    return more;
+  };
+  const page = createChatPage(document.createElement("section"), { onOpenSession() {}, onNewChat() {}, onOpenAttention() {}, onOpenSpark() {}, attachCommands });
+  const { projects, sessionsByProject } = fixture();
+  const node = page.open({ projects, sessionsByProject });
+  assert.deepEqual(attached, [["s2", { kind: "chat", id: "s2" }], ["s3", { kind: "chat", id: "s3" }], ["s1", { kind: "chat", id: "s1" }]], "the row and its object go to the one owner");
+  const items = node.querySelectorAll('[role="listitem"]');
+  assert.equal(items.length, 3);
+  for (const item of items.slice(0, 2)) {
+    assert.ok(item.classList.contains("session-row"), "the sidebar's row + More anatomy");
+    assert.equal(item.children[0].getAttribute("data-chat-session") !== null, true);
+    assert.equal(item.children[1].getAttribute("aria-label"), "More chat actions");
+  }
+  assert.equal(items[2].classList.contains("session-row"), false);
+  assert.equal(items[2].children.length, 1, "no inert More control");
+}));
+
+test("09 N-07 · without an owner the Chat page draws no commands; the app passes the shared attachObjectCommands", () => withTinyDom(() => {
+  const page = createChatPage(document.createElement("section"), { onOpenSession() {}, onNewChat() {}, onOpenAttention() {}, onOpenSpark() {} });
+  const { projects, sessionsByProject } = fixture();
+  const node = page.open({ projects, sessionsByProject });
+  assert.equal(node.querySelectorAll(".object-more").length, 0);
+  assert.equal(node.querySelectorAll('[role="listitem"]').every((item) => item.children.length === 1), true);
+  assert.match(read("../web/app.mjs"), /createChatPage\(\$\("chat-page"\), \{[\s\S]*?attachCommands: \(row, ref\) => attachObjectCommands\(row, ref,/);
+}));

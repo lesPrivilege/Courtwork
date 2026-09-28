@@ -17,7 +17,10 @@ const FACETS = [
   { key: "spark.surface", name: "Spark", line: "Matters that may need updating after their sources change." },
 ];
 
-export function createChatPage(container, { onOpenSession, onNewChat, onOpenAttention, onOpenSpark, onExample = null }) {
+/* `attachCommands(row, ref)` is the Shell's one object-command owner (09): it
+ * wires the row's context menu / Menu key and returns its More control, or null
+ * when the target has no command (an example chat). */
+export function createChatPage(container, { onOpenSession, onNewChat, onOpenAttention, onOpenSpark, onExample = null, attachCommands = null }) {
   let generation = 0;
 
   function chatRow({ session, project, active }) {
@@ -79,7 +82,13 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     );
     if (recent.length) {
       const list = el("div", { className: "chat-rows", attrs: { role: "list" } });
-      for (const row of recent) list.append(el("div", { attrs: { role: "listitem" } }, chatRow(row)));
+      /* 09 N-07 · a Chat-page row carries the same object commands as the
+       * sidebar's chat rows: same menu, same entries, same reveal. */
+      for (const row of recent) {
+        const button = chatRow(row);
+        const more = attachCommands?.(button, { kind: "chat", id: row.session.id }) ?? null;
+        list.append(el("div", { className: more ? "session-row chat-row-item" : null, attrs: { role: "listitem" } }, button, more));
+      }
       continueSection.append(list);
       if (rows.length > recent.length) continueSection.append(el("p", { className: "form-help", text: `${rows.length - recent.length} more in Recent.` }));
     } else {
