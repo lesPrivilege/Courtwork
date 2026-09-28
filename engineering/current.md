@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Dogfooding-informed pre-push review accepted
+
+[Review and negative controls](execution/claude-frontend-harness-2026-09-16/evidence/dogfood-review-20260928/README.md) cover fetched origin/main1296b8d→512f794 and fix three confirmed regressions. Astra830e328 refuses pre-aborted event reads and decouples SSE line/frame bounds from HTTP chunk packing (including split CRLF); original Claude4935712/2487374 restores Attention Session/list metadata refresh while retaining incremental running polls. Independent Sol30/30+8 HTTP probes and18/18/actual-Host rename replay, Luna29/29 backend checks and prior scoped UI80/80 retain attribution. Combined default1808/1808, smoke, Pages and docs checks pass. No speculative Clean Code refactor, copied DSH framework rules or installed skill. User explicitly authorizes this merge/push; publication receipt follows actual origin verification. Native Hermes refusal and broader release gates remain unchanged; no user Host restart or deployment.
+
 ## 2026-09-28 · External recall consumed; new-surface UX corrections accepted
 
 [Astra core disposition](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-preflight-20260927/external-recall-20260928.md) reconciles pinned Hermes F2 with primary references: exact emitted names must be checked before native repair, and every operation retains Host Run/object authority and receipt/unknown semantics. The initial incomplete downstream-only interpretation is rejected after exact-source/native-record reconciliation. This is a required-boundary decision, not new Host code, model-callable signal, schema or restored native execution. Original server permission refusal remains; no reroute occurred.

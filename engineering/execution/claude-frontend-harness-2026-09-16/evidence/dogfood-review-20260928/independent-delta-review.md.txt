@@ -1,0 +1,21 @@
+# Independent finite delta reviews — 2026-09-28
+
+Sol non-author review. Recommend acceptance of the scoped transport correction `830e328a63c1e8787ba4e166cb96466838071940` and original-Claude UI correction `49357127f66a0b381ad16e2ada31489c2d67e349`. No blocking finding remains in these two deltas. Astra retains final integration/acceptance; no release gate is closed here.
+
+## Hermes HTTP/SSE transport — 830e328
+
+Read the original transport/adapter contract, finite owner lease, changed transport and both new regressions, plus adjacent existing cases. The early native AbortSignal check precedes creation of any request. Per-complete/incomplete-line checking preserves the existing2×frame line ceiling while data payload accumulation and total received-wire-byte ceilings remain unchanged; a held CR terminator is excluded from the pending line. No native settlement/Host/Store/schema/authority change is present.
+
+Independent command: `node --test --test-concurrency=1 app/tests/hermes-api-runs.test.mjs` →30/30, no skips/failures. Log `hermes-830e328-tests.log`.
+
+Independent plain Node HTTP probe `hermes-830e328-probe.mjs` / `hermes-830e328-probe-result.json` observes eight cases: pre-aborted read0requests/0connections;12coalesced valid frames; exact16-byte multi-data event; oversized multibyte data refusal; oversized incomplete metadata-line refusal; multibyte metadata line exactly32bytes with CRLF split and a deterministic first-frame gate; in-flight abort; early generator return. Both latter cases observe peer closure and client-owned connections0; final server connections0. Server and transport are closed in finally. This is Node loopback protocol evidence only, with no native Hermes/AIAgent/server/MCP/provider, denied action or product exposure inference.
+
+## Attention metadata correction — 4935712
+
+Read exact UI delta830e328..4935712 and meaningful new actual-Host tests. Full authoritative Session/list refresh is now the default, covering explicit Refresh, opening/choosing, successful rename, send and actions. The existing running poll alone opts into `follow:true`; it retains cursor/Run-event/cursor-ahead semantics. Existing generation checks and draft ownership remain unchanged.
+
+Independent commands: `node --test --test-concurrency=1 app/tests/attention-agent.test.mjs app/tests/stream-session-events.test.mjs app/tests/stream-thread-projection.test.mjs` →18/18, no skips/failures. Log `ui-4935712-tests.log`.
+
+`attention-rename-fixed.mjs` reruns the original real-Host/controller reproduction in a separate checkout fixed4935712, retaining the original base comparison and API path. Original `attention-rename.mjs`/result remain unchanged as failing-before evidence. The fixed probe adds draft/cursor checks and a metadata-only external change: successful rename now makes both selected/list titles “Head renamed title”; cursor stays10 and “unsent review draft” survives. `refresh({follow:true})` reads only events?afterSeq=10 and does not invent metadata. Explicit `refresh()` reads list/detail and adopts “External renamed title”. The exact base1296b8d comparison still adopts its renamed title. Result `attention-rename-fixed-result.json`; independent fake Host closed/data removed.
+
+These delta results are separate from the earlier fixed512f794 UI80/80 and original UI-R1 finding; earlier checks are not relabelled after-fix evidence. No browser, full suite, paid provider, user Host or native accessibility check occurred. No source authoring or further broad scan; no tracked files changed. A temporary read-only dependency symlink in the independent fixture checkout is removed after execution, leaving its source clean.

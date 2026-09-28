@@ -1,0 +1,42 @@
+✖ an already-aborted event read opens no HTTP request (16.71675ms)
+✖ small SSE frames coalesced into one HTTP response retain per-frame bounds (3.64675ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 150.095
+
+✖ failing tests:
+
+test at app/tests/hermes-api-runs.test.mjs:43:1
+✖ an already-aborted event read opens no HTTP request (16.71675ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/request-details-contract/Courtwork/app/tests/hermes-api-runs.test.mjs:55:5)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { code: 'aborted' },
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/hermes-api-runs.test.mjs:66:1
+✖ small SSE frames coalesced into one HTTP response retain per-frame bounds (3.64675ms)
+  Error [HermesTransportError]: events: a line exceeded the frame limit
+      at fail (file:///Users/lesprivilege/.codex/worktrees/request-details-contract/Courtwork/app/runtime/hermes-api-runs-transport.mjs:192:17)
+      at IncomingMessage.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/request-details-contract/Courtwork/app/runtime/hermes-api-runs-transport.mjs:246:70)
+      at IncomingMessage.emit (node:events:509:20)
+      at Readable.read (node:internal/streams/readable:785:10)
+      at flow (node:internal/streams/readable:1290:53)
+      at resume_ (node:internal/streams/readable:1269:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'frame_too_large',
+    operation: 'events',
+    status: null
+  }

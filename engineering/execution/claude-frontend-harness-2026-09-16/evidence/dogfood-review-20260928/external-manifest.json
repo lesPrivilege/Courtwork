@@ -1,0 +1,35 @@
+{
+  "source_sha": "21638c56315ae6a2b552d6091945d3144c9af32e",
+  "files": [
+    {
+      "name": "dsh-code-review",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/21638c56315ae6a2b552d6091945d3144c9af32e/.agents/skills/dsh-code-review/SKILL.md",
+      "sha256": "8a91213a7d97503a6c8431276320c681f17c02374ecc9497c7a30d5e071c85b6",
+      "bytes": 9410
+    },
+    {
+      "name": "dsh-find-simplifications",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/21638c56315ae6a2b552d6091945d3144c9af32e/.agents/skills/dsh-find-simplifications/SKILL.md",
+      "sha256": "3cb353d38e08dc221bf90973af0683870d7d1a7e55c49c2726e3bfc6fff0d699",
+      "bytes": 10674
+    },
+    {
+      "name": "dsh-ci-test-reliability",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/21638c56315ae6a2b552d6091945d3144c9af32e/.agents/skills/dsh-ci-test-reliability/SKILL.md",
+      "sha256": "58e5de5c9cf7061eb4f39240dfcadc2e2e4a0cbf124f9c268f7e878bbf451dc1",
+      "bytes": 9434
+    },
+    {
+      "name": "dsh-prose-standard",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/21638c56315ae6a2b552d6091945d3144c9af32e/.agents/skills/dsh-prose-standard/SKILL.md",
+      "sha256": "df56be84f9ee917a34055c9e229d06c409bce478de7bb0deb233240c1887f2eb",
+      "bytes": 9621
+    },
+    {
+      "name": "dsh-trim-cot-leakage",
+      "url": "https://raw.githubusercontent.com/deepseek-ai/deepseek-harness/21638c56315ae6a2b552d6091945d3144c9af32e/.agents/skills/dsh-trim-cot-leakage/SKILL.md",
+      "sha256": "13034b0f3950cc5c71a4a280021e94c3c6558722e519d02c3c2adf7f5456d718",
+      "bytes": 7679
+    }
+  ]
+}

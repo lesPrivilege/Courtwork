@@ -1,0 +1,38 @@
+✔ an already-aborted event read opens no HTTP request (8.925791ms)
+✔ small SSE frames coalesced into one HTTP response retain per-frame bounds (17.26525ms)
+✔ the adapter describes its pinned source, endpoint and capability ceiling (2.736292ms)
+✔ the first transport accepts only an explicit loopback origin, and never echoes the bearer (2.712375ms)
+✔ admission sends the exact bounded body with the Host's key, and returns a native run id, not completion (4.193833ms)
+✔ invalid input or key is refused locally, before anything is sent (1.30425ms)
+✔ the same intent replays the same run; a changed body under the same key conflicts and creates nothing (3.240916ms)
+✔ a lost admission answer is unresolved; recovering with the same intent finds the one run, and nothing makes a new key (2.965834ms)
+✔ fragmented Unicode arrives whole: pinned ASCII escapes split across writes, and raw UTF-8 split inside a character (19.386666ms)
+✔ repeated equal deltas are separate text: nothing on the wire makes them duplicates (4.23625ms)
+✔ terminal output is the native final response, kept apart from the text actually streamed (2.532667ms)
+✔ a stream that ends without a terminal is a gap; the status decides only whether the run is known to have ended (3.621958ms)
+✔ malformed, foreign and unknown frames are bounded diagnostics; a foreign run's text never lands (1.923834ms)
+✔ status and terminal records must describe this run in the pinned shape (0.09975ms)
+✔ an approval or tool event is recorded, never answered or executed, and rules out a text-only success (1.980625ms)
+✔ stop is an intent: only the matching terminal cancelled settles the run as cancelled (58.449917ms)
+✔ a stop that is never confirmed stays unknown, and nothing sends a second stop or a new run (309.01425ms)
+✔ after an owner restart, status reports interrupted: unknown coverage, no text invented, and stop only reads that status (92.604416ms)
+✔ a stop for a run this gateway process does not drive is refused as not active, with no effect (4.0665ms)
+✔ the stream has one subscriber; a second follow finds no stream and does not claim replay (4.889917ms)
+✔ continuation uses only a native session id observed in a validated status, never a guess (4.945959ms)
+✔ byte, frame, idle and text limits end the stream as a bounded gap (214.380334ms)
+✔ keepalive comments hold an idle stream open and are not events (499.209125ms)
+✔ dispose closes only this transport's connections: no stop, no delete, and the native run is left as it was (195.70175ms)
+✔ HPR-R1 · a status observed through another adapter or endpoint cannot start a continuation (0.504292ms)
+✔ HPR-R1 · admit sends only an intent this adapter issued, with its exact validated body (0.301041ms)
+✔ HPR-R1 · after the adapter is re-created, recovery rebuilds the same intent from the Host's key and input; nothing is substituted (5.586666ms)
+✔ HPR-R2 · invalid limits and unknown configuration are refused before any request (1.730667ms)
+✔ HPR-R2 · valid smaller limits and the documented ceilings are accepted and enforced (3.258708ms)
+✔ HPR-R2 · the configured error limit bounds every terminal error: status, follow, reconcile and stop (0.273875ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1618.633292

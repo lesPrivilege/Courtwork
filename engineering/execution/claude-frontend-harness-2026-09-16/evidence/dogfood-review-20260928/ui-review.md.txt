@@ -1,0 +1,23 @@
+# Independent UI review — 2026-09-28
+
+Fixed review range: `1296b8d..512f794a5f3aa0d6b79f0e4cfd56ba98c9b435d3`; inspected main stayed at the fixed head. Sol read-only review of every changed app/web module and both changed Pages modules, with relevant controller/projection/Markdown/Preview/inventory tests. DSH code-review and simplification guides were read from the parent's pinned /tmp packet as engineering references; CourtWork AGENTS/current/UX/frontend/visual/verification contracts remain governing. DSH package, locale, pnpm and registration rules were not transplanted.
+
+## Finding UI-R1 [P2] — cursor-only refresh loses successful Attention rename metadata
+
+Location: `app/web/attention-conversation.mjs:26` (new early return, inside lines17–27).
+
+A loaded global conversation with at least one recorded event follows `/sessions/:id/events?afterSeq=...`. When no new `run.*` event is admitted, `refresh()` returns before reading `/attention/conversations` or the Session detail. The shipped Conversations→Rename action calls this same refresh after successful PATCH (view84, controller107–117). Actual RuntimeService.renameSession/RuntimeStore.renameSession persist only the Session title, without appending an event. As a result, Rename returns true and the Host has the new title, but the controller's selected Session and conversations list retain the old title. The explicit Refresh Attention action also uses the shortcut and cannot recover the reading while the event cursor remains unchanged.
+
+Evidence: `attention-rename.mjs` runs the production controller against a fresh normal boot/helper Host with the loopback fake provider; it creates one global conversation and completes one synthetic Run to reach lastSeq10. At fixed head, successful rename persists “Head renamed title”, while selected/list titles stay “Attention”; explicit refresh still returns “Attention”. Captured calls after rename are only PATCH plus GET events?afterSeq=10. The exact base1296b8d controller, against the same actual API, reads list/detail and adopts “Base renamed title”. `attention-rename-result.json` preserves the observations and base/head identities. Host was closed and its independent data directory removed.
+
+Required behavior: metadata-changing actions and explicit Refresh must obtain a current authoritative title/list reading; cursor optimization may remain for ordinary event polling. Add a production-controller→actual-Host regression after a completed conversation, checking both selected and list titles, plus explicit refresh after metadata change. No source edit is made by this review.
+
+## Checks and limits
+
+Executed once: `node --test --test-concurrency=1 app/tests/agent-choice.test.mjs app/tests/preview-tabs.test.mjs app/tests/stream-session-events.test.mjs app/tests/stream-thread-projection.test.mjs app/tests/runtime-inventory-settings.test.mjs` →80/80, no skip/failure. Raw output: `targeted-ui-tests.log`.
+
+The inspected existing API rename test only checks persistence/history, not this loaded UI-controller cursor path; its green result cannot contradict the reproduced finding. Source review traced Home intent→Session CAS/readback→Send expectation; fixed/partial segment projection→shared Chat/Attention body renderer; exact Markdown token-copy/sanitizer path; Preview object identity/read guards/focus/strip scroll; I1 shape refusal/last-good read/retry/focus; B2 summary/result/permission separation; Pages historic capture/CLI identity corrections and updated Example capture manifest/hash. No additional introduced blocker was found within these traced consumers.
+
+No browser, external provider, user Host, denied Hermes action, native accessibility/clipboard/geometry/performance or full-suite check was run. Headless-browser tests were read, not executed. Existing browser acceptance keeps its original attribution. Server/runtime internals were inspected only at the rename producer seam needed to establish reachability; their broader reviews remain with Luna/parent. No tracked files were changed; pre-existing untracked .agents/.obsidian/skills-lock.json were preserved.
+
+No evidence-backed simplification with a material net reduction is recommended in this finite range. Home intent versus confirmed Session selection, held selection versus settled canonical text, and declared runtime status versus live checks have distinct shipped consumers/obligations; collapsing them would lose behavior. No forced abstraction or stylistic cleanup is proposed.

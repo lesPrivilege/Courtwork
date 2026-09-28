@@ -1,5 +1,7 @@
 # 验证选择与证据边界
 
+2026-09-28 · [Dogfooding pre-push review](execution/claude-frontend-harness-2026-09-16/evidence/dogfood-review-20260928/README.md): negative-control transport and Attention metadata regressions fixed830e328/4935712; independent30+8 HTTP probes,18 Attention checks and actual-Host rename/draft/cursor proof,29 backend checks. Final candidate2487374 default full1808/1808 (Node25.9.0), local-fake smoke, Pages and documentation checks pass. No native Hermes/paid provider/new browser or deployment claim; no comparative A/B/C skill-effectiveness claim.
+
 2026-09-28 · [New-surface UX acceptance](execution/claude-frontend-harness-2026-09-16/evidence/ux-continuity-20260928/README.md): fixed656d8a1/619a20f and0695b90/e318c7a, parent16/16 plus Luna15/15, current1440/390 OpenAI browser role/overflow/tab/focus checks. Native200%/reader/forced-colour/coarse-pointer/dark and full error matrices remain unexecuted this round. Author checks and source-only Sonnet recall retain attribution; no full-suite, native Hermes or paid-provider inference.
 
 2026-09-28 · G5 current-support and public-source-identity corrections: Sol52bcb5d/6ca2c96 mapping/support facts and Claude33db5d8/4f1768c CLI/Home identity fixes receive Luna source/output review. Parent isolated Pages build confirms CLI9e5384f and unchanged screenshot/installfd96f96 pins; integrated documentation links/whitespace pass. No new public candidate, capture, runtime capability or deployment. See [original G5 acceptance](execution/2026-09-08-main-round/public-readiness.md).

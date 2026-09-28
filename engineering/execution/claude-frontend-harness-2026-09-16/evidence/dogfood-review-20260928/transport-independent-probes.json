@@ -1,0 +1,43 @@
+{
+  "source": "830e328a63c1e8787ba4e166cb96466838071940",
+  "cases": [
+    {
+      "case": "pre-abort",
+      "requests": 0,
+      "connections": 0
+    },
+    {
+      "case": "packed",
+      "frames": 12
+    },
+    {
+      "case": "multi-data-exact",
+      "framePayloadBytes": 16
+    },
+    {
+      "case": "bad-data",
+      "error": "frame_too_large",
+      "connections": 0
+    },
+    {
+      "case": "bad-line",
+      "error": "frame_too_large",
+      "connections": 0
+    },
+    {
+      "case": "multibyte-metadata-CRLF-split-at32",
+      "accepted": true
+    },
+    {
+      "case": "in-flight-abort",
+      "peerClosed": true,
+      "connections": 0
+    },
+    {
+      "case": "early-return",
+      "peerClosed": true,
+      "connections": 0
+    }
+  ],
+  "serverConnections": 0
+}

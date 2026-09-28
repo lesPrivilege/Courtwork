@@ -1,0 +1,48 @@
+{
+  "head": "512f794",
+  "base": "1296b8d",
+  "introducedRegression": true,
+  "first": {
+    "success": true,
+    "persistedTitle": "Head renamed title",
+    "controllerTitle": "Attention",
+    "listTitle": "Attention",
+    "lastSeq": 10,
+    "calls": [
+      {
+        "route": "/sessions/ed06bbbd-e6bc-467f-a793-4b2a0742d6f2",
+        "method": "PATCH"
+      },
+      {
+        "route": "/sessions/ed06bbbd-e6bc-467f-a793-4b2a0742d6f2/events?afterSeq=10",
+        "method": "GET"
+      }
+    ],
+    "afterExplicitRefreshTitle": "Attention",
+    "explicitRefreshCalls": [
+      {
+        "route": "/sessions/ed06bbbd-e6bc-467f-a793-4b2a0742d6f2/events?afterSeq=10",
+        "method": "GET"
+      }
+    ]
+  },
+  "baseline": {
+    "success": true,
+    "controllerTitle": "Base renamed title",
+    "listTitle": "Base renamed title",
+    "calls": [
+      {
+        "route": "/sessions/ed06bbbd-e6bc-467f-a793-4b2a0742d6f2",
+        "method": "PATCH"
+      },
+      {
+        "route": "/attention/conversations",
+        "method": "GET"
+      },
+      {
+        "route": "/sessions/ed06bbbd-e6bc-467f-a793-4b2a0742d6f2",
+        "method": "GET"
+      }
+    ]
+  }
+}

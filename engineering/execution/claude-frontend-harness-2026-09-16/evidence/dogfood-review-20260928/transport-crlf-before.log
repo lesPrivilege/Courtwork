@@ -1,0 +1,26 @@
+✖ small SSE frames coalesced into one HTTP response retain per-frame bounds (14.372125ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 134.10825
+
+✖ failing tests:
+
+test at app/tests/hermes-api-runs.test.mjs:66:1
+✖ small SSE frames coalesced into one HTTP response retain per-frame bounds (14.372125ms)
+  Error [HermesTransportError]: events: a line exceeded the frame limit
+      at fail (file:///Users/lesprivilege/.codex/worktrees/request-details-contract/Courtwork/app/runtime/hermes-api-runs-transport.mjs:193:17)
+      at IncomingMessage.<anonymous> (file:///Users/lesprivilege/.codex/worktrees/request-details-contract/Courtwork/app/runtime/hermes-api-runs-transport.mjs:257:77)
+      at IncomingMessage.emit (node:events:509:20)
+      at Readable.read (node:internal/streams/readable:785:10)
+      at flow (node:internal/streams/readable:1290:53)
+      at resume_ (node:internal/streams/readable:1269:3)
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'frame_too_large',
+    operation: 'events',
+    status: null
+  }

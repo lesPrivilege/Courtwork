@@ -1,0 +1,26 @@
+✔ global Attention has replayable identity, shared configuration and a real governed Run (634.146791ms)
+✔ progressive memory lists metadata, excludes drafts/tools and binds exact message text (235.9485ms)
+✔ schema5 with retained records migrates exactly and global/project invariants reject corruption (187.650583ms)
+✔ conversation retry preserves creation identity and exact Run command after a lost receipt (1.79625ms)
+✔ closing during send keeps its receipt and restores the finished conversation on reopen (0.500042ms)
+✔ a delayed history choice cannot replace the newer conversation or draft (0.315708ms)
+✔ conversation rename persists metadata without changing history, scope or draft (101.287541ms)
+✔ AT-META-R1 · renaming a completed Attention conversation updates the selected Session and the list, keeping cursor and draft (487.245667ms)
+✔ AT-META-R1 · explicit Refresh reconciles a metadata-only change; the running poll still follows the cursor alone (231.194334ms)
+✔ events are admitted once by seq, in order, and the cursor never moves back (1.660417ms)
+✔ only a page of assistant deltas may patch bodies in place (0.113542ms)
+✔ Markdown blocks keep their exact source; an unclosed fence stays one open tail block (12.826542ms)
+✔ rows follow the Host segment: text, tool, text keeps segment 0 and opens segment 1 (1.938458ms)
+✔ a growing segment replaces its text; a late delta never reopens a settled segment (0.178958ms)
+✔ a Host-settled partial is shown, never pending and never the answer (0.105375ms)
+✔ legacy events without a segment use the finals-before rule and get the same row ids (0.126125ms)
+✔ legacy text still arriving when its Run ended reads as partial, not pending (0.079083ms)
+✔ recovery partials for two segments give two rows in segment order (0.146042ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3089.401292

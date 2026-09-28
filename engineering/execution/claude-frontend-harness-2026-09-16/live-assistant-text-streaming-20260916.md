@@ -575,3 +575,6 @@ Author checks:
 - attention-agent, stream session events and projection, chat-actions, attention-ui02 (including concurrency), coordination-view and settings-navigation pass 60/60 ([log](evidence/attention-meta-r1-20260928/targeted-tests.txt)). The interaction lint and `git diff --check` pass.
 
 The Hermes HTTP framing/cancel changes in `830e328` were not touched. No native Hermes/server run, paid provider, user Host restart, push or deploy. Writer stopped for Parent's independent acceptance and merge/push.
+
+
+**AT-META-R1 parent acceptance · 2026-09-28.** [Review receipt](evidence/dogfood-review-20260928/README.md) accepts4935712/2487374: independent18/18 and the original actual-Host probe now update selected/list metadata while preserving the unsent draft and event cursor; running follow remains incremental. Exact base/head negative control is retained. Combined default1808/1808, smoke and docs/Pages checks pass. No backend event/schema or new UI capability is introduced.
