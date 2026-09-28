@@ -23,6 +23,16 @@ const ATTENTION_FILES = [
   "app/tests/attention-trace-fixture.test.mjs",
 ];
 const ATTENTION_ARGV = ["--test", "--test-concurrency=1", ...ATTENTION_FILES];
+const HARNESS_FILES = [
+  "app/tests/hermes-api-runs.test.mjs",
+  "app/tests/request-summary.test.mjs",
+  "app/tests/runtime-load-recovery.test.mjs",
+  "app/tests/kit-context.test.mjs",
+  "app/tests/control-plane.test.mjs",
+  "app/tests/check-recipes.test.mjs",
+];
+const HARNESS_ARGV = ["--test", "--test-concurrency=1", ...HARNESS_FILES];
+const FIXED_RECIPES = [["node-test", ["--test"]], ["node-test-attention-contract", ATTENTION_ARGV], ["node-test-harness-contract", HARNESS_ARGV]];
 
 test("Attention recipe is one frozen descriptor alongside the unchanged package recipe", () => {
   const [packageRecipe, attentionRecipe] = listCheckRecipes();
@@ -37,6 +47,22 @@ test("Attention recipe is one frozen descriptor alongside the unchanged package 
     timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
   });
   assert.ok(Object.isFrozen(attentionRecipe) && Object.isFrozen(attentionRecipe.argv));
+});
+
+test("Harness recipe is the third frozen descriptor; the first two keep their meaning and order", () => {
+  const recipes = listCheckRecipes();
+  assert.deepEqual(recipes.map(recipe => recipe.id), ["node-test", "node-test-attention-contract", "node-test-harness-contract"]);
+  assert.deepEqual([...recipes[1].argv], ATTENTION_ARGV);
+  const harness = getCheckRecipe("node-test-harness-contract");
+  assert.equal(harness, recipes[2]);
+  assert.deepEqual({ id: harness.id, version: harness.version, title: harness.title,
+    command: harness.command, argv: [...harness.argv], cwd: harness.cwd,
+    timeoutMs: harness.timeoutMs, outputLimitBytes: harness.outputLimitBytes, env: harness.env }, {
+    id: "node-test-harness-contract", version: 1, title: "Run Harness Core and Extensions contract tests",
+    command: process.execPath, argv: HARNESS_ARGV, cwd: "candidate",
+    timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
+  });
+  assert.ok(Object.isFrozen(listCheckRecipes()) && Object.isFrozen(harness) && Object.isFrozen(harness.argv));
 });
 
 function sha256(bytes) {
@@ -166,7 +192,7 @@ test("check_run is denied with zero process start under read_only", async () => 
   const h = await boot();
   try {
     const { session } = await bindSyntheticCandidate(h, { permissionMode: "read_only" });
-    for (const recipeId of ["node-test", "node-test-attention-contract"]) {
+    for (const [recipeId] of FIXED_RECIPES) {
       const run = await h.api("POST", `/sessions/${session.id}/runs`, {
         commandId: `check-read-only-${recipeId}`,
         input: h.scriptInput([{ name: "check_run", arguments: { recipeId } }]),
@@ -208,7 +234,7 @@ test("ask mode shows the exact recipe in the permission payload and deny records
   const h = await boot();
   try {
     const { session, candidateId } = await bindSyntheticCandidate(h, { permissionMode: "ask" });
-    for (const [recipeId, argv] of [["node-test", ["--test"]], ["node-test-attention-contract", ATTENTION_ARGV]]) {
+    for (const [recipeId, argv] of FIXED_RECIPES) {
       const run = await h.api("POST", `/sessions/${session.id}/runs`, {
         commandId: `check-deny-${recipeId}`,
         input: h.scriptInput([{ name: "check_run", arguments: { recipeId } }]),
@@ -242,7 +268,7 @@ test("ask mode shows the exact recipe in the permission payload and deny records
   }
 });
 
-test("approved Attention recipe runs all six fixed targets and records ordinary test and missing-path failures", async () => {
+test("approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets", async () => {
   const h = await boot();
   try {
     for (const [index, outcome] of ["pass", "fail", "missing"].entries()) {
@@ -284,6 +310,12 @@ test("approved Attention recipe runs all six fixed targets and records ordinary 
       assert.deepEqual([started.data.recipeId, started.data.recipeVersion, started.data.candidateId, started.data.candidateWriteRevision],
         ["node-test-attention-contract", 1, candidateId, 0]);
       assert.equal(settled.data.callId, started.data.callId);
+      if (outcome === "missing") {
+        // Absent fixed targets stop before spawn (Harness recipe seam record).
+        assert.deepEqual([settled.data.status, settled.data.exitCode, settled.data.failure], ["failed", null, { code: "missing_target" }]);
+        assert.equal(events.filter(event => event.type === "check.settled").length, 1);
+        continue;
+      }
       assert.equal(settled.data.status, "completed");
       assert.equal(settled.data.failure, null);
       assert.equal(settled.data.exitCode === 0, outcome === "pass");
@@ -291,10 +323,121 @@ test("approved Attention recipe runs all six fixed targets and records ordinary 
         for (let fileIndex = 1; fileIndex <= 6; fileIndex++) assert.match(settled.data.stdout, new RegExp(`target-${fileIndex}`));
       } else if (outcome === "fail") {
         assert.match(settled.data.stdout, /attention fixture failure/);
-      } else {
-        assert.match(settled.data.stderr + settled.data.stdout, /attention-core\.test\.mjs/);
       }
       assert.equal(events.filter(event => event.type === "check.settled").length, 1);
+    }
+  } finally {
+    await h.runtime.close();
+  }
+});
+
+// A committed synthetic Courtwork-shaped candidate: each fixed Harness path is
+// a small test that names itself, so the output shows every target ran.
+const harnessTarget = (index, body = "assert.ok(true);") =>
+  `import test from 'node:test';\nimport assert from 'node:assert/strict';\ntest('harness-target-${index + 1}', () => { ${body} });\n`;
+function harnessSource(files) {
+  return async sourceDir => {
+    for (const [relativePath, text] of Object.entries(files)) {
+      const target = path.join(sourceDir, relativePath);
+      await mkdir(path.dirname(target), { recursive: true });
+      await writeFile(target, text);
+    }
+    await runFile("git", ["add", ...Object.keys(files)], { cwd: sourceDir });
+    await runFile("git", ["-c", "user.name=Synthetic", "-c", "user.email=synthetic@example.invalid", "-c", "commit.gpgsign=false", "commit", "-q", "-m", "add fixed harness targets"], { cwd: sourceDir });
+    return (await runFile("git", ["rev-parse", "HEAD"], { cwd: sourceDir })).stdout.trim();
+  };
+}
+// One Run, every permission answered allow; returns the Run's own events.
+async function approvedRun(h, session, commandId, calls) {
+  const made = await h.api("POST", `/sessions/${session.id}/runs`, { commandId, input: h.scriptInput(calls) });
+  assert.equal(made.status, 200, JSON.stringify(made.json));
+  const runId = made.json.run.id;
+  const answered = new Set();
+  for (;;) {
+    const run = await h.pollRun(runId, { timeoutMs: 20000, until: status => status === "waiting_user" || ["completed", "failed", "cancelled"].includes(status) });
+    if (run.status !== "waiting_user") { assert.equal(run.status, "completed", JSON.stringify(run.error)); break; }
+    const open = eventsFor(h, session, runId).find(event => event.type === "permission.open" && !answered.has(event.data.id));
+    answered.add(open.data.id);
+    assert.equal((await h.api("POST", `/runs/${runId}/questions/${open.data.id}`, { decision: "allow" })).status, 200);
+  }
+  return eventsFor(h, session, runId);
+}
+const checkOf = events => ({
+  permission: events.find(event => event.type === "permission.open" && event.data.tool === "check_run"),
+  started: events.find(event => event.type === "check.started"),
+  settled: events.find(event => event.type === "check.settled"),
+});
+
+test("approved Harness recipe runs its six fixed targets: pass, nonzero after an exact candidate write, pass after the correction", async () => {
+  const h = await boot();
+  try {
+    const files = Object.fromEntries(HARNESS_FILES.map((file, index) => [file, harnessTarget(index)]));
+    const candidateId = "923e4567-e89b-42d3-a456-426614174201";
+    const { session } = await bindSyntheticCandidate(h, { candidateId, prepareSource: harnessSource(files) });
+    const check = [{ name: "check_run", arguments: { recipeId: "node-test-harness-contract" } }];
+    const expectRun = ({ permission, started, settled }, revision) => {
+      assert.deepEqual({ recipeId: permission.data.recipeId, recipeVersion: permission.data.recipeVersion, command: permission.data.command,
+        argv: permission.data.argv, cwd: permission.data.cwd, candidateId: permission.data.candidateId,
+        candidateWriteRevision: permission.data.candidateWriteRevision, timeoutMs: permission.data.timeoutMs,
+        outputLimitBytes: permission.data.outputLimitBytes, env: permission.data.env }, {
+        recipeId: "node-test-harness-contract", recipeVersion: 1, command: process.execPath, argv: HARNESS_ARGV,
+        cwd: "private candidate", candidateId, candidateWriteRevision: revision, timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
+      });
+      assert.deepEqual([started.data.recipeId, started.data.recipeVersion, started.data.candidateId, started.data.candidateWriteRevision],
+        ["node-test-harness-contract", 1, candidateId, revision], "the started check is the approved descriptor");
+      assert.equal(settled.data.callId, started.data.callId);
+      assert.equal(settled.data.status, "completed");
+      return settled.data;
+    };
+
+    const first = expectRun(checkOf(await approvedRun(h, session, "harness-pass", check)), 0);
+    assert.equal(first.exitCode, 0);
+    for (let index = 1; index <= 6; index++) assert.match(first.stdout, new RegExp(`harness-target-${index}\\b`));
+    assert.match(first.stdout, /(?:#|ℹ) pass 6\b/);
+
+    const target = HARNESS_FILES[4];
+    const broken = harnessTarget(4, "assert.equal(1, 2, 'harness fixture regression');");
+    const second = expectRun(checkOf(await approvedRun(h, session, "harness-break", [
+      { name: "repo_write", arguments: { path: target, text: broken, expectedSha256: sha256(Buffer.from(files[target], "utf8")) } }, ...check])), 1);
+    assert.notEqual(second.exitCode, 0);
+    assert.match(second.stdout, /harness fixture regression/);
+
+    const third = expectRun(checkOf(await approvedRun(h, session, "harness-correct", [
+      { name: "repo_write", arguments: { path: target, text: files[target], expectedSha256: sha256(Buffer.from(broken, "utf8")) } }, ...check])), 2);
+    assert.equal(third.exitCode, 0);
+    assert.match(third.stdout, /(?:#|ℹ) pass 6\b/);
+  } finally {
+    await h.runtime.close();
+  }
+});
+
+test("Harness recipe stops before spawn on a missing fixed target and reports a missing dependency as a nonzero result, with no install or retry", async () => {
+  const h = await boot();
+  try {
+    const cases = {
+      missing: Object.fromEntries(HARNESS_FILES.slice(0, 5).map((file, index) => [file, harnessTarget(index)])),
+      dependency: Object.fromEntries(HARNESS_FILES.map((file, index) => [file, index === 0
+        ? `import '@earendil-works/pi-ai';\n${harnessTarget(index)}` : harnessTarget(index)])),
+    };
+    for (const [index, [name, files]] of Object.entries(cases).entries()) {
+      const { session } = await bindSyntheticCandidate(h, { candidateId: `923e4567-e89b-42d3-a456-42661417421${index}`, prepareSource: harnessSource(files) });
+      const events = await approvedRun(h, session, `harness-${name}`, [{ name: "check_run", arguments: { recipeId: "node-test-harness-contract" } }]);
+      const { started, settled } = checkOf(events);
+      assert.equal(events.filter(event => event.type === "check.started").length, 1, `${name}: one recorded check, no retry`);
+      assert.equal(started.data.recipeId, "node-test-harness-contract");
+      if (name === "missing") {
+        // Node alone would skip the absent path and exit 0 (tests 5): the Host
+        // stops before spawn instead of settling a false pass.
+        assert.deepEqual([settled.data.status, settled.data.exitCode, settled.data.failure, settled.data.stdout, settled.data.stderr],
+          ["failed", null, { code: "missing_target" }, "", ""]);
+        const result = events.find(event => event.type === "tool.result" && event.data.name === "check_run");
+        assert.equal(result.data.isError, true);
+        assert.match(result.data.text, /app\/tests\/check-recipes\.test\.mjs/);
+      } else {
+        assert.deepEqual([settled.data.status, settled.data.failure], ["completed", null]);
+        assert.notEqual(settled.data.exitCode, 0);
+        assert.match(settled.data.stdout + settled.data.stderr, /ERR_MODULE_NOT_FOUND|Cannot find package '@earendil-works\/pi-ai'/);
+      }
     }
   } finally {
     await h.runtime.close();

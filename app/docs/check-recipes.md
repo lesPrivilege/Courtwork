@@ -11,7 +11,7 @@ precondition, and not a sandbox.
 
 `app/runtime/check-recipes.mjs` exports a frozen, code-defined catalog. It is
 not user-editable in this slice — there is no API to add, remove or change a
-recipe. The fixed catalog has two recipes:
+recipe. The fixed catalog has three recipes, in this order:
 
 | Field | Value |
 |---|---|
@@ -43,11 +43,44 @@ app/tests/attention-trace-fixture.test.mjs
 
 These fixed paths are expected in a Courtwork private candidate. They cover
 backend and synthetic fixture contracts; the recipe does not use a live
-connector or provider. A candidate without those paths produces an ordinary
-nonzero test-process result. The Host does not install candidate dependencies
+connector or provider. A candidate without those paths is stopped before
+spawn as `missing_target` (below). The Host does not install candidate dependencies
 or substitute another command; preparing dependencies is an explicit
 candidate setup step. A passing result remains process evidence, not formal
 Attention or Work acceptance.
+
+`node-test-harness-contract` v1 is titled **Run Harness Core and Extensions
+contract tests**. It uses the same Host Node command, private candidate cwd,
+120000 ms timeout, 65536 byte per-stream limit and minimal environment. Its
+exact argv is:
+
+```text
+--test
+--test-concurrency=1
+app/tests/hermes-api-runs.test.mjs
+app/tests/request-summary.test.mjs
+app/tests/runtime-load-recovery.test.mjs
+app/tests/kit-context.test.mjs
+app/tests/control-plane.test.mjs
+app/tests/check-recipes.test.mjs
+```
+
+It is a selected regression set for Courtwork's own private candidate (the
+RL-1 self-check), not all of Harness, Extensions or product acceptance. The
+Hermes file is synthetic HTTP conformance, not a native Hermes server. Its
+dependencies come from the candidate's own `app/node_modules`, prepared
+explicitly before the check; the Host never installs them.
+
+**Fixed targets must exist.** Node's test runner reads each path argument as a
+glob and silently skips one that matches nothing while the others run, which
+would report a missing target as a pass. At the synchronous spawn fence, after
+the approved-candidate recheck, the Host therefore requires every path argument
+of a fixed recipe (every argv entry not starting with `-`) to be a regular file
+inside the approved candidate. If one is missing, no process starts and the
+check settles once as `failed` with `failure: {code: "missing_target"}` and
+empty output. `node-test` has no path arguments. A missing *dependency* still
+starts the process and settles as an ordinary nonzero `completed` result
+(`ERR_MODULE_NOT_FOUND`). There is no install, fallback command or retry.
 
 `listCheckRecipes()` returns the catalog; `getCheckRecipe(id)` looks up one
 entry or returns `null`.

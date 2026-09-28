@@ -39,6 +39,28 @@ const RECIPES = Object.freeze([
     outputLimitBytes: 65536,
     env: "minimal",
   }),
+  // A selected Harness Core/Extensions regression set for Courtwork's own
+  // candidate (RL-1 self-check), not all of Harness or product acceptance.
+  Object.freeze({
+    id: "node-test-harness-contract",
+    version: 1,
+    title: "Run Harness Core and Extensions contract tests",
+    command: process.execPath,
+    argv: Object.freeze([
+      "--test",
+      "--test-concurrency=1",
+      "app/tests/hermes-api-runs.test.mjs",
+      "app/tests/request-summary.test.mjs",
+      "app/tests/runtime-load-recovery.test.mjs",
+      "app/tests/kit-context.test.mjs",
+      "app/tests/control-plane.test.mjs",
+      "app/tests/check-recipes.test.mjs",
+    ]),
+    cwd: "candidate",
+    timeoutMs: 120000,
+    outputLimitBytes: 65536,
+    env: "minimal",
+  }),
 ]);
 
 export function listCheckRecipes() {
