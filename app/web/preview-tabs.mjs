@@ -99,14 +99,45 @@ export function createPreviewTabs() {
  * optional short `meta` that tells two versions apart, and an optional run
  * `activity` word — and `controls(tab)` names the panel the tab selects. */
 const drawnStrips = new WeakMap();
+/* The active key each strip last drew, and a reveal still owed to a strip that
+ * had no layout box when its selection changed. */
+const drawnActive = new WeakMap();
+const owedReveal = new WeakMap();
+
+/* 06d · the selected, newly opened or keyboard-focused tab is shown inside the
+ * strip's own horizontal scroll, close target included where it fits; a tab
+ * wider than the strip shows its start. Only the strip scrolls — never the
+ * page or the object's reading. */
+export function revealPreviewTab(container, key) {
+  const wrap = [...container.querySelectorAll("[data-preview-tab]")].find((node) => node.getAttribute("data-preview-tab") === key);
+  if (!wrap) return;
+  const view = container.clientWidth;
+  if (!view) { owedReveal.set(container, key); return; }
+  owedReveal.delete(container);
+  const strip = container.getBoundingClientRect();
+  const box = wrap.getBoundingClientRect();
+  const start = box.left - strip.left - (container.clientLeft || 0) + container.scrollLeft;
+  const end = start + box.width;
+  if (start < container.scrollLeft) container.scrollLeft = start;
+  else if (end > container.scrollLeft + view) container.scrollLeft = Math.min(start, end - view);
+}
+
 export function renderPreviewTabs(container, { tabs, activeKey, describe, controls, onSelect, onClose }) {
   /* Repaints come with every render of the chat, including a running Work's
    * polls. A strip that would draw the same thing is left alone, so a click
    * that has started on a tab is not lost to a node swapped under it. */
   const described = tabs.map((tab) => [tab, describe(tab)]);
   const signature = JSON.stringify([activeKey, described.map(([tab, words]) => [tab.key, tab.id, controls(tab), words])]);
-  if (drawnStrips.get(container) === signature && container.childElementCount === tabs.length) return;
+  if (drawnStrips.get(container) === signature && container.childElementCount === tabs.length) {
+    if (owedReveal.has(container)) revealPreviewTab(container, owedReveal.get(container));
+    return;
+  }
   drawnStrips.set(container, signature);
+  const activeChanged = drawnActive.get(container) !== activeKey;
+  drawnActive.set(container, activeKey);
+  // Replacing the tabs empties the strip for a moment, which drops its scroll
+  // to the start; a repaint keeps where the reader had scrolled it.
+  const scrolled = container.scrollLeft;
   const focusedKey = container.contains(document.activeElement)
     ? document.activeElement.closest("[data-preview-tab]")?.getAttribute("data-preview-tab") ?? null
     : null;
@@ -138,17 +169,24 @@ export function renderPreviewTabs(container, { tabs, activeKey, describe, contro
     }, select, close);
   });
   container.replaceChildren(...nodes);
+  if (scrolled) container.scrollLeft = scrolled;
   // A repaint keeps the keyboard where it was when that tab is still here.
   if (focusedKey !== null) {
     const wrap = [...container.querySelectorAll("[data-preview-tab]")].find((node) => node.getAttribute("data-preview-tab") === focusedKey);
     wrap?.querySelector(focusedClose ? ".surface-tab-close" : ".surface-tab-select")?.focus();
   }
+  if (activeChanged && activeKey !== null) revealPreviewTab(container, activeKey);
 }
 
 /* Arrow / Home / End move between tabs and select them (automatic activation,
  * as the strip always did); Delete or Backspace on a tab closes it. The close
  * buttons are not stops on this path. Installed once on the tablist. */
 export function installPreviewTabKeys(container, { onSelect, onClose }) {
+  // A tab the keyboard lands on is revealed in the strip, as a selection is.
+  container.addEventListener("focusin", (event) => {
+    const key = event.target?.closest?.("[data-preview-tab]")?.getAttribute("data-preview-tab");
+    if (key != null && container.contains(event.target)) revealPreviewTab(container, key);
+  });
   container.addEventListener("keydown", (event) => {
     const select = event.target?.closest?.(".surface-tab-select");
     if (!select || !container.contains(select)) return;
