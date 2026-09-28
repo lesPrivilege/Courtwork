@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-28 · Models save flow accepted after two browser returns
+
+[Independent Models packet](execution/claude-frontend-harness-2026-09-16/evidence/ux-models-20260928/parent-review/README.md) accepts original Claude1beb385/aebd712/84aaf85. Key controls now follow Provider and retain separate native form submission/receipts; card destinations are explicit. Actual browser returns close MS-R1 (search must preserve owner-hidden rows) and MS-R2 (key draft/error belongs to its connection). Parent9/9,14/14,14/14 and independent Luna source review support the slice; synthetic loopback UI covers Enter, target switching, wrapping and focus return. No user key or real inference, backend/schema/authority change. Claude retains the remaining registered UX queue under its expanded mandate.
+
 ## 2026-09-28 · Developer structure accepted after no-chat correction
 
 [Independent packet](execution/claude-frontend-harness-2026-09-16/evidence/ux-developer-20260928/parent-review/README.md) accepts original Claude b2f54a3 plus DEV-R1 correction7e66552. Developer now groups chat/default runtime, Host Extensions and on-demand diagnostics. Parent browser found and closed the no-chat naming mismatch; fixed39/39, independent Luna source review, measured538/1440 with/without chat and native keyboard disclosure checks pass. Current density/extension/Tab screenshots are returned to Claude, who retains full UX decision authority and proceeds to Models save-flow clarity. No backend/permission/credential changes, paid run or service restart.

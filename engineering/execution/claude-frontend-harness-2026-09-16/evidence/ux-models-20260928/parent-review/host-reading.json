@@ -1,0 +1,7 @@
+{
+  "provider": "fake-openai-loopback",
+  "model": "fake-model",
+  "version": 3,
+  "runs": 0,
+  "syntheticConnectionCredentialStatus": "configured"
+}

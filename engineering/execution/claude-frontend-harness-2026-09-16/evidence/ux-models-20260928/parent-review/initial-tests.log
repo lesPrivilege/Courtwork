@@ -1,0 +1,17 @@
+✔ Models: Provider, API key, Model in reading order; the key saves through its own form with its own receipt (562.079958ms)
+✔ Models: a key for an unsaved change fails beside the key; a new endpoint's key goes with its connection (82.978291ms)
+✔ connection card: the Models destination is named for where it goes and opens nothing else (0.596708ms)
+✔ Provider requirements stay separate from model declarations and endpoint names (1.644875ms)
+✔ Models uses only provider protocols advertised by the Host (0.107625ms)
+✔ Provider declaration read is harmless and DeepSeek route validation preserves saved configuration (139.530583ms)
+✔ Models presents the reported harness and links tool configuration without inventing an adapter switch (7.167916ms)
+✔ Models keeps the runtime adapter, its pointers and host facts in one closed disclosure, with the loading state inside it (1.956083ms)
+✔ fixture no-reasoning protocol cannot gain a native effort field from extra model declarations (0.38625ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1842.911875

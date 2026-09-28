@@ -1,0 +1,18 @@
+[
+  {
+    "label": "API key",
+    "tag": "INPUT"
+  },
+  {
+    "label": "Remove saved key",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Save key",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Model",
+    "tag": "SELECT"
+  }
+]

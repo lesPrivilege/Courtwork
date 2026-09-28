@@ -1,0 +1,22 @@
+✔ Models: Provider, API key, Model in reading order; the key saves through its own form with its own receipt (663.36525ms)
+✔ Models: a key for an unsaved change fails beside the key; a new endpoint's key goes with its connection (92.478625ms)
+✔ connection card: the Models destination is named for where it goes and opens nothing else (0.663125ms)
+✔ MS-R2 · a key error belongs to its connection: another target retires it; an unresolved one stays; saving resolves it (279.674833ms)
+✔ MS-R2 · a key reply for an earlier target never lands on the current one; the current target's own failure still shows (120.869ms)
+✔ MS-R2 · a background refresh of the same target keeps the typed key and a current failure (299.309292ms)
+✔ PV-54: both consumers use one pure provider projection, preserving existing exports (37.09775ms)
+✔ PV-54: the real host serves exactly the shared projection module (178.06675ms)
+✔ Provider requirements stay separate from model declarations and endpoint names (3.166166ms)
+✔ Models uses only provider protocols advertised by the Host (0.195208ms)
+✔ Provider declaration read is harmless and DeepSeek route validation preserves saved configuration (241.986459ms)
+✔ Models presents the reported harness and links tool configuration without inventing an adapter switch (4.135625ms)
+✔ Models keeps the runtime adapter, its pointers and host facts in one closed disclosure, with the loading state inside it (2.442834ms)
+✔ fixture no-reasoning protocol cannot gain a native effort field from extra model declarations (0.509709ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2258.525333

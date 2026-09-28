@@ -1,0 +1,22 @@
+✔ 05 · effortChoices offers exactly the Host's enum plus Provider default, and nothing for unknown/unsupported (25.557417ms)
+✔ 05 · two enumerations draw two different tracks; Provider default is a segment, not the lowest value (3.462209ms)
+✔ 05 · unknown and unsupported draw no ladder; an invalid saved value is named and leaves no segment checked (1.034542ms)
+✔ 05 · a segment change reports the exact value (undefined for Provider default); an active Run disables the track (3.360375ms)
+✔ 05 · the card names the connection, says when it has no key, and its row lands on that connection or on Add provider (0.687958ms)
+✔ 05 · app wiring: the composer control opens the card, saves with the snapshot version, drops stale receipts, and lands Settings on the connection (2.851625ms)
+✔ Settings search and section switches never reveal what a view hid (2989.091375ms)
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (1.454542ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.447625ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.677708ms)
+✔ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (0.728167ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.649167ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.553625ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.177ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3954.121416
