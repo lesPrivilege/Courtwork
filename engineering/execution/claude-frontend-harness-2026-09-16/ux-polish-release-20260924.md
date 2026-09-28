@@ -422,5 +422,5 @@ Audit rows "Models connection/save clarity" and "Connection card destination": *
 - Models at 538×762 and 1440×900 in three states: local test in force, a catalog provider with no key, and one with a saved key (entered by the user or a synthetic key; never a real key in evidence).
 - Save key/Remove wrapping at 538.
 - The key-local error.
-- Keyboard: Tab order, Provider → key → Save key → Remove → Model, and Enter in the key.
+- Keyboard: Tab order, Provider → key → Remove → Save key → Model (the existing button order, primary last), and Enter in the key saving the key.
 - The connection card and model/effort card rows.
