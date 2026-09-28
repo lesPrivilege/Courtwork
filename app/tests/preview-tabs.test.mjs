@@ -9,6 +9,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { createPreviewTabs, previewTabKey, renderPreviewTabs, installPreviewTabKeys } from "../web/preview-tabs.mjs";
+import { TinyNode } from "./tiny-dom.mjs";
 import { surfaceModule, surfaceModules } from "../web/surface-modules.mjs";
 import { createFileView } from "../web/inspector.mjs";
 import { withTinyDom, flush, deferred } from "./tiny-dom.mjs";
@@ -176,6 +177,125 @@ test("a repaint keeps the keyboard on the same tab's select or close target", ()
   container.querySelectorAll(".surface-tab-select")[1].focus();
   draw();
   assert.equal(document.activeElement, container.querySelectorAll(".surface-tab-select")[1]);
+}));
+
+/* ── the strip's own horizontal scroll (2026-09-28 · active tab visibility) ──
+ * A layout stand-in for the observed 390px strip (x16–306, client 290) with
+ * 204px tabs. Like a browser, emptying the strip clamps its scroll to the
+ * start; only the strip scrolls. Real geometry is Parent's browser check. */
+function overflowStrip(container, { left = 16, width = 290, tab = 204, gap = 4 } = {}) {
+  let scroll = 0;
+  const content = () => container.children.length ? container.children.length * (tab + gap) - gap : 0;
+  Object.defineProperty(container, "clientWidth", { configurable: true, get: () => width });
+  Object.defineProperty(container, "scrollLeft", { configurable: true, get: () => scroll,
+    set: (value) => { scroll = Math.max(0, Math.min(value, Math.max(0, content() - width))); } });
+  container.getBoundingClientRect = () => ({ left, right: left + width, width });
+  const replace = container.replaceChildren.bind(container);
+  container.replaceChildren = (...nodes) => { replace(); container.scrollLeft = scroll; replace(...nodes); };
+  const previous = Object.getOwnPropertyDescriptor(TinyNode.prototype, "getBoundingClientRect");
+  TinyNode.prototype.getBoundingClientRect = function () {
+    const index = this.parentNode === container ? container.children.indexOf(this) : -1;
+    const start = left + index * (tab + gap) - scroll;
+    return index < 0 ? { left: 0, right: 0, width: 0 } : { left: start, right: start + tab, width: tab };
+  };
+  const visible = (key) => {
+    const wrap = container.querySelectorAll("[data-preview-tab]").find((node) => node.getAttribute("data-preview-tab") === key);
+    const box = wrap.getBoundingClientRect();
+    return box.left >= left && box.right <= left + width;
+  };
+  const restore = () => { if (previous) Object.defineProperty(TinyNode.prototype, "getBoundingClientRect", previous); else delete TinyNode.prototype.getBoundingClientRect; };
+  return { visible, restore, get scroll() { return scroll; }, set scroll(value) { container.scrollLeft = value; } };
+}
+
+test("the observed case: first tab selected at 390px, ArrowRight selects and shows the second tab with its close target", () => withTinyDom(async (container) => {
+  const layout = overflowStrip(container);
+  try {
+    const tabs = createPreviewTabs();
+    tabs.setScope(A);
+    tabs.open("file", recorded(A, "a", "run-1", "out/preview-a.md"));
+    tabs.open("file", recorded(A, "b", "run-1", "out/preview-b.txt"));
+    const { calls } = strip(container, tabs);
+    installPreviewTabKeys(container, {
+      onSelect: (key) => { tabs.select(key); strip(container, tabs, calls); container.querySelector('[aria-selected="true"]').focus(); },
+      onClose: () => {},
+    });
+    tabs.select(keys(tabs)[0]);
+    strip(container, tabs, calls);
+    assert.equal(layout.scroll, 0);
+    const first = container.querySelector('.surface-tab-select[aria-selected="true"]');
+    first.focus();
+    first.dispatchEvent({ type: "keydown", key: "ArrowRight", target: first });
+    assert.equal(tabs.active().key, keys(tabs)[1]);
+    assert.equal(document.activeElement.getAttribute("aria-selected"), "true");
+    assert.ok(layout.visible(keys(tabs)[1]), "the selected, focused tab (select and close) lies inside the strip");
+    assert.ok(layout.scroll > 0, "the strip itself scrolled");
+  } finally { layout.restore(); }
+}));
+
+test("Home/End, opening and closing reveal the selected tab; a repaint keeps the reader's own strip scroll", () => withTinyDom(async (container) => {
+  const layout = overflowStrip(container);
+  try {
+    const tabs = createPreviewTabs();
+    tabs.setScope(A);
+    for (const sha of ["a", "b", "c"]) tabs.open("file", recorded(A, sha));
+    const { draw } = strip(container, tabs);
+    assert.ok(layout.visible(keys(tabs)[2]), "a newly opened tab is shown");
+    installPreviewTabKeys(container, {
+      onSelect: (key) => { tabs.select(key); draw(); },
+      onClose: (key) => { tabs.close(key); draw(); },
+    });
+    const press = (key) => { const target = container.querySelector('.surface-tab-select[aria-selected="true"]'); target.dispatchEvent({ type: "keydown", key, target }); };
+    press("Home");
+    assert.equal(layout.scroll, 0);
+    assert.ok(layout.visible(keys(tabs)[0]));
+    press("End");
+    assert.ok(layout.visible(keys(tabs)[2]));
+    tabs.open("file", recorded(A, "d"));
+    draw();
+    assert.ok(layout.visible(keys(tabs)[3]), "opening appends, selects and reveals");
+
+    // The reader scrolls the strip away from the selection; unchanged polls
+    // and a changed mark on the same selection do not pull it back.
+    layout.scroll = 0;
+    draw();
+    assert.equal(layout.scroll, 0, "an unchanged repaint leaves the strip where the reader put it");
+    tabs.tabs()[0].activity = { status: "running", word: "Running" };
+    draw();
+    assert.equal(layout.scroll, 0, "a changed repaint with the same selection keeps the reader's scroll");
+    layout.scroll = 100;
+    tabs.tabs()[0].activity = null;
+    draw();
+    assert.equal(layout.scroll, 100, "replacing the tabs does not drop the strip back to its start");
+
+    // Closing the selected last tab selects its left neighbour and shows it.
+    press("Delete");
+    assert.equal(tabs.active().key, keys(tabs)[2]);
+    assert.ok(layout.visible(keys(tabs)[2]));
+  } finally { layout.restore(); }
+}));
+
+test("keyboard focus on an off-strip tab reveals it; a strip without a layout box owes the reveal to its next paint", () => withTinyDom(async (container) => {
+  const layout = overflowStrip(container);
+  try {
+    const tabs = createPreviewTabs();
+    tabs.setScope(A);
+    for (const sha of ["a", "b", "c"]) tabs.open("file", recorded(A, sha));
+    const { draw } = strip(container, tabs);
+    installPreviewTabKeys(container, { onSelect: () => {}, onClose: () => {} });
+    layout.scroll = 0;
+    const lastClose = container.querySelectorAll(".surface-tab-close")[2];
+    lastClose.focus();
+    lastClose.dispatchEvent({ type: "focusin", target: lastClose });
+    assert.ok(layout.visible(keys(tabs)[2]), "focusing a tab's close target shows that tab");
+
+    Object.defineProperty(container, "clientWidth", { configurable: true, get: () => 0 });
+    tabs.select(keys(tabs)[0]);
+    draw();
+    Object.defineProperty(container, "clientWidth", { configurable: true, get: () => 290 });
+    layout.scroll = 300;
+    draw();
+    assert.ok(layout.visible(keys(tabs)[0]), "the owed reveal lands on the first paint with a box");
+  } finally { layout.restore(); }
 }));
 
 test("a Work tab's mark is the run's own status word, said in words as well as shape", () => withTinyDom(async (container) => {
