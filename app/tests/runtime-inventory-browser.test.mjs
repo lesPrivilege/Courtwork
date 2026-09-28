@@ -25,7 +25,7 @@ test("the Runtimes page reads the real Host before a Session and survives keyboa
 
   const detail = step("detail-by-keyboard");
   assert.deepEqual([detail.focusOnRow, detail.focusAfterOpen, detail.runtime], [`row:${PI_EXECUTOR_ID}`, "back", "Pi"]);
-  assert.ok(detail.status.includes("Not checked. Nothing here connects to it, signs in or runs anything."));
+  assert.ok(detail.status.includes("Not checked"));
   assert.deepEqual(detail.buttons, ["back", "refresh"]);
   assert.equal(step("back-by-keyboard").focusAfterBack, `row:${PI_EXECUTOR_ID}`);
 

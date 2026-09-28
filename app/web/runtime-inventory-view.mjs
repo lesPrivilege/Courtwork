@@ -19,8 +19,7 @@
 import { el, action } from "./ui-controls.mjs";
 
 export const NOT_CHECKED = "Live status not checked";
-export const READ_ONLY_SENTENCE =
-  "The engines agents run on, as this Host's configuration reports them. Reading this list does not connect to them, sign in or run anything.";
+export const READ_ONLY_SENTENCE = "Configured runtimes. Live status is not checked.";
 
 /* Presentation names for the ids this build knows; any other id is shown as
    the Host reports it. */
@@ -177,12 +176,11 @@ export function createRuntimeInventoryView(mount, controller, { onRendered } = {
       el("h4", { className: "settings-block-title", attrs: { "data-testid": "runtime-name" }, text: name }),
       facts("status", [
         ["Configuration", item.configured ? "Configured on this Host" : "Not configured on this Host", "configured"],
-        ["Owner", "This Host's configuration. Settings reads it and cannot change it.", "owner"],
         /* `configured` availability is the Host's reading that this runtime's
            own port describes it under the current provider — not that it is
            reachable. */
         ["Availability", unavailable ? `Unavailable. ${item.availability.reason ?? ""}`.trim() : "Described by this Host for the current provider", "availability"],
-        ["Live status", "Not checked. Nothing here connects to it, signs in or runs anything.", "live"],
+        ["Live status", "Not checked", "live"],
         ["Host default", item.adapterId === defaultId ? "Yes" : "No", "default"],
       ], { reading: true }),
     );
@@ -191,11 +189,9 @@ export function createRuntimeInventoryView(mount, controller, { onRendered } = {
       { className: "settings-block", attrs: { "data-testid": "operations-block" } },
       el("h4", { className: "settings-block-title", text: "Declared operations" }),
     );
-    if (item.capabilities)
-      operations.append(
-        el("p", { className: "settings-row-help", text: "What this runtime declares it supports. Declared, not checked live." }),
-        facts("operations", operationRows(item.capabilities), { reading: true }),
-      );
+    /* The heading and the visible "Live status: Not checked" already say
+       these are declared, not checked (UX simplification 2026-09-28). */
+    if (item.capabilities) operations.append(facts("operations", operationRows(item.capabilities), { reading: true }));
     else
       operations.append(el("p", {
         className: "runtime-inventory-reading-text",
@@ -209,6 +205,7 @@ export function createRuntimeInventoryView(mount, controller, { onRendered } = {
         "technical",
         "Technical detail",
         facts("technical", [
+          ["Owner", "This Host's configuration. Settings reads it and cannot change it.", "owner"],
           ["Runtime id", item.adapterId, "id"],
           ["Configured revision", item.revision ?? "None", "revision"],
           ["Configuration fingerprint", item.configurationRef ?? "None", "ref"],

@@ -162,9 +162,9 @@ test("a configured runtime's detail keeps configured, availability, live status 
   await controller.refresh();
   await p.activate(`row-action:${PI_EXECUTOR_ID}`);
   assert.equal(p.text("status:configured"), "Configured on this Host");
-  assert.equal(p.text("status:owner"), "This Host's configuration. Settings reads it and cannot change it.");
+  assert.equal(p.$("status:owner"), null, "the constant owner note is technical detail, not a status value");
   assert.equal(p.text("status:availability"), "Described by this Host for the current provider");
-  assert.equal(p.text("status:live"), "Not checked. Nothing here connects to it, signs in or runs anything.");
+  assert.equal(p.text("status:live"), "Not checked");
   assert.equal(p.text("status:default"), "Yes");
   assert.equal(p.text("operations:start"), "Supported");
   assert.equal(p.text("operations:recover"), `Not supported. ${PI.capabilities.recover.reason}`);
@@ -173,6 +173,8 @@ test("a configured runtime's detail keeps configured, availability, live status 
   assert.deepEqual(terms, ["Start a run", "Continue a chat", "Steer a run in progress", "Cancel a run", "Compact the context", "Recover a run after a restart", "Answer a tool call"]);
   // Identifiers are technical detail, on demand.
   assert.equal(p.$("disclosure:technical").open, false);
+  assert.equal(p.text("technical:owner"), "This Host's configuration. Settings reads it and cannot change it.");
+  assert.equal(p.$("operations-block").querySelectorAll("p").length, 0, "no repeated declared-not-checked paragraph");
   assert.equal(p.text("technical:id"), PI_EXECUTOR_ID);
   assert.equal(p.text("technical:revision"), PI.revision);
   assert.equal(p.text("technical:ref"), PI.configurationRef);
@@ -187,7 +189,7 @@ test("an unavailable runtime says why beside the fact, and reports no operations
   await p.activate(`row-action:${MANAGED_EXECUTOR_ID}`);
   assert.equal(p.text("status:configured"), "Not configured on this Host");
   assert.equal(p.text("status:availability"), `Unavailable. ${MANAGED.availability.reason}`);
-  assert.equal(p.text("status:live"), "Not checked. Nothing here connects to it, signs in or runs anything.");
+  assert.equal(p.text("status:live"), "Not checked");
   assert.equal(p.text("status:default"), "No");
   assert.equal(p.$("operations"), null);
   assert.equal(p.text("operations-absent"), "Not reported: the Host has no current description of this runtime.");

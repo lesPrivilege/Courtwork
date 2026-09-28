@@ -2737,15 +2737,22 @@ export function createRuntimeView(
       permissionExplainer(),
     );
   }
+  /* UX simplification 2026-09-28 · the runtime adapter and its pointers are
+     host detail, not part of choosing a model: they live in the one existing
+     disclosure (closed by default), with the loading state, rather than under
+     a default-open "In force" block. */
   function renderEnvironment() {
     const mount = mounts.environment;
     if (!mount) return;
-    mount.replaceChildren(blockTitle("In force"));
+    const details = el('details', {className:'runtime-environment-details'}, el('summary',{text:'Saved model and host details'}));
+    details.open=open.has('environment-details');
+    details.addEventListener('toggle',()=>{if(details.open)open.add('environment-details');else open.delete('environment-details');});
+    mount.replaceChildren(details);
     if (!snapshot) {
-      mount.append(note("The runtime has not been read yet."));
+      details.append(note("The runtime has not been read yet."));
       return;
     }
-    mount.append(
+    details.append(
       readOnlyRow("Runtime adapter", "Runs sessions and tools independently of the selected model.", environment.info?.adapterId || snapshot.adapterId || "Not reported"),
       note("Changing the provider or model keeps this runtime adapter. Tool exposure and permissions are configured separately."),
       el("div", { className: "runtime-row-actions" },
@@ -2753,11 +2760,8 @@ export function createRuntimeView(
         el("a", { className: "settings-jump", attrs: { href: "#settings/permissions" }, text: "Permissions" }),
         el("a", { className: "settings-jump", attrs: { href: "#settings/developer" }, text: "Developer" }),
       ),
+      environmentFacts(),
     );
-    const details = el('details', {className:'runtime-environment-details'}, el('summary',{text:'Saved model and host details'}), environmentFacts());
-    details.open=open.has('environment-details');
-    details.addEventListener('toggle',()=>{if(details.open)open.add('environment-details');else open.delete('environment-details');});
-    mount.append(details);
   }
 
   /* ── render ────────────────────────────────────────────────────────── */

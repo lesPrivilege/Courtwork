@@ -64,6 +64,39 @@ test('Models presents the reported harness and links tool configuration without 
   assert.equal(environment.querySelectorAll('select,input').length, 0);
 }));
 
+test('Models keeps the runtime adapter, its pointers and host facts in one closed disclosure, with the loading state inside it', () => withTinyDom(async body => {
+  document.body = body;
+  const environment = document.createElement('div'); body.append(environment);
+  let answer;
+  const view = createRuntimeView({ environment }, {
+    getSessionId: () => null,
+    request: () => new Promise(resolve => { answer = resolve; }),
+  });
+  const loading = view.load();
+  const only = () => { assert.equal(environment.children.length, 1, 'the section is only the disclosure'); return environment.children[0]; };
+  let details = only();
+  assert.equal(details.tagName, 'details');
+  assert.equal(details.open, false, 'closed by default');
+  assert.equal(details.querySelector('summary').textContent, 'Saved model and host details');
+  assert.match(details.textContent, /The runtime has not been read yet\./, 'loading stays inside the disclosure');
+  answer({ revision: 1, adapterId: 'fixture-harness@1', scopes: [], resources: [] });
+  await loading;
+  details = only();
+  assert.equal(details.open, false);
+  assert.doesNotMatch(environment.textContent, /In force/, 'no separate In force heading');
+  assert.match(details.textContent, /Runtime adapter.*fixture-harness@1/);
+  assert.match(details.textContent, /Changing the provider or model keeps this runtime adapter/);
+  assert.deepEqual([...details.querySelectorAll('a')].map(node => node.getAttribute('href')), ['#settings/tools', '#settings/permissions', '#settings/developer']);
+  assert.match(details.textContent, /Context window/, 'the saved model and host facts are still there');
+  details.open = true;
+  details.dispatchEvent({ type: 'toggle' });
+  answer = null;
+  const again = view.load();
+  answer?.({ revision: 2, adapterId: 'fixture-harness@1', scopes: [], resources: [] });
+  await again;
+  assert.equal(only().open, true, 'a re-render keeps the reader\'s open disclosure');
+}));
+
 test('fixture no-reasoning protocol cannot gain a native effort field from extra model declarations', () => {
   const connection = { kind: 'catalog', providerIdentity: 'fake-openai-loopback', api: 'openai-completions', models: [{ id: 'fixture-extra', reasoningEfforts: ['high'] }] };
   const model = { ...registrationExtras(connection)[0], provider: connection.providerIdentity };
