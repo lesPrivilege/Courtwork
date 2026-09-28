@@ -1,0 +1,44 @@
+✔ Developer page: object order, the trust consequence beside the extensions, Host diagnostics closed by default (1.639834ms)
+✔ Chat runtime block: loading, failure with retry, the reading, and the last good reading after a failure (4.396792ms)
+✔ DEV-R1 · with no chat open, the block names the default runtime every new chat starts from, and no chat's runs (6.377458ms)
+✔ DEV-R1 · with a chat open, the same block is that chat's runtime and lists its recorded runs (0.840334ms)
+✔ Attention: each Open is named for what it opens; a context fact has no Open (0.791292ms)
+✔ 00 · a project can be created under a client-fixed id; the same id replays the same record and a different name conflicts (147.32775ms)
+✔ 00 · entry audit: the global Refresh and the passive Expert seat are gone; recovery moved to the origin as Check status (5.385291ms)
+✔ 00 · v3: no Runtime inventory card, no not-accepted sentence on ordinary results, the surface opens for an object not for a chat (1.427208ms)
+✔ 00 · one Work location entry; Connect folder stays the command inside it (0.987834ms)
+✔ T-EXT-1: se_read_source succeeds through service.createRun on AgentSession (303.448125ms)
+✔ T-EXT-2: se_submit_candidate goes through once and Core rejects the late call (190.171417ms)
+✔ T-EXT-3: malformed evidence is refused without a partial candidate (668.768625ms)
+✔ Inspector separates recorded/current targets and folds version/cache details without losing unknown accounting (19.797583ms)
+✔ Inspector tool activity reuses thread projection and never turns an unfinished tool into success (0.6905ms)
+✔ Changing a reviewed local path clears the visible trust and registration controls (17.503459ms)
+✔ Closing the local extension editor retains focus on its collapsed entry (1.065208ms)
+✔ first visit: a destination asked for during the first read opens when it lands (19.352166ms)
+✔ already loaded: the destination opens at once (6.592ms)
+✔ leaving before a slow read settles forgets the destination (2.056625ms)
+✔ a Session change before the read settles never opens it in the other chat (6.951042ms)
+✔ attention: a healthy snapshot produces an empty list, not a hidden one (1.543ms)
+✔ attention: health, diagnostics, ask permissions, trust and missing ids each raise one entry (0.33525ms)
+✔ contrast: the ratio is WCAG 2.x and the extremes are exact (0.132166ms)
+✔ contrast: the browser warning checks exactly the build report pairs (0.315541ms)
+✔ attention: capabilities unavailable in this context and not offered are one quiet summary, not one Open each (0.14675ms)
+✔ Settings search and section switches never reveal what a view hid (2664.038708ms)
+✔ CC-S · settings-active 时侧栏不渲染，而不是只被藏起来 (1.1675ms)
+✔ CC-S · Back to app 是唯一的离开动作，落在页标题行左端 (0.243708ms)
+✔ CC-S · 设置的两列有自己的几何 token，不借 --nav 的列轨 (0.427291ms)
+✔ WK-115 ① · 第六个状态词是 Unknown，Interrupted 只在明确的终态上出现 (0.416209ms)
+✔ WK-115 ② · Home / End 是纯导航键，且只在焦点已在列表里时接管 (0.367083ms)
+✔ WK-115 ② · 两条列表各自 role=list，不合并 (0.254417ms)
+✔ WK-116 · 改约已落在文档里，不是一次 CSS 修复 (0.06825ms)
+✔ Host-owned profile exposure is text while configurable resources retain a switch (8.745334ms)
+✔ Plugins shows owner states without inventing a host lifecycle switch or duplicate tool row (1.166792ms)
+✔ Plugins preserves active-run restrictions and reports empty and failed reads (6.759709ms)
+ℹ tests 36
+ℹ suites 0
+ℹ pass 36
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3890.2855

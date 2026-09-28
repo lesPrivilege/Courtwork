@@ -486,3 +486,27 @@ The first two MS-R2 cases fail on `aebd712` and pass with the fix. The refresh c
 The Models, credential, settings and Developer suites, plus both real-Chrome page tests, pass 104/104 with 0 skipped ([log](evidence/ux-models-20260928/ms-r2-targeted-tests.log)). The interaction, copy and semantic lints and `git diff --check` pass.
 
 **Models independent acceptance · 2026-09-28.** [Parent review/capture packet](evidence/ux-models-20260928/parent-review/README.md) accepts1beb385 plus MS-R1 aebd712 and MS-R2 84aaf85 (record0580527). Parent browser found both page-search overriding owner visibility and old-target key error carryover; original Claude adopted corrections and added target/draft/error lifetime guards. Parent initial9/9, search/browser/navigation14/14 and final14/14 pass; Luna source reviews pass with browser limits explicit. Synthetic-only actual UI confirms Provider→key→Model order, native Enter independent key save, key-local error, target-switch clearing,538 wrapping, both Models destination rows and return focus. No real key/inference or backend change. Current screenshots are available for Claude's next autonomous UX prioritization.
+
+## 2026-09-28 · Developer · Attention context line and named repeated actions (Claude, UX owner)
+
+Inputs: Parent's [Developer packet](evidence/ux-developer-20260928/parent-review/README.md) (current no-chat and chat captures, and [tab-order.json](evidence/ux-developer-20260928/parent-review/tab-order.json)), which recorded two observations. **Both adopted.** Product commit `ebb8946`.
+
+1. **No-chat Attention listed nine "… reports health unavailable. Open" rows** for repository and candidate tools.
+   - Source: the Host reports those tools `unavailable` and unexposed exactly when no folder or private candidate is bound (`control-plane.mjs` source-repository/candidate descriptors). That's a fact of the context, not a fault, and nothing in it is offered to the next run.
+   - **Decision:** a resource that is `unavailable` and not exposed joins one summary line, "N capabilities are unavailable here and not offered to the model: …", with no Open.
+   - Unhealthy resources that *are* exposed (or degraded), diagnostics, ask permissions, trust, missing declarations and profile status stay individual entries.
+   - The Attention count now counts entries, so the summary counts once.
+2. **Repeated verbs without objects in the actual Tab order:** three "Open" buttons, and "Load"/"Invalidate" (plus Unload/Reload) on each extension row.
+   - **Decision:** the short visible words stay. Each button gains an accessible name with its object ("Open Docs server", "Invalidate <extension>") per IC-1 and IC-3. Nothing is converted to an icon.
+
+**Precedents:** the Attention "facts that are not healthy and quiet" rule already in `attentionItems`, IC-1 (a name says what it acts on), UX-01. No CSS or layout change.
+
+**Checks:**
+- `runtime-workbench.test.mjs`: unavailable-and-unexposed resources become one summary with no target; singular and plural wording; an exposed unavailable resource and a degraded one stay individual; the existing Attention cases are unchanged.
+- `developer-page.test.mjs` (rendered): "Attention · 2", "Open Docs server", the summary row with no button, and no bare "Open".
+- The extension-row names are in `app.mjs` (not importable), so Parent should confirm them in a fresh Tab walk.
+- Adjacent Developer, Settings and extension suites, including the real-Chrome Settings page test, pass 36/36 ([log](evidence/ux-developer-20260928/attention-names-targeted-tests.log)). The interaction, spacing, copy and semantic lints and `git diff --check` pass.
+
+**Capture needed from Parent:** Developer with no chat and with a chat at 538 and 1440 (the Attention block), and a Tab walk through the Attention and extension names.
+
+**Queue after this unit.** The remaining Developer density (scope strip notes, package editor notes) waits for these captures. Next I'll verify the older audit leads against current source before any construction: Composer P1, N-07 menus, Back-to-latest, `ask_user` selectability, reader F2, Back/Forward and E1.
