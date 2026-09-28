@@ -1,0 +1,38 @@
+[
+  {
+    "label": "Open ws_write",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "b6208bb5 · cancelled",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "507fb2be · completed",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Load Evidence Memo (development)",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Invalidate Evidence Memo (development)",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Load Inbound NDA Playbook Review",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Invalidate Inbound NDA Playbook Review",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Load Lifecycle Probe (development)",
+    "tag": "BUTTON"
+  },
+  {
+    "label": "Invalidate Lifecycle Probe (development)",
+    "tag": "BUTTON"
+  }
+]

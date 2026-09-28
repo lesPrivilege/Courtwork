@@ -1,0 +1,27 @@
+✔ recent chats across open projects, newest first, marking Work and the current one (18.240916ms)
+✔ empty state and New chat stay primary while explanation and sibling entries are disclosed (1.232583ms)
+✔ app wiring: the Chat seat opens the page, the page closes like Attention, and it is served (2.081583ms)
+✔ 09 N-07 · a Chat-page row carries the Shell's object commands like a sidebar chat row; a target with none stays a plain row (0.565292ms)
+✔ 09 N-07 · without an owner the Chat page draws no commands; the app passes the shared attachObjectCommands (1.217958ms)
+✔ Developer page: object order, the trust consequence beside the extensions, Host diagnostics closed by default (1.654416ms)
+✔ Chat runtime block: loading, failure with retry, the reading, and the last good reading after a failure (5.462208ms)
+✔ DEV-R1 · with no chat open, the block names the default runtime every new chat starts from, and no chat's runs (6.869542ms)
+✔ DEV-R1 · with a chat open, the same block is that chat's runtime and lists its recorded runs (1.028459ms)
+✔ Attention: each Open is named for what it opens; a context fact has no Open (1.197625ms)
+✔ 09 · the two real Chat commands: rename through PATCH and delete through DELETE, each with its refusals (118.571833ms)
+✔ 09 · `when` draws only commands with a real path; `enablement` keeps a real command in the menu with its reason (2.119291ms)
+✔ 09 · the dispatcher resolves the target again when a command runs: gone, disabled and unknown all stop before the handler (0.249291ms)
+✔ 09 · the menu primitive: groups with separators only between them, disabled rows reachable with their reason, roving keys, Escape home (3.879292ms)
+✔ attention: a healthy snapshot produces an empty list, not a hidden one (1.587375ms)
+✔ attention: health, diagnostics, ask permissions, trust and missing ids each raise one entry (0.331375ms)
+✔ contrast: the ratio is WCAG 2.x and the extremes are exact (0.356584ms)
+✔ contrast: the browser warning checks exactly the build report pairs (0.450333ms)
+✔ attention: capabilities unavailable in this context and not offered are one quiet summary, not one Open each (0.156583ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1146.191458

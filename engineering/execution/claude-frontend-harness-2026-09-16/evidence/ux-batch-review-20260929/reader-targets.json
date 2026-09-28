@@ -1,0 +1,98 @@
+[
+  {
+    "buttons": [
+      {
+        "height": 28,
+        "name": "Back to chat",
+        "width": 52.6328125
+      },
+      {
+        "height": 45,
+        "name": "out/reader-measurements.md · Current",
+        "width": 204
+      },
+      {
+        "height": 24,
+        "name": "Close out/reader-measurements.md",
+        "width": 24
+      },
+      {
+        "height": 28,
+        "name": "Hide preview",
+        "width": 28
+      },
+      {
+        "height": 28,
+        "name": "Copy displayed file text",
+        "width": 28
+      },
+      {
+        "height": 17.25,
+        "name": "Version details",
+        "width": 740
+      },
+      {
+        "height": 28,
+        "name": "Copy file version hash",
+        "width": 28
+      },
+      {
+        "height": 28,
+        "name": "Copy code",
+        "width": 28
+      }
+    ],
+    "coarse": false,
+    "height": 900,
+    "hoverNone": false,
+    "width": 1440
+  },
+  {
+    "buttons": [
+      {
+        "height": 44,
+        "name": "Back to chat",
+        "width": 52.6328125
+      },
+      {
+        "height": 45,
+        "name": "out/reader-measurements.md · Current",
+        "width": 204
+      },
+      {
+        "height": 24,
+        "name": "Close out/reader-measurements.md",
+        "width": 24
+      },
+      {
+        "height": 44,
+        "name": "Hide preview",
+        "width": 44
+      },
+      {
+        "height": 44,
+        "name": "Copy displayed file text",
+        "width": 44
+      },
+      {
+        "height": 17.25,
+        "name": "Version details",
+        "width": 740
+      },
+      {
+        "height": 44,
+        "name": "Copy file version hash",
+        "width": 44
+      },
+      {
+        "height": 44,
+        "name": "Copy code",
+        "width": 44
+      }
+    ],
+    "coarse": true,
+    "height": 900,
+    "hoverNone": true,
+    "width": 1440
+  }
+]

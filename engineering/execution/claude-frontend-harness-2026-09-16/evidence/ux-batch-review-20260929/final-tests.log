@@ -1,0 +1,22 @@
+✔ Chat page Rename and Delete redraw the page and land focus on a live row (5438.942875ms)
+✔ N07-R3 · a project collapsed in the sidebar still names its chats on the Chat page; a projectless chat stays No project (1880.653875ms)
+✔ recent chats across open projects, newest first, marking Work and the current one (18.2785ms)
+✔ empty state and New chat stay primary while explanation and sibling entries are disclosed (1.238584ms)
+✔ app wiring: the Chat seat opens the page, the page closes like Attention, and it is served (1.1125ms)
+✔ 09 N-07 · a Chat-page row carries the Shell's object commands like a sidebar chat row; a target with none stays a plain row (0.678583ms)
+✔ 09 N-07 · without an owner the Chat page draws no commands; the app passes the shared attachObjectCommands (1.324667ms)
+✔ 09 · one stack: the Shell trail is in memory, the hash stays the Settings deep link, nothing is pushed to the browser (2.438291ms)
+✔ 09 · leave before every departure, arrive only through the reader; traversal resolves through selectSession and restores the anchor after render (1.337917ms)
+✔ 09 · every row entry point goes through the one dispatcher; the native menu is taken only when a menu is offered (0.567875ms)
+✔ 09 · dogfooding fix: leaving the example keeps a project-less chat in place (0.163833ms)
+✔ 09 · `when` draws only commands with a real path; `enablement` keeps a real command in the menu with its reason (1.97475ms)
+✔ 09 · the dispatcher resolves the target again when a command runs: gone, disabled and unknown all stop before the handler (0.253167ms)
+✔ 09 · the menu primitive: groups with separators only between them, disabled rows reachable with their reason, roving keys, Escape home (3.716833ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8403.497625

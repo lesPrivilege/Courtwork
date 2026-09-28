@@ -1,0 +1,31 @@
+{
+  "coarse": true,
+  "more": [
+    {
+      "h": 44,
+      "opacity": "1",
+      "w": 44
+    },
+    {
+      "h": 44,
+      "opacity": "1",
+      "w": 44
+    },
+    {
+      "h": 44,
+      "opacity": "1",
+      "w": 44
+    }
+  ],
+  "projects": [
+    {
+      "expanded": "false",
+      "name": "UX batch synthetic project"
+    }
+  ],
+  "rows": [
+    "UX batch — Projectless controlNo project9m ago",
+    "UX batch — Long transcript and pending question — measured reading, selection, navigation and Composer controls at desktop and narrow widthsUX batch synthetic project35m ago",
+    "UX batch — Rename verifiedUX batch synthetic project1h ago"
+  ]
+}

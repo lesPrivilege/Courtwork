@@ -1,5 +1,9 @@
 # 当前工程状态
 
+## 2026-09-29 · Developer Attention and Chat menus independently accepted
+
+[Batch packet](execution/claude-frontend-harness-2026-09-16/evidence/ux-batch-review-20260929/README.md) accepts original Claude ebb8946 and Chat36fdc01 after N07-R1/R2/R3 fixes16d5b94/1a435fc/81dd965. Actual browser catches and closes stale Rename/Delete rows/focus, undersized coarse More and false No project for collapsed projects. Parent19/19 then13/13 and final14/14, Luna bounded source review and current screenshots support the slice. Older Composer/question/reader evidence returns to Claude; Back-to-latest stayed about12px above Composer in two heights. Example Chat rows remain unit/source-only in this fixture; Attention Delete, all-UX and physical-touch acceptance are not claimed.
+
 ## 2026-09-28 · Models save flow accepted after two browser returns
 
 [Independent Models packet](execution/claude-frontend-harness-2026-09-16/evidence/ux-models-20260928/parent-review/README.md) accepts original Claude1beb385/aebd712/84aaf85. Key controls now follow Provider and retain separate native form submission/receipts; card destinations are explicit. Actual browser returns close MS-R1 (search must preserve owner-hidden rows) and MS-R2 (key draft/error belongs to its connection). Parent9/9,14/14,14/14 and independent Luna source review support the slice; synthetic loopback UI covers Enter, target switching, wrapping and focus return. No user key or real inference, backend/schema/authority change. Claude retains the remaining registered UX queue under its expanded mandate.
