@@ -51,6 +51,7 @@ import { RuntimeProposalLedger, ProposalError } from "../runtime/runtime-proposa
 import { ProfileStore, ProfileError, accountFixture } from "./profile-store.mjs";
 import { discoverCommands, findCommand, parseArguments, parseSlash } from "../runtime/commands.mjs";
 import { createRepositoryTools } from "../runtime/repository-tools.mjs";
+import { boundRequestSummary, isSoleBuiltinRepoList } from "../runtime/request-summary.mjs";
 import { inspectRepositoryRoot, runRepositoryFs } from "../runtime/repository-fs.mjs";
 import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } from "../runtime/repository-candidate.mjs";
 import { runRepositoryCandidateFs } from "../runtime/repository-candidate-fs.mjs";
@@ -193,6 +194,16 @@ async function gitStatusWithin(rootPath, deadline) {
   if (remaining <= 0) return null;
   try { return await inspectRepositoryGitStatus(rootPath, { timeoutMs: remaining }); }
   catch { return null; }
+}
+
+/** Record on the Run entry whether its offered tools qualify for the 06b B2
+ * repo_list request summary: the Host's own repo_list is the only tool of that
+ * name and the Run's binding exposes it (governTools' own filter). The tools
+ * pass through unchanged. */
+function trustRepoListSummary(entry, repositoryTools, tools) {
+  entry.requestSummaryTrusted = isSoleBuiltinRepoList(tools, repositoryTools)
+    && entry.runtimeBinding.resources.some(resource => resource.id === "tool:repo_list" && resource.exposed);
+  return tools;
 }
 
 /** Redact anything resembling a live secret from text bound for storage, an
@@ -3237,7 +3248,7 @@ export class RuntimeService {
         reasoningEffort: provider.reasoningEffort,
         reasoningCapability: provider.reasoningBinding,
         onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data }),
-        tools: governTools(sparkAssignment ? this.subagents.childTools(sparkAssignment,run.id) : [...(!session.extensionBinding ? this.subagents.parentTools(session.id,run.id, () => {entry.sparkYield=true;setImmediate(() => entry.abort?.());}) : []), askUserTool, ...selectedWorkspaceTools, ...repositoryTools, ...repositoryCandidateTools, ...checkTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
+        tools: governTools(trustRepoListSummary(entry, repositoryTools, sparkAssignment ? this.subagents.childTools(sparkAssignment,run.id) : [...(!session.extensionBinding ? this.subagents.parentTools(session.id,run.id, () => {entry.sparkYield=true;setImmediate(() => entry.abort?.());}) : []), askUserTool, ...selectedWorkspaceTools, ...repositoryTools, ...repositoryCandidateTools, ...checkTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
           entry.externalUnknownDetail = detail;
           // This is an effect settlement receipt, not a best-effort UI notice.
@@ -3256,7 +3267,7 @@ export class RuntimeService {
           await this.store.appendEvent({ runId: run.id, type: 'runtime.mcp.dispatch', data: identity });
           entry.mcpPending ??= new Map();
           entry.mcpPending.set(identity.dispatchId, identity);
-        }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data })), createRuntimeProposeTool(input => this.proposeRuntimeSkill(run.sessionId, run.id, input)), createPresentTool(input => this.recordPresentation(run.id, input))], {
+        }), createRuntimeLoadTool(entry.runtimeBinding, data => this.store.appendEvent({ runId: run.id, type: "runtime.context.loaded", data })), createRuntimeProposeTool(input => this.proposeRuntimeSkill(run.sessionId, run.id, input)), createPresentTool(input => this.recordPresentation(run.id, input))]), {
           binding: entry.runtimeBinding, permissionMode: entry.permissionMode, workspaceDir: entry.workspaceDir,
           isOpen: runIsOpen,
           requestPermission: ({ signal, ...payload }) => this.#waitForDecision(run.id, entry, { kind: "permission", prompt: `Permission requested for ${payload.tool}`, payload, signal }),
@@ -3421,6 +3432,7 @@ export class RuntimeService {
     const run = this.store.getRun(runId);
     if (!run) return;
     if (mapped.data?.errorMessage) mapped.data.errorMessage = redact(mapped.data.errorMessage, this.knownSecrets);
+    if (mapped.data && Object.hasOwn(mapped.data, "requestSummary")) mapped.data = this.#requestSummary(mapped, entry);
     const settledMcpResult = mapped.type === 'tool.result' && !terminal(run.status)
       && this.active.get(runId) === entry && mapped.data.mcpResult
       && this.store.listEvents({ sessionId: run.sessionId, runId }).some(receipt =>
@@ -3433,6 +3445,17 @@ export class RuntimeService {
     if (mapped.type === 'tool.result' && ['async_get','async_wait'].includes(mapped.data.name)) await this.store.appendAsyncToolResult({ runId, ...mapped });
     else if ((mapped.type === 'assistant.delta' || mapped.type === 'assistant.message') && entry?.stream) await entry.stream.observe(mapped);
     else await this.store.appendEvent({ runId, ...mapped });
+  }
+
+  /* 06b B2 · keep a start's request summary only for this Run's own built-in
+   * repo_list; redact known secrets in the whole path before the display cut.
+   * The Store still admits it (first-wins, per-Run budget). */
+  #requestSummary(mapped, entry) {
+    const { requestSummary, ...data } = mapped.data;
+    if (mapped.type !== "tool.start" || !entry?.requestSummaryTrusted) return data;
+    const whole = typeof requestSummary?.path === "string" ? { ...requestSummary, path: redact(requestSummary.path, this.knownSecrets) } : requestSummary;
+    const summary = boundRequestSummary(whole);
+    return summary ? { ...data, requestSummary: summary } : data;
   }
 
   async #appendNotice(runId, notice) {

@@ -10,6 +10,7 @@ import * as openaiCompletions from "@earendil-works/pi-ai/api/openai-completions
 import * as openaiResponses from "@earendil-works/pi-ai/api/openai-responses";
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";
 import { FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID, PROVIDER_API_FORMATS, PROVIDER_DEFINITIONS } from "./provider-definitions.mjs";
+import { REQUEST_SUMMARY_TOOL, summarizeRepoListArgs } from "./request-summary.mjs";
 
 // Host wraps Pi coding-agent v3 AgentSession (in-process SDK). This module owns
 // no persistence and no SE-specific fields; the service supplies credentials,
@@ -750,7 +751,10 @@ export function mapSessionEvent(event) {
         },
       };
     case "tool_execution_start":
-      return { type: "tool.start", data: { callId: event.toolCallId, name: event.toolName } };
+      // Start arguments are otherwise dropped. repo_list alone yields a bounded
+      // candidate summary (06b B2); the Host keeps it only for its own tool.
+      return { type: "tool.start", data: { callId: event.toolCallId, name: event.toolName,
+        ...(event.toolName === REQUEST_SUMMARY_TOOL ? { requestSummary: summarizeRepoListArgs(event.args) } : {}) } };
     case "tool_execution_update":
       return {
         type: "tool.update",

@@ -54,6 +54,24 @@ export function appendCheckDetails(container, check) {
     container.append(el("h4", { className: "tool-detail-heading", text: stream }), el("pre", { className: "tool-detail", text }));
   }
 }
+/* 06b B2 · a Host-recorded summary of what was requested at execution start —
+ * not the complete request, not proof the tool accepted it. An omitted path
+ * says why it is not shown and never renders as a literal path. */
+const REQUEST_SUMMARY_OMITTED = {
+  invalid_path: "Not shown: the requested path is not a valid relative repository path.",
+  unsafe_display: "Not shown in this summary: the path contains control characters. This does not mean the tool rejected it.",
+  run_limit: "Not shown: this Run reached its limit of request summaries.",
+};
+
+export function appendRequestSummary(container, summary) {
+  const facts = summary.omittedReason === null
+    ? [["Path", summary.path], ...(summary.truncated ? [["Shown", "Beginning only; the requested path is longer"]] : [])]
+    : [["Path", REQUEST_SUMMARY_OMITTED[summary.omittedReason] ?? "Not shown."]];
+  const list = el("dl", { className: "data-list" });
+  for (const [term, value] of facts) list.append(el("dt", { text: term }), el("dd", { text: value }));
+  container.append(el("h4", { className: "tool-detail-heading", text: "Request summary" }), list);
+}
+
 export function appendToolDetails(container, row) {
   const requestValue = row.request;
   const resultValue = row.result;
@@ -61,6 +79,7 @@ export function appendToolDetails(container, row) {
     appendCheckDetails(container, row.check);
     return;
   }
+  if (row.requestSummary) appendRequestSummary(container, row.requestSummary);
   if (requestValue !== undefined && requestValue !== null) {
     container.append(
       el("h4", { className: "tool-detail-heading", text: "Request" }),
