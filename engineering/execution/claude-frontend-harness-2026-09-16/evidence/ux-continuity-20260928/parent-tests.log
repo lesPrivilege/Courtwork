@@ -1,0 +1,24 @@
+✔ summarizeRepoListArgs: only path, the tool's default, invalid vs display-unsafe (1.802833ms)
+✔ boundRequestSummary: 256 code points, 2048 bytes, closed shape (0.329458ms)
+✔ Pi mapper: repo_list start carries a candidate summary; other tools and updates/results carry none (0.20875ms)
+✔ Host eligibility: only the repository owner's own repo_list, and only when it is the sole one (0.096292ms)
+✔ Store: first summary per call wins, including changed-input and concurrent replay; the event itself is kept (63.81425ms)
+✔ Store: at most 32 non-omitted summaries per Run, counted across Host restart; omissions do not spend the budget (710.57925ms)
+✔ admitRequestSummary leaves events without the field byte-identical (0.152584ms)
+✔ Host: real Pi repo_list starts → redacted, bounded, persisted, reopened → shared Chat/Attention disclosure (968.301375ms)
+✔ Host: a cancelled Run keeps its start summary; an untrusted port observation carries none (408.594333ms)
+✔ projection: old events show no summary, malformed ones are ignored, the first start's summary stays (0.536875ms)
+✔ a successful ws_read row renders the shared anatomy: title, meta, glyph, closed by default (1.881834ms)
+✔ an error row is open by default and carries the is-failed class (0.262916ms)
+✔ a settled check_run row shows the facts list (Recipe/Outcome) and stdout, not the request/result JSON dump (1.156792ms)
+✔ toggling the details element calls onToggle with the new open state (0.168459ms)
+✔ toolGlyph, appendToolDetails and appendCheckDetails cover the moved cases (0.170959ms)
+✔ parity: Chat and Attention share renderToolRow, and the old duplicate tool-row anatomy is gone (3.000166ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2978.312583

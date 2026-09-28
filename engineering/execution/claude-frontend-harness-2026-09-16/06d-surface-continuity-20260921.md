@@ -138,3 +138,6 @@ Author checks:
 - Real 390/desktop geometry, body-scroll and return-focus checks remain with Parent.
 
 Writer released pending acceptance. No browser, user-service restart, native Hermes run, paid provider or deployment.
+
+
+**Active-tab visibility parent acceptance · 2026-09-28.** [Independent packet](evidence/ux-continuity-20260928/README.md) accepts0695b90/e318c7a. Original390px offscreen-active case now scrolls only its strip to234; selected tab/close fit the strip, reading/page position and exact return focus remain. Luna15/15 plus parent actual Arrow/open/inactive-close/last-close browser checks pass. Reject the helper-only close concern as a product blocker after checking actual app.mjs focus and repeating the actual path; do not add speculative auto-scrolling. Historical PV-R1 read-invalidation and untested accessibility matrices retain their earlier status.

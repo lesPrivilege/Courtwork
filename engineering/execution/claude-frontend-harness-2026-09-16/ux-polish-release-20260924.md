@@ -237,3 +237,6 @@ Author checks:
 - No new CSS-literal test, full suite or browser run. Parent owns the fixed 1440/390 screenshot comparison and the accessibility matrix.
 
 No other current screenshot defect was reported, so the scope is not expanded. Writer released.
+
+
+**UX-B2-READ parent acceptance · 2026-09-28.** [Current screenshot audit](evidence/ux-continuity-20260928/README.md) accepts656d8a1/619a20f: fixed1440/390 measurements15px/24px with11.5px labels, actual long-path truncation/wrapping, parent16/16 and Luna scoped-source review. Runtime/K5 behavior is retained at its measured role split, not globally restyled. Original Sonnet precheck is source recall only; cross-surface acceptance uses the new screenshots. Remaining accessibility/error matrices are explicit in the packet.
