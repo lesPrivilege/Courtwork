@@ -249,11 +249,11 @@ def read_repository_file(root_fd, root_device, requested_path):
         os.close(parent_fd)
 
 
-def scan_text_files(root_fd, root_device, requested_path):
+def scan_text_files(root_fd, root_device, requested_path, exclude_generated=False):
     parts = split_relative_path(requested_path, allow_root=True)
     start_fd = open_directory(root_fd, parts, root_device)
     files = []
-    counters = {"bytes": 0, "entries": 0, "skippedBinary": 0, "skippedLarge": 0, "skippedSymlinks": 0}
+    counters = {"bytes": 0, "entries": 0, "skippedBinary": 0, "skippedLarge": 0, "skippedSymlinks": 0, "skippedGeneratedDirectories": 0}
     truncated = False
 
     def visit(directory_fd, prefix, depth):
@@ -280,6 +280,9 @@ def scan_text_files(root_fd, root_device, requested_path):
                 counters["skippedSymlinks"] += 1
                 continue
             if stat.S_ISDIR(info.st_mode):
+                if exclude_generated and name.casefold() == "node_modules":
+                    counters["skippedGeneratedDirectories"] += 1
+                    continue
                 if str(info.st_dev) != str(root_device):
                     continue
                 if depth >= MAX_GREP_DEPTH:
@@ -325,13 +328,17 @@ def scan_text_files(root_fd, root_device, requested_path):
             files.append({"path": relative, "bytes": len(data), "sha256": digest, "dataBase64": base64.b64encode(data).decode("ascii")})
 
     try:
-        visit(start_fd, requested_path if requested_path != "." else "", 0)
+        if exclude_generated and any(part.casefold() == "node_modules" for part in parts):
+            counters["skippedGeneratedDirectories"] = 1
+        else:
+            visit(start_fd, requested_path if requested_path != "." else "", 0)
         files.sort(key=lambda item: item["path"])
         return {
             "path": requested_path, "files": files, "truncated": truncated,
             "scannedBytes": counters["bytes"], "visitedEntries": counters["entries"],
             "skippedBinary": counters["skippedBinary"], "skippedLarge": counters["skippedLarge"],
             "skippedSymlinks": counters["skippedSymlinks"],
+            **({"skippedGeneratedDirectories": counters["skippedGeneratedDirectories"]} if exclude_generated else {}),
         }
     finally:
         os.close(start_fd)
@@ -362,7 +369,12 @@ def run_request(request):
             os.close(root_fd)
     if operation not in ("list", "read", "grep"):
         fail("invalid_request", "repository operation is invalid")
-    if not {"operation", "rootPath", "device", "inode"}.issubset(request) or not set(request).issubset({"operation", "rootPath", "device", "inode", "path"}):
+    allowed_fields = {"operation", "rootPath", "device", "inode", "path"}
+    if operation == "grep":
+        allowed_fields.add("excludeGenerated")
+    if "excludeGenerated" in request and not isinstance(request["excludeGenerated"], bool):
+        fail("invalid_request", "repository generated-directory option is invalid")
+    if not {"operation", "rootPath", "device", "inode"}.issubset(request) or not set(request).issubset(allowed_fields):
         fail("invalid_request", "repository read request fields are invalid")
     if operation == "read" and not isinstance(request.get("path"), str):
         fail("invalid_request", "repository file path is required")
@@ -379,7 +391,7 @@ def run_request(request):
         elif operation == "read":
             result = read_repository_file(root_fd, device, requested_path)
         else:
-            result = scan_text_files(root_fd, device, requested_path)
+            result = scan_text_files(root_fd, device, requested_path, request.get("excludeGenerated", False))
         verify_bound_root(root_path, root_fd, device, inode)
         return result
     finally:

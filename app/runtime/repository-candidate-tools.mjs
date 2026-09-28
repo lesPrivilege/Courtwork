@@ -60,7 +60,7 @@ export function createRepositoryCandidateTools({
   async function read(operation, relativePath, signal) {
     await verify(signal);
     const result = await runRepositoryFs({ operation, path: relativePath, rootPath: candidate.candidatePath,
-      device: candidate.device, inode: candidate.inode }, { signal });
+      device: candidate.device, inode: candidate.inode, ...(operation === "grep" ? { excludeGenerated: true } : {}) }, { signal });
     await verify(signal);
     return result;
   }
@@ -127,7 +127,7 @@ export function createRepositoryCandidateTools({
   const grepTool = {
     name: "candidate_grep",
     label: "Search private candidate files",
-    description: "Search bounded UTF-8 text files inside the Host-owned private Git candidate. Symlinks and .git control paths are never followed or exposed. Never includes a file that policy denies or that needs per-file approval (excludedByPolicy/excludedPendingApproval count them without naming them); use candidate_read on an exact path to request approval for one of those files.",
+    description: "Search bounded UTF-8 text files inside the Host-owned private Git candidate. Generated node_modules directory trees (case-insensitive) are omitted; use exact candidate_read or direct candidate_list to inspect them. Symlinks and .git control paths are never followed or exposed. Never includes a file that policy denies or that needs per-file approval (excludedByPolicy/excludedPendingApproval count them without naming them); use candidate_read on an exact path to request approval for one of those files.",
     parameters: Type.Object({ pattern: Type.String({ minLength: 1, maxLength: MAX_PATTERN_CHARS }), path: Type.Optional(Type.String({ maxLength: MAX_PATH_CHARS })) }),
     async execute(_callId, params, signal) {
       const scanned = await read("grep", params.path ?? ".", signal);
@@ -146,6 +146,7 @@ export function createRepositoryCandidateTools({
       const result = { matches: matched.matches, truncated: scanned.truncated || matched.truncated,
         scannedFiles: scanned.files.length, scannedBytes: scanned.scannedBytes, skippedBinary: scanned.skippedBinary,
         skippedLarge: scanned.skippedLarge, skippedSymlinks: scanned.skippedSymlinks,
+        excludedDirectoryNames: ["node_modules"], skippedGeneratedDirectories: scanned.skippedGeneratedDirectories,
         excludedByPolicy, excludedPendingApproval };
       const text = JSON.stringify(result, null, 2);
       await record("grep", scanned.path, text, admitted.map(file => repositorySource(file.path, file.bytes, file.sha256)), signal);
@@ -192,7 +193,7 @@ export function createRepositoryCandidateTools({
   const diffTool = {
     name: "repo_diff",
     label: "Review private candidate changes",
-    description: "Show a bounded text diff from the immutable commit used to create this private candidate. The base cannot be changed by the caller. Never includes a file that policy denies or that needs per-file approval (excludedByPolicy/excludedPendingApproval count them without naming them); use candidate_read on an exact path to request approval for one of those files.",
+    description: "Show a bounded text diff from the immutable commit used to create this private candidate. The base cannot be changed by the caller. Untracked node_modules directory trees (case-insensitive) are omitted; tracked edits are retained. Never includes a file that policy denies or that needs per-file approval (excludedByPolicy/excludedPendingApproval count them without naming them); use candidate_read on an exact path to request approval for one of those files.",
     parameters: Type.Object({}),
     async execute(_callId, _params, signal) {
       await verify(signal);

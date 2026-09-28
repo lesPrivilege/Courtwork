@@ -1,0 +1,10 @@
+✔ generated dependencies: candidate grep prunes directory roots before its file budget while exact and source reads remain available (3549.385334ms)
+✔ generated dependencies: candidate diff excludes large mixed-case untracked trees before enumeration caps but retains tracked and ignored source edits (4646.259958ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9464.27025
