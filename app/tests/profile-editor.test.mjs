@@ -311,13 +311,17 @@ test("K5-R2: simultaneous and repeated Save send one PUT; typing during hashing 
 
 test("K5-R2: an in-flight save in one Chat/profile slot does not hold another", async () => {
   const { host, editor } = await setup();
-  let release;
+  // Wait until the first save is really held in the adapter, not for one
+  // tick: the editor may await before it calls save, and under load one tick
+  // ended before `release` existed ("release is not a function").
+  let release, reached;
+  const held = new Promise((resolve) => { reached = resolve; });
   const real = host.adapter.save;
-  host.adapter.save = async (s, body) => { host.calls.push({ kind: "held" }); await new Promise((resolve) => { release = resolve; }); return real(s, body); };
+  host.adapter.save = async (s, body) => { host.calls.push({ kind: "held" }); await new Promise((resolve) => { release = resolve; reached(); }); return real(s, body); };
   editor.setText(S, P, EDITED);
   const first = editor.save(S, P);
   editor.open("other-session", P);
-  await new Promise((resolve) => setTimeout(resolve, 0));
+  await held;
   assert.equal(editor.reading("other-session", P).save.status, "idle");
   release();
   await first;

@@ -300,7 +300,12 @@ Astra's review asked that repeated failures be explained, not labelled load flak
   - Fixes: the escalation test's deadline is now 2.5 s. The interruption test aborts from inside the hung callback, the same termination path without the timing dependence.
   - Under 24-process CPU stress, the previous tests failed 3/5 and 5/5; the fixed tests 0/5 and 0/5.
 
-Still unexplained: `profile-editor` K5-R2, on the known-flake list, not reproduced in this loop.
+- **`profile-editor` K5-R2**, formerly on the known-flake list. `save` awaits a WebCrypto SHA-256 digest before calling the adapter, and the digest runs on libuv's thread pool. The test waited one `setTimeout(0)` tick for the held adapter call; when the thread pool was busy, that tick ended before `release` existed ("release is not a function").
+  - CPU stress alone did not reproduce it (0/8), because the thread pool, not the CPU, sets the timing. Occupying the pool with eight `pbkdf2` jobs just before the save reproduces the exact error in the previous test.
+  - Fix: the test waits until the save is actually held in the adapter; the fixed test passes under the same load.
+  - [Verification](../../verification.md) no longer lists K5-R2 as a known flake. It now states that an intermittent failure is closed by a demonstrated mechanism, not by a passing rerun.
+
+Still unexplained: `review-core-client-lifecycle` (Core bridge ready timeout), the remaining known flake; not seen in this loop.
 
 ## Needs a ruling
 
