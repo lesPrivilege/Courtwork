@@ -5,6 +5,7 @@ import path from "node:path";
 import { Type } from "@earendil-works/pi-ai";
 import { Worker } from "node:worker_threads";
 import { maybeCrash } from "./test-hooks.mjs";
+import { strictestEffect } from "./repository-tools.mjs";
 
 // Generic workspace tools scoped to one session's workspace directory. No
 // bash, no network, no path outside the workspace: those capabilities do not
@@ -164,14 +165,24 @@ export async function listWorkspaceTree(workspaceDir) {
   return files;
 }
 
-export function createWsListTool({ workspaceDir }) {
+// An aggregate read returns a file's content or hash only when both the
+// aggregate tool's rule and the single-file ws_read rule allow that path.
+function admitsFile(admitPath, tool, relPath) {
+  return strictestEffect(admitPath(tool, relPath), admitPath("ws_read", relPath));
+}
+
+export function createWsListTool({ workspaceDir, admitPath = () => "allow" }) {
   return {
     name: "ws_list",
     label: "List workspace files",
     description: "List files under the session workspace (materials/ and out/), with size and sha256.",
     parameters: Type.Object({}),
     async execute() {
-      const files = await listWorkspaceTree(workspaceDir);
+      const files = (await listWorkspaceTree(workspaceDir)).map((file) => {
+        if (admitsFile(admitPath, "ws_list", file.path) === "allow") return file;
+        const { sha256, ...withheld } = file;
+        return withheld;
+      });
       return { content: [{ type: "text", text: JSON.stringify(files, null, 2) }], details: { files } };
     },
   };
@@ -286,7 +297,7 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
 // monopolize a JS thread, so execute it in a terminable worker rather than
 // relying on timers in that same thread. Termination is awaited before this
 // tool settles: "cancelled" must not leave the search running in the background.
-function searchInWorker({ workspaceReal, searchPath, pattern, signal }) {
+function searchInWorker({ workspaceReal, searchPath, pattern, admit, signal }) {
   if (signal?.aborted) return Promise.reject(wsError("search was cancelled"));
   return new Promise((resolve, reject) => {
     const worker = new Worker(new URL("./grep-worker.mjs", import.meta.url), {
@@ -295,19 +306,34 @@ function searchInWorker({ workspaceReal, searchPath, pattern, signal }) {
     });
     let settled = false;
     let timer;
+    let excludedByPolicy = 0;
+    let excludedPendingApproval = 0;
     const finish = (error, matches) => {
       if (settled) return;
       settled = true;
       clearTimeout(timer);
       signal?.removeEventListener("abort", abort);
       worker.terminate().then(
-        () => error ? reject(error) : resolve(matches),
+        () => error ? reject(error) : resolve({ matches, excludedByPolicy, excludedPendingApproval }),
         () => reject(wsError("search worker could not be stopped")),
       );
     };
     const abort = () => finish(wsError("search was cancelled"));
-    worker.once("message", (message) => {
-      if (!Array.isArray(message?.matches)) finish(wsError("search worker returned an invalid result"));
+    // The worker names every candidate file first; only the admitted ones are opened.
+    worker.on("message", (message) => {
+      if (Array.isArray(message?.files)) {
+        try {
+          const admitted = message.files.map((file) => {
+            const effect = admit(file);
+            if (effect === "deny") excludedByPolicy += 1;
+            else if (effect === "ask") excludedPendingApproval += 1;
+            return effect === "allow";
+          });
+          worker.postMessage({ admitted });
+        } catch {
+          finish(wsError("search admission failed"));
+        }
+      } else if (!Array.isArray(message?.matches)) finish(wsError("search worker returned an invalid result"));
       else finish(null, message.matches);
     });
     worker.once("error", () => finish(wsError("search worker failed")));
@@ -318,7 +344,7 @@ function searchInWorker({ workspaceReal, searchPath, pattern, signal }) {
   });
 }
 
-export function createWsGrepTool({ workspaceDir }) {
+export function createWsGrepTool({ workspaceDir, admitPath = () => "allow" }) {
   return {
     name: "ws_grep",
     label: "Search workspace files",
@@ -348,8 +374,13 @@ export function createWsGrepTool({ workspaceDir }) {
       } catch {
         throw wsError("path does not exist");
       }
-      const matches = await searchInWorker({ workspaceReal, searchPath: resolved.absolutePath, pattern: params.pattern, signal });
-      return { content: [{ type: "text", text: JSON.stringify(matches, null, 2) }], details: { matches } };
+      const { matches, excludedByPolicy, excludedPendingApproval } = await searchInWorker({
+        workspaceReal, searchPath: resolved.absolutePath, pattern: params.pattern, signal,
+        admit: (relPath) => admitsFile(admitPath, "ws_grep", relPath),
+      });
+      const content = [{ type: "text", text: JSON.stringify(matches, null, 2) }];
+      if (excludedByPolicy || excludedPendingApproval) content.push({ type: "text", text: JSON.stringify({ excludedByPolicy, excludedPendingApproval }) });
+      return { content, details: { matches, excludedByPolicy, excludedPendingApproval } };
     },
   };
 }
@@ -367,8 +398,8 @@ export function createAskUserTool(askUser) {
   };
 }
 
-export function createWorkspaceTools({ workspaceDir, permissionMode, requestPermission, onWritten, saveHistory }) {
-  const tools = [createWsListTool({ workspaceDir }), createWsReadTool({ workspaceDir }), createWsGrepTool({ workspaceDir })];
+export function createWorkspaceTools({ workspaceDir, permissionMode, requestPermission, onWritten, saveHistory, admitPath }) {
+  const tools = [createWsListTool({ workspaceDir, admitPath }), createWsReadTool({ workspaceDir }), createWsGrepTool({ workspaceDir, admitPath })];
   if (permissionMode !== "read_only") {
     tools.push(createWsWriteTool({ workspaceDir, permissionMode, requestPermission, onWritten, saveHistory }));
   }

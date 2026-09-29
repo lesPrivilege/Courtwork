@@ -4,6 +4,9 @@ import path from "node:path";
 
 // Host resolves the search root; traversal, reads, and regex all share the worker deadline.
 // No code from the model is evaluated; only its regular expression is matched.
+// Traversal comes first and names every candidate file to the Host, which
+// answers with the files its read policy admits; a file that is not admitted
+// is never opened, so its bytes cannot reach a match.
 const { workspaceReal, searchPath, pattern, maxReadBytes, maxResults } = workerData;
 const regex = new RegExp(pattern);
 const matches = [];
@@ -18,9 +21,16 @@ async function* files(full) {
     yield* files(path.join(full, entry.name));
   }
 }
+const found = [];
 for await (const entry of files(searchPath)) {
-  if (matches.length >= maxResults) break;
   if (entry.bytes > maxReadBytes) continue;
+  found.push({ ...entry, path: path.relative(workspaceReal, entry.full).split(path.sep).join("/") });
+}
+parentPort.postMessage({ files: found.map((entry) => entry.path) });
+const { admitted } = await new Promise((resolve) => parentPort.once("message", resolve));
+for (const [index, entry] of found.entries()) {
+  if (matches.length >= maxResults) break;
+  if (!admitted[index]) continue;
   // Read at most the host ceiling plus one byte even if a file grows after stat.
   const handle = await open(entry.full, "r").catch(() => null);
   if (!handle) continue;
@@ -38,7 +48,7 @@ for await (const entry of files(searchPath)) {
   if (bytes.length > maxReadBytes || bytes.subarray(0, 8000).includes(0)) continue;
   const lines = bytes.toString("utf8").split("\n");
   for (let i = 0; i < lines.length && matches.length < maxResults; i += 1) {
-    if (regex.test(lines[i])) matches.push({ path: path.relative(workspaceReal, entry.full).split(path.sep).join("/"), line: i + 1, text: lines[i] });
+    if (regex.test(lines[i])) matches.push({ path: entry.path, line: i + 1, text: lines[i] });
   }
 }
 parentPort.postMessage({ matches });

@@ -25,6 +25,13 @@ document's revision of the contract, not a new route namespace.
 - Errors are `{ "error": { "code", "message" } }`. Messages never contain an API key.
   A few errors add recovery data alongside those two fields — currently
   `cursor_ahead`, which carries `nextSeq`.
+- A Core request whose transport failed or whose deadline passed after it was
+  sent may or may not have committed. Such an error is `503` with the Core code
+  (for example `CORE_TIMEOUT`) and adds `outcome: "unknown"` and `operation`
+  (the Core operation name); the Host does not say the request was refused.
+  A Core refusal (for example `OBLIGATION_OPEN`, `INVALID`) stays `409` without
+  `outcome`. A decision retried with the same `request_id` is safe: Core
+  replays the recorded receipt if it committed and refuses a stale request.
 
 ## Run and question vocabularies
 
@@ -464,7 +471,8 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
 `active_run` · `command_conflict` · `run_closed` · `question_unavailable` ·
 `binding_exists` · `binding_mismatch` · `extension_unloaded` ·
 `generation_mismatch` · `extension_lifecycle_failed` (409),
-`body_too_large` (413), `provider_unsupported` (503), `internal_error` (500).
+`body_too_large` (413), `provider_unsupported` (503), Core codes with an unknown
+outcome (503, see [Transport](#transport)), `internal_error` (500).
 
 ## Operational requirements
 

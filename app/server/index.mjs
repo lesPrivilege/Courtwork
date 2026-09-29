@@ -107,6 +107,8 @@ function errorResponse(error) {
   if (error instanceof AsyncTaskError) return { status: error.status, code: error.code, message: error.message };
   if (error?.message === "project not found" || error?.message === "session not found" || error?.message === "run not found" || error?.message === "question not found") return { status: 404, code: "not_found", message: "resource not found" };
   if (error?.message === "active run exists") return { status: 409, code: "active_run", message: "only one active run is allowed" };
+  // A Core transport failure or deadline on a sent request cannot say whether it committed: not a refusal.
+  if (error?.outcome === 'unknown') return { status: 503, code: error.code, message: error.message, details: { outcome: 'unknown', operation: error.operation } };
   if (error?.source === 'core_bridge' || ['INVALID_INPUT','EVIDENCE_INVALID','CONTRACT_UNSUPPORTED','BINDING_MISMATCH','CONTEXT_BUDGET','REVIEW_INVALID','OBLIGATION_OPEN'].includes(error?.code)) return {status:409,code:error.code,message:error.message};
   return { status: 500, code: "internal_error", message: "request failed" };
 }

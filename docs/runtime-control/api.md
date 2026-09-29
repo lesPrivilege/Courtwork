@@ -45,6 +45,8 @@ Set policy; rules replace the rule list in this scope:
 {"revision":2,"operation":"policy","scope":{"type":"workspace","id":"PROJECT_ID"},"rules":[{"action":"ws_write","resource":"materials/*","effect":"deny"},{"action":"ws_write","resource":"out/*","effect":"ask"}]}
 ```
 
+Aggregate workspace tools apply per-file policy as the repository aggregates do ([repository binding](../../app/docs/repository-binding.md)): a file appears in `ws_grep` only when both the `ws_grep` rule and the `ws_read` rule for that path allow it, and `ws_list` omits the `sha256` of a file that `ws_list` or `ws_read` does not allow. `ws_grep` reports `excludedByPolicy` and `excludedPendingApproval` counts without naming paths and never opens a withheld file.
+
 Import a skill with YAML frontmatter `name` and `description`, followed by Markdown. Import a profile as JSON source text with this shape:
 
 ```json
