@@ -1,7 +1,7 @@
 # Document governance review · intake and disposition
 
 Use: intake record. It does not define current rules; the rules it produced live in their owners, linked below.
-Intake: partly disposed. Open item: G10 (cold-start handoff). G12 is deferred to its owner with a trigger.
+Intake: closed 2026-09-29. G12 is deferred to its owner with a trigger; seven older research intakes without an owner stay listed in the research index.
 Owner: Claude (Opus) session, 2026-09-29, at the user's direction to converge the repository's documentation from first principles and then review the implementation against it. Sonnet agents explored and made bounded edits; rulings and the rewrites of `current`, `architecture`, `governance` and `repository layout` are Opus's. This is author work; it has no independent review yet.
 
 ## Source
@@ -26,7 +26,7 @@ At `ffe68fb` (16 commits after the reviewed SHA) five Sonnet explorers re-checke
 | G7 | A passing link check is not document governance (F7) | Adjust. Keep the checker; add fragment (anchor) checking as a report, since it is decidable. Semantic consumption stays with owners. | — | Done: `node tools/check-doc-links.mjs --anchors` reports fragment problems; `--strict-anchors` fails on them ([tools](../../../tools/README.md)). Five remain, all in history or older design/mvp packets; strict mode waits until they are cleared |
 | G8 | Generated sources must be edited at the generator (F8) | Adopt. | [source and generated files](../../../docs/repository-layout.md#source-and-generated-files) | None |
 | G9 | Pilot packages: Attention (mature routing), Context Window (saved, undisposed), brand SVG handoff (retired) | Adopt the pilots. Attention's `INDEX.md` is linked from the [engineering entry](../../README.md) as the routing exemplar. | — | Done: [Context Window](../context-window-2026-09-11/README.md) closed as partly consumed with a dormant remainder; [brand handoff](../claude-brand-svg-handoff-2026-09-11/README.md) gained the missing retirement lines. Reading notes were also added where a packet's dated banner read as live ([main execution packet](../../execution/claude-frontend-harness-2026-09-16/README.md) and two design packets) |
-| G10 | Cold-start handoff test | Adopt as the acceptance test for this intake. | — | Open: after G4, give a fresh agent with no memory a clean checkout and a bounded task; record files opened, wrong turns and missed obligations |
+| G10 | Cold-start handoff test | Adopt as the acceptance test for this intake. | — | Done: a fresh agent with no memory answered four handoff questions correctly from a clean checkout without opening history or raw sources; its friction was fixed or disposed ([cold-start test](cold-start-20260929.md)) |
 | G11 | Proposed `archive/` area, reading route with stop conditions, authority by fact owner rather than one priority order | Adopt, narrowed: `engineering/archive/` holds only history split out of live pages; packets stay in place. | [archive index](../../archive/README.md), [retiring material](../../governance.md#retiring-material), [engineering entry](../../README.md) | None |
 | G12 | Root README's development route sits late in the page | Defer to its owner: public README, Pages and media are original Claude's lane, and the English README is generated from `site/src/readme.mjs`. | [public readiness](../../execution/2026-09-08-main-round/public-readiness.md) | When that owner next edits the README generator and the Chinese counterpart |
 | G13 | Diátaxis as a structure; ADR style for superseded decisions | Reject Diátaxis as a directory scheme (the owner structure already routes by task). Adopt the ADR habit of keeping a superseded decision with a pointer to its replacement. | [retiring material](../../governance.md#retiring-material) | None |
@@ -38,4 +38,4 @@ The user asked for the implementation to be reviewed against the converged docum
 
 ## Exit
 
-Close this intake when G10 is done; G12 is already deferred to its owner (done, or deferred to a named owner with a trigger). Closing it does not accept any product implementation.
+Closed: every question has a disposition. This does not accept any product implementation, and the rules here are author work that no person has reviewed yet.

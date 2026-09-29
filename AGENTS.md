@@ -1,6 +1,6 @@
 # CourtWork · working agreement
 
-The sole persistent development entry is `Courtwork`. Read the actual branch and HEAD before work; do not use `Courtwork-fresh` as an active checkout or register Fresh as a separate development line. Legacy Courtwork is a frozen source, not the implementation or governance authority. Read `engineering/current.md`, then the relevant assignment/contract and evidence. `PAPER.md` pins the separate SE doctrine source.
+The sole persistent development entry is `Courtwork`. Read the actual branch and HEAD before work; do not use `Courtwork-fresh` as an active checkout or register Fresh as a separate development line. Legacy Courtwork is a frozen source, not the implementation or governance authority. Read `engineering/current.md`, then pick your task's row in [`engineering/README.md`](engineering/README.md) for the relevant assignment/contract and evidence. `PAPER.md` pins the separate SE doctrine source.
 
 ## Work and review
 

@@ -2,7 +2,7 @@
 
 This page is a maintained snapshot: where the work stands and where to continue. It is edited in place. Events, receipts, test output and acceptance detail belong in the owner record linked from each row, not here. The dated log that this page used to accumulate, 2026-09-08 to 2026-09-29, is kept as [history](archive/current-log-2026-09-08-to-2026-09-29.md).
 
-Last reconciled: 2026-09-29, against `main` = `origin/main` = `ffe68fb`.
+Last reconciled: 2026-09-29. This snapshot was written on branch `claude/doc-convergence-20260929` on top of `main` = `origin/main` = `ffe68fb`; update the main-line row when that branch is integrated.
 
 ## Baseline
 
@@ -31,8 +31,8 @@ Authors do not accept their own work. A lane grants implementation authority ins
 
 | Thread | State | Next or open obligation | Owner record |
 |---|---|---|---|
-| UX queue | Active, original Claude | P1 narrow Composer labels (375/390 px), then answered `ask_user` selection/toggle. Not claimed: physical touch, Safari, full accessibility matrices, whole-product UX. | [UX record](execution/claude-frontend-harness-2026-09-16/ux-polish-release-20260924.md) |
-| Doc-driven code review findings | Open, returned to owners | Confirmed findings in Run terminal-state handling, `check_run` isolation, extension access to the Core client, permission evaluation and HTTP outcome mapping. Each is routed to its owner with a reproduction. | [2026-09-29 review](reviews/doc-driven-code-review-2026-09-29/README.md) |
+| UX queue | Active, original Claude | P1 narrow Composer labels (375/390 px), then answered `ask_user` selection/toggle. Returned from the 2026-09-29 review, order for the owner to decide: U1 Enter cancels the project/rename/session dialogs; U2 Continue in Matter lists Matters by ID. Not claimed: physical touch, Safari, full accessibility matrices, whole-product UX. | [UX record](execution/claude-frontend-harness-2026-09-16/ux-polish-release-20260924.md) |
+| Doc-driven code review findings | Open, returned to owners | Astra: D1–D3 cancel vs completion arbitration (terminal Runs can change state), D4–D5 `check_run` runs candidate code with Host rights beside credentials, D6/D9/D10 small permission and HTTP-outcome fixes. UX: U1–U2. D11 fixed. Each has a reproduction. | [2026-09-29 review](reviews/doc-driven-code-review-2026-09-29/README.md) |
 | Documentation governance | In progress | Apply the material lifecycle rules to research, design, execution, release and evidence indexes; run a cold-start handoff check. | [intake](research/document-governance-2026-09-28/README.md) |
 | Hermes native runtime | Blocked | Native API-server execution is refused by the original permission review, and the refusal stands. The standalone adapter is accepted ([acf5694](execution/claude-frontend-harness-2026-09-16/evidence/hermes-protocol-final-20260927/README.md)). Native profile/MCP tool-loop conformance exists only as author evidence on branch `claude/runtime-settings-i1-20260927` (`224d221`, head `ebb735b`); it is neither reviewed nor adopted. | [core-runtime-loop](execution/claude-frontend-harness-2026-09-16/core-runtime-loop-20260921.md#2026-09-27--next-hermes-consumer-native-profile-and-mcp-tool-loop-conformance) |
 | Public readiness | Open | G1 fresh-user configuration, G4 residuals, timed media, whole-release acceptance. G5 fact mapping is accepted. Public README/Pages/media stay with original Claude. | [public readiness](execution/2026-09-08-main-round/public-readiness.md) |

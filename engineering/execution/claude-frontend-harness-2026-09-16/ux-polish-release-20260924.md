@@ -547,7 +547,7 @@ A real Sonnet Explore (`claude-sonnet-5`, 20 read-only calls) read the seven lea
 
 The [doc-driven code review](../../reviews/doc-driven-code-review-2026-09-29/README.md) walked the first-work path through the real UI and returns two UX findings to this queue; the UX owner decides order and treatment.
 
-- **U1.** Enter in the New project dialog cancels it, and the kept draft concatenates on retry. Four dialogs in `web/index.html` place Cancel (`type="submit" formnovalidate`) before the primary action, and implicit submission uses the first submit button.
+- **U1.** Enter in the New project dialog cancels it, and the kept draft concatenates on retry. The project, rename and session dialogs in `web/index.html` place Cancel (`type="submit" formnovalidate`) before the primary action, and implicit submission uses the first submit button. The delete dialog defaults to Cancel on purpose and should stay so. Nearest precedent: `edit-message-dialog`, whose Cancel is `type="button"`.
 - **U2.** Continue in Matter lists existing work by Matter ID rather than its title.
 
 The same review fixed the stale `chat-entry` source assertion left by N07-R1 (test-only; the invariant is unchanged).
