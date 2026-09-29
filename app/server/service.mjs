@@ -2665,7 +2665,14 @@ export class RuntimeService {
     throw new ServiceError(400,'invalid_input','unknown work query');
   }
 
-  async humanAction(sessionId, input) {
+  /** A human action commits formal work state; it is serialized with Run
+   * admission, so no Run can be admitted between its idle check and its
+   * commit and then run against a Matter version that moved under it. */
+  humanAction(sessionId, input) {
+    return this.#withConfiguration(() => this.#humanAction(sessionId, input));
+  }
+
+  async #humanAction(sessionId, input) {
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["extensionId", "generation", "action", "payload", "actor", "fileCapabilityVersion"]));
     if (value.actor !== undefined) throw new ServiceError(400, "unknown_field", "actor is host-owned");

@@ -940,6 +940,10 @@ export class WorkExtension {
     }
     if (input.action === 'replace_sources') {
       exactKeys(input.payload, ['sources','revision'], 'source replacement');
+      // The adapter reads sources up to MAX_SOURCE; it must not accept one it
+      // could never read back.
+      if (!Array.isArray(input.payload.sources)) throw extensionError('INVALID_INPUT', 'source replacement sources must be an array');
+      for (const source of input.payload.sources) nonEmptyText(source?.text, 'source.text', MAX_SOURCE);
       return this.core.call('replace_sources', {matter_id:binding.matterId,...input.payload});
     }
     if (input.action === 'decide') {

@@ -441,6 +441,9 @@ class Store(FileCandidateMixin):
 
     def save_candidate(self, payload: dict[str, Any], context: RunContext | None = None) -> dict[str, Any]:
         validate_candidate_payload(payload)
+        # Obligation ids must be unique when proposed, not only when accepted:
+        # a stored proposal with duplicates could never be decided.
+        self._obligation_map(payload["obligations"])
         if payload["contract_version"] == FILE_CONTRACT:
             raise CoreError("CONTRACT_UNSUPPORTED", "file candidate requires recorded import")
         if context is not None:
@@ -676,10 +679,11 @@ class Store(FileCandidateMixin):
     def _check_obligations(self, existing_raw: list[Any], proposed_raw: list[Any], action: str,
                            matter_id: str | None = None, source_revision: int = 1) -> list[dict[str, Any]]:
         existing = self._obligation_map(existing_raw)
-        proposed = self._obligation_map(proposed_raw)
         if action != "accept":
-            # A reject or request-for-evidence does not mutate Matter obligations.
+            # A reject or request-for-evidence does not mutate Matter obligations,
+            # so the proposal is not validated: an invalid one can still be closed.
             return existing_raw
+        proposed = self._obligation_map(proposed_raw)
         for oid, old in existing.items():
             new = proposed.get(oid)
             if new is None:

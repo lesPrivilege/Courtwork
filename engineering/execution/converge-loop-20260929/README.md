@@ -334,6 +334,36 @@ Input: a Sonnet audit of the Harness layer (`app/harness/`) against [Spark](../.
   Adopted: a failed Run settlement is logged, not swallowed.
 - **Defect D2, deferred: needs a ruling (see Deferred).**
 
+### S14 · Formal-work input integrity
+
+Input: a Sonnet audit of the formal work path (work adapter, Work Core, NDA domain, Host human actions) with reproductions. The central guarantees held:
+- only a human action through the Work API decides;
+- concurrent accept, revise and source replacement produce exactly one winner and one active version pointer;
+- request ids refuse reuse across Matters;
+- the NDA unresolved-findings rule has no bypass;
+- models reach no decide, revise or replace path;
+- Run finish and reconcile never replay.
+
+Six problems were found; three are fixed here.
+
+- **D2, reproduced: unreadable sources.** `replace_sources` skipped the rules `create_matter` applies. It stored a source with NUL, a blank one, or one over the adapter's 100 000-character read limit, after which every `se_read_source` failed and NDA review could not be verified. Fix: the bridge runs each replaced source through `validate_source`; the adapter refuses one over `MAX_SOURCE`. The refusal commits nothing.
+- **D3, reproduced: undecidable candidates.** A model could submit a candidate with duplicate obligation ids. It was stored pending and advertised as decidable, yet accept, reject and request-evidence all failed with `OBLIGATION_INVALID`, so it stayed in the review queue forever. Fix: `save_candidate` refuses duplicates at submission, and the model gets a tool error. Reject and request-evidence no longer validate the proposal, so a candidate already stored this way can be closed.
+- **D5, reproduced with an injected delay: human actions and Run admission.** `humanAction` checked for an idle Host, then awaited Core work outside the configuration queue that Run creation uses. A Run admitted in between ran against a Matter version that the action then moved. Fix: `humanAction` runs inside `#withConfiguration`. Its only caller is the HTTP route.
+- **Fact owners.** Work Core bridge and store (`core/bridge.py`, `core/core.py`); work adapter (`extensions/work-adapter.mjs`); Host service.
+- **Checks.** New `work-input-integrity.test.mjs`: three tests, each failing against the previous code. `npm --prefix app test` 1873/1873.
+- **Non-author review (Sonnet).** Fixes 2 and 3 clean. It confirmed:
+  - no caller relies on the refused source shapes;
+  - revision and NDA saves go through the same Core save;
+  - no deadlock inside the queue: a human action awaits only the Store, Core calls (30 s timeout) and the extension;
+  - old databases' duplicate-obligation candidates can now be rejected, while accept still refuses them.
+
+  Findings and dispositions:
+  - Adopt: a non-array `sources` became a 500 because the adapter threw a plain `TypeError`. It now uses the adapter's `INVALID_INPUT` error, a 409, with a test.
+  - Accept: the Core-side `validate_source` check is only exercised through direct Core calls, because the adapter refuses first.
+  - Accept: an idempotent replay of an already-stored duplicate candidate now reports `OBLIGATION_INVALID` instead of its cached result.
+  - Note for extension owners: a hung third-party extension `humanAction` now holds the configuration queue, as extension lifecycle already did; extension code has no timeout of its own.
+- **Not fixed here.** D1 and D4 are under [Needs a ruling](#needs-a-ruling). D6 is low: `attention.source_record` checks project scope but not Matter disclosure, an existence and digest oracle only for a caller that already knows the ids and digest. It is recorded for the Attention owner.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
@@ -345,6 +375,8 @@ These are removals or data decisions that the directive does not settle, because
 | Local Pi worker (`runtime/local-pi-*.mjs`, about 880 lines) | Opt-in `localPiWorker`, off by default; schema 20 depends on it; listed as a dormant residual | Keep dormant, or remove with a schema step? |
 | Runtime-management and agent-profile specimen pages (`web/runtime-management*.mjs`, `web/agent-profiles*.mjs`, about 2,450 lines with contracts, fixtures and preview scripts) | Served only through the static allow-list; live runtime management is deferred | Keep as specimens for the deferred UI, or remove until that UI is scheduled? |
 | Data-format compatibility: the legacy skin-token format in browser preferences, stream events without segments, the `credentials.json` key-space migration, `legacyWithoutControlSnapshot` Runs | Each reads data written by an earlier build | Can existing local data be declared unsupported, so these readers go? This needs a data ruling, not a code one. |
+| Matter size and the Core wire limit (S14 D1) | `matter_view` returns every source and every candidate body in one bridge message; past about 1 MB it is refused. Reproduced two ways, and the Matter became permanently unusable (no surface, no decision, no new Run) either way: one large source replacement, which S14's source limits now block at 100 000 characters, or about ten large human revisions, still open. | Core API change for the core lane: page or bound candidate bodies in `matter_view` and cap the source count, or state a Matter size limit. Which one? |
+| Stale pending candidates (S14 D4) | A candidate made stale by a source or version change can be neither accepted nor rejected, since the stale checks apply to every action. It is still listed with its full body in every Run's required context. Reproduced: after six such candidates the context exceeds its budget and every new Run fails, so only a new binding recovers the Matter. | Two decisions: may a stale candidate be closed (reject or request evidence) without being current, and should Run context list stale candidates only by id and reason? |
 | `check_run` containment (D4) | Candidate code runs as the Host user and can read the credential file by path | Already open under [RD-009](../../research/RD-009-trusted-harness-extensions.md): choose an OS sandbox, a data directory the check cannot read, or an accepted limitation. |
 
 ## Deferred
