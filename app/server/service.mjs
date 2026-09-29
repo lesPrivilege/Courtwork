@@ -269,6 +269,13 @@ export class RuntimeService {
     registerFakeProvider(this.modelRuntime, this.fakeProvider);
     this.asyncTasks = new AsyncTasks({ store, adapters: asyncTaskAdapters, canUse: (name, sessionId) => {
       try {
+        // An orphan (its Session deleted) can still be reconciled or cancelled
+        // by the local human; launching or consuming needs a live origin Run,
+        // so only this path reaches here. Only an explicit user-scope deny
+        // still applies: the Session's tool exposure no longer exists.
+        if (sessionId && !this.store.getSession(sessionId)) {
+          return evaluatePolicy(this.getRuntimeControl(null).policies, name, '*', 'allow', 'allow').effect !== 'deny';
+        }
         const snapshot = this.getRuntimeControl(sessionId);
         const tool = snapshot.resources.find(r => r.id === 'tool:' + name);
         return Boolean(tool?.exposed && evaluatePolicy(snapshot.policies, name, '*', 'allow', 'allow').effect !== 'deny');

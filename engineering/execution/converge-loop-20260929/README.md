@@ -364,6 +364,45 @@ Six problems were found; three are fixed here.
   - Note for extension owners: a hung third-party extension `humanAction` now holds the configuration queue, as extension lifecycle already did; extension code has no timeout of its own.
 - **Not fixed here.** D1 and D4 are under [Needs a ruling](#needs-a-ruling). D6 is low: `attention.source_record` checks project scope but not Matter disclosure, an existence and digest oracle only for a caller that already knows the ids and digest. It is recorded for the Attention owner.
 
+### S15 · External effects: long MCP calls, orphaned async tasks
+
+Input: a Sonnet audit of the external-effects layer (MCP manager, Runtime Control call policy, async tasks, Kit gating) with loopback reproductions. It confirmed:
+- dispatch ordering: a denied or cancelled approval sends nothing; an abort in the dispatch window is marked unknown;
+- an HTTP 500 fails closed;
+- redirects are refused;
+- MCP configuration is parsed strictly, with no headers or credentials to leak;
+- Run bindings, policies and permission mode are frozen at admission;
+- approval is bound to the tool call ID and argument hash;
+- result bounds hold;
+- async-task scoping, replay, the single cancel attempt and delivery receipts behave;
+- there is no automatic relaunch.
+
+- **D1/D2, reproduced: the transport-wide MCP deadline.** `MCPManager.connect` gave the MCP transport a `fetch` wrapper with a 15 s `AbortSignal.timeout`. The deadline covered response bodies, so:
+  - every tool call over 15 s was cut and recorded `mcp_effect_unknown` (a Run that cannot be superseded), despite its 60 s call timeout;
+  - a legacy-protocol server's standalone SSE stream was dropped after 15 s, and the provider marked degraded until an explicit reconnect, which is frozen during a Run.
+
+  No rationale was recorded; it arrived with the main takeover. Fix: the deadline now covers response headers only: 15 s for ordinary requests, 65 s for `tools/call`, cleared once headers arrive. Bodies stream under the SDK timeouts (15 s connect and list, 60 s call) and callers' signals.
+  - The first version removed the deadline entirely. The review showed that this let `connect` hang forever on a legacy server that never answers the `initialized` notification, which the SDK sends without a timeout.
+  - With the probes, a 17 s call completes and records its result, and a legacy provider is still healthy at 20 s.
+  - New `mcp-long-call.test.mjs` has two tests: a 16 s call (fails before), and the unanswered legacy notification (hangs with no deadline, fails connect at about 15 s now).
+- **D3, reproduced: orphaned async tasks.** Deleting a Session retains its async tasks as orphans, but reconcile and cancel of an orphan were refused as "policy denied": `canUse` looked up the deleted Session's Runtime Control and treated the lookup failure as a deny. An `unknown` or `running` remote task could never be settled or cancelled.
+  - Fix: for a Session that no longer exists, only an explicit user-scope deny applies. Launching and consuming still need a live origin Run, so only the human reconcile and cancel paths reach this.
+  - New `async-orphan.test.mjs` covers reconcile and cancel of an orphan; it fails before (409) and passes after.
+- **Fact owners.** `runtime/mcp-manager.mjs`; Host service (`canUse`), with the policy owned by Runtime Control.
+- **Suite.** `npm --prefix app test` 1877/1877.
+- **Non-author review (Sonnet).** It confirmed:
+  - every Host request is bounded;
+  - no model path reaches the deleted-Session branch of `canUse`, since launch, dispatch and consumption check a live origin Run first;
+  - a user-scope deny still refuses orphan reconcile and cancel;
+  - both tests fail against the previous code.
+
+  Findings and dispositions:
+  - Adopt: the hang, fixed with the headers deadline and its test.
+  - Adopt: a cancel test for orphans.
+  - Defer: on a legacy server, an answer arriving after its call was cancelled or timed out is an "unknown message ID". The provider is marked degraded until an explicit reconnect. This predates the loop for answers within 15 s; the headers deadline bounds it at 65 s. Closing it needs each call's request aborted with the call, or the manager to ignore that late response.
+  - Defer: after a Session is deleted, a workspace-scope deny set for its project no longer applies to the orphan's human reconcile and cancel; only user-scope denies do.
+- **Not fixed here.** D4 and the policy-action findings are under [Needs a ruling](#needs-a-ruling).
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
@@ -377,6 +416,8 @@ These are removals or data decisions that the directive does not settle, because
 | Data-format compatibility: the legacy skin-token format in browser preferences, stream events without segments, the `credentials.json` key-space migration, `legacyWithoutControlSnapshot` Runs | Each reads data written by an earlier build | Can existing local data be declared unsupported, so these readers go? This needs a data ruling, not a code one. |
 | Matter size and the Core wire limit (S14 D1) | `matter_view` returns every source and every candidate body in one bridge message; past about 1 MB it is refused. Reproduced two ways, and the Matter became permanently unusable (no surface, no decision, no new Run) either way: one large source replacement, which S14's source limits now block at 100 000 characters, or about ten large human revisions, still open. | Core API change for the core lane: page or bound candidate bodies in `matter_view` and cap the source count, or state a Matter size limit. Which one? |
 | Stale pending candidates (S14 D4) | A candidate made stale by a source or version change can be neither accepted nor rejected, since the stale checks apply to every action. It is still listed with its full body in every Run's required context. Reproduced: after six such candidates the context exceeds its budget and every new Run fails, so only a new binding recovers the Matter. | Two decisions: may a stale candidate be closed (reject or request evidence) without being current, and should Run context list stale candidates only by id and reason? |
+| Deleting a Session with an unreconciled MCP effect (S15 D4) | Reproduced: a Run with `mcp_effect_unknown` does not block Session deletion. The Run row and every `runtime.mcp.dispatch` event are deleted, so evidence of a remote effect that may have happened is lost. No reconcile operation exists for MCP effects. | Refuse the delete while such a Run exists, which leaves it permanently undeletable, or require an explicit acknowledgement that the evidence will be discarded (a new API flag and delete-dialog copy)? |
+| MCP policy actions and permission mode (S15, by inspection) | Three findings: the policy action is `mcp.` + server id + `.` + tool name, and both may contain dots, so servers `local:a` and `local:a.b` can collide and a wildcard for one matches the other; resource-specific rules never fire for MCP tools, because `governTools` passes `*`; `read_only` does not restrict MCP (default `ask`, but an explicit host `allow` dispatches), and extension tools ignore permission mode. | A policy syntax change (separator) would affect saved policies. Should read-only mean no remote writes? |
 | `check_run` containment (D4) | Candidate code runs as the Host user and can read the credential file by path | Already open under [RD-009](../../research/RD-009-trusted-harness-extensions.md): choose an OS sandbox, a data directory the check cannot read, or an accepted limitation. |
 
 ## Deferred
