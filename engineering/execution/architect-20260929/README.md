@@ -277,3 +277,62 @@ The reviewer's [reproducer](evidence/astra-review/reproduce.mjs) asserts that th
 - Data compatibility readers stay. The recommendation to remove them as a whole is withdrawn: a schema-22 open does not show that events, credentials and browser preferences were each rewritten. Each reader needs its own retirement decision.
 - No branch is pushed and no pull request is opened. Linux stays not run.
 - The worker's listing of `~/.ssh` stands as a violation of the work order.
+
+## Integration and handoff for re-review · lane holder, 2026-09-30
+
+The user asked for the three branches to be merged and verified together, then handed to the reviewer. This section is the author's integration record. It is not acceptance.
+
+### What is integrated
+
+Branch `claude/architect-integration-20260929`, from `main` at `87e2207`, three `--no-ff` merges with no conflict:
+
+| Merged branch | Head | Carries |
+|---|---|---|
+| `claude/architect-20260929` | `5e11e01` | D6, D9, D10; F3 with the AR1–AR3 corrections; this record |
+| `claude/architect-probes-20260929` | `d250d49` | A2 executor lineage; A3 decisions in the next context |
+| `claude/architect-check-sandbox-20260929` | `c71c6b4` | Check containment |
+
+The code under review is merge commit `9795a13`. The commit that adds this section changes this file only. Not pushed; no pull request.
+
+### Checks on the merged code
+
+Dependencies installed with `npm --prefix app ci --ignore-scripts`. macOS 27, Node 25.9. Other sessions were using the machine: load average was 49 at the end of the suite.
+
+| Check | Result |
+|---|---|
+| `node app/scripts/check-historical-fixtures.mjs` | 45 checks verified |
+| `node tools/check-doc-links.mjs` | no problems |
+| `npm --prefix app test` | 1903 of 1904 passed |
+| `npm --prefix app run smoke` | exit 0; real provider not run |
+| The reviewer's three probes, assertions removed in a scratch copy | directory swap `leaked: false`; `ς.txt` `deny` for `ws_read`, `repo_read`, `candidate_read`; rule collision `deny` |
+
+The one suite failure is `profile-editor` K5-R2, a browser-side save test that waits on timers. It passed 5 of 5 alone. The merge changes no file under `app/web`. It is recorded as a failure under load, not explained further.
+
+### I1 · The two fixed Courtwork recipes cannot pass inside the sandbox
+
+Found by running each fixed recipe through `runCheckRecipe` with the merged worktree as the candidate. It exists on the sandbox branch alone; the merge did not cause it.
+
+| Recipe | Result in the sandbox | Cause |
+|---|---|---|
+| `node-test-attention-contract` | 25 tests, 3 fail | The tests start an HTTP Host on `127.0.0.1`; `listen` fails `EPERM` under R3 |
+| `node-test-harness-contract` | 108 tests, 37 fail | The same; and `check-recipes.test.mjs` starts a check sandbox of its own, which cannot nest |
+
+The suite did not catch this because the recipe tests run stub files in a synthetic candidate, not the real test files.
+
+**Not ruled.** Two ways out, with their cost:
+
+- Let a recipe declare loopback access. A check could then reach every service listening on this computer, the Host's own API among them. R3 would no longer hold for that recipe.
+- Keep R3 and change what the recipes run, so that a fixed recipe names only tests that need no listener and start no check. The self-check of the Host over HTTP then stays outside `check_run`.
+
+The lane holder recommends the second and has not carried it out. Until it is ruled, the contract's claim that these two recipes are usable on a Courtwork candidate is false on the merged code.
+
+### What the reviewer is asked to judge
+
+1. AR1–AR3 as corrected in `7fbb5eb`, on the merged code.
+2. D6, D9 and D10, whose rule depended on F3.
+3. A2 and A3, which have had no non-author review.
+4. Check containment on macOS, and I1.
+
+### Not run
+
+Linux in every respect. The R1–R5 spike matrix beyond what `check-sandbox.test.mjs` asserts. macOS versions other than 27. A real model. The browser against the changed HTTP outcomes. A quiet-machine repeat of the full suite on the merged code.
