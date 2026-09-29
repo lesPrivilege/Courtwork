@@ -273,6 +273,18 @@ Source: S10 at `c280f8205c71659b242aa7e324f0cf8b6bb9bb5b`, plus the uncommitted 
 | Repeated MS-R2 failures are not shown to be load flakes | Adopt; root cause found and fixed | The earlier wording in S10 is superseded. The cause is a test bug; the product has no race here. The test waited a fixed 50 ms after submitting the connection form, but the tiny DOM's `dispatchEvent` does not await the async handler, and saving a compatible connection is five sequential Host requests (about 13 ms on an idle machine) before "Connection saved.". Reproduced with a Sonnet probe: 5 of 12 runs failed under 12-process CPU stress, and every run failed with 30 ms injected per request. All failures were at the same assertion (`models-save-flow.test.mjs`, the "Connection saved." note). Fix: both fixed 50 ms waits in the file now poll for the outcome, the pattern its sibling test already used. With the fix, 10 of 10 runs pass under the same stress. |
 | S11 and the D4 sandbox branch must be integrated and tested together | Adopt, not done here | The sandbox branch (`claude/architect-check-sandbox-20260929`, `c71c6b4`) is another author's unaccepted delivery; this loop does not merge it. The corrected guard already reaps the group on every exit path, the same line the sandbox branch changes. The two branches meet in `runCheckRecipe`'s spawn: the guard runs outside the sandbox and starts the sandbox's command, `execution.command` with `execution.argv`. Whoever integrates second owes the joint test matrix Astra lists, with the sandbox in force: normal exit, cancel, timeout, spawn failure, Host crash while the leader runs, and Host crash after the leader exits. |
 
+### S12 · Test races found while verifying, fixed at their cause
+
+Astra's review asked that repeated failures be explained, not labelled load flakes. Two were test bugs:
+
+- **MS-R2** (`models-save-flow`): the root cause and fix are in the [author response](#author-response-to-astras-s10s11-review) above; landed with S11.
+- **`work-summary` read-only test.** A Run's terminal status is written before `#executeRun`'s `finally` has finished persisting its own settlement (question cleanup and the rest). The test snapshotted the data directory right after the status turned terminal. A write still in flight then showed up as a change, or its temporary file vanished between listing and reading (`ENOENT`, seen once in S10's runs).
+  - Reproduced by delaying the post-Run question cleanup by 40 ms: the previous test fails with that exact `ENOENT`; the fixed test passes.
+  - Fix: the test waits until the Host has released the Run (`service.active`) before snapshotting.
+  - Product behavior is unchanged: the read path under test writes nothing.
+
+Still unexplained: the occasional `local-pi-transport` failure under the loaded suite, and `profile-editor` K5-R2, which is on the known-flake list. Neither has been reproduced in this loop.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
