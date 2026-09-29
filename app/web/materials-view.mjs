@@ -815,7 +815,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
         commandState = { fingerprint: draftKey, commandId, expectedRevision };
         fail("The source was retained, but it could not be linked into this chat. The draft and command are kept for a same-command retry.");
         await refreshSources();
-      } else if (err.status === 409) {
+      } else if (err.status === 409 && code === "source_revision_conflict") {
         linkRetry = null;
         conflict = { name: nameValue, fingerprint: draftKey, phase: "refresh-required", reviewedRevision: null };
         fail("This retained source changed during the save. Refresh the upload list, review the current version, then submit again.", {

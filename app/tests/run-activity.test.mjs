@@ -118,3 +118,11 @@ test('Context reads the selected Run only, preserves missing and zero, and never
   assert.equal(projectContextReading(zero, 'a').estimate, 0);
   assert.match(renderChatMeasurementBody('context', { events: zero, run: { id: 'a' } }).textContent, /~0 tokens/);
 }));
+
+test('Context says the window is not reported when the Host keeps it null, never a default size', async () => withTinyDom(() => {
+  const create = document.createElement.bind(document);
+  document.createElement = tag => Object.assign(create(tag), { style: {} });
+  const text = renderChatMeasurementBody('context', { events: [], run: { id: 'a' } }).textContent;
+  assert.match(text, /Context windowNot reported/);
+  assert.doesNotMatch(text, /1,000,000|default/);
+}));

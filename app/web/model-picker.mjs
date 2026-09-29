@@ -185,7 +185,7 @@ export function createModelPicker({ request, onSaved }) {
           const result=await request('/provider-config',{method:'PUT',body:{...config,expectedVersion:current.version}});
           onSaved(result);
           if(own===epoch) dialog.close();
-        } catch(error) {if(own===epoch){status.textContent=error.message;if(error.status===409||error.code==='config_conflict'){conflict=true;versionAligned=false;refresh.hidden=false;save.disabled=true;}}}
+        } catch(error) {if(own===epoch){status.textContent=error.message;if(error.body?.error?.code==='config_conflict'){conflict=true;versionAligned=false;refresh.hidden=false;save.disabled=true;}}}
         finally {busy=false; if(own===epoch){select.disabled=false;renderSelection();}}
       });
       /* PV-59/63 · "键入一个未列出的模型 ID" 入口。列表底部固定一项，不随搜索

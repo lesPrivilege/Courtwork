@@ -136,3 +136,29 @@ test('same model name and ID on two providers disambiguates Saved and Draft with
   await selector.dispatch('change');
   assert.equal(draft.textContent,'Draft · Shared model · conn-draft','missing connection metadata falls back to the provider identity');
 });
+
+test('a frozen refusal (409 active_run) shows the Host message and is not treated as a version conflict', async () => {
+  globalThis.document=new TestDocument();
+  const {createModelPicker}=await import('../web/model-picker.mjs');
+  const saved={provider:'openai',id:'gpt-4.1-mini',name:'GPT 4.1 mini',api:'openai-completions',baseUrl:'https://api.openai.com/v1',reasoningCapability:{kind:'enum',source:'runtime-catalog',values:['low'],notice:''}};
+  const other={provider:'openai',id:'gpt-4.1',name:'GPT 4.1',api:'openai-completions',baseUrl:'https://api.openai.com/v1',reasoningCapability:{kind:'enum',source:'runtime-catalog',values:['low'],notice:''}};
+  const request=async(path,options={})=>{
+    if(path==='/provider-models')return {version:4,models:[saved,other]};
+    if(path==='/provider-config'&&options.method==='PUT')throw Object.assign(new Error('provider config is frozen during a run'),{status:409,body:{error:{code:'active_run',message:'provider config is frozen during a run'}}});
+    if(path==='/provider-config')return {version:4,config:{provider:'openai',model:saved.id,api:saved.api}};
+    if(path==='/provider-connections')return {connections:[]};
+    throw new Error('unexpected request '+path);
+  };
+  await createModelPicker({request,onSaved:()=>{}}).open();
+  const nodes=document.body.walk();
+  const selector=nodes.find(node=>node.attributes['aria-label']==='Installed model');
+  const save=nodes.find(node=>node.tagName==='BUTTON'&&node.textContent==='Set default');
+  const refresh=nodes.find(node=>node.attributes['aria-label']==='Refresh current settings'||node.textContent==='Refresh current settings');
+  selector.value='1';await selector.dispatch('change');
+  assert.equal(save.disabled,false);
+  await save.dispatch('click');
+  const status=document.body.walk().find(node=>node.textContent==='provider config is frozen during a run'&&node.attributes.role==='status');
+  assert.ok(status,'the Host message is the status line');
+  assert.equal(refresh.hidden,true,'no refresh-and-review conflict state');
+  assert.equal(save.disabled,false,'the choice can be saved again once the run ends');
+});

@@ -503,6 +503,36 @@ Five problems were fixed, implemented by an Opus worker under the parent's rulin
 
   Noted: a granted runtime sees the reason code; relation refs and memory listings expose Matter ids, as documented boundaries.
 
+### S20 · The web shows the Host's facts
+
+Input: a Sonnet audit of the web client, looking only for places where the UI states a fact the Host or Core contradicts, or decides semantics itself. Copy and layout were out of scope. It confirmed:
+- the Sources panel uses Core `basis`, and the review summary uses Core counts;
+- the Attention views project Host facts;
+- restart codes are shown from the Run error;
+- the command menu re-decides from the Host catalog.
+
+This is a projection fix in the UX owner's files, under the loop directive and precedent S8. An Opus worker implemented it, reusing Host messages over new copy; there are no visual changes.
+
+- **Unknown Runs shown as Failed.** Every `run/error` event set the Run `failed`, and a terminal guard then refused the Host's own later `unknown`. A Run the Host settled unknown after a budget, extension or async-dependency error read Failed, which invites a retry of an uncertain effect. Now only `run/status` and Host Run snapshots set status, and a Host terminal status replaces the shown one; the Host never changes a terminal status.
+- **Coded refusals shown as unconfirmed deliveries.** Any 5xx was "Delivery is unconfirmed" with Send held. A coded refusal before admission (`provider_unsupported`, `configuration_incomplete`, `effort_unsupported`, `runtime_closing`, `runtime_unavailable`) now shows the Host message and records no unconfirmed Run. No response, an uncoded or `internal_error` 5xx, or a `*_unknown` code stays uncertain, and the lost-ACK recovery is unchanged.
+- **Error codes read where they never exist, or not by code at all.** The effort save read `error.code`, which the request helper never sets, and the model picker, materials and chat-delete paths mapped every 409 to one message. They now switch on the Host code: only `config_conflict` re-reads, and only `source_revision_conflict` enters the materials refresh state. Other refusals, such as `material_name_conflict`, `operation_active` and `spark_session_referenced`, show the Host's message.
+- **Chat delete enablement.** It considers any loaded active Run, not only the open chat's; the Host still refuses on any Run or operation, and shows its reason.
+- **Spark filters over a truncated page.** Filtered truncation notes use Core `byStatus` counts, so a filter over the loaded page no longer claims "no match" when Core counts some.
+- **Invented context window.** A window the Host does not report reads "Not reported" instead of an invented 1,000,000 tokens.
+- **Checks.** Tests in `host-fact-projection.test.mjs` and six existing web test files, each failing against the previous code. The product-copy and semantic-consumer gates pass. `npm --prefix app test` 1906/1906.
+- **Non-author review (Sonnet).** No blocking findings. It confirmed:
+  - a stale terminal status cannot override a newer one, because Host terminal status is immutable and the client writes none;
+  - every `run.error` is followed by a status settlement;
+  - lost-ACK recovery still holds for genuinely uncertain cases;
+  - no dead `error.code` reads remain in the live app.
+
+  Noted: the unwired runtime-management and agent-profile controllers read `error.code`, and would need `body.error.code` if wired.
+- **Returned to the UX owner.** The new strings "Not reported" and the filtered truncation note. A dead question-card branch ("This run has ended…" is never shown; a closed question renders as the "Closed" history row).
+- **Decisions still open, for the UX owner and the Host lane.**
+  - Whether Settings and the composer should show the provider-config `configurationStatus`, and hold Send on an unavailable route.
+  - A per-scope selectable-profile fact for the picker.
+  - A Host "frozen" fact (active Run or operation anywhere) to disable Delete and configuration controls during compactions and other Sessions' Runs.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
