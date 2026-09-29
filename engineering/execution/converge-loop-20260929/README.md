@@ -53,6 +53,34 @@ Slices run in order. Each entry records the defect or coupling, the fact owner, 
   - Adopt as stated: a compaction whose model no longer resolves now reports `503 provider_unsupported` instead of `503 provider_error`, the same as a Run. The later `!model` guard stays as a defensive check.
   - Adopt as stated: route refusals (503) now precede `409 compaction_unavailable` and `409 credential_missing`, the same order as Run admission.
 
+### S3 · Run liveness while a person decides
+
+Input: the `service.mjs` survey (candidates 1 and 2) and a follow-up liveness survey. That survey checked every site that decides whether a Run still accepts work. All the `admissionOpen` gates hold, because every writer of a stopping or terminal Run also closes admission. Nothing enforced that pairing.
+
+- **Defect 1, reproduced: `stopping` went back to `waiting_user`.** `openQuestion` refused only terminal Runs. A question queued behind a cancel moved the Run `stopping → waiting_user → cancelled`, briefly showing "Waiting for you" and re-enabling the Attention stop button. Answers were already refused.
+- **Defect 2, reproduced: parallel questions.** Pi runs one turn's tool calls in parallel, so two questions can be open at once. Answering the first re-armed the execution deadline while the second still waited on a person; the Run ended `unknown` from the budget. It also reported `running` while a question was still open.
+- **Defect 3, found in review, reproduced: a cancel reported as a budget failure.** Once the deadline re-arm moved to where a decision ends, a decision ended by a cancel re-armed it. With little budget left and a slow model reply, the deadline fired and the cancel settled `unknown`.
+- **Obsolete path.** `cancelRun`'s fallback after `await entry.task` recomputed a final status with a second, weaker rule. It was unreachable: `entry.task` is set when the entry is created, and `#executeRun`'s settlement either makes the Run terminal or rejects. Instrumented, the full suite never reached it.
+- **Fact owner.** Host service and RuntimeStore (`app/server/service.mjs`, `app/server/store.mjs`); precedents are review D1–D3 (terminal arbitration) and the existing `resolveQuestion` admission recheck.
+- **Change.**
+  - `openQuestion` refuses a Run whose admission is closed, and the wait ends as an abort does.
+  - The Store closes admission whenever a patch leaves a Run `stopping` or terminal.
+  - `#waitForDecision` counts open decisions: the first pauses the deadline, and the last re-arms it only for a Run that is still running or waiting and not being cancelled. The re-arm in `answerQuestion` is gone.
+  - A Run stays `waiting_user` until its last open question is answered; a status event is written only when the status changes.
+  - The `cancelRun` fallback is removed.
+  - The fixture provider can send several tool calls in one message.
+- **Checks.** `npm --prefix app test` 1851/1851. Four new tests, each failing against the code before its fix:
+  - a question queued behind a cancel;
+  - admission closing on stopping or terminal patches;
+  - two open questions and the deadline (`T-USAGE-5b`);
+  - a cancel during a question with a slow model reply.
+- **Non-author reviews (Sonnet, two).** The first confirmed that the fallback was unreachable, that every tool path treats the refused question as an abort, and that no writer keeps admission open when stopping. The second found defect 3 and two edges. Dispositions:
+  - Adopt: defect 3, fixed with a test.
+  - Defer: a decision ending after `#executeRun`'s `finally` has paused the timer would arm a timer nothing clears. Pi awaits every parallel tool call before the loop returns, and no path reaches this. Reopen with a runtime that returns while a decision is pending.
+  - Defer: an orphaned pending question keeps its Run `waiting_user`. A signal abort in Pi aborts the whole Run.
+  - Low, pre-existing: in the MCP-unknown state (`running`, admission closed) a question is now refused rather than opened unanswerable, and the deadline re-arms after it.
+- **Also observed.** `models-save-flow` MS-R2 failed once under the concurrent suite and passed 3/3 alone. It is not yet on the known-flake list; reopen if it recurs.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.

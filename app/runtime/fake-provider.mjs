@@ -208,35 +208,18 @@ async function writeMixedResponse(res, response) {
   writeDone(res);
 }
 
+/** One assistant message with one tool call, or several (`calls`), as a
+ * provider that emits parallel tool calls sends them. */
 async function writeToolResponse(res, response) {
   const { id, created, toolCallId, prompt, name = "ask_user", arguments: toolArguments = { prompt } } = response;
-  writeSse(
-    res,
-    assistantChunk({
-      id,
-      created,
-      model: MODEL_ID,
-      delta: { role: "assistant", tool_calls: [{ index: 0, id: toolCallId, type: "function" }] },
-    }),
-  );
-  writeSse(
-    res,
-    assistantChunk({
-      id,
-      created,
-      model: MODEL_ID,
-      delta: {
-        tool_calls: [
-          {
-            index: 0,
-            function: { name, arguments: JSON.stringify(toolArguments) },
-          },
-        ],
-      },
-      finishReason: "tool_calls",
-      usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
-    }),
-  );
+  const calls = response.calls ?? [{ toolCallId, name, arguments: toolArguments }];
+  writeSse(res, assistantChunk({ id, created, model: MODEL_ID,
+    delta: { role: "assistant", tool_calls: calls.map((call, index) => ({ index, id: call.toolCallId, type: "function" })) } }));
+  writeSse(res, assistantChunk({ id, created, model: MODEL_ID,
+    delta: { tool_calls: calls.map((call, index) => ({ index, function: { name: call.name, arguments: JSON.stringify(call.arguments ?? {}) } })) },
+    finishReason: "tool_calls",
+    usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+  }));
   writeDone(res);
 }
 

@@ -41,7 +41,11 @@ function runTerminalError(run) {
 }
 function applyRunPatch(run, patch) {
   if (TERMINAL_STATUSES.has(run.status) && Object.hasOwn(patch, "status") && patch.status !== run.status) throw runTerminalError(run);
-  Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now();
+  Object.assign(run, structuredClone(patch));
+  // A Run that is stopping or has ended admits no more work, whatever the patch
+  // said: every admissionOpen-only gate (tools, Spark, Local Pi) relies on it.
+  if (run.status === "stopping" || TERMINAL_STATUSES.has(run.status)) run.admissionOpen = false;
+  if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now();
 }
 const RUN_STATUSES = new Set([...ACTIVE_STATUSES, ...TERMINAL_STATUSES]);
 const PERMISSION_MODES = new Set(["read_only", "draft", "ask"]);
@@ -1796,11 +1800,18 @@ export class RuntimeStore {
     return this._mutate((state) => {
       const run = state.runs.find((item) => item.id === runId); if (!run) throw new Error("run not found");
       if (TERMINAL_STATUSES.has(run.status)) throw runTerminalError(run);
+      // Checked in the same queued mutation: a cancel that queued first has
+      // closed admission, and a question must not move `stopping` back to
+      // `waiting_user`.
+      if (!run.admissionOpen) { const error = new Error("run admission is closed"); error.code = "RUN_ADMISSION_CLOSED"; throw error; }
       const question = { id: randomUUID(), runId, kind, prompt, payload: payload ? structuredClone(payload) : null, status: "pending", answer: null, decision: null, createdAt: now() };
-      state.questions.push(question); run.status = "waiting_user";
+      state.questions.push(question);
       const eventType = kind === "permission" ? "permission.open" : "question.open";
       appendEventToState(state, { runId, sessionId: run.sessionId, type: eventType, data: kind === "permission" ? { id: question.id, kind, ...payload } : { id: question.id, kind, prompt } });
-      appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "waiting_user" } });
+      if (run.status !== "waiting_user") {
+        run.status = "waiting_user";
+        appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "waiting_user" } });
+      }
       return question;
     });
   }
@@ -1821,10 +1832,15 @@ export class RuntimeStore {
           throw error;
         }
       }
-      question.status = "resolved"; question.answer = answer; question.decision = decision; run.status = "running";
+      question.status = "resolved"; question.answer = answer; question.decision = decision;
       const eventType = question.kind === "permission" ? "permission.resolved" : "question.resolved";
       appendEventToState(state, { runId, sessionId: run.sessionId, type: eventType, data: question.kind === "permission" ? { id: questionId, kind: question.kind, decision } : { id: questionId, kind: question.kind, answer } });
-      appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "running" } });
+      // Parallel tool calls can hold several questions open: the Run waits on a
+      // person until the last of them is answered.
+      if (!state.questions.some((item) => item.runId === runId && item.status === "pending")) {
+        run.status = "running";
+        appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "running" } });
+      }
       return question;
     });
   }

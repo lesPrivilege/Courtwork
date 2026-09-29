@@ -2935,6 +2935,7 @@ export class RuntimeService {
       getUsage: null,
       task: null,
       cancelRequested: false,
+      openDecisions: 0,
       closeError: null,
       budget: { remainingMs: this.subagents.forSession(session.id) ? this.subagents.remainingBudget(this.subagents.forSession(session.id)).deadlineMs : this.budget.deadlineMs, timer: null, armedAt: null, reason: null },
       nativeSession: null,
@@ -3498,9 +3499,30 @@ export class RuntimeService {
     }
   }
 
-  async #waitForDecision(runId, entry, { kind, prompt, payload, signal }) {
-    this.#pauseDeadline(entry);
-    const question = await this.store.openQuestion({ runId, kind, prompt, payload });
+  /** The execution deadline does not run while a person is deciding. A turn's
+   * tool calls may run in parallel, so several decisions can be open at once:
+   * the first pauses the deadline and the last to end re-arms it, unless the
+   * Run is being cancelled: a cancel's settlement must not be overtaken by a
+   * deadline and reported as a budget failure. */
+  async #waitForDecision(runId, entry, options) {
+    if (entry.openDecisions++ === 0) this.#pauseDeadline(entry);
+    try { return await this.#decide(runId, entry, options); }
+    finally {
+      const status = this.store.getRun(runId)?.status;
+      if (--entry.openDecisions === 0 && this.active.get(runId) === entry && !entry.cancelRequested
+        && (status === "running" || status === "waiting_user")) this.#armDeadline(entry, runId);
+    }
+  }
+
+  async #decide(runId, entry, { kind, prompt, payload, signal }) {
+    let question;
+    try { question = await this.store.openQuestion({ runId, kind, prompt, payload }); }
+    catch (error) {
+      // A cancel that queued before this question closed admission: the
+      // question is never opened and the wait ends as an abort does.
+      if (error.code === "RUN_ADMISSION_CLOSED") throw new Error(kind + " aborted");
+      throw error;
+    }
     let resolve;
     let reject;
     const decisionPromise = new Promise((res, rej) => {
@@ -3557,8 +3579,6 @@ export class RuntimeService {
         throw new ServiceError(409, "question_unavailable", safeMessage(error, "question is not pending"));
       }
     }
-    const entry = this.active.get(runId);
-    if (entry) this.#armDeadline(entry, runId);
     waiter.resolve(resolvedValue);
     return { answered: true };
   }
@@ -3601,12 +3621,9 @@ export class RuntimeService {
       if (waiter.runId === runId) waiter.reject(new Error("run canceled"));
     }
     await entry.abort?.();
-    if (entry.task) await entry.task;
-    const final = this.store.getRun(runId);
-    if (final && !terminal(final.status)) {
-      const status = entry.closeError ? "unknown" : "cancelled";
-      await this.store.updateRunIfActive(runId, { status, admissionOpen: false }, [...(entry.stream?.settle(status) ?? []), { type: "run.status", data: { status } }]);
-    }
+    // #executeRun's settlement leaves the Run terminal or rejects; its own
+    // arbitration (review D1-D3) is the only rule for how a cancelled Run ends.
+    await entry.task;
     return { run: this.store.getRun(runId) };
   }
 
