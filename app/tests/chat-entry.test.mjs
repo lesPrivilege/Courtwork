@@ -24,8 +24,12 @@ test("openChatPage opens the page over the existing session and creates nothing"
   const body = fn(app, "openChatPage");
   assert.ok(body.length > 100);
   assert.match(body, /persistCurrentDraft\(\)/);
-  assert.match(body, /chatPage\.open\(/);
-  assert.doesNotMatch(body, /startNewSession|openDialog|request\(|createProject|clearActiveSession/);
+  // N07-R1 moved the page draw into refreshChatPage, which re-renders the open page
+  // from the same session state; the invariant is unchanged: open over what exists.
+  assert.match(body, /state\.chatOpen = true[\s\S]*refreshChatPage\(\)/);
+  const refresh = app.slice(app.indexOf("function refreshChatPage("), app.indexOf("\n}\n", app.indexOf("function refreshChatPage(")));
+  assert.match(refresh, /chatPage\.open\(/);
+  for (const part of [body, refresh]) assert.doesNotMatch(part, /startNewSession|openDialog|request\(|createProject|clearActiveSession/);
   assert.match(app, /\$\("chat-button"\)\.addEventListener\("click", \(\) => void openChatPage\(\)\)/);
   assert.match(app, /\$\("chat-button"\)\.setAttribute\(\s*"aria-current"/);
   assert.match(app, /\$\("attention-button"\)\.addEventListener\("click", \(\) => attentionAgent\.open\(\)\)/, "Attention keeps its real entry");
