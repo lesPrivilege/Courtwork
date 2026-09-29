@@ -1,0 +1,5 @@
+{"probe":"parent-directory-swap","leaked":false,"result":{"matches":[],"excludedByPolicy":0,"excludedPendingApproval":0}}
+{"probe":"unicode-alias","action":"ws_read","aliases":true,"original":"deny","alias":"deny"}
+{"probe":"unicode-alias","action":"repo_read","aliases":true,"original":"deny","alias":"deny"}
+{"probe":"unicode-alias","action":"candidate_read","aliases":true,"original":"deny","alias":"deny"}
+{"probe":"canonical-rule-collision","effect":"deny","trace":[{"source":"host-ceiling","effect":"allow"},{"source":{"type":"user","id":"local"},"action":"ws_read","resource":"private.txt","effect":"deny"}]}

@@ -1,0 +1,9 @@
+{"probe":"wildcard-context","action":"ws_read","direct":"deny","alias":"allow","aliases":true,"foldedPattern":"materials/aς*","foldedResource":"materials/aσx.txt"}
+{"probe":"wildcard-context","action":"repo_read","direct":"deny","alias":"allow","aliases":true,"foldedPattern":"materials/aς*","foldedResource":"materials/aσx.txt"}
+{"probe":"wildcard-context","action":"candidate_read","direct":"deny","alias":"allow","aliases":true,"foldedPattern":"materials/aς*","foldedResource":"materials/aσx.txt"}
+{"probe":"wildcard-context","boundary":"governTools/ws_read","leakedSyntheticText":true}
+{"probe":"collision-alias","action":"ws_read","direct":"deny","alias":"allow","aliases":true,"foldedPattern":"materials/private.txt","foldedResource":"materials/private.txt"}
+{"probe":"collision-alias","action":"repo_read","direct":"deny","alias":"allow","aliases":true,"foldedPattern":"materials/private.txt","foldedResource":"materials/private.txt"}
+{"probe":"collision-alias","action":"candidate_read","direct":"deny","alias":"allow","aliases":true,"foldedPattern":"materials/private.txt","foldedResource":"materials/private.txt"}
+{"probe":"collision-alias","boundary":"governTools/ws_read","leakedSyntheticText":true}
+{"probe":"ancestor-swap-during-traversal","matches":[{"path":"materials/open.txt","line":1,"text":"SENTINEL synthetic outside"}]}
