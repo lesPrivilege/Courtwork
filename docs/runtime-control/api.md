@@ -191,6 +191,8 @@ The pinned MCP client 2.0.0 aggregates catalog pages for both supported protocol
 
 Catalog publication is atomic, including the final mapped descriptor byte check. Failed discovery exposes no partial catalog. Connect reserves a new connection identity before asynchronous close/discovery; superseded or disconnected discovery cannot publish or report the replacement as its own success. Reconnect is explicit and does not replay tool calls.
 
+Response headers must arrive within 15 s (65 s for `tools/call`); bodies then stream under the SDK request timeouts (connect and list 15 s, call 60 s) and the caller's signal.
+
 ### Harness P02 · MCP effect uncertainty (2026-09-12)
 
 Both a remote business error (`isError`) and an unavailable call result fence further tool admission for that Run. A business error preserves its distinct `tool-reported-error` failure kind; it does not establish absence of remote effects. The existing store transaction records admission closure, `mcp_effect_unknown`, and correlated call/server/tool/config/binding metadata. Arguments are excluded. A failed receipt write retains the in-memory fence and the terminal event retries the correlation; persistent storage failure is not reported as success. Startup and orphan cancellation preserve this error identity, so the existing `supersedes` continuation gate continues to refuse unreconciled effects. A known pre-dispatch refusal is separate and does not manufacture an external effect.

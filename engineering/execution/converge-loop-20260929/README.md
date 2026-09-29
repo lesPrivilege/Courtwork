@@ -460,6 +460,21 @@ Six defects were fixed, implemented by an Opus worker under the parent's rulings
 - **Checks.** `intake-control-integrity.test.mjs` has six tests, each failing against the previous code. `npm --prefix app test` 1892/1892. One existing test that pinned the socket reset now expects the typed 413. Docs: API reference (body limits, delete response, material conflict, a new Profile section) and Runtime Control API and architecture.
 - **Non-author review (Sonnet).** No blocking findings. It confirmed: no collision can pass the name check; no deadlock between the two queues; the coverage rule is right for the global and project scope chains; cleanup runs after proposal recovery and before any MCP connection; draining happens after authentication, on the materials route only. Adopted: a failed MCP disconnect after a delete, and a failed startup cleanup, are logged instead of failing the delete or the start. Noted: an existing gap where removing a resource leaves profile selections naming it (they refuse Runs, by design).
 
+### S18 · Documentation follows S10–S17
+
+- **Input.** A read-only Sonnet drift check of current documentation against S10–S17, excluding archive, evidence, reviews, execution records and dated research. The root README has no drift.
+- **Change.** A Sonnet documentation worker wrote the edits, with each fact confirmed against the code; the parent reviewed the diff.
+  - Restart error codes by interrupted effect: `mcp_effect_unknown`, then `repository_write_unknown`, then `restart_unknown`. Partial text is kept. Updated in `app/README.md`, the API error table (two new rows) and run attempts.
+  - Close order, in runtime foundation: compactions, then Runs, then every Run's settlement.
+  - Key length: 6–4000 for credentials, 6–4096 for preview probes.
+  - One Spark delegation per parent Run, and graceful close keeping findings: Spark and supported preview.
+  - Async orphans: reconcilable and cancellable under user-scope policy; restart fences only in-flight tasks.
+  - Every stripped environment variable, listed in `app/README.md`.
+  - The materials route body limit.
+  - Redaction stated precisely, including its known gaps, replacing "any known secret is defensively redacted".
+  - MCP header and body timeouts in Runtime Control API.
+- **Checks.** `tools/check-doc-links.mjs` and `tools/check-product-copy.mjs` pass.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.

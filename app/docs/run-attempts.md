@@ -97,8 +97,11 @@ backup with a matching old host in a **separate** data directory.
 ## Restart
 
 A continuation is an ordinary Run at restart: if it was in flight it becomes
-`unknown` with `error.code = restart_unknown`, keeps its `supersedes`, and may
-itself be continued. Run creation is a single `_mutate`, so there is no second
+`unknown` with the error code named by the interrupted effect:
+`mcp_effect_unknown` (an MCP dispatch without a settled result), else
+`repository_write_unknown` (a prepared repository write), else `restart_unknown`.
+Partial assistant text and a `run.status` event are kept. It keeps its
+`supersedes` and may itself be continued, unless it is `mcp_effect_unknown`. Run creation is a single `_mutate`, so there is no second
 marker that a crash could tear apart from the record.
 
 ## Out of scope

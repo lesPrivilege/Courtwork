@@ -506,7 +506,9 @@ Run-level (`run.error.code`, also `run.error` on the run record):
 | `provider_auth_failed` | the provider rejected the credential |
 | `provider_error` | provider or transport failure (includes the provider status; never a key) |
 | `budget_exceeded` | execution deadline or turn budget exhausted |
-| `restart_unknown` | the run was in flight when the process restarted |
+| `restart_unknown` | the run was in flight when the process restarted, with no interrupted MCP dispatch or repository write |
+| `mcp_effect_unknown` | a remote tool effect is unreconciled (an MCP dispatch had no settled result); the Run cannot be superseded (`409 effect_unreconciled`) |
+| `repository_write_unknown` | a repository write may have completed; the Run may be continued |
 | `not_in_process` | cancel was asked of a run this process does not own |
 | `extension_close_failed` / `extension_finish_failed` | a bound extension could not close cleanly |
 
