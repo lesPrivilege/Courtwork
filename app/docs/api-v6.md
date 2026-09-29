@@ -20,6 +20,11 @@ document's revision of the contract, not a new route namespace.
 - Every request except `GET /api/v5/bootstrap` must carry the work token in the
   `x-work-token` header. `GET /api/v5/bootstrap` returns it (`sessionToken`).
 - Request bodies are JSON, at most 1 MiB (`413 body_too_large` above that).
+  `POST /sessions/:id/materials` alone accepts up to 6 MiB + 64 KiB, the widest
+  legal JSON spelling of a 1 MiB material (every byte a six-character `\u00XX`
+  escape) plus its envelope, so the material's own 1 MiB limit is what decides.
+  An over-limit body is read to its end and discarded, then answered with the
+  typed 413; the connection is not reset (past 256 MiB it is abandoned).
 - Unknown body fields are rejected (`400 unknown_field`); this is deliberate, so a
   client typo fails loudly instead of being ignored.
 - Errors are `{ "error": { "code", "message" } }`. Messages never contain an API key.
@@ -93,8 +98,14 @@ record: every list and the chat header read it back. Allowed during a run.
 
 `DELETE /api/v5/sessions/:id` — removes the execution catalog record (the
 session, its runs, events, questions and compaction records). Returns
-`{ deleted: true, sessionId, workspaceRetained: true }`: workspace and journal
-bytes on disk are kept, this is not secure erasure. Spark-referenced Sessions
+`{ deleted: true, sessionId, workspaceRetained: true, runtimeControlCleanup }`:
+workspace and journal bytes on disk are kept, this is not secure erasure. After
+the deletion commits, every Runtime Control entry scoped to that Session
+(imported resources, exposure overrides, policies, profile selections, and any
+override or selection naming a removed resource) is removed in one revision:
+`runtimeControlCleanup` is `"complete"`. If that write fails the deletion still
+stands and it is `"deferred"`: the entries are inert (no Session can reach their
+scope) and Host startup removes entries naming any Session that no longer exists. Spark-referenced Sessions
 (including parent, child and retained source/result history) are refused with
 `409 spark_session_referenced`; deletion does not cascade through that history.
 Refused with `409 active_run`
@@ -120,8 +131,20 @@ events the snapshot does not already contain. See [Reconnecting](#reconnecting).
 - `name` matches `[A-Za-z0-9._-]+` and is then resolved through the same workspace
   path guard the `ws_*` tools use; a name that walks out of `materials/` (`..`) is
   rejected with `400 invalid_input`.
-- `text` is UTF-8, at most 1 MiB.
+- `text` is UTF-8, at most 1 MiB (`400 invalid_input` above that).
+- The exact name of an existing material adds a version. A new name that equals
+  an existing material's name ignoring letter case (Unicode NFC, lower-cased) is
+  refused with `409 material_name_conflict`, because both would share one file on
+  a case-insensitive workspace volume; use the existing spelling or another name.
 - `path` in the response is workspace-relative (`materials/<name>`).
+
+## Profile
+
+`GET /api/v5/profile` → `{ profile }`; `PUT /api/v5/profile` —
+`{ expectedRevision, ...fields }` → `{ profile }`. Saves are serialized with other
+configuration writes and inside the profile store itself: the revision check and
+the atomic file write are one step, so of two saves from the same revision exactly
+one lands and the other gets `409 profile_conflict`.
 
 ## Workspace
 

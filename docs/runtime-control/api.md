@@ -51,7 +51,9 @@ Import a skill with YAML frontmatter `name` and `description`, followed by Markd
 {"schemaVersion":1,"version":"1.0.0","resourceIds":["tool:ws_read","tool:runtime_load","local:writing"],"rules":[{"action":"*","resource":"*","effect":"ask"}],"uiSlots":["runtime.inspector"]}
 ```
 
-Select it with `operation:"profile"`, its `local:` ID and a scope; select `agent:general` explicitly or `null` to inherit. Selection is separate from exposure.
+Select it with `operation:"profile"`, its `local:` ID and a scope; select `agent:general` explicitly or `null` to inherit. Selection is separate from exposure. A profile applies only inside its own scope, so it can be selected only at a scope its own scope contains: a user profile anywhere in the Session's chain, a workspace or Attention profile at that scope or at the Session, a session profile only at that same Session. Otherwise `409 profile_scope_conflict`.
+
+Deleting a Session removes every entry scoped to it (resources, exposure overrides, policies, profile selections, and overrides/selections naming a removed resource) in one revision with audit operation `session_removed`; Host startup removes entries left for Sessions that no longer exist. See `DELETE /sessions/:id` in [api-v6](../../app/docs/api-v6.md).
 
 Profile source v2 retains these fields and requires `kits`, an array of0–8 exact
 `{descriptor,descriptorSha256}` declarations from the [reference-only Kit contract](../../engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md).

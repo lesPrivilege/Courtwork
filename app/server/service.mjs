@@ -83,7 +83,7 @@ import {
 } from "./provider-connections.mjs";
 
 const ALLOWED_PROVIDER_IDS = new Set(PROVIDER_DEFINITIONS.filter(entry => entry.kind !== "compatible").map(entry => entry.id));
-const MAX_MATERIAL_BYTES = 1024 * 1024;
+export const MAX_MATERIAL_BYTES = 1024 * 1024;
 const MATERIAL_NAME_PATTERN = /^[A-Za-z0-9._-]+$/;
 // PV-62: a fixed short prompt (never user-supplied), a small output ceiling,
 // and a bounded wall-clock timeout -- this is a connectivity probe, not a
@@ -284,6 +284,15 @@ export class RuntimeService {
     /* BE-7 · an Apply interrupted between its pending marker and its receipt is
      * settled here from the configuration's own audit: applied, or pending again. */
     await this.proposals.recover(this.control);
+    // Runtime-control entries scoped to a Session that no longer exists (left
+    // by a deletion whose cleanup did not complete, or by builds before the
+    // cleanup existed) are removed here, so recovery needs no hand edits.
+    const liveSessions = new Set(this.store.listSessions().map(s => s.id));
+    const orphaned = this.control.sessionScopeIds().filter(id => !liveSessions.has(id));
+    // Cleanup is repair, not a startup precondition: a failure is logged and
+    // the entries stay inert (no live Session reaches their scope).
+    if (orphaned.length) await this.control.removeSessionScopes(orphaned)
+      .catch(error => this.logger?.(`runtime control cleanup deferred: ${error?.message ?? error}`));
     const stored = this.store.getProviderConfig();
     this.providerConfig = stored ?? { provider: FAKE_PROVIDER_ID, model: FAKE_MODEL_ID, api: FAKE_API_ID };
     if (!stored) await this.store.setProviderConfig(this.providerConfig);
@@ -627,9 +636,13 @@ export class RuntimeService {
 
   /* ── Home identity · Profile (source of the address) and the fixture Account ── */
   getProfile() { return { profile: this.profile.get() }; }
-  async saveProfile(input) {
-    try { return { profile: await this.profile.save(requireObject(input, "body")) }; }
-    catch (error) { if (error instanceof ProfileError) throw new ServiceError(error.status, error.code, error.message); throw error; }
+  // Serialized with every other configuration write. Nothing already inside
+  // #withConfiguration calls saveProfile, so this cannot wait on itself.
+  saveProfile(input) {
+    return this.#withConfiguration(async () => {
+      try { return { profile: await this.profile.save(requireObject(input, "body")) }; }
+      catch (error) { if (error instanceof ProfileError) throw new ServiceError(error.status, error.code, error.message); throw error; }
+    });
   }
   getAccount() { return { account: accountFixture(this.profile.get()) }; }
 
@@ -2525,7 +2538,21 @@ export class RuntimeService {
       if (binding && ['evidence-memo','inbound-nda'].includes(binding.extensionId)) await this.workCore.call('claim_work',{matter_id:binding.binding.matterId,project_id:session.projectId,extension_id:binding.extensionId});
       // Only execution catalog records are removed. Core history and private
       // workspace/journal bytes are retained; this is not secure erasure.
-      return this.store.deleteSession(sessionId);
+      const result = await this.store.deleteSession(sessionId);
+      // The Store deletion is the durable fact and is already committed. The
+      // Session's runtime-control entries follow it; if that write fails the
+      // deletion still stands (a retry would only get 404), the entries are
+      // inert because no Session can select their scope, and startup removes
+      // them. The response says which of the two happened.
+      let removed;
+      try { removed = await this.control.removeSessionScopes([sessionId]); }
+      catch (error) {
+        this.logger(`session ${sessionId} deleted; runtime-control cleanup deferred to startup: ${safeMessage(error, "write failed")}`);
+        return { ...result, runtimeControlCleanup: 'deferred' };
+      }
+      // The deletion already stands; a failed disconnect is logged, not a 500.
+      for (const id of removed) await this.mcp.disconnect(id).catch(error => this.logger?.(`MCP disconnect after session delete failed: ${error?.message ?? error}`));
+      return { ...result, runtimeControlCleanup: 'complete' };
     });
   }
 

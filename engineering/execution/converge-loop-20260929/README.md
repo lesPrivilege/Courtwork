@@ -435,6 +435,31 @@ Seven defects were fixed. The implementation was by an Opus worker under the par
   - Echoes in `\uXXXX`-escaped or percent-encoded form, or escaped twice, are not matched.
   - `HTTP_PROXY` with `NODE_USE_ENV_PROXY` could route provider traffic through an ambient proxy; not tested.
 
+### S17 · Material names, profile saves and selection scope, Session cleanup, body limits
+
+Input: a Sonnet audit of material intake and Runtime Control editing, with reproductions. It confirmed:
+- same-path uploads serialize with no lost version;
+- versions are immutable and hash-addressed;
+- workspace path resolution refuses `..`, separators and symlinked roots;
+- comparison reads only the two named versions;
+- Runtime Control CAS holds, and writes are validated by the same validator startup uses (no write/load divergence);
+- preview persists nothing;
+- Run admission freezes the selected profile's bound snapshot.
+
+Six defects were fixed, implemented by an Opus worker under the parent's rulings.
+
+- **Material names differing only by case.** On macOS `Brief.md` then `brief.md` wrote one file while both receipts said `written`, silently replacing the first source's workspace copy. `retain()` now refuses a new name equal to an existing one except for case (`409 material_name_conflict`). Names are ASCII-only by pattern, so ASCII folding matches APFS. Old databases already holding both spellings keep working for their exact names.
+- **Concurrent profile saves.** Two saves with the same expected revision both returned 200 at revision 1, and the last writer won. `saveProfile` now runs in the configuration queue, and `ProfileStore.save` checks the revision and writes atomically in one serialized step.
+- **Profile selection scope.** A session-scoped profile could be selected at user scope, making every other Session's composition incompatible and refusing their Runs. A profile can now be selected only where its own scope reaches (`409 profile_scope_conflict`). Previously saved selections still load, so startup is not affected.
+- **Deleted Sessions left Runtime Control entries.** Their session-scoped resources, overrides, policies and selections stayed behind. They could not be removed from any live Session and kept consuming the global content and collection caps, so recovery needed a hand edit.
+  - Deleting a Session now removes them, plus entries elsewhere that name them, as one validated revision, and disconnects removed MCP servers.
+  - Startup removes entries left by earlier deletes.
+  - Failure never undoes the deletion: the response reports `runtimeControlCleanup: "deferred"`, startup retries, and failures are logged.
+- **The 1 MiB material limit was unreachable.** The generic 1 MiB request-body cap is smaller than a JSON-encoded 1 MiB material, and the client saw a reset socket. The materials route now has its own limit, six times the material limit plus 64 KiB (the widest JSON escape). Any over-limit body is drained, only after the origin and token checks and up to 256 MiB, so the client gets a typed `413 body_too_large` instead of a reset.
+- **Workspace policy by case.** A `ws_write` deny on `out/private*` let `out/PRIVATE.md` overwrite `private.md` on macOS. Workspace paths now match case-insensitively, like repository and candidate paths. On a case-sensitive filesystem this also widens an allow rule to case variants, and narrows a deny the same way; this is accepted as the repository rule's precedent.
+- **Checks.** `intake-control-integrity.test.mjs` has six tests, each failing against the previous code. `npm --prefix app test` 1892/1892. One existing test that pinned the socket reset now expects the typed 413. Docs: API reference (body limits, delete response, material conflict, a new Profile section) and Runtime Control API and architecture.
+- **Non-author review (Sonnet).** No blocking findings. It confirmed: no collision can pass the name check; no deadlock between the two queues; the coverage rule is right for the global and project scope chains; cleanup runs after proposal recovery and before any MCP connection; draining happens after authentication, on the materials route only. Adopted: a failed MCP disconnect after a delete, and a failed startup cleanup, are logged instead of failing the delete or the start. Noted: an existing gap where removing a resource leaves profile selections naming it (they refuse Runs, by design).
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.

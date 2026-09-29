@@ -23,6 +23,15 @@ function scope(value) {
   check(value.type === 'user' ? value.id === 'local' : string(value.id), 'Invalid scope identity');
 }
 function sameScope(a, b) { return a.type === b.type && a.id === b.id; }
+function conflict(code, message) { const error = new Error(message); error.status = 409; error.code = code; return error; }
+// A profile applies only inside its own scope, so it may be selected only at a
+// scope its own scope contains. The caller supplies a catalog and a target that
+// both belong to one Session's scope chain (user > workspace | Attention >
+// session), so a workspace/Attention profile covers a session target here.
+function profileCovers(owner, target) {
+  if (owner.type === 'user' || sameScope(owner, target)) return true;
+  return ['workspace', 'agent'].includes(owner.type) && target.type === 'session';
+}
 function matches(pattern, value, { caseInsensitive = false } = {}) {
   // Deliberately small, documented glob: * matches any sequence, including /.
   if (caseInsensitive) { pattern = pattern.toLowerCase(); value = value.toLowerCase(); }
@@ -41,10 +50,10 @@ export function hostToolCeiling(name, permissionMode) {
 export function evaluatePolicy(layers, action, resource, ceiling = 'allow', fallback = 'allow') {
   let effect = ceiling;
   const trace = [{ source: 'host-ceiling', effect: ceiling }];
-  // Repository paths may be addressed through case aliases on a Host volume
+  // Repository and workspace paths may be addressed through case aliases on a Host volume
   // whose lookup is case-insensitive. Match those path policies without case
   // so a deny/ask cannot be bypassed by changing only the path's spelling.
-  const caseInsensitiveResource = action.startsWith('repo_') || action.startsWith('candidate_');
+  const caseInsensitiveResource = action.startsWith('repo_') || action.startsWith('candidate_') || action.startsWith('ws_');
   const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource, { caseInsensitive: caseInsensitiveResource })).at(-1) })).filter(item => item.rule);
   const host = selections.filter(item => item.layer.scope?.type !== 'agent');
   if (!host.length) {
@@ -154,7 +163,9 @@ export class RuntimeControlPlane {
       }
     } else if (input.operation === 'profile') {
       scope(input.scope);
-      check(input.id === null || input.id === 'agent:general' || next.resources.some(r => r.id === input.id && r.kind === 'agent_profile' && knownIds.includes(r.id)), 'Profile is unavailable in this scope');
+      const profile = next.resources.find(r => r.id === input.id && r.kind === 'agent_profile' && knownIds.includes(r.id));
+      check(input.id === null || input.id === 'agent:general' || profile, 'Profile is unavailable in this scope');
+      if (profile && !profileCovers(profile.scope, input.scope)) throw conflict('profile_scope_conflict', `Profile ${profile.id} belongs to ${profile.scope.type} scope and cannot be selected at ${input.scope.type} scope`);
       next.profileSelections = next.profileSelections.filter(p => !sameScope(p.scope, input.scope));
       if (input.id !== null) next.profileSelections.push({ scope: input.scope, id: input.id });
     } else if (input.operation === 'remove') {
@@ -171,8 +182,34 @@ export class RuntimeControlPlane {
       next.policies = next.policies.filter(r => !sameScope(r.scope, input.scope));
       next.policies.push({ scope: input.scope, rules: clone(input.rules) });
     } else check(false, 'Unsupported runtime operation');
+    await this.#commit(next, { actor: 'local-user', operation: input.operation, id: input.id ?? input.resource?.id ?? null, scope: input.scope ?? input.resource?.scope ?? null });
+  }
+  /** Remove every entry owned by the given Sessions' scopes: resources,
+   * exposure overrides, policies and profile selections, plus overrides and
+   * selections at any scope that name a removed resource. Returns the removed
+   * resource ids. Writes nothing when no entry names those Sessions. */
+  async removeSessionScopes(sessionIds) {
+    const ids = new Set(sessionIds);
+    const owned = item => item.scope.type === 'session' && ids.has(item.scope.id);
+    const removed = this.config.resources.filter(owned).map(r => r.id);
+    const gone = id => removed.includes(id);
+    const next = clone(this.config);
+    next.resources = next.resources.filter(r => !owned(r));
+    next.overrides = next.overrides.filter(o => !owned(o) && !gone(o.id));
+    next.policies = next.policies.filter(p => !owned(p));
+    next.profileSelections = next.profileSelections.filter(p => !owned(p) && !gone(p.id));
+    if (['resources', 'overrides', 'policies', 'profileSelections'].every(key => next[key].length === this.config[key].length)) return removed;
+    await this.#commit(next, { actor: 'host', operation: 'session_removed', id: null, scope: ids.size === 1 ? { type: 'session', id: [...ids][0] } : null });
+    return removed;
+  }
+  /** Session scopes named by any entry; used to prune Sessions that no longer exist. */
+  sessionScopeIds() {
+    const c = this.config;
+    return [...new Set([...c.resources, ...c.overrides, ...c.policies, ...c.profileSelections].filter(item => item.scope.type === 'session').map(item => item.scope.id))];
+  }
+  async #commit(next, audit) {
     next.revision++;
-    next.audit = next.audit.slice(-199).concat({ revision: next.revision, at: new Date().toISOString(), actor: 'local-user', operation: input.operation, id: input.id ?? input.resource?.id ?? null, scope: input.scope ?? input.resource?.scope ?? null });
+    next.audit = next.audit.slice(-199).concat({ revision: next.revision, at: new Date().toISOString(), ...audit });
     validateConfig(next);
     const temp = this.file + '.' + randomUUID() + '.tmp';
     try { await writeFile(temp, JSON.stringify(next), { mode: 0o600 }); await rename(temp, this.file); }

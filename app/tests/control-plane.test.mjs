@@ -68,14 +68,19 @@ test('policy: last match within scope, outer ceilings and literal regex characte
   assert.equal(evaluatePolicy([allow, profile], 'mcp.local:server.read', '*', 'allow', 'ask').effect, 'allow', 'an explicit host policy can authorize a specific MCP action');
 });
 
-test('repository path policy is case-insensitive to block Host-volume case aliases', () => {
+test('repository and workspace path policy is case-insensitive to block Host-volume case aliases', () => {
   const rules = [{ scope: { type: 'session', id: 'fixture' }, rules: [
     { action: 'repo_read', resource: 'Secrets.txt', effect: 'deny' },
     { action: 'repo_write', resource: 'Output/*', effect: 'ask' },
+    { action: 'ws_read', resource: 'Secrets.txt', effect: 'deny' },
+    { action: 'ws_write', resource: 'out/private*', effect: 'deny' },
+    { action: 'mcp.*', resource: 'Secrets.txt', effect: 'deny' },
   ] }];
   assert.equal(evaluatePolicy(rules, 'repo_read', 'secrets.txt').effect, 'deny');
   assert.equal(evaluatePolicy(rules, 'repo_write', 'output/new.txt').effect, 'ask');
-  assert.equal(evaluatePolicy(rules, 'ws_read', 'secrets.txt').effect, 'allow', 'non-repository resource policy matching retains existing case semantics');
+  assert.equal(evaluatePolicy(rules, 'ws_read', 'secrets.txt').effect, 'deny', 'workspace paths share the Host volume case semantics');
+  assert.equal(evaluatePolicy(rules, 'ws_write', 'out/PRIVATE.md').effect, 'deny');
+  assert.equal(evaluatePolicy(rules, 'mcp.server.read', 'secrets.txt').effect, 'allow', 'non-path resource policy matching keeps exact case');
 });
 
 test('control APIs: source content remains pinned after replacement; templates are human-invoked drafts', async () => {

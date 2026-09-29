@@ -4,6 +4,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 
 const VERSION = 1, APPLICATION_ID = 1129793881;
+const foldName = name => name.normalize('NFC').toLowerCase();
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 export const MAX_INTAKE_BYTES = 1024 * 1024;
 export class IntakeError extends Error {
@@ -75,6 +76,12 @@ export class IntakeStore {
       const latest = source && this.db.prepare('SELECT revision,sha256,bytes FROM revisions WHERE source_id=? ORDER BY revision DESC LIMIT 1').get(source.id);
       if (expectedRevision !== undefined && expectedRevision !== (latest?.revision ?? 0)) throw new IntakeError('source_revision_conflict','The retained source changed. Refresh its versions before replacing it.');
       if (!source) {
+        // Materials share one workspace directory, which may be case-insensitive:
+        // a second source differing only by case would overwrite the first
+        // source's delivered file while both keep separate version histories.
+        const folded = foldName(name);
+        const clash = this.db.prepare('SELECT name FROM sources WHERE session_id=?').all(sessionId).find(row=>foldName(row.name)===folded);
+        if (clash) throw new IntakeError('material_name_conflict',`A material named "${clash.name}" already exists with different letter case. Use that exact name to add a version, or choose a different name.`);
         source={id:randomUUID()};
         this.db.prepare('INSERT INTO sources VALUES(?,?,?,?)').run(source.id,sessionId,name,new Date().toISOString());
       }
