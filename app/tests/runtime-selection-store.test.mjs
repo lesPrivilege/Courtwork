@@ -7,7 +7,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { RuntimeStore, SCHEMA_VERSION } from "../server/store.mjs";
-import { EXECUTOR_OPERATIONS, PI_EXECUTOR_ID, executorConfigurationRef } from "../server/executor-choice-state.mjs";
+import { EXECUTOR_OPERATIONS, PI_EXECUTOR_ID, executorConfigurationRef, historicalExecutor } from "../server/executor-choice-state.mjs";
 
 const caps = Object.fromEntries(EXECUTOR_OPERATIONS.map(name => [name, { supported: true }]));
 const descriptor = (adapterId = PI_EXECUTOR_ID) => ({
@@ -203,4 +203,18 @@ test("R1 pinned schema-21 Host refuses schema 22 without changing durable bytes"
     await assert.rejects(new OldStore({ dataDir: dir }).open(), /schemaVersion 22 is not supported/);
     assert.deepEqual(await readFile(file), bytes);
   } finally { await current?.close(); await rm(root, { recursive: true, force: true }); }
+});
+
+test("historicalExecutor takes a Run's recorded adapterId as the fact and infers Pi from hostSession only without a Run", () => {
+  const OLD = "pi-coding-agent@0.84.0/agent-session";
+  const session = { id: "s", hostSession: null, remoteBinding: null, remoteActions: [] };
+  const ran = (adapterId, extra = {}) => ({ id: "r-" + adapterId, sessionId: "s", adapterId, hostSession: null, remoteBinding: null, ...extra });
+  const of = (runs, over = {}, opts) => historicalExecutor({ runs, subagents: null }, { ...session, ...over }, opts);
+  const native = { id: "n", path: "/n.jsonl" };
+  assert.equal(of([ran(OLD, { hostSession: native })], { hostSession: native }), OLD);
+  assert.equal(of([ran(OLD)]), OLD);
+  assert.equal(of([], { hostSession: native }), PI_EXECUTOR_ID, "native history with no recorded Run is the Pi lineage");
+  assert.equal(of([ran("agents-api"), ran(OLD)]), null, "two recorded identities contradict");
+  assert.equal(of([ran(OLD, { hostSession: native })], {}, { legacy: true }), null, "the schema <=21 reading still treats any hostSession as the frozen Pi id");
+  assert.equal(of([]), undefined);
 });

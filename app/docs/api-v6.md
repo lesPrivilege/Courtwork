@@ -80,8 +80,10 @@ cannot be selected. `PUT /api/v5/sessions/:id/executor-choice` accepts only
 Only an ordinary Chat without any Run/native history can change choice. Stale
 revision is `409 executor_selection_conflict`; historical choice is
 `409 executor_lineage_locked`; global Attention, extension and Spark child
-Sessions are read-only and return `409 executor_ineligible` on PUT. A missing
-or changed selected factory refuses new work without switching the Chat to Pi.
+Sessions are read-only and return `409 executor_ineligible` on PUT. A selected
+factory this Host does not configure refuses new work with
+`409 executor_unavailable` (a changed one with `409 executor_configuration_changed`)
+without switching the Chat to Pi.
 Contradictory migrated Run/native history remains readable with
 `choice.adapterId:null`; it cannot be used to start another Run.
 This is a backend contract; managed Agents has no production live availability

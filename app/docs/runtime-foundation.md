@@ -50,6 +50,8 @@ try {
 
 The composition root constructs `createPiRuntimePort` from `runtime/pi-runtime-port.mjs` and supplies it explicitly to RuntimeService. The port owns native journal open/create/history, execution/steering, compaction and translation into the existing Host observation vocabulary. Host still governs tools and owns Run admission/settlement; native outcomes do not set status directly. Per-Run disposal remains in `pi-session-runtime.mjs`. The native journal path, locator and format are unchanged.
 
+An executor id such as the Pi port's `adapterId` names a native session lineage: the journal format and locator its Sessions were written in. It does not change when the package is upgraded within that lineage, and the string is defined once (`PI_EXECUTOR_ID`). A Run keeps the `adapterId` it ran with; that recorded value, not the current constant, is what the Store reads as the Session's history. A Session whose lineage this Host no longer configures stays listed and readable, a new Run in it is refused `409 executor_unavailable`, and new Sessions on the configured executor are unaffected.
+
 The current port refuses `recover` and `submitToolResult`; new start/continue/compaction capability checks occur before their records are created, while retries still return existing receipts. `steer` is an internal execution handle, not an HTTP feature. ModelRuntime/provider helpers remain Pi-coupled. This does not provide another runtime or alter public capability scope. See [independent acceptance](../../engineering/execution/claude-frontend-harness-2026-09-16/evidence/p03b-pi-runtime-port-review-20260921/README.md).
 
 ## One Run

@@ -7,8 +7,6 @@ const VERSION = /^[A-Za-z0-9._-]{1,80}$/;
 const SUMMARY_BYTES_LIMIT = 128 * 1024;
 const MAX_KITS = 8;
 const MAX_EVIDENCE = 64;
-const PI_ADAPTER_ID = "pi-coding-agent@0.85.1/agent-session";
-const PI_ADAPTER_REVISION = "pi-agent-session-context-v1";
 const CONTENT_KINDS = new Set(["instruction", "skill", "reference", "prompt_template"]);
 
 export const KIT_BINDING_LIMITS = Object.freeze({
@@ -137,7 +135,10 @@ export function validateKitBinding(summary) {
 
   if (summary.planVersion !== 1 || summary.compiler !== "kit-context-v1") invalid("run.kitBinding compiler identity is invalid");
   exact(summary.adapter, ["id", "revision"], "run.kitBinding.adapter");
-  if (summary.adapter.id !== PI_ADAPTER_ID || summary.adapter.revision !== PI_ADAPTER_REVISION) invalid("run.kitBinding.adapter is invalid");
+  // The recorded adapter is what the Run ran on and must load after the Host's
+  // Adapter changes; admission checks the current Adapter (kit-run-context).
+  string(summary.adapter.id, "run.kitBinding.adapter.id");
+  string(summary.adapter.revision, "run.kitBinding.adapter.revision");
 
   exact(summary.compatibility, ["status", "kits"], "run.kitBinding.compatibility");
   if (!["supported", "unchecked"].includes(summary.compatibility.status)) invalid("run.kitBinding.compatibility.status is invalid");

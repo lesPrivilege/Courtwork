@@ -1,6 +1,7 @@
 import path from "node:path";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
 import { createSessionRun, compactSessionJournal, mapSessionEvent, assistantSegmentAssigner } from "./pi-session-runtime.mjs";
+import { PI_EXECUTOR_ID } from "../server/executor-choice-state.mjs";
 
 /**
  * P03-B · the Pi implementation of the Host's Runtime Port.
@@ -16,7 +17,7 @@ import { createSessionRun, compactSessionJournal, mapSessionEvent, assistantSegm
  * Vocabulary follows RD-001's minimum Runtime Port lifecycle. An operation Pi
  * cannot perform is refused by name; nothing falls back to another runtime.
  */
-export const PI_RUNTIME_ADAPTER_ID = "pi-coding-agent@0.85.1/agent-session";
+export const PI_RUNTIME_ADAPTER_ID = PI_EXECUTOR_ID;
 // Interface identity is declared by this Adapter, independent of its display
 // label, provider/model and Kit-specific compatibility evidence.
 export const PI_RUNTIME_ADAPTER_REVISION = "pi-agent-session-context-v1";
