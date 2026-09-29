@@ -31,7 +31,14 @@ document's revision of the contract, not a new route namespace.
 - `run.status`: `running` · `waiting_user` · `stopping` (active) →
   `completed` · `cancelled` · `failed` · `unknown` (terminal).
   `unknown` means the host cannot honestly claim either outcome (process restart,
-  a run not owned by this process, an extension that failed to close).
+  a run not owned by this process, an extension that failed to close, or an
+  exception while a cancel was pending).
+- A terminal status is final: the Store refuses to change it (`RUN_TERMINAL`), and
+  the check that a Run is still active happens inside the same write as the
+  change. `POST /runs/{id}/cancel` on a Run that has already settled returns it
+  unchanged. A cancel accepted before the Host's terminal write settles the Run
+  `cancelled`, even if the runtime had just completed; the completed answer
+  remains in the Run's events.
 - `run.admissionOpen` (boolean): whether the run still accepts events and answers.
 - `question.status`: `pending` · `resolved` · `expired_restart` · `cancelled`.
   `expired_restart` is set for every pending question at startup: a restart cannot

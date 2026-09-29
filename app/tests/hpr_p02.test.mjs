@@ -86,7 +86,8 @@ for (const mode of ['reported', 'drop', 'receipt-failure', 'cancel', 'restart-in
     assert.equal(typeof detail.bindingRevision, 'number');
     assert.equal('arguments' in detail, false);
     if (mode === 'orphan-cancel') {
-      await h.runtime.store.updateRunWithEvent(done.id, { status: 'running' }, { type: 'run.status', data: { status: 'running' } });
+      // Fixture: a stale active record. The Store refuses to reopen a terminal Run (review D1), so write the shape directly.
+      await h.runtime.store._mutate(state => { state.runs.find(r => r.id === done.id).status = 'running'; });
       assert.equal((await h.runtime.service.cancelRun(done.id)).run.error.code, 'mcp_effect_unknown');
     }
     await h.runtime.close();

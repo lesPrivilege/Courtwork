@@ -33,6 +33,16 @@ import {
 
 const ACTIVE_STATUSES = new Set(["running", "waiting_user", "stopping"]);
 const TERMINAL_STATUSES = new Set(["completed", "cancelled", "failed", "unknown"]);
+
+// A terminal Run status is final (review D1). Patches that do not change the
+// status, such as closing admission or recording an error, still apply.
+function runTerminalError(run) {
+  const error = new Error(`Host terminal transition is immutable: run ${run.id} is ${run.status}`); error.code = "RUN_TERMINAL"; return error;
+}
+function applyRunPatch(run, patch) {
+  if (TERMINAL_STATUSES.has(run.status) && Object.hasOwn(patch, "status") && patch.status !== run.status) throw runTerminalError(run);
+  Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now();
+}
 const RUN_STATUSES = new Set([...ACTIVE_STATUSES, ...TERMINAL_STATUSES]);
 const PERMISSION_MODES = new Set(["read_only", "draft", "ask"]);
 // "cancelled" closes a question whose run ended before anyone answered it, so
@@ -1694,7 +1704,7 @@ export class RuntimeStore {
   async beginRemoteCallDelivery(runId, callId) { return this._mutate(state => beginRemoteCallDelivery(state, runId, callId, { now: now(), activeStatuses: ACTIVE_STATUSES })); }
 
   async updateRun(id, patch) {
-    return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now(); return run; });
+    return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); applyRunPatch(run, patch); return run; });
   }
 
   async updateRunWithEvent(id, patch, event) {
@@ -1707,7 +1717,24 @@ export class RuntimeStore {
     if (events.some((item) => typeof item.type === "string" && item.type.startsWith("local_pi"))) {
       const error = new Error("local Pi events require the named Store API"); error.code = "LOCAL_PI_EVENT_RESERVED"; throw error;
     }
-    return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now(); for (const item of events) appendEventToState(state, { runId: id, sessionId: run.sessionId, ...item }); return run; });
+    return this._mutate((state) => { const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found"); applyRunPatch(run, patch); for (const item of events) appendEventToState(state, { runId: id, sessionId: run.sessionId, ...item }); return run; });
+  }
+
+  // Check-and-set for status writes that race each other (cancel against
+  // natural completion, D1): the terminal check happens inside the same
+  // mutation as the write, so a Run that settled while this write was queued
+  // is returned unchanged with `applied: false`.
+  async updateRunIfActive(id, patch, event) {
+    const events = (Array.isArray(event) ? event : [event]).filter(Boolean);
+    if (events.some((item) => typeof item.type === "string" && item.type.startsWith("local_pi"))) {
+      const error = new Error("local Pi events require the named Store API"); error.code = "LOCAL_PI_EVENT_RESERVED"; throw error;
+    }
+    return this._mutate((state) => {
+      const run = state.runs.find((item) => item.id === id); if (!run) throw new Error("run not found");
+      if (TERMINAL_STATUSES.has(run.status)) return { applied: false, run };
+      applyRunPatch(run, patch); for (const item of events) appendEventToState(state, { runId: id, sessionId: run.sessionId, ...item });
+      return { applied: true, run };
+    });
   }
 
   async appendEvent({ runId, type, data }) {
@@ -1766,6 +1793,7 @@ export class RuntimeStore {
   async openQuestion({ runId, kind, prompt, payload = null }) {
     return this._mutate((state) => {
       const run = state.runs.find((item) => item.id === runId); if (!run) throw new Error("run not found");
+      if (TERMINAL_STATUSES.has(run.status)) throw runTerminalError(run);
       const question = { id: randomUUID(), runId, kind, prompt, payload: payload ? structuredClone(payload) : null, status: "pending", answer: null, decision: null, createdAt: now() };
       state.questions.push(question); run.status = "waiting_user";
       const eventType = kind === "permission" ? "permission.open" : "question.open";

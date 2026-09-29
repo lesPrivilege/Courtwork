@@ -8,6 +8,10 @@ import path from "node:path";
 import { boot, reopen, spawnWorker } from "./helpers.mjs";
 import { FAKE_CREDENTIAL_KEY } from "../runtime/pi-session-runtime.mjs";
 
+// Fixture states (failed/unknown/reopened Runs) are written directly: the Store
+// refuses to change a terminal Run's status (review D1).
+const forceRun = (store, id, patch) => store._mutate((state) => { const run = state.runs.find((item) => item.id === id); Object.assign(run, structuredClone(patch)); if (["completed", "cancelled", "failed", "unknown"].includes(run.status)) run.endedAt ??= new Date().toISOString(); return run; });
+
 const TERMINAL = new Set(["completed", "failed", "cancelled", "unknown"]);
 
 async function getSummary(api, query = "") {
@@ -86,7 +90,7 @@ test("work summary distinguishes empty, no-run, completed, failed and unknown", 
     const failedSession = await createSession({ title: "failed" });
     const failedCreated = await api("POST", `/sessions/${failedSession.id}/runs`, { input: "mark failed", commandId: "summary-failed" });
     await pollRun(failedCreated.json.run.id);
-    await runtime.store.updateRun(failedCreated.json.run.id, {
+    await forceRun(runtime.store, failedCreated.json.run.id, {
       status: "failed",
       admissionOpen: false,
       error: { code: "test_failure", message: "synthetic failure for the status matrix" },
@@ -95,7 +99,7 @@ test("work summary distinguishes empty, no-run, completed, failed and unknown", 
     const unknownSession = await createSession({ title: "unknown" });
     const unknownCreated = await api("POST", `/sessions/${unknownSession.id}/runs`, { input: "mark unknown", commandId: "summary-unknown" });
     await pollRun(unknownCreated.json.run.id);
-    await runtime.store.updateRun(unknownCreated.json.run.id, {
+    await forceRun(runtime.store, unknownCreated.json.run.id, {
       status: "unknown",
       admissionOpen: false,
       error: { code: "test_unknown", message: "synthetic unknown for the status matrix" },
@@ -236,10 +240,10 @@ test("summary excludes stale question states and paginates pending/inspection by
     });
     const terminalRun = await storedRun(terminalOpenSession, "terminal-admission-open");
     const terminalQuestion = await storedQuestion(terminalRun);
-    await runtime.store.updateRun(terminalRun.id, { status: "completed", admissionOpen: true });
+    await forceRun(runtime.store, terminalRun.id, { status: "completed", admissionOpen: true });
     const closedRun = await storedRun(closedAdmissionSession, "closed-admission");
     const closedQuestion = await storedQuestion(closedRun);
-    await runtime.store.updateRun(closedRun.id, { status: "waiting_user", admissionOpen: false });
+    await forceRun(runtime.store, closedRun.id, { status: "waiting_user", admissionOpen: false });
     const missingReceiverRun = await storedRun(missingReceiverSession, "missing-receiver");
     const missingReceiverQuestion = await storedQuestion(missingReceiverRun);
 
@@ -251,13 +255,13 @@ test("summary excludes stale question states and paginates pending/inspection by
     }
 
     const failedRun = await storedRun(inspectionA, "inspection-a");
-    await runtime.store.updateRun(failedRun.id, {
+    await forceRun(runtime.store, failedRun.id, {
       status: "failed",
       admissionOpen: false,
       error: { code: "matrix_failed", message: "matrix failure" },
     });
     const unknownRun = await storedRun(inspectionB, "inspection-b");
-    await runtime.store.updateRun(unknownRun.id, {
+    await forceRun(runtime.store, unknownRun.id, {
       status: "unknown",
       admissionOpen: false,
       error: { code: "matrix_unknown", message: "matrix unknown" },

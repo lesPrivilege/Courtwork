@@ -127,8 +127,9 @@ test("T-CANCEL-5: cancelling a run that is not in this process reports unknown, 
     await pollRun(runId);
 
     // Put the record back into a running state with no in-process execution
-    // behind it — the shape a stale or foreign record has.
-    await runtime.store.updateRun(runId, { status: "running", admissionOpen: true, endedAt: null, error: null });
+    // behind it — the shape a stale or foreign record has. The Store refuses to
+    // move a terminal Run back (review D1), so the fixture writes that shape directly.
+    await runtime.store._mutate((state) => { Object.assign(state.runs.find((item) => item.id === runId), { status: "running", admissionOpen: true, endedAt: null, error: null }); });
     assert.equal((await api("GET", `/runs/${runId}`)).json.run.status, "running");
 
     const cancelled = await api("POST", `/runs/${runId}/cancel`, {});

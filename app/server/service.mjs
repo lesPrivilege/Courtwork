@@ -3325,7 +3325,9 @@ export class RuntimeService {
         await appendError("budget_exceeded", entry.budget.reason === "deadline" ? "run deadline exceeded" : "run turn budget exceeded");
       }
     } catch (error) {
-      extensionOutcome = entry.closeError || entry.budget.reason || entry.externalUnknown ? "unknown" : entry.cancelRequested ? "canceled" : "failed";
+      // An exception is not a confirmed stop: with a cancel pending the outcome
+      // stays unresolved rather than being reported as cancelled (review D3).
+      extensionOutcome = entry.closeError || entry.budget.reason || entry.externalUnknown || entry.cancelRequested ? "unknown" : "failed";
       await appendError(
         entry.closeError ? "extension_close_failed" : entry.budget.reason ? "budget_exceeded" : ['runtime_projection_failed', 'kit_payload_invalid', ...(run.kitBinding ? ['history_unavailable', 'artifact_integrity_failed', 'artifact_store_unavailable'] : [])].includes(error?.code) ? error.code : classifyRuntimeError(error?.message),
         entry.budget.reason === "deadline" ? "run deadline exceeded" : entry.budget.reason === "max_turns" ? "run turn budget exceeded" : redact(safeMessage(error, "runtime failed"), this.knownSecrets),
@@ -3367,9 +3369,12 @@ export class RuntimeService {
         entry.externalUnknownDetail ??= { ...entry.mcpPending.values().next().value, failureKind: 'dispatch-unsettled' };
       }
       if (current && !terminal(current.status)) {
+        // An explicit cancel accepted before this write settles the Run cancelled
+        // even if the runtime had already completed; the native outcome stays in
+        // its own evidence (review D2, same rule as the Local Pi contract).
         const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
           ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
-        await this.store.updateRunWithEvent(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, [
+        await this.store.updateRunIfActive(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, [
           ...(entry.stream?.settle(finalStatus) ?? []),
           { type: "run.status", data: { status: finalStatus, ...(entry.externalUnknownDetail ? { externalUnknown: entry.externalUnknownDetail } : {}) } },
         ]);
@@ -3547,19 +3552,22 @@ export class RuntimeService {
     if (!run) throw new ServiceError(404, "not_found", "run not found");
     if (terminal(run.status)) return { run };
     const entry = this.active.get(runId);
-    await this.store.updateRunWithEvent(runId, { status: "stopping", admissionOpen: false }, {
+    // The terminal check is repeated inside the write: a completion queued
+    // before this cancel wins, and the Run is returned as it settled (review D1).
+    const stopping = await this.store.updateRunIfActive(runId, { status: "stopping", admissionOpen: false }, {
       type: "run.status",
       data: { status: "stopping" },
     });
+    if (!stopping.applied) return { run: stopping.run };
     if (!entry) {
       // This process cannot abort what it is not driving, so it must not
       // claim the run stopped. `unknown` is the honest terminal state.
-      const unknown = await this.store.updateRunWithEvent(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || this.#unsettledMcpDispatches(run).length ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : { code: "not_in_process", message: "run is not active in this process" } }, [
+      const unknown = await this.store.updateRunIfActive(runId, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || this.#unsettledMcpDispatches(run).length ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : { code: "not_in_process", message: "run is not active in this process" } }, [
         ...persistedPartials(this.store.listEvents({ sessionId: run.sessionId, runId }), PARTIAL_STOP_REASON.unknown),
         { type: "run.status", data: { status: "unknown" } },
       ]);
       await this.store.cancelQuestionsForRun(runId).catch(() => {});
-      return { run: unknown };
+      return { run: unknown.run };
     }
     entry.cancelRequested = true;
     await this.asyncTasks.cancelOrigin(runId);
@@ -3579,7 +3587,7 @@ export class RuntimeService {
     const final = this.store.getRun(runId);
     if (final && !terminal(final.status)) {
       const status = entry.closeError ? "unknown" : "cancelled";
-      await this.store.updateRunWithEvent(runId, { status, admissionOpen: false }, [...(entry.stream?.settle(status) ?? []), { type: "run.status", data: { status } }]);
+      await this.store.updateRunIfActive(runId, { status, admissionOpen: false }, [...(entry.stream?.settle(status) ?? []), { type: "run.status", data: { status } }]);
     }
     return { run: this.store.getRun(runId) };
   }
