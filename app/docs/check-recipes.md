@@ -26,51 +26,79 @@ recipe. The fixed catalog has three recipes, in this order:
 | `outputLimitBytes` | `65536` |
 | `env` | `minimal` (see below) |
 
-`node-test-attention-contract` v1 is titled **Run Attention backend contract
-tests**. It uses the same Host Node command, private candidate cwd, 120000 ms
-timeout, 65536 byte per-stream limit and minimal environment as `node-test`.
-Its exact argv is:
+The two Courtwork recipes below are **offline**: each names only test files
+that pass with a read-only candidate and the check's own temporary directory,
+with no listener and no nested check, because a check has no network at all
+(not even loopback) and cannot start a sandbox of its own. Tests that boot a
+Host over HTTP and the sandbox lifecycle tests are not in any recipe; they are
+trusted developer and CI verification (`npm --prefix app test`), outside
+`check_run`. The recipes were changed from v1 to v2 for this reason: v1 named
+files that listen on `127.0.0.1` or start checks, so on a real Courtwork
+candidate they could not pass (Attention 22 of 25, Harness 71 of 108). v1 is
+not in the catalog and not runnable. Receipts and approvals recorded for v1
+keep their recorded version and argv, display as v1, and cannot authorize v2:
+approval matching is the exact descriptor comparison described under
+[Approval](#approval).
+
+`node-test-attention-contract` v2 is titled **Run Attention backend offline
+contract tests**. It uses the same Host Node command, private candidate cwd,
+120000 ms timeout, 65536 byte per-stream limit and minimal environment as
+`node-test`. Its exact argv is:
 
 ```text
 --test
 --test-concurrency=1
 app/tests/attention-core.test.mjs
-app/tests/attention-http.test.mjs
 app/tests/attention-recovery.test.mjs
 app/tests/attention-github-fixture.test.mjs
 app/tests/attention-gmail-fixture.test.mjs
 app/tests/attention-trace-fixture.test.mjs
 ```
 
-These fixed paths are expected in a Courtwork private candidate. They cover
-backend and synthetic fixture contracts; the recipe does not use a live
-connector or provider. A candidate without those paths is stopped before
-spawn as `missing_target` (below). The Host does not install candidate dependencies
-or substitute another command; preparing dependencies is an explicit
-candidate setup step. A passing result remains process evidence, not formal
-Attention or Work acceptance.
+It covers the Attention Core (CAS, scope, receipts, signals), its crash
+recovery, and the synthetic GitHub, Gmail and trace fixtures. It uses no live
+connector or provider. It does not cover the Attention HTTP round trip, actor
+ownership over HTTP or the runtime Attention adapter (`attention-http.test.mjs`
+starts a Host); those are verified by `npm --prefix app test`.
 
-`node-test-harness-contract` v1 is titled **Run Harness Core and Extensions
-contract tests**. It uses the same Host Node command, private candidate cwd,
-120000 ms timeout, 65536 byte per-stream limit and minimal environment. Its
+`node-test-harness-contract` v2 is titled **Run Harness Core and Extensions
+offline contract tests**. It uses the same Host Node command, private candidate
+cwd, 120000 ms timeout, 65536 byte per-stream limit and minimal environment. Its
 exact argv is:
 
 ```text
 --test
 --test-concurrency=1
-app/tests/hermes-api-runs.test.mjs
 app/tests/request-summary.test.mjs
 app/tests/runtime-load-recovery.test.mjs
 app/tests/kit-context.test.mjs
-app/tests/control-plane.test.mjs
-app/tests/check-recipes.test.mjs
+app/tests/kit-context-independent.test.mjs
+app/tests/control-policy.test.mjs
+app/tests/check-approval-authored-files.test.mjs
 ```
 
-It is a selected regression set for Courtwork's own private candidate (the
-RL-1 self-check), not all of Harness, Extensions or product acceptance. The
-Hermes file is synthetic HTTP conformance, not a native Hermes server. Its
-dependencies come from the candidate's own `app/node_modules`, prepared
-explicitly before the check; the Host never installs them.
+It covers the bounded `repo_list` request summary, `runtime_load` recovery
+hints, Kit context compilation, the control-plane policy rules and path
+matching, and the files a check approval lists. It is a selected regression set
+for Courtwork's own private candidate (the RL-1 self-check), not all of Harness,
+Extensions or product acceptance. It does not cover the Host-level halves of
+those areas (`request-summary-host.test.mjs`, `runtime-load-recovery-host.test.mjs`,
+`control-plane.test.mjs`), the synthetic Hermes HTTP conformance
+(`hermes-api-runs.test.mjs`), or the check runner, sandbox and catalog tests
+(`check-recipes.test.mjs`, `check-sandbox.test.mjs`, `check-runner-group-kill.test.mjs`,
+`check-approval-revision.test.mjs`), all of which start a Host, a listener or
+the check runner. `npm --prefix app test` runs them. `check-recipes-real.test.mjs` there
+runs both recipes above against this repository under the production sandbox,
+with their frozen limits, and fails when the sandbox is unavailable.
+
+These fixed paths are expected in a Courtwork private candidate. A candidate
+without them is stopped before spawn as `missing_target` (below). The Host does
+not install candidate dependencies or substitute another command; preparing
+dependencies is an explicit candidate setup step, and they must be real files
+inside the candidate: the sandbox reads the candidate's real path only, so an
+`app/node_modules` that is a symlink to a directory outside the candidate makes
+every dependency-needing test fail to load. A passing result remains process
+evidence, not formal Attention or Work acceptance.
 
 **Fixed targets must exist.** Node's test runner reads each path argument as a
 glob and silently skips one that matches nothing while the others run, which
