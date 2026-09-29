@@ -136,7 +136,12 @@ test('actual ready upstream frozen after provider dispatch requires bounded SIGK
 test('interrupted Host native-receipt callback remains unknown rather than confirmed cancellation', async () => {
   const provider = await localPiLoopback();
   try {
-    const result = await invoke(provider, { timeoutMs: 1000, onNative: () => new Promise(() => {}) });
+    // Interrupt from inside the hung callback. A 1 s deadline raced Pi's own
+    // startup (its first event takes 0.5-1 s idle): a deadline that fired
+    // before the callback was ever entered produced a plain cancellation.
+    const controller = new AbortController();
+    const result = await invoke(provider, { signal: controller.signal, timeoutMs: 60000,
+      onNative: () => { controller.abort(); return new Promise(() => {}); } });
     assert.equal(result.status, 'unknown', JSON.stringify(result));
     assert.equal(result.process.fault, 'callback_interrupted'); assert.equal(result.result, null);
   } finally { await provider.close(); }

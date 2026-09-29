@@ -293,7 +293,14 @@ Astra's review asked that repeated failures be explained, not labelled load flak
   - Fix: the test waits until the Host has released the Run (`service.active`) before snapshotting.
   - Product behavior is unchanged: the read path under test writes nothing.
 
-Still unexplained: the occasional `local-pi-transport` failure under the loaded suite, and `profile-editor` K5-R2, which is on the known-flake list. Neither has been reproduced in this loop.
+- **`local-pi-transport` and `local-pi-upstream`.** Each raced a short fixed deadline against real process startup; the product has no race here (Sonnet investigation, reproduced on demand):
+  - `local-pi-transport`'s timeout-escalation test used a 180 ms deadline. The child needs about 145 ms idle to boot, import its fixture and spawn its grandchild. A deadline that fires first kills it before its TERM handler exists, so nothing escalates.
+  - `local-pi-upstream`'s callback-interruption test relied on a 1 s deadline firing while its native-receipt callback hung. Pi's first event takes 0.5–1 s idle, so under load the deadline fired before the callback was ever entered and produced a plain cancellation.
+  - Both were forced deterministically by injecting startup delays.
+  - Fixes: the escalation test's deadline is now 2.5 s. The interruption test aborts from inside the hung callback, the same termination path without the timing dependence.
+  - Under 24-process CPU stress, the previous tests failed 3/5 and 5/5; the fixed tests 0/5 and 0/5.
+
+Still unexplained: `profile-editor` K5-R2, on the known-flake list, not reproduced in this loop.
 
 ## Needs a ruling
 
