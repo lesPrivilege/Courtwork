@@ -1,7 +1,8 @@
 """Attention domain within the existing B0 Core transaction and process owner."""
 from datetime import datetime, timezone
 from uuid import uuid4
-from core import CoreError, _exact_keys, canonical_json, parse_json, sha256_text
+from core import CoreError, _exact_keys, canonical_json, choice, integer, parse_json, sha256_text, string, timestamp, utf8_size
+from disclosure import source_disclosed
 
 ATTENTION_SCHEMA = (
     """CREATE TABLE IF NOT EXISTS attention (
@@ -21,45 +22,19 @@ FIELDS = {'registry','details','sources','relations','events','signal'}
 STATUSES = {'investigating','needs_you','waiting','later','resolved'}
 ACTIONS = {'create','acknowledge','snooze','set_waiting','resume','resolve','reopen','attach_relation','request_disclosure','record_signal'}
 MAX_OBJECTS = 1000
+# Literal GET /attention/<segment> Host routes; an item with one of these ids
+# would be shadowed there (it stays reachable through POST /attention/query).
+RESERVED_IDS = {'registry','conversations'}
 
 
 def fail(code='INVALID', detail='invalid Attention input'):
     raise CoreError(code, detail)
 
 
-def string(value, maximum=200, nullable=False):
-    if value is None and nullable: return value
-    if not isinstance(value,str) or not value.strip() or '\x00' in value or len(value)>maximum: fail()
-    try: value.encode('utf-8')
-    except UnicodeError: fail()
-    return value
-
-
-def choice(value,allowed):
-    if not isinstance(value,str) or value not in allowed: fail()
-    return value
-
-
 def bounded_json(value,limit=32768):
     text=canonical_json(value)
-    try: size=len(text.encode('utf-8'))
-    except UnicodeError: fail()
-    if size>limit: fail('ATTENTION_LIMIT','request or object too large')
+    if utf8_size(text)>limit: fail('ATTENTION_LIMIT','request or object too large')
     return text
-
-
-def integer(value, maximum=2**53-1):
-    if type(value) is not int or not 0 <= value <= maximum: fail()
-    return value
-
-
-def timestamp(value):
-    string(value,80)
-    try:
-        dt = datetime.fromisoformat(value.replace('Z','+00:00'))
-        if dt.tzinfo is None: fail()
-        return dt
-    except ValueError: fail()
 
 
 def now():
@@ -166,6 +141,9 @@ def sources(store, values, ctx):
         if ref in result: fail()
         if ref['kind']=='core':
             string(ref['matter_id']); string(ref['digest'],64)
+            # A runtime may cite only sources its Matter grant discloses; any
+            # other ref gets the same refusal whether or not it exists.
+            if ctx['actor']=='runtime' and not source_disclosed(store,ref,ctx): fail('NOT_FOUND','source unavailable')
             source_record(store,ref,ctx)
         elif ref['matter_id'] is not None or ref['digest'] is not None: fail()
         result.append(ref)
@@ -178,6 +156,12 @@ def source_record(store,ref,ctx):
     if row is None: fail('NOT_FOUND','source unavailable')
     if row['digest']!=ref['digest'] or sha256_text(row['text'])!=ref['digest']: fail('INTEGRITY_REFUSAL','source bytes mismatch')
     return row
+
+
+def visible_sources(store,refs,ctx):
+    """Source refs a reader may see: runtime views drop Matter sources its Matter grant does not disclose."""
+    if ctx['actor']!='runtime': return refs
+    return [r for r in refs if r['kind']!='core' or source_disclosed(store,r,ctx)]
 
 
 def next_action(value):
@@ -208,14 +192,14 @@ def human_actions(state):
     return [{'schema_version':1,'action':a,'expected_revision':state['revision'],'payload_schema':{'type':'object','additionalProperties':False,'required':schemas[a][1],'properties':schemas[a][0]}} for a in sorted(available)]
 
 
-def public_state(state,ctx,summary=False):
+def public_state(store,state,ctx,summary=False):
     allowed=permissions(state,ctx)
     if 'registry' not in allowed: fail('NOT_FOUND','Attention unavailable')
     result={key:state[key] for key in ['attention_id','schema_version','revision','status','freshness','updated_at']}
     result['descriptor']={'title':state['descriptor']['title']}
     if not summary and 'details' in allowed:
         result.update({key:state[key] for key in ['descriptor','reason','next_action','seen','last_event_id']})
-    if not summary and 'sources' in allowed: result['source_refs']=state['source_refs']
+    if not summary and 'sources' in allowed: result['source_refs']=visible_sources(store,state['source_refs'],ctx)
     if not summary and 'relations' in allowed:
         result['relation_refs']=state['relation_refs']; result['execution_provenance']=state['execution_provenance']
     if not summary and ctx['actor']=='local-user':
@@ -266,6 +250,7 @@ def action(store,ctx,request,provenance):
             result=receipt_value(store,receipt)
             store.conn.commit(); return result
         if a=='create':
+            if ident in RESERVED_IDS: fail('INVALID','Attention id is reserved by a Host route')
             if store.conn.execute('SELECT 1 FROM attention WHERE id=? AND project_id=?',(ident,ctx['project_id'])).fetchone(): fail('CONFLICT','Attention unavailable')
             if request['expected_revision']!=0: fail('VERSION_CONFLICT','Attention revision changed')
             if store.conn.execute('SELECT count(*) FROM attention WHERE project_id=?',(ctx['project_id'],)).fetchone()[0]>=MAX_OBJECTS: fail('ATTENTION_LIMIT','project object limit')
@@ -287,7 +272,7 @@ def action(store,ctx,request,provenance):
                 _exact_keys(p,{'reason'} | ({'status'} if a!='resolve' and 'status' in p else set()),a); string(p['reason'],4000)
                 if a!='resolve': choice(p.get('status','investigating'),{'investigating','needs_you'})
                 if a=='reopen' and state['status']!='resolved': fail('INVALID_TRANSITION','reopen requires resolved')
-                if a=='resume' and state['status']=='resolved': fail('INVALID_TRANSITION','resolved requires reopen')
+                if a!='reopen' and state['status']=='resolved': fail('INVALID_TRANSITION','resolved requires reopen')
                 state.update(reason=p['reason'],status='resolved' if a=='resolve' else p.get('status','investigating'),freshness='current',next_action={'kind':'none' if a=='resolve' else 'inspect','label':'No next action' if a=='resolve' else 'Inspect','trigger':'manual','due_at':None})
             elif a=='attach_relation':
                 _exact_keys(p,{'relation','operation'},a)
@@ -351,7 +336,7 @@ def query(store,ctx,q):
         state=load(store,q.get('attention_id'),ctx); require(state,ctx,'registry')
         if kind=='inspect':
             if 'expected_revision' in q and integer(q['expected_revision'])!=state['revision']: fail('VERSION_CONFLICT','Attention revision changed')
-            return public_state(state,ctx)
+            return public_state(store,state,ctx)
         if kind=='request':
             # Receipts disclose action outcomes: runtime readers need event access.
             require(state,ctx,'events'); string(q.get('request_id'))
@@ -362,15 +347,18 @@ def query(store,ctx,q):
             rows=store.conn.execute('SELECT * FROM attention_event WHERE project_id=? AND attention_id=? ORDER BY revision LIMIT ? OFFSET ?',(ctx['project_id'],state['attention_id'],limit+1,offset)).fetchall()
             events=[]; used=0
             for r in rows[:limit]:
-                size=len(r['event_json'].encode('utf-8'))
+                size=utf8_size(r['event_json'])
                 if used+size>131072: break
-                events.append(checked_json(r['event_json'],r['event_digest'])); used+=size
+                event=checked_json(r['event_json'],r['event_digest'])
+                if isinstance(event.get('payload'),dict) and isinstance(event['payload'].get('source_refs'),list):
+                    event['payload']['source_refs']=visible_sources(store,event['payload']['source_refs'],ctx)
+                events.append(event); used+=size
             # Event payloads may contain every object field. Event grants must
             # include all detail/reference fields, enforced at this boundary.
             for field in ['details','sources','relations']: require(state,ctx,field)
             return {'schema_version':1,'revision':state['revision'],'events':events,'next_offset':offset+len(events) if len(rows)>len(events) else None,'truncated':len(rows)>len(events)}
         require(state,ctx,'sources')
-        i=integer(q.get('source_index')); refs=state['source_refs']
+        i=integer(q.get('source_index')); refs=visible_sources(store,state['source_refs'],ctx)
         if i>=len(refs): fail('NOT_FOUND','source unavailable')
         ref=refs[i]
         if ref['kind']=='external': return {'schema_version':1,'source':ref,'availability':'unknown','text':None}
@@ -407,6 +395,6 @@ def query(store,ctx,q):
         if kind=='relation':
             if 'relations' not in allowed: continue
             if not any(r['kind']==q['relation_kind'] and r['id']==q['relation_id'] for r in state['relation_refs']): continue
-        visible.append(public_state(state,ctx,summary=True))
+        visible.append(public_state(store,state,ctx,summary=True))
     end=min(len(visible),offset+limit)
     return {'schema_version':1,'items':visible[offset:end],'count':len(visible),'offset':offset,'next_offset':end if end<len(visible) else None,'truncated':end<len(visible),'disclosure':{'policy':'local-attention-v1','purpose':ctx['purpose'],'count_scope':'visible'}}

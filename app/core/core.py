@@ -12,6 +12,7 @@ import os
 import signal
 import sqlite3
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable
 
@@ -69,6 +70,14 @@ def sha256_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def utf8_size(text: str) -> int:
+    """Encoded size for budget checks; lone surrogates are invalid input."""
+    try:
+        return len(text.encode("utf-8"))
+    except UnicodeEncodeError:
+        raise CoreError("INVALID", "invalid Unicode") from None
+
+
 def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -93,6 +102,42 @@ def _exact_keys(value: Any, expected: set[str], name: str) -> None:
         extra = sorted(got - expected)
         missing = sorted(expected - got)
         raise CoreError("INVALID", f"{name} keys extra={extra} missing={missing}")
+
+
+# Scalar validators shared by the Attention and governance domains.
+def string(value: Any, maximum: int = 200, nullable: bool = False) -> Any:
+    if value is None and nullable:
+        return value
+    if not isinstance(value, str) or not value.strip() or "\x00" in value or len(value) > maximum:
+        raise CoreError("INVALID", "invalid string")
+    try:
+        value.encode("utf-8")
+    except UnicodeError:
+        raise CoreError("INVALID", "invalid string") from None
+    return value
+
+
+def choice(value: Any, allowed: set[str]) -> str:
+    if not isinstance(value, str) or value not in allowed:
+        raise CoreError("INVALID", "invalid choice")
+    return value
+
+
+def integer(value: Any, maximum: int = 2**53 - 1) -> int:
+    if type(value) is not int or not 0 <= value <= maximum:
+        raise CoreError("INVALID", "invalid integer")
+    return value
+
+
+def timestamp(value: Any) -> datetime:
+    string(value, 80)
+    try:
+        dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        raise CoreError("INVALID", "invalid timestamp") from None
+    if dt.tzinfo is None:
+        raise CoreError("INVALID", "invalid timestamp")
+    return dt
 
 
 def digest_source(text: str) -> str:

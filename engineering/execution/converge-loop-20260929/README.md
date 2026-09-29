@@ -475,6 +475,34 @@ Six defects were fixed, implemented by an Opus worker under the parent's rulings
   - MCP header and body timeouts in Runtime Control API.
 - **Checks.** `tools/check-doc-links.mjs` and `tools/check-product-copy.mjs` pass.
 
+### S19 · Attention and governance: per-object availability, one disclosure rule
+
+Input: a Sonnet audit of Attention and governance, with Core-level reproductions and about 4,000 fuzzed inputs. No cross-project leak, resolution-authority break, stale disclosure or receipt defect was found:
+- runtimes cannot resolve, snooze or dismiss;
+- no Run, notification or delivery path resolves Attention;
+- grants, expiry and revocation are checked on every call with the Host-captured identity;
+- counts and cursors cover visible items only.
+
+Five problems were fixed, implemented by an Opus worker under the parent's rulings.
+
+- **D1, reproduced: one Matter broke the whole directory.** One Matter over its object budget (129 sources), or with an unsupported domain schema, made the governance registry fail for the whole project. This hit both the human and the runtime, and Attention discovery went with it. Such an object is now listed `unavailable` with its reason code and no `object_version`, and its own detail read keeps the explicit error. A runtime still never sees objects its grant cannot read.
+- **D2, reproduced: runtime Attention paths skipped Matter disclosure.** The runtime Attention `source` query returned Matter source bytes without the Matter-disclosure check governance applies, and inspect exposed Matter source ids, locators and digests. This extends S14's `record_signal` oracle (D6). It is not reachable through today's model tools, only through the adapter seam.
+  - The disclosure reader moved unchanged into `core/disclosure.py` (the review compared the moved functions structurally), with one `source_disclosed` rule used by governance and Attention alike.
+  - For runtimes: inspect, the `source` query (indexed over visible refs, so counts and positions do not leak), event payloads and `record_signal` source refs (uniform `NOT_FOUND` before any existence or digest check) all apply it.
+  - Human behavior is unchanged.
+- **D3: resolving a resolved item overwrote its reason.** `resolve` (and `resume`) on a resolved item is now `INVALID_TRANSITION`; reopen first. Acknowledge, attach relation and request disclosure are unaffected.
+- **D4: items named like fixed routes could not be opened.** Items with ids `registry` or `conversations` were shadowed by the fixed `GET /attention/...` routes. Those ids are refused at create. Existing ones stay reachable through `POST /attention/query`.
+- **Minor.** A lone surrogate in a size check raised `UnicodeEncodeError`; one `utf8_size` now maps it to `INVALID` everywhere it was used.
+- **Checks.** `attention-governance-integrity.test.mjs` has five tests, each failing against the previous code. `npm --prefix app test` 1897/1897. Docs: Work Core governance and Attention contracts, and the Attention agent guide.
+- **Non-author review (Sonnet).** No security findings. It confirmed:
+  - the moved disclosure logic is equivalent;
+  - the current source set is required and the runtime identity is the Host's;
+  - no runtime path bypasses the check, and replay leaks nothing;
+  - `unavailable` entries appear only to a runtime already granted registry access;
+  - there is no import cycle.
+
+  Noted: a granted runtime sees the reason code; relation refs and memory listings expose Matter ids, as documented boundaries.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
