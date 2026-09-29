@@ -52,16 +52,29 @@ only and always read the bound source checkout. The source remains read-only
 when a candidate exists. The API still accepts a Host path directly; the
 `host/choose-directory` and `repositories/*` routes below help the Connect UI
 fill that path in, but binding itself stays the explicit `PUT` described above.
-Runtime policy matches a filesystem path on its canonical form, not its
-spelling. For every path action (`ws_*`, `repo_*` and `candidate_*`) a rule's
-resource pattern and the requested path are each Unicode-normalized to NFC and
-lower-cased before they are compared, so the case and normalization-form
-aliases a Host volume such as APFS resolves to the same file cannot bypass a
-path-specific deny or ask rule. On a volume that does not alias those
-spellings a rule can match more spellings than the filesystem does, which only
-makes a deny or ask apply more often. Non-path resources (`runtime_load` ids,
-MCP actions and `*`) and the action pattern keep exact matching, and
-compatibility-equivalent forms such as fullwidth letters stay distinct names.
+Runtime policy applies a path rule to a file, not to one spelling of its name.
+For every path action (`ws_*`, `repo_*` and `candidate_*`) the rules are read
+three ways: on the path as requested, on its lower-case form, and on its
+alias-folded form, in which every spelling a Host volume may open as the same
+file is equal. The strictest of the three results holds. Within one reading the
+last matching rule of a layer still wins, so `deny *` followed by
+`allow out/*` allows `out/a.txt` as before.
+
+The alias fold decomposes (NFD), upper-cases and lower-cases until the text no
+longer changes. It covers case, normalization form and case forms that plain
+lower-casing keeps apart, such as `Σ`, `σ` and final `ς`.
+`app/tests/path-alias-oracle.test.mjs` asks the volume it runs on which
+single-code-point names collide and requires the fold to make each pair equal.
+
+Taking the strictest reading has two consequences. A rule cannot be bypassed by
+another spelling of the same file. And a policy never becomes weaker through
+folding: when a `deny` and a later `allow` name spellings of one file, the
+`deny` holds. On a volume that keeps such spellings apart, a deny or ask can
+therefore reach a differently spelled file; it never reaches fewer.
+
+Non-path resources (`runtime_load` ids, MCP actions) and the action pattern
+keep exact matching. Compatibility forms such as fullwidth letters stay
+distinct names; APFS does not alias them.
 
 Aggregate reads (`repo_grep`, `candidate_grep`, `repo_diff`) apply the same
 per-path policy to every file they would otherwise disclose, not just to their

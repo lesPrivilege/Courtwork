@@ -14,7 +14,7 @@ const matches = [];
 async function* files(full) {
   const info = await lstat(full).catch(() => null);
   if (!info || info.isSymbolicLink()) return;
-  if (info.isFile()) { yield { full, bytes: info.size }; return; }
+  if (info.isFile()) { yield { full, bytes: info.size, dev: info.dev, ino: info.ino }; return; }
   if (!info.isDirectory()) return;
   const directory = await opendir(full);
   for await (const entry of directory) {
@@ -33,12 +33,15 @@ for (const [index, entry] of found.entries()) {
   if (matches.length >= maxResults) break;
   if (!admitted[index]) continue;
   // Read at most the host ceiling plus one byte even if a file grows after stat.
-  // The file was a regular file when it was named; a symlink put in its place
-  // since then is not followed.
+  // Read only the file that was named and admitted. O_NOFOLLOW refuses a
+  // symlink in its place; comparing the opened file with the one named refuses
+  // any other file, such as one reached through a swapped parent directory.
   const handle = await open(entry.full, constants.O_RDONLY | constants.O_NOFOLLOW).catch(() => null);
   if (!handle) continue;
   let bytes;
   try {
+    const opened = await handle.stat();
+    if (opened.dev !== entry.dev || opened.ino !== entry.ino) continue;
     const buffer = Buffer.alloc(maxReadBytes + 1);
     let size = 0;
     while (size < buffer.length) {
