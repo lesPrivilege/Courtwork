@@ -347,17 +347,7 @@ export async function createFakeOpenAiProvider({ host = "127.0.0.1", port = 0, r
   };
 }
 
-export const fakeProviderDescriptor = Object.freeze({
-  provider: PROVIDER_ID,
-  model: MODEL_ID,
-  api: API_ID,
-  realProvider: false,
-});
-
 export const FIXTURE_WRONG_KEY = WRONG_KEY_MARKER;
-export const FIXTURE_ERROR_DIRECTIVE = ERROR_DIRECTIVE;
-export const FIXTURE_ERROR_ONCE_DIRECTIVE = ERROR_ONCE_DIRECTIVE;
-export const FIXTURE_SLOW_FIRST_TOKEN_MS = SLOW_FIRST_TOKEN_MS;
 export const FAKE_PROVIDER_ID = PROVIDER_ID;
 export const FAKE_MODEL_ID = MODEL_ID;
 export const FAKE_API_ID = API_ID;

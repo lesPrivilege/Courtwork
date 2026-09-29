@@ -444,7 +444,7 @@ function validateOperations(value, sessions) {
   }
 }
 
-function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
+function validateState(parsed, schema = SCHEMA_VERSION) {
   assert(isRecord(parsed), "state must be an object");
   assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 21 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')) && (schema >= 18 || k !== 'operations'))), "state");
@@ -503,7 +503,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
     assert(RUN_STATUSES.has(run.status), "run.status is invalid"); assert(typeof run.admissionOpen === "boolean", "run.admissionOpen is invalid");
-    id(run.adapterId, "run.adapterId"); validateDescriptor(run.provider, "run.provider", { allowRealProvider: true, schema, legacy: legacyDescriptors });
+    id(run.adapterId, "run.adapterId"); validateDescriptor(run.provider, "run.provider", { allowRealProvider: true, schema, legacy: true });
     if (run.extension !== null) {
       exactKeys(run.extension, new Set(["id", "version", "generation"]), "run.extension");
       id(run.extension.id, "run.extension.id"); id(run.extension.version, "run.extension.version");
@@ -621,7 +621,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     timestamp(question.createdAt, "question.createdAt");
   }
   nonNegativeInt(parsed.credentialGeneration, "state.credentialGeneration");
-  if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig", { schema, legacy: legacyDescriptors });
+  if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig", { schema, legacy: true });
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
   if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
   if (schema >= 15) validateSubagents(parsed.subagents,parsed);
@@ -888,7 +888,7 @@ export class RuntimeStore {
               repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null,
               remoteBinding: parsed.schemaVersion >= 19 ? run.remoteBinding : null,
               kitBinding: parsed.schemaVersion >= 21 ? run.kitBinding : null })) };
-          const upgraded = validateState(migrateExecutorState(candidate), SCHEMA_VERSION, { legacyDescriptors: true });
+          const upgraded = validateState(migrateExecutorState(candidate), SCHEMA_VERSION);
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });

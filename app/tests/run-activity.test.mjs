@@ -7,7 +7,7 @@ import { withTinyDom } from './tiny-dom.mjs';
 const run = status => ({ id: 'run-a', sessionId: 'session-a', status });
 test('activity stops on wait, disconnect and terminal state without inventing cancellation acceptance', () => {
   assert.equal(projectRunActivity({ run: run('running') }).moving, true);
-  for (const status of ['created', 'waiting_user', 'stopping', 'completed', 'cancelled', 'failed', 'future-status'])
+  for (const status of ['waiting_user', 'stopping', 'completed', 'cancelled', 'failed', 'future-status'])
     assert.equal(projectRunActivity({ run: run(status) }).moving, false, status);
   const pending = projectRunActivity({ run: run('running'), pendingCancel: true });
   assert.equal(pending.moving, false); assert.equal(pending.label, 'Working');

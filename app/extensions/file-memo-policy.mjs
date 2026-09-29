@@ -42,10 +42,6 @@ export const FILE_MEMO_RECORDED_FILES_SCHEMA = Object.freeze({
   items: FILE_SELECTOR_ITEM_SCHEMA,
 });
 
-// Both names are useful to callers: the first describes the model input and
-// the second keeps the selector terminology visible at import sites.
-export const FILE_MEMO_SELECTOR_SCHEMA = FILE_MEMO_RECORDED_FILES_SCHEMA;
-
 export const FILE_MEMO_PROPOSAL_SCHEMA = Object.freeze({
   type: 'object',
   additionalProperties: false,
@@ -56,27 +52,5 @@ export const FILE_MEMO_PROPOSAL_SCHEMA = Object.freeze({
     obligations: { type: 'array' },
     recordedFiles: FILE_MEMO_RECORDED_FILES_SCHEMA,
     supersedes: { type: 'string', minLength: 1, maxLength: 256 },
-  },
-});
-
-// Keep an explicit candidate-proposal alias for future adapters without
-// creating a second, diverging schema object.
-export const FILE_MEMO_CANDIDATE_PROPOSAL_SCHEMA = FILE_MEMO_PROPOSAL_SCHEMA;
-
-export const FILE_MEMO_FILE_QUERY_SCHEMA = Object.freeze({
-  type: 'object',
-  additionalProperties: false,
-  required: ['path'],
-  properties: {
-    candidateId: { type: ['string', 'null'] },
-    artifactId: { type: ['string', 'null'] },
-    path: {
-      type: 'string',
-      minLength: 1,
-      maxLength: FILE_MEMO_LIMITS.maxPathBytes,
-      pattern: '^[A-Za-z0-9._/-]+$',
-    },
-    offset: { type: 'integer', minimum: 0 },
-    limit: { type: 'integer', minimum: 1, maximum: FILE_MEMO_LIMITS.maxPageCodePoints },
   },
 });

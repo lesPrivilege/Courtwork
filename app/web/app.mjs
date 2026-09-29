@@ -91,6 +91,7 @@ import { createProfileEditorView } from "./profile-editor-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
 import { renderHome, homeSets, HOME_ROWS } from "./home-view.mjs";
 import {
+  normalizedType,
   projectThread,
   toolStateWord,
   canAnswer,
@@ -556,15 +557,8 @@ function rememberMessageReading(stream, { forceFollow = null } = {}) {
   return reading;
 }
 
-function normalizedType(type) {
-  const raw = String(type || "");
-  if (raw === "user.message") return "message/user";
-  if (raw === "assistant.message") return "assistant/final";
-  return raw.replace(".", "/");
-}
-
 function isActiveRun(run) {
-  return ["created", "running", "waiting_user", "stopping"].includes(
+  return ["running", "waiting_user", "stopping"].includes(
     run?.status,
   );
 }
@@ -4150,7 +4144,6 @@ function selectPreviewTab(key) {
  * 每个都带一句 sr-only 的话。没有新图形、没有新色 —— 颜色沿 run-badge 的三档。 */
 const TAB_ACTIVITY = {
   running: "Running",
-  created: "Running",
   stopping: "Running",
   waiting_user: "Waiting for you",
   failed: "Failed",
@@ -8138,7 +8131,6 @@ async function leavePreview(reason = "dismissed") {
 window.__V5_UI__ = {
   state,
   request,
-  normalizedType,
   renderAll,
   /* WK-43 · the host's own slot resolution, exposed for the same reason `state`
    * is: a non-author check must be able to read the host's answer rather than

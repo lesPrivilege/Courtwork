@@ -15,7 +15,6 @@ import { resolveRuntimeSource } from './source-resolver.mjs';
  * crash-safety of Apply rests on a persisted pending marker that startup
  * reconciles against the configuration's own audit (see `recover`). */
 
-export const PROPOSAL_KINDS = Object.freeze(['skill']);
 export const PROPOSAL_CONTENT_LIMIT = 64 * 1024;
 export const OPEN_PROPOSALS_PER_SESSION = 16;
 

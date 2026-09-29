@@ -47,9 +47,6 @@ export const AGENTS_API_PROTOCOL = Object.freeze({
   }),
 });
 
-export const AGENTS_API_EXPOSURE_RULE =
-  'unverified capabilities are unavailable; only live-verified capabilities may be exposed';
-
 export const AGENTS_API_TERMINAL_STATUSES = Object.freeze(['completed', 'failed', 'cancelled', 'unknown']);
 
 function fail(code, message) {
