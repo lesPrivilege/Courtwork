@@ -5,7 +5,8 @@ Session's active private Git candidate (see
 [`repository-binding.md`](repository-binding.md)). The contract is RD-009
 ["DF-04可施工合同"](../../engineering/research/RD-009-trusted-harness-extensions.md#df-04可施工合同).
 This is a first Developer-consumer increment, not a general G1–G5
-precondition, and not a sandbox.
+precondition. The recipe's process runs inside an OS sandbox; see
+[Environment policy](#environment-policy).
 
 ## Catalog
 
@@ -118,7 +119,7 @@ When the Host asks, the approval payload shows the recipe, command and arguments
 not just the recipe id. The approval card also lists the files the model wrote
 into the candidate through `repo_write` (path and content hash) up to the write
 revision the request is bound to, read from the Host's confirmed-write receipts;
-see the isolation limit under [Environment policy](#environment-policy):
+what that code can reach is set by the [Environment policy](#environment-policy):
 
 ```json
 {
@@ -162,32 +163,105 @@ other tool still accepts only the base six fields.
 
 ## Environment policy
 
-The child process runs as a normal OS process with the Host user's own
-rights — this is **not** a sandbox. It is spawned with `shell:false` and a
-minimal, explicit environment:
+A check runs code the model wrote into the candidate, so the recipe's process
+and all its descendants run inside an OS sandbox with a fixed, Host-owned
+policy. The model cannot change the policy, and no recipe widens it.
+
+**Mechanism.** [`@anthropic-ai/sandbox-runtime`](../../engineering/ecosystem/sandbox-runtime-source-card.md)
+`0.0.77` (Apache-2.0), exact-pinned in `app/package.json`: on macOS a
+deny-default Seatbelt profile run through `/usr/bin/sandbox-exec`; on Linux
+bubblewrap with new user, PID and network namespaces. `app/runtime/check-sandbox.mjs`
+builds the policy and uses only the library's per-call wrapper. It never calls
+`SandboxManager.initialize()`, which would start the library's network proxy
+(and `socat` bridges on Linux) even when no domain is allowed; without it no
+proxy port exists, so the policy grants no network at all.
+
+**What the check can do:**
+
+- **Read** everything outside the user's home directory and the Host data
+  directory (which holds `credentials.json`, `runtime-state.json`, the Core
+  `state.db`, ArtifactHistory, and every Session's workspace and candidate).
+  Inside those two it reads only the candidate worktree it checks, its own
+  temporary directory, and the Node installation it runs. All of these are
+  resolved real paths; a path containing `*`, `?`, `[` or `]`, or a re-allowed
+  path that would contain the home or data directory, is refused as
+  `sandbox_unavailable`.
+- **Write** only its own temporary directory. The candidate worktree,
+  including its `.git`, is read-only to the check: a check reads the
+  candidate, and candidate files change only through approved `repo_write`. The
+  library's own default writable path `/tmp/claude` is denied again.
+- **No network.** No TCP or UDP, loopback included, and no DNS. No recipe
+  grants any.
+- **Nothing outside the sandbox.** On macOS Apple Events and Launch Services
+  open requests are denied (the library's `allowAppleEvents` stays off), so
+  `osascript`, `open` and `launchctl submit` fail instead of starting code
+  outside the sandbox.
+
+**Environment.** The runner spawns `/bin/sh -c <wrapped command>` with
+`shell:false` and a minimal environment:
 
 - `PATH`: the Host process's own `PATH` (or `/usr/bin:/bin` if unset)
-- `HOME`: a fresh temporary directory the runner creates before the process
-  starts and removes once it settles
+- `HOME` and `TMPDIR`: a fresh per-check temporary directory the runner creates
+  before the process starts and removes once it settles
 - `LANG`: `C`
 
-No other variable is passed through. In particular the child never sees
+The library adds `SANDBOX_RUNTIME=1` (and its own `TMPDIR`, which the wrapped
+command overrides). No other variable is passed through: the child never sees
 `NODE_OPTIONS`, `PYTHONPATH`, provider API keys or any other credential the
-Host process holds. Supporting an untrusted program will need a real
-isolation contract before extending this slice; today's exposure is bounded
-by using a no-personal-data, no-shared-write-directory synthetic fixture, not
-by an OS sandbox around the child.
+Host process holds. The wrapped command is a shell string because that is
+what the library returns; every value interpolated into it is Host-produced
+(the recipe's constant command and arguments, and Host paths), each quoted as
+a single POSIX single-quoted word, so no model input is ever interpreted by a
+shell.
 
-The environment is minimal, but the files are not isolated. The private candidate
-lives inside the Host data directory, beside `credentials.json` and the Core store,
-and test files the model wrote into the candidate (in `draft` mode, without a
-separate approval) run with the Host user's rights. Such a file can read anything
-the Host user can read and return it through check output. The approval card names
-those files so a person approves the code that will run, but naming is not
-containment: files an earlier check created are not listed, and nothing stops a
-listed file from reading credentials. The architecture rule for code execution
-opened to a model — show that it cannot reach formal write capability or
-credentials — is therefore not met today ([review D4](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)).
+**Fail closed.** Before the recipe runs, the Host requires the platform to be
+supported, the sandbox binary to be present (`/usr/bin/sandbox-exec` on macOS;
+`bwrap` on `PATH` on Linux), the library's dependency check to report no error,
+and a preflight `exit 0` under the same policy to succeed; a Seatbelt profile
+the kernel rejects or a bubblewrap that cannot create its namespaces is caught
+there. If any of these fails, no recipe process starts and the check settles
+once as `failed` with `failure: {code: "sandbox_unavailable"}` and empty
+output, the same shape as `spawn_failed`. There is no unsandboxed fallback, no
+setting or environment variable that disables the sandbox, and no
+compatibility path. Cancellation and the Host's synchronous pre-spawn checks
+(`run_closed`, `candidate_changed`, `missing_target`) take precedence over
+`sandbox_unavailable`, since with any of them no process would start anyway.
+
+**Process lifetime.** Whatever its exit path, a check settles only after its
+process group is gone: if anything remains when the leader closes, the group is
+sent `SIGKILL` and polled (bounded); if it cannot be confirmed gone, the result
+carries `groupLingered: true` (see below). A descendant
+that starts its own session leaves the group:
+
+- On Linux, bubblewrap runs the check in its own PID namespace with
+  `--die-with-parent`, so when the check ends every process inside it ends.
+  *Not run: no Linux host was available when this was written.*
+- On macOS the sandbox does not bound lifetime. A descendant in its own session
+  can outlive the check. It stays inside the sandbox, with the same read,
+  write, network and launch restrictions, but the Host does not find or stop
+  it, and the Host does not claim that it did.
+
+**System prerequisites.** macOS: `/usr/bin/sandbox-exec` (part of the OS).
+Linux: `bubblewrap`, `socat` and `ripgrep` on `PATH` (the library's dependency
+check requires all three even though checks use no proxy), and unprivileged
+user namespaces that keep their capabilities; on Ubuntu 24.04 and later that
+needs `sysctl kernel.apparmor_restrict_unprivileged_userns=0` or an AppArmor
+profile for `bwrap`. Other platforms settle every check as
+`sandbox_unavailable`.
+
+**Verified.** macOS 27 (Apple silicon, Node 25.9) with synthetic stand-ins:
+reads of the data directory, a file in the real home directory and another
+Session's workspace are denied directly and through a spawned `cat`; writes
+to the candidate, its `.git`, the data directory, the home directory and
+`/private/tmp` are denied while the temporary directory is writable; TCP to a
+public address and to a listening loopback port, UDP and DNS fail; `osascript`
+to Finder, `launchctl submit` and `open -g` start nothing; `node --test` with a
+child process and an `os.tmpdir()` write passes; through the runner, wall time
+for a one-file `node --test` rose from about 253 ms to about 338 ms (median of
+five, preflight included). The
+regression tests are in `app/tests/check-sandbox.test.mjs`. Linux: the same
+tests run in CI after the steps in `.github/workflows/runtime.yml`; *not run*
+at the time of writing.
 
 ## Timeout and output limits
 
@@ -195,10 +269,11 @@ The recipe's `timeoutMs` and `outputLimitBytes` are fixed by the catalog
 entry, not negotiable by the model. On timeout the runner kills the child's
 whole process group (`SIGTERM`, then `SIGKILL` after 500 ms if still alive)
 and reports
-`timedOut:true`. A stopped check (timeout or cancel) settles only after the whole
-group is gone: if a descendant that ignores `SIGTERM` outlives the leader, the
-group is sent `SIGKILL` and polled for up to 2 s; if it still cannot be confirmed
-gone, the runner result carries `groupLingered: true` ([review D5](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)). Captured stdout/stderr are each capped at
+`timedOut:true`. Every check (normal exit, timeout or cancel) settles only after
+its whole process group is gone: if a descendant outlives the leader — for
+example one that ignores `SIGTERM` — the group is sent `SIGKILL` and polled for
+up to 2 s; if it still cannot be confirmed gone, the runner result carries
+`groupLingered: true` ([review D5](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)). Captured stdout/stderr are each capped at
 `outputLimitBytes`; a stream that hits the cap is marked
 `truncated.stdout`/`truncated.stderr` and the excess is discarded, not
 buffered.
@@ -214,8 +289,9 @@ through the store, independent of Pi's own tool-result path:
   for a Run that is already closing.
 - `check.settled` — `{callId, status, exitCode, signal, durationMs, stdout, stderr, truncated, startedAt, endedAt, failure}`,
   where `status` is one of `completed` (the process exited by itself, at any
-  exit code), `cancelled`, `timed_out`, `failed` (the process itself could
-  not be spawned), or `unknown` (below). Recorded unconditionally once a
+  exit code), `cancelled`, `timed_out`, `failed` (no process started:
+  `failure.code` names why, for example `spawn_failed`, `sandbox_unavailable`,
+  `missing_target` or `candidate_changed`), or `unknown` (below). Recorded unconditionally once a
   process has actually settled or the Host has confirmed its process group
   has exited — even after the Run's admission has already closed, so a
   cancelled check's partial output is never lost. For `cancelled`, Host

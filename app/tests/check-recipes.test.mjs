@@ -100,9 +100,14 @@ async function scratch(prefix) {
 // runner unit tests
 // ---------------------------------------------------------------------------
 
+// The check sandbox denies a Host data directory; the runner tests use an
+// empty synthetic one.
+const runnerDataDir = await mkdtemp(path.join(tmpdir(), "cw-check-runner-data-"));
+test.after(() => rm(runnerDataDir, { recursive: true, force: true }));
+
 test("runCheckRecipe reports a clean exit without truncation", async () => {
   const recipe = { command: process.execPath, argv: ["-e", "process.stdout.write('ok'); process.exit(0)"], timeoutMs: 5000, outputLimitBytes: 4096 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.exitCode, 0);
   assert.equal(result.signal, null);
   assert.equal(result.timedOut, false);
@@ -117,7 +122,7 @@ test("runCheckRecipe reports a clean exit without truncation", async () => {
 
 test("runCheckRecipe reports a non-zero exit without throwing", async () => {
   const recipe = { command: process.execPath, argv: ["-e", "process.exit(1)"], timeoutMs: 5000, outputLimitBytes: 4096 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.exitCode, 1);
   assert.equal(result.timedOut, false);
   assert.equal(result.cancelled, false);
@@ -126,7 +131,7 @@ test("runCheckRecipe reports a non-zero exit without throwing", async () => {
 test("runCheckRecipe caps captured stdout/stderr and marks truncated", async () => {
   const script = "process.stdout.write('a'.repeat(5000)); process.stderr.write('b'.repeat(5000));";
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 5000, outputLimitBytes: 100 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.truncated.stdout, true);
   assert.equal(result.truncated.stderr, true);
   assert.equal(Buffer.byteLength(result.stdout, "utf8"), 100);
@@ -142,7 +147,7 @@ test("runCheckRecipe timeout kills the whole process group, including a nested c
     "setTimeout(() => {}, 30000);",
   ].join("\n");
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 300, outputLimitBytes: 4096 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.timedOut, true);
   assert.equal(result.cancelled, false);
   const outerMatch = result.stdout.match(/outer-pid (\d+)/);
@@ -160,8 +165,11 @@ test("runCheckRecipe cancels on abort and resolves only after the group has exit
     "setTimeout(() => {}, 30000);",
   ].join("\n");
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 30000, outputLimitBytes: 4096 };
-  const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), signal: controller.signal });
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // Cancel once the process has announced itself, not after a fixed delay:
+  // how long the sandbox takes to start is not part of this test.
+  let announced; const running = new Promise(resolve => { announced = resolve; });
+  const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir, signal: controller.signal, onOutput: announced });
+  await running;
   controller.abort();
   const result = await resultPromise;
   assert.equal(result.cancelled, true);
@@ -173,7 +181,7 @@ test("runCheckRecipe cancels on abort and resolves only after the group has exit
 
 test("runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME", async () => {
   const recipe = { command: path.join(process.cwd(), "definitely-not-a-real-check-binary"), argv: [], timeoutMs: 1000, outputLimitBytes: 1024 };
-  await assert.rejects(runCheckRecipe({ recipe, cwd: process.cwd() }), error => error.code === "spawn_failed");
+  await assert.rejects(runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir }), error => error.code === "spawn_failed");
 });
 
 // ---------------------------------------------------------------------------

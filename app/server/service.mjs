@@ -3195,6 +3195,7 @@ export class RuntimeService {
         recordStarted: (detail) => this.store.recordCheckStarted(run.id, detail),
         recordSettled: (detail) => this.store.recordCheckSettled(run.id, detail),
         isOpen: runIsOpen,
+        dataDir: this.dataDir,
       });
 
       if (typeof extensionContext !== "string" || extensionContext.length > 100_000) throw new Error("invalid extension context");

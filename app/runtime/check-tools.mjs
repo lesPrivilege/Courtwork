@@ -37,7 +37,9 @@ function assertFixedTargets(recipe, candidatePath) {
   }
 }
 
-export function createCheckTools({ candidate, resolveCandidate, runId: _runId, recordStarted, recordSettled, isOpen } = {}) {
+// `dataDir` is the Host data directory the check sandbox denies; `checkSandbox`
+// carries test-only sandbox options through to the runner.
+export function createCheckTools({ candidate, resolveCandidate, runId: _runId, recordStarted, recordSettled, isOpen, dataDir, checkSandbox } = {}) {
   if (!candidate || candidate.status !== "active") return [];
   const candidateId = candidate.id;
   function currentCandidate() {
@@ -91,9 +93,9 @@ export function createCheckTools({ candidate, resolveCandidate, runId: _runId, r
 
       let result;
       try {
-        result = await runCheckRecipe({ recipe, cwd: current.candidatePath, signal,
-          // Store persistence and temporary HOME creation both yield. Recheck
-          // after those awaits, at the actual synchronous spawn boundary.
+        result = await runCheckRecipe({ recipe, cwd: current.candidatePath, dataDir, sandbox: checkSandbox, signal,
+          // Store persistence, temporary HOME creation and sandbox preparation
+          // yield. Recheck after those awaits, at the synchronous spawn boundary.
           beforeSpawn: () => {
             if (signal?.aborted || !isOpen()) throw checkError("Run admission is closed", "run_closed");
             assertFixedTargets(recipe, approvedCandidate(recipe, approvedContext).candidatePath);
