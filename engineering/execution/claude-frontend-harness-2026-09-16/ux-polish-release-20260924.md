@@ -542,3 +542,12 @@ A real Sonnet Explore (`claude-sonnet-5`, 20 read-only calls) read the seven lea
 **Reader coarse targets: delivered** (`b4bfedb`, recorded in the 06d owner). Preview tab close is 44×44 on touch (24 fine); the Version details summary is 28 fine / 44 coarse. Next in my queue: **P1 narrow Composer labels** (375/390 confirmed as `A…` / `Local t…`), then the **answered `ask_user` drag-toggle**.
 
 **Reader targets accepted · 2026-09-29.** [06d parent evidence](evidence/reader-targets-20260929/parent-review/README.md) accepts b4bfedb after actual reader/geometry checks with no return. Original Claude is released to the already-registered narrow Composer labels, then answered ask_user selection/toggle; UX decisions remain with the author, independent acceptance remains separate.
+
+## 2026-09-29 · Returned from the doc-driven code review
+
+The [doc-driven code review](../../reviews/doc-driven-code-review-2026-09-29/README.md) walked the first-work path through the real UI and returns two UX findings to this queue; the UX owner decides order and treatment.
+
+- **U1.** Enter in the New project dialog cancels it, and the kept draft concatenates on retry. Four dialogs in `web/index.html` place Cancel (`type="submit" formnovalidate`) before the primary action, and implicit submission uses the first submit button.
+- **U2.** Continue in Matter lists existing work by Matter ID rather than its title.
+
+The same review fixed the stale `chat-entry` source assertion left by N07-R1 (test-only; the invariant is unchanged).

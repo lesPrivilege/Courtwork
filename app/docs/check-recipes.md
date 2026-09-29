@@ -114,8 +114,9 @@ unlike `repo_write`, a check always asks, because it spawns a real process
 rather than writing one candidate file. Denial happens before any process
 starts, with zero spawns.
 
-When the Host asks, the approval payload shows exactly what will run — not
-just the recipe id:
+When the Host asks, the approval payload shows the recipe, command and arguments —
+not just the recipe id. It does not list the candidate files the recipe will
+execute; see the isolation limit under [Environment policy](#environment-policy):
 
 ```json
 {
@@ -175,13 +176,23 @@ isolation contract before extending this slice; today's exposure is bounded
 by using a no-personal-data, no-shared-write-directory synthetic fixture, not
 by an OS sandbox around the child.
 
+The environment is minimal, but the files are not isolated. The private candidate
+lives inside the Host data directory, beside `credentials.json` and the Core store,
+and test files the model wrote into the candidate (in `draft` mode, without a
+separate approval) run with the Host user's rights. Such a file can read anything
+the Host user can read and return it through check output. The architecture rule
+for code execution opened to a model — show that it cannot reach formal write
+capability or credentials — is therefore not met today ([review D4](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)).
+
 ## Timeout and output limits
 
 The recipe's `timeoutMs` and `outputLimitBytes` are fixed by the catalog
 entry, not negotiable by the model. On timeout the runner kills the child's
 whole process group (`SIGTERM`, then `SIGKILL` after 500 ms if still alive)
-so a check cannot leave orphaned descendants behind, and reports
-`timedOut:true`. Captured stdout/stderr are each capped at
+and reports
+`timedOut:true`. The pending `SIGKILL` is cleared once the leader's output
+closes, so a descendant that ignores `SIGTERM` and has detached its output can
+outlive the settled check ([review D5](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)). Captured stdout/stderr are each capped at
 `outputLimitBytes`; a stream that hits the cap is marked
 `truncated.stdout`/`truncated.stderr` and the excess is discarded, not
 buffered.

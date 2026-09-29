@@ -1,0 +1,114 @@
+# Contract -> code review: Harness, repository binding & candidate writes, check recipes, coordination/subagents, async tasks
+
+Checkout: an isolated checkout of branch claude/doc-convergence-20260929 (HEAD ffe68fb). Reviewer is non-author. No repo file modified.
+Probes (read-only, temp data) are in `.../scratchpad/review/tmp-harness/p1..p9*.mjs`; logs run-*.log there.
+
+Test runs (all green, real Node 25, Darwin):
+- `check-recipes` + `check-approval-revision` + `p03e-write-check-parity`: 36/36
+- `repository-binding` + `repository-candidate` + `grep-isolation` + `workspace` + `synthetic-repo-fixture`: 55/55
+- `coordination` + `subagents` + `async-{tasks,protocol,boundaries-independent,recovery-independent,fixture,task-view}`: 72/72
+
+Exercise levels used below: U = pure unit / direct module; S = Store in-process; H = Host in-process with fake provider through service (Pi loop, permission questions); HTTP = authenticated `/api/v5` fetch; P = real subprocess (Node/Python/git child, or SIGKILL crash point).
+Every `boot()` test is HTTP+H. "not run" = I did not execute it.
+
+## 1. Claims table
+
+| # | Claim (doc) | Implementation | Test / probe | Level | Verdict |
+|---|---|---|---|---|---|
+| X1 | Bind/revoke exact fields, requestId idempotent, stale revision rejected, bind during active Run rejected (repository-binding.md:17-33) | service.mjs:1610-1668; store.mjs:1339 | repository-binding.test "binding revisions, idempotency..." ; store-level `ACTIVE_RUN` at :192 | S+HTTP | realized. Active-Run rejection tested at Store only, not HTTP |
+| X2 | Source bind rejected while a candidate exists (`repository_candidate_active`) (:29-33) | service.mjs:1663 | "source binding replacement requires an active private candidate to be revoked first" | HTTP | realized+tested |
+| X3 | Run freezes binding snapshot; revoke immediately fails calls and cancels active Runs; `repository.read` events carry hashes, no source text/abs path (:40-47) | repository-tools.mjs; service.mjs:1668-1673 | "HTTP binding API exposes only bound tools...revoke cancels active Runs" ; my p7 leak probe | HTTP+H+P | realized+tested through real path. p7: no candidate path in session/run/events/candidate/effects projections |
+| X4 | Path confinement: no abs, `\`, `.`/`..`/empty segments, `.git` (casefold), symlinks never followed, other-device dirs refused, root identity re-checked (:222-249) | repository-fs-helper.py:117-135,137-160,208-240 (dirfd + O_NOFOLLOW) | repository-binding.test:95-134,162 (symlink, `../`, `.git`, root replaced) ; candidate FD tests "rejects traversal, Git control paths, symlinks, and a replaced root" | P (real Python helper) | realized+tested. Mounted-descendant rejection is Linux-parser unit only (repository-candidate.test:490) - Darwin statfs path never exercised with a real mount; doc admits Linux unexercised |
+| X5 | Path-specific deny/ask cannot be bypassed by Host-volume aliases; case-insensitive (:55-59) | control-plane.mjs:26-29,47 (lower-case only) | repository-binding.test:301 (case only; skips on case-sensitive volume) ; my p3 | HTTP + probe | **partial / contradicted for Unicode aliases** (F3) |
+| X6 | Aggregate reads (`repo_grep`,`candidate_grep`,`repo_diff`) apply per-file strictest policy, return counts only (:61-75) | control-tools.mjs:105-113; repository-candidate-tools.mjs:127-155,193-212; repository-candidate.mjs:~470-490 | 3 tests "excludes a ...-denied file..." | HTTP+H | realized+tested for repo_/candidate_. Not extended to `ws_grep`/`ws_list` (F4) |
+| X7 | Directory picker: fixed AppleScript, minimal env, 501 off Darwin, 409 busy, test override only with SE_TEST_MODE=1 (:89-104) | host-directory-picker.mjs:36-49,58-73,80-90; service.mjs:1690-1707 | repository-binding.test "choose-directory ..." x2 | HTTP+P (script stub) | realized+tested (real osascript never run) |
+| X8 | `repositories/inspect` git child: `shell:false`, fixed argv, "minimal env with hooks and global/system config disabled", 5 s (:118-127) | repository-git-status.mjs:13-19 | "repositories/inspect reports live ..." | HTTP+P | partial: env passes HOME and does **not** disable hooks (F9, doc defect) |
+| X9 | Candidate: explicit full OID, private detached worktree, config replaced pre-use, no alternates, source dirty files untouched (:129-141) | repository-candidate.mjs:200-380 | "private Git candidate uses the explicit commit, contains source execution config..." ; "dissociates alternates" | P (real git) | realized+tested |
+| X10 | `repo_write`: expected-hash, new inode+rename, traversal/.git/symlink/nonregular refused, approval binds toolCallId/candidate/revisions/hash; re-check after approval; prepared->unknown on restart, never replayed (:171-219) | repository-candidate-tools.mjs:157-191; service.mjs:1473-1580; helper write_target | candidate FD write tests x4; "schema17 candidate API ... asks before writes"; "confirmed candidate write replay..."; "prepared repository writes become unknown after restart" | P+HTTP+S | realized+tested. Restart test converts a Store-planted `prepared`, not a real SIGKILL mid-write |
+| X11 | Candidate isolation from source and from managed workspace; recipes run only in candidate (repository-binding.md:245-249; check-recipes.md:99-107) | check-tools.mjs:94; control-plane.mjs:13,233 (exposure only with active candidate) | check-recipes.test passes; p4 | H+P | realized at the *path* level; **not** isolation of the OS identity (F1) |
+| X12 | Candidate diff excludes only untracked `node_modules`, bounded 2 MiB, no `.gitignore` (:144-170) | repository-candidate.mjs:~440-470 (`ls-files --others --exclude=[nN]...`) | 2 "generated dependencies" tests | P | realized+tested |
+| X13 | Schema 20 (16 binding, 17 candidate), exact backup, old-host refusal (:33-38) | store.mjs:45 = **22** | repository-binding.test schema15->16, schema16->17 | S | tested for 15->17; the doc's "schema 20" is stale (D1) |
+| X14 | Check recipe catalog fixed, code-defined, 3 entries, model passes only `{recipeId}`, unknown id rejected before ask/spawn (check-recipes.md:10-97) | check-recipes.mjs:5-64; check-tools.mjs:68-81 | check-recipes.test:38-101,236 | U+HTTP | realized+tested |
+| X15 | `missing_target`: fixed path args must be regular files, checked at synchronous spawn fence, settles once `failed` (:74-83) | check-tools.mjs:32-38,97-100 | check-recipes.test:294,437 (all-missing, 5/6) | HTTP+P | realized+tested |
+| X16 | Ceiling: read_only deny, else **ask even in draft**; deny -> zero spawn (:109-115) | control-plane.mjs:31-39 | read_only + ask tested (:214,256). **draft never tested in the check suite**; my p4 shows draft asks | HTTP | realized; draft branch untested by suite |
+| X17 | Approval "shows exactly what will run" incl. candidateWriteRevision; execution requires exact approved descriptor; store validates atomically (:117-158) | check-tools.mjs:52-66; store.mjs:1426-1454 | check-approval-revision (S/U), check-recipes.test:661 (same-Run write->check) | S+HTTP | realized for recipe/argv/revision. RD-009:13,18 also require **input file versions** in the card - not present (F1) |
+| X18 | Env: `shell:false`, only PATH/HOME(tmp)/LANG; no NODE_OPTIONS/PYTHONPATH/provider keys (:160-176; RD-009:16) | check-runner.mjs:35,43-45 | **no test asserts it**. p2: with NODE_OPTIONS/OPENAI_API_KEY/PYTHONPATH/SE_TEST_MODE set in the Host, child saw `HOME,LANG,PATH,__CF_USER_TEXT_ENCODING` | P (probe) | realized, untested in suite |
+| X19 | Timeout/cancel kill the **whole process group** so no orphaned descendants remain; "cancelled" only after group exit (:182-184; RD-009:17) | check-runner.mjs:89-94,115-121 | runner tests use a nested child that dies on SIGTERM (:136-172) ; p2, p5 | P | **contradicted** for descendants that ignore SIGTERM (F2) |
+| X20 | Cancel persists exactly one canonical `check.settled` cancelled/null/null with partial output; cancel HTTP waits (:136-154,189-207; RD-009:90) | check-tools.mjs:102-123 ; service.mjs:3563-3583 | check-recipes.test:544 ; p03e parity ; p5: cancel returned in 54 ms with settled already present, 1 settlement | HTTP+P | realized. Test samples "one settlement" right after the first appears and only asserts `typeof stdout==="string"` (partial output not asserted) |
+| X21 | Exactly one settlement per callId; restart fences unmatched `check.started` to `unknown`, no replay (:209-216) | store.mjs:914-937 (fence) ; store.mjs:1457-1476 has **no** duplicate/precondition guard | check-recipes.test:595 (Store reopen twice) | S | realized for restart; "exactly one" enforced only by the single call site, not by Store invariant (F5) |
+| X22 | Coordination: Thread = interaction membership, human API exact-field, scope captured from Session, message actor cannot be forged, capacity limits (coordination.md:9-64) | harness/coordination.mjs; coordination-state.mjs | coordination.test (28 tests; HTTP + SIGKILL crash points for enqueue/deliver) | HTTP+P | realized+tested |
+| X23 | Model tools only for unbound Session with Thread; sends: same scope, or global Attention; every send asks; read_only denies and omits tool (:66-94) | harness/tools.mjs; coordination.mjs:97-104; control-plane.mjs:33 | tests :338,:355,:386,:427 | HTTP+H | realized+tested |
+| X24 | Outbox: queued before delivery, non-queued immutable, restart recovery delivers by original id (:96-115) | coordination.mjs:96-110; service.mjs:379 | crash tests :269,:289,:316 | P (SIGKILL) | realized+tested |
+| X25 | `child-execution.mjs` is a conformance entry, not a production scheduler; grants narrow, depth decreases, timeout=unknown, late completion cannot mutate (:132-147; architecture.md:64 "not a second model loop") | harness/child-execution.mjs; only importer is tests/coordination.test.mjs | tests :174,:181,:189 | U | realized as claimed (unit-only, by design). Nothing in production imports it |
+| X26 | Spark child is bounded: separate Session/Run, only `spark_source`/`spark_note`, no workspace/Core/MCP/shell/recursion, single-active-Run gate, restart -> blocked not replayed (spark-agent.md:5-9,41-47; RD-005:26) | service.mjs:3252 (`sparkAssignment ? childTools : ...`); subagents.mjs | subagents.test x12 incl. SIGKILL, cancel, policy revoke, single lane | HTTP+H+P | realized+tested |
+| X27 | Async tasks: opt-in adapters, persist intent -> mark single dispatch -> unknown on lost ACK, never re-dispatch; terminal evidence immutable (async-tasks.md:40-58) | async-tasks.mjs:127-190 | async-tasks.test, async-boundaries, async-recovery (SIGKILL at 4 crash points) | HTTP+H+P | realized+tested |
+| X28 | "Stop requests cancellation of tasks launched by the stopped Run"; cancel at most one attempt; human cancel/reconcile with CAS (:49-53, :91-99) | async-tasks.mjs:53-55,261-282; service.mjs:267-273 | async-tasks.test:99 (cancel a *succeeded* task); no test for cancel under policy change or orphan | HTTP | **partial / contradicted** (F5) |
+| X29 | Deleted origin Session: task retained as orphan "queryable" (:22-24) | async-task-view; async-tasks.mjs | async-tasks.test:103-105 (GET only) ; p8 | HTTP | GET realized; reconcile/cancel of orphan impossible (F5) |
+| X30 | Credentials never reach child processes (AGENTS/architecture): check runner, Python helper, git, picker, local Pi | check-runner.mjs:35; repository-fs.mjs:20-27; repository-candidate.mjs:63-74; local-pi-process.mjs:127 | probes p2 only for check runner | P | realized as *environment* hygiene. **Not** realized as "execution identity cannot reach credentials" for check_run (F1) |
+| X31 | RD-006 #6 path checks at real access point, not only at bind (`realpath` at connect insufficient) | helper re-opens root by dirfd and compares identity on every op | see X4 | P | realized+tested |
+| X32 | RD-007 (content-resource governance, GC, retention) | none built (documented "拟议边界"); ArtifactHistory has no GC (repository-binding.md:197-201 admits) | - | - | not implemented (by design) - no false claim found |
+| X33 | RD-005 selection rules; RD-009 hook/browser consumers | Hook consumer / browser: not built; RD-009 says "not enabled" | - | - | not implemented, documented as open |
+
+## 2. Findings (by severity)
+
+### F1 HIGH - `check_run` is de facto arbitrary code execution as the Host user; the architecture rule is unmet and the approval card understates it
+- Contract: architecture.md:118 ("if arbitrary shell is opened, must prove the execution identity cannot reach formal write capability and credentials"); check-recipes.md:3-8,117; RD-009:13,16,18 ("approval shows the actual recipe, **file versions**/cwd, environment").
+- Code: check-runner.mjs:43-45 spawns `node --test` with `cwd = candidate worktree`; the candidate lives at `<dataDir>/repository-candidates/<sha256(sessionId)>/candidate-<id>/worktree` (service.mjs:1436) - inside the Host data dir, which also holds `credentials.json` (credential-file.mjs:11-14) and the Work Core store (`<dataDir>/extensions/...`, core/owner.mjs:8). `repo_write` may author any `*.test.mjs`; in the **default `draft` mode** it needs no approval (control-plane.mjs:34, store.mjs:1012). The single `check_run` approval descriptor (check-tools.mjs:52-59) carries recipe/argv/candidateWriteRevision but no test-file hashes or content.
+- Verified end to end (probe p4, real HTTP Host + fake provider + real Node child): in a draft-mode Session the model wrote `test/evil.test.mjs` (no permission question), one approval showed `argv:["--test"], cwd:"private candidate"`, and the check's stdout contained the contents of a file located three levels above the candidate in the Host data dir. A second probe (p6) shows the check output, including the candidate's absolute Host path, is returned to the model.
+- Failure scenario: a prompt-injected model writes a test that reads `../../../../credentials.json` (or the Core DB) and prints/mutates it; the human sees "node --test in the private candidate" and approves.
+- The docs do say "not a sandbox", so this is not a hidden claim; but no doc reconciles it with the architecture rule, the module table has no row for the runner (D6), and RD-009's "file version" display is not implemented.
+- Missing evidence: no test for it. Suggested minimum: show hashes/paths of files changed since the base commit in the check approval, or refuse `check_run` when unreviewed writes exist; record that the identity boundary is not proven.
+
+### F2 MEDIUM - "cancelled"/"timed_out" are recorded while descendants that ignore SIGTERM keep running
+- Contract: check-recipes.md:182-184 ("cannot leave orphaned descendants behind"); RD-009:17 ("confirm process and its group terminated before saying cancelled").
+- Code: check-runner.mjs:89-94 sends SIGTERM to the group and schedules SIGKILL, but `close` (:115-121) does `clearTimeout(killTimer)` as soon as the leader's stdio closes, and nothing verifies the group (`kill(-pid,0)`) is gone.
+- Verified: p2 (runner alone; cancel and timeout) and p5 (full Host: draft-mode test spawns `sh -c 'trap "" TERM; sleep 25'`, Run cancelled): `check.settled` = cancelled/null/null, Run terminal `cancelled`, and `sleep 25` still alive afterwards (`pgrep` showed it; I killed it).
+- Scenario: a cancelled check leaves a live process writing into the candidate/HOME while the next Run starts.
+- Existing tests only use a descendant that dies on SIGTERM (check-recipes.test:136-172).
+
+### F3 MEDIUM - Unicode-normalization aliases bypass path-specific deny/ask (also `repo_write`)
+- Contract: repository-binding.md:55-59 says aliases "cannot bypass a path-specific deny or ask rule" - only case is handled (control-plane.mjs:26-29,47; governTools uses the raw `args.path`, control-tools.mjs:127).
+- Verified (p3, real Python helper + evaluatePolicy on APFS): rule `repo_read deny "café-secret.txt"` (NFC): NFC -> deny, upper-case -> deny, **NFD spelling -> allow and the helper reads the file**. Same code path serves `candidate_*` and `repo_write` (approval/deny by path).
+- Test only covers case (repository-binding.test:301) and skips on case-sensitive volumes.
+
+### F4 MEDIUM - `ws_grep` (and `ws_list`) ignore per-file policy that `ws_read` enforces
+- Contract: RD-006 "逐路径披露" ruling (aggregate reads take the strictest per-file effect) and repository-binding.md:61-75 are stated for repo_/candidate_ only; `ws_*` is not mentioned, but the same disclosure gap exists.
+- Verified (p9, HTTP+H): deny rule on `ws_read materials/secret.txt`; `ws_read` -> isError; `ws_grep` pattern -> returns the sentinel line.
+- Code: workspace-tools.mjs `createWsGrepTool`/`createWsListTool` take no `admitPath`; governTools evaluates only the search-root path (control-tools.mjs:127 handles only `repo_`/`candidate_` for raw path; ws uses resolved relative path).
+- Also: `ws_*` policy matching is not case-insensitive (control-plane.mjs:47) although `resolveWorkspacePath` (lstat walk) accepts case aliases on APFS - unverified at runtime.
+
+### F5 MEDIUM - Async task cancel/reconcile authority is coupled to *model-tool exposure*; orphaned tasks are unreconcilable
+- Contract: async-tasks.md:49-53 (Stop cancels the Run's tasks), :22-24 (orphan queryable), :91-104 (human reconcile/cancel with CAS; turning off launches preserves reads and reconciliation), :43-45 (`query` can reconcile an unknown task).
+- Code: `cancel()` requires `#permission(...,'async_launch')` (async-tasks.mjs:262-263); `reconcile()` requires `async_get`; `canUse` reads the *current* Session Runtime Control and returns false on any error, e.g. a deleted Session (service.mjs:267-273). `cancelOrigin` (:278-281) uses `allSettled`, so a denied cancel is silent.
+- Verified: p1 (direct AsyncTasks): with `async_launch` denied, `cancelOrigin` -> task stays `running`, `adapter.cancel` calls 0, `cancelAttempted:false`. p8 (real Host, lost launch ACK -> `unknown`, Session deleted): GET shows `orphaned/unknown`, human `reconcile` and `cancel` both 409 `task_policy_denied`, adapter untouched.
+- Scenario: remote read keeps running after Stop when the policy hides `async_launch`; an `unknown` task from a deleted Session can never be settled by the human.
+
+### F6 LOW - Store does not enforce the check settlement invariant
+- store.mjs:1426-1476: `recordCheckStarted` has no callId uniqueness check; `recordCheckSettled` requires no matching started event and no prior settlement. check-recipes.md:215-216 ("same call id cannot be settled twice") holds only because check-tools.mjs has a single call site and the restart fence skips already-settled callIds (store.mjs:921-923). A provider that repeats a toolCallId in one Run would create two started/settled pairs (repo_write is guarded, check_run is not). Not probed.
+
+### F7 LOW - Candidate identity for `check_run` is Store-field-only
+- check-tools.mjs:43-51 compares stored ids/paths, not filesystem identity (unlike candidate tools' `verify`, repository-candidate-tools.mjs:54-58). A same-UID process (e.g. an earlier check) could swap the `worktree` path; the next check's `cwd` follows the path. Also a check can rewrite `candidate/git/config` (Host-owned config, repository-candidate.mjs:159) which later Host `git diff` calls read, or delete a tracked file so `readPrivateRepositoryCandidateDiff` refuses with `candidate_diff_unmanaged_change` (repository-candidate.mjs, status `!== "M"`). Code reading only; not probed. Consequence is bounded by F1.
+
+### F8 LOW - Host absolute paths reach the model through check output
+- p6: check stdout/tool.result contains `.../repository-candidates/...`. RD-006 first-slice ruling keeps absolute Host paths out of model context; that holds for events/tools (p7) but not for arbitrary process output. Inherent to F1.
+
+### F9 LOW - inspect git child env / hooks claim
+- repository-git-status.mjs:13-19 passes `HOME` and no hooks override; repository-binding.md:121-123 says hooks are disabled. `rev-parse` triggers none, and `GIT_CONFIG_GLOBAL`/`NOSYSTEM` are set, but repo-local config is read and the cwd is an arbitrary caller-supplied path (service.mjs:1738). Claim is inaccurate rather than exploitable as far as I can see.
+
+### Test-coverage gaps (claims realized but weakly asserted)
+- Env minimality (X18) untested; draft-mode `check_run` ask ceiling (X16) untested in the suite; cancel test does not assert partial output or wait past first settlement; restart "prepared->unknown" uses a Store-planted effect (no real crash mid-write); candidate create/revoke during an active Run and Store `ACTIVE_RUN` over HTTP not covered; real mount-descendant rejection not exercised (Linux parser only).
+- `remote-action-state.mjs` was in scope but none of the listed contracts describe it; not reviewed.
+
+## 3. Doc defects
+- D1 Stale version facts: repository-binding.md:34 "RuntimeStore schema 20" (code: store.mjs:45 = 22; AGENTS.md says 22); spark-agent.md "schema15", "RuntimeStore20"; coordination.md header "RuntimeStore 8", "Core3 / bridge app4"; async-tasks.md:7 "Core3/app4 unchanged" (AGENTS.md: Core user schema 4 / bridge 5). Historical slices are presented as current.
+- D2 check-recipes.md:117 "shows exactly what will run" overstates: it omits the contents/hashes of candidate-authored files that will actually execute (F1); RD-009:18 "文件版本" not realized.
+- D3 check-recipes.md:182-184 orphan claim false for SIGTERM-ignoring descendants (F2).
+- D4 architecture.md module table (L55-70) has no row for `runtime/repository-*.mjs`, `check-*.mjs`, `repository-candidate*`, and the harness/ row (L64) omits Spark although `harness/subagents*.mjs` lives there; architecture.md:118 arbitrary-shell rule has no stated resolution for `check_run`.
+- D5 Capability flags disagree: coordination `capabilities.explore:false` (coordination.mjs list()) and coordination.md:146-147 vs Spark `capabilities.explore` = active (subagents.mjs list()); RD-005:26 "capability继续false" is ambiguous about which surface.
+- D6 repository-binding.md:29 "binding changes during an active Run are rejected" vs :44-47 revoke cancels active Runs (bind is rejected, revoke is not).
+- D7 async-tasks.md:101-104 "turning off new launches preserves ... explicit reconciliation" omits that cancel also depends on launch exposure and that orphans cannot be reconciled (F5).
+- D8 repository-binding.md:121-123 hooks-disabled wording (F9).
+- D9 RD-009:38 and 03-check-recipe.md still describe a one-recipe catalog; check-recipes.md correctly lists three (history vs current not marked).
+
+## 4. What is solid
+Path confinement (dirfd/O_NOFOLLOW, root identity, `.git`, symlink, `..`), candidate creation hardening, write approval binding/receipts, check start/settle fences, missing_target guard, single canonical cancelled settlement, coordination mailbox/outbox, Spark restriction and single-lane dispatch, async tasks' dispatch/unknown/immutability and SIGKILL crash points are all exercised through real Host/Pi/subprocess paths, not just units.

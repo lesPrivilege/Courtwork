@@ -215,3 +215,12 @@ Astra independently reproduces two transport defects on512f794 using a plain Nod
 
 
 **HPT-C1/F1 parent acceptance · 2026-09-28.** [Pre-push review receipt](evidence/dogfood-review-20260928/README.md) accepts830e328: old-source regressions fail, author30/30 and independent30/30 plus8 raw-HTTP cancellation/chunk/multibyte/cleanup cases pass. Final combined default1808/1808 and smoke pass. This closes only the standalone transport defects; original native API-server execution remains unperformed after its separate refusal. No native workaround, production registration or effect authority change.
+
+## 2026-09-29 · Returned from the doc-driven code review
+
+The [doc-driven code review](../../reviews/doc-driven-code-review-2026-09-29/README.md) of `ffe68fb` returns these confirmed findings to Astra's core lane, each with a reproduction under that packet's `probes/`. Nothing here is implemented yet; order and scope are Astra's to rule.
+
+- **D1–D3, one task (first).** Cancel is not arbitrated against natural completion: a terminal Run can become `stopping` then `cancelled`; a decided native `completed` can be relabelled `cancelled`; an exception during a pending cancel is recorded as `cancelled` with no error. Needed invariant: terminal status never changes, a decided native outcome is not relabelled, an exception is `failed` or `unknown`.
+- **D4–D5 (RD-009, with D1–D3).** `check_run` executes candidate-authored code with the Host user's rights next to `credentials.json` and the Core store; descendants that ignore `SIGTERM` can outlive a settled check. The architecture rule for code execution opened to a model is unmet until candidates leave the data directory or run under separate identity/sandbox, the approval shows candidate-authored file versions, and the process group is killed unconditionally.
+- **D6, D9, D10 (small fixes).** `ws_grep`/`ws_list` bypass per-file `ws_read` denial; a Core `unknown` outcome reaches HTTP as a plain 409; the evaluate endpoint ignores `hostToolCeiling` except for `ws_write`.
+- **D7 (optional hardening).** Extensions receive the raw Core client; the architecture now states host-trusted extensions are inside the trust boundary.
