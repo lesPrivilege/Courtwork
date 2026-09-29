@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Fixed, read-only dirfd adapter for the connected repository tools.
+"""Fixed, read-only dirfd adapter for the connected repository tools and the
+session workspace search and listing tools.
 
 The model never supplies a root, command, or environment. Node calls this
 module with one bounded JSON request; every descendant is opened relative to
@@ -23,6 +24,9 @@ MAX_GREP_FILES = 500
 MAX_GREP_BYTES = 5 * 1024 * 1024
 MAX_GREP_DEPTH = 24
 MAX_GREP_ENTRIES = 10_000
+MAX_REQUEST_BYTES = 2 * 1024 * 1024
+DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
+FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_CLOEXEC", 0)
 
 
 class RepoFsError(Exception):
@@ -76,7 +80,7 @@ def open_root(root_path):
         if not stat.S_ISDIR(info.st_mode) or not stat.S_ISDIR(named.st_mode) or identity(info) != identity(named):
             os.close(fd)
             fail("root_changed", "repository root changed while it was being connected")
-        return canonical, str(info.st_dev), str(info.st_ino)
+        return fd, canonical, str(info.st_dev), str(info.st_ino)
     except RepoFsError:
         raise
     except OSError as error:
@@ -344,6 +348,211 @@ def scan_text_files(root_fd, root_device, requested_path, exclude_generated=Fals
         os.close(start_fd)
 
 
+# Session workspace search and listing. The identity of every reported file is
+# established by walking from one root descriptor: each component is opened
+# relative to its parent's descriptor with O_NOFOLLOW, and nothing is resolved
+# again by name from the root. ws_scan names files without opening them;
+# ws_read opens only the files the Host admitted, walking descriptor-relative
+# again and reading a file only when its device and inode are the ones ws_scan
+# reported.
+
+def workspace_parts(value):
+    if not isinstance(value, list) or len(value) > MAX_PATH_CHARS:
+        fail("invalid_path", "workspace path is invalid")
+    for part in value:
+        if not isinstance(part, str) or part in ("", ".", "..") or "/" in part or "\x00" in part:
+            fail("invalid_path", "workspace path is invalid")
+        try:
+            if len(os.fsencode(part)) > MAX_NAME_BYTES:
+                fail("invalid_path", "workspace path segment is too long")
+        except UnicodeEncodeError:
+            fail("invalid_path", "workspace path segment is invalid")
+    return value
+
+
+def workspace_open_error(error, parent_fd, name, last):
+    try:
+        if stat.S_ISLNK(os.stat(name, dir_fd=parent_fd, follow_symlinks=False).st_mode):
+            return RepoFsError("symlink", "symbolic links are not followed in workspace paths")
+    except OSError:
+        pass
+    if error.errno in (errno.ENOENT, errno.ENOTDIR) and not last:
+        return RepoFsError("parent_unavailable", "parent directory does not exist")
+    return classify_os_error(error)
+
+
+def on_disk_name(parent_fd, requested, opened):
+    """The parent directory's own spelling of the entry that was opened, which
+    differs from the requested spelling on a volume that aliases names."""
+    try:
+        with os.scandir(parent_fd) as entries:
+            candidates = [entry.name for entry in entries if entry.name == requested or entry.inode() == opened.st_ino]
+    except OSError as error:
+        raise classify_os_error(error) from None
+    candidates.sort(key=lambda name: name != requested)
+    for name in candidates:
+        try:
+            if identity(os.stat(name, dir_fd=parent_fd, follow_symlinks=False)) == identity(opened):
+                return name
+        except OSError:
+            continue
+    fail("path_changed", "workspace path changed while it was being opened")
+
+
+def open_workspace_scope(root_fd, parts):
+    current = os.dup(root_fd)
+    try:
+        info = os.fstat(current)
+        spelled = []
+        for index, part in enumerate(parts):
+            last = index == len(parts) - 1
+            try:
+                child = os.open(part, FILE_FLAGS if last else DIRECTORY_FLAGS, dir_fd=current)
+            except OSError as error:
+                raise workspace_open_error(error, current, part, last) from None
+            try:
+                info = os.fstat(child)
+                spelled.append(on_disk_name(current, part, info))
+            except BaseException:
+                os.close(child)
+                raise
+            os.close(current)
+            current = child
+        return current, spelled, info
+    except BaseException:
+        os.close(current)
+        raise
+
+
+def workspace_file(relative, info):
+    return {"path": relative, "bytes": info.st_size, "mtimeNs": str(info.st_mtime_ns), "device": str(info.st_dev), "inode": str(info.st_ino)}
+
+
+def walk_workspace(directory_fd, prefix, files):
+    try:
+        with os.scandir(directory_fd) as entries:
+            names = [entry.name for entry in entries]
+    except OSError as error:
+        raise classify_os_error(error) from None
+    for name in names:
+        relative = prefix + "/" + name if prefix else name
+        try:
+            info = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            continue
+        if stat.S_ISDIR(info.st_mode):
+            try:
+                child = os.open(name, DIRECTORY_FLAGS, dir_fd=directory_fd)
+            except OSError as error:
+                # Replaced by a symlink or removed since it was named: skip it.
+                if error.errno in (errno.ELOOP, errno.ENOENT, errno.ENOTDIR):
+                    continue
+                raise classify_os_error(error) from None
+            try:
+                walk_workspace(child, relative, files)
+            finally:
+                os.close(child)
+        elif stat.S_ISREG(info.st_mode):
+            files.append(workspace_file(relative, info))
+
+
+def scan_workspace(root_fd, parts):
+    scope_fd, spelled, info = open_workspace_scope(root_fd, parts)
+    try:
+        prefix = "/".join(spelled)
+        files = []
+        if stat.S_ISDIR(info.st_mode):
+            walk_workspace(scope_fd, prefix, files)
+        elif stat.S_ISREG(info.st_mode):
+            files.append(workspace_file(prefix, info))
+        return {"path": prefix or ".", "files": files}
+    finally:
+        os.close(scope_fd)
+
+
+def open_workspace_directory(root_fd, parts):
+    current = os.dup(root_fd)
+    try:
+        for part in parts:
+            child = os.open(part, DIRECTORY_FLAGS, dir_fd=current)
+            os.close(current)
+            current = child
+        return current
+    except BaseException:
+        os.close(current)
+        raise
+
+
+def read_workspace_files(root_fd, files, mode, max_file_bytes, max_batch_bytes):
+    """Read, in order, the admitted files named by an earlier ws_scan. A file
+    that is no longer reachable descriptor-relative under its name, or whose
+    identity differs, yields null. Text mode stops before the file that would
+    take the batch over max_batch_bytes; `consumed` says how far it got."""
+    results = []
+    total = 0
+    cached_parts, cached_fd = None, None
+    try:
+        for item in files:
+            path, device, inode = item.get("path"), item.get("device"), item.get("inode")
+            if not isinstance(path, str) or not isinstance(device, str) or not isinstance(inode, str):
+                fail("invalid_request", "workspace read request fields are invalid")
+            parts = workspace_parts(path.split("/"))
+            if parts[:-1] != cached_parts:
+                if cached_fd is not None:
+                    os.close(cached_fd)
+                cached_parts, cached_fd = parts[:-1], None
+                try:
+                    cached_fd = open_workspace_directory(root_fd, parts[:-1])
+                except OSError:
+                    pass
+            if cached_fd is None:
+                results.append(None)
+                continue
+            try:
+                fd = os.open(parts[-1], FILE_FLAGS, dir_fd=cached_fd)
+            except OSError:
+                results.append(None)
+                continue
+            try:
+                info = os.fstat(fd)
+                if not stat.S_ISREG(info.st_mode) or identity(info) != (device, inode):
+                    results.append(None)
+                    continue
+                if mode == "hash":
+                    digest = hashlib.sha256()
+                    size = 0
+                    while True:
+                        chunk = os.read(fd, 1024 * 1024)
+                        if not chunk:
+                            break
+                        digest.update(chunk)
+                        size += len(chunk)
+                    results.append({"bytes": size, "sha256": digest.hexdigest(), "mtimeNs": str(os.fstat(fd).st_mtime_ns)})
+                    continue
+                if results and total + info.st_size > max_batch_bytes:
+                    break
+                chunks = []
+                size = 0
+                while size <= max_file_bytes:
+                    chunk = os.read(fd, min(1024 * 1024, max_file_bytes + 1 - size))
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+                    size += len(chunk)
+                data = b"".join(chunks)
+                total += len(data)
+                if len(data) > max_file_bytes or b"\x00" in data[:8000]:
+                    results.append(None)
+                    continue
+                results.append({"dataBase64": base64.b64encode(data).decode("ascii")})
+            finally:
+                os.close(fd)
+    finally:
+        if cached_fd is not None:
+            os.close(cached_fd)
+    return {"files": results, "consumed": len(results)}
+
+
 def run_request(request):
     if not isinstance(request, dict):
         fail("invalid_request", "repository request is invalid")
@@ -351,8 +560,40 @@ def run_request(request):
     if operation == "bind":
         if set(request) != {"operation", "rootPath"}:
             fail("invalid_request", "repository bind request fields are invalid")
-        root_path, device, inode = open_root(request.get("rootPath"))
+        root_fd, root_path, device, inode = open_root(request.get("rootPath"))
+        os.close(root_fd)
         return {"path": root_path, "device": device, "inode": inode}
+    if operation == "ws_scan":
+        if set(request) != {"operation", "rootPath", "parts"}:
+            fail("invalid_request", "workspace scan request fields are invalid")
+        parts = workspace_parts(request.get("parts"))
+        root_fd, root_path, device, inode = open_root(request.get("rootPath"))
+        try:
+            result = scan_workspace(root_fd, parts)
+            verify_bound_root(root_path, root_fd, device, inode)
+            return {"rootPath": root_path, "device": device, "inode": inode, **result}
+        finally:
+            os.close(root_fd)
+    if operation == "ws_read":
+        if set(request) != {"operation", "rootPath", "device", "inode", "mode", "files", "maxFileBytes", "maxBatchBytes"}:
+            fail("invalid_request", "workspace read request fields are invalid")
+        mode, files = request.get("mode"), request.get("files")
+        max_file_bytes, max_batch_bytes = request.get("maxFileBytes"), request.get("maxBatchBytes")
+        if mode not in ("text", "hash") or not isinstance(files, list) or any(not isinstance(item, dict) for item in files):
+            fail("invalid_request", "workspace read request fields are invalid")
+        if any(not isinstance(value, int) or isinstance(value, bool) or value < 1 for value in (max_file_bytes, max_batch_bytes)):
+            fail("invalid_request", "workspace read limits are invalid")
+        device, inode = request.get("device"), request.get("inode")
+        if not isinstance(device, str) or not device.isdecimal() or not isinstance(inode, str) or not inode.isdecimal():
+            fail("invalid_root", "bound workspace identity is invalid")
+        root_path = request.get("rootPath")
+        root_fd = open_bound_root(root_path, device, inode)
+        try:
+            result = read_workspace_files(root_fd, files, mode, max_file_bytes, max_batch_bytes)
+            verify_bound_root(root_path, root_fd, device, inode)
+            return result
+        finally:
+            os.close(root_fd)
     if operation == "verify":
         if set(request) != {"operation", "rootPath", "device", "inode"}:
             fail("invalid_request", "repository verification request fields are invalid")
@@ -400,8 +641,8 @@ def run_request(request):
 
 def main():
     try:
-        line = sys.stdin.buffer.readline(64 * 1024 + 1)
-        if len(line) > 64 * 1024 or not line.endswith(b"\n"):
+        line = sys.stdin.buffer.readline(MAX_REQUEST_BYTES + 1)
+        if len(line) > MAX_REQUEST_BYTES or not line.endswith(b"\n"):
             fail("invalid_request", "repository request exceeded the input limit")
         request = json.loads(line.decode("utf-8", errors="strict"))
         result = run_request(request)
