@@ -285,6 +285,27 @@ export function approvalCandidate(payload) {
   };
 }
 
+/* Review D4 · a check executes the files the model wrote into the private
+ * candidate, with the Host user's rights. Which files those are is read from
+ * the Host's own `repository.write.confirmed` receipts for the candidate the
+ * request names, up to the write revision it was bound to — never from the
+ * live candidate. The latest confirmed write per path wins. */
+export function candidateAuthoredFiles(events, payload) {
+  const id = typeof payload?.candidateId === "string" && payload.candidateId ? payload.candidateId : null;
+  const bound = Number.isSafeInteger(payload?.candidateWriteRevision) ? payload.candidateWriteRevision : null;
+  if (!id || bound === null) return [];
+  const latest = new Map();
+  for (const event of events || []) {
+    if (event?.type !== "repository.write.confirmed") continue;
+    const data = event.data;
+    if (data?.candidateId !== id || !Number.isSafeInteger(data.writeRevision) || data.writeRevision > bound) continue;
+    if (typeof data.path !== "string" || typeof data.contentSha256 !== "string") continue;
+    const prior = latest.get(data.path);
+    if (!prior || data.writeRevision > prior.writeRevision) latest.set(data.path, { path: data.path, sha256: data.contentSha256, writeRevision: data.writeRevision });
+  }
+  return [...latest.values()].sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+}
+
 // Names are display facts from the permission and this Run's recorded binding.
 // Never infer a file write from the shared path/hash envelope, or relabel an
 // old request using the current (possibly replaced) runtime catalog.

@@ -8,6 +8,25 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 const KILL_GRACE_MS = 500;
+const GROUP_POLL_MS = 25;
+const GROUP_GONE_TIMEOUT_MS = 2000;
+
+function groupExists(pid) {
+  try { process.kill(-pid, 0); return true; } catch (error) { return error.code === "EPERM"; }
+}
+
+// After a stop, the leader closing does not mean the group is gone: a
+// descendant may ignore SIGTERM and have detached its stdio. SIGKILL the group
+// and wait (bounded) until it is confirmed gone. Returns true when confirmed.
+async function reapGroup(pid) {
+  if (!groupExists(pid)) return true;
+  killGroup(pid, "SIGKILL");
+  for (let waited = 0; waited < GROUP_GONE_TIMEOUT_MS; waited += GROUP_POLL_MS) {
+    await new Promise(resolve => setTimeout(resolve, GROUP_POLL_MS));
+    if (!groupExists(pid)) return true;
+  }
+  return !groupExists(pid);
+}
 
 function killGroup(pid, signal) {
   // The child is spawned detached, so its pid is also its process group id;
@@ -112,14 +131,17 @@ export async function runCheckRecipe({ recipe, cwd, signal, onOutput, beforeSpaw
         reject(failure);
       });
 
-      child.on("close", (code, closeSignal) => {
+      child.on("close", async (code, closeSignal) => {
         if (settled) return;
         settled = true;
         clearTimeout(timeoutTimer);
         clearTimeout(killTimer);
         signal?.removeEventListener("abort", onAbort);
+        // Only a stopped check reaps the group; a normal exit signals nothing.
+        const groupGone = terminating ? await reapGroup(child.pid) : true;
         const endedAtMs = Date.now();
         resolve({
+          ...(groupGone ? {} : { groupLingered: true }),
           exitCode: code,
           signal: closeSignal,
           durationMs: endedAtMs - startedAtMs,

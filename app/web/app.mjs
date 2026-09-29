@@ -96,6 +96,7 @@ import {
   canAnswer,
   validPermission,
   permissionPresentation,
+  candidateAuthoredFiles,
   checkStateWord,
   unfinishedToolWord,
 } from "./thread-projection.mjs";
@@ -6755,6 +6756,31 @@ function recordedApprovalIdentity(candidate) {
     element("p", { className: "form-help", text: "As recorded when this approval was requested." }),
   ];
 }
+/* Review D4 · a check runs with this computer user's access, and it executes
+ * the files the model wrote into the private candidate, not only the recipe's
+ * command. Both the open card and the decided record name those files from
+ * the Host's confirmed-write receipts, bounded by the write revision the
+ * request was bound to (candidateAuthoredFiles). */
+function checkAuthoredFiles(payload) {
+  if (payload?.tool !== "check_run") return [];
+  const files = candidateAuthoredFiles(state.events, payload);
+  if (!files.length)
+    return [element("p", { className: "form-help", text: "The model has written no files into this candidate." })];
+  const shown = files.slice(0, 20);
+  const list = element("dl", { className: "data-list" });
+  for (const file of shown)
+    list.append(element("dt", {}, element("code", { text: file.path })), element("dd", {}, element("code", { text: file.sha256.slice(0, 12) })));
+  return [
+    element("p", {
+      className: "form-help",
+      text: `This check executes ${files.length === 1 ? "1 file" : `${files.length} files`} the model wrote, with your access to this computer:`,
+    }),
+    list,
+    ...(files.length > shown.length
+      ? [element("p", { className: "form-help", text: `And ${files.length - shown.length} more.` })]
+      : []),
+  ];
+}
 function renderPermission(row) {
   const key = questionScopeKey(row.runId, row.id),
     run = state.runs.find((item) => item.id === row.runId),
@@ -6797,6 +6823,7 @@ function renderPermission(row) {
     );
     if (display.scope) details.append(element("p", { className: "form-help", text: display.scope }));
     if (display.source) details.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
+    details.append(...checkAuthoredFiles(payload));
     details.append(...recordedApprovalIdentity(display.candidate));
     details.addEventListener("toggle", () =>
       state.toolOpen.set(keyOpen, details.open),
@@ -6816,6 +6843,7 @@ function renderPermission(row) {
   );
   if (display.scope) card.append(element("p", { className: "form-help", text: display.scope }));
   if (display.source) card.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
+  card.append(...checkAuthoredFiles(payload));
   if (validPermission(payload)) {
     card.append(
       element("p", {
