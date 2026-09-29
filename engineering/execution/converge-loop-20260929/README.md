@@ -533,6 +533,21 @@ This is a projection fix in the UX owner's files, under the loop directive and p
   - A per-scope selectable-profile fact for the picker.
   - A Host "frozen" fact (active Run or operation anywhere) to disable Delete and configuration controls during compactions and other Sessions' Runs.
 
+## Integration with the architect branch
+
+On 2026-09-30 a parallel, unmerged delivery was found: `claude/architect-integration-20260929`, the architect lane's D4 sandbox, D6 traversal, D9/D10 and path-policy work, under Astra's review with acceptance withheld. Neither branch contains the other, and both touch Host core files. Integrating both into `main` is Astra's decision.
+
+The parent made a trial merge of that branch into this one (head `f03f27f`) in a throwaway worktree, with nothing committed or pushed:
+- Seven files conflict textually, in 12 hunks: `app/runtime/check-runner.mjs` (4), `app/runtime/control-plane.mjs` (2), `app/tests/check-recipes.test.mjs` (2), `app/tests/control-plane.test.mjs` (1), `app/docs/api-v6.md` (1), `app/docs/check-recipes.md` (1) and `engineering/current.md` (1).
+- `app/server/service.mjs` and every other shared file merged without a textual conflict. That is not evidence of semantic compatibility; the combined suite has not been run.
+
+Semantic overlaps and the parent's recommendation for whoever integrates:
+- **Path-policy case folding.** S17 made `ws_*` rules case-insensitive with a whole-string fold. The architect branch folds `ws_`, `repo_` and `candidate_` paths one code point at a time, checked against the volume (Unicode normalization and final sigma, "folding never loosens", alias conflicts hold the stricter rule). That is the more complete rule and should replace S17's, keeping S17's separate `profileCovers` selection-scope check. S17's `ws_` test should then be judged against the architect rule.
+- **Check runner.** S11's guard (group supervision, Host-death kill, exact exit reporting) and the architect sandbox both change `runCheckRecipe`'s spawn and reap. The guard should run outside the sandbox and start the sandbox's command. Astra's joint test matrix (normal exit, cancel, timeout, spawn failure, Host crash while the leader runs, Host crash after the leader exits, all with the sandbox in force) applies to whichever lands second.
+- **Everything else.** Kit-binding validation, the store, service admission and close, the work adapter and the Core owner overlap only textually-cleanly; the combined suite must still run after the merge.
+
+The loop adds no further source slices in these files until the two branches are integrated, so the overlap does not grow.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
