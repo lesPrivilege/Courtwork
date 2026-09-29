@@ -40,6 +40,13 @@ document's revision of the contract, not a new route namespace.
   `cancelled`, even if the runtime had just completed; the completed answer
   remains in the Run's events.
 - `run.admissionOpen` (boolean): whether the run still accepts events and answers.
+  It is `false` whenever the Run is `stopping` or terminal; the Store enforces this
+  on every status change.
+- A Run stays `waiting_user` while any of its questions is pending. A turn's tool
+  calls can run in parallel, so several questions can be open at once; the Run
+  returns to `running` only when the last is answered. A `run.status` event is
+  written only when the status changes, so one waiting period records one
+  `waiting_user` event however many questions it holds.
 - `question.status`: `pending` · `resolved` · `expired_restart` · `cancelled`.
   `expired_restart` is set for every pending question at startup: a restart cannot
   resume a wait, and no question is left permanently unanswerable. `cancelled` is
@@ -341,6 +348,9 @@ Answering a question that is not pending is `409 question_unavailable`; answerin
 after the run closed is `409 run_closed`. The serialized answer mutation also
 rechecks admission: if cancellation won the queue race, it returns
 `409 question_unavailable` without resolving the question or reopening the Run.
+Opening a question makes the same check: a question or permission requested after
+a cancel closed admission is never opened, the tool call ends as an abort, and the
+Run goes `stopping` → `cancelled` without passing through `waiting_user`.
 
 ### usage
 
@@ -352,7 +362,9 @@ provider failure. A client should render "at least N" when `missing` is true.
 ### Budget
 
 `deadlineMs` (default 600 000) is an execution budget: it only runs down while the
-run is `running`, and is paused for the whole of `waiting_user`. `maxTurns`
+run is `running`. It pauses when the first decision (question or permission) opens
+and resumes only when the last open one ends, and not at all for a Run that is
+being cancelled, so a cancel during a question never settles as `budget_exceeded`. `maxTurns`
 defaults to 40. Exceeding either ends the run `unknown` with `budget_exceeded`.
 
 ## Events
@@ -365,7 +377,7 @@ high-water mark, so an empty page still tells a poller where it stands.
 | type | data | meaning |
 |---|---|---|
 | `user.message` | `{ text }` | the instruction that opened the run |
-| `run.status` | `{ status }` | a run status transition |
+| `run.status` | `{ status }` | a run status change (written only when the status changes) |
 | `assistant.delta` | `{ text }` | streaming assistant text (cumulative) |
 | `assistant.message` | `{ text, stopReason, errorMessage }` | a finished assistant message |
 | `tool.start` | `{ callId, name }` | a tool call began |
@@ -465,10 +477,15 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
 `invalid_json` · `invalid_input` · `invalid_provider` · `invalid_action` ·
 `invalid_cursor` · `cursor_ahead` (carries `nextSeq`) · `invalid_path` ·
 `unknown_field` (400),
-`active_run` · `command_conflict` · `run_closed` · `question_unavailable` ·
+`active_run` · `operation_active` · `command_conflict` · `run_closed` ·
+`question_unavailable` · `idempotency_conflict` · `spark_session_referenced` ·
+`nothing_to_compact` · `compaction_unavailable` · `credential_missing` ·
 `binding_exists` · `binding_mismatch` · `extension_unloaded` ·
 `generation_mismatch` · `extension_lifecycle_failed` (409),
-`body_too_large` (413), `provider_unsupported` (503), `internal_error` (500).
+`body_too_large` (413), `configuration_incomplete` · `provider_unsupported` ·
+`effort_unsupported` · `candidate_revoked_cancellation_pending` ·
+`repository_revoked_cancellation_pending` (503), `internal_error` (500).
+This list is the common set; each route section names its own refusals.
 
 ## Operational requirements
 

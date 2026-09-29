@@ -67,8 +67,9 @@ Global Attention can discover explicitly disclosed Matter/Attention objects and 
 
 ## Run
 
-Node.js >=22.19.0 and Git >=2.36 on PATH. Git is required for artifact writes;
-unavailable Git fails the write before workspace publication. From the `app` directory:
+Node.js >=22.19.0 on PATH and Git >=2.36 at `/usr/bin/git`. The Host runs Git
+from that path with a closed environment, not through PATH. Git is required for
+artifact writes; unavailable Git fails the write before workspace publication. From the `app` directory:
 
 ```sh
 npm ci --ignore-scripts

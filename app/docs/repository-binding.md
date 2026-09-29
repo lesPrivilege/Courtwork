@@ -41,7 +41,11 @@ At Run admission the Host freezes the active binding identity and revision in
 `repositoryBindingSnapshot` and records a `repository.bound` event. Revocation
 advances the Session revision, immediately makes subsequent repository calls
 fail, records its event, and requests cancellation of active Runs using that
-binding. A read is recorded as a `repository.read` event with Run attribution,
+binding. The revocation is committed inside the Host's configuration queue; the
+dependent Runs are cancelled after it is released, because an approved write of
+such a Run waits on the same queue. If a cancel cannot complete, the call returns
+`503 repository_revoked_cancellation_pending` (`candidate_revoked_…` for a
+candidate) and replaying the same request retries it. A read is recorded as a `repository.read` event with Run attribution,
 binding ID/revision, relative paths, byte counts and SHA-256 hashes; source text
 and absolute host paths are not put in those events. Already disclosed text
 cannot be withdrawn from a model's history.

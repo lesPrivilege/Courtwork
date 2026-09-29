@@ -174,6 +174,24 @@ Input: the `service.mjs` survey (candidates 1 and 2) and a follow-up liveness su
 - **Returned to the UX owner.** The two new strings ("Work version changed" and its note) are for the owner's copy review.
 - **Flake observed.** Two full suites ran concurrently by mistake, and each showed load failures that pass alone. `models-save-flow` MS-R2 failed a second time under load; it is now a candidate for the known-flake list.
 
+### S9 · Documentation follows S1–S8
+
+- **Input.** A read-only Sonnet drift check of current documentation against the behavior S1–S8 changed. Archive, evidence, reviews and dated research are excluded; they keep their bytes.
+- **Change.**
+  - [HTTP API](../../../app/docs/api-v6.md):
+    - `admissionOpen` is false whenever a Run is stopping or terminal;
+    - a Run stays `waiting_user` until its last open question is answered;
+    - one `run.status` event per status change;
+    - a question opened after a cancel is never opened;
+    - the deadline pauses from the first open decision to the last and never re-arms for a cancelling Run;
+    - the common error list gains the compaction, idempotency, Spark and provider-route codes, and the two revoke `503 *_cancellation_pending` codes.
+  - [Repository binding](../../../app/docs/repository-binding.md): the revocation commits inside the configuration queue; dependent Runs are cancelled after it is released; the `503` pending codes, and a replay retries the cancel.
+  - [Supported preview](../../../app/docs/supported-preview.md): compaction is admitted only on a route a Run would accept.
+  - [Runtime README](../../../app/README.md): the Host runs Git from `/usr/bin/git` with a closed environment.
+  - [UX conventions](../../design/ux-conventions.md): seven Run statuses, not eight; `created` does not exist.
+- **Returned to the public README owner.** The root `README.md` and `README.zh-CN.md` say only "Git 2.36+". Since S5 the Host needs Git at `/usr/bin/git`. The root README is generated from `site/src/readme.mjs`, and public README and Pages belong to the original Claude lane, so this loop does not edit them.
+- **Checks.** `tools/check-doc-links.mjs`, `check-product-copy`, `check-pages-semantics` and `check-semantic-consumers` pass, and `node site/build.mjs` succeeds.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
