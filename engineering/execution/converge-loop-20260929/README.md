@@ -81,12 +81,64 @@ Input: the `service.mjs` survey (candidates 1 and 2) and a follow-up liveness su
   - Low, pre-existing: in the MCP-unknown state (`running`, admission closed) a question is now refused rather than opened unanswerable, and the deadline re-arms after it.
 - **Also observed.** `models-save-flow` MS-R2 failed once under the concurrent suite and passed 3/3 alone. It is not yet on the known-flake list; reopen if it recurs.
 
+### S4 · Remove verified dead code
+
+- **Input.** The obsolete-paths survey. Only items with no caller anywhere were taken, each re-checked by a repository-wide grep before removal. Exports that only tests call are kept as test seams.
+- **Writer.** A Sonnet worker with an exact file list; the parent reviewed the diff and removed the one symbol the worker skipped because its type declaration was outside the list.
+- **Removed.**
+  - The `extensions/evidence-memo/server/core-client.mjs` compatibility re-export and the test that only checked that it resolved.
+  - Unused exports and aliases:
+    - NDA fixtures and adapter aliases, and `PLAYBOOK_RULES_VERSION`;
+    - file-memo schema aliases;
+    - fixture-provider alias constants and `fakeProviderDescriptor`;
+    - `providerIdentityOf` and `isUserConnection`;
+    - `COMMAND_KINDS`, `PROPOSAL_KINDS` and `BUILTIN_PROFILE`;
+    - `AGENTS_API_EXPOSURE_RULE` and its declaration.
+  - The web copy of `normalizedType`, which now comes from `thread-projection.mjs`.
+  - The Run status `created` in the web layer. The Host never writes it: `createRun` writes `running`, and the loader admits only the seven Run statuses.
+  - `validateState`'s `legacyDescriptors` option, which every caller set to the same value.
+- **Kept, needs a ruling or a data decision.** The legacy skin-token format, which reads existing browser preferences; tokenless Spark samples; segment-less stream events; the credential key-space migration; the web's legacy `runtimeSelection` branch. See [Needs a ruling](#needs-a-ruling).
+- **Checks.** The worker ran each of the 117 test files that import a touched module; `tools/check-doc-links.mjs` passes. The parent reran the Agents API tests after the last removal. `npm --prefix app test` 1852/1852 with S5.
+- **Returned to the UX owner.** `TAB_ACTIVITY` labels `stopping` as "Running", while the thread, inspector and activity line say "Stopping" (`web/app.mjs`).
+
+### S5 · Artifact history Git gets a closed environment
+
+- **Divergence, from a read-only audit of every Host subprocess.** Every model-reachable child already gets a closed environment allow-list:
+  - `check_run`;
+  - the repository Git and filesystem helpers;
+  - the Core bridge;
+  - the Local Pi child.
+
+  One child did not. `runtime/artifact-history.mjs` passed the Host's whole environment minus `GIT_*` to `git`, resolved through `PATH`. Any provider key, agent socket or loader variable in the Host's environment reached it; startup strips only `DEEPSEEK_API_KEY` and `OPENAI_API_KEY`. It is not model-reachable, so this is hardening of a divergent copy of the same rule, not an exploit.
+- **Change.** A closed allow-list and an absolute `/usr/bin/git`, matching the repository helpers. `ArtifactHistory` takes a `gitBinary` option, following the `gitBinary` precedent in `repository-candidate.mjs`. The cancellation test injects its slow Git through that option instead of `PATH`, which the fix no longer consults.
+- **Checks.** A new test runs a Git stub that records its environment. It checks that the child sees exactly the allow-list and none of a probe variable set in the Host. `artifact-history`, `artifact-history-storage`, `p03c-host-consumer`, `kit-profile-preview` and `repository-candidate` pass.
+- **Non-author review (Sonnet).** No blocking findings:
+  - every subcommand used runs under exactly this environment, including through the macOS `/usr/bin/git` shim, with no `HOME` warning;
+  - CI runs on `ubuntu-latest`, which has `/usr/bin/git`;
+  - all constructor call sites still work.
+
+  Adopted: the environment test now asserts the values as well as the key set.
+- **Not changed, with reason.**
+  - The same audit repeats a finding that already has an owner: `check_run` children run candidate code as the Host user, so they can read the credential file by path whatever their environment. That is D4 containment under [RD-009](../../research/RD-009-trusted-harness-extensions.md), still open.
+  - The directory picker and `repository-git-status` forward the real `HOME`. `repository-git-status` neutralizes global and system Git config and runs only `rev-parse`, so this is recorded here without a change.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
 
+| Item | What it is now | Question for the user |
+|---|---|---|
+| Hermes `/v1/runs` adapter (`runtime/hermes-api-runs-adapter.mjs`, `-transport.mjs`, `docs/hermes-api-runs.md`, about 720 lines) | Accepted as a standalone adapter; the Host never registers it; native Hermes stays blocked by the permission refusal | Keep it as the parked consumer for a future Hermes decision, or remove it until that decision is revisited? |
+| Managed Agents-API executor (`runtime/agents-api-adapter.mjs`, `agents-host-gateway.mjs`, `openai-agents-transport.mjs`, about 1,500 lines) | Only an injected trusted factory wires it, and `npm start` does not; schema 22's executor choice names it | Keep as a tested seam until credentials and budget are authorized, or remove it together with its schema-22 executor identity? |
+| Local Pi worker (`runtime/local-pi-*.mjs`, about 880 lines) | Opt-in `localPiWorker`, off by default; schema 20 depends on it; listed as a dormant residual | Keep dormant, or remove with a schema step? |
+| Runtime-management and agent-profile specimen pages (`web/runtime-management*.mjs`, `web/agent-profiles*.mjs`, about 2,450 lines with contracts, fixtures and preview scripts) | Served only through the static allow-list; live runtime management is deferred | Keep as specimens for the deferred UI, or remove until that UI is scheduled? |
+| Data-format compatibility: the legacy skin-token format in browser preferences, stream events without segments, the `credentials.json` key-space migration, `legacyWithoutControlSnapshot` Runs | Each reads data written by an earlier build | Can existing local data be declared unsupported, so these readers go? This needs a data ruling, not a code one. |
+| `check_run` containment (D4) | Candidate code runs as the Host user and can read the credential file by path | Already open under [RD-009](../../research/RD-009-trusted-harness-extensions.md): choose an OS sandbox, a data directory the check cannot read, or an accepted limitation. |
+
 ## Deferred
 
 These are findings kept with a reason; each reopens when its trigger occurs.
+
+- **Domain branches in the generic Run loop.** `service.mjs` hard-codes the Work Extension ids `evidence-memo` and `inbound-nda` six times, and runs file-memo input limits and hooks inside `#executeRun`. Both are real coupling under [dependency boundaries](../../architecture.md#dependency-boundaries). By [change boundaries](../../architecture.md#change-boundaries) the trigger is a new domain, and none is scheduled. Reopen when a third Work Extension or a file-memo profile change is scheduled: move the capability behind the extension adapter (`extensionRun` hooks).
 
 - **Whole-state rewrite per Store write.** Every mutation clones and serializes the entire RuntimeStore state, about 0.3 s per write at 1,000 Runs and 1.1 s at 3,000 on the synthetic state above; coalesced streaming snapshots are writes too. This is the storage design (architecture unit M06), not a slice. Reopen when a user's store reaches a size where writes are felt, or when storage is replaced.
