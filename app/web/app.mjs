@@ -6765,11 +6765,11 @@ function checkAuthoredFiles(payload) {
   if (payload?.tool !== "check_run") return [];
   const files = candidateAuthoredFiles(state.events, payload);
   if (!files.length)
-    return [element("p", { className: "form-help", text: "The model has written no files into this candidate." })];
+    return [element("p", { className: "form-help", text: "The Host has no record of the model writing files into this candidate." })];
   const shown = files.slice(0, 20);
   const list = element("dl", { className: "data-list" });
   for (const file of shown)
-    list.append(element("dt", {}, element("code", { text: file.path })), element("dd", {}, element("code", { text: file.sha256.slice(0, 12) })));
+    list.append(element("dt", {}, element("code", { text: file.path })), element("dd", {}, file.sha256 ? element("code", { text: file.sha256.slice(0, 12) }) : "Write outcome unknown"));
   return [
     element("p", {
       className: "form-help",

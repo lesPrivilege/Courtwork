@@ -3374,10 +3374,13 @@ export class RuntimeService {
         // its own evidence (review D2, same rule as the Local Pi contract).
         const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
           ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
-        await this.store.updateRunIfActive(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, [
-          ...(entry.stream?.settle(finalStatus) ?? []),
+        const partials = entry.stream?.settle(finalStatus) ?? [];
+        const settledWrite = await this.store.updateRunIfActive(run.id, { status: finalStatus, admissionOpen: false, error: finalStatus === "failed" || finalStatus === "unknown" ? (entry.externalUnknown ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" } : lastError) : null }, [
+          ...partials,
           { type: "run.status", data: { status: finalStatus, ...(entry.externalUnknownDetail ? { externalUnknown: entry.externalUnknownDetail } : {}) } },
         ]);
+        // Another path settled the Run first: keep the received text anyway.
+        if (!settledWrite.applied) for (const orphan of partials) await this.store.appendEvent({ runId: run.id, ...orphan }).catch(() => {});
       } else {
         // A terminal status written by another path without settling this
         // Run's stream: keep the received text rather than lose it. It follows

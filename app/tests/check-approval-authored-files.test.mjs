@@ -27,6 +27,18 @@ test("lists the latest confirmed write per path up to the approved write revisio
   ]);
 });
 
+test("a write with an unknown outcome is listed as possibly written, not silently dropped", () => {
+  const events = [
+    confirmed("c1", "a.mjs", "a".repeat(64), 1),
+    { type: "repository.write.unknown", data: { candidateId: "c1", path: "maybe.mjs", code: "write_outcome_unknown" } },
+    { type: "repository.write.unknown", data: { candidateId: "c2", path: "elsewhere.mjs", code: "write_outcome_unknown" } },
+  ];
+  assert.deepEqual(candidateAuthoredFiles(events, { candidateId: "c1", candidateWriteRevision: 1 }), [
+    { path: "a.mjs", sha256: "a".repeat(64), writeRevision: 1 },
+    { path: "maybe.mjs", sha256: null, writeRevision: null },
+  ]);
+});
+
 test("returns nothing without a recorded candidate or write revision", () => {
   const events = [confirmed("c1", "a.mjs", "a".repeat(64), 1)];
   assert.deepEqual(candidateAuthoredFiles(events, { candidateId: "c1" }), []);
