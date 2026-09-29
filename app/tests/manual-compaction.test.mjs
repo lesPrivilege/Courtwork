@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { rm } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
@@ -250,5 +250,33 @@ test("CMP-01 · deleting a compacted chat removes its compaction records and the
     finally { await again.runtime.close(); }
   } finally {
     if (!closed) await h.runtime.close();
+  }
+});
+
+// Compaction sends a model request, so it is admitted on the same provider
+// route as a Run. A saved reasoning effort the model no longer supports is
+// refused for both, and the command catalog reports compaction unavailable.
+test("CMP-01 · compaction is refused on a provider route a Run would refuse", async () => {
+  const compaction = { enabled: true, reserveTokens: 1, keepRecentTokens: 1, maxCompactions: 4 };
+  const h = await setup();
+  await h.runtime.close();
+  const statePath = path.join(h.dataDir, "runtime-state.json");
+  const state = JSON.parse(await readFile(statePath, "utf8"));
+  state.providerConfig = { ...state.providerConfig, reasoningEffort: "high" };
+  await writeFile(statePath, JSON.stringify(state, null, 2));
+  const again = await reopen(h.dataDir, { compaction });
+  try {
+    again.runtime.fakeProvider.model.contextWindow = 4;
+    const run = await again.api("POST", `/sessions/${h.session.id}/runs`, { commandId: "stale-effort", input: "hello" });
+    assert.equal(run.status, 503); assert.equal(run.json.error.code, "effort_unsupported");
+    const compact = await again.api("POST", `/sessions/${h.session.id}/compactions`, { requestId: "stale-effort" });
+    assert.equal(compact.status, 503, JSON.stringify(compact.json)); assert.equal(compact.json.error.code, "effort_unsupported");
+    assert.deepEqual((await again.api("GET", `/sessions/${h.session.id}/compactions`)).json.operations, [], "a refused compaction leaves no record");
+    const listed = (await again.api("GET", `/sessions/${h.session.id}/commands`)).json;
+    const compactCommand = listed.commands.find((c) => c.name === "compact");
+    assert.equal(compactCommand.availability.available, false);
+    assert.match(compactCommand.availability.reason, /provider route/);
+  } finally {
+    await again.runtime.close();
   }
 });

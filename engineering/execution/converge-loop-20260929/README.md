@@ -43,6 +43,16 @@ Slices run in order. Each entry records the defect or coupling, the fact owner, 
   - Adopt as stated: a close-time validation error in a test's `finally` replaces that test's own error. This is intended; the persisted-state failure is the stronger signal.
   - Defer: Hosts started directly through `startServer` or `RuntimeStore`, not through the helpers, are not held to the close check. Reopen if a divergence shows up in a Store-level fixture.
 
+### S2 · One provider route for every model request
+
+- **Gap, reproduced.** Run admission and manual compaction both send model requests, but compaction repeated only part of Run admission's provider checks. It skipped descriptor validation, the per-kind route and admissible-model checks, and the reasoning-effort check. With a saved effort the model no longer supports, a Run was refused `503 effort_unsupported` while a compaction was accepted (`200`) and sent the summary request with that effort. Found by the `service.mjs` survey (candidate 3).
+- **Fact owner.** Host service Run admission (`app/server/service.mjs`); contracts [HTTP API](../../../app/docs/api-v6.md) and [commands and compaction](../../../app/docs/commands-and-compaction.md).
+- **Change.** Run admission's route checks moved unchanged into `#admitProviderRoute()`, evaluated against the saved configuration; Run admission and compaction both call it. The command catalog reports `/compact` unavailable on a route it refuses. The provider-save path keeps its own 400-level input validation, and provider verify keeps its own gate; both are separate contracts.
+- **Checks.** A new CMP-01 test fails against the previous `service.mjs` (`200` instead of `503`) and passes after the change. `npm --prefix app test` 1847/1847.
+- **Non-author review (Sonnet).** Run admission is equivalent: the moved checks read only fields the derived Run provider copies unchanged; no `await` separates the gate from the copy; the Local Pi `baseUrl` override applies to the copy afterwards. No previously valid compaction is refused: only the Pi port supports compaction, and 14 affected test files pass. The only other model-request path, provider verify, has its own gate. Dispositions:
+  - Adopt as stated: a compaction whose model no longer resolves now reports `503 provider_unsupported` instead of `503 provider_error`, the same as a Run. The later `!model` guard stays as a defensive check.
+  - Adopt as stated: route refusals (503) now precede `409 compaction_unavailable` and `409 credential_missing`, the same order as Run admission.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.

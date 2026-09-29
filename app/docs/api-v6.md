@@ -314,7 +314,10 @@ creates a Run or sends a model request.
 An operation carries `{ id, kind: "compaction", sessionId, requestId, status,
 reason: "manual", focus, startedAt, settledAt, provider, journal, result, error }`.
 Refusals: `409 active_run`, `409 operation_active`, `409 nothing_to_compact`,
-`409 compaction_unavailable`, `409 credential_missing`, `409 idempotency_conflict`.
+`409 compaction_unavailable`, `409 credential_missing`, `409 idempotency_conflict`,
+and the Run's provider-route refusals (`503 configuration_incomplete`,
+`503 provider_unsupported`, `503 effort_unsupported`): a compaction sends a model
+request and is admitted on the same saved route as a Run.
 See [commands-and-compaction](commands-and-compaction.md) for semantics.
 
 `GET /api/v5/runs/:id` → `{ run }`, where a run carries

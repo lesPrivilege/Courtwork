@@ -667,7 +667,7 @@ export class RuntimeService {
     const runtime = this.getRuntimeControl(sessionId);
     const model = this.#resolveModel(this.providerConfig);
     const capability = this.#reasoningCapability(this.providerConfig);
-    let compaction;
+    let compaction, route;
     let selectedPort = null;
     try { selectedPort = this.#executorForSession(session).port; }
     catch (error) {
@@ -677,6 +677,7 @@ export class RuntimeService {
     if (!compaction) {
       if (!this.#runtimeCapability("compact", selectedPort).supported) compaction = { available: false, reason: "The bound runtime does not support compaction." };
       else if (!session.hostSession) compaction = { available: false, reason: "This chat has no recorded conversation to compact." };
+      else if ((route = this.#routeRefusal())) compaction = { available: false, reason: `The configured provider route cannot be used: ${route}` };
       else if (!model) compaction = { available: false, reason: "The configured model could not be resolved." };
       else if (!this.#compactionPolicy(model).enabled) compaction = { available: false, reason: "Compaction needs a known context window on the configured model." };
       else compaction = { available: true, reason: null };
@@ -859,9 +860,7 @@ export class RuntimeService {
       const executor = this.#executorForSession(session);
       this.#requireRuntimeCapability("compact", executor.port);
       if (!session.hostSession) throw new ServiceError(409, "nothing_to_compact", "This chat has no recorded conversation to compact");
-      const connection = this.#connectionByIdentity(this.providerConfig.provider);
-      this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
-      if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      const connection = this.#admitProviderRoute();
       const model = this.#resolveModel(this.providerConfig);
       if (!model) throw new ServiceError(503, "provider_error", "the configured model could not be resolved");
       const policy = this.#compactionPolicy(model);
@@ -2689,6 +2688,48 @@ export class RuntimeService {
     };
   }
 
+  /** The provider route a model request may use, as saved now: a ready
+   * connection, a current descriptor, the connection's own endpoint and wire
+   * format, an admissible model and a supported reasoning effort. Every Host
+   * path that sends a model request (Run admission, manual compaction) asks
+   * here, so a route one of them refuses is refused by all. */
+  #admitProviderRoute() {
+    const config = this.providerConfig;
+    const connection = this.#connectionByIdentity(config.provider);
+    this.#requireReadyConnection(connection?.id ?? config.provider);
+    try { validateProviderDescriptor(config, this.#knownIdentities()); }
+    catch { throw new ServiceError(503, 'configuration_incomplete', 'saved provider configuration must be updated before execution'); }
+    if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+    if (config.provider === FAKE_PROVIDER_ID) {
+      // The fixture identity keeps its fixed wire format and endpoint (this
+      // is "local-fake mode", not an arbitrary connection), but PV-59 still
+      // applies to which MODEL runs: the native fixture model or an extra
+      // this connection saved on top of it (the loopback fixture answers any
+      // model id, so this is how a catalog connection's extras get end-to-end
+      // Run/verify coverage without leaving loopback).
+      if (config.api !== FAKE_API_ID || (config.baseUrl && config.baseUrl !== this.fakeProvider.baseUrl)
+        || !this.#admissibleModel(connection, config.model)) {
+        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable in local-fake mode");
+      }
+    } else if (connection.kind === "compatible") {
+      if (config.api !== connection.api || config.baseUrl !== connection.baseUrl
+        || !this.#admissibleModel(connection, config.model)) {
+        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      }
+    } else {
+      if (providerRouteError(connection, config) || !this.#admissibleModel(connection, config.model)) {
+        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      }
+    }
+    if (config.reasoningEffort !== undefined && !this.#reasoningCapability(config).values.includes(config.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
+    return connection;
+  }
+
+  #routeRefusal() {
+    try { this.#admitProviderRoute(); return null; }
+    catch (error) { if (error instanceof ServiceError) return error.message; throw error; }
+  }
+
   #reasoningCapability(provider) {
     const model = this.modelRuntime.getModel(provider.provider, provider.model);
     const entry = this.#connectionByIdentity(provider.provider)?.models.find(row => row.id === provider.model) ?? null;
@@ -2783,11 +2824,7 @@ export class RuntimeService {
 
     // Which connection this run used, and where its key came from, are frozen
     // into the run record here: this is the traceable half of PV-24.
-    const connection = this.#connectionByIdentity(this.providerConfig.provider);
-    this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
-    try { validateProviderDescriptor(this.providerConfig, this.#knownIdentities()); }
-    catch { throw new ServiceError(503, 'configuration_incomplete', 'saved provider configuration must be updated before execution'); }
-    if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+    const connection = this.#admitProviderRoute();
     const capability = this.#capabilityOf(this.providerConfig);
     const provider = {
       ...this.providerConfig,
@@ -2798,29 +2835,6 @@ export class RuntimeService {
       capabilityNotice: capability.notice,
       reasoningBinding: { ...this.#reasoningCapability(this.providerConfig), configVersion: this.store.getProviderConfigVersion() },
     };
-    if (provider.provider === FAKE_PROVIDER_ID) {
-      // The fixture identity keeps its fixed wire format and endpoint (this
-      // is "local-fake mode", not an arbitrary connection), but PV-59 still
-      // applies to which MODEL runs: the native fixture model or an extra
-      // this connection saved on top of it (the loopback fixture answers any
-      // model id, so this is how a catalog connection's extras get end-to-end
-      // Run/verify coverage without leaving loopback).
-      if (provider.api !== FAKE_API_ID || (provider.baseUrl && provider.baseUrl !== this.fakeProvider.baseUrl)
-        || !this.#admissibleModel(connection, provider.model)) {
-        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable in local-fake mode");
-      }
-    } else if (connection.kind === "compatible") {
-      if (provider.api !== connection.api || provider.baseUrl !== connection.baseUrl
-        || !this.#admissibleModel(connection, provider.model)) {
-        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
-      }
-    } else {
-      if (providerRouteError(connection, provider) || !this.#admissibleModel(connection, provider.model)) {
-        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
-      }
-    }
-
-    if (provider.reasoningEffort !== undefined && !this.#reasoningCapability(provider).values.includes(provider.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
     // The managed alternate is currently a deterministic offline consumer.
     // A configured factory does not promote arbitrary Provider/Model routes.
     if (remoteRuntime && provider.provider !== FAKE_PROVIDER_ID) {
