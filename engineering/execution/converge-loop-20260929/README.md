@@ -223,6 +223,32 @@ Input: a Sonnet restart audit. For each in-flight state kind it checked what a r
   - `work-summary`'s read-only test raced the Host's own post-Run writes: it lists the data directory right after the Run reports terminal, while `#executeRun`'s `finally` is still persisting, and a temporary file vanished between listing and reading. That race is in the test and predates this loop.
 - **Defect C, next slice.** A check's detached process group outlives a Host crash and can keep writing to the candidate.
 
+### S11 · A check's process group does not outlive its Host or its recipe
+
+- **Defect, reproduced (restart audit, defect C).** `check-runner.mjs` spawned each recipe detached in its own process group and kept its timeout and kill timers only in the Host. A Host that died mid-check (SIGKILL, a crash) left the whole group running, able to keep writing the candidate while a restarted Host moved on.
+- **First version, returned by review.** A guard (`runtime/check-guard.mjs`) became the group leader: it ran the recipe command and killed the group when the Host's end of its stdin pipe closed. Two reviews found the same gap:
+  - a Sonnet review (F3);
+  - Astra's independent review (CR1, below).
+
+  The guard exited with the recipe's own process, so a descendant still holding the recipe's output was left unsupervised, and a Host that died next left it running. The Sonnet review also found that the guard re-raising the recipe's exit signal misreported signals Node itself handles (SIGPIPE, SIGUSR1) as exit code 1.
+- **Correction.**
+  - When the recipe's own process exits, the guard writes its exact status (`exit <code> <signal>`) on fd 3 and kills the whole group, itself included.
+  - The Host takes the recipe's status from that report, falls back to the guard's close status when the guard was killed by a stop, and confirms on every exit path that the group is gone.
+  - A start failure is still reported on fd 3 and mapped to `spawn_failed`.
+
+  Behavior change: a normal exit now also ends anything the recipe left running. Reaping on every exit matches the D4 sandbox branch's runner change.
+- **Fact owner.** Host check runner (`app/runtime/check-runner.mjs`, `check-guard.mjs`); contract [check recipes](../../../app/docs/check-recipes.md).
+- **Checks.** New tests each fail against the reviewed guard and pass after:
+  - a Host killed while the recipe runs;
+  - a recipe that exits leaving a descendant: exit 0 is reported and the descendant is gone;
+  - a Host killed after the recipe's leader exited;
+  - SIGUSR1, SIGPIPE and SIGTERM reported as the recipe's own signal.
+
+  The existing check test files pass: `check-recipes`, `check-runner-group-kill`, `check-approval-revision`, `check-approval-authored-files`, `p03e-write-check-parity`, `check-ui`, `prepare-and-approval`. Astra's [CR1 probe](evidence/astra-s10-s11/guard-exit-probe.mjs) now stops at its first measurement, because the descendant it expects to find alive has already been killed. The probe pins the defect, so this is the expected change.
+- **Suite.** `npm --prefix app test` 1863/1863 on a clean run, with the MS-R2 test fix below.
+- **Cost.** The guard is a second Node process per check: first output arrives about 65–120 ms later. Recipe timeouts are 120 s. Two `check-recipes` tests with 200–300 ms fixed windows became timing-sensitive; they now wait on the check's own output or allow 1.5 s.
+- **Cleanup error during verification.** After running the new tests against the reviewed guard, the parent removed leftover test processes with `pkill -f 'sleep 30'`. That matches by command line rather than by the recorded pids, and could also have matched an unrelated process of the same name. Later cleanups use recorded pids only.
+
 ### S10–S11 · Independent handoff review by Astra
 
 Source: S10 at `c280f8205c71659b242aa7e324f0cf8b6bb9bb5b`, plus the uncommitted S11 guard, runner, group-kill test and check-recipes documentation. [Source identities and verification](evidence/astra-s10-s11/verification.md). Product code was not edited, merged or pushed during this review. S1–S9 are outside this review's acceptance scope.
@@ -238,6 +264,14 @@ Source: S10 at `c280f8205c71659b242aa7e324f0cf8b6bb9bb5b`, plus the uncommitted 
 **Integration obligation.** S11 and the separate D4 sandbox delivery both modify `check-runner.mjs`. The guard's parent-liveness protocol and the sandbox's execution policy must be reviewed and tested together: normal exit, cancel, timeout, spawn failure, Host crash while the leader runs, and Host crash after the leader exits, with the sandbox still in force. The macOS own-session limitation remains explicit. The sandbox branch's reap-on-close change alone cannot close CR1 when a descendant still holds output open and the Host dies before `close`. No cross-branch integration or Linux verification occurred here.
 
 **Checks.** Four existing test files, run serially with file concurrency 1: 19/19. Separate probes preserved exit code 7, SIGTERM, SIGKILL and `spawn_failed`. These passes do not discharge CR1 or the prior F3/D6 findings in the architect delivery. Full command, logs, source hashes and exclusions are in the linked evidence. Only this owner record, its current-status pointer and review evidence were edited.
+
+### Author response to Astra's S10–S11 review
+
+| Finding | Author disposition | Landing |
+|---|---|---|
+| CR1, P1: the guard exits before remaining descendants | Adopt | Corrected in [S11](#s11--a-checks-process-group-does-not-outlive-its-host-or-its-recipe): the guard reports the recipe's exit and kills the group at leader exit; the leader-exits-first and Host-dies-next regression is added. Closure is for Astra's re-review, not the author. |
+| Repeated MS-R2 failures are not shown to be load flakes | Adopt; root cause found and fixed | The earlier wording in S10 is superseded. The cause is a test bug; the product has no race here. The test waited a fixed 50 ms after submitting the connection form, but the tiny DOM's `dispatchEvent` does not await the async handler, and saving a compatible connection is five sequential Host requests (about 13 ms on an idle machine) before "Connection saved.". Reproduced with a Sonnet probe: 5 of 12 runs failed under 12-process CPU stress, and every run failed with 30 ms injected per request. All failures were at the same assertion (`models-save-flow.test.mjs`, the "Connection saved." note). Fix: both fixed 50 ms waits in the file now poll for the outcome, the pattern its sibling test already used. With the fix, 10 of 10 runs pass under the same stress. |
+| S11 and the D4 sandbox branch must be integrated and tested together | Adopt, not done here | The sandbox branch (`claude/architect-check-sandbox-20260929`, `c71c6b4`) is another author's unaccepted delivery; this loop does not merge it. The corrected guard already reaps the group on every exit path, the same line the sandbox branch changes. The two branches meet in `runCheckRecipe`'s spawn: the guard runs outside the sandbox and starts the sandbox's command, `execution.command` with `execution.argv`. Whoever integrates second owes the joint test matrix Astra lists, with the sandbox in force: normal exit, cancel, timeout, spawn failure, Host crash while the leader runs, and Host crash after the leader exits. |
 
 ## Needs a ruling
 

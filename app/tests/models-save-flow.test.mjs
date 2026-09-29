@@ -71,7 +71,9 @@ test("Models: Provider, API key, Model in reading order; the key saves through i
     key.value = SYNTHETIC_KEY;
     calls.length = 0;
     await credential.dispatchEvent({ type: "submit" });
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // dispatchEvent does not await the async handler: wait for its outcome,
+    // not for a fixed time, which a loaded machine outlasts.
+    for (let tries = 0; tries < 100 && notes.at(-1) !== "API key saved."; tries++) await new Promise(resolve => setTimeout(resolve, 20));
     assert.ok(calls.includes("PUT /provider-credential"), JSON.stringify(calls));
     assert.equal(calls.some(call => call.startsWith("PUT /provider-config")), false, "saving the key does not save the model");
     assert.deepEqual(notes.at(-1), "API key saved.");
@@ -194,7 +196,9 @@ test("MS-R2 · a key error belongs to its connection: another target retires it;
     // no model call), then the key saves and no error remains.
     const saveOnly = form.querySelectorAll("button").find(node => node.textContent === "Save only");
     await form.dispatchEvent({ type: "submit", submitter: saveOnly });
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // Saving a connection is five sequential Host requests; wait for the
+    // outcome rather than a fixed 50 ms (MS-R2 failed under load).
+    for (let tries = 0; tries < 100 && page.notes.at(-1) !== "Connection saved."; tries++) await new Promise(resolve => setTimeout(resolve, 20));
     assert.equal(page.notes.at(-1), "Connection saved.");
     assert.equal(keyErrorOf(keyRow).hidden, true, "the saved connection retires the unsaved-change error");
     configure(container, compatibleId);

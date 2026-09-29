@@ -198,7 +198,7 @@ and reports
 `timedOut:true`. A stopped check (timeout or cancel) settles only after the whole
 group is gone: if a descendant that ignores `SIGTERM` outlives the leader, the
 group is sent `SIGKILL` and polled for up to 2 s; if it still cannot be confirmed
-gone, the runner result carries `groupLingered: true` ([review D5](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)). Captured stdout/stderr are each capped at
+gone, the runner result carries `groupLingered: true` ([review D5](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)). The group's leader is a small guard (`runtime/check-guard.mjs`) that runs the recipe command and supervises the group. When the recipe's own process exits, however it ends, the guard reports that exit status to the Host and kills the whole group. A normal exit therefore also ends anything the recipe left running, and the result carries the recipe's own exit code or signal. While the recipe runs, the guard holds a pipe from the Host; if the Host dies without stopping the check, the pipe closes and the guard kills the group. No check outlives the Host that admitted it, and nothing outlives the check ([convergence loop S11](../../engineering/execution/converge-loop-20260929/README.md)). Every exit path then confirms the group is gone. Captured stdout/stderr are each capped at
 `outputLimitBytes`; a stream that hits the cap is marked
 `truncated.stdout`/`truncated.stderr` and the excess is discarded, not
 buffered.
