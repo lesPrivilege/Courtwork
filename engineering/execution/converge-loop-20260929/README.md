@@ -122,6 +122,25 @@ Input: the `service.mjs` survey (candidates 1 and 2) and a follow-up liveness su
   - The same audit repeats a finding that already has an owner: `check_run` children run candidate code as the Host user, so they can read the credential file by path whatever their environment. That is D4 containment under [RD-009](../../research/RD-009-trusted-harness-extensions.md), still open.
   - The directory picker and `repository-git-status` forward the real `HOME`. `repository-git-status` neutralizes global and system Git config and runs only `rev-parse`, so this is recorded here without a change.
 
+### S6 · Architecture states what the code has
+
+- **Doc drift, from the architecture-boundary survey.**
+  - The module map omitted much of the running code: the composition root, provider connections and credentials, the model tool catalog, ArtifactHistory, the extension catalog, the managed Agents-API port, the Hermes adapter and intake.
+  - The Runtime Port section undercounted the remaining Pi coupling.
+  - Data ownership did not say that the Core keeps its own Work Run beside the Host Run, or who reconciles the two.
+- **Change.** In [architecture](../../architecture.md):
+  - Module-map rows for those modules, each naming its contract.
+  - The Pi coupling listed with the files involved: tool schemas built with pi-ai's `Type`, `parseFrontmatter`, `validateToolArguments`, and the Pi version inside the persisted executor id.
+  - A Data ownership paragraph separating the Host Run from the Core Work Run: owners, settlement through the extension adapter, restart and reconcile. It also separates the Session's Matter binding (Host) from Matter project ownership (Core).
+  - [current](../../current.md) gains this loop's lane and open-work rows, and the UX queue row gains the two items returned from S1 and S4.
+- **Checks.** `tools/check-doc-links.mjs` reports no link problems. Anchor mode reports five pre-existing problems in archived design and evidence files, none from this change.
+- **Non-author fact check (Sonnet).** Every added statement was checked against the code. Corrections adopted:
+  - weaker or wrong contract links in five module-map rows;
+  - "every model tool" narrowed, since MCP and Work Extension tools use plain JSON schema;
+  - the Host marks in-flight Runs `unknown` in service initialization, not on store load;
+  - orphan reconciliation happens after a failed settlement;
+  - review coverage in current stated per slice.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
