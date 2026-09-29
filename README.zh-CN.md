@@ -87,7 +87,7 @@ Work Continuity Evals 检验来源变化、请求重试与执行中断后的工�
 
 ## 本地运行
 
-需要 Node.js 22.19+、Python 3 和 Git 2.36+。
+需要 Node.js 22.19+、Python 3 和 Git 2.36+。候选检查在操作系统沙箱中运行：macOS 无需额外依赖；Linux 还需要 `bubblewrap`、`socat`、`ripgrep` 和非特权用户命名空间。缺少这些时检查不会运行，并报告 `sandbox_unavailable`（[详情](app/docs/check-recipes.md#environment-policy)）。
 
 ```sh
 git clone https://github.com/lesPrivilege/Courtwork.git
