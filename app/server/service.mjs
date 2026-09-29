@@ -2506,6 +2506,7 @@ export class RuntimeService {
   deleteSession(sessionId) {
     return this.#withConfiguration(async () => {
       if (this.store.hasActiveRun()) throw new ServiceError(409,'active_run','session deletion is unavailable during a run');
+      if (this.store.hasActiveOperation()) throw new ServiceError(409,'operation_active','session deletion is unavailable during a compaction');
       const session = this.store.getSession(sessionId);
       if (!session) throw new ServiceError(404,'not_found','session not found');
       assertSessionNotReferencedBySubagents(this.store.snapshot(), sessionId);

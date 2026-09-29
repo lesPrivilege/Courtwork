@@ -546,12 +546,12 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
       assert(TERMINAL_STATUSES.has(target.status), "run.supersedes names a Run that has not ended");
     }
   }
-  const eventSeq = new Map();
+  const eventSeq = new Map(), runOfEvent = new Map(parsed.runs.map((run) => [run.id, run]));
   for (const event of parsed.events) {
     exactKeys(event, new Set(["seq", "runId", "sessionId", "type", "data"]), "event");
     assert(Number.isSafeInteger(event.seq) && event.seq > 0, "event.seq is invalid");
     assert(sessionIds.has(event.sessionId) && runIds.has(event.runId), "event references missing record");
-    const run = parsed.runs.find((candidate) => candidate.id === event.runId);
+    const run = runOfEvent.get(event.runId);
     assert(run?.sessionId === event.sessionId, "event run/session mismatch");
     text(event.type, "event.type", 80); assert(isRecord(event.data), "event.data must be an object");
     const previous = eventSeq.get(event.sessionId) ?? 0; assert(event.seq === previous + 1, "event sequence is not contiguous"); eventSeq.set(event.sessionId, event.seq);
@@ -1024,7 +1024,7 @@ export class RuntimeStore {
       assert(scope === 'project' || scope === 'global' || scope === 'unassigned', 'session scope is invalid');
       if (scope === 'project' && !state.projects.some((project) => project.id === projectId)) throw new Error("project not found");
       assert(scope === 'project' || projectId === null, 'unassigned/global session project must be null');
-      assert(scope !== 'unassigned' || (typeof workspaceDir === 'string' && workspaceDir.length > 0), 'session workspace is required');
+      assert(typeof workspaceDir === 'string' && workspaceDir.length > 0 && workspaceDir.length <= 4000, 'session workspace is required');
       const existing = state.sessions.find(session => session.id === sessionId);
       if (existing) {
         // Identity replay never mutates a recovered title, binding or permissions.
@@ -1523,11 +1523,13 @@ export class RuntimeStore {
       assertSessionNotReferencedBySubagents(state, sessionId);
       const runs = state.runs.filter(r => r.sessionId === sessionId);
       if (runs.some(r => ACTIVE_STATUSES.has(r.status))) throw new Error("active run exists");
+      if (state.operations.some(op => op.sessionId === sessionId && OPERATION_ACTIVE.has(op.status))) { const error = new Error("operation in progress"); error.code = "OPERATION_ACTIVE"; throw error; }
       const ids = new Set(runs.map(r => r.id));
       state.sessions = state.sessions.filter(s => s.id !== sessionId);
       state.runs = state.runs.filter(r => !ids.has(r.id));
       state.events = state.events.filter(e => e.sessionId !== sessionId);
       state.questions = state.questions.filter(q => !ids.has(q.runId));
+      state.operations = state.operations.filter(op => op.sessionId !== sessionId);
       return {deleted:true,sessionId,workspaceRetained:true};
     });
   }

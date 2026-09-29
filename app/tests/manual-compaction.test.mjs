@@ -149,6 +149,8 @@ test("CMP-01 · refusals are explicit: active Run (not queued, not aborted), a s
     assert.equal(runDuring.status, 409, JSON.stringify(runDuring.json));
     const secondDuring = await h.api("POST", `/sessions/${h.session.id}/compactions`, { requestId: "second" });
     assert.equal(secondDuring.status, 409); assert.equal(secondDuring.json.error.code, "operation_active");
+    const deleteDuring = await h.api("DELETE", `/sessions/${h.session.id}`);
+    assert.equal(deleteDuring.status, 409); assert.equal(deleteDuring.json.error.code, "operation_active");
     const cfg = (await h.api("GET", "/provider-config")).json;
     const frozen = await h.api("PUT", "/provider-config", { ...cfg.config, expectedVersion: cfg.version });
     assert.equal(frozen.status, 409); assert.equal(frozen.json.error.code, "active_run");
@@ -227,5 +229,26 @@ test("CMP-01 · cancel and deadline settle without a partial summary; a restart 
     release?.();
     await h.runtime.close().catch(() => {});
     await rm(h.dataDir, { recursive: true, force: true });
+  }
+});
+
+// A deleted chat takes its compaction records with it. They used to stay behind
+// naming the missing chat, and the next Host start refused the whole state file.
+test("CMP-01 · deleting a compacted chat removes its compaction records and the Host starts again", async () => {
+  const h = await setup();
+  let closed = false;
+  try {
+    const started = await h.api("POST", `/sessions/${h.session.id}/compactions`, { requestId: "before-delete" });
+    assert.equal(started.status, 200, JSON.stringify(started.json));
+    assert.equal((await pollOperation(h, h.session.id, started.json.operation.id)).status, "completed");
+    const removed = await h.api("DELETE", `/sessions/${h.session.id}`);
+    assert.equal(removed.status, 200, JSON.stringify(removed.json));
+    assert.deepEqual(h.runtime.store.listOperations(h.session.id), []);
+    await h.runtime.close(); closed = true;
+    const again = await reopen(h.dataDir);
+    try { assert.equal((await again.api("GET", `/sessions/${h.session.id}/compactions`)).status, 404); }
+    finally { await again.runtime.close(); }
+  } finally {
+    if (!closed) await h.runtime.close();
   }
 });
