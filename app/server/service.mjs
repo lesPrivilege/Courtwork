@@ -1352,8 +1352,20 @@ export class RuntimeService {
     return { schemaVersion: 1, candidateId: session.repositoryCandidate?.id ?? null, effects };
   }
 
-  changeRepositoryCandidate(sessionId, input) {
-    return this.#withConfiguration(() => this.#changeRepositoryCandidate(sessionId, input));
+  async changeRepositoryCandidate(sessionId, input) {
+    const { result, runsToCancel } = await this.#withConfiguration(() => this.#changeRepositoryCandidate(sessionId, input));
+    await this.#cancelRevokedRuns(runsToCancel, "candidate_revoked_cancellation_pending", "candidate access is revoked; Run cancellation is still resolving");
+    return result;
+  }
+
+  /** Revocation is durable before this runs, so the revoked scope already
+   * refuses reads and writes. Cancelling waits for each Run to settle, and a
+   * Run can be waiting on the configuration gate itself (an approved write
+   * queues there), so this runs after the gate is released, never inside it. */
+  async #cancelRevokedRuns(runIds, code, message) {
+    if (!runIds.length) return;
+    const settled = await Promise.allSettled(runIds.map(runId => this.cancelRun(runId, {})));
+    if (settled.some(item => item.status === "rejected")) throw new ServiceError(503, code, message);
   }
 
   async #changeRepositoryCandidate(sessionId, input) {
@@ -1388,12 +1400,9 @@ export class RuntimeService {
     try {
       const prior = this.store.getRepositoryCandidateReceipt(sessionId, request);
       if (prior && prior.status !== "preparing") {
-        if (operation === "revoke") {
-          const pending = this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id);
-          const canceled = await Promise.allSettled(pending.map(runId => this.cancelRun(runId, {})));
-          if (canceled.some(item => item.status === "rejected")) throw new ServiceError(503, "candidate_revoked_cancellation_pending", "candidate access is revoked; Run cancellation is still resolving");
-        }
-        return { receipt: prior, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true };
+        const runsToCancel = operation === "revoke"
+          ? this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id) : [];
+        return { result: { receipt: prior, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true }, runsToCancel };
       }
     } catch (error) {
       if (error?.code === "IDEMPOTENCY_CONFLICT") throw new ServiceError(409, "idempotency_conflict", "requestId was already used with different repository candidate input");
@@ -1415,14 +1424,10 @@ export class RuntimeService {
       throw error;
     }
     if (operation === "revoke") {
-      const pending = started.runsToCancel ?? this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id);
-      if (pending.length) {
-        const canceled = await Promise.allSettled(pending.map(runId => this.cancelRun(runId, {})));
-        if (canceled.some(item => item.status === "rejected")) throw new ServiceError(503, "candidate_revoked_cancellation_pending", "candidate access is revoked; Run cancellation is still resolving");
-      }
-      return { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: started.idempotent };
+      const runsToCancel = started.runsToCancel ?? this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id);
+      return { result: { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: started.idempotent }, runsToCancel };
     }
-    if (started.idempotent && started.receipt.status !== "preparing") return { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true };
+    if (started.idempotent && started.receipt.status !== "preparing") return { result: { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true }, runsToCancel: [] };
 
     let sourceRoot;
     try {
@@ -1436,7 +1441,7 @@ export class RuntimeService {
         candidateId, baseCommit,
       });
       const activated = await this.store.activateRepositoryCandidate(sessionId, { requestId, candidate });
-      return { receipt: activated.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: activated.idempotent };
+      return { result: { receipt: activated.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: activated.idempotent }, runsToCancel: [] };
     } catch (error) {
       const code = typeof error?.code === "string" && /^[a-z0-9_]{1,80}$/.test(error.code) ? error.code : "candidate_creation_failed";
       await this.store.failRepositoryCandidate(sessionId, { requestId, code }).catch(() => {});
@@ -1602,8 +1607,10 @@ export class RuntimeService {
     }
   }
 
-  changeRepositoryBinding(sessionId, input) {
-    return this.#withConfiguration(() => this.#changeRepositoryBinding(sessionId, input));
+  async changeRepositoryBinding(sessionId, input) {
+    const { result, runsToCancel } = await this.#withConfiguration(() => this.#changeRepositoryBinding(sessionId, input));
+    await this.#cancelRevokedRuns(runsToCancel, "repository_revoked_cancellation_pending", "repository access is revoked; Run cancellation is still resolving");
+    return result;
   }
 
   async #changeRepositoryBinding(sessionId, input) {
@@ -1633,7 +1640,7 @@ export class RuntimeService {
       throw error;
     }
     if (operation === "bind" && priorReceipt) {
-      return { receipt: priorReceipt, binding: this.store.getSession(sessionId).repositoryBinding, idempotent: true };
+      return { result: { receipt: priorReceipt, binding: this.store.getSession(sessionId).repositoryBinding, idempotent: true }, runsToCancel: [] };
     }
     if (!priorReceipt && expectedRevision !== session.repositoryBindingRevision) throw new ServiceError(409, "stale_revision", "repository binding changed; refresh before retrying");
 
@@ -1662,13 +1669,8 @@ export class RuntimeService {
       if (error?.code === "NO_ACTIVE_BINDING") throw new ServiceError(409, "no_repository_binding", "no active repository binding exists");
       throw error;
     }
-    if (operation === "revoke" && result.runsToCancel.length) {
-      const canceled = await Promise.allSettled(result.runsToCancel.map(runId => this.cancelRun(runId, {})));
-      if (canceled.some(item => item.status === "rejected")) {
-        throw new ServiceError(503, "repository_revoked_cancellation_pending", "repository access is revoked; Run cancellation is still resolving");
-      }
-    }
-    return { receipt: result.receipt, binding: result.binding, idempotent: result.idempotent };
+    return { result: { receipt: result.receipt, binding: result.binding, idempotent: result.idempotent },
+      runsToCancel: operation === "revoke" ? result.runsToCancel : [] };
   }
 
   // Deliberately NOT routed through #withConfiguration: that queue serializes

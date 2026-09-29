@@ -141,6 +141,23 @@ Input: the `service.mjs` survey (candidates 1 and 2) and a follow-up liveness su
   - orphan reconciliation happens after a failed settlement;
   - review coverage in current stated per slice.
 
+### S7 · A revoke no longer deadlocks the configuration gate
+
+- **Defect, reproduced (Sonnet probe, then the parent).** Revoking a repository candidate or binding cancelled the dependent Runs inside `#withConfiguration`, the Host's serial configuration queue. `cancelRun` waits for the Run to settle, and a `repo_write` the person has just approved queues on the same gate. With the approval landing while the revoke held the gate, neither finished:
+  - the revoke never returned;
+  - the Run stayed `stopping`;
+  - every later configuration call hung, including in other Sessions;
+  - the Host could not close.
+
+  Found while checking the three copies of "revoke, then cancel dependent Runs" for divergence; the copies themselves were equivalent.
+- **Fact owner.** Host service (`app/server/service.mjs`), the gate's scope; the Store already owns `runsToCancel`. Contract: [repository binding](../../../app/docs/repository-binding.md).
+- **Change.** The revoke is still committed inside the gate. The dependent Runs are cancelled after the gate is released, by one helper that replaces the three copies; the `503 *_cancellation_pending` responses are unchanged. Nothing can use the revoked scope in between: every write, read and check rechecks the durable revocation, and a Run admitted afterwards carries no snapshot of it.
+- **Checks.** New `repository-revoke-gate.test.mjs` races each kind of revoke against an approved write. It checks that both settle, the Run ends `cancelled`, no write is confirmed, the source is untouched and a later configuration change goes through. Both cases fail against the previous code (the Host cannot even close) and pass after. `npm --prefix app test` 1854/1854.
+- **Non-author review (Sonnet).** Confirmed: the revocation is durable before release on all four paths (fresh, replayed, binding, binding replay); every return path has the new shape; errors and HTTP are unchanged. No other `cancelRun` runs inside the gate, and the only path from a Run into the gate is the repository write. Adopted: the test also asserts that no write was confirmed. The `503` pending path stays untested and is reachable only through a store failure.
+- **Also cleared by the same probe.** The permission-mode lead is intentional:
+  - `governTools` is the single enforcer for every tool, and the hard-coded `draft` only stops `ws_write` from asking twice;
+  - the live permission-mode read equals the Run's frozen mode, because mode changes are refused while any Run is active.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
