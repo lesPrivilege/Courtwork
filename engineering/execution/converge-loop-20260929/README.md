@@ -246,6 +246,16 @@ Input: a Sonnet restart audit. For each in-flight state kind it checked what a r
 
   The existing check test files pass: `check-recipes`, `check-runner-group-kill`, `check-approval-revision`, `check-approval-authored-files`, `p03e-write-check-parity`, `check-ui`, `prepare-and-approval`. Astra's [CR1 probe](evidence/astra-s10-s11/guard-exit-probe.mjs) now stops at its first measurement, because the descendant it expects to find alive has already been killed. The probe pins the defect, so this is the expected change.
 - **Suite.** `npm --prefix app test` 1863/1863 on a clean run, with the MS-R2 test fix below.
+- **Non-author check of the correction (Sonnet).** It compared the pre-guard runner (`a3321d1`) with the corrected one, side by side:
+  - results identical for exit codes, self-signals, timeouts (TERM honoured, trapped or ignored), cancel, truncation and every `spawn_failed` case;
+  - no lost exit report in 300 concurrent checks;
+  - no survivors in 16 Host SIGKILLs at different moments, for both running and already-exited leaders;
+  - fd 3 unreachable from the recipe, and a forged report line has no effect.
+
+  Findings and dispositions:
+  - Adopt: a recipe that sent HUP, INT or QUIT to its own group killed the guard and was reported by that signal. The guard now ignores those as well as TERM, with a test that fails before.
+  - Accept as a stated limit: a recipe that kills the guard itself (`kill -KILL $PPID`) is reported as SIGKILL and loses Host-death supervision; the Host's timeout and reap still apply. The runner is not a sandbox.
+  - Note: Astra's probe pins the old defect and now stops at its first measurement. It is Astra's evidence and stays unchanged; retiring or inverting it is for Astra's re-review.
 - **Cost.** The guard is a second Node process per check: first output arrives about 65–120 ms later. Recipe timeouts are 120 s. Two `check-recipes` tests with 200–300 ms fixed windows became timing-sensitive; they now wait on the check's own output or allow 1.5 s.
 - **Cleanup error during verification.** After running the new tests against the reviewed guard, the parent removed leftover test processes with `pkill -f 'sleep 30'`. That matches by command line rather than by the recorded pids, and could also have matched an unrelated process of the same name. Later cleanups use recorded pids only.
 

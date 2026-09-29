@@ -147,3 +147,10 @@ test("the recipe's own exit signal is reported, including signals the guard's No
     assert.equal(result.signal, "SIG" + sig, sig); assert.equal(result.exitCode, null, sig);
   }
 });
+
+test("a recipe that signals its own group and handles it reports its own exit", async () => {
+  for (const sig of ["HUP", "INT", "QUIT"]) {
+    const result = await runCheckRecipe({ recipe: { command: "/bin/sh", argv: ["-c", `trap 'exit 0' ${sig}; kill -${sig} 0; sleep 5`], timeoutMs: 10000, outputLimitBytes: 100 }, cwd: process.cwd() });
+    assert.equal(result.exitCode, 0, sig); assert.equal(result.signal, null, sig);
+  }
+});

@@ -19,8 +19,9 @@ const [command, ...args] = process.argv.slice(2);
 const report = (line) => { try { writeSync(3, line + "\n"); } catch { /* Host gone */ } };
 const killGroup = () => { try { process.kill(-process.pid, "SIGKILL"); } catch { /* already gone */ } };
 
-// The Host's SIGTERM is for the recipe; the guard stays to report its exit.
-process.on("SIGTERM", () => {});
+// Group-wide TERM (the Host's stop) and HUP/INT/QUIT (a recipe signalling its
+// own group) are for the recipe; the guard stays to report its exit.
+for (const name of ["SIGTERM", "SIGHUP", "SIGINT", "SIGQUIT"]) process.on(name, () => {});
 
 const child = spawn(command, args, { stdio: ["ignore", "inherit", "inherit"] });
 child.once("spawn", () => report("started"));
