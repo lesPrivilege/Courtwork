@@ -133,6 +133,15 @@ for (const point of ['async_intent', 'async_dispatch', 'async_result', 'async_de
           assert.equal(reconciled.status, 200); assert.equal(reconciled.json.execution.status, 'unknown');
           assert.equal(reconciled.json.execution.reason, 'remote_record_missing');
           assert.deepEqual(await fixture.launchCounts(), countBefore, 'a missing remote record never triggers launch');
+          // A later restart leaves an already-unknown task alone: its reason and
+          // revision are evidence, not in-flight state to fence again.
+          await reopened.host.close();
+          const again = await reopenHost(dataDir, fixture.origin);
+          try {
+            const kept = await again.api('GET', `/async-tasks/${taskId}?projectId=${ready.projectId}`);
+            assert.equal(kept.json.execution.reason, 'remote_record_missing');
+            assert.equal(kept.json.revision, reconciled.json.revision);
+          } finally { await again.host.close(); }
         } else {
           await fixture.release(taskId, 'startExecution'); await fixture.barrier(taskId, 'startExecution');
           await fixture.release(taskId, 'resultGenerated'); await fixture.barrier(taskId, 'resultGenerated');

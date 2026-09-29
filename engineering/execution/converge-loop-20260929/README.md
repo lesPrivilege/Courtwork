@@ -192,6 +192,37 @@ Input: the `service.mjs` survey (candidates 1 and 2) and a follow-up liveness su
 - **Returned to the public README owner.** The root `README.md` and `README.zh-CN.md` say only "Git 2.36+". Since S5 the Host needs Git at `/usr/bin/git`. The root README is generated from `site/src/readme.mjs`, and public README and Pages belong to the original Claude lane, so this loop does not edit them.
 - **Checks.** `tools/check-doc-links.mjs`, `check-product-copy`, `check-pages-semantics` and `check-semantic-consumers` pass, and `node site/build.mjs` succeeds.
 
+### S10 · Restart recovery: close, write fences, async evidence
+
+Input: a Sonnet restart audit. For each in-flight state kind it checked what a restart leaves, and built reproductions for the gaps. Everything else holds:
+- Host Runs, questions, Core Work Runs and their agreement (probed by SIGKILL and reopen);
+- a crashed compaction, Spark assignments, coordination, remote actions and MCP dispatches;
+- the Host's in-memory gates.
+
+- **Defect B, reproduced: a graceful close left a compaction writing.** `RuntimeService.close()` cancelled Runs but never aborted or awaited running manual compactions. The Store lock was released while the summary request was still in flight. Its late result then wrote a compaction entry into the Pi journal after another Host could have reopened the data. Fix: close aborts each running compaction (reason `shutdown`, settled `cancelled`) and awaits it before cancelling Runs and before the Store closes.
+- **Defect A, reproduced: a write fence skipped the restart settlement.** When `RuntimeStore.open` found a prepared repository write, it made the Run terminal itself, so `service.initialize` skipped it. The Run lost its partial answer and its `run.status` event. An unsettled MCP dispatch was then reported as `repository_write_unknown`, which lets the Run be continued despite the unreconciled remote effect. Fix: the Store fences the write and closes the Run's admission; the Host settles every still-active Run, choosing `mcp_effect_unknown`, then `repository_write_unknown`, then `restart_unknown`.
+- **Minor, reproduced: async evidence overwritten.** `AsyncTasks.recover` rewrote tasks that were already `unknown` on every restart, overwriting their reason and revision. It now fences only `queued`, `dispatching` and `running` tasks.
+- **Fact owners.** RuntimeService (close, restart settlement); RuntimeStore (effect fence, admission); AsyncTasks (task recovery).
+- **Checks.** Each new or extended test fails against the previous code:
+  - a close during a running compaction, with no journal write after close;
+  - an interrupted write with and without an MCP dispatch;
+  - a second restart keeps an async task's reason and revision.
+
+  The existing compaction restart test now covers both paths. A graceful close settles `cancelled`; a crash-time state file restored before reopening settles `unknown` with `restart_unknown`.
+- **Non-author review (Sonnet).** It found that the existing restart test had silently switched from the crash path to the graceful path; fixed as above. It confirmed:
+  - no operation can be added after close snapshots them;
+  - `runtime.mjs` is the only production Store open;
+  - nothing between Store open and the restart loop acts on Runs;
+  - `validateState` accepts the intermediate state;
+  - only `unknown` stopped being touched by async recovery.
+
+  Adopted: the Store test asserts the new contract (`running`, admission closed); the constant was moved below the imports. Noted: if the SDK ignores the abort, close waits for the compaction to finish, still before the Store closes.
+- **Suite under load.** The machine ran at load average 12–29 during these runs, so full concurrent suites failed a varying one to three timing-sensitive tests. The runs where every file ran alone, three at a time, passed all but three files; each of those passes 3/3 when rerun alone.
+  - `profile-editor` K5-R2 is on the known-flake list.
+  - `local-pi-transport` and `models-save-flow` MS-R2 are recurring load flakes. MS-R2 has failed three times in this loop; it is a candidate for the known-flake list.
+  - `work-summary`'s read-only test raced the Host's own post-Run writes: it lists the data directory right after the Run reports terminal, while `#executeRun`'s `finally` is still persisting, and a temporary file vanished between listing and reading. That race is in the test and predates this loop.
+- **Defect C, next slice.** A check's detached process group outlives a Host crash and can keep writing to the candidate.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.

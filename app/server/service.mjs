@@ -365,8 +365,10 @@ export class RuntimeService {
         // Only persisted text can settle open segments after a crash, one
         // partial each; the Run stays `unknown`, and nothing is written for a
         // segment without such text.
+        const writeUnknown = this.store.getSession(run.sessionId)?.repositoryWriteEffects?.some((effect) => effect.runId === run.id && effect.status === "unknown");
         await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || unsettled.length
           ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" }
+          : writeUnknown ? { code: "repository_write_unknown", message: "A repository write needs reconciliation before more writes" }
           : { code: "restart_unknown", message: "run was in flight during restart" } }, [
           ...persistedPartials(this.store.listEvents({ sessionId: run.sessionId, runId: run.id }), PARTIAL_STOP_REASON.unknown),
           { type: "run.status", data: { status: "unknown", ...(unsettled.length ? { unsettledMcp: unsettled } : {}) } },
@@ -2757,6 +2759,10 @@ export class RuntimeService {
     this.closing = true;
     await this.subagents.pumping?.catch(() => {});
     await Promise.allSettled([...this.admissions, this.configurationQueue, ...this.materialQueues.values()]);
+    // A manual compaction writes the native journal. It settles before the
+    // Store lock is released, or a lingering summary request could write the
+    // journal after another Host has reopened this data.
+    await Promise.allSettled([...this.operations.values()].map((entry) => { entry.reason ??= "shutdown"; entry.controller.abort(); return entry.task; }));
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");

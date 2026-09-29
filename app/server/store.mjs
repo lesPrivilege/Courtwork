@@ -912,10 +912,10 @@ export class RuntimeStore {
               effect.settledAt = now();
               effect.failure = { code: "effect_unknown_after_restart", message: "The prepared repository write may have completed before the Host stopped" };
               const run = this.state.runs.find(item => item.id === effect.runId);
-              if (run && !TERMINAL_STATUSES.has(run.status)) {
-                run.status = "unknown"; run.admissionOpen = false; run.endedAt = effect.settledAt;
-                run.error = { code: "repository_write_unknown", message: "A repository write needs reconciliation before more writes" };
-              }
+              // The Store fences the effect and closes the Run to more work;
+              // the Host's restart settlement ends the Run with its partial
+              // text, status event and the most specific unknown reason.
+              if (run && !TERMINAL_STATUSES.has(run.status)) run.admissionOpen = false;
               if (run) appendEventToState(this.state, { runId: run.id, sessionId: session.id, type: "repository.write.unknown", data: { effectId: effect.effectId, requestId: effect.requestId, candidateId: effect.candidateId, path: effect.path, code: effect.failure.code } });
               recovered = true;
             }
