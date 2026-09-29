@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""Fixed, read-only dirfd adapter for the connected repository tools and the
-session workspace search and listing tools.
+"""Fixed dirfd adapter for the connected repository tools and the session
+workspace tools.
+
+Repository operations are read-only. Workspace operations read, list and
+search, and write one file: a new file staged in the target's parent directory
+and renamed over the target only on the Host's separate commit request.
 
 The model never supplies a root, command, or environment. Node calls this
 module with one bounded JSON request; every descendant is opened relative to
@@ -24,7 +28,7 @@ MAX_GREP_FILES = 500
 MAX_GREP_BYTES = 5 * 1024 * 1024
 MAX_GREP_DEPTH = 24
 MAX_GREP_ENTRIES = 10_000
-MAX_REQUEST_BYTES = 2 * 1024 * 1024
+MAX_REQUEST_BYTES = 8 * 1024 * 1024
 DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0)
 FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_CLOEXEC", 0)
 
@@ -399,13 +403,16 @@ def on_disk_name(parent_fd, requested, opened):
     fail("path_changed", "workspace path changed while it was being opened")
 
 
-def open_workspace_scope(root_fd, parts):
+def open_workspace_scope(root_fd, parts, *, parents_only=False):
+    """Opens each component relative to its parent's descriptor. With
+    parents_only every component must be a directory and a missing one is a
+    missing parent; otherwise the last component may be any entry."""
     current = os.dup(root_fd)
     try:
         info = os.fstat(current)
         spelled = []
         for index, part in enumerate(parts):
-            last = index == len(parts) - 1
+            last = index == len(parts) - 1 and not parents_only
             try:
                 child = os.open(part, FILE_FLAGS if last else DIRECTORY_FLAGS, dir_fd=current)
             except OSError as error:
@@ -553,6 +560,204 @@ def read_workspace_files(root_fd, files, mode, max_file_bytes, max_batch_bytes):
     return {"files": results, "consumed": len(results)}
 
 
+# Single-file workspace access: path admission, ws_read and ws_write. The
+# parent directories are opened descriptor-relative from the root and the last
+# component is never followed. A write is staged as a new file in the parent
+# directory and published by renameat within that same directory descriptor
+# after the Host has saved history; a symlink, directory or other non-regular
+# target is never replaced.
+
+def workspace_target(root_fd, parts):
+    """Returns (parent_fd, on-disk parent parts, target name, lstat or None).
+    The name is the directory entry's own spelling when the target exists and
+    the requested spelling when it does not."""
+    parent_fd, spelled, _ = open_workspace_scope(root_fd, parts[:-1], parents_only=True)
+    try:
+        name = parts[-1]
+        try:
+            info = os.stat(name, dir_fd=parent_fd, follow_symlinks=False)
+        except FileNotFoundError:
+            return parent_fd, spelled, name, None
+        except OSError as error:
+            raise classify_os_error(error) from None
+        if stat.S_ISLNK(info.st_mode):
+            fail("symlink", "symbolic links are not followed in workspace paths")
+        return parent_fd, spelled, on_disk_name(parent_fd, name, info), info
+    except BaseException:
+        os.close(parent_fd)
+        raise
+
+
+def resolve_workspace_path(root_fd, parts):
+    if not parts:
+        return {"path": "."}
+    parent_fd, spelled, name, _ = workspace_target(root_fd, parts)
+    os.close(parent_fd)
+    return {"path": "/".join(spelled + [name])}
+
+
+def read_workspace_file(root_fd, parts, max_bytes):
+    fd, spelled, info = open_workspace_scope(root_fd, parts)
+    try:
+        if not stat.S_ISREG(info.st_mode):
+            fail("not_file", "workspace path is not a regular file")
+        if info.st_size > max_bytes:
+            fail("file_too_large", "workspace file exceeds the read limit")
+        chunks = []
+        size = 0
+        while size <= max_bytes:
+            chunk = os.read(fd, min(1024 * 1024, max_bytes + 1 - size))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            size += len(chunk)
+        if size > max_bytes:
+            fail("file_too_large", "workspace file exceeds the read limit")
+        data = b"".join(chunks)
+        return {"path": "/".join(spelled) or ".", "bytes": info.st_size, "dataBase64": base64.b64encode(data).decode("ascii")}
+    finally:
+        os.close(fd)
+
+
+def write_content(request):
+    data64, digest, maximum = request.get("dataBase64"), request.get("contentSha256"), request.get("maxFileBytes")
+    if not isinstance(maximum, int) or isinstance(maximum, bool) or maximum < 1 or not isinstance(data64, str) or len(data64) > ((maximum + 2) // 3) * 4:
+        fail("write_too_large", "workspace write exceeds the size limit")
+    try:
+        content = base64.b64decode(data64, validate=True)
+    except ValueError:
+        fail("invalid_content", "workspace write content is invalid")
+    if len(content) > maximum or not isinstance(digest, str) or hashlib.sha256(content).hexdigest() != digest:
+        fail("invalid_content", "workspace write content does not match its hash")
+    return content
+
+
+def stage_workspace_write(root_fd, parts, temp_name, content):
+    workspace_parts([temp_name])
+    parent_fd, spelled, name, info = workspace_target(root_fd, parts)
+    try:
+        if info is not None and not stat.S_ISREG(info.st_mode):
+            fail("not_file", "workspace target is not a regular file")
+        try:
+            fd = os.open(temp_name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | getattr(os, "O_CLOEXEC", 0), 0o666, dir_fd=parent_fd)
+        except OSError as error:
+            raise classify_os_error(error) from None
+        try:
+            view = memoryview(content)
+            written = 0
+            while written < len(view):
+                written += os.write(fd, view[written:])
+            staged = os.fstat(fd)
+        except BaseException:
+            os.close(fd)
+            try:
+                os.unlink(temp_name, dir_fd=parent_fd)
+            except OSError:
+                pass
+            raise
+        os.close(fd)
+        parent = os.fstat(parent_fd)
+        return {"parts": spelled + [name], "path": "/".join(spelled + [name]),
+                "tempDevice": str(staged.st_dev), "tempInode": str(staged.st_ino),
+                "parentDevice": str(parent.st_dev), "parentInode": str(parent.st_ino)}
+    finally:
+        os.close(parent_fd)
+
+
+def commit_workspace_write(root_fd, request):
+    parts = workspace_parts(request.get("parts"))
+    temp_name = request.get("tempName")
+    workspace_parts([temp_name])
+    if not parts:
+        fail("invalid_path", "workspace path is invalid")
+    parent_fd, _, name, info = workspace_target(root_fd, parts)
+    try:
+        if identity(os.fstat(parent_fd)) != (request.get("parentDevice"), request.get("parentInode")):
+            fail("workspace_changed", "workspace directory changed during the write")
+        try:
+            staged = os.stat(temp_name, dir_fd=parent_fd, follow_symlinks=False)
+        except OSError:
+            fail("workspace_changed", "staged workspace write is missing")
+        if not stat.S_ISREG(staged.st_mode) or identity(staged) != (request.get("tempDevice"), request.get("tempInode")):
+            fail("workspace_changed", "staged workspace write was replaced")
+        if info is not None and not stat.S_ISREG(info.st_mode):
+            fail("not_file", "workspace target is not a regular file")
+        try:
+            os.rename(temp_name, name, src_dir_fd=parent_fd, dst_dir_fd=parent_fd)
+        except OSError as error:
+            if error.errno in (errno.EISDIR, errno.ENOTEMPTY, errno.EEXIST):
+                fail("not_file", "workspace target is not a regular file")
+            raise classify_os_error(error) from None
+        return {"committed": True}
+    finally:
+        os.close(parent_fd)
+
+
+def discard_workspace_write(root_fd, parts, temp_name):
+    workspace_parts([temp_name])
+    try:
+        parent_fd, _, _ = open_workspace_scope(root_fd, parts[:-1], parents_only=True)
+    except RepoFsError:
+        return {"discarded": False}
+    try:
+        if stat.S_ISREG(os.stat(temp_name, dir_fd=parent_fd, follow_symlinks=False).st_mode):
+            os.unlink(temp_name, dir_fd=parent_fd)
+            return {"discarded": True}
+    except OSError:
+        pass
+    finally:
+        os.close(parent_fd)
+    return {"discarded": False}
+
+
+WORKSPACE_FILE_OPERATIONS = {
+    "ws_resolve": {"operation", "rootPath", "parts"},
+    "ws_read_file": {"operation", "rootPath", "parts", "maxFileBytes"},
+    "ws_write_stage": {"operation", "rootPath", "parts", "tempName", "dataBase64", "contentSha256", "maxFileBytes"},
+    "ws_write_commit": {"operation", "rootPath", "device", "inode", "parts", "tempName", "tempDevice", "tempInode", "parentDevice", "parentInode"},
+    "ws_write_discard": {"operation", "rootPath", "parts", "tempName"},
+}
+
+
+def run_workspace_file_operation(request):
+    operation = request["operation"]
+    if set(request) != WORKSPACE_FILE_OPERATIONS[operation]:
+        fail("invalid_request", "workspace request fields are invalid")
+    if operation == "ws_write_commit":
+        device, inode = request.get("device"), request.get("inode")
+        if not isinstance(device, str) or not device.isdecimal() or not isinstance(inode, str) or not inode.isdecimal():
+            fail("invalid_root", "bound workspace identity is invalid")
+        root_path = request.get("rootPath")
+        root_fd = open_bound_root(root_path, device, inode)
+        try:
+            return commit_workspace_write(root_fd, request)
+        finally:
+            os.close(root_fd)
+    parts = workspace_parts(request.get("parts"))
+    if operation == "ws_read_file":
+        maximum = request.get("maxFileBytes")
+        if not isinstance(maximum, int) or isinstance(maximum, bool) or maximum < 1:
+            fail("invalid_request", "workspace read limit is invalid")
+    content = write_content(request) if operation == "ws_write_stage" else None
+    if operation in ("ws_write_stage", "ws_write_discard") and not parts:
+        fail("not_file", "workspace path is not a regular file")
+    root_fd, root_path, device, inode = open_root(request.get("rootPath"))
+    try:
+        if operation == "ws_resolve":
+            result = resolve_workspace_path(root_fd, parts)
+        elif operation == "ws_read_file":
+            result = read_workspace_file(root_fd, parts, request["maxFileBytes"])
+        elif operation == "ws_write_stage":
+            result = {"rootPath": root_path, "device": device, "inode": inode,
+                      **stage_workspace_write(root_fd, parts, request.get("tempName"), content)}
+        else:
+            result = discard_workspace_write(root_fd, parts, request.get("tempName"))
+        verify_bound_root(root_path, root_fd, device, inode)
+        return result
+    finally:
+        os.close(root_fd)
+
+
 def run_request(request):
     if not isinstance(request, dict):
         fail("invalid_request", "repository request is invalid")
@@ -563,6 +768,8 @@ def run_request(request):
         root_fd, root_path, device, inode = open_root(request.get("rootPath"))
         os.close(root_fd)
         return {"path": root_path, "device": device, "inode": inode}
+    if operation in WORKSPACE_FILE_OPERATIONS:
+        return run_workspace_file_operation(request)
     if operation == "ws_scan":
         if set(request) != {"operation", "rootPath", "parts"}:
             fail("invalid_request", "workspace scan request fields are invalid")
