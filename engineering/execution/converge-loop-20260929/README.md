@@ -305,7 +305,15 @@ Astra's review asked that repeated failures be explained, not labelled load flak
   - Fix: the test waits until the save is actually held in the adapter; the fixed test passes under the same load.
   - [Verification](../../verification.md) no longer lists K5-R2 as a known flake. It now states that an intermittent failure is closed by a demonstrated mechanism, not by a passing rerun.
 
-Still unexplained: `review-core-client-lifecycle` (Core bridge ready timeout), the remaining known flake; not seen in this loop.
+- **`review-core-client-lifecycle`**, the last listed known flake, which also failed in this loop's baseline.
+  - Every archived failure is the second test ("a request with no response…") at about 2003 ms with `bridge ready timeout`.
+  - The fixture execs `worker.py` directly. On macOS the first exec of a freshly created executable is checked by the system: 0.25–0.6 s idle, rising to seconds when many fresh executables start at once (probe first-exec 0.56 s alone, 3.0 s beside 32, 9.2 s beside 96). A warm exec takes about 30 ms.
+  - The first test kills the worker at its deliberate 80 ms deadline, before that first check finishes. The second test then waits out the check against the fixture's 2 s ready deadline. This is why failures appeared in fresh trees and full runs and never on a rerun.
+  - Reproduced on a freshly extracted tree under fresh-exec load: 5 of 12 runs failed with the exact signature. CPU load, thread-pool starvation, event-loop stall and a cold interpreter were ruled out.
+  - Fix: the fixture's ordinary ready deadline is 30 s; the no-ready test keeps its explicit 80 ms. With a 2.2 s start delay, the previous file fails 11 of 13 tests and the fixed file 1. That one is the no-ready test, which fails under this synthetic shell wrapper for the old and new file alike (3/3 each) and passes normally.
+  - Product exposure: the shipped client runs `python3 bridge.py`, an already-checked interpreter with a script argument, so its 5 s ready deadline does not meet this mechanism. A cold first launch of a newly installed Python was not tested.
+
+[Verification](../../verification.md) now lists no known flakes.
 
 ## Needs a ruling
 
