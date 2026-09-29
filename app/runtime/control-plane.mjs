@@ -23,9 +23,15 @@ function scope(value) {
   check(value.type === 'user' ? value.id === 'local' : string(value.id), 'Invalid scope identity');
 }
 function sameScope(a, b) { return a.type === b.type && a.id === b.id; }
-function matches(pattern, value, { caseInsensitive = false } = {}) {
+// A filesystem path is matched on its canonical form, never its spelling: a
+// Host volume can open one file through other case or Unicode-normalization
+// spellings (APFS folds both), so a rule and a requested path are each
+// NFC-normalized and lower-cased before they are compared.
+const PATH_ACTION = /^(ws|repo|candidate)_/;
+const canonicalPath = text => text.normalize('NFC').toLowerCase();
+function matches(pattern, value, { path = false } = {}) {
   // Deliberately small, documented glob: * matches any sequence, including /.
-  if (caseInsensitive) { pattern = pattern.toLowerCase(); value = value.toLowerCase(); }
+  if (path) { pattern = canonicalPath(pattern); value = canonicalPath(value); }
   return new RegExp('^' + pattern.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$').test(value);
 }
 export function hostToolCeiling(name, permissionMode) {
@@ -41,11 +47,8 @@ export function hostToolCeiling(name, permissionMode) {
 export function evaluatePolicy(layers, action, resource, ceiling = 'allow', fallback = 'allow') {
   let effect = ceiling;
   const trace = [{ source: 'host-ceiling', effect: ceiling }];
-  // Repository paths may be addressed through case aliases on a Host volume
-  // whose lookup is case-insensitive. Match those path policies without case
-  // so a deny/ask cannot be bypassed by changing only the path's spelling.
-  const caseInsensitiveResource = action.startsWith('repo_') || action.startsWith('candidate_');
-  const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource, { caseInsensitive: caseInsensitiveResource })).at(-1) })).filter(item => item.rule);
+  const pathResource = PATH_ACTION.test(action);
+  const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource, { path: pathResource })).at(-1) })).filter(item => item.rule);
   const host = selections.filter(item => item.layer.scope?.type !== 'agent');
   if (!host.length) {
     if (weights[fallback] > weights[effect]) effect = fallback;

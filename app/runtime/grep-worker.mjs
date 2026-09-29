@@ -1,4 +1,5 @@
 import { parentPort, workerData } from "node:worker_threads";
+import { constants } from "node:fs";
 import { open, opendir, lstat } from "node:fs/promises";
 import path from "node:path";
 
@@ -32,7 +33,9 @@ for (const [index, entry] of found.entries()) {
   if (matches.length >= maxResults) break;
   if (!admitted[index]) continue;
   // Read at most the host ceiling plus one byte even if a file grows after stat.
-  const handle = await open(entry.full, "r").catch(() => null);
+  // The file was a regular file when it was named; a symlink put in its place
+  // since then is not followed.
+  const handle = await open(entry.full, constants.O_RDONLY | constants.O_NOFOLLOW).catch(() => null);
   if (!handle) continue;
   let bytes;
   try {

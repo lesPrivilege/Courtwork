@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { mkdtemp, symlink, mkdir, writeFile } from "node:fs/promises";
+import { rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -390,4 +391,25 @@ test("a second run in a continued session revises the first run's file", async (
   } finally {
     await runtime.close();
   }
+});
+
+test("D6: ws_grep does not follow a symlink put in place of a file after it was named", async () => {
+  const workspace = await mkdtemp(path.join(tmpdir(), "cw-ws-swap-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "cw-ws-outside-"));
+  await mkdir(path.join(workspace, "materials"));
+  await writeFile(path.join(workspace, "materials", "open.txt"), "SENTINEL inside\n");
+  await writeFile(path.join(outside, "secret.txt"), "SENTINEL outside\n");
+  let swapped = false;
+  // Admission runs between naming and opening, which is the window a swap needs.
+  const admitPath = () => {
+    if (!swapped) {
+      swapped = true;
+      rmSync(path.join(workspace, "materials", "open.txt"));
+      symlinkSync(path.join(outside, "secret.txt"), path.join(workspace, "materials", "open.txt"));
+    }
+    return "allow";
+  };
+  const result = await createWsGrepTool({ workspaceDir: workspace, admitPath }).execute("call", { pattern: "SENTINEL" });
+  assert.ok(swapped);
+  assert.deepEqual(result.details.matches, []);
 });

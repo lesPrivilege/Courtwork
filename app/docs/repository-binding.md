@@ -52,11 +52,16 @@ only and always read the bound source checkout. The source remains read-only
 when a candidate exists. The API still accepts a Host path directly; the
 `host/choose-directory` and `repositories/*` routes below help the Connect UI
 fill that path in, but binding itself stays the explicit `PUT` described above.
-Runtime policy resource matching for `repo_*` and `candidate_*` path actions
-ignores letter case, so a Host volume's case aliases cannot bypass a
-path-specific deny or ask rule. On a case-sensitive volume this can make a
-rule more restrictive for a
-differently cased path.
+Runtime policy matches a filesystem path on its canonical form, not its
+spelling. For every path action (`ws_*`, `repo_*` and `candidate_*`) a rule's
+resource pattern and the requested path are each Unicode-normalized to NFC and
+lower-cased before they are compared, so the case and normalization-form
+aliases a Host volume such as APFS resolves to the same file cannot bypass a
+path-specific deny or ask rule. On a volume that does not alias those
+spellings a rule can match more spellings than the filesystem does, which only
+makes a deny or ask apply more often. Non-path resources (`runtime_load` ids,
+MCP actions and `*`) and the action pattern keep exact matching, and
+compatibility-equivalent forms such as fullwidth letters stay distinct names.
 
 Aggregate reads (`repo_grep`, `candidate_grep`, `repo_diff`) apply the same
 per-path policy to every file they would otherwise disclose, not just to their
