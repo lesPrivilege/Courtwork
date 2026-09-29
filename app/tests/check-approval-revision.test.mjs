@@ -122,3 +122,33 @@ test("admission closing during start persistence settles once as cancelled witho
   assert.equal(f.settled[0].exitCode, null);
   assert.equal(f.settled[0].signal, null);
 });
+
+// The Courtwork recipes went from v1 to v2 with different argv. Approval
+// matching is the same exact descriptor comparison as always, so an approval
+// recorded for v1 (its version and its argv) cannot start the current recipe.
+const V1_ARGV = {
+  "node-test-attention-contract": ["--test", "--test-concurrency=1", "app/tests/attention-core.test.mjs", "app/tests/attention-http.test.mjs",
+    "app/tests/attention-recovery.test.mjs", "app/tests/attention-github-fixture.test.mjs", "app/tests/attention-gmail-fixture.test.mjs",
+    "app/tests/attention-trace-fixture.test.mjs"],
+  "node-test-harness-contract": ["--test", "--test-concurrency=1", "app/tests/hermes-api-runs.test.mjs", "app/tests/request-summary.test.mjs",
+    "app/tests/runtime-load-recovery.test.mjs", "app/tests/kit-context.test.mjs", "app/tests/control-plane.test.mjs", "app/tests/check-recipes.test.mjs"],
+};
+
+for (const [recipeId, v1Argv] of Object.entries(V1_ARGV)) {
+  test(`${recipeId}: an approval for v1 cannot authorize v2, in either field alone or together`, async () => {
+    const recipeParams = { recipeId };
+    const current = fixture().tool.permissionContext(recipeParams);
+    assert.equal(current.recipeVersion, 2);
+    assert.notDeepEqual(current.argv, v1Argv);
+    for (const [name, approved] of [
+      ["v1 version and argv", { ...current, recipeVersion: 1, argv: v1Argv }],
+      ["v1 version, current argv", { ...current, recipeVersion: 1 }],
+      ["current version, v1 argv", { ...current, argv: v1Argv }],
+    ]) {
+      const f = fixture();
+      await assert.rejects(f.tool.execute("call-one", recipeParams, undefined, undefined, approved), { code: "candidate_changed" }, name);
+      assert.deepEqual(f.started, [], `${name}: no start is recorded`);
+      assert.deepEqual(f.settled, [], `${name}: nothing settles`);
+    }
+  });
+}
