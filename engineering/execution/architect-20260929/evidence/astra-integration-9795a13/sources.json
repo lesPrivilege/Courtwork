@@ -1,0 +1,21 @@
+{
+  "code_commit": "9795a13",
+  "head": "fc3fb2c7dd0486ae61b192302b14eeb24fa89660",
+  "node": "v25.9.0",
+  "files_sha256": {
+    "app/runtime/control-plane.mjs": "580b020833ee992833d109e3fd57b42f0c737fba16a2bc4c16083f281d68a085",
+    "app/runtime/grep-worker.mjs": "34fb085d7f44c15fea631dee5218115af4798382f368631abe99f0aa31fb0493",
+    "app/runtime/control-tools.mjs": "20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43",
+    "app/runtime/workspace-tools.mjs": "217e819cafed4bf69c53907e483afff287d52d03407f674fc8cefa7b569fa3fa",
+    "app/runtime/check-recipes.mjs": "0e4859e00bd959b902d61ee1a8778acab5914e2e9e2a3b0be33588a2f4a4d541",
+    "app/runtime/check-sandbox.mjs": "65788d2e03e98dd559eb1a8756af4a3ee26ad6e22a2cc3df7ce04364eb6cc559",
+    "app/runtime/check-runner.mjs": "ac46ea04cd73b4cf25af7c17fbcfc1a14dc993331f977b8720d2f41782b872d9",
+    "app/runtime/check-tools.mjs": "41faa1ebd7aee49d16dba915efc7e19a53109ba96c6dc37188f537e454ce4222",
+    "app/core/owner.mjs": "a530d00b58e0afb2e895ca8c2d33b94f1d4fc0ab4299445cfbab1e63d7c5ecba",
+    "app/server/executor-choice-state.mjs": "e92e52d152eed1f53e05f97573d2665de1d36b02e202ddb4d05c56296533489c",
+    "app/runtime/kit-binding-state.mjs": "99ed26fb919eabbe3075cc965b76b0f3d7564af4c8d91d840a5e63cf36344e84",
+    "app/server/service.mjs": "b452d4b6ae9da0579683cfa8828f68d2f689cb301d5f9dd68492ba85a986c3fe",
+    "app/server/index.mjs": "b219eb681f291cca6013b5275659d3e51e32b93c7e5241ad14c71a09248709b4",
+    "app/extensions/work-adapter.mjs": "05d3b2dbccbc0f0254ccefc1e010a19299901550a6451117fcf0fb04843730a8"
+  }
+}

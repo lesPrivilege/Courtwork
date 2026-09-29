@@ -1,0 +1,40 @@
+[
+  {
+    "id": "node-test-attention-contract",
+    "exitCode": 1,
+    "signal": null,
+    "timedOut": false,
+    "truncated": {
+      "stdout": false,
+      "stderr": false
+    },
+    "totals": [
+      "ℹ tests 25",
+      "ℹ pass 22",
+      "ℹ fail 3",
+      "ℹ cancelled 0",
+      "ℹ skipped 0"
+    ],
+    "listenDenied": true,
+    "sandboxFailure": false
+  },
+  {
+    "id": "node-test-harness-contract",
+    "exitCode": 1,
+    "signal": null,
+    "timedOut": false,
+    "truncated": {
+      "stdout": false,
+      "stderr": false
+    },
+    "totals": [
+      "ℹ tests 108",
+      "ℹ pass 71",
+      "ℹ fail 37",
+      "ℹ cancelled 0",
+      "ℹ skipped 0"
+    ],
+    "listenDenied": true,
+    "sandboxFailure": true
+  }
+]

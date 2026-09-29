@@ -1,0 +1,631 @@
+✔ Attention recipe is one frozen descriptor alongside the unchanged package recipe (3.10175ms)
+✔ Harness recipe is the third frozen descriptor; the first two keep their meaning and order (0.23625ms)
+✔ check_run's model-facing recipeId parameter offers every catalog id and title (0.387208ms)
+✖ runCheckRecipe reports a clean exit without truncation (86.185708ms)
+✖ runCheckRecipe reports a non-zero exit without throwing (61.140875ms)
+✖ runCheckRecipe caps captured stdout/stderr and marks truncated (79.384708ms)
+✖ runCheckRecipe timeout kills the whole process group, including a nested child (55.8345ms)
+✖ runCheckRecipe cancels on abort and resolves only after the group has exited (63.860291ms)
+✖ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (57.984708ms)
+✖ check_run is denied with zero process start under read_only (104.301208ms)
+✖ an unknown recipe id returns a tool error without opening a permission or spawning anything (104.919167ms)
+✖ ask mode shows the exact recipe in the permission payload and deny records nothing (120.217375ms)
+✖ approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets (111.992416ms)
+✖ approved Harness recipe runs its six fixed targets: pass, nonzero after an exact candidate write, pass after the correction (113.808084ms)
+✖ Harness recipe stops before spawn on a missing fixed target and reports a missing dependency as a nonzero result, with no install or retry (105.01075ms)
+✖ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (165.70875ms)
+✖ cancelling a Run whose check is still running still records check.settled as cancelled (101.154458ms)
+✔ an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (449.7405ms)
+✖ same Run write then check approves and persists the current candidate revision (117.485417ms)
+✖ control: scope provenance, reset, CAS, and cross-session isolation survive restart (119.9145ms)
+✖ control: active Run freezes config; retry preserves its original runtime binding (104.689542ms)
+✔ policy: last match within scope, outer ceilings and literal regex characters (1.338167ms)
+✔ path policy: a rule matches every case and Unicode-normalization spelling of its path for ws_, repo_ and candidate_ actions (4.213ms)
+✔ path policy: only spellings the Host volume aliases match; runtime_load ids, MCP actions and compatibility forms stay exact (0.394792ms)
+✔ policy: governed calls of a path-denied or path-asked file are stopped for its NFD and case spellings, per tool family (20.389875ms)
+✔ policy: real ws_read of an NFC-named denied file is refused for its NFD and upper-case spellings (skips unless the Host volume aliases NFC and NFD) (11.031458ms)
+✔ policy: ws_grep and ws_list withhold a file whose on-disk name is NFD when the ws_read rule is written NFC (69.385292ms)
+✖ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (111.310416ms)
+✖ policy: path denial reaches the executor; exposed write does not imply allowed write (101.975375ms)
+✖ policy: a ws_read deny reaches ws_grep and ws_list through the Host, without a permission question (112.53425ms)
+✖ policy: the advisory evaluation equals dispatch admission for every host ceiling and permission mode (100.365375ms)
+✔ policy: domain tools use the same execution gate, including exact arguments across approval (0.754542ms)
+✖ context: skill metadata is progressive, installed content grants no plugin/tool authority (116.690625ms)
+✖ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (110.860166ms)
+✖ control config: corrupt or future version fails closed without overwriting the file (111.464542ms)
+✖ compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (103.808209ms)
+✖ MCP modern: discovery is separate from exposure and execution consent (1.780708ms)
+✖ MCP legacy: discovery is separate from exposure and execution consent (0.593542ms)
+✖ MCP: first unknown outcome closes subsequent tool admission in the same Run (0.514375ms)
+✖ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (0.839458ms)
+✖ admission serializes permission changes and extension binding before runtime snapshots can diverge (103.718916ms)
+✖ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (113.577958ms)
+✖ an already-aborted event read opens no HTTP request (15.854834ms)
+✖ small SSE frames coalesced into one HTTP response retain per-frame bounds (6.364208ms)
+
+  #  /opt/homebrew/Cellar/node/25.9.0_2/bin/node[42912]: void node::InternalCallbackScope::Close() at ../src/api/callback.cc:185
+  #  Assertion failed: (env_->execution_async_id()) == (0)
+
+----- Native stack trace -----
+
+ 1: 0x1060e690c node::Assert(node::AssertionInfo const&) [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+ 2: 0x1060b1850 node::InternalCallbackScope::Close() (.cold.1) [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+ 3: 0x1050b7fb0 node::InternalCallbackScope::Close() [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+ 4: 0x1050b7ca8 node::InternalCallbackScope::~InternalCallbackScope() [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+ 5: 0x1060c9b30 node::Environment::RunAndClearNativeImmediates(bool) [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+ 6: 0x1060c95a4 node::Environment::CheckImmediate(uv_check_s*) [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+ 7: 0x100e0c24c uv__run_check [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]
+ 8: 0x100e06b94 uv_run [/opt/homebrew/Cellar/libuv/1.52.1/lib/libuv.1.0.0.dylib]
+ 9: 0x1050b8ed0 node::SpinEventLoopInternal(node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+10: 0x10518a37c node::NodeMainInstance::Run(node::ExitCode*, node::Environment*) [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+11: 0x10518a0b0 node::NodeMainInstance::Run() [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+12: 0x10512db98 node::Start(int, char**) [/opt/homebrew/Cellar/node/25.9.0_2/lib/libnode.141.dylib]
+13: 0x1911d3e80 start [/usr/lib/dyld]
+✔ Kit literal oracle: actual binding → plan → exact existing context, independent hashes and accounting (21.726208ms)
+✔ General/Coding/Praxis preserve shared attribution and defer bodies/templates (6.131333ms)
+✔ No-Kit is exact historical passthrough and ignores new inputs without inspecting them (4.745958ms)
+✔ Changing/deselecting Kits never removes already-admitted instructions from a binding (4.774333ms)
+✔ Frozen input and returned data have no aliases in either direction (6.343916ms)
+✔ Object/Kit/evidence permutations are deterministic; catalog order is meaningful (7.21775ms)
+✔ Exact duplicate Kits, references and evidence deduplicate without extra text or core budget (6.567375ms)
+✔ Exact maxCoreBytes boundary passes; one-under refuses without partial text (4.490542ms)
+✔ Exact maxContextBytes boundary passes; one-under refuses without partial text (3.375166ms)
+✔ Exact maxContextCharacters boundary passes; one-under refuses without partial text (10.530875ms)
+✔ Required fragment/envelope failure input => { input.binding.content = input.binding.content.filter(r => r.id !== 'local:general'); } (2.291958ms)
+✔ Required fragment/envelope failure input => { input.binding.resources = input.binding.resources.filter(r => r.id !== 'local:general'); } (1.820417ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').exposed = false; } (1.669333ms)
+✔ Required fragment/envelope failure input => { body(input, 'local:general').content += 'changed'; } (1.485833ms)
+✔ Required fragment/envelope failure input => { body(input, 'local:general').title = 'changed'; } (1.399417ms)
+✔ Required fragment/envelope failure input => { body(input, 'local:general').scope.id = 'changed'; } (2.714708ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').activation = 'manual'; } (2.488875ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').kind = 'skill'; } (1.623792ms)
+✔ Required fragment/envelope failure input => { row(input, 'local:general').source.hash = 'a'.repeat(64); } (1.737083ms)
+✔ Required fragment/envelope failure input => { input.binding.composition.status = 'incompatible'; } (1.712334ms)
+✔ Optional missing/deactivated deferred sources are reported; digest mismatch still refuses (5.700292ms)
+✔ Missing/disabled runtime_load is not exposure or permission, and required wins duplicate optional (8.105208ms)
+✔ Non-content requirements copy owner permission readings without grants/evaluation (6.70175ms)
+✔ Unpinned content requirement cannot bypass source pins: local:general (1.456333ms)
+✔ Unpinned content requirement cannot bypass source pins: local:notes (2.202875ms)
+✔ Unpinned content requirement cannot bypass source pins: local:coding-skill (2.1435ms)
+✔ Unpinned content requirement cannot bypass source pins: local:template (2.185ms)
+✔ Missing/not-exposed requirements distinguish required refusal from optional omission (4.889125ms)
+✔ Version/source/deferred-only changes have separate plan and output identities; history remains frozen (7.705333ms)
+✔ Exact runtime evidence: supported/unsupported/unchecked and conflicts remain independent of permissions (17.327084ms)
+✔ Selected conflicts and contradictory pins refuse; absent targets do not (4.705458ms)
+✔ Code-unit ordering is explicit for punctuation; scope order still wins (1.506166ms)
+✔ Empty catalog and exact Unicode/CRLF sources keep complete instruction bytes (1.411084ms)
+✔ Descriptor integrity, exact schema, dependencies/native contributions and bounds reject before compilation (34.932916ms)
+✔ Duplicate binding IDs and core/deferred role contradictions refuse deterministically (5.931084ms)
+✔ Lone surrogates in Kit metadata and all rendered text are rejected rather than normalized (6.26ms)
+✔ Optional missing counterpart cannot hide a known source pin mismatch (2.967208ms)
+✔ New descriptor accessors are rejected without executing caller code (1.41925ms)
+✔ Strict Kit-present input: compatibilityEvidence null is not an implicit unknown (1.484375ms)
+✔ Strict Kit-present input: compatibilityEvidence undefined is not an implicit unknown (1.385583ms)
+✔ Strict Kit-present input: compatibilityEvidence absent is not an implicit unknown (1.316167ms)
+✔ Strict Kit-present input: runtime undefined is not an implicit unknown (1.003792ms)
+✔ Strict Kit-present input: runtime absent is not an implicit unknown (0.893166ms)
+✔ Explicit runtime null and empty evidence remain valid unchecked inputs (1.379208ms)
+✔ summarizeRepoListArgs: only path, the tool's default, invalid vs display-unsafe (3.132958ms)
+✔ boundRequestSummary: 256 code points, 2048 bytes, closed shape (0.452ms)
+✔ Pi mapper: repo_list start carries a candidate summary; other tools and updates/results carry none (0.305959ms)
+✔ Host eligibility: only the repository owner's own repo_list, and only when it is the sole one (0.142917ms)
+✔ Store: first summary per call wins, including changed-input and concurrent replay; the event itself is kept (151.896458ms)
+✖ Store: at most 32 non-omitted summaries per Run, counted across Host restart; omissions do not spend the budget (120.736708ms)
+✔ admitRequestSummary leaves events without the field byte-identical (0.886292ms)
+✖ Host: real Pi repo_list starts → redacted, bounded, persisted, reopened → shared Chat/Attention disclosure (104.066834ms)
+✖ Host: a cancelled Run keeps its start summary; an untrusted port observation carries none (96.1685ms)
+✔ projection: old events show no summary, malformed ones are ignored, the first start's summary stays (2.788375ms)
+✔ RL-1 runtime_load advertises exact-ID loading, not a catalog (1.748042ms)
+✔ RL-1 a missing ID keeps the original sentence and names admitted IDs (0.963875ms)
+✔ RL-1 an empty or non-loadable catalog says so and cannot discover check recipes (0.408167ms)
+✔ RL-1 hints never disclose hidden, wrong-kind or non-ID resource fields (0.304667ms)
+✔ RL-1 hints are sorted, deduplicated, capped at 8 and state omissions (1.723958ms)
+✔ RL-1 long or odd IDs stay whole and the complete hint stays bounded (0.551042ms)
+✔ RL-1 a failed lookup neither mutates the binding nor calls onLoad (0.276458ms)
+✔ RL-1 successful loading returns the exact body and receipt unchanged (0.236375ms)
+✔ RL-1 the literal id 'catalog' is not special and stays loadable when admitted (0.187209ms)
+✖ RL-1 integration: invalid ID errors, then an admitted ID loads with exactly one context.loaded event (121.2775ms)
+ℹ tests 108
+ℹ suites 0
+ℹ pass 71
+ℹ fail 37
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12256.355459
+
+✖ failing tests:
+
+test at app/tests/check-recipes.test.mjs:108:1
+✖ runCheckRecipe reports a clean exit without truncation (86.185708ms)
+  Error: check sandbox unavailable: sandbox did not start (exit 71): sandbox-exec: sandbox_apply: Operation not permitted
+      at unavailable (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:30:17)
+      at preflight (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:97:27)
+      at async prepareCheckSandbox (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:125:3)
+      at async runCheckRecipe (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-runner.mjs:66:19)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/tests/check-recipes.test.mjs:110:18)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    code: 'sandbox_unavailable'
+  }
+
+test at app/tests/check-recipes.test.mjs:123:1
+✖ runCheckRecipe reports a non-zero exit without throwing (61.140875ms)
+  Error: check sandbox unavailable: sandbox did not start (exit 71): sandbox-exec: sandbox_apply: Operation not permitted
+      at unavailable (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:30:17)
+      at preflight (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:97:27)
+      at async prepareCheckSandbox (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:125:3)
+      at async runCheckRecipe (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-runner.mjs:66:19)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/tests/check-recipes.test.mjs:125:18)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    code: 'sandbox_unavailable'
+  }
+
+test at app/tests/check-recipes.test.mjs:131:1
+✖ runCheckRecipe caps captured stdout/stderr and marks truncated (79.384708ms)
+  Error: check sandbox unavailable: sandbox did not start (exit 71): sandbox-exec: sandbox_apply: Operation not permitted
+      at unavailable (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:30:17)
+      at preflight (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:97:27)
+      at async prepareCheckSandbox (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:125:3)
+      at async runCheckRecipe (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-runner.mjs:66:19)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/tests/check-recipes.test.mjs:134:18)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    code: 'sandbox_unavailable'
+  }
+
+test at app/tests/check-recipes.test.mjs:141:1
+✖ runCheckRecipe timeout kills the whole process group, including a nested child (55.8345ms)
+  Error: check sandbox unavailable: sandbox did not start (exit 71): sandbox-exec: sandbox_apply: Operation not permitted
+      at unavailable (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:30:17)
+      at preflight (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:97:27)
+      at async prepareCheckSandbox (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:125:3)
+      at async runCheckRecipe (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-runner.mjs:66:19)
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/tests/check-recipes.test.mjs:150:18)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    code: 'sandbox_unavailable'
+  }
+
+test at app/tests/check-recipes.test.mjs:161:1
+✖ runCheckRecipe cancels on abort and resolves only after the group has exited (63.860291ms)
+  Error: check sandbox unavailable: sandbox did not start (exit 71): sandbox-exec: sandbox_apply: Operation not permitted
+      at unavailable (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:30:17)
+      at preflight (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:97:27)
+      at async prepareCheckSandbox (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:125:3)
+      at async runCheckRecipe (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-runner.mjs:66:19) {
+    code: 'sandbox_unavailable'
+  }
+
+test at app/tests/check-recipes.test.mjs:182:1
+✖ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (57.984708ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  Error: check sandbox unavailable: sandbox did not start (exit 71): sandbox-exec: sandbox_apply: Operation not permitted
+      at async TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/tests/check-recipes.test.mjs:184:3)
+      at async Test.run (node:internal/test_runner/test:1208:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: Error: check sandbox unavailable: sandbox did not start (exit 71): sandbox-exec: sandbox_apply: Operation not permitted
+        at unavailable (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:30:17)
+        at preflight (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:97:27)
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async prepareCheckSandbox (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-sandbox.mjs:125:3)
+        at async runCheckRecipe (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/runtime/check-runner.mjs:66:19)
+        at async waitForActual (node:assert:621:5)
+        at async strict.rejects (node:assert:744:25)
+        at async TestContext.<anonymous> (file:///Users/lesprivilege/Projects/.worktrees/courtwork-architect-integration-20260929/app/tests/check-recipes.test.mjs:184:3)
+        at async Test.run (node:internal/test_runner/test:1208:7)
+        at async Test.processPendingSubtests (node:internal/test_runner/test:831:7),
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at app/tests/check-recipes.test.mjs:222:1
+✖ check_run is denied with zero process start under read_only (104.301208ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:244:1
+✖ an unknown recipe id returns a tool error without opening a permission or spawning anything (104.919167ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:264:1
+✖ ask mode shows the exact recipe in the permission payload and deny records nothing (120.217375ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:302:1
+✖ approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets (111.992416ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:402:1
+✖ approved Harness recipe runs its six fixed targets: pass, nonzero after an exact candidate write, pass after the correction (113.808084ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:445:1
+✖ Harness recipe stops before spawn on a missing fixed target and reports a missing dependency as a nonzero result, with no install or retry (105.01075ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:478:1
+✖ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (165.70875ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:552:1
+✖ cancelling a Run whose check is still running still records check.settled as cancelled (101.154458ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/check-recipes.test.mjs:669:1
+✖ same Run write then check approves and persists the current candidate revision (117.485417ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:19:1
+✖ control: scope provenance, reset, CAS, and cross-session isolation survive restart (119.9145ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:43:1
+✖ control: active Run freezes config; retry preserves its original runtime binding (104.689542ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:188:1
+✖ control APIs: source content remains pinned after replacement; templates are human-invoked drafts (111.310416ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:214:1
+✖ policy: path denial reaches the executor; exposed write does not imply allowed write (101.975375ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:227:1
+✖ policy: a ws_read deny reaches ws_grep and ws_list through the Host, without a permission question (112.53425ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:253:1
+✖ policy: the advisory evaluation equals dispatch admission for every host ceiling and permission mode (100.365375ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:286:1
+✖ context: skill metadata is progressive, installed content grants no plugin/tool authority (116.690625ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:309:1
+✖ composition: versioned profile restricts resources, never raises host permission, and missing requirements block admission (110.860166ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:328:1
+✖ control config: corrupt or future version fails closed without overwriting the file (111.464542ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:338:1
+✖ compatibility: valid schema 3 upgrades with exact backup and schema 6 fence (103.808209ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:385:37
+✖ MCP modern: discovery is separate from exposure and execution consent (1.780708ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:385:37
+✖ MCP legacy: discovery is separate from exposure and execution consent (0.593542ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:428:1
+✖ MCP: first unknown outcome closes subsequent tool admission in the same Run (0.514375ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at processTicksAndRejections (node:internal/process/task_queues:90:21)
+      at runNextTicks (node:internal/process/task_queues:69:3)
+      at process.processImmediate (node:internal/timers:472:9) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:452:1
+✖ MCP: a lost remote call result becomes an unknown Run, never an automatic replay (0.839458ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:470:1
+✖ admission serializes permission changes and extension binding before runtime snapshots can diverge (103.718916ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/control-plane.test.mjs:499:1
+✖ context: additive compiled counts separate catalog text, deferred bodies and draft-only templates (113.577958ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/hermes-api-runs.test.mjs:43:1
+✖ an already-aborted event read opens no HTTP request (15.854834ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/hermes-api-runs.test.mjs:66:1
+✖ small SSE frames coalesced into one HTTP response retain per-frame bounds (6.364208ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/request-summary.test.mjs:125:1
+✖ Store: at most 32 non-omitted summaries per Run, counted across Host restart; omissions do not spend the budget (120.736708ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/request-summary.test.mjs:158:1
+✖ Host: real Pi repo_list starts → redacted, bounded, persisted, reopened → shared Chat/Attention disclosure (104.066834ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/request-summary.test.mjs:225:1
+✖ Host: a cancelled Run keeps its start summary; an untrusted port observation carries none (96.1685ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/runtime-load-recovery.test.mjs:169:1
+✖ RL-1 integration: invalid ID errors, then an admitted ID loads with exactly one context.loaded event (121.2775ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
