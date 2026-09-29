@@ -1,0 +1,18 @@
+{
+  "branch": "claude/converge-loop-20260929",
+  "head": "c280f8205c71659b242aa7e324f0cf8b6bb9bb5b",
+  "node": "v25.9.0",
+  "files_sha256": {
+    "app/docs/check-recipes.md": "e7d27623f6308bd055ad1f1266e5780c35f25f77cf6ba7cda209fd4053856869",
+    "app/runtime/check-guard.mjs": "732568fac59a44dc44e7d2e24df9d27b36b522baa97d15a53240db28041efa49",
+    "app/runtime/check-runner.mjs": "8c1704b0c7bde2273fdb1f38131d3f323469176ac64d345f4bab053fa56a72a6",
+    "app/server/async-tasks.mjs": "582e5af35cdf1dd380cd4f287e9ec407698081aab4601c0f693a7cdc1bc45610",
+    "app/server/service.mjs": "b8b1104a6e8c7657494ab876afddc59204d63044bbad97d62dc6db2894db9a45",
+    "app/server/store.mjs": "f68033844b1769664b55e95b0692e4fbc8014d052866c3e10b92b281d51d9a0a",
+    "app/tests/async-recovery-independent.test.mjs": "1564e32d3068881224b48e2829033670b1416ccef24ac24da7a4b01f9ee4619b",
+    "app/tests/check-runner-group-kill.test.mjs": "3bc6931114103b70827fb9c91d3f4cee793888dc35ccf7fe99308e5537c5495f",
+    "app/tests/manual-compaction.test.mjs": "cdf7b53089e178fed24c5ecdb71c6b9efe1366703d3d04819d4b3747fcf72672",
+    "app/tests/repository-candidate.test.mjs": "56bcf8db21dd5109ea31476c31cd36cabbe013c6bb922b81182d6ddf14aea195",
+    "app/tests/repository-restart-settlement.test.mjs": "ecfd42f6d01a7887a1589db56f2a7dd009a9fafb7d2d8ec7155b8fe96a497c8c"
+  }
+}

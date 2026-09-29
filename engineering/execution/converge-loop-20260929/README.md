@@ -223,6 +223,22 @@ Input: a Sonnet restart audit. For each in-flight state kind it checked what a r
   - `work-summary`'s read-only test raced the Host's own post-Run writes: it lists the data directory right after the Run reports terminal, while `#executeRun`'s `finally` is still persisting, and a temporary file vanished between listing and reading. That race is in the test and predates this loop.
 - **Defect C, next slice.** A check's detached process group outlives a Host crash and can keep writing to the candidate.
 
+### S10–S11 · Independent handoff review by Astra
+
+Source: S10 at `c280f8205c71659b242aa7e324f0cf8b6bb9bb5b`, plus the uncommitted S11 guard, runner, group-kill test and check-recipes documentation. [Source identities and verification](evidence/astra-s10-s11/verification.md). Product code was not edited, merged or pushed during this review. S1–S9 are outside this review's acceptance scope.
+
+| Input | Disposition | Reason and landing |
+|---|---|---|
+| S10 close/restart/async changes | Adopt within the reviewed synthetic scope; no blocking finding | Read the commit and its production paths. The focused compaction, repository restart settlement and independent async recovery tests pass. Graceful close waits for compaction; repository write recovery retains partial text and gives unknown MCP effects precedence; an already-unknown async task retains its reason/revision. Saved-file compaction recovery is evidence for the startup transition, not a real process-crash/journal durability test. |
+| S11 claim that the check group dies with its Host | Adopt finding CR1, P1; return S11 for correction | `app/runtime/check-guard.mjs:25-30` exits when the immediate recipe child exits, even when descendants remain. Reproduced with a noninteractive shell that starts a same-group `sleep` inheriting stdout and then exits. Both leader and guard are gone while the runner still awaits output closure; killing the synthetic Host then leaves the descendant alive. This is inside the process group, not the previously disclosed own-session limitation. |
+| Claim that isolated rerun passes establish all prior suite failures as load flakes | Adjust | Isolated passes establish those runs passed, not the root cause of repeated failures. In particular repeated MS-R2 failures remain an unresolved verification issue until their timing mechanism is demonstrated or fixed. Follow [verification](../../verification.md#rules-consolidated-from-past-receipts); do not replace the missing successful suite result with an inferred one. This review did not reproduce those earlier failures. |
+
+**CR1 evidence.** [Portable probe](evidence/astra-s10-s11/guard-exit-probe.mjs), [observed result](evidence/astra-s10-s11/guard-exit-result.json). It confirms the descendant's process group equals the guard's PID, that the runner has not settled before the Host crash, and that the descendant survives afterward. The probe cleans up and confirms removal of its own remaining child. Existing S11 tests exercise a still-running leader and therefore pass despite this gap. Required correction: keep lifecycle supervision until the remaining group has been handled, including a normal leader exit, while preserving the recipe's actual exit result. Add the leader-exits-first/Host-dies-next regression before claiming closure.
+
+**Integration obligation.** S11 and the separate D4 sandbox delivery both modify `check-runner.mjs`. The guard's parent-liveness protocol and the sandbox's execution policy must be reviewed and tested together: normal exit, cancel, timeout, spawn failure, Host crash while the leader runs, and Host crash after the leader exits, with the sandbox still in force. The macOS own-session limitation remains explicit. The sandbox branch's reap-on-close change alone cannot close CR1 when a descendant still holds output open and the Host dies before `close`. No cross-branch integration or Linux verification occurred here.
+
+**Checks.** Four existing test files, run serially with file concurrency 1: 19/19. Separate probes preserved exit code 7, SIGTERM, SIGKILL and `spawn_failed`. These passes do not discharge CR1 or the prior F3/D6 findings in the architect delivery. Full command, logs, source hashes and exclusions are in the linked evidence. Only this owner record, its current-status pointer and review evidence were edited.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
