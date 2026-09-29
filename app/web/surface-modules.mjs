@@ -394,6 +394,7 @@ export function workPacket(projection) {
       baseVersion: candidate.base_version ?? null,
       sourceVersion: candidate.source_version ?? null,
       contractVersion: candidate.contract_version ?? null,
+      basis: isRecord(candidate.basis) && typeof candidate.basis.current === "boolean" && Array.isArray(candidate.basis.reasons) ? candidate.basis : null,
       supersedes: candidate.supersedes ?? null,
       provenance: isRecord(candidate.provenance) ? candidate.provenance : null,
       artifactText: candidate.artifact_text ?? null,

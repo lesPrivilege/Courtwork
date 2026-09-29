@@ -46,8 +46,13 @@ export function createChatSources({session, request, isCurrent, onOpenFile, onOp
       const response = await request(`/sessions/${encodeURIComponent(session.id)}/surface`);
       if (!live(own)) return;
       const projection = response?.projection, packet = workPacket(projection);
-      const changedSources = Number.isSafeInteger(packet?.sourceVersion) && packet.candidates.some(candidate=>Number.isSafeInteger(candidate.sourceVersion) && candidate.sourceVersion !== packet.sourceVersion);
-      root.querySelector('summary').textContent = changedSources ? 'Sources and work versions · Source revision changed' : 'Sources and work versions';
+      // The Core decides whether a pending candidate's basis is still current;
+      // decided candidates never are stale.
+      const stale = (packet?.candidates ?? []).filter(candidate=>candidate.status === 'pending' && candidate.basis?.current === false);
+      const sourceChanged = stale.some(candidate=>candidate.basis.reasons.includes('source_version_changed'));
+      root.querySelector('summary').textContent = `Sources and work versions${!stale.length ? '' : sourceChanged ? ' · Source revision changed' : ' · Work version changed'}`;
+      const staleNote = !stale.length ? '' : sourceChanged ? 'Candidate sources differ from the current source revision. Open work review to check. '
+        : 'A pending candidate was proposed against an earlier work version. Open work review to check. ';
       if (packet?.matterId) {
         body.append(renderWorkPacket(packet, {onReadSource:async input=>{
           const answer = await request(`/sessions/${encodeURIComponent(session.id)}/work-query?${new URLSearchParams({kind:'source',candidateId:input.candidateId,sourceId:input.sourceId,version:input.version})}`);
@@ -89,7 +94,7 @@ export function createChatSources({session, request, isCurrent, onOpenFile, onOp
           } catch(error) {if(live(own)){group.append(el('p',{className:'form-help',text:error.message}));button.disabled=false;}}
         });group.append(button);body.append(group);
       }
-      status.textContent = packet?.matterId ? `${changedSources ? 'Candidate sources differ from the current source revision. Open work review to check. ' : ''}Work versions read from the bound work record. Opening a source does not record model use or a review decision.` : 'No Core work sources are exposed by this conversation.';
+      status.textContent = packet?.matterId ? `${staleNote}Work versions read from the bound work record. Opening a source does not record model use or a review decision.` : 'No Core work sources are exposed by this conversation.';
     } catch(error) {if(live(own)) status.textContent=`Work sources unavailable: ${error.message}`;}
     finally {if(live(own)) refresh.disabled=false;}
   }

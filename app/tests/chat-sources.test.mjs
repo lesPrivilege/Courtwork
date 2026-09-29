@@ -41,3 +41,21 @@ test('missing or mismatched historical bytes stay explicit rather than falling b
  source.open=true;source.dispatchEvent({type:'toggle'});await flush();
  assert.ok(paths.at(-1).includes('version=1'));assert.match(source.textContent,/Source unavailable: The source does not match/);assert.doesNotMatch(source.textContent,/wrong revision/);
 }));
+
+// The Core decides staleness for pending candidates (candidateBasis); a decided
+// candidate from an older source is history, not a warning.
+test('source-change label follows the Core basis of pending candidates only',()=>withTinyDom(async container=>{
+ const summary=async candidates=>{
+  const projection={matter:{id:'m',version:3,source_version:2,contract_version:'c'},sources:[],candidates};
+  const view=createChatSources({session:{id:'s',extensionBinding:{}},request:async()=>({projection}),isCurrent:()=>true});container.append(view.root);
+  view.root.open=true;view.root.dispatchEvent({type:'toggle'});await flush();
+  assert.doesNotMatch(view.root.textContent,/Work sources unavailable/);
+  return view.root.querySelector('summary').textContent;
+ };
+ const decided={id:'old',status:'accepted',source_version:1,evidence:[]};
+ assert.equal(await summary([decided]),'Sources and work versions');
+ assert.equal(await summary([{id:'p',status:'pending',source_version:1,evidence:[],basis:{current:false,reasons:['source_version_changed']}}]),'Sources and work versions · Source revision changed');
+ assert.equal(await summary([{id:'p',status:'pending',source_version:2,evidence:[],basis:{current:false,reasons:['base_version_changed']}}]),'Sources and work versions · Work version changed');
+ assert.match(container.textContent,/proposed against an earlier work version/);
+ assert.equal(await summary([{id:'p',status:'pending',source_version:2,evidence:[],basis:{current:true,reasons:[]}}]),'Sources and work versions');
+}));

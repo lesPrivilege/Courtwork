@@ -158,6 +158,22 @@ Input: the `service.mjs` survey (candidates 1 and 2) and a follow-up liveness su
   - `governTools` is the single enforcer for every tool, and the hard-coded `draft` only stops `ws_write` from asking twice;
   - the live permission-mode read equals the Run's frozen mode, because mode changes are refused while any Run is active.
 
+### S8 · The Sources panel shows the Core's staleness verdict
+
+- **Defect, reproduced.** The chat Sources panel (`web/chat-sources.mjs`) decided "Source revision changed" by comparing every candidate's source version with the Matter's. It was wrong both ways:
+  - an accepted or rejected candidate from an older source raised a warning, though the Core never revokes historical decisions;
+  - a pending candidate stale because the Matter version or contract moved raised none, though the Core treats it as stale and withholds its `decide` action.
+- **Fact owner.** Work Core (`core/owner.mjs`, `candidateBasis`); contract [Work Core](../../../docs/work-core/contract.md). The web had recomputed one of the Core's three reasons.
+- **Change.** `workProjection` gives each pending candidate `basis: {current, reasons}`, and `workPacket` passes it through. The panel's label and note follow pending candidates whose basis is not current: "Source revision changed" when a source moved, otherwise "Work version changed". The Work Core contract states the field.
+- **Checks.** A new panel test fails against the previous web code, which labelled a decided candidate; a new Core test covers `basis` on pending and decided candidates. `npm --prefix app test` 1856/1856 on a clean run.
+- **Non-author review (Sonnet).** It found a blocking bug in the first version: the status line still referenced the removed local variable, so every bound Work panel would have shown "Work sources unavailable". Fixed; the test now asserts that the panel never enters that state. It also confirmed:
+  - no byte-for-byte or strict-key consumer of projected candidates;
+  - `stateVersion` is unaffected;
+  - no other local staleness computation in the web;
+  - the new copy passes the copy convention.
+- **Returned to the UX owner.** The two new strings ("Work version changed" and its note) are for the owner's copy review.
+- **Flake observed.** Two full suites ran concurrently by mistake, and each showed load failures that pass alone. `models-save-flow` MS-R2 failed a second time under load; it is now a candidate for the known-flake list.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.

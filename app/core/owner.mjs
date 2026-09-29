@@ -51,7 +51,10 @@ export function workReviewSummary(projection) {
 }
 
 export function workProjection(view, { extension, writable = false, contractVersion = null, revisionProposalSchema = MEMO_PROPOSAL_SCHEMA } = {}) {
-  const candidates = view.candidates ?? [];
+  // A pending candidate carries the Core's verdict on its input basis, so a
+  // surface shows staleness without recomputing it. Decided candidates have
+  // none: historical decisions are not revoked by later versions.
+  const candidates = (view.candidates ?? []).map(c => c.status === 'pending' ? { ...c, basis: candidateBasis(c, view.matter) } : c);
   const compatible = contractVersion === view.matter.contract_version
     && (!view.domain || view.domain.schemaVersion === 1)
     && candidates.every(c => !c.domain || c.domain.schemaVersion === 1);
