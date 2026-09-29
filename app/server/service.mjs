@@ -246,6 +246,9 @@ export class RuntimeService {
     this.compaction = structuredClone(compaction);
     this.logger = logger;
     this.active = new Map();
+    // Every Run's execution until its settlement has fully finished, including
+    // the Spark attempt it settles after the Run turns terminal; close waits for all.
+    this.runTasks = new Set();
     this.closing = false;
     this.directoryPickerInFlight = false;
     this.admissions = new Set();
@@ -2766,6 +2769,9 @@ export class RuntimeService {
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");
+    // A Run already terminal may still be settling (its Spark attempt, the
+    // question cleanup): that tail finishes before the Store closes.
+    await Promise.allSettled([...this.runTasks]);
     for (const port of new Set([...this.runtimePorts.values()].map(entry => entry.port))) port.close?.();
     await this.asyncTasks.close();
     await this.mcp.close();
@@ -2960,6 +2966,8 @@ export class RuntimeService {
     });
     this.active.set(run.id, entry);
     entry.task = this.#executeRun(run, instruction, session, entry, provider, extension, credentialConfigured);
+    this.runTasks.add(entry.task);
+    entry.task.finally(() => this.runTasks.delete(entry.task)).catch((error) => this.logger?.(`run ${run.id} settlement failed: ${error?.message ?? error}`));
     return { run };
   }
 

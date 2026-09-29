@@ -315,6 +315,25 @@ Astra's review asked that repeated failures be explained, not labelled load flak
 
 [Verification](../../verification.md) now lists no known flakes.
 
+### S13 · Spark: close keeps settled findings; one delegation per parent Run
+
+Input: a Sonnet audit of the Harness layer (`app/harness/`) against [Spark](../../../app/docs/spark-agent.md) and [coordination](../../../app/docs/coordination.md). It used deterministic reproductions plus seeded fuzzing: 12 Spark seeds (cancel, retry, reconcile, archive, disable, concurrent human Runs, pump) and 8 coordination seeds. Coordination held; three Spark defects were found.
+
+- **Defect D3, reproduced (10/10): a graceful close lost settled findings.** A Spark child Run turns terminal before `#executeRun`'s `finally` settles its attempt. `close()` waited only for non-terminal Runs, and `#executeRun` removes the entry from `active` before that settle. A close in that window released the Store under the settle: `runtime store lock is unavailable`, the attempt stayed `active` beside a `completed` Run, the findings were lost, and the next start blocked the assignment for review.
+  - Fix: the service keeps each Run's execution task until it fully settles (`runTasks`), and `close()` awaits them before closing anything else.
+- **Defect D1, reproduced: parallel delegation.** Pi runs one turn's tool calls in parallel. Two `spark_explore` calls both passed the parent's admission gate before the first delegation closed it, creating two assignments, each with a full budget, from one parent Run. The parent's remaining time and turns were handed to both, which contradicts "closes further parent tool admission".
+  - Fix: `Subagents.create`, the assignment owner, refuses a second runtime-originated assignment for the same parent Run, with `spark_closed`, in the persisted write. The refused call returns a tool error to the model.
+- **Checks.** New tests `spark-close-settle` (0/5 before, 5/5 after) and `spark-single-delegation` (two assignments before, one after). `npm --prefix app test` 1870/1870.
+- **Non-author review (Sonnet).** Both fixes confirmed:
+  - no new hang path, since a Run turns terminal only after every wait on the runtime, and its tail after that is bounded Store work;
+  - Spark settle does not pump while closing;
+  - Local Pi and remote Runs share the same task;
+  - replay and human-originated creates are unaffected;
+  - nothing legitimately creates two assignments from one parent Run.
+
+  Adopted: a failed Run settlement is logged, not swallowed.
+- **Defect D2, deferred: needs a ruling (see Deferred).**
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
@@ -331,6 +350,12 @@ These are removals or data decisions that the directive does not settle, because
 ## Deferred
 
 These are findings kept with a reason; each reopens when its trigger occurs.
+
+- **Spark retry budget after a restart (S13 D2), for the core lane.** The contract says a retry subtracts completed attempt execution time, but an attempt interrupted by a restart has no recorded execution time. The Run keeps `startedAt`, and the restart settlement stamps `endedAt` at the restart. Reproduced by a Sonnet probe:
+  - The time charge fails closed: the downtime counts as execution, so after an outage longer than the 60 s assignment budget, reconcile then retry ends `blocked` (`spark_budget`) with no new attempt.
+  - The turn charge fails open: the interrupted Run's usage is missing, so it charges 0 turns.
+
+  Event records carry no timestamps, so there is no honest "last alive" time to use. Closing this needs either a persisted liveness timestamp per Run (a Store schema change) or a contract ruling on how an unknown attempt is charged: for example, the whole remaining budget, a fixed charge, or none with an explicit human retry. Reopen when Spark retry after restart is used, or when the Store next changes schema.
 
 - **Domain branches in the generic Run loop.** `service.mjs` hard-codes the Work Extension ids `evidence-memo` and `inbound-nda` six times, and runs file-memo input limits and hooks inside `#executeRun`. Both are real coupling under [dependency boundaries](../../architecture.md#dependency-boundaries). By [change boundaries](../../architecture.md#change-boundaries) the trigger is a new domain, and none is scheduled. Reopen when a third Work Extension or a file-memo profile change is scheduled: move the capability behind the extension adapter (`extensionRun` hooks).
 

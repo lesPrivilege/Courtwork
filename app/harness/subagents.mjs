@@ -60,7 +60,11 @@ export class Subagents {
       check(!assignmentForSession(state,input.parentSessionId),'Recursive delegation unavailable','spark_recursive');
       const parent=state.sessions.find(s=>s.id===input.parentSessionId);
       check(parent&&!parent.extensionBinding,'Only unbound Chat supports Explore','spark_scope');
-      if(origin.actor==='runtime') {const run=state.runs.find(r=>r.id===origin.runId);check(run?.sessionId===parent.id&&run.admissionOpen,'Parent admission closed','spark_closed');}
+      if(origin.actor==='runtime') {const run=state.runs.find(r=>r.id===origin.runId);check(run?.sessionId===parent.id&&run.admissionOpen,'Parent admission closed','spark_closed');
+        // Delegation closes the parent's tool admission, but a turn's tool calls
+        // run in parallel and all pass that gate first: one delegation per
+        // parent Run is enforced here, in the persisted fact.
+        check(!state.subagents.assignments.some(x=>x.origin?.runId===origin.runId),'Parent already delegated','spark_closed');}
       check(state.subagents.assignments.length<256,'Assignment capacity reached','spark_capacity');
       for(const source of input.sources) this.sourceRecord(state,parent.id,source);
       const a={id:input.id,revision:1,briefRevision:1,agentId:'spark',brief:input.brief,parentSessionId:parent.id,origin:structuredClone(origin),scope:{kind:parent.scope,projectId:parent.projectId},sources:structuredClone(input.sources),definition:structuredClone(SPARK_DEFINITION),status:'queued',cancelRequested:false,attempts:[],result:null,consumption:[],createdAt:new Date().toISOString(),reason:null,notes:[],results:[],sourceReads:[],commands:[],archived:false,providerSelection,budget};
