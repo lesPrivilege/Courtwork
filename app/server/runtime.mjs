@@ -13,14 +13,22 @@ import {
 } from "./executor-choice-state.mjs";
 
 /**
- * If the host process inherited DEEPSEEK_API_KEY from its environment,
- * remove it before any ModelRuntime/provider code can consult it, so the
- * provider's own env-var auth fallback (a pi-ai behavior this host does not
- * control) never silently activates. Logged once, key value never logged.
+ * If the host process inherited provider env vars, remove them before any
+ * ModelRuntime/provider code can consult them, so neither pi-ai's env-var auth
+ * fallback nor the OpenAI SDK client pi-ai constructs for both admitted wire
+ * formats (it reads OPENAI_* defaults in its constructor) can silently add a
+ * credential, organization/project header, custom header, endpoint or debug
+ * log of raw provider bodies to a request this host did not configure.
+ * Logged once by name, values never logged.
  */
+const INHERITED_PROVIDER_ENV = Object.freeze([
+  "DEEPSEEK_API_KEY", "OPENAI_API_KEY", "OPENAI_ADMIN_KEY", "OPENAI_ORG_ID", "OPENAI_PROJECT_ID",
+  "OPENAI_BASE_URL", "OPENAI_WEBHOOK_SECRET", "OPENAI_CUSTOM_HEADERS", "OPENAI_LOG",
+]);
+
 function stripInheritedProviderEnv(logger) {
   const removed = [];
-  for (const name of ["DEEPSEEK_API_KEY", "OPENAI_API_KEY"]) {
+  for (const name of INHERITED_PROVIDER_ENV) {
     if (process.env[name] !== undefined) {
       delete process.env[name];
       removed.push(name);

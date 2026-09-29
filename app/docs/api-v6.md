@@ -233,7 +233,10 @@ GC, so the outstanding-effect byte budget is not a lifetime disk quota.
 ## Provider and credentials
 
 `GET /api/v5/provider-config` →
-`{ config: { provider, model, api, baseUrl? }, execution: { mode: "real" | "local-fake", realProvider, adapterId }, credentialStatus: "configured" | "not_configured" }`
+`{ config: { provider, model, api, baseUrl? }, execution: { mode: "real" | "local-fake", realProvider, adapterId }, credentialStatus: "configured" | "not_configured", configurationStatus }`.
+`configurationStatus` is `unavailable` whenever Run admission would refuse the
+saved route (`configuration_incomplete`, `provider_unsupported`,
+`effort_unsupported`), so Settings never shows ready for a route a Run refuses.
 
 `PUT /api/v5/provider-config` — `{ provider, model, api, baseUrl? }`.
 Allowed `provider` values: `deepseek` (real; `api` must be `openai-completions`,
@@ -250,8 +253,19 @@ model validated against the installed catalog) and `fake-openai-loopback` (tests
 - Both routes are refused with `409 active_run` while a run is active.
 - With no credential configured, a real call is refused (`credential_missing`); the
   host never falls back to an environment variable, a personal auth file, or the
-  fake provider. `DEEPSEEK_API_KEY` inherited by the process is deleted at startup
-  and the removal is logged.
+  fake provider. Provider env vars inherited by the process are deleted at
+  startup and the removal is logged by name: `DEEPSEEK_API_KEY`,
+  `OPENAI_API_KEY`, `OPENAI_ADMIN_KEY`, `OPENAI_ORG_ID`, `OPENAI_PROJECT_ID`,
+  `OPENAI_BASE_URL`, `OPENAI_WEBHOOK_SECRET`, `OPENAI_CUSTOM_HEADERS` and
+  `OPENAI_LOG` (the OpenAI SDK client reads each as a request default).
+- A compatible connection's saved key is sent only to the endpoint it was
+  entered for. (A catalog connection's key goes to the optional `baseUrl` the
+  saved provider configuration applies; see runtime foundation.) Replacing a
+  compatible connection with a different `baseUrl` and no `apiKey` is refused
+  with `400 credential_required` ("Enter the API key again for the new
+  endpoint") before any request; an unchanged endpoint keeps reusing the saved
+  key. Keys shorter than 6 characters are refused as `apiKey is invalid`,
+  because redaction could not find them again in provider text.
 - **The key must never be typed into the chat input.** It goes through
   `PUT /provider-credential` only.
 

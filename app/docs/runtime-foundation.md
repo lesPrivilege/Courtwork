@@ -284,7 +284,10 @@ and separates three failures: `connection_authentication_failed` and
 `connection_directory_unavailable` (consuming the BE-17/18 status enum, reported
 in `error.status`) and `connection_model_not_in_directory`, which the probe enum
 does not name. Probe success still means only that the directory accepted the
-request.
+request. A replace that omits `apiKey` reuses the saved key only when `baseUrl`
+is unchanged; a new endpoint without a key is refused with `400
+credential_required` before any probe, so a saved key never reaches a
+different endpoint.
 
 `PUT /api/v5/provider-credential` and its DELETE now take `{connectionId, …}`.
 `credentials.json` is keyed by connection id: two connections onto the same

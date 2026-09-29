@@ -11,6 +11,7 @@ import * as openaiResponses from "@earendil-works/pi-ai/api/openai-responses";
 import { ModelRuntime } from "@earendil-works/pi-coding-agent";
 import { FAKE_PROVIDER_ID, DEEPSEEK_PROVIDER_ID, OPENAI_PROVIDER_ID, PROVIDER_API_FORMATS, PROVIDER_DEFINITIONS } from "./provider-definitions.mjs";
 import { REQUEST_SUMMARY_TOOL, summarizeRepoListArgs } from "./request-summary.mjs";
+import { redactSecrets } from "../server/provider-fields.mjs";
 
 // Host wraps Pi coding-agent v3 AgentSession (in-process SDK). This module owns
 // no persistence and no SE-specific fields; the service supplies credentials,
@@ -458,6 +459,26 @@ export async function compactSessionJournal({ cwd, agentDir, modelRuntime, model
 }
 
 /**
+ * A provider may echo the request's credential in an error body. Pi turns
+ * that body into the assistant message's `errorMessage`, which it appends to
+ * the session journal, so known secrets are replaced in every non-2xx body
+ * before the SDK reads it. Success bodies stream through untouched. `secrets`
+ * is the Host's live set of known keys, supplied through the port options.
+ */
+export function redactingProviderFetch(fetcher = globalThis.fetch, secrets = null) {
+  if (!secrets) return fetcher;
+  return async (...args) => {
+    const response = await fetcher(...args);
+    if (response.ok || !response.body) return response;
+    const body = redactSecrets(await response.text(), secrets);
+    const headers = new Headers(response.headers);
+    headers.delete("content-length");
+    headers.delete("content-encoding");
+    return new Response(body, { status: response.status, statusText: redactSecrets(response.statusText, secrets), headers });
+  };
+}
+
+/**
  * Start one Run's AgentSession. Creates a fresh AgentSession per Run (bound
  * to this run's tool closures) against a caller-supplied SessionManager,
  * which is what carries continuity across Runs within one app session.
@@ -483,6 +504,7 @@ export async function createSessionRun({
   reasoningEffort,
   reasoningCapability = null,
   onTelemetry,
+  knownSecrets = null,
 }) {
   const compactionPolicy = resolveCompactionPolicy(model, compaction);
   const { session } = await createAgentSession({
@@ -527,7 +549,7 @@ export async function createSessionRun({
       const error = new Error("Run cancelled"); error.name = "AbortError"; throw error;
     }
     beforeProviderRequest?.();
-    const contextUsage = createContextUsageObserver(requestModel.api, options?.fetch);
+    const contextUsage = createContextUsageObserver(requestModel.api, redactingProviderFetch(options?.fetch, knownSecrets));
     return observeRequestStream({ readContextUsage: contextUsage.read, readCache: contextUsage.readCache, model: requestModel, context, requestId: ++requestOrdinal, purpose: requestPurpose,
       requestedEffort: reasoningEffort ?? null, sdkEffectiveEffort: session.thinkingLevel, reasoningCapability,
       record: data => forward(onTelemetry, data),

@@ -4,7 +4,7 @@ import { Subagents } from '../harness/subagents.mjs';
 import { SPARK_DEFINITION, assertSessionNotReferencedBySubagents } from '../harness/subagent-state.mjs';
 import { compareSourceText } from '../intake/compare.mjs';
 import { IntakeStore, IntakeError } from '../intake/store.mjs';
-import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl } from './provider-fields.mjs';
+import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl, redactSecrets as redact, PROVIDER_API_KEY_MIN_LENGTH } from './provider-fields.mjs';
 import { createGovernanceAdapter } from '../extensions/governance-adapter.mjs';
 import { COORDINATION_TOOLS, coordinationTools } from '../harness/tools.mjs';
 import { Coordination } from '../harness/coordination.mjs';
@@ -206,17 +206,6 @@ function trustRepoListSummary(entry, repositoryTools, tools) {
   return tools;
 }
 
-/** Redact anything resembling a live secret from text bound for storage, an
- * event, or an error message. Defense-in-depth on top of never reading keys
- * back from any endpoint. */
-function redact(message, secrets) {
-  let result = String(message ?? "");
-  for (const secret of secrets) {
-    if (secret && secret.length >= 6) result = result.split(secret).join("[redacted]");
-  }
-  return result;
-}
-
 export class RuntimeService {
   constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, configuredExecutors, budget = {}, compaction = {}, asyncTaskAdapters = [], localPiWorker = false, logger = () => {} }) {
     this.store = store;
@@ -322,7 +311,7 @@ export class RuntimeService {
         catch (error) {
           this.unavailableConnections.add(connection.id);
           try { unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity); } catch { /* fenced by Host */ }
-          this.logger(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`);
+          this.logger(redact(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`, this.knownSecrets));
         }
       } else if (connection.models.length) {
         try { registerCatalogExtraModels(this.modelRuntime, connection.providerIdentity, registrationExtras(connection)); }
@@ -330,7 +319,7 @@ export class RuntimeService {
           // Unlike a compatible connection (whose WHOLE provider comes from
           // this step), the native models stay resolvable either way -- an
           // extras failure does not fence the connection.
-          this.logger(`startup: catalog connection ${connection.id} extra models could not be registered: ${safeMessage(error, "registration failed")}`);
+          this.logger(redact(`startup: catalog connection ${connection.id} extra models could not be registered: ${safeMessage(error, "registration failed")}`, this.knownSecrets));
         }
       }
     }
@@ -896,7 +885,7 @@ export class RuntimeService {
       const entry = { controller: new AbortController(), reason: null, timer: null, runtimePort: executor.port };
       entry.timer = setTimeout(() => { entry.reason = "deadline"; entry.controller.abort(); }, this.budget.deadlineMs);
       this.operations.set(created.operation.id, entry);
-      entry.task = this.#executeCompaction(created.operation, session, model, entry).catch(error => this.logger?.(`compaction ${created.operation.id} settlement failed: ${error?.message ?? error}`));
+      entry.task = this.#executeCompaction(created.operation, session, model, entry).catch(error => this.logger?.(redact(`compaction ${created.operation.id} settlement failed: ${error?.message ?? error}`, this.knownSecrets)));
       return { operation: created.operation, idempotent: false };
     });
   }
@@ -921,12 +910,12 @@ export class RuntimeService {
         settlement = { status: "cancelled", journal, error: { code: entry.reason === "deadline" ? "deadline" : "cancelled", message: entry.reason === "deadline" ? "the compaction deadline passed before a summary was written" : "compaction was cancelled before a summary was written" } };
       } else {
         // Raw provider text stays out of the record; the code says what happened.
-        this.logger?.(`compaction ${operation.id} failed: ${outcome.message}`);
+        this.logger?.(redact(`compaction ${operation.id} failed: ${outcome.message}`, this.knownSecrets));
         settlement = { status: "failed", journal, error: { code: outcome.code, message: outcome.code === "already_compacted" ? "the conversation is already compacted; nothing new to summarize"
           : outcome.code === "too_small" ? "the conversation is too small to compact" : "the summary request failed" } };
       }
     } catch (error) {
-      this.logger?.(`compaction ${operation.id} errored: ${error?.message ?? error}`);
+      this.logger?.(redact(`compaction ${operation.id} errored: ${error?.message ?? error}`, this.knownSecrets));
       settlement = { status: "failed", error: { code: error.code === "compaction_unavailable" ? "compaction_unavailable" : "compaction_failed", message: error.code === "compaction_unavailable" ? "compaction is not enabled for this model" : "the compaction could not run" } };
     } finally {
       clearTimeout(entry.timer);
@@ -2107,10 +2096,8 @@ export class RuntimeService {
     const realProvider = this.providerConfig.provider !== FAKE_PROVIDER_ID;
     const connection = this.#connectionByIdentity(this.providerConfig.provider);
     let configurationStatus = this.#configurationStatusOf(connection?.id ?? this.providerConfig.provider);
-    if (configurationStatus === 'ready') {
-      try { validateProviderDescriptor(this.providerConfig, this.#knownIdentities()); }
-      catch { configurationStatus = 'unavailable'; }
-    }
+    // "ready" only when Run admission would accept the saved route as it is.
+    if (configurationStatus === 'ready' && this.#routeRefusal()) configurationStatus = 'unavailable';
     return {
       version: this.store.getProviderConfigVersion(),
       config: publicProviderConfig(this.providerConfig),
@@ -2150,7 +2137,18 @@ export class RuntimeService {
       throw error;
     }
     const entries = await readCredentialFile(this.dataDir);
-    const apiKey = parsed.apiKey ?? (existing ? entries[existing.id] : undefined);
+    // A saved key is reused only for the endpoint it was entered for; a new
+    // endpoint never receives it, not even for the directory probe.
+    const savedKey = existing ? entries[existing.id] : undefined;
+    if (parsed.apiKey === undefined && savedKey !== undefined && parsed.record.baseUrl !== existing.baseUrl) {
+      throw new ServiceError(400, "credential_required", "Enter the API key again for the new endpoint");
+    }
+    // A key saved before the minimum length existed cannot be redacted from
+    // echoes; reusing it asks for a new one instead of a vague probe failure.
+    if (parsed.apiKey === undefined && savedKey !== undefined && savedKey.length < PROVIDER_API_KEY_MIN_LENGTH) {
+      throw new ServiceError(400, "credential_required", "Enter the API key again; the saved key is too short to protect");
+    }
+    const apiKey = parsed.apiKey ?? savedKey;
     const probe = await this.previewProvider({
       protocol: "openai-compatible",
       baseUrl: parsed.record.baseUrl,
@@ -2304,7 +2302,7 @@ export class RuntimeService {
       message: succeeded
         ? "The model answered."
         : redact(message.errorMessage || "The provider returned an error.", this.knownSecrets),
-      observedModel: message.responseModel ?? null,
+      observedModel: message.responseModel == null ? null : redact(message.responseModel, this.knownSecrets),
       replyFirstLine: replyText ? replyText.split("\n")[0].slice(0, VERIFY_REPLY_PREVIEW_CHARS) : null,
       latencyMs,
       checkedAt: new Date(startedAt).toISOString(),
@@ -2746,6 +2744,21 @@ export class RuntimeService {
     return connection;
   }
 
+  /** Request telemetry carries provider-controlled response metadata (the
+   * response model and id). Known secrets leave it before it becomes an
+   * event; the JSON spelling is redacted, so escaped echoes go too. */
+  /** Redact provider-controlled strings in a telemetry record, value by value:
+   * redacting its serialized form could rewrite JSON structure or field names
+   * when a key matches them (a key containing `"phase"` broke every Run). */
+  #redactTelemetry(data) {
+    if (!this.knownSecrets.size) return data;
+    const walk = (value) => typeof value === "string" ? redact(value, this.knownSecrets)
+      : Array.isArray(value) ? value.map(walk)
+      : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, walk(item)]))
+      : value;
+    return walk(data);
+  }
+
   #routeRefusal() {
     try { this.#admitProviderRoute(); return null; }
     catch (error) { if (error instanceof ServiceError) return error.message; throw error; }
@@ -2976,12 +2989,12 @@ export class RuntimeService {
        writes, and the partial final written with the terminal status. */
     entry.stream = createSegmentStream({
       write: (event) => this.store.appendEvent({ runId: run.id, ...event }),
-      log: (message) => this.logger?.(`assistant stream ${run.id}: ${message}`),
+      log: (message) => this.logger?.(redact(`assistant stream ${run.id}: ${message}`, this.knownSecrets)),
     });
     this.active.set(run.id, entry);
     entry.task = this.#executeRun(run, instruction, session, entry, provider, extension, credentialConfigured);
     this.runTasks.add(entry.task);
-    entry.task.finally(() => this.runTasks.delete(entry.task)).catch((error) => this.logger?.(`run ${run.id} settlement failed: ${error?.message ?? error}`));
+    entry.task.finally(() => this.runTasks.delete(entry.task)).catch((error) => this.logger?.(redact(`run ${run.id} settlement failed: ${error?.message ?? error}`, this.knownSecrets)));
     return { run };
   }
 
@@ -3294,7 +3307,8 @@ export class RuntimeService {
         model,
         reasoningEffort: provider.reasoningEffort,
         reasoningCapability: provider.reasoningBinding,
-        onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data }),
+        onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data: this.#redactTelemetry(data) }),
+        knownSecrets: this.knownSecrets,
         tools: governTools(trustRepoListSummary(entry, repositoryTools, sparkAssignment ? this.subagents.childTools(sparkAssignment,run.id) : [...(!session.extensionBinding ? this.subagents.parentTools(session.id,run.id, () => {entry.sparkYield=true;setImmediate(() => entry.abort?.());}) : []), askUserTool, ...selectedWorkspaceTools, ...repositoryTools, ...repositoryCandidateTools, ...checkTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
           entry.externalUnknownDetail = detail;

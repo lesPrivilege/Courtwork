@@ -403,6 +403,38 @@ Input: a Sonnet audit of the external-effects layer (MCP manager, Runtime Contro
   - Defer: after a Session is deleted, a workspace-scope deny set for its project no longer applies to the orphan's human reconcile and cancel; only user-scope denies do.
 - **Not fixed here.** D4 and the policy-action findings are under [Needs a ruling](#needs-a-ruling).
 
+### S16 · Provider keys stay with their endpoint and out of every record
+
+Input: a Sonnet audit of provider connections and credential handling, run with synthetic keys against loopback fixtures, with an empty HOME and temp data directories; no real credential store was read. It confirmed:
+- the credential file is 0600 and written atomically, under the configuration queue;
+- the key-space migration is idempotent;
+- deleting a connection retires its key and generation;
+- concurrent saves and deletes stay consistent;
+- config CAS holds;
+- Runs freeze the credential generation;
+- verify never uses ambient environment;
+- the preview probe does not follow redirects.
+
+Seven defects were fixed. The implementation was by an Opus worker under the parent's rulings; the parent reviewed the diff and a Sonnet non-author reviewed it.
+
+- **D4: a key went to a new endpoint without re-entry.** Editing a compatible connection's `baseUrl` without an `apiKey` reused the saved key, and the new host received it, even for the directory probe. Now `400 credential_required` before any request.
+  - A connection with no saved key may change endpoint.
+  - Catalog connections keep their documented optional `baseUrl`, now stated as the exception in the API reference.
+- **D1: a provider echoing the key put it in Pi's session journal.** `redactingProviderFetch`, at the fetch seam the Pi port already hands Pi, rewrites non-2xx bodies with known secrets redacted before the SDK builds `errorMessage`. Streaming 2xx bodies are untouched.
+- **D2: provider-controlled response metadata carried the key.** Verify's `observedModel` and the request-telemetry record were affected, in events and in `runtime-state.json`. Both are redacted now. Telemetry is redacted value by value: the first version redacted the serialized record, and the review showed that a key equal to a quoted field name, such as `"phase"`, made it invalid JSON, so every Run failed as a projection error.
+- **D3: logs carried the key.** Logger lines carrying provider or runtime error text, including a compaction failure, are redacted.
+- **D5: ambient OpenAI SDK environment reached any endpoint.** The OpenAI SDK reads several `OPENAI_*` variables as request defaults, and startup stripped only two. Now also stripped:
+  - `OPENAI_ORG_ID`, `OPENAI_PROJECT_ID`, `OPENAI_ADMIN_KEY`, `OPENAI_BASE_URL`, `OPENAI_WEBHOOK_SECRET`;
+  - `OPENAI_CUSTOM_HEADERS`, which adds headers to every request;
+  - `OPENAI_LOG`, which prints raw provider bodies.
+- **D6: redaction gaps.** Redaction missed keys echoed in JSON-escaped form, and keys shorter than its threshold. There is now one redaction function (`redactSecrets`) that also replaces the escaped form. One constant, `PROVIDER_API_KEY_MIN_LENGTH`, is enforced for saved keys and preview probes. Reusing an older saved key shorter than that asks for the key again (`credential_required`) instead of failing the probe vaguely.
+- **D7: Settings showed ready for a refused route.** `configurationStatus` now reads `unavailable` whenever the shared route check (S2) refuses the saved route.
+- **Checks.** `credential-echo.test.mjs` has nine tests, each failing against the previous code. `npm --prefix app test` 1886/1886. The structural-key test was checked against the serialized-record redaction it replaces. Docs updated: API reference (stripped variables, `credential_required`, `configurationStatus`, the catalog exception) and runtime foundation.
+- **Deferred, with reason.**
+  - A key echoed inside a successful stream (text deltas, or an SSE `error` or `response.failed` event on a 2xx response) can still reach Pi's journal. Closing it means rewriting streams frame by frame at the same fetch seam.
+  - Echoes in `\uXXXX`-escaped or percent-encoded form, or escaped twice, are not matched.
+  - `HTTP_PROXY` with `NODE_USE_ENV_PROXY` could route provider traffic through an ambient proxy; not tested.
+
 ## Needs a ruling
 
 These are removals or data decisions that the directive does not settle, because an owner record lists the code as accepted, deferred or preview capability.
