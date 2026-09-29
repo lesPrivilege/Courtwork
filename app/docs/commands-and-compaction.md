@@ -6,9 +6,10 @@ admitted tools and context and deliberately disables Pi filesystem resource
 discovery. Installing the SDK does not install its terminal command interface in
 the CourtWork composer.
 
-## Current support (2026-09-16 · CMD-01 / CMP-01 first slices)
+<a id="current-support-2026-09-16--cmd-01--cmp-01-first-slices"></a>
+## Support (CMD-01 / CMP-01)
 
-| Operation | Supported path today |
+| Operation | Supported path |
 |---|---|
 | Change model or reasoning effort | Existing model picker / Model & effort card and versioned `PUT /api/v5/provider-config`; `/model` opens the picker, `/effort <value>` saves the same Host configuration (all chats, future runs). Existing Run bindings remain historical. |
 | Inspect this chat and its tools | `/status` and `/tools` read Host facts through the command dispatcher: no Run, no model request. Existing Runtime/Settings views remain. |
@@ -54,18 +55,19 @@ text grants current permissions or changes Core acceptance. Reassertion is not
 a claim that all earlier conversation details or revoked source bodies are
 erased or perfectly preserved.
 
-Current sanitized `run.notice` compaction events expose reason and outcome;
-they do not expose native summary text or public before/after token counts.
-Request telemetry distinguishes agent and compaction requests. A future
-`estimatedTokensAfter` must remain an estimate, not be labeled provider-exact
-usage or decode TPS.
+Sanitized `run.notice` compaction events expose reason and outcome; they do not
+expose native summary text or public before/after token counts. Request telemetry
+distinguishes agent and compaction requests. The manual-compaction operation record
+carries `tokensBefore` and `estimatedTokensAfter` labelled `sdk-estimate`; an estimate
+is never presented as provider-exact usage or decode TPS.
 
 ## Command contract (RD-008)
 
-[RD-008](../../engineering/research/RD-008-command-compaction.md) records the
-typed command and manual-compaction gaps. Slash is one possible projection of
-typed capabilities. Tools keep their own schema, authorization and execution
-lifecycle; extension/project/MCP are provenance, not interchangeable effects.
-An eventual command dispatcher must reject unsupported command invocations
-without a model request and provide explicit literal-text behavior. That is a
-future acceptance condition, not a claim about today's ordinary text channel.
+[RD-008](../../engineering/research/RD-008-command-compaction.md) is the research
+record behind the command and manual-compaction surfaces above. Slash is one projection
+of typed capabilities. Tools keep their own schema, authorization and execution
+lifecycle; extension/project/MCP are provenance, not interchangeable effects. The Host
+dispatcher rejects unavailable, unknown, stale or malformed command invocations without
+a model request, and `//` provides the explicit literal-text escape (see
+[Typed commands](#typed-commands-cmd-01)); anything that is not a command stays ordinary
+text.

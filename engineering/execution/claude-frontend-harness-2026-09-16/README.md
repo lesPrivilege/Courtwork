@@ -1,5 +1,7 @@
 # Claude 串行施工单 · 统一前端与真实 Harness 合流
 
+> **Reading note, 2026-09-29.** The "Current continuation" and other dated status banners below are snapshots of their dates. Status is [current](../../current.md); find the owner record for a thread through the [execution index](../README.md).
+
 Current continuation (2026-09-24): [K5 selected-profile editor accepted](evidence/kit-profile-editor-final-20260924/README.md) after R1/R2/F1 closure; no active author or new product lane is claimed. Manual Claude relay remains available. Earlier lane snapshots below retain their historical dates.
 
 **Current consumption check (2026-09-22):** read [current](../../current.md) and the [promise-to-user-path audit](evidence/work-closure-audit-20260922/README.md) before dispatching any historical slice below. A source/fixture/merge proves only its recorded scope; accepted basic dogfood is not to be repeated because an old dispatch paragraph said pending. Role/Kit-to-Run binding and user-operable recovery remain distinct future owner work.

@@ -12,7 +12,7 @@ Runtime resources, permissions, context, model connections and MCP are composed 
 - [Search source investigation](search-reference.md)
 - [Acceptance and frontend handoff](acceptance.md)
 - [Independent Luna backend review](backend-review.md)
-- [Runtime R2 source inspection](source-resolver.md) — pure parser and authenticated inspect-only HTTP seam; no UI/model tool or locator acquisition
+- [Runtime R2 source inspection](source-resolver.md) — source resolver, its HTTP inspection seam and acquisition boundary
 - [Developer control panel intake](../../engineering/research/developer-control-panel-2026-09-13/README.md) — source review and adapter follow-up; not an implementation claim
 - [Developer intake implementation](../../engineering/design/developer-control-panel-2026-09-13/README.md) — MCP/Skill forms, explicitly trusted local CW package acquisition and native object SVGs
 - [Typed control contract](../../app/runtime/control-contract.d.ts)
@@ -46,4 +46,4 @@ Runtime resources, permissions, context, model connections and MCP are composed 
 
 Installed, running, exposed, and permitted are separate dimensions. Scope and provenance explain how a value was obtained; the executor always checks the bound policy. Profiles and skills cannot raise host authority. Canonical work state remains with the shared Work Core, execution remains with Pi AgentSession, and configuration remains with the host control plane.
 
-Changes bind at the next new Run. Idempotent retries return the original receipt and original binding. Configuration and connection mutations are frozen during active Runs and serialized with admission. Runtime state now upgrades validated schema 3/4 to schema 5 with an exclusive exact-byte backup; older hosts reject it. See [persistence](architecture.md#persistence-upgrade) and [async read tasks](../../app/docs/async-tasks.md).
+Changes bind at the next new Run. Idempotent retries return the original receipt and original binding. Configuration and connection mutations are frozen during active Runs and serialized with admission. Runtime state upgrades only from validated older schemas, with an exclusive exact-byte backup, and older hosts reject upgraded data. See [persistence](architecture.md#persistence-upgrade) and [async read tasks](../../app/docs/async-tasks.md).

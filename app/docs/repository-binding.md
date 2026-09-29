@@ -31,9 +31,9 @@ rejected. A source bind/rebind is also rejected with
 current binding; revoke the candidate first, or revoke the source binding
 (which also revokes its candidate), before connecting a new source. A
 historical Session migrates to an empty binding without changing
-its managed workspace or old Run records. RuntimeStore schema 20 (the binding
-arrived in 16, the private candidate in 17) is separate
-from Core user schema 4 and bridge app schema 5; the schema 15 exact-byte
+its managed workspace or old Run records. These RuntimeStore records (the binding
+arrived in schema 16, the private candidate in 17) are versioned separately
+from the Work Core's user and bridge app schemas; the schema 15 exact-byte
 backup and old-Host refusal boundary are covered by
 [`repository-binding.test.mjs`](../tests/repository-binding.test.mjs).
 
@@ -240,8 +240,8 @@ identity are not traversed. Pre-existing same-device mounted descendants are
 in scope. The helper does not separately identify those mount boundaries, so
 this contract does not promise physical underlying-directory isolation; it
 also does not detect or block malicious mount-namespace changes. Root identity,
-no-follow path traversal and current binding/revocation checks still apply. Any
-future Connect UI must explain this namespace-visible scope before binding.
+no-follow path traversal and current binding/revocation checks still apply. The
+Connect UI must explain this namespace-visible scope before binding.
 This contract grants the three source read tools. `repo_write` is authorized
 only for the Host-owned private candidate described above; it never writes the
 selected source directory. A Host check recipe (`check_run`) also runs only

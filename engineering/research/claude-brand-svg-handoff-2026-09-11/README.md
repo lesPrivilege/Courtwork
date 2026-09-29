@@ -2,6 +2,8 @@
 
 > **Scope correction:** this handoff was prepared from an earlier misreading of the requested deliverable. It is superseded by [`claude-fakesnews-report-handoff-2026-09-11`](../claude-fakesnews-report-handoff-2026-09-11/). Retained for traceability; do not pass it to Claude for the current task.
 
+> **Retired.** The package status and "only intended input surface" lines below held only before that correction; this package can no longer show what the brand deliverable is or what Claude should build. Reopen it only to trace how the task was first scoped. The standalone brand package is [brand/](../../../brand/README.md).
+
 **Package status:** self-contained handoff prepared; no Claude run, no asset acceptance, no product integration, and no deployment.
 
 This directory is the only intended input surface for a bounded Claude brand/SVG task. It contains the current mark geometry, the relevant project and Paper facts, the latest user-authored naming and semiotic material, and an explicit offline work policy. It does not require the parent repository, ChatGPT history, credentials, or internet access.

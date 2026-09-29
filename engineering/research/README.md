@@ -1,117 +1,180 @@
-# RD：研究与开发验证
+# Research and RD index
 
-[Attention Assistant and Dogfooding Kit](attention-assistant-20260927/README.md): four-turn source intake, Luna primary-source exploration, Astra Hermes research selection and task-oriented expandable summaries. Read the [index](attention-assistant-20260927/INDEX.md) for owner contracts and evidence; no runtime implementation or parallel roadmap.
+A research packet holds one question's inputs, sources, the local ruling or a pointer to it, and its disposition. An RD file is a research-and-validation record for a local engineering question; it is not a product requirements document and does not approve implementation. Adopted content lives in its owner (contract, decision, task, code and tests); a packet keeps the reasons and the source, never a second contract or ticket list. Current status lives only in [current](../current.md). How inputs are consumed and material is retired: [governance](../governance.md#consuming-inputs); where material goes: [repository layout](../../docs/repository-layout.md#what-each-kind-of-material-is-for).
 
-[Multica source consumption](architecture-node-2026-09-13/multica-consumption-20260920.md): pinned 2026-09-20 Luna exploration and Astra ruling for local CLI adapters, work/run identity, recovery and context injection. Reference under RD-001/005/009; source-only, no imported code or runtime acceptance.
+Find the question you are asking, then open the row. Effect values are the package's force as its own README or a named later record states it: **current rule**, **reference**, **intake open**, **intake closed**, **history**, **superseded → replacement**, **unknown**. "Intake closed" means every question in the input has a disposition; it does not mean adopted or implemented. Open raw inputs only to resolve a specific claim.
 
-[UX、仓库治理与验证选择输入](ux-grammar-2026-09-14/README.md)：分版本会话、来源核查及Astra裁决。原始输入按需召回；日常入口是[UX Grammar](../design/ux-grammar.md)、[验证选择](../verification.md)与[材料归属](../../docs/repository-layout.md)。
+## Questions
 
-[Local Agent Orchestra direction](architecture-node-2026-09-13/orchestra-direction-20260919.md): Astra's 2026-09-19 ruling and Luna's implementation baseline continue the five-layer architecture, Pi dogfooding, the Agents API first new-runtime sample, and RD-001/005/006/009. This registration adds no parallel roadmap, Orchestra ledger, or product acceptance. See the [read-only source report](architecture-node-2026-09-13/explore/orchestra-implementation-20260919.md) and the [official hosted Codex correction](architecture-node-2026-09-13/explore/orchestra-openai-20260919.md).
+### Which runtimes do we connect, and how do adapters, cancellation, permission, recovery and identity work?
 
-[Local Runtime integration and Settings ruling](architecture-node-2026-09-13/local-agent-runtimes-20260920.md): 2026-09-20 Astra consumption of Luna’s installed CLI inventory, primary-source integration precedents and CC Switch recall; bounded jobs versus managed sessions, upstream ownership, and Agents/Models/Developer responsibilities. Documentation only; existing runtime/child owners and construction order remain unchanged.
+Start with [Runtime and Work](../architecture-runtime-canon.md).
 
-[Court定位参考实践](court-position-2026-09-13/README.md)：2026-09-13，两轮/三消息及截图入账，Luna探索/选型快照、Astra补充DEC-014词汇与控制责任；缺口沿RD-005/007和义务闭环承接，未引入框架或新增Release门。
-
-[RD-008 · Typed commands与手动压缩](RD-008-command-compaction.md)：2026-09-13，完整源会话入账；自动压缩相关15/15及slash fallthrough探针，校正当前能力说明。CMD-01/CMP-01登记Release后期Developer增量，CMP-02质量优化后置，未实现新入口。
-
-[工作义务闭环](obligation-closure-2026-09-12/README.md)：2026-09-12，Astra裁决Attention/Spark职责、版本回执、关闭权限与heartbeat边界；只登记，调度与实现后置，不进入发布面。
-
-[Chat Memory Broker长期增量](chat-memory-broker-2026-09-12/README.md)：2026-09-12，受治理检索/编译与可见对话分离；接BE-19/20/23、LG/RG既有PR文稿，不改变本次发布面，无实现。
-
-[RD-007 · 成熟实践与资源治理](RD-007-resource-governance.md)：2026-09-12，完整两轮来源、Luna fast explore、Astra裁决；RG前后端PR与roadmap接LG/DS/BG/Runtime，产品未实施。
-
-[RD-006 · 延迟工作区绑定](RD-006-deferred-workspace-binding.md)：2026-09-12，完整源会话与五张语义参考、Luna explore、Astra选型和DWB-01–03后续PR文稿。文档交付，产品未实施。
-
-[2026-09-11 Paper预发布返回](claude-paper-return-2026-09-11/prepublish-v1/README.md)：原件、最终资产接入、独立补证与校正发布方案。
-
-[2026-09-11 Motto diff](motto-diff-2026-09-11/README.md)：固定源码研究，供共享renderer、Settings预览与Chat串行施工消费。
-
-[2026-09-11 Context Window产品化](context-window-2026-09-11/README.md)：1轮/2消息、1张截图与链接归档；用户指定稍后消费，未研究裁定或派单。
-
-[2026-09-11 Provider指控与Work临时能力](work-capability-input-2026-09-11/README.md)：12轮/24消息及截图归档；外部证据分级、Astra逐轮处置与WCI候选，接DRT/RD-005。
-
-
-[2026-09-11 DeepSeek Runtime / 架构与Visual Compilation](deepseek-runtime-2026-09-11/README.md)：原始会话、两附件、哈希与Astra逐项处置；架构尾部截断，外部主张分级，非runtime交付。
-
-
-RD 是围绕局部工程问题的研究与验证记录，不等同于完整产品 PRD，也不直接批准实现。索引状态以 [current](../current.md) 为准；实际执行证据记入各RD。
-
-| RD | 负责模块 | 判别问题 | SE 对应 |
+| Package | Answers | Effect | Owner or ruling |
 |---|---|---|---|
-| [RD-001](RD-001-runtime-adapter.md) | M01–04、M08、M13–14 | Runtime 能否被薄适配，取消、权限、恢复边界是什么？ | V-01、V-06 |
-| [RD-002](RD-002-commit-recovery.md) | M05–07、M10 | 正式状态如何保持原子、幂等、可恢复且不可绕过？ | V-04、V-09、V-11 |
-| [RD-003](RD-003-work-surface.md) | M07–12 | GUI 和 Context 是否支持可靠裁决与连续工作？ | V-05、V-08、V-10、V-14/15 |
-| [RD-004](RD-004-harness-core-pt2-reconciliation.md) | PT2 | 外部 Harness Core 交付如何与既有 DEC-006/007/008、H1–H5 义务对账？（documentation-only，未验收） | — |
-| [SE Continuity Evaluation v0](se-continuity-2026-09-08/README.md) | Core / Work Eval | 普通持久化基线与显式治理在变更、恢复、接管上的差异是什么？ | Paper 9.6 §2.4、§3–4、F12；B0 起步，非论文实证结论 |
+| [RD-001](RD-001-runtime-adapter.md) | Can a runtime be thinly adapted; cancel, permission and recovery boundaries (M01–04, M08, M13–14; V-01, V-06) | reference | [architecture](../architecture.md), [Runtime Control](../../docs/runtime-control/INDEX.md) |
+| [RD-004](RD-004-harness-core-pt2-reconciliation.md) | How an external Harness Core delivery reconciles with DEC-006/007/008 and H1–H5 | history | [decisions](../decisions.md) |
+| [architecture-node-2026-09-13](architecture-node-2026-09-13/README.md) | Five-layer architecture, Orchestra, local runtimes, Multica, Kit direction, browser preview | current rule (the rulings linked); history (explore, evidence, archive, ui) | [architecture](../architecture.md), [Orchestra direction](architecture-node-2026-09-13/orchestra-direction-20260919.md), [local runtimes](architecture-node-2026-09-13/local-agent-runtimes-20260920.md), [Multica consumption](architecture-node-2026-09-13/multica-consumption-20260920.md), [Praxis Kit](architecture-node-2026-09-13/praxis-kit-20260919.md) |
+| [agents-api-first-2026-09-14](agents-api-first-2026-09-14/README.md) | What a hosted Agents API adapter needs: official-source check, slices, protocol | reference; intake closed | [adapter protocol](agents-api-first-2026-09-14/adapter-protocol-20260915.md), [RD-001](RD-001-runtime-adapter.md) |
+| [architecture-maintenance-2026-09-09](architecture-maintenance-2026-09-09/README.md) | Decoupling and maintenance units: source index, PR plan, integration design | intake closed | [integration design](architecture-maintenance-2026-09-09/integration-design.md) |
+| [deepseek-runtime-2026-09-11](deepseek-runtime-2026-09-11/README.md) | DeepSeek runtime and architecture input with per-item dispositions | intake closed | [runtime canon](../architecture-runtime-canon.md) |
+| [harness-pro-2026-09-10](harness-pro-2026-09-10/README.md) | Harness architecture-review submissions and returns | intake open | no owner, no trigger |
+| [control-principles-2026-09-10](control-principles-2026-09-10/README.md) | Control-plane and token-level design principles (CP-01–14) | intake closed | [Pro review ticket](../execution/2026-09-10-harness-pro-review.md) |
 
-V 编号指 [Practice Index 验证队列（历史路径：`../../papers/src/practice-index.md`）](../../PAPER.md)。工程实验只支持自己的范围；对论文命题的影响另行裁决。
+### How do trusted extensions, Kits, resources and configuration attach to a runtime?
 
-## 共同证据格式
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [RD-009](RD-009-trusted-harness-extensions.md) | Trusted Host check recipes, hooks and cancel settlement | current rule | [check recipes](../../app/docs/check-recipes.md), [DF-04](../release/harness-implementation-2026-09-12/harness-dogfooding.md) |
+| [gui-agent-control-plane-2026-09-12](gui-agent-control-plane-2026-09-12/README.md) | One resource, many projections; agent draft, review, apply, next-Run binding | intake closed | [skill proposal slice](gui-agent-control-plane-2026-09-12/skill-proposal-slice.md) |
+| [module-authoring-discovery-2026-09-13](module-authoring-discovery-2026-09-13/README.md) | Which runtime resources can be authored, imported or discovered | reference | none stated |
+| [developer-control-panel-2026-09-13](developer-control-panel-2026-09-13/README.md) | Developer panel scope for MCP, Skill and local plugins | intake closed | [design record](../design/developer-control-panel-2026-09-13/README.md) |
+| [models-provider-registration-2026-09-14](models-provider-registration-2026-09-14/README.md) | One Models entry, separate provider registration, composer connection guidance | intake closed; composer follow-up unknown | [implementation receipt](models-provider-registration-2026-09-14/implementation.md) |
+| [work-capability-input-2026-09-11](work-capability-input-2026-09-11/README.md) | Provider allegations and temporary Work capabilities (WCI candidates) | intake closed | [RD-005](RD-005-multi-agent-selection.md) |
+| [experts-hotplug-2026-09-08](experts-hotplug-2026-09-08/README.md) | Expert and extension hot-plug, first validation candidate | history | [decisions](../decisions.md) |
 
-每轮追加日期、执行者、复核者、输入/方案 revision、候选版本和 commit、OS/工具环境、模型与预算、样本来源/哈希、命令或操作、期望/实际、日志路径、失败与退出、适用边界、裁决链接。固定不了环境则逐项写明，不声称严格回放。
+### How are agents coordinated, selected and given roles?
 
-材料类型标明：官方文档、源码、社区报告、本地历史记录、本次模拟运行、本次真实运行、独立复核。文档和代码表明机制存在；运行证明声明环境中的行为；专业成果与长期效果需要额外证据。
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [RD-005](RD-005-multi-agent-selection.md) | Multi-agent practice selection, communication surfaces, execution routing | current rule (execution routing); reference (selection ledger) | [coordination](../../app/docs/coordination.md) |
+| [multi-agent-2026-09-10](multi-agent-2026-09-10/README.md) | Thread and inter-agent messaging rulings; owns MA numbering | intake closed | [coordination](../../app/docs/coordination.md) |
+| [multi-agent-selection-2026-09-10](multi-agent-selection-2026-09-10/README.md) | Consumption of three selection turns; entry is RD-005 | intake closed | [RD-005](RD-005-multi-agent-selection.md) |
+| [multi-experts-2026-09-10](multi-experts-2026-09-10/README.md) | Multi-expert implementation research: turn ledger, selection, PR plan | intake closed | [roadmap](../roadmap.md) |
+| [teamai-2026-09-09](teamai-2026-09-09/README.md) | Multi-expert discussion and personal-context Attention delta | intake closed | [attention-2026-09-09](attention-2026-09-09/README.md) |
+| [court-position-2026-09-13](court-position-2026-09-13/README.md) | Reference practices for positioning; DEC-014 vocabulary and control responsibility | intake closed | [RD-005](RD-005-multi-agent-selection.md), [RD-007](RD-007-resource-governance.md) |
+| [spark-explore-2026-09-13](spark-explore-2026-09-13/README.md) | Spark explorer merge review; coordination bottlenecks; form and async-attention references | intake closed (coordination, in RD-005); intake open (form and async-attention references) | [RD-005](RD-005-multi-agent-selection.md) |
 
-未执行填写“未运行”，不要用空白 PASS 表格。失败样本和中断尝试也进入分母。多项同时改变只能支持组合效果；用于调优的样本不继续冒充独立留出。
+### How is formal work state kept correct, and how do workspaces and obligations continue?
 
-## 共同门槛
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [RD-002](RD-002-commit-recovery.md) | Atomic, idempotent, recoverable commit with negative cases (M05–07, M10; V-04, V-09, V-11) | reference; closure unknown | [core contracts](../core-contracts.md) |
+| [RD-006](RD-006-deferred-workspace-binding.md) | Start a task first and bind external resources later | current rule | [source pack](deferred-workspace-binding-2026-09-12/README.md) |
+| [deferred-workspace-binding-2026-09-12](deferred-workspace-binding-2026-09-12/README.md) | Sources and dispositions behind RD-006 | intake closed | [RD-006](RD-006-deferred-workspace-binding.md) |
+| [obligation-closure-2026-09-12](obligation-closure-2026-09-12/README.md) | Who may register, close and heartbeat a work obligation | intake closed | [Attention contract](../../docs/work-core/attention.md), [RD-005](RD-005-multi-agent-selection.md) |
+| [se-continuity-2026-09-08](se-continuity-2026-09-08/README.md) | Plain persistence versus explicit governance across change, recovery and handover | reference | none stated |
+| [longlife-2026-09-08](longlife-2026-09-08/README.md) | Sources and design checks behind the long-term roadmap | history | [roadmap](../roadmap.md) |
 
-| Gate | 通过所需证据 |
+### What are Attention, Chat and Spark, and how do they differ from the runtime and Matter?
+
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [attention-assistant-20260927](attention-assistant-20260927/INDEX.md) | Attention Assistant, dogfooding Kit, first integration candidate; task reading route | intake closed; routing index | [Attention contract](../../docs/work-core/attention.md), [Attention agent](../../app/docs/attention-agent.md) |
+| [attention-2026-09-09](attention-2026-09-09/README.md) | Personal Attention research and ATT contract and plan | intake closed | [Attention contract](../../docs/work-core/attention.md) |
+| [attention-human-loop-2026-09-09](attention-human-loop-2026-09-09/README.md) | Human decision queue for email and GitHub items | intake closed | [Attention contract](../../docs/work-core/attention.md) |
+| [chat-attention-2026-09-11](chat-attention-2026-09-11/README.md) | Division of roles between Chat and Attention; product rationale | intake open (long-term roadmap not ruled); product rationale closed | CA-01 trigger: next authorised UI merge, no owner named |
+| [chat-memory-broker-2026-09-12](chat-memory-broker-2026-09-12/README.md) | Governed memory sidecar; disclosure and forgetting for Attention | intake closed | [RD-007](RD-007-resource-governance.md) |
+| [spark-product-definition-2026-09-11](spark-product-definition-2026-09-11/README.md) | Spark product and release-copy definition; restricted profile | intake closed | [obligation-closure](obligation-closure-2026-09-12/README.md) |
+
+### How do people see, review and act on work: work surface, UX, commands and frontend?
+
+Start with [UX grammar](../design/ux-grammar.md).
+
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [RD-003](RD-003-work-surface.md) | Can a thin GUI present run, candidate, evidence and decision from one state (M07–12; V-05, V-08, V-10, V-14/15) | reference; experiments status unknown | [design index](../design/README.md) |
+| [RD-008](RD-008-command-compaction.md) | Typed slash commands and native manual compaction | current rule | [commands and compaction](../../app/docs/commands-and-compaction.md) |
+| [slash-compaction-2026-09-13](slash-compaction-2026-09-13/README.md) | Source ledger and baseline behind RD-008 | intake closed | [RD-008](RD-008-command-compaction.md) |
+| [ux-grammar-2026-09-14](ux-grammar-2026-09-14/README.md) | UX copy practice input and the ruling that created UX grammar | intake closed | [UX grammar](../design/ux-grammar.md), [verification](../verification.md) |
+| [review-surface-2026-09-09](review-surface-2026-09-09/README.md) | Review Surface, projection and presentation increments, recalled-item dispositions | intake closed | [disposition ledger](review-surface-2026-09-09/visual-reference-audit-20260915.md), [RD-007](RD-007-resource-governance.md) |
+| [markdown-review-2026-09-10](markdown-review-2026-09-10/README.md) | Markdown review surface architecture and parser spike | intake closed | [Markdown reader](../../docs/markdown-reader.md) |
+| [micro-surface-review-20260910](micro-surface-review-20260910/README.md) | Front and back merge-review practice; rename seam | intake open | no owner, no trigger |
+| [chat-space-2026-09-09](chat-space-2026-09-09/README.md) | Design-method discussion and Chat Space mapping | intake closed | [Markdown reader](../../docs/markdown-reader.md) |
+| [frontend-intake-2026-09-08](frontend-intake-2026-09-08/README.md) | Frontend discussion and GUI/Review runtime index | history | [work surface boundaries](../design/work-surface-boundaries.md) |
+| [frontend-spec-review-2026-09-08](frontend-spec-review-2026-09-08/README.md) | Independent frontend layering spec candidate v0.1 | superseded → [frontend layering spec](../design/frontend-layering-spec.md) | [frontend layering spec](../design/frontend-layering-spec.md) |
+| [frontend-attention-audit-2026-09-14](frontend-attention-audit-2026-09-14/README.md) | Input and scope for the attention-text audit | intake closed | [UX grammar](../design/ux-grammar.md) |
+| [frontend-testing-stack-2026-09-14](frontend-testing-stack-2026-09-14/README.md) | Frontend test stack and enterprise-agent discussion, full capture | history | [verification](../verification.md) |
+| [ux-polish-2026-09-08](ux-polish-2026-09-08/README.md) | Material, hierarchy and local-motion research for polish | history | [design index](../design/README.md) |
+| [ui-ecology-2026-09-11](ui-ecology-2026-09-11/README.md) | UI ecology, visual grammar and taste-memory input | intake closed | [Design one-shot handoff](../design/se-control-one-shot-2026-09-11/HANDOFF.md) |
+| [visual-compilation-2026-09-10](visual-compilation-2026-09-10/README.md) | Visual-compiler concept input (VC items) | intake closed | VC-04 trigger: real repeated cost |
+| [motto-diff-2026-09-11](motto-diff-2026-09-11/README.md) | Terminal diff renderer source study for the shared diff renderer | intake closed | none stated |
+| [agent-presence-2026-09-11](agent-presence-2026-09-11/README.md) | Agent presence figure: exploration, handoff and return | intake closed | [convergence note](../design/agent-presence-2026-09-11/return-v1/CONVERGENCE.md), [review evidence](../../evidence/agent-presence-review-20260912/README.md) |
+
+### How are data, memory, resources and context governed?
+
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [RD-007](RD-007-resource-governance.md) | Retention, links and cleanup of content resources, notes and messages | current rule | [mature-practices](mature-practices-2026-09-12/README.md) |
+| [mature-practices-2026-09-12](mature-practices-2026-09-12/README.md) | Mature-practice ledger, PR plan and roadmap behind RD-007 | intake closed | [RD-007](RD-007-resource-governance.md) |
+| [data-systems-2026-09-09](data-systems-2026-09-09/README.md) | Data-systems principles turned into DS candidates | intake closed | per-candidate start conditions in its plan |
+| [local-governance-2026-09-09](local-governance-2026-09-09/README.md) | Local data governance, Explore method and evaluation prep (LG-00–04) | intake closed | expansion triggers in its benchmark plan |
+| [data-organization-2026-09-10](data-organization-2026-09-10/README.md) | Data and organization engineering: public narrative and selection index | intake closed | none stated |
+| [data-surfaces-2026-09-13](data-surfaces-2026-09-13/README.md) | Data work-surface receipt, ruling and serial implementation evidence | intake closed; implementation evidence is history | none stated |
+| [context-window-2026-09-11](context-window-2026-09-11/README.md) | Context Window in the composer: meter, inspector, compaction timeline | intake closed (partly consumed; rest dormant reference) | [Context capacity contract](../design/context-capacity-ring-2026-09-14/contract.md); reopen when a compaction timeline or "what the Agent knows" copy is scheduled |
+
+### How are the repository, documents and semantics governed?
+
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [document-governance-2026-09-28](document-governance-2026-09-28/README.md) | Structure of documents, indexes, status and raw inputs | intake open (partly disposed; open items named in its README) | [repository layout](../../docs/repository-layout.md), [governance](../governance.md) |
+| [repository-governance-2026-09-14](repository-governance-2026-09-14/README.md) | Cross-check of a governance proposal; PR handoff template | intake closed | [architecture](../architecture.md), [repository layout](../../docs/repository-layout.md) |
+| [semantic-governance-2026-09-11](semantic-governance-2026-09-11/README.md) | Semantic governance and alignment: dispositions and polish roadmap | intake closed | [product semantics](../design/product-semantics/README.md) |
+
+### How are Paper publication, brand and returned Claude material accepted?
+
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [paper-publishing-2026-09-11](paper-publishing-2026-09-11/README.md) | Paper publication surface input, Claude brief, PP items | intake closed | [PAPER.md](../../PAPER.md) |
+| [claude-paper-return-2026-09-11](claude-paper-return-2026-09-11/v1/README.md) | Returned Paper reader candidates, rulings and local integration (entries: v1, prepublish-v1) | intake closed | [prepublish-v1](claude-paper-return-2026-09-11/prepublish-v1/README.md) |
+| [claude-publication-return-2026-09-12](claude-publication-return-2026-09-12/README.md) | Publication-final return receipt | history | [frontend node ruling](../release/frontend-node-2026-09-12/README.md) |
+| [claude-ui-followthrough-return-2026-09-11](claude-ui-followthrough-return-2026-09-11/v1/README.md) | UI follow-through return and reference images | history | [closure decision](../release/ui-publication-closure-2026-09-11/DECISION.md) |
+| [se-control-design-return-2026-09-11](se-control-design-return-2026-09-11/README.md) | Independent Design return, byte-preserving source intake | intake closed | [return intake](../design/se-control-one-shot-2026-09-11/return-intake.md) |
+| [le-brand-2026-09-11](le-brand-2026-09-11/README.md) | LE vendor-signature exploration | history | [brand package](../../brand/README.md) |
+
+### Controlled writing and research-lab experiments
+
+Operator-only and blind-writer packages must stay apart; read each package's boundary line before handing anything to a writer.
+
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [lab-preparation-2026-09-11](lab-preparation-2026-09-11/README.md) | Research-lab preparation track and comparison axes | reference | none stated |
+| [fakesnews-distillation-2026-09-11](fakesnews-distillation-2026-09-11/README.md) | Source dossier for a fictional third-party report | reference | none stated |
+| [claude-fakesnews-report-handoff-2026-09-11](claude-fakesnews-report-handoff-2026-09-11/README.md) | Operator-facing explicit-label report handoff; not writer input | history | [claude-independent-report-handoff](claude-independent-report-handoff-2026-09-11/README.md) |
+| [claude-independent-report-handoff-2026-09-11](claude-independent-report-handoff-2026-09-11/README.md) | Neutral blind-writer input and returned candidate | intake open | no owner, no trigger |
+| [claude-independent-report-operator-2026-09-11](claude-independent-report-operator-2026-09-11/README.md) | Operator-only control notes for the blind run; not writer input | history | none stated |
+| [independent-review-handoff-2026-09-11](independent-review-handoff-2026-09-11/README.md) | Source pack for a neutral third-party review | intake open | no owner, no trigger |
+| [claude-brand-svg-handoff-2026-09-11](claude-brand-svg-handoff-2026-09-11/README.md) | Brand and SVG handoff built from a misread deliverable | superseded → [claude-fakesnews-report-handoff](claude-fakesnews-report-handoff-2026-09-11/README.md) | none |
+
+### What do external tools, upstream projects and other implementations offer?
+
+Upstream channels, source-card rules and legacy recall: [ecosystem](../ecosystem/README.md).
+
+| Package | Answers | Effect | Owner or ruling |
+|---|---|---|---|
+| [codex-courtwork-comparison-2026-09-10](codex-courtwork-comparison-2026-09-10/README.md) | Codex versus Courtwork comparison; claims kept as unverified | intake closed | none stated |
+| [google-workspace-cli-2026-09-11](google-workspace-cli-2026-09-11/README.md) | Workspace CLI as tool ABI and Attention source (EX-GWS items) | intake open | no owner, no trigger |
+| [browser-capability-2026-09-09](browser-capability-2026-09-09/README.md) | Optional Browser Agent adapter and driver seam | intake closed | [contract draft](browser-capability-2026-09-09/contract-draft.md) |
+
+## Open intakes
+
+Packages whose effect is "intake open". Each is a candidate for a dormant-reference note unless an owner or trigger is given here.
+
+| Package | Owner or trigger |
 |---|---|
-| G1 执行 | model→tool→model、错误与取消一致，usage 未知不伪造为零 |
-| G2 提交 | Candidate 不生效、越权拒绝、同键异内容拒绝、重复请求至多一次状态转换 |
-| G3 恢复 | kill/restart、版本冲突、丢通知、换 Session 后成果与义务仍正确 |
-| G4 投影 | Context、GUI、索引引用相同正式版本；断线/旧页面不误提交 |
-| G5 隔离 | 模型可达工具无法绕过正式写入入口；缺少许可或执行环境时失败可见 |
-| G6 兼容 | 插件/Adapter 变更无需改领域语义；不支持能力明确拒绝 |
-| G7 工作成果 | Reviewer 在声明范围接受确切成果版本；运行结束不自动视为完成 |
+| [chat-attention-2026-09-11](chat-attention-2026-09-11/README.md) | CA-01: next authorised UI merge; no owner named |
+| [claude-independent-report-handoff-2026-09-11](claude-independent-report-handoff-2026-09-11/README.md) | no owner, no trigger |
+| [document-governance-2026-09-28](document-governance-2026-09-28/README.md) | open items and owner named in its README |
+| [google-workspace-cli-2026-09-11](google-workspace-cli-2026-09-11/README.md) | no owner, no trigger |
+| [harness-pro-2026-09-10](harness-pro-2026-09-10/README.md) | no owner, no trigger |
+| [independent-review-handoff-2026-09-11](independent-review-handoff-2026-09-11/README.md) | no owner, no trigger |
+| [micro-surface-review-20260910](micro-surface-review-20260910/README.md) | no owner, no trigger |
+| [spark-explore-2026-09-13](spark-explore-2026-09-13/README.md) | form and async-attention references: no owner, no trigger |
 
-此表G1—G7是RD检查类别；MVP工单包的G0/G1/G2是施工阶段准入，两者不可凭同名互相替代。这些检查按具体 RD 分解。性能先记录 token、延迟、成本、Review 时间与维护改动面，再以基线决定可接受范围；不能事后移动正确性门槛以便通过。
+## RD conventions
 
-## 新卡最小格式
+Evidence for a round records: date, executor, reviewer, input or plan revision, candidate version and commit, OS and tools, model and budget, sample source and hash, commands, expected and actual, log paths, failures and exits, scope limits, and the ruling link. If the environment cannot be fixed, say so item by item and do not claim strict replay. Label the material type: official documentation, source code, community report, local history, simulated run, real run, independent review. Unexecuted checks are written "not run", never a blank PASS. Failed samples and interrupted attempts stay in the denominator; samples used for tuning are not later presented as held out.
 
-问题、所属模块、候选与来源、决策影响、固定输入、实验步骤、负例、通过/停止条件、证据记录、未完义务与裁决链接。一个卡只回答一个可以独立决策的问题族；出现不同 owner、不同开工条件或独立迁移责任时拆卡。
+| Gate | Evidence required to pass |
+|---|---|
+| G1 execution | model→tool→model, errors and cancel are consistent; unknown usage is not forged as zero |
+| G2 commit | a Candidate has no effect; unauthorized writes are rejected; same key with different content is rejected; a repeated request causes at most one state transition |
+| G3 recovery | after kill and restart, version conflict, lost notification and session change, results and obligations are still right |
+| G4 projection | Context, GUI and index cite the same formal version; a disconnected or stale page cannot commit by mistake |
+| G5 isolation | model-reachable tools cannot bypass the formal write entry; missing permission or environment fails visibly |
+| G6 compatibility | plugin or adapter changes need no domain-semantics change; unsupported capabilities are refused explicitly |
+| G7 work result | a Reviewer accepts the exact result version in the declared scope; the end of a run is not completion |
 
-## 2026-09-10 · Multi-agent selection
+These are RD check categories; the MVP work-package G0/G1/G2 are construction-stage admission gates and are not interchangeable with them. Record token, latency, cost, review time and maintenance surface first and set acceptable ranges from that baseline; never move a correctness gate afterwards to make a run pass. V numbers refer to the [Practice Index verification queue](../../PAPER.md) (historical path `../../papers/src/practice-index.md`); an engineering experiment supports only its own scope.
 
-[RD-005](RD-005-multi-agent-selection.md)：完整消费三turn，登记Astra/Luna分工、四通信面、候选PR与成熟参考负索引；研究/架构裁定，不构成产品接受。
-
-## 近期来源消费
-
-- 2026-09-11 · [修订Paper发布版面](paper-publishing-2026-09-11/README.md)：优先出版设计输入、Astra逐项裁定、Claude原创插画任务稿与Luna固定源索引；Paper内容/发布面版本分开。
-
-- 2026-09-10 · [数据工程与组织工程](data-organization-2026-09-10/README.md)：完整输入、局部选型索引、既有路线映射及 Paper 不修订裁决。
-- 2026-09-11 · [Google Workspace CLI / Tool ABI与Attention](google-workspace-cli-2026-09-11/README.md)：原文269行及hash、14项处置与EX-GWS-01～03消费索引已登记；上游主张未核验，候选未派工，不改变前端/通用Harness优先级。
-
-
-- 2026-09-11 · [语义治理与对齐](semantic-governance-2026-09-11/README.md)：5 turn/9消息、附件与截断补录、25项处置、PR review、Luna explore及统一polish roadmap；待用户merge清洁节点开工。
-
-## 2026-09-11 · UI生态 / Visual Grammar / Taste Memory
-
-[完整输入、来源与裁定](ui-ecology-2026-09-11/README.md)进入[独立Design one-shot](../design/se-control-one-shot-2026-09-11/HANDOFF.md)。两轮对话、追加Taste研究与用户图标截图分开保留，研究作者覆盖数不算本地实测。
-
-## 2026-09-11 · Claude Paper返回
-
-[原件、八项裁定与本地集成](claude-paper-return-2026-09-11/v1/README.md)：E1与黑／彩两宗采用，SE本地main 0f23ad1，110项QA通过；未推送SE或发布。
-
-## 2026-09-11 · Chat与Attention分工快照
-
-[5轮来源快照与CA-01](chat-attention-2026-09-11/README.md)：长期roadmap不全裁，Chat入口／命名小项留待稍后合流；外部生态主张未重新核验。
-
-## 2026-09-11 · Research lab 与受控写作材料
-
-- [Lab preparation](lab-preparation-2026-09-11/README.md)：筹备和方法基线；未运行 benchmark 或真实 provider，不是产品能力或部署回执。
-- [Claude brand SVG handoff](claude-brand-svg-handoff-2026-09-11/README.md)：交付目标误读后的 superseded 包；未运行、未接受资产，保留作来源记录。
-- [Claude FakesNews report handoff](claude-fakesnews-report-handoff-2026-09-11/README.md)：显式标签的 operator 材料；不是 blind writer 输入，也不是已完成文章。
-- [Claude independent report handoff](claude-independent-report-handoff-2026-09-11/README.md)：中性输入与已返回候选；未接受、未发布。Return intake 记录 1,630/1,606 词数差及待软化的绝对措辞。
-- [Independent report operator notes](claude-independent-report-operator-2026-09-11/README.md)：与 writer 输入分开，维护盲测输入边界；operator 标记不代表凭据或个人隐私分类。
-- [FakesNews distillation](fakesnews-distillation-2026-09-11/README.md)：素材蒸馏和来源分类；未撰写文章，不改变产品或 Paper。
-- [Independent review source pack](independent-review-handoff-2026-09-11/README.md)：source intake only；未撰写 review article。
-
-## 2026-09-14 · 前端测试技术栈与企业 Agent 讨论
-
-[完整会话与输入登记](frontend-testing-stack-2026-09-14/README.md)：2页、12轮、24消息及用户截图；索引前端测试栈候选、本地 Agent runtime、企业治理、受治理工作状态与 Schema/retrieval 讨论。外部事实未核验；引用的 Paper handoff 附件未返回，独立 SE 修订任务线程 ID 待定。仅作历史输入，不改当前验证合同或产品状态。
-
-## 2026-09-14 · Repository governance follow-up
-
-[Local cross-check and Astra ruling](repository-governance-2026-09-14/README.md): records the supplied input hash, the local owner/index/verification comparison, and Astra's decision to retain task-based source retrieval and nearest precedents while adding only a short PR handoff template. External claims remain unverified; no owner rules or CI gates changed.
+A new RD card states: the question, owning modules, candidates and sources, decision impact, fixed inputs, steps, negative cases, pass and stop conditions, evidence record, open obligations, and the ruling link. One card answers one independently decidable question; split it when owners, start conditions or migration responsibility differ.

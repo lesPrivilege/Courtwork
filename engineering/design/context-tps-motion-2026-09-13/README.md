@@ -1,5 +1,7 @@
 # Context ring / request activity · visual candidate
 
+> **Reading note, 2026-09-29.** The opening lines describe the synthetic candidate; [production](production/README.md) supersedes them.
+
 2026-09-13 · Astra serial author; Luna bounded material/source audit. Base `main@93a8ac49f0a887bff430550441cddfa836690adf`. This directory is an interactive **synthetic design candidate**, not production telemetry wiring or an accepted screenshot baseline. No provider request or product source mutation.
 
 ## User decisions implemented

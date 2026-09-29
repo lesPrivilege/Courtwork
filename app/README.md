@@ -63,7 +63,7 @@ the duration of a Run, same as before.
 
 ## Governed object reads
 
-Global Attention can discover explicitly disclosed Matter/Attention objects and progressively read bounded source/accepted Artifact pages. Human disclosure is an authenticated API in this backend slice; no new policy editor UI is included. Core4/app5 adds three same-owner disclosure tables, with an exclusive `.pre-governance-core-v4-app-v5.bak` before upgrading validated Core3/app4 (older supported pairs migrate in stages). Old Core3 hosts refuse the upgraded database; restore only into a separate directory with the matching host. See the [governance contract](../docs/work-core/governance.md) for scope, current-content grants, revocation, schema support and recovery. RuntimeStore8 is unchanged by BG-01.
+Global Attention can discover explicitly disclosed Matter/Attention objects and progressively read bounded source/accepted Artifact pages. Human disclosure is an authenticated API in this backend slice; no new policy editor UI is included. Core4/app5 adds three same-owner disclosure tables, with an exclusive `.pre-governance-core-v4-app-v5.bak` before upgrading validated Core3/app4 (older supported pairs migrate in stages). Old Core3 hosts refuse the upgraded database; restore only into a separate directory with the matching host. See the [governance contract](../docs/work-core/governance.md) for scope, current-content grants, revocation, schema support and recovery.
 
 ## Run
 
@@ -90,9 +90,8 @@ task.
 
 ```
 <dataDir>/
-  runtime-state.json        # schemaVersion 22 store (see below)
-  runtime-state.schema3.<sha256>.json # exact pre-upgrade backup when migrating
-  runtime-state.schema21.<sha256>.json # exact pre-upgrade backup from schema 21
+  runtime-state.json        # RuntimeStore (see "Store schema")
+  runtime-state.schema<N>.<sha256>.json # exact pre-upgrade backup of a schema N store, one per upgrade
   runtime-control.json      # declarative resource/policy config schema 1, 0600
   runtime-state.json.*.tmp  # only ever transient; a leftover means a crash mid-write, and is swept and logged at startup
   credentials.json          # {connectionId: apiKey}, 0600, never in the store
@@ -107,7 +106,6 @@ task.
 
 <a id="store-schema-v5-validated-v3v4-upgrade"></a>
 <a id="store-schema-v7-validated-v3v4v5v6-upgrade"></a>
-
 <a id="store-schema-v8-validated-v3v4v5v6v7-upgrade"></a>
 <a id="store-schema-v9-validated-v3v4v5v6v7v8-upgrade"></a>
 <a id="store-schema-v10-validated-v3v4v5v6v7v8v9-upgrade"></a>
@@ -117,53 +115,76 @@ task.
 <a id="store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade"></a>
 <a id="store-schema-v18-validated-v3-v17-upgrade"></a>
 <a id="store-schema-v19-validated-v3v18-upgrade"></a>
-## Store schema (v22, validated v3–v21 upgrade)
+## Store schema
 
-`schemaVersion` is `22`. A valid v3 … v21 store upgrades with an exact SHA-256-named
-backup before atomic replacement. The pinned schema21 Host refuses v22 without
-rewriting it. Runtime22 adds a typed Session `executorChoice` and Run
-`executorBinding` for the actual Runtime Port. Pure migration gives every old
-Session a null executor factory reference and old nonchild Runs a legacy binding;
-the first new Run pins an explicitly configured matching port and increments the
-Session choice revision once in the same Store transaction. Spark child Runs keep
-their separate owner and a null ordinary executor binding. Pi remains the default;
-the managed Agents option requires an explicitly configured trusted factory and
-does not gain live availability from the offline fixture. Core user schema4 and
-bridge app schema5 are unchanged.
+The Host RuntimeStore (`runtime-state.json`) is at `schemaVersion` 22. Core user
+schema 4 and bridge app schema 5 are versioned separately by the Work Core and are
+not affected by Store upgrades.
 
-Runtime21 adds immutable
-Run-owned `kitBinding` (null for older/no-Kit Runs), atomically projected by
-`runtime.bound`; exact plan/context bytes remain in ArtifactHistory and are verified
-before inference and recorded-context reads. Only explicit Session-selected ordinary
-Chat on in-process Pi admits reference-only Kits. Profile-v2 declarations do not
-grant permissions or prove compatibility; absent evidence remains unchecked under
-the bounded Host policy. Current configuration cannot reinterpret a recorded Run.
-See the [K3 contract](../engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md)
-and [Runtime Control API](../docs/runtime-control/api.md). Restore a backup only in a
-separate directory with its matching Host; never open upgraded data with an old Host.
-Runtime20 strictly validates
-Run-owned local Pi dispatch, process and retained-result events, including child/source
-identity and unresolved-process fences. It adds no second ledger; valid schema19
-records retain their existing fields and event bytes. The actual schema19 reader
-refuses20 without writing (`tests/local-pi-schema20.test.mjs`). The explicitly injected
-local Pi consumer is tool-less and deterministic-provider-only; see the [Spark contract](docs/spark-agent.md#local-pi-process-consultation). Runtime19 adds remote
-runtime records beside Pi's unchanged `hostSession={id,path}`: a Session's optional
-`remoteBinding` and bounded `remoteActions` (command intents and native tool-call
-claims), and the `remoteBinding` each Run was admitted against; a v18 store gains them
-null/empty and nothing else changes in that step (`tests/schema19-upgrade.test.mjs`).
-No remote runtime is selectable or exposed by this schema. Runtime18 adds the
-`operations` ledger (manual compaction as an operation that excludes Runs while it
-runs and is recorded `unknown` after a restart); a v17 store gains it empty and
-nothing else changes in that step (`tests/schema18-upgrade.test.mjs`). Runtime17 adds per-Session private Git candidate state, candidate command receipts and durable write-effect records; Runs freeze the candidate identity/revision. Runtime16 adds per-Session external repository binding state and per-Run source binding snapshots; historical Sessions migrate to no external binding while managed workspaces remain intact. Runtime15 adds stable Spark assignment, attempt and mount state. Runtime14 adds ordinary `unassigned` Chat scope, distinct from global Attention; v13→v14 preserves existing scope, model capabilities, verification receipts and configuration epoch exactly. See [optional workspace chats](docs/projectless-chat.md). Runtime13 adds exact `reasoningEfforts: null | string[]` to connection models; legacy booleans remain unchanged and never create a ladder. A v12 upgrade increments `providerConfigVersion` and retains historical verification receipts, making those receipts stale through their existing binding. New Runs freeze `reasoningBinding` (capability source, adapter and config version); new verification receipts record their single-turn, no-tools, omitted-parameter coverage. `GET /provider-config` and `/provider-models` expose `version`; `PUT /provider-config` requires top-level `expectedVersion` and returns `409 config_conflict` for stale saves. Provider default omits reasoning parameters; explicit values are validated by the Host. Runtime12 (WO-PV-BE03) adds two top-level fields and one connection-model field: `providerConfigVersion` (a monotonic counter, bumped by any `providerConfig` or `providerConnections` write) and `providerVerifications` (one BE-39 verify receipt per connection id, bound to `{providerConfigVersion, credentialGeneration}` — either changing invalidates it); each connection model entry gains `reasoning: true | false | null` (PV-61), defaulting to `null` (never declared) on upgrade. Runtime11 adds durable pending configuration markers; v10 connections and v9 lineage are preserved. Older schemas receive the Provider Connections ledger; v3–8 runs receive a null predecessor. [Run attempts and lineage](docs/run-attempts.md) adds one immutable `supersedes` link per Run. [Thread and local messaging](docs/coordination.md) adds the coordination ledger without changing Core acceptance. Optional model reasoning effort is frozen with the provider descriptor; request telemetry is retained as host events. [Attention](docs/attention-agent.md) adds explicit global/project Session scope, preserving existing async tasks. The optional [durable read task contract](docs/async-tasks.md) adds host-owned async tasks; Core schemas are unchanged. v1/v2, malformed and future stores remain rejected with
-`INVALID_STATE` without overwriting the input. See the [upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
- Sessions no longer keep a private
+**Upgrade.** A valid schema 3 through 21 store is fully validated in its old shape
+before anything is written, then upgraded in place. The exact original bytes are first
+written, exclusively and with mode 0600, to `runtime-state.schema<N>.<sha256>.json`;
+an existing backup path is never followed or overwritten, and recovery after an
+interrupted upgrade is explicit. The upgraded state then replaces the store
+atomically. Schema 1/2, malformed and future stores are rejected with `INVALID_STATE`
+without overwriting the input. An older Host refuses a newer store without rewriting
+it, so upgraded data must not be opened by an old Host; restore a backup only in a
+separate directory with its matching Host. See the
+[upgrade boundary](../docs/runtime-control/architecture.md#persistence-upgrade).
+
+**Schema 22 records.** Each Session has a typed `executorChoice` and each Run an
+`executorBinding` for the actual Runtime Port. Migration gives every older Session a
+null executor factory reference and every older non-child Run a legacy binding; the
+first new Run pins an explicitly configured matching port and increments the Session
+choice revision once in the same Store transaction. Spark child Runs keep their
+separate owner and a null ordinary executor binding. In-process Pi is the default and
+the only executor a production Host registers; the managed Agents option becomes
+available only when a trusted factory is injected into the Host and does not gain
+availability from the offline fixture. A Run's immutable `kitBinding` (null for
+older/no-Kit Runs) is projected atomically by `runtime.bound`; exact plan and context
+bytes stay in ArtifactHistory and are verified before inference and recorded-context
+reads. Only explicit Session-selected ordinary Chat on in-process Pi admits
+reference-only Kits. Profile-v2 declarations do not grant permissions or prove
+compatibility, and current configuration cannot reinterpret a recorded Run; see the
+[K3 contract](../engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md)
+and [Runtime Control API](../docs/runtime-control/api.md).
+
+**History.** Each item names the schema that introduced the record; a store upgraded
+from an earlier version gains it in its null/empty form and existing records keep
+their bytes.
+
+- 5: host-owned `asyncTasks` ([async tasks](docs/async-tasks.md)).
+- 6: explicit Session scope, global or project ([Attention](docs/attention-agent.md)).
+- 8: the coordination ledger ([Thread and local messaging](docs/coordination.md)).
+- 9: one immutable `supersedes` link per Run ([Run attempts and lineage](docs/run-attempts.md)); older Runs receive a null predecessor.
+- 10: the Provider Connections ledger.
+- 11: durable pending configuration markers.
+- 12: `providerConfigVersion` (a monotonic counter bumped by any `providerConfig` or `providerConnections` write), `providerVerifications` (one verify receipt per connection id, bound to `{providerConfigVersion, credentialGeneration}`; either changing invalidates it) and a per-model `reasoning: true | false | null`, defaulting to `null` (never declared).
+- 13: exact `reasoningEfforts: null | string[]` on connection models; legacy booleans never create a ladder. The v12 upgrade increments `providerConfigVersion` and keeps historical verification receipts, which become stale through their existing binding. New Runs freeze `reasoningBinding`; `GET /provider-config` and `/provider-models` expose `version`, and `PUT /provider-config` requires `expectedVersion` (`409 config_conflict` when stale).
+- 14: ordinary `unassigned` Chat scope, distinct from global Attention ([optional workspace chats](docs/projectless-chat.md)).
+- 15: stable Spark assignment, attempt and mount state.
+- 16: per-Session external repository binding and per-Run source binding snapshots; older Sessions gain no external binding and managed workspaces stay intact.
+- 17: per-Session private Git candidate state, candidate command receipts, durable write-effect records; Runs freeze the candidate identity and revision.
+- 18: the `operations` ledger (manual compaction excludes Runs while it runs and is recorded `unknown` after a restart).
+- 19: `remoteBinding` and bounded `remoteActions` on Sessions and the `remoteBinding` each Run was admitted against; Pi's `hostSession={id,path}` is unchanged.
+- 20: strict validation of Run-owned local Pi dispatch, process and retained-result events; no second ledger, valid schema 19 records keep their fields and event bytes. See the [Spark contract](docs/spark-agent.md#local-pi-process-consultation) and `tests/local-pi-schema20.test.mjs`.
+- 21: Run-owned `kitBinding`.
+- 22: Session `executorChoice` and Run `executorBinding`.
+
+Optional model reasoning effort is frozen with the provider descriptor and request
+telemetry is retained as host events; neither is a Store schema change. Core schemas
+are unchanged by the durable read task contract.
+
+### Session and Run records
+
+Sessions do not keep a private
 `_history` array: the reopened Pi JSONL session (via `SessionManager.open`)
 is the only conversation journal, restored automatically into `AgentSession`
-on the next Run for that app session. New session fields: `workspaceDir`,
+on the next Run for that app session. Session fields include `workspaceDir`,
 `permissionMode` (`read_only` | `draft` | `ask`), `hostSession` (`{id,path}`
 or `null` until the first Run), and `repositoryBinding`,
 `repositoryBindingRevision`, `repositoryBindingCommands` for optional external
-repository access, one private candidate and bounded candidate/write receipts. Each Session keeps at most 512 candidate lifecycle receipts and 512 write effects without eviction; new candidate lifecycle commands and writes are rejected at those receipt limits. Candidate writes also retain at most 64 MiB of prepared/unknown payloads, with capacity checked before payload pinning and again before the effect is stored. Candidate write bytes are pinned in session-scoped ArtifactHistory; prepared/unknown effects retain a bound reference, while confirmed/failed settlement clears only that effect reference. ArtifactHistory has no automatic deletion/GC policy, so the 64 MiB outstanding-effect payload budget is not a lifetime storage quota. A restarted prepared write is recorded as unknown and is never replayed. New run fields: `commandId`, `artifacts[]`,
+repository access, one private candidate and bounded candidate/write receipts. Each Session keeps at most 512 candidate lifecycle receipts and 512 write effects without eviction; new candidate lifecycle commands and writes are rejected at those receipt limits. Candidate writes also retain at most 64 MiB of prepared/unknown payloads, with capacity checked before payload pinning and again before the effect is stored. Candidate write bytes are pinned in session-scoped ArtifactHistory; prepared/unknown effects retain a bound reference, while confirmed/failed settlement clears only that effect reference. ArtifactHistory has no automatic deletion/GC policy, so the 64 MiB outstanding-effect payload budget is not a lifetime storage quota. A restarted prepared write is recorded as unknown and is never replayed. Run fields include `commandId`, `artifacts[]`,
 `usage` (`{input,output,cacheRead,cacheWrite,turns,missing}`), `hostSession`,
 `credentialGeneration`, `repositoryBindingSnapshot`, and `repositoryCandidateSnapshot`. Source `repo_*` reads keep using the connected directory; `candidate_*` tools read the private worktree, `repo_write` changes only that candidate, and `repo_diff` compares it with its fixed creation commit. See [repository binding and candidate tools](docs/repository-binding.md). Top-level `credentialGeneration` (added in v3) is the
 persisted counter those run records freeze: it survives a restart, so a
@@ -201,7 +222,8 @@ under the control-plane exposure/permission contract. A network-capable MCP
 tool is different from the built-in filesystem tools; remote provenance,
 connection state, effect classification and unknown-result handling remain
 visible and enforced. There is no arbitrary shell/browser tool or package
-installer in this candidate.
+installer in this candidate. The [support table](docs/supported-preview.md) lists
+what is usable per area.
 
 Default Pi coding tools and automatic home-directory/repository resource
 discovery stay disabled. Explicit host-registered skills/instructions/profiles

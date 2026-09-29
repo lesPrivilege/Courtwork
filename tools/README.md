@@ -4,7 +4,7 @@
 
 | 命令 / 目录 | 用途 |
 |---|---|
-| `node tools/check-doc-links.mjs` | 仓库文档与索引链接检查 |
+| `node tools/check-doc-links.mjs` | 仓库文档与索引链接检查；`--anchors` 另报告 Markdown `#fragment` 缺失（`anchorProblems`），`--strict-anchors` 使其同样失败 |
 | `node tools/lint-colors.mjs` | 产品颜色角色与字面量检查 |
 | `node tools/lint-materials.mjs` | 产品材质与 reduced-transparency 检查 |
 | `node tools/lint-interaction.mjs` | 交互语法负规则检查（WK-140 / WK-146） |

@@ -1,6 +1,6 @@
 # MX-R1 additions to the v6 contract
 
-All routes retain `/api/v5` and the existing work-token requirement. Store schema remains 3. Web and extension contracts are unchanged.
+All routes retain `/api/v5` and the existing work-token requirement. These additions changed no Store schema. Web and extension contracts are unchanged.
 
 ## Historical artifact text
 

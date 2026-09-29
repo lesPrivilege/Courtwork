@@ -3,8 +3,8 @@
 The runtime runs independently of the Web UI. Its current deployable scope is
 one agent per active session, constrained text workspace tools, permission
 questions, persistent conversation and content versions, cancellation, usage,
-and native automatic compaction. [Command surface availability](commands-and-compaction.md)
-distinguishes that support from the unimplemented Host slash/manual-compaction entry.
+native automatic compaction, and the Host-owned slash-command and manual-compaction
+surfaces described in [Commands and compaction](commands-and-compaction.md).
 It does not claim shell, browser, fork, child-agent or
 scheduler support. Those capabilities can be added when needed through explicit
 execution and lifecycle adapters.
@@ -316,7 +316,8 @@ existing 503 `provider_unsupported` Run gate instead of stopping the host.
 
 Main schema 9 already records Run `supersedes`. The independent Provider
 Connections branch also proposed schema 9; its unshipped shape is not the main
-schema. The combined host uses schema 10. Validated main schemas 3–9 are backed
+schema. The combined host introduced schema 10 (later schemas are listed in the
+[Store schema](../README.md#store-schema)). Validated main schemas 3–9 are backed
 up byte for byte before upgrade. Schema 9 Run lineage is preserved; only
 schemas 3–8 receive `supersedes: null`. Connections start empty and are initialized
 by the service owner. Provider connection provenance on Run descriptors belongs

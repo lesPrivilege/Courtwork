@@ -1,38 +1,50 @@
 # Engineering release and publication records
 
-[2026-09-15产品节点发布与下一轮基线](product-node-2026-09-15/deployment.md)：公开源fe7f317的Pages发布、线上核对及原单接续。
+Release packets hold handoffs, publication preparation, deployment receipts and the rulings behind public wording. They are records and preparation contracts. A release note does not by itself mean that a build was deployed, a gate was accepted or a desktop artifact shipped. Current status is [current](../current.md); the Pages source and generated-output rules are owned by [site/README.md](../../site/README.md).
 
-[2026-09-15产品节点裁决](product-node-2026-09-15/README.md)：README与Pages公开声明可接续的工作场，稳定语义进入二级入口，实施继续原单。
+Effect labels: **active** = an owner record for an open thread in [current](../current.md); **rule** = a ruling or contract other documents cite; **accepted** = a delivery whose result is already carried elsewhere; **superseded** = names its replacement; **unknown** = the packet's text does not settle it. An order that names an author to "claim" it is an order, not a claim that the work is open: follow the row's replacement or return record.
 
-[2026-09-13–14最终筹备与合流](final-preparation-2026-09-13/README.md)：当前merge/push/部署责任、组合检查及开放产品门的单一批次回执。以下具名历史记录保留各自日期与事实，不自动成为当前待办。
+## Use now
 
-[Claude Paper正式串行开工](claude-paper-2026-09-11/ONE-SHOT.md)：用户已授权，les Privilege两宗、原创编辑插画与独立阅读面候选；待作者认领/返回。
+| Question | Read | Effect |
+|---|---|---|
+| Which gates and pins govern public README, Pages and media, and what is open | [public-readiness](../execution/2026-09-08-main-round/public-readiness.md), then [current](../current.md#open-work) | active (owner in execution) |
+| What is the latest publication receipt and its live check | [product-node-2026-09-15/deployment.md](product-node-2026-09-15/deployment.md) and [live-verification.json](product-node-2026-09-15/live-verification.json) | accepted; latest release baseline |
+| What public README and Pages claims the product node ruled | [product-node-2026-09-15/](product-node-2026-09-15/README.md) | accepted |
+| How Work-first wording and the definition of Court were ruled | [work-first-narrative-2026-09-11/](work-first-narrative-2026-09-11/DECISION.md); no README | rule |
+| How Host check recipes and dogfooding are contracted (DF-04) | [harness-implementation-2026-09-12/harness-dogfooding.md](harness-implementation-2026-09-12/harness-dogfooding.md); the packet README is the adoption record | rule |
+| How the Pages build source and evidence pins are handled | [publishing-surface-2026-09-09/](publishing-surface-2026-09-09/README.md), with [site/README.md](../../site/README.md) | rule (inputs are pinned by the build) |
 
-[Claude A/B v2接收与Pages独立任务准备](fresh-claude-pages-2026-09-11/README.md)：Astra裁决、分层索引、构图与发布计划。
+## History
 
+Read only when a question needs the earlier order, receipt or reasoning.
 
-[2026-09-11 Architecture / README / Claude figure准备](architecture-reconciliation-2026-09-11.md)：Astra语义与F1–F5逐图合同；用户下一轮串行绘制，当前未改Pages或部署。
+### Orders whose return or replacement exists
 
+| Packet | What it was | Effect |
+|---|---|---|
+| [claude-paper-2026-09-11/](claude-paper-2026-09-11/PRE-PUBLISH.md) | Claude Paper serial order and pre-publish order (`ONE-SHOT.md`, `PRE-PUBLISH.md`); no README | superseded: the return is the [prepublish-v1 receipt](../research/claude-paper-return-2026-09-11/prepublish-v1/README.md) |
+| [claude-ui-followthrough-2026-09-11/](claude-ui-followthrough-2026-09-11/ONE-SHOT.md) | Claude diff, Settings and Chat order; no README | superseded by [ui-publication-closure-2026-09-11](ui-publication-closure-2026-09-11/README.md) |
+| [fresh-claude-pages-2026-09-11/](fresh-claude-pages-2026-09-11/README.md) | Claude A/B v2 receipt and independent Pages task preparation | superseded: Pages shipped through later packets |
+| [harness-next-node-2026-09-12/](harness-next-node-2026-09-12/README.md) | Next-node index for a real Runtime and generic Harness | superseded by its own README note |
+| [architecture-reconciliation-2026-09-11.md](architecture-reconciliation-2026-09-11.md) | Architecture / README figure reconciliation contract (F1-F5) | accepted |
 
-This directory contains release handoffs, publication preparation and delivery records. Current product status remains [`../current.md`](../current.md); the Pages source and generated-output rules are owned by [`../../site/README.md`](../../site/README.md).
+### Publication line, in order
 
-- [2026-09-08 release handoff](2026-09-08/README.md): merge, two-line execution and publication boundaries.
-- [2026-09-09 publishing surface](publishing-surface-2026-09-09/README.md): Pages candidate intake, work orders and delivery receipts.
-
-These are release records and preparation contracts. A release note does not by itself mean that a build was deployed, a product gate was accepted, or a desktop artifact was shipped.
-
-## 2026-09-11 · Paper发布准备
-
-[Claude串行施工单](claude-paper-2026-09-11/PRE-PUBLISH.md)：补齐证据、可复现候选与发布方案，接入Astra optical-03资产；已授权待作者认领，未推送SE或部署。
-
-## 2026-09-11 · UI串行接续
-
-[Claude diff／Settings／Chat工单](claude-ui-followthrough-2026-09-11/ONE-SHOT.md)已授权待认领；Paper预发布已返回，由Astra完成最终icon接入与本地候选验证，见[接收回执](../research/claude-paper-return-2026-09-11/prepublish-v1/README.md)。未推送SE或部署。
-
-## 2026-09-11 · Chat专门设计追加
-
-[Astra页面裁定](../design/chat-product-page-2026-09-11/DECISION.md)将Chat升级为同级独立页面与专门视觉设计；Luna索引历史Design消费链，Claude在现有串行单增量绘制和前端施工，后端仍待后续。
-
-## 2026-09-11 · Work优先发布叙事
-
-[Astra定义与文案裁定](work-first-narrative-2026-09-11/DECISION.md)消费最新三轮，修订README、首页与Paper导读；Court按有机协作和正式编排的工作场合理解，Runtime探索与已实现能力分开。
+| Packet | What it was | Effect |
+|---|---|---|
+| [2026-09-08/](2026-09-08/README.md) | Merge, two-line iteration and publication handoff | accepted |
+| [publishing-surface-2026-09-09/](publishing-surface-2026-09-09/README.md) | Pages candidate intake, work orders and delivery receipts | accepted (also see Use now) |
+| [merged-ui-captures-2026-09-10/](merged-ui-captures-2026-09-10/README.md) | Post-merge unified captures and publication authorization | accepted |
+| [public-narrative-2026-09-10/](public-narrative-2026-09-10/README.md) | Public product narrative editorial scope | accepted |
+| [publishing-visuals-2026-09-10/](publishing-visuals-2026-09-10/README.md) | Pages imaging layer: semantic registry, visual grammar, QA | accepted |
+| [pages-ordered-integration-2026-09-11/](pages-ordered-integration-2026-09-11/README.md) | Pages ordered integration decisions | accepted |
+| [ui-publication-closure-2026-09-11/](ui-publication-closure-2026-09-11/README.md) | Icons, secondary chrome, red control and preview order and decision; replaced its predecessor | accepted |
+| [work-first-narrative-2026-09-11/](work-first-narrative-2026-09-11/DECISION.md) | Work-first narrative decision (also see Use now) | rule |
+| [frontend-node-2026-09-12/](frontend-node-2026-09-12/README.md) | Frontend node convergence and unified preview | accepted |
+| [governed-work-loop-2026-09-12/](governed-work-loop-2026-09-12/README.md) | Governed-work-state direction ruling and deployment run | accepted |
+| [harness-implementation-2026-09-12/](harness-implementation-2026-09-12/README.md) | Harness implementation package: adoption, DF-04 contract, raw v2 inputs (`inputs/*.zip` and `receipt.json` hashes are frozen) | accepted (contract text: see Use now) |
+| [final-preparation-2026-09-13/](final-preparation-2026-09-13/README.md) | Pre-release preparation, merge / push / deploy receipt and audits; its own "current" wording is a snapshot, replaced by `product-node-2026-09-15` | accepted |
+| [review-intake-2026-09-13/](review-intake-2026-09-13/README.md) | Release independent-review local increment decision | accepted |
+| [independent-review-2026-09-14/](independent-review-2026-09-14/README.md) | GitHub independent review: local consumption and ruling; `REVIEW.md` is byte-preserved | accepted |
+| [product-node-2026-09-15/](product-node-2026-09-15/README.md) | Public-node consumption and deployment receipt (also see Use now) | accepted |

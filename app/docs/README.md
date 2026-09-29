@@ -1,37 +1,52 @@
-# Runtime 实现与 API
+# Runtime implementation and API
 
-## 运行基础
+This page routes to the document that owns each topic. Status, versions and support
+levels are stated in the target documents, not here.
 
-- [Runtime foundation](runtime-foundation.md)：Host、Pi 集成、模型与能力接口、关闭与恢复。
-- [命令入口与压缩边界](commands-and-compaction.md)：现有GUI/API、原生自动压缩与尚未实现的slash/manual入口。
-- [HTTP 基础契约](api-v6.md)：`/api/v5` 下的会话、运行、凭据、文件与事件。
-- [历史文件与 compaction](api-runtime-mx-r1.md)：MX-R1 增量接口。
-- [运行数据与迁移](../README.md#store-schema-v9-validated-v3v4v5v6v7v8-upgrade)：当前 Host schema 10。
-- [权限 CAS](permission-cas.md)：批准动作的 payload 与版本条件。
+## Runtime foundation
 
-## 工作与运行投影
+- [Runtime foundation](runtime-foundation.md): Host, Pi integration, model and capability interfaces, shutdown and recovery.
+- [Commands and compaction](commands-and-compaction.md): slash commands, manual and automatic compaction, and their boundaries.
+- [HTTP base contract](api-v6.md): the `/api/v5` routes for sessions, Runs, credentials, files and events.
+- [Historical files and compaction](api-runtime-mx-r1.md): MX-R1 interface additions.
+- [Runtime data and migration](../README.md#store-schema): RuntimeStore schema, upgrade and backups.
+- [Permission CAS](permission-cas.md): payload and version conditions for approved actions.
+- [Supported use](supported-preview.md): usage table for the source preview.
 
-- [Work summary](work-summary-api.md)：工作索引与摘要。
-- [Bound Core Review summary](work-review-summary.md)：会话绑定的Core待审计数、版本与只读边界。
-- [Activity 与 Usage](work-metrics.md)：已记录的运行指标。
-- [异步读取任务](async-tasks.md)：任务状态、取消、恢复与消费。
-- [Runtime Control Plane](../../docs/runtime-control/INDEX.md)：资源、策略、来源解析与 MCP。
-- [Governed objects](../../docs/work-core/governance.md)：Attention/Matter目录、披露策略与精确来源/成果读取。
-- [Work Core](../../docs/work-core/README.md)：候选、来源、决定与领域工作。
+## Work and Run projections
 
-## 集成与来源
+- [Work summary](work-summary-api.md): work index and summaries.
+- [Bound Core Review summary](work-review-summary.md): Session-bound Core pending counts, versions and read-only boundary.
+- [Activity and Usage](work-metrics.md): recorded Run metrics.
+- [Usage detail and snapshot drilldown](usage-details.md): daily, model and exact Run reads.
+- [Async read tasks](async-tasks.md): task state, cancellation, recovery and consumption.
+- [Run attempts and lineage](run-attempts.md): explicit Run succession (`supersedes`), valid targets and unbranched chains.
+- [Model effort and request measurements](request-telemetry.md): reasoning effort and request telemetry.
+- [Runtime Control Plane](../../docs/runtime-control/INDEX.md): resources, policy, source resolution and MCP.
+- [Governed objects](../../docs/work-core/governance.md): Attention/Matter directory, disclosure policy, exact source and result reads.
+- [Work Core](../../docs/work-core/README.md): candidates, sources, decisions and domain work.
 
-- [Pi / MCP 集成](upstream-integration.md)
-- [每轮执行归属](turn-ownership-review.md)
-- [依赖账本](dependency-ledger.json)
-- [历史 API 提案](runtime-api-proposal.md)
+## Sessions, repositories and agents
 
-模块位置见 [应用入口](../README.md#modules)，验证记录与当前交付见 [工程状态](../../engineering/current.md)。
+- [Repository binding and candidate tools](repository-binding.md): explicit external directory binding, private candidate and write effects.
+- [Host check recipes](check-recipes.md): fixed Host-owned checks against a private candidate.
+- [Optional workspace chats](projectless-chat.md): Chat without a Project.
+- [Attention global agent](attention-agent.md): global conversation, progressive history reads and shared Runtime configuration.
+- [Thread and local messaging](coordination.md): durable work threads, local outbox/inbox, permissions and child conformance.
+- [Spark](spark-agent.md): independent Explore Agent.
+- [Runtime proposals](runtime-proposals.md): declarative Skill proposals.
+- [Hermes API runs adapter](hermes-api-runs.md): standalone adapter contract.
 
-- [Attention global agent](attention-agent.md)：全局对话、渐进历史读取与共享 Runtime 配置。
+## Walkthroughs and examples
 
-- [Thread / local messaging](coordination.md)：持久工作线、本地outbox/inbox、权限与child conformance边界。
-- [Run attempts and lineage](run-attempts.md)：Run 显式承接（`supersedes`）、合法目标与不可分叉的链。
-- [Usage detail and snapshot drilldown](usage-details.md)：每日、模型与精确Run读面。
+- [First work: synthetic NDA review](first-work.md): GUI setup, fixed public input, formal Review and same-Matter continuation.
+- [The example workspace](example-workspace.md): the synthetic story shown through product projections.
 
-- [First work: synthetic NDA review](first-work.md): GUI setup, fixed public input, formal review and same-Matter continuation.
+## Integration and sources
+
+- [Pi / MCP integration](upstream-integration.md)
+- [Per-turn ownership](turn-ownership-review.md)
+- [Dependency ledger](dependency-ledger.json)
+- [Historical API proposal](runtime-api-proposal.md)
+
+For module locations see the [application entry](../README.md#modules); for verification records and delivery status see [engineering status](../../engineering/current.md).

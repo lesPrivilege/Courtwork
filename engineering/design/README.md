@@ -1,44 +1,120 @@
 # Design · Work Agent GUI
 
-**UI开工先读：** [UX Grammar](ux-grammar.md) → [前端连续性规范](agent-interface-2026-09-10/frontend-contract.md) → [Visual / Spatial Grammar](visual-spatial-grammar.md) → 工单相关owner合同与实现先例。文字去留沿[文案体例](copy-convention.md)，布局沿[编排标准](ui-composition-standard.md)，组件沿[Atlas](atlas/README.md)。
+This directory holds the design rules the product is built against, the packets that produced them, and the earlier drafts they replaced. It routes; it does not carry status, which is [current](../current.md). State, facts and mutations are owned by the [core contracts](../core-contracts.md) and [RD-003](../research/RD-003-work-surface.md); design never invents an approve, cancelled or saved fact.
 
-[2026-09-16 Claude串行施工单](../execution/claude-frontend-harness-2026-09-16/README.md)：统一grammar与文字收敛；Harness前后端真实合流、隔离Prototype和Pages设计分别验收。接续原owner与工单，不建立另一套语义或状态账。
+Effect labels: **rule** = current contract or rule; **accepted** = a delivery whose result is already carried by a rule or by code; **reference** = source material with its own limits; **superseded** = names its replacement; **unknown** = no owner text settles it. A packet's own README owns its scope and evidence.
 
-设计目标是具有独立语言、能持续完成工作的 Agent GUI。设计研究、原型比较与工程验证并行：先探索人的工作方式，再把交互契约交给 Adapter/Core 验证，不等待全部后端完成才设计界面。
+## Start here for UI work
 
-文档、静态候选、交互和实测状态以 [current](../current.md) 与 [RD-003](../research/RD-003-work-surface.md) 为准；视觉候选不等于已选择方向或已通过交互验收。
+Read in this order and stop when you have the surface role, the grammar entries, the nearest precedent and the evidence to record.
 
-## 系列索引
+1. [UX Grammar](ux-grammar.md): decision type to authoritative entry, with its adopted / proposed / superseded lifecycle.
+2. [Frontend continuity contract](agent-interface-2026-09-10/frontend-contract.md), then only the entries you need from its [precedent index](agent-interface-2026-09-10/precedent-map.md). The [packet README](agent-interface-2026-09-10/README.md) gives the recall order.
+3. [Visual / spatial grammar](visual-spatial-grammar.md): required for construction and density changes (surface role, token mapping, pointer and text-scale assumptions).
+4. [Copy convention](copy-convention.md) for wording; [UI composition standard](ui-composition-standard.md) for layout, where struck-through rows are superseded.
+5. [Atlas](atlas/README.md) for component behaviour.
 
-外部规范专题：[Apple HIG消费轨道](apple-hig-track-20260914.md)，按原工单采用Agency、反馈与交互连续性；官方核验和本地推论分列。
+When a ruling changes a rule, revise the affected section so the current text stands alone and keep the ruling in its owner ([governance](../governance.md#status-and-history)).
 
-| 文档 | 责任 |
-|---|---|
-| [visual-spatial-grammar.md](visual-spatial-grammar.md) | UI施工必读：chrome / reading-review / action 三类角色、密度映射、跨维度grammar归属、实测与迁移边界；Astra裁决权保留 |
-| [principles.md](principles.md) | 设计目标、成熟行为底线与陌生化边界 |
-| [completion-surface.md](completion-surface.md) | 成熟 GUI 的状态—动作—恢复覆盖；明确首版和后置范围 |
-| [directions.md](directions.md) | 三个有实质差异的设计语言候选与比较任务 |
-| [prototype-plan.md](prototype-plan.md) | 从设计取证到可交互状态原型、真实联调的步骤与退出条件 |
-| [decisions.md](decisions.md) | 局部设计选择与裁决格式；作者推荐和用户选择分开 |
-| [sources.md](sources.md) | 官方 skill、官方规范、社区转译和产品能力资料的来源边界 |
-| [scout/README.md](scout/README.md) | Design Scout 层：X 聚合来源、capture schema、disposition 与各 grammar 的消化路径（WK-134） |
-| [agent-interface-2026-09-10/README.md](agent-interface-2026-09-10/README.md) | Agent-facing design-system / UI Continuity 候选索引；只记录召回路径与未裁方向，不构成组件或 runtime 选型 |
-| [web-gpt-design-handoff-20260910.md](web-gpt-design-handoff-20260910.md) | 可交网页端 GPT 的局部 Design / frontend PR 候选、写权、禁区与验收 handoff |
-| [reference-consumption.md](reference-consumption.md) | 历史本地巧思、网页端建议与外部工具的裁取，隔离旧 context |
-| [frontend-layering-spec.md](frontend-layering-spec.md) | 前端分层与自定义入口主规范（FN-01…29、反例 FE-T01…12、候选裁决）；对象、接口、状态与权限的不变量，布局与 token 留在体例与产品配置 |
-| [work-surface-boundaries.md](work-surface-boundaries.md) | Chrome / Domain / Expert责任，Review与commit语义、同源投影和组件adapter边界；连接Fable现有契约 |
-| [UX Polish研究包](../research/ux-polish-2026-09-08/README.md) | 材质/层级与局部motion/hover的来源、源码现状及build联调绘制切片 |
+## Use now
 
-[局部解耦与异步任务合流Design](../research/architecture-maintenance-2026-09-09/integration-design.md)补执行/交付/工作效力、renderer缺席、generation/typed commands与前后端共同fixture；属于后续语义设计，进入既有FE单writer队列，不改变当前视觉方向或假定后端能力已交付。
+### Registries and entry contracts
 
-## 与工程治理的关系
+| Entry | Serves | Effect |
+|---|---|---|
+| [ux-grammar.md](ux-grammar.md) | Which rule decides a UI question | rule |
+| [agent-interface-2026-09-10/](agent-interface-2026-09-10/README.md) | Frontend continuity contract, precedent index, change template, checklist | rule |
+| [visual-spatial-grammar.md](visual-spatial-grammar.md) | Roles (chrome, reading/review, action), density mapping, cross-dimension ownership | rule |
+| [copy-convention.md](copy-convention.md) | What UI text says and what it leaves out | rule |
+| [ui-composition-standard.md](ui-composition-standard.md) | Text and composition standard | rule |
+| [atlas/](atlas/README.md) | Component-level behaviour index | rule |
+| [product-semantics/](product-semantics/README.md) | Names, glyph admission and presentation mapping per semantic key. `registry.json` is the source; `node tools/product-semantics.mjs` generates `app/web/product-semantics.generated.mjs` and, without `--write`, rejects stale output or missing owner paths; `node tools/check-semantic-consumers.mjs` checks raw glyph consumers | rule (tool-enforced) |
+| [role-composer-20260922/](role-composer-20260922/README.md) | Role-first Composer (06e): specimen, the accepted E1 delivery and its backend requests. Read its top note first; body sections keep selection-stage wording | accepted; owner task [06e](../execution/claude-frontend-harness-2026-09-16/06e-role-composer-selection-20260922.md) |
 
-[Clean and Cool 前端审查与图稿包](clean-cool-2026-09-09/README.md)以当前main实拍核对FE-01/02与Review，映射FE-03/04/05及BE-17/18接缝，附三张较自由的Image Gen参考、完整prompt与Claude交接。属于待选择设计输入，不改变现有施工规范或前端队列。
+### Rules by topic
 
-Design 是 M10/M11 和 RD-003 的设计输入，也可能暴露 M02/M04/M06 的接口缺口。完成面决定需要哪些可见状态；实际语义仍由 [Core 契约](../core-contracts.md) 定义。设计不自行创造 approve、cancelled 或已保存事实。
+| Entry | Serves | Effect |
+|---|---|---|
+| [work-surface-boundaries.md](work-surface-boundaries.md) | Chrome / Domain / Expert responsibilities; Review and commit semantics; projection and adapter boundaries | rule |
+| [frontend-layering-spec.md](frontend-layering-spec.md) | Layering and custom-entry invariants (FN-01…29) with counterexamples; tests read it | rule |
+| [surface-hierarchy.md](surface-hierarchy.md) | Line / surface / card / overlay convention | rule |
+| [icon-controls.md](icon-controls.md) | SVG action, text and secondary-hint convention | rule |
+| [object-command-grammar-20260914.md](object-command-grammar-20260914.md) | Object command and context-action grammar | rule |
+| [skin-injection-2026-09-10/](skin-injection-2026-09-10/README.md) | Appearance boundary; `skin-constitution.md` keeps Review independent of skin | rule |
+| [shell-control-plane-2026-09-12/](shell-control-plane-2026-09-12/README.md) | Back, notify and observe grammar (navigation, observability, notifications) | rule |
+| [chat-product-page-2026-09-11/](chat-product-page-2026-09-11/DECISION.md) | Chat as an independent product page; owner reference of the product-semantics registry; no README | rule |
+| [chat-reading-2026-09-11.md](chat-reading-2026-09-11.md) | Chat reading and text-reveal contract CR-01…05 | rule |
+| [chat-reading-2026-09-11/](chat-reading-2026-09-11/reference.json) | Reference assets for the contract above; no README | reference |
+| [spark-surface-2026-09-10/](spark-surface-2026-09-10/be41-dto.md) | Spark surface DTO, integration ruling and naming; no README, start at `be41-dto.md` | rule |
+| [attention-agent-2026-09-10/](attention-agent-2026-09-10/README.md) | Global Attention agent and Runtime composition decision | rule |
+| [context-capacity-ring-2026-09-14/](context-capacity-ring-2026-09-14/README.md) | Context capacity ring and cache diagnostics; `contract.md` is canonical | rule |
+| [product-icons-2026-09-11/](product-icons-2026-09-11/README.md) | Product glyph set and sprite; feeds the vendor manifest | rule |
+| [home-composition-2026-09-10/](home-composition-2026-09-10/README.md) | Home composition and disclosure / tab / material grammar; module order and geometry are superseded by [grammar-convergence-20260921](grammar-convergence-20260921/README.md) | partly superseded |
+| [grammar-convergence-20260921/](grammar-convergence-20260921/README.md) | Intake, audit and migrations behind the visual / spatial grammar | source of a rule; audit history |
 
-设计范围和工程承诺记在 [工程 decisions](../decisions.md)；本系列的视觉/交互决策记在 Design decisions，不重复技术采纳记录。设计研究推进不改变任何 RD 的运行状态。
+### Related outside this directory
 
-## 维护粒度
+- [Local decoupling and async-task integration design](../research/architecture-maintenance-2026-09-09/integration-design.md): later semantic design, run through the existing single-writer frontend queue.
+- [UX Polish research pack](../research/ux-polish-2026-09-08/README.md): its old hero, two-place brand and wait-shimmer are not to be revived.
+- [Execution packets](../execution/README.md): assignments and owner records; the active UX record is linked from [current](../current.md).
 
-一个设计单元可以是“长运行时输入与停止的关系”“证据回跳和返回位置”“候选接受的过期冲突”，而不是一个源码组件或一整套皮肤。每项保留目标、必要状态、候选、取舍、证据、可访问替代、版本/恢复要求和裁决。只有在 prototype 中出现可独立验证的分歧时才继续拆分文档。
+## References and samples
+
+| Entry | Serves | Effect |
+|---|---|---|
+| [ux-conventions.md](ux-conventions.md) | Index of adjudicated UX rules from 2026-09-07; some rows are superseded; code comments still cite it | reference |
+| [type-density-constraints.md](type-density-constraints.md) | Type and control density constraints (FE-05a); roles are now mapped by the visual / spatial grammar | reference; formal supersession unknown |
+| [sources.md](sources.md) | Design source list S01…S22, a snapshot and unpinned | reference |
+| [scout/](scout/README.md) | Design Scout index: capture schema, disposition rules, consumption chain | reference |
+| [apple-hig-track-20260914.md](apple-hig-track-20260914.md) | Apple HIG consumption for Agency, feedback and continuity; official checks and local inference kept apart | reference |
+| [les-privilege-paper-2026-09-11.md](les-privilege-paper-2026-09-11.md) | Signature semantics and display boundary for the Paper | reference |
+| [icon-specimen/](icon-specimen/README.md) | Icon family comparison (outcome: no family migration, recorded in `icon-controls.md`); contains third-party licences | accepted |
+| [identity-specimen/](identity-specimen/README.md) | Generative identity directions; none adopted, `brand/` owns marks | history |
+| [material-specimen-2026-09-10/](material-specimen-2026-09-10/README.md) | Material and blur specimen and its decisions | accepted |
+| [tps-specimen-2026-09-10/](tps-specimen-2026-09-10/README.md) | Decode TPS sparkline specimen (synthetic); later work in context-tps-motion | history; supersession unknown |
+| [type-density-ablation/](type-density-ablation/README.md) | Static type / density measurements behind `type-density-constraints.md` | history (measurement evidence) |
+| [agent-presence-2026-09-11/](agent-presence-2026-09-11/return-v1/README.md) | Returned presence specimen; no top-level README, start at `return-v1/`; intake in [research](../research/agent-presence-2026-09-11/README.md) | accepted |
+
+## History
+
+Read these only when a question needs the earlier reasoning. None is a current series and none overrides the rules above.
+
+### 2026-09-05/06 drafts
+
+| Entry | What it was | Effect |
+|---|---|---|
+| [principles.md](principles.md) | Design goals and the strangeness boundary | reference for intent; superseded by the grammar documents |
+| [completion-surface.md](completion-surface.md) | Mature-GUI state, action and recovery coverage (UI01…) | reference |
+| [directions.md](directions.md) | Three text design-direction candidates | superseded: the direction lives in the grammar documents |
+| [prototype-plan.md](prototype-plan.md) | Prototype steps and gates D0-D4 | history |
+| [decisions.md](decisions.md) | Local design decisions DS-001…006 (DS-005 has reopen conditions) | history |
+| [reference-consumption.md](reference-consumption.md) | Selection of legacy design and web advice | history |
+
+### Handoffs and design inputs
+
+| Entry | What it was | Effect |
+|---|---|---|
+| [web-gpt-design-handoff-20260910.md](web-gpt-design-handoff-20260910.md) | Handoff to a web GPT against a 2026-09-10 baseline | history |
+| [clean-cool-2026-09-09/](clean-cool-2026-09-09/README.md) | Frontend review and image package; the later shell-refinement direction replaced its Models double sidebar | history |
+| [se-control-one-shot-2026-09-11/](se-control-one-shot-2026-09-11/START-HERE.md) | Independent Design one-shot; rulings in `return-intake.md`; no README | accepted |
+| [attention-surface-2026-09-09/](attention-surface-2026-09-09/README.md) | Reference re-read and Human Attention UI route | history |
+| [attention-triage-2026-09-10/](attention-triage-2026-09-10/README.md) | Attention triage ruling WK-152…160 | history |
+| [attention-ui-handoff-2026-09-13/](attention-ui-handoff-2026-09-13/README.md) | Attention UI handoff, Claude return and the acceptance record in `astra-acceptance/integration.md` | accepted |
+| [sidebar-product-model-2026-09-12/](sidebar-product-model-2026-09-12/README.md) | Product-model-first sidebar review; Matter and Expert notes | unknown |
+
+### Delivery and implementation records
+
+| Entry | What it was | Effect |
+|---|---|---|
+| [action-copy-cleanup-2026-09-14/](action-copy-cleanup-2026-09-14/README.md) | Entry-verb simplification and Workspace popover regrid | accepted |
+| [chat-controls-2026-09-10/](chat-controls-2026-09-10/README.md) | Product icon grammar and Chat full-control inventory | accepted |
+| [chat-flow-2026-09-10/](chat-flow-2026-09-10/README.md) | Chat Flow intake; the 2026-09-14 polish slices and Run-surface PR are registered inside it | unknown |
+| [context-tps-motion-2026-09-13/](context-tps-motion-2026-09-13/README.md) | Context ring and request-activity candidate; production integration under `production/` | mixed; read its production README |
+| [developer-control-panel-2026-09-13/](developer-control-panel-2026-09-13/README.md) | Developer panel implementation and evidence; ruling in [research](../research/developer-control-panel-2026-09-13/README.md) | accepted |
+| [settings-resource-management-2026-09-13/](settings-resource-management-2026-09-13/README.md) | Settings Plugins / Developer split; author check only | history |
+| [frontend-audit-2026-09-13/](frontend-audit-2026-09-13/PLAN.md) | Audit plan and evidence (icons, grammar, copy, hierarchy); no README; `hierarchy-polish-registration.md` still feeds the composition standard | history |
+| [home-backlog-2026-09-10/](home-backlog-2026-09-10/README.md) | Home slice ledger frozen when construction stopped; not a live backlog | history |
+
+## Granularity
+
+A design unit is one question, such as the relation between long-running input and stop, evidence jump-back and return position, or the expiry conflict on candidate acceptance; it is not a source component or a whole skin. Each keeps its goal, required states, candidates, trade-offs, evidence, accessible alternative, version and recovery requirements and ruling. Split a document only when a prototype shows a divergence that can be verified on its own.

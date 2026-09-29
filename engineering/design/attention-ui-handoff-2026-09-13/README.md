@@ -1,5 +1,7 @@
 # WO-ATT-UI02 · Attention UI 与 motion 独立绘制
 
+> **Reading note, 2026-09-29.** The status line below predates [integration](astra-acceptance/integration.md), which records acceptance and integration.
+
 2026-09-13 · Astra 派单，Luna 分层/参考索引，用户转交 Claude 独立绘制与 motion，Astra 裁决验收后合入。基线 `main@6e211bd5f5169a603bc801024d16f87eec16a071`。本工单是现有 [WO-ATT-FE01](../../mvp/execution/work-surface-kit/work-orders/WO-ATT-FE01.md) 的前端表现接续；不重开已交付的处置合同。
 
 状态：Luna分层/索引已交付，Astra已核对交接范围，可转交Claude；Claude 尚未提交，视觉/motion 尚未被 Astra 接受。本片创建文件工单，不新建 Codex 任务，也不向 Claude 发送消息。用户自行提交。

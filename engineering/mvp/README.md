@@ -1,12 +1,45 @@
-# MVP 工单包
+# MVP work-order package
 
-2026-09-06 最新顺序由 DEC-007 与 [fresh handoff v5](fresh-handoff-v5.md) 接续；本页保留本批历史范围及证据，不覆盖新方向。
+This package is the 2026-09-06 plan of 26 work orders for a first MVP, the handoffs written while that plan was being reordered, and the work-surface execution line that followed. It is history. It is not a current contract, and it does not say what is being built now: for that read [current](../current.md), [architecture](../architecture.md) and [verification](../verification.md).
 
-**2026-09-06执行顺序更新**：[DEC-006](../decisions.md)已明确允许先施工前后端框架及必要功能骨架，真实key由用户GUI完成后测试，最终Design/Codebase后审。以下原始工单依赖仍用于完整能力/验收汇合，但不再阻塞本次已授权骨架。当前派发范围见[方案v4（历史路径：`execution/next-round-plan-v4.md`）](../migration/2026-09-08/evidence-index.md)，不把排序变更写成G1/G2已通过。
+What replaced it: the ordering rulings [DEC-006 and DEC-007](../decisions.md), later execution packets ([execution](../execution/README.md), including the live [claude-frontend-harness](../execution/claude-frontend-harness-2026-09-16/README.md) packet), and the roadmap ([roadmap](../roadmap.md)). Earlier links in the plan text to `execution/next-round-plan-v4.md`, `execution/charter.md`, `execution/framework-v5-result.md`, `execution/framework-v6-result.md`, `execution/scope-correction-v6.md` and `execution/restore-v6.md` are retired paths; the [migration evidence index](../migration/2026-09-08/evidence-index.md) is their redirect target, and [scope-correction-v6](../../docs/scope-correction-v6.md) and [restore-v6](../../docs/restore-v6.md) survive as [docs](../../docs/README.md) historical handoffs.
 
-最新执行授权与角色/消融规则见 [Astra 开工交接](astra-handoff.md)；下文保留编单时的基线，执行时结合最新授权解释准入，不能把编单时“尚未授权”变成反复请示的理由。
+Effect labels: **superseded** names its replacement; **accepted** = a delivery whose result is carried elsewhere; **history** = kept to show what was planned or handed off then.
 
-本包将方案转为可派发的局部工程任务。它是**完整的 MVP 计划草案，不是全量开工令**；运行事实以 [current](../current.md) 和 RD 证据为准。工单编写不代表技术已选定、实验已通过或实现已授权。
+## Plan and gates
+
+| Document | What it is | Effect |
+|---|---|---|
+| [01-preparation.md](01-preparation.md) | MVP-01…06: scope, versions, contracts, samples, fresh brief, upstream UI evidence | history |
+| [02-validation.md](02-validation.md) | MVP-07…12: Runtime/Core RD, visual ruling, state prototype, Review experiment, construction ruling | history |
+| [03-construction.md](03-construction.md) | MVP-13…22: host, adapter, Core, Evidence, Context, GUI, real slice | history |
+| [04-acceptance.md](04-acceptance.md) | MVP-23…26: fault and GUI acceptance, maintenance handoff, MVP ruling | history |
+
+## Handoffs
+
+Each handoff calls its predecessor "historical input"; none is a start-of-work list now.
+
+| Document | What it is | Effect |
+|---|---|---|
+| [astra-handoff.md](astra-handoff.md) | Authorization and role/ablation rules for the first Astra session (2026-09-05) | history |
+| [fresh-handoff-v5.md](fresh-handoff-v5.md) | Generic Agent foundation first, SE work extension second (2026-09-06) | superseded by v7 |
+| [fresh-astra-handoff-v7.md](fresh-astra-handoff-v7.md) | Frontend consumption and SE orchestration traceback | superseded by v8 |
+| [frontend-design-handoff-v8.md](frontend-design-handoff-v8.md) | V7 cleanup, independent Claude design and Chat explore | history; last handoff of this line |
+
+## Work-surface execution line
+
+[execution/](execution/README.md) is the entry to the work-surface line; its four packets are:
+
+| Packet | What it holds | Effect |
+|---|---|---|
+| [execution/work-surface-kit/](execution/work-surface-kit/README.md) | WK intake, contracts, dispatches, deliveries and evidence | accepted |
+| [execution/gui-maturity-visual-diff/](execution/gui-maturity-visual-diff/report.md) | Screenshot comparison report; no README | accepted |
+| [execution/provider-surface/](execution/provider-surface/README.md) | PV provider-surface batch, with raw user-forwarded inputs under `inputs/` | accepted |
+| [execution/surface-sample-data/](execution/surface-sample-data/delivery-sd-01.md) | SD-01 delivery; no README | accepted |
+
+## Plan text (2026-09-06, historical)
+
+Scope, gates, dispatch rules and the coverage table are kept as written, in their original language. They are a plan draft, not a start order.
 
 ## 拟议范围
 
@@ -58,11 +91,3 @@
 | UI19—22 | 本范围不开放；静态 Extension 的失效由 18/19 显示，不开放其管理市场 |
 
 长期 R4 的第二宿主/第二任务、R5 的持续升级治理保留在 [roadmap](../roadmap.md)。25 交付首次兼容和恢复依据，不宣称证明长期可维护性。
-
-## V5 首批重排状态（2026-09-06）
-
-旧26工单义务继续保留，但不以旧视觉选型顺序阻塞新地基。V5-01契约和Paper映射已落；V5-02 Claude部分实查、Codex访问unknown，Court Work/DSH具体来源继续按问题消费；V5-03/04/05已实现fake通用Agent与首扩展并局部独验；V5-06仅局部反例通过，adapter替换等欠项见[结果（历史路径：`execution/framework-v5-result.md`）](../migration/2026-09-08/evidence-index.md)。完整产品、真实provider、Expert与G1/G2仍未关闭。
-
-## V6 通用地基增量（2026-09-06）
-
-当前范围只含通用work agent UI/Preview宿主兼容；SE renderer保留V5原字节，extensions/experts留下一轮。见[结果（历史路径：`execution/framework-v6-result.md`）](../migration/2026-09-08/evidence-index.md)、[范围纠偏（历史路径：`execution/scope-correction-v6.md`）](../migration/2026-09-08/evidence-index.md)与[恢复说明（历史路径：`execution/restore-v6.md`）](../migration/2026-09-08/evidence-index.md)。V5底座与旧义务保留；此轮不关闭真实provider、adapter替换、Expert或G1/G2。

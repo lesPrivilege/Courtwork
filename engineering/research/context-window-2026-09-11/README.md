@@ -1,5 +1,7 @@
 # Context Window 产品化 · 待消费输入
 
+> **Disposition, 2026-09-29: partly consumed; the rest is dormant reference.** Ring, capacity and residency semantics were ruled in the [Context capacity contract](../../design/context-capacity-ring-2026-09-14/contract.md); request and compaction telemetry in [request telemetry](../../../app/docs/request-telemetry.md); manual compaction in [commands and compaction](../../../app/docs/commands-and-compaction.md). Not landed and without an owner: a compaction timeline UI and user-facing copy for what the Agent currently knows. Reopen when either is scheduled. The status line below records 2026-09-11.
+
 2026-09-11 · 用户要求“登记入账，稍后消费”。**状态：已归档、待后续研究与裁定；未派单、未提高实施优先级。** 不影响已授权的Claude Paper串行任务。
 
 ## 来源完整性

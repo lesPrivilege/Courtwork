@@ -1,6 +1,6 @@
 # First work: a synthetic NDA review
 
-Start the local app using the [repository instructions](../../README.md#本地运行). This walkthrough uses the bundled synthetic Project Cedar material and the host-trusted Inbound NDA Playbook Review extension. It is a workflow exercise; its deterministic rules do not establish legal accuracy.
+Start the local app using the [repository instructions](../../README.md#run-locally). This walkthrough uses the bundled synthetic Project Cedar material and the host-trusted Inbound NDA Playbook Review extension. It is a workflow exercise; its deterministic rules do not establish legal accuracy.
 
 1. Close the example workspace. In Settings → Models, configure your connection and save its key locally. Choose the model for future runs. Local test needs no key and returns deterministic simulated output; it is useful for checking the setup, but an ordinary request to it does not perform a model-authored NDA review.
 2. Create a project and a chat. In Settings → Developer → Extensions, load **Inbound NDA Playbook Review**, then choose **Continue in Matter**. The built-in General profile is sufficient; the extension provides only its admitted tools for this bound chat.

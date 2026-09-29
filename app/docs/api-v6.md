@@ -142,7 +142,7 @@ already have changed.
 
 Historical retrieval is now available; see [MX-R1 additions](api-runtime-mx-r1.md).
 
-## External repository and private candidate (introduced in RuntimeStore17; current Store22)
+## External repository and private candidate (introduced in RuntimeStore17)
 
 The authenticated Host API separates the user-selected source directory from a
 Host-owned writable candidate. The binding routes and filesystem scope are
@@ -466,7 +466,7 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
   the flock on the data directory in its own process, which is what makes an owner
   SIGKILL release the lock. If it is missing the server refuses to start
   (`LOCK_NO_PYTHON`); there is no unlocked fallback.
-- The `schemaVersion` 5 migration in [async task persistence](async-tasks.md) is historical: Runtime schema 5 introduced the `asyncTasks` collection, with validated schema 3/4 upgrades and that version's old-Host refusal boundary. The current Host RuntimeStore is `schemaVersion` 21; see the [current store schema](../README.md#store-schema-v17-validated-v3v4v5v6v7v8v9v10v11v12v13v14v15v16-upgrade) for validated migration from schemas 3–20, exact backups and old-Host refusal.
+- The `schemaVersion` 5 migration in [async task persistence](async-tasks.md) is historical: Runtime schema 5 introduced the `asyncTasks` collection, with validated schema 3/4 upgrades and that version's old-Host refusal boundary. The RuntimeStore schema version, validated upgrade range, exact backups and old-Host refusal are owned by the [Store schema](../README.md#store-schema) section.
 
 ## What is not here
 
@@ -477,8 +477,9 @@ enables only bounded read-only `repo_list`, `repo_read` and `repo_grep` over
 relative paths under the selected root; see [repository binding](repository-binding.md).
 An active binding may create a separate Host-owned private Git candidate; only
 that candidate receives `candidate_*`, `repo_write` and fixed-base `repo_diff`.
-The service has no Connect/Access UI, external source writes, automatic merge,
-or repo test runner.
+There are no external source writes, no automatic merge and no arbitrary
+repository test runner; fixed Host-owned check recipes run only against the
+private candidate (see [check recipes](check-recipes.md)).
 The workspace path guard is the boundary of its restricted tool surface, not
 OS-level isolation, and repository binding is not an OS sandbox. A real DeepSeek
 run is an authorised provider network call; it had not been exercised with a
