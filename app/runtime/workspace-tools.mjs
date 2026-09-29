@@ -1,4 +1,4 @@
-import { lstat, mkdir, readFile, realpath, rename, stat, unlink, writeFile } from "node:fs/promises";
+import { lstat, realpath } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { randomUUID, createHash } from "node:crypto";
 import path from "node:path";
@@ -6,7 +6,7 @@ import { Type } from "@earendil-works/pi-ai";
 import { Worker } from "node:worker_threads";
 import { maybeCrash } from "./test-hooks.mjs";
 import { strictestEffect } from "./repository-tools.mjs";
-import { runRepositoryFs } from "./repository-fs.mjs";
+import { runRepositoryFs, RepositoryFsError } from "./repository-fs.mjs";
 
 // Generic workspace tools scoped to one session's workspace directory. No
 // bash, no network, no path outside the workspace: those capabilities do not
@@ -26,7 +26,7 @@ const GREP_TIMEOUT_MS = 2000;
 const PERMISSION_PREVIEW_CHARS = 400;
 // Per helper request: the file bytes one ws_read may return (under the
 // helper's 12 MiB output cap once base64-encoded) and the size of the file list
-// sent (under the helper's 2 MiB input cap).
+// sent (under the helper's 8 MiB input cap).
 const MAX_GREP_BATCH_BYTES = 8 * 1024 * 1024;
 const MAX_HELPER_REQUEST_BYTES = 1024 * 1024;
 
@@ -110,9 +110,10 @@ function workspacePathParts(relPath) {
 }
 
 /** Resolve a user-supplied relative path against the workspace, rejecting
- * absolute paths, `..` segments, and symlink escapes anywhere in the chain.
- * Shared by ws_read, ws_write and by every HTTP endpoint that names a single
- * workspace path. */
+ * absolute paths, `..` segments, and symlinks present at the time of the
+ * check. The result is a path that is reopened by name, so it does not bind
+ * the identity of what is later read or written. Only the person's own HTTP
+ * workspace endpoints use it; no model tool does. */
 export async function resolveWorkspacePath(workspaceDir, relPath) {
   const parts = workspacePathParts(relPath);
   const workspaceReal = await realpath(workspaceDir);
@@ -144,22 +145,44 @@ export async function sha256OfFile(absolutePath) {
   return hash.digest("hex");
 }
 
-// Workspace search and listing establish which file they report through the
-// fixed filesystem helper (repository-fs-helper.py): it opens the workspace
-// root once and each path component relative to its parent's descriptor with
-// O_NOFOLLOW. `ws_scan` names regular files (on-disk spelling, with device and
-// inode) without opening them; the Host admits names; `ws_read` walks
-// descriptor-relative again and reads only an admitted file whose identity is
-// the one named. A file that is not admitted is never opened.
-function workspaceFsError(error) {
+// Every model tool establishes which workspace file it reads or writes through
+// the fixed filesystem helper (repository-fs-helper.py): it opens the
+// workspace root once and each path component relative to its parent's
+// descriptor with O_NOFOLLOW. Search and listing: `ws_scan` names regular
+// files (on-disk spelling, with device and inode) without opening them; the
+// Host admits names; `ws_read` walks descriptor-relative again and reads only
+// an admitted file whose identity is the one named, so a file that is not
+// admitted is never opened. Single files: `ws_read_file` reads, and
+// `ws_write_stage`/`ws_write_commit` stage and publish a write, in the
+// directory reached that way.
+function workspaceFsError(error, messages = {}) {
   if (error?.isWorkspaceError) return error;
-  switch (error?.code) {
-    case "symlink": return wsError("path escapes the workspace (symlink)");
-    case "path_unavailable": return wsError("path does not exist");
-    case "parent_unavailable": return wsError("parent directory does not exist");
-    case "python_unavailable": return wsError("workspace search and listing require the configured Python 3 runtime");
-    case "cancelled": return wsError("workspace operation was cancelled");
-    default: return wsError("workspace could not be read");
+  const defaults = {
+    symlink: "path escapes the workspace (symlink)",
+    path_unavailable: "path does not exist",
+    parent_unavailable: "parent directory does not exist",
+    not_file: "path is not a file",
+    python_unavailable: "workspace tools require the configured Python 3 runtime",
+    cancelled: "workspace operation was cancelled",
+    fallback: "workspace could not be read",
+  };
+  const table = { ...defaults, ...messages };
+  return wsError(table[error?.code] ?? table.fallback);
+}
+
+const helperRoot = (workspaceDir) => path.resolve(workspaceDir);
+
+/** The workspace-relative path in on-disk spelling for the existing part of
+ * `relPath` (the file, or its parent when the file does not exist yet), found
+ * by descriptor-relative traversal. Policy admission uses this resource. */
+export async function workspaceResourcePath(workspaceDir, relPath, options = {}) {
+  const parts = workspacePathParts(relPath);
+  try {
+    const result = await runRepositoryFs({ operation: "ws_resolve", rootPath: helperRoot(workspaceDir), parts }, options);
+    if (typeof result?.path !== "string") throw wsError("workspace helper returned an invalid result");
+    return result.path;
+  } catch (error) {
+    throw workspaceFsError(error, { fallback: "path could not be resolved" });
   }
 }
 
@@ -260,17 +283,20 @@ export function createWsReadTool({ workspaceDir }) {
       startLine: Type.Optional(Type.Integer({ minimum: 1 })),
       endLine: Type.Optional(Type.Integer({ minimum: 1 })),
     }),
-    async execute(toolCallId, params) {
-      const resolved = await resolveWorkspacePath(workspaceDir, params.path);
-      let info;
+    async execute(toolCallId, params, signal) {
+      const parts = workspacePathParts(params.path);
+      let read;
       try {
-        info = await stat(resolved.absolutePath);
+        read = await runRepositoryFs({ operation: "ws_read_file", rootPath: helperRoot(workspaceDir), parts, maxFileBytes: MAX_READ_BYTES }, { signal });
       } catch (error) {
-        throw wsError(error?.code === "ENOENT" ? "file does not exist" : "file could not be read");
+        throw workspaceFsError(error, {
+          path_unavailable: "file does not exist",
+          file_too_large: `file exceeds the ${MAX_READ_BYTES} byte read limit`,
+          fallback: "file could not be read",
+        });
       }
-      if (!info.isFile()) throw wsError("path is not a file");
-      if (info.size > MAX_READ_BYTES) throw wsError(`file exceeds the ${MAX_READ_BYTES} byte read limit`);
-      const bytes = await readFile(resolved.absolutePath);
+      if (typeof read?.path !== "string" || typeof read.dataBase64 !== "string" || !Number.isInteger(read.bytes)) throw wsError("workspace helper returned an invalid result");
+      const bytes = Buffer.from(read.dataBase64, "base64");
       if (isBinary(bytes)) throw wsError("file is not text");
       let text = bytes.toString("utf8");
       if (params.startLine || params.endLine) {
@@ -279,7 +305,7 @@ export function createWsReadTool({ workspaceDir }) {
         const end = Math.min(lines.length, params.endLine ?? lines.length);
         text = lines.slice(start, end).join("\n");
       }
-      return { content: [{ type: "text", text }], details: { path: resolved.relativePath, bytes: info.size } };
+      return { content: [{ type: "text", text }], details: { path: read.path, bytes: read.bytes } };
     },
   };
 }
@@ -297,7 +323,8 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
       // Crash point: nothing has been written yet. A restart after this must
       // find the workspace untouched and must not replay the command.
       maybeCrash("before_tool");
-      const resolved = await resolveWorkspacePath(workspaceDir, params.path);
+      const parts = workspacePathParts(params.path);
+      if (!parts.length) throw wsError("path is not a file");
       const bytesToWrite = Buffer.byteLength(params.text, "utf8");
       if (bytesToWrite > MAX_WRITE_BYTES) throw wsError(`write exceeds the ${MAX_WRITE_BYTES} byte limit`);
       // The permission request binds the exact call and the exact bytes it
@@ -310,7 +337,7 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
         const decision = await requestPermission({
           toolCallId,
           tool: "ws_write",
-          path: resolved.relativePath,
+          path: await workspaceResourcePath(workspaceDir, params.path),
           bytes: bytesToWrite,
           contentSha256,
           preview: params.text.slice(0, PERMISSION_PREVIEW_CHARS),
@@ -319,24 +346,43 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
         if (decision !== "allow") throw wsError("write was denied by the user");
       }
 
-      await mkdir(path.dirname(resolved.absolutePath), { recursive: true });
-      const tempPath = resolved.absolutePath + "." + randomUUID() + ".tmp";
+      // The helper stages the bytes as a new file in the parent directory it
+      // reached descriptor-relative; the commit renames it over the target
+      // within that same directory, refusing a symlink or non-regular target.
+      const content = Buffer.from(params.text, "utf8");
+      const tempName = parts.at(-1) + "." + randomUUID() + ".tmp";
+      const rootPath = helperRoot(workspaceDir);
+      const writeErrors = { path_unavailable: "parent directory does not exist", fallback: "file could not be written" };
+      const discard = () => runRepositoryFs({ operation: "ws_write_discard", rootPath, parts, tempName }).catch(() => {});
+      let staged;
       try {
-        await writeFile(tempPath, params.text, { encoding: "utf8", signal });
-        if (signal?.aborted) {
-          await unlink(tempPath).catch(() => {});
-          throw wsError("write was cancelled");
-        }
+        staged = await runRepositoryFs({
+          operation: "ws_write_stage", rootPath, parts, tempName,
+          dataBase64: content.toString("base64"), contentSha256, maxFileBytes: MAX_WRITE_BYTES,
+        });
+      } catch (error) {
+        await discard();
+        throw workspaceFsError(error, writeErrors);
+      }
+      try {
+        if (signal?.aborted) throw wsError("write was cancelled");
         // Save and pin the exact authorised bytes before publishing this
         // version into the mutable workspace or the artifact record.
-        await saveHistory?.(Buffer.from(params.text, "utf8"), contentSha256, { signal });
+        await saveHistory?.(content, contentSha256, { signal });
         maybeCrash("after_history");
         if (signal?.aborted) throw wsError("write was cancelled");
-        await rename(tempPath, resolved.absolutePath);
+        const { rootPath: stagedRoot, device, inode, parts: stagedParts, tempDevice, tempInode, parentDevice, parentInode } = staged;
+        await runRepositoryFs({
+          operation: "ws_write_commit", rootPath: stagedRoot, device, inode, parts: stagedParts,
+          tempName, tempDevice, tempInode, parentDevice, parentInode,
+        });
       } catch (error) {
-        await unlink(tempPath).catch(() => {});
-        throw error;
+        await discard();
+        // History and cancellation errors pass through as before; only the
+        // helper's own failures are translated.
+        throw error instanceof RepositoryFsError ? workspaceFsError(error, writeErrors) : error;
       }
+      const relativePath = staged.path;
       const sha256 = contentSha256;
       const bytes = bytesToWrite;
       // Crash point: the rename has landed, the artifact record has NOT. This
@@ -344,12 +390,12 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
       // reconciliation notice, never a silent back-fill of the record, and
       // never a reordering that would let "recorded but not written" happen.
       maybeCrash("after_write");
-      await onWritten?.({ path: resolved.relativePath, bytes, sha256 });
+      await onWritten?.({ path: relativePath, bytes, sha256 });
       // Crash point: both the file and its content-version record are durable.
       maybeCrash("after_record");
       return {
-        content: [{ type: "text", text: `wrote ${resolved.relativePath} (${bytes} bytes)` }],
-        details: { path: resolved.relativePath, bytes, sha256 },
+        content: [{ type: "text", text: `wrote ${relativePath} (${bytes} bytes)` }],
+        details: { path: relativePath, bytes, sha256 },
       };
     },
   };

@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { Type } from '@earendil-works/pi-ai';
 import { evaluatePolicy, hostToolCeiling } from './control-plane.mjs';
-import { resolveWorkspacePath } from './workspace-tools.mjs';
+import { workspaceResourcePath } from './workspace-tools.mjs';
 
 // RL-1 (RD-009): a missing runtime_load ID stays a model-visible recoverable
 // tool error (Pi maps a thrown Error to isError). The hint may name only
@@ -123,7 +123,7 @@ export function governTools(tools, { binding, permissionMode, workspaceDir, requ
       // Own a copy of the exact arguments across a pending human response.
       const args = structuredClone(params);
       let resource = tool.name === 'runtime_load' ? args.id : '*';
-      if (tool.name.startsWith('ws_') && typeof args.path === 'string' && args.path) resource = (await resolveWorkspacePath(workspaceDir, args.path)).relativePath;
+      if (tool.name.startsWith('ws_') && typeof args.path === 'string' && args.path) resource = await workspaceResourcePath(workspaceDir, args.path);
       if ((tool.name.startsWith('repo_') || tool.name.startsWith('candidate_')) && typeof args.path === 'string' && args.path) resource = args.path;
       const effect = admitPath(tool.name, resource);
       if (effect === 'deny') throw new Error('Runtime policy denied ' + tool.name);
