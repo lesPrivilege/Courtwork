@@ -119,11 +119,25 @@ export function compileWorkContext(view, limit = 24000) {
       basis:{current:reasons.length === 0,reasons},
       read:{tool:'se_read_artifact',artifactId:a.id,offset:0,limit:4000}};
   }
-  const required = { schemaVersion: 2, domain: view.domain ?? null, matter: view.matter, artifact,
+  const required = { schemaVersion: 3, domain: view.domain ?? null, matter: view.matter, artifact,
     sourceRefs: view.sources.map(({id,version,digest}) => ({id,version,digest})),
     pending: view.candidates.filter(c => c.status === 'pending').map(c => ({id:c.id,baseVersion:c.base_version,
       sourceVersion:c.source_version,contractVersion:c.contract_version,basis:candidateBasis(c,view.matter),domain:c.domain})) };
-  const text = JSON.stringify(required);
-  if (text.length > limit) throw Object.assign(new Error('Required work context exceeds budget'), {code:'CONTEXT_BUDGET'});
-  return {text, provenance:{matterId:view.matter.id,stateVersion:view.matter.version,sourceVersion:view.matter.source_version,contractVersion:view.matter.contract_version,selected:['active artifact identity and input basis','obligations','pending candidates and input basis','source references'],omitted:['artifact body available through se_read_artifact','source bodies available through scoped read tool','closed candidates and execution trace'],characters:text.length,limit}};
+  // What the person rejected or asked for since the active Artifact was accepted
+  // is what the next producer must answer; every decision produced a Matter
+  // version, and the Core lists decisions by request id, so order by that version.
+  const since = artifact?.acceptedVersion ?? 0;
+  const answerable = (view.decisions ?? [])
+    .filter(d => (d.action === 'reject' || d.action === 'request_evidence') && d.result?.version > since)
+    .sort((left, right) => right.result.version - left.result.version)
+    .map(d => ({candidateId:d.candidate_id,action:d.action,reason:d.reason,matterVersion:d.result.version}));
+  const render = (kept, omitted) => JSON.stringify({...required, decisions:kept, decisionsOmitted:omitted});
+  // Everything above is mandatory. Decisions join newest first and only whole;
+  // the first one that does not fit ends the list and the rest are counted.
+  if (render([], answerable.length).length > limit) throw Object.assign(new Error('Required work context exceeds budget'), {code:'CONTEXT_BUDGET'});
+  const kept = [];
+  while (kept.length < answerable.length && render([...kept, answerable[kept.length]], answerable.length - kept.length - 1).length <= limit) kept.push(answerable[kept.length]);
+  const decisionsOmitted = answerable.length - kept.length;
+  const text = render(kept, decisionsOmitted);
+  return {text, provenance:{matterId:view.matter.id,stateVersion:view.matter.version,sourceVersion:view.matter.source_version,contractVersion:view.matter.contract_version,selected:['active artifact identity and input basis','obligations','pending candidates and input basis','source references','rejected or evidence-requested decisions since the active artifact, newest first'],omitted:['artifact body available through se_read_artifact','source bodies available through scoped read tool','closed candidate bodies, accepted decisions and execution trace'],decisionsOmitted,characters:text.length,limit}};
 }
