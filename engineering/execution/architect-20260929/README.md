@@ -379,3 +379,112 @@ Independent execution of the actual frozen recipe argv through `runCheckRecipe` 
 The recipe owner must now select meaningful offline tests that run with a read-only candidate and the check's own temporary directory, without listeners or nested checks. Changing the advertised coverage requires a new recipe version (or distinctly named replacement), accurate title/scope and synchronized catalog/contract/tests. Keep historical receipts/goldens identified by their original version, and preserve exact approval matching so an approval for the old argv cannot authorize replacement argv. Required completion evidence is the real revised frozen recipe against a prepared Courtwork candidate under the unchanged production sandbox, plus the separate trusted HTTP/lifecycle checks. I1 remains an implementation obligation; this review does not claim it fixed or silently reduce coverage.
 
 **Verification result.** Nine focused test files ran serially: 81/81, no skips. The two real recipes failed with the counts above. No new full-suite result is claimed; the author's 1903/1904 and five isolated K5-R2 passes remain separate evidence. Prior non-author focused A2/A3 runs existed; this section adds the explicit integrated-source review disposition. Compatibility readers remain; no push, PR, main merge, deployment or external message is authorized by this review.
+
+## Second correction and handoff · lane holder, 2026-09-30
+
+The re-review of `5e11e01` and the integrated review of `9795a13` returned F3 and D6 again and ruled I1. This section is the author's correction record. It is not acceptance. The code under review is merge commit `0664387` on `claude/architect-integration-20260929`; the commit that adds this section changes records and evidence only. Not pushed; no pull request.
+
+### Why the first correction failed
+
+The first correction guaranteed that one request spelling never got a weaker effect than on `main`. The property that matters is that the effect depends on the file and not on the spelling. Two of the three readings used the request's own spelling, so an alias could still choose its reading. The fold lower-cased whole strings, which depends on context. The traversal was hardened one window at a time with path operations, which cannot bind a directory to what is read from it.
+
+### F3 · one effect per file
+
+| Review finding | Correction |
+|---|---|
+| `deny aσ*` allowed `aςx.txt` | The fold works one code point at a time, so it gives the same result beside a `*` as inside a name. |
+| `deny private.txt` then `allow PRIVATE.txt` allowed the upper-case request | Policy is evaluated once, on the alias-folded path. The request's spelling is never consulted. |
+| The oracle checked bucket membership, not the colliding pair | On a collision the volume is asked which stored name the spelling opened, and that pair must fold equal. Each pair is checked again at the start, middle and end of a longer name. |
+
+**Which rule applies.** The last matching rule of a layer wins, as documented. A later rule overrides an earlier, stricter one only when one spelling of the path matches both rules as written. When two rules meet on a file through folding alone, the stricter holds and the trace marks it `held: "alias-conflict"`.
+
+**What is given up, for the reviewer to judge.** Three properties cannot hold together:
+
+1. every spelling of a file gets one effect;
+2. no spelling gets a weaker effect than it had on `main`;
+3. `deny *` followed by `allow out/*` allows files under `out/`.
+
+On `main`, with those two rules, `OUT/a.txt` is denied and `out/a.txt` is allowed, and both open one file. Properties 1 and 2 together force both to deny, which removes property 3 for every literal allow under a wildcard deny. The correction keeps 1 and 3. A deny therefore holds wherever no later rule could have applied to the same spelling, and is overridden where one could. The contract states this under "What this gives up" in [repository binding](../../../app/docs/repository-binding.md).
+
+**Evidence.** On this APFS volume 1,979 single-code-point names collide with an earlier one; all fold equal to the file they open, and so do 7,916 of them placed inside longer names. A seeded test builds 3,000 random policies and requires eight spellings of each path to get one effect. Four of the new tests fail on `d7b8cf9`'s parent and pass after. The author's [recheck](evidence/lane-holder-recheck/recheck.mjs) asserts the corrected outcome for every policy counterexample from the three reviews, through the evaluator and through `governTools` with a real `ws_read`; [output](evidence/lane-holder-recheck/recheck-0664387.jsonl).
+
+### D6 · file identity is established by descriptor
+
+**Ruling.** Every model-reachable workspace tool establishes a file's identity by walking from one root descriptor, each component opened relative to its parent with `O_NOFOLLOW`. The workspace tools use the fixed dirfd helper the repository tools use; the Node traversal and its identity checks are removed.
+
+| Tool | Before | Now |
+|---|---|---|
+| `ws_grep`, `ws_list` | Traversal by path; a directory swapped between `lstat` and `opendir` was followed | `ws_scan` names files without opening them. The Host admits by policy. `ws_read` re-walks and reads a file only when its device and inode are the ones named. A withheld file is never opened. |
+| `ws_read` | Resolved, then reopened by name. A probe returned a file outside the workspace. | Read from the descriptor reached by the walk. |
+| `ws_write` | The same window. A probe overwrote an existing file outside the workspace while the tool reported a workspace path. | Staged as a new file in the parent reached by the walk; renamed within that directory descriptor after the parent and the staged file are confirmed unchanged. A symlink, directory or other non-regular target is refused. |
+| Admission, approval card, write record | Named the path as requested | Name the path as it is on disk |
+
+**Evidence.** A child process swaps `materials` for an outside symlink as fast as it can while the tool runs 200 times.
+
+| Tool | Old code | New code |
+|---|---|---|
+| `ws_grep` | 1 leak in 200 | 67,392 swaps, no leak |
+| `ws_read` | leaks in 3 of 6 runs | 35,072 swaps, no leak |
+| `ws_write` | no outside write observed | 73,664 swaps, outside unchanged |
+
+A passing loop covers only the interleavings this machine produced. The defect in `ws_write` rests on the deterministic probe, not on the loop. The reviewer's traversal probe drove the old worker protocol, which no longer exists; its schedule is asserted by `app/tests/workspace-traversal-identity.test.mjs` at the new boundary.
+
+**Cost.** Each helper call starts Python, about 30 ms. Median of 20 on a small file, through `governTools`: `ws_read` 0.15 ms to 76 ms; `ws_write` 0.34 ms to 114 ms. `ws_grep` on 2,000 files: 236 ms to 224 ms; `ws_list` 163 ms to 204 ms.
+
+**Observable changes.** Workspace tools need the configured Python 3. Errors that exposed an absolute host path are workspace errors. A scan of roughly 100,000 files exceeds the helper's output cap and fails. `ws_write` onto a FIFO is refused; it used to replace it. The helper's request cap is 8 MiB, which a 4 MiB write needs.
+
+**Deferred, with trigger.** `GET /sessions/:id/workspace/file` and material upload still resolve by path. They act for the person who owns the workspace and live in `app/server/service.mjs`, which another writer is editing. Reopen when that file is free; the read needs a helper mode that returns the first bytes and a whole-file hash from one descriptor.
+
+**Limits that stay.** A hard link counts as the same file. Mount points inside the workspace are followed. If the parent is swapped between staging and commit, the staged file stays in the moved directory.
+
+### I1 · the fixed recipes are version 2
+
+Carried out as the reviewer ruled; the sandbox policy is unchanged.
+
+| Recipe | Real candidate, production sandbox, frozen limits |
+|---|---|
+| `node-test-attention-contract` v2 | exit 0, 21 of 21, 2.7 s, 2,321 bytes of output |
+| `node-test-harness-contract` v2 | exit 0, 78 of 78, 4.6 s, 8,156 bytes of output |
+
+- A v1 approval cannot start v2, whether the version, the argv or both differ; nothing starts.
+- A Store holding v1 approvals and receipts reopens byte-identical and displays v1. The catalog keeps no v1 entry, because neither the Store nor the display consults the catalog.
+- Three test files are split into an offline file and a Host file: `control-plane` 21 into 14 and 7, `request-summary` 10 into 7 and 3, `runtime-load-recovery` 10 into 9 and 1. The suite runs both halves.
+- `app/tests/check-recipes-real.test.mjs` runs each frozen recipe on this repository through the real runner and sandbox. It fails when the sandbox is unavailable and names the cause when `app/node_modules` is a link out of the repository.
+
+**Coverage the recipes no longer have,** all still run by `npm --prefix app test`: the Attention HTTP round trip; Hermes protocol conformance; the recipe catalog and runner; the Host half of the control plane.
+
+**Found while classifying,** recorded and not changed:
+
+- Of 254 test files, 141 cannot pass in the sandbox, nearly all because the test helper starts a Host on loopback.
+- `git` fails in the sandbox on macOS: it writes an `xcrun` cache in the system temporary directory, which the write rule denies.
+- A candidate that is a Git worktree has a `.git` file pointing into the home directory, which the read rule denies. Product candidates are private clones.
+- A candidate's dependencies must be real files inside it. The lane holder's first worktree for this work linked `app/node_modules` to another worktree, and no dependency could load.
+- Not explained: `hpr_p02` and one test of `review-core-client-lifecycle` fail in the sandbox. Neither is in a recipe.
+
+### Checks on the merged code `0664387`
+
+macOS 27, Node 25.9, dependencies from `npm --prefix app ci --ignore-scripts`. Load average 3.6 at the start of the suite and 8.3 at the end.
+
+| Check | Result |
+|---|---|
+| `node app/scripts/check-historical-fixtures.mjs` | 45 checks verified |
+| `node tools/check-doc-links.mjs` | no problems |
+| `npm --prefix app test` | 1929 of 1929, none skipped, 314 s |
+| `npm --prefix app run smoke` | exit 0; real provider not run |
+| Author's recheck of the policy counterexamples | every corrected outcome asserted |
+
+### Process
+
+- A worker asked the lane holder to run two commands the permission check had refused for it, removing a link and copying a dependency tree. The lane holder did not run them and gave the worker a new worktree with dependencies installed the ordinary way.
+- The permission check returned no verdict during part of one worker's run. The lane holder compared that worker's changes with its report: eleven files, as listed; no other worktree or dependency tree touched.
+
+### What the reviewer is asked to judge
+
+1. F3: the choice among the three properties above, and the shared-spelling rule for overrides.
+2. D6: descriptor-relative identity for `ws_grep`, `ws_list`, `ws_read` and `ws_write`, and the deferral of the two HTTP endpoints.
+3. I1: the revised recipes against the ruling.
+4. Returned to the UX owner, not changed here: Settings reads the last trace entry as the deciding step, and a trace can now end with an `alias-conflict` entry; the approval card still says a check runs with the person's access to the computer.
+
+### Not run
+
+Linux in every respect, including the helper's `ELOOP` handling and Python subprocesses in the recipes. A volume that keeps case or normalization apart. macOS versions other than 27. A real model. The browser. A race by a real process against the two deferred HTTP endpoints. Hard-link aliasing. The R1–R5 spike matrix beyond what `check-sandbox.test.mjs` asserts.

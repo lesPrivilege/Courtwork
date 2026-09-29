@@ -1,0 +1,19 @@
+{"review":"AR1","probe":"final sigma, exact name","action":"ws_read","spellings":["materials/Σ.txt","materials/σ.txt","materials/ς.txt"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"AR1","probe":"final sigma, exact name","action":"repo_read","spellings":["materials/Σ.txt","materials/σ.txt","materials/ς.txt"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"AR1","probe":"final sigma, exact name","action":"candidate_read","spellings":["materials/Σ.txt","materials/σ.txt","materials/ς.txt"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"AR1","probe":"final sigma, exact name","boundary":"governTools/ws_read","outcomes":["denied","denied","denied"]}
+{"review":"AR3","probe":"conflicting alias rules","action":"ws_read","spellings":["materials/private.txt","materials/PRIVATE.txt","MATERIALS/Private.TXT"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"AR3","probe":"conflicting alias rules","action":"repo_read","spellings":["materials/private.txt","materials/PRIVATE.txt","MATERIALS/Private.TXT"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"AR3","probe":"conflicting alias rules","action":"candidate_read","spellings":["materials/private.txt","materials/PRIVATE.txt","MATERIALS/Private.TXT"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"AR3","probe":"conflicting alias rules","boundary":"governTools/ws_read","outcomes":["denied","denied","denied"]}
+{"review":"re-review P1","probe":"wildcard beside sigma","action":"ws_read","spellings":["materials/aσx.txt","materials/aςx.txt","materials/AΣX.TXT"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"re-review P1","probe":"wildcard beside sigma","action":"repo_read","spellings":["materials/aσx.txt","materials/aςx.txt","materials/AΣX.TXT"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"re-review P1","probe":"wildcard beside sigma","action":"candidate_read","spellings":["materials/aσx.txt","materials/aςx.txt","materials/AΣX.TXT"],"volumeOpensSameFile":[true,true,true],"effects":["deny","deny","deny"]}
+{"review":"re-review P1","probe":"wildcard beside sigma","boundary":"governTools/ws_read","outcomes":["denied","denied","denied"]}
+{"review":"kept rule","probe":"ordinary last-match override","action":"ws_read","spellings":["materials/kept.txt","MATERIALS/KEPT.TXT"],"volumeOpensSameFile":[true,true],"effects":["allow","allow"]}
+{"review":"kept rule","probe":"ordinary last-match override","action":"repo_read","spellings":["materials/kept.txt","MATERIALS/KEPT.TXT"],"volumeOpensSameFile":[true,true],"effects":["allow","allow"]}
+{"review":"kept rule","probe":"ordinary last-match override","action":"candidate_read","spellings":["materials/kept.txt","MATERIALS/KEPT.TXT"],"volumeOpensSameFile":[true,true],"effects":["allow","allow"]}
+{"review":"kept rule","probe":"ordinary last-match override","boundary":"governTools/ws_read","outcomes":["read","read"]}
+{"probe":"ws_grep over materials","matches":["materials/kept.txt"],"excludedByPolicy":3}
+{"probe":"ws_grep over MATERIALS","matches":["materials/kept.txt"],"excludedByPolicy":3}
+{"result":"every counterexample gives the corrected outcome"}
