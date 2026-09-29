@@ -45,7 +45,7 @@ Set policy; rules replace the rule list in this scope:
 {"revision":2,"operation":"policy","scope":{"type":"workspace","id":"PROJECT_ID"},"rules":[{"action":"ws_write","resource":"materials/*","effect":"deny"},{"action":"ws_write","resource":"out/*","effect":"ask"}]}
 ```
 
-A rule's `resource` for a `ws_*`, `repo_*` or `candidate_*` action applies to the file, not to one spelling of its path: the rules are read on the path as requested, in lower case and alias-folded, and the strictest result holds ([repository binding](../../app/docs/repository-binding.md)). Another spelling of the same file cannot bypass a rule, and folding never weakens one. Other resources (such as `runtime_load` ids) match exactly.
+A rule's `resource` for a `ws_*`, `repo_*` or `candidate_*` action applies to the file, not to one spelling of its path: rule and request are compared alias-folded, so every spelling of a file gets one effect. The last matching rule of a layer wins; when two rules meet on a file only through folding, the stricter holds and the trace marks it `alias-conflict` ([repository binding](../../app/docs/repository-binding.md)). Other resources (such as `runtime_load` ids) match exactly.
 
 Aggregate workspace tools apply per-file policy as the repository aggregates do ([repository binding](../../app/docs/repository-binding.md)): a file appears in `ws_grep` only when both the `ws_grep` rule and the `ws_read` rule for that path allow it, and `ws_list` omits the `sha256` of a file that `ws_list` or `ws_read` does not allow. `ws_grep` reports `excludedByPolicy` and `excludedPendingApproval` counts without naming paths and never opens a withheld file.
 
