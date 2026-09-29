@@ -23,9 +23,26 @@ function scope(value) {
   check(value.type === 'user' ? value.id === 'local' : string(value.id), 'Invalid scope identity');
 }
 function sameScope(a, b) { return a.type === b.type && a.id === b.id; }
-function matches(pattern, value, { caseInsensitive = false } = {}) {
+// A path rule is read three ways: on the path as spelled, on its lower-case
+// form, and on its alias-folded form, where every spelling a Host volume may
+// open as the same file is equal (APFS folds case and Unicode normalization;
+// tests/path-alias-oracle.test.mjs asks the volume). The strictest reading
+// holds. Within one reading the last matching rule of a layer wins, so a
+// coarser reading alone could let a later allow reach a path an earlier deny
+// covers; taking the strictest means folding never loosens a policy.
+const PATH_ACTION = /^(ws|repo|candidate)_/;
+export function foldPathAliases(text) {
+  for (let pass = 0; pass < 4; pass += 1) {
+    const next = text.normalize('NFD').toUpperCase().toLowerCase().normalize('NFD');
+    if (next === text) break;
+    text = next;
+  }
+  return text;
+}
+const PATH_READINGS = [text => text, text => text.toLowerCase(), foldPathAliases];
+function matches(pattern, value, reading = null) {
   // Deliberately small, documented glob: * matches any sequence, including /.
-  if (caseInsensitive) { pattern = pattern.toLowerCase(); value = value.toLowerCase(); }
+  if (reading) { pattern = reading(pattern); value = reading(value); }
   return new RegExp('^' + pattern.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$').test(value);
 }
 export function hostToolCeiling(name, permissionMode) {
@@ -39,13 +56,15 @@ export function hostToolCeiling(name, permissionMode) {
 }
 
 export function evaluatePolicy(layers, action, resource, ceiling = 'allow', fallback = 'allow') {
+  if (!PATH_ACTION.test(action)) return evaluateReading(layers, action, resource, ceiling, fallback, null);
+  return PATH_READINGS.map(reading => evaluateReading(layers, action, resource, ceiling, fallback, reading))
+    .reduce((strictest, result) => weights[result.effect] > weights[strictest.effect] ? result : strictest);
+}
+
+function evaluateReading(layers, action, resource, ceiling, fallback, reading) {
   let effect = ceiling;
   const trace = [{ source: 'host-ceiling', effect: ceiling }];
-  // Repository paths may be addressed through case aliases on a Host volume
-  // whose lookup is case-insensitive. Match those path policies without case
-  // so a deny/ask cannot be bypassed by changing only the path's spelling.
-  const caseInsensitiveResource = action.startsWith('repo_') || action.startsWith('candidate_');
-  const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource, { caseInsensitive: caseInsensitiveResource })).at(-1) })).filter(item => item.rule);
+  const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource, reading)).at(-1) })).filter(item => item.rule);
   const host = selections.filter(item => item.layer.scope?.type !== 'agent');
   if (!host.length) {
     if (weights[fallback] > weights[effect]) effect = fallback;

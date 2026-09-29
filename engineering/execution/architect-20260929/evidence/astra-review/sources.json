@@ -1,0 +1,63 @@
+{
+  "baseline": "87e220723ad05a2279fb583a92fb5054ca23ba8b",
+  "node": "v25.9.0",
+  "sources": [
+    {
+      "worktree": "courtwork-architect-20260929",
+      "branch": "claude/architect-20260929",
+      "head": "5ec31010d6bf638b59c8f4727094c30aef9b238b",
+      "files_sha256": {
+        "app/docs/api-v6.md": "0ca335f408099da0e667038e0e06be3b9b59b2ec03cf866d83f0a6f488a2d128",
+        "app/docs/repository-binding.md": "8ea742205979b9d6c7a149a0cadec6d69fc4fd6681a2fdbf72e139a4c6e68f12",
+        "app/runtime/control-plane.mjs": "3193202805b6dafa5f020b10a37c49045d069cedc76842572b4e1c3a373c599c",
+        "app/runtime/grep-worker.mjs": "3e8f0cff633317d61951bc0b666e409f45f1695234a1d5b3eb56db3342389ea4",
+        "app/runtime/repository-tools.mjs": "5271a794c335b009f39a1c50738123f2cf4129d77d03a10bfab0a1476fa9671d",
+        "app/runtime/workspace-tools.mjs": "217e819cafed4bf69c53907e483afff287d52d03407f674fc8cefa7b569fa3fa",
+        "app/server/index.mjs": "b219eb681f291cca6013b5275659d3e51e32b93c7e5241ad14c71a09248709b4",
+        "app/server/service.mjs": "5106f7415155d2de6f5f0f2934e20e022b5d55b5a9e086f598eaf72d30dadd93",
+        "app/tests/control-plane.test.mjs": "fd7a5ac28b5a62f6a832d3b2629c719854176f0ffd48e75997648da49fc3fbdf",
+        "app/tests/governance-http.test.mjs": "e6a04a182fa3fabd086553228cef8ba33f9278a34ef89610254f542848f758fd",
+        "app/tests/repository-binding.test.mjs": "32d894d080fe0c289bfee1031948c3315eb9c059d70aa91e778246baaa18b192",
+        "app/tests/repository-candidate.test.mjs": "363b6fff7073c5ba012c0aa9a78b85abc8abf4fc872e0c5f25eed2a98d6e43ee",
+        "app/tests/workspace.test.mjs": "cac6ee0fde8f8ca52b423e1f6e3719ad0997f911576095b890fb5cec3b0878cb"
+      }
+    },
+    {
+      "worktree": "courtwork-architect-check-sandbox-20260929",
+      "branch": "claude/architect-check-sandbox-20260929",
+      "head": "87e220723ad05a2279fb583a92fb5054ca23ba8b",
+      "files_sha256": {
+        ".github/workflows/runtime.yml": "b11edcb1c0b523435b9cdb051caf97feb1813c788c47dae40cc94189a99010eb",
+        "app/docs/check-recipes.md": "7285590c11ca8e7f30ece536ac0178a057a8e8f25ae060a283c4377fa810b1f9",
+        "app/package-lock.json": "e594770d2b0b280babd386129f5b146a5d44346772671b6686632f39e6e955e7",
+        "app/package.json": "b2f20d9dee0f61b70ce87411c5e0b1f30696918c07dd01e2ff0f212efbf92faa",
+        "app/runtime/check-runner.mjs": "ac46ea04cd73b4cf25af7c17fbcfc1a14dc993331f977b8720d2f41782b872d9",
+        "app/runtime/check-sandbox.mjs": "65788d2e03e98dd559eb1a8756af4a3ee26ad6e22a2cc3df7ce04364eb6cc559",
+        "app/runtime/check-tools.mjs": "41faa1ebd7aee49d16dba915efc7e19a53109ba96c6dc37188f537e454ce4222",
+        "app/server/service.mjs": "1bde38ebb948f8539050bd9ec77e9fffa727d9030c245a8cc97d19f28b732ba9",
+        "app/tests/check-recipes.test.mjs": "3fef500bcf37ad97e01a3ebd41819e73a3748c898dd92cf95eac143163562878",
+        "app/tests/check-runner-group-kill.test.mjs": "3f12ec3f9db28db625aefb347dd8812271c0b7b3cfdf7d4e2291607a515433d2",
+        "app/tests/check-sandbox.test.mjs": "ddaf5a351169a3d0d9c4ddf41ad8e70401fec843b69a05d48568f4990ed35ea5"
+      }
+    },
+    {
+      "worktree": "courtwork-architect-probes-20260929",
+      "branch": "claude/architect-probes-20260929",
+      "head": "87e220723ad05a2279fb583a92fb5054ca23ba8b",
+      "files_sha256": {
+        "app/core/owner.mjs": "a530d00b58e0afb2e895ca8c2d33b94f1d4fc0ab4299445cfbab1e63d7c5ecba",
+        "app/docs/api-v6.md": "eceaf4e224bb03652837c5aee970750e2b333b6e25c2365f9f099e0cf9b0b9c0",
+        "app/docs/runtime-foundation.md": "d2e9288f09095a6ffcd01b3f9116a9a0a177d5758b9b7cf05251114599a9ced5",
+        "app/extensions/work-adapter.mjs": "05d3b2dbccbc0f0254ccefc1e010a19299901550a6451117fcf0fb04843730a8",
+        "app/runtime/kit-binding-state.mjs": "99ed26fb919eabbe3075cc965b76b0f3d7564af4c8d91d840a5e63cf36344e84",
+        "app/runtime/pi-runtime-port.mjs": "79d77e017af64e6da3cf85674ef5fa3855d698127e5f52aa589120144502838e",
+        "app/server/executor-choice-state.mjs": "e92e52d152eed1f53e05f97573d2665de1d36b02e202ddb4d05c56296533489c",
+        "app/tests/executor-identity-upgrade.test.mjs": "c111b54ecc91208522686bac590c0195bce6a7394fd133f42fcdde92e56d7d52",
+        "app/tests/kit-binding-store.test.mjs": "fe498b73b16378d2f04db9a9556ee3d48c323bd5ee3bbe7c8dfbe2ac473f4e86",
+        "app/tests/next-context-after-restart.test.mjs": "4e0bcf5a7fe94a79375c64a0d8761b1b618e8106e836a60a360d525fc3f70222",
+        "app/tests/runtime-selection-store.test.mjs": "6e76d4fdc5e0bb84741e469f5b4f3cb3b05dea365a855ff36a3bd05f5106dd31",
+        "app/tests/work-context-continuity.test.mjs": "9b7079a6509796d25ed8cca70aec1a00e680ca91fe8b40f2610fb32d01a06e84"
+      }
+    }
+  ]
+}

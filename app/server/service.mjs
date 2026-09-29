@@ -42,7 +42,7 @@ import {
   nativeCatalogModelIds,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
-import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
+import { RuntimeControlPlane, compileControlContext, evaluatePolicy, hostToolCeiling } from "../runtime/control-plane.mjs";
 import { planKitRunContext, retainKitContext, readKitContext } from "../runtime/kit-run-context.mjs";
 import { PI_RUNTIME_ADAPTER_ID, PI_RUNTIME_ADAPTER_REVISION } from "../runtime/pi-runtime-port.mjs";
 import { createRuntimeLoadTool, createRuntimeProposeTool, createPresentTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
@@ -1021,7 +1021,7 @@ export class RuntimeService {
     const resource = value.resource === undefined ? '*' : text(value.resource, 'resource', { max: 4000 });
     if (!descriptor.exposed) return { revision: snapshot.revision, effect: 'deny', trace: [{ source: 'exposure', effect: 'deny' }], advisory: true };
     const mode = sessionId ? this.store.getSession(sessionId).permissionMode : 'draft';
-    const ceiling = descriptor.id === 'tool:ws_write' ? mode === 'read_only' ? 'deny' : mode === 'ask' ? 'ask' : 'allow' : 'allow';
+    const ceiling = hostToolCeiling(descriptor.id.slice('tool:'.length), mode);
     return { revision: snapshot.revision, ...evaluatePolicy(snapshot.policies, descriptor.action, resource, ceiling, descriptor.mcp ? 'ask' : 'allow'), advisory: true };
   }
 
@@ -3127,9 +3127,11 @@ export class RuntimeService {
       if (provider.provider === FAKE_PROVIDER_ID) await this.modelRuntime.setRuntimeApiKey(FAKE_PROVIDER_ID, FAKE_CREDENTIAL_KEY);
 
       const askUserTool = createAskUserTool(({ prompt, signal }) => this.#waitForDecision(run.id, entry, { kind: "ask_user", prompt, payload: null, signal }));
+      const admitPath = createPathAdmission({ binding: entry.runtimeBinding, permissionMode: entry.permissionMode });
       const workspaceTools = createWorkspaceTools({
         workspaceDir: entry.workspaceDir,
         permissionMode: "draft",
+        admitPath,
         requestPermission: ({ toolCallId, tool, path: relPath, bytes, contentSha256, preview, signal }) => this.#waitForDecision(run.id, entry, {
           kind: "permission",
           prompt: `permission requested for ${tool} on ${relPath}`,
@@ -3149,8 +3151,6 @@ export class RuntimeService {
           return {...result, content: [...result.content, {type:'text', text:JSON.stringify({recordedFile:result.details})}]};
         },
       }) : workspaceTools;
-
-      const admitPath = createPathAdmission({ binding: entry.runtimeBinding, permissionMode: entry.permissionMode });
 
       const repositoryTools = createRepositoryTools({
         binding: run.repositoryBindingSnapshot,

@@ -1,16 +1,20 @@
 import { parentPort, workerData } from "node:worker_threads";
+import { constants } from "node:fs";
 import { open, opendir, lstat } from "node:fs/promises";
 import path from "node:path";
 
 // Host resolves the search root; traversal, reads, and regex all share the worker deadline.
 // No code from the model is evaluated; only its regular expression is matched.
+// Traversal comes first and names every candidate file to the Host, which
+// answers with the files its read policy admits; a file that is not admitted
+// is never opened, so its bytes cannot reach a match.
 const { workspaceReal, searchPath, pattern, maxReadBytes, maxResults } = workerData;
 const regex = new RegExp(pattern);
 const matches = [];
 async function* files(full) {
   const info = await lstat(full).catch(() => null);
   if (!info || info.isSymbolicLink()) return;
-  if (info.isFile()) { yield { full, bytes: info.size }; return; }
+  if (info.isFile()) { yield { full, bytes: info.size, dev: info.dev, ino: info.ino }; return; }
   if (!info.isDirectory()) return;
   const directory = await opendir(full);
   for await (const entry of directory) {
@@ -18,14 +22,26 @@ async function* files(full) {
     yield* files(path.join(full, entry.name));
   }
 }
+const found = [];
 for await (const entry of files(searchPath)) {
-  if (matches.length >= maxResults) break;
   if (entry.bytes > maxReadBytes) continue;
+  found.push({ ...entry, path: path.relative(workspaceReal, entry.full).split(path.sep).join("/") });
+}
+parentPort.postMessage({ files: found.map((entry) => entry.path) });
+const { admitted } = await new Promise((resolve) => parentPort.once("message", resolve));
+for (const [index, entry] of found.entries()) {
+  if (matches.length >= maxResults) break;
+  if (!admitted[index]) continue;
   // Read at most the host ceiling plus one byte even if a file grows after stat.
-  const handle = await open(entry.full, "r").catch(() => null);
+  // Read only the file that was named and admitted. O_NOFOLLOW refuses a
+  // symlink in its place; comparing the opened file with the one named refuses
+  // any other file, such as one reached through a swapped parent directory.
+  const handle = await open(entry.full, constants.O_RDONLY | constants.O_NOFOLLOW).catch(() => null);
   if (!handle) continue;
   let bytes;
   try {
+    const opened = await handle.stat();
+    if (opened.dev !== entry.dev || opened.ino !== entry.ino) continue;
     const buffer = Buffer.alloc(maxReadBytes + 1);
     let size = 0;
     while (size < buffer.length) {
@@ -38,7 +54,7 @@ for await (const entry of files(searchPath)) {
   if (bytes.length > maxReadBytes || bytes.subarray(0, 8000).includes(0)) continue;
   const lines = bytes.toString("utf8").split("\n");
   for (let i = 0; i < lines.length && matches.length < maxResults; i += 1) {
-    if (regex.test(lines[i])) matches.push({ path: path.relative(workspaceReal, entry.full).split(path.sep).join("/"), line: i + 1, text: lines[i] });
+    if (regex.test(lines[i])) matches.push({ path: entry.path, line: i + 1, text: lines[i] });
   }
 }
 parentPort.postMessage({ matches });

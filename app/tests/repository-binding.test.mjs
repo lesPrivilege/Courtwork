@@ -340,6 +340,53 @@ test("repository path deny rules block case aliases on case-insensitive Host vol
   }
 });
 
+test("repository path deny rules block Unicode-normalization and case aliases (skips unless the Host volume aliases NFC and NFD spellings)", async t => {
+  const h = await boot();
+  const root = await mkdtemp(path.join(tmpdir(), "cw-repository-unicode-policy-"));
+  try {
+    const nfc = "caf\u00e9-secret.txt";
+    const nfd = nfc.normalize("NFD");
+    await writeFile(path.join(root, nfc), "private unicode-alias sentinel\n");
+    let alias;
+    try { alias = await stat(path.join(root, nfd)); }
+    catch (error) { if (error?.code !== "ENOENT") throw error; }
+    if (!alias || alias.ino !== (await stat(path.join(root, nfc))).ino) {
+      t.skip("Host test volume does not alias NFC and NFD spellings");
+      return;
+    }
+
+    const session = await h.createSession();
+    const bound = await h.api("PUT", `/sessions/${session.id}/repository-binding`, {
+      operation: "bind", requestId: "unicode-policy-bind", expectedRevision: 0, rootPath: root,
+    });
+    assert.equal(bound.status, 200, JSON.stringify(bound.json));
+    const control = (await h.api("GET", `/runtime-control?sessionId=${session.id}`)).json;
+    const policy = await h.api("PUT", `/runtime-control?sessionId=${session.id}`, {
+      revision: control.revision, operation: "policy", scope: { type: "session", id: session.id },
+      rules: [{ action: "repo_read", resource: nfc, effect: "deny" }],
+    });
+    assert.equal(policy.status, 200, JSON.stringify(policy.json));
+    const spellings = [nfd, nfc.toUpperCase(), nfd.toUpperCase()];
+    const started = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "unicode-policy-read", input: h.scriptInput(spellings.map(spelling => ({ name: "repo_read", arguments: { path: spelling } }))),
+    });
+    assert.equal(started.status, 200, JSON.stringify(started.json));
+    assert.equal((await h.pollRun(started.json.run.id)).status, "completed");
+    const events = (await h.api("GET", `/sessions/${session.id}/events`)).json.events;
+    const results = events.filter(event => event.runId === started.json.run.id && event.type === "tool.result" && event.data.name === "repo_read");
+    assert.equal(results.length, spellings.length);
+    for (const result of results) {
+      assert.equal(result.data.isError, true, result.data.text);
+      assert.match(result.data.text, /Runtime policy denied repo_read/);
+    }
+    assert.equal(events.some(event => event.runId === started.json.run.id && event.type === "repository.read"), false);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("repo_grep excludes a repo_read-denied file, counts it, and keeps only allowed sources in provenance", async t => {
   const h = await boot();
   const root = await mkdtemp(path.join(tmpdir(), "cw-repository-grep-deny-"));

@@ -1,0 +1,5 @@
+{"probe":"parent-directory-swap","leaked":true,"result":{"matches":[{"path":"materials/open.txt","line":1,"text":"SENTINEL synthetic outside"}],"excludedByPolicy":0,"excludedPendingApproval":0}}
+{"probe":"unicode-alias","action":"ws_read","aliases":true,"original":"deny","alias":"allow"}
+{"probe":"unicode-alias","action":"repo_read","aliases":true,"original":"deny","alias":"allow"}
+{"probe":"unicode-alias","action":"candidate_read","aliases":true,"original":"deny","alias":"allow"}
+{"probe":"canonical-rule-collision","effect":"allow","trace":[{"source":"host-ceiling","effect":"allow"},{"source":{"type":"user","id":"local"},"action":"ws_read","resource":"PRIVATE.txt","effect":"allow"}]}

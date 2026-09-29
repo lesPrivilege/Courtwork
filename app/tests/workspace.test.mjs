@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mkdtemp, symlink, mkdir } from "node:fs/promises";
+import { mkdtemp, symlink, mkdir, writeFile } from "node:fs/promises";
+import { renameSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { resolveWorkspacePath, createWsReadTool, createWsGrepTool, MAX_GREP_PATTERN_CHARS } from "../runtime/workspace-tools.mjs";
+import { resolveWorkspacePath, createWsReadTool, createWsGrepTool, createWsListTool, createWorkspaceTools, MAX_GREP_PATTERN_CHARS } from "../runtime/workspace-tools.mjs";
 import { boot } from "./helpers.mjs";
 
 // T-WS-1..4: the path guard rejects `..`, absolute paths, symlink escapes,
@@ -269,6 +270,59 @@ test("ws_grep rejects nested quantifiers and over-long patterns before compiling
   await assert.rejects(() => tool.execute("call", { pattern: "([" }), /not a valid regular expression/);
 });
 
+// D6: an aggregate workspace read applies the per-file effect of the matching
+// single-file read (strictest of the aggregate rule and the ws_read rule), the
+// same admission repo_grep applies to repository files.
+async function policyWorkspace() {
+  const workspaceDir = await mkdtemp(path.join(tmpdir(), "se-ws-policy-"));
+  await mkdir(path.join(workspaceDir, "private"));
+  await writeFile(path.join(workspaceDir, "open.txt"), "SENTINEL in the open file\n");
+  await writeFile(path.join(workspaceDir, "private", "secret.txt"), "SENTINEL in the private file\n");
+  await writeFile(path.join(workspaceDir, "gated.txt"), "SENTINEL in the gated file\n");
+  return workspaceDir;
+}
+const readPolicy = (tool, resource) => tool === "ws_read" && resource === "private/secret.txt" ? "deny"
+  : tool === "ws_grep" && resource === "gated.txt" ? "ask" : "allow";
+
+test("D6: ws_grep never returns a file that ws_read denies or gates, and reports counts without names", async () => {
+  const workspaceDir = await policyWorkspace();
+  const tool = createWsGrepTool({ workspaceDir, admitPath: readPolicy });
+  const result = await tool.execute("call", { pattern: "SENTINEL" });
+  assert.deepEqual(result.details.matches.map((m) => m.path), ["open.txt"]);
+  assert.equal(result.details.excludedByPolicy, 1);
+  assert.equal(result.details.excludedPendingApproval, 1);
+  const text = result.content.map((block) => block.text).join("\n");
+  assert.ok(!text.includes("private"), "a denied file's name and content stay out of the model-visible result");
+  assert.ok(!text.includes("gated"), "a gated file's name and content stay out of the model-visible result");
+  assert.match(text, /"excludedByPolicy":1/);
+  // The scan is confined to the path the caller named, and the cap counts only admitted matches.
+  const scoped = await tool.execute("call", { pattern: "SENTINEL", path: "private" });
+  assert.deepEqual(scoped.details.matches, []);
+  assert.equal(scoped.details.excludedByPolicy, 1);
+});
+
+test("D6: ws_list withholds the hash of a file the read policy does not allow", async () => {
+  const workspaceDir = await policyWorkspace();
+  const files = (await createWsListTool({ workspaceDir, admitPath: readPolicy }).execute("call", {})).details.files;
+  assert.deepEqual(files.map((f) => f.path), ["gated.txt", "open.txt", "private/secret.txt"]);
+  assert.equal(files.find((f) => f.path === "open.txt").sha256.length, 64);
+  assert.equal(files.find((f) => f.path === "private/secret.txt").sha256, undefined);
+  // ws_list's own rule is honoured as well as ws_read's.
+  const listGated = (await createWsListTool({ workspaceDir, admitPath: (t, r) => t === "ws_list" && r === "open.txt" ? "ask" : "allow" }).execute("call", {})).details.files;
+  assert.equal(listGated.find((f) => f.path === "open.txt").sha256, undefined);
+});
+
+test("D6: without a policy ws_grep and ws_list outputs are unchanged", async () => {
+  const workspaceDir = await policyWorkspace();
+  const grep = await createWsGrepTool({ workspaceDir }).execute("call", { pattern: "SENTINEL in the o" });
+  assert.equal(grep.content.length, 1);
+  assert.equal(grep.content[0].text, JSON.stringify([{ path: "open.txt", line: 1, text: "SENTINEL in the open file" }], null, 2));
+  const [grepTool, listTool] = ["ws_grep", "ws_list"].map((name) => createWorkspaceTools({ workspaceDir, permissionMode: "draft" }).find((t) => t.name === name));
+  assert.equal((await grepTool.execute("call", { pattern: "gated" })).details.excludedByPolicy, 0);
+  const files = (await listTool.execute("call", {})).details.files;
+  assert.ok(files.every((f) => f.sha256.length === 64));
+});
+
 // Hardening (work order 2.8): GET workspace/file truncates on a UTF-8
 // character boundary, so a cut file never ends in a mangled character. The
 // digest still covers the whole file.
@@ -337,4 +391,45 @@ test("a second run in a continued session revises the first run's file", async (
   } finally {
     await runtime.close();
   }
+});
+
+test("D6: ws_grep does not follow a symlink put in place of a file after it was named", async () => {
+  const workspace = await mkdtemp(path.join(tmpdir(), "cw-ws-swap-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "cw-ws-outside-"));
+  await mkdir(path.join(workspace, "materials"));
+  await writeFile(path.join(workspace, "materials", "open.txt"), "SENTINEL inside\n");
+  await writeFile(path.join(outside, "secret.txt"), "SENTINEL outside\n");
+  let swapped = false;
+  // Admission runs between naming and opening, which is the window a swap needs.
+  const admitPath = () => {
+    if (!swapped) {
+      swapped = true;
+      rmSync(path.join(workspace, "materials", "open.txt"));
+      symlinkSync(path.join(outside, "secret.txt"), path.join(workspace, "materials", "open.txt"));
+    }
+    return "allow";
+  };
+  const result = await createWsGrepTool({ workspaceDir: workspace, admitPath }).execute("call", { pattern: "SENTINEL" });
+  assert.ok(swapped);
+  assert.deepEqual(result.details.matches, []);
+});
+
+test("D6: ws_grep does not read through a parent directory swapped for a symlink after naming", async () => {
+  const workspace = await mkdtemp(path.join(tmpdir(), "cw-ws-dirswap-"));
+  const outside = await mkdtemp(path.join(tmpdir(), "cw-ws-outside-"));
+  await mkdir(path.join(workspace, "materials"));
+  await writeFile(path.join(workspace, "materials", "open.txt"), "SENTINEL inside\n");
+  await writeFile(path.join(outside, "open.txt"), "SENTINEL outside\n");
+  let swapped = false;
+  const admitPath = () => {
+    if (!swapped) {
+      swapped = true;
+      renameSync(path.join(workspace, "materials"), path.join(workspace, "materials.moved"));
+      symlinkSync(outside, path.join(workspace, "materials"));
+    }
+    return "allow";
+  };
+  const result = await createWsGrepTool({ workspaceDir: workspace, admitPath }).execute("call", { pattern: "SENTINEL" });
+  assert.ok(swapped);
+  assert.deepEqual(result.details.matches, []);
 });
