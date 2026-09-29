@@ -1,4 +1,4 @@
-import { lstat, mkdir, readFile, readdir, realpath, rename, stat, unlink, writeFile } from "node:fs/promises";
+import { lstat, mkdir, readFile, realpath, rename, stat, unlink, writeFile } from "node:fs/promises";
 import { createReadStream } from "node:fs";
 import { randomUUID, createHash } from "node:crypto";
 import path from "node:path";
@@ -6,6 +6,7 @@ import { Type } from "@earendil-works/pi-ai";
 import { Worker } from "node:worker_threads";
 import { maybeCrash } from "./test-hooks.mjs";
 import { strictestEffect } from "./repository-tools.mjs";
+import { runRepositoryFs } from "./repository-fs.mjs";
 
 // Generic workspace tools scoped to one session's workspace directory. No
 // bash, no network, no path outside the workspace: those capabilities do not
@@ -23,6 +24,11 @@ const MAX_GREP_RESULTS = 200;
 const MAX_GREP_PATTERN_CHARS = 200;
 const GREP_TIMEOUT_MS = 2000;
 const PERMISSION_PREVIEW_CHARS = 400;
+// Per helper request: the file bytes one ws_read may return (under the
+// helper's 12 MiB output cap once base64-encoded) and the size of the file list
+// sent (under the helper's 2 MiB input cap).
+const MAX_GREP_BATCH_BYTES = 8 * 1024 * 1024;
+const MAX_HELPER_REQUEST_BYTES = 1024 * 1024;
 
 /**
  * Reject a quantifier applied to a group that already contains one —
@@ -84,11 +90,9 @@ function isBinary(buffer) {
   return false;
 }
 
-/** Resolve a user-supplied relative path against the workspace, rejecting
- * absolute paths, `..` segments, and symlink escapes anywhere in the chain.
- * Shared by the ws_* tools and by every HTTP endpoint that names a workspace
- * path, so there is one guard and one place to test it. */
-export async function resolveWorkspacePath(workspaceDir, relPath) {
+/** The components of a user-supplied relative workspace path, rejecting
+ * absolute paths and `..` segments. `.` and an empty component are dropped. */
+function workspacePathParts(relPath) {
   if (typeof relPath !== "string" || relPath.length === 0 || relPath.length > 4000) {
     throw wsError("path is invalid");
   }
@@ -101,9 +105,17 @@ export async function resolveWorkspacePath(workspaceDir, relPath) {
   if (relPath.split(/[\\/]+/).includes("..")) throw wsError("path escapes the workspace");
   const normalized = path.normalize(relPath);
   if (path.isAbsolute(normalized)) throw wsError("path escapes the workspace");
-  const workspaceReal = await realpath(workspaceDir);
   const cleanRelative = normalized === "." ? "" : normalized;
-  const parts = cleanRelative.split(path.sep).filter(Boolean);
+  return cleanRelative.split(path.sep).filter(Boolean);
+}
+
+/** Resolve a user-supplied relative path against the workspace, rejecting
+ * absolute paths, `..` segments, and symlink escapes anywhere in the chain.
+ * Shared by ws_read, ws_write and by every HTTP endpoint that names a single
+ * workspace path. */
+export async function resolveWorkspacePath(workspaceDir, relPath) {
+  const parts = workspacePathParts(relPath);
+  const workspaceReal = await realpath(workspaceDir);
   let current = workspaceReal;
   for (let index = 0; index < parts.length; index += 1) {
     current = path.join(current, parts[index]);
@@ -124,11 +136,6 @@ export async function resolveWorkspacePath(workspaceDir, relPath) {
   return { absolutePath, relativePath: relativePath || ".", workspaceReal };
 }
 
-async function sha256File(absolutePath) {
-  const bytes = await readFile(absolutePath);
-  return { sha256: createHash("sha256").update(bytes).digest("hex"), bytes: bytes.length };
-}
-
 /** sha256 over a file's whole current bytes, streamed so the digest stays
  * honest for a file larger than the read/truncation limit. */
 export async function sha256OfFile(absolutePath) {
@@ -137,32 +144,89 @@ export async function sha256OfFile(absolutePath) {
   return hash.digest("hex");
 }
 
-async function listTree(workspaceReal, dir, out) {
-  const entries = await readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.isSymbolicLink()) continue;
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      await listTree(workspaceReal, full, out);
-    } else if (entry.isFile()) {
-      const info = await stat(full);
-      const bytes = await readFile(full);
-      out.push({
-        path: path.relative(workspaceReal, full).split(path.sep).join("/"),
-        bytes: info.size,
-        sha256: createHash("sha256").update(bytes).digest("hex"),
-        mtime: info.mtime.toISOString(),
-      });
-    }
+// Workspace search and listing establish which file they report through the
+// fixed filesystem helper (repository-fs-helper.py): it opens the workspace
+// root once and each path component relative to its parent's descriptor with
+// O_NOFOLLOW. `ws_scan` names regular files (on-disk spelling, with device and
+// inode) without opening them; the Host admits names; `ws_read` walks
+// descriptor-relative again and reads only an admitted file whose identity is
+// the one named. A file that is not admitted is never opened.
+function workspaceFsError(error) {
+  if (error?.isWorkspaceError) return error;
+  switch (error?.code) {
+    case "symlink": return wsError("path escapes the workspace (symlink)");
+    case "path_unavailable": return wsError("path does not exist");
+    case "parent_unavailable": return wsError("parent directory does not exist");
+    case "python_unavailable": return wsError("workspace search and listing require the configured Python 3 runtime");
+    case "cancelled": return wsError("workspace operation was cancelled");
+    default: return wsError("workspace could not be read");
   }
 }
 
-export async function listWorkspaceTree(workspaceDir) {
-  const workspaceReal = await realpath(workspaceDir);
-  const files = [];
-  await listTree(workspaceReal, workspaceReal, files);
-  files.sort((a, b) => a.path.localeCompare(b.path));
-  return files;
+async function scanWorkspace(workspaceDir, parts, options) {
+  const scan = await runRepositoryFs({ operation: "ws_scan", rootPath: path.resolve(workspaceDir), parts }, options);
+  if (!Array.isArray(scan?.files)) throw wsError("workspace helper returned an invalid result");
+  return scan;
+}
+
+/** Reads the given scanned files in order, one bounded helper request at a
+ * time, yielding each file with its read result (null when the file is gone,
+ * changed identity, or is binary or over the limit in text mode). */
+async function* readScannedFiles(scan, files, mode, options) {
+  let start = 0;
+  while (start < files.length) {
+    const request = [];
+    let requestBytes = 0;
+    for (let index = start; index < files.length && (request.length === 0 || requestBytes < MAX_HELPER_REQUEST_BYTES); index += 1) {
+      const { path: filePath, device, inode } = files[index];
+      request.push({ path: filePath, device, inode });
+      requestBytes += Buffer.byteLength(JSON.stringify(request.at(-1)));
+    }
+    const result = await runRepositoryFs({
+      operation: "ws_read", rootPath: scan.rootPath, device: scan.device, inode: scan.inode,
+      mode, files: request, maxFileBytes: MAX_READ_BYTES, maxBatchBytes: MAX_GREP_BATCH_BYTES,
+    }, options);
+    const consumed = result?.consumed;
+    if (!Number.isInteger(consumed) || consumed < 1 || consumed > request.length || !Array.isArray(result.files) || result.files.length !== consumed) {
+      throw wsError("workspace helper returned an invalid result");
+    }
+    yield files.slice(start, start + consumed).map((file, index) => ({ file, read: result.files[index] }));
+    start += consumed;
+  }
+}
+
+// The same millisecond Node's fs.Stats.mtime gives: seconds and nanoseconds
+// combined as a double, then rounded.
+function isoFromNs(ns) {
+  const total = BigInt(ns);
+  let seconds = total / 1_000_000_000n;
+  let nanoseconds = total % 1_000_000_000n;
+  if (nanoseconds < 0n) { nanoseconds += 1_000_000_000n; seconds -= 1n; }
+  return new Date(Math.round(Number(seconds) * 1000 + Number(nanoseconds) / 1e6)).toISOString();
+}
+
+/** Every regular file in the workspace with its size and mtime; `sha256` only
+ * for a file `admit` accepts. A file whose identity changed between naming and
+ * hashing is left out. */
+export async function listWorkspaceTree(workspaceDir, { admit = () => true, signal } = {}) {
+  try {
+    const scan = await scanWorkspace(workspaceDir, [], { signal });
+    const files = [];
+    const admitted = [];
+    for (const file of scan.files) {
+      if (admit(file.path)) admitted.push(file);
+      else files.push({ path: file.path, bytes: file.bytes, mtime: isoFromNs(file.mtimeNs) });
+    }
+    for await (const batch of readScannedFiles(scan, admitted, "hash", { signal })) {
+      for (const { file, read } of batch) {
+        if (read) files.push({ path: file.path, bytes: read.bytes, sha256: read.sha256, mtime: isoFromNs(read.mtimeNs) });
+      }
+    }
+    files.sort((a, b) => a.path.localeCompare(b.path));
+    return files;
+  } catch (error) {
+    throw workspaceFsError(error);
+  }
 }
 
 // An aggregate read returns a file's content or hash only when both the
@@ -177,11 +241,9 @@ export function createWsListTool({ workspaceDir, admitPath = () => "allow" }) {
     label: "List workspace files",
     description: "List files under the session workspace (materials/ and out/), with size and sha256.",
     parameters: Type.Object({}),
-    async execute() {
-      const files = (await listWorkspaceTree(workspaceDir)).map((file) => {
-        if (admitsFile(admitPath, "ws_list", file.path) === "allow") return file;
-        const { sha256, ...withheld } = file;
-        return withheld;
+    async execute(toolCallId, params, signal) {
+      const files = await listWorkspaceTree(workspaceDir, {
+        signal, admit: (relPath) => admitsFile(admitPath, "ws_list", relPath) === "allow",
       });
       return { content: [{ type: "text", text: JSON.stringify(files, null, 2) }], details: { files } };
     },
@@ -293,55 +355,88 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
   };
 }
 
-// The service owns cancellation and deadlines. A RegExp can synchronously
-// monopolize a JS thread, so execute it in a terminable worker rather than
-// relying on timers in that same thread. Termination is awaited before this
-// tool settles: "cancelled" must not leave the search running in the background.
-function searchInWorker({ workspaceReal, searchPath, pattern, admit, signal }) {
-  if (signal?.aborted) return Promise.reject(wsError("search was cancelled"));
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(new URL("./grep-worker.mjs", import.meta.url), {
-      execArgv: [],
-      workerData: { workspaceReal, searchPath, pattern, maxReadBytes: MAX_READ_BYTES, maxResults: MAX_GREP_RESULTS },
-    });
-    let settled = false;
-    let timer;
+// A RegExp can synchronously monopolize a JS thread, so the model's pattern is
+// matched in a terminable worker over the text the helper read. One deadline
+// covers naming, reading and matching; cancellation or the deadline stops the
+// helper process (runRepositoryFs settles only after it has exited) and the
+// worker, whose termination is awaited before this settles.
+function startMatcher(pattern, signal) {
+  const worker = new Worker(new URL("./grep-worker.mjs", import.meta.url), {
+    execArgv: [],
+    workerData: { pattern, maxResults: MAX_GREP_RESULTS },
+  });
+  let failure = null;
+  let pending = null;
+  const fail = (error) => {
+    failure ??= error;
+    pending?.reject(failure);
+    pending = null;
+  };
+  worker.on("message", (message) => {
+    if (!pending) return;
+    if (!Array.isArray(message?.matches)) return fail(wsError("search worker returned an invalid result"));
+    const { resolve } = pending;
+    pending = null;
+    resolve(message.matches);
+  });
+  worker.once("error", () => fail(wsError("search worker failed")));
+  worker.once("exit", () => fail(wsError("search worker exited without a result")));
+  signal.addEventListener("abort", () => fail(wsError("search was cancelled")), { once: true });
+  return {
+    match(files) {
+      if (failure) return Promise.reject(failure);
+      return new Promise((resolve, reject) => {
+        pending = { resolve, reject };
+        worker.postMessage({ files });
+      });
+    },
+    async stop() {
+      try { await worker.terminate(); } catch { throw wsError("search worker could not be stopped"); }
+    },
+  };
+}
+
+async function searchWorkspace({ workspaceDir, parts, pattern, admit, signal }) {
+  if (signal?.aborted) throw wsError("search was cancelled");
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; controller.abort(); }, GREP_TIMEOUT_MS);
+  const abort = () => controller.abort();
+  signal?.addEventListener("abort", abort, { once: true });
+  const matcher = startMatcher(pattern, controller.signal);
+  const options = { signal: controller.signal, timeoutMs: GREP_TIMEOUT_MS };
+  try {
+    const scan = await scanWorkspace(workspaceDir, parts, options);
     let excludedByPolicy = 0;
     let excludedPendingApproval = 0;
-    const finish = (error, matches) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      signal?.removeEventListener("abort", abort);
-      worker.terminate().then(
-        () => error ? reject(error) : resolve({ matches, excludedByPolicy, excludedPendingApproval }),
-        () => reject(wsError("search worker could not be stopped")),
-      );
-    };
-    const abort = () => finish(wsError("search was cancelled"));
-    // The worker names every candidate file first; only the admitted ones are opened.
-    worker.on("message", (message) => {
-      if (Array.isArray(message?.files)) {
-        try {
-          const admitted = message.files.map((file) => {
-            const effect = admit(file);
-            if (effect === "deny") excludedByPolicy += 1;
-            else if (effect === "ask") excludedPendingApproval += 1;
-            return effect === "allow";
-          });
-          worker.postMessage({ admitted });
-        } catch {
-          finish(wsError("search admission failed"));
-        }
-      } else if (!Array.isArray(message?.matches)) finish(wsError("search worker returned an invalid result"));
-      else finish(null, message.matches);
-    });
-    worker.once("error", () => finish(wsError("search worker failed")));
-    worker.once("exit", () => finish(wsError("search worker exited without a result")));
-    timer = setTimeout(() => finish(wsError(`search exceeded the ${GREP_TIMEOUT_MS} ms time limit`)), GREP_TIMEOUT_MS);
-    signal?.addEventListener("abort", abort, { once: true });
-    if (signal?.aborted) abort();
-  });
+    const admitted = [];
+    try {
+      for (const file of scan.files) {
+        if (file.bytes > MAX_READ_BYTES) continue;
+        const effect = admit(file.path);
+        if (effect === "deny") excludedByPolicy += 1;
+        else if (effect === "ask") excludedPendingApproval += 1;
+        else if (effect === "allow") admitted.push(file);
+      }
+    } catch {
+      throw wsError("search admission failed");
+    }
+    let matches = [];
+    for await (const batch of readScannedFiles(scan, admitted, "text", options)) {
+      const files = batch.filter(({ read }) => read).map(({ file, read }) => ({ path: file.path, dataBase64: read.dataBase64 }));
+      if (files.length) matches = await matcher.match(files);
+      if (matches.length >= MAX_GREP_RESULTS) break;
+    }
+    return { matches, excludedByPolicy, excludedPendingApproval };
+  } catch (error) {
+    if (timedOut) throw wsError(`search exceeded the ${GREP_TIMEOUT_MS} ms time limit`);
+    if (signal?.aborted) throw wsError("search was cancelled");
+    throw workspaceFsError(error);
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", abort);
+    await matcher.stop();
+  }
 }
 
 export function createWsGrepTool({ workspaceDir, admitPath = () => "allow" }) {
@@ -355,7 +450,7 @@ export function createWsGrepTool({ workspaceDir, admitPath = () => "allow" }) {
     }),
     async execute(toolCallId, params, signal) {
       if (signal?.aborted) throw wsError("search was cancelled");
-      const resolved = await resolveWorkspacePath(workspaceDir, params.path ?? ".");
+      const parts = workspacePathParts(params.path ?? ".");
       if (typeof params.pattern !== "string" || params.pattern.length === 0 || params.pattern.length > MAX_GREP_PATTERN_CHARS) {
         throw wsError(`pattern must be 1 to ${MAX_GREP_PATTERN_CHARS} characters`);
       }
@@ -367,15 +462,8 @@ export function createWsGrepTool({ workspaceDir, admitPath = () => "allow" }) {
       } catch {
         throw wsError("pattern is not a valid regular expression");
       }
-      const workspaceReal = await realpath(workspaceDir);
-      let baseStat;
-      try {
-        baseStat = await stat(resolved.absolutePath);
-      } catch {
-        throw wsError("path does not exist");
-      }
-      const { matches, excludedByPolicy, excludedPendingApproval } = await searchInWorker({
-        workspaceReal, searchPath: resolved.absolutePath, pattern: params.pattern, signal,
+      const { matches, excludedByPolicy, excludedPendingApproval } = await searchWorkspace({
+        workspaceDir, parts, pattern: params.pattern, signal,
         admit: (relPath) => admitsFile(admitPath, "ws_grep", relPath),
       });
       const content = [{ type: "text", text: JSON.stringify(matches, null, 2) }];
