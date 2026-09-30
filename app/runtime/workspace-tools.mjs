@@ -386,14 +386,15 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
       const relativePath = staged.path;
       const sha256 = contentSha256;
       const bytes = bytesToWrite;
-      // The bytes landed in the directory the walk reached, but that directory
-      // was moved between the identity check and the rename, so this path no
-      // longer names it. The effect happened and is reported as it is; no
+      // The bytes landed in the directory the walk reached, but the Host could
+      // not confirm afterwards that this path still names it: the directory,
+      // or the workspace root, may have been moved between the identity check
+      // and the rename. The effect happened and is reported as it is; no
       // record claims the path, and the bytes stay where they went, since
-      // taking them back would change the moved directory a second time.
+      // taking them back would change a moved directory a second time.
       if (!committed.placed) {
-        const text = `wrote ${bytes} bytes (sha256 ${sha256}), but the directory of ${relativePath} left the workspace during the write; the bytes are not at ${relativePath}. The exact bytes are kept in history.`;
-        return { content: [{ type: "text", text }], details: { path: relativePath, bytes, sha256, placement: "moved" } };
+        const text = `wrote ${bytes} bytes (sha256 ${sha256}), but could not confirm that they are at ${relativePath}: the directory or the workspace moved during the write. The exact bytes are kept in history.`;
+        return { content: [{ type: "text", text }], details: { path: relativePath, bytes, sha256, placement: "unconfirmed" } };
       }
       // Crash point: the rename has landed, the artifact record has NOT. This
       // is the window the work order names; the recovery answer is a startup

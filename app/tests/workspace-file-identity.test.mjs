@@ -285,18 +285,18 @@ test("ws_write: an alias-spelled path writes the existing file and the approval 
   assert.deepEqual((await readdir(path.join(workspace, "out"))).sort(), ["memo.md"]);
 });
 
-// Review R30-1 (2026-09-30): a descriptor names a directory object, not a
-// place. An actor with the same rights can move the admitted parent, open
-// descriptor and all, between the commit's identity check and its rename; the
-// rename still lands inside the moved directory. The Host cannot prevent that
-// and does not claim to: it checks placement after the rename and reports
-// the effect as it is.
-test("ws_write: a parent moved out of the workspace during the commit is reported as moved, not as written at the path", async (t) => {
+// Review R30-1 and its return (2026-09-30): a descriptor names a directory
+// object, not a place. An actor with the same rights can move the admitted
+// parent, or the whole workspace root, open descriptors and all, between the
+// commit's identity check and its rename; the rename still lands inside the
+// moved directory. The Host cannot prevent that and does not claim to: it
+// checks placement after the rename and reports the effect as it is.
+async function movedDuringCommit(t, { move }) {
   const paths = await fixture(t);
-  const moved = path.join(paths.outside, "moved-out");
   const control = path.join(paths.outside, "unrelated.txt");
   await writeFile(control, "unrelated control remains unchanged\n");
-  // Move the admitted parent immediately before the helper's descriptor-relative rename.
+  const [from, to] = move(paths);
+  // Move immediately before the helper's descriptor-relative rename.
   const hook = path.join(paths.root, "hook-move.py");
   await writeFile(hook, `import os, runpy, sys
 real_rename = os.rename
@@ -305,7 +305,7 @@ def hooked_rename(src, dst, *, src_dir_fd=None, dst_dir_fd=None):
     global fired
     if not fired and src_dir_fd is not None and src.endswith(".tmp"):
         fired = True
-        real_rename(${JSON.stringify(path.join(paths.workspace, "out"))}, ${JSON.stringify(moved)})
+        real_rename(${JSON.stringify(from)}, ${JSON.stringify(to)})
     return real_rename(src, dst, src_dir_fd=src_dir_fd, dst_dir_fd=dst_dir_fd)
 os.rename = hooked_rename
 os.supports_dir_fd.add(hooked_rename)
@@ -321,12 +321,22 @@ runpy.run_path(sys.argv[0], run_name="__main__")
   const recorded = [];
   const tool = createWsWriteTool({ workspaceDir: paths.workspace, permissionMode: "draft", saveHistory: async () => {}, onWritten: async (record) => { recorded.push(record); } });
   const result = await tool.execute("call", { path: "out/memo.md", text: "synthetic authorized bytes\n" });
-  assert.equal(result.details.placement, "moved");
+  assert.equal(result.details.placement, "unconfirmed");
   assert.equal(result.details.path, "out/memo.md");
-  assert.match(result.content[0].text, /left the workspace during the write/);
-  assert.match(result.content[0].text, /not at out\/memo\.md/);
+  assert.equal(result.details.sha256.length, 64);
+  assert.match(result.content[0].text, /could not confirm that they are at out\/memo\.md/);
   assert.deepEqual(recorded, [], "no record claims the path");
-  assert.equal(await readFile(path.join(moved, "memo.md"), "utf8"), "synthetic authorized bytes\n", "the effect is reported, not undone");
   assert.equal(await readFile(control, "utf8"), "unrelated control remains unchanged\n");
-  assert.equal(existsSync(path.join(paths.workspace, "out")), false);
+  assert.equal(existsSync(from), false);
+  return { paths, to };
+}
+
+test("ws_write: a parent moved out of the workspace during the commit is reported as unconfirmed, not as written at the path", async (t) => {
+  const { to } = await movedDuringCommit(t, { move: paths => [path.join(paths.workspace, "out"), path.join(paths.outside, "moved-out")] });
+  assert.equal(await readFile(path.join(to, "memo.md"), "utf8"), "synthetic authorized bytes\n", "the effect is reported, not undone");
+});
+
+test("ws_write: the whole workspace moved during the commit is reported as unconfirmed, not as written at the path", async (t) => {
+  const { to } = await movedDuringCommit(t, { move: paths => [paths.workspace, path.join(paths.outside, "moved-workspace")] });
+  assert.equal(await readFile(path.join(to, "out", "memo.md"), "utf8"), "synthetic authorized bytes\n", "the effect is reported, not undone");
 });

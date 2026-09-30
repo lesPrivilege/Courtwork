@@ -689,18 +689,22 @@ def commit_workspace_write(root_fd, request):
                 fail("not_file", "workspace target is not a regular file")
             raise classify_os_error(error) from None
         # A descriptor names a directory object, not a place: the same actor
-        # that could swap the parent can move it, open descriptor and all, and
-        # the rename above still lands in it. Walk from the root again and
-        # report whether the directory the bytes went into is still the one
-        # this path names. A move after this check is not detected.
+        # that could swap the parent can move it, or the whole workspace root,
+        # open descriptors and all, and the rename above still lands in it.
+        # Confirm placement afterwards: the root must still be the bound root
+        # at its path, and the directory the bytes went into must still be the
+        # one this path names under it. Anything short of that is
+        # unconfirmed, not a failure: the bytes were written. A move after
+        # this check is not detected.
         placed = False
         try:
+            verify_bound_root(request.get("rootPath"), root_fd, request.get("device"), request.get("inode"))
             named_fd = open_workspace_directory(root_fd, parts[:-1])
             try:
                 placed = identity(os.fstat(named_fd)) == identity(os.fstat(parent_fd))
             finally:
                 os.close(named_fd)
-        except OSError:
+        except (RepoFsError, OSError):
             placed = False
         return {"committed": True, "placed": placed}
     finally:
