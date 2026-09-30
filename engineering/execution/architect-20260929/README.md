@@ -540,3 +540,34 @@ The [Luna source-tracing report](evidence/continuation-20260930/luna-source-trac
 DSH dispositions: **adopt** interruption/recovery and truthful unavailable-route journeys as verification inputs for this existing integration; **defer** extension replace/rollback to the original LocalExtensions lifecycle contract when that user journey is scheduled; **defer** generic continuable child work to P07/RD-005 when an actual child consumer is selected. Existing installation, frozen Kit/Run binding and accepted coding journeys are not rebuilt. Arbitrary package acquisition and a broader provider catalog are not prerequisites for this round.
 
 The next real capability witness, after the integration passes, should use one isolated Chat/candidate and a selected existing profile: read an admitted source, make one bounded edit, inspect/approve the check, interrupt or lose one response, reopen and inspect the exact effect, then continue with the same source revision or an explicit stale/revoked refusal. Preserve the artifact, Run identities, source/context receipts and zero-duplicate-effect observation. Deterministic UI evidence proves presentation and persistence only. A real-provider witness needs the user-entered key and an explicit bounded task/model; no key has been requested, read or used in this review.
+
+## Merge of the two deliveries · merge author, 2026-09-30
+
+The user, 2026-09-30, appointed a new architect to continue the independent review and made this session the single merge author for the architect delivery `d5cf033` (product `0664387`) and the convergence loop's `049f1b9`. Branch `claude/merge-20260930`, worktree `~/Projects/.worktrees/courtwork-merge-20260930`, from `d5cf033` with `049f1b9` merged `--no-ff` (`f3ea864`), the reviewer's record commits merged (`2212c83`), then the corrections below. The two delivery trees and the main UI checkout are untouched. Not merged to `main`, not pushed, not published. All product code in this merge is this session's authorship for review purposes.
+
+### Rulings on the seven conflicting files
+
+| File | Ruling |
+|---|---|
+| `app/runtime/control-plane.mjs` | The per-code-point alias policy (one effect per file, shared-spelling override, `alias-conflict` held rules) replaces S17's whole-string case fold for `ws_*`. S17's `conflict()` and `profileCovers()` are kept unchanged. |
+| `app/tests/control-plane.test.mjs` | S17's case-alias test moves to `control-policy.test.mjs` (the offline policy file the v2 Harness recipe runs) and passes under the merged rule. |
+| `app/runtime/check-runner.mjs` | S11's guard is the process-group leader and runs outside the sandbox; it starts the sandboxed command (`/bin/sh -c <wrapped>`) instead of the recipe command directly. Sandbox preparation, `sandbox_unavailable` with its precedence, the executable check, the guard's fd-3 exit report, Host-death supervision and the reap on every exit path are all kept. No-network and fail-closed are unchanged. |
+| `app/tests/check-recipes.test.mjs` | Both sides: the loop's longer windows and stdout-based readiness, the sandbox's `dataDir`. |
+| `app/docs/check-recipes.md` | Both: guard supervision and the sandbox; a descendant that leaves the group is outside the guard and, on macOS, stays sandboxed. |
+| `app/docs/api-v6.md` | Both error-code lists. |
+| `engineering/current.md` | The loop's UX-queue and convergence rows; the later review row. |
+
+Merged without a textual conflict but changed for the sandbox: the S11 Host-death tests wrote pid files into the candidate directory, which the sandbox makes read-only. They now write into the check's own temporary directory (the only writable place) or read the fake Host's saved stdout, and every runner call passes `dataDir`. One of them also asserts that the recipe under the guard cannot read a stand-in credentials file in the data directory, so the guard-outside, sandbox-inside arrangement is tested, not inferred.
+
+### Corrections in the merge
+
+- **R30-1 (reviewer, D6).** A descriptor names a directory object, not a place. Between the commit's identity check and its rename, an actor with the same rights moved the admitted parent out of the workspace; the rename landed in the moved directory and the tool reported success at the workspace path. Reproduced on the merged code with the reviewer's [probe](evidence/continuation-20260930/write-move-probe.mjs). Correction (`9b386c6`): after the rename the helper walks from the root again; when the directory is no longer the one the path names, the tool returns `placement: "moved"` with the bytes and hash, states that the bytes are not at the path, records no `artifact.written` for that path, and leaves the bytes where they went (taking them back would change the moved directory a second time). A move after that check is not detected; the contract says so and no longer suggests that descriptors guarantee placement. The new test uses the reviewer's schedule with fixed assertions on the corrected outcome and fails on the unfixed code. The reviewer's probe asserts the old defect and is left unchanged.
+- **Joint check-runner matrix, sandbox and guard together** (`app/tests/check-runner-group-kill.test.mjs`, `check-recipes.test.mjs`, `check-sandbox.test.mjs`, `check-recipes-real.test.mjs`): normal exit, cancel, timeout, spawn failure, Host killed while the leader runs (with the sandbox shown in force), Host killed after the leader exited, exit signals reported as the recipe's own, and both v2 recipes on this repository under the production sandbox with their frozen limits. Run alone: 17/17 and 94/94 across the check files.
+
+### Cross-layer consumers added
+
+Only what the merged Host facts need in the client; assigned to a Sonnet worker under the existing UX owner's grammar and copy convention, reviewed by the merge author: the Settings permission trace shows an `alias-conflict` step as the deciding one; the check approval card states the sandbox instead of the person's computer access; a Core `outcome: "unknown"` (D9) is classified as uncertain by the command feedback and the Attention send path, not as a refusal. Recorded below when returned.
+
+### Not changed, by instruction
+
+Data compatibility readers, the registered adapters and specimen surfaces, every "Needs a ruling" item, K3/K5, and the two HTTP workspace endpoints (deferred, `service.mjs`).
