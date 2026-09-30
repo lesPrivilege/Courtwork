@@ -27,6 +27,10 @@
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/book-open.svg",
       "sha256": "9b9bed0ff057283d5c5c5a1c71f8d3e927db26a56639603a92fdf7b25961510e"
     },
+    "check.svg": {
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/check.svg",
+      "sha256": "7f33acc9a77a61659531044525fc008edebe215bf4dcf1c789c8674ad3277db0"
+    },
     "chevron-down.svg": {
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/chevron-down.svg",
       "sha256": "66ea878e72ed3488bb3b464c39dfdccee8d1f78e560dccea40e5e12da0e87e87"
@@ -34,6 +38,10 @@
     "chevron-right.svg": {
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/chevron-right.svg",
       "sha256": "2758143d7b2434e4aa7307dfd34405c87909ff4052f21b5f3f40d45224b4f19b"
+    },
+    "circle-user.svg": {
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/circle-user.svg",
+      "sha256": "1c17197a4cffb212f146911176d08f402ddcb2bbda0066b432e41c15faa53eb0"
     },
     "code.svg": {
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/code.svg",

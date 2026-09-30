@@ -6007,13 +6007,14 @@ function openAccountMenu(anchor) {
     element("p", { className: "account-menu-address", text: address }),
     element("p", { className: "account-menu-email", text: state.account?.identity?.email ?? "" }));
   const go = (section) => () => { popover.hidePopover(); openSettings(section, { trigger: anchor }); };
-  /* ICN-15/16, THR-03 (S5) · one entry opens Settings; the person's own pages
-   * are named, not drawn with another control's glyph (square-pen is New chat,
-   * key-round is Permissions), so they keep a blank glyph slot. Sign out is not
-   * drawn until accounts can be signed out of. */
+  /* ICN-15/16, THR-03 (S5) · one entry opens Settings. Each page row carries its
+   * Settings group's own glyph (Profile: the person); a group without one
+   * (Account) keeps the slot blank rather than borrow another control's glyph.
+   * Sign out is not drawn until accounts can be signed out of. */
   const personal = (label, section) => {
-    const row = action(null, label, go(section), { visible: true, className: "context-row" });
-    row.prepend(glyphBlank());
+    const glyph = semanticPresentation(`settings.${section}`).glyph;
+    const row = action(glyph ?? null, label, go(section), { visible: true, className: "context-row" });
+    if (!glyph) row.prepend(glyphBlank());
     return row;
   };
   const rows = [

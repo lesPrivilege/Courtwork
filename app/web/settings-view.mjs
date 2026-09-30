@@ -1,5 +1,5 @@
 import "./skin-policy.js";
-import { el, action, flowRow } from "./ui-controls.mjs";
+import { el, action, flowRow, glyphBlank } from "./ui-controls.mjs";
 import { renderDiff } from "./diff-view.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
 import { DIFF_PREVIEW } from "./diff-fixture.mjs";
@@ -2142,7 +2142,8 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         tabindex: "-1",
       },
     });
-    tab.append(semanticIcon(GROUP_OBJECT_GLYPHS[group.id] ?? `settings.${group.id}`), el("span", { className: "settings-tab-label", text: group.title }));
+    // A group whose key has no glyph (Account, S5) keeps the glyph slot blank, so labels stay on one x.
+    tab.append(semanticIcon(GROUP_OBJECT_GLYPHS[group.id] ?? `settings.${group.id}`) ?? glyphBlank(), el("span", { className: "settings-tab-label", text: group.title }));
     tab.addEventListener("click", () => select(group.id, { focusPanel: false }));
     nav.append(tab);
     dropdown.append(el("option", { attrs: { value: group.id }, text: group.title }));

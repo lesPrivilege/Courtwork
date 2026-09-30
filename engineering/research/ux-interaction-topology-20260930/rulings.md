@@ -100,7 +100,7 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | S2 · [record](s2.md) | Model and effort popover; modal picker retired, unlisted IDs moved to Settings; keyless connections grouped; scope wording including `/status` | Topology |
 | S3 · [record](s3.md) | Chat file-access control split; overview row target; chat paperclip popover | Topology |
 | S4 · [record](s4.md) | Attention count and waiting marks; rail opens the queue (adjusted: the assistant keeps the entry, see the record); working-project default | Topology |
-| S5 · [record](s5.md) | Icon size source and tiers; glyph meanings; Retry text; disclosure; unavailable actions removed; alignment captures; manifest and allowlist hygiene; stale comments (two Lucide glyphs and the native-marker half of ICN-25 pending, see the record) | Icons, hygiene |
+| S5 · [record](s5.md) | Icon size source and tiers; glyph meanings; Retry text; disclosure; unavailable actions removed; alignment captures; manifest and allowlist hygiene; stale comments (the native-marker half of ICN-25 deferred, see the record) | Icons, hygiene |
 | S6 | Header rename; Edit and resend; Compact from the context popover; separate connection save from default; Remove-key confirmation; Settings name collisions | Topology, small |
 
 ## Deferred

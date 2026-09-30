@@ -12,9 +12,9 @@ Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closu
 
 | Set | Source of truth | Generated output |
 |---|---|---|
-| Lucide subset (48 files) | `tools/ui-vendor/lucide/*.svg`, pinned by `lucide/sources.json` (commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`, per-file sha256) | `app/web/vendor/icons.svg` symbols |
+| Lucide subset (50 files) | `tools/ui-vendor/lucide/*.svg`, pinned by `lucide/sources.json` (commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`, per-file sha256) | `app/web/vendor/icons.svg` symbols |
 | CourtWork domain (12 files) | `tools/ui-vendor/courtwork/*.svg` (spark, attention, chat, expert, matter and seven runtime-* resource glyphs), `courtwork/sources.json` (sha256, origin, MIT) | same sprite, same symbol grammar |
-| Semantic mapping | `engineering/design/product-semantics/registry.json` (72 entries) | `app/web/product-semantics.generated.mjs` via `node tools/product-semantics.mjs --write` |
+| Semantic mapping | `engineering/design/product-semantics/registry.json` (73 entries) | `app/web/product-semantics.generated.mjs` via `node tools/product-semantics.mjs --write` |
 | Contact sheet + glyph manifest | `node tools/ui-vendor/contact-sheet.mjs` | `contact-sheet.html`, `glyph-manifest.json` (this directory) |
 
 ```sh

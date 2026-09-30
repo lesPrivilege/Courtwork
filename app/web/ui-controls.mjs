@@ -85,6 +85,9 @@ const icons = new Set([
   "key-round",
   "keyboard",
   "code",
+  // S5 · the person (Settings › Profile) and a copy that succeeded (message.copied).
+  "circle-user",
+  "check",
 ]);
 /* IC-1 / ICN-10 (S5) · the size passed here is the size that renders: no
  * selector sets a glyph's width or height. The tiers follow the visual-spatial
@@ -270,7 +273,8 @@ export function copyAction(text, label = "Copy", focusKey = "") {
       try {
         await navigator.clipboard.writeText(String(text));
         feedback.show(epoch,
-          () => setAction(button, "copy", "Copied"),
+          // ICN-25 (S5) · success changes the glyph and the name, not only the colour.
+          () => setAction(button, "check", "Copied"),
           () => setAction(button, "copy", label));
       } catch {
         if (feedback.isCurrent(epoch)) setAction(button, "copy", "Copy unavailable");

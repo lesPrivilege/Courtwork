@@ -92,7 +92,8 @@ export function createChatActions({ target, adapter, getTarget = () => target,
       const available = availability(intent);
       const busy = locks.has(intent === 'like' || intent === 'dislike' ? 'feedback' : intent);
       const selected = intent === 'like' ? feedback === 'like' : intent === 'dislike' ? feedback === 'dislike' : intent === 'pin' ? pinned : false;
-      const displayKey = intent === 'read-aloud' && audio !== 'idle' ? audio === 'playing' ? 'message.pause-reading' : 'message.resume-reading' : `message.${intent}`;
+      const displayKey = transientCopyIntent === intent ? 'message.copied'
+        : intent === 'read-aloud' && audio !== 'idle' ? audio === 'playing' ? 'message.pause-reading' : 'message.resume-reading' : `message.${intent}`;
       const name = semanticPresentation(displayKey).glyph;
       button.setAttribute('data-semantic-key', displayKey);
       const label = labelFor(intent);

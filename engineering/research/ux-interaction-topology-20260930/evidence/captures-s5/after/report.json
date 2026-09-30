@@ -21,9 +21,9 @@
     },
     {
       "name": "account-menu-1440-light",
-      "glyphs": 41,
+      "glyphs": 42,
       "sizes": {
-        "16x16": 41
+        "16x16": 42
       },
       "mismatched": 0,
       "examples": []
@@ -39,9 +39,9 @@
     },
     {
       "name": "settings-1440-light",
-      "glyphs": 14,
+      "glyphs": 13,
       "sizes": {
-        "16x16": 14
+        "16x16": 13
       },
       "mismatched": 0,
       "examples": []
@@ -66,9 +66,9 @@
     },
     {
       "name": "account-menu-1440-dark",
-      "glyphs": 41,
+      "glyphs": 42,
       "sizes": {
-        "16x16": 41
+        "16x16": 42
       },
       "mismatched": 0,
       "examples": []
@@ -84,9 +84,9 @@
     },
     {
       "name": "settings-1440-dark",
-      "glyphs": 14,
+      "glyphs": 13,
       "sizes": {
-        "16x16": 14
+        "16x16": 13
       },
       "mismatched": 0,
       "examples": []
@@ -111,9 +111,9 @@
     },
     {
       "name": "account-menu-390-light",
-      "glyphs": 42,
+      "glyphs": 43,
       "sizes": {
-        "16x16": 42
+        "16x16": 43
       },
       "mismatched": 0,
       "examples": []
@@ -156,9 +156,9 @@
     },
     {
       "name": "account-menu-390-dark",
-      "glyphs": 42,
+      "glyphs": 43,
       "sizes": {
-        "16x16": 42
+        "16x16": 43
       },
       "mismatched": 0,
       "examples": []
@@ -224,6 +224,14 @@
       "span": 0.917,
       "area": 0.764
     },
+    "check": {
+      "x0": 3,
+      "y0": 5,
+      "x1": 21,
+      "y1": 18,
+      "span": 0.75,
+      "area": 0.406
+    },
     "chevron-down": {
       "x0": 5,
       "y0": 8,
@@ -239,6 +247,14 @@
       "y1": 19,
       "span": 0.583,
       "area": 0.194
+    },
+    "circle-user": {
+      "x0": 1,
+      "y0": 1,
+      "x1": 23,
+      "y1": 23,
+      "span": 0.917,
+      "area": 0.84
     },
     "code": {
       "x0": 1,
@@ -667,9 +683,9 @@
   },
   "occupancyBand": {
     "lucideArea": {
-      "q1": 0.561,
+      "q1": 0.558,
       "median": 0.694,
-      "q3": 0.764
+      "q3": 0.765
     },
     "domain": {
       "spark": {

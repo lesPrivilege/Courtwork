@@ -897,6 +897,34 @@ export const productSemantics = freeze({
       "reviewStatus": "mapped"
     },
     {
+      "semanticKey": "message.copied",
+      "meaning": "A copy that just succeeded, shown for a moment in place of the copy glyph, with the label Copied; a state of the copy control, not an action of its own.",
+      "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
+      "ownerAnchor": "## Intent seams",
+      "words": {
+        "en": "Copied"
+      },
+      "accessibleName": {
+        "en": "Copied"
+      },
+      "symbolClass": "State",
+      "admissionClass": "universal-ui",
+      "allowedSurfaces": [
+        "app"
+      ],
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "check",
+      "colourRole": "inherited",
+      "stateVariants": {},
+      "capabilityRef": null,
+      "interactionRole": "status",
+      "tooltipRule": "accessible-name-when-icon-only",
+      "representations": {
+        "app": "glyph"
+      },
+      "reviewStatus": "mapped"
+    },
+    {
       "semanticKey": "message.edit",
       "meaning": "Edit as new message for the captured target; capability comes only from its action adapter.",
       "ownerRef": "engineering/execution/2026-09-11-semantic-polish/chat-actions.md",
@@ -1533,8 +1561,8 @@ export const productSemantics = freeze({
       "allowedSurfaces": [
         "app"
       ],
-      "glyphPolicy": "multi-purpose",
-      "glyphRef": "square-pen",
+      "glyphPolicy": "single-purpose",
+      "glyphRef": "circle-user",
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
@@ -1561,15 +1589,15 @@ export const productSemantics = freeze({
       "allowedSurfaces": [
         "app"
       ],
-      "glyphPolicy": "multi-purpose",
-      "glyphRef": "house",
+      "glyphPolicy": "none",
+      "glyphRef": null,
       "colourRole": "inherited",
       "stateVariants": {},
       "capabilityRef": null,
       "interactionRole": "identity",
       "tooltipRule": "accessible-name-when-icon-only",
       "representations": {
-        "app": "glyph"
+        "app": "text"
       },
       "reviewStatus": "mapped",
       "ownerAnchor": "## Settings"

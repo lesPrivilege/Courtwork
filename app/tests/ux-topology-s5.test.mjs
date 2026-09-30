@@ -61,6 +61,7 @@ test("S5 · glyph meanings: one Settings entry in the account menu, no Sign out,
   assert.equal((menu.match(/"settings-2"/g) || []).length, 1);
   assert.doesNotMatch(menu, /Sign out|Preferences|"square-pen"|"key-round"|"external-link"/);
   assert.match(menu, /personal\("Profile", "profile"\)/);
+  assert.match(menu, /semanticPresentation\(`settings\.\$\{section\}`\)\.glyph/, "each page row carries its Settings group's own glyph");
   assert.match(menu, /personal\("Account", "account"\)/);
   assert.doesNotMatch(read("run-rows.mjs"), /"settings-2"/, "a runtime tool row opens nothing");
 });
@@ -78,4 +79,16 @@ test("S5 · hygiene: the unreachable chat dialog and its branches are gone; zero
   const allow = read("ui-controls.mjs");
   assert.doesNotMatch(allow, /"arrow-down"|"runtime-plugin"/);
   assert.doesNotMatch(html, /returns to the chat you were in or the most recent one/);
+});
+
+test("S5 addendum · Profile is the person, Account has no borrowed glyph, a copy that succeeded shows a check", async () => {
+  await withTinyDom(async () => {
+    const { semanticPresentation } = await import("../web/semantic-controls.mjs");
+    assert.equal(semanticPresentation("settings.profile").glyph, "circle-user");
+    assert.equal(semanticPresentation("settings.account").glyph, null);
+    assert.equal(semanticPresentation("message.copied").glyph, "check");
+  });
+  assert.match(read("ui-controls.mjs"), /setAction\(button, "check", "Copied"\)/);
+  assert.match(read("chat-actions.mjs"), /transientCopyIntent === intent \? 'message\.copied'/);
+  assert.match(read("settings-view.mjs"), /\?\? glyphBlank\(\), el\("span", \{ className: "settings-tab-label"/);
 });

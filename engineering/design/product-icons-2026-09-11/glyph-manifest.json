@@ -1,6 +1,6 @@
 {
   "sprite": "app/web/vendor/icons.svg",
-  "spriteSha256": "ea3cef44376f7a32eafd6e82e8f958b67e824fdc3281e9305433132b3935d936",
+  "spriteSha256": "223c9aa19121d02bb50e57aa0f692044e2d7223a01c049adec601b107a6f7479",
   "symbols": [
     {
       "symbol": "activity",
@@ -46,6 +46,15 @@
       ]
     },
     {
+      "symbol": "check",
+      "kind": "lucide",
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/check.svg",
+      "sha256": "7f33acc9a77a61659531044525fc008edebe215bf4dcf1c789c8674ad3277db0",
+      "consumers": [
+        "message.copied"
+      ]
+    },
+    {
       "symbol": "chevron-down",
       "kind": "lucide",
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/chevron-down.svg",
@@ -58,6 +67,15 @@
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/chevron-right.svg",
       "sha256": "2758143d7b2434e4aa7307dfd34405c87909ff4052f21b5f3f40d45224b4f19b",
       "consumers": []
+    },
+    {
+      "symbol": "circle-user",
+      "kind": "lucide",
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/circle-user.svg",
+      "sha256": "1c17197a4cffb212f146911176d08f402ddcb2bbda0066b432e41c15faa53eb0",
+      "consumers": [
+        "settings.profile"
+      ]
     },
     {
       "symbol": "code",
@@ -158,9 +176,7 @@
       "kind": "lucide",
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/house.svg",
       "sha256": "28216c479005731ef5e382e7d8627eda2b129b019eb1f3d9de9f5915576d448e",
-      "consumers": [
-        "settings.account"
-      ]
+      "consumers": []
     },
     {
       "symbol": "key-round",
@@ -353,8 +369,7 @@
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/square-pen.svg",
       "sha256": "09bdac7fdb94058246a5d3132eea0976e690d01694179ab6f474faa2c21de59a",
       "consumers": [
-        "message.edit",
-        "settings.profile"
+        "message.edit"
       ]
     },
     {
