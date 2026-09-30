@@ -36,3 +36,7 @@
 
 两片按 [05 记录](../../execution/claude-frontend-harness-2026-09-16/05-models-composer.md)实现。片 A：composer 的模型控件改为打开一张 Model & effort 卡，其 Connections 行经 `openSettings("models", {connectionId})` 与 `settingsView.locateConnection` 落在生效连接那一行（无连接时展开 Add provider）；composer 常驻，草稿、附件与焦点原地，Back to app 回到控件；导航不调用模型。片 B：卡片上的 Reasoning effort 是原生单选分段，只画 Provider default 与 Host `reasoningCapability` 列出的精确值，unknown/unsupported 不画阶梯，失效已存值点名并允许回到 Provider default；选择即按现有全局范围保存（`projectProviderConfig` + `expectedVersion`），旧回执不覆盖新选择，活动 Run 期间禁用并沿 Host 的 409 active_run。Host 测试证明保存值即下一 Run 的 `provider.reasoningEffort` 与 `reasoningBinding`，线上字段为 `reasoning_effort`，Provider default 不带字段。未做：真实 provider 组合、非作者复核、200%/读屏目验。滑轨未采纳。
 
+
+## 2026-09-30 · Deferred: chat-scoped model and effort
+
+[UX-11](../../design/ux-grammar.md) asks a working-surface control to affect what its placement implies. The Composer's model/effort control still writes the global configuration and says "all chats, future runs", as item 4 requires, so the scope is honest but not local. A per-chat or per-session choice stays deferred to the Host provider-config owner. Trigger: a Host contract for a chat- or session-scoped model/effort fact, with Run binding and the default kept distinct. The frontend does not simulate it. Source: [intake](../ux-interaction-topology-20260930/README.md).

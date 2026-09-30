@@ -71,3 +71,9 @@ IC-5 的 Lucide 静态子集继续是唯一发货中的通用家族。候选家�
 ## IC-9 · 原生 SVG 几何注入（2026-09-13）
 
 通用 `icon()` 以 `createElementNS` 创建 SVG 及 path/rect/circle 等原生几何节点，消费固定源资产生成的 `app/web/vendor/icon-data.generated.mjs`，不在交互重绘时依赖外部 `<use>` 请求。生成器与源 sprite 逐枚等价校验；原源文件、版本、license、描边和家族选择不变。共享 flowRow 披露箭头也消费 canonical chevron-right，禁止以文本字符伪装该图标。浏览器原生 summary/select 标记仍由原生控件负责。详见[本轮报告](frontend-audit-2026-09-13/report.md)。
+
+## IC-10 · Review in context and optical correction (2026-09-30)
+
+The unit of icon review is the icon in context. Before a glyph lands or changes, and in the IC-4 acceptance, check four levels with real-UI captures: **Glyph** (IC-6 geometry and IC-8 bbox band); **Set** (the glyphs that sit together on one toolbar, menu, row or settings section share family, stroke and rendered size); **Component** (icon with its label, badge or divider: vertical alignment is judged against the rendered text, including CJK, Latin and mixed labels, not against the SVG bounding-box centre); **Page** (icons do not outrank content, decorate every row, or carry status alone).
+
+Optical correction — horizontal shift of a play/triangle, size compensation for a thin or elongated glyph — is made once in the glyph asset that feeds the generated `icon-data`, and recorded in its manifest. Per-instance CSS nudges are not used for glyph correction; a component may align an icon to its text line (baseline or cap-height) as one shared rule of that component. A glyph that expresses configuration (gear, sliders) is not used for a runtime choice. Source and disposition: [intake 2026-09-30](../research/ux-interaction-topology-20260930/README.md).
