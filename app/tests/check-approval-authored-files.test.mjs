@@ -59,9 +59,11 @@ test("a live approval states this Host's sandbox; a decided record states only w
   assert.doesNotMatch(live, /your access|this computer/i);
   // R30-2 · a recorded approval has no execution-environment fact, so the
   // decided view must not project the current Host's sandbox onto the past.
+  // The decided branch also renders denied and closed approvals, and an
+  // approval by itself does not show that anything ran.
   const decided = checkAuthoredFilesSentence(2);
-  assert.equal(decided, "This check ran 2 files the model wrote; the environment it ran in was not recorded:");
-  assert.doesNotMatch(decided, /sandbox|no network|your access|this computer/i);
+  assert.equal(decided, "This approval names 2 files the model wrote; the execution environment was not recorded:");
+  assert.doesNotMatch(decided, /\bran\b|executes|sandbox|no network|your access|this computer/i);
   const app = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
   assert.match(app, /text: checkAuthoredFilesSentence\(files\.length, \{ live \}\)/, "the sentence follows the card's liveness");
   assert.match(app, /card\.append\(\.\.\.checkAuthoredFiles\(payload, \{ live: true \}\)\);/, "only the live card is told it is live");
@@ -82,3 +84,17 @@ test("R30-2 · a recorded v1 approval payload is presented as recorded, without 
   assert.doesNotMatch(JSON.stringify(permissionPresentation(v2, null)), /sandbox|no network/i);
 });
 
+test("R30-2 · a denied or closed check approval names its files without claiming execution", () => {
+  // renderPermission's decided branch shows one sentence for approved, denied
+  // and closed records alike (app.mjs: `details.append(...checkAuthoredFiles(payload))`),
+  // so that sentence must hold for a decision that started nothing.
+  const app = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
+  assert.match(app, /Approval denied for this exact \$\{display\.noun\}\./, "the decided branch renders denials");
+  assert.match(app, /This request closed without a recorded decision\./, "and closed requests");
+  assert.match(app, /details\.append\(\.\.\.checkAuthoredFiles\(payload\)\);/, "with the same authored-files sentence");
+  for (const count of [1, 4]) {
+    const sentence = checkAuthoredFilesSentence(count);
+    assert.match(sentence, /^This approval names /);
+    assert.doesNotMatch(sentence, /\bran\b|executes|executed|will run|sandbox/i, "a denied or closed approval executed nothing and the sentence must not say otherwise");
+  }
+});

@@ -293,14 +293,15 @@ export function approvalCandidate(payload) {
  * live candidate. The latest write per path wins; an unknown outcome is kept
  * as a possible write with no hash. */
 /* R30-2 · a recorded approval carries no execution-environment fact (the
- * payload's `env` is the recipe's "minimal" declaration), so a decided record
- * cannot be shown with this Host's current sandbox: only a live approval
+ * payload's `env` is the recipe's "minimal" declaration), and a decided record
+ * (approved, denied or closed) does not show that anything ran, so it names
+ * the files the approval covered and nothing more; only a live approval
  * states what this Host will do now. */
 export const checkAuthoredFilesSentence = (count, { live = false } = {}) => {
   const files = count === 1 ? "1 file" : `${count} files`;
   return live
     ? `This check executes ${files} the model wrote, inside this Host's sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:`
-    : `This check ran ${files} the model wrote; the environment it ran in was not recorded:`;
+    : `This approval names ${files} the model wrote; the execution environment was not recorded:`;
 };
 export function candidateAuthoredFiles(events, payload) {
   const id = typeof payload?.candidateId === "string" && payload.candidateId ? payload.candidateId : null;
