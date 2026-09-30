@@ -92,6 +92,8 @@ export function renderSessionOverview(
     );
   const row = (glyph, title, fn) =>
     action(glyph, title, fn, { visible: true, className: "context-row" });
+  const files = run?.artifacts?.length || 0;
+  const turns = run?.usage?.turns || 0;
   container.replaceChildren(
     header,
     group(
@@ -125,7 +127,7 @@ export function renderSessionOverview(
             ),
             el("p", {
               className: "context-meta",
-              text: `${run.artifacts?.length || 0} recorded files${run.usage ? ` · ${run.usage.turns || 0} model turns` : ""}`,
+              text: `${files} recorded file${files === 1 ? "" : "s"}${run.usage ? ` · ${turns} model turn${turns === 1 ? "" : "s"}` : ""}`,
             }),
           ]
         : []),

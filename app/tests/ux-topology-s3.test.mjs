@@ -219,3 +219,10 @@ test("S3 review · the popover: a batch reports to its own chat, keeps unresolve
   });
 });
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+test("S3 evidence · the file access card opens beside whatever opened it", () => {
+  const wiring = app.slice(app.indexOf('const popover = $("connection-popover");\n    let stopFollowing'));
+  assert.match(wiring, /anchorPopover\(anchor, popover, \{ placement: "top-start", fit: true \}\)/);
+  assert.match(wiring, /const anchor = state\.connectionCardAnchor;/);
+  assert.match(app, /state\.connectionCardAnchor = anchor;/, "the chip and the overview row both record the opener");
+});

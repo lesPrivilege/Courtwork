@@ -1,0 +1,1071 @@
+{
+  "origin": "disposable Host",
+  "chat": "续期条款核对 · Lease renewal",
+  "scenes": [
+    {
+      "name": "chat-1440-light",
+      "popover": null,
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s2-model-chooser-1440-light",
+      "popover": {
+        "id": "model-popover",
+        "x": 749,
+        "y": 276,
+        "w": 380,
+        "h": 523
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-file-access-card-1440-light",
+      "popover": {
+        "id": "connection-popover",
+        "x": 630,
+        "y": 585,
+        "w": 340,
+        "h": 214
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-add-files-1440-light",
+      "popover": {
+        "id": "chat-files-popover",
+        "x": 598,
+        "y": 416,
+        "w": 360,
+        "h": 383
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-chat-overview-1440-light",
+      "popover": {
+        "id": "context-popover",
+        "x": 1100,
+        "y": 88,
+        "w": 320,
+        "h": 463
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "chat-1440-dark",
+      "popover": null,
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s2-model-chooser-1440-dark",
+      "popover": {
+        "id": "model-popover",
+        "x": 749,
+        "y": 276,
+        "w": 380,
+        "h": 523
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-file-access-card-1440-dark",
+      "popover": {
+        "id": "connection-popover",
+        "x": 630,
+        "y": 585,
+        "w": 340,
+        "h": 214
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-add-files-1440-dark",
+      "popover": {
+        "id": "chat-files-popover",
+        "x": 598,
+        "y": 416,
+        "w": 360,
+        "h": 383
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-chat-overview-1440-dark",
+      "popover": {
+        "id": "context-popover",
+        "x": 1100,
+        "y": 88,
+        "w": 320,
+        "h": 463
+      },
+      "agent": {
+        "x": 491,
+        "y": 807,
+        "w": 103,
+        "h": 28,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 598,
+        "y": 807,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 630,
+        "y": 807,
+        "w": 99,
+        "h": 28,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 893,
+        "y": 807,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "chat-390-light",
+      "popover": null,
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s2-model-chooser-390-light",
+      "popover": {
+        "id": "model-popover",
+        "x": 25,
+        "y": 180,
+        "w": 340,
+        "h": 551
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-file-access-card-390-light",
+      "popover": {
+        "id": "connection-popover",
+        "x": 8,
+        "y": 435,
+        "w": 340,
+        "h": 249
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-add-files-390-light",
+      "popover": {
+        "id": "chat-files-popover",
+        "x": 22,
+        "y": 272,
+        "w": 360,
+        "h": 411
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-chat-overview-390-light",
+      "popover": {
+        "id": "context-popover",
+        "x": 50,
+        "y": 88,
+        "w": 320,
+        "h": 551
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "chat-390-dark",
+      "popover": null,
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s2-model-chooser-390-dark",
+      "popover": {
+        "id": "model-popover",
+        "x": 25,
+        "y": 180,
+        "w": 340,
+        "h": 551
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-file-access-card-390-dark",
+      "popover": {
+        "id": "connection-popover",
+        "x": 8,
+        "y": 435,
+        "w": 340,
+        "h": 249
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-add-files-390-dark",
+      "popover": {
+        "id": "chat-files-popover",
+        "x": 22,
+        "y": 272,
+        "w": 360,
+        "h": 411
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "s3-chat-overview-390-dark",
+      "popover": {
+        "id": "context-popover",
+        "x": 50,
+        "y": 88,
+        "w": 320,
+        "h": 551
+      },
+      "agent": {
+        "x": 25,
+        "y": 691,
+        "w": 103,
+        "h": 44,
+        "visible": true,
+        "label": "General",
+        "cut": false
+      },
+      "paperclip": {
+        "x": 130,
+        "y": 691,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 176,
+        "y": 691,
+        "w": 99,
+        "h": 44,
+        "visible": true,
+        "label": "Allow edits",
+        "cut": false
+      },
+      "model": {
+        "x": 25,
+        "y": 739,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      }
+    },
+    {
+      "name": "home-1440-light",
+      "paperclip": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 622,
+        "y": 591,
+        "w": 148,
+        "h": 25,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "model": {
+        "x": 977,
+        "y": 590,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      },
+      "send": {
+        "x": 1217,
+        "y": 590,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      }
+    },
+    {
+      "name": "home-1440-dark",
+      "paperclip": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 622,
+        "y": 591,
+        "w": 148,
+        "h": 25,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "model": {
+        "x": 977,
+        "y": 590,
+        "w": 236,
+        "h": 28,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      },
+      "send": {
+        "x": 1217,
+        "y": 590,
+        "w": 28,
+        "h": 28,
+        "visible": true,
+        "label": null,
+        "cut": null
+      }
+    },
+    {
+      "name": "home-390-light",
+      "paperclip": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 208,
+        "y": 743,
+        "w": 144,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "model": {
+        "x": 81,
+        "y": 791,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      },
+      "send": {
+        "x": 321,
+        "y": 791,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      }
+    },
+    {
+      "name": "home-390-dark",
+      "paperclip": {
+        "x": 0,
+        "y": 0,
+        "w": 0,
+        "h": 0,
+        "visible": false,
+        "label": null,
+        "cut": null
+      },
+      "access": {
+        "x": 208,
+        "y": 743,
+        "w": 144,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      },
+      "model": {
+        "x": 81,
+        "y": 791,
+        "w": 236,
+        "h": 44,
+        "visible": true,
+        "label": "DeepSeek V4 Flash · Provider default",
+        "cut": false
+      },
+      "send": {
+        "x": 321,
+        "y": 791,
+        "w": 44,
+        "h": 44,
+        "visible": true,
+        "label": null,
+        "cut": null
+      }
+    },
+    {
+      "name": "s2-settings-model-id-1440-light"
+    },
+    {
+      "name": "s2-settings-model-id-1440-dark"
+    },
+    {
+      "name": "s2-settings-model-id-390-light"
+    },
+    {
+      "name": "s2-settings-model-id-390-dark"
+    }
+  ],
+  "errors": []
+}

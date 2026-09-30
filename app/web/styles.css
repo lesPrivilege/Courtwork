@@ -2842,6 +2842,12 @@ select {
     gap: var(--space-1);
     align-items: flex-end;
   }
+  /* UX-11 (S2 adjustment) · on a phone the chips keep their words: when the
+   * chat's context and the model do not fit one row, the model, Stop and Send
+   * take a second row, right-aligned, instead of every label shrinking to a
+   * letter. There is no model glyph to fall back to (cpu names Settings ›
+   * Models). */
+  .composer-form .composer-controls { flex-wrap: wrap; row-gap: var(--space-1); }
   .composer-context {
     gap: 2px;
     flex: 1 1 auto;

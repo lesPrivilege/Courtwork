@@ -14,7 +14,7 @@ import { MODEL_SCOPE, modelRows, renderModelChooser, SEARCH_THRESHOLD, visibleRo
  * the authority on the run lock; the client says which chat holds it only when
  * it knows. One instance per surface: a popover inside a modal dialog must live
  * in that dialog, or the dialog makes it inert. */
-export function createModelChooser({ popover, name, request, getSnapshot, onSnapshot, ownRunBusy = () => false, onConnections }) {
+export function createModelChooser({ popover, name, request, getSnapshot, onSnapshot, onCatalog = () => {}, ownRunBusy = () => false, onConnections }) {
   let anchor = null, catalog = null, connections = [], loaded = false, readError = null;
   let activeKey = null, query = "", busy = false, feedback = null, typed = "", typedAt = 0;
   // Reads and writes are counted apart: reopening during a save must not orphan it.
@@ -105,6 +105,7 @@ export function createModelChooser({ popover, name, request, getSnapshot, onSnap
       if (own !== readEpoch) return;
       if (config.version !== models.version) throw new Error("Model settings changed while they were read.");
       catalog = models;
+      onCatalog(models);
       connections = registry;
       loaded = true;
       if (config.version !== getSnapshot()?.version) onSnapshot(config);

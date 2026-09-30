@@ -32,9 +32,14 @@ export function effortChoices(capability, savedEffort) {
   };
 }
 
-export function visibleModelName(config) {
+/** The in-force model by the name its chooser row shows: the catalogue's
+ * display name when the catalogue is known, else the model ID. The local path
+ * is the fake-openai-loopback provider (connectionPathOfKind), as in modelRows. */
+export function visibleModelName(config, catalog) {
   if (!config?.model) return "Not selected";
-  return config.provider === "fake-openai-loopback" ? "Local test" : config.model;
+  if (config.provider === "fake-openai-loopback") return "Local test";
+  const listed = catalog?.models?.find?.((model) => model.provider === config.provider && model.id === config.model);
+  return listed?.name || config.model;
 }
 
 /** One row per installed model: display name, its connection as trailing
@@ -210,7 +215,7 @@ function updateChooser(view, { snapshot, rows = [], activeKey = null, query = ""
   } else view.fix.replaceChildren();
 
   const choices = effortChoices(snapshot?.reasoningCapability, config?.reasoningEffort);
-  const effortChildren = [el("h4", { text: `Reasoning effort · ${visibleModelName(config)}` })];
+  const effortChildren = [el("h4", { text: `Reasoning effort · ${rows.find((row) => row.inForce)?.name ?? visibleModelName(config)}` })];
   if (choices.selectable) effortChildren.push(segmentedEffort({ choices, name, disabled: Boolean(frozen) || busy, onChange: (value) => view.opts?.onEffort?.(value) }));
   else effortChildren.push(el("p", { className: "model-effort-fixed", text: "Provider default" }));
   if (choices.invalidSaved) effortChildren.push(el("p", { className: "context-meta", text: `Saved value ${choices.invalidSaved} is no longer offered by this model. Choose Provider default or a listed value.` }));

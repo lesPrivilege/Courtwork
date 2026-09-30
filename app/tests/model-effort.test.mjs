@@ -367,3 +367,27 @@ test("S2 review · search: Enter picks the top match, not the in-force row; an I
     assert.equal(host.puts.at(-1).model, "gpt-z");
   });
 });
+
+test("S2 evidence · the chip and the effort heading name the model as its row does, with the ID only when the catalogue does not list it", async () => {
+  await withTinyDom(async () => {
+    const { modelRows, renderModelChooser, visibleModelName } = await import("../web/model-effort.mjs");
+    assert.equal(visibleModelName({ provider: "conn-1", model: "gpt-x" }, CATALOG), "GPT X");
+    assert.equal(visibleModelName({ provider: "conn-1", model: "gpt-unlisted" }, CATALOG), "gpt-unlisted");
+    assert.equal(visibleModelName({ provider: "conn-1", model: "gpt-x" }), "gpt-x", "before the catalogue is read");
+    assert.equal(visibleModelName({ provider: "fake-openai-loopback", model: "fake-model" }, CATALOG), "Local test");
+    const container = document.createElement("div");
+    const rows = modelRows(CATALOG, REGISTRY, { provider: "conn-1", model: "gpt-x" });
+    renderModelChooser(container, { ...handlers, snapshot: snapshotOf({ capability: ENUM_A }), rows, loaded: true });
+    assert.ok(texts(container, "h4").includes("Reasoning effort · GPT X"));
+    const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
+    assert.match(app, /visibleModelName\(config, state\.modelCatalog\)/, "the composer chip reads the catalogue name");
+    assert.match(app, /onCatalog: keepModelCatalog/, "each chooser hands its catalogue read to the chip");
+  });
+});
+
+test("S2 evidence · on a phone the composer controls wrap to a second row instead of cutting each label to a letter", () => {
+  const css = readFileSync(`${root}app/web/styles.css`, "utf8");
+  const narrow = [...css.matchAll(/@media \(max-width: 767px\) \{([\s\S]*?)\n\}/g)].map((match) => match[1]).join("\n");
+  assert.match(narrow, /\.composer-form \.composer-controls \{ flex-wrap: wrap;/);
+  assert.match(css, /\.composer-form \.composer-controls \{ flex-wrap: nowrap; \}/, "wider layouts keep one row");
+});

@@ -115,6 +115,8 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | Settings regrouped by user task; agent-profile selection homes; runtime choice UI | Settings resource management; 06c | The next Settings pass; 06c's runtime-management API |
 | Spark entry | Spark product owner | Next Spark definition change |
 | Specimen-only modules | UX lane | Before S6 |
+| Chat file names outside `[A-Za-z0-9._-]`, such as Chinese names, which the Host refuses and the client refuses before sending ([evidence E5](evidence/README.md)) | Host materials owner | The next Host materials contract revision |
+| Translucent popover material shows bright content behind titles in dark mode ([evidence E7](evidence/README.md)) | Material owner ([visual-spatial grammar](../../design/visual-spatial-grammar.md)) | The next material pass |
 
 ## Reference review · DeepSeek Harness GUI
 
@@ -125,7 +127,7 @@ At the user's suggestion (2026-09-30) a Sonnet agent compared the DeepSeek Harne
 | Waiting row carries a one-word reason (Approval, Answer) beside its mark | **Adopt** into S4: the waiting mark on a chat row says what is waited for, from the same owner facts, so status is not shape or colour alone (IC-1, ICN-32) | S4 |
 | Saving credentials or a custom provider keeps the selected model | **Adopt** as the S6 acceptance test for separating connection save from default (V5) | S6 |
 | New chat inherits the current session's workspace | Confirms S1/V8; no change | — |
-| Model popover search, current model pre-highlighted, Enter/Tab settle; icon-only chip at narrow width with the full name kept in the accessible name | **Adopt** into S2 (search appears when the list is long; narrow fallback keeps the name) | S2 |
+| Model popover search, current model pre-highlighted, Enter/Tab settle; icon-only chip at narrow width with the full name kept in the accessible name | **Adopt** into S2 (search appears when the list is long; narrow fallback keeps the name). The icon-only chip was adjusted: below 768px the controls wrap and keep their words, because no model glyph exists ([S2 visual evidence](s2.md#visual-evidence)) | S2 |
 | Grouped model menu with provider panes | **Reject** for S2: two drill levels for a repeated choice; UX-11 keeps a flat list with provider as metadata | — |
 | Per-session pick silently also saves the global default | **Reject**: the scope must be said on the control (UX-11) | — |
 | Unconfigured providers hidden; stale selection fails at Send | **Reject**: keep ruling J (listed, not committable, with the fix path) | — |

@@ -220,6 +220,8 @@ const state = {
   bindingExtensionId: null,
   extensions: [],
   providerConfig: null,
+  // The installed catalogue at the config's version: display names for the in-force model.
+  modelCatalog: null,
   /* WK-78 / FN-26 · Settings 是页面而不是模态，所以它不改会话，也不改 state.view：
    * 它只是主区当前显示的东西。`section` 与 hash 同步，`returnFocus` 记住进入前握着
    * 焦点的那个控件，Back 与 Escape 都把焦点还回去。 */
@@ -2813,9 +2815,20 @@ function renderProviderPanel() {
 }
 /* The composer's model control names the in-force model and effort, with the
  * disclosure mark of a control that opens a chooser (not a settings gear). */
+let modelCatalogRead = null;
+function keepModelCatalog(catalog) {
+  if (!(catalog?.version < state.modelCatalog?.version)) state.modelCatalog = catalog;
+  renderModelChip();
+}
 function renderModelChip() {
   const config = state.providerConfig?.config;
-  const model = config ? visibleModelName(config) : "Model settings";
+  const version = state.providerConfig?.version;
+  // Config and catalogue share one version; a newer config reads the catalogue once.
+  if (config && state.modelCatalog?.version !== version && modelCatalogRead !== version) {
+    modelCatalogRead = version;
+    request("/provider-models").then(keepModelCatalog, () => {});
+  }
+  const model = config ? visibleModelName(config, state.modelCatalog) : "Model settings";
   const effort = config?.reasoningEffort || "Provider default";
   const button = $("model-settings-button");
   const text = `${model} · ${effort}`;
@@ -7436,6 +7449,19 @@ function wireEvents() {
   }
   $("permission-settings-button").addEventListener("click", (event) => openFileAccessCard(event.currentTarget));
   {
+    // The card opens beside whatever opened it: the composer chip or the Chat overview.
+    const popover = $("connection-popover");
+    let stopFollowing = null;
+    popover.addEventListener("toggle", (event) => {
+      const open = event.newState === "open";
+      stopFollowing?.();
+      stopFollowing = null;
+      const anchor = state.connectionCardAnchor;
+      if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-start", fit: true });
+      $("permission-settings-button").setAttribute("aria-expanded", String(open && anchor === $("permission-settings-button")));
+    });
+  }
+  {
     const popover = $("workspace-popover");
     let stopFollowing = null;
     popover.addEventListener("toggle", (event) => {
@@ -7794,7 +7820,7 @@ async function init() {
     controller: agentChoice,
     mount: $("composer-form").querySelector(".composer-context"),
     noticeAfter: $("composer-notice"),
-    modelReading: () => (state.providerConfig?.config ? visibleModelName(state.providerConfig.config) : null),
+    modelReading: () => (state.providerConfig?.config ? visibleModelName(state.providerConfig.config, state.modelCatalog) : null),
     /* E1-B · what this chat's latest run actually bound, from the same per-run
      * cache the Workbench's Bound layer reads; never the current config. */
     boundReading: () => {
@@ -7933,7 +7959,7 @@ async function init() {
   const onModelSnapshot = (value) => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); };
   modelChooser = createModelChooser({
     popover: $("model-popover"), name: "model-effort", request,
-    getSnapshot: () => state.providerConfig, onSnapshot: onModelSnapshot, ownRunBusy,
+    getSnapshot: () => state.providerConfig, onSnapshot: onModelSnapshot, onCatalog: keepModelCatalog, ownRunBusy,
     onConnections: (connectionId, trigger) => openSettings("models", { trigger, connectionId }),
   });
   const attentionModelPopover = element("div", {
@@ -7943,7 +7969,7 @@ async function init() {
   $("attention-agent-dialog").append(attentionModelPopover);
   attentionModelChooser = createModelChooser({
     popover: attentionModelPopover, name: "attention-model-effort", request,
-    getSnapshot: () => state.providerConfig, onSnapshot: onModelSnapshot,
+    getSnapshot: () => state.providerConfig, onSnapshot: onModelSnapshot, onCatalog: keepModelCatalog,
     ownRunBusy: () => Boolean(attentionAgent?.controller.state.busy),
     onConnections: (connectionId) => { $("attention-agent-dialog").close(); openSettings("models", { connectionId }); },
   });
