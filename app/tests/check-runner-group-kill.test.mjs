@@ -139,16 +139,26 @@ test("a recipe that exits leaving a descendant: exit 0 is reported and the desce
 
 test("a Host that dies after the recipe's leader exited leaves no descendant running", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-check-leader-then-host-"));
-  const pidName = "descendant-" + token() + ".pid";
+  // The Host outlives the check here, so its temporary directory is gone by
+  // the time the test looks; the fake Host writes the check's stdout instead.
+  const outFile = path.join(dir, "check.stdout");
   const runner = new URL("../runtime/check-runner.mjs", import.meta.url).href;
   const hostSource = `import { runCheckRecipe } from ${JSON.stringify(runner)};
-runCheckRecipe({ recipe: { command: "/bin/sh", argv: ["-c", ${JSON.stringify(LEAVES_DESCENDANT)}, "sh", ${JSON.stringify(pidName)}], timeoutMs: 60000, outputLimitBytes: 1000 }, cwd: ${JSON.stringify(dir)}, dataDir: ${JSON.stringify(dataDir)} });
+import { writeFileSync } from "node:fs";
+runCheckRecipe({ recipe: { command: "/bin/sh", argv: ["-c", ${JSON.stringify(LEAVES_DESCENDANT)}, "sh", "descendant-" + process.pid + ".pid"], timeoutMs: 60000, outputLimitBytes: 1000 }, cwd: ${JSON.stringify(dir)}, dataDir: ${JSON.stringify(dataDir)} })
+  .then(result => writeFileSync(${JSON.stringify(outFile)}, result.stdout));
 setInterval(() => {}, 1000);`;
   const { spawn } = await import("node:child_process");
   const host = spawn(process.execPath, ["--input-type=module", "-e", hostSource], { stdio: "ignore" });
   let descendant;
   try {
-    descendant = await readPidFromCheckHome(pidName);
+    let stdout = null;
+    for (let i = 0; i < 500 && stdout === null; i++) {
+      stdout = await readFile(outFile, "utf8").catch(() => null);
+      if (stdout === null) await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    descendant = Number(stdout?.match(/descendant (\d+)/)?.[1]);
+    assert.ok(descendant > 0, "the recipe announced its descendant: " + stdout);
     host.kill("SIGKILL");
     await new Promise(resolve => host.once("exit", resolve));
     for (let i = 0; i < 100 && alive(descendant); i++) await new Promise(resolve => setTimeout(resolve, 20));
