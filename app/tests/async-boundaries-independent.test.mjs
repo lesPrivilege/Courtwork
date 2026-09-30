@@ -22,7 +22,7 @@ async function setup(adapter, canUse = () => true) {
   const dir = await mkdtemp(path.join(tmpdir(), 'cw-boundary-'));
   const store = await new RuntimeStore({ dataDir: dir }).open();
   const project = await store.createProject('p');
-  const session = await store.createSession({ projectId: project.id, title: 's' });
+  const session = await store.createSession({ projectId: project.id, title: 's', workspaceDir: path.join(dir, 'ws') });
   const made = await store.createRun({
     sessionId: session.id, input: 'i', adapterId: 'a',
     provider: { provider: 'fake-openai-loopback', model: 'fake-model', api: 'openai-completions', realProvider: false },

@@ -7,7 +7,7 @@ import { withTinyDom } from './tiny-dom.mjs';
 const run = status => ({ id: 'run-a', sessionId: 'session-a', status });
 test('activity stops on wait, disconnect and terminal state without inventing cancellation acceptance', () => {
   assert.equal(projectRunActivity({ run: run('running') }).moving, true);
-  for (const status of ['created', 'waiting_user', 'stopping', 'completed', 'cancelled', 'failed', 'future-status'])
+  for (const status of ['waiting_user', 'stopping', 'completed', 'cancelled', 'failed', 'future-status'])
     assert.equal(projectRunActivity({ run: run(status) }).moving, false, status);
   const pending = projectRunActivity({ run: run('running'), pendingCancel: true });
   assert.equal(pending.moving, false); assert.equal(pending.label, 'Working');
@@ -117,4 +117,12 @@ test('Context reads the selected Run only, preserves missing and zero, and never
     method: 'serialized-request-utf16-chars-divided-by-4', exact: false, characters: 0, estimatedTokens: 0 } }) }];
   assert.equal(projectContextReading(zero, 'a').estimate, 0);
   assert.match(renderChatMeasurementBody('context', { events: zero, run: { id: 'a' } }).textContent, /~0 tokens/);
+}));
+
+test('Context says the window is not reported when the Host keeps it null, never a default size', async () => withTinyDom(() => {
+  const create = document.createElement.bind(document);
+  document.createElement = tag => Object.assign(create(tag), { style: {} });
+  const text = renderChatMeasurementBody('context', { events: [], run: { id: 'a' } }).textContent;
+  assert.match(text, /Context windowNot reported/);
+  assert.doesNotMatch(text, /1,000,000|default/);
 }));

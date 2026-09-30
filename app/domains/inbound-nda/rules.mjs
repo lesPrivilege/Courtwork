@@ -1,5 +1,3 @@
-import { PLAYBOOK_VERSION } from './constants.mjs';
-
 /**
  * Production rule metadata for the bounded synthetic playbook.  This module
  * contains no evaluation corpus or expected gold outcomes.
@@ -65,4 +63,3 @@ export const RULE_DEFINITIONS = Object.freeze([
 
 export const RULE_IDS = Object.freeze(RULE_DEFINITIONS.map((rule) => rule.ruleId));
 export const RULE_SET = new Set(RULE_IDS);
-export const PLAYBOOK_RULES_VERSION = PLAYBOOK_VERSION;

@@ -208,35 +208,18 @@ async function writeMixedResponse(res, response) {
   writeDone(res);
 }
 
+/** One assistant message with one tool call, or several (`calls`), as a
+ * provider that emits parallel tool calls sends them. */
 async function writeToolResponse(res, response) {
   const { id, created, toolCallId, prompt, name = "ask_user", arguments: toolArguments = { prompt } } = response;
-  writeSse(
-    res,
-    assistantChunk({
-      id,
-      created,
-      model: MODEL_ID,
-      delta: { role: "assistant", tool_calls: [{ index: 0, id: toolCallId, type: "function" }] },
-    }),
-  );
-  writeSse(
-    res,
-    assistantChunk({
-      id,
-      created,
-      model: MODEL_ID,
-      delta: {
-        tool_calls: [
-          {
-            index: 0,
-            function: { name, arguments: JSON.stringify(toolArguments) },
-          },
-        ],
-      },
-      finishReason: "tool_calls",
-      usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
-    }),
-  );
+  const calls = response.calls ?? [{ toolCallId, name, arguments: toolArguments }];
+  writeSse(res, assistantChunk({ id, created, model: MODEL_ID,
+    delta: { role: "assistant", tool_calls: calls.map((call, index) => ({ index, id: call.toolCallId, type: "function" })) } }));
+  writeSse(res, assistantChunk({ id, created, model: MODEL_ID,
+    delta: { tool_calls: calls.map((call, index) => ({ index, function: { name: call.name, arguments: JSON.stringify(call.arguments ?? {}) } })) },
+    finishReason: "tool_calls",
+    usage: { prompt_tokens: 1, completion_tokens: 1, total_tokens: 2 },
+  }));
   writeDone(res);
 }
 
@@ -364,17 +347,7 @@ export async function createFakeOpenAiProvider({ host = "127.0.0.1", port = 0, r
   };
 }
 
-export const fakeProviderDescriptor = Object.freeze({
-  provider: PROVIDER_ID,
-  model: MODEL_ID,
-  api: API_ID,
-  realProvider: false,
-});
-
 export const FIXTURE_WRONG_KEY = WRONG_KEY_MARKER;
-export const FIXTURE_ERROR_DIRECTIVE = ERROR_DIRECTIVE;
-export const FIXTURE_ERROR_ONCE_DIRECTIVE = ERROR_ONCE_DIRECTIVE;
-export const FIXTURE_SLOW_FIRST_TOKEN_MS = SLOW_FIRST_TOKEN_MS;
 export const FAKE_PROVIDER_ID = PROVIDER_ID;
 export const FAKE_MODEL_ID = MODEL_ID;
 export const FAKE_API_ID = API_ID;

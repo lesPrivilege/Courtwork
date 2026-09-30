@@ -149,3 +149,18 @@ test('policy: domain tools use the same execution gate, including exact argument
   await tools[0].execute('call', args);
   assert.equal(observed.value, 'authorized');
 });
+
+test('repository and workspace path policy is case-insensitive to block Host-volume case aliases', () => {
+  const rules = [{ scope: { type: 'session', id: 'fixture' }, rules: [
+    { action: 'repo_read', resource: 'Secrets.txt', effect: 'deny' },
+    { action: 'repo_write', resource: 'Output/*', effect: 'ask' },
+    { action: 'ws_read', resource: 'Secrets.txt', effect: 'deny' },
+    { action: 'ws_write', resource: 'out/private*', effect: 'deny' },
+    { action: 'mcp.*', resource: 'Secrets.txt', effect: 'deny' },
+  ] }];
+  assert.equal(evaluatePolicy(rules, 'repo_read', 'secrets.txt').effect, 'deny');
+  assert.equal(evaluatePolicy(rules, 'repo_write', 'output/new.txt').effect, 'ask');
+  assert.equal(evaluatePolicy(rules, 'ws_read', 'secrets.txt').effect, 'deny', 'workspace paths share the Host volume case semantics');
+  assert.equal(evaluatePolicy(rules, 'ws_write', 'out/PRIVATE.md').effect, 'deny');
+  assert.equal(evaluatePolicy(rules, 'mcp.server.read', 'secrets.txt').effect, 'allow', 'non-path resource policy matching keeps exact case');
+});

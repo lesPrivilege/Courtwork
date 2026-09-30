@@ -537,3 +537,33 @@ test("Inspector opens retained UTF-8 at an exact revision and validates full tex
     view.dispose();
   })
 );
+
+test("a 409 other than source_revision_conflict shows the Host's message without entering the refresh-required state", async () => {
+  for (const [code, message] of [["material_name_conflict", "a material with this name already exists"], ["command_conflict", "commandId was already used with a different input"]]) {
+    await withTinyDom(async () => {
+      const dom = makeMaterialsDom();
+      const request = async (url, options = {}) => {
+        const parsed = new URL(url, "http://courtwork.test");
+        if (parsed.pathname.endsWith("/workspace")) return { tree: [] };
+        if (parsed.pathname.endsWith("/materials") && options.method === "POST")
+          throw Object.assign(new Error(message), { status: 409, body: { error: { code, message } } });
+        if (parsed.pathname.endsWith("/materials")) return { sources: [], coverage: "complete", limit: 200 };
+        throw new Error(`Unexpected request ${url}`);
+      };
+      const view = createMaterialsView({ request, getSession: () => ({ id: "session-1" }), onOpenFile() {}, notify() {} });
+      view.open();
+      await waitFor(() => dom.submit.disabled === false);
+      dom.name.value = "brief.md";
+      dom.text.value = "Text";
+      dom.name.dispatchEvent({ type: "input" });
+      dom.text.dispatchEvent({ type: "input" });
+      dom.form.dispatchEvent({ type: "submit" });
+      await waitFor(() => dom.error.hidden === false);
+      await flush();
+      assert.equal(dom.error.textContent, message, code);
+      assert.equal(dom.error.querySelector("button"), null, `${code}: no refresh-required affordance`);
+      assert.equal(dom.submit.disabled, false, `${code}: the draft can be edited and submitted again`);
+      view.reset();
+    });
+  }
+});

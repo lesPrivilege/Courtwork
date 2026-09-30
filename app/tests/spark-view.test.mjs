@@ -201,3 +201,39 @@ test("SD-01 · the static allowlist registers the five sample JSON files as one 
   assert.match(serverSource, /for \(const name of \["stale", "quiet", "empty", "partial", "truncated"\]\) STATIC\.set\(`\/web\/samples\/spark-derivations\/\$\{name\}\.json`/);
   assert.match(serverSource, /type:"application\/json; charset=utf-8"/);
 });
+
+/* A status filter over a truncated stale page counts from Core's byStatus,
+ * never from the unfiltered total, and does not claim absence while matching
+ * candidates are still unloaded. */
+test("Activity filter over a truncated page counts by status and never claims a false absence", async () => {
+  const { createSparkView } = await import("../web/spark-view.mjs");
+  const { withTinyDom, flush } = await import("./tiny-dom.mjs");
+  const payload = JSON.parse(readFileSync(`${root}web/samples/spark-derivations/truncated.json`, "utf8"));
+  const token = "core-state:" + "a".repeat(64);
+  payload.scopeRef = "project:p"; payload.snapshotRef = token;
+  for (const matter of payload.matters) matter.snapshotRef = token;
+  // Every loaded ref is pending (20 of Core's 20 pending); Core's 17 accepted are all unloaded.
+  for (const ref of payload.matters[0].staleRefs) ref.status = "pending";
+  payload.page = { limit: 25, offset: 0, total: payload.matters.length };
+  await withTinyDom(async (body) => {
+    document.body = body;
+    const create = document.createElement.bind(document);
+    document.createElement = (tag) => { const node = create(tag); if (tag === "dialog") { node.showModal = () => { node.open = true; }; node.close = () => { node.open = false; node.dispatchEvent({ type: "close" }); }; } return node; };
+    const view = createSparkView({ getProjects: () => [{ id: "p", name: "P" }], onOpenMatter() {}, request: async () => structuredClone(payload) });
+    view.open("p"); await flush();
+    body.querySelectorAll("button").find((node) => node.textContent === "Activity").click(); await flush();
+    const filter = async (value) => {
+      const select = body.querySelectorAll("select").find((node) => node.getAttribute("aria-label") === "Filter by status");
+      select.value = value; select.dispatchEvent({ type: "change" }); await flush();
+      return body.querySelectorAll(".form-help").map((node) => node.textContent);
+    };
+    const pending = await filter("pending");
+    assert.equal(body.querySelectorAll("tr").length, 21, "a head row and 20 candidates");
+    assert.ok(!pending.some((text) => text.startsWith("Showing")), "every pending candidate is loaded: " + pending.join(" | "));
+    const accepted = await filter("accepted");
+    assert.ok(accepted.some((text) => text.startsWith("Showing 0 of 17.")), accepted.join(" | "));
+    assert.ok(!accepted.includes("No stale derivations match this filter."));
+    const rejected = await filter("rejected");
+    assert.ok(rejected.includes("No stale derivations match this filter."), "Core counts none, so none is true");
+  });
+});

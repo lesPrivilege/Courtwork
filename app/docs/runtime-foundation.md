@@ -13,8 +13,9 @@ execution and lifecycle adapters.
 
 `server/runtime.mjs` exports `createRuntime({dataDir, extensionCatalog?, budget?, compaction?})`.
 It opens the data lock, store, provider catalog and execution service; `close()`
-stops admission, settles active Runs, closes extensions/providers and releases
-the lock. It does not open a product HTTP server. The loopback test provider is
+stops admission, aborts running manual compactions (settled `cancelled`) and waits
+for them, cancels active Runs, waits for every Run's full settlement (including a
+Spark attempt's), then closes extensions/providers and releases the lock. It does not open a product HTTP server. The loopback test provider is
 local and uses the same Pi provider/SDK lane as ordinary execution.
 
 The default extension catalog is empty. `server/index.mjs` is the Web application
@@ -212,10 +213,10 @@ Authenticated POST `/api/v5/provider-models/discover` and
 whitespace, backslash, userinfo (including empty userinfo), query or fragment.
 All trailing path slashes are removed before appending `/models`; `/v1` is
 never added implicitly. HTTP and loopback are allowed. No other destinations
-are searched. An optional key must contain 1–4096 printable ASCII characters
+are searched. An optional key must contain 6–4096 printable ASCII characters
 without spaces; omit it for unauthenticated endpoints. It is sent only as
 `Authorization: Bearer …`. Custom headers and unknown request fields are rejected.
-The existing JSON parser applies (1 MiB request cap; malformed/non-object JSON
+The existing JSON parser applies (1 MiB request cap, except `POST /sessions/:id/materials`, which allows 6 × the 1 MiB material limit + 64 KiB to cover JSON escaping; malformed/non-object JSON
 400, unsupported media type 415, oversized request 413). Valid JSON with invalid
 preview fields returns 400 `invalid_provider_preview`, with a fixed message.
 
@@ -286,7 +287,10 @@ and separates three failures: `connection_authentication_failed` and
 `connection_directory_unavailable` (consuming the BE-17/18 status enum, reported
 in `error.status`) and `connection_model_not_in_directory`, which the probe enum
 does not name. Probe success still means only that the directory accepted the
-request.
+request. A replace that omits `apiKey` reuses the saved key only when `baseUrl`
+is unchanged; a new endpoint without a key is refused with `400
+credential_required` before any probe, so a saved key never reaches a
+different endpoint.
 
 `PUT /api/v5/provider-credential` and its DELETE now take `{connectionId, …}`.
 `credentials.json` is keyed by connection id: two connections onto the same
@@ -333,11 +337,13 @@ Runtime11 adds `providerConfigurationPending: [{ connectionId, operation }]` to 
 
 Runtime12 preserves every validated Runtime11 pending marker, including operations whose connection record is absent. Upgrade and restart do not complete or abandon those operations. The same recovery retry rules below continue to apply; no old host may open the upgraded data directory.
 
-New connection/config/Run writes share model ID ≤240, endpoint ≤2048, the two installed OpenAI wire formats, and context window null or integer 4–100,000,000. API keys use 1–4000 printable non-space ASCII characters at both credential entry points. ASCII controls are rejected; endpoint whitespace, backslashes, userinfo, query and fragment are rejected. Historical descriptors and unchanged historical connections remain readable without normalization; newly changed records must satisfy the current domain. Startup fences historical connections outside that domain, and Run admission checks the selected descriptor again. Credential mutation validates the saved connection before creating a marker, so a historical invalid connection can still be repaired by connection PUT. A missing connection or invalid selected descriptor reports `unavailable`. Read compatibility is not execution authorization.
+New connection/config/Run writes share model ID ≤240, endpoint ≤2048, the two installed OpenAI wire formats, and context window null or integer 4–100,000,000. API keys use 6–4000 printable non-space ASCII characters at both credential entry points and in preview probes (`PROVIDER_API_KEY_MIN_LENGTH`: a shorter key could not be found again in provider text to redact it); reusing an older saved key shorter than that returns `credential_required`. ASCII controls are rejected; endpoint whitespace, backslashes, userinfo, query and fragment are rejected. Historical descriptors and unchanged historical connections remain readable without normalization; newly changed records must satisfy the current domain. Startup fences historical connections outside that domain, and Run admission checks the selected descriptor again. Credential mutation validates the saved connection before creating a marker, so a historical invalid connection can still be repaired by connection PUT. A missing connection or invalid selected descriptor reports `unavailable`. Read compatibility is not execution authorization.
 
 Connection and credential changes are serialized with Run admission. After input validation and discovery, the host writes a pending marker, persists the connection, reserves credential generation before writing any new key, activates the SDK using the credential file, then removes the marker. This is not a cross-file transaction. Partial failure returns HTTP503 `configuration_incomplete`, including `connectionId`, `operation` and `configurationStatus`. A failure before the marker is persisted leaves the unchanged connection ready; after the marker it is `recovery_required`. Failed SDK cleanup cannot bypass Host admission. Startup skips pending registration/key activation; SDK startup failures appear as `unavailable` and block new Runs. Prior command receipts remain queryable.
 
 GET connections includes per-connection `configurationStatus` (`ready`, `recovery_required`, `unavailable`) and `pendingConfigurations` (marker fields plus `stored`). Credential status is `not_configured` while blocked. Retry the same complete operation to recover; a failed create can be retried with PUT using the returned connection ID even if its record was not saved. DELETE of an unselected compatible connection can abandon any pending operation; credential DELETE can abandon credential SET. Different operations return409 `configuration_recovery_required`. Pending deletion without a remaining connection record remains inspectable. Generation may contain gaps after failed attempts; it must never attribute new key bytes to an old generation. No marker stores a key, and errors never echo provider exceptions or key content.
+
+Known keys are replaced with `[redacted]` in provider error bodies (non-2xx responses) before Pi writes its session journal, in verify's observed model, in request telemetry and in log lines. Known gaps: a key echoed inside a successful (2xx) stream, and echoes spelled with `\uXXXX` or percent encoding, are not redacted. The JSON-escaped spelling of a key is redacted.
 
 A synthetic failure shape for frontend consumption (connection creation failed after the marker but before its record was saved):
 

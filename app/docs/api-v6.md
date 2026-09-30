@@ -20,6 +20,11 @@ document's revision of the contract, not a new route namespace.
 - Every request except `GET /api/v5/bootstrap` must carry the work token in the
   `x-work-token` header. `GET /api/v5/bootstrap` returns it (`sessionToken`).
 - Request bodies are JSON, at most 1 MiB (`413 body_too_large` above that).
+  `POST /sessions/:id/materials` alone accepts up to 6 MiB + 64 KiB, the widest
+  legal JSON spelling of a 1 MiB material (every byte a six-character `\u00XX`
+  escape) plus its envelope, so the material's own 1 MiB limit is what decides.
+  An over-limit body is read to its end and discarded, then answered with the
+  typed 413; the connection is not reset (past 256 MiB it is abandoned).
 - Unknown body fields are rejected (`400 unknown_field`); this is deliberate, so a
   client typo fails loudly instead of being ignored.
 - Errors are `{ "error": { "code", "message" } }`. Messages never contain an API key.
@@ -47,6 +52,13 @@ document's revision of the contract, not a new route namespace.
   `cancelled`, even if the runtime had just completed; the completed answer
   remains in the Run's events.
 - `run.admissionOpen` (boolean): whether the run still accepts events and answers.
+  It is `false` whenever the Run is `stopping` or terminal; the Store enforces this
+  on every status change.
+- A Run stays `waiting_user` while any of its questions is pending. A turn's tool
+  calls can run in parallel, so several questions can be open at once; the Run
+  returns to `running` only when the last is answered. A `run.status` event is
+  written only when the status changes, so one waiting period records one
+  `waiting_user` event however many questions it holds.
 - `question.status`: `pending` · `resolved` · `expired_restart` · `cancelled`.
   `expired_restart` is set for every pending question at startup: a restart cannot
   resume a wait, and no question is left permanently unanswerable. `cancelled` is
@@ -94,13 +106,20 @@ Returns `{ session }`; `404 not_found` for an unknown session. The title is the
 record: every list and the chat header read it back. Allowed during a run.
 
 `DELETE /api/v5/sessions/:id` — removes the execution catalog record (the
-session, its runs, events and questions). Returns
-`{ deleted: true, sessionId, workspaceRetained: true }`: workspace and journal
-bytes on disk are kept, this is not secure erasure. Spark-referenced Sessions
+session, its runs, events, questions and compaction records). Returns
+`{ deleted: true, sessionId, workspaceRetained: true, runtimeControlCleanup }`:
+workspace and journal bytes on disk are kept, this is not secure erasure. After
+the deletion commits, every Runtime Control entry scoped to that Session
+(imported resources, exposure overrides, policies, profile selections, and any
+override or selection naming a removed resource) is removed in one revision:
+`runtimeControlCleanup` is `"complete"`. If that write fails the deletion still
+stands and it is `"deferred"`: the entries are inert (no Session can reach their
+scope) and Host startup removes entries naming any Session that no longer exists. Spark-referenced Sessions
 (including parent, child and retained source/result history) are refused with
 `409 spark_session_referenced`; deletion does not cascade through that history.
 Refused with `409 active_run`
-while a run is active anywhere; `404 not_found` afterwards, so a second delete is
+while a run is active anywhere and `409 operation_active` while a compaction
+runs; `404 not_found` afterwards, so a second delete is
 not an idempotent success. The sidebar's Chat rows offer both through one command
 set (right-click, the row's More button, the Menu key); see
 [interface-components](../../docs/interface-components.md#navigation-history-and-object-commands-2026-09-16).
@@ -121,8 +140,20 @@ events the snapshot does not already contain. See [Reconnecting](#reconnecting).
 - `name` matches `[A-Za-z0-9._-]+` and is then resolved through the same workspace
   path guard the `ws_*` tools use; a name that walks out of `materials/` (`..`) is
   rejected with `400 invalid_input`.
-- `text` is UTF-8, at most 1 MiB.
+- `text` is UTF-8, at most 1 MiB (`400 invalid_input` above that).
+- The exact name of an existing material adds a version. A new name that equals
+  an existing material's name ignoring letter case (Unicode NFC, lower-cased) is
+  refused with `409 material_name_conflict`, because both would share one file on
+  a case-insensitive workspace volume; use the existing spelling or another name.
 - `path` in the response is workspace-relative (`materials/<name>`).
+
+## Profile
+
+`GET /api/v5/profile` → `{ profile }`; `PUT /api/v5/profile` —
+`{ expectedRevision, ...fields }` → `{ profile }`. Saves are serialized with other
+configuration writes and inside the profile store itself: the revision check and
+the atomic file write are one step, so of two saves from the same revision exactly
+one lands and the other gets `409 profile_conflict`.
 
 ## Workspace
 
@@ -234,7 +265,10 @@ GC, so the outstanding-effect byte budget is not a lifetime disk quota.
 ## Provider and credentials
 
 `GET /api/v5/provider-config` →
-`{ config: { provider, model, api, baseUrl? }, execution: { mode: "real" | "local-fake", realProvider, adapterId }, credentialStatus: "configured" | "not_configured" }`
+`{ config: { provider, model, api, baseUrl? }, execution: { mode: "real" | "local-fake", realProvider, adapterId }, credentialStatus: "configured" | "not_configured", configurationStatus }`.
+`configurationStatus` is `unavailable` whenever Run admission would refuse the
+saved route (`configuration_incomplete`, `provider_unsupported`,
+`effort_unsupported`), so Settings never shows ready for a route a Run refuses.
 
 `PUT /api/v5/provider-config` — `{ provider, model, api, baseUrl? }`.
 Allowed `provider` values: `deepseek` (real; `api` must be `openai-completions`,
@@ -251,8 +285,19 @@ model validated against the installed catalog) and `fake-openai-loopback` (tests
 - Both routes are refused with `409 active_run` while a run is active.
 - With no credential configured, a real call is refused (`credential_missing`); the
   host never falls back to an environment variable, a personal auth file, or the
-  fake provider. `DEEPSEEK_API_KEY` inherited by the process is deleted at startup
-  and the removal is logged.
+  fake provider. Provider env vars inherited by the process are deleted at
+  startup and the removal is logged by name: `DEEPSEEK_API_KEY`,
+  `OPENAI_API_KEY`, `OPENAI_ADMIN_KEY`, `OPENAI_ORG_ID`, `OPENAI_PROJECT_ID`,
+  `OPENAI_BASE_URL`, `OPENAI_WEBHOOK_SECRET`, `OPENAI_CUSTOM_HEADERS` and
+  `OPENAI_LOG` (the OpenAI SDK client reads each as a request default).
+- A compatible connection's saved key is sent only to the endpoint it was
+  entered for. (A catalog connection's key goes to the optional `baseUrl` the
+  saved provider configuration applies; see runtime foundation.) Replacing a
+  compatible connection with a different `baseUrl` and no `apiKey` is refused
+  with `400 credential_required` ("Enter the API key again for the new
+  endpoint") before any request; an unchanged endpoint keeps reusing the saved
+  key. Keys shorter than 6 characters are refused as `apiKey is invalid`,
+  because redaction could not find them again in provider text.
 - **The key must never be typed into the chat input.** It goes through
   `PUT /provider-credential` only.
 
@@ -322,7 +367,10 @@ creates a Run or sends a model request.
 An operation carries `{ id, kind: "compaction", sessionId, requestId, status,
 reason: "manual", focus, startedAt, settledAt, provider, journal, result, error }`.
 Refusals: `409 active_run`, `409 operation_active`, `409 nothing_to_compact`,
-`409 compaction_unavailable`, `409 credential_missing`, `409 idempotency_conflict`.
+`409 compaction_unavailable`, `409 credential_missing`, `409 idempotency_conflict`,
+and the Run's provider-route refusals (`503 configuration_incomplete`,
+`503 provider_unsupported`, `503 effort_unsupported`): a compaction sends a model
+request and is admitted on the same saved route as a Run.
 See [commands-and-compaction](commands-and-compaction.md) for semantics.
 
 `GET /api/v5/runs/:id` → `{ run }`, where a run carries
@@ -346,6 +394,9 @@ Answering a question that is not pending is `409 question_unavailable`; answerin
 after the run closed is `409 run_closed`. The serialized answer mutation also
 rechecks admission: if cancellation won the queue race, it returns
 `409 question_unavailable` without resolving the question or reopening the Run.
+Opening a question makes the same check: a question or permission requested after
+a cancel closed admission is never opened, the tool call ends as an abort, and the
+Run goes `stopping` → `cancelled` without passing through `waiting_user`.
 
 ### usage
 
@@ -357,7 +408,9 @@ provider failure. A client should render "at least N" when `missing` is true.
 ### Budget
 
 `deadlineMs` (default 600 000) is an execution budget: it only runs down while the
-run is `running`, and is paused for the whole of `waiting_user`. `maxTurns`
+run is `running`. It pauses when the first decision (question or permission) opens
+and resumes only when the last open one ends, and not at all for a Run that is
+being cancelled, so a cancel during a question never settles as `budget_exceeded`. `maxTurns`
 defaults to 40. Exceeding either ends the run `unknown` with `budget_exceeded`.
 
 ## Events
@@ -370,7 +423,7 @@ high-water mark, so an empty page still tells a poller where it stands.
 | type | data | meaning |
 |---|---|---|
 | `user.message` | `{ text }` | the instruction that opened the run |
-| `run.status` | `{ status }` | a run status transition |
+| `run.status` | `{ status }` | a run status change (written only when the status changes) |
 | `assistant.delta` | `{ text }` | streaming assistant text (cumulative) |
 | `assistant.message` | `{ text, stopReason, errorMessage }` | a finished assistant message |
 | `tool.start` | `{ callId, name }` | a tool call began |
@@ -462,7 +515,9 @@ Run-level (`run.error.code`, also `run.error` on the run record):
 | `provider_auth_failed` | the provider rejected the credential |
 | `provider_error` | provider or transport failure (includes the provider status; never a key) |
 | `budget_exceeded` | execution deadline or turn budget exhausted |
-| `restart_unknown` | the run was in flight when the process restarted |
+| `restart_unknown` | the run was in flight when the process restarted, with no interrupted MCP dispatch or repository write |
+| `mcp_effect_unknown` | a remote tool effect is unreconciled (an MCP dispatch had no settled result); the Run cannot be superseded (`409 effect_unreconciled`) |
+| `repository_write_unknown` | a repository write may have completed; the Run may be continued |
 | `not_in_process` | cancel was asked of a run this process does not own |
 | `extension_close_failed` / `extension_finish_failed` | a bound extension could not close cleanly |
 
@@ -470,11 +525,16 @@ HTTP-level: `unauthorized` (401), `origin_denied` (403), `not_found` (404),
 `invalid_json` · `invalid_input` · `invalid_provider` · `invalid_action` ·
 `invalid_cursor` · `cursor_ahead` (carries `nextSeq`) · `invalid_path` ·
 `unknown_field` (400),
-`active_run` · `command_conflict` · `run_closed` · `question_unavailable` ·
+`active_run` · `operation_active` · `command_conflict` · `run_closed` ·
+`question_unavailable` · `idempotency_conflict` · `spark_session_referenced` ·
+`nothing_to_compact` · `compaction_unavailable` · `credential_missing` ·
 `binding_exists` · `binding_mismatch` · `extension_unloaded` ·
 `generation_mismatch` · `extension_lifecycle_failed` (409),
-`body_too_large` (413), `provider_unsupported` (503), Core codes with an unknown
+`body_too_large` (413), `configuration_incomplete` · `provider_unsupported` ·
+`effort_unsupported` · `candidate_revoked_cancellation_pending` ·
+`repository_revoked_cancellation_pending` (503), Core codes with an unknown
 outcome (503, see [Transport](#transport)), `internal_error` (500).
+This list is the common set; each route section names its own refusals.
 
 ## Operational requirements
 

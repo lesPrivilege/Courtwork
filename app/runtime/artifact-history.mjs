@@ -29,14 +29,18 @@ function cancelled(signal) {
   }
 }
 
+const GIT_BINARY = "/usr/bin/git";
+
 function gitEnvironment() {
-  // No caller-controlled GIT_DIR, alternate objects, config injection, global
+  // A closed allow-list, like every other Host child: nothing inherited from
+  // the Host's environment (provider keys, agent sockets, loader variables),
+  // no caller-controlled GIT_DIR, alternate objects, config injection, global
   // filters or credential helpers. No Git network command is exposed here.
-  const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith("GIT_")));
-  return { ...env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: "/dev/null", GIT_TERMINAL_PROMPT: "0" };
+  return { PATH: "/usr/bin:/bin", LC_ALL: "C", GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: "/dev/null",
+    GIT_ATTR_NOSYSTEM: "1", GIT_TERMINAL_PROMPT: "0" };
 }
 
-function git(repo, args, { input, signal } = {}) {
+function git(binary, repo, args, { input, signal } = {}) {
   cancelled(signal);
   return new Promise((resolve, reject) => {
     let closed = false;
@@ -45,7 +49,7 @@ function git(repo, args, { input, signal } = {}) {
       if (!closed || !outcome) return;
       if (outcome.error) reject(outcome.error); else resolve(outcome.stdout);
     };
-    const child = execFile("git", ["--no-pager", "--no-replace-objects",
+    const child = execFile(binary, ["--no-pager", "--no-replace-objects",
       "-c", "core.fsync=loose-object,reference", "-c", "core.fsyncMethod=fsync",
       "-c", "core.hooksPath=/dev/null", "-c", "core.fsmonitor=false",
       "-c", "gc.auto=0", "-c", "maintenance.auto=false",
@@ -64,8 +68,10 @@ function git(repo, args, { input, signal } = {}) {
 }
 
 export class ArtifactHistory {
-  constructor(dataDir) {
+  /** `gitBinary` is an absolute path; tests substitute a controlled Git. */
+  constructor(dataDir, { gitBinary = GIT_BINARY } = {}) {
     this.root = path.join(dataDir, "artifact-history");
+    this.gitBinary = gitBinary;
     this.versionCheck = null;
     this.queues = new Map();
     this.initialized = new Set();
@@ -76,7 +82,7 @@ export class ArtifactHistory {
   }
 
   async #requireGit() {
-    this.versionCheck ??= git(null, ["--version"]).then((out) => {
+    this.versionCheck ??= git(this.gitBinary, null, ["--version"]).then((out) => {
       const version = out.toString().match(/git version (\d+)\.(\d+)/);
       if (!version || Number(version[1]) < 2 || (Number(version[1]) === 2 && Number(version[2]) < 36)) {
         throw new ArtifactHistoryError("artifact_store_unavailable");
@@ -100,7 +106,7 @@ export class ArtifactHistory {
     if (!await this.#exists(repo)) throw new ArtifactHistoryError("history_unavailable");
     let objectId;
     try {
-      objectId = (await git(repo, ["rev-parse", "--verify", "--quiet", `refs/content-sha256/${digest}`], { signal })).toString().trim();
+      objectId = (await git(this.gitBinary, repo, ["rev-parse", "--verify", "--quiet", `refs/content-sha256/${digest}`], { signal })).toString().trim();
     } catch (error) {
       if (error.code === 1) throw new ArtifactHistoryError("history_unavailable");
       throw error;
@@ -108,11 +114,11 @@ export class ArtifactHistory {
     if (!SHA256.test(objectId)) throw new ArtifactHistoryError("artifact_integrity_failed");
     let content;
     try {
-      const size = Number((await git(repo, ["cat-file", "-s", objectId], { signal })).toString().trim());
+      const size = Number((await git(this.gitBinary, repo, ["cat-file", "-s", objectId], { signal })).toString().trim());
       if (!Number.isSafeInteger(size) || size !== bytes || size > MAX_BYTES) throw new ArtifactHistoryError("artifact_integrity_failed");
-      const type = (await git(repo, ["cat-file", "-t", objectId], { signal })).toString().trim();
+      const type = (await git(this.gitBinary, repo, ["cat-file", "-t", objectId], { signal })).toString().trim();
       if (type !== "blob") throw new ArtifactHistoryError("artifact_integrity_failed");
-      try { content = await git(repo, ["cat-file", "blob", objectId], { signal }); }
+      try { content = await git(this.gitBinary, repo, ["cat-file", "blob", objectId], { signal }); }
       catch (error) {
         if (error.code === 128) throw new ArtifactHistoryError("artifact_integrity_failed");
         throw error;
@@ -148,10 +154,10 @@ export class ArtifactHistory {
         if (!exists) await mkdir(repo, { recursive: true, mode: 0o700 });
         // Re-init is idempotent and repairs an interrupted first init. A
         // cancelled init never becomes a permanent half-created repository.
-        await git(repo, ["init", "--bare", "--quiet", "--object-format=sha256", "--template=", repo], { signal });
+        await git(this.gitBinary, repo, ["init", "--bare", "--quiet", "--object-format=sha256", "--template=", repo], { signal });
         this.initialized.add(repo);
       }
-      const objectId = (await git(repo, ["hash-object", "-w", "--stdin"], { input: content, signal })).toString().trim();
+      const objectId = (await git(this.gitBinary, repo, ["hash-object", "-w", "--stdin"], { input: content, signal })).toString().trim();
       if (!SHA256.test(objectId)) throw new ArtifactHistoryError("artifact_integrity_failed");
       // Pin every saved value; no automatic ref deletion or GC policy in v1.
       // Existing same-digest refs must already resolve to the same bytes.
@@ -159,7 +165,7 @@ export class ArtifactHistory {
         await this.#read(repo, digest, content.length, signal);
       } catch (error) {
         if (!(error instanceof ArtifactHistoryError) || error.code !== "history_unavailable") throw error;
-        await git(repo, ["update-ref", `refs/content-sha256/${digest}`, objectId, "0".repeat(64)], { signal });
+        await git(this.gitBinary, repo, ["update-ref", `refs/content-sha256/${digest}`, objectId, "0".repeat(64)], { signal });
       }
       await this.#read(repo, digest, content.length, signal);
       cancelled(signal);

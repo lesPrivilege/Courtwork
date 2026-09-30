@@ -1471,7 +1471,9 @@ test("prepared repository writes become unknown after restart and are never repl
     const effect = restarted.getRepositoryWriteEffect(session.id, "unknown-write");
     assert.equal(effect.status, "unknown");
     assert.equal(effect.failure.code, "effect_unknown_after_restart");
-    assert.equal(restarted.getRun(run.run.id).status, "unknown");
+    // The Store closes the Run to more work; the Host's restart settlement
+    // (service.initialize) makes it terminal. See repository-restart-settlement.
+    assert.equal(restarted.getRun(run.run.id).status, "running");
     assert.equal(restarted.getRun(run.run.id).admissionOpen, false);
     assert.ok(restarted.listEvents({ sessionId: session.id, runId: run.run.id }).some(event => event.type === "repository.write.unknown" && event.data.effectId === prepared.effect.effectId));
     const duplicate = await restarted.prepareRepositoryWrite(run.run.id, {

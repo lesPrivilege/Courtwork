@@ -467,6 +467,12 @@ test("summary is allowlisted and read-only; unauthorized and failed reads are er
     const session = await createSession({ title: "allowlist" });
     const created = await api("POST", `/sessions/${session.id}/runs`, { input: "one completed run", commandId: "summary-read-only" });
     await pollRun(created.json.run.id);
+    // A terminal status is written before the Run's own settlement finishes
+    // persisting (question cleanup and the rest of #executeRun's finally).
+    // Snapshot the files only once the Host has released the Run, or a write
+    // still in flight is read as a change and its temp file can vanish.
+    for (let i = 0; i < 200 && runtime.service.active.has(created.json.run.id); i++) await new Promise((resolve) => setTimeout(resolve, 10));
+    assert.equal(runtime.service.active.has(created.json.run.id), false, "the Host released the Run");
     const beforeState = runtime.store.snapshot();
     const beforeFiles = await recursiveSnapshot(dataDir);
     const beforeStateFile = await readFile(path.join(dataDir, "runtime-state.json"));

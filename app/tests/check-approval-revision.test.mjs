@@ -70,7 +70,7 @@ test("runner's final synchronous Host fence prevents actual process side effects
       "require('node:fs').writeFileSync(process.argv[1], 'executed')", marker],
       timeoutMs: 5000, outputLimitBytes: 1024 };
     const rejection = Object.assign(new Error("candidate changed"), { code: "candidate_changed" });
-    await assert.rejects(runCheckRecipe({ recipe, cwd: dir, beforeSpawn: () => { throw rejection; } }),
+    await assert.rejects(runCheckRecipe({ recipe, cwd: dir, dataDir: dir, beforeSpawn: () => { throw rejection; } }),
       error => error === rejection);
     await assert.rejects(readFile(marker), { code: "ENOENT" });
   } finally {
@@ -88,7 +88,7 @@ for (const atCallback of [false, true]) {
       const recipe = { command: process.execPath, argv: ["-e",
         "require('node:fs').writeFileSync(process.argv[1], 'executed'); setTimeout(() => {}, 30000)", marker],
         timeoutMs: 5000, outputLimitBytes: 1024 };
-      const result = await runCheckRecipe({ recipe, cwd: dir, signal: controller.signal,
+      const result = await runCheckRecipe({ recipe, cwd: dir, dataDir: dir, signal: controller.signal,
         beforeSpawn: () => controller.abort() });
       assert.equal(result.cancelled, true);
       assert.equal(result.timedOut, false);
@@ -99,7 +99,7 @@ for (const atCallback of [false, true]) {
       await assert.rejects(readFile(marker), { code: "ENOENT" });
       // A missing command would produce spawn_failed if spawn were attempted.
       const noSpawn = await runCheckRecipe({ recipe: { ...recipe, command: path.join(dir, "missing-command") },
-        cwd: dir, signal: controller.signal });
+        cwd: dir, dataDir: dir, signal: controller.signal });
       assert.equal(noSpawn.cancelled, true);
     } finally {
       await rm(dir, { recursive: true, force: true });

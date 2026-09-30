@@ -106,3 +106,15 @@ test('missing application metadata fails closed; terminal Run cannot change or c
   try {await assert.rejects(broken.start(),{code:'SCHEMA_INVALID'});assert.deepEqual(await readFile(db),bytes);} finally {await broken.close();}
  }
 }));
+
+test('workProjection gives each pending candidate the Core basis verdict and decided ones none',()=>{
+ const matter={id:'m',version:3,source_version:2,contract_version:'c',active_artifact:null,obligations:[]};
+ const candidate=(id,status,over={})=>({id,status,base_version:3,source_version:2,contract_version:'c',evidence:[],...over});
+ const projection=workProjection({matter,candidates:[
+  candidate('current','pending'),candidate('stale','pending',{base_version:2,source_version:1}),candidate('decided','accepted',{source_version:1})],
+  sources:[],decisions:[],runs:[]},{extension:'e'});
+ const byId=Object.fromEntries(projection.candidates.map(c=>[c.id,c]));
+ assert.deepEqual(byId.current.basis,{current:true,reasons:[]});
+ assert.deepEqual(byId.stale.basis,{current:false,reasons:['base_version_changed','source_version_changed']});
+ assert.equal('basis' in byId.decided,false);
+});

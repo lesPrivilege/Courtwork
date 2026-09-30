@@ -934,7 +934,11 @@ def operation(store: Store, request: dict[str, Any], reviewer: TrustedReviewer) 
         return store.save_candidate(candidate)
     if op == "replace_sources":
         p = request_payload(request, {"matter_id", "sources", "revision"})
-        store.replace_source_set(p["matter_id"], p["sources"], p["revision"])
+        # The same source rules as create_matter: a replaced source must be
+        # readable afterwards (non-empty, no NUL, matching digest).
+        if not isinstance(p["sources"], list):
+            raise CoreError("INVALID", "source set must be non-empty list")
+        store.replace_source_set(p["matter_id"], [validate_source(source) for source in p["sources"]], p["revision"])
         return matter_view(store, p["matter_id"])
     if op == "historical_source":
         p = request_payload(request, {"matter_id", "candidate_id", "source_id", "version"})

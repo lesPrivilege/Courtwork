@@ -41,7 +41,11 @@ function runTerminalError(run) {
 }
 function applyRunPatch(run, patch) {
   if (TERMINAL_STATUSES.has(run.status) && Object.hasOwn(patch, "status") && patch.status !== run.status) throw runTerminalError(run);
-  Object.assign(run, structuredClone(patch)); if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now();
+  Object.assign(run, structuredClone(patch));
+  // A Run that is stopping or has ended admits no more work, whatever the patch
+  // said: every admissionOpen-only gate (tools, Spark, Local Pi) relies on it.
+  if (run.status === "stopping" || TERMINAL_STATUSES.has(run.status)) run.admissionOpen = false;
+  if (TERMINAL_STATUSES.has(run.status)) run.endedAt ??= now();
 }
 const RUN_STATUSES = new Set([...ACTIVE_STATUSES, ...TERMINAL_STATUSES]);
 const PERMISSION_MODES = new Set(["read_only", "draft", "ask"]);
@@ -440,7 +444,7 @@ function validateOperations(value, sessions) {
   }
 }
 
-function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = true } = {}) {
+function validateState(parsed, schema = SCHEMA_VERSION) {
   assert(isRecord(parsed), "state must be an object");
   assert(parsed.schemaVersion === schema, `schemaVersion ${JSON.stringify(parsed.schemaVersion)} is not supported (this build requires ${SCHEMA_VERSION}; only validated schema 3 through 21 can be upgraded)`);
   exactKeys(parsed, new Set([...STATE_KEYS].filter(k => (schema >= 15 || k !== 'subagents') && (schema >= 5 || k !== 'asyncTasks') && (schema >= 8 || k !== 'coordination') && (schema >= 10 || k !== 'providerConnections') && (schema >= 11 || k !== 'providerConfigurationPending') && (schema >= 12 || (k !== 'providerConfigVersion' && k !== 'providerVerifications')) && (schema >= 18 || k !== 'operations'))), "state");
@@ -499,7 +503,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     id(run.id, "run.id"); assert(!runIds.has(run.id), "duplicate run id"); runIds.add(run.id);
     assert(sessionIds.has(run.sessionId), "run references missing session");
     assert(RUN_STATUSES.has(run.status), "run.status is invalid"); assert(typeof run.admissionOpen === "boolean", "run.admissionOpen is invalid");
-    id(run.adapterId, "run.adapterId"); validateDescriptor(run.provider, "run.provider", { allowRealProvider: true, schema, legacy: legacyDescriptors });
+    id(run.adapterId, "run.adapterId"); validateDescriptor(run.provider, "run.provider", { allowRealProvider: true, schema, legacy: true });
     if (run.extension !== null) {
       exactKeys(run.extension, new Set(["id", "version", "generation"]), "run.extension");
       id(run.extension.id, "run.extension.id"); id(run.extension.version, "run.extension.version");
@@ -546,12 +550,12 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
       assert(TERMINAL_STATUSES.has(target.status), "run.supersedes names a Run that has not ended");
     }
   }
-  const eventSeq = new Map();
+  const eventSeq = new Map(), runOfEvent = new Map(parsed.runs.map((run) => [run.id, run]));
   for (const event of parsed.events) {
     exactKeys(event, new Set(["seq", "runId", "sessionId", "type", "data"]), "event");
     assert(Number.isSafeInteger(event.seq) && event.seq > 0, "event.seq is invalid");
     assert(sessionIds.has(event.sessionId) && runIds.has(event.runId), "event references missing record");
-    const run = parsed.runs.find((candidate) => candidate.id === event.runId);
+    const run = runOfEvent.get(event.runId);
     assert(run?.sessionId === event.sessionId, "event run/session mismatch");
     text(event.type, "event.type", 80); assert(isRecord(event.data), "event.data must be an object");
     const previous = eventSeq.get(event.sessionId) ?? 0; assert(event.seq === previous + 1, "event sequence is not contiguous"); eventSeq.set(event.sessionId, event.seq);
@@ -617,7 +621,7 @@ function validateState(parsed, schema = SCHEMA_VERSION, { legacyDescriptors = tr
     timestamp(question.createdAt, "question.createdAt");
   }
   nonNegativeInt(parsed.credentialGeneration, "state.credentialGeneration");
-  if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig", { schema, legacy: legacyDescriptors });
+  if (parsed.providerConfig !== null) validateDescriptor(parsed.providerConfig, "providerConfig", { schema, legacy: true });
   for (const record of parsed.extensionRecords) assert(isRecord(record), "extension record is invalid");
   if (schema >= 5) validateAsyncTasks(parsed.asyncTasks, parsed);
   if (schema >= 15) validateSubagents(parsed.subagents,parsed);
@@ -884,7 +888,7 @@ export class RuntimeStore {
               repositoryCandidateSnapshot: parsed.schemaVersion >= 17 ? run.repositoryCandidateSnapshot : null,
               remoteBinding: parsed.schemaVersion >= 19 ? run.remoteBinding : null,
               kitBinding: parsed.schemaVersion >= 21 ? run.kitBinding : null })) };
-          const upgraded = validateState(migrateExecutorState(candidate), SCHEMA_VERSION, { legacyDescriptors: true });
+          const upgraded = validateState(migrateExecutorState(candidate), SCHEMA_VERSION);
           const digest = createHash('sha256').update(rawState).digest('hex');
           const backup = path.join(this.dataDir, `runtime-state.schema${parsed.schemaVersion}.${digest}.json`);
           await writeFile(backup, rawState, { flag: 'wx', mode: 0o600 });
@@ -908,10 +912,10 @@ export class RuntimeStore {
               effect.settledAt = now();
               effect.failure = { code: "effect_unknown_after_restart", message: "The prepared repository write may have completed before the Host stopped" };
               const run = this.state.runs.find(item => item.id === effect.runId);
-              if (run && !TERMINAL_STATUSES.has(run.status)) {
-                run.status = "unknown"; run.admissionOpen = false; run.endedAt = effect.settledAt;
-                run.error = { code: "repository_write_unknown", message: "A repository write needs reconciliation before more writes" };
-              }
+              // The Store fences the effect and closes the Run to more work;
+              // the Host's restart settlement ends the Run with its partial
+              // text, status event and the most specific unknown reason.
+              if (run && !TERMINAL_STATUSES.has(run.status)) run.admissionOpen = false;
               if (run) appendEventToState(this.state, { runId: run.id, sessionId: session.id, type: "repository.write.unknown", data: { effectId: effect.effectId, requestId: effect.requestId, candidateId: effect.candidateId, path: effect.path, code: effect.failure.code } });
               recovered = true;
             }
@@ -1024,7 +1028,7 @@ export class RuntimeStore {
       assert(scope === 'project' || scope === 'global' || scope === 'unassigned', 'session scope is invalid');
       if (scope === 'project' && !state.projects.some((project) => project.id === projectId)) throw new Error("project not found");
       assert(scope === 'project' || projectId === null, 'unassigned/global session project must be null');
-      assert(scope !== 'unassigned' || (typeof workspaceDir === 'string' && workspaceDir.length > 0), 'session workspace is required');
+      assert(typeof workspaceDir === 'string' && workspaceDir.length > 0 && workspaceDir.length <= 4000, 'session workspace is required');
       const existing = state.sessions.find(session => session.id === sessionId);
       if (existing) {
         // Identity replay never mutates a recovered title, binding or permissions.
@@ -1523,11 +1527,13 @@ export class RuntimeStore {
       assertSessionNotReferencedBySubagents(state, sessionId);
       const runs = state.runs.filter(r => r.sessionId === sessionId);
       if (runs.some(r => ACTIVE_STATUSES.has(r.status))) throw new Error("active run exists");
+      if (state.operations.some(op => op.sessionId === sessionId && OPERATION_ACTIVE.has(op.status))) { const error = new Error("operation in progress"); error.code = "OPERATION_ACTIVE"; throw error; }
       const ids = new Set(runs.map(r => r.id));
       state.sessions = state.sessions.filter(s => s.id !== sessionId);
       state.runs = state.runs.filter(r => !ids.has(r.id));
       state.events = state.events.filter(e => e.sessionId !== sessionId);
       state.questions = state.questions.filter(q => !ids.has(q.runId));
+      state.operations = state.operations.filter(op => op.sessionId !== sessionId);
       return {deleted:true,sessionId,workspaceRetained:true};
     });
   }
@@ -1794,11 +1800,18 @@ export class RuntimeStore {
     return this._mutate((state) => {
       const run = state.runs.find((item) => item.id === runId); if (!run) throw new Error("run not found");
       if (TERMINAL_STATUSES.has(run.status)) throw runTerminalError(run);
+      // Checked in the same queued mutation: a cancel that queued first has
+      // closed admission, and a question must not move `stopping` back to
+      // `waiting_user`.
+      if (!run.admissionOpen) { const error = new Error("run admission is closed"); error.code = "RUN_ADMISSION_CLOSED"; throw error; }
       const question = { id: randomUUID(), runId, kind, prompt, payload: payload ? structuredClone(payload) : null, status: "pending", answer: null, decision: null, createdAt: now() };
-      state.questions.push(question); run.status = "waiting_user";
+      state.questions.push(question);
       const eventType = kind === "permission" ? "permission.open" : "question.open";
       appendEventToState(state, { runId, sessionId: run.sessionId, type: eventType, data: kind === "permission" ? { id: question.id, kind, ...payload } : { id: question.id, kind, prompt } });
-      appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "waiting_user" } });
+      if (run.status !== "waiting_user") {
+        run.status = "waiting_user";
+        appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "waiting_user" } });
+      }
       return question;
     });
   }
@@ -1819,10 +1832,15 @@ export class RuntimeStore {
           throw error;
         }
       }
-      question.status = "resolved"; question.answer = answer; question.decision = decision; run.status = "running";
+      question.status = "resolved"; question.answer = answer; question.decision = decision;
       const eventType = question.kind === "permission" ? "permission.resolved" : "question.resolved";
       appendEventToState(state, { runId, sessionId: run.sessionId, type: eventType, data: question.kind === "permission" ? { id: questionId, kind: question.kind, decision } : { id: questionId, kind: question.kind, answer } });
-      appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "running" } });
+      // Parallel tool calls can hold several questions open: the Run waits on a
+      // person until the last of them is answered.
+      if (!state.questions.some((item) => item.runId === runId && item.status === "pending")) {
+        run.status = "running";
+        appendEventToState(state, { runId, sessionId: run.sessionId, type: "run.status", data: { status: "running" } });
+      }
       return question;
     });
   }

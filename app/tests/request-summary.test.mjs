@@ -81,7 +81,7 @@ async function storeFixture() {
   const dataDir = await mkdtemp(path.join(tmpdir(), "cw-b2-store-"));
   const store = await new RuntimeStore({ dataDir }).open();
   const project = await store.createProject("p");
-  const session = await store.createSession({ projectId: project.id, title: "s" });
+  const session = await store.createSession({ projectId: project.id, title: "s", workspaceDir: path.join(dataDir, "ws") });
   const { run } = await store.createRun({
     sessionId: session.id, input: "i", adapterId: "a",
     provider: { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions", realProvider: false },

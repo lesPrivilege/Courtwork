@@ -70,8 +70,21 @@ export class MCPManager {
     // Redirects could silently change the trusted endpoint. Authenticated
     // OAuth/bearer transports are a separate future SecretStore adapter.
     const transport = new StreamableHTTPClientTransport(new URL(config.url), {
+      // A deadline for response headers only. A deadline over the whole
+      // response also covered bodies, cutting every tool call over 15 s
+      // (despite its 60 s call timeout) and the legacy standalone SSE stream;
+      // no deadline at all left requests the SDK does not time out (the legacy
+      // initialized notification) able to hang connect forever. Bodies stream
+      // under the SDK timeouts below (connect, list, call) and callers' signals.
       requestInit: { redirect: 'error' }, onInsufficientScope: 'throw',
-      fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.any([...(init?.signal ? [init.signal] : []), AbortSignal.timeout(15000)]) }),
+      fetch: async (url, init) => {
+        let call = false;
+        try { call = JSON.parse(init?.body)?.method === 'tools/call'; } catch { /* not a JSON-RPC body */ }
+        const headers = new AbortController();
+        const timer = setTimeout(() => headers.abort(new Error('MCP response headers timed out')), call ? 65_000 : 15_000);
+        try { return await fetch(url, { ...init, signal: init?.signal ? AbortSignal.any([init.signal, headers.signal]) : headers.signal }); }
+        finally { clearTimeout(timer); }
+      },
     });
     const entry = { client, hash: digest(resource.content), connected: false, health: 'healthy', protocol: config.protocol, tools: [], resources: [], prompts: [], diagnostic: null };
     this.connections.set(resource.id, entry);

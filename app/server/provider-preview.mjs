@@ -1,4 +1,6 @@
-// Ephemeral directory probes deliberately have no runtime/store/credential dependencies.
+// Ephemeral directory probes deliberately have no runtime/store/credential
+// dependencies; provider-fields.mjs is pure field rules.
+import { PROVIDER_API_KEY_MIN_LENGTH } from './provider-fields.mjs';
 export const PREVIEW_LIMITS = Object.freeze({ timeoutMs: 5000, responseBytes: 262144, models: 1000, modelId: 240 });
 export class PreviewInputError extends Error {}
 const reasons = Object.freeze({
@@ -20,7 +22,8 @@ function validate(input) {
   let url;
   try { url = new URL(input.baseUrl); } catch { invalid(); }
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash || input.baseUrl.split('/')[2].includes('@')) invalid();
-  if (input.apiKey !== undefined && (typeof input.apiKey !== 'string' || input.apiKey.length > 4096 || !/^[\x21-\x7e]+$/.test(input.apiKey))) invalid();
+  // The same minimum as a saved key: shorter keys cannot be redacted from echoes.
+  if (input.apiKey !== undefined && (typeof input.apiKey !== 'string' || input.apiKey.length < PROVIDER_API_KEY_MIN_LENGTH || input.apiKey.length > 4096 || !/^[\x21-\x7e]+$/.test(input.apiKey))) invalid();
   url.pathname = url.pathname.replace(/\/+$/, '') + '/models';
   return { url, apiKey: input.apiKey };
 }

@@ -65,7 +65,9 @@ Import a skill with YAML frontmatter `name` and `description`, followed by Markd
 {"schemaVersion":1,"version":"1.0.0","resourceIds":["tool:ws_read","tool:runtime_load","local:writing"],"rules":[{"action":"*","resource":"*","effect":"ask"}],"uiSlots":["runtime.inspector"]}
 ```
 
-Select it with `operation:"profile"`, its `local:` ID and a scope; select `agent:general` explicitly or `null` to inherit. Selection is separate from exposure.
+Select it with `operation:"profile"`, its `local:` ID and a scope; select `agent:general` explicitly or `null` to inherit. Selection is separate from exposure. A profile applies only inside its own scope, so it can be selected only at a scope its own scope contains: a user profile anywhere in the Session's chain, a workspace or Attention profile at that scope or at the Session, a session profile only at that same Session. Otherwise `409 profile_scope_conflict`.
+
+Deleting a Session removes every entry scoped to it (resources, exposure overrides, policies, profile selections, and overrides/selections naming a removed resource) in one revision with audit operation `session_removed`; Host startup removes entries left for Sessions that no longer exist. See `DELETE /sessions/:id` in [api-v6](../../app/docs/api-v6.md).
 
 Profile source v2 retains these fields and requires `kits`, an array of0–8 exact
 `{descriptor,descriptorSha256}` declarations from the [reference-only Kit contract](../../engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md).
@@ -202,6 +204,8 @@ Resource `provenance[]` also records enforced parent gates with `parentId` and r
 The pinned MCP client 2.0.0 aggregates catalog pages for both supported protocol modes. Host validates each decoded page before aggregation: unique tool/prompt names and resource URIs, at most 100 entries per catalog, a combined 200,000 UTF-8 byte page budget, and no repeated cursor. The SDK retains its 64-page limit, protocol checks and header-tool filtering. These limits apply after SDK response decoding; they are not a streaming transport memory bound.
 
 Catalog publication is atomic, including the final mapped descriptor byte check. Failed discovery exposes no partial catalog. Connect reserves a new connection identity before asynchronous close/discovery; superseded or disconnected discovery cannot publish or report the replacement as its own success. Reconnect is explicit and does not replay tool calls.
+
+Response headers must arrive within 15 s (65 s for `tools/call`); bodies then stream under the SDK request timeouts (connect and list 15 s, call 60 s) and the caller's signal.
 
 ### Harness P02 · MCP effect uncertainty (2026-09-12)
 

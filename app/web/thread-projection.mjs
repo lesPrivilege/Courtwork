@@ -232,7 +232,7 @@ export function toolStateWord(row, status) {
   if (row.check) return checkStateWord(row.check);
   if (row.isError) return "Failed";
   if (row.phase === "result") return null;
-  if (["created", "running", "waiting_user", "stopping"].includes(status))
+  if (["running", "waiting_user", "stopping"].includes(status))
     return status === "waiting_user" ? "Waiting for you" : status === "stopping" ? "Stopping" : "Working";
   return unfinishedToolWord(status);
 }

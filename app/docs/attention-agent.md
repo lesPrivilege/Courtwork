@@ -28,7 +28,7 @@ The exact Session scope is captured in `runtime.bound`; new Runtime binding hash
 
 - `attention_projects`: bounded project directory; source identity only.
 - `attention_list(project_id,offset?,limit?)`: existing Core Attention registry, under runtime actor, captured global Session/Run and explicit target project.
-- `attention_inspect(project_id,attention_id,expected_revision?)`: existing disclosure-filtered detail. No human action or grant setter is exposed to the model.
+- `attention_inspect(project_id,attention_id,expected_revision?)`: existing disclosure-filtered detail. Matter source refs appear only when the target Matter's own disclosure grants this runtime `sources` for that current source version; an Attention sources grant alone does not reveal them. No human action or grant setter is exposed to the model.
 - `memory_list(offset?,limit?,session_id?)`: without Session, retained conversation source metadata; with Session, user/assistant message identities (event sequence, role, character count, SHA-256). Limit 1–50. No drafts, tool payloads or synthesized facts.
 - `memory_read(session_id,event_seq,sha256,offset?,limit?)`: exact retained message text, max 16,000 UTF-16 units/page, with nextOffset and authority `historical-statement`. Missing/deleted sources or mismatched hash refuse; no current-file substitution. Concatenating pages reconstructs the original string. Historical coverage is explicitly unknown.
 

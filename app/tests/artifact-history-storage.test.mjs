@@ -33,13 +33,11 @@ test("history cancellation waits for the Git process to exit and the next save r
   const bin = path.join(dir, "bin"); await mkdir(bin);
   const pidPath = path.join(dir, "git.pid");
   await writeFile(path.join(bin, "git"), `#!${process.execPath}\nimport fs from 'node:fs';\nif(process.argv.includes('--version')) { console.log('git version 2.50.1'); process.exit(0); }\nfs.writeFileSync(${JSON.stringify(pidPath)}, String(process.pid));\nsetTimeout(()=>{},30000);\n`, { mode: 0o700 });
-  const priorPath = process.env.PATH;
   const controller = new AbortController();
-  const history = new ArtifactHistory(dir);
+  const history = new ArtifactHistory(dir, { gitBinary: path.join(bin, "git") });
   const value = Buffer.from("cancelled init can be retried");
   let outcome;
   try {
-    process.env.PATH = bin + path.delimiter + priorPath;
     const task = history.save("session", value, digest(value), { signal: controller.signal });
     outcome = task.then(() => null, (error) => error);
     let pid;
@@ -52,12 +50,11 @@ test("history cancellation waits for the Git process to exit and the next save r
     controller.abort();
     assert.equal((await outcome)?.name, "AbortError");
     assert.throws(() => process.kill(pid, 0), { code: "ESRCH" }, "cancel settles after process exit");
-    process.env.PATH = priorPath;
-    await history.save("session", value, digest(value));
-    assert.deepEqual(await history.read("session", digest(value), value.length), value);
+    const repaired = new ArtifactHistory(dir);
+    await repaired.save("session", value, digest(value));
+    assert.deepEqual(await repaired.read("session", digest(value), value.length), value);
   } finally {
     controller.abort(); await outcome;
-    process.env.PATH = priorPath;
     await rm(dir, { recursive: true, force: true });
   }
 });
@@ -73,4 +70,25 @@ test("history cancellation waits for the Git process to exit and the next save r
     await exec("git", ["--git-dir", repo, "update-ref", `refs/content-sha256/${hash}`, oid.trim()]);
     await assert.rejects(history.read("one", hash, 0), { code: "artifact_integrity_failed" });
   } finally { await rm(dir, { recursive: true, force: true }); }
+});
+
+test("history Git runs with a closed environment: nothing inherited from the Host", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "se-history-env-"));
+  const bin = path.join(dir, "bin"); await mkdir(bin);
+  const envPath = path.join(dir, "git.env");
+  await writeFile(path.join(bin, "git"), `#!${process.execPath}\nimport fs from 'node:fs';\nfs.writeFileSync(${JSON.stringify(envPath)}, JSON.stringify(process.env));\nconsole.log('git version 2.50.1');\n`, { mode: 0o700 });
+  process.env.SE_HISTORY_ENV_PROBE_API_KEY = "must-not-reach-git";
+  try {
+    const history = new ArtifactHistory(dir, { gitBinary: path.join(bin, "git") });
+    const value = Buffer.from("x");
+    await history.save("one", value, digest(value)).catch(() => {});
+    const seen = JSON.parse(await readFile(envPath, "utf8"));
+    assert.equal(seen.SE_HISTORY_ENV_PROBE_API_KEY, undefined);
+    assert.deepEqual(Object.keys(seen).filter((key) => !key.startsWith("__CF")).sort(),
+      ["GIT_ATTR_NOSYSTEM", "GIT_CONFIG_GLOBAL", "GIT_CONFIG_NOSYSTEM", "GIT_TERMINAL_PROMPT", "LC_ALL", "PATH"]);
+    assert.equal(seen.PATH, "/usr/bin:/bin"); assert.equal(seen.LC_ALL, "C"); assert.equal(seen.GIT_CONFIG_GLOBAL, "/dev/null");
+  } finally {
+    delete process.env.SE_HISTORY_ENV_PROBE_API_KEY;
+    await rm(dir, { recursive: true, force: true });
+  }
 });

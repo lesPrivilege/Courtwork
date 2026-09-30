@@ -41,10 +41,8 @@ test('manifest is machine-marked development and advertises generic binding fiel
   assert.deepEqual(evidenceManifest.declaredTools, ['se_read_source', 'se_submit_candidate', 'se_read_artifact']);
 });
 
-test('legacy transport import resolves the single shared Core owner', async () => {
-  const legacy = await import('../app/extensions/evidence-memo/server/core-client.mjs');
+test('the shared Core client owns the bridge path', async () => {
   const shared = await import('../app/core/client.mjs');
-  assert.equal(legacy.CoreClient, shared.CoreClient);
   assert.match(shared.BRIDGE_PATH, /app.core.bridge.py$/);
 });
 

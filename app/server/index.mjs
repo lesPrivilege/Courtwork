@@ -7,9 +7,15 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createRuntime } from "./runtime.mjs";
 import { AsyncTaskError } from './async-task-state.mjs';
 import { catalog } from "../extensions/catalog.mjs";
-import { ServiceError } from "./service.mjs";
+import { ServiceError, MAX_MATERIAL_BYTES } from "./service.mjs";
 
 const MAX_BODY = 1024 * 1024;
+// A material's limit is on its UTF-8 bytes; its JSON request is larger. The
+// widest legal JSON spelling of any UTF-8 byte is a six-character \u00XX
+// escape (multi-byte characters escape to at most 12 characters per 4 bytes),
+// so 6x the material limit plus a 64 KiB envelope for name, commandId and
+// whitespace lets every material the service would accept reach it.
+const MAX_MATERIAL_BODY = 6 * MAX_MATERIAL_BYTES + 64 * 1024;
 const APP_ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const STATIC = new Map([
   ["/", { file: path.join(APP_ROOT, "web", "index.html"), type: "text/html; charset=utf-8" }],
@@ -72,18 +78,19 @@ function decodePart(value) {
   try { return decodeURIComponent(value); } catch { throw new ServiceError(400, "invalid_path", "request path is invalid"); }
 }
 
-async function body(req) {
+// An over-limit body is read to its end and discarded (constant memory) so the
+// client, still uploading, can read the typed 413 instead of a reset socket.
+// Past MAX_DISCARD the upload is abandoned and the socket is destroyed.
+const MAX_DISCARD = 256 * 1024 * 1024;
+async function body(req, limit = MAX_BODY) {
   let size = 0;
   const chunks = [];
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > MAX_BODY) {
-      const error = new ServiceError(413, "body_too_large", "request body is too large");
-      req.destroy();
-      throw error;
-    }
-    chunks.push(chunk);
+    if (size > MAX_DISCARD) { req.destroy(); break; }
+    if (size <= limit) chunks.push(chunk);
   }
+  if (size > limit) throw new ServiceError(413, "body_too_large", "request body is too large");
   if (!chunks.length) return {};
   const contentType = String(req.headers["content-type"] ?? "").split(";")[0].trim().toLowerCase();
   if (contentType !== "application/json") throw new ServiceError(415, "content_type", "JSON content type is required");
@@ -204,7 +211,7 @@ function routeService(service, req, url) {
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "materials" && method === "GET") return () => service.listMaterials(tail[1], url.searchParams);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "materials" && tail[3] === "compare" && method === "GET") return () => service.compareMaterials(tail[1], url.searchParams);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "materials" && tail[3] === "file" && method === "GET") return () => service.getMaterialFile(tail[1], url.searchParams);
-  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "materials" && method === "POST") return async () => service.addMaterial(tail[1], await body(req));
+  if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "materials" && method === "POST") return async () => service.addMaterial(tail[1], await body(req, MAX_MATERIAL_BODY));
   if (tail.length === 3 && tail[0] === "sessions" && tail[2] === "workspace" && method === "GET") return () => service.getWorkspaceTree(tail[1]);
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "workspace" && tail[3] === "file" && method === "GET") return () => service.getWorkspaceFile(tail[1], url.searchParams.get("path") ?? "");
   if (tail.length === 4 && tail[0] === "sessions" && tail[2] === "artifacts" && tail[3] === "file" && method === "GET") return () => service.getArtifactFile(tail[1], url.searchParams);

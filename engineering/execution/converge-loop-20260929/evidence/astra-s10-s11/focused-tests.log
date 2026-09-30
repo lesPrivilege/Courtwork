@@ -1,0 +1,27 @@
+✔ independent recovery: SIGKILL at async_intent keeps one original task/run and never relaunches (1099.370833ms)
+✔ independent recovery: SIGKILL at async_dispatch keeps one original task/run and never relaunches (1071.9425ms)
+✔ independent recovery: SIGKILL at async_result keeps one original task/run and never relaunches (1445.1405ms)
+✔ independent recovery: SIGKILL at async_delivery keeps one original task/run and never relaunches (1211.349333ms)
+✔ fixed old main schema4 RuntimeStore rejects a schema17 state without changing bytes (1120.894084ms)
+✔ schema3 and schema4 migrate with an exact independent backup and reopen (1154.224167ms)
+✔ invalid UTF-8 schema4 input is refused before migration and its bytes remain untouched (90.529291ms)
+✔ cancel does not settle while a SIGTERM-ignoring detached descendant survives (120.311875ms)
+✔ timeout does not settle while a SIGTERM-ignoring detached descendant survives (435.027458ms)
+✔ normal exit sends no signal to the group (108.630375ms)
+✔ a check's process group dies with a Host that was killed mid-check (173.033667ms)
+✔ CMP-01 · a manual compaction on an idle chat writes one summary through the SDK, records estimate and usage apart, and the next Run reads the compacted journal (2606.016ms)
+✔ CMP-01 · refusals are explicit: active Run (not queued, not aborted), a second compaction, no history, unknown keys; and a compaction freezes configuration (1997.520292ms)
+✔ CMP-01 · cancel and deadline settle without a partial summary; a restart marks an in-flight compaction unknown and the same requestId reads it back (1001.644459ms)
+✔ CMP-01 · deleting a compacted chat removes its compaction records and the Host starts again (553.747833ms)
+✔ CMP-01 · compaction is refused on a provider route a Run would refuse (142.225625ms)
+✔ CMP-01 · closing the Host settles a running compaction before releasing the data (469.973042ms)
+✔ an interrupted repository write is settled by the Host restart (199.990916ms)
+✔ an interrupted repository write beside an unsettled MCP dispatch is settled by the Host restart (171.051458ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29825.05975

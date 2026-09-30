@@ -288,6 +288,44 @@ test("T-USAGE-4: a retried provider call is surfaced as a notice and counted onc
   }
 });
 
+// T-USAGE-5b: one turn asks two questions at once (Pi runs a turn's tool calls
+// in parallel). Answering the first must not restart the deadline while the
+// second still waits on a person.
+test("T-USAGE-5b: with two open questions, the deadline stays paused until the last is answered", async () => {
+  const asked = (body) => (body?.messages ?? []).some((m) => m.role === "tool");
+  const { runtime, api, createSession, pollRun } = await boot({ budget: { deadlineMs: 300, maxTurns: 40 }, fakeResponder: ({ body }) => asked(body) ? null : {
+    kind: "tool", id: "two-questions", created: 1, calls: [
+      { toolCallId: "ask-first", name: "ask_user", arguments: { prompt: "first" } },
+      { toolCallId: "ask-second", name: "ask_user", arguments: { prompt: "second" } },
+    ] } });
+  try {
+    const session = await createSession();
+    const created = await api("POST", `/sessions/${session.id}/runs`, { input: "ask me twice", commandId: "cmd-two" });
+    const runId = created.json.run.id;
+    let opened = [];
+    for (let i = 0; i < 100 && opened.length < 2; i++) {
+      await delay(25);
+      opened = (await api("GET", `/sessions/${session.id}/events`)).json.events.filter((e) => e.type === "question.open");
+    }
+    assert.equal(opened.length, 2, "both questions are open at once");
+    assert.equal((await api("POST", `/runs/${runId}/questions/${opened[0].data.id}`, { answer: "one" })).status, 200);
+
+    // Several times the 300ms budget, with the second question still open.
+    await delay(1200);
+    assert.equal((await api("GET", `/runs/${runId}`)).json.run.status, "waiting_user", "the remaining question still pauses the deadline");
+    assert.equal((await api("POST", `/runs/${runId}/questions/${opened[1].data.id}`, { answer: "two" })).status, 200);
+
+    const finished = await pollRun(runId, { timeoutMs: 15_000 });
+    assert.equal(finished.status, "completed", JSON.stringify(finished.error));
+    const errors = (await api("GET", `/sessions/${session.id}/events`)).json.events.filter((e) => e.type === "run.error");
+    assert.deepEqual(errors, [], "no budget_exceeded");
+    const statuses = (await api("GET", `/sessions/${session.id}/events`)).json.events.filter((e) => e.type === "run.status").map((e) => e.data.status);
+    assert.deepEqual(statuses, ["running", "waiting_user", "running", "completed"], "one wait on a person, left when the last question is answered");
+  } finally {
+    await runtime.close();
+  }
+});
+
 // T-USAGE-5: a question left open far longer than the execution deadline, then
 // answered. The budget never fires (waiting_user does not consume it), the run
 // completes, and its usage is complete rather than marked missing.

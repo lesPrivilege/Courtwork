@@ -335,13 +335,6 @@ export const fixtures = deepFreeze({
 
 // Lowercase aliases are convenient for callers that treat fixtures as data;
 // uppercase names above make the frozen test corpus obvious in imports.
-export const syntheticSources = SYNTHETIC_SOURCES;
-export const normalFacts = NORMAL_FACTS;
-export const goldFixtures = GOLD_FIXTURES;
-export const developmentFixtures = DEVELOPMENT_FIXTURES;
-export const holdoutFixtures = HOLDOUT_FIXTURES;
-export const hashManifest = HASH_MANIFEST;
 export const gold = GOLD_FIXTURES;
 export const development = DEVELOPMENT_FIXTURES;
 export const holdout = HOLDOUT_FIXTURES;
-export const fixtureManifest = HASH_MANIFEST;

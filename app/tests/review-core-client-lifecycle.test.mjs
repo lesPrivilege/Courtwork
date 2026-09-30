@@ -14,9 +14,13 @@ const WORKER = fileURLToPath(new URL('./fixtures/review-core-client/worker.py', 
 const TIMEOUT = Symbol('timeout');
 const BASE_OPTIONS = {
   python: WORKER,
-  // Keep ordinary fixture startup independent from host CPU contention while
-  // the no-ready case overrides this to a deliberately short deadline.
-  readyTimeoutMs: 2_000,
+  // Ordinary fixture startup must not race the deadline. WORKER is exec'd
+  // directly, and on macOS the first exec of a freshly created executable is
+  // checked by the system: 0.25-0.6 s idle and several seconds when many fresh
+  // executables start at once, as in a first full run of a new worktree. A 2 s
+  // deadline failed the second test there. The no-ready case overrides this to
+  // a deliberately short deadline.
+  readyTimeoutMs: 30_000,
   requestTimeoutMs: 100,
   closeTimeoutMs: 40,
   maxPending: 256,

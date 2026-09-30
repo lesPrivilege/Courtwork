@@ -170,7 +170,9 @@ test("runCheckRecipe timeout kills the whole process group, including a nested c
     "process.stdout.write('child-pid ' + child.pid + '\\n');",
     "setTimeout(() => {}, 30000);",
   ].join("\n");
-  const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 300, outputLimitBytes: 4096 };
+  // Long enough for the guard, the sandbox, the check and its child to start
+  // and announce their pids under load; the check itself would run for 30 s.
+  const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 1500, outputLimitBytes: 4096 };
   const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.timedOut, true);
   assert.equal(result.cancelled, false);
@@ -189,11 +191,12 @@ test("runCheckRecipe cancels on abort and resolves only after the group has exit
     "setTimeout(() => {}, 30000);",
   ].join("\n");
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 30000, outputLimitBytes: 4096 };
-  // Cancel once the process has announced itself, not after a fixed delay:
-  // how long the sandbox takes to start is not part of this test.
-  let announced; const running = new Promise(resolve => { announced = resolve; });
-  const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir, signal: controller.signal, onOutput: announced });
-  await running;
+  // Cancel once the check has announced itself, not after a fixed delay: how
+  // long the guard and the sandbox take to start is not part of this test.
+  let announced;
+  const started = new Promise(resolve => { announced = resolve; });
+  const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir, signal: controller.signal, onOutput: ({ stream }) => { if (stream === "stdout") announced(); } });
+  await started;
   controller.abort();
   const result = await resultPromise;
   assert.equal(result.cancelled, true);

@@ -225,9 +225,6 @@ export interface AgentsApiRuntimeAdapter {
   close(binding: AgentsApiBinding): void;
 }
 
-/** Capability row display rule, frozen with this slice. */
-export declare const AGENTS_API_EXPOSURE_RULE: 'unverified capabilities are unavailable; only live-verified capabilities may be exposed';
-
 export declare const AGENTS_API_PROTOCOL: {
   id: 'openai-agents-api';
   betaHeader: 'agents=v1';

@@ -189,8 +189,15 @@ export function validateKitBinding(summary) {
   return structuredClone(summary);
 }
 
-function runtimeBoundEvents(state, runId) {
-  return state.events.filter(event => event.runId === runId && event.type === "runtime.bound");
+/** One pass over the events: runtime.bound events grouped by Run. */
+function runtimeBoundByRun(state) {
+  const byRun = new Map();
+  for (const event of state.events) {
+    if (event.type !== "runtime.bound") continue;
+    const list = byRun.get(event.runId);
+    if (list) list.push(event); else byRun.set(event.runId, [event]);
+  }
+  return byRun;
 }
 
 function validateBoundSnapshot(data, run, summary) {
@@ -254,8 +261,9 @@ function validateBoundSnapshot(data, run, summary) {
 /** Validate cross-record Kit authority and immutable Store transitions. */
 export function validateKitBindings(state, previousState = null) {
   if (!state || !Array.isArray(state.runs) || !Array.isArray(state.events)) invalid("Kit binding state is invalid");
+  const boundByRun = runtimeBoundByRun(state);
   for (const run of state.runs) {
-    const bound = runtimeBoundEvents(state, run.id);
+    const bound = boundByRun.get(run.id) ?? [];
     if (run.kitBinding === null) {
       if (bound.some(event => event.data?.kitBinding !== undefined && event.data.kitBinding !== null)) invalid("a non-Kit Run cannot have runtime.bound Kit authority");
       // On load there is no previous state to compare. Removing both summary
@@ -278,14 +286,16 @@ export function validateKitBindings(state, previousState = null) {
 
   if (previousState) {
     const currentRuns = new Map(state.runs.map(run => [run.id, run]));
+    let previousBoundByRun = null;
     for (const previousRun of previousState.runs) {
       const currentRun = currentRuns.get(previousRun.id);
       if (!currentRun) continue;
       if ((previousRun.kitBinding !== null || currentRun.kitBinding !== null)
         && !isDeepStrictEqual(currentRun.kitBinding, previousRun.kitBinding)) invalid("an existing Run Kit binding is immutable");
       if (previousRun.kitBinding !== null) {
-        const previousEvents = runtimeBoundEvents(previousState, previousRun.id);
-        const currentEvents = runtimeBoundEvents(state, previousRun.id);
+        previousBoundByRun ??= runtimeBoundByRun(previousState);
+        const previousEvents = previousBoundByRun.get(previousRun.id) ?? [];
+        const currentEvents = boundByRun.get(previousRun.id) ?? [];
         if (!isDeepStrictEqual(currentEvents, previousEvents)) invalid("an existing Kit runtime.bound event is immutable");
       }
     }
