@@ -6,6 +6,7 @@ import { DIFF_PREVIEW } from "./diff-fixture.mjs";
 import { activeRunFreezeNotice, effortSelectable, isActiveRunRefusal, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
 export { PROVIDER_CONFIG_FIELDS, effortSelectable, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
 import { renderAvatar } from "./avatar-mark.mjs";
+import { createModelIdEntry } from "./model-id-entry.mjs";
 import { homeGreeting } from "./home-greeting.mjs";
 
 /* WK-27: capabilities the backend does not have are drawn nowhere except this
@@ -737,7 +738,7 @@ export function createSettingsView(
     triggerArrive();
   }
   /* PV-38/63 · 冒烟只随一次已告知的显式动作执行：调用方只有 "Save and ask once"
-   * 的提交处理器、model-picker 的 "Use and ask once"（经 onSaved 的返回值间接不
+   * 的提交处理器、model-id-entry 的 "Use and ask once"（它自己发 verify，不
    * 触碰这里）与这里自己的 "Ask again"。没有任何 input/change 监听调用它。 */
   async function runVerify(connectionId, modelId, connectionLabelText) {
     if (probeBusy) return;
@@ -941,7 +942,20 @@ export function createSettingsView(
     el("div", { className: "credential-actions" }, save, saveOnly),
     saveHelp,
   );
-  container.replaceChildren(list, form, credential);
+  /* UX-11 (S2) · adding an unlisted model ID is configuration, so it lives
+     here; the composer's model popover only chooses among configured models. */
+  const modelIdEntry = createModelIdEntry({
+    request,
+    onSaved: async (result) => {
+      snapshot = result;
+      onConfig(result);
+      catalog = await request("/provider-models");
+      await reloadConnections();
+      renderConnections();
+      if (!dirty) resetFields();
+    },
+  });
+  container.replaceChildren(list, form, credential, modelIdEntry.element);
   renderFlow();
   renderPlanned(document.getElementById("planned-capabilities"));
   renderIntegrationsIntake(document.getElementById("settings-integrations-intake"));

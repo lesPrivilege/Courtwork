@@ -46,7 +46,7 @@ test("CMD-01 · composer wiring: a leading slash goes to the Host first; refusal
   assert.match(app, /request\(`\/sessions\/\$\{encodeURIComponent\(sessionId\)\}\/commands`, \{\s*method: "POST", body: \{ text,/, "the whole message is sent, not a client-side parse");
   assert.match(app, /code === "unknown_command" \? `Unknown command \/\$\{name\}\. To send it as text, start with \/\/\$\{name\}\.`/, "an unknown command names the escape and keeps the draft");
   assert.match(app, /if \(result\.kind === "literal"\) return \{ handled: false, text: result\.text \};/, "a literal continues as an ordinary message with the unescaped text");
-  assert.match(app, /if \(result\.kind === "client_ui"\) \{ if \(result\.target === "model-picker"\) void modelPicker\.open\(\);/, "/model reuses the picker");
+  assert.match(app, /if \(result\.kind === "client_ui"\) \{ if \(result\.target === "model-picker"\) modelChooser\.open\(\$\("model-settings-button"\)\);/, "/model opens the composer's model and effort chooser");
   assert.match(app, /if \(result\.kind === "control" && result\.operation\) \{ void followCompaction\(sessionId, opId, result\.operation\);/, "/compact follows the Host operation");
   assert.match(app, /const FEEDBACK_CATEGORY_ORDER = \["run", "cancel", "draft", "command"\];/);
   assert.match(app, /commandMenu = createCommandMenu\(\{\s*textarea: \$\("composer-input"\), container: \$\("command-menu"\), request,/, "the menu is the Host catalog's projection");

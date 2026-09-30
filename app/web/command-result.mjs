@@ -29,9 +29,12 @@ export function renderCommandResult(container, result, { onClose }) {
     action("x", "Close command result", onClose));
   const card = el("section", { className: "context-card" });
   if (result.command === "status") {
-    const dl = el("dl", { className: "data-list" });
-    for (const [term, value] of statusRows(result.facts ?? {})) row(dl, term, value);
-    card.append(el("h4", { text: "This chat" }), dl);
+    /* UX-11 · model and effort are one Host-wide setting, not this chat's. */
+    const rows = statusRows(result.facts ?? {});
+    const shared = el("dl", { className: "data-list" });
+    const chat = el("dl", { className: "data-list" });
+    for (const [term, value] of rows) row(term === "Model" || term === "Reasoning effort" ? shared : chat, term, value);
+    card.append(el("h4", { text: "All chats · future runs" }), shared, el("h4", { text: "This chat" }), chat);
   } else if (result.command === "tools") {
     const tools = result.facts?.tools ?? [];
     card.append(el("h4", { text: `Tools · ${tools.filter((t) => t.exposed).length} of ${tools.length} exposed` }));

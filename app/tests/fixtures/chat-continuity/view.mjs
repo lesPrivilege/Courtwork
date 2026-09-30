@@ -2,7 +2,7 @@ import { createSpecimenController } from './controller.mjs';
 import { el, action, markdown, installTooltips } from '/web/ui-controls.mjs';
 import { renderUserMessage } from '/web/user-message.mjs';
 import { createChatActions } from '/web/chat-actions.mjs';
-import { createModelPicker } from '/web/model-picker.mjs';
+import { createModelChooser } from '/web/model-chooser.mjs';
 import { installComposerGrowth } from '/web/composer-field.mjs';
 
 const controller = createSpecimenController();
@@ -10,7 +10,17 @@ const $ = (selector) => document.querySelector(selector);
 const thread = $('#thread'), composer = $('#composer-input'), main = $('#continuity-main'), overlay = $('#source-dialog');
 const expanded = new Map();
 let state = controller.getState(), sourceReturn = null, overlayMode = null, restoringReading = false;
-const picker = createModelPicker({ request: (path, options) => controller.modelRequest(path, options), onSaved: result => controller.modelSaved(result) });
+// UX-11 (S2) · the product's model and effort chooser over the synthetic model mock.
+const modelPopover = el('div', { className: 'context-popover model-popover', attrs: { id: 'model-popover', popover: 'auto', role: 'dialog', 'aria-label': 'Model and effort' } });
+document.body.append(modelPopover);
+let modelSnapshot = null;
+const picker = createModelChooser({
+  popover: modelPopover, name: 'specimen-model',
+  request: (path, options) => controller.modelRequest(path, options),
+  getSnapshot: () => modelSnapshot,
+  onSnapshot: (result) => { modelSnapshot = result; controller.modelSaved(result); },
+  onConnections: () => {},
+});
 
 installTooltips();
 const fitComposer = installComposerGrowth(composer);
@@ -213,7 +223,7 @@ function render(stateNext, event = {}) {
 $('#composer-form').addEventListener('submit', event => { event.preventDefault(); controller.setDraft(composer.value); void controller.send(); });
 composer.addEventListener('input', () => controller.setDraft(composer.value));
 $('#stop-button').addEventListener('click', () => controller.stop());
-$('#model-button').addEventListener('click', () => void picker.open());
+$('#model-button').addEventListener('click', (event) => picker.open(event.currentTarget));
 $('#variant-select').addEventListener('change', event => controller.setVariant(event.target.value));
 $('#channel-select').addEventListener('change', event => controller.choose({ channel: event.target.value }));
 $('#account-select').addEventListener('change', event => controller.choose({ account: event.target.value }));

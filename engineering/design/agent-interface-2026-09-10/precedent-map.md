@@ -77,7 +77,7 @@
 | trigger | 输入框、发送、取消、附件、slash、模型选择、"让 Send 更醒目" |
 | owner / fact entry | [contracts/primitive-canon.md](../../mvp/execution/work-surface-kit/contracts/primitive-canon.md) §2.2 / §3.2、[contracts/ui-state-vocabulary.md](../../mvp/execution/work-surface-kit/contracts/ui-state-vocabulary.md) §1 |
 | grammar entry | [Atlas](../atlas/README.md)（Control Grammar 段）、[chat-flow-2026-09-10](../chat-flow-2026-09-10/README.md) |
-| nearest local precedent | [delivery-cc-w.md](../../mvp/execution/work-surface-kit/delivery-cc-w.md)、[app/web/user-message.mjs](../../../app/web/user-message.mjs)、[app/web/model-picker.mjs](../../../app/web/model-picker.mjs)；排版 / 密度维度走 [WO-FE05A-dispatch-prompt.md](../../mvp/execution/work-surface-kit/work-orders/WO-FE05A-dispatch-prompt.md) |
+| nearest local precedent | [delivery-cc-w.md](../../mvp/execution/work-surface-kit/delivery-cc-w.md)、[app/web/user-message.mjs](../../../app/web/user-message.mjs)、[app/web/model-chooser.mjs](../../../app/web/model-chooser.mjs)；排版 / 密度维度走 [WO-FE05A-dispatch-prompt.md](../../mvp/execution/work-surface-kit/work-orders/WO-FE05A-dispatch-prompt.md) |
 | verification entry | [evidence/cc-w](../../../evidence/cc-w) |
 | status | `canonical` |
 | do_not_infer | 附件能力；新的 slash-command 架构；新的 runtime selector；新的 send / cancel 状态 |

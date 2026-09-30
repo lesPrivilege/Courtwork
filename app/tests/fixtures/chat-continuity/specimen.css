@@ -59,9 +59,7 @@ body[data-chat-continuity-fixture] { display: block; overflow: hidden; backgroun
 .continuity-error { color:var(--danger); line-height:1.6; }
 /* Unsupported factory actions are not advertised by this narrow fixture. */
 [data-chat-continuity-fixture] .chat-actions [data-action-state="unavailable"],
-[data-chat-continuity-fixture] .chat-actions [data-chat-more],
-[data-chat-continuity-fixture] .model-picker-custom-toggle,
-[data-chat-continuity-fixture] .model-picker-custom { display:none; }
+[data-chat-continuity-fixture] .chat-actions [data-chat-more] { display:none; }
 @media (max-width:760px) {
  .continuity-topbar { padding:var(--space-4); gap:var(--space-3); }
  .continuity-disclosure { max-width:24ch; font-size:var(--text-caption); }

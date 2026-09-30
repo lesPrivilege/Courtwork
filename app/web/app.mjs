@@ -41,8 +41,8 @@ import { createDraftAttachments } from "./draft-attachments.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
 import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createChatMeasurements } from "./chat-measurements.mjs";
-import { createModelPicker } from "./model-picker.mjs";
-import { renderModelEffortCard, visibleModelName } from "./model-effort.mjs";
+import { createModelChooser } from "./model-chooser.mjs";
+import { visibleModelName } from "./model-effort.mjs";
 import { createAgentChoiceController, createHomeAgentChoice, liveAgentChoiceAdapter, agentChoiceGate, createAgentChoiceLifecycle, projectSnapshot, selectionLanded, intentResolves } from "./agent-choice.mjs";
 import { createAgentChooser } from "./agent-chooser-view.mjs";
 import { renderCommandResult } from "./command-result.mjs";
@@ -56,7 +56,7 @@ import { createObjectMenu } from "./object-menu.mjs";
 import { activeRunFreezeNotice, isActiveRunRefusal, projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
-let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView, chatPage;
+let attentionWorkspace, attentionAgent, modelChooser, attentionModelChooser, usageView, sparkView, chatPage;
 import {
   createSettingsPage,
   createSettingsView,
@@ -2805,15 +2805,23 @@ function focusBindingEntry() {
  * connection credentials remain in the separate Models settings surface. */
 function renderProviderPanel() {
   settingsView?.update(state.providerConfig);
-  renderModelCard();
+  modelChooser?.render();
+  attentionModelChooser?.render();
+  renderModelChip();
+}
+/* The composer's model control names the in-force model and effort, with the
+ * disclosure mark of a control that opens a chooser (not a settings gear). */
+function renderModelChip() {
   const config = state.providerConfig?.config;
-  if (config) {
-    const model = config.provider === "fake-openai-loopback" ? "Local test" : config.model;
-    const effort = config.reasoningEffort || "Provider default";
-    const button = $("model-settings-button");
-    button.textContent = `${model} · ${effort}`;
-    button.setAttribute("aria-label", `Model and effort · ${model} · ${effort}`);
+  const model = config ? visibleModelName(config) : "Model settings";
+  const effort = config?.reasoningEffort || "Provider default";
+  const button = $("model-settings-button");
+  const text = `${model} · ${effort}`;
+  if (button.dataset.label !== text) {
+    button.dataset.label = text;
+    button.replaceChildren(element("span", { className: "button-label", text }), icon("chevron-down", { size: 16 }));
   }
+  button.setAttribute("aria-label", `Model and effort · ${model} · ${effort} · all chats`);
 }
 
 function appendRunBadge(container, status) {
@@ -3689,17 +3697,7 @@ function renderChatHeader() {
   if (previewBanner && home && previewBanner.parentElement !== intro) intro.append(previewBanner);
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
   measureHomeLead();
-  const config = state.providerConfig?.config;
-  const model =
-    config?.provider === "fake-openai-loopback"
-      ? "Local test"
-      : config?.model || "Model settings";
-  const effort = config?.reasoningEffort || "Provider default";
-  $("model-settings-button").textContent = `${model} · ${effort}`;
-  $("model-settings-button").setAttribute(
-    "aria-label",
-    `Model and effort · ${model} · ${effort}`,
-  );
+  renderModelChip();
   /* WK-73 · the quiet line below the composer states the standing context of
    * this session: which project it writes into, and what it may do to files.
    * The word is visible, the sentence is the accessible name and the tooltip. */
@@ -5868,7 +5866,7 @@ function openConnectionCard(anchor) {
         state.connectionCardAnchor?.focus?.();
       },
       measurements: renderRequestMeasurements(state.events, (currentRun() || state.runs.at(-1))?.id, {compact:true, opened:measurementOpened}),
-      onChooseModel: () => { popover.hidePopover(); void modelPicker.open(); },
+      onChooseModel: () => { popover.hidePopover(); modelChooser.open($("model-settings-button")); },
       onChangeConnection: () => {
         popover.hidePopover();
         openSettings("models");
@@ -5996,7 +5994,7 @@ async function readComposerCommand(session, text) {
   if (result.kind === "literal") return { handled: false, text: result.text };
   await clearComposerAfterCommand(sessionId);
   if (result.kind === "read") { openCommandResult(result); return { handled: true }; }
-  if (result.kind === "client_ui") { if (result.target === "model-picker") void modelPicker.open(); return { handled: true }; }
+  if (result.kind === "client_ui") { if (result.target === "model-picker") modelChooser.open($("model-settings-button")); return { handled: true }; }
   if (result.kind === "setting") {
     try { state.providerConfig = await request("/provider-config"); renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); } catch {}
     setTransientFeedback(sessionId, opId, "command", `Reasoning effort · ${result.saved?.reasoningEffort ?? "Provider default"} · all chats, future runs`, { duration: 6000 });
@@ -6050,86 +6048,6 @@ function openCommandResult(result) {
   const header = renderCommandResult(popover, result, { onClose: () => { popover.hidePopover(); state.commandResultAnchor?.focus?.(); } });
   if (!popover.matches(":popover-open")) popover.showPopover();
   header.querySelector("button")?.focus();
-}
-/* Models 05 · the composer's model control opens a card, not the full dialog.
- * The card reads one Host snapshot; choosing a segment saves at once under the
- * existing scope (all chats, future runs) with the snapshot's version, so a
- * stale receipt can neither overwrite a newer choice nor invent a value the
- * Host did not offer. The Host stays the authority on the active-Run freeze. */
-let modelCardEpoch = 0, modelCardBusy = false, modelCardFeedback = null;
-function renderModelCard() {
-  const popover = $("model-popover");
-  if (!popover.matches(":popover-open")) return null;
-  /* A redraw keeps the control the person is on: the same radio by id, or the
-   * same action by its accessible name; otherwise the card's close control. */
-  const focused = popover.contains(document.activeElement) ? document.activeElement : null;
-  const keep = focused?.id ? `#${CSS.escape(focused.id)}` : focused?.getAttribute("aria-label") ? `[aria-label="${focused.getAttribute("aria-label")}"]` : null;
-  const keepText = focused && !keep ? focused.textContent : null;
-  const header = renderModelEffortCard(popover, {
-    snapshot: state.providerConfig,
-    active: Boolean(currentRun()),
-    busy: modelCardBusy,
-    feedback: modelCardFeedback,
-    onClose: () => { popover.hidePopover(); state.modelCardAnchor?.focus?.(); },
-    onChangeModel: () => { popover.hidePopover(); void modelPicker.open(); },
-    onConnections: (connectionId) => {
-      const trigger = state.modelCardAnchor;
-      popover.hidePopover();
-      openSettings("models", { trigger, connectionId });
-    },
-    onEffort: saveEffortFromCard,
-  });
-  if (focused) {
-    const again = keep ? popover.querySelector(keep) : keepText ? [...popover.querySelectorAll("button")].find((node) => node.textContent === keepText) : null;
-    (again || header.querySelector("button"))?.focus();
-  }
-  return header;
-}
-function openModelCard(anchor) {
-  const popover = $("model-popover");
-  if (popover.matches(":popover-open")) { popover.hidePopover(); return; }
-  state.modelCardAnchor = anchor;
-  modelCardFeedback = null;
-  popover.showPopover();
-  const header = renderModelCard();
-  header?.querySelector("button")?.focus();
-  /* The card speaks from the Host's latest snapshot; a stale one is replaced
-   * as soon as the read returns, and only while this opening is still current. */
-  const own = ++modelCardEpoch;
-  void request("/provider-config").then((fresh) => {
-    if (own !== modelCardEpoch || !popover.matches(":popover-open")) return;
-    if (fresh.version === state.providerConfig?.version) return;
-    state.providerConfig = fresh;
-    renderProviderPanel();
-    renderModelCard();
-  }).catch(() => {});
-}
-async function saveEffortFromCard(effort) {
-  const own = ++modelCardEpoch;
-  const snapshot = state.providerConfig;
-  const config = snapshot?.config;
-  if (!config || modelCardBusy) return;
-  /* The Host's own capability for the in-force selection is the whole catalog
-   * this projection needs: it cannot keep a value the Host did not list. */
-  const catalog = { models: [{ provider: config.provider, id: config.model, api: config.api, baseUrl: config.baseUrl, reasoningCapability: snapshot.reasoningCapability }] };
-  const body = { ...projectProviderConfig(config, { reasoningEffort: effort }, catalog), expectedVersion: snapshot.version };
-  modelCardBusy = true; modelCardFeedback = "Saving…"; renderModelCard();
-  try {
-    const result = await request("/provider-config", { method: "PUT", body });
-    if (own !== modelCardEpoch) return;
-    state.providerConfig = result;
-    modelCardFeedback = `Saved · ${result.config?.reasoningEffort || "Provider default"} · all chats, future runs`;
-    renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh();
-  } catch (error) {
-    if (own !== modelCardEpoch) return;
-    if (isActiveRunRefusal(error)) modelCardFeedback = activeRunFreezeNotice(ownRunBusy());
-    else if (error.status === 409 || error.code === "config_conflict") {
-      modelCardFeedback = "Saved settings changed elsewhere. Showing the current value.";
-      try { state.providerConfig = await request("/provider-config"); renderProviderPanel(); } catch {}
-    } else modelCardFeedback = error.message;
-  } finally {
-    if (own === modelCardEpoch) { modelCardBusy = false; renderModelCard(); }
-  }
 }
 /* RD-006 / 02 · the human opens the candidate's exact diff from the Host,
  * not from the model's narration: same bounded patch, per file, against the
@@ -7227,11 +7145,10 @@ function handleSurfaceEscape(event) {
     }
     return;
   }
-  if ($("model-popover").matches(":popover-open")) {
+  if (modelChooser?.isOpen()) {
     if (event.key === "Escape") {
       event.preventDefault();
-      $("model-popover").hidePopover();
-      state.modelCardAnchor?.focus?.();
+      modelChooser.close();
     }
     return;
   }
@@ -7503,20 +7420,7 @@ function wireEvents() {
     void goHome();
   });
   $("show-run-button").addEventListener("click", openContextSummary);
-  $("model-settings-button").addEventListener("click", (event) => openModelCard(event.currentTarget));
-  {
-    const popover = $("model-popover");
-    let stopFollowing = null;
-    popover.addEventListener("toggle", (event) => {
-      const open = event.newState === "open";
-      stopFollowing?.();
-      stopFollowing = null;
-      const anchor = state.modelCardAnchor;
-      if (open && anchor?.isConnected) stopFollowing = anchorPopover(anchor, popover, { placement: "top-end" });
-      $("model-settings-button").setAttribute("aria-expanded", String(open));
-      if (!open) { modelCardEpoch++; modelCardBusy = false; }
-    });
-  }
+  $("model-settings-button").addEventListener("click", (event) => modelChooser.open(event.currentTarget));
   {
     const popover = $("command-popover");
     let stopFollowing = null;
@@ -8020,8 +7924,26 @@ async function init() {
   usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
   sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
   subagentView = createSubagentView({request,getSession:currentSession,onOpenSession:id=>selectSession(id),onMaintenance:()=>sparkView.open(currentProject()?.id ?? null)});
-  modelPicker = createModelPicker({request, ownRunActive: ownRunBusy, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
-  attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
+  /* UX-11 (S2) · one model and effort chooser per surface; both write the same
+   * Host-wide configuration and redraw each other through renderProviderPanel. */
+  const onModelSnapshot = (value) => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); };
+  modelChooser = createModelChooser({
+    popover: $("model-popover"), name: "model-effort", request,
+    getSnapshot: () => state.providerConfig, onSnapshot: onModelSnapshot, ownRunBusy,
+    onConnections: (connectionId, trigger) => openSettings("models", { trigger, connectionId }),
+  });
+  const attentionModelPopover = element("div", {
+    className: "context-popover connection-popover model-popover",
+    attrs: { id: "attention-model-popover", popover: "auto", role: "dialog", "aria-label": "Model and effort" },
+  });
+  $("attention-agent-dialog").append(attentionModelPopover);
+  attentionModelChooser = createModelChooser({
+    popover: attentionModelPopover, name: "attention-model-effort", request,
+    getSnapshot: () => state.providerConfig, onSnapshot: onModelSnapshot,
+    ownRunBusy: () => Boolean(attentionAgent?.controller.state.busy),
+    onConnections: (connectionId) => { $("attention-agent-dialog").close(); openSettings("models", { connectionId }); },
+  });
+  attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: (anchor) => attentionModelChooser.open(anchor), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   chatPage = createChatPage($("chat-page"), {
     onOpenSession: (sessionId, projectId) => void (projectId && projectId !== state.activeProjectId ? selectProject(projectId, { sessionId }) : selectSession(sessionId)),
     onNewChat: () => startNewSession(),

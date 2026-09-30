@@ -134,10 +134,10 @@
     "semanticKeys": []
   },
   {
-    "file": "app/web/model-picker.mjs",
-    "source": "const refresh=action('refresh-cw','Refresh current settings',async()=>{",
+    "file": "app/web/model-effort.mjs",
+    "source": "action(\"refresh-cw\", \"Retry reading models\", () => view.opts?.onRetry?.(), { visible: true, className: \"context-row\" })]",
     "disposition": "named-read",
-    "reason": "This explicitly re-reads saved provider settings after a version conflict; the full action name states the target and it does not apply the pending model selection.",
+    "reason": "Explicit retry of the model and effort chooser's catalogue read after a failure; the visible label and full name carry the action (UX-11 S2, replacing the model dialog's refresh).",
     "semanticKeys": []
   },
   {

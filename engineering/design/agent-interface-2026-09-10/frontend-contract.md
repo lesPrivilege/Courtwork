@@ -23,7 +23,7 @@
 
 | 事实或意图 | 当前规则 | 禁止推导 |
 |---|---|---|
-| 模型与effort选择 | 复用 `createModelPicker` 及真实catalog capability，保持作用域与保存语义 | 不新建同义ModelDropdown；不虚构支持的effort |
+| 模型与effort选择 | 复用 `createModelChooser`（[UX-11](../ux-grammar.md) S2：一层 popover，扁平列表，连接作行尾元数据）及真实catalog capability，保持作用域与保存语义；未列出的模型 ID 属配置，在 Settings › Models | 不新建同义ModelDropdown；不虚构支持的effort |
 | 有限互斥值 | 复用既有select/segmented；按选项长度与数量选形态 | 不为统一风格禁止所有原生select |
 | 精确数值/范围 | 先有owner的单位、界限、步长、校验/commit；新增控件另片 | 今日缺少schema的NumberField/Slider仍候选，不照抄原讨论示例 |
 | context / TPS / TTFT | 只投影真实已有口径；估算明确标估算 | estimate≠meter；host首输出不称provider TTFT；无token deltas不画decode TPS |

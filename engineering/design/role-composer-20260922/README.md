@@ -184,3 +184,8 @@ Answers the [parent E1 review](../../execution/claude-frontend-harness-2026-09-1
 **Tests.** Full product suite `npm --prefix app test`: **1592/1592** ([log](e1/logs/full-suite.log)). The targeted suites are included in that run.
 
 **Still open (not claimed):** Home cannot choose before a Session exists; a Run's bound profile is not shown in the chooser; profile/Kit editing; no independent acceptance of this return; no screen reader, native zoom, forced colours or real touch.
+
+
+## 2026-09-30 · Specimen after UX-11 S2
+
+[S2](../../research/ux-interaction-topology-20260930/rulings.md#implementation-order) replaced the composer's model card and modal picker with one model and effort chooser (`app/web/model-chooser.mjs`). The specimen's `main.mjs` imports the removed `renderModelEffortCard`, so it runs only at its recorded commit (`e525a3a` for the accepted E1); its evidence and bytes are unchanged. The Agent chooser recorded here is the precedent S2 followed.

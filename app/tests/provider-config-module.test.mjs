@@ -11,9 +11,11 @@ test("PV-54: both consumers use one pure provider projection, preserving existin
   }
   const source = await readFile(new URL("../web/provider-config.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(source, /^import\s/m, "the pure projection must not import a view or runtime");
-  for (const filename of ["settings-view.mjs", "model-picker.mjs"]) {
+  const settingsConsumer = await readFile(new URL("../web/settings-view.mjs", import.meta.url), "utf8");
+  assert.match(settingsConsumer, /import \{[^}]*effortSelectable[^}]*projectProviderConfig[^}]*reasoningCapabilityOf[^}]*\} from ["']\.\/provider-config\.mjs["']/);
+  for (const filename of ["settings-view.mjs", "model-chooser.mjs", "model-id-entry.mjs"]) {
     const consumer = await readFile(new URL(`../web/${filename}`, import.meta.url), "utf8");
-    assert.match(consumer, /import \{[^}]*effortSelectable[^}]*projectProviderConfig[^}]*reasoningCapabilityOf[^}]*\} from ["']\.\/provider-config\.mjs["']/);
+    assert.match(consumer, /import \{[^}]*projectProviderConfig[^}]*\} from ["']\.\/provider-config\.mjs["']/);
     assert.doesNotMatch(consumer, /function projectProviderConfig\(/);
   }
 });

@@ -97,7 +97,7 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | Slice | Content | Kind |
 |---|---|---|
 | S1 · [record](s1.md) | Key loss (V6), 409 copy (V3/V12; link deferred), effort kept on model change (V2), New chat project (V8), preview restore (V9), read-only slash during a run (CMP-15), visible run hint (V11) | Correctness, small |
-| S2 | Model and effort popover; modal picker retired from the composer path; unkeyed models; scope wording including `/status` | Topology |
+| S2 · [record](s2.md) | Model and effort popover; modal picker retired, unlisted IDs moved to Settings; keyless connections grouped; scope wording including `/status` | Topology |
 | S3 | Chat file-access control split; overview row target; chat paperclip popover | Topology |
 | S4 | Attention count and waiting marks; rail opens the queue; working-project default | Topology |
 | S5 | Icon size source and tiers; glyph meanings; Retry text; disclosure; unavailable actions removed; alignment captures; manifest and allowlist hygiene; stale comments | Icons, hygiene |

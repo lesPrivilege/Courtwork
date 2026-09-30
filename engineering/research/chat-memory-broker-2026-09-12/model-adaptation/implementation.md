@@ -15,7 +15,7 @@
 | `pi-session-runtime.mjs`、`request-telemetry.mjs` | requestedEffort取descriptor，现effectiveEffort取Pi session.thinkingLevel；Provider返回model和SDK observedModel已经区分 | Pi选定档位属于SDK/Host配置，**不是Provider已证实的实际effort**。保留旧字段兼容，新增明确来源/可观察性，不把provider未返回值补成同值 |
 | BE-17/18目录probe、BE-39已保存连接verify | 前者探目录；后者显式发一次短请求，有版本回执与错误分类 | 成功不证明全部effort/tool/streaming/multi-turn；按参数检查需独立request shape与覆盖证据，不扩大既有verify文案 |
 
-相关现实现：[service](../../../../app/server/service.mjs)、[字段](../../../../app/server/provider-fields.mjs)、[连接](../../../../app/server/provider-connections.mjs)、[store](../../../../app/server/store.mjs)、[Pi适配](../../../../app/runtime/pi-session-runtime.mjs)、[模型选择](../../../../app/web/model-picker.mjs)、[配置投影](../../../../app/web/provider-config.mjs)、[telemetry](../../../../app/runtime/request-telemetry.mjs)。链接按当前检出供定位，精确事实以本节固定SHA为准。
+相关现实现：[service](../../../../app/server/service.mjs)、[字段](../../../../app/server/provider-fields.mjs)、[连接](../../../../app/server/provider-connections.mjs)、[store](../../../../app/server/store.mjs)、[Pi适配](../../../../app/runtime/pi-session-runtime.mjs)、[模型选择](https://github.com/lesPrivilege/Courtwork/blob/87e220723ad05a2279fb583a92fb5054ca23ba8b/app/web/model-picker.mjs)、[配置投影](../../../../app/web/provider-config.mjs)、[telemetry](../../../../app/runtime/request-telemetry.mjs)。链接按当前检出供定位，精确事实以本节固定SHA为准。
 
 ## Adapter → Host → UI的数据合同
 

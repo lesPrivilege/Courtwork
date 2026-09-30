@@ -36,14 +36,14 @@ export function discoverCommands(facts) {
   const busy = facts.activeRun ? unavailable('Available after this run ends.') : facts.activeOperation ? unavailable('A compaction is in progress.') : null;
   const commands = [
     { name: 'status', aliases: [], kind: 'read', title: 'Status',
-      description: 'This chat\'s model, effort, file access, workspace and runtime facts. No model request.',
+      description: 'The model and effort for all chats, and this chat\'s file access, workspace and runtime facts. No model request.',
       args: null, availability: available, sideEffects: 'none', interactive: false, target: null },
     { name: 'tools', aliases: [], kind: 'read', title: 'Tools',
       description: 'Tools the next run may call, with their admission. No model request.',
       args: null, availability: available, sideEffects: 'none', interactive: false, target: null },
     { name: 'model', aliases: [], kind: 'client_ui', title: 'Model',
-      description: 'Open the model picker. Choosing there saves for all chats, future runs.',
-      args: null, availability: available, sideEffects: 'none until saved in the picker', interactive: true, target: 'model-picker' },
+      description: 'Open model and effort. Choosing there saves for all chats, future runs.',
+      args: null, availability: available, sideEffects: 'none until a model or effort is chosen', interactive: true, target: 'model-picker' },
     { name: 'effort', aliases: [], kind: 'setting', title: 'Reasoning effort',
       description: efforts.length ? `Save the reasoning effort for all chats, future runs: ${['default', ...efforts].join(', ')}.` : 'Reasoning effort is not selectable on the configured model.',
       args: { value: { type: 'enum', values: ['default', ...efforts], required: true } },

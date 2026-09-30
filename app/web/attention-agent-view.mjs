@@ -93,7 +93,7 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   input.addEventListener('input', () => { controller.setDraft(input.value); updateControls(); });
   input.addEventListener('keydown', event => { if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); if (!send.disabled) void controller.send(); } });
   const modelChoice = el('button', {className:'attention-model-choice',text:'Model',attrs:{type:'button','aria-label':'Choose model and effort'}});
-  modelChoice.addEventListener('click', () => onChooseModel?.());
+  modelChoice.addEventListener('click', () => onChooseModel?.(modelChoice));
   const send = action('arrow-up', 'Send to Attention', () => controller.send(), { className: 'primary-button' });
   const stop = action('square', 'Cancel Attention run', () => controller.cancel());
   const runtime = el('details', { className: 'attention-agent-runtime' }, el('summary', { text: 'Runtime & memory' }));

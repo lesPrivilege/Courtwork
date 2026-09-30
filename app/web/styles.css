@@ -1672,7 +1672,9 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
 .composer-buttons > #send-button,
 .composer-buttons > #cancel-run-button { flex: none; }
 #model-settings-button.composer-model {
-  display: block;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   flex: 0 1 auto;
   min-width: 0;
   max-width: 100%;
@@ -3493,7 +3495,30 @@ dialog[open]::backdrop {
    Provider default is a fact line in the same place, not a disabled control. */
 .model-popover .model-effort-segmented .segment { padding: var(--space-1) var(--space-1); min-height: 30px; }
 .model-popover .model-effort-fixed { font-size: var(--text-meta); color: var(--ink); padding: var(--space-1); }
-.model-popover .model-effort-name { overflow-wrap: anywhere; }
+/* UX-11 (S2) · model and effort chooser: the Agent chooser's option anatomy
+   (agent-option), one column, scrolling inside the anchored popover. */
+.model-popover { width: min(380px, calc(100vw - 16px)); overflow: auto; }
+.model-popover .model-chooser-scope { margin: 0 0 var(--space-2); }
+.model-popover .model-chooser-search { width: 100%; margin: 0 0 var(--space-2); }
+.model-listbox { display: flex; flex-direction: column; gap: 2px; max-height: 240px; overflow: auto; border-radius: var(--radius-small); }
+.model-listbox:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.model-option { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); min-height: 32px; padding: var(--space-2); border-radius: var(--radius-small); cursor: pointer; }
+.model-option.is-active { background: var(--hover); }
+.model-option[aria-selected="true"] .model-option-name { font-weight: 600; }
+.model-option[aria-disabled="true"] { cursor: default; }
+.model-option[aria-disabled="true"] .model-option-name { color: var(--muted-strong); }
+.model-option-name { min-width: 0; overflow-wrap: anywhere; }
+.model-option-meta { flex: none; max-width: 50%; color: var(--muted-strong); font-size: var(--text-meta); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.model-popover .model-chooser-status:empty { display: none; }
+#model-settings-button .button-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#model-settings-button > .ui-icon { flex: none; }
+/* Settings › Models · an unlisted model ID, configured on one connection. */
+.model-id-entry { margin-top: var(--space-4); border-top: 1px solid var(--line); padding-top: var(--space-3); }
+.model-id-entry > summary { cursor: pointer; font-weight: 600; }
+.model-id-entry-body { display: grid; gap: var(--space-2); margin-top: var(--space-3); }
+.model-id-entry-body label { display: grid; gap: var(--space-1); }
+.model-id-entry-body .text-button,
+.model-id-entry-body .primary-button { justify-self: start; }
 /* Segmented control: native radios, one track, the checked segment lifts.
    WO-WK12 · 段数写成一个变量：Reduced motion 只有两档，滑块宽度不能再写死成三格。 */
 .segmented {
@@ -5842,44 +5867,7 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 [data-package-editor] > label > span { display: block; margin-bottom: 6px; }
 
 /* Shared model configuration, with native focus containment and selection. */
-.model-picker-dialog { width: min(520px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); padding: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-card); background: var(--float); color: var(--ink); overflow: auto; }
-.model-picker-dialog::backdrop { background: var(--scrim); }
-.model-picker-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
-.model-picker-header h2 { margin: 0; font-size: 20px; }
-.model-picker-current { margin: var(--space-4) 0 var(--space-2); padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--panel-muted); }
-.model-picker-current .eyebrow { margin: 0 0 6px; color: var(--muted-strong); font-size: var(--text-meta); }
-.model-picker-current h3 { margin: 0; overflow-wrap: anywhere; font-size: var(--text-title); }
-.model-picker-current .form-help { margin: 6px 0 0; }
-.model-picker-proposed { margin: var(--space-2) 0; color: var(--muted-strong); font-size: var(--text-meta); }
-.model-picker-change-model { margin: var(--space-3) 0; border-block: 1px solid var(--line); }
-.model-picker-change-model > summary { padding: var(--space-3) 0; cursor: pointer; font-weight: 600; }
-.model-picker-change-model > input[type="search"] { width: 100%; margin: var(--space-2) 0; }
-.model-picker-model-list > select { width: 100%; height: 220px; margin: var(--space-2) 0; padding: var(--space-2); }
-.model-picker-dialog label { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin: var(--space-3) 0; }
-.model-picker-dialog label select { width: 50%; }
-.model-picker-effort { min-width: 11rem; }
-.model-picker-effort select { width: 100%; min-width: 11rem; max-width: 100%; }
-/* PV-59/63 · "键入一个模型 ID" 的展开面板：最小布局，沿用既有 label 两栏规则；
-   只有 reasoning 那一行（勾选框在左）需要覆盖对齐方向。 */
-.model-picker-custom {
-  display: grid;
-  gap: var(--space-1);
-  margin: var(--space-1) 0 var(--space-3);
-  padding-left: var(--space-2);
-  border-left: 2px solid var(--line);
-}
-.model-picker-custom label > input[type="text"] {
-  flex: 1;
-  min-width: 0;
-}
-.model-picker-dialog label.model-picker-custom-reasoning {
-  justify-content: flex-start;
-  gap: var(--space-2);
-}
-.model-picker-custom-toggle {
-  display: block;
-  margin: var(--space-1) 0;
-}
+
 .attention-agent-composer .attention-model-choice { max-width: 108px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--text-meta); padding: 0 var(--space-2); }
 @media(max-width:600px) { .attention-agent-composer .attention-model-choice { max-width: 80px; } }
 

@@ -49,7 +49,8 @@ import {
 const root = new URL("../../", import.meta.url).pathname;
 const styles = readFileSync(`${root}app/web/styles.css`, "utf8");
 const settingsSource = readFileSync(`${root}app/web/settings-view.mjs`, "utf8");
-const pickerSource = readFileSync(`${root}app/web/model-picker.mjs`, "utf8");
+const chooserSource = readFileSync(`${root}app/web/model-chooser.mjs`, "utf8");
+const modelIdSource = readFileSync(`${root}app/web/model-id-entry.mjs`, "utf8");
 
 /* WO-PV-FE01 · 一条兼容连接与三条目录连接，形状逐字按 `GET /api/v5/provider-connections`
  * 的交付页（delivery-pv-be02 §3.1）：`credentialStatus` 是派生值，模型带
@@ -340,8 +341,9 @@ test("PV-M-1 · 两处写入合一：任一处保存都不清掉另一处的字�
   for (const key of Object.keys(fromPicker)) assert.ok(PROVIDER_CONFIG_FIELDS.includes(key), key);
   // 两个写入方都走这一处，没有第二份装配。
   assert.match(settingsSource, /body: \{ \.\.\.projectProviderConfig\(/);
-  assert.match(pickerSource, /projectProviderConfig\(current\.config,/);
-  assert.doesNotMatch(pickerSource, /const config=\{provider:/);
+  assert.match(chooserSource, /projectProviderConfig\(config, \{ provider: row\.provider, model: row\.id,/);
+  assert.match(modelIdSource, /projectProviderConfig\(config\.config, \{ provider: saved\.providerIdentity, model: id,/);
+  for (const source of [chooserSource, modelIdSource]) assert.doesNotMatch(source, /const config ?= ?\{ ?provider:/);
 });
 
 test("PV-53 · 模型选择器的用户连接分组标签是它的端点主机名，取不到注册表时退回 id", () => {
@@ -351,14 +353,11 @@ test("PV-53 · 模型选择器的用户连接分组标签是它的端点主机�
   assert.notEqual(connectionLabel(user), user.id);
   // 目录连接不受这条影响：它仍报自己的 provider 名。
   assert.equal(connectionLabel(REGISTRY[0]), providerLabels.openai || "openai");
-  // 选择器多取一次注册表，只为这一层标签，并且只映射 compatible 那些。
-  assert.match(pickerSource, /request\('\/provider-connections'\)/);
-  assert.match(pickerSource, /groupLabels = new Map\(connections\.filter\(c=>c\.kind==='compatible'\)\.map\(c=>\[c\.providerIdentity,connectionLabel\(c\)\]\)\)/);
-  // 退回路径：注册表取不到时这份表为空，标签就是原始 provider 身份。
-  assert.match(pickerSource, /\.catch\(\(\)=>\[\]\)/);
-  assert.match(pickerSource, /label:groupLabels\.get\(provider\) \|\| provider/);
-  // 一次一变量：搜索匹配的字段集不动，`conn-` id 仍搜得到。
-  assert.match(pickerSource, /`\$\{m\.provider\} \$\{m\.name\} \$\{m\.id\}`/);
+  // UX-11 (S2) · the chooser reads the registry for the rows' trailing label and
+  // for which rows can run; an unreadable registry is a read error, not an empty
+  // one (tests/model-effort.test.mjs "empty and failed reads say so").
+  assert.match(chooserSource, /request\("\/provider-connections"\)\.then\(\(r\) => r\.connections \|\| \[\]\),/);
+  assert.doesNotMatch(chooserSource, /provider-connections"\)[^\n]*\.catch\(/);
 });
 
 test("PV-27 · 未知与 unsupported 都用 provider default；enum 按 API 精确列值", () => {
@@ -381,22 +380,23 @@ test("PV-27 · 未知与 unsupported 都用 provider default；enum 按 API 精�
   /* WO-PV-FE02 · 改写理由：`else` 分支里插入了 PV-61 的三态判据注释与新分支，字符
    * 距离从 800 涨到本单实测约 1000，窗口相应放宽到 1400——锚点（起止两行代码）
    * 一字未改，中间要跳过的只是新增的注释与一个三元分支，不是放宽了检查什么。 */
-  assert.match(pickerSource, /if \(effortSelectable\(supported\) \|\| savedEffortIsInvalid\)[\s\S]{0,1400}effortControl\.replaceChildren\(effortFixed\)/);
-  // 未报窗口写 unknown，不写一个宿主编的数，也不再写 `unavailable`。
-  assert.doesNotMatch(pickerSource, /:'unavailable'/);
-  assert.match(pickerSource, /:'unknown'/);
+
 });
 
 test("PV-61 · reasoningSource:\"unknown\" 换成真话，不再替目录说它没说过的话", () => {
   // 旧句子（"这条目录报的就是没有"）在 unknown 语境下替目录说了它没说过的话；
   // 换成"没人核过"，并指去唯一能改这件事的地方。
-  assert.match(pickerSource, /reasoning\?\.kind === 'unsupported'/);
-  assert.match(pickerSource, /Reasoning effort is not verified; source: '\+sourceLabel\+'; provider default will be used\./);
-  assert.match(pickerSource, /Provider default will be used\./);
+  const effortSource = readFileSync(`${root}app/web/model-effort.mjs`, "utf8");
+  assert.match(effortSource, /choices\.kind === "unsupported"/);
+  assert.match(effortSource, /Supported reasoning settings are unknown\. Provider default omits the parameter\./);
+  assert.match(effortSource, /Selectable reasoning effort is unsupported; the parameter is omitted\./);
 });
 
-test("项 7 · origin:\"connection\" 的模型在选择器路由行追加一句，目录原生行不追加", () => {
-  assert.match(pickerSource, /selected\.origin==='connection'\?' Added on this connection\.':''/);
+test("项 7 · origin:\"connection\" 的模型在选择器行尾追加一句，目录原生行不追加", async () => {
+  const { modelRows } = await import("../web/model-effort.mjs");
+  const [added, native] = modelRows({ models: [{ provider: "openai", id: "x", origin: "connection" }, { provider: "openai", id: "y", origin: "catalog" }] }, [REGISTRY[0]], null);
+  assert.match(added.meta, / · added on this connection$/);
+  assert.doesNotMatch(native.meta, /added/);
 });
 
 test("MCP intake keeps saving, discovery and exposure as separate steps", () => {
@@ -534,37 +534,38 @@ test("PV-64 · “Ask again” 显式重放同一个 {connectionId, model}", () 
 });
 
 test("PV-59/63 · 键入一个模型 ID 的三步序：PUT connection → PUT config →（主动作）POST verify，中途失败停步不回滚", () => {
-  assert.match(pickerSource, /Use a model ID that is not listed…/);
-  assert.match(pickerSource, /aria-label': 'Model ID', placeholder: ''/);
+  // UX-11 (S2) · the flow moved unchanged from the composer dialog to Settings › Models.
+  assert.match(modelIdSource, /Use a model ID that is not listed/);
+  assert.match(modelIdSource, /'aria-label': 'Model ID'/);
   // 只列 configured 或本地连接。
-  assert.match(pickerSource, /c\.credentialStatus === 'configured' \|\| connectionPathOfKind\(c\) === 'local'/);
+  assert.match(modelIdSource, /c\.credentialStatus === 'configured' \|\| connectionPathOfKind\(c\) === 'local'/);
   // 执行序：三个请求按顺序、每一步失败各自停在该步（各自的 try/catch，不共用一个）。
   // 只在 `submitCustomModel` 自己的函数体内找，不与上面既有的 "Use for next runs"
   // 流程（同样调 `/provider-config`）混在一起数。
-  const customFlowText = pickerSource.slice(
-    pickerSource.indexOf("async function submitCustomModel"),
-    pickerSource.indexOf("customUseAsk.addEventListener"),
+  const customFlowText = modelIdSource.slice(
+    modelIdSource.indexOf("async function submit"),
+    modelIdSource.indexOf("useAsk.addEventListener"),
   );
   const order = [
-    customFlowText.indexOf("await request(`/provider-connections/"),
-    customFlowText.indexOf("await request('/provider-config'"),
-    customFlowText.indexOf("await request(`/provider-connections/${encodeURIComponent(savedConnection.id)}/verify`"),
+    customFlowText.indexOf("await request(`/provider-connections/${encodeURIComponent(connection.id)}`"),
+    customFlowText.indexOf("await request('/provider-config', {"),
+    customFlowText.indexOf("await request(`/provider-connections/${encodeURIComponent(saved.id)}/verify`"),
   ];
   assert.ok(order[0] > -1 && order[1] > order[0] && order[2] > order[1], order.join(","));
-  assert.match(pickerSource, /Could not save this model ID on the connection\./);
-  assert.match(pickerSource, /Saved on the connection, but could not select it for next runs\./);
-  assert.match(pickerSource, /Saved and selected, but the check could not run\./);
+  assert.match(modelIdSource, /Could not save this model ID on the connection\./);
+  assert.match(modelIdSource, /Saved on the connection, but could not select it for next runs\./);
+  assert.match(modelIdSource, /Saved and selected, but the check could not run\./);
   // 次动作 "Use without asking" 不发 verify 请求：只有 askOnce 分支里有 POST …/verify。
-  assert.match(pickerSource, /customUseOnly\.addEventListener\('click', \(\) => void submitCustomModel\(false\)\)/);
-  assert.match(pickerSource, /if \(!askOnce\) \{/);
+  assert.match(modelIdSource, /useOnly\.addEventListener\('click', \(\) => void submit\(false\)\)/);
+  assert.match(modelIdSource, /if \(!askOnce\) \{/);
   // 对话框不自动关闭：这条路径里没有 dialog.close() 调用。
   assert.doesNotMatch(customFlowText, /dialog\.close\(\)/);
 });
 
 test("PV-61 · custom model reasoning declaration records exact optional effort values", () => {
-  assert.match(pickerSource, /Supported reasoning efforts \(optional\)/);
-  assert.match(pickerSource, /reasoningEfforts: declaredEfforts/);
-  assert.match(pickerSource, /const allowed=new Set\(\['off','minimal','low','medium','high','xhigh','max'\]\)/);
+  assert.match(modelIdSource, /Supported reasoning efforts \(optional\)/);
+  assert.match(modelIdSource, /reasoningEfforts: declaredEfforts/);
+  assert.match(modelIdSource, /const allowed = new Set\(\['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'\]\)/);
   assert.match(settingsSource, /reasoningLevelsTouched \? parseReasoningLevels\(reasoningLevels\.value\) : undefined/);
   assert.match(settingsSource, /reasoningEfforts: reasoningEfforts \?\? null/);
   assert.match(settingsSource, /function syncReasoningCheckbox\(\)/);
