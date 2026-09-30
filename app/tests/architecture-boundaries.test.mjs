@@ -100,7 +100,19 @@ function boundaryViolations(edges, scope) {
   const violations = [];
   for (const edge of edges) {
     const resolved = resolveSpecifier(edge.source, edge.specifier);
-    const allowed = scope === "core"
+    let allowed;
+    if (scope === "web") {
+      allowed = resolved.kind === "relative" && resolved.inside && inTree(resolved.target, "web");
+    } else if (scope === "domain") {
+      const [root, domain] = edge.source.split("/");
+      allowed = root === "domains" && Boolean(domain) && (edge.specifier === "node:crypto"
+        || resolved.kind === "relative" && resolved.inside && inTree(resolved.target, `domains/${domain}`));
+    } else if (scope === "backend") {
+      // A negative-only browser fence; other backend dependency rules remain
+      // with their existing scopes. Designated renderers are checked separately.
+      allowed = !(resolved.kind === "relative" && resolved.inside && inTree(resolved.target, "web")
+        || resolved.kind === "absolute" && inTree(path.posix.normalize(resolved.target), "/web"));
+    } else allowed = scope === "core"
       ? resolved.kind === "package" ? edge.specifier.startsWith("node:") : resolved.kind === "relative" && resolved.inside && inTree(resolved.target, "core")
       : scope === "runtime"
         ? resolved.kind === "package" || resolved.kind === "relative" && resolved.inside && !inTree(resolved.target, "domains") && !inTree(resolved.target, "extensions")
@@ -112,26 +124,14 @@ function boundaryViolations(edges, scope) {
   return violations;
 }
 
-async function mjsFiles(relativeDirectory) {
+async function moduleFiles(relativeDirectory, suffixes = [".mjs", ".js"]) {
   const entries = (await readdir(path.join(APP_ROOT, relativeDirectory), { withFileTypes: true }))
     .sort((left, right) => left.name.localeCompare(right.name));
   const files = [];
   for (const entry of entries) {
     const relative = path.join(relativeDirectory, entry.name);
-    if (entry.isDirectory()) files.push(...await mjsFiles(relative));
-    else if (entry.isFile() && entry.name.endsWith(".mjs")) files.push(toPosix(relative));
-  }
-  return files;
-}
-
-async function rendererFiles() {
-  const entries = (await readdir(path.join(APP_ROOT, "extensions"), { withFileTypes: true }))
-    .filter((entry) => entry.isDirectory()).sort((left, right) => left.name.localeCompare(right.name));
-  const files = [];
-  for (const entry of entries) {
-    const relative = path.join("extensions", entry.name, "renderer.mjs");
-    try { await readFile(path.join(APP_ROOT, relative), "utf8"); files.push(toPosix(relative)); }
-    catch (error) { if (error?.code !== "ENOENT") throw error; }
+    if (entry.isDirectory()) files.push(...await moduleFiles(relative, suffixes));
+    else if (entry.isFile() && suffixes.some(suffix => entry.name.endsWith(suffix))) files.push(toPosix(relative));
   }
   return files;
 }
@@ -163,6 +163,11 @@ test("legal and forbidden synthetic edges exercise all approved boundaries", () 
     ["core", "core/deep/probe.mjs", `import "../../core/client.mjs"; import "node:path";`],
     ["runtime", "runtime/deep/probe.mjs", `import "../../runtime/control-plane.mjs"; import "@modelcontextprotocol/client";`],
     ["renderer", "extensions/synthetic/renderer.mjs", `import "/web/ui-controls.mjs"; export * from "/web/surface-modules.mjs";`],
+    ["web", "web/vendor/synthetic/index.js", `import "./helper.js"; export * from "../../ui-controls.mjs";`],
+    ["domain", "domains/synthetic/deep/probe.mjs", `import "../rules.mjs"; import "node:crypto";`],
+    ["domain", "domains/synthetic/deep/probe.js", `export * from "../rules.js"; import "node:crypto";`],
+    ["backend", "server/deep/probe.mjs", `import "../../core/client.mjs"; import "node:fs"; import "@earendil-works/pi-ai";`],
+    ["backend", "runtime/deep/probe.js", `import "../helper.js"; import "node:path";`],
   ];
   for (const [scope, sourcePath, source] of legal) assert.equal(boundaryViolations(scanImports(source, sourcePath), scope).length, 0, `${scope} legal probe failed`);
 
@@ -170,6 +175,12 @@ test("legal and forbidden synthetic edges exercise all approved boundaries", () 
     ["core", "core/deep/probe.mjs", [`import "../../server/index.mjs";`, `export * from "../../runtime/control-plane.mjs";`, `await import("../../extensions/catalog.mjs");`, `import "@earendil-works/pi-ai";`, `import "@modelcontextprotocol/client";`]],
     ["runtime", "runtime/deep/probe.mjs", [`import "../../domains/inbound-nda/index.mjs";`, `export * from "../../extensions/catalog.mjs";`, `await import("../../domains/inbound-nda/rules.mjs");`]],
     ["renderer", "extensions/synthetic/renderer.mjs", [`import "../../core/owner.mjs";`, `export * from "../../server/runtime.mjs";`, `await import("../../domains/inbound-nda/index.mjs");`, `import "node:fs";`, `import "@modelcontextprotocol/client";`]],
+    ["web", "web/deep/probe.js", [`import "../../server/index.mjs";`, `export * from "../../core/client.mjs";`, `await import("../../runtime/control-plane.mjs");`, `import "node:crypto";`, `import "@earendil-works/pi-ai";`, `import "/web/ui-controls.mjs";`]],
+    ["domain", "domains/synthetic/deep/probe.mjs", [`import "../../../runtime/control-plane.mjs";`, `import "@earendil-works/pi-ai";`, `export * from "../../sibling/rules.mjs";`, `import "node:fs";`]],
+    ["backend", "runtime/deep/probe.mjs", [`import "../../web/ui-controls.mjs";`, `export * from "/web/surface-modules.mjs";`]],
+    ["backend", "server/deep/probe.mjs", [`await import("../../web/ui-controls.mjs");`, `import "/web/app.mjs";`]],
+    ["domain", "domains/synthetic/deep/probe.js", [`import "../../../runtime/control-plane.mjs";`, `export * from "../../sibling/rules.js";`]],
+    ["backend", "server/deep/probe.js", [`import "../../web/skin-policy.js";`, `await import("/web/ui-controls.mjs");`]],
   ];
   for (const [scope, sourcePath, lines] of forbidden) {
     const edges = scanImports(lines.join("\n"), sourcePath);
@@ -182,16 +193,23 @@ test("legal and forbidden synthetic edges exercise all approved boundaries", () 
   assert.equal(bypass.target, "server/index.mjs", "relative targets must resolve from the importing file");
 });
 
-test("the current Core, runtime, renderer, and composition-root graph obeys ownership", async () => {
-  const [coreFiles, runtimeFiles, rendererPaths, serverFiles, extensionFiles, domainFiles] = await Promise.all([
-    mjsFiles("core"), mjsFiles("runtime"), rendererFiles(), mjsFiles("server"), mjsFiles("extensions"), mjsFiles("domains"),
+test("the current frontend, backend, domains and composition-root graph obeys ownership", async () => {
+  const [coreFiles, runtimeFiles, serverFiles, extensionFiles, domainFiles, webFiles] = await Promise.all([
+    moduleFiles("core"), moduleFiles("runtime"), moduleFiles("server"), moduleFiles("extensions"), moduleFiles("domains"), moduleFiles("web"),
   ]);
-  const [coreEdges, runtimeEdges, rendererEdges, serverEdges, extensionEdges, domainEdges] = await Promise.all([
-    scanFiles(coreFiles), scanFiles(runtimeFiles), scanFiles(rendererPaths), scanFiles(serverFiles), scanFiles(extensionFiles), scanFiles(domainFiles),
+  const rendererPaths = extensionFiles.filter(file => path.posix.basename(file) === "renderer.mjs");
+  const rendererSet = new Set(rendererPaths);
+  const [coreEdges, runtimeEdges, rendererEdges, serverEdges, extensionEdges, domainEdges, webEdges] = await Promise.all([
+    scanFiles(coreFiles), scanFiles(runtimeFiles), scanFiles(rendererPaths), scanFiles(serverFiles), scanFiles(extensionFiles), scanFiles(domainFiles), scanFiles(webFiles),
   ]);
-  const violations = [...boundaryViolations(coreEdges, "core"), ...boundaryViolations(runtimeEdges, "runtime"), ...boundaryViolations(rendererEdges, "renderer")];
+  const backendEdges = [...coreEdges, ...runtimeEdges, ...serverEdges, ...extensionEdges, ...domainEdges].filter(edge => !rendererSet.has(edge.source));
+  const violations = [...boundaryViolations(coreEdges, "core"), ...boundaryViolations(runtimeEdges, "runtime"),
+    ...boundaryViolations(rendererEdges, "renderer"), ...boundaryViolations(webEdges, "web"),
+    ...boundaryViolations(domainEdges, "domain"), ...boundaryViolations(backendEdges, "backend")];
   assert.equal(violations.length, 0, `production import boundary violations: ${JSON.stringify(violations)}`);
-  assert.ok(coreEdges.length && runtimeEdges.length && rendererPaths.length, "all three production graphs must be scanned");
+  assert.ok(coreEdges.length && runtimeEdges.length && rendererPaths.length && webEdges.length && domainEdges.length,
+    "each enforced production graph must be scanned");
+  assert.ok(webFiles.includes("web/skin-policy.js"), "browser .js modules must be included");
   assert.ok(hasEdge(coreEdges, "core/owner.mjs", "./client.mjs"));
   assert.ok(hasEdge(runtimeEdges, "runtime/source-resolver.mjs", "./control-plane.mjs"));
   assert.ok(hasEdge(runtimeEdges, "runtime/control-tools.mjs", "./workspace-tools.mjs"));

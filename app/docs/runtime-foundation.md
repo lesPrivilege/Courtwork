@@ -47,6 +47,21 @@ try {
 }
 ```
 
+## Built-in Work integration
+
+`server/work-run-integration.mjs` is Courtwork-owned, private Host integration
+for the existing file-memo Work consumer. It decorates confirmed workspace-write
+receipts, resolves exact recorded history versions, and wires the consumer's
+initial-input, tool-input and extra-input callbacks. It receives scoped Host
+read functions and frozen Run identity, not a Core client, human actions or
+permission grants. Unconfirmed placement preserves the write's occurred-effect
+text/hash without presenting a recorded-file receipt. WorkAdapter owns domain
+validation; the Host still owns admission, permissions, execution and lifecycle.
+Pi provides execution mechanisms, not Work acceptance semantics. The existing
+six built-in Work binding checks outside the loop and Pi-shaped execution
+coupling remain separate debt; this extraction introduces no general hook ABI
+and does not establish runtime independence.
+
 ## Pi execution port (P03-B)
 
 The composition root constructs `createPiRuntimePort` from `runtime/pi-runtime-port.mjs` and supplies it explicitly to RuntimeService. The port owns native journal open/create/history, execution/steering, compaction and translation into the existing Host observation vocabulary. Host still governs tools and owns Run admission/settlement; native outcomes do not set status directly. Per-Run disposal remains in `pi-session-runtime.mjs`. The native journal path, locator and format are unchanged.

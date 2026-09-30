@@ -57,6 +57,7 @@ import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } 
 import { runRepositoryCandidateFs } from "../runtime/repository-candidate-fs.mjs";
 import { createRepositoryCandidateTools } from "../runtime/repository-candidate-tools.mjs";
 import { createCheckTools } from "../runtime/check-tools.mjs";
+import { createBuiltinWorkRunIntegration } from "./work-run-integration.mjs";
 import { chooseHostDirectory, DirectoryPickerError } from "../runtime/host-directory-picker.mjs";
 import { inspectRepositoryGitStatus } from "../runtime/repository-git-status.mjs";
 import { resolveRuntimeSource as resolveDeclarativeSource } from "../runtime/source-resolver.mjs";
@@ -3228,16 +3229,6 @@ export class RuntimeService {
         saveHistory: (content, digest, options) => this.artifactHistory.save(run.sessionId, content, digest, options),
       });
 
-      // Pi forwards tool content to the model, not host-only details. This
-      // opt-in projection exposes the receipt only after appendArtifact has
-      // succeeded, so a real model can select the recorded version by hash.
-      const selectedWorkspaceTools = entry.extensionRun?.fileMemo ? workspaceTools.map(tool => tool.name !== 'ws_write' ? tool : {
-        ...tool, execute: async (...args) => {
-          const result = await tool.execute(...args);
-          return {...result, content: [...result.content, {type:'text', text:JSON.stringify({recordedFile:result.details})}]};
-        },
-      }) : workspaceTools;
-
       const repositoryTools = createRepositoryTools({
         binding: run.repositoryBindingSnapshot,
         runId: run.id,
@@ -3296,41 +3287,20 @@ export class RuntimeService {
         + '\nLaunch returns only a handle. Get/wait for each requested task before finalizing; continue independent steps while other tasks run. A pending task or tool error is not source evidence.' : '';
       const controlContext = sparkAssignment ? '' : run.kitBinding ? (await readKitContext(this.artifactHistory, session.id, run.kitBinding)).text : compileControlContext(entry.runtimeBinding);
       const currentContext = sparkAssignment ? "" : [extensionContext, controlContext, asyncContext, !session.extensionBinding ? this.subagents.library.context(session.id) : ""].filter(Boolean).join("\n\n");
-      let initializeFileInput;
-      if (entry.extensionRun?.fileMemo) {
-        const cleanSession = entry.nativeSession.historyIsEmpty()
-          && this.store.listRuns().filter(r => r.sessionId === session.id).length === 1;
-        const reasons = cleanSession ? [] : ['session_history'];
-        // An enabled compactor may inject a summary before an awaited hook.
-        // Conservatively close eligibility before any prompt in that mode.
-        if (this.#compactionPolicy(model).enabled) reasons.push('compaction_enabled');
-        initializeFileInput = ({systemPrompt: actualSystemPrompt, currentContext: actualContext, cleanHistory}) => entry.extensionRun.fileMemo.initialize({
-          input: { systemPrompt: actualSystemPrompt, currentContext: actualContext, runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash}, cleanSession: cleanSession && cleanHistory, reasons: cleanHistory ? reasons : [...reasons,'runtime_history'] },
-          readRecordedFiles: async selectors => {
-            const selected = structuredClone(selectors);
-            const current = this.store.getRun(run.id);
-            if (!current?.admissionOpen || entry.cancelRequested) throw Object.assign(new Error('Run closed'),{code:'CANDIDATE_CLOSED'});
-            if (current.sessionId !== session.id || this.store.getSession(session.id)?.extensionBinding?.binding?.matterId !== session.extensionBinding.binding.matterId) throw Object.assign(new Error('Run binding mismatch'),{code:'BINDING_MISMATCH'});
-            if (!Array.isArray(selected) || !selected.length || selected.length > 16) throw Object.assign(new Error('file count'),{code:'FILE_LIMIT'});
-            const records = structuredClone(current.artifacts);
-            const files = [];
-            for (const selector of selected) {
-              if (!selector || Object.keys(selector).sort().join(',') !== 'path,sha256') throw Object.assign(new Error('selector shape'),{code:'INVALID'});
-              const recordIndex = records.findIndex(r => r.path === selector.path && r.sha256 === selector.sha256);
-              const record = records[recordIndex];
-              if (!record || record.kind !== 'content-version') throw Object.assign(new Error('recorded version unavailable'),{code:'BINDING_MISMATCH'});
-              if (record.bytes > 65536) throw Object.assign(new Error('file byte limit'),{code:'FILE_LIMIT'});
-              const bytes = await this.artifactHistory.read(session.id,record.sha256,record.bytes);
-              let content;
-              try { content = new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes); }
-              catch { throw Object.assign(new Error('invalid file UTF-8'),{code:'INVALID'}); }
-              files.push({...record,sessionId:session.id,runId:run.id,recordIndex,content});
-            }
-            if (!this.store.getRun(run.id)?.admissionOpen || entry.cancelRequested) throw Object.assign(new Error('Run closed'),{code:'CANDIDATE_CLOSED'});
-            return files;
-          },
-        });
-      }
+      const workIntegration = createBuiltinWorkRunIntegration({
+        extensionRun: entry.extensionRun, sessionId: session.id, runId: run.id,
+        binding: session.extensionBinding,
+        runtimeProfile: { revision: entry.runtimeBinding.revision, hash: entry.runtimeBinding.hash },
+        readRecordedArtifacts: () => this.store.getRun(run.id)?.artifacts ?? [],
+        readRunSessionId: () => this.store.getRun(run.id)?.sessionId,
+        readSessionBinding: () => this.store.getSession(session.id)?.extensionBinding,
+        isAdmissionOpen: () => Boolean(this.store.getRun(run.id)?.admissionOpen) && !entry.cancelRequested,
+        historyIsEmpty: () => entry.nativeSession.historyIsEmpty(),
+        sessionRunCount: () => this.store.listRuns().filter(record => record.sessionId === session.id).length,
+        compactionEnabled: this.#compactionPolicy(model).enabled,
+        readHistory: (sha256, bytes) => this.artifactHistory.read(session.id, sha256, bytes),
+      });
+      const selectedWorkspaceTools = workIntegration.decorateWorkspaceTools(workspaceTools);
       const started = await entry.nativeSession.start({
         model,
         reasoningEffort: provider.reasoningEffort,
@@ -3366,7 +3336,7 @@ export class RuntimeService {
         input: instruction,
         systemPrompt,
         currentContext,
-        beforeInitialInput: initializeFileInput,
+        beforeInitialInput: workIntegration.beforeInitialInput,
         beforeProviderRequest: sparkAssignment ? () => {
           const current=this.store.snapshot(),assignment=this.subagents.find(current,sparkAssignment.id);
           if(assignment.status!=='active'||assignment.cancelRequested||current.subagents.agents[0].status!=='active'||this.store.getProviderConfigVersion()!==assignment.providerSelection.configVersion)throw new ServiceError(409,'spark_closed','Spark request admission closed');
@@ -3380,10 +3350,10 @@ export class RuntimeService {
             const current=this.store.snapshot(),assignment=this.subagents.find(current,sparkAssignment.id);this.subagents.authorized(current,assignment);
             if(assignment.cancelRequested||current.subagents.agents[0].status!=='active')throw new Error('Spark admission closed');
           }
-          await entry.extensionRun?.fileMemo?.beforeTool(name, args);
+          await workIntegration.beforeTool?.(name, args);
           if (['async_get', 'async_wait'].includes(name)) await this.asyncTasks.requestConsumption(run.id, callId, name.slice(6), args);
         },
-        beforeExtraInput: reason => entry.extensionRun?.fileMemo?.markUnknown(reason),
+        beforeExtraInput: workIntegration.beforeExtraInput,
         onObservation: (observation) => this.#onObservation(run.id, observation, entry),
         onNotice: (notice) => this.#appendNotice(run.id, notice),
       });
