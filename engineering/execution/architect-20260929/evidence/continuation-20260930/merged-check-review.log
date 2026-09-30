@@ -1,0 +1,41 @@
+✔ check approval rejects changed write revision before recording a start (2.388625ms)
+✔ check approval rejects changed candidate identity before recording a start (0.132584ms)
+✔ check approval rejects changed candidate revision before recording a start (0.0935ms)
+✔ check approval rejects changed candidate status before recording a start (0.101875ms)
+✔ check approval rejects changed binding identity before recording a start (0.093916ms)
+✔ check approval rejects changed binding revision before recording a start (0.097625ms)
+✔ check approval rejects changed execution path before recording a start (0.103458ms)
+✔ check approval rejects changed missing active binding before recording a start (0.0855ms)
+✔ check requires the exact approved recipe descriptor (0.275416ms)
+✔ candidate drift while persisting check.started settles failed without executing (5.883708ms)
+✔ runner's final synchronous Host fence prevents actual process side effects (1.831583ms)
+✔ runner cancellation before preparation never spawns (0.600334ms)
+✔ runner cancellation inside final fence never spawns (0.867208ms)
+✔ admission closing during start persistence settles once as cancelled without spawn (0.477917ms)
+✔ node-test-attention-contract: an approval for v1 cannot authorize v2, in either field alone or together (0.281375ms)
+✔ node-test-harness-contract: an approval for v1 cannot authorize v2, in either field alone or together (0.1375ms)
+✔ precondition: app/node_modules holds real files inside the repository, not a link out of it (3.200333ms)
+✔ node-test-attention-contract passes on this repository under the production sandbox with its frozen limits (3334.047083ms)
+✔ node-test-harness-contract passes on this repository under the production sandbox with its frozen limits (5176.488916ms)
+✔ cancel does not settle while a SIGTERM-ignoring detached descendant survives (156.289333ms)
+✔ timeout does not settle while a SIGTERM-ignoring detached descendant survives (439.637042ms)
+✔ a normal exit with nothing left in the group settles with the group confirmed gone (147.777542ms)
+✔ a check's process group dies with a Host that was killed mid-check, and the sandbox was in force (373.167125ms)
+✔ a recipe that exits leaving a descendant: exit 0 is reported and the descendant is gone (142.819041ms)
+✔ a Host that dies after the recipe's leader exited leaves no descendant running (319.893416ms)
+✔ the recipe's own exit signal is reported, including signals the guard's Node runtime handles (424.278916ms)
+✔ a recipe that signals its own group and handles it reports its own exit (426.824792ms)
+✔ a model-written candidate test cannot read a file at the Host data directory (review probe p4) (3116.310375ms)
+✔ the candidate, its Git metadata and the data directory are read-only; the check's own temporary directory is writable (204.15875ms)
+✔ a check has no network, not even to a port listening on this host (193.373583ms)
+✔ a descendant left in the check's process group is reaped after a normal exit (200.328791ms)
+✔ sandbox_unavailable starts no child when the sandbox mechanism is absent (2.770542ms)
+✔ sandbox_unavailable starts no child when the Node prefix would re-open the home directory (2.339042ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16101.568667

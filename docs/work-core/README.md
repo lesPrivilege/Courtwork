@@ -1,6 +1,10 @@
 # Work Core
 
-Work Core 保存事项、来源版本、候选、证据、决定与成果。NDA、Evidence Memo 和 Attention 使用同一个 Core，由本地 Host 维护生命周期与访问入口。
+Work Core owns Matters, source versions, candidates, evidence, decisions and accepted results. NDA, Evidence Memo and Attention use one Core; the local Host owns its lifecycle and authenticated access paths.
+
+These are Courtwork-owned work semantics, separate from the reused Pi execution loop and Harness capabilities. SQLite is the storage mechanism, not the definition of a lawful Work transition. Runtime completion, a passing tool/check or an upstream reference cannot accept a candidate. Work Extensions supply domain validation through the Work adapter; the Core does not import provider, runtime or UI packages. Public execution identity retained with a Work Run is immutable provenance, not an input that grants formal authority.
+
+The [reuse and ownership boundary](../../engineering/architecture.md#reuse-and-courtwork-owned-semantics) defines allowed dependencies and the Host integration responsibility. Implementation exceptions and their verification remain in the original task; this page does not claim complete runtime replaceability.
 
 | 文档 | 内容 |
 |---|---|

@@ -1,0 +1,23 @@
+✔ AM-C unchanged core wire golden and complete no-op remain stable with Explore contribution (1094.227042ms)
+✔ AM-C separates request shape, old prefix, and semantic tool diffs (493.28ms)
+✔ AM-C records description, schema, and permission changes as expected diffs (2507.260834ms)
+✔ file memo does not advertise an unconfirmed workspace placement as a recorded file (1654.003625ms)
+✔ real service/Pi recorded write, permission CAS, save, human accept, deletion and producer-absent exact reads (934.876208ms)
+✔ extra workspace reads and continued history yield unknown; an unrecorded selector never imports (1003.605166ms)
+✔ actual list/grep/ask/load inputs, continued history and compaction-enabled admission remain unknown (4641.935375ms)
+✔ steering, failed coverage persistence, and Stop racing immutable capture cannot publish a complete candidate (2035.234958ms)
+✔ missing or corrupt history rejects recorded import even though current workspace bytes still exist (1209.477791ms)
+✔ a real loopback MCP tool executes only after its extra-input marker is durable (1151.692291ms)
+✔ SIGKILL after history or rename leaves an orphan version that no later Run may import (3860.629625ms)
+✔ Work write projection requires a durable matching record and never promotes unconfirmed placement (2.520125ms)
+✔ Work selectors import the earliest exact recorded history version, not current path bytes (0.584708ms)
+✔ Work admission is rechecked after awaited history and revoked readers cannot return file content (0.163041ms)
+✔ ordinary execution does not call Work readers or install domain input callbacks (0.073333ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 41133.916542

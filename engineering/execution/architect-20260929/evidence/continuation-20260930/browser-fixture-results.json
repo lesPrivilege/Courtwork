@@ -1,0 +1,40 @@
+{
+  "runs": [
+    {
+      "id": "f68f5cc7-8419-4ce9-94e7-9f9239780fbb",
+      "sessionId": "64dbbc73-573c-4e6c-ad73-1f29716527c7",
+      "status": "completed"
+    },
+    {
+      "id": "c705881a-ab17-4f84-8b9a-20448eacdd47",
+      "sessionId": "89d62221-15fb-40d9-8eaf-153e96a781b9",
+      "status": "unknown"
+    },
+    {
+      "id": "20d23ad0-1cb3-4ef2-abc7-794ae65bad74",
+      "sessionId": "19b60182-2ac0-45d5-a4f1-8f1365d88fe0",
+      "status": "cancelled"
+    },
+    {
+      "id": "db3a5201-b483-4807-aa4d-7fb2e7982d8a",
+      "sessionId": "16c6426f-5b15-4b46-96b4-889f688fb8c5",
+      "status": "completed"
+    },
+    {
+      "id": "f21bcd49-536b-466c-8025-b253467be74c",
+      "sessionId": "16c6426f-5b15-4b46-96b4-889f688fb8c5",
+      "status": "cancelled"
+    },
+    {
+      "id": "9fbd8eeb-c366-4db2-b0ee-52a0e1421b36",
+      "sessionId": "16c6426f-5b15-4b46-96b4-889f688fb8c5",
+      "status": "completed"
+    },
+    {
+      "id": "44d76325-277a-4ef5-a312-af52f3f06bdf",
+      "sessionId": "16c6426f-5b15-4b46-96b4-889f688fb8c5",
+      "status": "completed"
+    }
+  ],
+  "closed": true
+}
