@@ -583,7 +583,7 @@ Data compatibility readers, the registered adapters and specimen surfaces, every
 
 ### R30-2 · a decided record showed this Host's sandbox
 
-The client change above put this Host's sandbox on every check approval, decided records included. A recorded approval carries no execution-environment fact (`env` is the recipe's `"minimal"` declaration), and v1 recipes ran on a Host without a sandbox, so the record cannot say either way. Correction (`ac5f7da`): the scope line shows the recorded declaration again; the authored-files sentence states this Host's sandbox on the live card only, and a decided record says the environment it ran in was not recorded. No schema field, no guess from the recipe version. Tests: the live and decided sentences, and a v1 payload through `permissionPresentation` with no sandbox claim. The unconfirmed-write text now says the directory or workspace "may have moved, or could not be checked", since a failed lookup does not show why.
+The client change above put this Host's sandbox on every check approval, decided records included. A recorded approval carries no execution-environment fact (`env` is the recipe's `"minimal"` declaration), and v1 recipes ran on a Host without a sandbox, so the record cannot say either way. Correction (`ac5f7da`): the scope line shows the recorded declaration again; the authored-files sentence states this Host's sandbox on the live card only, and a decided record, which also covers denied and closed approvals and by itself shows that nothing ran, says "This approval names N files the model wrote; the execution environment was not recorded" (`5c03d78`, after the reviewer noted the first wording claimed the check ran). No schema field, no guess from the recipe version. Tests: the live and decided sentences, and a v1 payload through `permissionPresentation` with no sandbox claim. The unconfirmed-write text now says the directory or workspace "may have moved, or could not be checked", since a failed lookup does not show why.
 
 ### Verification of the merge
 
@@ -608,6 +608,6 @@ The user's own checks, reported separately and not repeated here: the guard, san
 
 ### Handoff
 
-Code and records for review: branch `claude/merge-20260930` at `ac5f7da` plus the record commit that follows it. Not merged to `main`, not pushed, not published; the two delivery trees and the main UI checkout are untouched.
+Code and records for review: branch `claude/merge-20260930`, product head `5c03d78`. Waiting to be merged next, when the reviewer hands it over: Sol's isolated `work-run-boundary` commit that extracts the file-memo execution adapter from `service.mjs` (about 150 lines) and adds the negative case for the old file-memo `ws_write` wrapper, which recorded a file unconditionally and would call an unconfirmed write recorded. Neither is part of what this record verifies. Not merged to `main`, not pushed, not published; the two delivery trees and the main UI checkout are untouched.
 
 **Not run.** Linux in every respect. A real model. macOS versions other than 27. The browser beyond the user's own checks above; the alias-conflict note and the live-versus-recorded approval card in a real browser. A second full suite after R30-2.
