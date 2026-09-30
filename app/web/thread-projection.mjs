@@ -292,8 +292,16 @@ export function approvalCandidate(payload) {
  * request names, up to the write revision it was bound to — never from the
  * live candidate. The latest write per path wins; an unknown outcome is kept
  * as a possible write with no hash. */
-export const checkAuthoredFilesSentence = (count) =>
-  `This check executes ${count === 1 ? "1 file" : `${count} files`} the model wrote, inside a sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:`;
+/* R30-2 · a recorded approval carries no execution-environment fact (the
+ * payload's `env` is the recipe's "minimal" declaration), so a decided record
+ * cannot be shown with this Host's current sandbox: only a live approval
+ * states what this Host will do now. */
+export const checkAuthoredFilesSentence = (count, { live = false } = {}) => {
+  const files = count === 1 ? "1 file" : `${count} files`;
+  return live
+    ? `This check executes ${files} the model wrote, inside this Host's sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:`
+    : `This check ran ${files} the model wrote; the environment it ran in was not recorded:`;
+};
 export function candidateAuthoredFiles(events, payload) {
   const id = typeof payload?.candidateId === "string" && payload.candidateId ? payload.candidateId : null;
   const bound = Number.isSafeInteger(payload?.candidateWriteRevision) ? payload.candidateWriteRevision : null;
@@ -341,7 +349,7 @@ export function permissionPresentation(payload, binding) {
       details: "Check details",
       candidate: approvalCandidate(payload),
       hashLabel: "Copy proposed arguments hash",
-      scope: [`${command} ${argv}`.trim(), "in the private candidate", seconds ? `${seconds} s` : null, kib ? `${kib} KiB per stream` : null, "sandboxed, no network"].filter(Boolean).join(" · "),
+      scope: [`${command} ${argv}`.trim(), "in the private candidate", seconds ? `${seconds} s` : null, kib ? `${kib} KiB per stream` : null, "minimal environment"].filter(Boolean).join(" · "),
     };
   }
   const resource = binding?.resources?.find(

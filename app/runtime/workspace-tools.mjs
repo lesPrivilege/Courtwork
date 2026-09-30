@@ -393,7 +393,7 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
       // record claims the path, and the bytes stay where they went, since
       // taking them back would change a moved directory a second time.
       if (!committed.placed) {
-        const text = `wrote ${bytes} bytes (sha256 ${sha256}), but could not confirm that they are at ${relativePath}: the directory or the workspace moved during the write. The exact bytes are kept in history.`;
+        const text = `wrote ${bytes} bytes (sha256 ${sha256}), but could not confirm that they are at ${relativePath}: the directory or the workspace may have moved during the write, or could not be checked. The exact bytes are kept in history.`;
         return { content: [{ type: "text", text }], details: { path: relativePath, bytes, sha256, placement: "unconfirmed" } };
       }
       // Crash point: the rename has landed, the artifact record has NOT. This

@@ -52,12 +52,33 @@ test("the check approval card and its decided record both show the authored file
   assert.equal((render.match(/checkAuthoredFiles\(/g) || []).length, 2, "open card and decided record");
 });
 
-test("the authored-files sentence states the sandbox boundary and no longer claims the person's access", () => {
-  const one = checkAuthoredFilesSentence(1);
-  assert.equal(one, "This check executes 1 file the model wrote, inside a sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:");
-  assert.match(checkAuthoredFilesSentence(3), /^This check executes 3 files the model wrote,/);
-  assert.doesNotMatch(one, /your access|this computer/i);
+test("a live approval states this Host's sandbox; a decided record states only what was recorded", () => {
+  const live = checkAuthoredFilesSentence(1, { live: true });
+  assert.equal(live, "This check executes 1 file the model wrote, inside this Host's sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:");
+  assert.match(checkAuthoredFilesSentence(3, { live: true }), /^This check executes 3 files the model wrote, inside this Host's sandbox/);
+  assert.doesNotMatch(live, /your access|this computer/i);
+  // R30-2 · a recorded approval has no execution-environment fact, so the
+  // decided view must not project the current Host's sandbox onto the past.
+  const decided = checkAuthoredFilesSentence(2);
+  assert.equal(decided, "This check ran 2 files the model wrote; the environment it ran in was not recorded:");
+  assert.doesNotMatch(decided, /sandbox|no network|your access|this computer/i);
   const app = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
-  assert.match(app, /text: checkAuthoredFilesSentence\(files\.length\)/, "the card renders that sentence");
+  assert.match(app, /text: checkAuthoredFilesSentence\(files\.length, \{ live \}\)/, "the sentence follows the card's liveness");
+  assert.match(app, /card\.append\(\.\.\.checkAuthoredFiles\(payload, \{ live: true \}\)\);/, "only the live card is told it is live");
+  assert.match(app, /details\.append\(\.\.\.checkAuthoredFiles\(payload\)\);/, "the decided record is not");
   assert.doesNotMatch(app, /with your access to this computer/);
 });
+
+test("R30-2 · a recorded v1 approval payload is presented as recorded, without this Host's sandbox", async () => {
+  const { permissionPresentation } = await import("../web/thread-projection.mjs");
+  const v1 = { toolCallId: "c1", tool: "check_run", path: "*", bytes: 22, contentSha256: "a".repeat(64), preview: '{"recipeId":"node-test-harness-contract"}',
+    recipeId: "node-test-harness-contract", recipeVersion: 1, command: "/usr/local/bin/node", argv: ["--test", "app/tests/hermes-api-runs.test.mjs"], cwd: "private candidate",
+    candidateId: "cand", candidateWriteRevision: 2, timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal" };
+  const display = permissionPresentation(v1, null);
+  assert.equal(display.scope, "node --test app/tests/hermes-api-runs.test.mjs · in the private candidate · 120 s · 64 KiB per stream · minimal environment");
+  assert.doesNotMatch(JSON.stringify(display), /sandbox|no network/i);
+  // The same payload shape for a current recipe is presented the same way: the record carries no environment fact either.
+  const v2 = { ...v1, recipeVersion: 2, argv: ["--test", "app/tests/kit-context.test.mjs"] };
+  assert.doesNotMatch(JSON.stringify(permissionPresentation(v2, null)), /sandbox|no network/i);
+});
+

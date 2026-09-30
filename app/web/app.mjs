@@ -6775,7 +6775,7 @@ function recordedApprovalIdentity(candidate) {
  * the open card and the decided record name those files from the Host's
  * confirmed-write receipts, bounded by the write revision the request was
  * bound to (candidateAuthoredFiles). */
-function checkAuthoredFiles(payload) {
+function checkAuthoredFiles(payload, { live = false } = {}) {
   if (payload?.tool !== "check_run") return [];
   const files = candidateAuthoredFiles(state.events, payload);
   if (!files.length)
@@ -6787,7 +6787,7 @@ function checkAuthoredFiles(payload) {
   return [
     element("p", {
       className: "form-help",
-      text: checkAuthoredFilesSentence(files.length),
+      text: checkAuthoredFilesSentence(files.length, { live }),
     }),
     list,
     ...(files.length > shown.length
@@ -6857,7 +6857,7 @@ function renderPermission(row) {
   );
   if (display.scope) card.append(element("p", { className: "form-help", text: display.scope }));
   if (display.source) card.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
-  card.append(...checkAuthoredFiles(payload));
+  card.append(...checkAuthoredFiles(payload, { live: true }));
   if (validPermission(payload)) {
     card.append(
       element("p", {
