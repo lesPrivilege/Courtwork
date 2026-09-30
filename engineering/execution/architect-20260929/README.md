@@ -580,3 +580,34 @@ Left unchanged because they already keep the request identity on a 5xx: `runWork
 ### Not changed, by instruction
 
 Data compatibility readers, the registered adapters and specimen surfaces, every "Needs a ruling" item, K3/K5, and the two HTTP workspace endpoints (deferred, `service.mjs`).
+
+### R30-2 · a decided record showed this Host's sandbox
+
+The client change above put this Host's sandbox on every check approval, decided records included. A recorded approval carries no execution-environment fact (`env` is the recipe's `"minimal"` declaration), and v1 recipes ran on a Host without a sandbox, so the record cannot say either way. Correction (`ac5f7da`): the scope line shows the recorded declaration again; the authored-files sentence states this Host's sandbox on the live card only, and a decided record says the environment it ran in was not recorded. No schema field, no guess from the recipe version. Tests: the live and decided sentences, and a v1 payload through `permissionPresentation` with no sandbox claim. The unconfirmed-write text now says the directory or workspace "may have moved, or could not be checked", since a failed lookup does not show why.
+
+### Verification of the merge
+
+The one full suite ran on `0ae5ae2`, serially, before R30-2 (a client-only change verified by its test files: 66/66 across the nine web and gate files). Load average 3.7 at the start.
+
+| Check | Result |
+|---|---|
+| `node app/scripts/check-historical-fixtures.mjs` | 45 checks verified |
+| `npm --prefix app test` at `0ae5ae2` | 1999 of 2000, 377 s. The failure: `workspace-traversal-identity` "AR2: a directory swapped for an outside symlink between naming and opening it during the walk is not followed (ws_grep)", 2.0 s. It passed 3 of 3 alone. The tool's whole search has a 2-second deadline and the test swaps the directory through a Python hook; under the concurrent suite the helper did not finish inside it. Recorded as a timing failure under load; the deadline itself is unchanged. |
+| Check files alone (`check-runner-group-kill`, `check-recipes`, `check-sandbox`, `check-approval-revision`, `check-recipes-real`, plus the policy files) | 94/94; the joint matrix 17/17 |
+| Identity files alone (`workspace-file-identity`, `workspace-traversal-identity`, `workspace`, `repository-binding`) | 46/46 before R30 return; `workspace-file-identity` 11/11 after |
+| Author's policy recheck on the merged code | every corrected outcome |
+| Reviewer's R30 probes | The first (`write-move-probe`) checks only the reported path and where the bytes are, so it still passes on the corrected code; the return probe asserts the old root defect and stops at its assertion on the corrected code. Neither is used as acceptance; the new tests carry fixed assertions. |
+| `node tools/check-doc-links.mjs` | no problems |
+
+The user's own checks, reported separately and not repeated here: the guard, sandbox and real-recipe files 33/33 after the merge; in the built-in browser, a synthetic unknown outcome reads "Latest Unknown", an approved check with exit 1 leaves the Run Completed, Stop before approval settles Cancelled, and a cancelled Run has `check.started` 0 over HTTP; R30-1's two fixed assertions pass at `eac73ab`.
+
+### Boundaries stated by the user on 2026-09-30
+
+- Parts developed here beyond Harness Core/Extensions and the mature practices they follow must be clearly decoupled at code boundaries and in the documents, so they are not confused with upstream mechanisms. Luna is checking the Work Core, Work Extension and Host governance boundaries, in particular the file-memo profile logic and the domain allow-list inside `service.mjs`; that returns as a separate small commit to merge later and is not part of what this record verifies.
+- No item under "Needs a ruling" is opened by this merge.
+
+### Handoff
+
+Code and records for review: branch `claude/merge-20260930` at `ac5f7da` plus the record commit that follows it. Not merged to `main`, not pushed, not published; the two delivery trees and the main UI checkout are untouched.
+
+**Not run.** Linux in every respect. A real model. macOS versions other than 27. The browser beyond the user's own checks above; the alias-conflict note and the live-versus-recorded approval card in a real browser. A second full suite after R30-2.
