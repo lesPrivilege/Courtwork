@@ -44,10 +44,6 @@
         "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/activity.svg",
         "sha256": "050fbcda05e13c2051cf857683645e19c6b180861ef4d0cc28a6f09ba1ea1666"
       },
-      "arrow-down.svg": {
-        "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/arrow-down.svg",
-        "sha256": "2b641c7a59d39450edfed72067fcc9940a1a316a737346af23b4b9103c0689f2"
-      },
       "arrow-left.svg": {
         "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/arrow-left.svg",
         "sha256": "c5f4b88076108eb1a0d95336e1aa7e7bb1419a3a92af96f6247d88cd3456f933"
@@ -283,9 +279,6 @@
       "runtime-skill.svg": {
         "sha256": "f8ee8fa24bb298b7b640bc89df807462cd5d6df3b937bf4d50208b8297623b0e"
       },
-      "runtime-plugin.svg": {
-        "sha256": "355c7ada261d4114363089685ed3ce56eacbb0418baee0b4b7d62b9ecad41410"
-      },
       "runtime-host-extension.svg": {
         "sha256": "a0ee0824fb4dee6458859ea56908e3f7dd873f43048d88eb48f2e026a354db0c"
       },
@@ -314,8 +307,8 @@
     "floating.mjs": "694dfdfd6583aa125b0f12fdd0d290f4bec6b0fd75cc4c762f692226f157df60",
     "marked.mjs": "05e41134d075ad3a009a748d6c779c3d83cea9b942be911c2d9abade36d1dd31",
     "purify.mjs": "e7d8182ea0aae9daa46c3294a486067b3f4461bd18f8ca76e499c623e9bda6e3",
-    "icons.svg": "f73f81db5d1da176dbbe0e6e6fddf6846c98ec264c7e59b8b56130b73dc38625",
-    "icon-data.generated.mjs": "499ca549d10d8c718ac031d3711915ac5479a3281092ec1121a48e3425fe49d1",
+    "icons.svg": "ea3cef44376f7a32eafd6e82e8f958b67e824fdc3281e9305433132b3935d936",
+    "icon-data.generated.mjs": "0264046aa84930b0d0605aae7ed14a3d177aecddca52b276f9a2a2c023a58ea4",
     "LICENSES.txt": "2d46e15ce43cff012f432563e577e536b95c8ad8d48cbeb727c968b09c0f5493"
   }
 }

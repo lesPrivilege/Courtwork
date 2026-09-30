@@ -32,7 +32,7 @@ export function createLocalExtensionView(mount, { request, onRegistered, disable
     mount.append(review);
     if (preview) {
       const manifest = preview.manifest;
-      mount.append(el('div', { className: 'runtime-local-heading' }, semanticIcon('plugin.host-extension', { size: 20 }), el('strong', { text: manifest.title })),
+      mount.append(el('div', { className: 'runtime-local-heading' }, semanticIcon('plugin.host-extension'), el('strong', { text: manifest.title })),
         el('p', { className: 'form-help', text: `${manifest.id} · ${manifest.version} · ${preview.files.length} files · ${preview.bytes.toLocaleString()} bytes` }),
         el('p', { className: 'form-help', text: 'Host-trusted, in-process. Loading can access this host’s files and network with its user permissions. This is not a sandbox or a verified signature.' }));
       const details = el('details', {}, el('summary', { text: 'Manifest and reviewed files' }),

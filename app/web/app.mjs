@@ -17,6 +17,8 @@ import {
   action,
   setAction,
   copyAction,
+  glyphBlank,
+  disclosureMark,
   installTooltips,
   anchorPopover,
   sessionMode,
@@ -169,7 +171,6 @@ const state = {
   greeting: null,
   lastActiveAt: Date.now(),
   startAfterProject: false,
-  newSessionProjectId: null,
   runtimeInfo: null,
   capabilities: null,
   adapterId: null,
@@ -1539,9 +1540,11 @@ async function selectSession(
   state.attentionOpen = false;
   state.chatOpen = false;
   attentionWorkspace?.deactivate();
-  /* 侧栏在 Settings 在场时是可点的（这正是页面而非模态的意思），所以走到一个会话
-   * 就得让这一页退场：否则会话在底下换好了，顶带还写着 Settings。焦点交给下面的
-   * 会话流程，不还给打开设置的那个控件。 */
+  /* If Settings is up when a chat is selected, Settings leaves first: otherwise
+   * the chat would change underneath while the header still said Settings.
+   * (The sidebar itself is hidden and inert while Settings is open, WK-116.)
+   * Focus goes to the chat flow below, not back to the control that opened
+   * Settings. */
   closeSettings({ restoreFocus: false });
   if (sessionId === state.activeSessionId) {
     /* v3 · the work surface opens for an object a person opened, not for a
@@ -2241,7 +2244,7 @@ function renderProjectList() {
       element(
         "span",
         { className: "project-chevron" },
-        icon(open ? "chevron-down" : "chevron-right"),
+        disclosureMark(),
       ),
       icon("folder"),
       element("span", {
@@ -2407,7 +2410,7 @@ function renderExtensionList() {
       "div",
       { className: "extension-row-head" },
       element("span", { className: "extension-row-title" },
-        semanticIcon("plugin.host-extension", {size: 18}),
+        semanticIcon("plugin.host-extension"),
         element("span", { text: extension.title || extension.id }),
       ),
       element("span", {
@@ -4332,10 +4335,10 @@ function renderSurfaceVisibility() {
    * 东西（被切走的那一面根本不在屏幕上），C 三栏并列更没有可压暗的对象。 */
   $("surface-backdrop").hidden = !modal;
   $("nav-backdrop").hidden = !navModal;
-  $("toggle-nav-button").setAttribute(
-    "aria-expanded",
-    String(overlay ? navModal : !state.sidebarCollapsed),
-  );
+  const navigationShown = overlay ? navModal : !state.sidebarCollapsed;
+  // ICN-26 (S5) · the name says what a press does; with the state in the name,
+  // aria-expanded would say it twice ("Close navigation, expanded").
+  setAction($("toggle-nav-button"), "panel-left", navigationShown ? "Close navigation" : "Open navigation");
   setAction($("show-surface-button"), "panel-right", "Open preview");
   /* Expand/Restore is the one geometry change a pane beside the chat can make
    * (C); B already has the whole main area, and the sheet has the whole
@@ -4352,9 +4355,9 @@ function renderSurfaceVisibility() {
   const back = $("surface-back-button");
   back.hidden = !viewSwitch;
   if (viewSwitch) {
-    /* 纯文字。sprite 里没有一个"往回"的 glyph，而 glyph-semantics 是本单不可写的
-     * 契约文件；与其为一个控件新造一个图形，不如让这个控件就说 `Chat`。它也因此在
-     * 一排 tab 里一眼可辨：tab 是下划线，它是一个带框的按钮。 */
+    /* Text only: the control says where it goes, `Chat`, and reads as a bordered
+     * button among underlined tabs. arrow-left ships, but a glyph here would
+     * add a second drawing for Back beside the sidebar's history arrows. */
     back.replaceChildren(
       element("span", { className: "button-label", text: "Chat" }),
     );
@@ -6004,17 +6007,21 @@ function openAccountMenu(anchor) {
     element("p", { className: "account-menu-address", text: address }),
     element("p", { className: "account-menu-email", text: state.account?.identity?.email ?? "" }));
   const go = (section) => () => { popover.hidePopover(); openSettings(section, { trigger: anchor }); };
+  /* ICN-15/16, THR-03 (S5) · one entry opens Settings; the person's own pages
+   * are named, not drawn with another control's glyph (square-pen is New chat,
+   * key-round is Permissions), so they keep a blank glyph slot. Sign out is not
+   * drawn until accounts can be signed out of. */
+  const personal = (label, section) => {
+    const row = action(null, label, go(section), { visible: true, className: "context-row" });
+    row.prepend(glyphBlank());
+    return row;
+  };
   const rows = [
-    action("square-pen", "Profile", go("profile"), { visible: true, className: "context-row" }),
-    action("settings-2", "Preferences", go("appearance"), { visible: true, className: "context-row" }),
-    action("key-round", "Account", go("account"), { visible: true, className: "context-row" }),
+    personal("Profile", "profile"),
+    personal("Account", "account"),
     action("settings-2", "Settings", () => { popover.hidePopover(); openSettings(state.settings.section, { trigger: anchor }); }, { visible: true, className: "context-row", attrs: { id: "runtime-setup-button" } }),
   ];
-  const signOut = action("external-link", "Sign out", () => {}, { visible: true, className: "context-row" });
-  signOut.disabled = true;
-  signOut.dataset.tooltip = "Available when accounts are connected.";
-  popover.replaceChildren(head, element("div", { className: "context-card" }, ...rows), element("div", { className: "context-card" }, signOut,
-    element("p", { className: "context-meta", text: "Available when accounts are connected." })));
+  popover.replaceChildren(head, element("div", { className: "context-card" }, ...rows));
   popover.showPopover();
   rows[0].focus();
 }
@@ -7294,42 +7301,24 @@ async function createEntity(event, kind) {
   }
   const existing = state.createAttempts.get(kind);
   if (existing && !existing.unconfirmed) return;
-  const input = $(
-    kind === "project" ? "project-name-input" : "session-title-input",
-  );
-  const value =
-    input.value.trim() || (kind === "session" ? "Untitled chat" : "");
+  const value = $(`${kind}-name-input`).value.trim();
   if (!value) return;
-  const projectId = state.newSessionProjectId,
-    nav = state.navigationEpoch,
+  const nav = state.navigationEpoch,
     startNext = state.startAfterProject,
     homeRequest = state.homeProjectRequest;
-  if (kind === "session" && !projectId) return;
   /* v2 entry audit · the identity is fixed before the POST. An unconfirmed
    * attempt keeps it, so a retry asks the Host about the same record instead
    * of creating a second one; Check status reads it back without a write. */
   const attempt = existing?.unconfirmed && existing.value === value
     ? { ...existing, unconfirmed: false, nav, startNext, homeRequest }
-    : { id: nextOperationId(kind), kind, clientId: crypto.randomUUID(), value, projectId, nav, startNext, homeRequest, unconfirmed: false };
+    : { id: nextOperationId(kind), kind, clientId: crypto.randomUUID(), value, nav, startNext, homeRequest, unconfirmed: false };
   state.createAttempts.set(kind, attempt);
   const controls = createControls(dialog);
   controls.forEach((node) => (node.disabled = true));
   const error = $(`${kind}-create-error`);
   error.hidden = true;
   try {
-    const body =
-      kind === "project"
-        ? { name: value, projectId: attempt.clientId }
-        : {
-            projectId,
-            title: value,
-            permissionMode: $("session-permission-input").value,
-            sessionId: attempt.clientId,
-          };
-    const result = await request(
-      kind === "project" ? "/projects" : "/sessions",
-      { method: "POST", body },
-    );
+    const result = await request("/projects", { method: "POST", body: { name: value, projectId: attempt.clientId } });
     const entity = result[kind];
     if (!entity?.id || entity.id !== attempt.clientId)
       throw new Error("No matching creation receipt returned. Check its status before creating again.");
@@ -7369,12 +7358,7 @@ async function checkCreationStatus(kind) {
   if (!attempt?.unconfirmed) return;
   const dialog = $(`${kind}-dialog`);
   try {
-    let entity = null;
-    if (kind === "project") entity = (await request("/projects")).projects?.find((project) => project.id === attempt.clientId) ?? null;
-    else {
-      try { entity = (await request(`/sessions/${encodeURIComponent(attempt.clientId)}`)).session ?? null; }
-      catch (err) { if (err.status !== 404) throw err; }
-    }
+    const entity = (await request("/projects")).projects?.find((project) => project.id === attempt.clientId) ?? null;
     if (entity) {
       attempt.unconfirmed = false;
       await admitCreatedEntity(kind, entity, attempt);
@@ -7390,37 +7374,25 @@ async function checkCreationStatus(kind) {
 }
 async function admitCreatedEntity(kind, entity, attempt) {
   const dialogId = `${kind}-dialog`, dialog = $(dialogId);
-  const { projectId, nav, startNext, homeRequest } = attempt;
+  const { nav, startNext, homeRequest } = attempt;
   const admit = dialog.open && nav === state.navigationEpoch;
-  if (kind === "project") await loadProjects();
-  else {
-    const items = state.sessionsByProject.get(projectId) || [];
-    state.sessionsByProject.set(projectId, [
-      ...items.filter((item) => item.id !== entity.id),
-      entity,
-    ]);
-  }
+  await loadProjects();
   if (admit && dialog.open && nav === state.navigationEpoch) {
     closeDialog(dialogId);
-    $(kind === "project" ? "project-name-input" : "session-title-input").value = "";
-    if (kind === "project") {
-      await selectProject(entity.id);
-      if (homeRequest) {
-        state.homeProjectRequest = false;
-        state.homeProjectId = entity.id;
-        storeHomeDraft();
-        await goHome();
-        $("workspace-chip")?.focus();
-      } else if (startNext) startNewSession();
-    } else await selectProject(projectId, { sessionId: entity.id });
+    $(`${kind}-name-input`).value = "";
+    await selectProject(entity.id);
+    if (homeRequest) {
+      state.homeProjectRequest = false;
+      state.homeProjectId = entity.id;
+      storeHomeDraft();
+      await goHome();
+      $("workspace-chip")?.focus();
+    } else if (startNext) startNewSession();
   } else renderProjectList();
   void loadHome();
 }
 async function createProject(event) {
   return createEntity(event, "project");
-}
-async function createSession(event) {
-  return createEntity(event, "session");
 }
 
 function wireEvents() {
@@ -7428,7 +7400,7 @@ function wireEvents() {
   const actions = {
     "new-project-button": ["plus", "New project"],
     "close-nav-button": ["x", "Close navigation"],
-    "toggle-nav-button": ["panel-left", "Toggle navigation"],
+    "toggle-nav-button": ["panel-left", "Open navigation"],
     "clear-nav-filter-button": ["x", "Clear filter"],
     "show-run-button": ["text-align-start", "Chat overview"],
     "show-surface-button": ["panel-right", "Open preview"],
@@ -7741,7 +7713,6 @@ function wireEvents() {
     storeHomeDraft();
   });
   $("project-form").addEventListener("submit", createProject);
-  $("session-form").addEventListener("submit", createSession);
   $("rename-form").addEventListener("submit", (event) => void submitRename(event));
   $("delete-form").addEventListener("submit", (event) => void submitDelete(event));
   $("nav-back-button").addEventListener("click", () => void traverseHistory("back"));
@@ -7987,15 +7958,9 @@ async function init() {
     notify: showToast,
   });
   /* WK-94 · 两处用同一句话：控件自己说全后果，没有第二套短词。 */
-  for (const id of ["home-permission-input", "session-permission-input"]) {
-    const select = $(id);
-    if (!select) continue;
-    select.replaceChildren(
-      ...Object.entries(permissionLabels).map(([value, text]) =>
-        element("option", { text, attrs: { value } }),
-      ),
-    );
-  }
+  $("home-permission-input")?.replaceChildren(
+    ...Object.entries(permissionLabels).map(([value, text]) => element("option", { text, attrs: { value } })),
+  );
   usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
   sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
   subagentView = createSubagentView({request,getSession:currentSession,onOpenSession:id=>selectSession(id),onMaintenance:()=>sparkView.open(workingProjectId())});

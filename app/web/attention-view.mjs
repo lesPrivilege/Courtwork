@@ -1,4 +1,4 @@
-import { el, icon, setRequestLabel } from './ui-controls.mjs';
+import { el, icon, setRequestLabel, disclosureMark } from './ui-controls.mjs';
 import { attentionLabels, toAttentionActionDescriptors, toHomeAttention, toHomeAttentionDetail } from './presentation-adapters.mjs';
 
 /* The Attention items workspace. It reads the same Core queries Home reads and,
@@ -229,7 +229,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
      * workspace, not inside an item's detail where it would read as attached. */
     if (onOpenAssistant) {
       const open = button('', onOpenAssistant, 'open-assistant', 'quiet-button attention-open-assistant');
-      open.append(icon('attention', { size: 18 }), el('span', { text: 'Open Attention' }));
+      open.append(icon('attention'), el('span', { text: 'Open Attention' }));
       actions.append(open);
     }
     actions.append(button('Back to workspace',onBack,'back','quiet-button'));
@@ -319,7 +319,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
       article.append(detailHead(d), decision(d), actionSurface(d), recordedContext(d));
       body.append(article);
     }else if(!state.selectedId && toHomeAttention(state.data)?.items.length)body.append(el('div',{className:'attention-empty attention-reading-empty'},
-      icon('attention',{size:20}), el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
+      icon('attention'), el('p',{text:'Choose an item to read its reason, recorded next step and sources.'})));
     return detail;
   }
 
@@ -355,7 +355,7 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
   /* L3 · version, provenance and the recorded grant, on request. */
   function recordedContext(d) {
     const refs=el('details',{className:'attention-basis'},el('summary',{},
-      icon('chevron-right',{size:16}), el('span',{text:'Recorded context'})));
+      disclosureMark(), el('span',{text:'Recorded context'})));
     const list = el('div',{className:'attention-basis-body'});
     const freshness = state.detail.freshness === 'unknown' ? ' · Freshness unknown' : '';
     list.append(el('p',{text:`Revision ${d.revision}${freshness} · Updated ${time(d.updated_at)}`}),

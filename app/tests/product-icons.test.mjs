@@ -70,10 +70,10 @@ test("disclosure rows use a native SVG chevron without changing the summary or i
   const row = flowRow('summary', { title: 'Recorded sources', glyph: 'file-text' });
   assert.equal(row.tagName, 'summary');
   assert.equal(row.textContent, 'Recorded sources');
-  const chevron = row.querySelector('.flow-disclosure-icon');
+  const chevron = row.querySelector('.disclosure-mark');
   assert.equal(chevron.getAttribute('aria-hidden'), 'true');
   assert.equal(chevron.querySelectorAll('path').length, 1);
-  assert.equal(flowRow('div', { title: 'Plain row' }).querySelector('.flow-disclosure-icon'), null);
+  assert.equal(flowRow('div', { title: 'Plain row' }).querySelector('.disclosure-mark'), null);
 }));
 
 test("sprite symbols are exactly the pinned Lucide files plus the CourtWork domain files, with recorded hashes", () => {
@@ -110,7 +110,7 @@ test("Spark, Attention and Chat seats and the Settings groups carry their regist
   assert.match(app, /"show-run-button": \["text-align-start", "Chat overview"\]/);
   assert.match(app, /"show-surface-button": \["panel-right", "Open preview"\]/, "the Preview entry keeps panel-right");
   const settings = read("app/web/settings-view.mjs");
-  assert.match(settings, /semanticIcon\(GROUP_OBJECT_GLYPHS\[group\.id\] \?\? `settings\.\$\{group\.id\}`, \{ size: 18 \}\)/);
+  assert.match(settings, /semanticIcon\(GROUP_OBJECT_GLYPHS\[group\.id\] \?\? `settings\.\$\{group\.id\}`\)/, "Settings tabs take the 16 default (ICN-10)");
   // A group named after one kind of object carries that object's glyph (06c I1: Agents → agent.profile).
   assert.match(settings, /GROUP_OBJECT_GLYPHS = \{ plugins: "plugin\.object", agents: "agent\.profile" \}/);
   for (const id of ["general", "appearance", "models", "tools", "skills", "memory", "permissions", "keyboard", "developer"])

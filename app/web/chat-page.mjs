@@ -45,7 +45,7 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
 
   function facet(entry) {
     const card = el("article", { className: `chat-facet${entry.current ? " is-current" : ""}`, attrs: { "aria-current": entry.current ? "page" : null } });
-    const head = el("h2", { className: "chat-facet-name" }, semanticIcon(entry.key, { size: 20 }), el("span", { text: entry.name }));
+    const head = el("h2", { className: "chat-facet-name" }, semanticIcon(entry.key), el("span", { text: entry.name }));
     card.append(head, el("p", { text: entry.line }));
     if (entry.key === "attention.agent") card.append(el("button", { className: "quiet-button", text: "Open Attention", attrs: { type: "button", "data-chat-facet": "attention" } }));
     if (entry.key === "spark.surface") card.append(el("button", { className: "quiet-button", text: "Open Spark", attrs: { type: "button", "data-chat-facet": "spark" } }));
@@ -67,7 +67,7 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
 
     const heading = el("header", { className: "chat-page-heading" },
       el("div", {},
-        el("h1", { attrs: { tabindex: "-1", "data-chat-focus": "title" } }, semanticIcon("chat.surface", { size: 24 }), el("span", { text: "Chat" })),
+        el("h1", { attrs: { tabindex: "-1", "data-chat-focus": "title" } }, semanticIcon("chat.surface", { size: 20 }), el("span", { text: "Chat" })),
       ),
     );
     const actions = el("div", { className: "chat-page-actions" });

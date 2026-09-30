@@ -109,8 +109,8 @@
           <button id="new-session-button" class="quiet-button" type="button" aria-label="New chat"></button>
         </div>
         <!-- CA-01 · Chat is the plain-conversation seat beside Attention and
-             Spark: it returns to the chat you were in or the most recent one,
-             and otherwise lands on Home's composer. It creates nothing. -->
+             Spark: it opens the Chat page, the list of chats with a way back
+             to the one you were in. It creates nothing. -->
         <p id="nav-history-notice" class="nav-history-notice" role="status" hidden></p>
         <button id="chat-button" class="nav-home quiet-button" type="button">Chat</button>
         <button id="attention-button" class="nav-home quiet-button" type="button">Attention</button>
@@ -200,7 +200,6 @@
             class="quiet-button"
             type="button"
             aria-controls="navigation-panel"
-            aria-expanded="false"
             aria-label="Open navigation"
           ></button>
           <!-- WK-116 · Settings 在场时全局侧栏不渲染，所以这条带上没有可开合的导航，
@@ -991,44 +990,6 @@
         <div class="dialog-actions">
           <button class="quiet-button" value="cancel" type="submit" formnovalidate>Cancel</button
           ><button class="primary-button" value="default" type="submit">Delete</button>
-        </div>
-      </form>
-    </dialog>
-    <dialog
-      id="session-dialog"
-      class="form-dialog"
-      aria-labelledby="session-dialog-title"
-    >
-      <form id="session-form" method="dialog">
-        <h2 id="session-dialog-title">New chat</h2>
-        <p id="session-project-label" class="form-help"></p>
-        <label for="session-title-input">Chat title</label
-        ><input
-          id="session-title-input"
-          name="title"
-          maxlength="200"
-          placeholder="Untitled chat"
-          autocomplete="off"
-        />
-        <label for="session-permission-input">File access</label
-        ><select id="session-permission-input"></select>
-        <p
-          id="session-create-error"
-          class="inline-error"
-          role="alert"
-          hidden
-        ></p>
-        <div class="dialog-actions">
-          <button
-            class="quiet-button"
-            value="cancel"
-            type="submit"
-            formnovalidate
-          >
-            Cancel</button
-          ><button class="primary-button" value="default" type="submit">
-            Create chat
-          </button>
         </div>
       </form>
     </dialog>

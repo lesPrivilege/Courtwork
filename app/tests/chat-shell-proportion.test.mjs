@@ -43,8 +43,8 @@ test("band · one title line; Chat is the default mode and is not restated", () 
 });
 
 test("sidebar · 16 glyph on a 32 row, 2 between nav rows, 16 between groups, 44 on touch", () => {
-  assert.match(styles, /\.nav-home > \.ui-icon,\n#cancel-run-button \.ui-icon \{\n  width: 16px;\n  height: 16px;/);
-  assert.doesNotMatch(styles, /\.nav-home > \.ui-icon \{\s*width: 20px/);
+  // ICN-10 (S5) · the glyph is 16 because icon() passes 16; no selector sizes it.
+  assert.doesNotMatch(styles, /\.nav-home > \.ui-icon[^{]*\{[^}]*\b(width|height):/);
   assert.match(rule(styles, ".nav-home"), /min-height: max\(32px, var\(--control\)\);/);
   assert.doesNotMatch(rule(styles, ".sidebar"), /\bgap:/);
   assert.match(rule(styles, ".sidebar > * + *"), /margin-top: var\(--space-4\);/);

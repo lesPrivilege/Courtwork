@@ -124,7 +124,8 @@ test("the strip draws each object as a tab with a separate close target and the 
   assert.deepEqual(selects.map((node) => node.tabIndex), [-1, 0], "one tab stop: the selected tab");
   assert.equal(selects[0].getAttribute("aria-controls"), "file-content");
   assert.equal(selects[0].getAttribute("aria-label"), "out/notes/a-deliberately-long-file-name-that-has-to-be-truncated.md · Recorded aaaaaaaa");
-  assert.match(selects[0].getAttribute("title"), /^out\/notes\/a-deliberately-long/);
+  assert.equal(selects[0].getAttribute("title"), null, "no native title repeating the name (ICN-17)");
+  assert.match(selects[0].getAttribute("data-tooltip"), /^out\/notes\/a-deliberately-long/);
   assert.equal(selects[0].querySelector(".surface-tab-name").textContent, "a-deliberately-long-file-name-that-has-to-be-truncated.md");
   const closes = container.querySelectorAll(".surface-tab-close");
   assert.equal(closes.length, 2);

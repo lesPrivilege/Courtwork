@@ -40,9 +40,10 @@ test("00 · entry audit: the global Refresh and the passive Expert seat are gone
   assert.doesNotMatch(css, /\.nav-planned-seat|\.nav-seat-plan/);
   assert.match(html, /id="account-button"/, "the sidebar footer is the account identity");
   assert.match(app, /attrs: \{ id: "runtime-setup-button" \}/, "Settings stays reachable from the account menu");
-  assert.match(app, /clientId: crypto\.randomUUID\(\), value, projectId, nav, startNext, homeRequest, unconfirmed: false/, "a creation fixes its identity before the POST");
-  assert.match(app, /\? \{ name: value, projectId: attempt\.clientId \}/, "projects are created under the fixed id");
-  assert.match(app, /sessionId: attempt\.clientId,/, "chats from the dialog are created under the fixed id");
+  assert.match(app, /clientId: crypto\.randomUUID\(\), value, nav, startNext, homeRequest, unconfirmed: false/, "a creation fixes its identity before the POST");
+  assert.match(app, /body: \{ name: value, projectId: attempt\.clientId \}/, "projects are created under the fixed id");
+  // S5 · the unreachable New chat dialog was removed; chats start from New chat and Home.
+  assert.doesNotMatch(html, /id="session-dialog"/);
   assert.match(app, /async function checkCreationStatus\(kind\)/);
   assert.match(app, /text: "Check status", attrs: \{ type: "button", "aria-label": `Check \$\{kind\} creation status` \}/);
   assert.match(app, /Creation could not be confirmed\. Check its status before creating/);

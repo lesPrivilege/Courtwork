@@ -1,0 +1,354 @@
+{
+  "label": "before",
+  "scenes": [
+    {
+      "name": "home-1440-light",
+      "glyphs": 31,
+      "sizes": {
+        "18x18": 13,
+        "16x16": 18
+      },
+      "mismatched": 24,
+      "examples": [
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-back-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-forward-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#home-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-session-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#chat-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#attention-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#spark-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".nav-filter-controls"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-project-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".project-toggle"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".quiet-button"
+        },
+        {
+          "asked": 16,
+          "w": 18,
+          "h": 18,
+          "where": ".quiet-button"
+        }
+      ]
+    },
+    {
+      "name": "chat-1440-light",
+      "glyphs": 52,
+      "sizes": {
+        "18x18": 16,
+        "16x16": 36
+      },
+      "mismatched": 45,
+      "examples": [
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-back-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-forward-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#home-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-session-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#chat-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#attention-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#spark-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".nav-filter-controls"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-project-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".project-toggle"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".quiet-button"
+        },
+        {
+          "asked": 16,
+          "w": 18,
+          "h": 18,
+          "where": ".quiet-button"
+        }
+      ]
+    },
+    {
+      "name": "account-menu-1440-light",
+      "glyphs": 57,
+      "sizes": {
+        "18x18": 21,
+        "16x16": 36
+      },
+      "mismatched": 50,
+      "examples": [
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-back-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-forward-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#home-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-session-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#chat-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#attention-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#spark-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".nav-filter-controls"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-project-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".project-toggle"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".quiet-button"
+        },
+        {
+          "asked": 16,
+          "w": 18,
+          "h": 18,
+          "where": ".quiet-button"
+        }
+      ]
+    },
+    {
+      "name": "object-menu-1440-light",
+      "glyphs": 54,
+      "sizes": {
+        "18x18": 18,
+        "16x16": 36
+      },
+      "mismatched": 47,
+      "examples": [
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-back-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#nav-forward-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#home-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-session-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#chat-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#attention-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": "#spark-button.nav-home"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".nav-filter-controls"
+        },
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": "#new-project-button.quiet-button"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".project-toggle"
+        },
+        {
+          "asked": 20,
+          "w": 16,
+          "h": 16,
+          "where": ".quiet-button"
+        },
+        {
+          "asked": 16,
+          "w": 18,
+          "h": 18,
+          "where": ".quiet-button"
+        }
+      ]
+    },
+    {
+      "name": "settings-1440-light",
+      "glyphs": 14,
+      "sizes": {
+        "18x18": 14
+      },
+      "mismatched": 1,
+      "examples": [
+        {
+          "asked": 20,
+          "w": 18,
+          "h": 18,
+          "where": ".quiet-button"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

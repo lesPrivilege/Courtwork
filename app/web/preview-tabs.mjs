@@ -150,7 +150,8 @@ export function renderPreviewTabs(container, { tabs, activeKey, describe, contro
         type: "button", role: "tab", id: tab.id,
         "aria-selected": String(selected), "aria-controls": controls(tab),
         "aria-label": words.meta ? `${words.full} · ${words.meta}` : words.full,
-        title: words.meta ? `${words.full}\n${words.meta}` : words.full,
+        // ICN-17 (S5) · the app tooltip, not a native title that repeats the accessible name.
+        "data-tooltip": words.meta ? `${words.full} · ${words.meta}` : words.full,
       },
     }, el("span", { className: "surface-tab-name", text: words.name }),
     words.meta ? el("span", { className: "surface-tab-meta", text: words.meta, attrs: { "aria-hidden": "true" } }) : null);

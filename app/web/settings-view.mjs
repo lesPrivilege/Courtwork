@@ -2142,7 +2142,7 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
         tabindex: "-1",
       },
     });
-    tab.append(semanticIcon(GROUP_OBJECT_GLYPHS[group.id] ?? `settings.${group.id}`, { size: 18 }), el("span", { className: "settings-tab-label", text: group.title }));
+    tab.append(semanticIcon(GROUP_OBJECT_GLYPHS[group.id] ?? `settings.${group.id}`), el("span", { className: "settings-tab-label", text: group.title }));
     tab.addEventListener("click", () => select(group.id, { focusPanel: false }));
     nav.append(tab);
     dropdown.append(el("option", { attrs: { value: group.id }, text: group.title }));

@@ -10,7 +10,7 @@ export function semanticPresentation(key, {surface='app', values={}}={}) {
   });
   return {entry,label,glyph:entry.representations[surface]==='glyph'?entry.glyphRef:null};
 }
-export function semanticIcon(key, {size=20,...context}={}) {
+export function semanticIcon(key, {size=16,...context}={}) {
   const {glyph}=semanticPresentation(key,context);
   const node=glyph ? icon(glyph,{size}) : null;
   if(node) node.setAttribute("data-semantic-key",key);

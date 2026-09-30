@@ -166,9 +166,9 @@ test("CC-W 1 / 06d · 选中区与关闭区分开；关闭是明确动作；截�
   assert.ok(close.includes("closeSurface("), "the last close hides the pane");
   assert.ok(close.includes("surfaceTabButton()?.focus()"), "otherwise the keyboard goes to the tab that took over");
   assert.doesNotMatch(close, /request\(|cancel|revoke|delete|decide/i, "closing a tab reaches no owner command");
-  // 完整名字留在可访问名与 title 上。
+  // 完整名字留在可访问名与 tooltip 上（ICN-17：不再用原生 title）。
   assert.match(tabsSource, /"aria-label": words\.meta \? `\$\{words\.full\} · \$\{words\.meta\}` : words\.full/);
-  assert.match(tabsSource, /title: words\.meta \?/);
+  assert.match(tabsSource, /"data-tooltip": words\.meta \?/);
 });
 
 test("CC-W 2 · B 态是视图切换：聊天列 hidden + inert，没有遮罩，没有浮层材质", () => {

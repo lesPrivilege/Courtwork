@@ -1,4 +1,4 @@
-import { el, flowRow } from "./ui-controls.mjs";
+import { el, flowRow, BLANK_GLYPH } from "./ui-controls.mjs";
 import { checkStateWord } from "./thread-projection.mjs";
 
 /* WO-RUN-ROWS 2026-09-16 · Chat and Attention share this one run-row anatomy
@@ -29,7 +29,6 @@ export function toolGlyph(name) {
   if (tool === "ws_grep" || tool === "repo_grep" || tool === "candidate_grep") return "search";
   if (tool === "ws_read" || tool === "se_read_source" || tool === "repo_read" || tool === "candidate_read") return "file-text";
   if (tool === "check_run") return "play";
-  if (tool.startsWith("runtime_")) return "settings-2";
   return null;
 }
 
@@ -122,7 +121,7 @@ export function renderToolRow(row, { toolState, open, onToggle }) {
   details.open = Boolean(open);
   details.append(
     flowRow("summary", {
-      glyph: toolGlyph(row.name),
+      glyph: toolGlyph(row.name) ?? BLANK_GLYPH,
       title: row.name,
       meta: toolState,
       className: row.isError ? "is-failed" : "",

@@ -585,7 +585,7 @@ export function createAgentProfilesView(mount, controller) {
         el(
           "h4",
           { className: "settings-block-title" },
-          semanticIcon("agent.profile", { size: 18 }),
+          semanticIcon("agent.profile"),
           " ",
           detail.profile.name,
         ),

@@ -46,7 +46,6 @@ const icons = new Set([
   "activity",
   "folder",
   "message-square",
-  "arrow-down",
   "external-link",
   "volume-2",
   "thumbs-up",
@@ -67,7 +66,6 @@ const icons = new Set([
   "runtime-tool",
   "runtime-mcp",
   "runtime-skill",
-  "runtime-plugin",
   "runtime-host-extension",
   "runtime-hook",
   "runtime-registry",
@@ -88,12 +86,12 @@ const icons = new Set([
   "keyboard",
   "code",
 ]);
-/* IC-1 / copy-convention §4 · the glyph slot is 16 in a row, 18 on a control and
- * 20 in navigation. The size is stated where the glyph is built, not patched
- * afterwards by a selector, so a row's glyph cannot silently inherit a control's
- * size when it moves. The hit region is a separate number and is never derived
- * from this one. */
-export function icon(name, { size = 20 } = {}) {
+/* IC-1 / ICN-10 (S5) · the size passed here is the size that renders: no
+ * selector sets a glyph's width or height. The tiers follow the visual-spatial
+ * grammar: 16 for compact controls, rows and navigation (the default), 14 for
+ * micro chrome; anything else is a recorded optical exception at its call. The
+ * hit region is a separate number and is never derived from this one. */
+export function icon(name, { size = 16 } = {}) {
   if (!icons.has(name)) throw new Error("Unknown static icon");
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   for (const [key, value] of Object.entries({
@@ -129,6 +127,20 @@ export function icon(name, { size = 20 } = {}) {
  * one state word or one type fact in grey (only failed / waiting_user are ever
  * coloured, by the caller's class); `action` is the single trailing control, or
  * null when the row's own disclosure is the action. */
+/* ICN-25 (S5) · one disclosure mechanism: a chevron-right that turns a quarter
+ * while its own <details> is open or its button is expanded (styles.css
+ * `.disclosure-mark`); no glyph swap, no second rotation rule. */
+export function disclosureMark() {
+  const mark = icon("chevron-right");
+  mark.classList.add("disclosure-mark");
+  return mark;
+}
+/* ICN-22 (S5) · where a row of glyphs has one without a glyph, a blank of the
+ * same size keeps every title on one x. */
+export const BLANK_GLYPH = Symbol("blank glyph");
+export function glyphBlank() {
+  return el("span", { className: "ui-icon glyph-blank", attrs: { "aria-hidden": "true" } });
+}
 export function flowRow(
   tag,
   { glyph, title, meta, className = "", attrs } = {},
@@ -136,11 +148,11 @@ export function flowRow(
 ) {
   const disclosure = tag === 'summary' || (tag === 'button' && attrs && Object.hasOwn(attrs, 'aria-expanded'))
     ? icon('chevron-right', { size: 16 }) : null;
-  disclosure?.classList.add('flow-disclosure-icon');
+  disclosure?.classList.add('disclosure-mark');
   return el(
     tag,
     { className: `flow-row ${className}`.trim(), attrs },
-    glyph ? icon(glyph, { size: 16 }) : null,
+    glyph === BLANK_GLYPH ? glyphBlank() : glyph ? icon(glyph, { size: 16 }) : null,
     el("span", { className: "flow-title", text: title }),
     meta ? el("span", { className: "flow-meta", text: meta }) : null,
     action,

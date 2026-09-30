@@ -538,8 +538,8 @@ select:focus-visible {
   border: 0;
 }
 .ui-icon {
-  width: 18px;
-  height: 18px;
+  /* ICN-10 (S5) · the size a glyph renders is the size its icon() call passes
+     (the width and height attributes); no selector sets a glyph's size. */
   flex: none;
   pointer-events: none;
 }
@@ -801,10 +801,6 @@ button {
   color: var(--muted);
   pointer-events: none;
 }
-.search-icon .ui-icon {
-  width: 16px;
-  height: 16px;
-}
 .nav-filter input {
   width: 100%;
   min-width: 0;
@@ -866,10 +862,6 @@ button {
 .project-chevron {
   width: 16px;
   display: flex;
-}
-.project-chevron .ui-icon {
-  width: 14px;
-  height: 14px;
 }
 .project-name {
   overflow: hidden;
@@ -1170,7 +1162,14 @@ button {
 }
 .home-row > .ui-icon {
   color: var(--muted);
-  width: 18px;
+}
+/* ICN-21 (S5) · in a two-line row the leading glyph belongs to the title: it
+   centres on the title's line box (1lh), not on the title and meta together.
+   16 is the glyph tier the row's icon() call passes. */
+.home-row > .ui-icon:first-child,
+.chat-row > .ui-icon:first-child {
+  align-self: flex-start;
+  margin-top: calc((1lh - 16px) / 2);
 }
 .home-row-content {
   min-width: 0;
@@ -1267,10 +1266,6 @@ button {
   margin-right: 6px;
   font-variant-numeric: tabular-nums;
 }
-.user-message-actions .ui-icon {
-  width: 14px;
-  height: 14px;
-}
 .runtime-group {
   display: flex;
   flex-direction: column;
@@ -1318,16 +1313,8 @@ button {
 .run-status-card button {
   margin-left: 0;
 }
-.run-status-card .ui-icon {
-  width: 14px;
-  height: 14px;
-}
 .message.assistant {
   margin-top: var(--space-2);
-}
-.message-header > .icon-only .ui-icon {
-  width: 16px;
-  height: 16px;
 }
 /* WK-57 · one anatomy for every Chat Flow row (tool action, question, output,
    decided request): a 16 glyph, the object's own name, one metadata line, and
@@ -1343,8 +1330,6 @@ button {
   overflow-wrap: anywhere;
 }
 .flow-row > .ui-icon {
-  width: 16px;
-  height: 16px;
   flex: none;
   align-self: center;
   color: var(--muted);
@@ -1374,14 +1359,21 @@ summary.flow-row {
 summary.flow-row::-webkit-details-marker {
   display: none;
 }
-summary.flow-row > .flow-disclosure-icon,
-button.flow-row[aria-expanded] > .flow-disclosure-icon {
+/* ICN-25 (S5) · the one disclosure mechanism (disclosureMark() in
+   ui-controls.mjs): the chevron turns a quarter while its own details is open
+   or its button is expanded. */
+.disclosure-mark {
   transition: transform var(--duration) var(--ease-out);
 }
-details[open] > summary.flow-row > .flow-disclosure-icon,
-button.flow-row[aria-expanded="true"] > .flow-disclosure-icon {
+details[open] > summary > .disclosure-mark,
+[aria-expanded="true"] > .disclosure-mark,
+[aria-expanded="true"] > .project-chevron > .disclosure-mark {
   transform: rotate(90deg);
 }
+@media (prefers-reduced-motion: reduce) {
+  .disclosure-mark { transition: none; }
+}
+html[data-motion="reduce"] .disclosure-mark { transition: none; }
 .execution-disclosure-summary {
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -1592,7 +1584,7 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
  * below the chip are reachable (measured by hit-testing: −5px each way gave
  * 30.2, not 32). */
 .work-location-entry::after { content: ""; position: absolute; inset: -7px 0 -3px; }
-.work-location-entry > .ui-icon { flex: 0 0 auto; width: 16px; height: 16px; }
+.work-location-entry > .ui-icon { flex: 0 0 auto; }
 .work-location-entry > .button-label { max-width: min(200px, 28vw); }
 .work-location-entry > .button-label + .button-label::before { content: "·"; margin-right: var(--space-1); color: var(--muted); }
 .work-location-entry[data-empty="false"] { color: var(--ink); }
@@ -2024,10 +2016,6 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
 .data-list dd .icon-only {
   --control: 24px;
   flex: none;
-}
-.data-list .ui-icon {
-  width: 14px;
-  height: 14px;
 }
 .usage-list dd {
   font-variant-numeric: tabular-nums;
@@ -2996,8 +2984,6 @@ select {
   color: var(--muted-strong);
 }
 .project-toggle > .ui-icon {
-  width: 16px;
-  height: 16px;
   color: var(--muted-strong);
 }
 .activity-group {
@@ -3082,7 +3068,6 @@ select {
 .repository-path-details[open] > summary { color: var(--ink); }
 .context-row > .ui-icon:last-child:not(:first-child) {
   margin-left: auto;
-  width: 16px;
 }
 .context-meta {
   font-size: var(--text-meta);
@@ -3119,10 +3104,6 @@ select {
 .project-heading:hover .project-create,
 .project-heading:focus-within .project-create {
   opacity: 1;
-}
-.project-create .ui-icon {
-  width: 16px;
-  height: 16px;
 }
 @media (pointer: coarse), (max-width: 1023px) {
   .project-create {
@@ -3198,10 +3179,6 @@ button[aria-disabled="true"] {
   background: var(--line-strong);
   border-color: var(--line-strong);
   opacity: 1;
-}
-#send-button .ui-icon {
-  width: 18px;
-  height: 18px;
 }
 /* WK-47 / SH-1 · a folder is not an object you open or decide about, so its
    files are a plain group of rows: a heading, a count, and the rows. The box
@@ -3285,13 +3262,6 @@ button[aria-disabled="true"] {
 .run-history-row .ui-icon {
   grid-column: 2;
   grid-row: 1 / 3;
-  width: 14px;
-  height: 14px;
-}
-
-#cancel-run-button .ui-icon {
-  width: 14px;
-  height: 14px;
 }
 .run-identity {
   display: grid;
@@ -4108,8 +4078,6 @@ court-symbol {
   background: var(--hover);
 }
 .runtime-row-title .ui-icon {
-  width: 16px;
-  height: 16px;
   color: var(--muted);
 }
 .runtime-row-name {
@@ -4784,20 +4752,6 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
   overflow-x: auto;
 }
 
-/* WK-13 · icon tiers. Row 16, control 18 (the base rule above). WO-CS-01 · the
-   former nav 20 tier joins row 16; hit areas stay on the 32 / 44 step. */
-.project-chevron .ui-icon,
-.user-message-actions .ui-icon,
-.run-status-card .ui-icon,
-.data-list .ui-icon,
-.run-history-row .ui-icon,
-.home-row > .ui-icon,
-.nav-home > .ui-icon,
-#cancel-run-button .ui-icon {
-  width: 16px;
-  height: 16px;
-}
-
 /* WK-58 / WK-60 · the composer is the highest layer of the work surface. On the
    desktop it keeps the placement WK-11 gave it (centred in the column, whitespace
    above, moving only with the viewport). Below 768 it is docked to the bottom of
@@ -5141,9 +5095,9 @@ html[data-shell="desktop"] .surface-panel.is-view-switch .surface-header { paddi
   color: var(--ink);
   font-weight: 500;
 }
-/* The glyph slot is 18 wide in every group; it inherits the tab's colour so the
+/* The glyph is 16 in every group (icon() at the call); it inherits the tab's colour so the
  * hover / current / disabled relation is one rule for text and glyph alike. */
-.settings-tab > .ui-icon { flex: none; width: 18px; height: 18px; color: var(--muted-strong); }
+.settings-tab > .ui-icon { flex: none; color: var(--muted-strong); }
 .settings-tab:hover > .ui-icon, .settings-tab.is-current > .ui-icon { color: var(--ink); }
 .settings-tab:disabled { color: var(--muted); cursor: not-allowed; }
 .settings-tab:disabled > .ui-icon { color: var(--muted); }
@@ -5483,10 +5437,7 @@ html[data-theme="dark"] {
 .home-activity > summary { display: flex; align-items: center; gap: var(--space-2); cursor: pointer; padding-block: var(--space-1); border-radius: var(--radius-control); list-style: none; }
 .home-activity > summary::-webkit-details-marker { display: none; }
 .home-activity > summary:hover h3 { color: var(--ink); }
-.home-activity > summary > .ui-icon { color: var(--muted-strong); transition: transform 140ms var(--ease-out); }
-.home-activity[open] > summary > .ui-icon { transform: rotate(90deg); }
-@media (prefers-reduced-motion: reduce) { .home-activity > summary > .ui-icon { transition: none; } }
-html[data-motion="reduce"] .home-activity > summary > .ui-icon { transition: none; }
+.home-activity > summary > .ui-icon { color: var(--muted-strong); }
 .home-activity > summary h3 { margin: 0; font-size: var(--text-section); font-weight: 500; color: var(--muted-strong); }
 .home-activity-total { font-size: var(--text-meta); color: var(--muted-strong); font-variant-numeric: tabular-nums; }
 .home-activity-body { display: grid; justify-items: start; gap: var(--space-2); padding-top: var(--space-2); }
@@ -5755,8 +5706,6 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .attention-basis > summary { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control); padding: 0 var(--space-2) 0 var(--space-1); margin-left: calc(-1 * var(--space-1)); border-radius: var(--radius-small); list-style: none; cursor: pointer; font-size: var(--text-label); color: var(--muted-strong); }
 .attention-basis > summary::-webkit-details-marker { display: none; }
 .attention-basis > summary:hover { background: var(--hover); color: var(--ink); }
-.attention-basis > summary > .ui-icon { width: 16px; height: 16px; transition: transform var(--duration-fast) var(--ease-out); }
-.attention-basis[open] > summary > .ui-icon { transform: rotate(90deg); }
 .attention-basis-body { display: grid; gap: var(--space-2); padding: var(--space-2) 0 0 var(--space-5); line-height: 1.55; }
 .attention-basis-body p { margin: 0; }
 .attention-sources { display: grid; gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
@@ -6230,9 +6179,7 @@ html[data-theme="dark"] {
 .chat-actions { min-width: 0; max-width: 100%; }
 .chat-action-row { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
 .chat-action-row > .icon-only { width: 32px; min-width: 32px; height: 32px; padding: 0; }
-.chat-actions .ui-icon { width: 18px; height: 18px; flex: none; }
-.assistant-message-actions .chat-action-row .ui-icon,
-.user-message-actions .chat-action-row .ui-icon { width: 16px; height: 16px; }
+.chat-actions .ui-icon { flex: none; }
 .chat-actions [aria-pressed="true"], .chat-actions [aria-checked="true"] { background: var(--selected); color: var(--ink); }
 .chat-actions [data-action-state="busy"] { opacity: .6; }
 .chat-action-status { margin: var(--space-1) 0 0; color: var(--muted-strong); font-size: var(--text-meta); line-height: 1.5; overflow-wrap: anywhere; }
@@ -6373,7 +6320,7 @@ html[data-theme="dark"] {
 .chat-measurement-popover.is-keyboard { transition:none; }
 
 /* Keyboard disclosure changes are immediate, like Attention navigation. */
-.attention-workspace-inner[data-input="keyboard"] .attention-basis > summary > .ui-icon { transition: none; }
+.attention-workspace-inner[data-input="keyboard"] .attention-basis > summary > .disclosure-mark { transition: none; }
 
 /* Runtime intake shares Settings' flat property/editor grammar. */
 .runtime-intake {
@@ -6618,7 +6565,7 @@ html[data-theme="dark"] {
 .object-menu { position: fixed; inset: auto; width: min(240px, calc(100vw - 32px)); padding: var(--space-2); }
 .object-menu > .menu-separator { border: 0; border-top: 1px solid var(--line); margin: var(--space-1) 0; }
 .object-command { gap: var(--space-2); min-height: 36px; }
-.object-command-blank { width: 16px; height: 16px; flex: none; }
+.glyph-blank { width: 16px; height: 16px; flex: none; }
 .object-command.is-disabled { color: var(--muted-strong); cursor: default; }
 .object-command.is-disabled:hover, .object-command.is-disabled:active { background: transparent; }
 .object-command.is-destructive:not(.is-disabled) { color: var(--danger-11); }
@@ -6628,7 +6575,7 @@ html[data-theme="dark"] {
  * role inside the chooser. Existing tokens only; scoped to these classes. */
 .agent-chip { position: relative; color: var(--ink); }
 .agent-chip::after { content: ""; position: absolute; inset: -3px 0; }
-.agent-chip > .ui-icon { flex: none; width: 16px; height: 16px; }
+.agent-chip > .ui-icon { flex: none; }
 .agent-chip > .button-label { max-width: min(200px, 34vw); font-weight: 500; }
 .agent-chip[aria-expanded="true"] { background: var(--hover); }
 @media (max-width: 767px), (pointer: coarse) {

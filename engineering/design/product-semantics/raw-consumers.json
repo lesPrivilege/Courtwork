@@ -257,14 +257,14 @@
   },
   {
     "file": "app/web/materials-view.mjs",
-    "source": "action(\"refresh-cw\", \"Retry loading workspace files\", () => void refreshWorkspace(), { className: \"secondary-button\" }),",
+    "source": "action(\"refresh-cw\", \"Retry loading workspace files\", () => void refreshWorkspace(), { visible: \"Retry\", className: \"secondary-button\" }),",
     "disposition": "named-read",
     "reason": "This named read refreshes the failed current workspace file list; its complete accessible name carries the target and it creates no source or acceptance fact.",
     "semanticKeys": []
   },
   {
     "file": "app/web/materials-view.mjs",
-    "source": "action(\"refresh-cw\", \"Retry loading retained uploads\", () => void refreshSources(), { className: \"secondary-button\" }),",
+    "source": "action(\"refresh-cw\", \"Retry loading retained uploads\", () => void refreshSources(), { visible: \"Retry\", className: \"secondary-button\" }),",
     "disposition": "named-read",
     "reason": "This named read refreshes the failed session retained-upload list; its complete accessible name carries the target and it creates no source or acceptance fact.",
     "semanticKeys": []
@@ -278,7 +278,7 @@
   },
   {
     "file": "app/web/materials-view.mjs",
-    "source": "action(\"refresh-cw\", \"Retry loading retained versions\", () => void loadVersions(source, body, row, ownEpoch), { className: \"secondary-button\" }),",
+    "source": "action(\"refresh-cw\", \"Retry loading retained versions\", () => void loadVersions(source, body, row, ownEpoch), { visible: \"Retry\", className: \"secondary-button\" }),",
     "disposition": "named-read",
     "reason": "This named read refreshes the failed exact source revision list; its complete accessible name carries the target and it creates no source or acceptance fact.",
     "semanticKeys": []

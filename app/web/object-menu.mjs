@@ -4,7 +4,7 @@
  * rows, disabled rows that stay reachable and say why, roving arrow keys,
  * Escape back to the opener, and nothing left behind when it closes. It draws
  * what the dispatcher lists and reports what was picked; it decides nothing. */
-import { el, icon, anchorPopover } from "./ui-controls.mjs";
+import { el, icon, anchorPopover, glyphBlank } from "./ui-controls.mjs";
 import { groupCommands } from "./object-commands.mjs";
 
 export function createObjectMenu({ popover, position = anchorPopover, viewport = () => ({ width: window.innerWidth, height: window.innerHeight }) }) {
@@ -49,7 +49,7 @@ export function createObjectMenu({ popover, position = anchorPopover, viewport =
     const button = el("button", { className: `context-row object-command${command.destructive ? " is-destructive" : ""}`,
       attrs: { type: "button", role: "menuitem", "data-command": command.id, "data-semantic-key": command.semanticKey, "aria-label": command.label } });
     setEnablement(button, command);
-    button.append(command.glyph ? icon(command.glyph, { size: 16 }) : el("span", { className: "ui-icon object-command-blank", attrs: { "aria-hidden": "true" } }),
+    button.append(command.glyph ? icon(command.glyph, { size: 16 }) : glyphBlank(),
       el("span", { className: "object-command-label", text: command.word ?? command.label }));
     button.addEventListener("click", (event) => {
       event.preventDefault();

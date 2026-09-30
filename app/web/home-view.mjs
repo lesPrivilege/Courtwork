@@ -12,7 +12,7 @@
  * computes a time — those belong to the adapter, so that a display change
  * cannot silently change a metric (boundaries §5, WK-34 / WK-80).
  */
-import { el, icon } from "./ui-controls.mjs";
+import { el, icon, disclosureMark } from "./ui-controls.mjs";
 import { runLabels } from "./inspector.mjs";
 import {
   toHomeActivity,
@@ -368,7 +368,7 @@ function activityBlock(modules, call) {
     el("h3", { text: "Activity" }),
     summaryLine ? el("span", { className: "home-activity-total", text: summaryLine }) : null,
     /* The disclosure's own affordance: it turns with the open state. */
-    icon("chevron-right", { size: 14 }));
+    disclosureMark());
   const body = el("div", { className: "home-activity-body" });
   const ranges = el("div", { className: "home-range", attrs: { role: "group", "aria-label": "Activity period" } });
   for (const days of [28, 84]) {

@@ -43,9 +43,6 @@
     "runtime-skill.svg": {
       "sha256": "f8ee8fa24bb298b7b640bc89df807462cd5d6df3b937bf4d50208b8297623b0e"
     },
-    "runtime-plugin.svg": {
-      "sha256": "355c7ada261d4114363089685ed3ce56eacbb0418baee0b4b7d62b9ecad41410"
-    },
     "runtime-host-extension.svg": {
       "sha256": "a0ee0824fb4dee6458859ea56908e3f7dd873f43048d88eb48f2e026a354db0c"
     },

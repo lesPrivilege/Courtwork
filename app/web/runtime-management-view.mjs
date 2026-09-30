@@ -425,7 +425,7 @@ export function createRuntimeManagementView(mount, controller) {
       el(
         "h4",
         { className: "settings-block-title" },
-        icon("cpu", { size: 18 }),
+        icon("cpu"),
         " ",
         detail.name,
         detail.example ? " · example" : "",

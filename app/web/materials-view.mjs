@@ -173,7 +173,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     } else if (workspaceStatus === "error") {
       section.append(
         el("p", { className: "inline-error", text: "Workspace files could not be loaded." }),
-        action("refresh-cw", "Retry loading workspace files", () => void refreshWorkspace(), { className: "secondary-button" }),
+        action("refresh-cw", "Retry loading workspace files", () => void refreshWorkspace(), { visible: "Retry", className: "secondary-button" }),
       );
     } else if (!files.length) {
       section.append(el("p", {
@@ -520,7 +520,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     if (sourceStatus === "error") {
       container.append(
         el("p", { className: "inline-error", text: "Retained uploads could not be loaded. Uploading stays paused until the list is refreshed." }),
-        action("refresh-cw", "Retry loading retained uploads", () => void refreshSources(), { className: "secondary-button" }),
+        action("refresh-cw", "Retry loading retained uploads", () => void refreshSources(), { visible: "Retry", className: "secondary-button" }),
       );
       return;
     }
@@ -712,7 +712,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       if (err.name === "AbortError" || !activeScope(id, ownEpoch) || !row.open || detailGenerations.get(source.sourceId) !== generation) return;
       body.replaceChildren(
         el("p", { className: "inline-error", text: "Retained versions could not be loaded." }),
-        action("refresh-cw", "Retry loading retained versions", () => void loadVersions(source, body, row, ownEpoch), { className: "secondary-button" }),
+        action("refresh-cw", "Retry loading retained versions", () => void loadVersions(source, body, row, ownEpoch), { visible: "Retry", className: "secondary-button" }),
       );
     }
   }

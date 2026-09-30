@@ -81,7 +81,7 @@ test("toolGlyph, appendToolDetails and appendCheckDetails cover the moved cases"
   assert.equal(toolGlyph("repo_read"), "file-text");
   assert.equal(toolGlyph("candidate_read"), "file-text");
   assert.equal(toolGlyph("check_run"), "play");
-  assert.equal(toolGlyph("runtime_x"), "settings-2");
+  assert.equal(toolGlyph("runtime_x"), null, "settings-2 opens Settings only (ICN-24)");
   assert.equal(toolGlyph("unknown_tool"), null);
   assert.equal(safeText(undefined, "fallback"), "fallback");
   assert.equal(safeText("plain"), "plain");

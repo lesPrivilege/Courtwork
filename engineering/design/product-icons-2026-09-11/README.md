@@ -12,21 +12,23 @@ Stage 1 of the [final Claude Design ONE-SHOT](../../release/ui-publication-closu
 
 | Set | Source of truth | Generated output |
 |---|---|---|
-| Lucide subset (44 files) | `tools/ui-vendor/lucide/*.svg`, pinned by `lucide/sources.json` (commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`, per-file sha256) | `app/web/vendor/icons.svg` symbols |
-| CourtWork domain (5 files) | `tools/ui-vendor/courtwork/{spark,attention,chat,expert,matter}.svg`, `courtwork/sources.json` (sha256, origin, MIT) | same sprite, same symbol grammar |
-| Semantic mapping | `engineering/design/product-semantics/registry.json` (58 entries) | `app/web/product-semantics.generated.mjs` via `node tools/product-semantics.mjs --write` |
+| Lucide subset (48 files) | `tools/ui-vendor/lucide/*.svg`, pinned by `lucide/sources.json` (commit `bca7e75a816dcf1e75e8feb5a3198a68cbb8a052`, per-file sha256) | `app/web/vendor/icons.svg` symbols |
+| CourtWork domain (12 files) | `tools/ui-vendor/courtwork/*.svg` (spark, attention, chat, expert, matter and seven runtime-* resource glyphs), `courtwork/sources.json` (sha256, origin, MIT) | same sprite, same symbol grammar |
+| Semantic mapping | `engineering/design/product-semantics/registry.json` (72 entries) | `app/web/product-semantics.generated.mjs` via `node tools/product-semantics.mjs --write` |
 | Contact sheet + glyph manifest | `node tools/ui-vendor/contact-sheet.mjs` | `contact-sheet.html`, `glyph-manifest.json` (this directory) |
 
 ```sh
 node tools/ui-vendor/build.mjs --icons-only     # sprite, LICENSES.txt and vendor manifest; no esbuild needed
 node tools/product-semantics.mjs --write        # regenerate the semantic projection after editing the registry
-node tools/ui-vendor/contact-sheet.mjs          # contact sheet at 16/18/20/24, light/dark/mono/forced
+node tools/ui-vendor/contact-sheet.mjs          # contact sheet at 14/16/24, light/dark/mono/forced
 node --test app/tests/product-icons.test.mjs    # sprite ⊇ registry ⊇ ui-controls allowlist, hashes, geometry
 ```
 
 `app/tests/product-icons.test.mjs` fails if a registry glyph is missing from the sprite or from the `ui-controls.mjs` allowlist, if any pinned file hash drifts, or if a domain glyph leaves the 24-grid / 2px / round / currentColor contract — so regeneration cannot silently drop a glyph.
 
 ## Manifest (slot; semanticKey; meaning; owner; source; sizes; surface; accessible name; status)
+
+Sizes in this table are the 2026-09-11 stage-1 tiers. Since S5 of the interaction-topology audit (2026-10-01, [record](../../research/ux-interaction-topology-20260930/s5.md)) every glyph renders at the size its `icon()` call passes: 16 for controls, rows and navigation, 14 for micro chrome, 20 for the Chat page heading.
 
 | slot | semanticKey | meaning | ownerRef | sourceKind · path · sha256 | sizes | surface | accessible name / visible text | status |
 |---|---|---|---|---|---|---|---|---|

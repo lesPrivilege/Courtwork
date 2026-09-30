@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Contact sheet for the product glyph set: every symbol in the sprite at the
-// four admitted optical sizes (16 row · 18 control · 20 navigation · 24
-// specimen), on light and dark grounds, in monochrome and under a forced-colors
+// admitted sizes (14 micro · 16 control, row and navigation · 24 specimen;
+// rulings ICN-10, 2026-09-30), on light and dark grounds, in monochrome and under a forced-colors
 // simulation, next to its text fallback. The sheet reads the built sprite and
 // the two source manifests, so it cannot show a glyph the product cannot load.
 //
@@ -26,7 +26,7 @@ for (const entry of registry.entries) if (entry.glyphRef) { consumers.set(entry.
 const source = (name) => (courtwork.files[`${name}.svg`] ? { kind: "courtwork-domain", ...courtwork.files[`${name}.svg`] } : lucide.files[`${name}.svg`] ? { kind: "lucide", ...lucide.files[`${name}.svg`] } : { kind: "unknown" });
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const use = (name, size) => `<svg class="ui-icon" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><use href="#${name}"/></svg>`;
-const sizes = [16, 18, 20, 24];
+const sizes = [14, 16, 24];
 const NEIGHBOURS = { expert: ["chat", "attention", "cpu"], spark: ["house", "message-square", "plug"], attention: ["house", "message-square", "plug"], chat: ["house", "message-square", "square-pen"], "text-align-start": ["panel-right", "panel-left", "x"] };
 const row = (name) => {
   const src = source(name);

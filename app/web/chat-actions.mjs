@@ -21,10 +21,14 @@ const REASONS = Object.freeze({
 });
 
 /** Production admits only a supplied, existing handler. No endpoint guessing,
- * browser speech service, local feedback store, optimistic pin, or fake result. */
+ * browser speech service, local feedback store, optimistic pin, or fake result.
+ * THR-03 (S5) · an action with no handler is not drawn: `draws` says which
+ * intents have one. The reasons above stay for when an owner capability exists. */
 const PRODUCTION_ACTIONS = new Set(['copy', 'edit', 'copy-path', 'copy-hash']);
 export function createProductionActionAdapter(handlers = {}) {
+  const handled = (intent) => PRODUCTION_ACTIONS.has(intent) && typeof handlers[intent] === 'function';
   return {
+    draws: handled,
     availability(intent) {
       return PRODUCTION_ACTIONS.has(intent) && typeof handlers[intent] === 'function'
         ? { available: true }
@@ -92,7 +96,7 @@ export function createChatActions({ target, adapter, getTarget = () => target,
       const name = semanticPresentation(displayKey).glyph;
       button.setAttribute('data-semantic-key', displayKey);
       const label = labelFor(intent);
-      setAction(button, name, label, { visible: button.dataset.inMenu === 'true', size: 18 });
+      setAction(button, name, label, { visible: button.dataset.inMenu === 'true' });
       button.dataset.actionState = busy ? 'busy' : !available.available ? 'unavailable' : selected ? 'selected' : state;
       button.setAttribute('aria-busy', String(busy));
       button.setAttribute('aria-disabled', String(!available.available || busy));
@@ -122,8 +126,8 @@ export function createChatActions({ target, adapter, getTarget = () => target,
     if (intent === 'regenerate' && !confirmed) {
       confirm.hidden = false;
       confirm.replaceChildren(el('p', { text: 'Regenerate this response? The original stays available; this creates another attempt.' }),
-        action('x', 'Cancel regeneration', () => { confirm.hidden = true; buttons.get(intent)?.focus(); }, { visible: 'Cancel', size: 18 }),
-        action('rotate-ccw', 'Confirm regeneration', () => { confirm.hidden = true; buttons.get(intent)?.focus(); void invoke(intent, true); }, { visible: 'Regenerate', size: 18 }));
+        action('x', 'Cancel regeneration', () => { confirm.hidden = true; buttons.get(intent)?.focus(); }, { visible: 'Cancel' }),
+        action('rotate-ccw', 'Confirm regeneration', () => { confirm.hidden = true; buttons.get(intent)?.focus(); void invoke(intent, true); }, { visible: 'Regenerate' }));
       confirm.querySelector('button')?.focus(); return;
     }
     if (intent === 'stop-reading') audioAbort?.abort();
@@ -169,14 +173,16 @@ export function createChatActions({ target, adapter, getTarget = () => target,
     const button = action(CHAT_ACTIONS[intent].icon, labelFor(intent), () => {
       if (inMenu) closeMenu(true);
       void invoke(intent);
-    }, { visible: inMenu, size: 18, attrs: {
+    }, { visible: inMenu, attrs: {
       'data-chat-action': intent, 'data-semantic-key': `message.${intent}`, 'data-focus-key': key(intent),
       ...(inMenu ? { role: intent === 'pin' ? 'menuitemcheckbox' : 'menuitem', 'data-in-menu': 'true' } : {}),
     } });
     buttons.set(intent, button); return button;
   }
-  const primary = captured.role === 'file' ? [] : captured.role === 'user' ? ['copy', 'edit'] : ['copy', 'read-aloud', 'stop-reading', 'like', 'dislike', 'regenerate'];
-  const secondary = captured.role === 'file' ? ['copy-path', 'copy-hash', 'download', 'open-with', 'reveal'] : ['fork', 'share', 'pin'];
+  // An adapter without `draws` (a demo or test adapter) draws every intent.
+  const drawn = (intent) => adapter.draws?.(intent) ?? true;
+  const primary = (captured.role === 'file' ? [] : captured.role === 'user' ? ['copy', 'edit'] : ['copy', 'read-aloud', 'stop-reading', 'like', 'dislike', 'regenerate']).filter(drawn);
+  const secondary = (captured.role === 'file' ? ['copy-path', 'copy-hash', 'download', 'open-with', 'reveal'] : ['fork', 'share', 'pin']).filter(drawn);
   primary.forEach(intent => bar.append(control(intent)));
   secondary.forEach(intent => menu.append(control(intent, true)));
   const morePresentation = semanticPresentation('menu.more', {values:{target:captured.role === 'file' ? 'file' : 'message'}});
@@ -186,7 +192,7 @@ export function createChatActions({ target, adapter, getTarget = () => target,
     menu.showPopover(); more.setAttribute('aria-expanded', 'true');
     cleanup = positionPopover(more, menu);
     menu.querySelector('button')?.focus();
-  }, { size: 18, attrs: { 'aria-haspopup': 'menu', 'aria-controls': menuId, 'aria-expanded': 'false', 'data-chat-more': '', 'data-semantic-key': 'menu.more', 'data-focus-key': key('more') } });
+  }, { attrs: { 'aria-haspopup': 'menu', 'aria-controls': menuId, 'aria-expanded': 'false', 'data-chat-more': '', 'data-semantic-key': 'menu.more', 'data-focus-key': key('more') } });
   more.addEventListener('keydown', event => { if (event.key === 'ArrowDown') { event.preventDefault(); more.click(); } });
   menu.addEventListener('toggle', event => {
     if (event.newState === 'closed') { cleanup?.(); cleanup = null; more.setAttribute('aria-expanded', 'false'); }
@@ -200,7 +206,8 @@ export function createChatActions({ target, adapter, getTarget = () => target,
     if (next !== null) { event.preventDefault(); items[next]?.focus(); }
   });
   confirm.addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); confirm.hidden = true; buttons.get('regenerate')?.focus(); } });
-  bar.append(more); root.append(bar, status, confirm, menu); paint();
+  if (secondary.length) bar.append(more);
+  root.append(bar, status, confirm, ...(secondary.length ? [menu] : [])); paint();
   return root;
 }
 

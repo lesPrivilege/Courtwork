@@ -1,4 +1,4 @@
-import { el, icon, action, copyAction } from "./ui-controls.mjs";
+import { el, icon, action, copyAction, disclosureMark } from "./ui-controls.mjs";
 import { createRuntimeIntake } from "./runtime-intake.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
 import { parseUnifiedPatch, renderDiff } from "./diff-view.mjs";
@@ -1135,7 +1135,7 @@ export function createRuntimeView(
     const scope = activeScope();
     const detailId = `rc-detail-${encodeURIComponent(resource.id)}`;
     const expanded = open.has(resource.id);
-    const chevron = icon(expanded ? "chevron-down" : "chevron-right");
+    const chevron = disclosureMark();
     const item = contextItemFor(resource.id);
     const title = el(
       "button",

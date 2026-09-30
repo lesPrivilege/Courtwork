@@ -1,6 +1,6 @@
 {
   "sprite": "app/web/vendor/icons.svg",
-  "spriteSha256": "802e1b71c3c8b285874bbb0bbec5f184586220b995499427808d5277af23f3f9",
+  "spriteSha256": "ea3cef44376f7a32eafd6e82e8f958b67e824fdc3281e9305433132b3935d936",
   "symbols": [
     {
       "symbol": "activity",
@@ -12,11 +12,22 @@
       ]
     },
     {
-      "symbol": "arrow-down",
+      "symbol": "arrow-left",
       "kind": "lucide",
-      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/arrow-down.svg",
-      "sha256": "2b641c7a59d39450edfed72067fcc9940a1a316a737346af23b4b9103c0689f2",
-      "consumers": []
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/arrow-left.svg",
+      "sha256": "c5f4b88076108eb1a0d95336e1aa7e7bb1419a3a92af96f6247d88cd3456f933",
+      "consumers": [
+        "nav.back"
+      ]
+    },
+    {
+      "symbol": "arrow-right",
+      "kind": "lucide",
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/arrow-right.svg",
+      "sha256": "288397fdb73bb4f783cf9eabb726ff47357df1d4e3f1201dd748090579f108b9",
+      "consumers": [
+        "nav.forward"
+      ]
     },
     {
       "symbol": "arrow-up",
@@ -147,7 +158,9 @@
       "kind": "lucide",
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/house.svg",
       "sha256": "28216c479005731ef5e382e7d8627eda2b129b019eb1f3d9de9f5915576d448e",
-      "consumers": []
+      "consumers": [
+        "settings.account"
+      ]
     },
     {
       "symbol": "key-round",
@@ -230,6 +243,15 @@
       ]
     },
     {
+      "symbol": "pencil-line",
+      "kind": "lucide",
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/pencil-line.svg",
+      "sha256": "cd0814e0744b4a81f9ccb1d4db9ee34de0e11f2cf82fa1522a86a8056e065e00",
+      "consumers": [
+        "chat.rename"
+      ]
+    },
+    {
       "symbol": "pin",
       "kind": "lucide",
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/pin.svg",
@@ -254,7 +276,6 @@
       "sha256": "11ba780e4b6f15d37906a8a73537144b59720333d7a9fc8048a437d0389422f8",
       "consumers": [
         "connection.object",
-        "mcp.server",
         "settings.tools"
       ]
     },
@@ -267,6 +288,15 @@
         "chat.create",
         "project.create",
         "material.add"
+      ]
+    },
+    {
+      "symbol": "puzzle",
+      "kind": "lucide",
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/puzzle.svg",
+      "sha256": "6d80d0c3b214c96945ed0f1c6ee0e4c4ea3911c6cc91c75751fdba08c31eab02",
+      "consumers": [
+        "plugin.object"
       ]
     },
     {
@@ -323,7 +353,8 @@
       "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/square-pen.svg",
       "sha256": "09bdac7fdb94058246a5d3132eea0976e690d01694179ab6f474faa2c21de59a",
       "consumers": [
-        "message.edit"
+        "message.edit",
+        "settings.profile"
       ]
     },
     {
@@ -360,6 +391,15 @@
       "sha256": "04cb4caea0872de431a04be01189054c9f5abb093ca8841cdde4b72cff4285b2",
       "consumers": [
         "message.like"
+      ]
+    },
+    {
+      "symbol": "trash",
+      "kind": "lucide",
+      "url": "https://raw.githubusercontent.com/lucide-icons/lucide/bca7e75a816dcf1e75e8feb5a3198a68cbb8a052/icons/trash.svg",
+      "sha256": "27299f69ad7c6272be64b1b8e2d48cbd6dcf0ef0d4f92827a1affa945c91700e",
+      "consumers": [
+        "chat.delete"
       ]
     },
     {
@@ -411,6 +451,62 @@
       "sha256": "0f5489f5da7c7824894c60945b8bf9935358d34861e253c6449129e5cd06aacc",
       "consumers": [
         "matter.object"
+      ]
+    },
+    {
+      "symbol": "runtime-hook",
+      "kind": "courtwork-domain",
+      "sha256": "46e3e515c03f6e5cd1496a55d53ef17f69fa5974cc21a58d4b7cf5943d0e0dd7",
+      "consumers": [
+        "hook.object"
+      ]
+    },
+    {
+      "symbol": "runtime-host-extension",
+      "kind": "courtwork-domain",
+      "sha256": "a0ee0824fb4dee6458859ea56908e3f7dd873f43048d88eb48f2e026a354db0c",
+      "consumers": [
+        "plugin.host-extension"
+      ]
+    },
+    {
+      "symbol": "runtime-mcp",
+      "kind": "courtwork-domain",
+      "sha256": "f1093577047f76c29dc2cff41f7f493af2df5717cb5dab6feadd48d2f5a93135",
+      "consumers": [
+        "mcp.server"
+      ]
+    },
+    {
+      "symbol": "runtime-profile",
+      "kind": "courtwork-domain",
+      "sha256": "6a85648921a13e51eddde208b765710bc1768f2fbb29d7612ed75f5fe4dcb4e4",
+      "consumers": [
+        "agent.profile"
+      ]
+    },
+    {
+      "symbol": "runtime-registry",
+      "kind": "courtwork-domain",
+      "sha256": "3977c7d3f9db5d6d09514d6e1c2e8ec42df4595e61c7102736262783bf9e0d49",
+      "consumers": [
+        "registry.object"
+      ]
+    },
+    {
+      "symbol": "runtime-skill",
+      "kind": "courtwork-domain",
+      "sha256": "f8ee8fa24bb298b7b640bc89df807462cd5d6df3b937bf4d50208b8297623b0e",
+      "consumers": [
+        "skill.object"
+      ]
+    },
+    {
+      "symbol": "runtime-tool",
+      "kind": "courtwork-domain",
+      "sha256": "d6ecc3060926b1339b8ac69c902a1f345ea1e5cd631431efbb73925245316797",
+      "consumers": [
+        "tool.object"
       ]
     },
     {
