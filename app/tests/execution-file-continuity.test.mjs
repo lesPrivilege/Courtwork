@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {createHash} from 'node:crypto';
-import {writeFile} from 'node:fs/promises';
+import {writeFile,chmod,readFile} from 'node:fs/promises';
 import path from 'node:path';
 import {boot} from './helpers.mjs';
 import {candidateActions} from '../web/surface-modules.mjs';
@@ -21,6 +21,53 @@ async function run(h,session,calls,id='files'){
 }
 const surface=async(h,s)=>(await h.api('GET',`/sessions/${s.id}/surface`)).json;
 const fileQuery=(s,c,extra='')=>`/sessions/${s.id}/work-query?kind=file-content&candidateId=${c}&path=out%2Fmemo.txt${extra}`;
+
+test('file memo does not advertise an unconfirmed workspace placement as a recorded file',async()=>{
+ let observedWrite;
+ const h=await boot({fakeResponder:({body})=>{
+  const results=body.messages.filter(message=>message.role==='tool');
+  const written=results.find(message=>message.content.includes('could not confirm that they are at'));
+  if(written)observedWrite=written.content;
+  return null;
+ }});
+ const previousPython=process.env.WORK_AGENT_PYTHON;
+ try{
+  const {session,source}=await bind(h);
+  const moved=path.join(h.dataDir,'moved-output');
+  const hook=path.join(h.dataDir,'move-write-parent.py');
+  await writeFile(hook,`import os, runpy, sys
+real_rename = os.rename
+fired = False
+def hooked_rename(src, dst, *, src_dir_fd=None, dst_dir_fd=None):
+    global fired
+    if not fired and src_dir_fd is not None and src.endswith(".tmp"):
+        fired = True
+        real_rename(${JSON.stringify(path.join(session.workspaceDir,'out'))}, ${JSON.stringify(moved)})
+    return real_rename(src, dst, src_dir_fd=src_dir_fd, dst_dir_fd=dst_dir_fd)
+os.rename = hooked_rename
+os.supports_dir_fd.add(hooked_rename)
+sys.argv = sys.argv[1:]
+runpy.run_path(sys.argv[0], run_name="__main__")
+`);
+  const wrapper=path.join(h.dataDir,'python-move-write-parent');
+  await writeFile(wrapper,`#!/bin/sh\nexec ${JSON.stringify(previousPython??'python3')} ${JSON.stringify(hook)} "$@"\n`);
+  await chmod(wrapper,0o755);
+  process.env.WORK_AGENT_PYTHON=wrapper;
+  const id=await run(h,session,[{name:'ws_write',arguments:{path:'out/memo.txt',text:'A😀\n'}},{name:'se_submit_candidate',arguments:proposal(source)}]);
+  const done=await h.pollRun(id);
+  assert.equal(done.status,'completed');
+  assert.equal(done.artifacts.length,0,'unconfirmed placement appends no artifact');
+  assert.equal(await readFile(path.join(moved,'memo.txt'),'utf8'),'A😀\n','the occurred write is preserved');
+  assert.equal((await h.runtime.service.artifactHistory.read(session.id,hash('A😀\n'),Buffer.byteLength('A😀\n'))).toString(),'A😀\n');
+  assert.ok(observedWrite,'the provider sees the occurred-effect warning');
+  assert.match(observedWrite,new RegExp(hash('A😀\n')),'the effect retains its exact hash');
+  assert.equal(observedWrite.includes('"recordedFile"'),false,'model-visible content must not claim an unrecorded version');
+  assert.equal((await surface(h,session)).projection.candidates.length,0,'an unrecorded selector cannot become a candidate');
+ }finally{
+  if(previousPython===undefined)delete process.env.WORK_AGENT_PYTHON;else process.env.WORK_AGENT_PYTHON=previousPython;
+  await h.runtime.close();
+ }
+});
 
 test('real service/Pi recorded write, permission CAS, save, human accept, deletion and producer-absent exact reads',async()=>{
  let sourceId, seenSource, observedReceipt;
