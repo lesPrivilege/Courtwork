@@ -18,7 +18,7 @@ import { runLabels } from './inspector.mjs';
 import { createCoordinationView } from './coordination-view.mjs';
 import { renderToolRow } from './run-rows.mjs';
 
-export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel }) {
+export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel, itemsSummary = () => null }) {
   let visible = false, timer = null, opener = null, signature = '', openingEpoch = 0;
   // Order 3 · bodies by segment key, the structure the thread was last built
   // from, and the newest event it shows.
@@ -38,6 +38,13 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
   const refresh = action('refresh-cw', 'Refresh Attention', () => controller.refresh());
   const items = el('button', { text: 'Attention items', className: 'text-button', attrs: { type: 'button' } });
   items.addEventListener('click', () => { close(); onItems(); });
+  /* S4 · the way to the item queue says what the rail's Attention count says:
+   * how many items need the person in the working project. */
+  function renderItemsSummary() {
+    const summary = itemsSummary();
+    items.textContent = summary ? `Attention items · ${summary}` : 'Attention items';
+  }
+  renderItemsSummary();
   const full = el('button', { text: 'Open conversation', className: 'text-button', attrs: { type: 'button' } });
   full.addEventListener('click', () => { const id = controller.state.session?.id; if (id) { close(); onOpenSession(id); } });
   const configure = action('settings-2', 'Configure Attention Runtime', async () => { const own = openingEpoch; const id = await controller.ensureConversation(); if (id && visible && own === openingEpoch) { close(); onConfigure(id); } });
@@ -338,8 +345,9 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
     renderedSeq = state.lastSeq;
     return true;
   }
-  return { controller, open() {
+  return { controller, renderItemsSummary, open() {
     opener = document.activeElement; visible = true; openingEpoch++; signature = '';
+    renderItemsSummary();
     if (!dialog.open) dialog.showModal();
     render(); input.focus(); void controller.refresh();
   }, close };

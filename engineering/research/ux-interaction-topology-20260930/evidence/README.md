@@ -1,5 +1,7 @@
 # S2/S3 visual evidence
 
+Later slices capture before merge with the same [harness](harness.mjs): S4 in [`capture-s4.mjs`](capture-s4.mjs) and [`captures-s4/`](captures-s4/report.json), recorded in [s4.md](../s4.md).
+
 2026-09-30 · Claude (Opus), after a review noted that S2 and S3 were merged without the captures the [rulings](../rulings.md#implementation-order) require ("desktop and 390px, light and dark, with CJK fixture names"). Author evidence: it shows what renders and records the fixes it caused. It is not visual or accessibility acceptance.
 
 ## How it was made

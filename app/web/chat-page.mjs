@@ -10,6 +10,7 @@ import { el } from "./ui-controls.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
 import { sessionMode } from "./ui-controls.mjs";
 import { relativeUpdated } from "./attention-view.mjs";
+import { waitMark } from "./shell-signals.mjs";
 
 const FACETS = [
   { key: "chat.surface", name: "Chat", line: "Conversations and their recorded work.", current: true },
@@ -23,7 +24,7 @@ const FACETS = [
 export function createChatPage(container, { onOpenSession, onNewChat, onOpenAttention, onOpenSpark, onExample = null, attachCommands = null }) {
   let generation = 0;
 
-  function chatRow({ session, project, active }) {
+  function chatRow({ session, project, active, waiting }) {
     const button = el("button", {
       className: `chat-row${active ? " is-current" : ""}`,
       attrs: { type: "button", "aria-current": active ? "page" : null, "data-chat-session": session.id },
@@ -31,6 +32,9 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     const title = el("span", { className: "chat-row-title", text: session.title || "Untitled chat" });
     const meta = el("span", { className: "chat-row-meta" });
     meta.append(el("span", { text: project?.name || "No project" }));
+    // S4 · a chat waiting on the person says so here as on its rail row.
+    const mark = waitMark(waiting);
+    if (mark) meta.append(mark);
     if (sessionMode(session) === "work") meta.append(el("span", { className: "session-mode-tag", text: "Work" }));
     const when = relativeUpdated(session.recordedActivityAt || session.updatedAt || session.createdAt);
     if (when) meta.append(el("span", { text: when }));
@@ -50,13 +54,13 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     return card;
   }
 
-  function render({ projects = [], sessionsByProject = new Map(), recentSessions = null, activeSessionId = null, currentSession = null, example = null } = {}) {
+  function render({ projects = [], sessionsByProject = new Map(), recentSessions = null, activeSessionId = null, currentSession = null, example = null, waitingKind = () => null } = {}) {
     generation += 1;
     const rows = [];
     if(recentSessions) {
-      for(const session of recentSessions) rows.push({session,project:projects.find(p=>p.id===session.projectId),active:session.id===activeSessionId});
+      for(const session of recentSessions) rows.push({session,project:projects.find(p=>p.id===session.projectId),active:session.id===activeSessionId,waiting:waitingKind(session.id)});
     } else for (const project of projects) {
-      for (const session of sessionsByProject.get(project.id) || []) rows.push({ session, project, active: session.id === activeSessionId });
+      for (const session of sessionsByProject.get(project.id) || []) rows.push({ session, project, active: session.id === activeSessionId, waiting: waitingKind(session.id) });
     }
     rows.sort((a, b) => String(b.session.recordedActivityAt ?? b.session.updatedAt ?? b.session.createdAt ?? "").localeCompare(String(a.session.recordedActivityAt ?? a.session.updatedAt ?? a.session.createdAt ?? "")) || a.session.id.localeCompare(b.session.id));
     const recent = rows.slice(0, 8);
@@ -118,8 +122,22 @@ export function createChatPage(container, { onOpenSession, onNewChat, onOpenAtte
     return container;
   }
 
+  /* S4 · waiting marks change in place, so focus, an open "About chats" and an
+   * anchored object menu survive; the rows are the ones last drawn. */
+  function updateWaiting(waitingKind) {
+    for (const button of container.querySelectorAll("[data-chat-session]")) {
+      const meta = button.querySelector(".chat-row-meta");
+      const kind = waitingKind(button.getAttribute("data-chat-session"));
+      const current = meta?.querySelector(".session-wait");
+      if ((current?.dataset.kind ?? null) === (kind ?? null)) continue;
+      current?.remove();
+      const mark = waitMark(kind);
+      if (mark) meta?.children[0]?.after(mark);
+    }
+  }
   return {
     open(input) { return render(input); },
+    updateWaiting,
     deactivate() { generation += 1; },
     get generation() { return generation; },
   };

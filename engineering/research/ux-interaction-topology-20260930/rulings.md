@@ -62,7 +62,7 @@ The Agent chooser (CMP-03, SET-11) and file access's default-vs-this-chat split 
 | Findings | Ruling | Reason | Slice |
 |---|---|---|---|
 | ATT-01, ATT-05 | **A.** The rail Attention entry carries a count, and a chat row waiting on the person carries a mark, both from the same owner facts Home already reads; no unread state is invented | Ambient signal for the one thing that needs the person (UX-10) | S4 |
-| ATT-02, V13 | **A.** The rail Attention entry opens the item queue, as the Home block already does; the assistant is one action inside the queue | The frequent task is handling items; the assistant is secondary | S4 |
+| ATT-02, V13 | **A.** The rail Attention entry opens the item queue, as the Home block already does; the assistant is one action inside the queue. **Adjusted in S4:** the entry stays the assistant's (Astra's Attention rule) and carries the item count, as does its "Attention items" button; the question is deferred to Astra ([S4](s4.md#adjustments-to-the-rulings)) | The frequent task is handling items; the assistant is secondary | S4 |
 | ATT-04, OBJ-06 | **J.** Project-scoped tools (Attention, Usage, Spark, Home block) default to the working project — the open chat's, else Home's — with "All projects" as an explicit choice | One rule for "which project" instead of three defaults | S4 |
 | ATT-06 | **D** (Spark) | Spark's entry is a product-definition question | — |
 | USG-01…04, NAV-06, PRV-06 | **R** | Low frequency; current depth is proportionate | — |
@@ -99,7 +99,7 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | S1 · [record](s1.md) | Key loss (V6), 409 copy (V3/V12; link deferred), effort kept on model change (V2), New chat project (V8), preview restore (V9), read-only slash during a run (CMP-15), visible run hint (V11) | Correctness, small |
 | S2 · [record](s2.md) | Model and effort popover; modal picker retired, unlisted IDs moved to Settings; keyless connections grouped; scope wording including `/status` | Topology |
 | S3 · [record](s3.md) | Chat file-access control split; overview row target; chat paperclip popover | Topology |
-| S4 | Attention count and waiting marks; rail opens the queue; working-project default | Topology |
+| S4 · [record](s4.md) | Attention count and waiting marks; rail opens the queue (adjusted: the assistant keeps the entry, see the record); working-project default | Topology |
 | S5 | Icon size source and tiers; glyph meanings; Retry text; disclosure; unavailable actions removed; alignment captures; manifest and allowlist hygiene; stale comments | Icons, hygiene |
 | S6 | Header rename; Edit and resend; Compact from the context popover; separate connection save from default; Remove-key confirmation; Settings name collisions | Topology, small |
 
@@ -115,6 +115,8 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | Settings regrouped by user task; agent-profile selection homes; runtime choice UI | Settings resource management; 06c | The next Settings pass; 06c's runtime-management API |
 | Spark entry | Spark product owner | Next Spark definition change |
 | Specimen-only modules | UX lane | Before S6 |
+| Whether the rail Attention entry opens the item queue, with the assistant inside it (ATT-02), against the Attention agent rule of one stable entry for the resident assistant ([S4](s4.md#adjustments-to-the-rulings)) | Astra (Attention product identity) | The next Attention product revision |
+| An "All projects" Attention view and a cross-project count | Core Attention owner | A registry query without a project |
 | Chat file names outside `[A-Za-z0-9._-]`, such as Chinese names, which the Host refuses and the client refuses before sending ([evidence E5](evidence/README.md)) | Host materials owner | The next Host materials contract revision |
 | Translucent popover material shows bright content behind titles in dark mode ([evidence E7](evidence/README.md)) | Material owner ([visual-spatial grammar](../../design/visual-spatial-grammar.md)) | The next material pass |
 

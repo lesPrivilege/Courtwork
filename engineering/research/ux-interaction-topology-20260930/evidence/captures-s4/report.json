@@ -1,0 +1,236 @@
+{
+  "origin": "disposable Host",
+  "scenes": [
+    {
+      "name": "s4-rail-1440-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": null,
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-assistant-1440-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": null,
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-queue-1440-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-chat-page-1440-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-rail-1440-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-assistant-1440-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-queue-1440-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-chat-page-1440-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-rail-390-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-assistant-390-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-queue-390-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-chat-page-390-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-rail-390-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-assistant-390-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-queue-390-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-chat-page-390-dark",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      },
+      "queueProject": "租约审阅 Harborview",
+      "itemsButton": "Attention items · 2 need you"
+    },
+    {
+      "name": "s4-rail-other-project-1440-light",
+      "rail": {
+        "attention": "Attention · 1 needs you in 证据整理",
+        "count": "1",
+        "marks": [
+          "合同红线（待确认）Approval · Waiting for your approval",
+          "合同红线（待确认）Approval · Waiting for your approval"
+        ]
+      }
+    },
+    {
+      "name": "s4-rail-answer-1440-light",
+      "rail": {
+        "attention": "Attention · 2 need you in 租约审阅 Harborview",
+        "count": "2",
+        "marks": [
+          "证据问题 · Evidence questionAnswer · Waiting for your answer",
+          "证据问题 · Evidence questionAnswer · Waiting for your answer"
+        ]
+      }
+    }
+  ],
+  "errors": []
+}

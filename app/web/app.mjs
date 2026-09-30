@@ -43,6 +43,7 @@ import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelChooser } from "./model-chooser.mjs";
 import { createChatFilesAttach } from "./chat-files-attach.mjs";
 import { visibleModelName } from "./model-effort.mjs";
+import { createShellSignals, needsYouWords, waitMark } from "./shell-signals.mjs";
 import { createAgentChoiceController, createHomeAgentChoice, liveAgentChoiceAdapter, agentChoiceGate, createAgentChoiceLifecycle, projectSnapshot, selectionLanded, intentResolves } from "./agent-choice.mjs";
 import { createAgentChooser } from "./agent-chooser-view.mjs";
 import { renderCommandResult } from "./command-result.mjs";
@@ -56,7 +57,7 @@ import { createObjectMenu } from "./object-menu.mjs";
 import { activeRunFreezeNotice, isActiveRunRefusal, projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
-let attentionWorkspace, attentionAgent, modelChooser, attentionModelChooser, chatFilesAttach, usageView, sparkView, chatPage;
+let attentionWorkspace, attentionAgent, shellSignals, modelChooser, attentionModelChooser, chatFilesAttach, usageView, sparkView, chatPage;
 import {
   createSettingsPage,
   createSettingsView,
@@ -1136,6 +1137,8 @@ async function pollEvents(epoch) {
       // connection state (or stop its probe) — just merge the page like an
       // ordinary successful poll.
       const { changed, admitted } = mergeEvents(page.events || []);
+      // S4 · a question opened or answered here changes which chats wait on the person.
+      if (admitted?.some?.((event) => /^(question|permission)\.(open|resolved)$/.test(event.type))) void shellSignals?.refresh();
       // Order 3 · a page that only grows assistant text updates the growing
       // bodies in place; anything else renders the projection again.
       if (changed && growsTextOnly(admitted) && patchGrowingBodies()) {
@@ -1939,7 +1942,7 @@ function renderRecentSessions() {
   const query = state.navigationFilter.trim().toLocaleLowerCase();
   const rows = state.recentSessions.filter(s=>String(s.title).toLocaleLowerCase().includes(query));
   const limit = state.navigationLimits.get("recent") || 8;
-  const signature = JSON.stringify([query, limit, state.recentError, state.activeSessionId, rows.map(s=>[s.id,s.title])]);
+  const signature = JSON.stringify([query, limit, state.recentError, state.activeSessionId, rows.map(s=>[s.id,s.title,shellSignals?.waitingKind(s.id)])]);
   if (list.dataset.signature === signature) return;
   list.dataset.signature = signature;
   const focused = list.contains(document.activeElement) ? document.activeElement?.dataset.recentKey : null;
@@ -1953,7 +1956,7 @@ function renderRecentSessions() {
   for(const session of rows.slice(0,query?rows.length:limit)){
     const button=element("button",{className:`session-button ${state.activeSessionId===session.id?"active":""}`,
       attrs:{type:"button","data-recent-key":session.id,"data-recent-id":session.id,"aria-current":state.activeSessionId===session.id?"page":null,title:session.title}},
-      element("span",{className:"session-name",text:session.title||"Untitled chat"}));
+      element("span",{className:"session-line"},element("span",{className:"session-name",text:session.title||"Untitled chat"}),waitMark(shellSignals?.waitingKind(session.id))));
     button.addEventListener("click",()=>void selectSession(session.id));
     const more=attachObjectCommands(button,{kind:"chat",id:session.id},{attrs:{"data-recent-key":`more:${session.id}`}});
     list.append(element("div",{className:"session-row"},button,more));
@@ -2342,6 +2345,8 @@ function renderProjectList() {
               sessionMode(session) === "work"
                 ? element("span", { className: "session-mode-tag", text: "Work" })
                 : null,
+              // S4 · a chat waiting on the person: ring and one word (shell-signals.mjs).
+              waitMark(shellSignals?.waitingKind(session.id)),
             ),
           );
           sessionButton.addEventListener(
@@ -2812,6 +2817,28 @@ function renderProviderPanel() {
   modelChooser?.render();
   attentionModelChooser?.render();
   renderModelChip();
+}
+/* S4 · the Attention entry carries the number of Attention items that need the
+ * person in the working project, from the registry the item queue reads; the
+ * accessible name says which project. No number when it is zero or unknown. */
+function renderAttentionEntry() {
+  shellSignals?.followScope();
+  const button = $("attention-button");
+  const { count, projectId } = shellSignals?.attention() ?? {};
+  const words = needsYouWords(count);
+  let badge = button.querySelector(".nav-count");
+  if (!words) {
+    badge?.remove();
+    button.setAttribute("aria-label", "Attention");
+    return;
+  }
+  if (!badge) {
+    badge = element("span", { className: "count-badge nav-count", attrs: { "aria-hidden": "true" } });
+    button.append(badge);
+  }
+  badge.textContent = String(count);
+  const project = state.projects.find((entry) => entry.id === projectId)?.name;
+  button.setAttribute("aria-label", `Attention · ${words}${project ? ` in ${project}` : ""}`);
 }
 /* The composer's model control names the in-force model and effort, with the
  * disclosure mark of a control that opens a chooser (not a settings gear). */
@@ -3711,6 +3738,7 @@ function renderChatHeader() {
   } else if (composer.firstElementChild !== intro) composer.prepend(intro);
   if (previewBanner && home && previewBanner.parentElement !== intro) intro.append(previewBanner);
   $("attention-button").setAttribute("aria-current", !settingsOpen && state.attentionOpen ? "page" : "false");
+  renderAttentionEntry();
   measureHomeLead();
   renderModelChip();
   /* WK-73 · the quiet line below the composer states the standing context of
@@ -5306,6 +5334,19 @@ function isUncertainCommandError(error) {
   return !Number.isFinite(error?.status) || error.status >= 500;
 }
 
+/* S4 (ruling J) · the project the person is working in: the open chat's, else
+ * Home's. Project-scoped tools start there; another project is an explicit
+ * choice in the tool. */
+function workingProjectId() {
+  const chat = state.view === "session" ? currentSession()?.projectId : null;
+  const id = chat ?? homeProjectId();
+  return state.projects.find((project) => !project.preview && project.id === id)?.id ?? null;
+}
+/* The Attention registry is read one project at a time: the working project,
+ * else the first real project. An example project is never read for a count. */
+function attentionScope() {
+  return workingProjectId() ?? state.projects.find((project) => !project.preview)?.id ?? null;
+}
 function homeProjectId() {
   const start = state.homeStart;
   const fixedProject = start?.pending || start?.unconfirmed || start?.session || start?.sessionId;
@@ -5701,6 +5742,8 @@ async function submitSessionRun({ commandId = null, expectAgent = null } = {}) {
      * recoverable and the preparation marker stays. */
     retirePreparedChat(sessionId);
     void loadRecentSessions();
+    // S4 · an admitted run may come to wait on the person from any chat.
+    void shellSignals?.refresh();
     if (state.activeSessionId === sessionId && result.run?.id)
       mergeRun(result.run, { sessionId, preserveStatus: true });
     // A matching 2xx receipt establishes the person's real work identity. The
@@ -6557,6 +6600,7 @@ function loadHomeModules() {
 }
 async function loadHome(key = null, offset = 0) {
   void loadRecentSessions();
+  if (!key) void shellSignals?.refresh();
   if (!key) loadHomeModules();
   const own = ++state.home.generation;
   state.home.loading = true;
@@ -6595,7 +6639,7 @@ async function loadHome(key = null, offset = 0) {
     }
   }
 }
-async function openAttentionWorkspace(projectId = state.homeAttention.projectId || homeProjectId(), attentionId = null, trigger = null) {
+async function openAttentionWorkspace(projectId = attentionScope(), attentionId = null, trigger = null) {
   const returnFocusKey = state.view === "home" ? trigger?.dataset?.focusKey : null;
   const own = ++state.navigationEpoch;
   await persistCurrentDraft();
@@ -6663,6 +6707,7 @@ function refreshChatPage({ focusSession = undefined } = {}) {
     activeSessionId: state.activeSessionId,
     currentSession: currentSession(),
     example: preview.available && !preview.active ? { label: "See the example workspace" } : null,
+    waitingKind: (id) => shellSignals?.waitingKind(id) ?? null,
   });
   if (focusSession === undefined) return;
   const page = $("chat-page");
@@ -7953,7 +7998,7 @@ async function init() {
   }
   usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
   sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
-  subagentView = createSubagentView({request,getSession:currentSession,onOpenSession:id=>selectSession(id),onMaintenance:()=>sparkView.open(currentProject()?.id ?? null)});
+  subagentView = createSubagentView({request,getSession:currentSession,onOpenSession:id=>selectSession(id),onMaintenance:()=>sparkView.open(workingProjectId())});
   /* UX-11 (S2) · one model and effort chooser per surface; both write the same
    * Host-wide configuration and redraw each other through renderProviderPanel. */
   const onModelSnapshot = (value) => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); };
@@ -7973,7 +8018,12 @@ async function init() {
     ownRunBusy: () => Boolean(attentionAgent?.controller.state.busy),
     onConnections: (connectionId) => { $("attention-agent-dialog").close(); openSettings("models", { connectionId }); },
   });
-  attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: (anchor) => attentionModelChooser.open(anchor), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
+  shellSignals = createShellSignals({
+    request, requestOptions: previewStatsRequestOptions, attentionScope,
+    // Marks change in place on the Chat page: a redraw would drop its focus and open sections.
+    onChange: () => { renderProjectList(); renderAttentionEntry(); if (state.chatOpen) chatPage?.updateWaiting((id) => shellSignals.waitingKind(id)); attentionAgent?.renderItemsSummary(); },
+  });
+  attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, itemsSummary: () => needsYouWords(shellSignals.attention().count), onChooseModel: (anchor) => attentionModelChooser.open(anchor), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   chatPage = createChatPage($("chat-page"), {
     onOpenSession: (sessionId, projectId) => void (projectId && projectId !== state.activeProjectId ? selectProject(projectId, { sessionId }) : selectSession(sessionId)),
     onNewChat: () => startNewSession(),
@@ -7987,6 +8037,8 @@ async function init() {
     state.chatOpen = false;
     attentionWorkspace.deactivate();
     renderAll();
+    // S4 · items handled in the queue change the count.
+    void shellSignals.refresh();
     const key = state.attentionReturnFocusKey;
     state.attentionReturnFocusKey = null;
     const opener = state.view === "home" && key
@@ -7994,6 +8046,7 @@ async function init() {
       : null;
     restoreLayerFocus(opener, $("attention-button"));
   } });
+  $("attention-agent-dialog").addEventListener("close", () => void shellSignals.refresh());
   wireEvents();
   renderAll();
   /* 深链：带着 #settings/<section> 进来的人直接落在那一节，不必先看见 Home 再跳。
@@ -8007,6 +8060,7 @@ async function init() {
     state.adapterId = bootstrap.adapterId || null;
     await Promise.all([loadProjects(), loadExtensions(), loadProviderConfig()]);
     await loadRecentSessions();
+    shellSignals.start();
     await preview.load();
     if (preview.shouldAutoEnter({ projectCount: state.projects.length + state.recentSessions.length })) {
       preview.enter();
