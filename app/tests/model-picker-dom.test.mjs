@@ -136,3 +136,66 @@ test('same model name and ID on two providers disambiguates Saved and Draft with
   await selector.dispatch('change');
   assert.equal(draft.textContent,'Draft · Shared model · conn-draft','missing connection metadata falls back to the provider identity');
 });
+
+test('UX-11 S1 · a model change keeps the asked-for effort when the new model offers it, says so when it does not, and a run elsewhere is named as elsewhere', async () => {
+  globalThis.document=new TestDocument();
+  const {createModelPicker}=await import('../web/model-picker.mjs');
+  const cap=values=>({kind:'enum',source:'runtime-catalog',values,notice:''});
+  const a={provider:'openai',id:'model-a',name:'Model A',api:'openai-completions',reasoningCapability:cap(['low','high'])};
+  const b={provider:'deepseek',id:'model-b',name:'Model B',api:'openai-completions',reasoningCapability:cap(['high'])};
+  const c={provider:'other',id:'model-c',name:'Model C',api:'openai-completions',reasoningCapability:cap(['low'])};
+  const puts=[];
+  const request=async(path,options={})=>{
+    if(path==='/provider-models')return {version:4,models:[a,b,c]};
+    if(path==='/provider-config'&&options.method==='PUT'){puts.push(options.body);const error=new Error('provider config is frozen during a run');error.status=409;error.body={error:{code:'active_run',message:error.message}};throw error;}
+    if(path==='/provider-config')return {version:4,config:{provider:'openai',model:'model-a',api:a.api,reasoningEffort:'high'}};
+    if(path==='/provider-connections')return {connections:[]};
+    throw new Error('unexpected request '+path);
+  };
+  const picker=createModelPicker({request,onSaved:()=>{},ownRunActive:()=>false});
+  await picker.open();
+  const nodes=document.body.walk();
+  const selector=nodes.find(node=>node.attributes['aria-label']==='Installed model');
+  const effort=nodes.find(node=>node.attributes['aria-label']==='Reasoning effort');
+  const save=nodes.find(node=>node.tagName==='BUTTON'&&node.textContent==='Set default');
+  const dialog=nodes.find(node=>node.tagName==='DIALOG');
+
+  selector.value='1';await selector.dispatch('change');
+  assert.equal(effort.value,'high','Model B offers high, so the choice survives the model change');
+  assert.equal(save.disabled,false);
+  await save.dispatch('click');
+  assert.equal(puts.length,1);assert.equal(puts[0].reasoningEffort,'high');
+  const status=document.body.walk().find(node=>node.attributes.role==='status');
+  assert.equal(status.textContent,'Another chat is running. Available when it ends.','the Host locks while any chat runs; the words do not blame this chat');
+  assert.equal(save.disabled,false,'a run lock is not a version conflict: Save is usable again once the run ends');
+
+  selector.value='2';await selector.dispatch('change');
+  assert.equal(effort.value,'__provider_default__','Model C does not offer high');
+  const note=document.body.walk().find(node=>node.tagName==='P'&&/does not offer high/.test(node.textContent||''));
+  assert.ok(note&&!note.hidden,'the fallback is said');
+  let inside=note.parentNode;while(inside&&inside.tagName!=='DETAILS')inside=inside.parentNode;
+  assert.equal(inside,undefined,'beside the control, not inside the collapsed details');
+
+  selector.value='0';await selector.dispatch('change');
+  assert.equal(effort.value,'high','returning to a model that offers it restores the asked-for effort');
+  assert.equal(note.hidden,true);
+});
+
+test('UX-11 S1 · when the open chat is the one running, the picker says so', async () => {
+  globalThis.document=new TestDocument();
+  const {createModelPicker}=await import('../web/model-picker.mjs');
+  const m={provider:'openai',id:'m',name:'M',api:'openai-completions',reasoningCapability:{kind:'enum',source:'runtime-catalog',values:['high'],notice:''}};
+  const request=async(path,options={})=>{
+    if(path==='/provider-models')return {version:4,models:[m]};
+    if(path==='/provider-config'&&options.method==='PUT'){const error=new Error('frozen');error.status=409;error.body={error:{code:'active_run'}};throw error;}
+    if(path==='/provider-config')return {version:4,config:{provider:'openai',model:'m',api:m.api}};
+    if(path==='/provider-connections')return {connections:[]};
+    throw new Error('unexpected '+path);
+  };
+  const picker=createModelPicker({request,onSaved:()=>{},ownRunActive:()=>true});
+  await picker.open();
+  const nodes=document.body.walk();
+  const save=nodes.find(node=>node.tagName==='BUTTON'&&node.textContent==='Set default');
+  await save.dispatch('click');
+  assert.equal(document.body.walk().find(node=>node.attributes.role==='status'&&/run/.test(node.textContent||'')).textContent,'Available after this run ends.');
+});

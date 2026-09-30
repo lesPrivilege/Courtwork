@@ -122,6 +122,9 @@ test("CMD-MENU · Enter picks the active row, writes the composer, dispatches in
     });
     let inputEvents = 0;
     textarea.addEventListener("input", () => { inputEvents++; });
+    // The composer's own Enter listener is registered after the menu's, as in app.mjs.
+    let sends = 0;
+    textarea.addEventListener("keydown", (event) => { if (event.key === "Enter") sends++; });
 
     // No-args command: /status.
     textarea.focus();
@@ -133,6 +136,7 @@ test("CMD-MENU · Enter picks the active row, writes the composer, dispatches in
     assert.equal(picks.length, 1);
     assert.equal(picks[0], COMMANDS2[0]);
     assert.equal(textarea.value, "/status", "no trailing space for a no-args command");
+    assert.equal(sends, 1, "Enter on a command without arguments also reaches the composer's send");
     assert.equal(inputEvents, 1, "an input event was dispatched");
     assert.equal(document.activeElement, textarea, "focus stays in the textarea");
     assert.equal(menuEl.hidden, true);
@@ -147,6 +151,7 @@ test("CMD-MENU · Enter picks the active row, writes the composer, dispatches in
     assert.equal(picks.length, 2);
     assert.equal(picks[1], COMMANDS2[1]);
     assert.equal(textarea.value, "/effort ", "a trailing space invites the argument");
+    assert.equal(sends, 1, "Enter on a command with arguments stops at the pick, so the argument can be typed");
     assert.equal(inputEvents, 1);
     assert.equal(document.activeElement, textarea);
     assert.equal(menuEl.hidden, true);

@@ -3,7 +3,7 @@ import { el, action, flowRow } from "./ui-controls.mjs";
 import { renderDiff } from "./diff-view.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
 import { DIFF_PREVIEW } from "./diff-fixture.mjs";
-import { effortSelectable, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
+import { activeRunFreezeNotice, effortSelectable, isActiveRunRefusal, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
 export { PROVIDER_CONFIG_FIELDS, effortSelectable, projectProviderConfig, reasoningCapabilityOf, supportedEffortsOf } from "./provider-config.mjs";
 import { renderAvatar } from "./avatar-mark.mjs";
 import { homeGreeting } from "./home-greeting.mjs";
@@ -314,6 +314,7 @@ export const CONNECTION_SAVE_FAILURES = Object.freeze({
     "That directory does not list the selected model.",
 });
 export function connectionSaveError(error) {
+  if (isActiveRunRefusal(error)) return activeRunFreezeNotice(undefined);
   const detail = error?.body?.error;
   const headline = CONNECTION_SAVE_FAILURES[detail?.code];
   if (!headline) return error?.message || "The connection could not be saved.";
@@ -1477,13 +1478,34 @@ export function createSettingsView(
         });
         await reloadConnections();
       }
+      /* A key typed for a catalogue provider travels with this save: the
+       * connection now exists, so it goes to that connection's credential. A
+       * failure leaves the key in its field and the connection saved. */
+      const typedKey = activePath() === "compatible" ? "" : key.value.trim();
+      let keyKept = false;
+      if (typedKey) {
+        const target = connectionByIdentity(snapshot.config.provider);
+        const forTarget = keyTarget;
+        try {
+          if (!target) throw new Error("The connection was saved, but its key could not be stored. Save the key again.");
+          await request("/provider-credential", { method: "PUT", body: { connectionId: target.id, apiKey: typedKey } });
+        } catch (err) {
+          keyKept = true;
+          keyFail(err, forTarget);
+        }
+        // The key is stored; a failed refresh is not a key failure and is caught below.
+        if (!keyKept) {
+          snapshot = await request("/provider-config");
+          await reloadConnections();
+        }
+      }
       onConfig(snapshot);
       dirty = false;
-      key.value = "";
+      if (!keyKept) key.value = "";
       resetFields();
       renderConnections();
       // The saved connection resolves "Save this connection before adding its key."
-      clearKeyError();
+      if (!keyKept) clearKeyError();
       notify("Connection saved.");
       // PV-63/64 · 保存已经成功；询问是它之后的独立一步，失败不回滚保存
       // （runVerify 自己的 catch 已经把这一点体现为回执块里的一句话，不是
@@ -1609,7 +1631,7 @@ export function createSettingsView(
           );
           onSession(result.session, session.id);
         } catch (err) {
-          modeError.textContent = err.message;
+          modeError.textContent = isActiveRunRefusal(err) ? activeRunFreezeNotice(Boolean(getSession()?.active)) : err.message;
         } finally {
           mode.dataset.pending = "false";
           syncSessionPermission(mode, session.id);

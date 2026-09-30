@@ -84,3 +84,17 @@ export function projectProviderConfig(current, change = {}, catalog = null) {
     ...(keepEffort ? { reasoningEffort: effort } : {}),
   };
 }
+
+/** The Host freezes Host-wide settings (provider config, connections, file
+ * access) while any chat has an active run (`#busy()`), but the client only
+ * sees its open chat's runs. The notice names the open chat only when it is
+ * known to be the one running; `undefined` means no chat is in view. */
+export function activeRunFreezeNotice(ownRunActive) {
+  if (ownRunActive === undefined) return "A chat is running. Available when it ends.";
+  return ownRunActive ? "Available after this run ends." : "Another chat is running. Available when it ends.";
+}
+
+/** A refusal is `active_run` by the Host's error code, carried in the body. */
+export function isActiveRunRefusal(error) {
+  return (error?.code ?? error?.body?.error?.code) === "active_run";
+}

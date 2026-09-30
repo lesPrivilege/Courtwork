@@ -53,7 +53,7 @@ import { createCommandMenu } from "./command-menu.mjs";
 import { createLocationHistory, describeLocation, sameLocation } from "./location-history.mjs";
 import { createCommandDispatcher } from "./object-commands.mjs";
 import { createObjectMenu } from "./object-menu.mjs";
-import { projectProviderConfig } from "./provider-config.mjs";
+import { activeRunFreezeNotice, isActiveRunRefusal, projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
 let attentionWorkspace, attentionAgent, modelPicker, usageView, sparkView, chatPage;
@@ -588,6 +588,12 @@ function currentProject() {
 
 function currentRun() {
   return state.runs.find((run) => isActiveRun(run)) || null;
+}
+/* The open chat's own run in any state the Host may already count as active:
+ * running, being sent, or sent without a confirmed receipt. */
+function ownRunBusy() {
+  const id = currentSession()?.id;
+  return Boolean(currentRun()) || Boolean(id && (state.pendingRuns.has(id) || state.unconfirmedRuns.has(id)));
 }
 
 function showToast(message, kind = "info") {
@@ -1554,6 +1560,7 @@ async function selectSession(
   if (navigationEpoch !== state.navigationEpoch) return;
   const epoch = state.sessionEpoch + 1;
   state.sessionEpoch = epoch;
+  rememberPreviewOpen();
   state.activeSessionId = sessionId;
   state.view = "session";
   state.surface.open = false;
@@ -1607,6 +1614,8 @@ async function selectSession(
     renderAll();
     await loadSurface(epoch);
     await loadWorkThread(epoch);
+    if (epoch === state.sessionEpoch && state.view === "session" && state.activeSessionId === sessionId && previewOpenBySession.get(sessionId) && surfaceThreePaneQuery.matches)
+      showPreview({ focus: false });
     if (state.runs.some(isActiveRun)) {
       state.pollController = new AbortController();
       schedulePolling(epoch, 0);
@@ -1633,6 +1642,7 @@ function clearActiveSession() {
   stopPolling();
   void disposeSurfaceRenderer();
   state.sessionEpoch += 1;
+  rememberPreviewOpen();
   state.activeSessionId = null;
   state.view = "home";
   state.surface.open = false;
@@ -3751,7 +3761,6 @@ function paintWorkingClock() {
       ? `${verb}${elapsed ? ` · ${elapsed}` : ""}`
       : `${verb}${elapsed ? ` for ${elapsed}` : ""}`;
   hint.textContent = `${lead} · your input will not be sent automatically.`;
-  hint.classList?.toggle("is-waiting", run.status === "waiting_user");
 }
 function startWorkingClock() {
   paintWorkingClock();
@@ -4168,6 +4177,17 @@ function renderPreviewTabStrip() {
     onSelect: selectPreviewTab,
     onClose: closePreviewTab,
   });
+}
+
+/* UX-11 · the tabs are per chat, and so is whether the pane was showing them:
+ * leaving a chat records it, and returning reopens it where Preview is a third
+ * column beside the chat. Below that width Preview replaces the chat column (or
+ * covers it), so reopening it would hide the chat the person just chose; the
+ * tabs stay one click away there. */
+const previewOpenBySession = new Map();
+function rememberPreviewOpen() {
+  // Only a chat that finished loading has a pane state of its own to record.
+  if (state.activeSessionId && currentSession()) previewOpenBySession.set(state.activeSessionId, state.surface.open);
 }
 
 /* Hiding the pane keeps its tabs, their order, selection and reading
@@ -5496,13 +5516,17 @@ async function submitRun(event) {
 }
 async function submitSessionRun({ commandId = null, expectAgent = null } = {}) {
   const session = currentSession();
-  if (
-    !session ||
-    currentRun() ||
-    state.pendingRuns.has(session.id) ||
-    state.unconfirmedRuns.has(session.id)
-  )
-    return;
+  if (!session) return;
+  /* A run in flight holds the message, not the Host's commands: a leading slash
+   * still goes to the Host, which answers from its own availability. */
+  const runBusy = Boolean(currentRun()) || state.pendingRuns.has(session.id) || state.unconfirmedRuns.has(session.id);
+  /* UX-04 · Enter during a run is refused where the person is looking, not
+   * silently; the draft stays exactly as typed. A send already in flight has
+   * its own label and needs no second message. */
+  const holdForRun = () => {
+    if (currentRun() && $("composer-input").value.trim()) setTransientFeedback(session.id, nextOperationId("run-blocked"), "run", "Still working — your message stays here until this run ends.", { duration: 6000 });
+  };
+  if (runBusy && !$("composer-input").value.startsWith("/")) return holdForRun();
   if (preview.isExampleId(session.id)) {
     // The example never runs: the draft stays as typed, nothing is sent.
     showToast("This chat is part of the example and cannot run. Start your own chat from Home.");
@@ -5534,8 +5558,11 @@ async function submitSessionRun({ commandId = null, expectAgent = null } = {}) {
   if (input.startsWith("/")) {
     const read = await readComposerCommand(session, input);
     if (read.handled) return;
+    // Text (`//…`, a path) waits for the run to end exactly as typed.
+    if (runBusy) return holdForRun();
     if (read.text !== input) { input = read.text; textarea.value = input; }
   }
+  if (runBusy) return;
 
   const sessionId = session.id;
   // WS-03: register the focus intent before any await. If, once the
@@ -5859,7 +5886,7 @@ function openConnectionCard(anchor) {
           applySessionUpdate(result.session, session.id);
           showToast(`File access: ${permissionLabels[mode]}.`);
         } catch (error) {
-          showToast(error.message, "error");
+          showToast(isActiveRunRefusal(error) ? activeRunFreezeNotice(ownRunBusy()) : error.message, "error");
         }
         if (popover.matches(":popover-open")) render();
       },
@@ -5958,6 +5985,7 @@ async function readComposerCommand(session, text) {
     const name = text.slice(1).split(/\s/)[0].slice(0, 40);
     const message = code === "unknown_command" ? `Unknown command /${name}. To send it as text, start with //${name}.`
       : code === "command_revision" ? "Commands changed. Try again."
+      : code === "active_run" ? activeRunFreezeNotice(ownRunBusy())
       : error.message;
     if (code === "command_revision") void commandMenu?.refresh(sessionId);
     setPersistentFeedback(sessionId, opId, "command", message);
@@ -6094,7 +6122,7 @@ async function saveEffortFromCard(effort) {
     renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh();
   } catch (error) {
     if (own !== modelCardEpoch) return;
-    if (error.code === "active_run") modelCardFeedback = "Available after this run ends.";
+    if (isActiveRunRefusal(error)) modelCardFeedback = activeRunFreezeNotice(ownRunBusy());
     else if (error.status === 409 || error.code === "config_conflict") {
       modelCardFeedback = "Saved settings changed elsewhere. Showing the current value.";
       try { state.providerConfig = await request("/provider-config"); renderProviderPanel(); } catch {}
@@ -6719,7 +6747,11 @@ function chatPageNeighbour(sessionId) {
   const at = ids.indexOf(sessionId);
   return at < 0 ? undefined : ids[at + 1] ?? ids[at - 1] ?? null;
 }
-async function startNewSession({ projectId = null } = {}) {
+/* UX-11 · a generic New chat starts where the person is working: the open
+ * chat's project, else the project already chosen on Home. Only an explicit
+ * `projectId` (the project row's "+") says otherwise; `null` means no project. */
+async function startNewSession({ projectId } = {}) {
+  if (projectId === undefined) projectId = currentSession()?.projectId ?? state.homeProjectId ?? null;
   if (state.homeStart?.pending || state.homeStart?.unconfirmed || state.homeStart?.session || state.homeStart?.sessionId) {
     await goHome();
     showToast(state.homeStart?.prepared && state.homeStart?.session
@@ -7562,7 +7594,7 @@ function wireEvents() {
     state.homeProjectRequest = false;
     if (fromLocation) $("workspace-chip")?.focus();
   });
-  $("new-session-button").addEventListener("click", startNewSession);
+  $("new-session-button").addEventListener("click", () => void startNewSession());
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible") void workReviewSummaryView?.refresh();
   });
@@ -7988,7 +8020,7 @@ async function init() {
   usageView = createUsageView({request, getProjects: () => state.projects, onOpenRun: async (runId, sessionId) => { await selectSession(sessionId); if (currentSession()?.id === sessionId) await openRun(runId); }});
   sparkView = createSparkView({ request, getProjects: () => state.projects, onOpenMatter: (matterId, projectId) => void openMatterSurface(matterId, projectId) });
   subagentView = createSubagentView({request,getSession:currentSession,onOpenSession:id=>selectSession(id),onMaintenance:()=>sparkView.open(currentProject()?.id ?? null)});
-  modelPicker = createModelPicker({request, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
+  modelPicker = createModelPicker({request, ownRunActive: ownRunBusy, onSaved: value => { state.providerConfig = value; renderProviderPanel(); renderAll(); void attentionAgent?.controller.refresh(); }});
   attentionAgent = createAttentionAgent($("attention-agent-dialog"), { request, onChooseModel: () => modelPicker.open(), getProvider: () => state.providerConfig, onItems: () => openAttentionWorkspace(), onOpenSession: id => selectSession(id), onConfigure: async id => { await selectSession(id); if (currentSession()?.id === id) openSettings("developer"); } });
   chatPage = createChatPage($("chat-page"), {
     onOpenSession: (sessionId, projectId) => void (projectId && projectId !== state.activeProjectId ? selectProject(projectId, { sessionId }) : selectSession(sessionId)),

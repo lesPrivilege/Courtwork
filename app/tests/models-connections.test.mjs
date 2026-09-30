@@ -153,7 +153,9 @@ test("PV-34 / PV-46 · 保存失败的三类直接消费后端错误码与枚举
   assert.match(missing, /does not list the selected model/);
   assert.match(missing, /Not listed: ghost-model\./);
   // 未登记的错误按 host 原话报，不被塞进三类之一冒充精度。
-  assert.equal(connectionSaveError({ message: "A run is active.", body: { error: { code: "active_run", message: "x" } } }), "A run is active.");
+  assert.equal(connectionSaveError({ message: "The Host said something else.", body: { error: { code: "unregistered_code", message: "x" } } }), "The Host said something else.");
+  // active_run is a registered Host code: the Host locks while any chat runs, so the words do not claim it is this chat.
+  assert.equal(connectionSaveError({ message: "connections are frozen during a run", body: { error: { code: "active_run", message: "x" } } }), "A chat is running. Available when it ends.");
   assert.equal(connectionSaveError(new Error("The local runtime could not be reached.")), "The local runtime could not be reached.");
   // 三类的判据全部来自后端字段，前端没有一条正则去读报文正文。
   assert.doesNotMatch(settingsSource, /connection_authentication_failed[\s\S]{0,200}\.test\(/);

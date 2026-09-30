@@ -1678,30 +1678,6 @@ button.context-chip:disabled { cursor: default; opacity: 0.6; }
   max-width: 100%;
   text-align: left;
 }
-.composer-run-hint {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-meta);
-  color: var(--muted-strong);
-  padding: var(--space-1);
-  font-variant-numeric: tabular-nums;
-}
-.composer-run-hint::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--accent);
-  flex: none;
-  animation: se-pulse 1.6s var(--ease-out) infinite;
-}
-.composer-run-hint.is-waiting {
-  color: var(--accent-ink);
-}
-.composer-run-hint.is-waiting::before {
-  animation: none;
-}
 .draft-status {
   font-size: var(--text-meta);
   padding-bottom: 6px;
@@ -3788,9 +3764,6 @@ dialog[open]::backdrop {
     animation: none;
     background: none;
     color: var(--muted-strong);
-  }
-  .composer-run-hint::before {
-    animation: none;
   }
 }
 

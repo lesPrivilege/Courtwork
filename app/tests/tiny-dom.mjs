@@ -85,10 +85,16 @@ export class TinyNode {
   }
   dispatchEvent(event = {}) {
     const target = event.target ?? this;
-    let defaultPrevented = false;
-    const shaped = { ...event, target, preventDefault() { defaultPrevented = true; } };
-    for (let node = this; node; node = node.parentNode)
-      for (const callback of node.listeners.get(event.type) ?? []) callback(shaped);
+    let defaultPrevented = false, stopped = false, stoppedNow = false;
+    const shaped = { ...event, target,
+      preventDefault() { defaultPrevented = true; },
+      stopPropagation() { stopped = true; },
+      stopImmediatePropagation() { stopped = true; stoppedNow = true; } };
+    for (let node = this; node && !stopped; node = node.parentNode)
+      for (const callback of node.listeners.get(event.type) ?? []) {
+        callback(shaped);
+        if (stoppedNow) break;
+      }
     // Native activation: a button is operated by Enter and Space, so a view that
     // renders ordinary buttons needs no key handler to open a row.
     if (event.type === 'keydown' && !defaultPrevented && ['Enter', ' '].includes(event.key) &&

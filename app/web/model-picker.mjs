@@ -6,11 +6,11 @@ import {
   verifyFailureLine,
   verifySuccessLine,
 } from './settings-view.mjs';
-import { effortSelectable, projectProviderConfig, reasoningCapabilityOf } from './provider-config.mjs';
+import { activeRunFreezeNotice, effortSelectable, isActiveRunRefusal, projectProviderConfig, reasoningCapabilityOf } from './provider-config.mjs';
 
 // Shared native modal. It saves the existing host provider configuration;
 // choosing a model never performs generation or discovers credentials.
-export function createModelPicker({ request, onSaved }) {
+export function createModelPicker({ request, onSaved, ownRunActive = () => false }) {
   const dialog = el('dialog', { className:'model-picker-dialog', attrs:{id:'model-picker-dialog','aria-labelledby':'model-picker-title'} });
   document.body.append(dialog);
   let epoch = 0, opener;
@@ -47,12 +47,18 @@ export function createModelPicker({ request, onSaved }) {
       };
       let selected = models.find(m=>m.provider===current.config.provider && m.id===current.config.model);
       let effort = selected ? current.config.reasoningEffort : undefined;
+      /* UX-11 · the effort the person asked for survives a model change when the
+       * new model's exact ladder offers it; otherwise Provider default is used and
+       * said, and returning to a model that offers it restores it. */
+      let wantedEffort = effort, modelChanged = false, droppedEffort = null;
       versionAligned = Number.isSafeInteger(current.version) && current.version===catalog.version;
       const search = el('input',{attrs:{type:'search','aria-label':'Find installed model',placeholder:'Find a model…'}});
       const select = el('select',{attrs:{'aria-label':'Installed model',size:'7'}});
       const effortSelect = el('select',{attrs:{'aria-label':'Reasoning effort'}});
       const effortFixed = el('span',{className:'form-help'});
       const effortControl = el('div',{className:'model-picker-effort'});
+      // Said beside the control it explains, not inside the collapsed details.
+      const effortDropped = el('p',{className:'form-help',attrs:{role:'status'}});
       const effortRow = el('label',{},el('span',{text:'Reasoning effort'}),effortControl);
       const currentName=el('h3',{text:current.config.model||'Not selected'});
       const currentMeta=el('p',{className:'form-help'});
@@ -105,6 +111,11 @@ export function createModelPicker({ request, onSaved }) {
           ? { kind:'unknown', source:'unknown', values:[], notice:'A custom endpoint has no verified reasoning ladder. Provider default will be used.' }
           : catalogCapability;
         const supported = reasoning?.kind === 'enum' ? reasoning.values : [];
+        if (modelChanged) {
+          modelChanged = false;
+          effort = wantedEffort != null && supported.includes(wantedEffort) ? wantedEffort : undefined;
+          droppedEffort = wantedEffort != null && effort === undefined ? wantedEffort : null;
+        }
         const savedEffortIsInvalid = isInForce && current.config.reasoningEffort != null && !supported.includes(current.config.reasoningEffort);
         if (effortSelectable(supported) || savedEffortIsInvalid) {
           const options = [el('option',{text:'Provider default',attrs:{value:defaultValue}}), ...supported.map(level=>el('option',{text:level,attrs:{value:level}}))];
@@ -140,6 +151,8 @@ export function createModelPicker({ request, onSaved }) {
           : reasoning?.kind === 'unsupported'
             ? 'Selectable reasoning effort is unsupported ('+sourceLabel+'); provider default will be used.'
             : selected ? 'Reasoning effort is not verified; source: '+sourceLabel+'; provider default will be used.' : '';
+        effortDropped.textContent = droppedEffort ? `This model does not offer ${droppedEffort}; Provider default will be used.` : '';
+        effortDropped.hidden = !droppedEffort;
         const notice = [...new Set([isInForce ? current.reasoningCapability?.notice : null, reasoning?.notice, effortEvidence].filter(Boolean))].join(' ');
         const source = isInForce && current.capability?.contextWindowSource === 'user'
           ? 'The context window above came from your entry on this connection.' : '';
@@ -168,8 +181,8 @@ export function createModelPicker({ request, onSaved }) {
           : filtered.length ? '' : 'No installed model matches.';
       };
       search.addEventListener('input',renderOptions);
-      select.addEventListener('change',()=>{selected=select.value===''?null:models[Number(select.value)];effort=undefined;matchesCurrent=!!selected;renderSelection();});
-      effortSelect.addEventListener('change',()=>{effort=effortSelect.value===defaultValue?undefined:effortSelect.value;renderSelection();});
+      select.addEventListener('change',()=>{selected=select.value===''?null:models[Number(select.value)];modelChanged=true;matchesCurrent=!!selected;renderSelection();});
+      effortSelect.addEventListener('change',()=>{effort=effortSelect.value===defaultValue?undefined:effortSelect.value;wantedEffort=effort;droppedEffort=null;renderSelection();});
       save.addEventListener('click',async()=>{
         if(!canSaveNow()) return;
         busy=true; save.disabled=true; select.disabled=true; effortSelect.disabled=true; status.textContent='Saving…';
@@ -185,7 +198,7 @@ export function createModelPicker({ request, onSaved }) {
           const result=await request('/provider-config',{method:'PUT',body:{...config,expectedVersion:current.version}});
           onSaved(result);
           if(own===epoch) dialog.close();
-        } catch(error) {if(own===epoch){status.textContent=error.message;if(error.status===409||error.code==='config_conflict'){conflict=true;versionAligned=false;refresh.hidden=false;save.disabled=true;}}}
+        } catch(error) {if(own===epoch){if(isActiveRunRefusal(error)){status.textContent=activeRunFreezeNotice(ownRunActive());}else{status.textContent=error.message;if(error.status===409||error.code==='config_conflict'){conflict=true;versionAligned=false;refresh.hidden=false;save.disabled=true;}}}}
         finally {busy=false; if(own===epoch){select.disabled=false;renderSelection();}}
       });
       /* PV-59/63 · "键入一个未列出的模型 ID" 入口。列表底部固定一项，不随搜索
@@ -374,7 +387,7 @@ export function createModelPicker({ request, onSaved }) {
       dialog.append(currentSummary,proposedSummary,modelDetails,changeModel);
       changeModel.append(search,modelList,customToggle,customPanel);
       modelList.append(select);
-      dialog.append(effortRow,refresh,
+      dialog.append(effortRow,effortDropped,refresh,
         el('p',{className:'form-help',text:'All chats · future runs'}),save);
       renderCurrentSummary();renderOptions();renderSelection();search.focus();
     } catch(error) {if(own===epoch)status.textContent=error.message;}

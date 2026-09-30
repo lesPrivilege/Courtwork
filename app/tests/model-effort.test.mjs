@@ -138,7 +138,7 @@ test("05 · app wiring: the composer control opens the card, saves with the snap
   assert.match(app, /expectedVersion: snapshot\.version/, "a save carries the version of the snapshot it was chosen from");
   assert.match(app, /const own = \+\+modelCardEpoch;[\s\S]*?if \(own !== modelCardEpoch\) return;\s*state\.providerConfig = result;/, "a receipt older than the latest choice is dropped");
   assert.match(app, /reasoningCapability: snapshot\.reasoningCapability \}\] \};\s*const body = \{ \.\.\.projectProviderConfig\(config, \{ reasoningEffort: effort \}, catalog\)/, "the projection is fed only the Host's capability for the in-force selection");
-  assert.match(app, /error\.code === "active_run"\) modelCardFeedback = "Available after this run ends\."/);
+  assert.match(app, /if \(isActiveRunRefusal\(error\)\) modelCardFeedback = activeRunFreezeNotice\(ownRunBusy\(\)\);/, "a run elsewhere is named as elsewhere; the code is read from the Host's body");
   assert.match(app, /openSettings\("models", \{ trigger, connectionId \}\)/);
   assert.match(app, /if \(connectionId !== undefined\) void settingsView\.locateConnection\(connectionId\);/);
   assert.match(app, /placement: "top-end" \}\);\s*\$\("model-settings-button"\)\.setAttribute\("aria-expanded", String\(open\)\)/);

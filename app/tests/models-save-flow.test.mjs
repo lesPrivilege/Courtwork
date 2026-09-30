@@ -194,8 +194,8 @@ test("MS-R2 · a key error belongs to its connection: another target retires it;
     // no model call), then the key saves and no error remains.
     const saveOnly = form.querySelectorAll("button").find(node => node.textContent === "Save only");
     await form.dispatchEvent({ type: "submit", submitter: saveOnly });
-    await new Promise(resolve => setTimeout(resolve, 50));
-    assert.equal(page.notes.at(-1), "Connection saved.");
+    for (let tries = 0; tries < 100 && page.notes.at(-1) !== "Connection saved."; tries++) await new Promise(resolve => setTimeout(resolve, 20));
+    assert.equal(page.notes.at(-1), "Connection saved.", JSON.stringify(page.calls.slice(-8)));
     assert.equal(keyErrorOf(keyRow).hidden, true, "the saved connection retires the unsaved-change error");
     configure(container, compatibleId);
     key.value = SYNTHETIC_KEY;
@@ -273,5 +273,57 @@ test("MS-R2 · a background refresh of the same target keeps the typed key and a
     assert.equal(key.value, SYNTHETIC_KEY + "-retyped", "a refresh does not clear what the reader is typing");
     assert.equal(keyErrorOf(keyRow).hidden, false, "nor a failure that still applies to this target");
     assert.equal(keyErrorOf(keyRow).textContent, failure);
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+}));
+
+test("UX-11 S1 · a key typed for a catalogue provider is stored when the connection is saved, not dropped", () => withTinyDom(async () => {
+  const h = await boot();
+  try {
+    // This Host installs no DeepSeek models, so its config receipt is held; the
+    // credential still goes to the real Host.
+    const hold = (path, options) => path === "/provider-config" && options.method === "PUT"
+      ? { version: 99, config: { provider: options.body.provider, model: options.body.model, api: options.body.api } } : null;
+    const { container, form, calls, notes, rowTitled } = await mountedSettings(h, { hold });
+    const configure = container.querySelector('[data-focus-key="connection:configure:catalog-deepseek"]');
+    configure.dispatchEvent({ type: "click", target: configure });
+    const keyRow = rowTitled("API key");
+    const key = keyRow.querySelector('input[type="password"]');
+    key.value = SYNTHETIC_KEY;
+    const saveOnly = form.querySelectorAll('button[type="submit"]').find(node => node.textContent === "Save only");
+    calls.length = 0;
+    await form.dispatchEvent({ type: "submit", submitter: saveOnly });
+    await new Promise(resolve => setTimeout(resolve, 80));
+    assert.ok(calls.includes("PUT /provider-config"), JSON.stringify(calls));
+    assert.ok(calls.includes("PUT /provider-credential"), "the typed key goes to the saved connection's credential " + JSON.stringify(calls) + " " + JSON.stringify(notes) + " " + form.textContent.slice(-300));
+    assert.equal(key.value, "", "a stored key leaves its field");
+    assert.equal(notes.at(-1), "Connection saved.");
+    const stored = (await h.api("GET", "/provider-connections")).json.connections.find(entry => entry.id === "catalog-deepseek");
+    assert.equal(stored.credentialStatus, "configured");
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+}));
+
+test("UX-11 S1 · a key that cannot be stored stays in its field with the error beside it; the connection stays saved", () => withTinyDom(async () => {
+  const h = await boot();
+  try {
+    const hold = (path, options) => {
+      if (path === "/provider-config" && options.method === "PUT")
+        return { version: 99, config: { provider: options.body.provider, model: options.body.model, api: options.body.api } };
+      if (path === "/provider-credential") throw Object.assign(new Error("The credential store is unavailable."), { status: 503 });
+      return null;
+    };
+    const { container, form, notes, rowTitled } = await mountedSettings(h, { hold });
+    const configure = container.querySelector('[data-focus-key="connection:configure:catalog-deepseek"]');
+    configure.dispatchEvent({ type: "click", target: configure });
+    const keyRow = rowTitled("API key");
+    const key = keyRow.querySelector('input[type="password"]');
+    key.value = SYNTHETIC_KEY;
+    const saveOnly = form.querySelectorAll('button[type="submit"]').find(node => node.textContent === "Save only");
+    await form.dispatchEvent({ type: "submit", submitter: saveOnly });
+    await new Promise(resolve => setTimeout(resolve, 80));
+    assert.equal(key.value, SYNTHETIC_KEY, "the typed key is not lost");
+    const keyError = keyRow.querySelector(".inline-error");
+    assert.equal(keyError.hidden, false);
+    assert.match(keyError.textContent, /credential store is unavailable/);
+    assert.equal(notes.at(-1), "Connection saved.", "the connection save itself succeeded");
   } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
 }));

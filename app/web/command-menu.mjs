@@ -179,6 +179,10 @@ export function createCommandMenu({ textarea, container, request, getSessionId, 
       event.preventDefault();
       const command = navigable.find((c) => c.name === activeName);
       if (command) pick(command);
+      /* Enter on a command without arguments also sends it (the composer's own
+       * Enter listener runs next); one that takes arguments stops here so they
+       * can be typed. */
+      if (command?.args) event.stopImmediatePropagation();
     } else if (event.key === "Escape") { event.preventDefault(); close(); }
   });
   container.addEventListener("pointerdown", () => { pointerOnMenu = true; });
