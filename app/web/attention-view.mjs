@@ -617,8 +617,9 @@ export function createAttentionWorkspace(container, { request, onBack, onOpenAss
     } catch (error) {
       /* A refusal carries an HTTP status and a structured code. Anything else is
        * a transport whose result this client does not know — which is not the
-       * same as a failure, and is never reported as one. */
-      if (error?.status) return refuse(entry, error);
+       * same as a failure, and is never reported as one. A Core error the Host
+       * marked `outcome: "unknown"` is such a transport, whatever its status. */
+      if (error?.status && error.body?.error?.outcome !== 'unknown') return refuse(entry, error);
       return recover(entry);
     }
     if (receipt?.attention_id !== attentionId || receipt?.request_id !== entry.request.request_id) {

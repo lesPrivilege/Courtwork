@@ -347,7 +347,7 @@ test("a check approval reports the write revision it will run against, and no re
   assert.deepEqual(check.candidate, { id: CHECK_PAYLOAD.candidateId, revision: null, writeRevision: 1 });
   assert.equal(check.candidate.revision, null, "check_run carries no candidateRevision and must not be shown one");
   assert.equal(check.title, "Approve this check?");
-  assert.equal(check.scope, "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment");
+  assert.equal(check.scope, "node --test · in the private candidate · 120 s · 64 KiB per stream · sandboxed, no network");
 });
 
 test("an approval with no recorded candidate has no candidate reading, and zero is not absent", () => {

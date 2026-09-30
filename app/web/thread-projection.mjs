@@ -286,11 +286,14 @@ export function approvalCandidate(payload) {
 }
 
 /* Review D4 · a check executes the files the model wrote into the private
- * candidate, with the Host user's rights. Which files those are is read from
+ * candidate, inside the Host's OS sandbox (docs/check-recipes.md, Environment
+ * policy). Which files those are is read from
  * the Host's own `repository.write.confirmed` receipts for the candidate the
  * request names, up to the write revision it was bound to — never from the
  * live candidate. The latest write per path wins; an unknown outcome is kept
  * as a possible write with no hash. */
+export const checkAuthoredFilesSentence = (count) =>
+  `This check executes ${count === 1 ? "1 file" : `${count} files`} the model wrote, inside a sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:`;
 export function candidateAuthoredFiles(events, payload) {
   const id = typeof payload?.candidateId === "string" && payload.candidateId ? payload.candidateId : null;
   const bound = Number.isSafeInteger(payload?.candidateWriteRevision) ? payload.candidateWriteRevision : null;
@@ -338,7 +341,7 @@ export function permissionPresentation(payload, binding) {
       details: "Check details",
       candidate: approvalCandidate(payload),
       hashLabel: "Copy proposed arguments hash",
-      scope: [`${command} ${argv}`.trim(), "in the private candidate", seconds ? `${seconds} s` : null, kib ? `${kib} KiB per stream` : null, "minimal environment"].filter(Boolean).join(" · "),
+      scope: [`${command} ${argv}`.trim(), "in the private candidate", seconds ? `${seconds} s` : null, kib ? `${kib} KiB per stream` : null, "sandboxed, no network"].filter(Boolean).join(" · "),
     };
   }
   const resource = binding?.resources?.find(

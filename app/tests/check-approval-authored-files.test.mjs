@@ -1,13 +1,13 @@
 /* Review D4 (engineering/reviews/doc-driven-code-review-2026-09-29): a check
- * executes files the model wrote into the private candidate, with the Host
- * user's rights. The approval names those files from the Host's own
+ * executes files the model wrote into the private candidate, inside the
+ * Host's sandbox. The approval names those files from the Host's own
  * `repository.write.confirmed` receipts, bounded by the write revision the
  * request was bound to, so a person approves the code that will run rather
  * than only `node --test`. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import { candidateAuthoredFiles } from "../web/thread-projection.mjs";
+import { candidateAuthoredFiles, checkAuthoredFilesSentence } from "../web/thread-projection.mjs";
 
 const confirmed = (candidateId, path, contentSha256, writeRevision) =>
   ({ type: "repository.write.confirmed", data: { candidateId, path, contentSha256, bytes: 1, writeRevision } });
@@ -50,4 +50,14 @@ test("the check approval card and its decided record both show the authored file
   const app = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
   const render = app.slice(app.indexOf("function renderPermission("), app.indexOf("\nfunction ", app.indexOf("function renderPermission(") + 1));
   assert.equal((render.match(/checkAuthoredFiles\(/g) || []).length, 2, "open card and decided record");
+});
+
+test("the authored-files sentence states the sandbox boundary and no longer claims the person's access", () => {
+  const one = checkAuthoredFilesSentence(1);
+  assert.equal(one, "This check executes 1 file the model wrote, inside a sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:");
+  assert.match(checkAuthoredFilesSentence(3), /^This check executes 3 files the model wrote,/);
+  assert.doesNotMatch(one, /your access|this computer/i);
+  const app = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
+  assert.match(app, /text: checkAuthoredFilesSentence\(files\.length\)/, "the card renders that sentence");
+  assert.doesNotMatch(app, /with your access to this computer/);
 });
