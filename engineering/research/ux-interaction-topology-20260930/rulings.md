@@ -96,7 +96,7 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 
 | Slice | Content | Kind |
 |---|---|---|
-| S1 | Key loss (V6), 409 copy and link (V3/V12), effort kept on model change (V2), New chat project (V8), preview restore (V9), read-only slash during a run (CMP-15), visible run hint (V11) | Correctness, small |
+| S1 · [record](s1.md) | Key loss (V6), 409 copy (V3/V12; link deferred), effort kept on model change (V2), New chat project (V8), preview restore (V9), read-only slash during a run (CMP-15), visible run hint (V11) | Correctness, small |
 | S2 | Model and effort popover; modal picker retired from the composer path; unkeyed models; scope wording including `/status` | Topology |
 | S3 | Chat file-access control split; overview row target; chat paperclip popover | Topology |
 | S4 | Attention count and waiting marks; rail opens the queue; working-project default | Topology |
@@ -108,10 +108,32 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | Question | Owner | Trigger |
 |---|---|---|
 | Chat- or session-scoped model/effort | Host provider-config owner ([composer-pr](../models-provider-registration-2026-09-14/composer-pr.md#2026-09-30--deferred-chat-scoped-model-and-effort)) | A Host contract for that fact |
-| Why provider config and file access lock while *any* run is active, given runs freeze a copy at creation; and a global busy fact for proactive gating | Astra (Host) | S1 implementation, or the next Host service revision touching `#busy()` |
+| Why provider config and file access lock while *any* run is active, given runs freeze a copy at creation (DeepSeek Harness applies such changes at the next prompt assembly; see the reference review below); and a global busy fact naming the running chat, for proactive gating and the link S1 could not build | Astra (Host) | S1 implementation, or the next Host service revision touching `#busy()` |
 | Widening file access from an approval card for the rest of a run | Astra, RD-009 run-bound authority | Run-bound authority contract |
 | Archive, pin, move chat; project rename/delete; delete connection UI | Host session/project and connection owners | A product need for list or connection management |
 | Rail collapse and global keyboard shortcuts | [Shell control plane](../../design/shell-control-plane-2026-09-12/README.md) | The native Back/Forward placement pass |
 | Settings regrouped by user task; agent-profile selection homes; runtime choice UI | Settings resource management; 06c | The next Settings pass; 06c's runtime-management API |
 | Spark entry | Spark product owner | Next Spark definition change |
 | Specimen-only modules | UX lane | Before S6 |
+
+## Reference review · DeepSeek Harness GUI
+
+At the user's suggestion (2026-09-30) a Sonnet agent compared the DeepSeek Harness web GUI, tag `dsh-v0.2.0-rc.2` at `639ed01` (MIT; name and marks reserved by its brand guidelines), with Courtwork and these rulings: [diff review](reference/deepseek-harness-diff.md). Read-only source and docs; nothing run, no code taken. Its stack (React plugins) is not portable, so only behaviour and rationale are consumed.
+
+| Question | Ruling and reason | Consumer |
+|---|---|---|
+| Waiting row carries a one-word reason (Approval, Answer) beside its mark | **Adopt** into S4: the waiting mark on a chat row says what is waited for, from the same owner facts, so status is not shape or colour alone (IC-1, ICN-32) | S4 |
+| Saving credentials or a custom provider keeps the selected model | **Adopt** as the S6 acceptance test for separating connection save from default (V5) | S6 |
+| New chat inherits the current session's workspace | Confirms S1/V8; no change | — |
+| Model popover search, current model pre-highlighted, Enter/Tab settle; icon-only chip at narrow width with the full name kept in the accessible name | **Adopt** into S2 (search appears when the list is long; narrow fallback keeps the name) | S2 |
+| Grouped model menu with provider panes | **Reject** for S2: two drill levels for a repeated choice; UX-11 keeps a flat list with provider as metadata | — |
+| Per-session pick silently also saves the global default | **Reject**: the scope must be said on the control (UX-11) | — |
+| Unconfigured providers hidden; stale selection fails at Send | **Reject**: keep ruling J (listed, not committable, with the fix path) | — |
+| Model/effort and permission changes during a run, applied at the next prompt assembly by snapshot; per-session model stored with the session | **Reference** for the deferred Host questions (any-run lock; chat-scoped model/effort). Recorded with those deferrals; not a frontend change | Astra; Host provider-config owner |
+| Queue/steer while busy | **Defer** with CMP-14: needs a Host steering operation that does not exist; S1's hold stays | Host run owner |
+| Two-press Esc to stop; shortcut registry whose tooltips show the effective keys; one sort key across session lists; running rows exempt from folding | **Defer** to the shell navigation pass (NAV-02/05) as reference: the double press answers the current "never one keystroke away" objection | Shell control plane |
+| Archive with Undo; stop-and-archive | **Defer** with OBJ-03 (Host routes) | Host session owner |
+| Double-click a sidebar row to rename | **Reject**: a hidden gesture; S6's header title and the row menu cover rename | — |
+| Approval takes over the composer with Allow once / Reject; Enter/Esc bound to decisions | **Reject**: Courtwork keeps the inline card with visible scope, and a keystroke default for an authority decision conflicts with IC-1's "keep visible text for Allow/Deny" | — |
+| Agent preset frozen at the first message | Different product model (Courtwork's Agent is chosen per chat, accepted E1); no change | — |
+| Unavailable vs non-existent actions: keep a control with a stated reason only where the capability exists | Consistent with S5/THR-03 (remove drawn-but-absent actions) | S5 |
