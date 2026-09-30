@@ -124,7 +124,7 @@ function boundaryViolations(edges, scope) {
   return violations;
 }
 
-async function moduleFiles(relativeDirectory, suffixes = [".mjs"]) {
+async function moduleFiles(relativeDirectory, suffixes = [".mjs", ".js"]) {
   const entries = (await readdir(path.join(APP_ROOT, relativeDirectory), { withFileTypes: true }))
     .sort((left, right) => left.name.localeCompare(right.name));
   const files = [];
@@ -165,7 +165,9 @@ test("legal and forbidden synthetic edges exercise all approved boundaries", () 
     ["renderer", "extensions/synthetic/renderer.mjs", `import "/web/ui-controls.mjs"; export * from "/web/surface-modules.mjs";`],
     ["web", "web/vendor/synthetic/index.js", `import "./helper.js"; export * from "../../ui-controls.mjs";`],
     ["domain", "domains/synthetic/deep/probe.mjs", `import "../rules.mjs"; import "node:crypto";`],
+    ["domain", "domains/synthetic/deep/probe.js", `export * from "../rules.js"; import "node:crypto";`],
     ["backend", "server/deep/probe.mjs", `import "../../core/client.mjs"; import "node:fs"; import "@earendil-works/pi-ai";`],
+    ["backend", "runtime/deep/probe.js", `import "../helper.js"; import "node:path";`],
   ];
   for (const [scope, sourcePath, source] of legal) assert.equal(boundaryViolations(scanImports(source, sourcePath), scope).length, 0, `${scope} legal probe failed`);
 
@@ -177,6 +179,8 @@ test("legal and forbidden synthetic edges exercise all approved boundaries", () 
     ["domain", "domains/synthetic/deep/probe.mjs", [`import "../../../runtime/control-plane.mjs";`, `import "@earendil-works/pi-ai";`, `export * from "../../sibling/rules.mjs";`, `import "node:fs";`]],
     ["backend", "runtime/deep/probe.mjs", [`import "../../web/ui-controls.mjs";`, `export * from "/web/surface-modules.mjs";`]],
     ["backend", "server/deep/probe.mjs", [`await import("../../web/ui-controls.mjs");`, `import "/web/app.mjs";`]],
+    ["domain", "domains/synthetic/deep/probe.js", [`import "../../../runtime/control-plane.mjs";`, `export * from "../../sibling/rules.js";`]],
+    ["backend", "server/deep/probe.js", [`import "../../web/skin-policy.js";`, `await import("/web/ui-controls.mjs");`]],
   ];
   for (const [scope, sourcePath, lines] of forbidden) {
     const edges = scanImports(lines.join("\n"), sourcePath);
@@ -191,7 +195,7 @@ test("legal and forbidden synthetic edges exercise all approved boundaries", () 
 
 test("the current frontend, backend, domains and composition-root graph obeys ownership", async () => {
   const [coreFiles, runtimeFiles, serverFiles, extensionFiles, domainFiles, webFiles] = await Promise.all([
-    moduleFiles("core"), moduleFiles("runtime"), moduleFiles("server"), moduleFiles("extensions"), moduleFiles("domains"), moduleFiles("web", [".mjs", ".js"]),
+    moduleFiles("core"), moduleFiles("runtime"), moduleFiles("server"), moduleFiles("extensions"), moduleFiles("domains"), moduleFiles("web"),
   ]);
   const rendererPaths = extensionFiles.filter(file => path.posix.basename(file) === "renderer.mjs");
   const rendererSet = new Set(rendererPaths);
