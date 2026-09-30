@@ -488,3 +488,55 @@ macOS 27, Node 25.9, dependencies from `npm --prefix app ci --ignore-scripts`. L
 ### Not run
 
 Linux in every respect, including the helper's `ELOOP` handling and Python subprocesses in the recipes. A volume that keeps case or normalization apart. macOS versions other than 27. A real model. The browser. A race by a real process against the two deferred HTTP endpoints. Hard-link aliasing. The R1–R5 spike matrix beyond what `check-sandbox.test.mjs` asserts.
+
+## Architect continuation and independent review, 2026-09-30
+
+The user requested architecture continuation for Harness Core and Extensions dogfooding, workspace acceptance first, Luna 6 exploration, Sol 6.1 workers and Claude frontend/backend integration. The parent reviewer owns architectural dispositions and independent acceptance; Claude remains the integration author. This assignment does not declare real-model capability or human acceptance.
+
+### Frozen inputs and ownership
+
+- Main: `87e220723ad05a2279fb583a92fb5054ca23ba8b`. Its only untracked entries at intake were `.agents/`, `.obsidian/` and `skills-lock.json`; they were not inspected or modified.
+- Architect delivery: `d5cf033`, product merge `0664387`; convergence delivery: `049f1b9`. Both original source trees are retained. The reviewer writes only records/evidence in an isolated checkout based on `d5cf033`.
+- Responsibility: Host policy admission, workspace file identity, check containment and lifecycle; nearest precedents are this task's earlier counterexamples, the repository dirfd helper and convergence S11's process guard. Necessary cross-layer consumers are Settings policy traces, check approval disclosure and HTTP unknown/refusal presentation. Claude owns these integration changes and their existing UX contracts.
+- Claude's existing "架构师角色交接" session received the bounded integration assignment through the desktop UI. It is to create a separate candidate from the two exact heads, retain the sandbox and guard, run focused checks then one serial full suite, and return its SHA. Main merge, push and deployment are not part of that assignment. No personal data, credential stores, paid providers or the user's port 8787 are used.
+- Luna 6 independently explores F3/D6 and convergence contracts. A separate Luna 6 task traces registered external practices. Sol 6.1 compares DSH's documented GUI journeys with Courtwork capabilities, not source-code differences. Their reports are inputs for dispositions, not acceptance votes.
+
+### Independent check evidence on `d5cf033`
+
+The parent read the runner, sandbox, recipe and approval tests, then ran:
+
+```sh
+node --test --test-concurrency=1 app/tests/check-recipes-real.test.mjs app/tests/check-approval-revision.test.mjs app/tests/check-sandbox.test.mjs app/tests/check-runner-group-kill.test.mjs
+```
+
+Result: **28/28, zero skipped**, 16.44 seconds. The source tree's real dependencies were used; all Host/data fixtures are synthetic. The [raw result](evidence/continuation-20260930/check-review.log) belongs to this source, before convergence integration.
+
+**I1: accept within the recipe contract.** Both real v2 Courtwork recipes pass through the production sandbox at their frozen limits. Old version/argv approvals cannot start the replacement. The advertised reduction to offline tests is explicit; HTTP/lifecycle coverage remains outside the candidate recipe. **D4: retain bounded macOS evidence, whole integration pending.** The tested dummy Host-data read, candidate/Git/data write denial, private temporary write, loopback denial, missing mechanism refusal and same-group cleanup hold. No Linux, full R1-R5 matrix, escaped-session termination or combined S11 guard claim follows from this run.
+
+The parent does not repeat the author's 1929-test suite on unchanged source. The combined candidate requires fresh verification because guard/sandbox composition and shared Host/Core behavior change. F3/D6 and S12-S20 remain under review; the eventual source and remaining dogfood gates must be recorded here before the current snapshot is updated.
+
+### Review dispositions before integration
+
+| Input | Parent disposition and reason | Consumer and remaining evidence |
+|---|---|---|
+| F3 second correction, Luna's [30-test review](evidence/continuation-20260930/luna-path-review.md) | **Accept the bounded APFS policy correction.** One folded evaluation removes request-spelling authority. Preserve the documented `deny *` then `allow out/*` override; conflicting spellings without a shared literal match retain the stricter rule. This explicitly replaces the impossible promise of preserving every formerly inconsistent spelling outcome. | Existing path-policy contract and Claude's merged control plane. Case-sensitive volumes and Linux remain unverified; Settings must display `alias-conflict` truthfully. |
+| D6 commit-time directory relocation | **Adopt finding R30-1; integration acceptance held.** The parent independently reran Luna's synthetic hook at the final descriptor-relative rename. Moving the admitted directory outside makes the tool report `out/memo.md` success although that pathname no longer exists. The unrelated outside control stays unchanged. This is relocation of the admitted directory by a local actor, not symlink redirection into an unrelated external file. | [Portable probe](evidence/continuation-20260930/write-move-probe.mjs), [before result](evidence/continuation-20260930/write-move-before.json). Claude owns accurate post-publication outcome/effect reporting and contract limits. Dirfd cannot promise permanent ancestry against an actor with directory-move rights; a detectable relocation must not be reported as ordinary pathname success or safe-to-repeat failure. |
+| Convergence S15/S16/S18-S20, [Luna review](evidence/continuation-20260930/luna-loop-review.md) | **Accept the review input, not the whole branch.** No introduced defect found in the named contract paths; 23 focused checks pass. | Existing convergence owner. Preserve its explicit MCP policy/deletion and large/stale Matter rulings. Merged-source, browser and real-model evidence remain separate. |
+| Local recall sample `103f660` | **Reference only.** Its six assertions exercise a standalone in-memory example, not Host admission, retention, discovery quality or cross-Provider caching. Its primary-source provenance is explicitly incomplete. | Keep its existing `docs/consumption-sample` owner and status; do not merge it as a Harness feature or use it to reopen accepted K3/K5. |
+
+### Referenced discussion and mature-practice consumption
+
+The user-linked **Orchestra 瓶颈分析**, `6abb3937-53e4-83ec-a29f-dbcdc9159608`, was read through the conversation tool. The [exact returned source](evidence/continuation-20260930/orchestra-thread.json) contains five turns and reports no next cursor; it is the returned scope, not a claim to recover unavailable earlier discussion. Its two image attachments were not inspected. Assistant claims, citation placeholders and proposed designs remain untrusted research input.
+
+| Question | Disposition and reason | Actual consumer / trigger |
+|---|---|---|
+| Reuse work data across Providers while preserving domain structure | **Adopt as the current dogfood criterion:** a later admitted Run must recover original source identity, revision, constraints and limitations, while prior frozen Run context remains unchanged. Provider switching never grants access. | This task's next capability witness below; existing M09, K3/K5 and source-read owners. No new cache or memory schema is assigned. |
+| Temporary structured views / summaries | **Adjust:** disposable views may aid navigation; source provenance, formal decisions and access checks remain with their current owners. A compressed summary is not proof that the source was read. | SourceWeft's bounded registered precedent and the existing Context/Kit/Spark disclosure contracts; validate one follow-up read after context disposal. |
+| Three new cache layers, generic `project()` primitive, automatic shared semantics | **Defer.** These are proposals in the quoted discussion. No measured repeated consumer need or invalidation/authority contract is supplied. | M09 / resource governance; reopen only after the bounded reuse witness exposes a concrete missing mechanism. |
+| Magpie integration claims and VibeMemBench numerical claims | **Reference only.** Existing Magpie source dispositions stay authoritative; the parallel RL-1 task does not independently validate Magpie. The paper/image claims are unnecessary to choose this bounded witness and were not independently checked. | Existing Magpie intake; revisit the exact primary paper only for a retrieval-quality evaluation. No benchmark or performance claim is made here. |
+
+The [Luna source-tracing report](evidence/continuation-20260930/luna-source-tracing.md) locates the recent SourceWeft and Agent Runtime survey records in Praxis and corrects older direction text against accepted K3/K5. The [Sol DSH functional comparison](evidence/continuation-20260930/sol-dsh-functional-review.md) pins DSH `639ed015397290b3745d163aafe02ffee4aa3f84` / `0.2.0-rc.2`. Its GUI behavior is documented, not independently operated. Neither input confers runtime or security acceptance.
+
+DSH dispositions: **adopt** interruption/recovery and truthful unavailable-route journeys as verification inputs for this existing integration; **defer** extension replace/rollback to the original LocalExtensions lifecycle contract when that user journey is scheduled; **defer** generic continuable child work to P07/RD-005 when an actual child consumer is selected. Existing installation, frozen Kit/Run binding and accepted coding journeys are not rebuilt. Arbitrary package acquisition and a broader provider catalog are not prerequisites for this round.
+
+The next real capability witness, after the integration passes, should use one isolated Chat/candidate and a selected existing profile: read an admitted source, make one bounded edit, inspect/approve the check, interrupt or lose one response, reopen and inspect the exact effect, then continue with the same source revision or an explicit stale/revoked refusal. Preserve the artifact, Run identities, source/context receipts and zero-duplicate-effect observation. Deterministic UI evidence proves presentation and persistence only. A real-provider witness needs the user-entered key and an explicit bounded task/model; no key has been requested, read or used in this review.
