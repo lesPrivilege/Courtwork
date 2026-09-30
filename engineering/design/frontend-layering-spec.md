@@ -43,7 +43,11 @@
 | 指定 controller | 经注入 client 读取、快照缓存、请求关联、pending / retry、失效 | 前端批准、凭据持久化、未确认的正式状态 | `runtime-view.mjs`、WK12 settings controller |
 | 后端 runtime / Core | 准入、有效状态、权限、事务、正式决定、恢复 | 由可见 / 可点反推权限 | service、control-plane、Core |
 
-**FN-07 一个责任一个 owner，不等于一个巨大 owner。** `app.mjs` 保持会话状态、Run 准入 / 恢复、导航与渲染器生命周期的 owner（interface-components）；有委派的 controller 经宿主 client 读取并持有可失效缓存，缓存的身份、版本、失效与替换规则明确即不构成第二真源。**FN-08 依赖边界可查。** 视图只收已声明投影与窄 intent；同文件暂存 view / controller 须标清责任，不以 `any` payload 或任意 fetch 冒充受控契约。
+**FN-07 One responsibility, one owner, not one giant owner.** `app.mjs` owns browser Session state, the client lifecycle of Run admission/recovery requests, navigation and renderer lifecycle. It does not admit Runs or decide recovery outcomes: those are Host facts. Delegated controllers use the injected client and hold invalidatable snapshots with explicit identity, version and replacement rules; they are not another authoritative store.
+
+**FN-08 Inspectable dependency boundaries.** Views receive declared projections and narrow intents. Controllers own request correlation, drafts and recovery presentation; projection helpers map owner facts without inventing them. Browser modules and extension renderers do not import Host services, Runtime/Provider SDKs, Core storage or domain validators. The backend does not depend on browser modules, DOM state or a view being open. HTTP/event DTOs and their version/refusal/unknown semantics are the interface; the backend's internal Store shape is not a shared frontend model. Co-located view/controller functions must still identify their separate responsibilities, rather than use arbitrary payloads or fetch calls as an interface. See the [architecture dependency contract](../architecture.md#dependency-boundaries).
+
+Historical evidence is a separate input from the current Host configuration. An approval receipt does not establish that execution started, and today's sandbox cannot be projected onto an older receipt without a captured fact. Changing an interface requires the producer, controller/projection consumer and contract to agree, with a meaningful failure case; changing layout does not change that interface.
 
 ### 2.3 视觉高度与 token
 
