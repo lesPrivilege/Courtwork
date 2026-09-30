@@ -3142,6 +3142,7 @@ function renderMessageStream() {
   const selectionSpan = selectionIndices.length
     ? [Math.min(...selectionIndices), Math.max(...selectionIndices)]
     : null;
+  let latestResend = null;
   for (const row of rows) {
     readingRowKey = JSON.stringify([session.id, row.runId, row.kind, row.id]);
     if (row.kind === "user") {
@@ -3545,11 +3546,14 @@ function renderMessageStream() {
           attrs: { "data-focus-key": row.id },
         }),
       );
+      const resend = resendAction(row, rows);
       if (row.runId === (currentRun() || state.runs.at(-1))?.id) {
         // The latest Run has one activity/inspection locus in Chat Space.
         measurements.activity.querySelector('button').setAttribute('data-focus-key', row.id);
+        latestResend = resend ? element("div", { className: "run-resend-row" }, resend) : null;
       } else {
         card.append(header);
+        if (resend) card.append(resend);
         appendFlowRow(card);
       }
       /* frontend-entries 3.4 · the Run's formal outcome, one read-only row
@@ -3574,6 +3578,9 @@ function renderMessageStream() {
   if (measurements.activity.parentNode !== stream) {
     stream.insertBefore(measurements.activity, reviewSummary?.root.parentNode === stream ? reviewSummary.root : null);
   }
+  // THR-05 (S6) · the latest run's Edit and resend sits under its activity line.
+  for (const stale of stream.querySelectorAll(":scope > .run-resend-row")) stale.remove();
+  if (latestResend) measurements.activity.after(latestResend);
   if (reviewSummary && reviewSummary.root.parentNode !== stream) stream.append(reviewSummary.root);
   if (questionFocusTarget) {
     questionFocusTarget.focus();
@@ -3665,11 +3672,25 @@ function renderChatHeader() {
    * after it stays whole, and both clip together when no room is left. */
   projectTitle.replaceChildren(element("span", { className: "title-project-name", text: state.view === "home" ? "" : project?.name || "" }));
   projectTitle.hidden = settingsOpen || state.view === "home" || !project?.name;
-  $("session-title-text").textContent = settingsOpen
+  const titleText = settingsOpen
     ? "Settings"
     : state.attentionOpen ? "Attention" : state.chatOpen ? "Chat" : state.view === "home"
       ? "Home"
-      : session?.title || "Loading chat…";
+      : session ? session.title || "Untitled chat" : "Loading chat…";
+  /* HDR-01 (S6) · the open chat's own title is where it is renamed: the same
+   * command as the row menu (the rename dialog, PATCH /sessions/:id). A page
+   * title, an example chat or an Attention conversation is only a heading. */
+  const renamable = !settingsOpen && !state.attentionOpen && !state.chatOpen && state.view === "session" && Boolean(session)
+    && session.scope !== "global" && !preview.isExampleId(session.id) && !project?.preview;
+  $("session-title-text").textContent = titleText;
+  $("session-title-text").hidden = renamable;
+  const rename = $("session-title-rename");
+  rename.hidden = !renamable;
+  if (renamable) {
+    rename.textContent = titleText;
+    rename.setAttribute("aria-label", `Rename chat · ${titleText}`);
+    rename.dataset.tooltip = "Rename";
+  }
   /* WK-92 · 标题下一行说的是**这是哪一种会话**，以及（只在 Work 上）它的 memory
    * scope。Chat 与 Work 是同一个对象的两种模式，所以它们共用一条标题行，模式词
    * 作为陈述跟在后面，而不是两个分开的界面。M-2 / WK-113 ③ 之后 `Memory · Off`
@@ -3827,7 +3848,16 @@ const userMessageViews = new Map();
 let chatMeasurements = null;
 function updateChatMeasurements() {
   if (!chatMeasurements) {
-    chatMeasurements = createChatMeasurements({ onOpenRun: id => openRun(id) });
+    chatMeasurements = createChatMeasurements({
+      onOpenRun: id => openRun(id),
+      readCompaction: async () => {
+        const id = currentSession()?.id;
+        if (!id) return null;
+        await commandMenu?.refresh(id);
+        return commandMenu?.catalog(id)?.commands?.find((command) => command.name === "compact")?.availability ?? null;
+      },
+      onCompact: () => void compactChat(),
+    });
     $("cancel-run-button").before(chatMeasurements.context);
   }
   const session = currentSession(), active = currentRun();
@@ -5897,6 +5927,25 @@ function applyComposerDraft(sessionId, text, { unavailable, done, before }) {
   showToast(done);
   return true;
 }
+/* THR-05 (S6) · a failed or cancelled run offers its prompt back: into an empty
+ * composer directly, or through the message editor, which says that the draft
+ * already there would be replaced. Sending stays the person's own Send. */
+function resendAction(statusRow, rows) {
+  if (!["failed", "cancelled"].includes(statusRow.status)) return null;
+  const prompt = rows.find((row) => row.kind === "user" && row.runId === statusRow.runId && row.text);
+  if (!prompt) return null;
+  const button = element("button", { className: "text-button run-resend", text: "Edit and resend",
+    attrs: { type: "button", "data-focus-key": `resend:${statusRow.runId}` } });
+  button.addEventListener("click", () => editAndResend(prompt));
+  return button;
+}
+function editAndResend(prompt) {
+  if ($("composer-input").value.trim()) { openMessageEditor(prompt); return; }
+  applyComposerDraft(currentSession()?.id, prompt.text, {
+    unavailable: "The composer is unavailable. Nothing was changed.",
+    done: "Your message is in the composer. Edit it and send when ready.",
+  });
+}
 function useEditedMessage() {
   const candidate = state.editMessageCandidate;
   applyComposerDraft(candidate?.sessionId, $("edit-message-input").value, {
@@ -6087,6 +6136,20 @@ function compactionWords(op) {
   }
   const word = op.status === "cancelled" ? "Compaction cancelled" : op.status === "unknown" ? "Compaction outcome unknown" : "Compaction failed";
   return op.error?.message ? `${word} · ${op.error.message}` : word;
+}
+/* CMP-16 (S6) · Compact from the context readout: the Host's compaction route
+ * with a fresh request identity, followed like the /compact command. The
+ * composer and its draft are untouched. */
+async function compactChat() {
+  const sessionId = currentSession()?.id;
+  if (!sessionId) return;
+  const opId = nextOperationId("command");
+  try {
+    const { operation } = await request(`/sessions/${encodeURIComponent(sessionId)}/compactions`, { method: "POST", body: { requestId: crypto.randomUUID() } });
+    void followCompaction(sessionId, opId, operation);
+  } catch (error) {
+    setPersistentFeedback(sessionId, opId, "command", isActiveRunRefusal(error) ? activeRunFreezeNotice(ownRunBusy()) : error.message);
+  }
 }
 async function followCompaction(sessionId, opId, operation) {
   setPersistentFeedback(sessionId, opId, "command", "Compacting… the next run continues from the summary.");
@@ -7449,6 +7512,10 @@ function wireEvents() {
     void goHome();
   });
   $("show-run-button").addEventListener("click", openContextSummary);
+  $("session-title-rename").addEventListener("click", () => {
+    const session = currentSession();
+    if (session) void runObjectCommand("chat.rename", { kind: "chat", id: session.id });
+  });
   $("model-settings-button").addEventListener("click", (event) => modelChooser.open(event.currentTarget));
   {
     const popover = $("command-popover");
@@ -7818,7 +7885,7 @@ async function init() {
     notify: showToast,
     onRuntimeEnvironment: (next) => runtimeView?.setEnvironment(next),
   });
-  /* 06c production I1 · Settings → Agents → Runtimes reads the Host's own
+  /* 06c production I1 · Settings → Runtimes reads the Host's own
    * inventory. It is Host-scoped (no sessionId), needs no Session, and reads
    * with the rest of the page; its list/detail position outlives leaving
    * Settings, like every other group. */

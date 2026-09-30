@@ -1,4 +1,4 @@
-/* Settings → Agents → Runtimes · the view of the Host's runtime inventory.
+/* Settings → Runtimes · the view of the Host's runtime inventory.
  *
  * It renders one controller state (runtime-inventory.mjs) and sends back three
  * intents: open a runtime, go back to the list, read again. Its own state is

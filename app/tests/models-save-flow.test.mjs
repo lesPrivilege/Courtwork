@@ -65,7 +65,7 @@ test("Models: Provider, API key, Model in reading order; the key saves through i
     assert.equal(saveKey.getAttribute("form"), credential.getAttribute("id"));
     assert.equal(keyRow.querySelector(".settings-row-help").textContent, "No key saved for this connection. Keys stay on this device.");
     assert.equal(status.hidden, true, "no status line restates the call consequence");
-    assert.match(form.textContent, /Save and ask once sends one short prompt to the selected model\. Nothing else is sent\./);
+    assert.match(form.textContent, /Save and ask once sends one short prompt to the selected model\. Saving never changes the model new runs use; Use for new runs does, in all chats\./);
     assert.deepEqual(form.querySelectorAll('button[type="submit"]').filter(node => !node.getAttribute("form")).map(node => node.textContent), ["Save and ask once", "Save only"]);
 
     key.value = SYNTHETIC_KEY;
@@ -178,7 +178,9 @@ test("MS-R2 · a key error belongs to its connection: another target retires it;
     const saveOnly = form.querySelectorAll("button").find(node => node.textContent === "Save only");
     await form.dispatchEvent({ type: "submit", submitter: saveOnly });
     for (let tries = 0; tries < 100 && page.notes.at(-1) !== "Connection saved."; tries++) await new Promise(resolve => setTimeout(resolve, 20));
-    assert.equal(page.notes.at(-1), "Connection saved.", JSON.stringify(page.calls.slice(-8)));
+    // SET-03 (S6) · saving a connection that is not in force leaves the model in force.
+    assert.equal(page.notes.at(-1), "Connection saved. New runs keep the model in force until you choose Use for new runs.", JSON.stringify(page.calls.slice(-8)));
+    assert.ok(!page.calls.includes("PUT /provider-config"), "saving a connection writes no provider config");
     assert.equal(keyErrorOf(keyRow).hidden, true, "the saved connection retires the unsaved-change error");
     configure(container, compatibleId);
     key.value = SYNTHETIC_KEY;
@@ -236,12 +238,13 @@ test("MS-R2 · a background refresh of the same target keeps the typed key and a
     await page.view.refresh();
     const { view, container, credential, form, rowTitled } = page;
     // Put the synthetic loopback connection in force, so a refresh re-aims the
-    // form at the same target rather than at another connection.
+    // form at the same target rather than at another connection. Saving no
+    // longer selects (SET-03, S6), so it is selected through the Host's route.
+    const current = (await h.api("GET", "/provider-config")).json;
+    const selected = await h.api("PUT", "/provider-config", { provider: made.json.connection.providerIdentity, model: FAKE_MODEL_ID, api: "openai-completions", expectedVersion: current.version });
+    assert.equal(selected.status, 200, JSON.stringify(selected.json));
+    await view.refresh();
     configure(container, made.json.connection.id);
-    const saveOnly = form.querySelectorAll("button").find(node => node.textContent === "Save only");
-    await form.dispatchEvent({ type: "submit", submitter: saveOnly });
-    for (let tries = 0; tries < 100 && page.notes.at(-1) !== "Connection saved."; tries++) await new Promise(resolve => setTimeout(resolve, 20));
-    assert.equal(page.notes.at(-1), "Connection saved.");
     const keyRow = rowTitled("API key");
     const key = keyRow.querySelector('input[type="password"]');
     key.value = SYNTHETIC_KEY;
@@ -276,10 +279,11 @@ test("UX-11 S1 · a key typed for a catalogue provider is stored when the connec
     calls.length = 0;
     await form.dispatchEvent({ type: "submit", submitter: saveOnly });
     await new Promise(resolve => setTimeout(resolve, 80));
-    assert.ok(calls.includes("PUT /provider-config"), JSON.stringify(calls));
+    // V5 acceptance (S6) · saving credentials keeps the selected model.
+    assert.ok(!calls.includes("PUT /provider-config"), JSON.stringify(calls));
     assert.ok(calls.includes("PUT /provider-credential"), "the typed key goes to the saved connection's credential " + JSON.stringify(calls) + " " + JSON.stringify(notes) + " " + form.textContent.slice(-300));
     assert.equal(key.value, "", "a stored key leaves its field");
-    assert.equal(notes.at(-1), "Connection saved.");
+    assert.equal(notes.at(-1), "Connection saved. New runs keep the model in force until you choose Use for new runs.");
     const stored = (await h.api("GET", "/provider-connections")).json.connections.find(entry => entry.id === "catalog-deepseek");
     assert.equal(stored.credentialStatus, "configured");
   } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
@@ -307,6 +311,90 @@ test("UX-11 S1 · a key that cannot be stored stays in its field with the error 
     const keyError = keyRow.querySelector(".inline-error");
     assert.equal(keyError.hidden, false);
     assert.match(keyError.textContent, /credential store is unavailable/);
-    assert.equal(notes.at(-1), "Connection saved.", "the connection save itself succeeded");
+    assert.equal(notes.at(-1), "Connection saved. New runs keep the model in force until you choose Use for new runs.", "the connection save itself succeeded");
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+}));
+
+test("S6 · SET-03/V5 · saving a keyed connection keeps the model in force; Use for new runs makes it the default", () => withTinyDom(async () => {
+  const h = await boot();
+  try {
+    const made = await h.api("POST", "/provider-connections", { api: "openai-completions", baseUrl: h.runtime.fakeProvider.baseUrl, models: [{ id: FAKE_MODEL_ID }], apiKey: SYNTHETIC_KEY });
+    assert.equal(made.status, 200, JSON.stringify(made.json));
+    const before = (await h.api("GET", "/provider-config")).json.config;
+    const page = await mountedSettings(h);
+    configure(page.container, made.json.connection.id);
+    const saveOnly = page.form.querySelectorAll("button").find((node) => node.textContent === "Save only");
+    page.calls.length = 0;
+    await page.form.dispatchEvent({ type: "submit", submitter: saveOnly });
+    for (let tries = 0; tries < 100 && !page.notes.length; tries++) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.ok(!page.calls.includes("PUT /provider-config"), JSON.stringify(page.calls));
+    assert.deepEqual((await h.api("GET", "/provider-config")).json.config, before, "saving credentials or a custom provider keeps the selected model");
+
+    const use = page.form.querySelectorAll("button").find((node) => node.textContent === "Use for new runs");
+    assert.equal(use.disabled, false, "the saved, keyed connection can be made the default");
+    page.calls.length = 0;
+    await use.dispatchEvent({ type: "click", target: use });
+    for (let tries = 0; tries < 100 && !page.calls.includes("PUT /provider-config"); tries++) await new Promise((resolve) => setTimeout(resolve, 20));
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    const after = (await h.api("GET", "/provider-config")).json.config;
+    assert.equal(after.provider, made.json.connection.providerIdentity);
+    assert.equal(after.model, FAKE_MODEL_ID);
+    assert.equal(use.disabled, true, "nothing left to switch to once it is in force");
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+}));
+
+test("S6 · SET-09 · removing the key the connection in force runs on is asked once and names the consequence", () => withTinyDom(async () => {
+  const h = await boot();
+  try {
+    const made = await h.api("POST", "/provider-connections", { api: "openai-completions", baseUrl: h.runtime.fakeProvider.baseUrl, models: [{ id: FAKE_MODEL_ID }], apiKey: SYNTHETIC_KEY });
+    const current = (await h.api("GET", "/provider-config")).json;
+    const selected = await h.api("PUT", "/provider-config", { provider: made.json.connection.providerIdentity, model: FAKE_MODEL_ID, api: "openai-completions", expectedVersion: current.version });
+    assert.equal(selected.status, 200, JSON.stringify(selected.json));
+    const page = await mountedSettings(h);
+    configure(page.container, made.json.connection.id);
+    const keyRow = page.rowTitled("API key");
+    const remove = keyRow.querySelector('button[aria-label="Remove saved key"]');
+    const confirm = keyRow.querySelector('[aria-label="Confirm removing the key"]');
+    page.calls.length = 0;
+    await remove.dispatchEvent({ type: "click", target: remove });
+    assert.equal(confirm.hidden, false, "asked before removing");
+    assert.match(confirm.textContent, /every next run in all chats fails until a key is saved again/);
+    assert.ok(!page.calls.some((call) => call.startsWith("DELETE")), "nothing removed yet");
+    const cancel = confirm.querySelectorAll("button").find((node) => node.textContent === "Cancel");
+    await cancel.dispatchEvent({ type: "click", target: cancel });
+    assert.equal(confirm.hidden, true);
+    assert.ok(!page.calls.some((call) => call.startsWith("DELETE")), "Cancel removes nothing");
+    await remove.dispatchEvent({ type: "click", target: remove });
+    const confirmRemove = confirm.querySelectorAll("button").find((node) => node.textContent === "Remove key");
+    await confirmRemove.dispatchEvent({ type: "click", target: confirmRemove });
+    for (let tries = 0; tries < 100 && !page.notes.includes("Saved key removed."); tries++) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.ok(page.calls.includes("DELETE /provider-credential"));
+    const stored = (await h.api("GET", "/provider-connections")).json.connections.find((entry) => entry.id === made.json.connection.id);
+    assert.notEqual(stored.credentialStatus, "configured");
+  } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
+}));
+
+test("S6 review · saving a new endpoint for the connection in force carries it into the configuration, model unchanged", () => withTinyDom(async () => {
+  const h = await boot();
+  try {
+    const made = await h.api("POST", "/provider-connections", { api: "openai-completions", baseUrl: h.runtime.fakeProvider.baseUrl, models: [{ id: FAKE_MODEL_ID }], apiKey: SYNTHETIC_KEY });
+    const current = (await h.api("GET", "/provider-config")).json;
+    await h.api("PUT", "/provider-config", { provider: made.json.connection.providerIdentity, model: FAKE_MODEL_ID, api: "openai-completions", expectedVersion: current.version });
+    const page = await mountedSettings(h);
+    configure(page.container, made.json.connection.id);
+    const baseUrl = page.rowTitled("Base URL").querySelector("input");
+    // The same fake server under another name: reachable (the Host checks its directory), yet a new endpoint.
+    const moved = h.runtime.fakeProvider.baseUrl.replace("127.0.0.1", "localhost");
+    baseUrl.value = moved;
+    await baseUrl.dispatchEvent({ type: "input", target: baseUrl });
+    const saveOnly = page.form.querySelectorAll("button").find((node) => node.textContent === "Save only");
+    await page.form.dispatchEvent({ type: "submit", submitter: saveOnly });
+    for (let tries = 0; tries < 100 && !page.notes.length; tries++) await new Promise((resolve) => setTimeout(resolve, 20));
+    const connection = (await h.api("GET", "/provider-connections")).json.connections.find((entry) => entry.id === made.json.connection.id);
+    const config = (await h.api("GET", "/provider-config")).json.config;
+    assert.equal(connection.baseUrl, moved, `the connection took the new endpoint: ${JSON.stringify(page.notes)}`);
+    assert.equal(config.baseUrl, moved, "the Host admits a run only on a matching endpoint");
+    assert.equal(config.model, FAKE_MODEL_ID, "the model in force is unchanged");
+    assert.equal(config.provider, made.json.connection.providerIdentity);
   } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
 }));

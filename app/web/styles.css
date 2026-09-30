@@ -2516,11 +2516,15 @@ select {
   padding: var(--space-1) 6px;
   min-height: 32px;
 }
-.credential-actions {
+.credential-actions,
+.credential-confirm-actions {
   display: flex;
   gap: var(--space-2);
   justify-content: flex-end;
 }
+/* SET-09 (S6) · the question under the key row before its key is removed. */
+.credential-confirm { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+.credential-confirm[hidden] { display: none; }
 /* UX 2026-09-28 · the API key row holds its field and its own Save key /
    Remove; when the row is narrow the actions wrap under the field. */
 .settings-row-control.credential-control {
@@ -3973,7 +3977,24 @@ court-symbol {
    separator stays whole; with no room left, both clip away together. */
 #session-title { display: flex; align-items: baseline; }
 #session-title > .title-project,
-#session-title > #session-title-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+#session-title > #session-title-text,
+#session-title > .session-title-rename { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* HDR-01 (S6) · the renamable title reads as the title; hover and focus show it can be pressed. */
+.session-title-rename {
+  flex: 0 1 auto;
+  padding: 0 var(--space-1);
+  margin-left: calc(-1 * var(--space-1));
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.session-title-rename:hover { background: var(--hover); }
+/* The title row clips overflow, so the focus ring is drawn inside the button. */
+.session-title-rename:focus-visible { outline-offset: -2px; }
 #session-title > .title-project:not([hidden]) { display: flex; flex: 0 2 auto; }
 #session-title > #session-title-text { flex: 0 1 auto; }
 .title-project-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -6273,6 +6294,8 @@ html[data-theme="dark"] {
 /* Chat activity / context · accepted visual direction, measured facts stay in detail. */
 .run-activity { display:flex; align-items:center; gap:var(--space-2); color:var(--muted-strong); font-size:var(--text-meta); min-height:32px; }
 .message-stream > .run-activity { max-width:var(--column); margin:var(--space-2) auto 0; }
+/* THR-05 (S6) · the latest run's Edit and resend, on the stream column under its activity line. */
+.message-stream > .run-resend-row { max-width:var(--column); margin:var(--space-1) auto 0; }
 .run-activity-glyph { display:inline-flex; align-items:center; justify-content:center; flex:none; width:32px; height:32px; padding:0; border:1px solid transparent; border-radius:var(--radius-control); background:transparent; color:var(--muted-strong); }
 .run-activity-glyph:not(button) { width:28px; }
 .run-activity-bars { display:flex; align-items:center; gap:2px; width:28px; height:18px; }

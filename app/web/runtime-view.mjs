@@ -1538,7 +1538,7 @@ export function createRuntimeView(
     const mount = mounts.overview;
     mount.replaceChildren();
     /* Named for its object: this chat's runtime, not the Host's runtime list
-       under Agents › Runtimes. With no chat open (Settings from Home) the
+       under Settings › Runtimes. With no chat open (Settings from Home) the
        reading is the user layer every new chat starts from (DEV-R1). */
     mount.append(blockTitle(sessionId ? "Chat runtime" : "Default runtime"));
     if (!snapshot) {

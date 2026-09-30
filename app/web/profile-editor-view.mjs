@@ -79,7 +79,7 @@ export function createProfileEditorView({ controller }) {
       "section",
       { className: "runtime-intake profile-editor", attrs: { "data-profile-editor": id, "aria-label": `Edit ${resource.title} source`, "data-testid": "profile-editor" } },
       panel.heading,
-      el("label", { className: "runtime-intake-field", attrs: { for: fieldId } }, el("span", { text: "Profile source (JSON)" })),
+      el("label", { className: "runtime-intake-field", attrs: { for: fieldId } }, el("span", { text: "Agent profile source (JSON)" })),
       field,
       panel.measure,
       panel.sourceStatus,

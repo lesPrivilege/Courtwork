@@ -90,5 +90,5 @@ test("S5 addendum · Profile is the person, Account has no borrowed glyph, a cop
   });
   assert.match(read("ui-controls.mjs"), /setAction\(button, "check", "Copied"\)/);
   assert.match(read("chat-actions.mjs"), /transientCopyIntent === intent \? 'message\.copied'/);
-  assert.match(read("settings-view.mjs"), /\?\? glyphBlank\(\), el\("span", \{ className: "settings-tab-label"/);
+  assert.match(read("settings-view.mjs"), /\(glyphKey && semanticIcon\(glyphKey\)\) \|\| glyphBlank\(\), el\("span", \{ className: "settings-tab-label"/);
 });

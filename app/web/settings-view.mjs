@@ -450,6 +450,9 @@ export function createSettingsView(
   { request, onConfig, getSession, onSession, notify, onRuntimeEnvironment, page },
 ) {
   let snapshot = null,
+    // SET-09 (S6) · the Remove key question and the connection it asks about.
+    keyConfirm = null,
+    keyConfirmFor = null,
     catalog = null,
     info = null,
     dirty = false,
@@ -827,9 +830,16 @@ export function createSettingsView(
     attrs: { type: "submit" },
     text: "Save only",
   });
+  /* SET-03 / V5 (S6) · saving a connection or its key is configuration; which
+   * model new runs use is a separate, explicit choice. Save never writes it. */
+  const useDefault = el("button", {
+    className: "secondary-button",
+    attrs: { type: "button" },
+    text: "Use for new runs",
+  });
   const saveHelp = el("p", {
     className: "form-help",
-    text: "Save and ask once sends one short prompt to the selected model. Nothing else is sent.",
+    text: "Save and ask once sends one short prompt to the selected model. Saving never changes the model new runs use; Use for new runs does, in all chats.",
   });
   const addProvider = el(
     "details",
@@ -883,18 +893,29 @@ export function createSettingsView(
   keyRow.querySelector(".settings-row-control").classList.add("credential-control");
   keyRow.querySelector(".settings-row-control").append(keyActions);
   keyRow.querySelector(".settings-row-text").append(keyError);
+  /* SET-09 (S6) · removing the key the connection in force runs on stops every
+   * next run until a key is saved again: global, disruptive and rare, so it is
+   * asked once, here, and the consequence is named. Other keys go at once. */
+  const keyConfirmText = el("p", { className: "form-help", attrs: { id: `${credentialId}-remove-consequence` } });
+  const keyConfirmRemove = el("button", { className: "quiet-button danger-button", attrs: { type: "button" }, text: "Remove key" });
+  const keyConfirmCancel = el("button", { className: "quiet-button", attrs: { type: "button" }, text: "Cancel" });
+  keyConfirm = el("div", { className: "credential-confirm", attrs: { role: "group", "aria-label": "Confirm removing the key", "aria-describedby": `${credentialId}-remove-consequence`, hidden: true } },
+    keyConfirmText, el("div", { className: "credential-confirm-actions" }, keyConfirmCancel, keyConfirmRemove));
+  keyRow.querySelector(".settings-row-text").append(keyConfirm);
+  keyConfirmCancel.addEventListener("click", () => { keyConfirm.hidden = true; keyDelete.focus(); });
+  keyConfirmRemove.addEventListener("click", () => { keyConfirm.hidden = true; void removeKey(); });
   /* PV-27 · 选中模型的能力读数。未知就写 unknown，不写一个宿主编的数。 */
   const modelCapability = el("p", { className: "form-help" });
   form.append(
     addProvider,
     row("Provider", "Where model requests are sent.", provider),
     keyRow,
-    row("Model", "Used for future runs in all chats. Active runs keep their recorded model.", model),
+    row("Model", "Checked by Save and ask once; used for new runs in all chats after Use for new runs. Active runs keep their recorded model.", model),
     modelCapability,
     advanced,
     status,
     error,
-    el("div", { className: "credential-actions" }, save, saveOnly),
+    el("div", { className: "credential-actions" }, save, saveOnly, useDefault),
     saveHelp,
   );
   /* UX-11 (S2) · adding an unlisted model ID is configuration, so it lives
@@ -1000,8 +1021,13 @@ export function createSettingsView(
     button.addEventListener("click", () => {
       // MS-R2 · an explicit switch of target: the typed key was for the old one.
       key.value = "";
-      selectPath(entry.path);
-      applyPath(entry.path, entry.path === "compatible" ? entry.connectionId : entry.providerIdentity);
+      // The connection in force is shown as configured (its endpoint and format
+      // included), so a key-only Save cannot clear them (S6 review).
+      if (entry.providerIdentity === snapshot?.config?.provider) resetFields();
+      else {
+        selectPath(entry.path);
+        applyPath(entry.path, entry.path === "compatible" ? entry.connectionId : entry.providerIdentity);
+      }
       addProvider.open = entry.path === "compatible";
       provider.focus();
     });
@@ -1190,6 +1216,8 @@ export function createSettingsView(
     const protocol = selectedProtocol();
     const endpointMissing = (path?.endpoint === "required" || protocol?.endpoint === "explicit") && !baseUrl.value.trim();
     save.disabled = saveOnly.disabled = busy || active || !catalog || !model.value || !protocol || endpointMissing;
+    const chosen = defaultRoute();
+    useDefault.disabled = busy || active || !catalog || !chosen || routeInForce(chosen);
     protocolNotice.hidden = Boolean(protocol);
     protocolNotice.textContent = "Provider protocol information is unavailable. Reload settings before saving.";
     baseUrlRow.querySelector('.settings-row-help').textContent = protocol?.endpoint === "explicit"
@@ -1213,6 +1241,8 @@ export function createSettingsView(
     const target = selectedConnection();
     keySave.disabled = busy || active || !key.value.trim();
     keyDelete.disabled = busy || active || target?.credentialStatus !== "configured";
+    // A question about another connection's key, or a key that is gone, is no longer asked.
+    if (keyConfirm && (keyDelete.disabled || keyConfirmFor !== target?.id)) keyConfirm.hidden = true;
     key.disabled = busy || active;
     keyRow.hidden = pathId === "local";
     // A new endpoint has no saved connection to hold a key yet: the key goes
@@ -1232,6 +1262,16 @@ export function createSettingsView(
         : "";
     status.hidden = !status.textContent;
     renderModelCapability();
+  }
+  /* After a save the form stays on the connection it saved, which need not be
+   * the one in force (SET-03). */
+  function showConnection(connection, chosenModel) {
+    selectPath("compatible");
+    applyPath("compatible", connection.id);
+    fillModels(chosenModel);
+    fillApis(connection.api);
+    baseUrl.value = connection.baseUrl || "";
+    contextWindow.value = "";
   }
   function resetFields() {
     if (!snapshot) return;
@@ -1357,8 +1397,6 @@ export function createSettingsView(
     if (new Set(values).size !== values.length) throw new Error("List each supported effort value once.");
     return values;
   }
-  const sameSavedConfig = (a, b) => ["provider", "model", "api", "baseUrl", "reasoningEffort"]
-    .every((key) => (a?.[key] ?? null) === (b?.[key] ?? null));
   function requireInheritedEffortOnRoute(providerId, modelId, apiId, endpoint) {
     const inherited = snapshot?.config?.reasoningEffort;
     if (inherited == null) return;
@@ -1395,26 +1433,55 @@ export function createSettingsView(
     const result = existing
       ? await request(`/provider-connections/${encodeURIComponent(existing)}`, { method: "PUT", body })
       : await request("/provider-connections", { method: "POST", body });
-    const connection = result.connection;
-    // 这条连接的模型此刻才进入已安装目录，所以先重取目录，投影才核得出档位。
+    // 这条连接的模型此刻才进入已安装目录，所以先重取目录与登记表。
     catalog = await request("/provider-models");
     await reloadConnections();
-    const latest = await request("/provider-config");
-    if (!sameSavedConfig(snapshot?.config, latest.config)) {
-      onConfig(latest);
-      snapshot = latest;
-      throw new Error("The connection was saved, but model settings changed elsewhere. Review the current selection before saving again.");
-    }
-    requireInheritedEffortOnRoute(connection.providerIdentity, chosen, connection.api, connection.baseUrl);
-    return request("/provider-config", {
-      method: "PUT",
-      body: { ...projectProviderConfig(
-        latest.config,
-        { provider: connection.providerIdentity, model: chosen, api: connection.api, baseUrl: undefined },
-        catalog,
-      ), expectedVersion: latest.version },
-    });
+    return result.connection;
   }
+  /* The route "Use for new runs" would select: the form's connection and model,
+   * once that connection is saved as shown. Null when there is none to use, or
+   * when it cannot run (no key on a connection that needs one). */
+  function defaultRoute() {
+    const target = selectedConnection();
+    if (!target || !model.value) return null;
+    const pathId = activePath();
+    if (pathId !== "local" && target.credentialStatus !== "configured") return null;
+    // A custom connection is used as saved: an unsaved endpoint or format is saved first.
+    if (pathId === "compatible" && (baseUrl.value.trim() !== (target.baseUrl || "") || api.value !== target.api)) return null;
+    return pathId === "compatible"
+      ? { provider: target.providerIdentity, model: model.value, api: target.api, baseUrl: undefined, checkBaseUrl: target.baseUrl }
+      : { provider: provider.value, model: model.value, api: api.value, baseUrl: baseUrl.value.trim() || null, checkBaseUrl: baseUrl.value.trim() || undefined };
+  }
+  function routeInForce(route) {
+    const config = snapshot?.config;
+    if (!config || !route) return false;
+    const endpoint = route.baseUrl === undefined ? route.checkBaseUrl ?? null : route.baseUrl;
+    return route.provider === config.provider && route.model === config.model && route.api === config.api
+      && endpoint === (config.baseUrl ?? null);
+  }
+  useDefault.addEventListener("click", async () => {
+    const route = defaultRoute();
+    if (busy || !route) return;
+    busy = true;
+    lock();
+    error.hidden = true;
+    try {
+      requireInheritedEffortOnRoute(route.provider, route.model, route.api, route.checkBaseUrl);
+      const { checkBaseUrl, ...selection } = route;
+      snapshot = await request("/provider-config", {
+        method: "PUT",
+        body: { ...projectProviderConfig(snapshot?.config, selection, catalog), expectedVersion: snapshot?.version },
+      });
+      onConfig(snapshot);
+      renderConnections();
+      notify(`New runs in all chats use ${model.selectedOptions?.[0]?.textContent || route.model}.`);
+    } catch (err) {
+      fail(err);
+    } finally {
+      busy = false;
+      lock();
+    }
+  });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (busy) return;
@@ -1425,27 +1492,39 @@ export function createSettingsView(
     lock();
     error.hidden = true;
     try {
-      if (activePath() === "compatible") {
-        snapshot = await saveCompatibleConnection();
+      /* SET-03 / V5 (S6) · Save stores the connection and its key; it never
+       * changes which model new runs use. For a catalogue provider the endpoint
+       * and API format live in the provider configuration, so they are saved
+       * only on the provider in force, and then without touching its model or
+       * effort; on another provider they apply with Use for new runs. */
+      const compatible = activePath() === "compatible";
+      let saved = null, endpointDeferred = false;
+      if (compatible) {
+        saved = await saveCompatibleConnection();
+        snapshot = await request("/provider-config");
+        /* The Host admits a run on a custom connection only when the configuration
+         * names that connection's endpoint and format, so saving the connection in
+         * force carries them into the configuration, with its model and effort. */
+        if (snapshot?.config?.provider === saved.providerIdentity
+          && (snapshot.config.api !== saved.api || (snapshot.config.baseUrl ?? null) !== (saved.baseUrl ?? null))) {
+          requireInheritedEffortOnRoute(saved.providerIdentity, snapshot.config.model, saved.api, saved.baseUrl);
+          snapshot = await request("/provider-config", {
+            method: "PUT",
+            body: { ...projectProviderConfig(snapshot.config, { provider: saved.providerIdentity, model: snapshot.config.model, api: saved.api, baseUrl: undefined }, catalog), expectedVersion: snapshot.version },
+          });
+        }
       } else {
-        requireInheritedEffortOnRoute(provider.value, model.value, api.value, baseUrl.value.trim() || undefined);
-        /* PV-M-1 · 请求体由同一处投影装配。本处只说明这张表单改了什么；它没有
-           提到的 `reasoningEffort` 由快照带过去，于是保存连接不再静默清掉模型
-           选择器里选好的档位。 */
-        snapshot = await request("/provider-config", {
-          method: "PUT",
-          body: { ...projectProviderConfig(
-            snapshot?.config,
-            {
-              provider: provider.value,
-              model: model.value,
-              api: api.value,
-              baseUrl: baseUrl.value.trim() || null,
-            },
-            catalog,
-          ), expectedVersion: snapshot?.version },
-        });
+        const endpoint = { api: api.value, baseUrl: baseUrl.value.trim() || null };
+        const endpointChanged = endpoint.api !== snapshot?.config?.api || endpoint.baseUrl !== (snapshot?.config?.baseUrl ?? null);
+        if (snapshot?.config?.provider === provider.value && endpointChanged) {
+          requireInheritedEffortOnRoute(provider.value, snapshot.config.model, endpoint.api, endpoint.baseUrl || undefined);
+          snapshot = await request("/provider-config", {
+            method: "PUT",
+            body: { ...projectProviderConfig(snapshot.config, endpoint, catalog), expectedVersion: snapshot.version },
+          });
+        } else endpointDeferred = Boolean(endpoint.baseUrl) && snapshot?.config?.provider !== provider.value;
         await reloadConnections();
+        saved = connectionByIdentity(provider.value);
       }
       /* A key typed for a catalogue provider travels with this save: the
        * connection now exists, so it goes to that connection's credential. A
@@ -1453,7 +1532,7 @@ export function createSettingsView(
       const typedKey = activePath() === "compatible" ? "" : key.value.trim();
       let keyKept = false;
       if (typedKey) {
-        const target = connectionByIdentity(snapshot.config.provider);
+        const target = saved;
         const forTarget = keyTarget;
         try {
           if (!target) throw new Error("The connection was saved, but its key could not be stored. Save the key again.");
@@ -1469,20 +1548,21 @@ export function createSettingsView(
         }
       }
       onConfig(snapshot);
+      const checked = model.value;
+      if (compatible && saved) showConnection(saved, checked);
       dirty = false;
       if (!keyKept) key.value = "";
-      resetFields();
       renderConnections();
       // The saved connection resolves "Save this connection before adding its key."
       if (!keyKept) clearKeyError();
-      notify("Connection saved.");
+      const savedInForce = Boolean(saved) && snapshot?.config?.provider === saved.providerIdentity && snapshot?.config?.model === checked;
+      notify(endpointDeferred ? "Connection saved. Its endpoint applies when you choose Use for new runs."
+        : savedInForce ? "Connection saved." : "Connection saved. New runs keep the model in force until you choose Use for new runs.");
       // PV-63/64 · 保存已经成功；询问是它之后的独立一步，失败不回滚保存
       // （runVerify 自己的 catch 已经把这一点体现为回执块里的一句话，不是
-      // 这里的 `error`）。已成功的步不回滚：连接保持已保存。
-      if (askOnce) {
-        const target = connectionByIdentity(snapshot.config.provider);
-        if (target) void runVerify(target.id, snapshot.config.model, connectionLabel(target));
-      }
+      // 这里的 `error`）。已成功的步不回滚：连接保持已保存。询问的是表单上的
+      // 连接与模型，不是正在使用的那一个。
+      if (askOnce && saved) void runVerify(saved.id, checked, connectionLabel(saved));
     } catch (err) {
       fail(err);
     } finally {
@@ -1527,7 +1607,17 @@ export function createSettingsView(
       lock();
     }
   });
-  keyDelete.addEventListener("click", async () => {
+  keyDelete.addEventListener("click", () => {
+    const target = selectedConnection();
+    if (busy || !target) return;
+    const inForce = snapshot?.connection?.id === target.id || connectionByIdentity(snapshot?.config?.provider)?.id === target.id;
+    if (!inForce) { void removeKey(); return; }
+    keyConfirmText.textContent = `${connectionLabel(target)} runs the model in force. Without its key, every next run in all chats fails until a key is saved again.`;
+    keyConfirmFor = target.id;
+    keyConfirm.hidden = false;
+    keyConfirmCancel.focus();
+  });
+  async function removeKey() {
     if (busy) return;
     const target = selectedConnection();
     if (!target) return;
@@ -1551,8 +1641,10 @@ export function createSettingsView(
     } finally {
       busy = false;
       lock();
+      // The control that was pressed is gone or disabled; the key field is where to go next.
+      key.focus();
     }
-  });
+  }
   function syncSessionPermission(control, sessionId) {
     if (!control) return;
     const latest = getSession();
@@ -1728,9 +1820,10 @@ export const SETTINGS_GROUPS = [
   { id: "appearance", title: "Preferences", panel: "settings-appearance" },
   { id: "account", title: "Account", panel: "settings-account" },
   { id: "general", title: "General", panel: "settings-general" },
-  /* Target IA (local-runtime ruling 2026-09-20): Agents holds Agent profiles
-   * and Runtimes. Only Runtimes is here so far (06c production I1). */
-  { id: "agents", title: "Agents", panel: "settings-agents" },
+  /* Target IA (local-runtime ruling 2026-09-20): an Agents group holding Agent
+   * profiles and Runtimes. Only Runtimes is here (06c production I1), so the
+   * group is named for what it holds (SET-19, S6); the id stays for links. */
+  { id: "agents", title: "Runtimes", panel: "settings-agents" },
   { id: "models", title: "Models", panel: "settings-models" },
   { id: "tools", title: "Tools & Integrations", panel: "settings-tools" },
   { id: "skills", title: "Skills", panel: "settings-skills" },
@@ -1742,8 +1835,9 @@ export const SETTINGS_GROUPS = [
 ];
 export const DEFAULT_SECTION = "general";
 /* A group named after one kind of object carries that object's glyph rather
-   than a second, category-only one. */
-const GROUP_OBJECT_GLYPHS = { plugins: "plugin.object", agents: "agent.profile" };
+   than a second, category-only one; null keeps a blank slot where no glyph
+   names the group (Runtimes: agent.profile means an Agent profile). */
+const GROUP_OBJECT_GLYPHS = { plugins: "plugin.object", agents: null };
 export function isSettingsSection(id) {
   return SETTINGS_GROUPS.some((group) => group.id === id);
 }
@@ -2143,7 +2237,8 @@ export function createSettingsPage({ home, onSection, onEditConnection, onOpenRu
       },
     });
     // A group whose key has no glyph (Account, S5) keeps the glyph slot blank, so labels stay on one x.
-    tab.append(semanticIcon(GROUP_OBJECT_GLYPHS[group.id] ?? `settings.${group.id}`) ?? glyphBlank(), el("span", { className: "settings-tab-label", text: group.title }));
+    const glyphKey = Object.hasOwn(GROUP_OBJECT_GLYPHS, group.id) ? GROUP_OBJECT_GLYPHS[group.id] : `settings.${group.id}`;
+    tab.append((glyphKey && semanticIcon(glyphKey)) || glyphBlank(), el("span", { className: "settings-tab-label", text: group.title }));
     tab.addEventListener("click", () => select(group.id, { focusPanel: false }));
     nav.append(tab);
     dropdown.append(el("option", { attrs: { value: group.id }, text: group.title }));

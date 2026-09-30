@@ -119,8 +119,11 @@ export function renderChatMeasurementBody(kind, { events = [], run } = {}) {
   return body;
 }
 
-export function createChatMeasurements({ host = document.body, onOpenRun } = {}) {
-  let snapshot = {}, anchor = null, kind = 'context', cleanup = null, identity = '';
+/* CMP-16 (S6) · the context readout carries its action: Compact, as the Host's
+ * command catalog states it (`readCompaction` resolves to its availability),
+ * started through `onCompact`. The readout itself stays read-only. */
+export function createChatMeasurements({ host = document.body, onOpenRun, readCompaction = null, onCompact = null } = {}) {
+  let snapshot = {}, anchor = null, kind = 'context', cleanup = null, identity = '', compactEpoch = 0;
   const popover = el('section', { className: 'chat-measurement-popover', attrs: { popover: 'auto', role: 'dialog', 'aria-label': 'Request context' } });
   function close({ restore = false } = {}) {
     if (popover.matches(':popover-open')) popover.hidePopover();
@@ -135,8 +138,24 @@ export function createChatMeasurements({ host = document.body, onOpenRun } = {})
   popover.append(el('header', { className: 'chat-measurement-heading' }, heading,
     el('div', { className: 'chat-measurement-actions' }, refresh, dismiss)), content);
   host.append(popover);
+  function compactRow() {
+    const own = ++compactEpoch;
+    const row = el('div', { className: 'chat-measurement-compact' });
+    const button = el('button', { className: 'text-button', text: 'Compact', attrs: { type: 'button', disabled: '' } });
+    const reason = el('p', { className: 'form-help', text: 'Checking whether this chat can be compacted…' });
+    button.addEventListener('click', () => { close({ restore: true }); onCompact(); });
+    row.append(button, reason);
+    void Promise.resolve(readCompaction()).then((availability) => {
+      if (own !== compactEpoch) return;
+      button.disabled = !availability?.available;
+      reason.textContent = availability?.available ? 'Summarizes this chat once with the configured model; the next run continues from the summary.'
+        : availability?.reason || 'Compaction availability is unknown.';
+    }, () => { if (own === compactEpoch) reason.textContent = 'Compaction availability could not be read.'; });
+    return row;
+  }
   function renderBody() {
     content.replaceChildren(renderChatMeasurementBody(kind, snapshot));
+    if (kind === 'context' && readCompaction && onCompact && snapshot.session) content.append(compactRow());
     if (snapshot.run?.id && onOpenRun) {
       const id = snapshot.run.id;
       const inspect = el('button', {className:'text-button', text:'Inspect run', attrs:{type:'button'}});

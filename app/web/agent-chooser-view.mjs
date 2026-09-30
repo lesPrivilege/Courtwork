@@ -72,7 +72,7 @@ export function createAgentChooser({ controller: initialController, mount, notic
     const profile = profiles().find((entry) => entry.id === id);
     const box = el("div", { className: "agent-reading" });
     if (!profile) return box;
-    box.append(el("p", { className: "agent-reading-purpose", text: profile.description || (profile.builtin ? "The Host's built-in agent: this chat's own context, no profile source." : "No description in this profile.") }));
+    box.append(el("p", { className: "agent-reading-purpose", text: profile.description || (profile.builtin ? "The Host's built-in agent: this chat's own context, no agent profile source." : "No description in this profile.") }));
     const facts = el("dl", { className: "agent-reading-facts" });
     const add = (term, value, key) => { if (value) facts.append(el("dt", { text: term }), el("dd", { text: value, attrs: { "data-reading": key } })); };
     add("Runs on", `${runtimeLine(snap.adapterId)}, the Host's runtime for this chat`, "runtime");
@@ -80,9 +80,9 @@ export function createAgentChooser({ controller: initialController, mount, notic
     add("Model", model ? `${model}, from Models · All chats · future runs. This agent has no model of its own.` : "Not read yet.", "model");
     const source = state.sources[id];
     if (profile.builtin) add("Kits", "None", "kits");
-    else if (!source || source.status === "loading") add("Kits", "Reading the profile source…", "kits");
-    else if (source.status === "error") add("Kits", `The profile source could not be read: ${source.error}`, "kits");
-    else if (source.reading.status === "unreadable") add("Kits", "The profile source is not readable JSON.", "kits");
+    else if (!source || source.status === "loading") add("Kits", "Reading the agent profile source…", "kits");
+    else if (source.status === "error") add("Kits", `The agent profile source could not be read: ${source.error}`, "kits");
+    else if (source.reading.status === "unreadable") add("Kits", "The agent profile source is not readable JSON.", "kits");
     else add("Kits", source.reading.kits.length
       ? source.reading.kits.map((kit) => `${kit.id} ${kit.version} (compatibility with ${runtimeName(snap.adapterId)} not checked)`).join("; ")
       : "None", "kits");

@@ -73,7 +73,8 @@ export async function openHarness({ outDir, prefix = "cw-ux-topology-capture-" }
     throw new Error(`timed out waiting for ${label}`);
   }
   return {
-    origin, call, until, cdp, evaluate, waitFor,
+    // `host` is the in-process Host (its fakeProvider serves the local test endpoint).
+    host, origin, call, until, cdp, evaluate, waitFor,
     click: (selector) => evaluate(`(document.querySelector(${JSON.stringify(selector)})?.click(), true)`),
     open: (id) => `document.getElementById(${JSON.stringify(id)})?.matches(':popover-open')`,
     async closeAll() {

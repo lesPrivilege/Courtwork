@@ -299,10 +299,10 @@ test("PV-24 · 目录报来的模型 ID 进入这条连接的 Model 列表，并
   assert.match(settingsSource, /const entries = compatible\s*\?\s*compatibleModelEntries\(\)/);
   // discover 成功即把它们填进 Model 列表，而不是只画一张说明性的清单。
   assert.match(settingsSource, /reading\.operation === "discover" && reading\.ok[\s\S]{0,160}fillModels\(/);
-  // 保存时它们进入 `POST\/PUT \/provider-connections` 的 models，然后那条连接被选为生效配置。
+  // 保存时它们进入 `POST\/PUT \/provider-connections` 的 models；选为生效配置是另一个动作（SET-03, S6）。
   assert.match(settingsSource, /const models = compatibleModelEntries\(\)\.map/);
   assert.match(settingsSource, /request\("\/provider-connections", \{ method: "POST", body \}\)/);
-  assert.match(settingsSource, /provider: connection\.providerIdentity, model: chosen/);
+  assert.match(settingsSource, /\{ provider: target\.providerIdentity, model: model\.value, api: target\.api, baseUrl: undefined/);
   // 另外两条路径不变：Model 下拉仍只由已安装目录填。
   assert.match(settingsSource, /const entries = compatible[\s\S]{0,120}availableModels\(\)/);
 });
@@ -375,8 +375,9 @@ test("PV-27 · 未知与 unsupported 都用 provider default；enum 按 API 精�
   assert.deepEqual(supportedEffortsOf(endpointCatalog,"openai","endpoint-model","openai-completions","https://api.example.test/v1/"),["high"]);
   assert.deepEqual(supportedEffortsOf(endpointCatalog,"openai","endpoint-model","openai-completions","https://custom.example.test/v1"),[]);
   assert.match(settingsSource,/function requireInheritedEffortOnRoute\([\s\S]{0,450}Choose Provider default in Model & effort before changing this endpoint\./);
-  assert.match(settingsSource,/requireInheritedEffortOnRoute\(provider\.value, model\.value, api\.value, baseUrl\.value\.trim\(\) \|\| undefined\)/);
-  assert.match(settingsSource,/requireInheritedEffortOnRoute\(connection\.providerIdentity, chosen, connection\.api, connection\.baseUrl\)/);
+  // SET-03 (S6) · the route check runs where a route is chosen (Use for new runs) and on the in-force endpoint Save may change.
+  assert.match(settingsSource,/requireInheritedEffortOnRoute\(route\.provider, route\.model, route\.api, route\.checkBaseUrl\)/);
+  assert.match(settingsSource,/requireInheritedEffortOnRoute\(provider\.value, snapshot\.config\.model, endpoint\.api, endpoint\.baseUrl \|\| undefined\)/);
   /* WO-PV-FE02 · 改写理由：`else` 分支里插入了 PV-61 的三态判据注释与新分支，字符
    * 距离从 800 涨到本单实测约 1000，窗口相应放宽到 1400——锚点（起止两行代码）
    * 一字未改，中间要跳过的只是新增的注释与一个三元分支，不是放宽了检查什么。 */
@@ -510,10 +511,11 @@ test("PV-63 · 自动发现的触发条件与去抖：baseUrl/key 的 input 去�
 test("PV-63/38 · “Save and ask once” 与 “Save only” 的请求序：event.submitter 分流，冒烟不自动触发", () => {
   assert.match(settingsSource, /text: "Save and ask once"/);
   assert.match(settingsSource, /text: "Save only"/);
-  assert.match(settingsSource, /Save and ask once sends one short prompt to the selected model\. Nothing else is sent\./);
+  assert.match(settingsSource, /Save and ask once sends one short prompt to the selected model\. Saving never changes the model new runs use; Use for new runs does, in all chats\./);
   assert.match(settingsSource, /const askOnce = event\.submitter === save;/);
   // 冒烟只在保存成功之后、且只在主按钮被点了的分支里触发一次；已保存的连接不回滚。
-  assert.match(settingsSource, /if \(askOnce\) \{[\s\S]{0,300}void runVerify\(target\.id, snapshot\.config\.model, connectionLabel\(target\)\)/);
+  // The check asks the form's own connection and model, not the one in force (SET-03, S6).
+  assert.match(settingsSource, /if \(askOnce && saved\) void runVerify\(saved\.id, checked, connectionLabel\(saved\)\)/);
   // 没有任何 input/change 监听直接调用 runVerify——冒烟不是自动触发的（PV-38）。
   const inputListeners = settingsSource.match(/\.addEventListener\("(input|change)"[\s\S]{0,400}?\}\);/g) || [];
   for (const listener of inputListeners) assert.doesNotMatch(listener, /runVerify\(/, listener.slice(0, 60));

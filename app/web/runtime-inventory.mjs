@@ -1,4 +1,4 @@
-/* Settings → Agents → Runtimes · the Host's execution runtime inventory,
+/* Settings → Runtimes · the Host's execution runtime inventory,
  * read only (06c production I1).
  *
  * The Host reports `executionRuntimes` inside `GET /runtime-info` (see

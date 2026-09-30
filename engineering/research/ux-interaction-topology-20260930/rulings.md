@@ -101,7 +101,7 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | S3 · [record](s3.md) | Chat file-access control split; overview row target; chat paperclip popover | Topology |
 | S4 · [record](s4.md) | Attention count and waiting marks; rail opens the queue (adjusted: the assistant keeps the entry, see the record); working-project default | Topology |
 | S5 · [record](s5.md) | Icon size source and tiers; glyph meanings; Retry text; disclosure; unavailable actions removed; alignment captures; manifest and allowlist hygiene; stale comments (the native-marker half of ICN-25 deferred, see the record) | Icons, hygiene |
-| S6 | Header rename; Edit and resend; Compact from the context popover; separate connection save from default; Remove-key confirmation; Settings name collisions | Topology, small |
+| S6 · [record](s6.md) | Header rename; Edit and resend; Compact from the context popover; separate connection save from default; Remove-key confirmation; Settings name collisions | Topology, small |
 
 ## Deferred
 
@@ -114,7 +114,7 @@ The UX lane holder (original Claude) implements unless the user reassigns; each 
 | Rail collapse and global keyboard shortcuts | [Shell control plane](../../design/shell-control-plane-2026-09-12/README.md) | The native Back/Forward placement pass |
 | Settings regrouped by user task; agent-profile selection homes; runtime choice UI | Settings resource management; 06c | The next Settings pass; 06c's runtime-management API |
 | Spark entry | Spark product owner | Next Spark definition change |
-| Specimen-only modules | UX lane | Before S6 |
+| Specimen-only modules | UX lane | Resolved in [S6](s6.md): kept as specimen code; no live product import |
 | Whether the rail Attention entry opens the item queue, with the assistant inside it (ATT-02), against the Attention agent rule of one stable entry for the resident assistant ([S4](s4.md#adjustments-to-the-rulings)) | Astra (Attention product identity) | The next Attention product revision |
 | An "All projects" Attention view and a cross-project count | Core Attention owner | A registry query without a project |
 | Chat file names outside `[A-Za-z0-9._-]`, such as Chinese names, which the Host refuses and the client refuses before sending ([evidence E5](evidence/README.md)) | Host materials owner | The next Host materials contract revision |
