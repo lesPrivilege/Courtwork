@@ -688,7 +688,21 @@ def commit_workspace_write(root_fd, request):
             if error.errno in (errno.EISDIR, errno.ENOTEMPTY, errno.EEXIST):
                 fail("not_file", "workspace target is not a regular file")
             raise classify_os_error(error) from None
-        return {"committed": True}
+        # A descriptor names a directory object, not a place: the same actor
+        # that could swap the parent can move it, open descriptor and all, and
+        # the rename above still lands in it. Walk from the root again and
+        # report whether the directory the bytes went into is still the one
+        # this path names. A move after this check is not detected.
+        placed = False
+        try:
+            named_fd = open_workspace_directory(root_fd, parts[:-1])
+            try:
+                placed = identity(os.fstat(named_fd)) == identity(os.fstat(parent_fd))
+            finally:
+                os.close(named_fd)
+        except OSError:
+            placed = False
+        return {"committed": True, "placed": placed}
     finally:
         os.close(parent_fd)
 

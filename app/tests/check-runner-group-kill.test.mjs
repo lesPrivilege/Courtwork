@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { randomBytes } from "node:crypto";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -30,17 +30,21 @@ function alive(pid) {
 // A check may write only its own temporary directory (cw-check-home-*), so a
 // recipe that must leave a pid behind for a Host that will be killed writes
 // it there under a unique name; the directory outlives a Host that died.
-async function readPidFromCheckHome(name) {
+async function readFromCheckHome(name) {
   for (let i = 0; i < 500; i++) {
     for (const entry of await readdir(tmpdir()).catch(() => [])) {
       if (!entry.startsWith("cw-check-home-")) continue;
       const text = await readFile(path.join(tmpdir(), entry, name), "utf8").catch(() => null);
-      const pid = Number(text?.trim());
-      if (pid > 0) return pid;
+      if (text !== null && text.trim()) return text;
     }
     await new Promise(resolve => setTimeout(resolve, 20));
   }
-  throw new Error("the recipe never announced its pid in " + name);
+  throw new Error("the recipe never wrote " + name);
+}
+async function readPidFromCheckHome(name) {
+  const pid = Number((await readFromCheckHome(name)).trim());
+  assert.ok(pid > 0, "the recipe announced a pid in " + name);
+  return pid;
 }
 const token = () => randomBytes(6).toString("hex");
 
@@ -89,13 +93,17 @@ test("a normal exit with nothing left in the group settles with the group confir
 // the whole check group running, able to keep writing the candidate. The check
 // now runs under check-guard.mjs, which kills the group when the Host's end of
 // its stdin pipe closes (2026-09-29 convergence loop, S11).
-test("a check's process group dies with a Host that was killed mid-check", async () => {
+test("a check's process group dies with a Host that was killed mid-check, and the sandbox was in force", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-check-host-death-"));
   const pidName = "grandchild-" + token() + ".pid";
+  // The guard runs outside the sandbox; the recipe under it must still be
+  // inside: a stand-in credentials file in the data directory is unreadable.
+  const secret = path.join(dataDir, "credentials.json");
+  await writeFile(secret, JSON.stringify({ synthetic: "stand-in, not a credential" }));
   const runner = new URL("../runtime/check-runner.mjs", import.meta.url).href;
-  const script = '(trap "" TERM; exec sleep 30) </dev/null >/dev/null 2>&1 &\necho $! > "$TMPDIR/$1"\nsleep 30';
+  const script = '(trap "" TERM; exec sleep 30) </dev/null >/dev/null 2>&1 &\n(cat "$2" >/dev/null 2>&1 && echo readable || echo denied) > "$TMPDIR/$1.sandbox"\necho $! > "$TMPDIR/$1"\nsleep 30';
   const hostSource = `import { runCheckRecipe } from ${JSON.stringify(runner)};
-runCheckRecipe({ recipe: { command: "/bin/sh", argv: ["-c", ${JSON.stringify(script)}, "sh", ${JSON.stringify(pidName)}], timeoutMs: 60000, outputLimitBytes: 1000 }, cwd: ${JSON.stringify(dir)}, dataDir: ${JSON.stringify(dataDir)} });
+runCheckRecipe({ recipe: { command: "/bin/sh", argv: ["-c", ${JSON.stringify(script)}, "sh", ${JSON.stringify(pidName)}, ${JSON.stringify(secret)}], timeoutMs: 60000, outputLimitBytes: 1000 }, cwd: ${JSON.stringify(dir)}, dataDir: ${JSON.stringify(dataDir)} });
 setInterval(() => {}, 1000);`;
   const { spawn } = await import("node:child_process");
   const host = spawn(process.execPath, ["--input-type=module", "-e", hostSource], { stdio: "ignore" });
@@ -103,6 +111,7 @@ setInterval(() => {}, 1000);`;
   try {
     grandchild = await readPidFromCheckHome(pidName);
     assert.ok(alive(grandchild));
+    assert.equal((await readFromCheckHome(pidName + ".sandbox")).trim(), "denied", "the recipe under the guard could not read the data directory");
     host.kill("SIGKILL");
     await new Promise(resolve => host.once("exit", resolve));
     for (let i = 0; i < 100 && alive(grandchild); i++) await new Promise(resolve => setTimeout(resolve, 20));

@@ -355,6 +355,7 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
       const writeErrors = { path_unavailable: "parent directory does not exist", fallback: "file could not be written" };
       const discard = () => runRepositoryFs({ operation: "ws_write_discard", rootPath, parts, tempName }).catch(() => {});
       let staged;
+      let committed;
       try {
         staged = await runRepositoryFs({
           operation: "ws_write_stage", rootPath, parts, tempName,
@@ -372,7 +373,7 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
         maybeCrash("after_history");
         if (signal?.aborted) throw wsError("write was cancelled");
         const { rootPath: stagedRoot, device, inode, parts: stagedParts, tempDevice, tempInode, parentDevice, parentInode } = staged;
-        await runRepositoryFs({
+        committed = await runRepositoryFs({
           operation: "ws_write_commit", rootPath: stagedRoot, device, inode, parts: stagedParts,
           tempName, tempDevice, tempInode, parentDevice, parentInode,
         });
@@ -385,6 +386,15 @@ export function createWsWriteTool({ workspaceDir, permissionMode, requestPermiss
       const relativePath = staged.path;
       const sha256 = contentSha256;
       const bytes = bytesToWrite;
+      // The bytes landed in the directory the walk reached, but that directory
+      // was moved between the identity check and the rename, so this path no
+      // longer names it. The effect happened and is reported as it is; no
+      // record claims the path, and the bytes stay where they went, since
+      // taking them back would change the moved directory a second time.
+      if (!committed.placed) {
+        const text = `wrote ${bytes} bytes (sha256 ${sha256}), but the directory of ${relativePath} left the workspace during the write; the bytes are not at ${relativePath}. The exact bytes are kept in history.`;
+        return { content: [{ type: "text", text }], details: { path: relativePath, bytes, sha256, placement: "moved" } };
+      }
       // Crash point: the rename has landed, the artifact record has NOT. This
       // is the window the work order names; the recovery answer is a startup
       // reconciliation notice, never a silent back-fill of the record, and
