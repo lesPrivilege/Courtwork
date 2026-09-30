@@ -132,8 +132,9 @@ export function renderSessionOverview(
       row("chevron-right", "Work history", onHistory),
     ),
     group(
-      "Chat settings",
-      row("settings-2", permissionLabel, onPermissions),
+      "File access",
+      // UX-11 (S3) · a fact of this chat opens this chat's control, not Settings.
+      action("chevron-right", permissionLabel, onPermissions, { visible: true, trailing: true, className: "context-row" }),
     ),
   );
   return header;

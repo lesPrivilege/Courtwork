@@ -421,73 +421,28 @@ export function segmentedPermission({
   }
   return fieldset;
 }
-/** The secondary card behind the connection badge and the composer chips:
- * read the current connection, change file writes in place, or jump to Settings. */
-export function renderConnectionCard(
-  container,
-  { config, session, active, onClose, onChangeConnection, onChooseModel, onPermission, measurements },
-) {
+/** UX-11 (S3) · the card behind the composer's file-access chip and the Chat
+ * overview's file-access row: this chat's file access and nothing Host-wide.
+ * The model lives in the model and effort chooser; request measurements live
+ * behind the run activity. */
+export function renderFileAccessCard(container, { session, active, activeNotice = "Available after this run ends.", onClose, onPermission, onDefaults }) {
   const header = el(
     "div",
     { className: "section-heading" },
-    el("h3", { text: "Connection" }),
-    action("x", "Close connection card", onClose),
+    el("h3", { text: "File access · this chat" }),
+    action("x", "Close file access", onClose),
   );
-  const providerName = config
-    ? providerLabels[config.provider] || config.provider
-    : "Not loaded";
-  const modelName = config
-    ? config.provider === "fake-openai-loopback"
-      ? "Fake local model"
-      : config.model
-    : "—";
-  const groups = [
-    el(
-      "section",
-      { className: "context-card" },
-      el("h4", { text: "Model & connection" }),
-      el(
-        "dl",
-        { className: "data-list" },
-        el("dt", { text: "Provider" }),
-        el("dd", { text: providerName }),
-        el("dt", { text: "Model" }),
-        el("dd", { text: modelName }),
-      ),
-      onChooseModel ? action("settings-2", "Model & effort", onChooseModel, { visible:true, className:"context-row" }) : null,
-      /* Goes to Models settings (closing this card, focus returns here on
-         Back); named for the destination, with the rows' "goes elsewhere"
-         chevron. */
-      action("chevron-right", "Open Models settings", onChangeConnection, {
-        visible: true,
-        trailing: true,
-        className: "context-row",
-      }),
-    ),
-  ];
-  if (session) {
-    const mode = session.permissionMode || "draft";
-    groups.push(
-      el(
-        "section",
-        { className: "context-card" },
-        el("h4", { text: "File access · this chat" }),
-        segmentedPermission({
-          value: mode,
-          disabled: active,
-          name: "card-permission",
-          onChange: onPermission,
-        }),
-        el("p", {
-          className: "context-meta",
-          text: active
-            ? "Available after this run ends."
-            : permissionHelp[mode],
-        }),
-      ),
-    );
-  }
-  container.replaceChildren(header, ...groups, ...(measurements ? [measurements] : []));
+  const mode = session?.permissionMode || "draft";
+  const card = el(
+    "section",
+    { className: "context-card" },
+    segmentedPermission({ value: mode, disabled: active, name: "card-permission", onChange: onPermission }),
+    el("p", { className: "context-meta", attrs: { role: "status" }, text: active ? activeNotice : permissionHelp[mode] }),
+  );
+  const defaults = onDefaults
+    ? action("chevron-right", "Default for new chats in Settings", onDefaults, { visible: true, trailing: true, className: "context-row" })
+    : null;
+  container.replaceChildren(header, card, ...(defaults ? [defaults] : []));
   return header;
 }
 export function createSettingsView(

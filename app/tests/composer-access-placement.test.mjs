@@ -34,7 +34,7 @@ test("P1 · the existing controls keep their Home and Session owners", () => {
   assert.match(app, /\$\("home-composer-context"\)\.hidden = !home/);
   assert.match(app, /\$\("permission-settings-button"\)\.hidden = home \|\| !session/);
   assert.match(app, /\$\("home-permission-input"\)\.addEventListener\("change", \(event\) => \{\s*state\.homePermissionMode = event\.target\.value;\s*storeHomeDraft\(\);/);
-  assert.match(app, /\$\("permission-settings-button"\)\.addEventListener\("click", \(event\) => openConnectionCard\(event\.currentTarget\)\)/);
+  assert.match(app, /\$\("permission-settings-button"\)\.addEventListener\("click", \(event\) => openFileAccessCard\(event\.currentTarget\)\)/);
   assert.match(app, /\/permission-mode/);
   assert.match(app, /projectLine\.hidden = home \|\| !session \|\| !project\?\.name \|\| bandUp;/, "the line below yields to the Work location band while it is up");
   assert.match(css, /\.composer-below:not\(:has\(> \*:not\(\[hidden\]\)\)\) \{ display: none; \}/);

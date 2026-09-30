@@ -6645,3 +6645,10 @@ html[data-theme="dark"] {
 .agent-notice-row > .agent-notice { flex: 1 1 16rem; min-width: 0; }
 .agent-notice-actions { display: inline-flex; flex-wrap: wrap; gap: var(--space-2); }
 .agent-notice-actions > .text-button { font-size: var(--text-meta); }
+/* UX-11 (S3) · the chat paperclip's popover reuses the draft attachments shell. */
+.chat-files-outcomes { display: grid; gap: var(--space-2); margin: var(--space-2) 0; padding: 0; list-style: none; }
+.chat-files-outcome { display: grid; gap: 2px; }
+.chat-files-outcome-name { font-weight: 500; overflow-wrap: anywhere; }
+.chat-files-outcome.is-written .context-meta { color: var(--muted-strong); }
+.chat-files-outcome:not(.is-written) .context-meta { color: var(--ink); }
+.chat-files-outcome .text-button { justify-self: start; }

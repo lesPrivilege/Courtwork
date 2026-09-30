@@ -69,6 +69,20 @@ export class TinyNode {
     this.children = [];
     this.append(...children);
   }
+  after(...nodes) {
+    const parent = this.parentNode;
+    if (!parent) return;
+    let at = parent.children.indexOf(this) + 1;
+    for (const child of nodes.flat()) {
+      if (child === null || child === undefined || child === false) continue;
+      const node = typeof child === 'string' ? this.ownerDocument.createTextNode(child) : child;
+      node.parentNode = parent;
+      parent.children.splice(at++, 0, node);
+    }
+  }
+  // The Popover API as far as views use it: open state, `:popover-open`, and a toggle event.
+  showPopover() { if (!this._popoverOpen) { this._popoverOpen = true; this.dispatchEvent({ type: 'toggle', newState: 'open', oldState: 'closed' }); } }
+  hidePopover() { if (this._popoverOpen) { this._popoverOpen = false; this.dispatchEvent({ type: 'toggle', newState: 'closed', oldState: 'open' }); } }
   remove() {
     if (!this.parentNode) return;
     this.parentNode.children = this.parentNode.children.filter(child => child !== this);
@@ -110,6 +124,7 @@ export class TinyNode {
     return this.children.some(child => child.contains?.(node));
   }
   matches(selector) {
+    if (selector === ':popover-open') return Boolean(this._popoverOpen);
     return parseSelector(selector).some(({ tag, classes, attrs }) =>
       (!tag || String(this.tagName).toLowerCase() === tag.toLowerCase()) &&
       classes.every(name => this.classList.contains(name)) &&

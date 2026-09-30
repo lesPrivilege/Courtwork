@@ -31,7 +31,7 @@
  * into one permission word, and nothing here grants any of them.
  *
  * Nearest precedent: local-extension-view.mjs (Host path input, inline error,
- * focus preserved across re-render), settings-view.mjs renderConnectionCard
+ * focus preserved across re-render), settings-view.mjs renderFileAccessCard
  * (card sections, "Available after this run ends." meta) and
  * agent-profiles-view.mjs's FOCUS_CHAIN (where the keyboard goes when the
  * control it was on cannot take it back). */

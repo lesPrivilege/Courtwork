@@ -27,6 +27,23 @@ function validSourceList(result) {
       Number.isSafeInteger(source.latestRevision) && source.latestRevision > 0);
 }
 
+/** What one `POST /sessions/:id/materials` answer means, from the Host's reply
+ * or refusal alone. The Files form and the chat paperclip read it the same way. */
+export function materialOutcome(result, error = null) {
+  if (error) {
+    const code = error.body?.error?.code;
+    if (error.status === 503 && code === "material_link_failed") return "link_failed";
+    if (error.status === 409) return "conflict";
+    return "failed";
+  }
+  if (result?.workspaceState === "pending") return "pending";
+  if (result?.workspaceState === "written") return "written";
+  if (result?.workspaceState === "superseded") return "superseded";
+  return "unknown";
+}
+
+const MATERIAL_NAME = /^[A-Za-z0-9._-]{1,200}$/;
+
 export function createMaterialsView({ request, getSession, onOpenFile, notify }) {
   const list = document.getElementById("workspace-files");
   const form = document.getElementById("material-form");
@@ -64,6 +81,8 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
   let conflict = null;
   let fileReturn = null;
   let fileDraft = null;
+  // A refresh failure shown in the form's error line is cleared by the next good refresh.
+  let refreshFailed = false;
 
   const activeScope = (id = sessionId, epoch = sessionEpoch) =>
     Boolean(id && id === sessionId && id === getSession()?.id && epoch === sessionEpoch);
@@ -613,6 +632,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       sourceCoverage = result.coverage;
       sourceLimit = result.limit;
       sourceStatus = "ready";
+      if (refreshFailed) { refreshFailed = false; clearError(); }
       if (conflict?.phase === "refreshing") {
         const changed = sourceNamed(conflict.name);
         if (!changed) {
@@ -640,6 +660,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       sourceStatus = "error";
       if (conflict) conflict.phase = "refresh-required";
       render();
+      refreshFailed = true;
       fail("Retained uploads could not be refreshed. The draft is kept and the upload list must load before saving.", {
         buttonLabel: "Retry refresh",
         buttonAction: () => void refreshSources({ afterConflict: Boolean(conflict) }),
@@ -780,7 +801,8 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     try {
       const result = await request(`/sessions/${encodeURIComponent(id)}/materials`, { method: "POST", body });
       if (!activeScope(id, epoch)) return;
-      if (result.workspaceState === "pending") {
+      const outcome = materialOutcome(result);
+      if (outcome === "pending") {
         linkRetry = { fingerprint: draftKey, commandId, expectedRevision };
         fail("The source was retained but is not yet linked into this chat. Retry the same upload command.");
         return;
@@ -788,7 +810,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       commandState = null;
       linkRetry = null;
       conflict = null;
-      if (result.workspaceState === "written") {
+      if (outcome === "written") {
         const draftStillMatches = displayFingerprint() === submittedDisplayFingerprint &&
           (submittedFileDraft ? fileDraft === submittedFileDraft : !fileDraft);
         if (draftStillMatches) {
@@ -798,7 +820,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
           document.getElementById("material-add").open = false;
         }
         notify(`Saved ${result.path || `materials/${nameValue}`} as retained revision ${result.retained?.revision ?? ""}.`);
-      } else if (result.workspaceState === "superseded") {
+      } else if (outcome === "superseded") {
         fail("This upload was retained, but a newer version already exists, so the workspace file was left unchanged. Review the latest retained version before trying again.");
         conflict = { name: nameValue, fingerprint: draftKey, phase: "refreshing", reviewedRevision: null };
       } else {
@@ -806,16 +828,16 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
       }
       await refreshSources({ afterConflict: Boolean(conflict) });
       await refreshWorkspace();
-      if (result.workspaceState === "written") focusSavedSourceSummary(nameValue, id, epoch, focusAtSubmit);
+      if (outcome === "written") focusSavedSourceSummary(nameValue, id, epoch, focusAtSubmit);
     } catch (err) {
       if (!activeScope(id, epoch)) return;
-      const code = err.body?.error?.code;
-      if (err.status === 503 && code === "material_link_failed") {
+      const outcome = materialOutcome(null, err);
+      if (outcome === "link_failed") {
         linkRetry = { fingerprint: draftKey, commandId, expectedRevision };
         commandState = { fingerprint: draftKey, commandId, expectedRevision };
         fail("The source was retained, but it could not be linked into this chat. The draft and command are kept for a same-command retry.");
         await refreshSources();
-      } else if (err.status === 409) {
+      } else if (outcome === "conflict") {
         linkRetry = null;
         conflict = { name: nameValue, fingerprint: draftKey, phase: "refresh-required", reviewedRevision: null };
         fail("This retained source changed during the save. Refresh the upload list, review the current version, then submit again.", {
@@ -870,36 +892,106 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     return hadReturn;
   }
 
+  /* The Files state belongs to one chat; entering another resets it. */
+  function enterSession(session) {
+    if (session.id !== sessionId) {
+      discardFileReturn();
+      cancelRequests();
+      sessionEpoch++;
+      sessionId = session.id;
+      workspaceStatus = "idle";
+      sourceStatus = "idle";
+      files = [];
+      sources = [];
+      sourceCoverage = "complete";
+      sourceLimit = 0;
+      expandedSources = new Set();
+      versionCache = new Map();
+      comparisonSelections = new Map();
+      comparisonStates = new Map();
+      comparisonGenerations = new Map();
+      comparisonButtons = new Map();
+      commandState = null;
+      linkRetry = null;
+      conflict = null;
+      fileDraft = null;
+      name.value = "";
+      text.value = "";
+      upload.value = "";
+      clearError();
+    }
+  }
+
+  /* UX-11 (S3) · the chat paperclip: each file goes through the same save as
+     the Files form (retained revision, the same command for a link retry,
+     conflicts and superseded versions reported), and the lists refresh once. */
+  async function addFiles(fileList) {
+    const session = getSession();
+    if (!session) return [];
+    enterSession(session);
+    const id = sessionId;
+    const epoch = sessionEpoch;
+    if (sourceStatus !== "ready") await refreshSources();
+    if (!activeScope(id, epoch)) return [];
+    if (sourceStatus !== "ready")
+      return [...fileList].map(file => ({ name: file.name, outcome: "failed", message: "The retained upload list could not be read, so nothing was saved. Open Chat files to retry." }));
+    const outcomes = [];
+    for (const file of fileList) {
+      // A chat switch ends the batch: later files are not sent to a chat no longer in view.
+      if (!activeScope(id, epoch)) {
+        outcomes.push({ name: file.name, outcome: "not_sent", message: "Not sent: the chat changed before this file." });
+        continue;
+      }
+      let textValue;
+      try {
+        if (!MATERIAL_NAME.test(file.name)) throw new Error("Use a filename with letters, numbers, dots, underscores or hyphens.");
+        if (file.size > MAX_UPLOAD_BYTES) throw new Error("This file is larger than 1 MB.");
+        textValue = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(await file.arrayBuffer());
+        if (textValue.includes("\0")) throw new Error("This file contains binary data.");
+        if (new TextEncoder().encode(JSON.stringify({ name: file.name, text: textValue })).length > MAX_UPLOAD_BYTES) throw new Error("This file exceeds the 1 MB request limit.");
+      } catch (err) {
+        outcomes.push({ name: file.name, outcome: "failed", message: err.message || "The file could not be read as UTF-8 text." });
+        continue;
+      }
+      const known = sourceNamed(file.name);
+      if (sourceCoverage === "partial" && !known) {
+        outcomes.push({ name: file.name, outcome: "failed", message: "The retained upload list is incomplete, so a new name cannot be checked. Open Chat files to choose it there." });
+        continue;
+      }
+      let commandId;
+      try { commandId = uploadId(); }
+      catch (err) { outcomes.push({ name: file.name, outcome: "failed", message: err.message }); continue; }
+      const body = { name: file.name, text: textValue, commandId, expectedRevision: known?.latestRevision ?? 0 };
+      outcomes.push(await sendFile(id, epoch, body, known));
+    }
+    if (activeScope(id, epoch)) { await refreshSources(); await refreshWorkspace(); }
+    return outcomes;
+  }
+  async function sendFile(id, epoch, body, known) {
+    let outcome, result = null;
+    try { result = await request(`/sessions/${encodeURIComponent(id)}/materials`, { method: "POST", body }); outcome = materialOutcome(result); }
+    catch (err) { outcome = materialOutcome(null, err); result = { message: err.message }; }
+    const entry = { name: body.name, outcome };
+    if (outcome === "written") entry.message = `Saved ${result.path || `materials/${body.name}`}${known ? ` as revision ${result.retained?.revision ?? known.latestRevision + 1}` : ""}.`;
+    else if (outcome === "pending" || outcome === "link_failed") {
+      entry.message = "Retained, but not yet linked into this chat. Retry sends the same upload again.";
+      entry.retry = async () => {
+        const again = await sendFile(id, epoch, body, known);
+        if (activeScope(id, epoch)) { await refreshSources(); await refreshWorkspace(); }
+        return again;
+      };
+    } else if (outcome === "superseded") entry.message = "Retained, but a newer version already exists, so the chat's file was left unchanged. Review it in Chat files.";
+    else if (outcome === "conflict") entry.message = "This file changed during the save. Review the current version in Chat files.";
+    else if (outcome === "unknown") entry.message = "The outcome is unknown. Open Chat files to see what was saved.";
+    else entry.message = result?.message || "The file could not be added.";
+    return entry;
+  }
+
   return {
     open() {
       const session = getSession();
       if (!session) return;
-      if (session.id !== sessionId) {
-        discardFileReturn();
-        cancelRequests();
-        sessionEpoch++;
-        sessionId = session.id;
-        workspaceStatus = "idle";
-        sourceStatus = "idle";
-        files = [];
-        sources = [];
-        sourceCoverage = "complete";
-        sourceLimit = 0;
-        expandedSources = new Set();
-        versionCache = new Map();
-        comparisonSelections = new Map();
-        comparisonStates = new Map();
-        comparisonGenerations = new Map();
-        comparisonButtons = new Map();
-        commandState = null;
-        linkRetry = null;
-        conflict = null;
-        fileDraft = null;
-        name.value = "";
-        text.value = "";
-        upload.value = "";
-        clearError();
-      }
+      enterSession(session);
       document.getElementById("materials-session-title").textContent = session.title || "Session";
       void refreshWorkspace();
       void refreshSources();
@@ -909,6 +1001,7 @@ export function createMaterialsView({ request, getSession, onOpenFile, notify })
     },
     returnFromFile,
     discardFileReturn,
+    addFiles,
     reset() {
       discardFileReturn();
       cancelRequests();

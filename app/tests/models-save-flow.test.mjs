@@ -111,23 +111,6 @@ test("Models: a key for an unsaved change fails beside the key; a new endpoint's
   } finally { await h.runtime.close(); await rm(h.dataDir, { recursive: true, force: true }); }
 }));
 
-test("connection card: the Models destination is named for where it goes and opens nothing else", () => withTinyDom(async () => {
-  const { renderConnectionCard } = await import("../web/settings-view.mjs");
-  const popover = document.createElement("div");
-  const opened = [];
-  renderConnectionCard(popover, {
-    config: { provider: "fake-openai-loopback", model: "fake-model" }, session: null, active: false,
-    onClose() {}, onChangeConnection: () => opened.push("models"), onChooseModel: null, onPermission() {}, measurements: null,
-  });
-  const row = popover.querySelectorAll("button").find(node => node.getAttribute("aria-label") === "Open Models settings");
-  assert.ok(row, "the row names its destination");
-  assert.equal(row.children.at(-1).tagName, "svg", "the rows' trailing chevron marks a destination");
-  assert.equal(popover.querySelectorAll("button").some(node => node.getAttribute("aria-label") === "Connections"), false);
-  assert.equal(popover.querySelectorAll("form,input,select").length, 0, "no second connection form here");
-  row.dispatchEvent({ type: "click", target: row });
-  assert.deepEqual(opened, ["models"]);
-}));
-
 const configure = (container, id) => { const button = container.querySelector(`[data-focus-key="connection:configure:${id}"]`); button.dispatchEvent({ type: "click", target: button }); };
 const keyErrorOf = (keyRow) => keyRow.querySelector(".inline-error");
 async function unsavedChangeKeyError({ container, credential, rowTitled }) {

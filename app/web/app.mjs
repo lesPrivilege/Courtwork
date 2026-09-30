@@ -39,9 +39,9 @@ import {
 } from "./preview-layer.mjs";
 import { createDraftAttachments } from "./draft-attachments.mjs";
 import { createAttentionAgent } from "./attention-agent-view.mjs";
-import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createChatMeasurements } from "./chat-measurements.mjs";
 import { createModelChooser } from "./model-chooser.mjs";
+import { createChatFilesAttach } from "./chat-files-attach.mjs";
 import { visibleModelName } from "./model-effort.mjs";
 import { createAgentChoiceController, createHomeAgentChoice, liveAgentChoiceAdapter, agentChoiceGate, createAgentChoiceLifecycle, projectSnapshot, selectionLanded, intentResolves } from "./agent-choice.mjs";
 import { createAgentChooser } from "./agent-chooser-view.mjs";
@@ -56,14 +56,14 @@ import { createObjectMenu } from "./object-menu.mjs";
 import { activeRunFreezeNotice, isActiveRunRefusal, projectProviderConfig } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
-let attentionWorkspace, attentionAgent, modelChooser, attentionModelChooser, usageView, sparkView, chatPage;
+let attentionWorkspace, attentionAgent, modelChooser, attentionModelChooser, chatFilesAttach, usageView, sparkView, chatPage;
 import {
   createSettingsPage,
   createSettingsView,
   isSettingsSection,
   permissionLabels,
   providerLabels,
-  renderConnectionCard,
+  renderFileAccessCard,
   readPreferences,
   DEFAULT_SECTION,
 } from "./settings-view.mjs";
@@ -1571,6 +1571,7 @@ async function selectSession(
   state.surface.runReadGeneration++;
   fileView?.dispose();
   materialsView?.reset();
+  chatFilesAttach?.reset();
   closeNavigation({ restoreFocus: false });
   writeUiState();
   state.session = null;
@@ -1653,6 +1654,7 @@ function clearActiveSession() {
   state.surface.runReadGeneration++;
   fileView?.dispose();
   materialsView?.reset();
+  chatFilesAttach?.reset();
   state.session = null;
   state.events = [];
   state.runs = [];
@@ -5845,37 +5847,33 @@ function useEditedMessage() {
   });
 }
 
-const connectionMeasurementViews = new Map();
-function openConnectionCard(anchor) {
+/* UX-11 (S3) · this chat's file access, from the composer chip or the Chat
+ * overview; the card holds nothing Host-wide. */
+function openFileAccessCard(anchor) {
   const popover = $("connection-popover");
   if (popover.matches(":popover-open")) {
     popover.hidePopover();
     return;
   }
   state.connectionCardAnchor = anchor;
-  const measurementKey = JSON.stringify([state.activeSessionId, (currentRun() || state.runs.at(-1))?.id]);
-  if (!connectionMeasurementViews.has(measurementKey)) connectionMeasurementViews.set(measurementKey, new Set());
-  const measurementOpened = connectionMeasurementViews.get(measurementKey);
   const render = () =>
-    renderConnectionCard(popover, {
-      config: state.providerConfig?.config || null,
+    renderFileAccessCard(popover, {
       session: currentSession(),
-      active: Boolean(currentRun()) || state.pendingRuns.has(state.activeSessionId),
+      active: ownRunBusy(),
+      activeNotice: activeRunFreezeNotice(true),
       onClose: () => {
         popover.hidePopover();
         state.connectionCardAnchor?.focus?.();
       },
-      measurements: renderRequestMeasurements(state.events, (currentRun() || state.runs.at(-1))?.id, {compact:true, opened:measurementOpened}),
-      onChooseModel: () => { popover.hidePopover(); modelChooser.open($("model-settings-button")); },
-      onChangeConnection: () => {
+      onDefaults: () => {
         popover.hidePopover();
-        openSettings("models");
+        openSettings("general", { trigger: state.connectionCardAnchor });
       },
       onPermission: async (mode) => {
         const session = currentSession();
         if (!session) return;
         // A Run being sent keeps the File access it was sent with.
-        if (currentRun() || state.pendingRuns.has(session.id)) { render(); return; }
+        if (ownRunBusy()) { render(); return; }
         try {
           const result = await request(
             `/sessions/${encodeURIComponent(session.id)}/permission-mode`,
@@ -6398,7 +6396,7 @@ function openContextSummary() {
     onWorkspace: go(() => openWorkspace()),
     onRun: (id) => go(() => openRun(id))(),
     onHistory: go(openRunHistory),
-    onPermissions: go(() => openSettings("permissions")),
+    onPermissions: go(() => openFileAccessCard($("show-run-button"))),
     onRepository: go(() => openWorkspaceCard($("show-run-button"))),
     onReviewChanges: session.repositoryCandidate?.status === "active" ? go(() => void openCandidateDiff()) : null,
   });
@@ -7379,7 +7377,7 @@ function wireEvents() {
     "close-surface-button": ["panel-right", "Hide preview"],
     "close-materials-button": ["x", "Close files"],
     "close-candidate-button": ["x", "Close changes"],
-    "materials-button": ["paperclip", "Chat files"],
+    "materials-button": ["paperclip", "Add files to this chat"],
     "refresh-extensions-button": ["refresh-cw", "Refresh extensions"],
   };
   for (const [id, [name, label]] of Object.entries(actions))
@@ -7436,7 +7434,7 @@ function wireEvents() {
       onPick: () => {},
     });
   }
-  $("permission-settings-button").addEventListener("click", (event) => openConnectionCard(event.currentTarget));
+  $("permission-settings-button").addEventListener("click", (event) => openFileAccessCard(event.currentTarget));
   {
     const popover = $("workspace-popover");
     let stopFollowing = null;
@@ -7467,10 +7465,7 @@ function wireEvents() {
       }
     });
   }
-  $("materials-button").addEventListener("click", () => {
-    openDialog("materials-dialog", "close-materials-button");
-    materialsView.open();
-  });
+  $("materials-button").addEventListener("click", () => chatFilesAttach.open());
   $("close-candidate-button").addEventListener("click", () => closeDialog("candidate-dialog"));
   $("close-materials-button").addEventListener("click", () =>
     closeDialog("materials-dialog"),
@@ -7909,6 +7904,15 @@ async function init() {
     request,
     getSession: currentSession,
     onOpenFile: (ref, opener) => openFile(ref, opener, true),
+    notify: showToast,
+  });
+  /* UX-11 (S3) · the chat paperclip adds files in one popover; the Files
+     dialog stays the place to list, review and compare them. */
+  chatFilesAttach = createChatFilesAttach({
+    trigger: $("materials-button"),
+    addFiles: (files) => materialsView.addFiles(files),
+    openFiles: () => { openDialog("materials-dialog", "close-materials-button"); materialsView.open(); },
+    getSessionId: () => currentSession()?.id ?? null,
     notify: showToast,
   });
   /* WK-94 · 两处用同一句话：控件自己说全后果，没有第二套短词。 */
