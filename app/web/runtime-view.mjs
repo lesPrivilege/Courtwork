@@ -250,6 +250,33 @@ export function proposalRows(proposals) {
       stateWord: PROPOSAL_STATE_WORDS[proposal.status] || proposal.status,
     }));
 }
+/* One reading of an evaluation trace, shared by the permission block and the
+   advisory explanation. An `alias-conflict` step is a stricter earlier rule
+   the layer's last rule did not replace: two rules name spellings of one file. */
+function appendTraceSteps(dl, trace) {
+  for (const [index, step] of (trace || []).entries()) {
+    const source =
+      typeof step.source === "string"
+        ? step.source
+        : `${step.source?.type || "scope"} · ${step.source?.id || ""}`.trim();
+    const detail = [step.action, step.resource].filter(Boolean).join(" on ");
+    const reading = detail ? `${step.effect} — ${detail}` : step.effect;
+    dl.append(
+      el("dt", { text: `Step ${index + 1} · ${source}` }),
+      el("dd", {}, el("span", { text: step.held === "alias-conflict" ? `${reading} · held` : reading })),
+    );
+  }
+}
+function heldNote(trace) {
+  const held = (trace || []).find(step => step.held === "alias-conflict");
+  return held
+    ? el("p", {
+        className: "runtime-provenance",
+        attrs: { "data-alias-held": "true" },
+        text: `Two rules name spellings of one file, so the stricter ${held.effect} rule holds.`,
+      })
+    : null;
+}
 function shortHash(value) {
   return typeof value === "string" && value.length > 12 ? value.slice(0, 12) : value;
 }
@@ -904,21 +931,7 @@ export function createRuntimeView(
       el("dt", { text: "Effect" }),
       el("dd", {}, el("span", { text: EFFECT_LABELS[permission.effect] || permission.effect })),
     );
-    for (const [index, step] of (permission.trace || []).entries()) {
-      const source =
-        typeof step.source === "string"
-          ? step.source
-          : `${step.source?.type || "scope"} · ${step.source?.id || ""}`.trim();
-      const detail = [step.action, step.resource].filter(Boolean).join(" on ");
-      dl.append(
-        el("dt", { text: `Step ${index + 1} · ${source}` }),
-        el(
-          "dd",
-          {},
-          el("span", { text: detail ? `${step.effect} — ${detail}` : step.effect }),
-        ),
-      );
-    }
+    appendTraceSteps(dl, permission.trace);
     const last = (permission.trace || []).at(-1);
     const overridden =
       last && last.effect && last.effect !== permission.effect && typeof last.source === "object";
@@ -927,6 +940,7 @@ export function createRuntimeView(
       { className: "runtime-detail-block" },
       el("h5", { text: "Permission" }),
       dl,
+      heldNote(permission.trace),
       overridden
         ? el("p", {
             className: "runtime-provenance",
@@ -1313,17 +1327,7 @@ export function createRuntimeView(
       el("dt", { text: "Effect" }),
       el("dd", {}, el("span", { text: EFFECT_LABELS[explanation.effect] || explanation.effect })),
     );
-    for (const [index, step] of (explanation.trace || []).entries()) {
-      const from =
-        typeof step.source === "string"
-          ? step.source
-          : `${step.source?.type || "scope"} · ${step.source?.id || ""}`.trim();
-      const detail = [step.action, step.resource].filter(Boolean).join(" on ");
-      dl.append(
-        el("dt", { text: `Step ${index + 1} · ${from}` }),
-        el("dd", {}, el("span", { text: detail ? `${step.effect} — ${detail}` : step.effect })),
-      );
-    }
+    appendTraceSteps(dl, explanation.trace);
     /* FN-15 / FE-T03 · a narrower layer may state a rule and still not get it.
        When the last step asked for something the effective answer did not
        grant, the block says so instead of leaving the reader to compare a
@@ -1332,6 +1336,8 @@ export function createRuntimeView(
     const overridden =
       last && last.effect && last.effect !== explanation.effect && typeof last.source === "object";
     block.append(dl);
+    const held = heldNote(explanation.trace);
+    if (held) block.append(held);
     if (overridden)
       block.append(
         el("p", {

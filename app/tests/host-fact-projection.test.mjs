@@ -67,6 +67,31 @@ test("a coded Host refusal is settled; only no response or an uncoded/internal 5
   assert.match(grab("submitSessionRun", "async function "), /state\.unconfirmedRuns\.has\(sessionId\) && isUncertainCommandError\(error\)/);
 });
 
+test("a Core error the Host marked outcome unknown is uncertain whatever its code; the same code without the marker is settled", () => {
+  const { isUncertainCommandError } = new Function(`${grab("isUncertainCommandError")}; return { isUncertainCommandError };`)();
+  const coreError = (status, code, outcome) => Object.assign(new Error("Core did not answer in time"), { status, body: { error: { code, message: "Core did not answer in time", ...(outcome && { outcome, operation: "attention_action" }) } } });
+  assert.equal(isUncertainCommandError(coreError(503, "CORE_TIMEOUT", "unknown")), true);
+  assert.equal(isUncertainCommandError(coreError(503, "CORE_TIMEOUT")), false);
+  assert.equal(isUncertainCommandError(coreError(409, "OBLIGATION_OPEN")), false);
+});
+
+test("a binding command with an unknown Core outcome is not reported as a refusal, and the binding is read again", async () => {
+  const toasts = [], reads = [];
+  const make = new Function("showToast", "refreshSessionBinding", `${grab("bindingFailed", "async function ")}; return bindingFailed;`);
+  const bindingFailed = make((text) => toasts.push(text), async (id) => reads.push(id));
+  const coreError = (status, code, message, outcome) => Object.assign(new Error(message), { status, body: { error: { code, message, ...(outcome && { outcome }) } } });
+  await bindingFailed(coreError(503, "CORE_TIMEOUT", "Core did not answer in time", "unknown"), "Could not create binding", "s1");
+  assert.deepEqual(toasts, ["The result is not known: Core did not answer in time"]);
+  assert.deepEqual(reads, ["s1"]);
+  await bindingFailed(coreError(409, "binding_mismatch", "binding changed"), "Could not create binding", "s1");
+  assert.deepEqual(toasts.at(-1), "Could not create binding: binding changed");
+  assert.deepEqual(reads, ["s1", "s1"], "a 409 still re-reads");
+  await bindingFailed(coreError(400, "invalid_input", "bad field"), "Could not release the binding", "s1");
+  assert.equal(toasts.at(-1), "Could not release the binding: bad field");
+  assert.equal(reads.length, 2, "a plain refusal does not re-read");
+  assert.equal((src.match(/await bindingFailed\(/g) || []).length, 3, "release, continue and create all use it");
+});
+
 async function effortSave(error) {
   const state = { providerConfig: { version: 3, config: { provider: "p", model: "m", api: "a" }, reasoningCapability: { kind: "enum", values: ["low"] } } };
   const reads = [];

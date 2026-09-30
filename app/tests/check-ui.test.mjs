@@ -43,7 +43,7 @@ test("A check approval names the recipe, what runs, where, and the limits", () =
   assert.equal(display.title, "Approve this check?");
   assert.equal(display.label, "Check");
   assert.equal(display.target, "node-test v1");
-  assert.equal(display.scope, "node --test · in the private candidate · 120 s · 64 KiB per stream · minimal environment");
+  assert.equal(display.scope, "node --test · in the private candidate · 120 s · 64 KiB per stream · sandboxed, no network");
 });
 
 test("Activity word and glyph wiring for checks", () => {

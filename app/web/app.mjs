@@ -98,6 +98,7 @@ import {
   validPermission,
   permissionPresentation,
   candidateAuthoredFiles,
+  checkAuthoredFilesSentence,
   checkStateWord,
   unfinishedToolWord,
 } from "./thread-projection.mjs";
@@ -2515,8 +2516,7 @@ async function releaseBinding(extensionId) {
     await loadSurface(state.sessionEpoch);
     showToast("The binding is released; the recorded work stays in this project.");
   } catch (error) {
-    showToast(`Could not release the binding: ${error.message}`, "error");
-    if (error.status === 409) await refreshSessionBinding(session.id);
+    await bindingFailed(error, "Could not release the binding", session.id);
   }
 }
 
@@ -2570,6 +2570,15 @@ async function refreshSessionBinding(sessionId) {
   } catch {
     /* The refusal message stands on its own. */
   }
+}
+
+/* A binding command that reached Core may have committed when the Host marks
+ * the error `outcome: "unknown"` (api-v6 Transport): it is not reported as a
+ * refusal, and the binding is read again like after a 409. */
+async function bindingFailed(error, refusal, sessionId) {
+  const unknown = error?.body?.error?.outcome === "unknown";
+  showToast(unknown ? `The result is not known: ${error.message}` : `${refusal}: ${error.message}`, "error");
+  if (unknown || error.status === 409) await refreshSessionBinding(sessionId);
 }
 
 /* WK-85 (2) · which segment leads is decided by the data, not by a fixed order:
@@ -2676,8 +2685,7 @@ function renderBindingPanel() {
       showToast("This chat continues the existing work.");
     } catch (error) {
       control.disabled = false;
-      showToast(`Could not continue this work: ${error.message}`, "error");
-      if (error.status === 409) await refreshSessionBinding(session.id);
+      await bindingFailed(error, "Could not continue this work", session.id);
     }
   };
   const created = element("section", { className: "binding-segment" });
@@ -2764,8 +2772,7 @@ function renderBindingPanel() {
       showToast("This chat continues in Work.");
     } catch (error) {
       submit.disabled = false;
-      showToast(`Could not create binding: ${error.message}`, "error");
-      if (error.status === 409) await refreshSessionBinding(session.id);
+      await bindingFailed(error, "Could not create binding", session.id);
     }
   });
   created.append(form);
@@ -5270,9 +5277,11 @@ function clearSubmittedDraft(operation) {
 
 /* Uncertain means the outcome is not known: no response, a network error,
  * or a 5xx without a Host code (or with `internal_error`, or a code that
- * itself says the outcome is unknown). A coded Host refusal is settled. */
+ * itself says the outcome is unknown, or a Core error the Host marked
+ * `outcome: "unknown"`, whatever its code). A coded Host refusal is settled. */
 function isUncertainCommandError(error) {
   if (!Number.isFinite(error?.status)) return true;
+  if (error.body?.error?.outcome === "unknown") return true;
   if (error.status < 500) return false;
   const code = error.body?.error?.code;
   return !code || code === "internal_error" || code.endsWith("_unknown");
@@ -6761,11 +6770,11 @@ function recordedApprovalIdentity(candidate) {
     element("p", { className: "form-help", text: "As recorded when this approval was requested." }),
   ];
 }
-/* Review D4 · a check runs with this computer user's access, and it executes
- * the files the model wrote into the private candidate, not only the recipe's
- * command. Both the open card and the decided record name those files from
- * the Host's confirmed-write receipts, bounded by the write revision the
- * request was bound to (candidateAuthoredFiles). */
+/* Review D4 · a check executes the files the model wrote into the private
+ * candidate, inside the Host's OS sandbox, not only the recipe's command. Both
+ * the open card and the decided record name those files from the Host's
+ * confirmed-write receipts, bounded by the write revision the request was
+ * bound to (candidateAuthoredFiles). */
 function checkAuthoredFiles(payload) {
   if (payload?.tool !== "check_run") return [];
   const files = candidateAuthoredFiles(state.events, payload);
@@ -6778,7 +6787,7 @@ function checkAuthoredFiles(payload) {
   return [
     element("p", {
       className: "form-help",
-      text: `This check executes ${files.length === 1 ? "1 file" : `${files.length} files`} the model wrote, with your access to this computer:`,
+      text: checkAuthoredFilesSentence(files.length),
     }),
     list,
     ...(files.length > shown.length
