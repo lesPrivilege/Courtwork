@@ -200,7 +200,7 @@ Linux, first run (2026-10-01, Runtime workflow dispatched on this branch at `be8
 
 Cluster F as read from the library (`linux-sandbox-utils.js`, `pushReadDenyDirMounts`): a read-denied directory is replaced by a `--tmpfs`, and that tmpfs is writable. The write lands in memory inside the sandbox and is gone with it; on macOS the same write is refused. The test stops at the probe's output, so its last assertion, that the real data directory is unchanged, did not run on Linux: that the real directory is untouched is read from the mechanism, not observed. The test is left as it is. Whether a check may write to a discarded shadow of the home and data directories is a contract question ("Write only its own temporary directory", [check recipes](../../../app/docs/check-recipes.md#environment-policy)), and a tmpfs a check can fill is memory the check can take.
 
-Open on Linux, for Astra under RD-009:
+Open on Linux, for Astra under RD-009 (handed over on 2026-10-02 with the evidence, options and the probe a ruling needs: [RD-009 handoff](../../research/RD-009-trusted-harness-extensions.md#2026-10-02--handoff-to-astra-three-check-tests-red-on-linux)):
 
 - Cluster C: whether the product recovers a recipe's own exit signal behind the wrapper chain (a Host-owned shim in the sandbox) or the contract states the Linux behaviour.
 - Cluster F: whether the denied directories must be read-only inside the sandbox as well, or the contract states that on Linux they are an empty, discarded scratch; and in either case a Linux assertion that the real directories are unchanged.

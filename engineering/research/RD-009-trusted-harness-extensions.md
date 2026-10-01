@@ -113,3 +113,73 @@ RL-1 parent integration boundary (2026-09-27): author `263ddcd` correctly flagge
 
 
 RL-1 disposition: **adopt**, independently reviewed and integrated into local main `3b274a4`. [Evidence](../execution/claude-frontend-harness-2026-09-16/evidence/runtime-load-recovery-20260927/README.md) separates CW real-provider authorship from Luna external 30/30 + AM-C3/3 / permission probe and parent fake smoke. Retained golden bytes are unchanged; two approved source/test writes and one denied extra workspace write are recorded. This closes only the diagnostic task; native edit/bash, configurable recipes, model efficiency and formal Core acceptance are not claimed. Running user Host was not restarted, so it retains the previously loaded implementation.
+
+## 2026-10-02 · Handoff to Astra: three check tests red on Linux
+
+Status: open, for Astra to rule. Prepared by the Claude (Opus) session that built the work of the [review of `6692b91`](../reviews/first-principles-6692b91-2026-10-01/README.md#package-5--as-built). It rules nothing here: check containment is this RD's, and each item below is a choice between changing the product and changing the contract.
+
+### What is red
+
+`main` at `f07b423` (product head `0047a12`). The Runtime workflow on GitHub `ubuntu-latest` fails the same three tests in both Node jobs (22.19.0 and 24.x): 2124 tests, 2105 pass, 3 fail, 16 skipped. Three runs of the same product tree gave the same result: [36878792989](https://github.com/lesPrivilege/Courtwork/actions/runs/36878792989) (review branch, `be8f63d`), 36880628501 (`main`, `9a73da2`), [36885961247](https://github.com/lesPrivilege/Courtwork/actions/runs/36885961247) (`main`, `f07b423`). On macOS the suite is 2124/2124. The workflow's smoke and link steps run and pass; only the test step fails.
+
+All three were among the 23 that failed on `6692b91`. They are what remains once a check can start on Linux at all (the sandbox helper was hidden from the sandbox; fixed in `18d4487`). No test was changed to hide them.
+
+| # | Test | Linux result | Contract sentence it tests |
+|---|---|---|---|
+| L1 | `check-runner-group-kill.test.mjs` · "the recipe's own exit signal is reported, including signals the guard's Node runtime handles" (recipe `kill -USR1 $$`, then PIPE, TERM) | First case: `result.signal` is `null`, expected `SIGUSR1`. The exit code was not printed; PIPE and TERM did not run | "the result carries the recipe's own exit code or signal" ([check recipes](../../app/docs/check-recipes.md#timeout-and-output-limits)) |
+| L2 | same file · "a recipe that signals its own group and handles it reports its own exit" (recipe `trap 'exit 0' HUP; kill -HUP 0; sleep 5`, then INT, QUIT) | First case: `result.exitCode` is `129`, expected `0`. INT and QUIT did not run | the same sentence |
+| L3 | `check-sandbox.test.mjs` · "the candidate, its Git metadata and the data directory are read-only; the check's own temporary directory is writable" | The probe prints `DENIED new EROFS`, `DENIED existing EROFS`, `DENIED git EROFS`, `WROTE data`, `WROTE tmp`: the write to `<data directory>/written.txt` succeeds inside the sandbox. The test stops there, so its later assertion that the real data directory still lists only `credentials.json` and `repository-candidates` did not run | "**Write** only its own temporary directory" ([environment policy](../../app/docs/check-recipes.md#environment-policy)) |
+
+### L1, L2 · the Host does not see the recipe's own exit on Linux
+
+Established by reading (`app/runtime/check-guard.mjs`, `check-runner.mjs`, and the pinned library's `dist/sandbox/linux-sandbox-utils.js`; [source card](../ecosystem/sandbox-runtime-source-card.md)):
+
+- The guard reports the exit of its direct child. That child is `/bin/sh -c <wrapped command>`, and on Linux the wrapped command is `bwrap --new-session --die-with-parent … --unshare-pid … -- /bin/sh -c '<apply-seccomp> /bin/sh -c <recipe>'`. `apply-seccomp` makes a nested user and PID namespace and is PID 1 in it; the recipe is its descendant. On macOS the wrapper is `sandbox-exec` and both tests pass: there the status the guard sees is the recipe's.
+- So on Linux the status the Host records is the wrapper chain's, not the recipe's. L1 shows a signal death arriving without a signal. L2's 129 equals 128 + SIGHUP.
+
+Not established: which process turns the signal into an exit code (bubblewrap's source is not in the tree, `apply-seccomp` ships as a binary); what L1's exit code is; in L2, which process the group-wide HUP kills, given that the recipe itself traps it.
+
+Options:
+
+1. **Recover the recipe's own status.** A Host-owned shim inside the sandbox runs the recipe as its child and writes its code and signal where the Host reads them (the check's temporary directory, or a descriptor passed through). It touches the guard, the runner and the sandbox policy (the shim must be readable inside the sandbox, like the Node installation), and the recipe's command line changes on both platforms unless the shim is Linux-only. The contract sentence stays true.
+2. **State the Linux behaviour.** On Linux a recipe that dies of signal *n* is recorded as `exitCode: 128 + n, signal: null`, and a recipe that signals its own group may be recorded as killed. The two tests become platform-conditional with the observed codes. `check.settled.signal` then means different things per platform, and a recipe that exits 129 by itself is indistinguishable from one killed by HUP.
+3. Mapping `128 + n` back to a signal in the runner: not recommended, for the ambiguity just named.
+
+Either way a `cancelled` check is unaffected: it records null `exitCode` and `signal` by the [2026-09-24 ruling](#2026-09-24--canonical-cancelled-check-settlement).
+
+### L3 · a check can write where the data directory was
+
+Established by reading: the library replaces each `denyRead` directory with `--tmpfs <dir>` (`pushReadDenyDirMounts`, about line 1200 of `linux-sandbox-utils.js`) and binds the `allowRead` entries back read-only. The tmpfs is writable. The home directory is denied the same way, so the same holds there. On macOS the policy has no such shadow and the write is refused.
+
+By that mechanism the write lands in memory inside the sandbox's mount namespace and is gone with it; the real directory is not written. That is a reading, not an observation: the assertion that would show it did not run on Linux.
+
+Two things follow that the contract does not say: on Linux a check sees empty, writable directories at the home and data paths, and what it writes there is memory it takes for the life of the check (no size is set on the tmpfs).
+
+Adding the two directories to `denyWrite` does not look like a way out: the library re-applies the tmpfs after a `denyWrite` bind that would re-expose a denied directory (about lines 2286–2300), which leaves it writable again. This too is read, not run.
+
+Options:
+
+1. **Make the shadow read-only.** Needs something the library does not offer today: an upstream change or option, or Courtwork rewriting the bubblewrap arguments it gets back. The second couples the Host to the library's argument layout.
+2. **State the Linux behaviour** in the environment policy: denied directories are empty in-memory directories inside the sandbox; nothing written there reaches the Host; and bound it if a bound is wanted. The test then asserts on Linux what matters, that the real home and data directories are unchanged, and accepts either a refusal or a discarded write from the probe.
+
+### What a ruling needs first
+
+One Linux run of a small probe, not more reading. No Linux host or container runtime exists on the development machine; the only Linux available is the GitHub runner, and each run needs a push the user authorizes. A probe test file, skipped off Linux, could print in one run:
+
+- for each of USR1, PIPE, TERM, HUP, INT, QUIT: the runner result's `exitCode` and `signal`;
+- during a check, `ps -A -o pid,ppid,pgid,sid,args` from the Host, to see which processes share the guard's group and session;
+- after the L3 probe, a listing of the real data directory and of a synthetic directory under the real home;
+- the L3 probe again with the two directories added to `denyWrite`, and whether a read of a synthetic file under them is still refused.
+
+### Same owner, same run
+
+Not failing tests, but open under the same contract and answerable by the same probe ([review record](../reviews/first-principles-6692b91-2026-10-01/README.md#package-5--as-built)):
+
+- The runner confirms that the guard's process group is gone. `--new-session` puts the sandboxed tree outside that group, so on Linux a check may settle before its last process is reaped. The tests that scan the Host's process table at settle passed in all three runs; that is not a proof of the ordering. "Process lifetime" in the contract still carries *Not run* for Linux.
+- The Host's stop is a `SIGTERM` to the guard's group. It does not reach a recipe behind `--new-session`; the recipe ends by `SIGKILL` through `--die-with-parent`. The contract's timeout paragraph reads as if the recipe received `SIGTERM`.
+- An install reached through a symlink under the home directory (`npm link`, pnpm) hides the helper again: the policy re-allows the helper's real directory, the library runs the unresolved path.
+
+### Boundaries
+
+No real provider, no person's files: every probe above uses synthetic files, as the existing sandbox tests do. Acceptance of whatever is ruled stays with Astra; this section is an input, and the author of the review work does not accept it.
+
