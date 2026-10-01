@@ -228,6 +228,13 @@ export function checkStateWord(check) {
   if (check.status === "unknown") return "Unknown";
   return "Failed";
 }
+/* F5 · a cancelled or timed-out check whose process group the Host could not
+ * confirm gone carries `groupLingered: true` on its settlement; the key is
+ * absent otherwise. The outcome word stays what the Host settled; this is the
+ * one further fact, said only when the Host recorded it. */
+export function checkProcessesWord(check) {
+  return check?.groupLingered === true ? "Could not be confirmed stopped" : null;
+}
 export function toolStateWord(row, status) {
   if (row.check) return checkStateWord(row.check);
   if (row.isError) return "Failed";

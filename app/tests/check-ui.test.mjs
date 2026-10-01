@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
-import { projectThread, toolStateWord, checkStateWord, permissionPresentation } from "../web/thread-projection.mjs";
+import { projectThread, toolStateWord, checkStateWord, checkProcessesWord, permissionPresentation } from "../web/thread-projection.mjs";
+import { appendCheckDetails } from "../web/run-rows.mjs";
+import { withTinyDom } from "./tiny-dom.mjs";
 import { projectRunProcess } from "../web/run-activity.mjs";
 
 const root = new URL("../../", import.meta.url).pathname;
@@ -54,3 +56,25 @@ test("Activity word and glyph wiring for checks", () => {
   assert.match(runRows, /function appendCheckDetails\(container, check\)/);
   assert.match(runRows, /if \(row\.check && row\.check\.status !== "running"\) \{\s*appendCheckDetails\(container, row\.check\);/);
 });
+
+test("F5 · a stopped check whose processes could not be confirmed gone says so beside its outcome, and only then", () => withTinyDom(() => {
+  const settled = (extra) => [
+    ev(1, "check.started", { callId: "c5", recipeId: "node-test", recipeVersion: 1, startedAt: "x" }),
+    ev(2, "check.settled", { callId: "c5", status: "timed_out", exitCode: null, signal: "SIGKILL", durationMs: 120000, stdout: "", stderr: "", truncated: { stdout: false, stderr: false }, ...extra }),
+  ];
+  const checkOf = (events) => projectThread(events, [{ ...run, status: "completed" }], "s1").rows.find(r => r.kind === "tool");
+  const details = (check) => { const box = document.createElement("div"); appendCheckDetails(box, check); return box; };
+  const lingered = checkOf(settled({ groupLingered: true })), plain = checkOf(settled({}));
+  // The Host's outcome word is not replaced by the further fact.
+  assert.equal(toolStateWord(lingered, "completed"), "Timed out");
+  assert.equal(checkProcessesWord(lingered.check), "Could not be confirmed stopped");
+  assert.equal(checkProcessesWord(plain.check), null);
+  for (const absent of [undefined, null, {}, { groupLingered: false }, { groupLingered: "true" }, { groupLingered: 1 }])
+    assert.equal(checkProcessesWord(absent), null, "only the Host's own true says it");
+  assert.equal(checkProcessesWord({ status: "cancelled", groupLingered: true }), "Could not be confirmed stopped");
+  // In the row: one more fact directly after Outcome; without the field, the output is what it was.
+  const facts = (box) => box.querySelector("dl").children.map(node => node.textContent);
+  const without = ["Recipe", "node-test v1", "Outcome", "Timed out", "Signal", "SIGKILL", "Duration", "120.0 s"];
+  assert.deepEqual(facts(details(plain.check)), without);
+  assert.deepEqual(facts(details(lingered.check)), [...without.slice(0, 4), "Processes", "Could not be confirmed stopped", ...without.slice(4)]);
+}));

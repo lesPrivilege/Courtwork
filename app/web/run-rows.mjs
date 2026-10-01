@@ -1,5 +1,5 @@
 import { el, flowRow, BLANK_GLYPH } from "./ui-controls.mjs";
-import { checkStateWord } from "./thread-projection.mjs";
+import { checkStateWord, checkProcessesWord } from "./thread-projection.mjs";
 
 /* WO-RUN-ROWS 2026-09-16 · Chat and Attention share this one run-row anatomy
  * («Chat/Attention 共用该解剖；不复制第二套运行卡», run-surface-pr-20260914).
@@ -40,6 +40,7 @@ export function appendCheckDetails(container, check) {
   const facts = [
     ["Recipe", check.recipeId ? `${check.recipeId}${check.recipeVersion ? ` v${check.recipeVersion}` : ""}` : "unknown"],
     ["Outcome", checkStateWord(check)],
+    ...(checkProcessesWord(check) ? [["Processes", checkProcessesWord(check)]] : []),
     ...(check.signal ? [["Signal", check.signal]] : []),
     ...(Number.isFinite(check.durationMs) ? [["Duration", `${(check.durationMs / 1000).toFixed(1)} s`]] : []),
     ...(check.truncated?.stdout || check.truncated?.stderr ? [["Output", "cut at the Host limit"]] : []),
