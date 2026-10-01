@@ -227,14 +227,14 @@ Only evidence the Host owns establishes that a remote call had no effect, namely
 
 | What the Host observed | Classification | Run |
 |---|---|---|
-| Refused before dispatch: tool not exposed, policy or permission denial, arguments invalid against the tool schema, no connection to the bound configuration, call cancelled before dispatch, or the `runtime.mcp.dispatch` record could not be written | Tool failure, no effect | Stays open: this call closes nothing |
+| Refused before dispatch: tool not exposed, policy or permission denial, arguments invalid against the tool schema, no connection to the bound configuration, tool absent from the connected catalog, call cancelled before dispatch, or the `runtime.mcp.dispatch` record could not be written | Tool failure, no effect | Stays open: this call closes nothing |
 | Dispatched; transport error, timeout, abort, or no result | Effect unknown, `failureKind: result-unavailable` | Admission closed; the Run ends `unknown` with `mcp_effect_unknown` |
 | Dispatched; JSON-RPC error response | Effect unknown, `result-unavailable` | Same |
 | Dispatched; result with `isError` | Effect unknown, `tool-reported-error`; the body is retained and shown to the model | Same |
 | Dispatched; result received but not retained (unsupported, oversized or unpersistable) | Effect unknown, `result-evidence-unavailable` (a reported error keeps `tool-reported-error`) | Same |
 | Dispatched; result retained | Confirmed result | Stays open |
 
-"Dispatched" begins when the dispatch record is written: every failure of the client call after that point is effect unknown, including one the MCP client raises before or after the exchange (an invalid output schema, structured content that fails it). Widening the first row needs Host-owned evidence, for example an operator-declared effect class in Runtime Control; none exists and none is planned here.
+"Dispatched" begins when the dispatch record is written: every failure of the client call after that point is effect unknown, including one the MCP client raises before or after the exchange (an invalid output schema, structured content that fails it). One dispatch record covers one `tools/call` request. The Host passes the tool definition its connection published (`toolDefinition`) with every call, so the pinned client takes header declarations and the output schema from that definition and does not use its own recovery, which on a `HeaderMismatch` (`-32020`) error lists tools again and sends the call a second time; that error is a JSON-RPC error like any other. A bound tool the connection no longer lists is refused before dispatch. Widening the first row needs Host-owned evidence, for example an operator-declared effect class in Runtime Control; none exists and none is planned here.
 
 The existing store transaction records admission closure, `mcp_effect_unknown`, and correlated call/server/tool/config/binding metadata. Arguments are excluded. A failed receipt write retains the in-memory fence and the terminal event retries the correlation; persistent storage failure is not reported as success. Startup and orphan cancellation preserve this error identity, so the existing `supersedes` continuation gate continues to refuse unreconciled effects.
 

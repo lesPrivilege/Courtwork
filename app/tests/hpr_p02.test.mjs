@@ -7,7 +7,7 @@ import path from 'node:path';
 import { boot, reopen, spawnWorker } from './helpers.mjs';
 import { MCPManager } from '../runtime/mcp-manager.mjs';
 
-async function effectFixture({ drop = false, rpcError = false, gate } = {}) {
+async function effectFixture({ drop = false, rpcError = false, headerMismatch = false, gate } = {}) {
   const dir = await mkdtemp(path.join(tmpdir(), 'cw-p02-effect-'));
   let effects = 0;
   let dispatched;
@@ -26,6 +26,9 @@ async function effectFixture({ drop = false, rpcError = false, gate } = {}) {
       if (gate) await gate;
       if (drop) { res.destroy(); return; }
       // A JSON-RPC error is a remote statement after dispatch, not evidence of no effect.
+      // -32020 (HeaderMismatch) is the one code the pinned client answers by listing again and re-sending,
+      // unless the caller supplied the tool definition. `effects` counts every tools/call that arrived.
+      if (headerMismatch && effects === 1) { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify({ jsonrpc: '2.0', id: q.id, error: { code: -32020, message: 'header mismatch after write' } })); return; }
       if (rpcError) { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify({ jsonrpc: '2.0', id: q.id, error: { code: -32603, message: 'internal error after write' } })); return; }
       result = { isError: true, content: [{ type: 'text', text: 'operation failed after write' }] };
     }
@@ -44,10 +47,10 @@ async function bind(h, session, f) {
   assert.equal((await h.api('PUT', '/runtime-control' + suffix, { revision: (await snapshot()).revision, operation: 'exposure', id: f.resource.id, scope, exposed: true })).status, 200);
   return (await snapshot()).resources.find(r => r.mcp);
 }
-for (const mode of ['reported', 'drop', 'rpc-error', 'receipt-failure', 'cancel', 'restart-inflight', 'orphan-cancel']) test(`P02 ${mode}: effect is unknown, fenced and preserved across restart`, async () => {
+for (const mode of ['reported', 'drop', 'rpc-error', 'header-mismatch', 'receipt-failure', 'cancel', 'restart-inflight', 'orphan-cancel']) test(`P02 ${mode}: effect is unknown, fenced and preserved across restart`, async () => {
   let release;
   const gate = mode === 'cancel' ? new Promise(resolve => { release = resolve; }) : undefined;
-  const f = await effectFixture({ drop: mode === 'drop', rpcError: mode === 'rpc-error', gate }), h = await boot();
+  const f = await effectFixture({ drop: mode === 'drop', rpcError: mode === 'rpc-error', headerMismatch: mode === 'header-mismatch', gate }), h = await boot();
   let next;
   try {
     const session = await h.createSession(), tool = await bind(h, session, f);
@@ -119,6 +122,9 @@ test('P02 pre-dispatch refusal has no effect and no unknown receipt', async () =
     const tools = m.toolsFor({ resources: [{ kind: 'tool', exposed: true, executionName: 'test', title: 'test', mcp: { serverId: f.resource.id, configHash: m.connections.get(f.resource.id).hash, name: 'write_then_fail' } }] }, async () => { unknown++; });
     const signal = AbortSignal.abort();
     await assert.rejects(tools[0].execute('never-dispatched', {}, signal), /before dispatch/);
+    // A bound tool the connection does not list has no definition to send with: refused, not dispatched.
+    const [unlisted] = m.toolsFor({ resources: [{ kind: 'tool', exposed: true, executionName: 'gone', title: 'gone', mcp: { serverId: f.resource.id, configHash: m.connections.get(f.resource.id).hash, name: 'not_listed' } }] }, async () => { unknown++; }, undefined, async () => { unknown++; });
+    await assert.rejects(unlisted.execute('unlisted', {}, undefined), /no longer in the connected catalog/);
     await m.disconnect(f.resource.id);
     await assert.rejects(tools[0].execute('not-connected', {}, undefined), /no longer connected/);
     assert.equal(unknown, 0); assert.equal(f.effects(), 0);

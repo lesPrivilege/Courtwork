@@ -130,6 +130,13 @@ export class MCPManager {
         const entry = this.connections.get(r.mcp.serverId);
         if (!entry?.connected || entry.hash !== r.mcp.configHash) throw new Error('MCP provider is no longer connected to the bound configuration');
         if (signal?.aborted) throw new Error('MCP call canceled before dispatch');
+        // The definition this connection published. Passing it makes the SDK
+        // read header declarations and the output schema from it instead of
+        // its own list cache, and is the only switch for its recovery path: on
+        // a HeaderMismatch (-32020) error it would otherwise list again and
+        // send tools/call a second time under this one dispatch record.
+        const { hostName, ...toolDefinition } = entry.tools.find(t => t.name === r.mcp.name) ?? {};
+        if (!hostName) throw new Error('MCP tool is no longer in the connected catalog');
         const identity = { dispatchId: randomUUID(), callId, serverId: r.mcp.serverId, tool: r.mcp.name,
           configHash: r.mcp.configHash, bindingHash: binding.hash ?? null,
           bindingRevision: binding.revision ?? null };
@@ -138,7 +145,7 @@ export class MCPManager {
         await onDispatch?.(identity);
         let result;
         try {
-          result = await entry.client.callTool({ name: r.mcp.name, arguments: args }, { signal, timeout: 60000 });
+          result = await entry.client.callTool({ name: r.mcp.name, arguments: args }, { signal, timeout: 60000, toolDefinition });
         } catch {
           await onUnknown({ ...identity, failureKind: 'result-unavailable' });
           throw new Error('MCP result is unknown; remote effects may have occurred. Do not retry automatically.');
