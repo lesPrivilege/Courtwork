@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createHash } from "node:crypto";
-import { execFile } from "node:child_process";
+import { createHash, randomBytes } from "node:crypto";
+import { execFile, execFileSync } from "node:child_process";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -162,32 +162,46 @@ test("runCheckRecipe caps captured stdout/stderr and marks truncated", async () 
   assert.equal(Buffer.byteLength(result.stderr, "utf8"), 100);
 });
 
+// The Host's process table is the oracle for what still runs. A pid a check
+// prints is local to the Linux sandbox's PID namespace and names an unrelated
+// process on the Host. Every process of a check whose recipe carries `marker`
+// has it in its command line: the guard and the sandbox wrappers through the
+// wrapped command, the recipe and its descendants through their own arguments.
+function processesWith(marker) {
+  const table = execFileSync("ps", ["-A", "-ww", "-o", "pid=", "-o", "args="], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  return table.split("\n").filter(line => line.includes(marker)).map(line => ({ pid: Number.parseInt(line, 10), command: line.trim().replace(/^\d+\s+/, "") }));
+}
+const processMarker = () => "cw-check-process-" + randomBytes(6).toString("hex");
+
 test("runCheckRecipe timeout kills the whole process group, including a nested child", async () => {
+  const marker = processMarker();
   const script = [
     "const { spawn } = require('node:child_process');",
     "process.stdout.write('outer-pid ' + process.pid + '\\n');",
-    "const child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 30000)']);",
+    `const child = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 30000)', '${marker}']);`,
     "process.stdout.write('child-pid ' + child.pid + '\\n');",
     "setTimeout(() => {}, 30000);",
   ].join("\n");
   // Long enough for the guard, the sandbox, the check and its child to start
-  // and announce their pids under load; the check itself would run for 30 s.
+  // and announce themselves under load; the check itself would run for 30 s.
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 1500, outputLimitBytes: 4096 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
-  assert.equal(result.timedOut, true);
-  assert.equal(result.cancelled, false);
-  const outerMatch = result.stdout.match(/outer-pid (\d+)/);
-  const childMatch = result.stdout.match(/child-pid (\d+)/);
-  assert.ok(outerMatch && childMatch, "both pids were announced: " + result.stdout);
-  for (const pid of [Number(outerMatch[1]), Number(childMatch[1])]) {
-    assert.throws(() => process.kill(pid, 0), /ESRCH/, `pid ${pid} must no longer exist after the timeout kill`);
+  try {
+    const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
+    const left = processesWith(marker);
+    assert.equal(result.timedOut, true);
+    assert.equal(result.cancelled, false);
+    assert.ok(/outer-pid \d+/.test(result.stdout) && /child-pid \d+/.test(result.stdout), "both processes were announced: " + result.stdout);
+    assert.deepEqual(left, [], "the check, its nested child and every other process of the check must be gone after the timeout kill");
+  } finally {
+    for (const { pid } of processesWith(marker)) { try { process.kill(pid, "SIGKILL"); } catch { /* gone */ } }
   }
 });
 
 test("runCheckRecipe cancels on abort and resolves only after the group has exited", async () => {
   const controller = new AbortController();
+  const marker = processMarker();
   const script = [
-    "process.stdout.write('outer-pid ' + process.pid + '\\n');",
+    `process.stdout.write('outer-pid ' + process.pid + ' ${marker}\\n');`,
     "setTimeout(() => {}, 30000);",
   ].join("\n");
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 30000, outputLimitBytes: 4096 };
@@ -195,15 +209,19 @@ test("runCheckRecipe cancels on abort and resolves only after the group has exit
   // long the guard and the sandbox take to start is not part of this test.
   let announced;
   const started = new Promise(resolve => { announced = resolve; });
-  const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir, signal: controller.signal, onOutput: ({ stream }) => { if (stream === "stdout") announced(); } });
-  await started;
-  controller.abort();
-  const result = await resultPromise;
-  assert.equal(result.cancelled, true);
-  assert.equal(result.timedOut, false);
-  const outerMatch = result.stdout.match(/outer-pid (\d+)/);
-  assert.ok(outerMatch, "the process announced its pid before being cancelled: " + result.stdout);
-  assert.throws(() => process.kill(Number(outerMatch[1]), 0), /ESRCH/);
+  try {
+    const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir, signal: controller.signal, onOutput: ({ stream }) => { if (stream === "stdout") announced(); } });
+    await started;
+    controller.abort();
+    const result = await resultPromise;
+    const left = processesWith(marker);
+    assert.equal(result.cancelled, true);
+    assert.equal(result.timedOut, false);
+    assert.match(result.stdout, /outer-pid \d+/, "the process announced itself before being cancelled: " + result.stdout);
+    assert.deepEqual(left, [], "every process of the check must be gone when the cancelled check resolves");
+  } finally {
+    for (const { pid } of processesWith(marker)) { try { process.kill(pid, "SIGKILL"); } catch { /* gone */ } }
+  }
 });
 
 test("runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME", async () => {

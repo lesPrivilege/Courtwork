@@ -2,6 +2,8 @@
 // the check sandbox. Each test here failed on the runner before the sandbox.
 import assert from "node:assert/strict";
 import test from "node:test";
+import { execFileSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
 import { realpathSync } from "node:fs";
 import { createServer } from "node:net";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
@@ -27,6 +29,16 @@ async function layout() {
   await writeFile(path.join(candidate, "package.json"), '{"name":"candidate"}\n');
   await writeFile(path.join(dataDir, "credentials.json"), JSON.stringify({ dummy: SECRET }), { mode: 0o600 });
   return { root, dataDir, candidate, cleanup: () => rm(root, { recursive: true, force: true }) };
+}
+
+// The Host's process table is the oracle for what still runs. A pid a check
+// prints is local to the Linux sandbox's PID namespace and names an unrelated
+// process on the Host. Every process of a check whose recipe carries `marker`
+// has it in its command line: the guard and the sandbox wrappers through the
+// wrapped command, the recipe and its descendants through their own arguments.
+function processesWith(marker) {
+  const table = execFileSync("ps", ["-A", "-ww", "-o", "pid=", "-o", "args="], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  return table.split("\n").filter(line => line.includes(marker)).map(line => ({ pid: Number.parseInt(line, 10), command: line.trim().replace(/^\d+\s+/, "") }));
 }
 
 test("a model-written candidate test cannot read a file at the Host data directory (review probe p4)", async () => {
@@ -106,18 +118,18 @@ s.on('connect', () => { console.log('CONNECTED'); s.destroy(); }); s.on('error',
 
 test("a descendant left in the check's process group is reaped after a normal exit", async () => {
   const l = await layout();
-  let pid = null;
+  const marker = "cw-descendant-" + randomBytes(6).toString("hex");
   try {
-    const script = `const c = require('node:child_process').spawn(process.execPath, ['-e', 'setTimeout(() => {}, 30000)'], { stdio: 'ignore' });
+    const script = `const c = require('node:child_process').spawn(process.execPath, ['-e', 'setTimeout(() => {}, 30000)', '${marker}'], { stdio: 'ignore' });
 c.unref(); console.log('descendant ' + c.pid);`;
     const result = await runCheckRecipe({ recipe: node(script), cwd: l.candidate, dataDir: l.dataDir });
+    const left = processesWith(marker);
     assert.equal(result.exitCode, 0, result.stderr);
-    pid = Number(result.stdout.match(/descendant (\d+)/)?.[1]);
-    assert.ok(pid > 0, result.stdout);
-    assert.throws(() => process.kill(pid, 0), /ESRCH/, `descendant ${pid} must be gone when the check settles`);
+    assert.match(result.stdout, /descendant \d+/, "the descendant started: " + result.stdout);
+    assert.deepEqual(left, [], "the descendant and every other process of the check must be gone when the check settles");
     assert.equal(result.groupLingered, undefined);
   } finally {
-    if (pid) { try { process.kill(pid, "SIGKILL"); } catch { /* gone */ } }
+    for (const { pid } of processesWith(marker)) { try { process.kill(pid, "SIGKILL"); } catch { /* gone */ } }
     await l.cleanup();
   }
 });
