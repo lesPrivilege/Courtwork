@@ -53,7 +53,7 @@ import { renderPresentationInline, renderPresentationPane } from "./presentation
 import { homeGreeting, greetingIsStale } from "./home-greeting.mjs";
 import { renderAvatar } from "./avatar-mark.mjs";
 import { createCommandMenu } from "./command-menu.mjs";
-import { createLocationHistory, describeLocation, sameLocation } from "./location-history.mjs";
+import { createLocationHistory, describeLocation, sameLocation, afterFailedOpen } from "./location-history.mjs";
 import { createCommandDispatcher } from "./object-commands.mjs";
 import { createObjectMenu } from "./object-menu.mjs";
 import { activeRunFreezeNotice, isActiveRunRefusal, projectProviderConfig } from "./provider-config.mjs";
@@ -1533,7 +1533,7 @@ function applySessionDetail(
 
 async function selectSession(
   sessionId,
-  { navigationEpoch: suppliedNavigationEpoch = null, focus = true } = {},
+  { navigationEpoch: suppliedNavigationEpoch = null, focus = true, trail = false } = {},
 ) {
   if (!sessionId) return;
   state.attentionOpen = false;
@@ -1635,11 +1635,39 @@ async function selectSession(
       !isCurrentSessionRead(sessionId, readToken)
     )
       return;
-    state.sessionLoadError = { sessionId, status: error.status ?? null, message: error.message };
-    showToast(`Could not load session: ${error.message}`, "error");
-    state.session = null;
-    renderAll();
+    /* The screen always shows the trail's current place. A refused trail
+     * entry is the trail's to mark (showTrailEntry); a refused direct jump
+     * goes back to where the person was, and the trail does not move. */
+    const outcome = afterFailedOpen(state.history.current(), { traversal: trail });
+    if (outcome.show === "unavailable") {
+      state.sessionLoadError = { sessionId, status: error.status ?? null, message: error.message };
+      showToast(`Could not load session: ${error.message}`, "error");
+      state.session = null;
+      renderAll();
+      return;
+    }
+    state.sessionLoadError = null;
+    showToast(`Could not open ${findKnownSession(sessionId)?.title?.trim() || "that chat"}: ${error.message}`, "error");
+    await returnFromFailedJump(outcome);
   }
+}
+/* Back to the place the trail says is current, through the same loader a
+ * Back or Forward uses: the cursor stays, the origin is read again (its draft
+ * is still in the cache, saved before the jump), and an origin that can no
+ * longer be read is marked and lands on Home like any refused entry. The
+ * reloads behind either landing also refresh Recent, so a refused target that
+ * was listed there is re-read rather than kept. */
+async function returnFromFailedJump(outcome) {
+  if (outcome.show === "entry") return showTrailEntry(outcome.entry);
+  /* Home. A marked entry under the cursor is held as arriveLocation's
+   * "landing after a refused place", so nothing is pushed past it. */
+  const held = outcome.hold;
+  if (held) state.traversal = held;
+  clearActiveSession();
+  if (held && state.traversal === held) state.traversal = null;
+  renderHistoryControls();
+  void loadHome();
+  restoreLayerFocus($("composer-input"));
 }
 
 function clearActiveSession() {
@@ -1754,14 +1782,23 @@ async function traverseHistory(direction) {
   leaveLocation();
   const entry = direction === "back" ? state.history.back() : state.history.forward();
   if (!entry) return;
+  await showTrailEntry(entry);
+}
+/* Shows the entry under the cursor through the real reader, without moving
+ * the cursor: the second half of a traversal, and the way back after a direct
+ * jump that failed. Only the latest visit may settle the entry — a visit that
+ * a later one replaced reads nothing into the trail. */
+let trailVisit = 0;
+async function showTrailEntry(entry) {
+  const visit = ++trailVisit;
   state.traversal = entry;
   state.historyNotice = null;
   renderHistoryControls();
   try {
     if (entry.kind === "home") { await goHome(); return; }
     state.sessionLoadError = null;
-    await selectSession(entry.sessionId, { focus: true });
-    if (state.traversal !== entry || state.activeSessionId !== entry.sessionId) return;
+    await selectSession(entry.sessionId, { focus: true, trail: true });
+    if (visit !== trailVisit || state.traversal !== entry || state.activeSessionId !== entry.sessionId) return;
     if (state.session) {
       /* The object is back and rendered; now the anchor, then the focus the
        * view already placed on its title. A vanished anchor leaves the start. */
@@ -1777,7 +1814,7 @@ async function traverseHistory(direction) {
     void loadHome();
     restoreLayerFocus($("composer-input"));
   } finally {
-    if (state.traversal === entry) state.traversal = null;
+    if (visit === trailVisit && state.traversal === entry) state.traversal = null;
     renderHistoryControls();
   }
 }

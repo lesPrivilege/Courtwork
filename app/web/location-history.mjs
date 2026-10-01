@@ -27,6 +27,22 @@ export function describeLocation(entry) {
   return entry.title?.trim() || "Untitled chat";
 }
 
+/** What the screen shows after the reader refused to open a Chat. The screen
+ * always shows the trail's current place, and only a traversal may leave a
+ * mark on the trail:
+ *   · a traversal was resolving the entry under the cursor — `unavailable`:
+ *     the caller marks that entry and lands on Home, the cursor stays;
+ *   · a direct jump from a Chat — `entry`: that Chat is read again through
+ *     the same loader, the cursor and both directions are untouched;
+ *   · a direct jump from Home, from an empty trail, or from the Home shown
+ *     over a marked entry — `home`, holding the marked entry (if any) so the
+ *     landing pushes nothing past it. */
+export function afterFailedOpen(current, { traversal = false } = {}) {
+  if (traversal) return { show: "unavailable", entry: current ?? null };
+  if (current?.kind === "session" && !current.unavailable) return { show: "entry", entry: current };
+  return { show: "home", hold: current?.unavailable ? current : null };
+}
+
 export function createLocationHistory({ limit = HISTORY_LIMIT } = {}) {
   const entries = [];
   let index = -1;

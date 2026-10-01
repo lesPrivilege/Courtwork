@@ -39,7 +39,7 @@ test("09 · leave before every departure, arrive only through the reader; traver
   assert.match(app, /arriveLocation\(\{ kind: "session", sessionId, projectId: detail\.session\.projectId \?\? null, title: detail\.session\.title \}\);/);
   assert.match(app, /runtimeView\?\.pause\(\);\n  arriveLocation\(\{ kind: "home" \}\);/);
   assert.match(app, /if \(entry\.kind === "home"\) \{ await goHome\(\); return; \}/);
-  assert.match(app, /await selectSession\(entry\.sessionId, \{ focus: true \}\);/);
+  assert.match(app, /await selectSession\(entry\.sessionId, \{ focus: true, trail: true \}\);/);
   assert.match(app, /restoreChatReading\(stream, entry\.restore\.reading, \{ followLatest: false \}\)/);
   assert.match(app, /state\.history\.markUnavailable\(entry, reason\);\n\s*state\.historyNotice = `\$\{describeLocation\(entry\)\} \$\{reason\}\. Showing Home\.`;/);
   assert.doesNotMatch(app, /traverseHistory[\s\S]{0,1600}submitSessionRun|traverseHistory[\s\S]{0,1600}cancelRun/, "Back and Forward touch no Run");
@@ -65,4 +65,24 @@ test("09 · every row entry point goes through the one dispatcher; the native me
 test("09 · dogfooding fix: leaving the example keeps a project-less chat in place", () => {
   assert.match(app, /const projectGone = Boolean\(state\.activeProjectId\) && !valid\.has\(state\.activeProjectId\);\n  if \(projectGone \|\| preview\.isExampleId\(state\.activeSessionId\)\) \{/);
   assert.doesNotMatch(app, /if \(!state\.activeProjectId \|\| !valid\.has\(state\.activeProjectId\)/);
+});
+
+test("F7 · a failed direct jump returns to the trail's current place through the traversal's own loader", () => {
+  const select = app.slice(app.indexOf("async function selectSession("), app.indexOf("\nfunction clearActiveSession()"));
+  const failure = select.slice(select.indexOf("} catch (error) {"));
+  // The fences come first: a stale failure is still ignored.
+  assert.match(failure, /^\} catch \(error\) \{\n\s*if \(\n\s*epoch !== state\.sessionEpoch \|\|\n\s*navigationEpoch !== state\.navigationEpoch \|\|\n\s*!isCurrentSessionRead\(sessionId, readToken\)\n\s*\)\n\s*return;/);
+  assert.match(failure, /const outcome = afterFailedOpen\(state\.history\.current\(\), \{ traversal: trail \}\);/);
+  // A traversal keeps what it did: the error is left for the trail to mark.
+  assert.match(failure, /if \(outcome\.show === "unavailable"\) \{\n\s*state\.sessionLoadError = \{ sessionId, status: error\.status \?\? null, message: error\.message \};\n\s*showToast\(`Could not load session: \$\{error\.message\}`, "error"\);\n\s*state\.session = null;\n\s*renderAll\(\);\n\s*return;\n\s*\}/);
+  assert.match(failure, /showToast\(`Could not open \$\{findKnownSession\(sessionId\)\?\.title\?\.trim\(\) \|\| "that chat"\}: \$\{error\.message\}`, "error"\);\n\s*await returnFromFailedJump\(outcome\);/, "the toast names what could not be opened");
+  assert.doesNotMatch(failure, /state\.history\.(arrive|back|forward|markUnavailable)/, "a failed direct jump never writes the trail");
+  const back = select.slice(select.indexOf("async function returnFromFailedJump(outcome) {"));
+  assert.match(back, /if \(outcome\.show === "entry"\) return showTrailEntry\(outcome\.entry\);/, "the origin is re-read without moving the cursor");
+  assert.match(back, /if \(held\) state\.traversal = held;\n\s*clearActiveSession\(\);\n\s*if \(held && state\.traversal === held\) state\.traversal = null;/, "Home over a marked entry pushes nothing");
+  assert.match(back, /void loadHome\(\);/, "Home reloads Recent with everything else");
+  // One loader for a traversal and for the way back; only the latest visit settles the entry.
+  assert.match(app, /if \(!entry\) return;\n\s*await showTrailEntry\(entry\);\n\}/);
+  assert.match(app, /if \(visit !== trailVisit \|\| state\.traversal !== entry \|\| state\.activeSessionId !== entry\.sessionId\) return;/);
+  assert.match(app, /if \(visit === trailVisit && state\.traversal === entry\) state\.traversal = null;/);
 });

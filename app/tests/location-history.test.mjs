@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createLocationHistory, describeLocation, sameLocation, HISTORY_LIMIT } from "../web/location-history.mjs";
+import { createLocationHistory, describeLocation, sameLocation, afterFailedOpen, HISTORY_LIMIT } from "../web/location-history.mjs";
 
 const home = { kind: "home" };
 const chat = (id, title = `Chat ${id}`) => ({ kind: "session", sessionId: id, projectId: null, title });
@@ -51,4 +51,55 @@ test("09 · the trail is bounded, names its places, keeps restore references onl
   assert.equal(sameLocation(home, { kind: "home", sessionId: null }), true);
   assert.equal(sameLocation(chat("1"), chat("2")), false);
   assert.equal(sameLocation(null, home), false);
+});
+
+/* Review F7 · the screen always shows the trail's current place. What is shown
+ * after the reader refuses a Chat is decided here; app.mjs only carries it out
+ * (pinned in navigation-history.test.mjs). */
+test("F7 · a failed direct jump shows the place the person was at and leaves the trail alone", () => {
+  const h = createLocationHistory();
+  h.arrive(home); h.arrive(chat("A"));
+  const before = h.snapshot(), index = h.index;
+  // Home → A → B fails: A is shown again, the cursor is still on A, Back still leads Home.
+  const outcome = afterFailedOpen(h.current(), { traversal: false });
+  assert.equal(outcome.show, "entry");
+  assert.equal(outcome.entry, h.current());
+  assert.equal(outcome.entry.sessionId, "A");
+  assert.deepEqual(h.snapshot(), before);
+  assert.equal(h.index, index);
+  assert.equal(h.canForward(), false);
+  assert.equal(describeLocation(h.peekBack()), "Home");
+  assert.equal(h.back().kind, "home");
+  // With a forward trail (Home → A → C, Back to A, then B fails) both directions survive.
+  const g = createLocationHistory();
+  g.arrive(home); g.arrive(chat("A")); g.arrive(chat("C")); g.back();
+  assert.equal(afterFailedOpen(g.current()).entry.sessionId, "A");
+  assert.equal(g.peekBack().kind, "home"); assert.equal(g.peekForward().sessionId, "C");
+});
+
+test("F7 · the first jump from Home, or from no place at all, fails back to Home", () => {
+  const h = createLocationHistory();
+  assert.deepEqual(afterFailedOpen(h.current()), { show: "home", hold: null }, "an empty trail");
+  h.arrive(home);
+  assert.deepEqual(afterFailedOpen(h.current(), { traversal: false }), { show: "home", hold: null });
+  assert.equal(h.length, 1); assert.equal(h.current().kind, "home");
+  // Home shown over an entry the reader refused earlier: that entry is not retried, and it is held so nothing is pushed past it.
+  h.arrive(chat("A")); h.arrive(chat("B"));
+  const refused = h.back();
+  h.markUnavailable(refused, "no longer exists");
+  const outcome = afterFailedOpen(h.current());
+  assert.equal(outcome.show, "home"); assert.equal(outcome.hold, refused);
+  assert.equal(h.current(), refused); assert.equal(h.peekForward().sessionId, "B");
+});
+
+test("F7 · a traversal to an entry the reader refuses is still the trail's to mark", () => {
+  const h = createLocationHistory();
+  h.arrive(home); h.arrive(chat("A")); h.arrive(chat("B"));
+  const entry = h.back();
+  const outcome = afterFailedOpen(h.current(), { traversal: true });
+  assert.deepEqual(outcome, { show: "unavailable", entry });
+  // What traverseHistory then does, unchanged: mark it, stay on it, Back continues past it.
+  h.markUnavailable(outcome.entry, "could not be opened");
+  assert.equal(h.current(), entry); assert.equal(entry.unavailable, true);
+  assert.equal(h.back().kind, "home"); assert.equal(h.peekForward(), entry);
 });
