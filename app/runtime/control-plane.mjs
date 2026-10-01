@@ -207,14 +207,17 @@ const CHANGE_KEYS = { put: ['resource', 'exposed'], remove: ['id'], exposure: ['
  * and scope; exposure, profile and policy target the top-level `scope` (and
  * `id`); a removal targets an id, whose owning scope is the one it already has
  * in the caller's catalog (`scope: null`). A body carrying any other key would
- * name a second target and is refused. The service checks the same target
- * against the selected Session's scope chain. */
+ * name a second target and is refused, as is a missing or malformed scope:
+ * every target scope returned here is well-formed, so the service's check of
+ * it against the selected Session's scope chain decides membership only. */
 export function changeTarget(input) {
   check(typeof input?.operation === 'string' && Object.hasOwn(CHANGE_KEYS, input.operation), 'Unsupported runtime operation');
   keys(input, ['revision', 'operation', ...CHANGE_KEYS[input.operation]]);
-  if (input.operation !== 'put') return { id: input.operation === 'policy' ? null : input.id, scope: input.operation === 'remove' ? null : input.scope };
-  check(input.resource && typeof input.resource === 'object', 'Unsupported runtime fields');
-  return { id: input.resource.id, scope: input.resource.scope };
+  if (input.operation === 'remove') return { id: input.id, scope: null };
+  if (input.operation === 'put') check(input.resource && typeof input.resource === 'object', 'Unsupported runtime fields');
+  const target = input.operation === 'put' ? { id: input.resource.id, scope: input.resource.scope } : { id: input.operation === 'policy' ? null : input.id, scope: input.scope };
+  scope(target.scope);
+  return target;
 }
 
 /** Owns configuration only. Run, transport, credentials and domain state remain
@@ -244,7 +247,6 @@ export class RuntimeControlPlane {
         next.overrides.push({ id: target.id, scope: clone(target.scope), exposed: input.exposed });
       }
     } else if (input.operation === 'profile') {
-      scope(target.scope);
       const profile = next.resources.find(r => r.id === target.id && r.kind === 'agent_profile' && knownIds.includes(r.id));
       check(target.id === null || target.id === 'agent:general' || profile, 'Profile is unavailable in this scope');
       if (profile && !profileCovers(profile.scope, target.scope)) throw conflict('profile_scope_conflict', `Profile ${profile.id} belongs to ${profile.scope.type} scope and cannot be selected at ${target.scope.type} scope`);
@@ -255,12 +257,11 @@ export class RuntimeControlPlane {
       next.resources = next.resources.filter(r => r.id !== target.id);
       next.overrides = next.overrides.filter(r => r.id !== target.id);
     } else if (input.operation === 'exposure') {
-      scope(target.scope); check(catalog.some(r => r.id === target.id && r.configurable), 'Resource is unavailable or not exposure-configurable');
+      check(catalog.some(r => r.id === target.id && r.configurable), 'Resource is unavailable or not exposure-configurable');
       check(input.exposed === null || typeof input.exposed === 'boolean', 'Exposure must be true, false or null to inherit');
       next.overrides = next.overrides.filter(r => !(r.id === target.id && sameScope(r.scope, target.scope)));
       if (input.exposed !== null) next.overrides.push({ id: target.id, scope: target.scope, exposed: input.exposed });
     } else {
-      scope(target.scope);
       next.policies = next.policies.filter(r => !sameScope(r.scope, target.scope));
       next.policies.push({ scope: target.scope, rules: clone(input.rules) });
     }

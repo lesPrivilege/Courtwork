@@ -35,7 +35,7 @@ A `PUT /runtime-control` body carries `revision`, `operation` and exactly the ke
 | `profile` | `id`, `scope` | `scope` | `id` (`null` to inherit) |
 | `policy` | `scope`, `rules` | `scope` | none (`null` in the audit record) |
 
-Any other key is `400 invalid_runtime_config`, also when the revision is stale: a `put` cannot carry a top-level `scope` or `id`, and no other operation can carry a `resource`. A target scope outside the selected Session's chain is `400 invalid_scope` (user, then the workspace or Attention, then the Session; user only without `sessionId`), so a resource cannot be written into another Session by naming that Session in `resource.scope`. A refused change leaves the revision, the configuration, the audit log and MCP connections as they were.
+Any other key is `400 invalid_runtime_config`: a `put` cannot carry a top-level `scope` or `id`, and no other operation can carry a `resource`. A target scope that is missing or malformed (not exactly `{type, id}` of a scope type this Host configures) is a shape error of the body and is also `400 invalid_runtime_config`. Both are answered before the revision is compared, so also when it is stale. A well-formed target scope outside the selected Session's chain is `400 invalid_scope` (user, then the workspace or Attention, then the Session; user only without `sessionId`), so a resource cannot be written into another Session by naming that Session in `resource.scope`. A refused change leaves the revision, the configuration, the audit log and MCP connections as they were.
 
 ## Example sequence
 

@@ -613,10 +613,11 @@ export class RuntimeService {
       const snapshot = this.getRuntimeControl(sessionId);
       // One target per change: the scope checked against this Session's chain
       // and the id disconnected are the ones the control plane stores and audits.
+      // changeTarget refuses a missing or malformed scope; only a removal has none.
       const refused = error => { if (error.status) throw new ServiceError(error.status, error.code, error.message); throw error; };
       let target;
       try { target = changeTarget(input); } catch (error) { refused(error); }
-      if (target.scope !== null && !snapshot.scopes.some(s => s.type === target.scope?.type && s.id === target.scope?.id)) throw new ServiceError(400, "invalid_scope", "Scope does not belong to the selected session");
+      if (target.scope !== null && !snapshot.scopes.some(s => s.type === target.scope.type && s.id === target.scope.id)) throw new ServiceError(400, "invalid_scope", "Scope does not belong to the selected session");
       try { await this.control.change(input, snapshot.resources); } catch (error) { refused(error); }
       if (['put', 'remove'].includes(input.operation)) await this.mcp.disconnect(target.id);
       return this.getRuntimeControl(sessionId);

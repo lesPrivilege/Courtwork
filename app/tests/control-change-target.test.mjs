@@ -114,6 +114,18 @@ test('change target: each operation accepts its own keys only, before the revisi
       { operation: 'policy', scope: A, rules, resource: profile },
       { operation: 'put', resource: f.instruction('local:y', A), rules },
       { operation: 'rename', id: 'local:p' },
+      // A missing or malformed scope is a shape error of the body, not a scope outside the chain.
+      { operation: 'exposure', id: 'tool:ws_read', exposed: true },
+      { operation: 'profile', id: null },
+      { operation: 'policy', rules },
+      { operation: 'put', resource: { id: 'local:z', kind: 'instruction', title: 'Z', content: 'Text.' } },
+      { operation: 'put' },
+      ...[null, 'session', { type: 'session' }, { id: f.a.id }, { type: 'session', id: f.a.id, extra: true }, { type: 'user', id: 'someone' }, { type: 'org', id: 'x' }].flatMap(scope => [
+        { operation: 'exposure', id: 'tool:ws_read', scope, exposed: true },
+        { operation: 'profile', id: null, scope },
+        { operation: 'policy', scope, rules },
+        { operation: 'put', resource: f.instruction('local:z', scope) },
+      ]),
     ];
     for (const body of refusals) {
       // Stale on purpose: the key set is refused before the revision is read.
