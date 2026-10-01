@@ -4,7 +4,7 @@ Use: intake record for an external review, and the owner record of the work pack
 
 Input: [`source/first-principles-review-6692b91.html`](source/first-principles-review-6692b91.html) (56,702 bytes, sha256 `ea3d53b82327819ec493074f9f5be49bcdbdf1ad68633d260621ba65340832a8`; received from the user on 2026-10-01 as `CourtWork-第一性原理独立评审-6692b91.html`, kept byte for byte, in Chinese). A static review of `main` at `6692b91a2f758b33b4114900b1458d38aa44d920` in five streams (Core continuation; Runtime lifecycle; permissions and effects; user workflow; documents and evidence), with a read of the two GitHub workflow runs on that commit. It ran no code. With it the user passed on a proposed registration: five work packages and one design-ruling item, each starting from `6692b91` and checking first whether `main` already holds a fix.
 
-Who: Claude (Opus) session at the user's request (2026-10-01: "保留 Opus 裁决权" — Opus keeps the rulings). Six Sonnet verifiers, none an author of the reviewed code, checked every finding against the code at `6692b91` and clustered the CI failures before any ruling. Opus ruled, wrote the work orders and coordinates one worker per package, each in its own worktree. No person has reviewed this record. Nothing here is accepted by anyone but its authors' side; acceptance of core changes stays with Astra and of UI changes with the UX owner ([current](../../current.md#who-holds-what)).
+Who: Claude (Opus) session at the user's request (2026-10-01: "保留 Opus 裁决权" — Opus keeps the rulings). Six Sonnet verifiers, none an author of the reviewed code, checked every finding against the code at `6692b91` and clustered the CI failures before any ruling. Opus ruled, wrote the work orders, coordinated one worker per package (five Opus, one Sonnet), each in its own worktree, read every diff and ruled the workers' and reviewers' open points. Three reviewers who wrote none of it reviewed the integrated diff. No person has reviewed this record. Nothing here is accepted by anyone but its authors' side; acceptance of core changes stays with Astra and of UI changes with the UX owner ([current](../../current.md#who-holds-what)).
 
 Checked first, as the registration asks: `main` and `origin/main` are both `6692b91`; none of the six unmerged branches touches these findings.
 
@@ -107,7 +107,7 @@ Ruling: an id names one request, which is the id together with its content — f
 | Same `requestId`, different focus | Any | `409 idempotency_conflict`; the stored operation is unchanged and its result belongs to the focus it was admitted with |
 | New `requestId` while one runs | — | `operation_active`, as today |
 
-A person who wants another focus sends a new request. Proposal reject, which also replays by id alone, takes the same rule if the change is as small.
+A person who wants another focus sends a new request. Proposal reject, which also replayed by id alone, takes the same rule: its replay must repeat the recorded revision and reason.
 
 ## Linux CI clusters
 
@@ -121,6 +121,108 @@ Read from the Runtime workflow run on `6692b91` (both Node jobs fail the same 23
 | D | 1: Harness recipe pass count | One recipe test skips unless the volume aliases NFC and NFD names. | Test oracle |
 | E | 1: path alias | An upper-cased directory spelling reaches the policy only on a case-insensitive volume; on Linux the resolver refuses first. | Test oracle |
 
-## Changes, review and checks
+## What landed
 
-Recorded here as the packages land.
+Branch `claude/review-6692b91-20261001` from `6692b91`; product head `0047a12`. Each worker wrote in its own worktree and branch (`claude/review-6692b91-{host,core,control,web,docs,ci}-20261001`) with installed dependencies, a file allowlist and its own scratch directory; the coordinator read each diff and cherry-picked it. Nothing is merged into `main` and nothing is pushed.
+
+### Package 1 · as built
+
+| Commit | Author | What |
+|---|---|---|
+| `140f0dc` | Host worker (Opus) | The Store closes its mutation admission in the step its close begins (`StoreClosingError`, answered `503 runtime_closing`), drains, and takes the lock handle out of `_persist`'s reach before the release is sent; `_persist` re-checks the lock before its rename. `createRuntime().close({ drain })` states one order: service settles, entry owner drains, extensions, providers and Core close, Store drains and releases. The HTTP server tracks every admitted handler, refuses a handler still reading its body when close begins, and passes its drain. Project, Session, Attention conversation, draft, async-task and a person's Spark and Coordination commands refuse once closing. |
+| `4635807` | Host worker | Close ends an open folder picker and a candidate diff's Git instead of holding the lock for them. |
+| `a8025d8` | Host worker | `WorkCoreOwner.close()` seals its client: no bridge restarts after the Host closed. `CoreClient.close()` keeps its reopen for callers that own a client. |
+| `0047a12` | Host worker | Review dispositions: the proposal ledger's commands and the Spark library's refuse once closing; the documents state exactly what is gated. |
+
+Tests: `close-single-writer` (11), each failing on `6692b91` — a late mutation behind a busy queue persisted; `_persist` renamed after unlock; with two Hosts the file held the old Host's state and the new Host's project was gone; a handler waiting for its body was refused only when the body arrived; a late proposal reject rewrote the next Host's ledger. Contract: [runtime foundation](../../../app/docs/runtime-foundation.md), [HTTP API](../../../app/docs/api-v6.md).
+
+Limits stated by the author and the reviewer: a lock lost between `_persist`'s re-check and its rename can still publish (only a fencing token closes that; close itself is unaffected); an admitted private-candidate creation is awaited to its Git bounds (up to 120 s per command) before release; a client still uploading when refused may see a reset instead of the 503; `RuntimeStore.close()` during `open()` is not guarded (not reachable through `createRuntime`); `answerQuestion`, `cancelRun`, `cancelCompaction`, `setMatterDisclosure` and `reconcileRemoteSession` have no closing check in-process and rely on the Store's refusal, the Run's end or the sealed Core. Not checked: signal-driven CLI shutdown, a real `osascript` dialog, a kept-alive connection during close.
+
+### Package 2 · as built
+
+| Commit | Author | What |
+|---|---|---|
+| `771df1e` | Core worker (Opus) | The Work context states a file bundle (count, size, digest) for the active Artifact and each pending candidate and names `se_list_files`; that tool takes exactly one of `artifactId`/`candidateId`, calls Core's manifest query with the Run context and returns `{path, bytes, sha256}` only. Coverage follows the reader of the same object: the frozen base is a tracked input, anything else marks coverage unknown. |
+| `b27a567` | Core worker | `revise_candidate` with an id the bound Matter already holds goes to Core with shape checks only; Core returns the stored result or `IDEMPOTENCY_CONFLICT`. A new id keeps full validation. |
+| `d97f86a`, `9b4ddc6` | Core worker; coordinator | The NDA renderer keeps one revision identity per parent, base version and domain payload until the Host settles it, and says so when a reply is lost. |
+| `99459c0` | Core worker | Review dispositions: the unknown-outcome notice; coverage cases for the listing. |
+
+Tests: `execution-file-discovery` (a new Session given only the Matter reads the Artifact id from its context, lists, reads a path from the listing; the artifact text and the test name no file), `work-revision-replay` (through HTTP: on `6692b91` the identical revision after a source replacement was refused `BINDING_MISMATCH`, and `REVIEW_INVALID` on the NDA path), `nda-renderer`. Contract: [Work Core](../../../docs/work-core/contract.md).
+
+Limits: the NDA replay relies on a domain proposal being exactly `{domain}`; each pending file candidate adds about 250 characters to the mandatory context, so the budget is reached at fewer pending candidates (it fails closed); `replace_sources` still keeps no receipt.
+
+### Package 3 · as built
+
+| Commit | Author | What |
+|---|---|---|
+| `00d5fd6`, `88b6f16` | Control worker (Opus) | `changeTarget` in `control-plane.mjs` owns the key set per operation and the one target; the service uses it for the chain check and the disconnect, the control plane for storage and audit. A missing or malformed scope is `invalid_runtime_config`; `invalid_scope` means a well-formed scope outside the chain. |
+| `fdc6b25` | Control worker | R2: `store.getOperationReceipt` compares the hash `createOperation` records; proposal reject compares its recorded decision. |
+| `f014c2e`, `bcc91f2` | Control worker | R1 in the documents, and one consequence in code: the pinned MCP client re-sent `tools/call` once on a HeaderMismatch error unless given the tool definition. The Host now passes the definition its connection published; a tool no longer in the connected catalog is refused before dispatch. |
+
+Tests: `control-change-target`, and new cases in `manual-compaction`, `runtime-proposals` and `hpr_p02` (on `6692b91` the header-mismatch fixture received two calls). The out-of-chain `resource.scope` case passes before and after and stays as a guard: the old fallback already refused it. Contract: [Runtime Control API](../../../docs/runtime-control/api.md), [architecture](../../../docs/runtime-control/architecture.md), [commands and compaction](../../../app/docs/commands-and-compaction.md).
+
+Limits: no fixture declares `x-mcp-header` parameters or an `outputSchema`, so header mirroring and output validation with the supplied definition rest on the SDK source; the MCP transport's reconnect logic was not read; the `/commands` path still answers `command_unavailable` before a `/compact` replay (**defer**: Astra; trigger: the next change to commands).
+
+### Package 4 · as built
+
+| Commit | Author | What |
+|---|---|---|
+| `c5053bb`, `b36c642` | Web worker (Opus) | `binding-draft.mjs`: the Matter form's values per Session and extension, restored on every rebuild with focus and selection, kept in the tab's sessionStorage up to each field's declared limit; cleared only by a confirmed bind, a Session that shows the binding, or Session deletion. Cancel closes and keeps. |
+| `e03f25f`, `9f7fb68` | Web worker | The Host marks refusals raised after its receipt lookup missed with `commandAdmitted: false`, in one place around the admission part of Run creation; never on an error whose outcome may be "the Run exists". `command-outcome.mjs` is the one outcome function for the first Send and a replay: a replay is released only on that marker or a 404 for a deleted Session. |
+| `4a5644c` | Web worker | The card keeps one identity and exact payload per intent (create, stop edits, disconnect) until the Host settles it; after an unknown outcome it reads the Session back, then re-sends the same request. |
+| `754c7dd` | Web worker | Review dispositions. |
+| `ec02df9` | Web worker | Browser check of the form draft ([script](evidence/binding-draft-browser.mjs), [baseline](evidence/binding-draft-browser.baseline.json): 7 of 10 checks fail on `6692b91`; [report](evidence/binding-draft-browser.report.json): 10 of 10 at `04f330a`; 1440×900, DPR 1, fine pointer, headless Chrome). Author evidence; not re-run after the later commits. |
+
+Tests: `binding-draft`, `command-outcome`, `run-admission-marker`, `candidate-command-identity`. Contract: [HTTP API](../../../app/docs/api-v6.md).
+
+For the UX owner: the card's new sentences ("Not created. Start private candidate again to use the same identity." and its siblings, "The result is not known: …"); Cancel keeps the draft and the form has no way to start over but emptying the fields (smallest option: a quiet Clear); one press reads back and then re-sends, so there is no read-only check; a rebuild during IME composition ends the composition; a rebuild during an in-flight bind re-enables Submit (the bind route has no request identity). Not checked: N6 and N7 in a browser; screen reader, zoom, touch, Safari, dark theme, narrow viewport.
+
+### Package 5 · as built
+
+| Commit | Author | What |
+|---|---|---|
+| `d7b45f4` | Docs worker (Sonnet) | The generator source carries the sentence; `README.md` is unchanged; `tests/readme-source.test.mjs` compares source and output in the default suite. |
+| `25b77ee` | Docs worker | `app/scripts/dependency-ledger.mjs` derives the ledger from the lockfile (it reproduces the 303 old entries byte for byte); the ledger gains the five packages and the current lockfile hash; `dependency-ledger.test.mjs` compares in the default suite. |
+| `18d4487` | CI worker (Opus) | Cluster A: on Linux the policy re-allows, read-only, the directory holding the library's `apply-seccomp` helper, under the guard that no re-allowed path may contain the home or data directory. That directory holds the one binary. |
+| `ed1538d`, `a63d393` | CI worker | Clusters B, D, E: the process tests scan the Host's process table for a marker; the recipe count allows the one NFC/NFD skip only on a volume that does not alias those names; the upper-cased directory spelling must be denied on a case-insensitive volume and must fail as parent-missing otherwise. |
+| `a2895a6` | Coordinator | The workflow runs the smoke and link checks after a failing test step; the [source card](../../ecosystem/sandbox-runtime-source-card.md) records the helper facts. |
+
+Linux: none of this has run on Linux. Expected from reading, not evidence: 21 of the 23 pass; the two of cluster C stay red, so the Runtime job stays red until C is ruled. Open on Linux, for Astra under RD-009, to be decided from a Linux run and not before it:
+
+- Cluster C: whether the product recovers a recipe's own exit signal behind the wrapper chain (a Host-owned shim in the sandbox) or the contract states the Linux behaviour.
+- The Host confirms the exit of its guard's process group; bubblewrap's `--new-session` puts the sandboxed tree outside that group, so on Linux a check may settle before its last process is reaped. The process tests stay strict so that a Linux run shows it.
+- The Host's group signal does not reach a recipe behind `--new-session`; the recipe ends by SIGKILL through `--die-with-parent`. The contract's "Process lifetime" does not say so.
+- An install reached through a symlink under the home directory (`npm link`, pnpm) hides the helper again: the policy allows the helper's real directory, the library runs the unresolved path.
+
+## Non-author review
+
+Three reviewers who wrote none of it read `6692b91..a8025d8` by slice (Host, Store, Runtime Control and MCP: Opus; Core adapter and web client: Sonnet; sandbox, oracles, generators and CI: Sonnet), read-only. No high finding. They traced as holding: the Store close and the HTTP gate and drain; the Core seal; the one-target rule; the replay rules; the single MCP dispatch; the admission marker; that a revision replay stores nothing; the helper mechanism against the library's source.
+
+| Finding | Disposition | Landing |
+|---|---|---|
+| MEDIUM, in-process only · proposal edit and reject write the proposal ledger with no closing check, so a late call could rename over the next Host's ledger | **Adopt**, with a sweep of every data-directory writer outside the Store, Core and ArtifactHistory: only the proposal ledger had no refusal | `0047a12` |
+| LOW · the close document claimed more than the code gates (Spark library; "for minutes") | **Adopt**: the library's commands are gated; the document lists what is and is not | `0047a12` |
+| LOW · a missing scope answered `invalid_scope` | **Adopt** | `88b6f16` |
+| LOW · the marker test passed with `!admission.created` removed; two exclusions untested | **Adopt**: each clause has a case that fails without it. None of the three has a production trigger today; they guard a future refusal of that shape | `9f7fb68` |
+| LOW · a draft field loaded after a reload was cut to the default limit; focus keys of the existing-work buttons lost; the card's failure sentence shown on another chat; a read failure after a confirmed receipt went unhandled; copy term; the API page omitted the 404 case | **Adopt** | `754c7dd` |
+| LOW · an unacknowledged revision showed a raw transport message; two coverage cases for the listing unpinned | **Adopt** | `99459c0`, `9b4ddc6` |
+| LOW · a refused upload may be reset; close during `open()` | **Accept** as stated limits | Package 1 limits |
+| LOW/MEDIUM on Linux · a strict process scan at settle may see a dying process; only one process test has a positive control; tight recipe timeouts | **Accept, kept strict**: a failure there on Linux is a settle-ordering finding, not a flake | Package 5, open on Linux |
+| LOW · symlinked install hides the helper | **Accept** as a stated limit | Package 5, open on Linux |
+| LOW · IME composition; Submit refocused during an in-flight bind; no read-only check | **Defer** to the UX owner | Package 4 |
+
+## Checks
+
+- Before any ruling: every finding checked against the code at `6692b91` by a non-author verifier; the CI failures clustered from the run's log by another.
+- Each package's new tests fail on `6692b91` and pass on its commit, by its author (an archive of `6692b91`, or the product hunk withheld).
+- The same, by a non-author: a clean archive of `6692b91` with its own installed dependencies and only the fourteen new or changed test files copied in, each run alone. Ten files fail there on behaviour: the listing tool is not admitted; the identical revision is refused `BINDING_MISMATCH` and `REVIEW_INVALID`; a `put` with two scopes answers 200; refusals carry no admission marker; the card mints a new identity after a lost reply; the NDA retry sends another revision id; a compaction replay with another focus and a changed proposal reject answer 200; the MCP fixture receives two calls; the README differs from its source. `close-single-writer` failed there only on a missing export, so it was run again with that one import replaced by a stand-in: 0 of 11 pass, each on a behavioural assertion (the late mutation persisted; the rename landed after unlock; with two Hosts the file held the old Host's writes; the late proposal reject changed the next Host's ledger; the Core answered after close). Three files (`binding-draft`, `command-outcome`, `dependency-ledger`) fail on `6692b91` only because the module under test does not exist there; for those the fail-before is the author's (for the form draft, also the browser baseline). On the integration branch all fourteen pass. Twenty-six older tests in the changed files pass on both and prove nothing about the fixes.
+- `npm --prefix app run check:product` on the integration branch, macOS, product tree clean: at `a8025d8` exit 0, bounded suite 2118/2118; at `0047a12` exit 0, bounded suite 2124/2124, deterministic runtime smoke, documentation links (1765 documents, no problems). `6692b91` has 2065 tests.
+- `node site/build.mjs`: passes its README check (docs worker).
+
+## Not run
+
+- Linux, in any form: the sandbox fix, the changed oracles and the workflow change are unverified there. A Linux run needs a branch on `origin`, which needs the user's word.
+- No real provider or model; no person has used any of it.
+- Browser: only the Matter form draft script, by its author. No screen reader, zoom, touch, Safari or forced-colors check.
+- Pages build in CI; no deployment.
+- No acceptance: Astra has not reviewed the core changes, the UX owner has not reviewed the UI changes, and no person has reviewed this record.
