@@ -136,6 +136,32 @@ test("D2: a cancel whose stopping write fails is reported as failed and leaves n
   } finally { await h.runtime.close(); }
 });
 
+test("D2: a failed cancel does not withdraw the intent of another cancel that was accepted", async () => {
+  const h = await boot();
+  try {
+    const store = h.runtime.store; const service = h.runtime.service;
+    const session = await h.createSession();
+    const recordUsage = store.recordUsage.bind(store);
+    let inWindow; const reached = new Promise((resolve) => { inWindow = resolve; });
+    let release; const held = new Promise((resolve) => { release = resolve; });
+    store.recordUsage = async (...args) => { inWindow(); await held; return recordUsage(...args); };
+    // Two cancels in one tick (a shutdown beside the person's Stop): the first
+    // `stopping` write is refused, the second is accepted.
+    const updateRunIfActive = store.updateRunIfActive.bind(store);
+    let refusedOnce = false;
+    store.updateRunIfActive = (id, patch, ...rest) => patch.status === "stopping" && !refusedOnce
+      ? (refusedOnce = true, Promise.reject(new Error("write refused"))) : updateRunIfActive(id, patch, ...rest);
+    const created = await h.api("POST", `/sessions/${session.id}/runs`, { input: "hello", commandId: "d2-two-cancels" });
+    const runId = created.json.run.id;
+    await reached;
+    const first = service.cancelRun(runId, {}), second = service.cancelRun(runId, {});
+    await assert.rejects(first, /write refused/);
+    release();
+    assert.equal((await second).run.status, "cancelled");
+    assert.deepEqual(statuses(h, session.id, runId), ["running", "stopping", "cancelled"]);
+  } finally { await h.runtime.close(); }
+});
+
 test("D3: an exception while a cancel is pending settles unknown and keeps the error", async () => {
   // Cancel only once the runtime is executing: a cancel before start is a
   // confirmed cancellation with nothing run, which is a different case.

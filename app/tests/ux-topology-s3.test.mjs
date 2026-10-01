@@ -29,7 +29,8 @@ test("S3 · one reading of a materials answer, shared by the Files form and the 
   assert.equal(materialOutcome({ workspaceState: "superseded" }), "superseded");
   assert.equal(materialOutcome({}), "unknown");
   assert.equal(materialOutcome(null, { status: 503, body: { error: { code: "material_link_failed" } } }), "link_failed");
-  assert.equal(materialOutcome(null, { status: 409 }), "conflict");
+  assert.equal(materialOutcome(null, { status: 409, body: { error: { code: "source_revision_conflict" } } }), "conflict");
+  assert.equal(materialOutcome(null, { status: 409, body: { error: { code: "active_run" } } }), "failed", "another 409 is not a revision conflict; its own message is shown");
   assert.equal(materialOutcome(null, new Error("offline")), "failed");
 });
 
@@ -118,7 +119,7 @@ test("S3 review · addFiles reports every Host outcome as the Files form does, a
     let linkFailsOnce = true;
     const answers = {
       "old.md": () => ({ workspaceState: "superseded" }),
-      "raced.md": () => { throw Object.assign(new Error("changed"), { status: 409 }); },
+      "raced.md": () => { throw Object.assign(new Error("changed"), { status: 409, body: { error: { code: "source_revision_conflict" } } }); },
       "linked.md": () => { if (linkFailsOnce) { linkFailsOnce = false; throw Object.assign(new Error("link"), { status: 503, body: { error: { code: "material_link_failed" } } }); } return { workspaceState: "written", path: "materials/linked.md" }; },
       "odd.md": () => ({}),
       "switch.md": () => { session = { id: "session-2", title: "Other" }; return { workspaceState: "written", path: "materials/switch.md" }; },

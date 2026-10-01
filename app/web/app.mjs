@@ -56,7 +56,7 @@ import { createCommandMenu } from "./command-menu.mjs";
 import { createLocationHistory, describeLocation, sameLocation, afterFailedOpen } from "./location-history.mjs";
 import { createCommandDispatcher } from "./object-commands.mjs";
 import { createObjectMenu } from "./object-menu.mjs";
-import { activeRunFreezeNotice, isActiveRunRefusal, projectProviderConfig } from "./provider-config.mjs";
+import { activeRunFreezeNotice, isActiveRunRefusal } from "./provider-config.mjs";
 import { createUsageView } from "./usage-view.mjs";
 import { createSparkView } from "./spark-view.mjs";
 let attentionWorkspace, attentionAgent, shellSignals, modelChooser, attentionModelChooser, chatFilesAttach, usageView, sparkView, chatPage;

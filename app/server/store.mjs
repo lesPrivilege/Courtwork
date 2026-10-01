@@ -1436,7 +1436,7 @@ export class RuntimeStore {
    * start a new process for a Run that is already closing; recordCheckSettled
    * has no such gate; it must succeed even after admission has closed, so the
    * settlement for an in-flight process is never lost. `groupLingered: true`
-   * is the only optional field: the stopped check's process group could not
+   * is the only optional field: the check's process group could not
    * be confirmed gone. It is absent otherwise and does not change the status.
    */
   async recordCheckStarted(runId, { callId, recipeId, recipeVersion, candidateId, candidateWriteRevision, startedAt }) {

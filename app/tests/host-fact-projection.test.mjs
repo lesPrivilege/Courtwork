@@ -92,23 +92,8 @@ test("a binding command with an unknown Core outcome is not reported as a refusa
   assert.equal((src.match(/await bindingFailed\(/g) || []).length, 3, "release, continue and create all use it");
 });
 
-async function effortSave(error) {
-  const state = { providerConfig: { version: 3, config: { provider: "p", model: "m", api: "a" }, reasoningCapability: { kind: "enum", values: ["low"] } } };
-  const reads = [];
-  const request = async (path, options = {}) => { if (options.method === "PUT") throw error; reads.push(path); return { version: 4, config: state.providerConfig.config }; };
-  const make = new Function("state", "request", "projectProviderConfig", "renderModelCard", "renderProviderPanel", "renderAll", "attentionAgent",
-    `let modelCardEpoch = 0, modelCardBusy = false, modelCardFeedback = null; ${grab("saveEffortFromCard", "async function ")}; return { save: saveEffortFromCard, feedback: () => modelCardFeedback };`);
-  const card = make(state, request, (config, patch) => ({ ...config, ...patch }), () => {}, () => {}, () => {}, null);
-  await card.save("low");
-  return { feedback: card.feedback(), reads };
-}
-
-test("effort save: a frozen refusal shows the Host's words; only config_conflict re-reads", async () => {
-  const frozen = Object.assign(new Error("provider config is frozen during a run"), { status: 409, body: { error: { code: "active_run", message: "provider config is frozen during a run" } } });
-  assert.deepEqual(await effortSave(frozen), { feedback: "provider config is frozen during a run", reads: [] });
-  const conflict = Object.assign(new Error("Provider configuration changed. Reload before saving."), { status: 409, body: { error: { code: "config_conflict" } } });
-  assert.deepEqual(await effortSave(conflict), { feedback: "Saved settings changed elsewhere. Showing the current value.", reads: ["/provider-config"] });
-});
+// The effort save lives in the model chooser since S2; its refusals (the Host's words,
+// and a re-read only on config_conflict) are covered in model-effort.test.mjs.
 
 function deleteHarness(error) {
   const node = () => ({ textContent: "", hidden: true, disabled: false, querySelector: () => node() });

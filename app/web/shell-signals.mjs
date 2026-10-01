@@ -19,7 +19,7 @@ import { el } from './ui-controls.mjs';
 
 export const WAIT_WORD = { permission: 'Approval', ask_user: 'Answer' };
 const WAIT_SENTENCE = { permission: 'Waiting for your approval', ask_user: 'Waiting for your answer' };
-const OPEN_RUN = new Set(['created', 'running', 'stopping', 'waiting_user']);
+const OPEN_RUN = new Set(['running', 'stopping', 'waiting_user']);
 
 /** sessionId → the kind of that chat's oldest actionable question. Pure. */
 export function waitingBySession(items) {

@@ -1,4 +1,4 @@
-import { el, icon, action, copyAction, disclosureMark } from "./ui-controls.mjs";
+import { el, action, copyAction, disclosureMark } from "./ui-controls.mjs";
 import { createRuntimeIntake } from "./runtime-intake.mjs";
 import { semanticIcon } from "./semantic-controls.mjs";
 import { parseUnifiedPatch, renderDiff } from "./diff-view.mjs";

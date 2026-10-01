@@ -3639,12 +3639,13 @@ export class RuntimeService {
     // The cancel intent is set in the same synchronous step that queues
     // `stopping`, so a completion deciding its status after this point queues
     // `cancelled` behind it and can never queue `completed` (review D2).
-    // A cancel whose `stopping` write fails is reported as failed and leaves no intent behind.
-    if (entry) entry.cancelRequested = true;
+    // A cancel whose `stopping` write fails is reported as failed and withdraws
+    // its own claim; the intent stays while another cancel's claim stands.
+    if (entry) entry.cancelRequested = (entry.cancelClaims = (entry.cancelClaims ?? 0) + 1) > 0;
     const stopping = await this.store.updateRunIfActive(runId, { status: "stopping", admissionOpen: false }, {
       type: "run.status",
       data: { status: "stopping" },
-    }).catch((error) => { if (entry) entry.cancelRequested = false; throw error; });
+    }).catch((error) => { if (entry) entry.cancelRequested = --entry.cancelClaims > 0; throw error; });
     if (!stopping.applied) return { run: stopping.run };
     if (!entry) {
       // This process cannot abort what it is not driving, so it must not

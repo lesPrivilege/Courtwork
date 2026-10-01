@@ -131,7 +131,8 @@ export function createModelChooser({ popover, name, request, getSnapshot, onSnap
     busy = true; feedback = "Saving…"; render();
     try {
       const result = await request("/provider-config", { method: "PUT", body });
-      onSnapshot(result);
+      // A receipt older than the snapshot in hand (another chooser saved since) does not replace it.
+      if (!(result?.version < getSnapshot()?.version)) onSnapshot(result);
       if (own === writeEpoch) feedback = saved(result);
     } catch (error) {
       if (own === writeEpoch) feedback = refuse(error);

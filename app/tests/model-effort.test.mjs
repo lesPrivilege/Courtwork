@@ -250,6 +250,29 @@ test("S2 · a keyless row, a run in this chat, and a run elsewhere each refuse w
   });
 });
 
+test("a refused save: only config_conflict re-reads; any other refusal shows the Host's words", async () => {
+  await withTinyDom(async () => {
+    const counted = (host) => { const reads = []; const request = host.request; host.request = (path, options = {}) => { if (!options.method) reads.push(path); return request(path, options); }; return reads; };
+    // A compaction elsewhere freezes the configuration with its own code: not a version conflict.
+    const busy = hostDouble({ refuse: Object.assign(new Error("provider config is frozen during a compaction"), { status: 409, body: { error: { code: "operation_active" } } }) });
+    const busyReads = counted(busy);
+    const first = await openChooser(busy);
+    busyReads.length = 0;
+    await first.commit("GPT Y");
+    assert.equal(first.popover.querySelector(".model-chooser-status").textContent, "provider config is frozen during a compaction");
+    assert.deepEqual(busyReads, [], "a refusal that is not a version conflict reads nothing again");
+
+    const stale = hostDouble({ refuse: Object.assign(new Error("Provider configuration changed. Reload before saving."), { status: 409, body: { error: { code: "config_conflict" } } }) });
+    const staleReads = counted(stale);
+    const second = await openChooser(stale);
+    staleReads.length = 0;
+    await second.commit("GPT Y");
+    await tick(); await tick();
+    assert.equal(second.popover.querySelector(".model-chooser-status").textContent, "Saved settings changed elsewhere. Showing the current value.");
+    assert.ok(staleReads.includes("/provider-config"), "a version conflict re-reads the configuration");
+  });
+});
+
 test("S2 · keyboard: arrows move, Enter commits, Escape closes and returns focus to the opener", async () => {
   await withTinyDom(async () => {
     const host = hostDouble();
