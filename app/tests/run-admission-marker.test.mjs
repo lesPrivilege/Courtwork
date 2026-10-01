@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { rm } from "node:fs/promises";
 import { test } from "node:test";
 import { boot } from "./helpers.mjs";
+import { ServiceError } from "../server/service.mjs";
 
 async function withHost(run) {
   const h = await boot();
@@ -100,6 +101,44 @@ test("N6 · the marker is on admission refusals only: not before the lookup, not
   active.set = set;
   assert.deepEqual([after.status, marked(after)], [500, false]);
   const created = store.listRuns().find((run) => run.commandId === "c-after");
+  assert.ok(created, "the Run exists, so the command is admitted");
+  await h.api("POST", `/runs/${created.id}/cancel`, {});
+}));
+
+/* Each exclusion in #createRun's marker has a case that fails without it. No
+ * production path raises these three today (no admission check carries
+ * `outcome: "unknown"` or a `*_unknown` code, and nothing after creation throws
+ * a ServiceError), so they are injected at the two points the test above
+ * already replaces: the Store's createRun and the service's active-Run map. A
+ * coded 409 is used each time, so only the clause under test keeps the marker off. */
+test("N6 · a coded refusal is still unmarked when its outcome is unknown, when its code says unknown, or when the Run already exists", () => withHost(async (h) => {
+  const session = await h.createSession();
+  const store = h.runtime.store, createRun = store.createRun.bind(store);
+
+  // Control: the same injection point, an ordinary coded refusal — marked.
+  store.createRun = async () => { throw new ServiceError(409, "synthetic_refusal", "refused at admission"); };
+  const refused = await send(h, session.id, { input: "refused", commandId: "c-refused" });
+  assert.deepEqual([refused.status, refused.json.error.code, refused.json.error.commandAdmitted], [409, "synthetic_refusal", false]);
+
+  // `outcome: "unknown"` in the details: the Host itself says it cannot tell.
+  store.createRun = async () => { throw new ServiceError(409, "synthetic_refusal", "could not tell", { outcome: "unknown", operation: "run_admission" }); };
+  const outcome = await send(h, session.id, { input: "outcome unknown", commandId: "c-outcome" });
+  assert.deepEqual([outcome.status, outcome.json.error.outcome, marked(outcome)], [409, "unknown", false]);
+
+  // A code ending `_unknown`: the client reads such a code as an unknown outcome too.
+  store.createRun = async () => { throw new ServiceError(409, "admission_unknown", "could not tell"); };
+  const coded = await send(h, session.id, { input: "code unknown", commandId: "c-coded" });
+  assert.deepEqual([coded.status, coded.json.error.code, marked(coded)], [409, "admission_unknown", false]);
+  store.createRun = createRun;
+  assert.equal(store.listRuns().length, 0);
+
+  // A ServiceError raised once the Store holds the Run: coded, and still not a refusal to admit.
+  const active = h.runtime.service.active, set = active.set.bind(active);
+  active.set = () => { throw new ServiceError(409, "synthetic_refusal", "after admission"); };
+  const after = await send(h, session.id, { input: "created, then a coded failure", commandId: "c-after-coded" });
+  active.set = set;
+  assert.deepEqual([after.status, after.json.error.code, marked(after)], [409, "synthetic_refusal", false]);
+  const created = store.listRuns().find((run) => run.commandId === "c-after-coded");
   assert.ok(created, "the Run exists, so the command is admitted");
   await h.api("POST", `/runs/${created.id}/cancel`, {});
 }));
