@@ -23,7 +23,7 @@ node site/scripts/verify.mjs --origin http://127.0.0.1:8941/Courtwork/ --cdp-por
 
 capture 脚本直接调用产品，必须在产品字节与 source_sha 一致的隔离 checkout 运行，且仅用独立合成数据目录。合流后的新 main 会被 capture 守卫拒绝；这不影响离线构建。更新基础标本快照须一起重取对应媒体、标本、benchmark 与测试记录；更新独立产品截图须重取 main 媒体并核对该来源的声称。不要通过取消来源检查来沿用旧图。
 
-Page copy follows public-copy-v3 and `src/copy.mjs`. The English root `README.md` is generated from `src/readme.mjs` with `node site/build.mjs --write-readme`; keep its authored Simplified Chinese counterpart `README.zh-CN.md` aligned in the same change. Ordinary pushes build only; deployment uses the explicit manual Pages workflow. Publication checks, deployment receipts, and real Runtime verification remain separate.
+Page copy follows public-copy-v3 and `src/copy.mjs`. The English root `README.md` is generated from `src/readme.mjs` with `node site/build.mjs --write-readme`, and the default suite fails when the two differ (`tests/readme-source.test.mjs`); keep its authored Simplified Chinese counterpart `README.zh-CN.md` aligned in the same change. Ordinary pushes build only; deployment uses the explicit manual Pages workflow. Publication checks, deployment receipts, and real Runtime verification remain separate.
 
 The [2026-09-19 Orchestra and Kit registration](../engineering/execution/claude-frontend-harness-2026-09-16/orchestra-pages-registration-20260919.md) defines the later Pages revision under slice 13. This revision updates the bilingual README and its generation source; page design, product captures, and deployment remain deferred.
 

@@ -70,7 +70,7 @@ These method-level rules first appeared in dated receipts; they are stated here 
 - State unexecuted checks explicitly, using the standard list: native zoom/200%, screen reader, forced colors, coarse pointer/touch, dark theme, error matrices, real provider, non-author review, and visual baseline (recurring across receipts, 2026-09-16 to 2026-09-28).
 - Independent acceptance uses the parent's own browser session. DOM and network records from an author's tool are not a visual baseline (2026-09-20, 2026-09-21).
 - Tests must not rewrite tracked evidence blobs during the default run (2026-09-19).
-- For README or Pages changes, run the site build and its generated-output check (README source/output equality) rather than relying on the product baseline; see [site/README.md](../site/README.md) (2026-09-22).
+- For README or Pages changes, run the site build and its generated-output check (README source/output equality, also checked by the default suite) rather than relying on the product baseline; see [site/README.md](../site/README.md) (2026-09-22).
 
 ## Related
 
