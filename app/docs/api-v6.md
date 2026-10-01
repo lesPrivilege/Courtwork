@@ -346,7 +346,10 @@ fingerprint contains no credential, Provider or model facts.
   `503 runtime_closing`), `409 command_conflict` (the id has a Run under another
   input), `500 internal_error`, `runtime_unavailable`, any error with
   `outcome: "unknown"` or a code ending in `_unknown`, and any failure after the
-  Run was created. Without the field, a replay's outcome is still unknown.
+  Run was created. Without the field, a replay's outcome is still unknown, with
+  one exception a client may rely on: `404 not_found` for the Session itself.
+  A deleted Session has no Runs and no receipts, so a replay answered that way
+  is also not admitted (the web client releases the command on it).
 - A second active run in the same session is `409 active_run`.
 - While a manual compaction runs anywhere on the Host, run creation is
   `409 operation_active` (CMP-01); the Host holds one seat for work.

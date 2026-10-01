@@ -62,7 +62,7 @@ test("N7 · a lost create reply the Host never acted on: pressing again re-sends
   ]);
   await h.press("start-edits");
   assert.equal(h.seen.reads, 1);
-  assert.equal(notice(body), "Not created. Start private candidate again to use the same request.");
+  assert.equal(notice(body), "Not created. Start private candidate again to use the same identity.");
   assert.equal(field(body, "start-edits").disabled, false);
   assert.equal(field(body, "start-edits").textContent, "Start private candidate", "the same command, not a new control");
   const first = h.seen.puts[0].body;
@@ -71,7 +71,7 @@ test("N7 · a lost create reply the Host never acted on: pressing again re-sends
   await h.press("start-edits"); // a 5xx without a Host code settles nothing either
   assert.deepEqual(h.seen.puts[1].body, first, "the same requestId, candidateId, base commit and revisions");
   assert.equal(h.seen.inspects, 1, "the base commit is part of the kept payload");
-  assert.equal(notice(body), "Not created. Start private candidate again to use the same request.");
+  assert.equal(notice(body), "Not created. Start private candidate again to use the same identity.");
 
   await h.press("start-edits");
   assert.deepEqual(h.seen.puts[2].body, first);
@@ -84,7 +84,7 @@ test("N7 · an unknown outcome is checked before it is re-sent: a read that now 
   const h = drive(body, bound, [() => { throw network(); }]);
   h.host.readFails = true;
   await h.press("start-edits");
-  assert.equal(notice(body), "The result is not known: The local runtime could not be reached. Start private candidate again to check this chat and reuse the same request.");
+  assert.equal(notice(body), "The result is not known: The local runtime could not be reached. Start private candidate again to check this chat and use the same identity.");
   assert.equal(h.seen.puts.length, 1);
   await h.press("start-edits"); // still unreachable: nothing is sent blind
   assert.equal(h.seen.puts.length, 1);
@@ -133,7 +133,7 @@ test("N7 · Stop edits keeps its identity across a lost reply, and stops asking 
     (sent, host) => { host.session = { ...bound, repositoryCandidateRevision: 2, repositoryCandidate: candidateOf("cand-1", "revoked", 2) }; throw network(); },
   ]);
   await h.press("stop-edits");
-  assert.equal(notice(body), "Not stopped. Stop edits again to use the same request.");
+  assert.equal(notice(body), "Not stopped. Stop edits again to use the same identity.");
   await h.press("stop-edits");
   assert.deepEqual(h.seen.puts[1].body, h.seen.puts[0].body);
   assert.deepEqual(Object.keys(h.seen.puts[0].body).sort(), ["candidateId", "expectedBindingRevision", "expectedRevision", "operation", "requestId"]);
@@ -149,7 +149,7 @@ test("N7 · Disconnect keeps its identity across a lost reply; a committed disco
     (sent, host) => { host.session = unbound; throw network(); },
   ]);
   await h.press("disconnect");
-  assert.equal(notice(body), "Not disconnected. Disconnect again to use the same request.");
+  assert.equal(notice(body), "Not disconnected. Disconnect again to use the same identity.");
   assert.equal(h.seen.puts[0].path, "/sessions/s1/repository-binding");
   assert.deepEqual(Object.keys(h.seen.puts[0].body).sort(), ["expectedRevision", "operation", "requestId"]);
   await h.press("disconnect");
@@ -187,4 +187,20 @@ test("N7 · an identity belongs to its chat: another chat's command is its own, 
   await h.press("start-edits");
   assert.equal(h.seen.puts[2].path, "/sessions/s1/repository-candidate");
   assert.deepEqual(h.seen.puts[2].body, h.seen.puts[0].body);
+}));
+
+test("N7 · a failed receipt for one chat's command is not said on another chat", () => withTinyDom(async body => {
+  const other = { ...bound, id: "s2", repositoryBinding: { ...binding, id: "b2" } };
+  let h;
+  h = drive(body, bound, [() => { throw network(); }, (sent, host) => {
+    // The person opened another chat while the replay was out.
+    host.session = other;
+    h.card.render(body, { session: other, active: false });
+    return { receipt: { status: "failed", failureCode: "candidate_creation_failed" }, idempotent: true };
+  }]);
+  await h.press("start-edits");
+  await h.press("start-edits");
+  assert.equal(h.seen.puts.length, 2);
+  assert.equal(notice(body), null, "chat s2 shows nothing about chat s1's command");
+  assert.equal(h.card.pending, false);
 }));

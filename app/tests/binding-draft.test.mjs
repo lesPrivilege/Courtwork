@@ -192,7 +192,37 @@ test("N5 · a draft the form allows survives a reload: title, a 100,000-characte
   assert.deepEqual(reloaded.values(), full);
 }));
 
-test("N5 · the owner: one stored entry per draft, forgotten with its Session, stored up to each field's limit, never blocked by storage", () => {
+test("N5 · after a reload, editing one field does not cut another below its own declared limit", () => withTinyDom(async (body) => {
+  const storage = memoryStorage();
+  const LONG = { id: "long-brief", title: "Long brief", bindingFields: [
+    { name: "title", label: "Title", multiline: false, required: true, maxLength: 120 },
+    { name: "brief", label: "Brief", multiline: true, required: true, maxLength: 200000 },
+  ] };
+  const h = panelHarness(body, { storage, session: chat("s1"), extensions: [LONG], request: async () => ({ matters: [] }) });
+  h.open(LONG);
+  h.type("brief", "b".repeat(150000));
+  const key = `${PREFIX}:s1:${LONG.id}`;
+  assert.equal(JSON.parse(storage.items.get(key)).brief.length, 150000);
+  const reloaded = panelHarness(document.createElement("main"), { storage, session: chat("s1"), extensions: [LONG], request: async () => ({ matters: [] }) });
+  reloaded.open(LONG);
+  reloaded.type("title", "Only the title was touched");
+  assert.equal(JSON.parse(storage.items.get(key)).brief.length, 150000, "the loaded field keeps its own limit");
+  assert.equal(reloaded.values().brief.length, 150000);
+}));
+
+test("N5 · a rebuild keeps focus on an existing-work row, by the key it already carries", () => withTinyDom(async (body) => {
+  const h = panelHarness(body, { storage: memoryStorage(), session: chat("s1"), request: async () => ({ matters: [{ extensionId: MEMO.id, matter: { id: "matter-1", version: 2 } }] }) });
+  h.open();
+  await h.loadProjectWork("p1", MEMO.id);
+  const row = () => h.panel.querySelectorAll("button").find((node) => node.getAttribute("data-focus-key") === "binding-existing:matter-1");
+  const before = row();
+  before.focus();
+  h.renderBindingPanel();
+  assert.notEqual(row(), before);
+  assert.equal(document.activeElement, row(), "not dropped to the page");
+}));
+
+test("N5 · the owner: one stored entry per draft, forgotten with its Session, stored up to each field's limit, never blocked by storage", () => withTinyDom(async () => {
   const storage = memoryStorage();
   const draft = createBindingDraft({ storage: () => storage, prefix: PREFIX });
   draft.set("s1", "evidence-memo", "title", "A");
@@ -209,7 +239,8 @@ test("N5 · the owner: one stored entry per draft, forgotten with its Session, s
   assert.equal(storage.items.size, 0);
 
   // The stored bound is each field's own: its declared maxLength, or the default for a field that declares none.
-  draft.set("s3", "evidence-memo", "title", "T".repeat(200), 120);
+  draft.fields("s3", { id: "evidence-memo", bindingFields: [{ name: "title", label: "Title", multiline: false, required: true, maxLength: 120 }] });
+  draft.set("s3", "evidence-memo", "title", "T".repeat(200));
   draft.set("s3", "evidence-memo", "note", "n".repeat(BINDING_DRAFT_FIELD_LIMIT + 5));
   const entry = JSON.parse(storage.items.get(`${PREFIX}:s3:evidence-memo`));
   assert.deepEqual([entry.title.length, entry.note.length], [120, BINDING_DRAFT_FIELD_LIMIT]);
@@ -222,7 +253,7 @@ test("N5 · the owner: one stored entry per draft, forgotten with its Session, s
   tight.set("s4", "evidence-memo", "title", "first");
   assert.equal(quota.items.size, 1);
   quota.setItem = () => { throw new Error("QuotaExceededError"); };
-  tight.set("s4", "evidence-memo", "sourceText", "x".repeat(100000), 100000);
+  tight.set("s4", "evidence-memo", "sourceText", "x".repeat(100000));
   assert.equal(quota.items.size, 0, "the older, smaller copy is removed, not left to come back after a reload");
   assert.equal(tight.values("s4", "evidence-memo").sourceText.length, 100000);
   quota.setItem = write;
@@ -237,7 +268,7 @@ test("N5 · the owner: one stored entry per draft, forgotten with its Session, s
   // Malformed stored text is ignored.
   storage.setItem(`${PREFIX}:s9:evidence-memo`, "{not json");
   assert.deepEqual(createBindingDraft({ storage: () => storage, prefix: PREFIX }).values("s9", "evidence-memo"), {});
-});
+}));
 
 test("N5 · app.mjs wiring: one owner in the tab's storage, every rebuild through it, cleared only on confirmation or deletion", () => {
   assert.match(src, /const bindingDraft = createBindingDraft\(\{\s*storage: \(\) => window\.sessionStorage,\s*prefix: `\$\{UI_STORAGE_KEY\}\.binding-draft`,\s*\}\);/);

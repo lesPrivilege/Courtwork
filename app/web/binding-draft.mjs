@@ -18,7 +18,10 @@
  * per draft, so a keystroke rewrites only its own. The stored bound is the
  * form's own: each field is stored up to the `maxLength` its manifest declares
  * (a field that declares none, up to `BINDING_DRAFT_FIELD_LIMIT`), with no cap
- * on the sum, so a draft the form allows survives a reload. A store that
+ * on the sum, so a draft the form allows survives a reload. The limits are
+ * registered whenever the form is drawn, not when a field is typed into, so a
+ * value read back after a reload is never rewritten below its own field's
+ * limit by an edit to another field. A store that
  * refuses the write (quota, blocked) costs persistence only: the draft stays
  * in memory and the entry is removed, so an older copy never comes back.
  * Reading back knows no manifest, so it applies only a sanity cap per value,
@@ -33,6 +36,7 @@ import { el } from "./ui-controls.mjs";
 export const BINDING_DRAFT_FIELD_LIMIT = 100000;
 export const BINDING_DRAFT_VALUE_CEILING = 1000000;
 const FIELD = "data-binding-field";
+const FOCUS_KEY = "data-focus-key";
 
 export function createBindingDraft({ storage = () => null, prefix }) {
   const drafts = new Map();
@@ -68,9 +72,8 @@ export function createBindingDraft({ storage = () => null, prefix }) {
   function values(sessionId, extensionId) {
     return { ...load(keyOf(sessionId, extensionId)) };
   }
-  function set(sessionId, extensionId, name, value, maxLength = null) {
+  function set(sessionId, extensionId, name, value) {
     const key = keyOf(sessionId, extensionId), draft = load(key);
-    if (Number.isFinite(maxLength) && maxLength > 0) limits.set(key, { ...limits.get(key), [name]: maxLength });
     if (value) draft[name] = String(value);
     else delete draft[name];
     persist(key, draft);
@@ -96,7 +99,11 @@ export function createBindingDraft({ storage = () => null, prefix }) {
    * for this Session. `controls` is what the form reads at submit. */
   function fields(sessionId, extension) {
     const declared = Array.isArray(extension.bindingFields) ? extension.bindingFields : [];
-    const draft = load(keyOf(sessionId, extension.id));
+    const key = keyOf(sessionId, extension.id), draft = load(key);
+    // Every declared limit, for every field, before anything is written.
+    limits.set(key, Object.fromEntries(declared
+      .filter((field) => field?.name && Number.isFinite(field.maxLength) && field.maxLength > 0)
+      .map((field) => [field.name, field.maxLength])));
     const node = el("div", { className: "binding-fields" });
     const controls = [];
     for (const field of declared) {
@@ -108,7 +115,7 @@ export function createBindingDraft({ storage = () => null, prefix }) {
       if (field.required) control.required = true;
       if (Number.isFinite(field.maxLength) && field.maxLength > 0) control.maxLength = field.maxLength;
       control.value = draft[field.name] ?? "";
-      control.addEventListener("input", () => set(sessionId, extension.id, field.name, control.value, field.maxLength));
+      control.addEventListener("input", () => set(sessionId, extension.id, field.name, control.value));
       label.append(control);
       if (field.maxLength) label.append(el("small", { text: `Maximum ${field.maxLength} characters.` }));
       node.append(label);
@@ -121,16 +128,20 @@ export function createBindingDraft({ storage = () => null, prefix }) {
 
   /* Rebuild the panel without taking the keyboard: the control that had focus
    * is found again by its key, with its selection and its own scroll position.
-   * A control that is gone or disabled is not replaced by another. */
+   * The form's controls carry `data-binding-field`; the existing-work rows
+   * carry the `data-focus-key` they already had. A control that is gone or
+   * disabled is not replaced by another. */
   function keepFocus(panel, rebuild) {
     const active = document.activeElement;
-    const held = active && panel.contains(active) ? active.getAttribute(FIELD) : null;
+    const inside = active && panel.contains(active);
+    const attribute = !inside ? null : active.hasAttribute(FIELD) ? FIELD : active.hasAttribute(FOCUS_KEY) ? FOCUS_KEY : null;
+    const held = attribute ? active.getAttribute(attribute) : null;
     const selection = held && typeof active.selectionStart === "number"
       ? [active.selectionStart, active.selectionEnd, active.selectionDirection || "none"] : null;
     const scroll = held ? [active.scrollTop || 0, active.scrollLeft || 0] : null;
     rebuild();
     if (!held) return;
-    const target = [...panel.querySelectorAll(`[${FIELD}]`)].find((node) => node.getAttribute(FIELD) === held);
+    const target = [...panel.querySelectorAll(`[${attribute}]`)].find((node) => node.getAttribute(attribute) === held);
     if (!target || target.disabled) return;
     target.focus({ preventScroll: true });
     if (selection) target.setSelectionRange?.(...selection);

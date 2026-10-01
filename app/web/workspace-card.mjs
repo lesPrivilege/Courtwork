@@ -96,16 +96,16 @@ export const WORK_LOCATION_TITLE = "Work location";
 /* N7 · what the card says while a command's outcome is not known. The button
  * keeps its name: pressing it again is the same command, sent with the same
  * request, and the sentence says so (copy convention «Not created. Create again
- * to use the same identity.»). The first is said after a Session read that does
+ * to use the same identity.», whose term «identity» these keep). The first is said after a Session read that does
  * not show the change; the second when that read could not be made either. */
 const COMMAND_NAME = { create: "Start private candidate", stop: "Stop edits", disconnect: "Disconnect" };
 export const COMMAND_NOT_DONE = {
-  create: `Not created. ${COMMAND_NAME.create} again to use the same request.`,
-  stop: `Not stopped. ${COMMAND_NAME.stop} again to use the same request.`,
-  disconnect: `Not disconnected. ${COMMAND_NAME.disconnect} again to use the same request.`,
+  create: `Not created. ${COMMAND_NAME.create} again to use the same identity.`,
+  stop: `Not stopped. ${COMMAND_NAME.stop} again to use the same identity.`,
+  disconnect: `Not disconnected. ${COMMAND_NAME.disconnect} again to use the same identity.`,
 };
 export const commandUnknown = (kind, reason) =>
-  `The result is not known: ${String(reason || "no reply").replace(/[.\s]+$/, "")}. ${COMMAND_NAME[kind]} again to check this chat and reuse the same request.`;
+  `The result is not known: ${String(reason || "no reply").replace(/[.\s]+$/, "")}. ${COMMAND_NAME[kind]} again to check this chat and use the same identity.`;
 const CHOOSE_PROMPT = "Connect a repository";
 
 /* Where the keyboard goes when the control it was on cannot take it back. A
@@ -622,7 +622,8 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       intent.done?.();
       pending = false;
       // A receipt can record that the command failed (a replayed create whose first attempt did).
-      if (result?.receipt?.status === "failed") error = intent.fallback;
+      // Like every notice, it is said only on the chat the command was for.
+      if (result?.receipt?.status === "failed" && drawn?.session?.id === id) error = intent.fallback;
       try { await onSession?.(id); }
       catch (err) { finish(err?.message || intent.fallback); }
     }

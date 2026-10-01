@@ -7008,10 +7008,16 @@ async function recoverRunReceipt() {
       setPersistentFeedback(sessionId, nextOperationId("recover"), "run", copy.text, { nextAction: copy.nextAction });
       return;
     }
+    /* The receipt is settled above. Showing its Run is a read; a read that
+     * fails is said as a failed refresh, never as an unresolved receipt. */
     if (sessionId === state.activeSessionId) {
-      mergeRun(outcome.run, { sessionId });
-      await refreshActiveSession();
-      schedulePolling(state.sessionEpoch, 0);
+      try {
+        mergeRun(outcome.run, { sessionId });
+        await refreshActiveSession();
+        schedulePolling(state.sessionEpoch, 0);
+      } catch (error) {
+        showToast(`Refresh failed: ${error.message}`, "error");
+      }
     }
   } finally {
     state.pendingRuns.delete(sessionId);

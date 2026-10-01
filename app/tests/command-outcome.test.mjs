@@ -65,14 +65,14 @@ test("N6 · the first send is decided by the answer to the request itself, as be
 });
 
 /* The production Send and Recover, with one composer, one chat and a scripted Host. */
-function sendHarness(answers) {
+function sendHarness(answers, { mergeFails = false } = {}) {
   const stored = new Map();
   const window = { clearTimeout() {}, sessionStorage: { setItem: (key, value) => stored.set(key, value), getItem: (key) => stored.get(key) ?? null } };
   const textarea = { value: "", focus() {} };
   const state = { view: "chat", activeSessionId: "s1", connectionLost: false, attentionOpen: false, sessionEpoch: 1, operationSequence: 0, runs: [],
     pendingRuns: new Map(), unconfirmedRuns: new Map(), draftCache: new Map(), draftDirty: new Set(), draftTimers: new Map(), draftRevisions: new Map(),
     session: { id: "s1", draft: "" } };
-  const seen = { posts: [], feedback: [], cleared: 0, selectionConflicts: 0, merged: [] };
+  const seen = { posts: [], feedback: [], cleared: 0, selectionConflicts: 0, merged: [], toasts: [] };
   const request = async (path, options) => {
     assert.equal(path, "/sessions/s1/runs");
     seen.posts.push(options.body);
@@ -89,11 +89,11 @@ function sendHarness(answers) {
     "persistDraftForSession", "retirePreparedChat", "loadRecentSessions", "shellSignals", "mergeRun", "leavePreview", "stopPolling", "schedulePolling", "isActiveRun", "refreshActiveSession",
     `${body}; return { submitSessionRun, recoverRunReceipt };`);
   const api = make(state, window, { activeElement: null }, () => textarea, request, "test.commands", isUncertainCommandError, runAttemptOutcome,
-    () => state.session, () => null, { active: false, isExampleId: () => false }, () => {}, async () => ({ handled: false }), () => ({}), () => true, () => {},
+    () => state.session, () => null, { active: false, isExampleId: () => false }, (text) => seen.toasts.push(text), async () => ({ handled: false }), () => ({}), () => true, () => {},
     feedback(false), feedback(true), () => { seen.cleared++; },
     { getState: () => ({ sessionId: "s1", next: { send: { runtimeSelection: { revision: 4, profileId: "agent:general", sourceHash: null } } } }), selectionConflict: async () => { seen.selectionConflicts++; } },
     () => ({ holdsSend: false }), () => true, () => {}, () => {}, () => {},
-    async () => {}, () => false, () => {}, null, (run) => { seen.merged.push(run.id); }, async () => {}, () => {}, () => {}, () => false, async () => {});
+    async () => {}, () => false, () => {}, null, (run) => { if (mergeFails) throw new Error("the Run could not be drawn"); seen.merged.push(run.id); }, async () => {}, () => {}, () => {}, () => false, async () => {});
   const held = () => JSON.parse(stored.get("test.commands") || "[]");
   return { ...api, state, seen, textarea, held, send: (text) => { textarea.value = text; return api.submitSessionRun(); } };
 }
@@ -159,6 +159,20 @@ test("N6 · Recover that finds the receipt shows the Run and releases the comman
   assert.deepEqual(h.seen.merged, ["r1"]);
   assert.equal(h.seen.cleared > 0, true, "the unconfirmed notice is cleared");
   assert.equal(h.seen.feedback.at(-1).text, "Delivery is unconfirmed. Your instruction is kept; check its receipt before sending another.", "nothing was added after it");
+});
+
+test("N6 · a confirmed receipt whose Run then cannot be shown is a failed refresh, not an unresolved receipt", async () => {
+  const h = sendHarness([
+    () => { throw network(); },
+    (body) => ({ run: { id: "r1", sessionId: "s1", commandId: body.commandId, status: "running" } }),
+  ], { mergeFails: true });
+  await h.send("hello");
+  await h.recoverRunReceipt(); // must not reject
+  assert.equal(h.state.unconfirmedRuns.size, 0, "the receipt is settled");
+  assert.deepEqual(h.held(), []);
+  assert.deepEqual(h.seen.toasts, ["Refresh failed: the Run could not be drawn"]);
+  assert.equal(h.seen.feedback.some((entry) => entry.text.startsWith("Run receipt is still unresolved")), false);
+  assert.equal(h.state.pendingRuns.size, 0);
 });
 
 test("N6 · app.mjs wiring: Send and Recover classify through the one outcome function", () => {
