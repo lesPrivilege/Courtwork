@@ -27,10 +27,12 @@ document's revision of the contract, not a new route namespace.
   typed 413; the connection is not reset (past 256 MiB it is abandoned).
 - Unknown body fields are rejected (`400 unknown_field`); this is deliberate, so a
   client typo fails loudly instead of being ignored.
-- While the Host shuts down every request is `503 runtime_closing`, including one
-  whose body had not fully arrived when shutdown began; that request was not
-  applied and its connection is closed. Retry after the Host is back, with the
-  fresh work token.
+- While the Host shuts down every request is refused `503 runtime_closing`,
+  including one whose body had not fully arrived when shutdown began; that
+  request was not applied. The refusal is sent without reading the rest of the
+  body and the connection is closed, so a client that is still uploading may
+  see a connection reset instead of the 503. Either way, retry after the Host
+  is back, with the fresh work token.
 - Errors are `{ "error": { "code", "message" } }`. Messages never contain an API key.
   A few errors add recovery data alongside those two fields — currently
   `cursor_ahead`, which carries `nextSeq`.

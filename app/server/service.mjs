@@ -966,7 +966,11 @@ export class RuntimeService {
     try { return await fn(); }
     catch (error) { if (error instanceof ProposalError) throw new ServiceError(error.status, error.code, error.message); throw error; }
   }
+  // The proposal ledger is its own file with its own tmp+rename and no lock
+  // check: the three commands that write it outside the configuration queue
+  // refuse once the Host is stopping.
   proposeRuntimeSkill(sessionId, runId, input) {
+    if (this.closing) throw new ServiceError(503, "runtime_closing", "runtime is stopping");
     const run = this.store.getRun(runId);
     if (!run || run.sessionId !== sessionId) throw new ServiceError(404, "not_found", "run not found in this session");
     return this.#proposalAsync(() => this.proposals.propose({ sessionId, runId, title: input?.title, content: input?.content }));
@@ -986,9 +990,11 @@ export class RuntimeService {
     return { ...review, activeRun: this.store.hasActiveRun(), sessionExists: Boolean(this.store.getSession(review.proposal.target.scope.id)) };
   }
   editRuntimeProposal(id, input) {
+    if (this.closing) return Promise.reject(new ServiceError(503, "runtime_closing", "runtime is stopping"));
     return this.#proposalAsync(() => this.proposals.edit(id, requireObject(input, 'body')));
   }
   rejectRuntimeProposal(id, input) {
+    if (this.closing) return Promise.reject(new ServiceError(503, "runtime_closing", "runtime is stopping"));
     return this.#proposalAsync(() => this.proposals.reject(id, requireObject(input, 'body')));
   }
   applyRuntimeProposal(id, input) {

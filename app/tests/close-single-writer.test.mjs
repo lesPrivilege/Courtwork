@@ -161,6 +161,8 @@ test("in-process write commands refuse 503 runtime_closing once close has begun"
     "subagents.create": () => service.subagents.create({ id: randomUUID(), parentSessionId: session.id, brief: "late", sources: [] }),
     "subagents.action": () => service.subagents.action("assignment", { action: "cancel", expectedRevision: 1, commandId: "c", reason: "late", expandedSources: [] }),
     "subagents.configure": () => service.subagents.configure({ status: "disabled" }),
+    "subagents.library.mount": () => service.subagents.library.mount({ id: "mount", assignmentId: "assignment", target: { kind: "session", id: session.id } }),
+    "subagents.library.revoke": () => service.subagents.library.revoke("mount", { expectedRevision: 1 }),
     "coordination.create": async () => service.coordination.create({ threadId: "thread-b", sessionId: session.id, title: "late" }),
     "coordination.attach": async () => service.coordination.attach(thread.id, { sessionId: session.id, expectedRevision: thread.revision }),
     "coordination.close": async () => service.coordination.close(thread.id, { expectedRevision: thread.revision }),
@@ -308,4 +310,34 @@ test("after runtime.close a Core-reaching call is refused CORE_UNAVAILABLE and n
   const child = client.transport?.child;
   const running = Boolean(child && child !== served && child.exitCode === null && child.signalCode === null);
   assert.deepEqual({ late, started, closed: client.closed, running }, { late: "CORE_UNAVAILABLE", started: "CORE_UNAVAILABLE", closed: true, running: false });
+});
+
+/* Review disposition: the proposal ledger is a data-directory file the Store
+ * does not own; it is written whole with its own tmp+rename. On 833dff9 a late
+ * in-process edit or reject from a closed Host renamed that Host's stale
+ * ledger over the next Host's. */
+test("two Hosts: a closed Host's late proposal commands are refused and leave the next Host's ledger untouched", async (t) => {
+  const dataDir = await dataDirectory();
+  const skill = (name) => `---\nname: ${name}\ndescription: A test skill.\nallowed-tools: [ws_read]\n---\n# ${name}\n\nBody.\n`;
+  const ledger = () => readFile(path.join(dataDir, "runtime-proposals.json"), "utf8");
+  const hostA = await createRuntime({ dataDir });
+  t.after(() => hostA.close());
+  const proposal = await hostA.service.proposals.propose({ sessionId: "session-a", runId: "run-a", title: "From A", content: skill("from-a") });
+  await hostA.close();
+
+  const hostB = await createRuntime({ dataDir });
+  t.after(() => hostB.close());
+  await hostB.service.proposals.propose({ sessionId: "session-b", runId: "run-b", title: "From B", content: skill("from-b") });
+  const published = await ledger();
+  assert.equal(JSON.parse(published).proposals.length, 2);
+
+  const commands = {
+    reject: () => hostA.service.rejectRuntimeProposal(proposal.id, { revision: proposal.revision, requestId: "late-reject" }),
+    edit: () => hostA.service.editRuntimeProposal(proposal.id, { revision: proposal.revision, title: "late edit", content: skill("late") }),
+    propose: async () => hostA.service.proposeRuntimeSkill("session-a", "run-a", { title: "late", content: skill("late") }),
+  };
+  const outcomes = {};
+  for (const [name, command] of Object.entries(commands)) outcomes[name] = await command().then(() => "written", (error) => closingRefusal(error) ? "503 runtime_closing" : `${error?.status ?? "error"} ${error?.code ?? error?.message}`);
+  assert.equal(await ledger(), published, "B's ledger bytes are unchanged");
+  assert.deepEqual(outcomes, { reject: "503 runtime_closing", edit: "503 runtime_closing", propose: "503 runtime_closing" });
 });
