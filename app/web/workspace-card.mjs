@@ -37,6 +37,7 @@
  * control it was on cannot take it back). */
 import { el, SENDING_LABEL } from "./ui-controls.mjs";
 import { semanticAction, semanticIcon } from "./semantic-controls.mjs";
+import { isUncertainCommandError } from "./command-outcome.mjs";
 
 export const REPOSITORY_SCOPE_LABEL = "Read only";
 /* WK-96 · measured against the Host rather than against intent. "Nothing is
@@ -92,6 +93,19 @@ export const SEND_BUSY = "Your chat is being started with this location, so it c
 /* The last step of a Send: the Host is admitting its Run with this location. */
 export const RUN_SENDING = "Your message is being sent with this location, so it cannot change until the run starts.";
 export const WORK_LOCATION_TITLE = "Work location";
+/* N7 · what the card says while a command's outcome is not known. The button
+ * keeps its name: pressing it again is the same command, sent with the same
+ * request, and the sentence says so (copy convention «Not created. Create again
+ * to use the same identity.»). The first is said after a Session read that does
+ * not show the change; the second when that read could not be made either. */
+const COMMAND_NAME = { create: "Start private candidate", stop: "Stop edits", disconnect: "Disconnect" };
+export const COMMAND_NOT_DONE = {
+  create: `Not created. ${COMMAND_NAME.create} again to use the same request.`,
+  stop: `Not stopped. ${COMMAND_NAME.stop} again to use the same request.`,
+  disconnect: `Not disconnected. ${COMMAND_NAME.disconnect} again to use the same request.`,
+};
+export const commandUnknown = (kind, reason) =>
+  `The result is not known: ${String(reason || "no reply").replace(/[.\s]+$/, "")}. ${COMMAND_NAME[kind]} again to check this chat and reuse the same request.`;
 const CHOOSE_PROMPT = "Connect a repository";
 
 /* Where the keyboard goes when the control it was on cannot take it back. A
@@ -192,6 +206,22 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
   // What the last render drew from, so the panel's opener can ask where the
   // keyboard starts without restating the card's states.
   let drawn = null;
+  /* N7 · one pending identity per intent (create a candidate, stop edits,
+   * disconnect) and chat: the request id, the ids it generated and the exact
+   * payload, minted once and kept until the Host settles it. A reply that never
+   * came is not a refusal, so the identity stays, the Session is read back, and
+   * the next press re-sends this same request; a new one would be refused
+   * against a revision the lost request may already have moved, or would land
+   * beside it. A definite refusal, the Host's receipt, or a Session read that
+   * shows the change ends it. Kept in memory only: after a reload the card is
+   * rebuilt from the Session the Host returns. Pattern: home-preparation.mjs
+   * (identity before the command, a reconcile read, a readback); `bindRequestId`
+   * below is the same idea for Connect. */
+  const intents = new Map();
+  // The intent the visible notice is about, so a read that settles it also clears the notice.
+  let noticeFor = null;
+  // The newest render's own redraw: a command that outlived a re-read draws from current facts.
+  let repaint = () => {};
 
   function bindRequestId(rootPath) {
     // The same path retried after a failure reuses its requestId so the Host
@@ -209,7 +239,16 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
     if (!owned && !unclaimed) commandField = null;
     const focus = owned || (unclaimed ? commandField : null);
     const selection = owned && typeof document.activeElement?.selectionStart === "number" ? [document.activeElement.selectionStart, document.activeElement.selectionEnd] : null;
-    drawn = { draft, projectChoice };
+    // A notice is about one chat's command; it does not follow the panel to another chat.
+    if (drawn && (drawn.session?.id ?? null) !== (session?.id ?? null)) { error = ""; noticeFor = null; }
+    drawn = { draft, projectChoice, session };
+    repaint = rerender;
+    // A Session read is the only thing that shows a command committed: one that does ends its identity.
+    for (const [key, intent] of intents) {
+      if (intent.sessionId !== session?.id || !intent.settledBy(session)) continue;
+      intents.delete(key);
+      if (noticeFor === key) { error = ""; noticeFor = null; }
+    }
     const header = el("div", { className: "section-heading" }, el("h3", { text: WORK_LOCATION_TITLE }),
       semanticAction("surface.close", onClose, { values: { target: "work location" }, attrs: { "data-repository-field": "close" } }));
     const binding = draft ? (draft.path ? { rootPath: draft.path, status: "draft" } : null) : activeRepositoryBinding(session);
@@ -277,7 +316,17 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       const connectPath = rootPath => submit({ operation: "bind", requestId: bindRequestId(rootPath), expectedRevision: revision, rootPath }, session);
       const disconnect = el("button", { className: "quiet-button", text: pending ? SENDING_LABEL : "Disconnect", attrs: { type: "button", "data-repository-field": "disconnect" } });
       disconnect.disabled = busy;
-      disconnect.addEventListener("click", () => { commandField = "disconnect"; submit({ operation: "revoke", requestId: crypto.randomUUID(), expectedRevision: revision }, session); });
+      disconnect.addEventListener("click", () => {
+        commandField = "disconnect";
+        void command("disconnect", () => ({
+          path: `/sessions/${encodeURIComponent(session.id)}/repository-binding`,
+          body: { operation: "revoke", requestId: crypto.randomUUID(), expectedRevision: revision },
+          fallback: "The folder could not be disconnected.",
+          settledBy: read => activeRepositoryBinding(read)?.id !== binding.id,
+          // The card is back to choosing a folder, with a fresh list.
+          done: () => { changing = false; recent = null; },
+        }));
+      });
       /* RD-006 · four dimensions, four readings, in the order the decision is
          made: what organises this chat, where source comes from, what may be
          done to it, and what will be shown before a write happens. A missing
@@ -459,7 +508,15 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
         review.addEventListener("click", () => onReviewChanges?.());
         const stop = el("button", { className: "quiet-button", text: pending ? SENDING_LABEL : "Stop edits", attrs: { type: "button", "data-repository-field": "stop-edits" } });
         stop.disabled = busy;
-        stop.addEventListener("click", () => { commandField = "stop-edits"; submitCandidate({ operation: "revoke", requestId: crypto.randomUUID(), expectedRevision: candidateRevision, expectedBindingRevision: binding.revision, candidateId: candidate.id }); });
+        stop.addEventListener("click", () => {
+          commandField = "stop-edits";
+          void command("stop", () => ({
+            path: `/sessions/${encodeURIComponent(session.id)}/repository-candidate`,
+            body: { operation: "revoke", requestId: crypto.randomUUID(), expectedRevision: candidateRevision, expectedBindingRevision: binding.revision, candidateId: candidate.id },
+            fallback: "The private candidate could not be changed.",
+            settledBy: read => activeRepositoryCandidate(read)?.id !== candidate.id,
+          }));
+        });
         section.append(
           el("dl", { className: "data-list" },
             el("dt", { text: "Private candidate" }), el("dd", {}, el("code", { text: `from ${candidate.baseCommit.slice(0, 12)}` })),
@@ -488,7 +545,7 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       start.addEventListener("click", () => {
         commandField = "start-edits";
         if (resuming) void resuming.onResume();
-        else startCandidate();
+        else void command("create", createIntent);
       });
       section.append(
         /* One reason, said once: a bound chat's folder section already says
@@ -500,36 +557,74 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       if (resuming?.error) section.append(el("p", { className: "inline-error", text: resuming.error, attrs: { role: "alert" } }));
       return section;
     }
-    async function startCandidate() {
-      if (busy || !session?.id) return;
-      const own = ++generation;
-      pending = true; error = ""; rerender();
-      try {
-        const inspection = await request(`/repositories/inspect?rootPath=${encodeURIComponent(binding.rootPath)}`);
-        if (own !== generation) return;
-        const head = inspection?.git?.head;
-        if (typeof head !== "string" || !head) { pending = false; error = CANDIDATE_NO_GIT; rerender(); return; }
-        pending = false;
-        await submitCandidate({ operation: "create", requestId: crypto.randomUUID(), expectedRevision: session.repositoryCandidateRevision ?? 0,
-          expectedBindingRevision: binding.revision, candidateId: crypto.randomUUID(), baseCommit: head });
-      } catch (err) {
-        if (own !== generation) return;
-        pending = false; error = err?.message || "The folder could not be inspected."; rerender();
-      }
+    /* A new create intent: the base commit is the folder's HEAD read from the
+     * Host now, and the revisions are this Session read's. All of it is fixed
+     * here, once; a re-send after an unknown outcome reads nothing again. */
+    async function createIntent() {
+      const inspection = await request(`/repositories/inspect?rootPath=${encodeURIComponent(binding.rootPath)}`);
+      const head = inspection?.git?.head;
+      if (typeof head !== "string" || !head) return CANDIDATE_NO_GIT;
+      const candidateId = crypto.randomUUID();
+      return {
+        path: `/sessions/${encodeURIComponent(session.id)}/repository-candidate`,
+        body: { operation: "create", requestId: crypto.randomUUID(), expectedRevision: session.repositoryCandidateRevision ?? 0,
+          expectedBindingRevision: binding.revision, candidateId, baseCommit: head },
+        fallback: "The private candidate could not be changed.",
+        // Created is created, whatever became of it since.
+        settledBy: read => read?.repositoryCandidate?.id === candidateId,
+      };
     }
-    async function submitCandidate(body) {
+    /* N7 · send one intent. `build` makes a new identity and is called only
+     * when this chat holds none for `kind`; it may return a sentence instead,
+     * when there is nothing to send. Three answers, three paths:
+     *   · the Host's receipt — settled; the Session is read back and drawn;
+     *   · a definite refusal (a coded Host answer to this request) — settled;
+     *     the refusal is shown and the Session read, so the next press builds a
+     *     new intent on what the Host holds now (a `stale_revision` or
+     *     `idempotency_conflict` means exactly that the picture here was old);
+     *   · no answer — the identity is kept and the Session read. If the read
+     *     shows the change, `render` ends the identity and nothing is said. If
+     *     not, the next press comes back here, reads once more, and re-sends
+     *     the same path and body. */
+    async function command(kind, build) {
       if (pending || active || !session?.id) return;
-      const own = ++generation;
-      pending = true; error = ""; rerender();
-      try {
-        await request(`/sessions/${encodeURIComponent(session.id)}/repository-candidate`, { method: "PUT", body });
-        if (own !== generation) return;
+      const id = session.id, key = `${id}:${kind}`;
+      const finish = (message, held = false) => {
         pending = false;
-        await onSession?.(session.id);
-      } catch (err) {
-        if (own !== generation) return;
-        pending = false; error = err?.message || "The private candidate could not be changed."; rerender();
+        if (drawn?.session?.id === id) { error = message; noticeFor = held ? key : null; }
+        repaint();
+      };
+      pending = true; error = ""; noticeFor = null; rerender();
+      let intent = intents.get(key);
+      if (intent) {
+        try { await onSession?.(id); }
+        catch (err) { return finish(commandUnknown(kind, err?.message), true); }
+        if (!intents.has(key)) return finish("");
+      } else {
+        try { intent = await build(); }
+        catch (err) { return finish(err?.message || "The folder could not be inspected."); }
+        if (typeof intent === "string") return finish(intent);
+        intent.sessionId = id;
+        intents.set(key, intent);
       }
+      let result;
+      try { result = await request(intent.path, { method: "PUT", body: intent.body }); }
+      catch (err) {
+        const unknown = isUncertainCommandError(err);
+        if (!unknown) intents.delete(key);
+        let read = true;
+        try { await onSession?.(id); } catch { read = false; }
+        if (!unknown) return finish(err?.message || intent.fallback);
+        if (!intents.has(key)) return finish("");
+        return finish(read ? COMMAND_NOT_DONE[kind] : commandUnknown(kind, err?.message), true);
+      }
+      intents.delete(key);
+      intent.done?.();
+      pending = false;
+      // A receipt can record that the command failed (a replayed create whose first attempt did).
+      if (result?.receipt?.status === "failed") error = intent.fallback;
+      try { await onSession?.(id); }
+      catch (err) { finish(err?.message || intent.fallback); }
     }
     async function loadRecent() {
       const own = ++generation;
@@ -572,9 +667,9 @@ export function createWorkspaceCard({ request, onSession, onClose, onReviewChang
       try {
         await request(`/sessions/${encodeURIComponent(current.id)}/repository-binding`, { method: "PUT", body });
         if (own !== generation) return;
-        // A folder that was replaced or disconnected leaves the change path:
-        // the card is back to reading one binding, not choosing another.
-        if (body.operation === "bind") { directory = ""; requestFor = null; requestId = null; }
+        // A folder that was replaced leaves the change path: the card is back
+        // to reading one binding, not choosing another.
+        directory = ""; requestFor = null; requestId = null;
         changing = false;
         recent = null;
         pending = false;
