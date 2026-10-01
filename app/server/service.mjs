@@ -861,8 +861,9 @@ export class RuntimeService {
   }
   /** Idle-only: the store's serialized closure refuses while any Run or
    * operation is active, so no second writer is ever opened on the journal.
-   * The same requestId replays the same record (query-back after a lost ACK
-   * never pays for a second summary). */
+   * The same request (requestId and focus) replays the same record (query-back
+   * after a lost ACK never pays for a second summary); the same requestId with
+   * another focus is a conflict. */
   compactSession(sessionId, input) {
     if (this.closing) return Promise.reject(new ServiceError(503, "runtime_closing", "runtime is stopping"));
     return this.#withConfiguration(async () => {
@@ -873,7 +874,11 @@ export class RuntimeService {
       const session = this.store.getSession(sessionId);
       if (!session) throw new ServiceError(404, "not_found", "session not found");
       if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
-      const replay = this.store.listOperations(sessionId).find(op => op.requestId === requestId);
+      // A replay is answered before provider admission, and only for the same
+      // request: the Store compares the content the id was admitted with.
+      let replay;
+      try { replay = this.store.getOperationReceipt({ kind: "compaction", sessionId, requestId, focus }); }
+      catch (error) { if (error.code === "IDEMPOTENCY_CONFLICT") throw new ServiceError(409, "idempotency_conflict", error.message); throw error; }
       if (replay) return { operation: replay, idempotent: true };
       const executor = this.#executorForSession(session);
       this.#requireRuntimeCapability("compact", executor.port);

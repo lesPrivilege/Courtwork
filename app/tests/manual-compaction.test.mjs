@@ -310,3 +310,61 @@ test("CMP-01 · closing the Host settles a running compaction before releasing t
     await h.runtime.close();
   }
 });
+
+// A request id names one request: the id together with {kind, sessionId, focus}.
+// The early replay lookup answers before provider admission, so it compares the
+// same hash the Store records instead of matching the id alone.
+test("CMP-01 · a replayed requestId returns its record only for the same focus; another focus is a conflict, running or settled, also after the provider route changed", async () => {
+  const compaction = { enabled: true, reserveTokens: 1, keepRecentTokens: 1, maxCompactions: 4 };
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const h = await setup({ responder: async (args) => {
+    if (args.summary) { await gate; return { kind: "text", id: `s-${args.requestNumber}`, created: 1, text: "SLOW SUMMARY" }; }
+    return null;
+  } });
+  const url = `/sessions/${h.session.id}/compactions`;
+  const conflict = async (api, body, record) => {
+    const reply = await api("POST", url, body);
+    assert.equal(reply.status, 409, JSON.stringify(reply.json)); assert.equal(reply.json.error.code, "idempotency_conflict");
+    assert.deepEqual((await api("GET", url)).json.operations, [record], "the stored operation is unchanged and no second one exists");
+  };
+  let settled;
+  try {
+    const started = await h.api("POST", url, { requestId: "one", focus: "Keep the file paths." });
+    assert.equal(started.status, 200, JSON.stringify(started.json));
+    await new Promise((r) => setTimeout(r, 100));
+    const running = (await h.api("GET", `${url}/${started.json.operation.id}`)).json.operation;
+    assert.equal(running.status, "running");
+    await conflict(h.api, { requestId: "one", focus: "Keep the open questions." }, running);
+    await conflict(h.api, { requestId: "one" }, running);
+    const same = await h.api("POST", url, { requestId: "one", focus: "Keep the file paths." });
+    assert.equal(same.status, 200); assert.equal(same.json.idempotent, true); assert.deepEqual(same.json.operation, running);
+    release();
+    settled = await pollOperation(h, h.session.id, started.json.operation.id);
+    assert.equal(settled.status, "completed", JSON.stringify(settled.error));
+    assert.equal(settled.focus, "Keep the file paths.");
+    const paid = h.requests.filter((r) => r.summary).length;
+    await conflict(h.api, { requestId: "one", focus: "Keep the open questions." }, settled);
+    assert.equal(h.requests.filter((r) => r.summary).length, paid, "a conflicting replay pays for no summary");
+  } finally {
+    release();
+    await h.runtime.close();
+  }
+  // The provider route changes to one that admits nothing: the same request is
+  // still answered with its record, a different one under that id still conflicts.
+  const statePath = path.join(h.dataDir, "runtime-state.json");
+  const state = JSON.parse(await readFile(statePath, "utf8"));
+  state.providerConfig = { ...state.providerConfig, reasoningEffort: "high" };
+  await writeFile(statePath, JSON.stringify(state, null, 2));
+  const again = await reopen(h.dataDir, { compaction });
+  try {
+    again.runtime.fakeProvider.model.contextWindow = 4;
+    const fresh = await again.api("POST", url, { requestId: "two", focus: "Keep the file paths." });
+    assert.equal(fresh.status, 503, JSON.stringify(fresh.json)); assert.equal(fresh.json.error.code, "effort_unsupported");
+    const same = await again.api("POST", url, { requestId: "one", focus: "Keep the file paths." });
+    assert.equal(same.status, 200, JSON.stringify(same.json)); assert.equal(same.json.idempotent, true); assert.deepEqual(same.json.operation, settled);
+    await conflict(again.api, { requestId: "one", focus: "Keep the open questions." }, settled);
+  } finally {
+    await again.runtime.close();
+  }
+});

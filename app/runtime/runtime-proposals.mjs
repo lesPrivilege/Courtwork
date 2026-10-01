@@ -123,7 +123,13 @@ export class RuntimeProposalLedger {
     check(typeof input.requestId === 'string' && input.requestId, 'requestId is required');
     const next = clone(this.data);
     const proposal = next.proposals.find(p => p.id === id) ?? fail(404, 'not_found', 'proposal not found');
-    if (proposal.decision?.requestId === input.requestId) return { proposal: this.#public(proposal), idempotent: true };
+    // A requestId names one request: the replay is the same rejection (revision
+    // and reason as recorded in the decision), anything else under it conflicts.
+    if (proposal.decision?.requestId === input.requestId) {
+      const { action, proposalRevision, reason } = proposal.decision;
+      check(action === 'reject' && proposalRevision === input.revision && reason === (input.reason ?? null), 'This requestId was used for a different decision', 'idempotency_conflict', 409);
+      return { proposal: this.#public(proposal), idempotent: true };
+    }
     check(proposal.status === 'proposed', `A ${proposal.status} proposal cannot be rejected`, 'proposal_state', 409);
     check(input.revision === proposal.revision, 'Proposal changed; review the current revision', 'proposal_conflict', 409);
     check(input.reason === undefined || (typeof input.reason === 'string' && input.reason.length <= 1000), 'Reason must be at most 1000 characters');

@@ -153,8 +153,15 @@ test("06 · invalid or oversized text is refused at propose time; edit makes a n
     assert.equal(rejected.status, 200, JSON.stringify(rejected.json));
     assert.equal(rejected.json.proposal.status, "rejected");
     assert.equal(rejected.json.proposal.decision.reason, "Not this week.");
-    const replay = await h.api("POST", `/runtime-proposals/${p.id}/reject`, { revision: 2, requestId: "reject-1" });
+    const replay = await h.api("POST", `/runtime-proposals/${p.id}/reject`, { revision: 2, requestId: "reject-1", reason: "Not this week." });
     assert.equal(replay.status, 200); assert.equal(replay.json.idempotent, true);
+    assert.deepEqual(replay.json.proposal, rejected.json.proposal);
+    // A requestId names one request: the same id with another reason or revision is a conflict, and the decision stays.
+    for (const body of [{ revision: 2, requestId: "reject-1" }, { revision: 2, requestId: "reject-1", reason: "Never." }, { revision: 1, requestId: "reject-1", reason: "Not this week." }]) {
+      const other = await h.api("POST", `/runtime-proposals/${p.id}/reject`, body);
+      assert.equal(other.status, 409, JSON.stringify(body)); assert.equal(other.json.error.code, "idempotency_conflict", JSON.stringify(body));
+      assert.deepEqual((await h.api("GET", `/runtime-proposals/${p.id}`)).json.proposal, rejected.json.proposal);
+    }
     assert.equal((await h.api("GET", `/runtime-control?sessionId=${session.id}`)).json.revision, revisionBefore, "reject changes no configuration");
     const afterReject = await h.api("POST", `/runtime-proposals/${p.id}/apply`, { revision: 2, approvalSha256: second.approvalSha256, requestId: "after-reject" });
     assert.equal(afterReject.status, 409); assert.equal(afterReject.json.error.code, "proposal_state");

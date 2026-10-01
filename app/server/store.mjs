@@ -1564,18 +1564,26 @@ export class RuntimeStore {
     const op = this.state.operations.find((item) => item.id === id);
     return op ? structuredClone(op) : null;
   }
+  _operationRequestHash({ kind, sessionId, focus }) { return createHash("sha256").update(JSON.stringify({ kind, sessionId, focus })).digest("hex"); }
+  /** The operation a requestId already names in this Session, or null. An id
+   * names one request, the id together with {kind, sessionId, focus}: a
+   * different request under it conflicts. Reads no provider or Run fact, so a
+   * caller may answer a replay before admission. */
+  getOperationReceipt({ kind, sessionId, requestId, focus = null }, state = this.state) {
+    const existing = state.operations.find((op) => op.requestId === requestId && op.sessionId === sessionId);
+    if (!existing) return null;
+    if (existing.requestHash !== this._operationRequestHash({ kind, sessionId, focus })) { const error = new Error("requestId was used for a different operation"); error.code = "IDEMPOTENCY_CONFLICT"; throw error; }
+    return structuredClone(existing);
+  }
   /** Admission for a manual operation shares the serialized closure with Run
    * creation: no active Run anywhere, no running operation; the same
    * requestId replays the same record, a different body under it conflicts. */
   async createOperation({ kind, sessionId, requestId, focus = null, provider, journal }) {
-    const requestHash = createHash("sha256").update(JSON.stringify({ kind, sessionId, focus })).digest("hex");
+    const requestHash = this._operationRequestHash({ kind, sessionId, focus });
     return this._mutate((state) => {
       if (!state.sessions.some((item) => item.id === sessionId)) throw new Error("session not found");
-      const existing = state.operations.find((op) => op.requestId === requestId && op.sessionId === sessionId);
-      if (existing) {
-        if (existing.requestHash !== requestHash) { const error = new Error("requestId was used for a different operation"); error.code = "IDEMPOTENCY_CONFLICT"; throw error; }
-        return { operation: structuredClone(existing), idempotent: true };
-      }
+      const existing = this.getOperationReceipt({ kind, sessionId, requestId, focus }, state);
+      if (existing) return { operation: existing, idempotent: true };
       if (state.runs.some((run) => ACTIVE_STATUSES.has(run.status))) { const error = new Error("active run exists"); error.code = "ACTIVE_RUN"; throw error; }
       if (state.operations.some((op) => OPERATION_ACTIVE.has(op.status))) { const error = new Error("operation in progress"); error.code = "OPERATION_ACTIVE"; throw error; }
       const operation = { id: randomUUID(), kind, sessionId, requestId, requestHash, status: "running", reason: "manual", focus, startedAt: now(), settledAt: null,
