@@ -223,7 +223,20 @@ Response headers must arrive within 15 s (65 s for `tools/call`); bodies then st
 
 ### Harness P02 · MCP effect uncertainty (2026-09-12)
 
-Both a remote business error (`isError`) and an unavailable call result fence further tool admission for that Run. A business error preserves its distinct `tool-reported-error` failure kind; it does not establish absence of remote effects. The existing store transaction records admission closure, `mcp_effect_unknown`, and correlated call/server/tool/config/binding metadata. Arguments are excluded. A failed receipt write retains the in-memory fence and the terminal event retries the correlation; persistent storage failure is not reported as success. Startup and orphan cancellation preserve this error identity, so the existing `supersedes` continuation gate continues to refuse unreconciled effects. A known pre-dispatch refusal is separate and does not manufacture an external effect.
+Only evidence the Host owns establishes that a remote call had no effect, namely that the request never left the Host. A remote statement does not: not a result with `isError`, not a JSON-RPC error, not a tool annotation such as `readOnlyHint`.
+
+| What the Host observed | Classification | Run |
+|---|---|---|
+| Refused before dispatch: tool not exposed, policy or permission denial, arguments invalid against the tool schema, no connection to the bound configuration, call cancelled before dispatch, or the `runtime.mcp.dispatch` record could not be written | Tool failure, no effect | Stays open: this call closes nothing |
+| Dispatched; transport error, timeout, abort, or no result | Effect unknown, `failureKind: result-unavailable` | Admission closed; the Run ends `unknown` with `mcp_effect_unknown` |
+| Dispatched; JSON-RPC error response | Effect unknown, `result-unavailable` | Same |
+| Dispatched; result with `isError` | Effect unknown, `tool-reported-error`; the body is retained and shown to the model | Same |
+| Dispatched; result received but not retained (unsupported, oversized or unpersistable) | Effect unknown, `result-evidence-unavailable` (a reported error keeps `tool-reported-error`) | Same |
+| Dispatched; result retained | Confirmed result | Stays open |
+
+"Dispatched" begins when the dispatch record is written: every failure of the client call after that point is effect unknown, including one the MCP client raises before or after the exchange (an invalid output schema, structured content that fails it). Widening the first row needs Host-owned evidence, for example an operator-declared effect class in Runtime Control; none exists and none is planned here.
+
+The existing store transaction records admission closure, `mcp_effect_unknown`, and correlated call/server/tool/config/binding metadata. Arguments are excluded. A failed receipt write retains the in-memory fence and the terminal event retries the correlation; persistent storage failure is not reported as success. Startup and orphan cancellation preserve this error identity, so the existing `supersedes` continuation gate continues to refuse unreconciled effects.
 
 ### Harness P02b · MCP semantic result reader (2026-09-12)
 

@@ -7,7 +7,7 @@ import path from 'node:path';
 import { boot, reopen, spawnWorker } from './helpers.mjs';
 import { MCPManager } from '../runtime/mcp-manager.mjs';
 
-async function effectFixture({ drop = false, gate } = {}) {
+async function effectFixture({ drop = false, rpcError = false, gate } = {}) {
   const dir = await mkdtemp(path.join(tmpdir(), 'cw-p02-effect-'));
   let effects = 0;
   let dispatched;
@@ -25,6 +25,8 @@ async function effectFixture({ drop = false, gate } = {}) {
       dispatched();
       if (gate) await gate;
       if (drop) { res.destroy(); return; }
+      // A JSON-RPC error is a remote statement after dispatch, not evidence of no effect.
+      if (rpcError) { res.setHeader('content-type', 'application/json'); res.end(JSON.stringify({ jsonrpc: '2.0', id: q.id, error: { code: -32603, message: 'internal error after write' } })); return; }
       result = { isError: true, content: [{ type: 'text', text: 'operation failed after write' }] };
     }
     res.setHeader('content-type', 'application/json');
@@ -42,10 +44,10 @@ async function bind(h, session, f) {
   assert.equal((await h.api('PUT', '/runtime-control' + suffix, { revision: (await snapshot()).revision, operation: 'exposure', id: f.resource.id, scope, exposed: true })).status, 200);
   return (await snapshot()).resources.find(r => r.mcp);
 }
-for (const mode of ['reported', 'drop', 'receipt-failure', 'cancel', 'restart-inflight', 'orphan-cancel']) test(`P02 ${mode}: effect is unknown, fenced and preserved across restart`, async () => {
+for (const mode of ['reported', 'drop', 'rpc-error', 'receipt-failure', 'cancel', 'restart-inflight', 'orphan-cancel']) test(`P02 ${mode}: effect is unknown, fenced and preserved across restart`, async () => {
   let release;
   const gate = mode === 'cancel' ? new Promise(resolve => { release = resolve; }) : undefined;
-  const f = await effectFixture({ drop: mode === 'drop', gate }), h = await boot();
+  const f = await effectFixture({ drop: mode === 'drop', rpcError: mode === 'rpc-error', gate }), h = await boot();
   let next;
   try {
     const session = await h.createSession(), tool = await bind(h, session, f);
