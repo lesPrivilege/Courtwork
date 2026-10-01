@@ -146,6 +146,8 @@ function normalizeRevision(value) {
   throw extensionError('INVALID_INPUT', 'revision is invalid');
 }
 
+// `view === null` checks shape only: a replayed revision is compared by the
+// Core with what it stored under the sources of that time, not with today's.
 function normalizeEvidence(item, view) {
   exactKeys(item, ['source_id', 'source_version', 'start', 'end', 'quote', 'digest'], 'evidence');
   const sourceId = identifier(item.source_id, 'evidence.source_id');
@@ -155,8 +157,8 @@ function normalizeEvidence(item, view) {
   if (end < start) throw extensionError('INVALID_INPUT', 'evidence range is reversed');
   const quote = nonEmptyText(item.quote, 'evidence.quote', MAX_SOURCE);
   const digest = identifier(item.digest, 'evidence.digest');
-  const source = currentSource(view, sourceId, sourceVersion);
-  if (digest !== source.digest || codePointSlice(source.text, start, end) !== quote) {
+  const source = view === null ? null : currentSource(view, sourceId, sourceVersion);
+  if (source && (digest !== source.digest || codePointSlice(source.text, start, end) !== quote)) {
     throw extensionError('EVIDENCE_INVALID', 'evidence does not match the approved source');
   }
   return { source_id: sourceId, source_version: sourceVersion, start, end, quote, digest };
@@ -957,6 +959,16 @@ export class WorkExtension {
     return clone(state.finishResult);
   }
 
+  // Shape checks only. A domain proposal is exactly `{domain}`; its Core
+  // fields were derived from that payload when the revision was committed, so
+  // the stored ones stand in and the Core's hash decides on `domain` itself.
+  // The domain's verification against current sources and facts is not run.
+  #replayProposal(proposal, committed) {
+    if (!this.domain) return normalizeCandidateInput(proposal, null);
+    exactKeys(proposal, ['domain'], 'revision proposal');
+    return { artifact_text: committed.artifact_text, evidence: committed.evidence, obligations: committed.obligations, domain: proposal.domain };
+  }
+
   async humanAction(input) {
     exactKeys(input, ['binding', 'actor', 'action', 'payload'], 'human action');
     const binding = bindingOf(input.binding);
@@ -964,10 +976,22 @@ export class WorkExtension {
     await this.start();
     if (['save_draft','revise_candidate','replace_sources'].includes(input.action)) {
       const view = await this.core.snapshot(binding.matterId);
-      if (!this.#supportsMatter(view.matter) || (view.domain && view.domain.schemaVersion !== 1)) throw extensionError('CONTRACT_UNSUPPORTED','bound work contract is not supported');
       if (this.#isFileMemoMatter(view.matter) && input.action === 'revise_candidate') {
         throw extensionError('CONTRACT_UNSUPPORTED', 'file revisions require a new recorded Run');
       }
+      if (input.action === 'revise_candidate') {
+        exactKeys(input.payload, ['candidate_id','new_candidate_id','base_version','proposal'], 'revision');
+        // A lost acknowledgement is retried with the same id. If this Matter
+        // already holds that candidate the request is a replay: like `decide`
+        // with a receipt, it is not validated against the state of today. The
+        // Core hashes the whole candidate (id, Matter, parent, base version,
+        // text, evidence, obligations, domain) under the stored source and
+        // contract versions, and returns the stored result or
+        // IDEMPOTENCY_CONFLICT; an existing id never stores anything.
+        const committed = view.candidates.find((candidate) => candidate.id === input.payload.new_candidate_id);
+        if (committed) return this.core.call('revise_candidate',{matter_id:binding.matterId,...input.payload,proposal:this.#replayProposal(input.payload.proposal,committed)});
+      }
+      if (!this.#supportsMatter(view.matter) || (view.domain && view.domain.schemaVersion !== 1)) throw extensionError('CONTRACT_UNSUPPORTED','bound work contract is not supported');
     }
     if (input.action === 'save_draft') {
       exactKeys(input.payload, ['text'], 'save_draft payload');
@@ -977,7 +1001,6 @@ export class WorkExtension {
       return this.core.saveDraft(binding.matterId, input.payload.text);
     }
     if (input.action === 'revise_candidate') {
-      exactKeys(input.payload, ['candidate_id','new_candidate_id','base_version','proposal'], 'revision');
       const view = await this.core.snapshot(binding.matterId);
       const proposal = this.domain ? this.domain.normalizeProposal(input.payload.proposal,view) : normalizeCandidateInput(input.payload.proposal, view);
       return this.core.call('revise_candidate',{matter_id:binding.matterId,...input.payload,proposal});
