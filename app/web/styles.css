@@ -5832,6 +5832,14 @@ html:not([data-skin="custom"]):not([data-skin="gray-steel"]):not([data-skin="dys
 .attention-tool-state { margin-left: var(--space-2); color: var(--muted-strong); font-size: var(--text-meta); }
 .attention-agent-message.is-permission, .attention-agent-message.is-question { padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-card); }
 .attention-agent-message.is-permission > button { margin-right: var(--space-2); }
+/* The shared approval basis at the popover's width: every line wraps inside the
+   card, and the long ones (preview, argv, file list) scroll there, never the stream. */
+.attention-approval-basis { display: grid; gap: var(--space-2); min-width: 0; margin-bottom: var(--space-3); font-size: var(--text-meta); }
+.attention-approval-basis > * { min-width: 0; margin: 0; }
+.attention-approval-basis h3 { font-size: var(--text-body); }
+.attention-approval-basis .data-list { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); max-height: 240px; overflow: auto; }
+.attention-approval-basis .data-list dt { overflow-wrap: anywhere; }
+.attention-approval-basis details code { display: block; overflow-wrap: anywhere; font-size: var(--text-caption); }
 .attention-agent-status { padding: 0 var(--space-6); }
 .attention-agent-status > p { margin: 0 0 6px; }
 .attention-agent-composer { display: flex; align-items: center; gap: 6px; margin: var(--space-3) var(--space-5) var(--space-4); padding: var(--space-1) 6px var(--space-1) var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-container); background: var(--float); }

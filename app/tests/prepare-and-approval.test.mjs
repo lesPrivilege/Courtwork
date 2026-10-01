@@ -373,15 +373,15 @@ test("the reading is the recorded payload's, never the candidate as it is now", 
 });
 
 test("the recorded identity is drawn on the open request and on the record the transcript keeps", () => {
-  const app = readFileSync(`${root}app/web/app.mjs`, "utf8");
-  assert.match(app, /function recordedApprovalIdentity\(candidate\) \{/, "one reading, used in both places");
-  assert.match(app, /line\("Private candidate", element\("code", \{ text: candidate\.id \}\)\);/);
-  assert.match(app, /if \(candidate\.revision !== null\) line\("Candidate revision"/, "an absent revision is not drawn");
-  assert.match(app, /As recorded when this approval was requested\./);
-  const render = app.slice(app.indexOf("function renderPermission(row) {"));
-  const resolvedBranch = render.slice(0, render.indexOf("const card = element(\"article\""));
-  const openCard = render.slice(render.indexOf("const card = element(\"article\""));
-  assert.match(resolvedBranch, /details\.append\(\.\.\.recordedApprovalIdentity\(display\.candidate\)\);/,
+  // The card body moved to the shared approval basis; the reading is unchanged.
+  const basis = readFileSync(`${root}app/web/approval-basis.mjs`, "utf8");
+  assert.match(basis, /function recordedApprovalIdentity\(candidate\) \{/, "one reading, used in both places");
+  assert.match(basis, /line\("Private candidate", element\("code", \{ text: candidate\.id \}\)\);/);
+  assert.match(basis, /if \(candidate\.revision !== null\) line\("Candidate revision"/, "an absent revision is not drawn");
+  assert.match(basis, /As recorded when this approval was requested\./);
+  const openCard = basis.slice(basis.indexOf("export function openApprovalBasis("), basis.indexOf("export function recordedApprovalBasis("));
+  const resolvedBranch = basis.slice(basis.indexOf("export function recordedApprovalBasis("));
+  assert.match(resolvedBranch, /nodes\.push\(\.\.\.recordedApprovalIdentity\(display\.candidate\)\);/,
     "a decided request keeps saying what it was bound to");
   assert.match(openCard, /\.\.\.recordedApprovalIdentity\(display\.candidate\),/,
     "and so does the one still waiting for a decision");

@@ -47,7 +47,12 @@ test("returns nothing without a recorded candidate or write revision", () => {
 });
 
 test("the check approval card and its decided record both show the authored files", () => {
+  // The card body is the shared approval basis (approval-basis.mjs): its open
+  // and decided builders each list the files, and the Chat card renders both.
+  const basis = readFileSync(new URL("../web/approval-basis.mjs", import.meta.url), "utf8");
+  assert.equal((basis.match(/nodes\.push\(\.\.\.checkAuthoredFiles\(events, payload\)\)/g) || []).length, 2, "open card and decided record");
   const app = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
   const render = app.slice(app.indexOf("function renderPermission("), app.indexOf("\nfunction ", app.indexOf("function renderPermission(") + 1));
-  assert.equal((render.match(/checkAuthoredFiles\(/g) || []).length, 2, "open card and decided record");
+  assert.match(render, /recordedApprovalBasis\(payload, state\.events, binding, row\.decision\)/);
+  assert.match(render, /openApprovalBasis\(payload, state\.events, binding\)/);
 });

@@ -98,11 +98,10 @@ import {
   toolStateWord,
   canAnswer,
   validPermission,
-  permissionPresentation,
-  candidateAuthoredFiles,
   checkStateWord,
   unfinishedToolWord,
 } from "./thread-projection.mjs";
+import { runBinding, openApprovalBasis, recordedApprovalBasis } from "./approval-basis.mjs";
 import { admitSessionEvents, growsTextOnly } from "./session-events.mjs";
 import { createBodyRegistry } from "./stream-body.mjs";
 
@@ -6810,60 +6809,11 @@ async function startNewSession({ projectId } = {}) {
   await goHome();
 }
 
-/* RD-006 / 02 · which private candidate an approval was asked about, and the
- * revision it was bound to, exactly as the Host recorded them with the request.
- *
- * It is drawn in both places a request is read: on the card while the decision
- * is open, and inside the record the transcript keeps after it is decided. The
- * second is where it earns its keep — looking back at what you approved is the
- * question the current candidate cannot answer, because by then it may have
- * taken more writes, been stopped, or been replaced by one built from a
- * different commit. Nothing here reads the Session, the binding or the live
- * candidate, and a revision the Host did not record is not drawn at all. */
-function recordedApprovalIdentity(candidate) {
-  if (!candidate) return [];
-  const recorded = element("dl", { className: "data-list" });
-  const line = (term, value) =>
-    recorded.append(element("dt", { text: term }), element("dd", {}, value));
-  line("Private candidate", element("code", { text: candidate.id }));
-  if (candidate.revision !== null) line("Candidate revision", String(candidate.revision));
-  if (candidate.writeRevision !== null) line("Write revision", String(candidate.writeRevision));
-  return [
-    recorded,
-    element("p", { className: "form-help", text: "As recorded when this approval was requested." }),
-  ];
-}
-/* Review D4 · a check runs with this computer user's access, and it executes
- * the files the model wrote into the private candidate, not only the recipe's
- * command. Both the open card and the decided record name those files from
- * the Host's confirmed-write receipts, bounded by the write revision the
- * request was bound to (candidateAuthoredFiles). */
-function checkAuthoredFiles(payload) {
-  if (payload?.tool !== "check_run") return [];
-  const files = candidateAuthoredFiles(state.events, payload);
-  if (!files.length)
-    return [element("p", { className: "form-help", text: "The Host has no record of the model writing files into this candidate." })];
-  const shown = files.slice(0, 20);
-  const list = element("dl", { className: "data-list" });
-  for (const file of shown)
-    list.append(element("dt", {}, element("code", { text: file.path })), element("dd", {}, file.sha256 ? element("code", { text: file.sha256.slice(0, 12) }) : "Write outcome unknown"));
-  return [
-    element("p", {
-      className: "form-help",
-      text: `This check executes ${files.length === 1 ? "1 file" : `${files.length} files`} the model wrote, with your access to this computer:`,
-    }),
-    list,
-    ...(files.length > shown.length
-      ? [element("p", { className: "form-help", text: `And ${files.length - shown.length} more.` })]
-      : []),
-  ];
-}
 function renderPermission(row) {
   const key = questionScopeKey(row.runId, row.id),
     run = state.runs.find((item) => item.id === row.runId),
     payload = row.payload,
-    binding = state.events.find((event) => event.runId === row.runId && normalizedType(event.type) === "runtime/bound")?.data,
-    display = permissionPresentation(payload, binding);
+    binding = runBinding(state.events, row.runId);
   if (!canAnswer(row, run) && validPermission(payload)) {
     const keyOpen = `permission-history:${key}`;
     const details = element("details", {
@@ -6873,35 +6823,21 @@ function renderPermission(row) {
     /* The decided request keeps every fact it had — which kind of call, what it
      * named, and how it was decided — in the one row anatomy: the object it
      * named is the title, and the decision is the metadata word. The exact-call
-     * facts stay inside, unchanged (copy-convention, Astra addendum). */
+     * facts stay inside, unchanged (copy-convention, Astra addendum). They are
+     * the shared approval basis, the same one the Attention assistant shows. */
+    const { display, meta, nodes } = recordedApprovalBasis(payload, state.events, binding, row.decision);
     details.append(
       flowRow(
         "summary",
         {
           glyph: display.glyph,
           title: display.target,
-          meta: `${display.label} ${row.decision === "allow" ? "approved" : row.decision === "deny" ? "denied" : "closed"}`,
+          meta,
           attrs: { "data-focus-key": `${key}:${row.decision || "allow"}` },
         },
       ),
-      element("p", {
-        className: "intervention-scope",
-        text:
-          row.decision === "allow"
-            ? `Approval recorded for this exact ${display.noun}. Review acceptance is not recorded here.`
-            : row.decision === "deny"
-              ? `Approval denied for this exact ${display.noun}.`
-              : "This request closed without a recorded decision.",
-      }),
-      element("pre", {
-        className: "permission-preview",
-        text: payload.preview,
-      }),
+      ...nodes,
     );
-    if (display.scope) details.append(element("p", { className: "form-help", text: display.scope }));
-    if (display.source) details.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
-    details.append(...checkAuthoredFiles(payload));
-    details.append(...recordedApprovalIdentity(display.candidate));
     details.addEventListener("toggle", () =>
       state.toolOpen.set(keyOpen, details.open),
     );
@@ -6911,37 +6847,9 @@ function renderPermission(row) {
     className: "question-card permission-card",
     attrs: { tabindex: "-1", "data-nav-item": "" },
   });
-  card.append(
-    element("h3", { text: display.title }),
-    element("p", {
-      className: "file-name",
-      text: display.target,
-    }),
-  );
-  if (display.scope) card.append(element("p", { className: "form-help", text: display.scope }));
-  if (display.source) card.append(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
-  card.append(...checkAuthoredFiles(payload));
-  if (validPermission(payload)) {
-    card.append(
-      element("p", {
-        className: "form-help",
-        text: `${formatBytes(payload.bytes)} · Approval for this exact ${display.noun} only`,
-      }),
-      element("pre", {
-        className: "permission-preview",
-        text: payload.preview,
-      }),
-    );
-    const details = element(
-      "details",
-      {},
-      element("summary", { text: display.details }),
-      ...recordedApprovalIdentity(display.candidate),
-      element("code", { text: payload.contentSha256 }),
-      copyAction(payload.contentSha256, display.hashLabel),
-    );
-    card.append(details);
-  }
+  // What is being approved: one presentation, shared with the Attention assistant.
+  const { display, nodes } = openApprovalBasis(payload, state.events, binding);
+  card.append(...nodes);
   const allowed = validPermission(payload) && canAnswer(row, run),
     pending =
       state.questionSubmitting.has(key) || state.questionSubmitted.has(key);

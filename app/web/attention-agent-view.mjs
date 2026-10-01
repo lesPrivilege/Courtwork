@@ -5,6 +5,7 @@ import { renderRequestMeasurements } from "./telemetry-view.mjs";
 import { createRunActivity } from "./run-activity.mjs";
 import { el, action, flowRow } from './ui-controls.mjs';
 import { projectThread, toolStateWord, canAnswer, validPermission, unfinishedToolWord } from './thread-projection.mjs';
+import { runBinding, openApprovalBasis, recordedApprovalBasis } from './approval-basis.mjs';
 import { growsTextOnly } from './session-events.mjs';
 import { createBodyRegistry } from './stream-body.mjs';
 import {
@@ -17,6 +18,48 @@ import { createAttentionConversation } from './attention-conversation.mjs';
 import { runLabels } from './inspector.mjs';
 import { createCoordinationView } from './coordination-view.mjs';
 import { renderToolRow } from './run-rows.mjs';
+
+/* One approval request in the Attention assistant. What is being approved is
+ * the shared approval basis, the same nodes the Chat card shows, so this
+ * surface never offers Approve on less: recipe, command and arguments, the
+ * candidate and its revision, and the files the model wrote. If that basis
+ * cannot be built the request is answered from the full conversation instead.
+ * The buttons, their wiring and the row's own words stay here. */
+export function renderAttentionApproval(row, { run, events, disabled = false, expanded = new Set(), onAnswer }) {
+  const payload = row.payload, open = canAnswer(row, run);
+  const heading = () => [el('strong', { text: 'Approval request' }), el('p', { text: row.prompt })];
+  let basis = null;
+  if (validPermission(payload)) {
+    try {
+      const binding = runBinding(events, row.runId);
+      basis = open ? openApprovalBasis(payload, events, binding) : recordedApprovalBasis(payload, events, binding, row.decision);
+    } catch { basis = null; }
+  }
+  if (open) {
+    if (!basis) return [...heading(), el('p', { text: 'Permission details are unavailable. Open the full conversation to inspect this request.' })];
+    // The shared title names the request; the disclosure inside keeps its place across rebuilds.
+    const details = basis.nodes.find(node => String(node.tagName).toLowerCase() === 'details');
+    if (details) { details.setAttribute('data-row', `${row.id}:details`); details.open = expanded.has(`${row.id}:details`); }
+    const nodes = [el('p', { text: row.prompt }), el('div', { className: 'attention-approval-basis' }, ...basis.nodes)];
+    for (const [label, decision] of [['Deny','deny'],['Approve this action','allow']]) {
+      const button = el('button', { text: label, attrs: { type: 'button', 'data-agent-focus': `${row.id}:${decision}` } });
+      button.disabled = disabled;
+      button.addEventListener('click', () => onAnswer(decision)); nodes.push(button);
+    }
+    return nodes;
+  }
+  if (!basis) {
+    const decision = row.decision === 'allow' ? 'approved' : row.decision === 'deny' ? 'denied' : row.questionStatus === 'pending' ? 'closed' : row.questionStatus;
+    return [...heading(), el('p', { className: 'form-help', text: row.decision
+      ? `Approval ${decision} for this exact tool action. Review acceptance is not recorded here.`
+      : row.questionStatus === 'pending' ? 'This Run is no longer accepting answers.' : `Request ${row.questionStatus}` })];
+  }
+  // A decided request states what was recorded, as the Chat record does.
+  const record = el('details', { className: 'attention-approval-basis' },
+    el('summary', { text: `${basis.display.target} · ${basis.meta}` }), ...basis.nodes);
+  record.setAttribute('data-row', row.id); record.open = expanded.has(row.id);
+  return [...heading(), record];
+}
 
 export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel, itemsSummary = () => null }) {
   let visible = false, timer = null, opener = null, signature = '', openingEpoch = 0;
@@ -286,35 +329,22 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
           const detail = renderToolRow(row, { toolState: word, open: expanded.has(row.id), onToggle: () => {} });
           detail.dataset.row = row.id;
           block.append(detail);
-        } else if (row.kind === 'question' || row.kind === 'permission') {
+        } else if (row.kind === 'permission') {
+          block.append(...renderAttentionApproval(row, {
+            run: state.runs.find(run => run.id === row.runId), events: state.events, expanded,
+            disabled: state.busy || Boolean(state.readError),
+            onAnswer: decision => controller.answer(row.runId, row.id, { decision }),
+          }));
+        } else if (row.kind === 'question') {
           const run = state.runs.find(run => run.id === row.runId);
-          block.append(el('strong', { text: row.kind === 'permission' ? 'Approval request' : 'Question' }), el('p', { text: row.prompt }));
+          block.append(el('strong', { text: 'Question' }), el('p', { text: row.prompt }));
           if (canAnswer(row, run)) {
-            if (row.kind === 'permission') {
-              if (validPermission(row.payload)) {
-                block.append(el('pre', { text: `${row.payload.tool} · ${row.payload.path}\n${row.payload.bytes} bytes · ${row.payload.contentSha256}\n${row.payload.preview}` }));
-                for (const [label, decision] of [['Deny','deny'],['Approve this action','allow']]) {
-                  const button = el('button', { text: label, attrs: { type: 'button', 'data-agent-focus': `${row.id}:${decision}` } });
-                  button.disabled = state.busy || Boolean(state.readError);
-                  button.addEventListener('click', () => controller.answer(row.runId, row.id, { decision })); block.append(button);
-                }
-              } else block.append(el('p', { text: 'Permission details are unavailable. Open the full conversation to inspect this request.' }));
-            } else {
-              const answer = el('textarea', { attrs: { rows: '2', maxlength: '4000', 'aria-label': 'Answer Attention', 'data-agent-focus': row.id } });
-              answer.value = answers.get(row.id) || '';
-              const button = el('button', { text: 'Send answer', attrs: { type: 'button', 'data-agent-focus': `${row.id}:send` } });
-              button.disabled = state.busy || Boolean(state.readError) || !answer.value.trim();
-              answer.addEventListener('input', () => { answers.set(row.id, answer.value); button.disabled = state.busy || Boolean(state.readError) || !answer.value.trim(); });
-              button.addEventListener('click', () => controller.answer(row.runId, row.id, { answer: answer.value })); block.append(answer, button);
-            }
-          } else if (row.kind === 'permission') {
-            if (validPermission(row.payload)) {
-              block.append(el('pre', { text: `${row.payload.tool} · ${row.payload.path}\n${row.payload.bytes} bytes · ${row.payload.contentSha256}\n${row.payload.preview}` }));
-            }
-            const decision = row.decision === 'allow' ? 'approved' : row.decision === 'deny' ? 'denied' : row.questionStatus === 'pending' ? 'closed' : row.questionStatus;
-            block.append(el('p', { className: 'form-help', text: row.decision
-              ? `Approval ${decision} for this exact tool action. Review acceptance is not recorded here.`
-              : row.questionStatus === 'pending' ? 'This Run is no longer accepting answers.' : `Request ${row.questionStatus}` }));
+            const answer = el('textarea', { attrs: { rows: '2', maxlength: '4000', 'aria-label': 'Answer Attention', 'data-agent-focus': row.id } });
+            answer.value = answers.get(row.id) || '';
+            const button = el('button', { text: 'Send answer', attrs: { type: 'button', 'data-agent-focus': `${row.id}:send` } });
+            button.disabled = state.busy || Boolean(state.readError) || !answer.value.trim();
+            answer.addEventListener('input', () => { answers.set(row.id, answer.value); button.disabled = state.busy || Boolean(state.readError) || !answer.value.trim(); });
+            button.addEventListener('click', () => controller.answer(row.runId, row.id, { answer: answer.value })); block.append(answer, button);
           } else block.append(el('p', { className: 'form-help', text: row.questionStatus === 'pending' ? 'This Run is no longer accepting answers.' : `Request ${row.questionStatus}` }));
         } else if (row.kind === 'run-status') block.append(el('p', { className: 'form-help', text: runLabels[row.status] || runLabels.unknown }));
         else if (row.kind === 'error') block.append(el('p', { text: row.text }));
