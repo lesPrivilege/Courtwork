@@ -33,7 +33,8 @@ export function materialOutcome(result, error = null) {
   if (error) {
     const code = error.body?.error?.code;
     if (error.status === 503 && code === "material_link_failed") return "link_failed";
-    if (error.status === 409) return "conflict";
+    // Only the Host's revision conflict is one; any other 409 (a frozen Host, for example) shows its own message.
+    if (error.status === 409 && code === "source_revision_conflict") return "conflict";
     return "failed";
   }
   if (result?.workspaceState === "pending") return "pending";

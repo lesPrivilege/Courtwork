@@ -87,7 +87,7 @@ The state-machine, fault-replay, and Disclosure evaluation designs ask further q
 
 ## Run locally
 
-Requires Node.js 22.19+, Python 3, and Git 2.36+.
+Requires Node.js 22.19+, Python 3, and Git 2.36+. Candidate checks run in an OS sandbox: macOS needs nothing more; Linux also needs `bubblewrap`, `socat`, `ripgrep` and unprivileged user namespaces. Without them a check does not run and reports `sandbox_unavailable` ([details](app/docs/check-recipes.md#environment-policy)).
 
 ```sh
 git clone https://github.com/lesPrivilege/Courtwork.git

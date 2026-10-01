@@ -76,6 +76,10 @@ test("SP1-FE · truncated.json validates: 20 refs loaded, true count stated sepa
   assert.equal(matter.staleRefsTruncated, true);
   assert.equal(matter.derivations.stale, 37);
   assert.equal(truncationNote(matter), "Showing 20 of 37");
+  // A status filter counts from Core's byStatus, not the unfiltered total.
+  assert.equal(truncationNote(matter, "pending"), `Showing ${matter.staleRefs.filter((ref) => ref.status === "pending").length} of 20`);
+  assert.equal(truncationNote(matter, "accepted"), `Showing ${matter.staleRefs.filter((ref) => ref.status === "accepted").length} of 17`);
+  assert.equal(truncationNote(matter, "rejected"), null, "Core counts none of this status");
 });
 
 /* ---- null vs 0: the WO's named hard requirement. A backend that reports

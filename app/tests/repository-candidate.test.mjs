@@ -1236,6 +1236,55 @@ test("candidate_grep and repo_diff exclude a candidate_read-denied file, countin
   }
 });
 
+test("candidate_read and repo_write deny rules block Unicode-normalization and case spellings of a candidate path", async () => {
+  const h = await boot();
+  const source = await import("node:fs/promises").then(({ mkdtemp }) => mkdtemp(path.join(tmpdir(), "cw-candidate-unicode-deny-source-")));
+  try {
+    const { baseCommit } = await makeRepository(source);
+    const session = await h.createSession();
+    assert.equal((await h.api("PUT", `/sessions/${session.id}/repository-binding`, {
+      operation: "bind", requestId: "candidate-unicode-bind", expectedRevision: 0, rootPath: source,
+    })).status, 200);
+    const created = await h.api("PUT", `/sessions/${session.id}/repository-candidate`, {
+      operation: "create", requestId: "candidate-unicode-create", expectedRevision: 0,
+      expectedBindingRevision: 1, candidateId: "623e4567-e89b-42d3-a456-426614174000", baseCommit,
+    });
+    assert.equal(created.status, 200, JSON.stringify(created.json));
+    const nfc = "caf\u00e9-secret.txt";
+    const nfd = nfc.normalize("NFD");
+    const writeRun = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "candidate-unicode-write", input: h.scriptInput([{ name: "repo_write", arguments: { path: nfc, text: "unicode candidate sentinel\n" } }]),
+    });
+    assert.equal((await h.pollRun(writeRun.json.run.id)).status, "completed");
+    const control = (await h.api("GET", `/runtime-control?sessionId=${session.id}`)).json;
+    assert.equal((await h.api("PUT", `/runtime-control?sessionId=${session.id}`, {
+      revision: control.revision, operation: "policy", scope: { type: "session", id: session.id },
+      rules: [{ action: "candidate_read", resource: nfc, effect: "deny" }, { action: "repo_write", resource: nfc, effect: "deny" }],
+    })).status, 200);
+    const spellings = [nfd, nfc.toUpperCase(), nfd.toUpperCase()];
+    const run = await h.api("POST", `/sessions/${session.id}/runs`, {
+      commandId: "candidate-unicode-denied", input: h.scriptInput(spellings.flatMap(spelling => [
+        { name: "candidate_read", arguments: { path: spelling } },
+        { name: "repo_write", arguments: { path: spelling, text: "overwrite attempt\n" } },
+      ])),
+    });
+    assert.equal(run.status, 200, JSON.stringify(run.json));
+    assert.equal((await h.pollRun(run.json.run.id)).status, "completed");
+    const events = (await h.api("GET", `/sessions/${session.id}/events`)).json.events.filter(event => event.runId === run.json.run.id);
+    const results = events.filter(event => event.type === "tool.result");
+    assert.equal(results.length, spellings.length * 2);
+    for (const result of results) {
+      assert.equal(result.data.isError, true, result.data.text);
+      assert.match(result.data.text, /Runtime policy denied (candidate_read|repo_write)/);
+    }
+    assert.equal(events.some(event => event.type === "repository.candidate.read" || event.type.startsWith("repository.write.")), false);
+  } finally {
+    await h.runtime.close();
+    await rm(h.dataDir, { recursive: true, force: true });
+    await rm(source, { recursive: true, force: true });
+  }
+});
+
 test("source binding replacement requires an active private candidate to be revoked first", async () => {
   const h = await boot();
   const sources = await import("node:fs/promises").then(({ mkdtemp }) => mkdtemp(path.join(tmpdir(), "cw-candidate-rebind-")));
@@ -1422,7 +1471,9 @@ test("prepared repository writes become unknown after restart and are never repl
     const effect = restarted.getRepositoryWriteEffect(session.id, "unknown-write");
     assert.equal(effect.status, "unknown");
     assert.equal(effect.failure.code, "effect_unknown_after_restart");
-    assert.equal(restarted.getRun(run.run.id).status, "unknown");
+    // The Store closes the Run to more work; the Host's restart settlement
+    // (service.initialize) makes it terminal. See repository-restart-settlement.
+    assert.equal(restarted.getRun(run.run.id).status, "running");
     assert.equal(restarted.getRun(run.run.id).admissionOpen, false);
     assert.ok(restarted.listEvents({ sessionId: session.id, runId: run.run.id }).some(event => event.type === "repository.write.unknown" && event.data.effectId === prepared.effect.effectId));
     const duplicate = await restarted.prepareRepositoryWrite(run.run.id, {

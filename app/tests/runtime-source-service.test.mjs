@@ -85,11 +85,11 @@ test('BE-5: token, origin, content-type and body-size guards plus malformed/extr
     assert.equal((await raw('/runtime-sources/resolve', { body: '[]' })).status, 400);
     assert.equal((await raw('/runtime-sources/resolve', { body: 'null' })).status, 400);
     // Body size: the shared host body() reader discards any request over its
-    // 1 MiB cap by destroying the request socket (pre-existing behavior for
-    // every POST route; no JSON 413 reaches the client), so the fetch itself
-    // is rejected and nothing is resolved.
+    // 1 MiB cap and answers with the typed 413; nothing is resolved.
     const oversizedBody = JSON.stringify(inline('reference', 'x'.repeat(1024 * 1024 + 64)));
-    await assert.rejects(() => fetch(url('/runtime-sources/resolve'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-work-token': h.runtime.token }, body: oversizedBody }), /fetch failed|other side closed|terminated|SocketError|ECONNRESET/);
+    const oversized = await fetch(url('/runtime-sources/resolve'), { method: 'POST', headers: { 'content-type': 'application/json', 'x-work-token': h.runtime.token }, body: oversizedBody });
+    assert.equal(oversized.status, 413);
+    assert.equal((await oversized.json()).error.code, 'body_too_large');
     assert.equal((await h.api('POST', '/runtime-sources/resolve', inline('reference', 'runtime still up'))).status, 200);
     // Resolver field limit is tighter than the HTTP cap: 100001 chars is a 400.
     const fieldTooLong = await h.api('POST', '/runtime-sources/resolve', inline('reference', 'x'.repeat(100001)));

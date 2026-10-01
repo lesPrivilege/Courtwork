@@ -7,7 +7,6 @@ import { createHash } from 'node:crypto';
  * one ambiguous kind. Nothing here sends a model request. */
 
 export const COMMAND_SOURCE = Object.freeze({ type: 'host-builtin', version: 'courtwork-commands-1' });
-export const COMMAND_KINDS = Object.freeze(['read', 'client_ui', 'setting', 'control', 'passthrough']);
 const NAME = /^[a-z][a-z0-9_-]*$/;
 
 /**

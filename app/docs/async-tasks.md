@@ -20,8 +20,9 @@ ID/implementation version and immutable source ID/version/SHA-256. Reusing an
 origin call with changed input conflicts. A handle is a lookup key, never authority.
 No fork or cross-Session inheritance is implicit. An explicit later Run in the
 same retained Session can get/wait the original task. Deleting the Session retains
-the task as an orphan, queryable by the authenticated local human in that project;
-no callback recreates the Session or selects a recent one.
+the task as an orphan, which the authenticated local human in that project can
+query, reconcile and cancel; launching and consuming still need a live origin Run.
+No callback recreates the Session or selects a recent one.
 
 At most 128 tasks per project, 64 KiB UTF-8 per result, 128 delivery records per
 task. Full queues refuse new work rather than evict recovery evidence. The first
@@ -49,8 +50,9 @@ Terminal evidence is immutable; a contradictory terminal response is refused.
 Cancellation intent and its attempt are recorded separately from settlement;
 cancel/success races preserve provider evidence. Cancellation of a wait stops that
 wait, not an unrelated older task. Stop requests cancellation of tasks launched by
-the stopped Run. Budget/Run closure prevents new dispatch. On restart, unsettled
-tasks become unknown and are query-only; old prompts and launches are never replayed.
+the stopped Run. Budget/Run closure prevents new dispatch. On restart, only
+queued, dispatching or running tasks become unknown and are query-only; tasks that
+were already unknown keep their reason and revision; old prompts and launches are never replayed.
 
 Adapter I/O is bounded by host deadlines and AbortSignal; a timed-out promise cannot
 later publish a different outcome. Adapters are trusted in-process code, not an OS
@@ -95,7 +97,9 @@ read retained facts only. POST `/:id/reconcile` and `/:id/cancel` carry
 `{projectId,expectedRevision}`; CAS is checked before the action. Cancellation is
 at most one dispatch attempt, including after uncertain acknowledgement. A stale
 response is not the current state; refetch instead of silently updating the revision.
-Runtime policy still limits adapter calls. Unknown fields and duplicate query keys
+Runtime policy still limits adapter calls; for an orphan only an explicit user-scope
+deny applies, because its Session's tool exposure and workspace/session-scope
+policies no longer exist. Unknown fields and duplicate query keys
 are refused. Scope mismatch is uniformly unavailable.
 
 Turning off new launches preserves retained reads and explicit reconciliation where

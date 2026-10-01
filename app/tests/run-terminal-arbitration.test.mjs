@@ -167,3 +167,66 @@ test("D3: an exception while a cancel is pending settles unknown and keeps the e
     assert.ok(failed.error?.code);
   } finally { await h.runtime.close(); }
 });
+
+// A question the runtime asks while a cancel is already queued must not reopen
+// the Run: `stopping` never goes back to `waiting_user` (2026-09-29 liveness
+// survey). The cancel's write is queued before the question's, in the same tick.
+test("a question opened after a cancel closed admission is refused and the Run goes stopping → cancelled", async () => {
+  const h = await boot();
+  try {
+    const store = h.runtime.store; const service = h.runtime.service;
+    const session = await h.createSession();
+    const openQuestion = store.openQuestion.bind(store);
+    let cancelled;
+    store.openQuestion = (args) => { cancelled ??= service.cancelRun(args.runId, {}); return openQuestion(args); };
+    const created = await h.api("POST", `/sessions/${session.id}/runs`, { input: h.scriptInput([{ name: "ask_user", arguments: { prompt: "which plan?" } }]), commandId: "question-after-cancel" });
+    const runId = created.json.run.id;
+    await h.pollRun(runId);
+    assert.ok(cancelled, "the cancel was issued inside the question's write");
+    assert.equal((await cancelled).run.status, "cancelled");
+    assert.deepEqual(statuses(h, session.id, runId), ["running", "stopping", "cancelled"]);
+    const events = store.listEvents({ sessionId: session.id, runId });
+    assert.equal(events.some((e) => e.type === "question.open"), false, "no question was opened");
+    assert.equal(store.snapshot().questions.some((q) => q.runId === runId), false);
+  } finally { await h.runtime.close(); }
+});
+
+test("a stopping or terminal Run never keeps admission open, whatever the patch says", async () => {
+  const h = await boot();
+  try {
+    const store = h.runtime.store;
+    const session = await h.createSession();
+    const created = await h.api("POST", `/sessions/${session.id}/runs`, { input: h.scriptInput([{ name: "ask_user", arguments: { prompt: "hold" } }]), commandId: "admission-invariant" });
+    const runId = created.json.run.id;
+    await h.pollRun(runId, { until: (status) => status === "waiting_user" });
+    await store.updateRunWithEvent(runId, { status: "stopping", admissionOpen: true }, null);
+    assert.equal(store.getRun(runId).admissionOpen, false);
+    await h.api("POST", `/runs/${runId}/cancel`, {});
+    assert.equal((await h.pollRun(runId)).admissionOpen, false);
+  } finally { await h.runtime.close(); }
+});
+
+// Cancelling while a person is deciding ends that decision. The deadline it had
+// paused must not be re-armed for a Run that is being cancelled: with little
+// budget left and a slow abort, it would fire and report the cancel as a budget
+// failure.
+test("a cancel during a question settles cancelled, not overtaken by a re-armed deadline", async () => {
+  // The model's next reply is slow, as a real one is: the turn is still running
+  // after the rejected question, long enough for a re-armed deadline to fire.
+  const afterTool = (body) => (body?.messages ?? []).some((m) => m.role === "tool");
+  const h = await boot({ fakeResponder: async ({ body }) => { if (afterTool(body)) await new Promise((resolve) => setTimeout(resolve, 300)); return null; } });
+  try {
+    const service = h.runtime.service;
+    const session = await h.createSession();
+    const created = await h.api("POST", `/sessions/${session.id}/runs`, { input: h.scriptInput([{ name: "ask_user", arguments: { prompt: "hold" } }]), commandId: "cancel-during-question" });
+    const runId = created.json.run.id;
+    await h.pollRun(runId, { until: (status) => status === "waiting_user" });
+    const entry = service.active.get(runId);
+    entry.budget.remainingMs = 20;
+    const abort = entry.abort;
+    entry.abort = async () => { await new Promise((resolve) => setTimeout(resolve, 300)); return abort?.(); };
+    const cancelled = await h.api("POST", `/runs/${runId}/cancel`, {});
+    assert.equal(cancelled.json.run.status, "cancelled", JSON.stringify(cancelled.json.run.error));
+    assert.equal(entry.budget.reason, null, "no deadline fired during the cancel");
+  } finally { await h.runtime.close(); }
+});

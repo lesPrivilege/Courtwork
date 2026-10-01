@@ -5,6 +5,7 @@ import { maybeCrash } from '../runtime/test-hooks.mjs';
 import { AsyncTaskError, taskAssert, taskObject, taskId, validSource, sameSource,
   digestText, validateAsyncTasks, TASK_LIMIT, RESULT_LIMIT, DELIVERY_LIMIT, TASK_TERMINAL } from './async-task-state.mjs';
 import { projectAsyncTask } from './async-task-view.mjs';
+const IN_FLIGHT = new Set(['queued', 'dispatching', 'running']);
 
 export const ASYNC_TOOL_NAMES = ['async_launch', 'async_get', 'async_wait'];
 const now = () => new Date().toISOString();
@@ -101,10 +102,13 @@ export class AsyncTasks {
       count: rows.length, offset, nextOffset: offset + limit < rows.length ? offset + limit : null };
   }
 
+  /** Only work that was in flight is fenced. A task already `unknown` keeps
+   * its reason and revision across later restarts. */
   async recover() {
-    if (!this.store.state.asyncTasks.some(t => !TASK_TERMINAL.has(t.execution.status))) return;
+    const inFlight = (t) => IN_FLIGHT.has(t.execution.status);
+    if (!this.store.state.asyncTasks.some(inFlight)) return;
     await this.#mutate(state => {
-      for (const t of state.asyncTasks) if (!TASK_TERMINAL.has(t.execution.status)) {
+      for (const t of state.asyncTasks) if (inFlight(t)) {
         t.execution.status = 'unknown'; t.execution.reason = 'host_restart'; this.#touch(t);
       }
     });

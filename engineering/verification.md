@@ -60,7 +60,13 @@ These method-level rules first appeared in dated receipts; they are stated here 
 - UI evidence recording: record CSS viewport, pointer mode, text scale, zoom, and DPR separately, following [visual-spatial-grammar.md](design/visual-spatial-grammar.md) (2026-09-21).
 - Drive the production owner, not a test-local stand-in: lifecycle and integration tests run through the production module and the real card or controller, because a stand-in controller is not integration coverage. Source-pin assertions move with the code they pin and keep the same invariant, rather than being loosened (2026-09-16, 2026-09-21).
 - Counterexample first: reproduce the failure on the unchanged baseline bytes before fixing, then show before and after (2026-09-20, 2026-09-21).
-- Known concurrent flakes: a single failure of `review-core-client-lifecycle` (Core bridge ready timeout) or of `profile-editor.test.mjs` K5-R2 (`release is not a function`, a one-tick wait under load) under concurrent `npm test` is reported as that known flake, and the file is re-run alone with no code change. A repeated or new failure is not a flake (2026-09-16, 2026-09-21, 2026-09-28).
+- No known flakes. An intermittent failure is closed by a demonstrated mechanism, not by a passing rerun. The former known flakes were each reproduced on demand and fixed in the test, as were three more found in the 2026-09-29 loop ([convergence loop S12](execution/converge-loop-20260929/README.md#s12--test-races-found-while-verifying-fixed-at-their-cause), 2026-09-30):
+  - the former known flakes, `review-core-client-lifecycle` (Core bridge ready timeout) and `profile-editor` K5-R2;
+  - MS-R2 in `models-save-flow`;
+  - `work-summary`;
+  - the two `local-pi` timing tests.
+
+  A new intermittent failure is investigated the same way before it is called anything.
 - State unexecuted checks explicitly, using the standard list: native zoom/200%, screen reader, forced colors, coarse pointer/touch, dark theme, error matrices, real provider, non-author review, and visual baseline (recurring across receipts, 2026-09-16 to 2026-09-28).
 - Independent acceptance uses the parent's own browser session. DOM and network records from an author's tool are not a visual baseline (2026-09-20, 2026-09-21).
 - Tests must not rewrite tracked evidence blobs during the default run (2026-09-19).

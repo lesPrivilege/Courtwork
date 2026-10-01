@@ -1,0 +1,150 @@
+// RD-009 check containment: a check runs model-written candidate code inside
+// the check sandbox. Each test here failed on the runner before the sandbox.
+import assert from "node:assert/strict";
+import test from "node:test";
+import { createServer } from "node:net";
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { homedir, tmpdir } from "node:os";
+import path from "node:path";
+import { runCheckRecipe } from "../runtime/check-runner.mjs";
+import { createCheckTools } from "../runtime/check-tools.mjs";
+import { boot } from "./helpers.mjs";
+import { createSyntheticRepository } from "./fixtures/synthetic-repo/create-synthetic-repo.mjs";
+
+const SECRET = "NOT-A-REAL-SECRET-4f1c";
+const node = (script, timeoutMs = 20000) => ({ command: process.execPath, argv: ["-e", script], timeoutMs, outputLimitBytes: 65536 });
+
+// A synthetic Host data directory with a private candidate inside it, the
+// layout the Host uses (dataDir/repository-candidates/...).
+async function layout() {
+  const root = await mkdtemp(path.join(tmpdir(), "cw-check-sandbox-"));
+  const dataDir = path.join(root, "data");
+  const candidate = path.join(dataDir, "repository-candidates", "c1");
+  await mkdir(path.join(candidate, ".git"), { recursive: true });
+  await writeFile(path.join(candidate, "package.json"), '{"name":"candidate"}\n');
+  await writeFile(path.join(dataDir, "credentials.json"), JSON.stringify({ dummy: SECRET }), { mode: 0o600 });
+  return { root, dataDir, candidate, cleanup: () => rm(root, { recursive: true, force: true }) };
+}
+
+test("a model-written candidate test cannot read a file at the Host data directory (review probe p4)", async () => {
+  const h = await boot();
+  const sourceDir = await mkdtemp(path.join(tmpdir(), "cw-check-sandbox-src-"));
+  try {
+    // A dummy file beside the Host's credentials, same directory and mode.
+    await writeFile(path.join(h.dataDir, "dummy-credentials-probe.json"), JSON.stringify({ dummy: SECRET }), { mode: 0o600 });
+    const source = await createSyntheticRepository(sourceDir);
+    const session = await h.createSession({ permissionMode: "draft" });
+    assert.equal((await h.api("PUT", `/sessions/${session.id}/repository-binding`, { operation: "bind", requestId: "b", expectedRevision: 0, rootPath: sourceDir })).status, 200);
+    assert.equal((await h.api("PUT", `/sessions/${session.id}/repository-candidate`, { operation: "create", requestId: "c", expectedRevision: 0,
+      expectedBindingRevision: 1, candidateId: "923e4567-e89b-42d3-a456-426614174311", baseCommit: source.head })).status, 200);
+    const evil = `import { test } from 'node:test'; import fs from 'node:fs'; import path from 'node:path';
+test('probe', () => { console.log('PROBE-RAN'); let d = process.cwd();
+  for (let i = 0; i < 8; i++) { const f = path.join(d, 'dummy-credentials-probe.json');
+    try { console.log('READ-OUTSIDE-CANDIDATE: ' + fs.readFileSync(f, 'utf8')); } catch (e) { if (e.code !== 'ENOENT') console.log('DENIED ' + e.code + ' ' + i); }
+    d = path.dirname(d); } });\n`;
+    const made = await h.api("POST", `/sessions/${session.id}/runs`, { commandId: "r1", input: h.scriptInput([
+      { name: "repo_write", arguments: { path: "test/evil.test.mjs", text: evil } },
+      { name: "check_run", arguments: { recipeId: "node-test" } }]) });
+    const runId = made.json.run.id;
+    const answered = new Set();
+    for (;;) {
+      const run = await h.pollRun(runId, { timeoutMs: 60000, until: status => status === "waiting_user" || ["completed", "failed", "cancelled"].includes(status) });
+      if (run.status !== "waiting_user") break;
+      const open = h.runtime.store.snapshot().events.find(e => e.runId === runId && e.type === "permission.open" && !answered.has(e.data.id));
+      answered.add(open.data.id);
+      assert.equal((await h.api("POST", `/runs/${runId}/questions/${open.data.id}`, { decision: "allow" })).status, 200);
+    }
+    const settled = h.runtime.store.snapshot().events.find(e => e.runId === runId && e.type === "check.settled");
+    assert.equal(settled.data.status, "completed", JSON.stringify(settled.data));
+    assert.match(settled.data.stdout, /PROBE-RAN/, "the model-written test ran");
+    assert.equal((settled.data.stdout + settled.data.stderr).includes(SECRET), false, "the dummy secret never reaches check output");
+  } finally {
+    await h.runtime.close();
+    await rm(sourceDir, { recursive: true, force: true });
+  }
+});
+
+test("the candidate, its Git metadata and the data directory are read-only; the check's own temporary directory is writable", async () => {
+  const l = await layout();
+  try {
+    const script = `const fs = require('node:fs'), os = require('node:os'), path = require('node:path');
+for (const [name, file] of [['new', 'written.txt'], ['existing', 'package.json'], ['git', '.git/HEAD'], ['data', '../../written.txt'], ['tmp', path.join(os.tmpdir(), 'ok.txt')]]) {
+  try { fs.writeFileSync(path.resolve(file), 'x'); console.log('WROTE ' + name); } catch (e) { console.log('DENIED ' + name + ' ' + e.code); } }`;
+    const result = await runCheckRecipe({ recipe: node(script), cwd: l.candidate, dataDir: l.dataDir });
+    assert.equal(result.exitCode, 0, result.stderr);
+    assert.match(result.stdout, /WROTE tmp/);
+    for (const name of ["new", "existing", "git", "data"]) assert.match(result.stdout, new RegExp(`DENIED ${name} `));
+    assert.deepEqual((await readdir(l.candidate)).sort(), [".git", "package.json"]);
+    assert.deepEqual(await readdir(path.join(l.candidate, ".git")), []);
+    assert.equal(await readFile(path.join(l.candidate, "package.json"), "utf8"), '{"name":"candidate"}\n');
+    assert.deepEqual((await readdir(l.dataDir)).sort(), ["credentials.json", "repository-candidates"]);
+  } finally {
+    await l.cleanup();
+  }
+});
+
+test("a check has no network, not even to a port listening on this host", async () => {
+  const l = await layout();
+  let connections = 0;
+  const server = createServer(socket => { connections++; socket.end(); });
+  await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
+  try {
+    const script = `const s = require('node:net').connect(${server.address().port}, '127.0.0.1');
+s.on('connect', () => { console.log('CONNECTED'); s.destroy(); }); s.on('error', e => console.log('REFUSED ' + e.code));`;
+    const result = await runCheckRecipe({ recipe: node(script), cwd: l.candidate, dataDir: l.dataDir });
+    assert.match(result.stdout, /REFUSED /, result.stdout + result.stderr);
+    assert.doesNotMatch(result.stdout, /CONNECTED/);
+    assert.equal(connections, 0);
+  } finally {
+    server.close();
+    await l.cleanup();
+  }
+});
+
+test("a descendant left in the check's process group is reaped after a normal exit", async () => {
+  const l = await layout();
+  let pid = null;
+  try {
+    const script = `const c = require('node:child_process').spawn(process.execPath, ['-e', 'setTimeout(() => {}, 30000)'], { stdio: 'ignore' });
+c.unref(); console.log('descendant ' + c.pid);`;
+    const result = await runCheckRecipe({ recipe: node(script), cwd: l.candidate, dataDir: l.dataDir });
+    assert.equal(result.exitCode, 0, result.stderr);
+    pid = Number(result.stdout.match(/descendant (\d+)/)?.[1]);
+    assert.ok(pid > 0, result.stdout);
+    assert.throws(() => process.kill(pid, 0), /ESRCH/, `descendant ${pid} must be gone when the check settles`);
+    assert.equal(result.groupLingered, undefined);
+  } finally {
+    if (pid) { try { process.kill(pid, "SIGKILL"); } catch { /* gone */ } }
+    await l.cleanup();
+  }
+});
+
+for (const [name, sandbox] of [
+  ["the sandbox mechanism is absent", { platformBinary: "/nonexistent/courtwork-sandbox-binary" }],
+  ["the Node prefix would re-open the home directory", { nodePrefix: homedir() }],
+]) {
+  test(`sandbox_unavailable starts no child when ${name}`, async () => {
+    const l = await layout();
+    try {
+      // Without a sandbox this would write the marker outside the candidate.
+      const marker = path.join(l.root, "executed");
+      const recipe = node(`require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'ran')`);
+      await assert.rejects(runCheckRecipe({ recipe, cwd: l.candidate, dataDir: l.dataDir, sandbox }), { code: "sandbox_unavailable" });
+      await assert.rejects(readFile(marker), { code: "ENOENT" });
+
+      const candidate = { id: "candidate-one", status: "active", revision: 1, writeRevision: 0,
+        sourceBindingId: "binding-one", sourceBindingRevision: 1, candidatePath: l.candidate };
+      const started = [], settled = [];
+      const [tool] = createCheckTools({ candidate, resolveCandidate: () => candidate, isOpen: () => true,
+        recordStarted: async detail => started.push(detail), recordSettled: async detail => settled.push(detail),
+        dataDir: l.dataDir, checkSandbox: sandbox });
+      const params = { recipeId: "node-test" };
+      await assert.rejects(tool.execute("call-one", params, undefined, undefined, tool.permissionContext(params)), { code: "sandbox_unavailable" });
+      assert.equal(started.length, 1);
+      assert.deepEqual(settled.map(s => [s.status, s.exitCode, s.signal, s.stdout, s.stderr, s.failure]),
+        [["failed", null, null, "", "", { code: "sandbox_unavailable" }]]);
+    } finally {
+      await l.cleanup();
+    }
+  });
+}

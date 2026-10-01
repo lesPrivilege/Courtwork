@@ -42,9 +42,11 @@ See [runtime control](../docs/runtime-control/INDEX.md), [runtime foundation](do
   [provider and cache contract](docs/runtime-foundation.md#api-selection-and-cache-continuity).
 - The server never reads `~/.pi/agent/auth.json`, never reads an API key from
   its own process environment for its own use, and if it inherits
-  `DEEPSEEK_API_KEY` from its parent process, it deletes that environment
-  variable at startup (logged, value never logged) so pi-ai's own per-provider
-  env-var fallback cannot silently activate.
+  `DEEPSEEK_API_KEY`, `OPENAI_API_KEY`, `OPENAI_ADMIN_KEY`, `OPENAI_ORG_ID`,
+  `OPENAI_PROJECT_ID`, `OPENAI_BASE_URL`, `OPENAI_WEBHOOK_SECRET`,
+  `OPENAI_CUSTOM_HEADERS` or `OPENAI_LOG` from its parent process, it deletes
+  them at startup (names logged, values never logged) so pi-ai's own
+  per-provider env-var fallback cannot silently activate.
 
 ## Configuring a key
 
@@ -67,8 +69,9 @@ Global Attention can discover explicitly disclosed Matter/Attention objects and 
 
 ## Run
 
-Node.js >=22.19.0 and Git >=2.36 on PATH. Git is required for artifact writes;
-unavailable Git fails the write before workspace publication. From the `app` directory:
+Node.js >=22.19.0 on PATH and Git >=2.36 at `/usr/bin/git`. The Host runs Git
+from that path with a closed environment, not through PATH. Git is required for
+artifact writes; unavailable Git fails the write before workspace publication. From the `app` directory:
 
 ```sh
 npm ci --ignore-scripts
@@ -256,14 +259,19 @@ this also holds for two concurrent requests racing on the same `commandId`.
   cancelled write never leaves a half-written file.
 - **Failure**: provider/transport errors end the Run `failed` with
   `run.error.code` one of `credential_missing`, `provider_auth_failed`, or
-  `provider_error` (the raw provider error text is never key-bearing, and any
-  known secret is defensively redacted before it is stored or logged).
+  `provider_error` (known keys are redacted from provider error bodies before Pi writes its
+  session journal, and from verify's observed model, request telemetry and log
+  lines; a key echoed inside a successful 2xx stream, or spelled with `\uXXXX` or
+  percent encoding, is not redacted).
 - **Questions outliving their Run**: whatever ends a Run, a still-pending
   question or permission is closed with status `cancelled` and a recorded
   `question.resolved`/`permission.resolved` event. An answer that arrives
   afterwards is `409`, never a silently dropped request — and never a write.
-- **Restart**: any in-flight Run becomes `unknown`
-  (`error.code: "restart_unknown"`), and **every** pending question or
+- **Restart**: any in-flight Run becomes `unknown`, with `error.code`
+  `mcp_effect_unknown` when an MCP dispatch has no settled result, else
+  `repository_write_unknown` when a repository write was prepared, else
+  `restart_unknown`; partial assistant text and a `run.status` event are kept.
+  **Every** pending question or
   permission (not just those on affected Runs) is marked `expired_restart` —
   nothing is left permanently unanswerable. The host JSONL session survives;
   the next Run for that app session reopens it with `SessionManager.open`

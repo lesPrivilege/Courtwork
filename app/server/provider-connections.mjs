@@ -28,19 +28,6 @@ export function catalogConnectionId(providerId) {
   return CATALOG_CONNECTION_PREFIX + providerId;
 }
 
-/** Runtime provider id of a connection. For a catalog connection it is the
- * catalog identity; for a user connection it is the connection id itself,
- * which can never collide with a catalog id because of the `conn-` prefix.
- * This is the PV-31 requirement: a user connection never registers onto a
- * catalog provider id, whose credential slot is single. */
-export function providerIdentityOf(connection) {
-  return connection.providerIdentity;
-}
-
-export function isUserConnection(connection) {
-  return connection.kind === "compatible";
-}
-
 export function defaultConnections(catalogApiFor = defaultCatalogApi) {
   return CATALOG_PROVIDER_IDS.map((providerId) => ({
     id: catalogConnectionId(providerId),

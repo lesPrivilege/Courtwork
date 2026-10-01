@@ -1,0 +1,74 @@
+✔ Attention CAS, full request identity, typed transitions and immutable receipt (223.630958ms)
+✔ scope applies before IDs, descriptors, counts, lookups, receipts and source queries (209.249333ms)
+✔ runtime registry-only grant hides detail, search predicates, event/receipt/source and signals (211.331291ms)
+✔ explicit signal policy records observations without status, seen or authorization changes (211.915083ms)
+✔ schema-aware exact/literal grep/relation filters are bounded and no regex executes (205.519333ms)
+✔ source references bind exact retained Core bytes and scope; external locators stay unknown (213.31925ms)
+✔ unknown schema/action, stale mutation, corrupt state and hidden unknown schema fail closed (594.323875ms)
+✔ simultaneous actions serialize CAS, and needs_you is an explicit typed transition (203.071084ms)
+✔ missing audit/receipt or rewritten receipt is refused before a new state change (796.422958ms)
+✔ GitHub fixture preserves raw conditional values, pagination, snapshots on 304, and changing poll cadence (3.598292ms)
+✔ GitHub fixture retains notification semantics that are unsafe to collapse (0.298708ms)
+✔ GitHub fixture surfaces unsupported credentials, revoked authorization and rate limits (0.74875ms)
+✔ GitHub fixture rejects contradictory scripts (0.164542ms)
+✔ Gmail fixture supplies duplicate and out-of-order push/history pages without advancing a caller cursor (4.409708ms)
+✔ Gmail fixture presents interruption, gap, expired watch, mismatch, and revoked authorization as explicit provider outcomes (1.066083ms)
+✔ Gmail fixture rejects malformed and contradictory scripted responses (0.310042ms)
+✖ ATT-BE-01 HTTP round trip keeps multi-Matter/source/execution refs through typed CAS and producer loss (117.98325ms)
+✖ Attention scope, actor ownership, unknown fields and schema versions fail closed over every query kind (99.294125ms)
+✖ Runtime Attention adapter captures host execution context, records signals only, and closes with the Run (112.879583ms)
+✔ generated Attention consumer packet records the HTTP/Pi/Core invariants (7.225458ms)
+✔ Attention SIGKILL at before_commit leaves zero or one complete request effect (464.293125ms)
+✔ Attention SIGKILL at after_commit_before_ack leaves zero or one complete request effect (409.410959ms)
+✔ synthetic trace vectors preserve edits, stale approval, unknown effect, duplicate surfacing and non-score samples (3.881125ms)
+✔ trace fixture validator rejects contradictions rather than turning missing evidence into a score (0.498041ms)
+✔ trace fixture validation runner is executable within the fixture directory (150.482291ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 22
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6843.507209
+
+✖ failing tests:
+
+test at app/tests/attention-http.test.mjs:78:1
+✖ ATT-BE-01 HTTP round trip keeps multi-Matter/source/execution refs through typed CAS and producer loss (117.98325ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/attention-http.test.mjs:188:1
+✖ Attention scope, actor ownership, unknown fields and schema versions fail closed over every query kind (99.294125ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }
+
+test at app/tests/attention-http.test.mjs:248:1
+✖ Runtime Attention adapter captures host execution context, records signals only, and closes with the Run (112.879583ms)
+  Error: listen EPERM: operation not permitted 127.0.0.1
+      at Server.setupListenHandle [as _listen2] (node:net:1986:21)
+      at listenInCluster (node:net:2065:12)
+      at node:net:2274:7
+      at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+    code: 'EPERM',
+    errno: -1,
+    syscall: 'listen',
+    address: '127.0.0.1'
+  }

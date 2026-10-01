@@ -71,7 +71,9 @@ test("Models: Provider, API key, Model in reading order; the key saves through i
     key.value = SYNTHETIC_KEY;
     calls.length = 0;
     await credential.dispatchEvent({ type: "submit" });
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // dispatchEvent does not await the async handler: wait for its outcome,
+    // not for a fixed time, which a loaded machine outlasts.
+    for (let tries = 0; tries < 100 && notes.at(-1) !== "API key saved."; tries++) await new Promise(resolve => setTimeout(resolve, 20));
     assert.ok(calls.includes("PUT /provider-credential"), JSON.stringify(calls));
     assert.equal(calls.some(call => call.startsWith("PUT /provider-config")), false, "saving the key does not save the model");
     assert.deepEqual(notes.at(-1), "API key saved.");
@@ -177,6 +179,8 @@ test("MS-R2 · a key error belongs to its connection: another target retires it;
     // no model call), then the key saves and no error remains.
     const saveOnly = form.querySelectorAll("button").find(node => node.textContent === "Save only");
     await form.dispatchEvent({ type: "submit", submitter: saveOnly });
+    // Saving a connection is five sequential Host requests; wait for the
+    // outcome rather than a fixed 50 ms (MS-R2 failed under load).
     for (let tries = 0; tries < 100 && page.notes.at(-1) !== "Connection saved."; tries++) await new Promise(resolve => setTimeout(resolve, 20));
     // SET-03 (S6) · saving a connection that is not in force leaves the model in force.
     assert.equal(page.notes.at(-1), "Connection saved. New runs keep the model in force until you choose Use for new runs.", JSON.stringify(page.calls.slice(-8)));
@@ -388,9 +392,18 @@ test("S6 review · saving a new endpoint for the connection in force carries it 
     baseUrl.value = moved;
     await baseUrl.dispatchEvent({ type: "input", target: baseUrl });
     const saveOnly = page.form.querySelectorAll("button").find((node) => node.textContent === "Save only");
+    const read = async () => (await h.api("GET", "/provider-connections")).json.connections.find((entry) => entry.id === made.json.connection.id);
+    // A saved key stays with the endpoint it was entered for: the Host refuses
+    // the new endpoint until the key is entered again, and says so.
+    await page.form.dispatchEvent({ type: "submit", submitter: saveOnly });
+    for (let tries = 0; tries < 100 && !page.container.textContent.includes("Enter the API key again for the new endpoint"); tries++) await new Promise((resolve) => setTimeout(resolve, 20));
+    assert.ok(page.container.textContent.includes("Enter the API key again for the new endpoint"), "the Host's refusal is shown");
+    assert.equal((await read()).baseUrl, h.runtime.fakeProvider.baseUrl, "nothing moved without the key");
+    assert.equal((await h.api("GET", "/provider-config")).json.config.baseUrl, h.runtime.fakeProvider.baseUrl);
+    page.rowTitled("API key").querySelector('input[type="password"]').value = SYNTHETIC_KEY;
     await page.form.dispatchEvent({ type: "submit", submitter: saveOnly });
     for (let tries = 0; tries < 100 && !page.notes.length; tries++) await new Promise((resolve) => setTimeout(resolve, 20));
-    const connection = (await h.api("GET", "/provider-connections")).json.connections.find((entry) => entry.id === made.json.connection.id);
+    const connection = await read();
     const config = (await h.api("GET", "/provider-config")).json.config;
     assert.equal(connection.baseUrl, moved, `the connection took the new endpoint: ${JSON.stringify(page.notes)}`);
     assert.equal(config.baseUrl, moved, "the Host admits a run only on a matching endpoint");

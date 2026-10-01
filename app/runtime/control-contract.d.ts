@@ -12,7 +12,7 @@ export interface PolicyRule { action: string; resource: string; effect: Effect }
 export interface ScopedPolicy { scope: Scope; rules: PolicyRule[] }
 export interface PermissionExplanation {
   effect: Effect;
-  trace: Array<{ source: Scope | string; effect: Effect; action?: string; resource?: string }>;
+  trace: Array<{ source: Scope | string; effect: Effect; action?: string; resource?: string; held?: 'alias-conflict' }>;
   resourceSpecific?: boolean;
 }
 export interface ResourceSource {

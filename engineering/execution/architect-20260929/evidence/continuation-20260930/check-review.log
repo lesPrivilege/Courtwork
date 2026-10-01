@@ -1,0 +1,36 @@
+✔ check approval rejects changed write revision before recording a start (3.973667ms)
+✔ check approval rejects changed candidate identity before recording a start (0.158875ms)
+✔ check approval rejects changed candidate revision before recording a start (0.12725ms)
+✔ check approval rejects changed candidate status before recording a start (0.390625ms)
+✔ check approval rejects changed binding identity before recording a start (0.27375ms)
+✔ check approval rejects changed binding revision before recording a start (0.23375ms)
+✔ check approval rejects changed execution path before recording a start (0.135209ms)
+✔ check approval rejects changed missing active binding before recording a start (0.145916ms)
+✔ check requires the exact approved recipe descriptor (0.409625ms)
+✔ candidate drift while persisting check.started settles failed without executing (9.688208ms)
+✔ runner's final synchronous Host fence prevents actual process side effects (1.14925ms)
+✔ runner cancellation before preparation never spawns (0.930667ms)
+✔ runner cancellation inside final fence never spawns (1.975125ms)
+✔ admission closing during start persistence settles once as cancelled without spawn (1.266792ms)
+✔ node-test-attention-contract: an approval for v1 cannot authorize v2, in either field alone or together (0.254667ms)
+✔ node-test-harness-contract: an approval for v1 cannot authorize v2, in either field alone or together (0.193334ms)
+✔ precondition: app/node_modules holds real files inside the repository, not a link out of it (5.120667ms)
+✔ node-test-attention-contract passes on this repository under the production sandbox with its frozen limits (3026.491542ms)
+✔ node-test-harness-contract passes on this repository under the production sandbox with its frozen limits (5801.263209ms)
+✔ cancel does not settle while a SIGTERM-ignoring detached descendant survives (109.946166ms)
+✔ timeout does not settle while a SIGTERM-ignoring detached descendant survives (463.969833ms)
+✔ a normal exit with nothing left in the group settles with the group confirmed gone (64.662042ms)
+✔ a model-written candidate test cannot read a file at the Host data directory (review probe p4) (4705.563958ms)
+✔ the candidate, its Git metadata and the data directory are read-only; the check's own temporary directory is writable (153.630958ms)
+✔ a check has no network, not even to a port listening on this host (150.623458ms)
+✔ a descendant left in the check's process group is reaped after a normal exit (183.463875ms)
+✔ sandbox_unavailable starts no child when the sandbox mechanism is absent (5.7355ms)
+✔ sandbox_unavailable starts no child when the Node prefix would re-open the home directory (4.343375ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 16443.263125

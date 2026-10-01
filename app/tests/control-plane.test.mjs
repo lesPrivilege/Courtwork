@@ -4,8 +4,8 @@ import { readFile, writeFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import http from 'node:http';
 import { boot, reopen } from './helpers.mjs';
-import { evaluatePolicy, compileControlContext } from '../runtime/control-plane.mjs';
-import { governTools } from '../runtime/control-tools.mjs';
+import { compileControlContext } from '../runtime/control-plane.mjs';
+import { createPathAdmission } from '../runtime/control-tools.mjs';
 
 async function control(h, session) {
   const suffix = session ? '?sessionId=' + session.id : '';
@@ -56,28 +56,6 @@ test('control: active Run freezes config; retry preserves its original runtime b
   } finally { await h.runtime.close(); }
 });
 
-test('policy: last match within scope, outer ceilings and literal regex characters', () => {
-  const layers = [{ scope: 'workspace', rules: [{ action: 'ws_*', resource: '*', effect: 'allow' }, { action: 'ws_write', resource: 'out/[x].md', effect: 'deny' }] }, { scope: 'session', rules: [{ action: '*', resource: '*', effect: 'allow' }] }];
-  assert.equal(evaluatePolicy(layers, 'ws_write', 'out/[x].md').effect, 'deny');
-  assert.equal(evaluatePolicy(layers, 'ws_write', 'out/x.md').effect, 'allow');
-  assert.equal(evaluatePolicy(layers, 'ws_write', 'out/x.md', 'ask').effect, 'ask');
-  assert.equal(evaluatePolicy(layers, 'ws_write', 'out/x.md', 'deny').effect, 'deny');
-  const allow = { scope: { type: 'user', id: 'local' }, rules: [{ action: 'mcp.*.read', resource: '*', effect: 'allow' }] };
-  const profile = { scope: { type: 'agent', id: 'review' }, rules: [{ action: '*', resource: '*', effect: 'allow' }] };
-  assert.equal(evaluatePolicy([profile], 'mcp.local:server.read', '*', 'allow', 'ask').effect, 'ask', 'profile cannot grant beyond the host default');
-  assert.equal(evaluatePolicy([allow, profile], 'mcp.local:server.read', '*', 'allow', 'ask').effect, 'allow', 'an explicit host policy can authorize a specific MCP action');
-});
-
-test('repository path policy is case-insensitive to block Host-volume case aliases', () => {
-  const rules = [{ scope: { type: 'session', id: 'fixture' }, rules: [
-    { action: 'repo_read', resource: 'Secrets.txt', effect: 'deny' },
-    { action: 'repo_write', resource: 'Output/*', effect: 'ask' },
-  ] }];
-  assert.equal(evaluatePolicy(rules, 'repo_read', 'secrets.txt').effect, 'deny');
-  assert.equal(evaluatePolicy(rules, 'repo_write', 'output/new.txt').effect, 'ask');
-  assert.equal(evaluatePolicy(rules, 'ws_read', 'secrets.txt').effect, 'allow', 'non-repository resource policy matching retains existing case semantics');
-});
-
 test('control APIs: source content remains pinned after replacement; templates are human-invoked drafts', async () => {
   const h = await boot();
   try {
@@ -117,16 +95,51 @@ test('policy: path denial reaches the executor; exposed write does not imply all
   } finally { await h.runtime.close(); }
 });
 
-test('policy: domain tools use the same execution gate, including exact arguments across approval', async () => {
-  let observed = null;
-  const args = { value: 'authorized' };
-  const tools = governTools([{ name: 'se_action', execute: async (_id, value) => { observed = value; } }], {
-    binding: { resources: [{ id: 'tool:se_action', exposed: true }], policies: [{ scope: 'user', rules: [{ action: 'se_*', resource: '*', effect: 'ask' }] }] },
-    permissionMode: 'draft', isOpen: () => true,
-    requestPermission: async () => { args.value = 'swapped'; return 'allow'; },
-  });
-  await tools[0].execute('call', args);
-  assert.equal(observed.value, 'authorized');
+test('policy: a ws_read deny reaches ws_grep and ws_list through the Host, without a permission question', async () => {
+  const h = await boot();
+  try {
+    const session = await h.createSession(); const c = await control(h, session);
+    for (const [name, text] of [['open.txt', 'SENTINEL in the open file'], ['secret.txt', 'SENTINEL in the private file']]) {
+      assert.equal((await h.api('POST', `/sessions/${session.id}/materials`, { name, text })).status, 200);
+    }
+    await c.change({ operation: 'policy', scope: c.scope, rules: [{ action: 'ws_read', resource: 'materials/secret.txt', effect: 'deny' }] });
+    const created = await h.api('POST', `/sessions/${session.id}/runs`, { commandId: 'ws-aggregate', input: h.scriptInput([{ name: 'ws_grep', arguments: { pattern: 'SENTINEL' } }, { name: 'ws_list', arguments: {} }]) });
+    assert.equal((await h.pollRun(created.json.run.id)).status, 'completed');
+    const events = (await h.api('GET', `/sessions/${session.id}/events`)).json.events;
+    assert.equal(events.some(e => e.type === 'permission.open'), false);
+    const results = Object.fromEntries(events.filter(e => e.runId === created.json.run.id && e.type === 'tool.result').map(e => [e.data.name, e.data]));
+    assert.equal(results.ws_grep.isError, false, JSON.stringify(results.ws_grep));
+    assert.match(results.ws_grep.text, /materials\/open\.txt/);
+    assert.ok(!results.ws_grep.text.includes('private file'), 'denied content must not reach the model');
+    const listed = JSON.parse(results.ws_list.text);
+    assert.equal(listed.find(f => f.path === 'materials/open.txt').sha256.length, 64);
+    assert.equal(listed.find(f => f.path === 'materials/secret.txt').sha256, undefined);
+  } finally { await h.runtime.close(); }
+});
+
+// D10: the advisory evaluation is the dispatch decision, not a second opinion.
+// Every tool that has a host ceiling is made exposed here (repo_write, check_run,
+// spark_explore and message_other_agent exist only when their surface is bound),
+// and each (mode, tool, resource) must equal what governTools would apply.
+test('policy: the advisory evaluation equals dispatch admission for every host ceiling and permission mode', async () => {
+  const h = await boot();
+  try {
+    const tools = ['ws_read', 'ws_write', 'repo_write', 'check_run', 'spark_explore', 'message_other_agent'];
+    for (const mode of ['read_only', 'draft', 'ask']) {
+      const session = await h.createSession({ permissionMode: mode });
+      const real = h.runtime.service.getRuntimeControl(session.id);
+      const resources = [...real.resources.filter(r => !tools.includes(r.id.slice(5))),
+        ...tools.map(name => ({ id: 'tool:' + name, kind: 'tool', action: name, exposed: true })),
+        { id: 'tool:mcp_0123', kind: 'tool', action: 'mcp.local:server.read', exposed: true, mcp: { serverId: 'local:server', name: 'read' } }];
+      const snapshot = { ...real, resources, policies: [{ scope: { type: 'session', id: session.id }, rules: [{ action: 'repo_write', resource: 'src/*', effect: 'ask' }] }] };
+      h.runtime.service.getRuntimeControl = () => snapshot;
+      const admitPath = createPathAdmission({ binding: snapshot, permissionMode: mode });
+      for (const name of [...tools, 'mcp_0123']) for (const resource of ['*', 'src/a.txt']) {
+        const evaluated = h.runtime.service.evaluateRuntimePermission(session.id, { resourceId: 'tool:' + name, resource });
+        assert.equal(evaluated.effect, admitPath(name, resource), `${name} on ${resource} in ${mode}`);
+      }
+    }
+  } finally { await h.runtime.close(); }
 });
 
 test('context: skill metadata is progressive, installed content grants no plugin/tool authority', async () => {

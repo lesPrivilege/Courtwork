@@ -23,10 +23,75 @@ function scope(value) {
   check(value.type === 'user' ? value.id === 'local' : string(value.id), 'Invalid scope identity');
 }
 function sameScope(a, b) { return a.type === b.type && a.id === b.id; }
-function matches(pattern, value, { caseInsensitive = false } = {}) {
+function conflict(code, message) { const error = new Error(message); error.status = 409; error.code = code; return error; }
+// A profile applies only inside its own scope, so it may be selected only at a
+// scope its own scope contains. The caller supplies a catalog and a target that
+// both belong to one Session's scope chain (user > workspace | Attention >
+// session), so a workspace/Attention profile covers a session target here.
+function profileCovers(owner, target) {
+  if (owner.type === 'user' || sameScope(owner, target)) return true;
+  return ['workspace', 'agent'].includes(owner.type) && target.type === 'session';
+}
+// A path rule applies to a file, not to one spelling of its path. Rule and
+// request are compared alias-folded, where every spelling a Host volume may
+// open as the same file is equal (APFS folds case and Unicode normalization;
+// tests/path-alias-oracle.test.mjs asks the volume). The fold works one code
+// point at a time, so it gives the same result beside a wildcard as inside a
+// name; lower-casing a whole string does not (final sigma).
+const PATH_ACTION = /^(ws|repo|candidate)_/;
+const foldedCodePoints = new Map();
+function foldCodePoint(codePoint) {
+  let folded = foldedCodePoints.get(codePoint);
+  if (folded !== undefined) return folded;
+  folded = codePoint;
+  for (let pass = 0; pass < 4; pass += 1) {
+    const next = [...folded.normalize('NFD')].map(c => [...c.toUpperCase()].map(u => u.toLowerCase()).join('')).join('');
+    if (next === folded) break;
+    folded = next;
+  }
+  foldedCodePoints.set(codePoint, folded);
+  return folded;
+}
+export function foldPathAliases(text) {
+  return [...text.normalize('NFD')].map(foldCodePoint).join('').normalize('NFD');
+}
+const glob = pattern => new RegExp('^' + pattern.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$');
+function matches(pattern, value) {
   // Deliberately small, documented glob: * matches any sequence, including /.
-  if (caseInsensitive) { pattern = pattern.toLowerCase(); value = value.toLowerCase(); }
-  return new RegExp('^' + pattern.split('*').map(s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*') + '$').test(value);
+  return glob(pattern).test(value);
+}
+const matchesPath = (pattern, folded) => glob(pattern.split('*').map(foldPathAliases).join('*')).test(folded);
+
+/** Whether one spelling of the folded path matches both patterns as written.
+ * A later rule overrides an earlier one only then: if two rules meet on a file
+ * through folding alone, which one applies would depend on how the request
+ * spelled the path. Walks the folded path with both patterns at once; where
+ * both name a character, they must name the same one. */
+function shareSpelling(first, second, folded) {
+  const a = [...first], b = [...second], text = [...folded];
+  const seen = new Set();
+  const stack = [[0, 0, 0]];
+  while (stack.length) {
+    const [i, j, k] = stack.pop();
+    const key = i + ',' + j + ',' + k;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    if (i === text.length && j === a.length && k === b.length) return true;
+    const starA = a[j] === '*', starB = b[k] === '*';
+    if (starA) stack.push([i, j + 1, k]);
+    if (starB) stack.push([i, j, k + 1]);
+    if (starA && starB && i < text.length) stack.push([i + 1, j, k]);
+    const covers = token => { const unit = [...foldPathAliases(token)]; return unit.every((c, n) => text[i + n] === c) ? unit.length : 0; };
+    if (j < a.length && !starA && (starB || a[j] === b[k])) {
+      const length = covers(a[j]);
+      if (length) stack.push([i + length, j + 1, starB ? k : k + 1]);
+    }
+    if (k < b.length && !starB && starA) {
+      const length = covers(b[k]);
+      if (length) stack.push([i + length, j, k + 1]);
+    }
+  }
+  return false;
 }
 export function hostToolCeiling(name, permissionMode) {
   if (name === 'spark_explore') return permissionMode === 'ask' ? 'ask' : 'allow';
@@ -41,19 +106,28 @@ export function hostToolCeiling(name, permissionMode) {
 export function evaluatePolicy(layers, action, resource, ceiling = 'allow', fallback = 'allow') {
   let effect = ceiling;
   const trace = [{ source: 'host-ceiling', effect: ceiling }];
-  // Repository paths may be addressed through case aliases on a Host volume
-  // whose lookup is case-insensitive. Match those path policies without case
-  // so a deny/ask cannot be bypassed by changing only the path's spelling.
-  const caseInsensitiveResource = action.startsWith('repo_') || action.startsWith('candidate_');
-  const selections = layers.map(layer => ({ layer, rule: layer.rules.filter(r => matches(r.action, action) && matches(r.resource, resource, { caseInsensitive: caseInsensitiveResource })).at(-1) })).filter(item => item.rule);
+  const path = PATH_ACTION.test(action);
+  const folded = path ? foldPathAliases(resource) : resource;
+  const selections = layers.map(layer => {
+    const matching = layer.rules.filter(r => matches(r.action, action) && (path ? matchesPath(r.resource, folded) : matches(r.resource, resource)));
+    // The last matching rule of a layer wins. For a path, an earlier stricter
+    // rule still holds when no later rule shares a spelling with it.
+    const held = path ? matching.filter((rule, index) => index < matching.length - 1 && weights[rule.effect] > weights[matching.at(-1).effect] &&
+      !matching.slice(index + 1).some(later => shareSpelling(rule.resource, later.resource, folded))) : [];
+    return { layer, rule: matching.at(-1), held };
+  }).filter(item => item.rule);
   const host = selections.filter(item => item.layer.scope?.type !== 'agent');
   if (!host.length) {
     if (weights[fallback] > weights[effect]) effect = fallback;
     trace.push({ source: 'host-default', effect: fallback });
   }
-  for (const { layer, rule } of [...host, ...selections.filter(item => item.layer.scope?.type === 'agent')]) {
+  for (const { layer, rule, held } of [...host, ...selections.filter(item => item.layer.scope?.type === 'agent')]) {
     trace.push({ source: layer.scope, ...rule });
     if (weights[rule.effect] > weights[effect]) effect = rule.effect;
+    for (const earlier of held) {
+      trace.push({ source: layer.scope, ...earlier, held: 'alias-conflict' });
+      if (weights[earlier.effect] > weights[effect]) effect = earlier.effect;
+    }
   }
   return { effect, trace };
 }
@@ -154,7 +228,9 @@ export class RuntimeControlPlane {
       }
     } else if (input.operation === 'profile') {
       scope(input.scope);
-      check(input.id === null || input.id === 'agent:general' || next.resources.some(r => r.id === input.id && r.kind === 'agent_profile' && knownIds.includes(r.id)), 'Profile is unavailable in this scope');
+      const profile = next.resources.find(r => r.id === input.id && r.kind === 'agent_profile' && knownIds.includes(r.id));
+      check(input.id === null || input.id === 'agent:general' || profile, 'Profile is unavailable in this scope');
+      if (profile && !profileCovers(profile.scope, input.scope)) throw conflict('profile_scope_conflict', `Profile ${profile.id} belongs to ${profile.scope.type} scope and cannot be selected at ${input.scope.type} scope`);
       next.profileSelections = next.profileSelections.filter(p => !sameScope(p.scope, input.scope));
       if (input.id !== null) next.profileSelections.push({ scope: input.scope, id: input.id });
     } else if (input.operation === 'remove') {
@@ -171,8 +247,34 @@ export class RuntimeControlPlane {
       next.policies = next.policies.filter(r => !sameScope(r.scope, input.scope));
       next.policies.push({ scope: input.scope, rules: clone(input.rules) });
     } else check(false, 'Unsupported runtime operation');
+    await this.#commit(next, { actor: 'local-user', operation: input.operation, id: input.id ?? input.resource?.id ?? null, scope: input.scope ?? input.resource?.scope ?? null });
+  }
+  /** Remove every entry owned by the given Sessions' scopes: resources,
+   * exposure overrides, policies and profile selections, plus overrides and
+   * selections at any scope that name a removed resource. Returns the removed
+   * resource ids. Writes nothing when no entry names those Sessions. */
+  async removeSessionScopes(sessionIds) {
+    const ids = new Set(sessionIds);
+    const owned = item => item.scope.type === 'session' && ids.has(item.scope.id);
+    const removed = this.config.resources.filter(owned).map(r => r.id);
+    const gone = id => removed.includes(id);
+    const next = clone(this.config);
+    next.resources = next.resources.filter(r => !owned(r));
+    next.overrides = next.overrides.filter(o => !owned(o) && !gone(o.id));
+    next.policies = next.policies.filter(p => !owned(p));
+    next.profileSelections = next.profileSelections.filter(p => !owned(p) && !gone(p.id));
+    if (['resources', 'overrides', 'policies', 'profileSelections'].every(key => next[key].length === this.config[key].length)) return removed;
+    await this.#commit(next, { actor: 'host', operation: 'session_removed', id: null, scope: ids.size === 1 ? { type: 'session', id: [...ids][0] } : null });
+    return removed;
+  }
+  /** Session scopes named by any entry; used to prune Sessions that no longer exist. */
+  sessionScopeIds() {
+    const c = this.config;
+    return [...new Set([...c.resources, ...c.overrides, ...c.policies, ...c.profileSelections].filter(item => item.scope.type === 'session').map(item => item.scope.id))];
+  }
+  async #commit(next, audit) {
     next.revision++;
-    next.audit = next.audit.slice(-199).concat({ revision: next.revision, at: new Date().toISOString(), actor: 'local-user', operation: input.operation, id: input.id ?? input.resource?.id ?? null, scope: input.scope ?? input.resource?.scope ?? null });
+    next.audit = next.audit.slice(-199).concat({ revision: next.revision, at: new Date().toISOString(), ...audit });
     validateConfig(next);
     const temp = this.file + '.' + randomUUID() + '.tmp';
     try { await writeFile(temp, JSON.stringify(next), { mode: 0o600 }); await rename(temp, this.file); }

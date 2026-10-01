@@ -92,7 +92,7 @@ export function renderChatMeasurementBody(kind, { events = [], run } = {}) {
       ? `${capacity.usedTokens.toLocaleString()} / ${capacity.contextWindow.toLocaleString()} tokens · ${percentage(capacity.ratio)}` : 'Usage not reported' }));
     add('Request', latest ? String(latest.requestId) : 'Not recorded');
     add('Context window', capacity ? `${capacity.contextWindow.toLocaleString()} tokens`
-      : declaredWindow ? `${declaredWindow.toLocaleString()} tokens` : '1,000,000 tokens · default');
+      : declaredWindow ? `${declaredWindow.toLocaleString()} tokens` : 'Not reported');
     if (capacity) add('Window source', capacity.windowSource === 'default-registration' ? 'Default registration' : 'Model declaration');
     if (known) {
       add('Usage source', 'Provider-reported request input');

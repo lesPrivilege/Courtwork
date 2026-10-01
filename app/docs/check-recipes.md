@@ -5,7 +5,8 @@ Session's active private Git candidate (see
 [`repository-binding.md`](repository-binding.md)). The contract is RD-009
 ["DF-04可施工合同"](../../engineering/research/RD-009-trusted-harness-extensions.md#df-04可施工合同).
 This is a first Developer-consumer increment, not a general G1–G5
-precondition, and not a sandbox.
+precondition. The recipe's process runs inside an OS sandbox; see
+[Environment policy](#environment-policy).
 
 ## Catalog
 
@@ -25,51 +26,79 @@ recipe. The fixed catalog has three recipes, in this order:
 | `outputLimitBytes` | `65536` |
 | `env` | `minimal` (see below) |
 
-`node-test-attention-contract` v1 is titled **Run Attention backend contract
-tests**. It uses the same Host Node command, private candidate cwd, 120000 ms
-timeout, 65536 byte per-stream limit and minimal environment as `node-test`.
-Its exact argv is:
+The two Courtwork recipes below are **offline**: each names only test files
+that pass with a read-only candidate and the check's own temporary directory,
+with no listener and no nested check, because a check has no network at all
+(not even loopback) and cannot start a sandbox of its own. Tests that boot a
+Host over HTTP and the sandbox lifecycle tests are not in any recipe; they are
+trusted developer and CI verification (`npm --prefix app test`), outside
+`check_run`. The recipes were changed from v1 to v2 for this reason: v1 named
+files that listen on `127.0.0.1` or start checks, so on a real Courtwork
+candidate they could not pass (Attention 22 of 25, Harness 71 of 108). v1 is
+not in the catalog and not runnable. Receipts and approvals recorded for v1
+keep their recorded version and argv, display as v1, and cannot authorize v2:
+approval matching is the exact descriptor comparison described under
+[Approval](#approval).
+
+`node-test-attention-contract` v2 is titled **Run Attention backend offline
+contract tests**. It uses the same Host Node command, private candidate cwd,
+120000 ms timeout, 65536 byte per-stream limit and minimal environment as
+`node-test`. Its exact argv is:
 
 ```text
 --test
 --test-concurrency=1
 app/tests/attention-core.test.mjs
-app/tests/attention-http.test.mjs
 app/tests/attention-recovery.test.mjs
 app/tests/attention-github-fixture.test.mjs
 app/tests/attention-gmail-fixture.test.mjs
 app/tests/attention-trace-fixture.test.mjs
 ```
 
-These fixed paths are expected in a Courtwork private candidate. They cover
-backend and synthetic fixture contracts; the recipe does not use a live
-connector or provider. A candidate without those paths is stopped before
-spawn as `missing_target` (below). The Host does not install candidate dependencies
-or substitute another command; preparing dependencies is an explicit
-candidate setup step. A passing result remains process evidence, not formal
-Attention or Work acceptance.
+It covers the Attention Core (CAS, scope, receipts, signals), its crash
+recovery, and the synthetic GitHub, Gmail and trace fixtures. It uses no live
+connector or provider. It does not cover the Attention HTTP round trip, actor
+ownership over HTTP or the runtime Attention adapter (`attention-http.test.mjs`
+starts a Host); those are verified by `npm --prefix app test`.
 
-`node-test-harness-contract` v1 is titled **Run Harness Core and Extensions
-contract tests**. It uses the same Host Node command, private candidate cwd,
-120000 ms timeout, 65536 byte per-stream limit and minimal environment. Its
+`node-test-harness-contract` v2 is titled **Run Harness Core and Extensions
+offline contract tests**. It uses the same Host Node command, private candidate
+cwd, 120000 ms timeout, 65536 byte per-stream limit and minimal environment. Its
 exact argv is:
 
 ```text
 --test
 --test-concurrency=1
-app/tests/hermes-api-runs.test.mjs
 app/tests/request-summary.test.mjs
 app/tests/runtime-load-recovery.test.mjs
 app/tests/kit-context.test.mjs
-app/tests/control-plane.test.mjs
-app/tests/check-recipes.test.mjs
+app/tests/kit-context-independent.test.mjs
+app/tests/control-policy.test.mjs
+app/tests/check-approval-authored-files.test.mjs
 ```
 
-It is a selected regression set for Courtwork's own private candidate (the
-RL-1 self-check), not all of Harness, Extensions or product acceptance. The
-Hermes file is synthetic HTTP conformance, not a native Hermes server. Its
-dependencies come from the candidate's own `app/node_modules`, prepared
-explicitly before the check; the Host never installs them.
+It covers the bounded `repo_list` request summary, `runtime_load` recovery
+hints, Kit context compilation, the control-plane policy rules and path
+matching, and the files a check approval lists. It is a selected regression set
+for Courtwork's own private candidate (the RL-1 self-check), not all of Harness,
+Extensions or product acceptance. It does not cover the Host-level halves of
+those areas (`request-summary-host.test.mjs`, `runtime-load-recovery-host.test.mjs`,
+`control-plane.test.mjs`), the synthetic Hermes HTTP conformance
+(`hermes-api-runs.test.mjs`), or the check runner, sandbox and catalog tests
+(`check-recipes.test.mjs`, `check-sandbox.test.mjs`, `check-runner-group-kill.test.mjs`,
+`check-approval-revision.test.mjs`), all of which start a Host, a listener or
+the check runner. `npm --prefix app test` runs them. `check-recipes-real.test.mjs` there
+runs both recipes above against this repository under the production sandbox,
+with their frozen limits, and fails when the sandbox is unavailable.
+
+These fixed paths are expected in a Courtwork private candidate. A candidate
+without them is stopped before spawn as `missing_target` (below). The Host does
+not install candidate dependencies or substitute another command; preparing
+dependencies is an explicit candidate setup step, and they must be real files
+inside the candidate: the sandbox reads the candidate's real path only, so an
+`app/node_modules` that is a symlink to a directory outside the candidate makes
+every dependency-needing test fail to load. A passing result remains process
+evidence, not formal Attention or Work acceptance.
 
 **Fixed targets must exist.** Node's test runner reads each path argument as a
 glob and silently skips one that matches nothing while the others run, which
@@ -118,7 +147,7 @@ When the Host asks, the approval payload shows the recipe, command and arguments
 not just the recipe id. The approval card also lists the files the model wrote
 into the candidate through `repo_write` (path and content hash) up to the write
 revision the request is bound to, read from the Host's confirmed-write receipts;
-see the isolation limit under [Environment policy](#environment-policy):
+what that code can reach is set by the [Environment policy](#environment-policy):
 
 ```json
 {
@@ -162,32 +191,105 @@ other tool still accepts only the base six fields.
 
 ## Environment policy
 
-The child process runs as a normal OS process with the Host user's own
-rights — this is **not** a sandbox. It is spawned with `shell:false` and a
-minimal, explicit environment:
+A check runs code the model wrote into the candidate, so the recipe's process
+and all its descendants run inside an OS sandbox with a fixed, Host-owned
+policy. The model cannot change the policy, and no recipe widens it.
+
+**Mechanism.** [`@anthropic-ai/sandbox-runtime`](../../engineering/ecosystem/sandbox-runtime-source-card.md)
+`0.0.77` (Apache-2.0), exact-pinned in `app/package.json`: on macOS a
+deny-default Seatbelt profile run through `/usr/bin/sandbox-exec`; on Linux
+bubblewrap with new user, PID and network namespaces. `app/runtime/check-sandbox.mjs`
+builds the policy and uses only the library's per-call wrapper. It never calls
+`SandboxManager.initialize()`, which would start the library's network proxy
+(and `socat` bridges on Linux) even when no domain is allowed; without it no
+proxy port exists, so the policy grants no network at all.
+
+**What the check can do:**
+
+- **Read** everything outside the user's home directory and the Host data
+  directory (which holds `credentials.json`, `runtime-state.json`, the Core
+  `state.db`, ArtifactHistory, and every Session's workspace and candidate).
+  Inside those two it reads only the candidate worktree it checks, its own
+  temporary directory, and the Node installation it runs. All of these are
+  resolved real paths; a path containing `*`, `?`, `[` or `]`, or a re-allowed
+  path that would contain the home or data directory, is refused as
+  `sandbox_unavailable`.
+- **Write** only its own temporary directory. The candidate worktree,
+  including its `.git`, is read-only to the check: a check reads the
+  candidate, and candidate files change only through approved `repo_write`. The
+  library's own default writable path `/tmp/claude` is denied again.
+- **No network.** No TCP or UDP, loopback included, and no DNS. No recipe
+  grants any.
+- **Nothing outside the sandbox.** On macOS Apple Events and Launch Services
+  open requests are denied (the library's `allowAppleEvents` stays off), so
+  `osascript`, `open` and `launchctl submit` fail instead of starting code
+  outside the sandbox.
+
+**Environment.** The runner spawns `/bin/sh -c <wrapped command>` with
+`shell:false` and a minimal environment:
 
 - `PATH`: the Host process's own `PATH` (or `/usr/bin:/bin` if unset)
-- `HOME`: a fresh temporary directory the runner creates before the process
-  starts and removes once it settles
+- `HOME` and `TMPDIR`: a fresh per-check temporary directory the runner creates
+  before the process starts and removes once it settles
 - `LANG`: `C`
 
-No other variable is passed through. In particular the child never sees
+The library adds `SANDBOX_RUNTIME=1` (and its own `TMPDIR`, which the wrapped
+command overrides). No other variable is passed through: the child never sees
 `NODE_OPTIONS`, `PYTHONPATH`, provider API keys or any other credential the
-Host process holds. Supporting an untrusted program will need a real
-isolation contract before extending this slice; today's exposure is bounded
-by using a no-personal-data, no-shared-write-directory synthetic fixture, not
-by an OS sandbox around the child.
+Host process holds. The wrapped command is a shell string because that is
+what the library returns; every value interpolated into it is Host-produced
+(the recipe's constant command and arguments, and Host paths), each quoted as
+a single POSIX single-quoted word, so no model input is ever interpreted by a
+shell.
 
-The environment is minimal, but the files are not isolated. The private candidate
-lives inside the Host data directory, beside `credentials.json` and the Core store,
-and test files the model wrote into the candidate (in `draft` mode, without a
-separate approval) run with the Host user's rights. Such a file can read anything
-the Host user can read and return it through check output. The approval card names
-those files so a person approves the code that will run, but naming is not
-containment: files an earlier check created are not listed, and nothing stops a
-listed file from reading credentials. The architecture rule for code execution
-opened to a model — show that it cannot reach formal write capability or
-credentials — is therefore not met today ([review D4](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)).
+**Fail closed.** Before the recipe runs, the Host requires the platform to be
+supported, the sandbox binary to be present (`/usr/bin/sandbox-exec` on macOS;
+`bwrap` on `PATH` on Linux), the library's dependency check to report no error,
+and a preflight `exit 0` under the same policy to succeed; a Seatbelt profile
+the kernel rejects or a bubblewrap that cannot create its namespaces is caught
+there. If any of these fails, no recipe process starts and the check settles
+once as `failed` with `failure: {code: "sandbox_unavailable"}` and empty
+output, the same shape as `spawn_failed`. There is no unsandboxed fallback, no
+setting or environment variable that disables the sandbox, and no
+compatibility path. Cancellation and the Host's synchronous pre-spawn checks
+(`run_closed`, `candidate_changed`, `missing_target`) take precedence over
+`sandbox_unavailable`, since with any of them no process would start anyway.
+
+**Process lifetime.** Whatever its exit path, a check settles only after its
+process group is gone: if anything remains when the leader closes, the group is
+sent `SIGKILL` and polled (bounded); if it cannot be confirmed gone, the result
+carries `groupLingered: true` (see below). A descendant
+that starts its own session leaves the group:
+
+- On Linux, bubblewrap runs the check in its own PID namespace with
+  `--die-with-parent`, so when the check ends every process inside it ends.
+  *Not run: no Linux host was available when this was written.*
+- On macOS the sandbox does not bound lifetime. A descendant in its own session
+  can outlive the check. It stays inside the sandbox, with the same read,
+  write, network and launch restrictions, but the Host does not find or stop
+  it, and the Host does not claim that it did.
+
+**System prerequisites.** macOS: `/usr/bin/sandbox-exec` (part of the OS).
+Linux: `bubblewrap`, `socat` and `ripgrep` on `PATH` (the library's dependency
+check requires all three even though checks use no proxy), and unprivileged
+user namespaces that keep their capabilities; on Ubuntu 24.04 and later that
+needs `sysctl kernel.apparmor_restrict_unprivileged_userns=0` or an AppArmor
+profile for `bwrap`. Other platforms settle every check as
+`sandbox_unavailable`.
+
+**Verified.** macOS 27 (Apple silicon, Node 25.9) with synthetic stand-ins:
+reads of the data directory, a file in the real home directory and another
+Session's workspace are denied directly and through a spawned `cat`; writes
+to the candidate, its `.git`, the data directory, the home directory and
+`/private/tmp` are denied while the temporary directory is writable; TCP to a
+public address and to a listening loopback port, UDP and DNS fail; `osascript`
+to Finder, `launchctl submit` and `open -g` start nothing; `node --test` with a
+child process and an `os.tmpdir()` write passes; through the runner, wall time
+for a one-file `node --test` rose from about 253 ms to about 338 ms (median of
+five, preflight included). The
+regression tests are in `app/tests/check-sandbox.test.mjs`. Linux: the same
+tests run in CI after the steps in `.github/workflows/runtime.yml`; *not run*
+at the time of writing.
 
 ## Timeout and output limits
 
@@ -195,10 +297,11 @@ The recipe's `timeoutMs` and `outputLimitBytes` are fixed by the catalog
 entry, not negotiable by the model. On timeout the runner kills the child's
 whole process group (`SIGTERM`, then `SIGKILL` after 500 ms if still alive)
 and reports
-`timedOut:true`. A stopped check (timeout or cancel) settles only after the whole
-group is gone: if a descendant that ignores `SIGTERM` outlives the leader, the
-group is sent `SIGKILL` and polled for up to 2 s; if it still cannot be confirmed
-gone, the runner result carries `groupLingered: true` ([review D5](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)). Captured stdout/stderr are each capped at
+`timedOut:true`. Every check (normal exit, timeout or cancel) settles only after
+its whole process group is gone: if a descendant outlives the leader — for
+example one that ignores `SIGTERM` — the group is sent `SIGKILL` and polled for
+up to 2 s; if it still cannot be confirmed gone, the runner result carries
+`groupLingered: true` ([review D5](../../engineering/reviews/doc-driven-code-review-2026-09-29/README.md#findings)). The group's leader is a small guard (`runtime/check-guard.mjs`) that runs outside the sandbox and starts the sandboxed command; the recipe and everything it starts run inside the sandbox. When the recipe's own process exits, however it ends, the guard reports that exit status to the Host and kills the whole group. A normal exit therefore also ends anything the recipe left running in its group, and the result carries the recipe's own exit code or signal. While the recipe runs, the guard holds a pipe from the Host; if the Host dies without stopping the check, the pipe closes and the guard kills the group. No check outlives the Host that admitted it, and nothing in its group outlives the check ([convergence loop S11](../../engineering/execution/converge-loop-20260929/README.md)). Every exit path then confirms the group is gone. A descendant that left the group into its own session is outside the guard's reach; on Linux the sandbox's PID namespace still ends it, on macOS it stays sandboxed (see [Environment policy](#environment-policy)). Captured stdout/stderr are each capped at
 `outputLimitBytes`; a stream that hits the cap is marked
 `truncated.stdout`/`truncated.stderr` and the excess is discarded, not
 buffered.
@@ -215,9 +318,10 @@ through the store, independent of Pi's own tool-result path:
 - `check.settled` — `{callId, status, exitCode, signal, durationMs, stdout, stderr, truncated, startedAt, endedAt, failure}`,
   plus `groupLingered: true` only when it applies (below),
   where `status` is one of `completed` (the process exited by itself, at any
-  exit code), `cancelled`, `timed_out`, `failed` (the process itself could
-  not be spawned), or `unknown` (below). Recorded unconditionally once the
-  runner has settled: the process exited by itself, or a stopped check's
+  exit code), `cancelled`, `timed_out`, `failed` (no process started:
+  `failure.code` names why, for example `spawn_failed`, `sandbox_unavailable`,
+  `missing_target` or `candidate_changed`), or `unknown` (below). Recorded unconditionally once the
+  runner has settled: the process exited by itself, or the check's
   bounded group reap has finished, whether or not it could confirm the group
   gone — even after the Run's admission has already closed, so a
   cancelled check's partial output is never lost. For `cancelled`, Host
@@ -225,8 +329,9 @@ through the store, independent of Pi's own tool-result path:
   child runner's raw close tuple is deliberately excluded. `completed` and
   `timed_out` retain observed process exit facts.
 
-**Unconfirmed group exit.** `groupLingered: true` records that a stopped
-check's process group could not be confirmed gone within the bounded reap; the
+**Unconfirmed group exit.** Every exit path reaps the check's process group.
+`groupLingered: true` records that the group could not be confirmed gone within
+the bounded reap, whatever the status (a check that exited by itself included); the
 key is absent in every other case, and the same field is in the tool result the
 model receives. It is a separate fact from `status`: it does not change the
 status and does not block later checks (the Host has no way to resolve it), and

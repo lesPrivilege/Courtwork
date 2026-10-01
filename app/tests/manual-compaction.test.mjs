@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { rm } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 import { SessionManager } from "@earendil-works/pi-coding-agent";
@@ -149,6 +149,8 @@ test("CMP-01 · refusals are explicit: active Run (not queued, not aborted), a s
     assert.equal(runDuring.status, 409, JSON.stringify(runDuring.json));
     const secondDuring = await h.api("POST", `/sessions/${h.session.id}/compactions`, { requestId: "second" });
     assert.equal(secondDuring.status, 409); assert.equal(secondDuring.json.error.code, "operation_active");
+    const deleteDuring = await h.api("DELETE", `/sessions/${h.session.id}`);
+    assert.equal(deleteDuring.status, 409); assert.equal(deleteDuring.json.error.code, "operation_active");
     const cfg = (await h.api("GET", "/provider-config")).json;
     const frozen = await h.api("PUT", "/provider-config", { ...cfg.config, expectedVersion: cfg.version });
     assert.equal(frozen.status, 409); assert.equal(frozen.json.error.code, "active_run");
@@ -197,7 +199,9 @@ test("CMP-01 · cancel and deadline settle without a partial summary; a restart 
     assert.equal(summariesOf(h.runtime.store.getSession(h.session.id).hostSession.path), 0, "no partial summary was written");
     release();
 
-    // Restart with a compaction in flight: unknown, queried back by the same requestId, no second summary.
+    // A graceful close settles an in-flight compaction `cancelled`; a crash
+    // leaves it `running` on disk, and the next start marks it unknown, queried
+    // back by the same requestId, no second summary.
     let release2; const gate2 = new Promise((r) => { release2 = r; });
     const h2 = await boot({ compaction: { enabled: true, reserveTokens: 1, keepRecentTokens: 1, maxCompactions: 4 }, fakeResponder: async (args) => {
       if (isSummaryRequest(args.body)) { await gate2; return { kind: "text", id: "never", created: 1, text: "NEVER" }; }
@@ -210,8 +214,12 @@ test("CMP-01 · cancel and deadline settle without a partial summary; a restart 
     assert.equal(inflight.status, 200, JSON.stringify(inflight.json));
     await new Promise((r) => setTimeout(r, 100));
     const dataDir = h2.dataDir;
+    const statePath = path.join(dataDir, "runtime-state.json");
+    const crashState = await readFile(statePath);
     release2();
     await h2.runtime.close();
+    assert.equal(h2.runtime.store.getOperation(inflight.json.operation.id).status, "cancelled", "a graceful close settles it");
+    await writeFile(statePath, crashState);
     const again = await reopen(dataDir);
     try {
       const recovered = (await again.api("GET", `/sessions/${session2.id}/compactions/${inflight.json.operation.id}`)).json.operation;
@@ -227,5 +235,78 @@ test("CMP-01 · cancel and deadline settle without a partial summary; a restart 
     release?.();
     await h.runtime.close().catch(() => {});
     await rm(h.dataDir, { recursive: true, force: true });
+  }
+});
+
+// A deleted chat takes its compaction records with it. They used to stay behind
+// naming the missing chat, and the next Host start refused the whole state file.
+test("CMP-01 · deleting a compacted chat removes its compaction records and the Host starts again", async () => {
+  const h = await setup();
+  let closed = false;
+  try {
+    const started = await h.api("POST", `/sessions/${h.session.id}/compactions`, { requestId: "before-delete" });
+    assert.equal(started.status, 200, JSON.stringify(started.json));
+    assert.equal((await pollOperation(h, h.session.id, started.json.operation.id)).status, "completed");
+    const removed = await h.api("DELETE", `/sessions/${h.session.id}`);
+    assert.equal(removed.status, 200, JSON.stringify(removed.json));
+    assert.deepEqual(h.runtime.store.listOperations(h.session.id), []);
+    await h.runtime.close(); closed = true;
+    const again = await reopen(h.dataDir);
+    try { assert.equal((await again.api("GET", `/sessions/${h.session.id}/compactions`)).status, 404); }
+    finally { await again.runtime.close(); }
+  } finally {
+    if (!closed) await h.runtime.close();
+  }
+});
+
+// Compaction sends a model request, so it is admitted on the same provider
+// route as a Run. A saved reasoning effort the model no longer supports is
+// refused for both, and the command catalog reports compaction unavailable.
+test("CMP-01 · compaction is refused on a provider route a Run would refuse", async () => {
+  const compaction = { enabled: true, reserveTokens: 1, keepRecentTokens: 1, maxCompactions: 4 };
+  const h = await setup();
+  await h.runtime.close();
+  const statePath = path.join(h.dataDir, "runtime-state.json");
+  const state = JSON.parse(await readFile(statePath, "utf8"));
+  state.providerConfig = { ...state.providerConfig, reasoningEffort: "high" };
+  await writeFile(statePath, JSON.stringify(state, null, 2));
+  const again = await reopen(h.dataDir, { compaction });
+  try {
+    again.runtime.fakeProvider.model.contextWindow = 4;
+    const run = await again.api("POST", `/sessions/${h.session.id}/runs`, { commandId: "stale-effort", input: "hello" });
+    assert.equal(run.status, 503); assert.equal(run.json.error.code, "effort_unsupported");
+    const compact = await again.api("POST", `/sessions/${h.session.id}/compactions`, { requestId: "stale-effort" });
+    assert.equal(compact.status, 503, JSON.stringify(compact.json)); assert.equal(compact.json.error.code, "effort_unsupported");
+    assert.deepEqual((await again.api("GET", `/sessions/${h.session.id}/compactions`)).json.operations, [], "a refused compaction leaves no record");
+    const listed = (await again.api("GET", `/sessions/${h.session.id}/commands`)).json;
+    const compactCommand = listed.commands.find((c) => c.name === "compact");
+    assert.equal(compactCommand.availability.available, false);
+    assert.match(compactCommand.availability.reason, /provider route/);
+  } finally {
+    await again.runtime.close();
+  }
+});
+
+// A graceful close used to leave a running compaction in flight after the Store
+// lock was released; its late summary then wrote the journal while another Host
+// could own it. Close now aborts and awaits it, so it settles first.
+test("CMP-01 · closing the Host settles a running compaction before releasing the data", async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const h = await setup({ responder: async (args) => { if (args.summary) { await gate; return { kind: "text", id: "late", created: 1, text: "LATE SUMMARY" }; } return null; } });
+  try {
+    const started = await h.api("POST", `/sessions/${h.session.id}/compactions`, { requestId: "during-close" });
+    assert.equal(started.status, 200, JSON.stringify(started.json));
+    await new Promise((r) => setTimeout(r, 100));
+    await h.runtime.service.close();
+    const op = h.runtime.store.getOperation(started.json.operation.id);
+    assert.equal(op.status, "cancelled", "settled by the closing Host, not left running");
+    release();
+    await new Promise((r) => setTimeout(r, 300));
+    const entries = SessionManager.open(h.manager.getSessionFile()).getEntries().filter((e) => e.type === "compaction");
+    assert.equal(entries.length, 0, "no summary reached the journal after close");
+  } finally {
+    release();
+    await h.runtime.close();
   }
 });

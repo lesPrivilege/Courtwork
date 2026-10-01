@@ -32,6 +32,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # Source: @anthropic-ai/sandbox-runtime 0.0.77 README, "Platform-Specific Dependencies" (Linux requires bubblewrap, socat, ripgrep).
+      - name: Install check sandbox tools
+        run: sudo apt-get update && sudo apt-get install -y bubblewrap socat ripgrep
+      # Source: same README, "Ubuntu 24.04+ note" (AppArmor strips capabilities from unprivileged user namespaces; bubblewrap needs them).
+      - name: Allow capability-bearing unprivileged user namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Install locked dependencies
         run: npm --prefix app ci --ignore-scripts
       - name: Verify fixed historical test inputs

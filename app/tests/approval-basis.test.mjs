@@ -48,6 +48,7 @@ test("a check approval shows the same basis in the Chat card and in the Attentio
   }
   assert.equal(popover, chat, "one presentation, two surfaces");
   assert.ok(!chat.includes("after-the-request.mjs"), "a write after the bound revision is not part of this approval");
+  assert.ok(popover.includes("inside this Host's sandbox"), "the open request states what this Host will do now");
   assert.deepEqual(buttons(nodes), ["Deny this check", "Approve this check"], "the Chat card's words");
   assert.deepEqual(actionButtons(nodes).map((node) => node.className), ["secondary-button", "primary-button"], "and its button kinds");
   assert.ok(!text(nodes).includes("Approval needed"), "the shared title is the heading; the generic prompt is not repeated");
@@ -102,6 +103,8 @@ test("a decided approval reads back what was recorded, the same on both surfaces
   for (const fact of ["Approval recorded for this exact check.", "--test-reporter=spec", "cand-7f3a", "src/sum.mjs", "tests/sum.test.mjs", "As recorded when this approval was requested."])
     assert.ok(record.textContent.includes(fact), `the record states ${fact}`);
   // R30-2 · nothing live-only is added to a decided record.
+  assert.ok(record.textContent.includes("the execution environment was not recorded"));
+  assert.ok(!/sandbox|no network|executes/.test(record.textContent), "a decided record does not project this Host's sandbox onto the past");
   assert.ok(!record.textContent.includes("Approval for this exact check only"));
   assert.deepEqual(buttons(nodes), []);
   assert.equal(record.open, false);

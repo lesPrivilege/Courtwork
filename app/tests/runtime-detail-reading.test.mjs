@@ -13,7 +13,7 @@ const resource = id => ({
   permission: { effect: 'ask', trace: [] },
 });
 
-async function fixture(body, sourceReply = async () => ({ content: 'Recorded fixture source.' })) {
+async function fixture(body, sourceReply = async () => ({ content: 'Recorded fixture source.' }), { permission, evaluated = { effect: 'ask', trace: [] } } = {}) {
   document.body = body;
   document.activeElement = body;
   // Model focus loss on subtree replacement, as browsers do. Tiny DOM is not
@@ -41,7 +41,7 @@ async function fixture(body, sourceReply = async () => ({ content: 'Recorded fix
   let sessionId = scope.id;
   const snapshot = {
     revision: 1, activeRuns: 0, scopes: [scope],
-    resources: [resource('tool:ws_write'), resource('tool:ws_read'), resource('local:ref.alpha'), resource('local:ref_alpha')],
+    resources: [{ ...resource('tool:ws_write'), ...(permission && { permission }) }, resource('tool:ws_read'), resource('local:ref.alpha'), resource('local:ref_alpha')],
     composition: { id: 'agent:general', status: 'compatible', missing: [], uiSlots: [] },
   };
   const view = createRuntimeView({ overview, capabilities }, {
@@ -49,7 +49,7 @@ async function fixture(body, sourceReply = async () => ({ content: 'Recorded fix
       if (path.startsWith('/runtime-control')) return structuredClone(snapshot);
       if (path.startsWith('/runtime-context')) return { context: [] };
       if (path.startsWith('/runtime-resources/')) return sourceReply();
-      if (path.startsWith('/runtime-permissions/evaluate')) return { effect: 'ask', trace: [] };
+      if (path.startsWith('/runtime-permissions/evaluate')) return structuredClone(evaluated);
       throw new Error(`Unexpected request: ${path}`);
     },
     getSessionId: () => sessionId,
@@ -161,4 +161,41 @@ test('A failed source response from a prior Session cannot replace the new read'
   await new Promise(resolve => setTimeout(resolve, 0));
   assert.ok(h.detail('tool:ws_write').textContent.includes('New Session source.'));
   assert.ok(!h.detail('tool:ws_write').textContent.includes('Old Session failure'));
+}));
+
+const layer = { type: 'session', id: 'session-a' };
+const deny = { source: layer, effect: 'deny', action: 'workspace.write', resource: 'private.txt' };
+const heldTrace = [
+  { source: 'host-ceiling', effect: 'allow' },
+  { source: layer, effect: 'allow', action: 'workspace.write', resource: 'PRIVATE.txt' },
+  { ...deny, held: 'alias-conflict' },
+];
+const heldNote = node => node.querySelector('[data-alias-held]');
+
+test('An alias-conflict trace step reads as held, with one sentence naming the held effect, in both trace readings', () => withTinyDom(async body => {
+  const h = await fixture(body, undefined, { permission: { effect: 'deny', trace: heldTrace }, evaluated: { effect: 'deny', trace: heldTrace } });
+  h.title('tool:ws_write').click();
+  h.detail('tool:ws_write').querySelector('[data-focus-key="explain:tool:ws_write"]').click();
+  await waitFor(() => h.detail('tool:ws_write').textContent.includes('Permission explanation'));
+  const notes = h.detail('tool:ws_write').querySelectorAll('[data-alias-held]');
+  assert.equal(notes.length, 2, 'the permission block and the explanation each say it once');
+  for (const note of notes) {
+    assert.equal(note.className, 'runtime-provenance');
+    assert.equal(note.textContent, 'Two rules name spellings of one file, so the stricter deny rule holds.');
+  }
+  const text = h.detail('tool:ws_write').textContent;
+  assert.equal(text.split('deny — workspace.write on private.txt · held').length, 3, 'the held step is labelled in both readings');
+  assert.ok(!text.includes('allow — workspace.write on PRIVATE.txt · held'), 'the deciding rule is not marked held');
+  assert.equal(h.detail('tool:ws_write').querySelector('[data-not-widened]'), null, 'the held entry equals the effective effect, so nothing was refused');
+}));
+
+test('A trace without a held step keeps its reading and no held sentence', () => withTinyDom(async body => {
+  const trace = [{ source: 'host-ceiling', effect: 'allow' }, { source: layer, effect: 'allow', action: 'workspace.write', resource: 'a.txt' }];
+  const h = await fixture(body, undefined, { permission: { effect: 'ask', trace }, evaluated: { effect: 'ask', trace } });
+  h.title('tool:ws_write').click();
+  h.detail('tool:ws_write').querySelector('[data-focus-key="explain:tool:ws_write"]').click();
+  await waitFor(() => h.detail('tool:ws_write').textContent.includes('Permission explanation'));
+  assert.equal(heldNote(h.detail('tool:ws_write')), null);
+  assert.equal(h.detail('tool:ws_write').querySelectorAll('[data-not-widened]').length, 2, 'the existing note still reads a narrower layer that asked for more');
+  assert.ok(!h.detail('tool:ws_write').textContent.includes('· held'));
 }));

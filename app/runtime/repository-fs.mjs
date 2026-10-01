@@ -38,7 +38,8 @@ export async function runRepositoryFs(request, { signal, timeoutMs = 10_000 } = 
     stdio: ["pipe", "pipe", "pipe"],
   });
   return await new Promise((resolve, reject) => {
-    let stdout = Buffer.alloc(0);
+    const stdoutChunks = [];
+    let stdoutBytes = 0;
     let stderr = "";
     let settled = false;
     let aborting = false;
@@ -76,12 +77,13 @@ export async function runRepositoryFs(request, { signal, timeoutMs = 10_000 } = 
     signal?.addEventListener("abort", abort, { once: true });
     if (signal?.aborted) abort();
     child.stdout.on("data", chunk => {
-      if (stdout.length + chunk.length > MAX_OUTPUT_BYTES) {
+      if (stdoutBytes + chunk.length > MAX_OUTPUT_BYTES) {
         tooLarge = true;
         stopChild();
         return;
       }
-      stdout = Buffer.concat([stdout, chunk]);
+      stdoutChunks.push(chunk);
+      stdoutBytes += chunk.length;
     });
     child.stderr.setEncoding("utf8");
     child.stderr.on("data", chunk => { stderr = (stderr + chunk).slice(-MAX_ERROR_BYTES); });
@@ -93,9 +95,9 @@ export async function runRepositoryFs(request, { signal, timeoutMs = 10_000 } = 
       if (tooLarge) return finish(new RepositoryFsError("result_too_large", "repository result exceeded the host limit"));
       if (aborting || signal?.aborted) return finish(new RepositoryFsError("cancelled", "repository operation was cancelled"));
       if (timedOut) return finish(new RepositoryFsError("operation_timeout", "repository operation exceeded its time limit"));
-      if (code !== 0 && !stdout.length) return finish(new RepositoryFsError("repository_unavailable", "repository operation failed"));
+      if (code !== 0 && !stdoutBytes) return finish(new RepositoryFsError("repository_unavailable", "repository operation failed"));
       let response;
-      try { response = JSON.parse(stdout.toString("utf8")); }
+      try { response = JSON.parse(Buffer.concat(stdoutChunks, stdoutBytes).toString("utf8")); }
       catch { return finish(new RepositoryFsError("invalid_helper_response", stderr ? "repository helper returned an invalid response" : "repository helper returned an invalid response")); }
       if (response?.ok !== true) {
         const item = response?.error;

@@ -1,0 +1,36 @@
+✔ Attention recipe is one frozen descriptor alongside the unchanged package recipe (1.488208ms)
+✔ Harness recipe is the third frozen descriptor; the first two keep their meaning and order (0.115584ms)
+✔ check_run's model-facing recipeId parameter offers every catalog id and title (0.165666ms)
+✔ runCheckRecipe reports a clean exit without truncation (120.657958ms)
+✔ runCheckRecipe reports a non-zero exit without throwing (113.320708ms)
+✔ runCheckRecipe caps captured stdout/stderr and marks truncated (116.772917ms)
+✔ runCheckRecipe timeout kills the whole process group, including a nested child (336.921541ms)
+✔ runCheckRecipe cancels on abort and resolves only after the group has exited (136.7005ms)
+✔ runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME (28.687458ms)
+✔ check_run is denied with zero process start under read_only (3099.471292ms)
+✔ an unknown recipe id returns a tool error without opening a permission or spawning anything (2442.500083ms)
+✔ ask mode shows the exact recipe in the permission payload and deny records nothing (4005.208291ms)
+✔ approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets (9002.376208ms)
+✔ approved Harness recipe runs its six fixed targets: pass, nonzero after an exact candidate write, pass after the correction (6991.5745ms)
+✔ Harness recipe stops before spawn on a missing fixed target and reports a missing dependency as a nonzero result, with no install or retry (8479.17175ms)
+✔ approving check_run runs the synthetic repo's own test recipe, failing before the fix and passing after (7373.479166ms)
+✔ cancelling a Run whose check is still running still records check.settled as cancelled (5752.752792ms)
+✔ an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed (347.941166ms)
+✔ same Run write then check approves and persists the current candidate revision (7121.651125ms)
+✔ cancel does not settle while a SIGTERM-ignoring detached descendant survives (128.109208ms)
+✔ timeout does not settle while a SIGTERM-ignoring detached descendant survives (475.515ms)
+✔ a normal exit with nothing left in the group settles with the group confirmed gone (90.854334ms)
+✔ a model-written candidate test cannot read a file at the Host data directory (review probe p4) (4558.899625ms)
+✔ the candidate, its Git metadata and the data directory are read-only; the check's own temporary directory is writable (205.925666ms)
+✔ a check has no network, not even to a port listening on this host (207.72125ms)
+✔ a descendant left in the check's process group is reaped after a normal exit (267.692792ms)
+✔ sandbox_unavailable starts no child when the sandbox mechanism is absent (6.857167ms)
+✔ sandbox_unavailable starts no child when the Node prefix would re-open the home directory (6.076625ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 28
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 64103.86225

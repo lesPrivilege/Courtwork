@@ -233,30 +233,32 @@ export function createSparkView({ request, getProjects, onOpenMatter }) {
     let any = false;
     for (const matter of matters) {
       const rows = activityRows(matter, activityStatus);
-      if (!rows.length) continue;
+      const note = truncationNote(matter, activityStatus);
+      if (!rows.length && !note) continue;
       any = true;
       const section = el('section', { className: 'spark-activity-matter' });
       // WO-SD-01 / SD-19: same read-only rule as matterRow — no navigation out of sample state.
       section.append(readOnly
         ? el('span', { className: 'spark-matter-open', text: matter.title })
         : button(matter.title, () => { dialog.close(); onOpenMatter(matter.matterId, projectId); }, {}, 'spark-matter-open'));
-      const table = el('table', { className: 'spark-table' });
-      const head = el('tr');
-      for (const title of ['Candidate', 'Status', 'Candidate revision', 'Behind by', 'Supersedes'])
-        head.append(el('th', { text: title, attrs: { scope: 'col' } }));
-      table.append(el('thead', {}, head));
-      const body = el('tbody');
-      for (const ref of rows) {
-        body.append(el('tr', {},
-          el('th', { text: ref.candidateId, attrs: { scope: 'row' } }),
-          el('td', { text: STATUS_LABELS[ref.status] || ref.status }),
-          el('td', { text: `${ref.candidateSourceVersion} of ${ref.matterSourceVersion}` }),
-          el('td', { text: `${ref.behind}` }),
-          el('td', { text: ref.supersedes ?? '—' })));
+      if (rows.length) {
+        const table = el('table', { className: 'spark-table' });
+        const head = el('tr');
+        for (const title of ['Candidate', 'Status', 'Candidate revision', 'Behind by', 'Supersedes'])
+          head.append(el('th', { text: title, attrs: { scope: 'col' } }));
+        table.append(el('thead', {}, head));
+        const body = el('tbody');
+        for (const ref of rows) {
+          body.append(el('tr', {},
+            el('th', { text: ref.candidateId, attrs: { scope: 'row' } }),
+            el('td', { text: STATUS_LABELS[ref.status] || ref.status }),
+            el('td', { text: `${ref.candidateSourceVersion} of ${ref.matterSourceVersion}` }),
+            el('td', { text: `${ref.behind}` }),
+            el('td', { text: ref.supersedes ?? '—' })));
+        }
+        table.append(body);
+        section.append(el('div', { className: 'spark-table-scroll' }, table));
       }
-      table.append(body);
-      section.append(el('div', { className: 'spark-table-scroll' }, table));
-      const note = truncationNote(matter);
       if (note) section.append(el('p', { className: 'form-help', text: `${note}. The remaining stale candidates for this Matter are not loaded on this page.` }));
       panel.append(section);
     }

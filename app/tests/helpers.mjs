@@ -1,17 +1,35 @@
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { startServer } from "../server/index.mjs";
+import { validateState } from "../server/store.mjs";
 import { FAKE_CREDENTIAL_KEY } from "../runtime/pi-session-runtime.mjs";
 
 const TERMINAL = new Set(["completed", "failed", "cancelled", "unknown"]);
 
+/** The Store validates its whole state only when it loads, while each write
+ * checks only what its own mutation touches. Every Host a test boots is held
+ * to the load rule on close: whatever it persisted must load again. */
+async function assertPersistedStateLoads(dataDir) {
+  let raw;
+  try { raw = await readFile(path.join(dataDir, "runtime-state.json"), "utf8"); }
+  catch (error) { if (error.code === "ENOENT") return; throw error; }
+  validateState(JSON.parse(raw));
+}
+function closeChecksPersistedState(runtime, dataDir) {
+  const close = runtime.close;
+  // Checked once, at the Host's own close; a test may corrupt the file afterwards.
+  let closed;
+  runtime.close = () => closed ??= close().then(() => assertPersistedStateLoads(dataDir));
+  return runtime;
+}
+
 export async function boot({ budget, compaction, fakeResponder, configureFakeCredential = true, logger, runtimePort, managedRuntimePort } = {}) {
   const dataDir = await mkdtemp(path.join(tmpdir(), "se-c1-test-"));
   const logs = [];
-  const runtime = await startServer({ dataDir, port: 0, budget, compaction, fakeResponder, runtimePort, managedRuntimePort, logger: logger ?? ((line) => logs.push(line)) });
+  const runtime = closeChecksPersistedState(await startServer({ dataDir, port: 0, budget, compaction, fakeResponder, runtimePort, managedRuntimePort, logger: logger ?? ((line) => logs.push(line)) }), dataDir);
   const headers = { "content-type": "application/json", "x-work-token": runtime.token };
 
   async function api(method, p, bodyObj, { rawConfig = false } = {}) {
@@ -153,7 +171,7 @@ export function spawnWorker({ dataDir, body, env = {}, prelude = "", serverOptio
 /** Open a second server on a data directory a killed worker left behind. */
 export async function reopen(dataDir, options = {}) {
   const logs = [];
-  const runtime = await startServer({ dataDir, port: 0, logger: (line) => logs.push(line), ...options });
+  const runtime = closeChecksPersistedState(await startServer({ dataDir, port: 0, logger: (line) => logs.push(line), ...options }), dataDir);
   const headers = { "content-type": "application/json", "x-work-token": runtime.token };
   async function api(method, p, bodyObj, { rawConfig = false } = {}) {
     if (method === "PUT" && p === "/provider-config" && bodyObj && !rawConfig && !Object.hasOwn(bodyObj, "expectedVersion")) {

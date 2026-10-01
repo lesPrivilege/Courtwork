@@ -4,7 +4,7 @@ import { Subagents } from '../harness/subagents.mjs';
 import { SPARK_DEFINITION, assertSessionNotReferencedBySubagents } from '../harness/subagent-state.mjs';
 import { compareSourceText } from '../intake/compare.mjs';
 import { IntakeStore, IntakeError } from '../intake/store.mjs';
-import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl } from './provider-fields.mjs';
+import { assertProviderApiKey, assertProviderApi, assertProviderBaseUrl, assertProviderModelId, validateProviderModels, normalizeProviderBaseUrl, redactSecrets as redact, PROVIDER_API_KEY_MIN_LENGTH } from './provider-fields.mjs';
 import { createGovernanceAdapter } from '../extensions/governance-adapter.mjs';
 import { COORDINATION_TOOLS, coordinationTools } from '../harness/tools.mjs';
 import { Coordination } from '../harness/coordination.mjs';
@@ -42,7 +42,7 @@ import {
   nativeCatalogModelIds,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
-import { RuntimeControlPlane, compileControlContext, evaluatePolicy } from "../runtime/control-plane.mjs";
+import { RuntimeControlPlane, compileControlContext, evaluatePolicy, hostToolCeiling } from "../runtime/control-plane.mjs";
 import { planKitRunContext, retainKitContext, readKitContext } from "../runtime/kit-run-context.mjs";
 import { PI_RUNTIME_ADAPTER_ID, PI_RUNTIME_ADAPTER_REVISION } from "../runtime/pi-runtime-port.mjs";
 import { createRuntimeLoadTool, createRuntimeProposeTool, createPresentTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
@@ -57,6 +57,7 @@ import { createPrivateRepositoryCandidate, readPrivateRepositoryCandidateDiff } 
 import { runRepositoryCandidateFs } from "../runtime/repository-candidate-fs.mjs";
 import { createRepositoryCandidateTools } from "../runtime/repository-candidate-tools.mjs";
 import { createCheckTools } from "../runtime/check-tools.mjs";
+import { createBuiltinWorkRunIntegration } from "./work-run-integration.mjs";
 import { chooseHostDirectory, DirectoryPickerError } from "../runtime/host-directory-picker.mjs";
 import { inspectRepositoryGitStatus } from "../runtime/repository-git-status.mjs";
 import { resolveRuntimeSource as resolveDeclarativeSource } from "../runtime/source-resolver.mjs";
@@ -83,7 +84,7 @@ import {
 } from "./provider-connections.mjs";
 
 const ALLOWED_PROVIDER_IDS = new Set(PROVIDER_DEFINITIONS.filter(entry => entry.kind !== "compatible").map(entry => entry.id));
-const MAX_MATERIAL_BYTES = 1024 * 1024;
+export const MAX_MATERIAL_BYTES = 1024 * 1024;
 const MATERIAL_NAME_PATTERN = /^[A-Za-z0-9._-]+$/;
 // PV-62: a fixed short prompt (never user-supplied), a small output ceiling,
 // and a bounded wall-clock timeout -- this is a connectivity probe, not a
@@ -206,17 +207,6 @@ function trustRepoListSummary(entry, repositoryTools, tools) {
   return tools;
 }
 
-/** Redact anything resembling a live secret from text bound for storage, an
- * event, or an error message. Defense-in-depth on top of never reading keys
- * back from any endpoint. */
-function redact(message, secrets) {
-  let result = String(message ?? "");
-  for (const secret of secrets) {
-    if (secret && secret.length >= 6) result = result.split(secret).join("[redacted]");
-  }
-  return result;
-}
-
 export class RuntimeService {
   constructor({ store, fakeProvider, extensionRegistry, workCore, dataDir, modelRuntime, configuredExecutors, budget = {}, compaction = {}, asyncTaskAdapters = [], localPiWorker = false, logger = () => {} }) {
     this.store = store;
@@ -246,6 +236,9 @@ export class RuntimeService {
     this.compaction = structuredClone(compaction);
     this.logger = logger;
     this.active = new Map();
+    // Every Run's execution until its settlement has fully finished, including
+    // the Spark attempt it settles after the Run turns terminal; close waits for all.
+    this.runTasks = new Set();
     this.closing = false;
     this.directoryPickerInFlight = false;
     this.admissions = new Set();
@@ -266,6 +259,13 @@ export class RuntimeService {
     registerFakeProvider(this.modelRuntime, this.fakeProvider);
     this.asyncTasks = new AsyncTasks({ store, adapters: asyncTaskAdapters, canUse: (name, sessionId) => {
       try {
+        // An orphan (its Session deleted) can still be reconciled or cancelled
+        // by the local human; launching or consuming needs a live origin Run,
+        // so only this path reaches here. Only an explicit user-scope deny
+        // still applies: the Session's tool exposure no longer exists.
+        if (sessionId && !this.store.getSession(sessionId)) {
+          return evaluatePolicy(this.getRuntimeControl(null).policies, name, '*', 'allow', 'allow').effect !== 'deny';
+        }
         const snapshot = this.getRuntimeControl(sessionId);
         const tool = snapshot.resources.find(r => r.id === 'tool:' + name);
         return Boolean(tool?.exposed && evaluatePolicy(snapshot.policies, name, '*', 'allow', 'allow').effect !== 'deny');
@@ -285,6 +285,15 @@ export class RuntimeService {
     /* BE-7 · an Apply interrupted between its pending marker and its receipt is
      * settled here from the configuration's own audit: applied, or pending again. */
     await this.proposals.recover(this.control);
+    // Runtime-control entries scoped to a Session that no longer exists (left
+    // by a deletion whose cleanup did not complete, or by builds before the
+    // cleanup existed) are removed here, so recovery needs no hand edits.
+    const liveSessions = new Set(this.store.listSessions().map(s => s.id));
+    const orphaned = this.control.sessionScopeIds().filter(id => !liveSessions.has(id));
+    // Cleanup is repair, not a startup precondition: a failure is logged and
+    // the entries stay inert (no live Session reaches their scope).
+    if (orphaned.length) await this.control.removeSessionScopes(orphaned)
+      .catch(error => this.logger?.(`runtime control cleanup deferred: ${error?.message ?? error}`));
     const stored = this.store.getProviderConfig();
     this.providerConfig = stored ?? { provider: FAKE_PROVIDER_ID, model: FAKE_MODEL_ID, api: FAKE_API_ID };
     if (!stored) await this.store.setProviderConfig(this.providerConfig);
@@ -312,7 +321,7 @@ export class RuntimeService {
         catch (error) {
           this.unavailableConnections.add(connection.id);
           try { unregisterConnectionProvider(this.modelRuntime, connection.providerIdentity); } catch { /* fenced by Host */ }
-          this.logger(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`);
+          this.logger(redact(`startup: connection ${connection.id} could not be registered: ${safeMessage(error, "registration failed")}`, this.knownSecrets));
         }
       } else if (connection.models.length) {
         try { registerCatalogExtraModels(this.modelRuntime, connection.providerIdentity, registrationExtras(connection)); }
@@ -320,7 +329,7 @@ export class RuntimeService {
           // Unlike a compatible connection (whose WHOLE provider comes from
           // this step), the native models stay resolvable either way -- an
           // extras failure does not fence the connection.
-          this.logger(`startup: catalog connection ${connection.id} extra models could not be registered: ${safeMessage(error, "registration failed")}`);
+          this.logger(redact(`startup: catalog connection ${connection.id} extra models could not be registered: ${safeMessage(error, "registration failed")}`, this.knownSecrets));
         }
       }
     }
@@ -365,8 +374,10 @@ export class RuntimeService {
         // Only persisted text can settle open segments after a crash, one
         // partial each; the Run stays `unknown`, and nothing is written for a
         // segment without such text.
+        const writeUnknown = this.store.getSession(run.sessionId)?.repositoryWriteEffects?.some((effect) => effect.runId === run.id && effect.status === "unknown");
         await this.store.updateRunWithEvent(run.id, { status: "unknown", admissionOpen: false, error: run.error?.code === "mcp_effect_unknown" || unsettled.length
           ? { code: "mcp_effect_unknown", message: "Remote tool effects require reconciliation" }
+          : writeUnknown ? { code: "repository_write_unknown", message: "A repository write needs reconciliation before more writes" }
           : { code: "restart_unknown", message: "run was in flight during restart" } }, [
           ...persistedPartials(this.store.listEvents({ sessionId: run.sessionId, runId: run.id }), PARTIAL_STOP_REASON.unknown),
           { type: "run.status", data: { status: "unknown", ...(unsettled.length ? { unsettledMcp: unsettled } : {}) } },
@@ -626,9 +637,13 @@ export class RuntimeService {
 
   /* ── Home identity · Profile (source of the address) and the fixture Account ── */
   getProfile() { return { profile: this.profile.get() }; }
-  async saveProfile(input) {
-    try { return { profile: await this.profile.save(requireObject(input, "body")) }; }
-    catch (error) { if (error instanceof ProfileError) throw new ServiceError(error.status, error.code, error.message); throw error; }
+  // Serialized with every other configuration write. Nothing already inside
+  // #withConfiguration calls saveProfile, so this cannot wait on itself.
+  saveProfile(input) {
+    return this.#withConfiguration(async () => {
+      try { return { profile: await this.profile.save(requireObject(input, "body")) }; }
+      catch (error) { if (error instanceof ProfileError) throw new ServiceError(error.status, error.code, error.message); throw error; }
+    });
   }
   getAccount() { return { account: accountFixture(this.profile.get()) }; }
 
@@ -667,7 +682,7 @@ export class RuntimeService {
     const runtime = this.getRuntimeControl(sessionId);
     const model = this.#resolveModel(this.providerConfig);
     const capability = this.#reasoningCapability(this.providerConfig);
-    let compaction;
+    let compaction, route;
     let selectedPort = null;
     try { selectedPort = this.#executorForSession(session).port; }
     catch (error) {
@@ -677,6 +692,7 @@ export class RuntimeService {
     if (!compaction) {
       if (!this.#runtimeCapability("compact", selectedPort).supported) compaction = { available: false, reason: "The bound runtime does not support compaction." };
       else if (!session.hostSession) compaction = { available: false, reason: "This chat has no recorded conversation to compact." };
+      else if ((route = this.#routeRefusal())) compaction = { available: false, reason: `The configured provider route cannot be used: ${route}` };
       else if (!model) compaction = { available: false, reason: "The configured model could not be resolved." };
       else if (!this.#compactionPolicy(model).enabled) compaction = { available: false, reason: "Compaction needs a known context window on the configured model." };
       else compaction = { available: true, reason: null };
@@ -859,9 +875,7 @@ export class RuntimeService {
       const executor = this.#executorForSession(session);
       this.#requireRuntimeCapability("compact", executor.port);
       if (!session.hostSession) throw new ServiceError(409, "nothing_to_compact", "This chat has no recorded conversation to compact");
-      const connection = this.#connectionByIdentity(this.providerConfig.provider);
-      this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
-      if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      const connection = this.#admitProviderRoute();
       const model = this.#resolveModel(this.providerConfig);
       if (!model) throw new ServiceError(503, "provider_error", "the configured model could not be resolved");
       const policy = this.#compactionPolicy(model);
@@ -885,7 +899,7 @@ export class RuntimeService {
       const entry = { controller: new AbortController(), reason: null, timer: null, runtimePort: executor.port };
       entry.timer = setTimeout(() => { entry.reason = "deadline"; entry.controller.abort(); }, this.budget.deadlineMs);
       this.operations.set(created.operation.id, entry);
-      entry.task = this.#executeCompaction(created.operation, session, model, entry).catch(error => this.logger?.(`compaction ${created.operation.id} settlement failed: ${error?.message ?? error}`));
+      entry.task = this.#executeCompaction(created.operation, session, model, entry).catch(error => this.logger?.(redact(`compaction ${created.operation.id} settlement failed: ${error?.message ?? error}`, this.knownSecrets)));
       return { operation: created.operation, idempotent: false };
     });
   }
@@ -910,12 +924,12 @@ export class RuntimeService {
         settlement = { status: "cancelled", journal, error: { code: entry.reason === "deadline" ? "deadline" : "cancelled", message: entry.reason === "deadline" ? "the compaction deadline passed before a summary was written" : "compaction was cancelled before a summary was written" } };
       } else {
         // Raw provider text stays out of the record; the code says what happened.
-        this.logger?.(`compaction ${operation.id} failed: ${outcome.message}`);
+        this.logger?.(redact(`compaction ${operation.id} failed: ${outcome.message}`, this.knownSecrets));
         settlement = { status: "failed", journal, error: { code: outcome.code, message: outcome.code === "already_compacted" ? "the conversation is already compacted; nothing new to summarize"
           : outcome.code === "too_small" ? "the conversation is too small to compact" : "the summary request failed" } };
       }
     } catch (error) {
-      this.logger?.(`compaction ${operation.id} errored: ${error?.message ?? error}`);
+      this.logger?.(redact(`compaction ${operation.id} errored: ${error?.message ?? error}`, this.knownSecrets));
       settlement = { status: "failed", error: { code: error.code === "compaction_unavailable" ? "compaction_unavailable" : "compaction_failed", message: error.code === "compaction_unavailable" ? "compaction is not enabled for this model" : "the compaction could not run" } };
     } finally {
       clearTimeout(entry.timer);
@@ -1021,7 +1035,7 @@ export class RuntimeService {
     const resource = value.resource === undefined ? '*' : text(value.resource, 'resource', { max: 4000 });
     if (!descriptor.exposed) return { revision: snapshot.revision, effect: 'deny', trace: [{ source: 'exposure', effect: 'deny' }], advisory: true };
     const mode = sessionId ? this.store.getSession(sessionId).permissionMode : 'draft';
-    const ceiling = descriptor.id === 'tool:ws_write' ? mode === 'read_only' ? 'deny' : mode === 'ask' ? 'ask' : 'allow' : 'allow';
+    const ceiling = hostToolCeiling(descriptor.id.slice('tool:'.length), mode);
     return { revision: snapshot.revision, ...evaluatePolicy(snapshot.policies, descriptor.action, resource, ceiling, descriptor.mcp ? 'ask' : 'allow'), advisory: true };
   }
 
@@ -1353,8 +1367,20 @@ export class RuntimeService {
     return { schemaVersion: 1, candidateId: session.repositoryCandidate?.id ?? null, effects };
   }
 
-  changeRepositoryCandidate(sessionId, input) {
-    return this.#withConfiguration(() => this.#changeRepositoryCandidate(sessionId, input));
+  async changeRepositoryCandidate(sessionId, input) {
+    const { result, runsToCancel } = await this.#withConfiguration(() => this.#changeRepositoryCandidate(sessionId, input));
+    await this.#cancelRevokedRuns(runsToCancel, "candidate_revoked_cancellation_pending", "candidate access is revoked; Run cancellation is still resolving");
+    return result;
+  }
+
+  /** Revocation is durable before this runs, so the revoked scope already
+   * refuses reads and writes. Cancelling waits for each Run to settle, and a
+   * Run can be waiting on the configuration gate itself (an approved write
+   * queues there), so this runs after the gate is released, never inside it. */
+  async #cancelRevokedRuns(runIds, code, message) {
+    if (!runIds.length) return;
+    const settled = await Promise.allSettled(runIds.map(runId => this.cancelRun(runId, {})));
+    if (settled.some(item => item.status === "rejected")) throw new ServiceError(503, code, message);
   }
 
   async #changeRepositoryCandidate(sessionId, input) {
@@ -1389,12 +1415,9 @@ export class RuntimeService {
     try {
       const prior = this.store.getRepositoryCandidateReceipt(sessionId, request);
       if (prior && prior.status !== "preparing") {
-        if (operation === "revoke") {
-          const pending = this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id);
-          const canceled = await Promise.allSettled(pending.map(runId => this.cancelRun(runId, {})));
-          if (canceled.some(item => item.status === "rejected")) throw new ServiceError(503, "candidate_revoked_cancellation_pending", "candidate access is revoked; Run cancellation is still resolving");
-        }
-        return { receipt: prior, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true };
+        const runsToCancel = operation === "revoke"
+          ? this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id) : [];
+        return { result: { receipt: prior, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true }, runsToCancel };
       }
     } catch (error) {
       if (error?.code === "IDEMPOTENCY_CONFLICT") throw new ServiceError(409, "idempotency_conflict", "requestId was already used with different repository candidate input");
@@ -1416,14 +1439,10 @@ export class RuntimeService {
       throw error;
     }
     if (operation === "revoke") {
-      const pending = started.runsToCancel ?? this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id);
-      if (pending.length) {
-        const canceled = await Promise.allSettled(pending.map(runId => this.cancelRun(runId, {})));
-        if (canceled.some(item => item.status === "rejected")) throw new ServiceError(503, "candidate_revoked_cancellation_pending", "candidate access is revoked; Run cancellation is still resolving");
-      }
-      return { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: started.idempotent };
+      const runsToCancel = started.runsToCancel ?? this.store.listRuns(sessionId).filter(run => !terminal(run.status) && run.repositoryCandidateSnapshot?.id === candidateId).map(run => run.id);
+      return { result: { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: started.idempotent }, runsToCancel };
     }
-    if (started.idempotent && started.receipt.status !== "preparing") return { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true };
+    if (started.idempotent && started.receipt.status !== "preparing") return { result: { receipt: started.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: true }, runsToCancel: [] };
 
     let sourceRoot;
     try {
@@ -1437,7 +1456,7 @@ export class RuntimeService {
         candidateId, baseCommit,
       });
       const activated = await this.store.activateRepositoryCandidate(sessionId, { requestId, candidate });
-      return { receipt: activated.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: activated.idempotent };
+      return { result: { receipt: activated.receipt, candidate: this.getRepositoryCandidate(sessionId).candidate, idempotent: activated.idempotent }, runsToCancel: [] };
     } catch (error) {
       const code = typeof error?.code === "string" && /^[a-z0-9_]{1,80}$/.test(error.code) ? error.code : "candidate_creation_failed";
       await this.store.failRepositoryCandidate(sessionId, { requestId, code }).catch(() => {});
@@ -1603,8 +1622,10 @@ export class RuntimeService {
     }
   }
 
-  changeRepositoryBinding(sessionId, input) {
-    return this.#withConfiguration(() => this.#changeRepositoryBinding(sessionId, input));
+  async changeRepositoryBinding(sessionId, input) {
+    const { result, runsToCancel } = await this.#withConfiguration(() => this.#changeRepositoryBinding(sessionId, input));
+    await this.#cancelRevokedRuns(runsToCancel, "repository_revoked_cancellation_pending", "repository access is revoked; Run cancellation is still resolving");
+    return result;
   }
 
   async #changeRepositoryBinding(sessionId, input) {
@@ -1634,7 +1655,7 @@ export class RuntimeService {
       throw error;
     }
     if (operation === "bind" && priorReceipt) {
-      return { receipt: priorReceipt, binding: this.store.getSession(sessionId).repositoryBinding, idempotent: true };
+      return { result: { receipt: priorReceipt, binding: this.store.getSession(sessionId).repositoryBinding, idempotent: true }, runsToCancel: [] };
     }
     if (!priorReceipt && expectedRevision !== session.repositoryBindingRevision) throw new ServiceError(409, "stale_revision", "repository binding changed; refresh before retrying");
 
@@ -1663,13 +1684,8 @@ export class RuntimeService {
       if (error?.code === "NO_ACTIVE_BINDING") throw new ServiceError(409, "no_repository_binding", "no active repository binding exists");
       throw error;
     }
-    if (operation === "revoke" && result.runsToCancel.length) {
-      const canceled = await Promise.allSettled(result.runsToCancel.map(runId => this.cancelRun(runId, {})));
-      if (canceled.some(item => item.status === "rejected")) {
-        throw new ServiceError(503, "repository_revoked_cancellation_pending", "repository access is revoked; Run cancellation is still resolving");
-      }
-    }
-    return { receipt: result.receipt, binding: result.binding, idempotent: result.idempotent };
+    return { result: { receipt: result.receipt, binding: result.binding, idempotent: result.idempotent },
+      runsToCancel: operation === "revoke" ? result.runsToCancel : [] };
   }
 
   // Deliberately NOT routed through #withConfiguration: that queue serializes
@@ -2094,10 +2110,8 @@ export class RuntimeService {
     const realProvider = this.providerConfig.provider !== FAKE_PROVIDER_ID;
     const connection = this.#connectionByIdentity(this.providerConfig.provider);
     let configurationStatus = this.#configurationStatusOf(connection?.id ?? this.providerConfig.provider);
-    if (configurationStatus === 'ready') {
-      try { validateProviderDescriptor(this.providerConfig, this.#knownIdentities()); }
-      catch { configurationStatus = 'unavailable'; }
-    }
+    // "ready" only when Run admission would accept the saved route as it is.
+    if (configurationStatus === 'ready' && this.#routeRefusal()) configurationStatus = 'unavailable';
     return {
       version: this.store.getProviderConfigVersion(),
       config: publicProviderConfig(this.providerConfig),
@@ -2137,7 +2151,18 @@ export class RuntimeService {
       throw error;
     }
     const entries = await readCredentialFile(this.dataDir);
-    const apiKey = parsed.apiKey ?? (existing ? entries[existing.id] : undefined);
+    // A saved key is reused only for the endpoint it was entered for; a new
+    // endpoint never receives it, not even for the directory probe.
+    const savedKey = existing ? entries[existing.id] : undefined;
+    if (parsed.apiKey === undefined && savedKey !== undefined && parsed.record.baseUrl !== existing.baseUrl) {
+      throw new ServiceError(400, "credential_required", "Enter the API key again for the new endpoint");
+    }
+    // A key saved before the minimum length existed cannot be redacted from
+    // echoes; reusing it asks for a new one instead of a vague probe failure.
+    if (parsed.apiKey === undefined && savedKey !== undefined && savedKey.length < PROVIDER_API_KEY_MIN_LENGTH) {
+      throw new ServiceError(400, "credential_required", "Enter the API key again; the saved key is too short to protect");
+    }
+    const apiKey = parsed.apiKey ?? savedKey;
     const probe = await this.previewProvider({
       protocol: "openai-compatible",
       baseUrl: parsed.record.baseUrl,
@@ -2291,7 +2316,7 @@ export class RuntimeService {
       message: succeeded
         ? "The model answered."
         : redact(message.errorMessage || "The provider returned an error.", this.knownSecrets),
-      observedModel: message.responseModel ?? null,
+      observedModel: message.responseModel == null ? null : redact(message.responseModel, this.knownSecrets),
       replyFirstLine: replyText ? replyText.split("\n")[0].slice(0, VERIFY_REPLY_PREVIEW_CHARS) : null,
       latencyMs,
       checkedAt: new Date(startedAt).toISOString(),
@@ -2506,6 +2531,7 @@ export class RuntimeService {
   deleteSession(sessionId) {
     return this.#withConfiguration(async () => {
       if (this.store.hasActiveRun()) throw new ServiceError(409,'active_run','session deletion is unavailable during a run');
+      if (this.store.hasActiveOperation()) throw new ServiceError(409,'operation_active','session deletion is unavailable during a compaction');
       const session = this.store.getSession(sessionId);
       if (!session) throw new ServiceError(404,'not_found','session not found');
       assertSessionNotReferencedBySubagents(this.store.snapshot(), sessionId);
@@ -2513,7 +2539,21 @@ export class RuntimeService {
       if (binding && ['evidence-memo','inbound-nda'].includes(binding.extensionId)) await this.workCore.call('claim_work',{matter_id:binding.binding.matterId,project_id:session.projectId,extension_id:binding.extensionId});
       // Only execution catalog records are removed. Core history and private
       // workspace/journal bytes are retained; this is not secure erasure.
-      return this.store.deleteSession(sessionId);
+      const result = await this.store.deleteSession(sessionId);
+      // The Store deletion is the durable fact and is already committed. The
+      // Session's runtime-control entries follow it; if that write fails the
+      // deletion still stands (a retry would only get 404), the entries are
+      // inert because no Session can select their scope, and startup removes
+      // them. The response says which of the two happened.
+      let removed;
+      try { removed = await this.control.removeSessionScopes([sessionId]); }
+      catch (error) {
+        this.logger(`session ${sessionId} deleted; runtime-control cleanup deferred to startup: ${safeMessage(error, "write failed")}`);
+        return { ...result, runtimeControlCleanup: 'deferred' };
+      }
+      // The deletion already stands; a failed disconnect is logged, not a 500.
+      for (const id of removed) await this.mcp.disconnect(id).catch(error => this.logger?.(`MCP disconnect after session delete failed: ${error?.message ?? error}`));
+      return { ...result, runtimeControlCleanup: 'complete' };
     });
   }
 
@@ -2658,7 +2698,14 @@ export class RuntimeService {
     throw new ServiceError(400,'invalid_input','unknown work query');
   }
 
-  async humanAction(sessionId, input) {
+  /** A human action commits formal work state; it is serialized with Run
+   * admission, so no Run can be admitted between its idle check and its
+   * commit and then run against a Matter version that moved under it. */
+  humanAction(sessionId, input) {
+    return this.#withConfiguration(() => this.#humanAction(sessionId, input));
+  }
+
+  async #humanAction(sessionId, input) {
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["extensionId", "generation", "action", "payload", "actor", "fileCapabilityVersion"]));
     if (value.actor !== undefined) throw new ServiceError(400, "unknown_field", "actor is host-owned");
@@ -2688,6 +2735,63 @@ export class RuntimeService {
     };
   }
 
+  /** The provider route a model request may use, as saved now: a ready
+   * connection, a current descriptor, the connection's own endpoint and wire
+   * format, an admissible model and a supported reasoning effort. Every Host
+   * path that sends a model request (Run admission, manual compaction) asks
+   * here, so a route one of them refuses is refused by all. */
+  #admitProviderRoute() {
+    const config = this.providerConfig;
+    const connection = this.#connectionByIdentity(config.provider);
+    this.#requireReadyConnection(connection?.id ?? config.provider);
+    try { validateProviderDescriptor(config, this.#knownIdentities()); }
+    catch { throw new ServiceError(503, 'configuration_incomplete', 'saved provider configuration must be updated before execution'); }
+    if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+    if (config.provider === FAKE_PROVIDER_ID) {
+      // The fixture identity keeps its fixed wire format and endpoint (this
+      // is "local-fake mode", not an arbitrary connection), but PV-59 still
+      // applies to which MODEL runs: the native fixture model or an extra
+      // this connection saved on top of it (the loopback fixture answers any
+      // model id, so this is how a catalog connection's extras get end-to-end
+      // Run/verify coverage without leaving loopback).
+      if (config.api !== FAKE_API_ID || (config.baseUrl && config.baseUrl !== this.fakeProvider.baseUrl)
+        || !this.#admissibleModel(connection, config.model)) {
+        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable in local-fake mode");
+      }
+    } else if (connection.kind === "compatible") {
+      if (config.api !== connection.api || config.baseUrl !== connection.baseUrl
+        || !this.#admissibleModel(connection, config.model)) {
+        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      }
+    } else {
+      if (providerRouteError(connection, config) || !this.#admissibleModel(connection, config.model)) {
+        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+      }
+    }
+    if (config.reasoningEffort !== undefined && !this.#reasoningCapability(config).values.includes(config.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
+    return connection;
+  }
+
+  /** Request telemetry carries provider-controlled response metadata (the
+   * response model and id). Known secrets leave it before it becomes an
+   * event; the JSON spelling is redacted, so escaped echoes go too. */
+  /** Redact provider-controlled strings in a telemetry record, value by value:
+   * redacting its serialized form could rewrite JSON structure or field names
+   * when a key matches them (a key containing `"phase"` broke every Run). */
+  #redactTelemetry(data) {
+    if (!this.knownSecrets.size) return data;
+    const walk = (value) => typeof value === "string" ? redact(value, this.knownSecrets)
+      : Array.isArray(value) ? value.map(walk)
+      : value && typeof value === "object" ? Object.fromEntries(Object.entries(value).map(([key, item]) => [key, walk(item)]))
+      : value;
+    return walk(data);
+  }
+
+  #routeRefusal() {
+    try { this.#admitProviderRoute(); return null; }
+    catch (error) { if (error instanceof ServiceError) return error.message; throw error; }
+  }
+
   #reasoningCapability(provider) {
     const model = this.modelRuntime.getModel(provider.provider, provider.model);
     const entry = this.#connectionByIdentity(provider.provider)?.models.find(row => row.id === provider.model) ?? null;
@@ -2713,9 +2817,16 @@ export class RuntimeService {
     this.closing = true;
     await this.subagents.pumping?.catch(() => {});
     await Promise.allSettled([...this.admissions, this.configurationQueue, ...this.materialQueues.values()]);
+    // A manual compaction writes the native journal. It settles before the
+    // Store lock is released, or a lingering summary request could write the
+    // journal after another Host has reopened this data.
+    await Promise.allSettled([...this.operations.values()].map((entry) => { entry.reason ??= "shutdown"; entry.controller.abort(); return entry.task; }));
     const results = await Promise.allSettled(this.store.listRuns()
       .filter((run) => !terminal(run.status)).map((run) => this.cancelRun(run.id, {})));
     const rejected = results.filter((result) => result.status === "rejected");
+    // A Run already terminal may still be settling (its Spark attempt, the
+    // question cleanup): that tail finishes before the Store closes.
+    await Promise.allSettled([...this.runTasks]);
     for (const port of new Set([...this.runtimePorts.values()].map(entry => entry.port))) port.close?.();
     await this.asyncTasks.close();
     await this.mcp.close();
@@ -2782,11 +2893,7 @@ export class RuntimeService {
 
     // Which connection this run used, and where its key came from, are frozen
     // into the run record here: this is the traceable half of PV-24.
-    const connection = this.#connectionByIdentity(this.providerConfig.provider);
-    this.#requireReadyConnection(connection?.id ?? this.providerConfig.provider);
-    try { validateProviderDescriptor(this.providerConfig, this.#knownIdentities()); }
-    catch { throw new ServiceError(503, 'configuration_incomplete', 'saved provider configuration must be updated before execution'); }
-    if (!connection) throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
+    const connection = this.#admitProviderRoute();
     const capability = this.#capabilityOf(this.providerConfig);
     const provider = {
       ...this.providerConfig,
@@ -2797,29 +2904,6 @@ export class RuntimeService {
       capabilityNotice: capability.notice,
       reasoningBinding: { ...this.#reasoningCapability(this.providerConfig), configVersion: this.store.getProviderConfigVersion() },
     };
-    if (provider.provider === FAKE_PROVIDER_ID) {
-      // The fixture identity keeps its fixed wire format and endpoint (this
-      // is "local-fake mode", not an arbitrary connection), but PV-59 still
-      // applies to which MODEL runs: the native fixture model or an extra
-      // this connection saved on top of it (the loopback fixture answers any
-      // model id, so this is how a catalog connection's extras get end-to-end
-      // Run/verify coverage without leaving loopback).
-      if (provider.api !== FAKE_API_ID || (provider.baseUrl && provider.baseUrl !== this.fakeProvider.baseUrl)
-        || !this.#admissibleModel(connection, provider.model)) {
-        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable in local-fake mode");
-      }
-    } else if (connection.kind === "compatible") {
-      if (provider.api !== connection.api || provider.baseUrl !== connection.baseUrl
-        || !this.#admissibleModel(connection, provider.model)) {
-        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
-      }
-    } else {
-      if (providerRouteError(connection, provider) || !this.#admissibleModel(connection, provider.model)) {
-        throw new ServiceError(503, "provider_unsupported", "configured provider route is unavailable");
-      }
-    }
-
-    if (provider.reasoningEffort !== undefined && !this.#reasoningCapability(provider).values.includes(provider.reasoningEffort)) throw new ServiceError(503, "effort_unsupported", "configured reasoning effort is no longer supported by this model");
     // The managed alternate is currently a deterministic offline consumer.
     // A configured factory does not promote arbitrary Provider/Model routes.
     if (remoteRuntime && provider.provider !== FAKE_PROVIDER_ID) {
@@ -2920,6 +3004,7 @@ export class RuntimeService {
       getUsage: null,
       task: null,
       cancelRequested: false,
+      openDecisions: 0,
       closeError: null,
       budget: { remainingMs: this.subagents.forSession(session.id) ? this.subagents.remainingBudget(this.subagents.forSession(session.id)).deadlineMs : this.budget.deadlineMs, timer: null, armedAt: null, reason: null },
       nativeSession: null,
@@ -2932,10 +3017,12 @@ export class RuntimeService {
        writes, and the partial final written with the terminal status. */
     entry.stream = createSegmentStream({
       write: (event) => this.store.appendEvent({ runId: run.id, ...event }),
-      log: (message) => this.logger?.(`assistant stream ${run.id}: ${message}`),
+      log: (message) => this.logger?.(redact(`assistant stream ${run.id}: ${message}`, this.knownSecrets)),
     });
     this.active.set(run.id, entry);
     entry.task = this.#executeRun(run, instruction, session, entry, provider, extension, credentialConfigured);
+    this.runTasks.add(entry.task);
+    entry.task.finally(() => this.runTasks.delete(entry.task)).catch((error) => this.logger?.(redact(`run ${run.id} settlement failed: ${error?.message ?? error}`, this.knownSecrets)));
     return { run };
   }
 
@@ -3127,9 +3214,11 @@ export class RuntimeService {
       if (provider.provider === FAKE_PROVIDER_ID) await this.modelRuntime.setRuntimeApiKey(FAKE_PROVIDER_ID, FAKE_CREDENTIAL_KEY);
 
       const askUserTool = createAskUserTool(({ prompt, signal }) => this.#waitForDecision(run.id, entry, { kind: "ask_user", prompt, payload: null, signal }));
+      const admitPath = createPathAdmission({ binding: entry.runtimeBinding, permissionMode: entry.permissionMode });
       const workspaceTools = createWorkspaceTools({
         workspaceDir: entry.workspaceDir,
         permissionMode: "draft",
+        admitPath,
         requestPermission: ({ toolCallId, tool, path: relPath, bytes, contentSha256, preview, signal }) => this.#waitForDecision(run.id, entry, {
           kind: "permission",
           prompt: `permission requested for ${tool} on ${relPath}`,
@@ -3139,18 +3228,6 @@ export class RuntimeService {
         onWritten: (artifact) => this.store.appendArtifact(run.id, artifact),
         saveHistory: (content, digest, options) => this.artifactHistory.save(run.sessionId, content, digest, options),
       });
-
-      // Pi forwards tool content to the model, not host-only details. This
-      // opt-in projection exposes the receipt only after appendArtifact has
-      // succeeded, so a real model can select the recorded version by hash.
-      const selectedWorkspaceTools = entry.extensionRun?.fileMemo ? workspaceTools.map(tool => tool.name !== 'ws_write' ? tool : {
-        ...tool, execute: async (...args) => {
-          const result = await tool.execute(...args);
-          return {...result, content: [...result.content, {type:'text', text:JSON.stringify({recordedFile:result.details})}]};
-        },
-      }) : workspaceTools;
-
-      const admitPath = createPathAdmission({ binding: entry.runtimeBinding, permissionMode: entry.permissionMode });
 
       const repositoryTools = createRepositoryTools({
         binding: run.repositoryBindingSnapshot,
@@ -3195,6 +3272,7 @@ export class RuntimeService {
         recordStarted: (detail) => this.store.recordCheckStarted(run.id, detail),
         recordSettled: (detail) => this.store.recordCheckSettled(run.id, detail),
         isOpen: runIsOpen,
+        dataDir: this.dataDir,
       });
 
       if (typeof extensionContext !== "string" || extensionContext.length > 100_000) throw new Error("invalid extension context");
@@ -3209,46 +3287,26 @@ export class RuntimeService {
         + '\nLaunch returns only a handle. Get/wait for each requested task before finalizing; continue independent steps while other tasks run. A pending task or tool error is not source evidence.' : '';
       const controlContext = sparkAssignment ? '' : run.kitBinding ? (await readKitContext(this.artifactHistory, session.id, run.kitBinding)).text : compileControlContext(entry.runtimeBinding);
       const currentContext = sparkAssignment ? "" : [extensionContext, controlContext, asyncContext, !session.extensionBinding ? this.subagents.library.context(session.id) : ""].filter(Boolean).join("\n\n");
-      let initializeFileInput;
-      if (entry.extensionRun?.fileMemo) {
-        const cleanSession = entry.nativeSession.historyIsEmpty()
-          && this.store.listRuns().filter(r => r.sessionId === session.id).length === 1;
-        const reasons = cleanSession ? [] : ['session_history'];
-        // An enabled compactor may inject a summary before an awaited hook.
-        // Conservatively close eligibility before any prompt in that mode.
-        if (this.#compactionPolicy(model).enabled) reasons.push('compaction_enabled');
-        initializeFileInput = ({systemPrompt: actualSystemPrompt, currentContext: actualContext, cleanHistory}) => entry.extensionRun.fileMemo.initialize({
-          input: { systemPrompt: actualSystemPrompt, currentContext: actualContext, runtimeProfile: {revision:entry.runtimeBinding.revision,hash:entry.runtimeBinding.hash}, cleanSession: cleanSession && cleanHistory, reasons: cleanHistory ? reasons : [...reasons,'runtime_history'] },
-          readRecordedFiles: async selectors => {
-            const selected = structuredClone(selectors);
-            const current = this.store.getRun(run.id);
-            if (!current?.admissionOpen || entry.cancelRequested) throw Object.assign(new Error('Run closed'),{code:'CANDIDATE_CLOSED'});
-            if (current.sessionId !== session.id || this.store.getSession(session.id)?.extensionBinding?.binding?.matterId !== session.extensionBinding.binding.matterId) throw Object.assign(new Error('Run binding mismatch'),{code:'BINDING_MISMATCH'});
-            if (!Array.isArray(selected) || !selected.length || selected.length > 16) throw Object.assign(new Error('file count'),{code:'FILE_LIMIT'});
-            const records = structuredClone(current.artifacts);
-            const files = [];
-            for (const selector of selected) {
-              if (!selector || Object.keys(selector).sort().join(',') !== 'path,sha256') throw Object.assign(new Error('selector shape'),{code:'INVALID'});
-              const recordIndex = records.findIndex(r => r.path === selector.path && r.sha256 === selector.sha256);
-              const record = records[recordIndex];
-              if (!record || record.kind !== 'content-version') throw Object.assign(new Error('recorded version unavailable'),{code:'BINDING_MISMATCH'});
-              if (record.bytes > 65536) throw Object.assign(new Error('file byte limit'),{code:'FILE_LIMIT'});
-              const bytes = await this.artifactHistory.read(session.id,record.sha256,record.bytes);
-              let content;
-              try { content = new TextDecoder('utf-8',{fatal:true,ignoreBOM:true}).decode(bytes); }
-              catch { throw Object.assign(new Error('invalid file UTF-8'),{code:'INVALID'}); }
-              files.push({...record,sessionId:session.id,runId:run.id,recordIndex,content});
-            }
-            if (!this.store.getRun(run.id)?.admissionOpen || entry.cancelRequested) throw Object.assign(new Error('Run closed'),{code:'CANDIDATE_CLOSED'});
-            return files;
-          },
-        });
-      }
+      const workIntegration = createBuiltinWorkRunIntegration({
+        extensionRun: entry.extensionRun, sessionId: session.id, runId: run.id,
+        binding: session.extensionBinding,
+        runtimeProfile: { revision: entry.runtimeBinding.revision, hash: entry.runtimeBinding.hash },
+        readRecordedArtifacts: () => this.store.getRun(run.id)?.artifacts ?? [],
+        readRunSessionId: () => this.store.getRun(run.id)?.sessionId,
+        readSessionBinding: () => this.store.getSession(session.id)?.extensionBinding,
+        isAdmissionOpen: () => Boolean(this.store.getRun(run.id)?.admissionOpen) && !entry.cancelRequested,
+        historyIsEmpty: () => entry.nativeSession.historyIsEmpty(),
+        sessionRunCount: () => this.store.listRuns().filter(record => record.sessionId === session.id).length,
+        compactionEnabled: this.#compactionPolicy(model).enabled,
+        readHistory: (sha256, bytes) => this.artifactHistory.read(session.id, sha256, bytes),
+      });
+      const selectedWorkspaceTools = workIntegration.decorateWorkspaceTools(workspaceTools);
       const started = await entry.nativeSession.start({
         model,
         reasoningEffort: provider.reasoningEffort,
         reasoningCapability: provider.reasoningBinding,
-        onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data }),
+        onTelemetry: data => this.store.appendEvent({ runId: run.id, type: "runtime.request.telemetry", data: this.#redactTelemetry(data) }),
+        knownSecrets: this.knownSecrets,
         tools: governTools(trustRepoListSummary(entry, repositoryTools, sparkAssignment ? this.subagents.childTools(sparkAssignment,run.id) : [...(!session.extensionBinding ? this.subagents.parentTools(session.id,run.id, () => {entry.sparkYield=true;setImmediate(() => entry.abort?.());}) : []), askUserTool, ...selectedWorkspaceTools, ...repositoryTools, ...repositoryCandidateTools, ...checkTools, ...extensionTools, ...attentionTools, ...collaborationTools, ...asyncTools, ...this.mcp.toolsFor(entry.runtimeBinding, async detail => {
           entry.externalUnknown = true;
           entry.externalUnknownDetail = detail;
@@ -3278,7 +3336,7 @@ export class RuntimeService {
         input: instruction,
         systemPrompt,
         currentContext,
-        beforeInitialInput: initializeFileInput,
+        beforeInitialInput: workIntegration.beforeInitialInput,
         beforeProviderRequest: sparkAssignment ? () => {
           const current=this.store.snapshot(),assignment=this.subagents.find(current,sparkAssignment.id);
           if(assignment.status!=='active'||assignment.cancelRequested||current.subagents.agents[0].status!=='active'||this.store.getProviderConfigVersion()!==assignment.providerSelection.configVersion)throw new ServiceError(409,'spark_closed','Spark request admission closed');
@@ -3292,10 +3350,10 @@ export class RuntimeService {
             const current=this.store.snapshot(),assignment=this.subagents.find(current,sparkAssignment.id);this.subagents.authorized(current,assignment);
             if(assignment.cancelRequested||current.subagents.agents[0].status!=='active')throw new Error('Spark admission closed');
           }
-          await entry.extensionRun?.fileMemo?.beforeTool(name, args);
+          await workIntegration.beforeTool?.(name, args);
           if (['async_get', 'async_wait'].includes(name)) await this.asyncTasks.requestConsumption(run.id, callId, name.slice(6), args);
         },
-        beforeExtraInput: reason => entry.extensionRun?.fileMemo?.markUnknown(reason),
+        beforeExtraInput: workIntegration.beforeExtraInput,
         onObservation: (observation) => this.#onObservation(run.id, observation, entry),
         onNotice: (notice) => this.#appendNotice(run.id, notice),
       });
@@ -3485,9 +3543,30 @@ export class RuntimeService {
     }
   }
 
-  async #waitForDecision(runId, entry, { kind, prompt, payload, signal }) {
-    this.#pauseDeadline(entry);
-    const question = await this.store.openQuestion({ runId, kind, prompt, payload });
+  /** The execution deadline does not run while a person is deciding. A turn's
+   * tool calls may run in parallel, so several decisions can be open at once:
+   * the first pauses the deadline and the last to end re-arms it, unless the
+   * Run is being cancelled: a cancel's settlement must not be overtaken by a
+   * deadline and reported as a budget failure. */
+  async #waitForDecision(runId, entry, options) {
+    if (entry.openDecisions++ === 0) this.#pauseDeadline(entry);
+    try { return await this.#decide(runId, entry, options); }
+    finally {
+      const status = this.store.getRun(runId)?.status;
+      if (--entry.openDecisions === 0 && this.active.get(runId) === entry && !entry.cancelRequested
+        && (status === "running" || status === "waiting_user")) this.#armDeadline(entry, runId);
+    }
+  }
+
+  async #decide(runId, entry, { kind, prompt, payload, signal }) {
+    let question;
+    try { question = await this.store.openQuestion({ runId, kind, prompt, payload }); }
+    catch (error) {
+      // A cancel that queued before this question closed admission: the
+      // question is never opened and the wait ends as an abort does.
+      if (error.code === "RUN_ADMISSION_CLOSED") throw new Error(kind + " aborted");
+      throw error;
+    }
     let resolve;
     let reject;
     const decisionPromise = new Promise((res, rej) => {
@@ -3544,8 +3623,6 @@ export class RuntimeService {
         throw new ServiceError(409, "question_unavailable", safeMessage(error, "question is not pending"));
       }
     }
-    const entry = this.active.get(runId);
-    if (entry) this.#armDeadline(entry, runId);
     waiter.resolve(resolvedValue);
     return { answered: true };
   }
@@ -3592,12 +3669,9 @@ export class RuntimeService {
       if (waiter.runId === runId) waiter.reject(new Error("run canceled"));
     }
     await entry.abort?.();
-    if (entry.task) await entry.task;
-    const final = this.store.getRun(runId);
-    if (final && !terminal(final.status)) {
-      const status = entry.closeError ? "unknown" : "cancelled";
-      await this.store.updateRunIfActive(runId, { status, admissionOpen: false }, [...(entry.stream?.settle(status) ?? []), { type: "run.status", data: { status } }]);
-    }
+    // #executeRun's settlement leaves the Run terminal or rejects; its own
+    // arbitration (review D1-D3) is the only rule for how a cancelled Run ends.
+    await entry.task;
     return { run: this.store.getRun(runId) };
   }
 

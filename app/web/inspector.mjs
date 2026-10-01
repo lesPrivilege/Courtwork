@@ -5,7 +5,6 @@ import { createMarkdownReader } from "./markdown-reader.mjs";
 import { el, icon, action, copyAction, markdown } from "./ui-controls.mjs";
 import { renderRecordedContext } from "./runtime-view.mjs";
 export const runLabels = {
-  created: "Starting",
   running: "Running",
   waiting_user: "Waiting for you",
   stopping: "Stopping",
@@ -102,7 +101,7 @@ export function renderRun(
     section.append(
       el("p", {
         className: "form-help",
-        text: ["created", "running", "waiting_user", "stopping"].includes(
+        text: ["running", "waiting_user", "stopping"].includes(
           run.status,
         )
           ? "Recorded files will appear here as this run writes them."

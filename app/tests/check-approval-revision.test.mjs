@@ -70,7 +70,7 @@ test("runner's final synchronous Host fence prevents actual process side effects
       "require('node:fs').writeFileSync(process.argv[1], 'executed')", marker],
       timeoutMs: 5000, outputLimitBytes: 1024 };
     const rejection = Object.assign(new Error("candidate changed"), { code: "candidate_changed" });
-    await assert.rejects(runCheckRecipe({ recipe, cwd: dir, beforeSpawn: () => { throw rejection; } }),
+    await assert.rejects(runCheckRecipe({ recipe, cwd: dir, dataDir: dir, beforeSpawn: () => { throw rejection; } }),
       error => error === rejection);
     await assert.rejects(readFile(marker), { code: "ENOENT" });
   } finally {
@@ -88,7 +88,7 @@ for (const atCallback of [false, true]) {
       const recipe = { command: process.execPath, argv: ["-e",
         "require('node:fs').writeFileSync(process.argv[1], 'executed'); setTimeout(() => {}, 30000)", marker],
         timeoutMs: 5000, outputLimitBytes: 1024 };
-      const result = await runCheckRecipe({ recipe, cwd: dir, signal: controller.signal,
+      const result = await runCheckRecipe({ recipe, cwd: dir, dataDir: dir, signal: controller.signal,
         beforeSpawn: () => controller.abort() });
       assert.equal(result.cancelled, true);
       assert.equal(result.timedOut, false);
@@ -99,7 +99,7 @@ for (const atCallback of [false, true]) {
       await assert.rejects(readFile(marker), { code: "ENOENT" });
       // A missing command would produce spawn_failed if spawn were attempted.
       const noSpawn = await runCheckRecipe({ recipe: { ...recipe, command: path.join(dir, "missing-command") },
-        cwd: dir, signal: controller.signal });
+        cwd: dir, dataDir: dir, signal: controller.signal });
       assert.equal(noSpawn.cancelled, true);
     } finally {
       await rm(dir, { recursive: true, force: true });
@@ -122,3 +122,33 @@ test("admission closing during start persistence settles once as cancelled witho
   assert.equal(f.settled[0].exitCode, null);
   assert.equal(f.settled[0].signal, null);
 });
+
+// The Courtwork recipes went from v1 to v2 with different argv. Approval
+// matching is the same exact descriptor comparison as always, so an approval
+// recorded for v1 (its version and its argv) cannot start the current recipe.
+const V1_ARGV = {
+  "node-test-attention-contract": ["--test", "--test-concurrency=1", "app/tests/attention-core.test.mjs", "app/tests/attention-http.test.mjs",
+    "app/tests/attention-recovery.test.mjs", "app/tests/attention-github-fixture.test.mjs", "app/tests/attention-gmail-fixture.test.mjs",
+    "app/tests/attention-trace-fixture.test.mjs"],
+  "node-test-harness-contract": ["--test", "--test-concurrency=1", "app/tests/hermes-api-runs.test.mjs", "app/tests/request-summary.test.mjs",
+    "app/tests/runtime-load-recovery.test.mjs", "app/tests/kit-context.test.mjs", "app/tests/control-plane.test.mjs", "app/tests/check-recipes.test.mjs"],
+};
+
+for (const [recipeId, v1Argv] of Object.entries(V1_ARGV)) {
+  test(`${recipeId}: an approval for v1 cannot authorize v2, in either field alone or together`, async () => {
+    const recipeParams = { recipeId };
+    const current = fixture().tool.permissionContext(recipeParams);
+    assert.equal(current.recipeVersion, 2);
+    assert.notDeepEqual(current.argv, v1Argv);
+    for (const [name, approved] of [
+      ["v1 version and argv", { ...current, recipeVersion: 1, argv: v1Argv }],
+      ["v1 version, current argv", { ...current, recipeVersion: 1 }],
+      ["current version, v1 argv", { ...current, argv: v1Argv }],
+    ]) {
+      const f = fixture();
+      await assert.rejects(f.tool.execute("call-one", recipeParams, undefined, undefined, approved), { code: "candidate_changed" }, name);
+      assert.deepEqual(f.started, [], `${name}: no start is recorded`);
+      assert.deepEqual(f.settled, [], `${name}: nothing settles`);
+    }
+  });
+}

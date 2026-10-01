@@ -613,9 +613,3 @@ function reviewArtifactText(review) {
   for (const finding of review.findings) lines.push(`${finding.ruleId}: ${finding.status} — ${finding.reason}`);
   return lines.join('\n');
 }
-
-// Explicit aliases make the adapter seam discoverable without adding another
-// authoritative state representation.
-export const toArtifact = reviewToArtifact;
-export const toObligations = reviewToObligations;
-export const toCoreCandidate = reviewToCoreCandidate;

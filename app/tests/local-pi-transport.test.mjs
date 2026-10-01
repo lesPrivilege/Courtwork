@@ -216,8 +216,11 @@ test("caller cancellation resolves only after the owned process closes", async (
 
 test("timeout escalates a ready TERM-resistant process group and removes its descendant", async () => {
   let ready;
+  // The deadline must outlast the child's startup (node boot, fixture import,
+  // grandchild spawn: about 145 ms idle, far more under load); 180 ms raced it
+  // and a child killed before it installed its TERM handler never escalates.
   const result = await run("spawn-grandchild-ignore-term", {
-    limits: { timeoutMs: 180, killGraceMs: 80 },
+    limits: { timeoutMs: 2500, killGraceMs: 80 },
     onEvent: event => { ready = event; },
   });
   assert.equal(result.timedOut, true);

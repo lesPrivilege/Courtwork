@@ -139,8 +139,27 @@ export function validateProviderModels(value, { allowEmpty = false } = {}) {
   });
 }
 
-/** API keys use printable non-space ASCII, matching HTTP header transport. */
+/** The shortest secret `redactSecrets` replaces. A shorter key could not be
+ * found again in provider text, so `assertProviderApiKey` refuses it. */
+export const PROVIDER_API_KEY_MIN_LENGTH = 6;
+
+/** API keys use printable non-space ASCII, matching HTTP header transport,
+ * and are at least as long as redaction can find. */
 export function assertProviderApiKey(value) {
-  if (typeof value !== 'string' || value.length === 0 || value.length > PROVIDER_FIELD_LIMITS.apiKey || !/^[\x21-\x7e]+$/.test(value)) fail('apiKey', 'apiKey is invalid');
+  if (typeof value !== 'string' || value.length < PROVIDER_API_KEY_MIN_LENGTH || value.length > PROVIDER_FIELD_LIMITS.apiKey || !/^[\x21-\x7e]+$/.test(value)) fail('apiKey', 'apiKey is invalid');
   return value;
+}
+
+/** Replace every known secret in text bound for storage, an event, a log or
+ * an error message. A provider may echo a key inside a JSON string, so the
+ * JSON-escaped spelling (a key containing `"` or `\`) is replaced as well.
+ * Defense-in-depth on top of never reading keys back from any endpoint. */
+export function redactSecrets(message, secrets) {
+  let result = String(message ?? "");
+  for (const secret of secrets) {
+    if (typeof secret !== "string" || secret.length < PROVIDER_API_KEY_MIN_LENGTH) continue;
+    const escaped = JSON.stringify(secret).slice(1, -1);
+    for (const form of escaped === secret ? [secret] : [escaped, secret]) result = result.split(form).join("[redacted]");
+  }
+  return result;
 }

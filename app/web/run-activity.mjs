@@ -21,7 +21,7 @@ export const PROCESS_PHRASES = Object.freeze({
   compaction: ['Summarizing context', 'Compacting history'],
   retry: ['Retrying request', 'Retry in progress'],
 });
-const labels = { created: 'Starting', running: 'Working', waiting_user: 'Waiting for you', stopping: 'Stopping',
+const labels = { running: 'Working', waiting_user: 'Waiting for you', stopping: 'Stopping',
   completed: 'Completed', cancelled: 'Cancelled', failed: 'Failed' };
 
 export function projectRunProcess(events = [], run) {
@@ -60,7 +60,7 @@ export function projectRunProcess(events = [], run) {
 
 export function projectRunActivity({ run, events = [], connected = true, pendingCancel = false, visible = true } = {}) {
   if (!visible || !run?.id) return { visible: false, moving: false, key: '', label: '' };
-  const active = ['created', 'running', 'waiting_user', 'stopping'].includes(run.status);
+  const active = ['running', 'waiting_user', 'stopping'].includes(run.status);
   const stale = active && !connected;
   const process = projectRunProcess(events, run);
   return {

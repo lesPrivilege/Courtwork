@@ -8,7 +8,7 @@
 
 | 规则 | 适用面 | 来源 | 状态 | 例外 |
 |---|---|---|---|---|
-| run 八态固定文案：created / running / waiting_user / stopping / completed / cancelled / failed / unknown；unknown 只在 Host 报告时出现 | Thread、Dashboard、Run details | WS-06、WS-12、api-v6 | accepted | — |
+| run 七态固定文案：running / waiting_user / stopping / completed / cancelled / failed / unknown；unknown 只在 Host 报告时出现 | Thread、Dashboard、Run details | WS-06、WS-12、api-v6 | accepted | — |
 | question 四态：pending / resolved / expired_restart / cancelled；非 pending 永不显示回答或授权按钮 | 问题卡、授权卡、Dashboard | api-v6、DC-2 | accepted | — |
 | `current` / `content-version` 是文件读取与版本引用类别，不是成果审批状态 | preview、outcome | api-v6 §Current file vs content version、A-1 | accepted | — |
 | 状态文字化：胶囊底色退役；只有 failed 与 waiting_user 允许颜色；completed / cancelled / unknown 灰字 | 全部 | PD-L2、PC-4 | proposed（L4r1 待 Codex 独验、DS-007） | 画布已转录；产品待 polish 合流 |

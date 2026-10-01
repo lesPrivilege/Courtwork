@@ -41,7 +41,11 @@ At Run admission the Host freezes the active binding identity and revision in
 `repositoryBindingSnapshot` and records a `repository.bound` event. Revocation
 advances the Session revision, immediately makes subsequent repository calls
 fail, records its event, and requests cancellation of active Runs using that
-binding. A read is recorded as a `repository.read` event with Run attribution,
+binding. The revocation is committed inside the Host's configuration queue; the
+dependent Runs are cancelled after it is released, because an approved write of
+such a Run waits on the same queue. If a cancel cannot complete, the call returns
+`503 repository_revoked_cancellation_pending` (`candidate_revoked_…` for a
+candidate) and replaying the same request retries it. A read is recorded as a `repository.read` event with Run attribution,
 binding ID/revision, relative paths, byte counts and SHA-256 hashes; source text
 and absolute host paths are not put in those events. Already disclosed text
 cannot be withdrawn from a model's history.
@@ -52,11 +56,48 @@ only and always read the bound source checkout. The source remains read-only
 when a candidate exists. The API still accepts a Host path directly; the
 `host/choose-directory` and `repositories/*` routes below help the Connect UI
 fill that path in, but binding itself stays the explicit `PUT` described above.
-Runtime policy resource matching for `repo_*` and `candidate_*` path actions
-ignores letter case, so a Host volume's case aliases cannot bypass a
-path-specific deny or ask rule. On a case-sensitive volume this can make a
-rule more restrictive for a
-differently cased path.
+Runtime policy applies a path rule to a file, not to one spelling of its path.
+For every path action (`ws_*`, `repo_*` and `candidate_*`) the requested path
+and each rule's resource pattern are compared alias-folded, so every spelling a
+Host volume may open as the same file gets the same effect. The request's own
+spelling is never consulted.
+
+**The fold.** Each code point is decomposed (NFD), upper-cased and lower-cased
+until it no longer changes. Folding one code point at a time gives the same
+result beside a `*` as inside a name; lower-casing a whole string does not,
+because a capital sigma lower-cases differently at the end of a word. The fold
+covers case, normalization form, and case forms that plain lower-casing keeps
+apart, such as `Σ`, `σ` and final `ς`. `app/tests/path-alias-oracle.test.mjs`
+asks the volume it runs on which names collide, which file each collides with,
+and whether they still collide at the start, middle and end of a longer name;
+the fold must make every such pair equal.
+
+**Which rule applies.** In a layer the last matching rule wins, as before:
+`deny *` followed by `allow out/*` allows `out/a.txt`, however the request
+spells it. A later rule overrides an earlier, stricter one only when one
+spelling of the path matches both rules as they are written. When two rules
+meet on a file through folding alone, the stricter holds and the evaluation
+trace marks it `held: "alias-conflict"`:
+
+| Rules, in order | Every spelling of | Effect |
+|---|---|---|
+| `deny private.txt`, `allow PRIVATE.txt` | `private.txt` | deny |
+| `deny private.txt`, `allow PRIVATE*` | `private.txt` | deny |
+| `deny aσ*` | `aσx.txt`, `aςx.txt`, `AΣX.TXT` | deny |
+| `deny *`, `allow out/*` | `out/a.txt` | allow |
+| `deny x.txt`, `allow x.txt` | `x.txt` | allow |
+
+**What this gives up.** Exact matching gave different spellings of one file
+different effects. One effect per file cannot keep the stricter of those in
+every case and still keep the override above: with `deny *` and
+`allow out/*`, exact matching denied `OUT/a.txt` and allowed `out/a.txt`, and
+both are now allowed. A deny holds wherever no later rule could have applied
+to the same spelling.
+
+On a volume that keeps these spellings apart, a rule reaches differently
+spelled files as well. Non-path resources (`runtime_load` ids, MCP actions) and
+the action pattern keep exact matching. Compatibility forms such as fullwidth
+letters stay distinct names; APFS does not alias them.
 
 Aggregate reads (`repo_grep`, `candidate_grep`, `repo_diff`) apply the same
 per-path policy to every file they would otherwise disclose, not just to their

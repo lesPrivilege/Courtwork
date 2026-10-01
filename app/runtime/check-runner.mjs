@@ -1,11 +1,20 @@
-// DF-04 check recipe runner (RD-009). Spawns a Host-owned recipe as a normal
-// child process with the Host user's own rights -- this is not a sandbox.
-// `shell:false` and a minimal, explicit environment keep the child from
-// inheriting provider credentials or ambient NODE_OPTIONS/PYTHONPATH.
+// DF-04 check recipe runner (RD-009). Spawns a Host-owned recipe inside the
+// check sandbox (check-sandbox.mjs): the candidate is read-only, the only
+// writable place is the check's own temporary directory, and there is no
+// network. The sandboxed command runs under check-guard.mjs, the leader of
+// its process group, which stays outside the sandbox and kills the group when
+// the recipe's own process exits or when this Host dies without stopping the
+// check. `shell:false` and a minimal, explicit environment keep the child
+// from inheriting provider credentials or ambient NODE_OPTIONS/PYTHONPATH.
 import { spawn } from "node:child_process";
+import { accessSync, constants } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { prepareCheckSandbox } from "./check-sandbox.mjs";
+
+const GUARD = fileURLToPath(new URL("./check-guard.mjs", import.meta.url));
 
 const KILL_GRACE_MS = 500;
 const GROUP_POLL_MS = 25;
@@ -15,9 +24,10 @@ function groupExists(pid) {
   try { process.kill(-pid, 0); return true; } catch (error) { return error.code === "EPERM"; }
 }
 
-// After a stop, the leader closing does not mean the group is gone: a
-// descendant may ignore SIGTERM and have detached its stdio. SIGKILL the group
-// and wait (bounded) until it is confirmed gone. Returns true when confirmed.
+// The leader closing does not mean the group is gone: a descendant may
+// outlive a normal exit, or ignore SIGTERM and detach its stdio after a stop.
+// SIGKILL the group and wait (bounded) until it is confirmed gone. Returns
+// true when confirmed.
 async function reapGroup(pid) {
   if (!groupExists(pid)) return true;
   killGroup(pid, "SIGKILL");
@@ -37,10 +47,13 @@ function killGroup(pid, signal) {
 /**
  * Run one check recipe to completion and report exactly what happened. Never
  * throws for a non-zero exit -- that is a normal check outcome, not a Host
- * failure. A process-start failure uses "spawn_failed"; a synchronous Host
- * beforeSpawn validation failure preserves its own code and starts no child.
+ * failure. A process-start failure uses "spawn_failed"; a sandbox that is
+ * missing or does not start uses "sandbox_unavailable"; a synchronous Host
+ * beforeSpawn validation failure preserves its own code. None starts a child.
+ * `dataDir` is the Host data directory the sandbox denies; `sandbox` passes
+ * test-only options to prepareCheckSandbox (like `gitBinary`).
  */
-export async function runCheckRecipe({ recipe, cwd, signal, onOutput, beforeSpawn } = {}) {
+export async function runCheckRecipe({ recipe, cwd, dataDir, signal, onOutput, beforeSpawn, sandbox } = {}) {
   const startedAtMs = Date.now();
   const startedAt = new Date(startedAtMs).toISOString();
   const cancelledBeforeSpawn = () => ({
@@ -49,18 +62,36 @@ export async function runCheckRecipe({ recipe, cwd, signal, onOutput, beforeSpaw
     timedOut: false, cancelled: true, startedAt, endedAt: new Date().toISOString(),
   });
   if (signal?.aborted) return cancelledBeforeSpawn();
+  // HOME and TMPDIR of the child: the only directory it may write.
   const homeDir = await mkdtemp(path.join(tmpdir(), "cw-check-home-"));
+  let execution = null;
   try {
-    const env = { PATH: process.env.PATH ?? "/usr/bin:/bin", HOME: homeDir, LANG: "C" };
+    const env = { PATH: process.env.PATH ?? "/usr/bin:/bin", HOME: homeDir, TMPDIR: homeDir, LANG: "C" };
+    let unavailable = null;
+    try {
+      execution = await prepareCheckSandbox({ command: recipe.command, argv: recipe.argv, cwd, tempDir: homeDir, dataDir, env, ...sandbox });
+    } catch (error) {
+      if (error.code !== "sandbox_unavailable") throw error;
+      unavailable = error;
+    }
     return await new Promise((resolve, reject) => {
       // Internal synchronous Host fence; no await may separate it from spawn.
       if (signal?.aborted) { resolve(cancelledBeforeSpawn()); return; }
       beforeSpawn?.();
       if (signal?.aborted) { resolve(cancelledBeforeSpawn()); return; }
+      // Cancellation and the Host fence take precedence: with either, no
+      // child would start whatever the sandbox's state.
+      if (unavailable) { reject(unavailable); return; }
       let child;
       try {
-        child = spawn(recipe.command, recipe.argv, {
-          cwd, shell: false, detached: true, stdio: ["ignore", "pipe", "pipe"], env,
+        // The sandbox starts /bin/sh, so a missing recipe command would
+        // otherwise surface as exit 127 rather than a failed start.
+        accessSync(recipe.command, constants.X_OK);
+        // The guard runs outside the sandbox and starts the sandboxed command.
+        // stdin is the guard's life line: held open here, closed by the OS
+        // if this process dies. fd 3 reports whether the command started.
+        child = spawn(process.execPath, [GUARD, execution.command, ...execution.argv], {
+          cwd, shell: false, detached: true, stdio: ["pipe", "pipe", "pipe", "pipe"], env,
         });
       } catch (error) {
         const failure = new Error("check recipe failed to start: " + error.message);
@@ -104,6 +135,9 @@ export async function runCheckRecipe({ recipe, cwd, signal, onOutput, beforeSpaw
       }
       collect(child.stdout, stdoutChunks, "stdout");
       collect(child.stderr, stderrChunks, "stderr");
+      let control = "";
+      child.stdio[3].on("data", chunk => { control += chunk; });
+      child.stdin.on("error", () => {});
 
       function terminate() {
         if (terminating) return;
@@ -137,13 +171,24 @@ export async function runCheckRecipe({ recipe, cwd, signal, onOutput, beforeSpaw
         clearTimeout(timeoutTimer);
         clearTimeout(killTimer);
         signal?.removeEventListener("abort", onAbort);
-        // Only a stopped check reaps the group; a normal exit signals nothing.
-        const groupGone = terminating ? await reapGroup(child.pid) : true;
+        const startFailure = /^failed (.*)$/m.exec(control);
+        if (startFailure) {
+          const failure = new Error("check recipe failed to start: " + startFailure[1]);
+          failure.code = "spawn_failed";
+          reject(failure);
+          return;
+        }
+        // The guard reports the recipe's own exit status, then kills the
+        // group (itself included); without a report (the guard was killed by
+        // a stop), the guard's own close status is the recipe's.
+        const exited = /^exit (\d*) ([A-Z0-9]*)$/m.exec(control);
+        // Every exit path confirms the group is gone.
+        const groupGone = await reapGroup(child.pid);
         const endedAtMs = Date.now();
         resolve({
           ...(groupGone ? {} : { groupLingered: true }),
-          exitCode: code,
-          signal: closeSignal,
+          exitCode: exited ? (exited[1] === "" ? null : Number(exited[1])) : code,
+          signal: exited ? (exited[2] || null) : closeSignal,
           durationMs: endedAtMs - startedAtMs,
           stdout: Buffer.concat(stdoutChunks).toString("utf8"),
           stderr: Buffer.concat(stderrChunks).toString("utf8"),
@@ -156,6 +201,7 @@ export async function runCheckRecipe({ recipe, cwd, signal, onOutput, beforeSpaw
       });
     });
   } finally {
+    execution?.release();
     await rm(homeDir, { recursive: true, force: true }).catch(() => {});
   }
 }

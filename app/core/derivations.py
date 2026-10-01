@@ -2,13 +2,13 @@
 import hashlib
 from datetime import datetime, timezone
 
-from core import CoreError, _exact_keys, _ident, canonical_json, parse_json
+from core import CoreError, _exact_keys, _ident, canonical_json, parse_json, utf8_size
 
 
 def project(store, request):
     _exact_keys(request, {'project_id', 'limit', 'offset', 'snapshot_ref'}, 'derivations query')
     project_id = request['project_id']
-    _ident(project_id, 'project_id')
+    _ident(project_id, 'project_id'); utf8_size(project_id)
     limit, offset = request['limit'], request['offset']
     if (type(limit) is not int or not 1 <= limit <= 100 or type(offset) is not int
             or not 0 <= offset <= 9007199254740991):
@@ -59,7 +59,7 @@ def project(store, request):
                 'coverage': {'matters': 'partial' if partial else 'complete',
                              'reason': 'matter_projection_incomplete' if partial else None},
                 'page': {'limit': limit, 'offset': offset, 'total': total}, 'matters': selected}
-        if len(canonical_json(result).encode('utf-8')) > 1_000_000:
+        if utf8_size(canonical_json(result)) > 1_000_000:
             raise CoreError('PROJECTION_BUDGET', 'derivations identity metadata exceeds response budget')
         return result
     finally:
@@ -114,7 +114,7 @@ def matter_projection(conn, row, reason):
             'removed': [{'sourceId': sid, 'version': before[sid]} for sid in before if sid not in after]}
     # Bound the whole DTO below the existing JSONL frame budget even at 100
     # Matters. Never silently truncate a source diff or turn missing counts to 0.
-    if len(canonical_json(result).encode('utf-8')) > 8192:
+    if utf8_size(canonical_json(result)) > 8192:
         result.update(availability='partial', reason='projection_budget_exceeded',
                       derivations={'total': None, 'current': None, 'stale': None, 'byStatus': []},
                       staleRefs=[], staleRefsTruncated=False, sourceSetChange=None)

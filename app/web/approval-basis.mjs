@@ -13,6 +13,7 @@ import {
   validPermission,
   permissionPresentation,
   candidateAuthoredFiles,
+  checkAuthoredFilesSentence,
 } from "./thread-projection.mjs";
 
 // The binding the Host recorded for this Run, never the current catalog.
@@ -43,12 +44,13 @@ function recordedApprovalIdentity(candidate) {
     element("p", { className: "form-help", text: "As recorded when this approval was requested." }),
   ];
 }
-/* Review D4 · a check runs with this computer user's access, and it executes
- * the files the model wrote into the private candidate, not only the recipe's
- * command. Both the open card and the decided record name those files from
- * the Host's confirmed-write receipts, bounded by the write revision the
- * request was bound to (candidateAuthoredFiles). */
-function checkAuthoredFiles(events, payload) {
+/* Review D4 · a check executes the files the model wrote into the private
+ * candidate, inside the Host's OS sandbox, not only the recipe's command. Both
+ * the open card and the decided record name those files from the Host's
+ * confirmed-write receipts, bounded by the write revision the request was
+ * bound to (candidateAuthoredFiles). R30-2 · only the open request states what
+ * this Host will do now; a decided record names the files and nothing more. */
+function checkAuthoredFiles(events, payload, { live = false } = {}) {
   if (payload?.tool !== "check_run") return [];
   const files = candidateAuthoredFiles(events, payload);
   if (!files.length)
@@ -60,7 +62,7 @@ function checkAuthoredFiles(events, payload) {
   return [
     element("p", {
       className: "form-help",
-      text: `This check executes ${files.length === 1 ? "1 file" : `${files.length} files`} the model wrote, with your access to this computer:`,
+      text: checkAuthoredFilesSentence(files.length, { live }),
     }),
     list,
     ...(files.length > shown.length
@@ -83,7 +85,7 @@ export function openApprovalBasis(payload, events, binding) {
   ];
   if (display.scope) nodes.push(element("p", { className: "form-help", text: display.scope }));
   if (display.source) nodes.push(element("p", { className: "form-help", text: `Recorded source: ${display.source}` }));
-  nodes.push(...checkAuthoredFiles(events, payload));
+  nodes.push(...checkAuthoredFiles(events, payload, { live: true }));
   if (validPermission(payload)) {
     nodes.push(
       element("p", {

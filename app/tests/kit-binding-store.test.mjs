@@ -120,6 +120,26 @@ test("schema 22 records one immutable Kit summary and equal typed runtime.bound 
   }
 });
 
+test("a stored Kit binding recorded under another Pi lineage id still loads; the Run keeps that id", async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), "cw-kit-lineage-"));
+  const OLD_ID = "pi-coding-agent@0.84.0/agent-session";
+  let store;
+  try {
+    store = await new RuntimeStore({ dataDir: dir }).open();
+    const session = await createSession(store, dir);
+    const { run } = await createKitRun(store, session);
+    await store.close();
+    const file = path.join(dir, "runtime-state.json");
+    await writeFile(file, (await readFile(file, "utf8")).replaceAll(ADAPTER_ID, OLD_ID));
+    store = await new RuntimeStore({ dataDir: dir }).open();
+    assert.equal(store.getRun(run.id).adapterId, OLD_ID);
+    assert.equal(store.getRun(run.id).kitBinding.adapter.id, OLD_ID);
+  } finally {
+    await store?.close?.().catch(() => {});
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test("schema 22 refuses malformed summaries and corrupt Kit projections without rewriting durable bytes", async () => {
   const dir = await mkdtemp(path.join(tmpdir(), "cw-kit-corrupt-"));
   let store;

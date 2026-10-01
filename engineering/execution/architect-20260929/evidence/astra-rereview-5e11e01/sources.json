@@ -1,0 +1,13 @@
+{
+  "head": "5e11e019b016f2c8e4f39bf48280b52db4fb3b7f",
+  "node": "v25.9.0",
+  "files_sha256": {
+    "app/runtime/control-plane.mjs": "580b020833ee992833d109e3fd57b42f0c737fba16a2bc4c16083f281d68a085",
+    "app/runtime/control-tools.mjs": "20bf1a69a0691ca8b2e12f3e35a597d1d66a895c5553b26eba19a4efa48adf43",
+    "app/runtime/workspace-tools.mjs": "217e819cafed4bf69c53907e483afff287d52d03407f674fc8cefa7b569fa3fa",
+    "app/runtime/grep-worker.mjs": "34fb085d7f44c15fea631dee5218115af4798382f368631abe99f0aa31fb0493",
+    "app/tests/path-alias-oracle.test.mjs": "27aed7c9ddd0e0ec5e182b1f4f812d170818aa7f674204219a12b1cf90fa3c0b",
+    "app/tests/control-plane.test.mjs": "fd7a5ac28b5a62f6a832d3b2629c719854176f0ffd48e75997648da49fc3fbdf",
+    "app/tests/workspace.test.mjs": "8e9283e86a9651f205cb19211203685856ee80ecd25adcefa142d6eff4e8e83b"
+  }
+}

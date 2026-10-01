@@ -118,7 +118,8 @@ export function createModelChooser({ popover, name, request, getSnapshot, onSnap
 
   function refuse(error) {
     if (isActiveRunRefusal(error)) return activeRunFreezeNotice(ownRunBusy());
-    if (error.status === 409 || error.body?.error?.code === "config_conflict") {
+    // Only a version conflict re-reads; every other refusal shows the Host's message.
+    if (error.body?.error?.code === "config_conflict") {
       void load();
       return "Saved settings changed elsewhere. Showing the current value.";
     }

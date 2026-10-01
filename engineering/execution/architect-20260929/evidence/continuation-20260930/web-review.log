@@ -1,0 +1,41 @@
+✔ seen and status are two drawn facts; acknowledging changes only seen (24.512041ms)
+✔ the receipt line waits for the receipt and the re-read, and never precedes them (5.0615ms)
+✔ a mismatched receipt draws no receipt line (3.143583ms)
+✔ a version conflict keeps the draft and states the version now on screen (3.821333ms)
+✔ an unknown result moves focus to Retry sending and keeps the submit closed (3.260542ms)
+✔ a Core outcome marked unknown is recovered by request id, never shown as a refusal (3.168375ms)
+✔ a Core outcome marked unknown that did commit is read back as committed (4.066709ms)
+✔ Mark as seen cannot be sent twice while its request is out (3.265042ms)
+✔ an item that leaves the current view after a receipt is named, with its new status (4.128667ms)
+✔ the assistant entry is part of the workspace heading, not an item detail (1.500209ms)
+✔ lists the latest confirmed write per path up to the approved write revision (1.39975ms)
+✔ a write with an unknown outcome is listed as possibly written, not silently dropped (0.1075ms)
+✔ returns nothing without a recorded candidate or write revision (0.080625ms)
+✔ the check approval card and its decided record both show the authored files (0.8395ms)
+✔ a live approval states this Host's sandbox; a decided record states only what was recorded (1.046833ms)
+✔ R30-2 · a recorded v1 approval payload is presented as recorded, without this Host's sandbox (0.392167ms)
+✔ R30-2 · a denied or closed check approval names its files without claiming execution (0.872125ms)
+✔ a run.error records the error but not a status; the Host's run.status settles it (1.685542ms)
+✔ a Host Run snapshot replaces a terminal status; a stale non-terminal read does not reopen it (0.186541ms)
+✔ a coded Host refusal is settled; only no response or an uncoded/internal 5xx is uncertain (0.448208ms)
+✔ a Core error the Host marked outcome unknown is uncertain whatever its code; the same code without the marker is settled (0.144167ms)
+✔ a binding command with an unknown Core outcome is not reported as a refusal, and the binding is read again (0.912792ms)
+✔ effort save: a frozen refusal shows the Host's words; only config_conflict re-reads (0.442792ms)
+✔ chat delete: a Host refusal is shown in its own words; enablement follows any loaded active Run (0.806833ms)
+✔ Runtime detail retains each object reading position and focus through a snapshot refresh (20.065333ms)
+✔ Late recorded-source completion preserves the currently read object position (11.849833ms)
+✔ Changing Session does not carry an old object reading position into the new context (7.638083ms)
+✔ Permission explanation remains before an already opened long recorded source (13.298792ms)
+✔ Distinct legal resource IDs keep independent DOM relationships and reading positions (12.967875ms)
+✔ A pending source read and permission explanation settle independently (11.993917ms)
+✔ A failed source response from a prior Session cannot replace the new read (15.764625ms)
+✔ An alias-conflict trace step reads as held, with one sentence naming the held effect, in both trace readings (5.293833ms)
+✔ A trace without a held step keeps its reading and no held sentence (5.986958ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 556.738958

@@ -141,6 +141,44 @@ test('an unknown result moves focus to Retry sending and keeps the submit closed
   });
 });
 
+const coreUnknown = () => Object.assign(new Error('Core did not answer in time'), { status: 503, body: { error: { code: 'CORE_TIMEOUT', message: 'Core did not answer in time', outcome: 'unknown', operation: 'attention_action' } } });
+
+test('a Core outcome marked unknown is recovered by request id, never shown as a refusal', async () => {
+  await withTinyDom(async container => {
+    const c = core();
+    c.hooks.action = () => coreUnknown();
+    await openA(container, c);
+    key(container, 'action-resolve').click(); await flush();
+    type(container, 'field-reason', 'Handled.');
+    key(container, 'submit-resolve').click();
+    await flush(); await flush();
+    const queries = c.calls.filter(call => call.path === '/attention/query' && call.body.query.kind === 'request');
+    assert.equal(queries.length, 1, 'the recovery query was issued for this request');
+    assert.equal(queries[0].body.query.request_id, posts(c)[0].body.request.request_id);
+    assert.equal(document.activeElement, key(container, 'retry-mutation'));
+    assert.match(container.textContent, /No committed result was found for this request/);
+    assert.doesNotMatch(container.textContent, /Core did not answer in time/, 'the Core error is not a refusal sentence');
+  });
+});
+
+test('a Core outcome marked unknown that did commit is read back as committed', async () => {
+  await withTinyDom(async container => {
+    const c = core();
+    c.hooks.action = (request, item) => { item.status = 'resolved'; item.revision += 1; return coreUnknown(); };
+    const ask = c.request;
+    c.request = async (path, init = {}) => path === '/attention/query' && init.body.query.kind === 'request'
+      ? { schema_version: 1, result: { schema_version: 1, attention_id: 'a', request_id: init.body.query.request_id, revision: c.item.revision, status: 'resolved' } }
+      : ask(path, init);
+    await openA(container, c);
+    key(container, 'action-resolve').click(); await flush();
+    type(container, 'field-reason', 'Handled.');
+    key(container, 'submit-resolve').click();
+    await flush(); await flush(); await flush();
+    assert.equal(key(container, 'retry-mutation'), null);
+    assert.match(container.querySelector('.attention-receipt').textContent, /Recorded · /);
+  });
+});
+
 test('Mark as seen cannot be sent twice while its request is out', async () => {
   await withTinyDom(async container => {
     const c = core();

@@ -23,7 +23,6 @@
  */
 
 const clone = (value) => structuredClone(value);
-export const BUILTIN_PROFILE = "agent:general";
 
 /** Pure: the parts of one Runtime Control snapshot this consumer reads. */
 export function projectSnapshot(snapshot) {

@@ -1,13 +1,13 @@
 /* Review D4 (engineering/reviews/doc-driven-code-review-2026-09-29): a check
- * executes files the model wrote into the private candidate, with the Host
- * user's rights. The approval names those files from the Host's own
+ * executes files the model wrote into the private candidate, inside the
+ * Host's sandbox. The approval names those files from the Host's own
  * `repository.write.confirmed` receipts, bounded by the write revision the
  * request was bound to, so a person approves the code that will run rather
  * than only `node --test`. */
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import { candidateAuthoredFiles } from "../web/thread-projection.mjs";
+import { candidateAuthoredFiles, checkAuthoredFilesSentence } from "../web/thread-projection.mjs";
 
 const confirmed = (candidateId, path, contentSha256, writeRevision) =>
   ({ type: "repository.write.confirmed", data: { candidateId, path, contentSha256, bytes: 1, writeRevision } });
@@ -50,9 +50,58 @@ test("the check approval card and its decided record both show the authored file
   // The card body is the shared approval basis (approval-basis.mjs): its open
   // and decided builders each list the files, and the Chat card renders both.
   const basis = readFileSync(new URL("../web/approval-basis.mjs", import.meta.url), "utf8");
-  assert.equal((basis.match(/nodes\.push\(\.\.\.checkAuthoredFiles\(events, payload\)\)/g) || []).length, 2, "open card and decided record");
+  assert.equal((basis.match(/nodes\.push\(\.\.\.checkAuthoredFiles\(events, payload(, \{ live: true \})?\)\)/g) || []).length, 2, "open card and decided record");
   const app = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
   const render = app.slice(app.indexOf("function renderPermission("), app.indexOf("\nfunction ", app.indexOf("function renderPermission(") + 1));
   assert.match(render, /recordedApprovalBasis\(payload, state\.events, binding, row\.decision\)/);
   assert.match(render, /openApprovalBasis\(payload, state\.events, binding\)/);
+});
+
+test("a live approval states this Host's sandbox; a decided record states only what was recorded", () => {
+  const live = checkAuthoredFilesSentence(1, { live: true });
+  assert.equal(live, "This check executes 1 file the model wrote, inside this Host's sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:");
+  assert.match(checkAuthoredFilesSentence(3, { live: true }), /^This check executes 3 files the model wrote, inside this Host's sandbox/);
+  assert.doesNotMatch(live, /your access|this computer/i);
+  // R30-2 · a recorded approval has no execution-environment fact, so the
+  // decided view must not project the current Host's sandbox onto the past.
+  // The decided branch also renders denied and closed approvals, and an
+  // approval by itself does not show that anything ran.
+  const decided = checkAuthoredFilesSentence(2);
+  assert.equal(decided, "This approval names 2 files the model wrote; the execution environment was not recorded:");
+  assert.doesNotMatch(decided, /\bran\b|executes|sandbox|no network|your access|this computer/i);
+  // The card body lives in the shared approval basis since the review of 7e8e253 (F2).
+  const basis = readFileSync(new URL("../web/approval-basis.mjs", import.meta.url), "utf8");
+  assert.match(basis, /text: checkAuthoredFilesSentence\(files\.length, \{ live \}\)/, "the sentence follows the card's liveness");
+  assert.match(basis, /nodes\.push\(\.\.\.checkAuthoredFiles\(events, payload, \{ live: true \}\)\);/, "only the open request is told it is live");
+  assert.match(basis, /nodes\.push\(\.\.\.checkAuthoredFiles\(events, payload\)\);/, "the decided record is not");
+  assert.doesNotMatch(basis, /with your access to this computer/);
+  assert.doesNotMatch(readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8"), /with your access to this computer/);
+});
+
+test("R30-2 · a recorded v1 approval payload is presented as recorded, without this Host's sandbox", async () => {
+  const { permissionPresentation } = await import("../web/thread-projection.mjs");
+  const v1 = { toolCallId: "c1", tool: "check_run", path: "*", bytes: 22, contentSha256: "a".repeat(64), preview: '{"recipeId":"node-test-harness-contract"}',
+    recipeId: "node-test-harness-contract", recipeVersion: 1, command: "/usr/local/bin/node", argv: ["--test", "app/tests/hermes-api-runs.test.mjs"], cwd: "private candidate",
+    candidateId: "cand", candidateWriteRevision: 2, timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal" };
+  const display = permissionPresentation(v1, null);
+  assert.equal(display.scope, "node --test app/tests/hermes-api-runs.test.mjs · in the private candidate · 120 s · 64 KiB per stream · minimal environment");
+  assert.doesNotMatch(JSON.stringify(display), /sandbox|no network/i);
+  // The same payload shape for a current recipe is presented the same way: the record carries no environment fact either.
+  const v2 = { ...v1, recipeVersion: 2, argv: ["--test", "app/tests/kit-context.test.mjs"] };
+  assert.doesNotMatch(JSON.stringify(permissionPresentation(v2, null)), /sandbox|no network/i);
+});
+
+test("R30-2 · a denied or closed check approval names its files without claiming execution", () => {
+  // The decided record (recordedApprovalBasis in approval-basis.mjs) shows one
+  // sentence for approved, denied and closed records alike, so that sentence
+  // must hold for a decision that started nothing.
+  const app = readFileSync(new URL("../web/approval-basis.mjs", import.meta.url), "utf8");
+  assert.match(app, /Approval denied for this exact \$\{display\.noun\}\./, "the decided branch renders denials");
+  assert.match(app, /This request closed without a recorded decision\./, "and closed requests");
+  assert.match(app, /nodes\.push\(\.\.\.checkAuthoredFiles\(events, payload\)\);/, "with the same authored-files sentence");
+  for (const count of [1, 4]) {
+    const sentence = checkAuthoredFilesSentence(count);
+    assert.match(sentence, /^This approval names /);
+    assert.doesNotMatch(sentence, /\bran\b|executes|executed|will run|sandbox/i, "a denied or closed approval executed nothing and the sentence must not say otherwise");
+  }
 });

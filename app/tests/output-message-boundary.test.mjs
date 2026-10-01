@@ -225,7 +225,7 @@ test("no row is final while the Run is still working, waiting or stopping", () =
     event(2, "run-1", "tool.start", { callId: "q", name: "ask_user" }),
     event(3, "run-1", "question.open", { id: "q1", prompt: "Continue?" }),
   ];
-  for (const status of ["created", "running", "waiting_user", "stopping"])
+  for (const status of ["running", "waiting_user", "stopping"])
     assert.equal(finals(rows(input, [run("run-1", status)])).length, 0, status);
   // Even a settled stop answer is not final until the Run completes.
   const answered = [event(1, "run-1", "assistant.message", { text: "Answer.", stopReason: "stop" })];

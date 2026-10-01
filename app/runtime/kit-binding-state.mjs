@@ -7,8 +7,6 @@ const VERSION = /^[A-Za-z0-9._-]{1,80}$/;
 const SUMMARY_BYTES_LIMIT = 128 * 1024;
 const MAX_KITS = 8;
 const MAX_EVIDENCE = 64;
-const PI_ADAPTER_ID = "pi-coding-agent@0.85.1/agent-session";
-const PI_ADAPTER_REVISION = "pi-agent-session-context-v1";
 const CONTENT_KINDS = new Set(["instruction", "skill", "reference", "prompt_template"]);
 
 export const KIT_BINDING_LIMITS = Object.freeze({
@@ -137,7 +135,10 @@ export function validateKitBinding(summary) {
 
   if (summary.planVersion !== 1 || summary.compiler !== "kit-context-v1") invalid("run.kitBinding compiler identity is invalid");
   exact(summary.adapter, ["id", "revision"], "run.kitBinding.adapter");
-  if (summary.adapter.id !== PI_ADAPTER_ID || summary.adapter.revision !== PI_ADAPTER_REVISION) invalid("run.kitBinding.adapter is invalid");
+  // The recorded adapter is what the Run ran on and must load after the Host's
+  // Adapter changes; admission checks the current Adapter (kit-run-context).
+  string(summary.adapter.id, "run.kitBinding.adapter.id");
+  string(summary.adapter.revision, "run.kitBinding.adapter.revision");
 
   exact(summary.compatibility, ["status", "kits"], "run.kitBinding.compatibility");
   if (!["supported", "unchecked"].includes(summary.compatibility.status)) invalid("run.kitBinding.compatibility.status is invalid");
@@ -188,8 +189,15 @@ export function validateKitBinding(summary) {
   return structuredClone(summary);
 }
 
-function runtimeBoundEvents(state, runId) {
-  return state.events.filter(event => event.runId === runId && event.type === "runtime.bound");
+/** One pass over the events: runtime.bound events grouped by Run. */
+function runtimeBoundByRun(state) {
+  const byRun = new Map();
+  for (const event of state.events) {
+    if (event.type !== "runtime.bound") continue;
+    const list = byRun.get(event.runId);
+    if (list) list.push(event); else byRun.set(event.runId, [event]);
+  }
+  return byRun;
 }
 
 function validateBoundSnapshot(data, run, summary) {
@@ -253,8 +261,9 @@ function validateBoundSnapshot(data, run, summary) {
 /** Validate cross-record Kit authority and immutable Store transitions. */
 export function validateKitBindings(state, previousState = null) {
   if (!state || !Array.isArray(state.runs) || !Array.isArray(state.events)) invalid("Kit binding state is invalid");
+  const boundByRun = runtimeBoundByRun(state);
   for (const run of state.runs) {
-    const bound = runtimeBoundEvents(state, run.id);
+    const bound = boundByRun.get(run.id) ?? [];
     if (run.kitBinding === null) {
       if (bound.some(event => event.data?.kitBinding !== undefined && event.data.kitBinding !== null)) invalid("a non-Kit Run cannot have runtime.bound Kit authority");
       // On load there is no previous state to compare. Removing both summary
@@ -277,14 +286,16 @@ export function validateKitBindings(state, previousState = null) {
 
   if (previousState) {
     const currentRuns = new Map(state.runs.map(run => [run.id, run]));
+    let previousBoundByRun = null;
     for (const previousRun of previousState.runs) {
       const currentRun = currentRuns.get(previousRun.id);
       if (!currentRun) continue;
       if ((previousRun.kitBinding !== null || currentRun.kitBinding !== null)
         && !isDeepStrictEqual(currentRun.kitBinding, previousRun.kitBinding)) invalid("an existing Run Kit binding is immutable");
       if (previousRun.kitBinding !== null) {
-        const previousEvents = runtimeBoundEvents(previousState, previousRun.id);
-        const currentEvents = runtimeBoundEvents(state, previousRun.id);
+        previousBoundByRun ??= runtimeBoundByRun(previousState);
+        const previousEvents = previousBoundByRun.get(previousRun.id) ?? [];
+        const currentEvents = boundByRun.get(previousRun.id) ?? [];
         if (!isDeepStrictEqual(currentEvents, previousEvents)) invalid("an existing Kit runtime.bound event is immutable");
       }
     }

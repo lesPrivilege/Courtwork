@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 
 // These two IDs are the frozen schema-21 native lineages. The factory allowlist
 // lives in runtime.mjs; Store never discovers executables or credentials.
+// An executor id names a native session lineage. It does not change when the
+// package is upgraded within that lineage, and it is defined here only; a Run's
+// recorded adapterId, not this constant, is the fact about what it ran on.
 export const PI_EXECUTOR_ID = "pi-coding-agent@0.85.1/agent-session";
 export const MANAGED_EXECUTOR_ID = "agents-api";
 export const EXECUTOR_OPERATIONS = Object.freeze([
@@ -86,17 +89,23 @@ export function hasExecutorHistory(state, session) {
 }
 
 /** Returns the provable nonchild adapter, null on contradiction, or undefined
- * when there is no Run/native evidence. Absence of a lost remote locator never
- * turns a recorded Agents Run into Pi. */
-export function historicalExecutor(state, session) {
+ * when there is no Run/native evidence. A Run's recorded adapterId is the fact;
+ * the current Pi constant is never added beside it. A hostSession implies the
+ * Pi lineage only for a Session with no nonchild Run to say otherwise.
+ * `legacy` is the schema <=21 migration reading, where no lineage but the
+ * frozen Pi id had ever owned a hostSession, so any hostSession is Pi.
+ * Absence of a lost remote locator never turns a recorded Agents Run into Pi. */
+export function historicalExecutor(state, session, { legacy = false } = {}) {
   const identities = new Set();
+  let ranHere = false;
   for (const run of state.runs.filter(run => run.sessionId === session.id)) {
     if (isSparkChildRun(state, run)) continue;
+    ranHere = true;
     identities.add(run.adapterId);
-    if (run.hostSession !== null) identities.add(PI_EXECUTOR_ID);
+    if (legacy && run.hostSession !== null) identities.add(PI_EXECUTOR_ID);
     if (run.remoteBinding !== null) identities.add(MANAGED_EXECUTOR_ID);
   }
-  if (session.hostSession !== null) identities.add(PI_EXECUTOR_ID);
+  if (session.hostSession !== null && (legacy || !ranHere)) identities.add(PI_EXECUTOR_ID);
   if (session.remoteBinding !== null || session.remoteActions.length > 0) identities.add(session.remoteBinding?.runtimeId ?? MANAGED_EXECUTOR_ID);
   return identities.size > 1 ? null : identities.size === 1 ? [...identities][0] : undefined;
 }
@@ -104,7 +113,7 @@ export function historicalExecutor(state, session) {
 export function migrateExecutorState(state) {
   for (const session of state.sessions) {
     const child = Boolean(sparkAssignmentForSession(state, session.id));
-    const adapterId = child ? PI_EXECUTOR_ID : historicalExecutor(state, session);
+    const adapterId = child ? PI_EXECUTOR_ID : historicalExecutor(state, session, { legacy: true });
     session.executorChoice = { revision: 0, adapterId: adapterId === undefined ? PI_EXECUTOR_ID : adapterId, configurationRef: null };
   }
   for (const run of state.runs) run.executorBinding = isSparkChildRun(state, run) ? null : {
@@ -122,8 +131,10 @@ export function validateExecutorState(state, previous = null) {
     const child = Boolean(sparkAssignmentForSession(state, session.id));
     if (!child) {
       const historical = historicalExecutor(state, session);
-      if (historical !== undefined) requireTrue(session.executorChoice.adapterId === historical,
-        "Session executor choice contradicts Run/native history");
+      // A null choice fences a Session whose history was contradictory when it
+      // was migrated: it admits no Run, so it cannot contradict what ran.
+      if (historical !== undefined) requireTrue(session.executorChoice.adapterId === historical ||
+        session.executorChoice.adapterId === null, "Session executor choice contradicts Run/native history");
       if (historical === undefined) requireTrue(session.executorChoice.adapterId !== null,
         "empty Session has null executor choice");
     }

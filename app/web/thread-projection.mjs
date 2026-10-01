@@ -228,8 +228,8 @@ export function checkStateWord(check) {
   if (check.status === "unknown") return "Unknown";
   return "Failed";
 }
-/* F5 · a cancelled or timed-out check whose process group the Host could not
- * confirm gone carries `groupLingered: true` on its settlement; the key is
+/* F5 · a check whose process group the Host could not confirm gone (every exit
+ * path reaps it) carries `groupLingered: true` on its settlement; the key is
  * absent otherwise. The outcome word stays what the Host settled; this is the
  * one further fact, said only when the Host recorded it. */
 export function checkProcessesWord(check) {
@@ -240,7 +240,7 @@ export function toolStateWord(row, status) {
   if (row.check) return checkProcessesWord(row.check) ? `${checkStateWord(row.check)} · processes not confirmed stopped` : checkStateWord(row.check);
   if (row.isError) return "Failed";
   if (row.phase === "result") return null;
-  if (["created", "running", "waiting_user", "stopping"].includes(status))
+  if (["running", "waiting_user", "stopping"].includes(status))
     return status === "waiting_user" ? "Waiting for you" : status === "stopping" ? "Stopping" : "Working";
   return unfinishedToolWord(status);
 }
@@ -294,11 +294,23 @@ export function approvalCandidate(payload) {
 }
 
 /* Review D4 · a check executes the files the model wrote into the private
- * candidate, with the Host user's rights. Which files those are is read from
+ * candidate, inside the Host's OS sandbox (docs/check-recipes.md, Environment
+ * policy). Which files those are is read from
  * the Host's own `repository.write.confirmed` receipts for the candidate the
  * request names, up to the write revision it was bound to — never from the
  * live candidate. The latest write per path wins; an unknown outcome is kept
  * as a possible write with no hash. */
+/* R30-2 · a recorded approval carries no execution-environment fact (the
+ * payload's `env` is the recipe's "minimal" declaration), and a decided record
+ * (approved, denied or closed) does not show that anything ran, so it names
+ * the files the approval covered and nothing more; only a live approval
+ * states what this Host will do now. */
+export const checkAuthoredFilesSentence = (count, { live = false } = {}) => {
+  const files = count === 1 ? "1 file" : `${count} files`;
+  return live
+    ? `This check executes ${files} the model wrote, inside this Host's sandbox: the candidate is read-only, only its own temporary directory is writable, and it has no network:`
+    : `This approval names ${files} the model wrote; the execution environment was not recorded:`;
+};
 export function candidateAuthoredFiles(events, payload) {
   const id = typeof payload?.candidateId === "string" && payload.candidateId ? payload.candidateId : null;
   const bound = Number.isSafeInteger(payload?.candidateWriteRevision) ? payload.candidateWriteRevision : null;

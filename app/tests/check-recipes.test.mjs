@@ -12,12 +12,12 @@ import { getCheckRecipe, listCheckRecipes } from "../runtime/check-recipes.mjs";
 import { RuntimeStore } from "./fixtures/executor-store.mjs";
 import { inspectRepositoryRoot } from "../runtime/repository-fs.mjs";
 import { boot } from "./helpers.mjs";
+import { permissionPresentation, projectThread } from "../web/thread-projection.mjs";
 import { createSyntheticRepository, KNOWN_BUG } from "./fixtures/synthetic-repo/create-synthetic-repo.mjs";
 
 const runFile = promisify(execFile);
 const ATTENTION_FILES = [
   "app/tests/attention-core.test.mjs",
-  "app/tests/attention-http.test.mjs",
   "app/tests/attention-recovery.test.mjs",
   "app/tests/attention-github-fixture.test.mjs",
   "app/tests/attention-gmail-fixture.test.mjs",
@@ -25,17 +25,17 @@ const ATTENTION_FILES = [
 ];
 const ATTENTION_ARGV = ["--test", "--test-concurrency=1", ...ATTENTION_FILES];
 const HARNESS_FILES = [
-  "app/tests/hermes-api-runs.test.mjs",
   "app/tests/request-summary.test.mjs",
   "app/tests/runtime-load-recovery.test.mjs",
   "app/tests/kit-context.test.mjs",
-  "app/tests/control-plane.test.mjs",
-  "app/tests/check-recipes.test.mjs",
+  "app/tests/kit-context-independent.test.mjs",
+  "app/tests/control-policy.test.mjs",
+  "app/tests/check-approval-authored-files.test.mjs",
 ];
 const HARNESS_ARGV = ["--test", "--test-concurrency=1", ...HARNESS_FILES];
-const FIXED_RECIPES = [["node-test", ["--test"]], ["node-test-attention-contract", ATTENTION_ARGV], ["node-test-harness-contract", HARNESS_ARGV]];
+const FIXED_RECIPES = [["node-test", ["--test"], 1], ["node-test-attention-contract", ATTENTION_ARGV, 2], ["node-test-harness-contract", HARNESS_ARGV, 2]];
 
-test("Attention recipe is one frozen descriptor alongside the unchanged package recipe", () => {
+test("Attention recipe v2 is one frozen offline descriptor alongside the unchanged package recipe", () => {
   const [packageRecipe, attentionRecipe] = listCheckRecipes();
   assert.deepEqual([...packageRecipe.argv], ["--test"]);
   assert.deepEqual([packageRecipe.id, packageRecipe.version, packageRecipe.title], ["node-test", 1, "Run the package tests"]);
@@ -43,14 +43,14 @@ test("Attention recipe is one frozen descriptor alongside the unchanged package 
   assert.deepEqual({ id: attentionRecipe.id, version: attentionRecipe.version, title: attentionRecipe.title,
     command: attentionRecipe.command, argv: [...attentionRecipe.argv], cwd: attentionRecipe.cwd,
     timeoutMs: attentionRecipe.timeoutMs, outputLimitBytes: attentionRecipe.outputLimitBytes, env: attentionRecipe.env }, {
-    id: "node-test-attention-contract", version: 1, title: "Run Attention backend contract tests",
+    id: "node-test-attention-contract", version: 2, title: "Run Attention backend offline contract tests",
     command: process.execPath, argv: ATTENTION_ARGV, cwd: "candidate",
     timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
   });
   assert.ok(Object.isFrozen(attentionRecipe) && Object.isFrozen(attentionRecipe.argv));
 });
 
-test("Harness recipe is the third frozen descriptor; the first two keep their meaning and order", () => {
+test("Harness recipe v2 is the third frozen offline descriptor; catalog order is unchanged", () => {
   const recipes = listCheckRecipes();
   assert.deepEqual(recipes.map(recipe => recipe.id), ["node-test", "node-test-attention-contract", "node-test-harness-contract"]);
   assert.deepEqual([...recipes[1].argv], ATTENTION_ARGV);
@@ -59,11 +59,35 @@ test("Harness recipe is the third frozen descriptor; the first two keep their me
   assert.deepEqual({ id: harness.id, version: harness.version, title: harness.title,
     command: harness.command, argv: [...harness.argv], cwd: harness.cwd,
     timeoutMs: harness.timeoutMs, outputLimitBytes: harness.outputLimitBytes, env: harness.env }, {
-    id: "node-test-harness-contract", version: 1, title: "Run Harness Core and Extensions contract tests",
+    id: "node-test-harness-contract", version: 2, title: "Run Harness Core and Extensions offline contract tests",
     command: process.execPath, argv: HARNESS_ARGV, cwd: "candidate",
     timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
   });
   assert.ok(Object.isFrozen(listCheckRecipes()) && Object.isFrozen(harness) && Object.isFrozen(harness.argv));
+});
+
+// The two fixed Courtwork recipes run in the sandbox: no listener, no nested
+// check. Their named files must therefore be offline. This is a cheap static
+// guard on the recorded cause of I1; the completion evidence is
+// check-recipes-real.test.mjs, which runs them for real.
+test("the fixed Courtwork recipes name only files that exist, are distinct, and start no Host, listener or check", async () => {
+  const repository = path.resolve(import.meta.dirname, "..", "..");
+  const forbidden = /\bboot\(|\breopen\(|\.listen\(|createServer\(|runCheckRecipe|prepareCheckSandbox|createCheckTools|SandboxManager|sandbox-exec/;
+  for (const [recipeId, argv] of FIXED_RECIPES.slice(1)) {
+    const files = argv.filter(argument => !argument.startsWith("-"));
+    assert.equal(new Set(files).size, files.length, `${recipeId}: no file is named twice`);
+    for (const file of files) {
+      const source = await readFile(path.join(repository, file), "utf8");
+      assert.doesNotMatch(source, forbidden, `${recipeId}: ${file} must be offline (no Host boot, listener or nested check)`);
+    }
+  }
+});
+
+test("each recipe id has exactly one catalog entry, at its current version: no earlier version stays runnable", () => {
+  const ids = listCheckRecipes().map(recipe => recipe.id);
+  assert.equal(new Set(ids).size, ids.length);
+  assert.deepEqual(FIXED_RECIPES.map(([id, , version]) => [id, getCheckRecipe(id).version]), FIXED_RECIPES.map(([id, , version]) => [id, version]));
+  assert.ok(FIXED_RECIPES.slice(1).every(([id]) => getCheckRecipe(id).version === 2), "v1 of both Courtwork recipes is retired");
 });
 
 // DF-04 recipe discoverability: the model chooses only a recipe id, so the
@@ -100,9 +124,14 @@ async function scratch(prefix) {
 // runner unit tests
 // ---------------------------------------------------------------------------
 
+// The check sandbox denies a Host data directory; the runner tests use an
+// empty synthetic one.
+const runnerDataDir = await mkdtemp(path.join(tmpdir(), "cw-check-runner-data-"));
+test.after(() => rm(runnerDataDir, { recursive: true, force: true }));
+
 test("runCheckRecipe reports a clean exit without truncation", async () => {
   const recipe = { command: process.execPath, argv: ["-e", "process.stdout.write('ok'); process.exit(0)"], timeoutMs: 5000, outputLimitBytes: 4096 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.exitCode, 0);
   assert.equal(result.signal, null);
   assert.equal(result.timedOut, false);
@@ -117,7 +146,7 @@ test("runCheckRecipe reports a clean exit without truncation", async () => {
 
 test("runCheckRecipe reports a non-zero exit without throwing", async () => {
   const recipe = { command: process.execPath, argv: ["-e", "process.exit(1)"], timeoutMs: 5000, outputLimitBytes: 4096 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.exitCode, 1);
   assert.equal(result.timedOut, false);
   assert.equal(result.cancelled, false);
@@ -126,7 +155,7 @@ test("runCheckRecipe reports a non-zero exit without throwing", async () => {
 test("runCheckRecipe caps captured stdout/stderr and marks truncated", async () => {
   const script = "process.stdout.write('a'.repeat(5000)); process.stderr.write('b'.repeat(5000));";
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 5000, outputLimitBytes: 100 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.truncated.stdout, true);
   assert.equal(result.truncated.stderr, true);
   assert.equal(Buffer.byteLength(result.stdout, "utf8"), 100);
@@ -141,8 +170,10 @@ test("runCheckRecipe timeout kills the whole process group, including a nested c
     "process.stdout.write('child-pid ' + child.pid + '\\n');",
     "setTimeout(() => {}, 30000);",
   ].join("\n");
-  const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 300, outputLimitBytes: 4096 };
-  const result = await runCheckRecipe({ recipe, cwd: process.cwd() });
+  // Long enough for the guard, the sandbox, the check and its child to start
+  // and announce their pids under load; the check itself would run for 30 s.
+  const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 1500, outputLimitBytes: 4096 };
+  const result = await runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir });
   assert.equal(result.timedOut, true);
   assert.equal(result.cancelled, false);
   const outerMatch = result.stdout.match(/outer-pid (\d+)/);
@@ -160,8 +191,12 @@ test("runCheckRecipe cancels on abort and resolves only after the group has exit
     "setTimeout(() => {}, 30000);",
   ].join("\n");
   const recipe = { command: process.execPath, argv: ["-e", script], timeoutMs: 30000, outputLimitBytes: 4096 };
-  const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), signal: controller.signal });
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // Cancel once the check has announced itself, not after a fixed delay: how
+  // long the guard and the sandbox take to start is not part of this test.
+  let announced;
+  const started = new Promise(resolve => { announced = resolve; });
+  const resultPromise = runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir, signal: controller.signal, onOutput: ({ stream }) => { if (stream === "stdout") announced(); } });
+  await started;
   controller.abort();
   const result = await resultPromise;
   assert.equal(result.cancelled, true);
@@ -173,7 +208,7 @@ test("runCheckRecipe cancels on abort and resolves only after the group has exit
 
 test("runCheckRecipe throws spawn_failed only when the process cannot start, and cleans up its temp HOME", async () => {
   const recipe = { command: path.join(process.cwd(), "definitely-not-a-real-check-binary"), argv: [], timeoutMs: 1000, outputLimitBytes: 1024 };
-  await assert.rejects(runCheckRecipe({ recipe, cwd: process.cwd() }), error => error.code === "spawn_failed");
+  await assert.rejects(runCheckRecipe({ recipe, cwd: process.cwd(), dataDir: runnerDataDir }), error => error.code === "spawn_failed");
 });
 
 // ---------------------------------------------------------------------------
@@ -257,7 +292,7 @@ test("ask mode shows the exact recipe in the permission payload and deny records
   const h = await boot();
   try {
     const { session, candidateId } = await bindSyntheticCandidate(h, { permissionMode: "ask" });
-    for (const [recipeId, argv] of FIXED_RECIPES) {
+    for (const [recipeId, argv, version] of FIXED_RECIPES) {
       const run = await h.api("POST", `/sessions/${session.id}/runs`, {
         commandId: `check-deny-${recipeId}`,
         input: h.scriptInput([{ name: "check_run", arguments: { recipeId } }]),
@@ -267,7 +302,7 @@ test("ask mode shows the exact recipe in the permission payload and deny records
       assert.ok(openEvent, `${recipeId}: check_run must ask before running`);
       assert.equal(openEvent.data.tool, "check_run");
       assert.equal(openEvent.data.recipeId, recipeId);
-      assert.equal(openEvent.data.recipeVersion, 1);
+      assert.equal(openEvent.data.recipeVersion, version);
       assert.equal(openEvent.data.command, process.execPath);
       assert.deepEqual(openEvent.data.argv, argv);
       assert.equal(openEvent.data.cwd, "private candidate");
@@ -291,7 +326,7 @@ test("ask mode shows the exact recipe in the permission payload and deny records
   }
 });
 
-test("approved Attention recipe runs all six fixed targets, records an ordinary test failure and stops on missing targets", async () => {
+test("approved Attention recipe runs all five fixed targets, records an ordinary test failure and stops on missing targets", async () => {
   const h = await boot();
   try {
     for (const [index, outcome] of ["pass", "fail", "missing"].entries()) {
@@ -321,7 +356,7 @@ test("approved Attention recipe runs all six fixed targets, records an ordinary 
         command: permission.data.command, argv: permission.data.argv, cwd: permission.data.cwd,
         candidateId: permission.data.candidateId, candidateWriteRevision: permission.data.candidateWriteRevision,
         timeoutMs: permission.data.timeoutMs, outputLimitBytes: permission.data.outputLimitBytes, env: permission.data.env }, {
-        recipeId: "node-test-attention-contract", recipeVersion: 1, command: process.execPath,
+        recipeId: "node-test-attention-contract", recipeVersion: 2, command: process.execPath,
         argv: ATTENTION_ARGV, cwd: "private candidate", candidateId, candidateWriteRevision: 0,
         timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
       });
@@ -331,7 +366,7 @@ test("approved Attention recipe runs all six fixed targets, records an ordinary 
       const started = events.find(event => event.type === "check.started");
       const settled = events.find(event => event.type === "check.settled");
       assert.deepEqual([started.data.recipeId, started.data.recipeVersion, started.data.candidateId, started.data.candidateWriteRevision],
-        ["node-test-attention-contract", 1, candidateId, 0]);
+        ["node-test-attention-contract", 2, candidateId, 0]);
       assert.equal(settled.data.callId, started.data.callId);
       if (outcome === "missing") {
         // Absent fixed targets stop before spawn (Harness recipe seam record).
@@ -343,7 +378,7 @@ test("approved Attention recipe runs all six fixed targets, records an ordinary 
       assert.equal(settled.data.failure, null);
       assert.equal(settled.data.exitCode === 0, outcome === "pass");
       if (outcome === "pass") {
-        for (let fileIndex = 1; fileIndex <= 6; fileIndex++) assert.match(settled.data.stdout, new RegExp(`target-${fileIndex}`));
+        for (let fileIndex = 1; fileIndex <= ATTENTION_FILES.length; fileIndex++) assert.match(settled.data.stdout, new RegExp(`target-${fileIndex}`));
       } else if (outcome === "fail") {
         assert.match(settled.data.stdout, /attention fixture failure/);
       }
@@ -403,11 +438,11 @@ test("approved Harness recipe runs its six fixed targets: pass, nonzero after an
         argv: permission.data.argv, cwd: permission.data.cwd, candidateId: permission.data.candidateId,
         candidateWriteRevision: permission.data.candidateWriteRevision, timeoutMs: permission.data.timeoutMs,
         outputLimitBytes: permission.data.outputLimitBytes, env: permission.data.env }, {
-        recipeId: "node-test-harness-contract", recipeVersion: 1, command: process.execPath, argv: HARNESS_ARGV,
+        recipeId: "node-test-harness-contract", recipeVersion: 2, command: process.execPath, argv: HARNESS_ARGV,
         cwd: "private candidate", candidateId, candidateWriteRevision: revision, timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal",
       });
       assert.deepEqual([started.data.recipeId, started.data.recipeVersion, started.data.candidateId, started.data.candidateWriteRevision],
-        ["node-test-harness-contract", 1, candidateId, revision], "the started check is the approved descriptor");
+        ["node-test-harness-contract", 2, candidateId, revision], "the started check is the approved descriptor");
       assert.equal(settled.data.callId, started.data.callId);
       assert.equal(settled.data.status, "completed");
       return settled.data;
@@ -455,7 +490,7 @@ test("Harness recipe stops before spawn on a missing fixed target and reports a 
           ["failed", null, { code: "missing_target" }, "", ""]);
         const result = events.find(event => event.type === "tool.result" && event.data.name === "check_run");
         assert.equal(result.data.isError, true);
-        assert.match(result.data.text, /app\/tests\/check-recipes\.test\.mjs/);
+        assert.match(result.data.text, /app\/tests\/check-approval-authored-files\.test\.mjs/);
       } else {
         assert.deepEqual([settled.data.status, settled.data.failure], ["completed", null]);
         assert.notEqual(settled.data.exitCode, 0);
@@ -592,37 +627,45 @@ test("cancelling a Run whose check is still running still records check.settled 
 // restart: an unsettled check is fenced to "unknown" and never replayed
 // ---------------------------------------------------------------------------
 
+// A Session with an active private candidate and one open Run, built directly
+// on the Store: the persisted-state fixture for the restart and old-version tests.
+async function openCheckRunStore(dataDir) {
+  const store = await new RuntimeStore({ dataDir }).open();
+  const project = await store.createProject("check restart fixture");
+  const session = await store.createSession({ projectId: project.id, title: "check restart", workspaceDir: path.join(dataDir, "managed") });
+  const sourcePath = path.join(dataDir, "source");
+  await mkdir(sourcePath, { recursive: true });
+  const resolvedRoot = await inspectRepositoryRoot(sourcePath);
+  const bound = await store.changeRepositoryBinding(session.id, {
+    operation: "bind", requestId: "restart-bind", expectedRevision: 0, rootPath: sourcePath, resolvedRoot,
+  });
+  const candidateId = "a23e4567-e89b-42d3-a456-426614174000";
+  await store.beginRepositoryCandidate(session.id, {
+    operation: "create", requestId: "restart-create", expectedRevision: 0, expectedBindingRevision: 1,
+    sourceBindingId: bound.binding.id, candidateId, baseCommit: "a".repeat(40),
+  });
+  const candidateParent = path.join(dataDir, "candidate-container");
+  await store.activateRepositoryCandidate(session.id, { requestId: "restart-create", candidate: {
+    objectFormat: "sha1", candidatePath: path.join(candidateParent, "worktree"), candidateDevice: "1", candidateInode: "2",
+    candidateDirectory: candidateParent, candidateContainerDevice: "1", candidateContainerInode: "3", stagingDevice: "1", stagingInode: "4",
+    gitDirectory: path.join(candidateParent, "git"), gitDevice: "1", gitInode: "5", gitVersion: "git version restart-fixture",
+  } });
+
+  const created = await store.createRun({
+    sessionId: session.id, input: "check restart fixture", adapterId: "fixture",
+    provider: { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions", realProvider: false },
+    commandId: "restart-run", credentialGeneration: 0, expectedRepositoryBindingRevision: 1, expectedRepositoryCandidateRevision: 1,
+  });
+  return { store, session, runId: created.run.id, candidateId };
+}
+
 test("an unresolved check.started is fenced to check.settled status unknown on restart, and never replayed", async () => {
   const dataDir = await scratch("cw-check-restart-");
   let store;
   try {
-    store = await new RuntimeStore({ dataDir }).open();
-    const project = await store.createProject("check restart fixture");
-    const session = await store.createSession({ projectId: project.id, title: "check restart", workspaceDir: path.join(dataDir, "managed") });
-    const sourcePath = path.join(dataDir, "source");
-    await mkdir(sourcePath, { recursive: true });
-    const resolvedRoot = await inspectRepositoryRoot(sourcePath);
-    const bound = await store.changeRepositoryBinding(session.id, {
-      operation: "bind", requestId: "restart-bind", expectedRevision: 0, rootPath: sourcePath, resolvedRoot,
-    });
-    const candidateId = "a23e4567-e89b-42d3-a456-426614174000";
-    await store.beginRepositoryCandidate(session.id, {
-      operation: "create", requestId: "restart-create", expectedRevision: 0, expectedBindingRevision: 1,
-      sourceBindingId: bound.binding.id, candidateId, baseCommit: "a".repeat(40),
-    });
-    const candidateParent = path.join(dataDir, "candidate-container");
-    await store.activateRepositoryCandidate(session.id, { requestId: "restart-create", candidate: {
-      objectFormat: "sha1", candidatePath: path.join(candidateParent, "worktree"), candidateDevice: "1", candidateInode: "2",
-      candidateDirectory: candidateParent, candidateContainerDevice: "1", candidateContainerInode: "3", stagingDevice: "1", stagingInode: "4",
-      gitDirectory: path.join(candidateParent, "git"), gitDevice: "1", gitInode: "5", gitVersion: "git version restart-fixture",
-    } });
-
-    const created = await store.createRun({
-      sessionId: session.id, input: "check restart fixture", adapterId: "fixture",
-      provider: { provider: "fake-openai-loopback", model: "fake-model", api: "openai-completions", realProvider: false },
-      commandId: "restart-run", credentialGeneration: 0, expectedRepositoryBindingRevision: 1, expectedRepositoryCandidateRevision: 1,
-    });
-    const runId = created.run.id;
+    const fixture = await openCheckRunStore(dataDir);
+    store = fixture.store;
+    const { session, runId, candidateId } = fixture;
     const startedAt = new Date().toISOString();
     await store.recordCheckStarted(runId, {
       callId: "unsettled-call-1", recipeId: "node-test", recipeVersion: 1,
@@ -662,7 +705,8 @@ test("an unresolved check.started is fenced to check.settled status unknown on r
 // an unconfirmed process-group exit is a second fact beside the status
 // ---------------------------------------------------------------------------
 
-for (const [outcome, status] of [["cancelled", "cancelled"], ["timedOut", "timed_out"]]) {
+// Every exit path reaps the group, so a check that exited by itself can carry the fact too.
+for (const [outcome, status] of [["cancelled", "cancelled"], ["timedOut", "timed_out"], ["exitedByItself", "completed"]]) {
   test(`a ${status} check whose group exit is unconfirmed carries groupLingered to the settled record and the tool result`, async () => {
     const candidate = { id: "candidate-one", status: "active", revision: 1, writeRevision: 0,
       sourceBindingId: "binding-one", sourceBindingRevision: 1, candidatePath: "/unused-check-candidate" };
@@ -723,6 +767,53 @@ test("check.settled persists groupLingered only as true and refuses any other va
     store = null;
     store = await new RuntimeStore({ dataDir }).open();
     assert.deepEqual(read(), before, "the record survives a Store reopen unchanged");
+  } finally {
+    await store?.close().catch(() => {});
+    await rm(dataDir, { recursive: true, force: true });
+  }
+});
+
+// A Store written while v1 of the two Courtwork recipes was current is read as
+// it was written. Nothing rewrites a recorded version, its argv or its outcome;
+// display takes the version from the recorded facts, not from the catalog.
+test("a Store holding v1 Courtwork-recipe approvals and receipts loads and shows them as v1, unchanged", async () => {
+  const V1_ATTENTION_ARGV = ["--test", "--test-concurrency=1", "app/tests/attention-core.test.mjs", "app/tests/attention-http.test.mjs",
+    "app/tests/attention-recovery.test.mjs", "app/tests/attention-github-fixture.test.mjs", "app/tests/attention-gmail-fixture.test.mjs",
+    "app/tests/attention-trace-fixture.test.mjs"];
+  const dataDir = await scratch("cw-check-v1-");
+  let store;
+  try {
+    const fixture = await openCheckRunStore(dataDir);
+    store = fixture.store;
+    const { session, runId, candidateId } = fixture;
+    const v1Approval = { toolCallId: "v1-call", tool: "check_run", path: "*", bytes: 40, contentSha256: "c".repeat(64), preview: '{"recipeId":"node-test-attention-contract"}',
+      recipeId: "node-test-attention-contract", recipeVersion: 1, command: "/usr/local/bin/node", argv: V1_ATTENTION_ARGV, cwd: "private candidate",
+      candidateId, candidateWriteRevision: 0, timeoutMs: 120000, outputLimitBytes: 65536, env: "minimal" };
+    const question = await store.openQuestion({ runId, kind: "permission", prompt: "Approve this check?", payload: v1Approval });
+    await store.resolveQuestion({ runId, questionId: question.id, decision: "allow" });
+    await store.appendEvent({ runId, type: "tool.start", data: { callId: "v1-call", name: "check_run", args: { recipeId: "node-test-attention-contract" } } });
+    const startedAt = "2026-09-29T10:00:00.000Z", endedAt = "2026-09-29T10:00:03.000Z";
+    await store.recordCheckStarted(runId, { callId: "v1-call", recipeId: "node-test-attention-contract", recipeVersion: 1, candidateId, candidateWriteRevision: 0, startedAt });
+    await store.recordCheckSettled(runId, { callId: "v1-call", status: "completed", exitCode: 1, signal: null, durationMs: 3000,
+      stdout: "# tests 25\n# pass 22\n# fail 3\n", stderr: "listen EPERM: operation not permitted 127.0.0.1", truncated: { stdout: false, stderr: false }, startedAt, endedAt });
+    const before = store.listEvents({ sessionId: session.id, runId });
+
+    await store.close();
+    store = null;
+    store = await new RuntimeStore({ dataDir }).open();
+    const after = store.listEvents({ sessionId: session.id, runId });
+    for (const type of ["permission.open", "check.started", "check.settled"]) {
+      assert.deepEqual(after.find(event => event.type === type), before.find(event => event.type === type), `${type} reads back exactly as written`);
+    }
+    assert.equal(after.filter(event => event.type === "check.settled").length, 1, "loading adds no settlement");
+    const open = after.find(event => event.type === "permission.open");
+    assert.deepEqual([open.data.recipeVersion, open.data.argv], [1, V1_ATTENTION_ARGV]);
+
+    const runs = [{ id: runId, sessionId: session.id, status: "running" }];
+    const tool = projectThread(after, runs, session.id).rows.find(row => row.kind === "tool" && row.name === "check_run");
+    assert.deepEqual([tool.check.recipeId, tool.check.recipeVersion, tool.check.status, tool.check.exitCode], ["node-test-attention-contract", 1, "completed", 1]);
+    assert.equal(permissionPresentation(open.data, null).target, "node-test-attention-contract v1");
+    assert.equal(getCheckRecipe("node-test-attention-contract").version, 2, "the current catalog has no v1 entry; display did not need one");
   } finally {
     await store?.close().catch(() => {});
     await rm(dataDir, { recursive: true, force: true });

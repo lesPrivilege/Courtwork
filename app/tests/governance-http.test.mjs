@@ -3,7 +3,11 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { rm, mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { mkdtemp } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { boot } from './helpers.mjs';
+import { CoreClient } from '../core/client.mjs';
 import { ATTENTION_TOOL_NAMES } from '../runtime/attention-tools.mjs';
 import { createGovernanceAdapter } from '../extensions/governance-adapter.mjs';
 
@@ -121,4 +125,27 @@ test('runtime adapter rejects mismatched/closed host Runs and a change while Cor
   const adapter=createGovernanceAdapter({getExecution:()=>state,core:{call:async()=>{started();return new Promise(resolve=>finish=resolve);}}});
   const pending=adapter.query({schema_version:1,kind:'registry'});await began;state={...state,projectId:'changed'};finish({private:'must not return'});
   await assert.rejects(pending,{code:'CANDIDATE_CLOSED'});
+});
+
+// D9: a Core outcome the Host cannot state reaches HTTP as unknown (503 with
+// the marker), never as the 409 of a refusal. The real CoreClient deadlines a
+// sent mutation against the synthetic worker that never answers.
+test('a Core deadline on a sent mutation is 503 with outcome unknown; a Core refusal stays 409',async()=>{
+  const h=await boot();
+  const dataDir=await mkdtemp(path.join(tmpdir(),'cw-d9-'));
+  const real=h.runtime.service.workCore;
+  const silent=new CoreClient({dataDir,dbPath:path.join(dataDir,'no-response.db'),python:fileURLToPath(new URL('./fixtures/review-core-client/worker.py',import.meta.url)),readyTimeoutMs:2000,requestTimeoutMs:100,closeTimeoutMs:40});
+  try {
+    const {id}=await prepare(h);
+    const refused=await query(h,{kind:'registry',context:{actor:'local-user'}});
+    assert.equal(refused.status,409);
+    assert.equal(refused.json.error.code,'INVALID');
+    assert.equal(refused.json.error.outcome,undefined);
+    h.runtime.service.workCore=silent;
+    const lost=await h.api('POST',`/governance/matters/${id}/disclosure`,{projectId:h.projectId,request:{matter_id:id}});
+    assert.equal(lost.status,503,JSON.stringify(lost.json));
+    assert.equal(lost.json.error.code,'CORE_TIMEOUT');
+    assert.equal(lost.json.error.outcome,'unknown');
+    assert.equal(lost.json.error.operation,'governance_action');
+  } finally {h.runtime.service.workCore=real;await silent.close();await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});await rm(dataDir,{recursive:true,force:true});}
 });

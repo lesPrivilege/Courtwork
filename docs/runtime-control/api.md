@@ -45,13 +45,29 @@ Set policy; rules replace the rule list in this scope:
 {"revision":2,"operation":"policy","scope":{"type":"workspace","id":"PROJECT_ID"},"rules":[{"action":"ws_write","resource":"materials/*","effect":"deny"},{"action":"ws_write","resource":"out/*","effect":"ask"}]}
 ```
 
+A rule's `resource` for a `ws_*`, `repo_*` or `candidate_*` action applies to the file, not to one spelling of its path: rule and request are compared alias-folded, so every spelling of a file gets one effect. The last matching rule of a layer wins; when two rules meet on a file only through folding, the stricter holds and the trace marks it `alias-conflict` ([repository binding](../../app/docs/repository-binding.md)). Other resources (such as `runtime_load` ids) match exactly.
+
+Aggregate workspace tools apply per-file policy as the repository aggregates do ([repository binding](../../app/docs/repository-binding.md)): a file appears in `ws_grep` only when both the `ws_grep` rule and the `ws_read` rule for that path allow it, and `ws_list` omits the `sha256` of a file that `ws_list` or `ws_read` does not allow. `ws_grep` reports `excludedByPolicy` and `excludedPendingApproval` counts without naming paths and never opens a withheld file. The per-file path is the workspace-relative path in each directory entry's own spelling, also when the requested `path` scope uses an alias spelling. The files both tools report are identified by the fixed filesystem helper that the repository tools use: from one open workspace root descriptor it opens every path component relative to its parent's descriptor with `O_NOFOLLOW`, names regular files with their device and inode without opening them, and, after admission, walks again descriptor-relative and reads (or, for `ws_list`, hashes) only an admitted file whose device and inode are the ones it named. No step resolves a path from the root by name, so a directory swapped for a symlink while the walk runs is not followed.
+
+Every model tool that reads or writes a workspace file establishes the file's identity the same way. Its policy resource is the workspace-relative path in on-disk spelling, as far as the file or its parent exists; the rest keeps the requested spelling. The approval request, the tool's `details.path` and the `artifact.written` record carry that path.
+
+| Tool | Identity guarantee |
+|---|---|
+| `ws_list`, `ws_grep` | As described above: names before content, and a second descriptor-relative walk reads or hashes only admitted files with the named device and inode. |
+| `ws_read` | Opens every component relative to its parent's descriptor with `O_NOFOLLOW` and reads from the resulting descriptor. A symlink in any component is refused. |
+| `ws_write` | Stages the bytes as a new file in the parent directory reached descriptor-relative. After history is saved, it renames that file over the target inside the same directory, provided the parent and the staged file still have the identity recorded at staging. It never follows a symlink in any component and never replaces a symlink, directory or other non-regular file. It does not create directories. A descriptor names a directory object, not a place: an actor with the same rights can move the parent, open descriptor and all, between that check and the rename, and the rename still lands in the moved directory. After the rename the Host walks from the root again; when the directory the bytes went into is no longer the one the path names, the tool reports `placement: "unconfirmed"` with the bytes and hash, says it could not confirm that they are at the path (the directory or the workspace may have moved, or the check itself failed; the tool does not say which), records no `artifact.written` for that path, and leaves the bytes where they went. The check covers the workspace root (still the bound root at its path) and the parent; a move after it is not detected, and the report never claims more than the check showed. The exact bytes are in history either way. |
+
+The person's own HTTP workspace endpoints (`GET /sessions/:id/workspace/file` and material upload) still resolve a path by name, checking each component with `lstat` and then reopening the path, so they do not have this guarantee. `GET /sessions/:id/workspace` uses the same listing as `ws_list` and has it.
+
 Import a skill with YAML frontmatter `name` and `description`, followed by Markdown. Import a profile as JSON source text with this shape:
 
 ```json
 {"schemaVersion":1,"version":"1.0.0","resourceIds":["tool:ws_read","tool:runtime_load","local:writing"],"rules":[{"action":"*","resource":"*","effect":"ask"}],"uiSlots":["runtime.inspector"]}
 ```
 
-Select it with `operation:"profile"`, its `local:` ID and a scope; select `agent:general` explicitly or `null` to inherit. Selection is separate from exposure.
+Select it with `operation:"profile"`, its `local:` ID and a scope; select `agent:general` explicitly or `null` to inherit. Selection is separate from exposure. A profile applies only inside its own scope, so it can be selected only at a scope its own scope contains: a user profile anywhere in the Session's chain, a workspace or Attention profile at that scope or at the Session, a session profile only at that same Session. Otherwise `409 profile_scope_conflict`.
+
+Deleting a Session removes every entry scoped to it (resources, exposure overrides, policies, profile selections, and overrides/selections naming a removed resource) in one revision with audit operation `session_removed`; Host startup removes entries left for Sessions that no longer exist. See `DELETE /sessions/:id` in [api-v6](../../app/docs/api-v6.md).
 
 Profile source v2 retains these fields and requires `kits`, an array of0–8 exact
 `{descriptor,descriptorSha256}` declarations from the [reference-only Kit contract](../../engineering/execution/claude-frontend-harness-2026-09-16/kit-run-binding-20260922.md).
@@ -188,6 +204,8 @@ Resource `provenance[]` also records enforced parent gates with `parentId` and r
 The pinned MCP client 2.0.0 aggregates catalog pages for both supported protocol modes. Host validates each decoded page before aggregation: unique tool/prompt names and resource URIs, at most 100 entries per catalog, a combined 200,000 UTF-8 byte page budget, and no repeated cursor. The SDK retains its 64-page limit, protocol checks and header-tool filtering. These limits apply after SDK response decoding; they are not a streaming transport memory bound.
 
 Catalog publication is atomic, including the final mapped descriptor byte check. Failed discovery exposes no partial catalog. Connect reserves a new connection identity before asynchronous close/discovery; superseded or disconnected discovery cannot publish or report the replacement as its own success. Reconnect is explicit and does not replay tool calls.
+
+Response headers must arrive within 15 s (65 s for `tools/call`); bodies then stream under the SDK request timeouts (connect and list 15 s, call 60 s) and the caller's signal.
 
 ### Harness P02 · MCP effect uncertainty (2026-09-12)
 

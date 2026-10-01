@@ -1,9 +1,9 @@
 """Owner-backed directory; Matter disclosure is policy, never a second Matter."""
-from datetime import datetime, timezone
 from uuid import uuid4
 
 import attention
-from core import CoreError, _exact_keys, canonical_json, parse_json, sha256_text
+from core import CoreError, _exact_keys, canonical_json, choice, integer, parse_json, sha256_text, string, utf8_size
+from disclosure import access, digest, policy, receipt, scope, source_descriptors, source_disclosed, unavailable, validate_grant
 from file_candidates import FILE_CONTRACT
 
 GOVERNANCE_SCHEMA = (
@@ -23,39 +23,48 @@ GOVERNANCE_SCHEMA = (
       FOREIGN KEY(project_id,matter_id) REFERENCES matter_disclosure(project_id,matter_id))""",
 )
 GOVERNANCE_TABLES = {'matter_disclosure', 'matter_disclosure_event', 'matter_disclosure_request'}
-FIELDS = {'registry', 'details', 'sources', 'artifacts'}
 CONTRACTS = {'se-contract-v5.0', 'inbound-nda-v1', FILE_CONTRACT}
 MAX_VISIBLE = 1000
-MAX_REFS = 128
 
 
 def fail(code='INVALID', detail='invalid governed object input'):
     raise CoreError(code, detail)
 
 
-def unavailable():
-    fail('NOT_FOUND', 'governed object unavailable')
+class ObjectUnavailable(CoreError):
+    """A per-object view refusal raised after the object's directory entry is known."""
+
+    def __init__(self, exc, entry):
+        super().__init__(exc.code, exc.detail)
+        self.entry = entry
 
 
-def digest(value):
-    return sha256_text(canonical_json(value))
+def unavailable_entry(ref, exc):
+    """Registry entry for an object whose own read refuses: discoverable, never versioned."""
+    if isinstance(exc, ObjectUnavailable):
+        entry = {k: v for k, v in exc.entry.items() if k != 'object_version'}
+    else:
+        # The directory entry itself was unreadable (human actor only).
+        entry = {'registry_version':1,'object_ref':ref,'schema_ref':None,'schema_version':None,'object_revision':None,
+                 'descriptor':{'title':ref['id']},'state_class':'unknown','updated_at':None,'disclosure_handle':None}
+    return {**entry, 'availability':'unavailable', 'availability_reason':exc.code}
 
 
 def bounded(value, maximum=131072):
-    if len(canonical_json(value).encode('utf-8')) > maximum:
+    if utf8_size(canonical_json(value)) > maximum:
         fail('GOVERNANCE_LIMIT', 'governed object page exceeds budget')
     return value
 
 
 def version(value):
-    attention.string(value, 64)
+    string(value, 64)
     if len(value) != 64 or any(c not in '0123456789abcdef' for c in value): fail()
     return value
 
 
 def context(ctx):
     _exact_keys(ctx, {'actor','project_id','purpose','execution'}, 'governance context')
-    attention.string(ctx['project_id'])
+    string(ctx['project_id'])
     if ctx['actor'] == 'local-user':
         if ctx['purpose'] != 'human-governance' or ctx['execution'] is not None:
             fail('DISCLOSURE_DENIED', 'invalid governance actor')
@@ -70,120 +79,9 @@ def att_context(ctx):
 
 def object_ref(value, ctx):
     _exact_keys(value, {'project_id','kind','id'}, 'object ref')
-    attention.string(value['id']); attention.choice(value['kind'], {'matter','attention'})
+    string(value['id']); choice(value['kind'], {'matter','attention'})
     if value['project_id'] != ctx['project_id']: unavailable()
     return value
-
-
-def scope(store, ident, ctx):
-    attention.string(ident)
-    row = store.conn.execute('SELECT s.project_id FROM app_work_scope s JOIN matter m ON m.id=s.matter_id WHERE s.matter_id=?', (ident,)).fetchone()
-    if row is None or row['project_id'] != ctx['project_id']: unavailable()
-
-
-def checked(text, expected):
-    if sha256_text(text) != expected: fail('INTEGRITY_REFUSAL', 'disclosure record digest mismatch')
-    try:
-        value = parse_json(text)
-    except CoreError:
-        fail('INTEGRITY_REFUSAL', 'invalid disclosure JSON')
-    if not isinstance(value, dict): fail('INTEGRITY_REFUSAL', 'disclosure record must be an object')
-    return value
-
-
-def receipt(store, row):
-    result = checked(row['result_json'], row['result_digest'])
-    event_row = store.conn.execute('SELECT * FROM matter_disclosure_event WHERE id=? AND project_id=? AND matter_id=?',
-                                  (result.get('event_id'), row['project_id'], row['matter_id'])).fetchone()
-    if event_row is None: fail('INTEGRITY_REFUSAL', 'disclosure event missing')
-    event = checked(event_row['event_json'], event_row['event_digest'])
-    if not isinstance(event.get('request'), dict): fail('INTEGRITY_REFUSAL', 'disclosure request must be an object')
-    if (event.get('schema_version') != 1 or result.get('schema_version') != 1
-            or result.get('event_id') != event_row['id'] or result.get('matter_id') != row['matter_id']
-            or result.get('request_id') != row['request_id'] or result.get('policy_revision') != event_row['revision']
-            or event.get('result') != result or event.get('revision') != event_row['revision']
-            or event.get('request', {}).get('request_id') != row['request_id']
-            or event.get('request', {}).get('matter_id') != row['matter_id']
-            or digest({'context':event.get('context'), 'request':event.get('request')}) != row['request_hash']):
-        fail('INTEGRITY_REFUSAL', 'disclosure receipt identity mismatch')
-    return result
-
-
-def policy(store, ident, ctx):
-    row = store.conn.execute('SELECT * FROM matter_disclosure WHERE project_id=? AND matter_id=?',
-                             (ctx['project_id'], ident)).fetchone()
-    if row is None: return {'revision':0, 'grant':None}
-    state = checked(row['state_json'], row['state_digest'])
-    if (row['schema_version'] != 1 or state.get('schema_version') != 1 or state.get('revision') != row['revision']
-            or state.get('matter_id') != ident or state.get('project_id') != ctx['project_id']):
-        fail('INTEGRITY_REFUSAL', 'disclosure state identity mismatch')
-    event_row = store.conn.execute('SELECT * FROM matter_disclosure_event WHERE id=? AND project_id=? AND matter_id=?',
-                                  (state.get('last_event_id'), ctx['project_id'], ident)).fetchone()
-    if event_row is None: fail('INTEGRITY_REFUSAL', 'disclosure current event missing')
-    event = checked(event_row['event_json'], event_row['event_digest'])
-    if event.get('state_digest') != row['state_digest'] or event.get('revision') != row['revision']:
-        fail('INTEGRITY_REFUSAL', 'disclosure current event mismatch')
-    if not isinstance(event.get('request'), dict): fail('INTEGRITY_REFUSAL', 'disclosure request must be an object')
-    rr = store.conn.execute('SELECT * FROM matter_disclosure_request WHERE project_id=? AND matter_id=? AND request_id=?',
-                            (ctx['project_id'], ident, event.get('request', {}).get('request_id'))).fetchone()
-    if rr is None or receipt(store, rr).get('event_id') != state['last_event_id']:
-        fail('INTEGRITY_REFUSAL', 'disclosure current receipt missing')
-    validate_grant(state.get('grant'), future=False)
-    return state
-
-
-def validate_grant(grant, *, future):
-    if grant is None: return
-    _exact_keys(grant, {'adapter_id','purpose','fields','expires_at','content_scope'}, 'Matter grant')
-    attention.string(grant['adapter_id'])
-    if grant['purpose'] != 'attention-runtime' or grant['content_scope'] != 'current': fail()
-    fields = grant['fields']
-    if (not isinstance(fields, list) or any(not isinstance(f,str) or f not in FIELDS for f in fields)
-            or len(set(fields)) != len(fields) or 'registry' not in fields): fail()
-    expiry = attention.timestamp(grant['expires_at'])
-    if future and expiry <= datetime.now(timezone.utc): fail('INVALID', 'disclosure expiry must be future')
-
-
-def permitted(state, ctx):
-    if ctx['actor'] == 'local-user': return FIELDS
-    if not isinstance(state, dict): fail('INTEGRITY_REFUSAL', 'disclosure policy must be an object')
-    grant = state.get('grant')
-    if not grant: return set()
-    validate_grant(grant, future=False)
-    if (grant['adapter_id'] != ctx['execution']['adapter_id'] or grant['purpose'] != ctx['purpose']
-            or attention.timestamp(grant['expires_at']) <= datetime.now(timezone.utc)): return set()
-    return set(grant['fields'])
-
-
-def access(store, ident, ctx):
-    scope(store, ident, ctx)
-    # Check raw policy before interpreting hidden schemas or corrupt content.
-    if ctx['actor'] == 'runtime':
-        row = store.conn.execute('SELECT state_json FROM matter_disclosure WHERE project_id=? AND matter_id=?',
-                                 (ctx['project_id'], ident)).fetchone()
-        try:
-            if row is None or 'registry' not in permitted(parse_json(row['state_json']), ctx): unavailable()
-        except (CoreError, KeyError, TypeError, ValueError): unavailable()
-    try:
-        state = policy(store, ident, ctx)
-        allowed = permitted(state, ctx)
-    except CoreError:
-        if ctx['actor'] == 'runtime': unavailable()
-        raise
-    if 'registry' not in allowed: unavailable()
-    return state, allowed
-
-
-def source_descriptors(store, ident):
-    rows = store.conn.execute('SELECT ss.source_id,ss.source_version,s.digest FROM source_set ss '
-                              'LEFT JOIN source s ON s.id=ss.source_id AND s.version=ss.source_version '
-                              'WHERE ss.matter_id=? ORDER BY ss.source_id LIMIT ?', (ident, MAX_REFS+1)).fetchall()
-    if len(rows) > MAX_REFS: fail('GOVERNANCE_LIMIT', 'source descriptor budget')
-    refs = []
-    for row in rows:
-        ref = {'kind':'core','matter_id':ident,'source_id':row['source_id'],'version':row['source_version'],'digest':row['digest']}
-        refs.append({**ref,'source_ref':digest(ref),'availability':'retained' if row['digest'] else 'unavailable','integrity':'unchecked'})
-    return refs
 
 
 def matter_snapshot(store, ident, ctx):
@@ -196,6 +94,16 @@ def matter_snapshot(store, ident, ctx):
              'object_revision':row['version'],'descriptor':{'title':row['title'] or ident},
              'state_class':'unknown','updated_at':None,'availability':'retained' if supported else 'unsupported',
              'disclosure_handle':{'policy':'matter-disclosure-v1','revision':state['revision']}}
+    try:
+        view = matter_view(store, ident, ctx, row, entry, state, allowed)
+    except CoreError as exc:
+        raise ObjectUnavailable(exc, entry) from exc
+    token = digest(view)
+    return {**entry, 'object_version':token}, {**view, 'object_version':token}
+
+
+def matter_view(store, ident, ctx, row, entry, state, allowed):
+    supported = entry['availability'] == 'retained'
     view = {**entry,'disclosure':{'fields':sorted(allowed),'purpose':ctx['purpose']}}
     if ctx['actor'] == 'local-user': view['policy'] = state
     if supported and 'details' in allowed:
@@ -215,9 +123,7 @@ def matter_snapshot(store, ident, ctx):
                            'digest':artifact['content_digest'] if artifact else None,
                            'format':'file-bundle' if row['contract_version'] == FILE_CONTRACT else 'text',
                            'availability':'retained' if artifact else 'unavailable','integrity':'unchecked'}
-    bounded(view)
-    token = digest(view)
-    return {**entry, 'object_version':token}, {**view, 'object_version':token}
+    return bounded(view)
 
 
 def attention_snapshot(store, ident, ctx):
@@ -234,26 +140,26 @@ def attention_snapshot(store, ident, ctx):
              'descriptor':{'title':state['descriptor']['title']},'state_class':state['status'],
              'updated_at':state['updated_at'],'availability':'retained',
              'disclosure_handle':{'policy':'local-attention-v1','revision':state['policy']['version']}}
+    try:
+        view = attention_view(store, ctx, state, entry, allowed)
+    except CoreError as exc:
+        raise ObjectUnavailable(exc, entry) from exc
+    token = digest(view)
+    return {**entry,'object_version':token}, {**view,'object_version':token}
+
+
+def attention_view(store, ctx, state, entry, allowed):
     view = {**entry,'disclosure':{'fields':sorted(allowed & {'registry','details','sources'}),'purpose':ctx['purpose']}}
     if 'details' in allowed:
         view['details'] = {k:state[k] for k in ['descriptor','reason','next_action','seen','freshness']}
     if 'sources' in allowed:
         refs = []
         for ref in state['source_refs']:
-            if ref['kind'] == 'core':
-                try:
-                    _, target_allowed = access(store, ref['matter_id'], ctx)
-                    if 'sources' not in target_allowed: continue
-                    if not any(all(s[k] == ref[k] for k in ['source_id','version','digest']) for s in source_descriptors(store,ref['matter_id'])): continue
-                except CoreError as exc:
-                    if ctx['actor']=='runtime' or exc.code == 'NOT_FOUND': continue
-                    raise
+            if ref['kind'] == 'core' and not source_disclosed(store, ref, ctx): continue
             refs.append({**ref,'source_ref':digest(ref),'availability':'retained' if ref['kind']=='core' else 'unknown','integrity':'unchecked'})
         view['sources'] = refs
         view['source_coverage'] = 'permitted-current-refs-only'
-    bounded(view)
-    token = digest(view)
-    return {**entry,'object_version':token}, {**view,'object_version':token}
+    return bounded(view)
 
 
 def snapshot(store, ref, ctx):
@@ -277,7 +183,7 @@ def candidates(store, kind, ctx):
 
 def source_page(store, view, q, ctx):
     if 'sources' not in view: unavailable()
-    attention.string(q.get('source_ref'),64)
+    string(q.get('source_ref'),64)
     ref = next((s for s in view['sources'] if s['source_ref']==q['source_ref']),None)
     if ref is None: unavailable()
     if ref['kind'] == 'external':
@@ -291,7 +197,7 @@ def source_page(store, view, q, ctx):
 
 
 def text_page(text, q, identity):
-    start = attention.integer(q.get('offset',0)); size = attention.integer(q.get('limit',4000),4000)
+    start = integer(q.get('offset',0)); size = integer(q.get('limit',4000),4000)
     if size < 1 or start > len(text): fail()
     end = min(len(text),start+size)
     return {'registry_version':1,**identity,'availability':'retained','unit':'codepoint','text':text[start:end],
@@ -303,7 +209,7 @@ def artifact_page(store, view, q):
     if not ref or ref['availability'] != 'retained': unavailable()
     ident = view['object_ref']['id']
     if ref['format'] == 'file-bundle':
-        if 'path' in q: attention.string(q['path'],1024)
+        if 'path' in q: string(q['path'],1024)
         data = store.file_query({'matter_id':ident,'context':None,'kind':'file-content' if 'path' in q else 'file-manifest',
                                 'candidate_id':None,'artifact_id':ref['id'],'path':q.get('path'),
                                 'offset':q.get('offset',0),'limit':q.get('limit',4000 if 'path' in q else 16)})
@@ -331,19 +237,22 @@ def query(store, ctx, q):
     store.conn.execute('BEGIN')
     try:
         if kind == 'registry':
-            kinds = ['attention','matter'] if 'object_kind' not in q else [attention.choice(q['object_kind'],{'matter','attention'})]
-            if 'text' in q: attention.string(q['text'],200)
-            start = attention.integer(q.get('offset',0)); size = attention.integer(q.get('limit',20),50)
+            kinds = ['attention','matter'] if 'object_kind' not in q else [choice(q['object_kind'],{'matter','attention'})]
+            if 'text' in q: string(q['text'],200)
+            start = integer(q.get('offset',0)); size = integer(q.get('limit',20),50)
             if not size or (start and 'expected_collection_version' not in q): fail()
             entries = []
             for obj_kind in kinds:
                 visible = 0
                 for row in candidates(store,obj_kind,ctx):
+                    ref = {'project_id':ctx['project_id'],'kind':obj_kind,'id':row['id']}
                     try:
-                        entry, _ = snapshot(store,{'project_id':ctx['project_id'],'kind':obj_kind,'id':row['id']},ctx)
+                        entry, _ = snapshot(store,ref,ctx)
                     except CoreError as exc:
-                        if ctx['actor']=='runtime' and exc.code=='NOT_FOUND': continue
-                        raise
+                        # One object's refusal never fails the page. A runtime
+                        # sees only objects whose entry its grant already read.
+                        if ctx['actor']=='runtime' and not isinstance(exc, ObjectUnavailable): continue
+                        entry = unavailable_entry(ref, exc)
                     visible += 1
                     if visible > MAX_VISIBLE: fail('GOVERNANCE_LIMIT','visible object budget')
                     if q.get('text','') in entry['descriptor']['title']: entries.append(entry)
@@ -360,7 +269,7 @@ def query(store, ctx, q):
             scope(store,ref['id'],ctx)
             if kind == 'policy':
                 return {'registry_version':1,'object_ref':ref,'policy':policy(store,ref['id'],ctx)}
-            attention.string(q.get('request_id'))
+            string(q.get('request_id'))
             row = store.conn.execute('SELECT * FROM matter_disclosure_request WHERE project_id=? AND matter_id=? AND request_id=?',
                                       (ctx['project_id'],ref['id'],q['request_id'])).fetchone()
             return {'registry_version':1,'result':None if row is None else receipt(store,row)}
@@ -382,8 +291,8 @@ def action(store, ctx, request):
     if ctx['actor'] != 'local-user': fail('DISCLOSURE_DENIED','human disclosure action required')
     _exact_keys(request,{'schema_version','request_id','matter_id','expected_policy_revision','expected_object_version','grant'},'disclosure request')
     if type(request['schema_version']) is not int or request['schema_version'] != 1: fail('CONTRACT_UNSUPPORTED','disclosure action schema')
-    attention.string(request['request_id']); attention.string(request['matter_id'])
-    attention.integer(request['expected_policy_revision']); bounded(request,32768)
+    string(request['request_id']); string(request['matter_id'])
+    integer(request['expected_policy_revision']); bounded(request,32768)
     if request['grant'] is None:
         if request['expected_object_version'] is not None: fail('INVALID', 'revocation uses a null object version')
     else:

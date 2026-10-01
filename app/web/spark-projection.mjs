@@ -262,9 +262,13 @@ export function sourceSetChangeSummary(change) {
 
 /** Activity's per-Matter footer when the frozen 20-ref page was hit. `null`
  * when every stale ref for this Matter is already present. */
-export function truncationNote(matter) {
+export function truncationNote(matter, status = "all") {
   if (!matter.staleRefsTruncated) return null;
-  return `Showing ${matter.staleRefs.length} of ${matter.derivations.stale}`;
+  if (status === "all") return `Showing ${matter.staleRefs.length} of ${matter.derivations.stale}`;
+  // Filtered: Core's byStatus count (it sums to `stale`; absent means 0).
+  const total = matter.derivations.byStatus.find((entry) => entry.status === status)?.stale ?? 0;
+  const shown = activityRows(matter, status).length;
+  return shown < total ? `Showing ${shown} of ${total}` : null;
 }
 
 /** Activity rows for one Matter, optionally narrowed to one candidate

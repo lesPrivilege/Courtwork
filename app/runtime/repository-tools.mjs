@@ -62,7 +62,7 @@ export function grepRepositoryInWorker(files, pattern, signal) {
 export function repositorySource(path, bytes, digest) { return { path, bytes, sha256: digest }; }
 
 const EFFECT_WEIGHT = { allow: 0, ask: 1, deny: 2 };
-function strictestEffect(a, b) { return EFFECT_WEIGHT[a] >= EFFECT_WEIGHT[b] ? a : b; }
+export function strictestEffect(a, b) { return EFFECT_WEIGHT[a] >= EFFECT_WEIGHT[b] ? a : b; }
 
 export function createRepositoryTools({ binding, runId, runRepositoryFs, recordRead, assertActive, admitPath = () => "allow" }) {
   if (!binding || binding.status !== "active") return [];

@@ -94,6 +94,7 @@ import { createProfileEditorView } from "./profile-editor-view.mjs";
 import { createMaterialsView } from "./materials-view.mjs";
 import { renderHome, homeSets, HOME_ROWS } from "./home-view.mjs";
 import {
+  normalizedType,
   projectThread,
   toolStateWord,
   canAnswer,
@@ -558,15 +559,8 @@ function rememberMessageReading(stream, { forceFollow = null } = {}) {
   return reading;
 }
 
-function normalizedType(type) {
-  const raw = String(type || "");
-  if (raw === "user.message") return "message/user";
-  if (raw === "assistant.message") return "assistant/final";
-  return raw.replace(".", "/");
-}
-
 function isActiveRun(run) {
-  return ["created", "running", "waiting_user", "stopping"].includes(
+  return ["running", "waiting_user", "stopping"].includes(
     run?.status,
   );
 }
@@ -754,9 +748,9 @@ function scrollToLatestMessage() {
 // One table governs every command-failure message shown in the composer
 // feedback bar: code (operation + isUncertainCommandError classification)
 // -> plain-language text -> retryable -> next action. isUncertainCommandError
-// is the existing V7-01 guard (kept unmodified); this table only decides
-// copy and affordance from its verdict, it does not change when a failure
-// counts as uncertain.
+// is the existing V7-01 guard (classified by the Host's error code); this
+// table only decides copy and affordance from its verdict, it does not change
+// when a failure counts as uncertain.
 const ERROR_COPY = {
   "run:uncertain": {
     text: () =>
@@ -982,10 +976,12 @@ function mergeEvents(events) {
       if (event.data.status === "completed" && preview.active && runSession && !preview.isExampleId(runSession))
         void leavePreview("established");
     }
+    /* A run.error records the error; the Run's status comes only from
+     * run/status and Host Run snapshots (the Host may settle it `unknown`). */
     if (type === "run/error" && event.runId)
       changed =
         mergeRun(
-          { id: event.runId, status: "failed", error: event.data },
+          { id: event.runId, error: event.data },
           { sessionId: eventSessionId || state.activeSessionId },
         ) || changed;
     if (type === "run/usage" && event.runId)
@@ -1055,10 +1051,13 @@ function mergeRun(
     return true;
   }
   const previous = state.runs[index];
+  /* The Host never reopens a settled Run, so a non-terminal status arriving
+   * after a terminal one is a stale read; a terminal status from the Host
+   * (run/status or a Run snapshot) replaces the one shown. */
   if (
     isTerminalRunStatus(previous.status) &&
     scopedRun.status &&
-    scopedRun.status !== previous.status
+    !isTerminalRunStatus(scopedRun.status)
   )
     return false;
   const next = {
@@ -1841,7 +1840,9 @@ function resolveCommandTarget(ref) {
   const session = findKnownSession(ref.id);
   if (!session) return null;
   const project = state.projects.find((item) => item.id === session.projectId);
-  const activeRun = session.id === state.activeSessionId && state.runs.some(isActiveRun);
+  /* The Host refuses deletion of any chat while any Run is active; the
+   * loaded Runs are the only ones this client can see. */
+  const activeRun = state.runs.some(isActiveRun);
   return { target: { kind: "chat", id: session.id, title: session.title, projectId: session.projectId ?? null,
     preview: Boolean(project?.preview) || preview.isExampleId(session.id), activeRun },
     activeSessionId: state.activeSessionId, view: state.view, startPending: false };
@@ -1965,9 +1966,8 @@ async function submitDelete(event) {
     } else renderAll();
     showToast(`Deleted “${target.title || "Untitled chat"}”. Its workspace files are kept.`);
   } catch (err) {
-    const code = err.code ?? err.body?.error?.code;
-    error.textContent = code === "active_run" || err.status === 409 ? "Unavailable while a Run is active."
-      : err.status === 404 ? "This chat no longer exists." : err.message;
+    // A refusal (active_run, operation_active, spark_session_referenced, …) is shown in the Host's words.
+    error.textContent = err.status === 404 ? "This chat no longer exists." : err.message;
     error.hidden = false;
   } finally { submit.disabled = false; }
 }
@@ -2572,8 +2572,7 @@ async function releaseBinding(extensionId) {
     await loadSurface(state.sessionEpoch);
     showToast("The binding is released; the recorded work stays in this project.");
   } catch (error) {
-    showToast(`Could not release the binding: ${error.message}`, "error");
-    if (error.status === 409) await refreshSessionBinding(session.id);
+    await bindingFailed(error, "Could not release the binding", session.id);
   }
 }
 
@@ -2627,6 +2626,15 @@ async function refreshSessionBinding(sessionId) {
   } catch {
     /* The refusal message stands on its own. */
   }
+}
+
+/* A binding command that reached Core may have committed when the Host marks
+ * the error `outcome: "unknown"` (api-v6 Transport): it is not reported as a
+ * refusal, and the binding is read again like after a 409. */
+async function bindingFailed(error, refusal, sessionId) {
+  const unknown = error?.body?.error?.outcome === "unknown";
+  showToast(unknown ? `The result is not known: ${error.message}` : `${refusal}: ${error.message}`, "error");
+  if (unknown || error.status === 409) await refreshSessionBinding(sessionId);
 }
 
 /* WK-85 (2) · which segment leads is decided by the data, not by a fixed order:
@@ -2733,8 +2741,7 @@ function renderBindingPanel() {
       showToast("This chat continues the existing work.");
     } catch (error) {
       control.disabled = false;
-      showToast(`Could not continue this work: ${error.message}`, "error");
-      if (error.status === 409) await refreshSessionBinding(session.id);
+      await bindingFailed(error, "Could not continue this work", session.id);
     }
   };
   const created = element("section", { className: "binding-segment" });
@@ -2821,8 +2828,7 @@ function renderBindingPanel() {
       showToast("This chat continues in Work.");
     } catch (error) {
       submit.disabled = false;
-      showToast(`Could not create binding: ${error.message}`, "error");
-      if (error.status === 409) await refreshSessionBinding(session.id);
+      await bindingFailed(error, "Could not create binding", session.id);
     }
   });
   created.append(form);
@@ -4268,7 +4274,6 @@ function selectPreviewTab(key) {
  * 每个都带一句 sr-only 的话。没有新图形、没有新色 —— 颜色沿 run-badge 的三档。 */
 const TAB_ACTIVITY = {
   running: "Running",
-  created: "Running",
   stopping: "Running",
   waiting_user: "Waiting for you",
   failed: "Failed",
@@ -5398,8 +5403,16 @@ function clearSubmittedDraft(operation) {
   return true;
 }
 
+/* Uncertain means the outcome is not known: no response, a network error,
+ * or a 5xx without a Host code (or with `internal_error`, or a code that
+ * itself says the outcome is unknown, or a Core error the Host marked
+ * `outcome: "unknown"`, whatever its code). A coded Host refusal is settled. */
 function isUncertainCommandError(error) {
-  return !Number.isFinite(error?.status) || error.status >= 500;
+  if (!Number.isFinite(error?.status)) return true;
+  if (error.body?.error?.outcome === "unknown") return true;
+  if (error.status < 500) return false;
+  const code = error.body?.error?.code;
+  return !code || code === "internal_error" || code.endsWith("_unknown");
 }
 
 /* S4 (ruling J) · the project the person is working in: the open chat's, else
@@ -5850,8 +5863,7 @@ async function submitSessionRun({ commandId = null, expectAgent = null } = {}) {
     )
       state.draftDirty.add(sessionId);
     const uncertain =
-      state.unconfirmedRuns.has(sessionId) &&
-      (!error.status || error.status >= 500);
+      state.unconfirmedRuns.has(sessionId) && isUncertainCommandError(error);
     if (!uncertain) {
       state.unconfirmedRuns.delete(sessionId);
       storeUnconfirmedRuns();
@@ -8153,7 +8165,6 @@ async function leavePreview(reason = "dismissed") {
 window.__V5_UI__ = {
   state,
   request,
-  normalizedType,
   renderAll,
   /* WK-43 · the host's own slot resolution, exposed for the same reason `state`
    * is: a non-author check must be able to read the host's answer rather than
