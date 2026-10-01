@@ -23,6 +23,20 @@ Use the existing `/api/v5` base, loopback/origin protections and `x-work-token` 
 
 Use the existing provider, credentials, permission mode, extension and Run APIs for their owned lifecycle. All new mutation bodies reject unknown keys. A stale revision returns `409 runtime_conflict`; an active Run returns `409 active_run`. Refresh and show the actual state rather than silently resubmitting a stale edit. MCP lifecycle checks configuration revision; connection health is live, and connection changes do not increment configuration revision.
 
+## One target per change
+
+A `PUT /runtime-control` body carries `revision`, `operation` and exactly the keys of that operation. The operation's target, a scope and an id, is derived once from those keys (`changeTarget` in `app/runtime/control-plane.mjs`), and the same target is checked against the selected Session's scope chain, stored, given the `exposed` override, disconnected (an MCP server after `put` or `remove`) and written to the audit record.
+
+| Operation | Keys | Target scope | Target id |
+|---|---|---|---|
+| `put` | `resource`, `exposed?` | `resource.scope` | `resource.id` |
+| `remove` | `id` | none in the body: the id must be an imported resource in the selected Session's catalog, which lists only resources owned by a scope of its chain; the audit record has `scope: null` | `id` |
+| `exposure` | `id`, `scope`, `exposed` | `scope` | `id` |
+| `profile` | `id`, `scope` | `scope` | `id` (`null` to inherit) |
+| `policy` | `scope`, `rules` | `scope` | none (`null` in the audit record) |
+
+Any other key is `400 invalid_runtime_config`, also when the revision is stale: a `put` cannot carry a top-level `scope` or `id`, and no other operation can carry a `resource`. A target scope outside the selected Session's chain is `400 invalid_scope` (user, then the workspace or Attention, then the Session; user only without `sessionId`), so a resource cannot be written into another Session by naming that Session in `resource.scope`. A refused change leaves the revision, the configuration, the audit log and MCP connections as they were.
+
 ## Example sequence
 
 Read a snapshot and use its current revision for each mutation. These bodies are examples, not shell commands. Replace project/session IDs with returned IDs.

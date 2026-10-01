@@ -42,7 +42,7 @@ import {
   nativeCatalogModelIds,
 } from "../runtime/pi-session-runtime.mjs";
 import { createAskUserTool, createWorkspaceTools, resolveWorkspacePath, listWorkspaceTree, sha256OfFile, MAX_READ_BYTES } from "../runtime/workspace-tools.mjs";
-import { RuntimeControlPlane, compileControlContext, evaluatePolicy, hostToolCeiling } from "../runtime/control-plane.mjs";
+import { RuntimeControlPlane, changeTarget, compileControlContext, evaluatePolicy, hostToolCeiling } from "../runtime/control-plane.mjs";
 import { planKitRunContext, retainKitContext, readKitContext } from "../runtime/kit-run-context.mjs";
 import { PI_RUNTIME_ADAPTER_ID, PI_RUNTIME_ADAPTER_REVISION } from "../runtime/pi-runtime-port.mjs";
 import { createRuntimeLoadTool, createRuntimeProposeTool, createPresentTool, governTools, createPathAdmission } from "../runtime/control-tools.mjs";
@@ -607,11 +607,14 @@ export class RuntimeService {
       if (this.#busy()) throw new ServiceError(409, "active_run", "Runtime configuration is frozen while a run is active");
       if (!this.store.opened || this.store.lockLost) throw new ServiceError(503, "runtime_unavailable", "Runtime store is unavailable");
       const snapshot = this.getRuntimeControl(sessionId);
-      const target = input?.scope ?? input?.resource?.scope;
-      if (target && !snapshot.scopes.some(s => s.type === target.type && s.id === target.id)) throw new ServiceError(400, "invalid_scope", "Scope does not belong to the selected session");
-      try { await this.control.change(input, snapshot.resources); }
-      catch (error) { if (error.status) throw new ServiceError(error.status, error.code, error.message); throw error; }
-      if (['put', 'remove'].includes(input.operation)) await this.mcp.disconnect(input.id ?? input.resource.id);
+      // One target per change: the scope checked against this Session's chain
+      // and the id disconnected are the ones the control plane stores and audits.
+      const refused = error => { if (error.status) throw new ServiceError(error.status, error.code, error.message); throw error; };
+      let target;
+      try { target = changeTarget(input); } catch (error) { refused(error); }
+      if (target.scope !== null && !snapshot.scopes.some(s => s.type === target.scope?.type && s.id === target.scope?.id)) throw new ServiceError(400, "invalid_scope", "Scope does not belong to the selected session");
+      try { await this.control.change(input, snapshot.resources); } catch (error) { refused(error); }
+      if (['put', 'remove'].includes(input.operation)) await this.mcp.disconnect(target.id);
       return this.getRuntimeControl(sessionId);
     });
   }

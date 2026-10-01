@@ -200,6 +200,23 @@ function validateConfig(value) {
   return value;
 }
 
+// The keys each operation accepts beside `revision` and `operation`.
+const CHANGE_KEYS = { put: ['resource', 'exposed'], remove: ['id'], exposure: ['id', 'scope', 'exposed'], profile: ['id', 'scope'], policy: ['scope', 'rules'] };
+/** The one target of a configuration change: the id and scope it is validated
+ * against, stored under and audited as. A `put` targets its resource's own id
+ * and scope; exposure, profile and policy target the top-level `scope` (and
+ * `id`); a removal targets an id, whose owning scope is the one it already has
+ * in the caller's catalog (`scope: null`). A body carrying any other key would
+ * name a second target and is refused. The service checks the same target
+ * against the selected Session's scope chain. */
+export function changeTarget(input) {
+  check(typeof input?.operation === 'string' && Object.hasOwn(CHANGE_KEYS, input.operation), 'Unsupported runtime operation');
+  keys(input, ['revision', 'operation', ...CHANGE_KEYS[input.operation]]);
+  if (input.operation !== 'put') return { id: input.operation === 'policy' ? null : input.id, scope: input.operation === 'remove' ? null : input.scope };
+  check(input.resource && typeof input.resource === 'object', 'Unsupported runtime fields');
+  return { id: input.resource.id, scope: input.resource.scope };
+}
+
 /** Owns configuration only. Run, transport, credentials and domain state remain
  * with their services. Called under RuntimeService's configuration queue and
  * RuntimeStore's process lock; no second session or execution owner. */
@@ -211,43 +228,43 @@ export class RuntimeControlPlane {
   }
   async change(input, catalog) {
     const knownIds = catalog.map(resource => resource.id);
-    keys(input, ['revision', 'operation', 'resource', 'id', 'scope', 'exposed', 'rules']);
+    const target = changeTarget(input);
     if (input.revision !== this.config.revision) { const error = new Error('Runtime changed; refresh before saving'); error.status = 409; error.code = 'runtime_conflict'; throw error; }
     const next = clone(this.config);
     if (input.operation === 'put') {
       validateResource(input.resource);
-      const prior = next.resources.find(r => r.id === input.resource.id);
-      check(!prior || (prior.kind === input.resource.kind && sameScope(prior.scope, input.resource.scope)), 'Resource kind and owning scope are immutable');
-      next.resources = next.resources.filter(r => r.id !== input.resource.id).concat(clone(input.resource));
+      const prior = next.resources.find(r => r.id === target.id);
+      check(!prior || (prior.kind === input.resource.kind && sameScope(prior.scope, target.scope)), 'Resource kind and owning scope are immutable');
+      next.resources = next.resources.filter(r => r.id !== target.id).concat(clone(input.resource));
       // Intake may save a new resource without admitting it to the model.
       // Persist the owning-scope exposure choice in the same CAS transaction.
       if (input.exposed !== undefined) {
         check(typeof input.exposed === 'boolean' && input.resource.kind !== 'agent_profile', 'Invalid initial exposure');
-        next.overrides = next.overrides.filter(o => !(o.id === input.resource.id && sameScope(o.scope, input.resource.scope)));
-        next.overrides.push({ id: input.resource.id, scope: clone(input.resource.scope), exposed: input.exposed });
+        next.overrides = next.overrides.filter(o => !(o.id === target.id && sameScope(o.scope, target.scope)));
+        next.overrides.push({ id: target.id, scope: clone(target.scope), exposed: input.exposed });
       }
     } else if (input.operation === 'profile') {
-      scope(input.scope);
-      const profile = next.resources.find(r => r.id === input.id && r.kind === 'agent_profile' && knownIds.includes(r.id));
-      check(input.id === null || input.id === 'agent:general' || profile, 'Profile is unavailable in this scope');
-      if (profile && !profileCovers(profile.scope, input.scope)) throw conflict('profile_scope_conflict', `Profile ${profile.id} belongs to ${profile.scope.type} scope and cannot be selected at ${input.scope.type} scope`);
-      next.profileSelections = next.profileSelections.filter(p => !sameScope(p.scope, input.scope));
-      if (input.id !== null) next.profileSelections.push({ scope: input.scope, id: input.id });
+      scope(target.scope);
+      const profile = next.resources.find(r => r.id === target.id && r.kind === 'agent_profile' && knownIds.includes(r.id));
+      check(target.id === null || target.id === 'agent:general' || profile, 'Profile is unavailable in this scope');
+      if (profile && !profileCovers(profile.scope, target.scope)) throw conflict('profile_scope_conflict', `Profile ${profile.id} belongs to ${profile.scope.type} scope and cannot be selected at ${target.scope.type} scope`);
+      next.profileSelections = next.profileSelections.filter(p => !sameScope(p.scope, target.scope));
+      if (target.id !== null) next.profileSelections.push({ scope: target.scope, id: target.id });
     } else if (input.operation === 'remove') {
-      check(knownIds.includes(input.id) && next.resources.some(r => r.id === input.id), 'Only imported content can be removed here');
-      next.resources = next.resources.filter(r => r.id !== input.id);
-      next.overrides = next.overrides.filter(r => r.id !== input.id);
+      check(knownIds.includes(target.id) && next.resources.some(r => r.id === target.id), 'Only imported content can be removed here');
+      next.resources = next.resources.filter(r => r.id !== target.id);
+      next.overrides = next.overrides.filter(r => r.id !== target.id);
     } else if (input.operation === 'exposure') {
-      scope(input.scope); check(catalog.some(r => r.id === input.id && r.configurable), 'Resource is unavailable or not exposure-configurable');
+      scope(target.scope); check(catalog.some(r => r.id === target.id && r.configurable), 'Resource is unavailable or not exposure-configurable');
       check(input.exposed === null || typeof input.exposed === 'boolean', 'Exposure must be true, false or null to inherit');
-      next.overrides = next.overrides.filter(r => !(r.id === input.id && sameScope(r.scope, input.scope)));
-      if (input.exposed !== null) next.overrides.push({ id: input.id, scope: input.scope, exposed: input.exposed });
-    } else if (input.operation === 'policy') {
-      scope(input.scope);
-      next.policies = next.policies.filter(r => !sameScope(r.scope, input.scope));
-      next.policies.push({ scope: input.scope, rules: clone(input.rules) });
-    } else check(false, 'Unsupported runtime operation');
-    await this.#commit(next, { actor: 'local-user', operation: input.operation, id: input.id ?? input.resource?.id ?? null, scope: input.scope ?? input.resource?.scope ?? null });
+      next.overrides = next.overrides.filter(r => !(r.id === target.id && sameScope(r.scope, target.scope)));
+      if (input.exposed !== null) next.overrides.push({ id: target.id, scope: target.scope, exposed: input.exposed });
+    } else {
+      scope(target.scope);
+      next.policies = next.policies.filter(r => !sameScope(r.scope, target.scope));
+      next.policies.push({ scope: target.scope, rules: clone(input.rules) });
+    }
+    await this.#commit(next, { actor: 'local-user', operation: input.operation, ...target });
   }
   /** Remove every entry owned by the given Sessions' scopes: resources,
    * exposure overrides, policies and profile selections, plus overrides and
