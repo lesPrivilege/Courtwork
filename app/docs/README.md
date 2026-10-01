@@ -46,7 +46,7 @@ levels are stated in the target documents, not here.
 
 - [Pi / MCP integration](upstream-integration.md)
 - [Per-turn ownership](turn-ownership-review.md)
-- [Dependency ledger](dependency-ledger.json)
+- [Dependency ledger](dependency-ledger.json), generated from the lockfile by `app/scripts/dependency-ledger.mjs` (`--write` regenerates it; the default suite fails when it differs)
 - [Historical API proposal](runtime-api-proposal.md)
 
 For module locations see the [application entry](../README.md#modules); for verification records and delivery status see [engineering status](../../engineering/current.md).

@@ -1,7 +1,23 @@
 {
   "source": "package-lock.json metadata; includes platform-optional dependencies",
-  "lockfileSha256": "d858bd27f363fac01d54d0dbae0536c2158cd743e810842b4b682a716c2b8c49",
+  "lockfileSha256": "e594770d2b0b280babd386129f5b146a5d44346772671b6686632f39e6e955e7",
   "packages": [
+    {
+      "path": "node_modules/@anthropic-ai/sandbox-runtime",
+      "name": "@anthropic-ai/sandbox-runtime",
+      "version": "0.0.77",
+      "license": "Apache-2.0",
+      "optional": false,
+      "integrity": "sha512-uOe6kkAbo91r5shXXBxZ1DKbOpWmnXkNDDujXrFJRaHSG7D7s8b7Yfsu0pGDkYFgKZ2ECtVCNisl6pCYcaMF7A=="
+    },
+    {
+      "path": "node_modules/@anthropic-ai/sandbox-runtime/node_modules/zod",
+      "name": "zod",
+      "version": "3.25.76",
+      "license": "MIT",
+      "optional": false,
+      "integrity": "sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ=="
+    },
     {
       "path": "node_modules/@anthropic-ai/sdk",
       "name": "@anthropic-ai/sdk",
@@ -1827,6 +1843,14 @@
       "integrity": "sha512-pJCEwGG7Lfr/+PQp9ZTwKXNeO5wzbfKL7H3MYpCorM4oFBoQrdjnBgEoqG+RjhsvS1FKrDbKux+M1HhlnGWqcA=="
     },
     {
+      "path": "node_modules/@pondwader/socks5-server",
+      "name": "@pondwader/socks5-server",
+      "version": "1.0.10",
+      "license": "MIT",
+      "optional": false,
+      "integrity": "sha512-bQY06wzzR8D2+vVCUoBsr5QS2U6UgPUQRmErNwtsuI6vLcyRKkafjkr3KxbtGFf9aBBIV2mcvlsKD1UYaIV+sg=="
+    },
+    {
       "path": "node_modules/@protobufjs/aspromise",
       "name": "@protobufjs/aspromise",
       "version": "1.1.2",
@@ -2033,6 +2057,14 @@
       "license": "BSD-3-Clause",
       "optional": false,
       "integrity": "sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA=="
+    },
+    {
+      "path": "node_modules/commander",
+      "name": "commander",
+      "version": "12.1.0",
+      "license": "MIT",
+      "optional": false,
+      "integrity": "sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA=="
     },
     {
       "path": "node_modules/cross-spawn",
@@ -2265,6 +2297,14 @@
       "license": "MIT",
       "optional": false,
       "integrity": "sha512-dRB78srN/l6gqWulah9SrxeYnxeddIG30+GOqK/9OlLVyLg3HPnr6SqOWTWOXKRwC2eGYCkZ59NNuSgvSrpgOA=="
+    },
+    {
+      "path": "node_modules/node-forge",
+      "name": "node-forge",
+      "version": "1.4.0",
+      "license": "(BSD-3-Clause OR GPL-2.0)",
+      "optional": false,
+      "integrity": "sha512-LarFH0+6VfriEhqMMcLX2F7SwSXeWwnEAJEsYm5QKWchiVYVvJyV9v7UDvUv+w5HO23ZpQTXDv/GxdDdMyOuoQ=="
     },
     {
       "path": "node_modules/openai",

@@ -122,7 +122,7 @@ missing locator as a failed or unaccepted command.
 Node >=22.19.0, Python 3 with POSIX flock, and Git >=2.36 are required. Windows is
 not supported by the current lock adapter. Exact npm dependencies remain pinned
 in package-lock.json. `dependency-ledger.json` records every lockfile package's
-license and integrity metadata, including platform-optional entries. Pi's three
+license and integrity metadata, including platform-optional entries; `scripts/dependency-ledger.mjs --write` regenerates it and the default suite fails when it differs from the lockfile. Pi's three
 direct packages are MIT; no dependency was upgraded in this increment.
 
 From `app/`:
