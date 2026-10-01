@@ -324,7 +324,7 @@ export function mount({ container, projection, dispatch, signal, query } = {}) {
        * same bytes are sent again. Nothing is replayed automatically (FN-19). */
       const refused = Number.isFinite(error?.status) && error.status < 500;
       if (refused) revisionIds.delete(identity);
-      notice(key, "error", error.message);
+      notice(key, "error", refused ? error.message : NOT_ACKNOWLEDGED);
     } finally {
       busy.delete(key);
       if (live()) render();

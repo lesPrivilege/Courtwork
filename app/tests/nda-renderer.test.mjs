@@ -153,7 +153,10 @@ test('a revision keeps its identity until the Host settles it: a lost reply rese
   assert.equal(sent[1].payload.new_candidate_id, sent[0].payload.new_candidate_id, 'a retry after a lost reply reuses the revision identity');
   assert.deepEqual(sent[1], sent[0]);
   assert.deepEqual(sent[2], sent[0]);
-  assert.match(container.textContent, /internal/, 'the person still reads the failure');
+  // The unknown outcome reads as it does for a decision, not as a raw transport error.
+  const notices = () => container.querySelectorAll('.inline-error').map((node) => node.textContent);
+  assert.deepEqual(notices(), ['The decision was not acknowledged. Sending it again uses the same request.']);
+  assert.equal(container.textContent.includes('internal'), false);
   assert.equal(saveButton(container).disabled, false);
 
   // An edited payload is another revision.
@@ -169,6 +172,7 @@ test('a revision keeps its identity until the Host settles it: a lost reply rese
   answer = () => { throw coded(409, 'REVIEW_INVALID'); };
   await save(container);
   assert.deepEqual(sent[4], sent[3], 'the retry after the lost reply was still the same request');
+  assert.deepEqual(notices(), ['REVIEW_INVALID'], 'a coded refusal shows the server message');
   answer = () => { throw lost(); };
   await save(container);
   assert.notEqual(sent[5].payload.new_candidate_id, sent[4].payload.new_candidate_id, 'a refused revision does not keep its identity');

@@ -104,6 +104,21 @@ test('a new Session lists an accepted file bundle from its context, reads a list
   assert.deepEqual(JSON.parse(listed[0].data.text).files.map(f=>Object.keys(f)),[['path','bytes','sha256']]);
   const extra=(await surface(h,third)).projection.candidates.find(c=>c.artifact_text==='Third memo.');
   assert.equal(extra.files.coverage,'unknown');assert.ok(extra.files.reasons.includes('tool:se_list_files'),JSON.stringify(extra.files.reasons));
+
+  // Naming the frozen base together with a candidate, or naming an Artifact
+  // that is not the base, is not a base listing: each marks before it runs.
+  for(const [label,args,refused] of [['base with a candidate',{artifactId,candidateId:produced.id},true],['not the base',{artifactId:'artifact-not-the-base'},true]]){
+   const session=await h.createSession({permissionMode:'draft'});
+   assert.equal((await h.api('POST',`/sessions/${session.id}/extension`,{extensionId:'evidence-memo',input:{existingMatterId:matterId}})).status,200);
+   const text=`${label}\n`;
+   const made=await h.api('POST',`/sessions/${session.id}/runs`,{commandId:'list-other',input:h.scriptInput([{name:'se_list_files',arguments:args},{name:'ws_write',arguments:{path:'out/case.txt',text}},{name:'se_submit_candidate',arguments:{artifact_text:`Memo: ${label}.`,evidence:produced.evidence,obligations:[],recordedFiles:[{path:'out/case.txt',sha256:hash(text)}]}}])});
+   assert.equal(made.status,200,JSON.stringify(made.json));assert.equal((await h.pollRun(made.json.run.id)).status,'completed');
+   const result=h.runtime.store.listEvents({sessionId:session.id}).find(e=>e.type==='tool.result'&&e.data.name==='se_list_files');
+   assert.equal(result.data.isError,refused,label+result.data.text);
+   const saved=(await surface(h,session)).projection.candidates.find(c=>c.artifact_text===`Memo: ${label}.`);
+   assert.ok(saved,label);
+   assert.equal(saved.files.coverage,'unknown',label);assert.deepEqual(saved.files.reasons.filter(r=>r.startsWith('tool:')),['tool:se_list_files'],label);
+  }
  }finally{await h.runtime.close();await rm(h.dataDir,{recursive:true,force:true});}
 });
 
