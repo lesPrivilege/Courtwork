@@ -43,14 +43,15 @@ export function renderAttentionApproval(row, { run, events, disabled = false, ex
     // Focus on the disclosure or its Copy survives a rebuild of the stream, like the answer buttons.
     details?.querySelector('summary')?.setAttribute('data-agent-focus', `${row.id}:basis`);
     details?.querySelector('button')?.setAttribute('data-agent-focus', `${row.id}:copy`);
-    const nodes = [el('p', { text: row.prompt }), el('div', { className: 'attention-approval-basis' }, ...basis.nodes)];
-    // The Chat card's words: the answer names what it answers (a check, a write, an action).
+    // The Chat card's words and controls: the answer names what it answers (a check, a write, an action).
+    const actions = el('div', { className: 'question-actions' });
     for (const [label, decision] of [[`Deny this ${basis.display.noun}`,'deny'],[`Approve this ${basis.display.noun}`,'allow']]) {
-      const button = el('button', { text: label, attrs: { type: 'button', 'data-agent-focus': `${row.id}:${decision}` } });
+      const button = el('button', { className: decision === 'allow' ? 'primary-button' : 'secondary-button', text: label, attrs: { type: 'button', 'data-agent-focus': `${row.id}:${decision}` } });
       button.disabled = disabled;
-      button.addEventListener('click', () => onAnswer(decision)); nodes.push(button);
+      button.addEventListener('click', () => onAnswer(decision)); actions.append(button);
     }
-    return nodes;
+    // The shared title is the card's heading; the Host's generic prompt would only repeat it.
+    return [el('div', { className: 'attention-approval-basis' }, ...basis.nodes), actions];
   }
   if (!basis) {
     const decision = row.decision === 'allow' ? 'approved' : row.decision === 'deny' ? 'denied' : row.questionStatus === 'pending' ? 'closed' : row.questionStatus;
@@ -59,11 +60,11 @@ export function renderAttentionApproval(row, { run, events, disabled = false, ex
       : row.questionStatus === 'pending' ? 'This Run is no longer accepting answers.' : `Request ${row.questionStatus}` })];
   }
   // A decided request states what was recorded, as the Chat record does.
-  const record = el('details', { className: 'attention-approval-basis' },
-    el('summary', { text: `${basis.display.target} · ${basis.meta}` }), ...basis.nodes);
+  const record = el('details', {},
+    el('summary', { text: `${basis.display.target} · ${basis.meta}` }), el('div', { className: 'attention-approval-basis' }, ...basis.nodes));
   record.setAttribute('data-row', row.id); record.open = expanded.has(row.id);
   record.querySelector('summary')?.setAttribute('data-agent-focus', `${row.id}:record`);
-  return [...heading(), record];
+  return [el('strong', { text: 'Approval request' }), record];
 }
 
 export function createAttentionAgent(dialog, { request, onItems, onOpenSession, onConfigure, getProvider, onChooseModel, itemsSummary = () => null }) {
@@ -362,6 +363,10 @@ export function createAttentionAgent(dialog, { request, onItems, onOpenSession, 
       else if (focused) { let target = stream.querySelector(`[${focusAttribute}="${CSS.escape(focused)}"]`); if (target?.disabled) target = stream.querySelector(`[data-agent-focus="${CSS.escape(focused.replace(/:send$/, ''))}"]`); (target && !target.disabled ? target : input).focus(); if (target?.setSelectionRange && selection) target.setSelectionRange(...selection); }
       stream.scrollTop = nearBottom && !readingSnapshot.selection ? stream.scrollHeight : oldTop;
       restoreChatReading(stream, readingSnapshot, {followLatest: nearBottom && !readingSnapshot.selection});
+      // An open approval is read from its top (UX-02): when its card is taller than
+      // the stream, following the latest shows where the card starts, not only its buttons.
+      const approval = nearBottom && !readingSnapshot.selection ? stream.querySelector('.question-actions')?.parentElement : null;
+      if (approval && approval.offsetHeight > stream.clientHeight) stream.scrollTop += approval.getBoundingClientRect().top - stream.getBoundingClientRect().top;
     }
     clearTimeout(timer);
     if (!state.busy && !state.loading && (controller.active() || state.command)) timer = setTimeout(() => { if (visible) void controller.refresh({ follow: true }); }, 1500);

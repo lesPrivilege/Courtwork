@@ -28,7 +28,9 @@ const EVENTS = [
 const RUN = { id: "r1", status: "waiting_user" };
 const row = (payload, extra = {}) => ({ kind: "permission", id: "q1", runId: "r1", prompt: "Approval needed", questionStatus: "pending", payload, ...extra });
 const text = (nodes) => nodes.map((node) => node.textContent).join("");
-const buttons = (nodes) => nodes.filter((node) => node.tagName === "button").map((node) => node.textContent);
+// The answer controls: the Chat card's action row and button kinds.
+const actionButtons = (nodes) => [...(nodes.find((node) => node.classList?.contains("question-actions"))?.children ?? [])];
+const buttons = (nodes) => actionButtons(nodes).map((node) => node.textContent);
 // The Chat card appends exactly these nodes (pinned on the source below).
 const chatOpen = (payload) => openApprovalBasis(payload, EVENTS, runBinding(EVENTS, "r1")).nodes;
 const attention = (item, options = {}) => renderAttentionApproval(item, { run: RUN, events: EVENTS, onAnswer: () => {}, ...options });
@@ -47,16 +49,19 @@ test("a check approval shows the same basis in the Chat card and in the Attentio
   assert.equal(popover, chat, "one presentation, two surfaces");
   assert.ok(!chat.includes("after-the-request.mjs"), "a write after the bound revision is not part of this approval");
   assert.deepEqual(buttons(nodes), ["Deny this check", "Approve this check"], "the Chat card's words");
+  assert.deepEqual(actionButtons(nodes).map((node) => node.className), ["secondary-button", "primary-button"], "and its button kinds");
+  assert.ok(!text(nodes).includes("Approval needed"), "the shared title is the heading; the generic prompt is not repeated");
 }));
 
 test("the Attention assistant answers with the surface's own wiring", () => withTinyDom(() => {
   const answered = [];
   const nodes = attention(row(CHECK), { onAnswer: (decision) => answered.push(decision) });
-  nodes.find((node) => node.textContent === "Approve this check").click();
-  nodes.find((node) => node.textContent === "Deny this check").click();
+  actionButtons(nodes).find((node) => node.textContent === "Approve this check").click();
+  actionButtons(nodes).find((node) => node.textContent === "Deny this check").click();
   assert.deepEqual(answered, ["allow", "deny"]);
   const held = attention(row(CHECK), { disabled: true, onAnswer: (decision) => answered.push(decision) });
-  for (const node of held.filter((item) => item.tagName === "button")) node.click();
+  assert.equal(actionButtons(held).length, 2);
+  for (const node of actionButtons(held)) node.click();
   assert.deepEqual(answered, ["allow", "deny"], "a busy or unread conversation takes no answer");
 }));
 
@@ -87,17 +92,20 @@ test("a decided approval reads back what was recorded, the same on both surfaces
   const settled = row(CHECK, { questionStatus: "answered", decision: "allow" });
   const chat = recordedApprovalBasis(CHECK, EVENTS, runBinding(EVENTS, "r1"), "allow");
   const nodes = attention(settled, { run: { id: "r1", status: "completed" } });
-  const record = basisOf(nodes);
+  const recordOf = (list) => list.find((node) => node.tagName === "details");
+  const record = recordOf(nodes);
   assert.equal(chat.meta, "Check approved");
   assert.equal(record.children[0].textContent, "node-test v3 · Check approved");
-  assert.equal(text(record.children.slice(1)), text(chat.nodes));
+  assert.ok(record.children[1].classList.contains("attention-approval-basis"), "the record's lines keep the basis spacing");
+  assert.equal(record.children[1].textContent, text(chat.nodes));
+  assert.ok(!text(nodes).includes("Approval needed"), "the Host's generic prompt is not repeated above the record");
   for (const fact of ["Approval recorded for this exact check.", "--test-reporter=spec", "cand-7f3a", "src/sum.mjs", "tests/sum.test.mjs", "As recorded when this approval was requested."])
     assert.ok(record.textContent.includes(fact), `the record states ${fact}`);
   // R30-2 · nothing live-only is added to a decided record.
   assert.ok(!record.textContent.includes("Approval for this exact check only"));
   assert.deepEqual(buttons(nodes), []);
   assert.equal(record.open, false);
-  assert.equal(basisOf(attention(settled, { run: { id: "r1", status: "completed" }, expanded: new Set(["q1"]) })).open, true);
+  assert.equal(recordOf(attention(settled, { run: { id: "r1", status: "completed" }, expanded: new Set(["q1"]) })).open, true);
 }));
 
 test("both surfaces take the basis from the shared module and nowhere else", () => {
