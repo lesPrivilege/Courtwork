@@ -289,3 +289,23 @@ test("HTTP: close ends an open folder picker instead of waiting for the person",
   assert.deepEqual([response.status, (await response.json()).error.code], [503, "runtime_closing"]);
   await assert.rejects(host.service.chooseHostDirectory({}), closingRefusal, "a picker request during or after close is refused");
 });
+
+/* Follow-up B: the Host's Work Core owner is final. On 965685e a late call
+ * reopened the closed client and started a worker of the old Host on a
+ * database whose lock had been given up. */
+test("after runtime.close a Core-reaching call is refused CORE_UNAVAILABLE and no bridge process is started", async (t) => {
+  const runtime = await createRuntime({ dataDir: await dataDirectory() });
+  const client = runtime.service.workCore;
+  t.after(async () => { await runtime.close(); await client.close(); });
+  const { project } = await runtime.service.createProject({ name: "before close" });
+  assert.deepEqual((await runtime.service.listWork(project.id)).matters, [], "the bridge served this Host while it was open");
+  const served = client.transport.child;
+  await runtime.close();
+  assert.notEqual(served.exitCode ?? served.signalCode, null, "the Host's bridge process was reaped by close");
+
+  const late = await runtime.service.listWork(project.id).then(() => "answered", (error) => error.code);
+  const started = await client.start().then(() => "started", (error) => error.code);
+  const child = client.transport?.child;
+  const running = Boolean(child && child !== served && child.exitCode === null && child.signalCode === null);
+  assert.deepEqual({ late, started, closed: client.closed, running }, { late: "CORE_UNAVAILABLE", started: "CORE_UNAVAILABLE", closed: true, running: false });
+});

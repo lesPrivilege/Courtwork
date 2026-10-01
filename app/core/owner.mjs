@@ -7,7 +7,9 @@ export class WorkCoreOwner {
   constructor(dataDir) {
     this.client = new CoreClient({ dataDir: path.join(dataDir, 'extensions', 'evidence-memo') });
   }
-  async close() { await this.client.close(); }
+  // Final: the Host gives the data directory up after this. A late call must
+  // not start a worker of the old Host on the next Host's database.
+  async close() { await this.client.seal(); }
 }
 
 const MEMO_PROPOSAL_SCHEMA = {

@@ -47,6 +47,7 @@ export class CoreClient {
     this.ready = false;
     this.closed = false;
     this.closing = false;
+    this.sealed = false;
     this.admissionEpoch = 0;
     this.sequence = 0;
     this.pending = new Map();
@@ -57,6 +58,7 @@ export class CoreClient {
   }
 
   async start() {
+    if (this.sealed) throw new CoreClientError('CORE_UNAVAILABLE', 'bridge is sealed');
     if (this.closing) throw new CoreClientError('CORE_UNAVAILABLE', 'bridge is closing');
     if (this.closed) { this.closed = false; this.closePromise = null; }
     if (this.ready) return this.readyInfo;
@@ -294,6 +296,11 @@ export class CoreClient {
   snapshot(matterId = null) {
     return matterId === null ? this.call('snapshot') : this.call('snapshot', { matter_id: matterId });
   }
+
+  /** A final close. A sealed client refuses every later start and call and
+   * spawns nothing: its owner has handed the database on. Only an owner whose
+   * lifetime ends here seals; close() alone still allows a reopen. */
+  seal() { this.sealed = true; return this.close(); }
 
   async close() {
     if (this.closePromise) return this.closePromise;
