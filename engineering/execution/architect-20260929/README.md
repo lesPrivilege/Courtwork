@@ -700,3 +700,51 @@ It found sound: the F4 invariant in the merged `cancelRun`, completion and `clos
 **Checks.** `npm --prefix app run check:product` on the merge commit `91a3191`: 2060/2064. Three failures were the tests named in the review table; the fourth was the `ws_grep` directory-swap test at its two-second tool deadline under the concurrent suite, as on the candidate before (5/5 alone, three runs). After the dispositions, at `e8ce24d` with `app/` clean (these records uncommitted): exit 0, bounded suite 2065/2065, local deterministic runtime smoke, documentation links. `check-historical-fixtures` passes. Fail-before proofs: the two-cancel test fails with the plain reset. Focused files run alone during the resolution: `check-recipes` 26/26, `approval-basis` 6/6, `check-approval-authored-files` 7/7, `models-save-flow` 10/10, `model-effort` 17/17, `run-terminal-arbitration` 10/10, `manual-compaction` 6/6, `architecture-maintenance` 3/3.
 
 **Not run.** A browser on the merged tree: the approval card and the model chooser were captured before the merge on `main` only, and the candidate's browser review predates S1–S6. Linux. A real model. The sandbox on any macOS other than this machine's.
+
+### Branch and worktree cleanup · 2026-10-01
+
+After the merge the user asked for everything merged to be cleaned up after a careful review. Each worktree was read first (`git status --porcelain --ignored`): the removed ones held nothing beyond their commits except a dependency directory or link, Python caches and regenerable site build output. 29 branches and 24 worktrees were removed. Every removed branch can be recreated from its tip (`git branch <name> <tip>`); the tips of the first kind are in `main`'s history.
+
+| Branch removed | Tip | Why it was safe |
+|---|---|---|
+| `claude/architect-20260929` | `bf4451cab9` | tip is an ancestor of `main` |
+| `claude/architect-check-sandbox-20260929` | `c71c6b4648` | tip is an ancestor of `main` |
+| `claude/architect-integration-20260929` | `d5cf033e94` | tip is an ancestor of `main` |
+| `claude/architect-probes-20260929` | `d250d498d0` | tip is an ancestor of `main` |
+| `claude/architect-recipes-20260930` | `46b728d73a` | tip is an ancestor of `main` |
+| `claude/architect-recipes2-20260930` | `a009007ad2` | tip is an ancestor of `main` |
+| `claude/architect-ws-traversal-20260930` | `fec961f5b4` | tip is an ancestor of `main` |
+| `claude/converge-loop-20260929` | `049f1b9b6c` | tip is an ancestor of `main` |
+| `claude/doc-convergence-20260929` | `176a3d38fa` | tip is an ancestor of `main` |
+| `claude/merge-20260930` | `2056fb81d2` | tip is an ancestor of `main` |
+| `claude/merge-main-20261001` | `3f5a322e15` | tip is an ancestor of `main` |
+| `claude/merge-web-20260930` | `0a5af1f3af` | tip is an ancestor of `main` |
+| `claude/request-details-b2-20260928` | `bb550dcdae` | tip is an ancestor of `main` |
+| `claude/review-20261001` | `a61ee19b3d` | tip is an ancestor of `main` |
+| `claude/review-d1-d5-20260929` | `fdb52bb439` | tip is an ancestor of `main` |
+| `claude/review-host-20261001` | `af53da2975` | same patches as on `main` (cherry-picked) |
+| `claude/review-web-20261001` | `6cb1d44f3d` | same patches as on `main` (cherry-picked) |
+| `claude/stream-backend-20260925` | `4d0bd9893b` | tip is an ancestor of `main` |
+| `claude/ux-topology-20260930` | `7e8e2531d4` | tip is an ancestor of `main` |
+| `codex/attention-check-recipe-20260927` | `7f4b05e217` | tip is an ancestor of `main` |
+| `codex/attention-host-boundary-20260928` | `512f794a5f` | tip is an ancestor of `main` |
+| `codex/check-cancel-parity-20260924` | `10c364eab1` | tip is an ancestor of `main` |
+| `codex/dogfood-review-20260928` | `d38a93ae64` | tip is an ancestor of `main` |
+| `codex/harness-dogfood-closure-20260928` | `ffe68fb681` | tip is an ancestor of `main` |
+| `codex/registered-completion-20260928` | `78a1b432ac` | tip is an ancestor of `main` |
+| `codex/request-details-contract-20260928` | `78a1b432ac` | tip is an ancestor of `main` |
+| `codex/stream-backend-integration-20260926` | `0d06fb91d5` | tip is an ancestor of `main` |
+| `codex/ux-audit-fixture-20260928` | `49357127f6` | tip is an ancestor of `main` |
+| `codex/work-run-boundary-20260930` | `c06b188370` | tip is an ancestor of `main` |
+
+Kept, and why:
+
+| Kept | Reason |
+|---|---|
+| `codex/orchestra-review-20260930` and its worktree | The worktree holds an uncommitted note of Astra's work in progress (the merged-candidate real-harness witness, "prepared; model connection and real runs pending"). Its tip `2056fb8` is in `main`. |
+| `claude/runtime-settings-i1-20260927` and its worktree | Six commits not on `main`: the Hermes native conformance author evidence that [current status](../../current.md) names. |
+| `codex/product-consumption-20260930` and its worktree | Two commits not on `main`. |
+| `codex/runtime-inventory-i1-20260926` and its worktree | One commit not on `main`. |
+| `codex/evidence-input-schema-20260927`, `codex/runtime-load-recovery-20260927` and their worktrees | Their commits are on `main` by patch, but each worktree holds an untracked evidence directory that `main` does not have (`evidence/production-closure-20260927/`, `evidence/runtime-load-recovery-20260927/`). Left for their owner to commit or discard. |
+| `archive/courtwork-main` | The frozen legacy pointer, also on `origin`. |
+| The frozen legacy worktree and the main checkout | Not part of the cleanup. |
