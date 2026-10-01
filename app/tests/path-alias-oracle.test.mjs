@@ -5,7 +5,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { mkdtempSync, mkdirSync, openSync, closeSync, existsSync, realpathSync, rmSync, constants } from "node:fs";
-import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { evaluatePolicy, foldPathAliases } from "../runtime/control-plane.mjs";
@@ -74,9 +74,15 @@ test("AR1: ws_read through governTools refuses the alias that opens the denied f
   if (!aliased) t.diagnostic("this volume does not open ς.txt as Σ.txt; the policy is still asserted");
   const binding = { resources: [{ id: "tool:ws_read", kind: "tool", action: "ws_read", exposed: true }], policies: layer(["ws_read", "materials/Σ.txt", "deny"]) };
   const [tool] = governTools([plain], { binding, permissionMode: "draft", workspaceDir: workspace, requestPermission: async () => "deny", isOpen: () => true });
-  for (const spelling of ["materials/Σ.txt", "materials/σ.txt", "materials/ς.txt", "MATERIALS/ς.TXT"]) {
+  for (const spelling of ["materials/Σ.txt", "materials/σ.txt", "materials/ς.txt"]) {
     await assert.rejects(tool.execute("call", { path: spelling }), /denied/, spelling);
   }
+  // The upper-case directory names the same directory only where the volume
+  // folds case; there the policy must deny it. Where it does not, the spelling
+  // names no directory and is refused before any policy applies.
+  const foldsCase = await stat(path.join(workspace, "MATERIALS")).then(() => true, () => false);
+  if (!foldsCase) t.diagnostic("this volume does not open MATERIALS as materials; the spelling is refused as a missing directory");
+  await assert.rejects(tool.execute("call", { path: "MATERIALS/ς.TXT" }), foldsCase ? /denied/ : /parent directory does not exist/, "MATERIALS/ς.TXT");
   assert.equal(createPathAdmission({ binding, permissionMode: "draft" })("ws_grep", "materials/ς.txt"), "allow", "no ws_grep rule exists; the aggregate also applies the ws_read rule");
   assert.equal(createPathAdmission({ binding, permissionMode: "draft" })("ws_read", "materials/ς.txt"), "deny");
 });

@@ -12,7 +12,7 @@
  * check. */
 import assert from "node:assert/strict";
 import test from "node:test";
-import { mkdtemp, realpath, rm } from "node:fs/promises";
+import { mkdtemp, realpath, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,6 +31,31 @@ test("precondition: app/node_modules holds real files inside the repository, not
     `app/node_modules resolves to ${modules}, outside the repository ${repository}. The check sandbox reads the candidate's real path only, so no dependency-needing test can load: this is a checkout preparation problem, not a recipe defect.`);
 });
 
+// One test of the Harness recipe (control-policy.test.mjs, "policy: real
+// ws_read of an NFC-named denied file ...") needs a volume that opens the NFC
+// and NFD spellings of a name as one file, and skips with this message where
+// the volume keeps them apart (APFS aliases them; ext4 does not). It makes its
+// workspace under the check's temporary directory, which the runner creates
+// under tmpdir(), so that is the volume probed here, the way that test does.
+const NORMALIZATION_SKIP = "Host test volume does not alias NFC and NFD spellings";
+async function checkVolumeAliasesNormalization() {
+  const dir = await mkdtemp(path.join(tmpdir(), "cw-recipes-real-volume-"));
+  const nfc = "café-secret.txt";
+  try {
+    await writeFile(path.join(dir, nfc), "alias probe");
+    return (await stat(path.join(dir, nfc.normalize("NFD")))).ino === (await stat(path.join(dir, nfc))).ino;
+  } catch (error) {
+    if (error?.code === "ENOENT") return false;
+    throw error;
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+}
+const expectedSkips = {
+  "node-test-attention-contract": async () => [],
+  "node-test-harness-contract": async () => (await checkVolumeAliasesNormalization() ? [] : [NORMALIZATION_SKIP]),
+};
+
 for (const id of ["node-test-attention-contract", "node-test-harness-contract"]) {
   test(`${id} passes on this repository under the production sandbox with its frozen limits`, async () => {
     const recipe = getCheckRecipe(id);
@@ -44,9 +69,12 @@ for (const id of ["node-test-attention-contract", "node-test-harness-contract"])
     assert.equal(result.timedOut, false);
     assert.deepEqual(result.truncated, { stdout: false, stderr: false }, "the frozen 65536-byte limit holds the whole output");
     assert.ok(count("tests") > 0, "the run executed tests");
-    assert.equal(count("pass"), count("tests"));
     assert.equal(count("fail"), 0);
-    assert.equal(count("skipped"), 0);
+    // Every test passes, except exactly the ones this volume cannot run.
+    const skips = await expectedSkips[id]();
+    assert.equal(count("skipped"), skips.length, output.slice(0, 4000));
+    for (const reason of skips) assert.ok(output.includes(reason), "the skipped test is the known volume-dependent one: " + reason);
+    assert.equal(count("pass") + count("skipped"), count("tests"));
     assert.ok(result.durationMs < recipe.timeoutMs / 2, `duration ${result.durationMs} ms leaves headroom under the ${recipe.timeoutMs} ms limit`);
   });
 }
