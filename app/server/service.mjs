@@ -240,7 +240,11 @@ export class RuntimeService {
     // the Spark attempt it settles after the Run turns terminal; close waits for all.
     this.runTasks = new Set();
     this.closing = false;
+    // Aborted when close begins: ends what a handler would otherwise wait on
+    // for a person or for minutes (the folder picker, a candidate diff's Git).
+    this.closeAbort = new AbortController();
     this.directoryPickerInFlight = false;
+    this.directoryPicker = null;
     this.admissions = new Set();
     /* CMP-01 · in-process handles of running Host operations (manual compaction). */
     this.operations = new Map();
@@ -1346,12 +1350,13 @@ export class RuntimeService {
           candidateContainerInode: candidate.containerInode, stagingDevice: candidate.stagingDevice,
           stagingInode: candidate.stagingInode, gitDirectory: candidate.gitDirectory, gitDevice: candidate.gitDevice, gitInode: candidate.gitInode,
         },
-        baseCommit: candidate.baseCommit,
+        baseCommit: candidate.baseCommit, signal: this.closeAbort.signal,
         // No admitPath: this read belongs to the human who owns the folder,
         // not the model, so per-file policy admission (which governs what the
         // model may see) does not apply here.
       });
     } catch (error) {
+      if (this.closing && error?.code === "cancelled") throw new ServiceError(503, "runtime_closing", "runtime is stopping");
       if (error?.code === "candidate_diff_too_large") throw new ServiceError(413, "candidate_diff_too_large", error.message);
       if (error?.code === "candidate_base_changed") throw new ServiceError(409, "candidate_base_changed", error.message);
       throw new ServiceError(503, "candidate_diff_failed", error?.message ?? "candidate diff could not be read");
@@ -1706,14 +1711,18 @@ export class RuntimeService {
   // pickers overlap before the busy check below ever runs. The busy check
   // has to see directoryPickerInFlight the instant a second request arrives.
   async chooseHostDirectory(input) {
+    if (this.closing) throw new ServiceError(503, "runtime_closing", "runtime is stopping");
     const value = requireObject(input, "body");
     assertKeys(value, new Set(["prompt"]));
     const prompt = value.prompt !== undefined ? text(value.prompt, "prompt", { max: 120 }) : undefined;
     if (this.directoryPickerInFlight) throw new ServiceError(409, "directory_picker_busy", "a folder picker is already open on this Host");
     this.directoryPickerInFlight = true;
     try {
-      return await chooseHostDirectory({ prompt });
+      this.directoryPicker = chooseHostDirectory({ prompt, signal: this.closeAbort.signal });
+      return await this.directoryPicker;
     } catch (error) {
+      // close() ended the dialog: the Host does not wait on a person to stop.
+      if (error?.code === "directory_picker_aborted") throw new ServiceError(503, "runtime_closing", "runtime is stopping");
       if (error instanceof DirectoryPickerError) {
         const status = error.code === "directory_picker_unavailable" ? 501 : error.code === "directory_picker_timeout" ? 504 : 503;
         throw new ServiceError(status, error.code, error.message);
@@ -1721,6 +1730,7 @@ export class RuntimeService {
       throw error;
     } finally {
       this.directoryPickerInFlight = false;
+      this.directoryPicker = null;
     }
   }
 
@@ -2828,8 +2838,9 @@ export class RuntimeService {
 
   async close() {
     this.closing = true;
+    this.closeAbort.abort();
     await this.subagents.pumping?.catch(() => {});
-    await Promise.allSettled([...this.admissions, this.configurationQueue, ...this.materialQueues.values()]);
+    await Promise.allSettled([...this.admissions, this.configurationQueue, ...this.materialQueues.values(), this.directoryPicker]);
     // A manual compaction writes the native journal. It settles before the
     // Store lock is released, or a lingering summary request could write the
     // journal after another Host has reopened this data.

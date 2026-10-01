@@ -60,9 +60,13 @@ function normalizeChosenPath(raw) {
  * choice, `{ cancelled: true }` when the user dismisses the dialog. Throws
  * DirectoryPickerError with code "directory_picker_unavailable" off Darwin
  * (and with no test override), "directory_picker_timeout" past the 5 minute
- * budget, or "directory_picker_failed" for anything else abnormal.
+ * budget, "directory_picker_aborted" when `signal` aborts (the dialog's
+ * process is terminated the way the timeout terminates it), or
+ * "directory_picker_failed" for anything else abnormal.
  */
-export async function chooseHostDirectory({ prompt } = {}) {
+export async function chooseHostDirectory({ prompt, signal } = {}) {
+  const aborted = () => new DirectoryPickerError("directory_picker_aborted", "the folder picker was closed by the Host");
+  if (signal?.aborted) throw aborted();
   const cleanPrompt = sanitizePrompt(prompt);
   const override = testPickerCommand();
   if (!override && process.platform !== "darwin") {
@@ -84,25 +88,29 @@ export async function chooseHostDirectory({ prompt } = {}) {
     let stderr = "";
     let settled = false;
     let timedOut = false;
+    let stopped = false;
     let killTimer = null;
-    const timeout = setTimeout(() => {
-      timedOut = true;
+    const terminate = () => {
       if (child.exitCode !== null || child.signalCode !== null) return;
       try { child.kill("SIGTERM"); } catch { /* already exited */ }
-      killTimer = setTimeout(() => {
+      killTimer ??= setTimeout(() => {
         if (child.exitCode === null && child.signalCode === null) {
           try { child.kill("SIGKILL"); } catch { /* already exited */ }
         }
       }, 300);
       killTimer.unref?.();
-    }, TIMEOUT_MS);
+    };
+    const timeout = setTimeout(() => { timedOut = true; terminate(); }, TIMEOUT_MS);
     timeout.unref?.();
+    const onAbort = () => { stopped = true; terminate(); };
+    signal?.addEventListener("abort", onAbort, { once: true });
 
     const finish = (fn) => {
       if (settled) return;
       settled = true;
       clearTimeout(timeout);
       if (killTimer) clearTimeout(killTimer);
+      signal?.removeEventListener("abort", onAbort);
       fn();
     };
 
@@ -115,6 +123,7 @@ export async function chooseHostDirectory({ prompt } = {}) {
     child.on("error", (error) => finish(() => reject(new DirectoryPickerError("directory_picker_failed", error?.message ?? "the folder picker failed"))));
     child.on("close", (code) => finish(() => {
       if (timedOut) { reject(new DirectoryPickerError("directory_picker_timeout", "the folder picker exceeded its time limit")); return; }
+      if (stopped) { reject(aborted()); return; }
       if (code === 0) {
         const value = normalizeChosenPath(stdout.toString("utf8"));
         if (!path.isAbsolute(value)) { reject(new DirectoryPickerError("directory_picker_failed", "the folder picker returned an invalid path")); return; }

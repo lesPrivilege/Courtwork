@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import http from "node:http";
 import { once } from "node:events";
-import { mkdtemp, readFile, readdir } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -253,4 +253,39 @@ test("HTTP: a mutation the Store refuses for closing answers 503 runtime_closing
   await host.store.close();
   const refused = await post("store closed");
   assert.deepEqual([refused.status, (await refused.json()).error.code], [503, "runtime_closing"]);
+});
+
+/* Follow-up A: with the drain ahead of the lock release, a handler that waits
+ * on a person would hold the lock for as long as the person takes. close()
+ * ends an open folder picker; the request is answered 503 runtime_closing. */
+test("HTTP: close ends an open folder picker instead of waiting for the person", async (t) => {
+  const scratch = await mkdtemp(path.join(tmpdir(), "se-close-picker-"));
+  const pidFile = path.join(scratch, "picker.pid"), script = path.join(scratch, "picker-never-exits.sh");
+  // One process that never answers (exec: no orphan keeps the pipes open).
+  await writeFile(script, `#!/bin/sh\necho $$ > "${pidFile}.tmp" && mv "${pidFile}.tmp" "${pidFile}"\nexec sleep 86400\n`);
+  await chmod(script, 0o755);
+  const host = await startServer({ dataDir: await dataDirectory(), port: 0, logger: () => {} });
+  const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+  let pid = null, bound;
+  t.after(async () => { clearTimeout(bound); if (pid && alive(pid)) process.kill(pid, "SIGKILL"); await host.close(); });
+
+  process.env.SE_TEST_MODE = "1"; process.env.SE_TEST_DIRECTORY_PICKER = script;
+  let answered;
+  try {
+    answered = fetch(host.url + "/api/v5/host/choose-directory", { method: "POST", headers: { "content-type": "application/json", "x-work-token": host.token }, body: "{}" });
+    // The dialog is open once its process has written its pid.
+    while (pid === null) {
+      pid = await readFile(pidFile, "utf8").then((text) => Number(text.trim()), () => null);
+      if (pid === null) await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+  } finally { delete process.env.SE_TEST_MODE; delete process.env.SE_TEST_DIRECTORY_PICKER; }
+  assert.equal(alive(pid), true);
+
+  // The bound only reports a close that is still waiting; a close that ends the picker never reaches it.
+  const outcome = await Promise.race([host.close().then(() => "closed"), new Promise((resolve) => { bound = setTimeout(() => resolve("still waiting for the picker"), 5000); })]);
+  assert.equal(outcome, "closed");
+  assert.equal(alive(pid), false, "the picker's process is gone when close resolves");
+  const response = await answered;
+  assert.deepEqual([response.status, (await response.json()).error.code], [503, "runtime_closing"]);
+  await assert.rejects(host.service.chooseHostDirectory({}), closingRefusal, "a picker request during or after close is refused");
 });

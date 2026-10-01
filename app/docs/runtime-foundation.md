@@ -20,7 +20,10 @@ Pi provider/SDK lane as ordinary execution.
 
 1. The service settles: it stops admission, aborts running manual compactions
    (settled `cancelled`) and waits for them, cancels active Runs and waits for
-   every Run's full settlement (including a Spark attempt's).
+   every Run's full settlement (including a Spark attempt's). It also ends what
+   a request would otherwise wait on for a person or for minutes: an open
+   folder picker is terminated and a private-candidate diff's Git is stopped;
+   both requests are answered `503 runtime_closing`.
 2. The entry owner drains the handlers it admitted. `close({ drain })` awaits
    the caller's `drain` here; the HTTP server passes one, an in-process caller
    needs none.
