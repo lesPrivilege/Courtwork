@@ -2888,6 +2888,30 @@ export class RuntimeService {
       throw error;
     }
 
+    // The lookup missed, so what follows decides whether to admit a NEW Run.
+    // A deliberate refusal there states the fact a replaying client needs and
+    // cannot infer from this method's order: this command has no receipt
+    // (`commandAdmitted: false`), so it may be released and its text sent as
+    // a new command. Only a refusal is marked. An error that is not a
+    // ServiceError (the Store, its lock, anything uncoded), one raised after
+    // the Run exists, one that says its outcome is unknown, and
+    // `command_conflict` (the id does have a receipt) are left unmarked: a
+    // wrong "not admitted" would let the same instruction run twice.
+    const admission = { created: false };
+    try {
+      return await this.#admitRun({ sessionId, session, instruction, commandId, supersedes, runtimeSelection, executorExpectation }, admission);
+    } catch (error) {
+      if (error instanceof ServiceError && !admission.created && error.details?.outcome !== "unknown"
+        && !["command_conflict", "internal_error", "runtime_unavailable", "runtime_closing"].includes(error.code) && !error.code.endsWith("_unknown")) {
+        error.details = { ...error.details, commandAdmitted: false };
+      }
+      throw error;
+    }
+  }
+
+  /** Admission of a command the receipt lookup did not find; `admission.created`
+   * is set once the Store holds the Run, after which nothing here is a refusal. */
+  async #admitRun({ sessionId, session, instruction, commandId, supersedes, runtimeSelection, executorExpectation }, admission) {
     // A Session stays with the runtime that first served it. The Host never
     // moves it to another runtime, and never falls back to one.
     const sparkChild = this.subagents.forSession(sessionId);
@@ -3009,6 +3033,7 @@ export class RuntimeService {
       if (error?.message === "session not found") throw new ServiceError(404, "not_found", "session not found");
       throw error;
     }
+    admission.created = true;
     if (created.idempotent) return { run: created.run };
 
     const run = created.run;

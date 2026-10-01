@@ -334,6 +334,19 @@ fingerprint contains no credential, Provider or model facts.
   after a lost receipt. The same `commandId` with a different `input` is
   `409 command_conflict`. The check and the run record are persisted together, so a
   restart does not forget it.
+- A client that never saw the first reply replays the same command and needs to
+  know which of two things a refusal means. The Host says it: when the receipt
+  lookup found nothing and the Host then refuses to admit a new Run, the error
+  body carries `commandAdmitted: false` beside `code` and `message` — this
+  `commandId` has no Run, so the command may be released and its text sent
+  again under a new `commandId`. The field is present only on such a refusal
+  (for example `409 runtime_selection_conflict`, `409 active_run`,
+  `503 provider_unsupported`). It is absent from every answer that does not
+  prove that: a refusal raised before the lookup (`400`, `404` for the Session,
+  `503 runtime_closing`), `409 command_conflict` (the id has a Run under another
+  input), `500 internal_error`, `runtime_unavailable`, any error with
+  `outcome: "unknown"` or a code ending in `_unknown`, and any failure after the
+  Run was created. Without the field, a replay's outcome is still unknown.
 - A second active run in the same session is `409 active_run`.
 - While a manual compaction runs anywhere on the Host, run creation is
   `409 operation_active` (CMP-01); the Host holds one seat for work.

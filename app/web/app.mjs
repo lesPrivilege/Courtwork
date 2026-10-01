@@ -2,6 +2,7 @@ import { createSubagentView } from './subagent-view.mjs';
 let subagentView;
 import { createLocalExtensionView } from "./local-extension-view.mjs";
 import { createBindingDraft } from "./binding-draft.mjs";
+import { isUncertainCommandError, runAttemptOutcome } from "./command-outcome.mjs";
 import { createChatSources, quoteRecordedFile } from "./chat-sources.mjs";
 import { createWorkReviewSummary } from "./work-review-summary.mjs";
 import { captureChatReading, restoreChatReading } from "./chat-reading.mjs";
@@ -5398,18 +5399,6 @@ function clearSubmittedDraft(operation) {
   return true;
 }
 
-/* Uncertain means the outcome is not known: no response, a network error,
- * or a 5xx without a Host code (or with `internal_error`, or a code that
- * itself says the outcome is unknown, or a Core error the Host marked
- * `outcome: "unknown"`, whatever its code). A coded Host refusal is settled. */
-function isUncertainCommandError(error) {
-  if (!Number.isFinite(error?.status)) return true;
-  if (error.body?.error?.outcome === "unknown") return true;
-  if (error.status < 500) return false;
-  const code = error.body?.error?.code;
-  return !code || code === "internal_error" || code.endsWith("_unknown");
-}
-
 /* S4 (ruling J) · the project the person is working in: the open chat's, else
  * Home's. Project-scoped tools start there; another project is an explicit
  * choice in the tool. */
@@ -5802,12 +5791,8 @@ async function submitSessionRun({ commandId = null, expectAgent = null } = {}) {
       `/sessions/${encodeURIComponent(sessionId)}/runs`,
       { method: "POST", body: { input, commandId: operation.commandId, ...(operation.runtimeSelection ? { runtimeSelection: operation.runtimeSelection } : {}) } },
     );
-    if (
-      !result.run?.id ||
-      result.run.sessionId !== sessionId ||
-      result.run.commandId !== operation.commandId
-    )
-      throw new Error("The runtime did not return a matching run receipt.");
+    const landed = runAttemptOutcome({ operation, sessionId, result });
+    if (landed.kind !== "receipt") throw landed.error;
     state.unconfirmedRuns.delete(sessionId);
     storeUnconfirmedRuns();
     if (state.pendingRuns.get(sessionId) !== operation) return;
@@ -5857,8 +5842,10 @@ async function submitSessionRun({ commandId = null, expectAgent = null } = {}) {
       state.draftCache.get(sessionId) === input
     )
       state.draftDirty.add(sessionId);
-    const uncertain =
-      state.unconfirmedRuns.has(sessionId) && isUncertainCommandError(error);
+    /* N6 · the same outcome function recovery uses. This is the first send of
+     * this commandId, so the answer to the request itself decides; a failure
+     * before the POST left (nothing held as unconfirmed) sent nothing. */
+    const uncertain = runAttemptOutcome({ operation, sessionId, error, sent: state.unconfirmedRuns.has(sessionId) }).kind === "unknown";
     if (!uncertain) {
       state.unconfirmedRuns.delete(sessionId);
       storeUnconfirmedRuns();
@@ -6978,35 +6965,54 @@ async function recoverRunReceipt() {
   state.pendingRuns.set(sessionId, receipt);
   renderComposer();
   try {
-    const result = await request(
-      `/sessions/${encodeURIComponent(sessionId)}/runs`,
-      {
-        method: "POST",
-        body: { input: receipt.input, commandId: receipt.commandId, ...(receipt.runtimeSelection ? { runtimeSelection: receipt.runtimeSelection } : {}) },
-      },
-    );
-    if (
-      !result.run?.id ||
-      result.run.sessionId !== sessionId ||
-      result.run.commandId !== receipt.commandId
-    )
-      throw new Error("The returned run does not match this instruction.");
+    /* The stored command, unchanged: the same commandId, input and selection.
+     * The Host answers with that command's Run or says it has none. */
+    let outcome;
+    try {
+      const result = await request(
+        `/sessions/${encodeURIComponent(sessionId)}/runs`,
+        {
+          method: "POST",
+          body: { input: receipt.input, commandId: receipt.commandId, ...(receipt.runtimeSelection ? { runtimeSelection: receipt.runtimeSelection } : {}) },
+        },
+      );
+      outcome = runAttemptOutcome({ operation: receipt, sessionId, replay: true, result });
+    } catch (error) {
+      outcome = runAttemptOutcome({ operation: receipt, sessionId, replay: true, error });
+    }
+    if (outcome.kind === "unknown") {
+      // Still unconfirmed: the identity and its payload stay exactly as stored.
+      setPersistentFeedback(
+        sessionId,
+        nextOperationId("recover"),
+        "run",
+        `Run receipt is still unresolved: ${outcome.error.message}`,
+        { nextAction: "retry-run" },
+      );
+      return;
+    }
     state.unconfirmedRuns.delete(sessionId);
     storeUnconfirmedRuns();
     clearPersistentFeedback(sessionId, "run");
+    if (outcome.kind === "not-admitted") {
+      /* N6 · the Host has no Run for this command and will not make one from
+       * it. The operation is settled as refused; the text stays the draft, as
+       * after a refused first send, and the next Send is a new command. */
+      if (
+        draftRevision(sessionId) === receipt.revision &&
+        state.draftCache.get(sessionId) === receipt.input
+      )
+        state.draftDirty.add(sessionId);
+      if (outcome.error.body?.error?.code === "runtime_selection_conflict") void agentChoice?.selectionConflict();
+      const copy = describeCommandError("run", outcome.error);
+      setPersistentFeedback(sessionId, nextOperationId("recover"), "run", copy.text, { nextAction: copy.nextAction });
+      return;
+    }
     if (sessionId === state.activeSessionId) {
-      mergeRun(result.run, { sessionId });
+      mergeRun(outcome.run, { sessionId });
       await refreshActiveSession();
       schedulePolling(state.sessionEpoch, 0);
     }
-  } catch (error) {
-    setPersistentFeedback(
-      sessionId,
-      nextOperationId("recover"),
-      "run",
-      `Run receipt is still unresolved: ${error.message}`,
-      { nextAction: "retry-run" },
-    );
   } finally {
     state.pendingRuns.delete(sessionId);
     if (sessionId === state.activeSessionId) {

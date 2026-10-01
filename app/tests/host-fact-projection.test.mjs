@@ -6,6 +6,7 @@ import { test } from "node:test";
 import { readFileSync } from "node:fs";
 import { normalizedType } from "../web/thread-projection.mjs";
 import { admitSessionEvents } from "../web/session-events.mjs";
+import { isUncertainCommandError } from "../web/command-outcome.mjs";
 
 const src = readFileSync(new URL("../web/app.mjs", import.meta.url), "utf8");
 function grab(name, prefix = "function ") {
@@ -52,8 +53,10 @@ test("a Host Run snapshot replaces a terminal status; a stale non-terminal read 
 });
 
 test("a coded Host refusal is settled; only no response or an uncoded/internal 5xx is uncertain", () => {
-  const make = new Function(`${grab("isUncertainCommandError")}; ${grabConst("ERROR_COPY")}; ${grab("describeCommandError")}; return { isUncertainCommandError, describeCommandError };`);
-  const { isUncertainCommandError, describeCommandError } = make();
+  // The classifier moved to command-outcome.mjs (review N6); app.mjs imports that one.
+  assert.match(src, /import \{ isUncertainCommandError, runAttemptOutcome \} from "\.\/command-outcome\.mjs";/);
+  const make = new Function("isUncertainCommandError", `${grabConst("ERROR_COPY")}; ${grab("describeCommandError")}; return { describeCommandError };`);
+  const { describeCommandError } = make(isUncertainCommandError);
   const hostError = (status, code, message = "refused") => Object.assign(new Error(message), { status, body: code ? { error: { code, message } } : null });
   for (const code of ["provider_unsupported", "configuration_incomplete", "effort_unsupported", "runtime_closing", "runtime_unavailable"])
     assert.equal(isUncertainCommandError(hostError(503, code)), false, code);
@@ -63,12 +66,12 @@ test("a coded Host refusal is settled; only no response or an uncoded/internal 5
   assert.equal(isUncertainCommandError(hostError(502, null)), true);
   assert.equal(describeCommandError("run", hostError(503, "provider_unsupported", "configured provider route is unavailable")).text,
     "Run was not started: configured provider route is unavailable");
-  // The send path records an unconfirmed Run by the same classification.
-  assert.match(grab("submitSessionRun", "async function "), /state\.unconfirmedRuns\.has\(sessionId\) && isUncertainCommandError\(error\)/);
+  // The send path records an unconfirmed Run by the same classification: its
+  // first-send branch is this classifier (command-outcome.test.mjs runs both).
+  assert.match(grab("submitSessionRun", "async function "), /runAttemptOutcome\(\{ operation, sessionId, error, sent: state\.unconfirmedRuns\.has\(sessionId\) \}\)\.kind === "unknown"/);
 });
 
 test("a Core error the Host marked outcome unknown is uncertain whatever its code; the same code without the marker is settled", () => {
-  const { isUncertainCommandError } = new Function(`${grab("isUncertainCommandError")}; return { isUncertainCommandError };`)();
   const coreError = (status, code, outcome) => Object.assign(new Error("Core did not answer in time"), { status, body: { error: { code, message: "Core did not answer in time", ...(outcome && { outcome, operation: "attention_action" }) } } });
   assert.equal(isUncertainCommandError(coreError(503, "CORE_TIMEOUT", "unknown")), true);
   assert.equal(isUncertainCommandError(coreError(503, "CORE_TIMEOUT")), false);
