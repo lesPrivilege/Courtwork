@@ -210,10 +210,14 @@ proxy port exists, so the policy grants no network at all.
   directory (which holds `credentials.json`, `runtime-state.json`, the Core
   `state.db`, ArtifactHistory, and every Session's workspace and candidate).
   Inside those two it reads only the candidate worktree it checks, its own
-  temporary directory, and the Node installation it runs. All of these are
-  resolved real paths; a path containing `*`, `?`, `[` or `]`, or a re-allowed
-  path that would contain the home or data directory, is refused as
-  `sandbox_unavailable`.
+  temporary directory, the Node installation it runs and, on Linux, the
+  directory of the sandbox library's own `apply-seccomp` helper
+  (`vendor/seccomp/<arch>/`, which holds that one binary): bubblewrap starts
+  the check through it and the library does not bind it in, so an install
+  under the home directory would otherwise be hidden from the sandbox it
+  starts. All of these are resolved real paths; a path containing `*`, `?`,
+  `[` or `]`, or a re-allowed path that would contain the home or data
+  directory, is refused as `sandbox_unavailable`.
 - **Write** only its own temporary directory. The candidate worktree,
   including its `.git`, is read-only to the check: a check reads the
   candidate, and candidate files change only through approved `repo_write`. The

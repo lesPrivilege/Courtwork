@@ -3,8 +3,9 @@
 // from @anthropic-ai/sandbox-runtime (macOS Seatbelt through
 // /usr/bin/sandbox-exec, Linux bubblewrap), with the policy fixed here:
 // read everything except the user's home and the Host data directory, minus
-// the candidate being checked, the check's own temporary directory and the
-// Node installation; write only that temporary directory; no network; no
+// the candidate being checked, the check's own temporary directory, the Node
+// installation and, on Linux, the directory of the library's seccomp helper;
+// write only that temporary directory; no network; no
 // Apple Events or Launch Services. There is no unsandboxed fallback: when the
 // mechanism is missing or does not start, this throws `sandbox_unavailable`
 // and the runner starts no child.
@@ -14,6 +15,7 @@
 // bridges on Linux) even when no domain is allowed; without it no proxy port
 // exists, so the generated policy has no network allowance at all.
 import { SandboxManager } from "@anthropic-ai/sandbox-runtime";
+import { getApplySeccompBinaryPath } from "@anthropic-ai/sandbox-runtime/dist/sandbox/generate-seccomp-filter.js";
 import { spawn } from "node:child_process";
 import { accessSync, constants, realpathSync } from "node:fs";
 import { homedir } from "node:os";
@@ -56,9 +58,23 @@ const encloses = (outer, inner) => {
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 };
 
-function policy({ cwd, tempDir, dataDir, nodePrefix }) {
+// On Linux the library starts the command through its bundled apply-seccomp
+// binary inside bubblewrap, by the path this same lookup returns, and binds
+// nothing for it (linux-sandbox-utils.js, resolveApplySeccompPrefix). An
+// install under the home directory is hidden by the home deny, so the
+// directory that holds that one binary is re-allowed, read-only like the Node
+// installation. Seatbelt runs no helper.
+function seccompHelperDir(platform) {
+  if (platform !== "linux") return [];
+  const helper = getApplySeccompBinaryPath();
+  if (!helper) throw unavailable("the seccomp helper was not found");
+  return [hostPath(path.dirname(helper), "seccomp helper directory")];
+}
+
+/** The fixed policy for one check. `platform` is a parameter so the Linux policy can be asserted on another Host. */
+export function checkSandboxPolicy({ cwd, tempDir, dataDir, nodePrefix }, platform = process.platform) {
   const home = hostPath(homedir(), "home directory");
-  const allowRead = [cwd, tempDir, nodePrefix];
+  const allowRead = [cwd, tempDir, nodePrefix, ...seccompHelperDir(platform)];
   // A re-allowed path wins over a denied one, so none may cover what R1 denies.
   for (const allowed of allowRead) {
     if (encloses(allowed, home) || encloses(allowed, dataDir)) throw unavailable(`${allowed} would re-open the home or data directory`);
@@ -121,7 +137,7 @@ export async function prepareCheckSandbox({
     dataDir: hostPath(dataDir, "Host data directory"),
     nodePrefix: hostPath(nodePrefix, "Node installation"),
   };
-  const config = policy(paths);
+  const config = checkSandboxPolicy(paths);
   await preflight(config, paths.cwd, env);
   const inner = `HOME=${shellWord(paths.tempDir)} TMPDIR=${shellWord(paths.tempDir)} exec ${[command, ...argv].map(shellWord).join(" ")}`;
   const wrapped = await wrap(inner, config);

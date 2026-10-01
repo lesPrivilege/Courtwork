@@ -2,11 +2,14 @@
 // the check sandbox. Each test here failed on the runner before the sandbox.
 import assert from "node:assert/strict";
 import test from "node:test";
+import { realpathSync } from "node:fs";
 import { createServer } from "node:net";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { runCheckRecipe } from "../runtime/check-runner.mjs";
+import { checkSandboxPolicy } from "../runtime/check-sandbox.mjs";
 import { createCheckTools } from "../runtime/check-tools.mjs";
 import { boot } from "./helpers.mjs";
 import { createSyntheticRepository } from "./fixtures/synthetic-repo/create-synthetic-repo.mjs";
@@ -115,6 +118,62 @@ c.unref(); console.log('descendant ' + c.pid);`;
     assert.equal(result.groupLingered, undefined);
   } finally {
     if (pid) { try { process.kill(pid, "SIGKILL"); } catch { /* gone */ } }
+    await l.cleanup();
+  }
+});
+
+// The sandbox library is an ordinary dependency, so on most installs it lives
+// under the home directory the policy denies. Linux bubblewrap starts the check
+// through the library's apply-seccomp binary from inside the sandbox, so that
+// one directory is re-allowed there; nothing beside it is. The first test
+// states the Linux policy on any Host; the second runs the real sandbox of
+// this Host with the candidate elsewhere.
+const sandboxRuntime = path.dirname(path.dirname(realpathSync(fileURLToPath(import.meta.resolve("@anthropic-ai/sandbox-runtime")))));
+const helperDir = arch => path.join(sandboxRuntime, "vendor", "seccomp", arch);
+const hostArch = { x64: "x64", arm64: "arm64" }[process.arch];
+const inside = (outer, inner) => inner === outer || inner.startsWith(outer + path.sep);
+
+test("the Linux policy re-allows the library's seccomp helper directory and nothing wider; other platforms re-allow no helper", async () => {
+  assert.ok(hostArch, `the library bundles no seccomp helper for ${process.arch}`);
+  const l = await layout();
+  try {
+    const home = realpathSync(homedir());
+    await mkdir(path.join(l.root, "check-home"));
+    const paths = { cwd: realpathSync(l.candidate), tempDir: realpathSync(path.join(l.root, "check-home")), dataDir: realpathSync(l.dataDir), nodePrefix: path.dirname(path.dirname(realpathSync(process.execPath))) };
+    const base = [paths.cwd, paths.tempDir, paths.nodePrefix];
+    const linux = checkSandboxPolicy(paths, "linux").filesystem;
+    assert.deepEqual(linux.allowRead, [...base, helperDir(hostArch)]);
+    assert.deepEqual(linux.denyRead, [home, paths.dataDir]);
+    assert.deepEqual(linux.allowWrite, [paths.tempDir]);
+    assert.deepEqual(await readdir(helperDir(hostArch)), ["apply-seccomp"], "the re-allowed directory holds the helper and nothing else");
+    assert.equal(inside(helperDir(hostArch), home) || inside(helperDir(hostArch), paths.dataDir), false);
+    assert.deepEqual(checkSandboxPolicy(paths, "darwin").filesystem.allowRead, base);
+  } finally {
+    await l.cleanup();
+  }
+});
+
+test("a check for a candidate elsewhere cannot read the Host's dependency files under the home directory, beside the seccomp helper", async t => {
+  assert.ok(hostArch, `the library bundles no seccomp helper for ${process.arch}`);
+  const l = await layout();
+  try {
+    // Dependency files of this checkout, not a person's files: the package
+    // manifest, the directory above the helper and the other architecture's
+    // helper directory, then the helper itself.
+    const otherArch = hostArch === "x64" ? "arm64" : "x64";
+    const probes = [["manifest", path.join(sandboxRuntime, "package.json")], ["build", path.join(sandboxRuntime, "vendor", "seccomp", "build.ts")],
+      ["other", path.join(helperDir(otherArch), "apply-seccomp")], ["helper", path.join(helperDir(hostArch), "apply-seccomp")]];
+    const script = `const fs = require('node:fs');
+for (const [name, file] of ${JSON.stringify(probes)}) {
+  try { fs.readFileSync(file); console.log('READ ' + name); } catch (e) { console.log('DENIED ' + name + ' ' + e.code); } }`;
+    const result = await runCheckRecipe({ recipe: node(script), cwd: l.candidate, dataDir: l.dataDir });
+    assert.equal(result.exitCode, 0, result.stderr);
+    // A checkout outside the home directory has nothing here for the policy to deny.
+    const hidden = inside(realpathSync(homedir()), sandboxRuntime);
+    if (!hidden) t.diagnostic("this checkout is not under the home directory; the policy denies none of these files");
+    const expected = name => (hidden && !(name === "helper" && process.platform === "linux") ? "DENIED" : "READ");
+    for (const [name] of probes) assert.match(result.stdout, new RegExp(`^${expected(name)} ${name}\\b`, "m"), result.stdout);
+  } finally {
     await l.cleanup();
   }
 });
