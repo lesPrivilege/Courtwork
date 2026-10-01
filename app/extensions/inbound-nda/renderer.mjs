@@ -31,6 +31,8 @@ const REASON_REQUIRED = "A reason is required for this decision.";
 const SENDING = "Sending…";
 const NOT_ACKNOWLEDGED =
   "The decision was not acknowledged. Sending it again uses the same request.";
+const REVISION_NOT_ACKNOWLEDGED =
+  "The revision was not acknowledged. Saving it again uses the same request.";
 
 /* FN-19 · one request identity per (candidate, base version, decision, reason).
  * Retrying after a lost acknowledgement sends the same identity and the same
@@ -324,7 +326,7 @@ export function mount({ container, projection, dispatch, signal, query } = {}) {
        * same bytes are sent again. Nothing is replayed automatically (FN-19). */
       const refused = Number.isFinite(error?.status) && error.status < 500;
       if (refused) revisionIds.delete(identity);
-      notice(key, "error", refused ? error.message : NOT_ACKNOWLEDGED);
+      notice(key, "error", refused ? error.message : REVISION_NOT_ACKNOWLEDGED);
     } finally {
       busy.delete(key);
       if (live()) render();

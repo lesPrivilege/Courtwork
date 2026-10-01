@@ -153,9 +153,9 @@ test('a revision keeps its identity until the Host settles it: a lost reply rese
   assert.equal(sent[1].payload.new_candidate_id, sent[0].payload.new_candidate_id, 'a retry after a lost reply reuses the revision identity');
   assert.deepEqual(sent[1], sent[0]);
   assert.deepEqual(sent[2], sent[0]);
-  // The unknown outcome reads as it does for a decision, not as a raw transport error.
+  // The unknown outcome says what a retry does, as for a decision; never a raw transport error.
   const notices = () => container.querySelectorAll('.inline-error').map((node) => node.textContent);
-  assert.deepEqual(notices(), ['The decision was not acknowledged. Sending it again uses the same request.']);
+  assert.deepEqual(notices(), ['The revision was not acknowledged. Saving it again uses the same request.']);
   assert.equal(container.textContent.includes('internal'), false);
   assert.equal(saveButton(container).disabled, false);
 
