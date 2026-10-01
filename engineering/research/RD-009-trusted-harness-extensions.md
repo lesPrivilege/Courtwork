@@ -183,3 +183,8 @@ Not failing tests, but open under the same contract and answerable by the same p
 
 No real provider, no person's files: every probe above uses synthetic files, as the existing sandbox tests do. Acceptance of whatever is ruled stays with Astra; this section is an input, and the author of the review work does not accept it.
 
+### Handoff documentation review · 2026-10-02
+
+Disposition: **adopt as a handoff**, reviewed by the Codex parent independently of the Claude author at `d2fd6d5`. The three test bodies, the quoted recipe contract, the guard/runner and the installed pinned sandbox library support the stated mismatch and the distinction between observed results and source inference. `gh run view 36885961247 --json headSha,conclusion,jobs` confirms both Node jobs failed at `f07b423` while smoke and links passed; `gh run view 36885961247 --log-failed` confirms the three reported failures and the 2124/2105/3/16 totals in the returned Node 22 log. Earlier runs and the macOS total remain attributed author evidence, not newly executed checks.
+
+Validation: `node tools/check-doc-links.mjs` passes; the trailing empty line flagged by `git diff --check` was removed with this receipt. No product code, contract ruling, Linux probe or runtime suite was changed or run. L1–L3 and the adjacent lifecycle/helper questions remain open for Astra. Schema, capability, release-source and adoption-pin synchronization are not applicable to this documentation-only delivery. The user authorized merge and push after review; that authorization is not product acceptance.
