@@ -64,6 +64,15 @@ Follows the source-card fields in [this directory's README](README.md#来源卡�
   (`dist/sandbox/generate-seccomp-filter.js`; the package entry does not
   export it, and the package declares no `exports` map). That change has not
   run on Linux ([review of `6692b91`](../reviews/first-principles-6692b91-2026-10-01/README.md#linux-ci-clusters)).
+- Observed on GitHub `ubuntu-latest` with the helper directory re-allowed
+  (Runtime workflow on branch `claude/review-6692b91-20261001` at `be8f63d`,
+  2026-10-01, log only): checks start with the working directory outside the
+  repository; no network, read-denial of the data directory and reaping of a
+  left descendant pass their tests. A write to the data directory's path
+  succeeds inside the sandbox: a read-denied directory is a `--tmpfs`
+  (`pushReadDenyDirMounts`), writable and discarded with the sandbox. That the
+  real directory is unchanged is read from that mechanism; the test's
+  assertion on it did not run.
 - Linux exit status (observed in the same log, mechanism not established): a
   recipe killed by a signal surfaces to the Host's guard as an exit code, and
   a recipe that signals its own process group ends with 129. The guard's

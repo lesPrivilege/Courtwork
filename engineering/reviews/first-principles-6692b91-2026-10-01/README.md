@@ -24,7 +24,7 @@ Verification: `TRUE` means the code at `6692b91` allows what the finding describ
 | N8 · P2 · the README carries a prerequisite its generator source lacks | TRUE; one sentence, added by `c71c6b4`. It fails the Pages build, and regenerating would delete it. No local check compares source and output. | **Adopt**, with a check in the default suite. | [5](#package-5--publication-sources-and-the-linux-check-environment-p2p3) |
 | M1 · P3 · the dependency ledger lacks five lockfile packages | TRUE; `lockfileSha256` is stale too. No generator and no check exist. | **Adopt**, with a generator and a check. | [5](#package-5--publication-sources-and-the-linux-check-environment-p2p3) |
 | M2 · P3 · the contract calls a known MCP error a failure; the code treats it as unknown | TRUE as a document contradiction: `docs/runtime-control/architecture.md` against `docs/runtime-control/api.md` and the code. | **Ruled: the code is the contract** ([ruling R1](#r1--what-establishes-that-a-remote-call-had-no-effect)). | [3](#package-3--one-target-per-configuration-change-p2) |
-| Linux CI · 23 failing tests in both Node jobs | Read from the run's log: five clusters ([below](#linux-ci-clusters)). One is a product defect on Linux, three are test oracles that encode macOS facts, one is not yet explained. | **Adopt the diagnosis; fixes are a candidate until a Linux run exists.** | [5](#package-5--publication-sources-and-the-linux-check-environment-p2p3) |
+| Linux CI · 23 failing tests in both Node jobs | Read from the run's log: five clusters ([below](#linux-ci-clusters)). One is a product defect on Linux, three are test oracles that encode macOS facts, one is not yet explained. | **Adopt the diagnosis.** The first Linux run with the fixes leaves 3 failing: the two of cluster C and one newly visible. | [5](#package-5--publication-sources-and-the-linux-check-environment-p2p3) |
 
 ### Items the review kept apart
 
@@ -111,7 +111,7 @@ A person who wants another focus sends a new request. Proposal reject, which als
 
 ## Linux CI clusters
 
-Read from the Runtime workflow run on `6692b91` (both Node jobs fail the same 23; 16 skips are Chrome- or volume-gated and expected on the runner). Nothing below was run on Linux by this intake.
+Read from the Runtime workflow run on `6692b91` (both Node jobs fail the same 23; 16 skips are Chrome- or volume-gated and expected on the runner). The table is the reading before any fix; the result of the first Linux run with the fixes is under [package 5](#package-5--as-built).
 
 | Cluster | Tests | Cause as read | Class |
 |---|---|---|---|
@@ -120,10 +120,11 @@ Read from the Runtime workflow run on `6692b91` (both Node jobs fail the same 23
 | C | 2: the recipe's own exit signal | The guard reports its direct child, which on Linux is the wrapper chain. Mechanism not established. | Open |
 | D | 1: Harness recipe pass count | One recipe test skips unless the volume aliases NFC and NFD names. | Test oracle |
 | E | 1: path alias | An upper-cased directory spelling reaches the policy only on a case-insensitive volume; on Linux the resolver refuses first. | Test oracle |
+| F | 1, visible only after A: `check-sandbox` read-only probe | The library replaces a read-denied directory with a writable tmpfs; a write to the data directory's path succeeds inside the sandbox and is discarded. | Open: contract question |
 
 ## What landed
 
-Branch `claude/review-6692b91-20261001` from `6692b91`; product head `0047a12`. Each worker wrote in its own worktree and branch (`claude/review-6692b91-{host,core,control,web,docs,ci}-20261001`) with installed dependencies, a file allowlist and its own scratch directory; the coordinator read each diff and cherry-picked it. Nothing is merged into `main` and nothing is pushed.
+Branch `claude/review-6692b91-20261001` from `6692b91`; product head `0047a12`. Each worker wrote in its own worktree and branch (`claude/review-6692b91-{host,core,control,web,docs,ci}-20261001`) with installed dependencies, a file allowlist and its own scratch directory; the coordinator read each diff and cherry-picked it. On 2026-10-01 the user agreed to the merge and to a Linux run ("同意合并，推分支到 origin 跑 Linux CI"): local `main` was fast-forwarded to this branch, the branch was pushed to `origin`, and the Runtime workflow was dispatched on it. `origin/main` is unchanged; the Pages workflow was not dispatched, because its manual run deploys.
 
 ### Package 1 · as built
 
@@ -187,10 +188,21 @@ For the UX owner: the card's new sentences ("Not created. Start private candidat
 | `ed1538d`, `a63d393` | CI worker | Clusters B, D, E: the process tests scan the Host's process table for a marker; the recipe count allows the one NFC/NFD skip only on a volume that does not alias those names; the upper-cased directory spelling must be denied on a case-insensitive volume and must fail as parent-missing otherwise. |
 | `a2895a6` | Coordinator | The workflow runs the smoke and link checks after a failing test step; the [source card](../../ecosystem/sandbox-runtime-source-card.md) records the helper facts. |
 
-Linux: none of this has run on Linux. Expected from reading, not evidence: 21 of the 23 pass; the two of cluster C stay red, so the Runtime job stays red until C is ruled. Open on Linux, for Astra under RD-009, to be decided from a Linux run and not before it:
+Linux, first run (2026-10-01, Runtime workflow dispatched on this branch at `be8f63d`, [run 36878792989](https://github.com/lesPrivilege/Courtwork/actions/runs/36878792989), both Node jobs alike): 2124 tests, 2105 pass, 3 fail, 16 skipped (the Chrome- and volume-gated ones). On `6692b91` it was 2065, 2026, 23, 16. No check reports `sandbox_unavailable` for a missing helper any more; clusters A, B, D and E pass, including the strict process scans. The runtime smoke and the documentation link check now run after the failing test step, and pass. The job is still red, on three tests:
+
+| Test | What Linux shows | State |
+|---|---|---|
+| `check-runner-group-kill` · the recipe's own exit signal is reported | `signal` is `null` where `SIGUSR1` is expected | Cluster C, as expected; open |
+| `check-runner-group-kill` · a recipe that signals its own group and handles it reports its own exit | exit code 129 where 0 is expected | Cluster C, as expected; open |
+| `check-sandbox` · the candidate, its Git metadata and the data directory are read-only | the probe prints `WROTE data`: inside the sandbox a write to the data directory's path succeeds | New, cluster F; it was hidden behind cluster A. Open |
+
+Cluster F as read from the library (`linux-sandbox-utils.js`, `pushReadDenyDirMounts`): a read-denied directory is replaced by a `--tmpfs`, and that tmpfs is writable. The write lands in memory inside the sandbox and is gone with it; on macOS the same write is refused. The test stops at the probe's output, so its last assertion, that the real data directory is unchanged, did not run on Linux: that the real directory is untouched is read from the mechanism, not observed. The test is left as it is. Whether a check may write to a discarded shadow of the home and data directories is a contract question ("Write only its own temporary directory", [check recipes](../../../app/docs/check-recipes.md#environment-policy)), and a tmpfs a check can fill is memory the check can take.
+
+Open on Linux, for Astra under RD-009:
 
 - Cluster C: whether the product recovers a recipe's own exit signal behind the wrapper chain (a Host-owned shim in the sandbox) or the contract states the Linux behaviour.
-- The Host confirms the exit of its guard's process group; bubblewrap's `--new-session` puts the sandboxed tree outside that group, so on Linux a check may settle before its last process is reaped. The process tests stay strict so that a Linux run shows it.
+- Cluster F: whether the denied directories must be read-only inside the sandbox as well, or the contract states that on Linux they are an empty, discarded scratch; and in either case a Linux assertion that the real directories are unchanged.
+- The Host confirms the exit of its guard's process group; bubblewrap's `--new-session` puts the sandboxed tree outside that group, so on Linux a check may settle before its last process is reaped. The strict process scans passed in this one run; one run does not show the ordering holds.
 - The Host's group signal does not reach a recipe behind `--new-session`; the recipe ends by SIGKILL through `--die-with-parent`. The contract's "Process lifetime" does not say so.
 - An install reached through a symlink under the home directory (`npm link`, pnpm) hides the helper again: the policy allows the helper's real directory, the library runs the unresolved path.
 
@@ -221,7 +233,7 @@ Three reviewers who wrote none of it read `6692b91..a8025d8` by slice (Host, Sto
 
 ## Not run
 
-- Linux, in any form: the sandbox fix, the changed oracles and the workflow change are unverified there. A Linux run needs a branch on `origin`, which needs the user's word.
+- Linux beyond the one workflow run recorded under package 5. Nothing was run on a Linux machine by hand; cluster C and cluster F are read from logs and library source.
 - No real provider or model; no person has used any of it.
 - Browser: only the Matter form draft script, by its author. No screen reader, zoom, touch, Safari or forced-colors check.
 - Pages build in CI; no deployment.
