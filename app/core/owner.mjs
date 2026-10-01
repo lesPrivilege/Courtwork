@@ -104,6 +104,15 @@ export function workProjection(view, { extension, writable = false, contractVers
   };
 }
 
+// A file bundle's paths are not in its text. State the bundle from the Core's
+// own summary and name the listing tool, so a Run that knows only the Matter
+// can reach the files. An undecodable bundle has no count and states nothing.
+function bundleStatement(candidate, target) {
+  const files = candidate?.files;
+  if (!Number.isSafeInteger(files?.fileCount)) return {};
+  return {files:{kind:'file-bundle',fileCount:files.fileCount,byteLength:files.byteLength,bundleDigest:files.bundleDigest,list:{tool:'se_list_files',...target}}};
+}
+
 export function compileWorkContext(view, limit = 24000) {
   let artifact = null;
   if (view.artifact) {
@@ -120,12 +129,13 @@ export function compileWorkContext(view, limit = 24000) {
       lengthCodePoints:Array.from(a.content).length,acceptedVersion:decision?.result?.version ?? null,
       sourceVersion:origin?.source_version ?? null,contractVersion:origin?.contract_version ?? null,
       basis:{current:reasons.length === 0,reasons},
-      read:{tool:'se_read_artifact',artifactId:a.id,offset:0,limit:4000}};
+      read:{tool:'se_read_artifact',artifactId:a.id,offset:0,limit:4000},
+      ...bundleStatement(origin,{artifactId:a.id})};
   }
   const required = { schemaVersion: 3, domain: view.domain ?? null, matter: view.matter, artifact,
     sourceRefs: view.sources.map(({id,version,digest}) => ({id,version,digest})),
     pending: view.candidates.filter(c => c.status === 'pending').map(c => ({id:c.id,baseVersion:c.base_version,
-      sourceVersion:c.source_version,contractVersion:c.contract_version,basis:candidateBasis(c,view.matter),domain:c.domain})) };
+      sourceVersion:c.source_version,contractVersion:c.contract_version,basis:candidateBasis(c,view.matter),domain:c.domain,...bundleStatement(c,{candidateId:c.id})})) };
   // What the person rejected or asked for since the active Artifact was accepted
   // is what the next producer must answer; every decision produced a Matter
   // version, and the Core lists decisions by request id, so order by that version.
@@ -142,5 +152,6 @@ export function compileWorkContext(view, limit = 24000) {
   while (kept.length < answerable.length && render([...kept, answerable[kept.length]], answerable.length - kept.length - 1).length <= limit) kept.push(answerable[kept.length]);
   const decisionsOmitted = answerable.length - kept.length;
   const text = render(kept, decisionsOmitted);
-  return {text, provenance:{matterId:view.matter.id,stateVersion:view.matter.version,sourceVersion:view.matter.source_version,contractVersion:view.matter.contract_version,selected:['active artifact identity and input basis','obligations','pending candidates and input basis','source references','rejected or evidence-requested decisions since the active artifact, newest first'],omitted:['artifact body available through se_read_artifact','source bodies available through scoped read tool','closed candidate bodies, accepted decisions and execution trace'],decisionsOmitted,characters:text.length,limit}};
+  const bundles = Boolean(artifact?.files) || required.pending.some(p => p.files);
+  return {text, provenance:{matterId:view.matter.id,stateVersion:view.matter.version,sourceVersion:view.matter.source_version,contractVersion:view.matter.contract_version,selected:['active artifact identity and input basis','obligations','pending candidates and input basis','source references','rejected or evidence-requested decisions since the active artifact, newest first',...(bundles ? ['file bundle count, size and digest'] : [])],omitted:['artifact body available through se_read_artifact','source bodies available through scoped read tool','closed candidate bodies, accepted decisions and execution trace',...(bundles ? ['bundle file paths available through se_list_files, file bodies through the file readers'] : [])],decisionsOmitted,characters:text.length,limit}};
 }

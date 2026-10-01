@@ -5,12 +5,12 @@ const CONTRACT_VERSION = 'se-contract-v5.0';
 const PRESET_VERSION = 'evidence-memo-development-1';
 export function createEvidenceMemo({dataDir,core}) {
   // The base manifest remains the shared three-tool contract used by
-  // inbound-nda. Evidence Memo's factory advertises the two file readers so
+  // inbound-nda. Evidence Memo's factory advertises the file readers and listing so
   // the host's declared-tool gate accepts the opt-in file-memo profile while
   // the NDA adapter does not inherit those tools.
   const fileMemoManifest = Object.freeze({
     ...manifest,
-    declaredTools: [...manifest.declaredTools, 'se_read_candidate_file', 'se_read_artifact_file'],
+    declaredTools: [...manifest.declaredTools, 'se_read_candidate_file', 'se_read_artifact_file', 'se_list_files'],
   });
   return new WorkExtension({dataDir,core,manifest:fileMemoManifest,contractVersion:CONTRACT_VERSION,presetVersion:PRESET_VERSION});
 }
