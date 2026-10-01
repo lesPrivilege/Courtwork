@@ -3371,7 +3371,9 @@ export class RuntimeService {
       if (current && !terminal(current.status)) {
         // An explicit cancel accepted before this write settles the Run cancelled
         // even if the runtime had already completed; the native outcome stays in
-        // its own evidence (review D2, same rule as the Local Pi contract).
+        // its own evidence (review D2, same rule as the Local Pi contract). No
+        // await may separate reading the cancel intent from queueing this write:
+        // cancelRun sets the intent in the step that queues `stopping`.
         const finalStatus = entry.closeError || entry.budget.reason || entry.externalUnknown || !["completed", "canceled", "failed"].includes(extensionOutcome)
           ? "unknown" : entry.cancelRequested || extensionOutcome === "canceled" ? "cancelled" : extensionOutcome === "failed" ? "failed" : "completed";
         const partials = entry.stream?.settle(finalStatus) ?? [];
@@ -3557,6 +3559,10 @@ export class RuntimeService {
     const entry = this.active.get(runId);
     // The terminal check is repeated inside the write: a completion queued
     // before this cancel wins, and the Run is returned as it settled (review D1).
+    // The cancel intent is set in the same synchronous step that queues
+    // `stopping`, so a completion deciding its status after this point queues
+    // `cancelled` behind it and can never queue `completed` (review D2).
+    if (entry) entry.cancelRequested = true;
     const stopping = await this.store.updateRunIfActive(runId, { status: "stopping", admissionOpen: false }, {
       type: "run.status",
       data: { status: "stopping" },
@@ -3572,7 +3578,6 @@ export class RuntimeService {
       await this.store.cancelQuestionsForRun(runId).catch(() => {});
       return { run: unknown.run };
     }
-    entry.cancelRequested = true;
     await this.asyncTasks.cancelOrigin(runId);
     if (entry.extensionRun?.close) {
       try {

@@ -83,6 +83,35 @@ test("D2: a cancel accepted before the terminal write settles cancelled and keep
   } finally { await h.runtime.close(); }
 });
 
+test("D2: a cancel issued while the completion waits in its bookkeeping settles cancelled even when the completion resumes first", async () => {
+  const h = await boot();
+  try {
+    const store = h.runtime.store; const service = h.runtime.service;
+    const session = await h.createSession();
+    // Issue the cancel in the same tick the completion queues its usage write:
+    // `stopping` is queued behind that write, so the completion resumes while
+    // `stopping` is still persisting and the cancel has not continued. No
+    // artificial delay.
+    const recordUsage = store.recordUsage.bind(store);
+    let cancelled;
+    store.recordUsage = (id, ...rest) => {
+      const pending = recordUsage(id, ...rest);
+      if (!cancelled) cancelled = service.cancelRun(id, {});
+      return pending;
+    };
+    const created = await h.api("POST", `/sessions/${session.id}/runs`, { input: "hello", commandId: "d2-resume" });
+    const runId = created.json.run.id;
+    await h.pollRun(runId);
+    assert.ok(cancelled, "the cancel was issued inside the completion's bookkeeping");
+    const returned = await cancelled;
+    assert.equal(returned.run.status, "cancelled");
+    assert.equal(store.getRun(runId).status, "cancelled");
+    const answers = store.listEvents({ sessionId: session.id, runId }).filter((e) => e.type === "assistant.message" && !e.data.partial);
+    assert.ok(answers.length >= 1, "the completed answer remains as evidence");
+    assert.deepEqual(statuses(h, session.id, runId), ["running", "stopping", "cancelled"]);
+  } finally { await h.runtime.close(); }
+});
+
 test("D3: an exception while a cancel is pending settles unknown and keeps the error", async () => {
   // Cancel only once the runtime is executing: a cancel before start is a
   // confirmed cancellation with nothing run, which is a different case.
