@@ -112,6 +112,30 @@ test("D2: a cancel issued while the completion waits in its bookkeeping settles 
   } finally { await h.runtime.close(); }
 });
 
+test("D2: a cancel whose stopping write fails is reported as failed and leaves no cancel intent", async () => {
+  const h = await boot();
+  try {
+    const store = h.runtime.store; const service = h.runtime.service;
+    const session = await h.createSession();
+    // Hold the completion in its bookkeeping, refuse the one `stopping` write,
+    // then let the completion go: it must decide as if no cancel was asked.
+    const recordUsage = store.recordUsage.bind(store);
+    let inWindow; const reached = new Promise((resolve) => { inWindow = resolve; });
+    let release; const held = new Promise((resolve) => { release = resolve; });
+    store.recordUsage = async (...args) => { inWindow(); await held; return recordUsage(...args); };
+    const updateRunIfActive = store.updateRunIfActive.bind(store);
+    store.updateRunIfActive = (id, patch, ...rest) => patch.status === "stopping"
+      ? Promise.reject(new Error("write refused")) : updateRunIfActive(id, patch, ...rest);
+    const created = await h.api("POST", `/sessions/${session.id}/runs`, { input: "hello", commandId: "d2-refused" });
+    const runId = created.json.run.id;
+    await reached;
+    await assert.rejects(service.cancelRun(runId, {}), /write refused/);
+    release();
+    assert.equal((await h.pollRun(runId)).status, "completed");
+    assert.deepEqual(statuses(h, session.id, runId), ["running", "completed"]);
+  } finally { await h.runtime.close(); }
+});
+
 test("D3: an exception while a cancel is pending settles unknown and keeps the error", async () => {
   // Cancel only once the runtime is executing: a cancel before start is a
   // confirmed cancellation with nothing run, which is a different case.

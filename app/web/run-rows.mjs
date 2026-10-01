@@ -37,10 +37,11 @@ export function toolGlyph(name) {
  * those facts, not as the model's retelling of them; exit 0 is not
  * acceptance of anything. */
 export function appendCheckDetails(container, check) {
+  const processes = checkProcessesWord(check);
   const facts = [
     ["Recipe", check.recipeId ? `${check.recipeId}${check.recipeVersion ? ` v${check.recipeVersion}` : ""}` : "unknown"],
     ["Outcome", checkStateWord(check)],
-    ...(checkProcessesWord(check) ? [["Processes", checkProcessesWord(check)]] : []),
+    ...(processes ? [["Processes", processes]] : []),
     ...(check.signal ? [["Signal", check.signal]] : []),
     ...(Number.isFinite(check.durationMs) ? [["Duration", `${(check.durationMs / 1000).toFixed(1)} s`]] : []),
     ...(check.truncated?.stdout || check.truncated?.stderr ? [["Output", "cut at the Host limit"]] : []),

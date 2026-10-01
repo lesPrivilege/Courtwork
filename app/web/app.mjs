@@ -98,7 +98,6 @@ import {
   toolStateWord,
   canAnswer,
   validPermission,
-  checkStateWord,
   unfinishedToolWord,
 } from "./thread-projection.mjs";
 import { runBinding, openApprovalBasis, recordedApprovalBasis } from "./approval-basis.mjs";

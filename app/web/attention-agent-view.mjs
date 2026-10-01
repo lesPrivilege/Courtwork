@@ -40,6 +40,9 @@ export function renderAttentionApproval(row, { run, events, disabled = false, ex
     // The shared title names the request; the disclosure inside keeps its place across rebuilds.
     const details = basis.nodes.find(node => String(node.tagName).toLowerCase() === 'details');
     if (details) { details.setAttribute('data-row', `${row.id}:details`); details.open = expanded.has(`${row.id}:details`); }
+    // Focus on the disclosure or its Copy survives a rebuild of the stream, like the answer buttons.
+    details?.querySelector('summary')?.setAttribute('data-agent-focus', `${row.id}:basis`);
+    details?.querySelector('button')?.setAttribute('data-agent-focus', `${row.id}:copy`);
     const nodes = [el('p', { text: row.prompt }), el('div', { className: 'attention-approval-basis' }, ...basis.nodes)];
     // The Chat card's words: the answer names what it answers (a check, a write, an action).
     for (const [label, decision] of [[`Deny this ${basis.display.noun}`,'deny'],[`Approve this ${basis.display.noun}`,'allow']]) {
@@ -59,6 +62,7 @@ export function renderAttentionApproval(row, { run, events, disabled = false, ex
   const record = el('details', { className: 'attention-approval-basis' },
     el('summary', { text: `${basis.display.target} · ${basis.meta}` }), ...basis.nodes);
   record.setAttribute('data-row', row.id); record.open = expanded.has(row.id);
+  record.querySelector('summary')?.setAttribute('data-agent-focus', `${row.id}:record`);
   return [...heading(), record];
 }
 
