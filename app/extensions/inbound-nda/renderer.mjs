@@ -45,6 +45,18 @@ function requestKey(payload) {
   ]);
 }
 
+/* The same rule for a revision: `new_candidate_id` is its identity. One per
+ * (parent candidate, base version, domain payload), so a retry after a lost
+ * acknowledgement resends the same request and the Host answers with the
+ * revision it already saved. An edited payload is a different revision. */
+function revisionKey(payload) {
+  return JSON.stringify([
+    payload.candidate_id,
+    payload.base_version,
+    payload.proposal.domain,
+  ]);
+}
+
 function newId(prefix) {
   const random = globalThis.crypto?.randomUUID
     ? globalThis.crypto.randomUUID()
@@ -77,6 +89,7 @@ export function mount({ container, projection, dispatch, signal, query } = {}) {
   const expanded = new Set();
   const revisions = new Map();
   const requestIds = new Map();
+  const revisionIds = new Map();
   const notices = new Map();
   const busy = new Set();
 
@@ -287,12 +300,13 @@ export function mount({ container, projection, dispatch, signal, query } = {}) {
     });
     const payload = {
       candidate_id: advertised.candidateId,
-      /* A fresh identity per attempt: Core refuses a reused id whose content
-       * changed, and a revision has no idempotent receipt to replay. */
-      new_candidate_id: newId("revision"),
+      new_candidate_id: "",
       base_version: advertised.baseVersion,
       proposal: { domain },
     };
+    const identity = revisionKey(payload);
+    if (!revisionIds.has(identity)) revisionIds.set(identity, newId("revision"));
+    payload.new_candidate_id = revisionIds.get(identity);
     busy.add(key);
     notice(key, "info", SENDING);
     render();
@@ -300,9 +314,16 @@ export function mount({ container, projection, dispatch, signal, query } = {}) {
       await dispatch("revise_candidate", payload);
       if (!live()) return;
       revisions.delete(candidate.id);
+      revisionIds.delete(identity);
       notice(key, null, null);
     } catch (error) {
       if (!live()) return;
+      /* As for a decision: a coded refusal settles the request and nothing was
+       * saved under that identity, so the next attempt is a new revision. With
+       * no acknowledgement the revision may exist; the identity is kept and the
+       * same bytes are sent again. Nothing is replayed automatically (FN-19). */
+      const refused = Number.isFinite(error?.status) && error.status < 500;
+      if (refused) revisionIds.delete(identity);
       notice(key, "error", error.message);
     } finally {
       busy.delete(key);

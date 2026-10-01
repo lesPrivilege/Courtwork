@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {readFile, rm} from 'node:fs/promises';
-import {fileURLToPath} from 'node:url';
+import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {fileURLToPath, pathToFileURL} from 'node:url';
+import {withTinyDom, flush} from './tiny-dom.mjs';
 import {boot} from './helpers.mjs';
 import {workPacket, candidateActions, decisionWords, shortRef} from '../web/surface-modules.mjs';
 
@@ -111,3 +114,69 @@ test('a domain payload this build cannot decode is not read as findings', () => 
   assert.equal(packet.candidates[0].artifactText, bumped.candidates[0].artifact_text);
   assert.equal(shortRef(packet.candidates[0].id).length, 21);
 });
+
+// The module names the host's kit by its served paths; point those at the same
+// files on disk so the delivered bytes themselves are mounted, not a stand-in.
+async function loadRenderer(t) {
+  const dir = await mkdtemp(path.join(tmpdir(), 'cw-nda-renderer-'));
+  t.after(() => rm(dir, {recursive: true, force: true}));
+  const web = new URL('../web/', import.meta.url).href;
+  const file = path.join(dir, 'renderer.mjs');
+  await writeFile(file, (await readFile(rendererPath, 'utf8')).replaceAll('from "/web/', `from "${web}`));
+  return import(pathToFileURL(file).href);
+}
+const saveButton = (container) => container.querySelectorAll('button').find((button) => button.textContent === 'Save this revision');
+async function save(container) { saveButton(container).click(); await flush(); }
+const lost = () => Object.assign(new Error('Failed to fetch'), {name: 'TypeError'});
+const coded = (status, code) => Object.assign(new Error(code), {status, body: {error: {code}}});
+
+test('a revision keeps its identity until the Host settles it: a lost reply resends it, a refusal or an edit starts another', (t) => withTinyDom(async (container) => {
+  const {mount} = await loadRenderer(t);
+  const sent = [];
+  let answer = () => { throw lost(); };
+  mount({container, projection: structuredClone(packets.pending.projection), dispatch: async (action, payload) => {
+    sent.push(structuredClone({action, payload}));
+    return answer(payload);
+  }});
+  assert.ok(saveButton(container), 'the revision form is drawn');
+
+  // No reply at all, then a 503 whose outcome is unknown: both leave the
+  // revision possibly saved, so the next attempt is the same request.
+  await save(container);
+  answer = () => { throw Object.assign(coded(503, 'CORE_TIMEOUT'), {outcome: 'unknown'}); };
+  await save(container);
+  answer = () => { throw coded(500, 'internal'); };
+  await save(container);
+  assert.equal(sent.length, 3);
+  assert.equal(sent[0].action, 'revise_candidate');
+  assert.match(sent[0].payload.new_candidate_id, /^revision-/);
+  assert.equal(sent[1].payload.new_candidate_id, sent[0].payload.new_candidate_id, 'a retry after a lost reply reuses the revision identity');
+  assert.deepEqual(sent[1], sent[0]);
+  assert.deepEqual(sent[2], sent[0]);
+  assert.match(container.textContent, /internal/, 'the person still reads the failure');
+  assert.equal(saveButton(container).disabled, false);
+
+  // An edited payload is another revision.
+  const status = container.querySelectorAll('input').find((input) => input.getAttribute('name')?.startsWith('status-'));
+  status.value = 'needs_review';
+  status.dispatchEvent({type: 'input', target: status});
+  answer = () => { throw lost(); };
+  await save(container);
+  assert.notEqual(sent[3].payload.new_candidate_id, sent[0].payload.new_candidate_id);
+  assert.equal(sent[3].payload.proposal.domain.findings[0].status, 'needs_review');
+
+  // A coded refusal settles the request: nothing was saved under that id.
+  answer = () => { throw coded(409, 'REVIEW_INVALID'); };
+  await save(container);
+  assert.deepEqual(sent[4], sent[3], 'the retry after the lost reply was still the same request');
+  answer = () => { throw lost(); };
+  await save(container);
+  assert.notEqual(sent[5].payload.new_candidate_id, sent[4].payload.new_candidate_id, 'a refused revision does not keep its identity');
+  assert.deepEqual(sent[5].payload.proposal, sent[4].payload.proposal);
+
+  // Success settles it too: the same content saved again is a new revision.
+  answer = () => ({});
+  await save(container);
+  assert.equal(sent[6].payload.new_candidate_id, sent[5].payload.new_candidate_id);
+  assert.equal(new Set(sent.map((entry) => entry.payload.new_candidate_id)).size, 3);
+}));
