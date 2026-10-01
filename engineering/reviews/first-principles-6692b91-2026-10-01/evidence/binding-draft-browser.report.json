@@ -1,0 +1,142 @@
+{
+  "source": {
+    "commit": "04f330a67a2446bdfa383d340f5a8b04ddf0cd89",
+    "productTree": "6f50d22c18f90c6a124ea81b569520cc7c421bd2",
+    "uncommittedProductPaths": []
+  },
+  "capturedAt": "2026-10-01T13:40:57.720Z",
+  "origin": "disposable Host, local fake provider",
+  "environment": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "devicePixelRatio": 1,
+    "pointer": "fine",
+    "hover": true,
+    "rootFontSize": "14px",
+    "colorScheme": "light",
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+    "input": "CDP Input.insertText into the focused field; clicks through element.click()"
+  },
+  "extension": "This chat keeps its history and its project; continuing in Work binds it to a Matter that Evidence Memo (development) owns. Nothing is copied and nothing is moved. That extension validates the fields below; this page only renders what its manifest declares.",
+  "checks": [
+    {
+      "name": "the form opens with the first field focused and the read still out",
+      "pass": true,
+      "expected": {
+        "focus": "title",
+        "note": "Reading the work this project already owns…"
+      },
+      "actual": {
+        "focus": "title",
+        "note": "Reading the work this project already owns…"
+      }
+    },
+    {
+      "name": "after the read lands: every field value",
+      "pass": true,
+      "expected": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      },
+      "actual": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      }
+    },
+    {
+      "name": "after the read lands: focus and selection",
+      "pass": true,
+      "expected": {
+        "focus": "sourceText",
+        "selection": [
+          7,
+          11
+        ]
+      },
+      "actual": {
+        "focus": "sourceText",
+        "selection": [
+          7,
+          11
+        ]
+      }
+    },
+    {
+      "name": "Cancel closes the form",
+      "pass": true,
+      "expected": false,
+      "actual": false
+    },
+    {
+      "name": "reopened after Cancel: every field value",
+      "pass": true,
+      "expected": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      },
+      "actual": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      }
+    },
+    {
+      "name": "another chat's form is its own",
+      "pass": true,
+      "expected": {
+        "title": "",
+        "sourceText": ""
+      },
+      "actual": {
+        "title": "",
+        "sourceText": ""
+      }
+    },
+    {
+      "name": "back in the first chat: every field value",
+      "pass": true,
+      "expected": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      },
+      "actual": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      }
+    },
+    {
+      "name": "after a reload: every field value",
+      "pass": true,
+      "expected": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      },
+      "actual": {
+        "title": "Renewal window memo",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      }
+    },
+    {
+      "name": "after the read fails: every field value",
+      "pass": true,
+      "expected": {
+        "title": "Renewal window memo (rev 2)",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      },
+      "actual": {
+        "title": "Renewal window memo (rev 2)",
+        "sourceText": "Clause 14.2: the tenant may renew by written notice\nnot later than 180 days before expiry."
+      }
+    },
+    {
+      "name": "after the read fails: focus stays in the field being typed",
+      "pass": true,
+      "expected": "title",
+      "actual": "title"
+    }
+  ],
+  "errors": [],
+  "failedReadNote": "The local runtime could not be reached.",
+  "passed": true
+}
