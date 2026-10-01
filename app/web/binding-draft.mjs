@@ -15,20 +15,29 @@
  *
  * Storage follows Home's draft (`storeHomeDraft` in app.mjs): the tab's
  * sessionStorage, best effort, never a reason to stop someone typing. One entry
- * per draft, so a keystroke rewrites only its own. A draft longer than
- * `BINDING_DRAFT_STORED_LIMIT` characters in total — the length Home's draft is
- * restored up to — stays in memory only and survives everything but a reload.
+ * per draft, so a keystroke rewrites only its own. The stored bound is the
+ * form's own: each field is stored up to the `maxLength` its manifest declares
+ * (a field that declares none, up to `BINDING_DRAFT_FIELD_LIMIT`), with no cap
+ * on the sum, so a draft the form allows survives a reload. A store that
+ * refuses the write (quota, blocked) costs persistence only: the draft stays
+ * in memory and the entry is removed, so an older copy never comes back.
+ * Reading back knows no manifest, so it applies only a sanity cap per value,
+ * `BINDING_DRAFT_VALUE_CEILING` — the largest `maxLength` the extension
+ * registry admits; what was stored was already cut to its field's limit.
  *
  * Nearest precedent: local-extension-view.mjs and workspace-card.mjs (a
  * view-owned value updated on `input`; focus and selection restored after the
  * rebuild by a `data-…-field` key). */
 import { el } from "./ui-controls.mjs";
 
-export const BINDING_DRAFT_STORED_LIMIT = 100000;
+export const BINDING_DRAFT_FIELD_LIMIT = 100000;
+export const BINDING_DRAFT_VALUE_CEILING = 1000000;
 const FIELD = "data-binding-field";
 
 export function createBindingDraft({ storage = () => null, prefix }) {
   const drafts = new Map();
+  // Per draft, the stored limit of each field the form has declared so far.
+  const limits = new Map();
   const keyOf = (sessionId, extensionId) => `${prefix}:${sessionId}:${extensionId}`;
   // A blocked or full browser store must not block typing: memory is the owner.
   const stored = (act) => {
@@ -42,15 +51,15 @@ export function createBindingDraft({ storage = () => null, prefix }) {
     const saved = stored((store) => JSON.parse(store.getItem(key) || "null"));
     if (saved && typeof saved === "object" && !Array.isArray(saved))
       for (const [name, value] of Object.entries(saved))
-        if (typeof value === "string" && value) values[name] = value.slice(0, BINDING_DRAFT_STORED_LIMIT);
+        if (typeof value === "string" && value) values[name] = value.slice(0, BINDING_DRAFT_VALUE_CEILING);
     drafts.set(key, values);
     return values;
   }
   function persist(key, values) {
     const names = Object.keys(values);
-    const length = names.reduce((sum, name) => sum + values[name].length, 0);
-    const kept = names.length > 0 && length <= BINDING_DRAFT_STORED_LIMIT
-      && stored((store) => (store.setItem(key, JSON.stringify(values)), true));
+    const bound = limits.get(key) ?? {};
+    const entry = Object.fromEntries(names.map((name) => [name, values[name].slice(0, bound[name] ?? BINDING_DRAFT_FIELD_LIMIT)]));
+    const kept = names.length > 0 && stored((store) => (store.setItem(key, JSON.stringify(entry)), true));
     // An entry that could not be written is removed rather than left behind:
     // an older copy must not come back after a reload as if it were current.
     if (!kept) stored((store) => store.removeItem(key));
@@ -59,8 +68,9 @@ export function createBindingDraft({ storage = () => null, prefix }) {
   function values(sessionId, extensionId) {
     return { ...load(keyOf(sessionId, extensionId)) };
   }
-  function set(sessionId, extensionId, name, value) {
+  function set(sessionId, extensionId, name, value, maxLength = null) {
     const key = keyOf(sessionId, extensionId), draft = load(key);
+    if (Number.isFinite(maxLength) && maxLength > 0) limits.set(key, { ...limits.get(key), [name]: maxLength });
     if (value) draft[name] = String(value);
     else delete draft[name];
     persist(key, draft);
@@ -68,11 +78,13 @@ export function createBindingDraft({ storage = () => null, prefix }) {
   function clear(sessionId, extensionId) {
     const key = keyOf(sessionId, extensionId);
     drafts.delete(key);
+    limits.delete(key);
     stored((store) => store.removeItem(key));
   }
   function forgetSession(sessionId) {
     const own = `${prefix}:${sessionId}:`;
     for (const key of [...drafts.keys()]) if (key.startsWith(own)) drafts.delete(key);
+    for (const key of [...limits.keys()]) if (key.startsWith(own)) limits.delete(key);
     stored((store) => {
       const keys = [];
       for (let index = 0; index < store.length; index++) keys.push(store.key(index));
@@ -96,7 +108,7 @@ export function createBindingDraft({ storage = () => null, prefix }) {
       if (field.required) control.required = true;
       if (Number.isFinite(field.maxLength) && field.maxLength > 0) control.maxLength = field.maxLength;
       control.value = draft[field.name] ?? "";
-      control.addEventListener("input", () => set(sessionId, extension.id, field.name, control.value));
+      control.addEventListener("input", () => set(sessionId, extension.id, field.name, control.value, field.maxLength));
       label.append(control);
       if (field.maxLength) label.append(el("small", { text: `Maximum ${field.maxLength} characters.` }));
       node.append(label);

@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { readFileSync } from "node:fs";
-import { createBindingDraft, BINDING_DRAFT_STORED_LIMIT } from "../web/binding-draft.mjs";
+import { createBindingDraft, BINDING_DRAFT_FIELD_LIMIT } from "../web/binding-draft.mjs";
 import { el } from "../web/ui-controls.mjs";
 import { withTinyDom, deferred, flush } from "./tiny-dom.mjs";
 
@@ -180,7 +180,19 @@ test("N5 · a Session read that shows the binding ends the draft even when the b
   assert.deepEqual(h.bindingDraft.values("s1", NDA.id), { title: "kept for the other extension" }, "only that Session and extension");
 }));
 
-test("N5 · the owner: one stored entry per draft, forgotten with its Session, memory-only past the stored limit, never blocked by storage", () => {
+test("N5 · a draft the form allows survives a reload: title, a 100,000-character source and NDA facts", () => withTinyDom(async (body) => {
+  const storage = memoryStorage();
+  const full = { title: "Mutual NDA — Harborview", sourceText: "x".repeat(100000), facts: "Counterparty: Harborview\nTerm: 3 years" };
+  const h = panelHarness(body, { storage, session: chat("s1"), request: async () => ({ matters: [] }) });
+  h.open(NDA);
+  for (const [name, text] of Object.entries(full)) h.type(name, text);
+  assert.equal(JSON.parse(storage.items.get(`${PREFIX}:s1:${NDA.id}`)).sourceText.length, 100000, "stored whole: no cap on the sum");
+  const reloaded = panelHarness(document.createElement("main"), { storage, session: chat("s1"), request: async () => ({ matters: [] }) });
+  reloaded.open(NDA);
+  assert.deepEqual(reloaded.values(), full);
+}));
+
+test("N5 · the owner: one stored entry per draft, forgotten with its Session, stored up to each field's limit, never blocked by storage", () => {
   const storage = memoryStorage();
   const draft = createBindingDraft({ storage: () => storage, prefix: PREFIX });
   draft.set("s1", "evidence-memo", "title", "A");
@@ -196,13 +208,25 @@ test("N5 · the owner: one stored entry per draft, forgotten with its Session, m
   draft.set("s2", "evidence-memo", "title", "");
   assert.equal(storage.items.size, 0);
 
-  // Past the length Home's draft is restored up to, the draft is kept in memory and no stale copy stays stored.
-  draft.set("s3", "evidence-memo", "title", "T");
-  assert.equal(storage.items.size, 1);
-  draft.set("s3", "evidence-memo", "sourceText", "x".repeat(BINDING_DRAFT_STORED_LIMIT));
-  assert.equal(storage.items.size, 0, "the smaller, older copy is removed, not left to come back after a reload");
-  assert.equal(draft.values("s3", "evidence-memo").sourceText.length, BINDING_DRAFT_STORED_LIMIT);
-  assert.deepEqual(createBindingDraft({ storage: () => storage, prefix: PREFIX }).values("s3", "evidence-memo"), {});
+  // The stored bound is each field's own: its declared maxLength, or the default for a field that declares none.
+  draft.set("s3", "evidence-memo", "title", "T".repeat(200), 120);
+  draft.set("s3", "evidence-memo", "note", "n".repeat(BINDING_DRAFT_FIELD_LIMIT + 5));
+  const entry = JSON.parse(storage.items.get(`${PREFIX}:s3:evidence-memo`));
+  assert.deepEqual([entry.title.length, entry.note.length], [120, BINDING_DRAFT_FIELD_LIMIT]);
+  assert.equal(draft.values("s3", "evidence-memo").title.length, 200, "memory keeps what was typed");
+  draft.clear("s3", "evidence-memo");
+
+  // A store that refuses the write (quota) keeps the draft in memory and removes the older entry.
+  const quota = memoryStorage(), write = quota.setItem;
+  const tight = createBindingDraft({ storage: () => quota, prefix: PREFIX });
+  tight.set("s4", "evidence-memo", "title", "first");
+  assert.equal(quota.items.size, 1);
+  quota.setItem = () => { throw new Error("QuotaExceededError"); };
+  tight.set("s4", "evidence-memo", "sourceText", "x".repeat(100000), 100000);
+  assert.equal(quota.items.size, 0, "the older, smaller copy is removed, not left to come back after a reload");
+  assert.equal(tight.values("s4", "evidence-memo").sourceText.length, 100000);
+  quota.setItem = write;
+  assert.deepEqual(createBindingDraft({ storage: () => quota, prefix: PREFIX }).values("s4", "evidence-memo"), {});
 
   // A store that throws, or is absent, costs persistence only.
   const blocked = createBindingDraft({ storage: () => { throw new Error("SecurityError"); }, prefix: PREFIX });
