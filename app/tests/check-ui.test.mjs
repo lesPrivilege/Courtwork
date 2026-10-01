@@ -65,13 +65,18 @@ test("F5 · a stopped check whose processes could not be confirmed gone says so 
   const checkOf = (events) => projectThread(events, [{ ...run, status: "completed" }], "s1").rows.find(r => r.kind === "tool");
   const details = (check) => { const box = document.createElement("div"); appendCheckDetails(box, check); return box; };
   const lingered = checkOf(settled({ groupLingered: true })), plain = checkOf(settled({}));
-  // The Host's outcome word is not replaced by the further fact.
-  assert.equal(toolStateWord(lingered, "completed"), "Timed out");
+  // The Host's outcome word is kept; the closed row adds the further fact after it.
+  assert.equal(checkStateWord(lingered.check), "Timed out");
+  assert.equal(toolStateWord(lingered, "completed"), "Timed out · processes not confirmed stopped");
+  assert.equal(toolStateWord(plain, "completed"), "Timed out");
   assert.equal(checkProcessesWord(lingered.check), "Could not be confirmed stopped");
   assert.equal(checkProcessesWord(plain.check), null);
   for (const absent of [undefined, null, {}, { groupLingered: false }, { groupLingered: "true" }, { groupLingered: 1 }])
     assert.equal(checkProcessesWord(absent), null, "only the Host's own true says it");
   assert.equal(checkProcessesWord({ status: "cancelled", groupLingered: true }), "Could not be confirmed stopped");
+  assert.equal(toolStateWord({ check: { status: "cancelled", groupLingered: true } }, "cancelled"), "Cancelled · processes not confirmed stopped", "the closed row says it");
+  assert.equal(toolStateWord({ check: { status: "timed_out", groupLingered: true } }, "completed"), "Timed out · processes not confirmed stopped");
+  assert.equal(toolStateWord({ check: { status: "cancelled" } }, "cancelled"), "Cancelled");
   // In the row: one more fact directly after Outcome; without the field, the output is what it was.
   const facts = (box) => box.querySelector("dl").children.map(node => node.textContent);
   const without = ["Recipe", "node-test v1", "Outcome", "Timed out", "Signal", "SIGKILL", "Duration", "120.0 s"];

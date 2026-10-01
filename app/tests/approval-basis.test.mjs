@@ -46,14 +46,14 @@ test("a check approval shows the same basis in the Chat card and in the Attentio
   }
   assert.equal(popover, chat, "one presentation, two surfaces");
   assert.ok(!chat.includes("after-the-request.mjs"), "a write after the bound revision is not part of this approval");
-  assert.deepEqual(buttons(nodes), ["Deny", "Approve this action"]);
+  assert.deepEqual(buttons(nodes), ["Deny this check", "Approve this check"], "the Chat card's words");
 }));
 
 test("the Attention assistant answers with the surface's own wiring", () => withTinyDom(() => {
   const answered = [];
   const nodes = attention(row(CHECK), { onAnswer: (decision) => answered.push(decision) });
-  nodes.find((node) => node.textContent === "Approve this action").click();
-  nodes.find((node) => node.textContent === "Deny").click();
+  nodes.find((node) => node.textContent === "Approve this check").click();
+  nodes.find((node) => node.textContent === "Deny this check").click();
   assert.deepEqual(answered, ["allow", "deny"]);
   const held = attention(row(CHECK), { disabled: true, onAnswer: (decision) => answered.push(decision) });
   for (const node of held.filter((item) => item.tagName === "button")) node.click();
@@ -67,7 +67,7 @@ test("a file write approval is the same basis on both surfaces", () => withTinyD
     assert.ok(chat.includes(fact), `Chat card states ${fact}`);
   assert.equal(basisOf(nodes).textContent, chat);
   assert.ok(!chat.includes("the model wrote"), "the authored-files list belongs to checks only");
-  assert.deepEqual(buttons(nodes), ["Deny", "Approve this action"]);
+  assert.deepEqual(buttons(nodes), ["Deny this write", "Approve this write"]);
 }));
 
 test("no Approve without the basis: an invalid payload, or a basis that cannot be built", () => withTinyDom(() => {

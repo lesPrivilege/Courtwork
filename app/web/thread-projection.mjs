@@ -236,7 +236,8 @@ export function checkProcessesWord(check) {
   return check?.groupLingered === true ? "Could not be confirmed stopped" : null;
 }
 export function toolStateWord(row, status) {
-  if (row.check) return checkStateWord(row.check);
+  // The closed row says it too: possible leftover processes are not a detail to open a row for.
+  if (row.check) return checkProcessesWord(row.check) ? `${checkStateWord(row.check)} · processes not confirmed stopped` : checkStateWord(row.check);
   if (row.isError) return "Failed";
   if (row.phase === "result") return null;
   if (["created", "running", "waiting_user", "stopping"].includes(status))

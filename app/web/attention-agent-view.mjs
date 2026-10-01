@@ -41,7 +41,8 @@ export function renderAttentionApproval(row, { run, events, disabled = false, ex
     const details = basis.nodes.find(node => String(node.tagName).toLowerCase() === 'details');
     if (details) { details.setAttribute('data-row', `${row.id}:details`); details.open = expanded.has(`${row.id}:details`); }
     const nodes = [el('p', { text: row.prompt }), el('div', { className: 'attention-approval-basis' }, ...basis.nodes)];
-    for (const [label, decision] of [['Deny','deny'],['Approve this action','allow']]) {
+    // The Chat card's words: the answer names what it answers (a check, a write, an action).
+    for (const [label, decision] of [[`Deny this ${basis.display.noun}`,'deny'],[`Approve this ${basis.display.noun}`,'allow']]) {
       const button = el('button', { text: label, attrs: { type: 'button', 'data-agent-focus': `${row.id}:${decision}` } });
       button.disabled = disabled;
       button.addEventListener('click', () => onAnswer(decision)); nodes.push(button);
